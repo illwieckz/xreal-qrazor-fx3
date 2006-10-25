@@ -5840,7 +5840,7 @@ int VSoundMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		Sys_Printf("usage: xmap -vsound [-<switch> [-<switch> ...]] <mapname>\n"
+		Sys_Printf("usage: xmap -vsound [-<switch> [-<switch> ...]] <mapname.bsp>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"
@@ -5930,5 +5930,9 @@ int VSoundMain(int argc, char **argv)
 #ifdef DEBUGNET
 	DebugNet_Shutdown();
 #endif
+
+	// shut down connection
+	Broadcast_Shutdown();
+	
 	return 0;
 }

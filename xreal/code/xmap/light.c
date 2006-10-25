@@ -2381,7 +2381,7 @@ int LightMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		Sys_Printf("usage: xmap -light [-<switch> [-<switch> ...]] <mapname>\n"
+		Sys_Printf("usage: xmap -light [-<switch> [-<switch> ...]] <mapname.bsp>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"
@@ -2439,6 +2439,9 @@ int LightMain(int argc, char **argv)
 
 	end = I_FloatTime();
 	Sys_Printf("%5.0f seconds elapsed\n", end - start);
+	
+	// shut down connection
+	Broadcast_Shutdown();
 
 	return 0;
 }

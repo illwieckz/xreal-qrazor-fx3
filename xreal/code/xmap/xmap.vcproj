@@ -627,6 +627,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\main.c"
+			>
+		</File>
+		<File
 			RelativePath=".\map.c"
 			>
 		</File>

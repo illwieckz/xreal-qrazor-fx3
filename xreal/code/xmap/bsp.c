@@ -369,59 +369,13 @@ void OnlyTextures(void)
 }
 
 
-/*
-============
-main
-============
-*/
-int             LightMain(int argc, char **argv);
-int             VLightMain(int argc, char **argv);
-int             VSoundMain(int argc, char **argv);
-int             VisMain(int argc, char **argv);
-
-int main(int argc, char **argv)
+int BspMain(int argc, char **argv)
 {
 	int             i;
 	double          start, end;
 	char            path[1024];
 
-	Sys_Printf("xmap v1.0s (c) 1999-2006 Id Software, Inc. and XreaL contributors\n");
-
-	if(argc < 2)
-	{
-		Error("usage: xmap [options] mapfile");
-	}
-
-	// check for general program options
-	if(!strcmp(argv[1], "-info"))
-	{
-		Bspinfo(argc - 2, argv + 2);
-		return 0;
-	}
-	if(!strcmp(argv[1], "-light"))
-	{
-		LightMain(argc - 1, argv + 1);
-		return 0;
-	}
-	if(!strcmp(argv[1], "-vlight"))
-	{
-		VLightMain(argc - 1, argv + 1);
-		return 0;
-	}
-	if(!strcmp(argv[1], "-vsound"))
-	{
-		VSoundMain(argc - 1, argv + 1);
-		return 0;
-	}
-	if(!strcmp(argv[1], "-vis"))
-	{
-		VisMain(argc - 1, argv + 1);
-		return 0;
-	}
-
-	// do a bsp if nothing else was specified
-
-	Sys_Printf("---- xmap ----\n");
+	Sys_Printf("---- bsp ----\n");
 
 	tempsource[0] = '\0';
 
@@ -557,9 +511,43 @@ int main(int argc, char **argv)
 		else
 			break;
 	}
-
+	
 	if(i != argc - 1)
-		Error("usage: xmap [options] mapfile");
+	{
+		Sys_Printf("usage: xmap -map2bsp [-<switch> [-<switch> ...]] <mapname.map>\n"
+				"\n"
+				"Switches:\n"
+				"   v              = verbose output\n"
+				"   threads <X>    = set number of threads to X\n"
+				"   nocurves       = don't emit bezier surfaces\n"
+				//"   optimize       = enable optimization\n"
+				//"   breadthfirst   = breadth first bsp building\n"
+				//"   nobrushmerge   = don't merge brushes\n"
+				//"   noliquids                            = don't write liquids to map\n"
+				//"   freetree                             = free the bsp tree\n"
+				//"   nocsg                                = disables brush chopping\n"
+				//"   forcesidesvisible                    = force all sides to be visible\n"
+				//"   grapplereach                         = calculate grapple reachabilities\n"
+				//"   glview     = output a GL view\n"
+				"   draw       = enables drawing\n"
+				//"   noweld     = disables weld\n"
+				//"   noshare    = disables sharing\n"
+				"   notjunc    = disables juncs\n"
+				"   nowater    = disables water brushes\n"
+				//"   noprune    = disables node prunes\n"
+				//"   nomerge    = disables face merging\n"
+				//"   nosubdiv   = disables subdeviding\n"
+				//"   nodetail   = disables detail brushes\n"
+				//"   fulldetail = enables full detail\n"
+				"   onlyents   = only compile entities with bsp\n"
+				//"   micro <volume>\n"
+				//"              = sets the micro volume to the given float\n"
+				"   leaktest   = perform a leak test\n"
+				//"   chop <subdivide_size>\n"
+				//"              = sets the subdivide size to the given float\n"
+				"   TODO list all options\n");
+		exit(0);
+	}
 
 	start = I_FloatTime();
 

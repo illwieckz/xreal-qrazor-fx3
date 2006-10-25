@@ -7,11 +7,11 @@ build commands
 <project version="2.0">
 <var name="xmap">"[EnginePath]xmap.[ExecutableType]"</var>
 <var name="connect"><cond value="[MonitorAddress]">-connect [MonitorAddress]</cond></var>
-<build name="xmap: (single) -bsp">
-<command>[xmap] -v [connect] "[MapFile]"</command>
+<build name="xmap: (single) -map2bsp">
+<command>[xmap] -map2bsp -v [connect] "[MapFile]"</command>
 </build>
-<build name="xmap: (single) -bsp -leaktest">
-<command>[xmap] -v [connect] -leaktest "[MapFile]"</command>
+<build name="xmap: (single) -map2bsp -leaktest">
+<command>[xmap] -map2bsp -v [connect] -leaktest "[MapFile]"</command>
 </build>
 <build name="xmap: (single) -vis">
 <command>[xmap] -vis [connect] "[MapFile]"</command>
@@ -34,8 +34,8 @@ build commands
 <build name="xmap: (single) -onlyents">
 <command>[xmap] [connect] -onlyents "[MapFile]"</command>
 </build>
-<build name="xmap: (test) -bsp -leaktest, -vis -fast">
-<command>[xmap] -v [connect] -leaktest "[MapFile]"</command>
+<build name="xmap: (test) -map2bsp -leaktest, -vis -fast">
+<command>[xmap] -map2bsp -v [connect] -leaktest "[MapFile]"</command>
 <command>[xmap] -vis [connect] -fast "[MapFile]"</command>
 </build>
 

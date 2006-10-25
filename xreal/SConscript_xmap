@@ -14,6 +14,7 @@ xmap_src = [
 'code/xmap/light_trace.c',
 'code/xmap/lightmaps.c',
 'code/xmap/lightv.c',
+'code/xmap/main.c',
 'code/xmap/map.c',
 'code/xmap/mesh.c',
 'code/xmap/misc_model.c',

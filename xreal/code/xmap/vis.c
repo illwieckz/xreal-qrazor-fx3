@@ -1163,7 +1163,7 @@ int VisMain(int argc, char **argv)
 	}
 
 	if(i != argc - 1)
-		Error("usage: vis [-threads #] [-level 0-4] [-fast] [-v] bspfile");
+		Error("usage: vis [-threads #] [-level 0-4] [-fast] [-v] <mapname.bsp>");
 
 #ifdef MREDEBUG
 	start = clock();
@@ -1214,5 +1214,9 @@ int VisMain(int argc, char **argv)
 	end = I_FloatTime();
 	Sys_Printf("%5.2f seconds elapsed\n", end - start);
 #endif
+
+	// shut down connection
+	Broadcast_Shutdown();
+
 	return 0;
 }
