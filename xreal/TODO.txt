@@ -1,9 +1,79 @@
+=== XreaL 1.0 Features ===
+
+base/gfx
+base/icons
+base/menu
+base/models
+base/team_icon
+base/textures
+base/sound
+base/ui/assets
+- replace all left EULA licensed Q3A/TA demo media, look into MEDIA.txt for more details
+
 code/cgame
-- better particle system
-- atmospheric effects
+- add Quake4 Plug 'n' Player Model (PPM) support
+- add better particle effects
+- add atmospheric effects
+- add motion blur and other special effects
+
+code/game
+- add more extensive Lua scripting support
+ - improve game class
+ - improve entity class
+ - improve vector class
+ - allow more existing level entities to be script-controlled
+
+code/qcommon/cm
+- change brush and patch collision code to use
+  optimized continues axis aligned BSP tree per-polygon collisions
 
 code/renderer
 - fix stencil shadow flickering bug
-- allow pure GLSL renderer path
+- add proper water shader with reflection and refraction
+- improve speed and quality of variance shadow mapping
+- support decals on static and dynamic abitrary triangle surfaces
 - finish COLLADA .dae model support ?
-- proper water shader with reflection and refraction
+- support lightmapping on abitrary triangle surfaces ?
+- support Precomputed Irradiance Volumes for static scenes and
+  Precomputed Radiance Transfer for objects within those scenes ?
+  (http://www.ati.com/developer/gdc/GDC2005_PracticalPRT.pdf)
+
+code/ui
+- add Quake4 Plug 'n' Player Model (PPM) support
+
+code/xmap
+- merge AAS compiler into xmap ?
+- finish BSP tree optimizations like merging co-planar faces ?
+- add COLLADA .dae model support ?
+- support lightmapping on abitrary triangle surfaces ?
+
+
+
+=== XreaL 2.0 Features ===
+
+code/qcommon/cm
+- improve collision detection interface to allow creation of contact joints
+
+code/game/bg_physics
+- add rigid body physics library used by client game and server game
+ - rigid body
+  - position
+  - orientation
+  - linear velocity
+  - angular velocity
+  - inertia tensor adjusted mass
+ - rigid body islands
+ - LCP solver
+ - quickstep iterator
+ - ball and socket joint
+ - hinge joint
+ - slider joint
+ - fixed joint
+ - contact joint
+
+code/game
+- make advanced weapon usage of rigid body physics
+
+code/cgame
+- add rag-doll effects
+
