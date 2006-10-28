@@ -3,6 +3,8 @@ import os, string, sys
 Import('env')
 
 xmap_src = [
+#'code/xmap/aas.c',
+#'code/xmap/aas_create.c',
 'code/xmap/brush.c',
 'code/xmap/brush_primit.c',
 'code/xmap/bsp.c',
@@ -22,7 +24,6 @@ xmap_src = [
 'code/xmap/portals.c',
 'code/xmap/prtfile.c',
 'code/xmap/shaders.c',
-'code/xmap/soundv.c',
 'code/xmap/surface.c',
 'code/xmap/terrain.c',
 'code/xmap/tjunction.c',
@@ -91,11 +92,12 @@ xmap_src = [
 
 xmap_env = env.Copy()
 xmap_env.Append(CCFLAGS='-DXMAP')
+#xmap_env.Append(CCFLAGS='-DAAS')
 
 if env['arch'] == 'linux-i386':
 	xmap_src += ['code/xmap/gldraw.c']
 
-	xmap_env.ParseConfig('xml2-config --cflags --libs')
+	xmap_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	xmap_env.ParseConfig('sdl-config --cflags --libs')
 	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
@@ -105,7 +107,7 @@ if env['arch'] == 'linux-i386':
 elif env['arch'] == 'linux-x86_64':
 	xmap_src += ['code/xmap/gldraw.c']
 
-	xmap_env.ParseConfig('xml2-config --cflags --libs')
+	xmap_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	xmap_env.ParseConfig('sdl-config --cflags --libs')
 	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])

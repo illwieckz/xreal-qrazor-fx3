@@ -339,7 +339,7 @@ void AllocateLightmapForSurface(drawSurface_t * ds)
 		vec3_t          normalized;
 		float           len;
 
-		len = VectorNormalize(vecs[i], normalized);
+		len = VectorNormalize2(vecs[i], normalized);
 		VectorScale(normalized, (1.0 / len), vecs[i]);
 		d = DotProduct(vecs[i], plane->normal);
 		d /= plane->normal[axis];

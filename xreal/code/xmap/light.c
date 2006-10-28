@@ -444,7 +444,7 @@ void FindSkyBrushes(void)
 	}
 
 	// default
-	VectorNormalize(sunDirection, sunDirection);
+	VectorNormalize(sunDirection);
 
 	// find the sky shader
 	for(i = 0; i < numDrawSurfaces; i++)
@@ -582,7 +582,7 @@ void CreateEntityLights(void)
 			{
 				GetVectorForKey(e2, "origin", dest);
 				VectorSubtract(dest, dl->origin, dl->normal);
-				dist = VectorNormalize(dl->normal, dl->normal);
+				dist = VectorNormalize(dl->normal);
 				radius = FloatForKey(e, "radius");
 				if(!radius)
 				{
@@ -675,7 +675,7 @@ float PointToPolygonFormFactor(const vec3_t point, const vec3_t normal, const wi
 	for(i = 0; i < w->numpoints; i++)
 	{
 		VectorSubtract(w->p[i], point, dirs[i]);
-		VectorNormalize(dirs[i], dirs[i]);
+		VectorNormalize(dirs[i]);
 	}
 
 	// duplicate first vertex to avoid mod operation
@@ -699,7 +699,7 @@ float PointToPolygonFormFactor(const vec3_t point, const vec3_t normal, const wi
 
 		angle = acos(dot);
 		CrossProduct(dirs[i], dirs[j], triVector);
-		if(VectorNormalize(triVector, triNormal) < 0.0001)
+		if(VectorNormalize2(triVector, triNormal) < 0.0001)
 		{
 			continue;
 		}
@@ -1015,7 +1015,7 @@ void LightingAtSample(vec3_t origin, vec3_t normal, vec3_t color,
 		if(light->type == emit_point)
 		{
 			VectorSubtract(light->origin, origin, dir);
-			dist = VectorNormalize(dir, dir);
+			dist = VectorNormalize(dir);
 			// clamp the distance to prevent super hot spots
 			if(dist < 16)
 			{
@@ -1070,7 +1070,7 @@ void LightingAtSample(vec3_t origin, vec3_t normal, vec3_t color,
 				coneScale = (radiusAtDist - sampleRadius) / 32.0;
 			}
 
-			dist = VectorNormalize(dir, dir);
+			dist = VectorNormalize(dir);
 			// clamp the distance to prevent super hot spots
 			if(dist < 16)
 			{
@@ -1083,7 +1083,7 @@ void LightingAtSample(vec3_t origin, vec3_t normal, vec3_t color,
 		else if(light->type == emit_area)
 		{
 			VectorSubtract(light->origin, origin, dir);
-			dist = VectorNormalize(dir, dir);
+			dist = VectorNormalize(dir);
 			// clamp the distance to prevent super hot spots
 			if(dist < 16)
 			{
@@ -1282,7 +1282,7 @@ mesh_t         *LinearSubdivideMesh(mesh_t * in)
 			vout->normal[1] = 0.75 * v1->normal[1] + 0.25 * v2->normal[1];
 			vout->normal[2] = 0.75 * v1->normal[2] + 0.25 * v2->normal[2];
 
-			VectorNormalize(vout->normal, vout->normal);
+			VectorNormalize(vout->normal);
 
 			vout++;
 
@@ -1294,7 +1294,7 @@ mesh_t         *LinearSubdivideMesh(mesh_t * in)
 			vout->normal[1] = 0.25 * v1->normal[1] + 0.75 * v2->normal[1];
 			vout->normal[2] = 0.25 * v1->normal[2] + 0.75 * v2->normal[2];
 
-			VectorNormalize(vout->normal, vout->normal);
+			VectorNormalize(vout->normal);
 
 		}
 	}
@@ -1477,7 +1477,7 @@ void TraceLtm(int num)
 			{
 				numPositions = 9;
 				VectorCopy(mesh->verts[j * mesh->width + i].normal, normal);
-				// VectorNormalize( normal, normal );
+				// VectorNormalize( normal );
 				// push off of the curve a bit
 				VectorMA(mesh->verts[j * mesh->width + i].xyz, 1, normal, base);
 
@@ -1718,7 +1718,7 @@ qboolean LightContributionToPoint(const light_t * light, const vec3_t origin, ve
 
 		// calculate the contribution
 		VectorSubtract(light->origin, origin, normal);
-		if(VectorNormalize(normal, normal) == 0)
+		if(VectorNormalize(normal) == 0)
 		{
 			return qfalse;
 		}
@@ -1913,7 +1913,7 @@ void TraceGrid(int num)
 		}
 
 		VectorSubtract(light->origin, origin, dir);
-		VectorNormalize(dir, dir);
+		VectorNormalize(dir);
 
 		VectorCopy(add, contributions[numCon].color);
 		VectorCopy(dir, contributions[numCon].dir);
@@ -1928,9 +1928,7 @@ void TraceGrid(int num)
 		}
 	}
 
-	//
 	// trace directly to the sun
-	//
 	SunToPoint(origin, &tw, color);
 	addSize = VectorLength(color);
 	if(addSize > 0)
@@ -1941,10 +1939,9 @@ void TraceGrid(int num)
 		numCon++;
 	}
 
-
 	// now that we have identified the primary light direction,
 	// go back and seperate all the light into directed and ambient
-	VectorNormalize(summedDir, summedDir);
+	VectorNormalize(summedDir);
 	VectorCopy(ambientColor, color);
 	VectorClear(directedColor);
 
@@ -1974,7 +1971,7 @@ void TraceGrid(int num)
 	ColorToBytes(color, gridData + num * 8);
 	ColorToBytes(directedColor, gridData + num * 8 + 3);
 
-	VectorNormalize(summedDir, summedDir);
+	VectorNormalize(summedDir);
 	NormalToLatLong(summedDir, gridData + num * 8 + 6);
 }
 
@@ -2138,8 +2135,8 @@ void CreateFilters(void)
 
 		VectorSubtract(v2->xyz, v1->xyz, d1);
 		VectorSubtract(v3->xyz, v1->xyz, d2);
-		VectorNormalize(d1, d1);
-		VectorNormalize(d2, d2);
+		VectorNormalize(d1);
+		VectorNormalize(d2);
 		CrossProduct(d1, d2, f->plane);
 		f->plane[3] = DotProduct(v1->xyz, f->plane);
 

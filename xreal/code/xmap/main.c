@@ -34,7 +34,7 @@ int             BspMain(int argc, char **argv);
 int             VisMain(int argc, char **argv);
 int             LightMain(int argc, char **argv);
 int             VLightMain(int argc, char **argv);
-int             VSoundMain(int argc, char **argv);
+int             AASMain(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 
 	if(argc < 2)
 	{
-		Error("usage: xmap [options] mapfile");
+		goto showUsage;
 	}
 
 	// check for general program options
@@ -56,6 +56,11 @@ int main(int argc, char **argv)
 		BspMain(argc - 1, argv + 1);
 		return 0;
 	}
+	if(!strcmp(argv[1], "-vis"))
+	{
+		VisMain(argc - 1, argv + 1);
+		return 0;
+	}
 	if(!strcmp(argv[1], "-light"))
 	{
 		LightMain(argc - 1, argv + 1);
@@ -66,18 +71,26 @@ int main(int argc, char **argv)
 		VLightMain(argc - 1, argv + 1);
 		return 0;
 	}
-	if(!strcmp(argv[1], "-vsound"))
+#ifdef AAS
+	if(!strcmp(argv[1], "-bsp2aas"))
 	{
-		VSoundMain(argc - 1, argv + 1);
+		AASMain(argc - 1, argv + 1);
 		return 0;
 	}
-	if(!strcmp(argv[1], "-vis"))
-	{
-		VisMain(argc - 1, argv + 1);
-		return 0;
-	}
+#endif
 	
-	Error("usage: xmap [options] mapfile");
+showUsage:
+	Error(	"usage: xmap [-<switch> [-<switch> ...]] <mapname>\n"
+		  	"\n"
+			"Switches:\n"
+			"   info           = print BSP information\n"
+			"   map2bsp        = compile MAP to BSP\n"
+			#ifdef AAS
+			"   bsp2aas        = convert BSP to AAS\n"
+			#endif
+			"   vis            = compute visibility\n"
+			"   light          = compute lighting\n"
+			"   vlight         = compute volume lighting\n");
 
 	return 0;
 }

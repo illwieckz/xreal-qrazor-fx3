@@ -590,7 +590,7 @@ static void ParseShaderFile(const char *filename)
 				GetToken(qfalse);
 				si->sunLight[2] = atof(token);
 
-				VectorNormalize(si->sunLight, si->sunLight);
+				VectorNormalize(si->sunLight);
 
 				GetToken(qfalse);
 				a = atof(token);

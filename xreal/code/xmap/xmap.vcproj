@@ -691,10 +691,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\soundv.c"
-			>
-		</File>
-		<File
 			RelativePath=".\surface.c"
 			>
 		</File>

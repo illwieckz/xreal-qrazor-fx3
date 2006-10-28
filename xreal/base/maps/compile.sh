@@ -1,8 +1,8 @@
 #!/bin/sh
 
 case $1 in
-	-bsp)
-		../../xmap.x86 -v -leaktest $2.map
+	-map2bsp)
+		../../xmap.x86 -map2bsp -v -leaktest $2.map
 		;;
 
 	-fastvis)
@@ -14,11 +14,7 @@ case $1 in
 		;;
 
 	-light)
-		../../xmap.x86 -light -patchshadows $2.map
-		;;
-
-	-xlight)
-		../../xmap.x86 -light -extra -patchshadows $2.map
+		../../xmap.x86 -light -v -patchshadows $2.map
 		;;
 
 	-vlight)
@@ -26,7 +22,7 @@ case $1 in
 		;;
 
 	-onlyents)
-		../../xmap.x86 -onlyents $2.map
+		../../xmap.x86 -map2bsp -onlyents $2.map
 		;;
 
 	-aas)
@@ -34,13 +30,13 @@ case $1 in
 		;;
 	
 	-all)
-		../../xmap.x86 -v -leaktest $2.map
+		../../xmap.x86 -map2bsp -v -leaktest $2.map
 		../../xmap.x86 -vis $2.map
 		#../../xmap.x86 -vlight -v $2.map
 		../../bspc.x86 -bsp2aas $2.bsp
 		;;
 	*)
-		echo "specify command: -bsp, -fastvis, -vis, -light, -xlight, -vlight, -onlyents, -aas or -all <mapname>"
+		echo "specify command: -map2bsp, -fastvis, -vis, -light, -xlight, -vlight, -onlyents, -aas or -all <mapname>"
 		;;
 esac
 

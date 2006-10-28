@@ -44,7 +44,7 @@ void CM_GenerateBoundaryForPoints(float boundary[4], float plane[4], vec3_t a, v
 	// amke a perpendicular vector to the edge and the surface
 	VectorSubtract(b, a, d1);
 	CrossProduct(plane, d1, boundary);
-	VectorNormalize(boundary, boundary);
+	VectorNormalize(boundary);
 	boundary[3] = DotProduct(a, boundary);
 }
 
@@ -457,7 +457,7 @@ void GenerateBoundaryForPoints(float boundary[4], float plane[4], vec3_t a, vec3
 	// amke a perpendicular vector to the edge and the surface
 	VectorSubtract(b, a, d1);
 	CrossProduct(plane, d1, boundary);
-	VectorNormalize(boundary, boundary);
+	VectorNormalize(boundary);
 	boundary[3] = DotProduct(a, boundary);
 }
 
@@ -862,7 +862,7 @@ qboolean SphereCull(vec3_t start, vec3_t stop, vec3_t origin, float radius)
 	vec3_t          on;
 
 	VectorSubtract(stop, start, dir);
-	len = VectorNormalize(dir, dir);
+	len = VectorNormalize(dir);
 
 	VectorSubtract(origin, start, v);
 	d = DotProduct(v, dir);

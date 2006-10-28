@@ -136,7 +136,7 @@ int AddEdge(vec3_t v1, vec3_t v2, qboolean createNonAxial)
 	vec3_t          dir;
 
 	VectorSubtract(v2, v1, dir);
-	d = VectorNormalize(dir, dir);
+	d = VectorNormalize(dir);
 	if(d < 0.1)
 	{
 		// if we added a 0 length vector, it would make degenerate planes
@@ -245,7 +245,7 @@ qboolean ColinearEdge(vec3_t v1, vec3_t v2, vec3_t v3)
 
 	VectorSubtract(v2, v1, midpoint);
 	VectorSubtract(v3, v1, dir);
-	d = VectorNormalize(dir, dir);
+	d = VectorNormalize(dir);
 	if(d == 0)
 	{
 		return qfalse;			// degenerate

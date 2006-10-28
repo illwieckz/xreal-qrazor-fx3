@@ -108,8 +108,8 @@ void RemoveColinearPoints(winding_t * w)
 		k = (i + w->numpoints - 1) % w->numpoints;
 		VectorSubtract(w->p[j], w->p[i], v1);
 		VectorSubtract(w->p[i], w->p[k], v2);
-		VectorNormalize(v1, v1);
-		VectorNormalize(v2, v2);
+		VectorNormalize(v1);
+		VectorNormalize(v2);
 		if(DotProduct(v1, v2) < 0.999)
 		{
 			VectorCopy(w->p[i], p[nump]);
@@ -138,7 +138,7 @@ void WindingPlane(winding_t * w, vec3_t normal, vec_t * dist)
 	VectorSubtract(w->p[1], w->p[0], v1);
 	VectorSubtract(w->p[2], w->p[0], v2);
 	CrossProduct(v2, v1, normal);
-	VectorNormalize(normal, normal);
+	VectorNormalize(normal);
 	*dist = DotProduct(w->p[0], normal);
 
 }
@@ -246,7 +246,7 @@ winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist)
 
 	v = DotProduct(vup, normal);
 	VectorMA(vup, -v, normal, vup);
-	VectorNormalize(vup, vup);
+	VectorNormalize(vup);
 
 	VectorScale(normal, dist, org);
 
@@ -591,7 +591,7 @@ void CheckWinding(winding_t * w)
 			Error("CheckWinding: degenerate edge");
 
 		CrossProduct(facenormal, dir, edgenormal);
-		VectorNormalize(edgenormal, edgenormal);
+		VectorNormalize(edgenormal);
 		edgedist = DotProduct(p1, edgenormal);
 		edgedist += ON_EPSILON;
 
@@ -688,7 +688,7 @@ void AddWindingToConvexHull(winding_t * w, winding_t ** hull, vec3_t normal)
 			k = (j + 1) % numHullPoints;
 
 			VectorSubtract(hullPoints[k], hullPoints[j], dir);
-			VectorNormalize(dir, dir);
+			VectorNormalize(dir);
 			CrossProduct(normal, dir, hullDirs[j]);
 		}
 

@@ -75,7 +75,7 @@ void PlaneFromWinding(vwinding_t * w, plane_t * plane)
 	VectorSubtract(w->points[2], w->points[1], v1);
 	VectorSubtract(w->points[0], w->points[1], v2);
 	CrossProduct(v2, v1, plane->normal);
-	VectorNormalize(plane->normal, plane->normal);
+	VectorNormalize(plane->normal);
 	plane->dist = DotProduct(w->points[0], plane->normal);
 }
 
@@ -637,7 +637,7 @@ vwinding_t     *TryMergeWinding(vwinding_t * f1, vwinding_t * f2, vec3_t planeno
 	back = f1->points[(i + f1->numpoints - 1) % f1->numpoints];
 	VectorSubtract(p1, back, delta);
 	CrossProduct(planenormal, delta, normal);
-	VectorNormalize(normal, normal);
+	VectorNormalize(normal);
 
 	back = f2->points[(j + 2) % f2->numpoints];
 	VectorSubtract(back, p1, delta);
@@ -649,7 +649,7 @@ vwinding_t     *TryMergeWinding(vwinding_t * f1, vwinding_t * f2, vec3_t planeno
 	back = f1->points[(i + 2) % f1->numpoints];
 	VectorSubtract(back, p2, delta);
 	CrossProduct(planenormal, delta, normal);
-	VectorNormalize(normal, normal);
+	VectorNormalize(normal);
 
 	back = f2->points[(j + f2->numpoints - 1) % f2->numpoints];
 	VectorSubtract(back, p2, delta);

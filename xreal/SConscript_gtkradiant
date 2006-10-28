@@ -285,7 +285,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	gtkradiant_env.Append(CCFLAGS='-DPOSIX -DXWINDOWS')
 	gtkradiant_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	gtkradiant_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
-	gtkradiant_env.ParseConfig('xml2-config --cflags --libs')
+	gtkradiant_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	
 	if env['arch'] == 'linux-i386':
 		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])

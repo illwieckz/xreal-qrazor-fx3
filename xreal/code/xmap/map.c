@@ -263,7 +263,7 @@ int MapPlaneFromPoints(vec3_t p0, vec3_t p1, vec3_t p2)
 	VectorSubtract(p0, p1, t1);
 	VectorSubtract(p2, p1, t2);
 	CrossProduct(t1, t2, normal);
-	VectorNormalize(normal, normal);
+	VectorNormalize(normal);
 
 	dist = DotProduct(p0, normal);
 
@@ -279,7 +279,7 @@ int MapPlaneFromEquation(vec4_t plane)
 
 	dist = -plane[3];
 
-	mag = VectorNormalize(plane, normal);
+	mag = VectorNormalize2(plane, normal);
 
 	if(mag)
 		plane[3] /= mag;
@@ -482,7 +482,7 @@ void AddBrushBevels(void)
 			{
 				k = (j + 1) % w->numpoints;
 				VectorSubtract(w->p[j], w->p[k], vec);
-				if(VectorNormalize(vec, vec) < 0.5)
+				if(VectorNormalize(vec) < 0.5)
 					continue;
 				SnapVector(vec);
 				for(k = 0; k < 3; k++)
@@ -500,7 +500,7 @@ void AddBrushBevels(void)
 						VectorClear(vec2);
 						vec2[axis] = dir;
 						CrossProduct(vec, vec2, normal);
-						if(VectorNormalize(normal, normal) < 0.5)
+						if(VectorNormalize(normal) < 0.5)
 							continue;
 						dist = DotProduct(w->p[j], normal);
 
