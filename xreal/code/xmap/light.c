@@ -2270,7 +2270,6 @@ void GridAndVertexLighting(void)
 /*
 ========
 LightMain
-
 ========
 */
 int LightMain(int argc, char **argv)
@@ -2374,11 +2373,9 @@ int LightMain(int argc, char **argv)
 		}
 	}
 
-	ThreadSetDefault();
-
 	if(i != argc - 1)
 	{
-		Sys_Printf("usage: xmap -light [-<switch> [-<switch> ...]] <mapname.bsp>\n"
+		Error(	"usage: xmap -light [-<switch> [-<switch> ...]] <mapname.bsp>\n"
 				"\n"
 				"Switches:\n"
 				"   v              = verbose output\n"
@@ -2391,10 +2388,11 @@ int LightMain(int argc, char **argv)
 				"   nogrid         = don't calculate light grid for dynamic model lighting\n"
 				"   novertex       = don't calculate vertex lighting\n"
 				"   samplesize <N> = set the lightmap pixel size to NxN units\n");
-		exit(0);
 	}
 
 	start = I_FloatTime();
+	
+	ThreadSetDefault();
 
 	SetQdirFromPath(argv[i]);
 

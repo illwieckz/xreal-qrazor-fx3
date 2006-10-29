@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // can't use the glvertex3fv functions, because the vec3_t fields
 // could be either floats or doubles, depending on DOUBLEVEC_T
 
+static qboolean drawInit = qfalse;
 qboolean        drawFlag;
 static vec3_t   drawOrigin = { 0, 0, 0 };
 static vec3_t   drawAngles = { 0, 0, 0 };
@@ -66,54 +67,49 @@ static void Reshape(int width, int height)
 	glTranslatef(-drawOrigin[0], -drawOrigin[1], -drawOrigin[2]);
 }
 
-static void InitWindow(void)
-{
-	SDL_Init(SDL_INIT_VIDEO);
-
-	drawVideo = SDL_GetVideoInfo();
-	if(!drawVideo)
-	{
-		Error("Couldn't get video information: %s\n", SDL_GetError());
-	}
-
-	// Set the minimum requirements for the OpenGL window
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	/* Note the SDL_DOUBLEBUF flag is not required to enable double 
-	 * buffering when setting an OpenGL video mode. 
-	 * Double buffering is enabled or disabled using the 
-	 * SDL_GL_DOUBLEBUFFER attribute.
-	 */
-
-	drawScreen = SDL_SetVideoMode(WIN_SIZE, WIN_SIZE, drawVideo->vfmt->BitsPerPixel, SDL_OPENGL | SDL_RESIZABLE);
-	if(!drawScreen)
-	{
-		SDL_Quit();
-		Error("Couldn't set GL video mode: %s\n", SDL_GetError());
-	}
-
-	SDL_WM_SetCaption("XMap", "xmap");
-
-	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-}
-
-void DrawBeginScene()
+static void Draw_BeginScene(void)
 {
 	int             w, h, g;
 	vec_t           mx, my;
-	static qboolean init = qfalse;
 
 	if(!drawFlag)
 		return;
 
-	if(!init)
+	if(!drawInit)
 	{
-		init = qtrue;
-		InitWindow();
+		SDL_Init(SDL_INIT_VIDEO);
+
+		drawVideo = SDL_GetVideoInfo();
+		if(!drawVideo)
+		{
+			Error("Couldn't get video information: %s\n", SDL_GetError());
+		}
+
+		// Set the minimum requirements for the OpenGL window
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+		/* Note the SDL_DOUBLEBUF flag is not required to enable double 
+		 * buffering when setting an OpenGL video mode. 
+		 * Double buffering is enabled or disabled using the 
+		 * SDL_GL_DOUBLEBUFFER attribute.
+		 */
+
+		drawScreen = SDL_SetVideoMode(WIN_SIZE, WIN_SIZE, drawVideo->vfmt->BitsPerPixel, SDL_OPENGL | SDL_RESIZABLE);
+		if(!drawScreen)
+		{
+			SDL_Quit();
+			Error("Couldn't set GL video mode: %s\n", SDL_GetError());
+		}
+	
+		SDL_WM_SetCaption("XMap", "xmap");
+
+		//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+		
+		drawInit = qtrue;
 	}
 
 	Reshape(drawScreen->w, drawScreen->h);
@@ -157,7 +153,12 @@ void DrawBeginScene()
 	glFlush();
 }
 
-void DrawSetRed(void)
+static void Draw_EndScene(void)
+{
+	SDL_GL_SwapBuffers();
+}
+
+void Draw_SetRed(void)
 {
 	if(!drawFlag)
 		return;
@@ -165,7 +166,7 @@ void DrawSetRed(void)
 	glColor3f(1, 0, 0);
 }
 
-void DrawSetGrey(void)
+void Draw_SetGrey(void)
 {
 	if(!drawFlag)
 		return;
@@ -173,7 +174,7 @@ void DrawSetGrey(void)
 	glColor3f(0.5, 0.5, 0.5);
 }
 
-void DrawSetBlack(void)
+void Draw_SetBlack(void)
 {
 	if(!drawFlag)
 		return;
@@ -181,7 +182,7 @@ void DrawSetBlack(void)
 	glColor3f(0, 0, 0);
 }
 
-void DrawWinding(winding_t * w)
+void Draw_Winding(winding_t * w)
 {
 	int             i;
 
@@ -203,7 +204,7 @@ void DrawWinding(winding_t * w)
 	glFlush();
 }
 
-void DrawAuxWinding(winding_t * w)
+void Draw_AuxWinding(winding_t * w)
 {
 	int             i;
 
@@ -225,61 +226,7 @@ void DrawAuxWinding(winding_t * w)
 	glFlush();
 }
 
-void DrawPortal(portal_t * p)
-{
-	winding_t      *w;
-	int             sides;
-
-	sides = PortalVisibleSides(p);
-	if(!sides)
-		return;
-
-	w = p->winding;
-
-	if(sides == 2)				// back side
-		w = ReverseWinding(w);
-
-	if(p->areaportal)
-	{
-		DrawAuxWinding(w);
-	}
-	else
-	{
-		DrawWinding(w);
-	}
-
-	if(sides == 2)
-		FreeWinding(w);
-}
-
-static void DrawTree_r(node_t * node)
-{
-	portal_t       *p, *nextp;
-
-	if(node->planenum != PLANENUM_LEAF)
-	{
-		DrawTree_r(node->children[0]);
-		DrawTree_r(node->children[1]);
-		return;
-	}
-
-	// draw all the portals
-	for(p = node->portals; p; p = nextp)
-	{
-		if(p->nodes[0] == node)
-		{
-			DrawPortal(p);
-
-			nextp = p->next[0];
-		}
-		else
-		{
-			nextp = p->next[1];
-		}
-	}
-}
-
-void DrawTree(tree_t * tree)
+void Draw_Scene(void (*drawFunc)(void))
 {
 	Uint8          *keys;
 	qboolean        done;
@@ -482,17 +429,16 @@ void DrawTree(tree_t * tree)
 			drawAngles[PITCH] = 90;
 		}
 
-		DrawBeginScene();
-		DrawTree_r(tree->headnode);
-		DrawEndScene();
+		Draw_BeginScene();
+		drawFunc();
+		Draw_EndScene();
 		
 		oldTime = newTime;
 	}
-
-	SDL_Quit();
 }
 
-void DrawEndScene(void)
+void Draw_Shutdown(void)
 {
-	SDL_GL_SwapBuffers();
+	SDL_Quit();
+	drawInit = qfalse;
 }

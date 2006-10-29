@@ -152,7 +152,7 @@ void ParsePatch(qboolean patchDef3)
 	MatchToken("}");
 	MatchToken("}");
 
-	if(noCurveBrushes)
+	if(nocurves)
 	{
 		return;
 	}

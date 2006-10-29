@@ -1074,7 +1074,7 @@ void ParseBrush(void)
 	}
 
 	// allow water brushes to be removed
-	if(nowater && (buildBrush->contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER)))
+	if(noliquids && (buildBrush->contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER)))
 	{
 		FreeBrush(buildBrush);
 		return;

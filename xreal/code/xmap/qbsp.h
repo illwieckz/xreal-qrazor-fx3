@@ -116,7 +116,7 @@ typedef struct bspBrush_s
 	vec3_t          mins, maxs;
 	int             numsides;
 	side_t          sides[6];	// variably sized
-	
+
 #ifdef AAS
 	int             expansionbbox;	//bbox used for expansion of the brush
 	int             leafnum;
@@ -191,15 +191,15 @@ typedef struct node_s
 	int             cluster;	// for portalfile writing
 	int             area;		// for areaportals
 	bspBrush_t     *brushlist;	// fragments of all brushes in this leaf
-	drawSurfaceRef_t  *drawSurfReferences;	// references to patches pushed down
+	drawSurfaceRef_t *drawSurfReferences;	// references to patches pushed down
 
 	int             occupied;	// 1 or greater can reach entity
 	entity_t       *occupant;	// for leak file testing
 
 	struct portal_s *portals;	// also on nodes during construction
-	
+
 #ifdef AAS
-	int             expansionbboxes; // OR of all bboxes used for expansion of the brushes
+	int             expansionbboxes;	// OR of all bboxes used for expansion of the brushes
 	int             modelnum;
 #endif
 } node_t;
@@ -216,7 +216,7 @@ typedef struct portal_s
 	qboolean        hint;
 	qboolean        areaportal;
 	side_t         *side;		// NULL = non-visible
-	
+
 #ifdef AAS
 	struct tmp_face_s *tmpface;	// pointer to the tmpface created for this portal
 	int             planenum;	// number of the map plane used by the portal
@@ -230,13 +230,11 @@ typedef struct
 	vec3_t          mins, maxs;
 } tree_t;
 
-extern qboolean noprune;
 extern qboolean nodetail;
 extern qboolean fulldetail;
-extern qboolean nowater;
-extern qboolean noCurveBrushes;
+extern qboolean noliquids;
+extern qboolean nocurves;
 extern qboolean fakemap;
-extern qboolean coplanar;
 extern qboolean nofog;
 extern qboolean testExpand;
 extern qboolean showseams;
@@ -303,8 +301,8 @@ int             PlaneTypeForNormal(vec3_t normal);
 bspBrush_t     *FinishBrush(void);
 void            AdjustBrushesForOrigin(entity_t * ent, vec3_t origin);
 
-drawSurface_t *AllocDrawSurf(void);
-drawSurface_t *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w);
+drawSurface_t  *AllocDrawSurf(void);
+drawSurface_t  *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w);
 
 //=============================================================================
 
@@ -314,10 +312,10 @@ drawSurface_t *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w);
 
 extern qboolean drawFlag;
 
-void            DrawBeginScene();
-void            DrawWinding(winding_t * w);
-void            DrawTree(tree_t * tree);
-void            DrawEndScene(void);
+void            Draw_Winding(winding_t * w);
+void            Draw_AuxWinding(winding_t * w);
+void            Draw_Scene(void (*drawFunc) (void));
+void            Draw_Shutdown(void);
 
 //=============================================================================
 
@@ -413,7 +411,7 @@ void            FreeTreePortals_r(node_t * node);
 
 extern int      numMapPatches;
 
-drawSurface_t *DrawSurfaceForMesh(mesh_t * m);
+drawSurface_t  *DrawSurfaceForMesh(mesh_t * m);
 void            ParsePatch(qboolean patchDef3);
 mesh_t         *SubdivideMesh(mesh_t in, float maxError, float minLength);
 void            PatchMapDrawSurfs(entity_t * e);
@@ -466,7 +464,7 @@ void            AddTriangleModels(void);
 extern drawSurface_t mapDrawSurfs[MAX_MAP_DRAW_SURFS];
 extern int      numMapDrawSurfs;
 
-drawSurface_t *AllocDrawSurf(void);
+drawSurface_t  *AllocDrawSurf(void);
 void            MergeSides(entity_t * e, tree_t * tree);
 void            SubdivideDrawSurfs(entity_t * e, tree_t * tree);
 void            MakeDrawSurfaces(bspBrush_t * b);

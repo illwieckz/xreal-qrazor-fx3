@@ -151,7 +151,7 @@ void DrawBrushList(bspBrush_t * brush)
 			if(!s->winding)
 				continue;
 			
-			DrawWinding(s->winding);
+			Draw_Winding(s->winding);
 		}
 	}
 }

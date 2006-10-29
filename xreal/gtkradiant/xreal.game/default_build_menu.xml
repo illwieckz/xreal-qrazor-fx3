@@ -13,6 +13,9 @@ build commands
 <build name="xmap: (single) -map2bsp -leaktest">
 <command>[xmap] -map2bsp -v [connect] -leaktest "[MapFile]"</command>
 </build>
+<build name="xmap: (single) -map2bsp -draw">
+<command>[xmap] -map2bsp -v [connect] -draw "[MapFile]"</command>
+</build>
 <build name="xmap: (single) -vis">
 <command>[xmap] -vis [connect] "[MapFile]"</command>
 </build>

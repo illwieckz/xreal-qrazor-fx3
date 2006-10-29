@@ -246,6 +246,14 @@ void            CountLightmaps(void);
 void            GridAndVertexLighting(void);
 void            SetEntityOrigins(void);
 
+// from gldraw.c
+extern qboolean drawFlag;
+
+void            Draw_Winding(winding_t * w);
+void            Draw_AuxWinding(winding_t * w);
+void            Draw_Scene(void (*drawFunc)(void));
+void            Draw_Shutdown(void);
+
 
 //#define DEBUGNET
 
@@ -2853,6 +2861,7 @@ void VL_DrawLightWindings(void)
 #ifdef DEBUGNET
 		DebugNet_DrawWinding(lightwindings[i], 1);
 #endif
+		Draw_Winding(lightwindings[i]);
 	}
 }
 
@@ -5842,6 +5851,11 @@ int VLightMain(int argc, char **argv)
 			Sys_Printf("radiosity = %d\n", radiosity);
 			i++;
 		}
+		else if(!strcmp(argv[i], "-draw"))
+		{
+			Sys_Printf("drawflag = true\n");
+			drawFlag = qtrue;
+		}
 		else if(!strcmp(argv[i], "-connect"))
 		{
 			Broadcast_Setup(argv[++i]);
@@ -5851,8 +5865,6 @@ int VLightMain(int argc, char **argv)
 			break;
 		}
 	}
-
-	ThreadSetDefault();
 
 	if(i != argc - 1)
 	{
@@ -5872,6 +5884,8 @@ int VLightMain(int argc, char **argv)
 				"   samplesize <N> = set the lightmap pixel size to NxN units\n");
 		exit(0);
 	}
+	
+	ThreadSetDefault();
 
 	SetQdirFromPath(argv[i]);
 
@@ -5941,6 +5955,10 @@ int VLightMain(int argc, char **argv)
 
 #ifdef LIGHTPOLYS
 	VL_DrawLightWindings();
+	if(drawFlag)
+	{
+		Draw_Scene(VL_DrawLightWindings);
+	}
 #endif
 
 #ifdef DEBUGNET
@@ -5949,6 +5967,9 @@ int VLightMain(int argc, char **argv)
 
 	// shut down connection
 	Broadcast_Shutdown();
+	
+	// close window
+	Draw_Shutdown();
 	
 	return 0;
 }
