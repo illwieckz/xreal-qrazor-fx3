@@ -13,10 +13,13 @@ caves
 #castledoom
 char_common
 #characters
+common
 common_lights
 common_misc
 common_trims
+custom
 decals
+desertsky
 door
 duffyTest
 enpro
@@ -35,7 +38,6 @@ hell
 hi_volt_sky
 ice
 #incubation
-invisible
 jerry
 #kat_q4dm2
 kentest
@@ -69,6 +71,7 @@ reflex_layout
 reflex_ugly
 rock
 senetemp
+set
 sfx
 sfx_multiplayer
 shaderDemo

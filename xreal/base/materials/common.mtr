@@ -24,9 +24,24 @@ textures/common/areaportal
 	qer_trans 0.50
 	
 	nonsolid
-	structural
+	noshadows
 	nomarks
+	nolightmap
+	structural
 	areaportal
+}
+
+textures/editor/visportal
+{
+	qer_editorimage	textures/editor/vis_p.tga
+	qer_trans 0.5
+	
+	nonsolid
+	noshadows
+	nomarks
+	nolightmap
+	//structural
+	//areaportal
 }
 
 // bot specific "do not enter" brush
@@ -688,18 +703,6 @@ textures/common/entityGui3 {
 //==============================================================================
 // editor
 //==============================================================================
-
-// visportal brushes stop the area flood fills in dmap and
-// define portals, separating the world into areas
-// Tr3B - right now same as nodraw shader
-textures/editor/visportal
-{
-	qer_editorimage	textures/editor/vis_p.tga
-	qer_trans 0.5
-	
-	nonsolid
-	noshadows
-}
 
 // aassolid brushes create solid space in AAS files
 textures/editor/aassolid
