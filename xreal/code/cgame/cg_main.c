@@ -812,35 +812,6 @@ static void CG_RegisterSounds(void)
 	cgs.media.n_healthSound = trap_S_RegisterSound("sound/items/n_health.wav", qfalse);
 	cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav", qfalse);
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
-
-#ifdef MISSIONPACK
-	trap_S_RegisterSound("sound/player/james/death1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/death2.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/death3.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/jump1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/pain25_1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/pain75_1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/pain100_1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/falling1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/gasp.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/drown.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/fall1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/james/taunt.wav", qfalse);
-
-	trap_S_RegisterSound("sound/player/janet/death1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/death2.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/death3.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/jump1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/pain25_1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/pain75_1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/pain100_1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/falling1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/gasp.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/drown.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/fall1.wav", qfalse);
-	trap_S_RegisterSound("sound/player/janet/taunt.wav", qfalse);
-#endif
-
 }
 
 
