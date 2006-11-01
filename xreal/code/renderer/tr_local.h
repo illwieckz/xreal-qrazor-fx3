@@ -1196,7 +1196,7 @@ typedef struct
 } srfSurfaceFace_t;
 
 
-// misc_models in maps are turned into direct geometry by q3map
+// misc_models in maps are turned into direct geometry by xmap
 typedef struct
 {
 	surfaceType_t   surfaceType;

@@ -268,7 +268,7 @@ models/mapobjects/kmlamp_white
 
 models/mapobjects/lamplight_y
 {
-	q3map_surfacelight 10000
+	xmap_surfacelight 10000
 //	light 1
   cull disable
 	{
@@ -634,7 +634,7 @@ models/mapobjects/bitch/orb
 {
 	deformVertexes autoSprite
 
-	q3map_surfacelight	70
+	xmap_surfacelight	70
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -724,7 +724,7 @@ models/mapobjects/colua0/colua0_flare
 {
 	deformVertexes autoSprite
 
-	q3map_surfacelight	1000
+	xmap_surfacelight	1000
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1026,8 +1026,8 @@ models/mapobjects/cross/cross_skull
 
 models/mapobjects/cross/cross
 {      
-    q3map_lightimage models/mapobjects/cross/cross_light.tga
-    q3map_surfacelight 300
+    xmap_lightimage models/mapobjects/cross/cross_light.tga
+    xmap_surfacelight 300
 
         {
                 map textures/sfx/firewalla.tga
@@ -1103,7 +1103,7 @@ models/mapobjects/flares/electric
 {
 	
 
-	q3map_surfacelight	200
+	xmap_surfacelight	200
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1133,7 +1133,7 @@ models/mapobjects/gratelamp/gratelamp_flare
 {
 	deformVertexes autoSprite
 
-	q3map_surfacelight	300
+	xmap_surfacelight	300
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1399,7 +1399,7 @@ models/mapobjects/lamps/bot_lamp2b
 models/mapobjects/lamps/bot_light
 {
       cull disable
-      q3map_surfacelight	200
+      xmap_surfacelight	200
       deformVertexes move 0 0 2   sin 0 5 0 0.3
       deformVertexes move .6 .8 0   sin 0 9 0 0.1
         {
@@ -1450,7 +1450,7 @@ models/mapobjects/lamps/flare03
 {
 	deformVertexes autoSprite
 
-	q3map_surfacelight 200	
+	xmap_surfacelight 200	
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1471,7 +1471,7 @@ models/mapobjects/lamps/flare03
 models/mapobjects/lightning/blu/blu01
 {
 	deformVertexes wave 100 sin 0 1 0 5
-        q3map_surfacelight	3000
+        xmap_surfacelight	3000
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1489,7 +1489,7 @@ models/mapobjects/lightning/blu/blu01
 models/mapobjects/lightning/red/red01
 {
 	deformVertexes wave 100 sin 0 1 0 5
-        q3map_surfacelight	3000
+        xmap_surfacelight	3000
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1507,7 +1507,7 @@ models/mapobjects/lightning/red/red01
 models/mapobjects/lightning/white/white1
 {
 	deformVertexes wave 100 sin 0 1 0 5
-        q3map_surfacelight	3000
+        xmap_surfacelight	3000
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1525,7 +1525,7 @@ models/mapobjects/lightning/white/white1
 models/mapobjects/lightning/yel/yel01
 {
 	deformVertexes wave 100 sin 0 1 0 5
-        q3map_surfacelight	3000
+        xmap_surfacelight	3000
 
 	surfaceparm	trans
 	surfaceparm nomarks
@@ -1562,8 +1562,8 @@ models/mapobjects/pipe/pipe02
 
 models/mapobjects/pipe/pipe02x
 {
-    q3map_lightimage textures/sfx/electricslime_old.tga
-    q3map_surfacelight 150
+    xmap_lightimage textures/sfx/electricslime_old.tga
+    xmap_surfacelight 150
     cull disable
         {
                 map textures/effects/tinfx2b.tga
@@ -1825,7 +1825,7 @@ models/mapobjects/skel/xray
 {
     deformVertexes move 0 0 .7  sin 0 5 0 0.2
     cull disable
-    q3map_surfacelight 300	
+    xmap_surfacelight 300	
         {
                 map models/mapobjects/skel/xray.tga
                 blendfunc add
@@ -1928,7 +1928,7 @@ models/mapobjects/slamp/slamp3
 	surfaceparm nomarks
 	surfaceparm nolightmap
 	cull none
-   q3map_surfacelight	100
+   xmap_surfacelight	100
     
         {
                 map models/mapobjects/slamp/slamp3.tga
@@ -1981,7 +1981,7 @@ models/mapobjects/spotlamp/spotlamp
 models/mapobjects/spotlamp/spotlamp_l
 {
       cull disable
-      q3map_surfacelight	200
+      xmap_surfacelight	200
 
         {
                 map models/mapobjects/spotlamp/spotlamp_l.tga
@@ -4864,7 +4864,7 @@ models/mapobjects/slamp/slamp3x
 	surfaceparm nomarks
 	surfaceparm nolightmap
 	cull none
-   //q3map_surfacelight	100
+   //xmap_surfacelight	100
     
         {
                 map models/mapobjects/slamp/slamp3x.tga

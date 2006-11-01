@@ -2822,7 +2822,7 @@ static void ParseSort(char **text)
 
 
 
-// this table is also present in q3map
+// this table is also present in xmap
 
 typedef struct
 {
@@ -3417,14 +3417,14 @@ static qboolean ParseShader(char *_text)
 			continue;
 		}
 		// sun parms
-		else if(!Q_stricmp(token, "q3map_sun"))
+		else if(!Q_stricmp(token, "xmap_sun"))
 		{
 			float           a, b;
 
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'q3map_sun' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'xmap_sun' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
 			tr.sunLight[0] = atof(token);
@@ -3432,7 +3432,7 @@ static qboolean ParseShader(char *_text)
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'q3map_sun' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'xmap_sun' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
 			tr.sunLight[1] = atof(token);
@@ -3441,7 +3441,7 @@ static qboolean ParseShader(char *_text)
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'q3map_sun' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'xmap_sun' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
 			tr.sunLight[2] = atof(token);
@@ -3451,7 +3451,7 @@ static qboolean ParseShader(char *_text)
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'q3map_sun' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'xmap_sun' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
 			a = atof(token);
@@ -3460,7 +3460,7 @@ static qboolean ParseShader(char *_text)
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'q3map_sun' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'xmap_sun' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
 			a = atof(token);
@@ -3469,7 +3469,7 @@ static qboolean ParseShader(char *_text)
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'q3map_sun' keyword in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'xmap_sun' keyword in shader '%s'\n", shader.name);
 				continue;
 			}
 			b = atof(token);
@@ -3571,13 +3571,13 @@ static qboolean ParseShader(char *_text)
 				shader.clampTime = atof(token);
 			}
 		}
-		// skip stuff that only the q3map needs
-		else if(!Q_stricmpn(token, "q3map", 5))
+		// skip stuff that only the xmap needs
+		else if(!Q_stricmpn(token, "xmap", 5) || !Q_stricmpn(token, "q3map", 5))
 		{
 			Com_SkipRestOfLine(text);
 			continue;
 		}
-		// skip stuff that only q3map or the server needs
+		// skip stuff that only xmap or the server needs
 		else if(!Q_stricmp(token, "surfaceParm"))
 		{
 			ParseSurfaceParm(text);
@@ -3655,7 +3655,7 @@ static qboolean ParseShader(char *_text)
 			ParseSkyParms(text);
 			continue;
 		}
-		// light <value> determines flaring in q3map, not needed here
+		// light <value> determines flaring in xmap, not needed here
 		else if(!Q_stricmp(token, "light"))
 		{
 			token = Com_ParseExt(text, qfalse);

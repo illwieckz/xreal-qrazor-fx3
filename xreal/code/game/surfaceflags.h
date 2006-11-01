@@ -75,7 +75,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_METALSTEPS			0x1000	// clanking footsteps
 #define	SURF_NOSTEPS			0x2000	// no footstep sounds
 #define	SURF_NONSOLID			0x4000	// don't collide against curves with this set
-#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during q3map -light
-#define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in q3map
+#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during xmap -light
+#define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in xmap
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
 #define SURF_DUST				0x40000	// leave a dust trail when walking on this surface

@@ -89,7 +89,7 @@ typedef struct side_s
 	qboolean        visible;	// choose visble planes first
 	qboolean        bevel;		// don't ever use for bsp splitting, and don't bother
 	// making windings for it
-	qboolean        backSide;	// generated side for a q3map_backShader
+	qboolean        backSide;	// generated side for a xmap_backShader
 } side_t;
 
 

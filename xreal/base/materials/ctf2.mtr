@@ -305,8 +305,8 @@ textures/ctf2/blue_techsign01
 
 textures/ctf2/pj_baseboardr
 {
-	//q3map_lightimage textures/ctf2/pj_baseboardr_l.tga
-	//q3map_surfacelight 300
+	//xmap_lightimage textures/ctf2/pj_baseboardr_l.tga
+	//xmap_surfacelight 300
 	
 	{
 		map textures/ctf2/pj_baseboardr.tga
@@ -326,8 +326,8 @@ textures/ctf2/pj_baseboardr
 }
 textures/ctf2/pj_baseboardb
 {
-	//q3map_lightimage textures/ctf2/pj_baseboardb_l.tga
-	//q3map_surfacelight 300
+	//xmap_lightimage textures/ctf2/pj_baseboardb_l.tga
+	//xmap_surfacelight 300
 	
 	{
 		map textures/ctf2/pj_baseboardb.tga
@@ -349,9 +349,9 @@ textures/ctf2/pj_baseboardb
 textures/ctf2/jaildr_bluescroll
 {
 	qer_editorimage textures/ctf2/jaildr_blue.tga
-	q3map_lightimage textures/ctf2/jaildr_blue.tga
+	xmap_lightimage textures/ctf2/jaildr_blue.tga
 	surfaceparm nomarks
-	q3map_surfacelight 1000
+	xmap_surfacelight 1000
 	{
 		map $lightmap
 		rgbGen identity

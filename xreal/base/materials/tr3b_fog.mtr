@@ -9,8 +9,8 @@ textures/tr3b_fog/deathfog
 	nodrop
 	nolightmap
 	
-	q3map_globaltexture
-	q3map_surfacelight 50
+	xmap_globaltexture
+	xmap_surfacelight 50
 	
 	fogparms ( .66 0 0 ) 392
 

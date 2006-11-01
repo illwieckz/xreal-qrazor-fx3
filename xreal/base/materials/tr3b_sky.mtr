@@ -10,9 +10,9 @@ textures/tr3b_sky/thunders_cloudyskydark_stormy
 	nolightmap
 //	forceOpaque
 	
-	q3map_surfacelight 100
-	q3map_lightsubdivide 512
-	q3map_sun	1 1 1 32	90 90
+	xmap_surfacelight 100
+	xmap_lightsubdivide 512
+	xmap_sun	1 1 1 32	90 90
 	
 	skyparms - 2048 -
 	

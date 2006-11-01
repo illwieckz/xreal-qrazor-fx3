@@ -443,8 +443,8 @@ static void ParseShaderFile(const char *filename)
 				continue;
 			}
 
-			// q3map_lightimage <image>
-			if(!Q_stricmp(token, "q3map_lightimage"))
+			// xmap_lightimage <image>
+			if(!Q_stricmp(token, "xmap_lightimage"))
 			{
 				GetToken(qfalse);
 				strcpy(si->lightimage, token);
@@ -452,96 +452,96 @@ static void ParseShaderFile(const char *filename)
 				continue;
 			}
 
-			// q3map_surfacelight <value>
-			if(!Q_stricmp(token, "q3map_surfacelight"))
+			// xmap_surfacelight <value>
+			if(!Q_stricmp(token, "xmap_surfacelight"))
 			{
 				GetToken(qfalse);
 				si->value = atoi(token);
 				continue;
 			}
 
-			// q3map_lightsubdivide <value>
-			if(!Q_stricmp(token, "q3map_lightsubdivide"))
+			// xmap_lightsubdivide <value>
+			if(!Q_stricmp(token, "xmap_lightsubdivide"))
 			{
 				GetToken(qfalse);
 				si->lightSubdivide = atoi(token);
 				continue;
 			}
 
-			// q3map_lightmapsamplesize <value>
-			if(!Q_stricmp(token, "q3map_lightmapsamplesize"))
+			// xmap_lightmapsamplesize <value>
+			if(!Q_stricmp(token, "xmap_lightmapsamplesize"))
 			{
 				GetToken(qfalse);
 				si->lightmapSampleSize = atoi(token);
 				continue;
 			}
 
-			// q3map_tracelight
-			if(!Q_stricmp(token, "q3map_tracelight"))
+			// xmap_tracelight
+			if(!Q_stricmp(token, "xmap_tracelight"))
 			{
 				si->forceTraceLight = qtrue;
 				continue;
 			}
 
-			// q3map_vlight
-			if(!Q_stricmp(token, "q3map_vlight"))
+			// xmap_vlight
+			if(!Q_stricmp(token, "xmap_vlight"))
 			{
 				si->forceVLight = qtrue;
 				continue;
 			}
 
-			// q3map_patchshadows
-			if(!Q_stricmp(token, "q3map_patchshadows"))
+			// xmap_patchshadows
+			if(!Q_stricmp(token, "xmap_patchshadows"))
 			{
 				si->patchShadows = qtrue;
 				continue;
 			}
 
-			// q3map_vertexshadows
-			if(!Q_stricmp(token, "q3map_vertexshadows"))
+			// xmap_vertexshadows
+			if(!Q_stricmp(token, "xmap_vertexshadows"))
 			{
 				si->vertexShadows = qtrue;
 				continue;
 			}
 
-			// q3map_novertexshadows
-			if(!Q_stricmp(token, "q3map_novertexshadows"))
+			// xmap_novertexshadows
+			if(!Q_stricmp(token, "xmap_novertexshadows"))
 			{
 				si->noVertexShadows = qtrue;
 				continue;
 			}
 
-			// q3map_forcesunlight
-			if(!Q_stricmp(token, "q3map_forcesunlight"))
+			// xmap_forcesunlight
+			if(!Q_stricmp(token, "xmap_forcesunlight"))
 			{
 				si->forceSunLight = qtrue;
 				continue;
 			}
 
-			// q3map_vertexscale
-			if(!Q_stricmp(token, "q3map_vertexscale"))
+			// xmap_vertexscale
+			if(!Q_stricmp(token, "xmap_vertexscale"))
 			{
 				GetToken(qfalse);
 				si->vertexScale = atof(token);
 				continue;
 			}
 
-			// q3map_notjunc
-			if(!Q_stricmp(token, "q3map_notjunc"))
+			// xmap_notjunc
+			if(!Q_stricmp(token, "xmap_notjunc"))
 			{
 				si->notjunc = qtrue;
 				continue;
 			}
 
-			// q3map_globaltexture
-			if(!Q_stricmp(token, "q3map_globaltexture"))
+			// xmap_globaltexture
+			if(!Q_stricmp(token, "xmap_globaltexture"))
 			{
 				si->globalTexture = qtrue;
 				continue;
 			}
 
-			// q3map_backsplash <percent> <distance>
-			if(!Q_stricmp(token, "q3map_backsplash"))
+			// xmap_backsplash <percent> <distance>
+			if(!Q_stricmp(token, "xmap_backsplash"))
 			{
 				GetToken(qfalse);
 				si->backsplashFraction = atof(token) * 0.01;
@@ -550,16 +550,16 @@ static void ParseShaderFile(const char *filename)
 				continue;
 			}
 
-			// q3map_backshader <shader>
-			if(!Q_stricmp(token, "q3map_backshader"))
+			// xmap_backshader <shader>
+			if(!Q_stricmp(token, "xmap_backshader"))
 			{
 				GetToken(qfalse);
 				strcpy(si->backShader, token);
 				continue;
 			}
 
-			// q3map_flare <shader>
-			if(!Q_stricmp(token, "q3map_flare"))
+			// xmap_flare <shader>
+			if(!Q_stricmp(token, "xmap_flare"))
 			{
 				GetToken(qfalse);
 				strcpy(si->flareShader, token);
@@ -575,11 +575,11 @@ static void ParseShaderFile(const char *filename)
 				continue;
 			}
 
-			// q3map_sun <red> <green> <blue> <intensity> <degrees> <elivation>
+			// xmap_sun <red> <green> <blue> <intensity> <degrees> <elivation>
 			// color will be normalized, so it doesn't matter what range you use
 			// intensity falls off with angle but not distance 100 is a fairly bright sun
 			// degree of 0 = from the east, 90 = north, etc.  altitude of 0 = sunrise/set, 90 = noon
-			if(!Q_stricmp(token, "q3map_sun"))
+			if(!Q_stricmp(token, "xmap_sun"))
 			{
 				float           a, b;
 
@@ -682,7 +682,7 @@ static void ParseShaderFile(const char *filename)
 			}
 
 			// noFragment
-			if(!Q_stricmp(token, "noFragment") || !Q_stricmp(token, "q3map_noFragment"))
+			if(!Q_stricmp(token, "noFragment") || !Q_stricmp(token, "xmap_noFragment"))
 			{
 				si->noFragment = qtrue;
 				continue;
