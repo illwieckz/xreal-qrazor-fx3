@@ -3572,7 +3572,7 @@ static qboolean ParseShader(char *_text)
 			}
 		}
 		// skip stuff that only the xmap needs
-		else if(!Q_stricmpn(token, "xmap", 5) || !Q_stricmpn(token, "q3map", 5))
+		else if(!Q_stricmpn(token, "xmap", 4) || !Q_stricmpn(token, "q3map", 5))
 		{
 			Com_SkipRestOfLine(text);
 			continue;
