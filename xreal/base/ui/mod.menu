@@ -14,7 +14,7 @@
     	border 1
 	onEsc { close mod ; open main }
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ;
-	play "sound/misc/kcswish.wav" ; 
+	play "sound/misc/menu2.wav" ; 
 	fadeout fadebox ; 
 	uiScript loadMods ; 
 	hide lightning ; 

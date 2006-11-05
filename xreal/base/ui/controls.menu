@@ -63,7 +63,7 @@ itemDef {
       	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grpControls ; fadein look }
 	mouseEnter { fadein message_look ; setitemcolor ctr_look backcolor .1 .37 .1 1 } 
 	mouseExit { hide message_look ; setitemcolor ctr_look backcolor .37 .1 .1 1 } 
@@ -185,7 +185,7 @@ itemDef {
       	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grpControls ; fadein move }
 	mouseEnter { fadein message_move ; setitemcolor ctr_move backcolor .1 .37 .1 1  } 
 	mouseExit { hide message_move ; setitemcolor ctr_move backcolor .37 .1 .1 1 } 
@@ -422,7 +422,7 @@ itemDef {
       	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grpControls ; fadein shoot }
 	mouseEnter { fadein message_shoot ; setitemcolor ctr_shoot backcolor .1 .37 .1 1 } 
 	mouseExit { hide message_shoot ; setitemcolor ctr_shoot backcolor .37 .1 .1 1 }
@@ -711,7 +711,7 @@ itemDef {
       	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grpControls ; fadein misc }
 	mouseEnter { fadein message_misc ; setitemcolor ctr_miscellaneous backcolor .1 .37 .1 1 } 
 	mouseExit { hide message_misc ; setitemcolor ctr_miscellaneous backcolor .37 .1 .1 1 } 
@@ -853,7 +853,7 @@ itemDef {
       	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grpControls ; fadein orders}
 	mouseEnter { fadein message_misc ; setitemcolor ctr_orders backcolor .1 .37 .1 1 } 
 	mouseExit { hide message_misc ; setitemcolor ctr_orders backcolor .37 .1 .1 1 } 
@@ -1088,7 +1088,7 @@ itemDef {
       	bordercolor 0.5 0.0 0.1 .15
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grpControls ; fadein chat}
 	mouseEnter { fadein message_misc ; setitemcolor ctr_chat backcolor .1 .37 .1 1 } 
 	mouseExit { hide message_misc ; setitemcolor ctr_chat backcolor .37 .1 .1 1 } 

@@ -36,7 +36,7 @@ menuDef {
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ;
 	//	playlooped "music/background.wav" ;
-		play "sound/misc/kcswish.wav" ; 
+		play "sound/misc/menu2.wav" ; 
 
 		transition ui_main_logo 0 198 640 1 0 28 640 155 20 12 ;
 
@@ -116,7 +116,7 @@ itemDef {
       	textalign 1		
    	forecolor 1 1 1 1
       	visible 0 
-      	action { play "sound/misc/kcaction.wav" ; 
+      	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open Skirmish }
     	}
@@ -135,7 +135,7 @@ itemDef {
 	textscale .333
    	forecolor 1 1 1 1 
 	visible 0 
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open joinserver }
     	}
@@ -155,7 +155,7 @@ itemDef {
 	textscale .333
    	forecolor 1 1 1 1  
 	visible 0 
-      	action { play "sound/misc/kcaction.wav" ; 
+      	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open createserver }
     	}
@@ -206,7 +206,7 @@ itemDef {
       	textalign 1		
    	forecolor 1 1 1 1
       	visible 0 
-      	action { play "sound/misc/kcaction.wav" ; 
+      	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open player_menu }
     	}
@@ -225,7 +225,7 @@ itemDef {
       	textalign 1		
    	forecolor 1 1 1 1
       	visible 0 
-      	action { play "sound/misc/kcaction.wav" ; 
+      	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open setup_menu ; 
 	open control_menu }
@@ -244,7 +244,7 @@ itemDef {
      	textalign 1	
    	forecolor 1 1 1 1
       	visible 0 
-      	action { play "sound/misc/kcaction.wav" ; 
+      	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open demo }
     	}
@@ -263,7 +263,7 @@ itemDef {
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
 	visible 0 
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open mod }
      	}
@@ -282,7 +282,7 @@ itemDef {
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1 
 	visible 0
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open help_menu } 
 }
@@ -330,7 +330,7 @@ itemDef {
       	textalign 1		
    	forecolor 1 1 1 1
       	visible 0 
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open cinematicMenu }
     	}
@@ -349,7 +349,7 @@ itemDef {
 	textscale .333
    	forecolor 1 1 1 1 
 	visible 0 
-  	action { play "sound/misc/kcaction.wav" ;
+  	action { play "sound/misc/menu1.wav" ;
 	UiScript "quit" }
     	}
 
@@ -368,7 +368,7 @@ itemDef {
 	textscale .333
    	forecolor 1 1 1 1  
 	visible 0 	
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close main ; 
 	open Credit } 
     	}

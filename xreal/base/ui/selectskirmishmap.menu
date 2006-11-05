@@ -77,7 +77,7 @@ itemDef {
 	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1 
 	visible 1
-	action { play "sound/misc/nomenu.wav" ; close selectmap_popup ; open skirmish }
+	action { play "sound/misc/menu3.wav" ; close selectmap_popup ; open skirmish }
 	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
 	}

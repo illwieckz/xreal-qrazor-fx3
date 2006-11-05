@@ -51,7 +51,7 @@ itemDef {
 	textaligny 17
 	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/nomenu.wav" ;
+	action { play "sound/misc/menu3.wav" ;
 		uiScript RefreshFilter }
 	mouseEnter { show message_viewEmpty }
 	mouseExit { hide message_viewEmpty }	  	  
@@ -68,7 +68,7 @@ itemDef {
 	textaligny 17
 	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/nomenu.wav" ;
+	action { play "sound/misc/menu3.wav" ;
 		uiScript RefreshFilter }
 	mouseEnter { show message_viewFull }
 	mouseExit { hide message_viewFull }	  	  
@@ -89,7 +89,7 @@ itemDef {
 	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1 
 	visible 1
-	action { play "sound/misc/nomenu.wav" ;
+	action { play "sound/misc/menu3.wav" ;
 	close filter_popmenu ; 
 	open joinserver }
 	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 } 

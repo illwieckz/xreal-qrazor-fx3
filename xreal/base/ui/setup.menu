@@ -13,7 +13,7 @@ menuDef {
     	style 1
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
-			play "sound/misc/kcswish.wav" ; 
+			play "sound/misc/menu2.wav" ; 
 
 		fadeout fadebox ;
 		fadeout back_alt ;
@@ -60,7 +60,7 @@ itemDef {
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close control_menu ; 
 	close system_menu ;
 	close options_menu ; 
@@ -91,7 +91,7 @@ itemDef {
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close control_menu ; 
 	close system_menu ;
 	close options_menu ; 
@@ -123,7 +123,7 @@ itemDef {
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close control_menu ; 
 	close system_menu ;
 	close options_menu ; 
@@ -154,7 +154,7 @@ itemDef {
 	visible 1 
 	mouseenter { fadein message_default }
 	mouseexit { fadeout message_default }
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close control_menu ; 
 	close system_menu ;
 	close options_menu ; 
@@ -184,7 +184,7 @@ itemDef {
 	visible 1 
 	mouseenter { fadein message_scores }
 	mouseexit { fadeout message_scores }
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	close control_menu ; 
 	close system_menu ;
 	close options_menu ; 
@@ -228,7 +228,7 @@ itemDef {
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/kcaction.wav" ; close setup_menu ; open main }
+	action { play "sound/misc/menu1.wav" ; close setup_menu ; open main }
 	mouseenter { fadein message_back }
 	mouseexit { fadeout message_back }
 	}

@@ -15,7 +15,7 @@
 	onEsc { close cinematicMenu ; open main }
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 
-	play "sound/misc/kcswish.wav" ; 
+	play "sound/misc/menu2.wav" ; 
 
 	fadeout fadebox ; 
 	transition mappreview 0 0 640 480 54 144 256 192 20 10 ; 

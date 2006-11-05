@@ -16,7 +16,7 @@
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ;
 		hide grphelptext ; 
-		play "sound/misc/kcswish.wav" ; 
+		play "sound/misc/menu2.wav" ; 
 
 		show helptext ; 
 		hide grpIconAlt ; 
@@ -211,7 +211,7 @@ itemDef {
       	visible 1
 	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1
-	action { hide grphelptext ; show helptext ; play "sound/misc/kcaction.wav" }
+	action { hide grphelptext ; show helptext ; play "sound/misc/menu1.wav" }
 	mouseEnter { setitemcolor help backcolor .1 .37 .1 1 ; hide helpIcon ; show helpIconAlt ; hide grpVoiceHead } 
 	mouseExit { setitemcolor help backcolor .37 .1 .1 1 ; hide helpIconAlt ; show helpIcon } 
 	}

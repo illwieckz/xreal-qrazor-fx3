@@ -87,7 +87,7 @@ itemDef {
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/kcaction.wav" ; close help_menu ; open main }
+	action { play "sound/misc/menu1.wav" ; close help_menu ; open main }
 	mouseenter { fadein message_back }
 	mouseexit { fadeout message_back }
 	}
@@ -135,7 +135,7 @@ itemDef {
       	border 0
       	bordercolor 0 0 0 0
       	visible 1
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grphelptext ; 
 	show grpbttn ;
 	close powerup_menu ;
@@ -157,7 +157,7 @@ itemDef {
       	border 0
       	bordercolor 0 0 0 0
       	visible 1 
-	action { play "sound/misc/kcaction.wav" ; 
+	action { play "sound/misc/menu1.wav" ; 
 	hide grphelptext ; 
 	hide grpbttn ;
 	close powerup_menu ; 
@@ -179,7 +179,7 @@ itemDef {
       	border 0
       	bordercolor 0 0 0 0
       	visible 1 
-	action { play "sound/misc/kcaction.wav" ;
+	action { play "sound/misc/menu1.wav" ;
 	hide grphelptext ; 
 	hide grpbttn ; 
 	close powerup_menu ; 
@@ -204,7 +204,7 @@ itemDef {
       	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1
       	visible 0
-	action { hide grphelptext ; show ctf ; play "sound/misc/kcaction.wav" } 
+	action { hide grphelptext ; show ctf ; play "sound/misc/menu1.wav" } 
 	mouseEnter { setitemcolor ctfbttn backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor ctfbttn backcolor .37 .1 .1 1 } 
 	}
@@ -254,7 +254,7 @@ itemDef {
       	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1
       	visible 0
-	action { hide grphelptext ; show oneflag ; play "sound/misc/kcaction.wav" } 
+	action { hide grphelptext ; show oneflag ; play "sound/misc/menu1.wav" } 
 	mouseEnter { setitemcolor oneflagbttn backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor oneflagbttn backcolor .37 .1 .1 1 } 
 	}
@@ -304,7 +304,7 @@ itemDef {
       	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1
       	visible 0
-	action { hide grphelptext ; show overload ; play "sound/misc/kcaction.wav"  } 
+	action { hide grphelptext ; show overload ; play "sound/misc/menu1.wav"  } 
 	mouseEnter { setitemcolor overloadbttn backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor overloadbttn backcolor .37 .1 .1 1 } 
 	}
@@ -355,7 +355,7 @@ itemDef {
       	forecolor 1 1 1 1
 	backcolor .37 .1 .1 1
       	visible 0
-	action { hide grphelptext ; show harvester ; play "sound/misc/kcaction.wav"} 
+	action { hide grphelptext ; show harvester ; play "sound/misc/menu1.wav"} 
 	mouseEnter { setitemcolor harvesterbttn backcolor .1 .37 .1 1 } 
 	mouseExit { setitemcolor harvesterbttn backcolor .37 .1 .1 1 } 
 	}

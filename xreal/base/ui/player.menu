@@ -12,7 +12,7 @@ menuDef {
     	style 1
 	focusColor 1 .75 0 1
 	
-		onOpen { play "sound/misc/kcswish.wav" ;
+		onOpen { play "sound/misc/menu2.wav" ;
 
 		setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox ; 
@@ -150,7 +150,7 @@ itemDef {
 	textscale .25        
       	forecolor 1 1 1 1
       	visible 1 
-	action { play "sound/misc/nomenu.wav" }
+	action { play "sound/misc/menu3.wav" }
 	mouseEnter { show message_clan } 
 	mouseExit { hide message_clan } 
     	}
@@ -205,7 +205,7 @@ itemDef {
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1
 	visible 1 
-	action { play "sound/misc/kcaction.wav" ; close player_menu ; open main }
+	action { play "sound/misc/menu1.wav" ; close player_menu ; open main }
 	mouseenter { fadein message_back }
 	mouseexit { fadeout message_back }
 	}

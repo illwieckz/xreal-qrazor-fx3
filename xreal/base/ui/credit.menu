@@ -23,7 +23,7 @@
 		  hide message_back;
 
 		setitemcolor fadebox backcolor 0 0 0 1 ;
- 	play "sound/misc/kcswish.wav" ; 
+ 	play "sound/misc/menu2.wav" ; 
 
 	fadeout fadebox  }
 		 
@@ -245,7 +245,7 @@ itemDef {
 	type 1
       	rect 0 0 640 480 
 	backcolor 0 0 0 0
-	action { play "sound/misc/kcaction.wav" ; hide credits1 ; fadein credits2 }
+	action { play "sound/misc/menu1.wav" ; hide credits1 ; fadein credits2 }
 	visible 1
 	}
 itemDef {
@@ -254,7 +254,7 @@ itemDef {
 	type 1
       	rect 0 0 640 480 
 	backcolor 0 0 0 0
-	action { play "sound/misc/kcaction.wav" ; hide credits2 ; fadein credits3 }
+	action { play "sound/misc/menu1.wav" ; hide credits2 ; fadein credits3 }
 	visible 1
 	}
 itemDef {
@@ -263,7 +263,7 @@ itemDef {
 	type 1
       	rect 0 0 640 480 
 	backcolor 0 0 0 0
-	action { play "sound/misc/kcaction.wav" ; hide credits3 ; fadein credits4 }
+	action { play "sound/misc/menu1.wav" ; hide credits3 ; fadein credits4 }
 	visible 1
 	}
 
@@ -273,7 +273,7 @@ itemDef {
 	type 1
       	rect 0 0 640 480 
 	backcolor 0 0 0 0
-	action { play "sound/misc/kcaction.wav" ; hide credits4 ; fadein credits5 }
+	action { play "sound/misc/menu1.wav" ; hide credits4 ; fadein credits5 }
 	visible 1
 	}
 itemDef {
@@ -282,7 +282,7 @@ itemDef {
 	type 1
       	rect 0 0 640 480 
 	backcolor 0 0 0 0
-	action { play "sound/misc/kcaction.wav" ; hide credits5 ; fadein credits6 }
+	action { play "sound/misc/menu1.wav" ; hide credits5 ; fadein credits6 }
 	visible 1
 	}
 
@@ -292,7 +292,7 @@ itemDef {
 	type 1
       	rect 0 0 640 480 
 	backcolor 0 0 0 0
-	action { play "sound/misc/kcaction.wav" ; close Credit ; open main }
+	action { play "sound/misc/menu1.wav" ; close Credit ; open main }
 	visible 1
 	}
 
@@ -309,7 +309,7 @@ itemDef {
        	textaligny 20        
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1
-	action { play "sound/misc/kcaction.wav" ; close Credit ; open main }
+	action { play "sound/misc/menu1.wav" ; close Credit ; open main }
 	mouseenter { fadein message_back }
 	mouseexit { fadeout message_back }
 	visible 1

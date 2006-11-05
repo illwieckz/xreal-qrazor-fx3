@@ -17,7 +17,7 @@
 	hide lightning ; 
 	hide accept_alt ; 
 	show accept ;
-	play "sound/misc/kcswish.wav" ; 
+	play "sound/misc/menu2.wav" ; 
 
 	hide back_alt ;
 	show back ;
