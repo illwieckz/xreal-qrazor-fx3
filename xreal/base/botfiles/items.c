@@ -118,7 +118,7 @@ iteminfo "item_health_mega"
 iteminfo "weapon_gauntlet"
 {
 	name					"Gauntlet"
-	model					"models/weapons2/gauntlet/gauntlet.md3"
+	model					"models/weapons/gauntlet/gauntlet.md3"
 	modelindex				MODELINDEX_GAUNTLET
 	type					ITEM_WEAPON
 	index					INVENTORY_GAUNTLET

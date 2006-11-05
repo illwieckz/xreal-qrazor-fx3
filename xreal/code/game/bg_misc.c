@@ -208,7 +208,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_gauntlet",
 	 "sound/misc/w_pkup.wav",
-	 {"models/weapons2/gauntlet/gauntlet.md3",
+	 {"models/weapons/gauntlet/gauntlet.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/iconw_gauntlet",

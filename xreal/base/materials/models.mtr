@@ -3781,10 +3781,10 @@ models/weapons2/flamethrower/f_flamethrower
 }
 
 //******************************************************//
-//	models/weapons2/gauntlet subfolder		//
+//	models/weapons/gauntlet subfolder		//
 //******************************************************//
 
-models/weapons2/gauntlet/gauntlet2
+models/weapons/gauntlet/gauntlet2
 {      
         {
                 map textures/sfx/specular.tga
@@ -3794,7 +3794,7 @@ models/weapons2/gauntlet/gauntlet2
                 rgbGen identity
 	}  
         {
-		map models/weapons2/gauntlet/gauntlet2.tga
+		map models/weapons/gauntlet/gauntlet2.tga
                 blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		rgbGen lightingDiffuse
 	}
@@ -3802,14 +3802,14 @@ models/weapons2/gauntlet/gauntlet2
          
 }
   
-models/weapons2/gauntlet/gauntlet3
+models/weapons/gauntlet/gauntlet3
 {
 	
 	cull disable
 	sort additive
 	{
-              // map models/weapons2/gauntlet/gauntlet3.tga
-               AnimMap 10 models/weapons2/gauntlet/gauntlet3.tga models/weapons2/gauntlet/gauntlet4.tga
+              // map models/weapons/gauntlet/gauntlet3.tga
+               AnimMap 10 models/weapons/gauntlet/gauntlet3.tga models/weapons/gauntlet/gauntlet4.tga
 	       blendfunc GL_ONE GL_ONE
 	}
 }
