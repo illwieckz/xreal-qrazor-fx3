@@ -95,11 +95,11 @@ def loadModel(filename):
 		meshObject = NMesh.PutRaw(mesh)
 		meshObject.name = surface.name
 		
-		"""
-		# animate the verts through keyframe animation
-		#mesh = meshObject.getData()
 		
-		#for i in range(0, surface.numFrames):
+		# animate the verts through keyframe animation
+		mesh = meshObject.getData()
+		
+		for i in range(0, surface.numFrames):
 			
 			# absolute works too, but I want to get these into NLA actions
 			#mesh.insertKey(i + 1, "relative")
@@ -128,15 +128,18 @@ def loadModel(filename):
 				mesh.verts[j].co[2] = z
 			
 			mesh.update()
-			
-			#NMesh.PutRaw(mesh, meshObject.name)
-		"""
+			NMesh.PutRaw(mesh, meshObject.name)
+			#absolute works too, but I want to get these into NLA actions
+			mesh.insertKey(i,"relative")
+		
 		
 		# create materials for surface
 		for i in range(0, surface.numShaders):
 			
 			# create new material if necessary
 			matName = stripExtension(stripPath(surface.shaders[i].name))
+			if matName == "" :
+				matName = "no_texture"
 			
 			try:
 				mat = Material.Get(matName)
