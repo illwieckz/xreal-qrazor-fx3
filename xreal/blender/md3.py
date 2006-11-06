@@ -28,11 +28,11 @@ class md3Vert:
 		self.xyz = [0, 0, 0]
 		self.normal = 0
 		
-	def getSize(self):
+	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 	
 	# copied from PhaethonH <phaethon@linux.ucla.edu> md3.py
-	def decode(self, latlng):
+	def Decode(self, latlng):
 		lat = (latlng >> 8) & 0xFF;
 		lng = (latlng) & 0xFF;
 		lat *= math.pi / 128;
@@ -44,7 +44,7 @@ class md3Vert:
 		return retval
 	
 	# copied from PhaethonH <phaethon@linux.ucla.edu> md3.py
-	def encode(self, normal):
+	def Encode(self, normal):
 		x, y, z = normal
 		
 		# normalise
@@ -61,7 +61,7 @@ class md3Vert:
 			else:
 				return (128 << 8)
 		
-		# encode a normal vector into a 16-bit latitude-longitude value
+		# Encode a normal vector into a 16-bit latitude-longitude value
 		#lng = math.acos(z)
 		#lat = math.acos(x / math.sin(lng))
 		#retval = ((lat & 0xFF) << 8) | (lng & 0xFF)
@@ -70,7 +70,7 @@ class md3Vert:
 		retval = ((int(lat) & 0xFF) << 8) | (int(lng) & 0xFF)
 		return retval
 	
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		self.xyz[0] = data[0] * MD3_XYZ_SCALE
@@ -79,7 +79,7 @@ class md3Vert:
 		self.normal = data[3]
 		return self
 		
-	def save(self, file):
+	def Save(self, file):
 		tmpData = [0] * 4
 		tmpData[0] = self.xyz[0] / MD3_XYZ_SCALE
 		tmpData[1] = self.xyz[1] / MD3_XYZ_SCALE
@@ -89,7 +89,7 @@ class md3Vert:
 		file.write(data)
 		#print "Wrote MD3 Vertex: ", data
 	
-	def dump(self):
+	def Dump(self):
 		print "MD3 Vertex"
 		print "X: ", self.xyz[0]
 		print "Y: ", self.xyz[1]
@@ -107,10 +107,10 @@ class md3TexCoord:
 		self.u = 0.0
 		self.v = 0.0
 		
-	def getSize(self):
+	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		# for some reason quake3 texture maps are upside down, flip that
@@ -118,7 +118,7 @@ class md3TexCoord:
 		self.v = 1.0 - data[1]
 		return self
 
-	def save(self, file):
+	def Save(self, file):
 		tmpData = [0] * 2
 		tmpData[0] = self.u
 		tmpData[1] = 1.0 - self.v
@@ -126,7 +126,7 @@ class md3TexCoord:
 		file.write(data)
 		#print "wrote MD3 texture coordinate structure: ", data
 
-	def dump(self):
+	def Dump(self):
 		print "MD3 Texture Coordinates"
 		print "U: ", self.u
 		print "V: ", self.v
@@ -141,10 +141,10 @@ class md3Triangle:
 	def __init__(self):
 		self.indexes = [ 0, 0, 0 ]
 		
-	def getSize(self):
+	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		self.indexes[0] = data[0]
@@ -152,7 +152,7 @@ class md3Triangle:
 		self.indexes[2] = data[1] # reverse
 		return self
 
-	def save(self, file):
+	def Save(self, file):
 		tmpData = [0] * 3
 		tmpData[0] = self.indexes[0]
 		tmpData[1] = self.indexes[2] # reverse
@@ -161,7 +161,7 @@ class md3Triangle:
 		file.write(data)
 		#print "wrote MD3 face structure: ",data
 
-	def dump(self):
+	def Dump(self):
 		print "MD3 Triangle"
 		print "Indices: ", self.indexes
 		print ""
@@ -177,17 +177,17 @@ class md3Shader:
 		self.name = ""
 		self.index = 0
 		
-	def getSize(self):
+	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		self.name = asciiz(data[0])
 		self.index = data[1]
 		return self
 
-	def save(self, file):
+	def Save(self, file):
 		tmpData = [0] * 2
 		tmpData[0] = self.name
 		tmpData[1] = self.index
@@ -195,7 +195,7 @@ class md3Shader:
 		file.write(data)
 		#print "wrote MD3 shader structure: ",data
 
-	def dump (self):
+	def Dump(self):
 		print "MD3 Shader"
 		print "Name: ", self.name
 		print "Index: ", self.index
@@ -240,24 +240,24 @@ class md3Surface:
 		self.uv = []
 		self.verts = []
 		
-	def getSize(self):
+	def GetSize(self):
 		sz = struct.calcsize(self.binaryFormat)
 		self.ofsTriangles = sz
 		for t in self.triangles:
-			sz += t.getSize()
+			sz += t.GetSize()
 		self.ofsShaders = sz
 		for s in self.shaders:
-			sz += s.getSize()
+			sz += s.GetSize()
 		self.ofsUV = sz
 		for u in self.uv:
-			sz += u.getSize()
+			sz += u.GetSize()
 		self.ofsVerts = sz
 		for v in self.verts:
-			sz += v.getSize()
+			sz += v.GetSize()
 		self.ofsEnd = sz
 		return self.ofsEnd
 		
-	def load(self, file):
+	def Load(self, file):
 		# where are we in the file (for calculating real offsets)
 		ofsBegin = file.tell()
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
@@ -279,22 +279,22 @@ class md3Surface:
 		file.seek(ofsBegin + self.ofsTriangles, 0)
 		for i in range(0, self.numTriangles):
 			self.triangles.append(md3Triangle())
-			self.triangles[i].load(file)
-			#self.triangles[i].dump()
+			self.triangles[i].Load(file)
+			#self.triangles[i].Dump()
 		
 		# load the shader info
 		file.seek(ofsBegin + self.ofsShaders, 0)
 		for i in range(0, self.numShaders):
 			self.shaders.append(md3Shader())
-			self.shaders[i].load(file)
-			self.shaders[i].dump()
+			self.shaders[i].Load(file)
+			self.shaders[i].Dump()
 			
 		# load the uv info
 		file.seek(ofsBegin + self.ofsUV, 0)
 		for i in range(0, self.numVerts):
 			self.uv.append(md3TexCoord())
-			self.uv[i].load(file)
-			#self.uv[i].dump()
+			self.uv[i].Load(file)
+			#self.uv[i].Dump()
 			
 		# load the verts info
 		file.seek(ofsBegin + self.ofsVerts, 0)
@@ -302,16 +302,16 @@ class md3Surface:
 			for j in range(0, self.numVerts):
 				self.verts.append(md3Vert())
 				#i*self.numVerts+j=where in the surface vertex list the vert position for this frame is
-				self.verts[(i * self.numVerts) + j].load(file)
-				#self.verts[j].dump()
+				self.verts[(i * self.numVerts) + j].Load(file)
+				#self.verts[j].Dump()
 			
 		# go to the end of this structure
 		file.seek(ofsBegin+self.ofsEnd, 0)
 			
 		return self
 	
-	def save(self, file):
-		self.getSize()
+	def Save(self, file):
+		self.GetSize()
 		tmpData = [0] * 12
 		tmpData[0] = self.ident
 		tmpData[1] = self.name
@@ -330,21 +330,21 @@ class md3Surface:
 
 		# write the tri data
 		for t in self.triangles:
-			t.save(file)
+			t.Save(file)
 
 		# save the shader coordinates
 		for s in self.shaders:
-			s.save(file)
+			s.Save(file)
 
-		#save the uv info
+		# save the uv info
 		for u in self.uv:
-			u.save(file)
+			u.Save(file)
 
-		#save the verts
+		# save the verts
 		for v in self.verts:
-			v.save(file)
+			v.Save(file)
 
-	def dump(self):
+	def Dump(self):
 		print "MD3 Surface"
 		print "Ident: ", self.ident
 		print "Name: ", self.name
@@ -373,10 +373,10 @@ class md3Tag:
 		self.origin = [0, 0, 0]
 		self.axis = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 		
-	def getSize(self):
+	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 		
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		self.name = asciiz(data[0])
@@ -394,7 +394,7 @@ class md3Tag:
 		self.axis[8] = data[12]
 		return self
 		
-	def save(self, file):
+	def Save(self, file):
 		tmpData = [0] * 13
 		tmpData[0] = self.name
 		tmpData[1] = float(self.origin[0])
@@ -413,7 +413,7 @@ class md3Tag:
 		file.write(data)
 		#print "wrote MD3 Tag structure: ",data
 		
-	def dump(self):
+	def Dump(self):
 		print "MD3 Tag"
 		print "Name: ", self.name
 		print "Origin: ", self.origin
@@ -436,10 +436,10 @@ class md3Frame:
 		self.radius = 0.0
 		self.name = ""
 		
-	def getSize(self):
+	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 		self.mins[0] = data[0]
@@ -455,7 +455,7 @@ class md3Frame:
 		self.name = asciiz(data[10])
 		return self
 
-	def save(self, file):
+	def Save(self, file):
 		tmpData = [0] * 11
 		tmpData[0] = self.mins[0]
 		tmpData[1] = self.mins[1]
@@ -472,7 +472,7 @@ class md3Frame:
 		file.write(data)
 		#print "wrote MD3 frame structure: ",data
 
-	def dump(self):
+	def Dump(self):
 		print "MD3 Frame"
 		print "Min Bounds: ", self.mins
 		print "Max Bounds: ", self.maxs
@@ -518,20 +518,20 @@ class md3Object:
 		self.tags = []
 		self.surfaces = []
 
-	def getSize(self):
+	def GetSize(self):
 		self.ofsFrames = struct.calcsize(self.binaryFormat)
 		self.ofsTags = self.ofsFrames
 		for f in self.frames:
-			self.ofsTags += f.getSize()
+			self.ofsTags += f.GetSize()
 		self.ofsSurfaces += self.ofsTags
 		for t in self.tags:
-			self.ofsSurfaces += t.getSize()
+			self.ofsSurfaces += t.GetSize()
 		self.ofsEnd = self.ofsSurfaces
 		for s in self.surfaces:
-			self.ofsEnd += s.getSize()
+			self.ofsEnd += s.GetSize()
 		return self.ofsEnd
 
-	def load(self, file):
+	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
 
@@ -559,28 +559,28 @@ class md3Object:
 		file.seek(self.ofsFrames, 0)
 		for i in range(0, self.numFrames):
 			self.frames.append(md3Frame())
-			self.frames[i].load(file)
-			#self.frames[i].dump()
+			self.frames[i].Load(file)
+			#self.frames[i].Dump()
 		
 		# load the tags info
 		file.seek(self.ofsTags, 0)
 		for i in range(0, self.numFrames):
 			for j in range(0, self.numTags):
 				tag = md3Tag()
-				tag.load(file)
-				#tag.dump()
+				tag.Load(file)
+				#tag.Dump()
 				self.tags.append(tag)
 		
 		# load the surface info
 		file.seek(self.ofsSurfaces, 0)
 		for i in range(0, self.numSurfaces):
 			self.surfaces.append(md3Surface())
-			self.surfaces[i].load(file)
-			self.surfaces[i].dump()
+			self.surfaces[i].Load(file)
+			self.surfaces[i].Dump()
 		return self
 
-	def save(self, file):
-		self.getSize()
+	def Save(self, file):
+		self.GetSize()
 		tmpData = [0] * 12
 		tmpData[0] = self.ident
 		tmpData[1] = self.version
@@ -599,15 +599,15 @@ class md3Object:
 		file.write(data)
 
 		for f in self.frames:
-			f.save(file)
+			f.Save(file)
 			
 		for t in self.tags:
-			t.save(file)
+			t.Save(file)
 			
 		for s in self.surfaces:
-			s.save(file)
+			s.Save(file)
 
-	def dump(self):
+	def Dump(self):
 		print "Header Information"
 		print "ident: ", self.ident
 		print "version: ", self.version

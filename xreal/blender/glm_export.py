@@ -265,10 +265,10 @@ def saveModel(fileName):
 		fileName += '.glm'
 	print "Exporting GLM format to ", fileName
 	
-	pathName = stripGamePath(stripModel(fileName))
+	pathName = StripGamePath(StripModel(fileName))
 	print "shader path name ", pathName
 	
-	modelName = stripExtension(stripPath(fileName))
+	modelName = StripExtension(StripPath(fileName))
 	print "model name ", modelName
 	
 	glm = glmObject()

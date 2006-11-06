@@ -109,7 +109,7 @@ def loadModel(filename):
 			
 			# create materials for surface
 			# create new material if necessary
-			matName = stripExtension(stripPath(surface.shader))
+			matName = StripExtension(StripPath(surface.shader))
 			
 			try:
 				mat = Material.Get(matName)
@@ -122,20 +122,20 @@ def loadModel(filename):
 				texture.setType('Image')
 			
 				# NOTE: change this to your installation directory
-				imageName = stripExtension(GAMEDIR + surface.shader) + '.tga'
+				imageName = StripExtension(GAMEDIR + surface.shader) + '.tga'
 				try:
 					image = Image.Load(imageName)
 				
 					texture.image = image
 				except:
 					try:
-						imageName = stripExtension(imageName) + '.png'
+						imageName = StripExtension(imageName) + '.png'
 						image = Image.Load(imageName)
 					
 						texture.image = image
 					except:
 						try:
-							imageName = stripExtension(imageName) + '.jpg'
+							imageName = StripExtension(imageName) + '.jpg'
 							image = Image.Load(imageName)
 						
 							texture.image = image

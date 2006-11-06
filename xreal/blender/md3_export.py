@@ -45,22 +45,22 @@ import q_shared
 from q_shared import *
 
 
-def applyTransform(vert, matrix):
+def ApplyTransform(vert, matrix):
 	return vert * matrix
 
 
-def updateFrameBounds(v, f):
+def UpdateFrameBounds(v, f):
 	for i in range(0, 3):
 		f.mins[i] = min(v[i], f.mins[i])
 	for i in range(0, 3):
 		f.maxs[i] = max(v[i], f.maxs[i])
 
 
-def updateFrameRadius(f):
+def UpdateFrameRadius(f):
 	f.radius = RadiusFromBounds(f.mins, f.maxs)
 
 
-def processSurface(blenderObject, md3, pathName, modelName):
+def ProcessSurface(blenderObject, md3, pathName, modelName):
 	# because md3 doesnt suppoort faceUVs like blender, we need to duplicate
 	# any vertex that has multiple uv coords
 
@@ -183,34 +183,34 @@ def processSurface(blenderObject, md3, pathName, modelName):
 				print "warning found a vertex in %s that is not part of a face" % blenderObject.name
 				continue
 
-			vTx = applyTransform(vertex.co, matrix)
-			nTx = applyTransform(vertex.no, matrix)
-			updateFrameBounds(vTx, md3.frames[frameNum - 1])
+			vTx = ApplyTransform(vertex.co, matrix)
+			nTx = ApplyTransform(vertex.no, matrix)
+			UpdateFrameBounds(vTx, md3.frames[frameNum - 1])
 			vert = md3Vert()
 			vert.xyz = vTx[0:3]
-			vert.normal = vert.encode(nTx[0:3])
+			vert.normal = vert.Encode(nTx[0:3])
 			for ind in vindices:  # apply the position to all the duplicated vertices
 				vlist[ind] = vert
 
-		updateFrameRadius(md3.frames[frameNum - 1])
+		UpdateFrameRadius(md3.frames[frameNum - 1])
 
 		for vl in vlist:
 			surf.verts.append(vl)
 
-	surf.dump()
+	surf.Dump()
 	md3.surfaces.append(surf)
 	md3.numSurfaces += 1
 
 
-def saveModel(fileName):
+def SaveModel(fileName):
 	if(fileName.find('.md3', -4) <= 0):
 		fileName += '.md3'
 	print "Exporting MD3 format to ", fileName
 	
-	pathName = stripGamePath(stripModel(fileName))
+	pathName = StripGamePath(StripModel(fileName))
 	print "shader path name ", pathName
 	
-	modelName = stripExtension(stripPath(fileName))
+	modelName = StripExtension(StripPath(fileName))
 	print "model name ", modelName
 	
 	md3 = md3Object()
@@ -222,7 +222,7 @@ def saveModel(fileName):
 	md3.numFrames = Blender.Get("curframe")
 	Blender.Set("curframe", 1)
 
-	# create a bunch of blank frames, they'll be filled in by 'processSurface'
+	# create a bunch of blank frames, they'll be filled in by 'ProcessSurface'
 	for i in range(1, md3.numFrames + 1):
 		frame = md3Frame()
 		frame.name = "frame_" + str(i)
@@ -239,7 +239,7 @@ def saveModel(fileName):
 			if len(md3.surfaces) == MD3_MAX_SURFACES:
 				print "hit md3 limit (%i) for number of surfaces, skipping" % MD3_MAX_SURFACES , obj.getName()
 			else:
-				processSurface(obj, md3, pathName, modelName)
+				ProcessSurface(obj, md3, pathName, modelName)
 		elif obj.getType() == "Empty":   # for tags, we just put em in a list so we can process them all together
 			if obj.name[0:4] == "tag_":
 				print "processing tag", obj.name
@@ -275,8 +275,8 @@ def saveModel(fileName):
 
 	# export!
 	file = open(fileName, "wb")
-	md3.save(file)
+	md3.Save(file)
 	file.close()
-	md3.dump()
+	md3.Dump()
 
-Blender.Window.FileSelector(saveModel, "Export Quake3 MD3")
+Blender.Window.FileSelector(SaveModel, "Export Quake3 MD3")

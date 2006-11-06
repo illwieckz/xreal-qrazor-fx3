@@ -52,8 +52,8 @@ def loadModel(filename):
 	# read the file in
 	file = open(filename,"rb")
 	md3 = md3Object()
-	md3.load(file)
-	md3.dump()
+	md3.Load(file)
+	md3.Dump()
 	file.close()
 	
 	scene = Scene.getCurrent()
@@ -137,7 +137,7 @@ def loadModel(filename):
 		for i in range(0, surface.numShaders):
 			
 			# create new material if necessary
-			matName = stripExtension(stripPath(surface.shaders[i].name))
+			matName = StripExtension(StripPath(surface.shaders[i].name))
 			if matName == "" :
 				matName = "no_texture"
 			
@@ -152,26 +152,26 @@ def loadModel(filename):
 				texture.setType('Image')
 			
 				# try .tga by default
-				imageName = stripExtension(GAMEDIR + surface.shaders[i].name) + '.tga'
+				imageName = StripExtension(GAMEDIR + surface.shaders[i].name) + '.tga'
 				try:
 					image = Image.Load(imageName)
 				
 					texture.image = image
 				except:
 					try:
-						imageName = stripExtension(imageName) + '.png'
+						imageName = StripExtension(imageName) + '.png'
 						image = Image.Load(imageName)
 					
 						texture.image = image
 					except:
 						try:
-							imageName = stripExtension(imageName) + '.jpg'
+							imageName = StripExtension(imageName) + '.jpg'
 							image = Image.Load(imageName)
 						
 							texture.image = image
 						except:
 							print "unable to load image ", imageName
-				
+ 				
 				# texture to material
 				mat.setTexture(0, texture, Texture.TexCo.UV, Texture.MapTo.COL)
 	
@@ -181,26 +181,55 @@ def loadModel(filename):
 	
 	# create tags
 	tags = []
+	scn = Blender.Scene.GetCurrent()
 	for i in range(0, md3.numTags):
 		tag = md3.tags[i]
 		
 		# this should be an Empty object
 		blenderTag = Object.New("Empty", tag.name);
+		# set ipo
+		ipo = Blender.Ipo.New('Object', tag.name+"_ipo")
+		locX = ipo.addCurve('LocX')
+		locY = ipo.addCurve('LocY')
+		locZ = ipo.addCurve('LocZ')
+		rotX = ipo.addCurve('RotX')
+		rotY = ipo.addCurve('RotY')
+		rotZ = ipo.addCurve('RotZ')
+		locX.setInterpolation('Constant')
+		locY.setInterpolation('Constant')
+		locZ.setInterpolation('Constant')
+		rotX.setInterpolation('Constant')
+		rotY.setInterpolation('Constant')
+		rotZ.setInterpolation('Constant')
+		#locX.addBezier((tag.origin[1],tag.origin[2]))
+		#locY.addBezier((tag.origin[0],tag.origin[2]))
+		#locZ.addBezier((tag.origin[0],tag.origin[1]))
+		#set ipo for tag
+		blenderTag.setIpo(ipo)
 		tags.append(blenderTag)
 		scene.link(blenderTag)
-
+		blenderTag.setLocation(tag.origin)
+ 
 	# FIXME this imports only the baseframe tags
-	for i in range(0, 1): #surface.numFrames):
-		#Blender.Set("curframe", i + 1)
-		
+	for i in range(0, surface.numFrames):
+ 
 		for j in range(0, md3.numTags):
 			tag = md3.tags[i * md3.numTags + j]
-			
-			#tagName = tag.name + '_' + str(i + 1)
+			#Blender.Set("curframe", i)
+			#tagName = tag.name# + '_' + str(i)
 			#blenderTag = Object.New("Empty", tagName);
+			#tags.append(blenderTag)
 			#scene.link(blenderTag)
-			blenderTag = tags[j]
-		
+			#blenderTag = tags[j]
+			blenderTag = Blender.Object.Get( tag.name )
+			ipo = Blender.Ipo.Get(tag.name+"_ipo")
+			locX = ipo.getCurve('LocX')
+			locY = ipo.getCurve('LocY')
+			locZ = ipo.getCurve('LocZ')
+			rotX = ipo.getCurve('RotX')
+			rotY = ipo.getCurve('RotY')
+			rotZ = ipo.getCurve('RotZ')
+ 
 			# Note: Quake3 uses left-hand geometry
 			forward = [tag.axis[0], tag.axis[1], tag.axis[2]]
 			left = [tag.axis[3], tag.axis[4], tag.axis[5]]
@@ -209,10 +238,14 @@ def loadModel(filename):
 			transform = MatrixSetupTransform(forward, left, up, tag.origin)
 			transform2 = Blender.Mathutils.Matrix(transform[0], transform[1], transform[2], transform[3])
 			#rotation = Blender.Mathutils.Matrix(forward, left, up)
-			blenderTag.setMatrix(transform2)
-			
-			blenderTag.setLocation(tag.origin)
-	
+			#blenderTag.setMatrix(transform2)
+			#print "org: ", tag.origin
+			locX.addBezier((i,tag.origin[0]))
+			locY.addBezier((i,tag.origin[1]))
+			locZ.addBezier((i,tag.origin[2]))
+			#blenderTag.setLocation(tag.origin)
+			#blenderTag.insertKey(i,"relative")
+ 
 	# locate the Object containing the mesh at the cursor location
 	cursorPos = Blender.Window.GetCursorPos()
 	meshObject.setLocation(float(cursorPos[0]), float(cursorPos[1]), float(cursorPos[2]))

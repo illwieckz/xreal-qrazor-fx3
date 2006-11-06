@@ -14,7 +14,7 @@ def asciiz(s):
 	return s[0:n]
 
 # strips the slashes from the back of a string
-def stripPath(path):
+def StripPath(path):
 	for c in range(len(path), 0, -1):
 		if path[c-1] == "/" or path[c-1] == "\\":
 			path = path[c:]
@@ -22,7 +22,7 @@ def stripPath(path):
 	return path
 	
 # strips the model from path
-def stripModel(path):
+def StripModel(path):
 	for c in range(len(path), 0, -1):
 		if path[c-1] == "/" or path[c-1] == "\\":
 			path = path[:c]
@@ -30,13 +30,13 @@ def stripModel(path):
 	return path
 
 # strips file type extension
-def stripExtension(name):
+def StripExtension(name):
 	if name.find('.') != -1:
 		name = name[:name.find('.')]
 	return name
 	
 # strips gamedir
-def stripGamePath(name):
+def StripGamePath(name):
 	if name[0:len(GAMEDIR)] == GAMEDIR:
 		name = name[len(GAMEDIR):len(name)]
 	return name
