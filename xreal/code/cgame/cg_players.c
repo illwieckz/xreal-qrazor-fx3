@@ -655,11 +655,16 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	{
 		headName = headModelName;
 	}
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
+	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md5mesh", modelName);
 	ci->legsModel = trap_R_RegisterModel(filename);
-	if(!ci->legsModel)
+	if(ci->legsModel)
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/lower.md3", modelName);
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md5anim", modelName);
+		ci->legsAnimation = trap_R_RegisterAnimation(filename);
+	}
+	if(!ci->legsModel || !ci->legsAnimation)
+	{
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
 		ci->legsModel = trap_R_RegisterModel(filename);
 		if(!ci->legsModel)
 		{
@@ -667,12 +672,17 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 			return qfalse;
 		}
 	}
-
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
+	
+	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md5mesh", modelName);
 	ci->torsoModel = trap_R_RegisterModel(filename);
-	if(!ci->torsoModel)
+	if(ci->torsoModel)
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/upper.md3", modelName);
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md5anim", modelName);
+		ci->torsoAnimation = trap_R_RegisterAnimation(filename);
+	}
+	if(!ci->torsoModel || !ci->torsoAnimation)
+	{
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
 		ci->torsoModel = trap_R_RegisterModel(filename);
 		if(!ci->torsoModel)
 		{
@@ -683,7 +693,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 
 	if(headName[0] == '*')
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/head.md3", &headModelName[1], &headModelName[1]);
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/head_%s.md3", modelName, &headModelName[1]);
 	}
 	else
 	{
@@ -694,7 +704,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	// if the head model could not be found and we didn't load from the heads folder try to load from there
 	if(!ci->headModel && headName[0] != '*')
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/head.md3", headModelName, headModelName);
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/head_%s.md3", modelName, headModelName);
 		ci->headModel = trap_R_RegisterModel(filename);
 	}
 	
@@ -722,8 +732,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 			
 			if(!CG_RegisterClientSkin(ci, newTeamName, modelName, skinName, headName, headSkinName))
 			{
-				Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName,
-						   headSkinName);
+				Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName, headSkinName);
 				return qfalse;
 			}
 		}
@@ -738,12 +747,8 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/animation.cfg", modelName);
 	if(!CG_ParseAnimationFile(filename, ci))
 	{
-		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/animation.cfg", modelName);
-		if(!CG_ParseAnimationFile(filename, ci))
-		{
-			Com_Printf("Failed to load animation file %s\n", filename);
-			return qfalse;
-		}
+		Com_Printf("Failed to load animation file %s\n", filename);
+		return qfalse;
 	}
 
 	if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin"))
@@ -928,11 +933,16 @@ static void CG_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to)
 	to->gender = from->gender;
 
 	to->legsModel = from->legsModel;
+	to->legsAnimation = from->legsAnimation;
 	to->legsSkin = from->legsSkin;
+	
 	to->torsoModel = from->torsoModel;
+	to->torsoAnimation = from->torsoAnimation;
 	to->torsoSkin = from->torsoSkin;
+	
 	to->headModel = from->headModel;
 	to->headSkin = from->headSkin;
+	
 	to->modelIcon = from->modelIcon;
 
 	to->newAnims = from->newAnims;
@@ -2502,12 +2512,10 @@ static void CG_PlayerSplash(centity_t * cent)
 CG_AddRefEntityWithPowerups
 
 Adds a piece with modifications or duplications for powerups
-Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
 void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int team)
 {
-
 	if(state->powerups & (1 << PW_INVIS))
 	{
 		ent->customShader = cgs.media.invisShader;
@@ -2524,7 +2532,7 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 		   trap_R_AddRefEntityToScene( ent );
 		   }
 		   else { */
-		trap_R_AddRefEntityToScene(ent);
+			trap_R_AddRefEntityToScene(ent);
 		//}
 
 		if(state->powerups & (1 << PW_QUAD))
@@ -2693,9 +2701,8 @@ void CG_Player(centity_t * cent)
 		CG_PlayerTokens(cent, renderfx);
 	}
 #endif
-	//
+	
 	// add the legs
-	//
 	legs.hModel = ci->legsModel;
 	legs.customSkin = ci->legsSkin;
 
@@ -2714,9 +2721,7 @@ void CG_Player(centity_t * cent)
 		return;
 	}
 
-	//
 	// add the torso
-	//
 	torso.hModel = ci->torsoModel;
 	if(!torso.hModel)
 	{
@@ -2958,9 +2963,7 @@ void CG_Player(centity_t * cent)
 	}
 #endif							// MISSIONPACK
 
-	//
 	// add the head
-	//
 	head.hModel = ci->headModel;
 	if(!head.hModel)
 	{
@@ -2983,9 +2986,7 @@ void CG_Player(centity_t * cent)
 	CG_DustTrail(cent);
 #endif
 
-	//
 	// add the gun / barrel / flash
-	//
 	CG_AddPlayerWeapon(&torso, NULL, cent, ci->team);
 
 	// add powerups floating behind the player

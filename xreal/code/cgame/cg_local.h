@@ -375,9 +375,11 @@ typedef struct
 	gender_t        gender;		// from model
 
 	qhandle_t       legsModel;
+	qhandle_t       legsAnimation;
 	qhandle_t       legsSkin;
 
 	qhandle_t       torsoModel;
+	qhandle_t       torsoAnimation;
 	qhandle_t       torsoSkin;
 
 	qhandle_t       headModel;
@@ -660,7 +662,7 @@ typedef struct
 
 
 	// development tools
-	refExtEntity_t  testModelEntity;
+	refEntity_t     testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
 
@@ -1618,7 +1620,6 @@ qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
 // Nothing is drawn until R_RenderScene is called.
 void            trap_R_ClearScene(void);
 void            trap_R_AddRefEntityToScene(const refEntity_t * ent);
-void            trap_R_AddRefExtendedEntityToScene(const refExtEntity_t * ent);
 void            trap_R_AddRefLightToScene(const refLight_t * light);
 
 // polys are intended for simple wall marks, not really for doing

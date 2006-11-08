@@ -2383,6 +2383,7 @@ int LightMain(int argc, char **argv)
 				"   area <V>       = set the area light scale to V\n"
 				"   point <W>      = set the point light scale to W\n"
 				"   notrace        = don't cast any shadows\n"
+				"   patchshadows   = enable patch shadow casting\n"
 				"   extra          = enable super sampling for anti-aliasing\n"
 				"   extrawide      = same as extra but smoothen more\n"
 				"   nogrid         = don't calculate light grid for dynamic model lighting\n"

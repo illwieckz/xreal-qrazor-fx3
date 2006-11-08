@@ -159,7 +159,7 @@ typedef struct trRefLight_s
 typedef struct
 {
 	// public from client game
-	refExtEntity_t  e;
+	refEntity_t     e;
 
 	// local
 	float           axisLength;	// compensate for non-normalized axis
@@ -2573,7 +2573,6 @@ void            R_ToggleSmpFrame(void);
 
 void            RE_ClearScene(void);
 void            RE_AddRefEntityToScene(const refEntity_t * ent);
-void            RE_AddRefExtendedEntityToScene(const refExtEntity_t * ent);
 void            RE_AddRefLightToScene(const refLight_t * light);
 void            RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
 void            RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);

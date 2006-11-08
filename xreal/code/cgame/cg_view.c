@@ -329,7 +329,7 @@ static void CG_AddTestModel(void)
 		}
 	}
 
-	trap_R_AddRefExtendedEntityToScene(&cg.testModelEntity);
+	trap_R_AddRefEntityToScene(&cg.testModelEntity);
 }
 
 

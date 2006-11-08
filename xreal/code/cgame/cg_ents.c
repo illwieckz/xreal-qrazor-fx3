@@ -543,8 +543,8 @@ static void CG_Missile(centity_t * cent)
 		}
 	}
 
-	// add to refresh list, possibly with quad glow
-	CG_AddRefEntityWithPowerups(&ent, s1, TEAM_FREE);
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
 }
 
 /*

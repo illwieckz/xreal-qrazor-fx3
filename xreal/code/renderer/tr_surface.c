@@ -1089,7 +1089,7 @@ Tess_SurfaceBeam
 static void Tess_SurfaceBeam(void)
 {
 #define NUM_BEAM_SEGS 6
-	refExtEntity_t *e;
+	refEntity_t    *e;
 	int             i;
 	vec3_t          perpvec;
 	vec3_t          direction, normalized_direction;
@@ -1269,7 +1269,7 @@ Tess_SurfaceRailRings
 */
 static void Tess_SurfaceRailRings(void)
 {
-	refExtEntity_t *e;
+	refEntity_t    *e;
 	int             numSegs;
 	int             len;
 	vec3_t          vec;
@@ -1305,7 +1305,7 @@ Tess_SurfaceRailCore
 */
 static void Tess_SurfaceRailCore(void)
 {
-	refExtEntity_t *e;
+	refEntity_t    *e;
 	int             len;
 	vec3_t          right;
 	vec3_t          vec;
@@ -1340,7 +1340,7 @@ Tess_SurfaceLightningBolt
 */
 static void Tess_SurfaceLightningBolt(void)
 {
-	refExtEntity_t *e;
+	refEntity_t    *e;
 	int             len;
 	vec3_t          right;
 	vec3_t          vec;
