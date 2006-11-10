@@ -402,6 +402,7 @@ typedef struct weaponInfo_s
 	gitem_t        *item;
 
 	qhandle_t       handsModel;	// the hands don't actually draw, they just position the weapon
+	qhandle_t		viewModel;	// Quake1 style view weapon model
 	qhandle_t       weaponModel;
 	qhandle_t       barrelModel;
 	qhandle_t       flashModel;
@@ -1166,9 +1167,9 @@ extern vmCvar_t cg_footsteps;
 extern vmCvar_t cg_addMarks;
 extern vmCvar_t cg_brassTime;
 extern vmCvar_t cg_gun_frame;
-extern vmCvar_t cg_gun_x;
-extern vmCvar_t cg_gun_y;
-extern vmCvar_t cg_gun_z;
+extern vmCvar_t cg_gunX;
+extern vmCvar_t cg_gunY;
+extern vmCvar_t cg_gunZ;
 extern vmCvar_t cg_drawGun;
 extern vmCvar_t cg_viewsize;
 extern vmCvar_t cg_tracerChance;

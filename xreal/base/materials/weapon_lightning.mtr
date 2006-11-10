@@ -1,15 +1,13 @@
 
-models/weapons/lightning/lightning
+models/weapons/lightning/w_lightning
 {
-	//cull back
 	{
 		blend diffuseMap
 		map models/weapons/lightning/lightning.tga
 		rgbGen lightingDiffuse
 	}
-	bumpMap models/weapons/lightning/lightning_norm.tga
-	//bumpMap _flat
-	specularMap models/weapons/lightning/lightning_spec.tga
+	normalMap models/weapons/lightning/lightning_local.tga
+	specularMap models/weapons/lightning/lightning_s.tga
 }
 
 models/weapons/lightning/f_lightning

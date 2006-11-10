@@ -142,7 +142,7 @@ iteminfo "weapon_shotgun"
 iteminfo "weapon_machinegun"
 {
 	name					"Machinegun"
-	model					"models/weapons2/machinegun/machinegun.md3"
+	model					"models/weapons/machinegun/machinegun.md3"
 	modelindex				MODELINDEX_MACHINEGUN
 	type					ITEM_WEAPON
 	index					INVENTORY_MACHINEGUN

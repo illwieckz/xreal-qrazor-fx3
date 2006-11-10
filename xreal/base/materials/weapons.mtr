@@ -1158,6 +1158,7 @@ models/weapons/plasmagun/plasmagun_mflash
 	}
 }
 
+/*
 models/weapons/machinegun/machinegun_mflash
 {
 	deform sprite
@@ -1172,7 +1173,9 @@ models/weapons/machinegun/machinegun_mflash
 		rotate	rotate90[ parm5 ]
 	}
 }
+*/
 
+/*
 models/weapons/machinegun/machinegun_mflash2
 {
 	deform tube
@@ -1186,7 +1189,9 @@ models/weapons/machinegun/machinegun_mflash2
 		scroll table4[ (time + parm4) * 7] , 0
 	}
 }
+*/
 
+/*
 models/weapons/machinegun/machinegun_mflashb
 {
 	deform sprite
@@ -1201,7 +1206,9 @@ models/weapons/machinegun/machinegun_mflashb
 		rotate	rotate90[ parm5 ]
 	}
 }
+*/
 
+/*
 models/weapons/machinegun/machinegun_mflash2b
 {
 	deform tube
@@ -1215,6 +1222,7 @@ models/weapons/machinegun/machinegun_mflash2b
 		scroll table4[ (time + parm4) * 6] , 0
 	}
 }
+*/
 
 
 /*
@@ -1698,6 +1706,7 @@ models/weapons/pistol/pistol_invis
 	}
 }
 
+/*
 models/weapons/machinegun/machinegun
 {
         noselfShadow
@@ -1713,7 +1722,9 @@ models/weapons/machinegun/machinegun
 				
            specularmap	 models/weapons/machinegun/machinegun_s.tga
 }
+*/
 
+/*
 models/weapons/machinegun/machinegun_invis
 {
         noselfShadow
@@ -1733,6 +1744,7 @@ models/weapons/machinegun/machinegun_invis
 		translate	time * 0 , time * 0.6
 	}
 }
+*/
 
 models/weapons/chainsaw/w_chainsaw
 {
@@ -3530,6 +3542,7 @@ models/weapons/machinegun/m_gui_gridscroll
 }
 */
 
+/*
 models/weapons/machinegun/m_gui
 {	
 	qer_editorimage	models/weapons/machinegun/m_gui.tga
@@ -3537,7 +3550,9 @@ models/weapons/machinegun/m_gui
 	guiSurf	entity
 	//translucent
 }
+*/
 
+/*
 models/weapons/machinegun/w_machinegun
 {
 		ricochet
@@ -3549,7 +3564,9 @@ models/weapons/machinegun/w_machinegun
 			
            specularmap	 models/weapons/machinegun/w_machinegun_s.tga
 }
+*/
 
+/*
 models/weapons/machinegun/w_machinegun_invis
 {
         noselfShadow
@@ -3565,6 +3582,7 @@ models/weapons/machinegun/w_machinegun_invis
 	}
 
 }
+*/
 
 models/weapons/rocketlauncher/rocketfin
 {

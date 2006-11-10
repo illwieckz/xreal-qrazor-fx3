@@ -787,10 +787,17 @@ void CG_RegisterWeapon(int weaponNum)
 	strcat(path, "_hand.md3");
 	weaponInfo->handsModel = trap_R_RegisterModel(path);
 
-	if(!weaponInfo->handsModel)
-	{
-		weaponInfo->handsModel = trap_R_RegisterModel("models/weapons/shotgun/shotgun_hand.md3");
-	}
+	strcpy(path, item->world_model[0]);
+	Com_StripExtension(path, path, sizeof(path));
+	strcat(path, "_view.md3");
+	weaponInfo->viewModel = trap_R_RegisterModel(path);
+
+	/*
+	   if(!weaponInfo->handsModel)
+	   {
+	   weaponInfo->handsModel = trap_R_RegisterModel("models/weapons/shotgun/shotgun_hand.md3");
+	   }
+	 */
 
 	weaponInfo->loopFireSound = qfalse;
 
@@ -1393,8 +1400,6 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	weaponInfo_t   *weapon;
 	centity_t      *nonPredictedCent;
 
-//  int col;
-
 	weaponNum = cent->currentState.weapon;
 
 	CG_RegisterWeapon(weaponNum);
@@ -1551,11 +1556,11 @@ Add the weapon, and flash for the player's view
 */
 void CG_AddViewWeapon(playerState_t * ps)
 {
-	refEntity_t     hand;
 	centity_t      *cent;
 	clientInfo_t   *ci;
 	float           fovOffset;
 	vec3_t          angles;
+	int				weaponNum;
 	weaponInfo_t   *weapon;
 
 	if(ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
@@ -1608,41 +1613,195 @@ void CG_AddViewWeapon(playerState_t * ps)
 	}
 
 	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
-	CG_RegisterWeapon(ps->weapon);
-	weapon = &cg_weapons[ps->weapon];
+	
+	weaponNum = ps->weapon;
+	CG_RegisterWeapon(weaponNum);
+	weapon = &cg_weapons[weaponNum];
 
-	memset(&hand, 0, sizeof(hand));
-
-	// set up gun position
-	CG_CalculateWeaponPosition(hand.origin, angles);
-
-	VectorMA(hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin);
-	VectorMA(hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin);
-	VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef.viewaxis[2], hand.origin);
-
-	AnglesToAxis(angles, hand.axis);
-
-	// map torso animations to weapon animations
-	if(cg_gun_frame.integer)
+	if(weapon->viewModel)
 	{
-		// development tool
-		hand.frame = hand.oldframe = cg_gun_frame.integer;
-		hand.backlerp = 0;
+		// allow Quake1 style view weapon models
+		refEntity_t     gun;
+		refEntity_t     flash;
+		vec3_t          angles;
+		centity_t      *nonPredictedCent;
+
+		memset(&gun, 0, sizeof(gun));
+
+		// set up gun position
+		CG_CalculateWeaponPosition(gun.origin, angles);
+
+		VectorMA(gun.origin, cg_gunX.value, cg.refdef.viewaxis[0], gun.origin);
+		VectorMA(gun.origin, cg_gunY.value, cg.refdef.viewaxis[1], gun.origin);
+		VectorMA(gun.origin, (cg_gunZ.value + fovOffset), cg.refdef.viewaxis[2], gun.origin);
+
+		AnglesToAxis(angles, gun.axis);
+
+		// map torso animations to weapon animations
+		if(cg_gun_frame.integer)
+		{
+			// development tool
+			gun.frame = gun.oldframe = cg_gun_frame.integer;
+			gun.backlerp = 0;
+		}
+		else
+		{
+			// get clientinfo for animation map
+			ci = &cgs.clientinfo[cent->currentState.clientNum];
+			gun.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame);
+			gun.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame);
+			gun.backlerp = cent->pe.torso.backlerp;
+		}
+
+		gun.hModel = weapon->viewModel;
+		gun.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
+
+		// set custom shading for railgun refire rate
+		if(cg.predictedPlayerState.weapon == WP_RAILGUN && cg.predictedPlayerState.weaponstate == WEAPON_FIRING)
+		{
+			float           f;
+
+			f = (float)cg.predictedPlayerState.weaponTime / 1500;
+			gun.shaderRGBA[1] = 0;
+			gun.shaderRGBA[0] = gun.shaderRGBA[2] = 255 * (1.0 - f);
+		}
+		else
+		{
+			gun.shaderRGBA[0] = 255;
+			gun.shaderRGBA[1] = 255;
+			gun.shaderRGBA[2] = 255;
+			gun.shaderRGBA[3] = 255;
+		}
+
+		//CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+
+		CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
+
+		/*
+		// add the spinning barrel
+		if(weapon->barrelModel)
+		{
+			memset(&barrel, 0, sizeof(barrel));
+			VectorCopy(parent->lightingOrigin, barrel.lightingOrigin);
+			barrel.shadowPlane = parent->shadowPlane;
+			barrel.renderfx = parent->renderfx;
+
+			barrel.hModel = weapon->barrelModel;
+			angles[YAW] = 0;
+			angles[PITCH] = 0;
+			angles[ROLL] = CG_MachinegunSpinAngle(cent);
+			AnglesToAxis(angles, barrel.axis);
+
+			CG_PositionRotatedEntityOnTag(&barrel, &gun, weapon->weaponModel, "tag_barrel");
+
+			CG_AddWeaponWithPowerups(&barrel, cent->currentState.powerups);
+		}
+		*/
+
+		// make sure we aren't looking at cg.predictedPlayerEntity for LG
+		nonPredictedCent = &cg_entities[cent->currentState.clientNum];
+
+		// if the index of the nonPredictedCent is not the same as the clientNum
+		// then this is a fake player (like on teh single player podiums), so
+		// go ahead and use the cent
+		if((nonPredictedCent - cg_entities) != cent->currentState.clientNum)
+		{
+			nonPredictedCent = cent;
+		}
+
+		// add the flash
+		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK)
+		   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
+		{
+			// continuous flash
+		}
+		else
+		{
+			// impulse flash
+			if(cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
+			{
+				return;
+			}
+		}
+
+		memset(&flash, 0, sizeof(flash));
+		VectorCopy(gun.lightingOrigin, flash.lightingOrigin);
+		flash.shadowPlane = gun.shadowPlane;
+		flash.renderfx = gun.renderfx;
+
+		flash.hModel = weapon->flashModel;
+		if(!flash.hModel)
+		{
+			return;
+		}
+		angles[YAW] = 0;
+		angles[PITCH] = 0;
+		angles[ROLL] = crandom() * 10;
+		AnglesToAxis(angles, flash.axis);
+
+		// colorize the railgun blast
+		if(weaponNum == WP_RAILGUN)
+		{
+			clientInfo_t   *ci;
+
+			ci = &cgs.clientinfo[cent->currentState.clientNum];
+			flash.shaderRGBA[0] = 255 * ci->color1[0];
+			flash.shaderRGBA[1] = 255 * ci->color1[1];
+			flash.shaderRGBA[2] = 255 * ci->color1[2];
+		}
+
+		CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->viewModel, "tag_flash");
+		trap_R_AddRefEntityToScene(&flash);
+
+		// add lightning bolt
+		CG_LightningBolt(nonPredictedCent, flash.origin);
+
+		// add rail trail
+		CG_SpawnRailTrail(cent, flash.origin);
+
+		if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
+		{
+			trap_R_AddLightToScene(flash.origin, 300 + (rand() & 31), weapon->flashLightColor[0],
+								   weapon->flashLightColor[1], weapon->flashLightColor[2]);
+		}
 	}
 	else
 	{
-		// get clientinfo for animation map
-		ci = &cgs.clientinfo[cent->currentState.clientNum];
-		hand.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame);
-		hand.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame);
-		hand.backlerp = cent->pe.torso.backlerp;
+		refEntity_t     hand;
+
+		memset(&hand, 0, sizeof(hand));
+
+		// set up gun position
+		CG_CalculateWeaponPosition(hand.origin, angles);
+
+		VectorMA(hand.origin, cg_gunX.value, cg.refdef.viewaxis[0], hand.origin);
+		VectorMA(hand.origin, cg_gunY.value, cg.refdef.viewaxis[1], hand.origin);
+		VectorMA(hand.origin, (cg_gunZ.value + fovOffset), cg.refdef.viewaxis[2], hand.origin);
+
+		AnglesToAxis(angles, hand.axis);
+
+		// map torso animations to weapon animations
+		if(cg_gun_frame.integer)
+		{
+			// development tool
+			hand.frame = hand.oldframe = cg_gun_frame.integer;
+			hand.backlerp = 0;
+		}
+		else
+		{
+			// get clientinfo for animation map
+			ci = &cgs.clientinfo[cent->currentState.clientNum];
+			hand.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame);
+			hand.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame);
+			hand.backlerp = cent->pe.torso.backlerp;
+		}
+
+		hand.hModel = weapon->handsModel;
+		hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
+
+		// add everything onto the hand
+		CG_AddPlayerWeapon(&hand, ps, &cg.predictedPlayerEntity, ps->persistant[PERS_TEAM]);
 	}
-
-	hand.hModel = weapon->handsModel;
-	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
-
-	// add everything onto the hand
-	CG_AddPlayerWeapon(&hand, ps, &cg.predictedPlayerEntity, ps->persistant[PERS_TEAM]);
 }
 
 /*
@@ -2106,13 +2265,13 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			   CG_ParticleExplosion("explode1", sprOrg, sprVel, 1400, 20, 30);
 			   }
 			 */
-			
+
 			// explosion spark particles
 			//if(cg_explosionSparks.integer)
 			{
 				VectorMA(origin, 24, dir, partOrigin);
 				VectorScale(dir, 64, partVel);
-				
+
 				CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
 			}
 			break;

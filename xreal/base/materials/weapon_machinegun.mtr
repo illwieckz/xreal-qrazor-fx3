@@ -1,22 +1,25 @@
 
-models/weapons2/machinegun/machinegun
+models/weapons/machinegun/machinegun
 {
 	{
 		blend diffusemap
-		map models/weapons2/machinegun/machinegun_big.tga
+		map models/weapons/machinegun/machinegun.tga
 		rgbGen lightingDiffuse
 	}
-	normalMap models/weapons2/machinegun/machinegun_norm.tga
-	specularMap models/weapons2/machinegun/machinegun_s.tga
+	{
+		stage normalmap
+		map addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
+	}
+	specularMap models/weapons/machinegun/machinegun_s.tga
 }
 
-models/weapons2/machinegun/f_machinegun
+models/weapons/machinegun/f_machinegun
 {
 	sort additive
 	cull disable
 	noshadows
 	{
 		map	models/weapons2/machinegun/f_machinegun.tga
-		blendfunc GL_ONE GL_ONE
+		blend add
 	}
 }
