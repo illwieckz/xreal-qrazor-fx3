@@ -16,15 +16,6 @@
 #define PNG_INTERNAL
 #include "png.h"
 
-#if defined(XMAP)
-#include "../common/cmdlib.h"
-#elif defined(RADIANT)
-// include nothing
-#else
-#include "../renderer/tr_local.h"
-#endif
-
-
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 static void /* PRIVATE */
 png_default_error PNGARG((png_structp png_ptr,
@@ -203,29 +194,15 @@ png_default_error(png_structp png_ptr, png_const_charp error_message)
      if((offset > 1) && (offset < 15))
      {
        error_number[offset-1]='\0';
-       
-       #if defined(XMAP)
-	   Error("libpng error no. %s: %s\n", error_number, error_message+offset);
-       #else
-	   ri.Error(ERR_FATAL, "libpng error no. %s: %s\n", error_number, error_message+offset);
-       #endif
+       fprintf(stderr, "libpng error no. %s: %s\n", error_number,
+          error_message+offset);
      }
      else
-     {
-       #if defined(XMAP)
-	   Error("libpng error: %s, offset=%d\n", error_message,offset);
-       #else
-	   ri.Error(ERR_FATAL, "libpng error: %s, offset=%d\n", error_message,offset);
-       #endif
-     }
+       fprintf(stderr, "libpng error: %s, offset=%d\n", error_message,offset);
    }
    else
 #endif
-   #if defined(XMAP)
-   Error("libpng error: %s\n", error_message);
-   #else
-   ri.Error(ERR_FATAL, "libpng error: %s\n", error_message);
-   #endif
+   fprintf(stderr, "libpng error: %s\n", error_message);
 #endif
 
 #ifdef PNG_SETJMP_SUPPORTED
@@ -259,7 +236,7 @@ static void /* PRIVATE */
 png_default_warning(png_structp png_ptr, png_const_charp warning_message)
 {
 #ifndef PNG_NO_CONSOLE_IO
-#ifdef PNG_ERROR_NUMBERS_SUPPORTED
+#  ifdef PNG_ERROR_NUMBERS_SUPPORTED
    if (*warning_message == '#')
    {
      int offset;
@@ -273,29 +250,15 @@ png_default_warning(png_structp png_ptr, png_const_charp warning_message)
      if((offset > 1) && (offset < 15))
      {
        warning_number[offset-1]='\0';
-       
-       #if defined(XMAP)
-	   fprintf(stderr, "libpng warning no. %s: %s\n", warning_number, warning_message+offset);
-       #else
-	   ri.Printf(PRINT_WARNING, "libpng warning no. %s: %s\n", warning_number, warning_message+offset);
-       #endif
+       fprintf(stderr, "libpng warning no. %s: %s\n", warning_number,
+          warning_message+offset);
      }
      else
-     {
-       #if defined(XMAP)
-	   fprintf(stderr, "libpng warning: %s, offset=%d\n", warning_message, offset);
-       #else
-	   ri.Printf(PRINT_WARNING, "libpng warning: %s, offset=%d\n", warning_message, offset);
-       #endif
-     }
+       fprintf(stderr, "libpng warning: %s\n", warning_message);
    }
    else
-#endif // PNG_ERROR_NUMBERS_SUPPORTED
-	 #if defined(XMAP)
-	 fprintf(stderr, "libpng warning: %s\n", warning_message);
-     #else
-	 ri.Printf(PRINT_WARNING, "libpng warning: %s\n", warning_message);
-     #endif
+#  endif
+     fprintf(stderr, "libpng warning: %s\n", warning_message);
 #else
    /* make compiler happy */ ;
    if (warning_message)
