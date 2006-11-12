@@ -30,14 +30,17 @@ Notes:<br>
     TODO
 """
 
-import sys, struct, string
-from types import *
+import sys, os, os.path, struct, string, math
 
-import os
-from os import path
-
-import Blender
+import Blender, Blender.Scene
 from Blender import *
+
+import types
+
+import textwrap
+
+import logging 
+reload(logging)
 
 import md3
 from md3 import *
@@ -45,8 +48,114 @@ from md3 import *
 import q_math
 from q_math import *
 
-#import q_shared
-#from q_shared import *
+# our own logger class. it works just the same as a normal logger except
+# all info messages get show. 
+class Logger(logging.Logger):
+	def __init__(self, name,level = logging.NOTSET):
+		logging.Logger.__init__(self, name, level)
+		
+		self.has_warnings = False
+		self.has_errors = False
+		self.has_critical = False
+	
+	def info(self, msg, *args, **kwargs):
+		apply(self._log,(logging.INFO, msg, args), kwargs)
+		
+	def warning(self, msg, *args, **kwargs):
+		logging.Logger.warning(self, msg, *args, **kwargs)
+		self.has_warnings = True
+	
+	def error(self, msg, *args, **kwargs):
+		logging.Logger.error(self, msg, *args, **kwargs)
+		self.has_errors = True
+		
+	def critical(self, msg, *args, **kwargs):
+		logging.Logger.critical(self, msg, *args, **kwargs)
+		self.has_errors = True
+		
+# should be able to make this print to stdout in realtime and save MESSAGES
+# as well. perhaps also have a log to file option
+class LogHandler(logging.StreamHandler):
+	def __init__(self):
+		logging.StreamHandler.__init__(self, sys.stdout)
+		
+		if "md3_import_log" not in Blender.Text.Get():
+			self.outtext = Blender.Text.New("md3_import_log")
+		else:
+			self.outtext = Blender.Text.Get('md3_import_log')
+			self.outtext.clear()
+			
+		self.lastmsg = ''
+		
+	def emit(self, record):
+		# print to stdout and  to a new blender text object
+		msg = self.format(record)
+		
+		if msg == self.lastmsg:
+			return
+		
+		self.lastmsg = msg
+		self.outtext.write("%s\n" %msg)
+		
+		logging.StreamHandler.emit(self, record)
+
+logging.setLoggerClass(Logger)
+log = logging.getLogger('md3_import')
+
+handler = LogHandler()
+formatter = logging.Formatter('%(levelname)s %(message)s')
+handler.setFormatter(formatter)
+
+log.addHandler(handler)
+# set this to minimum output level. eg. logging.DEBUG, logging.WARNING, logging.ERROR
+# logging.CRITICAL. logging.INFO will make little difference as these always get 
+# output'd
+log.setLevel(logging.WARNING)
+
+
+class BlenderGui:
+	def __init__(self):
+		text = """A log has been written to a blender text window. Change this window type to 
+a text window and you will be able to select the file md3_import_log."""
+
+		text = textwrap.wrap(text,40)
+		text += ['']
+		
+		if log.has_critical:
+			text += ['There were critical errors!!!!']
+			
+		elif log.has_errors:
+			text += ['There were errors!']
+			
+		elif log.has_warnings:
+			text += ['There were warnings']
+			
+		# add any more text before here
+		text.reverse()
+		
+		self.msg = text
+		
+		Blender.Draw.Register(self.gui, self.event, self.button_event)
+		
+	def gui(self,):
+		quitbutton = Blender.Draw.Button("Exit", 1, 0, 0, 100, 20, "Close Window")
+		
+		y = 35
+		
+		for line in self.msg:
+			BGL.glRasterPos2i(10,y)
+			Blender.Draw.Text(line)
+			y+=15
+			
+	def event(self,evt, val):
+		if evt == Blender.Draw.ESCKEY:
+			Blender.Draw.Exit()
+			return
+	
+	def button_event(self,evt):
+		if evt == 1:
+			Blender.Draw.Exit()
+			return
 
 def Import(fileName):
 	log.info("Starting ...")
@@ -62,8 +171,8 @@ def Import(fileName):
 	# read the file in
 	file = open(fileName,"rb")
 	md3 = md3Object()
-	md3.Load(file)
-	md3.Dump()
+	md3.Load(file, log)
+	md3.Dump(log)
 	file.close()
 	
 	scene = Scene.getCurrent()
@@ -193,14 +302,14 @@ def Import(fileName):
 	
 	# create tags
 	tags = []
-	scn = Blender.Scene.GetCurrent()
+	scn = Scene.GetCurrent()
 	for i in range(0, md3.numTags):
 		tag = md3.tags[i]
 		
 		# this should be an Empty object
 		blenderTag = Object.New("Empty", tag.name);
 		# set ipo
-		ipo = Blender.Ipo.New('Object', tag.name+"_ipo")
+		ipo = Ipo.New('Object', tag.name + "_ipo")
 		locX = ipo.addCurve('LocX')
 		locY = ipo.addCurve('LocY')
 		locZ = ipo.addCurve('LocZ')
@@ -233,8 +342,8 @@ def Import(fileName):
 			#tags.append(blenderTag)
 			#scene.link(blenderTag)
 			#blenderTag = tags[j]
-			blenderTag = Blender.Object.Get(tag.name)
-			ipo = Blender.Ipo.Get(tag.name + "_ipo")
+			blenderTag = Object.Get(tag.name)
+			ipo = Ipo.Get(tag.name + "_ipo")
 			locX = ipo.getCurve('LocX')
 			locY = ipo.getCurve('LocY')
 			locZ = ipo.getCurve('LocZ')
