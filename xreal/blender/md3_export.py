@@ -2,22 +2,22 @@
 
 """
 Name: 'Quake3 (.md3)...'
-Blender: 240
+Blender: 242
 Group: 'Export'
 Tooltip: 'Export to Quake3 file format. (.md3)'
 """
 __author__ = "PhaethonH, Bob Holcomb, Damien McGinnes, Robert (Tr3B) Beckebans"
 __url__ = ("http://xreal.sourceforge.net")
-__version__ = "0.3 2006-01-09"
+__version__ = "0.7 2006-11-12"
 
 __bpydoc__ = """\
 This script exports a Quake3 file (MD3).
 
 Supported:<br>
-    TODO
+    Surfaces, Materials and Tags.
 
 Missing:<br>
-    TODO
+    None.
 
 Known issues:<br>
     None.
@@ -26,14 +26,17 @@ Notes:<br>
     TODO
 """
 
-import sys, struct, string, math
-from types import *
+import sys, os, os.path, struct, string, math
 
-import os
-from os import path
+import Blender, Blender.Scene
+from Blender import Registry
+from Blender.Window import DrawProgressBar
+from Blender import Draw, BGL
+from Blender import NMesh
 
-import Blender
-from Blender import *
+import types
+
+import textwrap
 
 import md3
 from md3 import *
@@ -60,7 +63,7 @@ def UpdateFrameRadius(f):
 	f.radius = RadiusFromBounds(f.mins, f.maxs)
 
 
-def ProcessSurface(blenderObject, md3, pathName, modelName):
+def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 	# because md3 doesnt suppoort faceUVs like blender, we need to duplicate
 	# any vertex that has multiple uv coords
 
@@ -72,6 +75,7 @@ def ProcessSurface(blenderObject, md3, pathName, modelName):
 	faceList = [] # list of faces (they index into vertList)
 	numFaces = 0
 
+	scene.makeCurrent()
 	Blender.Set("curframe", 1)
 
 	# get access to the mesh data (as at frame #1)
@@ -88,7 +92,7 @@ def ProcessSurface(blenderObject, md3, pathName, modelName):
 	surf.numShaders += 1
 	surf.shaders[0].index = 0
 	
-	print mesh.materials
+	log.info("Materials: %s", mesh.materials)
 	if not mesh.materials:
 		surf.shaders[0].name = pathName + blenderObject.name
 	else:
@@ -180,13 +184,15 @@ def ProcessSurface(blenderObject, md3, pathName, modelName):
 			try:
 				vindices = indexDict[vertex.index]
 			except:
-				print "warning found a vertex in %s that is not part of a face" % blenderObject.name
+				log.warning("Found a vertex in %s that is not part of a face", blenderObject.name)
 				continue
 
 			vTx = ApplyTransform(vertex.co, matrix)
 			nTx = ApplyTransform(vertex.no, matrix)
 			UpdateFrameBounds(vTx, md3.frames[frameNum - 1])
 			vert = md3Vert()
+			#vert.xyz = vertex.co[0:3]
+			#vert.normal = vert.Encode(vertex.no[0:3])
 			vert.xyz = vTx[0:3]
 			vert.normal = vert.Encode(nTx[0:3])
 			for ind in vindices:  # apply the position to all the duplicated vertices
@@ -202,23 +208,31 @@ def ProcessSurface(blenderObject, md3, pathName, modelName):
 	md3.numSurfaces += 1
 
 
-def SaveModel(fileName):
+def Export(fileName):
 	if(fileName.find('.md3', -4) <= 0):
 		fileName += '.md3'
-	print "Exporting MD3 format to ", fileName
+		
+	log.info("Starting ...")
+	
+	log.info("Exporting MD3 format to: %s", fileName)
 	
 	pathName = StripGamePath(StripModel(fileName))
-	print "shader path name ", pathName
+	log.info("Shader path name: %s", pathName)
 	
 	modelName = StripExtension(StripPath(fileName))
-	print "model name ", modelName
+	log.info("Model name: %s", modelName)
 	
 	md3 = md3Object()
 	md3.ident = MD3_IDENT
 	md3.version = MD3_VERSION
 
 	tagList = []
+	
+	# get the scene
+	scene = Blender.Scene.getCurrent()
+	context = scene.getRenderingContext()
 
+	scene.makeCurrent()
 	md3.numFrames = Blender.Get("curframe")
 	Blender.Set("curframe", 1)
 
@@ -235,42 +249,47 @@ def SaveModel(fileName):
 	for obj in objlist:
 		# check if it's a mesh object
 		if obj.getType() == "Mesh":
-			print "processing surface", obj.name
+			log.info("Processing surface: %s", obj.name)
 			if len(md3.surfaces) == MD3_MAX_SURFACES:
-				print "hit md3 limit (%i) for number of surfaces, skipping" % MD3_MAX_SURFACES , obj.getName()
+				log.warning("Hit md3 limit (%i) for number of surfaces, skipping ...", MD3_MAX_SURFACES, obj.getName())
 			else:
-				ProcessSurface(obj, md3, pathName, modelName)
+				ProcessSurface(scene, obj, md3, pathName, modelName)
 		elif obj.getType() == "Empty":   # for tags, we just put em in a list so we can process them all together
 			if obj.name[0:4] == "tag_":
-				print "processing tag", obj.name
+				log.info("Processing tag: %s", obj.name)
 				tagList.append(obj)
 				md3.numTags += 1
 		else:
-			print "skipping object", obj.name
+			log.info("Skipping object: %s", obj.name)
 
+	
 	# work out the transforms for the tags for each frame of the export
-	for fr in range(1, md3.numFrames + 1):
-		Blender.Set("curframe", fr)
+	for i in range(1, md3.numFrames + 1):
+		
+		# needed to update IPO's value, but probably not the best way for that...
+		scene.makeCurrent()
+		Blender.Set("curframe", i)
+		Blender.Window.Redraw()
 		for tag in tagList:
 			t = md3Tag()
 			matrix = tag.getMatrix('worldspace')
-			for i in range(0, 3):
-				t.origin[0] = matrix[3][0]
-				t.origin[1] = matrix[3][1]
-				t.origin[2] = matrix[3][2]
+			t.origin[0] = matrix[3][0]
+			t.origin[1] = matrix[3][1]
+			t.origin[2] = matrix[3][2]
 				
-				t.axis[0] = matrix[0][0]
-				t.axis[1] = matrix[0][1]
-				t.axis[2] = matrix[0][2]
+			t.axis[0] = matrix[0][0]
+			t.axis[1] = matrix[0][1]
+			t.axis[2] = matrix[0][2]
 				
-				t.axis[3] = matrix[1][0]
-				t.axis[4] = matrix[1][1]
-				t.axis[5] = matrix[1][2]
+			t.axis[3] = matrix[1][0]
+			t.axis[4] = matrix[1][1]
+			t.axis[5] = matrix[1][2]
 				
-				t.axis[6] = matrix[2][0]
-				t.axis[7] = matrix[2][1]
-				t.axis[8] = matrix[2][2]
+			t.axis[6] = matrix[2][0]
+			t.axis[7] = matrix[2][1]
+			t.axis[8] = matrix[2][2]
 			t.name = tag.name
+			#t.Dump()
 			md3.tags.append(t)
 
 	# export!
@@ -279,4 +298,9 @@ def SaveModel(fileName):
 	file.close()
 	md3.Dump()
 
-Blender.Window.FileSelector(SaveModel, "Export Quake3 MD3")
+def FileSelectorCallback(fileName):
+	Export(fileName)
+	
+	BlenderGui()
+
+Blender.Window.FileSelector(FileSelectorCallback, "Export Quake3 MD3")

@@ -2,14 +2,14 @@
 
 """
 Name: 'Quake3 (.md3)...'
-Blender: 240
+Blender: 242
 Group: 'Import'
 Tooltip: 'Import from Quake3 file format. (.md3)'
 """
 
 __author__ = "PhaethonH, Bob Holcomb, Robert (Tr3B) Beckebans"
 __url__ = ("http://xreal.sourceforge.net")
-__version__ = "0.5 2006-01-08"
+__version__ = "0.6 2006-11-12"
 
 __bpydoc__ = """\
 This script imports a Quake 3 file (MD3), textures, 
@@ -21,7 +21,7 @@ Supported:<br>
 	Surfaces and Materials
 
 Missing:<br>
-    Animations
+    Animations, Tag rotations
 
 Known issues:<br>
     None
@@ -48,9 +48,19 @@ from q_math import *
 #import q_shared
 #from q_shared import *
 
-def loadModel(filename):
+def Import(fileName):
+	log.info("Starting ...")
+	
+	log.info("Importing MD3 model: %s", fileName)
+	
+	pathName = StripGamePath(StripModel(fileName))
+	log.info("Shader path name: %s", pathName)
+	
+	modelName = StripExtension(StripPath(fileName))
+	log.info("Model name: %s", modelName)
+	
 	# read the file in
-	file = open(filename,"rb")
+	file = open(fileName,"rb")
 	md3 = md3Object()
 	md3.Load(file)
 	md3.Dump()
@@ -58,7 +68,9 @@ def loadModel(filename):
 	
 	scene = Scene.getCurrent()
 	
-	for surface in md3.surfaces:
+	for k in range(0, md3.numSurfaces):
+		surface = md3.surfaces[k]
+		
 		# create a new mesh
 		mesh = NMesh.New(surface.name)
 		uv = []
@@ -95,7 +107,7 @@ def loadModel(filename):
 		meshObject = NMesh.PutRaw(mesh)
 		meshObject.name = surface.name
 		
-		
+		"""
 		# animate the verts through keyframe animation
 		mesh = meshObject.getData()
 		
@@ -131,7 +143,7 @@ def loadModel(filename):
 			NMesh.PutRaw(mesh, meshObject.name)
 			#absolute works too, but I want to get these into NLA actions
 			mesh.insertKey(i,"relative")
-		
+		"""
 		
 		# create materials for surface
 		for i in range(0, surface.numShaders):
@@ -144,7 +156,7 @@ def loadModel(filename):
 			try:
 				mat = Material.Get(matName)
 			except:
-				print "creating new material", matName
+				log.info("Creating new material: %s", matName)
 				mat = Material.New(matName)
 			
 				# create new texture
@@ -170,7 +182,7 @@ def loadModel(filename):
 						
 							texture.image = image
 						except:
-							print "unable to load image ", imageName
+							log.warning("Unable to load image: %s", imageName)
  				
 				# texture to material
 				mat.setTexture(0, texture, Texture.TexCo.UV, Texture.MapTo.COL)
@@ -211,7 +223,7 @@ def loadModel(filename):
 		blenderTag.setLocation(tag.origin)
  
 	# FIXME this imports only the baseframe tags
-	for i in range(0, surface.numFrames):
+	for i in range(0, md3.numFrames):
  
 		for j in range(0, md3.numTags):
 			tag = md3.tags[i * md3.numTags + j]
@@ -221,8 +233,8 @@ def loadModel(filename):
 			#tags.append(blenderTag)
 			#scene.link(blenderTag)
 			#blenderTag = tags[j]
-			blenderTag = Blender.Object.Get( tag.name )
-			ipo = Blender.Ipo.Get(tag.name+"_ipo")
+			blenderTag = Blender.Object.Get(tag.name)
+			ipo = Blender.Ipo.Get(tag.name + "_ipo")
 			locX = ipo.getCurve('LocX')
 			locY = ipo.getCurve('LocY')
 			locZ = ipo.getCurve('LocZ')
@@ -247,12 +259,18 @@ def loadModel(filename):
 			#blenderTag.insertKey(i,"relative")
  
 	# locate the Object containing the mesh at the cursor location
-	cursorPos = Blender.Window.GetCursorPos()
-	meshObject.setLocation(float(cursorPos[0]), float(cursorPos[1]), float(cursorPos[2]))
+	if md3.numSurfaces:
+		cursorPos = Blender.Window.GetCursorPos()
+		meshObject.setLocation(float(cursorPos[0]), float(cursorPos[1]), float(cursorPos[2]))
 	
 	# not really necessary, but I like playing with the frame counter
 	#Blender.Set("staframe", 1)
 	#Blender.Set("curframe", md3.numFrames)
 	#Blender.Set("endframe", md3.numFrames)
+
+def FileSelectorCallback(fileName):
+	Import(fileName)
 	
-Blender.Window.FileSelector(loadModel, 'Import Quake3 MD3')
+	BlenderGui()
+
+Blender.Window.FileSelector(FileSelectorCallback, 'Import Quake3 MD3')

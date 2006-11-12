@@ -90,12 +90,12 @@ class md3Vert:
 		#print "Wrote MD3 Vertex: ", data
 	
 	def Dump(self):
-		print "MD3 Vertex"
-		print "X: ", self.xyz[0]
-		print "Y: ", self.xyz[1]
-		print "Z: ", self.xyz[2]
-		print "Normal: ", self.normal
-		print ""
+		log.info("MD3 Vertex")
+		log.info("X: %s", self.xyz[0])
+		log.info("Y: %s", self.xyz[1])
+		log.info("Z: %s", self.xyz[2])
+		log.info("Normal: %s", self.normal)
+		log.info("")
 		
 class md3TexCoord:
 	u = 0.0
@@ -127,10 +127,10 @@ class md3TexCoord:
 		#print "wrote MD3 texture coordinate structure: ", data
 
 	def Dump(self):
-		print "MD3 Texture Coordinates"
-		print "U: ", self.u
-		print "V: ", self.v
-		print ""
+		log.info("MD3 Texture Coordinates")
+		log.info("U: %s", self.u)
+		log.info("V: %s", self.v)
+		log.info("")
 		
 
 class md3Triangle:
@@ -162,9 +162,9 @@ class md3Triangle:
 		#print "wrote MD3 face structure: ",data
 
 	def Dump(self):
-		print "MD3 Triangle"
-		print "Indices: ", self.indexes
-		print ""
+		log.info("MD3 Triangle")
+		log.info("Indices: %s", self.indexes)
+		log.info("")
 
 
 class md3Shader:
@@ -196,10 +196,10 @@ class md3Shader:
 		#print "wrote MD3 shader structure: ",data
 
 	def Dump(self):
-		print "MD3 Shader"
-		print "Name: ", self.name
-		print "Index: ", self.index
-		print ""
+		log.info("MD3 Shader")
+		log.info("Name: %s", self.name)
+		log.info("Index: %s", self.index)
+		log.info("")
 
 
 class md3Surface:
@@ -345,20 +345,20 @@ class md3Surface:
 			v.Save(file)
 
 	def Dump(self):
-		print "MD3 Surface"
-		print "Ident: ", self.ident
-		print "Name: ", self.name
-		print "Flags: ", self.flags
-		print "Number of Frames: ", self.numFrames
-		print "Number of Shaders: ", self.numShaders
-		print "Number of Verts: ", self.numVerts
-		print "Number of Triangles: ", self.numTriangles
-		print "Offset to Triangles: ", self.ofsTriangles
-		print "Offset to Shaders: ", self.ofsShaders
-		print "Offset to UV: ", self.ofsUV
-		print "Offset to Verts: ", self.ofsVerts
-		print "Offset to end: ", self.ofsEnd
-		print ""
+		log.info("MD3 Surface")
+		log.info("Ident: %s", self.ident)
+		log.info("Name: %s", self.name)
+		log.info("Flags: %s", self.flags)
+		log.info("Number of Frames: %s", self.numFrames)
+		log.info("Number of Shaders: %s", self.numShaders)
+		log.info("Number of Verts: %s", self.numVerts)
+		log.info("Number of Triangles: %s", self.numTriangles)
+		log.info("Offset to Triangles: %s", self.ofsTriangles)
+		log.info("Offset to Shaders: %s", self.ofsShaders)
+		log.info("Offset to UV: %s", self.ofsUV)
+		log.info("Offset to Verts: %s", self.ofsVerts)
+		log.info("Offset to end: %s", self.ofsEnd)
+		log.info("")
 		
 
 class md3Tag:
@@ -414,11 +414,11 @@ class md3Tag:
 		#print "wrote MD3 Tag structure: ",data
 		
 	def Dump(self):
-		print "MD3 Tag"
-		print "Name: ", self.name
-		print "Origin: ", self.origin
-		print "Axis: ", self.axis
-		print ""
+		log.info("MD3 Tag")
+		log.info("Name: %s", self.name)
+		log.info("Origin: %s", self.origin)
+		log.info("Axis: %s", self.axis)
+		log.info("")
 	
 class md3Frame:
 	mins = 0
@@ -473,13 +473,13 @@ class md3Frame:
 		#print "wrote MD3 frame structure: ",data
 
 	def Dump(self):
-		print "MD3 Frame"
-		print "Min Bounds: ", self.mins
-		print "Max Bounds: ", self.maxs
-		print "Local Origin: ", self.localOrigin
-		print "Radius: ", self.radius
-		print "Name: ", self.name
-		print ""
+		log.info("MD3 Frame")
+		log.info("Min Bounds: %s", self.mins)
+		log.info("Max Bounds: %s", self.maxs)
+		log.info("Local Origin: %s", self.localOrigin)
+		log.info("Radius: %s", self.radius)
+		log.info("Name: %s", self.name)
+		log.info("")
 
 class md3Object:
 	# header structure
@@ -539,9 +539,9 @@ class md3Object:
 		self.version = data[1]
 
 		if(self.ident != "IDP3" or self.version != 15):
-			print "Not a valid MD3 file"
-			print "Ident: ", self.ident
-			print "Version: ", self.version
+			log.error("Not a valid MD3 file")
+			log.error("Ident: %s", self.ident)
+			log.error("Version: %s", self.version)
 			Exit()
 
 		self.name = asciiz(data[2])
@@ -608,17 +608,17 @@ class md3Object:
 			s.Save(file)
 
 	def Dump(self):
-		print "Header Information"
-		print "ident: ", self.ident
-		print "version: ", self.version
-		print "Name: ", self.name
-		print "Flags: ", self.flags
-		print "Number of Frames: ",self.numFrames
-		print "Number of Tags: ", self.numTags
-		print "Number of Surfaces: ", self.numSurfaces
-		print "Number of Skins: ", self.numSkins
-		print "Offset Frames: ", self.ofsFrames
-		print "Offset Tags: ", self.ofsTags
-		print "Offset Surfaces: ", self.ofsSurfaces
-		print "Offset end: ", self.ofsEnd
-		print ""
+		log.info("Header Information")
+		log.info("Ident: %s", self.ident)
+		log.info("Version: %s", self.version)
+		log.info("Name: %s", self.name)
+		log.info("Flags: %s", self.flags)
+		log.info("Number of Frames: %s",self.numFrames)
+		log.info("Number of Tags: %s", self.numTags)
+		log.info("Number of Surfaces: %s", self.numSurfaces)
+		log.info("Number of Skins: %s", self.numSkins)
+		log.info("Offset Frames: %s", self.ofsFrames)
+		log.info("Offset Tags: %s", self.ofsTags)
+		log.info("Offset Surfaces: %s", self.ofsSurfaces)
+		log.info("Offset end: %s", self.ofsEnd)
+		log.info("")
