@@ -28,11 +28,11 @@ Notes:<br>
 
 import sys, os, os.path, struct, string, math
 
-import Blender, Blender.Scene
-from Blender import Registry
-from Blender.Window import DrawProgressBar
-from Blender import Draw, BGL
-from Blender import NMesh
+import Blender
+from Blender import *
+from Blender.Draw import *
+from Blender.BGL import *
+from Blender.Window import *
 
 import types
 
@@ -191,8 +191,8 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 	Blender.Set("curframe", 1)
 	Blender.Window.Redraw()
 
-	# get access to the mesh data (as at frame #1)
-	mesh = NMesh.GetRawFromObject(blenderObject.name)
+	# get the object (not just name) and the Mesh, not NMesh
+	mesh = blenderObject.getData(False, True)
 	matrix = blenderObject.getMatrix('worldspace')
 
 	surf = md3Surface()
@@ -229,9 +229,9 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 				# get the vertex index, coords and uv coords
 				index = face.v[i].index
 				v = face.v[i].co
-				if mesh.hasFaceUV():
-					uv = face.uv[i]
-				elif mesh.hasVertexUV():
+				if mesh.faceUV == True:
+					uv = (face.uv[i][0], face.uv[i][1])
+				elif mesh.vertexUV:
 					uv = (face.v[i].uvco[0], face.v[i].uvco[1])
 				else:
 					uv = (0.0, 0.0) # handle case with no tex coords	
