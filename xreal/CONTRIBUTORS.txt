@@ -7,6 +7,8 @@ Björn "bj0ern" Paschen - win32 specific fixes
 Pat "raynorpat" Raynor - bugfixes, PNG patch
 Iain "Jock" Mckay - x86_64 patch
 Tim "Timbo" Angus - .avi video recording patch
+Jason Thomas Dolan - Linux ALSA sound backend
+Ryan C. Gordon "icculus" - Linux SDL sound backend
 ensiform - console clock enhancements
 
 
