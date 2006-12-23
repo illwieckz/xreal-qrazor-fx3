@@ -1495,7 +1495,7 @@ RE_Shutdown
 void RE_Shutdown(qboolean destroyWindow)
 {
 
-	ri.Printf(PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow);
+	ri.Printf(PRINT_ALL, "RE_Shutdown( destroyWindow = %i )\n", destroyWindow);
 
 	ri.Cmd_RemoveCommand("modellist");
 	ri.Cmd_RemoveCommand("screenshotJPEG");
@@ -1531,7 +1531,9 @@ void RE_Shutdown(qboolean destroyWindow)
 	// shut down platform specific OpenGL stuff
 	
 	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
+#if !defined(SMP)
 	if(destroyWindow)
+#endif
 	{
 		GLimp_Shutdown();
 	}

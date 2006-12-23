@@ -1433,6 +1433,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		{
 			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
+				}
+				
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
 				goto nextInteraction;
@@ -1444,6 +1451,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// draw the contents of the last shader batch
 					Tess_End();
 				}
+				
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- Beginning Shadow Interaction: %i -----\n", iaCount));
+				}
 
 				// we don't need tangent space calculations here
 				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, ia->lightShader, -1, 0, qtrue, qtrue);
@@ -1453,6 +1467,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		{
 			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- Batching Light Interaction: %i -----\n", iaCount));
+				}
+				
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 				goto nextInteraction;
@@ -1463,6 +1484,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				{
 					// draw the contents of the last shader batch
 					Tess_End();
+				}
+				
+				if(r_logFile->integer)
+				{
+					// don't just call LogComment, or we will get
+					// a call to va() every frame!
+					GLimp_LogComment(va("----- Beginning Light Interaction: %i -----\n", iaCount));
 				}
 
 				// begin a new batch
@@ -1543,7 +1571,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
@@ -1709,10 +1737,23 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
 				
-				R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
-				
-				//if(!light->l.noShadows)
+				/*
+				if(light->l.noShadows)
 				{
+					if(r_logFile->integer)
+					{
+						// don't just call LogComment, or we will get
+						// a call to va() every frame!
+						GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
+					}
+					
+					goto skipInteraction;
+				}
+				else
+				*/
+				{
+					R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
+					
 					switch (light->l.rlType)
 					{
 						case RL_OMNI:
@@ -1880,7 +1921,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						
 						case RL_DIRECT:
 						{
-							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
+							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
 							
 							// TODO
 							break;

@@ -64,6 +64,8 @@ long            myftol(float f);
 
 #define	MAX_FBOS				64
 
+#define PRECACHE_SHADOWVOLUMES
+
 // can't be increased without changing bit packing for drawsurfs
 
 typedef enum
@@ -1059,20 +1061,13 @@ typedef struct interaction_s
 	struct interaction_s *next;
 } interaction_t;
 
-#define	MAX_EDGES	32
 typedef struct
 {
-	int             i2;
-	qboolean        facing;
-} edge_t;
-
-typedef struct
-{
-	edge_t          edges[SHADER_MAX_VERTEXES][MAX_EDGES];
-	int             numEdges[SHADER_MAX_VERTEXES];
-
+	int             numDegenerated;			// number of bad triangles
+	qboolean        degenerated[SHADER_MAX_INDEXES / 3];
+	
 	qboolean        facing[SHADER_MAX_INDEXES / 3];
-	int             numFacing;
+	int             numFacing;			// number of triangles facing the light origin
 
 	int             numIndexes;
 	int             indexes[SHADER_MAX_INDEXES];
@@ -1672,14 +1667,6 @@ typedef struct
 	int             c_vboIndexBuffers;
 	int             c_vboVertexes;
 	int             c_vboIndexes;
-
-	int             c_dlightVertexes;
-	int             c_dlightIndexes;
-
-	int             c_shadowBatches;
-	int             c_shadowSurfaces;
-	int             c_shadowVertexes;
-	int             c_shadowIndexes;
 
 	int             c_fogSurfaces;
 	int             c_fogBatches;

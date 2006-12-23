@@ -3549,7 +3549,6 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	int             numIndexes;
 	int            *indexes;
 	float           d;
-	qboolean        shadowVolume;
 
 	// check if bounds intersect
 	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
@@ -3588,29 +3587,24 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 #endif
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
+	Com_Memset(&sh, 0, sizeof(shadowState_t));
 
 	numIndexes = 0;
 	indexes = s_lightIndexes;
 	
 	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
-		int             i1, i2, i3;
 		vec3_t          verts[3];
 
-		//vec3_t          d1, d2;
 		vec4_t          plane;
 		float           d;
 
+		// assume the triangle is ok and visible
 		sh.facing[i] = qtrue;
 
-		i1 = tri->indexes[0];
-		i2 = tri->indexes[1];
-		i3 = tri->indexes[2];
-
-		VectorCopy(cv->verts[i1].xyz, verts[0]);
-		VectorCopy(cv->verts[i2].xyz, verts[1]);
-		VectorCopy(cv->verts[i3].xyz, verts[2]);
+		VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
+		VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
+		VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
 
 		/*
 		   VectorSubtract(verts[1], verts[0], d1);
@@ -3653,22 +3647,22 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 				}
 			}
 #endif
-			shadowVolume = qtrue;
+			sh.degenerated[i] = qfalse;
 		}
 		else
 		{
 			//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
-			shadowVolume = qtrue;
+			sh.numDegenerated++;
+			sh.degenerated[i] = qtrue;
+			
+			sh.facing[i] = qfalse;
 		}
 
-#if 1
 		// check with ODE's triangle<->OBB collider for an intersection
 		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 		{
-			c_culledFaceTriangles++;
 			sh.facing[i] = qfalse;
 		}
-#endif
 
 		if(numIndexes >= SHADER_MAX_INDEXES)
 		{
@@ -3678,31 +3672,33 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		// create triangle indices
 		if(sh.facing[i])
 		{
-			indexes[numIndexes + 0] = i1;
-			indexes[numIndexes + 1] = i2;
-			indexes[numIndexes + 2] = i3;
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[2];
 			numIndexes += 3;
 			
 			sh.numFacing++;
 		}
+		else
+		{
+			c_culledFaceTriangles++;	
+		}
 	}
 
-#if 1
 	if(numIndexes == 0)
 	{
 		return qfalse;
 	}
-#endif
 
 	s_numLightIndexes = numIndexes;
 
 
-#if 1
+#ifdef PRECACHE_SHADOWVOLUMES
 	// calculate zfail shadow volume
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if(r_shadows->integer != 3 || !shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -3789,7 +3785,6 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *indexes;
-	qboolean        shadowVolume;
 
 	// check if bounds intersect
 	if(light->worldBounds[1][0] < cv->meshBounds[0][0] ||
@@ -3803,27 +3798,22 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	}
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
+	Com_Memset(&sh, 0, sizeof(shadowState_t));
 
 	numIndexes = 0;
 	indexes = s_lightIndexes;
 	
 	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
-		int             i1, i2, i3;
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
 
 		sh.facing[i] = qtrue;
 
-		i1 = tri->indexes[0];
-		i2 = tri->indexes[1];
-		i3 = tri->indexes[2];
-
-		VectorCopy(cv->verts[i1].xyz, verts[0]);
-		VectorCopy(cv->verts[i2].xyz, verts[1]);
-		VectorCopy(cv->verts[i3].xyz, verts[2]);
+		VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
+		VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
+		VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
 
 		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 		{
@@ -3835,7 +3825,6 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 			{
 				if(d < 0)
 				{
-					c_culledGridTriangles++;
 					sh.facing[i] = qfalse;
 				}
 			}
@@ -3843,27 +3832,25 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 			{
 				if(d > 0)
 				{
-					c_culledGridTriangles++;
 					sh.facing[i] = qfalse;
 				}
 			}
 #endif
-			shadowVolume = qtrue;
+			sh.degenerated[i] = qfalse;
 		}
 		else
 		{
-			//ri.Printf(PRINT_WARNING, "degenerated bezier surface triangle\n");
-			shadowVolume = qtrue;
+			sh.numDegenerated++;
+			sh.degenerated[i] = qtrue;
+			
+			sh.facing[i] = qfalse;
 		}
 
-#if 1
 		// check with ODE's triangle<->OBB collider for an intersection
 		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 		{
-			c_culledGridTriangles++;
 			sh.facing[i] = qfalse;
 		}
-#endif
 
 		if(numIndexes >= SHADER_MAX_INDEXES)
 		{
@@ -3873,30 +3860,32 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 		// create triangle indices
 		if(sh.facing[i])
 		{
-			indexes[numIndexes + 0] = i1;
-			indexes[numIndexes + 1] = i2;
-			indexes[numIndexes + 2] = i3;
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[2];
 			numIndexes += 3;
 			
 			sh.numFacing++;
 		}
+		else
+		{
+			c_culledGridTriangles++;	
+		}
 	}
 
-#if 1
 	if(numIndexes == 0)
 	{
 		return qfalse;
 	}
-#endif
 
 	s_numLightIndexes = numIndexes;
 	
-#if 1
+#ifdef PRECACHE_SHADOWVOLUMES
 	// calculate zfail shadow volume
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if(r_shadows->integer != 3 || !shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -3983,7 +3972,6 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *indexes;
-	qboolean        shadowVolume;
 
 	// check if bounds intersect
 	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
@@ -3997,27 +3985,22 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	}
 
 	// build a list of triangles that need light
-	Com_Memset(sh.numEdges, 0, 4 * cv->numVerts);
+	Com_Memset(&sh, 0, sizeof(shadowState_t));
 
 	numIndexes = 0;
 	indexes = s_lightIndexes;
 	
 	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 	{
-		int             i1, i2, i3;
 		vec3_t          verts[3];
 		vec4_t          plane;
 		float           d;
 
 		sh.facing[i] = qtrue;
 
-		i1 = tri->indexes[0];
-		i2 = tri->indexes[1];
-		i3 = tri->indexes[2];
-
-		VectorCopy(cv->verts[i1].xyz, verts[0]);
-		VectorCopy(cv->verts[i2].xyz, verts[1]);
-		VectorCopy(cv->verts[i3].xyz, verts[2]);
+		VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
+		VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
+		VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
 
 		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 		{
@@ -4029,7 +4012,6 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			{
 				if(d < 0)
 				{
-					c_culledTriTriangles++;
 					sh.facing[i] = qfalse;
 				}
 			}
@@ -4037,7 +4019,6 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			{
 				if(d > 0)
 				{
-					c_culledTriTriangles++;
 					sh.facing[i] = qfalse;
 				}
 			}
@@ -4048,41 +4029,25 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			r = BoxOnPlaneSide2(light->worldBounds[0], light->worldBounds[1], plane);
 			if(r != 3)
 			{
-				c_culledTriTriangles++;
 				sh.facing[i] = false;
 			}
 #endif
-			shadowVolume = qtrue;
+			sh.degenerated[i] = qfalse;
 		}
 		else
 		{
-			//ri.Printf(PRINT_WARNING, "degenerated abitrary surface triangle\n");
-			shadowVolume = qtrue;
+			//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
+			sh.numDegenerated++;
+			sh.degenerated[i] = qtrue;
+			
+			sh.facing[i] = qfalse;
 		}
 
-#if 0
-		// check if the triangle is inside light frustum
-		switch (R_CullLightTriangle(dl, verts))
-		{
-			case CULL_IN:
-			case CULL_CLIP:
-				break;
-
-			case CULL_OUT:
-			default:
-				c_culledTriTriangles++;
-				sh.facing[i] = false;
-		}
-#endif
-
-#if 1
 		// check with ODE's triangle<->OBB collider for an intersection
 		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 		{
-			c_culledTriTriangles++;
 			sh.facing[i] = qfalse;
 		}
-#endif
 
 		if(numIndexes >= SHADER_MAX_INDEXES)
 		{
@@ -4092,30 +4057,32 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 		// create triangle indices
 		if(sh.facing[i])
 		{
-			indexes[numIndexes + 0] = i1;
-			indexes[numIndexes + 1] = i2;
-			indexes[numIndexes + 2] = i3;
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[2];
 			numIndexes += 3;
 			
 			sh.numFacing++;
 		}
+		else
+		{
+			c_culledFaceTriangles++;	
+		}
 	}
 
-#if 1
 	if(numIndexes == 0)
 	{
 		return qfalse;
 	}
-#endif
 
 	s_numLightIndexes = numIndexes;
 	
-#if 1
+#ifdef PRECACHE_SHADOWVOLUMES
 	// calculate zfail shadow volume
 	numIndexes = 0;
 	indexes = s_shadowIndexes;
 
-	if(r_shadows->integer != 3 || !shadowVolume || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+	if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 	{
 		return qtrue;
 	}
@@ -4190,7 +4157,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	}
 	
 	s_numShadowIndexes = numIndexes;
-#endif	
+#endif
 	
 	return qtrue;
 }

@@ -1000,13 +1000,6 @@ static void DrawElements()
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(tess.ofsIndexes));
 		backEnd.pc.c_indexes += tess.numIndexes;
 	}
-#if 0
-	else if(tess.numLightIndexes)
-	{
-		qglDrawElements(GL_TRIANGLES, tess.numLightIndexes, GL_INDEX_TYPE, tess.lightIndexes);
-		backEnd.pc.c_indexes += tess.numLightIndexes;
-	}
-#endif
 	else
 	{
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
@@ -1961,10 +1954,6 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 
 	DrawElements();
 
-	// update performance counters
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-
 	GL_CheckErrors();
 }
 
@@ -2021,10 +2010,6 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 
 	DrawElements();
-
-	// update performance counters
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 
 	GL_CheckErrors();
 }
@@ -2097,10 +2082,6 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	DrawElements();
 
-	// update performance counters
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
-
 	GL_CheckErrors();
 }
 
@@ -2151,10 +2132,6 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 
 	DrawElements();
-
-	// update performance counters
-	backEnd.pc.c_dlightVertexes += tess.numVertexes;
-	backEnd.pc.c_dlightIndexes += tess.numIndexes;
 
 	GL_CheckErrors();
 }
@@ -4698,8 +4675,6 @@ void Tess_StageIteratorStencilShadowVolume()
 			//  qglFrontFace(GL_CCW);
 		}
 	}
-
-	backEnd.pc.c_shadowBatches++;
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)
