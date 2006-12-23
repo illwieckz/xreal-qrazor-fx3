@@ -188,6 +188,11 @@ cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
 cvar_t         *r_vboTriangles;
 
+cvar_t         *r_precacheLightIndexes;
+cvar_t         *r_precacheShadowIndexes;
+
+cvar_t         *r_stitchCurves;
+
 
 // GL_ARB_multitexture
 void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
@@ -1246,6 +1251,10 @@ void R_Register(void)
 	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "2", CVAR_LATCH);
 	r_intensity = ri.Cvar_Get("r_intensity", "1", CVAR_LATCH);
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_precacheLightIndexes = ri.Cvar_Get("r_precacheLightIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_precacheShadowIndexes = ri.Cvar_Get("r_precacheShadowIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "1", CVAR_CHEAT | CVAR_LATCH);
+	
 
 	//
 	// archived variables that can change at any time

@@ -258,7 +258,8 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 }
 */
 
-static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
+static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
+							 srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
 	int             numTriangles;
@@ -292,9 +293,9 @@ static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE
 			numTriangles++;
 		}
 	}
-	
+
 	R_CalcSurfaceTriangleNeighbors(numTriangles, triangles);
-	
+
 	// FIXME: use more elegant way
 	for(i = 0; i < width; i++)
 	{
@@ -304,13 +305,14 @@ static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE
 			*dv = ctrl[j][i];
 		}
 	}
-	
+
 	R_CalcSurfaceTrianglePlanes(numTriangles, triangles, ctrl2);
-	
+
 	return numTriangles;
 }
 
-static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
+static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles,
+							  srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
 	float          *v;
@@ -322,7 +324,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	srfVert_t      *dv0, *dv1, *dv2;
 	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 	srfTriangle_t  *tri;
-	
+
 	// FIXME: use more elegant way
 	for(i = 0; i < width; i++)
 	{
@@ -336,7 +338,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	for(i = 0; i < (width * height); i++)
 	{
 		dv0 = &ctrl2[i];
-			
+
 		VectorClear(dv0->tangent);
 		VectorClear(dv0->binormal);
 		VectorClear(dv0->normal);
@@ -347,7 +349,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 		dv0 = &ctrl2[tri->indexes[0]];
 		dv1 = &ctrl2[tri->indexes[1]];
 		dv2 = &ctrl2[tri->indexes[2]];
-		
+
 		v0 = dv0->xyz;
 		v1 = dv1->xyz;
 		v2 = dv2->xyz;
@@ -362,13 +364,13 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 		for(j = 0; j < 3; j++)
 		{
 			dv0 = &ctrl2[tri->indexes[j]];
-			
+
 			v = dv0->tangent;
 			VectorAdd(v, tangent, v);
-			
+
 			v = dv0->binormal;
 			VectorAdd(v, binormal, v);
-			
+
 			v = dv0->normal;
 			VectorAdd(v, normal, v);
 		}
@@ -377,19 +379,19 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	for(i = 0; i < (width * height); i++)
 	{
 		dv0 = &ctrl2[i];
-			
+
 		VectorNormalize(dv0->tangent);
 		VectorNormalize(dv0->binormal);
 		VectorNormalize(dv0->normal);
 	}
-	
+
 	for(i = 0; i < width; i++)
 	{
 		for(j = 0; j < height; j++)
 		{
 			dv0 = &ctrl2[j * width + i];
 			dv1 = &ctrl[j][i];
-			
+
 			VectorCopy(dv0->tangent, dv1->tangent);
 			VectorCopy(dv0->binormal, dv1->binormal);
 			VectorCopy(dv0->normal, dv1->normal);
@@ -480,10 +482,10 @@ static void PutPointsOnCurve(srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int w
 R_CreateSurfaceGridMesh
 =================
 */
-static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
-										srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
-										float errorTable[2][MAX_GRID_SIZE],
-										int numTriangles, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
+static srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
+											  srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
+											  float errorTable[2][MAX_GRID_SIZE],
+											  int numTriangles, srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j, size;
 	srfVert_t      *vert;
@@ -493,39 +495,42 @@ static srfGridMesh_t  *R_CreateSurfaceGridMesh(int width, int height,
 	// copy the results out to a grid
 	size = sizeof(*grid);
 
-#ifdef PATCH_STITCHING
-	grid = /*ri.Hunk_Alloc */ ri.Malloc(size);
-	Com_Memset(grid, 0, size);
+	if(r_stitchCurves->integer)
+	{
+		grid = /*ri.Hunk_Alloc */ ri.Malloc(size);
+		Com_Memset(grid, 0, size);
 
-	grid->widthLodError = /*ri.Hunk_Alloc */ ri.Malloc(width * 4);
-	Com_Memcpy(grid->widthLodError, errorTable[0], width * 4);
+		grid->widthLodError = /*ri.Hunk_Alloc */ ri.Malloc(width * 4);
+		Com_Memcpy(grid->widthLodError, errorTable[0], width * 4);
 
-	grid->heightLodError = /*ri.Hunk_Alloc */ ri.Malloc(height * 4);
-	Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
-	
-	grid->numTriangles = numTriangles;
-	grid->triangles = ri.Malloc(grid->numTriangles * sizeof(srfTriangle_t));
-	Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
-	
-	grid->numVerts = (width * height);
-	grid->verts = ri.Malloc(grid->numVerts * sizeof(srfVert_t));
-#else
-	grid = ri.Hunk_Alloc(size, h_low);
-	Com_Memset(grid, 0, size);
+		grid->heightLodError = /*ri.Hunk_Alloc */ ri.Malloc(height * 4);
+		Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
 
-	grid->widthLodError = ri.Hunk_Alloc(width * 4, h_low);
-	Com_Memcpy(grid->widthLodError, errorTable[0], width * 4);
+		grid->numTriangles = numTriangles;
+		grid->triangles = ri.Malloc(grid->numTriangles * sizeof(srfTriangle_t));
+		Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
 
-	grid->heightLodError = ri.Hunk_Alloc(height * 4, h_low);
-	Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
-	
-	grid->numTriangles = numTriangles;
-	grid->triangles = ri.Hunk_Alloc(grid->numTriangles * sizeof(srfTriangle_t), h_low);
-	Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
-	
-	grid->numVerts = (width * height);
-	grid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
-#endif
+		grid->numVerts = (width * height);
+		grid->verts = ri.Malloc(grid->numVerts * sizeof(srfVert_t));
+	}
+	else
+	{
+		grid = ri.Hunk_Alloc(size, h_low);
+		Com_Memset(grid, 0, size);
+
+		grid->widthLodError = ri.Hunk_Alloc(width * 4, h_low);
+		Com_Memcpy(grid->widthLodError, errorTable[0], width * 4);
+
+		grid->heightLodError = ri.Hunk_Alloc(height * 4, h_low);
+		Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
+
+		grid->numTriangles = numTriangles;
+		grid->triangles = ri.Hunk_Alloc(grid->numTriangles * sizeof(srfTriangle_t), h_low);
+		Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
+
+		grid->numVerts = (width * height);
+		grid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
+	}
 
 	grid->width = width;
 	grid->height = height;
@@ -620,8 +625,7 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 				// calculate the point on the curve
 				for(l = 0; l < 3; l++)
 				{
-					midxyz[l] = (ctrl[i][j].xyz[l] + ctrl[i][j + 1].xyz[l] * 2
-								 + ctrl[i][j + 2].xyz[l]) * 0.25f;
+					midxyz[l] = (ctrl[i][j].xyz[l] + ctrl[i][j + 1].xyz[l] * 2 + ctrl[i][j + 2].xyz[l]) * 0.25f;
 				}
 
 				// see how far off the line it is
@@ -749,10 +753,10 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 
 	// calculate normals
 	//MakeMeshNormals(width, height, ctrl);
-	
+
 	// calculate triangles
 	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
-	
+
 	// calculate tangent spaces
 	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
 
@@ -764,8 +768,7 @@ srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[M
 R_GridInsertColumn
 ===============
 */
-srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point,
-								   float loderror)
+srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point, float loderror)
 {
 	int             i, j;
 	int             width, height, oldwidth;
@@ -788,8 +791,7 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 			//insert new column
 			for(j = 0; j < grid->height; j++)
 			{
-				LerpSurfaceVert(&grid->verts[j * grid->width + i - 1],
-								&grid->verts[j * grid->width + i], &ctrl[j][i]);
+				LerpSurfaceVert(&grid->verts[j * grid->width + i - 1], &grid->verts[j * grid->width + i], &ctrl[j][i]);
 				if(j == row)
 					VectorCopy(point, ctrl[j][i].xyz);
 			}
@@ -807,16 +809,16 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 	{
 		errorTable[1][j] = grid->heightLodError[j];
 	}
-	
+
 	// put all the aproximating points on the curve
 	//PutPointsOnCurve( ctrl, width, height );
-	
+
 	// calculate normals
 	//MakeMeshNormals(width, height, ctrl);
-	
+
 	// calculate triangles
 	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
-	
+
 	// calculate tangent spaces
 	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
 
@@ -836,8 +838,7 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 R_GridInsertRow
 ===============
 */
-srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_t point,
-								float loderror)
+srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_t point, float loderror)
 {
 	int             i, j;
 	int             width, height, oldheight;
@@ -860,8 +861,7 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 			//insert new row
 			for(j = 0; j < grid->width; j++)
 			{
-				LerpSurfaceVert(&grid->verts[(i - 1) * grid->width + j],
-								&grid->verts[i * grid->width + j], &ctrl[i][j]);
+				LerpSurfaceVert(&grid->verts[(i - 1) * grid->width + j], &grid->verts[i * grid->width + j], &ctrl[i][j]);
 				if(j == column)
 					VectorCopy(point, ctrl[i][j].xyz);
 			}
@@ -881,13 +881,13 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	}
 	// put all the aproximating points on the curve
 	//PutPointsOnCurve( ctrl, width, height );
-	
+
 	// calculate normals
 	//MakeMeshNormals(width, height, ctrl);
-	
+
 	// calculate triangles
 	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
-	
+
 	// calculate tangent spaces
 	MakeTangentSpaces(width, height, ctrl, numTriangles, triangles);
 
@@ -901,4 +901,3 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	VectorCopy(lodOrigin, grid->lodOrigin);
 	return grid;
 }
-

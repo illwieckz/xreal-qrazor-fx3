@@ -64,8 +64,6 @@ long            myftol(float f);
 
 #define	MAX_FBOS				64
 
-#define PRECACHE_SHADOWVOLUMES
-
 // can't be increased without changing bit packing for drawsurfs
 
 typedef enum
@@ -2047,6 +2045,11 @@ extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;
 
+extern cvar_t  *r_precacheLightIndexes;
+extern cvar_t  *r_precacheShadowIndexes;
+
+extern cvar_t  *r_stitchCurves;
+
 
 //====================================================================
 
@@ -2500,8 +2503,6 @@ CURVE TESSELATION
 
 ============================================================
 */
-
-#define PATCH_STITCHING
 
 srfGridMesh_t  *R_SubdividePatchToGrid(int width, int height, srfVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
 srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, vec3_t point, float loderror);

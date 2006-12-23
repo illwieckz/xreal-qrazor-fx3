@@ -1606,79 +1606,79 @@ R_CreateVBOs
 static void R_CreateVBOs()
 {
 	int             i, j, k;
-	
+
 	int             vertexesNum;
 	byte           *data;
 	int             dataSize;
 	int             dataOfs;
-	
+
 	int             indexesNum;
 	byte           *indexes;
 	int             indexesSize;
 	int             indexesOfs;
-	
+
 	msurface_t     *surface;
 	vec4_t          tmp;
-	
-	
+
+
 	if(!glConfig.vertexBufferObjectAvailable)
 	{
 		return;
 	}
-	
+
 	ri.Printf(PRINT_ALL, "...calculating world VBOs\n");
 
 	// count vertices and indices
 	vertexesNum = 0;
 	indexesNum = 0;
-	
+
 	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numsurfaces; k++, surface++)
 	{
 		if(*surface->data == SF_FACE)
 		{
 			srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-			
+
 			vertexesNum += cv->numVerts;
 			indexesNum += cv->numTriangles * 3;
 		}
 		else if(*surface->data == SF_GRID)
 		{
 			srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
-			
+
 			vertexesNum += grid->numVerts;
 			indexesNum += grid->numTriangles * 3;
 		}
 		else if(*surface->data == SF_TRIANGLES)
 		{
-			srfTriangles_t  *tri = (srfTriangles_t *) surface->data;
-			
+			srfTriangles_t *tri = (srfTriangles_t *) surface->data;
+
 			vertexesNum += tri->numVerts;
 			indexesNum += tri->numTriangles * 3;
 		}
 	}
-	
+
 	// create VBOs
 	qglGenBuffersARB(1, &s_worldData.vertsVBO);
 	qglGenBuffersARB(1, &s_worldData.indexesVBO);
-	
+
 	dataSize = vertexesNum * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
 	data = ri.Hunk_AllocateTempMemory(dataSize);
 	dataOfs = 0;
-	
+
 	indexesSize = indexesNum * sizeof(int);
 	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
 	indexesOfs = 0;
-	
+
 	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numsurfaces; k++, surface++)
 	{
 		if(*surface->data == SF_FACE)
 		{
 			srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-			
+
 			if(cv->numVerts)
 			{
 				cv->vertsVBO = s_worldData.vertsVBO;
-				
+
 				// set up xyz array
 				cv->ofsXYZ = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1688,11 +1688,11 @@ static void R_CreateVBOs()
 						tmp[j] = cv->verts[i].xyz[j];
 					}
 					tmp[3] = 1;
-	
+
 					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
-				
+
 				// set up texcoords array
 				cv->ofsTexCoords = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1707,7 +1707,7 @@ static void R_CreateVBOs()
 					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
-				
+
 				// set up texcoords2 array
 				cv->ofsTexCoords2 = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1775,15 +1775,15 @@ static void R_CreateVBOs()
 			}
 			else
 			{
-				cv->vertsVBO = 0;	
+				cv->vertsVBO = 0;
 			}
-		
+
 			if(cv->numTriangles)
 			{
 				srfTriangle_t  *tri;
-				
+
 				cv->indexesVBO = s_worldData.indexesVBO;
-				
+
 				// set up triangle indices
 				cv->ofsIndexes = indexesOfs;
 				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
@@ -1794,17 +1794,17 @@ static void R_CreateVBOs()
 			}
 			else
 			{
-				cv->indexesVBO = 0;	
+				cv->indexesVBO = 0;
 			}
 		}
 		else if(*surface->data == SF_GRID)
 		{
 			srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-			
+
 			if(cv->numVerts)
 			{
 				cv->vertsVBO = s_worldData.vertsVBO;
-				
+
 				// set up xyz array
 				cv->ofsXYZ = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1814,11 +1814,11 @@ static void R_CreateVBOs()
 						tmp[j] = cv->verts[i].xyz[j];
 					}
 					tmp[3] = 1;
-	
+
 					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
-				
+
 				// set up texcoords array
 				cv->ofsTexCoords = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1833,7 +1833,7 @@ static void R_CreateVBOs()
 					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
-				
+
 				// set up texcoords2 array
 				cv->ofsTexCoords2 = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1901,15 +1901,15 @@ static void R_CreateVBOs()
 			}
 			else
 			{
-				cv->vertsVBO = 0;	
+				cv->vertsVBO = 0;
 			}
-		
+
 			if(cv->numTriangles)
 			{
 				srfTriangle_t  *tri;
-				
+
 				cv->indexesVBO = s_worldData.indexesVBO;
-				
+
 				// set up triangle indices
 				cv->ofsIndexes = indexesOfs;
 				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
@@ -1920,17 +1920,17 @@ static void R_CreateVBOs()
 			}
 			else
 			{
-				cv->indexesVBO = 0;	
+				cv->indexesVBO = 0;
 			}
 		}
 		else if(*surface->data == SF_TRIANGLES)
 		{
-			srfTriangles_t  *cv = (srfTriangles_t *) surface->data;
-			
+			srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
 			if(cv->numVerts)
 			{
 				cv->vertsVBO = s_worldData.vertsVBO;
-				
+
 				// set up xyz array
 				cv->ofsXYZ = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1940,11 +1940,11 @@ static void R_CreateVBOs()
 						tmp[j] = cv->verts[i].xyz[j];
 					}
 					tmp[3] = 1;
-	
+
 					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
-				
+
 				// set up texcoords array
 				cv->ofsTexCoords = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1959,7 +1959,7 @@ static void R_CreateVBOs()
 					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 					dataOfs += sizeof(vec4_t);
 				}
-				
+
 				// set up texcoords2 array
 				//cv->ofsTexCoords2 = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -2027,15 +2027,15 @@ static void R_CreateVBOs()
 			}
 			else
 			{
-				cv->vertsVBO = 0;	
+				cv->vertsVBO = 0;
 			}
-		
+
 			if(cv->numTriangles)
 			{
 				srfTriangle_t  *tri;
-				
+
 				cv->indexesVBO = s_worldData.indexesVBO;
-				
+
 				// set up triangle indices
 				cv->ofsIndexes = indexesOfs;
 				for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
@@ -2046,14 +2046,14 @@ static void R_CreateVBOs()
 			}
 			else
 			{
-				cv->indexesVBO = 0;	
+				cv->indexesVBO = 0;
 			}
 		}
 	}
-	
+
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, s_worldData.vertsVBO);
 	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
-	
+
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s_worldData.indexesVBO);
 	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
 
@@ -2062,10 +2062,12 @@ static void R_CreateVBOs()
 
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
-	
+
 	// megs
-	ri.Printf(PRINT_ALL, "world data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024), (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
-	ri.Printf(PRINT_ALL, "world tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024), (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	ri.Printf(PRINT_ALL, "world data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+			  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	ri.Printf(PRINT_ALL, "world tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+			  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
 }
 
 /*
@@ -2135,15 +2137,17 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 
 	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
 
-#ifdef PATCH_STITCHING
-	R_StitchAllPatches();
-#endif
+	if(r_stitchCurves->integer)
+	{
+		R_StitchAllPatches();
+	}
 
 	R_FixSharedVertexLodError();
 
-#ifdef PATCH_STITCHING
-	R_MovePatchSurfacesToHunk();
-#endif
+	if(r_stitchCurves->integer)
+	{
+		R_MovePatchSurfacesToHunk();
+	}
 
 	R_CreateVBOs();
 }
@@ -3556,8 +3560,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	   light->worldBounds[1][1] < cv->bounds[0][1] ||
 	   light->worldBounds[1][2] < cv->bounds[0][2] ||
 	   light->worldBounds[0][0] > cv->bounds[1][0] ||
-	   light->worldBounds[0][1] > cv->bounds[1][1] ||
-	   light->worldBounds[0][2] > cv->bounds[1][2])
+	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
@@ -3587,194 +3590,200 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	}
 #endif
 
-	// build a list of triangles that need light
-	Com_Memset(&sh, 0, sizeof(shadowState_t));
 
-	numIndexes = 0;
-	indexes = s_lightIndexes;
-	
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	if(r_precacheLightIndexes->integer)
 	{
-		vec3_t          verts[3];
 
-		vec4_t          plane;
-		float           d;
+		// build a list of triangles that need light
+		Com_Memset(&sh, 0, sizeof(shadowState_t));
 
-		// assume the triangle is ok and visible
-		sh.facing[i] = qtrue;
+		numIndexes = 0;
+		indexes = s_lightIndexes;
 
-		VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
-		VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
-		VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
-
-		/*
-		   VectorSubtract(verts[1], verts[0], d1);
-		   VectorSubtract(verts[2], verts[0], d2);
-
-		   CrossProduct(d1, d2, plane);
-		   plane[3] = DotProduct(plane, verts[0]);
-
-		   d = DotProduct(plane, light->origin) - plane[3];
-		   if(d > 0)
-		   {
-		   sh.facing[i] = qtrue;
-		   }
-		   else
-		   {
-		   sh.facing[i] = qfalse;
-		   }
-		 */
-
-		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 		{
-#if 1
-			// check if light origin is behind triangle
-			d = DotProduct(plane, light->origin) - plane[3];
+			vec3_t          verts[3];
 
-			if(shader->cullType == CT_FRONT_SIDED)
+			vec4_t          plane;
+			float           d;
+
+			// assume the triangle is ok and visible
+			sh.facing[i] = qtrue;
+
+			VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
+			VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
+			VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
+
+			/*
+			   VectorSubtract(verts[1], verts[0], d1);
+			   VectorSubtract(verts[2], verts[0], d2);
+
+			   CrossProduct(d1, d2, plane);
+			   plane[3] = DotProduct(plane, verts[0]);
+
+			   d = DotProduct(plane, light->origin) - plane[3];
+			   if(d > 0)
+			   {
+			   sh.facing[i] = qtrue;
+			   }
+			   else
+			   {
+			   sh.facing[i] = qfalse;
+			   }
+			 */
+
+			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 			{
-				if(d < 0)
+#if 1
+				// check if light origin is behind triangle
+				d = DotProduct(plane, light->origin) - plane[3];
+
+				if(shader->cullType == CT_FRONT_SIDED)
 				{
-					c_culledFaceTriangles++;
-					sh.facing[i] = qfalse;
+					if(d < 0)
+					{
+						c_culledFaceTriangles++;
+						sh.facing[i] = qfalse;
+					}
 				}
+				else
+				{
+					if(d > 0)
+					{
+						c_culledFaceTriangles++;
+						sh.facing[i] = qfalse;
+					}
+				}
+#endif
+				sh.degenerated[i] = qfalse;
 			}
 			else
 			{
-				if(d > 0)
+				//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
+				sh.numDegenerated++;
+				sh.degenerated[i] = qtrue;
+
+				sh.facing[i] = qfalse;
+			}
+
+			// check with ODE's triangle<->OBB collider for an intersection
+			if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			{
+				sh.facing[i] = qfalse;
+			}
+
+			if(numIndexes >= SHADER_MAX_INDEXES)
+			{
+				ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+			}
+
+			// create triangle indices
+			if(sh.facing[i])
+			{
+				indexes[numIndexes + 0] = tri->indexes[0];
+				indexes[numIndexes + 1] = tri->indexes[1];
+				indexes[numIndexes + 2] = tri->indexes[2];
+				numIndexes += 3;
+
+				sh.numFacing++;
+			}
+			else
+			{
+				c_culledFaceTriangles++;
+			}
+		}
+
+		if(numIndexes == 0)
+		{
+			return qfalse;
+		}
+
+		s_numLightIndexes = numIndexes;
+
+		if(r_precacheShadowIndexes->integer)
+		{
+			// calculate zfail shadow volume
+			numIndexes = 0;
+			indexes = s_shadowIndexes;
+
+			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+			{
+				return qtrue;
+			}
+
+			// set up indices for silhouette edges
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
 				{
-					c_culledFaceTriangles++;
-					sh.facing[i] = qfalse;
+					continue;
+				}
+
+				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[1];
+					indexes[numIndexes + 1] = tri->indexes[0];
+					indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[1];
+					indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+
+				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[2];
+					indexes[numIndexes + 1] = tri->indexes[1];
+					indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[2];
+					indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+
+				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[0];
+					indexes[numIndexes + 1] = tri->indexes[2];
+					indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[0];
+					indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+					numIndexes += 6;
 				}
 			}
-#endif
-			sh.degenerated[i] = qfalse;
-		}
-		else
-		{
-			//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
-			sh.numDegenerated++;
-			sh.degenerated[i] = qtrue;
-			
-			sh.facing[i] = qfalse;
+
+			// set up indices for light and dark caps
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
+
+				// light cap
+				indexes[numIndexes + 0] = tri->indexes[0];
+				indexes[numIndexes + 1] = tri->indexes[1];
+				indexes[numIndexes + 2] = tri->indexes[2];
+
+				// dark cap
+				indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
+				indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+				indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+				numIndexes += 6;
+			}
+
+			s_numShadowIndexes = numIndexes;
 		}
 
-		// check with ODE's triangle<->OBB collider for an intersection
-		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
-		{
-			sh.facing[i] = qfalse;
-		}
-
-		if(numIndexes >= SHADER_MAX_INDEXES)
-		{
-			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
-		}
-
-		// create triangle indices
-		if(sh.facing[i])
-		{
-			indexes[numIndexes + 0] = tri->indexes[0];
-			indexes[numIndexes + 1] = tri->indexes[1];
-			indexes[numIndexes + 2] = tri->indexes[2];
-			numIndexes += 3;
-			
-			sh.numFacing++;
-		}
-		else
-		{
-			c_culledFaceTriangles++;	
-		}
 	}
-
-	if(numIndexes == 0)
-	{
-		return qfalse;
-	}
-
-	s_numLightIndexes = numIndexes;
-
-
-#ifdef PRECACHE_SHADOWVOLUMES
-	// calculate zfail shadow volume
-	numIndexes = 0;
-	indexes = s_shadowIndexes;
-
-	if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
-	{
-		return qtrue;
-	}
-
-	// set up indices for silhouette edges
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-	{
-		if(!sh.facing[i])
-		{
-			continue;
-		}
-
-		if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[1];
-			indexes[numIndexes + 1] = tri->indexes[0];
-			indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[1];
-			indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-
-		if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[2];
-			indexes[numIndexes + 1] = tri->indexes[1];
-			indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[2];
-			indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-
-		if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[0];
-			indexes[numIndexes + 1] = tri->indexes[2];
-			indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[0];
-			indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-	}
-
-	// set up indices for light and dark caps
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-	{
-		if(!sh.facing[i])
-		{
-			continue;
-		}
-
-		// light cap
-		indexes[numIndexes + 0] = tri->indexes[0];
-		indexes[numIndexes + 1] = tri->indexes[1];
-		indexes[numIndexes + 2] = tri->indexes[2];
-
-		// dark cap
-		indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
-		indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-		indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-		numIndexes += 6;
-	}
-	
-	s_numShadowIndexes = numIndexes;
-#endif
 
 	return qtrue;
 }
@@ -3792,176 +3801,180 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	   light->worldBounds[1][1] < cv->meshBounds[0][1] ||
 	   light->worldBounds[1][2] < cv->meshBounds[0][2] ||
 	   light->worldBounds[0][0] > cv->meshBounds[1][0] ||
-	   light->worldBounds[0][1] > cv->meshBounds[1][1] ||
-	   light->worldBounds[0][2] > cv->meshBounds[1][2])
+	   light->worldBounds[0][1] > cv->meshBounds[1][1] || light->worldBounds[0][2] > cv->meshBounds[1][2])
 	{
 		return qfalse;
 	}
 
-	// build a list of triangles that need light
-	Com_Memset(&sh, 0, sizeof(shadowState_t));
-
-	numIndexes = 0;
-	indexes = s_lightIndexes;
-	
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	if(r_precacheLightIndexes->integer)
 	{
-		vec3_t          verts[3];
-		vec4_t          plane;
-		float           d;
 
-		sh.facing[i] = qtrue;
+		// build a list of triangles that need light
+		Com_Memset(&sh, 0, sizeof(shadowState_t));
 
-		VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
-		VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
-		VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
+		numIndexes = 0;
+		indexes = s_lightIndexes;
 
-		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 		{
-#if 1
-			// check if light origin is behind triangle
-			d = DotProduct(plane, light->origin) - plane[3];
+			vec3_t          verts[3];
+			vec4_t          plane;
+			float           d;
 
-			if(shader->cullType == CT_FRONT_SIDED)
+			sh.facing[i] = qtrue;
+
+			VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
+			VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
+			VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
+
+			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 			{
-				if(d < 0)
+#if 1
+				// check if light origin is behind triangle
+				d = DotProduct(plane, light->origin) - plane[3];
+
+				if(shader->cullType == CT_FRONT_SIDED)
 				{
-					sh.facing[i] = qfalse;
+					if(d < 0)
+					{
+						sh.facing[i] = qfalse;
+					}
 				}
+				else
+				{
+					if(d > 0)
+					{
+						sh.facing[i] = qfalse;
+					}
+				}
+#endif
+				sh.degenerated[i] = qfalse;
 			}
 			else
 			{
-				if(d > 0)
+				sh.numDegenerated++;
+				sh.degenerated[i] = qtrue;
+
+				sh.facing[i] = qfalse;
+			}
+
+			// check with ODE's triangle<->OBB collider for an intersection
+			if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			{
+				sh.facing[i] = qfalse;
+			}
+
+			if(numIndexes >= SHADER_MAX_INDEXES)
+			{
+				ri.Error(ERR_DROP, "R_PrecacheGridInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+			}
+
+			// create triangle indices
+			if(sh.facing[i])
+			{
+				indexes[numIndexes + 0] = tri->indexes[0];
+				indexes[numIndexes + 1] = tri->indexes[1];
+				indexes[numIndexes + 2] = tri->indexes[2];
+				numIndexes += 3;
+
+				sh.numFacing++;
+			}
+			else
+			{
+				c_culledGridTriangles++;
+			}
+		}
+
+		if(numIndexes == 0)
+		{
+			return qfalse;
+		}
+
+		s_numLightIndexes = numIndexes;
+
+		if(r_precacheShadowIndexes->integer)
+		{
+			// calculate zfail shadow volume
+			numIndexes = 0;
+			indexes = s_shadowIndexes;
+
+			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+			{
+				return qtrue;
+			}
+
+			// set up indices for silhouette edges
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
 				{
-					sh.facing[i] = qfalse;
+					continue;
+				}
+
+				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[1];
+					indexes[numIndexes + 1] = tri->indexes[0];
+					indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[1];
+					indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+
+				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[2];
+					indexes[numIndexes + 1] = tri->indexes[1];
+					indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[2];
+					indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+
+				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[0];
+					indexes[numIndexes + 1] = tri->indexes[2];
+					indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[0];
+					indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+					numIndexes += 6;
 				}
 			}
-#endif
-			sh.degenerated[i] = qfalse;
-		}
-		else
-		{
-			sh.numDegenerated++;
-			sh.degenerated[i] = qtrue;
-			
-			sh.facing[i] = qfalse;
-		}
 
-		// check with ODE's triangle<->OBB collider for an intersection
-		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
-		{
-			sh.facing[i] = qfalse;
-		}
+			// set up indices for light and dark caps
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
 
-		if(numIndexes >= SHADER_MAX_INDEXES)
-		{
-			ri.Error(ERR_DROP, "R_PrecacheGridInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
-		}
+				// light cap
+				indexes[numIndexes + 0] = tri->indexes[0];
+				indexes[numIndexes + 1] = tri->indexes[1];
+				indexes[numIndexes + 2] = tri->indexes[2];
 
-		// create triangle indices
-		if(sh.facing[i])
-		{
-			indexes[numIndexes + 0] = tri->indexes[0];
-			indexes[numIndexes + 1] = tri->indexes[1];
-			indexes[numIndexes + 2] = tri->indexes[2];
-			numIndexes += 3;
-			
-			sh.numFacing++;
-		}
-		else
-		{
-			c_culledGridTriangles++;	
+				// dark cap
+				indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
+				indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+				indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+				numIndexes += 6;
+			}
+
+			s_numShadowIndexes = numIndexes;
 		}
 	}
-
-	if(numIndexes == 0)
-	{
-		return qfalse;
-	}
-
-	s_numLightIndexes = numIndexes;
-	
-#ifdef PRECACHE_SHADOWVOLUMES
-	// calculate zfail shadow volume
-	numIndexes = 0;
-	indexes = s_shadowIndexes;
-
-	if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
-	{
-		return qtrue;
-	}
-
-	// set up indices for silhouette edges
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-	{
-		if(!sh.facing[i])
-		{
-			continue;
-		}
-
-		if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[1];
-			indexes[numIndexes + 1] = tri->indexes[0];
-			indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[1];
-			indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-
-		if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[2];
-			indexes[numIndexes + 1] = tri->indexes[1];
-			indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[2];
-			indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-
-		if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[0];
-			indexes[numIndexes + 1] = tri->indexes[2];
-			indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[0];
-			indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-	}
-
-	// set up indices for light and dark caps
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-	{
-		if(!sh.facing[i])
-		{
-			continue;
-		}
-
-		// light cap
-		indexes[numIndexes + 0] = tri->indexes[0];
-		indexes[numIndexes + 1] = tri->indexes[1];
-		indexes[numIndexes + 2] = tri->indexes[2];
-
-		// dark cap
-		indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
-		indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-		indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-		numIndexes += 6;
-	}
-	
-	s_numShadowIndexes = numIndexes;
-#endif
 
 	return qtrue;
 }
@@ -3979,187 +3992,190 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	   light->worldBounds[1][1] < cv->bounds[0][1] ||
 	   light->worldBounds[1][2] < cv->bounds[0][2] ||
 	   light->worldBounds[0][0] > cv->bounds[1][0] ||
-	   light->worldBounds[0][1] > cv->bounds[1][1] ||
-	   light->worldBounds[0][2] > cv->bounds[1][2])
+	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
 	{
 		return qfalse;
 	}
 
-	// build a list of triangles that need light
-	Com_Memset(&sh, 0, sizeof(shadowState_t));
-
-	numIndexes = 0;
-	indexes = s_lightIndexes;
-	
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+	if(r_precacheLightIndexes->integer)
 	{
-		vec3_t          verts[3];
-		vec4_t          plane;
-		float           d;
+		// build a list of triangles that need light
+		Com_Memset(&sh, 0, sizeof(shadowState_t));
 
-		sh.facing[i] = qtrue;
+		numIndexes = 0;
+		indexes = s_lightIndexes;
 
-		VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
-		VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
-		VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
-
-		if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
+		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
 		{
-#if 1
-			// check if light origin is behind triangle
-			d = DotProduct(plane, light->origin) - plane[3];
+			vec3_t          verts[3];
+			vec4_t          plane;
+			float           d;
 
-			if(shader->cullType == CT_FRONT_SIDED)
+			sh.facing[i] = qtrue;
+
+			VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
+			VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
+			VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
+
+			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 			{
-				if(d < 0)
+#if 1
+				// check if light origin is behind triangle
+				d = DotProduct(plane, light->origin) - plane[3];
+
+				if(shader->cullType == CT_FRONT_SIDED)
 				{
-					sh.facing[i] = qfalse;
+					if(d < 0)
+					{
+						sh.facing[i] = qfalse;
+					}
 				}
-			}
-			else
-			{
-				if(d > 0)
+				else
 				{
-					sh.facing[i] = qfalse;
+					if(d > 0)
+					{
+						sh.facing[i] = qfalse;
+					}
 				}
-			}
 #endif
 
 #if 0
-			// check if light bounds do not intersect with with triangle plane
-			r = BoxOnPlaneSide2(light->worldBounds[0], light->worldBounds[1], plane);
-			if(r != 3)
-			{
-				sh.facing[i] = false;
+				// check if light bounds do not intersect with with triangle plane
+				r = BoxOnPlaneSide2(light->worldBounds[0], light->worldBounds[1], plane);
+				if(r != 3)
+				{
+					sh.facing[i] = false;
+				}
+#endif
+				sh.degenerated[i] = qfalse;
 			}
-#endif
-			sh.degenerated[i] = qfalse;
-		}
-		else
-		{
-			//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
-			sh.numDegenerated++;
-			sh.degenerated[i] = qtrue;
-			
-			sh.facing[i] = qfalse;
+			else
+			{
+				//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
+				sh.numDegenerated++;
+				sh.degenerated[i] = qtrue;
+
+				sh.facing[i] = qfalse;
+			}
+
+			// check with ODE's triangle<->OBB collider for an intersection
+			if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			{
+				sh.facing[i] = qfalse;
+			}
+
+			if(numIndexes >= SHADER_MAX_INDEXES)
+			{
+				ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+			}
+
+			// create triangle indices
+			if(sh.facing[i])
+			{
+				indexes[numIndexes + 0] = tri->indexes[0];
+				indexes[numIndexes + 1] = tri->indexes[1];
+				indexes[numIndexes + 2] = tri->indexes[2];
+				numIndexes += 3;
+
+				sh.numFacing++;
+			}
+			else
+			{
+				c_culledFaceTriangles++;
+			}
 		}
 
-		// check with ODE's triangle<->OBB collider for an intersection
-		if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+		if(numIndexes == 0)
 		{
-			sh.facing[i] = qfalse;
+			return qfalse;
 		}
 
-		if(numIndexes >= SHADER_MAX_INDEXES)
-		{
-			ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
-		}
+		s_numLightIndexes = numIndexes;
 
-		// create triangle indices
-		if(sh.facing[i])
+		if(r_precacheShadowIndexes->integer)
 		{
-			indexes[numIndexes + 0] = tri->indexes[0];
-			indexes[numIndexes + 1] = tri->indexes[1];
-			indexes[numIndexes + 2] = tri->indexes[2];
-			numIndexes += 3;
-			
-			sh.numFacing++;
-		}
-		else
-		{
-			c_culledFaceTriangles++;	
+			// calculate zfail shadow volume
+			numIndexes = 0;
+			indexes = s_shadowIndexes;
+
+			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+			{
+				return qtrue;
+			}
+
+			// set up indices for silhouette edges
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
+
+				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[1];
+					indexes[numIndexes + 1] = tri->indexes[0];
+					indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[1];
+					indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+
+				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[2];
+					indexes[numIndexes + 1] = tri->indexes[1];
+					indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[2];
+					indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+
+				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+				{
+					indexes[numIndexes + 0] = tri->indexes[0];
+					indexes[numIndexes + 1] = tri->indexes[2];
+					indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
+
+					indexes[numIndexes + 3] = tri->indexes[0];
+					indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
+					indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+					numIndexes += 6;
+				}
+			}
+
+			// set up indices for light and dark caps
+			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
+			{
+				if(!sh.facing[i])
+				{
+					continue;
+				}
+
+				// light cap
+				indexes[numIndexes + 0] = tri->indexes[0];
+				indexes[numIndexes + 1] = tri->indexes[1];
+				indexes[numIndexes + 2] = tri->indexes[2];
+
+				// dark cap
+				indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
+				indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
+				indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
+
+				numIndexes += 6;
+			}
+
+			s_numShadowIndexes = numIndexes;
 		}
 	}
 
-	if(numIndexes == 0)
-	{
-		return qfalse;
-	}
-
-	s_numLightIndexes = numIndexes;
-	
-#ifdef PRECACHE_SHADOWVOLUMES
-	// calculate zfail shadow volume
-	numIndexes = 0;
-	indexes = s_shadowIndexes;
-
-	if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
-	{
-		return qtrue;
-	}
-
-	// set up indices for silhouette edges
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-	{
-		if(!sh.facing[i])
-		{
-			continue;
-		}
-
-		if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[1];
-			indexes[numIndexes + 1] = tri->indexes[0];
-			indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[1];
-			indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-
-		if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[2];
-			indexes[numIndexes + 1] = tri->indexes[1];
-			indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[2];
-			indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-
-		if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
-		{
-			indexes[numIndexes + 0] = tri->indexes[0];
-			indexes[numIndexes + 1] = tri->indexes[2];
-			indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
-
-			indexes[numIndexes + 3] = tri->indexes[0];
-			indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
-			indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-			numIndexes += 6;
-		}
-	}
-
-	// set up indices for light and dark caps
-	for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-	{
-		if(!sh.facing[i])
-		{
-			continue;
-		}
-
-		// light cap
-		indexes[numIndexes + 0] = tri->indexes[0];
-		indexes[numIndexes + 1] = tri->indexes[1];
-		indexes[numIndexes + 2] = tri->indexes[2];
-
-		// dark cap
-		indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
-		indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-		indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-		numIndexes += 6;
-	}
-	
-	s_numShadowIndexes = numIndexes;
-#endif
-	
 	return qtrue;
 }
 
@@ -4242,7 +4258,7 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefLight_t * li
 			R_PrecacheInteractionSurface(surf, light);
 			mark++;
 		}
-		
+
 		return;
 	}
 
@@ -4292,7 +4308,7 @@ static void R_RecursiveAddInteractionNode(mnode_t * node, trRefLight_t * light, 
 			// assign leave and increase leave counter
 			light->leafs[*numLeafs] = node;
 		}
-		
+
 		*numLeafs = *numLeafs + 1;
 		return;
 	}
@@ -4329,8 +4345,8 @@ void R_PrecacheInteractions()
 {
 	int             i;
 	trRefLight_t   *light;
-	int				numLeafs;
-	interactionCache_t  *iaCache;
+	int             numLeafs;
+	interactionCache_t *iaCache;
 	msurface_t     *surface;
 	vec3_t          localBounds[2];
 
@@ -4398,50 +4414,50 @@ void R_PrecacheInteractions()
 		// perform frustum culling and add all the potentially visible surfaces
 		s_lightCount++;
 		R_RecursivePrecacheInteractionNode(s_worldData.nodes, light);
-		
+
 		s_lightCount++;
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qtrue);
-		
+
 		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, numLeafs);
-		
-		light->leafs = (struct mnode_s **) ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
+
+		light->leafs = (struct mnode_s **)ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
 		light->numLeafs = numLeafs;
-		
+
 		s_lightCount++;
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
-		
+
 		if(light->l.rlType == RL_OMNI)
-		{		
+		{
 			for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 			{
 				surface = iaCache->surface;
-				
+
 				if(*surface->data == SF_FACE)
 				{
 					srfSurfaceFace_t *face;
-	
+
 					face = (srfSurfaceFace_t *) surface->data;
-				
+
 					VectorCopy(face->bounds[0], localBounds[0]);
 					VectorCopy(face->bounds[1], localBounds[1]);
 				}
 				else if(*surface->data == SF_GRID)
 				{
 					srfGridMesh_t  *grid;
-	
+
 					grid = (srfGridMesh_t *) surface;
-					
+
 					VectorCopy(grid->meshBounds[0], localBounds[0]);
 					VectorCopy(grid->meshBounds[1], localBounds[1]);
 				}
 				else if(*surface->data == SF_TRIANGLES)
 				{
 					srfTriangles_t *tri;
-	
+
 					tri = (srfTriangles_t *) surface;
-					
+
 					VectorCopy(tri->bounds[0], localBounds[0]);
 					VectorCopy(tri->bounds[1], localBounds[1]);
 				}
@@ -4450,29 +4466,29 @@ void R_PrecacheInteractions()
 					iaCache->cubeSideBits = CUBESIDE_CLIPALL;
 					continue;
 				}
-			
+
 				iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, NULL, localBounds);
 			}
 		}
 	}
-	
+
 	// move interactions grow list to hunk
 	s_worldData.numInteractions = s_interactions.currentElements;
 	s_worldData.interactions = ri.Hunk_Alloc(s_worldData.numInteractions * sizeof(*s_worldData.interactions), h_low);
-	
+
 	for(i = 0; i < s_worldData.numInteractions; i++)
 	{
-		s_worldData.interactions[i] = (interactionCache_t*) Com_GrowListElement(&s_interactions, i);
+		s_worldData.interactions[i] = (interactionCache_t *) Com_GrowListElement(&s_interactions, i);
 	}
-	
+
 	Com_DestroyGrowList(&s_interactions);
 
-	
+
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_worldData.numInteractions);
 	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
 	ri.Printf(PRINT_ALL, "%i bezier surface triangles culled\n", c_culledGridTriangles);
 	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
-	
+
 	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces visible\n", tr.pc.c_pyramid_cull_ent_in);
 	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
 	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);
