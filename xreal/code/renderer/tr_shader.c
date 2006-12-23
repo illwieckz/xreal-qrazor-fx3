@@ -4508,14 +4508,12 @@ static shader_t *FinishShader(void)
 			
 			case ST_DIFFUSEMAP:
 			{
+				shader.interactLight = qtrue;
+				
 				if(!pStage->bundle[0].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "Shader %s has a diffusemap stage with no image\n", shader.name);
 					pStage->bundle[0].image[0] = tr.defaultImage;
-				}
-				else
-				{
-					shader.interactLight = qtrue;
 				}
 				break;
 			}
@@ -4619,7 +4617,7 @@ static shader_t *FinishShader(void)
 		
 		if(shader.forceOpaque)
 		{
-			pStage->stateBits |= GLS_DEPTHMASK_TRUE;	
+			pStage->stateBits |= GLS_DEPTHMASK_TRUE;
 		}
 
 		// determine sort order and fog color adjustment
