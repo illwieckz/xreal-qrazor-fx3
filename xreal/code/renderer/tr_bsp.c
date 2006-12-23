@@ -2058,6 +2058,7 @@ static void R_CreateVBOs()
 	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
@@ -3561,7 +3562,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		return qfalse;
 	}
 
-#if 1
+#if 0
 	// check if light origin is behind surface
 	d = DotProduct(cv->plane.normal, light->origin);
 
