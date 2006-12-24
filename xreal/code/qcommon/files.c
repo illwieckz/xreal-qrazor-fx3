@@ -550,7 +550,7 @@ Copy a fully specified file from one place to another
 static void FS_CopyFile(char *fromOSPath, char *toOSPath)
 {
 	FILE           *f;
-	unsigned int    len;
+	int             len;
 	byte           *buf;
 
 	Com_Printf("copy %s to %s\n", fromOSPath, toOSPath);
@@ -599,7 +599,7 @@ FS_Remove
 
 ===========
 */
-static void FS_Remove(const char *osPath)
+void FS_Remove(const char *osPath)
 {
 	remove(osPath);
 }
@@ -1041,11 +1041,11 @@ qboolean FS_FilenameCompare(const char *s1, const char *s2)
 
 		if(c1 != c2)
 		{
-			return -1;			// strings not equal
+			return qtrue;		// strings not equal
 		}
 	} while(c1);
 
-	return 0;					// strings are equal
+	return qfalse;				// strings are equal
 }
 
 /*
@@ -1521,6 +1521,8 @@ void QDECL FS_Printf(fileHandle_t h, const char *fmt, ...)
 	FS_Write(msg, strlen(msg), h);
 }
 
+#define PK3_SEEK_BUFFER_SIZE 65536
+
 /*
 =================
 FS_Seek
@@ -1530,7 +1532,6 @@ FS_Seek
 int FS_Seek(fileHandle_t f, long offset, int origin)
 {
 	int             _origin;
-	char            foo[65536];
 
 	if(!fs_searchpaths)
 	{
@@ -1547,23 +1548,38 @@ int FS_Seek(fileHandle_t f, long offset, int origin)
 
 	if(fsh[f].zipFile == qtrue)
 	{
-		if(offset == 0 && origin == FS_SEEK_SET)
+		//FIXME: this is incomplete and really, really
+		//crappy (but better than what was here before)
+		byte            buffer[PK3_SEEK_BUFFER_SIZE];
+		int             remainder = offset;
+
+		if(offset < 0 || origin == FS_SEEK_END)
 		{
-			// set the file position in the zip file (also sets the current file info)
-			unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
-			return unzOpenCurrentFile(fsh[f].handleFiles.file.z);
-		}
-		else if(offset < 65536)
-		{
-			// set the file position in the zip file (also sets the current file info)
-			unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
-			unzOpenCurrentFile(fsh[f].handleFiles.file.z);
-			return FS_Read(foo, offset, f);
-		}
-		else
-		{
-			Com_Error(ERR_FATAL, "ZIP FILE FSEEK NOT YET IMPLEMENTED\n");
+			Com_Error(ERR_FATAL, "Negative offsets and FS_SEEK_END not implemented " "for FS_Seek on pk3 file contents\n");
 			return -1;
+		}
+
+		switch (origin)
+		{
+			case FS_SEEK_SET:
+				unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
+				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
+				//fallthrough
+
+			case FS_SEEK_CUR:
+				while(remainder > PK3_SEEK_BUFFER_SIZE)
+				{
+					FS_Read(buffer, PK3_SEEK_BUFFER_SIZE, f);
+					remainder -= PK3_SEEK_BUFFER_SIZE;
+				}
+				FS_Read(buffer, remainder, f);
+				return offset;
+				break;
+
+			default:
+				Com_Error(ERR_FATAL, "Bad origin in FS_Seek\n");
+				return -1;
+				break;
 		}
 	}
 	else
@@ -1926,7 +1942,8 @@ static pack_t  *FS_LoadZipFile(char *zipfile, const char *basename)
 
 	buildBuffer = Z_Malloc((gi.number_entry * sizeof(fileInPack_t)) + len);
 	namePtr = ((char *)buildBuffer) + gi.number_entry * sizeof(fileInPack_t);
-	fs_headerLongs = Z_Malloc(gi.number_entry * sizeof(int));
+	fs_headerLongs = Z_Malloc((gi.number_entry + 1) * sizeof(int));
+	fs_headerLongs[fs_numHeaderLongs++] = LittleLong(fs_checksumFeed);
 
 	// get the hash table size from the number of files in the zip
 	// because lots of custom pk3 files have less than 32 or 64 files
@@ -1983,8 +2000,8 @@ static pack_t  *FS_LoadZipFile(char *zipfile, const char *basename)
 		unzGoToNextFile(uf);
 	}
 
-	pack->checksum = Com_BlockChecksum(fs_headerLongs, 4 * fs_numHeaderLongs);
-	pack->pure_checksum = Com_BlockChecksumKey(fs_headerLongs, 4 * fs_numHeaderLongs, LittleLong(fs_checksumFeed));
+	pack->checksum = Com_BlockChecksum(&fs_headerLongs[1], 4 * (fs_numHeaderLongs - 1));
+	pack->pure_checksum = Com_BlockChecksum(fs_headerLongs, 4 * fs_numHeaderLongs);
 	pack->checksum = LittleLong(pack->checksum);
 	pack->pure_checksum = LittleLong(pack->pure_checksum);
 
@@ -2421,7 +2438,7 @@ int FS_GetModList(char *listbuf, int bufsize)
 			continue;
 		}
 		// we drop "base" "." and ".."
-		if(Q_stricmp(name, "base") && Q_stricmpn(name, ".", 1))
+		if(Q_stricmp(name, BASEGAME) && Q_stricmpn(name, ".", 1))
 		{
 			// now we need to find some .pk3 files to validate the mod
 			// NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
@@ -2869,6 +2886,23 @@ qboolean FS_idPak(char *pak, char *base)
 
 /*
 ================
+FS_idPak
+
+Check whether the string contains stuff like "../" to prevent directory traversal bugs
+and return qtrue if it does.
+================
+*/
+
+qboolean FS_CheckDirTraversal(const char *checkdir)
+{
+	if(strstr(checkdir, "../") || strstr(checkdir, "..\\"))
+		return qtrue;
+
+	return qfalse;
+}
+
+/*
+================
 FS_ComparePaks
 
 ----------------
@@ -2897,12 +2931,11 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 {
 	searchpath_t   *sp;
 	qboolean        havepak, badchecksum;
+	char           *origpos = neededpaks;
 	int             i;
 
 	if(!fs_numServerReferencedPaks)
-	{
 		return qfalse;			// Server didn't send any pack information along
-	}
 
 	*neededpaks = 0;
 
@@ -2915,6 +2948,13 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 		// never autodownload any of the id paks
 		if(FS_idPak(fs_serverReferencedPakNames[i], "baseq3") || FS_idPak(fs_serverReferencedPakNames[i], "missionpack"))
 		{
+			continue;
+		}
+
+		// Make sure the server cannot make us write to non-xreal directories.
+		if(FS_CheckDirTraversal(fs_serverReferencedPakNames[i]))
+		{
+			Com_Printf("WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i]);
 			continue;
 		}
 
@@ -2933,6 +2973,12 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 
 			if(dlstring)
 			{
+				// We need this to make sure we won't hit the end of the buffer or the server could
+				// overwrite non-pk3 files on clients by writing so much crap into neededpaks that
+				// Q_strcat cuts off the .pk3 extension.
+
+				origpos += strlen(origpos);
+
 				// Remote name
 				Q_strcat(neededpaks, len, "@");
 				Q_strcat(neededpaks, len, fs_serverReferencedPakNames[i]);
@@ -2954,6 +3000,14 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 				{
 					Q_strcat(neededpaks, len, fs_serverReferencedPakNames[i]);
 					Q_strcat(neededpaks, len, ".pk3");
+				}
+
+				// Find out whether it might have overflowed the buffer and don't add this file to the
+				// list if that is the case.
+				if(strlen(origpos) + (origpos - neededpaks) >= len - 1)
+				{
+					*origpos = '\0';
+					break;
 				}
 			}
 			else
@@ -2982,7 +3036,7 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 ================
 FS_Shutdown
 
-Frees all resources and closes all files
+Frees all resources.
 ================
 */
 void FS_Shutdown(qboolean closemfp)
@@ -3042,7 +3096,7 @@ NOTE TTimo: the reordering that happens here is not reflected in the cvars (\cva
   this can lead to misleading situations, see https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=540
 ================
 */
-static void FS_ReorderPurePaks()
+static void FS_ReorderPurePaks(void)
 {
 	searchpath_t   *s;
 	int             i;
@@ -3154,7 +3208,7 @@ static void FS_Startup(const char *gameName)
 		}
 	}
 
-	Com_ReadCDKey("base");
+	Com_ReadCDKey(BASEGAME);
 	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
 	if(fs && fs->string[0] != 0)
 	{
@@ -3186,7 +3240,6 @@ static void FS_Startup(const char *gameName)
 #endif
 	Com_Printf("%d files in pk3 files\n", fs_packFiles);
 }
-
 
 /*
 ===================
@@ -3613,7 +3666,7 @@ checksums to see if any pk3 files need to be auto-downloaded.
 */
 void FS_PureServerSetReferencedPaks(const char *pakSums, const char *pakNames)
 {
-	int             i, c, d;
+	int             i, c, d = 0;
 
 	Cmd_TokenizeString(pakSums);
 
@@ -3623,36 +3676,39 @@ void FS_PureServerSetReferencedPaks(const char *pakSums, const char *pakNames)
 		c = MAX_SEARCH_PATHS;
 	}
 
-	fs_numServerReferencedPaks = c;
-
 	for(i = 0; i < c; i++)
 	{
 		fs_serverReferencedPaks[i] = atoi(Cmd_Argv(i));
 	}
 
-	for(i = 0; i < c; i++)
+	for(i = 0; i < sizeof(fs_serverReferencedPakNames) / sizeof(*fs_serverReferencedPakNames); i++)
 	{
 		if(fs_serverReferencedPakNames[i])
-		{
 			Z_Free(fs_serverReferencedPakNames[i]);
-		}
+
 		fs_serverReferencedPakNames[i] = NULL;
 	}
+
 	if(pakNames && *pakNames)
 	{
 		Cmd_TokenizeString(pakNames);
 
 		d = Cmd_Argc();
-		if(d > MAX_SEARCH_PATHS)
-		{
-			d = MAX_SEARCH_PATHS;
-		}
+
+		if(d > c)
+			d = c;
 
 		for(i = 0; i < d; i++)
 		{
 			fs_serverReferencedPakNames[i] = CopyString(Cmd_Argv(i));
 		}
 	}
+
+	// ensure that there are as many checksums as there are pak names.
+	if(d < c)
+		c = d;
+
+	fs_numServerReferencedPaks = c;
 }
 
 /*
@@ -3864,4 +3920,30 @@ int FS_FTell(fileHandle_t f)
 void FS_Flush(fileHandle_t f)
 {
 	fflush(fsh[f].handleFiles.file.o);
+}
+
+void FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void (*callback) (const char *s))
+{
+	char          **filenames;
+	int             nfiles;
+	int             i;
+	char            filename[MAX_STRING_CHARS];
+
+	filenames = FS_ListFilteredFiles(dir, ext, NULL, &nfiles);
+
+	FS_SortFileList(filenames, nfiles);
+
+	for(i = 0; i < nfiles; i++)
+	{
+		FS_ConvertPath(filenames[i]);
+		Q_strncpyz(filename, filenames[i], MAX_STRING_CHARS);
+
+		if(stripExt)
+		{
+			Com_StripExtension(filename, filename, sizeof(filename));
+		}
+
+		callback(filename);
+	}
+	FS_FreeFileList(filenames);
 }
