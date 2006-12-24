@@ -11,7 +11,7 @@ opts.Add(EnumOption('warnings', 'Choose warnings level', '1', allowed_values=('0
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
-#opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', #'athlon-xp', 'pentium4')))
+opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(EnumOption('sound', 'Choose sound api', 'sdl', allowed_values=('oss', 'alsa', 'sdl')))
 opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting support', 1))
 opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machine support', 0))
@@ -21,6 +21,7 @@ opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking f
 opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
 opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 opts.Add(BoolOption('freetype', 'Set to 1 to compile engine with FreeType 2.x support', 0))
+opts.Add(BoolOption('vorbis', 'Set to 1 to compile engine with OGG Vorbis support', 1))
 
 #
 # initialize compiler environment base
@@ -54,11 +55,14 @@ else:
 if env['optimize'] != '0':
 	env.Append(CCFLAGS = '-O${optimize} -ffast-math -fno-strict-aliasing -funroll-loops')
 
-#if env['cpu'] == 'athlon-xp':
-#	env.Append(CCFLAGS = '-march=athlon-xp') # -msse -mfpmath=sse')
+if env['cpu'] == 'athlon-xp':
+	env.Append(CCFLAGS = '-march=athlon-xp') # -msse -mfpmath=sse')
+
+elif env['cpu'] == 'core2duo':
+	env.Append(CCFLAGS = '-march=prescott')
 
 if env['arch'] == 'linux-i386' and env['vectorize'] == 1:
-	env.Append(CCFLAGS = '-ftree-vectorize -msse -ftree-vectorizer-verbose=1')
+	env.Append(CCFLAGS = '-ftree-vectorize -ftree-vectorizer-verbose=1')
 
 if env['simd'] == 'sse':
 	env.Append(CCFLAGS = '-DSIMD_SSE')
@@ -84,6 +88,7 @@ SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
 SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
 SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
+#SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
 SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
 
 if env['gtkradiant'] == 1:

@@ -3,6 +3,7 @@ code/cgame
 
 code/client
 - .avi video and audio recording
+- Ogg Vorbis audio file format support
 
 code/game/shared
 - matrix math

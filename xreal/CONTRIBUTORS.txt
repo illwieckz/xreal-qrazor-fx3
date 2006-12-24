@@ -9,6 +9,8 @@ Iain "Jock" Mckay - x86_64 patch
 Tim "Timbo" Angus - .avi video recording patch
 Jason Thomas Dolan - Linux ALSA sound backend
 Ryan C. Gordon "icculus" - Linux SDL sound backend
+Stuart Dalton - Ogg Vorbis support
+Joerg Dietrich - Ogg Vorbis support
 ensiform - console clock enhancements
 
 

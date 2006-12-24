@@ -79,6 +79,8 @@ typedef struct
 
 #define START_SAMPLE_IMMEDIATE	0x7fffffff
 
+#define MAX_DOPPLER_SCALE 50.0f	//arbitrary
+
 typedef struct loopSound_s
 {
 	vec3_t          origin;
@@ -171,18 +173,17 @@ extern cvar_t  *s_show;
 extern cvar_t  *s_mixahead;
 
 extern cvar_t  *s_testsound;
-extern cvar_t  *s_separation;
 
 qboolean        S_LoadSound(sfx_t * sfx);
 
 void            SND_free(sndBuffer * v);
-sndBuffer      *SND_malloc();
-void            SND_setup();
+sndBuffer      *SND_malloc(void);
+void            SND_setup(void);
 
 void            S_PaintChannels(int endtime);
 
 void            S_memoryLoad(sfx_t * sfx);
-portable_samplepair_t *S_GetRawSamplePointer();
+portable_samplepair_t *S_GetRawSamplePointer(void);
 
 // spatializes a channel
 void            S_Spatialize(channel_t * ch);
@@ -197,7 +198,7 @@ void            S_AdpcmGetSamples(sndBuffer * chunk, short *to);
 #define SENTINEL_MULAW_ZERO_RUN 127
 #define SENTINEL_MULAW_FOUR_BIT_RUN 126
 
-void            S_FreeOldestSound();
+void            S_FreeOldestSound(void);
 
 #define	NXStream byte
 

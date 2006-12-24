@@ -31,6 +31,9 @@ xreal_src = [
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
 'code/client/snd_adpcm.c',
+'code/client/snd_codec_ogg.c',
+'code/client/snd_codec_wav.c',
+'code/client/snd_codec.c',
 'code/client/snd_dma.c',
 'code/client/snd_mem.c',
 'code/client/snd_mix.c',
@@ -216,6 +219,10 @@ if env['arch'] == 'linux-i386':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+		
+	if env['vorbis'] == 1:
+		xreal_env.Append(LIBS=['vorbisfile', 'vorbis', 'ogg'])
+		xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
@@ -247,6 +254,10 @@ elif env['arch'] == 'linux-x86_64':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+		
+	if env['vorbis'] == 1:
+		xreal_env.Append(LIBS=['vorbisfile', 'vorbis', 'ogg'])
+		xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86_64.c']

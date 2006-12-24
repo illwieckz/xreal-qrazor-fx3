@@ -31,24 +31,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "snd_local.h"
+#include "snd_codec.h"
 #include "client.h"
 
+void            S_SoundInfo_f(void);
 void            S_Play_f(void);
 void            S_SoundList_f(void);
 void            S_Music_f(void);
 
-void            S_Update_();
+void            S_Update_(void);
 void            S_StopAllSounds(void);
 void            S_UpdateBackgroundTrack(void);
 
-static fileHandle_t s_backgroundFile;
-static wavinfo_t s_backgroundInfo;
-
-//int           s_nextWavChunk;
-static int      s_backgroundSamples;
+snd_stream_t   *s_backgroundStream = NULL;
 static char     s_backgroundLoop[MAX_QPATH];
-
-//static char       s_backgroundMusic[MAX_QPATH]; //TTimo: unused
 
 
 // =======================================================================
@@ -102,48 +98,6 @@ int             s_rawend;
 portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
 
 
-// ====================================================================
-// User-setable variables
-// ====================================================================
-
-
-void S_SoundInfo_f(void)
-{
-	Com_Printf("----- Sound Info -----\n");
-
-	if(!s_soundStarted)
-	{
-		Com_Printf("sound system not started\n");
-	}
-	else
-	{
-		if(s_soundMuted)
-		{
-			Com_Printf("sound system is muted\n");
-		}
-
-		Com_Printf("%5d channels\n", dma.channels);
-		Com_Printf("%5d samples\n", dma.samples);
-		Com_Printf("%5d samplebits\n", dma.samplebits);
-		Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
-		Com_Printf("%5d speed\n", dma.speed);
-		Com_Printf("0x%x dma buffer\n", dma.buffer);
-
-		if(s_backgroundFile)
-		{
-			Com_Printf("Background file: %s\n", s_backgroundLoop);
-		}
-		else
-		{
-			Com_Printf("No background file.\n");
-		}
-
-	}
-	Com_Printf("----------------------\n");
-}
-
-
-
 /*
 ================
 S_Init
@@ -174,6 +128,8 @@ void S_Init(void)
 		Com_Printf("------------------------------------\n");
 		return;
 	}
+	
+	S_CodecInit();
 
 	Cmd_AddCommand("play", S_Play_f);
 	Cmd_AddCommand("music", S_Music_f);
@@ -210,7 +166,7 @@ void S_ChannelFree(channel_t * v)
 	freelist = (channel_t *) v;
 }
 
-channel_t      *S_ChannelMalloc()
+channel_t      *S_ChannelMalloc(void)
 {
 	channel_t      *v;
 
@@ -224,7 +180,7 @@ channel_t      *S_ChannelMalloc()
 	return v;
 }
 
-void S_ChannelSetup()
+void S_ChannelSetup(void)
 {
 	channel_t      *p, *q;
 
@@ -263,6 +219,8 @@ void S_Shutdown(void)
 	Cmd_RemoveCommand("stopsound");
 	Cmd_RemoveCommand("soundlist");
 	Cmd_RemoveCommand("soundinfo");
+	
+	S_CodecShutdown();
 }
 
 
@@ -525,8 +483,6 @@ void S_SpatializeOrigin(vec3_t origin, int master_vol, int *left_vol, int *right
 	{
 		rscale = 0.5 * (1.0 + dot);
 		lscale = 0.5 * (1.0 - dot);
-		//rscale = s_separation->value + ( 1.0 - s_separation->value ) * dot;
-		//lscale = s_separation->value - ( 1.0 - s_separation->value ) * dot;
 		if(rscale < 0)
 		{
 			rscale = 0;
@@ -885,6 +841,10 @@ void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity
 		{
 			loopSounds[entityNum].doppler = qfalse;	// don't bother doing the math
 		}
+		else if(loopSounds[entityNum].dopplerScale > MAX_DOPPLER_SCALE)
+		{
+			loopSounds[entityNum].dopplerScale = MAX_DOPPLER_SCALE;
+		}
 	}
 
 	loopSounds[entityNum].framenum = cls.framecount;
@@ -1063,7 +1023,7 @@ void S_ByteSwapRawSamples(int samples, int width, int s_channels, const byte * d
 	}
 }
 
-portable_samplepair_t *S_GetRawSamplePointer()
+portable_samplepair_t *S_GetRawSamplePointer(void)
 {
 	return s_rawsamples;
 }
@@ -1308,7 +1268,7 @@ void S_Update(void)
 
 	if(!s_soundStarted || s_soundMuted)
 	{
-		Com_DPrintf("not started or muted\n");
+//      Com_DPrintf ("not started or muted\n");
 		return;
 	}
 
@@ -1348,7 +1308,7 @@ void S_GetSoundtime(void)
 	fullsamples = dma.samples / dma.channels;
 
 	if(CL_VideoRecording())
-	{ 
+	{
 		s_soundtime += (int)ceil(dma.speed / cl_aviFrameRate->value);
 		return;
 	}
@@ -1464,6 +1424,42 @@ console functions
 ===============================================================================
 */
 
+
+void S_SoundInfo_f(void)
+{
+	Com_Printf("----- Sound Info -----\n");
+
+	if(!s_soundStarted)
+	{
+		Com_Printf("sound system not started\n");
+	}
+	else
+	{
+		if(s_soundMuted)
+		{
+			Com_Printf("sound system is muted\n");
+		}
+
+		Com_Printf("%5d channels\n", dma.channels);
+		Com_Printf("%5d samples\n", dma.samples);
+		Com_Printf("%5d samplebits\n", dma.samplebits);
+		Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
+		Com_Printf("%5d speed\n", dma.speed);
+		Com_Printf("0x%x dma buffer\n", dma.buffer);
+		
+		if(s_backgroundStream)
+		{
+			Com_Printf("Background file: %s\n", s_backgroundLoop);
+		}
+		else
+		{
+			Com_Printf("No background file.\n");
+		}
+
+	}
+	Com_Printf("----------------------\n");
+}
+
 void S_Play_f(void)
 {
 	int             i;
@@ -1498,7 +1494,7 @@ void S_Music_f(void)
 
 	if(c == 2)
 	{
-		S_StartBackgroundTrack(Cmd_Argv(1), Cmd_Argv(1));
+		S_StartBackgroundTrack(Cmd_Argv(1), NULL);
 		s_backgroundLoop[0] = 0;
 	}
 	else if(c == 3)
@@ -1547,55 +1543,6 @@ background music functions
 ===============================================================================
 */
 
-int FGetLittleLong(fileHandle_t f)
-{
-	int             v;
-
-	FS_Read(&v, sizeof(v), f);
-
-	return LittleLong(v);
-}
-
-int FGetLittleShort(fileHandle_t f)
-{
-	short           v;
-
-	FS_Read(&v, sizeof(v), f);
-
-	return LittleShort(v);
-}
-
-// returns the length of the data in the chunk, or 0 if not found
-int S_FindWavChunk(fileHandle_t f, char *chunk)
-{
-	char            name[5];
-	int             len;
-	int             r;
-
-	name[4] = 0;
-	len = 0;
-	r = FS_Read(name, 4, f);
-	if(r != 4)
-	{
-		return 0;
-	}
-	len = FGetLittleLong(f);
-	if(len < 0 || len > 0xfffffff)
-	{
-		len = 0;
-		return 0;
-	}
-	len = (len + 1) & ~1;		// pad to word boundary
-//  s_nextWavChunk += len + 8;
-
-	if(strcmp(name, chunk))
-	{
-		return 0;
-	}
-
-	return len;
-}
-
 /*
 ======================
 S_StopBackgroundTrack
@@ -1603,13 +1550,10 @@ S_StopBackgroundTrack
 */
 void S_StopBackgroundTrack(void)
 {
-	if(!s_backgroundFile)
-	{
+	if(!s_backgroundStream)
 		return;
-	}
-	Sys_EndStreamedFile(s_backgroundFile);
-	FS_FCloseFile(s_backgroundFile);
-	s_backgroundFile = 0;
+	S_CodecCloseStream(s_backgroundStream);
+	s_backgroundStream = NULL;
 	s_rawend = 0;
 }
 
@@ -1620,10 +1564,6 @@ S_StartBackgroundTrack
 */
 void S_StartBackgroundTrack(const char *intro, const char *loop)
 {
-	int             len;
-	char            dump[16];
-	char            name[MAX_QPATH];
-
 	if(!intro)
 	{
 		intro = "";
@@ -1634,84 +1574,40 @@ void S_StartBackgroundTrack(const char *intro, const char *loop)
 	}
 	Com_DPrintf("S_StartBackgroundTrack( %s, %s )\n", intro, loop);
 
-	Q_strncpyz(name, intro, sizeof(name) - 4);
-	Com_DefaultExtension(name, sizeof(name), ".wav");
-
 	if(!intro[0])
 	{
 		return;
 	}
 
-	Q_strncpyz(s_backgroundLoop, loop, sizeof(s_backgroundLoop));
+	if(!loop)
+	{
+		s_backgroundLoop[0] = 0;
+	}
+	else
+	{
+		Q_strncpyz(s_backgroundLoop, loop, sizeof(s_backgroundLoop));
+	}
 
 	// close the background track, but DON'T reset s_rawend
 	// if restarting the same back ground track
-	if(s_backgroundFile)
+	if(s_backgroundStream)
 	{
-		Sys_EndStreamedFile(s_backgroundFile);
-		FS_FCloseFile(s_backgroundFile);
-		s_backgroundFile = 0;
+		S_CodecCloseStream(s_backgroundStream);
+		s_backgroundStream = NULL;
 	}
 
-	//
-	// open up a wav file and get all the info
-	//
-	FS_FOpenFileRead(name, &s_backgroundFile, qtrue);
-	if(!s_backgroundFile)
+	// Open stream
+	s_backgroundStream = S_CodecOpenStream(intro);
+	if(!s_backgroundStream)
 	{
-		Com_Printf(S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", name);
+		Com_Printf(S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", intro);
 		return;
 	}
 
-	// skip the riff wav header
-
-	FS_Read(dump, 12, s_backgroundFile);
-
-	if(!S_FindWavChunk(s_backgroundFile, "fmt "))
+	if(s_backgroundStream->info.channels != 2 || s_backgroundStream->info.rate != 22050)
 	{
-		Com_Printf("No fmt chunk in %s\n", name);
-		FS_FCloseFile(s_backgroundFile);
-		s_backgroundFile = 0;
-		return;
+		Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n", intro);
 	}
-
-	// save name for soundinfo
-	s_backgroundInfo.format = FGetLittleShort(s_backgroundFile);
-	s_backgroundInfo.channels = FGetLittleShort(s_backgroundFile);
-	s_backgroundInfo.rate = FGetLittleLong(s_backgroundFile);
-	FGetLittleLong(s_backgroundFile);
-	FGetLittleShort(s_backgroundFile);
-	s_backgroundInfo.width = FGetLittleShort(s_backgroundFile) / 8;
-
-	if(s_backgroundInfo.format != WAV_FORMAT_PCM)
-	{
-		FS_FCloseFile(s_backgroundFile);
-		s_backgroundFile = 0;
-		Com_Printf("Not a microsoft PCM format wav: %s\n", name);
-		return;
-	}
-
-	if(s_backgroundInfo.channels != 2 || s_backgroundInfo.rate != 22050)
-	{
-		Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n", name);
-	}
-
-	if((len = S_FindWavChunk(s_backgroundFile, "data")) == 0)
-	{
-		FS_FCloseFile(s_backgroundFile);
-		s_backgroundFile = 0;
-		Com_Printf("No data chunk in %s\n", name);
-		return;
-	}
-
-	s_backgroundInfo.samples = len / (s_backgroundInfo.width * s_backgroundInfo.channels);
-
-	s_backgroundSamples = s_backgroundInfo.samples;
-
-	//
-	// start the background streaming
-	//
-	Sys_BeginStreamedFile(s_backgroundFile, 0x10000);
 }
 
 /*
@@ -1728,7 +1624,7 @@ void S_UpdateBackgroundTrack(void)
 	int             r;
 	static float    musicVolume = 0.5f;
 
-	if(!s_backgroundFile)
+	if(!s_backgroundStream)
 	{
 		return;
 	}
@@ -1753,57 +1649,48 @@ void S_UpdateBackgroundTrack(void)
 		bufferSamples = MAX_RAW_SAMPLES - (s_rawend - s_soundtime);
 
 		// decide how much data needs to be read from the file
-		fileSamples = bufferSamples * s_backgroundInfo.rate / dma.speed;
-
-		// don't try and read past the end of the file
-		if(fileSamples > s_backgroundSamples)
-		{
-			fileSamples = s_backgroundSamples;
-		}
+		fileSamples = bufferSamples * s_backgroundStream->info.rate / dma.speed;
 
 		// our max buffer size
-		fileBytes = fileSamples * (s_backgroundInfo.width * s_backgroundInfo.channels);
+		fileBytes = fileSamples * (s_backgroundStream->info.width * s_backgroundStream->info.channels);
 		if(fileBytes > sizeof(raw))
 		{
 			fileBytes = sizeof(raw);
-			fileSamples = fileBytes / (s_backgroundInfo.width * s_backgroundInfo.channels);
+			fileSamples = fileBytes / (s_backgroundStream->info.width * s_backgroundStream->info.channels);
 		}
 
-		r = Sys_StreamedRead(raw, 1, fileBytes, s_backgroundFile);
-		if(r != fileBytes)
+		// Read
+		r = S_CodecReadStream(s_backgroundStream, fileBytes, raw);
+		if(r < fileBytes)
 		{
-			Com_Printf("StreamedRead failure on music track\n");
-			S_StopBackgroundTrack();
-			return;
+			fileBytes = r;
+			fileSamples = r / (s_backgroundStream->info.width * s_backgroundStream->info.channels);
 		}
 
-		// byte swap if needed
-		S_ByteSwapRawSamples(fileSamples, s_backgroundInfo.width, s_backgroundInfo.channels, raw);
-
-		// add to raw buffer
-		S_RawSamples(fileSamples, s_backgroundInfo.rate, s_backgroundInfo.width, s_backgroundInfo.channels, raw, musicVolume);
-
-		s_backgroundSamples -= fileSamples;
-		if(!s_backgroundSamples)
+		if(r > 0)
+		{
+			// add to raw buffer
+			S_RawSamples(fileSamples, s_backgroundStream->info.rate,
+							  s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, musicVolume);
+		}
+		else
 		{
 			// loop
 			if(s_backgroundLoop[0])
 			{
-				Sys_EndStreamedFile(s_backgroundFile);
-				FS_FCloseFile(s_backgroundFile);
-				s_backgroundFile = 0;
+				S_CodecCloseStream(s_backgroundStream);
+				s_backgroundStream = NULL;
 				S_StartBackgroundTrack(s_backgroundLoop, s_backgroundLoop);
-				if(!s_backgroundFile)
-				{
-					return;		// loop failed to restart
-				}
+				if(!s_backgroundStream)
+					return;
 			}
 			else
 			{
-				s_backgroundFile = 0;
+				S_StopBackgroundTrack();
 				return;
 			}
 		}
+
 	}
 }
 
@@ -1814,7 +1701,7 @@ S_FreeOldestSound
 ======================
 */
 
-void S_FreeOldestSound()
+void S_FreeOldestSound(void)
 {
 	int             i, oldest, used;
 	sfx_t          *sfx;
@@ -1847,3 +1734,4 @@ void S_FreeOldestSound()
 	sfx->inMemory = qfalse;
 	sfx->soundData = NULL;
 }
+
