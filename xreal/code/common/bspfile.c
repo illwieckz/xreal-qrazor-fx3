@@ -543,7 +543,7 @@ void SetKeyValue(entity_t * ent, const char *key, const char *value)
 
 	for(ep = ent->epairs; ep; ep = ep->next)
 	{
-		if(!strcmp(ep->key, key))
+		if(!Q_stricmp(ep->key, key))
 		{
 			free(ep->value);
 			ep->value = copystring(value);
@@ -563,7 +563,7 @@ const char     *ValueForKey(const entity_t * ent, const char *key)
 
 	for(ep = ent->epairs; ep; ep = ep->next)
 	{
-		if(!strcmp(ep->key, key))
+		if(!Q_stricmp(ep->key, key))
 		{
 			return ep->value;
 		}

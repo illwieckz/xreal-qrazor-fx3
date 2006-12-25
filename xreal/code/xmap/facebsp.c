@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 
 
+int				blockSize[3] = {1024, 1024, 1024};
+
 int             c_faceLeafs;
 
 
@@ -62,10 +64,7 @@ void FreeBspFace(bspFace_t * f)
 SelectSplitPlaneNum
 ================
 */
-int             hintsplit;
-
-#define	BLOCK_SIZE	1024
-int SelectSplitPlaneNum(node_t * node, bspFace_t * list)
+static void SelectSplitPlaneNum(node_t * node, bspFace_t * list, int *splitPlaneNum, int *hintSplit)
 {
 	bspFace_t      *split;
 	bspFace_t      *check;
@@ -79,17 +78,26 @@ int SelectSplitPlaneNum(node_t * node, bspFace_t * list)
 	float           dist;
 	int             planenum;
 
-	hintsplit = qfalse;
+	*splitPlaneNum = -1;
+	*hintSplit = qfalse;
+	
+	// ydnar 2002-06-24: changed this to split on z-axis as well
+	// ydnar 2002-09-21: changed blocksize to be a vector, so mappers can specify a 3 element value
+	
 	// if it is crossing a 1k block boundary, force a split
-	for(i = 0; i < 2; i++)
+	for(i = 0; i < 3; i++)
 	{
-		dist = BLOCK_SIZE * (floor(node->mins[i] / BLOCK_SIZE) + 1);
+		if(blockSize[i] <= 0)
+			continue;
+		
+		dist = blockSize[i] * (floor(node->mins[i] / blockSize[i]) + 1);
 		if(node->maxs[i] > dist)
 		{
 			VectorClear(normal);
 			normal[i] = 1;
 			planenum = FindFloatPlane(normal, dist);
-			return planenum;
+			*splitPlaneNum = planenum;
+			return;
 		}
 	}
 
@@ -151,13 +159,13 @@ int SelectSplitPlaneNum(node_t * node, bspFace_t * list)
 
 	if(bestValue == -99999)
 	{
-		return -1;
+		return;
 	}
 
 	if(bestSplit->hint)
-		hintsplit = qtrue;
+		*hintSplit = qtrue;
 
-	return bestSplit->planenum;
+	*splitPlaneNum = bestSplit->planenum;
 }
 
 int CountFaceList(bspFace_t * list)
@@ -188,10 +196,12 @@ void BuildFaceTree_r(node_t * node, bspFace_t * list)
 	winding_t      *frontWinding, *backWinding;
 	int             i;
 	int             splitPlaneNum;
+	int             hintSplit;
 
 	i = CountFaceList(list);
 
-	splitPlaneNum = SelectSplitPlaneNum(node, list);
+	SelectSplitPlaneNum(node, list, &splitPlaneNum, &hintSplit);
+	
 	// if we don't have any more faces, this is a node
 	if(splitPlaneNum == -1)
 	{
@@ -202,7 +212,7 @@ void BuildFaceTree_r(node_t * node, bspFace_t * list)
 
 	// partition the list
 	node->planenum = splitPlaneNum;
-	node->hint = hintsplit;
+	node->hint = hintSplit;
 	plane = &mapPlanes[splitPlaneNum];
 	childLists[0] = NULL;
 	childLists[1] = NULL;

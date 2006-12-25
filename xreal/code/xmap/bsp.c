@@ -35,6 +35,7 @@ qboolean        onlytextures;
 qboolean        noliquids;
 qboolean        leaktest;
 qboolean        nocurves;
+qboolean        nodoors;
 qboolean        fakemap;
 qboolean        notjunc;
 qboolean        nomerge;
@@ -113,13 +114,35 @@ ProcessWorldModel
 */
 void ProcessWorldModel(void)
 {
+	int             s;
 	entity_t       *e;
 	tree_t         *tree;
 	bspFace_t      *faces;
 	qboolean        leaked;
+	const char     *value;
 	
 	e = &entities[0];
 	e->firstDrawSurf = 0;		//numMapDrawSurfs;
+	
+	// sets integer blockSize from worldspawn "_blocksize" key if it exists
+	value = ValueForKey(e, "_blocksize");
+	if(value[0] == '\0')
+		value = ValueForKey(e, "blocksize");
+	if(value[0] == '\0')
+		value = ValueForKey(e, "chopsize");	// sof2
+	if(value[0] != '\0')
+	{
+		// scan 3 numbers
+		s = sscanf(value, "%d %d %d", &blockSize[0], &blockSize[1], &blockSize[2]);
+
+		// handle legacy case
+		if(s == 1)
+		{
+			blockSize[1] = blockSize[0];
+			blockSize[2] = blockSize[0];
+		}
+	}
+	Sys_Printf("block size = { %d %d %d }\n", blockSize[0], blockSize[1], blockSize[2]);
 
 	BeginModel(e);
 
@@ -507,6 +530,11 @@ int BspMain(int argc, char **argv)
 			nocurves = qtrue;
 			Sys_Printf("no curve brushes\n");
 		}
+		else if(!strcmp(argv[i], "-nodoors"))
+		{
+			nodoors = qtrue;
+			Sys_Printf("no door entities\n");
+		}
 		else if(!strcmp(argv[i], "-notjunc"))
 		{
 			notjunc = qtrue;
@@ -557,6 +585,7 @@ int BspMain(int argc, char **argv)
 				"   v              = verbose output\n"
 				"   threads <X>    = set number of threads to X\n"
 				"   nocurves       = don't emit bezier surfaces\n"
+				"   nodoors        = disable door entities\n"
 				//"   breadthfirst   = breadth first bsp building\n"
 				//"   nobrushmerge   = don't merge brushes\n"
 				"   noliquids      = don't write liquids to map\n"

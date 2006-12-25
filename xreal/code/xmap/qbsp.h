@@ -234,6 +234,7 @@ extern qboolean nodetail;
 extern qboolean fulldetail;
 extern qboolean noliquids;
 extern qboolean nocurves;
+extern qboolean nodoors;
 extern qboolean fakemap;
 extern qboolean nofog;
 extern qboolean testExpand;
@@ -439,6 +440,8 @@ winding_t      *WindingFromDrawSurf(drawSurface_t * ds);
 //=============================================================================
 
 // facebsp.c
+
+extern int		blockSize[3];
 
 bspFace_t      *BspFaceForPortal(portal_t * p);
 bspFace_t      *MakeStructuralBspFaceList(bspBrush_t * list);
