@@ -206,10 +206,18 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 	surf.shaders[0].index = 0
 	
 	log.info("Materials: %s", mesh.materials)
-	if not mesh.materials:
-		surf.shaders[0].name = pathName + blenderObject.name
+	# :P
+	shaderpath=Blender.Draw.PupStrInput("shader path for "+blenderObject.name+":", "", MAX_QPATH )
+	if 	shaderpath == "" :
+		if not mesh.materials:
+			surf.shaders[0].name = pathName + blenderObject.name
+		else:
+			surf.shaders[0].name = pathName + mesh.materials[0].name
 	else:
-		surf.shaders[0].name = pathName + mesh.materials[0].name
+		if not mesh.materials:
+			surf.shaders[0].name = shaderpath + blenderObject.name
+		else:
+			surf.shaders[0].name = shaderpath + mesh.materials[0].name
 
 	# process each face in the mesh
 	for face in mesh.faces:
