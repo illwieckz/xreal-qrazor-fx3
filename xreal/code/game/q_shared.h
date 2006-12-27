@@ -731,12 +731,12 @@ extern quat_t   quatIdentity;
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
-#if idppc
-
-static inline float Q_rsqrt(float number)
+static ID_INLINE float Q_rsqrt(float number)
 {
-	float           x = 0.5f * number;
 	float           y;
+
+#if idppc
+	float           x = 0.5f * number;
 
 #ifdef __GNUC__
   asm("frsqrte %0,%1": "=f"(y):"f"(number));
@@ -744,26 +744,95 @@ static inline float Q_rsqrt(float number)
 	y = __frsqrte(number);
 #endif
 	return y * (1.5f - (x * y * y));
+
+#elif id386_3dnow && defined __GNUC__
+//#error Q_rqsrt
+	asm volatile
+	(
+												// lo                                   | hi
+	"femms                               \n" 
+	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
+	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
+	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
+	"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                        | (1/sqrt(in))?         step 1
+	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                 step 2
+	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)                           step 3
+	"movd           %%mm1,        (%%edx)\n"
+	"femms                               \n"
+	:
+	:"a" (&number), "d"(&y):"memory"
+	);
+#elif id386_sse && defined __GNUC__
+	asm volatile
+	(
+	"rsqrtss       (%%eax),          %%xmm0\n"
+	"movss          %%xmm0,         (%%edx)\n"
+	:
+	: "a"(&number), "d"(&y)
+	: "memory"
+	);
+#elif id386_sse && defined _MSC_VER
+	__asm
+	{
+		rsqrtss xmm0, number
+		movss y, xmm0
+	}
+#elif __x86_64__
+	y = 1 / sqrt(number);
+#else
+	long            i;
+	float           x2;
+	const float     threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	y = number;
+	i = *(long *)&y;			// evil floating point bit level hacking
+	i = 0x5f3759df - (i >> 1);	// what the fuck?
+	y = *(float *)&i;
+	y = y * (threehalfs - (x2 * y * y));	// 1st iteration
+//  y = y * (threehalfs - (x2 * y * y));	// 2nd iteration, this can be removed
+//#ifndef Q3_VM
+//#ifdef __linux__
+//	assert(!isnan(y));			// bk010122 - FPE?
+//#endif
+//#endif
+#endif
+	return y;
 }
 
-#ifdef __GNUC__
-static inline float Q_fabs(float x)
+static ID_INLINE float Q_fabs(float x)
 {
+#if idppc && defined __GNUC__
 	float           abs_x;
 
-  asm("fabs %0,%1": "=f"(abs_x):"f"(x));
+ 	asm("fabs %0,%1": "=f"(abs_x):"f"(x));
 	return abs_x;
+#else
+	int             tmp = *(int *)&x;
+
+	tmp &= 0x7FFFFFFF;
+	return *(float *)&tmp;
+#endif
 }
-#else
-#define Q_fabs __fabsf
-#endif
 
-#else
-float           Q_fabs(float f);
-float           Q_rsqrt(float f);	// reciprocal square root
-#endif
+static ID_INLINE vec_t Q_recip(vec_t in)
+{
+#if id386_3dnow && defined __GNUC__ && 0
+	vec_t           out;
 
-float           Q_recip(float f);
+	femms();
+	asm volatile    ("movd		(%%eax),	%%mm0\n" "pfrcp		%%mm0,		%%mm1\n"	// (approx)
+					 "pfrcpit1	%%mm1,		%%mm0\n"	// (intermediate)
+					 "pfrcpit2	%%mm1,		%%mm0\n"	// (full 24-bit)
+					 // out = mm0[low]
+					 "movd		%%mm0,		(%%edx)\n"::"a" (&in), "d"(&out):"memory");
+
+	femms();
+	return out;
+#else
+	return ((float)(1.0f / (in)));
+#endif
+}
 
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
