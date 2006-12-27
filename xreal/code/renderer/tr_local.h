@@ -2123,7 +2123,6 @@ void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
 
 void            GL_CheckErrors_(const char *filename, int line);
-
 #define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
 
 void            GL_State(unsigned long stateVector);

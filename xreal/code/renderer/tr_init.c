@@ -419,15 +419,17 @@ void GL_CheckErrors_(const char *filename, int line)
 		return;
 	}
 
+	if(r_ignoreGLErrors->integer)
+	{
+		return;
+	}
+
 	err = qglGetError();
 	if(err == GL_NO_ERROR)
 	{
 		return;
 	}
-	if(r_ignoreGLErrors->integer)
-	{
-		return;
-	}
+	
 	switch (err)
 	{
 		case GL_INVALID_ENUM:

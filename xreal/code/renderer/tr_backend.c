@@ -1775,7 +1775,10 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							}
 							
 							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
-							R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
+							if(!r_ignoreGLErrors->integer)
+							{
+								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
+							}
 							
 							// set the window clipping
 							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
@@ -1905,7 +1908,10 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 							
 							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
-							R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
+							if(!r_ignoreGLErrors->integer)
+							{
+								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
+							}
 							
 							// set the window clipping
 							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
