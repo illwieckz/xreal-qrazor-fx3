@@ -3546,6 +3546,87 @@ static qboolean _cldTestOneTriangle(trRefLight_t * light, const vec3_t v0, const
 	 */
 }
 
+static int R_BuildShadowVolume(int numTriangles, const srfTriangle_t * triangles, int numVerts, int indexes[SHADER_MAX_INDEXES])
+{
+	int             i;
+	int				numIndexes;
+	srfTriangle_t  *tri;
+
+	// calculate zfail shadow volume
+	numIndexes = 0;
+
+	// set up indices for silhouette edges
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		if(tri->neighbors[0] < 0 || !sh.facing[tri->neighbors[0]])
+		{
+			indexes[numIndexes + 0] = tri->indexes[1];
+			indexes[numIndexes + 1] = tri->indexes[0];
+			indexes[numIndexes + 2] = tri->indexes[0] + numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[1];
+			indexes[numIndexes + 4] = tri->indexes[0] + numVerts;
+			indexes[numIndexes + 5] = tri->indexes[1] + numVerts;
+
+			numIndexes += 6;
+		}
+
+		if(tri->neighbors[1] < 0 || !sh.facing[tri->neighbors[1]])
+		{
+			indexes[numIndexes + 0] = tri->indexes[2];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[1] + numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[2];
+			indexes[numIndexes + 4] = tri->indexes[1] + numVerts;
+			indexes[numIndexes + 5] = tri->indexes[2] + numVerts;
+
+			numIndexes += 6;
+		}
+
+		if(tri->neighbors[2] < 0 || !sh.facing[tri->neighbors[2]])
+		{
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[2];
+			indexes[numIndexes + 2] = tri->indexes[2] + numVerts;
+
+			indexes[numIndexes + 3] = tri->indexes[0];
+			indexes[numIndexes + 4] = tri->indexes[2] + numVerts;
+			indexes[numIndexes + 5] = tri->indexes[0] + numVerts;
+
+			numIndexes += 6;
+		}
+	}
+
+	// set up indices for light and dark caps
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		// light cap
+		indexes[numIndexes + 0] = tri->indexes[0];
+		indexes[numIndexes + 1] = tri->indexes[1];
+		indexes[numIndexes + 2] = tri->indexes[2];
+
+		// dark cap
+		indexes[numIndexes + 3] = tri->indexes[2] + numVerts;
+		indexes[numIndexes + 4] = tri->indexes[1] + numVerts;
+		indexes[numIndexes + 5] = tri->indexes[0] + numVerts;
+
+		numIndexes += 6;
+	}
+
+	return numIndexes;
+}
+
 static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shader, trRefLight_t * light)
 {
 	int             i;
@@ -3657,15 +3738,14 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 			}
 			else
 			{
-				//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
 				sh.numDegenerated++;
 				sh.degenerated[i] = qtrue;
 
-				sh.facing[i] = qfalse;
+				sh.facing[i] = qtrue;
 			}
 
 			// check with ODE's triangle<->OBB collider for an intersection
-			if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			if(!sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 			{
 				sh.facing[i] = qfalse;
 			}
@@ -3700,85 +3780,12 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 		if(r_precacheShadowIndexes->integer)
 		{
-			// calculate zfail shadow volume
-			numIndexes = 0;
-			indexes = s_shadowIndexes;
-
 			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 			{
 				return qtrue;
 			}
 
-			// set up indices for silhouette edges
-			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-			{
-				if(!sh.facing[i])
-				{
-					continue;
-				}
-
-				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[1];
-					indexes[numIndexes + 1] = tri->indexes[0];
-					indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[1];
-					indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-
-				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[2];
-					indexes[numIndexes + 1] = tri->indexes[1];
-					indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[2];
-					indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-
-				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[0];
-					indexes[numIndexes + 1] = tri->indexes[2];
-					indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[0];
-					indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-			}
-
-			// set up indices for light and dark caps
-			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-			{
-				if(!sh.facing[i])
-				{
-					continue;
-				}
-
-				// light cap
-				indexes[numIndexes + 0] = tri->indexes[0];
-				indexes[numIndexes + 1] = tri->indexes[1];
-				indexes[numIndexes + 2] = tri->indexes[2];
-
-				// dark cap
-				indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
-				indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-				indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-				numIndexes += 6;
-			}
-
-			s_numShadowIndexes = numIndexes;
+			s_numShadowIndexes = R_BuildShadowVolume(cv->numTriangles, cv->triangles, cv->numVerts, s_shadowIndexes);
 		}
 
 	}
@@ -3852,11 +3859,11 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 				sh.numDegenerated++;
 				sh.degenerated[i] = qtrue;
 
-				sh.facing[i] = qfalse;
+				sh.facing[i] = qtrue;
 			}
 
 			// check with ODE's triangle<->OBB collider for an intersection
-			if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			if(!sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 			{
 				sh.facing[i] = qfalse;
 			}
@@ -3891,85 +3898,12 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 		if(r_precacheShadowIndexes->integer)
 		{
-			// calculate zfail shadow volume
-			numIndexes = 0;
-			indexes = s_shadowIndexes;
-
 			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 			{
 				return qtrue;
 			}
 
-			// set up indices for silhouette edges
-			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-			{
-				if(!sh.facing[i])
-				{
-					continue;
-				}
-
-				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[1];
-					indexes[numIndexes + 1] = tri->indexes[0];
-					indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[1];
-					indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-
-				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[2];
-					indexes[numIndexes + 1] = tri->indexes[1];
-					indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[2];
-					indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-
-				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[0];
-					indexes[numIndexes + 1] = tri->indexes[2];
-					indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[0];
-					indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-			}
-
-			// set up indices for light and dark caps
-			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-			{
-				if(!sh.facing[i])
-				{
-					continue;
-				}
-
-				// light cap
-				indexes[numIndexes + 0] = tri->indexes[0];
-				indexes[numIndexes + 1] = tri->indexes[1];
-				indexes[numIndexes + 2] = tri->indexes[2];
-
-				// dark cap
-				indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
-				indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-				indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-				numIndexes += 6;
-			}
-
-			s_numShadowIndexes = numIndexes;
+			s_numShadowIndexes = R_BuildShadowVolume(cv->numTriangles, cv->triangles, cv->numVerts, s_shadowIndexes);
 		}
 	}
 
@@ -4048,15 +3982,14 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			}
 			else
 			{
-				//ri.Printf(PRINT_WARNING, "degenerated planar surface triangle\n");
 				sh.numDegenerated++;
 				sh.degenerated[i] = qtrue;
 
-				sh.facing[i] = qfalse;
+				sh.facing[i] = qtrue;
 			}
 
 			// check with ODE's triangle<->OBB collider for an intersection
-			if(!_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			if(!sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 			{
 				sh.facing[i] = qfalse;
 			}
@@ -4091,85 +4024,12 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 		if(r_precacheShadowIndexes->integer)
 		{
-			// calculate zfail shadow volume
-			numIndexes = 0;
-			indexes = s_shadowIndexes;
-
 			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 			{
 				return qtrue;
 			}
 
-			// set up indices for silhouette edges
-			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-			{
-				if(!sh.facing[i])
-				{
-					continue;
-				}
-
-				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[1];
-					indexes[numIndexes + 1] = tri->indexes[0];
-					indexes[numIndexes + 2] = tri->indexes[0] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[1];
-					indexes[numIndexes + 4] = tri->indexes[0] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[1] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-
-				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[2];
-					indexes[numIndexes + 1] = tri->indexes[1];
-					indexes[numIndexes + 2] = tri->indexes[1] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[2];
-					indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[2] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-
-				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
-				{
-					indexes[numIndexes + 0] = tri->indexes[0];
-					indexes[numIndexes + 1] = tri->indexes[2];
-					indexes[numIndexes + 2] = tri->indexes[2] + cv->numVerts;
-
-					indexes[numIndexes + 3] = tri->indexes[0];
-					indexes[numIndexes + 4] = tri->indexes[2] + cv->numVerts;
-					indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-					numIndexes += 6;
-				}
-			}
-
-			// set up indices for light and dark caps
-			for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-			{
-				if(!sh.facing[i])
-				{
-					continue;
-				}
-
-				// light cap
-				indexes[numIndexes + 0] = tri->indexes[0];
-				indexes[numIndexes + 1] = tri->indexes[1];
-				indexes[numIndexes + 2] = tri->indexes[2];
-
-				// dark cap
-				indexes[numIndexes + 3] = tri->indexes[2] + cv->numVerts;
-				indexes[numIndexes + 4] = tri->indexes[1] + cv->numVerts;
-				indexes[numIndexes + 5] = tri->indexes[0] + cv->numVerts;
-
-				numIndexes += 6;
-			}
-
-			s_numShadowIndexes = numIndexes;
+			s_numShadowIndexes = R_BuildShadowVolume(cv->numTriangles, cv->triangles, cv->numVerts, s_shadowIndexes);
 		}
 	}
 
@@ -4574,9 +4434,9 @@ void RE_LoadWorldMap(const char *name)
 	R_PrecacheInteractions();
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
-	
-	//ri.Printf(PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / (1024 * 1024),
-	//		  (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+
+	ri.Printf(PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / (1024 * 1024),
+			  (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;

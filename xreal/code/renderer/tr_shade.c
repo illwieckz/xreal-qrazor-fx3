@@ -1273,7 +1273,11 @@ static void DrawTris()
 {
 	GLimp_LogComment("--- DrawTris ---\n");
 	
-	if(tess.indexesVBO && tess.vertexesVBO)
+	if(r_showBatches->integer)
+	{
+		qglColor4fv(g_color_table[backEnd.pc.c_batches % 8]);
+	}
+	else if(tess.indexesVBO && tess.vertexesVBO)
 	{
 		qglColor3f(0, 0, 1);
 	}
@@ -5427,7 +5431,7 @@ void Tess_End()
 	if(!tess.shadowVolume)
 	{
 		// draw debugging stuff
-		if(r_showtris->integer)
+		if(r_showtris->integer || r_showBatches->integer)
 		{
 			DrawTris();
 		}
