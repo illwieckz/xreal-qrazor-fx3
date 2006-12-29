@@ -1942,10 +1942,10 @@ void R_AddEntityInteractions(trRefLight_t * light)
 
 /*
 =============
-R_AddSlightInteractions
+R_AddStaticlightInteractions
 =============
 */
-void R_AddSlightInteractions()
+void R_AddStaticlightInteractions()
 {
 	int             i, j;
 	trRefLight_t   *light;
@@ -1962,7 +1962,7 @@ void R_AddSlightInteractions()
 		return;
 	}
 
-	//ri.Printf(PRINT_ALL, "R_AddSlightInteractions: adding %i lights\n", tr.world->numLights);
+	//ri.Printf(PRINT_ALL, "R_AddStaticlightInteractions: adding %i lights\n", tr.world->numLights);
 
 	for(i = 0; i < tr.world->numLights; i++)
 	{
@@ -2339,7 +2339,7 @@ void R_RenderView(viewParms_t * parms)
 
 	R_AddEntitySurfaces();
 
-	R_AddSlightInteractions();
+	R_AddStaticlightInteractions();
 
 	R_AddLightInteractions();
 

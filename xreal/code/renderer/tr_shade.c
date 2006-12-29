@@ -3800,20 +3800,6 @@ static void Tess_ComputeTexCoords(shaderStage_t * pStage)
 
 	GLimp_LogComment("--- Tess_ComputeTexCoords ---\n");
 
-	// generate the lightmap coordinates
-	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-	{
-		MatrixIdentity(tess.svars.texMatrices[TB_LIGHTMAP]);
-
-		for(i = 0; i < tess.numVertexes; i++)
-		{
-			tess.svars.texCoords[TB_LIGHTMAP][i][0] = tess.texCoords[i][1][0];
-			tess.svars.texCoords[TB_LIGHTMAP][i][1] = tess.texCoords[i][1][1];
-		}
-
-		// tcMods will be ignored
-	}
-
 	// generate the texture coordinates
 	for(b = 0; b < TB_LIGHTMAP; b++)
 	{
@@ -3860,76 +3846,17 @@ static void Tess_ComputeTexCoords(shaderStage_t * pStage)
 				RB_CalcEnvironmentTexCoords((float *)tess.svars.texCoords[b]);
 				break;
 		}
+	}
+	
+	// generate the lightmap coordinates
+	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+	{
+		MatrixIdentity(tess.svars.texMatrices[TB_LIGHTMAP]);
 
-		// alter texture coordinates
-		for(tm = 0; tm < pStage->bundle[b].numTexMods; tm++)
+		for(i = 0; i < tess.numVertexes; i++)
 		{
-			if(pStage->bundle[b].tcGen == TCGEN_SKIP)
-				break;
-
-			switch (pStage->bundle[b].texMods[tm].type)
-			{
-				case TMOD_NONE:
-					tm = TR_MAX_TEXMODS;	// break out of for loop
-					break;
-
-				case TMOD_TURBULENT:
-					RB_CalcTurbulentTexCoords(&pStage->bundle[b].texMods[tm].wave, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_ENTITY_TRANSLATE:
-					RB_CalcScrollTexCoords(backEnd.currentEntity->e.shaderTexCoord, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_SCROLL:
-					RB_CalcScrollTexCoords(pStage->bundle[b].texMods[tm].scroll, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_SCALE:
-					RB_CalcScaleTexCoords(pStage->bundle[b].texMods[tm].scale, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_STRETCH:
-					RB_CalcStretchTexCoords(&pStage->bundle[b].texMods[tm].wave, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_TRANSFORM:
-					RB_CalcTransformTexCoords(&pStage->bundle[b].texMods[tm], (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_ROTATE:
-					RB_CalcRotateTexCoords(pStage->bundle[b].texMods[tm].rotateSpeed, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_SCROLL2:
-					RB_CalcScrollTexCoords2(&pStage->bundle[b].texMods[tm].sExp,
-											&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_SCALE2:
-					RB_CalcScaleTexCoords2(&pStage->bundle[b].texMods[tm].sExp,
-										   &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_CENTERSCALE:
-					RB_CalcCenterScaleTexCoords(&pStage->bundle[b].texMods[tm].sExp,
-												&pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_SHEAR:
-					RB_CalcShearTexCoords(&pStage->bundle[b].texMods[tm].sExp,
-										  &pStage->bundle[b].texMods[tm].tExp, (float *)tess.svars.texCoords[b]);
-					break;
-
-				case TMOD_ROTATE2:
-					RB_CalcRotateTexCoords2(&pStage->bundle[b].texMods[tm].rExp, (float *)tess.svars.texCoords[b]);
-					break;
-
-				default:
-					ri.Error(ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n",
-							 pStage->bundle[b].texMods[tm].type, tess.surfaceShader->name);
-					break;
-			}
+			tess.svars.texCoords[TB_LIGHTMAP][i][0] = tess.texCoords[i][1][0];
+			tess.svars.texCoords[TB_LIGHTMAP][i][1] = tess.texCoords[i][1][1];
 		}
 	}
 }
@@ -3942,85 +3869,16 @@ Tess_ComputeTexMatrices
 */
 static void Tess_ComputeTexMatrices(shaderStage_t * pStage)
 {
-	int             i, j;
+	int             i;
 	vec_t          *matrix;
-	float           x, y;
 
 	GLimp_LogComment("--- Tess_ComputeTexMatrices ---\n");
 
 	for(i = 0; i < MAX_TEXTURE_BUNDLES; i++)
 	{
 		matrix = tess.svars.texMatrices[i];
-
-		MatrixIdentity(matrix);
-
-		for(j = 0; j < pStage->bundle[i].numTexMods; j++)
-		{
-			switch (pStage->bundle[i].texMods[j].type)
-			{
-				case TMOD_NONE:
-					j = TR_MAX_TEXMODS;	// break out of for loop
-					break;
-
-				case TMOD_SCROLL2:
-				{
-					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-					// clamp so coordinates don't continuously get larger, causing problems
-					// with hardware limits
-					x = x - floor(x);
-					y = y - floor(y);
-
-					MatrixMultiplyTranslation(matrix, x, y, 0.0);
-					break;
-				}
-
-				case TMOD_SCALE2:
-				{
-					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-					MatrixMultiplyScale(matrix, x, y, 0.0);
-					break;
-				}
-
-				case TMOD_CENTERSCALE:
-				{
-					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
-					MatrixMultiplyScale(matrix, x, y, 0.0);
-					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
-					break;
-				}
-
-				case TMOD_SHEAR:
-				{
-					x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-					y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
-					MatrixMultiplyShear(matrix, x, y);
-					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
-					break;
-				}
-
-				case TMOD_ROTATE2:
-				{
-					x = RAD2DEG(RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].rExp, 0)) * 5.0;
-
-					MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
-					MatrixMultiplyZRotation(matrix, x);
-					MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
+		
+		RB_CalcTexMatrix(&pStage->bundle[i], matrix);
 	}
 }
 
@@ -4089,6 +3947,7 @@ void Tess_StageIteratorGeneric()
 		else
 		{
 			Tess_ComputeTexCoords(pStage);
+			Tess_ComputeTexMatrices(pStage);	
 		}
 
 		switch (pStage->type)
@@ -4601,6 +4460,7 @@ void Tess_StageIteratorGBuffer()
 		else
 		{
 			Tess_ComputeTexCoords(pStage);
+			Tess_ComputeTexMatrices(pStage);
 		}
 
 		switch (pStage->type)
@@ -4761,6 +4621,7 @@ void Tess_StageIteratorShadowFill()
 		else
 		{
 			Tess_ComputeTexCoords(pStage);
+			Tess_ComputeTexMatrices(pStage);
 		}
 
 		switch (pStage->type)
@@ -5113,6 +4974,7 @@ void Tess_StageIteratorStencilLighting()
 		else
 		{
 			Tess_ComputeTexCoords(diffuseStage);
+			Tess_ComputeTexMatrices(diffuseStage);
 		}
 
 		for(j = 1; j < MAX_SHADER_STAGES; j++)
@@ -5361,6 +5223,7 @@ void Tess_StageIteratorLighting()
 		else
 		{
 			Tess_ComputeTexCoords(diffuseStage);
+			Tess_ComputeTexMatrices(diffuseStage);
 		}
 
 		for(j = 1; j < MAX_SHADER_STAGES; j++)

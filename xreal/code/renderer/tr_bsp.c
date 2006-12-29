@@ -46,7 +46,6 @@ static byte    *fileBase;
 int             c_culledFaceTriangles;
 int             c_culledTriTriangles;
 int             c_culledGridTriangles;
-int             c_gridVerts;
 
 //===============================================================================
 
@@ -3593,7 +3592,6 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 	if(r_precacheLightIndexes->integer)
 	{
-
 		// build a list of triangles that need light
 		Com_Memset(&sh, 0, sizeof(shadowState_t));
 
@@ -3808,7 +3806,6 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 	if(r_precacheLightIndexes->integer)
 	{
-
 		// build a list of triangles that need light
 		Com_Memset(&sh, 0, sizeof(shadowState_t));
 
@@ -4543,7 +4540,6 @@ void RE_LoadWorldMap(const char *name)
 	Com_StripExtension(s_worldData.baseName, s_worldData.baseName, sizeof(s_worldData.baseName));
 
 	startMarker = ri.Hunk_Alloc(0, h_low);
-	c_gridVerts = 0;
 
 	header = (dheader_t *) buffer;
 	fileBase = (byte *) header;
@@ -4578,6 +4574,9 @@ void RE_LoadWorldMap(const char *name)
 	R_PrecacheInteractions();
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
+	
+	//ri.Printf(PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / (1024 * 1024),
+	//		  (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;

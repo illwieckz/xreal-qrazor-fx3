@@ -1215,13 +1215,15 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 	// transform
 	else if(!Q_stricmp(token, "transform"))
 	{
+		MatrixIdentity(tmi->matrix);
+		
 		token = Com_ParseExt(text, qfalse);
 		if(token[0] == 0)
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
 			return qfalse;
 		}
-		tmi->matrix[0][0] = atof(token);
+		tmi->matrix[ 0] = atof(token);
 
 		token = Com_ParseExt(text, qfalse);
 		if(token[0] == 0)
@@ -1229,7 +1231,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
 			return qfalse;
 		}
-		tmi->matrix[0][1] = atof(token);
+		tmi->matrix[ 1] = atof(token);
 
 		token = Com_ParseExt(text, qfalse);
 		if(token[0] == 0)
@@ -1237,7 +1239,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
 			return qfalse;
 		}
-		tmi->matrix[1][0] = atof(token);
+		tmi->matrix[ 4] = atof(token);
 
 		token = Com_ParseExt(text, qfalse);
 		if(token[0] == 0)
@@ -1245,7 +1247,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
 			return qfalse;
 		}
-		tmi->matrix[1][1] = atof(token);
+		tmi->matrix[ 5] = atof(token);
 
 		token = Com_ParseExt(text, qfalse);
 		if(token[0] == 0)
@@ -1253,7 +1255,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
 			return qfalse;
 		}
-		tmi->translate[0] = atof(token);
+		tmi->matrix[12] = atof(token);
 
 		token = Com_ParseExt(text, qfalse);
 		if(token[0] == 0)
@@ -1261,7 +1263,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
 			return qfalse;
 		}
-		tmi->translate[1] = atof(token);
+		tmi->matrix[13] = atof(token);
 
 		tmi->type = TMOD_TRANSFORM;
 	}

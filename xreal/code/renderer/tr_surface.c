@@ -334,7 +334,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					continue;
 				}
 
-				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+				if((tri->neighbors[0] < 0) || (!sh.facing[tri->neighbors[0]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
@@ -347,7 +347,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					tess.numIndexes += 6;
 				}
 
-				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+				if((tri->neighbors[1] < 0) || (!sh.facing[tri->neighbors[1]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
@@ -360,7 +360,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					tess.numIndexes += 6;
 				}
 
-				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+				if((tri->neighbors[2] < 0) || (!sh.facing[tri->neighbors[2]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
@@ -597,7 +597,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					continue;
 				}
 
-				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+				if((tri->neighbors[0] < 0) || (!sh.facing[tri->neighbors[0]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
@@ -610,7 +610,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					tess.numIndexes += 6;
 				}
 
-				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+				if((tri->neighbors[1] < 0) || (!sh.facing[tri->neighbors[1]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
@@ -623,7 +623,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					tess.numIndexes += 6;
 				}
 
-				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+				if((tri->neighbors[2] < 0) || (!sh.facing[tri->neighbors[2]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
@@ -860,7 +860,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					continue;
 				}
 
-				if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+				if((tri->neighbors[0] < 0) || (!sh.facing[tri->neighbors[0]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
@@ -873,7 +873,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					tess.numIndexes += 6;
 				}
 
-				if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+				if((tri->neighbors[1] < 0) || (!sh.facing[tri->neighbors[1]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
@@ -886,7 +886,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					tess.numIndexes += 6;
 				}
 
-				if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+				if((tri->neighbors[2] < 0) || (!sh.facing[tri->neighbors[2]]))
 				{
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
@@ -1541,7 +1541,7 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 				continue;
 			}
 
-			if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+			if((tri->neighbors[0] < 0) || (!sh.facing[tri->neighbors[0]]))
 			{
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
@@ -1554,7 +1554,7 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 				tess.numIndexes += 6;
 			}
 
-			if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+			if((tri->neighbors[1] < 0) || (!sh.facing[tri->neighbors[1]]))
 			{
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
@@ -1567,7 +1567,7 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 				tess.numIndexes += 6;
 			}
 
-			if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+			if((tri->neighbors[2] < 0) || (!sh.facing[tri->neighbors[2]]))
 			{
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
@@ -1841,7 +1841,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 				continue;
 			}
 
-			if((tri->neighbors[0] < 0) || (tri->neighbors[0] >= 0 && !sh.facing[tri->neighbors[0]]))
+			if((tri->neighbors[0] < 0) || (!sh.facing[tri->neighbors[0]]))
 			{
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
@@ -1854,7 +1854,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 				tess.numIndexes += 6;
 			}
 
-			if((tri->neighbors[1] < 0) || (tri->neighbors[1] >= 0 && !sh.facing[tri->neighbors[1]]))
+			if((tri->neighbors[1] < 0) || (!sh.facing[tri->neighbors[1]]))
 			{
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[2];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
@@ -1867,7 +1867,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 				tess.numIndexes += 6;
 			}
 
-			if((tri->neighbors[2] < 0) || (tri->neighbors[2] >= 0 && !sh.facing[tri->neighbors[2]]))
+			if((tri->neighbors[2] < 0) || (!sh.facing[tri->neighbors[2]]))
 			{
 				tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 				tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];

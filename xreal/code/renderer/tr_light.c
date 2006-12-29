@@ -1583,82 +1583,11 @@ R_ComputeFinalAttenuation
 */
 void R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light)
 {
-	int             i;
 	matrix_t        matrix;
-	float           x, y;
 
 	GLimp_LogComment("--- R_ComputeFinalAttenuation ---\n");
 
-	MatrixIdentity(matrix);
-
-	for(i = 0; i < pStage->bundle[TB_COLORMAP].numTexMods; i++)
-	{
-		switch (pStage->bundle[TB_COLORMAP].texMods[i].type)
-		{
-			case TMOD_NONE:
-				i = TR_MAX_TEXMODS;	// break out of for loop
-				break;
-
-
-			case TMOD_SCROLL2:
-			{
-				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-				// clamp so coordinates don't continuously get larger, causing problems
-				// with hardware limits
-				x = x - floor(x);
-				y = y - floor(y);
-
-				MatrixMultiplyTranslation(matrix, x, y, 0.0);
-				break;
-			}
-
-			case TMOD_SCALE2:
-			{
-				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-				MatrixMultiplyScale(matrix, x, y, 0.0);
-				break;
-			}
-
-			case TMOD_CENTERSCALE:
-			{
-				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
-				MatrixMultiplyScale(matrix, x, y, 0.0);
-				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
-				break;
-			}
-
-			case TMOD_SHEAR:
-			{
-				x = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].sExp, 0);
-				y = RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].tExp, 0);
-
-				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
-				MatrixMultiplyShear(matrix, x, y);
-				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
-				break;
-			}
-
-			case TMOD_ROTATE2:
-			{
-				x = RAD2DEG(RB_EvalExpression(&pStage->bundle[TB_COLORMAP].texMods[i].rExp, 0)) * 5.0;
-
-				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
-				MatrixMultiplyZRotation(matrix, x);
-				MatrixMultiplyTranslation(matrix, -0.5, -0.5, 0.0);
-				break;
-			}
-
-			default:
-				break;
-		}
-	}
+	RB_CalcTexMatrix(&pStage->bundle[TB_COLORMAP], matrix);
 
 	MatrixMultiply(matrix, light->attenuationMatrix, light->attenuationMatrix2);
 }

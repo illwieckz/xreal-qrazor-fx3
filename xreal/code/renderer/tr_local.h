@@ -531,8 +531,8 @@ typedef struct
 	waveForm_t      wave;
 
 	// used for TMOD_TRANSFORM
-	float           matrix[2][2];	// s' = s * m[0][0] + t * m[1][0] + trans[0]
-	float           translate[2];	// t' = s * m[0][1] + t * m[0][1] + trans[1]
+	matrix_t		matrix;			// s' = s * m[0][0] + t * m[1][0] + trans[0]
+									// t' = s * m[0][1] + t * m[0][1] + trans[1]
 
 	// used for TMOD_SCALE
 	float           scale[2];	// s *= scale[0]
@@ -2641,16 +2641,7 @@ float           RB_EvalExpression(const expression_t * exp, float defaultValue);
 
 void            RB_CalcEnvironmentTexCoords(float *dstTexCoords);
 void            RB_CalcFogTexCoords(float *dstTexCoords);
-void            RB_CalcScrollTexCoords(const float scroll[2], float *dstTexCoords);
-void            RB_CalcRotateTexCoords(float rotSpeed, float *dstTexCoords);
-void            RB_CalcScaleTexCoords(const float scale[2], float *dstTexCoords);
-void            RB_CalcTurbulentTexCoords(const waveForm_t * wf, float *dstTexCoords);
-void            RB_CalcTransformTexCoords(const texModInfo_t * tmi, float *dstTexCoords);
-void            RB_CalcScrollTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
-void            RB_CalcScaleTexCoords2(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
-void            RB_CalcCenterScaleTexCoords(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
-void            RB_CalcShearTexCoords(const expression_t * sExp, const expression_t * tExp, float *dstTexCoords);
-void            RB_CalcRotateTexCoords2(const expression_t * rExp, float *dstTexCoords);
+void			RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix);
 
 void            RB_CalcModulateColorsByFog(unsigned char *dstColors);
 void            RB_CalcModulateAlphasByFog(unsigned char *dstColors);
