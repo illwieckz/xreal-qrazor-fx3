@@ -43,7 +43,7 @@ void GL_Bind(image_t * image)
 			// don't just call LogComment, or we will get a call to va() every frame!
 			GLimp_LogComment(va("--- GL_Bind( %s ) ---\n", image->name));
 		}
-		
+
 		texnum = image->texnum;
 	}
 
@@ -74,23 +74,23 @@ void GL_TextureFilter(image_t * image, filterType_t filterType)
 			GLimp_LogComment(va("--- GL_TextureFilter( %s ) ---\n", image->name));
 		}
 	}
-	
+
 	if(image->filterType == filterType)
 		return;
 
 	// set filter type
 	switch (image->filterType)
 	{
-		/*
-		case FT_DEFAULT:
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			/*
+			   case FT_DEFAULT:
+			   qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			   qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
-			// set texture anisotropy
-			if(glConfig.textureAnisotropyAvailable)
-				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
-			break;
-		*/
+			   // set texture anisotropy
+			   if(glConfig.textureAnisotropyAvailable)
+			   qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+			   break;
+			 */
 
 		case FT_LINEAR:
 			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -747,6 +747,12 @@ static void RB_SetGL2D(void)
 {
 	GLimp_LogComment("--- RB_SetGL2D ---\n");
 
+	// disable offscreen rendering
+	if(glConfig.framebufferObjectAvailable)
+	{
+		R_BindNullFBO();
+	}
+
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
@@ -792,7 +798,7 @@ static void RB_BeginDrawingView(void)
 	{
 		glState.finishCalled = qtrue;
 	}
-	
+
 	// disable offscreen rendering
 	if(glConfig.framebufferObjectAvailable)
 	{
@@ -819,11 +825,11 @@ static void RB_BeginDrawingView(void)
 	if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-		#ifdef _DEBUG
+#ifdef _DEBUG
 		qglClearColor(0.0f, 0.0f, 1.0f, 1.0f);	// FIXME: get color of sky
-		#else
+#else
 		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-		#endif
+#endif
 	}
 	qglClear(clearBits);
 
@@ -867,36 +873,36 @@ static void RB_BeginDrawingView(void)
 	{
 		qglDisable(GL_CLIP_PLANE0);
 	}
-	
+
 	// check for offscreen rendering
 	/*
-	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
-	{
-		if(backEnd.viewParms.isPortal)
-		{
-			R_BindFBO(tr.portalRenderFBO);
-		}
-		else
-		{
-			R_BindFBO(tr.currentRenderFBO);
-		}
-		
-		// clear relevant buffers
-		clearBits = GL_DEPTH_BUFFER_BIT;
+	   if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
+	   {
+	   if(backEnd.viewParms.isPortal)
+	   {
+	   R_BindFBO(tr.portalRenderFBO);
+	   }
+	   else
+	   {
+	   R_BindFBO(tr.currentRenderFBO);
+	   }
 
-		// FIXME: GL_STENCIL_BUFFER_BIT with FBOs
-		if(r_measureOverdraw->integer || r_shadows->integer == 3)
-		{
-			clearBits |= GL_STENCIL_BUFFER_BIT;
-		}
-		
-		if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-		{
-			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-		}
-		qglClear(clearBits);
-	}
-	*/
+	   // clear relevant buffers
+	   clearBits = GL_DEPTH_BUFFER_BIT;
+
+	   // FIXME: GL_STENCIL_BUFFER_BIT with FBOs
+	   if(r_measureOverdraw->integer || r_shadows->integer == 3)
+	   {
+	   clearBits |= GL_STENCIL_BUFFER_BIT;
+	   }
+
+	   if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+	   {
+	   clearBits |= GL_COLOR_BUFFER_BIT;    // FIXME: only if sky shaders have been used
+	   }
+	   qglClear(clearBits);
+	   }
+	 */
 
 	GL_CheckErrors();
 }
@@ -958,7 +964,8 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || fogNum != oldFogNum || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
+		if(shader != oldShader || fogNum != oldFogNum || lightmapNum != oldLightmapNum ||
+		   (entity != oldEntity && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
@@ -1055,7 +1062,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
-	trRefLight_t  *light, *oldLight;
+	trRefLight_t   *light, *oldLight;
 	interaction_t  *ia;
 	qboolean        depthRange, oldDepthRange;
 	int             iaCount;
@@ -1081,12 +1088,12 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		shader = ia->surfaceShader;
 
 		/*
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
-		{
-			// skip all interactions of this light because it failed the occlusion query
-			goto skipInteraction;
-		}
-		*/
+		   if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		   {
+		   // skip all interactions of this light because it failed the occlusion query
+		   goto skipInteraction;
+		   }
+		 */
 
 		if(!shader->interactLight)
 		{
@@ -1094,7 +1101,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			// this will save texcoords and matrix calculations
 			goto skipInteraction;
 		}
-		
+
 		if(ia->type == IA_SHADOWONLY)
 		{
 			// skip this interaction because the interaction is meant for shadowing only
@@ -1104,7 +1111,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		if(light != oldLight)
 		{
 			GLimp_LogComment("----- Rendering new light -----\n");
-			
+
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 		}
@@ -1199,18 +1206,18 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 		rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 
 	  nextInteraction:
-	  	
-	  	// remember values
+
+		// remember values
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
-		
+
 	  skipInteraction:
 		if(!ia->next)
 		{
 			// draw the contents of the last shader batch
 			Tess_End();
-			
+
 			if(iaCount < (numInteractions - 1))
 			{
 				// jump to next interaction and continue
@@ -1222,7 +1229,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 				// increase last time to leave for loop
 				iaCount++;
 			}
-			
+
 			// force updates
 			oldLight = NULL;
 			oldEntity = NULL;
@@ -1262,7 +1269,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
-	trRefLight_t  *light, *oldLight;
+	trRefLight_t   *light, *oldLight;
 	interaction_t  *ia;
 	int             iaCount;
 	int             iaFirst;
@@ -1289,11 +1296,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	drawShadows = qtrue;
 
 	/*
-	if(qglActiveStencilFaceEXT)
-	{
-		qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-	}
-	*/
+	   if(qglActiveStencilFaceEXT)
+	   {
+	   qglEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+	   }
+	 */
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
@@ -1302,7 +1309,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
-		
+
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
 		{
@@ -1312,7 +1319,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				// a call to va() every frame!
 				GLimp_LogComment(va("----- First Interaction: %i -----\n", iaCount));
 			}
-			
+
 			if(drawShadows)
 			{
 				// set light scissor to reduce fillrate
@@ -1331,11 +1338,11 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 						qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
 					}
 				}
-				
+
 				if(!light->l.noShadows)
 				{
 					GLimp_LogComment("--- Rendering shadow volumes ---\n");
-				
+
 					// set the reference stencil value
 					qglClearStencil(0);
 
@@ -1346,7 +1353,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// don't write to the color buffer or depth buffer
 					// enable stencil testing for this light
 					GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
-	
+
 					qglStencilFunc(GL_ALWAYS, 0, 255);
 					qglStencilMask(255);
 
@@ -1371,18 +1378,18 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// don't consider shadow volumes
 					qglStencilFunc(GL_ALWAYS, 0, 255);
 				}
-				
-				/*
-				if(qglActiveStencilFaceEXT)
-				{
-					qglActiveStencilFaceEXT(GL_BACK);
-					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-					qglActiveStencilFaceEXT(GL_FRONT);
-					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				}
-				else
-				*/
+				/*
+				   if(qglActiveStencilFaceEXT)
+				   {
+				   qglActiveStencilFaceEXT(GL_BACK);
+				   qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+				   qglActiveStencilFaceEXT(GL_FRONT);
+				   qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				   }
+				   else
+				 */
 				{
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 				}
@@ -1393,24 +1400,24 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				GL_Program(0);
 			}
 		}
-		
+
 		if(drawShadows)
 		{
 			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(shader->sort > SS_OPAQUE)
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(shader->noShadows || light->l.noShadows)
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(ia->type == IA_LIGHTONLY)
 			{
 				goto skipInteraction;
@@ -1422,7 +1429,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(ia->type == IA_SHADOWONLY)
 			{
 				goto skipInteraction;
@@ -1439,7 +1446,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// a call to va() every frame!
 					GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
 				}
-				
+
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
 				goto nextInteraction;
@@ -1451,7 +1458,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// draw the contents of the last shader batch
 					Tess_End();
 				}
-				
+
 				if(r_logFile->integer)
 				{
 					// don't just call LogComment, or we will get
@@ -1473,7 +1480,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// a call to va() every frame!
 					GLimp_LogComment(va("----- Batching Light Interaction: %i -----\n", iaCount));
 				}
-				
+
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 				goto nextInteraction;
@@ -1485,7 +1492,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// draw the contents of the last shader batch
 					Tess_End();
 				}
-				
+
 				if(r_logFile->integer)
 				{
 					// don't just call LogComment, or we will get
@@ -1564,14 +1571,15 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(drawShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
-				qglUniform3fARB(tr.shadowExtrudeShader.u_LightOrigin, light->transformed[0], light->transformed[1], light->transformed[2]);
+				qglUniform3fARB(tr.shadowExtrudeShader.u_LightOrigin, light->transformed[0], light->transformed[1],
+								light->transformed[2]);
 			}
 
 			// build the attenuation matrix using the entity transform          
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
@@ -1588,25 +1596,25 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 		}
 
 	  nextInteraction:
-	  	
-	  	// remember values
+
+		// remember values
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
-		
+
 	  skipInteraction:
 		if(!ia->next)
 		{
 			// if ia->next does not point to any other interaction then
 			// this is the last interaction of the current light
-			
+
 			if(r_logFile->integer)
 			{
 				// don't just call LogComment, or we will get
 				// a call to va() every frame!
 				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
 			}
-			
+
 			// draw the contents of the last shader batch
 			Tess_End();
 
@@ -1633,7 +1641,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					iaCount++;
 				}
 			}
-			
+
 			// force updates
 			oldLight = NULL;
 			oldEntity = NULL;
@@ -1665,13 +1673,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	{
 		qglDisable(GL_DEPTH_BOUNDS_TEST_EXT);
 	}
-	
+
 	/*
-	if(qglActiveStencilFaceEXT)
-	{
-		qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
-	}
-	*/
+	   if(qglActiveStencilFaceEXT)
+	   {
+	   qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+	   }
+	 */
 
 	GL_CheckErrors();
 }
@@ -1685,7 +1693,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
-	trRefLight_t  *light, *oldLight;
+	trRefLight_t   *light, *oldLight;
 	interaction_t  *ia;
 	int             iaCount;
 	int             iaFirst;
@@ -1712,7 +1720,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	depthRange = qfalse;
 	drawShadows = qtrue;
 	cubeSide = 0;
-	
+
 	// if we need to clear the FBO color buffers then it should be white
 	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -1723,7 +1731,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
-		
+
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
 		{
@@ -1733,27 +1741,27 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				GL_Program(0);
 				GL_State(GLS_DEFAULT);
 				GL_ClientState(GLCS_VERTEX);
-				
+
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
-				
+
 				/*
-				if(light->l.noShadows)
-				{
-					if(r_logFile->integer)
-					{
-						// don't just call LogComment, or we will get
-						// a call to va() every frame!
-						GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
-					}
-					
-					goto skipInteraction;
-				}
-				else
-				*/
+				   if(light->l.noShadows)
+				   {
+				   if(r_logFile->integer)
+				   {
+				   // don't just call LogComment, or we will get
+				   // a call to va() every frame!
+				   GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
+				   }
+
+				   goto skipInteraction;
+				   }
+				   else
+				 */
 				{
 					R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
-					
+
 					switch (light->l.rlType)
 					{
 						case RL_OMNI:
@@ -1766,39 +1774,40 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							float          *proj;
 							vec3_t          angles;
 							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
-							
+
 							if(r_logFile->integer)
 							{
 								// don't just call LogComment, or we will get
 								// a call to va() every frame!
 								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
 							}
-							
-							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide, tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
+
+							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
+												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
 							}
-							
+
 							// set the window clipping
 							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-					
+
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-							
+
 							switch (cubeSide)
 							{
 								case 0:
 								{
 									// view parameters
 									VectorSet(angles, 0, 0, 90);
-									
+
 									// projection parameters
 									flipX = qfalse;
 									flipY = qfalse;
 									break;
 								}
-								
+
 								case 1:
 								{
 									VectorSet(angles, 0, 180, 90);
@@ -1806,7 +1815,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									flipY = qtrue;
 									break;
 								}
-								
+
 								case 2:
 								{
 									VectorSet(angles, 0, 90, 0);
@@ -1814,15 +1823,15 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									flipY = qfalse;
 									break;
 								}
-								
+
 								case 3:
 								{
-									VectorSet(angles, 0,-90, 0);
+									VectorSet(angles, 0, -90, 0);
 									flipX = qtrue;
 									flipY = qtrue;
 									break;
 								}
-								
+
 								case 4:
 								{
 									VectorSet(angles, -90, 90, 0);
@@ -1838,7 +1847,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									flipY = qtrue;
 									break;
 								}
-								
+
 								default:
 								{
 									// shut up compiler
@@ -1848,7 +1857,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 									break;
 								}
 							}
-							
+
 							// Quake -> OpenGL view matrix from light perspective
 							MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
 							MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, light->origin);
@@ -1857,14 +1866,15 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							// convert from our coordinate system (looking down X)
 							// to OpenGL's coordinate system (looking down -Z)
 							MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, light->viewMatrix);
-			
+
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY = R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-							
+							fovY =
+								R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+
 							zNear = 1.0;
 							zFar = light->sphereRadius;
-							
+
 							if(!flipX)
 							{
 								xMax = zNear * tan(fovX * M_PI / 360.0f);
@@ -1875,9 +1885,9 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 								xMin = zNear * tan(fovX * M_PI / 360.0f);
 								xMax = -xMin;
 							}
-							
+
 							if(!flipY)
-							{		
+							{
 								yMax = zNear * tan(fovY * M_PI / 360.0f);
 								yMin = -yMax;
 							}
@@ -1886,58 +1896,70 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 								yMin = zNear * tan(fovY * M_PI / 360.0f);
 								yMax = -yMin;
 							}
-									
+
 							width = xMax - xMin;
 							height = yMax - yMin;
 							depth = zFar - zNear;
-							
+
 							proj = light->projectionMatrix;
-							proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
-							proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
-							proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
-							proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;	
-												
+							proj[0] = (2 * zNear) / width;
+							proj[4] = 0;
+							proj[8] = (xMax + xMin) / width;
+							proj[12] = 0;
+							proj[1] = 0;
+							proj[5] = (2 * zNear) / height;
+							proj[9] = (yMax + yMin) / height;
+							proj[13] = 0;
+							proj[2] = 0;
+							proj[6] = 0;
+							proj[10] = -(zFar + zNear) / depth;
+							proj[14] = -(2 * zFar * zNear) / depth;
+							proj[3] = 0;
+							proj[7] = 0;
+							proj[11] = -1;
+							proj[15] = 0;
+
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
 							qglMatrixMode(GL_MODELVIEW);
 							break;
 						}
-						
+
 						case RL_PROJ:
 						{
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
-							
+
 							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
 							}
-							
+
 							// set the window clipping
 							qglViewport(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 							qglScissor(0, 0, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-					
+
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-							
+
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(light->projectionMatrix);
 							qglMatrixMode(GL_MODELVIEW);
 							break;
 						}
-						
+
 						case RL_DIRECT:
 						{
 							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
-							
+
 							// TODO
 							break;
 						}
-						
+
 						default:
 							break;
 					}
 				}
-				
+
 				if(r_logFile->integer)
 				{
 					// don't just call LogComment, or we will get
@@ -1948,131 +1970,132 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			else
 			{
 				GLimp_LogComment("--- Rendering lighting ---\n");
-				
+
 				if(r_logFile->integer)
 				{
 					// don't just call LogComment, or we will get
 					// a call to va() every frame!
 					GLimp_LogComment(va("----- First Light Interaction: %i -----\n", iaCount));
 				}
-				
+
 				R_BindNullFBO();
-				
+
 				// set the window clipping
 				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 						   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-				
+
 				// restore camera matrices
 				qglMatrixMode(GL_PROJECTION);
 				qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
 				qglMatrixMode(GL_MODELVIEW);
-				
+
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-				
+
 				// reset light view and projection matrices
 				switch (light->l.rlType)
 				{
 					case RL_OMNI:
 					{
 						MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
-						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1], 1.0 / light->l.radius[2]);
+						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1],
+										 1.0 / light->l.radius[2]);
 						break;
 					}
-					
+
 					default:
 						break;
 				}
-				
+
 				// show shadowRender for debugging
 				/*
-				switch (light->l.rlType)
-				{
-					case RL_PROJ:
-					{
-						float           x, y, w, h;
-						
-						// enable shader, set arrays
-						GL_Program(tr.genericSingleShader.program);
-						GL_State(GLS_DEPTHTEST_DISABLE);
-						GL_ClientState(tr.genericSingleShader.attribs);
-						//GL_SetVertexAttribs();
-						GL_Cull(CT_TWO_SIDED);
-				
-						qglColor3f(1, 1, 1);
-		
-						// bind u_ColorMap
-						GL_SelectTexture(0);
-						GL_Bind(tr.shadowMapFBOImage);
-				
-						// set 2D virtual screen size
-						qglPushMatrix();
-						qglLoadIdentity();
-						qglMatrixMode(GL_PROJECTION);
-						qglPushMatrix();
-						qglLoadIdentity();
-						qglOrtho(backEnd.viewParms.viewportX,
-						 		backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-								 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-				
-						x = 0;
-						y = 0;
-						w = backEnd.viewParms.viewportWidth / 3;
-						h = backEnd.viewParms.viewportHeight / 3;
-		
-						qglBegin(GL_QUADS);
-						qglTexCoord2f(0, 0);
-						qglVertex2f(x, y);
-						qglTexCoord2f(1, 0);
-						qglVertex2f(x + w, y);
-						qglTexCoord2f(1, 1);
-						qglVertex2f(x + w, y + h);
-						qglTexCoord2f(0, 1);
-						qglVertex2f(x, y + h);
-						qglEnd();
+				   switch (light->l.rlType)
+				   {
+				   case RL_PROJ:
+				   {
+				   float           x, y, w, h;
 
-						qglPopMatrix();
-						qglMatrixMode(GL_MODELVIEW);
-						qglPopMatrix();
-						break;
-					}
-					
-					default:
-						break;
-				}
-				*/
+				   // enable shader, set arrays
+				   GL_Program(tr.genericSingleShader.program);
+				   GL_State(GLS_DEPTHTEST_DISABLE);
+				   GL_ClientState(tr.genericSingleShader.attribs);
+				   //GL_SetVertexAttribs();
+				   GL_Cull(CT_TWO_SIDED);
+
+				   qglColor3f(1, 1, 1);
+
+				   // bind u_ColorMap
+				   GL_SelectTexture(0);
+				   GL_Bind(tr.shadowMapFBOImage);
+
+				   // set 2D virtual screen size
+				   qglPushMatrix();
+				   qglLoadIdentity();
+				   qglMatrixMode(GL_PROJECTION);
+				   qglPushMatrix();
+				   qglLoadIdentity();
+				   qglOrtho(backEnd.viewParms.viewportX,
+				   backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				   backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+				   x = 0;
+				   y = 0;
+				   w = backEnd.viewParms.viewportWidth / 3;
+				   h = backEnd.viewParms.viewportHeight / 3;
+
+				   qglBegin(GL_QUADS);
+				   qglTexCoord2f(0, 0);
+				   qglVertex2f(x, y);
+				   qglTexCoord2f(1, 0);
+				   qglVertex2f(x + w, y);
+				   qglTexCoord2f(1, 1);
+				   qglVertex2f(x + w, y + h);
+				   qglTexCoord2f(0, 1);
+				   qglVertex2f(x, y + h);
+				   qglEnd();
+
+				   qglPopMatrix();
+				   qglMatrixMode(GL_MODELVIEW);
+				   qglPopMatrix();
+				   break;
+				   }
+
+				   default:
+				   break;
+				   }
+				 */
 			}
-		} // end if(iaCount == iaFirst)
-		
+		}						// end if(iaCount == iaFirst)
+
 		if(drawShadows)
 		{
 			if(entity->e.renderfx & (RF_NOSHADOW | RF_DEPTHHACK))
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(shader->sort > SS_OPAQUE)
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(shader->noShadows || light->l.noShadows)
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(ia->type == IA_LIGHTONLY)
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(light->l.rlType == RL_OMNI && !(ia->cubeSideBits & (1 << cubeSide)))
 			{
-				goto skipInteraction;	
+				goto skipInteraction;
 			}
-			
+
 			switch (light->l.rlType)
 			{
 				case RL_OMNI:
@@ -2086,7 +2109,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							// a call to va() every frame!
 							GLimp_LogComment(va("----- Batching Shadow Interaction: %i -----\n", iaCount));
 						}
-						
+
 						// fast path, same as previous
 						rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 						goto nextInteraction;
@@ -2098,7 +2121,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							// draw the contents of the last shader batch
 							Tess_End();
 						}
-						
+
 						if(r_logFile->integer)
 						{
 							// don't just call LogComment, or we will get
@@ -2111,7 +2134,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					}
 					break;
 				}
-				
+
 				default:
 					break;
 			}
@@ -2122,12 +2145,12 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(ia->type == IA_SHADOWONLY)
 			{
 				goto skipInteraction;
 			}
-			
+
 			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
 				if(r_logFile->integer)
@@ -2136,7 +2159,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					// a call to va() every frame!
 					GLimp_LogComment(va("----- Batching Light Interaction: %i -----\n", iaCount));
 				}
-				
+
 				// fast path, same as previous
 				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 				goto nextInteraction;
@@ -2148,7 +2171,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					// draw the contents of the last shader batch
 					Tess_End();
 				}
-				
+
 				if(r_logFile->integer)
 				{
 					// don't just call LogComment, or we will get
@@ -2195,17 +2218,17 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-				
+
 				// set up the transformation matrix
 				if(drawShadows)
 				{
 					Com_Memset(&backEnd.or, 0, sizeof(backEnd.or));
-					
+
 					backEnd.or.axis[0][0] = 1;
 					backEnd.or.axis[1][1] = 1;
 					backEnd.or.axis[2][2] = 1;
 					VectorCopy(light->l.origin, backEnd.or.viewOrigin);
-					
+
 					MatrixIdentity(backEnd.or.transformMatrix);
 					//MatrixAffineInverse(backEnd.or.transformMatrix, backEnd.or.viewMatrix);
 					MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, backEnd.or.viewMatrix);
@@ -2217,7 +2240,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					backEnd.or = backEnd.viewParms.world;
 				}
 			}
-			
+
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
@@ -2252,22 +2275,22 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			}
 
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-			
+
 			// build the attenuation matrix using the entity transform
 			switch (light->l.rlType)
 			{
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0);	// scale
 					break;
 				}
-				
+
 				case RL_OMNI:
 				default:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 					break;
 				}
 			}
@@ -2286,7 +2309,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 					break;
 				}
-				
+
 				default:
 					break;
 			}
@@ -2298,25 +2321,25 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 		}
 
 	  nextInteraction:
-	  	
-	  	// remember values
+
+		// remember values
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
-		
+
 	  skipInteraction:
 		if(!ia->next)
 		{
 			// if ia->next does not point to any other interaction then
 			// this is the last interaction of the current light
-			
+
 			if(r_logFile->integer)
 			{
 				// don't just call LogComment, or we will get
 				// a call to va() every frame!
 				GLimp_LogComment(va("----- Last Interaction: %i -----\n", iaCount));
 			}
-			
+
 			// draw the contents of the last shader batch
 			Tess_End();
 
@@ -2333,15 +2356,15 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						}
 						else
 						{
-							cubeSide++;	
+							cubeSide++;
 						}
-						
+
 						// jump back to first interaction of this light
 						ia = &interactions[iaFirst];
 						iaCount = iaFirst;
 						break;
 					}
-					
+
 					case RL_PROJ:
 					{
 						// jump back to first interaction of this light and start lighting
@@ -2350,7 +2373,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						drawShadows = qfalse;
 						break;
 					}
-				
+
 					default:
 						break;
 				}
@@ -2371,7 +2394,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					iaCount++;
 				}
 			}
-			
+
 			// force updates
 			oldLight = NULL;
 			oldEntity = NULL;
@@ -2397,11 +2420,422 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	// reset scissor clamping
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-			   
+
 	// reset clear color
 	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
+}
+
+static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
+{
+	trRefEntity_t  *entity, *oldEntity;
+	int             lightmapNum, oldLightmapNum;
+	shader_t       *shader, *oldShader;
+	int             fogNum, oldFogNum;
+	qboolean        depthRange, oldDepthRange;
+	int             i;
+	drawSurf_t     *drawSurf;
+	int             oldSort;
+
+	GLimp_LogComment("--- RB_RenderDrawSurfacesIntoGeometricBuffer ---\n");
+
+	// draw everything
+	oldEntity = NULL;
+	oldShader = NULL;
+	oldLightmapNum = -1;
+	oldFogNum = -1;
+	oldDepthRange = qfalse;
+	oldSort = -1;
+	depthRange = qfalse;
+
+	R_BindFBO(tr.deferredRenderFBO);
+	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	GL_CheckErrors();
+
+	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
+	{
+		// update locals
+		entity = drawSurf->entity;
+		shader = tr.sortedShaders[drawSurf->shaderNum];
+		lightmapNum = drawSurf->lightmapNum;
+		fogNum = drawSurf->fogNum;
+
+		//if(opaque)
+		{
+			// skip all translucent surfaces that don't matter for this pass
+			if(shader->sort > SS_OPAQUE)
+			{
+				break;
+			}
+		}
+		/*
+		   else
+		   {
+		   // skip all opaque surfaces that don't matter for this pass
+		   if(shader->sort <= SS_OPAQUE)
+		   {
+		   continue;
+		   }
+		   }
+		 */
+
+		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum && fogNum == oldFogNum)
+		{
+			// fast path, same as previous sort
+			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+			continue;
+		}
+
+		// change the tess parameters if needed
+		// a "entityMergable" shader is a shader that can have surfaces from seperate
+		// entities merged into a single batch, like smoke and blood puff sprites
+		if(shader != oldShader || fogNum != oldFogNum || lightmapNum != oldLightmapNum ||
+		   (entity != oldEntity && !shader->entityMergable))
+		{
+			if(oldShader != NULL)
+			{
+				Tess_End();
+			}
+
+			Tess_Begin(Tess_StageIteratorGBuffer, shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+			oldShader = shader;
+			oldLightmapNum = lightmapNum;
+			oldFogNum = fogNum;
+		}
+
+		// change the modelview matrix if needed
+		if(entity != oldEntity)
+		{
+			depthRange = qfalse;
+
+			if(entity != &tr.worldEntity)
+			{
+				backEnd.currentEntity = entity;
+				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+
+				// we have to reset the shaderTime as well otherwise image animations start
+				// from the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+
+				// set up the transformation matrix
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.currentEntity = &tr.worldEntity;
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+			}
+
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
+			{
+				if(depthRange)
+				{
+					qglDepthRange(0, 0.3);
+				}
+				else
+				{
+					qglDepthRange(0, 1);
+				}
+				oldDepthRange = depthRange;
+			}
+
+			oldEntity = entity;
+		}
+
+		// add the triangles for this surface
+		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+	}
+
+	backEnd.refdef.floatTime = originalTime;
+
+	// draw the contents of the last shader batch
+	if(oldShader != NULL)
+	{
+		Tess_End();
+	}
+
+	// go back to the world modelview matrix
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	if(depthRange)
+	{
+		qglDepthRange(0, 1);
+	}
+
+	// disable offscreen rendering
+	R_BindNullFBO();
+
+	GL_CheckErrors();
+}
+
+void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteractions)
+{
+	interaction_t  *ia;
+	int             iaCount;
+	trRefLight_t   *light, *oldLight = NULL;
+	shader_t       *lightShader;
+	shaderStage_t  *attenuationXYStage;
+	shaderStage_t  *attenuationZStage;
+	int             j;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
+	vec3_t          viewOrigin;
+	vec3_t          lightOrigin;
+	vec4_t          lightColor;
+
+	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
+
+	R_BindNullFBO();
+
+	// update uniforms
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+	
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+	// loop trough all light interactions and render the light quad for each last interaction
+	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	{
+		backEnd.currentLight = light = ia->light;
+
+		if(light != oldLight)
+		{
+			// set light scissor to reduce fillrate
+			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+			
+			// build the attenuation matrix using the entity transform
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+			MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+		}
+
+		if(!ia->next)
+		{
+			// last interaction of current light
+			lightShader = ia->lightShader;
+			attenuationZStage = lightShader->stages[0];
+
+			for(j = 1; j < MAX_SHADER_STAGES; j++)
+			{
+				attenuationXYStage = lightShader->stages[j];
+
+				if(!attenuationXYStage)
+				{
+					break;
+				}
+
+				if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+				{
+					continue;
+				}
+
+				if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+				{
+					continue;
+				}
+
+				Tess_ComputeColor(attenuationXYStage);
+				R_ComputeFinalAttenuation(attenuationXYStage, light);
+
+				if(light->l.rlType == RL_OMNI)
+				{
+					// enable shader, set arrays
+					GL_Program(tr.deferredLightingShader_DBS_omni.program);
+					
+					// set OpenGL state for additive lighting
+					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
+					GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
+					
+					//GL_SetVertexAttribs();
+					GL_Cull(CT_TWO_SIDED);
+
+					// set uniforms
+					VectorCopy(light->origin, lightOrigin);
+					VectorCopy(tess.svars.color, lightColor);
+
+					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
+					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
+					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
+					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
+
+					// bind u_DiffuseMap
+					GL_SelectTexture(0);
+					GL_Bind(tr.deferredDiffuseFBOImage);
+					//GL_TextureFilter(tr.deferredDiffuseFBOImage, FT_NEAREST);
+
+					// bind u_NormalMap
+					GL_SelectTexture(1);
+					GL_Bind(tr.deferredNormalFBOImage);
+					//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
+					
+					// bind u_SpecularMap
+					GL_SelectTexture(2);
+					GL_Bind(tr.deferredSpecularFBOImage);
+					//GL_TextureFilter(tr.deferredSpecularFBOImage, FT_NEAREST);
+
+					// bind u_PositionMap
+					GL_SelectTexture(3);
+					GL_Bind(tr.deferredPositionFBOImage);
+					//GL_TextureFilter(tr.deferredPointFBOImage, FT_NEAREST);
+
+					// bind u_AttenuationMapXY
+					GL_SelectTexture(4);
+					BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+					// bind u_AttenuationMapZ
+					GL_SelectTexture(5);
+					BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+				}
+				else if(light->l.rlType == RL_PROJ)
+				{
+					// TODO
+					// Render_lighting_D_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+				}
+				else
+				{
+					// TODO
+				}
+
+
+				// draw lighting
+#if 0
+				qglBegin(GL_QUADS);
+				qglVertex2f(ia->scissorX, ia->scissorY);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglEnd();
+#else
+				qglBegin(GL_QUADS);
+				qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+				qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+				qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+							backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+				qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+				qglEnd();
+#endif
+			}
+
+			if(iaCount < (numInteractions - 1))
+			{
+				// jump to next interaction and continue
+				ia++;
+				iaCount++;
+			}
+			else
+			{
+				// increase last time to leave for loop
+				iaCount++;
+			}
+		}
+		else
+		{
+			// just continue
+			ia = ia->next;
+			iaCount++;
+		}
+
+		oldLight = light;
+	}
+
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+
+	// go back to the world modelview matrix
+	backEnd.or = backEnd.viewParms.world;
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+
+	// reset scissor
+	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+
+	GL_CheckErrors();
+}
+
+void RB_RenderGeometricBuffer()
+{
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
+
+	GLimp_LogComment("--- RB_RenderGeometricBuffer ---\n");
+
+	R_BindNullFBO();
+
+	// enable shader, set arrays
+	GL_Program(tr.screenShader.program);
+	GL_State(GLS_DEPTHTEST_DISABLE);
+	GL_ClientState(tr.screenShader.attribs);
+	//GL_SetVertexAttribs();
+	GL_Cull(CT_TWO_SIDED);
+
+	// set uniforms
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+
+	// bind colorMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.deferredNormalFBOImage);
+	//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+	qglBegin(GL_QUADS);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglEnd();
+
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
 }
 
 void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
@@ -2414,7 +2848,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
-		trRefLight_t  *light, *oldLight;
+		trRefLight_t   *light, *oldLight;
 		int             ocCount;
 		GLint           ocSamples = 0;
 		qboolean        queryObjects;
@@ -2527,7 +2961,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 			return;
 		}
 
-		qglFlush();
+		qglFinish();
 
 		// do other work until "most" of the queries are back, to avoid
 		// wasting time spinning
@@ -2641,7 +3075,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst = 0;
-		trRefLight_t  *light, *oldLight;
+		trRefLight_t   *light, *oldLight;
 		int             i;
 		long            sum = 0;
 		unsigned char  *stencilReadback;
@@ -2887,7 +3321,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 				qglEnd();
 				//qglLineWidth(1);
-				
+
 				if(light->shadowLOD == 0)
 				{
 					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
@@ -2904,14 +3338,14 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				{
 					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorMdGrey);
 				}
-				
-				/*
-				// go back to the world modelview matrix
-				backEnd.or = backEnd.viewParms.world;
-				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorWhite);
-				*/
+				/*
+				   // go back to the world modelview matrix
+				   backEnd.or = backEnd.viewParms.world;
+				   qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+
+				   R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorWhite);
+				 */
 			}
 		}
 
@@ -2997,12 +3431,12 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				}
 
 				/*
-				// go back to the world modelview matrix
-				backEnd.or = backEnd.viewParms.world;
-				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+				   // go back to the world modelview matrix
+				   backEnd.or = backEnd.viewParms.world;
+				   qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
-				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorYellow);
-				*/
+				   R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorYellow);
+				 */
 			}
 		}
 	}
@@ -3192,7 +3626,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		qglMatrixMode(GL_MODELVIEW);
 		qglPopMatrix();
 	}
-	
+
 	GL_CheckErrors();
 }
 
@@ -3223,32 +3657,48 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
-	// draw everything that is opaque
-	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
-
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.shadingLanguage100Available &&
+	   glConfig.textureFloatAvailable)
+	{
+		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
+		
+		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime, drawSurfs, numDrawSurfs);
 #if 0
-	// try to cull lights using occlusion queries
-	RB_RenderOcclusionQueries(interactions, numInteractions);
+		RB_RenderGeometricBuffer();
 #endif
-
-	if(r_shadows->integer == 4)
-	{
-		// render dynamic shadowing and lighting using shadow mapping
-		RB_RenderInteractionsShadowMapped(originalTime, interactions, numInteractions);
-	}
-	else if(r_shadows->integer == 3)
-	{
-		// render dynamic shadowing and lighting using stencil shadow volumes
-		RB_RenderInteractionsStencilShadowed(originalTime, interactions, numInteractions);
+		RB_RenderInteractionsDeferred(interactions, numInteractions);
+		
+		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
 	}
 	else
 	{
-		// render dynamic lighting
-		RB_RenderInteractions(originalTime, interactions, numInteractions);
-	}
+		// draw everything that is opaque
+		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
 
-	// draw everything that is translucent
-	RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
+#if 0
+		// try to cull lights using occlusion queries
+		RB_RenderOcclusionQueries(interactions, numInteractions);
+#endif
+
+		if(r_shadows->integer == 4)
+		{
+			// render dynamic shadowing and lighting using shadow mapping
+			RB_RenderInteractionsShadowMapped(originalTime, interactions, numInteractions);
+		}
+		else if(r_shadows->integer == 3)
+		{
+			// render dynamic shadowing and lighting using stencil shadow volumes
+			RB_RenderInteractionsStencilShadowed(originalTime, interactions, numInteractions);
+		}
+		else
+		{
+			// render dynamic lighting
+			RB_RenderInteractions(originalTime, interactions, numInteractions);
+		}
+
+		// draw everything that is translucent
+		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
+	}
 
 #if 0
 	// add the sun flare
@@ -3262,60 +3712,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 
 	// render debug information
 	RB_RenderDebugUtils(interactions, numInteractions);
-	
-	// render offscreen result
-	/*
-	if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
-	{
-		float           fbufWidthScale, fbufHeightScale;
-		float           npotWidthScale, npotHeightScale;
-		
-		R_BindNullFBO();
-		
-		// enable shader, set arrays
-		GL_Program(tr.screenShader.program);
-		GL_State(GLS_DEPTHTEST_DISABLE);
-		GL_ClientState(tr.screenShader.attribs);
-		//GL_SetVertexAttribs();
-		GL_Cull(CT_TWO_SIDED);
-	
-		// set uniforms
-		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
-		qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-		qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
-
-		// bind colorMap
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderFBOImage[0]);
-		GL_TextureFilter(tr.currentRenderFBOImage[0], FT_NEAREST);
-
-		// set 2D virtual screen size
-		qglPushMatrix();
-		qglLoadIdentity();
-		qglMatrixMode(GL_PROJECTION);
-		qglPushMatrix();
-		qglLoadIdentity();
-		qglOrtho(backEnd.viewParms.viewportX,
-				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-
-		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglEnd();
-
-		qglPopMatrix();
-		qglMatrixMode(GL_MODELVIEW);
-		qglPopMatrix();
-	}
-	*/
-	
 	GL_CheckErrors();
 }
 
@@ -3638,6 +4035,12 @@ void RB_ShowImages(void)
 	for(i = 0; i < tr.numImages; i++)
 	{
 		image = tr.images[i];
+
+		if(image->bits & (IF_RGBA16F | IF_ALPHA32F | IF_RGBA32F))
+		{
+			// don't render float textures using FFP
+			continue;
+		}
 
 		w = glConfig.vidWidth / 20;
 		h = glConfig.vidHeight / 15;

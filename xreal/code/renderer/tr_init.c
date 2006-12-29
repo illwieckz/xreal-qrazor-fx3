@@ -29,6 +29,7 @@ glstate_t       glState;
 
 static void     GfxInfo_f(void);
 
+cvar_t         *r_flares;
 cvar_t         *r_flareSize;
 cvar_t         *r_flareFade;
 
@@ -40,8 +41,6 @@ cvar_t         *r_verbose;
 cvar_t         *r_ignore;
 
 cvar_t         *r_displayRefresh;
-
-cvar_t         *r_detailTextures;
 
 cvar_t         *r_znear;
 cvar_t         *r_zfar;
@@ -120,7 +119,6 @@ cvar_t         *r_shadowOffsetFactor;
 cvar_t         *r_shadowOffsetUnits;
 cvar_t         *r_shadowLodBias;
 cvar_t         *r_shadowLodScale;
-cvar_t         *r_flares;
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
 cvar_t         *r_nobind;
@@ -146,6 +144,7 @@ cvar_t         *r_noportals;
 cvar_t         *r_portalOnly;
 
 cvar_t         *r_subdivisions;
+cvar_t         *r_stitchCurves;
 
 cvar_t         *r_fullscreen;
 
@@ -191,7 +190,7 @@ cvar_t         *r_vboTriangles;
 cvar_t         *r_precacheLightIndexes;
 cvar_t         *r_precacheShadowIndexes;
 
-cvar_t         *r_stitchCurves;
+cvar_t         *r_deferredShading;
 
 
 // GL_ARB_multitexture
@@ -1184,9 +1183,7 @@ R_Register
 */
 void R_Register(void)
 {
-	//
 	// latched and archived variables
-	//
 	r_glDriver = ri.Cvar_Get("r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH);
 	r_allowExtensions = ri.Cvar_Get("r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1221,7 +1218,6 @@ void R_Register(void)
 	AssertCvarRange(r_picmip, 0, 16, qtrue);
 	r_roundImagesDown = ri.Cvar_Get("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorMipLevels = ri.Cvar_Get("r_colorMipLevels", "0", CVAR_LATCH);
-	r_detailTextures = ri.Cvar_Get("r_detailtextures", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_texturebits = ri.Cvar_Get("r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorbits = ri.Cvar_Get("r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_stereo = ri.Cvar_Get("r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1237,6 +1233,7 @@ void R_Register(void)
 	r_simpleMipMaps = ri.Cvar_Get("r_simpleMipMaps", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_uiFullScreen = ri.Cvar_Get("r_uifullscreen", "0", 0);
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
+	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #if (defined(MACOS_X) || defined(__linux__)) && defined(SMP)
 	// Default to using SMP on Mac OS X or Linux if we have multiple processors
 	r_smp = ri.Cvar_Get("r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1244,9 +1241,8 @@ void R_Register(void)
 	r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
 
-	//
+	
 	// temporary latched variables that can only change over a restart
-	//
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);
 	AssertCvarRange(r_displayRefresh, 0, 200, qtrue);
 	r_fullbright = ri.Cvar_Get("r_fullbright", "0", CVAR_LATCH | CVAR_CHEAT);
@@ -1258,9 +1254,7 @@ void R_Register(void)
 	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "1", CVAR_CHEAT | CVAR_LATCH);
 	
 
-	//
 	// archived variables that can change at any time
-	//
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
 	r_flares = ri.Cvar_Get("r_flares", "0", CVAR_ARCHIVE);
 	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_CHEAT);
@@ -1293,9 +1287,8 @@ void R_Register(void)
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
-	//
+	
 	// temporary variables that can change at any time
-	//
 	r_showImages = ri.Cvar_Get("r_showImages", "0", CVAR_TEMP);
 
 	r_debugLight = ri.Cvar_Get("r_debuglight", "0", CVAR_TEMP);
@@ -1542,9 +1535,9 @@ void RE_Shutdown(qboolean destroyWindow)
 	// shut down platform specific OpenGL stuff
 	
 	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
-#if !defined(SMP)
-	if(destroyWindow)
-#endif
+//#if !defined(SMP)
+//	if(destroyWindow)
+//#endif
 	{
 		GLimp_Shutdown();
 	}
@@ -1563,10 +1556,13 @@ Touch all images to make sure they are resident
 void RE_EndRegistration(void)
 {
 	R_SyncRenderThread();
+	
+	/*
 	if(!Sys_LowPhysicalMemory())
 	{
 		RB_ShowImages();
 	}
+	*/
 }
 
 

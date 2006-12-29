@@ -652,8 +652,6 @@ typedef struct
 
 	acff_t          adjustColorsForFog;
 
-	qboolean        isDetail;
-
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
 	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
 	filterType_t    filterType;
@@ -840,6 +838,7 @@ typedef struct shaderProgram_s
 	GLint           u_SpecularMap;
 	GLint           u_LightMap;
 	GLint           u_DeluxeMap;
+	GLint			u_PositionMap;
 	GLint           u_AttenuationMapXY;
 	GLint           u_AttenuationMapZ;
 	GLint           u_ShadowMap;
@@ -854,6 +853,7 @@ typedef struct shaderProgram_s
 	GLint           u_LightColor;
 	GLint           u_LightRadius;
 	GLint           u_LightScale;
+	GLint			u_LightAttenuationMatrix;
 
 	GLint           u_SpecularExponent;
 
@@ -1746,12 +1746,17 @@ typedef struct
 
 //	image_t        *currentRenderFBOImage[4];
 //	image_t        *portalRenderFBOImage[4];
+	image_t        *deferredDiffuseFBOImage;
+	image_t        *deferredNormalFBOImage;
+	image_t        *deferredSpecularFBOImage;
+	image_t        *deferredPositionFBOImage;
 	image_t        *shadowMapFBOImage[3];
 	image_t        *shadowCubeFBOImage[3];
 
 	// framebuffer objects
 //	frameBuffer_t  *currentRenderFBO;
 //	frameBuffer_t  *portalRenderFBO;
+	frameBuffer_t  *deferredRenderFBO;
 	frameBuffer_t  *shadowMapFBO[3];
 
 	// internal shaders
@@ -1776,44 +1781,67 @@ typedef struct
 	// render lights
 	trRefLight_t   *currentLight;
 
+	//
 	// GPU shader programs
+	//
+	
+	// Q3A standard simple vertex color rendering
 	shaderProgram_t genericSingleShader;
+	
+	// deferred Geometric-Buffer processing
+	shaderProgram_t geometricFillShader_D;
+	shaderProgram_t geometricFillShader_DB;
+	shaderProgram_t geometricFillShader_DBS;
+	
+	// deferred lighting
+	shaderProgram_t deferredLightingShader_DBS_omni;
 
+	// black depth fill rendering with textures
 	shaderProgram_t depthFillShader;
+	
+	// colored depth test rendering with textures into gl_FragData[1]
 	shaderProgram_t depthTestShader;
 	
+	// stencil shadow volume extrusion
 	shaderProgram_t shadowExtrudeShader;
+	
+	// shadowmap distance compression
 	shaderProgram_t shadowFillShader;
 
+	// Q3A rgbGen lightingDiffuse emulation
 	shaderProgram_t lightShader_D_direct;
 	shaderProgram_t lightShader_DB_direct;
 	shaderProgram_t lightShader_DBS_direct;
 
+	// Doom3 style omni-directional multi-pass lighting 
 	shaderProgram_t lightShader_D_omni;
 	shaderProgram_t lightShader_DB_omni;
 	shaderProgram_t lightShader_DBS_omni;
 
 	shaderProgram_t lightShader_D_proj;
 
+	// precomputed radiosity light mapping
 	shaderProgram_t lightShader_D_radiosity;
 	shaderProgram_t lightShader_DB_radiosity;
 	shaderProgram_t lightShader_DBS_radiosity;
 
+	// environment mapping effects
 	shaderProgram_t reflectionShader_C;
 	shaderProgram_t reflectionShader_CB;
 	shaderProgram_t refractionShader_C;
 	shaderProgram_t dispersionShader_C;
-
 	shaderProgram_t skyBoxShader;
 
+	// post process effects
 	shaderProgram_t heatHazeShader;
 	shaderProgram_t bloomShader;
 	shaderProgram_t contrastShader;
 	shaderProgram_t blurXShader;
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
-
 	shaderProgram_t screenShader;
+	
+	// -----------------------------------------
 
 	viewParms_t     viewParms;
 
@@ -1885,6 +1913,7 @@ extern glstate_t glState;		// outside of TR since it shouldn't be cleared during
 //
 // cvars
 //
+extern cvar_t  *r_flares;		// light flares
 extern cvar_t  *r_flareSize;
 extern cvar_t  *r_flareFade;
 
@@ -1929,7 +1958,6 @@ extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering
 extern cvar_t  *r_drawworld;	// disable/enable world rendering
 extern cvar_t  *r_speeds;		// various levels of information display
-extern cvar_t  *r_detailTextures;	// enables/disables detail texturing stages
 extern cvar_t  *r_novis;		// disable/enable usage of PVS
 extern cvar_t  *r_nocull;
 extern cvar_t  *r_facePlaneCull;	// enables culling of planar surfaces with back side test
@@ -2004,7 +2032,6 @@ extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
 extern cvar_t  *r_shadowLodBias;
 extern cvar_t  *r_shadowLodScale;
-extern cvar_t  *r_flares;		// light flares
 
 extern cvar_t  *r_intensity;
 
@@ -2013,6 +2040,8 @@ extern cvar_t  *r_noportals;
 extern cvar_t  *r_portalOnly;
 
 extern cvar_t  *r_subdivisions;
+extern cvar_t  *r_stitchCurves;
+
 extern cvar_t  *r_smp;
 extern cvar_t  *r_showSmp;
 extern cvar_t  *r_skipBackEnd;
@@ -2048,7 +2077,7 @@ extern cvar_t  *r_vboTriangles;
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
 
-extern cvar_t  *r_stitchCurves;
+extern cvar_t  *r_deferredShading;
 
 
 //====================================================================
@@ -2393,7 +2422,11 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 void            Tess_End(void);
 void            Tess_CheckOverflow(int verts, int indexes);
 
+void            Tess_ComputeColors(shaderStage_t * pStage);
+void            Tess_ComputeColor(shaderStage_t * pStage);
+
 void            Tess_StageIteratorGeneric();
+void            Tess_StageIteratorGBuffer();
 void            Tess_StageIteratorShadowFill();
 void			Tess_StageIteratorStencilShadowVolume();
 void            Tess_StageIteratorStencilLighting();
@@ -2473,6 +2506,8 @@ void            R_SetupLightDepthBounds(trRefLight_t * light);
 void            R_SetupLightLOD(trRefLight_t * light);
 
 byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2]);
+
+void            R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light);
 
 /*
 ============================================================

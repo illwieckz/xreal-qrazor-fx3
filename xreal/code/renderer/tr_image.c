@@ -4634,6 +4634,28 @@ static void R_CreatePortalRenderFBOImage(void)
 }
 */
 
+static void R_CreateDeferredRenderFBOImages(void)
+{
+	int             i;
+	int             width, height;
+	byte           *data;
+	
+	if(!r_deferredShading->integer)
+		return;
+	
+	width = NearestPowerOfTwo(glConfig.vidWidth);
+	height = NearestPowerOfTwo(glConfig.vidHeight);
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	
+	tr.deferredDiffuseFBOImage = R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredPositionFBOImage = R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
 static void R_CreateShadowMapFBOImage(void)
 {
 	int             i;
@@ -4741,6 +4763,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateCurrentRenderImage();
 //	R_CreateCurrentRenderFBOImage();
 //	R_CreatePortalRenderFBOImage();
+	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();
 }

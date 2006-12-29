@@ -1735,7 +1735,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// detail
 		else if(!Q_stricmp(token, "detail"))
 		{
-			stage->isDetail = qtrue;
+			ri.Printf(PRINT_WARNING, "WARNING: detail keyword not supported in shader '%s'\n", shader.name);
 			continue;
 		}
 		// blendfunc <srcFactor> <dstFactor>
@@ -4562,17 +4562,6 @@ static shader_t *FinishShader(void)
 				}
 				break;
 			}
-		}
-
-		// ditch this stage if it's detail and detail textures are disabled
-		if(pStage->isDetail && !r_detailTextures->integer)
-		{
-			if(stage < (MAX_SHADER_STAGES - 1))
-			{
-				memmove(pStage, pStage + 1, sizeof(*pStage) * (MAX_SHADER_STAGES - stage - 1));
-				Com_Memset(pStage + 1, 0, sizeof(*pStage));
-			}
-			continue;
 		}
 
 		// default texture coordinate generation
