@@ -377,15 +377,15 @@ void RB_RenderFlare(flare_t * f)
 	iColor[2] = color[2] * 255;
 #endif
 
-	Tess_Begin(Tess_StageIteratorGeneric, tr.flareShader, NULL, -1, f->fogNum, qfalse, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, tr.flareShader, NULL, f->fogNum, qfalse, qfalse);
 
 	// FIXME: use quadstamp?
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.xyz[tess.numVertexes][2] = 0;
 	tess.xyz[tess.numVertexes][3] = 1;
-	tess.texCoords[tess.numVertexes][0][0] = 0;
-	tess.texCoords[tess.numVertexes][0][1] = 0;
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 0;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];
@@ -396,8 +396,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][1] = f->windowY + size;
 	tess.xyz[tess.numVertexes][2] = 0;
 	tess.xyz[tess.numVertexes][3] = 1;
-	tess.texCoords[tess.numVertexes][0][0] = 0;
-	tess.texCoords[tess.numVertexes][0][1] = 1;
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 1;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];
@@ -408,8 +408,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][1] = f->windowY + size;
 	tess.xyz[tess.numVertexes][2] = 0;
 	tess.xyz[tess.numVertexes][3] = 1;
-	tess.texCoords[tess.numVertexes][0][0] = 1;
-	tess.texCoords[tess.numVertexes][0][1] = 1;
+	tess.texCoords[tess.numVertexes][0] = 1;
+	tess.texCoords[tess.numVertexes][1] = 1;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];
@@ -420,8 +420,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][1] = f->windowY - size;
 	tess.xyz[tess.numVertexes][2] = 0;
 	tess.xyz[tess.numVertexes][3] = 1;
-	tess.texCoords[tess.numVertexes][0][0] = 1;
-	tess.texCoords[tess.numVertexes][0][1] = 0;
+	tess.texCoords[tess.numVertexes][0] = 1;
+	tess.texCoords[tess.numVertexes][1] = 0;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];

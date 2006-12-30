@@ -525,7 +525,6 @@ void RB_CalcDeformNormals(deformStage_t * ds)
 /*
 ========================
 RB_CalcBulgeVertexes
-
 ========================
 */
 void RB_CalcBulgeVertexes(deformStage_t * ds)

@@ -1375,11 +1375,6 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		stage->bundle[0].image[0] = tr.flatImage;
 		return qtrue;
 	}
-	else if(!Q_stricmp(token, "$lightmap") || !Q_stricmp(token, "_lightmap") || !Q_stricmp(token, "*lightmap"))
-	{
-		stage->type = ST_LIGHTMAP;
-		return qtrue;
-	}
 	
 	// determine image options	
 	if(stage->overrideNoPicMip || shader.noPicMip)
@@ -1789,7 +1784,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		}
 		// blend <srcFactor> , <dstFactor>
 		// or blend <add | filter | blend>
-		// or blend <diffusemap | bumpmap | specularmap | lightmap>
+		// or blend <diffusemap | bumpmap | specularmap>
 		else if(!Q_stricmp(token, "blend"))
 		{
 			token = Com_ParseExt(text, qfalse);
@@ -1890,10 +1885,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			else if(!Q_stricmp(token, "specularMap"))
 			{
 				stage->type = ST_SPECULARMAP;
-			}
-			else if(!Q_stricmp(token, "lightMap"))
-			{
-				stage->type = ST_LIGHTMAP;
 			}
 			else if(!Q_stricmp(token, "reflectionMap"))
 			{
@@ -3915,7 +3906,6 @@ static void CollapseStages(void)
 			continue;
 		
 		if(	stages[j].type == ST_COLORMAP ||
-			stages[j].type == ST_LIGHTMAP ||
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
@@ -4539,9 +4529,6 @@ static shader_t *FinishShader(void)
 				}
 				break;
 			}
-			
-			case ST_LIGHTMAP:
-				break;
 			
 			case ST_ATTENUATIONMAP_XY:
 			{

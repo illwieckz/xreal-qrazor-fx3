@@ -1084,7 +1084,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			internalFormat = GL_ALPHA32F_ARB;
 		}
 	}
-	else if(!(image->bits & IF_LIGHTMAP))
+	else
 	{
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
@@ -1159,10 +1159,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				internalFormat = 4;
 			}
 		}
-	}
-	else
-	{
-		internalFormat = 3;
 	}
 
 	for(i = 0; i < numData; i++)
@@ -1356,11 +1352,6 @@ image_t        *R_CreateImage(const char *name,
 	image->filterType = filterType;
 	image->wrapType = wrapType;
 
-	if(!strncmp(name, "_lightmap", 9))
-	{
-		image->bits |= IF_LIGHTMAP;
-	}
-
 	GL_Bind(image);
 
 	R_UploadImage(&pic, 1, image);
@@ -1413,11 +1404,6 @@ image_t        *R_CreateCubeImage(const char *name,
 	image->bits = bits;
 	image->filterType = filterType;
 	image->wrapType = wrapType;
-
-	if(!strncmp(name, "_lightmap", 9))
-	{
-		image->bits |= IF_LIGHTMAP;
-	}
 
 	GL_Bind(image);
 

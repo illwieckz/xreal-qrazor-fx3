@@ -172,8 +172,6 @@ int             max_polys;
 cvar_t         *r_maxpolyverts;
 int             max_polyverts;
 
-cvar_t         *r_showLightMaps;
-cvar_t         *r_showDeluxeMaps;
 cvar_t         *r_showNormalMaps;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showSkeleton;
@@ -1267,7 +1265,7 @@ void R_Register(void)
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);
 	r_lighting = ri.Cvar_Get("r_lighting", "2", CVAR_ARCHIVE);
 	AssertCvarRange(r_lighting, 0, 2, qtrue);
-	r_dynamicLighting = ri.Cvar_Get("r_dynamicLighting", "2", CVAR_ARCHIVE);
+	r_dynamicLighting = ri.Cvar_Get("r_dynamicLighting", "1", CVAR_CHEAT);
 	r_finish = ri.Cvar_Get("r_finish", "0", CVAR_ARCHIVE);
 	r_textureMode = ri.Cvar_Get("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	r_swapInterval = ri.Cvar_Get("r_swapInterval", "0", CVAR_ARCHIVE);
@@ -1346,8 +1344,6 @@ void R_Register(void)
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
 
-	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT);
-	r_showDeluxeMaps = ri.Cvar_Get("r_showDeluxeMaps", "0", CVAR_CHEAT);
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);

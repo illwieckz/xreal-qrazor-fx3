@@ -332,7 +332,7 @@ static void R_AddWorldSurface(msurface_t * surf)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum, surf->fogIndex);
+	R_AddDrawSurf(surf->data, surf->shader, surf->fogIndex);
 }
 
 /*
@@ -362,7 +362,7 @@ static void R_AddBrushModelSurface(msurface_t * surf, int fogIndex)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum, fogIndex);
+	R_AddDrawSurf(surf->data, surf->shader, fogIndex);
 }
 
 /*

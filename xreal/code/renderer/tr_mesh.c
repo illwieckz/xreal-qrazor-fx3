@@ -323,13 +323,13 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 		// projection shadows work fine with personal models
 		if(r_shadows->integer == 2 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
 		{
-			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, -1, 0);
+			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
 		}
 
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDrawSurf((void *)surface, shader, -1, fogNum);
+			R_AddDrawSurf((void *)surface, shader, fogNum);
 		}
 	}
 }

@@ -1352,7 +1352,6 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 {
 	float           shortest = 100000000;
 	shader_t       *shader;
-	int             lightmapNum;
 	int             fogNum;
 	int             numTriangles;
 	vec4_t          clip, eye;
@@ -1368,7 +1367,6 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	tr.currentEntity = drawSurf->entity;
 	shader = tr.sortedShaders[drawSurf->shaderNum];
-	lightmapNum = drawSurf->lightmapNum;
 	fogNum = drawSurf->fogNum;
 	
 	// rotate if necessary
@@ -1382,7 +1380,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		tr.or = tr.viewParms.world;
 	}
 
-	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, lightmapNum, fogNum, qfalse, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, fogNum, qfalse, qfalse);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 
 	// Tr3B: former assertion
@@ -1574,7 +1572,7 @@ int R_SpriteFogNum(trRefEntity_t * ent)
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, int fogNum)
+void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogNum)
 {
 	int             index;
 	drawSurf_t     *drawSurf;
@@ -1587,17 +1585,7 @@ void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, 
 
 	drawSurf->entity = tr.currentEntity;
 	drawSurf->surface = surface;
-	drawSurf->shaderNum = shader->sortedIndex;
-	
-	if(r_dynamicLighting->integer == 2)
-	{
-		drawSurf->lightmapNum = -1;
-	}
-	else
-	{
-		drawSurf->lightmapNum = lightmapNum;
-	}
-	
+	drawSurf->shaderNum = shader->sortedIndex;	
 	drawSurf->fogNum = fogNum;
 
 	tr.refdef.numDrawSurfs++;
@@ -1617,15 +1605,6 @@ static int DrawSurfCompare(const void *a, const void *b)
 		return -1;
 
 	else if(((drawSurf_t *) a)->shaderNum > ((drawSurf_t *) b)->shaderNum)
-		return 1;
-#endif
-
-#if 1
-	// by lightmap
-	if(((drawSurf_t *) a)->lightmapNum < ((drawSurf_t *) b)->lightmapNum)
-		return -1;
-
-	else if(((drawSurf_t *) a)->lightmapNum > ((drawSurf_t *) b)->lightmapNum)
 		return 1;
 #endif
 
@@ -1800,7 +1779,7 @@ void R_AddEntitySurfaces(void)
 					continue;
 				}
 				shader = R_GetShaderByHandle(ent->e.customShader);
-				R_AddDrawSurf(&entitySurface, shader, -1, R_SpriteFogNum(ent));
+				R_AddDrawSurf(&entitySurface, shader, R_SpriteFogNum(ent));
 				break;
 
 			case RT_MODEL:
@@ -1810,7 +1789,7 @@ void R_AddEntitySurfaces(void)
 				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
 				if(!tr.currentModel)
 				{
-					R_AddDrawSurf(&entitySurface, tr.defaultShader, -1, 0);
+					R_AddDrawSurf(&entitySurface, tr.defaultShader, 0);
 				}
 				else
 				{
@@ -1838,7 +1817,7 @@ void R_AddEntitySurfaces(void)
 								break;
 							}
 							shader = R_GetShaderByHandle(ent->e.customShader);
-							R_AddDrawSurf(&entitySurface, tr.defaultShader, -1, 0);
+							R_AddDrawSurf(&entitySurface, tr.defaultShader, 0);
 							break;
 
 						default:
@@ -1957,7 +1936,7 @@ void R_AddStaticlightInteractions()
 		return;
 	}
 
-	if(r_dynamicLighting->integer != 2)
+	if(!r_dynamicLighting->integer)
 	{
 		return;
 	}

@@ -241,8 +241,8 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(attribs & GLCS_TEXCOORD2)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
 
-	if(attribs & GLCS_TEXCOORD3)
-		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
+//	if(attribs & GLCS_TEXCOORD3)
+//		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
 	if(attribs & GLCS_TANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
@@ -623,77 +623,6 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	//
-	// radiosity lighting ( Q3A style )
-	//
-	GLSL_InitGPUShader(&tr.lightShader_D_radiosity,
-					 "lighting_D_radiosity", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD3 | GLCS_NORMAL, qtrue);
-
-	tr.lightShader_D_radiosity.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_DiffuseMap");
-	tr.lightShader_D_radiosity.u_LightMap = qglGetUniformLocationARB(tr.lightShader_D_radiosity.program, "u_LightMap");
-
-	qglUseProgramObjectARB(tr.lightShader_D_radiosity.program);
-	qglUniform1iARB(tr.lightShader_D_radiosity.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.lightShader_D_radiosity.u_LightMap, 1);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.lightShader_D_radiosity.program);
-	GLSL_ShowProgramUniforms(tr.lightShader_D_radiosity.program);
-	GL_CheckErrors();
-
-	//
-	// radiosity bump mapping
-	//
-	GLSL_InitGPUShader(&tr.lightShader_DB_radiosity,
-					 "lighting_DB_radiosity",
-					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD3 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
-					 qtrue);
-
-	tr.lightShader_DB_radiosity.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DiffuseMap");
-	tr.lightShader_DB_radiosity.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_NormalMap");
-	tr.lightShader_DB_radiosity.u_LightMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_LightMap");
-	tr.lightShader_DB_radiosity.u_DeluxeMap = qglGetUniformLocationARB(tr.lightShader_DB_radiosity.program, "u_DeluxeMap");
-
-	qglUseProgramObjectARB(tr.lightShader_DB_radiosity.program);
-	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.lightShader_DB_radiosity.u_NormalMap, 1);
-	qglUniform1iARB(tr.lightShader_DB_radiosity.u_LightMap, 2);
-	qglUniform1iARB(tr.lightShader_DB_radiosity.u_DeluxeMap, 3);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.lightShader_DB_radiosity.program);
-	GLSL_ShowProgramUniforms(tr.lightShader_DB_radiosity.program);
-	GL_CheckErrors();
-
-	//
-	// radiosity specular bump mapping
-	//
-	GLSL_InitGPUShader(&tr.lightShader_DBS_radiosity,
-					 "lighting_DBS_radiosity",
-					 GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TEXCOORD3 | GLCS_TANGENT |
-					 GLCS_BINORMAL | GLCS_NORMAL, qtrue);
-
-	tr.lightShader_DBS_radiosity.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DiffuseMap");
-	tr.lightShader_DBS_radiosity.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_NormalMap");
-	tr.lightShader_DBS_radiosity.u_SpecularMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularMap");
-	tr.lightShader_DBS_radiosity.u_LightMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_LightMap");
-	tr.lightShader_DBS_radiosity.u_DeluxeMap = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_DeluxeMap");
-	tr.lightShader_DBS_radiosity.u_ViewOrigin = qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_ViewOrigin");
-	tr.lightShader_DBS_radiosity.u_SpecularExponent =
-		qglGetUniformLocationARB(tr.lightShader_DBS_radiosity.program, "u_SpecularExponent");
-
-	qglUseProgramObjectARB(tr.lightShader_DBS_radiosity.program);
-	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_NormalMap, 1);
-	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_SpecularMap, 2);
-	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_LightMap, 3);
-	qglUniform1iARB(tr.lightShader_DBS_radiosity.u_DeluxeMap, 4);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.lightShader_DBS_radiosity.program);
-	GLSL_ShowProgramUniforms(tr.lightShader_DBS_radiosity.program);
-	GL_CheckErrors();
-
-	//
 	// cubemap reflection for abitrary polygons
 	//
 	GLSL_InitGPUShader(&tr.reflectionShader_C, "reflection_C", GLCS_VERTEX | GLCS_NORMAL, qtrue);
@@ -1030,24 +959,6 @@ void GLSL_ShutdownGPUShaders(void)
 		tr.lightShader_D_proj.program = 0;
 	}
 
-	if(tr.lightShader_D_radiosity.program)
-	{
-		qglDeleteObjectARB(tr.lightShader_D_radiosity.program);
-		tr.lightShader_D_radiosity.program = 0;
-	}
-
-	if(tr.lightShader_DB_radiosity.program)
-	{
-		qglDeleteObjectARB(tr.lightShader_DB_radiosity.program);
-		tr.lightShader_DB_radiosity.program = 0;
-	}
-
-	if(tr.lightShader_DBS_radiosity.program)
-	{
-		qglDeleteObjectARB(tr.lightShader_DBS_radiosity.program);
-		tr.lightShader_DBS_radiosity.program = 0;
-	}
-
 	if(tr.reflectionShader_C.program)
 	{
 		qglDeleteObjectARB(tr.reflectionShader_C.program);
@@ -1209,60 +1120,6 @@ void BindAnimatedImage(textureBundle_t * bundle)
 }
 
 /*
-=================
-BindLightMap
-=================
-*/
-static void BindLightMap()
-{
-	image_t        *lightmap;
-
-	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-	{
-		lightmap = tr.lightmaps[tess.lightmapNum];
-	}
-	else
-	{
-		lightmap = NULL;
-	}
-
-	if(!tr.numLightmaps || !lightmap)
-	{
-		GL_Bind(tr.whiteImage);
-		return;
-	}
-
-	GL_Bind(lightmap);
-}
-
-/*
-=================
-BindDeluxeMap
-=================
-*/
-static void BindDeluxeMap()
-{
-	image_t        *deluxemap;
-
-	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-	{
-		deluxemap = tr.lightmaps[tess.lightmapNum + 1];
-	}
-	else
-	{
-		deluxemap = NULL;
-	}
-
-	if(!tr.numLightmaps || !deluxemap)
-	{
-		GL_Bind(tr.flatImage);
-		return;
-	}
-
-	GL_Bind(deluxemap);
-}
-
-/*
 ================
 DrawTris
 
@@ -1417,7 +1274,6 @@ to overflow.
 // *INDENT-OFF*
 void Tess_Begin(	 void (*stageIteratorFunc)(),
 					 shader_t * surfaceShader, shader_t * lightShader,
-					 int lightmapNum,
 					 int fogNum,
 					 qboolean skipTangentSpaces,
 					 qboolean shadowVolume)
@@ -1452,7 +1308,6 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 		tess.shaderTime = tess.surfaceShader->clampTime;
 	}
 	
-	tess.lightmapNum = lightmapNum;
 	tess.fogNum = fogNum;
 	
 	tess.skipTangentSpaces = skipTangentSpaces;
@@ -1462,7 +1317,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- Tess_Begin( %s, %s, %i, %i, %i, %i ) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.lightmapNum, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume));
+		GLimp_LogComment(va("--- Tess_Begin( %s, %s, %i, %i, %i ) ---\n", tess.surfaceShader->name, tess.lightShader ? tess.lightShader->name : NULL, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume));
 	}
 }
 // *INDENT-ON*
@@ -1966,6 +1821,7 @@ t0 = most upstream according to spec
 t1 = most downstream according to spec
 ===================
 */
+/*
 static void Render_genericMulti_FFP(int stage)
 {
 	shaderStage_t  *pStage;
@@ -2017,6 +1873,7 @@ static void Render_genericMulti_FFP(int stage)
 
 	GL_CheckErrors();
 }
+*/
 
 static void Render_lighting_D_direct(int stage)
 {
@@ -2402,304 +2259,6 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	// bind u_ShadowMap
 	GL_SelectTexture(3);
 	GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_lightmap_FFP(int stage, int texCoordsIndex)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_lightmap_FFP ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	GL_Program(0);
-
-	qglColor4fv(colorWhite);
-
-	if(r_showLightMaps->integer)
-	{
-		GL_State(pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS));
-	}
-	else
-	{
-		GL_State(pStage->stateBits);
-	}
-
-	GL_ClientState(GLCS_VERTEX);
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-//  qglEnable(GL_TEXTURE_2D);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		if(texCoordsIndex == TB_LIGHTMAP)
-			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
-		else
-			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-	}
-	else
-	{
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
-	}
-
-	BindLightMap();
-
-	DrawElements();
-
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//  qglDisable(GL_TEXTURE_2D);
-
-	GL_CheckErrors();
-}
-
-static void Render_deluxemap_FFP(int stage, int texCoordsIndex)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_deluxemap_FFP ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	if(!pStage->bundle[TB_LIGHTMAP].image[1])
-		return;
-
-	GL_Program(0);
-
-	qglColor4fv(colorWhite);
-
-	if(r_showLightMaps->integer)
-	{
-		GL_State(pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS));
-	}
-	else
-	{
-		GL_State(pStage->stateBits);
-	}
-
-	GL_ClientState(GLCS_VERTEX);
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-//  qglEnable(GL_TEXTURE_2D);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[texCoordsIndex]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		if(texCoordsIndex == TB_LIGHTMAP)
-			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords2));
-		else
-			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-	}
-	else
-	{
-		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[texCoordsIndex]);
-	}
-
-	BindDeluxeMap();
-
-	DrawElements();
-
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//  qglDisable(GL_TEXTURE_2D);
-
-	GL_CheckErrors();
-}
-
-static void Render_lighting_D_radiosity_FFP(int stage)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_lighting_D_radiosity_FFP ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	Tess_ComputeColors(pStage);
-
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
-	GL_SetVertexAttribs();
-
-	// base
-	GL_SelectTexture(0);
-//  qglEnable(GL_TEXTURE_2D);
-	BindAnimatedImage(&pStage->bundle[TB_DIFFUSEMAP]);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// lightmap/secondary pass
-	GL_SelectTexture(1);
-	qglEnable(GL_TEXTURE_2D);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_LIGHTMAP]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-	BindLightMap();
-
-	DrawElements();
-
-	// clean up
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglDisable(GL_TEXTURE_2D);
-
-	GL_SelectTexture(0);
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//  qglDisable(GL_TEXTURE_2D);
-
-	GL_CheckErrors();
-}
-
-static void Render_lighting_D_radiosity(int stage)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_lighting_D_radiosity ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	GL_State(pStage->stateBits);
-
-	// enable shader, set arrays
-	GL_Program(tr.lightShader_D_radiosity.program);
-	GL_ClientState(tr.lightShader_D_radiosity.attribs);
-	GL_SetVertexAttribs();
-
-	// bind u_DiffuseMap
-	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_LightMap
-	GL_SelectTexture(1);
-	BindLightMap();
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_lighting_DB_radiosity(int stage)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_lighting_DB_radiosity ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	GL_State(pStage->stateBits);
-
-	// enable shader, set arrays
-	GL_Program(tr.lightShader_DB_radiosity.program);
-	GL_ClientState(tr.lightShader_DB_radiosity.attribs);
-	GL_SetVertexAttribs();
-
-	// bind u_DiffuseMap
-	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_LightMap
-	GL_SelectTexture(2);
-	BindLightMap();
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_DeluxeMap
-	GL_SelectTexture(3);
-	BindDeluxeMap();
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_lighting_DBS_radiosity(int stage)
-{
-	vec3_t          viewOrigin;
-	float           specularExponent;
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_lighting_DBS_radiosity ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	GL_State(pStage->stateBits);
-
-	// enable shader, set arrays
-	GL_Program(tr.lightShader_DBS_radiosity.program);
-	GL_ClientState(tr.lightShader_DBS_radiosity.attribs);
-	GL_SetVertexAttribs();
-
-	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	specularExponent = RB_EvalExpression(&pStage->specularExponentExp, r_specularExponent->value);
-
-	qglUniform3fARB(tr.lightShader_DBS_radiosity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-	qglUniform1fARB(tr.lightShader_DBS_radiosity.u_SpecularExponent, specularExponent);
-
-	// bind u_DiffuseMap
-	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_LightMap
-	GL_SelectTexture(3);
-	BindLightMap();
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_LIGHTMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	// bind u_DeluxeMap
-	GL_SelectTexture(4);
-	BindDeluxeMap();
 
 	DrawElements();
 
@@ -3805,7 +3364,7 @@ static void Tess_ComputeTexCoords(shaderStage_t * pStage)
 	GLimp_LogComment("--- Tess_ComputeTexCoords ---\n");
 
 	// generate the texture coordinates
-	for(b = 0; b < TB_LIGHTMAP; b++)
+	for(b = 0; b < MAX_TEXTURE_BUNDLES; b++)
 	{
 		int             tm;
 
@@ -3829,8 +3388,8 @@ static void Tess_ComputeTexCoords(shaderStage_t * pStage)
 			case TCGEN_TEXTURE:
 				for(i = 0; i < tess.numVertexes; i++)
 				{
-					tess.svars.texCoords[b][i][0] = tess.texCoords[i][0][0];
-					tess.svars.texCoords[b][i][1] = tess.texCoords[i][0][1];
+					tess.svars.texCoords[b][i][0] = tess.texCoords[i][0];
+					tess.svars.texCoords[b][i][1] = tess.texCoords[i][1];
 				}
 				break;
 
@@ -3849,18 +3408,6 @@ static void Tess_ComputeTexCoords(shaderStage_t * pStage)
 			case TCGEN_ENVIRONMENT_MAPPED:
 				RB_CalcEnvironmentTexCoords((float *)tess.svars.texCoords[b]);
 				break;
-		}
-	}
-	
-	// generate the lightmap coordinates
-	if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-	{
-		MatrixIdentity(tess.svars.texMatrices[TB_LIGHTMAP]);
-
-		for(i = 0; i < tess.numVertexes; i++)
-		{
-			tess.svars.texCoords[TB_LIGHTMAP][i][0] = tess.texCoords[i][1][0];
-			tess.svars.texCoords[TB_LIGHTMAP][i][1] = tess.texCoords[i][1][1];
 		}
 	}
 }
@@ -3956,243 +3503,19 @@ void Tess_StageIteratorGeneric()
 
 		switch (pStage->type)
 		{
-			case ST_DIFFUSEMAP:
-			{
-				if(r_dynamicLighting->integer == 2)
-				{
-					if(tess.surfaceShader->sort <= SS_OPAQUE)
-					{
-						if(glConfig.shadingLanguage100Available)
-						{
-							Render_depthFill(stage);
-						}
-						else
-						{
-							Render_depthFill_FFP(stage);
-						}
-					}
-				}
-				else if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-				{
-					if(r_showLightMaps->integer)
-					{
-						Render_lightmap_FFP(stage, TB_LIGHTMAP);
-					}
-					else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-					{
-						Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-					}
-					else
-					{
-						if(glConfig.shadingLanguage100Available)
-						{
-							Render_lighting_D_radiosity(stage);
-						}
-						else
-						{
-							Render_lighting_D_radiosity_FFP(stage);
-						}
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_genericSingle(stage);
-					}
-					else
-					{
-						Render_genericSingle_FFP(stage);
-					}
-				}
-				break;
-			}
-
-			case ST_COLLAPSE_lighting_DB_generic:
-			{
-				if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-				{
-					if(r_showLightMaps->integer)
-					{
-						Render_lightmap_FFP(stage, TB_LIGHTMAP);
-					}
-					else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-					{
-						Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-					}
-					else
-					{
-						if(glConfig.shadingLanguage100Available)
-						{
-							if(tr.worldDeluxeMapping && r_lighting->integer == 1)
-							{
-								Render_lighting_DB_radiosity(stage);
-							}
-							else
-							{
-								Render_lighting_D_radiosity(stage);
-							}
-						}
-						else
-						{
-							Render_lighting_D_radiosity_FFP(stage);
-						}
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_genericSingle(stage);
-					}
-					else
-					{
-						Render_genericSingle_FFP(stage);
-					}
-				}
-				break;
-			}
-
-			case ST_COLLAPSE_lighting_DBS_generic:
-			{
-				if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
-				{
-					if(r_showLightMaps->integer)
-					{
-						Render_lightmap_FFP(stage, TB_LIGHTMAP);
-					}
-					else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-					{
-						Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-					}
-					else
-					{
-						if(glConfig.shadingLanguage100Available)
-						{
-							if(tr.worldDeluxeMapping && r_lighting->integer == 2)
-							{
-								Render_lighting_DBS_radiosity(stage);
-							}
-							else if(tr.worldDeluxeMapping && r_lighting->integer == 1)
-							{
-								Render_lighting_DB_radiosity(stage);
-							}
-							else
-							{
-								Render_lighting_D_radiosity(stage);
-							}
-						}
-						else
-						{
-							Render_lighting_D_radiosity_FFP(stage);
-						}
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_genericSingle(stage);
-					}
-					else
-					{
-						Render_genericSingle_FFP(stage);
-					}
-				}
-				break;
-			}
-
-			case ST_LIGHTMAP:
-			{
-				if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else
-				{
-					Render_lightmap_FFP(stage, TB_COLORMAP);
-				}
-				break;
-			}
-
-				// skip these if not merge into diffuse stage
+			// skip these if not merge into diffuse stage
 			case ST_NORMALMAP:
 			case ST_SPECULARMAP:
 				break;
-
-			case ST_COLLAPSE_genericMulti:
-			{
-				Render_genericMulti_FFP(stage);
-				break;
-			}
-
+			
+			case ST_DIFFUSEMAP:
+			case ST_COLLAPSE_lighting_DB_generic:
+			case ST_COLLAPSE_lighting_DBS_generic:
 			case ST_COLLAPSE_lighting_DB_direct:
-			{
-				if(r_dynamicLighting->integer == 2)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						if(r_lighting->integer == 1)
-						{
-							Render_lighting_DB_direct(stage);
-						}
-						else
-						{
-							Render_lighting_D_direct(stage);
-						}
-					}
-					else
-					{
-						Render_genericSingle_FFP(stage);
-					}
-				}
-				break;
-			}
-
 			case ST_COLLAPSE_lighting_DBS_direct:
 			{
-				if(r_dynamicLighting->integer == 2)
-				{
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				{				
 					if(glConfig.shadingLanguage100Available)
 					{
 						Render_depthFill(stage);
@@ -4200,28 +3523,6 @@ void Tess_StageIteratorGeneric()
 					else
 					{
 						Render_depthFill_FFP(stage);
-					}
-				}
-				else
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						if(r_lighting->integer == 2)
-						{
-							Render_lighting_DBS_direct(stage);
-						}
-						else if(r_lighting->integer == 1)
-						{
-							Render_lighting_DB_direct(stage);
-						}
-						else
-						{
-							Render_lighting_D_direct(stage);
-						}
-					}
-					else
-					{
-						Render_genericSingle_FFP(stage);
 					}
 				}
 				break;
@@ -4371,12 +3672,6 @@ void Tess_StageIteratorGeneric()
 				}
 				break;
 			}
-		}
-
-		// allow skipping out to show just lightmaps during development
-		if(r_showLightMaps->integer && (pStage->type == ST_LIGHTMAP))
-		{
-			break;
 		}
 	}
 
@@ -4647,7 +3942,6 @@ void Tess_StageIteratorShadowFill()
 			}
 			
 			case ST_DIFFUSEMAP:
-			case ST_LIGHTMAP:
 			case ST_COLLAPSE_lighting_DB_direct:
 			case ST_COLLAPSE_lighting_DBS_direct:
 			case ST_COLLAPSE_lighting_DB_generic:

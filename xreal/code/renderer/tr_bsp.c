@@ -136,164 +136,6 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 
 
 /*
-===============
-R_NormalizeLightingBytes
-===============
-*/
-static void R_NormalizeLightingBytes(byte in[4], byte out[4])
-{
-#if 0
-	vec3_t          n;
-	vec_t           length;
-	float           inv127 = 1.0f / 127.0f;
-
-	n[0] = in[0] * inv127;
-	n[1] = in[1] * inv127;
-	n[2] = in[2] * inv127;
-
-	length = VectorLength(n);
-
-	if(length)
-	{
-		n[0] /= length;
-		n[1] /= length;
-		n[2] /= length;
-	}
-	else
-	{
-		VectorSet(n, 0.0, 0.0, 1.0);
-	}
-
-	out[0] = (byte) (128 + 127 * n[0]);
-	out[1] = (byte) (128 + 127 * n[1]);
-	out[2] = (byte) (128 + 127 * n[2]);
-	out[3] = in[3];
-#else
-	out[0] = in[0];
-	out[1] = in[1];
-	out[2] = in[2];
-	out[3] = in[3];
-#endif
-}
-
-/*
-===============
-R_LoadLightmaps
-===============
-*/
-#define	LIGHTMAP_SIZE	128
-static void R_LoadLightmaps(lump_t * l)
-{
-	byte           *buf, *buf_p;
-	int             len;
-	MAC_STATIC byte image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
-	int             i, j;
-	float           maxIntensity = 0;
-	double          sumIntensity = 0;
-
-	ri.Printf(PRINT_ALL, "...loading lightmaps\n");
-
-	len = l->filelen;
-	if(!len)
-	{
-		return;
-	}
-	buf = fileBase + l->fileofs;
-
-	// we are about to upload textures
-	R_SyncRenderThread();
-
-	// create all the lightmaps
-	tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-	if(tr.numLightmaps == 1)
-	{
-		//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
-		//this avoids this, but isn't the correct solution.
-		tr.numLightmaps++;
-	}
-
-	for(i = 0; i < tr.numLightmaps; i++)
-	{
-		// expand the 24 bit on-disk to 32 bit
-		buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
-
-		if(tr.worldDeluxeMapping)
-		{
-			if(i % 2 == 0)
-			{
-				if(r_showLightMaps->integer == 2)
-				{
-					// color code by intensity as development tool  (FIXME: check range)
-					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-					{
-						float           r = buf_p[j * 3 + 0];
-						float           g = buf_p[j * 3 + 1];
-						float           b = buf_p[j * 3 + 2];
-						float           intensity;
-						float           out[3];
-
-						intensity = 0.33f * r + 0.685f * g + 0.063f * b;
-
-						if(intensity > 255)
-							intensity = 1.0f;
-						else
-							intensity /= 255.0f;
-
-						if(intensity > maxIntensity)
-							maxIntensity = intensity;
-
-						HSVtoRGB(intensity, 1.00, 0.50, out);
-
-						image[j * 4 + 0] = out[0] * 255;
-						image[j * 4 + 1] = out[1] * 255;
-						image[j * 4 + 2] = out[2] * 255;
-						image[j * 4 + 3] = 255;
-
-						sumIntensity += intensity;
-					}
-				}
-				else
-				{
-					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-					{
-						R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-						image[j * 4 + 3] = 255;
-					}
-				}
-				tr.lightmaps[i] =
-					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
-			}
-			else
-			{
-				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-				{
-					R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
-					image[j * 4 + 3] = 255;
-				}
-				tr.lightmaps[i] =
-					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
-			}
-		}
-		else
-		{
-			for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-			{
-				R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-				image[j * 4 + 3] = 255;
-			}
-			tr.lightmaps[i] =
-				R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NONE, FT_DEFAULT, WT_CLAMP);
-		}
-	}
-
-	if(r_showLightMaps->integer == 2)
-	{
-		ri.Printf(PRINT_ALL, "Brightest lightmap value: %d\n", (int)(maxIntensity * 255));
-	}
-}
-
-
-/*
 =================
 RE_SetWorldVisData
 
@@ -305,7 +147,6 @@ void RE_SetWorldVisData(const byte * vis)
 {
 	tr.externalVisData = vis;
 }
-
 
 /*
 =================
@@ -357,7 +198,7 @@ static void R_LoadVisibility(lump_t * l)
 ShaderForShaderNum
 ===============
 */
-static shader_t *ShaderForShaderNum(int shaderNum, int lightmapNum)
+static shader_t *ShaderForShaderNum(int shaderNum)
 {
 	shader_t       *shader;
 	dshader_t      *dsh;
@@ -396,14 +237,11 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 	srfTriangle_t  *tri;
 	int             numVerts, numTriangles;
 
-	// get lightmap
-	surf->lightmapNum = LittleLong(ds->lightmapNum);
-
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader value
-	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
+	surf->shader = ShaderForShaderNum(ds->shaderNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -443,7 +281,6 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 		for(j = 0; j < 2; j++)
 		{
 			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
-			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
 		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
@@ -542,14 +379,11 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 	vec3_t          tmpVec;
 	static surfaceType_t skipData = SF_SKIP;
 
-	// get lightmap
-	surf->lightmapNum = LittleLong(ds->lightmapNum);
-
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader value
-	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
+	surf->shader = ShaderForShaderNum(ds->shaderNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -578,7 +412,6 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 		for(j = 0; j < 2; j++)
 		{
 			points[i].st[j] = LittleFloat(verts[i].st[j]);
-			points[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 		R_ColorShiftLightingBytes(verts[i].color, points[i].color);
 	}
@@ -613,14 +446,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	int             i, j;
 	int             numVerts, numTriangles;
 
-	// set lightmap
-	surf->lightmapNum = -1;
-
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader
-	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
+	surf->shader = ShaderForShaderNum(ds->shaderNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -654,7 +484,6 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 		for(j = 0; j < 2; j++)
 		{
 			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
-			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
 		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
@@ -738,14 +567,11 @@ static void ParseFlare(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, i
 	srfFlare_t     *flare;
 	int             i;
 
-	// set lightmap
-	surf->lightmapNum = -1;
-
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
 	// get shader
-	surf->shader = ShaderForShaderNum(ds->shaderNum, surf->lightmapNum);
+	surf->shader = ShaderForShaderNum(ds->shaderNum);
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
@@ -1707,21 +1533,6 @@ static void R_CreateVBOs()
 					dataOfs += sizeof(vec4_t);
 				}
 
-				// set up texcoords2 array
-				cv->ofsTexCoords2 = dataOfs;
-				for(i = 0; i < cv->numVerts; i++)
-				{
-					for(j = 0; j < 2; j++)
-					{
-						tmp[j] = cv->verts[i].lightmap[j];
-					}
-					tmp[2] = 0;
-					tmp[3] = 1;
-
-					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-					dataOfs += sizeof(vec4_t);
-				}
-
 				// set up tangents array
 				cv->ofsTangents = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1833,21 +1644,6 @@ static void R_CreateVBOs()
 					dataOfs += sizeof(vec4_t);
 				}
 
-				// set up texcoords2 array
-				cv->ofsTexCoords2 = dataOfs;
-				for(i = 0; i < cv->numVerts; i++)
-				{
-					for(j = 0; j < 2; j++)
-					{
-						tmp[j] = cv->verts[i].lightmap[j];
-					}
-					tmp[2] = 0;
-					tmp[3] = 1;
-
-					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-					dataOfs += sizeof(vec4_t);
-				}
-
 				// set up tangents array
 				cv->ofsTangents = dataOfs;
 				for(i = 0; i < cv->numVerts; i++)
@@ -1951,21 +1747,6 @@ static void R_CreateVBOs()
 					for(j = 0; j < 2; j++)
 					{
 						tmp[j] = cv->verts[i].st[j];
-					}
-					tmp[2] = 0;
-					tmp[3] = 1;
-
-					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-					dataOfs += sizeof(vec4_t);
-				}
-
-				// set up texcoords2 array
-				//cv->ofsTexCoords2 = dataOfs;
-				for(i = 0; i < cv->numVerts; i++)
-				{
-					for(j = 0; j < 2; j++)
-					{
-						tmp[j] = cv->verts[i].lightmap[j];
 					}
 					tmp[2] = 0;
 					tmp[3] = 1;
@@ -2683,13 +2464,6 @@ void R_LoadEntities(lump_t * l)
 		if(!Q_stricmp(keyname, "gridsize"))
 		{
 			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2]);
-			continue;
-		}
-
-		// check for deluxe mapping support
-		if((!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1")) || (!Q_stricmp(keyname, "message") && !Q_stricmp(value, "camo-retro")))	// HACK: this map has it
-		{
-			tr.worldDeluxeMapping = qtrue;
 			continue;
 		}
 
@@ -3550,7 +3324,7 @@ static int R_BuildShadowVolume(int numTriangles, const srfTriangle_t * triangles
 {
 	int             i;
 	int				numIndexes;
-	srfTriangle_t  *tri;
+	const srfTriangle_t  *tri;
 
 	// calculate zfail shadow volume
 	numIndexes = 0;
@@ -4419,7 +4193,6 @@ void RE_LoadWorldMap(const char *name)
 	// load into heap
 	R_LoadEntities(&header->lumps[LUMP_ENTITIES]);
 	R_LoadShaders(&header->lumps[LUMP_SHADERS]);
-	R_LoadLightmaps(&header->lumps[LUMP_LIGHTMAPS]);
 	R_LoadPlanes(&header->lumps[LUMP_PLANES]);
 	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
 	R_LoadSurfaces(&header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES]);

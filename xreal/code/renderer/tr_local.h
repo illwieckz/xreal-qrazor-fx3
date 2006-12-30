@@ -195,10 +195,9 @@ enum
 	IF_INTENSITY = (1 << 3),
 	IF_ALPHA = (1 << 4),
 	IF_NORMALMAP = (1 << 5),
-	IF_LIGHTMAP = (1 << 6),
-	IF_RGBA16F = (1 << 7),
-	IF_ALPHA32F = (1 << 8),
-	IF_RGBA32F = (1 << 9)
+	IF_RGBA16F = (1 << 6),
+	IF_ALPHA32F = (1 << 7),
+	IF_RGBA32F = (1 << 8)
 };
 
 typedef enum
@@ -562,8 +561,7 @@ enum
 	TB_DIFFUSEMAP = 0,
 	TB_NORMALMAP,
 	TB_SPECULARMAP,
-	TB_LIGHTMAP,
-	MAX_TEXTURE_BUNDLES = 4
+	MAX_TEXTURE_BUNDLES = 3
 };
 
 typedef struct
@@ -598,13 +596,11 @@ typedef enum
 	ST_BLOOMMAP,
 	ST_BLOOM2MAP,
 	ST_ROTOSCOPEMAP,
-	ST_LIGHTMAP,
 
-	ST_COLLAPSE_genericMulti,	// two colormaps
 	ST_COLLAPSE_lighting_DB_direct,	// directional entity lighting like rgbGen lightingDiffuse
 	ST_COLLAPSE_lighting_DBS_direct,	// direction entity lighting with diffuse + bump + specular
 	ST_COLLAPSE_lighting_DB_generic,	// diffusemap + bumpmap
-	ST_COLLAPSE_lighting_DBS_generic,	// diffusemap + bumpmap + specularmap + lightmap
+	ST_COLLAPSE_lighting_DBS_generic,	// diffusemap + bumpmap + specularmap
 	ST_COLLAPSE_reflection_CB,	// color cubemap + bumpmap
 
 	// light shader stage types
@@ -814,7 +810,7 @@ enum
 	ATTR_INDEX_TEXCOORD0 = 8,
 	ATTR_INDEX_TEXCOORD1 = 9,
 	ATTR_INDEX_TEXCOORD2 = 10,
-	ATTR_INDEX_TEXCOORD3 = 11,
+//	ATTR_INDEX_TEXCOORD3 = 11,
 	ATTR_INDEX_TANGENT = 12,
 	ATTR_INDEX_BINORMAL = 13,
 //  ATTR_INDEX_NORMAL       = 2,
@@ -836,8 +832,6 @@ typedef struct shaderProgram_s
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
 	GLint           u_SpecularMap;
-	GLint           u_LightMap;
-	GLint           u_DeluxeMap;
 	GLint			u_PositionMap;
 	GLint           u_AttenuationMapXY;
 	GLint           u_AttenuationMapZ;
@@ -999,7 +993,6 @@ typedef struct drawSurf_s
 {
 	trRefEntity_t  *entity;
 	int             shaderNum;
-	int             lightmapNum;
 	int             fogNum;
 
 	surfaceType_t  *surface;	// any of surface*_t
@@ -1109,7 +1102,6 @@ typedef struct
 {
 	vec3_t          xyz;
 	vec2_t          st;
-	vec2_t          lightmap;
 	vec3_t          tangent;
 	vec3_t          binormal;
 	vec3_t          normal;
@@ -1155,7 +1147,6 @@ typedef struct srfGridMesh_s
 	GLuint          vertsVBO;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
-	GLuint          ofsTexCoords2;
 	GLuint          ofsTangents;
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
@@ -1181,7 +1172,6 @@ typedef struct
 	GLuint          vertsVBO;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
-	GLuint          ofsTexCoords2;
 	GLuint          ofsTangents;
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
@@ -1228,7 +1218,6 @@ typedef struct msurface_s
 	int             viewCount;	// if == tr.viewCount, already added
 	int             lightCount;
 	struct shader_s *shader;
-	int             lightmapNum;	// -1 = no lightmap
 	int             fogIndex;
 
 	surfaceType_t  *data;		// any of srf*_t
@@ -1590,7 +1579,6 @@ extern refimport_t ri;
 #define	MAX_ANIMATIONFILES		4096
 
 #define	MAX_DRAWIMAGES			4096
-#define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
 
 
@@ -1724,7 +1712,6 @@ typedef struct
 	int             frameSceneNum;	// zeroed at RE_BeginFrame
 
 	qboolean        worldMapLoaded;
-	qboolean        worldDeluxeMapping;
 	world_t        *world;
 
 	const byte     *externalVisData;	// from RE_SetWorldVisData, shared with CM_Load
@@ -1769,9 +1756,6 @@ typedef struct
 	shader_t       *projectionShadowShader;
 	shader_t       *flareShader;
 	shader_t       *sunShader;
-
-	int             numLightmaps;
-	image_t        *lightmaps[MAX_LIGHTMAPS];
 
 	// render entities
 	trRefEntity_t  *currentEntity;
@@ -1819,11 +1803,6 @@ typedef struct
 	shaderProgram_t lightShader_DBS_omni;
 
 	shaderProgram_t lightShader_D_proj;
-
-	// precomputed radiosity light mapping
-	shaderProgram_t lightShader_D_radiosity;
-	shaderProgram_t lightShader_DB_radiosity;
-	shaderProgram_t lightShader_DBS_radiosity;
 
 	// environment mapping effects
 	shaderProgram_t reflectionShader_C;
@@ -2059,8 +2038,6 @@ extern cvar_t  *r_debugSort;
 
 extern cvar_t  *r_printShaders;
 
-extern cvar_t  *r_showLightMaps;	// render lightmaps only
-extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showSkeleton;
@@ -2101,7 +2078,7 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
 
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapIndex, int fogIndex);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex);
 
 
 void            R_LocalNormalToWorld(const vec3_t local, vec3_t world);
@@ -2246,11 +2223,10 @@ enum
 	GLCS_TEXCOORD0 = (1 << 1),
 	GLCS_TEXCOORD1 = (1 << 2),
 	GLCS_TEXCOORD2 = (1 << 3),
-	GLCS_TEXCOORD3 = (1 << 4),
-	GLCS_TANGENT = (1 << 5),
-	GLCS_BINORMAL = (1 << 6),
-	GLCS_NORMAL = (1 << 7),
-	GLCS_COLOR = (1 << 8),
+	GLCS_TANGENT = (1 << 4),
+	GLCS_BINORMAL = (1 << 5),
+	GLCS_NORMAL = (1 << 6),
+	GLCS_COLOR = (1 << 7),
 
 	GLCS_DEFAULT = GLCS_VERTEX
 };
@@ -2367,7 +2343,7 @@ typedef struct shaderCommands_s
 	vec4_t          tangents[SHADER_MAX_VERTEXES];
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
-	vec2_t          texCoords[SHADER_MAX_VERTEXES][2];
+	vec4_t          texCoords[SHADER_MAX_VERTEXES];
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
 
 	GLuint          indexesVBO;
@@ -2376,7 +2352,6 @@ typedef struct shaderCommands_s
 	GLuint          vertexesVBO;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
-	GLuint          ofsTexCoords2;
 	GLuint          ofsTangents;
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
@@ -2391,7 +2366,6 @@ typedef struct shaderCommands_s
 
 	float           shaderTime;
 
-	int             lightmapNum;
 	int             fogNum;
 
 	qboolean        skipTangentSpaces;
@@ -2415,7 +2389,6 @@ void            GLSL_ShutdownGPUShaders();
 // *INDENT-OFF*
 void            Tess_Begin(	void (*stageIteratorFunc)(),
 							shader_t * surfaceShader, shader_t * lightShader,
-							int lightmapNum,
 							int fogNum,
 							qboolean skipTangentSpaces,
 							qboolean shadowVolume);
