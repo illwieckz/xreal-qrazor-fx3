@@ -50,7 +50,7 @@ MD3_Load
 =================
 */
 #define	LL(x) x=LittleLong(x)
-static md3Header_t    *MD3_Load(const char *mod_name)
+static md3Header_t *MD3_Load(const char *mod_name)
 {
 	int             i, j;
 	md3Header_t    *md3;
@@ -180,7 +180,7 @@ static md3Header_t    *MD3_Load(const char *mod_name)
 LoadModel
 ================
 */
-static md3Header_t    *LoadModel(const char *modelName)
+static md3Header_t *LoadModel(const char *modelName)
 {
 	int             i;
 	loadedModel_t  *lm;
@@ -226,7 +226,7 @@ static void InsertMD3Model(const char *modelName, const matrix_t transform)
 	md3XyzNormal_t *xyz;
 	drawVert_t     *outv;
 	float           lat, lng;
-	drawSurface_t *out;
+	drawSurface_t  *out;
 	vec3_t          tmp;
 
 	// load the model
@@ -335,7 +335,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 {
 	int             i, j;
 	drawVert_t     *outv;
-	drawSurface_t *out;
+	drawSurface_t  *out;
 	int             numSurfaces;
 	const char     *name;
 	polyset_t      *pset;
@@ -348,7 +348,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 	// load the model
 	if(!ASE_Load(filename, qfalse, qfalse))
 	{
-		return;	
+		return;
 	}
 
 	// each ase surface will become a new bsp surface
@@ -449,9 +449,12 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 {
 	int             i, j, k, l;
 	char            filename[1024];
-	drawSurface_t *out;
+	drawSurface_t  *out;
 	drawVert_t     *outv;
 	vec3_t          tmp;
+	vec2_t			st;
+	int             defaultSTAxis[2];
+	vec2_t          defaultXYZtoSTScale;
 
 	unsigned int    failID;
 	int             failpos;
@@ -479,17 +482,45 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	if(obj->nlayers != 1)
 		Error("..layers number %i != 1", obj->nlayers);
 
-#if 0
+#if 1
 	Sys_FPrintf(SYS_VRB, "Layers:  %d\n"
-			"Surfaces:  %d\n"
-			"Envelopes:  %d\n"
-			"Clips:  %d\n"
-			"Points (first layer):  %d\n"
-			"Polygons (first layer):  %d\n\n",
-			obj->nlayers, obj->nsurfs, obj->nenvs, obj->nclips, obj->layer->point.count, obj->layer->polygon.count);
+				"Surfaces:  %d\n"
+				"Envelopes:  %d\n"
+				"Clips:  %d\n"
+				"Points (first layer):  %d\n"
+				"Polygons (first layer):  %d\n\n",
+				obj->nlayers, obj->nsurfs, obj->nenvs, obj->nclips, obj->layer->point.count, obj->layer->polygon.count);
 #endif
 
+	// create all polygons from layer[ 0 ] that belong to this surface
 	layer = &obj->layer[0];
+
+	// setup default st map
+	st[0] = st[1] = 0.0f;		// st[0] holds max, st[1] holds max par one
+	defaultSTAxis[0] = 0;
+	defaultSTAxis[1] = 1;
+	for(i = 0; i < 3; i++)
+	{
+		float           min = layer->bbox[i];
+		float           max = layer->bbox[i + 3];
+		float           size = max - min;
+
+		if(size > st[0])
+		{
+			defaultSTAxis[1] = defaultSTAxis[0];
+			defaultSTAxis[0] = i;
+
+			st[1] = st[0];
+			st[0] = size;
+		}
+		else if(size > st[1])
+		{
+			defaultSTAxis[1] = i;
+			st[1] = size;
+		}
+	}
+	defaultXYZtoSTScale[0] = 4.f / st[0];
+	defaultXYZtoSTScale[1] = 4.f / st[1];
 
 	c_triangleModels++;
 	c_triangleSurfaces += obj->nsurfs;
@@ -582,6 +613,9 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				tmp[1] = pt->pos[2];
 				tmp[2] = pt->pos[1];
 
+				outv->st[0] = tmp[defaultSTAxis[0]] * defaultXYZtoSTScale[0];
+				outv->st[1] = tmp[defaultSTAxis[1]] * defaultXYZtoSTScale[1];
+
 				MatrixTransformPoint(transform, tmp, outv->xyz);
 
 				// set dummy normal
@@ -590,9 +624,6 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				outv->normal[2] = 1;
 
 				//MatrixTransformNormal(transform, tmp, outv->normal);
-				
-				outv->st[0] = 0;
-				outv->st[1] = 0;
 
 				// fetch texcoords base from points
 				for(l = 0; l < pt->nvmaps; l++)
@@ -653,7 +684,7 @@ void AddTriangleModel(entity_t * entity, qboolean applyTransform)
 	vec3_t          angles;
 	matrix_t        rotation;
 	matrix_t        transform;
-	
+
 	Sys_FPrintf(SYS_VRB, "----- AddTriangleModel -----\n");
 
 	MatrixIdentity(transform);

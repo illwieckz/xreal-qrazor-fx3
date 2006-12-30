@@ -365,7 +365,6 @@ void AllocateLightmaps(entity_t * e)
 
 	Sys_FPrintf(SYS_VRB, "--- AllocateLightmaps ---\n");
 
-
 	// sort all surfaces by shader so common shaders will usually
 	// be in the same lightmap
 	numSortShaders = 0;

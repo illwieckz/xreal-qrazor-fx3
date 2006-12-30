@@ -35,7 +35,7 @@ qboolean        onlytextures;
 qboolean        noliquids;
 qboolean        leaktest;
 qboolean        nocurves;
-qboolean        nodoors;
+qboolean        nodoors = qfalse;
 qboolean        fakemap;
 qboolean        notjunc;
 qboolean        nomerge;

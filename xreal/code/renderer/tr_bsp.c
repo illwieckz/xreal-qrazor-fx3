@@ -471,7 +471,6 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 	surf->data = (surfaceType_t *) cv;
 
 	// copy vertexes
-	ClearBounds(cv->bounds[0], cv->bounds[1]);
 	verts += LittleLong(ds->firstVert);
 	for(i = 0; i < numVerts; i++)
 	{
@@ -480,7 +479,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			cv->verts[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
 			cv->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
-		AddPointToBounds(cv->verts[i].xyz, cv->bounds[0], cv->bounds[1]);
+		
 		for(j = 0; j < 2; j++)
 		{
 			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
@@ -502,6 +501,16 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 				ri.Error(ERR_DROP, "Bad index in face surface");
 			}
 		}
+	}
+	
+	// calc bounding box
+	// HACK: don't loop only through the vertices because they can contain bad data with .lwo models ...
+	ClearBounds(cv->bounds[0], cv->bounds[1]);
+	for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+	{
+		AddPointToBounds(cv->verts[tri->indexes[0]].xyz, cv->bounds[0], cv->bounds[1]);
+		AddPointToBounds(cv->verts[tri->indexes[1]].xyz, cv->bounds[0], cv->bounds[1]);
+		AddPointToBounds(cv->verts[tri->indexes[2]].xyz, cv->bounds[0], cv->bounds[1]);
 	}
 
 	R_CalcSurfaceTriangleNeighbors(numTriangles, cv->triangles);
@@ -3410,11 +3419,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	float           d;
 
 	// check if bounds intersect
-	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
-	   light->worldBounds[1][1] < cv->bounds[0][1] ||
-	   light->worldBounds[1][2] < cv->bounds[0][2] ||
-	   light->worldBounds[0][0] > cv->bounds[1][0] ||
-	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->bounds[0], cv->bounds[1]))
 	{
 		return qfalse;
 	}
@@ -3576,11 +3581,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 	int            *indexes;
 
 	// check if bounds intersect
-	if(light->worldBounds[1][0] < cv->meshBounds[0][0] ||
-	   light->worldBounds[1][1] < cv->meshBounds[0][1] ||
-	   light->worldBounds[1][2] < cv->meshBounds[0][2] ||
-	   light->worldBounds[0][0] > cv->meshBounds[1][0] ||
-	   light->worldBounds[0][1] > cv->meshBounds[1][1] || light->worldBounds[0][2] > cv->meshBounds[1][2])
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->meshBounds[0], cv->meshBounds[1]))
 	{
 		return qfalse;
 	}
@@ -3693,11 +3694,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 	int            *indexes;
 
 	// check if bounds intersect
-	if(light->worldBounds[1][0] < cv->bounds[0][0] ||
-	   light->worldBounds[1][1] < cv->bounds[0][1] ||
-	   light->worldBounds[1][2] < cv->bounds[0][2] ||
-	   light->worldBounds[0][0] > cv->bounds[1][0] ||
-	   light->worldBounds[0][1] > cv->bounds[1][1] || light->worldBounds[0][2] > cv->bounds[1][2])
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->bounds[0], cv->bounds[1]))
 	{
 		return qfalse;
 	}
@@ -4042,23 +4039,26 @@ void R_PrecacheInteractions()
 				break;
 		}
 
-		// perform frustum culling and add all the potentially visible surfaces
+		// perform culling and add all the potentially visible surfaces
 		s_lightCount++;
 		R_RecursivePrecacheInteractionNode(s_worldData.nodes, light);
 
+		// count number of leafs that touch this light
 		s_lightCount++;
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qtrue);
-
 		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, numLeafs);
 
+		// create storage room for them
 		light->leafs = (struct mnode_s **)ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
 		light->numLeafs = numLeafs;
 
+		// fill storage with them
 		s_lightCount++;
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
 
+		// calculate pyramid bits for each interaction in omni-directional lights
 		if(light->l.rlType == RL_OMNI)
 		{
 			for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
@@ -4120,9 +4120,13 @@ void R_PrecacheInteractions()
 	ri.Printf(PRINT_ALL, "%i bezier surface triangles culled\n", c_culledGridTriangles);
 	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
 
-	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces visible\n", tr.pc.c_pyramid_cull_ent_in);
-	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
-	ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);
+	if(r_shadows->integer == 4)
+	{
+		// only interesting for omni-directional shadow mapping
+		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces visible\n", tr.pc.c_pyramid_cull_ent_in);
+		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
+		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);
+	}
 }
 
 /*

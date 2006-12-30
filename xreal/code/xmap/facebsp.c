@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 
 
-int				blockSize[3] = {1024, 1024, 1024};
+int				blockSize[3] = {0, 0, 0};
 
 int             c_faceLeafs;
 

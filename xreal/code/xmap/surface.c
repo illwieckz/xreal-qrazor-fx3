@@ -1246,6 +1246,7 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 		{
 			continue;
 		}
+		
 		if(ds->miscModel)
 		{
 			refs = FilterMiscModelSurfIntoTree(ds, tree);

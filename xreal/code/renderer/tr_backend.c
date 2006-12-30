@@ -2422,7 +2422,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime, drawSur
 
 	R_BindFBO(tr.deferredRenderFBO);
 	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	GL_CheckErrors();
 
 	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
@@ -2572,7 +2572,7 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
-	
+
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
@@ -2597,10 +2597,10 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 		{
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
-			
+
 			// build the attenuation matrix using the entity transform
 			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 		}
@@ -2637,11 +2637,11 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 				{
 					// enable shader, set arrays
 					GL_Program(tr.deferredLightingShader_DBS_omni.program);
-					
+
 					// set OpenGL state for additive lighting
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
 					GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
-					
+
 					//GL_SetVertexAttribs();
 					GL_Cull(CT_TWO_SIDED);
 
@@ -2650,11 +2650,13 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 					VectorCopy(tess.svars.color, lightColor);
 
 					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
+									lightOrigin[2]);
 					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
 					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
+										   light->attenuationMatrix2);
 					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
 					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -2667,7 +2669,7 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 					GL_SelectTexture(1);
 					GL_Bind(tr.deferredNormalFBOImage);
 					//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
-					
+
 					// bind u_SpecularMap
 					GL_SelectTexture(2);
 					GL_Bind(tr.deferredSpecularFBOImage);
@@ -3222,20 +3224,22 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 	if(r_showLightTransforms->integer)
 	{
-		int             i;
+		interaction_t  *ia;
+		int             iaCount;
 		trRefLight_t   *light;
 		vec3_t          forward, left, up;
 		vec3_t          tmp;
 
-		if(r_dynamicLighting->integer)
-		{
-			GL_Program(0);
-			GL_State(0);
-			GL_SelectTexture(0);
-			GL_Bind(tr.whiteImage);
+		GL_Program(0);
+		GL_State(0);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
 
-			light = backEnd.refdef.lights;
-			for(i = 0; i < backEnd.refdef.numLights; i++, light++)
+		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		{
+			light = ia->light;
+
+			if(!ia->next)
 			{
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
@@ -3289,6 +3293,12 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 				qglEnd();
 				//qglLineWidth(1);
+				
+				// go back to the world modelview matrix
+				backEnd.or = backEnd.viewParms.world;
+				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+				
+				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorWhite);
 
 				if(light->shadowLOD == 0)
 				{
@@ -3307,106 +3317,29 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorMdGrey);
 				}
 
-				/*
-				   // go back to the world modelview matrix
-				   backEnd.or = backEnd.viewParms.world;
-				   qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-
-				   R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorWhite);
-				 */
+				if(iaCount < (numInteractions - 1))
+				{
+					// jump to next interaction and continue
+					ia++;
+					iaCount++;
+				}
+				else
+				{
+					// increase last time to leave for loop
+					iaCount++;
+				}
 			}
-		}
-
-		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-		{
-			GL_Program(0);
-			GL_State(0);
-			GL_SelectTexture(0);
-			GL_Bind(tr.whiteImage);
-
-			for(i = 0; i < tr.world->numLights; i++)
+			else
 			{
-				light = &tr.world->lights[i];
-
-				// set up the transformation matrix
-				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
-				VectorMA(vec3_origin, 16, forward, forward);
-				VectorMA(vec3_origin, 16, left, left);
-				VectorMA(vec3_origin, 16, up, up);
-
-				// draw axis
-				//qglLineWidth(3);
-				qglBegin(GL_LINES);
-
-				qglColor4fv(colorRed);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(forward);
-
-				qglColor4fv(colorGreen);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(left);
-
-				qglColor4fv(colorBlue);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(up);
-
-				qglColor4fv(colorYellow);
-				qglVertex3fv(vec3_origin);
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
-				qglVertex3fv(light->transformed);
-
-				qglColor4fv(colorMagenta);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(light->l.target);
-
-				qglColor4fv(colorCyan);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(light->l.right);
-
-				qglColor4fv(colorWhite);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(light->l.up);
-
-				qglColor4fv(colorMdGrey);
-				qglVertex3fv(vec3_origin);
-				VectorAdd(light->l.target, light->l.up, tmp);
-				qglVertex3fv(tmp);
-
-				qglEnd();
-				//qglLineWidth(1);
-
-				if(light->shadowLOD == 0)
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
-				}
-				else if(light->shadowLOD == 1)
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorGreen);
-				}
-				else if(light->shadowLOD == 2)
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorBlue);
-				}
-				else
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorMdGrey);
-				}
-
-				/*
-				   // go back to the world modelview matrix
-				   backEnd.or = backEnd.viewParms.world;
-				   qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-
-				   R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorYellow);
-				 */
+				// just continue
+				ia = ia->next;
+				iaCount++;
 			}
 		}
+		
+		// go back to the world modelview matrix
+		backEnd.or = backEnd.viewParms.world;
+		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	}
 
 	if(r_showLightInteractions->integer)
@@ -3425,8 +3358,17 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		{
 			backEnd.currentEntity = entity = ia->entity;
 			surface = ia->surface;
+			
+			if(entity != &tr.worldEntity)
+			{
+				// set up the transformation matrix
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+			}
+			else
+			{
+				backEnd.or = backEnd.viewParms.world;
+			}
 
-			R_RotateEntityForViewParms(entity, &backEnd.viewParms, &backEnd.or);
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 			if(*surface == SF_FACE)
@@ -3629,13 +3571,13 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	   glConfig.textureFloatAvailable)
 	{
 		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
-		
+
 		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime, drawSurfs, numDrawSurfs);
 #if 0
 		RB_RenderGeometricBuffer();
 #endif
 		RB_RenderInteractionsDeferred(interactions, numInteractions);
-		
+
 		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
 	}
 	else

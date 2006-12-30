@@ -408,9 +408,10 @@ void EndModel(entity_t * e, node_t * headnode)
 				continue;			// leftover from a surface subdivision
 			}
 			
-			for(j = 0; j < ds->numVerts; j++)
+			// HACK: don't loop only through the vertices because they can contain bad data with .lwo models ...
+			for(j = 0; j < ds->numIndexes; j++)
 			{
-				AddPointToBounds(ds->verts[j].xyz, mins, maxs);
+				AddPointToBounds(ds->verts[ds->indexes[j]].xyz, mins, maxs);
 			}
 		}
 	}

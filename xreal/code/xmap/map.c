@@ -1305,7 +1305,7 @@ qboolean ParseMapEntity(void)
 	#endif
 	
 	// TODO: we should support Doom3 style doors in engine code completely
-	if(!nodoors && !Q_stricmp("func_door", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
+	if(nodoors && !Q_stricmp("func_door", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
 		numEntities--;
 		return qtrue;
