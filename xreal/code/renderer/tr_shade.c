@@ -379,6 +379,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
+	tr.depthFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AlphaTest");
 
 	qglUseProgramObjectARB(tr.depthFillShader.program);
 	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
@@ -424,6 +425,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
+	tr.shadowFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_AlphaTest");
 	tr.shadowFillShader.u_LightOrigin = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightOrigin");
 	tr.shadowFillShader.u_LightRadius = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_LightRadius");
 	tr.shadowFillShader.u_ModelMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelMatrix");
@@ -1729,17 +1731,28 @@ static void Render_depthFill_FFP(int stage)
 static void Render_depthFill(int stage)
 {
 	shaderStage_t  *pStage;
+	unsigned        stateBits;
+	float			alphaTest;
 
 	GLimp_LogComment("--- Render_depthFill ---\n");
 
 	pStage = tess.surfaceStages[stage];
+	
+	// remove blend mode
+	stateBits = pStage->stateBits;
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
 
-	GL_State(pStage->stateBits);
+	GL_State(stateBits);
 
 	// enable shader, set arrays
 	GL_Program(tr.depthFillShader.program);
 	GL_ClientState(tr.depthFillShader.attribs);
 	GL_SetVertexAttribs();
+	
+	// set uniforms
+	alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	
+	qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -1766,8 +1779,10 @@ static void Render_depthFill(int stage)
 static void Render_shadowFill(int stage)
 {
 	shaderStage_t  *pStage;
-	vec3_t			lightOrigin;
 	unsigned        stateBits;
+	float			alphaTest;
+	vec3_t			lightOrigin;
+	
 
 	GLimp_LogComment("--- Render_shadowFill ---\n");
 
@@ -1775,7 +1790,7 @@ static void Render_shadowFill(int stage)
 
 	// remove blend mode
 	stateBits = pStage->stateBits;
-	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
 		
 	GL_State(stateBits);
 
@@ -1785,16 +1800,18 @@ static void Render_shadowFill(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
+	alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
 	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
 	
-	qglUniform3fARB(tr.shadowFillShader.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+	qglUniform1fARB(tr.shadowFillShader.u_AlphaTest, alphaTest);
 	qglUniform1fARB(tr.shadowFillShader.u_LightRadius, backEnd.currentLight->sphereRadius);
+	qglUniform3fARB(tr.shadowFillShader.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 
-	if(stateBits & GLS_ATEST_BITS)
+	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
 		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 		qglMatrixMode(GL_TEXTURE);

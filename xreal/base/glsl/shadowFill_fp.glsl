@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
+uniform float		u_AlphaTest;
 uniform vec3		u_LightOrigin;
 uniform float       u_LightRadius;
 
@@ -29,14 +30,12 @@ varying vec2		var_Tex;
 
 void	main()
 {
-	/*
-	float alpha = texture2D(u_ColorMap, var_Tex).a;
+	vec4 color = texture2D(u_ColorMap, var_Tex);
 
-	if(alpha <= 0.0)
+	if(color.a < u_AlphaTest)
 	{
 		discard;
 	}
-	*/
 	
 	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;

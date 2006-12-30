@@ -835,6 +835,8 @@ typedef struct shaderProgram_s
 	GLint           u_AttenuationMapZ;
 	GLint           u_ShadowMap;
 
+	GLint			u_AlphaTest;
+
 	GLint           u_ViewOrigin;
 
 	GLint           u_Color;

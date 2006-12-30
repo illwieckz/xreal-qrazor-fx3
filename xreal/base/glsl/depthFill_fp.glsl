@@ -21,13 +21,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
+uniform float		u_AlphaTest;
 
 varying vec2		var_Tex;
 
 void	main()
 {
 	vec4 color = texture2D(u_ColorMap, var_Tex);
-	vec4 black = vec4(0.0, 0.0, 0.0, color.a);
+	
+	if(color.a < u_AlphaTest)
+	{
+		discard;
+	}
 
-	gl_FragColor = black;
+	gl_FragColor = vec4(0.0, 0.0, 0.0, color.a);
 }

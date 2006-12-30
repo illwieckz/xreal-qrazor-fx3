@@ -2755,12 +2755,12 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 	GL_CheckErrors();
 }
 
-void RB_RenderGeometricBuffer()
+void RB_RenderDepthFromGeometricBuffer()
 {
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 
-	GLimp_LogComment("--- RB_RenderGeometricBuffer ---\n");
+	GLimp_LogComment("--- RB_RenderDepthFromGeometricBuffer ---\n");
 
 	R_BindNullFBO();
 
@@ -3573,12 +3573,12 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
 
 		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime, drawSurfs, numDrawSurfs);
-#if 0
-		RB_RenderGeometricBuffer();
-#endif
+		
+		RB_RenderDepthFromGeometricBuffer();
+		
 		RB_RenderInteractionsDeferred(interactions, numInteractions);
 
-		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
+		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
 	}
 	else
 	{
