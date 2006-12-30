@@ -777,8 +777,6 @@ typedef struct shader_s
 	int             numStages;
 	shaderStage_t  *stages[MAX_SHADER_STAGES];
 
-	void            (*optimalStageIteratorFunc) ();
-
 	float           clampTime;	// time this shader is clamped to
 	float           timeOffset;	// current time offset for this shader
 

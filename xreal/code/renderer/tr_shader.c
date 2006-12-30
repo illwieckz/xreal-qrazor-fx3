@@ -5284,18 +5284,103 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "  ");
 		}
-
-		if(shader->optimalStageIteratorFunc == Tess_StageIteratorGeneric)
+		
+		if(shader->sort == SS_BAD)
 		{
-			ri.Printf(PRINT_ALL, "gen ");
+			ri.Printf(PRINT_ALL, "SS_BAD              ");	
 		}
-		else if(shader->optimalStageIteratorFunc == Tess_StageIteratorSky)
+		else if(shader->sort == SS_PORTAL)
 		{
-			ri.Printf(PRINT_ALL, "sky ");
+			ri.Printf(PRINT_ALL, "SS_PORTAL           ");	
+		}
+		else if(shader->sort == SS_ENVIRONMENT)
+		{
+			ri.Printf(PRINT_ALL, "SS_ENVIRONMENT      ");	
+		}
+		else if(shader->sort == SS_OPAQUE)
+		{
+			ri.Printf(PRINT_ALL, "SS_OPAQUE           ");	
+		}
+		else if(shader->sort == SS_DECAL)
+		{
+			ri.Printf(PRINT_ALL, "SS_DECAL            ");	
+		}
+		else if(shader->sort == SS_SEE_THROUGH)
+		{
+			ri.Printf(PRINT_ALL, "SS_SEE_THROUGH      ");	
+		}
+		else if(shader->sort == SS_BANNER)
+		{
+			ri.Printf(PRINT_ALL, "SS_BANNER           ");	
+		}
+		else if(shader->sort == SS_FOG)
+		{
+			ri.Printf(PRINT_ALL, "SS_FOG              ");	
+		}
+		else if(shader->sort == SS_UNDERWATER)
+		{
+			ri.Printf(PRINT_ALL, "SS_UNDERWATER       ");	
+		}
+		else if(shader->sort == SS_WATER)
+		{
+			ri.Printf(PRINT_ALL, "SS_WATER            ");	
+		}
+		else if(shader->sort == SS_FAR)
+		{
+			ri.Printf(PRINT_ALL, "SS_FAR              ");	
+		}
+		else if(shader->sort == SS_MEDIUM)
+		{
+			ri.Printf(PRINT_ALL, "SS_MEDIUM           ");	
+		}
+		else if(shader->sort == SS_CLOSE)
+		{
+			ri.Printf(PRINT_ALL, "SS_CLOSE            ");	
+		}
+		else if(shader->sort == SS_BLEND0)
+		{
+			ri.Printf(PRINT_ALL, "SS_BLEND0           ");	
+		}
+		else if(shader->sort == SS_BLEND1)
+		{
+			ri.Printf(PRINT_ALL, "SS_BLEND1           ");	
+		}
+		else if(shader->sort == SS_BLEND2)
+		{
+			ri.Printf(PRINT_ALL, "SS_BLEND2           ");	
+		}
+		else if(shader->sort == SS_BLEND3)
+		{
+			ri.Printf(PRINT_ALL, "SS_BLEND3           ");	
+		}
+		else if(shader->sort == SS_BLEND6)
+		{
+			ri.Printf(PRINT_ALL, "SS_BLEND6           ");	
+		}
+		else if(shader->sort == SS_ALMOST_NEAREST)
+		{
+			ri.Printf(PRINT_ALL, "SS_ALMOST_NEAREST   ");	
+		}
+		else if(shader->sort == SS_NEAREST)
+		{
+			ri.Printf(PRINT_ALL, "SS_NEAREST          ");	
+		}
+		else if(shader->sort == SS_POST_PROCESS)
+		{
+			ri.Printf(PRINT_ALL, "SS_POST_PROCESS     ");	
 		}
 		else
 		{
-			ri.Printf(PRINT_ALL, "    ");
+			ri.Printf(PRINT_ALL, "                    ");	
+		}
+		
+		if(shader->interactLight)
+		{
+			ri.Printf(PRINT_ALL, "IA ");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "   ");
 		}
 
 		if(shader->defaultShader)

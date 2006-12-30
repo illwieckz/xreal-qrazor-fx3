@@ -1319,7 +1319,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					GLimp_LogComment("--- Rendering shadow volumes ---\n");
 
 					// set the reference stencil value
-					qglClearStencil(0);
+					qglClearStencil(128);
 
 					// reset stencil buffer
 					qglClear(GL_STENCIL_BUFFER_BIT);
@@ -1329,7 +1329,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 					// enable stencil testing for this light
 					GL_State(GLS_DEPTHFUNC_LESS | GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
 
-					qglStencilFunc(GL_ALWAYS, 0, 255);
+					qglStencilFunc(GL_ALWAYS, 128, 255);
 					qglStencilMask(255);
 
 					//qglEnable(GL_POLYGON_OFFSET_FILL);
@@ -1346,12 +1346,12 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 				if(!light->l.noShadows)
 				{
-					qglStencilFunc(GL_EQUAL, 0, 255);
+					qglStencilFunc(GL_EQUAL, 128, 255);
 				}
 				else
 				{
 					// don't consider shadow volumes
-					qglStencilFunc(GL_ALWAYS, 0, 255);
+					qglStencilFunc(GL_ALWAYS, 128, 255);
 				}
 
 				/*

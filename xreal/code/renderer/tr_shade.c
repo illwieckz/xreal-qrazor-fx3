@@ -1535,62 +1535,6 @@ static void Render_fboTest(int stage)
 }
 */
 
-static void Render_depthFill_FFP(int stage)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_depthFill_FFP ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-#if 1
-	qglColor3f(0, 0, 0);
-#else
-	qglColor3f(1, 1, 1);
-#endif
-
-	GL_Program(0);
-	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX);
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		//qglEnable(GL_TEXTURE_2D);
-		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		qglMatrixMode(GL_TEXTURE);
-		qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-		qglMatrixMode(GL_MODELVIEW);
-
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-		}
-		else
-		{
-			qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
-		}
-
-		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.whiteImage);
-	}
-
-	DrawElements();
-
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		//qglDisable(GL_TEXTURE_2D);
-	}
-	
-	GL_CheckErrors();
-}
-
 static void Render_geometricFill_D(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1723,7 +1667,63 @@ static void Render_geometricFill_DBS(int stage)
 }
 
 
+static void Render_depthFill_FFP(int stage)
+{
+	shaderStage_t  *pStage;
+
+	GLimp_LogComment("--- Render_depthFill_FFP ---\n");
+
+	pStage = tess.surfaceStages[stage];
+
 #if 1
+	qglColor3f(0, 0, 0);
+#else
+	qglColor3f(1, 1, 1);
+#endif
+
+	GL_Program(0);
+	GL_State(pStage->stateBits);
+	GL_ClientState(GLCS_VERTEX);
+	GL_SetVertexAttribs();
+
+	GL_SelectTexture(0);
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		//qglEnable(GL_TEXTURE_2D);
+		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		qglMatrixMode(GL_TEXTURE);
+		qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+		qglMatrixMode(GL_MODELVIEW);
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+		{
+			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+		}
+		else
+		{
+			qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texCoords[TB_DIFFUSEMAP]);
+		}
+
+		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.whiteImage);
+	}
+
+	DrawElements();
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		//qglDisable(GL_TEXTURE_2D);
+	}
+	
+	GL_CheckErrors();
+}
+
+#if 0
 #define Render_depthFill Render_depthFill_FFP
 #else
 static void Render_depthFill(int stage)
@@ -2078,8 +2078,11 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_MODELVIEW);
 	
 	// bind u_ShadowMap
-	GL_SelectTexture(3);
-	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+	if(r_shadows->integer == 4)
+	{
+		GL_SelectTexture(3);
+		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+	}
 
 	DrawElements();
 
@@ -2135,8 +2138,11 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	// bind u_ShadowMap
-	GL_SelectTexture(4);
-	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+	if(r_shadows->integer == 4)
+	{
+		GL_SelectTexture(4);
+		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+	}
 
 	DrawElements();
 
@@ -2206,8 +2212,11 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	// bind u_ShadowMap
-	GL_SelectTexture(5);
-	GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+	if(r_shadows->integer == 4)
+	{
+		GL_SelectTexture(5);
+		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+	}
 
 	DrawElements();
 
@@ -2257,8 +2266,11 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 	
 	// bind u_ShadowMap
-	GL_SelectTexture(3);
-	GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+	if(r_shadows->integer == 4)
+	{
+		GL_SelectTexture(3);
+		GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+	}
 
 	DrawElements();
 
@@ -4219,7 +4231,7 @@ void Tess_StageIteratorStencilLighting()
 	else
 #endif
 	{
-		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL | GLS_STENCILTEST_ENABLE);
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE /*| GLS_DEPTHFUNC_EQUAL*/ | GLS_STENCILTEST_ENABLE);
 	}
 
 	// set face culling appropriately
@@ -4468,7 +4480,7 @@ void Tess_StageIteratorLighting()
 	else
 #endif
 	{
-		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE /*| GLS_DEPTHFUNC_EQUAL*/);
 	}
 
 	// set face culling appropriately
