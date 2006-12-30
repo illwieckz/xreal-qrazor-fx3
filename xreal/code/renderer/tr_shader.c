@@ -4664,7 +4664,7 @@ static shader_t *FinishShader(void)
 	CollapseStages();
 
 	// fogonly shaders don't have any normal passes
-	if(shader.numStages == 0)
+	if(shader.numStages == 0 && !shader.isSky)
 	{
 		shader.sort = SS_FOG;
 	}
