@@ -11,7 +11,6 @@ base/ui/assets
 - replace all left EULA licensed Q3A/TA demo media, look into MEDIA.txt for more details
 
 code/cgame
-- add Quake4 Plug 'n' Player Model (PPM) support
 - add better particle effects
 - add atmospheric effects
 - add motion blur and other special effects
@@ -23,25 +22,20 @@ code/game
  - improve vector class
  - allow more existing level entities to be script-controlled
 
-code/qcommon/cm
-- change brush and patch collision code to use
-  optimized continues axis aligned BSP tree per-polygon collisions
-
 code/renderer
+- fix tcMod turb
 - fix stencil shadow flickering bug
+- change lighting_*_direct shaders to simulate non-lightgrid lighting
+- improve deferred shading
+- add stained shadow mapping
+- add Percentage-Closer-Filtering to shadow mapping
 - add proper water shader with reflection and refraction
-- improve speed and quality of variance shadow mapping
-- support decals on static and dynamic abitrary triangle surfaces
+- support decals on static and dynamic abitrary triangle surfaces ?
 - finish COLLADA .dae model support ?
 - support lightmapping on abitrary triangle surfaces ?
-- support Precomputed Irradiance Volumes for static scenes and
-  Precomputed Radiance Transfer for objects within those scenes ?
-  (http://www.ati.com/developer/gdc/GDC2005_PracticalPRT.pdf)
-
-code/ui
-- add Quake4 Plug 'n' Player Model (PPM) support
 
 code/xmap
+- fix texcoords from .lwo models
 - merge AAS compiler into xmap ?
 - finish BSP tree optimizations like merging co-planar faces ?
 - add COLLADA .dae model support ?
@@ -51,8 +45,8 @@ code/xmap
 
 === XreaL 2.0 Features ===
 
-code/qcommon/cm
-- improve collision detection interface to allow creation of contact joints
+code/cgame
+- add rag-doll effects
 
 code/game/bg_physics
 - add rigid body physics library used by client game and server game
@@ -74,6 +68,21 @@ code/game/bg_physics
 code/game
 - make advanced weapon usage of rigid body physics
 
-code/cgame
-- add rag-doll effects
+code/qcommon/cm
+- change brush and patch collision code to use
+  optimized continues axis aligned BSP tree per-polygon collisions
+- improve collision detection interface to allow creation of contact joints
 
+code/renderer
+- fix stencil shadow flickering bug
+- add proper water shader with reflection and refraction
+- improve speed and quality of variance shadow mapping
+- support decals on static and dynamic abitrary triangle surfaces
+- finish COLLADA .dae model support ?
+- support lightmapping on abitrary triangle surfaces ?
+- support Precomputed Irradiance Volumes for static scenes and
+  Precomputed Radiance Transfer for objects within those scenes ?
+  (http://www.ati.com/developer/gdc/GDC2005_PracticalPRT.pdf)
+
+code/xmap
+- add COLLADA .dae model support ?

@@ -1,10 +1,6 @@
 code/cgame
 - Tenebrae style player teleporter effect
 
-code/client
-- .avi video and audio recording
-- Ogg Vorbis audio file format support
-
 code/game/shared
 - matrix math
 - quaternion math
@@ -13,6 +9,19 @@ code/game/shared
 
 code/game
 - experimental Lua 5.1 layer for level entity scripting allowing map designers to control entities like in Doom3
+
+code/ui
+- new scriptable menu and hud
+- lighting mode game option
+- bloom rendering game option
+- anisotropic filter value slider in graphics options
+
+code/client
+- .avi video and audio recording
+- .ogg Vorbis audio file format support
+
+code/qcommon/cm
+- optional per triangle collision detection for world surfaces
 
 code/renderer
 - OpenGL extension GL_ARB_transpose_matrix
@@ -42,7 +51,6 @@ code/renderer
 - cubemap based reflective bump mapping (EMBM)
 - cubemap based refraction mapping
 - cubemap based dispersion mapping
-- deluxe mapping: advanced N dot L lightmapping
 - dynamic and static lights use Doom3 style boxed lighting attenuation
 - directional lighting (sun lights)
 - omni-directional lighting (point lights)
@@ -69,15 +77,8 @@ code/renderer
   1 = simple bloom with diamond filter only
   2 = strong bloom with combined gauss and diamond filters
 - rotoscope cartoon post process effect
-- reactivated TrueType font support using FreeType
-
-code/q3_ui
-- lighting mode game option
-- bloom rendering game option
-- anisotropic filter value slider in graphics options
-
-code/qcommon
-- optional per triangle collision detection for world surfaces
+- reactivated and extended TrueType font support using FreeType
+- optional deferred shading with r_deferredShading 1
 
 code/common/aselib
 - fixed bad Doom3 paths
@@ -93,7 +94,7 @@ code/xmap
 - Quake4 .map file support Version 3
 - support for new entity epairs like "rotation" matrix
 - Doom3 .mtr shader support
-- .lwo model support
+- .lwo Lightwave model support
 - can be run by GtkRadiant and communicates with it using a XML based network protocol
 
 code/gtkradiant
