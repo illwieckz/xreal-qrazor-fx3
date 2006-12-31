@@ -851,7 +851,7 @@ void CG_RegisterWeapon(int weaponNum)
 #endif
 
 		case WP_MACHINEGUN:
-			MAKERGB(weaponInfo->flashLightColor, 1, 1, 0);
+			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/machinegun/machgf1b.wav", qfalse);
 			weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/machgf2b.wav", qfalse);
 			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/machgf3b.wav", qfalse);
