@@ -3,14 +3,14 @@ models/weapons/machinegun/machinegun
 {
 	{
 		blend diffusemap
-		map models/weapons/machinegun/machinegun.tga
+		map models/weapons/machinegun/machinegun.png
 		rgbGen lightingDiffuse
 	}
 	{
 		stage normalmap
-		map addnormals(models/weapons/machinegun/machinegun_local.tga, heightmap(models/weapons/machinegun/machinegun_h.tga, 6 ) )
+		map addnormals(models/weapons/machinegun/machinegun_local.png, heightmap(models/weapons/machinegun/machinegun_h.png, 6 ) )
 	}
-	specularMap models/weapons/machinegun/machinegun_s.tga
+	specularMap models/weapons/machinegun/machinegun.png
 }
 
 models/weapons/machinegun/f_machinegun
@@ -19,7 +19,7 @@ models/weapons/machinegun/f_machinegun
 	cull disable
 	noshadows
 	{
-		map	models/weapons2/machinegun/f_machinegun.tga
+		map	models/weapons/machinegun/f_machinegun.png
 		blend add
 	}
 }
