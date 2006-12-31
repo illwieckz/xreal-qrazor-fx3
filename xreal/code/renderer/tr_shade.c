@@ -1738,7 +1738,7 @@ static void Render_depthFill(int stage)
 
 	pStage = tess.surfaceStages[stage];
 	
-	// remove blend mode
+	// remove alpha test
 	stateBits = pStage->stateBits;
 	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
 
@@ -1750,7 +1750,14 @@ static void Render_depthFill(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
-	alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
 	
 	qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
 
@@ -1788,7 +1795,7 @@ static void Render_shadowFill(int stage)
 
 	pStage = tess.surfaceStages[stage];
 
-	// remove blend mode
+	// remove alpha test
 	stateBits = pStage->stateBits;
 	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
 		
@@ -1800,7 +1807,14 @@ static void Render_shadowFill(int stage)
 	GL_SetVertexAttribs();
 	
 	// set uniforms
-	alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
 	VectorCopy(backEnd.currentLight->origin, lightOrigin);	// in world space
 	
 	qglUniform1fARB(tr.shadowFillShader.u_AlphaTest, alphaTest);

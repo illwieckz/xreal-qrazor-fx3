@@ -16,18 +16,21 @@ models/weapons2/plasma/f_plasma
 	sort additive
 	{
 		map models/weapons2/plasma/f_plasma.tga
-		blendfunc GL_ONE GL_ONE
+		blend add
 	}
 }
 
 models/weapons2/plasma/plasma_glass
 {
+	twosided
+	sort additive
 	{
+		stage diffuseMap
 		map textures/effects/tinfxb.tga
 		tcGen environment
 		tcMod scroll .01 .02
-		blendfunc GL_ONE GL_ONE
-		rgbGen lightingDiffuse
+		//blendfunc GL_ONE GL_ONE
+		//rgbGen lightingDiffuse
 		//rgbGen identity
 	}
 }
@@ -35,16 +38,18 @@ models/weapons2/plasma/plasma_glass
 models/weapons2/plasma/plasma_glo
 {
 	{
+		stage diffuseMap
+		map textures/effects/tinfxb.tga
+		tcGen environment
+		tcMod scroll .01 .02
+		//blendfunc GL_ONE GL_ONE
+		//rgbGen lightingDiffuse
+	}
+	{
 		map models/weapons2/plasma/plasma_glo.tga
 		tcmod rotate 33
 		tcMod scroll .7 1
 		rgbGen identity
-	}
-	{
-		map textures/effects/tinfxb.tga
-		tcGen environment
-		tcMod scroll .01 .02
-		blendfunc GL_ONE GL_ONE
-		rgbGen lightingDiffuse
+		blend add
 	}
 }
