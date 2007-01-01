@@ -56,7 +56,6 @@ cvar_t         *r_inGameVideo;
 cvar_t         *r_fastsky;
 cvar_t         *r_drawSun;
 cvar_t         *r_lighting;
-cvar_t         *r_dynamicLighting;
 
 cvar_t         *r_lodbias;
 cvar_t         *r_lodscale;
@@ -75,6 +74,8 @@ cvar_t         *r_nobatching;
 cvar_t         *r_noLightScissors;
 cvar_t         *r_noLightVisCull;
 cvar_t         *r_noInteractionSort;
+cvar_t         *r_noDynamicLighting;
+cvar_t         *r_noStaticLighting;
 
 cvar_t         *r_allowExtensions;
 
@@ -174,6 +175,7 @@ int             max_polyverts;
 
 cvar_t         *r_showNormalMaps;
 cvar_t         *r_showShadowVolumes;
+cvar_t         *r_showShadowLod;
 cvar_t         *r_showSkeleton;
 cvar_t         *r_showEntityTransforms;
 cvar_t         *r_showLightTransforms;
@@ -1265,7 +1267,6 @@ void R_Register(void)
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);
 	r_lighting = ri.Cvar_Get("r_lighting", "2", CVAR_ARCHIVE);
 	AssertCvarRange(r_lighting, 0, 2, qtrue);
-	r_dynamicLighting = ri.Cvar_Get("r_dynamicLighting", "1", CVAR_CHEAT);
 	r_finish = ri.Cvar_Get("r_finish", "0", CVAR_ARCHIVE);
 	r_textureMode = ri.Cvar_Get("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	r_swapInterval = ri.Cvar_Get("r_swapInterval", "0", CVAR_ARCHIVE);
@@ -1298,6 +1299,8 @@ void R_Register(void)
 	r_noLightScissors = ri.Cvar_Get("r_noLightScissors", "0", CVAR_CHEAT);
 	r_noLightVisCull = ri.Cvar_Get("r_noLightVisCull", "0", CVAR_CHEAT);
 	r_noInteractionSort = ri.Cvar_Get("r_noInteractionSort", "0", CVAR_CHEAT);
+	r_noDynamicLighting = ri.Cvar_Get("r_noDynamicLighting", "0", CVAR_CHEAT);
+	r_noStaticLighting = ri.Cvar_Get("r_noStaticLighting", "0", CVAR_CHEAT);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", CVAR_CHEAT);
 	r_portalOnly = ri.Cvar_Get("r_portalOnly", "0", CVAR_CHEAT);
 
@@ -1346,6 +1349,7 @@ void R_Register(void)
 
 	r_showNormalMaps = ri.Cvar_Get("r_showNormalMaps", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
+	r_showShadowLod = ri.Cvar_Get("r_showShadowLod", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
 	r_showEntityTransforms = ri.Cvar_Get("r_showEntityTransforms", "0", CVAR_CHEAT);
 	r_showLightTransforms = ri.Cvar_Get("r_showLightTransforms", "0", CVAR_CHEAT);

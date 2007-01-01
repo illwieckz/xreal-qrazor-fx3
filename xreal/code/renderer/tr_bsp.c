@@ -4212,8 +4212,8 @@ void RE_LoadWorldMap(const char *name)
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
 
-	ri.Printf(PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / (1024 * 1024),
-			  (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	//ri.Printf(PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / (1024 * 1024),
+	//		  (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;

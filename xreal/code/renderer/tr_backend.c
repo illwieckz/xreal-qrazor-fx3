@@ -3222,13 +3222,14 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
 
-	if(r_showLightTransforms->integer)
+	if(r_showLightTransforms->integer || r_showShadowLod->integer)
 	{
 		interaction_t  *ia;
-		int             iaCount;
+		int             iaCount, j;
 		trRefLight_t   *light;
 		vec3_t          forward, left, up;
 		vec3_t          tmp;
+		vec4_t			lightColor;
 
 		GL_Program(0);
 		GL_State(0);
@@ -3241,6 +3242,30 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 			if(!ia->next)
 			{
+				if(r_showShadowLod->integer)
+				{
+					if(light->shadowLOD == 0)
+					{
+						VectorCopy4(colorRed, lightColor);
+					}
+					else if(light->shadowLOD == 1)
+					{
+						VectorCopy4(colorGreen, lightColor);
+					}
+					else if(light->shadowLOD == 2)
+					{
+						VectorCopy4(colorBlue, lightColor);
+					}
+					else
+					{
+						VectorCopy4(colorMdGrey, lightColor);
+					}
+				}
+				else
+				{
+					VectorCopy4(g_color_table[iaCount % 8], lightColor);
+				}
+				
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -3254,6 +3279,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				//qglLineWidth(3);
 				qglBegin(GL_LINES);
 
+				// draw orientation
 				qglColor4fv(colorRed);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(forward);
@@ -3266,6 +3292,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(up);
 
+				// draw special vectors
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
 				VectorSubtract(light->origin, backEnd.or.origin, tmp);
@@ -3290,32 +3317,25 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				qglVertex3fv(vec3_origin);
 				VectorAdd(light->l.target, light->l.up, tmp);
 				qglVertex3fv(tmp);
+				
+				// draw corners
+				qglColor4fv(lightColor);
+				for(j = 0; j < 8; j++)
+				{
+					qglVertex3fv(vec3_origin);
+					
+					tmp[0] = light->localBounds[j & 1][0];
+					tmp[1] = light->localBounds[(j >> 1) & 1][1];
+					tmp[2] = light->localBounds[(j >> 2) & 1][2];
+					
+					qglVertex3fv(tmp);
+				}
 
 				qglEnd();
 				//qglLineWidth(1);
 				
-				// go back to the world modelview matrix
-				backEnd.or = backEnd.viewParms.world;
-				qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-				
-				R_DebugBoundingBox(vec3_origin, light->worldBounds[0], light->worldBounds[1], colorWhite);
-
-				if(light->shadowLOD == 0)
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorRed);
-				}
-				else if(light->shadowLOD == 1)
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorGreen);
-				}
-				else if(light->shadowLOD == 2)
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorBlue);
-				}
-				else
-				{
-					R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], colorMdGrey);
-				}
+				// draw local bounding box
+				R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
 
 				if(iaCount < (numInteractions - 1))
 				{

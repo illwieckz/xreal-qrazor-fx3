@@ -1936,7 +1936,7 @@ void R_AddStaticlightInteractions()
 		return;
 	}
 
-	if(!r_dynamicLighting->integer)
+	if(r_noStaticLighting->integer)
 	{
 		return;
 	}
@@ -2041,7 +2041,7 @@ void R_AddLightInteractions()
 	int             i;
 	trRefLight_t   *light;
 
-	if(!r_dynamicLighting->integer)
+	if(r_noDynamicLighting->integer)
 	{
 		return;
 	}

@@ -1931,7 +1931,8 @@ extern cvar_t  *r_inGameVideo;	// controls whether in game video should be draw
 extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
 extern cvar_t  *r_lighting;		// lighting mode, 0 = diffuse, 1 = bump mapping and so on
-extern cvar_t  *r_dynamicLighting;	// dynamic lights enabled/disabled
+extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
+extern cvar_t  *r_noStaticLighting;		// dynamic lights enabled/disabled
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering
@@ -2040,6 +2041,7 @@ extern cvar_t  *r_printShaders;
 
 extern cvar_t  *r_showNormalMaps;
 extern cvar_t  *r_showShadowVolumes;
+extern cvar_t  *r_showShadowLod;
 extern cvar_t  *r_showSkeleton;
 extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
