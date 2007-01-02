@@ -144,7 +144,6 @@ typedef enum
 {
 	RL_OMNI,
 	RL_PROJ,
-	RL_DIRECT,
 
 	RL_MAX_REF_LIGHT_TYPE
 } refLightType_t;

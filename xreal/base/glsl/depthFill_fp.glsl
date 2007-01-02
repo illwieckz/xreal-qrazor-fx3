@@ -29,7 +29,7 @@ void	main()
 {
 	vec4 color = texture2D(u_ColorMap, var_Tex);
 	
-	if(color.a < u_AlphaTest)
+	if(color.a <= u_AlphaTest)
 	{
 		discard;
 	}

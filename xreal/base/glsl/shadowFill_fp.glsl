@@ -32,7 +32,7 @@ void	main()
 {
 	vec4 color = texture2D(u_ColorMap, var_Tex);
 
-	if(color.a < u_AlphaTest)
+	if(color.a <= u_AlphaTest)
 	{
 		discard;
 	}
@@ -40,8 +40,5 @@ void	main()
 	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;
 		
-	gl_FragColor.r = distance;
-	gl_FragColor.g = distanceSquared;
-	gl_FragColor.b = 0.0;
-	gl_FragColor.a = 0.0;
+	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0);
 }

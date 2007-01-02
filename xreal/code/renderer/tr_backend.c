@@ -1171,8 +1171,23 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			// build the attenuation matrix using the entity transform
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
-			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+			switch (light->l.rlType)
+			{
+				case RL_PROJ:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.radius[0]);	// scale
+					break;
+				}
+
+				case RL_OMNI:
+				default:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					break;
+				}
+			}
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
@@ -1553,8 +1568,23 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			// build the attenuation matrix using the entity transform          
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
-			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+			switch (light->l.rlType)
+			{
+				case RL_PROJ:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.radius[0]);		// scale
+					break;
+				}
+
+				case RL_OMNI:
+				default:
+				{
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					break;
+				}
+			}
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
@@ -1922,14 +1952,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 							break;
 						}
 
-						case RL_DIRECT:
-						{
-							GLimp_LogComment("--- Rendering directional shadowMap ---\n");
-
-							// TODO
-							break;
-						}
-
 						default:
 							break;
 					}
@@ -1983,64 +2005,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					default:
 						break;
 				}
-
-				// show shadowRender for debugging
-				/*
-				   switch (light->l.rlType)
-				   {
-				   case RL_PROJ:
-				   {
-				   float           x, y, w, h;
-
-				   // enable shader, set arrays
-				   GL_Program(tr.genericSingleShader.program);
-				   GL_State(GLS_DEPTHTEST_DISABLE);
-				   GL_ClientState(tr.genericSingleShader.attribs);
-				   //GL_SetVertexAttribs();
-				   GL_Cull(CT_TWO_SIDED);
-
-				   qglColor3f(1, 1, 1);
-
-				   // bind u_ColorMap
-				   GL_SelectTexture(0);
-				   GL_Bind(tr.shadowMapFBOImage);
-
-				   // set 2D virtual screen size
-				   qglPushMatrix();
-				   qglLoadIdentity();
-				   qglMatrixMode(GL_PROJECTION);
-				   qglPushMatrix();
-				   qglLoadIdentity();
-				   qglOrtho(backEnd.viewParms.viewportX,
-				   backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				   backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-
-				   x = 0;
-				   y = 0;
-				   w = backEnd.viewParms.viewportWidth / 3;
-				   h = backEnd.viewParms.viewportHeight / 3;
-
-				   qglBegin(GL_QUADS);
-				   qglTexCoord2f(0, 0);
-				   qglVertex2f(x, y);
-				   qglTexCoord2f(1, 0);
-				   qglVertex2f(x + w, y);
-				   qglTexCoord2f(1, 1);
-				   qglVertex2f(x + w, y + h);
-				   qglTexCoord2f(0, 1);
-				   qglVertex2f(x, y + h);
-				   qglEnd();
-
-				   qglPopMatrix();
-				   qglMatrixMode(GL_MODELVIEW);
-				   qglPopMatrix();
-				   break;
-				   }
-
-				   default:
-				   break;
-				   }
-				 */
 			}
 		}						// end if(iaCount == iaFirst)
 
@@ -2257,7 +2221,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0);	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.radius[0]);		// scale
 					break;
 				}
 
@@ -2265,7 +2229,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				default:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
 					break;
 				}
 			}

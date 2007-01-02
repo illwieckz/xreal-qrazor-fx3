@@ -53,12 +53,12 @@ void	main()
 	
 	// compute attenuation	
 	vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAtten.xyw).rgb;
-	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAtten.z, 0.0)).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(1.0 - var_TexAtten.z, 0.0)).rgb;
 
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= attenuationXY;
-//	color.rgb *= attenuationZ;
+	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
 
 #if defined(VSM)
@@ -71,8 +71,11 @@ void	main()
 	// variance shadow mapping
 	float E_x2 = shadowDistances.g;
 	float Ex_2 = shadowDistances.r * shadowDistances.r;
-	const float	varianceBias = 0.00001;
-	float variance = min(max(E_x2 - Ex_2, 0.0) + varianceBias, 1.0);
+	
+	// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+	const float	VSM_EPSILON = 0.0001;
+	float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+	
 	float mD = shadowDistances.r - vertexDistance;
 	float pMax = variance / (variance + mD * mD);
 	

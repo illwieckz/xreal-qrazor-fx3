@@ -2385,7 +2385,6 @@ void R_LoadEntities(lump_t * l)
 	int             numLights = 0;
 	int             numOmniLights = 0;
 	int             numProjLights = 0;
-	int             numDirectLights = 0;
 	trRefLight_t   *light;
 
 	ri.Printf(PRINT_ALL, "...loading entities\n");
@@ -2722,7 +2721,7 @@ void R_LoadEntities(lump_t * l)
 
 		if(isLight)
 		{
-			if((numOmniLights + numProjLights + numDirectLights) < s_worldData.numLights);
+			if((numOmniLights + numProjLights) < s_worldData.numLights);
 			{
 				light++;
 
@@ -2736,10 +2735,6 @@ void R_LoadEntities(lump_t * l)
 						numProjLights++;
 						break;
 
-					case RL_DIRECT:
-						numDirectLights++;
-						break;
-
 					default:
 						break;
 				}
@@ -2751,10 +2746,9 @@ void R_LoadEntities(lump_t * l)
 #endif
 
 	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
-	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights + numDirectLights);
+	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights);
 	ri.Printf(PRINT_ALL, "%i omni-directional lights parsed\n", numOmniLights);
 	ri.Printf(PRINT_ALL, "%i projective lights parsed\n", numProjLights);
-	ri.Printf(PRINT_ALL, "%i directional lights parsed\n", numDirectLights);
 }
 
 
@@ -4023,6 +4017,7 @@ void R_PrecacheInteractions()
 		light->firstInteractionCache = NULL;
 		light->lastInteractionCache = NULL;
 
+		/*
 		switch (light->l.rlType)
 		{
 			case RL_OMNI:
@@ -4030,7 +4025,7 @@ void R_PrecacheInteractions()
 
 			case RL_PROJ:
 				// FIXME support these in the future
-				continue;
+				break;
 
 			case RL_DIRECT:
 				break;
@@ -4038,6 +4033,7 @@ void R_PrecacheInteractions()
 			default:
 				break;
 		}
+		*/
 
 		// perform culling and add all the potentially visible surfaces
 		s_lightCount++;

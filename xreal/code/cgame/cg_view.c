@@ -417,9 +417,9 @@ void CG_TestProjLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius[0] = 500;
-	cg.testLight.radius[1] = 100;
-	cg.testLight.radius[2] = 100;
+	cg.testLight.radius[0] = 900;
+	cg.testLight.radius[1] = 200;
+	cg.testLight.radius[2] = 200;
 	
 #if 1
 	VectorCopy(cg.refdef.viewaxis[0], cg.testLight.axis[0]);

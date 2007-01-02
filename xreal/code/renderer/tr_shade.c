@@ -1132,7 +1132,7 @@ static void DrawTris()
 {
 	GLimp_LogComment("--- DrawTris ---\n");
 	
-	if(r_showBatches->integer)
+	if(r_showBatches->integer || r_showLightBatches->integer)
 	{
 		qglColor4fv(g_color_table[backEnd.pc.c_batches % 8]);
 	}
@@ -4768,7 +4768,7 @@ void Tess_End()
 	if(!tess.shadowVolume)
 	{
 		// draw debugging stuff
-		if(r_showtris->integer || r_showBatches->integer)
+		if(r_showtris->integer || r_showBatches->integer || (r_showLightBatches->integer && (tess.stageIteratorFunc == Tess_StageIteratorLighting)))
 		{
 			DrawTris();
 		}

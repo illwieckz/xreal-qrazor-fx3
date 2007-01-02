@@ -2047,6 +2047,7 @@ extern cvar_t  *r_showEntityTransforms;
 extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
+extern cvar_t  *r_showLightBatches;
 extern cvar_t  *r_showOcclusionQueries;
 extern cvar_t  *r_showBatches;
 
