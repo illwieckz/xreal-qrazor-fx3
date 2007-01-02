@@ -4,11 +4,7 @@
 // 1.machinegun
 models/powerups/ammo/machammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -30,11 +26,7 @@ models/powerups/ammo/machammo2
 // 2.shotgun
 models/powerups/ammo/shotammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -56,11 +48,7 @@ models/powerups/ammo/shotammo2
 // 3.grenade launcher
 models/powerups/ammo/grenammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -82,11 +70,7 @@ models/powerups/ammo/grenammo2
 // 4.lightning gun
 models/powerups/ammo/lighammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -108,11 +92,7 @@ models/powerups/ammo/lighammo2
 // 5.plasma gun
 models/powerups/ammo/plasammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -134,11 +114,7 @@ models/powerups/ammo/plasammo2
 // 6.rocket launcher
 models/powerups/ammo/rockammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -160,11 +136,7 @@ models/powerups/ammo/rockammo2
 // 7. railgun
 models/powerups/ammo/railammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
@@ -187,11 +159,7 @@ models/powerups/ammo/railammo2
 // 8. BFG
 models/powerups/ammo/bfgammo
 {
-	{
-		stage diffuseMap
-		map models/powerups/ammo/ammobox.tga
-		rgbGen lightingDiffuse
-	}
+	diffuseMap models/powerups/ammo/ammobox.tga
 	bumpMap models/powerups/ammo/ammobox_n.tga
 	specularMap models/powerups/ammo/ammobox_s.tga
 	{
