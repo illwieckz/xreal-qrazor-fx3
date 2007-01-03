@@ -2266,7 +2266,6 @@ void            R_SkinList_f(void);
 
 // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=516
 const void     *RB_TakeScreenshotCmd(const void *data);
-void            R_ScreenShot_f(void);
 
 void            R_InitFogTable(void);
 float           R_FogFactor(float s, float t);
@@ -2717,6 +2716,14 @@ typedef struct
 	int             numInteractions;
 } drawSurfsCommand_t;
 
+
+typedef enum
+{
+	SSF_TGA,
+	SSF_JPEG,
+	SSF_PNG
+} ssFormat_t;
+
 typedef struct
 {
 	int             commandId;
@@ -2725,7 +2732,7 @@ typedef struct
 	int             width;
 	int             height;
 	char           *fileName;
-	qboolean        jpeg;
+	ssFormat_t      format;
 } screenshotCommand_t;
 
 typedef struct
@@ -2799,8 +2806,11 @@ void            RE_SetColor(const float *rgba);
 void            RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
 void            RE_BeginFrame(stereoFrame_t stereoFrame);
 void            RE_EndFrame(int *frontEndMsec, int *backEndMsec);
+
 void            SaveJPG(char *filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
 int             SaveJPGToBuffer(byte * buffer, int quality, int image_width, int image_height, byte * image_buffer);
+
+void            SavePNG(const char *name, const byte * pic, int width, int height);
 
 // video stuff
 const void     *RB_TakeVideoFrameCmd(const void *data);
