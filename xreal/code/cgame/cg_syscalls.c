@@ -385,6 +385,11 @@ int trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, floa
 	return syscall(CG_R_BLENDSKELETON, skel, blend, PASSFLOAT(frac));
 }
 
+int trap_R_BoneIndex(qhandle_t hModel, const char *boneName)
+{
+	return syscall(CG_R_BONEINDEX, hModel, boneName);	
+}
+
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset)
 {
 	syscall(CG_R_REMAP_SHADER, oldShader, newShader, timeOffset);

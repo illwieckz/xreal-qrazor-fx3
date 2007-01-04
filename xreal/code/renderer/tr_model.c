@@ -1109,7 +1109,7 @@ int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
 	}
 	else
 	{
-		md5 = model->md5;	
+		md5 = model->md5;
 	}
 	
 	skel->numBones = md5->numBones;
@@ -1125,6 +1125,41 @@ int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
 
 	return qtrue;
 }
+
+
+/*
+================
+RE_BoneIndex
+================
+*/
+int RE_BoneIndex(qhandle_t hModel, const char *boneName)
+{
+	int             i;
+	md5Bone_t      *bone;
+	md5Model_t     *md5;
+	model_t        *model;
+
+	model = R_GetModelByHandle(hModel);
+	if(!model->md5)
+	{
+		return 0;
+	}
+	else
+	{
+		md5 = model->md5;
+	}
+	
+	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
+	{
+		if(!Q_stricmp(bone->name, boneName))
+		{
+			return i;
+		}
+	}
+
+	return 0;
+}
+
 
 
 /*

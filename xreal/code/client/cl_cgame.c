@@ -644,6 +644,8 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 			return re.BuildSkeleton(VMA(1), args[2], args[3], args[4], VMF(5));
 		case CG_R_BLENDSKELETON:
 			return re.BlendSkeleton(VMA(1), VMA(2), VMF(3));
+		case CG_R_BONEINDEX:
+			return re.BoneIndex(args[1], VMA(2));
 		case CG_GETGLCONFIG:
 			CL_GetGlconfig(VMA(1));
 			return 0;

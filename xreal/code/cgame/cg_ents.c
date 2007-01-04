@@ -85,6 +85,52 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
 }
 
+/*
+======================
+CG_PositionRotatedEntityOnTag
+
+Modifies the entities position and axis by the given
+tag location
+======================
+*/
+void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
+{
+	int             i;
+	int				boneIndex;
+	orientation_t   lerped;
+	vec3_t          tempAxis[3];
+	
+
+//AxisClear( entity->axis );
+
+	//trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
+
+	// lerp the tag
+	boneIndex = trap_R_BoneIndex(parentModel, tagName);
+
+#ifdef USE_BONEMATRIX
+	lerped.origin[0] = parent->skeleton.bones[boneIndex].transform[12];
+	lerped.origin[1] = parent->skeleton.bones[boneIndex].transform[13];
+	lerped.origin[2] = parent->skeleton.bones[boneIndex].transform[14];
+	
+	MatrixToVectorsFLU(parent->skeleton.bones[boneIndex].transform, lerped.axis[0], lerped.axis[1], lerped.axis[2]);
+#else
+	VectorCopy(parent->skeleton.bones[boneIndex].origin, lerped.origin);
+	QuatToAxis(parent->skeleton.bones[boneIndex].rotation, lerped.axis);
+#endif
+
+	// FIXME: allow origin offsets along tag?
+	VectorCopy(parent->origin, entity->origin);
+	for(i = 0; i < 3; i++)
+	{
+		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+	}
+
+	// had to cast away the const to avoid compiler problems...
+	AxisMultiply(entity->axis, lerped.axis, tempAxis);
+	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+}
+
 
 
 /*

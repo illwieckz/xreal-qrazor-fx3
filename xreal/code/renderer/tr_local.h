@@ -1567,6 +1567,8 @@ model_t        *R_GetModelByHandle(qhandle_t hModel);
 int             RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagName);
 
 int             RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel);
+int             RE_BoneIndex(qhandle_t hModel, const char *boneName);
+
 
 void            R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs);
 

@@ -402,10 +402,15 @@ typedef struct weaponInfo_s
 	gitem_t        *item;
 
 	qhandle_t       handsModel;	// the hands don't actually draw, they just position the weapon
-	qhandle_t		viewModel;	// Quake1 style view weapon model
 	qhandle_t       weaponModel;
 	qhandle_t       barrelModel;
 	qhandle_t       flashModel;
+	
+	qhandle_t		viewModel;
+	qhandle_t		viewModel_allAnimation;
+//	qhandle_t		viewModel_idleAnimation;
+//	qhandle_t		viewModel_attackAnimation;
+//	qhandle_t		viewModel_lowerAnimation;
 
 	vec3_t          weaponMidpoint;	// so it will rotate centered instead of by tag
 
@@ -1400,6 +1405,9 @@ void            CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fro
 void            CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName);
 void            CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * parent,
 											  qhandle_t parentModel, char *tagName);
+											  
+void            CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent,
+											   qhandle_t parentModel, char *tagName);
 
 
 
@@ -1639,6 +1647,7 @@ int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startF
 int             trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model);
 int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 int             trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
+int             trap_R_BoneIndex(qhandle_t hModel, const char *boneName);
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
 // The glConfig_t will not change during the life of a cgame.

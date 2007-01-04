@@ -72,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	4
+#define	CGAME_IMPORT_API_VERSION	5
 
 typedef enum
 {
@@ -166,14 +166,8 @@ typedef enum
 	CG_GET_ENTITY_TOKEN,
 	CG_R_ADDPOLYSTOSCENE,
 	CG_R_INPVS,
-	// 1.32
 	CG_FS_SEEK,
-
-/*
-	CG_LOADCAMERA,
-	CG_STARTCAMERA,
-	CG_GETCAMERAINFO,
-*/
+	
 	// Tr3B - XreaL extensions
 	CG_R_REGISTERANIMATION,
 	CG_R_REGISTERSHADERLIGHTATTENUATION,
@@ -181,8 +175,9 @@ typedef enum
 	CG_R_RESETSKELETON,
 	CG_R_BUILDSKELETON,
 	CG_R_BLENDSKELETON,
+	CG_R_BONEINDEX,
 
-	CG_MEMSET = 100,
+	CG_MEMSET,
 	CG_MEMCPY,
 	CG_STRNCPY,
 	CG_SIN,

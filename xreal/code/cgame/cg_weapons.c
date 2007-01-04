@@ -789,8 +789,13 @@ void CG_RegisterWeapon(int weaponNum)
 
 	strcpy(path, item->world_model[0]);
 	Com_StripExtension(path, path, sizeof(path));
-	strcat(path, "_view.md3");
+	strcat(path, "_view.md5mesh");
 	weaponInfo->viewModel = trap_R_RegisterModel(path);
+	
+	strcpy(path, item->world_model[0]);
+	Com_StripExtension(path, path, sizeof(path));
+	strcat(path, "_view_all.md5anim");
+	weaponInfo->viewModel_allAnimation = trap_R_RegisterAnimation(path);
 
 	/*
 	   if(!weaponInfo->handsModel)
@@ -988,9 +993,7 @@ void CG_RegisterItemVisuals(int itemNum)
 		CG_RegisterWeapon(item->giTag);
 	}
 
-	//
 	// powerups have an accompanying ring or sphere
-	//
 	if(item->giType == IT_POWERUP || item->giType == IT_HEALTH || item->giType == IT_ARMOR || item->giType == IT_HOLDABLE)
 	{
 		if(item->world_model[1])
@@ -1618,9 +1621,8 @@ void CG_AddViewWeapon(playerState_t * ps)
 	CG_RegisterWeapon(weaponNum);
 	weapon = &cg_weapons[weaponNum];
 
-	if(weapon->viewModel)
+	if(weapon->viewModel && weapon->viewModel_allAnimation)
 	{
-		// allow Quake1 style view weapon models
 		refEntity_t     gun;
 		refEntity_t     flash;
 		vec3_t          angles;
@@ -1672,8 +1674,24 @@ void CG_AddViewWeapon(playerState_t * ps)
 			gun.shaderRGBA[2] = 255;
 			gun.shaderRGBA[3] = 255;
 		}
-
+		
 		//CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+		
+		// modify bones and set proper local bounds for culling
+		if(!trap_R_BuildSkeleton(&gun.skeleton,
+						  		 weapon->viewModel_allAnimation,
+						  		 gun.oldframe,
+						  		 gun.frame,
+						  		 1.0 - gun.backlerp))
+		{
+			CG_Printf("Can't build view weapon skeleton\n");
+			return;
+		}
+		else
+		{
+			// tell renderer that skeleton is set up properly
+			gun.renderfx |= RF_SKELETON;
+		}
 
 		CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
 
@@ -1750,7 +1768,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 			flash.shaderRGBA[2] = 255 * ci->color1[2];
 		}
 
-		CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->viewModel, "tag_flash");
+		CG_PositionRotatedEntityOnBone(&flash, &gun, weapon->viewModel, "tag_flash");
 		trap_R_AddRefEntityToScene(&flash);
 
 		// add lightning bolt
