@@ -3546,10 +3546,18 @@ void Tess_StageIteratorGeneric()
 
 		switch (pStage->type)
 		{
-			// skip these if not merge into diffuse stage
-			case ST_NORMALMAP:
-			case ST_SPECULARMAP:
+			case ST_COLORMAP:
+			{
+				if(glConfig.shadingLanguage100Available)
+				{
+					Render_genericSingle(stage);
+				}
+				else
+				{
+					Render_genericSingle_FFP(stage);
+				}
 				break;
+			}
 			
 			case ST_DIFFUSEMAP:
 			case ST_COLLAPSE_lighting_DB:
@@ -3701,18 +3709,7 @@ void Tess_StageIteratorGeneric()
 			}
 
 			default:
-			case ST_COLORMAP:
-			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_genericSingle(stage);
-				}
-				else
-				{
-					Render_genericSingle_FFP(stage);
-				}
 				break;
-			}
 		}
 	}
 

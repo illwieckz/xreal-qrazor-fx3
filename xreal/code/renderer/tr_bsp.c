@@ -3418,32 +3418,6 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 		return qfalse;
 	}
 
-#if 0
-	// check if light origin is behind surface
-	d = DotProduct(cv->plane.normal, light->origin);
-
-	// don't cull exactly on the plane, because there are levels of rounding
-	// through the BSP, ICD, and hardware that may cause pixel gaps if an
-	// epsilon isn't allowed here 
-	if(shader->cullType == CT_FRONT_SIDED)
-	{
-		if(d < cv->plane.dist - 8)
-		{
-			c_culledFaceTriangles += cv->numTriangles;
-			return qfalse;
-		}
-	}
-	else
-	{
-		if(d > cv->plane.dist + 8)
-		{
-			c_culledFaceTriangles += cv->numTriangles;
-			return qfalse;
-		}
-	}
-#endif
-
-
 	if(r_precacheLightIndexes->integer)
 	{
 		// build a list of triangles that need light
@@ -3486,28 +3460,15 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 			{
-#if 1
+				sh.degenerated[i] = qfalse;
+				
 				// check if light origin is behind triangle
 				d = DotProduct(plane, light->origin) - plane[3];
 
-				if(shader->cullType == CT_FRONT_SIDED)
+				if(d <= 0 || shader->cullType == CT_BACK_SIDED)
 				{
-					if(d < 0)
-					{
-						c_culledFaceTriangles++;
-						sh.facing[i] = qfalse;
-					}
+					sh.facing[i] = qfalse;
 				}
-				else
-				{
-					if(d > 0)
-					{
-						c_culledFaceTriangles++;
-						sh.facing[i] = qfalse;
-					}
-				}
-#endif
-				sh.degenerated[i] = qfalse;
 			}
 			else
 			{
@@ -3602,26 +3563,15 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 			{
-#if 1
+				sh.degenerated[i] = qfalse;
+				
 				// check if light origin is behind triangle
 				d = DotProduct(plane, light->origin) - plane[3];
 
-				if(shader->cullType == CT_FRONT_SIDED)
+				if(d <= 0 || shader->cullType == CT_BACK_SIDED)
 				{
-					if(d < 0)
-					{
-						sh.facing[i] = qfalse;
-					}
+					sh.facing[i] = qfalse;
 				}
-				else
-				{
-					if(d > 0)
-					{
-						sh.facing[i] = qfalse;
-					}
-				}
-#endif
-				sh.degenerated[i] = qfalse;
 			}
 			else
 			{
@@ -3715,35 +3665,15 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
 			{
-#if 1
+				sh.degenerated[i] = qfalse;
+				
 				// check if light origin is behind triangle
 				d = DotProduct(plane, light->origin) - plane[3];
 
-				if(shader->cullType == CT_FRONT_SIDED)
+				if(d <= 0 || shader->cullType == CT_BACK_SIDED)
 				{
-					if(d < 0)
-					{
-						sh.facing[i] = qfalse;
-					}
+					sh.facing[i] = qfalse;
 				}
-				else
-				{
-					if(d > 0)
-					{
-						sh.facing[i] = qfalse;
-					}
-				}
-#endif
-
-#if 0
-				// check if light bounds do not intersect with with triangle plane
-				r = BoxOnPlaneSide2(light->worldBounds[0], light->worldBounds[1], plane);
-				if(r != 3)
-				{
-					sh.facing[i] = false;
-				}
-#endif
-				sh.degenerated[i] = qfalse;
 			}
 			else
 			{
@@ -3776,7 +3706,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			}
 			else
 			{
-				c_culledFaceTriangles++;
+				c_culledTriTriangles++;
 			}
 		}
 
