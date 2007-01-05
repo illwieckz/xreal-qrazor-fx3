@@ -346,9 +346,8 @@ int BotGetItemLongTermGoal(bot_state_t * bs, int tfl, bot_goal_t * goal)
 		{						//the bot gets sorta stuck with all the avoid timings, shouldn't happen though
 			//
 #ifdef _DEBUG
-			char            netname[128];
-
-			BotAI_Print(PRT_MESSAGE, "%s: no valid long term goal (probably stuck)\n", ClientName(bs->client, netname, sizeof(netname)));
+			//char            netname[128];
+			//BotAI_Print(PRT_MESSAGE, "%s: no valid long term goal (probably stuck)\n", ClientName(bs->client, netname, sizeof(netname)));
 #endif
 			//trap_BotDumpAvoidGoals(bs->gs);
 			//reset the avoid goals and the avoid reach
@@ -2393,9 +2392,8 @@ int AINode_Battle_Fight(bot_state_t * bs)
 	if(BotFindEnemy(bs, bs->enemy))
 	{
 #ifdef _DEBUG
-		char            netname[128];
-
-		BotAI_Print(PRT_MESSAGE, "%s: found new better enemy\n", ClientName(bs->client, netname, sizeof(netname)));
+		//char            netname[128];
+		//BotAI_Print(PRT_MESSAGE, "%s: found new better enemy\n", ClientName(bs->client, netname, sizeof(netname)));
 #endif
 	}
 	//if no enemy
