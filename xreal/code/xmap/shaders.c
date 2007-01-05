@@ -33,10 +33,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "shaders.h"
 
-#ifndef USE_MTR
-#define USE_MTR
-#endif
-
 // 5% backsplash by default
 #define	DEFAULT_BACKSPLASH_FRACTION		0.05
 #define	DEFAULT_BACKSPLASH_DISTANCE		24
@@ -753,7 +749,6 @@ static void ParseShaderFile(const char *filename)
 		}
 
 		// Tr3B - default shader to invisible if no rendering passes defined
-#ifdef USE_MTR
 		if(!si->hasPasses)
 		{
 			Sys_FPrintf(SYS_VRB, "shader '%s' has no passes\n", si->shader);
@@ -766,7 +761,6 @@ static void ParseShaderFile(const char *filename)
 				si->contents |= CONTENTS_TRANSLUCENT;
 			}
 		}
-#endif
 	}
 }
 
@@ -784,11 +778,7 @@ void LoadShaderInfo(void)
 	char           *shaderFiles[MAX_SHADER_FILES];
 	int             numShaderFiles;
 
-#ifdef USE_MTR
 	sprintf(filename, "%smaterials/shaderlist.txt", gamedir);
-#else
-	sprintf(filename, "%sscripts/shaderlist.txt", gamedir);
-#endif
 	LoadScriptFile(filename, -1);
 
 	numShaderFiles = 0;
@@ -805,11 +795,8 @@ void LoadShaderInfo(void)
 
 	for(i = 0; i < numShaderFiles; i++)
 	{
-#ifdef USE_MTR
 		sprintf(filename, "%smaterials/%s.mtr", gamedir, shaderFiles[i]);
-#else
-		sprintf(filename, "%sscripts/%s.shader", gamedir, shaderFiles[i]);
-#endif
+		
 		ParseShaderFile(filename);
 		free(shaderFiles[i]);
 	}

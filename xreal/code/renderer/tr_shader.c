@@ -5620,9 +5620,6 @@ a single large text block that can be scanned for shader names
 =====================
 */
 #define	MAX_SHADER_FILES	4096
-#ifndef USE_MTR
-#define USE_MTR
-#endif
 static void ScanAndLoadShaderFiles(void)
 {
 	char          **shaderFiles;
@@ -5638,11 +5635,8 @@ static void ScanAndLoadShaderFiles(void)
 	ri.Printf(PRINT_ALL, "----- ScanAndLoadShaderFiles -----\n");
 
 	// scan for shader files
-#ifdef USE_MTR
 	shaderFiles = ri.FS_ListFiles("materials", ".mtr", &numShaders);
-#else
-	shaderFiles = ri.FS_ListFiles("scripts", ".shader", &numShaders);
-#endif
+	
 	if(!shaderFiles || !numShaders)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no shader files found\n");
@@ -5657,11 +5651,8 @@ static void ScanAndLoadShaderFiles(void)
 	// build single large buffer
 	for(i = 0; i < numShaders; i++)
 	{
-#ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
-#else
-		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
-#endif
+		
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
 	s_shaderText = ri.Hunk_Alloc(sum + numShaders * 2, h_low);
@@ -5669,11 +5660,8 @@ static void ScanAndLoadShaderFiles(void)
 	// load in reverse order, so doubled shaders are overriden properly
 	for(i = numShaders - 1; i >= 0; i--)
 	{
-#ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
-#else
-		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
-#endif
+		
 		ri.Printf(PRINT_ALL, "...loading '%s'\n", filename);
 		sum += ri.FS_ReadFile(filename, (void **)&buffers[i]);
 		if(!buffers[i])
@@ -5694,11 +5682,8 @@ static void ScanAndLoadShaderFiles(void)
 	//
 	for(i = 0; i < numShaders; i++)
 	{
-#ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
-#else
-		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
-#endif
+		
 		Com_BeginParseSession(filename);
 		
 		// pointer to the first shader file
@@ -5795,11 +5780,8 @@ static void ScanAndLoadShaderFiles(void)
 	//
 	for(i = 0; i < numShaders; i++)
 	{
-#ifdef USE_MTR
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
-#else
-		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
-#endif
+		
 		Com_BeginParseSession(filename);
 		
 		// pointer to the first shader file
