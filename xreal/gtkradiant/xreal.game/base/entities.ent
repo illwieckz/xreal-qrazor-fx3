@@ -1266,13 +1266,11 @@ LIGHT ENTITY
 Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights.
 -------- KEYS --------
 <color key="color" name="Light Color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
-<target key="target" name="Target">Lights pointed at a target will be spotlights.</target>
-<!--
-<real key="_light;light" name="Light Intensity">overrides the default 300 intensity.</real>
-<real key="radius" name="Spotlight Radius">overrides the default 64 unit radius of a spotlight at the target point.</real>
--->
 <string key="texture" name="Light Material Shader">Shader to use for light attenuation.</string>
 <real3 key="light_radius" name="Boxed Light Radius">overrides the default 300 300 300 box radius</real3>
+<real key="light_distance" name="Spotlight Radius">overrides the default 300 unit radius of a spotlight.</real>
+<real key="light_fovX" name="Spotlight FOV width angle">overrides the default 90 degrees.</real>
+<real key="light_fovY" name="Spotlight FOV height angle">overrides the default 90 degrees.</real>
 <boolean key="noshadows" name="No Shadows">Set this key to 1 to disable shadow casting.</boolean>
 <boolean key="nospecular" name="No Specular Term">Set this key to 1 to disable specular rendering.</boolean>
 -------- SPAWNFLAGS --------

@@ -49,7 +49,7 @@ int             c_culledGridTriangles;
 
 //===============================================================================
 
-static void HSVtoRGB(float h, float s, float v, float rgb[3])
+void HSVtoRGB(float h, float s, float v, float rgb[3])
 {
 	int             i;
 	float           f;
@@ -2576,8 +2576,13 @@ void R_LoadEntities(lump_t * l)
 		light->l.radius[0] = 300;
 		light->l.radius[1] = 300;
 		light->l.radius[2] = 300;
+		
+		light->l.fovX = 90;
+		light->l.fovY = 90;
+		light->l.distance = 300;
 
-		AxisCopy(axisDefault, light->l.axis);
+		AxisClear(light->l.axis);
+		light->l.nonNormalizedAxes = qfalse;
 
 		light->isStatic = qtrue;
 		light->additive = qtrue;
@@ -2663,22 +2668,22 @@ void R_LoadEntities(lump_t * l)
 			{
 				sscanf(value, "%f %f %f", &light->l.radius[0], &light->l.radius[1], &light->l.radius[2]);
 			}
-			// check for target
-			else if(!Q_stricmp(keyname, "light_target"))
+			// check for fovX
+			else if(!Q_stricmp(keyname, "light_fovX"))
 			{
-				sscanf(value, "%f %f %f", &light->l.target[0], &light->l.target[1], &light->l.target[2]);
+				light->l.fovX = atof(value);
 				light->l.rlType = RL_PROJ;
 			}
-			// check for right
-			else if(!Q_stricmp(keyname, "light_right"))
+			// check for fovY
+			else if(!Q_stricmp(keyname, "light_fovY"))
 			{
-				sscanf(value, "%f %f %f", &light->l.right[0], &light->l.right[1], &light->l.right[2]);
+				light->l.fovY = atof(value);
 				light->l.rlType = RL_PROJ;
 			}
-			// check for up
-			else if(!Q_stricmp(keyname, "light_up"))
+			// check for distance
+			else if(!Q_stricmp(keyname, "light_distance"))
 			{
-				sscanf(value, "%f %f %f", &light->l.up[0], &light->l.up[1], &light->l.up[2]);
+				light->l.distance = atof(value);
 				light->l.rlType = RL_PROJ;
 			}
 			// check for radius
@@ -2694,16 +2699,16 @@ void R_LoadEntities(lump_t * l)
 			// check for light shader
 			else if(!Q_stricmp(keyname, "texture"))
 			{
-				//FIXME
 				light->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
 			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
-
+				
 				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
+				
 				MatrixToVectorsFLU(rotation, light->l.axis[0], light->l.axis[1], light->l.axis[2]);
 			}
 			// check if this light does not cast any shadows
@@ -2744,6 +2749,11 @@ void R_LoadEntities(lump_t * l)
 		numEntities++;
 	}
 #endif
+
+	if((numOmniLights + numProjLights) != s_worldData.numLights)
+	{
+		ri.Error(ERR_DROP, "counted %i lights and parsed %i lights", s_worldData.numLights, (numOmniLights + numProjLights));
+	} 
 
 	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights);
@@ -3410,7 +3420,6 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 	srfTriangle_t  *tri;
 	int             numIndexes;
 	int            *indexes;
-	float           d;
 
 	// check if bounds intersect
 	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->bounds[0], cv->bounds[1]))
@@ -3479,7 +3488,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 			}
 
 			// check with ODE's triangle<->OBB collider for an intersection
-			if(!sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			if(light->l.rlType == RL_OMNI && !sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 			{
 				sh.facing[i] = qfalse;
 			}
@@ -3582,7 +3591,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 			}
 
 			// check with ODE's triangle<->OBB collider for an intersection
-			if(!sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			if(light->l.rlType == RL_OMNI && !sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 			{
 				sh.facing[i] = qfalse;
 			}
@@ -3684,7 +3693,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			}
 
 			// check with ODE's triangle<->OBB collider for an intersection
-			if(!sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
+			if(light->l.rlType == RL_OMNI && !sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
 			{
 				sh.facing[i] = qfalse;
 			}
@@ -3901,6 +3910,9 @@ void R_PrecacheInteractions()
 	interactionCache_t *iaCache;
 	msurface_t     *surface;
 	vec3_t          localBounds[2];
+	int             startTime, endTime;
+		
+	startTime = ri.Milliseconds();
 
 	s_lightCount = 0;
 	Com_InitGrowList(&s_interactions, 100);
@@ -3916,7 +3928,8 @@ void R_PrecacheInteractions()
 		light = &s_worldData.lights[i];
 
 #if 0
-		ri.Printf(PRINT_ALL, "origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
+		ri.Printf(PRINT_ALL, "light %i: origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
+				  i,
 				  (int)light->l.origin[0], (int)light->l.origin[1], (int)light->l.origin[2],
 				  (int)light->l.radius[0], (int)light->l.radius[1], (int)light->l.radius[2],
 				  light->l.color[0], light->l.color[1], light->l.color[2]);
@@ -4053,6 +4066,10 @@ void R_PrecacheInteractions()
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);
 	}
+	
+	endTime = ri.Milliseconds();
+	
+	ri.Printf(PRINT_ALL, "lights precaching time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
 /*

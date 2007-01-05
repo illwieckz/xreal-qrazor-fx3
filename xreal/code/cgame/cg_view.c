@@ -417,10 +417,6 @@ void CG_TestProjLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius[0] = 900;
-	cg.testLight.radius[1] = 200;
-	cg.testLight.radius[2] = 200;
-	
 #if 1
 	VectorCopy(cg.refdef.viewaxis[0], cg.testLight.axis[0]);
 	VectorCopy(cg.refdef.viewaxis[1], cg.testLight.axis[1]);
@@ -429,9 +425,9 @@ void CG_TestProjLight_f(void)
 	AxisClear(cg.testLight.axis);
 #endif
 	
-	VectorSet(cg.testLight.target, 500, 0, 0);
-	VectorSet(cg.testLight.right, 0, -35, 0);
-	VectorSet(cg.testLight.up, 0, 0, 35);
+	cg.testLight.fovX = 45;
+	cg.testLight.fovY = 45;
+	cg.testLight.distance = 800;
 	
 	cg.testFlashLight = qfalse;
 }

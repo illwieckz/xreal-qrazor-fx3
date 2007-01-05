@@ -2453,7 +2453,6 @@ LIGHTS
 
 void            R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light);
 void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent);
-void            R_TransformLights(int count, trRefLight_t * light, orientationr_t * or);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
 void            R_SetupLightOrigin(trRefLight_t * light);

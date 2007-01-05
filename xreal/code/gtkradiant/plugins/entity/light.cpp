@@ -827,16 +827,22 @@ class Light :
   Float9 m_lightRotation;
   bool m_useLightRotation;
 
-  Vector3 m_lightTarget;
-  bool m_useLightTarget;
-  Vector3 m_lightUp;
-  bool m_useLightUp;
-  Vector3 m_lightRight;
-  bool m_useLightRight;
-  Vector3 m_lightStart;
-  bool m_useLightStart;
-  Vector3 m_lightEnd;
-  bool m_useLightEnd;
+  //Vector3 m_lightTarget;
+  //bool m_useLightTarget;
+  //Vector3 m_lightUp;
+  //bool m_useLightUp;
+  //Vector3 m_lightRight;
+  //bool m_useLightRight;
+  //Vector3 m_lightStart;
+  //bool m_useLightStart;
+  //Vector3 m_lightEnd;
+  //bool m_useLightEnd;
+  float m_lightFovX;
+  bool m_useLightFovX;
+  float m_lightFovY;
+  bool m_useLightFovY;
+  float m_lightDistance;
+  bool m_useLightDistance;
 
   mutable AABB m_doom3AABB;
   mutable Matrix4 m_doom3Rotation;
@@ -878,13 +884,19 @@ class Light :
       m_keyObservers.insert("light_center", Doom3LightRadius::LightCenterChangedCaller(m_doom3Radius));
       m_keyObservers.insert("light_origin", Light::LightOriginChangedCaller(*this));
       m_keyObservers.insert("light_rotation", Light::LightRotationChangedCaller(*this));
-      m_keyObservers.insert("light_target", Light::LightTargetChangedCaller(*this));
-      m_keyObservers.insert("light_up", Light::LightUpChangedCaller(*this));
-      m_keyObservers.insert("light_right", Light::LightRightChangedCaller(*this));
-      m_keyObservers.insert("light_start", Light::LightStartChangedCaller(*this));
-      m_keyObservers.insert("light_end", Light::LightEndChangedCaller(*this));
+      m_keyObservers.insert("light_fovX", Light::LightFovXChangedCaller(*this));
+      m_keyObservers.insert("light_fovY", Light::LightFovYChangedCaller(*this));
+      m_keyObservers.insert("light_distance", Light::LightDistanceChangedCaller(*this));
+      //m_keyObservers.insert("light_target", Light::LightTargetChangedCaller(*this));
+      //m_keyObservers.insert("light_up", Light::LightUpChangedCaller(*this));
+      //m_keyObservers.insert("light_right", Light::LightRightChangedCaller(*this));
+      //m_keyObservers.insert("light_start", Light::LightStartChangedCaller(*this));
+      //m_keyObservers.insert("light_end", Light::LightEndChangedCaller(*this));
       m_keyObservers.insert("texture", LightShader::ValueChangedCaller(m_shader));
-      m_useLightTarget = m_useLightUp = m_useLightRight = m_useLightStart = m_useLightEnd = false;
+      //m_useLightTarget = m_useLightUp = m_useLightRight = m_useLightStart = m_useLightEnd = false;
+      m_useLightFovX = false;
+      m_useLightFovY = false;
+      m_useLightDistance = false;
       m_doom3ProjectionChanged = true;
     }
 
@@ -940,7 +952,7 @@ public:
     originChanged();
   }
   typedef MemberCaller1<Light, const char*, &Light::lightOriginChanged> LightOriginChangedCaller;
-
+  /*
   void lightTargetChanged(const char* value)
   {
     m_useLightTarget = !string_empty(value);
@@ -991,6 +1003,39 @@ public:
     projectionChanged();
   }
   typedef MemberCaller1<Light, const char*, &Light::lightEndChanged> LightEndChangedCaller;
+  */
+  void lightFovXChanged(const char* value)
+  {
+    m_useLightFovX = !string_empty(value);
+    if(m_useLightFovX)
+    {
+      string_parse_float(value, m_lightFovX);
+    }
+    projectionChanged();
+  }
+  typedef MemberCaller1<Light, const char*, &Light::lightFovXChanged> LightFovXChangedCaller;
+  
+  void lightFovYChanged(const char* value)
+  {
+    m_useLightFovY = !string_empty(value);
+    if(m_useLightFovY)
+    {
+      string_parse_float(value, m_lightFovY);
+    }
+    projectionChanged();
+  }
+  typedef MemberCaller1<Light, const char*, &Light::lightFovYChanged> LightFovYChangedCaller;
+  
+  void lightDistanceChanged(const char* value)
+  {
+    m_useLightDistance = !string_empty(value);
+    if(m_useLightDistance)
+    {
+      string_parse_float(value, m_lightDistance);
+    }
+    projectionChanged();
+  }
+  typedef MemberCaller1<Light, const char*, &Light::lightDistanceChanged> LightDistanceChangedCaller;
 
   void writeLightOrigin()
   {
@@ -1219,6 +1264,15 @@ public:
       {
         projection();
         m_projectionOrientation = rotation();
+        
+        // HACK
+    	Matrix4 radiant2opengl(
+  		0,-1, 0, 0,
+		0, 0, 1, 0,
+		-1, 0, 0, 0,
+		0, 0, 0, 1);
+    	matrix4_multiply_by_matrix4(m_projectionOrientation, radiant2opengl);
+        
         vector4_to_vector3(m_projectionOrientation.t()) = localAABB().origin;
         renderer.addRenderable(m_renderProjection, m_projectionOrientation);
       }
@@ -1417,7 +1471,7 @@ public:
 
   bool isProjected() const
   {
-    return m_useLightTarget && m_useLightUp && m_useLightRight;
+    return m_useLightFovX && m_useLightFovY && m_useLightDistance; 
   }
   void projectionChanged()
   {
@@ -1437,7 +1491,22 @@ public:
     matrix4_translate_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 0));
     matrix4_scale_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 1));
 
-#if 0
+#if 1
+    float           xMin, xMax, yMin, yMax;
+    float           zNear, zFar;
+    
+    zNear = 1.0;
+    zFar = m_lightDistance;
+    
+    xMax = zNear * tan(m_lightFovX * M_PI / 360.0f);
+    xMin = -xMax;
+    
+    yMax = zNear * tan(m_lightFovY * M_PI / 360.0f);
+    yMin = -yMax;
+    
+    matrix4_multiply_by_matrix4(m_doom3Projection, matrix4_frustum(xMin, xMax, yMin, yMax, zNear, zFar));
+    m_doom3Frustum = frustum_from_viewproj(m_doom3Projection);
+#elif 0
     Vector3 right = vector3_cross(m_lightUp, vector3_normalised(m_lightTarget));
     Vector3 up = vector3_cross(vector3_normalised(m_lightTarget), m_lightRight);
     Vector3 target = m_lightTarget;

@@ -267,7 +267,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		return;
 	}
 	
-	if(l->radius[0] <= 0 && !VectorLength(l->radius))
+	if(l->radius[0] <= 0 && !VectorLength(l->radius) && l->distance <= 0)
 	{
 		return;
 	}

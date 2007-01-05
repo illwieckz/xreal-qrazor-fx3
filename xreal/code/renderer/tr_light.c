@@ -25,29 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 /*
-===============
-R_TransformLights
-
-Transforms the origins of an array of lights.
-Used by both the front end (for LightBmodel) and
-the back end (before doing the lighting calculation)
-===============
-*/
-void R_TransformLights(int count, trRefLight_t * light, orientationr_t * or)
-{
-	int             i;
-	vec3_t          temp;
-
-	for(i = 0; i < count; i++, light++)
-	{
-		VectorSubtract(light->l.origin, or->origin, temp);
-		light->transformed[0] = DotProduct(temp, or->axis[0]);
-		light->transformed[1] = DotProduct(temp, or->axis[1]);
-		light->transformed[2] = DotProduct(temp, or->axis[2]);
-	}
-}
-
-/*
 =============
 R_AddBrushModelInteractions
 
@@ -452,28 +429,42 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 {
 	switch (light->l.rlType)
 	{
-		default:
 		case RL_OMNI:
 		{
-			light->localBounds[0][0] = light->l.radius[0];
-			light->localBounds[0][1] = light->l.radius[1];
-			light->localBounds[0][2] = light->l.radius[2];
-			light->localBounds[1][0] = -light->l.radius[0];
-			light->localBounds[1][1] = -light->l.radius[1];
-			light->localBounds[1][2] = -light->l.radius[2];
+			light->localBounds[0][0] = -light->l.radius[0];
+			light->localBounds[0][1] = -light->l.radius[1];
+			light->localBounds[0][2] = -light->l.radius[2];
+			light->localBounds[1][0] = light->l.radius[0];
+			light->localBounds[1][1] = light->l.radius[1];
+			light->localBounds[1][2] = light->l.radius[2];
 			break;
 		}
 		
 		case RL_PROJ:
 		{
-			light->localBounds[0][0] = light->l.radius[0];
-			light->localBounds[0][1] = light->l.radius[1];
-			light->localBounds[0][2] = light->l.radius[2];
-			light->localBounds[1][0] = 0;
-			light->localBounds[1][1] = -light->l.radius[1];
-			light->localBounds[1][2] = -light->l.radius[2];
+			float           xMin, xMax, yMin, yMax;
+			float           zNear, zFar;
+
+			zNear = 1.0;
+			zFar = light->l.distance;
+
+			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
+			xMin = -xMax;
+
+			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
+			yMin = -yMax;
+			
+			light->localBounds[0][0] = -zNear;
+			light->localBounds[0][1] = xMin * zFar;
+			light->localBounds[0][2] = yMin * zFar;
+			light->localBounds[1][0] = zFar;
+			light->localBounds[1][1] = xMax * zFar;
+			light->localBounds[1][2] = yMax * zFar;
 			break;
 		}
+		
+		default:
+			break;
 	}
 	
 	light->sphereRadius = RadiusFromBounds(light->localBounds[0], light->localBounds[1]);
@@ -580,6 +571,13 @@ void R_SetupLightFrustum(trRefLight_t * light)
 			break;
 		}
 		
+		case RL_PROJ:
+		{
+			// calculate frustum planes using the modelview projection matrix
+			R_SetupFrustum(light->frustum, light->viewMatrix, light->projectionMatrix);
+			break;	
+		}
+		
 		default:
 			break;
 	}
@@ -604,24 +602,18 @@ void R_SetupLightProjection(trRefLight_t * light)
 
 		case RL_PROJ:
 		{
-#if 1
 			float           xMin, xMax, yMin, yMax;
 			float           width, height, depth;
 			float           zNear, zFar;
-			float           fovX, fovY;
-			//matrix_t        proj;
 			float          *proj = light->projectionMatrix;
 
-			fovX = 30;
-			fovY = R_CalcFov(fovX, VectorLength(light->l.right) * 2, VectorLength(light->l.up) * 2);
-
 			zNear = 1.0;
-			zFar = VectorLength(light->l.target);
+			zFar = light->l.distance;
 
-			xMax = zNear * tan(fovX * M_PI / 360.0f);
+			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 			xMin = -xMax;
 
-			yMax = zNear * tan(fovY * M_PI / 360.0f);
+			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
 			yMin = -yMax;
 
 			width = xMax - xMin;
@@ -633,121 +625,6 @@ void R_SetupLightProjection(trRefLight_t * light)
 			proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
 			proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
 			proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
-#else
-			// Tr3B - recoded from GtkRadiant entity plugin source
-			int             i;
-			vec4_t          lightProject[4];
-			vec4_t          frustum[6];
-			vec3_t          start, stop;
-			vec3_t          right, up;
-			vec4_t          targetGlobal;
-			float           rLen, uLen, fLen;
-			vec3_t          normal;
-			vec_t           dist;
-			vec3_t          falloff;
-			
-			float          *proj = light->projectionMatrix;
-
-			//MatrixTransformNormal(light->transformMatrix, light->l.target, target);
-			//MatrixTransformNormal(light->transformMatrix, light->l.right, right);
-			//MatrixTransformNormal(light->transformMatrix, light->l.up, up);
-
-			VectorNormalize2(light->l.target, start);
-			VectorCopy(light->l.target, stop);
-
-			rLen = VectorNormalize2(light->l.right, right);
-			uLen = VectorNormalize2(light->l.up, up);
-			
-			CrossProduct(up, right, normal);
-			dist = DotProduct(light->l.target, normal);
-
-			if(dist < 0)
-			{
-				dist = -dist;
-				VectorInverse(normal);
-			}
-
-			VectorScale(right, (0.5f * dist) / rLen, right);
-			VectorScale(up, -(0.5f * dist) / uLen, up);
-
-			VectorCopy(normal, lightProject[2]);
-			lightProject[2][3] = 0;
-			
-			VectorCopy(right, lightProject[0]);
-			lightProject[0][3] = 0;
-			
-			VectorCopy(up, lightProject[1]);
-			lightProject[1][3] = 0;
-
-			// now offset to center
-			VectorCopy(light->l.target, targetGlobal);
-			targetGlobal[3] = 1;
-
-			{
-				float           a, b, ofs;
-				a = DotProduct4(targetGlobal, lightProject[0]);
-				b = DotProduct4(targetGlobal, lightProject[2]);
-				ofs = 0.5f - a / b;
-
-				VectorMA4(lightProject[0], ofs, lightProject[2], lightProject[0]);
-			}
-			{
-				float           a, b, ofs;
-				a = DotProduct4(targetGlobal, lightProject[1]);
-				b = DotProduct4(targetGlobal, lightProject[2]);
-				ofs = 0.5f - a / b;
-
-				VectorMA4(lightProject[1], ofs, lightProject[2], lightProject[1]);
-			}
-
-			// set the falloff vector
-			VectorSubtract(stop, start, falloff);
-			fLen = VectorNormalize(falloff);
-			if(fLen <= 0)
-			{
-				fLen = 1;
-			}
-			VectorScale(falloff, (1.0f / fLen), falloff);
-			
-			VectorCopy(falloff, lightProject[3]);
-			lightProject[3][3] = -DotProduct(start, falloff);
-
-			// we want the planes of s=0, s=q, t=0, and t=q
-			
-			// left
-			VectorCopy4(lightProject[0], frustum[0]);
-			
-			// bottom
-			VectorCopy4(lightProject[1], frustum[1]);
-			
-			// right
-			VectorSubtract(lightProject[2], lightProject[0], frustum[2]);
-			frustum[2][3] = lightProject[2][3] - lightProject[0][3];
-			
-			// top
-			VectorSubtract(lightProject[2], lightProject[1], frustum[3]);
-			frustum[3][3] = lightProject[2][3] - lightProject[1][3];
-			
-			// we want the planes of s=0 and s=1 for front and rear clipping planes
-			
-			// front
-			VectorCopy4(lightProject[3], frustum[4]);
-			
-			// back
-			VectorNegate(lightProject[3], frustum[5]);
-			frustum[5][3] = lightProject[3][3] - 1.0f;
-			
-			MatrixFromPlanes(proj, frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
-			
-			for(i = 0; i < 6; i++)
-			{
-				PlaneNormalize(frustum[i]);
-				VectorNegate(frustum[i], light->frustum[i].normal);
-				light->frustum[i].type = PlaneTypeForNormal(light->frustum[i].normal);
-				light->frustum[i].dist = frustum[i][3];
-				SetPlaneSignbits(&light->frustum[i]);
-			}
-#endif
 			break;
 		}
 

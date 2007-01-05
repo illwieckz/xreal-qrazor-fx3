@@ -1176,7 +1176,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.radius[0]);	// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);	// scale
 					break;
 				}
 
@@ -1573,7 +1573,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.radius[0]);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);		// scale
 					break;
 				}
 
@@ -2221,7 +2221,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.radius[0]);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);		// scale
 					break;
 				}
 
@@ -3240,7 +3240,6 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				VectorMA(vec3_origin, 16, up, up);
 
 				// draw axis
-				//qglLineWidth(3);
 				qglBegin(GL_LINES);
 
 				// draw orientation
@@ -3255,7 +3254,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				qglColor4fv(colorBlue);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(up);
-
+				
 				// draw special vectors
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
@@ -3264,42 +3263,85 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
 				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
 				qglVertex3fv(light->transformed);
-
-				qglColor4fv(colorMagenta);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(light->l.target);
-
-				qglColor4fv(colorCyan);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(light->l.right);
-
-				qglColor4fv(colorWhite);
-				qglVertex3fv(vec3_origin);
-				qglVertex3fv(light->l.up);
-
-				qglColor4fv(colorMdGrey);
-				qglVertex3fv(vec3_origin);
-				VectorAdd(light->l.target, light->l.up, tmp);
-				qglVertex3fv(tmp);
 				
-				// draw corners
-				qglColor4fv(lightColor);
-				for(j = 0; j < 8; j++)
-				{
-					qglVertex3fv(vec3_origin);
-					
-					tmp[0] = light->localBounds[j & 1][0];
-					tmp[1] = light->localBounds[(j >> 1) & 1][1];
-					tmp[2] = light->localBounds[(j >> 2) & 1][2];
-					
-					qglVertex3fv(tmp);
-				}
-
 				qglEnd();
-				//qglLineWidth(1);
 				
-				// draw local bounding box
-				R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
+				switch (light->l.rlType)
+				{
+					case RL_OMNI:
+					{
+						// draw corners
+						qglBegin(GL_LINES);
+				
+						qglColor4fv(lightColor);
+						for(j = 0; j < 8; j++)
+						{
+							qglVertex3fv(vec3_origin);
+					
+							tmp[0] = light->localBounds[j & 1][0];
+							tmp[1] = light->localBounds[(j >> 1) & 1][1];
+							tmp[2] = light->localBounds[(j >> 2) & 1][2];
+					
+							qglVertex3fv(tmp);
+						}
+						qglEnd();
+						
+						// draw local bounding box
+						R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
+						break;
+					}
+
+					case RL_PROJ:
+					{
+						float           xMin, xMax, yMin, yMax;
+						float           zNear, zFar;
+						vec3_t			corners[4];
+
+						zNear = 1.0;
+						zFar = light->l.distance;
+
+						xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
+						xMin = -xMax;
+
+						yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
+						yMin = -yMax;
+						
+						corners[0][0] = zFar;
+						corners[0][1] = xMin * zFar;
+						corners[0][2] = yMin * zFar;
+						
+						corners[1][0] = zFar;
+						corners[1][1] = xMax * zFar;
+						corners[1][2] = yMin * zFar;
+						
+						corners[2][0] = zFar;
+						corners[2][1] = xMax * zFar;
+						corners[2][2] = yMax * zFar;
+						
+						corners[3][0] = zFar;
+						corners[3][1] = xMin * zFar;
+						corners[3][2] = yMax * zFar;
+												
+						// draw pyramid
+						qglBegin(GL_LINES);
+				
+						qglColor4fv(lightColor);
+						for(j = 0; j < 4; j++)
+						{
+							qglVertex3fv(corners[j]);
+  							qglVertex3fv(corners[(j + 1) % 4]);
+							
+							qglVertex3fv(vec3_origin);
+							qglVertex3fv(corners[j]);
+						}
+						qglEnd();
+						break;
+					}
+					
+					default:
+						break;
+				}
+				
 
 				if(iaCount < (numInteractions - 1))
 				{
