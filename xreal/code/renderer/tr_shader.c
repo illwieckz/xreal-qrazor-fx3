@@ -3877,9 +3877,13 @@ static void CollapseStages(void)
 	shaderStage_t	tmpSpecularStage;
 	shaderStage_t   tmpReflectionStage;
 	
+	shader_t		tmpShader;
+	
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
-	shader_t		tmpShader;
+	
+	int				numExtraStages = 0;
+	shaderStage_t	extraStages[MAX_SHADER_STAGES];
 	
 	if(!qglActiveTextureARB || !r_collapseStages->integer)
 	{
@@ -3888,8 +3892,10 @@ static void CollapseStages(void)
 	
 	//ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
 	
-	Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
 	Com_Memcpy(&tmpShader, &shader, sizeof(shader));
+	
+	Com_Memset(&tmpStages[0], 0, sizeof(stages));
+	//Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
 
 	for(j = 0; j < MAX_SHADER_STAGES; j++)
 	{
@@ -3918,8 +3924,8 @@ static void CollapseStages(void)
 			stages[j].type == ST_ATTENUATIONMAP_Z)
 		{
 			// only merge lighting relevant stages
-			tmpStages[numStages] = stages[j];
-			numStages++;
+			extraStages[numExtraStages] = stages[j];
+			numExtraStages++;
 			continue;
 		}
 		
@@ -3957,70 +3963,17 @@ static void CollapseStages(void)
 		// NOTE: Tr3B - merge as many stages as possible
 		
 		// try to merge diffuse/normal/specular
-		if(		hasDiffuseStage		&&
-				hasNormalStage		&&
-				hasSpecularStage	&&
-				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
+		if(	hasDiffuseStage		&&
+			hasNormalStage		&&
+			hasSpecularStage
 		)
 		{
-			//ri.Printf(PRINT_ALL, "lighting_DBS_direct\n");
+			//ri.Printf(PRINT_ALL, "lighting_DBS\n");
 			
-			tmpShader.collapseType = COLLAPSE_lighting_DBS_direct;
-			
-			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_direct;
-			
-			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-			}
-			
-			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_SPECULARMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
-			}
-			
-			numStages++;
-			j += 2;
-			continue;
-		}
-		// try to merge diffuse/normal
-		else if(hasDiffuseStage		&&
-				hasNormalStage		&&
-				tmpDiffuseStage.rgbGen == CGEN_LIGHTING_DIFFUSE
-		)
-		{
-			//ri.Printf(PRINT_ALL, "lighting_DB_direct\n");
-			
-			tmpShader.collapseType = COLLAPSE_lighting_DB_direct;
+			tmpShader.collapseType = COLLAPSE_lighting_DBS;
 			
 			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_direct;
-			
-			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-			}
-	
-			numStages++;
-			j += 1;
-			continue;
-		}
-		// try to merge diffuse/normal/specular
-		else if(hasDiffuseStage		&&
-				hasNormalStage		&&
-				hasSpecularStage
-		)
-		{
-			//ri.Printf(PRINT_ALL, "lighting_DBS_generic\n");
-			
-			tmpShader.collapseType = COLLAPSE_lighting_DBS_generic;
-			
-			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS_generic;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
 			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
@@ -4043,12 +3996,12 @@ static void CollapseStages(void)
 				hasNormalStage
 		)
 		{
-			//ri.Printf(PRINT_ALL, "lighting_DB_generic\n");
+			//ri.Printf(PRINT_ALL, "lighting_DB\n");
 			
-			tmpShader.collapseType = COLLAPSE_lighting_DB_generic;
+			tmpShader.collapseType = COLLAPSE_lighting_DB;
 			
 			tmpStages[numStages] = tmpDiffuseStage;
-			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB_generic;
+			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
 			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
@@ -4171,10 +4124,23 @@ static void CollapseStages(void)
 		*/
 	}
 	
-	// move down subsequent stages
+	// concatenate extra passes
+	if(numStages + numExtraStages >= MAX_SHADER_STAGES)
+	{
+		numExtraStages = MAX_SHADER_STAGES - numStages;	
+	}
+	
+	for(j = 0; j < numExtraStages; j++)
+	{
+		tmpStages[numStages] = extraStages[j];
+		numStages++;
+	}
+	
+	// clear unused stages
 	Com_Memset(&tmpStages[numStages], 0, sizeof(stages[0]) * (MAX_SHADER_STAGES - numStages));
 	tmpShader.numStages = numStages;
 	
+	// copy result
 	Com_Memcpy(&stages[0], &tmpStages[0], sizeof(stages));
 	Com_Memcpy(&shader, &tmpShader, sizeof(shader));
 }
@@ -5247,21 +5213,13 @@ void R_ShaderList_f(void)
 				ri.Printf(PRINT_ALL, "MT(d)          ");
 			}
 		}
-		else if(shader->collapseType == COLLAPSE_lighting_DB_direct)
+		else if(shader->collapseType == COLLAPSE_lighting_DB)
 		{
-			ri.Printf(PRINT_ALL, "DB_direct      ");
+			ri.Printf(PRINT_ALL, "lighting_DB    ");
 		}
-		else if(shader->collapseType == COLLAPSE_lighting_DBS_direct)
+		else if(shader->collapseType == COLLAPSE_lighting_DBS)
 		{
-			ri.Printf(PRINT_ALL, "DBS_direct     ");
-		}
-		else if(shader->collapseType == COLLAPSE_lighting_DB_generic)
-		{
-			ri.Printf(PRINT_ALL, "DB_generic     ");
-		}
-		else if(shader->collapseType == COLLAPSE_lighting_DBS_generic)
-		{
-			ri.Printf(PRINT_ALL, "DBS_generic    ");
+			ri.Printf(PRINT_ALL, "lightnig_DBS   ");
 		}
 		else if(shader->collapseType == COLLAPSE_reflection_CB)
 		{

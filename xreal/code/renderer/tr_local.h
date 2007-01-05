@@ -597,10 +597,8 @@ typedef enum
 	ST_BLOOM2MAP,
 	ST_ROTOSCOPEMAP,
 
-	ST_COLLAPSE_lighting_DB_direct,	// directional entity lighting like rgbGen lightingDiffuse
-	ST_COLLAPSE_lighting_DBS_direct,	// direction entity lighting with diffuse + bump + specular
-	ST_COLLAPSE_lighting_DB_generic,	// diffusemap + bumpmap
-	ST_COLLAPSE_lighting_DBS_generic,	// diffusemap + bumpmap + specularmap
+	ST_COLLAPSE_lighting_DB,	// diffusemap + bumpmap
+	ST_COLLAPSE_lighting_DBS,	// diffusemap + bumpmap + specularmap
 	ST_COLLAPSE_reflection_CB,	// color cubemap + bumpmap
 
 	// light shader stage types
@@ -612,10 +610,8 @@ typedef enum
 {
 	COLLAPSE_none,
 	COLLAPSE_genericMulti,
-	COLLAPSE_lighting_DB_direct,
-	COLLAPSE_lighting_DBS_direct,
-	COLLAPSE_lighting_DB_generic,
-	COLLAPSE_lighting_DBS_generic,
+	COLLAPSE_lighting_DB,
+	COLLAPSE_lighting_DBS,
 	COLLAPSE_reflection_CB
 } collapseType_t;
 

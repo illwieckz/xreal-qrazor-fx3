@@ -3552,10 +3552,8 @@ void Tess_StageIteratorGeneric()
 				break;
 			
 			case ST_DIFFUSEMAP:
-			case ST_COLLAPSE_lighting_DB_generic:
-			case ST_COLLAPSE_lighting_DBS_generic:
-			case ST_COLLAPSE_lighting_DB_direct:
-			case ST_COLLAPSE_lighting_DBS_direct:
+			case ST_COLLAPSE_lighting_DB:
+			case ST_COLLAPSE_lighting_DBS:
 			{
 				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{				
@@ -3838,8 +3836,7 @@ void Tess_StageIteratorGBuffer()
 				break;
 			}
 			
-			case ST_COLLAPSE_lighting_DB_direct:
-			case ST_COLLAPSE_lighting_DB_generic:
+			case ST_COLLAPSE_lighting_DB:
 			{
 				if(glConfig.shadingLanguage100Available)
 				{
@@ -3859,8 +3856,7 @@ void Tess_StageIteratorGBuffer()
 				break;
 			}
 			
-			case ST_COLLAPSE_lighting_DBS_direct:
-			case ST_COLLAPSE_lighting_DBS_generic:
+			case ST_COLLAPSE_lighting_DBS:
 			{
 				if(glConfig.shadingLanguage100Available)
 				{
@@ -3985,10 +3981,8 @@ void Tess_StageIteratorShadowFill()
 			}
 			
 			case ST_DIFFUSEMAP:
-			case ST_COLLAPSE_lighting_DB_direct:
-			case ST_COLLAPSE_lighting_DBS_direct:
-			case ST_COLLAPSE_lighting_DB_generic:
-			case ST_COLLAPSE_lighting_DBS_generic:
+			case ST_COLLAPSE_lighting_DB:
+			case ST_COLLAPSE_lighting_DBS:
 			{
 				if(glConfig.shadingLanguage100Available)
 				{
@@ -4364,8 +4358,7 @@ void Tess_StageIteratorStencilLighting()
 					}
 					break;
 
-				case ST_COLLAPSE_lighting_DB_direct:
-				case ST_COLLAPSE_lighting_DB_generic:
+				case ST_COLLAPSE_lighting_DB:
 					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 1)
@@ -4405,8 +4398,7 @@ void Tess_StageIteratorStencilLighting()
 					}
 					break;
 
-				case ST_COLLAPSE_lighting_DBS_direct:
-				case ST_COLLAPSE_lighting_DBS_generic:
+				case ST_COLLAPSE_lighting_DBS:
 					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 2)
@@ -4613,8 +4605,7 @@ void Tess_StageIteratorLighting()
 					}
 					break;
 
-				case ST_COLLAPSE_lighting_DB_direct:
-				case ST_COLLAPSE_lighting_DB_generic:
+				case ST_COLLAPSE_lighting_DB:
 					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 1)
@@ -4654,8 +4645,7 @@ void Tess_StageIteratorLighting()
 					}
 					break;
 
-				case ST_COLLAPSE_lighting_DBS_direct:
-				case ST_COLLAPSE_lighting_DBS_generic:
+				case ST_COLLAPSE_lighting_DBS:
 					if(glConfig.shadingLanguage100Available)
 					{
 						if(r_lighting->integer == 2)
