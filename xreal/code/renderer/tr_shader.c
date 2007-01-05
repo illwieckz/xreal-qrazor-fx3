@@ -3865,7 +3865,6 @@ static void CollapseStages(void)
 {
 //	int             abits, bbits;
 	int             i, j;
-//	textureBundle_t tmpBundle;
 	
 	qboolean		hasDiffuseStage;
 	qboolean		hasNormalStage;
@@ -3881,9 +3880,6 @@ static void CollapseStages(void)
 	
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
-	
-	int				numExtraStages = 0;
-	shaderStage_t	extraStages[MAX_SHADER_STAGES];
 	
 	if(!qglActiveTextureARB || !r_collapseStages->integer)
 	{
@@ -3924,8 +3920,8 @@ static void CollapseStages(void)
 			stages[j].type == ST_ATTENUATIONMAP_Z)
 		{
 			// only merge lighting relevant stages
-			extraStages[numExtraStages] = stages[j];
-			numExtraStages++;
+			tmpStages[numStages] = stages[j];
+			numStages++;
 			continue;
 		}
 		
@@ -4125,6 +4121,7 @@ static void CollapseStages(void)
 	}
 	
 	// concatenate extra passes
+	/*
 	if(numStages + numExtraStages >= MAX_SHADER_STAGES)
 	{
 		numExtraStages = MAX_SHADER_STAGES - numStages;	
@@ -4135,6 +4132,7 @@ static void CollapseStages(void)
 		tmpStages[numStages] = extraStages[j];
 		numStages++;
 	}
+	*/
 	
 	// clear unused stages
 	Com_Memset(&tmpStages[numStages], 0, sizeof(stages[0]) * (MAX_SHADER_STAGES - numStages));
