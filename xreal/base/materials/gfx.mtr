@@ -182,7 +182,7 @@ menuCursor
 	{
 		blend blend
 		//animMap 9 menu/art/cursor_01.tga menu/art/cursor_02.tga menu/art/cursor_03.tga menu/art/cursor_04.tga menu/art/cursor_05.tga menu/art/cursor_06.tga menu/art/cursor_07.tga menu/art/cursor_08.tga menu/art/cursor_09.tga
-		map ui/assets/3_cursor3.tga
+		map menu/art/3_cursor3.tga
 	}
 }
 
