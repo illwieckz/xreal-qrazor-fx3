@@ -7,8 +7,7 @@ base/models
 base/team_icon
 base/textures
 base/sound
-base/ui/assets
-- replace all left EULA licensed Q3A/TA demo media, look into MEDIA.txt for more details
+- replace all left EULA licensed Q3A demo media, look into MEDIA.txt for more details
 
 code/cgame
 - add better particle effects
@@ -31,15 +30,11 @@ code/renderer
 - add Percentage-Closer-Filtering to shadow mapping
 - add proper water shader with reflection and refraction
 - support decals on static and dynamic abitrary triangle surfaces ?
-- finish COLLADA .dae model support ?
-- support lightmapping on abitrary triangle surfaces ?
 
 code/xmap
 - fix texcoords from .lwo models
 - merge AAS compiler into xmap ?
 - finish BSP tree optimizations like merging co-planar faces ?
-- add COLLADA .dae model support ?
-- support lightmapping on abitrary triangle surfaces ?
 
 
 
@@ -74,12 +69,7 @@ code/qcommon/cm
 - improve collision detection interface to allow creation of contact joints
 
 code/renderer
-- fix stencil shadow flickering bug
-- add proper water shader with reflection and refraction
-- improve speed and quality of variance shadow mapping
-- support decals on static and dynamic abitrary triangle surfaces
-- finish COLLADA .dae model support ?
-- support lightmapping on abitrary triangle surfaces ?
+- add COLLADA .dae model support ?
 - support Precomputed Irradiance Volumes for static scenes and
   Precomputed Radiance Transfer for objects within those scenes ?
   (http://www.ati.com/developer/gdc/GDC2005_PracticalPRT.pdf)

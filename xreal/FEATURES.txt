@@ -1,5 +1,9 @@
 code/cgame
 - Tenebrae style player teleporter effect
+- testOmniLight <lightShader> console command
+- testProjLight <lightShader> console command
+- testFlashLight <lightShader> console command
+- testAnimation <animation> console command
 
 code/game/shared
 - matrix math
@@ -10,8 +14,7 @@ code/game/shared
 code/game
 - experimental Lua 5.1 layer for level entity scripting allowing map designers to control entities like in Doom3
 
-code/ui
-- new scriptable menu and hud
+code/q3_ui
 - lighting mode game option
 - bloom rendering game option
 - anisotropic filter value slider in graphics options
@@ -52,7 +55,6 @@ code/renderer
 - cubemap based refraction mapping
 - cubemap based dispersion mapping
 - dynamic and static lights use Doom3 style boxed lighting attenuation
-- directional lighting (sun lights)
 - omni-directional lighting (point lights)
 - projective lighting (spot lights)
 - uniform lighting and shadowing model
@@ -79,6 +81,7 @@ code/renderer
 - rotoscope cartoon post process effect
 - reactivated and extended TrueType font support using FreeType
 - optional deferred shading with r_deferredShading 1
+- screenshotPNG console command
 
 code/common/aselib
 - fixed bad Doom3 paths

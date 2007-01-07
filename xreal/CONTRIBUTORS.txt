@@ -5,7 +5,7 @@ Adrian "otty" Fuhrmann - user interface
 Josef "cnuke" Söntgen - cgame stuff
 Björn "bj0ern" Paschen - Win32 specific fixes
 Pat "raynorpat" Raynor - bugfixes, PNG support
-Iain "Jock" Mckay - x86_64 patch
+Iain "Jock" Mckay - x86_64 support
 Tim "Timbo" Angus - .avi video recording support
 Manfred "Defcon-x" Nerurkar - misc renderer enhancements
 Jason Thomas Dolan - Linux ALSA sound backend
