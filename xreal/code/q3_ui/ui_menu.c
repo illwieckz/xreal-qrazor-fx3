@@ -42,8 +42,7 @@ MAIN MENU
 #define ID_MODS					16
 #define ID_EXIT					17
 
-#define MAIN_BANNER_MODEL				"models/mapobjects/banner/bannerx.md3"
-#define MAIN_BANNER_SHADER				"menuBanner"
+#define MAIN_BANNER_SHADER			"menuBanner"
 #define MAIN_MENU_VERTICAL_SPACING		34
 
 
@@ -59,9 +58,7 @@ typedef struct {
 	menutext_s		mods;
 	menutext_s		exit;
 
-	qhandle_t		bannerModel;
 	qhandle_t		bannerShader;
-	qhandle_t		bloomShader;
 } mainmenu_t;
 
 
@@ -143,7 +140,6 @@ MainMenu_Cache
 */
 void MainMenu_Cache(void)
 {
-	s_main.bannerModel = trap_R_RegisterModel(MAIN_BANNER_MODEL);
 	s_main.bannerShader = trap_R_RegisterShaderNoMip(MAIN_BANNER_SHADER);
 }
 
@@ -164,6 +160,8 @@ TTimo: this function is common to the main menu and errorMessage menu
 static void Main_MenuDraw(void)
 {
 	vec4_t			color = {0.5, 0, 0, 1};
+	
+	/*
 #if 0
 	refdef_t		refdef;
 	refEntity_t		ent;
@@ -221,7 +219,8 @@ static void Main_MenuDraw(void)
 #else
 	UI_DrawHandlePic(0, 0, 640, 120, s_main.bannerShader);
 #endif
-
+	*/
+	
 	if(strlen(s_errorMessage.errorMessage))
 	{
 		UI_DrawProportionalString_AutoWrapped( 320, 192, 600, 20, s_errorMessage.errorMessage, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
@@ -235,11 +234,13 @@ static void Main_MenuDraw(void)
 	if(uis.demoversion)
 	{
 		UI_DrawProportionalString( 320, 372, "DEMO      FOR MATURE AUDIENCES      DEMO", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 400, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		//UI_DrawString( 320, 400, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 400, "XreaL(c) 2005-2007, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
 	}
 	else
 	{
-		UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		//UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		UI_DrawString( 320, 450, "XreaL(c) 2005-2007, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
 	}
 	
 //	UI_DrawHandlePic(0, 0, 640, 480, s_main.bloomShader);
@@ -433,5 +434,4 @@ void UI_MainMenu( void ) {
 	trap_Key_SetCatcher( KEYCATCH_UI );
 	uis.menusp = 0;
 	UI_PushMenu ( &s_main.menu );
-		
 }
