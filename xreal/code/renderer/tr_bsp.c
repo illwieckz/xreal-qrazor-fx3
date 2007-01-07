@@ -2750,10 +2750,12 @@ void R_LoadEntities(lump_t * l)
 	}
 #endif
 
+	/*
 	if((numOmniLights + numProjLights) != s_worldData.numLights)
 	{
 		ri.Error(ERR_DROP, "counted %i lights and parsed %i lights", s_worldData.numLights, (numOmniLights + numProjLights));
-	} 
+	}
+	*/
 
 	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights);
