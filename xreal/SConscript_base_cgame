@@ -40,19 +40,18 @@ dll_src = [
 ]
 
 cgame_env = env.Copy()
-cgame_env.Append(CCFLAGS='-DMISSIONPACK')
 
 if env['lua'] == 1:
 		cgame_env.Append(CCFLAGS='-DLUA')
 
 if env['arch'] == 'linux-i386':
-	cgame_env.SharedLibrary('cgame', [cgame_src, ta_src, dll_src], LIBS=['m'])
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgamei386.so', 'libcgame.so')
 
 elif env['arch'] == 'linux-x86_64':
-	cgame_env.SharedLibrary('cgame', [cgame_src, ta_src, dll_src], LIBS=['m'])
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgamex86_64.so', 'libcgame.so')
 
 elif env['arch'] == 'win32-mingw':
-	cgame_env.SharedLibrary('cgame', [cgame_src, ta_src, dll_src], LIBS=['m'])
+	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgamex86.dll', 'cgame.dll')
