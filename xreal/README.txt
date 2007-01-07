@@ -51,15 +51,7 @@ COMPILING ON WIN32 WITH MINGW
 	and copy it over the existing C:\MingW\include\GL\glext.h.
 4. Download and install Python from http://www.python.org/.
 5. Download and install SCons from http://www.scons.org/.
-6. Download libxml2 from http://www.xmlsoft.org/.
-7. Configure libxml2:
-	in libxml2-2.6.26\win32
-	>cscript configure.js ftp=no http=no iconv=no compiler=mingw prefix=C:\MingW bindir=C:\MingW\bin incdir=C:\MingW\include libdir=C:\MingW\lib sodir=C:\MingW\lib
-8. Compile libxml2:
-	>mingw32-make -f Makefile.mingw
-9. Install libxml2:
-	>mingw32-make -f Makefile.mingw install
-10. Compile XreaL:
+6. Compile XreaL:
 	>scons arch=win32-mingw
 
 
