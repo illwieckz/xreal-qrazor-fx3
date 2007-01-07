@@ -215,6 +215,61 @@ menuBanner
 	*/
 }
 
+menu/art/slider2
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map menu/art/slider2.png
+		blend add
+	}
+}
+
+menu/art/sliderbutt_0
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map menu/art/sliderbutt_0.png
+		blend add
+	}
+}
+
+menu/art/sliderbutt_1
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map menu/art/sliderbutt_1.png
+		blend add
+	}
+}
+
+menu/art/switch_on
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map menu/art/switch_on.png
+		blend add
+	}
+}
+
+menu/art/switch_off
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map menu/art/switch_off.png
+		blend add
+	}
+}
+
 levelShotDetail
 // used to break up the blur on levelshots
 {
