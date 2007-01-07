@@ -2017,19 +2017,6 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 	}
 }
 
-
-/*
-==============
-Tess_SurfaceDAE
-==============
-*/
-static void Tess_SurfaceDAE(daeSurface_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
-{
-	GLimp_LogComment("--- Tess_SurfaceDAE ---\n");
-	
-	//TODO
-}
-
 /*
 ===========================================================================
 
@@ -2173,7 +2160,6 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 		(void (*)(void *, int, int *, int, int *))Tess_SurfacePolychain,	// SF_POLY,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceMDX,	// SF_MDX,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceMD5,	// SF_MD5,
-		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDAE,	// SF_DAE,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceEntity,	// SF_ENTITY
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDisplayList	// SF_DISPLAY_LIST

@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *name);
 static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *name);
-static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char *name);
 
 model_t        *loadmodel;
 
@@ -174,10 +173,6 @@ qhandle_t RE_RegisterModel(const char *name)
 		if(!Q_stricmpn((const char*)buffer, "MD5Version", 10))
 		{
 			loaded = R_LoadMD5(mod, buffer, name);
-		}
-		else if(!Q_stricmp(filename + len - 4, ".dae"))
-		{
-			loaded = R_LoadDAE(mod, buffer, bufferLen, name);
 		}
 		else
 		{
@@ -879,6 +874,7 @@ void R_XMLError(void *ctx, const char *fmt, ...)
 R_LoadDAE
 =================
 */
+/*
 static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char *modName)
 {
 	xmlDocPtr       doc;
@@ -920,6 +916,7 @@ static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char
 	
 	return qfalse;
 }
+*/
 
 //=============================================================================
 
