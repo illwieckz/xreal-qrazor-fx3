@@ -857,11 +857,12 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_MACHINEGUN:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/machinegun/machgf1b.wav", qfalse);
-			weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/machgf2b.wav", qfalse);
-			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/machgf3b.wav", qfalse);
-			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/machgf4b.wav", qfalse);
-			weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg", qfalse);
+			weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_2.ogg", qfalse);
+			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_3.ogg", qfalse);
+			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_4.ogg", qfalse);
+			weaponInfo->flashSound[4] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_5.ogg", qfalse);
+			//weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 			cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 			break;
 
@@ -2140,7 +2141,7 @@ void CG_FireWeapon(centity_t * cent)
 	}
 
 	// play a sound
-	for(c = 0; c < 4; c++)
+	for(c = 0; c < 10; c++)
 	{
 		if(!weap->flashSound[c])
 		{

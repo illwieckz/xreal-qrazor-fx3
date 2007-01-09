@@ -416,7 +416,7 @@ typedef struct weaponInfo_s
 
 	float           flashLight;
 	vec3_t          flashLightColor;
-	sfxHandle_t     flashSound[4];	// fast firing weapons randomly choose
+	sfxHandle_t     flashSound[10];	// fast firing weapons randomly choose
 
 	qhandle_t       weaponIcon;
 	qhandle_t       ammoIcon;
