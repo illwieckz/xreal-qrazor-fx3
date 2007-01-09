@@ -2767,9 +2767,8 @@ int AINode_Battle_Retreat(bot_state_t * bs)
 	if(BotFindEnemy(bs, bs->enemy))
 	{
 #ifdef _DEBUG
-		char            netname[128];
-
-		BotAI_Print(PRT_MESSAGE, "battle retreat: %s: found new better enemy\n", ClientName(bs->client, netname, sizeof(netname)));
+		//char            netname[128];
+		//BotAI_Print(PRT_MESSAGE, "battle retreat: %s: found new better enemy\n", ClientName(bs->client, netname, sizeof(netname)));
 #endif
 	}
 	//
