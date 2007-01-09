@@ -4,7 +4,6 @@ base/gfx
 base/icons
 base/menu
 base/models
-base/team_icon
 base/textures
 base/sound
 - replace all left EULA licensed Q3A demo media, look into MEDIA.txt for more details
@@ -24,11 +23,12 @@ code/game
 code/renderer
 - fix tcMod turb
 - fix stencil shadow flickering bug
-- change lighting_*_direct shaders to simulate non-lightgrid lighting
 - improve deferred shading
 - add stained shadow mapping
+- add volumetric lighting
 - add Percentage-Closer-Filtering to shadow mapping
 - add proper water shader with reflection and refraction
+- change lighting_*_direct shaders to simulate non-lightgrid lighting ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 
 code/xmap
