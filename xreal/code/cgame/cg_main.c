@@ -728,8 +728,8 @@ static void CG_RegisterSounds(void)
 
 	for(i = 0; i < 4; i++)
 	{
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/step%i.wav", i + 1);
-		cgs.media.footsteps[FOOTSTEP_NORMAL][i] = trap_S_RegisterSound(name, qfalse);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/stone%i.ogg", i + 1);
+		cgs.media.footsteps[FOOTSTEP_STONE][i] = trap_S_RegisterSound(name, qfalse);
 
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/boot%i.wav", i + 1);
 		cgs.media.footsteps[FOOTSTEP_BOOT][i] = trap_S_RegisterSound(name, qfalse);
