@@ -420,7 +420,7 @@ void UI_SPPostgameMenu_Cache( void ) {
 	if( buildscript ) {
 		trap_S_RegisterSound( "music/loss.wav", qfalse );
 		trap_S_RegisterSound( "music/win.wav", qfalse );
-		trap_S_RegisterSound( "sound/player/announce/youwin.wav", qfalse );
+		trap_S_RegisterSound( "sound/feedback/youwin.ogg", qfalse );
 	}
 }
 
