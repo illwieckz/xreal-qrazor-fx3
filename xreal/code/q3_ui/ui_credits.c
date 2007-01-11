@@ -70,16 +70,22 @@ static void UI_CreditMenu_Draw(void)
 	y = 12;
 	UI_DrawProportionalString(320, y, "Credits", UI_CENTER | UI_SMALLFONT, colorRed);
 
-	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Programming", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
 
-	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Art", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Robert 'Tr3B' Beckebans,", UI_CENTER | UI_SMALLFONT, colorWhite);
+	UI_DrawProportionalString(320, y, "XreaL Team", UI_CENTER | UI_SMALLFONT, colorWhite);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	UI_DrawProportionalString(320, y, "OpenArena Team", UI_CENTER | UI_SMALLFONT, colorWhite);
+	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	UI_DrawProportionalString(320, y, "Tenebrae Team", UI_CENTER | UI_SMALLFONT, colorWhite);
+	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	UI_DrawProportionalString(320, y, "Sapphire Scar Team", UI_CENTER | UI_SMALLFONT, colorWhite);
+	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	//UI_DrawProportionalString(320, y, "Paul 'JTR' Steffens, Lee David Ash,", UI_CENTER | UI_SMALLFONT, colorWhite);
 	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	//UI_DrawProportionalString(320, y, "James 'HarlequiN' Taylor,", UI_CENTER | UI_SMALLFONT, colorWhite);
@@ -93,17 +99,17 @@ static void UI_CreditMenu_Draw(void)
 	UI_DrawProportionalString(320, y, "Graeme Devine", UI_CENTER | UI_SMALLFONT, colorWhite);
 	*/
 
-	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Level Design", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite);
+	//y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	//UI_DrawProportionalString(320, y, "Level Design", UI_CENTER | UI_SMALLFONT, colorLtGrey);
+	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	//UI_DrawProportionalString(320, y, "Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite);
 	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	//UI_DrawProportionalString(320, y, "'Dominic 'cha0s' Szablewski", UI_CENTER | UI_SMALLFONT, colorWhite);
 
-	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Project Leader", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
+	//y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	//UI_DrawProportionalString(320, y, "Project Leader", UI_CENTER | UI_SMALLFONT, colorLtGrey);
+	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	//UI_DrawProportionalString(320, y, "Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
 
 	/*
 	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
@@ -117,16 +123,14 @@ static void UI_CreditMenu_Draw(void)
 	UI_DrawProportionalString( 320, y, "Donna Jackson", UI_CENTER|UI_SMALLFONT, colorWhite );
 	*/
 	
-	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Development Assistance", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Mathias 'Skynet' Heyer", UI_CENTER | UI_SMALLFONT, colorWhite);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Bjoern 'bj0ern' Paschen", UI_CENTER | UI_SMALLFONT, colorWhite);
 	
-	y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Contributors", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "For a list of contributors,", UI_CENTER | UI_SMALLFONT, colorWhite);
@@ -134,14 +138,14 @@ static void UI_CreditMenu_Draw(void)
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorWhite);
 
-	y += 1.35 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 //	UI_DrawString(320, y, "To order: 1-800-idgames     www.quake3arena.com     www.idsoftware.com", UI_CENTER | UI_SMALLFONT, colorRed);
 	UI_DrawString(320, y, "websites:   www.sourceforge.net/projects/xreal    xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, colorBlue);
 	y += 1.35 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	//y += SMALLCHAR_HEIGHT;
 	//UI_DrawString(320, y, "Quake III Arena(c) 1999-2005, Id Software, Inc.", UI_CENTER | UI_SMALLFONT, colorRed);
 	y += SMALLCHAR_HEIGHT;
-	UI_DrawString(320, y, "XreaL(c) 2005-2006, XreaL Team", UI_CENTER | UI_SMALLFONT, colorRed);
+	UI_DrawString(320, y, "XreaL(c) 2005-2007, XreaL Team and contributors", UI_CENTER | UI_SMALLFONT, colorRed);
 }
 
 

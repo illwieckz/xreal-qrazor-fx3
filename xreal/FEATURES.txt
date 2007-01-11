@@ -1,5 +1,6 @@
 code/cgame
 - Tenebrae style player teleporter effect
+- rotating gibs
 - testOmniLight <lightShader> console command
 - testProjLight <lightShader> console command
 - testFlashLight <lightShader> console command

@@ -19,12 +19,21 @@ ensiform - console clock enhancements
 MODELLING
 =========
 Robert "Tr3B" Beckebans - health pickup models
-Lee David Ash - weapon models
 Julian "Plaque" Morris - weapon and projectile models
 Mikael "Ruohis" Ruohomaa - weapon models
+
+
+OpenArena Team
+--------------
 jzero - OpenArena weapon models
 CheapAlert - OpenArena models
 
+
+Sapphire Scar Team
+------------------
+dfacto - par machinegun model
+Earthquake - par machinegun model
+NecEvil  - par machinegun model
 
 
 LEVEL DESIGN
@@ -44,10 +53,16 @@ Garth "Zombie13" Hendy
 CheapAlert
 
 
-
 SFX
 ===
-Randall "Ravenant" P. - cool weapon sounds
+
+OpenArena Team
+--------------
+Mancubus (mancubus.net) - is the announcer!
+
+
+Sapphire Scar Team
+------------------
 
 
 

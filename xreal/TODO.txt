@@ -1,12 +1,18 @@
 === XreaL 1.0 Features ===
 
+- replace all left EULA licensed Q3A demo media, look into MEDIA.txt for more details
+
 base/gfx
 base/icons
 base/menu
 base/models
 base/textures
 base/sound
-- replace all left EULA licensed Q3A demo media, look into MEDIA.txt for more details
+base/sound/feedback/vote_now.ogg
+base/sound/feedback/vote_passed.ogg
+base/sound/feedback/vote_failed.ogg
+
+
 
 code/cgame
 - add better particle effects
