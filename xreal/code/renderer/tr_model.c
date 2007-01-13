@@ -1112,6 +1112,8 @@ int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
 	skel->numBones = md5->numBones;
 	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
 	{
+		skel->bones[i].parentIndex = bone->parentIndex;
+		
 #ifdef USE_BONEMATRIX
 		MatrixCopy(bone->transform, skel->bones[i].transform);
 #else
@@ -1119,7 +1121,8 @@ int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
 		QuatCopy(bone->rotation, skel->bones[i].rotation);
 #endif
 	}
-
+	
+	skel->valid = qtrue;
 	return qtrue;
 }
 

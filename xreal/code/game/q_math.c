@@ -2414,9 +2414,16 @@ void QuatMultiply4(const quat_t qa, const quat_t qb, quat_t qc)
 	qc[3] =-qa[3] * qb[3] - qa[0] * qb[0] + qa[1] * qb[1] - qa[2] * qb[2];
 }
 
+/*
+Slerping Clock Cycles
+February 27th 2005
+J.M.P. van Waveren
 
+http://www.intel.com/cd/ids/developer/asmo-na/eng/293747.htm
+*/
 void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 {
+#if 0
 	quat_t          to1;
 	double          omega, cosom, sinom, scale0, scale1;
 
@@ -2451,6 +2458,70 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 	out[1] = scale0 * from[1] + scale1 * to1[1];
 	out[2] = scale0 * from[2] + scale1 * to1[2];
 	out[3] = scale0 * from[3] + scale1 * to1[3];
+#else
+	/*
+	general version
+	
+	float cosom, scale0, scale1, s;
+	cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
+	scale0 = 1.0f - t;
+	scale1 = ( cosom >= 0.0f ) ? t : -t;
+	result.x = scale0 * from.x + scale1 * to.x;
+	result.y = scale0 * from.y + scale1 * to.y;
+	result.z = scale0 * from.z + scale1 * to.z;
+	result.w = scale0 * from.w + scale1 * to.w;
+	s = 1.0f / sqrt( result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w );
+	result.x *= s;
+	result.y *= s;
+	result.z *= s;
+	result.w *= s;
+	*/
+	
+	float cosom, absCosom, sinom, sinSqr, omega, scale0, scale1;
+	
+	if(frac <= 0.0f)
+	{
+		QuatCopy(from, out);
+		return;	
+	}
+	
+	if(frac >= 1.0f)
+	{
+		QuatCopy(to, out);
+		return;	
+	}
+	
+	if(QuatCompare(from, to))
+	{
+		QuatCopy(from, out);
+		return;
+	}
+	
+	cosom = from[0] * to[0] + from[1] * to[1] + from[2] * to[2] + from[3] * to[3];
+	absCosom = fabs(cosom);
+	
+	if((1.0f - absCosom) > 1e-6f)
+	{
+		sinSqr = 1.0f - absCosom * absCosom;
+		sinom = 1.0f / sqrt(sinSqr);
+		omega = atan2(sinSqr * sinom, absCosom);
+		
+		scale0 = sin((1.0f - frac) * omega) * sinom;
+		scale1 = sin(frac * omega) * sinom;
+	}
+	else
+	{
+		scale0 = 1.0f - frac;
+		scale1 = frac;
+	}
+	
+	scale1 = ( cosom >= 0.0f ) ? scale1 : -scale1;
+	
+	out[0] = scale0 * from[0] + scale1 * to[0];
+	out[1] = scale0 * from[1] + scale1 * to[1];
+	out[2] = scale0 * from[2] + scale1 * to[2];
+	out[3] = scale0 * from[3] + scale1 * to[3];
+#endif
 }
 
 void QuatTransformVector(const quat_t q, const vec3_t in, vec3_t out)

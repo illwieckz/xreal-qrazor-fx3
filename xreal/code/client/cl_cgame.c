@@ -646,6 +646,10 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 			return re.BlendSkeleton(VMA(1), VMA(2), VMF(3));
 		case CG_R_BONEINDEX:
 			return re.BoneIndex(args[1], VMA(2));
+		case CG_R_ANIMNUMFRAMES:
+			return re.AnimNumFrames(args[1]);
+		case CG_R_ANIMFRAMERATE:
+			return re.AnimFrameRate(args[1]);
 		case CG_GETGLCONFIG:
 			CL_GetGlconfig(VMA(1));
 			return 0;

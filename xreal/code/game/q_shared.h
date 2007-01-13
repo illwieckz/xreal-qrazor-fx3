@@ -1139,12 +1139,16 @@ static ID_INLINE int QuatCompare(const quat_t a, const quat_t b)
 
 static ID_INLINE void QuatCalcW(quat_t q)
 {
-	vec_t           term = 1.0f - q[0] * q[0] - q[1] * q[1] - q[2] * q[2];
+#if 1
+	vec_t           term = 1.0f - (q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
 
 	if(term < 0.0)
 		q[3] = 0.0;
 	else
 		q[3] = -sqrt(term);
+#else
+	q[3] = sqrt(fabs(1.0f - (q[0] * q[0] + q[1] * q[1] + q[2] * q[2])));
+#endif
 }
 
 static ID_INLINE void QuatInverse(quat_t q)

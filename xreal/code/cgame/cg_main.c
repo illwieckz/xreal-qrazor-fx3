@@ -193,6 +193,7 @@ vmCvar_t        cg_trueLightning;
 
 vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
+vmCvar_t		cg_drawPlayerAABB;
 
 #ifdef MISSIONPACK
 vmCvar_t        cg_redTeamName;
@@ -333,7 +334,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 //  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
-	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE}
+	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
+	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT}
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -1126,8 +1128,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/flag_missing.tga");
 #endif
 
-	// light attenuation
-	cgs.media.defaultLightShader = trap_R_RegisterShaderLightAttenuation("lights/defaultDynamicLight");
+	// debug utils
+	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
+	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 
 	CG_ClearParticles();
 /*

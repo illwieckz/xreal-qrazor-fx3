@@ -378,6 +378,9 @@ static void CG_Item(centity_t * cent)
 		VectorScale(ent.axis[1], frac, ent.axis[1]);
 		VectorScale(ent.axis[2], frac, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
+		
+		// don't cast shadows in this time period
+		ent.renderfx |= RF_NOSHADOW;
 	}
 	else
 	{
@@ -463,6 +466,9 @@ static void CG_Item(centity_t * cent)
 					VectorScale(ent.axis[1], frac, ent.axis[1]);
 					VectorScale(ent.axis[2], frac, ent.axis[2]);
 					ent.nonNormalizedAxes = qtrue;
+					
+					// don't cast shadows in this time period
+					ent.renderfx |= RF_NOSHADOW;
 				}
 				trap_R_AddRefEntityToScene(&ent);
 			}

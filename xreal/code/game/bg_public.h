@@ -481,7 +481,18 @@ typedef enum
 	GTS_KAMIKAZE
 } global_team_sound_t;
 
-// animations
+
+// new XreaL-PPM animations
+/*
+enum
+{
+	ANIM_IDLE,
+	ANIM_WALK,
+	MAX_XPPM_ANIMATIONS
+};
+*/
+
+// old classic Q3A animations
 typedef enum
 {
 	BOTH_DEATH1,
@@ -540,6 +551,9 @@ typedef enum
 
 typedef struct animation_s
 {
+#ifdef XPPM
+	qhandle_t		handle;		// registered md5Animation or whatever
+#endif
 	int             firstFrame;
 	int             numFrames;
 	int             loopFrames;	// 0 to numFrames

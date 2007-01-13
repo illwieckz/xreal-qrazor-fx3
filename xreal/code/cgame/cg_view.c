@@ -153,9 +153,6 @@ void CG_TestAnimation_f(void)
 		CG_Printf("Can't build animation\n");
 		return;
 	}
-	
-	// tell renderer that skeleton is set up properly
-	cg.testModelEntity.renderfx |= RF_SKELETON;
 }
 
 

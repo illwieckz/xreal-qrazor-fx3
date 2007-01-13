@@ -17,11 +17,11 @@ opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting suppor
 opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machine support', 0))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
-#opts.Add(BoolOption('mtr', 'Set to 1 to compile engine and map compiler with .mtr shader support', 0))
 opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
 opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 opts.Add(BoolOption('freetype', 'Set to 1 to compile engine with FreeType 2.x support', 0))
 opts.Add(BoolOption('vorbis', 'Set to 1 to compile engine with OGG Vorbis support', 1))
+opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
 
 #
 # initialize compiler environment base

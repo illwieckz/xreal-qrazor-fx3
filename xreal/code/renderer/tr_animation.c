@@ -480,7 +480,7 @@ static void R_CullMD5(trRefEntity_t * ent)
 {
 	int             i;
 	
-	if(!(ent->e.renderfx & RF_SKELETON))
+	if(!ent->e.skeleton.valid)
 	{
 		// we have a bad configuration
 		ClearBounds(ent->localBounds[0], ent->localBounds[1]);
@@ -754,8 +754,6 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 	vec3_t          newOrigin, oldOrigin, lerpedOrigin;
 	quat_t          newQuat, oldQuat, lerpedQuat;
 	matrix_t        mat;
-//	vec3_t          v;
-//	vec3_t          transformed;
 	int             componentsApplied;
 //	vec3_t          boneOrigins[MAX_BONES];
 //	quat_t          boneQuats[MAX_BONES];
@@ -845,6 +843,9 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 				((vec_t*)newQuat)[2] = newFrame->components[channel->componentsOffset + componentsApplied];
 			}
 			
+			QuatCalcW(oldQuat);
+			QuatNormalize(oldQuat);
+			
 			QuatCalcW(newQuat);
 			QuatNormalize(newQuat);
 			
@@ -905,6 +906,7 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 		}
 		
 		skel->numBones = anim->numChannels;
+		skel->valid = qtrue;
 		return qtrue;
 	}
 	
@@ -958,4 +960,44 @@ int RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float fr
 	VectorCopy(bounds[1], skel->bounds[1]);
 	
 	return qtrue;
+}
+
+
+/*
+==============
+RE_AnimNumFrames
+==============
+*/
+int RE_AnimNumFrames(qhandle_t hAnim)
+{
+	md5Animation_t *anim;
+
+	anim = R_GetAnimationByHandle(hAnim);
+	
+	if(anim->type == AT_MD5)
+	{
+		return anim->numFrames;
+	}
+	
+	return 0;
+}
+
+
+/*
+==============
+RE_AnimFrameRate
+==============
+*/
+int RE_AnimFrameRate(qhandle_t hAnim)
+{
+	md5Animation_t *anim;
+
+	anim = R_GetAnimationByHandle(hAnim);
+	
+	if(anim->type == AT_MD5)
+	{
+		return anim->frameRate;
+	}
+	
+	return 0;
 }

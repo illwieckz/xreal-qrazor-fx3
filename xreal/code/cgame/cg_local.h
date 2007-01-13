@@ -123,9 +123,11 @@ typedef enum
 // The current lerp will finish out, then it will lerp to the new animation
 typedef struct
 {
+	refSkeleton_t	oldSkeleton;
 	int             oldFrame;
 	int             oldFrameTime;	// time when ->oldFrame was exactly on
 
+	refSkeleton_t	skeleton;
 	int             frame;
 	int             frameTime;	// time when ->frame will be exactly on
 
@@ -373,7 +375,11 @@ typedef struct
 	vec3_t          headOffset;	// move head in icon views
 	footstep_t      footsteps;
 	gender_t        gender;		// from model
-
+	
+#ifdef XPPM
+	qhandle_t		bodyModel;
+	qhandle_t		bodySkin;
+#endif
 	qhandle_t       legsModel;
 	qhandle_t       legsAnimation;
 	qhandle_t       legsSkin;
@@ -1025,8 +1031,9 @@ typedef struct
 	sfxHandle_t     wstbimpdSound;
 	sfxHandle_t     wstbactvSound;
 
-	// light attenuation
-	qhandle_t       defaultLightShader;
+	// debug utils
+	qhandle_t       debugPlayerAABB;
+	qhandle_t       debugPlayerAABB_twoSided;
 
 } cgMedia_t;
 
@@ -1228,6 +1235,7 @@ extern vmCvar_t cg_trueLightning;
 
 extern vmCvar_t cg_drawBloom;
 extern vmCvar_t cg_drawRotoscope;
+extern vmCvar_t cg_drawPlayerAABB;
 
 #ifdef MISSIONPACK
 extern vmCvar_t cg_redTeamName;
@@ -1648,6 +1656,9 @@ int             trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model);
 int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
 int             trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
 int             trap_R_BoneIndex(qhandle_t hModel, const char *boneName);
+int				trap_R_AnimNumFrames(qhandle_t hAnim);
+int				trap_R_AnimFrameRate(qhandle_t hAnim);
+
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
 // The glConfig_t will not change during the life of a cgame.

@@ -3480,6 +3480,71 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
 	}
+	
+	if(r_showSkeleton->integer)
+	{
+		int             i, j, parentIndex;
+		trRefEntity_t  *ent;
+		vec3_t          origin, offset;
+
+		GL_Program(0);
+		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+
+		ent = backEnd.refdef.entities;
+		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)
+		{
+			if((ent->e.renderfx & RF_THIRD_PERSON) && !backEnd.viewParms.isPortal)
+				continue;
+				
+			if(!ent->e.skeleton.valid)
+				continue;
+				
+			// set up the transformation matrix
+			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			
+			qglBegin(GL_LINES);
+			for(j = 0; j < ent->e.skeleton.numBones; j++)
+			{
+				qglColor4fv(g_color_table[j % 8]);
+				
+				parentIndex = ent->e.skeleton.bones[j].parentIndex;
+				
+				#ifdef USE_BONEMATRIX
+				if(parentIndex < 0)
+				{
+					VectorClear(origin);
+				}
+				else
+				{
+					origin[0] = ent->e.skeleton.bones[parentIndex].transform[12];
+					origin[1] = ent->e.skeleton.bones[parentIndex].transform[13];
+					origin[2] = ent->e.skeleton.bones[parentIndex].transform[14];
+				}
+				offset[0] = ent->e.skeleton.bones[j].transform[12];
+				offset[1] = ent->e.skeleton.bones[j].transform[13];
+				offset[2] = ent->e.skeleton.bones[j].transform[14];
+				
+				#else
+				if(parentIndex < 0)
+				{
+					VectorClear(origin);
+				}
+				else
+				{
+					VectorCopy(ent->e.skeleton.bones[parentIndex].origin, origin);
+				}
+				VectorCopy(ent->e.skeleton.bones[j].origin, offset);
+				#endif
+				
+				qglVertex3fv(origin);
+				qglVertex3fv(offset);
+			}
+			qglEnd();
+		}
+	}
 
 	if(r_showLightScissors->integer)
 	{

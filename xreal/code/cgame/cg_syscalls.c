@@ -390,6 +390,16 @@ int trap_R_BoneIndex(qhandle_t hModel, const char *boneName)
 	return syscall(CG_R_BONEINDEX, hModel, boneName);	
 }
 
+int trap_R_AnimNumFrames(qhandle_t hAnim)
+{
+	return syscall(CG_R_ANIMNUMFRAMES, hAnim);	
+}
+
+int trap_R_AnimFrameRate(qhandle_t hAnim)
+{
+	return syscall(CG_R_ANIMFRAMERATE, hAnim);	
+}
+
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset)
 {
 	syscall(CG_R_REMAP_SHADER, oldShader, newShader, timeOffset);

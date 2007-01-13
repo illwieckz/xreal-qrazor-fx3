@@ -44,8 +44,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	RF_WRAP_FRAMES		512	// mod the model frames by the maxframes to allow continuous
 									// animation without needing to know the frame count
 
-#define RF_SKELETON			1024 // use refExtEntity->skeleton
-
 // refdef flags
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
 #define RDF_NOSHADOWS		2	// force renderer to use faster only lighting path
@@ -82,6 +80,7 @@ typedef enum
 //#define USE_BONEMATRIX
 typedef struct
 {
+	int				parentIndex;	// parent index (-1 if root)
 #ifdef USE_BONEMATRIX
 	matrix_t        transform;	// contains rotation and translation
 #else
@@ -96,6 +95,7 @@ typedef struct
 	refBone_t       bones[MAX_BONES];
 	
 	vec3_t          bounds[2];	// bounds of all applied animations
+	qboolean		valid;		// skeleton has been reset
 } refSkeleton_t;
 
 typedef struct
