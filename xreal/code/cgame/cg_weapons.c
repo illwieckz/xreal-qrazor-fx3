@@ -1456,8 +1456,18 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
 		}
 	}
-
+	
+#ifdef XPPM
+	switch (weaponNum)
+	{
+		case WP_MACHINEGUN:
+		default:
+			CG_PositionRotatedEntityOnBone(&gun, &parent, parent->hModel, "MG_ATTACHER");
+			break;
+	}
+#else
 	CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+#endif
 
 	CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
 
@@ -1687,11 +1697,6 @@ void CG_AddViewWeapon(playerState_t * ps)
 		{
 			CG_Printf("Can't build view weapon skeleton\n");
 			return;
-		}
-		else
-		{
-			// tell renderer that skeleton is set up properly
-			gun.renderfx |= RF_SKELETON;
 		}
 
 		CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
