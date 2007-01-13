@@ -635,6 +635,7 @@ static qboolean CG_RegisterClientSkin(clientInfo_t * ci, const char *teamName, c
 	return qtrue;
 }
 
+#ifdef XPPM
 static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName, qboolean loop)
 {
 	char            filename[MAX_QPATH];
@@ -666,6 +667,7 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	
 	return qtrue;
 }
+#endif
 
 
 /*
@@ -1600,7 +1602,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
 	
-	
+#ifdef XPPM
 	if(!trap_R_BuildSkeleton(&lf->skeleton,
 							 lf->animation->handle,
 							 lf->oldFrame, lf->frame,
@@ -1609,6 +1611,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		CG_Printf("Can't build lf->skeleton\n");
 		return;
 	}
+#endif
 }
 
 
