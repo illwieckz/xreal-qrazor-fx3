@@ -1286,7 +1286,7 @@ void            CG_TestModelPrevFrame_f(void);
 void            CG_TestModelNextSkin_f(void);
 void            CG_TestModelPrevSkin_f(void);
 void            CG_TestAnimation_f(void);
-void            CG_TestAnimation2_f(void);
+void            CG_TestBlend_f(void);
 void            CG_TestOmniLight_f(void);
 void            CG_TestProjLight_f(void);
 void            CG_TestFlashLight_f(void);
@@ -1416,6 +1416,8 @@ void            CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEnt
 											  
 void            CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent,
 											   qhandle_t parentModel, char *tagName);
+											   
+void			CG_TransformSkeleton(refSkeleton_t * skel);
 
 
 
@@ -1652,8 +1654,7 @@ void            trap_R_DrawStretchPic(float x, float y, float w, float h,
 void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
-int             trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model);
-int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
+int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin);
 int             trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
 int             trap_R_BoneIndex(qhandle_t hModel, const char *boneName);
 int				trap_R_AnimNumFrames(qhandle_t hAnim);

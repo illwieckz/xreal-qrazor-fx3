@@ -524,7 +524,7 @@ static consoleCommand_t commands[] = {
 	{"testModel", CG_TestModel_f},
 	{"testGun", CG_TestGun_f},
 	{"testAnimation", CG_TestAnimation_f},
-	{"testAnimation2", CG_TestAnimation2_f},
+	{"testBlend", CG_TestBlend_f},
 	{"testOmniLight", CG_TestOmniLight_f},
 	{"testProjLight", CG_TestProjLight_f},
 	{"testFlashLight", CG_TestFlashLight_f},

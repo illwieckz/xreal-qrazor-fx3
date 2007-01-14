@@ -370,14 +370,9 @@ int trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int en
 	return syscall(CG_R_LERPTAG, tag, mod, startFrame, endFrame, PASSFLOAT(frac), tagName);
 }
 
-int trap_R_ResetSkeleton(refSkeleton_t * skel, qhandle_t model)
+int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin)
 {
-	return syscall(CG_R_RESETSKELETON, skel, model);
-}
-
-int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac)
-{
-	return syscall(CG_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac));
+	return syscall(CG_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac), clearOrigin);
 }
 
 int trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac)

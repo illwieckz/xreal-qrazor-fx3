@@ -1088,47 +1088,6 @@ int RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFra
 
 /*
 ================
-RE_ResetSkeleton
-================
-*/
-int RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel)
-{
-	int             i;
-	md5Bone_t      *bone;
-	md5Model_t     *md5;
-	model_t        *model;
-
-	model = R_GetModelByHandle(hModel);
-	if(!model->md5)
-	{
-		// FIXME: clear existing bones?
-		return qfalse;
-	}
-	else
-	{
-		md5 = model->md5;
-	}
-	
-	skel->numBones = md5->numBones;
-	for(i = 0, bone = md5->bones; i < md5->numBones; i++, bone++)
-	{
-		skel->bones[i].parentIndex = bone->parentIndex;
-		
-#ifdef USE_BONEMATRIX
-		MatrixCopy(bone->transform, skel->bones[i].transform);
-#else
-		VectorCopy(bone->origin, skel->bones[i].origin);
-		QuatCopy(bone->rotation, skel->bones[i].rotation);
-#endif
-	}
-	
-	skel->valid = qtrue;
-	return qtrue;
-}
-
-
-/*
-================
 RE_BoneIndex
 ================
 */

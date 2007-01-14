@@ -636,7 +636,7 @@ static qboolean CG_RegisterClientSkin(clientInfo_t * ci, const char *teamName, c
 }
 
 #ifdef XPPM
-static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName, qboolean loop)
+static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName, qboolean loop, qboolean reversed)
 {
 	char            filename[MAX_QPATH];
 	int             frameRate;
@@ -664,6 +664,8 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	{
 		ci->animations[anim].loopFrames = ci->animations[anim].numFrames;
 	}
+	
+	ci->animations[anim].reversed = reversed;
 	
 	return qtrue;
 }
@@ -705,7 +707,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		ci->fixedlegs = qfalse;
 		ci->fixedtorso = qfalse;
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue))
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse))
 		{
 			return qfalse;
 		}
@@ -718,22 +720,33 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 			
 			ci->animations[i] = ci->animations[LEGS_IDLE];
 		}
+		
+		// FIXME death animations
+		
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "taunt_1", qfalse, qfalse);
+		
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "machinegun_fire", qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "gauntlet_fire", qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_walk_forward", qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "walk_backwards", qtrue);
-		//CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_walk_forward", qtrue, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run", qtrue, qtrue);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "fall", qfalse);
+		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse);	// FIXME ?
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "fall", qfalse);	// FIXME ?
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "soft_land", qfalse, qfalse);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qfalse);	// FIXME ?
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "fall", qfalse, qfalse);
 		
-		//CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse);
+		
+		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
+		
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_backward", qtrue, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse);
 
 
 		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
@@ -1480,6 +1493,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 {
 	int             f, numFrames;
 	animation_t    *anim;
+	qboolean		animChanged;
 
 	// debugging tool to get no animations
 	if(cg_animSpeed.integer == 0)
@@ -1497,14 +1511,34 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		{
 			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
 		}
+		
+#ifdef XPPM
+		animChanged = qtrue;
+#else
+		animChanged = qfalse;
+#endif
+	}
+	else
+	{
+		animChanged = qfalse;	
 	}
 
 	// if we have passed the current frame, move it to
 	// oldFrame and calculate a new frame
-	if(cg.time >= lf->frameTime)
+	if(cg.time >= lf->frameTime || animChanged)
 	{
-		lf->oldFrame = lf->frame;
-		lf->oldFrameTime = lf->frameTime;
+#ifdef XPPM
+		if(animChanged)
+		{
+			lf->oldFrame = 0;
+			lf->oldFrameTime = cg.time;
+		}
+		else
+#endif
+		{
+			lf->oldFrame = lf->frame;
+			lf->oldFrameTime = lf->frameTime;
+		}
 
 		// get the next frame based on the animation
 		anim = lf->animation;
@@ -1512,6 +1546,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		{
 			return;				// shouldn't happen
 		}
+		
 		if(cg.time < lf->animationTime)
 		{
 			lf->frameTime = lf->animationTime;	// initial lerp
@@ -1524,13 +1559,16 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		f *= speedScale;		// adjust for haste, etc
 
 		numFrames = anim->numFrames;
+		
 		if(anim->flipflop)
 		{
 			numFrames *= 2;
 		}
+		
 		if(f >= numFrames)
 		{
 			f -= numFrames;
+			
 			if(anim->loopFrames)
 			{
 				f %= anim->loopFrames;
@@ -1544,20 +1582,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 				lf->frameTime = cg.time;
 			}
 		}
-#ifdef XPPM
-		if(anim->reversed)
-		{
-			lf->frame = anim->numFrames - 1 - f;
-		}
-		else if(anim->flipflop && f >= anim->numFrames)
-		{
-			lf->frame = anim->numFrames - 1 - (f % anim->numFrames);
-		}
-		else
-		{
-			lf->frame = f;
-		}
-#else
+
 		if(anim->reversed)
 		{
 			lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
@@ -1570,7 +1595,6 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		{
 			lf->frame = anim->firstFrame + f;
 		}
-#endif
 		
 		if(cg.time > lf->frameTime)
 		{
@@ -1606,12 +1630,25 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	if(!trap_R_BuildSkeleton(&lf->skeleton,
 							 lf->animation->handle,
 							 lf->oldFrame, lf->frame,
-							 lf->backlerp))
+							 1.0 - lf->backlerp,
+							 qtrue))
 	{
 		CG_Printf("Can't build lf->skeleton\n");
-		return;
+	}
+	
+#if 0
+	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
+	{
+		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
+		{
+			CG_Printf("Can't blend lf->oldSkeleton\n");
+		}
+		
+		memcpy(&lf->skeleton, &lf->oldSkeleton, sizeof(refSkeleton_t));
 	}
 #endif
+
+#endif // XPPM
 }
 
 
@@ -1634,8 +1671,7 @@ CG_PlayerAnimation
 ===============
 */
 #ifdef XPPM
-static void CG_PlayerAnimation(centity_t * cent, int * legsAnim, int *legsOld, int *legs, float *legsBackLerp,
-							   int *torsoAnim, int *torsoOld, int *torso, float *torsoBackLerp)
+static void CG_PlayerAnimation(centity_t * cent)
 {
 	clientInfo_t   *ci;
 	int             clientNum;
@@ -1645,7 +1681,6 @@ static void CG_PlayerAnimation(centity_t * cent, int * legsAnim, int *legsOld, i
 
 	if(cg_noPlayerAnims.integer)
 	{
-		*legsOld = *legs = *torsoOld = *torso = 0;
 		return;
 	}
 
@@ -1670,17 +1705,7 @@ static void CG_PlayerAnimation(centity_t * cent, int * legsAnim, int *legsOld, i
 		CG_RunLerpFrame(ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale);
 	}
 
-	*legsAnim = cent->pe.legs.animationNumber;
-	*legsOld = cent->pe.legs.oldFrame;
-	*legs = cent->pe.legs.frame;
-	*legsBackLerp = cent->pe.legs.backlerp;
-
 	CG_RunLerpFrame(ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale);
-
-	*torsoAnim = cent->pe.torso.animationNumber;
-	*torsoOld = cent->pe.torso.oldFrame;
-	*torso = cent->pe.torso.frame;
-	*torsoBackLerp = cent->pe.torso.backlerp;
 }
 #else
 static void CG_PlayerAnimation(centity_t * cent, int *legsOld, int *legs, float *legsBackLerp,
@@ -1860,7 +1885,11 @@ Handles seperate torso motion
   if < 45 degrees, also show in torso
 ===============
 */
+#ifdef XPPM
+static void CG_PlayerAngles(centity_t * cent, quat_t legsQuat, quat_t torsoQuat, quat_t headQuat)
+#else
 static void CG_PlayerAngles(centity_t * cent, vec3_t legs[3], vec3_t torso[3], vec3_t head[3])
+#endif
 {
 	vec3_t          legsAngles, torsoAngles, headAngles;
 	float           dest;
@@ -1977,9 +2006,16 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legs[3], vec3_t torso[3], v
 	// pull the angles back out of the hierarchial chain
 	AnglesSubtract(headAngles, torsoAngles, headAngles);
 	AnglesSubtract(torsoAngles, legsAngles, torsoAngles);
+	
+#ifdef XPPM
+	AnglesToQuat(legsAngles, legsQuat);
+	AnglesToQuat(torsoAngles, torsoQuat);
+	AnglesToQuat(headAngles, headQuat);
+#else
 	AnglesToAxis(legsAngles, legs);
 	AnglesToAxis(torsoAngles, torso);
 	AnglesToAxis(headAngles, head);
+#endif
 }
 
 
@@ -2976,18 +3012,14 @@ void CG_Player(centity_t * cent)
 	int             renderfx;
 	qboolean        shadow;
 	float           shadowPlane;
-	axis_t          legsAxis;
-	int				legsAnim;
-	int             legsOldFrame;
-	int             legsFrame;
-	float           legsBackLerp;
-	int				torsoAnim;
-	axis_t          torsoAxis;
-	int             torsoOldFrame;
-	int             torsoFrame;
-	float           torsoBackLerp;
-
-	axis_t          headAxis;
+	
+	quat_t          legsQuat;
+	quat_t          torsoQuat;
+	quat_t          headQuat;
+	
+	int             i;
+	int				boneIndex;
+	int				boneIndex2;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3028,12 +3060,12 @@ void CG_Player(centity_t * cent)
 	AxisClear(body.axis);
 
 	// get the rotation information
-	CG_PlayerAngles(cent, legsAxis, torsoAxis, headAxis);
+	CG_PlayerAngles(cent, legsQuat, torsoQuat, headQuat);
 
-	AxisCopy(legsAxis, body.axis);
+	QuatToAxis(legsQuat, body.axis);
 
 	// get the animation state (after rotation, to allow feet shuffle)
-	CG_PlayerAnimation(cent, &legsAnim, &legsOldFrame, &legsFrame, &legsBackLerp, &torsoOldFrame, &torsoAnim, &torsoFrame, &torsoBackLerp);
+	CG_PlayerAnimation(cent);
 
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites(cent);
@@ -3056,9 +3088,14 @@ void CG_Player(centity_t * cent)
 	}
 #endif
 
-	// add the legs
+	// add the body
 	body.hModel = ci->bodyModel;
 	//body.customSkin = ci->bodySkin;
+	
+	if(!body.hModel)
+	{
+		return;
+	}
 
 	VectorCopy(cent->lerpOrigin, body.origin);
 	body.origin[2] += MINS_Z;
@@ -3068,37 +3105,97 @@ void CG_Player(centity_t * cent)
 	body.renderfx = renderfx;
 	VectorCopy(body.origin, body.oldorigin);	// don't positionally lerp at all
 	
-	memcpy(&body.skeleton, &cent->pe.legs.skeleton, sizeof(refSkeleton_t));	
-
-	/*
-	if(!trap_R_ResetSkeleton(&body.skeleton, body.hModel))
+	// copy legs skeleton to have a base
+	memcpy(&body.skeleton, &cent->pe.legs.skeleton, sizeof(refSkeleton_t));
+	
+	if(cent->pe.legs.skeleton.numBones != cent->pe.torso.skeleton.numBones)
 	{
-		CG_Printf("Can't reset skeleton\n");
+		CG_Error("cent->pe.legs.skeleton.numBones != cent->pe.torso.skeleton.numBones");
 		return;
 	}
-
 	
-	if(legsAnim >= 0 && legsAnim < MAX_ANIMATIONS)
+	// combine legs and torso skeletons
+	boneIndex = trap_R_BoneIndex(body.hModel, "spinner");
+	
+	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
-		// modify bones and set proper local bounds for culling
-		if(!trap_R_BuildSkeleton(&body.skeleton,
-								 ci->animations[legsAnim].handle,
-								 legsFrame, legsFrame,
-								 1.0 - legsBackLerp))
+		boneIndex2 = trap_R_BoneIndex(body.hModel, "hips");
+	
+		#if 1
+		if(boneIndex2 >= 0 && boneIndex2 < cent->pe.legs.skeleton.numBones)
 		{
-			CG_Printf("Can't build animation\n");
-			return;
+			// copy torso bones
+			for(i = boneIndex; i < boneIndex2; i++)
+			{
+				memcpy(&body.skeleton.bones[i], &cent->pe.torso.skeleton.bones[i], sizeof(refBone_t));
+			}
+		}
+		#endif
+			
+		/*
+		// copy leg bones
+		for(i = hipsIndex; i < cent->pe.legs.skeleton.numBones; i++)
+		{
+			memcpy(&body.skeleton.bones[i], &cent->pe.legs.skeleton.bones[i], sizeof(refBone_t));
+		}
+		*/
+			
+		body.skeleton.type = SK_RELATIVE;
+		
+		// update AABB
+		for(i = 0; i < 3; i++)
+		{
+			body.skeleton.bounds[0][i] = cent->pe.torso.skeleton.bounds[0][i] < cent->pe.legs.skeleton.bounds[0][i] ? cent->pe.torso.skeleton.bounds[0][i] : cent->pe.legs.skeleton.bounds[0][i];
+			body.skeleton.bounds[1][i] = cent->pe.torso.skeleton.bounds[1][i] > cent->pe.legs.skeleton.bounds[1][i] ? cent->pe.torso.skeleton.bounds[1][i] : cent->pe.legs.skeleton.bounds[1][i];
 		}
 	}
-	*/
-
-	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
-
-	// if the model failed, allow the default nullmodel to be displayed
-	if(!body.hModel)
+	else
 	{
-		return;
+		// bad no hips found
+		body.skeleton.type = SK_INVALID;
 	}
+	
+	// rotate legs
+#if 0
+	boneIndex = trap_R_BoneIndex(body.hModel, "body");
+	
+	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
+	{
+		 QuatMultiply0(body.skeleton.bones[boneIndex].rotation, legsQuat);
+		 //QuatCopy(legsQuat, body.skeleton.bones[boneIndex].rotation);
+	}
+#endif
+	
+	
+	// rotate torso
+#if 0
+	boneIndex = trap_R_BoneIndex(body.hModel, "waist");
+	
+	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
+	{
+		 //QuatMultiply0(body.skeleton.bones[boneIndex].rotation, torsoQuat);
+		 QuatCopy(torsoQuat, body.skeleton.bones[boneIndex].rotation);
+	}
+#endif
+
+	// rotate head
+#if 0
+	boneIndex = trap_R_BoneIndex(body.hModel, "neckcontrol");
+	//boneIndex = trap_R_BoneIndex(body.hModel, "head_channel");
+	
+	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
+	{
+		 //QuatMultiply0(body.skeleton.bones[boneIndex].rotation, headQuat);
+		 QuatCopy(headQuat, body.skeleton.bones[boneIndex].rotation);
+	}
+#endif
+	
+	// transform relative bones to absolute ones required for vertex skinning and tag attachments
+	CG_TransformSkeleton(&body.skeleton);
+	
+	// add body to renderer
+	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
+	
 
 	// add the gun / barrel / flash
 	// TODO CG_AddPlayerWeapon(&body, NULL, cent, ci->team);

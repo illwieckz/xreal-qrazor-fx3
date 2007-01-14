@@ -3498,7 +3498,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			if((ent->e.renderfx & RF_THIRD_PERSON) && !backEnd.viewParms.isPortal)
 				continue;
 				
-			if(!ent->e.skeleton.valid)
+			if(ent->e.skeleton.type != SK_ABSOLUTE)
 				continue;
 				
 			// set up the transformation matrix

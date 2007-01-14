@@ -1762,7 +1762,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 					MatrixTransformPoint(bone->transform, w->offset, offsetVec);
 				}
 #else
-				if(backEnd.currentEntity->e.skeleton.valid)
+				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
 					
 					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
@@ -1935,7 +1935,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 					MatrixTransformPoint(bone->transform, w->offset, offsetVec);
 				}
 #else
-				if(backEnd.currentEntity->e.skeleton.valid)
+				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
 					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
 					VectorAdd(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].origin, offsetVec, offsetVec);

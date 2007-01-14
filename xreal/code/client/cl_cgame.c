@@ -638,10 +638,8 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 			return 0;
 		case CG_R_LERPTAG:
 			return re.LerpTag(VMA(1), args[2], args[3], args[4], VMF(5), VMA(6));
-		case CG_R_RESETSKELETON:
-			return re.ResetSkeleton(VMA(1), args[2]);
 		case CG_R_BUILDSKELETON:
-			return re.BuildSkeleton(VMA(1), args[2], args[3], args[4], VMF(5));
+			return re.BuildSkeleton(VMA(1), args[2], args[3], args[4], VMF(5), args[6]);
 		case CG_R_BLENDSKELETON:
 			return re.BlendSkeleton(VMA(1), VMA(2), VMF(3));
 		case CG_R_BONEINDEX:

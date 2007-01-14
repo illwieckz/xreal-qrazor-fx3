@@ -132,6 +132,79 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 }
 
 
+/*
+=================
+CG_TransformSkeleton
+
+transform relative bones to absolute ones required for vertex skinning
+=================
+*/
+void CG_TransformSkeleton(refSkeleton_t * skel)
+{
+	int             i;
+	refBone_t      *bone;
+	matrix_t		boneMatrices[MAX_BONES];
+	matrix_t		mat;
+	
+	switch (skel->type)
+	{
+		case SK_INVALID:
+		case SK_ABSOLUTE:
+			return;
+		
+		default:
+			break;	
+	}
+	
+	// calculate absolute transforms
+	for(i = 0, bone = &skel->bones[0]; i < skel->numBones; i++, bone++)
+	{
+		/*
+#ifdef USE_BONEMATRIX
+		if(bone->parentIndex < 0)
+		{
+			if(clearOrigin)
+			{
+				MatrixFromQuat(skel->bones[i].transform, lerpedQuat);
+				
+				// move bounding box back
+				VectorSubtract(skel->bounds[0], lerpedOrigin, skel->bounds[0]);
+				VectorSubtract(skel->bounds[1], lerpedOrigin, skel->bounds[1]);
+			}
+			else
+			{
+				MatrixSetupTransformFromQuat(skel->bones[i].transform, lerpedQuat, lerpedOrigin);
+			}
+		}
+		else
+		{
+			MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
+			MatrixMultiply(skel->bones[bone->parentIndex].transform, mat, skel->bones[i].transform);
+		}
+#else*/
+		if(bone->parentIndex < 0)
+		{
+			MatrixSetupTransformFromQuat(boneMatrices[i], bone->rotation, bone->origin);
+		}
+		else
+		{
+			MatrixSetupTransformFromQuat(mat, bone->rotation, bone->origin);
+			MatrixMultiply(boneMatrices[bone->parentIndex], mat, boneMatrices[i]);
+		}
+		
+		// encode full transform matrix into vec3/quat to save memory
+		bone->origin[0] = boneMatrices[i][12];
+		bone->origin[1] = boneMatrices[i][13];
+		bone->origin[2] = boneMatrices[i][14];
+			
+		QuatFromMatrix(bone->rotation, boneMatrices[i]);
+//#endif
+	}
+	
+	skel->type = SK_ABSOLUTE;
+}
+
+
 
 /*
 ==========================================================================

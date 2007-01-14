@@ -1693,7 +1693,8 @@ void CG_AddViewWeapon(playerState_t * ps)
 						  		 weapon->viewModel_allAnimation,
 						  		 gun.oldframe,
 						  		 gun.frame,
-						  		 1.0 - gun.backlerp))
+						  		 1.0 - gun.backlerp,
+						  		 qtrue))
 		{
 			CG_Printf("Can't build view weapon skeleton\n");
 			return;

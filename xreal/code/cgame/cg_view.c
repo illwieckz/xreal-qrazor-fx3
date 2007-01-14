@@ -135,20 +135,13 @@ void CG_TestAnimation_f(void)
 		return;
 	}
 	
-	if(!trap_R_ResetSkeleton(&cg.testModelEntity.skeleton, cg.testModelEntity.hModel))
-	{
-		CG_Printf("Can't reset skeleton\n");
-		return;
-	}
-	
-//	CG_Printf("resetted %i bones\n", cg.testModelEntity.skeleton.numBones);
-	
 	// modify bones and set proper local bounds for culling
 	if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
 						  cg.testAnimation,
 						  cg.testModelEntity.oldframe,
 						  cg.testModelEntity.frame,
-						  1.0 - cg.testModelEntity.backlerp))
+						  1.0 - cg.testModelEntity.backlerp,
+						  qfalse))
 	{
 		CG_Printf("Can't build animation\n");
 		return;
@@ -158,10 +151,10 @@ void CG_TestAnimation_f(void)
 
 /*
 =================
-CG_TestAnimation2_f
+CG_TestBlend_f
 =================
 */
-void CG_TestAnimation2_f(void)
+void CG_TestBlend_f(void)
 {
 	if(!cg.testAnimation)
 	{
@@ -183,7 +176,8 @@ void CG_TestAnimation2_f(void)
 		cg.testAnimation,
 		cg.testModelEntity.oldframe,
 		cg.testModelEntity.frame,
-		1.0 - cg.testModelEntity.backlerp))
+		1.0 - cg.testModelEntity.backlerp,
+		qfalse))
 	{
 		CG_Printf("Can't build animation\n");
 		return;
@@ -193,7 +187,8 @@ void CG_TestAnimation2_f(void)
 		cg.testAnimation2,
 		cg.testModelEntity.oldframe,
 		cg.testModelEntity.frame,
-		1.0 - cg.testModelEntity.backlerp))
+		1.0 - cg.testModelEntity.backlerp,
+		qfalse))
 	{
 		CG_Printf("Can't build animation2\n");
 		return;
@@ -218,7 +213,8 @@ void CG_TestModelNextFrame_f(void)
 			cg.testAnimation,
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp))
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
@@ -230,7 +226,8 @@ void CG_TestModelNextFrame_f(void)
 			cg.testAnimation2,
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp))
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
 		{
 			CG_Printf("Can't build animation2\n");
 		}
@@ -257,7 +254,8 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testAnimation,
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp))
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
@@ -269,7 +267,8 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testAnimation2,
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp))
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
 		{
 			CG_Printf("Can't build animation2\n");
 		}
@@ -324,6 +323,12 @@ static void CG_AddTestModel(void)
 			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gunY.value;
 			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gunZ.value;
 		}
+	}
+	
+	if(cg.testModelEntity.skeleton.type == SK_RELATIVE)
+	{
+		// transform relative bones to absolute ones required for vertex skinning
+		CG_TransformSkeleton(&cg.testModelEntity.skeleton);	
 	}
 
 	trap_R_AddRefEntityToScene(&cg.testModelEntity);

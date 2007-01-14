@@ -1526,7 +1526,6 @@ model_t        *R_GetModelByHandle(qhandle_t hModel);
 
 int             RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagName);
 
-int             RE_ResetSkeleton(refSkeleton_t * skel, qhandle_t hModel);
 int             RE_BoneIndex(qhandle_t hModel, const char *boneName);
 
 
@@ -2554,7 +2553,7 @@ void            R_AddMDSSurfaces(trRefEntity_t * ent);
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 void            R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light);
 
-int             RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac);
+int             RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin);
 int             RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
 int				RE_AnimNumFrames(qhandle_t hAnim);
 int				RE_AnimFrameRate(qhandle_t hAnim);

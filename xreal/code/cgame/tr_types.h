@@ -89,13 +89,20 @@ typedef struct
 #endif
 } refBone_t;
 
+typedef enum
+{
+	SK_INVALID,
+	SK_RELATIVE,
+	SK_ABSOLUTE
+} refSkeletonType_t;
+
 typedef struct
 {
 	int             numBones;
 	refBone_t       bones[MAX_BONES];
 	
 	vec3_t          bounds[2];	// bounds of all applied animations
-	qboolean		valid;		// skeleton has been reset
+	refSkeletonType_t	type;		// skeleton has been reset
 } refSkeleton_t;
 
 typedef struct
