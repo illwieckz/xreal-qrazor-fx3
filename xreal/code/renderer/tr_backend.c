@@ -3512,22 +3512,6 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				
 				parentIndex = ent->e.skeleton.bones[j].parentIndex;
 				
-				#ifdef USE_BONEMATRIX
-				if(parentIndex < 0)
-				{
-					VectorClear(origin);
-				}
-				else
-				{
-					origin[0] = ent->e.skeleton.bones[parentIndex].transform[12];
-					origin[1] = ent->e.skeleton.bones[parentIndex].transform[13];
-					origin[2] = ent->e.skeleton.bones[parentIndex].transform[14];
-				}
-				offset[0] = ent->e.skeleton.bones[j].transform[12];
-				offset[1] = ent->e.skeleton.bones[j].transform[13];
-				offset[2] = ent->e.skeleton.bones[j].transform[14];
-				
-				#else
 				if(parentIndex < 0)
 				{
 					VectorClear(origin);
@@ -3537,7 +3521,6 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 					VectorCopy(ent->e.skeleton.bones[parentIndex].origin, origin);
 				}
 				VectorCopy(ent->e.skeleton.bones[j].origin, offset);
-				#endif
 				
 				qglVertex3fv(origin);
 				qglVertex3fv(offset);

@@ -1752,16 +1752,6 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 			{
 				bone = &model->bones[w->boneIndex];
 
-#ifdef USE_BONEMATRIX
-				if(backEnd.currentEntity->e.skeleton.valid)
-				{
-					MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
-				}
-				else
-				{
-					MatrixTransformPoint(bone->transform, w->offset, offsetVec);
-				}
-#else
 				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
 					
@@ -1773,7 +1763,6 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 					QuatTransformVector(bone->rotation, w->offset, offsetVec);
 					VectorAdd(bone->origin, offsetVec, offsetVec);
 				}
-#endif
 
 				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
 			}
@@ -1925,16 +1914,6 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 			{
 				bone = &model->bones[w->boneIndex];
 
-#ifdef USE_BONEMATRIX
-				if(backEnd.currentEntity->e.skeleton.valid)
-				{
-					MatrixTransformPoint(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].transform, w->offset, offsetVec);
-				}
-				else
-				{
-					MatrixTransformPoint(bone->transform, w->offset, offsetVec);
-				}
-#else
 				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
 					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
@@ -1945,7 +1924,6 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 					QuatTransformVector(bone->rotation, w->offset, offsetVec);
 					VectorAdd(bone->origin, offsetVec, offsetVec);
 				}
-#endif
 
 				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
 			}

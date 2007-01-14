@@ -77,16 +77,11 @@ typedef enum
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
-//#define USE_BONEMATRIX
 typedef struct
 {
 	int				parentIndex;	// parent index (-1 if root)
-#ifdef USE_BONEMATRIX
-	matrix_t        transform;	// contains rotation and translation
-#else
 	vec3_t          origin;
 	quat_t          rotation;
-#endif
 } refBone_t;
 
 typedef enum

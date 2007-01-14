@@ -896,10 +896,6 @@ int RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float fr
 		return qfalse;
 	}
 	
-#ifdef USE_BONEMATRIX
-	ri.Printf(PRINT_WARNING, "RE_BlendSkeleton: no implemented for USE_BONEMATRIX\n");
-	return qfalse;
-#else
 	// lerp between the 2 bone poses
 	for(i = 0; i < skel->numBones; i++)
 	{
@@ -909,7 +905,6 @@ int RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float fr
 		VectorCopy(lerpedOrigin, skel->bones[i].origin);
 		QuatCopy(lerpedQuat, skel->bones[i].rotation);
 	}
-#endif
 	
 	// calculate a bounding box in the current coordinate system
 	for(i = 0; i < 3; i++)

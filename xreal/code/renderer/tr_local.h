@@ -1425,12 +1425,8 @@ typedef struct
 {
 	char            name[MAX_QPATH];
 	int             parentIndex;	// parent index (-1 if root)
-#ifdef USE_BONEMATRIX
-	matrix_t        transform;
-#else
 	vec3_t          origin;
 	quat_t          rotation;
-#endif
 } md5Bone_t;
 
 typedef struct md5Model_s

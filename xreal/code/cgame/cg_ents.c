@@ -108,16 +108,8 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 	// lerp the tag
 	boneIndex = trap_R_BoneIndex(parentModel, tagName);
 
-#ifdef USE_BONEMATRIX
-	lerped.origin[0] = parent->skeleton.bones[boneIndex].transform[12];
-	lerped.origin[1] = parent->skeleton.bones[boneIndex].transform[13];
-	lerped.origin[2] = parent->skeleton.bones[boneIndex].transform[14];
-	
-	MatrixToVectorsFLU(parent->skeleton.bones[boneIndex].transform, lerped.axis[0], lerped.axis[1], lerped.axis[2]);
-#else
 	VectorCopy(parent->skeleton.bones[boneIndex].origin, lerped.origin);
 	QuatToAxis(parent->skeleton.bones[boneIndex].rotation, lerped.axis);
-#endif
 
 	// FIXME: allow origin offsets along tag?
 	VectorCopy(parent->origin, entity->origin);
@@ -159,29 +151,6 @@ void CG_TransformSkeleton(refSkeleton_t * skel)
 	// calculate absolute transforms
 	for(i = 0, bone = &skel->bones[0]; i < skel->numBones; i++, bone++)
 	{
-		/*
-#ifdef USE_BONEMATRIX
-		if(bone->parentIndex < 0)
-		{
-			if(clearOrigin)
-			{
-				MatrixFromQuat(skel->bones[i].transform, lerpedQuat);
-				
-				// move bounding box back
-				VectorSubtract(skel->bounds[0], lerpedOrigin, skel->bounds[0]);
-				VectorSubtract(skel->bounds[1], lerpedOrigin, skel->bounds[1]);
-			}
-			else
-			{
-				MatrixSetupTransformFromQuat(skel->bones[i].transform, lerpedQuat, lerpedOrigin);
-			}
-		}
-		else
-		{
-			MatrixSetupTransformFromQuat(mat, lerpedQuat, lerpedOrigin);
-			MatrixMultiply(skel->bones[bone->parentIndex].transform, mat, skel->bones[i].transform);
-		}
-#else*/
 		if(bone->parentIndex < 0)
 		{
 			MatrixSetupTransformFromQuat(boneMatrices[i], bone->rotation, bone->origin);
@@ -198,7 +167,6 @@ void CG_TransformSkeleton(refSkeleton_t * skel)
 		bone->origin[2] = boneMatrices[i][14];
 			
 		QuatFromMatrix(bone->rotation, boneMatrices[i]);
-//#endif
 	}
 	
 	skel->type = SK_ABSOLUTE;

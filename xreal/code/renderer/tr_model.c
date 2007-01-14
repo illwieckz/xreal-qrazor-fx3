@@ -597,12 +597,9 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		}
 		QuatCalcW(boneQuat);
 		MatrixFromQuat(boneMat, boneQuat);
-#ifdef USE_BONEMATRIX
-		MatrixSetupTransformFromRotation(bone->transform, boneMat, boneOrigin);
-#else
+
 		VectorCopy(boneOrigin, bone->origin);
 		QuatCopy(boneQuat, bone->rotation);
-#endif
 		
 		// skip )
 		token = Com_ParseExt(&buf_p, qfalse);
