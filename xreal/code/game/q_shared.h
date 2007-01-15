@@ -1181,7 +1181,8 @@ static ID_INLINE void AnglesToQuat(const vec3_t angles, quat_t q)
 }
 
 void            QuatFromMatrix(quat_t q, const matrix_t m);
-void            QuatToVectors(const quat_t quat, vec3_t forward, vec3_t right, vec3_t up);
+void            QuatToVectorsFLU(const quat_t quat, vec3_t forward, vec3_t left, vec3_t up);
+void            QuatToVectorsFRU(const quat_t quat, vec3_t forward, vec3_t right, vec3_t up);
 void            QuatToAxis(const quat_t q, vec3_t axis[3]);
 void            QuatToAngles(const quat_t q, vec3_t angles);
 

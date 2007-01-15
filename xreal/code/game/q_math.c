@@ -329,7 +329,7 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 
 	VectorSubtract(b, a, d1);
 	VectorSubtract(c, a, d2);
-	
+
 	if(cw)
 	{
 		CrossProduct(d2, d1, plane);
@@ -338,7 +338,7 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 	{
 		CrossProduct(d1, d2, plane);
 	}
-	
+
 	if(VectorNormalize(plane) == 0)
 	{
 		return qfalse;
@@ -532,7 +532,7 @@ void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 
 	inv_denom = DotProduct(normal, normal);
 #ifndef Q3_VM
-	assert(Q_fabs(inv_denom) != 0.0f);	// bk010122 - zero vectors get here
+	//assert(Q_fabs(inv_denom) != 0.0f);	// bk010122 - zero vectors get here
 #endif
 	inv_denom = 1.0f / inv_denom;
 
@@ -713,7 +713,7 @@ void SetPlaneSignbits(cplane_t * out)
 }
 
 
-#if !( (defined __linux__ || __FreeBSD__ || __MINGW32__) && (defined __i386__) && (!defined C_ONLY)) // rb010123
+#if !( (defined __linux__ || __FreeBSD__ || __MINGW32__) && (defined __i386__) && (!defined C_ONLY))	// rb010123
 
 #if defined __LCC__ || defined C_ONLY || !id386 || defined __VECTORC
 
@@ -1049,10 +1049,10 @@ int BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane)
 			corners[0][i] = maxs[i];
 		}
 	}
-	
+
 	dist1 = DotProduct(plane, corners[0]) - plane[3];
 	dist2 = DotProduct(plane, corners[1]) - plane[3];
-	
+
 	sides = 0;
 	if(dist1 >= 0)
 		sides = 1;
@@ -1379,8 +1379,8 @@ void _VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 
 int NearestPowerOfTwo(int val)
 {
-	int            answer;
-	
+	int             answer;
+
 	for(answer = 1; answer < val; answer <<= 1)
 		;
 	return answer;
@@ -2001,7 +2001,53 @@ void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, 
 }
 
 void MatrixFromQuat(matrix_t m, const quat_t q)
-{
+{	
+#if 1
+	/*
+	From Quaternion to Matrix and Back
+	February 27th 2005
+	J.M.P. van Waveren
+	
+	http://www.intel.com/cd/ids/developer/asmo-na/eng/293748.htm
+	*/
+	float			x2, y2, z2, w2;
+	float			yy2, xy2;
+	float			xz2, yz2, zz2;
+	float			wz2, wy2, wx2, xx2;
+	
+	x2 = q[0] + q[0];
+	y2 = q[1] + q[1];
+	z2 = q[2] + q[2];
+	w2 = q[3] + q[3];
+	
+	yy2 = q[1] * y2;
+	xy2 = q[0] * y2;
+	
+	xz2 = q[0] * z2;
+	yz2 = q[1] * z2;
+	zz2 = q[2] * z2;
+	
+	wz2 = q[3] * z2;
+	wy2 = q[3] * y2;
+	wx2 = q[3] * x2;
+	xx2 = q[0] * x2;
+
+	m[ 0] = - yy2 - zz2 + 1.0f;
+	m[ 1] =   xy2 + wz2;
+	m[ 2] =   xz2 - wy2;
+	
+	m[ 4] =   xy2 - wz2;
+	m[ 5] = - xx2 - zz2 + 1.0f;
+	m[ 6] =   yz2 + wx2;
+	
+	m[ 8] =   xz2 + wy2;
+	m[ 9] =   yz2 - wx2;
+	m[10] = - xx2 - yy2 + 1.0f;
+	
+	m[ 3] = m[ 7] = m[11] = m[12] = m[13] = m[14] = 0;
+    m[15] = 1;
+
+#else
 	/*
 	http://www.gamedev.net/reference/articles/article1691.asp#Q54
 	Q54. How do I convert a quaternion to a rotation matrix?
@@ -2026,8 +2072,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 	*/
 	
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
-	
-#if 1
+
 	float			xx, xy, xz, xw, yy, yz, yw, zz, zw;
 
 	xx = q[0] * q[0];
@@ -2049,34 +2094,9 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
     m[ 8] =     2 * ( xz + yw );
     m[ 9] =     2 * ( yz - xw );
     m[10] = 1 - 2 * ( xx + yy );
+   
     m[ 3] = m[ 7] = m[11] = m[12] = m[13] = m[14] = 0;
     m[15] = 1;
-#else
-	float			wx, wy, wz;
-	float			xx, yy, yz;
-	float			xy, xz, zz;
-	float			x2, y2, z2;
-
-	x2 = q[0] + q[0];
-	y2 = q[1] + q[1];
-	z2 = q[2] + q[2];
-
-	xx = q[0] * x2;
-	xy = q[0] * y2;
-	xz = q[0] * z2;
-
-	yy = q[1] * y2;
-	yz = q[1] * z2;
-	zz = q[2] * z2;
-
-	wx = q[3] * x2;
-	wy = q[3] * y2;
-	wz = q[3] * z2;
-
-	m[ 0] = 1.0f - ( yy + zz );		m[ 4] = xy - wz;				m[ 8] = xz + wy;			m[12] = 0;
-	m[ 1] = xy + wz;				m[ 5] = 1.0f - ( xx + zz );		m[ 9] = yz - wx;			m[13] = 0;
-	m[ 2] = xz - wy;				m[ 6] = yz + wx;				m[10] = 1.0f - ( xx + yy );	m[14] = 0;
-	m[ 3] = 0;						m[ 7] = 0;						m[11] = 0;					m[15] = 1;
 #endif
 }
 
@@ -2257,13 +2277,13 @@ void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
 {
 #if 1
 	matrix_t        tmp;
-	
+
 	MatrixFromAngles(tmp, pitch, yaw, roll);
 	QuatFromMatrix(q, tmp);
 #else
 	static float    sr, sp, sy, cr, cp, cy;
 
-    // static to help MS compiler fp bugs
+	// static to help MS compiler fp bugs
 	sp = sin(DEG2RAD(pitch));
 	cp = cos(DEG2RAD(pitch));
 
@@ -2272,26 +2292,78 @@ void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
 
 	sr = sin(DEG2RAD(roll));
 	cr = cos(DEG2RAD(roll));
-	
-	q[0] = sr * cp * cy - cr * sp * sy; // x
-	q[1] = cr * sp * cy + sr * cp * sy; // y
-	q[2] = cr * cp * sy - sr * sp * cy; // z
-	q[3] = cr * cp * cy + sr * sp * sy; // w
+
+	q[0] = sr * cp * cy - cr * sp * sy;	// x
+	q[1] = cr * sp * cy + sr * cp * sy;	// y
+	q[2] = cr * cp * sy - sr * sp * cy;	// z
+	q[3] = cr * cp * cy + sr * sp * sy;	// w
 #endif
 }
 
 void QuatFromMatrix(quat_t q, const matrix_t m)
 {
-	float           trace;
-	
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-	
-	trace = 1.0f + m[0] + m[5] + m[10];
-		
-	if(trace > 0)
+#if 1
+	/*
+	   From Quaternion to Matrix and Back
+	   February 27th 2005
+	   J.M.P. van Waveren
+
+	   http://www.intel.com/cd/ids/developer/asmo-na/eng/293748.htm
+	 */
+	float           t, s;
+
+	if(m[0] + m[5] + m[10] > 0.0f)
 	{
-		vec_t s = 0.5f / sqrt(trace);
-		
+		t = m[0] + m[5] + m[10] + 1.0f;
+		s = 0.5f / sqrt(t);
+
+		q[3] = s * t;
+		q[2] = (m[1] - m[4]) * s;
+		q[1] = (m[8] - m[2]) * s;
+		q[0] = (m[6] - m[9]) * s;
+	}
+	else if(m[0] > m[5] && m[0] > m[10])
+	{
+		t = m[0] - m[5] - m[10] + 1.0f;
+		s = 0.5f / sqrt(t);
+
+		q[0] = s * t;
+		q[1] = (m[1] + m[4]) * s;
+		q[2] = (m[8] + m[2]) * s;
+		q[3] = (m[6] - m[9]) * s;
+	}
+	else if(m[5] > m[10])
+	{
+		t = -m[0] + m[5] - m[10] + 1.0f;
+		s = 0.5f / sqrt(t);
+
+		q[1] = s * t;
+		q[0] = (m[1] + m[4]) * s;
+		q[3] = (m[8] - m[2]) * s;
+		q[2] = (m[6] + m[9]) * s;
+	}
+	else
+	{
+		t = -m[0] - m[5] + m[10] + 1.0f;
+		s = 0.5f / sqrt(t);
+
+		q[2] = s * t;
+		q[3] = (m[1] - m[4]) * s;
+		q[0] = (m[8] + m[2]) * s;
+		q[1] = (m[6] + m[9]) * s;
+	}
+
+#else
+	float           trace;
+
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+
+	trace = 1.0f + m[0] + m[5] + m[10];
+
+	if(trace > 0.0f)
+	{
+		vec_t           s = 0.5f / sqrt(trace);
+
 		q[0] = (m[6] - m[9]) * s;
 		q[1] = (m[8] - m[2]) * s;
 		q[2] = (m[1] - m[4]) * s;
@@ -2300,10 +2372,10 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 	else
 	{
 		if(m[0] > m[5] && m[0] > m[10])
-		{	
+		{
 			// column 0
-			float s = sqrt(1.0f + m[0] - m[5] - m[10]) * 2.0f;
-				
+			float           s = sqrt(1.0f + m[0] - m[5] - m[10]) * 2.0f;
+
 			q[0] = 0.25f * s;
 			q[1] = (m[4] + m[1]) / s;
 			q[2] = (m[8] + m[2]) / s;
@@ -2312,8 +2384,8 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		else if(m[5] > m[10])
 		{
 			// column 1
-			float s = sqrt(1.0f + m[5] - m[0] - m[10]) * 2.0f;
-			
+			float           s = sqrt(1.0f + m[5] - m[0] - m[10]) * 2.0f;
+
 			q[0] = (m[4] + m[1]) / s;
 			q[1] = 0.25f * s;
 			q[2] = (m[9] + m[6]) / s;
@@ -2322,8 +2394,8 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		else
 		{
 			// column 2
-			float s = sqrt(1.0f + m[10] - m[0] - m[5]) * 2.0f;
-			
+			float           s = sqrt(1.0f + m[10] - m[0] - m[5]) * 2.0f;
+
 			q[0] = (m[8] + m[2]) / s;
 			q[1] = (m[9] + m[6]) / s;
 			q[2] = 0.25f * s;
@@ -2332,12 +2404,21 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 	}
 
 	QuatNormalize(q);
+#endif
 }
 
-void QuatToVectors(const quat_t q, vec3_t forward, vec3_t right, vec3_t up)
+void QuatToVectorsFLU(const quat_t q, vec3_t forward, vec3_t left, vec3_t up)
 {
 	matrix_t        tmp;
-	
+
+	MatrixFromQuat(tmp, q);
+	MatrixToVectorsFRU(tmp, forward, left, up);
+}
+
+void QuatToVectorsFRU(const quat_t q, vec3_t forward, vec3_t right, vec3_t up)
+{
+	matrix_t        tmp;
+
 	MatrixFromQuat(tmp, q);
 	MatrixToVectorsFRU(tmp, forward, right, up);
 }
@@ -2345,7 +2426,7 @@ void QuatToVectors(const quat_t q, vec3_t forward, vec3_t right, vec3_t up)
 void QuatToAxis(const quat_t q, vec3_t axis[3])
 {
 	matrix_t        tmp;
-	
+
 	MatrixFromQuat(tmp, q);
 	MatrixToVectorsFLU(tmp, axis[0], axis[1], axis[2]);
 }
@@ -2358,7 +2439,7 @@ void QuatToAngles(const quat_t q, vec3_t angles)
 	q2[1] = q[1] * q[1];
 	q2[2] = q[2] * q[2];
 	q2[3] = q[3] * q[3];
-	
+
 	angles[PITCH] = RAD2DEG(asin(-2 * (q[2] * q[0] - q[3] * q[1])));
 	angles[YAW] = RAD2DEG(atan2(2 * (q[2] * q[3] + q[0] * q[1]), (q2[2] - q2[3] - q2[0] + q2[1])));
 	angles[ROLL] = RAD2DEG(atan2(2 * (q[3] * q[0] + q[2] * q[1]), (-q2[2] - q2[3] + q2[0] + q2[1])));
@@ -2382,7 +2463,7 @@ void QuatMultiply1(const quat_t qa, const quat_t qb, quat_t qc)
 	   z = w1z2 + z1w2 + x1y2 - y1x2
 
 	   w = w1w2 - x1x2 - y1y2 - z1z2
-	*/
+	 */
 
 	qc[0] = qa[3] * qb[0] + qa[0] * qb[3] + qa[1] * qb[2] - qa[2] * qb[1];
 	qc[1] = qa[3] * qb[1] + qa[1] * qb[3] + qa[2] * qb[0] - qa[0] * qb[2];
@@ -2401,26 +2482,19 @@ void QuatMultiply2(const quat_t qa, const quat_t qb, quat_t qc)
 void QuatMultiply3(const quat_t qa, const quat_t qb, quat_t qc)
 {
 	qc[0] = qa[3] * qb[0] + qa[0] * qb[3] + qa[1] * qb[2] + qa[2] * qb[1];
-	qc[1] =-qa[3] * qb[1] + qa[1] * qb[3] - qa[2] * qb[0] + qa[0] * qb[2];
-	qc[2] =-qa[3] * qb[2] + qa[2] * qb[3] - qa[0] * qb[1] + qa[1] * qb[0];
-	qc[3] =-qa[3] * qb[3] + qa[0] * qb[0] - qa[1] * qb[1] + qa[2] * qb[2];
+	qc[1] = -qa[3] * qb[1] + qa[1] * qb[3] - qa[2] * qb[0] + qa[0] * qb[2];
+	qc[2] = -qa[3] * qb[2] + qa[2] * qb[3] - qa[0] * qb[1] + qa[1] * qb[0];
+	qc[3] = -qa[3] * qb[3] + qa[0] * qb[0] - qa[1] * qb[1] + qa[2] * qb[2];
 }
 
 void QuatMultiply4(const quat_t qa, const quat_t qb, quat_t qc)
 {
 	qc[0] = qa[3] * qb[0] - qa[0] * qb[3] - qa[1] * qb[2] - qa[2] * qb[1];
-	qc[1] =-qa[3] * qb[1] - qa[1] * qb[3] + qa[2] * qb[0] - qa[0] * qb[2];
-	qc[2] =-qa[3] * qb[2] - qa[2] * qb[3] + qa[0] * qb[1] - qa[1] * qb[0];
-	qc[3] =-qa[3] * qb[3] - qa[0] * qb[0] + qa[1] * qb[1] - qa[2] * qb[2];
+	qc[1] = -qa[3] * qb[1] - qa[1] * qb[3] + qa[2] * qb[0] - qa[0] * qb[2];
+	qc[2] = -qa[3] * qb[2] - qa[2] * qb[3] + qa[0] * qb[1] - qa[1] * qb[0];
+	qc[3] = -qa[3] * qb[3] - qa[0] * qb[0] + qa[1] * qb[1] - qa[2] * qb[2];
 }
 
-/*
-Slerping Clock Cycles
-February 27th 2005
-J.M.P. van Waveren
-
-http://www.intel.com/cd/ids/developer/asmo-na/eng/293747.htm
-*/
 void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 {
 #if 0
@@ -2460,52 +2534,41 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 	out[3] = scale0 * from[3] + scale1 * to1[3];
 #else
 	/*
-	general version
-	
-	float cosom, scale0, scale1, s;
-	cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
-	scale0 = 1.0f - t;
-	scale1 = ( cosom >= 0.0f ) ? t : -t;
-	result.x = scale0 * from.x + scale1 * to.x;
-	result.y = scale0 * from.y + scale1 * to.y;
-	result.z = scale0 * from.z + scale1 * to.z;
-	result.w = scale0 * from.w + scale1 * to.w;
-	s = 1.0f / sqrt( result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w );
-	result.x *= s;
-	result.y *= s;
-	result.z *= s;
-	result.w *= s;
-	*/
-	
-	float cosom, absCosom, sinom, sinSqr, omega, scale0, scale1;
-	
+	   Slerping Clock Cycles
+	   February 27th 2005
+	   J.M.P. van Waveren
+
+	   http://www.intel.com/cd/ids/developer/asmo-na/eng/293747.htm
+	 */
+	float           cosom, absCosom, sinom, sinSqr, omega, scale0, scale1;
+
 	if(frac <= 0.0f)
 	{
 		QuatCopy(from, out);
-		return;	
+		return;
 	}
-	
+
 	if(frac >= 1.0f)
 	{
 		QuatCopy(to, out);
-		return;	
+		return;
 	}
-	
+
 	if(QuatCompare(from, to))
 	{
 		QuatCopy(from, out);
 		return;
 	}
-	
+
 	cosom = from[0] * to[0] + from[1] * to[1] + from[2] * to[2] + from[3] * to[3];
 	absCosom = fabs(cosom);
-	
+
 	if((1.0f - absCosom) > 1e-6f)
 	{
 		sinSqr = 1.0f - absCosom * absCosom;
 		sinom = 1.0f / sqrt(sinSqr);
 		omega = atan2(sinSqr * sinom, absCosom);
-		
+
 		scale0 = sin((1.0f - frac) * omega) * sinom;
 		scale1 = sin(frac * omega) * sinom;
 	}
@@ -2514,9 +2577,9 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 		scale0 = 1.0f - frac;
 		scale1 = frac;
 	}
-	
-	scale1 = ( cosom >= 0.0f ) ? scale1 : -scale1;
-	
+
+	scale1 = (cosom >= 0.0f) ? scale1 : -scale1;
+
 	out[0] = scale0 * from[0] + scale1 * to[0];
 	out[1] = scale0 * from[1] + scale1 * to[1];
 	out[2] = scale0 * from[2] + scale1 * to[2];
@@ -2527,7 +2590,7 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 void QuatTransformVector(const quat_t q, const vec3_t in, vec3_t out)
 {
 	matrix_t        m;
-	
+
 	MatrixFromQuat(m, q);
 	MatrixTransformNormal(m, in, out);
 }
