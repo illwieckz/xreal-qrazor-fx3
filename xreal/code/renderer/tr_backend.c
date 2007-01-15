@@ -3483,9 +3483,12 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 	
 	if(r_showSkeleton->integer)
 	{
-		int             i, j, parentIndex;
+		int             i, j, k, parentIndex;
 		trRefEntity_t  *ent;
 		vec3_t          origin, offset;
+		vec3_t			forward, right, up;
+		vec3_t			diff, tmp, tmp2, tmp3;
+		vec_t			length;
 
 		GL_Program(0);
 		GL_State(GLS_DEPTHTEST_DISABLE);
@@ -3508,8 +3511,6 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 			qglBegin(GL_LINES);
 			for(j = 0; j < ent->e.skeleton.numBones; j++)
 			{
-				qglColor4fv(g_color_table[j % 8]);
-				
 				parentIndex = ent->e.skeleton.bones[j].parentIndex;
 				
 				if(parentIndex < 0)
@@ -3522,8 +3523,78 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				}
 				VectorCopy(ent->e.skeleton.bones[j].origin, offset);
 				
-				qglVertex3fv(origin);
+				
+				#if 0
+				{
+					quat_t			q;
+				
+					QuatFromAngles(q, 90, 0, 90);
+					QuatMultiply0(q, ent->e.skeleton.bones[i].rotation);
+					QuatToVectorsFRU(q, forward, right, up);
+				}
+				#else
+				{
+					QuatToVectorsFRU(ent->e.skeleton.bones[i].rotation, forward, right, up);
+				}
+				#endif
+				
+				//VectorSubtract(offset, origin, forward);
+				//VectorNormalize(forward);
+				//PerpendicularVector(right, forward);
+				//CrossProduct(forward, right, up);
+				
+				VectorMA(offset, 1, forward, forward);
+				VectorMA(offset, 1, right, right);
+				VectorMA(offset, 1, up, up);
+
+				// draw orientation
+				qglColor4fv(colorRed);
+				//qglVertex3fv(origin);
+				//qglVertex3fv(forward);
 				qglVertex3fv(offset);
+				qglVertex3fv(forward);
+
+				qglColor4fv(colorGreen);
+				//qglVertex3fv(origin);
+				//qglVertex3fv(left);
+				qglVertex3fv(offset);
+				qglVertex3fv(right);
+
+				qglColor4fv(colorBlue);
+				//qglVertex3fv(origin);
+				//qglVertex3fv(up);
+				qglVertex3fv(offset);
+				qglVertex3fv(up);
+				
+				// draw bone
+				qglColor4fv(g_color_table[j % 8]);
+				
+				// simple inner line
+				//qglVertex3fv(origin);
+				//qglVertex3fv(offset);
+				
+				// draw bone volume
+				VectorSubtract(offset, origin, diff);
+				if((length = VectorNormalize(diff)))
+				{
+					PerpendicularVector(tmp, diff);
+					
+					VectorScale(tmp, length * 0.1,tmp2);
+					VectorMA(tmp2, length * 0.2, diff, tmp2);
+					
+					for(k = 0; k < 360; k += 120)
+					{
+						RotatePointAroundVector(tmp3, diff, tmp2, k);
+						
+						VectorAdd(tmp3, origin, tmp3);
+					
+						qglVertex3fv(origin);
+						qglVertex3fv(tmp3);
+						
+						qglVertex3fv(offset);
+						qglVertex3fv(tmp3);
+					}	
+				}
 			}
 			qglEnd();
 		}
