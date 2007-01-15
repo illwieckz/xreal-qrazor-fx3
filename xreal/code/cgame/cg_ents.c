@@ -69,7 +69,6 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	orientation_t   lerped;
 	vec3_t          tempAxis[3];
 
-//AxisClear( entity->axis );
 	// lerp the tag
 	trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
 
@@ -99,11 +98,7 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 	int				boneIndex;
 	orientation_t   lerped;
 	vec3_t          tempAxis[3];
-	
-
-//AxisClear( entity->axis );
-
-	//trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
+	quat_t			q;	
 
 	// lerp the tag
 	boneIndex = trap_R_BoneIndex(parentModel, tagName);

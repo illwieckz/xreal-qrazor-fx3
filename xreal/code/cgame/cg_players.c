@@ -707,7 +707,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		ci->fixedlegs = qfalse;
 		ci->fixedtorso = qfalse;
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse))
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "af_pose", qtrue, qfalse))
 		{
 			return qfalse;
 		}
@@ -1885,13 +1885,8 @@ Handles seperate torso motion
   if < 45 degrees, also show in torso
 ===============
 */
-#ifdef XPPM
-static void CG_PlayerAngles(centity_t * cent, quat_t legsQuat, quat_t torsoQuat, quat_t headQuat)
-#else
-static void CG_PlayerAngles(centity_t * cent, vec3_t legs[3], vec3_t torso[3], vec3_t head[3])
-#endif
+static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAngles, vec3_t headAngles)
 {
-	vec3_t          legsAngles, torsoAngles, headAngles;
 	float           dest;
 	static int      movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
 	vec3_t          velocity;
@@ -2006,16 +2001,6 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legs[3], vec3_t torso[3], v
 	// pull the angles back out of the hierarchial chain
 	AnglesSubtract(headAngles, torsoAngles, headAngles);
 	AnglesSubtract(torsoAngles, legsAngles, torsoAngles);
-	
-#ifdef XPPM
-	AnglesToQuat(legsAngles, legsQuat);
-	AnglesToQuat(torsoAngles, torsoQuat);
-	AnglesToQuat(headAngles, headQuat);
-#else
-	AnglesToAxis(legsAngles, legs);
-	AnglesToAxis(torsoAngles, torso);
-	AnglesToAxis(headAngles, head);
-#endif
 }
 
 
@@ -3013,6 +2998,10 @@ void CG_Player(centity_t * cent)
 	qboolean        shadow;
 	float           shadowPlane;
 	
+	vec3_t			legsAngles;
+	vec3_t			torsoAngles;
+	vec3_t			headAngles;
+	
 	quat_t          legsQuat;
 	quat_t          torsoQuat;
 	quat_t          headQuat;
@@ -3060,9 +3049,9 @@ void CG_Player(centity_t * cent)
 	AxisClear(body.axis);
 
 	// get the rotation information
-	CG_PlayerAngles(cent, legsQuat, torsoQuat, headQuat);
-
-	QuatToAxis(legsQuat, body.axis);
+	CG_PlayerAngles(cent, legsAngles, torsoAngles, headAngles);
+	AnglesToAxis(legsAngles, body.axis);
+	//QuatToAxis(legsQuat, body.axis);
 
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation(cent);
@@ -3157,36 +3146,38 @@ void CG_Player(centity_t * cent)
 	
 	// rotate legs
 #if 0
-	boneIndex = trap_R_BoneIndex(body.hModel, "body");
+	boneIndex = trap_R_BoneIndex(body.hModel, "origin");
 	
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
-		 QuatMultiply0(body.skeleton.bones[boneIndex].rotation, legsQuat);
-		 //QuatCopy(legsQuat, body.skeleton.bones[boneIndex].rotation);
+		// HACK: convert angles to bone system
+		QuatFromAngles(legsQuat, legsAngles[YAW], legsAngles[ROLL], legsAngles[PITCH]);
+		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, legsQuat);
 	}
 #endif
 	
 	
 	// rotate torso
-#if 0
+#if 1
 	boneIndex = trap_R_BoneIndex(body.hModel, "waist");
 	
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
-		 //QuatMultiply0(body.skeleton.bones[boneIndex].rotation, torsoQuat);
-		 QuatCopy(torsoQuat, body.skeleton.bones[boneIndex].rotation);
+		// HACK: convert angles to bone system
+		QuatFromAngles(torsoQuat, torsoAngles[ROLL], -torsoAngles[PITCH], torsoAngles[YAW]);
+		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, torsoQuat);
 	}
 #endif
 
 	// rotate head
-#if 0
+#if 1
 	boneIndex = trap_R_BoneIndex(body.hModel, "neckcontrol");
-	//boneIndex = trap_R_BoneIndex(body.hModel, "head_channel");
 	
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
-		 //QuatMultiply0(body.skeleton.bones[boneIndex].rotation, headQuat);
-		 QuatCopy(headQuat, body.skeleton.bones[boneIndex].rotation);
+		// HACK: convert angles to bone system
+		QuatFromAngles(headQuat, headAngles[ROLL], headAngles[PITCH], headAngles[YAW]);
+		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, headQuat);
 	}
 #endif
 	
@@ -3198,7 +3189,7 @@ void CG_Player(centity_t * cent)
 	
 
 	// add the gun / barrel / flash
-	// TODO CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
+	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
 
 	// TODO
 
@@ -3216,6 +3207,10 @@ void CG_Player(centity_t * cent)
 	int             renderfx;
 	qboolean        shadow;
 	float           shadowPlane;
+	
+	vec3_t			legsAngles;
+	vec3_t			torsoAngles;
+	vec3_t			headAngles;
 
 #ifdef MISSIONPACK
 	refEntity_t     skull;
@@ -3266,7 +3261,11 @@ void CG_Player(centity_t * cent)
 	memset(&head, 0, sizeof(head));
 
 	// get the rotation information
-	CG_PlayerAngles(cent, legs.axis, torso.axis, head.axis);
+	CG_PlayerAngles(cent, legsAngles, torsoAngles, headAngles);
+	
+	AnglesToAxis(legsAngles, legs.axis);
+	AnglesToAxis(torsoAngles, torso.axis);
+	AnglesToAxis(headAngles, head.axis);
 
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation(cent, &legs.oldframe, &legs.frame, &legs.backlerp, &torso.oldframe, &torso.frame, &torso.backlerp);

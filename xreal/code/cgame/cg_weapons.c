@@ -1458,12 +1458,30 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	}
 	
 #ifdef XPPM
-	switch (weaponNum)
+	if(ps)
 	{
-		case WP_MACHINEGUN:
-		default:
-			CG_PositionRotatedEntityOnBone(&gun, &parent, parent->hModel, "MG_ATTACHER");
-			break;
+		CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+	}
+	else
+	{
+		switch (weaponNum)
+		{
+			case WP_MACHINEGUN:
+			default:
+			{
+				// HACK: this is bone specific
+				vec3_t		angles;
+				
+				angles[PITCH] = -90;
+				angles[YAW] = 0;
+				angles[ROLL] = -90;
+				
+				AnglesToAxis(angles, gun.axis);
+				
+				CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "MG_ATTACHER");
+				break;
+			}
+		}
 	}
 #else
 	CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
