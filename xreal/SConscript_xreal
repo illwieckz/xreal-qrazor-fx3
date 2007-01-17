@@ -162,7 +162,30 @@ xreal_src = [
 'code/zlib/inflate.c',
 'code/zlib/infback.c',
 'code/zlib/inftrees.c',
-'code/zlib/inffast.c'
+'code/zlib/inffast.c',
+'code/ogg/src/bitwise.c',
+'code/ogg/src/framing.c',
+'code/vorbis/lib/mdct.c',
+'code/vorbis/lib/smallft.c',
+'code/vorbis/lib/block.c',
+'code/vorbis/lib/envelope.c',
+'code/vorbis/lib/window.c',
+'code/vorbis/lib/lsp.c',
+'code/vorbis/lib/lpc.c',
+'code/vorbis/lib/analysis.c',
+'code/vorbis/lib/synthesis.c',
+'code/vorbis/lib/psy.c',
+'code/vorbis/lib/info.c',
+'code/vorbis/lib/floor1.c',
+'code/vorbis/lib/floor0.c',
+'code/vorbis/lib/res0.c',
+'code/vorbis/lib/mapping0.c',
+'code/vorbis/lib/registry.c',
+'code/vorbis/lib/codebook.c',
+'code/vorbis/lib/sharedbook.c',
+'code/vorbis/lib/lookup.c',
+'code/vorbis/lib/bitrate.c',
+'code/vorbis/lib/vorbisfile.c'
 ]
 
 unix_src = [
@@ -198,37 +221,10 @@ vm_src = [
 'code/qcommon/vm_interpreted.c'
 ]
 
-ogg_src = [
-'code/ogg/src/bitwise.c',
-'code/ogg/src/framing.c'
-]
-
-vorbis_src = [
-'code/vorbis/lib/mdct.c',
-'code/vorbis/lib/smallft.c',
-'code/vorbis/lib/block.c',
-'code/vorbis/lib/envelope.c',
-'code/vorbis/lib/window.c',
-'code/vorbis/lib/lsp.c',
-'code/vorbis/lib/lpc.c',
-'code/vorbis/lib/analysis.c',
-'code/vorbis/lib/synthesis.c',
-'code/vorbis/lib/psy.c',
-'code/vorbis/lib/info.c',
-'code/vorbis/lib/floor1.c',
-'code/vorbis/lib/floor0.c',
-'code/vorbis/lib/res0.c',
-'code/vorbis/lib/mapping0.c',
-'code/vorbis/lib/registry.c',
-'code/vorbis/lib/codebook.c',
-'code/vorbis/lib/sharedbook.c',
-'code/vorbis/lib/lookup.c',
-'code/vorbis/lib/bitrate.c',
-'code/vorbis/lib/vorbisfile.c'
-]
-
 xreal_env.Append(CCFLAGS='-DBOTLIB')
 xreal_env.Append(CCFLAGS='-DC_ONLY')
+xreal_env.Append(CCFLAGS='-Icode/ogg/include')
+xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 
 if env['purevm'] == 1:
 	xreal_env.Append(CCFLAGS='-DVM_SV_PURE')
@@ -242,13 +238,6 @@ if env['arch'] == 'linux-i386':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-		
-	if env['vorbis'] == 1:
-		xreal_src += ogg_src
-		xreal_src += vorbis_src
-		xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
-		xreal_env.Append(CCFLAGS='-Icode/ogg/include')
-		xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
@@ -279,13 +268,6 @@ elif env['arch'] == 'linux-x86_64':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-		
-	if env['vorbis'] == 1:
-		xreal_src += ogg_src
-		xreal_src += vorbis_src
-		xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
-		xreal_env.Append(CCFLAGS='-Icode/ogg/include')
-		xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 	
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86_64.c']
@@ -311,7 +293,7 @@ elif env['arch'] == 'win32-mingw':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-
+		
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']
 	else:

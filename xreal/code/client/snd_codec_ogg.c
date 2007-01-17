@@ -22,9 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// OGG support is enabled by this define
-#ifdef USE_CODEC_VORBIS
-
 // includes for the Q3 sound system
 #include "client.h"
 #include "snd_codec.h"
@@ -467,5 +464,3 @@ void           *S_OGG_CodecLoad(const char *filename, snd_info_t * info)
 
 	return buffer;
 }
-
-#endif							// USE_CODEC_VORBIS
