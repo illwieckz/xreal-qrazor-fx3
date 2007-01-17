@@ -50,6 +50,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\ogg\include;..\vorbis\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -152,6 +153,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -2047,6 +2049,142 @@
 				</File>
 				<File
 					RelativePath=".\zlib\zutil.c"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="ogg"
+			>
+			<Filter
+				Name="Header Files"
+				>
+				<File
+					RelativePath=".\ogg\include\ogg\ogg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ogg\include\ogg\os_types.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				>
+				<File
+					RelativePath=".\ogg\src\bitwise.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ogg\src\framing.c"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="vorbis"
+			>
+			<Filter
+				Name="Header Files"
+				>
+				<File
+					RelativePath=".\vorbis\include\vorbis\codec.h"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\include\vorbis\vorbisenc.h"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\include\vorbis\vorbisfile.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				>
+				<File
+					RelativePath=".\vorbis\lib\analysis.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\bitrate.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\block.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\codebook.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\envelope.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\floor0.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\floor1.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\info.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\lookup.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\lpc.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\lsp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\mapping0.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\mdct.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\psy.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\registry.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\res0.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\sharedbook.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\smallft.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\synthesis.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\vorbisfile.c"
+					>
+				</File>
+				<File
+					RelativePath=".\vorbis\lib\window.c"
 					>
 				</File>
 			</Filter>
