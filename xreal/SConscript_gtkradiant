@@ -349,6 +349,7 @@ if env['arch'] == 'win32-mingw':
 	gtkradiant_env.Install('#gtkradiant', 'gtkradiant.exe')
 	
 	archivezip_env = module_env.Copy()
+	archivezip_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
 	archivezip_env.InstallAs('#gtkradiant/modules/archivezip.dll', 'archivezip.dll')
 	

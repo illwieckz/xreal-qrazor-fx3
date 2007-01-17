@@ -16,29 +16,29 @@ GENERAL NOTES
 
 A short summary of the file layout:
 
-base/					XreaL media directory ( models, textures, sounds etc. )
-gtkradiant/				XreaL configured GtkRadiant editor work dir
-code/			   		XreaL source code ( renderer, game code, OS layer etc. )
-code/bspc				bot routes compiler source code
-code/common				framework source code for command line tools like xmap
-code/xmap				map compiler ( .map -> .bsp )
-code/gtkradiant			GtkRadiant editor source based off GPL release on 17th February 2006
+XreaL/base/					XreaL media directory ( models, textures, sounds etc. )
+XreaL/gtkradiant/			XreaL configured GtkRadiant editor work dir
+XreaL/code/			   		XreaL source code ( renderer, game code, OS layer etc. )
+XreaL/code/bspc				bot routes compiler source code
+XreaL/code/common			framework source code for command line tools like xmap
+XreaL/code/xmap				map compiler ( .map -> .bsp )
+XreaL/code/gtkradiant		GtkRadiant editor source based off GPL release on 17th February 2006
 
 GETTING THE SOURCE CODE
 =======================
 
 This project's SourceForge.net Subversion repository can be checked out through SVN with the following instruction set: 
 
-svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal xreal
+svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal XreaL
 
 
 COMPILING ON WIN32 WITH VISUAL STUDIO
 =====================================
 
 VC8 / Visual C++ 2005 project files are provided:
-code/xreal.sln
-code/bspc/bspc.sln
-code/xmap/xmap.sln
+XreaL/code/xreal.sln
+XreaL/code/bspc/bspc.sln
+XreaL/code/xmap/xmap.sln
 
 
 COMPILING ON WIN32 WITH MINGW
@@ -51,9 +51,11 @@ COMPILING ON WIN32 WITH MINGW
 	and copy it over the existing C:\MingW\include\GL\glext.h.
 4. Download and install Python from http://www.python.org/.
 5. Download and install SCons from http://www.scons.org/.
-6. Compile XreaL:
+6. Add the Python installation directory to the system variable %PATH%
+7. Download and install Gtk+ 2.10.7 development environment from http://gladewin32.sourceforge.net
+8. Set the system variable: PKG_CONFIG_PATH to %GTK_BASEPATH%\lib\pkgconfig
+9. Compile XreaL:
 	>scons arch=win32-mingw
-
 
 
 COMPILING ON GNU/LINUX

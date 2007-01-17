@@ -119,6 +119,6 @@ elif env['arch'] == 'win32-mingw':
 
 	xmap_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
-	xmap_env.Append(LIBS=['m'])
+	xmap_env.Append(LIBS=['m', 'wsock32'])
 	xmap_env.Program('xmap', xmap_src)
 	xmap_env.Install('#', 'xmap.exe')

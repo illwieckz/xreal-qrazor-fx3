@@ -17,8 +17,8 @@ opts.Add(BoolOption('lua', 'Set to 1 to compile qagame with Lua scripting suppor
 opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machine support', 0))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
-opts.Add(BoolOption('gtkradiant', 'Set to 1 to compile GtkRadiant', 0))
-opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
+opts.Add(BoolOption('mapping', 'Set to 1 to compile GtkRadiant, XMap and BSPC mapping tools', 0))
+#opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 opts.Add(BoolOption('freetype', 'Set to 1 to compile engine with FreeType 2.x support', 0))
 opts.Add(BoolOption('vorbis', 'Set to 1 to compile engine with OGG Vorbis support', 1))
 opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
@@ -61,8 +61,8 @@ if env['cpu'] == 'athlon-xp':
 elif env['cpu'] == 'core2duo':
 	env.Append(CCFLAGS = '-march=prescott')
 
-if env['arch'] == 'linux-i386' and env['vectorize'] == 1:
-	env.Append(CCFLAGS = '-ftree-vectorize -ftree-vectorizer-verbose=1')
+#if env['arch'] == 'linux-i386' and env['vectorize'] == 1:
+#	env.Append(CCFLAGS = '-ftree-vectorize -ftree-vectorizer-verbose=1')
 
 if env['simd'] == 'sse':
 	env.Append(CCFLAGS = '-DSIMD_SSE')
@@ -87,9 +87,8 @@ SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
 SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
-SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
-#SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
-SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
 
-if env['gtkradiant'] == 1:
+if env['mapping'] == 1:
 	SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
+	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
+	SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
