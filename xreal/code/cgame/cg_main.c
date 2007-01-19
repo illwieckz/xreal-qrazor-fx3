@@ -722,9 +722,9 @@ static void CG_RegisterSounds(void)
 	cgs.media.voteFailed = trap_S_RegisterSound("sound/feedback/vote_failed.wav", qtrue);
 #endif
 
-	cgs.media.watrInSound = trap_S_RegisterSound("sound/player/watr_in.wav", qfalse);
-	cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/watr_out.wav", qfalse);
-	cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/watr_un.wav", qfalse);
+	cgs.media.watrInSound = trap_S_RegisterSound("sound/player/water_in.ogg", qfalse);
+	cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/water_out.ogg", qfalse);
+	cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/water_under.ogg", qfalse);
 
 	cgs.media.jumpPadSound = trap_S_RegisterSound("sound/world/jumppad.wav", qfalse);
 
