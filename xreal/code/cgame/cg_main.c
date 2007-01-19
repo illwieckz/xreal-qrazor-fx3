@@ -739,7 +739,7 @@ static void CG_RegisterSounds(void)
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/flesh%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_FLESH][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/mech%i.wav", i + 1);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/mech%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_MECH][i] = trap_S_RegisterSound(name, qfalse);
 
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/energy%i.wav", i + 1);
