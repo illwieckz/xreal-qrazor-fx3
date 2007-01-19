@@ -733,10 +733,10 @@ static void CG_RegisterSounds(void)
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/stone%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_STONE][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/boot%i.wav", i + 1);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/softrug%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_BOOT][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/flesh%i.wav", i + 1);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/flesh%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_FLESH][i] = trap_S_RegisterSound(name, qfalse);
 
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/mech%i.wav", i + 1);
@@ -745,10 +745,10 @@ static void CG_RegisterSounds(void)
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/energy%i.wav", i + 1);
 		cgs.media.footsteps[FOOTSTEP_ENERGY][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/splash%i.wav", i + 1);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/splash%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/clank%i.wav", i + 1);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/metal%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound(name, qfalse);
 	}
 
