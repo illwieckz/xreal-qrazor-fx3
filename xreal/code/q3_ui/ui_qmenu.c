@@ -1807,7 +1807,7 @@ void Menu_Cache(void)
 	menu_move_sound = trap_S_RegisterSound("sound/misc/menu2.wav", qfalse);
 	menu_out_sound = trap_S_RegisterSound("sound/misc/menu3.wav", qfalse);
 	menu_buzz_sound = trap_S_RegisterSound("sound/misc/menu4.wav", qfalse);
-	weaponChangeSound = trap_S_RegisterSound("sound/weapons/change.wav", qfalse);
+	weaponChangeSound = trap_S_RegisterSound("sound/weapons/change.ogg", qfalse);
 
 	// need a nonzero sound, make an empty sound for this
 	menu_null_sound = -1;
