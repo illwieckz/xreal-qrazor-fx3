@@ -207,7 +207,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_gauntlet",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/gauntlet/gauntlet.md3",
 	  0, 0, 0}
 	 ,
@@ -225,7 +225,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_shotgun",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/shotgun/shotgun.md3",
 	  0, 0, 0}
 	 ,
@@ -243,7 +243,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_machinegun",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/machinegun/machinegun.md3",
 	  0, 0, 0}
 	 ,
@@ -261,7 +261,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_grenadelauncher",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons2/grenadel/grenadel.md3",
 	  0, 0, 0}
 	 ,
@@ -279,7 +279,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_rocketlauncher",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/rocketl/rocketl.md3",
 	  0, 0, 0}
 	 ,
@@ -297,7 +297,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_lightning",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/lightning/lightning.md3",
 	  0, 0, 0}
 	 ,
@@ -315,7 +315,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_railgun",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons2/railgun/railgun.md3",
 	  0, 0, 0}
 	 ,
@@ -333,7 +333,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_plasmagun",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons2/plasma/plasma.md3",
 	  0, 0, 0}
 	 ,
@@ -351,7 +351,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_bfg",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons2/bfg/bfg.md3",
 	  0, 0, 0}
 	 ,
@@ -369,7 +369,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "weapon_grapplinghook",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons2/grapple/grapple.md3",
 	  0, 0, 0}
 	 ,
@@ -391,7 +391,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_shells",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/shotgunam.md3",
 	  0, 0, 0}
 	 ,
@@ -409,7 +409,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_bullets",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/machinegunam.md3",
 	  0, 0, 0}
 	 ,
@@ -427,7 +427,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_grenades",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/grenadeam.md3",
 	  0, 0, 0}
 	 ,
@@ -445,7 +445,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_cells",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/plasmaam.md3",
 	  0, 0, 0}
 	 ,
@@ -463,7 +463,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_lightning",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/lightningam.md3",
 	  0, 0, 0}
 	 ,
@@ -481,7 +481,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_rockets",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/rocketam.md3",
 	  0, 0, 0}
 	 ,
@@ -499,7 +499,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_slugs",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/railgunam.md3",
 	  0, 0, 0}
 	 ,
@@ -517,7 +517,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "ammo_bfg",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/bfgam.md3",
 	  0, 0, 0}
 	 ,
@@ -785,7 +785,7 @@ Only in CTF games
 */
 	{
 	 "ammo_nails",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/nailgunam.md3",
 	  0, 0, 0}
 	 ,
@@ -803,7 +803,7 @@ Only in CTF games
 */
 	{
 	 "ammo_mines",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/proxmineam.md3",
 	  0, 0, 0}
 	 ,
@@ -821,7 +821,7 @@ Only in CTF games
 */
 	{
 	 "ammo_belt",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/ammo/chaingunam.md3",
 	  0, 0, 0}
 	 ,
@@ -931,7 +931,7 @@ Only in CTF games
 
 	{
 	 "item_redcube",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/orb/r_orb.md3",
 	  0, 0, 0}
 	 ,
@@ -947,7 +947,7 @@ Only in CTF games
 
 	{
 	 "item_bluecube",
-	 "sound/misc/am_pkup.wav",
+	 "sound/misc/am_pkup.ogg",
 	 {"models/powerups/orb/b_orb.md3",
 	  0, 0, 0}
 	 ,
@@ -964,7 +964,7 @@ Only in CTF games
 */
 	{
 	 "weapon_nailgun",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/nailgun/nailgun.md3",
 	  0, 0, 0}
 	 ,
@@ -982,7 +982,7 @@ Only in CTF games
 */
 	{
 	 "weapon_prox_launcher",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/proxmine/proxmine.md3",
 	  0, 0, 0}
 	 ,
@@ -1002,7 +1002,7 @@ Only in CTF games
 */
 	{
 	 "weapon_chaingun",
-	 "sound/misc/w_pkup.wav",
+	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/vulcan/vulcan.md3",
 	  0, 0, 0}
 	 ,
