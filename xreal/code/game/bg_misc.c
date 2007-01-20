@@ -126,7 +126,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_health_small",
-	 "sound/items/s_health.wav",
+	 "sound/items/s_health.ogg",
 	 {"models/powerups/health/small_cross.md3",
 	  "models/powerups/health/small_sphere.md3",
 	  0, 0}
@@ -145,7 +145,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_health",
-	 "sound/items/n_health.wav",
+	 "sound/items/n_health.ogg",
 	 {"models/powerups/health/medium_cross.md3",
 	  "models/powerups/health/medium_sphere.md3",
 	  0, 0}
@@ -164,7 +164,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_health_large",
-	 "sound/items/l_health.wav",
+	 "sound/items/l_health.ogg",
 	 {"models/powerups/health/large_cross.md3",
 	  "models/powerups/health/large_sphere.md3",
 	  0, 0}
@@ -183,7 +183,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_health_mega",
-	 "sound/items/m_health.wav",
+	 "sound/items/m_health.ogg",
 	 {"models/powerups/health/mega_cross.md3",
 	  "models/powerups/health/mega_sphere.md3",
 	  0, 0}
