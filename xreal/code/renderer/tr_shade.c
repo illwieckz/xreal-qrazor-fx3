@@ -288,57 +288,66 @@ void GLSL_InitGPUShaders(void)
 	//
 	// Geometric-Buffer fill rendering with diffuse only shader stages
 	//
-	GLSL_InitGPUShader(&tr.geometricFillShader_D, "geometricFill_D", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GLSL_InitGPUShader(&tr.geometricFillShader_D, "geometricFill_D", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
-	tr.geometricFillShader_D.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_D.program, "u_DiffuseMap");
-	tr.geometricFillShader_D.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_D.program, "u_ModelMatrix");
+		tr.geometricFillShader_D.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_D.program, "u_DiffuseMap");
+		tr.geometricFillShader_D.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_D.program, "u_ModelMatrix");
 
-	qglUseProgramObjectARB(tr.geometricFillShader_D.program);
-	qglUniform1iARB(tr.geometricFillShader_D.u_DiffuseMap, 0);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.geometricFillShader_D.program);
-	GLSL_ShowProgramUniforms(tr.geometricFillShader_D.program);
-	GL_CheckErrors();
+		qglUseProgramObjectARB(tr.geometricFillShader_D.program);
+		qglUniform1iARB(tr.geometricFillShader_D.u_DiffuseMap, 0);
+		qglUseProgramObjectARB(0);
+	
+		GLSL_ValidateProgram(tr.geometricFillShader_D.program);
+		GLSL_ShowProgramUniforms(tr.geometricFillShader_D.program);
+		GL_CheckErrors();
+	}
 	
 	//
 	// Geometric-Buffer fill rendering with diffuse + bump
 	//
-	GLSL_InitGPUShader(&tr.geometricFillShader_DB, "geometricFill_DB", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GLSL_InitGPUShader(&tr.geometricFillShader_DB, "geometricFill_DB", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
-	tr.geometricFillShader_DB.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_DB.program, "u_DiffuseMap");
-	tr.geometricFillShader_DB.u_NormalMap = qglGetUniformLocationARB(tr.geometricFillShader_DB.program, "u_NormalMap");
-	tr.geometricFillShader_DB.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_DB.program, "u_ModelMatrix");
+		tr.geometricFillShader_DB.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_DB.program, "u_DiffuseMap");
+		tr.geometricFillShader_DB.u_NormalMap = qglGetUniformLocationARB(tr.geometricFillShader_DB.program, "u_NormalMap");
+		tr.geometricFillShader_DB.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_DB.program, "u_ModelMatrix");
 
-	qglUseProgramObjectARB(tr.geometricFillShader_DB.program);
-	qglUniform1iARB(tr.geometricFillShader_DB.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.geometricFillShader_DB.u_NormalMap, 1);
-	qglUseProgramObjectARB(0);
+		qglUseProgramObjectARB(tr.geometricFillShader_DB.program);
+		qglUniform1iARB(tr.geometricFillShader_DB.u_DiffuseMap, 0);
+		qglUniform1iARB(tr.geometricFillShader_DB.u_NormalMap, 1);
+		qglUseProgramObjectARB(0);
 
-	GLSL_ValidateProgram(tr.geometricFillShader_DB.program);
-	GLSL_ShowProgramUniforms(tr.geometricFillShader_DB.program);
-	GL_CheckErrors();
+		GLSL_ValidateProgram(tr.geometricFillShader_DB.program);
+		GLSL_ShowProgramUniforms(tr.geometricFillShader_DB.program);
+		GL_CheckErrors();
+	}
 	
 	//
 	// Geometric-Buffer fill rendering with diffuse + bump + specular
 	//
-	GLSL_InitGPUShader(&tr.geometricFillShader_DBS, "geometricFill_DBS", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GLSL_InitGPUShader(&tr.geometricFillShader_DBS, "geometricFill_DBS", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
-	tr.geometricFillShader_DBS.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DiffuseMap");
-	tr.geometricFillShader_DBS.u_NormalMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_NormalMap");
-	tr.geometricFillShader_DBS.u_SpecularMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_SpecularMap");
-	tr.geometricFillShader_DBS.u_SpecularExponent = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_SpecularExponent");
-	tr.geometricFillShader_DBS.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ModelMatrix");
+		tr.geometricFillShader_DBS.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DiffuseMap");
+		tr.geometricFillShader_DBS.u_NormalMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_NormalMap");
+		tr.geometricFillShader_DBS.u_SpecularMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_SpecularMap");
+		tr.geometricFillShader_DBS.u_SpecularExponent = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_SpecularExponent");
+		tr.geometricFillShader_DBS.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ModelMatrix");
 
-	qglUseProgramObjectARB(tr.geometricFillShader_DBS.program);
-	qglUniform1iARB(tr.geometricFillShader_DBS.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.geometricFillShader_DBS.u_NormalMap, 1);
-	qglUniform1iARB(tr.geometricFillShader_DBS.u_SpecularMap, 2);
-	qglUseProgramObjectARB(0);
+		qglUseProgramObjectARB(tr.geometricFillShader_DBS.program);
+		qglUniform1iARB(tr.geometricFillShader_DBS.u_DiffuseMap, 0);
+		qglUniform1iARB(tr.geometricFillShader_DBS.u_NormalMap, 1);
+		qglUniform1iARB(tr.geometricFillShader_DBS.u_SpecularMap, 2);
+		qglUseProgramObjectARB(0);
 
-	GLSL_ValidateProgram(tr.geometricFillShader_DBS.program);
-	GLSL_ShowProgramUniforms(tr.geometricFillShader_DBS.program);
-	GL_CheckErrors();
+		GLSL_ValidateProgram(tr.geometricFillShader_DBS.program);
+		GLSL_ShowProgramUniforms(tr.geometricFillShader_DBS.program);
+		GL_CheckErrors();
+	}
 	
 	//
 	// deferred lighting post process effect

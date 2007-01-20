@@ -3713,7 +3713,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.shadingLanguage100Available &&
-	   glConfig.textureFloatAvailable)
+	   glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
 
