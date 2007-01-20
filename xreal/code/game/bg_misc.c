@@ -68,7 +68,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_armor_shard",
-	 "sound/misc/ar1_pkup.wav",
+	 "sound/misc/ar1_pkup.ogg",
 	 {"models/powerups/armor/shard.md3",
 	  "models/powerups/armor/shard_sphere.md3",
 	  0, 0}
@@ -87,7 +87,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_armor_combat",
-	 "sound/misc/ar2_pkup.wav",
+	 "sound/misc/ar2_pkup.ogg",
 	 {"models/powerups/armor/armor_yel.md3",
 	  0, 0, 0}
 	 ,
@@ -105,7 +105,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_armor_body",
-	 "sound/misc/ar2_pkup.wav",
+	 "sound/misc/ar3_pkup.ogg",
 	 {"models/powerups/armor/armor_red.md3",
 	  0, 0, 0}
 	 ,
