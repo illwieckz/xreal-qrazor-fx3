@@ -25,7 +25,7 @@ Mikael "Ruohis" Ruohomaa - weapon models
 
 OpenArena Team
 --------------
-jzero - OpenArena weapon models
+jzero - weapon and ammo models
 CheapAlert - OpenArena models
 
 
@@ -49,8 +49,9 @@ Josef "cnuke" Söntgen
 Willi "whammes" Hammes
 Robin "Wakey" Pengelstorfer
 Stefan "ReFlex" Lautner
-Garth "Zombie13" Hendy
+Nathan "jitspoe" Wulf
 CheapAlert
+hi_volt
 
 
 SFX
@@ -64,6 +65,22 @@ Mancubus (mancubus.net) - is the announcer!
 Sapphire Scar Team
 ------------------
 
+
+The Freesound Project
+---------------------
+AdcBicycle
+Andrew Duke
+Erdie
+ignotus
+Jovica
+kijjaz
+loofa
+man
+Oppusum
+PoisedToGlitch
+room
+suonho
+young_daddy
 
 
 DEVELOPMENT ASSISTANCE
