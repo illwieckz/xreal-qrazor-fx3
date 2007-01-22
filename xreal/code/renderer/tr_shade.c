@@ -3811,41 +3811,40 @@ void Tess_StageIteratorGBuffer()
 
 		switch (pStage->type)
 		{
-			/*
 			case ST_COLORMAP:
 			{
-				if(tess.surfaceShader->forceOpaque)
-				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_shadowFill(stage);
-					}
-					else
-					{
-						// TODO
-					}
-				}
+				R_BindFBO(tr.deferredRenderFBO);
+				
+				Render_genericSingle(stage);
 				break;
 			}
-			*/
 			
 			case ST_DIFFUSEMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
+					R_BindFBO(tr.deferredRenderFBO);
+					
+					Render_depthFill(stage);
+				
+					
+					R_BindFBO(tr.geometricRenderFBO);	
+					
 					Render_geometricFill_D(stage);
-				}
-				else
-				{
-					// TODO
 				}
 				break;
 			}
 			
 			case ST_COLLAPSE_lighting_DB:
 			{
-				if(glConfig.shadingLanguage100Available)
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
+					R_BindFBO(tr.deferredRenderFBO);
+					
+					Render_depthFill(stage);
+					
+					R_BindFBO(tr.geometricRenderFBO);
+					
 					if(r_lighting->integer == 1)
 					{
 						Render_geometricFill_DB(stage);
@@ -3864,8 +3863,14 @@ void Tess_StageIteratorGBuffer()
 			
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				if(glConfig.shadingLanguage100Available)
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
+					R_BindFBO(tr.deferredRenderFBO);
+					
+					Render_depthFill(stage);
+					
+					R_BindFBO(tr.geometricRenderFBO);
+					
 					if(r_lighting->integer == 2)
 					{
 						Render_geometricFill_DBS(stage);

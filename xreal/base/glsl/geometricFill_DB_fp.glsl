@@ -44,5 +44,5 @@ void	main()
 	gl_FragData[0] = diffuse;
 	gl_FragData[1] = vec4(N, 0.0);
 	gl_FragData[2] = vec4(0.0, 0.0, 0.0, 0.0);
-	gl_FragData[3] = vec4(var_Vertex, 1.0);
+	gl_FragData[3] = vec4(var_Vertex, gl_FragCoord.z);
 }

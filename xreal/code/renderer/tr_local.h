@@ -1694,12 +1694,14 @@ typedef struct
 	image_t        *deferredNormalFBOImage;
 	image_t        *deferredSpecularFBOImage;
 	image_t        *deferredPositionFBOImage;
+	image_t        *deferredLightingFBOImage;
 	image_t        *shadowMapFBOImage[3];
 	image_t        *shadowCubeFBOImage[3];
 
 	// framebuffer objects
 //	frameBuffer_t  *currentRenderFBO;
 //	frameBuffer_t  *portalRenderFBO;
+	frameBuffer_t  *geometricRenderFBO;
 	frameBuffer_t  *deferredRenderFBO;
 	frameBuffer_t  *shadowMapFBO[3];
 

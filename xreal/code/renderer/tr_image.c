@@ -4638,6 +4638,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 	tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
 	tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
 	tr.deferredPositionFBOImage = R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredLightingFBOImage = R_CreateImage("_deferredLightingFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }

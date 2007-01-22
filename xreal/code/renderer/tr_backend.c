@@ -2384,9 +2384,6 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime, drawSur
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 
-	R_BindFBO(tr.deferredRenderFBO);
-	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	GL_CheckErrors();
 
 	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
@@ -2532,7 +2529,7 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
 
-	R_BindNullFBO();
+	R_BindFBO(tr.deferredRenderFBO);
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
@@ -2719,18 +2716,29 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 	GL_CheckErrors();
 }
 
-void RB_RenderDepthFromGeometricBuffer()
+void RB_RenderDeferredShadingResultToFrameBuffer()
 {
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 
-	GLimp_LogComment("--- RB_RenderDepthFromGeometricBuffer ---\n");
+	GLimp_LogComment("--- RB_RenderDeferredShadingResultToFrameBuffer ---\n");
 
 	R_BindNullFBO();
 
 	// enable shader, set arrays
 	GL_Program(tr.screenShader.program);
-	GL_State(GLS_DEPTHTEST_DISABLE);
+	
+	/*
+	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	}
+	else
+	*/
+	{
+		GL_State(GLS_DEPTHTEST_DISABLE);// | GLS_DEPTHMASK_TRUE);
+	}
+	
 	GL_ClientState(tr.screenShader.attribs);
 	//GL_SetVertexAttribs();
 	GL_Cull(CT_TWO_SIDED);
@@ -2746,7 +2754,7 @@ void RB_RenderDepthFromGeometricBuffer()
 
 	// bind colorMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.deferredNormalFBOImage);
+	GL_Bind(tr.deferredLightingFBOImage);
 	//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
 
 	// set 2D virtual screen size
@@ -3715,15 +3723,19 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.shadingLanguage100Available &&
 	   glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
-		//RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
-
+		R_BindFBO(tr.deferredRenderFBO);
+		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		R_BindFBO(tr.geometricRenderFBO);
+		qglClear(GL_COLOR_BUFFER_BIT);
+		
 		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime, drawSurfs, numDrawSurfs);
 		
-		RB_RenderDepthFromGeometricBuffer();
-		
 		RB_RenderInteractionsDeferred(interactions, numInteractions);
-
+		
 		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
+		
+		RB_RenderDeferredShadingResultToFrameBuffer();
 	}
 	else
 	{

@@ -47,13 +47,13 @@ void	main()
 	vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
 		
 	// compute vertex position in world space
-	vec3 P = texture2D(u_PositionMap, st).xyz;
+	vec4 P = texture2D(u_PositionMap, st).xyzw;
 	
 	// compute light direction in world space
-	vec3 L = normalize(u_LightOrigin - P);
+	vec3 L = normalize(u_LightOrigin - P.xyz);
 	
 	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - P);
+	vec3 V = normalize(u_ViewOrigin - P.xyz);
 	
 	// compute half angle in world space
 	vec3 H = normalize(L + V);
@@ -67,7 +67,7 @@ void	main()
 	vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a);
 	
 	// compute attenuation
-	vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P, 1.0)).xyz;
+	vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0)).xyz;
 	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, texAttenXYZ.xy).rgb;
 	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(texAttenXYZ.z, 0)).rgb;
 	
@@ -79,4 +79,5 @@ void	main()
 	color.rgb *= u_LightScale;
 
 	gl_FragColor = color;
+//	gl_FragDepth = P.w;
 }
