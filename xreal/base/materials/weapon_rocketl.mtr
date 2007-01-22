@@ -2,13 +2,24 @@
 models/weapons/rocketl/rocketl
 {
 	{
-		blend diffuseMap
+		stage diffuseMap
 		map models/weapons/rocketl/rocketl.tga
 		rgbGen lightingDiffuse
 	}
-	//bumpMap heightMap(models/weapons/rocketl/rocketl_bump.tga, 3)
-	bumpMap models/weapons/rocketl/rocketl_norm.tga
-	specularMap models/weapons/rocketl/rocketl_spec.tga
+	//normalMap heightMap(models/weapons/rocketl/rocketl_bump.tga, 3)
+	normalMap models/weapons/rocketl/rocketl_local.tga
+	specularMap models/weapons/rocketl/rocketl_s.tga
+}
+
+models/weapons/rocketl/v_rocketl
+{
+	{
+		stage diffuseMap
+		map models/weapons/rocketl/v_rocketl.tga
+		rgbGen lightingDiffuse
+	}
+	normalMap models/weapons/rocketl/v_rocketl_local.tga
+	specularMap models/weapons/rocketl/v_rocketl_s.tga
 }
 
 
@@ -22,7 +33,6 @@ models/weapons2/rocketl/f_rocketl
 	}
 }
 
-
 models/projectiles/missile/missile
 {
 	{
@@ -30,8 +40,8 @@ models/projectiles/missile/missile
 		map	models/projectiles/missile/missile.tga
 		rgbGen lightingDiffuse
 	}
-	bumpMap heightmap(models/projectiles/missile/missile_bump.tga, 3)
-	specularMap models/projectiles/missile/missile_spec.tga
+	normalMap heightmap(models/projectiles/missile/missile_h.tga, 3)
+	specularMap models/projectiles/missile/missile_s.tga
 	{
 		map models/projectiles/missile/missile_glow.tga
 		blend add

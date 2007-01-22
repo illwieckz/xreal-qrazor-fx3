@@ -434,7 +434,7 @@ textures/eX/eX_rplates_01
 {
 	qer_editorimage textures/eX/eX_rplates_01_d
 
-	bumpmap addnormals ( textures/eX/eX_rplates_01_local, heightmap ( textures/eX/eX_rplates_01_h, 1 ) )
+	bumpmap displacemap( addnormals ( textures/eX/eX_rplates_01_local, heightmap ( textures/eX/eX_rplates_01_h, 1 ) ), textures/eX/eX_rplates_01_disp )
 	diffusemap	textures/eX/eX_rplates_01_d
 	specularmap	textures/eX/eX_rplates_01_s
 }

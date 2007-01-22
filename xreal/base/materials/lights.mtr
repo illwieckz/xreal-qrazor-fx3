@@ -2147,6 +2147,7 @@ lights/rspot01drk
 
 lights/flashlight2
 {
+//	lightFalloffImage	lights/skyline1.png
 	lightFalloffImage	makeintensity(lights/squarelight1b.tga)
 //	lightFalloffImage	makeintensity(lights/flashoff.tga)
 //	lightFalloffImage	_noFalloff

@@ -1880,3 +1880,26 @@ rotoscope
 		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
 	}
 }
+
+debugPlayerAABB
+{
+	nopicmip
+
+	{
+		map gfx/misc/aabb.tga
+		blend add
+		rgbGen vertex
+	}
+}
+
+debugPlayerAABB_twoSided
+{
+	nopicmip
+	twoSided
+
+	{
+		map gfx/misc/aabb.tga
+		blend add
+		rgbGen vertex
+	}
+}

@@ -20,6 +20,9 @@ common_trims
 custom
 decals
 desertsky
+#dk_goth
+#dk_goth2
+#dk_q4dm1
 door
 duffyTest
 enpro
