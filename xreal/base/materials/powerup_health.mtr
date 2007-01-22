@@ -1,0 +1,172 @@
+
+models/powerups/health/small_cross
+{
+	{
+		map textures/effects/envmaprail.tga
+        tcGen environment
+		blend GL_ONE, GL_ZERO
+	}
+    {
+		map textures/sfx/kenelectric.tga
+        tcmod scale 2 2
+        tcmod rotate 333
+        tcmod scroll 9 9
+		blend add
+		color 1, 0, 0, 0.5
+	}
+}
+
+models/powerups/health/small_sphere
+{
+	{
+		map textures/effects/envmaprail.tga
+        tcGen environment
+        tcmod rotate 33
+        tcmod scroll 1 1
+		blend add
+	}
+}
+
+models/powerups/health/small_flare
+{
+	deformVertexes autosprite
+	{
+		edgeClamp
+		map textures/oa_sfx/greenflr1.tga
+		blend add
+		tcMod rotate -149
+		tcMod stretch sin -1 1 0 0.2 
+	}
+	{
+		edgeClamp
+		map textures/oa_sfx/greenflr2.tga
+		blend add
+		tcMod rotate 1765
+		tcMod stretch sin 0 -1.2 0 0.3 
+	}
+}
+
+
+models/powerups/health/medium_cross
+{
+	{
+		map textures/effects/envmapgold.tga
+        tcGen environment
+		blend GL_ONE, GL_ZERO
+	}
+    {
+		map textures/sfx/kenelectric.tga
+        tcmod scale 2 2
+        tcmod rotate 333
+        tcmod scroll 9 9
+		blend add
+		color 1, 0, 0, 0.5
+	}
+}
+
+models/powerups/health/medium_sphere
+{
+	{
+		map textures/effects/envmapgold2.tga
+        tcGen environment
+        tcmod rotate 33
+        tcmod scroll 1 1
+		blend add
+	}
+}
+
+models/powerups/health/medium_flare
+{
+	deformVertexes autosprite
+	{
+		edgeClamp
+		map textures/oa_sfx/orangeflr1.tga
+		blend add
+		tcMod rotate -46
+		tcMod stretch sin -1 0.4 0 0.2
+	}
+	{
+		edgeClamp
+		map textures/oa_sfx/orangeflr2.tga
+		blend add
+		tcMod rotate 122
+		tcMod stretch inversesawtooth -0.7 -1 0 2 
+	}
+}
+
+
+models/powerups/health/large_cross
+{
+	{
+		map textures/effects/envmapred.tga
+        tcGen environment
+		blend GL_ONE, GL_ZERO
+	}
+    {
+		map textures/sfx/kenelectric.tga
+        tcmod scale 2 2
+        tcmod rotate 333
+        tcmod scroll 9 9
+		blend add
+		color 1, 0, 0, 0.5
+	}
+}
+
+models/powerups/health/large_sphere
+{
+	{
+		map textures/effects/regenmap2.tga
+        tcGen environment
+        tcmod rotate 33
+        tcmod scroll 1 1
+		blend add
+	}
+}
+
+models/powerups/health/large_flare
+{
+	deformVertexes autosprite
+	{
+		edgeClamp
+		map textures/oa_sfx/orangeflr1.tga
+		blend add
+		tcMod rotate -46
+		tcMod stretch sin -1 0.4 0 0.2
+	}
+	{
+		edgeClamp
+		map textures/oa_sfx/orangeflr2.tga
+		blend add
+		tcMod rotate 122
+		tcMod stretch inversesawtooth -0.7 -1 0 2 
+	}
+}
+
+
+models/powerups/health/mega_text
+{
+	{
+		map textures/effects/envmapblue.tga
+        tcGen environment
+		blend GL_ONE, GL_ZERO
+	}
+    {
+		map textures/sfx/kenelectric.tga
+        tcmod scale 2 2
+        tcmod rotate 333
+        tcmod scroll 9 9
+		blend add
+		color 1, 0, 0, 0.5
+	}
+}
+
+models/powerups/health/mega_sphere
+{
+	{
+		map textures/effects/envmapblue2.tga
+        tcGen environment
+        tcmod rotate 33
+        tcmod scroll 1 1
+		blend add
+	}
+}
