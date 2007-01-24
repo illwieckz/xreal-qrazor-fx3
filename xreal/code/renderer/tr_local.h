@@ -842,6 +842,8 @@ typedef struct shaderProgram_s
 	GLint           u_LightRadius;
 	GLint           u_LightScale;
 	GLint			u_LightAttenuationMatrix;
+	
+	GLint			u_ShadowCompare;
 
 	GLint           u_SpecularExponent;
 
@@ -1557,9 +1559,8 @@ typedef struct
 	int             c_sphere_cull_mdx_in, c_sphere_cull_mdx_clip, c_sphere_cull_mdx_out;
 	int             c_box_cull_mdx_in, c_box_cull_mdx_clip, c_box_cull_mdx_out;
 	int             c_box_cull_md5_in, c_box_cull_md5_clip, c_box_cull_md5_out;
-	int             c_box_cull_dlight_in, c_box_cull_dlight_clip, c_box_cull_dlight_out;
-	int             c_box_cull_slight_in, c_box_cull_slight_clip, c_box_cull_slight_out;
-	int             c_pvs_cull_slight_out;
+	int             c_box_cull_light_in, c_box_cull_light_clip, c_box_cull_light_out;
+	int             c_pvs_cull_light_out;
 	
 	int             c_pyramid_cull_ent_in, c_pyramid_cull_ent_clip, c_pyramid_cull_ent_out;
 

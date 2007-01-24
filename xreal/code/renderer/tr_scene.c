@@ -23,19 +23,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-int             r_firstSceneDrawSurf;
-int             r_firstSceneInteraction;
+static int             r_firstSceneDrawSurf;
+static int             r_firstSceneInteraction;
 
-int             r_numlights;
-int             r_firstSceneLight;
+static int             r_numLights;
+static int             r_firstSceneLight;
 
-int             r_numentities;
-int             r_firstSceneEntity;
+static int             r_numEntities;
+static int             r_firstSceneEntity;
 
-int             r_numpolys;
-int             r_firstScenePoly;
+static int             r_numPolys;
+static int             r_firstScenePoly;
 
-int             r_numpolyverts;
+static int             r_numPolyVerts;
 
 
 /*
@@ -61,16 +61,16 @@ void R_ToggleSmpFrame(void)
 	r_firstSceneDrawSurf = 0;
 	r_firstSceneInteraction = 0;
 
-	r_numlights = 0;
+	r_numLights = 0;
 	r_firstSceneLight = 0;
 
-	r_numentities = 0;
+	r_numEntities = 0;
 	r_firstSceneEntity = 0;
 
-	r_numpolys = 0;
+	r_numPolys = 0;
 	r_firstScenePoly = 0;
 
-	r_numpolyverts = 0;
+	r_numPolyVerts = 0;
 }
 
 
@@ -81,9 +81,9 @@ RE_ClearScene
 */
 void RE_ClearScene(void)
 {
-	r_firstSceneLight = r_numlights;
-	r_firstSceneEntity = r_numentities;
-	r_firstScenePoly = r_numpolys;
+	r_firstSceneLight = r_numLights;
+	r_firstSceneEntity = r_numEntities;
+	r_firstScenePoly = r_numPolys;
 }
 
 /*
@@ -142,7 +142,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 
 	for(j = 0; j < numPolys; j++)
 	{
-		if(r_numpolyverts + numVerts > max_polyverts || r_numpolys >= max_polys)
+		if(r_numPolyVerts + numVerts > max_polyverts || r_numPolys >= max_polys)
 		{
 			/*
 			   NOTE TTimo this was initially a PRINT_WARNING
@@ -155,11 +155,11 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 			return;
 		}
 
-		poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
+		poly = &backEndData[tr.smpFrame]->polys[r_numPolys];
 		poly->surfaceType = SF_POLY;
 		poly->hShader = hShader;
 		poly->numVerts = numVerts;
-		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numPolyVerts];
 
 		Com_Memcpy(poly->verts, &verts[numVerts * j], numVerts * sizeof(*verts));
 
@@ -171,8 +171,8 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 			poly->verts->modulate[3] = 255;
 		}
 		// done.
-		r_numpolys++;
-		r_numpolyverts += numVerts;
+		r_numPolys++;
+		r_numPolyVerts += numVerts;
 
 		// if no world is loaded
 		if(tr.world == NULL)
@@ -231,7 +231,7 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 	}
 	
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=402
-	if(r_numentities >= ENTITYNUM_WORLD)
+	if(r_numEntities >= ENTITYNUM_WORLD)
 	{
 		return;
 	}
@@ -241,11 +241,11 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 		ri.Error(ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType);
 	}
 
-	Com_Memcpy(&backEndData[tr.smpFrame]->entities[r_numentities].e, ent, sizeof(refEntity_t));
+	Com_Memcpy(&backEndData[tr.smpFrame]->entities[r_numEntities].e, ent, sizeof(refEntity_t));
 	//backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
-	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
+	backEndData[tr.smpFrame]->entities[r_numEntities].lightingCalculated = qfalse;
 
-	r_numentities++;
+	r_numEntities++;
 }
 
 /*
@@ -262,7 +262,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		return;
 	}
 	
-	if(r_numlights >= MAX_LIGHTS)
+	if(r_numLights >= MAX_LIGHTS)
 	{
 		return;
 	}
@@ -277,11 +277,53 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		ri.Error(ERR_DROP, "RE_AddRefLightToScene: bad rlType %i", l->rlType);
 	}
 	
-	light = &backEndData[tr.smpFrame]->lights[r_numlights++];
+	light = &backEndData[tr.smpFrame]->lights[r_numLights++];
 	light->l = *l;
 	
 	light->isStatic = qfalse;
 	light->additive = qtrue;
+}
+
+/*
+=====================
+R_AddWorldLightsToScene
+=====================
+*/
+static void R_AddWorldLightsToScene()
+{
+	int             i;
+	trRefLight_t *light;
+		
+	if(!tr.registered)
+	{
+		return;
+	}
+	
+	for(i = 0; i < tr.world->numLights; i++)
+	{
+		light = tr.currentLight = &tr.world->lights[i];
+	
+		if(r_numLights >= MAX_LIGHTS)
+		{
+			return;
+		}
+	
+		/*
+		if(light->radius[0] <= 0 && !VectorLength(light->radius) && light->distance <= 0)
+		{
+			continue;
+		}
+		*/
+		
+		if(!light->firstInteractionCache)
+		{
+			// this light has no interactions precached
+			continue;
+		}
+		
+		Com_Memcpy(&backEndData[tr.smpFrame]->lights[r_numLights], light, sizeof(trRefLight_t));
+		r_numLights++;
+	}
 }
 
 /*
@@ -298,7 +340,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 		return;
 	}
 	
-	if(r_numlights >= MAX_LIGHTS)
+	if(r_numLights >= MAX_LIGHTS)
 	{
 		return;
 	}
@@ -308,7 +350,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 		return;
 	}
 	
-	light = &backEndData[tr.smpFrame]->lights[r_numlights++];
+	light = &backEndData[tr.smpFrame]->lights[r_numLights++];
 	
 	light->l.rlType = RL_OMNI;
 //	light->l.lightfx = 0;
@@ -427,6 +469,7 @@ void RE_RenderScene(const refdef_t * fd)
 		}
 	}
 
+	R_AddWorldLightsToScene();
 
 	// derived info
 	tr.refdef.floatTime = tr.refdef.time * 0.001f;
@@ -437,13 +480,13 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.refdef.numInteractions = r_firstSceneInteraction;
 	tr.refdef.interactions = backEndData[tr.smpFrame]->interactions;
 
-	tr.refdef.numEntities = r_numentities - r_firstSceneEntity;
+	tr.refdef.numEntities = r_numEntities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
 
-	tr.refdef.numLights = r_numlights - r_firstSceneLight;
+	tr.refdef.numLights = r_numLights - r_firstSceneLight;
 	tr.refdef.lights = &backEndData[tr.smpFrame]->lights[r_firstSceneLight];
 
-	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
+	tr.refdef.numPolys = r_numPolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
 
 	// a single frame may have multiple scenes draw inside it --
@@ -482,9 +525,9 @@ void RE_RenderScene(const refdef_t * fd)
 	// the next scene rendered in this frame will tack on after this one
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
 	r_firstSceneInteraction = tr.refdef.numInteractions;
-	r_firstSceneEntity = r_numentities;
-	r_firstSceneLight = r_numlights;
-	r_firstScenePoly = r_numpolys;
+	r_firstSceneEntity = r_numEntities;
+	r_firstSceneLight = r_numLights;
+	r_firstScenePoly = r_numPolys;
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;
 }

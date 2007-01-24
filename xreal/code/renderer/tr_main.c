@@ -1916,6 +1916,7 @@ void R_AddEntityInteractions(trRefLight_t * light)
 R_AddStaticlightInteractions
 =============
 */
+/*
 void R_AddStaticlightInteractions()
 {
 	int             i, j;
@@ -2021,7 +2022,7 @@ void R_AddStaticlightInteractions()
 		}
 	}
 }
-
+*/
 
 /*
 =============
@@ -2030,66 +2031,102 @@ R_AddLightInteractions
 */
 void R_AddLightInteractions()
 {
-	int             i;
+	int             i, j;
 	trRefLight_t   *light;
-
-	if(r_noDynamicLighting->integer)
-	{
-		return;
-	}
+	mnode_t       **leafs;
+	mnode_t        *leaf;
 
 	for(i = 0; i < tr.refdef.numLights; i++)
 	{
 		light = tr.currentLight = &tr.refdef.lights[i];
+		
+		if(light->isStatic)
+		{
+			if(r_noStaticLighting->integer)
+				continue;
+		}
+		else
+		{
+			if(r_noDynamicLighting->integer)
+				continue;			
+		}
 
 		// we must set up parts of tr.or for light culling
 		R_RotateLightForViewParms(light, &tr.viewParms, &tr.or);
 
 		// calc local bounds for culling
-		R_SetupLightLocalBounds(light);
+		if(light->isStatic)
+		{
+			// ignore if not in PVS
+			if(!r_noLightVisCull->integer)
+			{
+				for(j = 0, leafs = light->leafs; j < light->numLeafs; j++, leafs++)
+				{
+					leaf = *leafs;
+			
+					if(leaf->visCount == tr.visCount)
+					{
+						light->visCount = tr.visCount;
+					}
+				}
+			
+				if(light->visCount != tr.visCount)
+				{
+					tr.pc.c_pvs_cull_light_out++;
+					continue;
+				}
+			}
+		}
+		else
+		{
+			R_SetupLightLocalBounds(light);
+		}
 
 		// look if we have to draw the light including its interactions
 		switch (R_CullLocalBox(light->localBounds))
 		{
 			case CULL_IN:
 			default:
-				tr.pc.c_box_cull_dlight_in++;
+				tr.pc.c_box_cull_light_in++;
 				light->cull = CULL_IN;
 				break;
 
 			case CULL_CLIP:
-				tr.pc.c_box_cull_dlight_clip++;
+				tr.pc.c_box_cull_light_clip++;
 				light->cull = CULL_CLIP;
 				break;
 
 			case CULL_OUT:
 				// light is not visible so skip other light setup stuff to save speed
-				tr.pc.c_box_cull_dlight_out++;
+				tr.pc.c_box_cull_light_out++;
 				light->cull = CULL_OUT;
 				continue;
 		}
 
-		// set up light transform matrix
-		MatrixSetupTransform(light->transformMatrix, light->l.axis[0], light->l.axis[1], light->l.axis[2], light->l.origin);
+		if(!light->isStatic)
+		{
+			// set up light transform matrix
+			MatrixSetupTransform(light->transformMatrix, light->l.axis[0], light->l.axis[1], light->l.axis[2], light->l.origin);
 
-		// set up light origin for lighting and shadowing
-		R_SetupLightOrigin(light);
+			// set up light origin for lighting and shadowing
+			R_SetupLightOrigin(light);
 
-		// setup world bounds for intersection tests
-		R_SetupLightWorldBounds(light);
+			// setup world bounds for intersection tests
+			R_SetupLightWorldBounds(light);
 
-		// setup frustum planes for intersection tests
-		R_SetupLightFrustum(light);
+			// setup frustum planes for intersection tests
+			R_SetupLightFrustum(light);
 
-		// ignore if not in visible bounds
-		if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
-			continue;
+			// ignore if not in visible bounds
+			if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+				continue;
 
-		// set up model to light view matrix
-		R_SetupLightView(light);
+			// set up model to light view matrix
+			R_SetupLightView(light);
 
-		// set up projection
-		R_SetupLightProjection(light);
+			// set up projection
+			R_SetupLightProjection(light);
+		}
 
 		// set up view dependent light scissor
 		R_SetupLightScissor(light);
@@ -2108,14 +2145,29 @@ void R_AddLightInteractions()
 		light->lastInteractionIndex = -1;
 		light->noSort = qfalse;
 
-		R_AddWorldInteractions(light);
+		if(light->isStatic)
+		{
+			R_AddPrecachedWorldInteractions(light);
+		}
+		else
+		{
+			R_AddWorldInteractions(light);
+		}
+		
 		R_AddEntityInteractions(light);
 
 		if(light->numInteractions && light->numInteractions != light->numShadowOnlyInteractions)
 		{
 			R_SortInteractions(light);
 			
-			tr.pc.c_dlights++;
+			if(light->isStatic)
+			{
+				tr.pc.c_slights++;
+			}
+			else
+			{
+				tr.pc.c_dlights++;
+			}
 		}
 		else
 		{
@@ -2309,8 +2361,6 @@ void R_RenderView(viewParms_t * parms)
 	R_AddPolygonSurfaces();
 
 	R_AddEntitySurfaces();
-
-	R_AddStaticlightInteractions();
 
 	R_AddLightInteractions();
 

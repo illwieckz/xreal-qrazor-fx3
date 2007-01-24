@@ -1750,20 +1750,18 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
 
-				/*
-				   if(light->l.noShadows)
-				   {
-				   if(r_logFile->integer)
-				   {
-				   // don't just call LogComment, or we will get
-				   // a call to va() every frame!
-				   GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
-				   }
-
-				   goto skipInteraction;
-				   }
-				   else
-				 */
+				if(light->l.noShadows)
+				{
+					if(r_logFile->integer)
+					{
+						// don't just call LogComment, or we will get
+						// a call to va() every frame!
+						GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
+					}
+					
+					goto skipInteraction;
+				}
+				else
 				{
 					R_BindFBO(tr.shadowMapFBO[light->shadowLOD]);
 

@@ -31,6 +31,7 @@ uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
+uniform int			u_ShadowCompare;
 uniform float		u_SpecularExponent;
 uniform mat4		u_ModelMatrix;
 
@@ -80,27 +81,30 @@ void	main()
 	color.rgb *= u_LightScale;
 	
 #if defined(VSM)
-	// compute incident ray
-	vec3 I = var_Vertex - u_LightOrigin;
+	if(bool(u_ShadowCompare))
+	{
+		// compute incident ray
+		vec3 I = var_Vertex - u_LightOrigin;
 
-	float vertexDistance = length(I) / u_LightRadius;
-	vec2 shadowDistances = textureCube(u_ShadowMap, I).rg;
+		float vertexDistance = length(I) / u_LightRadius;
+		vec2 shadowDistances = textureCube(u_ShadowMap, I).rg;
 	
-	// standard shadow map comparison
-	float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
+		// standard shadow map comparison
+		float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
 	
-	// variance shadow mapping
-	float E_x2 = shadowDistances.g;
-	float Ex_2 = shadowDistances.r * shadowDistances.r;
+		// variance shadow mapping
+		float E_x2 = shadowDistances.g;
+		float Ex_2 = shadowDistances.r * shadowDistances.r;
 	
-	// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-	const float	VSM_EPSILON = 0.0001;
-	float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+		const float	VSM_EPSILON = 0.0001;
+		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
 	
-	float mD = shadowDistances.r - vertexDistance;
-	float pMax = variance / (variance + mD * mD);
+		float mD = shadowDistances.r - vertexDistance;
+		float pMax = variance / (variance + mD * mD);
 	
-	color.rgb *= max(shadow, pMax);
+		color.rgb *= max(shadow, pMax);
+	}
 #endif
 
 	gl_FragColor = color;

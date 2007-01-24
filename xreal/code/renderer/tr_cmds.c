@@ -49,8 +49,8 @@ void R_PerformanceCounters(void)
 
 		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i interactions\n",
 				  tr.pc.c_dlights + tr.pc.c_slights,
-				  tr.pc.c_box_cull_dlight_out + tr.pc.c_box_cull_slight_out,
-				  tr.pc.c_pvs_cull_slight_out,
+				  tr.pc.c_box_cull_light_out,
+				  tr.pc.c_pvs_cull_light_out,
 				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions);
 
 		/*
@@ -87,13 +87,9 @@ void R_PerformanceCounters(void)
 	{
 		ri.Printf(PRINT_ALL, "dlight srf:%i culled:%i\n", tr.pc.c_dlightSurfaces, tr.pc.c_dlightSurfacesCulled);
 
-		ri.Printf(PRINT_ALL, "dlights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
-				  tr.pc.c_dlights, tr.pc.c_dlightInteractions,
-				  tr.pc.c_box_cull_dlight_in, tr.pc.c_box_cull_dlight_clip, tr.pc.c_box_cull_dlight_out);
+		ri.Printf(PRINT_ALL, "dlights:%i interactions:%i\n", tr.pc.c_dlights, tr.pc.c_dlightInteractions);
 
-		ri.Printf(PRINT_ALL, "slights:%i interactions:%i bin:%i bclip:%i bout:%i\n",
-				  tr.pc.c_slights, tr.pc.c_slightInteractions,
-				  tr.pc.c_box_cull_slight_in, tr.pc.c_box_cull_slight_clip, tr.pc.c_box_cull_slight_out);
+		ri.Printf(PRINT_ALL, "slights:%i interactions:%i\n", tr.pc.c_slights, tr.pc.c_slightInteractions);
 	}
 	else if(r_speeds->integer == 5)
 	{

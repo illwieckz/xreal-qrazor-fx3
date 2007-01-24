@@ -109,22 +109,23 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI\n#endif\n");
 		}
 		
-		/*
-		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
-		}
-		*/
-		
-		if(glConfig.textureFloatAvailable)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_texture_float\n#define GL_ARB_texture_float 1\n#endif\n");
-		}
-		
 		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer == 4)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 		}
+		
+		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		{
+			//Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#extension GL_ARB_draw_buffers : enable\n");
+		}
+		
+		/*
+		if(glConfig.textureFloatAvailable)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_texture_float\n#define GL_ARB_texture_float 1\n#endif\n");
+		}
+		*/
 
 		sizeExtra = strlen(bufferExtra);
 		sizeFinal = sizeExtra + size;
@@ -529,6 +530,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightColor");
 	tr.lightShader_D_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightRadius");
 	tr.lightShader_D_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_LightScale");
+	tr.lightShader_D_omni.u_ShadowCompare = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_ShadowCompare");
 	tr.lightShader_D_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_D_omni.program);
@@ -558,6 +560,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_DB_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightColor");
 	tr.lightShader_DB_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightRadius");
 	tr.lightShader_DB_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_LightScale");
+	tr.lightShader_DB_omni.u_ShadowCompare = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_ShadowCompare");
 	tr.lightShader_DB_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_DB_omni.program);
@@ -591,6 +594,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_DBS_omni.u_LightColor = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightColor");
 	tr.lightShader_DBS_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightRadius");
 	tr.lightShader_DBS_omni.u_LightScale = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_LightScale");
+	tr.lightShader_DBS_omni.u_ShadowCompare = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ShadowCompare");
 	tr.lightShader_DBS_omni.u_SpecularExponent = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_SpecularExponent");
 	tr.lightShader_DBS_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_ModelMatrix");
 
@@ -620,6 +624,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightShader_D_proj.u_LightColor = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightColor");
 	tr.lightShader_D_proj.u_LightRadius = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightRadius");
 	tr.lightShader_D_proj.u_LightScale = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_LightScale");
+	tr.lightShader_D_proj.u_ShadowCompare = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_ShadowCompare");
 	tr.lightShader_D_proj.u_ModelMatrix = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.lightShader_D_proj.program);
@@ -2094,6 +2099,7 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_D_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_D_omni.u_LightScale, r_lightScale->value);
+	qglUniform1iARB(tr.lightShader_D_omni.u_ShadowCompare, !light->l.noShadows);
 	qglUniformMatrix4fvARB(tr.lightShader_D_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
@@ -2150,6 +2156,7 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_DB_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_DB_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_DB_omni.u_LightScale, r_lightScale->value);
+	qglUniform1iARB(tr.lightShader_DB_omni.u_ShadowCompare, !light->l.noShadows);
 	qglUniformMatrix4fvARB(tr.lightShader_DB_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
@@ -2216,6 +2223,7 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_LightScale, r_lightScale->value);
+	qglUniform1iARB(tr.lightShader_DBS_omni.u_ShadowCompare, !light->l.noShadows);
 	qglUniform1fARB(tr.lightShader_DBS_omni.u_SpecularExponent, specularExponent);
 	qglUniformMatrix4fvARB(tr.lightShader_DBS_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
@@ -2285,6 +2293,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
+	qglUniform1iARB(tr.lightShader_D_omni.u_ShadowCompare, !light->l.noShadows);
 	qglUniformMatrix4fvARB(tr.lightShader_D_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
