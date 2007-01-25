@@ -700,7 +700,6 @@ void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader
 {
 	int             iaIndex;
 	interaction_t  *ia;
-	interaction_t  *iaLast;
 	
 	// skip all surfaces that don't matter for lighting only pass
 	if(surfaceShader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
@@ -714,26 +713,21 @@ void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader
 	iaIndex = tr.refdef.numInteractions & INTERACTION_MASK;
 	ia = &tr.refdef.interactions[iaIndex];
 	tr.refdef.numInteractions++;
+	
+	light->noSort = iaIndex == 0;
 
 	// connect to interaction grid
-	if(light->firstInteractionIndex == -1)
+	if(!light->firstInteraction)
 	{
-		light->firstInteractionIndex = iaIndex;
+		light->firstInteraction = ia;
 	}
 	
-	if(light->lastInteractionIndex != -1)
+	if(light->lastInteraction)
 	{
-		iaLast = &tr.refdef.interactions[light->lastInteractionIndex];
-		
-		iaLast->next = ia;
-		
-		if(light->lastInteractionIndex == INTERACTION_MASK)
-		{
-			light->noSort = qtrue;
-		}
+		light->lastInteraction->next = ia;
 	}
 	
-	light->lastInteractionIndex = iaIndex;
+	light->lastInteraction = ia;
 	
 	// update counters
 	light->numInteractions++;
@@ -813,8 +807,8 @@ void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader
 	
 	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
 	{
-		ia->depthNear = light->depthBounds[0];
-		ia->depthFar = light->depthBounds[1];
+		ia->depthNear = light->depthNear;
+		ia->depthFar = light->depthFar;
 		ia->noDepthBoundsTest = light->noDepthBoundsTest;
 	}
 
@@ -872,6 +866,8 @@ R_SortInteractions
 void R_SortInteractions(trRefLight_t * light)
 {
 	int             i;
+	int				iaFirstIndex;
+	interaction_t  *iaFirst;
 	interaction_t  *ia;
 	interaction_t  *iaLast;
 	
@@ -885,16 +881,17 @@ void R_SortInteractions(trRefLight_t * light)
 		return;
 	}
 	
-	ia = &tr.refdef.interactions[light->firstInteractionIndex];
+	iaFirst = light->firstInteraction;
+	iaFirstIndex = light->firstInteraction - tr.refdef.interactions; 
 	
 	// sort by material etc. for geometry batching in the renderer backend
-	qsort(ia, light->numInteractions, sizeof(interaction_t), InteractionCompare);
+	qsort(iaFirst, light->numInteractions, sizeof(interaction_t), InteractionCompare);
 	
 	// fix linked list
 	iaLast = NULL;
 	for(i = 0; i < light->numInteractions; i++)
 	{
-		ia = &tr.refdef.interactions[light->firstInteractionIndex + i];
+		ia = &tr.refdef.interactions[iaFirstIndex + i];
 		
 		if(iaLast)
 		{
@@ -1018,13 +1015,14 @@ Tr3B - recoded from Tenebrae2
 void R_SetupLightScissor(trRefLight_t * light)
 {
 	vec3_t          v1, v2;
+	
+	light->scissor.coords[0] = tr.viewParms.viewportX;
+	light->scissor.coords[1] = tr.viewParms.viewportY;
+	light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
+	light->scissor.coords[3] = tr.viewParms.viewportY + tr.viewParms.viewportHeight;
 
 	if(r_noLightScissors->integer || R_LightIntersectsPoint(light, tr.viewParms.or.origin))
 	{
-		light->scissor.coords[0] = tr.viewParms.viewportX;
-		light->scissor.coords[1] = tr.viewParms.viewportY;
-		light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
-		light->scissor.coords[3] = tr.viewParms.viewportY + tr.viewParms.viewportHeight;
 		return;
 	}
 
@@ -1150,8 +1148,8 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 		else
 		{
 			light->noDepthBoundsTest = qfalse;
-			light->depthBounds[0] = depthMin;
-			light->depthBounds[1] = depthMax;
+			light->depthNear = depthMin;
+			light->depthFar = depthMax;
 			
 			tr.pc.c_depthBoundsTestsRejected--;
 			tr.pc.c_depthBoundsTests++;

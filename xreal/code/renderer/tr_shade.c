@@ -1739,7 +1739,7 @@ static void Render_depthFill_FFP(int stage)
 	GL_CheckErrors();
 }
 
-#if 0
+#if 1
 #define Render_depthFill Render_depthFill_FFP
 #else
 static void Render_depthFill(int stage)
@@ -3427,8 +3427,6 @@ static void Tess_ComputeTexCoords(shaderStage_t * pStage)
 	// generate the texture coordinates
 	for(b = 0; b < MAX_TEXTURE_BUNDLES; b++)
 	{
-		int             tm;
-
 		// reset texture matrix
 		MatrixIdentity(tess.svars.texMatrices[b]);
 

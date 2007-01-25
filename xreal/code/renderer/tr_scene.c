@@ -299,6 +299,11 @@ static void R_AddWorldLightsToScene()
 		return;
 	}
 	
+	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		return;	
+	}
+	
 	for(i = 0; i < tr.world->numLights; i++)
 	{
 		light = tr.currentLight = &tr.world->lights[i];

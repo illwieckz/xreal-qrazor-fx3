@@ -129,7 +129,9 @@ typedef struct trRefLight_s
 
 	int             shadowLOD;		// Level of Detail for shadow mapping
 
-	float           depthBounds[2];	// zNear, zFar for GL_EXT_depth_bounds_test
+	// GL_EXT_depth_bounds_test
+	float           depthNear;
+	float			depthFar;
 	qboolean        noDepthBoundsTest;
 
 	frustum_t       frustum;
@@ -138,12 +140,13 @@ typedef struct trRefLight_s
 
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
+	
+	struct interaction_s *firstInteraction;
+	struct interaction_s *lastInteraction;
 
 	int             numInteractions;	// total interactions
 	int             numShadowOnlyInteractions;
 	int             numLightOnlyInteractions;
-	int             firstInteractionIndex;
-	int             lastInteractionIndex;
 	qboolean        noSort;		// don't sort interactions by material
 
 	int             visCount;	// node needs to be traversed if current
