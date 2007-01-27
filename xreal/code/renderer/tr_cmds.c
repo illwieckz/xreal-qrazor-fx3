@@ -283,25 +283,19 @@ void           *R_GetCommandBuffer(int bytes)
 
 /*
 =============
-R_AddDrawSurfCmd
+R_AddDrawViewCmd
 =============
 */
-void R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
+void R_AddDrawViewCmd()
 {
-	drawSurfsCommand_t *cmd;
+	drawViewCommand_t *cmd;
 
 	cmd = R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
 	}
-	cmd->commandId = RC_DRAW_SURFS;
-
-	cmd->drawSurfs = drawSurfs;
-	cmd->numDrawSurfs = numDrawSurfs;
-
-	cmd->interactions = interactions;
-	cmd->numInteractions = numInteractions;
+	cmd->commandId = RC_DRAW_VIEW;
 
 	cmd->refdef = tr.refdef;
 	cmd->viewParms = tr.viewParms;

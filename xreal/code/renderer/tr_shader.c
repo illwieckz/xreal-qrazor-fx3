@@ -4181,21 +4181,21 @@ static void FixRenderCommandList(int newShader)
 					curCmd = (const void *)(sp_cmd + 1);
 					break;
 				}
-				case RC_DRAW_SURFS:
+				case RC_DRAW_VIEW:
 				{
 					int             i;
 					drawSurf_t     *drawSurf;
 					
-					const drawSurfsCommand_t *ds_cmd = (const drawSurfsCommand_t *)curCmd;
+					const drawViewCommand_t *dv_cmd = (const drawViewCommand_t *)curCmd;
 
-					for(i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++)
+					for(i = 0, drawSurf = dv_cmd->viewParms.drawSurfs; i < dv_cmd->viewParms.numDrawSurfs; i++, drawSurf++)
 					{
 						if(drawSurf->shaderNum >= newShader)
 						{
 							drawSurf->shaderNum++;
 						}
 					}
-					curCmd = (const void *)(ds_cmd + 1);
+					curCmd = (const void *)(dv_cmd + 1);
 					break;
 				}
 				case RC_DRAW_BUFFER:

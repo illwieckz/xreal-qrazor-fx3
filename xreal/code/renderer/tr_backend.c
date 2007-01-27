@@ -758,17 +758,17 @@ static void RB_SetGL2D(void)
 
 /*
 =================
-RB_BeginDrawingView
+RB_BeginRenderView
 
 Any mirrored or portaled views have already been drawn, so prepare
 to actually render the visible surfaces for this view
 =================
 */
-static void RB_BeginDrawingView(void)
+static void RB_BeginRenderView(void)
 {
 	int             clearBits = 0;
 
-	GLimp_LogComment("--- RB_BeginDrawingView ---\n");
+	GLimp_LogComment("--- RB_BeginRenderView ---\n");
 
 	// sync with gl if needed
 	if(r_finish->integer == 1 && !glState.finishCalled)
@@ -889,7 +889,7 @@ static void RB_BeginDrawingView(void)
 	GL_CheckErrors();
 }
 
-static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs, qboolean opaque)
+static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
@@ -907,7 +907,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 
-	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
+	for(i = 0, drawSurf = backEnd.viewParms.drawSurfs; i < backEnd.viewParms.numDrawSurfs; i++, drawSurf++)
 	{
 		// update locals
 		entity = drawSurf->entity;
@@ -1033,7 +1033,7 @@ static void RB_RenderDrawSurfaces(float originalTime, drawSurf_t * drawSurfs, in
 RB_RenderInteractions
 =================
 */
-static void RB_RenderInteractions(float originalTime, interaction_t * interactions, int numInteractions)
+static void RB_RenderInteractions(float originalTime)
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1055,7 +1055,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 	depthRange = qfalse;
 
 	// render interactions
-	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 	{
 		backEnd.currentLight = light = ia->light;
 		backEnd.currentEntity = entity = ia->entity;
@@ -1208,7 +1208,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 			// draw the contents of the last shader batch
 			Tess_End();
 
-			if(iaCount < (numInteractions - 1))
+			if(iaCount < (backEnd.viewParms.numInteractions - 1))
 			{
 				// jump to next interaction and continue
 				ia++;
@@ -1255,7 +1255,7 @@ static void RB_RenderInteractions(float originalTime, interaction_t * interactio
 RB_RenderInteractionsStencilShadowed
 =================
 */
-static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction_t * interactions, int numInteractions)
+static void RB_RenderInteractionsStencilShadowed(float originalTime)
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1271,7 +1271,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 
 	if(glConfig.stencilBits < 4 || !glConfig.shadingLanguage100Available)
 	{
-		RB_RenderInteractions(originalTime, interactions, numInteractions);
+		RB_RenderInteractions(originalTime);
 		return;
 	}
 
@@ -1293,7 +1293,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 	 */
 
 	// render interactions
-	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 	{
 		backEnd.currentLight = light = ia->light;
 		backEnd.currentEntity = entity = ia->entity;
@@ -1626,13 +1626,13 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 			if(drawShadows)
 			{
 				// jump back to first interaction of this light and start lighting
-				ia = &interactions[iaFirst];
+				ia = &backEnd.viewParms.interactions[iaFirst];
 				iaCount = iaFirst;
 				drawShadows = qfalse;
 			}
 			else
 			{
-				if(iaCount < (numInteractions - 1))
+				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and start shadowing
 					ia++;
@@ -1694,7 +1694,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime, interaction
 RB_RenderInteractionsShadowMapped
 =================
 */
-static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t * interactions, int numInteractions)
+static void RB_RenderInteractionsShadowMapped(float originalTime)
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1711,7 +1711,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 
 	if(!glConfig.framebufferObjectAvailable || !glConfig.shadingLanguage100Available || !glConfig.textureFloatAvailable)
 	{
-		RB_RenderInteractions(originalTime, interactions, numInteractions);
+		RB_RenderInteractions(originalTime);
 		return;
 	}
 
@@ -1730,7 +1730,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// render interactions
-	for(iaCount = 0, iaFirst = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 	{
 		backEnd.currentLight = light = ia->light;
 		backEnd.currentEntity = entity = ia->entity;
@@ -2297,7 +2297,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 						}
 
 						// jump back to first interaction of this light
-						ia = &interactions[iaFirst];
+						ia = &backEnd.viewParms.interactions[iaFirst];
 						iaCount = iaFirst;
 						break;
 					}
@@ -2305,7 +2305,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 					case RL_PROJ:
 					{
 						// jump back to first interaction of this light and start lighting
-						ia = &interactions[iaFirst];
+						ia = &backEnd.viewParms.interactions[iaFirst];
 						iaCount = iaFirst;
 						drawShadows = qfalse;
 						break;
@@ -2317,7 +2317,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 			}
 			else
 			{
-				if(iaCount < (numInteractions - 1))
+				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and start shadowing
 					ia++;
@@ -2364,7 +2364,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime, interaction_t 
 	GL_CheckErrors();
 }
 
-static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime, drawSurf_t * drawSurfs, int numDrawSurfs)
+static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
@@ -2384,7 +2384,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime, drawSur
 
 	GL_CheckErrors();
 
-	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
+	for(i = 0, drawSurf = backEnd.viewParms.drawSurfs; i < backEnd.viewParms.numDrawSurfs; i++, drawSurf++)
 	{
 		// update locals
 		entity = drawSurf->entity;
@@ -2510,7 +2510,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime, drawSur
 	GL_CheckErrors();
 }
 
-void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteractions)
+void RB_RenderInteractionsDeferred()
 {
 	interaction_t  *ia;
 	int             iaCount;
@@ -2548,7 +2548,7 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
 	// loop trough all light interactions and render the light quad for each last interaction
-	for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 	{
 		backEnd.currentLight = light = ia->light;
 
@@ -2677,7 +2677,7 @@ void RB_RenderInteractionsDeferred(interaction_t * interactions, int numInteract
 #endif
 			}
 
-			if(iaCount < (numInteractions - 1))
+			if(iaCount < (backEnd.viewParms.numInteractions - 1))
 			{
 				// jump to next interaction and continue
 				ia++;
@@ -2778,7 +2778,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	qglPopMatrix();
 }
 
-void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions)
+void RB_RenderOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderOcclusionQueries ---\n");
 
@@ -2813,7 +2813,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 
 		// loop trough all light interactions and render the light OBB for each last interaction
 		ocCount = -1;
-		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentLight = light = ia->light;
 
@@ -2871,7 +2871,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 					backEnd.pc.c_occlusionQueries++;
 				}
 
-				if(iaCount < (numInteractions - 1))
+				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and continue
 					ia++;
@@ -2928,7 +2928,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 		iaFirst = 0;
 		queryObjects = qtrue;
 		oldLight = NULL;
-		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentLight = light = ia->light;
 
@@ -2978,13 +2978,13 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 					}
 
 					// jump back to first interaction of this light copy query result
-					ia = &interactions[iaFirst];
+					ia = &backEnd.viewParms.interactions[iaFirst];
 					iaCount = iaFirst;
 					queryObjects = qfalse;
 				}
 				else
 				{
-					if(iaCount < (numInteractions - 1))
+					if(iaCount < (backEnd.viewParms.numInteractions - 1))
 					{
 						// jump to next interaction and start querying
 						ia++;
@@ -3188,7 +3188,7 @@ void RB_RenderOcclusionQueries(interaction_t * interactions, int numInteractions
 	GL_CheckErrors();
 }
 
-static void RB_RenderDebugUtils(interaction_t * interactions, int numInteractions)
+static void RB_RenderDebugUtils()
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
 
@@ -3206,7 +3206,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 
-		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			light = ia->light;
 
@@ -3349,7 +3349,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				}
 				
 
-				if(iaCount < (numInteractions - 1))
+				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and continue
 					ia++;
@@ -3386,7 +3386,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 
-		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentEntity = entity = ia->entity;
 			surface = ia->surface;
@@ -3431,7 +3431,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 			if(!ia->next)
 			{
-				if(iaCount < (numInteractions - 1))
+				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and continue
 					ia++;
@@ -3627,7 +3627,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
-		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			if(qglDepthBoundsEXT)
 			{
@@ -3663,7 +3663,7 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 			if(!ia->next)
 			{
-				if(iaCount < (numInteractions - 1))
+				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and continue
 					ia++;
@@ -3695,17 +3695,17 @@ static void RB_RenderDebugUtils(interaction_t * interactions, int numInteraction
 
 /*
 ==================
-RB_RenderDrawSurfList
+RB_RenderView
 ==================
 */
-static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
+static void RB_RenderView(void)
 {
 	float           originalTime;
 
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
-		GLimp_LogComment(va("--- RB_RenderDrawSurfList( %i surfaces, %i interactions ) ---\n", numDrawSurfs, numInteractions));
+		GLimp_LogComment(va("--- RB_RenderView( %i surfaces, %i interactions ) ---\n", backEnd.viewParms.numDrawSurfs, backEnd.viewParms.numInteractions));
 	}
 
 	GL_CheckErrors();
@@ -3714,9 +3714,9 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 	originalTime = backEnd.refdef.floatTime;
 
 	// clear the z buffer, set the modelview, etc
-	RB_BeginDrawingView();
+	RB_BeginRenderView();
 
-	backEnd.pc.c_surfaces += numDrawSurfs;
+	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
 
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.shadingLanguage100Available &&
 	   glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -3727,42 +3727,42 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 		R_BindFBO(tr.geometricRenderFBO);
 		qglClear(GL_COLOR_BUFFER_BIT);
 		
-		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime, drawSurfs, numDrawSurfs);
+		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime);
 		
-		RB_RenderInteractionsDeferred(interactions, numInteractions);
+		RB_RenderInteractionsDeferred();
 		
-		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
+		RB_RenderDrawSurfaces(originalTime, qfalse);
 		
 		RB_RenderDeferredShadingResultToFrameBuffer();
 	}
 	else
 	{
 		// draw everything that is opaque
-		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qtrue);
+		RB_RenderDrawSurfaces(originalTime, qtrue);
 
 #if 0
 		// try to cull lights using occlusion queries
-		RB_RenderOcclusionQueries(interactions, numInteractions);
+		RB_RenderOcclusionQueries();
 #endif
 
 		if(r_shadows->integer == 4)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
-			RB_RenderInteractionsShadowMapped(originalTime, interactions, numInteractions);
+			RB_RenderInteractionsShadowMapped(originalTime);
 		}
 		else if(r_shadows->integer == 3)
 		{
 			// render dynamic shadowing and lighting using stencil shadow volumes
-			RB_RenderInteractionsStencilShadowed(originalTime, interactions, numInteractions);
+			RB_RenderInteractionsStencilShadowed(originalTime);
 		}
 		else
 		{
 			// render dynamic lighting
-			RB_RenderInteractions(originalTime, interactions, numInteractions);
+			RB_RenderInteractions(originalTime);
 		}
 
 		// draw everything that is translucent
-		RB_RenderDrawSurfaces(originalTime, drawSurfs, numDrawSurfs, qfalse);
+		RB_RenderDrawSurfaces(originalTime, qfalse);
 	}
 
 #if 0
@@ -3776,7 +3776,7 @@ static void RB_RenderDrawSurfList(drawSurf_t * drawSurfs, int numDrawSurfs, inte
 #endif
 
 	// render debug information
-	RB_RenderDebugUtils(interactions, numInteractions);
+	RB_RenderDebugUtils();
 
 	GL_CheckErrors();
 }
@@ -4018,14 +4018,14 @@ const void     *RB_StretchPic(const void *data)
 
 /*
 =============
-RB_DrawSurfs
+RB_DrawView
 =============
 */
-const void     *RB_DrawSurfs(const void *data)
+const void     *RB_DrawView(const void *data)
 {
-	const drawSurfsCommand_t *cmd;
+	const drawViewCommand_t *cmd;
 
-	GLimp_LogComment("--- RB_DrawSurfs ---\n");
+	GLimp_LogComment("--- RB_DrawView ---\n");
 
 	// finish any 2D drawing if needed
 	if(tess.numIndexes)
@@ -4033,12 +4033,12 @@ const void     *RB_DrawSurfs(const void *data)
 		Tess_End();
 	}
 
-	cmd = (const drawSurfsCommand_t *)data;
+	cmd = (const drawViewCommand_t *)data;
 
 	backEnd.refdef = cmd->refdef;
 	backEnd.viewParms = cmd->viewParms;
 
-	RB_RenderDrawSurfList(cmd->drawSurfs, cmd->numDrawSurfs, cmd->interactions, cmd->numInteractions);
+	RB_RenderView();
 
 	return (const void *)(cmd + 1);
 }
@@ -4237,8 +4237,8 @@ void RB_ExecuteRenderCommands(const void *data)
 			case RC_STRETCH_PIC:
 				data = RB_StretchPic(data);
 				break;
-			case RC_DRAW_SURFS:
-				data = RB_DrawSurfs(data);
+			case RC_DRAW_VIEW:
+				data = RB_DrawView(data);
 				break;
 			case RC_DRAW_BUFFER:
 				data = RB_DrawBuffer(data);

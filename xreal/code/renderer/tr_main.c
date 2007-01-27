@@ -1641,49 +1641,49 @@ static int DrawSurfCompare(const void *a, const void *b)
 R_SortDrawSurfs
 =================
 */
-void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions)
+static void R_SortDrawSurfs()
 {
 	drawSurf_t     *drawSurf;
 	shader_t       *shader;
 	int             i;
 
 	// it is possible for some views to not have any surfaces
-	if(numDrawSurfs < 1)
+	if(tr.viewParms.numDrawSurfs < 1)
 	{
 		// we still need to add it for hyperspace cases
-		R_AddDrawSurfCmd(drawSurfs, numDrawSurfs, interactions, numInteractions);
+		R_AddDrawViewCmd();
 		return;
 	}
 
 	// if we overflowed MAX_DRAWSURFS, the drawsurfs
 	// wrapped around in the buffer and we will be missing
 	// the first surfaces, not the last ones
-	if(numDrawSurfs > MAX_DRAWSURFS)
+	if(tr.viewParms.numDrawSurfs > MAX_DRAWSURFS)
 	{
-		numDrawSurfs = MAX_DRAWSURFS;
+		tr.viewParms.numDrawSurfs = MAX_DRAWSURFS;
 	}
 
 	// if we overflowed MAX_INTERACTIONS, the interactions
 	// wrapped around in the buffer and we will be missing
 	// the first interactions, not the last ones
-	if(numInteractions > MAX_INTERACTIONS)
+	if(tr.viewParms.numInteractions > MAX_INTERACTIONS)
 	{
 		interaction_t  *ia;
 
-		numInteractions = MAX_INTERACTIONS;
+		tr.viewParms.numInteractions = MAX_INTERACTIONS;
 
 		// reset last interaction's next pointer
-		ia = &interactions[numInteractions - 1];
+		ia = &tr.viewParms.interactions[tr.viewParms.numInteractions - 1];
 		ia->next = NULL;
 	}
 
 	// sort the drawsurfs by sort type, then orientation, then shader
 //  qsortFast(drawSurfs, numDrawSurfs, sizeof(drawSurf_t));
-	qsort(drawSurfs, numDrawSurfs, sizeof(drawSurf_t), DrawSurfCompare);
+	qsort(tr.viewParms.drawSurfs, tr.viewParms.numDrawSurfs, sizeof(drawSurf_t), DrawSurfCompare);
 
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
-	for(i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++)
+	for(i = 0, drawSurf = tr.viewParms.drawSurfs; i < tr.viewParms.numDrawSurfs; i++, drawSurf++)
 	{
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 
@@ -1710,7 +1710,8 @@ void R_SortDrawSurfs(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * i
 		}
 	}
 
-	R_AddDrawSurfCmd(drawSurfs, numDrawSurfs, interactions, numInteractions);
+	// tell renderer backend to render this view
+	R_AddDrawViewCmd();
 }
 
 
@@ -2261,19 +2262,17 @@ void R_RenderView(viewParms_t * parms)
 	R_AddEntitySurfaces();
 
 	R_AddLightInteractions();
+	
+	tr.viewParms.drawSurfs = tr.refdef.drawSurfs + firstDrawSurf;
+	tr.viewParms.numDrawSurfs = tr.refdef.numDrawSurfs - firstDrawSurf;
+	
+	tr.viewParms.interactions = tr.refdef.interactions + firstInteraction;
+	tr.viewParms.numInteractions = tr.refdef.numInteractions - firstInteraction;
 
-	/*
-	   ri.Printf(PRINT_ALL, "R_RenderView: %i %i %i %i\n",
-	   firstDrawSurf,
-	   tr.refdef.numDrawSurfs,
-	   firstInteraction,
-	   tr.refdef.numInteractions);
-	 */
-
-	R_SortDrawSurfs(tr.refdef.drawSurfs + firstDrawSurf,
-					tr.refdef.numDrawSurfs - firstDrawSurf,
-					tr.refdef.interactions + firstInteraction,
-					tr.refdef.numInteractions - firstInteraction);
+	R_SortDrawSurfs(tr.viewParms.drawSurfs,
+					tr.viewParms.numDrawSurfs,
+					tr.viewParms.interactions,
+					tr.viewParms.numInteractions);
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();

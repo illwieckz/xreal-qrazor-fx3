@@ -901,7 +901,7 @@ typedef struct
 
 	int             numPolys;
 	struct srfPoly_s *polys;
-
+	
 	int             numDrawSurfs;
 	struct drawSurf_s *drawSurfs;
 
@@ -945,18 +945,31 @@ typedef struct
 {
 	orientationr_t  or;
 	orientationr_t  world;
+	
 	vec3_t          pvsOrigin;	// may be different than or.origin for portals
+	
 	qboolean        isPortal;	// true if this view is through a portal
 	qboolean        isMirror;	// the portal is a mirror, invert the face culling
+	
 	int             frameSceneNum;	// copied from tr.frameSceneNum
 	int             frameCount;	// copied from tr.frameCount
+	
 	cplane_t        portalPlane;	// clip anything behind this if mirroring
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
+	
 	float           fovX, fovY;
 	float           projectionMatrix[16];
+	
 	frustum_t       frustum;
+	
 	vec3_t          visBounds[2];
 	float           skyFar;
+	
+	int             numDrawSurfs;
+	struct drawSurf_s *drawSurfs;
+
+	int             numInteractions;
+	struct interaction_s *interactions;
 } viewParms_t;
 
 
@@ -2672,11 +2685,7 @@ typedef struct
 	int             commandId;
 	trRefdef_t      refdef;
 	viewParms_t     viewParms;
-	drawSurf_t     *drawSurfs;
-	int             numDrawSurfs;
-	interaction_t  *interactions;
-	int             numInteractions;
-} drawSurfsCommand_t;
+} drawViewCommand_t;
 
 
 typedef enum
@@ -2712,7 +2721,7 @@ typedef enum
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
-	RC_DRAW_SURFS,
+	RC_DRAW_VIEW,
 	RC_DRAW_BUFFER,
 	RC_SWAP_BUFFERS,
 	RC_SCREENSHOT,
@@ -2762,7 +2771,7 @@ void            R_ShutdownCommandBuffers(void);
 
 void            R_SyncRenderThread(void);
 
-void            R_AddDrawSurfCmd(drawSurf_t * drawSurfs, int numDrawSurfs, interaction_t * interactions, int numInteractions);
+void            R_AddDrawViewCmd(void);
 
 void            RE_SetColor(const float *rgba);
 void            RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
