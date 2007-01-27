@@ -278,6 +278,10 @@ textures/washroom/mirror
 	noshadows
 	qer_editorimage	textures/washroom/mirror.tga
 	{
+		stage screenMap
+		map _portalRender
+	}
+	{
 		blend gl_dst_color,gl_zero
 		map textures/washroom/mirror.tga
 	}

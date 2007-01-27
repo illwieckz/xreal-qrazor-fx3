@@ -7,8 +7,8 @@ textures/tr3b_water/water
 	noshadows
 	twosided
 	water
-	sort postProcess
 	
+	sort postProcess
 	{
 		stage	heathazemap
 		map		textures/tr3b_water/watertest_local.tga
@@ -17,7 +17,6 @@ textures/tr3b_water/water
     }
 }
 
-/*
 textures/tr3b_water/mirror
 {
 	qer_editorimage textures/common/qer_mirror.tga
@@ -25,7 +24,22 @@ textures/tr3b_water/mirror
 	translucent
 	noshadows
 	water
+	mirror
 
+	{
+		stage screenMap
+		map _portalRender
+		
+		blend blend
+		
+		// give it a blue tint
+		red		0.7
+		green	0.7
+		blue	1.0
+		
+		alpha	0.5
+	}
+	/*
 	{
 		blend blend
 		mirrorRenderMap	512	256
@@ -39,5 +53,5 @@ textures/tr3b_water/mirror
 		vertexParm	0	.0200593122
 		fragmentMap	0	_scratch
 	}
+	*/
 }
-*/

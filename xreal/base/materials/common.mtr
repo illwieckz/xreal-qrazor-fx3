@@ -79,18 +79,10 @@ textures/common/mirror
 	nolightmap
 	
 	{
-		//if(fragmentShaders == 0 || frameBufferObjects == 0)
-		map textures/common/mirror1.tga
-		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		stage screenMap
+		map _portalRender
 		depthWrite
 	}
-	/*
-	{
-		if(fragmentShaders == 1 && frameBufferObjects == 1)
-		stage portalMap
-		depthWrite
-	}
-	*/
 }
 
 textures/common/mirror1
@@ -98,21 +90,13 @@ textures/common/mirror1
 	qer_editorimage textures/common/qer_mirror.tga
 	
 	nolightmap
-	portal
+	mirror
 	
 	{
-		//if(fragmentShaders == 0 || frameBufferObjects == 0)
-		map textures/common/mirror1.tga
-		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		stage screenMap
+		map _portalRender
 		depthWrite
 	}
-	/*
-	{
-		if(fragmentShaders == 1 && frameBufferObjects == 1)
-		stage portalMap
-		depthWrite
-	}
-	*/
 }
 
 textures/common/mirror2
@@ -120,21 +104,13 @@ textures/common/mirror2
 	qer_editorimage textures/common/qer_mirror.tga
 	
 	nolightmap
-	portal
+	mirror
 	
 	{
-		//if(fragmentShaders == 0 || frameBufferObjects == 0)
-		map textures/common/mirror1.tga
-		blend GL_ONE , GL_ONE_MINUS_SRC_ALPHA
+		stage screenMap
+		map _portalRender
 		depthWrite
 	}
-	/*
-	{
-		if(fragmentShaders == 1 && frameBufferObjects == 1)
-		stage portalMap
-		depthWrite
-	}
-	*/
 	{
 		if(fragmentShaders == 0)
 		map textures/sfx/mirror.tga

@@ -24,6 +24,8 @@ uniform sampler2D	u_CurrentMap;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
 
+varying vec4		var_Color;
+
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -33,7 +35,7 @@ void	main()
 	st *= u_NPOTScale;
 	
 	vec4 color = texture2D(u_CurrentMap, st);
-//	color *= var_Color;
+	color *= var_Color;
 
 	gl_FragColor = color;
 }
