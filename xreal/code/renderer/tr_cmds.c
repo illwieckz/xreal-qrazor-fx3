@@ -44,8 +44,8 @@ void R_PerformanceCounters(void)
 
 	if(r_speeds->integer == 1)
 	{
-		ri.Printf(PRINT_ALL, "%i batches %i surfs %i leafs %i verts %i tris\n",
-				  backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
+		ri.Printf(PRINT_ALL, "%i views %i portals %i batches %i surfs %i leafs %i verts %i tris\n",
+				  backEnd.pc.c_views, backEnd.pc.c_portals, backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
 
 		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i interactions\n",
 				  tr.pc.c_dlights + tr.pc.c_slights,

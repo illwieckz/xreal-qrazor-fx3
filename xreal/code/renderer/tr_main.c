@@ -1164,6 +1164,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	trRefEntity_t  *e;
 	float           d;
 	vec3_t          transformed;
+	shader_t	   *shader;
 
 	// create plane axis for the portal we are seeing
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
@@ -1192,6 +1193,22 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	VectorCopy(plane.normal, surface->axis[0]);
 	PerpendicularVector(surface->axis[1], surface->axis[0]);
 	CrossProduct(surface->axis[0], surface->axis[1], surface->axis[2]);
+	
+	// Doom3 style mirror support
+	shader = tr.sortedShaders[drawSurf->shaderNum];
+	if(shader->isMirror)
+	{
+		//ri.Printf(PRINT_ALL, "Portal surface with a mirror\n");
+		
+		VectorScale(plane.normal, plane.dist, surface->origin);
+		VectorCopy(surface->origin, camera->origin);
+		VectorSubtract(vec3_origin, surface->axis[0], camera->axis[0]);
+		VectorCopy(surface->axis[1], camera->axis[1]);
+		VectorCopy(surface->axis[2], camera->axis[2]);
+
+		*mirror = qtrue;
+		return qtrue;
+	}
 
 	// locate the portal entity closest to this plane.
 	// origin will be the origin of the portal, origin2 will be
@@ -1451,7 +1468,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	
 	// mirrors can early out at this point, since we don't do a fade over distance
 	// with them (although we could)
-	if(IsMirror(drawSurf))
+	if(shader->isMirror || IsMirror(drawSurf))
 	{
 		return qfalse;
 	}
@@ -1687,10 +1704,19 @@ static void R_SortDrawSurfs()
 	{
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 
-		if(shader->sort > SS_PORTAL)
+		/*
+		if(shader->sort > SS_PORTAL && !shader->isMirror)
 		{
 			break;
 		}
+		*/
+		
+		if(!shader->isPortal && !shader->isMirror)
+		{
+			continue;
+		}
+		
+		//ri.Printf(PRINT_ALL, "portal or mirror surface\n");
 
 		// no shader should ever have this sort type
 		if(shader->sort == SS_BAD)

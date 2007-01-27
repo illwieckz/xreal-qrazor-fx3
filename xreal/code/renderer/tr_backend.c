@@ -804,7 +804,7 @@ static void RB_BeginRenderView(void)
 	{
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 	}
-	if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
 #ifdef _DEBUG
@@ -855,36 +855,6 @@ static void RB_BeginRenderView(void)
 	{
 		qglDisable(GL_CLIP_PLANE0);
 	}
-
-	// check for offscreen rendering
-	/*
-	   if(glConfig.shadingLanguage100Available && glConfig.framebufferObjectAvailable)
-	   {
-	   if(backEnd.viewParms.isPortal)
-	   {
-	   R_BindFBO(tr.portalRenderFBO);
-	   }
-	   else
-	   {
-	   R_BindFBO(tr.currentRenderFBO);
-	   }
-
-	   // clear relevant buffers
-	   clearBits = GL_DEPTH_BUFFER_BIT;
-
-	   // FIXME: GL_STENCIL_BUFFER_BIT with FBOs
-	   if(r_measureOverdraw->integer || r_shadows->integer == 3)
-	   {
-	   clearBits |= GL_STENCIL_BUFFER_BIT;
-	   }
-
-	   if(r_fastsky->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-	   {
-	   clearBits |= GL_COLOR_BUFFER_BIT;    // FIXME: only if sky shaders have been used
-	   }
-	   qglClear(clearBits);
-	   }
-	 */
 
 	GL_CheckErrors();
 }
@@ -2737,7 +2707,8 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		GL_State(GLS_DEPTHTEST_DISABLE);// | GLS_DEPTHMASK_TRUE);
 	}
 	
-	GL_ClientState(tr.screenShader.attribs);
+	qglColor4fv(colorWhite);
+	//GL_ClientState(tr.screenShader.attribs);
 	//GL_SetVertexAttribs();
 	GL_Cull(CT_TWO_SIDED);
 
@@ -3777,8 +3748,20 @@ static void RB_RenderView(void)
 
 	// render debug information
 	RB_RenderDebugUtils();
+	
+	if(backEnd.viewParms.isPortal)
+	{
+		// capture current color buffer
+		GL_SelectTexture(0);
+		GL_Bind(tr.portalRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
+		
+		backEnd.pc.c_portals++;
+	}
 
 	GL_CheckErrors();
+	
+	backEnd.pc.c_views++;
 }
 
 

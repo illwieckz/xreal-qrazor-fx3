@@ -4576,32 +4576,8 @@ static void R_CreateCurrentRenderImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
-/*
-static void R_CreateCurrentRenderFBOImage(void)
+static void R_CreatePortalRenderImage(void)
 {
-	int             i;
-	int             width, height;
-	byte           *data;
-	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
-
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	
-	for(i = 0; i < 4; i++)
-	{
-		tr.currentRenderFBOImage[i] =
-			R_CreateImage("_currentRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-	}
-
-	ri.Hunk_FreeTempMemory(data);
-}
-*/
-
-/*
-static void R_CreatePortalRenderFBOImage(void)
-{
-	int             i;
 	int             width, height;
 	byte           *data;
 	
@@ -4610,15 +4586,10 @@ static void R_CreatePortalRenderFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	for(i = 0; i < 4; i++)
-	{
-		tr.portalRenderFBOImage[i] =
-			R_CreateImage("_portalRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-	}
+	tr.portalRenderImage = R_CreateImage("_portalRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }
-*/
 
 static void R_CreateDeferredRenderFBOImages(void)
 {
@@ -4748,8 +4719,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateAttenuationXYImage();
 	R_CreateContrastRenderImage();
 	R_CreateCurrentRenderImage();
-//	R_CreateCurrentRenderFBOImage();
-//	R_CreatePortalRenderFBOImage();
+	R_CreatePortalRenderImage();
 	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();

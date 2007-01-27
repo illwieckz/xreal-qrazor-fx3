@@ -592,7 +592,7 @@ typedef enum
 	ST_REFRACTIONMAP,
 	ST_DISPERSIONMAP,
 	ST_SKYBOXMAP,
-	ST_PORTALMAP,				// offscreen portal shader
+	ST_SCREENMAP,				// 2d offscreen or portal rendering
 	ST_HEATHAZEMAP,				// heatHaze post process effect
 	ST_BLOOMMAP,
 	ST_BLOOM2MAP,
@@ -748,6 +748,8 @@ typedef struct shader_s
 	fogParms_t      fogParms;
 
 	float           portalRange;	// distance to fog out at
+	qboolean		isPortal;
+	qboolean		isMirror;
 
 	collapseType_t  collapseType;
 	int             collapseTextureEnv;	// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
@@ -1617,6 +1619,8 @@ typedef struct
 
 typedef struct
 {
+	int				c_views;
+	int				c_portals;
 	int             c_batches;
 	int             c_surfaces;
 	int             c_vertexes;
@@ -1704,9 +1708,8 @@ typedef struct
 
 	image_t        *contrastRenderImage;
 	image_t        *currentRenderImage;
+	image_t        *portalRenderImage;
 
-//	image_t        *currentRenderFBOImage[4];
-//	image_t        *portalRenderFBOImage[4];
 	image_t        *deferredDiffuseFBOImage;
 	image_t        *deferredNormalFBOImage;
 	image_t        *deferredSpecularFBOImage;
@@ -1716,8 +1719,6 @@ typedef struct
 	image_t        *shadowCubeFBOImage[3];
 
 	// framebuffer objects
-//	frameBuffer_t  *currentRenderFBO;
-//	frameBuffer_t  *portalRenderFBO;
 	frameBuffer_t  *geometricRenderFBO;
 	frameBuffer_t  *deferredRenderFBO;
 	frameBuffer_t  *shadowMapFBO[3];

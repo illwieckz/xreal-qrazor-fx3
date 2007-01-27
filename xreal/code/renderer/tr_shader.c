@@ -1902,9 +1902,9 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_SKYBOXMAP;
 			}
-			else if(!Q_stricmp(token, "portalMap"))
+			else if(!Q_stricmp(token, "screenMap"))
 			{
-				stage->type = ST_PORTALMAP;
+				stage->type = ST_SCREENMAP;
 			}
 			else if(!Q_stricmp(token, "heathazeMap"))
 			{
@@ -3637,9 +3637,17 @@ static qboolean ParseShader(char *_text)
 			continue;
 		}
 		// portal
-		else if(!Q_stricmp(token, "portal") || !Q_stricmp(token, "mirror"))
+		else if(!Q_stricmp(token, "portal"))
 		{
-			shader.sort = SS_PORTAL;
+			//shader.sort = SS_PORTAL;
+			shader.isPortal = qtrue;
+			continue;
+		}
+		// mirror
+		else if(!Q_stricmp(token, "mirror"))
+		{
+			//shader.sort = SS_PORTAL;
+			shader.isMirror = qtrue;
 			continue;
 		}
 		// skyparms <cloudheight> <outerbox> <innerbox>
@@ -3911,7 +3919,7 @@ static void CollapseStages(void)
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
-			stages[j].type == ST_PORTALMAP ||
+			stages[j].type == ST_SCREENMAP ||
 			stages[j].type == ST_HEATHAZEMAP ||
 			stages[j].type == ST_BLOOMMAP ||
 			stages[j].type == ST_BLOOM2MAP ||
@@ -4446,7 +4454,7 @@ static shader_t *FinishShader(void)
 			case ST_BLOOMMAP:
 			case ST_BLOOM2MAP:
 			case ST_ROTOSCOPEMAP:
-			case ST_PORTALMAP:
+			//case ST_SCREENMAP:
 				// skip
 				break;
 			
