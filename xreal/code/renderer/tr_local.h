@@ -597,6 +597,7 @@ typedef enum
 	ST_BLOOMMAP,
 	ST_BLOOM2MAP,
 	ST_ROTOSCOPEMAP,
+	ST_LIQUIDMAP,
 
 	ST_COLLAPSE_lighting_DB,	// diffusemap + bumpmap
 	ST_COLLAPSE_lighting_DBS,	// diffusemap + bumpmap + specularmap
@@ -830,6 +831,7 @@ typedef struct shaderProgram_s
 	GLint           u_NormalMap;
 	GLint           u_SpecularMap;
 	GLint			u_PositionMap;
+	GLint           u_PortalMap;
 	GLint           u_AttenuationMapXY;
 	GLint           u_AttenuationMapZ;
 	GLint           u_ShadowMap;
@@ -1796,6 +1798,7 @@ typedef struct
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t screenShader;
+	shaderProgram_t liquidShader;
 	
 	// -----------------------------------------
 

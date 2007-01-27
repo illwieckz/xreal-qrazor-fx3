@@ -7,12 +7,13 @@ textures/tr3b_water/water
 	noshadows
 	twosided
 	water
-	
 	sort postProcess
+	
 	{
 		stage	heathazemap
 		map		textures/tr3b_water/watertest_local.tga
-		scroll		time * 0.1 , time * 0.1
+		scroll	time * 0.1 , time * 0.1
+		scale	0.5, 0.5
 		deformMagnitude	0.5
     }
 }
@@ -25,33 +26,28 @@ textures/tr3b_water/mirror
 	noshadows
 	water
 	mirror
-
+	sort postProcess
+	tessSize 16
+	
 	{
-		stage screenMap
-		map _portalRender
+		stage liquidMap
+		map		textures/tr3b_water/watertest_local.tga
+		scroll	time * 0.1 , time * 0.1
+		scale	0.5, 0.5
+		refractionIndex 1.3 // water
+		fresnelPower 2.0
+		fresnelScale 0.85	// + sinTable[time * 0.4] * 0.25
+		fresnelBias  0.05
 		
+		/*
+		// optional to tweak the water color but not necessary
 		blend blend
 		
 		// give it a blue tint
 		red		0.7
 		green	0.7
 		blue	1.0
-		
-		alpha	0.5
+		alpha	1.0
+		*/
 	}
-	/*
-	{
-		blend blend
-		mirrorRenderMap	512	256
-
-		translate	0.5, 0.5
-		scale		0.5, 0.5
-
-       	program   fresnel.vfp
-	    // pass f(0) = (rc-1)^2/(rc+1)^2
-        // our rc = 1/1.33
-		vertexParm	0	.0200593122
-		fragmentMap	0	_scratch
-	}
-	*/
 }

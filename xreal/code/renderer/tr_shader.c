@@ -1922,6 +1922,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_ROTOSCOPEMAP;
 			}
+			else if(!Q_stricmp(token, "liquidMap"))
+			{
+				stage->type = ST_LIQUIDMAP;
+			}
 			else if(!Q_stricmp(token, "attenuationMapXY"))
 			{
 				stage->type = ST_ATTENUATIONMAP_XY;
@@ -3924,6 +3928,7 @@ static void CollapseStages(void)
 			stages[j].type == ST_BLOOMMAP ||
 			stages[j].type == ST_BLOOM2MAP ||
 			stages[j].type == ST_ROTOSCOPEMAP ||
+			stages[j].type == ST_LIQUIDMAP ||
 			stages[j].type == ST_ATTENUATIONMAP_XY ||
 			stages[j].type == ST_ATTENUATIONMAP_Z)
 		{
@@ -4455,6 +4460,7 @@ static shader_t *FinishShader(void)
 			case ST_BLOOM2MAP:
 			case ST_ROTOSCOPEMAP:
 			//case ST_SCREENMAP:
+			//case ST_LIQUIDMAP:
 				// skip
 				break;
 			
@@ -4541,6 +4547,7 @@ static shader_t *FinishShader(void)
 			case ST_NORMALMAP:
 			case ST_SPECULARMAP:
 			case ST_HEATHAZEMAP:
+			case ST_LIQUIDMAP:
 			{
 				if(pStage->bundle[0].tcGen == TCGEN_BAD)
 				{

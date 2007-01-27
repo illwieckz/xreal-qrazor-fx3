@@ -884,6 +884,33 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ValidateProgram(tr.screenShader.program);
 	GLSL_ShowProgramUniforms(tr.screenShader.program);
 	GL_CheckErrors();
+	
+	//
+	// liquid post process effect
+	//
+	GLSL_InitGPUShader(&tr.liquidShader, "liquid", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+
+	tr.liquidShader.u_NormalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_NormalMap");
+	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
+	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
+	tr.liquidShader.u_ViewOrigin = qglGetUniformLocationARB(tr.liquidShader.program, "u_ViewOrigin");
+	tr.liquidShader.u_RefractionIndex = qglGetUniformLocationARB(tr.liquidShader.program, "u_RefractionIndex");
+	tr.liquidShader.u_FresnelPower = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelPower");
+	tr.liquidShader.u_FresnelScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelScale");
+	tr.liquidShader.u_FresnelBias = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelBias");
+	tr.liquidShader.u_FBufScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_FBufScale");
+	tr.liquidShader.u_NPOTScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_NPOTScale");
+	tr.liquidShader.u_ModelMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_ModelMatrix");
+
+	qglUseProgramObjectARB(tr.liquidShader.program);
+	qglUniform1iARB(tr.liquidShader.u_NormalMap, 0);
+	qglUniform1iARB(tr.liquidShader.u_CurrentMap, 1);
+	qglUniform1iARB(tr.liquidShader.u_PortalMap, 2);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.liquidShader.program);
+	GLSL_ShowProgramUniforms(tr.liquidShader.program);
+	GL_CheckErrors();
 
 	endTime = ri.Milliseconds();
 
@@ -1063,6 +1090,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.screenShader.program);
 		tr.screenShader.program = 0;
+	}
+	
+	if(tr.liquidShader.program)
+	{
+		qglDeleteObjectARB(tr.liquidShader.program);
+		tr.liquidShader.program = 0;
 	}
 
 	glState.currentProgram = 0;
@@ -2948,6 +2981,67 @@ static void Render_rotoscope(int stage)
 	GL_CheckErrors();
 }
 
+static void Render_liquid(int stage)
+{
+	vec3_t          viewOrigin;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+
+	GLimp_LogComment("--- Render_liquid ---\n");
+
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.liquidShader.program);
+	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	{
+		qglColor4fv(tess.svars.color);
+		GL_ClientState(tr.liquidShader.attribs & (~GLCS_COLOR));
+	}
+	else
+	{
+		GL_ClientState(tr.liquidShader.attribs);
+	}
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	
+	qglUniform3fARB(tr.liquidShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform1fARB(tr.liquidShader.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
+	qglUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
+	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
+	qglUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+	qglUniform2fARB(tr.liquidShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.liquidShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+	qglUniformMatrix4fvARB(tr.liquidShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+
+	// bind u_NormalMap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	
+	// capture current color buffer for u_CurrentMap
+	GL_SelectTexture(1);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	
+	// bind u_PortalMap
+	GL_SelectTexture(2);
+	GL_Bind(tr.portalRenderImage);
+
+	DrawElements();
+
+	GL_CheckErrors();
+}
+
 static void Render_fog()
 {
 	fog_t          *fog;
@@ -3744,6 +3838,19 @@ void Tess_StageIteratorGeneric()
 				if(glConfig.shadingLanguage100Available)
 				{
 					Render_rotoscope(stage);
+				}
+				else
+				{
+					// TODO
+				}
+				break;
+			}
+			
+			case ST_LIQUIDMAP:
+			{
+				if(glConfig.shadingLanguage100Available)
+				{
+					Render_liquid(stage);
 				}
 				else
 				{
