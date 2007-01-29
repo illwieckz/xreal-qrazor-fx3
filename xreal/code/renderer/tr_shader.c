@@ -3528,6 +3528,12 @@ static qboolean ParseShader(char *_text)
 			shader.ambientLight = qtrue;
 			continue;
 		}
+		// volumetricLight
+		else if(!Q_stricmp(token, "volumetricLight"))
+		{
+			shader.volumetricLight = qtrue;
+			continue;
+		}
 		// translucent
 		else if(!Q_stricmp(token, "translucent"))
 		{

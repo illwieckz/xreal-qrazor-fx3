@@ -38,3 +38,22 @@ textures/tr3b_lights/cloudscroll
 	}
 	*/
 }
+
+textures/tr3b_lights/volumetricLightTest
+{
+	volumetricLight
+	{
+		stage attenuationMapZ
+		map makeintensity(lights/squarelight1a.tga)
+		edgeClamp
+	}
+	{
+		//blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR	// get dimmer as the textures get brighter
+		blend add
+		stage attenuationMapXY
+		forceHighQuality
+		map lights/squarelight1.tga
+		colored
+		zeroClamp
+	}
+}

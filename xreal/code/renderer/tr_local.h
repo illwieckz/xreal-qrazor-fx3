@@ -742,6 +742,7 @@ typedef struct shader_s
 	qboolean        fogLight;
 	qboolean        blendLight;
 	qboolean        ambientLight;
+	qboolean		volumetricLight;
 	qboolean        translucent;
 	qboolean        forceOpaque;
 	qboolean        isSky;
@@ -1782,6 +1783,11 @@ typedef struct
 	shaderProgram_t lightShader_DBS_omni;
 
 	shaderProgram_t lightShader_D_proj;
+	
+#ifdef VOLUMETRIC_LIGHTING
+	// volumetric lighting
+	shaderProgram_t lightVolumeShader_omni;
+#endif
 
 	// environment mapping effects
 	shaderProgram_t reflectionShader_C;

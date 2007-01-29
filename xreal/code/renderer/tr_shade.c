@@ -655,6 +655,35 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ValidateProgram(tr.lightShader_D_proj.program);
 	GLSL_ShowProgramUniforms(tr.lightShader_D_proj.program);
 	GL_CheckErrors();
+	
+#ifdef VOLUMETRIC_LIGHTING
+	//
+	// volumetric lighting
+	//
+	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", GLCS_VERTEX, qtrue);
+
+	tr.lightVolumeShader_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_AttenuationMapXY");
+	tr.lightVolumeShader_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_AttenuationMapZ");
+	tr.lightVolumeShader_omni.u_ShadowMap = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ShadowMap");
+	tr.lightVolumeShader_omni.u_ViewOrigin = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ViewOrigin");
+	tr.lightVolumeShader_omni.u_LightOrigin = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightOrigin");
+	tr.lightVolumeShader_omni.u_LightColor = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightColor");
+	tr.lightVolumeShader_omni.u_LightRadius = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightRadius");
+	tr.lightVolumeShader_omni.u_LightScale = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightScale");
+	tr.lightVolumeShader_omni.u_LightAttenuationMatrix = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightAttenuationMatrix");
+	tr.lightVolumeShader_omni.u_ShadowCompare = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ShadowCompare");
+	tr.lightVolumeShader_omni.u_ModelMatrix = qglGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ModelMatrix");
+
+	qglUseProgramObjectARB(tr.lightVolumeShader_omni.program);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapXY, 0);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapZ, 1);
+	qglUniform1iARB(tr.lightVolumeShader_omni.u_ShadowMap, 2);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.lightVolumeShader_omni.program);
+	GLSL_ShowProgramUniforms(tr.lightVolumeShader_omni.program);
+	GL_CheckErrors();
+#endif
 
 	//
 	// cubemap reflection for abitrary polygons
@@ -1019,6 +1048,14 @@ void GLSL_ShutdownGPUShaders(void)
 		qglDeleteObjectARB(tr.lightShader_D_proj.program);
 		tr.lightShader_D_proj.program = 0;
 	}
+
+#ifdef VOLUMETRIC_LIGHTING
+	if(tr.lightVolumeShader_omni.program)
+	{
+		qglDeleteObjectARB(tr.lightVolumeShader_omni.program);
+		tr.lightVolumeShader_omni.program = 0;
+	}
+#endif
 
 	if(tr.reflectionShader_C.program)
 	{

@@ -998,6 +998,166 @@ static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 	GL_CheckErrors();
 }
 
+#ifdef VOLUMETRIC_LIGHTING
+static void Render_lightVolume(trRefLight_t * light, shader_t * lightShader)
+{
+	int             j;
+	shaderStage_t  *attenuationXYStage;
+	shaderStage_t  *attenuationZStage;
+
+	// rotate into light space
+	R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
+	qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+	switch (light->l.rlType)
+	{
+		case RL_PROJ:
+		{
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);	// scale
+			break;
+		}
+
+		case RL_OMNI:
+		default:
+		{
+			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
+			break;
+		}
+	}
+	MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+	MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+
+	attenuationZStage = lightShader->stages[0];
+
+	for(j = 1; j < MAX_SHADER_STAGES; j++)
+	{
+		attenuationXYStage = lightShader->stages[j];
+
+		if(!attenuationXYStage)
+		{
+			break;
+		}
+
+		if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+		{
+			continue;
+		}
+
+		if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+		{
+			continue;
+		}
+
+		Tess_ComputeColor(attenuationXYStage);
+		R_ComputeFinalAttenuation(attenuationXYStage, light);
+
+		if(light->l.rlType == RL_OMNI)
+		{
+			vec3_t          viewOrigin;
+			vec3_t          lightOrigin;
+			vec4_t          lightColor;
+
+			GLimp_LogComment("--- Render_lightVolume_omni ---\n");
+
+			// enable shader, set arrays
+			GL_Program(tr.lightVolumeShader_omni.program);
+			//GL_ClientState(tr.lightVolumeShader_omni.attribs);
+			//GL_SetVertexAttribs();
+			GL_Cull(CT_BACK_SIDED);
+			GL_SelectTexture(0);
+			GL_Bind(tr.whiteImage);
+
+			// don't write to the depth buffer
+			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+			//GL_State(GLS_DEPTHFUNC_LESS | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+			//GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+			//GL_State(attenuationXYStage->stateBits & ~(GLS_DEPTHMASK_TRUE | GLS_DEPTHTEST_DISABLE));
+
+			// set uniforms
+			VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+			VectorCopy(light->origin, lightOrigin);
+			VectorCopy(tess.svars.color, lightColor);
+
+			qglUniform3fARB(tr.lightVolumeShader_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+			qglUniform3fARB(tr.lightVolumeShader_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
+			qglUniform3fARB(tr.lightVolumeShader_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
+			qglUniform1fARB(tr.lightVolumeShader_omni.u_LightRadius, light->sphereRadius);
+			qglUniform1fARB(tr.lightVolumeShader_omni.u_LightScale, r_lightScale->value);
+			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
+			qglUniform1iARB(tr.lightVolumeShader_omni.u_ShadowCompare, !light->l.noShadows);
+			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+
+			// bind u_AttenuationMapXY
+			GL_SelectTexture(0);
+			BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+			qglMatrixMode(GL_TEXTURE);
+			qglLoadIdentity();
+			qglMatrixMode(GL_MODELVIEW);
+
+			// bind u_AttenuationMapZ
+			GL_SelectTexture(1);
+			BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+			qglMatrixMode(GL_TEXTURE);
+			qglLoadIdentity();
+			qglMatrixMode(GL_MODELVIEW);
+
+			// bind u_ShadowMap
+			if(r_shadows->integer == 4)
+			{
+				GL_SelectTexture(2);
+				GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+			}
+
+			// draw the volume
+			qglBegin(GL_QUADS);
+
+			qglColor4fv(colorRed);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+
+			qglColor4fv(colorGreen);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+
+			qglColor4fv(colorBlue);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+
+			qglColor4fv(colorYellow);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+
+			qglColor4fv(colorMagenta);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+
+			qglColor4fv(colorCyan);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+
+			qglEnd();
+
+			GL_CheckErrors();
+		}
+	}
+}
+#endif
+
+
 /*
 =================
 RB_RenderInteractions
@@ -1154,7 +1314,7 @@ static void RB_RenderInteractions(float originalTime)
 				default:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 					break;
 				}
 			}
@@ -1177,6 +1337,14 @@ static void RB_RenderInteractions(float originalTime)
 		{
 			// draw the contents of the last shader batch
 			Tess_End();
+
+			#ifdef VOLUMETRIC_LIGHTING
+			// draw the light volume if needed
+			if(ia->lightShader->volumetricLight)
+			{
+				Render_lightVolume(light, ia->lightShader);
+			}
+			#endif
 
 			if(iaCount < (backEnd.viewParms.numInteractions - 1))
 			{
@@ -1543,7 +1711,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);	// scale
 					break;
 				}
 
@@ -1551,7 +1719,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 				default:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 					break;
 				}
 			}
@@ -1728,7 +1896,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 						// a call to va() every frame!
 						GLimp_LogComment(va("----- Skipping shadowCube side: %i -----\n", cubeSide));
 					}
-					
+
 					goto skipInteraction;
 				}
 				else
@@ -2189,7 +2357,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 				case RL_PROJ:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);	// scale
 					break;
 				}
 
@@ -2197,7 +2365,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 				default:
 				{
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 					break;
 				}
 			}
@@ -2287,6 +2455,14 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 			}
 			else
 			{
+				#ifdef VOLUMETRIC_LIGHTING
+				// draw the light volume if needed
+				if(ia->lightShader->volumetricLight)
+				{
+					Render_lightVolume(light, ia->lightShader);
+				}
+				#endif
+				
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
 					// jump to next interaction and start shadowing
@@ -2695,18 +2871,18 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	// enable shader, set arrays
 	GL_Program(tr.screenShader.program);
-	
+
 	/*
-	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+	   if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+	   {
+	   GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	   }
+	   else
+	 */
 	{
-		GL_State(GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+		GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	}
-	else
-	*/
-	{
-		GL_State(GLS_DEPTHTEST_DISABLE);// | GLS_DEPTHMASK_TRUE);
-	}
-	
+
 	qglColor4fv(colorWhite);
 	//GL_ClientState(tr.screenShader.attribs);
 	//GL_SetVertexAttribs();
@@ -3170,7 +3346,7 @@ static void RB_RenderDebugUtils()
 		trRefLight_t   *light;
 		vec3_t          forward, left, up;
 		vec3_t          tmp;
-		vec4_t			lightColor;
+		vec4_t          lightColor;
 
 		GL_Program(0);
 		GL_State(0);
@@ -3206,7 +3382,7 @@ static void RB_RenderDebugUtils()
 				{
 					VectorCopy4(g_color_table[iaCount % 8], lightColor);
 				}
-				
+
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -3231,7 +3407,7 @@ static void RB_RenderDebugUtils()
 				qglColor4fv(colorBlue);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(up);
-				
+
 				// draw special vectors
 				qglColor4fv(colorYellow);
 				qglVertex3fv(vec3_origin);
@@ -3240,29 +3416,29 @@ static void RB_RenderDebugUtils()
 				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
 				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
 				qglVertex3fv(light->transformed);
-				
+
 				qglEnd();
-				
+
 				switch (light->l.rlType)
 				{
 					case RL_OMNI:
 					{
 						// draw corners
 						qglBegin(GL_LINES);
-				
+
 						qglColor4fv(lightColor);
 						for(j = 0; j < 8; j++)
 						{
 							qglVertex3fv(vec3_origin);
-					
+
 							tmp[0] = light->localBounds[j & 1][0];
 							tmp[1] = light->localBounds[(j >> 1) & 1][1];
 							tmp[2] = light->localBounds[(j >> 2) & 1][2];
-					
+
 							qglVertex3fv(tmp);
 						}
 						qglEnd();
-						
+
 						// draw local bounding box
 						R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
 						break;
@@ -3272,7 +3448,7 @@ static void RB_RenderDebugUtils()
 					{
 						float           xMin, xMax, yMin, yMax;
 						float           zNear, zFar;
-						vec3_t			corners[4];
+						vec3_t          corners[4];
 
 						zNear = 1.0;
 						zFar = light->l.distance;
@@ -3282,43 +3458,43 @@ static void RB_RenderDebugUtils()
 
 						yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
 						yMin = -yMax;
-						
+
 						corners[0][0] = zFar;
 						corners[0][1] = xMin * zFar;
 						corners[0][2] = yMin * zFar;
-						
+
 						corners[1][0] = zFar;
 						corners[1][1] = xMax * zFar;
 						corners[1][2] = yMin * zFar;
-						
+
 						corners[2][0] = zFar;
 						corners[2][1] = xMax * zFar;
 						corners[2][2] = yMax * zFar;
-						
+
 						corners[3][0] = zFar;
 						corners[3][1] = xMin * zFar;
 						corners[3][2] = yMax * zFar;
-												
+
 						// draw pyramid
 						qglBegin(GL_LINES);
-				
+
 						qglColor4fv(lightColor);
 						for(j = 0; j < 4; j++)
 						{
 							qglVertex3fv(corners[j]);
-  							qglVertex3fv(corners[(j + 1) % 4]);
-							
+							qglVertex3fv(corners[(j + 1) % 4]);
+
 							qglVertex3fv(vec3_origin);
 							qglVertex3fv(corners[j]);
 						}
 						qglEnd();
 						break;
 					}
-					
+
 					default:
 						break;
 				}
-				
+
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
@@ -3339,7 +3515,7 @@ static void RB_RenderDebugUtils()
 				iaCount++;
 			}
 		}
-		
+
 		// go back to the world modelview matrix
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
@@ -3361,7 +3537,7 @@ static void RB_RenderDebugUtils()
 		{
 			backEnd.currentEntity = entity = ia->entity;
 			surface = ia->surface;
-			
+
 			if(entity != &tr.worldEntity)
 			{
 				// set up the transformation matrix
@@ -3457,15 +3633,15 @@ static void RB_RenderDebugUtils()
 			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
 	}
-	
+
 	if(r_showSkeleton->integer)
 	{
 		int             i, j, k, parentIndex;
 		trRefEntity_t  *ent;
 		vec3_t          origin, offset;
-		vec3_t			forward, right, up;
-		vec3_t			diff, tmp, tmp2, tmp3;
-		vec_t			length;
+		vec3_t          forward, right, up;
+		vec3_t          diff, tmp, tmp2, tmp3;
+		vec_t           length;
 
 		GL_Program(0);
 		GL_State(GLS_DEPTHTEST_DISABLE);
@@ -3477,19 +3653,19 @@ static void RB_RenderDebugUtils()
 		{
 			if((ent->e.renderfx & RF_THIRD_PERSON) && !backEnd.viewParms.isPortal)
 				continue;
-				
+
 			if(ent->e.skeleton.type != SK_ABSOLUTE)
 				continue;
-				
+
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
-			
+
 			qglBegin(GL_LINES);
 			for(j = 0; j < ent->e.skeleton.numBones; j++)
 			{
 				parentIndex = ent->e.skeleton.bones[j].parentIndex;
-				
+
 				if(parentIndex < 0)
 				{
 					VectorClear(origin);
@@ -3499,27 +3675,27 @@ static void RB_RenderDebugUtils()
 					VectorCopy(ent->e.skeleton.bones[parentIndex].origin, origin);
 				}
 				VectorCopy(ent->e.skeleton.bones[j].origin, offset);
-				
-				
-				#if 0
+
+
+#if 0
 				{
-					quat_t			q;
-				
+					quat_t          q;
+
 					QuatFromAngles(q, 90, 0, 90);
 					QuatMultiply0(q, ent->e.skeleton.bones[i].rotation);
 					QuatToVectorsFRU(q, forward, right, up);
 				}
-				#else
+#else
 				{
 					QuatToVectorsFRU(ent->e.skeleton.bones[i].rotation, forward, right, up);
 				}
-				#endif
-				
+#endif
+
 				//VectorSubtract(offset, origin, forward);
 				//VectorNormalize(forward);
 				//PerpendicularVector(right, forward);
 				//CrossProduct(forward, right, up);
-				
+
 				VectorMA(offset, 1, forward, forward);
 				VectorMA(offset, 1, right, right);
 				VectorMA(offset, 1, up, up);
@@ -3542,35 +3718,35 @@ static void RB_RenderDebugUtils()
 				//qglVertex3fv(up);
 				qglVertex3fv(offset);
 				qglVertex3fv(up);
-				
+
 				// draw bone
 				qglColor4fv(g_color_table[j % 8]);
-				
+
 				// simple inner line
 				//qglVertex3fv(origin);
 				//qglVertex3fv(offset);
-				
+
 				// draw bone volume
 				VectorSubtract(offset, origin, diff);
 				if((length = VectorNormalize(diff)))
 				{
 					PerpendicularVector(tmp, diff);
-					
-					VectorScale(tmp, length * 0.1,tmp2);
+
+					VectorScale(tmp, length * 0.1, tmp2);
 					VectorMA(tmp2, length * 0.2, diff, tmp2);
-					
+
 					for(k = 0; k < 360; k += 120)
 					{
 						RotatePointAroundVector(tmp3, diff, tmp2, k);
-						
+
 						VectorAdd(tmp3, origin, tmp3);
-					
+
 						qglVertex3fv(origin);
 						qglVertex3fv(tmp3);
-						
+
 						qglVertex3fv(offset);
 						qglVertex3fv(tmp3);
-					}	
+					}
 				}
 			}
 			qglEnd();
@@ -3676,7 +3852,9 @@ static void RB_RenderView(void)
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
-		GLimp_LogComment(va("--- RB_RenderView( %i surfaces, %i interactions ) ---\n", backEnd.viewParms.numDrawSurfs, backEnd.viewParms.numInteractions));
+		GLimp_LogComment(va
+						 ("--- RB_RenderView( %i surfaces, %i interactions ) ---\n", backEnd.viewParms.numDrawSurfs,
+						  backEnd.viewParms.numInteractions));
 	}
 
 	GL_CheckErrors();
@@ -3694,16 +3872,16 @@ static void RB_RenderView(void)
 	{
 		R_BindFBO(tr.deferredRenderFBO);
 		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		R_BindFBO(tr.geometricRenderFBO);
 		qglClear(GL_COLOR_BUFFER_BIT);
-		
+
 		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime);
-		
+
 		RB_RenderInteractionsDeferred();
-		
+
 		RB_RenderDrawSurfaces(originalTime, qfalse);
-		
+
 		RB_RenderDeferredShadingResultToFrameBuffer();
 	}
 	else
@@ -3748,19 +3926,19 @@ static void RB_RenderView(void)
 
 	// render debug information
 	RB_RenderDebugUtils();
-	
+
 	if(backEnd.viewParms.isPortal)
 	{
 		// capture current color buffer
 		GL_SelectTexture(0);
 		GL_Bind(tr.portalRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
-		
+
 		backEnd.pc.c_portals++;
 	}
 
 	GL_CheckErrors();
-	
+
 	backEnd.pc.c_views++;
 }
 
@@ -3870,12 +4048,12 @@ void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int
 	{
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		
+
 		qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		
+
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		
+
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		//qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
