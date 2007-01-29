@@ -1663,6 +1663,21 @@ Activating this will teleport players to the location of the targeted misc_telep
 
 <!--
 =============================================================================
+-->
+
+<point name="target_fx" color="1 .5 .25" box="-8 -8 -8 8 8 8">
+Lua scriptable XreaL special effect of any kind. Can be used for particle emitters, lightning bolts or whatever.
+-------- KEYS --------
+<targetname key="name" name="Name">activating trigger points to this.</targetname>
+<string key="fx" name="Effect">name of the Lua scripted client game effect.</string>
+<boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
+<boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
+<boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
+<boolean key="start_on" name="Loop, Start On">effect will loop and initially start on in level (will toggle on/off when triggered).</boolean>
+</point>
+
+<!--
+=============================================================================
 
 TEAM_* ENTITIES
 

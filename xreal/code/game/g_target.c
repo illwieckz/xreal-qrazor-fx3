@@ -537,3 +537,43 @@ void SP_target_location(gentity_t * self)
 
 	G_SetOrigin(self, self->s.origin);
 }
+
+//==========================================================
+
+/*
+===============
+target_fx_use
+
+Use function for effects system
+===============
+*/
+static void target_fx_use(gentity_t *self, gentity_t *other, gentity_t *activator)
+{
+	self->s.eFlags ^= EF_NODRAW;
+}
+
+/*QUAKED target_fx (0 0 1) (-8 -8 -8) (8 8 8)
+*/
+void SP_target_fx(gentity_t * ent)
+{
+	char		   *effectName;
+	int				startOn = 0;
+	
+	ent->s.eType = ET_EFFECT;
+	
+	
+	G_SpawnInt("start_on", "0", &startOn);
+	if(!startOn)
+		ent->s.eFlags |= EF_NODRAW;
+	
+	G_SpawnString("fx", "", &effectName);
+	ent->s.modelindex = G_EffectIndex(effectName);
+
+	G_SetOrigin(ent, ent->s.origin);
+	
+	VectorClear(ent->r.mins);
+	VectorClear(ent->r.maxs);
+	trap_LinkEntity(ent);
+	
+	ent->use = target_fx_use;
+}

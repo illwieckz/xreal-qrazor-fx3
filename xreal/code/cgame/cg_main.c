@@ -1132,7 +1132,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
 	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 
-	CG_ClearParticles();
+	CG_ClearParticles();	
+	
 /*
 	for (i=1; i<MAX_PARTICLES_AREAS; i++)
 	{
@@ -1145,6 +1146,21 @@ static void CG_RegisterGraphics(void)
 		}
 	}
 */
+
+
+	// register all the server specified effects
+	for(i = 1; i < MAX_EFFECTS; i++)
+	{
+		const char     *effectName;
+
+		effectName = CG_ConfigString(CS_EFFECTS + i);
+		if(!effectName[0])
+		{
+			break;
+		}
+		
+		// TODO cgs.gameEffects[i] = CG_RegisterEffect(effectName);
+	}
 }
 
 

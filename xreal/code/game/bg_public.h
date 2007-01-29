@@ -87,9 +87,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
 #define	CS_PLAYERS				(CS_SOUNDS+MAX_SOUNDS)
 #define CS_LOCATIONS			(CS_PLAYERS+MAX_CLIENTS)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
+#define CS_EFFECTS				(CS_LOCATIONS+MAX_LOCATIONS)
 
-#define CS_MAX					(CS_PARTICLES+MAX_LOCATIONS)
+#define CS_MAX					(CS_EFFECTS+MAX_EFFECTS)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -720,6 +720,7 @@ typedef enum
 	ET_INVISIBLE,
 	ET_GRAPPLE,					// grapple hooked on wall
 	ET_TEAM,
+	ET_EFFECT,
 
 	ET_EVENTS					// any of the EV_* events can be added freestanding
 		// by setting eType to ET_EVENTS + eventNum

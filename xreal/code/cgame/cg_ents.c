@@ -1098,8 +1098,18 @@ static void CG_TeamBase(centity_t * cent)
 
 /*
 ===============
-CG_AddCEntity
+CG_Effect
+===============
+*/
+static void CG_Effect(centity_t * cent)
+{
+	// TODO
+	CG_ParticleTeleportEffect(cent->lerpOrigin);
+}
 
+/*
+===============
+CG_AddCEntity
 ===============
 */
 static void CG_AddCEntity(centity_t * cent)
@@ -1154,6 +1164,8 @@ static void CG_AddCEntity(centity_t * cent)
 			break;
 		case ET_TEAM:
 			CG_TeamBase(cent);
+		case ET_EFFECT:
+			CG_Effect(cent);
 			break;
 	}
 }

@@ -187,6 +187,7 @@ void            SP_target_position(gentity_t * ent);
 void            SP_target_null(gentity_t * ent);
 void            SP_target_location(gentity_t * ent);
 void            SP_target_push(gentity_t * ent);
+void            SP_target_fx(gentity_t * ent);
 
 void            SP_light(gentity_t * self);
 void            SP_info_null(gentity_t * self);
@@ -269,6 +270,7 @@ spawn_t         spawns[] = {
 	{"target_null", SP_target_null},
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
+	{"target_fx", SP_target_fx},
 
 	{"light", SP_light},
 	{"path_corner", SP_path_corner},
