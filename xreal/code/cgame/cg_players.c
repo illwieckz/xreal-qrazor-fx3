@@ -707,7 +707,12 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		ci->fixedlegs = qfalse;
 		ci->fixedtorso = qfalse;
 
+		/*
+		the af pose animation is good for testing player angles
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "af_pose", qtrue, qfalse))
+		*/
+		
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse))
 		{
 			return qfalse;
 		}
@@ -3159,7 +3164,7 @@ void CG_Player(centity_t * cent)
 	
 	// rotate torso
 #if 1
-	boneIndex = trap_R_BoneIndex(body.hModel, "waist");
+	boneIndex = trap_R_BoneIndex(body.hModel, "chest");
 	
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{

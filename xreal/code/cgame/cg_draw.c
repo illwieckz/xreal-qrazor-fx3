@@ -310,7 +310,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
-	vec3_t          lightOrigin;
+	refLight_t		light;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -345,11 +345,26 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene(&ent);
 	
-	VectorCopy(origin, lightOrigin);
-	lightOrigin[0] -= 90;
-	lightOrigin[1] += 10;
-	lightOrigin[2] += 30;
-	trap_R_AddLightToScene(lightOrigin, 200, 1.0, 1.0, 1.0);
+	// add light
+	memset(&light, 0, sizeof(refLight_t));
+	
+	light.rlType = RL_PROJ;
+	
+	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
+	
+	VectorCopy(refdef.viewaxis[0], light.axis[0]);
+	VectorCopy(refdef.viewaxis[1], light.axis[1]);
+	VectorCopy(refdef.viewaxis[2], light.axis[2]);
+	
+	light.color[0] = 1.0;
+	light.color[1] = 1.0;
+	light.color[2] = 1.0;
+	
+	light.fovX = 90;
+	light.fovY = 90;
+	light.distance = 800;
+	
+	trap_R_AddRefLightToScene(&light);
 	
 	trap_R_RenderScene(&refdef);
 }
@@ -365,7 +380,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
-	vec3_t          lightOrigin;
+	refLight_t		light;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -420,11 +435,27 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 		trap_R_AddRefEntityToScene(&barrel);
 	}
 	
-	VectorCopy(origin, lightOrigin);
-	lightOrigin[0] -= 90;
-	lightOrigin[1] += 10;
-	lightOrigin[2] += 30;
-	trap_R_AddLightToScene(lightOrigin, 200, 1.0, 1.0, 1.0);
+	// add light
+	memset(&light, 0, sizeof(refLight_t));
+	
+	light.rlType = RL_PROJ;
+	
+	VectorCopy(refdef.viewaxis[0], light.axis[0]);
+	VectorCopy(refdef.viewaxis[1], light.axis[1]);
+	VectorCopy(refdef.viewaxis[2], light.axis[2]);
+	
+	light.color[0] = 1.0;
+	light.color[1] = 1.0;
+	light.color[2] = 1.0;
+	
+	light.fovX = 90;
+	light.fovY = 90;
+	light.distance = 800;
+	
+	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
+	
+	//light.origin[1] -= 20;
+	trap_R_AddRefLightToScene(&light);
 
 	trap_R_RenderScene(&refdef);
 }
