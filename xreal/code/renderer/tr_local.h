@@ -137,6 +137,8 @@ typedef struct trRefLight_s
 	frustum_t       frustum;
 
 	screenRect_t    scissor;
+	
+	struct shader_s *shader;
 
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
@@ -1043,7 +1045,6 @@ typedef struct interaction_s
 	interactionType_t type;
 
 	trRefLight_t   *light;
-	shader_t       *lightShader;
 
 	trRefEntity_t  *entity;
 	surfaceType_t  *surface;	// any of surface*_t
@@ -2463,6 +2464,8 @@ qboolean        R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p);
 void            R_SetupLightScissor(trRefLight_t * light);
 void            R_SetupLightDepthBounds(trRefLight_t * light);
 void            R_SetupLightLOD(trRefLight_t * light);
+
+void            R_SetupLightShader(trRefLight_t * light);
 
 byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2]);
 

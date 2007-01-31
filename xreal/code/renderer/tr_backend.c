@@ -999,9 +999,10 @@ static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 }
 
 #ifdef VOLUMETRIC_LIGHTING
-static void Render_lightVolume(trRefLight_t * light, shader_t * lightShader)
+static void Render_lightVolume(trRefLight_t * light)
 {
 	int             j;
+	shader_t       *lightShader;
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 
@@ -1029,6 +1030,7 @@ static void Render_lightVolume(trRefLight_t * light, shader_t * lightShader)
 	MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 	MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 
+	lightShader = light->shader;
 	attenuationZStage = lightShader->stages[0];
 
 	for(j = 1; j < MAX_SHADER_STAGES; j++)
@@ -1233,7 +1235,7 @@ static void RB_RenderInteractions(float originalTime)
 		Tess_End();
 
 		// begin a new batch
-		Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, 0, qfalse, qfalse);
+		Tess_Begin(Tess_StageIteratorLighting, shader, light->shader, 0, qfalse, qfalse);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1342,7 +1344,7 @@ static void RB_RenderInteractions(float originalTime)
 			// draw the light volume if needed
 			if(ia->lightShader->volumetricLight)
 			{
-				Render_lightVolume(light, ia->lightShader);
+				Render_lightVolume(light);
 			}
 			#endif
 
@@ -1595,7 +1597,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 				}
 
 				// we don't need tangent space calculations here
-				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, ia->lightShader, 0, qtrue, qtrue);
+				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, light->shader, 0, qtrue, qtrue);
 			}
 		}
 		else
@@ -1629,7 +1631,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorStencilLighting, shader, ia->lightShader, 0, qfalse, qfalse);
+				Tess_Begin(Tess_StageIteratorStencilLighting, shader, light->shader, 0, qfalse, qfalse);
 			}
 		}
 
@@ -2205,7 +2207,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, shader, ia->lightShader, 0, qtrue, qfalse);
+						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, 0, qtrue, qfalse);
 					}
 					break;
 				}
@@ -2255,7 +2257,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorLighting, shader, ia->lightShader, 0, qfalse, qfalse);
+				Tess_Begin(Tess_StageIteratorLighting, shader, light->shader, 0, qfalse, qfalse);
 			}
 		}
 
@@ -2459,7 +2461,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 				// draw the light volume if needed
 				if(ia->lightShader->volumetricLight)
 				{
-					Render_lightVolume(light, ia->lightShader);
+					Render_lightVolume(light);
 				}
 				#endif
 				
@@ -2713,7 +2715,7 @@ void RB_RenderInteractionsDeferred()
 		if(!ia->next)
 		{
 			// last interaction of current light
-			lightShader = ia->lightShader;
+			lightShader = light->shader;
 			attenuationZStage = lightShader->stages[0];
 
 			for(j = 1; j < MAX_SHADER_STAGES; j++)

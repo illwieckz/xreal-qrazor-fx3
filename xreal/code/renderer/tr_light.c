@@ -746,43 +746,6 @@ void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader
 			break;
 	}
 
-	// check what kind of attenuationShader is used
-	if(!light->l.attenuationShader)
-	{
-		if(light->isStatic)
-		{
-			switch (light->l.rlType)
-			{
-				default:
-				case RL_OMNI:
-					ia->lightShader = tr.defaultPointLightShader;
-					break;
-				
-				case RL_PROJ:
-					ia->lightShader = tr.defaultProjectedLightShader;
-					break;
-			}
-		}
-		else
-		{
-			switch (light->l.rlType)
-			{
-				default:
-				case RL_OMNI:
-					ia->lightShader = tr.defaultDynamicLightShader;
-					break;
-				
-				case RL_PROJ:
-					ia->lightShader = tr.defaultProjectedLightShader;
-					break;
-			}
-		}
-	}
-	else
-	{
-		ia->lightShader = R_GetShaderByHandle(light->l.attenuationShader);
-	}
-
 	ia->next = NULL;
 	
 	ia->type = iaType;
@@ -1450,6 +1413,50 @@ void R_SetupLightLOD(trRefLight_t * light)
 	light->shadowLOD = lod;
 }
 
+
+/*
+=================
+R_SetupLightShader
+=================
+*/
+void R_SetupLightShader(trRefLight_t * light)
+{
+	if(!light->l.attenuationShader)
+	{
+		if(light->isStatic)
+		{
+			switch (light->l.rlType)
+			{
+				default:
+				case RL_OMNI:
+					light->shader = tr.defaultPointLightShader;
+					break;
+				
+				case RL_PROJ:
+					light->shader = tr.defaultProjectedLightShader;
+					break;
+			}
+		}
+		else
+		{
+			switch (light->l.rlType)
+			{
+				default:
+				case RL_OMNI:
+					light->shader = tr.defaultDynamicLightShader;
+					break;
+				
+				case RL_PROJ:
+					light->shader = tr.defaultProjectedLightShader;
+					break;
+			}
+		}
+	}
+	else
+	{
+		light->shader = R_GetShaderByHandle(light->l.attenuationShader);
+	}
+}
 
 /*
 ===============

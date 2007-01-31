@@ -2059,6 +2059,9 @@ void R_AddLightInteractions()
 		
 		// set up view dependent light Level of Detail
 		R_SetupLightLOD(light);
+		
+		// look for proper attenuation shader
+		R_SetupLightShader(light);
 
 		// setup interactions
 		light->firstInteraction = NULL;
