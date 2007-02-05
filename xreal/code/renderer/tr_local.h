@@ -1868,7 +1868,7 @@ typedef struct
 
 extern const matrix_t quakeToOpenGLMatrix;
 extern const matrix_t openGLToQuakeMatrix;
-extern const int shadowMapResolutions[3];
+extern int shadowMapResolutions[3];
 
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
@@ -1994,7 +1994,9 @@ extern cvar_t  *r_clear;		// force screen clear every frame
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black planar projection,
 								// 3 = stencil shadow volumes
 								// 4 = shadow mapping
-extern cvar_t  *r_shadowMapSize;
+extern cvar_t  *r_shadowMapSizeHigh;
+extern cvar_t  *r_shadowMapSizeMedium;
+extern cvar_t  *r_shadowMapSizeLow;
 extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
 extern cvar_t  *r_shadowLodBias;

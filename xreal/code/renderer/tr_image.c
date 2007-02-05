@@ -211,18 +211,23 @@ void R_ImageList_f(void)
 	int             i;
 	image_t        *image;
 	int             texels;
+	int				dataSize;
 	const char     *yesno[] = {
 		"no ", "yes"
 	};
 
 	ri.Printf(PRINT_ALL, "\n      -w-- -h-- -mm- -type- -if-- wrap --name-------\n");
+	
 	texels = 0;
-
+	dataSize = 0;
+	
 	for(i = 0; i < tr.numImages; i++)
 	{
 		image = tr.images[i];
 
 		texels += image->uploadWidth * image->uploadHeight;
+		dataSize += image->uploadWidth * image->uploadHeight * 4;
+		
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
 				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
 
@@ -319,6 +324,8 @@ void R_ImageList_f(void)
 	}
 	ri.Printf(PRINT_ALL, " ---------\n");
 	ri.Printf(PRINT_ALL, " %i total texels (not including mipmaps)\n", texels);
+	ri.Printf(PRINT_ALL, " %d.%02d MB total image memory\n", dataSize / (1024 * 1024),
+			  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 	ri.Printf(PRINT_ALL, " %i total images\n\n", tr.numImages);
 }
 

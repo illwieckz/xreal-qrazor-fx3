@@ -115,7 +115,9 @@ cvar_t         *r_drawBuffer;
 cvar_t         *r_glDriver;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
-cvar_t         *r_shadowMapSize;
+cvar_t         *r_shadowMapSizeHigh;
+cvar_t         *r_shadowMapSizeMedium;
+cvar_t         *r_shadowMapSizeLow;
 cvar_t         *r_shadowOffsetFactor;
 cvar_t         *r_shadowOffsetUnits;
 cvar_t         *r_shadowLodBias;
@@ -1326,7 +1328,7 @@ void R_Register(void)
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_precacheLightIndexes = ri.Cvar_Get("r_precacheLightIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_precacheShadowIndexes = ri.Cvar_Get("r_precacheShadowIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "0", CVAR_CHEAT | CVAR_LATCH);
 	
 
 	// archived variables that can change at any time
@@ -1410,8 +1412,20 @@ void R_Register(void)
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadows, 0, 4, qtrue);
-	r_shadowMapSize = ri.Cvar_Get("r_shadowMapSize", "512", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadowMapSize, 256, 1024, qtrue);
+	
+	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapSizeHigh, 32, 1024, qtrue);
+	
+	r_shadowMapSizeMedium = ri.Cvar_Get("r_shadowMapSizeMedium", "256", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapSizeMedium, 32, 1024, qtrue);
+	
+	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "128", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapSizeLow, 32, 1024, qtrue);
+	
+	shadowMapResolutions[0] = r_shadowMapSizeHigh->integer;
+	shadowMapResolutions[1] = r_shadowMapSizeMedium->integer;
+	shadowMapResolutions[2] = r_shadowMapSizeLow->integer;
+	
 	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
 	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
 	r_shadowLodBias = ri.Cvar_Get("r_shadowLodBias", "0", CVAR_CHEAT);
