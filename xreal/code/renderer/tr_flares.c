@@ -337,7 +337,7 @@ void RB_RenderFlare(flare_t * f)
 
 	backEnd.pc.c_flareRenders++;
 
-#if 0
+#if 1
 	VectorScale(f->color, f->drawIntensity, color);
 	iColor[0] = color[0] * 255;
 	iColor[1] = color[1] * 255;
