@@ -99,6 +99,8 @@ cvar_t         *r_ext_texture_float;
 cvar_t         *r_ext_stencil_wrap;
 cvar_t         *r_ext_texture_filter_anisotropic;
 cvar_t         *r_ext_stencil_two_side;
+cvar_t         *r_ext_separate_stencil;
+cvar_t		   *r_ext_depth_clamp;
 cvar_t         *r_ext_depth_bounds_test;
 cvar_t         *r_ext_framebuffer_object;
 
@@ -297,6 +299,10 @@ void            (APIENTRY * qglUnlockArraysEXT) (void);
 
 // GL_EXT_stencil_two_side
 void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
+
+// GL_ATI_separate_stencil
+void			(APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
+void			(APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
 
 // GL_EXT_depth_bounds_test
 void            (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
@@ -1287,6 +1293,8 @@ void R_Register(void)
 	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_separate_stencil = ri.Cvar_Get("r_ext_separate_stencil", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_depth_clamp = ri.Cvar_Get("r_ext_depth_clamp", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_depth_bounds_test = ri.Cvar_Get("r_ext_depth_bounds_test", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
@@ -1318,7 +1326,6 @@ void R_Register(void)
 	r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
 #endif
 
-	
 	// temporary latched variables that can only change over a restart
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);
 	AssertCvarRange(r_displayRefresh, 0, 200, qtrue);
@@ -1330,7 +1337,6 @@ void R_Register(void)
 	r_precacheShadowIndexes = ri.Cvar_Get("r_precacheShadowIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "0", CVAR_CHEAT | CVAR_LATCH);
 	
-
 	// archived variables that can change at any time
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
 	r_flares = ri.Cvar_Get("r_flares", "0", CVAR_ARCHIVE);
@@ -1362,7 +1368,6 @@ void R_Register(void)
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_ARCHIVE);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
-
 	
 	// temporary variables that can change at any time
 	r_showImages = ri.Cvar_Get("r_showImages", "0", CVAR_TEMP);

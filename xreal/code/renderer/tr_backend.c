@@ -1469,6 +1469,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 					}
 				}
 
+				if(r_ext_depth_clamp)
+					qglEnable(GL_DEPTH_CLAMP_NV);
+
 				if(!light->l.noShadows)
 				{
 					GLimp_LogComment("--- Rendering shadow volumes ---\n");
@@ -1808,6 +1811,9 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 	{
 		qglDepthRange(0, 1);
 	}
+
+	if(r_ext_depth_clamp)
+		qglDisable(GL_DEPTH_CLAMP_NV);
 
 	// reset scissor clamping
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,

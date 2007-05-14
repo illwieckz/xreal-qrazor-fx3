@@ -1884,6 +1884,44 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 	}
+
+	// GL_ATI_separate_stencil
+	qglStencilFuncSeparateATI = NULL;
+	qglStencilOpSeparateATI = NULL;
+	if(strstr(glConfig.extensions_string, "GL_ATI_separate_stencil"))
+	{
+		if(r_ext_separate_stencil->value)
+		{
+			qglStencilFuncSeparateATI = (void *)qwglGetProcAddress("glStencilFuncSeparateATI");
+			qglStencilOpSeparateATI = (void *)qwglGetProcAddress("glStencilOpSeparateATI");
+			ri.Printf(PRINT_ALL, "...using GL_ATI_separate_stencil\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_ATI_separate_stencil\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_ATI_separate_stencil not found\n");
+	}
+	
+	// GL_NV_depth_clamp
+	if(strstr(glConfig.extensions_string, "GL_NV_depth_clamp"))
+	{
+		if(r_ext_depth_clamp->value)
+		{
+			ri.Printf(PRINT_ALL, "...using GL_NV_depth_clamp\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_NV_depth_clamp\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_NV_depth_clamp not found\n");
+	}
 }
 
 static void GLW_InitGamma()

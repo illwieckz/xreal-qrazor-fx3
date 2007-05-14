@@ -27,11 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QGL_H__
 #define __QGL_H__
 
-#if defined( __LINT__ )
-
-#include <GL/gl.h>
-
-#elif defined( _WIN32 )
+#if defined( _WIN32 )
 
 #if _MSC_VER
 #pragma warning (disable: 4201)
@@ -78,7 +74,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef WINAPI
 #define WINAPI
 #endif
-
 
 #ifndef GL_ARB_multitexture
 #define GL_TEXTURE0_ARB                   0x84C0
@@ -161,6 +156,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GL_RGBA4_S3TC                     0x83A3
 #endif
 
+#ifndef GL_DEPTH_CLAMP_NV
+#define GL_DEPTH_CLAMP_NV				  0x864F
+#endif
 
 // NOTE: some Linux platforms would need those prototypes
 #if defined(MACOS_X)
@@ -312,6 +310,9 @@ extern void     (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
 // GL_EXT_depth_bounds_test
 extern void     (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
 
+// GL_ATI_separate_stencil
+extern void		(APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
+extern void		(APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
 
 // GL_EXT_framebuffer_object
 extern          GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);

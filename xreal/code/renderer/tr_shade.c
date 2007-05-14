@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 /*
-
   THIS ENTIRE FILE IS BACK END
 
   This file deals with applying shaders to surface data in the tess struct.
@@ -4269,7 +4268,18 @@ void Tess_StageIteratorStencilShadowVolume()
 			//if(backEnd.viewParms.isMirror)
 			//  qglFrontFace(GL_CW);
 
-			if(qglActiveStencilFaceEXT)
+			if(qglStencilFuncSeparateATI && qglStencilOpSeparateATI && glConfig.stencilWrapAvailable)
+ 			{
+				GL_Cull(CT_TWO_SIDED);
+
+				qglStencilFuncSeparateATI(GL_ALWAYS, GL_ALWAYS, 0, (GLuint)~0);
+
+				qglStencilOpSeparateATI(GL_BACK,  GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
+				qglStencilOpSeparateATI(GL_FRONT, GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
+
+				DrawElements();
+			}
+			else if(qglActiveStencilFaceEXT)
 			{
 				// render both sides at once
 				GL_Cull(CT_TWO_SIDED);
@@ -4345,7 +4355,18 @@ void Tess_StageIteratorStencilShadowVolume()
 			//if(backEnd.viewParms.isMirror)
 			//  qglFrontFace(GL_CW);
 
-			if(qglActiveStencilFaceEXT)
+			if(qglStencilFuncSeparateATI && qglStencilOpSeparateATI && glConfig.stencilWrapAvailable)
+ 			{
+				GL_Cull(CT_TWO_SIDED);
+
+				qglStencilFuncSeparateATI(GL_ALWAYS, GL_ALWAYS, 0, (GLuint)~0);
+
+				qglStencilOpSeparateATI(GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
+				qglStencilOpSeparateATI(GL_BACK,  GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
+
+				DrawElements();
+			}
+			else if(qglActiveStencilFaceEXT)
 			{
 				// render both sides at once
 				GL_Cull(CT_TWO_SIDED);
