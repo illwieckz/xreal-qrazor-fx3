@@ -42,7 +42,6 @@ MAIN MENU
 #define ID_MODS					16
 #define ID_EXIT					17
 
-#define MAIN_BANNER_SHADER			"menuBanner"
 #define MAIN_MENU_VERTICAL_SPACING		34
 
 
@@ -57,8 +56,6 @@ typedef struct {
 	menutext_s		teamArena;
 	menutext_s		mods;
 	menutext_s		exit;
-
-	qhandle_t		bannerShader;
 } mainmenu_t;
 
 
@@ -140,7 +137,6 @@ MainMenu_Cache
 */
 void MainMenu_Cache(void)
 {
-	s_main.bannerShader = trap_R_RegisterShaderNoMip(MAIN_BANNER_SHADER);
 }
 
 sfxHandle_t ErrorMessage_Key(int key)
