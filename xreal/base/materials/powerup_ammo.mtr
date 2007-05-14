@@ -18,7 +18,7 @@ models/powerups/ammo/machammo
 
 models/powerups/ammo/machammo2
 {
-	diffuseMap map models/powerups/ammo/machammo2.tga
+	diffuseMap models/powerups/ammo/machammo2.tga
 }
 
 // 2.shotgun
