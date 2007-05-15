@@ -1498,10 +1498,10 @@ public:
     zNear = 1.0;
     zFar = m_lightDistance;
     
-    xMax = zNear * tan(m_lightFovX * M_PI / 360.0f);
+    xMax = zNear * tan(m_lightFovX * c_pi / 360.0f);
     xMin = -xMax;
     
-    yMax = zNear * tan(m_lightFovY * M_PI / 360.0f);
+    yMax = zNear * tan(m_lightFovY * c_pi / 360.0f);
     yMin = -yMax;
     
     matrix4_multiply_by_matrix4(m_doom3Projection, matrix4_frustum(xMin, xMax, yMin, yMax, zNear, zFar));
