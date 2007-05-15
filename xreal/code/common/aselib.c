@@ -40,12 +40,18 @@ typedef struct
 	float           x, y, z;
 	float           nx, ny, nz;
 	float           s, t;
+	float			r, g, b;
 } aseVertex_t;
 
 typedef struct
 {
 	float           s, t;
 } aseTVertex_t;
+
+typedef struct
+{
+	float           r, g, b;
+} aseCVertex_t;
 
 typedef int     aseFace_t[3];
 
@@ -54,12 +60,14 @@ typedef struct
 	int             numFaces;
 	int             numVertexes;
 	int             numTVertexes;
+	int             numCVertexes;
 
 	int             timeValue;
 
 	aseVertex_t    *vertexes;
 	aseTVertex_t   *tvertexes;
-	aseFace_t      *faces, *tfaces;
+	aseCVertex_t   *cvertexes;
+	aseFace_t      *faces, *tfaces, *cfaces;
 
 	int             currentFace, currentVertex;
 } aseMesh_t;
@@ -271,6 +279,12 @@ polyset_t      *ASE_GetSurfaceAnimation(int which, int *pNumFrames, int skipFram
 					psets[f].triangles[t].texcoords[k][1] = pMesh->tvertexes[pMesh->tfaces[t][k]].t;
 				}
 
+				if(pMesh->cvertexes && pMesh->cfaces)
+				{
+					psets[f].triangles[t].colors[k][0] = pMesh->cvertexes[pMesh->cfaces[t][k]].r;
+					psets[f].triangles[t].colors[k][1] = pMesh->cvertexes[pMesh->cfaces[t][k]].g;
+					psets[f].triangles[t].colors[k][2] = pMesh->cvertexes[pMesh->cfaces[t][k]].b;
+				}
 			}
 		}
 
@@ -297,6 +311,10 @@ static void ASE_FreeGeomObject(int ndx)
 		{
 			free(pObject->anim.frames[i].tvertexes);
 		}
+		if(pObject->anim.frames[i].cvertexes)
+		{
+			free(pObject->anim.frames[i].cvertexes);
+		}
 		if(pObject->anim.frames[i].faces)
 		{
 			free(pObject->anim.frames[i].faces);
@@ -304,6 +322,10 @@ static void ASE_FreeGeomObject(int ndx)
 		if(pObject->anim.frames[i].tfaces)
 		{
 			free(pObject->anim.frames[i].tfaces);
+		}
+		if(pObject->anim.frames[i].cfaces)
+		{
+			free(pObject->anim.frames[i].cfaces);
 		}
 	}
 
@@ -656,6 +678,35 @@ static void ASE_KeyTFACE_LIST(const char *token)
 	}
 }
 
+static void ASE_KeyCFACE_LIST(const char *token)
+{
+	aseMesh_t      *pMesh = ASE_GetCurrentMesh();
+
+	if(!strcmp(token, "*MESH_CFACE"))
+	{
+		int             a, b, c;
+
+		ASE_GetToken(qfalse);
+
+		ASE_GetToken(qfalse);
+		a = atoi(s_token);
+		ASE_GetToken(qfalse);
+		c = atoi(s_token);
+		ASE_GetToken(qfalse);
+		b = atoi(s_token);
+
+		pMesh->cfaces[pMesh->currentFace][0] = a;
+		pMesh->cfaces[pMesh->currentFace][1] = b;
+		pMesh->cfaces[pMesh->currentFace][2] = c;
+
+		pMesh->currentFace++;
+	}
+	else
+	{
+		Error("Unknown token '%s' in MESH_CFACE", token);
+	}
+}
+
 static void ASE_KeyMESH_TVERTLIST(const char *token)
 {
 	aseMesh_t      *pMesh = ASE_GetCurrentMesh();
@@ -688,6 +739,41 @@ static void ASE_KeyMESH_TVERTLIST(const char *token)
 	else
 	{
 		Error("Unknown token '%s' while parsing MESH_TVERTLIST");
+	}
+}
+
+static void ASE_KeyMESH_CVERTLIST(const char *token)
+{
+
+	aseMesh_t      *pMesh = ASE_GetCurrentMesh();
+
+	if(!strcmp(token, "*MESH_VERTCOL"))
+	{
+		float           r, g, b;
+
+		ASE_GetToken(qfalse);
+
+		ASE_GetToken(qfalse);
+		r = atof(s_token);
+		ASE_GetToken(qfalse);
+		g = atof(s_token);
+		ASE_GetToken(qfalse);
+		b = atof(s_token);
+
+		pMesh->cvertexes[pMesh->currentVertex].r = r;
+		pMesh->cvertexes[pMesh->currentVertex].g = g;
+		pMesh->cvertexes[pMesh->currentVertex].b = b;
+
+		pMesh->currentVertex++;
+
+		if(pMesh->currentVertex > pMesh->numCVertexes)
+		{
+			Error("pMesh->currentVertex > pMesh->numCVertexes");
+		}
+	}
+	else
+	{
+		Error("Unknown token '%s' while parsing MESH_CVERTLIST");
 	}
 }
 
@@ -726,12 +812,28 @@ static void ASE_KeyMESH(const char *token)
 			Error("MESH_NUMTVFACES != MESH_NUMFACES");
 		}
 	}
+	else if(!strcmp(token, "*MESH_NUMCVFACES"))
+	{
+		ASE_GetToken(qfalse);
+
+		if(atoi(s_token) != pMesh->numFaces)
+		{
+			Error("MESH_NUMCVFACES != MESH_NUMFACES");
+		}
+	}
 	else if(!strcmp(token, "*MESH_NUMTVERTEX"))
 	{
 		ASE_GetToken(qfalse);
 
 		pMesh->numTVertexes = atoi(s_token);
 		VERBOSE((".....num tvertexes: %d\n", pMesh->numTVertexes));
+	}
+	else if(!strcmp(token, "*MESH_NUMCVERTEX"))
+	{
+		ASE_GetToken(qfalse);
+
+		pMesh->numCVertexes = atoi(s_token);
+		VERBOSE((".....num cvertexes: %d\n", pMesh->numCVertexes));
 	}
 	else if(!strcmp(token, "*MESH_VERTEX_LIST"))
 	{
@@ -747,6 +849,13 @@ static void ASE_KeyMESH(const char *token)
 		VERBOSE((".....parsing MESH_TVERTLIST\n"));
 		ASE_ParseBracedBlock(ASE_KeyMESH_TVERTLIST);
 	}
+	else if(!strcmp(token, "*MESH_CVERTLIST"))
+	{
+		pMesh->currentVertex = 0;
+		pMesh->cvertexes = calloc(sizeof(aseCVertex_t) * pMesh->numCVertexes, 1);
+		VERBOSE((".....parsing MESH_CVERTLIST\n"));
+		ASE_ParseBracedBlock(ASE_KeyMESH_CVERTLIST);
+	}
 	else if(!strcmp(token, "*MESH_FACE_LIST"))
 	{
 		pMesh->faces = calloc(sizeof(aseFace_t) * pMesh->numFaces, 1);
@@ -760,6 +869,13 @@ static void ASE_KeyMESH(const char *token)
 		pMesh->currentFace = 0;
 		VERBOSE((".....parsing MESH_TFACE_LIST\n"));
 		ASE_ParseBracedBlock(ASE_KeyTFACE_LIST);
+	}
+	else if(!strcmp(token, "*MESH_CFACELIST"))
+	{
+		pMesh->cfaces = calloc(sizeof(aseFace_t) * pMesh->numFaces, 1);
+		pMesh->currentFace = 0;
+		VERBOSE((".....parsing MESH_CFACE_LIST\n"));
+		ASE_ParseBracedBlock(ASE_KeyCFACE_LIST);
 	}
 	else if(!strcmp(token, "*MESH_NORMALS"))
 	{
@@ -778,6 +894,7 @@ static void ASE_KeyMESH_ANIMATION(const char *token)
 		assert(pMesh->faces == 0);
 		assert(pMesh->vertexes == 0);
 		assert(pMesh->tvertexes == 0);
+		assert(pMesh->cvertexes == 0);
 		memset(pMesh, 0, sizeof(*pMesh));
 
 		ASE_ParseBracedBlock(ASE_KeyMESH);

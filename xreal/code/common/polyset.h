@@ -34,6 +34,7 @@ typedef struct
 	vec3_t          verts[3];
 	vec3_t          normals[3];
 	st_t            texcoords[3];
+	rgb_t           colors[3];
 } triangle_t;
 
 typedef struct

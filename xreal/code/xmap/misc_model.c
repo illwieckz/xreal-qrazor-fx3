@@ -333,15 +333,19 @@ Convert a model entity to raw geometry surfaces and insert it in the tree
 */
 static void InsertASEModel(const char *modelName, const matrix_t transform)
 {
-	int             i, j;
-	drawVert_t     *outv;
+	int             i, j, k;
 	drawSurface_t  *out;
 	int             numSurfaces;
 	const char     *name;
 	polyset_t      *pset;
 	int             numFrames;
 	char            filename[1024];
-	vec3_t          tmp;
+
+	int             indexList[SHADER_MAX_INDEXES];
+	int             numIndices;
+
+	drawVert_t      vertexList[SHADER_MAX_VERTEXES], vertex;
+	int             numVertices;
 
 	sprintf(filename, "%s%s", gamedir, modelName);
 
@@ -375,25 +379,11 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 
 		out->shaderInfo = ShaderInfoForShader(pset->materialname);
 
-		out->numVerts = 3 * pset->numtriangles;
-		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
-
-		out->numIndexes = 3 * pset->numtriangles;
-		out->indexes = malloc(out->numIndexes * sizeof(out->indexes[0]));
-
-		out->lightmapNum = -1;
-		out->fogNum = -1;
-
-		// emit the indexes
-		c_triangleIndexes += out->numIndexes;
-		for(j = 0; j < out->numIndexes; j++)
-		{
-			out->indexes[j] = j;
-		}
-
-		// emit the vertexes
-		c_triangleVertexes += out->numVerts;
-		for(j = 0; j < out->numVerts; j++)
+		// build vertex and triangle lists
+		numIndices = 0;
+		numVertices = 0;
+		
+		for(j = 0; j < pset->numtriangles * 3; j++)
 		{
 			int             index;
 			triangle_t     *tri;
@@ -401,37 +391,96 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			index = j % 3;
 			tri = &pset->triangles[j / 3];
 
-			outv = &out->verts[j];
+			vertex.st[0] = tri->texcoords[index][0];
+			vertex.st[1] = tri->texcoords[index][1];
+			
+			vertex.lightmap[0] = 0;
+			vertex.lightmap[1] = 0;
 
-			outv->st[0] = tri->texcoords[index][0];
-			outv->st[1] = tri->texcoords[index][1];
+			vertex.xyz[0] = tri->verts[index][0];
+			vertex.xyz[1] = tri->verts[index][1];
+			vertex.xyz[2] = tri->verts[index][2];
 
-			outv->lightmap[0] = 0;
-			outv->lightmap[1] = 0;
+			vertex.color[0] = (byte) (255.0f * tri->colors[index][0]);
+			vertex.color[1] = (byte) (255.0f * tri->colors[index][1]);
+			vertex.color[2] = (byte) (255.0f * tri->colors[index][2]);
+			vertex.color[3] = 255;
 
-			// the colors will be set by the lighting pass
-			outv->color[0] = 0;
-			outv->color[1] = 0;
-			outv->color[2] = 0;
-			outv->color[3] = 255;
+			// add it to the vertex list if not added yet
+			if(numIndices == SHADER_MAX_INDEXES)
+			{
+				Sys_Printf("SHADER_MAX_INDEXES hit\n");
+				return;
+			}
 
+			for(k = 0; k < numVertices; k++)
+			{
+				if(vertexList[k].xyz[0] != vertex.xyz[0] || vertexList[k].xyz[1] != vertex.xyz[k] ||
+				   vertexList[k].xyz[2] != vertex.xyz[2])
+					continue;
+					
+				if(vertexList[k].st[0] != vertex.st[0] || vertexList[k].st[1] != vertex.st[1])
+					continue;
+
+				break;
+			}
+
+			if(k == numVertices)
+			{
+				if(numVertices == SHADER_MAX_VERTEXES)
+				{
+					Sys_Printf("SHADER_MAX_VERTEXES hit\n");
+					return;
+				}
+
+				indexList[numIndices++] = numVertices;
+				vertexList[numVertices++] = vertex;
+			}
+			else
+			{
+				indexList[numIndices++] = k;
+			}
+		}
+
+		// emit the indexes
+		out->numIndexes = numIndices;
+		out->indexes = malloc(out->numIndexes * sizeof(out->indexes[0]));
+
+		c_triangleIndexes += numIndices;
+
+		for(j = 0; j < numIndices; j += 3)
+		{
+			out->indexes[j + 0] = indexList[j + 0];
+			out->indexes[j + 1] = indexList[j + 1];
+			out->indexes[j + 2] = indexList[j + 2];
+		}
+
+		// emit the vertexes
+		out->numVerts = numVertices;
+		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
+
+		c_triangleVertexes += numVertices;
+
+		for(j = 0; j < numVertices; j++)
+		{
 			// transform the position
-//          outv->xyz[0] = origin[0] + tri->verts[index][0];
-//          outv->xyz[1] = origin[1] + tri->verts[index][1];
-//          outv->xyz[2] = origin[2] + tri->verts[index][2];
+			MatrixTransformPoint(transform, vertexList[j].xyz, out->verts[j].xyz);
+			
+			// set dummy normal
+			out->verts[j].normal[0] = 0;
+			out->verts[j].normal[1] = 0;
+			out->verts[j].normal[2] = 1;
 
-			tmp[0] = tri->verts[index][0];
-			tmp[1] = tri->verts[index][1];
-			tmp[2] = tri->verts[index][2];
+			out->verts[j].st[0] = vertexList[j].st[0];
+			out->verts[j].st[1] = vertexList[j].st[1];
+			
+			out->verts[j].lightmap[0] = vertexList[j].lightmap[0];
+			out->verts[j].lightmap[1] = vertexList[j].lightmap[1];
 
-			MatrixTransformPoint(transform, tmp, outv->xyz);
-
-			// rotate the normal
-			tmp[0] = tri->normals[index][0];
-			tmp[1] = tri->normals[index][1];
-			tmp[2] = tri->normals[index][2];
-
-			MatrixTransformNormal(transform, tmp, outv->normal);
+			out->verts[j].color[0] = vertexList[j].color[0];
+			out->verts[j].color[1] = vertexList[j].color[1];
+			out->verts[j].color[2] = vertexList[j].color[2];
+			out->verts[j].color[3] = vertexList[j].color[3];
 		}
 	}
 }
