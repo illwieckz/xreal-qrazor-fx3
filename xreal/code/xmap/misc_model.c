@@ -341,11 +341,11 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 	int             numFrames;
 	char            filename[1024];
 
-	int             indexList[SHADER_MAX_INDEXES];
-	int             numIndices;
+	static int      indexes[SHADER_MAX_INDEXES];
+	int             numIndexes;
 
-	drawVert_t      vertexList[SHADER_MAX_VERTEXES], vertex;
-	int             numVertices;
+	static drawVert_t vertexes[SHADER_MAX_VERTEXES], vertex;
+	int             numVertexes;
 
 	sprintf(filename, "%s%s", gamedir, modelName);
 
@@ -380,8 +380,8 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 		out->shaderInfo = ShaderInfoForShader(pset->materialname);
 
 		// build vertex and triangle lists
-		numIndices = 0;
-		numVertices = 0;
+		numIndexes = 0;
+		numVertexes = 0;
 		
 		for(j = 0; j < pset->numtriangles * 3; j++)
 		{
@@ -407,80 +407,80 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			vertex.color[3] = 255;
 
 			// add it to the vertex list if not added yet
-			if(numIndices == SHADER_MAX_INDEXES)
+			if(numIndexes == SHADER_MAX_INDEXES)
 			{
 				Sys_Printf("SHADER_MAX_INDEXES hit\n");
 				return;
 			}
 
-			for(k = 0; k < numVertices; k++)
+			for(k = 0; k < numVertexes; k++)
 			{
-				if(vertexList[k].xyz[0] != vertex.xyz[0] || vertexList[k].xyz[1] != vertex.xyz[k] ||
-				   vertexList[k].xyz[2] != vertex.xyz[2])
+				if(vertexes[k].xyz[0] != vertex.xyz[0] || vertexes[k].xyz[1] != vertex.xyz[k] ||
+				   vertexes[k].xyz[2] != vertex.xyz[2])
 					continue;
 					
-				if(vertexList[k].st[0] != vertex.st[0] || vertexList[k].st[1] != vertex.st[1])
+				if(vertexes[k].st[0] != vertex.st[0] || vertexes[k].st[1] != vertex.st[1])
 					continue;
 
 				break;
 			}
 
-			if(k == numVertices)
+			if(k == numVertexes)
 			{
-				if(numVertices == SHADER_MAX_VERTEXES)
+				if(numVertexes == SHADER_MAX_VERTEXES)
 				{
 					Sys_Printf("SHADER_MAX_VERTEXES hit\n");
 					return;
 				}
 
-				indexList[numIndices++] = numVertices;
-				vertexList[numVertices++] = vertex;
+				indexes[numIndexes++] = numVertexes;
+				vertexes[numVertexes++] = vertex;
 			}
 			else
 			{
-				indexList[numIndices++] = k;
+				indexes[numIndexes++] = k;
 			}
 		}
 
 		// emit the indexes
-		out->numIndexes = numIndices;
+		out->numIndexes = numIndexes;
 		out->indexes = malloc(out->numIndexes * sizeof(out->indexes[0]));
 
-		c_triangleIndexes += numIndices;
+		c_triangleIndexes += numIndexes;
 
-		for(j = 0; j < numIndices; j += 3)
+		for(j = 0; j < numIndexes; j += 3)
 		{
-			out->indexes[j + 0] = indexList[j + 0];
-			out->indexes[j + 1] = indexList[j + 1];
-			out->indexes[j + 2] = indexList[j + 2];
+			out->indexes[j + 0] = indexes[j + 0];
+			out->indexes[j + 1] = indexes[j + 1];
+			out->indexes[j + 2] = indexes[j + 2];
 		}
 
 		// emit the vertexes
-		out->numVerts = numVertices;
+		out->numVerts = numVertexes;
 		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
 
-		c_triangleVertexes += numVertices;
+		c_triangleVertexes += numVertexes;
 
-		for(j = 0; j < numVertices; j++)
+		for(j = 0; j < numVertexes; j++)
 		{
 			// transform the position
-			MatrixTransformPoint(transform, vertexList[j].xyz, out->verts[j].xyz);
+			MatrixTransformPoint(transform, vertexes[j].xyz, out->verts[j].xyz);
 			
 			// set dummy normal
 			out->verts[j].normal[0] = 0;
 			out->verts[j].normal[1] = 0;
 			out->verts[j].normal[2] = 1;
 
-			out->verts[j].st[0] = vertexList[j].st[0];
-			out->verts[j].st[1] = vertexList[j].st[1];
+			out->verts[j].st[0] = vertexes[j].st[0];
+			out->verts[j].st[1] = vertexes[j].st[1];
 			
-			out->verts[j].lightmap[0] = vertexList[j].lightmap[0];
-			out->verts[j].lightmap[1] = vertexList[j].lightmap[1];
+			out->verts[j].lightmap[0] = vertexes[j].lightmap[0];
+			out->verts[j].lightmap[1] = vertexes[j].lightmap[1];
 
-			out->verts[j].color[0] = vertexList[j].color[0];
-			out->verts[j].color[1] = vertexList[j].color[1];
-			out->verts[j].color[2] = vertexList[j].color[2];
-			out->verts[j].color[3] = vertexList[j].color[3];
+			out->verts[j].color[0] = vertexes[j].color[0];
+			out->verts[j].color[1] = vertexes[j].color[1];
+			out->verts[j].color[2] = vertexes[j].color[2];
+			out->verts[j].color[3] = vertexes[j].color[3];
 		}
 	}
 }
