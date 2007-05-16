@@ -234,6 +234,9 @@ void RB_AddLightFlares(void)
 	fog = tr.world->fogs;
 	for(i = 0; i < backEnd.refdef.numLights; i++, l++)
 	{
+		if(!l->isStatic)
+			continue;
+		
 		// find which fog volume the light is in 
 		for(j = 1; j < tr.world->numfogs; j++)
 		{
@@ -338,7 +341,9 @@ void RB_RenderFlare(flare_t * f)
 	backEnd.pc.c_flareRenders++;
 
 #if 1
-	VectorScale(f->color, f->drawIntensity, color);
+	//VectorScale(f->color, f->drawIntensity, color);
+	VectorScale(colorWhite, f->drawIntensity, color);
+	
 	iColor[0] = color[0] * 255;
 	iColor[1] = color[1] * 255;
 	iColor[2] = color[2] * 255;
@@ -473,12 +478,13 @@ void RB_RenderFlares(void)
 
 		r_flareCoeff->modified = qfalse;
 	}
+#endif
 
-	// Reset currentEntity to world so that any previously referenced entities don't have influence
+	// reset currentEntity to world so that any previously referenced entities don't have influence
 	// on the rendering of these flares (i.e. RF_ renderer flags).
 	backEnd.currentEntity = &tr.worldEntity;
 	backEnd.or = backEnd.viewParms.world;
-#endif
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
 	if(tr.world != NULL)		// thx Thilo
 	{
@@ -524,7 +530,8 @@ void RB_RenderFlares(void)
 
 	if(!draw)
 	{
-		return;					// none visible
+		// none visible
+		return;
 	}
 
 	if(backEnd.viewParms.isPortal)

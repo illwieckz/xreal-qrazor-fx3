@@ -3920,17 +3920,17 @@ static void RB_RenderView(void)
 
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(originalTime, qfalse);
+		
+		#if 0
+		// add the sun flare
+		RB_DrawSun();
+		#endif
+
+		#if 0
+		// add light flares on lights that aren't obscured
+		RB_RenderFlares();
+		#endif
 	}
-
-#if 0
-	// add the sun flare
-	RB_DrawSun();
-#endif
-
-#if 0
-	// add light flares on lights that aren't obscured
-	RB_RenderFlares();
-#endif
 
 	// render debug information
 	RB_RenderDebugUtils();
