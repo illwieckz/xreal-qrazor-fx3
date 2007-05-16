@@ -2780,7 +2780,7 @@ void Com_WriteConfiguration(void)
 	}
 	else
 	{
-		Com_WriteCDKey("base", cl_cdkey);
+		Com_WriteCDKey(BASEGAME, cl_cdkey);
 	}
 #endif
 }
