@@ -3115,7 +3115,6 @@ void CG_Player(centity_t * cent)
 	{
 		boneIndex2 = trap_R_BoneIndex(body.hModel, "hips");
 	
-		#if 1
 		if(boneIndex2 >= 0 && boneIndex2 < cent->pe.legs.skeleton.numBones)
 		{
 			// copy torso bones
@@ -3124,15 +3123,6 @@ void CG_Player(centity_t * cent)
 				memcpy(&body.skeleton.bones[i], &cent->pe.torso.skeleton.bones[i], sizeof(refBone_t));
 			}
 		}
-		#endif
-			
-		/*
-		// copy leg bones
-		for(i = hipsIndex; i < cent->pe.legs.skeleton.numBones; i++)
-		{
-			memcpy(&body.skeleton.bones[i], &cent->pe.legs.skeleton.bones[i], sizeof(refBone_t));
-		}
-		*/
 			
 		body.skeleton.type = SK_RELATIVE;
 		
@@ -3192,11 +3182,13 @@ void CG_Player(centity_t * cent)
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
 	
+	// TODO add TA kamikaze model and other stuff
 
 	// add the gun / barrel / flash
 	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
-
-	// TODO
+	
+	// TODO add powerups floating behind the player
+	//CG_PlayerPowerups(cent, &body);
 
 	// add the bounding box (if cg_drawPlayerAABB is 1)
 	CG_PlayerBoundingBox(cent);
