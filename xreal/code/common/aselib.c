@@ -285,6 +285,12 @@ polyset_t      *ASE_GetSurfaceAnimation(int which, int *pNumFrames, int skipFram
 					psets[f].triangles[t].colors[k][1] = pMesh->cvertexes[pMesh->cfaces[t][k]].g;
 					psets[f].triangles[t].colors[k][2] = pMesh->cvertexes[pMesh->cfaces[t][k]].b;
 				}
+				else
+				{
+					psets[f].triangles[t].colors[k][0] = 1;
+					psets[f].triangles[t].colors[k][1] = 1;
+					psets[f].triangles[t].colors[k][2] = 1;
+				}
 			}
 		}
 
@@ -451,7 +457,7 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 {
 	char            buffer[1024], buff1[1024], buff2[1024];
 	char           *buf1, *buf2;
-	int             i = 0, count;
+	int             i = 0;
 
 	if(!strcmp(token, "*BITMAP"))
 	{
@@ -471,10 +477,13 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 		buf1 = buffer;
 		buf2 = gamedir;
 		
+		/*
 		// need to compare win32 volumes to potential unix junk
 		if((gamedir[1] == ':' && (buffer[0] == '/' && buffer[1] == '/')) ||
 		   (buffer[1] == ':' && (gamedir[0] == '/' && gamedir[1] == '/')))
 		{
+			int             count;
+
 			if(buffer[1] == ':')
 			{
 				buf1 = buffer + 2;
@@ -495,11 +504,16 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 				buf2++;
 			}
 		}
+		*/
 		
 		strcpy(buff1, buf1);
 		strlwr(buff1);
 		strcpy(buff2, buf2);
 		strlwr(buff2);
+
+		//Sys_Printf("buff0: '%s'\n", buffer);
+		//Sys_Printf("buff1: '%s'\n", buff1);
+		//Sys_Printf("buff2: '%s'\n", buff2);
 		
 		// Tr3B - Doom3 materials are messed up usually
 		if(strstr(buff1, "base/"))
@@ -521,9 +535,9 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 		{
 			sprintf(ase.materials[ase.numMaterials].name, "(not converted: '%s')", buffer);
 			
-			printf("buff1: '%s'\n", buff1);
-			printf("buff2: '%s'\n", buff2);
-			printf("WARNING: illegal material name '%s'\n", buffer);
+			Sys_Printf("buff1: '%s'\n", buff1);
+			Sys_Printf("buff2: '%s'\n", buff2);
+			Sys_Printf("WARNING: illegal material name '%s'\n", buffer);
 		}
 	}
 	else
