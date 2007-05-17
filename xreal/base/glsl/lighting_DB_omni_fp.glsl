@@ -37,6 +37,7 @@ varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec3		var_TexAttenXYZ;
 varying mat3		var_TS2OSMatrix;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -65,6 +66,7 @@ void	main()
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
+	color.rgb *= var_Color.rgb;
 	
 #if defined(VSM)
 	if(bool(u_ShadowCompare))

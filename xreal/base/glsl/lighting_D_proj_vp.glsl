@@ -28,6 +28,7 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -45,4 +46,7 @@ void	main()
 	
 	// calc light attenuation in light space
 	var_TexAtten = gl_TextureMatrix[1] * gl_Vertex;
+	
+	// assign color
+	var_Color = gl_Color;
 }

@@ -2043,12 +2043,14 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// vertexColor
 		else if(!Q_stricmp(token, "vertexColor"))
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: vertexColor keyword not supported in shader '%s'\n", shader.name);
+			stage->vertexPainting = qtrue;
+			stage->rgbGen = CGEN_VERTEX;
 		}
 		// inverseVertexColor
 		else if(!Q_stricmp(token, "inverseVertexColor"))
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: inverseVertexColor keyword not supported in shader '%s'\n", shader.name);
+			stage->vertexPainting = qtrue;
+			stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
 		}
 		// alphaGen 
 		else if(!Q_stricmp(token, "alphaGen"))

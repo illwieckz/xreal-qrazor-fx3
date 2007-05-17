@@ -642,6 +642,8 @@ typedef struct
 
 	expression_t    alphaTestExp;
 
+	qboolean		vertexPainting;
+
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
 	unsigned        stateBits;	// GLS_xxxx mask

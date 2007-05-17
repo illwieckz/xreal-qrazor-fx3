@@ -537,7 +537,7 @@ void GLSL_InitGPUShaders(void)
 	//
 	// omni-directional lighting ( Doom3 style )
 	//
-	GLSL_InitGPUShader(&tr.lightShader_D_omni, "lighting_D_omni", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_omni, "lighting_D_omni", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.lightShader_D_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_DiffuseMap");
 	tr.lightShader_D_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapXY");
@@ -566,7 +566,7 @@ void GLSL_InitGPUShaders(void)
 	//
 	GLSL_InitGPUShader(&tr.lightShader_DB_omni,
 					   "lighting_DB_omni",
-					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.lightShader_DB_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_DiffuseMap");
 	tr.lightShader_DB_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_NormalMap");
@@ -598,7 +598,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.lightShader_DBS_omni,
 					   "lighting_DBS_omni",
 					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL |
-					   GLCS_NORMAL, qtrue);
+					   GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.lightShader_DBS_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_DiffuseMap");
 	tr.lightShader_DBS_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_NormalMap");
@@ -631,7 +631,7 @@ void GLSL_InitGPUShaders(void)
 	//
 	// projective lighting ( Doom3 style )
 	//
-	GLSL_InitGPUShader(&tr.lightShader_D_proj, "lighting_D_proj", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_proj, "lighting_D_proj", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.lightShader_D_proj.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
 	tr.lightShader_D_proj.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
@@ -3356,6 +3356,69 @@ void Tess_ComputeColors(shaderStage_t * pStage)
 
 /*
 ===============
+Tess_ComputeColors
+===============
+*/
+void Tess_ComputeVertexPaintingColors(shaderStage_t * pStage)
+{
+	int             i;
+
+	GLimp_LogComment("--- Tess_ComputeColors ---\n");
+
+	if(pStage->vertexPainting)
+	{
+		// rgbGen
+		switch (pStage->rgbGen)
+		{
+			default:
+			case CGEN_VERTEX:
+				if(tr.identityLight == 1)
+				{
+					Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
+				}
+				else
+				{
+					for(i = 0; i < tess.numVertexes; i++)
+					{
+						tess.svars.colors[i][0] = tess.colors[i][0] * tr.identityLight;
+						tess.svars.colors[i][1] = tess.colors[i][1] * tr.identityLight;
+						tess.svars.colors[i][2] = tess.colors[i][2] * tr.identityLight;
+						tess.svars.colors[i][3] = tess.colors[i][3];
+					}
+				}
+				break;
+
+			case CGEN_ONE_MINUS_VERTEX:
+				if(tr.identityLight == 1)
+				{
+					for(i = 0; i < tess.numVertexes; i++)
+					{
+						tess.svars.colors[i][0] = 255 - tess.colors[i][0];
+						tess.svars.colors[i][1] = 255 - tess.colors[i][1];
+						tess.svars.colors[i][2] = 255 - tess.colors[i][2];
+					}
+				}
+				else
+				{
+					for(i = 0; i < tess.numVertexes; i++)
+					{
+						tess.svars.colors[i][0] = (255 - tess.colors[i][0]) * tr.identityLight;
+						tess.svars.colors[i][1] = (255 - tess.colors[i][1]) * tr.identityLight;
+						tess.svars.colors[i][2] = (255 - tess.colors[i][2]) * tr.identityLight;
+					}
+				}
+				break;
+		}
+	}
+	else
+	{
+		Com_Memset(tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4);
+	}
+}
+
+
+/*
+===============
 Tess_ComputeColor
 ===============
 */
@@ -4534,6 +4597,7 @@ void Tess_StageIteratorStencilLighting()
 		}
 		else
 		{
+			Tess_ComputeVertexPaintingColors(diffuseStage);
 			Tess_ComputeTexCoords(diffuseStage);
 			Tess_ComputeTexMatrices(diffuseStage);
 		}
@@ -4790,6 +4854,7 @@ void Tess_StageIteratorLighting()
 		}
 		else
 		{
+			Tess_ComputeVertexPaintingColors(diffuseStage);
 			Tess_ComputeTexCoords(diffuseStage);
 			Tess_ComputeTexMatrices(diffuseStage);
 		}

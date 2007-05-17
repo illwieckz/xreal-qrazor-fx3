@@ -34,6 +34,7 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexDiffuse;
 varying vec4		var_TexAtten;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -61,6 +62,7 @@ void	main()
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
+	color.rgb *= var_Color.rgb;
 
 #if defined(VSM)
 	if(bool(u_ShadowCompare))

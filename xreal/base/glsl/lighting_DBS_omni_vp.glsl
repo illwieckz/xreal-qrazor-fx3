@@ -34,6 +34,7 @@ varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
 varying mat3		var_TS2OSMatrix;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -57,4 +58,7 @@ void	main()
 	
 	// construct tangent-space-to-object-space 3x3 matrix
 	var_TS2OSMatrix = mat3(attr_Tangent, attr_Binormal, gl_Normal);
+	
+	// assign color
+	var_Color = gl_Color;
 }
