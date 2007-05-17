@@ -382,7 +382,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 		// build vertex and triangle lists
 		numIndexes = 0;
 		numVertexes = 0;
-		
+
 		for(j = 0; j < pset->numtriangles * 3; j++)
 		{
 			int             index;
@@ -393,7 +393,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 
 			vertex.st[0] = tri->texcoords[index][0];
 			vertex.st[1] = tri->texcoords[index][1];
-			
+
 			vertex.lightmap[0] = 0;
 			vertex.lightmap[1] = 0;
 
@@ -418,7 +418,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 				if(vertexes[k].xyz[0] != vertex.xyz[0] || vertexes[k].xyz[1] != vertex.xyz[k] ||
 				   vertexes[k].xyz[2] != vertex.xyz[2])
 					continue;
-					
+
 				if(vertexes[k].st[0] != vertex.st[0] || vertexes[k].st[1] != vertex.st[1])
 					continue;
 
@@ -465,7 +465,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 		{
 			// transform the position
 			MatrixTransformPoint(transform, vertexes[j].xyz, out->verts[j].xyz);
-			
+
 			// set dummy normal
 			out->verts[j].normal[0] = 0;
 			out->verts[j].normal[1] = 0;
@@ -473,7 +473,7 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 
 			out->verts[j].st[0] = vertexes[j].st[0];
 			out->verts[j].st[1] = vertexes[j].st[1];
-			
+
 			out->verts[j].lightmap[0] = vertexes[j].lightmap[0];
 			out->verts[j].lightmap[1] = vertexes[j].lightmap[1];
 
@@ -499,8 +499,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	int             i, j, k, l;
 	char            filename[1024];
 	drawSurface_t  *out;
-	drawVert_t     *outv;
-	vec3_t          tmp;
+//	drawVert_t     *outv;
 	vec2_t			st;
 	int             defaultSTAxis[2];
 	vec2_t          defaultXYZtoSTScale;
@@ -514,7 +513,12 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	lwPolVert      *v;
 	lwPoint        *pt;
 	lwVMap         *vmap;
-	int            *outindex;
+	
+	static int      indexes[SHADER_MAX_INDEXES];
+	int             numIndexes;
+
+	static drawVert_t vertexes[SHADER_MAX_VERTEXES], vertex;
+	int             numVertexes;
 
 	sprintf(filename, "%s%s", gamedir, modelName);
 
@@ -586,10 +590,9 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 		out->lightmapNum = -1;
 		out->fogNum = -1;
 
-		// allocate vertices
-		out->numVerts = layer->point.count;
-		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
-		memset(out->verts, 0, out->numVerts * sizeof(out->verts[0]));
+		// Copy vertices
+		numIndexes = 0;
+		numVertexes = 0;
 
 		// count polygons which we want to use
 		out->numIndexes = 0;
@@ -614,67 +617,36 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				Sys_Printf("WARNING: skipping non triangulated polygon\n");
 				continue;
 			}
-
-			out->numIndexes += 3;
-		}
-
-		// allocate the triangles
-		out->indexes = malloc(out->numIndexes * sizeof(out->indexes[0]));
-		memset(out->indexes, 0, out->numIndexes * sizeof(out->indexes[0]));
-
-		// emit the indexes and vertexes
-		c_triangleIndexes += out->numIndexes;
-		c_triangleVertexes += out->numVerts;
-
-		outindex = &out->indexes[0];
-		for(j = 0; j < layer->polygon.count; j++)
-		{
-			pol = &layer->polygon.pol[j];
-
-			// skip all polygons that don't belong to this surface
-			if(pol->surf != surf)
-				continue;
-
-			// only accept FACE surfaces
-			if(pol->type != ID_FACE)
-			{
-				//Sys_Printf("WARNING: skipping ID_FACE polygon\n");
-				continue;
-			}
-
-			// only accept triangulated surfaces
-			if(pol->nverts != 3)
-			{
-				//Sys_Printf("WARNING: skipping non triangulated polygon\n");
-				continue;
-			}
-
+			
 			for(k = 0, v = pol->v; k < pol->nverts; k++, v++)
 			{
 				int             index;
-
-				*outindex++ = index = v->index;
+				
+				index = v->index;
 
 				pt = &layer->point.pt[index];
-				outv = &out->verts[index];
 
-				tmp[0] = pt->pos[0];
-				tmp[1] = pt->pos[2];
-				tmp[2] = pt->pos[1];
+				vertex.xyz[0] = pt->pos[0];
+				vertex.xyz[1] = pt->pos[2];
+				vertex.xyz[2] = pt->pos[1];
 
-				outv->st[0] = tmp[defaultSTAxis[0]] * defaultXYZtoSTScale[0];
-				outv->st[1] = tmp[defaultSTAxis[1]] * defaultXYZtoSTScale[1];
-
-				MatrixTransformPoint(transform, tmp, outv->xyz);
-
+				vertex.st[0] = vertex.xyz[defaultSTAxis[0]] * defaultXYZtoSTScale[0];
+				vertex.st[1] = vertex.xyz[defaultSTAxis[1]] * defaultXYZtoSTScale[1];
+				
+				vertex.lightmap[0] = 0;
+				vertex.lightmap[1] = 0;
+				
+				vertex.color[0] = surf->color.rgb[0] * surf->diffuse.val * 255;
+				vertex.color[1] = surf->color.rgb[1] * surf->diffuse.val * 255;
+				vertex.color[2] = surf->color.rgb[2] * surf->diffuse.val * 255;
+				vertex.color[3] = 255;
+				
 				// set dummy normal
-				outv->normal[0] = 0;
-				outv->normal[1] = 0;
-				outv->normal[2] = 1;
+				vertex.normal[0] = 0;
+				vertex.normal[1] = 0;
+				vertex.normal[2] = 1;
 
-				//MatrixTransformNormal(transform, tmp, outv->normal);
-
-				// fetch texcoords base from points
+				// fetch base from points
 				for(l = 0; l < pt->nvmaps; l++)
 				{
 					vmap = pt->vm[l].vmap;
@@ -682,8 +654,16 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 
 					if(vmap->type == LWID_('T', 'X', 'U', 'V'))
 					{
-						outv->st[0] = vmap->val[index][0];
-						outv->st[1] = 1.0 - vmap->val[index][1];
+						vertex.st[0] = vmap->val[index][0];
+						vertex.st[1] = 1.0 - vmap->val[index][1];
+					}
+					
+					if(vmap->type == LWID_('R', 'G', 'B', 'A'))
+					{
+						vertex.color[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val * 255;
+						vertex.color[1] = vmap->val[index][1] * surf->color.rgb[1] * surf->diffuse.val * 255;
+						vertex.color[2] = vmap->val[index][2] * surf->color.rgb[2] * surf->diffuse.val * 255;
+						vertex.color[3] = vmap->val[index][3] * 255;
 					}
 				}
 
@@ -695,20 +675,94 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 
 					if(vmap->type == LWID_('T', 'X', 'U', 'V'))
 					{
-						outv->st[0] = vmap->val[index][0];
-						outv->st[1] = 1.0 - vmap->val[index][1];
+						vertex.st[0] = vmap->val[index][0];
+						vertex.st[1] = 1.0 - vmap->val[index][1];
+					}
+					
+					if(vmap->type == LWID_('R', 'G', 'B', 'A'))
+					{
+						vertex.color[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val * 255;
+						vertex.color[1] = vmap->val[index][1] * surf->color.rgb[1] * surf->diffuse.val * 255;
+						vertex.color[2] = vmap->val[index][2] * surf->color.rgb[2] * surf->diffuse.val * 255;
+						vertex.color[3] = vmap->val[index][3] * 255;
 					}
 				}
+				
+				// Add it to the vertex list if not added yet
+				if(numIndexes == SHADER_MAX_INDEXES)
+				{
+					Sys_Printf("SHADER_MAX_INDEXES hit\n");
+					return;
+				}
 
-				outv->lightmap[0] = 0;
-				outv->lightmap[1] = 0;
+				for(l = 0; l < numVertexes; l++)
+				{
+					if(vertexes[l].xyz[0] != vertex.xyz[0] || vertexes[l].xyz[1] != vertex.xyz[1] ||
+					   vertexes[l].xyz[2] != vertex.xyz[2])
+						continue;
+					
+					if(vertexes[i].st[0] != vertex.st[0] || vertexes[i].st[1] != vertex.st[1])
+						continue;
 
-				// the colors will be set by the lighting pass
-				outv->color[0] = 255;
-				outv->color[1] = 255;
-				outv->color[2] = 255;
-				outv->color[3] = 255;
+					break;
+				}
+
+				if(l == numVertexes)
+				{
+					if(numVertexes == SHADER_MAX_VERTEXES)
+					{
+						Sys_Printf("SHADER_MAX_VERTEXES hit\n");
+						return;
+					}
+
+					indexes[numIndexes++] = numVertexes;
+					vertexes[numVertexes++] = vertex;
+				}
+				else
+				{
+					indexes[numIndexes++] = l;
+				}
+				
 			}
+		}
+
+		// emit the indexes
+		out->numIndexes = numIndexes;
+		out->indexes = malloc(out->numIndexes * sizeof(out->indexes[0]));
+
+		c_triangleIndexes += numIndexes;
+
+		for(j = 0; j < numIndexes; j += 3)
+		{
+			out->indexes[j + 0] = indexes[j + 0];
+			out->indexes[j + 1] = indexes[j + 1];
+			out->indexes[j + 2] = indexes[j + 2];
+		}
+
+		// emit the vertexes
+		out->numVerts = numVertexes;
+		out->verts = malloc(out->numVerts * sizeof(out->verts[0]));
+
+		c_triangleVertexes += numVertexes;
+
+		for(j = 0; j < numVertexes; j++)
+		{
+			// transform the position
+			MatrixTransformPoint(transform, vertexes[j].xyz, out->verts[j].xyz);
+			
+			// rotate the normal
+			MatrixTransformNormal(transform, vertexes[j].normal, out->verts[j].normal);
+
+			out->verts[j].st[0] = vertexes[j].st[0];
+			out->verts[j].st[1] = vertexes[j].st[1];
+
+			out->verts[j].lightmap[0] = vertexes[j].lightmap[0];
+			out->verts[j].lightmap[1] = vertexes[j].lightmap[1];
+
+			out->verts[j].color[0] = vertexes[j].color[0];
+			out->verts[j].color[1] = vertexes[j].color[1];
+			out->verts[j].color[2] = vertexes[j].color[2];
+			out->verts[j].color[3] = vertexes[j].color[3];
 		}
 	}
 
