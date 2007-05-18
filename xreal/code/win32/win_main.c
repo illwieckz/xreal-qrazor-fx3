@@ -602,16 +602,19 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDEC
 	char           *gamedir;
 	char           *fn;
 
+/*
 #ifdef NDEBUG
 	int             timestamp;
 	int             ret;
 #endif
+*/
 	char            filename[MAX_QPATH];
 
 	*fqpath = 0;				// added 7/20/02 by T.Ray
 
 	Com_sprintf(filename, sizeof(filename), "%sx86.dll", name);
 
+/*
 #ifdef NDEBUG
 	timestamp = Sys_Milliseconds();
 	if(((timestamp - lastWarning) > (5 * 60000)) && !Cvar_VariableIntegerValue("dedicated")
@@ -635,6 +638,7 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDEC
 		}
 	}
 #endif
+*/
 
 #ifndef NDEBUG
 	libHandle = LoadLibrary(filename);
