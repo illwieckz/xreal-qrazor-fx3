@@ -401,6 +401,10 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			vertex.xyz[1] = tri->verts[index][1];
 			vertex.xyz[2] = tri->verts[index][2];
 
+			vertex.normal[0] = tri->normals[index][0];
+			vertex.normal[1] = tri->normals[index][1];
+			vertex.normal[2] = tri->normals[index][2];
+
 			vertex.color[0] = (byte) (255.0f * tri->colors[index][0]);
 			vertex.color[1] = (byte) (255.0f * tri->colors[index][1]);
 			vertex.color[2] = (byte) (255.0f * tri->colors[index][2]);
@@ -466,10 +470,8 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			// transform the position
 			MatrixTransformPoint(transform, vertexes[j].xyz, out->verts[j].xyz);
 
-			// set dummy normal
-			out->verts[j].normal[0] = 0;
-			out->verts[j].normal[1] = 0;
-			out->verts[j].normal[2] = 1;
+			// rotate the normal
+			MatrixTransformNormal(transform, vertexes[j].normal, out->verts[j].normal);
 
 			out->verts[j].st[0] = vertexes[j].st[0];
 			out->verts[j].st[1] = vertexes[j].st[1];
@@ -535,7 +537,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	if(obj->nlayers != 1)
 		Error("..layers number %i != 1", obj->nlayers);
 
-#if 1
+#if 0
 	Sys_FPrintf(SYS_VRB, "Layers:  %d\n"
 				"Surfaces:  %d\n"
 				"Envelopes:  %d\n"
@@ -701,7 +703,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 					   vertexes[l].xyz[2] != vertex.xyz[2])
 						continue;
 					
-					if(vertexes[i].st[0] != vertex.st[0] || vertexes[i].st[1] != vertex.st[1])
+					if(vertexes[l].st[0] != vertex.st[0] || vertexes[l].st[1] != vertex.st[1])
 						continue;
 
 					break;
