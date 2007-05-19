@@ -382,6 +382,20 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 		VectorNormalize(dv0->normal);
 	}
 
+	// do another extra smoothing for normals to avoid flat shading
+	for(i = 0; i < (width * height); i++)
+	{
+		for(j = 0; j < (width * height); j++)
+		{
+			if(R_CompareVert(&ctrl2[i], &ctrl2[j], qfalse))
+			{
+				VectorAdd(ctrl2[i].normal, ctrl2[j].normal, ctrl2[i].normal);
+			}
+		}
+
+		VectorNormalize(ctrl2[i].normal);
+	}
+
 	for(i = 0; i < width; i++)
 	{
 		for(j = 0; j < height; j++)

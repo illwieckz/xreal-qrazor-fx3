@@ -434,6 +434,8 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 	grid->lodRadius = VectorLength(tmpVec);
 }
 
+
+
 /*
 ===============
 ParseTriSurf
@@ -561,6 +563,23 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 		{
 			VectorNormalize(cv->verts[i].tangent);
 			VectorNormalize(cv->verts[i].binormal);
+			VectorNormalize(cv->verts[i].normal);
+		}
+
+		// do another extra smoothing for normals to avoid flat shading
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < numVerts; j++)
+			{
+				if(i == j)
+					continue;
+
+				if(R_CompareVert(&cv->verts[i], &cv->verts[j], qfalse))
+				{
+					VectorAdd(cv->verts[i].normal, cv->verts[j].normal, cv->verts[i].normal);
+				}
+			}
+
 			VectorNormalize(cv->verts[i].normal);
 		}
 	}

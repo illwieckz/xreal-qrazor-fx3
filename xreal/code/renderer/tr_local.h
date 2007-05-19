@@ -2094,6 +2094,7 @@ void            R_RotateLightForViewParms(const trRefLight_t * ent, const viewPa
 
 void            R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float *projectionMatrix);
 
+qboolean        R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst);
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);
 
 void            R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
