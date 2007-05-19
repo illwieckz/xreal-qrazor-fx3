@@ -29,12 +29,12 @@ attribute vec3		attr_Binormal;
 uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
-varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
+varying vec4		var_TexDiffuse;
+varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
 varying mat3		var_TS2OSMatrix;
-varying vec4		var_Color;
+//varying vec4		var_Color;	// Tr3B - maximum vars reached
 
 void	main()
 {
@@ -45,10 +45,10 @@ void	main()
 	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 		
 	// transform diffusemap texcoords
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse.xy = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
+	var_TexNormal.xy = (gl_TextureMatrix[1] * attr_TexCoord1).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord2).st;
@@ -60,5 +60,6 @@ void	main()
 	var_TS2OSMatrix = mat3(attr_Tangent, attr_Binormal, gl_Normal);
 	
 	// assign color
-	var_Color = gl_Color;
+	var_TexDiffuse.p = gl_Color.r;
+	var_TexNormal.pq = gl_Color.gb;
 }

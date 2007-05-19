@@ -36,12 +36,12 @@ uniform float		u_SpecularExponent;
 uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
-varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
+varying vec4		var_TexDiffuse;
+varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
 varying mat3		var_TS2OSMatrix;
-varying vec4		var_Color;
+//varying vec4		var_Color;
 
 void	main()
 {
@@ -55,7 +55,7 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
 	
 	// transform normal into object space
 	N = var_TS2OSMatrix * N;
@@ -64,7 +64,7 @@ void	main()
 	N = normalize((u_ModelMatrix * vec4(N, 0.0)).xyz);
 	
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
 	diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
@@ -80,7 +80,10 @@ void	main()
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
-	color.rgb *= var_Color.rgb;
+	
+	//color.rgb *= var_Color.rgb;
+	color.r *= var_TexDiffuse.p;
+	color.gb *= var_TexNormal.pq;
 	
 #if defined(VSM)
 	if(bool(u_ShadowCompare))
