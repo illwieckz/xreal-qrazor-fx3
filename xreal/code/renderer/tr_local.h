@@ -2459,7 +2459,7 @@ void            R_SetupLightProjection(trRefLight_t * light);
 
 int             R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3]);
 
-void            R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
+qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
 									  int numLightIndexes, int *lightIndexes,
 									  int numShadowIndexes, int *shadowIndexes,
 									  byte cubeSideBits,

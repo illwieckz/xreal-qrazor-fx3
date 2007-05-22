@@ -2096,16 +2096,25 @@ void R_AddLightInteractions()
 		light->numLightOnlyInteractions = 0;
 		light->noSort = qfalse;
 
-		if(light->isStatic)
+		if(r_deferredShading->integer)
 		{
-			R_AddPrecachedWorldInteractions(light);
+			// add one fake interaction for this light
+			// because the renderer backend only loops through interactions
+			R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
 		}
 		else
 		{
-			R_AddWorldInteractions(light);
-		}
+			if(light->isStatic)
+			{
+				R_AddPrecachedWorldInteractions(light);
+			}
+			else
+			{
+				R_AddWorldInteractions(light);
+			}
 		
-		R_AddEntityInteractions(light);
+			R_AddEntityInteractions(light);
+		}
 
 		if(light->numInteractions && light->numInteractions != light->numShadowOnlyInteractions)
 		{

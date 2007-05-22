@@ -696,17 +696,20 @@ int R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3])
 R_AddLightInteraction
 =================
 */
-void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, byte cubeSideBits, interactionType_t iaType)
+qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, byte cubeSideBits, interactionType_t iaType)
 {
 	int             iaIndex;
 	interaction_t  *ia;
 	
-	// skip all surfaces that don't matter for lighting only pass
-	if(surfaceShader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
-		return;
+	if(!r_deferredShading->integer)
+	{
+		// skip all surfaces that don't matter for lighting only pass
+		if(surfaceShader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+			return qfalse;
 		
-	if(!surfaceShader->interactLight && iaType == IA_LIGHTONLY)
-		return;
+		if(!surfaceShader->interactLight && iaType == IA_LIGHTONLY)
+			return qfalse;
+	}
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
@@ -783,6 +786,8 @@ void R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader
 	{
 		tr.pc.c_dlightInteractions++;
 	}
+
+	return qtrue;
 }
 
 

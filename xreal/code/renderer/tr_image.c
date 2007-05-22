@@ -4283,7 +4283,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	long            hash;
 	static char    *suf[6] = { "px", "nx", "py", "ny", "pz", "nz" };
 	char            filename[MAX_QPATH];
-	int             bitsIgnore;
+	//int             bitsIgnore;
 
 	if(!name)
 	{
@@ -4600,7 +4600,6 @@ static void R_CreatePortalRenderImage(void)
 
 static void R_CreateDeferredRenderFBOImages(void)
 {
-	int             i;
 	int             width, height;
 	byte           *data;
 	
