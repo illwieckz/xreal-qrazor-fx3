@@ -574,7 +574,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			surface->pc = CM_GeneratePatchCollide(width, height, vertexes);
 		}
 #ifndef BSPC
-		else if(LittleLong(in->surfaceType) == MST_TRIANGLE_SOUP)
+		else if(LittleLong(in->surfaceType) == MST_TRIANGLE_SOUP && !cm_noTriangles->integer)
 		{
 			// FIXME: check for non-colliding triangle soups
 
@@ -672,7 +672,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 #ifndef BSPC
 	cm_noAreas = Cvar_Get("cm_noAreas", "0", CVAR_CHEAT);
 	cm_noCurves = Cvar_Get("cm_noCurves", "0", CVAR_CHEAT);
-	cm_noTriangles = Cvar_Get("cm_noTriangles", "1", CVAR_ARCHIVE | CVAR_CHEAT);
+	cm_noTriangles = Cvar_Get("cm_noTriangles", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	cm_playerCurveClip = Cvar_Get("cm_playerCurveClip", "1", CVAR_ARCHIVE | CVAR_CHEAT);
 #endif
 	Com_DPrintf("CM_LoadMap( %s, %i )\n", name, clientload);
