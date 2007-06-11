@@ -1075,8 +1075,8 @@ void SP_func_door(gentity_t * ent)
 	float           lip;
 	matrix_t        rotation;
 
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
+	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
 
 	ent->blocked = Blocked_Door;
 
