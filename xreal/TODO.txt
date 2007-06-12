@@ -1,53 +1,291 @@
 === XreaL 1.0 Features ===
 
+NOTE: TA means Team Arena replacement which is optional and not needed
+
+Media that needs to be created:
 base/gfx/2d/defer.png
 base/gfx/2d/lag.png
 base/gfx/2d/net.png
 base/gfx/2d/select.png
-base/gfx/damage/*
-base/gfx/misc/*
-base/icons/*
-base/menu/medals/*
+base/gfx/damage/plasma_mrk.png
+base/gfx/damage/shadow.png
+base/gfx/misc/
+base/gfx/misc/flare.png
+base/gfx/misc/railcorethin_mono.png
+base/gfx/misc/raildisc_mono2.png
+base/gfx/misc/smokepuff2b.png
+base/gfx/misc/smokepuff2.png
+base/gfx/misc/smokepuff3.png
+base/gfx/misc/smokepuff.png
+base/gfx/misc/sun.png
+base/gfx/misc/tracer.png
+base/icons/ammo_proxmine.png TA
+base/icons/ammo_regen.png
+base/icons/doubler.png TA
+base/icons/envirosuit.png
+base/icons/flight.png
+base/icons/guard.png TA
+base/icons/haste.png
+base/icons/icona_bfg.png
+base/icons/icona_grenade.png
+base/icons/icona_lightning.png
+base/icons/icona_machinegun.png
+base/icons/icona_plasma.png
+base/icons/icona_railgun.png
+base/icons/icona_rocket.png
+base/icons/icona_shotgun.png
+base/icons/iconf_blu1.png TA
+base/icons/iconf_blu2.png TA
+base/icons/iconf_blu3.png TA
+base/icons/iconf_neutral1.png TA
+base/icons/iconf_neutral3.png TA
+base/icons/iconf_red1.png TA
+base/icons/iconf_red2.png TA
+base/icons/iconf_red3.png TA
+base/icons/iconh_borb.png TA
+base/icons/iconh_green.png
+base/icons/iconh_mega.png
+base/icons/iconh_red.png
+base/icons/iconh_rorb.png
+base/icons/iconh_yellow.png
+base/icons/iconr_shard.png
+base/icons/iconw_bfg.png
+base/icons/iconw_gauntlet.png
+base/icons/iconw_grapple.png
+base/icons/iconw_grenade.png
+base/icons/iconw_lightning.png
+base/icons/iconw_machinegun.png
+base/icons/iconw_plasma.png
+base/icons/iconw_railgun.png
+base/icons/iconw_rocket.png
+base/icons/iconw_shotgun.png
+base/icons/invis.png
+base/icons/invulnerability.png TA
+base/icons/kamikaze.png TA
+base/icons/medkit.png
+base/icons/noammo.png
+base/icons/proxmine.png TA
+base/icons/scout.png TA
+base/icons/skull_blue.png TA
+base/icons/skull_red.png TA
+base/icons/teleporter.png
+base/lights/flashlight2.png
+base/menu/medals/medal_accuracy.png
+base/menu/medals/medal_assist.png
+base/menu/medals/medal_capture.png
+base/menu/medals/medal_defend.png
+base/menu/medals/medal_excellent.png
+base/menu/medals/medal_frags.png
+base/menu/medals/medal_gauntlet.png
+base/menu/medals/medal_impressive.png
+base/menu/medals/medal_victory.png
 base/models/*
-base/models/flag/*
-base/models/flag2/*
-base/models/gibs/*
-base/models/powerups/armor/*
-base/models/powerups/harvester/*
-base/models/powerups/holdable/medkit*
-base/models/powerups/holdable/teleporter*
-base/models/powerups/holdable/kamikaze*
-base/models/powerups/instant/enviro*
-base/models/powerups/instant/flight*
-base/models/powerups/instant/haste*
-base/models/powerups/instant/invis*
-base/models/powerups/instant/quad*
-base/models/powerups/instant/regen*
-base/models/powerups/obelisk/*
-base/models/powerups/orb/*
-base/models/powerups/shield/*
-base/models/powerups/persistant/ammo*
-base/models/powerups/persistant/doubler*
-base/models/powerups/persistant/guard*
-base/models/powerups/persistant/scout*
-base/models/weaphits/*
+base/models/flag/flagflap3.md3
+base/models/flag/flagpole.md3
+base/models/gibs/abdomen.md3
+base/models/gibs/arm.md3
+base/models/gibs/brain.md3
+base/models/gibs/chest.md3
+base/models/gibs/fist.md3
+base/models/gibs/foot.md3
+base/models/gibs/forearm.md3
+base/models/gibs/intestine.md3
+base/models/gibs/leg.md3
+base/models/gibs/skull.md3
+base/models/powerups/armor/armor_red.md3
+base/models/powerups/armor/armor_yel.md3
+base/models/powerups/armor/shard.md3
+base/models/powerups/armor/shard_sphere.md3
+base/models/powerups/harvester/harvester.md3 TA
+base/models/powerups/holdable/medkit.md3
+base/models/powerups/holdable/teleporter.md3
+base/models/powerups/holdable/kamikaze.md3 TA
+base/models/powerups/instant/enviro.md3
+base/models/powerups/instant/enviro_ring.md3
+base/models/powerups/instant/flight.md3
+base/models/powerups/instant/flight_ring.md3
+base/models/powerups/instant/haste.md3
+base/models/powerups/instant/haste_ring.md3
+base/models/powerups/instant/invis.md3
+base/models/powerups/instant/invis_ring.md3
+base/models/powerups/instant/quad.md3
+base/models/powerups/instant/quad_ring.md3
+base/models/powerups/instant/regen.md3
+base/models/powerups/instant/regen_ring.md3
+base/models/powerups/obelisk/obelisk.md3 TA
+base/models/powerups/orb/orb.md3 TA
+base/models/powerups/shield/shield.md3 TA
+base/models/powerups/persistant/ammo.md3 TA
+base/models/powerups/persistant/doubler.md3 TA
+base/models/powerups/persistant/guard.md3 TA
+base/models/powerups/persistant/scout.md3 TA
+base/models/powerups/overload_base.md3 TA
+base/models/powerups/overload_energy.md3 TA
+base/models/powerups/overload_lights.md3 TA
+base/models/powerups/overload_target.md3 TA
+base/models/weaphits/blood201.png
+base/models/weaphits/blood202.png
+base/models/weaphits/blood203.png
+base/models/weaphits/blood204.png
+base/models/weaphits/blood205.png
+base/models/weaphits/boom01.md3
+base/models/weaphits/bullet1.png
+base/models/weaphits/bullet1.png
+base/models/weaphits/bullet2.png
+base/models/weaphits/bullet2.png
+base/models/weaphits/bullet3.png
+base/models/weaphits/bullet3.png
+base/models/weaphits/bullet.md3
+base/models/weaphits/crackle.md3
+base/models/weaphits/electric.png
+base/models/weaphits/kam03b.png TA
+base/models/weaphits/kam03.png TA
+base/models/weaphits/kamboom2.blend TA
+base/models/weaphits/kamboom2.md3 TA
+base/models/weaphits/kamik01.png TA
+base/models/weaphits/kamik02b.png TA
+base/models/weaphits/kamik02r.png TA
+base/models/weaphits/kamik02.png TA
+base/models/weaphits/kamiwave01.png TA
+base/models/weaphits/kamiwave02.png TA
+base/models/weaphits/kamwave.md3 TA
+base/models/weaphits/nailtrail.png TA
+base/models/weaphits/newexplo1.png
+base/models/weaphits/plasmaboom.png
+base/models/weaphits/proxmine2.png TA
+base/models/weaphits/proxmine2t.png TA
+base/models/weaphits/proxmineb.md3 TA
+base/models/weaphits/proxmineb.png TA
+base/models/weaphits/proxminebt.png TA
+base/models/weaphits/proxmine.md3 TA
+base/models/weaphits/proxmine.png TA
+base/models/weaphits/ring01_1.png
+base/models/weaphits/ring02_1.png
+base/models/weaphits/ring02_2.png
+base/models/weaphits/ring02_3.png
+base/models/weaphits/ring02_4.png
+base/models/weaphits/ring02.md3
 base/models/weapons/gauntlet/*
 base/models/weapons/grenadel/*
-base/models/weapons/nailgun/*
+base/models/weapons/nailgun/* TA
 base/models/weapons/plasma/*
-base/models/weapons/proxmine/*
+base/models/weapons/proxmine/* TA
 base/models/weapons/railgun/*
 base/models/weapons/rocketl/*
 base/models/weapons/shotgun/*
 base/models/weapons/shells/*
-base/textures/*
-base/sound/*
+base/models/weapons/vulcan/* TA
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
 base/sound/feedback/vote_failed.ogg
+base/sound/items/airout.ogg
+base/sound/items/ammoregen.ogg TA
+base/sound/items/doubler.ogg TA
+base/sound/items/guard.ogg TA
+base/sound/items/scout.ogg TA
+base/sound/items/damage2.ogg
+base/sound/items/damage3.ogg
+base/sound/items/doubler.ogg
+base/sound/items/flight.ogg
+base/sound/items/haste.ogg
+base/sound/items/holdable.ogg
+base/sound/items/invisibility.ogg
+base/sound/items/invul_activate.ogg TA
+base/sound/items/invul_impact_01.ogg TA
+base/sound/items/invul_impact_02.ogg TA
+base/sound/items/invul_impact_03.ogg TA
+base/sound/items/invul_juiced.ogg TA
+base/sound/items/kam_explode_far.ogg TA
+base/sound/items/kam_explode.ogg TA
+base/sound/items/kamikaze_full.ogg TA
+base/sound/items/kamikazerespawn.ogg TA
+base/sound/items/kam_implode.ogg TA
+base/sound/items/obelisk_hit_01.ogg TA
+base/sound/items/obelisk_hit_02.ogg	TA
+base/sound/items/obelisk_hit_03.ogg	TA
+base/sound/items/obelisk_respawn.ogg TA
+base/sound/items/protect3.ogg
+base/sound/items/protect.ogg
+base/sound/items/quaddamage.ogg
+base/sound/items/regeneration.ogg
+base/sound/items/regen.ogg TA
+base/sound/items/scout.ogg TA
+base/sound/items/use_medkit.ogg
+base/sound/items/use_nothing.ogg
+base/sound/items/wearoff.ogg
 base/sound/player/footsteps/energy*.ogg
-base/sound/weapons/*
-base/sound/world/*
+base/sound/player/DEFAULT_MODEL/death1.ogg
+base/sound/player/DEFAULT_MODEL/death2.ogg
+base/sound/player/DEFAULT_MODEL/death3.ogg
+base/sound/player/DEFAULT_MODEL/drown.ogg
+base/sound/player/DEFAULT_MODEL/fall1.ogg
+base/sound/player/DEFAULT_MODEL/falling1.ogg
+base/sound/player/DEFAULT_MODEL/gasp.ogg
+base/sound/player/DEFAULT_MODEL/jump1.ogg
+base/sound/player/DEFAULT_MODEL/pain100_1.ogg
+base/sound/player/DEFAULT_MODEL/pain25_1.ogg
+base/sound/player/DEFAULT_MODEL/pain50_1.ogg
+base/sound/player/DEFAULT_MODEL/pain75_1.ogg
+base/sound/player/DEFAULT_MODEL/taunt.ogg
+base/sound/player/fry.ogg
+base/sound/player/gibimp1.ogg
+base/sound/player/gibimp2.ogg
+base/sound/player/gibimp3.ogg
+base/sound/player/gibsplt1.ogg
+base/sound/player/gurp1.ogg
+base/sound/player/gurp2.ogg
+base/sound/player/land1.ogg
+base/sound/teamplay/flagcapture_opponent.ogg
+base/sound/teamplay/flagcapture_yourteam.ogg
+base/sound/teamplay/flagreturn_opponent.ogg
+base/sound/teamplay/flagreturn_yourteam.ogg
+base/sound/teamplay/flagtaken_opponent.ogg
+base/sound/teamplay/flagtaken_yourteam.ogg
+base/sound/weapons/bfg/bfg_fire.ogg
+base/sound/weapons/bfg/bfg_hum.ogg
+base/sound/weapons/grenade/grenlf1a.ogg
+base/sound/weapons/grenade/hgrenb1a.ogg
+base/sound/weapons/grenade/hgrenb2a.ogg
+base/sound/weapons/lightning/lg_fire.ogg
+base/sound/weapons/lightning/lg_hit2.ogg
+base/sound/weapons/lightning/lg_hit3.ogg
+base/sound/weapons/lightning/lg_hit.ogg
+base/sound/weapons/lightning/lg_hum.ogg
+base/sound/weapons/machinegun/buletby1.ogg
+base/sound/weapons/machinegun/ric1.ogg
+base/sound/weapons/machinegun/ric2.ogg
+base/sound/weapons/machinegun/ric3.ogg
+base/sound/weapons/melee/fstatck.ogg
+base/sound/weapons/melee/fsthum.ogg
+base/sound/weapons/melee/fstrun.ogg
+base/sound/weapons/nailgun/wnalimpd.ogg
+base/sound/weapons/nailgun/wnalimpl.ogg
+base/sound/weapons/nailgun/wnalimpm.ogg
+base/sound/weapons/plasma/hyprbf1a.ogg
+base/sound/weapons/plasma/lasfly.ogg
+base/sound/weapons/plasma/plasmx1a.ogg
+base/sound/weapons/proxmine/wstbactv.ogg TA
+base/sound/weapons/proxmine/wstbexpl.ogg TA
+base/sound/weapons/proxmine/wstbfire.ogg TA 
+base/sound/weapons/proxmine/wstbimpd.ogg TA
+base/sound/weapons/proxmine/wstbimpl.ogg TA
+base/sound/weapons/proxmine/wstbimpm.ogg TA
+base/sound/weapons/proxmine/wstbtick.ogg TA
+base/sound/weapons/railgun/railgf1a.ogg
+base/sound/weapons/railgun/rg_hum.ogg
+base/sound/weapons/rocket/rockfly.ogg
+base/sound/weapons/rocket/rocklf1a.ogg
+base/sound/weapons/rocket/rocklx1a.ogg
+base/sound/weapons/shotgun/sshotf1b.ogg
+base/sound/weapons/vulcan/wvulimpd.ogg TA
+base/sound/weapons/vulcan/wvulimpl.ogg TA
+base/sound/weapons/vulcan/wvulimpm.ogg TA
+base/sound/weapons/vulcan/wvulwind.ogg TA
+base/base/sound/world/*
+base/sprites/bubble.png
+base/sprites/foe2.png
+base/sprites/plasmaa.png
+base/sprites/splash.png
 
 
 
