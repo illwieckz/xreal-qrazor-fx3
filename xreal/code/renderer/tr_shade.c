@@ -2374,7 +2374,7 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 	qglUniform3fARB(tr.lightShader_D_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.lightShader_D_proj.u_LightScale, r_lightScale->value);
-	qglUniform1iARB(tr.lightShader_D_omni.u_ShadowCompare, !light->l.noShadows);
+	qglUniform1iARB(tr.lightShader_D_proj.u_ShadowCompare, !light->l.noShadows);
 	qglUniformMatrix4fvARB(tr.lightShader_D_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
