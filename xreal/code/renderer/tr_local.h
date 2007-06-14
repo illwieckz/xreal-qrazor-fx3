@@ -1170,6 +1170,7 @@ typedef struct srfGridMesh_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
+	GLuint          ofsColorsInversed;
 } srfGridMesh_t;
 
 typedef struct
@@ -1195,6 +1196,7 @@ typedef struct
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
+	GLuint          ofsColorsInversed;
 } srfSurfaceFace_t;
 
 
@@ -1221,6 +1223,7 @@ typedef struct
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
+	GLuint          ofsColorsInversed;
 } srfTriangles_t;
 
 
@@ -2350,6 +2353,7 @@ typedef struct shaderCommands_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
+	GLuint          ofsColorsInversed;
 
 	stageVars_t     svars;
 

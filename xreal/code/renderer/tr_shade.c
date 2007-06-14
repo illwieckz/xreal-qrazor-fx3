@@ -537,7 +537,7 @@ void GLSL_InitGPUShaders(void)
 	//
 	// omni-directional lighting ( Doom3 style )
 	//
-	GLSL_InitGPUShader(&tr.lightShader_D_omni, "lighting_D_omni", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_omni, "lighting_D_omni", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_D_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_DiffuseMap");
 	tr.lightShader_D_omni.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_omni.program, "u_AttenuationMapXY");
@@ -566,7 +566,7 @@ void GLSL_InitGPUShaders(void)
 	//
 	GLSL_InitGPUShader(&tr.lightShader_DB_omni,
 					   "lighting_DB_omni",
-					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_DB_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_DiffuseMap");
 	tr.lightShader_DB_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DB_omni.program, "u_NormalMap");
@@ -598,7 +598,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.lightShader_DBS_omni,
 					   "lighting_DBS_omni",
 					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL |
-					   GLCS_NORMAL | GLCS_COLOR, qtrue);
+					   GLCS_NORMAL, qtrue);
 
 	tr.lightShader_DBS_omni.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_DiffuseMap");
 	tr.lightShader_DBS_omni.u_NormalMap = qglGetUniformLocationARB(tr.lightShader_DBS_omni.program, "u_NormalMap");
@@ -631,7 +631,7 @@ void GLSL_InitGPUShaders(void)
 	//
 	// projective lighting ( Doom3 style )
 	//
-	GLSL_InitGPUShader(&tr.lightShader_D_proj, "lighting_D_proj", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.lightShader_D_proj, "lighting_D_proj", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_NORMAL, qtrue);
 
 	tr.lightShader_D_proj.u_DiffuseMap = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_DiffuseMap");
 	tr.lightShader_D_proj.u_AttenuationMapXY = qglGetUniformLocationARB(tr.lightShader_D_proj.program, "u_AttenuationMapXY");
@@ -2171,8 +2171,29 @@ static void Render_lighting_D_omni(shaderStage_t * diffuseStage,
 
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_omni.program);
-	GL_ClientState(tr.lightShader_D_omni.attribs);
-	GL_SetVertexAttribs();
+
+	// HACK: support vertex painting
+	if(diffuseStage->vertexPainting)
+	{
+		GL_ClientState(tr.lightShader_D_omni.attribs | GLCS_COLOR);
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO && diffuseStage->rgbGen == CGEN_ONE_MINUS_VERTEX)
+		{
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColorsInversed));
+		}
+		else
+		{
+			GL_SetVertexAttribs();
+		}
+	}
+	else
+	{
+		GL_ClientState(tr.lightShader_D_omni.attribs);
+		GL_SetVertexAttribs();
+
+		// pass white default to gl_Color
+		qglColor4fv(colorWhite);
+	}
 
 	// set uniforms
 	VectorCopy(light->origin, lightOrigin);
@@ -2228,8 +2249,29 @@ static void Render_lighting_DB_omni(shaderStage_t * diffuseStage,
 
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DB_omni.program);
-	GL_ClientState(tr.lightShader_DB_omni.attribs);
-	GL_SetVertexAttribs();
+	
+	// HACK: support vertex painting
+	if(diffuseStage->vertexPainting)
+	{
+		GL_ClientState(tr.lightShader_DB_omni.attribs | GLCS_COLOR);
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO && diffuseStage->rgbGen == CGEN_ONE_MINUS_VERTEX)
+		{
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColorsInversed));
+		}
+		else
+		{
+			GL_SetVertexAttribs();
+		}
+	}
+	else
+	{
+		GL_ClientState(tr.lightShader_DB_omni.attribs);
+		GL_SetVertexAttribs();
+
+		// pass white default to gl_Color
+		qglColor4fv(colorWhite);
+	}
 
 	// set uniforms
 	VectorCopy(light->origin, lightOrigin);
@@ -2291,8 +2333,30 @@ static void Render_lighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_DBS_omni.program);
-	GL_ClientState(tr.lightShader_DBS_omni.attribs);
-	GL_SetVertexAttribs();
+	
+
+	// HACK: support vertex painting
+	if(diffuseStage->vertexPainting)
+	{
+		GL_ClientState(tr.lightShader_DBS_omni.attribs | GLCS_COLOR);
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO && diffuseStage->rgbGen == CGEN_ONE_MINUS_VERTEX)
+		{
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColorsInversed));
+		}
+		else
+		{
+			GL_SetVertexAttribs();
+		}
+	}
+	else
+	{
+		GL_ClientState(tr.lightShader_DBS_omni.attribs);
+		GL_SetVertexAttribs();
+
+		// pass white default to gl_Color
+		qglColor4fv(colorWhite);
+	}
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
@@ -2363,8 +2427,29 @@ static void Render_lighting_D_proj(shaderStage_t * diffuseStage,
 
 	// enable shader, set arrays
 	GL_Program(tr.lightShader_D_proj.program);
-	GL_ClientState(tr.lightShader_D_proj.attribs);
-	GL_SetVertexAttribs();
+	
+	// HACK: support vertex painting
+	if(diffuseStage->vertexPainting)
+	{
+		GL_ClientState(tr.lightShader_D_proj.attribs | GLCS_COLOR);
+
+		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO && diffuseStage->rgbGen == CGEN_ONE_MINUS_VERTEX)
+		{
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColorsInversed));
+		}
+		else
+		{
+			GL_SetVertexAttribs();
+		}
+	}
+	else
+	{
+		GL_ClientState(tr.lightShader_D_proj.attribs);
+		GL_SetVertexAttribs();
+
+		// pass white default to gl_Color
+		qglColor4fv(colorWhite);
+	}
 
 	// set uniforms
 	VectorCopy(light->origin, lightOrigin);
@@ -3410,10 +3495,12 @@ void Tess_ComputeVertexPaintingColors(shaderStage_t * pStage)
 				break;
 		}
 	}
+	/*
 	else
 	{
 		Com_Memset(tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4);
 	}
+	*/
 }
 
 
