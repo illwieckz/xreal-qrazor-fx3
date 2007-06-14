@@ -2159,6 +2159,11 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 				goto skipInteraction;
 			}
 
+			if(shader->isSky)
+			{
+				goto skipInteraction;
+			}
+
 			if(shader->sort > SS_OPAQUE)
 			{
 				goto skipInteraction;

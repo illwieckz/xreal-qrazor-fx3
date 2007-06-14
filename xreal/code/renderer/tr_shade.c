@@ -4170,7 +4170,7 @@ void Tess_StageIteratorShadowFill()
 	Tess_DeformGeometry();
 
 	// set face culling appropriately   
-	GL_Cull(tess.surfaceShader->cullType);
+	GL_Cull(CT_TWO_SIDED);
 
 	// set polygon offset if necessary
 	qglEnable(GL_POLYGON_OFFSET_FILL);
@@ -4222,7 +4222,7 @@ void Tess_StageIteratorShadowFill()
 		{
 			case ST_COLORMAP:
 			{
-				if(tess.surfaceShader->forceOpaque)
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
 					if(glConfig.shadingLanguage100Available)
 					{

@@ -4647,6 +4647,16 @@ static shader_t *FinishShader(void)
 			shader.sort = SS_OPAQUE;
 	}
 
+
+	// HACK: allow alpha tested surfaces to create shadowmaps
+	if(r_shadows->integer == 4)
+	{
+		if(shader.noShadows && shader.sort == SS_DECAL)
+		{
+			shader.noShadows = qfalse;
+		}
+	}
+
 	// look for multitexture potential
 	CollapseStages();
 
