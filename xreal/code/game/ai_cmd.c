@@ -607,7 +607,7 @@ void BotMatch_HelpAccompany(bot_state_t * bs, bot_match_t * match)
 		else
 			BotAI_BotInitialChat(bs, "whois", netname, NULL);
 		client = ClientFromName(netname);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 		return;
 	}
 	//don't help or accompany yourself
@@ -865,7 +865,7 @@ void BotMatch_Camp(bot_state_t * bs, bot_match_t * match)
 		{
 			BotAI_BotInitialChat(bs, "whereareyou", netname, NULL);
 			client = ClientFromName(netname);
-			trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+			trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 			return;
 		}
 	}
@@ -873,7 +873,7 @@ void BotMatch_Camp(bot_state_t * bs, bot_match_t * match)
 	{
 		//BotAI_BotInitialChat(bs, "cannotfind", itemname, NULL);
 		//client = ClientFromName(netname);
-		//trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		//trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 		return;
 	}
 	//
@@ -1198,7 +1198,7 @@ void BotMatch_TaskPreference(bot_state_t * bs, bot_match_t * match)
 	//
 	EasyClientName(teammate, teammatename, sizeof(teammatename));
 	BotAI_BotInitialChat(bs, "keepinmind", teammatename, NULL);
-	trap_BotEnterChat(bs->cs, teammate, CHAT_TELL);
+	trap_BotEnterChat(bs->cs, teammate, CHAT_TEAM);
 	BotVoiceChatOnly(bs, teammate, VOICECHAT_YES);
 	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
@@ -1270,7 +1270,7 @@ void BotMatch_JoinSubteam(bot_state_t * bs, bot_match_t * match)
 	trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 	BotAI_BotInitialChat(bs, "joinedteam", teammate, NULL);
 	client = ClientFromName(netname);
-	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+	trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 }
 
 /*
@@ -1294,7 +1294,7 @@ void BotMatch_LeaveSubteam(bot_state_t * bs, bot_match_t * match)
 		BotAI_BotInitialChat(bs, "leftteam", bs->subteam, NULL);
 		trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 		client = ClientFromName(netname);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 	}							//end if
 	strcpy(bs->subteam, "");
 }
@@ -1353,7 +1353,7 @@ void BotMatch_CheckPoint(bot_state_t * bs, bot_match_t * match)
 		if(BotAddressedToBot(bs, match))
 		{
 			BotAI_BotInitialChat(bs, "checkpoint_invalid", NULL);
-			trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+			trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 		}
 		return;
 	}
@@ -1384,7 +1384,7 @@ void BotMatch_CheckPoint(bot_state_t * bs, bot_match_t * match)
 		Com_sprintf(buf, sizeof(buf), "%1.0f %1.0f %1.0f", cp->goal.origin[0], cp->goal.origin[1], cp->goal.origin[2]);
 
 		BotAI_BotInitialChat(bs, "checkpoint_confirm", cp->name, buf, NULL);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 	}
 }
 
@@ -1442,7 +1442,7 @@ void BotMatch_Dismiss(bot_state_t * bs, bot_match_t * match)
 	bs->lastgoal_ltgtype = 0;
 	//
 	BotAI_BotInitialChat(bs, "dismissed", NULL);
-	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+	trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 }
 
 /*
@@ -1651,7 +1651,7 @@ void BotMatch_WhatAreYouDoing(bot_state_t * bs, bot_match_t * match)
 	//chat what the bot is doing
 	trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 	client = ClientFromName(netname);
-	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+	trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 }
 
 /*
@@ -1817,7 +1817,7 @@ void BotMatch_WhereAreYou(bot_state_t * bs, bot_match_t * match)
 		}
 		trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 		client = ClientFromName(netname);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 	}
 }
 
@@ -1929,7 +1929,7 @@ void BotMatch_Kill(bot_state_t * bs, bot_match_t * match)
 		BotAI_BotInitialChat(bs, "whois", enemy, NULL);
 		trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 		client = ClientFromName(netname);
-		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
+		trap_BotEnterChat(bs->cs, client, CHAT_TEAM);
 		return;
 	}
 	bs->teamgoal.entitynum = client;

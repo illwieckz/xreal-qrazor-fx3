@@ -29,15 +29,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	GAME_VERSION		"XreaL"
 
 #define	DEFAULT_GRAVITY		800
-#define	GIB_HEALTH			-40
-#define	ARMOR_PROTECTION	0.66
+#define	GIB_HEALTH			-35
+#define	ARMOR_PROTECTION	1	//0.66
 
 #define	MAX_ITEMS			256
 
 #define	RANK_TIED_FLAG		0x4000
 
 #define DEFAULT_SHOTGUN_SPREAD	700
-#define DEFAULT_SHOTGUN_COUNT	11
+#define DEFAULT_SHOTGUN_COUNT	9
 
 #define	ITEM_RADIUS			15	// item sizes are needed for client side pickup detection
 
@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MINS_Z				-24
 #define	DEFAULT_VIEWHEIGHT	26
 #define CROUCH_VIEWHEIGHT	12
-#define	DEAD_VIEWHEIGHT		-16
+#define	DEAD_VIEWHEIGHT		-20
 
 //
 // config strings are a general means of communicating variable length strings
@@ -141,6 +141,7 @@ typedef enum
 	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
+	WEAPON_PREFIRING,
 	WEAPON_FIRING
 } weaponstate_t;
 
@@ -185,6 +186,8 @@ typedef struct
 	int             watertype;
 	int             waterlevel;
 
+	int             chargetime;
+
 	float           xyspeed;
 
 	// for fixed msec Pmove
@@ -196,6 +199,7 @@ typedef struct
 	void            (*trace) (trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 							  int passEntityNum, int contentMask);
 	int             (*pointcontents) (const vec3_t point, int passEntityNum);
+	int             bfgtimer;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
@@ -218,6 +222,10 @@ typedef enum
 	STAT_ARMOR,
 	STAT_DEAD_YAW,				// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,			// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
+	STAT_RAIL_READY,
+	STAT_RAIL_CHARGE,
+	STAT_GREN_VELOC,
+	STAT_GREN_CHARGE,
 	STAT_MAX_HEALTH				// health / armor limit, changable by handicap
 } statIndex_t;
 
@@ -243,7 +251,8 @@ typedef enum
 	PERS_DEFEND_COUNT,			// defend awards
 	PERS_ASSIST_COUNT,			// assist awards
 	PERS_GAUNTLET_FRAG_COUNT,	// kills with the guantlet
-	PERS_CAPTURES				// captures
+	PERS_CAPTURES,				// captures
+	PERS_REF
 } persEnum_t;
 
 
@@ -271,6 +280,11 @@ typedef enum
 #define	EF_AWARD_ASSIST		0x00020000	// draw a assist sprite
 #define EF_AWARD_DENIED		0x00040000	// denied
 #define EF_TEAMVOTED		0x00080000	// already cast a team vote
+#define EF_AWARD_RLRGCOMBO	0x00100000
+#define EF_RAIL_CHARGING	0x00200000
+#define EF_BFG_CHARGING	    0x00400000
+#define EF_SMOKINGBLACK	    0x00800000
+#define EF_REMOVEITEM	    0x01000000
 
 // NOTE: may not have more than 16
 typedef enum
@@ -283,17 +297,15 @@ typedef enum
 	PW_INVIS,
 	PW_REGEN,
 	PW_FLIGHT,
+	PW_SPAWNPROT,
 
 	PW_REDFLAG,
 	PW_BLUEFLAG,
-	PW_NEUTRALFLAG,
-
-	PW_SCOUT,
+#ifdef MISSIONPACK
 	PW_GUARD,
 	PW_DOUBLER,
 	PW_AMMOREGEN,
-	PW_INVULNERABILITY,
-
+#endif
 	PW_NUM_POWERUPS
 } powerup_t;
 
@@ -325,6 +337,8 @@ typedef enum
 	WP_PLASMAGUN,
 	WP_BFG,
 	WP_GRAPPLING_HOOK,
+	WP_IRAILGUN,
+	WP_FLAMETHROWER,
 #ifdef MISSIONPACK
 	WP_NAILGUN,
 	WP_PROX_LAUNCHER,
@@ -333,7 +347,6 @@ typedef enum
 
 	WP_NUM_WEAPONS
 } weapon_t;
-
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
@@ -377,6 +390,7 @@ typedef enum
 	EV_JUMP_PAD,				// boing sound at origin, jump sound on player
 
 	EV_JUMP,
+	EV_WALLJUMP,
 	EV_WATER_TOUCH,				// foot touches
 	EV_WATER_LEAVE,				// foot leaves
 	EV_WATER_UNDER,				// head touches
@@ -420,14 +434,18 @@ typedef enum
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
 
+	EV_RAIL_HIT_FLESH,
+
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,
 	EV_MISSILE_MISS_METAL,
 	EV_RAILTRAIL,
+	EV_RAILTRAIL2,
 	EV_SHOTGUN,
 	EV_BULLET,					// otherEntity is the shooter
 
 	EV_PAIN,
+	EV_ARMORHIT,
 	EV_DEATH1,
 	EV_DEATH2,
 	EV_DEATH3,
@@ -437,8 +455,23 @@ typedef enum
 	EV_POWERUP_BATTLESUIT,
 	EV_POWERUP_REGEN,
 
+	EV_SPAWN_PROTECT,
+
 	EV_GIB_PLAYER,				// gib a previously living player
 	EV_SCOREPLUM,				// score plum
+	EV_GIB_PLAYERQ,				// gib a previously living player with quad overlay
+
+	EV_GIB_PLAYERQFIRE20,		// gib a previously living player with a 20% chance of being on fire with quad overlay
+	EV_GIB_PLAYERQFIRE50,		// gib a previously living player with a 50% chance of being on fire with quad overlay
+	EV_GIB_PLAYERQFIRE80,		// gib a previously living player with a 80% chance of being on fire with quad overlay
+
+	EV_GIB_PLAYERFIRE20,		// gib a previously living player with a 20% chance of being on fire
+	EV_GIB_PLAYERFIRE50,		// gib a previously living player with a 50% chance of being on fire
+	EV_GIB_PLAYERFIRE80,		// gib a previously living player with a 80% chance of being on fire
+
+
+	EV_LG_HIT,
+	EV_LG_MISS,
 
 //#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,
@@ -459,6 +492,9 @@ typedef enum
 	EV_TAUNT_FOLLOWME,
 	EV_TAUNT_GETFLAG,
 	EV_TAUNT_GUARDBASE,
+	EV_RAILGUN_PREFIRE,
+	EV_RAILGUN_READY,
+	EV_FLAMETHROWER_EFFECT,
 	EV_TAUNT_PATROL
 } entity_event_t;
 
@@ -478,7 +514,9 @@ typedef enum
 	GTS_REDTEAM_TOOK_LEAD,
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED,
-	GTS_KAMIKAZE
+	GTS_KAMIKAZE,
+	GTS_RED_TAKEN_OWN,
+	GTS_BLUE_TAKEN_OWN
 } global_team_sound_t;
 
 
@@ -624,6 +662,7 @@ typedef enum
 	MOD_SUICIDE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
+	MOD_FLAMETHROWER,
 #ifdef MISSIONPACK
 	MOD_NAIL,
 	MOD_CHAINGUN,
@@ -671,6 +710,8 @@ typedef struct gitem_s
 
 	char           *precaches;	// string of all models and images this item will use
 	char           *sounds;		// string of all sounds this item will use
+
+	int             itemnum;
 } gitem_t;
 
 // included in both the game dll and the client
@@ -679,6 +720,7 @@ extern int      bg_numItems;
 
 gitem_t        *BG_FindItem(const char *pickupName);
 gitem_t        *BG_FindItemForWeapon(weapon_t weapon);
+gitem_t        *BG_FindAmmoForWeapon(weapon_t weapon);
 gitem_t        *BG_FindItemForPowerup(powerup_t pw);
 gitem_t        *BG_FindItemForHoldable(holdable_t pw);
 
@@ -700,6 +742,12 @@ qboolean        BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, con
 #define	MASK_WATER				(CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define	MASK_OPAQUE				(CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA)
 #define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE)
+#define	MASK_MISSILESHOT		(MASK_SHOT)
+#define	MASK_FLAME				(CONTENTS_SOLID|CONTENTS_WATER|CONTENTS_CORPSE|CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_MOVER)
+#define	MASK_CLIENTFLAME		(CONTENTS_SOLID|CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_MOVER)
+#define	MASK_PARTICLES			(CONTENTS_SOLID|CONTENTS_MOVER|CONTENTS_NODROP)
+#define	MASK_GIBS				(CONTENTS_SOLID|CONTENTS_LOCALENT)
+#define	MASK_FLARE				(CONTENTS_SOLID|CONTENTS_BODY)
 
 
 //
@@ -720,8 +768,18 @@ typedef enum
 	ET_INVISIBLE,
 	ET_GRAPPLE,					// grapple hooked on wall
 	ET_TEAM,
+	ET_TESLA_EF,
+	ET_SPARK,
+	ET_FLAMETHROWER_CHUNK,
+	ET_DEADPLAYER,
+	ET_DEADQPLAYER,
+	ET_FLAMEBARREL,
+	ET_FIRE_COLUMN,
+	ET_FIRE_COLUMN_SMOKE,
+	ET_MVIEW,
+	ET_DEADVIEW,
+	ET_MVIEW1,
 	ET_EFFECT,
-
 	ET_EVENTS					// any of the EV_* events can be added freestanding
 		// by setting eType to ET_EVENTS + eventNum
 		// this avoids having to set eFlags and eventNum
@@ -736,8 +794,10 @@ void            BG_AddPredictableEventToPlayerstate(int newEvent, int eventParm,
 
 void            BG_TouchJumpPad(playerState_t * ps, entityState_t * jumppad);
 
-void            BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean snap);
-void            BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * s, int time, qboolean snap);
+void            BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean snap, qboolean quad);
+void            BG_EntityStateToPlayerState(playerState_t * ps, entityState_t * s, qboolean snap, qboolean quad);
+void            BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * s, int time, qboolean snap,
+													   qboolean quad);
 
 qboolean        BG_PlayerTouchesItem(playerState_t * ps, entityState_t * item, int atTime);
 
@@ -749,25 +809,64 @@ qboolean        BG_PlayerTouchesItem(playerState_t * ps, entityState_t * item, i
 #define MAX_BOTS			1024
 #define MAX_BOTS_TEXT		8192
 
+typedef enum
+{
+
+	IH_MHEALTH,
+	IH_5HEALTH,
+	IH_20HEALTH,
+	IH_40HEALTH
+} health_t;
+
+typedef enum
+{
+
+	IA_RARMOR,
+	IA_YARMOR,
+	IA_SHARD
+} armor_t;
+
+// Plasma
+#define PL_SHOCKWAVE_STARTTIME		0
+#define PL_SHOCKWAVEFADE_STARTTIME	9
+#define PL_SHOCKWAVE_ENDTIME			200
+#define PL_SHOCKWAVEMODEL_RADIUS		0.09
+#define PL_SHOCKWAVE_MAXRADIUS		0.3
 
 // Kamikaze
-
 // 1st shockwave times
 #define KAMI_SHOCKWAVE_STARTTIME		0
-#define KAMI_SHOCKWAVEFADE_STARTTIME	1500
-#define KAMI_SHOCKWAVE_ENDTIME			2000
+#define KAMI_SHOCKWAVEFADE_STARTTIME	200
+#define KAMI_SHOCKWAVE_ENDTIME			1000
 // explosion/implosion times
-#define KAMI_EXPLODE_STARTTIME			250
-#define KAMI_IMPLODE_STARTTIME			2000
-#define KAMI_IMPLODE_ENDTIME			2250
+#define KAMI_EXPLODE_STARTTIME			50
+#define KAMI_IMPLODE_STARTTIME			100
+#define KAMI_IMPLODE_ENDTIME			1000
 // 2nd shockwave times
-#define KAMI_SHOCKWAVE2_STARTTIME		2000
-#define KAMI_SHOCKWAVE2FADE_STARTTIME	2500
-#define KAMI_SHOCKWAVE2_ENDTIME			3000
+#define KAMI_SHOCKWAVE2_STARTTIME		200
+#define KAMI_SHOCKWAVE2FADE_STARTTIME	200
+#define KAMI_SHOCKWAVE2_ENDTIME			1100
+// 3rd shockwave times
+#define KAMI_SHOCKWAVE3_STARTTIME		300
+#define KAMI_SHOCKWAVE3FADE_STARTTIME	325
+#define KAMI_SHOCKWAVE3_ENDTIME			1300
 // radius of the models without scaling
-#define KAMI_SHOCKWAVEMODEL_RADIUS		88
-#define KAMI_BOOMSPHEREMODEL_RADIUS		72
+#define KAMI_SHOCKWAVEMODEL_RADIUS		1
+#define KAMI_BOOMSPHEREMODEL_RADIUS		1
 // maximum radius of the models during the effect
-#define KAMI_SHOCKWAVE_MAXRADIUS		1320
-#define KAMI_BOOMSPHERE_MAXRADIUS		720
-#define KAMI_SHOCKWAVE2_MAXRADIUS		704
+#define KAMI_SHOCKWAVE_MAXRADIUS		3
+#define KAMI_BOOMSPHERE_MAXRADIUS		3.7
+#define KAMI_SHOCKWAVE2_MAXRADIUS		4
+#define KAMI_SHOCKWAVE3_MAXRADIUS		4.3
+
+#define KAMI_SHOCKWAVEMODEL_RADIUS4		1
+#define KAMI_SHOCKWAVE_MAXRADIUS4		1.1
+#define KAMI_SHOCKWAVE_STARTTIME4		0
+#define KAMI_SHOCKWAVEFADE_STARTTIME4	200
+#define KAMI_SHOCKWAVE_ENDTIME4			800
+
+#define KAMI_SHOCKWAVEMODEL_RADIUS5		-1
+#define KAMI_SHOCKWAVE_MAXRADIUS5		1.3
+#define KAMI_SHOCKWAVE_STARTTIME5		0
+#define KAMI_SHOCKWAVEFADE_STARTTIME5	100
+#define KAMI_SHOCKWAVE_ENDTIME5			700

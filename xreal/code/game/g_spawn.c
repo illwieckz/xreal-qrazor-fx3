@@ -114,7 +114,8 @@ field_t         fields[] = {
 	{"spawnflags", FOFS(spawnflags), F_INT},
 	{"speed", FOFS(speed), F_FLOAT},
 	{"target", FOFS(target), F_LSTRING},
-	{"name", FOFS(name), F_LSTRING},
+//JH break q3/d3
+	{"targetname", FOFS(targetname), F_LSTRING},
 	{"message", FOFS(message), F_LSTRING},
 	{"team", FOFS(team), F_LSTRING},
 	{"wait", FOFS(wait), F_FLOAT},
@@ -129,7 +130,7 @@ field_t         fields[] = {
 	{"rotation", FOFS(s.angles), F_ROTATIONHACK},
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
-	
+
 #ifdef LUA
 	{"luaThink", FOFS(luaThink), F_LSTRING},
 	{"luaTouch", FOFS(luaTouch), F_LSTRING},
@@ -148,7 +149,7 @@ typedef struct
 void            SP_info_player_start(gentity_t * ent);
 void            SP_info_player_deathmatch(gentity_t * ent);
 void            SP_info_player_intermission(gentity_t * ent);
-void            SP_info_player_teleport(gentity_t * ent);
+//void            SP_info_player_teleport(gentity_t * ent);
 void            SP_info_firstplace(gentity_t * ent);
 void            SP_info_secondplace(gentity_t * ent);
 void            SP_info_thirdplace(gentity_t * ent);
@@ -199,6 +200,7 @@ void            SP_misc_teleporter_dest(gentity_t * self);
 void            SP_misc_model(gentity_t * ent);
 void            SP_misc_portal_camera(gentity_t * ent);
 void            SP_misc_portal_surface(gentity_t * ent);
+void            SP_misc_portalsky_surface(gentity_t * ent);
 
 void            SP_shooter_rocket(gentity_t * ent);
 void            SP_shooter_plasma(gentity_t * ent);
@@ -209,6 +211,9 @@ void            SP_team_CTF_blueplayer(gentity_t * ent);
 
 void            SP_team_CTF_redspawn(gentity_t * ent);
 void            SP_team_CTF_bluespawn(gentity_t * ent);
+void            SP_spark_emission(gentity_t * ent);
+
+void            SP_propsFireColumn(gentity_t * ent);
 
 #ifdef MISSIONPACK
 void            SP_team_blueobelisk(gentity_t * ent);
@@ -217,7 +222,7 @@ void            SP_team_neutralobelisk(gentity_t * ent);
 #endif
 void SP_item_botroam(gentity_t * ent)
 {
-};
+}
 
 spawn_t         spawns[] = {
 	// info entities don't do anything at all, but provide positional
@@ -225,7 +230,7 @@ spawn_t         spawns[] = {
 	{"info_player_start", SP_info_player_start},
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_intermission", SP_info_player_intermission},
-	{"info_player_teleport", SP_info_player_teleport},
+	//{"info_player_teleport", SP_info_player_teleport},
 	{"info_null", SP_info_null},
 	{"info_notnull", SP_info_notnull},	// use target_position instead
 	{"info_camp", SP_info_camp},
@@ -278,11 +283,14 @@ spawn_t         spawns[] = {
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},
 	{"misc_model", SP_misc_model},
 	{"misc_portal_surface", SP_misc_portal_surface},
+	{"misc_portalsky_surface", SP_misc_portalsky_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
 
 	{"shooter_rocket", SP_shooter_rocket},
 	{"shooter_grenade", SP_shooter_grenade},
 	{"shooter_plasma", SP_shooter_plasma},
+
+	{"props_FireColumn", SP_propsFireColumn},
 
 	{"team_CTF_redplayer", SP_team_CTF_redplayer},
 	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
@@ -312,6 +320,237 @@ qboolean G_CallSpawn(gentity_t * ent)
 {
 	spawn_t        *s;
 	gitem_t        *item;
+	gitem_t        *ritem;
+
+
+
+	if(DisGaunt.integer)
+	{
+		if(((int)(DisGaunt.integer == 1) && (Q_stricmp(ent->classname, "weapon_gauntlet") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableSG.integer)
+	{
+		if(((int)(DisableSG.integer == 1) && (Q_stricmp(ent->classname, "weapon_shotgun") == 0)))
+		{
+			return qfalse;
+		}
+	}
+
+	if(DisableGL.integer)
+	{
+		if(((int)(DisableGL.integer == 1) && (Q_stricmp(ent->classname, "weapon_grenadelauncher") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableRL.integer)
+	{
+		if(((int)(DisableRL.integer == 1) && (Q_stricmp(ent->classname, "weapon_rocketlauncher") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableLG.integer)
+	{
+		if(((int)(DisableLG.integer == 1) && (Q_stricmp(ent->classname, "weapon_lightning") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableRG.integer)
+	{
+		if(((int)(DisableRG.integer == 1) && (Q_stricmp(ent->classname, "weapon_railgun") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisablePG.integer)
+	{
+		if(((int)(DisablePG.integer == 1) && (Q_stricmp(ent->classname, "weapon_plasmagun") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableBFG.integer)
+	{
+		if(((int)(DisableBFG.integer == 1) && (Q_stricmp(ent->classname, "weapon_bfg") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableMG.integer)
+	{
+		if(((int)(DisableMG.integer == 1) && (Q_stricmp(ent->classname, "weapon_machinegun") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Disshard.integer)
+	{
+		if(((int)(Disshard.integer == 1) && (Q_stricmp(ent->classname, "item_armor_shard") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableYA.integer)
+	{
+		if(((int)(DisableYA.integer == 1) && (Q_stricmp(ent->classname, "item_armor_combat") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableRA.integer)
+	{
+		if(((int)(DisableRA.integer == 1) && (Q_stricmp(ent->classname, "item_armor_body") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Dis5health.integer)
+	{
+		if(((int)(Dis5health.integer == 1) && (Q_stricmp(ent->classname, "item_health_small") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Dis25health.integer)
+	{
+		if(((int)(Dis25health.integer == 1) && (Q_stricmp(ent->classname, "item_health") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Dis50health.integer)
+	{
+		if(((int)(Dis50health.integer == 1) && (Q_stricmp(ent->classname, "item_health_large") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisMhealth.integer)
+	{
+		if(((int)(DisMhealth.integer == 1) && (Q_stricmp(ent->classname, "item_health_mega") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Disteleporter.integer)
+	{
+		if(((int)(Disteleporter.integer == 1) && (Q_stricmp(ent->classname, "holdable_teleporter") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Dismedkit.integer)
+	{
+		if(((int)(Dismedkit.integer == 1) && (Q_stricmp(ent->classname, "holdable_medkit") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableQuad.integer)
+	{
+		if(((int)(DisableQuad.integer == 1) && (Q_stricmp(ent->classname, "item_quad") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(Disenviro.integer)
+	{
+		if(((int)(Disenviro.integer == 1) && (Q_stricmp(ent->classname, "item_enviro") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableSG.integer)
+	{
+		if(((int)(DisableSG.integer == 1) && (Q_stricmp(ent->classname, "ammo_shells") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableMG.integer)
+	{
+		if(((int)(DisableMG.integer == 1) && (Q_stricmp(ent->classname, "ammo_bullets") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableGL.integer)
+	{
+		if(((int)(DisableGL.integer == 1) && (Q_stricmp(ent->classname, "ammo_grenades") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisablePG.integer)
+	{
+		if(((int)(DisablePG.integer == 1) && (Q_stricmp(ent->classname, "ammo_cells") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableLG.integer)
+	{
+		if(((int)(DisableLG.integer == 1) && (Q_stricmp(ent->classname, "ammo_lightning") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableRL.integer)
+	{
+		if(((int)(DisableRL.integer == 1) && (Q_stricmp(ent->classname, "ammo_rockets") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableBFG.integer)
+	{
+		if(((int)(DisableBFG.integer == 1) && (Q_stricmp(ent->classname, "ammo_bfg") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableRG.integer)
+	{
+		if(((int)(DisableRG.integer == 1) && (Q_stricmp(ent->classname, "ammo_slugs") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableHaste.integer)
+	{
+		if(((int)(DisableHaste.integer == 1) && (Q_stricmp(ent->classname, "item_haste") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableInvis.integer)
+	{
+		if(((int)(DisableInvis.integer == 1) && (Q_stricmp(ent->classname, "item_invis") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableRegen.integer)
+	{
+		if(((int)(DisableRegen.integer == 1) && (Q_stricmp(ent->classname, "item_regen") == 0)))
+		{
+			return qfalse;
+		}
+	}
+	if(DisableFlight.integer)
+	{
+		if(((int)(DisableFlight.integer == 1) && (Q_stricmp(ent->classname, "item_flight") == 0)))
+		{
+			return qfalse;
+		}
+	}
+
+
 
 	if(!ent->classname)
 	{
@@ -322,11 +561,1392 @@ qboolean G_CallSpawn(gentity_t * ent)
 	// check item spawn functions
 	for(item = bg_itemlist + 1; item->classname; item++)
 	{
+
+		//shotgun replacement
+		if(ReplaceSG.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceSG.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_shotgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_shells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//shotgun replacement
+
+		//grenade launcher replacement
+		if(ReplaceGL.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceGL.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_grenadelauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_grenades"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//grenade launcher replacement
+
+		//rocket launcher replacement
+		if(ReplaceRL.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRL.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_rocketlauncher"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_rockets"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//rocket launcher replacement
+
+		//plasma gun replacement
+		if(ReplacePG.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePG.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_plasmagun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_cells"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//plasma gun replacement
+
+		//particle accelerator replacement
+		if(ReplacePA.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplacePA.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_irailgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_islugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//particle accelerator replacement
+
+		//lightning gun replacement
+		if(ReplaceLG.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceLG.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_lightning"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_lightning"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//lightning gun replacement
+
+		//rail gun replacement
+		if(ReplaceRG.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceRG.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_railgun"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_slugs"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//rail gun replacement
+
+		//flame thrower replacement
+		if(ReplaceFT.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceFT.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_ft"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_fuel"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//flame thrower replacement
+
+		//BFG replacement
+		if(ReplaceBFG.integer == 1)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_MACHINEGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 2)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_GRENADE_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 3)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_ROCKET_LAUNCHER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 4)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_LIGHTNING);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 5)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_RAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 6)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_PLASMAGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 7)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_BFG);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 8)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_IRAILGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 9)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_FLAMETHROWER);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		if(ReplaceBFG.integer == 10)
+		{
+			if(!strcmp(ent->classname, "weapon_bfg"))
+			{
+				ritem = BG_FindItemForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+			if(!strcmp(ent->classname, "ammo_bfg"))
+			{
+				ritem = BG_FindAmmoForWeapon(WP_SHOTGUN);
+				G_SpawnItem(ent, ritem);
+				return qtrue;
+			}
+		}
+		//BFG replacement
+
 		if(!strcmp(item->classname, ent->classname))
 		{
 			G_SpawnItem(ent, item);
 			return qtrue;
 		}
+
+
+
 	}
 
 	// check normal spawn functions
@@ -335,14 +1955,6 @@ qboolean G_CallSpawn(gentity_t * ent)
 		if(!strcmp(s->name, ent->classname))
 		{
 			// found it
-			if(ent->name)
-			{
-				G_Printf("...spawning %s\n", ent->name);
-			}
-			else
-			{
-				G_Printf("...spawning %s\n", ent->classname);
-			}
 			s->spawn(ent);
 			return qtrue;
 		}
@@ -429,22 +2041,18 @@ void G_ParseField(const char *key, const char *value, gentity_t * ent)
 				case F_LSTRING:
 					*(char **)(b + f->ofs) = G_NewString(value);
 					break;
-				
 				case F_VECTOR:
 					sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 					((float *)(b + f->ofs))[0] = vec[0];
 					((float *)(b + f->ofs))[1] = vec[1];
 					((float *)(b + f->ofs))[2] = vec[2];
 					break;
-				
 				case F_INT:
 					*(int *)(b + f->ofs) = atoi(value);
 					break;
-				
 				case F_FLOAT:
 					*(float *)(b + f->ofs) = atof(value);
 					break;
-				
 				case F_ANGLEHACK:
 					v = atof(value);
 					((float *)(b + f->ofs))[0] = 0;
@@ -632,20 +2240,20 @@ This does not actually spawn an entity.
 qboolean G_ParseSpawnVars(void)
 {
 	char            keyname[MAX_TOKEN_CHARS];
-	char            com_token[MAX_TOKEN_CHARS];
+	char            Com_token[MAX_TOKEN_CHARS];
 
 	level.numSpawnVars = 0;
 	level.numSpawnVarChars = 0;
 
 	// parse the opening brace
-	if(!trap_GetEntityToken(com_token, sizeof(com_token)))
+	if(!trap_GetEntityToken(Com_token, sizeof(Com_token)))
 	{
 		// end of spawn string
 		return qfalse;
 	}
-	if(com_token[0] != '{')
+	if(Com_token[0] != '{')
 	{
-		G_Error("G_ParseSpawnVars: found %s when expecting {", com_token);
+		G_Error("G_ParseSpawnVars: found %s when expecting {", Com_token);
 	}
 
 	// go through all the key / value pairs
@@ -663,12 +2271,12 @@ qboolean G_ParseSpawnVars(void)
 		}
 
 		// parse value  
-		if(!trap_GetEntityToken(com_token, sizeof(com_token)))
+		if(!trap_GetEntityToken(Com_token, sizeof(Com_token)))
 		{
 			G_Error("G_ParseSpawnVars: EOF without closing brace");
 		}
 
-		if(com_token[0] == '}')
+		if(Com_token[0] == '}')
 		{
 			G_Error("G_ParseSpawnVars: closing brace without data");
 		}
@@ -677,7 +2285,7 @@ qboolean G_ParseSpawnVars(void)
 			G_Error("G_ParseSpawnVars: MAX_SPAWN_VARS");
 		}
 		level.spawnVars[level.numSpawnVars][0] = G_AddSpawnVarToken(keyname);
-		level.spawnVars[level.numSpawnVars][1] = G_AddSpawnVarToken(com_token);
+		level.spawnVars[level.numSpawnVars][1] = G_AddSpawnVarToken(Com_token);
 		level.numSpawnVars++;
 	}
 

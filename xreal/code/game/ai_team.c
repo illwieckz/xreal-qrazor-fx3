@@ -296,7 +296,7 @@ void BotSayTeamOrderAlways(bot_state_t * bs, int toclient)
 	}
 	else
 	{
-		trap_BotEnterChat(bs->cs, toclient, CHAT_TELL);
+		trap_BotEnterChat(bs->cs, toclient, CHAT_TEAM);
 	}
 }
 

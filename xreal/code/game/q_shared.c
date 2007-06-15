@@ -758,9 +758,9 @@ char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 		return com_token;
 	}
 
-	// skip whitespace
 	while(1)
 	{
+		// skip whitespace
 		data = SkipWhitespace(data, &hasNewLines);
 		if(!data)
 		{
@@ -872,33 +872,35 @@ char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 				{
 					com_token[len] = c;
 					len++;
-				}
+		}
 				data++;
 				c = *data;
-			}
+	}
 
-			do
-			{
+	// parse a regular word
+	do
+	{
 				if(len < MAX_TOKEN_CHARS - 1)
-				{
+		{
 					com_token[len] = c;
-					len++;
-				}
-				data++;
+			len++;
+		}
+		data++;
 
-				c = *data;
+		c = *data;
 			} while(c >= '0' && c <= '9');
 		}
 
-		if(len == MAX_TOKEN_CHARS)
-		{
-			len = 0;
-		}
+	if(len == MAX_TOKEN_CHARS)
+	{
+//      Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
+		len = 0;
+	}
 		com_token[len] = 0;
 
-		*data_p = (char *)data;
+	*data_p = (char *)data;
 		return com_token;
-	}
+}
 
 	// check for a regular word
 	// we still allow forward and back slashes in name tokens for pathnames
@@ -913,7 +915,7 @@ char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 		do
 		{
 			if(len < MAX_TOKEN_CHARS - 1)
-			{
+{
 				com_token[len] = c;
 				len++;
 			}
@@ -936,18 +938,18 @@ char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 			 (c == '@'));
 
 		if(len == MAX_TOKEN_CHARS)
-		{
+	{
 			len = 0;
 		}
 		com_token[len] = 0;
 
 		*data_p = (char *)data;
 		return com_token;
-	}
+		}
 
 	// check for multi-character punctuation token
 	for(punc = punctuation; *punc; punc++)
-	{
+		{
 		int             l;
 		int             j;
 
@@ -960,14 +962,14 @@ char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 			}
 		}
 		if(j == l)
-		{
+			{
 			// a valid multi-character punctuation
 			memcpy(com_token, *punc, l);
 			com_token[l] = 0;
 			data += l;
 			*data_p = (char *)data;
 			return com_token;
-		}
+			}
 	}
 
 	// single character punctuation
@@ -1000,7 +1002,7 @@ void Com_MatchToken(char **buf_p, char *match)
 
 /*
 =================
-Com_SkipBracedSection
+SkipBracedSection
 
 The next token should be an open brace.
 Skips until a matching close brace is found.
@@ -1131,6 +1133,27 @@ int Q_isupper(int c)
 int Q_isalpha(int c)
 {
 	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+		return (1);
+	return (0);
+}
+
+int Q_isnumeric(int c)
+{
+	if(c >= '0' && c <= '9')
+		return (1);
+	return (0);
+}
+
+int Q_isalphanumeric(int c)
+{
+	if(Q_isalpha(c) || Q_isnumeric(c))
+		return (1);
+	return (0);
+}
+
+int Q_isforfilename(int c)
+{
+	if((Q_isalphanumeric(c) || c == '_') && c != ' ')	// space not allowed in filename
 		return (1);
 	return (0);
 }
@@ -1390,7 +1413,12 @@ int Q_PrintStrlen(const char *string)
 	p = string;
 	while(*p)
 	{
-		if(Q_IsColorString(p))
+		if(Q_IsAbsoluteColorString(p))
+		{
+			p += 5;
+			continue;
+		}
+		else if(Q_IsColorString(p))
 		{
 			p += 2;
 			continue;
@@ -1413,7 +1441,11 @@ char           *Q_CleanStr(char *string)
 	d = string;
 	while((c = *s) != 0)
 	{
-		if(Q_IsColorString(s))
+		if(Q_IsAbsoluteColorString(s))
+		{
+			s += 5;
+		}
+		else if(Q_IsColorString(s))
 		{
 			s++;
 		}
@@ -1428,6 +1460,58 @@ char           *Q_CleanStr(char *string)
 	return string;
 }
 
+char           *Q_CleanAbsoluteColorStr(char *string)
+{
+	char           *d;
+	char           *s;
+	int             c;
+
+	s = string;
+	d = string;
+	while((c = *s) != 0)
+	{
+		if(Q_IsAbsoluteColorString(s))
+		{
+			s += 5;
+		}
+		else if(Q_IsBlackColorString(s))
+		{
+			s++;
+		}
+		else if(c >= 0x20 && c <= 0x7E)
+		{
+			*d++ = c;
+		}
+		s++;
+	}
+	*d = '\0';
+
+	return string;
+}
+
+char           *Q_MultiFontStr(char *string)
+{
+	char           *d;
+	char           *s;
+	int             c;
+
+	s = string;
+	d = string;
+	while((c = *s) != 0)
+	{
+		if(Q_IsMultiFontString(s))
+		{
+			s += 2;
+		}
+		else if(c >= 0x20 && c <= 0x7E)
+		{
+			*d++ = c;
+		}
+		s++;
+	}
+	*d = '\0';
+	return string;
+}
 
 void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 {

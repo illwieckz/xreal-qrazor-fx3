@@ -59,6 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_TRANSLUCENT	0x20000000	// don't consume surface fragments inside
 #define	CONTENTS_TRIGGER		0x40000000
 #define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
+#define	CONTENTS_LOCALENT		0x100000000	// don't leave bodies or items (death fog, lava)
 
 #define	SURF_NODAMAGE			0x1	// never give falling damage
 #define	SURF_SLICK				0x2	// effects game physics
@@ -79,3 +80,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in xmap
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
 #define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
+#define SURF_GRAVITY			0x80000	// Walk on this surface no matter the angle

@@ -69,6 +69,14 @@ gentity_t      *G_TestEntityPosition(gentity_t * ent)
 	{
 		trap_Trace(&tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask);
 	}
+	else if(ent->s.eType == ET_DEADQPLAYER || ent->s.eType == ET_DEADPLAYER || ent->s.eType == ET_PLAYER)
+	{
+		vec3_t          pos;
+
+		VectorCopy(ent->s.pos.trBase, pos);
+		pos[2] += 71;			// move up a bit - corpses normally got their origin slightly in the ground
+		trap_Trace(&tr, pos, ent->r.mins, ent->r.maxs, pos, ent->s.number, mask);
+	}
 	else
 	{
 		trap_Trace(&tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask);
@@ -223,7 +231,6 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 		pushed_p--;
 		return qtrue;
 	}
-
 	// blocked
 	return qfalse;
 }
@@ -405,13 +412,14 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 		}
 #endif
 		// only push items and players
-		if(check->s.eType != ET_ITEM && check->s.eType != ET_PLAYER && !check->physicsObject)
+		if(check->s.eType != ET_ITEM && check->s.eType != ET_DEADQPLAYER && check->s.eType != ET_DEADPLAYER
+		   && check->s.eType != ET_PLAYER && !check->physicsObject)
 		{
 			continue;
 		}
 
 		// if the entity is standing on the pusher, it will definitely be moved
-		if(check->s.groundEntityNum != pusher->s.number)
+		if(check->s.groundEntityNum != pusher->s.number && check->s.eType != ET_DEADQPLAYER && check->s.eType != ET_DEADPLAYER)
 		{
 			// see if the ent needs to be tested
 			if(check->r.absmin[0] >= maxs[0]
@@ -867,6 +875,7 @@ void InitMover(gentity_t * ent)
 	ent->moverState = MOVER_POS1;
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
+	ent->r.contents = CONTENTS_SOLID;
 	VectorCopy(ent->pos1, ent->r.currentOrigin);
 	trap_LinkEntity(ent);
 
@@ -1057,8 +1066,8 @@ START_OPEN	the door to moves to its destination when spawned, and operate in rev
 NOMONSTER	monsters will not trigger this door
 
 "model2"	.md3 model to also draw
-"movedir"	determines the opening direction
-"name" if set, no touch field will be spawned and a remote button or trigger field activates the door.
+"angle"		determines the opening direction
+"targetname" if set, no touch field will be spawned and a remote button or trigger field activates the door.
 "speed"		movement speed (100 default)
 "wait"		wait before returning (3 default, -1 = never return)
 "lip"		lip remaining at end of move (8 default)
@@ -1066,17 +1075,23 @@ NOMONSTER	monsters will not trigger this door
 "color"		constantLight color
 "light"		constantLight radius
 "health"	if set, the door must be shot open
+"startsound" specify a custom sound for the door starting
+"endsound" specify a custom sound for the door end movment
 */
 void SP_func_door(gentity_t * ent)
 {
 	vec3_t          abs_movedir;
 	float           distance;
-	vec3_t          size, sizeRotated;
+	vec3_t          size;
 	float           lip;
-	matrix_t        rotation;
+	char           *start;
+	char           *end;
 
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
+	G_SpawnString("startsound", "sound/movers/doors/dr1_strt.wav", &start);
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(start);
+
+	G_SpawnString("endsound", "sound/movers/doors/dr1_end.wav", &end);
+	ent->soundPos1 = ent->soundPos2 = G_SoundIndex(end);
 
 	ent->blocked = Blocked_Door;
 
@@ -1100,22 +1115,12 @@ void SP_func_door(gentity_t * ent)
 
 	// calculate second position
 	trap_SetBrushModel(ent, ent->model);
-	
-	if(VectorCompare(ent->movedir, vec3_origin))
-	{
-		// movedir was not set directly so use entity's angles
-		G_SetMovedir(ent->s.angles, ent->movedir);
-	}
+	G_SetMovedir(ent->s.angles, ent->movedir);
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
-	
 	VectorSubtract(ent->r.maxs, ent->r.mins, size);
-	
-	AnglesToMatrix(ent->s.angles, rotation);
-	MatrixTransformNormal(rotation, size, sizeRotated);
-	
-	distance = DotProduct(abs_movedir, sizeRotated) - lip;
+	distance = DotProduct(abs_movedir, size) - lip;
 	VectorMA(ent->pos1, distance, ent->movedir, ent->pos2);
 
 	// if "start_open", reverse position 1 and 2
@@ -1129,9 +1134,6 @@ void SP_func_door(gentity_t * ent)
 	}
 
 	InitMover(ent);
-	
-	VectorCopy(ent->s.angles, ent->s.apos.trBase);
-	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
 	ent->nextthink = level.time + FRAMETIME;
 
@@ -1140,12 +1142,15 @@ void SP_func_door(gentity_t * ent)
 		int             health;
 
 		G_SpawnInt("health", "0", &health);
-		
+
 		// Tr3B - Doom3 entities have always a name
 		if(health)
 		{
 			ent->takedamage = qtrue;
-		
+		}
+
+		if(ent->targetname || health)//Comment out for D3 compatibility
+		{
 			// non touch/shoot doors
 			ent->think = Think_MatchTeam;
 		}
@@ -1154,6 +1159,8 @@ void SP_func_door(gentity_t * ent)
 			ent->think = Think_SpawnNewDoorTrigger;
 		}
 	}
+
+
 }
 
 /*
@@ -1173,15 +1180,18 @@ Don't allow decent if a living player is on it
 */
 void Touch_Plat(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
+
+
 	if(!other->client || other->client->ps.stats[STAT_HEALTH] <= 0)
 	{
 		return;
 	}
 
+
 	// delay return-to-pos1 by one second
 	if(ent->moverState == MOVER_POS2)
 	{
-		ent->nextthink = level.time + 1000;
+		ent->nextthink = level.time + 1600;
 	}
 }
 
@@ -1264,13 +1274,22 @@ Plats are always drawn in the extended position so they will light correctly.
 "model2"	.md3 model to also draw
 "color"		constantLight color
 "light"		constantLight radius
+"triggered"	 {1/0} value	If this is set then the platform will allways operate even if a player
+is still on it( mainly for triggered platforms where ppl from the top can call it and ride it down)
+"startsound" specify a custom sound for the platform starting
+"endsound" specify a custom sound for the platform end movment
 */
 void SP_func_plat(gentity_t * ent)
 {
 	float           lip, height;
+	char           *start;
+	char           *end;
 
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/plats/pt1_end.wav");
+	G_SpawnString("startsound", "sound/movers/plats/pt1_strt.wav", &start);
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(start);
+
+	G_SpawnString("endsound", "sound/movers/plats/pt1_end.wav", &end);
+	ent->soundPos1 = ent->soundPos2 = G_SoundIndex(end);
 
 	VectorClear(ent->s.angles);
 
@@ -1278,8 +1297,9 @@ void SP_func_plat(gentity_t * ent)
 	G_SpawnInt("dmg", "2", &ent->damage);
 	G_SpawnFloat("wait", "1", &ent->wait);
 	G_SpawnFloat("lip", "8", &lip);
+	G_SpawnInt("triggered", "0", &ent->waterlevel);
 
-	ent->wait = 1000;
+	ent->wait = 1600;
 
 	// create second position
 	trap_SetBrushModel(ent, ent->model);
@@ -1298,16 +1318,19 @@ void SP_func_plat(gentity_t * ent)
 
 	// touch function keeps the plat from returning while
 	// a live player is standing on it
-	ent->touch = Touch_Plat;
+	if(ent->waterlevel == 0)
+	{
+		ent->touch = Touch_Plat;
+	}
 
 	ent->blocked = Blocked_Door;
 
 	ent->parent = ent;			// so it can be treated as a door
 
 	// spawn the trigger if one hasn't been custom made
-	
-	// Tr3B - Doom3 entities have always a name
-	//if(!ent->name)
+
+// JH break q3/d3
+	if(!ent->targetname)
 	{
 		SpawnPlatTrigger(ent);
 	}
@@ -1346,8 +1369,8 @@ void Touch_Button(gentity_t * ent, gentity_t * other, trace_t * trace)
 When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again.
 
 "model2"	.md3 model to also draw
-"movedir"	determines the opening direction
-"target"	all entities with a matching name will be used
+"angle"		determines the opening direction
+"target"	all entities with a matching targetname will be used
 "speed"		override the default 40 speed
 "wait"		override the default 1 second wait (-1 = never return)
 "lip"		override the default 4 pixel lip remaining at end of move
@@ -1383,11 +1406,7 @@ void SP_func_button(gentity_t * ent)
 
 	G_SpawnFloat("lip", "4", &lip);
 
-	if(VectorCompare(ent->movedir, vec3_origin))
-	{
-		// movedir was not set directly so use entity's angles
-		G_SetMovedir(ent->s.angles, ent->movedir);
-	}
+	G_SetMovedir(ent->s.angles, ent->movedir);
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
@@ -1512,7 +1531,8 @@ void Think_SetupTrainTargets(gentity_t * ent)
 {
 	gentity_t      *path, *next, *start;
 
-	ent->nextTrain = G_Find(NULL, FOFS(name), ent->target);
+//JH break q3/d3
+	ent->nextTrain = G_Find(NULL, FOFS(targetname), ent->target);
 	if(!ent->nextTrain)
 	{
 		G_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
@@ -1539,7 +1559,8 @@ void Think_SetupTrainTargets(gentity_t * ent)
 		next = NULL;
 		do
 		{
-			next = G_Find(next, FOFS(name), path->target);
+// JH break q3/d3
+			next = G_Find(next, FOFS(targetname), path->target);
 			if(!next)
 			{
 				G_Printf("Train corner at %s without a target path_corner\n", vtos(path->s.origin));
@@ -1564,9 +1585,11 @@ Target: next path corner and other targets to fire
 */
 void SP_path_corner(gentity_t * self)
 {
-	if(!self->name)
+
+//JH break q3/d3
+	if(!self->targetname)
 	{
-		G_Printf("path_corner with no name at %s\n", vtos(self->s.origin));
+		G_Printf("path_corner with no targetname at %s\n", vtos(self->s.origin));
 		G_FreeEntity(self);
 		return;
 	}
@@ -1644,16 +1667,9 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_static(gentity_t * ent)
 {
 	trap_SetBrushModel(ent, ent->model);
-	
 	InitMover(ent);
-	
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
-	
-	VectorCopy(ent->s.angles, ent->s.apos.trBase);
-	VectorCopy(ent->s.angles, ent->r.currentAngles);
-	
-	trap_LinkEntity(ent);
 }
 
 

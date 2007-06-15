@@ -35,7 +35,7 @@ void InitTrigger(gentity_t * self)
 	}
 	else
 	{
-		trap_SetBrushModel(self, self->model);
+	trap_SetBrushModel(self, self->model);
 	}
 	
 	self->r.contents = CONTENTS_TRIGGER;	// replaces the -1 from trap_SetBrushModel
@@ -170,7 +170,7 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	{
 		return;
 	}
-	
+
 #ifdef LUA
 	G_RunLuaFunction(self->luaTouch, "ee>", self, other);
 #endif
@@ -229,7 +229,7 @@ Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
 void SP_trigger_push(gentity_t * self)
-{	
+{
 	InitTrigger(self);
 
 	// unlike other triggers, we need to send this one to the client
@@ -407,9 +407,34 @@ void hurt_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 	}
 }
 
+void            SP_team_CTF_redspawn(gentity_t * ent);
+void            SP_team_CTF_bluespawn(gentity_t * ent);
 void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 {
 	int             dflags;
+	vec3_t          origin, angles;
+	gclient_t      *client;
+
+	client = other->client;
+
+	if(Spaceprotect.integer == 1 && self->damage > 100)
+	{
+		Team_DropFlags(other);
+		if(other->client->sess.sessionTeam == TEAM_RED)
+		{
+			SelectCTFSpawnPoint(other->client->sess.sessionTeam, other->client->pers.teamState.state, origin, angles);
+		}
+		else if(other->client->sess.sessionTeam == TEAM_BLUE)
+		{
+			SelectCTFSpawnPoint(other->client->sess.sessionTeam, other->client->pers.teamState.state, origin, angles);
+		}
+		else
+		{
+			SelectSpawnPoint(other->client->ps.origin, origin, angles);
+		}
+		TeleportPlayer(other, origin, angles);
+		return;
+	}
 
 	if(!other->takedamage)
 	{

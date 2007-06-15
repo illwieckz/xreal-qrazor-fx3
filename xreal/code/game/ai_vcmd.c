@@ -109,7 +109,7 @@ void BotVoiceChat_GetFlag(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -168,7 +168,7 @@ void BotVoiceChat_Offense(bot_state_t * bs, int client, int mode)
 		// remember last ordered task
 		BotRememberLastOrderedTask(bs);
 	}
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -237,7 +237,7 @@ void BotVoiceChat_Defend(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -271,7 +271,7 @@ void BotVoiceChat_Patrol(bot_state_t * bs, int client, int mode)
 	BotVoiceChatOnly(bs, -1, VOICECHAT_ONPATROL);
 	//
 	BotSetTeamStatus(bs);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -331,7 +331,7 @@ void BotVoiceChat_Camp(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -389,7 +389,7 @@ void BotVoiceChat_FollowMe(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -406,7 +406,7 @@ void BotVoiceChat_FollowFlagCarrier(bot_state_t * bs, int client, int mode)
 	carrier = BotTeamFlagCarrier(bs);
 	if(carrier >= 0)
 		BotVoiceChat_FollowMe(bs, carrier, mode);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -439,7 +439,7 @@ void BotVoiceChat_ReturnFlag(bot_state_t * bs, int client, int mode)
 	bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
 	bs->rushbaseaway_time = 0;
 	BotSetTeamStatus(bs);
-#ifdef _DEBUG
+#ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }

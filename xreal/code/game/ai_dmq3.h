@@ -46,6 +46,9 @@ void            BotFreeWaypoints(bot_waypoint_t * wp);
 //choose a weapon
 void            BotChooseWeapon(bot_state_t * bs);
 
+//choose a Better weapon
+void            BotChooseBetterWeapon(bot_state_t * bs, int dist, bsp_trace_t bsptrace);
+
 //setup movement stuff
 void            BotSetupForMovement(bot_state_t * bs);
 

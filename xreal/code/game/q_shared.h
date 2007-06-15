@@ -45,6 +45,8 @@ typedef long    intptr_t;
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
+#define QSOURCE_VERSION	"1.0b"
+
 #define MAX_TEAMNAME 32
 
 #ifdef _MSC_VER
@@ -480,6 +482,7 @@ typedef int     clipHandle_t;
 #define sign( f )	( ( f > 0 ) ? 1 : ( ( f < 0 ) ? -1 : 0 ) )
 #endif
 
+
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
@@ -487,11 +490,11 @@ typedef int     clipHandle_t;
 #define	MAX_TOKEN_CHARS		1024	// max length of an individual token
 
 #define	MAX_INFO_STRING		1024
-#define	MAX_INFO_KEY		1024
+#define	MAX_INFO_KEY		  1024
 #define	MAX_INFO_VALUE		1024
 
 #define	BIG_INFO_STRING		8192	// used for system info key only
-#define	BIG_INFO_KEY		8192
+#define	BIG_INFO_KEY		  8192
 #define	BIG_INFO_VALUE		8192
 
 
@@ -503,6 +506,8 @@ typedef int     clipHandle_t;
 #endif
 
 #define	MAX_NAME_LENGTH		32	// max length of a client name
+
+#define	MAX_MOTD_LENGTH		62	// max length of a client name
 
 #define	MAX_SAY_TEXT	150
 
@@ -667,6 +672,8 @@ extern vec3_t   bytedirs[NUMVERTEXNORMALS];
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	16
 
+#define SMALLSCORE_SIZE		14
+
 #define BIGCHAR_WIDTH		16
 #define BIGCHAR_HEIGHT		16
 
@@ -687,6 +694,13 @@ extern vec4_t   colorDkGrey;
 
 #define Q_COLOR_ESCAPE	'^'
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
+#define ishex(ch) ((ch) && (( (ch) >= '0' && (ch) <= '9' ) || ( (ch) >= 'A' && (ch) <= 'F' ) || ( (ch) >= 'a' && (ch) <= 'f' )) )
+#define Q_IsAbsoluteColorString(p)  (ishex(*(p)) && ishex(*((p)+1)) && ishex(*((p)+2)) && \
+ 					ishex(*((p)+3)) && ishex(*((p)+4)) && ishex(*((p)+5)) )
+#define gethex(ch) ((ch) > '9' ? ((ch) >= 'a' ? ((ch) - 'a' + 10) : ((ch) - '7')): ((ch) - '0'))
+#define Q_IsBlackColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == '0' )
+#define Q_IsNewColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == 'b' || *((p)+1) == 'B' || *((p)+1) == 'f' || *((p)+1) == 'F' || *((p)+1) == 'i' || *((p)+1) == 'I')
+#define Q_IsMultiFontString(p)	( (p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == 'a') || (p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == 'A'))
 
 #define COLOR_BLACK		'0'
 #define COLOR_RED		'1'
@@ -706,6 +720,7 @@ extern vec4_t   colorDkGrey;
 #define S_COLOR_CYAN	"^5"
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
+
 
 extern vec4_t   g_color_table[8];
 
@@ -805,7 +820,7 @@ static ID_INLINE float Q_fabs(float x)
 #if idppc && defined __GNUC__
 	float           abs_x;
 
- 	asm("fabs %0,%1": "=f"(abs_x):"f"(x));
+  asm("fabs %0,%1": "=f"(abs_x):"f"(x));
 	return abs_x;
 #else
 	int             tmp = *(int *)&x;
@@ -841,7 +856,7 @@ signed short    ClampShort(int i);
 int             DirToByte(vec3_t dir);
 void            ByteToDir(int b, vec3_t dir);
 
-#if 1
+#if	1
 
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
@@ -1067,6 +1082,8 @@ void            MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 // perpendicular vector could be replaced by this
 
 //int   PlaneTypeForNormal (vec3_t normal);
+
+void AxisToAngles( vec3_t axis[3], vec3_t angles );
 
 void            AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
@@ -1321,6 +1338,8 @@ int             Q_PrintStrlen(const char *string);
 
 // removes color sequences from string
 char           *Q_CleanStr(char *string);
+char           *Q_CleanAbsoluteColorStr(char *string);
+char           *Q_MultiFontStr(char *string);
 
 //=============================================
 
@@ -1560,6 +1579,10 @@ typedef enum
 #define	ENTITYNUM_WORLD		(MAX_GENTITIES-2)
 #define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
+#define	MAX_LOCAL_ENTITIES	10000
+#define FIRE_FLASH_TIME		2200
+#define	MAX_CAMERAFX		2048
+#define	MAX_MAPFX			1600
 
 #define	MAX_MODELS			256	// these are sent over the net as 8 bits
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
@@ -1729,7 +1752,11 @@ typedef enum
 	TR_LINEAR,
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
-	TR_GRAVITY
+	TR_GRAVITY_LOW,
+	TR_GRAVITY_FLOAT,			// super low grav with no gravity acceleration (floating feathers/fabric/leaves/...)
+	TR_GRAVITY,
+	TR_ACCELERATE,
+	TR_DECCELERATE
 } trType_t;
 
 typedef struct
@@ -1860,9 +1887,9 @@ typedef struct qtime_s
 
 // server browser sources
 // TTimo: AS_MPLAYER is no longer used
-#define AS_LOCAL		0
+#define AS_LOCAL			0
 #define AS_MPLAYER		1
-#define AS_GLOBAL		2
+#define AS_GLOBAL			2
 #define AS_FAVORITES	3
 
 
@@ -1884,9 +1911,18 @@ typedef enum _flag_status
 	FLAG_TAKEN,					// CTF
 	FLAG_TAKEN_RED,				// One Flag CTF
 	FLAG_TAKEN_BLUE,			// One Flag CTF
-	FLAG_DROPPED
+	FLAG_DROPPED,
+	FLAG_RETURNING
 } flagStatus_t;
 
+// generic flags
+#define GNF_GRENSPARKS	0x00000002	// for grenade sparks
+#define GNF_ONFIRE		0x00000004
+#define GNF_ONFIREHEAD	0x00000008
+#define GNF_ONFIREARM	0x00000010
+#define GNF_INWATER		0x00000020	// a flag to tell the client that this missle started in water
+#define GNF_OUTWATER	0x00000040	// a flag to tell the client that this missle started out of water
+#define GNF_DEADVIEW	0x00000080	// a flag to tell the client that this missle started out of water
 
 
 #define	MAX_GLOBAL_SERVERS				4096

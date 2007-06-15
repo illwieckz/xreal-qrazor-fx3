@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="game"
 	ProjectGUID="{F9EE10DA-2404-4154-B904-F93C936C040A}"
-	SccProjectName="&quot;$/MissionPack/code/game&quot;, CYAAAAAA"
-	SccLocalPath="."
 	>
 	<Platforms>
 		<Platform
@@ -158,7 +156,7 @@
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="4"
+				WarningLevel="2"
 				SuppressStartupBanner="true"
 			/>
 			<Tool

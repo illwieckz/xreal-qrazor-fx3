@@ -114,6 +114,7 @@ qboolean PM_SlideMove(qboolean gravity)
 		{
 			// actually covered some distance
 			VectorCopy(trace.endpos, pm->ps->origin);
+
 		}
 
 		if(trace.fraction == 1)
@@ -125,6 +126,8 @@ qboolean PM_SlideMove(qboolean gravity)
 		PM_AddTouchEnt(trace.entityNum);
 
 		time_left -= time_left * trace.fraction;
+
+
 
 		if(numplanes >= MAX_CLIP_PLANES)
 		{
@@ -143,11 +146,13 @@ qboolean PM_SlideMove(qboolean gravity)
 			if(DotProduct(trace.plane.normal, planes[i]) > 0.99)
 			{
 				VectorAdd(trace.plane.normal, pm->ps->velocity, pm->ps->velocity);
+
 				break;
 			}
 		}
 		if(i < numplanes)
 		{
+
 			continue;
 		}
 		VectorCopy(trace.plane.normal, planes[numplanes]);
@@ -161,6 +166,7 @@ qboolean PM_SlideMove(qboolean gravity)
 		for(i = 0; i < numplanes; i++)
 		{
 			into = DotProduct(pm->ps->velocity, planes[i]);
+
 			if(into >= 0.1)
 			{
 				continue;		// move doesn't interact with the plane
@@ -171,7 +177,6 @@ qboolean PM_SlideMove(qboolean gravity)
 			{
 				pml.impactSpeed = -into;
 			}
-
 			// slide along the plane
 			PM_ClipVelocity(pm->ps->velocity, planes[i], clipVelocity, OVERCLIP);
 
@@ -183,12 +188,16 @@ qboolean PM_SlideMove(qboolean gravity)
 			{
 				if(j == i)
 				{
+
 					continue;
 				}
 				if(DotProduct(clipVelocity, planes[j]) >= 0.1)
 				{
+
 					continue;	// move doesn't interact with the plane
 				}
+
+
 
 				// try clipping the move to the plane
 				PM_ClipVelocity(clipVelocity, planes[j], clipVelocity, OVERCLIP);
@@ -197,6 +206,7 @@ qboolean PM_SlideMove(qboolean gravity)
 				// see if it goes back into the first clip plane
 				if(DotProduct(clipVelocity, planes[i]) >= 0)
 				{
+
 					continue;
 				}
 
@@ -234,6 +244,7 @@ qboolean PM_SlideMove(qboolean gravity)
 			VectorCopy(endClipVelocity, endVelocity);
 			break;
 		}
+
 	}
 
 	if(gravity)
@@ -247,8 +258,12 @@ qboolean PM_SlideMove(qboolean gravity)
 		VectorCopy(primal_velocity, pm->ps->velocity);
 	}
 
+
+
 	return (bumpcount != 0);
 }
+
+
 
 /*
 ==================
@@ -261,9 +276,6 @@ void PM_StepSlideMove(qboolean gravity)
 	vec3_t          start_o, start_v;
 	vec3_t          down_o, down_v;
 	trace_t         trace;
-
-//  float       down_dist, up_dist;
-//  vec3_t      delta, delta2;
 	vec3_t          up, down;
 	float           stepSize;
 
@@ -324,12 +336,14 @@ void PM_StepSlideMove(qboolean gravity)
 
 #if 0
 	// if the down trace can trace back to the original position directly, don't step
+
 	pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, start_o, pm->ps->clientNum, pm->tracemask);
 	if(trace.fraction == 1.0)
 	{
 		// use the original move
 		VectorCopy(down_o, pm->ps->origin);
 		VectorCopy(down_v, pm->ps->velocity);
+
 		if(pm->debugLevel)
 		{
 			Com_Printf("%i:bend\n", c_pmove);

@@ -666,11 +666,13 @@ G_AddBot
 */
 static void G_AddBot(const char *name, float skill, const char *team, int delay, char *altname)
 {
-	int             clientNum;
+	int             clientNum, c, c2;
 	char           *botinfo;
 	gentity_t      *bot;
 	char           *key;
 	char           *s;
+	char           *bc;
+	char           *bcc;
 	char           *botname;
 	char           *model;
 	char           *headmodel;
@@ -702,19 +704,6 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	Info_SetValueForKey(userinfo, "snaps", "20");
 	Info_SetValueForKey(userinfo, "skill", va("%1.2f", skill));
 
-	if(skill >= 1 && skill < 2)
-	{
-		Info_SetValueForKey(userinfo, "handicap", "50");
-	}
-	else if(skill >= 2 && skill < 3)
-	{
-		Info_SetValueForKey(userinfo, "handicap", "70");
-	}
-	else if(skill >= 3 && skill < 4)
-	{
-		Info_SetValueForKey(userinfo, "handicap", "90");
-	}
-
 	key = "model";
 	model = Info_ValueForKey(botinfo, key);
 	if(!*model)
@@ -738,22 +727,6 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 		s = "male";
 	}
 	Info_SetValueForKey(userinfo, "sex", s);
-
-	key = "color1";
-	s = Info_ValueForKey(botinfo, key);
-	if(!*s)
-	{
-		s = "4";
-	}
-	Info_SetValueForKey(userinfo, key, s);
-
-	key = "color2";
-	s = Info_ValueForKey(botinfo, key);
-	if(!*s)
-	{
-		s = "5";
-	}
-	Info_SetValueForKey(userinfo, key, s);
 
 	s = Info_ValueForKey(botinfo, "aifile");
 	if(!*s)
@@ -779,17 +752,94 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 			if(PickTeam(clientNum) == TEAM_RED)
 			{
 				team = "red";
+
 			}
 			else
 			{
 				team = "blue";
+
 			}
 		}
 		else
 		{
 			team = "red";
+
 		}
 	}
+
+
+	c = rand() % 100;
+	if(c < 0)
+	{
+		c = 0;
+	}
+	if(c > 100)
+	{
+		c = 100;
+	}
+	if(c >= 0 && c <= 15)
+	{
+		bc = "1";
+	}
+	else if(c >= 16 && c <= 31)
+	{
+		bc = "2";
+	}
+	else if(c >= 32 && c <= 47)
+	{
+		bc = "3";
+	}
+	else if(c >= 48 && c <= 63)
+	{
+		bc = "4";
+	}
+	else if(c >= 64 && c <= 85)
+	{
+		bc = "5";
+	}
+	else if(c >= 86 && c <= 100)
+	{
+		bc = "6";
+	}
+
+	c2 = rand() % 100;
+	if(c2 < 0)
+	{
+		c2 = 0;
+	}
+	if(c2 > 100)
+	{
+		c2 = 100;
+	}
+	if(c2 >= 0 && c2 <= 15)
+	{
+		bcc = "2";
+	}
+	else if(c2 >= 16 && c2 <= 31)
+	{
+		bcc = "3";
+	}
+	else if(c2 >= 32 && c2 <= 47)
+	{
+		bcc = "1";
+	}
+	else if(c2 >= 48 && c2 <= 63)
+	{
+		bcc = "6";
+	}
+	else if(c2 >= 64 && c2 <= 85)
+	{
+		bcc = "4";
+	}
+	else if(c2 >= 86 && c2 <= 100)
+	{
+		bcc = "5";
+	}
+
+
+	Info_SetValueForKey(userinfo, "color1", bc);
+	Info_SetValueForKey(userinfo, "color2", bcc);
+
 	Info_SetValueForKey(userinfo, "characterfile", Info_ValueForKey(botinfo, "aifile"));
 	Info_SetValueForKey(userinfo, "skill", va("%5.2f", skill));
 	Info_SetValueForKey(userinfo, "team", team);

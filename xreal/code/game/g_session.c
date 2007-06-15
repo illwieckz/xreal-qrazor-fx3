@@ -46,11 +46,12 @@ void G_WriteClientSessionData(gclient_t * client)
 	const char     *s;
 	const char     *var;
 
-	s = va("%i %i %i %i %i %i %i",
+	s = va("%i %i %i %i %i %i %i %i %i",
 		   client->sess.sessionTeam,
 		   client->sess.spectatorTime,
 		   client->sess.spectatorState,
-		   client->sess.spectatorClient, client->sess.wins, client->sess.losses, client->sess.teamLeader);
+		   client->sess.spectatorClient,
+		   client->sess.wins, client->sess.losses, client->sess.teamLeader, client->sess.ref, client->sess.speconly);
 
 	var = va("session%i", client - level.clients);
 
@@ -77,10 +78,10 @@ void G_ReadSessionData(gclient_t * client)
 	var = va("session%i", client - level.clients);
 	trap_Cvar_VariableStringBuffer(var, s, sizeof(s));
 
-	sscanf(s, "%i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
+	sscanf(s, "%i %i %i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
 		   &client->sess.spectatorTime, &spectatorState,	// bk010221 - format
-		   &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader	// bk010221 - format
-		);
+		   &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader,	// bk010221 - format
+		   &client->sess.ref, &client->sess.speconly);
 
 	// bk001205 - format issues
 	client->sess.sessionTeam = (team_t) sessionTeam;
@@ -156,6 +157,8 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 		}
 	}
 
+	sess->ref = 0;
+	sess->speconly = 0;
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
 
@@ -166,6 +169,7 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 /*
 ==================
 G_InitWorldSession
+
 ==================
 */
 void G_InitWorldSession(void)
@@ -188,6 +192,7 @@ void G_InitWorldSession(void)
 /*
 ==================
 G_WriteSessionData
+
 ==================
 */
 void G_WriteSessionData(void)

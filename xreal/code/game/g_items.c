@@ -39,10 +39,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	RESPAWN_ARMOR		25
 #define	RESPAWN_HEALTH		35
-#define	RESPAWN_AMMO		40
+#define	RESPAWN_AMMO		35
 #define	RESPAWN_HOLDABLE	60
-#define	RESPAWN_MEGAHEALTH	35	//120
-#define	RESPAWN_POWERUP		120
+#define	RESPAWN_MEGAHEALTH	50	//120
+#define	RESPAWN_POWERUP		100
 
 
 //======================================================================
@@ -70,6 +70,30 @@ int Pickup_Powerup(gentity_t * ent, gentity_t * other)
 	}
 
 	other->client->ps.powerups[ent->item->giTag] += quantity * 1000;
+
+	switch (ent->item->giTag)
+	{
+		case PW_QUAD:
+			other->client->pickupquad++;
+			break;
+		case PW_BATTLESUIT:
+			other->client->pickupsuit++;
+			break;
+		case PW_HASTE:
+			other->client->pickuphaste++;
+			break;
+		case PW_INVIS:
+			other->client->pickupinvis++;
+			break;
+		case PW_REGEN:
+			other->client->pickupregen++;
+			break;
+		case PW_FLIGHT:
+			other->client->pickupflight++;
+			break;
+		default:
+			break;
+	}
 
 	// give any nearby players a "denied" anti-reward
 	for(i = 0; i < level.maxclients; i++)
@@ -161,17 +185,6 @@ int Pickup_PersistantPowerup(gentity_t * ent, gentity_t * other)
 
 			break;
 
-		case PW_SCOUT:
-			clientNum = other->client->ps.clientNum;
-			trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
-			handicap = atof(Info_ValueForKey(userinfo, "handicap"));
-			if(handicap <= 0.0f || handicap > 100.0f)
-			{
-				handicap = 100.0f;
-			}
-			other->client->pers.maxHealth = handicap;
-			other->client->ps.stats[STAT_ARMOR] = 0;
-			break;
 
 		case PW_DOUBLER:
 			clientNum = other->client->ps.clientNum;
@@ -221,8 +234,21 @@ int Pickup_Holdable(gentity_t * ent, gentity_t * other)
 	{
 		other->client->ps.eFlags |= EF_KAMIKAZE;
 	}
-
-	return RESPAWN_HOLDABLE;
+	if(ent->item->giTag == HI_KAMIKAZE || ent->item->giTag == HI_INVULNERABILITY)
+	{
+		if(g_gametype.integer == GT_TEAM)
+		{
+			return g_weaponTeamRespawn.integer;
+		}
+		else
+		{
+			return g_weaponRespawn.integer;
+		}
+	}
+	else
+	{
+		return RESPAWN_HOLDABLE;
+	}
 }
 
 
@@ -231,24 +257,90 @@ int Pickup_Holdable(gentity_t * ent, gentity_t * other)
 void Add_Ammo(gentity_t * ent, int weapon, int count)
 {
 	ent->client->ps.ammo[weapon] += count;
-	if(ent->client->ps.ammo[weapon] > 200)
+	if(weapon == WP_RAILGUN)
 	{
-		ent->client->ps.ammo[weapon] = 200;
+		if(ent->client->ps.ammo[weapon] > 40)
+		{
+			ent->client->ps.ammo[weapon] = 40;
+		}
 	}
-}
+	else if(weapon == WP_FLAMETHROWER)
+	{
+		if(ent->client->ps.ammo[weapon] > 80)
+		{
+			ent->client->ps.ammo[weapon] = 80;
+		}
+	}
+	else if(weapon == WP_IRAILGUN)
+	{
+		if(ent->client->ps.ammo[weapon] > 40)
+		{
+			ent->client->ps.ammo[weapon] = 40;
+		}
+	}
+	else if(weapon == WP_ROCKET_LAUNCHER)
+	{
+		if(ent->client->ps.ammo[weapon] > 35)
+		{
+			ent->client->ps.ammo[weapon] = 35;
+		}
+	}
+	else if(weapon == WP_MACHINEGUN)
+	{
+		if(ent->client->ps.ammo[weapon] > 320)
+		{
+			ent->client->ps.ammo[weapon] = 320;
+		}
+	}
+	else if(weapon == WP_PLASMAGUN)
+	{
+		if(ent->client->ps.ammo[weapon] > 240)
+		{
+			ent->client->ps.ammo[weapon] = 240;
+		}
+	}
+	else if(weapon == WP_SHOTGUN)
+	{
+		if(ent->client->ps.ammo[weapon] > 60)
+		{
+			ent->client->ps.ammo[weapon] = 60;
+		}
+	}
+	else if(weapon == WP_BFG)
+	{
+		if(ent->client->ps.ammo[weapon] > 6)
+		{
+			ent->client->ps.ammo[weapon] = 6;
+		}
+	}
+	else if(weapon == WP_GRENADE_LAUNCHER)
+	{
+		if(ent->client->ps.ammo[weapon] > 60)
+		{
+			ent->client->ps.ammo[weapon] = 60;
+		}
+	}
+	else if(weapon == WP_LIGHTNING)
+	{
+		if(ent->client->ps.ammo[weapon] > 260)
+		{
+			ent->client->ps.ammo[weapon] = 260;
+		}
+	}
+	else
+	{
+		if(ent->client->ps.ammo[weapon] > 200)
+		{
+			ent->client->ps.ammo[weapon] = 200;
+		}
+	}
 
+}
 int Pickup_Ammo(gentity_t * ent, gentity_t * other)
 {
 	int             quantity;
 
-	if(ent->count)
-	{
-		quantity = ent->count;
-	}
-	else
-	{
-		quantity = ent->item->quantity;
-	}
+	quantity = ent->item->quantity;
 
 	Add_Ammo(other, ent->item->giTag, quantity);
 
@@ -260,11 +352,16 @@ int Pickup_Ammo(gentity_t * ent, gentity_t * other)
 
 int Pickup_Weapon(gentity_t * ent, gentity_t * other)
 {
+//  gclient_t *cl = other->client;
 	int             quantity;
 
 	if(ent->count < 0)
 	{
 		quantity = 0;			// None for you, sir!
+	}
+	else if(ent->count == 999)
+	{
+		quantity = 999;			// None for you, sir!
 	}
 	else
 	{
@@ -278,28 +375,106 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other)
 		}
 
 		// dropped items and teamplay weapons always have full ammo
-		if(!(ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM)
+		if(!(ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM &&
+		   !(other->client->ps.stats[STAT_WEAPONS] & (1 << ent->item->giTag)))
 		{
 			// respawning rules
 			// drop the quantity if the already have over the minimum
-			if(other->client->ps.ammo[ent->item->giTag] < quantity)
-			{
-				quantity = quantity - other->client->ps.ammo[ent->item->giTag];
-			}
-			else
-			{
-				quantity = 1;	// only add a single shot
-			}
+			//  if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
+			quantity = quantity;	//- other->client->ps.ammo[ ent->item->giTag ];
+			//} else {
+			//      quantity = 1 ;      // only add a single shot
+			//  }
 		}
+		else if(!(ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM &&
+				other->client->ps.ammo[ent->item->giTag] < quantity)
+		{
+			quantity = quantity - other->client->ps.ammo[ent->item->giTag];
+		}
+		else if(!(ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM &&
+				other->client->ps.ammo[ent->item->giTag] >= quantity &&
+				other->client->ps.stats[STAT_WEAPONS] & (1 << ent->item->giTag))
+		{
+			quantity = 1;
+		}
+
 	}
 
-	// add the weapon
-	other->client->ps.stats[STAT_WEAPONS] |= (1 << ent->item->giTag);
+	if(!(other->client->ps.stats[STAT_WEAPONS] & (1 << ent->item->giTag)))
+	{
+		// add the weapon
+		other->client->ps.stats[STAT_WEAPONS] |= (1 << ent->item->giTag);
+	}
 
-	Add_Ammo(other, ent->item->giTag, quantity);
+
+
+
+	switch (ent->item->giTag)
+	{
+		case WP_ROCKET_LAUNCHER:
+			other->client->pickup[WP_ROCKET_LAUNCHER]++;
+			Add_Ammo(other, ent->item->giTag, quantity);
+			break;
+		case WP_GRENADE_LAUNCHER:
+			other->client->pickup[WP_GRENADE_LAUNCHER]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_RAILGUN:
+			other->client->pickup[WP_RAILGUN]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_IRAILGUN:
+			other->client->pickup[WP_IRAILGUN]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_MACHINEGUN:
+			other->client->pickup[WP_MACHINEGUN]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_SHOTGUN:
+			other->client->pickup[WP_SHOTGUN]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_LIGHTNING:
+			other->client->pickup[WP_LIGHTNING]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_PLASMAGUN:
+			other->client->pickup[WP_PLASMAGUN]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_BFG:
+			other->client->pickup[WP_BFG]++;
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		case WP_FLAMETHROWER:
+
+			Add_Ammo(other, ent->item->giTag, quantity);
+
+			break;
+		default:
+			break;
+	}
+
 
 	if(ent->item->giTag == WP_GRAPPLING_HOOK)
-		other->client->ps.ammo[ent->item->giTag] = -1;	// unlimited ammo
+		other->client->ps.ammo[ent->item->giTag] = 999;	// unlimited ammo
 
 	// team deathmatch has slow weapon respawns
 	if(g_gametype.integer == GT_TEAM)
@@ -338,13 +513,33 @@ int Pickup_Health(gentity_t * ent, gentity_t * other)
 	if(ent->count)
 	{
 		quantity = ent->count;
+		other->client->pickupHealthT += quantity;
 	}
 	else
 	{
 		quantity = ent->item->quantity;
+		other->client->pickupHealthT += quantity;
 	}
 
 	other->health += quantity;
+
+	switch (ent->item->giTag)
+	{
+		case IH_MHEALTH:
+			other->client->pickupmega++;
+			break;
+		case IH_5HEALTH:
+			other->client->pickup5h++;
+			break;
+		case IH_20HEALTH:
+			other->client->pickup20h++;
+			break;
+		case IH_40HEALTH:
+			other->client->pickup40h++;
+			break;
+		default:
+			break;
+	}
 
 	if(other->health > max)
 	{
@@ -364,31 +559,35 @@ int Pickup_Health(gentity_t * ent, gentity_t * other)
 
 int Pickup_Armor(gentity_t * ent, gentity_t * other)
 {
-#ifdef MISSIONPACK
-	int             upperBound;
 
-	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
 
-	if(other->client && bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD)
+	switch (ent->item->giTag)
 	{
-		upperBound = other->client->ps.stats[STAT_MAX_HEALTH];
+		case IA_YARMOR:
+			other->client->pickupyarmor++;
+			other->client->pickupArmorT += 25;
+			other->client->ps.stats[STAT_ARMOR] += 25;
+			break;
+		case IA_RARMOR:
+			other->client->pickuprarmor++;
+			other->client->pickupArmorT += 75;
+			other->client->ps.stats[STAT_ARMOR] += 75;
+			break;
+		case IA_SHARD:
+			other->client->pickupshard++;
+			other->client->pickupArmorT += 3;
+			other->client->ps.stats[STAT_ARMOR] += 3;
+			break;
+		default:
+			break;
 	}
-	else
-	{
-		upperBound = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
-	}
-
-	if(other->client->ps.stats[STAT_ARMOR] > upperBound)
-	{
-		other->client->ps.stats[STAT_ARMOR] = upperBound;
-	}
-#else
-	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
 	if(other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * 2)
 	{
 		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
 	}
-#endif
+
+
+
 
 	return RESPAWN_ARMOR;
 }
@@ -434,17 +633,25 @@ void RespawnItem(gentity_t * ent)
 		// play powerup spawn sound to all clients
 		gentity_t      *te;
 
-		// if the powerup respawn sound should Not be global
-		if(ent->speed)
+		if(Instagib.integer == 1 && Instapowups.integer != 1)
 		{
-			te = G_TempEntity(ent->s.pos.trBase, EV_GENERAL_SOUND);
+			// No sound for instagib modes if insta powerups are disabled
 		}
 		else
 		{
-			te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_SOUND);
+			// if the powerup respawn sound should Not be global
+
+			if(ent->speed)
+			{
+				te = G_TempEntity(ent->s.pos.trBase, EV_GENERAL_SOUND);
+			}
+			else
+			{
+				te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_SOUND);
+			}
+			te->s.eventParm = G_SoundIndex("sound/items/poweruprespawn.wav");
+			te->r.svFlags |= SVF_BROADCAST;
 		}
-		te->s.eventParm = G_SoundIndex("sound/items/poweruprespawn.ogg");
-		te->r.svFlags |= SVF_BROADCAST;
 	}
 
 	if(ent->item->giType == IT_HOLDABLE && ent->item->giTag == HI_KAMIKAZE)
@@ -482,6 +689,8 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	int             respawn;
 	qboolean        predict;
 
+
+
 	if(!other->client)
 		return;
 	if(other->health < 1)
@@ -492,45 +701,69 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	{
 		return;
 	}
-
-	G_LogPrintf("Item: %i %s\n", other->s.number, ent->item->classname);
+	if(Instagib.integer == 0 || ent->item->giType == IT_TEAM)
+	{
+		G_LogPrintf("Item: %i %s\n", other->s.number, ent->item->classname);
+	}
 
 	predict = other->client->pers.predictItemPickup;
 
-	// call the item-specific pickup function
-	switch (ent->item->giType)
+	if(Instagib.integer == 0)
 	{
-		case IT_WEAPON:
-			respawn = Pickup_Weapon(ent, other);
-//      predict = qfalse;
-			break;
-		case IT_AMMO:
-			respawn = Pickup_Ammo(ent, other);
-//      predict = qfalse;
-			break;
-		case IT_ARMOR:
-			respawn = Pickup_Armor(ent, other);
-			break;
-		case IT_HEALTH:
-			respawn = Pickup_Health(ent, other);
-			break;
-		case IT_POWERUP:
-			respawn = Pickup_Powerup(ent, other);
-			predict = qfalse;
-			break;
-#ifdef MISSIONPACK
-		case IT_PERSISTANT_POWERUP:
-			respawn = Pickup_PersistantPowerup(ent, other);
-			break;
-#endif
-		case IT_TEAM:
-			respawn = Pickup_Team(ent, other);
-			break;
-		case IT_HOLDABLE:
-			respawn = Pickup_Holdable(ent, other);
-			break;
-		default:
-			return;
+		// call the item-specific pickup function
+		switch (ent->item->giType)
+		{
+			case IT_WEAPON:
+				respawn = Pickup_Weapon(ent, other);
+				break;
+			case IT_AMMO:
+				respawn = Pickup_Ammo(ent, other);
+				break;
+			case IT_ARMOR:
+				respawn = Pickup_Armor(ent, other);
+				break;
+			case IT_HEALTH:
+				respawn = Pickup_Health(ent, other);
+				break;
+			case IT_POWERUP:
+				respawn = Pickup_Powerup(ent, other);
+				predict = qfalse;
+				break;
+			case IT_TEAM:
+				respawn = Pickup_Team(ent, other);
+				break;
+			case IT_HOLDABLE:
+				respawn = Pickup_Holdable(ent, other);
+				break;
+			default:
+				return;
+		}
+	}
+	else if(Instagib.integer == 1 && Instapowups.integer == 0)
+	{
+		switch (ent->item->giType)
+		{
+			case IT_TEAM:
+				respawn = Pickup_Team(ent, other);
+				break;
+			default:
+				return;
+		}
+	}
+	else if(Instagib.integer == 1 && Instapowups.integer == 1)
+	{
+		switch (ent->item->giType)
+		{
+			case IT_POWERUP:
+				respawn = Pickup_Powerup(ent, other);
+				predict = qfalse;
+				break;
+			case IT_TEAM:
+				respawn = Pickup_Team(ent, other);
+				break;
+			default:
+				return;
+		}
 	}
 
 	if(!respawn)
@@ -576,7 +809,7 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	G_UseTargets(ent, other);
 
 	// wait of -1 will not respawn
-	if(ent->wait == -1)
+	if(ent->wait == -1 && strcmp(ent->classname, "holdable_kamikaze") && strcmp(ent->classname, "holdable_invulnerability"))
 	{
 		ent->r.svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
@@ -586,13 +819,13 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	}
 
 	// non zero wait overrides respawn time
-	if(ent->wait)
+	if(ent->wait && strcmp(ent->classname, "holdable_kamikaze") && strcmp(ent->classname, "holdable_invulnerability"))
 	{
 		respawn = ent->wait;
 	}
 
 	// random can be used to vary the respawn time
-	if(ent->random)
+	if(ent->random && strcmp(ent->classname, "holdable_kamikaze") && strcmp(ent->classname, "holdable_invulnerability"))
 	{
 		respawn += crandom() * ent->random;
 		if(respawn < 1)
@@ -632,6 +865,7 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 }
 
 
+
 //======================================================================
 
 /*
@@ -641,7 +875,7 @@ LaunchItem
 Spawns an item and tosses it forward
 ================
 */
-gentity_t      *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity)
+gentity_t      *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, vec3_t angles)
 {
 	gentity_t      *dropped;
 
@@ -650,7 +884,6 @@ gentity_t      *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity)
 	dropped->s.eType = ET_ITEM;
 	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
 	dropped->s.modelindex2 = 1;	// This is non-zero is it's a dropped item
-
 	dropped->classname = item->classname;
 	dropped->item = item;
 	VectorSet(dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
@@ -663,15 +896,12 @@ gentity_t      *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity)
 	dropped->s.pos.trType = TR_GRAVITY;
 	dropped->s.pos.trTime = level.time;
 	VectorCopy(velocity, dropped->s.pos.trDelta);
+	VectorCopy(angles, dropped->s.angles);
 
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
-#ifdef MISSIONPACK
-	if((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF) && item->giType == IT_TEAM)
-	{							// Special case for CTF flags
-#else
+
 	if(g_gametype.integer == GT_CTF && item->giType == IT_TEAM)
 	{							// Special case for CTF flags
-#endif
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem(dropped);
@@ -709,7 +939,7 @@ gentity_t      *Drop_Item(gentity_t * ent, gitem_t * item, float angle)
 	VectorScale(velocity, 150, velocity);
 	velocity[2] += 200 + crandom() * 50;
 
-	return LaunchItem(item, ent->s.pos.trBase, velocity);
+	return LaunchItem(item, ent->s.pos.trBase, velocity, angles);
 }
 
 
@@ -764,11 +994,7 @@ void FinishSpawningItem(gentity_t * ent)
 		trap_Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID);
 		if(tr.startsolid)
 		{
-			if(ent->name)
-				G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->name, vtos(ent->s.origin));
-			else
-				G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
-				
+			G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
 			G_FreeEntity(ent);
 			return;
 		}
@@ -780,13 +1006,13 @@ void FinishSpawningItem(gentity_t * ent)
 	}
 
 	// team slaves and targeted items aren't present at start
-	// Tr3B - Doom3 entities have always a name
-	if((ent->flags & FL_TEAMSLAVE) /*|| ent->name*/)
+	if((ent->flags & FL_TEAMSLAVE) || ent->targetname)
 	{
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;
 		return;
 	}
+
 
 	// powerups don't spawn in for a while
 	if(ent->item->giType == IT_POWERUP)
@@ -800,6 +1026,8 @@ void FinishSpawningItem(gentity_t * ent)
 		ent->think = RespawnItem;
 		return;
 	}
+
+
 
 
 	trap_LinkEntity(ent);
@@ -919,6 +1147,14 @@ void ClearRegisteredItems(void)
 	// players always start with the base weapon
 	RegisterItem(BG_FindItemForWeapon(WP_MACHINEGUN));
 	RegisterItem(BG_FindItemForWeapon(WP_GAUNTLET));
+	RegisterItem(BG_FindItemForWeapon(WP_GRAPPLING_HOOK));
+	RegisterItem(BG_FindItemForPowerup(PW_HASTE));
+	RegisterItem(BG_FindItemForPowerup(PW_SPAWNPROT));
+	if(Instagib.integer == 1)
+	{
+		RegisterItem(BG_FindItemForWeapon(WP_RAILGUN));
+		RegisterItem(BG_FindItemForWeapon(WP_ROCKET_LAUNCHER));
+	}
 #ifdef MISSIONPACK
 	if(g_gametype.integer == GT_HARVESTER)
 	{
@@ -966,6 +1202,7 @@ void SaveRegisteredItems(void)
 		{
 			count++;
 			string[i] = '1';
+
 		}
 		else
 		{
@@ -1012,6 +1249,7 @@ void G_SpawnItem(gentity_t * ent, gitem_t * item)
 		return;
 
 	ent->item = item;
+
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
 	ent->nextthink = level.time + FRAMETIME * 2;
@@ -1019,10 +1257,23 @@ void G_SpawnItem(gentity_t * ent, gitem_t * item)
 
 	ent->physicsBounce = 0.50;	// items are bouncy
 
-	if(item->giType == IT_POWERUP)
+
+
+	if(item->giType == IT_WEAPON)
 	{
-		G_SoundIndex("sound/items/poweruprespawn.ogg");
-		G_SpawnFloat("noglobalsound", "0", &ent->speed);
+		level.RegisteredItem[item->giTag] = qtrue;
+	}
+	if(item->giType == IT_POWERUP && Instagib.integer == 0)
+	{
+		if(Instagib.integer == 1 && Instapowups.integer != 1)
+		{
+			// No sound for instagib modes if insta powerups are disabled
+		}
+		else
+		{
+			G_SoundIndex("sound/items/poweruprespawn.wav");
+			G_SpawnFloat("noglobalsound", "0", &ent->speed);
+		}
 	}
 
 #ifdef MISSIONPACK
@@ -1092,6 +1343,29 @@ void G_RunItem(gentity_t * ent)
 			ent->s.pos.trType = TR_GRAVITY;
 			ent->s.pos.trTime = level.time;
 		}
+	}
+
+	if(Instagib.integer == 1)
+	{
+		if(ent->item->giType != IT_TEAM)
+		{
+			if(ent->item->giType != IT_POWERUP)
+			{
+				ent->flags |= FL_NODRAW;
+			}
+			else if(ent->item->giType == IT_POWERUP && Instapowups.integer == 0)
+			{
+				ent->flags |= FL_NODRAW;
+			}
+			else if(ent->item->giType == IT_POWERUP && Instapowups.integer == 1)
+			{
+				ent->flags &= ~FL_NODRAW;
+			}
+		}
+	}
+	else
+	{
+		ent->flags &= ~FL_NODRAW;
 	}
 
 	if(ent->s.pos.trType == TR_STATIONARY)

@@ -476,6 +476,7 @@ static void Svcmd_LuaRestart_f(void)
 /*
 =================
 ConsoleCommand
+
 =================
 */
 qboolean ConsoleCommand(void)
@@ -531,7 +532,7 @@ qboolean ConsoleCommand(void)
 		Svcmd_RemoveIP_f();
 		return qtrue;
 	}
-	
+
 #ifdef LUA
 	if(Q_stricmp(cmd, "lua_restart") == 0)
 	{
@@ -550,11 +551,11 @@ qboolean ConsoleCommand(void)
 	{
 		if(Q_stricmp(cmd, "say") == 0)
 		{
-			trap_SendServerCommand(-1, va("print \"server: %s\"", ConcatArgs(1)));
+			trap_SendServerCommand(-1, va("print \"%s\"", ConcatArgs(1)));
 			return qtrue;
 		}
 		// everything else will also be printed as a say command
-		trap_SendServerCommand(-1, va("print \"server: %s\"", ConcatArgs(0)));
+		trap_SendServerCommand(-1, va("print \"%s\"", ConcatArgs(0)));
 		return qtrue;
 	}
 

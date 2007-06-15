@@ -45,13 +45,22 @@ void Use_Target_Give(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 	memset(&trace, 0, sizeof(trace));
 	t = NULL;
-	while((t = G_Find(t, FOFS(name), ent->target)) != NULL)
+//JH break q3/d3
+	while((t = G_Find(t, FOFS(targetname), ent->target)) != NULL)
 	{
 		if(!t->item)
 		{
 			continue;
 		}
-		Touch_Item(t, activator, &trace);
+		if(t->item->giTag == WP_BFG)
+		{
+			Touch_Item(t, activator, &trace);
+			activator->client->ps.ammo[WP_BFG] = 999;
+		}
+		else
+		{
+			Touch_Item(t, activator, &trace);
+		}
 
 		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
@@ -80,15 +89,11 @@ void Use_target_remove_powerups(gentity_t * ent, gentity_t * other, gentity_t * 
 
 	if(activator->client->ps.powerups[PW_REDFLAG])
 	{
-		Team_ReturnFlag(TEAM_RED);
+		Team_ReturnFlag(ent, TEAM_RED);
 	}
 	else if(activator->client->ps.powerups[PW_BLUEFLAG])
 	{
-		Team_ReturnFlag(TEAM_BLUE);
-	}
-	else if(activator->client->ps.powerups[PW_NEUTRALFLAG])
-	{
-		Team_ReturnFlag(TEAM_FREE);
+		Team_ReturnFlag(ent, TEAM_BLUE);
 	}
 
 	memset(activator->client->ps.powerups, 0, sizeof(activator->client->ps.powerups));
@@ -360,7 +365,8 @@ void target_laser_start(gentity_t * self)
 
 	if(self->target)
 	{
-		ent = G_Find(NULL, FOFS(name), self->target);
+//JH break q3/d3
+		ent = G_Find(NULL, FOFS(targetname), self->target);
 		if(!ent)
 		{
 			G_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
@@ -417,7 +423,8 @@ The activator will be teleported away.
 */
 void SP_target_teleporter(gentity_t * self)
 {
-	if(!self->name)
+//JH break q3/d3
+	if(!self->targetname)
 		G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
 
 	self->use = target_teleporter_use;

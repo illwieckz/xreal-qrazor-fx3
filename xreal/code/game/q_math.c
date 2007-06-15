@@ -37,20 +37,20 @@ matrix_t matrixIdentity = {	1, 0, 0, 0,
 
 quat_t          quatIdentity = { 0, 0, 0, 1 };
 
-vec4_t          colorBlack      = {0, 0, 0, 1};
-vec4_t          colorRed        = {1, 0, 0, 1};
-vec4_t          colorGreen      = {0, 1, 0, 1};
-vec4_t          colorBlue       = {0, 0, 1, 1};
-vec4_t          colorYellow     = {1, 1, 0, 1};
-vec4_t          colorMagenta	= {1, 0, 1, 1};
-vec4_t          colorCyan       = {0, 1, 1, 1};
-vec4_t          colorWhite      = {1, 1, 1, 1};
-vec4_t          colorLtGrey     = {0.75, 0.75, 0.75, 1};
-vec4_t          colorMdGrey     = {0.5, 0.5, 0.5, 1};
-vec4_t          colorDkGrey     = {0.25, 0.25, 0.25, 1};
+vec4_t          colorBlack = { 0, 0, 0, 1 };
+vec4_t          colorRed = { 1, 0, 0, 1 };
+vec4_t          colorGreen = { 0, 1, 0, 1 };
+vec4_t          colorBlue = { 0, 0, 1, 1 };
+vec4_t          colorYellow = { 1, 1, 0, 1 };
+vec4_t          colorMagenta = { 1, 0, 1, 1 };
+vec4_t          colorCyan = { 0, 1, 1, 1 };
+vec4_t          colorWhite = { 1, 1, 1, 1 };
+vec4_t          colorLtGrey = { 0.75, 0.75, 0.75, 1 };
+vec4_t          colorMdGrey = { 0.5, 0.5, 0.5, 1 };
+vec4_t          colorDkGrey = { 0.25, 0.25, 0.25, 1 };
 
-vec4_t  g_color_table[8] =
-{
+vec4_t	g_color_table[8] =
+	{
 	{0.0, 0.0, 0.0, 1.0},
 	{1.0, 0.0, 0.0, 1.0},
 	{0.0, 1.0, 0.0, 1.0},
@@ -62,89 +62,89 @@ vec4_t  g_color_table[8] =
 };
 
 
-vec3_t  bytedirs[NUMVERTEXNORMALS] =
+vec3_t	bytedirs[NUMVERTEXNORMALS] =
 {
-	{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f}, 
-	{-0.295242f, 0.000000f, 0.955423f}, {-0.309017f, 0.500000f, 0.809017f}, 
-	{-0.162460f, 0.262866f, 0.951056f}, {0.000000f, 0.000000f, 1.000000f}, 
-	{0.000000f, 0.850651f, 0.525731f}, {-0.147621f, 0.716567f, 0.681718f}, 
-	{0.147621f, 0.716567f, 0.681718f}, {0.000000f, 0.525731f, 0.850651f}, 
-	{0.309017f, 0.500000f, 0.809017f}, {0.525731f, 0.000000f, 0.850651f}, 
-	{0.295242f, 0.000000f, 0.955423f}, {0.442863f, 0.238856f, 0.864188f}, 
-	{0.162460f, 0.262866f, 0.951056f}, {-0.681718f, 0.147621f, 0.716567f}, 
-	{-0.809017f, 0.309017f, 0.500000f},{-0.587785f, 0.425325f, 0.688191f}, 
-	{-0.850651f, 0.525731f, 0.000000f},{-0.864188f, 0.442863f, 0.238856f}, 
-	{-0.716567f, 0.681718f, 0.147621f},{-0.688191f, 0.587785f, 0.425325f}, 
-	{-0.500000f, 0.809017f, 0.309017f}, {-0.238856f, 0.864188f, 0.442863f}, 
-	{-0.425325f, 0.688191f, 0.587785f}, {-0.716567f, 0.681718f, -0.147621f}, 
-	{-0.500000f, 0.809017f, -0.309017f}, {-0.525731f, 0.850651f, 0.000000f}, 
-	{0.000000f, 0.850651f, -0.525731f}, {-0.238856f, 0.864188f, -0.442863f}, 
-	{0.000000f, 0.955423f, -0.295242f}, {-0.262866f, 0.951056f, -0.162460f}, 
-	{0.000000f, 1.000000f, 0.000000f}, {0.000000f, 0.955423f, 0.295242f}, 
-	{-0.262866f, 0.951056f, 0.162460f}, {0.238856f, 0.864188f, 0.442863f}, 
-	{0.262866f, 0.951056f, 0.162460f}, {0.500000f, 0.809017f, 0.309017f}, 
-	{0.238856f, 0.864188f, -0.442863f},{0.262866f, 0.951056f, -0.162460f}, 
-	{0.500000f, 0.809017f, -0.309017f},{0.850651f, 0.525731f, 0.000000f}, 
-	{0.716567f, 0.681718f, 0.147621f}, {0.716567f, 0.681718f, -0.147621f}, 
-	{0.525731f, 0.850651f, 0.000000f}, {0.425325f, 0.688191f, 0.587785f}, 
-	{0.864188f, 0.442863f, 0.238856f}, {0.688191f, 0.587785f, 0.425325f}, 
-	{0.809017f, 0.309017f, 0.500000f}, {0.681718f, 0.147621f, 0.716567f}, 
-	{0.587785f, 0.425325f, 0.688191f}, {0.955423f, 0.295242f, 0.000000f}, 
-	{1.000000f, 0.000000f, 0.000000f}, {0.951056f, 0.162460f, 0.262866f}, 
-	{0.850651f, -0.525731f, 0.000000f},{0.955423f, -0.295242f, 0.000000f}, 
-	{0.864188f, -0.442863f, 0.238856f}, {0.951056f, -0.162460f, 0.262866f}, 
-	{0.809017f, -0.309017f, 0.500000f}, {0.681718f, -0.147621f, 0.716567f}, 
-	{0.850651f, 0.000000f, 0.525731f}, {0.864188f, 0.442863f, -0.238856f}, 
-	{0.809017f, 0.309017f, -0.500000f}, {0.951056f, 0.162460f, -0.262866f}, 
-	{0.525731f, 0.000000f, -0.850651f}, {0.681718f, 0.147621f, -0.716567f}, 
-	{0.681718f, -0.147621f, -0.716567f},{0.850651f, 0.000000f, -0.525731f}, 
-	{0.809017f, -0.309017f, -0.500000f}, {0.864188f, -0.442863f, -0.238856f}, 
-	{0.951056f, -0.162460f, -0.262866f}, {0.147621f, 0.716567f, -0.681718f}, 
-	{0.309017f, 0.500000f, -0.809017f}, {0.425325f, 0.688191f, -0.587785f}, 
-	{0.442863f, 0.238856f, -0.864188f}, {0.587785f, 0.425325f, -0.688191f}, 
-	{0.688191f, 0.587785f, -0.425325f}, {-0.147621f, 0.716567f, -0.681718f}, 
-	{-0.309017f, 0.500000f, -0.809017f}, {0.000000f, 0.525731f, -0.850651f}, 
-	{-0.525731f, 0.000000f, -0.850651f}, {-0.442863f, 0.238856f, -0.864188f}, 
-	{-0.295242f, 0.000000f, -0.955423f}, {-0.162460f, 0.262866f, -0.951056f}, 
-	{0.000000f, 0.000000f, -1.000000f}, {0.295242f, 0.000000f, -0.955423f}, 
-	{0.162460f, 0.262866f, -0.951056f}, {-0.442863f, -0.238856f, -0.864188f}, 
-	{-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f}, 
-	{0.000000f, -0.850651f, -0.525731f}, {-0.147621f, -0.716567f, -0.681718f}, 
-	{0.147621f, -0.716567f, -0.681718f}, {0.000000f, -0.525731f, -0.850651f}, 
-	{0.309017f, -0.500000f, -0.809017f}, {0.442863f, -0.238856f, -0.864188f}, 
-	{0.162460f, -0.262866f, -0.951056f}, {0.238856f, -0.864188f, -0.442863f}, 
-	{0.500000f, -0.809017f, -0.309017f}, {0.425325f, -0.688191f, -0.587785f}, 
-	{0.716567f, -0.681718f, -0.147621f}, {0.688191f, -0.587785f, -0.425325f}, 
-	{0.587785f, -0.425325f, -0.688191f}, {0.000000f, -0.955423f, -0.295242f}, 
-	{0.000000f, -1.000000f, 0.000000f}, {0.262866f, -0.951056f, -0.162460f}, 
-	{0.000000f, -0.850651f, 0.525731f}, {0.000000f, -0.955423f, 0.295242f}, 
-	{0.238856f, -0.864188f, 0.442863f}, {0.262866f, -0.951056f, 0.162460f}, 
-	{0.500000f, -0.809017f, 0.309017f}, {0.716567f, -0.681718f, 0.147621f}, 
-	{0.525731f, -0.850651f, 0.000000f}, {-0.238856f, -0.864188f, -0.442863f}, 
-	{-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f}, 
-	{-0.850651f, -0.525731f, 0.000000f}, {-0.716567f, -0.681718f, -0.147621f}, 
-	{-0.716567f, -0.681718f, 0.147621f}, {-0.525731f, -0.850651f, 0.000000f}, 
-	{-0.500000f, -0.809017f, 0.309017f}, {-0.238856f, -0.864188f, 0.442863f}, 
-	{-0.262866f, -0.951056f, 0.162460f}, {-0.864188f, -0.442863f, 0.238856f}, 
-	{-0.809017f, -0.309017f, 0.500000f}, {-0.688191f, -0.587785f, 0.425325f}, 
-	{-0.681718f, -0.147621f, 0.716567f}, {-0.442863f, -0.238856f, 0.864188f}, 
-	{-0.587785f, -0.425325f, 0.688191f}, {-0.309017f, -0.500000f, 0.809017f}, 
-	{-0.147621f, -0.716567f, 0.681718f}, {-0.425325f, -0.688191f, 0.587785f}, 
-	{-0.162460f, -0.262866f, 0.951056f}, {0.442863f, -0.238856f, 0.864188f}, 
-	{0.162460f, -0.262866f, 0.951056f}, {0.309017f, -0.500000f, 0.809017f}, 
-	{0.147621f, -0.716567f, 0.681718f}, {0.000000f, -0.525731f, 0.850651f}, 
-	{0.425325f, -0.688191f, 0.587785f}, {0.587785f, -0.425325f, 0.688191f}, 
-	{0.688191f, -0.587785f, 0.425325f}, {-0.955423f, 0.295242f, 0.000000f}, 
-	{-0.951056f, 0.162460f, 0.262866f}, {-1.000000f, 0.000000f, 0.000000f}, 
-	{-0.850651f, 0.000000f, 0.525731f}, {-0.955423f, -0.295242f, 0.000000f}, 
-	{-0.951056f, -0.162460f, 0.262866f}, {-0.864188f, 0.442863f, -0.238856f}, 
-	{-0.951056f, 0.162460f, -0.262866f}, {-0.809017f, 0.309017f, -0.500000f}, 
-	{-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f}, 
-	{-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f}, 
-	{-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f}, 
-	{-0.688191f, 0.587785f, -0.425325f}, {-0.587785f, 0.425325f, -0.688191f}, 
-	{-0.425325f, 0.688191f, -0.587785f}, {-0.425325f, -0.688191f, -0.587785f}, 
-	{-0.587785f, -0.425325f, -0.688191f}, {-0.688191f, -0.587785f, -0.425325f}
+{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f}, 
+{-0.295242f, 0.000000f, 0.955423f}, {-0.309017f, 0.500000f, 0.809017f}, 
+{-0.162460f, 0.262866f, 0.951056f}, {0.000000f, 0.000000f, 1.000000f}, 
+{0.000000f, 0.850651f, 0.525731f}, {-0.147621f, 0.716567f, 0.681718f}, 
+{0.147621f, 0.716567f, 0.681718f}, {0.000000f, 0.525731f, 0.850651f}, 
+{0.309017f, 0.500000f, 0.809017f}, {0.525731f, 0.000000f, 0.850651f}, 
+{0.295242f, 0.000000f, 0.955423f}, {0.442863f, 0.238856f, 0.864188f}, 
+{0.162460f, 0.262866f, 0.951056f}, {-0.681718f, 0.147621f, 0.716567f}, 
+{-0.809017f, 0.309017f, 0.500000f},{-0.587785f, 0.425325f, 0.688191f}, 
+{-0.850651f, 0.525731f, 0.000000f},{-0.864188f, 0.442863f, 0.238856f}, 
+{-0.716567f, 0.681718f, 0.147621f},{-0.688191f, 0.587785f, 0.425325f}, 
+{-0.500000f, 0.809017f, 0.309017f}, {-0.238856f, 0.864188f, 0.442863f}, 
+{-0.425325f, 0.688191f, 0.587785f}, {-0.716567f, 0.681718f, -0.147621f}, 
+{-0.500000f, 0.809017f, -0.309017f}, {-0.525731f, 0.850651f, 0.000000f}, 
+{0.000000f, 0.850651f, -0.525731f}, {-0.238856f, 0.864188f, -0.442863f}, 
+{0.000000f, 0.955423f, -0.295242f}, {-0.262866f, 0.951056f, -0.162460f}, 
+{0.000000f, 1.000000f, 0.000000f}, {0.000000f, 0.955423f, 0.295242f}, 
+{-0.262866f, 0.951056f, 0.162460f}, {0.238856f, 0.864188f, 0.442863f}, 
+{0.262866f, 0.951056f, 0.162460f}, {0.500000f, 0.809017f, 0.309017f}, 
+{0.238856f, 0.864188f, -0.442863f},{0.262866f, 0.951056f, -0.162460f}, 
+{0.500000f, 0.809017f, -0.309017f},{0.850651f, 0.525731f, 0.000000f}, 
+{0.716567f, 0.681718f, 0.147621f}, {0.716567f, 0.681718f, -0.147621f}, 
+{0.525731f, 0.850651f, 0.000000f}, {0.425325f, 0.688191f, 0.587785f}, 
+{0.864188f, 0.442863f, 0.238856f}, {0.688191f, 0.587785f, 0.425325f}, 
+{0.809017f, 0.309017f, 0.500000f}, {0.681718f, 0.147621f, 0.716567f}, 
+{0.587785f, 0.425325f, 0.688191f}, {0.955423f, 0.295242f, 0.000000f}, 
+{1.000000f, 0.000000f, 0.000000f}, {0.951056f, 0.162460f, 0.262866f}, 
+{0.850651f, -0.525731f, 0.000000f},{0.955423f, -0.295242f, 0.000000f}, 
+{0.864188f, -0.442863f, 0.238856f}, {0.951056f, -0.162460f, 0.262866f}, 
+{0.809017f, -0.309017f, 0.500000f}, {0.681718f, -0.147621f, 0.716567f}, 
+{0.850651f, 0.000000f, 0.525731f}, {0.864188f, 0.442863f, -0.238856f}, 
+{0.809017f, 0.309017f, -0.500000f}, {0.951056f, 0.162460f, -0.262866f}, 
+{0.525731f, 0.000000f, -0.850651f}, {0.681718f, 0.147621f, -0.716567f}, 
+{0.681718f, -0.147621f, -0.716567f},{0.850651f, 0.000000f, -0.525731f}, 
+{0.809017f, -0.309017f, -0.500000f}, {0.864188f, -0.442863f, -0.238856f}, 
+{0.951056f, -0.162460f, -0.262866f}, {0.147621f, 0.716567f, -0.681718f}, 
+{0.309017f, 0.500000f, -0.809017f}, {0.425325f, 0.688191f, -0.587785f}, 
+{0.442863f, 0.238856f, -0.864188f}, {0.587785f, 0.425325f, -0.688191f}, 
+{0.688191f, 0.587785f, -0.425325f}, {-0.147621f, 0.716567f, -0.681718f}, 
+{-0.309017f, 0.500000f, -0.809017f}, {0.000000f, 0.525731f, -0.850651f}, 
+{-0.525731f, 0.000000f, -0.850651f}, {-0.442863f, 0.238856f, -0.864188f}, 
+{-0.295242f, 0.000000f, -0.955423f}, {-0.162460f, 0.262866f, -0.951056f}, 
+{0.000000f, 0.000000f, -1.000000f}, {0.295242f, 0.000000f, -0.955423f}, 
+{0.162460f, 0.262866f, -0.951056f}, {-0.442863f, -0.238856f, -0.864188f}, 
+{-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f}, 
+{0.000000f, -0.850651f, -0.525731f}, {-0.147621f, -0.716567f, -0.681718f}, 
+{0.147621f, -0.716567f, -0.681718f}, {0.000000f, -0.525731f, -0.850651f}, 
+{0.309017f, -0.500000f, -0.809017f}, {0.442863f, -0.238856f, -0.864188f}, 
+{0.162460f, -0.262866f, -0.951056f}, {0.238856f, -0.864188f, -0.442863f}, 
+{0.500000f, -0.809017f, -0.309017f}, {0.425325f, -0.688191f, -0.587785f}, 
+{0.716567f, -0.681718f, -0.147621f}, {0.688191f, -0.587785f, -0.425325f}, 
+{0.587785f, -0.425325f, -0.688191f}, {0.000000f, -0.955423f, -0.295242f}, 
+{0.000000f, -1.000000f, 0.000000f}, {0.262866f, -0.951056f, -0.162460f}, 
+{0.000000f, -0.850651f, 0.525731f}, {0.000000f, -0.955423f, 0.295242f}, 
+{0.238856f, -0.864188f, 0.442863f}, {0.262866f, -0.951056f, 0.162460f}, 
+{0.500000f, -0.809017f, 0.309017f}, {0.716567f, -0.681718f, 0.147621f}, 
+{0.525731f, -0.850651f, 0.000000f}, {-0.238856f, -0.864188f, -0.442863f}, 
+{-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f}, 
+{-0.850651f, -0.525731f, 0.000000f}, {-0.716567f, -0.681718f, -0.147621f}, 
+{-0.716567f, -0.681718f, 0.147621f}, {-0.525731f, -0.850651f, 0.000000f}, 
+{-0.500000f, -0.809017f, 0.309017f}, {-0.238856f, -0.864188f, 0.442863f}, 
+{-0.262866f, -0.951056f, 0.162460f}, {-0.864188f, -0.442863f, 0.238856f}, 
+{-0.809017f, -0.309017f, 0.500000f}, {-0.688191f, -0.587785f, 0.425325f}, 
+{-0.681718f, -0.147621f, 0.716567f}, {-0.442863f, -0.238856f, 0.864188f}, 
+{-0.587785f, -0.425325f, 0.688191f}, {-0.309017f, -0.500000f, 0.809017f}, 
+{-0.147621f, -0.716567f, 0.681718f}, {-0.425325f, -0.688191f, 0.587785f}, 
+{-0.162460f, -0.262866f, 0.951056f}, {0.442863f, -0.238856f, 0.864188f}, 
+{0.162460f, -0.262866f, 0.951056f}, {0.309017f, -0.500000f, 0.809017f}, 
+{0.147621f, -0.716567f, 0.681718f}, {0.000000f, -0.525731f, 0.850651f}, 
+{0.425325f, -0.688191f, 0.587785f}, {0.587785f, -0.425325f, 0.688191f}, 
+{0.688191f, -0.587785f, 0.425325f}, {-0.955423f, 0.295242f, 0.000000f}, 
+{-0.951056f, 0.162460f, 0.262866f}, {-1.000000f, 0.000000f, 0.000000f}, 
+{-0.850651f, 0.000000f, 0.525731f}, {-0.955423f, -0.295242f, 0.000000f}, 
+{-0.951056f, -0.162460f, 0.262866f}, {-0.864188f, 0.442863f, -0.238856f}, 
+{-0.951056f, 0.162460f, -0.262866f}, {-0.809017f, 0.309017f, -0.500000f}, 
+{-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f}, 
+{-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f}, 
+{-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f}, 
+{-0.688191f, 0.587785f, -0.425325f}, {-0.587785f, 0.425325f, -0.688191f}, 
+{-0.425325f, 0.688191f, -0.587785f}, {-0.425325f, -0.688191f, -0.587785f}, 
+{-0.587785f, -0.425325f, -0.688191f}, {-0.688191f, -0.587785f, -0.425325f}
 };
 // *INDENT-ON*
 
@@ -321,6 +321,7 @@ vec_t PlaneNormalize(vec4_t plane)
 PlaneFromPoints
 
 Returns false if the triangle is degenrate.
+The normal will point out of the clock for clockwise ordered points
 =====================
 */
 qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw)
@@ -332,7 +333,7 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 
 	if(cw)
 	{
-		CrossProduct(d2, d1, plane);
+	CrossProduct(d2, d1, plane);
 	}
 	else
 	{
@@ -531,9 +532,6 @@ void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 	float           inv_denom;
 
 	inv_denom = DotProduct(normal, normal);
-#ifndef Q3_VM
-	//assert(Q_fabs(inv_denom) != 0.0f);	// bk010122 - zero vectors get here
-#endif
 	inv_denom = 1.0f / inv_denom;
 
 	d = DotProduct(normal, p) * inv_denom;
@@ -786,219 +784,219 @@ int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 // *INDENT-OFF*
 __declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
-	static int bops_initialized;
-	static int Ljmptab[8];
+	static int      bops_initialized;
+	static int      Ljmptab[8];
 
 	__asm {
 
-		push ebx
+	push            ebx
 			
-		cmp bops_initialized, 1
-		je  initialized
-		mov bops_initialized, 1
+			cmp bops_initialized, 1
+			je initialized
+			mov bops_initialized, 1
 		
-		mov Ljmptab[0*4], offset Lcase0
-		mov Ljmptab[1*4], offset Lcase1
-		mov Ljmptab[2*4], offset Lcase2
-		mov Ljmptab[3*4], offset Lcase3
-		mov Ljmptab[4*4], offset Lcase4
-		mov Ljmptab[5*4], offset Lcase5
-		mov Ljmptab[6*4], offset Lcase6
-		mov Ljmptab[7*4], offset Lcase7
+			mov Ljmptab[0 * 4], offset Lcase0
+			mov Ljmptab[1 * 4], offset Lcase1
+			mov Ljmptab[2 * 4], offset Lcase2
+			mov Ljmptab[3 * 4], offset Lcase3
+			mov Ljmptab[4 * 4], offset Lcase4
+			mov Ljmptab[5 * 4], offset Lcase5
+			mov Ljmptab[6 * 4], offset Lcase6
+			mov Ljmptab[7 * 4], offset Lcase7
 			
-initialized:
+			initialized:
 
-		mov edx,dword ptr[4+12+esp]
-		mov ecx,dword ptr[4+4+esp]
-		xor eax,eax
-		mov ebx,dword ptr[4+8+esp]
-		mov al,byte ptr[17+edx]
-		cmp al,8
-		jge Lerror
-		fld dword ptr[0+edx]
-		fld st(0)
-		jmp dword ptr[Ljmptab+eax*4]
-Lcase0:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase1:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase2:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase3:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase4:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase5:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase6:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase7:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-LSetSides:
-		faddp st(2),st(0)
-		fcomp dword ptr[12+edx]
-		xor ecx,ecx
-		fnstsw ax
-		fcomp dword ptr[12+edx]
+			mov edx, dword ptr[4 + 12 + esp]
+			mov ecx, dword ptr[4 + 4 + esp]
+			xor eax, eax
+			mov ebx, dword ptr[4 + 8 + esp]
+			mov al, byte ptr[17 + edx]
+			cmp al, 8
+			jge Lerror
+			fld dword ptr[0 + edx]
+			fld st(0)
+			jmp dword ptr[Ljmptab + eax * 4]
+			Lcase0:
+			fmul dword ptr[ebx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase1:
+			fmul dword ptr[ecx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase2:
+			fmul dword ptr[ebx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase3:
+			fmul dword ptr[ecx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase4:
+			fmul dword ptr[ebx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase5:
+			fmul dword ptr[ecx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase6:
+			fmul dword ptr[ebx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase7:
+			fmul dword ptr[ecx]
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			LSetSides:
+			faddp st(2), st(0)
+			fcomp dword ptr[12 + edx]
+			xor ecx, ecx
+			fnstsw ax
+			fcomp dword ptr[12 + edx]
 		and ah,1
 		xor ah,1
 		add cl,ah
@@ -1406,15 +1404,15 @@ PlaneTypeForNormal
 =================
 */
 /*
-int     PlaneTypeForNormal (vec3_t normal) {
-        if ( normal[0] == 1.0 )
-                return PLANE_X;
-        if ( normal[1] == 1.0 )
-                return PLANE_Y;
-        if ( normal[2] == 1.0 )
-                return PLANE_Z;
-        
-        return PLANE_NON_AXIAL;
+int	PlaneTypeForNormal (vec3_t normal) {
+	if ( normal[0] == 1.0 )
+		return PLANE_X;
+	if ( normal[1] == 1.0 )
+		return PLANE_Y;
+	if ( normal[2] == 1.0 )
+		return PLANE_Z;
+	
+	return PLANE_NON_AXIAL;
 }
 */
 
@@ -1616,6 +1614,41 @@ void MatrixTransposeIntoXMM(const matrix_t m)
 	: "memory"
 		);
 #endif
+}
+
+/*
+=================
+AxisToAngles
+
+  Used to convert the MD3 tag axis to MDC tag angles, which are much smaller
+
+  This doesn't have to be fast, since it's only used for conversion in utils, try to avoid
+  using this during gameplay
+=================
+*/
+void AxisToAngles( vec3_t axis[3], vec3_t angles ) {
+	vec3_t right, roll_angles, tvec;
+
+	// first get the pitch and yaw from the forward vector
+	vectoangles( axis[0], angles );
+
+	// now get the roll from the right vector
+	VectorCopy( axis[1], right );
+	// get the angle difference between the tmpAxis[2] and axis[2] after they have been reverse-rotated
+	RotatePointAroundVector( tvec, axisDefault[2], right, -angles[YAW] );
+	RotatePointAroundVector( right, axisDefault[1], tvec, -angles[PITCH] );
+	// now find the angles, the PITCH is effectively our ROLL
+	vectoangles( right, roll_angles );
+	roll_angles[PITCH] = AngleNormalize180( roll_angles[PITCH] );
+	// if the yaw is more than 90 degrees difference, we should adjust the pitch
+	if (DotProduct( right, axisDefault[1] ) < 0) {
+		if (roll_angles[PITCH] < 0)
+			roll_angles[PITCH] = -90 + (-90 - roll_angles[PITCH]);
+		else
+			roll_angles[PITCH] =  90 + ( 90 - roll_angles[PITCH]);
+	}
+
+	angles[ROLL] = -roll_angles[PITCH];
 }
 
 void MatrixTranspose(const matrix_t in, matrix_t out)
@@ -1959,7 +1992,7 @@ void MatrixToAngles(const matrix_t m, vec3_t angles)
 		angles[PITCH] = RAD2DEG(atan2(-m[9], m[5]));
 		angles[YAW] = RAD2DEG(a);
 		angles[ROLL] = 0;
-	}
+}
 #endif
 }
 
@@ -2022,7 +2055,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 	
 	yy2 = q[1] * y2;
 	xy2 = q[0] * y2;
-	
+
 	xz2 = q[0] * z2;
 	yz2 = q[1] * z2;
 	zz2 = q[2] * z2;
@@ -2048,7 +2081,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
     m[15] = 1;
 
 #else
-	/*
+/*
 	http://www.gamedev.net/reference/articles/article1691.asp#Q54
 	Q54. How do I convert a quaternion to a rotation matrix?
 	
@@ -2069,7 +2102,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
          ?                                            2     2  ?
          ? 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ?
          ?                                                     ?
-	*/
+*/
 	
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
 
@@ -2303,13 +2336,13 @@ void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
 void QuatFromMatrix(quat_t q, const matrix_t m)
 {
 #if 1
-	/*
+/*
 	   From Quaternion to Matrix and Back
 	   February 27th 2005
 	   J.M.P. van Waveren
 
 	   http://www.intel.com/cd/ids/developer/asmo-na/eng/293748.htm
-	 */
+*/
 	float           t, s;
 
 	if(m[0] + m[5] + m[10] > 0.0f)
@@ -2323,7 +2356,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		q[0] = (m[6] - m[9]) * s;
 	}
 	else if(m[0] > m[5] && m[0] > m[10])
-	{
+{
 		t = m[0] - m[5] - m[10] + 1.0f;
 		s = 0.5f / sqrt(t);
 
@@ -2331,7 +2364,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		q[1] = (m[1] + m[4]) * s;
 		q[2] = (m[8] + m[2]) * s;
 		q[3] = (m[6] - m[9]) * s;
-	}
+}
 	else if(m[5] > m[10])
 	{
 		t = -m[0] + m[5] - m[10] + 1.0f;
@@ -2343,7 +2376,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		q[2] = (m[6] + m[9]) * s;
 	}
 	else
-	{
+{
 		t = -m[0] - m[5] + m[10] + 1.0f;
 		s = 0.5f / sqrt(t);
 
@@ -2421,15 +2454,15 @@ void QuatToVectorsFRU(const quat_t q, vec3_t forward, vec3_t right, vec3_t up)
 
 	MatrixFromQuat(tmp, q);
 	MatrixToVectorsFRU(tmp, forward, right, up);
-}
+		}
 
 void QuatToAxis(const quat_t q, vec3_t axis[3])
-{
+		{
 	matrix_t        tmp;
 
 	MatrixFromQuat(tmp, q);
 	MatrixToVectorsFLU(tmp, axis[0], axis[1], axis[2]);
-}
+		}
 
 void QuatToAngles(const quat_t q, vec3_t angles)
 {
@@ -2443,7 +2476,7 @@ void QuatToAngles(const quat_t q, vec3_t angles)
 	angles[PITCH] = RAD2DEG(asin(-2 * (q[2] * q[0] - q[3] * q[1])));
 	angles[YAW] = RAD2DEG(atan2(2 * (q[2] * q[3] + q[0] * q[1]), (q2[2] - q2[3] - q2[0] + q2[1])));
 	angles[ROLL] = RAD2DEG(atan2(2 * (q[3] * q[0] + q[2] * q[1]), (-q2[2] - q2[3] + q2[0] + q2[1])));
-}
+	}
 
 
 void QuatMultiply0(quat_t qa, const quat_t qb)
@@ -2456,7 +2489,7 @@ void QuatMultiply0(quat_t qa, const quat_t qb)
 
 void QuatMultiply1(const quat_t qa, const quat_t qb, quat_t qc)
 {
-	/*
+/*
 	   from matrix and quaternion faq
 	   x = w1x2 + x1w2 + y1z2 - z1y2
 	   y = w1y2 + y1w2 + z1x2 - x1z2
@@ -2539,11 +2572,11 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 	   J.M.P. van Waveren
 
 	   http://www.intel.com/cd/ids/developer/asmo-na/eng/293747.htm
-	 */
+*/
 	float           cosom, absCosom, sinom, sinSqr, omega, scale0, scale1;
 
 	if(frac <= 0.0f)
-	{
+{
 		QuatCopy(from, out);
 		return;
 	}
@@ -2572,7 +2605,7 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 		scale0 = sin((1.0f - frac) * omega) * sinom;
 		scale1 = sin(frac * omega) * sinom;
 	}
-	else
+		else
 	{
 		scale0 = 1.0f - frac;
 		scale1 = frac;

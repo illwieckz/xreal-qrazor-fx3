@@ -214,22 +214,24 @@ Selects a random entity from among the targets
 =============
 */
 #define MAXCHOICES	32
-
-gentity_t      *G_PickTarget(char *name)
+//JH break q3/d3
+gentity_t      *G_PickTarget(char *targetname)
 {
 	gentity_t      *ent = NULL;
 	int             num_choices = 0;
 	gentity_t      *choice[MAXCHOICES];
-
-	if(!name)
+//JH break q3/d3
+	if(!targetname)
 	{
-		G_Printf("G_PickTarget called with NULL name\n");
+//JH break q3/d3
+		G_Printf("G_PickTarget called with NULL targetname\n");
 		return NULL;
 	}
 
 	while(1)
 	{
-		ent = G_Find(ent, FOFS(name), name);
+//JH break q3/d3
+		ent = G_Find(ent, FOFS(targetname), targetname);
 		if(!ent)
 			break;
 		choice[num_choices++] = ent;
@@ -239,7 +241,8 @@ gentity_t      *G_PickTarget(char *name)
 
 	if(!num_choices)
 	{
-		G_Printf("G_PickTarget: target %s not found\n", name);
+//JH break q3/d3
+		G_Printf("G_PickTarget: target %s not found\n", targetname);
 		return NULL;
 	}
 
@@ -252,8 +255,8 @@ gentity_t      *G_PickTarget(char *name)
 G_UseTargets
 
 "activator" should be set to the entity that initiated the firing.
-
-Search for (string)name in all entities that
+//JH break q3/d3
+Search for (string)targetname in all entities that
 match (string)self.target and call their .use function
 
 ==============================
@@ -281,7 +284,8 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 	}
 
 	t = NULL;
-	while((t = G_Find(t, FOFS(name), ent->target)) != NULL)
+//JH break q3/d3
+	while((t = G_Find(t, FOFS(targetname), ent->target)) != NULL)
 	{
 		if(t == ent)
 		{
@@ -389,8 +393,8 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir)
 
 float vectoyaw(const vec3_t vec)
 {
-	float           yaw;
-
+	float	yaw;
+	
 	if(vec[YAW] == 0 && vec[PITCH] == 0)
 	{
 		yaw = 0;
@@ -399,7 +403,7 @@ float vectoyaw(const vec3_t vec)
 	{
 		if(vec[PITCH])
 		{
-			yaw = (atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
+			yaw = ( atan2( vec[YAW], vec[PITCH]) * 180 / M_PI );
 		}
 		else if(vec[YAW] > 0)
 		{
@@ -684,6 +688,10 @@ void G_Sound(gentity_t * ent, int channel, int soundIndex)
 	gentity_t      *te;
 
 	te = G_TempEntity(ent->r.currentOrigin, EV_GENERAL_SOUND);
+	if(ent->client)
+	{
+		te->s.otherEntityNum2 = ent->client->ps.clientNum;
+	}
 	te->s.eventParm = soundIndex;
 }
 
@@ -707,6 +715,18 @@ void G_SetOrigin(gentity_t * ent, vec3_t origin)
 	VectorClear(ent->s.pos.trDelta);
 
 	VectorCopy(origin, ent->r.currentOrigin);
+}
+
+void G_SetAngle(gentity_t * ent, vec3_t angle)
+{
+
+	VectorCopy(angle, ent->s.apos.trBase);
+	ent->s.apos.trType = TR_STATIONARY;
+	ent->s.apos.trTime = 0;
+	ent->s.apos.trDuration = 0;
+	VectorClear(ent->s.apos.trDelta);
+
+	VectorCopy(angle, ent->r.currentAngles);
 }
 
 /*

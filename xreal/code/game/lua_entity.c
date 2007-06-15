@@ -172,7 +172,8 @@ static int entity_GetTargetName(lua_State * L)
 	lua_Entity     *lent;
 
 	lent = lua_getentity(L, 1);
-	lua_pushstring(L, lent->e->name);
+	//JH break q3/d3
+	lua_pushstring(L, lent->e->targetname);
 
 	return 1;
 }
@@ -208,7 +209,8 @@ static int entity_ToString(lua_State * L)
 	
 	lent = lua_getentity(L, 1);
 	gent = lent->e;
-	Com_sprintf(buf, sizeof(buf), "entity: class=%s name=%s id=%i pointer=%p\n", gent->classname, gent->name, gent - g_entities, gent);
+	//JH break q3/d3
+	Com_sprintf(buf, sizeof(buf), "entity: class=%s name=%s id=%i pointer=%p\n", gent->classname, gent->targetname, gent - g_entities, gent);
 	lua_pushstring(L, buf);
 	
 	return 1;
