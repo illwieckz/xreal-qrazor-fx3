@@ -252,7 +252,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 #if defined(_MSC_VER) && defined(_DEBUG)
 	if(code != ERR_DISCONNECT && code != ERR_NEED_CD)
 	{
-		if(!com_noErrorInterrupt->integer)
+		if(com_noErrorInterrupt && !com_noErrorInterrupt->integer)
 		{
 			__asm
 			{
