@@ -34,6 +34,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <io.h>
 #include <conio.h>
 
+#if _MSC_VER
+#pragma comment(lib, "gdi32.lib")
+#pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "ole32.lib")
+#endif
+
 #define	CD_BASEDIR	"xreal"
 #define	CD_EXE		"xreal.exe"
 #define	CD_BASEDIR_LINUX	"bin\\x86\\glibc-2.1"

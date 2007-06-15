@@ -73,7 +73,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -172,7 +171,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
