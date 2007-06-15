@@ -46,20 +46,20 @@ static void CG_DrawLoadingIcons(void)
 
 	for(n = 0; n < loadingPlayerIconCount; n++)
 	{
-		x = 16 + n * 78;
-		y = 324 - 40;
-		CG_DrawPic(x, y, 64, 64, loadingPlayerIcons[n]);
+		x = 16 + n * 18;
+		y = 352 - 18;
+		CG_DrawPic(x, y, 18, 18, loadingPlayerIcons[n]);
 	}
 
 	for(n = 0; n < loadingItemIconCount; n++)
 	{
-		y = 400 - 40;
+		y = 400 - 16;
 		if(n >= 13)
 		{
-			y += 40;
+			y += 16;
 		}
-		x = 16 + n % 13 * 48;
-		CG_DrawPic(x, y, 32, 32, loadingItemIcons[n]);
+		x = 16 + n % 13 * 16;
+		CG_DrawPic(x, y, 12, 12, loadingItemIcons[n]);
 	}
 }
 
@@ -164,7 +164,7 @@ Draw all the status / pacifier stuff during level loading
 */
 void CG_DrawInformation(void)
 {
-	const char     *s;
+	const char     *s = NULL, *s2 = NULL;
 	const char     *info;
 	const char     *sysInfo;
 	int             y;
@@ -194,14 +194,18 @@ void CG_DrawInformation(void)
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
+
+	UI_DrawProportionalString(320, 128 - 40, "Quake Source Version " QSOURCE_VERSION,
+							  UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorYellow);
+
 	if(cg.infoScreenText[0])
 	{
-		UI_DrawProportionalString(320, 128 - 32, va("Loading... %s", cg.infoScreenText),
+		UI_DrawProportionalString(320, 128 - 16, va("Loading... %s", cg.infoScreenText),
 								  UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
 	}
 	else
 	{
-		UI_DrawProportionalString(320, 128 - 32, "Awaiting snapshot...", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		UI_DrawProportionalString(320, 128 - 16, "Awaiting snapshot...", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
 	}
 
 	// draw info string information
@@ -250,7 +254,7 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		UI_DrawProportionalString(320, y, "CHEATS ARE ENABLED", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		UI_DrawProportionalString(320, y, "CHEATS ARE ENABLED", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorRed);
 		y += PROP_HEIGHT;
 	}
 
@@ -270,7 +274,16 @@ void CG_DrawInformation(void)
 			s = "Team Deathmatch";
 			break;
 		case GT_CTF:
-			s = "Capture The Flag";
+
+			s2 = Info_ValueForKey(info, "g_returnFlag");
+			if(s2[0] == '1')
+			{
+				s = "Capture The Flag: Return The Flag";
+			}
+			else
+			{
+				s = "Capture The Flag";
+			}
 			break;
 #ifdef MISSIONPACK
 		case GT_1FCTF:
@@ -287,8 +300,8 @@ void CG_DrawInformation(void)
 			s = "Unknown Gametype";
 			break;
 	}
-	UI_DrawProportionalString(320, y, s, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
-	y += PROP_HEIGHT;
+	UI_DrawProportionalString(320, y, s, UI_CENTER | UI_BIGFONT | UI_DROPSHADOW, colorYellow);
+	y += PROP_HEIGHT / PROP_SMALL_SIZE_SCALE;
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if(value)

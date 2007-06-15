@@ -134,6 +134,10 @@ typedef struct
 	// extra sprite information
 	float           radius;
 	float           rotation;
+	int			shaderAnim;
+	qboolean	anim;
+	qboolean	respawnfx;
+	int		sparklesT;
 	
 	// extra animation information
 	refSkeleton_t   skeleton;

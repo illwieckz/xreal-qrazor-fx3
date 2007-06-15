@@ -54,6 +54,25 @@ void CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qh
 	entity->backlerp = parent->backlerp;
 }
 
+void CG_PositionEntityOnTag2(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
+{
+	int             i;
+	orientation_t   lerped;
+
+	// lerp the tag
+	trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
+
+	// FIXME: allow origin offsets along tag?
+	VectorCopy(parent->origin, entity->origin);
+	for(i = 0; i < 3; i++)
+	{
+		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+	}
+
+	// had to cast away the const to avoid compiler problems...
+//  MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis );
+//  entity->backlerp = parent->backlerp;
+}
 
 /*
 ======================
@@ -100,6 +119,7 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 	vec3_t          tempAxis[3];
 	quat_t			q;	
 
+//AxisClear( entity->axis );
 	// lerp the tag
 	boneIndex = trap_R_BoneIndex(parentModel, tagName);
 
@@ -117,6 +137,8 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 	AxisMultiply(entity->axis, lerped.axis, tempAxis);
 	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
 }
+
+
 
 
 /*
@@ -231,18 +253,18 @@ static void CG_EntityEffects(centity_t * cent)
 
 
 	// constant light glow
-	if(cent->currentState.constantLight)
-	{
-		int             cl;
-		int             i, r, g, b;
+		if(cent->currentState.constantLight)
+		{
+			int             cl;
+			int             i, r, g, b;
 
-		cl = cent->currentState.constantLight;
-		r = cl & 255;
-		g = (cl >> 8) & 255;
-		b = (cl >> 16) & 255;
-		i = ((cl >> 24) & 255) * 4;
-		trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
-	}
+			cl = cent->currentState.constantLight;
+			r = cl & 255;
+			g = (cl >> 8) & 255;
+			b = (cl >> 16) & 255;
+			i = ((cl >> 24) & 255) * 4;
+			trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+		}
 
 }
 
@@ -322,15 +344,86 @@ static void CG_Speaker(centity_t * cent)
 CG_Item
 ==================
 */
+
+static void CG_ItemSpawnEffect(vec3_t org, vec3_t axis[3], int duration, gitem_t * item)
+{
+	vec3_t          dir;
+	int             i;
+
+/*	localEntity_t	*le;
+	refEntity_t		*re;
+
+
+	if (duration < 0) {
+		duration *= -1;
+	}
+
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+
+	switch ( item->giType ) {
+	case IT_WEAPON:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	case IT_AMMO:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	case IT_ARMOR:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	case IT_HEALTH:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	case IT_POWERUP:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	case IT_HOLDABLE:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	case IT_TEAM:
+		le->leType = LE_QUADSPHERE;
+		le->entNumber = le - cg_freeLocalEntities;
+		break;
+	}
+
+
+	le->startTime = cg.time ;
+	le->endTime = cg.time + duration;
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
+	re->customShader = cgs.media.teleportEffectShader;*/
+
+	AxisToAngles(axis, dir);
+	for(i = 0; i < 100; i++)
+	{
+		CG_Particle_Full360BurstSparks(cgs.media.tracerShader, org, dir);
+	}
+
+}
+
 static void CG_Item(centity_t * cent)
 {
 	refEntity_t     ent;
 	entityState_t  *es;
 	gitem_t        *item;
-	int             msec;
+	int             msec, i;
 	float           frac;
 	float           scale;
 	weaponInfo_t   *wi;
+	qboolean        shadow;
+	float           shadowPlane;
+	qboolean        killfx;
+	vec3_t          dir, org;
+
+//  int     start;
+//  int     end;
+//  float   c;
 
 	es = &cent->currentState;
 	if(es->modelindex >= bg_numItems)
@@ -338,13 +431,21 @@ static void CG_Item(centity_t * cent)
 		CG_Error("Bad item index %i on entity", es->modelindex);
 	}
 
+
+	item = &bg_itemlist[es->modelindex];
+
+	if(item->giType == IT_TEAM && es->eFlags & EF_NODRAW)
+	{
+
+		return;
+	}
+
 	// if set to invisible, skip
-	if(!es->modelindex || (es->eFlags & EF_NODRAW))
+	if(!es->modelindex || es->eFlags & EF_NODRAW)
 	{
 		return;
 	}
 
-	item = &bg_itemlist[es->modelindex];
 	if(cg_simpleItems.integer && item->giType != IT_TEAM)
 	{
 		memset(&ent, 0, sizeof(ent));
@@ -361,22 +462,18 @@ static void CG_Item(centity_t * cent)
 	}
 
 	// items bob up and down continuously
-	scale = 0.005 + cent->currentState.number * 0.00001;
-	cent->lerpOrigin[2] += 4 + cos((cg.time + 1000) * scale) * 4;
+	if(cent->currentState.modelindex2 != 1)
+	{
+		if(item->giTag != IH_MHEALTH)
+		{
+			scale = 0.005 + cent->currentState.number * 0.00001;
+			cent->lerpOrigin[2] += 4 + cos((cg.time + 1000) * scale) * 4;
+		}
+	}
 
 	memset(&ent, 0, sizeof(ent));
-
-	// autorotate at one of two speeds
-	if(item->giType == IT_HEALTH)
-	{
-		VectorCopy(cg.autoAnglesFast, cent->lerpAngles);
-		AxisCopy(cg.autoAxisFast, ent.axis);
-	}
-	else
-	{
-		VectorCopy(cg.autoAngles, cent->lerpAngles);
-		AxisCopy(cg.autoAxis, ent.axis);
-	}
+	killfx = qfalse;
+	shadow = CG_PlayerShadow(cent, &shadowPlane);
 
 	wi = NULL;
 	// the weapons have their origin where they attatch to player
@@ -395,31 +492,102 @@ static void CG_Item(centity_t * cent)
 			wi->weaponMidpoint[0] * ent.axis[0][2] +
 			wi->weaponMidpoint[1] * ent.axis[1][2] + wi->weaponMidpoint[2] * ent.axis[2][2];
 
-		cent->lerpOrigin[2] += 8;	// an extra height boost
+		if(cent->currentState.modelindex2 != 1)
+		{
+			cent->lerpOrigin[2] += 8;	// an extra height boost
+		}
+
+	}
+
+	if(item->giTag == WP_RAILGUN)
+	{
+		ent.shaderRGBA[1] = 255;
+		ent.shaderRGBA[0] = 255;
+		ent.shaderRGBA[2] = 255;
+		ent.shaderRGBA[3] = 255;
 	}
 
 	ent.hModel = cg_items[es->modelindex].models[0];
 
+
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
+
+	// autorotate at one of two speeds
+	if(cent->currentState.modelindex2 != 1)
+	{
+		if(item->giType == IT_HEALTH)
+		{
+			if(item->giTag == IH_MHEALTH)
+			{
+				VectorCopy(cent->lerpOrigin, org);
+				org[2] += 14;
+				AxisToAngles(cg.autoAxis, dir);
+				if(!cg_paused.integer)
+				{
+					for(i = 0; i < 8; i++)
+					{
+						CG_Particle_Full360BurstSparks(cgs.media.PGPartShader, org, dir);
+					}
+				}
+
+				VectorCopy(cg.autoAngles, cent->lerpAngles);
+				AxisCopy(cg.autoAxis, ent.axis);
+			}
+			else
+			{
+				VectorCopy(cg.autoAnglesFast, cent->lerpAngles);
+				AxisCopy(cg.autoAxisFast, ent.axis);
+			}
+		}
+		else
+		{
+			VectorCopy(cg.autoAngles, cent->lerpAngles);
+			AxisCopy(cg.autoAxis, ent.axis);
+		}
+	}
+	else
+	{
+		VectorCopy(cent->currentState.angles, cent->lerpAngles);
+		AnglesToAxis(cent->lerpAngles, ent.axis);
+	}
 
 	ent.nonNormalizedAxes = qfalse;
 
 	// if just respawned, slowly scale up
 	msec = cg.time - cent->miscTime;
+
+
 	if(msec >= 0 && msec < ITEM_SCALEUP_TIME)
 	{
+		if(msec >= 0 && msec <= ITEM_SCALEUP_TIME - 999)
+		{
+			vec3_t          color;
+
+			VectorClear(color);
+			if(item->giType == IT_POWERUP && cgs.InstaPowUps == 1)
+			{
+				CG_ItemSpawnEffect(cent->lerpOrigin, ent.axis, 800, item);
+			}
+			else if(item->giType != IT_TEAM)
+			{
+				if(cgs.InstaGib != 1)
+				{
+					CG_ItemSpawnEffect(cent->lerpOrigin, ent.axis, 800, item);
+				}
+			}
+		}
+
 		frac = (float)msec / ITEM_SCALEUP_TIME;
+
 		VectorScale(ent.axis[0], frac, ent.axis[0]);
 		VectorScale(ent.axis[1], frac, ent.axis[1]);
 		VectorScale(ent.axis[2], frac, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
-		
-		// don't cast shadows in this time period
-		ent.renderfx |= RF_NOSHADOW;
 	}
 	else
 	{
+		//  ent.sparklesT = 0;
 		frac = 1.0;
 	}
 
@@ -437,25 +605,12 @@ static void CG_Item(centity_t * cent)
 		VectorScale(ent.axis[1], 1.5, ent.axis[1]);
 		VectorScale(ent.axis[2], 1.5, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
-#if 0 //defined(MISSIONPACK)
-		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound);
-#endif
-	}
 
-#ifdef MISSIONPACK
-	if(item->giType == IT_HOLDABLE && item->giTag == HI_KAMIKAZE)
-	{
-		VectorScale(ent.axis[0], 2, ent.axis[0]);
-		VectorScale(ent.axis[1], 2, ent.axis[1]);
-		VectorScale(ent.axis[2], 2, ent.axis[2]);
-		ent.nonNormalizedAxes = qtrue;
 	}
-#endif
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 
-#ifdef MISSIONPACK
 	if(item->giType == IT_WEAPON && wi->barrelModel)
 	{
 		refEntity_t     barrel;
@@ -475,7 +630,6 @@ static void CG_Item(centity_t * cent)
 
 		trap_R_AddRefEntityToScene(&barrel);
 	}
-#endif
 
 	// accompanying rings / spheres for powerups
 	if(!cg_simpleItems.integer)
@@ -519,19 +673,27 @@ static void CG_Item(centity_t * cent)
 CG_Missile
 ===============
 */
-static void CG_Missile(centity_t * cent)
+void CG_Missile(centity_t * cent)
 {
 	refEntity_t     ent;
 	entityState_t  *s1;
 	const weaponInfo_t *weapon;
+	clientInfo_t   *ci;
+	int             team;
 
-//  int col;
+
+
+	team = cent->currentState.modelindex;
+	cent->splashDamage = 0;
 
 	s1 = &cent->currentState;
+	ci = &cgs.clientinfo[s1->clientNum];
+
 	if(s1->weapon > WP_NUM_WEAPONS)
 	{
 		s1->weapon = 0;
 	}
+
 	weapon = &cg_weapons[s1->weapon];
 
 	// calculate the axis
@@ -542,28 +704,29 @@ static void CG_Missile(centity_t * cent)
 	{
 		weapon->missileTrailFunc(cent, weapon);
 	}
-/*
-	if ( cent->currentState.modelindex == TEAM_RED ) {
-		col = 1;
-	}
-	else if ( cent->currentState.modelindex == TEAM_BLUE ) {
-		col = 2;
-	}
-	else {
-		col = 0;
-	}
+		if(s1->weapon == WP_ROCKET_LAUNCHER)
+		{
+			trap_R_AddLightToScene(cent->lerpOrigin, 165, 0.7f, 0.5f, 0.0f);
+		}
+
 
 	// add dynamic light
-	if ( weapon->missileLight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight, 
-			weapon->missileLightColor[col][0], weapon->missileLightColor[col][1], weapon->missileLightColor[col][2] );
-	}
-*/
-	// add dynamic light
-	if(weapon->missileLight)
+	if(weapon->missileDlight)
 	{
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight,
-							   weapon->missileLightColor[0], weapon->missileLightColor[1], weapon->missileLightColor[2]);
+		if(cg_QSLights.integer == 1)
+		{
+			if(s1->weapon != WP_ROCKET_LAUNCHER)
+			{
+				/*trap_R_AddAdditiveLightToScene(cent->lerpOrigin, weapon->missileDlight,
+											   weapon->missileDlightColor[0], weapon->missileDlightColor[1],
+											   weapon->missileDlightColor[2]);*/
+			}
+		}
+		else
+		{
+			trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
+								   weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2]);
+		}
 	}
 
 	// add missile sound
@@ -572,7 +735,6 @@ static void CG_Missile(centity_t * cent)
 		vec3_t          velocity;
 
 		BG_EvaluateTrajectoryDelta(&cent->currentState.pos, cg.time, velocity);
-
 		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound);
 	}
 
@@ -581,58 +743,76 @@ static void CG_Missile(centity_t * cent)
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
-	if(cent->currentState.weapon == WP_PLASMAGUN)
+	if(!cent->watertraced)
 	{
-		ent.reType = RT_SPRITE;
-		ent.radius = 16;
-		ent.rotation = 0;
-		ent.customShader = cgs.media.plasmaBallShader;
-		trap_R_AddRefEntityToScene(&ent);
-		return;
+		if(cent->currentState.generic1 & GNF_INWATER)
+		{
+			cent->inwater = qfalse;
+		}
+		else if(cent->currentState.generic1 & GNF_OUTWATER)
+		{
+			cent->inwater = qtrue;
+		}
+		cent->watertraced = qtrue;
 	}
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
-	ent.hModel = weapon->missileModel;
-	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
-#ifdef MISSIONPACK
-	if(cent->currentState.weapon == WP_PROX_LAUNCHER)
+	if(s1->weapon == WP_PLASMAGUN)
 	{
-		if(s1->generic1 == TEAM_BLUE)
+		if(ci->team != TEAM_RED)
 		{
-			ent.hModel = cgs.media.blueProxMine;
+			ent.hModel = trap_R_RegisterModel("models/ammo/plasma/plasmaball.md3");
+		}
+		else if(ci->team != TEAM_BLUE)
+		{
+			ent.hModel = trap_R_RegisterModel("models/ammo/plasma/plasmaballr.md3");
+		}
+		else
+		{
+			ent.hModel = trap_R_RegisterModel("models/ammo/plasma/plasmaballg.md3");
 		}
 	}
-#endif
+	else
+	{
+		ent.hModel = weapon->missileModel;
+	}
+
+	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
 	// convert direction of travel into axis
 	if(VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)
 	{
-		ent.axis[0][2] = 1;
+		ent.axis[0][2] = 0;
 	}
+
+	AxisCopy(ent.axis, cent->axis);
 
 	// spin as it moves
 	if(s1->pos.trType != TR_STATIONARY)
 	{
-		RotateAroundDirection(ent.axis, cg.time / 4);
+		RotateAroundDirection(ent.axis, cg.time / 1.5f);
 	}
 	else
 	{
-#ifdef MISSIONPACK
-		if(s1->weapon == WP_PROX_LAUNCHER)
-		{
-			AnglesToAxis(cent->lerpAngles, ent.axis);
-		}
-		else
-#endif
-		{
-			RotateAroundDirection(ent.axis, s1->time);
-		}
+		RotateAroundDirection(ent.axis, s1->time);
 	}
 
-	// add to refresh list
-	trap_R_AddRefEntityToScene(&ent);
+	if(s1->weapon == WP_ROCKET_LAUNCHER)
+	{
+	      weapon->missileTrailFunc2(cent, weapon, ent.oldorigin);
+	}
+	else if(s1->weapon == WP_PLASMAGUN)
+	{
+		CG_PlasmaTrail(cent, weapon, ent.axis, ci->team);
+	}
+
+	// add to refresh list, possibly with quad glow
+	if(ent.hModel)
+	{
+		CG_AddProjectileWithPowerups(&ent, s1, ci->team, cent);
+	}
 }
 
 /*
@@ -737,8 +917,6 @@ static void CG_Mover(centity_t * cent)
 /*
 ===============
 CG_Beam
-
-Also called as an event
 ===============
 */
 void CG_Beam(centity_t * cent)
@@ -767,7 +945,7 @@ void CG_Beam(centity_t * cent)
 CG_Portal
 ===============
 */
-static void CG_Portal(centity_t * cent)
+void CG_Portal(centity_t * cent)
 {
 	refEntity_t     ent;
 	entityState_t  *s1;
@@ -803,7 +981,7 @@ CG_AdjustPositionForMover
 Also called by client movement prediction code
 =========================
 */
-void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out)
+void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out, vec3_t outDeltaAngles)
 {
 	centity_t      *cent;
 	vec3_t          oldOrigin, origin, deltaOrigin;
@@ -832,7 +1010,8 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 	VectorSubtract(angles, oldAngles, deltaAngles);
 
 	VectorAdd(in, deltaOrigin, out);
-
+	if(outDeltaAngles)
+		VectorCopy(deltaAngles, outDeltaAngles);
 	// FIXME: origin change when on a rotating object
 }
 
@@ -884,15 +1063,15 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 {
 
 	// if this player does not want to see extrapolated players
-	if(!cg_smoothClients.integer)
-	{
+//	if(!cg_smoothClients.integer)
+//	{
 		// make sure the clients use TR_INTERPOLATE
 		if(cent->currentState.number < MAX_CLIENTS)
 		{
 			cent->currentState.pos.trType = TR_INTERPOLATE;
 			cent->nextState.pos.trType = TR_INTERPOLATE;
 		}
-	}
+//	}
 
 	if(cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE)
 	{
@@ -917,7 +1096,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	if(cent != &cg.predictedPlayerEntity)
 	{
 		CG_AdjustPositionForMover(cent->lerpOrigin, cent->currentState.groundEntityNum,
-								  cg.snap->serverTime, cg.time, cent->lerpOrigin);
+								  cg.snap->serverTime, cg.time, cent->lerpOrigin, NULL);
 	}
 }
 
@@ -1096,6 +1275,13 @@ static void CG_TeamBase(centity_t * cent)
 #endif
 }
 
+static void CG_SpawnView(centity_t * cent)
+{
+
+	VectorCopy(cent->currentState.origin2, cg.DeadViewOrg);
+	VectorCopy(cent->currentState.angles2, cg.DeadViewAngles);
+}
+
 /*
 ===============
 CG_Effect
@@ -1104,7 +1290,7 @@ CG_Effect
 static void CG_Effect(centity_t * cent)
 {
 	// TODO
-	CG_ParticleTeleportEffect(cent->lerpOrigin);
+	//CG_ParticleTeleportEffect(cent->lerpOrigin);
 }
 
 /*
@@ -1112,7 +1298,7 @@ static void CG_Effect(centity_t * cent)
 CG_AddCEntity
 ===============
 */
-static void CG_AddCEntity(centity_t * cent)
+void CG_AddCEntity(centity_t * cent)
 {
 	// event-only entities will have been dealt with already
 	if(cent->currentState.eType >= ET_EVENTS)
@@ -1140,6 +1326,15 @@ static void CG_AddCEntity(centity_t * cent)
 			break;
 		case ET_PLAYER:
 			CG_Player(cent);
+			break;
+		case ET_DEADVIEW:
+			CG_SpawnView(cent);
+			break;
+		case ET_DEADPLAYER:
+			CG_DeadPlayer(cent);
+			break;
+		case ET_DEADQPLAYER:
+			CG_DeadQPlayer(cent);
 			break;
 		case ET_ITEM:
 			CG_Item(cent);
@@ -1176,7 +1371,7 @@ CG_AddPacketEntities
 
 ===============
 */
-void CG_AddPacketEntities(void)
+void CG_AddPacketEntities(int view, int clientNum, qboolean MView)
 {
 	int             num;
 	centity_t      *cent;
@@ -1217,16 +1412,19 @@ void CG_AddPacketEntities(void)
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predictedPlayerState;
-	BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse);
+	BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse, qfalse);
+
 	CG_AddCEntity(&cg.predictedPlayerEntity);
+
 
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
+
 
 	// add each entity sent over by the server
 	for(num = 0; num < cg.snap->numEntities; num++)
 	{
 		cent = &cg_entities[cg.snap->entities[num].number];
-		CG_AddCEntity(cent);
+	        CG_AddCEntity(cent);
 	}
 }

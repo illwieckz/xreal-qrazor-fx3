@@ -112,6 +112,7 @@ static void CG_Obituary(entityState_t * ent)
 	const char     *targetInfo;
 	const char     *attackerInfo;
 	char            targetName[32];
+	char            targetName2[32];
 	char            attackerName[32];
 	gender_t        gender;
 	clientInfo_t   *ci;
@@ -143,36 +144,37 @@ static void CG_Obituary(entityState_t * ent)
 	}
 	Q_strncpyz(targetName, Info_ValueForKey(targetInfo, "n"), sizeof(targetName) - 2);
 	strcat(targetName, S_COLOR_WHITE);
+	Q_strncpyz(targetName2, Info_ValueForKey(targetInfo, "n"), sizeof(targetName2) - 2);
 
-	message2 = "";
+	message2 = "^n^7.";
 
 	// check for single client messages
 
 	switch (mod)
 	{
 		case MOD_SUICIDE:
-			message = "suicides";
+			message = "^Nsuicides";
 			break;
 		case MOD_FALLING:
-			message = "cratered";
+			message = "^Ncratered";
 			break;
 		case MOD_CRUSH:
-			message = "was squished";
+			message = "^Nwas squished";
 			break;
 		case MOD_WATER:
-			message = "sank like a rock";
+			message = "^Nneeds to learn you can't breathe underwater";
 			break;
 		case MOD_SLIME:
-			message = "melted";
+			message = "^Nwent swimming in some acid";
 			break;
 		case MOD_LAVA:
-			message = "does a back flip into the lava";
+			message = "^Ndoes a back flip into the lava";
 			break;
 		case MOD_TARGET_LASER:
-			message = "saw the light";
+			message = "^Nsaw the light";
 			break;
 		case MOD_TRIGGER_HURT:
-			message = "was in the wrong place";
+			message = "^Nwas in the wrong place";
 			break;
 		default:
 			message = NULL;
@@ -186,35 +188,43 @@ static void CG_Obituary(entityState_t * ent)
 		{
 #ifdef MISSIONPACK
 			case MOD_KAMIKAZE:
-				message = "goes out with a bang";
+				message = "^Ngoes out with a bang";
 				break;
 #endif
 			case MOD_GRENADE_SPLASH:
 				if(gender == GENDER_FEMALE)
-					message = "tripped on her own grenade";
+					message = "^Ntripped on her own grenade";
 				else if(gender == GENDER_NEUTER)
-					message = "tripped on its own grenade";
+					message = "^Ntripped on its own grenade";
 				else
-					message = "tripped on his own grenade";
+					message = "^Ntripped on his own grenade";
 				break;
 			case MOD_ROCKET_SPLASH:
 				if(gender == GENDER_FEMALE)
-					message = "blew herself up";
+					message = "^Nblew herself up";
 				else if(gender == GENDER_NEUTER)
-					message = "blew itself up";
+					message = "^Nblew itself up";
 				else
-					message = "blew himself up";
+					message = "^Nblew himself up";
 				break;
 			case MOD_PLASMA_SPLASH:
 				if(gender == GENDER_FEMALE)
-					message = "melted herself";
+					message = "^Nmelted herself";
 				else if(gender == GENDER_NEUTER)
-					message = "melted itself";
+					message = "^Nmelted itself";
 				else
-					message = "melted himself";
+					message = "^Nmelted himself";
 				break;
 			case MOD_BFG_SPLASH:
-				message = "should have used a smaller gun";
+				message = "^Nshould stick to a pea shooter";
+				break;
+			case MOD_FLAMETHROWER:
+				if(gender == GENDER_FEMALE)
+					message = "^Nfried herself";
+				else if(gender == GENDER_NEUTER)
+					message = "^Nfried itself";
+				else
+					message = "^Nfried himself";
 				break;
 #ifdef MISSIONPACK
 			case MOD_PROXIMITY_MINE:
@@ -234,18 +244,19 @@ static void CG_Obituary(entityState_t * ent)
 #endif
 			default:
 				if(gender == GENDER_FEMALE)
-					message = "killed herself";
+					message = "^Nkilled herself";
 				else if(gender == GENDER_NEUTER)
-					message = "killed itself";
+					message = "^Nkilled itself";
 				else
-					message = "killed himself";
+					message = "^Nkilled himself";
 				break;
 		}
 	}
 
 	if(message)
 	{
-		CG_Printf("%s %s.\n", targetName, message);
+		CG_AddToTeamChat(va("%s %s.", targetName, message));
+		CG_Printf("%s %s.\n", Q_CleanAbsoluteColorStr(targetName), message);
 		return;
 	}
 
@@ -253,25 +264,19 @@ static void CG_Obituary(entityState_t * ent)
 	if(attacker == cg.snap->ps.clientNum)
 	{
 		char           *s;
+		float           x;
 
 		if(cgs.gametype < GT_TEAM)
 		{
-			s = va("You fragged %s\n%s place with %i", targetName,
+			s = va("You fragged %s\n%s place with %i", targetName2,
 				   CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1), cg.snap->ps.persistant[PERS_SCORE]);
 		}
 		else
 		{
-			s = va("You fragged %s", targetName);
+			s = va("You fragged %s", targetName2);
 		}
-#ifdef MISSIONPACK
-		if(!(cg_singlePlayerActive.integer && cg_cameraOrbit.integer))
-		{
-			CG_CenterPrint(s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-		}
-#else
-		CG_CenterPrint(s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-#endif
-
+		x = FragMessageSize.integer;
+		CG_CenterPrint(s, SCREEN_HEIGHT * 0.30, x);
 		// print the text message as well
 	}
 
@@ -284,7 +289,7 @@ static void CG_Obituary(entityState_t * ent)
 	else
 	{
 		Q_strncpyz(attackerName, Info_ValueForKey(attackerInfo, "n"), sizeof(attackerName) - 2);
-		strcat(attackerName, S_COLOR_WHITE);
+		//  strcat( attackerName, S_COLOR_WHITE );
 		// check for kill messages about the current clientNum
 		if(target == cg.snap->ps.clientNum)
 		{
@@ -297,90 +302,98 @@ static void CG_Obituary(entityState_t * ent)
 		switch (mod)
 		{
 			case MOD_GRAPPLE:
-				message = "was caught by";
+				message = "^Nwas caught by";
 				break;
 			case MOD_GAUNTLET:
-				message = "was pummeled by";
+				message = "^Nwas beat down by";
+				break;
+			case MOD_FLAMETHROWER:
+				message = "^Nwas fried to a crisp by";
+				message2 = "'s^N^7 flamethrower";
 				break;
 			case MOD_MACHINEGUN:
-				message = "was machinegunned by";
+				message = "^Nwas cut in half by";
+				message2 = "'s^N^7 machinegun";
 				break;
 			case MOD_SHOTGUN:
-				message = "was gunned down by";
+				message = "^Nwas pumped full of lead by";
 				break;
 			case MOD_GRENADE:
-				message = "ate";
-				message2 = "'s grenade";
+				message = "^Nswallowed";
+				message2 = "'s^N^7 grenade";
 				break;
 			case MOD_GRENADE_SPLASH:
-				message = "was shredded by";
-				message2 = "'s shrapnel";
+				message = "^Nwas shredded by";
+				message2 = "'s^N^7 shrapnel";
 				break;
 			case MOD_ROCKET:
-				message = "ate";
-				message2 = "'s rocket";
+				message = "^Nswallowed a direct hit by";
+				message2 = "'s^N^7 rocket";
 				break;
 			case MOD_ROCKET_SPLASH:
-				message = "almost dodged";
-				message2 = "'s rocket";
+				message = "^Nwas to close to";
+				message2 = "'s^N^7 rocket";
 				break;
 			case MOD_PLASMA:
-				message = "was melted by";
-				message2 = "'s plasmagun";
+				message = "^Ncouldn't take the heat from";
+				message2 = "'s^N^7 plasmagun";
 				break;
 			case MOD_PLASMA_SPLASH:
-				message = "was melted by";
-				message2 = "'s plasmagun";
+				message = "^Nwas melted by";
+				message2 = "'s^N^7 hot plasma splash";
 				break;
 			case MOD_RAILGUN:
-				message = "was railed by";
+				message = "^Nwas railed by";
 				break;
 			case MOD_LIGHTNING:
-				message = "was electrocuted by";
+				message = "^Nwas electrocuted by";
 				break;
 			case MOD_BFG:
 			case MOD_BFG_SPLASH:
-				message = "was blasted by";
-				message2 = "'s BFG";
+				message = "^Ngot creamed by";
+				message2 = "'s^N^7 BFG";
 				break;
 #ifdef MISSIONPACK
 			case MOD_NAIL:
-				message = "was nailed by";
+				message = "^Nwas nailed by";
 				break;
 			case MOD_CHAINGUN:
-				message = "got lead poisoning from";
-				message2 = "'s Chaingun";
+				message = "^Ngot lead poisoning from";
+				message2 = "'s^N^7 Chaingun";
 				break;
 			case MOD_PROXIMITY_MINE:
-				message = "was too close to";
-				message2 = "'s Prox Mine";
+				message = "^Nwas too close to";
+				message2 = "'s^N^7 Prox Mine";
 				break;
 			case MOD_KAMIKAZE:
-				message = "falls to";
-				message2 = "'s Kamikaze blast";
+				message = "^Nfalls to";
+				message2 = "'s^N^7 Kamikaze blast";
 				break;
 			case MOD_JUICED:
-				message = "was juiced by";
+				message = "^Nwas juiced by";
 				break;
 #endif
 			case MOD_TELEFRAG:
-				message = "tried to invade";
-				message2 = "'s personal space";
+				message = "^Nwas too stupid to move out of";
+				message2 = "'s^N^7 spawn location";
 				break;
 			default:
-				message = "was killed by";
+				message = "^Nwas killed by";
 				break;
 		}
 
 		if(message)
 		{
-			CG_Printf("%s %s %s%s\n", targetName, message, attackerName, message2);
+			CG_AddToTeamChat(va("%s %s %s%s", targetName, message, attackerName, message2));
+			CG_Printf("%s %s %s%s\n",
+					  Q_CleanAbsoluteColorStr(targetName), message, Q_CleanAbsoluteColorStr(attackerName), message2);
 			return;
 		}
 	}
 
 	// we don't know what it was
-	CG_Printf("%s died.\n", targetName);
+	CG_AddToTeamChat(va("%s ^Ndied.", targetName));
+	CG_Printf("%s died.\n", Q_CleanAbsoluteColorStr(targetName));
 }
 
 //==========================================================================
@@ -460,8 +473,14 @@ CG_ItemPickup
 A new item was picked up this frame
 ================
 */
-static void CG_ItemPickup(int itemNum)
+void CG_ItemPickup(int itemNum, int clientNum)
 {
+	clientInfo_t   *ci;
+	centity_t      *cent;
+
+	cent = &cg_entities[clientNum];
+	ci = &cgs.clientinfo[clientNum];
+
 	cg.itemPickup = itemNum;
 	cg.itemPickupTime = cg.time;
 	cg.itemPickupBlendTime = cg.time;
@@ -469,13 +488,67 @@ static void CG_ItemPickup(int itemNum)
 	if(bg_itemlist[itemNum].giType == IT_WEAPON)
 	{
 		// select it immediately
+
+		if(bg_itemlist[itemNum].giTag == WP_ROCKET_LAUNCHER && ci->pickrl == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_ROCKET_LAUNCHER;
+			ci->pickrl = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_GRENADE_LAUNCHER && ci->pickgl == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_GRENADE_LAUNCHER;
+			ci->pickgl = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_PLASMAGUN && ci->pickpg == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_PLASMAGUN;
+			ci->pickpg = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_SHOTGUN && ci->picksg == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_SHOTGUN;
+			ci->picksg = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_RAILGUN && ci->pickrg == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_RAILGUN;
+			ci->pickrg = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_IRAILGUN && ci->pickirg == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_IRAILGUN;
+			ci->pickirg = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_BFG && ci->pickbfg == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_BFG;
+			ci->pickbfg = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_FLAMETHROWER && ci->pickft == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_FLAMETHROWER;
+			ci->pickft = qtrue;
+		}
+		if(bg_itemlist[itemNum].giTag == WP_LIGHTNING && ci->picklg == qfalse)
+		{
+			cg.selectflash = cg.time + 650;
+			cg.weaponSelect2 = WP_LIGHTNING;
+			ci->picklg = qtrue;
+		}
 		if(cg_autoswitch.integer && bg_itemlist[itemNum].giTag != WP_MACHINEGUN)
 		{
-			cg.weaponSelectTime = cg.time;
-			cg.weaponSelect = bg_itemlist[itemNum].giTag;
+			//  cg.weaponSelectTime = cg.time;
+			//  cg.weaponSelect = bg_itemlist[itemNum].giTag;
 		}
 	}
-
 }
 
 
@@ -519,7 +592,57 @@ void CG_PainEvent(centity_t * cent, int health)
 	cent->pe.painDirection ^= 1;
 }
 
+/*
+=================
+CG_AddBulletParticles
+=================
+*/
+static void CG_AddSparkParticles(vec3_t origin, vec3_t dir, int count, int duration,
+								 int speed, int trailtime, qhandle_t hShader, int step, float startsize, float endsize)
+{
+	localEntity_t  *le;
+	refEntity_t    *re;
+	vec3_t          velocity;
+	int             i;
+	float           randScale;
 
+
+	// add the sparks
+	for(i = 0; i < count; i++)
+	{
+
+		le = CG_AllocLocalEntity();
+		re = &le->refEntity;
+
+		speed = speed + rand() % 20;
+		duration = duration + rand() % 20;
+		randScale = 1.0;
+
+		le->leType = LE_ADDSPARK;
+		le->entNumber = le - cg_freeLocalEntities;
+		velocity[0] = dir[0] + crandom() * randScale;
+		velocity[1] = dir[1] + crandom() * randScale;
+		velocity[2] = dir[2] + crandom() * randScale;
+		VectorScale(velocity, (float)speed, velocity);
+
+		le->startTime = cg.time;
+		le->endTime = le->startTime + duration;
+		le->lifeRate = 1.0 / (le->endTime - le->startTime);
+		le->hShader = hShader;
+		le->trailLength = trailtime;
+		le->step = step;
+		le->startSize = startsize;
+		le->endSize = endsize;
+
+		le->pos.trType = TR_GRAVITY;
+		le->pos.trTime = cg.time;
+
+		VectorCopy(origin, re->origin);
+		VectorCopy(origin, le->pos.trBase);
+		VectorMA(le->pos.trBase, 2 + random() * 2, dir, le->pos.trBase);
+		VectorCopy(velocity, le->pos.trDelta);
+	}
+}
 
 /*
 ==============
@@ -538,14 +661,26 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 	const char     *s;
 	int             clientNum;
 	clientInfo_t   *ci;
+	weaponInfo_t   *weapon;
+	int             weaponNum;
+	playerState_t  *ps;
+
+//  centity_t *cent1;
+	vec3_t          dieorg;
+	int             c;
+
+	ps = &cent->currentState.clientNum[&cg.snap->ps];
 
 	es = &cent->currentState;
 	event = es->event & ~EV_EVENT_BITS;
+	weaponNum = cent->currentState.weapon;
 
 	if(cg_debugEvents.integer)
 	{
 		CG_Printf("ent:%3i  event:%3i ", es->number, event);
 	}
+
+	weapon = &cg_weapons[weaponNum];
 
 	if(!event)
 	{
@@ -567,35 +702,35 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			//
 		case EV_FOOTSTEP:
 			DEBUGNAME("EV_FOOTSTEP");
-			if(cg_footsteps.integer)
+			if(cgs.g_Footsteps == 1)
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[ci->footsteps][rand() & 3]);
 			}
 			break;
 		case EV_FOOTSTEP_METAL:
 			DEBUGNAME("EV_FOOTSTEP_METAL");
-			if(cg_footsteps.integer)
+			if(cgs.g_Footsteps == 1)
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[FOOTSTEP_METAL][rand() & 3]);
 			}
 			break;
 		case EV_FOOTSPLASH:
 			DEBUGNAME("EV_FOOTSPLASH");
-			if(cg_footsteps.integer)
+			if(cgs.g_Footsteps == 1)
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[FOOTSTEP_SPLASH][rand() & 3]);
 			}
 			break;
 		case EV_FOOTWADE:
 			DEBUGNAME("EV_FOOTWADE");
-			if(cg_footsteps.integer)
+			if(cgs.g_Footsteps == 1)
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[FOOTSTEP_SPLASH][rand() & 3]);
 			}
 			break;
 		case EV_SWIM:
 			DEBUGNAME("EV_SWIM");
-			if(cg_footsteps.integer)
+			if(cgs.g_Footsteps == 1)
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[FOOTSTEP_SPLASH][rand() & 3]);
 			}
@@ -604,12 +739,15 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 		case EV_FALL_SHORT:
 			DEBUGNAME("EV_FALL_SHORT");
-			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.landSound);
-			if(clientNum == cg.predictedPlayerState.clientNum)
+			if(cgs.g_Footsteps == 1)
 			{
-				// smooth landing z changes
-				cg.landChange = -8;
-				cg.landTime = cg.time;
+				trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.landSound);
+				if(clientNum == cg.predictedPlayerState.clientNum)
+				{
+					// smooth landing z changes
+					cg.landChange = -8;
+					cg.landTime = cg.time;
+				}
 			}
 			break;
 		case EV_FALL_MEDIUM:
@@ -691,12 +829,25 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 			// boing sound at origin, jump sound on player
 			trap_S_StartSound(cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound);
-			trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+			if(cgs.g_Footsteps == 1)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+			}
 			break;
 
 		case EV_JUMP:
 			DEBUGNAME("EV_JUMP");
-			trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+			if(cgs.g_Footsteps == 1)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+			}
+			break;
+		case EV_WALLJUMP:
+			DEBUGNAME("EV_WALLJUMP");
+			if(cgs.g_Footsteps == 1)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.wav"));
+			}
 			break;
 		case EV_TAUNT:
 			DEBUGNAME("EV_TAUNT");
@@ -745,6 +896,17 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			trap_S_StartSound(NULL, es->number, CHAN_AUTO, CG_CustomSound(es->number, "*gasp.wav"));
 			break;
 
+		case EV_RAILGUN_PREFIRE:
+			DEBUGNAME("EV_RAILGUN_PREFIRE");
+			CG_RailgunPrefire(cent);
+			break;
+
+		case EV_RAILGUN_READY:
+			DEBUGNAME("EV_RAILGUN_READY");
+			trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "sound/weapons/irailgun/railbeep.wav"));
+			break;
+
+
 		case EV_ITEM_PICKUP:
 			DEBUGNAME("EV_ITEM_PICKUP");
 			{
@@ -753,47 +915,28 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 				index = es->eventParm;	// player predicted
 
+
 				if(index < 1 || index >= bg_numItems)
 				{
 					break;
 				}
 				item = &bg_itemlist[index];
 
-				// powerups and team items will have a separate global sound, this one
-				// will be played at prediction time
 				if(item->giType == IT_POWERUP || item->giType == IT_TEAM)
 				{
 					trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.n_healthSound);
-				}
-				else if(item->giType == IT_PERSISTANT_POWERUP)
-				{
-#ifdef MISSIONPACK
-					switch (item->giTag)
-					{
-						case PW_SCOUT:
-							trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.scoutSound);
-							break;
-						case PW_GUARD:
-							trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.guardSound);
-							break;
-						case PW_DOUBLER:
-							trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.doublerSound);
-							break;
-						case PW_AMMOREGEN:
-							trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.ammoregenSound);
-							break;
-					}
-#endif
+					trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.n_healthSound);
 				}
 				else
 				{
+					trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
 					trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
 				}
 
 				// show icon and name on status bar
 				if(es->number == cg.snap->ps.clientNum)
 				{
-					CG_ItemPickup(index);
+					CG_ItemPickup(index, es->number);
 				}
 			}
 			break;
@@ -810,7 +953,9 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				{
 					break;
 				}
+
 				item = &bg_itemlist[index];
+
 				// powerup pickups are global
 				if(item->pickup_sound)
 				{
@@ -820,7 +965,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				// show icon and name on status bar
 				if(es->number == cg.snap->ps.clientNum)
 				{
-					CG_ItemPickup(index);
+					CG_ItemPickup(index, es->number);
 				}
 			}
 			break;
@@ -914,13 +1059,13 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		case EV_PLAYER_TELEPORT_IN:
 			DEBUGNAME("EV_PLAYER_TELEPORT_IN");
 			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.teleInSound);
-			CG_ParticleTeleportEffect(position);
+			CG_SpawnEffect(position, ci->team);
 			break;
 
 		case EV_PLAYER_TELEPORT_OUT:
 			DEBUGNAME("EV_PLAYER_TELEPORT_OUT");
 			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.teleOutSound);
-			CG_ParticleTeleportEffect(position);
+			CG_SpawnEffect(position, ci->team);
 			break;
 
 		case EV_ITEM_POP:
@@ -942,6 +1087,10 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			else
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.hgrenb2aSound);
+			}
+			if(es->generic1 & GNF_GRENSPARKS)
+			{
+				CG_AddSparkParticles(es->pos.trBase, es->angles, 4, 200, 100, 60, cgs.media.tracerTrailzShader, 16, 3.0, 0.2f);
 			}
 			break;
 
@@ -988,7 +1137,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			break;
 		case EV_LIGHTNINGBOLT:
 			DEBUGNAME("EV_LIGHTNINGBOLT");
-			CG_LightningBoltBeam(es->origin2, es->pos.trBase);
+			//  CG_LightningBoltBeam(es->origin2, es->pos.trBase);
+			//  CG_LightningBolt( es->origin2, es->pos.trBase );
 			break;
 #endif
 		case EV_SCOREPLUM:
@@ -1002,54 +1152,150 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		case EV_MISSILE_HIT:
 			DEBUGNAME("EV_MISSILE_HIT");
 			ByteToDir(es->eventParm, dir);
-			CG_MissileHitPlayer(es->weapon, position, dir, es->otherEntityNum);
+			if(es->powerups & (1 << PW_QUAD))
+			{
+				CG_MissileHitPlayer(es->weapon, position, dir, es->otherEntityNum, es->clientNum, qtrue);
+			}
+			else
+			{
+				CG_MissileHitPlayer(es->weapon, position, dir, es->otherEntityNum, es->clientNum, qfalse);
+			}
+			break;
+
+		case EV_LG_HIT:
+			DEBUGNAME("EV_LG_HIT");
+			if(es->otherEntityNum2 != cg.predictedPlayerState.clientNum)
+			{
+				cg_entities[es->otherEntityNum2].pe.teslaDamagedTime = cg.time;
+			}
+			else
+			{
+				cg.predictedPlayerEntity.pe.teslaDamagedTime = cg.time;
+			}
+			break;
+		case EV_LG_MISS:
+			DEBUGNAME("EV_LG_MISS");
 			break;
 
 		case EV_MISSILE_MISS:
 			DEBUGNAME("EV_MISSILE_MISS");
+
 			ByteToDir(es->eventParm, dir);
-			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT);
+			if(es->powerups & (1 << PW_QUAD))
+			{
+				CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, qtrue, qfalse);
+			}
+			else
+			{
+				CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, qfalse, qfalse);
+			}
+
 			break;
 
 		case EV_MISSILE_MISS_METAL:
 			DEBUGNAME("EV_MISSILE_MISS_METAL");
+
 			ByteToDir(es->eventParm, dir);
-			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_METAL);
+			if(es->powerups & (1 << PW_QUAD))
+			{
+				CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_METAL, qtrue, qfalse);
+			}
+			else
+			{
+				CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_METAL, qfalse, qfalse);
+			}
 			break;
 
 		case EV_RAILTRAIL:
 			DEBUGNAME("EV_RAILTRAIL");
 			cent->currentState.weapon = WP_RAILGUN;
-			// if the end was on a nomark surface, don't make an explosion
-			CG_RailTrail(ci, es->origin2, es->pos.trBase);
-			if(es->eventParm != 255)
-			{
+				CG_RailTrail(ci, es->origin2, es->pos.trBase);
+				if(es->eventParm != 255)
+				{
+					ByteToDir(es->eventParm, dir);
+					if(es->powerups & (1 << PW_QUAD))
+					{
+						CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, qtrue, qfalse);
+					}
+					else
+					{
+						CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, qfalse, qfalse);
+					}
+
+				}
+				//Com_Printf("Non-predicted rail trail\n");
+			break;
+
+		case EV_RAILTRAIL2:
+			DEBUGNAME("EV_RAILTRAIL2");
+			cent->currentState.weapon = WP_IRAILGUN;
+				// draw a rail trail, because it wasn't predicted
 				ByteToDir(es->eventParm, dir);
-				CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT);
-			}
+				CG_RailTrail(ci, es->origin2, es->pos.trBase);
+				if(es->eventParm != 255)
+				{
+					if(es->powerups & (1 << PW_QUAD))
+					{
+						CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, qtrue, qfalse);
+					}
+					else
+					{
+						CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, qfalse, qfalse);
+					}
+				}
 			break;
 
 		case EV_BULLET_HIT_WALL:
 			DEBUGNAME("EV_BULLET_HIT_WALL");
-			ByteToDir(es->eventParm, dir);
-			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD);
+				ByteToDir(es->eventParm, dir);
+				CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD);
 			break;
 
 		case EV_BULLET_HIT_FLESH:
 			DEBUGNAME("EV_BULLET_HIT_FLESH");
-			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm);
+				CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm);
+			break;
+
+		case EV_RAIL_HIT_FLESH:
+			DEBUGNAME("EV_RAIL_HIT_FLESH");
+
+//          RailPlayer(position, dir, es->otherEntityNum );
+
 			break;
 
 		case EV_SHOTGUN:
 			DEBUGNAME("EV_SHOTGUN");
-			CG_ShotgunFire(es);
+				CG_ShotgunFire(es);
+			break;
+
+		case EV_ARMORHIT:
+			DEBUGNAME("EV_ARMORHIT");
+			trap_S_StartSound(NULL, es->number, CHAN_VOICE, cgs.media.armorHitSound);
 			break;
 
 		case EV_GENERAL_SOUND:
 			DEBUGNAME("EV_GENERAL_SOUND");
 			if(cgs.gameSounds[es->eventParm])
 			{
-				trap_S_StartSound(NULL, es->number, CHAN_VOICE, cgs.gameSounds[es->eventParm]);
+				if(cgs.gameSounds[es->eventParm] == cgs.media.armorHitSound)
+				{
+					if(es->otherEntityNum2 != cg.predictedPlayerState.clientNum)
+					{
+						cg_entities[es->otherEntityNum2].pe.armorDamagedTime = cg.time;
+						trap_S_StartSound(cg_entities[es->otherEntityNum2].lerpOrigin, es->otherEntityNum2, CHAN_VOICE,
+										  cgs.gameSounds[es->eventParm]);
+					}
+					else
+					{
+						cg.predictedPlayerEntity.pe.armorDamagedTime = cg.time;
+						trap_S_StartSound(cg.predictedPlayerState.origin, cg.predictedPlayerState.clientNum, CHAN_VOICE,
+										  cgs.gameSounds[es->eventParm]);
+					}
+				}
+				else
+				{
+					trap_S_StartSound(NULL, es->number, CHAN_VOICE, cgs.gameSounds[es->eventParm]);
+				}
 			}
 			else
 			{
@@ -1062,6 +1308,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_GLOBAL_SOUND");
 			if(cgs.gameSounds[es->eventParm])
 			{
+
 				trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.gameSounds[es->eventParm]);
 			}
 			else
@@ -1107,11 +1354,12 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 				case GTS_RED_TAKEN:	// CTF: red team took blue flag, 1FCTF: blue team took the neutral flag
 					// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-					if(cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
+					if(cg.snap->ps.powerups[PW_BLUEFLAG])
 					{
 					}
 					else
 					{
+						//NT
 						if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
 						{
 #ifdef MISSIONPACK
@@ -1121,6 +1369,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 #endif
 								CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
 						}
+						//NT
 						else if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 						{
 #ifdef MISSIONPACK
@@ -1134,11 +1383,12 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 					break;
 				case GTS_BLUE_TAKEN:	// CTF: blue team took the red flag, 1FCTF red team took the neutral flag
 					// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-					if(cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
+					if(cg.snap->ps.powerups[PW_REDFLAG])
 					{
 					}
 					else
 					{
+						//NT
 						if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 						{
 #ifdef MISSIONPACK
@@ -1148,6 +1398,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 #endif
 								CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
 						}
+						//NT
 						else if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
 						{
 #ifdef MISSIONPACK
@@ -1159,6 +1410,48 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 						}
 					}
 					break;
+
+					//NT - added more cases for flags since you can grab your own
+				case GTS_BLUE_TAKEN_OWN:
+					// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
+					if(cg.snap->ps.powerups[PW_BLUEFLAG])
+					{
+					}
+					else
+					{
+						//NT
+						if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
+						{
+							CG_AddBufferedSound(cgs.media.yourTeamHasYourFlagSound);
+						}
+						else if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
+						{
+							CG_AddBufferedSound(cgs.media.enemyHasFlagSound);
+						}
+					}
+					break;
+
+					//NT - added more cases for flags since you can grab your own
+				case GTS_RED_TAKEN_OWN:
+					// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
+					if(cg.snap->ps.powerups[PW_REDFLAG])
+					{
+					}
+					else
+					{
+						//NT
+						if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
+						{
+							CG_AddBufferedSound(cgs.media.yourTeamHasYourFlagSound);
+						}
+						else if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
+						{
+							CG_AddBufferedSound(cgs.media.enemyHasFlagSound);
+						}
+					}
+					break;
+
+
 				case GTS_REDOBELISK_ATTACKED:	// Overload: red obelisk is being attacked
 					if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 					{
@@ -1187,11 +1480,11 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				case GTS_TEAMS_ARE_TIED:
 					CG_AddBufferedSound(cgs.media.teamsTiedSound);
 					break;
-#ifdef MISSIONPACK
+//#ifdef MISSIONPACK
 				case GTS_KAMIKAZE:
 					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
 					break;
-#endif
+//#endif
 				default:
 					break;
 			}
@@ -1243,6 +1536,11 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			}
 			trap_S_StartSound(NULL, es->number, CHAN_ITEM, cgs.media.protectSound);
 			break;
+		case EV_SPAWN_PROTECT:
+			DEBUGNAME("EV_SPAWN_PROTECT");
+
+			break;
+
 		case EV_POWERUP_REGEN:
 			DEBUGNAME("EV_POWERUP_REGEN");
 			if(es->number == cg.snap->ps.clientNum)
@@ -1258,11 +1556,355 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			// don't play gib sound when using the kamikaze because it interferes
 			// with the kamikaze sound, downside is that the gib sound will also
 			// not be played when someone is gibbed while just carrying the kamikaze
-			if(!(es->eFlags & EF_KAMIKAZE))
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
 			}
-			CG_GibPlayer(cent->lerpOrigin);
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayer(dieorg, es->number, weapon->weaponModel, dir, 0);
+			break;
+
+		case EV_GIB_PLAYERFIRE20:
+			DEBUGNAME("EV_GIB_PLAYERFIRE20");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayer(dieorg, es->number, weapon->weaponModel, dir, 20);
+			break;
+
+		case EV_GIB_PLAYERFIRE50:
+			DEBUGNAME("EV_GIB_PLAYERFIRE20");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayer(dieorg, es->number, weapon->weaponModel, dir, 40);
+			break;
+
+		case EV_GIB_PLAYERFIRE80:
+			DEBUGNAME("EV_GIB_PLAYERFIRE20");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayer(dieorg, es->number, weapon->weaponModel, dir, 80);
+			break;
+
+		case EV_GIB_PLAYERQFIRE80:
+			DEBUGNAME("EV_GIB_PLAYERQFIRE80");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayerQ(cent->lerpOrigin, dir, es->otherEntityNum2, es->number, 80);
+			break;
+
+		case EV_GIB_PLAYERQFIRE50:
+			DEBUGNAME("EV_GIB_PLAYERQFIRE50");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayerQ(cent->lerpOrigin, dir, es->otherEntityNum2, es->number, 50);
+			break;
+
+		case EV_GIB_PLAYERQFIRE20:
+			DEBUGNAME("EV_GIB_PLAYERQFIRE20");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayerQ(cent->lerpOrigin, dir, es->otherEntityNum2, es->number, 20);
+			break;
+
+		case EV_GIB_PLAYERQ:
+			DEBUGNAME("EV_GIB_PLAYERQ");
+			// don't play gib sound when using the kamikaze because it interferes
+			// with the kamikaze sound, downside is that the gib sound will also
+			// not be played when someone is gibbed while just carrying the kamikaze
+			ByteToDir(es->eventParm, dir);
+			VectorCopy(cent->lerpOrigin, dieorg);
+			c = rand() % 100;
+			if(c < 0)
+			{
+				c = 0;
+			}
+			if(c > 100)
+			{
+				c = 100;
+			}
+			if(c >= 0 && c <= 19)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 20 && c <= 39)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			else if(c >= 40 && c <= 59)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound3);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound3);
+			}
+			else if(c >= 60 && c <= 79)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound);
+			}
+			else if(c >= 80 && c <= 100)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound2);
+				trap_S_StartSound(dieorg, -1, CHAN_AUTO, cgs.media.gibSound2);
+			}
+			CG_GibPlayerQ(cent->lerpOrigin, dir, es->otherEntityNum2, es->number, 0);
 			break;
 
 		case EV_STOPLOOPINGSOUND:

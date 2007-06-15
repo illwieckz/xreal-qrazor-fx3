@@ -51,6 +51,8 @@ void CG_BuildSolidList(void)
 	snapshot_t     *snap;
 	entityState_t  *ent;
 
+//  clientInfo_t    *ci;
+
 	cg_numSolidEntities = 0;
 	cg_numTriggerEntities = 0;
 
@@ -290,6 +292,12 @@ static void CG_TouchItem(centity_t * cent)
 {
 	gitem_t        *item;
 
+	if(cgs.InstaGib == 1)
+	{
+		return;
+	}
+	item = &bg_itemlist[cent->currentState.modelindex];
+	CG_RegisterItemVisuals(item->giTag);
 	if(!cg_predictItems.integer)
 	{
 		return;
@@ -310,27 +318,13 @@ static void CG_TouchItem(centity_t * cent)
 		return;					// can't hold it
 	}
 
-	item = &bg_itemlist[cent->currentState.modelindex];
 
-	// Special case for flags.  
-	// We don't predict touching our own flag
-#ifdef MISSIONPACK
-	if(cgs.gametype == GT_1FCTF)
-	{
-		if(item->giTag != PW_NEUTRALFLAG)
-		{
-			return;
-		}
-	}
-	if(cgs.gametype == GT_CTF || cgs.gametype == GT_HARVESTER)
-	{
-#else
+
 	if(cgs.gametype == GT_CTF)
 	{
-#endif
-		if(cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED && item->giTag == PW_REDFLAG)
-			return;
-		if(cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE && item->giTag == PW_BLUEFLAG)
+
+		//NT - actually, don't predict touching any flags
+		if(item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG)
 			return;
 	}
 
@@ -406,7 +400,7 @@ static void CG_TouchTriggerPrediction(void)
 		{
 			continue;
 		}
-		
+
 		// Tr3B: Doom3 triggers have the "origin" epair
 		// so a simple trap_CM_BoxTrace caused a bug where the triggers were located
 		// to the world origin
@@ -474,6 +468,7 @@ void CG_PredictPlayerState(void)
 	qboolean        moved;
 	usercmd_t       oldestCmd;
 	usercmd_t       latestCmd;
+	vec3_t          deltaAngles;
 
 	cg.hyperspace = qfalse;		// will be set if touching a trigger_teleport
 
@@ -617,7 +612,10 @@ void CG_PredictPlayerState(void)
 				vec3_t          adjusted;
 
 				CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
-										  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted);
+										  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted,
+										  deltaAngles);
+				// RF, add the deltaAngles (fixes jittery view while riding trains)
+				cg.predictedPlayerState.delta_angles[YAW] += ANGLE2SHORT(deltaAngles[YAW]);
 
 				if(cg_showmiss.integer)
 				{
@@ -698,7 +696,8 @@ void CG_PredictPlayerState(void)
 
 	// adjust for the movement of the groundentity
 	CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
-							  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.time, cg.predictedPlayerState.origin);
+							  cg.predictedPlayerState.groundEntityNum,
+							  cg.physicsTime, cg.time, cg.predictedPlayerState.origin, deltaAngles);
 
 	if(cg_showmiss.integer)
 	{

@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
-#ifdef Q3_VM
-#error "Do not use in VM build"
-#endif
 
 #include "cg_local.h"
 
@@ -339,10 +336,10 @@ void trap_R_AddLightToScene(const vec3_t org, float intensity, float r, float g,
 	syscall(CG_R_ADDLIGHTTOSCENE, org, PASSFLOAT(intensity), PASSFLOAT(r), PASSFLOAT(g), PASSFLOAT(b));
 }
 
-void trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b)
+/*void trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b)
 {
 	syscall(CG_R_ADDADDITIVELIGHTTOSCENE, org, PASSFLOAT(intensity), PASSFLOAT(r), PASSFLOAT(g), PASSFLOAT(b));
-}
+}*/
 
 void trap_R_RenderScene(const refdef_t * fd)
 {

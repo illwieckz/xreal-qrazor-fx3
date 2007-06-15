@@ -44,6 +44,11 @@ static void CG_ResetEntity(centity_t * cent)
 
 	cent->trailTime = cg.snap->serverTime;
 
+	cent->headJuncIndex = 0;
+	cent->headJuncIndex2 = 0;
+	cent->headJuncIndex3 = 0;
+	cent->headJuncIndex4 = 0;
+
 	VectorCopy(cent->currentState.origin, cent->lerpOrigin);
 	VectorCopy(cent->currentState.angles, cent->lerpAngles);
 	if(cent->currentState.eType == ET_PLAYER)
@@ -97,7 +102,7 @@ void CG_SetInitialSnapshot(snapshot_t * snap)
 
 	cg.snap = snap;
 
-	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].currentState, qfalse);
+	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].currentState, qfalse, qfalse);
 
 	// sort out solid entities
 	CG_BuildSolidList();
@@ -154,6 +159,8 @@ static void CG_TransitionSnapshot(void)
 	// if we had a map_restart, set everthing with initial
 	if(!cg.snap)
 	{
+
+
 	}
 
 	// clear the currentValid flag for all entities in the existing snapshot
@@ -167,7 +174,7 @@ static void CG_TransitionSnapshot(void)
 	oldFrame = cg.snap;
 	cg.snap = cg.nextSnap;
 
-	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[cg.snap->ps.clientNum].currentState, qfalse);
+	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[cg.snap->ps.clientNum].currentState, qfalse, qfalse);
 	cg_entities[cg.snap->ps.clientNum].interpolate = qfalse;
 
 	for(i = 0; i < cg.snap->numEntities; i++)
@@ -198,7 +205,10 @@ static void CG_TransitionSnapshot(void)
 		// reason, then the client events and view changes will be issued now
 		if(cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) || cg_nopredict.integer || cg_synchronousClients.integer)
 		{
+			cg.weaponSelectTime = cg.time;
+			cg.weaponSelect = ps->weapon;
 			CG_TransitionPlayerState(ps, ops);
+
 		}
 	}
 
@@ -212,7 +222,7 @@ CG_SetNextSnap
 A new snapshot has just been read in from the client system.
 ===================
 */
-static void CG_SetNextSnap(snapshot_t * snap)
+void CG_SetNextSnap(snapshot_t * snap)
 {
 	int             num;
 	entityState_t  *es;
@@ -220,7 +230,7 @@ static void CG_SetNextSnap(snapshot_t * snap)
 
 	cg.nextSnap = snap;
 
-	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].nextState, qfalse);
+	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].nextState, qfalse, qfalse);
 	cg_entities[cg.snap->ps.clientNum].interpolate = qtrue;
 
 	// check for extrapolation errors
@@ -236,6 +246,7 @@ static void CG_SetNextSnap(snapshot_t * snap)
 		// previous frame, don't interpolate
 		if(!cent->currentValid || ((cent->currentState.eFlags ^ es->eFlags) & EF_TELEPORT_BIT))
 		{
+//          cent->trailTime = cg.time;
 			cent->interpolate = qfalse;
 		}
 		else
@@ -307,6 +318,26 @@ static snapshot_t *CG_ReadNextSnapshot(void)
 		// try to read the snapshot from the client system
 		cgs.processedSnapshotNum++;
 		r = trap_GetSnapshot(cgs.processedSnapshotNum, dest);
+//unlagged - lag simulation #1
+		// the client wants latent snaps and the just-read snapshot is valid
+/*		if(cg_latentSnaps.integer && r)
+		{
+			int             i = 0, time = dest->serverTime;
+
+			// keep grabbing one snapshot earlier until we get to the right time
+			while(dest->serverTime > time - cg_latentSnaps.integer * (1000 / sv_fps.integer))
+			{
+				if(!(r = trap_GetSnapshot(cgs.processedSnapshotNum - i, dest)))
+				{
+					// the snapshot is not valid, so stop here
+					break;
+				}
+
+				// go back one more
+				i++;
+			}
+		}*/
+//unlagged - lag simulation #1
 
 		// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
 		if(cg.snap && r && dest->serverTime == cg.snap->serverTime)
@@ -369,7 +400,17 @@ void CG_ProcessSnapshots(void)
 		if(n < cg.latestSnapshotNum)
 		{
 			// this should never happen
-			CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+//unlagged - lag simulation #1
+			// this may actually happen with lag simulation going on
+		/*	if(cg_latentSnaps.integer)
+			{
+				CG_Printf("WARNING: CG_ProcessSnapshots: n < cg.latestSnapshotNum\n");
+			}
+			else
+			{*/
+				CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+		//	}
+//unlagged - lag simulation #1
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -417,7 +458,17 @@ void CG_ProcessSnapshots(void)
 			// if time went backwards, we have a level restart
 			if(cg.nextSnap->serverTime < cg.snap->serverTime)
 			{
-				CG_Error("CG_ProcessSnapshots: Server time went backwards");
+//unlagged - lag simulation #1
+				// this may actually happen with lag simulation going on
+	/*			if(cg_latentSnaps.integer)
+				{
+					CG_Printf("WARNING: CG_ProcessSnapshots: Server time went backwards\n");
+				}
+				else
+				{*/
+					CG_Error("CG_ProcessSnapshots: Server time went backwards");
+		//		}
+//unlagged - lag simulation #1
 			}
 		}
 

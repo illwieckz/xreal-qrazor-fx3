@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // be a valid snapshot this frame
 
 #include "cg_local.h"
-#include "../ui/menudef.h"		// bk001205 - for Q3_ui as well
+#include "../ui/menudef.h"	// bk001205 - for Q3_ui as well
 
 typedef struct
 {
@@ -87,20 +87,19 @@ static void CG_ParseScores(void)
 	for(i = 0; i < cg.numScores; i++)
 	{
 		//
-		cg.scores[i].client = atoi(CG_Argv(i * 14 + 4));
-		cg.scores[i].score = atoi(CG_Argv(i * 14 + 5));
-		cg.scores[i].ping = atoi(CG_Argv(i * 14 + 6));
-		cg.scores[i].time = atoi(CG_Argv(i * 14 + 7));
-		cg.scores[i].scoreFlags = atoi(CG_Argv(i * 14 + 8));
-		powerups = atoi(CG_Argv(i * 14 + 9));
-		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
-		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
-		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
-		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
-		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
-		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
-		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));
-		cg.scores[i].captures = atoi(CG_Argv(i * 14 + 17));
+		cg.scores[i].client = atoi(CG_Argv(i * 13 + 4));
+		cg.scores[i].score = atoi(CG_Argv(i * 13 + 5));
+		cg.scores[i].ping = atoi(CG_Argv(i * 13 + 6));
+		cg.scores[i].time = atoi(CG_Argv(i * 13 + 7));
+		cg.scores[i].scoreFlags = atoi(CG_Argv(i * 13 + 8));
+		powerups = atoi(CG_Argv(i * 13 + 9));
+		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 13 + 10));
+		cg.scores[i].excellentCount = atoi(CG_Argv(i * 13 + 11));
+		cg.scores[i].guantletCount = atoi(CG_Argv(i * 13 + 12));
+		cg.scores[i].defendCount = atoi(CG_Argv(i * 13 + 13));
+		cg.scores[i].assistCount = atoi(CG_Argv(i * 13 + 14));
+		cg.scores[i].captures = atoi(CG_Argv(i * 13 + 15));
+		cg.scores[i].ref = atoi(CG_Argv(i * 13 + 16));
 
 		if(cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS)
 		{
@@ -144,6 +143,127 @@ static void CG_ParseTeamInfo(void)
 	}
 }
 
+/*
+=================
+CG_ParseMOTDInfo
+
+=================
+*/
+static void CG_ParseMOTDInfo(void)
+{
+
+
+	Q_strncpyz(cgs.motd1, CG_Argv(1), sizeof(cgs.motd1));
+	Q_strncpyz(cgs.motd2, CG_Argv(2), sizeof(cgs.motd2));
+	Q_strncpyz(cgs.motd3, CG_Argv(3), sizeof(cgs.motd3));
+	Q_strncpyz(cgs.motd4, CG_Argv(4), sizeof(cgs.motd4));
+	Q_strncpyz(cgs.motd5, CG_Argv(5), sizeof(cgs.motd5));
+	Q_strncpyz(cgs.motd6, CG_Argv(6), sizeof(cgs.motd6));
+
+}
+
+/*
+=================
+CG_ParseStatInfo
+
+=================
+*/
+static void CG_ParseStatInfo(void)
+{
+	clientInfo_t   *ci;
+	playerState_t  *ps;
+	int             clientNum;
+
+
+
+	ps = &cg.snap->ps;
+	clientNum = atoi(CG_Argv(1));
+
+	ps->clientNum = clientNum;
+
+	ci = &cgs.clientinfo[ps->clientNum];
+	//  cg.snap->ps.clientNum[ &clientNum] = atoi( CG_Argv( 1 ) );
+
+	ci->accuracy_hitmg = atoi(CG_Argv(2));
+	ci->accuracy_shotmg = atoi(CG_Argv(3));
+	ci->accuracy_hitrl = atoi(CG_Argv(4));
+	ci->accuracy_shotrl = atoi(CG_Argv(5));
+	ci->accuracy_hitgl = atoi(CG_Argv(6));
+	ci->accuracy_shotgl = atoi(CG_Argv(7));
+	ci->accuracy_hitpg = atoi(CG_Argv(8));
+	ci->accuracy_shotpg = atoi(CG_Argv(9));
+	ci->accuracy_hitrg = atoi(CG_Argv(10));
+	ci->accuracy_shotrg = atoi(CG_Argv(11));
+	ci->accuracy_hitlg = atoi(CG_Argv(12));
+	ci->accuracy_shotlg = atoi(CG_Argv(13));
+	ci->accuracy_hitsg = atoi(CG_Argv(14));
+	ci->accuracy_shotsg = atoi(CG_Argv(15));
+	ci->accuracy_hitbfg = atoi(CG_Argv(16));
+	ci->accuracy_shotbfg = atoi(CG_Argv(17));
+
+}
+
+/*
+=================
+CG_ParseStatisticsInfo
+
+=================
+*/
+void CG_ParseStatisticsInfo(void)
+{
+	clientInfo_t   *ci;
+
+//  playerState_t   *ps;
+
+
+	ci = &cgs.clientinfo[cg.snap->ps.clientNum];
+
+	ci->statnum = atoi(CG_Argv(1));
+	ci->accuracy_hitmg = atoi(CG_Argv(2));
+	ci->accuracy_shotmg = atoi(CG_Argv(3));
+	ci->accuracy_hitrl = atoi(CG_Argv(4));
+	ci->accuracy_shotrl = atoi(CG_Argv(5));
+	ci->accuracy_hitgl = atoi(CG_Argv(6));
+	ci->accuracy_shotgl = atoi(CG_Argv(7));
+	ci->accuracy_hitpg = atoi(CG_Argv(8));
+	ci->accuracy_shotpg = atoi(CG_Argv(9));
+	ci->accuracy_hitrg = atoi(CG_Argv(10));
+	ci->accuracy_shotrg = atoi(CG_Argv(11));
+	ci->accuracy_hitlg = atoi(CG_Argv(12));
+	ci->accuracy_shotlg = atoi(CG_Argv(13));
+	ci->accuracy_hitsg = atoi(CG_Argv(14));
+	ci->accuracy_shotsg = atoi(CG_Argv(15));
+	ci->accuracy_hitbfg = atoi(CG_Argv(16));
+	ci->accuracy_shotbfg = atoi(CG_Argv(17));
+	ci->pickupgl = atoi(CG_Argv(18));
+	ci->pickuprl = atoi(CG_Argv(19));
+	ci->pickupmg = atoi(CG_Argv(20));
+	ci->pickuprg = atoi(CG_Argv(21));
+	ci->pickuplg = atoi(CG_Argv(22));
+	ci->pickuppg = atoi(CG_Argv(23));
+	ci->pickupbfg = atoi(CG_Argv(24));
+	ci->pickupsg = atoi(CG_Argv(25));
+	ci->pickupmega = atoi(CG_Argv(26));
+	ci->pickupyarmor = atoi(CG_Argv(27));
+	ci->pickuprarmor = atoi(CG_Argv(28));
+	ci->pickupshard = atoi(CG_Argv(29));
+	ci->pickup5h = atoi(CG_Argv(30));
+	ci->pickup20h = atoi(CG_Argv(31));
+	ci->pickup40h = atoi(CG_Argv(32));
+	ci->pickupquad = atoi(CG_Argv(33));
+	ci->pickupsuit = atoi(CG_Argv(34));
+	ci->pickuphaste = atoi(CG_Argv(35));
+	ci->pickupregen = atoi(CG_Argv(36));
+	ci->pickupinvis = atoi(CG_Argv(37));
+	ci->pickuprflag = atoi(CG_Argv(38));
+	ci->pickupbflag = atoi(CG_Argv(39));
+	ci->pickupflight = atoi(CG_Argv(40));
+	ci->pickupHealthT = atoi(CG_Argv(41));
+	ci->pickupArmorT = atoi(CG_Argv(42));
+	ci->damageRT = atoi(CG_Argv(43));
+	ci->damageGT = atoi(CG_Argv(44));
+
+}
 
 /*
 ================
@@ -173,6 +293,11 @@ void CG_ParseServerinfo(void)
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz(cgs.blueTeam, Info_ValueForKey(info, "g_blueTeam"), sizeof(cgs.blueTeam));
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+
+	cgs.InstaGib = atoi(Info_ValueForKey(info, "Instagib"));
+	cgs.InstaPowUps = atoi(Info_ValueForKey(info, "Instapowups"));
+	cgs.InstaWeapon = atoi(Info_ValueForKey(info, "InstaWeapon"));
+	cgs.g_Footsteps = atoi(Info_ValueForKey(info, "g_footsteps"));
 }
 
 /*
@@ -428,28 +553,24 @@ CG_AddToTeamChat
 
 =======================
 */
-static void CG_AddToTeamChat(const char *str)
+void CG_AddToTeamChat(const char *str)
 {
 	int             len;
 	char           *p, *ls;
 	int             lastcolor;
 	int             chatHeight;
 
-	if(cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
-	{
-		chatHeight = cg_teamChatHeight.integer;
-	}
-	else
-	{
-		chatHeight = TEAMCHAT_HEIGHT;
-	}
+//  if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT) {
+//      chatHeight = cg_teamChatHeight.integer;
+//  } else {
+	chatHeight = 6;
+//  }
 
-	if(chatHeight <= 0 || cg_teamChatTime.integer <= 0)
-	{
-		// team chat disabled, dump into normal chat
-		cgs.teamChatPos = cgs.teamLastChatPos = 0;
-		return;
-	}
+//  if (chatHeight <= 0 || cg_teamChatTime.integer <= 0) {
+	// team chat disabled, dump into normal chat
+//      cgs.teamChatPos = cgs.teamLastChatPos = 0;
+//      return;
+//  }
 
 	len = 0;
 
@@ -471,7 +592,7 @@ static void CG_AddToTeamChat(const char *str)
 			}
 			*p = 0;
 
-			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time + 2500;
 
 			cgs.teamChatPos++;
 			p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
@@ -481,7 +602,10 @@ static void CG_AddToTeamChat(const char *str)
 			len = 0;
 			ls = NULL;
 		}
-
+		if(Q_IsAbsoluteColorString(str))
+		{
+			len -= 8;
+		}
 		if(Q_IsColorString(str))
 		{
 			*p++ = *str++;
@@ -498,7 +622,7 @@ static void CG_AddToTeamChat(const char *str)
 	}
 	*p = 0;
 
-	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time + 2500;
 	cgs.teamChatPos++;
 
 	if(cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
@@ -518,14 +642,21 @@ require a reload of all the media
 */
 static void CG_MapRestart(void)
 {
+	const char     *file;
+
 	if(cg_showmiss.integer)
 	{
 		CG_Printf("CG_MapRestart\n");
 	}
 
 	CG_InitLocalEntities();
+	CG_InitCameraFX();
+	CG_InitMapFX();
 	CG_InitMarkPolys();
 	CG_ClearParticles();
+
+	file = va("fx/%s.fx", cgs.map);
+	CG_ParseFXFile(file);
 
 	// make sure the "3 frags left" warnings play again
 	cg.fraglimitWarnings = 0;
@@ -542,24 +673,17 @@ static void CG_MapRestart(void)
 
 	trap_S_ClearLoopingSounds(qtrue);
 
+
 	// we really should clear more parts of cg here and stop sounds
 
+	// play the "fight" sound if this is a restart without warmup
 	// play the "fight" sound if this is a restart without warmup
 	if(cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */ )
 	{
 		trap_S_StartLocalSound(cgs.media.countFightSound, CHAN_ANNOUNCER);
-		CG_CenterPrint("FIGHT!", 120, GIANTCHAR_WIDTH * 2);
+		CG_CenterPrint("^AFIGHT!", 120, GIANTCHAR_WIDTH * 2);
 	}
-#ifdef MISSIONPACK
-	if(cg_singlePlayerActive.integer)
-	{
-		trap_Cvar_Set("ui_matchStartTime", va("%i", cg.time));
-		if(cg_recordSPDemo.integer && cg_recordSPDemoName.string && *cg_recordSPDemoName.string)
-		{
-			trap_SendConsoleCommand(va("set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string));
-		}
-	}
-#endif
+
 	trap_Cvar_Set("cg_thirdPerson", "0");
 }
 
@@ -966,11 +1090,10 @@ void CG_PlayVoiceChat(bufferedVoiceChat_t * vchat)
 			CG_ShowResponseHead();
 		}
 	}
-	if(!vchat->voiceOnly && !cg_noVoiceText.integer)
-	{
-		CG_AddToTeamChat(vchat->message);
-		CG_Printf("%s\n", vchat->message);
-	}
+//  if (!vchat->voiceOnly && !cg_noVoiceText.integer) {
+	CG_AddToTeamChat(vchat->message);
+	CG_Printf("%s\n", vchat->message);
+//  }
 	voiceChatBuffer[cg.voiceChatBufferOut].snd = 0;
 #endif
 }
@@ -1160,21 +1283,16 @@ static void CG_ServerCommand(void)
 		return;
 	}
 
-	if(!strcmp(cmd, "print"))
+	if(!strcmp(cmd, "printc"))
 	{
 		CG_Printf("%s", CG_Argv(1));
-#ifdef MISSIONPACK
-		cmd = CG_Argv(1);		// yes, this is obviously a hack, but so is the way we hear about
-		// votes passing or failing
-		if(!Q_stricmpn(cmd, "vote failed", 11) || !Q_stricmpn(cmd, "team vote failed", 16))
-		{
-			trap_S_StartLocalSound(cgs.media.voteFailed, CHAN_ANNOUNCER);
-		}
-		else if(!Q_stricmpn(cmd, "vote passed", 11) || !Q_stricmpn(cmd, "team vote passed", 16))
-		{
-			trap_S_StartLocalSound(cgs.media.votePassed, CHAN_ANNOUNCER);
-		}
-#endif
+		return;
+	}
+
+	if(!strcmp(cmd, "print"))
+	{
+		CG_Printf(va("%s\n\"", CG_Argv(1)));
+		CG_AddToTeamChat(va("%s", CG_Argv(1)));
 		return;
 	}
 
@@ -1185,6 +1303,7 @@ static void CG_ServerCommand(void)
 			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 			Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 			CG_RemoveChatEscapeChar(text);
+			CG_AddToTeamChat(text);
 			CG_Printf("%s\n", text);
 		}
 		return;
@@ -1239,15 +1358,7 @@ static void CG_ServerCommand(void)
 	{
 		if(trap_Argc() == 4)
 		{
-			char shader1[MAX_QPATH];
-			char shader2[MAX_QPATH];
-			char shader3[MAX_QPATH];
-
-			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
-			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
-			
-			trap_R_RemapShader(shader1, shader2, shader3);
+			trap_R_RemapShader(CG_Argv(1), CG_Argv(2), CG_Argv(3));
 		}
 	}
 
@@ -1263,6 +1374,24 @@ static void CG_ServerCommand(void)
 	if(!strcmp(cmd, "clientLevelShot"))
 	{
 		cg.levelShot = qtrue;
+		return;
+	}
+
+	if(!strcmp(cmd, "stinfo"))
+	{
+		CG_ParseStatInfo();
+		return;
+	}
+
+	if(!strcmp(cmd, "motdi"))
+	{
+		CG_ParseMOTDInfo();
+		return;
+	}
+
+	if(!strcmp(cmd, "fstinfo"))
+	{
+		CG_ParseStatisticsInfo();
 		return;
 	}
 
