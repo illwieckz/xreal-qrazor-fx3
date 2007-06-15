@@ -5,9 +5,6 @@
 	Name="xreal"
 	ProjectGUID="{81CB51C4-B434-4E12-B69B-BAEE102F2852}"
 	RootNamespace="xreal"
-	SccProjectName="&quot;$/MissionPack/code&quot;, CAAAAAAA"
-	SccLocalPath="."
-	SccProvider="MSSCCI:Perforce SCM"
 	>
 	<Platforms>
 		<Platform

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="botlib"
 	ProjectGUID="{A410161F-AE9F-485D-A01F-5294891430A6}"
 	RootNamespace="botlib"
-	SccProjectName="&quot;$/MissionPack/code/botlib&quot;, HBAAAAAA"
-	SccLocalPath="."
 	>
 	<Platforms>
 		<Platform
