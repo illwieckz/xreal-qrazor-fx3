@@ -571,7 +571,7 @@ void StartServer_Cache( void )
 	trap_R_RegisterShaderNoMip( GAMESERVER_ARROWSL );
 	trap_R_RegisterShaderNoMip( GAMESERVER_ARROWSR );
 
-	precache = trap_Cvar_VariableValue("Com_buildscript");
+	precache = trap_Cvar_VariableValue("com_buildscript");
 
 	s_startserver.nummaps = UI_GetNumArenas();
 

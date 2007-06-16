@@ -48,7 +48,7 @@ static client_t *SV_GetPlayerByName(void)
 	char            cleanName[64];
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		return NULL;
 	}
@@ -101,7 +101,7 @@ static client_t *SV_GetPlayerByNum(void)
 	char           *s;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		return NULL;
 	}
@@ -243,13 +243,13 @@ static void SV_MapRestart_f(void)
 	int             delay;
 
 	// make sure we aren't restarting twice in the same frame
-	if(Com_frameTime == sv.serverId)
+	if(com_frameTime == sv.serverId)
 	{
 		return;
 	}
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -295,7 +295,7 @@ static void SV_MapRestart_f(void)
 
 	// generate a new serverid  
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
-	sv.serverId = Com_frameTime;
+	sv.serverId = com_frameTime;
 	Cvar_Set("sv_serverid", va("%i", sv.serverId));
 
 	// reset all the vm data in place without changing memory allocation
@@ -375,7 +375,7 @@ static void SV_Kick_f(void)
 	int             i;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -447,7 +447,7 @@ static void SV_Ban_f(void)
 	client_t       *cl;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -510,7 +510,7 @@ static void SV_BanNum_f(void)
 	client_t       *cl;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -570,7 +570,7 @@ static void SV_KickNum_f(void)
 	client_t       *cl;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -611,7 +611,7 @@ static void SV_Status_f(void)
 	int             ping;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -675,7 +675,7 @@ static void SV_ConSay_f(void)
 	char            text[1024];
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
@@ -754,7 +754,7 @@ static void SV_DumpUser_f(void)
 	client_t       *cl;
 
 	// make sure server is running
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;

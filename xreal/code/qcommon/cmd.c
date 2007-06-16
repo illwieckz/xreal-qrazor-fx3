@@ -725,19 +725,19 @@ void Cmd_ExecuteString(const char *text)
 	}
 
 	// check client game commands
-	if(Com_cl_running && Com_cl_running->integer && CL_GameCommand())
+	if(com_cl_running && com_cl_running->integer && CL_GameCommand())
 	{
 		return;
 	}
 
 	// check server game commands
-	if(Com_sv_running && Com_sv_running->integer && SV_GameCommand())
+	if(com_sv_running && com_sv_running->integer && SV_GameCommand())
 	{
 		return;
 	}
 
 	// check ui commands
-	if(Com_cl_running && Com_cl_running->integer && UI_GameCommand())
+	if(com_cl_running && com_cl_running->integer && UI_GameCommand())
 	{
 		return;
 	}

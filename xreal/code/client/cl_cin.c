@@ -1322,7 +1322,7 @@ static void RoQInterrupt(void)
 				setupQuad(0, 0);
 				// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer
 				cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime =
-					CL_ScaledMilliseconds() * Com_timescale->value;
+					CL_ScaledMilliseconds() * com_timescale->value;
 			}
 			if(cinTable[currentHandle].numQuads != 1)
 				cinTable[currentHandle].numQuads = 0;
@@ -1405,7 +1405,7 @@ static void RoQInterrupt(void)
 static void RoQ_init(void)
 {
 	// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer
-	cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = CL_ScaledMilliseconds() * Com_timescale->value;
+	cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = CL_ScaledMilliseconds() * com_timescale->value;
 
 	cinTable[currentHandle].RoQPlayed = 24;
 
@@ -1557,14 +1557,14 @@ e_status CIN_RunCinematic(int handle)
 	}
 
 	// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer
-	thisTime = CL_ScaledMilliseconds() * Com_timescale->value;
+	thisTime = CL_ScaledMilliseconds() * com_timescale->value;
 	if(cinTable[currentHandle].shader && (abs(thisTime - cinTable[currentHandle].lastTime)) > 100)
 	{
 		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
 	}
 	// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer
 	cinTable[currentHandle].tfps =
-		((((CL_ScaledMilliseconds() * Com_timescale->value) - cinTable[currentHandle].startTime) * 3) / 100);
+		((((CL_ScaledMilliseconds() * com_timescale->value) - cinTable[currentHandle].startTime) * 3) / 100);
 
 	start = cinTable[currentHandle].startTime;
 	while((cinTable[currentHandle].tfps != cinTable[currentHandle].numQuads) && (cinTable[currentHandle].status == FMV_PLAY))
@@ -1573,7 +1573,7 @@ e_status CIN_RunCinematic(int handle)
 		if(start != cinTable[currentHandle].startTime)
 		{
 			// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer
-			cinTable[currentHandle].tfps = ((((CL_ScaledMilliseconds() * Com_timescale->value)
+			cinTable[currentHandle].tfps = ((((CL_ScaledMilliseconds() * com_timescale->value)
 											  - cinTable[currentHandle].startTime) * 3) / 100);
 			start = cinTable[currentHandle].startTime;
 		}

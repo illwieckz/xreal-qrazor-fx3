@@ -141,7 +141,7 @@ void MainMenu_Cache(void)
 
 sfxHandle_t ErrorMessage_Key(int key)
 {
-	trap_Cvar_Set( "Com_errorMessage", "" );
+	trap_Cvar_Set( "com_errorMessage", "" );
 	UI_MainMenu();
 	return (menu_null_sound);
 }
@@ -301,10 +301,10 @@ void UI_MainMenu( void ) {
 	memset( &s_main, 0 ,sizeof(mainmenu_t) );
 	memset( &s_errorMessage, 0 ,sizeof(errorMessage_t) );
 
-	// Com_errorMessage would need that too
+	// com_errorMessage would need that too
 	MainMenu_Cache();
 	
-	trap_Cvar_VariableStringBuffer( "Com_errorMessage", s_errorMessage.errorMessage, sizeof(s_errorMessage.errorMessage) );
+	trap_Cvar_VariableStringBuffer( "com_errorMessage", s_errorMessage.errorMessage, sizeof(s_errorMessage.errorMessage) );
 	if (strlen(s_errorMessage.errorMessage))
 	{	
 		s_errorMessage.menu.draw = Main_MenuDraw;

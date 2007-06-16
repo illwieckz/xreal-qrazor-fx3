@@ -1206,7 +1206,7 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 	if(down && (key < 128 || key == K_MOUSE1) && (clc.demoplaying || cls.state == CA_CINEMATIC) && !cls.keyCatchers)
 	{
 
-		if(Cvar_VariableValue("Com_cameraMode") == 0)
+		if(Cvar_VariableValue("com_cameraMode") == 0)
 		{
 			Cvar_Set("nextdemo", "");
 			key = K_ESCAPE;

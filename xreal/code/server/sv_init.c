@@ -479,7 +479,7 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	Cvar_Set("sv_mapChecksum", va("%i", checksum));
 
 	// serverid should be different each time
-	sv.serverId = Com_frameTime;
+	sv.serverId = com_frameTime;
 	sv.restartedServerId = sv.serverId;	// I suppose the init here is just to be safe
 	sv.checksumFeedServerId = sv.serverId;
 	Cvar_Set("sv_serverid", va("%i", sv.serverId));
@@ -744,14 +744,14 @@ before Sys_Quit or Sys_Error
 */
 void SV_Shutdown(char *finalmsg)
 {
-	if(!Com_sv_running || !Com_sv_running->integer)
+	if(!com_sv_running || !com_sv_running->integer)
 	{
 		return;
 	}
 
 	Com_Printf("----- Server Shutdown -----\n");
 
-	if(svs.clients && !Com_errorEntered)
+	if(svs.clients && !com_errorEntered)
 	{
 		SV_FinalMessage(finalmsg);
 	}

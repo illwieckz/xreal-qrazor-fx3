@@ -856,7 +856,7 @@ void SV_Frame(int msec)
 		return;
 	}
 
-	if(!Com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
 		return;
 	}
@@ -924,7 +924,7 @@ void SV_Frame(int msec)
 		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	}
 
-	if(Com_speeds->integer)
+	if(com_speeds->integer)
 	{
 		startTime = Sys_Milliseconds();
 	}
@@ -949,7 +949,7 @@ void SV_Frame(int msec)
 		VM_Call(gvm, GAME_RUN_FRAME, svs.time);
 	}
 
-	if(Com_speeds->integer)
+	if(com_speeds->integer)
 	{
 		time_game = Sys_Milliseconds() - startTime;
 	}

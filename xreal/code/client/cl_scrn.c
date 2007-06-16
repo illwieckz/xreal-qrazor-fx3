@@ -581,7 +581,7 @@ void SCR_UpdateScreen(void)
 		SCR_DrawScreenField(STEREO_CENTER);
 	}
 
-	if(Com_speeds->integer)
+	if(com_speeds->integer)
 	{
 		re.EndFrame(&time_frontend, &time_backend);
 	}

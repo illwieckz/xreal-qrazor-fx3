@@ -58,7 +58,7 @@
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="2"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -150,7 +150,7 @@
 				ObjectFile="Debug/"
 				ProgramDataBaseFileName="Debug/"
 				BrowseInformation="1"
-				WarningLevel="2"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 			/>

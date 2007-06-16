@@ -4912,17 +4912,17 @@ static char    *CommaParse(char **data_p)
 {
 	int             c = 0, len;
 	char           *data;
-	static char     Com_token[MAX_TOKEN_CHARS];
+	static char     com_token[MAX_TOKEN_CHARS];
 
 	data = *data_p;
 	len = 0;
-	Com_token[0] = 0;
+	com_token[0] = 0;
 
 	// make sure incoming data is valid
 	if(!data)
 	{
 		*data_p = NULL;
-		return Com_token;
+		return com_token;
 	}
 
 	while(1)
@@ -4978,13 +4978,13 @@ static char    *CommaParse(char **data_p)
 			c = *data++;
 			if(c == '\"' || !c)
 			{
-				Com_token[len] = 0;
+				com_token[len] = 0;
 				*data_p = (char *)data;
-				return Com_token;
+				return com_token;
 			}
 			if(len < MAX_TOKEN_CHARS)
 			{
-				Com_token[len] = c;
+				com_token[len] = c;
 				len++;
 			}
 		}
@@ -4995,7 +4995,7 @@ static char    *CommaParse(char **data_p)
 	{
 		if(len < MAX_TOKEN_CHARS)
 		{
-			Com_token[len] = c;
+			com_token[len] = c;
 			len++;
 		}
 		data++;
@@ -5007,10 +5007,10 @@ static char    *CommaParse(char **data_p)
 //      Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
 		len = 0;
 	}
-	Com_token[len] = 0;
+	com_token[len] = 0;
 
 	*data_p = (char *)data;
-	return Com_token;
+	return com_token;
 }
 
 

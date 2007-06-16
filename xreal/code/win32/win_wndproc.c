@@ -327,7 +327,7 @@ LONG WINAPI MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// their desktop resolution while the game is running,
 			// but don't do anything if the message is a result of
 			// our own calling of ChangeDisplaySettings
-			if(Com_insideVidInit)
+			if(com_insideVidInit)
 			{
 				break;			// we did this on purpose
 			}
