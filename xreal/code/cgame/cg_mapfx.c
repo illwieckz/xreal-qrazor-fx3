@@ -7,15 +7,17 @@ CG_InitMapFX
 This is called at startup and for tournement restarts
 ===================
 */
-void	CG_InitMapFX( void ) {
-	int		i;
+void CG_InitMapFX(void)
+{
+	int             i;
 
-	memset( cg_mapFX, 0, sizeof( cg_mapFX ) );
+	memset(cg_mapFX, 0, sizeof(cg_mapFX));
 	cg_activeMapFX.next = &cg_activeMapFX;
 	cg_activeMapFX.prev = &cg_activeMapFX;
 	cg_freeMapFX = cg_mapFX;
-	for ( i = 0 ; i < MAX_MAPFX - 1 ; i++ ) {
-		cg_mapFX[i].next = &cg_mapFX[i+1];
+	for(i = 0; i < MAX_MAPFX - 1; i++)
+	{
+		cg_mapFX[i].next = &cg_mapFX[i + 1];
 	}
 
 }
@@ -26,9 +28,11 @@ void	CG_InitMapFX( void ) {
 cg_freeMapFX
 ==================
 */
-void CG_FreeMapFX( mapFX_t *mfx ) {
-	if ( !mfx->prev ) {
-		CG_Error( "cg_freeMapFX: not active" );
+void CG_FreeMapFX(mapFX_t * mfx)
+{
+	if(!mfx->prev)
+	{
+		CG_Error("cg_freeMapFX: not active");
 	}
 
 	// remove from the doubly linked active list
@@ -47,21 +51,24 @@ CG_AllocCameraFX
 Will allways succeed, even if it requires freeing an old active entity
 ===================
 */
-mapFX_t	*CG_AllocMapFX( void ) {
-	mapFX_t	*mfx;
+mapFX_t        *CG_AllocMapFX(void)
+{
+	mapFX_t        *mfx;
 
-	if ( !cg_freeMapFX ) {
+	if(!cg_freeMapFX)
+	{
 		// no free entities, so free the one at the end of the chain
 		// remove the oldest active entity
-		if(!(cg_activeMapFX.prev->mfxFlags & MFXF_NEVER_FREE)){
-			CG_FreeMapFX( cg_activeMapFX.prev );
+		if(!(cg_activeMapFX.prev->mfxFlags & MFXF_NEVER_FREE))
+		{
+			CG_FreeMapFX(cg_activeMapFX.prev);
 		}
 	}
 
 	mfx = cg_freeMapFX;
 	cg_freeMapFX = cg_freeMapFX->next;
 
-	memset( mfx, 0, sizeof( *mfx ) );
+	memset(mfx, 0, sizeof(*mfx));
 
 	// link into the active list
 	mfx->next = cg_activeMapFX.next;
@@ -80,26 +87,29 @@ mapFX_t	*CG_AllocMapFX( void ) {
 CG_AddMapFX
 ===================
 */
-void CG_AddMapFX( void ) {
-	mapFX_t	*mfx, *next;
+void CG_AddMapFX(void)
+{
+	mapFX_t        *mfx, *next;
 
 	// walk the list backwards, so any new local entities generated
 	// (trails, marks, etc) will be present this frame
 	mfx = cg_activeMapFX.prev;
 
-	for ( ; mfx != &cg_activeMapFX ; mfx = next ) {
+	for(; mfx != &cg_activeMapFX; mfx = next)
+	{
 		// grab next now, so if the local entity is freed we
 		// still have it
 		next = mfx->prev;
-		switch ( mfx->mfxType ) {
-		default:
-			CG_Error( "Bad mfxType: %i", mfx->mfxType );
-			break;
+		switch (mfx->mfxType)
+		{
+			default:
+				CG_Error("Bad mfxType: %i", mfx->mfxType);
+				break;
 
 
-		case MFX_CORONA:
-//			CG_Corona( mfx );
-			break;
+			case MFX_CORONA:
+//          CG_Corona( mfx );
+				break;
 		}
 	}
 }

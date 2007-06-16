@@ -7,7 +7,7 @@
 
 // these definitions also need to be in q_shared.h!
 
-#define	CONTENTS_SOLID			1		// an eye is never valid in a solid
+#define	CONTENTS_SOLID			1	// an eye is never valid in a solid
 #define	CONTENTS_LAVA			8
 #define	CONTENTS_SLIME			16
 #define	CONTENTS_WATER			32
@@ -40,9 +40,9 @@
 #define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
 #define	CONTENTS_LOCALENT		0x100000000	// don't leave bodies or items (death fog, lava)
 
-#define	SURF_NODAMAGE			0x1		// never give falling damage
-#define	SURF_SLICK				0x2		// effects game physics
-#define	SURF_SKY				0x4		// lighting from environment map
+#define	SURF_NODAMAGE			0x1	// never give falling damage
+#define	SURF_SLICK				0x2	// effects game physics
+#define	SURF_SKY				0x4	// lighting from environment map
 #define	SURF_LADDER				0x8
 #define	SURF_NOIMPACT			0x10	// don't make missile explosions
 #define	SURF_NOMARKS			0x20	// don't leave missile marks
@@ -58,5 +58,5 @@
 #define	SURF_LIGHTFILTER		0x8000	// act as a light filter during q3map -light
 #define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in q3map
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
-#define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
-#define SURF_GRAVITY			0x80000 // Walk on this surface no matter the angle
+#define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
+#define SURF_GRAVITY			0x80000	// Walk on this surface no matter the angle

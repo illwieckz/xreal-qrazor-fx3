@@ -245,7 +245,7 @@ Key digits:
 #define QGR_KEY_SPLASH_TAKEN_CHAINGUN	1111021408
 #define QGR_KEY_PICKUP_CHAINGUN			1111021409
 #define QGR_KEY_TIME_CHAINGUN			1111021410
-#endif /* MISSIONPACK */
+#endif							/* MISSIONPACK */
 
 // ammo keys
 #define QGR_KEY_BOXES					1111030000
@@ -285,7 +285,7 @@ Key digits:
 // new to team arena
 #define QGR_KEY_BOXES_CHAINGUN_AMMO 	1111031100
 #define QGR_KEY_ROUNDS_CHAINGUN_AMMO 	1111031101
-#endif /* MISSIONPACK */
+#endif							/* MISSIONPACK */
 
 // health keys
 #define QGR_KEY_HEALTH					1111040000
@@ -321,7 +321,7 @@ Key digits:
 #define QGR_KEY_DOUBLER					1111160802
 #define QGR_KEY_AMMOREGEN				1111160803
 
-#endif //MISSIONPACK
+#endif							//MISSIONPACK
 
 // holdable item keys
 #define QGR_KEY_MEDKIT					1111070000
@@ -340,7 +340,7 @@ Key digits:
 // new to team arena
 #define QGR_KEY_INVULNERABILITY			1111070400
 #define QGR_KEY_INVULNERABILITY_USE		1111070401
-#endif /* MISSIONPACK */
+#endif							/* MISSIONPACK */
 
 // hazard keys
 #define QGR_KEY_HAZARD_DEATH			1111080000
@@ -372,4 +372,4 @@ Key digits:
 #define QGR_KEY_FLAG_PICKUP				1111110000
 #define QGR_KEY_FLAG_CAPTURE			1111110001
 
-#endif // _G_RANKINGS_H_
+#endif							// _G_RANKINGS_H_

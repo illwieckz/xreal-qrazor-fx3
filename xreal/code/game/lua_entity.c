@@ -35,7 +35,7 @@ static int entity_Spawn(lua_State * L)
 
 	luaL_getmetatable(L, "game.entity");
 	lua_setmetatable(L, -2);
-	
+
 	lent->e = G_Spawn();
 
 	return 1;
@@ -47,7 +47,7 @@ static int entity_GetNumber(lua_State * L)
 
 	lent = lua_getentity(L, 1);
 	lua_pushnumber(L, lent->e - g_entities);
-//	lua_pushnumber(L, lent->e->s.number);
+//  lua_pushnumber(L, lent->e->s.number);
 
 	return 1;
 }
@@ -78,7 +78,7 @@ static int entity_Print(lua_State * L)
 	int             i;
 	char            buf[MAX_STRING_CHARS];
 	int             n = lua_gettop(L);	// number of arguments
-	
+
 	lent = lua_getentity(L, 1);
 	if(!lent->e->client)
 		return luaL_error(L, "`Print' must be used with a client entity");
@@ -94,17 +94,17 @@ static int entity_Print(lua_State * L)
 		lua_pushvalue(L, i);	// value to print
 		lua_call(L, 1, 1);
 		s = lua_tostring(L, -1);	// get result
-		
+
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
-		
+
 		Q_strcat(buf, sizeof(buf), s);
-		
+
 		lua_pop(L, 1);			// pop result
 	}
-	
+
 	trap_SendServerCommand(lent->e - g_entities, va("print \"%s\n\"", buf));
-	
+
 	return 0;
 }
 
@@ -114,7 +114,7 @@ static int entity_CenterPrint(lua_State * L)
 	int             i;
 	char            buf[MAX_STRING_CHARS];
 	int             n = lua_gettop(L);	// number of arguments
-	
+
 	lent = lua_getentity(L, 1);
 	if(!lent->e->client)
 		return luaL_error(L, "`CenterPrint' must be used with a client entity");
@@ -130,17 +130,17 @@ static int entity_CenterPrint(lua_State * L)
 		lua_pushvalue(L, i);	// value to print
 		lua_call(L, 1, 1);
 		s = lua_tostring(L, -1);	// get result
-		
+
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
-		
+
 		Q_strcat(buf, sizeof(buf), s);
-		
+
 		lua_pop(L, 1);			// pop result
 	}
-	
+
 	trap_SendServerCommand(lent->e - g_entities, va("cp \"" S_COLOR_WHITE "%s\n\"", buf));
-	
+
 	return 0;
 }
 
@@ -157,12 +157,13 @@ static int entity_GetClassName(lua_State * L)
 static int entity_SetClassName(lua_State * L)
 {
 	lua_Entity     *lent;
-//	char           *classname;
+
+//  char           *classname;
 
 	lent = lua_getentity(L, 1);
-	lent->e->classname = (char *) luaL_checkstring(L, 2);
-	
-//	lent->e->classname = classname;
+	lent->e->classname = (char *)luaL_checkstring(L, 2);
+
+//  lent->e->classname = classname;
 
 	return 1;
 }
@@ -185,7 +186,7 @@ static int entity_Rotate(lua_State * L)
 
 	lent = lua_getentity(L, 1);
 	vec = lua_getvector(L, 2);
-	
+
 	lent->e->s.apos.trType = TR_LINEAR;
 	lent->e->s.apos.trDelta[0] = vec[0];
 	lent->e->s.apos.trDelta[1] = vec[1];
@@ -196,8 +197,8 @@ static int entity_Rotate(lua_State * L)
 
 static int entity_GC(lua_State * L)
 {
-//	G_Printf("Lua says bye to entity = %p\n", lua_getentity(L));
-	
+//  G_Printf("Lua says bye to entity = %p\n", lua_getentity(L));
+
 	return 0;
 }
 
@@ -206,13 +207,14 @@ static int entity_ToString(lua_State * L)
 	lua_Entity     *lent;
 	gentity_t      *gent;
 	char            buf[MAX_STRING_CHARS];
-	
+
 	lent = lua_getentity(L, 1);
 	gent = lent->e;
 	// break q3/d3
-	Com_sprintf(buf, sizeof(buf), "entity: class=%s name=%s id=%i pointer=%p\n", gent->classname, gent->targetname, gent - g_entities, gent);
+	Com_sprintf(buf, sizeof(buf), "entity: class=%s name=%s id=%i pointer=%p\n", gent->classname, gent->targetname,
+				gent - g_entities, gent);
 	lua_pushstring(L, buf);
-	
+
 	return 1;
 }
 
@@ -239,11 +241,11 @@ static const luaL_reg entity_meta[] = {
 int luaopen_entity(lua_State * L)
 {
 	luaL_newmetatable(L, "game.entity");
-	
+
 	lua_pushstring(L, "__index");
-	lua_pushvalue(L, -2);  // pushes the metatable
-	lua_settable(L, -3);  // metatable.__index = metatable
-	
+	lua_pushvalue(L, -2);		// pushes the metatable
+	lua_settable(L, -3);		// metatable.__index = metatable
+
 	luaL_register(L, NULL, entity_meta);
 	luaL_register(L, "entity", entity_ctor);
 
@@ -258,11 +260,11 @@ void lua_pushentity(lua_State * L, gentity_t * ent)
 
 	luaL_getmetatable(L, "game.entity");
 	lua_setmetatable(L, -2);
-	
+
 	lent->e = ent;
 }
 
-lua_Entity *lua_getentity(lua_State * L, int argNum)
+lua_Entity     *lua_getentity(lua_State * L, int argNum)
 {
 	void           *ud;
 

@@ -2098,41 +2098,41 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 				free_particles = p->next;
 				p->next = active_particles;
 				active_particles = p;
-				
+
 				p->time = cg.time;
 				p->endTime = cg.time + 700 + random() * 500;
-				
+
 				randVec[0] = origin[0] + i + (rand() & 3);
 				randVec[1] = origin[1] + j + (rand() & 3);
 				randVec[2] = origin[2] + k + (rand() & 3);
 				VectorCopy(randVec, p->org);
-				
+
 				randVec[0] = crandom();	// between 1 and -1
 				randVec[1] = crandom();
 				randVec[2] = crandom();
 				VectorNormalize(randVec);
 				VectorScale(randVec, 64, tempVec);
-				//tempVec[2] += 30;		// nudge the particles up a bit
+				//tempVec[2] += 30;     // nudge the particles up a bit
 				VectorCopy(tempVec, p->vel);
-				
+
 				// add some gravity/randomness
 				p->accel[0] = crandom() * 3;
 				p->accel[1] = crandom() * 3;
 				p->accel[2] = -PARTICLE_GRAVITY * 3;
-				
+
 				p->alpha = 1.0;
 				p->alphaVel = 0;
-				
+
 				p->type = P_SMOKE;
 				// FIXME
 				//p->pshader = cgs.media.teleportFlareShader;
-				
+
 				p->width = 3 + random() * 2;
 				p->height = p->width;
 
 				p->endHeight = p->width * 0.2;
 				p->endWidth = p->height * 0.2;
-				
+
 				p->startfade = cg.time;
 				p->rotate = qtrue;
 				p->roll = rand() % 179;

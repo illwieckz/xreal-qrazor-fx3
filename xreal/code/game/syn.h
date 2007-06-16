@@ -1,11 +1,11 @@
 //===========================================================================
 //
-// Name:			syn.h
-// Function:		synonyms
-// Programmer:		Mr Elusive
-// Last update:		-
-// Tab Size:		4 (real tabs)
-// Notes:			-
+// Name:            syn.h
+// Function:        synonyms
+// Programmer:      Mr Elusive
+// Last update:     -
+// Tab Size:        4 (real tabs)
+// Notes:           -
 //===========================================================================
 
 #define CONTEXT_ALL						0xFFFFFFFF

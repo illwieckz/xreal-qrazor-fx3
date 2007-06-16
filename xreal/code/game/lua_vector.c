@@ -35,7 +35,7 @@ static int vector_New(lua_State * L)
 
 	luaL_getmetatable(L, "vector");
 	lua_setmetatable(L, -2);
-	
+
 	VectorClear(v);
 
 	return 1;
@@ -49,7 +49,7 @@ static int vector_Construct(lua_State * L)
 
 	luaL_getmetatable(L, "vector");
 	lua_setmetatable(L, -2);
-	
+
 	v[0] = luaL_optnumber(L, 1, 0);
 	v[1] = luaL_optnumber(L, 2, 0);
 	v[2] = luaL_optnumber(L, 3, 0);
@@ -62,7 +62,7 @@ static int vector_Set(lua_State * L)
 	vec_t          *v;
 
 	v = lua_getvector(L, 1);
-	
+
 	v[0] = luaL_optnumber(L, 1, 0);
 	v[1] = luaL_optnumber(L, 2, 0);
 	v[2] = luaL_optnumber(L, 3, 0);
@@ -114,18 +114,18 @@ static int vector_NewIndex(lua_State * L)
 
 static int vector_GC(lua_State * L)
 {
-//	G_Printf("Lua says bye to vector = %p\n", lua_getvector(L));
-	
+//  G_Printf("Lua says bye to vector = %p\n", lua_getvector(L));
+
 	return 0;
 }
 
 static int vector_ToString(lua_State * L)
 {
 	vec_t          *vec;
-	
+
 	vec = lua_getvector(L, 1);
 	lua_pushstring(L, va("(%i %i %i)", (int)vec[0], (int)vec[1], (int)vec[2]));
-	
+
 	return 1;
 }
 
@@ -147,7 +147,7 @@ static const luaL_reg vector_meta[] = {
 int luaopen_vector(lua_State * L)
 {
 	luaL_newmetatable(L, "vector");
-	
+
 	luaL_register(L, NULL, vector_meta);
 	luaL_register(L, "vector", vector_ctor);
 
@@ -162,11 +162,11 @@ void lua_pushvector(lua_State * L, vec3_t v)
 
 	luaL_getmetatable(L, "vector");
 	lua_setmetatable(L, -2);
-	
+
 	VectorCopy(v, vec);
 }
 
-vec_t *lua_getvector(lua_State * L, int argNum)
+vec_t          *lua_getvector(lua_State * L, int argNum)
 {
 	void           *ud;
 
