@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_marks.c -- wall marks
 
 #include "cg_local.h"

@@ -21,13 +21,14 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_event.c -- handle entity events at snapshot or playerstate transitions
 
 #include "cg_local.h"
 
 // for the voice chats
 #ifdef MISSIONPACK				// bk001205
-#include "../../ui/menudef.h"
+#include "../ui/menudef.h"
 #endif
 //==========================================================================
 
@@ -549,6 +550,7 @@ void CG_ItemPickup(int itemNum, int clientNum)
 			//  cg.weaponSelect = bg_itemlist[itemNum].giTag;
 		}
 	}
+
 }
 
 
@@ -915,7 +917,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 				index = es->eventParm;	// player predicted
 
-
 				if(index < 1 || index >= bg_numItems)
 				{
 					break;
@@ -953,9 +954,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				{
 					break;
 				}
-
 				item = &bg_itemlist[index];
-
 				// powerup pickups are global
 				if(item->pickup_sound)
 				{
@@ -1380,7 +1379,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_GLOBAL_SOUND");
 			if(cgs.gameSounds[es->eventParm])
 			{
-
 				trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.gameSounds[es->eventParm]);
 			}
 			else
@@ -1431,7 +1429,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 					}
 					else
 					{
-						//NT
 						if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
 						{
 #ifdef MISSIONPACK
@@ -1441,7 +1438,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 #endif
 								CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
 						}
-						//NT
 						else if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 						{
 #ifdef MISSIONPACK
@@ -1460,7 +1456,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 					}
 					else
 					{
-						//NT
 						if(cgs.clientinfo[cg.clientNum].team == TEAM_RED)
 						{
 #ifdef MISSIONPACK
@@ -1470,7 +1465,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 #endif
 								CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
 						}
-						//NT
 						else if(cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
 						{
 #ifdef MISSIONPACK

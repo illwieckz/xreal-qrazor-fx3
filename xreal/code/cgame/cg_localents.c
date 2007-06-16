@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 // cg_localents.c -- every frame, generate renderer commands for locally
 // processed entities, like smoke puffs, gibs, shells, etc.
@@ -329,6 +330,7 @@ static void CG_RadiusDamage ( vec3_t origin, localEntity_t *attacker, float dama
 /*
 ================
 CG_BloodTrail
+
 Leave expanding blood puffs behind gibs
 ================
 */
@@ -1772,8 +1774,8 @@ static void CG_Flare(localEntity_t * le)
 		time = cg.time - le->startTime;
 		time2 = le->endTime - le->startTime;
 		ratio = time / time2;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		//  le->refEntity.customShader = shaderAnimsw[i][j];
 		trap_R_AddPolyToScene(shaderAnimsw[i][j], 4, verts);
 	}
@@ -1866,7 +1868,7 @@ void CG_FlarePuff(const vec3_t p, const vec3_t vel,
 	else
 	{
 		le->anim = qtrue;
-		re->shaderAnim = anim;
+		le->shaderAnim = anim;
 		//  i = anim;
 		//  j = (int)floor(ratio * shaderAnimCountsw[anim]);
 		//  re->customShader = shaderAnimsw[i][j];
@@ -1917,8 +1919,8 @@ void CG_RocketSMExplosion(vec3_t dir, vec3_t org, char *animStr, int duration, i
 	VectorCopy(dir, re->axis[0]);
 	RotateAroundDirection(re->axis, ang);
 
-	re->shaderAnim = anim;
-	re->anim = qtrue;
+	le->shaderAnim = anim;
+	le->anim = qtrue;
 
 	re->shaderTime = cg.time / 200.0f;
 	re->radius = radius;
@@ -1996,8 +1998,8 @@ void CG_RLSMOKE(const vec3_t p, const vec3_t vel,
 
 	VectorCopy(p, re->origin);
 
-	re->shaderAnim = anim;
-	re->anim = qtrue;
+	le->shaderAnim = anim;
+	le->anim = qtrue;
 
 }
 
@@ -2047,7 +2049,7 @@ static void CG_RGRingScaleFade(localEntity_t * le)
 		re->shaderRGBA[3] = (unsigned char)le->color[3] * c;
 	}
 
-	if(re->sparklesT == 1)
+	if(le->sparklesT == 1)
 	{
 		if(re->rotation)
 		{
@@ -2093,7 +2095,7 @@ static void CG_RGRingScaleFade(localEntity_t * le)
 
 	// 1st
 	VectorCopy(re->origin, p);
-	if(re->sparklesT == 1)
+	if(le->sparklesT == 1)
 	{
 		if(re->rotation)
 		{
@@ -2181,7 +2183,7 @@ static void CG_RGRingScaleFade(localEntity_t * le)
 
 	// 2nd
 	VectorCopy(re->origin, p);
-	if(re->sparklesT == 1)
+	if(le->sparklesT == 1)
 	{
 		if(re->rotation)
 		{
@@ -2269,7 +2271,7 @@ static void CG_RGRingScaleFade(localEntity_t * le)
 
 	// 3rd
 	VectorCopy(re->origin, p);
-	if(re->sparklesT == 1)
+	if(le->sparklesT == 1)
 	{
 		if(re->rotation)
 		{
@@ -2357,7 +2359,7 @@ static void CG_RGRingScaleFade(localEntity_t * le)
 
 	// 4th
 	VectorCopy(re->origin, p);
-	if(re->sparklesT == 1)
+	if(le->sparklesT == 1)
 	{
 		if(re->rotation)
 		{
@@ -2949,8 +2951,8 @@ static void CG_AddRLExplosion(localEntity_t * le)
 
 	re = le->refEntity;
 
-	i = le->refEntity.shaderAnim;
-	j = (int)floor(ratio * shaderAnimCountsw[le->refEntity.shaderAnim]);
+	i = le->shaderAnim;
+	j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 	re.customShader = shaderAnimsw[i][j];
 	re.shaderTime = le->refEntity.shaderTime;
 
@@ -3101,8 +3103,8 @@ void CG_AddRocketRing(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.rocketShockWave;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = cgs.media.rocketShockWaveShader;	//shaderAnimsw[i][j];
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
@@ -3199,13 +3201,13 @@ void CG_AddRocketQSphere(localEntity_t * le)
 	memset(&shockwave, 0, sizeof(shockwave));
 	shockwave.hModel = cgs.media.quadSphereModel;
 	shockwave.reType = RT_MODEL;
-	i = re->shaderAnim;
-	j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+	i = le->shaderAnim;
+	j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 	shockwave.customShader = re->customShader;
 	shockwave.shaderTime = re->shaderTime;
 	VectorCopy(re->origin, shockwave.origin);
 
-	if(re->sparklesT == 0)
+	if(le->sparklesT == 0)
 	{
 		c = (float)(time - 0) / (float)(800 - 0);
 		VectorScale(re->axis[0], c * 1.8f / 1.7f, shockwave.axis[0]);
@@ -3237,13 +3239,13 @@ void CG_AddRocketQSphere(localEntity_t * le)
 	memset(&shockwave, 0, sizeof(shockwave));
 	shockwave.hModel = cgs.media.quadSphereModel;
 	shockwave.reType = RT_MODEL;
-	i = re->shaderAnim;
-	j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+	i = le->shaderAnim;
+	j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 	shockwave.customShader = re->customShader;
 	shockwave.shaderTime = re->shaderTime;
 	VectorCopy(re->origin, shockwave.origin);
 
-	if(re->sparklesT == 0)
+	if(le->sparklesT == 0)
 	{
 		c = (float)(time - 0) / (float)(800 - 0);
 		VectorScale(re->axis[0], c * 1.7f / 1.6f, shockwave.axis[0]);
@@ -3294,14 +3296,14 @@ void CG_AddPlasmaQSphere(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.quadSphereModel;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = re->customShader;
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
 
 		c = (float)(time - 0) / (float)(700 - 0);
-		if(re->sparklesT == 0)
+		if(le->sparklesT == 0)
 		{
 			VectorScale(re->axis[0], c * 5.9f / 4.8f, shockwave.axis[0]);
 			VectorScale(re->axis[1], c * 5.9f / 4.8f, shockwave.axis[1]);
@@ -3330,14 +3332,14 @@ void CG_AddPlasmaQSphere(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.quadSphereModel;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = re->customShader;
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
 
 		c = (float)(time - 0) / (float)(700 - 0);
-		if(re->sparklesT == 0)
+		if(le->sparklesT == 0)
 		{
 			VectorScale(re->axis[0], c * 5.8f / 4.7f, shockwave.axis[0]);
 			VectorScale(re->axis[1], c * 5.8f / 4.7f, shockwave.axis[1]);
@@ -3432,7 +3434,7 @@ void CG_QSphereEffect(vec3_t org, vec3_t dir, int team, int duration, int weapon
 	}
 	else
 	{
-		re->sparklesT = 1;
+		le->sparklesT = 1;
 		re->customShader = cgs.media.rlfireexpShader;
 	}
 
@@ -3506,7 +3508,7 @@ void CG_RingEffect(vec3_t org, vec3_t dir, char *animStr, int duration, qboolean
 		VectorCopy(up, re->axis[0]);
 	}
 
-	re->shaderAnim = anim;
+	le->shaderAnim = anim;
 
 
 	re->shaderTime = cg.time / 200.0f;
@@ -3573,7 +3575,7 @@ void CG_RocketExplosion(vec3_t dir, vec3_t org, char *animStr, int duration, flo
 	VectorCopy(dir, re->axis[0]);
 	RotateAroundDirection(re->axis, ang);
 	VectorCopy(dir, le->pos.trDelta);
-	re->shaderAnim = anim;
+	le->shaderAnim = anim;
 
 	re->shaderTime = cg.time / 200.0f;
 	re->hModel = cgs.media.dishFlashModel;
@@ -3657,7 +3659,7 @@ void CG_GrenadeExplosion(vec3_t dir, vec3_t org, char *animStr, int duration, fl
 	VectorCopy(dir, re->axis[0]);
 	RotateAroundDirection(re->axis, ang);
 	VectorCopy(dir, le->pos.trDelta);
-	re->shaderAnim = anim;
+	le->shaderAnim = anim;
 
 	re->shaderTime = cg.time / 200.0f;
 	re->hModel = cgs.media.dishFlashModel;
@@ -3708,8 +3710,8 @@ void CG_AddRocketRing2(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.rocketShockWave;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = cgs.media.rocketShockWaveShader;	//shaderAnimsw[i][j];
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
@@ -3812,7 +3814,7 @@ void CG_RingEffect2(vec3_t org, vec3_t dir, char *animStr, int duration, qboolea
 
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 
-	re->shaderAnim = anim;
+	le->shaderAnim = anim;
 
 	if(sprite)
 	{
@@ -3864,8 +3866,8 @@ void CG_AddRailEXPRing(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.rocketShockWave;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = cgs.media.railexpringShader;
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
@@ -3904,8 +3906,8 @@ void CG_AddRailEXPRing(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.rocketShockWave;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = cgs.media.railexpringShader;
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
@@ -4018,8 +4020,8 @@ void CG_AddRailEXPRing2(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.rocketShockWave;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = cgs.media.railexpring2Shader;
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);
@@ -4058,8 +4060,8 @@ void CG_AddRailEXPRing2(localEntity_t * le)
 		memset(&shockwave, 0, sizeof(shockwave));
 		shockwave.hModel = cgs.media.rocketShockWave;
 		shockwave.reType = RT_MODEL;
-		i = re->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCountsw[re->shaderAnim]);
+		i = le->shaderAnim;
+		j = (int)floor(ratio * shaderAnimCountsw[le->shaderAnim]);
 		shockwave.customShader = cgs.media.railexpring2Shader;
 		shockwave.shaderTime = re->shaderTime;
 		VectorCopy(re->origin, shockwave.origin);

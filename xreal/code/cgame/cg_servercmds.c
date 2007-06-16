@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_servercmds.c -- reliably sequenced text commands sent by the server
 // these are processed at snapshot transition time, so there will definately
 // be a valid snapshot this frame
@@ -683,10 +684,8 @@ static void CG_MapRestart(void)
 
 	trap_S_ClearLoopingSounds(qtrue);
 
-
 	// we really should clear more parts of cg here and stop sounds
 
-	// play the "fight" sound if this is a restart without warmup
 	// play the "fight" sound if this is a restart without warmup
 	if(cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */ )
 	{
@@ -1368,7 +1367,15 @@ static void CG_ServerCommand(void)
 	{
 		if(trap_Argc() == 4)
 		{
-			trap_R_RemapShader(CG_Argv(1), CG_Argv(2), CG_Argv(3));
+			char shader1[MAX_QPATH];
+			char shader2[MAX_QPATH];
+			char shader3[MAX_QPATH];
+
+			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
+			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
+			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
+			
+			trap_R_RemapShader(shader1, shader2, shader3);
 		}
 	}
 

@@ -556,8 +556,13 @@ typedef struct
 } consoleCommand_t;
 
 static consoleCommand_t commands[] = {
-	{"testgun", CG_TestGun_f},
-	{"testmodel", CG_TestModel_f},
+	{"testModel", CG_TestModel_f},
+	{"testGun", CG_TestGun_f},
+	{"testAnimation", CG_TestAnimation_f},
+	{"testBlend", CG_TestBlend_f},
+	{"testOmniLight", CG_TestOmniLight_f},
+	{"testProjLight", CG_TestProjLight_f},
+	{"testFlashLight", CG_TestFlashLight_f},
 	{"nextframe", CG_TestModelNextFrame_f},
 	{"prevframe", CG_TestModelPrevFrame_f},
 	{"nextskin", CG_TestModelNextSkin_f},
@@ -670,4 +675,10 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("statnext");
 	trap_AddCommand("mview");
 	trap_AddCommand("fx");
+#ifdef LUA
+	trap_AddCommand("lua_script");
+	trap_AddCommand("lua_binaryfunction");
+	trap_AddCommand("lua_stackdump");
+	trap_AddCommand("lua_restart");
+#endif
 }

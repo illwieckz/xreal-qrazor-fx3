@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_snapshot.c -- things that happen on snapshot transition,
 // not necessarily every single rendered frame
 
@@ -161,8 +162,6 @@ static void CG_TransitionSnapshot(void)
 	// if we had a map_restart, set everthing with initial
 	if(!cg.snap)
 	{
-
-
 	}
 
 	// clear the currentValid flag for all entities in the existing snapshot
@@ -210,7 +209,6 @@ static void CG_TransitionSnapshot(void)
 			cg.weaponSelectTime = cg.time;
 			cg.weaponSelect = ps->weapon;
 			CG_TransitionPlayerState(ps, ops);
-
 		}
 	}
 

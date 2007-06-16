@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
 #ifdef Q3_VM
@@ -309,9 +310,9 @@ void trap_R_ClearScene(void)
 	syscall(CG_R_CLEARSCENE);
 }
 
-void trap_R_AddRefEntityToScene(const refEntity_t * re)
+void trap_R_AddRefEntityToScene(const refEntity_t * ent)
 {
-	syscall(CG_R_ADDREFENTITYTOSCENE, re);
+	syscall(CG_R_ADDREFENTITYTOSCENE, ent);
 }
 
 void trap_R_AddRefLightToScene(const refLight_t * light)

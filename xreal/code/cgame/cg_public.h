@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -21,6 +20,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 
 #define	CMD_BACKUP			64
@@ -55,42 +55,6 @@ typedef struct
 	int             serverCommandSequence;	// snapshot becomes current
 } snapshot_t;
 
-typedef struct
-{
-	entityState_t   s;			// communicated by server to clients
-
-	qboolean        linked;		// qfalse if not in any good cluster
-	int             linkcount;
-
-	int             svFlags;	// SVF_NOCLIENT, SVF_BROADCAST, etc
-
-	// only send to this client when SVF_SINGLECLIENT is set    
-	// if SVF_CLIENTMASK is set, use bitmask for clients to send to (maxclients must be <= 32, up to the mod to enforce this)
-	int             singleClient;
-
-	qboolean        bmodel;		// if false, assume an explicit mins / maxs bounding box
-	// only set by trap_SetBrushModel
-	vec3_t          mins, maxs;
-	int             contents;	// CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
-	// a non-solid entity should set to 0
-
-	vec3_t          absmin, absmax;	// derived from mins/maxs and origin + rotation
-
-	// currentOrigin will be used for all collision detection and world linking.
-	// it will not necessarily be the same as the trajectory evaluation for the current
-	// time, because each entity must be moved one at a time after time is advanced
-	// to avoid simultanious collision issues
-	vec3_t          currentOrigin;
-	vec3_t          currentAngles;
-
-	// when a trace call is made and passEntityNum != ENTITYNUM_NONE,
-	// an ent will be excluded from testing if:
-	// ent->s.number == passEntityNum   (don't interact with self)
-	// ent->s.ownerNum = passEntityNum  (don't interact with your own missiles)
-	// entity[ent->s.ownerNum].ownerNum = passEntityNum (don't interact with other missiles from owner)
-	int             ownerNum;
-} entityShared_t;
-
 enum
 {
 	CGAME_EVENT_NONE,
@@ -108,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	4
+#define	CGAME_IMPORT_API_VERSION	5
 
 typedef enum
 {
@@ -202,9 +166,8 @@ typedef enum
 	CG_GET_ENTITY_TOKEN,
 	CG_R_ADDPOLYSTOSCENE,
 	CG_R_INPVS,
-	// 1.32
 	CG_FS_SEEK,
-
+	
 	// Tr3B - XreaL extensions
 	CG_R_REGISTERANIMATION,
 	CG_R_REGISTERSHADERLIGHTATTENUATION,
@@ -216,13 +179,7 @@ typedef enum
 	CG_R_ANIMNUMFRAMES,
 	CG_R_ANIMFRAMERATE,
 
-/*
-	CG_LOADCAMERA,
-	CG_STARTCAMERA,
-	CG_GETCAMERAINFO,
-*/
-
-	CG_MEMSET = 100,
+	CG_MEMSET,
 	CG_MEMCPY,
 	CG_STRNCPY,
 	CG_SIN,

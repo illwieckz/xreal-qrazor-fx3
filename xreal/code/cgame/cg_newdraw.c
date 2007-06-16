@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 #ifndef MISSIONPACK				// bk001204
 #error This file not be used for classic Q3A.
 #endif
@@ -978,6 +979,7 @@ static void CG_HarvesterSkulls(rectDef_t * rect, float scale, vec4_t color, qboo
 		}
 	}
 }
+
 static void CG_OneFlagStatus(rectDef_t * rect)
 {
 	if(cgs.gametype != GT_1FCTF)
@@ -985,7 +987,6 @@ static void CG_OneFlagStatus(rectDef_t * rect)
 		return;
 	}
 }
-
 
 
 static void CG_DrawCTFPowerUp(rectDef_t * rect)
@@ -1412,7 +1413,7 @@ const char     *CG_GetKillerText()
 {
 	const char     *s = "";
 
-	if(cg.killerName)
+	if(cg.killerName[0])
 	{
 		s = va("Fragged by %s", cg.killerName);
 	}
@@ -1423,7 +1424,7 @@ const char     *CG_GetKillerText()
 static void CG_DrawKiller(rectDef_t * rect, float scale, vec4_t color, qhandle_t shader, int textStyle)
 {
 	// fragged by ... line
-	if(cg.killerName)
+	if(cg.killerName[0])
 	{
 		int             x = rect->x + rect->w / 2;
 

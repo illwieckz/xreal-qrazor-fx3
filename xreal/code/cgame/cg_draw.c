@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_draw.c -- draw all of the graphical elements during
 // active (after loading) gameplay
 
@@ -191,8 +192,8 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		while(s && *s && count < len)
 		{
 			glyph = &font->glyphs[(int)*s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
-			// int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
-			// float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
+			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
+			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if(Q_IsColorString(s))
 			{
 				memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
@@ -229,8 +230,9 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		trap_R_SetColor(NULL);
 	}
 }
-#endif
 
+
+#endif
 
 /*
 ==============
@@ -315,6 +317,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
+	refLight_t		light;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -332,7 +335,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;	// no stencil shadows
 
-	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
 
 	AxisClear(refdef.viewaxis);
 
@@ -348,8 +351,31 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene(&ent);
+	
+	// add light
+	memset(&light, 0, sizeof(refLight_t));
+	
+	light.rlType = RL_PROJ;
+	
+	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
+	
+	VectorCopy(refdef.viewaxis[0], light.axis[0]);
+	VectorCopy(refdef.viewaxis[1], light.axis[1]);
+	VectorCopy(refdef.viewaxis[2], light.axis[2]);
+	
+	light.color[0] = 1.0;
+	light.color[1] = 1.0;
+	light.color[2] = 1.0;
+	
+	light.fovX = 90;
+	light.fovY = 90;
+	light.distance = 800;
+	
+	trap_R_AddRefLightToScene(&light);
+	
 	trap_R_RenderScene(&refdef);
 }
+
 
 /*
 ================
@@ -417,8 +443,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 	float           len;
 	vec3_t          origin, angles;
 	vec3_t          mins, maxs;
-
-//  qhandle_t       handle;
+	qhandle_t       handle;
 
 	if(!force2D && cg_draw3dIcons.integer)
 	{
@@ -478,7 +503,6 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 		{
 			return;
 		}
-
 		if(item)
 		{
 			CG_DrawPic(x, y, w, h, cg_items[ITEM_INDEX(item)].icon);
@@ -748,12 +772,9 @@ static void CG_DrawStatusBar(void)
 	CG_ColorForHealth(hcolor);
 	trap_R_SetColor(hcolor);
 
-
-
 	//
 	// armor
 	//
-
 	value = ps->stats[STAT_ARMOR];
 	if(value > 0)
 	{
@@ -952,6 +973,7 @@ static void CG_DrawStatusBar(void)
 	}
 }
 #endif
+
 
 /*
 ===========================================================================================
@@ -1226,7 +1248,6 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 
 			CH_DrawStringExt(xx, y, ci->name, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, hcolor, TEAM_OVERLAY_MAXNAME_WIDTH, qfalse);
 
-
 			if(lwidth)
 			{
 				p = CG_ConfigString(CS_LOCATIONS + ci->location);
@@ -1447,6 +1468,22 @@ static float CG_DrawScores(float y)
 			}
 		}
 
+#ifdef MISSIONPACK
+		if(cgs.gametype == GT_1FCTF)
+		{
+			// Display flag status
+			item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
+
+			if(item)
+			{
+				y1 = y - BIGCHAR_HEIGHT - 8;
+				if(cgs.flagStatus >= 0 && cgs.flagStatus <= 3)
+				{
+					CG_DrawPic(x, y1 - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.flagShader[cgs.flagStatus]);
+				}
+			}
+		}
+#endif
 		if(cgs.gametype >= GT_CTF)
 		{
 			v = cgs.capturelimit;
@@ -1676,7 +1713,6 @@ static float CG_DrawPowerups(float y)
 			{
 				size = ICON_SIZE;
 			}
-			//      CG_Draw3DModel( x, y, w, h, IT_POWERUP, 0, origin, angles );
 
 			CG_DrawPic(640 - size, y + ICON_SIZE / 2 - size / 2, size, size, trap_R_RegisterShader(item->icon));
 		}
@@ -1690,7 +1726,6 @@ static float CG_DrawPowerups(float y)
 /*
 =====================
 CG_DrawLowerRight
-
 =====================
 */
 #ifndef MISSIONPACK
@@ -1707,8 +1742,6 @@ static void CG_DrawLowerRight(void)
 
 	y = CG_DrawScores(y);
 	y = CG_DrawPowerups(y);
-
-
 }
 #endif							// MISSIONPACK
 
@@ -1722,7 +1755,7 @@ static int CG_DrawPickupItem(int y)
 {
 	int             value;
 	float          *fadeColor;
-
+	
 	if(cg.snap->ps.stats[STAT_HEALTH] <= 0)
 	{
 		return y;
@@ -1752,7 +1785,6 @@ static int CG_DrawPickupItem(int y)
 /*
 =====================
 CG_DrawLowerLeft
-
 =====================
 */
 #ifndef MISSIONPACK
@@ -1766,7 +1798,6 @@ static void CG_DrawLowerLeft(void)
 	{
 		y = CG_DrawTeamOverlay(y, qfalse, qfalse);
 	}
-//  CG_CalcVrect2();
 
 
 	y = CG_DrawPickupItem(y);
@@ -1802,13 +1833,6 @@ static void CG_DrawTeamInfo(void)
 	{
 		y += 410;
 	}
-
-//  if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
-//      chatHeight = cg_teamChatHeight.integer;
-//  else
-	chatHeight = 6;
-//  if (chatHeight <= 0)
-//      return; // disabled
 
 	if(cgs.teamLastChatPos != cgs.teamChatPos)
 	{
@@ -2003,6 +2027,36 @@ static void CG_DrawReward(void)
 		}
 	}
 	trap_R_SetColor(NULL);
+}
+
+/*
+==============
+CG_DrawBloom
+==============
+*/
+static void CG_DrawBloom(void)
+{
+	if(cg_drawBloom.integer == 1)
+	{
+		CG_DrawPic(0, 0, 640, 480, cgs.media.bloomShader);
+	}
+	else if(cg_drawBloom.integer == 2)
+	{
+		CG_DrawPic(0, 0, 640, 480, cgs.media.bloom2Shader);
+	}
+}
+
+/*
+==============
+CG_DrawRotoscope
+==============
+*/
+static void CG_DrawRotoscope(void)
+{
+	if(cg_drawRotoscope.integer == 1)
+	{
+		CG_DrawPic(0, 0, 640, 480, cgs.media.rotoscopeShader);
+	}
 }
 
 
@@ -2386,7 +2440,7 @@ CROSSHAIR
 CG_DrawCrosshair
 =================
 */
-void CG_DrawCrosshair(void)
+static void CG_DrawCrosshair(void)
 {
 	float           w, h;
 	qhandle_t       hShader;
@@ -2394,7 +2448,7 @@ void CG_DrawCrosshair(void)
 	float           x, y;
 	int             ca;
 
-	if(!cg_drawCrosshair.integer)
+	if(cg_drawCrosshair.integer < 0)
 	{
 		return;
 	}
@@ -2667,8 +2721,6 @@ static void CG_DrawIntermission(void)
 
 	cg.scoreFadeTime = cg.time;
 	cg.scoreBoardShowing = CG_DrawScoreboard();
-
-
 }
 
 /*
@@ -2955,11 +3007,29 @@ static void CG_DrawWarmup(void)
 		else if(cgs.gametype == GT_CTF)
 		{
 			s = "Capture the Flag";
+#ifdef MISSIONPACK
+		}
+		else if(cgs.gametype == GT_1FCTF)
+		{
+			s = "One Flag CTF";
+		}
+		else if(cgs.gametype == GT_OBELISK)
+		{
+			s = "Overload";
+		}
+		else if(cgs.gametype == GT_HARVESTER)
+		{
+			s = "Harvester";
+#endif
 		}
 		else
 		{
 			s = "";
 		}
+#ifdef MISSIONPACK
+		w = CG_Text_Width(s, 0.6f, 0);
+		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+#else
 		w = CG_DrawStrlen(s);
 		if(w > 640 / GIANT_WIDTH)
 		{
@@ -2970,6 +3040,7 @@ static void CG_DrawWarmup(void)
 			cw = GIANT_WIDTH;
 		}
 		CG_DrawStringExt(320 - w * cw / 2, 25, s, colorWhite, qfalse, qtrue, cw, (int)(cw * 1.1f), 0);
+#endif
 	}
 
 	sec = (sec - cg.time) / 1000;
@@ -3014,7 +3085,6 @@ static void CG_DrawWarmup(void)
 				break;
 		}
 	}
-
 	scale = 0.45f;
 	switch (cg.warmupCount)
 	{
@@ -3111,7 +3181,6 @@ void CG_DrawTimedMenus()
 	}
 }
 #endif
-
 /*
 =================
 CG_DrawMOTD
@@ -4057,7 +4126,7 @@ void CameraFXView_REFDEF(void)
 CG_Draw2D
 =================
 */
-void CG_Draw2D(void)
+static void CG_Draw2D(void)
 {
 #ifdef MISSIONPACK
 	if(cgs.orderPending && cg.time > cgs.orderTime)
@@ -4169,7 +4238,6 @@ void CG_Draw2D(void)
 	{
 		CG_DrawCenterString();
 	}
-
 }
 
 
@@ -4366,7 +4434,6 @@ void CG_DrawActive(stereoFrame_t stereoView, int view)
 		{
 			cg.DeadSet = qfalse;
 			trap_R_RenderScene(&cg.refdef[view]);
-
 		}
 	}
 
@@ -4375,7 +4442,15 @@ void CG_DrawActive(stereoFrame_t stereoView, int view)
 	{
 		VectorCopy(baseOrg, cg.refdef[view].vieworg);
 	}
+	
 	CG_ZoomView();
+	
+	// draw bloom post process effect
+	CG_DrawBloom();
+	
+	// draw rotoscope post process effect
+	CG_DrawRotoscope();
+	
 	// draw status bar and other floating elements
 	CG_Draw2D();
 }

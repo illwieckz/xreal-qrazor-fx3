@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_info.c -- display information while data is being loading
 
 #include "cg_local.h"
@@ -197,7 +198,7 @@ void CG_DrawInformation(void)
 	// screen to write into
 
 	//NT - mod version info
-	UI_DrawProportionalString(320, 128 - 40, "Quake Source Version " QSOURCE_VERSION,
+	UI_DrawProportionalString(320, 128 - 40, "XreaL Version " QSOURCE_VERSION,
 							  UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorYellow);
 
 	//NT - moved stuff to make room for mod version info

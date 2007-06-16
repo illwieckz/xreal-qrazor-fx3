@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_playerstate.c -- this file acts on changes in a new playerState_t
 // With normal play, this will be done after local prediction, but when
 // following another player or playing back a demo, it will be checked
@@ -327,8 +328,6 @@ static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount, qhand
 		cg.rewardModel[cg.rewardStack] = model;
 		cg.rewardCount[cg.rewardStack] = rewardCount;
 	}
-
-
 }
 
 /*
@@ -406,54 +405,21 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 	}
 	if(ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT])
 	{
-#ifdef MISSIONPACK
-		if(ps->persistant[PERS_IMPRESSIVE_COUNT] == 1)
-		{
-			sfx = cgs.media.firstImpressiveSound;
-		}
-		else
-		{
-			sfx = cgs.media.impressiveSound;
-		}
-#else
 		sfx = cgs.media.impressiveSound;
-#endif
 		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT], cgs.media.m3dmedalImpressive);
 		reward = qtrue;
 		//Com_Printf("impressive\n");
 	}
 	if(ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT])
 	{
-#ifdef MISSIONPACK
-		if(ps->persistant[PERS_EXCELLENT_COUNT] == 1)
-		{
-			sfx = cgs.media.firstExcellentSound;
-		}
-		else
-		{
-			sfx = cgs.media.excellentSound;
-		}
-#else
 		sfx = cgs.media.excellentSound;
-#endif
 		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT], cgs.media.m3dmedalExcellent);
 		reward = qtrue;
 		//Com_Printf("excellent\n");
 	}
 	if(ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT])
 	{
-#ifdef MISSIONPACK
-		if(ops->persistant[PERS_GAUNTLET_FRAG_COUNT] == 1)
-		{
-			sfx = cgs.media.firstHumiliationSound;
-		}
-		else
-		{
-			sfx = cgs.media.humiliationSound;
-		}
-#else
 		sfx = cgs.media.humiliationSound;
-#endif
 		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT], cgs.media.m3dmedalGauntlet);
 		reward = qtrue;
 		//Com_Printf("guantlet frag\n");

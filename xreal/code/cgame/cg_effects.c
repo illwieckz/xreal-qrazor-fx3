@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_effects.c -- these functions generate localentities, usually as a result
 // of event processing
 
@@ -809,9 +810,9 @@ static void CG_TossWeapon(vec3_t origin, vec3_t velocity, qhandle_t hModel, clie
 	le->rotAxis[1] = 0;
 	le->rotAxis[2] = 0;
 	VectorNormalize(le->rotAxis);	// normalize the rotation axis
-	QuatInit(1, 0, 0, 0, le->quatRot);
-	QuatInit(1, 0, 0, 0, le->quatOrient);
-
+	QuatClear(le->quatRot);
+	QuatClear(le->quatOrient);
+	le->radius = 12;
 	le->leFlags = LEF_TUMBLE;
 }
 
@@ -1467,7 +1468,6 @@ void CG_GibPlayerQLegs(vec3_t playerOrigin, vec3_t dir, int team, int clientNum,
 	VectorCopy(playerOrigin, origin);
 	CG_LaunchQuadGib(origin, cgs.media.gibIntestine, dir, team, cent, PercentOnFire);
 }
-
 
 /*
 ==================

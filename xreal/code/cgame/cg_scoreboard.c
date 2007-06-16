@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_scoreboard -- draw the scoreboard on top of the game screen
 #include "cg_local.h"
 
@@ -445,8 +446,9 @@ qboolean CG_DrawOldScoreboard(void)
 		fade = *fadeColor;
 	}
 
+
 	// fragged by ... line
-	if(cg.killerName && cg.predictedPlayerState.pm_type != PM_INTERMISSION && cg.predictedPlayerState.pm_type == PM_DEAD)
+	if(cg.killerName[0] && cg.predictedPlayerState.pm_type != PM_INTERMISSION && cg.predictedPlayerState.pm_type == PM_DEAD)
 	{
 		s = va("Fragged by %s", cg.killerName);
 //      Com_sprintf(s, sizeof(s),

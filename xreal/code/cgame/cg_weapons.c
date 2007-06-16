@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
 
@@ -90,19 +91,21 @@ static void CG_MachineGunEjectBrass(centity_t * cent)
 	le->angles.trBase[0] = rand() & 31;
 	le->angles.trBase[1] = rand() & 31;
 	le->angles.trBase[2] = rand() & 31;
+#if 0
 	le->angles.trDelta[0] = 2;
 	le->angles.trDelta[1] = 1;
 	le->angles.trDelta[2] = 0;
-
-	AnglesToQuat(le->angles.trBase, le->quatOrient);
+#else
+	// Tr3B - new quaternion code
+	QuatFromAngles(le->quatOrient, le->angles.trBase[PITCH], le->angles.trBase[YAW], le->angles.trBase[ROLL]);
 	le->angVel = 10 * random();
 	le->rotAxis[0] = crandom();
 	le->rotAxis[1] = crandom();
 	le->rotAxis[2] = crandom();
 	VectorNormalize(le->rotAxis);
 	le->radius = 4;
-	QuatInit(1, 0, 0, 0, le->quatRot);
-
+	QuatClear(le->quatRot);
+#endif
 	le->leFlags |= LEF_TUMBLE;
 	le->leBounceSoundType = LEBS_BRASS;
 	le->leMarkType = LEMT_NONE;
@@ -182,18 +185,21 @@ static void CG_ShotgunEjectBrass(centity_t * cent)
 		le->angles.trBase[0] = rand() & 31;
 		le->angles.trBase[1] = rand() & 31;
 		le->angles.trBase[2] = rand() & 31;
+#if 0
 		le->angles.trDelta[0] = 1;
 		le->angles.trDelta[1] = 0.5;
 		le->angles.trDelta[2] = 0;
-
-		AnglesToQuat(le->angles.trBase, le->quatOrient);
+#else
+		// Tr3B - new quaternion code
+		QuatFromAngles(le->quatOrient, le->angles.trBase[PITCH], le->angles.trBase[YAW], le->angles.trBase[ROLL]);
 		le->angVel = 10 * random();
 		le->rotAxis[0] = crandom();
 		le->rotAxis[1] = crandom();
 		le->rotAxis[2] = crandom();
 		VectorNormalize(le->rotAxis);
 		le->radius = 6;
-		QuatInit(1, 0, 0, 0, le->quatRot);
+		QuatClear(le->quatRot);
+#endif
 
 		le->leFlags |= LEF_TUMBLE;
 		le->leBounceSoundType = LEBS_SHELLS;
@@ -511,7 +517,6 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 				le->lifeRate = 1.0 / (le->endTime - le->startTime);
 
 				re->shaderTime = cg.time / 1000.0f;
-				re->sparklesT = 1;
 				re->customShader = cgs.media.railRings3Shader;	// = trap_R_RegisterShader( "railDisc" );
 				re->radius = 2.1f;
 
@@ -2729,15 +2734,15 @@ void CG_AddViewWeapon(playerState_t * ps)
 
 	if(ps->weapon != WP_IRAILGUN)
 	{
-		VectorMA(hand.origin, cg_gun_x.value, cg.refdef[0].viewaxis[0], hand.origin);
-		VectorMA(hand.origin, cg_gun_y.value, cg.refdef[0].viewaxis[1], hand.origin);
-		VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef[0].viewaxis[2], hand.origin);
+		VectorMA(hand.origin, cg_gunX.value, cg.refdef[0].viewaxis[0], hand.origin);
+		VectorMA(hand.origin, cg_gunY.value, cg.refdef[0].viewaxis[1], hand.origin);
+		VectorMA(hand.origin, (cg_gunZ.value + fovOffset), cg.refdef[0].viewaxis[2], hand.origin);
 	}
 	else if(ps->weapon == WP_IRAILGUN)
 	{
-		VectorMA(hand.origin, cg_gun_x.value - 1, cg.refdef[0].viewaxis[0], hand.origin);
-		VectorMA(hand.origin, cg_gun_y.value - 2, cg.refdef[0].viewaxis[1], hand.origin);
-		VectorMA(hand.origin, (cg_gun_z.value - 2 + fovOffset), cg.refdef[0].viewaxis[2], hand.origin);
+		VectorMA(hand.origin, cg_gunX.value - 1, cg.refdef[0].viewaxis[0], hand.origin);
+		VectorMA(hand.origin, cg_gunY.value - 2, cg.refdef[0].viewaxis[1], hand.origin);
+		VectorMA(hand.origin, (cg_gunZ.value - 2 + fovOffset), cg.refdef[0].viewaxis[2], hand.origin);
 	}
 	if(ps->weapon != WP_FLAMETHROWER)
 	{
@@ -3387,7 +3392,7 @@ static void CG_BlastWave(vec3_t origin, vec3_t dir, int duration, float startRad
 	VectorCopy(origin, re->origin);
 	if(sprite)
 	{
-		re->sparklesT = 1;
+		//re->sparklesT = 1;
 		AxisCopy(cg.refdef[0].viewaxis, re->axis);
 	}
 	else

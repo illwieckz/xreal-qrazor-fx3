@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "../game/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
@@ -99,13 +100,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_MODEL			"visor"
 #define	DEFAULT_HEADMODEL		"visor"
 
-
 #define DEFAULT_REDTEAM_NAME		"Stroggs"
 #define DEFAULT_BLUETEAM_NAME		"Pagans"
 
 typedef enum
 {
-	FOOTSTEP_NORMAL,
+	FOOTSTEP_STONE,
 	FOOTSTEP_BOOT,
 	FOOTSTEP_FLESH,
 	FOOTSTEP_MECH,
@@ -136,9 +136,11 @@ typedef enum
 // The current lerp will finish out, then it will lerp to the new animation
 typedef struct
 {
+	refSkeleton_t	oldSkeleton;
 	int             oldFrame;
 	int             oldFrameTime;	// time when ->oldFrame was exactly on
 
+	refSkeleton_t	skeleton;
 	int             frame;
 	int             frameTime;	// time when ->frame will be exactly on
 
@@ -213,6 +215,7 @@ typedef struct centity_s
 	int             trailTime;	// so missile trails can handle dropped initial packets
 	int             dustTrailTime;
 	int             miscTime;
+
 	int             snapShotTime;	// last time this entity was found in a snapshot
 
 	playerEntity_t  pe;
@@ -358,14 +361,10 @@ typedef struct localEntity_s
 	leType_t        leType;
 	int             leFlags;
 	float           width;
-	vec4_t          quatOrient;
-	vec4_t          quatRot;
-	vec3_t          rotAxis;
 
 	int             trailTime;	// so missile trails can handle dropped initial packets
 	int             lastTrailTime;
 	int             headJuncIndex, headJuncIndex2, headJuncIndex4, headJuncIndex3;
-	float           angVel;
 
 	qboolean        anim;
 	int             anims;
@@ -378,6 +377,12 @@ typedef struct localEntity_s
 
 	trajectory_t    pos;
 	trajectory_t    angles;
+
+	// Tr3B - added from http://www.icculus.org/~phaethon/q3a/misc/quats.html
+	quat_t          quatOrient;
+	quat_t          quatRot;
+	vec3_t          rotAxis;
+	float           angVel;
 
 	float           bounceFactor;	// 0.0 = no bounce, 1.0 = perfect
 
@@ -399,6 +404,8 @@ typedef struct localEntity_s
 	leMarkType_t    leMarkType;	// mark to leave on fragment impact
 	leBounceSoundType_t leBounceSoundType;
 	int             shaderAnim;
+	qboolean        respawnfx;
+	int             sparklesT;
 	int             trailLength;
 	qhandle_t       hShader;
 	float           startSize;
@@ -601,18 +608,22 @@ typedef struct
 	vec3_t          headOffset;	// move head in icon views
 	footstep_t      footsteps;
 	gender_t        gender;		// from model
-
+	
+#ifdef XPPM
+	qhandle_t		bodyModel;
+	qhandle_t		bodySkin;
+#endif
 	qhandle_t       legsModel;
+	qhandle_t       legsAnimation;
 	qhandle_t       legsSkin;
 
 	qhandle_t       torsoModel;
-	qhandle_t       torsoSkin;
-
-	qhandle_t       legsAnimation;
 	qhandle_t       torsoAnimation;
+	qhandle_t       torsoSkin;
 
 	qhandle_t       headModel;
 	qhandle_t       headSkin;
+
 	qhandle_t       modelIcon;
 
 	animation_t     animations[MAX_TOTALANIMATIONS];
@@ -961,6 +972,20 @@ typedef struct
 	refEntity_t     testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
+	
+	// this will only change the skeleton of testModelEntity
+	char            testAnimationName[MAX_QPATH];
+	qhandle_t       testAnimation;
+
+	char            testAnimation2Name[MAX_QPATH];
+	qhandle_t       testAnimation2;
+	refSkeleton_t   testAnimation2Skeleton;
+
+	// play with doom3 style light materials
+	refLight_t      testLight;
+	char            testLightName[MAX_QPATH];
+	qboolean        testFlashLight;
+	
 	trace_t         groundTrace;
 //unlagged - optimized prediction
 	int             lastPredictedCommand;
@@ -995,9 +1020,9 @@ typedef struct
 {
 	qhandle_t       charsetShader;
 	qhandle_t       ZcharsetShader;
-	qhandle_t       charsetProp;
-	qhandle_t       charsetPropGlow;
-	qhandle_t       charsetPropB;
+	qhandle_t       charsetProp1;
+	qhandle_t       charsetProp1Glow;
+	qhandle_t       charsetProp2;
 	qhandle_t       whiteShader;
 	qhandle_t       tracerTrailzShader;
 	qhandle_t       rocketTrailzShader;
@@ -1173,7 +1198,11 @@ typedef struct
 
 	qhandle_t       hastezTrailShader;
 
-//  qhandle_t   bloodzTrailShader;
+	qhandle_t       bloomShader;
+	qhandle_t       bloom2Shader;
+	qhandle_t       rotoscopeShader;
+	
+//	qhandle_t       sparkShader;
 
 	qhandle_t       zoomringShader;
 
@@ -1551,6 +1580,10 @@ typedef struct
 	sfxHandle_t     wstbimpdSound;
 	sfxHandle_t     wstbactvSound;
 
+	// debug utils
+	qhandle_t       debugPlayerAABB;
+	qhandle_t       debugPlayerAABB_twoSided;
+
 } cgMedia_t;
 
 
@@ -1727,12 +1760,13 @@ extern vmCvar_t cg_errorDecay;
 extern vmCvar_t cg_nopredict;
 extern vmCvar_t cg_noPlayerAnims;
 extern vmCvar_t cg_showmiss;
+extern vmCvar_t cg_footsteps;
 extern vmCvar_t cg_addMarks;
 extern vmCvar_t cg_brassTime;
 extern vmCvar_t cg_gun_frame;
-extern vmCvar_t cg_gun_x;
-extern vmCvar_t cg_gun_y;
-extern vmCvar_t cg_gun_z;
+extern vmCvar_t cg_gunX;
+extern vmCvar_t cg_gunY;
+extern vmCvar_t cg_gunZ;
 extern vmCvar_t cg_drawGun;
 extern vmCvar_t cg_viewsize;
 extern vmCvar_t cg_tracerChance;
@@ -1788,6 +1822,10 @@ extern vmCvar_t cg_currentSelectedPlayer;
 extern vmCvar_t cg_enableDust;
 extern vmCvar_t cg_enableBreath;
 extern vmCvar_t cg_QSLights;
+
+extern vmCvar_t cg_drawBloom;
+extern vmCvar_t cg_drawRotoscope;
+extern vmCvar_t cg_drawPlayerAABB;
 
 #ifdef MISSIONPACK
 //extern    vmCvar_t        cg_redTeamName;
@@ -1857,6 +1895,11 @@ void            CG_TestModelNextFrame_f(void);
 void            CG_TestModelPrevFrame_f(void);
 void            CG_TestModelNextSkin_f(void);
 void            CG_TestModelPrevSkin_f(void);
+void            CG_TestAnimation_f(void);
+void            CG_TestBlend_f(void);
+void            CG_TestOmniLight_f(void);
+void            CG_TestProjLight_f(void);
+void            CG_TestFlashLight_f(void);
 void            CG_Zoom_f(void);
 void            CG_AddBufferedSound(sfxHandle_t sfx);
 
@@ -2001,6 +2044,7 @@ void            CG_EntityEvent(centity_t * cent, vec3_t position);
 void            CG_PainEvent(centity_t * cent, int health);
 void            CG_HitArmorEvent(centity_t * cent, int armor);
 
+
 //
 // cg_ents.c
 //
@@ -2015,6 +2059,7 @@ void            CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEnt
 											  qhandle_t parentModel, char *tagName);
 
 void            CG_View1(playerState_t * ps);
+
 
 //
 // cg_weapons.c
@@ -2044,8 +2089,6 @@ void            CG_DrawWeaponSelect(void);
 
 void            CG_OutOfAmmoChange(void);	// should this be in pmove?
 
-//float CG_MachinegunSpinAngle( centity_t *cent );
-//void RailPlayer( vec3_t origin, vec3_t dir, int entityNum );
 //
 // cg_marks.c
 //
@@ -2055,9 +2098,6 @@ void            CG_ImpactMark(qhandle_t markShader,
 							  const vec3_t origin, const vec3_t dir,
 							  float orientation,
 							  float r, float g, float b, float a, qboolean alphaFade, float radius, qboolean temporary);
-
-
-
 
 //
 // cg_localents.c
@@ -2284,7 +2324,7 @@ qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
 // Nothing is drawn until R_RenderScene is called.
 void            trap_R_ClearScene(void);
-void            trap_R_AddRefEntityToScene(const refEntity_t * re);
+void            trap_R_AddRefEntityToScene(const refEntity_t * ent);
 void            trap_R_AddRefLightToScene(const refLight_t * light);
 
 // polys are intended for simple wall marks, not really for doing
@@ -2292,7 +2332,6 @@ void            trap_R_AddRefLightToScene(const refLight_t * light);
 void            trap_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts);
 void            trap_R_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys);
 void            trap_R_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
-void            trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b);
 int             trap_R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 void            trap_R_RenderScene(const refdef_t * fd);
 void            trap_R_SetColor(const float *rgba);	// NULL = 1,1,1,1
@@ -2301,15 +2340,15 @@ void            trap_R_DrawStretchPic(float x, float y, float w, float h,
 void            trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int             trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 							   float frac, const char *tagName);
-int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
-									 qboolean clearOrigin);
+int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin);
 int             trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
 int             trap_R_BoneIndex(qhandle_t hModel, const char *boneName);
-int             trap_R_AnimNumFrames(qhandle_t hAnim);
-int             trap_R_AnimFrameRate(qhandle_t hAnim);
+int				trap_R_AnimNumFrames(qhandle_t hAnim);
+int				trap_R_AnimFrameRate(qhandle_t hAnim);
+
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
-// The glconfig_t will not change during the life of a cgame.
+// The glConfig_t will not change during the life of a cgame.
 // If it needs to change, the entire cgame will be restarted, because
 // all the qhandle_t are then invalid.
 void            trap_GetGlconfig(glConfig_t * glconfig);

@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_ents.c -- present snapshot entities, happens every single frame
 
 #include "cg_local.h"
@@ -54,25 +55,6 @@ void CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qh
 	entity->backlerp = parent->backlerp;
 }
 
-void CG_PositionEntityOnTag2(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
-{
-	int             i;
-	orientation_t   lerped;
-
-	// lerp the tag
-	trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
-
-	// FIXME: allow origin offsets along tag?
-	VectorCopy(parent->origin, entity->origin);
-	for(i = 0; i < 3; i++)
-	{
-		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
-	}
-
-	// had to cast away the const to avoid compiler problems...
-//  MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis );
-//  entity->backlerp = parent->backlerp;
-}
 
 /*
 ======================
@@ -88,7 +70,6 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	orientation_t   lerped;
 	vec3_t          tempAxis[3];
 
-//AxisClear( entity->axis );
 	// lerp the tag
 	trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
 
@@ -102,6 +83,89 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	// had to cast away the const to avoid compiler problems...
 	AxisMultiply(entity->axis, lerped.axis, tempAxis);
 	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+}
+
+/*
+======================
+CG_PositionRotatedEntityOnTag
+
+Modifies the entities position and axis by the given
+tag location
+======================
+*/
+void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
+{
+	int             i;
+	int				boneIndex;
+	orientation_t   lerped;
+	vec3_t          tempAxis[3];
+	quat_t			q;	
+
+	// lerp the tag
+	boneIndex = trap_R_BoneIndex(parentModel, tagName);
+
+	VectorCopy(parent->skeleton.bones[boneIndex].origin, lerped.origin);
+	QuatToAxis(parent->skeleton.bones[boneIndex].rotation, lerped.axis);
+
+	// FIXME: allow origin offsets along tag?
+	VectorCopy(parent->origin, entity->origin);
+	for(i = 0; i < 3; i++)
+	{
+		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+	}
+
+	// had to cast away the const to avoid compiler problems...
+	AxisMultiply(entity->axis, lerped.axis, tempAxis);
+	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+}
+
+
+/*
+=================
+CG_TransformSkeleton
+
+transform relative bones to absolute ones required for vertex skinning
+=================
+*/
+void CG_TransformSkeleton(refSkeleton_t * skel)
+{
+	int             i;
+	refBone_t      *bone;
+	matrix_t		boneMatrices[MAX_BONES];
+	matrix_t		mat;
+	
+	switch (skel->type)
+	{
+		case SK_INVALID:
+		case SK_ABSOLUTE:
+			return;
+		
+		default:
+			break;	
+	}
+	
+	// calculate absolute transforms
+	for(i = 0, bone = &skel->bones[0]; i < skel->numBones; i++, bone++)
+	{
+		if(bone->parentIndex < 0)
+		{
+			MatrixSetupTransformFromQuat(boneMatrices[i], bone->rotation, bone->origin);
+		}
+		else
+		{
+			MatrixSetupTransformFromQuat(mat, bone->rotation, bone->origin);
+			MatrixMultiply(boneMatrices[bone->parentIndex], mat, boneMatrices[i]);
+		}
+		
+		// encode full transform matrix into vec3/quat to save memory
+		bone->origin[0] = boneMatrices[i][12];
+		bone->origin[1] = boneMatrices[i][13];
+		bone->origin[2] = boneMatrices[i][14];
+			
+		QuatFromMatrix(bone->rotation, boneMatrices[i]);
+	}
+	
+	skel->type = SK_ABSOLUTE;
 }
 
 
@@ -722,6 +786,9 @@ static void CG_Item(centity_t * cent)
 		VectorScale(ent.axis[1], frac, ent.axis[1]);
 		VectorScale(ent.axis[2], frac, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
+		
+		// don't cast shadows in this time period
+		ent.renderfx |= RF_NOSHADOW;
 	}
 	else
 	{
@@ -743,7 +810,9 @@ static void CG_Item(centity_t * cent)
 		VectorScale(ent.axis[1], 1.5, ent.axis[1]);
 		VectorScale(ent.axis[2], 1.5, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
-
+#if 0 //defined(MISSIONPACK)
+		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound);
+#endif
 	}
 
 	// add to refresh list
@@ -794,6 +863,9 @@ static void CG_Item(centity_t * cent)
 					VectorScale(ent.axis[1], frac, ent.axis[1]);
 					VectorScale(ent.axis[2], frac, ent.axis[2]);
 					ent.nonNormalizedAxes = qtrue;
+					
+					// don't cast shadows in this time period
+					ent.renderfx |= RF_NOSHADOW;
 				}
 				trap_R_AddRefEntityToScene(&ent);
 			}
@@ -876,6 +948,7 @@ void CG_Missile(centity_t * cent)
 		vec3_t          velocity;
 
 		BG_EvaluateTrajectoryDelta(&cent->currentState.pos, cg.time, velocity);
+
 		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound);
 	}
 
@@ -1045,8 +1118,6 @@ static void CG_Mover(centity_t * cent)
 
 	s1 = &cent->currentState;
 
-
-
 	// create the render entity
 	memset(&ent, 0, sizeof(ent));
 	VectorCopy(cent->lerpOrigin, ent.origin);
@@ -1077,14 +1148,13 @@ static void CG_Mover(centity_t * cent)
 		ent.hModel = cgs.gameModels[s1->modelindex2];
 		trap_R_AddRefEntityToScene(&ent);
 	}
-//  ent.shadowPlane = RF_SHADOW_PLANE;
-//  shadow = CG_MoverShadow( cent, &shadowPlane );
-
 }
 
 /*
 ===============
 CG_Beam
+
+Also called as an event
 ===============
 */
 void CG_Beam(centity_t * cent)
@@ -1647,10 +1717,9 @@ void CG_Props(centity_t * cent)
 /*
 ===============
 CG_AddCEntity
-
 ===============
 */
-void CG_AddCEntity(centity_t * cent)
+static void CG_AddCEntity(centity_t * cent)
 {
 	// event-only entities will have been dealt with already
 	if(cent->currentState.eType >= ET_EVENTS)
@@ -1770,7 +1839,6 @@ void CG_AddPacketEntities(int view, int clientNum, qboolean MView)
 	}
 	else
 	{
-
 		cg.frameInterpolation = 0;	// actually, it should never be used, because 
 		// no entities should be marked as interpolating
 	}
@@ -1792,7 +1860,6 @@ void CG_AddPacketEntities(int view, int clientNum, qboolean MView)
 	BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse, qfalse);
 
 	CG_AddCEntity(&cg.predictedPlayerEntity);
-
 
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);

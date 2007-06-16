@@ -79,7 +79,7 @@ typedef enum
 
 typedef struct
 {
-	int             parentIndex;	// parent index (-1 if root)
+	int				parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;
 } refBone_t;
@@ -95,7 +95,7 @@ typedef struct
 {
 	int             numBones;
 	refBone_t       bones[MAX_BONES];
-
+	
 	vec3_t          bounds[2];	// bounds of all applied animations
 	refSkeletonType_t type;		// skeleton has been reset
 } refSkeleton_t;
@@ -134,14 +134,13 @@ typedef struct
 	// extra sprite information
 	float           radius;
 	float           rotation;
-	int             shaderAnim;
-	qboolean        anim;
-	qboolean        respawnfx;
-	int             sparklesT;
-
+	
 	// extra animation information
 	refSkeleton_t   skeleton;
 } refEntity_t;
+
+
+
 
 typedef enum
 {
@@ -208,7 +207,7 @@ typedef enum
 
 
 /*
-** glconfig_t
+** glConfig_t
 **
 ** Contains variables specific to the OpenGL configuration
 ** being run right now.  These are constant once the OpenGL
@@ -251,7 +250,7 @@ typedef struct
 	char            version_string[MAX_STRING_CHARS];
 	char            extensions_string[BIG_INFO_STRING];
 
-	int             maxTextureSize;	// queried from GL
+	int             maxTextureSize;		// queried from GL
 	int             maxTextureUnits;	// multitexture ability
 
 	int             colorBits, depthBits, stencilBits;
@@ -302,6 +301,7 @@ typedef struct
 } glConfig_t;
 
 
+// FIXME: VM should be OS agnostic .. in theory
 
 #if defined(Q3_VM) || defined(_WIN32)
 

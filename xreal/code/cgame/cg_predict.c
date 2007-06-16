@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_predict.c -- this file generates cg.predictedPlayerState by either
 // interpolating between snapshots from the server or locally predicting
 // ahead the client's movement.
@@ -50,8 +51,6 @@ void CG_BuildSolidList(void)
 	centity_t      *cent;
 	snapshot_t     *snap;
 	entityState_t  *ent;
-
-//  clientInfo_t    *ci;
 
 	cg_numSolidEntities = 0;
 	cg_numTriggerEntities = 0;
@@ -376,6 +375,7 @@ static void CG_TouchTriggerPrediction(void)
 	trace_t         trace;
 	entityState_t  *ent;
 	clipHandle_t    cmodel;
+	vec3_t          origin, angles;
 	centity_t      *cent;
 	qboolean        spectator;
 
@@ -413,9 +413,15 @@ static void CG_TouchTriggerPrediction(void)
 		{
 			continue;
 		}
+		
+		// Tr3B: Doom3 triggers have the "origin" epair
+		// so a simple trap_CM_BoxTrace caused a bug where the triggers were located
+		// to the world origin
+		VectorCopy(cent->lerpAngles, angles);
+		BG_EvaluateTrajectory(&cent->currentState.pos, cg.physicsTime, origin);
 
-		trap_CM_BoxTrace(&trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
-						 cg_pmove.mins, cg_pmove.maxs, cmodel, -1);
+		trap_CM_TransformedBoxTrace(&trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
+						 cg_pmove.mins, cg_pmove.maxs, cmodel, -1, origin, angles);
 
 		if(!trace.startsolid)
 		{
