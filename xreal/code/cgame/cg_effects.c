@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -20,7 +21,6 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
 // cg_effects.c -- these functions generate localentities, usually as a result
 // of event processing
 
@@ -34,71 +34,65 @@ CG_BubbleTrail
 Bullets shot underwater
 ==================
 */
-void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing)
-{
-	vec3_t          move;
-	vec3_t          vec;
-	float           len;
-	int             i;
+void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {
+	vec3_t		move;
+	vec3_t		vec;
+	float		len;
+	int			i;
 
-	if(cg_noProjectileTrail.integer)
-	{
+	if ( cg_noProjectileTrail.integer ) {
 		return;
 	}
 
-	VectorCopy(start, move);
-	VectorSubtract(end, start, vec);
-	len = VectorNormalize(vec);
+	VectorCopy (start, move);
+	VectorSubtract (end, start, vec);
+	len = VectorNormalize (vec);
 
 	// advance a random amount first
 	i = rand() % (int)spacing;
-	VectorMA(move, i, vec, move);
+	VectorMA( move, i, vec, move );
 
-	VectorScale(vec, spacing, vec);
+	VectorScale (vec, spacing, vec);
 
-	for(; i < len; i += spacing)
-	{
-		/*
-		   localEntity_t    *le;
-		   refEntity_t      *re;
+	for ( ; i < len; i += spacing ) {
+	/*
+		localEntity_t	*le;
+		refEntity_t		*re;
 
-		   le = CG_AllocLocalEntity();
-		   le->leFlags = LEF_PUFF_DONT_SCALE;
-		   le->leType = LE_MOVE_SCALE_FADE;
-		   le->startTime = cg.time;
-		   le->endTime = cg.time + 1000 + random() * 250;
-		   le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+		le = CG_AllocLocalEntity();
+		le->leFlags = LEF_PUFF_DONT_SCALE;
+		le->leType = LE_MOVE_SCALE_FADE;
+		le->startTime = cg.time;
+		le->endTime = cg.time + 1000 + random() * 250;
+		le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
-		   re = &le->refEntity;
-		   re->shaderTime = cg.time / 1000.0f;
+		re = &le->refEntity;
+		re->shaderTime = cg.time / 1000.0f;
 
-		   re->reType = RT_SPRITE;
-		   re->rotation = 0;
-		   re->radius = 3;
-		   re->customShader = cgs.media.waterBubbleShader;
-		   re->shaderRGBA[0] = 0xff;
-		   re->shaderRGBA[1] = 0xff;
-		   re->shaderRGBA[2] = 0xff;
-		   re->shaderRGBA[3] = 0xff;
+		re->reType = RT_SPRITE;
+		re->rotation = 0;
+		re->radius = 3;
+		re->customShader = cgs.media.waterBubbleShader;
+		re->shaderRGBA[0] = 0xff;
+		re->shaderRGBA[1] = 0xff;
+		re->shaderRGBA[2] = 0xff;
+		re->shaderRGBA[3] = 0xff;
 
-		   le->color[3] = 1.0;
+		le->color[3] = 1.0;
 
-		   le->pos.trType = TR_LINEAR;
-		   le->pos.trTime = cg.time;
-		   VectorCopy( move, le->pos.trBase );
-		   le->pos.trDelta[0] = crandom()*5;
-		   le->pos.trDelta[1] = crandom()*5;
-		   le->pos.trDelta[2] = crandom()*5 + 6;
-		 */
-		if(spacing < 8)
-		{
-			CG_ParticleBubbles(cgs.media.waterBubbleShader, move, 0.3f, 6.0f);
+		le->pos.trType = TR_LINEAR;
+		le->pos.trTime = cg.time;
+		VectorCopy( move, le->pos.trBase );
+		le->pos.trDelta[0] = crandom()*5;
+		le->pos.trDelta[1] = crandom()*5;
+		le->pos.trDelta[2] = crandom()*5 + 6;
+*/
+		if(spacing < 8){
+			CG_ParticleBubbles (cgs.media.waterBubbleShader, move, 0.3f,6.0f);
+		}else{
+			CG_ParticleBubbles (cgs.media.waterBubbleShader, move, 2,0.5f);
 		}
-		else
-		{
-			CG_ParticleBubbles(cgs.media.waterBubbleShader, move, 2, 0.5f);
-		}
-		VectorAdd(move, vec, move);
+		VectorAdd (move, vec, move);
 	}
 }
 
@@ -109,23 +103,25 @@ CG_SmokePuff
 Adds a smoke puff or blood trail localEntity.
 =====================
 */
-localEntity_t  *CG_SmokePuff(const vec3_t p, const vec3_t vel,
-							 float radius,
-							 float r, float g, float b, float a,
-							 float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader)
-{
-	static int      seed = 0x92;
-	localEntity_t  *le;
-	refEntity_t    *re;
-
-//  int fadeInTime = startTime + duration / 2;
+localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel, 
+				   float radius,
+				   float r, float g, float b, float a,
+				   float duration,
+				   int startTime,
+				   int fadeInTime,
+				   int leFlags,
+				   qhandle_t hShader ) {
+	static int	seed = 0x92;
+	localEntity_t	*le;
+	refEntity_t		*re;
+//	int fadeInTime = startTime + duration / 2;
 
 	le = CG_AllocLocalEntity();
 	le->leFlags = leFlags;
 	le->radius = radius;
 
 	re = &le->refEntity;
-	re->rotation = Q_random(&seed) * 360;
+	re->rotation = Q_random( &seed ) * 360;
 	re->radius = radius;
 	re->shaderTime = startTime / 1000.0f;
 
@@ -134,34 +130,32 @@ localEntity_t  *CG_SmokePuff(const vec3_t p, const vec3_t vel,
 	le->startTime = startTime;
 	le->fadeInTime = fadeInTime;
 	le->endTime = startTime + duration;
-	if(fadeInTime > startTime)
-	{
-		le->lifeRate = 1.0 / (le->endTime - le->fadeInTime);
+	if ( fadeInTime > startTime ) {
+		le->lifeRate = 1.0 / ( le->endTime - le->fadeInTime );
 	}
-	else
-	{
-		le->lifeRate = 1.0 / (le->endTime - le->startTime);
+	else {
+		le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 	}
 	le->color[0] = r;
-	le->color[1] = g;
+	le->color[1] = g; 
 	le->color[2] = b;
 	le->color[3] = a;
 
 
 	le->pos.trType = TR_LINEAR;
 	le->pos.trTime = startTime;
-	VectorCopy(vel, le->pos.trDelta);
-	VectorCopy(p, le->pos.trBase);
+	VectorCopy( vel, le->pos.trDelta );
+	VectorCopy( p, le->pos.trBase );
 
-	VectorCopy(p, re->origin);
+	VectorCopy( p, re->origin );
 	re->customShader = hShader;
 
 	// rage pro can't alpha fade, so use a different shader
 
-	re->shaderRGBA[0] = le->color[0] * 0xff;
-	re->shaderRGBA[1] = le->color[1] * 0xff;
-	re->shaderRGBA[2] = le->color[2] * 0xff;
-	re->shaderRGBA[3] = 0xff;
+		re->shaderRGBA[0] = le->color[0] * 0xff;
+		re->shaderRGBA[1] = le->color[1] * 0xff;
+		re->shaderRGBA[2] = le->color[2] * 0xff;
+		re->shaderRGBA[3] = 0xff;
 
 
 	re->reType = RT_SPRITE;
@@ -177,10 +171,9 @@ CG_SpawnEffect
 Player teleporting in or out
 ==================
 */
-void CG_SpawnEffect(vec3_t org, int team)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
+void CG_SpawnEffect( vec3_t org ,int team) {
+	localEntity_t	*le;
+	refEntity_t		*re;
 
 	le = CG_AllocLocalEntity();
 	le->leFlags = 0;
@@ -188,7 +181,7 @@ void CG_SpawnEffect(vec3_t org, int team)
 	le->entNumber = le - cg_freeLocalEntities;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 500;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 
@@ -197,27 +190,21 @@ void CG_SpawnEffect(vec3_t org, int team)
 	re->reType = RT_MODEL;
 	re->shaderTime = cg.time / 1000.0f;
 
-	if(cgs.gametype >= GT_TEAM)
-	{
-		if(team == TEAM_RED)
-		{
+	if(cgs.gametype >= GT_TEAM){
+		if(team == TEAM_RED){
 			re->customShader = cgs.media.teleportREffectShader;
-		}
-		else if(team == TEAM_BLUE)
-		{
+		}else if(team == TEAM_BLUE){
 			re->customShader = cgs.media.teleportBEffectShader;
 		}
-	}
-	else
-	{
+	}else{
 		re->customShader = cgs.media.teleportEffectShader;
 	}
 
 
 	re->hModel = cgs.media.teleportEffectModel;
-	AxisClear(re->axis);
+	AxisClear( re->axis );
 
-	VectorCopy(org, re->origin);
+	VectorCopy( org, re->origin );
 
 	re->origin[2] -= 30;
 
@@ -228,18 +215,17 @@ void CG_SpawnEffect(vec3_t org, int team)
 CG_KamikazeEffect
 ==================
 */
-void CG_KamikazeEffect(vec3_t org)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
+void CG_KamikazeEffect( vec3_t org ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
 
 	le = CG_AllocLocalEntity();
 	le->leFlags = 0;
 	le->leType = LE_KAMIKAZE;
 	le->entNumber = le - cg_freeLocalEntities;
 	le->startTime = cg.time;
-	le->endTime = cg.time + 3000;	//2250;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+	le->endTime = cg.time + 3000;//2250;
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 
@@ -252,7 +238,7 @@ void CG_KamikazeEffect(vec3_t org)
 
 	re->hModel = cgs.media.kamikazeEffectModel;
 
-	VectorCopy(org, re->origin);
+	VectorCopy( org, re->origin );
 
 }
 
@@ -262,23 +248,22 @@ void CG_KamikazeEffect(vec3_t org)
 CG_LightningBoltBeam
 ===============
 */
-void CG_LightningBoltBeam(vec3_t start, vec3_t end)
-{
-	localEntity_t  *le;
-	refEntity_t    *beam;
+void CG_LightningBoltBeam( vec3_t start, vec3_t end ) {
+	localEntity_t	*le;
+	refEntity_t		*beam;
 
 	le = CG_AllocLocalEntity();
 	le->leFlags = 0;
 	le->leType = LE_SHOWREFENTITY;
-//	le->entNumber = le - cg_activeLocalEntities;
+	le->entNumber = le - cg_activeLocalEntities;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 50;
 
 	beam = &le->refEntity;
 
-	VectorCopy(start, beam->origin);
+	VectorCopy( start, beam->origin );
 	// this is the end point
-	VectorCopy(end, beam->oldorigin);
+	VectorCopy( end, beam->oldorigin );
 
 	beam->reType = RT_LIGHTNING;
 	beam->customShader = cgs.media.lightningShader;
@@ -291,13 +276,12 @@ void CG_LightningBoltBeam(vec3_t start, vec3_t end)
 CG_ObeliskExplode
 ==================
 */
-void CG_ObeliskExplode(vec3_t org, int entityNum)
-{
+void CG_ObeliskExplode( vec3_t org, int entityNum ) {
 
-	vec3_t          origin;
+	vec3_t origin;
 
 	// create an explosion
-	VectorCopy(org, origin);
+	VectorCopy( org, origin );
 	origin[2] += 64;
 
 }
@@ -307,26 +291,20 @@ void CG_ObeliskExplode(vec3_t org, int entityNum)
 CG_ObeliskPain
 ==================
 */
-void CG_ObeliskPain(vec3_t org)
-{
-	float           r;
-	sfxHandle_t     sfx;
+void CG_ObeliskPain( vec3_t org ) {
+	float r;
+	sfxHandle_t sfx;
 
 	// hit sound
 	r = rand() & 3;
-	if(r < 2)
-	{
+	if ( r < 2 ) {
 		sfx = cgs.media.obeliskHitSound1;
-	}
-	else if(r == 2)
-	{
+	} else if ( r == 2 ) {
 		sfx = cgs.media.obeliskHitSound2;
-	}
-	else
-	{
+	} else {
 		sfx = cgs.media.obeliskHitSound3;
 	}
-	trap_S_StartSound(org, ENTITYNUM_NONE, CHAN_BODY, sfx);
+	trap_S_StartSound ( org, ENTITYNUM_NONE, CHAN_BODY, sfx );
 }
 
 
@@ -335,20 +313,19 @@ void CG_ObeliskPain(vec3_t org)
 CG_InvulnerabilityImpact
 ==================
 */
-void CG_InvulnerabilityImpact(vec3_t org, vec3_t angles)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	int             r;
-	sfxHandle_t     sfx;
+void CG_InvulnerabilityImpact( vec3_t org, vec3_t angles ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	int				r;
+	sfxHandle_t		sfx;
 
 	le = CG_AllocLocalEntity();
 	le->leFlags = 0;
 	le->leType = LE_INVULIMPACT;
-//	le->entNumber = le - cg_activeLocalEntities;
+	le->entNumber = le - cg_activeLocalEntities;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 1000;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 
@@ -359,23 +336,18 @@ void CG_InvulnerabilityImpact(vec3_t org, vec3_t angles)
 
 	re->hModel = cgs.media.invulnerabilityImpactModel;
 
-	VectorCopy(org, re->origin);
-	AnglesToAxis(angles, re->axis);
+	VectorCopy( org, re->origin );
+	AnglesToAxis( angles, re->axis );
 
 	r = rand() & 3;
-	if(r < 2)
-	{
+	if ( r < 2 ) {
 		sfx = cgs.media.invulnerabilityImpactSound1;
-	}
-	else if(r == 2)
-	{
+	} else if ( r == 2 ) {
 		sfx = cgs.media.invulnerabilityImpactSound2;
-	}
-	else
-	{
+	} else {
 		sfx = cgs.media.invulnerabilityImpactSound3;
 	}
-	trap_S_StartSound(org, ENTITYNUM_NONE, CHAN_BODY, sfx);
+	trap_S_StartSound (org, ENTITYNUM_NONE, CHAN_BODY, sfx );
 }
 
 /*
@@ -383,19 +355,18 @@ void CG_InvulnerabilityImpact(vec3_t org, vec3_t angles)
 CG_InvulnerabilityJuiced
 ==================
 */
-void CG_InvulnerabilityJuiced(vec3_t org)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	vec3_t          angles;
+void CG_InvulnerabilityJuiced( vec3_t org ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	vec3_t			angles;
 
 	le = CG_AllocLocalEntity();
 	le->leFlags = 0;
 	le->leType = LE_INVULJUICED;
-//	le->entNumber = le - cg_activeLocalEntities;
+	le->entNumber = le - cg_activeLocalEntities;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 10000;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 
@@ -406,11 +377,11 @@ void CG_InvulnerabilityJuiced(vec3_t org)
 
 	re->hModel = cgs.media.invulnerabilityJuicedModel;
 
-	VectorCopy(org, re->origin);
+	VectorCopy( org, re->origin );
 	VectorClear(angles);
-	AnglesToAxis(angles, re->axis);
+	AnglesToAxis( angles, re->axis );
 
-	trap_S_StartSound(org, ENTITYNUM_NONE, CHAN_BODY, cgs.media.invulnerabilityJuicedSound);
+	trap_S_StartSound (org, ENTITYNUM_NONE, CHAN_BODY, cgs.media.invulnerabilityJuicedSound );
 }
 
 #endif
@@ -420,16 +391,14 @@ void CG_InvulnerabilityJuiced(vec3_t org)
 CG_ScorePlum
 ==================
 */
-void CG_ScorePlum(int client, vec3_t org, int score)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	vec3_t          angles;
-	static vec3_t   lastPos;
+void CG_ScorePlum( int client, vec3_t org, int score ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	vec3_t			angles;
+	static vec3_t lastPos;
 
 	// only visualize for the client that scored
-	if(client != cg.predictedPlayerState.clientNum || cg_scorePlum.integer == 0)
-	{
+	if (client != cg.predictedPlayerState.clientNum || cg_scorePlum.integer == 0) {
 		return;
 	}
 
@@ -439,15 +408,14 @@ void CG_ScorePlum(int client, vec3_t org, int score)
 	le->entNumber = le - cg_freeLocalEntities;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 4000;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
+	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
-
+	
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 	le->radius = score;
-
-	VectorCopy(org, le->pos.trBase);
-	if(org[2] >= lastPos[2] - 20 && org[2] <= lastPos[2] + 20)
-	{
+	
+	VectorCopy( org, le->pos.trBase );
+	if (org[2] >= lastPos[2] - 20 && org[2] <= lastPos[2] + 20) {
 		le->pos.trBase[2] -= 20;
 	}
 
@@ -461,7 +429,7 @@ void CG_ScorePlum(int client, vec3_t org, int score)
 	re->radius = 16;
 
 	VectorClear(angles);
-	AnglesToAxis(angles, re->axis);
+	AnglesToAxis( angles, re->axis );
 }
 
 
@@ -470,17 +438,16 @@ void CG_ScorePlum(int client, vec3_t org, int score)
 CG_MakeExplosion
 ====================
 */
-localEntity_t  *CG_MakeExplosion2(vec3_t origin, vec3_t dir,
-								  qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite, int radius, int team)
-{
-	float           ang;
-	localEntity_t  *ex;
-	int             offset;
-	vec3_t          newOrigin;
+localEntity_t *CG_MakeExplosion2( vec3_t origin, vec3_t dir, 
+								qhandle_t hModel, qhandle_t shader,
+								int msec, qboolean isSprite , int radius,int team) {
+	float			ang;
+	localEntity_t	*ex;
+	int				offset;
+	vec3_t			newOrigin;
 
-	if(msec <= 0)
-	{
-		CG_Error("CG_MakeExplosion: msec = %i", msec);
+	if ( msec <= 0 ) {
+		CG_Error( "CG_MakeExplosion: msec = %i", msec );
 	}
 
 	// skew the time a bit so they aren't all in sync
@@ -488,21 +455,18 @@ localEntity_t  *CG_MakeExplosion2(vec3_t origin, vec3_t dir,
 
 	ex = CG_AllocLocalEntity();
 
-	ex->leType = LE_EXPLOSION;
-	ex->entNumber = ex - cg_freeLocalEntities;
-	VectorCopy(origin, newOrigin);
+		ex->leType = LE_EXPLOSION;
+		ex->entNumber = ex - cg_freeLocalEntities;
+		VectorCopy( origin, newOrigin );
 
-	// set axis with random rotate
-	if(!dir)
-	{
-		AxisClear(ex->refEntity.axis);
-	}
-	else
-	{
-		ang = rand() % 360;
-		VectorCopy(dir, ex->refEntity.axis[0]);
-		RotateAroundDirection(ex->refEntity.axis, ang);
-	}
+		// set axis with random rotate
+		if ( !dir ) {
+			AxisClear( ex->refEntity.axis );
+		} else {
+			ang = rand() % 360;
+			VectorCopy( dir, ex->refEntity.axis[0] );
+			RotateAroundDirection( ex->refEntity.axis, ang );
+		}
 	ex->refEntity.hModel = hModel;
 
 
@@ -516,78 +480,65 @@ localEntity_t  *CG_MakeExplosion2(vec3_t origin, vec3_t dir,
 	ex->refEntity.customShader = shader;
 
 	// set origin
-	VectorCopy(newOrigin, ex->refEntity.origin);
-	VectorCopy(newOrigin, ex->refEntity.oldorigin);
-	if(cgs.gametype >= GT_TEAM)
-	{
-		if(team == TEAM_RED)
-		{
+	VectorCopy( newOrigin, ex->refEntity.origin );
+	VectorCopy( newOrigin, ex->refEntity.oldorigin );
+	if(cgs.gametype >= GT_TEAM){
+		if(team == TEAM_RED){
 			ex->color[0] = 1.0;
-			ex->color[1] = 0;
-			ex->color[2] = 0;
-		}
-		else if(team == TEAM_BLUE)
-		{
+				ex->color[1] = 0;
+					ex->color[2] = 0;
+		}else if(team == TEAM_BLUE){
 			ex->color[0] = 0;
-			ex->color[1] = 0;
-			ex->color[2] = 1.0;
+				ex->color[1] = 0;
+					ex->color[2] = 1.0;
 		}
-	}
-	else
-	{
+	}else{
 		ex->color[0] = 0;
-		ex->color[1] = 1.0;
-		ex->color[2] = 0;
+			ex->color[1] = 1.0;
+				ex->color[2] = 0;
 	}
 
 	return ex;
 }
 
-localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir,
-								 qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite, int radius)
-{
-	float           ang;
-	localEntity_t  *ex;
-	int             offset;
-	vec3_t          tmpVec, newOrigin;
+localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir, 
+								qhandle_t hModel, qhandle_t shader,
+								int msec, qboolean isSprite , int radius) {
+	float			ang;
+	localEntity_t	*ex;
+	int				offset;
+	vec3_t			tmpVec, newOrigin;
 
-	if(msec <= 0)
-	{
-		CG_Error("CG_MakeExplosion: msec = %i", msec);
+	if ( msec <= 0 ) {
+		CG_Error( "CG_MakeExplosion: msec = %i", msec );
 	}
 
 	// skew the time a bit so they aren't all in sync
 	offset = rand() & 63;
 
 	ex = CG_AllocLocalEntity();
-	if(isSprite)
-	{
+	if ( isSprite ) {
 		ex->leType = LE_SPRITE_EXPLOSION;
 		ex->entNumber = ex - cg_freeLocalEntities;
 		ex->radius = radius;
 		// randomly rotate sprite orientation
 		ex->refEntity.rotation = rand() % 360;
-		VectorScale(dir, 16, tmpVec);
-		VectorAdd(tmpVec, origin, newOrigin);
-	}
-	else
-	{
+		VectorScale( dir, 16, tmpVec );
+		VectorAdd( tmpVec, origin, newOrigin );
+	} else {
 		ex->leType = LE_EXPLOSION;
 		ex->entNumber = ex - cg_freeLocalEntities;
-		VectorCopy(origin, newOrigin);
+		VectorCopy( origin, newOrigin );
 
 		// set axis with random rotate
-		if(!dir)
-		{
-			AxisClear(ex->refEntity.axis);
-		}
-		else
-		{
+		if ( !dir ) {
+			AxisClear( ex->refEntity.axis );
+		} else {
 			ang = rand() % 360;
-			VectorCopy(dir, ex->refEntity.axis[0]);
-			RotateAroundDirection(ex->refEntity.axis, ang);
+			VectorCopy( dir, ex->refEntity.axis[0] );
+			RotateAroundDirection( ex->refEntity.axis, ang );
 		}
-		ex->refEntity.hModel = hModel;
+	ex->refEntity.hModel = hModel;
 	}
 
 	ex->startTime = cg.time - offset;
@@ -600,8 +551,8 @@ localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir,
 	ex->refEntity.customShader = shader;
 
 	// set origin
-	VectorCopy(newOrigin, ex->refEntity.origin);
-	VectorCopy(newOrigin, ex->refEntity.oldorigin);
+	VectorCopy( newOrigin, ex->refEntity.origin );
+	VectorCopy( newOrigin, ex->refEntity.oldorigin );
 
 	ex->color[0] = ex->color[1] = ex->color[2] = 1.0;
 
@@ -616,12 +567,10 @@ CG_Bleed
 This is the spurt of blood when a character gets hit
 =================
 */
-void CG_Bleed(vec3_t origin, int entityNum)
-{
-	localEntity_t  *ex;
+void CG_Bleed( vec3_t origin, int entityNum ) {
+	localEntity_t	*ex;
 
-	if(!cg_blood.integer)
-	{
+	if ( !cg_blood.integer ) {
 		return;
 	}
 
@@ -630,8 +579,8 @@ void CG_Bleed(vec3_t origin, int entityNum)
 	ex->entNumber = ex - cg_freeLocalEntities;
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 500;
-
-	VectorCopy(origin, ex->refEntity.origin);
+	
+	VectorCopy ( origin, ex->refEntity.origin);
 	ex->refEntity.reType = RT_SPRITE;
 	ex->refEntity.rotation = rand() % 360;
 	ex->refEntity.radius = 10;
@@ -639,61 +588,9 @@ void CG_Bleed(vec3_t origin, int entityNum)
 	ex->refEntity.customShader = cgs.media.bloodExplosionShader;
 
 	// don't show player's own blood in view
-	if(entityNum == cg.snap->ps.clientNum)
-	{
+	if ( entityNum == cg.snap->ps.clientNum ) {
 		ex->refEntity.renderfx |= RF_THIRD_PERSON;
 	}
-}
-
-#define	SHADOW_DISTANCE		128
-static qboolean CG_GibShadow(refEntity_t * ent, float *shadowPlane)
-{
-	vec3_t          end, mins = { -15, -15, 0 }, maxs =
-	{
-	15, 15, 2};
-	trace_t         trace;
-	float           alpha;
-	vec3_t          angles;
-
-	*shadowPlane = 0;
-
-	if(cg_shadows.integer == 0)
-	{
-		return qfalse;
-	}
-
-	// send a trace down from the player to the ground
-	VectorCopy(ent->origin, end);
-	end[2] -= SHADOW_DISTANCE;
-
-	trap_CM_BoxTrace(&trace, ent->origin, end, mins, maxs, 0, MASK_PLAYERSOLID);
-
-	// no shadow if too high
-	if(trace.fraction == 1.0 || trace.startsolid || trace.allsolid)
-	{
-		return qfalse;
-	}
-
-	*shadowPlane = trace.endpos[2];
-
-	if(cg_shadows.integer != 1)
-	{							// no mark for stencil or projection shadows
-		return qtrue;
-	}
-
-	// fade the shadow out with height
-	alpha = 1.0 - trace.fraction;
-
-	// bk0101022 - hack / FPE - bogus planes?
-//  assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ); 
-//  DotProduct( trace.plane.normal, trace.plane.normal );
-	// add the mark as a temporary, so it goes directly to the renderer
-	// without taking a spot in the cg_marks array
-	AxisToAngles(ent->axis, angles);
-	CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
-				  (const)angles, alpha, alpha, alpha, 1, qfalse, 24, qtrue);
-
-	return qtrue;
 }
 
 #define	GIB_VELOCITY	250
@@ -706,17 +603,14 @@ static qboolean CG_GibShadow(refEntity_t * ent, float *shadowPlane)
 CG_LaunchGib
 ==================
 */
-static void CG_LaunchGib(vec3_t origin, qhandle_t hModel, vec3_t dir, centity_t * cent, int PercentOnFire)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	vec3_t          velocity, gdir, ggdir;
-	vec3_t          axis[3], angles;
-	qboolean        shadow;
-	float           shadowPlane;
-	int             random;
-	vec3_t          mins = { -7, -7, -7 };
-	vec3_t          maxs = { 7, 7, 7 };
+static void CG_LaunchGib( vec3_t origin, qhandle_t hModel ,vec3_t dir,centity_t *cent,int PercentOnFire) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	vec3_t	 velocity,gdir,ggdir;
+	vec3_t	axis[3], angles;
+	int		 random;
+	vec3_t mins = {-7,-7,-7};
+	vec3_t maxs = {7,7,7};
 
 
 	le = CG_AllocLocalEntity();
@@ -727,81 +621,68 @@ static void CG_LaunchGib(vec3_t origin, qhandle_t hModel, vec3_t dir, centity_t 
 
 	le->startTime = cg.time;
 	le->endTime = le->startTime + 5000 + random() * 3000;
-	VectorCopy(maxs, le->maxs);
-	VectorCopy(mins, le->mins);
+	VectorCopy( maxs,le->maxs);
+	VectorCopy( mins,le->mins);
 
 
-	VectorSubtract(origin, re->origin, gdir);
-	VectorNormalize2(gdir, ggdir);
-	velocity[0] = (ggdir[0] + gdir[0] / (109.3f + random())) + (crandom() * GIB_VELOCITY);
-	velocity[1] = (ggdir[1] + gdir[1] / (109.3f + random())) + (crandom() * GIB_VELOCITY);
-	velocity[2] = GIB_JUMP + crandom() * GIB_VELOCITY;
-	VectorMA(velocity, GIB_VELOCITY, dir, velocity);
+	VectorSubtract( origin, re->origin, gdir );
+	VectorNormalize2( gdir,ggdir);
+	velocity[0] = (ggdir[0]+gdir[0]/(109.3f+random()))+(crandom()*GIB_VELOCITY);
+	velocity[1] = (ggdir[1]+gdir[1]/(109.3f+random()))+(crandom()*GIB_VELOCITY);
+	velocity[2] = GIB_JUMP +  crandom()*GIB_VELOCITY;
+	VectorMA( velocity, GIB_VELOCITY, dir, velocity );
 
 
-	AxisToAngles(axis, angles);
-	VectorCopy(angles, le->angles.trBase);
-	VectorCopy(origin, re->origin);
-	AnglesToAxis(angles, re->axis);
-	VectorCopy(origin, le->pos.trBase);
+	AxisToAngles( axis, angles );
+	VectorCopy( angles, le->angles.trBase );
+	VectorCopy( origin, re->origin );
+	AnglesToAxis( angles, re->axis );
+	VectorCopy( origin, le->pos.trBase );
 
 	le->pos.trType = TR_GRAVITY;
-
-	shadow = CG_GibShadow(re, &shadowPlane);
-
-	if(cg_shadows.integer == 3 && shadow)
-	{
-		re->shadowPlane = shadowPlane;
-		re->renderfx |= RF_SHADOW_PLANE;
-	}
 
 	re->hModel = hModel;
 	le->bounceFactor = 0.6f;
 
-	if(!le->watertraced)
-	{
-		if(CG_PointContents(origin, -1) & CONTENTS_WATER)
-		{
+	if(!le->watertraced){
+		if(CG_PointContents( origin, -1 ) & CONTENTS_WATER){
 			le->inwater = qfalse;
 		}
 		le->watertraced = qtrue;
 	}
 
-	if(cg_blood.integer)
-	{
+	if ( cg_blood.integer ) {
 		le->leBounceSoundType = LEBS_BLOOD;
-		le->leMarkType = LEMT_BLOOD;
+		le->leMarkType = LEMT_BLOOD;	
 		le->angles.trType = TR_LINEAR;
 		le->angles.trTime = cg.time;
-		le->angles.trDelta[0] = (10 + (rand() & 50)) - 30;
-		le->angles.trDelta[1] = (100 + (rand() & 500)) - 300;
-		le->angles.trDelta[2] = (10 + (rand() & 50)) - 30;
-		le->angVel = 20 * crandom();	// random angular velocity
-		QuatFromAngles(le->quatOrient, le->angles.trBase[PITCH], le->angles.trBase[YAW], le->angles.trBase[ROLL]);
-			// reset the orientation
-			QuatClear(le->quatOrient);
+		le->angles.trDelta[0] = (10 + (rand()&50)) - 30;
+		le->angles.trDelta[1] = (100 + (rand()&500)) - 300;	
+		le->angles.trDelta[2] = (10 + (rand()&50)) - 30;
+		le->angVel = 20 * crandom(); // random angular velocity
+		le->rotAxis[0] = crandom(); // random axis of rotation
+		le->rotAxis[1] = crandom();
+		le->rotAxis[2] = crandom();
+		VectorNormalize (le->rotAxis); // normalize the rotation axis
+		QuatInit (1,0,0,0,le->quatRot);
+		QuatInit (1,0,0,0,le->quatOrient);
 		le->radius = 12;
 		le->leFlags |= LEF_TUMBLE;
 	}
-	VectorCopy(origin, le->pos.trBase);
-	VectorCopy(velocity, le->pos.trDelta);
+	VectorCopy( origin, le->pos.trBase );
+	VectorCopy( velocity, le->pos.trDelta );
 	le->pos.trTime = cg.time;
 
-	random = rand() % 100;
-	if(random < 0)
-	{
+	random = rand()%100;
+	if(random < 0){
 		random = 0;
 	}
-	if(random > 100)
-	{
+	if(random > 100){
 		random = 100;
 	}
-	if(cent->currentState.generic1 & GNF_ONFIRE)
-	{
+	if(cent->currentState.generic1 & GNF_ONFIRE){
 		le->leFlags |= LEF_ON_FIRE;
-	}
-	else if(random >= 0 && random < PercentOnFire)
-	{
+	}else if(random >= 0 && random < PercentOnFire) {
 		le->leFlags |= LEF_ON_FIRE;
 	}
 }
@@ -811,18 +692,16 @@ static void CG_LaunchGib(vec3_t origin, qhandle_t hModel, vec3_t dir, centity_t 
 CG_TossWeapon
 ==================
 */
-static void CG_TossWeapon(vec3_t origin, vec3_t velocity, qhandle_t hModel, clientInfo_t * ci)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	int             contents;
-	qboolean        shadow;
-	float           shadowPlane;
+static void CG_TossWeapon( vec3_t origin, vec3_t velocity, qhandle_t hModel , clientInfo_t *ci) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	int			contents;
+
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
 
-	contents = CG_PointContents(origin, -1);
+	contents = CG_PointContents( origin, -1 );
 	le->leType = LE_BODYFRAGMENT;
 	le->entNumber = le - cg_freeLocalEntities;
 	le->startTime = cg.time;
@@ -832,31 +711,23 @@ static void CG_TossWeapon(vec3_t origin, vec3_t velocity, qhandle_t hModel, clie
 
 
 
-	VectorCopy(origin, re->origin);
-	AxisCopy(axisDefault, re->axis);
+	VectorCopy( origin, re->origin );
+	AxisCopy( axisDefault, re->axis );
 	re->hModel = hModel;
 
-	shadow = CG_GibShadow(re, &shadowPlane);
 
-	if(cg_shadows.integer == 3 && shadow)
-	{
-		re->shadowPlane = shadowPlane;
-		re->renderfx |= RF_SHADOW_PLANE;
-	}
 
 	le->radius = 100;
 	le->width = 100;
 
-	VectorCopy(origin, le->pos.trBase);
-	VectorCopy(velocity, le->pos.trDelta);
+	VectorCopy( origin, le->pos.trBase );
+	VectorCopy( velocity, le->pos.trDelta );
 	le->pos.trTime = cg.time;
 
 	le->bounceFactor = 0.2f;
 
-	if(!le->watertraced)
-	{
-		if(CG_PointContents(origin, -1) & CONTENTS_WATER)
-		{
+	if(!le->watertraced){
+		if(CG_PointContents( origin, -1 ) & CONTENTS_WATER){
 			le->inwater = qfalse;
 		}
 		le->watertraced = qtrue;
@@ -869,69 +740,59 @@ static void CG_TossWeapon(vec3_t origin, vec3_t velocity, qhandle_t hModel, clie
 
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
-	le->angVel = 10 * crandom();	// random angular velocity
-		QuatFromAngles(le->quatOrient, le->angles.trBase[PITCH], le->angles.trBase[YAW], le->angles.trBase[ROLL]);
-			// reset the orientation
-			QuatClear(le->quatRot);
-
+	le->angVel = 10 * crandom(); // random angular velocity
+	le->rotAxis[0] = 2; // random axis of rotation
+	le->rotAxis[1] = 0;
+	le->rotAxis[2] = 0;
+	VectorNormalize (le->rotAxis); // normalize the rotation axis
+	QuatInit (1,0,0,0,le->quatRot);
+	QuatInit (1,0,0,0,le->quatOrient);
 
 	le->leFlags = LEF_TUMBLE;
 }
 
-static void CG_TossHead(centity_t * cent, vec3_t origin, vec3_t velocity, qhandle_t model, qhandle_t skin)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	int             contents;
-	qboolean        shadow;
-	float           shadowPlane;
-	vec3_t          mins = { -7, -7, -7 };
-	vec3_t          maxs = { 7, 7, 7 };
+static void CG_TossHead( centity_t *cent, vec3_t origin, vec3_t velocity, qhandle_t model, qhandle_t skin) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	int			contents;
+	vec3_t mins = {-7,-7,-7};
+	vec3_t maxs = {7,7,7};
 
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
 
 
-	contents = CG_PointContents(origin, +10);
+	contents = CG_PointContents( origin, +10 );
 	le->leType = LE_BODYFRAGMENT;
 	le->entNumber = le - cg_freeLocalEntities;
 	re->hModel = model;
-	if(!re->hModel)
-	{
+	if(!re->hModel){
 		return;
 	}
 	re->customSkin = skin;
 	re->renderfx = RF_NOSHADOW;
-	VectorCopy(maxs, le->maxs);
-	VectorCopy(mins, le->mins);
+	VectorCopy( maxs,le->maxs);
+	VectorCopy( mins,le->mins);
 	le->startTime = cg.time;
 	le->endTime = le->startTime + 5000 + random() * 3000;
 	le->pos.trType = TR_GRAVITY;
 	le->radius = 10;
 	le->width = 10;
-	VectorCopy(origin, re->origin);
-	AxisCopy(axisDefault, re->axis);
-	VectorCopy(origin, le->pos.trBase);
-	VectorCopy(velocity, le->pos.trDelta);
+	VectorCopy( origin, re->origin );
+	AxisCopy( axisDefault, re->axis );
+	VectorCopy( origin, le->pos.trBase );
+	VectorCopy( velocity, le->pos.trDelta );
 
-	shadow = CG_GibShadow(re, &shadowPlane);
 
-	if(cg_shadows.integer == 3 && shadow)
-	{
-		re->shadowPlane = shadowPlane;
-		re->renderfx |= RF_SHADOW_PLANE;
-	}
 
 	le->pos.trTime = cg.time;
 
 
 	le->bounceFactor = 0.3f;
 
-	if(!le->watertraced)
-	{
-		if(CG_PointContents(origin, -1) & CONTENTS_WATER)
-		{
+	if(!le->watertraced){
+		if(CG_PointContents( origin, -1 ) & CONTENTS_WATER){
 			le->inwater = qfalse;
 		}
 		le->watertraced = qtrue;
@@ -939,38 +800,32 @@ static void CG_TossHead(centity_t * cent, vec3_t origin, vec3_t velocity, qhandl
 
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
-	le->angVel = 15;			// random angular velocity
-	le->rotAxis[0] = 1;			// random axis of rotation
+	le->angVel = 15; // random angular velocity
+	le->rotAxis[0] = 1; // random axis of rotation
 	le->rotAxis[1] = 0;
 	le->rotAxis[2] = 1;
-	VectorNormalize(le->rotAxis);	// normalize the rotation axis
-			QuatClear(le->quatRot);
-			// reset the orientation
-			QuatClear(le->quatOrient);
+	VectorNormalize (le->rotAxis); // normalize the rotation axis
+	QuatInit (0,0,0,1,le->quatRot);
+	QuatInit (1,0,0,0,le->quatOrient);
 	le->leFlags |= LEF_TUMBLE;
-	if(cent->currentState.generic1 & GNF_ONFIRE)
-	{
+	if(cent->currentState.generic1 & GNF_ONFIRE) {
 		le->leFlags |= LEF_ON_FIRE;
 	}
 
 }
-
 /*
 ==================
 CG_LaunchQuadGib
 ==================
 */
-static void CG_LaunchQuadGib(vec3_t origin, qhandle_t hModel, vec3_t dir, int team, centity_t * cent, int PercentOnFire)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
-	vec3_t          velocity, gdir, ggdir;
-	vec3_t          axis[3], angles;
-	qboolean        shadow;
-	float           shadowPlane;
-	int             random;
-	vec3_t          mins = { -7, -7, -7 };
-	vec3_t          maxs = { 7, 7, 7 };
+static void CG_LaunchQuadGib( vec3_t origin, qhandle_t hModel ,vec3_t dir,int team,centity_t *cent,int PercentOnFire) {
+	localEntity_t	*le;
+	refEntity_t		*re;
+	vec3_t	 velocity,gdir,ggdir;
+	vec3_t	axis[3], angles;	
+	int		 random;
+	vec3_t mins = {-7,-7,-7};
+	vec3_t maxs = {7,7,7};
 
 
 	le = CG_AllocLocalEntity();
@@ -981,37 +836,28 @@ static void CG_LaunchQuadGib(vec3_t origin, qhandle_t hModel, vec3_t dir, int te
 	le->entNumber = le - cg_freeLocalEntities;
 	le->startTime = cg.time;
 	le->endTime = le->startTime + 5000 + random() * 3000;
-	VectorCopy(maxs, le->maxs);
-	VectorCopy(mins, le->mins);
+	VectorCopy( maxs,le->maxs);
+	VectorCopy( mins,le->mins);
 
 	le->pos.trType = TR_GRAVITY;
 
-	VectorSubtract(origin, re->origin, gdir);
-	VectorNormalize2(gdir, ggdir);
-	velocity[0] = (ggdir[0] + gdir[0] / (109.3f + random())) + (crandom() * GIB_VELOCITY);
-	velocity[1] = (ggdir[1] + gdir[1] / (109.3f + random())) + (crandom() * GIB_VELOCITY);
-	velocity[2] = GIB_JUMP + crandom() * GIB_VELOCITY;
-	VectorMA(velocity, GIB_VELOCITY, dir, velocity);
-	AxisToAngles(axis, angles);
-	VectorCopy(angles, le->angles.trBase);
-	VectorCopy(origin, re->origin);
-	AnglesToAxis(angles, re->axis);
+	VectorSubtract( origin, re->origin, gdir );
+	VectorNormalize2( gdir,ggdir);
+	velocity[0] = (ggdir[0]+gdir[0]/(109.3f+random()))+(crandom()*GIB_VELOCITY);
+	velocity[1] = (ggdir[1]+gdir[1]/(109.3f+random()))+(crandom()*GIB_VELOCITY);
+	velocity[2] = GIB_JUMP +  crandom()*GIB_VELOCITY;
+	VectorMA( velocity, GIB_VELOCITY, dir, velocity );
+	AxisToAngles( axis, angles );
+	VectorCopy( angles, le->angles.trBase );
+	VectorCopy( origin, re->origin );
+	AnglesToAxis( angles, re->axis );
 
-	shadow = CG_GibShadow(re, &shadowPlane);
-
-	if(cg_shadows.integer == 3 && shadow)
-	{
-		re->shadowPlane = shadowPlane;
-		re->renderfx |= RF_SHADOW_PLANE;
-	}
 
 	re->hModel = hModel;
 	le->bounceFactor = 0.6f;
 
-	if(!le->watertraced)
-	{
-		if(CG_PointContents(origin, -1) & CONTENTS_WATER)
-		{
+	if(!le->watertraced){
+		if(CG_PointContents( origin, -1 ) & CONTENTS_WATER){
 			le->inwater = qfalse;
 		}
 		le->watertraced = qtrue;
@@ -1019,45 +865,38 @@ static void CG_LaunchQuadGib(vec3_t origin, qhandle_t hModel, vec3_t dir, int te
 
 	le->generic1 = team;
 
-	if(cg_blood.integer)
-	{
+	if ( cg_blood.integer ) {
 		le->leBounceSoundType = LEBS_BLOOD;
-		le->leMarkType = LEMT_BLOOD;
+		le->leMarkType = LEMT_BLOOD;	
 		le->angles.trType = TR_LINEAR;
 		le->angles.trTime = cg.time;
-		le->angles.trDelta[0] = (10 + (rand() & 50)) - 30;
-		le->angles.trDelta[1] = (100 + (rand() & 500)) - 300;
-		le->angles.trDelta[2] = (10 + (rand() & 50)) - 30;
-		le->angVel = 20 * crandom();	// random angular velocity
-		le->rotAxis[0] = crandom();	// random axis of rotation
+		le->angles.trDelta[0] = (10 + (rand()&50)) - 30;
+		le->angles.trDelta[1] = (100 + (rand()&500)) - 300;	
+		le->angles.trDelta[2] = (10 + (rand()&50)) - 30;
+		le->angVel = 20 * crandom(); // random angular velocity
+		le->rotAxis[0] = crandom(); // random axis of rotation
 		le->rotAxis[1] = crandom();
 		le->rotAxis[2] = crandom();
-		VectorNormalize(le->rotAxis);	// normalize the rotation axis
-			QuatClear(le->quatRot);
-			// reset the orientation
-			QuatClear(le->quatOrient);
+		VectorNormalize (le->rotAxis); // normalize the rotation axis
+		QuatInit (1,0,0,0,le->quatRot);
+		QuatInit (1,0,0,0,le->quatOrient);
 		le->radius = 12;
 		le->leFlags |= LEF_TUMBLE;
 	}
-	VectorCopy(origin, le->pos.trBase);
-	VectorCopy(velocity, le->pos.trDelta);
+	VectorCopy( origin, le->pos.trBase );
+	VectorCopy( velocity, le->pos.trDelta );
 	le->pos.trTime = cg.time;
 
-	random = rand() % 100;
-	if(random < 0)
-	{
+	random = rand()%100;
+	if(random < 0){
 		random = 0;
 	}
-	if(random > 100)
-	{
+	if(random > 100){
 		random = 100;
 	}
-	if(cent->currentState.generic1 & GNF_ONFIRE)
-	{
+	if(cent->currentState.generic1 & GNF_ONFIRE){
 		le->leFlags |= LEF_ON_FIRE;
-	}
-	else if(random >= 0 && random < PercentOnFire)
-	{
+	}else if(random >= 0 && random < PercentOnFire) {
 		le->leFlags |= LEF_ON_FIRE;
 	}
 
@@ -1071,98 +910,231 @@ Generated a bunch of gibs launching out from the bodies location
 ===================
 */
 #define MAXJUNCTIONS 8
-void CG_GibPlayer(vec3_t playerOrigin, int clientNum, qhandle_t model, vec3_t gdir, int PercentOnFire)
-{
-	vec3_t          origin, velocity, dir;
-	clientInfo_t   *ci;
-	centity_t      *cent;
-	int             i, j;
-	qhandle_t       hshader;
+void CG_GibPlayer( vec3_t playerOrigin, int clientNum,	qhandle_t model,vec3_t gdir,int PercentOnFire) {
+	vec3_t	origin, velocity,dir;
+	clientInfo_t	*ci;
+	centity_t		*cent;
+	int		i,j;
+	qhandle_t hshader;
 
-	cent = &cg_entities[clientNum];
+	cent = &cg_entities[ clientNum ];
 
-	ci = &cgs.clientinfo[clientNum];
+	ci = &cgs.clientinfo[ clientNum ];
 
 	// allow gibs to be turned off for speed
-	if(!cg_gibs.integer)
-	{
+	if ( !cg_gibs.integer ) {
 		return;
 	}
 
-	VectorCopy(playerOrigin, origin);
+	VectorCopy( playerOrigin, origin );
 
-	AxisToAngles(cg.autoAxis, dir);
-	for(j = 0; j < 20; j++)
-	{
+	AxisToAngles( cg.autoAxis, dir );
+	for (j=0;j<20;j++) {
 
-		i = rand() % 1;
-		if(i < 0)
-		{
+		i = rand()%1;
+		if(i < 0){
 			i = 0;
 		}
-		if(i > 1)
-		{
+		if(i > 1){
 			i = 1;
 		}
 
-		if(i == 0)
-		{
+		if(i == 0){
 			hshader = cgs.media.zbloodSpray1Shader;
-		}
-		else if(i == 1)
-		{
+		}else if ( i == 1) {
 			hshader = cgs.media.zbloodSpray2Shader;
 		}
 
-		CG_Particle_Full360BurstBlood(hshader, origin, dir);
+		CG_Particle_Full360BurstBlood(hshader, origin,dir);
 	}
 
-	if(cgs.InstaGib == 1)
-	{
+	if (cgs.InstaGib == 1 ){
 		velocity[0] = 250;
 		velocity[1] = 250;
-		velocity[2] = GIB_JUMP + crandom() * GIB_VELOCITY;
-		if(!model)
-		{
-			CG_TossWeapon(origin, velocity, trap_R_RegisterModel("models/weapons2/gauntlet/gauntlet.md3"), ci);
-		}
-		else
-		{
-			CG_TossWeapon(origin, velocity, model, ci);
+		velocity[2] = GIB_JUMP + crandom()*GIB_VELOCITY;
+		if(!model){
+			CG_TossWeapon( origin, velocity, trap_R_RegisterModel( "models/weapons2/gauntlet/gauntlet.md3" ),ci );
+		}else{
+			CG_TossWeapon( origin, velocity, model ,ci);
 		}
 	}
 
-	CG_LaunchGib(origin, cgs.media.gibArm, gdir, cent, PercentOnFire);
+	CG_LaunchGib( origin, cgs.media.gibArm , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibChest, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibChest , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibChest, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibChest , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibChest, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibChest , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibForearm, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibForearm , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibIntestine, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibIntestine , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibAbdomen, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibAbdomen , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibChest, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibChest , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibArm, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibArm , gdir,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibFist, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibFist, gdir ,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchGib(origin, cgs.media.gibFoot, gdir, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibFoot, gdir ,cent,PercentOnFire);
+
+}
+
+void CG_GibPlayerHead( vec3_t playerOrigin, int clientNum,	qhandle_t model,vec3_t gdir,int PercentOnFire) {
+	vec3_t	origin, velocity,dir;
+	clientInfo_t	*ci;
+	centity_t		*cent;
+	int		i,j;
+	qhandle_t hshader;
+
+	cent = &cg_entities[ clientNum ];
+
+	ci = &cgs.clientinfo[ clientNum ];
+
+	// allow gibs to be turned off for speed
+	if ( !cg_gibs.integer ) {
+		return;
+	}
+
+	VectorCopy( playerOrigin, origin );
+
+	AxisToAngles( cg.autoAxis, dir );
+	for (j=0;j<20;j++) {
+
+		i = rand()%1;
+		if(i < 0){
+			i = 0;
+		}
+		if(i > 1){
+			i = 1;
+		}
+
+		if(i == 0){
+			hshader = cgs.media.zbloodSpray1Shader;
+		}else if ( i == 1) {
+			hshader = cgs.media.zbloodSpray2Shader;
+		}
+
+		CG_Particle_Full360BurstBlood(hshader, origin,dir);
+	}
+
+
+	if (cgs.InstaGib == 1 ){
+		velocity[0] = 250;
+		velocity[1] = 250;
+		velocity[2] = GIB_JUMP + crandom()*GIB_VELOCITY;
+		if(!model){
+			CG_TossWeapon( origin, velocity, trap_R_RegisterModel( "models/weapons2/gauntlet/gauntlet.md3" ),ci );
+		}else{
+			CG_TossWeapon( origin, velocity, model ,ci);
+		}
+	}
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibSkull , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibBrain , gdir,cent,PercentOnFire);
+
+}
+
+/*
+===================
+CG_GibPlayer
+
+Generated a bunch of gibs launching out from the bodies location
+===================
+*/
+void CG_GibPlayerLegs( vec3_t playerOrigin, int clientNum,	qhandle_t model,vec3_t gdir,int PercentOnFire) {
+	vec3_t	origin, velocity,dir;
+	clientInfo_t	*ci;
+	centity_t		*cent;
+	int		i,j;
+	qhandle_t hshader;
+
+	cent = &cg_entities[ clientNum ];
+
+	ci = &cgs.clientinfo[ clientNum ];
+
+	// allow gibs to be turned off for speed
+	if ( !cg_gibs.integer ) {
+		return;
+	}
+
+	VectorCopy( playerOrigin, origin );
+
+	AxisToAngles( cg.autoAxis, dir );
+	for (j=0;j<20;j++) {
+
+		i = rand()%1;
+		if(i < 0){
+			i = 0;
+		}
+		if(i > 1){
+			i = 1;
+		}
+
+		if(i == 0){
+			hshader = cgs.media.zbloodSpray1Shader;
+		}else if ( i == 1) {
+			hshader = cgs.media.zbloodSpray2Shader;
+		}
+
+		CG_Particle_Full360BurstBlood(hshader, origin,dir);
+	}
+
+	if (cgs.InstaGib == 1 ){
+		velocity[0] = 250;
+		velocity[1] = 250;
+		velocity[2] = GIB_JUMP + crandom()*GIB_VELOCITY;
+		if(!model){
+			CG_TossWeapon( origin, velocity, trap_R_RegisterModel( "models/weapons2/gauntlet/gauntlet.md3" ),ci );
+		}else{
+			CG_TossWeapon( origin, velocity, model ,ci);
+		}
+	}
+
+	CG_LaunchGib( origin, cgs.media.gibArm , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibForearm , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibForearm , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibForearm , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibForearm , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibIntestine , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibIntestine , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibIntestine , gdir,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibFoot, gdir ,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchGib( origin, cgs.media.gibFoot, gdir ,cent,PercentOnFire);
 
 }
 
@@ -1175,95 +1147,186 @@ Generated a bunch of gibs launching out from the bodies location
 */
 #define	GIB_VELOCITY	250
 #define	GIB_JUMP		250
-void CG_GibPlayerQ(vec3_t playerOrigin, vec3_t dir, int team, int clientNum, int PercentOnFire)
-{
-	vec3_t          origin, bdir;
-	centity_t      *cent;
-	int             i, j;
-	qhandle_t       hshader;
+void CG_GibPlayerQ( vec3_t playerOrigin ,vec3_t dir,int team,int clientNum,int PercentOnFire) {
+	vec3_t	origin,bdir;
+	centity_t		*cent;
+	int		i,j;
+	qhandle_t hshader;
 
-	cent = &cg_entities[clientNum];
+	cent = &cg_entities[ clientNum ];
 	// allow gibs to be turned off for speed
-	if(!cg_gibs.integer)
-	{
+	if ( !cg_gibs.integer ) {
 		return;
 	}
 
-	VectorCopy(playerOrigin, origin);
+	VectorCopy( playerOrigin, origin );
 
-	AxisToAngles(cg.autoAxisFast, bdir);
-	for(j = 0; j < 20; j++)
-	{
+	AxisToAngles( cg.autoAxisFast, bdir );
+	for (j=0;j<20;j++) {
 
-		i = rand() % 1;
-		if(i < 0)
-		{
+		i = rand()%1;
+		if(i < 0){
 			i = 0;
 		}
-		if(i > 1)
-		{
+		if(i > 1){
 			i = 1;
 		}
 
-		if(i == 0)
-		{
+		if(i == 0){
 			hshader = cgs.media.zbloodSpray1Shader;
-		}
-		else if(i == 1)
-		{
+		}else if ( i == 1) {
 			hshader = cgs.media.zbloodSpray2Shader;
 		}
 
-		CG_Particle_Full360BurstBlood(hshader, origin, bdir);
+		CG_Particle_Full360BurstBlood(hshader, origin,bdir);
 	}
 
-	if(rand() & 1)
-	{
-		CG_LaunchQuadGib(origin, cgs.media.gibSkull, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibFoot ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibForearm ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibIntestine ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibLeg ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibLeg ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibAbdomen ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibArm ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibChest ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibAbdomen ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibAbdomen ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibAbdomen ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibIntestine ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibIntestine ,dir,team,cent,PercentOnFire);
+}
+
+void CG_GibPlayerQHead( vec3_t playerOrigin ,vec3_t dir,int team,int clientNum,int PercentOnFire) {
+	vec3_t	origin,bdir;
+	centity_t		*cent;
+	int		i,j;
+	qhandle_t hshader;
+
+	cent = &cg_entities[ clientNum ];
+	// allow gibs to be turned off for speed
+	if ( !cg_gibs.integer ) {
+		return;
 	}
-	else
-	{
-		CG_LaunchQuadGib(origin, cgs.media.gibBrain, dir, team, cent, PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+
+	AxisToAngles( cg.autoAxisFast, bdir );
+	for (j=0;j<20;j++) {
+
+		i = rand()%1;
+		if(i < 0){
+			i = 0;
+		}
+		if(i > 1){
+			i = 1;
+		}
+
+		if(i == 0){
+			hshader = cgs.media.zbloodSpray1Shader;
+		}else if ( i == 1) {
+			hshader = cgs.media.zbloodSpray2Shader;
+		}
+
+		CG_Particle_Full360BurstBlood(hshader, origin,bdir);
 	}
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibFoot, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibSkull ,dir,team,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibForearm, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibBrain ,dir,team,cent,PercentOnFire);
+}
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibIntestine, dir, team, cent, PercentOnFire);
+void CG_GibPlayerQLegs( vec3_t playerOrigin ,vec3_t dir,int team,int clientNum,int PercentOnFire) {
+	vec3_t	origin,bdir;
+	centity_t		*cent;
+	int		i,j;
+	qhandle_t hshader;
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibLeg, dir, team, cent, PercentOnFire);
+	cent = &cg_entities[ clientNum ];
+	// allow gibs to be turned off for speed
+	if ( !cg_gibs.integer ) {
+		return;
+	}
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibLeg, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibAbdomen, dir, team, cent, PercentOnFire);
+	AxisToAngles( cg.autoAxisFast, bdir );
+	for (j=0;j<20;j++) {
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibArm, dir, team, cent, PercentOnFire);
+		i = rand()%1;
+		if(i < 0){
+			i = 0;
+		}
+		if(i > 1){
+			i = 1;
+		}
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibChest, dir, team, cent, PercentOnFire);
+		if(i == 0){
+			hshader = cgs.media.zbloodSpray1Shader;
+		}else if ( i == 1) {
+			hshader = cgs.media.zbloodSpray2Shader;
+		}
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibAbdomen, dir, team, cent, PercentOnFire);
+		CG_Particle_Full360BurstBlood(hshader, origin,bdir);
+	}
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibAbdomen, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibFoot ,dir,team,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibAbdomen, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibFoot ,dir,team,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibIntestine, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibForearm ,dir,team,cent,PercentOnFire);
 
-	VectorCopy(playerOrigin, origin);
-	CG_LaunchQuadGib(origin, cgs.media.gibIntestine, dir, team, cent, PercentOnFire);
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibForearm ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibIntestine ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibLeg ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibLeg ,dir,team,cent,PercentOnFire);
+
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibArm ,dir,team,cent,PercentOnFire);
+
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibIntestine ,dir,team,cent,PercentOnFire);
+
+	VectorCopy( playerOrigin, origin );
+	CG_LaunchQuadGib( origin, cgs.media.gibIntestine ,dir,team,cent,PercentOnFire);
 }
 
 
@@ -1272,10 +1335,9 @@ void CG_GibPlayerQ(vec3_t playerOrigin, vec3_t dir, int team, int clientNum, int
 CG_LaunchExplode
 ==================
 */
-void CG_LaunchExplode(vec3_t origin, vec3_t velocity, qhandle_t hModel)
-{
-	localEntity_t  *le;
-	refEntity_t    *re;
+void CG_LaunchExplode( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
+	localEntity_t	*le;
+	refEntity_t		*re;
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
@@ -1285,13 +1347,13 @@ void CG_LaunchExplode(vec3_t origin, vec3_t velocity, qhandle_t hModel)
 	le->startTime = cg.time;
 	le->endTime = le->startTime + 10000 + random() * 6000;
 
-	VectorCopy(origin, re->origin);
-	AxisCopy(axisDefault, re->axis);
+	VectorCopy( origin, re->origin );
+	AxisCopy( axisDefault, re->axis );
 	re->hModel = hModel;
 
 	le->pos.trType = TR_GRAVITY;
-	VectorCopy(origin, le->pos.trBase);
-	VectorCopy(velocity, le->pos.trDelta);
+	VectorCopy( origin, le->pos.trBase );
+	VectorCopy( velocity, le->pos.trDelta );
 	le->pos.trTime = cg.time;
 
 	le->bounceFactor = 0.1f;
@@ -1309,42 +1371,43 @@ CG_BigExplode
 Generated a bunch of gibs launching out from the bodies location
 ===================
 */
-void CG_BigExplode(vec3_t playerOrigin)
-{
-	vec3_t          origin, velocity;
+void CG_BigExplode( vec3_t playerOrigin ) {
+	vec3_t	origin, velocity;
 
-	if(!cg_blood.integer)
-	{
+	if ( !cg_blood.integer ) {
 		return;
 	}
 
-	VectorCopy(playerOrigin, origin);
-	velocity[0] = crandom() * EXP_VELOCITY;
-	velocity[1] = crandom() * EXP_VELOCITY;
-	velocity[2] = EXP_JUMP + crandom() * EXP_VELOCITY;
-//  CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
+	VectorCopy( playerOrigin, origin );
+	velocity[0] = crandom()*EXP_VELOCITY;
+	velocity[1] = crandom()*EXP_VELOCITY;
+	velocity[2] = EXP_JUMP + crandom()*EXP_VELOCITY;
+//	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 
-	VectorCopy(playerOrigin, origin);
-	velocity[0] = crandom() * EXP_VELOCITY;
-	velocity[1] = crandom() * EXP_VELOCITY;
-	velocity[2] = EXP_JUMP + crandom() * EXP_VELOCITY;
-//  CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
+	VectorCopy( playerOrigin, origin );
+	velocity[0] = crandom()*EXP_VELOCITY;
+	velocity[1] = crandom()*EXP_VELOCITY;
+	velocity[2] = EXP_JUMP + crandom()*EXP_VELOCITY;
+//	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 
-	VectorCopy(playerOrigin, origin);
-	velocity[0] = crandom() * EXP_VELOCITY * 1.5;
-	velocity[1] = crandom() * EXP_VELOCITY * 1.5;
-	velocity[2] = EXP_JUMP + crandom() * EXP_VELOCITY;
-//  CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
+	VectorCopy( playerOrigin, origin );
+	velocity[0] = crandom()*EXP_VELOCITY*1.5;
+	velocity[1] = crandom()*EXP_VELOCITY*1.5;
+	velocity[2] = EXP_JUMP + crandom()*EXP_VELOCITY;
+//	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 
-	VectorCopy(playerOrigin, origin);
-	velocity[0] = crandom() * EXP_VELOCITY * 2.0;
-	velocity[1] = crandom() * EXP_VELOCITY * 2.0;
-	velocity[2] = EXP_JUMP + crandom() * EXP_VELOCITY;
-//  CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
+	VectorCopy( playerOrigin, origin );
+	velocity[0] = crandom()*EXP_VELOCITY*2.0;
+	velocity[1] = crandom()*EXP_VELOCITY*2.0;
+	velocity[2] = EXP_JUMP + crandom()*EXP_VELOCITY;
+//	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 
-	VectorCopy(playerOrigin, origin);
-	velocity[0] = crandom() * EXP_VELOCITY * 2.5;
-	velocity[1] = crandom() * EXP_VELOCITY * 2.5;
-	velocity[2] = EXP_JUMP + crandom() * EXP_VELOCITY;
-//  CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
+	VectorCopy( playerOrigin, origin );
+	velocity[0] = crandom()*EXP_VELOCITY*2.5;
+	velocity[1] = crandom()*EXP_VELOCITY*2.5;
+	velocity[2] = EXP_JUMP + crandom()*EXP_VELOCITY;
+//	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 }
+
+
+

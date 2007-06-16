@@ -358,7 +358,7 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 
 		if(p->roll)
 		{
-			vectoangles(cg.refdef.viewaxis[0], rotate_ang);
+			vectoangles(cg.refdef[0].viewaxis[0], rotate_ang);
 			rotate_ang[ROLL] += p->roll;
 			AngleVectors(rotate_ang, NULL, rr, ru);
 		}
@@ -591,7 +591,7 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 
 		if(p->roll)
 		{
-			vectoangles(cg.refdef.viewaxis[0], rotate_ang);
+			vectoangles(cg.refdef[0].viewaxis[0], rotate_ang);
 			rotate_ang[ROLL] += p->roll;
 			AngleVectors(rotate_ang, NULL, rr, ru);
 		}
@@ -782,7 +782,7 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 
 		if(p->roll)
 		{
-			vectoangles(cg.refdef.viewaxis[0], rotate_ang);
+			vectoangles(cg.refdef[0].viewaxis[0], rotate_ang);
 			rotate_ang[ROLL] += p->roll;
 			AngleVectors(rotate_ang, NULL, rr, ru);
 		}
@@ -891,11 +891,11 @@ void CG_AddParticles(void)
 	if(!initparticles)
 		CG_ClearParticles();
 
-	VectorCopy(cg.refdef.viewaxis[0], vforward);
-	VectorCopy(cg.refdef.viewaxis[1], vright);
-	VectorCopy(cg.refdef.viewaxis[2], vup);
+	VectorCopy(cg.refdef[0].viewaxis[0], vforward);
+	VectorCopy(cg.refdef[0].viewaxis[1], vright);
+	VectorCopy(cg.refdef[0].viewaxis[2], vup);
 
-	vectoangles(cg.refdef.viewaxis[0], rotate_ang);
+	vectoangles(cg.refdef[0].viewaxis[0], rotate_ang);
 	roll += ((cg.time - oldtime) * 0.1);
 	rotate_ang[ROLL] += (roll * 0.9);
 	AngleVectors(rotate_ang, rforward, rright, rup);
@@ -1243,7 +1243,7 @@ void CG_ParticleSmoke(qhandle_t pshader, centity_t * cent)
 }
 
 
-void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
+/*void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
 {
 
 	cparticle_t    *p;
@@ -1283,7 +1283,7 @@ void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
 	p->vel[2] += -20;
 
 }
-
+*/
 /*
 ======================
 CG_ParticleExplosion
@@ -1492,7 +1492,7 @@ void CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin)
 	p->rotate = qtrue;
 }
 
-void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration)
+/*void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration)
 {
 	cparticle_t    *p;
 
@@ -1540,7 +1540,7 @@ void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEnt
 	p->color = BLOODRED;
 	p->alpha = 0.75;
 
-}
+}*/
 
 void CG_Particle_OilParticle(qhandle_t pshader, centity_t * cent)
 {
@@ -1886,7 +1886,7 @@ void CG_ParticleBloodCloud(centity_t * cent, vec3_t origin, vec3_t dir)
 
 }
 
-void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed)
+/*void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed)
 {
 	cparticle_t    *p;
 
@@ -1932,7 +1932,7 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 	p->accel[0] = crandom() * 4;
 	p->accel[1] = crandom() * 4;
 
-}
+}*/
 
 void CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir)
 {
@@ -2124,7 +2124,8 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 				p->alphaVel = 0;
 				
 				p->type = P_SMOKE;
-				p->pshader = cgs.media.teleportFlareShader;
+				// FIXME
+				//p->pshader = cgs.media.teleportFlareShader;
 				
 				p->width = 3 + random() * 2;
 				p->height = p->width;
