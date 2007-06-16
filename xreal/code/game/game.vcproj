@@ -55,7 +55,7 @@
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
-				WarningLevel="3"
+				WarningLevel="2"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4142"
@@ -73,6 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -155,7 +156,7 @@
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="2"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -171,6 +172,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)/qagamex86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

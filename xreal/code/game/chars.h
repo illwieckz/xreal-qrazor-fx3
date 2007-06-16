@@ -1,25 +1,14 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+// Copyright (C) 1999-2000 Id Software, Inc.
+//
+//===========================================================================
+//
+// Name:			chars.h
+// Function:		bot characteristics
+// Programmer:		Mr Elusive (MrElusive@idsoftware.com)
+// Last update:		1999-09-08
+// Tab Size:		4 (real tabs)
+//===========================================================================
 
-This file is part of XreaL source code.
-
-XreaL source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-XreaL source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with XreaL source code; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
 
 //========================================================
 //========================================================
@@ -110,7 +99,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //tendency to jump using a weapon
 #define CHARACTERISTIC_WEAPONJUMPING				38	//float [0, 1]
 //tendency to use the grapple hook when available
-#define CHARACTERISTIC_GRAPPLE_USER					39	//float [0, 1]  //use this!!
+#define CHARACTERISTIC_GRAPPLE_USER					39	//float [0, 1]	//use this!!
 //========================================================
 //goal
 //========================================================
@@ -121,7 +110,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //the self preservation of the bot (rockets near walls etc.)
 #define CHARACTERISTIC_SELFPRESERVATION				42	//float [0, 1]
 //how likely the bot is to take revenge
-#define CHARACTERISTIC_VENGEFULNESS					43	//float [0, 1]  //use this!!
+#define CHARACTERISTIC_VENGEFULNESS					43	//float [0, 1]	//use this!!
 //tendency to camp
 #define CHARACTERISTIC_CAMPER						44	//float [0, 1]
 //========================================================
@@ -132,3 +121,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHARACTERISTIC_ALERTNESS					46	//float [0, 1]
 //how much the bot fires it's weapon
 #define CHARACTERISTIC_FIRETHROTTLE					47	//float [0, 1]
+

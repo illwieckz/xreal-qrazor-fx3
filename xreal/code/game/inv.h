@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -20,7 +21,6 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
 #define INVENTORY_NONE				0
 //armor
 #define INVENTORY_ARMOR				1
@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_SHOTGUN			5
 #define INVENTORY_MACHINEGUN		6
 #define INVENTORY_GRENADELAUNCHER	7
+
 #define INVENTORY_ROCKETLAUNCHER	8
 #define INVENTORY_LIGHTNING			9
 #define INVENTORY_RAILGUN			10

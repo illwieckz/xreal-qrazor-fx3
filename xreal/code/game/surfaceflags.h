@@ -1,25 +1,4 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-
-This file is part of XreaL source code.
-
-XreaL source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-XreaL source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with XreaL source code; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
 // This file must be identical in the quake and utils directories
 
@@ -28,7 +7,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // these definitions also need to be in q_shared.h!
 
-#define	CONTENTS_SOLID			1	// an eye is never valid in a solid
+#define	CONTENTS_SOLID			1		// an eye is never valid in a solid
 #define	CONTENTS_LAVA			8
 #define	CONTENTS_SLIME			16
 #define	CONTENTS_WATER			32
@@ -61,9 +40,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
 #define	CONTENTS_LOCALENT		0x100000000	// don't leave bodies or items (death fog, lava)
 
-#define	SURF_NODAMAGE			0x1	// never give falling damage
-#define	SURF_SLICK				0x2	// effects game physics
-#define	SURF_SKY				0x4	// lighting from environment map
+#define	SURF_NODAMAGE			0x1		// never give falling damage
+#define	SURF_SLICK				0x2		// effects game physics
+#define	SURF_SKY				0x4		// lighting from environment map
 #define	SURF_LADDER				0x8
 #define	SURF_NOIMPACT			0x10	// don't make missile explosions
 #define	SURF_NOMARKS			0x20	// don't leave missile marks
@@ -76,8 +55,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_METALSTEPS			0x1000	// clanking footsteps
 #define	SURF_NOSTEPS			0x2000	// no footstep sounds
 #define	SURF_NONSOLID			0x4000	// don't collide against curves with this set
-#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during xmap -light
-#define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in xmap
+#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during q3map -light
+#define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in q3map
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
-#define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
-#define SURF_GRAVITY			0x80000	// Walk on this surface no matter the angle
+#define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
+#define SURF_GRAVITY			0x80000 // Walk on this surface no matter the angle

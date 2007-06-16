@@ -1,25 +1,3 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-
-This file is part of XreaL source code.
-
-XreaL source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-XreaL source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with XreaL source code; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
 // g_rankings.h -- score keys for global rankings
 
 #ifndef _G_RANKINGS_H_
@@ -267,7 +245,7 @@ Key digits:
 #define QGR_KEY_SPLASH_TAKEN_CHAINGUN	1111021408
 #define QGR_KEY_PICKUP_CHAINGUN			1111021409
 #define QGR_KEY_TIME_CHAINGUN			1111021410
-#endif							/* MISSIONPACK */
+#endif /* MISSIONPACK */
 
 // ammo keys
 #define QGR_KEY_BOXES					1111030000
@@ -307,7 +285,7 @@ Key digits:
 // new to team arena
 #define QGR_KEY_BOXES_CHAINGUN_AMMO 	1111031100
 #define QGR_KEY_ROUNDS_CHAINGUN_AMMO 	1111031101
-#endif							/* MISSIONPACK */
+#endif /* MISSIONPACK */
 
 // health keys
 #define QGR_KEY_HEALTH					1111040000
@@ -343,7 +321,7 @@ Key digits:
 #define QGR_KEY_DOUBLER					1111160802
 #define QGR_KEY_AMMOREGEN				1111160803
 
-#endif							//MISSIONPACK
+#endif //MISSIONPACK
 
 // holdable item keys
 #define QGR_KEY_MEDKIT					1111070000
@@ -362,7 +340,7 @@ Key digits:
 // new to team arena
 #define QGR_KEY_INVULNERABILITY			1111070400
 #define QGR_KEY_INVULNERABILITY_USE		1111070401
-#endif							/* MISSIONPACK */
+#endif /* MISSIONPACK */
 
 // hazard keys
 #define QGR_KEY_HAZARD_DEATH			1111080000
@@ -394,4 +372,4 @@ Key digits:
 #define QGR_KEY_FLAG_PICKUP				1111110000
 #define QGR_KEY_FLAG_CAPTURE			1111110001
 
-#endif							// _G_RANKINGS_H_
+#endif // _G_RANKINGS_H_
