@@ -696,7 +696,7 @@ void CL_FlushMemory(void)
 	CL_ShutdownAll();
 
 	// if not running a server clear the whole hunk
-	if(!com_sv_running->integer)
+	if(!Com_sv_running->integer)
 	{
 		// clear the whole hunk
 		Hunk_Clear();
@@ -723,7 +723,7 @@ memory on the hunk from cgame, ui, and renderer
 */
 void CL_MapLoading(void)
 {
-	if(!com_cl_running->integer)
+	if(!Com_cl_running->integer)
 	{
 		return;
 	}
@@ -786,7 +786,7 @@ This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 */
 void CL_Disconnect(qboolean showMainMenu)
 {
-	if(!com_cl_running || !com_cl_running->integer)
+	if(!Com_cl_running || !Com_cl_running->integer)
 	{
 		return;
 	}
@@ -924,7 +924,7 @@ void CL_RequestMotd(void)
 
 	Info_SetValueForKey(info, "challenge", cls.updateChallenge);
 	Info_SetValueForKey(info, "renderer", cls.glconfig.renderer_string);
-	Info_SetValueForKey(info, "version", com_version->string);
+	Info_SetValueForKey(info, "version", Com_version->string);
 
 	NET_OutOfBandPrint(NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info);
 }
@@ -1152,7 +1152,7 @@ void CL_Connect_f(void)
 
 	server = Cmd_Argv(1);
 
-	if(com_sv_running->integer && !strcmp(server, "localhost"))
+	if(Com_sv_running->integer && !strcmp(server, "localhost"))
 	{
 		// if running a local server, kill it
 		SV_Shutdown("Server quit\n");
@@ -1338,7 +1338,7 @@ void CL_Vid_Restart_f(void)
 	Cvar_Set("cl_paused", "0");
 
 	// if not running a server clear the whole hunk
-	if(!com_sv_running->integer)
+	if(!Com_sv_running->integer)
 	{
 		// clear the whole hunk
 		Hunk_Clear();
@@ -1739,7 +1739,7 @@ void CL_DisconnectPacket(netadr_t from)
 
 	// drop the connection
 	Com_Printf("Server disconnected for unknown reason\n");
-	Cvar_Set("com_errorMessage", "Server disconnected for unknown reason\n");
+	Cvar_Set("Com_errorMessage", "Server disconnected for unknown reason\n");
 	CL_Disconnect(qtrue);
 }
 
@@ -2204,7 +2204,7 @@ CL_Frame
 */
 void CL_Frame(int msec)
 {
-	if(!com_cl_running->integer)
+	if(!Com_cl_running->integer)
 	{
 		return;
 	}
@@ -2215,7 +2215,7 @@ void CL_Frame(int msec)
 		cls.cddialog = qfalse;
 		VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD);
 	}
-	else if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !com_sv_running->integer)
+	else if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !Com_sv_running->integer)
 	{
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
@@ -2231,7 +2231,7 @@ void CL_Frame(int msec)
 			CL_TakeVideoFrame();
 
 			// fixed time for next frame'
-			msec = (int)ceil((1000.0f / cl_aviFrameRate->value) * com_timescale->value);
+			msec = (int)ceil((1000.0f / cl_aviFrameRate->value) * Com_timescale->value);
 			if(msec == 0)
 			{
 				msec = 1;
@@ -2360,12 +2360,12 @@ This is the only place that any of these functions are called from
 */
 void CL_StartHunkUsers(void)
 {
-	if(!com_cl_running)
+	if(!Com_cl_running)
 	{
 		return;
 	}
 
-	if(!com_cl_running->integer)
+	if(!Com_cl_running->integer)
 	{
 		return;
 	}
@@ -2407,7 +2407,7 @@ void           *CL_RefMalloc(int size)
 
 int CL_ScaledMilliseconds(void)
 {
-	return Sys_Milliseconds() * com_timescale->value;
+	return Sys_Milliseconds() * Com_timescale->value;
 }
 
 /*

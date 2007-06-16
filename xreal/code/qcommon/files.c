@@ -1076,7 +1076,7 @@ Used for streaming data out of either a
 separate file or a ZIP file.
 ===========
 */
-extern qboolean com_fullyInitialized;
+extern qboolean Com_fullyInitialized;
 
 int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueFILE)
 {
@@ -1165,7 +1165,7 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 
 	// make sure the xrealkey file is only readable by the xreal.exe at initialization
 	// any other time the key should only be accessed in memory using the provided functions
-	if(com_fullyInitialized && strstr(filename, "xrealkey"))
+	if(Com_fullyInitialized && strstr(filename, "xrealkey"))
 	{
 		*file = 0;
 		return -1;
@@ -1721,12 +1721,12 @@ int FS_ReadFile(const char *qpath, void **buffer)
 	if(strstr(qpath, ".cfg"))
 	{
 		isConfig = qtrue;
-		if(com_journal && com_journal->integer == 2)
+		if(Com_journal && Com_journal->integer == 2)
 		{
 			int             r;
 
 			Com_DPrintf("Loading %s from journal file.\n", qpath);
-			r = FS_Read(&len, sizeof(len), com_journalDataFile);
+			r = FS_Read(&len, sizeof(len), Com_journalDataFile);
 			if(r != sizeof(len))
 			{
 				if(buffer != NULL)
@@ -1751,7 +1751,7 @@ int FS_ReadFile(const char *qpath, void **buffer)
 			buf = Hunk_AllocateTempMemory(len + 1);
 			*buffer = buf;
 
-			r = FS_Read(buf, len, com_journalDataFile);
+			r = FS_Read(buf, len, Com_journalDataFile);
 			if(r != len)
 			{
 				Com_Error(ERR_FATAL, "Read from journalDataFile failed");
@@ -1780,23 +1780,23 @@ int FS_ReadFile(const char *qpath, void **buffer)
 			*buffer = NULL;
 		}
 		// if we are journalling and it is a config file, write a zero to the journal file
-		if(isConfig && com_journal && com_journal->integer == 1)
+		if(isConfig && Com_journal && Com_journal->integer == 1)
 		{
 			Com_DPrintf("Writing zero for %s to journal file.\n", qpath);
 			len = 0;
-			FS_Write(&len, sizeof(len), com_journalDataFile);
-			FS_Flush(com_journalDataFile);
+			FS_Write(&len, sizeof(len), Com_journalDataFile);
+			FS_Flush(Com_journalDataFile);
 		}
 		return -1;
 	}
 
 	if(!buffer)
 	{
-		if(isConfig && com_journal && com_journal->integer == 1)
+		if(isConfig && Com_journal && Com_journal->integer == 1)
 		{
 			Com_DPrintf("Writing len for %s to journal file.\n", qpath);
-			FS_Write(&len, sizeof(len), com_journalDataFile);
-			FS_Flush(com_journalDataFile);
+			FS_Write(&len, sizeof(len), Com_journalDataFile);
+			FS_Flush(Com_journalDataFile);
 		}
 		FS_FCloseFile(h);
 		return len;
@@ -1815,12 +1815,12 @@ int FS_ReadFile(const char *qpath, void **buffer)
 	FS_FCloseFile(h);
 
 	// if we are journalling and it is a config file, write it to the journal file
-	if(isConfig && com_journal && com_journal->integer == 1)
+	if(isConfig && Com_journal && Com_journal->integer == 1)
 	{
 		Com_DPrintf("Writing %s to journal file.\n", qpath);
-		FS_Write(&len, sizeof(len), com_journalDataFile);
-		FS_Write(buf, len, com_journalDataFile);
-		FS_Flush(com_journalDataFile);
+		FS_Write(&len, sizeof(len), Com_journalDataFile);
+		FS_Write(buf, len, Com_journalDataFile);
+		FS_Flush(Com_journalDataFile);
 	}
 	return len;
 }

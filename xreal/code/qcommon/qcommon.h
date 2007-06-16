@@ -781,35 +781,35 @@ void            Com_StartupVariable(const char *match);
 // only a set with the exact name.  Only used during startup.
 
 
-extern cvar_t  *com_developer;
+extern cvar_t  *Com_developer;
 extern cvar_t  *com_dedicated;
-extern cvar_t  *com_speeds;
-extern cvar_t  *com_timescale;
-extern cvar_t  *com_sv_running;
-extern cvar_t  *com_cl_running;
+extern cvar_t  *Com_speeds;
+extern cvar_t  *Com_timescale;
+extern cvar_t  *Com_sv_running;
+extern cvar_t  *Com_cl_running;
 extern cvar_t  *com_viewlog;	// 0 = hidden, 1 = visible, 2 = minimized
-extern cvar_t  *com_version;
-extern cvar_t  *com_blood;
-extern cvar_t  *com_buildScript;	// for building release pak files
-extern cvar_t  *com_journal;
-extern cvar_t  *com_cameraMode;
+extern cvar_t  *Com_version;
+extern cvar_t  *Com_blood;
+extern cvar_t  *Com_buildScript;	// for building release pak files
+extern cvar_t  *Com_journal;
+extern cvar_t  *Com_cameraMode;
 
 // both client and server must agree to pause
 extern cvar_t  *cl_paused;
 extern cvar_t  *sv_paused;
 
-// com_speeds times
+// Com_speeds times
 extern int      time_game;
 extern int      time_frontend;
 extern int      time_backend;	// renderer backend time
 
-extern int      com_frameTime;
-extern int      com_frameMsec;
+extern int      Com_frameTime;
+extern int      Com_frameMsec;
 
-extern qboolean com_errorEntered;
+extern qboolean Com_errorEntered;
 
-extern fileHandle_t com_journalFile;
-extern fileHandle_t com_journalDataFile;
+extern fileHandle_t Com_journalFile;
+extern fileHandle_t Com_journalDataFile;
 
 typedef enum
 {

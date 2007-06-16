@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 
 unsigned        frame_msec;
-int             old_com_frameTime;
+int             old_Com_frameTime;
 
 /*
 ===============================================================================
@@ -195,13 +195,13 @@ float CL_KeyState(kbutton_t * key)
 		// still down
 		if(!key->downtime)
 		{
-			msec = com_frameTime;
+			msec = Com_frameTime;
 		}
 		else
 		{
-			msec += com_frameTime - key->downtime;
+			msec += Com_frameTime - key->downtime;
 		}
-		key->downtime = com_frameTime;
+		key->downtime = Com_frameTime;
 	}
 
 #if 0
@@ -854,7 +854,7 @@ void CL_CreateNewCommands(void)
 		return;
 	}
 
-	frame_msec = com_frameTime - old_com_frameTime;
+	frame_msec = Com_frameTime - old_Com_frameTime;
 
 	// if running less than 5fps, truncate the extra time to prevent
 	// unexpected moves after a hitch
@@ -862,7 +862,7 @@ void CL_CreateNewCommands(void)
 	{
 		frame_msec = 200;
 	}
-	old_com_frameTime = com_frameTime;
+	old_Com_frameTime = Com_frameTime;
 
 
 	// generate a command for this frame
@@ -1102,7 +1102,7 @@ void CL_SendCmd(void)
 	}
 
 	// don't send commands if paused
-	if(com_sv_running->integer && sv_paused->integer && cl_paused->integer)
+	if(Com_sv_running->integer && sv_paused->integer && cl_paused->integer)
 	{
 		return;
 	}

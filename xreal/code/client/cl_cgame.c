@@ -391,7 +391,7 @@ qboolean CL_GetServerCommand(int serverCommandNumber)
 		// don't do it if we aren't running the server locally,
 		// otherwise malicious remote servers could overwrite
 		// the existing thumbnails
-		if(!com_sv_running->integer)
+		if(!Com_sv_running->integer)
 		{
 			return qfalse;
 		}
@@ -910,7 +910,7 @@ void CL_AdjustTimeDelta(void)
 	}
 
 	// if the current time is WAY off, just correct to the current value
-	if(com_sv_running->integer)
+	if(Com_sv_running->integer)
 	{
 		resetTime = 100;
 	}
@@ -948,7 +948,7 @@ void CL_AdjustTimeDelta(void)
 		// if any of the frames between this and the previous snapshot
 		// had to be extrapolated, nudge our sense of time back a little
 		// the granularity of +1 / -2 is too high for timescale modified frametimes
-		if(com_timescale->value == 0 || com_timescale->value == 1)
+		if(Com_timescale->value == 0 || Com_timescale->value == 1)
 		{
 			if(cl.extrapolatedSnapshot)
 			{
@@ -1046,7 +1046,7 @@ void CL_SetCGameTime(void)
 	}
 
 	// allow pause in single player
-	if(sv_paused->integer && cl_paused->integer && com_sv_running->integer)
+	if(sv_paused->integer && cl_paused->integer && Com_sv_running->integer)
 	{
 		// paused
 		return;

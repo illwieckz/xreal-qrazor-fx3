@@ -34,12 +34,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderer/tr_local.h"
 #include "glw_win.h"
 
+#include "wingdi.h"
 void            QGL_EnableLogging(qboolean enable);
 
 int             (WINAPI * qwglSwapIntervalEXT) (int interval);
 
 BOOL(WINAPI * qwglGetDeviceGammaRamp3DFX) (HDC, LPVOID);
 BOOL(WINAPI * qwglSetDeviceGammaRamp3DFX) (HDC, LPVOID);
+
+//BOOL(WINAPI * GetDeviceGammaRamp)( HDC , LPVOID );
 
 int             (WINAPI * qwglChoosePixelFormat) (HDC, CONST PIXELFORMATDESCRIPTOR *);
 int             (WINAPI * qwglDescribePixelFormat) (HDC, int, UINT, LPPIXELFORMATDESCRIPTOR);

@@ -845,7 +845,7 @@ void Cvar_Restart_f(void)
 		}
 
 		// don't mess with rom values, or some inter-module
-		// communication will get broken (com_cl_running, etc)
+		// communication will get broken (Com_cl_running, etc)
 		if(var->flags & (CVAR_ROM | CVAR_INIT | CVAR_NORESTART))
 		{
 			prev = &var->next;

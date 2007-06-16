@@ -57,24 +57,24 @@ jmp_buf         abortframe;		// an ERR_DROP occured, exit the entire frame
 
 FILE           *debuglogfile;
 static fileHandle_t logfile;
-fileHandle_t    com_journalFile;	// events are written here
-fileHandle_t    com_journalDataFile;	// config files are written here
+fileHandle_t    Com_journalFile;	// events are written here
+fileHandle_t    Com_journalDataFile;	// config files are written here
 
 cvar_t         *com_viewlog;
-cvar_t         *com_speeds;
-cvar_t         *com_developer;
+cvar_t         *Com_speeds;
+cvar_t         *Com_developer;
 cvar_t         *com_dedicated;
-cvar_t         *com_timescale;
+cvar_t         *Com_timescale;
 cvar_t         *com_fixedtime;
 cvar_t         *com_dropsim;	// 0.0 to 1.0, simulated packet drops
-cvar_t         *com_journal;
+cvar_t         *Com_journal;
 cvar_t         *com_maxfps;
 cvar_t         *com_timedemo;
-cvar_t         *com_sv_running;
-cvar_t         *com_cl_running;
+cvar_t         *Com_sv_running;
+cvar_t         *Com_cl_running;
 cvar_t         *com_logfile;	// 1 = buffer log, 2 = flush after each print
 cvar_t         *com_showtrace;
-cvar_t         *com_version;
+cvar_t         *Com_version;
 cvar_t         *com_blood;
 cvar_t         *com_buildScript;	// for automated data building scripts
 cvar_t         *com_introPlayed;
@@ -86,17 +86,17 @@ cvar_t         *com_cameraMode;
 cvar_t         *com_noErrorInterrupt;
 #endif
 
-// com_speeds times
+// Com_speeds times
 int             time_game;
 int             time_frontend;	// renderer frontend time
 int             time_backend;	// renderer backend time
 
-int             com_frameTime;
+int             Com_frameTime;
 int             com_frameMsec;
 int             com_frameNumber;
 
-qboolean        com_errorEntered;
-qboolean        com_fullyInitialized;
+qboolean        Com_errorEntered;
+qboolean        Com_fullyInitialized;
 
 char            com_errorMessage[MAXPRINTMSG];
 
@@ -221,7 +221,7 @@ void QDECL Com_DPrintf(const char *fmt, ...)
 	va_list         argptr;
 	char            msg[MAXPRINTMSG];
 
-	if(!com_developer || !com_developer->integer)
+	if(!Com_developer || !Com_developer->integer)
 	{
 		return;					// don't confuse non-developers with techie stuff...
 	}
@@ -287,11 +287,11 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 	lastErrorTime = currentTime;
 
-	if(com_errorEntered)
+	if(Com_errorEntered)
 	{
 		Sys_Error("recursive error after: %s", com_errorMessage);
 	}
-	com_errorEntered = qtrue;
+	Com_errorEntered = qtrue;
 
 	va_start(argptr, fmt);
 	vsprintf(com_errorMessage, fmt, argptr);
@@ -306,7 +306,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	{
 		CL_Disconnect(qtrue);
 		CL_FlushMemory();
-		com_errorEntered = qfalse;
+		Com_errorEntered = qfalse;
 		longjmp(abortframe, -1);
 	}
 	else if(code == ERR_DROP || code == ERR_DISCONNECT)
@@ -315,17 +315,17 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 		SV_Shutdown(va("Server crashed: %s\n", com_errorMessage));
 		CL_Disconnect(qtrue);
 		CL_FlushMemory();
-		com_errorEntered = qfalse;
+		Com_errorEntered = qfalse;
 		longjmp(abortframe, -1);
 	}
 	else if(code == ERR_NEED_CD)
 	{
 		SV_Shutdown("Server didn't have CD\n");
-		if(com_cl_running && com_cl_running->integer)
+		if(Com_cl_running && Com_cl_running->integer)
 		{
 			CL_Disconnect(qtrue);
 			CL_FlushMemory();
-			com_errorEntered = qfalse;
+			Com_errorEntered = qfalse;
 			CL_CDDialog();
 		}
 		else
@@ -357,7 +357,7 @@ do the apropriate things.
 void Com_Quit_f(void)
 {
 	// don't try to shutdown if we are in a recursive error
-	if(!com_errorEntered)
+	if(!Com_errorEntered)
 	{
 		SV_Shutdown("Server quit\n");
 		CL_Shutdown();
@@ -1985,30 +1985,30 @@ Com_InitJournaling
 void Com_InitJournaling(void)
 {
 	Com_StartupVariable("journal");
-	com_journal = Cvar_Get("journal", "0", CVAR_INIT);
-	if(!com_journal->integer)
+	Com_journal = Cvar_Get("journal", "0", CVAR_INIT);
+	if(!Com_journal->integer)
 	{
 		return;
 	}
 
-	if(com_journal->integer == 1)
+	if(Com_journal->integer == 1)
 	{
 		Com_Printf("Journaling events\n");
-		com_journalFile = FS_FOpenFileWrite("journal.dat");
-		com_journalDataFile = FS_FOpenFileWrite("journaldata.dat");
+		Com_journalFile = FS_FOpenFileWrite("journal.dat");
+		Com_journalDataFile = FS_FOpenFileWrite("journaldata.dat");
 	}
-	else if(com_journal->integer == 2)
+	else if(Com_journal->integer == 2)
 	{
 		Com_Printf("Replaying journaled events\n");
-		FS_FOpenFileRead("journal.dat", &com_journalFile, qtrue);
-		FS_FOpenFileRead("journaldata.dat", &com_journalDataFile, qtrue);
+		FS_FOpenFileRead("journal.dat", &Com_journalFile, qtrue);
+		FS_FOpenFileRead("journaldata.dat", &Com_journalDataFile, qtrue);
 	}
 
-	if(!com_journalFile || !com_journalDataFile)
+	if(!Com_journalFile || !Com_journalDataFile)
 	{
-		Cvar_Set("com_journal", "0");
-		com_journalFile = 0;
-		com_journalDataFile = 0;
+		Cvar_Set("Com_journal", "0");
+		Com_journalFile = 0;
+		Com_journalDataFile = 0;
 		Com_Printf("Couldn't open journal files\n");
 	}
 }
@@ -2024,9 +2024,9 @@ sysEvent_t Com_GetRealEvent(void)
 	sysEvent_t      ev;
 
 	// either get an event from the system or the journal file
-	if(com_journal->integer == 2)
+	if(Com_journal->integer == 2)
 	{
-		r = FS_Read(&ev, sizeof(ev), com_journalFile);
+		r = FS_Read(&ev, sizeof(ev), Com_journalFile);
 		if(r != sizeof(ev))
 		{
 			Com_Error(ERR_FATAL, "Error reading from journal file");
@@ -2034,7 +2034,7 @@ sysEvent_t Com_GetRealEvent(void)
 		if(ev.evPtrLength)
 		{
 			ev.evPtr = Z_Malloc(ev.evPtrLength);
-			r = FS_Read(ev.evPtr, ev.evPtrLength, com_journalFile);
+			r = FS_Read(ev.evPtr, ev.evPtrLength, Com_journalFile);
 			if(r != ev.evPtrLength)
 			{
 				Com_Error(ERR_FATAL, "Error reading from journal file");
@@ -2046,16 +2046,16 @@ sysEvent_t Com_GetRealEvent(void)
 		ev = Sys_GetEvent();
 
 		// write the journal value out if needed
-		if(com_journal->integer == 1)
+		if(Com_journal->integer == 1)
 		{
-			r = FS_Write(&ev, sizeof(ev), com_journalFile);
+			r = FS_Write(&ev, sizeof(ev), Com_journalFile);
 			if(r != sizeof(ev))
 			{
 				Com_Error(ERR_FATAL, "Error writing to journal file");
 			}
 			if(ev.evPtrLength)
 			{
-				r = FS_Write(ev.evPtr, ev.evPtrLength, com_journalFile);
+				r = FS_Write(ev.evPtr, ev.evPtrLength, Com_journalFile);
 				if(r != ev.evPtrLength)
 				{
 					Com_Error(ERR_FATAL, "Error writing to journal file");
@@ -2149,18 +2149,18 @@ void Com_RunAndTimeServerPacket(netadr_t * evFrom, msg_t * buf)
 
 	t1 = 0;
 
-	if(com_speeds->integer)
+	if(Com_speeds->integer)
 	{
 		t1 = Sys_Milliseconds();
 	}
 
 	SV_PacketEvent(*evFrom, buf);
 
-	if(com_speeds->integer)
+	if(Com_speeds->integer)
 	{
 		t2 = Sys_Milliseconds();
 		msec = t2 - t1;
-		if(com_speeds->integer == 3)
+		if(Com_speeds->integer == 3)
 		{
 			Com_Printf("SV_PacketEvent time: %i\n", msec);
 		}
@@ -2199,7 +2199,7 @@ int Com_EventLoop(void)
 			while(NET_GetLoopPacket(NS_SERVER, &evFrom, &buf))
 			{
 				// if the server just shut down, flush the events
-				if(com_sv_running->integer)
+				if(Com_sv_running->integer)
 				{
 					Com_RunAndTimeServerPacket(&evFrom, &buf);
 				}
@@ -2260,7 +2260,7 @@ int Com_EventLoop(void)
 					continue;
 				}
 				Com_Memcpy(buf.data, (byte *) ((netadr_t *) ev.evPtr + 1), buf.cursize);
-				if(com_sv_running->integer)
+				if(Com_sv_running->integer)
 				{
 					Com_RunAndTimeServerPacket(&evFrom, &buf);
 				}
@@ -2633,22 +2633,22 @@ void Com_Init(char *commandLine)
 	com_maxfps = Cvar_Get("com_maxfps", "85", CVAR_ARCHIVE);
 	com_blood = Cvar_Get("com_blood", "1", CVAR_ARCHIVE);
 
-	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
+	Com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
 	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
 
-	com_timescale = Cvar_Get("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO);
+	Com_timescale = Cvar_Get("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO);
 	com_fixedtime = Cvar_Get("fixedtime", "0", CVAR_CHEAT);
 	com_showtrace = Cvar_Get("com_showtrace", "0", CVAR_CHEAT);
 	com_dropsim = Cvar_Get("com_dropsim", "0", CVAR_CHEAT);
 	com_viewlog = Cvar_Get("viewlog", "0", CVAR_CHEAT);
-	com_speeds = Cvar_Get("com_speeds", "0", 0);
+	Com_speeds = Cvar_Get("Com_speeds", "0", 0);
 	com_timedemo = Cvar_Get("timedemo", "0", CVAR_CHEAT);
 	com_cameraMode = Cvar_Get("com_cameraMode", "0", CVAR_CHEAT);
 
 	cl_paused = Cvar_Get("cl_paused", "0", CVAR_ROM);
 	sv_paused = Cvar_Get("sv_paused", "0", CVAR_ROM);
-	com_sv_running = Cvar_Get("sv_running", "0", CVAR_ROM);
-	com_cl_running = Cvar_Get("cl_running", "0", CVAR_ROM);
+	Com_sv_running = Cvar_Get("sv_running", "0", CVAR_ROM);
+	Com_cl_running = Cvar_Get("cl_running", "0", CVAR_ROM);
 	com_buildScript = Cvar_Get("com_buildScript", "0", 0);
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
@@ -2665,7 +2665,7 @@ void Com_Init(char *commandLine)
 		}
 	}
 
-	if(com_developer && com_developer->integer)
+	if(Com_developer && Com_developer->integer)
 	{
 		Cmd_AddCommand("error", Com_Error_f);
 		Cmd_AddCommand("crash", Com_Crash_f);
@@ -2678,7 +2678,7 @@ void Com_Init(char *commandLine)
 	Cmd_AddCommand("mathtest", Com_MathTest_f);
 
 	s = va("%s %s %s", Q3_VERSION, CPUSTRING, __DATE__);
-	com_version = Cvar_Get("version", s, CVAR_ROM | CVAR_SERVERINFO);
+	Com_version = Cvar_Get("version", s, CVAR_ROM | CVAR_SERVERINFO);
 
 	Sys_Init();
 	Netchan_Init(Com_Milliseconds() & 0xffff);	// pick a port value that should be nice and random
@@ -2692,10 +2692,10 @@ void Com_Init(char *commandLine)
 		Sys_ShowConsole(com_viewlog->integer, qfalse);
 	}
 
-	// set com_frameTime so that if a map is started on the
-	// command line it will still be able to count on com_frameTime
+	// set Com_frameTime so that if a map is started on the
+	// command line it will still be able to count on Com_frameTime
 	// being random enough for a serverid
-	com_frameTime = Com_Milliseconds();
+	Com_frameTime = Com_Milliseconds();
 
 	// add + commands from command line
 	if(!Com_AddStartupCommands())
@@ -2720,7 +2720,7 @@ void Com_Init(char *commandLine)
 	// make sure single player is off by default
 	Cvar_Set("ui_singlePlayerActive", "0");
 
-	com_fullyInitialized = qtrue;
+	Com_fullyInitialized = qtrue;
 	Com_Printf("--- Common Initialization Complete ---\n");
 }
 
@@ -2758,7 +2758,7 @@ void Com_WriteConfiguration(void)
 #endif
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
-	if(!com_fullyInitialized)
+	if(!Com_fullyInitialized)
 	{
 		return;
 	}
@@ -2825,17 +2825,17 @@ int Com_ModifyMsec(int msec)
 	{
 		msec = com_fixedtime->integer;
 	}
-	else if(com_timescale->value)
+	else if(Com_timescale->value)
 	{
-		msec *= com_timescale->value;
+		msec *= Com_timescale->value;
 	}
 	else if(com_cameraMode->integer)
 	{
-		msec *= com_timescale->value;
+		msec *= Com_timescale->value;
 	}
 
 	// don't let it scale below 1 msec
-	if(msec < 1 && com_timescale->value)
+	if(msec < 1 && Com_timescale->value)
 	{
 		msec = 1;
 	}
@@ -2851,7 +2851,7 @@ int Com_ModifyMsec(int msec)
 		}
 		clampTime = 5000;
 	}
-	else if(!com_sv_running->integer)
+	else if(!Com_sv_running->integer)
 	{
 		// clients of remote servers do not want to clamp time, because
 		// it would skew their view of the server's time temporarily
@@ -2924,7 +2924,7 @@ void Com_Frame(void)
 	//
 	// main event loop
 	//
-	if(com_speeds->integer)
+	if(Com_speeds->integer)
 	{
 		timeBeforeFirstEvents = Sys_Milliseconds();
 	}
@@ -2940,16 +2940,16 @@ void Com_Frame(void)
 	}
 	do
 	{
-		com_frameTime = Com_EventLoop();
-		if(lastTime > com_frameTime)
+		Com_frameTime = Com_EventLoop();
+		if(lastTime > Com_frameTime)
 		{
-			lastTime = com_frameTime;	// possible on first frame
+			lastTime = Com_frameTime;	// possible on first frame
 		}
-		msec = com_frameTime - lastTime;
+		msec = Com_frameTime - lastTime;
 	} while(msec < minMsec);
 	Cbuf_Execute();
 
-	lastTime = com_frameTime;
+	lastTime = Com_frameTime;
 
 	// mess with msec if needed
 	com_frameMsec = msec;
@@ -2958,7 +2958,7 @@ void Com_Frame(void)
 	//
 	// server side
 	//
-	if(com_speeds->integer)
+	if(Com_speeds->integer)
 	{
 		timeBeforeServer = Sys_Milliseconds();
 	}
@@ -2995,7 +2995,7 @@ void Com_Frame(void)
 		// run event loop a second time to get server to client packets
 		// without a frame of latency
 		//
-		if(com_speeds->integer)
+		if(Com_speeds->integer)
 		{
 			timeBeforeEvents = Sys_Milliseconds();
 		}
@@ -3007,14 +3007,14 @@ void Com_Frame(void)
 		//
 		// client side
 		//
-		if(com_speeds->integer)
+		if(Com_speeds->integer)
 		{
 			timeBeforeClient = Sys_Milliseconds();
 		}
 
 		CL_Frame(msec);
 
-		if(com_speeds->integer)
+		if(Com_speeds->integer)
 		{
 			timeAfter = Sys_Milliseconds();
 		}
@@ -3023,7 +3023,7 @@ void Com_Frame(void)
 	//
 	// report timing information
 	//
-	if(com_speeds->integer)
+	if(Com_speeds->integer)
 	{
 		int             all, sv, ev, cl;
 
@@ -3074,10 +3074,10 @@ void Com_Shutdown(void)
 		logfile = 0;
 	}
 
-	if(com_journalFile)
+	if(Com_journalFile)
 	{
-		FS_FCloseFile(com_journalFile);
-		com_journalFile = 0;
+		FS_FCloseFile(Com_journalFile);
+		Com_journalFile = 0;
 	}
 
 }

@@ -1465,7 +1465,7 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 	// but not other people
 	// We don't do this when the client hasn't been active yet since its
 	// normal to spam a lot of commands when downloading
-	if(!com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer && svs.time < cl->nextReliableTime)
+	if(!Com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer && svs.time < cl->nextReliableTime)
 	{
 		// ignore any other text messages from this client but let them keep playing
 		// TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept

@@ -900,7 +900,7 @@ void Con_Bottom(void)
 
 void Con_Close(void)
 {
-	if(!com_cl_running->integer)
+	if(!Com_cl_running->integer)
 	{
 		return;
 	}

@@ -248,7 +248,7 @@ void VM_LoadSymbols(vm_t * vm)
 	int             numInstructions;
 
 	// don't load symbols if not developer
-	if(!com_developer->integer)
+	if(!Com_developer->integer)
 	{
 		return;
 	}
