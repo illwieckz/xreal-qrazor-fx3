@@ -21,9 +21,10 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
-#include "../../ui/menudef.h"	// for the voice chats
+#include "../ui/menudef.h"		// for the voice chats
 
 /*
 ==================
@@ -1002,8 +1003,6 @@ void SetTeam(gentity_t * ent, char *s)
 		team = TEAM_FREE;
 	}
 
-
-
 	// override decision if limiting the players
 	if((g_gametype.integer == GT_TOURNAMENT) && level.numNonSpectatorClients >= 2)
 	{
@@ -1075,7 +1074,6 @@ void SetTeam(gentity_t * ent, char *s)
 	ClientUserinfoChanged(clientNum);
 
 	ClientBegin(clientNum);
-
 }
 
 /*
@@ -1654,12 +1652,6 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir)
 	int             clientnum;
 	int             original;
 
-
-
-//  if (ent->client->ps.pm_type == PM_INTERMISSION){
-//      Cmd_StatCycle_f( ent,  dir );
-//      return;
-//  }
 	// if they are playing a tournement game, count as a loss
 	if((g_gametype.integer == GT_TOURNAMENT) && ent->client->sess.sessionTeam == TEAM_FREE)
 	{
@@ -1670,7 +1662,6 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir)
 	{
 		SetTeam(ent, "spectator");
 	}
-
 
 	if(dir != 1 && dir != -1)
 	{
@@ -1712,6 +1703,7 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir)
 	// leave it where it was
 }
 
+
 /*
 ==================
 G_Say
@@ -1720,7 +1712,6 @@ G_Say
 
 static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, const char *name, const char *message)
 {
-
 	if(!other)
 	{
 		return;
@@ -1763,7 +1754,6 @@ static void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *cha
 	// don't let text be too long for malicious reasons
 	char            text[MAX_SAY_TEXT];
 	char            location[64];
-
 
 	if(g_gametype.integer < GT_TEAM && mode == SAY_TEAM)
 	{
@@ -2199,6 +2189,9 @@ static const char *gameNames[] = {
 	"Single Player",
 	"Team Deathmatch",
 	"Capture the Flag",
+	"One Flag CTF",
+	"Overload",
+	"Harvester"
 };
 
 static const char *instaNames[] = {
@@ -4547,7 +4540,6 @@ void ClientCommand(int clientNum)
 		Cmd_Tell_f(ent);
 		return;
 	}
-
 	if(Q_stricmp(cmd, "vsay") == 0)
 	{
 		Cmd_Voice_f(ent, SAY_ALL, qfalse, qfalse);

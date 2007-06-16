@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 // this file holds commands that can be executed by the server console, but not remote clients
 
@@ -329,7 +330,7 @@ void Svcmd_EntityList_f(void)
 	gentity_t      *check;
 
 	check = g_entities + 1;
-	for(e = 1; e < level.num_entities; e++, check++)
+	for(e = 1; e < level.numEntities; e++, check++)
 	{
 		if(!check->inuse)
 		{
@@ -458,10 +459,24 @@ void Svcmd_ForceTeam_f(void)
 
 char           *ConcatArgs(int start);
 
+
+/*
+=================
+Svcmd_LuaRestart_f
+=================
+*/
+#ifdef LUA
+static void Svcmd_LuaRestart_f(void)
+{
+	G_ShutdownLua();
+	G_InitLua();
+}
+#endif
+
+
 /*
 =================
 ConsoleCommand
-
 =================
 */
 qboolean ConsoleCommand(void)
@@ -517,6 +532,14 @@ qboolean ConsoleCommand(void)
 		Svcmd_RemoveIP_f();
 		return qtrue;
 	}
+	
+#ifdef LUA
+	if(Q_stricmp(cmd, "lua_restart") == 0)
+	{
+		Svcmd_LuaRestart_f();
+		return qtrue;
+	}
+#endif
 
 	if(Q_stricmp(cmd, "listip") == 0)
 	{
@@ -528,11 +551,11 @@ qboolean ConsoleCommand(void)
 	{
 		if(Q_stricmp(cmd, "say") == 0)
 		{
-			trap_SendServerCommand(-1, va("print \"%s\"", ConcatArgs(1)));
+			trap_SendServerCommand(-1, va("print \"server: %s\"", ConcatArgs(1)));
 			return qtrue;
 		}
 		// everything else will also be printed as a say command
-		trap_SendServerCommand(-1, va("print \"%s\"", ConcatArgs(0)));
+		trap_SendServerCommand(-1, va("print \"server: %s\"", ConcatArgs(0)));
 		return qtrue;
 	}
 

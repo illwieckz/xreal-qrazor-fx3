@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 #define	MISSILE_PRESTEP_TIME	50
@@ -38,7 +39,6 @@ void G_BounceMissile(gentity_t * ent, trace_t * trace)
 	vec3_t          velocity;
 	float           dot;
 	int             hitTime;
-
 
 	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + (level.time - level.previousTime) * trace->fraction;

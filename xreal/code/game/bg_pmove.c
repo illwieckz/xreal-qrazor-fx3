@@ -21,13 +21,13 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // bg_pmove.c -- both games player movement code
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
 
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
-
 
 pmove_t        *pm;
 pml_t           pml;
@@ -192,7 +192,7 @@ PM_Friction
 Handles both ground friction and water friction
 ==================
 */
-void PM_Friction(void)
+static void PM_Friction(void)
 {
 	vec3_t          vec;
 	float          *vel;
@@ -270,9 +270,9 @@ PM_Accelerate
 Handles user intended acceleration
 ==============
 */
-void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
+static void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 {
-//#if 1
+#if 1
 	// q2 style
 	int             i;
 	float           addspeed, accelspeed, currentspeed;
@@ -293,24 +293,25 @@ void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 	{
 		pm->ps->velocity[i] += accelspeed * wishdir[i];
 	}
-/*#else
+#else
 	// proper way (avoids strafe jump maxspeed bug), but feels bad
-	vec3_t		wishVelocity;
-	vec3_t		pushDir;
-	float		pushLen;
-	float		canPush;
+	vec3_t          wishVelocity;
+	vec3_t          pushDir;
+	float           pushLen;
+	float           canPush;
 
-	VectorScale( wishdir, wishspeed, wishVelocity );
-	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
-	pushLen = VectorNormalize( pushDir );
+	VectorScale(wishdir, wishspeed, wishVelocity);
+	VectorSubtract(wishVelocity, pm->ps->velocity, pushDir);
+	pushLen = VectorNormalize(pushDir);
 
-	canPush = accel*pml.frametime*wishspeed;
-	if (canPush > pushLen) {
+	canPush = accel * pml.frametime * wishspeed;
+	if(canPush > pushLen)
+	{
 		canPush = pushLen;
 	}
 
-	VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
-#endif*/
+	VectorMA(pm->ps->velocity, canPush, pushDir, pm->ps->velocity);
+#endif
 }
 
 
@@ -324,7 +325,7 @@ This allows the clients to use axial -127 to 127 values for all directions
 without getting a sqrt(2) distortion in speed.
 ============
 */
-float PM_CmdScale(usercmd_t * cmd)
+static float PM_CmdScale(usercmd_t * cmd)
 {
 	int             max;
 	float           total;
@@ -1442,10 +1443,6 @@ static void PM_CheckDuck(void)
 
 	pm->mins[2] = MINS_Z;
 
-//  if (pm->ps->pm_type == PM_FREEZE && pm->ps->stats[STAT_HEALTH] > 0){
-	//  return;
-//  }
-
 	if(pm->ps->pm_type == PM_DEAD)
 	{
 		pm->maxs[2] = -8;
@@ -1753,8 +1750,6 @@ static void PM_Weapon(void)
 {
 	int             addTime;
 
-
-
 	// don't allow attack until all buttons are up
 	if(pm->ps->pm_flags & PMF_RESPAWNED)
 	{
@@ -1843,7 +1838,6 @@ static void PM_Weapon(void)
 	{
 		pm->chargetime = 0;
 	}
-
 
 	// check for weapon change
 	// can't change if weapon is firing, but can change
@@ -2034,7 +2028,6 @@ static void PM_Weapon(void)
 	{
 		pm->ps->weaponTime = 0;
 		PM_FinishWeaponChange();
-
 		return;
 	}
 
@@ -2467,7 +2460,6 @@ void PmoveSingle(pmove_t * pmove)
 		pm->ps->velocity[2] = 0;
 	}
 
-
 	pml.frametime = pml.msec * 0.001;
 
 	// update the viewangles
@@ -2729,7 +2721,6 @@ void Pmove(pmove_t * pmove)
 			}
 		}
 		pmove->cmd.serverTime = pmove->ps->commandTime + msec;
-
 		PmoveSingle(pmove);
 
 		if(pmove->ps->pm_flags & PMF_JUMP_HELD)

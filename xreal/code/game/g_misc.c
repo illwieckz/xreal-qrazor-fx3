@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_misc.c
 
 #include "g_local.h"
@@ -247,7 +248,6 @@ void SP_misc_portal_surface(gentity_t * ent)
 		ent->think = locateCamera;
 		ent->nextthink = level.time + 100;
 	}
-
 }
 
 /*QUAKED misc_portalsky_surface (0 0 1) (-8 -8 -8) (8 8 8)

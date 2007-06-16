@@ -21,8 +21,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
-
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -77,6 +77,8 @@ an info_notnull
 void SP_info_player_teleport(gentity_t * ent)
 {
 }
+
+
 
 /*
 =======================================================================
@@ -323,7 +325,7 @@ gentity_t      *SelectInitialSpawnPoint(vec3_t origin, vec3_t angles)
 			break;
 		}
 	}
-//  spot->PointInUse = qfalse;
+
 	if(!spot || SpotWouldTelefrag(spot))
 	{
 		return SelectSpawnPoint(vec3_origin, origin, angles);
@@ -396,12 +398,8 @@ void BodySink(gentity_t * ent)
 		ent->physicsObject = qfalse;
 		return;
 	}
-
-
 	ent->nextthink = level.time + 100;
-//  if(ent->s.groundEntityNum == ENTITYNUM_WORLD){
 	ent->s.pos.trBase[2] -= 1;
-//  }
 }
 
 /*
@@ -414,6 +412,10 @@ just like the existing corpse to leave behind.
 */
 void CopyToBodyQue(gentity_t * ent)
 {
+#ifdef MISSIONPACK
+	gentity_t      *e;
+	int             i;
+#endif
 	gentity_t      *body;
 	int             PlayerContents;
 
@@ -425,8 +427,6 @@ void CopyToBodyQue(gentity_t * ent)
 	{
 		return;
 	}
-
-
 
 	// grab a body que and cycle to the next one
 	body = level.bodyQue[level.bodyQueIndex];
@@ -440,19 +440,36 @@ void CopyToBodyQue(gentity_t * ent)
 	body->s = ent->s;
 	body->s.eType = ent->s.eType;
 	body->s.eFlags = EF_DEAD;	// clear EF_TALK, etc
-	body->s.powerups = ent->s.powerups;	// clear powerups
+#ifdef MISSIONPACK
+	if(ent->s.eFlags & EF_KAMIKAZE)
+	{
+		body->s.eFlags |= EF_KAMIKAZE;
+
+		// check if there is a kamikaze timer around for this owner
+		for(i = 0; i < MAX_GENTITIES; i++)
+		{
+			e = &g_entities[i];
+			if(!e->inuse)
+				continue;
+			if(e->activator != ent)
+				continue;
+			if(strcmp(e->classname, "kamikaze timer"))
+				continue;
+			e->activator = body;
+			break;
+		}
+	}
+#endif
+	body->s.powerups = ent->s.powerups;		// clear powerups
 	body->s.loopSound = 0;		// clear lava burning
 	body->s.number = body - g_entities;
 	body->s.generic1 = ent->s.generic1;
 	body->timestamp = level.time;
 	body->physicsObject = qtrue;
 	body->physicsBounce = 0;	// don't bounce
-
 	if(body->s.groundEntityNum == ENTITYNUM_NONE)
 	{
-
 		body->s.pos.trType = TR_GRAVITY;
-
 		body->s.pos.trTime = level.time;
 		VectorCopy(ent->client->ps.velocity, body->s.pos.trDelta);
 	}
@@ -460,7 +477,6 @@ void CopyToBodyQue(gentity_t * ent)
 	{
 		body->s.pos.trType = TR_STATIONARY;
 	}
-
 	body->s.event = 0;
 
 	// change the animation to the last-frame only, so the sequence
@@ -547,7 +563,6 @@ void CopyToBodyQue(gentity_t * ent)
 //======================================================================
 
 
-
 /*
 ==================
 SetClientViewAngle
@@ -568,7 +583,6 @@ void SetClientViewAngle(gentity_t * ent, vec3_t angle)
 	}
 	VectorCopy(angle, ent->s.angles);
 	VectorCopy(ent->s.angles, ent->client->ps.viewangles);
-
 }
 
 /*
@@ -834,7 +848,6 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 	char           *p;
 	int             spaces;
 
-
 	//save room for trailing null byte
 	outSize--;
 
@@ -843,8 +856,6 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 	p = out;
 	*p = 0;
 	spaces = 0;
-
-
 
 	while(1)
 	{
@@ -860,7 +871,6 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 			continue;
 		}
 
-
 		// check colors
 		if(ch == Q_COLOR_ESCAPE)
 		{
@@ -869,15 +879,20 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 			{
 				break;
 			}
-			if(ch == '0')
+
+			// don't allow black in a name, period
+			if(ColorIndex(*in) == 0)
 			{
+				in++;
 				continue;
 			}
+
 			// make sure room in dest for both chars
 			if(len > outSize - 2)
 			{
 				break;
 			}
+
 			*out++ = ch;
 			*out++ = *in++;
 			len += 2;
@@ -1058,10 +1073,8 @@ void ClientUserinfoChanged(int clientNum)
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 	// set model
-
 	Q_strncpyz(model, Info_ValueForKey(userinfo, "model"), sizeof(model));
 	Q_strncpyz(headModel, Info_ValueForKey(userinfo, "headmodel"), sizeof(headModel));
-
 
 	// bots set their team a few frames later
 	if(g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT)
@@ -1302,12 +1315,11 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// count current clients and rank for scoreboard
 	CalculateRanks();
 
-
-
 	// for statistics
 //  client->areabits = areabits;
 //  if ( !client->areabits )
 //      client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
+
 	return NULL;
 }
 
@@ -1561,7 +1573,7 @@ void ClientSpawn(gentity_t * ent, gentity_t * spawnPoint, qboolean ViewEffect, v
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
-
+//  savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
 
@@ -1604,11 +1616,10 @@ void ClientSpawn(gentity_t * ent, gentity_t * spawnPoint, qboolean ViewEffect, v
 
 	memset(client, 0, sizeof(*client));	// bk FIXME: Com_Memset?
 
-
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
-
+//  client->areabits = savedAreaBits;
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
 
@@ -1874,6 +1885,7 @@ void ClientSpawn(gentity_t * ent, gentity_t * spawnPoint, qboolean ViewEffect, v
 	BG_PlayerStateToEntityState(&client->ps, &ent->s, qtrue, qfalse);
 
 }
+
 
 /*
 ===========

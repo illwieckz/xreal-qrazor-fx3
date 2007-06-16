@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 
@@ -29,7 +30,15 @@ void InitTrigger(gentity_t * self)
 	if(!VectorCompare(self->s.angles, vec3_origin))
 		G_SetMovedir(self->s.angles, self->movedir);
 
-	trap_SetBrushModel(self, self->model);
+	if(strstr(self->model, ".ase") || strstr(self->model, ".lwo") || strstr(self->model, ".prt"))
+	{
+		// don't set brush model
+	}
+	else
+	{
+		trap_SetBrushModel(self, self->model);
+	}
+	
 	self->r.contents = CONTENTS_TRIGGER;	// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 }
@@ -158,11 +167,14 @@ trigger_push
 
 void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 {
-
 	if(!other->client)
 	{
 		return;
 	}
+	
+#ifdef LUA
+	G_RunLuaFunction(self->luaTouch, "ee>", self, other);
+#endif
 
 	BG_TouchJumpPad(&other->client->ps, &self->s);
 }
@@ -218,7 +230,7 @@ Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
 void SP_trigger_push(gentity_t * self)
-{
+{	
 	InitTrigger(self);
 
 	// unlike other triggers, we need to send this one to the client

@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 #define INVENTORY_NONE				0
 //armor
 #define INVENTORY_ARMOR				1
@@ -29,7 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_SHOTGUN			5
 #define INVENTORY_MACHINEGUN		6
 #define INVENTORY_GRENADELAUNCHER	7
-
 #define INVENTORY_ROCKETLAUNCHER	8
 #define INVENTORY_LIGHTNING			9
 #define INVENTORY_RAILGUN			10
@@ -76,8 +76,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_BLUECUBE			49
 #define INVENTORY_IRAILGUN			50
 #define INVENTORY_ISLUGS			51
-#define INVENTORY_FUEL			52
-#define INVENTORY_FLAMETHROWER			53
+#define INVENTORY_FUEL			    52
+#define INVENTORY_FLAMETHROWER		53
 //enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200
 #define ENEMY_HEIGHT				201
@@ -171,4 +171,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WEAPONINDEX_PROXLAUNCHER		12
 #define WEAPONINDEX_CHAINGUN			13
 #define WEAPONINDEX_IRAILGUN			14
-#define WEAPONINDEX_FLAMETHROWER			15
+#define WEAPONINDEX_FLAMETHROWER		15

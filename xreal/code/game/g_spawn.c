@@ -21,6 +21,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
+
 #include "g_local.h"
 
 qboolean G_SpawnString(const char *key, const char *defaultString, char **out)
@@ -1944,9 +1946,6 @@ qboolean G_CallSpawn(gentity_t * ent)
 			G_SpawnItem(ent, item);
 			return qtrue;
 		}
-
-
-
 	}
 
 	// check normal spawn functions
@@ -2049,57 +2048,62 @@ void G_ParseField(const char *key, const char *value, gentity_t * ent)
 				case F_LSTRING:
 					*(char **)(b + f->ofs) = G_NewString(value);
 					break;
+				
 				case F_VECTOR:
 					sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 					((float *)(b + f->ofs))[0] = vec[0];
 					((float *)(b + f->ofs))[1] = vec[1];
 					((float *)(b + f->ofs))[2] = vec[2];
 					break;
+				
 				case F_INT:
 					*(int *)(b + f->ofs) = atoi(value);
 					break;
+				
 				case F_FLOAT:
 					*(float *)(b + f->ofs) = atof(value);
 					break;
+				
 				case F_ANGLEHACK:
 					v = atof(value);
 					((float *)(b + f->ofs))[0] = 0;
 					((float *)(b + f->ofs))[1] = v;
 					((float *)(b + f->ofs))[2] = 0;
 					break;
-
+					
 				case F_MOVEDIRHACK:
 					v = atof(value);
 					angles[0] = 0;
 					angles[1] = v;
 					angles[2] = 0;
-
+					
 					G_SetMovedir(angles, vec);
-
+					
 					((float *)(b + f->ofs))[0] = vec[0];
 					((float *)(b + f->ofs))[1] = vec[1];
 					((float *)(b + f->ofs))[2] = vec[2];
 					break;
-
+					
 				case F_ROTATIONHACK:
 					MatrixIdentity(rotation);
-#if 0
-					sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
-						   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
-#else
+					#if 0
+					sscanf(value, "%f %f %f %f %f %f %f %f %f",	&rotation[ 0], &rotation[ 1], &rotation[ 2],
+						   										&rotation[ 4], &rotation[ 5], &rotation[ 6],
+						   										&rotation[ 8], &rotation[ 9], &rotation[10]);
+					#else
 					p = (char *)value;
 					for(i = 0; i < 9; i++)
 					{
 						token = Com_Parse(&p);
 						rotation[i] = atof(token);
 					}
-#endif
+					#endif
 					MatrixToAngles(rotation, vec);
 					((float *)(b + f->ofs))[0] = vec[0];
 					((float *)(b + f->ofs))[1] = vec[1];
 					((float *)(b + f->ofs))[2] = vec[2];
 					break;
-
+					
 				default:
 				case F_IGNORE:
 					break;

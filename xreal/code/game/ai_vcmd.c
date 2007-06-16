@@ -1,4 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+
+This file is part of XreaL source code.
+
+XreaL source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+XreaL source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XreaL source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 //
 
 /*****************************************************************************
@@ -7,10 +28,6 @@
  * desc:		Quake3 bot AI
  *
  * $Archive: /MissionPack/code/game/ai_vcmd.c $
- * $Author$ 
- * $Revision$
- * $Modtime: 11/17/00 5:37a $
- * $Date$
  *
  *****************************************************************************/
 
@@ -39,7 +56,7 @@
 #include "match.h"				//string matching types and vars
 
 // for the voice chats
-#include "../../ui/menudef.h"
+#include "../ui/menudef.h"
 
 
 typedef struct voiceCommand_s
@@ -92,7 +109,7 @@ void BotVoiceChat_GetFlag(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -151,7 +168,7 @@ void BotVoiceChat_Offense(bot_state_t * bs, int client, int mode)
 		// remember last ordered task
 		BotRememberLastOrderedTask(bs);
 	}
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -220,7 +237,7 @@ void BotVoiceChat_Defend(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -254,7 +271,7 @@ void BotVoiceChat_Patrol(bot_state_t * bs, int client, int mode)
 	BotVoiceChatOnly(bs, -1, VOICECHAT_ONPATROL);
 	//
 	BotSetTeamStatus(bs);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -314,7 +331,7 @@ void BotVoiceChat_Camp(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -372,7 +389,7 @@ void BotVoiceChat_FollowMe(bot_state_t * bs, int client, int mode)
 	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -389,7 +406,7 @@ void BotVoiceChat_FollowFlagCarrier(bot_state_t * bs, int client, int mode)
 	carrier = BotTeamFlagCarrier(bs);
 	if(carrier >= 0)
 		BotVoiceChat_FollowMe(bs, carrier, mode);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -422,7 +439,7 @@ void BotVoiceChat_ReturnFlag(bot_state_t * bs, int client, int mode)
 	bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
 	bs->rushbaseaway_time = 0;
 	BotSetTeamStatus(bs);
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }

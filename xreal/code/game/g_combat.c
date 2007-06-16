@@ -21,9 +21,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_combat.c
 
 #include "g_local.h"
+
 
 /*
 ============
@@ -165,9 +167,6 @@ void TossClientItems(gentity_t * self)
 			angle += 45;
 		}
 	}
-
-	return;
-
 }
 
 #ifdef MISSIONPACK
@@ -1208,7 +1207,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
 			}
 
-
 			// check for two kills in a short amount of time
 			// if this is close enough to the last kill, give a reward sound
 			if(level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME)
@@ -1390,20 +1388,14 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		switch (i)
 		{
 			case 0:
-
 				anim = BOTH_DEATH1;
-
 				break;
 			case 1:
-
 				anim = BOTH_DEATH2;
-
 				break;
 			case 2:
 			default:
-
 				anim = BOTH_DEATH3;
-
 				break;
 		}
 
@@ -1421,15 +1413,18 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 		G_AddEvent(self, EV_DEATH1 + i, killer);
 
-
-
-
 		// the body can still be gibbed
 		self->die = body_die;
 
 		// globally cycle through the different death animations
 		i = (i + 1) % 3;
 
+#ifdef MISSIONPACK
+		if(self->s.eFlags & EF_KAMIKAZE)
+		{
+			Kamikaze_DeathTimer(self);
+		}
+#endif
 	}
 
 	trap_LinkEntity(self);
@@ -1669,7 +1664,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	vec3_t          bouncedir, impactpoint;
 #endif
 
-
 	if(!targ->takedamage)
 	{
 		return;
@@ -1733,7 +1727,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 
 	client = targ->client;
-
 
 	if(client)
 	{
@@ -2024,9 +2017,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	{
 		damage = 1;
 	}
-
-
-
 	take = damage;
 	save = 0;
 
@@ -2099,8 +2089,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// save some from armor
 	asave = CheckArmor(targ, damage, dflags, attacker, mod);
 	take -= asave;
-
-
 
 	if(g_debugDamage.integer)
 	{
@@ -2229,7 +2217,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		client->damage_armor += asave;
 		client->damage_blood += take;
 		client->damage_knockback += knockback;
-
 		if(dir)
 		{
 			VectorCopy(dir, client->damage_from);
@@ -2397,7 +2384,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		{
 
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
-
 		}
 
 		if(targ->health <= 0)

@@ -721,8 +721,8 @@ static void CG_LaunchGib(vec3_t origin, qhandle_t hModel, vec3_t dir, centity_t 
 		le->rotAxis[1] = crandom();
 		le->rotAxis[2] = crandom();
 		VectorNormalize(le->rotAxis);	// normalize the rotation axis
-		QuatInit(1, 0, 0, 0, le->quatRot);
-		QuatInit(1, 0, 0, 0, le->quatOrient);
+		QuatClear(le->quatRot);
+		QuatClear(le->quatOrient);
 		le->radius = 12;
 		le->leFlags |= LEF_TUMBLE;
 	}
@@ -874,8 +874,8 @@ static void CG_TossHead(centity_t * cent, vec3_t origin, vec3_t velocity, qhandl
 	le->rotAxis[1] = 0;
 	le->rotAxis[2] = 1;
 	VectorNormalize(le->rotAxis);	// normalize the rotation axis
-	QuatInit(0, 0, 0, 1, le->quatRot);
-	QuatInit(1, 0, 0, 0, le->quatOrient);
+	QuatClear(le->quatRot);
+	QuatClear(le->quatOrient);
 	le->leFlags |= LEF_TUMBLE;
 	if(cent->currentState.generic1 & GNF_ONFIRE)
 	{
@@ -953,8 +953,8 @@ static void CG_LaunchQuadGib(vec3_t origin, qhandle_t hModel, vec3_t dir, int te
 		le->rotAxis[1] = crandom();
 		le->rotAxis[2] = crandom();
 		VectorNormalize(le->rotAxis);	// normalize the rotation axis
-		QuatInit(1, 0, 0, 0, le->quatRot);
-		QuatInit(1, 0, 0, 0, le->quatOrient);
+		QuatClear(le->quatRot);
+		QuatClear(le->quatOrient);
 		le->radius = 12;
 		le->leFlags |= LEF_TUMBLE;
 	}

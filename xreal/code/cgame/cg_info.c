@@ -198,7 +198,7 @@ void CG_DrawInformation(void)
 	// screen to write into
 
 	//NT - mod version info
-	UI_DrawProportionalString(320, 128 - 40, "XreaL Version " QSOURCE_VERSION,
+	UI_DrawProportionalString(320, 128 - 40, Q3_VERSION,
 							  UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorYellow);
 
 	//NT - moved stuff to make room for mod version info

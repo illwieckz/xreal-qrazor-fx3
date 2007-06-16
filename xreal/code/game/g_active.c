@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #include "g_local.h"
 
@@ -47,8 +48,6 @@ void P_DamageFeedback(gentity_t * player)
 	{
 		return;
 	}
-
-
 
 	// total points of damage shot at the player this frame
 	count = client->damage_blood + client->damage_armor;
@@ -114,7 +113,6 @@ void P_WorldEffects(gentity_t * ent)
 	qboolean        spawnprotect;
 	int             waterlevel;
 
-
 	if(ent->client->noclip)
 	{
 		ent->client->airOutTime = level.time + 12000;	// don't need air
@@ -125,7 +123,6 @@ void P_WorldEffects(gentity_t * ent)
 
 	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
 	spawnprotect = ent->client->ps.powerups[PW_SPAWNPROT] > level.time;
-
 
 	//
 	// check for drowning
@@ -586,7 +583,6 @@ void ClientTimerActions(gentity_t * ent, int msec)
 			}
 		}
 	}
-
 #ifdef MISSIONPACK
 	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN)
 	{
@@ -1356,6 +1352,35 @@ void ClientThink_real(gentity_t * ent)
 		ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
 	}
 
+#ifdef MISSIONPACK
+	// check for invulnerability expansion before doing the Pmove
+	if(client->ps.powerups[PW_INVULNERABILITY])
+	{
+		if(!(client->ps.pm_flags & PMF_INVULEXPAND))
+		{
+			vec3_t          mins = { -42, -42, -42 };
+			vec3_t          maxs = { 42, 42, 42 };
+			vec3_t          oldmins, oldmaxs;
+
+			VectorCopy(ent->r.mins, oldmins);
+			VectorCopy(ent->r.maxs, oldmaxs);
+			// expand
+			VectorCopy(mins, ent->r.mins);
+			VectorCopy(maxs, ent->r.maxs);
+			trap_LinkEntity(ent);
+			// check if this would get anyone stuck in this player
+			if(!StuckInOtherClient(ent))
+			{
+				// set flag so the expanded size will be set in PM_CheckDuck
+				client->ps.pm_flags |= PMF_INVULEXPAND;
+			}
+			// set back
+			VectorCopy(oldmins, ent->r.mins);
+			VectorCopy(oldmaxs, ent->r.maxs);
+			trap_LinkEntity(ent);
+		}
+	}
+#endif
 
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
@@ -1466,8 +1491,6 @@ void ClientThink_real(gentity_t * ent)
 	// use the snapped origin for linking so it matches client predicted versions
 	VectorCopy(ent->s.pos.trBase, ent->r.currentOrigin);
 
-//  VectorCopy( ent->s.origin, ent->s.origin2 );
-
 	VectorCopy(pm.mins, ent->r.mins);
 	VectorCopy(pm.maxs, ent->r.maxs);
 
@@ -1548,8 +1571,6 @@ void ClientThink(int clientNum)
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
 
 	ent->client->lastCmdTime = level.time;
-
-
 
 	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
 	{

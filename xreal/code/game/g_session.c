@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 
@@ -169,7 +170,6 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 /*
 ==================
 G_InitWorldSession
-
 ==================
 */
 void G_InitWorldSession(void)
@@ -192,7 +192,6 @@ void G_InitWorldSession(void)
 /*
 ==================
 G_WriteSessionData
-
 ==================
 */
 void G_WriteSessionData(void)

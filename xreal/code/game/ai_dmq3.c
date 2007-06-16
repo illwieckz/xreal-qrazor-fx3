@@ -1,4 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+
+This file is part of XreaL source code.
+
+XreaL source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+XreaL source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XreaL source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 //
 
 /*****************************************************************************
@@ -35,7 +56,7 @@
 #include "match.h"				//string matching types and vars
 
 // for the voice chats
-#include "../../ui/menudef.h"	// sos001205 - for q3_ui also
+#include "../ui/menudef.h"		// sos001205 - for q3_ui also
 
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
@@ -227,6 +248,10 @@ qboolean EntityCarriesFlag(aas_entityinfo_t * entinfo)
 		return qtrue;
 	if(entinfo->powerups & (1 << PW_BLUEFLAG))
 		return qtrue;
+#ifdef MISSIONPACK
+	if(entinfo->powerups & (1 << PW_NEUTRALFLAG))
+		return qtrue;
+#endif
 	return qfalse;
 }
 
@@ -846,7 +871,7 @@ void BotCTFSeekGoals(bot_state_t * bs)
 		BotSetTeamStatus(bs);
 	}
 	bs->owndecision_time = FloatTime() + 5;
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -1121,7 +1146,7 @@ void Bot1FCTFSeekGoals(bot_state_t * bs)
 		BotSetTeamStatus(bs);
 	}
 	bs->owndecision_time = FloatTime() + 5;
-#ifdef DEBUG
+#ifdef _DEBUG
 	BotPrintTeamGoal(bs);
 #endif							//DEBUG
 }
@@ -1775,13 +1800,11 @@ void BotChooseWeapon(bot_state_t * bs)
 	}
 	else
 	{
-
 		newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
 		if(bs->weaponnum != newweaponnum)
 			bs->weaponchange_time = FloatTime();
 		bs->weaponnum = newweaponnum;
-
-		//  BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
+		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
 }
@@ -2104,6 +2127,10 @@ void BotCheckItemPickup(bot_state_t * bs, int *oldinventory)
 	// if not already wearing the kamikaze or invulnerability
 	if(!bs->inventory[INVENTORY_KAMIKAZE] && !bs->inventory[INVENTORY_INVULNERABILITY])
 	{
+		if(!oldinventory[INVENTORY_SCOUT] && bs->inventory[INVENTORY_SCOUT] >= 1)
+		{
+			offence = qtrue;
+		}
 		if(!oldinventory[INVENTORY_GUARD] && bs->inventory[INVENTORY_GUARD] >= 1)
 		{
 			offence = qtrue;
@@ -2249,8 +2276,27 @@ void BotUpdateInventory(bot_state_t * bs)
 	bs->inventory[INVENTORY_INVISIBILITY] = bs->cur_ps.powerups[PW_INVIS] != 0;
 	bs->inventory[INVENTORY_REGEN] = bs->cur_ps.powerups[PW_REGEN] != 0;
 	bs->inventory[INVENTORY_FLIGHT] = bs->cur_ps.powerups[PW_FLIGHT] != 0;
+#ifdef MISSIONPACK
+	bs->inventory[INVENTORY_SCOUT] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_SCOUT;
+	bs->inventory[INVENTORY_GUARD] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_GUARD;
+	bs->inventory[INVENTORY_DOUBLER] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_DOUBLER;
+	bs->inventory[INVENTORY_AMMOREGEN] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_AMMOREGEN;
+#endif
 	bs->inventory[INVENTORY_REDFLAG] = bs->cur_ps.powerups[PW_REDFLAG] != 0;
 	bs->inventory[INVENTORY_BLUEFLAG] = bs->cur_ps.powerups[PW_BLUEFLAG] != 0;
+#ifdef MISSIONPACK
+	bs->inventory[INVENTORY_NEUTRALFLAG] = bs->cur_ps.powerups[PW_NEUTRALFLAG] != 0;
+	if(BotTeam(bs) == TEAM_RED)
+	{
+		bs->inventory[INVENTORY_REDCUBE] = bs->cur_ps.generic1;
+		bs->inventory[INVENTORY_BLUECUBE] = 0;
+	}
+	else
+	{
+		bs->inventory[INVENTORY_REDCUBE] = 0;
+		bs->inventory[INVENTORY_BLUECUBE] = bs->cur_ps.generic1;
+	}
+#endif
 	BotCheckItemPickup(bs, oldinventory);
 }
 
@@ -4010,7 +4056,7 @@ void BotAimAtEnemy(bot_state_t * bs)
 	}
 	//
 	//BotAI_Print(PRT_MESSAGE, "client %d: aiming at client %d\n", bs->entitynum, bs->enemy);
-
+	//
 	aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1);
 	aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1);
 	//
@@ -4607,7 +4653,7 @@ int BotModelMinsMaxs(int modelindex, int eType, int contents, vec3_t mins, vec3_
 	int             i;
 
 	ent = &g_entities[0];
-	for(i = 0; i < level.num_entities; i++, ent++)
+	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
 		{
@@ -5717,6 +5763,10 @@ void BotCheckEvents(bot_state_t * bs, entityState_t * state)
 	int             event;
 	char            buf[128];
 
+#ifdef MISSIONPACK
+	aas_entityinfo_t entinfo;
+#endif
+
 	//NOTE: this sucks, we're accessing the gentity_t directly
 	//but there's no other fast way to do it right now
 	if(bs->entityeventTime[state->number] == g_entities[state->number].eventTime)
@@ -5771,6 +5821,21 @@ void BotCheckEvents(bot_state_t * bs, entityState_t * state)
 				bs->enemysuicide = qtrue;
 			}
 			//
+#ifdef MISSIONPACK
+			if(gametype == GT_1FCTF)
+			{
+				//
+				BotEntityInfo(target, &entinfo);
+				if(entinfo.powerups & (1 << PW_NEUTRALFLAG))
+				{
+					if(!BotSameTeam(bs, target))
+					{
+						bs->neutralflagstatus = 3;	//enemy dropped the flag
+						bs->flagstatuschanged = qtrue;
+					}
+				}
+			}
+#endif
 			break;
 		}
 		case EV_GLOBAL_SOUND:
@@ -5794,7 +5859,7 @@ void BotCheckEvents(bot_state_t * bs, entityState_t * state)
 				bs->blueflagstatus = 0;
 				bs->flagstatuschanged = qtrue;
 			}
-			else if(!strcmp(buf, "sound/items/poweruprespawn.wav"))
+			else if(!strcmp(buf, "sound/items/poweruprespawn.ogg"))
 			{
 				//powerup respawned... go get it
 				BotGoForPowerups(bs);
@@ -6029,7 +6094,7 @@ bot_goal_t     *BotAlternateRoute(bot_state_t * bs, bot_goal_t * goal)
 		t = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, bs->altroutegoal.areanum, bs->tfl);
 		if(t && t < 20)
 		{
-			//  BotAI_Print(PRT_MESSAGE, "reached alternate route goal\n");
+			//BotAI_Print(PRT_MESSAGE, "reached alternate route goal\n");
 			bs->reachedaltroutegoal_time = FloatTime();
 		}
 		memcpy(goal, &bs->altroutegoal, sizeof(bot_goal_t));
@@ -6270,7 +6335,7 @@ void BotSetEntityNumForGoalWithModel(bot_goal_t * goal, int eType, char *modelna
 
 	modelindex = G_ModelIndex(modelname);
 	ent = &g_entities[0];
-	for(i = 0; i < level.num_entities; i++, ent++)
+	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
 		{
@@ -6305,7 +6370,7 @@ void BotSetEntityNumForGoal(bot_goal_t * goal, char *classname)
 	vec3_t          dir;
 
 	ent = &g_entities[0];
-	for(i = 0; i < level.num_entities; i++, ent++)
+	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
 		{

@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_weapon.c 
 // perform the server side effects of a weapon firing
 
@@ -151,32 +152,7 @@ MACHINEGUN
 ======================================================================
 */
 
-/*
-======================
-SnapVectorTowards
 
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
-into a wall.
-======================
-*/
-//unlagged - attack prediction #3
-// moved to q_shared.c
-/*
-void SnapVectorTowards( vec3_t v, vec3_t to ) {
-	int		i;
-
-	for ( i = 0 ; i < 3 ; i++ ) {
-		if ( to[i] <= v[i] ) {
-			v[i] = (int)v[i];
-		} else {
-			v[i] = (int)v[i] + 1;
-		}
-	}
-}
-*/
-//unlagged - attack prediction #3
 #ifdef MISSIONPACK
 #define CHAINGUN_SPREAD		600
 #endif
@@ -294,7 +270,6 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 			{
 #endif
 				G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_MACHINEGUN);
-
 #ifdef MISSIONPACK
 			}
 #endif
@@ -319,8 +294,6 @@ void BFG_Fire(gentity_t * ent)
 	m = fire_bfg(ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
-
-
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -348,9 +321,6 @@ qboolean ShotgunPellet(vec3_t start, vec3_t end, gentity_t * ent)
 	passent = ent->s.number;
 	VectorCopy(start, tr_start);
 	VectorCopy(end, tr_end);
-
-
-
 	for(i = 0; i < 10; i++)
 	{
 		trap_Trace(&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
@@ -365,14 +335,38 @@ qboolean ShotgunPellet(vec3_t start, vec3_t end, gentity_t * ent)
 		if(traceEnt->takedamage)
 		{
 			damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
-
+#ifdef MISSIONPACK
+			if(traceEnt->client && traceEnt->client->invulnerabilityTime > level.time)
+			{
+				if(G_InvulnerabilityEffect(traceEnt, forward, tr.endpos, impactpoint, bouncedir))
+				{
+					G_BounceProjectile(tr_start, impactpoint, bouncedir, tr_end);
+					VectorCopy(impactpoint, tr_start);
+					// the player can hit him/herself with the bounced rail
+					passent = ENTITYNUM_NONE;
+				}
+				else
+				{
+					VectorCopy(tr.endpos, tr_start);
+					passent = traceEnt->s.number;
+				}
+				continue;
+			}
+			else
+			{
+				G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
+				if(LogAccuracyHit(traceEnt, ent))
+				{
+					return qtrue;
+				}
+			}
+#else
 			G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
 			if(LogAccuracyHit(traceEnt, ent))
 			{
-
 				return qtrue;
 			}
-
+#endif
 		}
 		return qfalse;
 	}

@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_utils.c -- misc utility functions for game module
 
 #include "g_local.h"
@@ -87,10 +88,9 @@ model / sound configstring indexes
 /*
 ================
 G_FindConfigstringIndex
-
 ================
 */
-int G_FindConfigstringIndex(char *name, int start, int max, qboolean create)
+static int G_FindConfigstringIndex(const char *name, int start, int max, qboolean create)
 {
 	int             i;
 	char            s[MAX_STRING_CHARS];
@@ -129,14 +129,19 @@ int G_FindConfigstringIndex(char *name, int start, int max, qboolean create)
 }
 
 
-int G_ModelIndex(char *name)
+int G_ModelIndex(const char *name)
 {
 	return G_FindConfigstringIndex(name, CS_MODELS, MAX_MODELS, qtrue);
 }
 
-int G_SoundIndex(char *name)
+int G_SoundIndex(const char *name)
 {
 	return G_FindConfigstringIndex(name, CS_SOUNDS, MAX_SOUNDS, qtrue);
+}
+
+int G_EffectIndex(const char *name)
+{
+	return G_FindConfigstringIndex(name, CS_EFFECTS, MAX_EFFECTS, qtrue);
 }
 
 //=====================================================================
@@ -187,7 +192,7 @@ gentity_t      *G_Find(gentity_t * from, int fieldofs, const char *match)
 	else
 		from++;
 
-	for(; from < &g_entities[level.num_entities]; from++)
+	for(; from < &g_entities[level.numEntities]; from++)
 	{
 		if(!from->inuse)
 			continue;
@@ -264,7 +269,6 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 	{
 		return;
 	}
-
 
 	if(ent->targetShaderName && ent->targetShaderNewName)
 	{
@@ -387,29 +391,6 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir)
 	VectorClear(angles);
 }
 
-/*
-float vectoyaw( const vec3_t vec ) {
-	float	yaw;
-	
-	if (vec[YAW] == 0 && vec[PITCH] == 0) {
-		yaw = 0;
-	} else {
-		if (vec[PITCH]) {
-			yaw = ( atan2( vec[YAW], vec[PITCH]) * 180 / M_PI );
-		} else if (vec[YAW] > 0) {
-			yaw = 90;
-		} else {
-			yaw = 270;
-		}
-		if (yaw < 0) {
-			yaw += 360;
-		}
-	}
-
-	return yaw;
-}
-*/
-
 void G_InitGentity(gentity_t * e)
 {
 	e->inuse = qtrue;
@@ -445,7 +426,7 @@ gentity_t      *G_Spawn(void)
 		// if we go through all entities and can't find one to free,
 		// override the normal minimum times before use
 		e = &g_entities[MAX_CLIENTS];
-		for(i = MAX_CLIENTS; i < level.num_entities; i++, e++)
+		for(i = MAX_CLIENTS; i < level.numEntities; i++, e++)
 		{
 			if(e->inuse)
 			{
@@ -478,10 +459,10 @@ gentity_t      *G_Spawn(void)
 	}
 
 	// open up a new slot
-	level.num_entities++;
+	level.numEntities++;
 
 	// let the server system know that there are more entities
-	trap_LocateGameData(level.gentities, level.num_entities, sizeof(gentity_t), &level.clients[0].ps, sizeof(level.clients[0]));
+	trap_LocateGameData(level.gentities, level.numEntities, sizeof(gentity_t), &level.clients[0].ps, sizeof(level.clients[0]));
 
 	G_InitGentity(e);
 	return e;
@@ -498,7 +479,7 @@ qboolean G_EntitiesFree(void)
 	gentity_t      *e;
 
 	e = &g_entities[MAX_CLIENTS];
-	for(i = MAX_CLIENTS; i < level.num_entities; i++, e++)
+	for(i = MAX_CLIENTS; i < level.numEntities; i++, e++)
 	{
 		if(e->inuse)
 		{
@@ -531,7 +512,6 @@ void G_FreeEntity(gentity_t * ed)
 	ed->classname = "freed";
 	ed->freetime = level.time;
 	ed->inuse = qfalse;
-
 }
 
 /*

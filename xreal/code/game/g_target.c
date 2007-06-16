@@ -97,6 +97,10 @@ void Use_target_remove_powerups(gentity_t * ent, gentity_t * other, gentity_t * 
 	{
 		Team_ReturnFlag(ent, TEAM_BLUE);
 	}
+	else if(activator->client->ps.powerups[PW_NEUTRALFLAG])
+	{
+		Team_ReturnFlag(ent, TEAM_FREE);
+	}
 
 	memset(activator->client->ps.powerups, 0, sizeof(activator->client->ps.powerups));
 }
@@ -248,7 +252,7 @@ void SP_target_speaker(gentity_t * ent)
 	G_SpawnFloat("wait", "0", &ent->wait);
 	G_SpawnFloat("random", "0", &ent->random);
 
-	if(!G_SpawnString("noise", "NOSOUND", &s))
+	if(!G_SpawnString("noise", "NOSOUND", &s) && !G_SpawnString("s_shader", "NOSOUND", &s))
 	{
 		G_Error("target_speaker without a noise key at %s", vtos(ent->s.origin));
 	}
@@ -515,7 +519,7 @@ static void target_location_linkup(gentity_t * ent)
 
 	trap_SetConfigstring(CS_LOCATIONS, "unknown");
 
-	for(i = 0, ent = g_entities, n = 1; i < level.num_entities; i++, ent++)
+	for(i = 0, ent = g_entities, n = 1; i < level.numEntities; i++, ent++)
 	{
 		if(ent->classname && !Q_stricmp(ent->classname, "target_location"))
 		{

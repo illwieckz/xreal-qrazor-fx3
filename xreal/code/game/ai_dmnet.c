@@ -1,4 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+
+This file is part of XreaL source code.
+
+XreaL source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+XreaL source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XreaL source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 //
 
 /*****************************************************************************
@@ -34,7 +55,7 @@
 #include "match.h"				//string matching types and vars
 
 // for the voice chats
-#include "../../ui/menudef.h"
+#include "../ui/menudef.h"
 
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
@@ -84,7 +105,7 @@ void BotRecordNodeSwitch(bot_state_t * bs, char *node, char *str, char *s)
 
 	ClientName(bs->client, netname, sizeof(netname));
 	Com_sprintf(nodeswitch[numnodeswitches], 144, "%s at %2.1f entered %s: %s from %s\n", netname, FloatTime(), node, str, s);
-#ifdef DEBUG
+#ifdef _DEBUG
 	if(0)
 	{
 		BotAI_Print(PRT_MESSAGE, nodeswitch[numnodeswitches]);
@@ -151,7 +172,7 @@ int BotGoForAir(bot_state_t * bs, int tfl, bot_goal_t * ltg, float range)
 	if(bs->lastair_time < FloatTime() - 6)
 	{
 		//
-#ifdef DEBUG
+#ifdef _DEBUG
 		//BotAI_Print(PRT_MESSAGE, "going for air\n");
 #endif							//DEBUG
 		//if we can find an air goal
@@ -293,7 +314,6 @@ int BotGetItemLongTermGoal(bot_state_t * bs, int tfl, bot_goal_t * goal)
 	//if the bot has no goal
 	if(!trap_BotGetTopGoal(bs->gs, goal))
 	{
-
 		//BotAI_Print(PRT_MESSAGE, "no ltg on stack\n");
 		bs->ltg_time = 0;
 	}
@@ -308,11 +328,9 @@ int BotGetItemLongTermGoal(bot_state_t * bs, int tfl, bot_goal_t * goal)
 	{
 		//pop the current goal from the stack
 		trap_BotPopGoal(bs->gs);
-
-		//  BotAI_Print(PRT_MESSAGE, "%s: choosing new ltg\n", ClientName(bs->client, netname, sizeof(netname)));
+		//BotAI_Print(PRT_MESSAGE, "%s: choosing new ltg\n", ClientName(bs->client, netname, sizeof(netname)));
 		//choose a new goal
-
-		//  BotAI_Print(PRT_MESSAGE, "%6.1f client %d: BotChooseLTGItem\n", FloatTime(), bs->client);
+		//BotAI_Print(PRT_MESSAGE, "%6.1f client %d: BotChooseLTGItem\n", FloatTime(), bs->client);
 		if(trap_BotChooseLTGItem(bs->gs, bs->origin, bs->inventory, tfl))
 		{
 			/*
@@ -327,10 +345,9 @@ int BotGetItemLongTermGoal(bot_state_t * bs, int tfl, bot_goal_t * goal)
 		else
 		{						//the bot gets sorta stuck with all the avoid timings, shouldn't happen though
 			//
-#ifdef DEBUG
-			char            netname[128];
-
-			BotAI_Print(PRT_MESSAGE, "%s: no valid ltg (probably stuck)\n", ClientName(bs->client, netname, sizeof(netname)));
+#ifdef _DEBUG
+			//char            netname[128];
+			//BotAI_Print(PRT_MESSAGE, "%s: no valid long term goal (probably stuck)\n", ClientName(bs->client, netname, sizeof(netname)));
 #endif
 			//trap_BotDumpAvoidGoals(bs->gs);
 			//reset the avoid goals and the avoid reach
@@ -1678,7 +1695,6 @@ void BotClearPath(bot_state_t * bs, bot_moveresult_t * moveresult)
 					if(InFieldOfVision(bs->viewangles, 20, moveresult->ideal_viewangles))
 					{
 						//
-
 						BotAI_Trace(&bsptrace, bs->eye, NULL, NULL, target, bs->entitynum, MASK_SHOT);
 						// if the mine is visible from the current position
 						if(bsptrace.fraction >= 1.0 || bsptrace.ent == state.number)
@@ -1790,7 +1806,7 @@ int AINode_Seek_ActivateEntity(bot_state_t * bs)
 		// if the entity the bot shoots at moved
 		if(!VectorCompare(bs->activatestack->origin, entinfo.origin))
 		{
-#ifdef DEBUG
+#ifdef _DEBUG
 			BotAI_Print(PRT_MESSAGE, "hit shootable button or trigger\n");
 #endif							//DEBUG
 			bs->activatestack->time = 0;
@@ -1823,7 +1839,7 @@ int AINode_Seek_ActivateEntity(bot_state_t * bs)
 			//if the bot touches the current goal
 			if(trap_BotTouchingGoal(bs->origin, goal))
 			{
-#ifdef DEBUG
+#ifdef _DEBUG
 				BotAI_Print(PRT_MESSAGE, "touched button or trigger\n");
 #endif							//DEBUG
 				bs->activatestack->time = 0;
@@ -2233,6 +2249,18 @@ int AINode_Seek_LTG(bot_state_t * bs)
 				range = 50;
 		}
 #endif							//CTF
+#ifdef MISSIONPACK
+		else if(gametype == GT_1FCTF)
+		{
+			if(Bot1FCTFCarryingFlag(bs))
+				range = 50;
+		}
+		else if(gametype == GT_HARVESTER)
+		{
+			if(BotHarvesterCarryingCubes(bs))
+				range = 80;
+		}
+#endif
 		//
 		if(BotNearbyGoal(bs, bs->tfl, &goal, range))
 		{
@@ -2240,7 +2268,7 @@ int AINode_Seek_LTG(bot_state_t * bs)
 			//get the goal at the top of the stack
 			//trap_BotGetTopGoal(bs->gs, &tmpgoal);
 			//trap_BotGoalName(tmpgoal.number, buf, 144);
-			//  BotAI_Print(PRT_MESSAGE, "new nearby goal %s\n", buf);
+			//BotAI_Print(PRT_MESSAGE, "new nearby goal %s\n", buf);
 			//time the bot gets to pick up the nearby goal item
 			bs->nbg_time = FloatTime() + 4 + range * 0.01;
 			AIEnter_Seek_NBG(bs, "ltg seek: nbg");
@@ -2259,8 +2287,7 @@ int AINode_Seek_LTG(bot_state_t * bs)
 	{
 		//reset the avoid reach, otherwise bot is stuck in current area
 		trap_BotResetAvoidReach(bs->ms);
-
-		//  BotAI_Print(PRT_MESSAGE, "movement failure %d\n", moveresult.traveltype);
+		//BotAI_Print(PRT_MESSAGE, "movement failure %d\n", moveresult.traveltype);
 		bs->ltg_time = 0;
 	}
 	//
@@ -2373,8 +2400,9 @@ int AINode_Battle_Fight(bot_state_t * bs)
 	//if there is another better enemy
 	if(BotFindEnemy(bs, bs->enemy))
 	{
-#ifdef DEBUG
-		BotAI_Print(PRT_MESSAGE, "found new better enemy\n");
+#ifdef _DEBUG
+		//char            netname[128];
+		//BotAI_Print(PRT_MESSAGE, "%s: found new better enemy\n", ClientName(bs->client, netname, sizeof(netname)));
 #endif
 	}
 	//if no enemy
@@ -2726,7 +2754,6 @@ int AINode_Battle_Retreat(bot_state_t * bs)
 	float           dist;
 	bsp_trace_t     bsptrace;
 
-
 	if(BotIsObserver(bs))
 	{
 		AIEnter_Observer(bs, "battle retreat: observer");
@@ -2760,8 +2787,9 @@ int AINode_Battle_Retreat(bot_state_t * bs)
 	//if there is another better enemy
 	if(BotFindEnemy(bs, bs->enemy))
 	{
-#ifdef DEBUG
-		BotAI_Print(PRT_MESSAGE, "found new better enemy\n");
+#ifdef _DEBUG
+		//char            netname[128];
+		//BotAI_Print(PRT_MESSAGE, "battle retreat: %s: found new better enemy\n", ClientName(bs->client, netname, sizeof(netname)));
 #endif
 	}
 	//
@@ -2956,7 +2984,6 @@ int AINode_Battle_NBG(bot_state_t * bs)
 	vec3_t          dir2;
 	float           dist;
 	bsp_trace_t     bsptrace;
-
 
 	if(BotIsObserver(bs))
 	{

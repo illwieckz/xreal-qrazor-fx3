@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
@@ -76,7 +77,7 @@ int Com_AddToGrowList(growList_t * list, void *data)
 
 	list->maxElements *= 2;
 
-//  Com_DPrintf("Resizing growlist to %i maxElements\n", list->maxElements);
+//	Com_DPrintf("Resizing growlist to %i maxElements\n", list->maxElements);
 
 	list->elements = (void **)Com_Allocate(list->maxElements * sizeof(void *));
 
@@ -381,7 +382,7 @@ void Com_StripExtension(const char *src, char *dest, int destsize)
 
 /*
 ==================
-COM_DefaultExtension
+Com_DefaultExtension
 ==================
 */
 void Com_DefaultExtension(char *path, int maxSize, const char *extension)
@@ -608,6 +609,7 @@ void Com_ParseWarning(char *format, ...)
 	Com_Printf(S_COLOR_YELLOW "WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
 }
 
+
 /*
 ==============
 Com_Parse
@@ -734,11 +736,11 @@ int Com_Compress(char *data_p)
 }
 
 // *INDENT-OFF*
-char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
+char           *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 {
-	int c = 0, len;
-	qboolean hasNewLines = qfalse;
-	char *data;
+	int             c = 0, len;
+	qboolean        hasNewLines = qfalse;
+	char           *data;
 	const char    **punc;
 
 	if(!data_p)
@@ -751,22 +753,22 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 	com_token[0] = 0;
 
 	// make sure incoming data is valid
-	if ( !data )
+	if(!data)
 	{
 		*data_p = NULL;
 		return com_token;
 	}
 
-	while ( 1 )
+	// skip whitespace
+	while(1)
 	{
-		// skip whitespace
-		data = SkipWhitespace( data, &hasNewLines );
-		if ( !data )
+		data = SkipWhitespace(data, &hasNewLines);
+		if(!data)
 		{
 			*data_p = NULL;
 			return com_token;
 		}
-		if ( hasNewLines && !allowLineBreaks )
+		if(hasNewLines && !allowLineBreaks)
 		{
 			*data_p = data;
 			return com_token;
@@ -775,37 +777,39 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 		c = *data;
 
 		// skip double slash comments
-		if ( c == '/' && data[1] == '/' )
+		if(c == '/' && data[1] == '/')
 		{
 			data += 2;
-			while (*data && *data != '\n') {
+			while(*data && *data != '\n')
+			{
 				data++;
 			}
 		}
 		// skip /* */ comments
-		else if ( c=='/' && data[1] == '*' ) 
+		else if(c == '/' && data[1] == '*')
 		{
 			data += 2;
-			while ( *data && ( *data != '*' || data[1] != '/' ) ) 
+			while(*data && (*data != '*' || data[1] != '/'))
 			{
 				data++;
 			}
-			if ( *data ) 
+			if(*data)
 			{
 				data += 2;
 			}
 		}
 		else
 		{
+			// a real token to parse
 			break;
 		}
 	}
 
 	// handle quoted strings
-	if (c == '\"')
+	if(c == '\"')
 	{
 		data++;
-		while (1)
+		while(1)
 		{
 			c = *data++;
 
@@ -817,7 +821,7 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 			else if(c == '\"' || !c)
 			{
 				com_token[len] = 0;
-				*data_p = ( char * ) data;
+				*data_p = (char *)data;
 				return com_token;
 			}
 			else if(*data == '\n')
@@ -840,8 +844,8 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 		(c == '.' && data[1] >= '0' && data[1] <= '9') ||
 		(c == '-' && data[1] == '.' && data[2] >= '0' && data[2] <= '9'))
 	{
-	do
-	{
+		do
+		{
 			if(len < MAX_TOKEN_CHARS - 1)
 			{
 				com_token[len] = c;
@@ -856,12 +860,12 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 		if(c == 'e' || c == 'E')
 		{
 			if(len < MAX_TOKEN_CHARS - 1)
-		{
-			com_token[len] = c;
-			len++;
-		}
-		data++;
-		c = *data;
+			{
+				com_token[len] = c;
+				len++;
+			}
+			data++;
+			c = *data;
 
 			if(c == '-' || c == '+')
 			{
@@ -887,16 +891,15 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 			} while(c >= '0' && c <= '9');
 		}
 
-	if (len == MAX_TOKEN_CHARS)
-	{
-//		Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
-		len = 0;
-	}
-	com_token[len] = 0;
+		if(len == MAX_TOKEN_CHARS)
+		{
+			len = 0;
+		}
+		com_token[len] = 0;
 
-	*data_p = ( char * ) data;
-	return com_token;
-        }
+		*data_p = (char *)data;
+		return com_token;
+	}
 
 	// check for a regular word
 	// we still allow forward and back slashes in name tokens for pathnames
@@ -916,6 +919,7 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 				len++;
 			}
 			data++;
+
 			c = *data;
 		}
 		while
@@ -976,69 +980,6 @@ char *Com_ParseExt( char **data_p, qboolean allowLineBreaks )
 	return com_token;
 }
 // *INDENT-ON*
-
-#if 0
-// no longer used
-/*
-===============
-COM_ParseInfos
-===============
-*/
-int COM_ParseInfos(char *buf, int max, char infos[][MAX_INFO_STRING])
-{
-	char           *token;
-	int             count;
-	char            key[MAX_TOKEN_CHARS];
-
-	count = 0;
-
-	while(1)
-	{
-		token = Com_Parse(&buf);
-		if(!token[0])
-		{
-			break;
-		}
-		if(strcmp(token, "{"))
-		{
-			Com_Printf("Missing { in info file\n");
-			break;
-		}
-
-		if(count == max)
-		{
-			Com_Printf("Max infos exceeded\n");
-			break;
-		}
-
-		infos[count][0] = 0;
-		while(1)
-		{
-			token = Com_ParseExt(&buf, qtrue);
-			if(!token[0])
-			{
-				Com_Printf("Unexpected end of info file\n");
-				break;
-			}
-			if(!strcmp(token, "}"))
-			{
-				break;
-			}
-			Q_strncpyz(key, token, sizeof(key));
-
-			token = Com_ParseExt(&buf, qfalse);
-			if(!token[0])
-			{
-				strcpy(token, "<NULL>");
-			}
-			Info_SetValueForKey(infos[count], key, token);
-		}
-		count++;
-	}
-
-	return count;
-}
-#endif
 
 
 /*
@@ -1191,27 +1132,6 @@ int Q_isupper(int c)
 int Q_isalpha(int c)
 {
 	if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-		return (1);
-	return (0);
-}
-
-int Q_isnumeric(int c)
-{
-	if(c >= '0' && c <= '9')
-		return (1);
-	return (0);
-}
-
-int Q_isalphanumeric(int c)
-{
-	if(Q_isalpha(c) || Q_isnumeric(c))
-		return (1);
-	return (0);
-}
-
-int Q_isforfilename(int c)
-{
-	if((Q_isalphanumeric(c) || c == '_') && c != ' ')	// space not allowed in filename
 		return (1);
 	return (0);
 }
@@ -1405,16 +1325,16 @@ char           *Q_strupr(char *s1)
 
 
 // never goes past bounds or leaves without a terminating 0
-void Q_strcat(char *dest, int size, const char *src)
+void Q_strcat(char *dest, int destsize, const char *src)
 {
 	int             l1;
 
 	l1 = strlen(dest);
-	if(l1 >= size)
+	if(l1 >= destsize)
 	{
 		Com_Error(ERR_FATAL, "Q_strcat: already overflowed");
 	}
-	Q_strncpyz(dest + l1, src, size - l1);
+	Q_strncpyz(dest + l1, src, destsize - l1);
 }
 
 /*
@@ -1981,38 +1901,3 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 	strcat(s, newi);
 }
 
-
-
-
-//====================================================================
-
-//unlagged - attack prediction #3
-// moved from g_weapon.c
-/*
-======================
-SnapVectorTowards
-
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
-into a wall.
-======================
-*/
-void SnapVectorTowards(vec3_t v, vec3_t to)
-{
-	int             i;
-
-	for(i = 0; i < 3; i++)
-	{
-		if(to[i] <= v[i])
-		{
-			v[i] = (int)v[i];
-		}
-		else
-		{
-			v[i] = (int)v[i] + 1;
-		}
-	}
-}
-
-//unlagged - attack prediction #3

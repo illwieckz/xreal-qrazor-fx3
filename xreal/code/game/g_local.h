@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"Quake Source"
+#define	GAMEVERSION	"XreaL"
 
 #define BODY_QUEUE_SIZE		16
 #define ITEM_QUEUE_SIZE		128
@@ -84,6 +84,7 @@ struct gentity_s
 	//================================
 
 	struct gclient_s *client;	// NULL if not a client
+
 	qboolean        inuse;
 
 	int             chargeR;
@@ -142,7 +143,7 @@ struct gentity_s
 
 	float           speed;
 	vec3_t          movedir;
-//  vec3_t      mins, maxs;
+
 	int             nextthink;
 	void            (*think) (gentity_t * self);
 	int             nextthink2;
@@ -202,7 +203,15 @@ struct gentity_s
 
 	qboolean        DeadView;
 	qboolean        PointInUse;
-
+	
+#ifdef LUA
+	// Lua scripting
+	// like function pointers but pointing to
+	// function names inside the .lua file that is loaded
+	// for each map
+	char           *luaThink;
+	char           *luaTouch;
+#endif
 };
 
 
@@ -248,11 +257,8 @@ typedef struct
 
 typedef struct
 {
-
 	int             old_status;
-
 	int             status;
-
 } grank_status_t;
 
 // the auto following clients don't follow a specific client
@@ -373,8 +379,6 @@ struct gclient_s
 	int             accurateCount;	// for "impressive" reward sound
 
 
-
-
 	//
 	int             lastkilled_client;	// last client that this client killed
 	int             lasthurt_client;	// last client that damaged this client
@@ -468,7 +472,7 @@ typedef struct
 	struct gentity_s *gentities;
 	struct gitem_s *items;
 	int             gentitySize;
-	int             num_entities;	// current number, <= MAX_GENTITIES
+	int             numEntities;	// current number, <= MAX_GENTITIES
 
 	int             warmupTime;	// restart match at this time
 
@@ -591,7 +595,6 @@ gentity_t      *fire_flamechunk(gentity_t * self, vec3_t start, vec3_t dir);
 //
 // g_items.c
 //
-
 void            G_CheckTeamItems(void);
 void            G_RunItem(gentity_t * ent);
 void            RespawnItem(gentity_t * ent);
@@ -621,8 +624,9 @@ void            G_BurnMeGood(gentity_t * self, gentity_t * body);
 //
 // g_utils.c
 //
-int             G_ModelIndex(char *name);
-int             G_SoundIndex(char *name);
+int             G_ModelIndex(const char *name);
+int             G_SoundIndex(const char *name);
+int             G_EffectIndex(const char *name);
 void            G_TeamCommand(team_t team, char *cmd);
 void            G_KillBox(gentity_t * ent);
 gentity_t      *G_Find(gentity_t * from, int fieldofs, const char *match);
@@ -690,6 +694,11 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_flamebarrel(gentity_t * self, vec3_t start, vec3_t dir, int speed, int duration);
+
+#ifdef MISSIONPACK
+gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up);
+gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t aimdir);
+#endif
 
 
 //

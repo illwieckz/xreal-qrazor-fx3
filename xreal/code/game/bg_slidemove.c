@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // bg_slidemove.c -- part of bg_pmove functionality
 
 #include "q_shared.h"
@@ -35,129 +36,6 @@ output: origin, velocity, impacts, stairup boolean
 
 */
 
-/*
-===================
-PM_StartTorsoAnim
-===================
-
-static void PM_StartTorsoAnim2( int anim ) {
-	if ( pm->ps->pm_type >= PM_DEAD ) {
-		return;
-	}
-	pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-		| anim;
-}
-static void PM_StartLegsAnim2( int anim ) {
-	if ( pm->ps->pm_type >= PM_DEAD ) {
-		return;
-	}
-	if ( pm->ps->legsTimer > 0 ) {
-		return;		// a high priority animation is running
-	}
-	pm->ps->legsAnim = ( ( pm->ps->legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-		| anim;
-}
-
-static void PM_ContinueLegsAnim2( int anim ) {
-	if ( ( pm->ps->legsAnim & ~ANIM_TOGGLEBIT ) == anim ) {
-		return;
-	}
-	if ( pm->ps->legsTimer > 0 ) {
-		return;		// a high priority animation is running
-	}
-	PM_StartLegsAnim2( anim );
-}
-
-static void PM_ContinueTorsoAnim2( int anim ) {
-	if ( ( pm->ps->torsoAnim & ~ANIM_TOGGLEBIT ) == anim ) {
-		return;
-	}
-	if ( pm->ps->torsoTimer > 0 ) {
-		return;		// a high priority animation is running
-	}
-	PM_StartTorsoAnim2( anim );
-}
-
-static void PM_ForceLegsAnim2( int anim ) {
-	pm->ps->legsTimer = 0;
-	PM_StartLegsAnim2( anim );
-}
-void PM_Friction( void );
-float PM_CmdScale( usercmd_t *cmd );
-void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel );*/
-/*
-=============
-PM_CheckJump2
-=============
-
-static void PM_WallJump( void ) {
-	int			i;
-	vec3_t		wishvel;
-	float		fmove;
-	vec3_t		wishdir;
-	float		wishspeed;
-	float		scale;
-	usercmd_t	cmd;
-//	float		accelerate;
-
-
-	if ( pm->cmd.rightmove){
-		return;
-	} else if (pm->cmd.forwardmove){
-
-		if ( pm->cmd.upmove < 10 ) {
-			// not holding jump
-			return;
-		}
-
-		// must wait for jump to be released
-		if ( pm->ps->pm_flags & PMF_JUMP_HELD ) {
-			// clear upmove so cmdscale doesn't lower running speed
-			pm->cmd.upmove = 0;
-			return;
-		}
-
-		PM_Friction ();
-
-		fmove = pm->cmd.forwardmove;
-
-		cmd = pm->cmd;
-		scale = PM_CmdScale( &cmd );
-
-		// project moves down to flat plane
-		pml.forward[2] = 0;
-
-		VectorNormalize (pml.forward);
-
-		for ( i = 0 ; i < 3 ; i++ ) {
-			wishvel[i] = pml.forward[i]*fmove;
-		}
-
-		VectorCopy (wishvel, wishdir);
-	
-		wishspeed = VectorNormalize(wishdir);
-		wishspeed *= scale+22;
-		VectorInverse(wishdir);
-		PM_Accelerate (wishdir, wishspeed, 18.0f);
-
-
-
-		pml.groundPlane = qtrue;		// jumping away
-		pml.walking = qfalse;
-		pm->ps->pm_flags |= PMF_JUMP_HELD;
-		pm->ps->groundEntityNum = ENTITYNUM_WORLD;
-
-		pm->ps->velocity[2] = JUMP_VELOCITY2;
-		PM_AddEvent( EV_WALLJUMP );
-
-
-		PM_ForceLegsAnim2( LEGS_JUMPB );
-		pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-
-	}
-
-}
-*/
 /*
 ==================
 PM_SlideMove
@@ -237,7 +115,6 @@ qboolean PM_SlideMove(qboolean gravity)
 		{
 			// actually covered some distance
 			VectorCopy(trace.endpos, pm->ps->origin);
-
 		}
 
 		if(trace.fraction == 1)
@@ -249,8 +126,6 @@ qboolean PM_SlideMove(qboolean gravity)
 		PM_AddTouchEnt(trace.entityNum);
 
 		time_left -= time_left * trace.fraction;
-
-
 
 		if(numplanes >= MAX_CLIP_PLANES)
 		{
@@ -269,13 +144,11 @@ qboolean PM_SlideMove(qboolean gravity)
 			if(DotProduct(trace.plane.normal, planes[i]) > 0.99)
 			{
 				VectorAdd(trace.plane.normal, pm->ps->velocity, pm->ps->velocity);
-
 				break;
 			}
 		}
 		if(i < numplanes)
 		{
-
 			continue;
 		}
 		VectorCopy(trace.plane.normal, planes[numplanes]);
@@ -289,7 +162,6 @@ qboolean PM_SlideMove(qboolean gravity)
 		for(i = 0; i < numplanes; i++)
 		{
 			into = DotProduct(pm->ps->velocity, planes[i]);
-
 			if(into >= 0.1)
 			{
 				continue;		// move doesn't interact with the plane
@@ -300,6 +172,7 @@ qboolean PM_SlideMove(qboolean gravity)
 			{
 				pml.impactSpeed = -into;
 			}
+
 			// slide along the plane
 			PM_ClipVelocity(pm->ps->velocity, planes[i], clipVelocity, OVERCLIP);
 
@@ -311,16 +184,12 @@ qboolean PM_SlideMove(qboolean gravity)
 			{
 				if(j == i)
 				{
-
 					continue;
 				}
 				if(DotProduct(clipVelocity, planes[j]) >= 0.1)
 				{
-
 					continue;	// move doesn't interact with the plane
 				}
-
-
 
 				// try clipping the move to the plane
 				PM_ClipVelocity(clipVelocity, planes[j], clipVelocity, OVERCLIP);
@@ -329,7 +198,6 @@ qboolean PM_SlideMove(qboolean gravity)
 				// see if it goes back into the first clip plane
 				if(DotProduct(clipVelocity, planes[i]) >= 0)
 				{
-
 					continue;
 				}
 
@@ -367,7 +235,6 @@ qboolean PM_SlideMove(qboolean gravity)
 			VectorCopy(endClipVelocity, endVelocity);
 			break;
 		}
-
 	}
 
 	if(gravity)
@@ -381,12 +248,8 @@ qboolean PM_SlideMove(qboolean gravity)
 		VectorCopy(primal_velocity, pm->ps->velocity);
 	}
 
-
-
 	return (bumpcount != 0);
 }
-
-
 
 /*
 ==================
@@ -401,10 +264,6 @@ void PM_StepSlideMove(qboolean gravity)
 	trace_t         trace;
 	vec3_t          up, down;
 	float           stepSize;
-	qboolean        hmm;
-
-
-	hmm = pm->cmd.upmove;
 
 	VectorCopy(pm->ps->origin, start_o);
 	VectorCopy(pm->ps->velocity, start_v);
@@ -463,14 +322,12 @@ void PM_StepSlideMove(qboolean gravity)
 
 #if 0
 	// if the down trace can trace back to the original position directly, don't step
-
 	pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, start_o, pm->ps->clientNum, pm->tracemask);
 	if(trace.fraction == 1.0)
 	{
 		// use the original move
 		VectorCopy(down_o, pm->ps->origin);
 		VectorCopy(down_v, pm->ps->velocity);
-
 		if(pm->debugLevel)
 		{
 			Com_Printf("%i:bend\n", c_pmove);
@@ -507,15 +364,4 @@ void PM_StepSlideMove(qboolean gravity)
 			Com_Printf("%i:stepped\n", c_pmove);
 		}
 	}
-	// still too buggy for wall jumping
-	/*
-	   if (pm->ps->persistant[PERS_TEAM] != TEAM_SPECTATOR) {
-	   if (trace.fraction == 1.0) {
-	   if (trace.plane.type == PLANE_X) {
-	   PM_WallJump();
-	   }
-	   }
-	   }
-	 */
-
 }

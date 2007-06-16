@@ -645,10 +645,12 @@ static void CG_ReflectVelocity(localEntity_t * le, trace_t * trace)
 			// collided with a surface so calculate the new rotation axis
 			CrossProduct(trace->plane.normal, velocity, le->rotAxis);
 			le->angVel = VectorNormalize(le->rotAxis) / le->radius;
+			
 			// save current orientation as a rotation from model's base orientation
-			QuatMul(le->quatOrient, le->quatRot, le->quatRot);
+			QuatMultiply0(le->quatRot, le->quatOrient);
+			
 			// reset the orientation
-			QuatInit(1, 0, 0, 0, le->quatOrient);
+			QuatClear(le->quatOrient);
 		}
 	}
 	le->NumBounces++;
@@ -764,10 +766,13 @@ static void CG_AddFragment(localEntity_t * le)
 				// create the rotation quaternion
 				qrot[0] = cos(angle);	// real part
 				VectorScale(le->rotAxis, sin(angle), &qrot[1]);	// imaginary part
+				
 				// create the new orientation
-				QuatMul(le->quatOrient, qrot, le->quatOrient);
+				QuatMultiply0(le->quatOrient, qrot);
+				
 				// apply the combined previous rotations around other axes
-				QuatMul(le->quatOrient, le->quatRot, qrot);
+				QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+				
 				// convert the orientation into the form the renderer wants
 				QuatToAxis(qrot, le->refEntity.axis);
 				le->angles.trTime = cg.time;
@@ -828,10 +833,13 @@ static void CG_AddFragment(localEntity_t * le)
 			// create the rotation quaternion
 			qrot[0] = cos(angle);	// real part
 			VectorScale(le->rotAxis, sin(angle), &qrot[1]);	// imaginary part
+			
 			// create the new orientation
-			QuatMul(le->quatOrient, qrot, le->quatOrient);
+			QuatMultiply0(le->quatOrient, qrot);
+			
 			// apply the combined previous rotations around other axes
-			QuatMul(le->quatOrient, le->quatRot, qrot);
+			QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+			
 			// convert the orientation into the form the renderer wants
 			QuatToAxis(qrot, le->refEntity.axis);
 			le->angles.trTime = cg.time;
@@ -996,10 +1004,13 @@ static void CG_AddBodyFragment(localEntity_t * le)
 				// create the rotation quaternion
 				qrot[0] = cos(angle);	// real part
 				VectorScale(le->rotAxis, sin(angle), &qrot[1]);	// imaginary part
+				
 				// create the new orientation
-				QuatMul(le->quatOrient, qrot, le->quatOrient);
+				QuatMultiply0(le->quatOrient, qrot);
+				
 				// apply the combined previous rotations around other axes
-				QuatMul(le->quatOrient, le->quatRot, qrot);
+				QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+				
 				// convert the orientation into the form the renderer wants
 				QuatToAxis(qrot, le->refEntity.axis);
 				le->angles.trTime = cg.time;
@@ -1058,10 +1069,13 @@ static void CG_AddBodyFragment(localEntity_t * le)
 			// create the rotation quaternion
 			qrot[0] = cos(angle);	// real part
 			VectorScale(le->rotAxis, sin(angle), &qrot[1]);	// imaginary part
+			
 			// create the new orientation
-			QuatMul(le->quatOrient, qrot, le->quatOrient);
+			QuatMultiply0(le->quatOrient, qrot);
+			
 			// apply the combined previous rotations around other axes
-			QuatMul(le->quatOrient, le->quatRot, qrot);
+			QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+			
 			// convert the orientation into the form the renderer wants
 			QuatToAxis(qrot, le->refEntity.axis);
 			le->angles.trTime = cg.time;
@@ -1238,10 +1252,13 @@ void CG_AddQFragment(localEntity_t * le)
 				// create the rotation quaternion
 				qrot[0] = cos(angle);	// real part
 				VectorScale(le->rotAxis, sin(angle), &qrot[1]);	// imaginary part
+				
 				// create the new orientation
-				QuatMul(le->quatOrient, qrot, le->quatOrient);
+				QuatMultiply0(le->quatOrient, qrot);
+				
 				// apply the combined previous rotations around other axes
-				QuatMul(le->quatOrient, le->quatRot, qrot);
+				QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+				
 				// convert the orientation into the form the renderer wants
 				QuatToAxis(qrot, le->refEntity.axis);
 				le->angles.trTime = cg.time;
@@ -1314,10 +1331,13 @@ void CG_AddQFragment(localEntity_t * le)
 			// create the rotation quaternion
 			qrot[0] = cos(angle);	// real part
 			VectorScale(le->rotAxis, sin(angle), &qrot[1]);	// imaginary part
+			
 			// create the new orientation
-			QuatMul(le->quatOrient, qrot, le->quatOrient);
+			QuatMultiply0(le->quatOrient, qrot);
+			
 			// apply the combined previous rotations around other axes
-			QuatMul(le->quatOrient, le->quatRot, qrot);
+			QuatMultiply1(le->quatOrient, le->quatRot, qrot);
+			
 			// convert the orientation into the form the renderer wants
 			QuatToAxis(qrot, le->refEntity.axis);
 			le->angles.trTime = cg.time;

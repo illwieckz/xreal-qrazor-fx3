@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
@@ -45,7 +46,6 @@ typedef long    intptr_t;
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
-#define QSOURCE_VERSION	"1.0b"
 //unlagged - lag simulation #2
 #define MAX_LATENT_CMDS 50
 //unlagged - lag simulation #2
@@ -92,7 +92,6 @@ typedef long    intptr_t;
   you will have to add your own version for support in the VM.
 
  **********************************************************************/
-
 
 #ifdef Q3_VM
 
@@ -485,11 +484,6 @@ typedef int     clipHandle_t;
 #define sign( f )	( ( f > 0 ) ? 1 : ( ( f < 0 ) ? -1 : 0 ) )
 #endif
 
-// angle indexes
-#define	PITCH				0	// up / down
-#define	YAW					1	// left / right
-#define	ROLL				2	// fall over
-
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
@@ -497,11 +491,11 @@ typedef int     clipHandle_t;
 #define	MAX_TOKEN_CHARS		1024	// max length of an individual token
 
 #define	MAX_INFO_STRING		1024
-#define	MAX_INFO_KEY		  1024
+#define	MAX_INFO_KEY		1024
 #define	MAX_INFO_VALUE		1024
 
 #define	BIG_INFO_STRING		8192	// used for system info key only
-#define	BIG_INFO_KEY		  8192
+#define	BIG_INFO_KEY		8192
 #define	BIG_INFO_VALUE		8192
 
 
@@ -651,6 +645,11 @@ typedef int     fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
+// angle indexes
+#define	PITCH				0	// up / down
+#define	YAW					1	// left / right
+#define	ROLL				2	// fall over
+
 // plane sides
 typedef enum
 {
@@ -723,7 +722,6 @@ extern vec4_t   colorDkGrey;
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
 
-
 extern vec4_t   g_color_table[8];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
@@ -748,6 +746,7 @@ extern quat_t   quatIdentity;
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
+// *INDENT-OFF*
 static ID_INLINE float Q_rsqrt(float number)
 {
 	float           y;
@@ -764,24 +763,36 @@ static ID_INLINE float Q_rsqrt(float number)
 
 #elif id386_3dnow && defined __GNUC__
 //#error Q_rqsrt
-	asm volatile    (
-						// lo                                   | hi
-						"femms                               \n" "movd           (%%eax),        %%mm0\n"	// in                                   |       -
-						"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
-						"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
-						"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                        | (1/sqrt(in))?         step 1
-						"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                 step 2
-						"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)                           step 3
-						"movd           %%mm1,        (%%edx)\n"
-						"femms                               \n"::"a" (&number), "d"(&y):"memory");
+	asm volatile
+	(
+												// lo                                   | hi
+	"femms                               \n" 
+	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
+	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
+	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
+	"pfmul          %%mm1,          %%mm1\n"	// (1/sqrt(in))?                        | (1/sqrt(in))?         step 1
+	"pfrsqit1       %%mm0,          %%mm1\n"	// intermediate                                                 step 2
+	"pfrcpit2       %%mm2,          %%mm1\n"	// 1/sqrt(in) (full 24-bit precision)                           step 3
+	"movd           %%mm1,        (%%edx)\n"
+	"femms                               \n"
+	:
+	:"a" (&number), "d"(&y):"memory"
+	);
 #elif id386_sse && defined __GNUC__
 	asm volatile
-		 
-		 ("rsqrtss       (%%eax),          %%xmm0\n" "movss          %%xmm0,         (%%edx)\n"::"a" (&number), "d"(&y):"memory");
+	(
+	"rsqrtss       (%%eax),          %%xmm0\n"
+	"movss          %%xmm0,         (%%edx)\n"
+	:
+	: "a"(&number), "d"(&y)
+	: "memory"
+	);
 #elif id386_sse && defined _MSC_VER
 	__asm
 	{
-	rsqrtss         xmm0, number movss y, xmm0}
+		rsqrtss xmm0, number
+		movss y, xmm0
+	}
 #elif __x86_64__
 	y = 1 / sqrt(number);
 #else
@@ -795,10 +806,10 @@ static ID_INLINE float Q_rsqrt(float number)
 	i = 0x5f3759df - (i >> 1);	// what the fuck?
 	y = *(float *)&i;
 	y = y * (threehalfs - (x2 * y * y));	// 1st iteration
-//  y = y * (threehalfs - (x2 * y * y));    // 2nd iteration, this can be removed
+//  y = y * (threehalfs - (x2 * y * y));	// 2nd iteration, this can be removed
 //#ifndef Q3_VM
 //#ifdef __linux__
-//  assert(!isnan(y));          // bk010122 - FPE?
+//	assert(!isnan(y));			// bk010122 - FPE?
 //#endif
 //#endif
 #endif
@@ -810,7 +821,7 @@ static ID_INLINE float Q_fabs(float x)
 #if idppc && defined __GNUC__
 	float           abs_x;
 
-  asm("fabs %0,%1": "=f"(abs_x):"f"(x));
+ 	asm("fabs %0,%1": "=f"(abs_x):"f"(x));
 	return abs_x;
 #else
 	int             tmp = *(int *)&x;
@@ -838,6 +849,7 @@ static ID_INLINE vec_t Q_recip(vec_t in)
 	return ((float)(1.0f / (in)));
 #endif
 }
+// *INDENT-ON*
 
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
@@ -846,7 +858,7 @@ signed short    ClampShort(int i);
 int             DirToByte(vec3_t dir);
 void            ByteToDir(int b, vec3_t dir);
 
-#if	1
+#if 1
 
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
@@ -879,11 +891,11 @@ void            ByteToDir(int b, vec3_t dir);
 #endif
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
-//unlagged - attack prediction #3
-// moved from g_weapon.c
 void            SnapVectorTowards(vec3_t v, vec3_t to);
 
-//unlagged - attack prediction #3
+void            vectoangles(const vec3_t value1, vec3_t angles);
+float           vectoyaw(const vec3_t vec);
+
 // just in case you do't want to use the macros
 vec_t           _DotProduct(const vec3_t a, const vec3_t b);
 void            _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out);
@@ -943,7 +955,7 @@ static ID_INLINE vec_t VectorLength(const vec3_t v)
 	femms();
 	return out;
 #else
-	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+	return (vec_t) sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 #endif
 }
 // *INDENT-ON*
@@ -971,7 +983,7 @@ static ID_INLINE vec_t VectorLengthSquared(const vec3_t v)
 	femms();
 	return out;
 #else
-	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+	return (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 #endif
 }
 // *INDENT-ON*
@@ -1033,13 +1045,11 @@ static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac,
 
 vec_t           VectorNormalize(vec3_t v);	// returns vector length
 vec_t           VectorNormalize2(const vec3_t v, vec3_t out);
-void            Vector4Scale(const vec4_t in, vec_t scale, vec4_t out);
+
 void            VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out);
 
 int             NearestPowerOfTwo(int val);
 int             Q_log2(int val);
-
-#define QuatInit(w,x,y,z,q) ((q)[0]=(w),(q)[1]=(x),(q)[2]=(y),(q)[3]=(z));
 
 float           Q_acos(float c);
 
@@ -1050,10 +1060,8 @@ float           Q_crandom(int *seed);
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
-void            vectoangles(const vec3_t value1, vec3_t angles);
 void            AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
-void            AxisToAngles( /*const */ vec3_t axis[3], vec3_t angles);
-float           VectorDistance(vec3_t v1, vec3_t v2);
+void            AxisToAngles(vec3_t axis[3], vec3_t angles);
 
 void            AxisClear(vec3_t axis[3]);
 void            AxisCopy(vec3_t in[3], vec3_t out[3]);
@@ -1081,9 +1089,6 @@ void            MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 // perpendicular vector could be replaced by this
 
 //int   PlaneTypeForNormal (vec3_t normal);
-float           vectoyaw(const vec3_t vec);
-
-void            AxisToAngles(vec3_t axis[3], vec3_t angles);
 
 void            AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
@@ -1234,7 +1239,6 @@ typedef struct
 	void          **elements;
 } growList_t;
 
-//=============================================
 // you don't need to init the growlist if you don't mind it growing and moving
 // the list as it expands
 void            Com_InitGrowList(growList_t * list, int maxElements);
@@ -1655,8 +1659,6 @@ typedef struct playerState_s
 	int             legsTimer;	// don't change low priority animations until this runs out
 	int             legsAnim;	// mask off ANIM_TOGGLEBIT
 
-
-
 	int             torsoTimer;	// don't change low priority animations until this runs out
 	int             torsoAnim;	// mask off ANIM_TOGGLEBIT
 
@@ -1876,6 +1878,7 @@ typedef struct
 // real time
 //=============================================
 
+
 typedef struct qtime_s
 {
 	int             tm_sec;		/* seconds after the minute - [0,59] */
@@ -1892,9 +1895,9 @@ typedef struct qtime_s
 
 // server browser sources
 // TTimo: AS_MPLAYER is no longer used
-#define AS_LOCAL			0
+#define AS_LOCAL		0
 #define AS_MPLAYER		1
-#define AS_GLOBAL			2
+#define AS_GLOBAL		2
 #define AS_FAVORITES	3
 
 

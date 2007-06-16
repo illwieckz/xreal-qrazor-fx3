@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #include "g_local.h"
 
@@ -233,6 +234,7 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 		pushed_p--;
 		return qtrue;
 	}
+
 	// blocked
 	return qfalse;
 }
@@ -1087,16 +1089,12 @@ void SP_func_door(gentity_t * ent)
 {
 	vec3_t          abs_movedir;
 	float           distance;
-	vec3_t          size;
+	vec3_t          size, sizeRotated;
 	float           lip;
-	char           *start;
-	char           *end;
+	matrix_t        rotation;
 
-	G_SpawnString("startsound", "sound/movers/doors/dr1_strt.wav", &start);
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(start);
-
-	G_SpawnString("endsound", "sound/movers/doors/dr1_end.wav", &end);
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex(end);
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
+	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
 
 	ent->blocked = Blocked_Door;
 
@@ -1120,12 +1118,22 @@ void SP_func_door(gentity_t * ent)
 
 	// calculate second position
 	trap_SetBrushModel(ent, ent->model);
-	G_SetMovedir(ent->s.angles, ent->movedir);
+	
+	if(VectorCompare(ent->movedir, vec3_origin))
+	{
+		// movedir was not set directly so use entity's angles
+		G_SetMovedir(ent->s.angles, ent->movedir);
+	}
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
+	
 	VectorSubtract(ent->r.maxs, ent->r.mins, size);
-	distance = DotProduct(abs_movedir, size) - lip;
+	
+	AnglesToMatrix(ent->s.angles, rotation);
+	MatrixTransformNormal(rotation, size, sizeRotated);
+	
+	distance = DotProduct(abs_movedir, sizeRotated) - lip;
 	VectorMA(ent->pos1, distance, ent->movedir, ent->pos2);
 
 	// if "start_open", reverse position 1 and 2
@@ -1139,6 +1147,9 @@ void SP_func_door(gentity_t * ent)
 	}
 
 	InitMover(ent);
+	
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
 	ent->nextthink = level.time + FRAMETIME;
 
@@ -1147,12 +1158,12 @@ void SP_func_door(gentity_t * ent)
 		int             health;
 
 		G_SpawnInt("health", "0", &health);
+		
+		// Tr3B - Doom3 entities have always a name
 		if(health)
 		{
 			ent->takedamage = qtrue;
-		}
-		if(ent->targetname || health)
-		{
+		
 			// non touch/shoot doors
 			ent->think = Think_MatchTeam;
 		}
@@ -1161,8 +1172,6 @@ void SP_func_door(gentity_t * ent)
 			ent->think = Think_SpawnNewDoorTrigger;
 		}
 	}
-
-
 }
 
 /*
@@ -1182,13 +1191,10 @@ Don't allow decent if a living player is on it
 */
 void Touch_Plat(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
-
-
 	if(!other->client || other->client->ps.stats[STAT_HEALTH] <= 0)
 	{
 		return;
 	}
-
 
 	// delay return-to-pos1 by one second
 	if(ent->moverState == MOVER_POS2)
@@ -1330,7 +1336,9 @@ void SP_func_plat(gentity_t * ent)
 	ent->parent = ent;			// so it can be treated as a door
 
 	// spawn the trigger if one hasn't been custom made
-	if(!ent->targetname)
+	
+	// Tr3B - Doom3 entities have always a name
+	//if(!ent->name)
 	{
 		SpawnPlatTrigger(ent);
 	}
@@ -1369,8 +1377,8 @@ void Touch_Button(gentity_t * ent, gentity_t * other, trace_t * trace)
 When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again.
 
 "model2"	.md3 model to also draw
-"angle"		determines the opening direction
-"target"	all entities with a matching targetname will be used
+"movedir"	determines the opening direction
+"target"	all entities with a matching name will be used
 "speed"		override the default 40 speed
 "wait"		override the default 1 second wait (-1 = never return)
 "lip"		override the default 4 pixel lip remaining at end of move
@@ -1406,7 +1414,11 @@ void SP_func_button(gentity_t * ent)
 
 	G_SpawnFloat("lip", "4", &lip);
 
-	G_SetMovedir(ent->s.angles, ent->movedir);
+	if(VectorCompare(ent->movedir, vec3_origin))
+	{
+		// movedir was not set directly so use entity's angles
+		G_SetMovedir(ent->s.angles, ent->movedir);
+	}
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
@@ -1667,9 +1679,16 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_static(gentity_t * ent)
 {
 	trap_SetBrushModel(ent, ent->model);
+	
 	InitMover(ent);
+	
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+	
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+	VectorCopy(ent->s.angles, ent->r.currentAngles);
+	
+	trap_LinkEntity(ent);
 }
 
 

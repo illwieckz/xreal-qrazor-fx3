@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #include "g_local.h"
 
@@ -68,8 +69,8 @@ vmCvar_t        g_synchronousClients;
 vmCvar_t        g_warmup;
 vmCvar_t        g_doWarmup;
 vmCvar_t        g_restarted;
-vmCvar_t        g_log;
-vmCvar_t        g_logSync;
+vmCvar_t        g_logFile;
+vmCvar_t        g_logFileSync;
 vmCvar_t        g_blood;
 vmCvar_t        g_podiumDist;
 vmCvar_t        g_podiumDrop;
@@ -173,10 +174,12 @@ static cvarTable_t gameCvarTable[] = {
 	{NULL, "gamedate", __DATE__, CVAR_ROM, 0, qfalse},
 	{&g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse},
 	{NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+
 	// latched vars
 	{&g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse},
 	{&g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 	{&g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
+
 	// change anytime vars
 	{&g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue},
 	{&g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
@@ -188,8 +191,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE},
 	{&g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue},
 	{&g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue},
-	{&g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse},
-	{&g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, qfalse},
+	{&g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse},
+	{&g_logFileSync, "g_logFileSync", "0", CVAR_ARCHIVE, 0, qfalse},
+
 	{&g_password, "g_password", "", CVAR_USERINFO, 0, qfalse},
 	{&g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse},
 	{&g_filterBan, "g_filterBan", "1", CVAR_ARCHIVE, 0, qfalse},
@@ -230,7 +234,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
-	{&g_QSVersion, "g_QSVersion", QSOURCE_VERSION, CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+	{&g_QSVersion, "g_QSVersion", Q3_VERSION, CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
 	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
 	{&g_truePing, "g_truePing", "0", CVAR_ARCHIVE, 0, qtrue},
@@ -323,7 +327,7 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 			G_ShutdownGame(arg0);
 			return 0;
 		case GAME_CLIENT_CONNECT:
-			return (int)ClientConnect(arg0, arg1, arg2);
+			return (intptr_t) ClientConnect(arg0, arg1, arg2);
 		case GAME_CLIENT_THINK:
 			ClientThink(arg0);
 			return 0;
@@ -372,6 +376,10 @@ void QDECL G_Error(const char *fmt, ...)
 	va_start(argptr, fmt);
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
+	
+#ifdef LUA
+	G_ShutdownLua();
+#endif
 
 	trap_Error(text);
 }
@@ -395,7 +403,7 @@ void G_FindTeams(void)
 
 	c = 0;
 	c2 = 0;
-	for(i = 1, e = g_entities + i; i < level.num_entities; i++, e++)
+	for(i = 1, e = g_entities + i; i < level.numEntities; i++, e++)
 	{
 		if(!e->inuse)
 			continue;
@@ -406,7 +414,7 @@ void G_FindTeams(void)
 		e->teammaster = e;
 		c++;
 		c2++;
-		for(j = i + 1, e2 = e + 1; j < level.num_entities; j++, e2++)
+		for(j = i + 1, e2 = e + 1; j < level.numEntities; j++, e2++)
 		{
 			if(!e2->inuse)
 				continue;
@@ -528,7 +536,6 @@ void G_UpdateCvars(void)
 /*
 ============
 G_InitGame
-
 ============
 */
 void G_InitGame(int levelTime, int randomSeed, int restart)
@@ -547,6 +554,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_InitMemory();
 
+#ifdef LUA
+	G_InitLua();
+#endif
+
 	// set some level globals
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
@@ -554,19 +565,19 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
-	if(g_gametype.integer != GT_SINGLE_PLAYER && g_log.string[0])
+	if(g_gametype.integer != GT_SINGLE_PLAYER && g_logFile.string[0])
 	{
-		if(g_logSync.integer)
+		if(g_logFileSync.integer)
 		{
-			trap_FS_FOpenFile(g_log.string, &level.logFile, FS_APPEND_SYNC);
+			trap_FS_FOpenFile(g_logFile.string, &level.logFile, FS_APPEND_SYNC);
 		}
 		else
 		{
-			trap_FS_FOpenFile(g_log.string, &level.logFile, FS_APPEND);
+			trap_FS_FOpenFile(g_logFile.string, &level.logFile, FS_APPEND);
 		}
 		if(!level.logFile)
 		{
-			G_Printf("WARNING: Couldn't open logfile: %s\n", g_log.string);
+			G_Printf("WARNING: Couldn't open logfile: %s\n", g_logFile.string);
 		}
 		else
 		{
@@ -603,10 +614,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that
 	// range are NEVER anything but clients
-	level.num_entities = MAX_CLIENTS;
+	level.numEntities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	trap_LocateGameData(level.gentities, level.num_entities, sizeof(gentity_t), &level.clients[0].ps, sizeof(level.clients[0]));
+	trap_LocateGameData(level.gentities, level.numEntities, sizeof(gentity_t), &level.clients[0].ps, sizeof(level.clients[0]));
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();
@@ -672,6 +683,10 @@ void G_ShutdownGame(int restart)
 	{
 		BotAIShutdown(restart);
 	}
+
+#ifdef LUA
+	G_ShutdownLua();
+#endif
 }
 
 
@@ -1197,8 +1212,6 @@ void BeginIntermission(void)
 	{
 		AdjustTournamentScores();
 	}
-
-
 
 	level.intermissiontime = level.time;
 	FindIntermissionPoint();
@@ -2159,11 +2172,9 @@ G_RunThink
 Runs thinking code for this frame if necessary
 =============
 */
-//NT - added last think and last think time for simplicity in some situations
 void G_RunThink(gentity_t * ent)
 {
 	float           thinktime;
-
 
 	thinktime = ent->nextthink;
 
@@ -2212,7 +2223,7 @@ void G_RunFrame(int levelTime)
 	//
 	start = trap_Milliseconds();
 	ent = &g_entities[0];
-	for(i = 0; i < level.num_entities; i++, ent++)
+	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
 		{
@@ -2323,7 +2334,7 @@ void G_RunFrame(int levelTime)
 //  G_TimeShiftAllClients( ent, NULL );
 
 	ent = &g_entities[0];
-	for(i = 0; i < level.num_entities; i++, ent++)
+	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
 		{

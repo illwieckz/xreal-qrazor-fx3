@@ -21,12 +21,13 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
-#define	GAME_VERSION		"qsource"
+#define	GAME_VERSION		"XreaL"
 
 #define	DEFAULT_GRAVITY		800
 #define	GIB_HEALTH			-35
@@ -107,9 +108,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
 #define	CS_PLAYERS				(CS_SOUNDS+MAX_SOUNDS)
 #define CS_LOCATIONS			(CS_PLAYERS+MAX_CLIENTS)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
+#define CS_EFFECTS				(CS_LOCATIONS+MAX_LOCATIONS)
 
-#define CS_MAX					(CS_PARTICLES+MAX_LOCATIONS)
+#define CS_MAX					(CS_EFFECTS+MAX_EFFECTS)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -322,11 +323,14 @@ typedef enum
 
 	PW_REDFLAG,
 	PW_BLUEFLAG,
-#ifdef MISSIONPACK
+	PW_NEUTRALFLAG,
+
+	PW_SCOUT,
 	PW_GUARD,
 	PW_DOUBLER,
 	PW_AMMOREGEN,
-#endif
+	PW_INVULNERABILITY,
+
 	PW_NUM_POWERUPS
 } powerup_t;
 
@@ -368,6 +372,7 @@ typedef enum
 
 	WP_NUM_WEAPONS
 } weapon_t;
+
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
@@ -560,7 +565,18 @@ typedef enum
 	GTS_BLUE_TAKEN_OWN
 } global_team_sound_t;
 
-// animations
+
+// new XreaL-PPM animations
+/*
+enum
+{
+	ANIM_IDLE,
+	ANIM_WALK,
+	MAX_XPPM_ANIMATIONS
+};
+*/
+
+// old classic Q3A animations
 typedef enum
 {
 	BOTH_DEATH1,
@@ -619,6 +635,9 @@ typedef enum
 
 typedef struct animation_s
 {
+#ifdef XPPM
+	qhandle_t		handle;		// registered md5Animation or whatever
+#endif
 	int             firstFrame;
 	int             numFrames;
 	int             loopFrames;	// 0 to numFrames

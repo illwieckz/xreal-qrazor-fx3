@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #include "g_local.h"
 
@@ -77,10 +78,8 @@ int OtherTeam(int team)
 
 const char     *TeamName(int team)
 {
-	//NT
 	if(team == TEAM_RED)
 		return "RED";
-	//NT
 	else if(team == TEAM_BLUE)
 		return "BLUE";
 	else if(team == TEAM_SPECTATOR)
@@ -90,10 +89,8 @@ const char     *TeamName(int team)
 
 const char     *OtherTeamName(int team)
 {
-	//NT
 	if(team == TEAM_RED)
 		return "BLUE";
-	//NT
 	else if(team == TEAM_BLUE)
 		return "RED";
 	else if(team == TEAM_SPECTATOR)
@@ -103,10 +100,8 @@ const char     *OtherTeamName(int team)
 
 const char     *TeamColorString(int team)
 {
-	//NT
 	if(team == TEAM_RED)
 		return S_COLOR_RED;
-	//NT
 	else if(team == TEAM_BLUE)
 		return S_COLOR_BLUE;
 	else if(team == TEAM_SPECTATOR)
@@ -277,7 +272,6 @@ void Team_SetFlagStatus(int team, flagStatus_t status)
 
 void Team_CheckDroppedItem(gentity_t * dropped)
 {
-
 	if(dropped->item->giTag == PW_REDFLAG)
 	{
 		Team_SetFlagStatus(TEAM_RED, FLAG_DROPPED);
@@ -286,7 +280,10 @@ void Team_CheckDroppedItem(gentity_t * dropped)
 	{
 		Team_SetFlagStatus(TEAM_BLUE, FLAG_DROPPED);
 	}
-
+	else if(dropped->item->giTag == PW_NEUTRALFLAG)
+	{
+		Team_SetFlagStatus(TEAM_FREE, FLAG_DROPPED);
+	}
 }
 
 /*
@@ -344,7 +341,6 @@ void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attac
 		return;					// whoever died isn't on a team
 
 	// same team, if the flag at base, check to he has the enemy flag
-	//NT
 	if(team == TEAM_RED)
 	{
 		flag_pw = PW_REDFLAG;
@@ -356,7 +352,10 @@ void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attac
 		enemy_flag_pw = PW_REDFLAG;
 	}
 
-
+	if(g_gametype.integer == GT_1FCTF)
+	{
+		enemy_flag_pw = PW_NEUTRALFLAG;
+	}
 
 	// did the attacker frag the flag carrier?
 	tokens = 0;
@@ -576,7 +575,6 @@ void Team_CheckHurtCarrier(gentity_t * targ, gentity_t * attacker)
 	if(!targ->client || !attacker->client)
 		return;
 
-	//NT
 	if(targ->client->sess.sessionTeam == TEAM_RED)
 		flag_pw = PW_BLUEFLAG;
 	else
@@ -586,6 +584,9 @@ void Team_CheckHurtCarrier(gentity_t * targ, gentity_t * attacker)
 	if(targ->client->ps.powerups[flag_pw] && targ->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
 		attacker->client->pers.teamState.lasthurtcarrier = level.time;
 
+	// skulls
+	if(targ->client->ps.generic1 && targ->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
+		attacker->client->pers.teamState.lasthurtcarrier = level.time;
 }
 
 //NT - added this func to drop a player's flags
@@ -706,7 +707,6 @@ void Team_ReturnFlagSound(gentity_t * ent, int team)
 	}
 
 	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
-	//NT
 	if(team == TEAM_BLUE)
 	{
 		te->s.eventParm = GTS_RED_RETURN;
@@ -754,7 +754,6 @@ void Team_TakeFlagSound(gentity_t * ent, int team, qboolean enemy)
 			break;
 	}
 
-
 	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
 	//NT - is it the enemy that has the flag?
 	if(enemy)
@@ -795,7 +794,6 @@ void Team_CaptureFlagSound(gentity_t * ent, int team)
 	}
 
 	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
-	//NT
 	if(team == TEAM_BLUE)
 	{
 		te->s.eventParm = GTS_BLUE_CAPTURE;
@@ -834,7 +832,10 @@ void Team_FreeEntity(gentity_t * ent)
 		//NT - added *flag param
 		Team_ReturnFlag(ent, TEAM_BLUE);
 	}
-
+	else if(ent->item->giTag == PW_NEUTRALFLAG)
+	{
+		Team_ReturnFlag(ent, TEAM_FREE);
+	}
 }
 
 /*
@@ -1013,7 +1014,6 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 			}
 		}
 	}
-
 	Team_ResetFlags();
 
 	CalculateRanks();
@@ -1067,7 +1067,25 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	int             team;
 	gclient_t      *cl = other->client;
 
+#ifdef MISSIONPACK
+	if(g_gametype.integer == GT_OBELISK)
+	{
+		// there are no team items that can be picked up in obelisk
+		G_FreeEntity(ent);
+		return 0;
+	}
 
+	if(g_gametype.integer == GT_HARVESTER)
+	{
+		// the only team items that can be picked up in harvester are the cubes
+		if(ent->spawnflags != cl->sess.sessionTeam)
+		{
+			cl->ps.generic1 += 1;
+		}
+		G_FreeEntity(ent);
+		return 0;
+	}
+#endif
 	// figure out what team this flag is
 	if(strcmp(ent->classname, "team_CTF_redflag") == 0)
 	{
@@ -1077,11 +1095,31 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	{
 		team = TEAM_BLUE;
 	}
+#ifdef MISSIONPACK
+	else if(strcmp(ent->classname, "team_CTF_neutralflag") == 0)
+	{
+		team = TEAM_FREE;
+	}
+#endif
 	else
 	{
 		PrintMsg(other, "Don't know what team the flag is on.\n");
 		return 0;
 	}
+#ifdef MISSIONPACK
+	if(g_gametype.integer == GT_1FCTF)
+	{
+		if(team == TEAM_FREE)
+		{
+			return Team_TouchEnemyFlag(ent, other, cl->sess.sessionTeam);
+		}
+		if(team != cl->sess.sessionTeam)
+		{
+			return Team_TouchOurFlag(ent, other, cl->sess.sessionTeam);
+		}
+		return 0;
+	}
+#endif
 	// GT_CTF
 	if(team == cl->sess.sessionTeam)
 	{
@@ -1183,10 +1221,8 @@ gentity_t      *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 
 	if(teamstate == TEAM_BEGIN)
 	{
-		//NT
 		if(team == TEAM_RED)
 			classname = "team_CTF_redplayer";
-		//NT
 		else if(team == TEAM_BLUE)
 			classname = "team_CTF_blueplayer";
 		else
@@ -1194,10 +1230,8 @@ gentity_t      *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 	}
 	else
 	{
-		//NT
 		if(team == TEAM_RED)
 			classname = "team_CTF_redspawn";
-		//NT
 		else if(team == TEAM_BLUE)
 			classname = "team_CTF_bluespawn";
 		else
@@ -1349,7 +1383,6 @@ void CheckTeamStatus(void)
 				continue;
 			}
 
-			//NT - TEAM_WATCHING
 			if(ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE))
 			{
 				loc = Team_GetLocation(ent);
@@ -1369,7 +1402,6 @@ void CheckTeamStatus(void)
 				continue;
 			}
 
-			//NT - TEAM_WATCHING
 			if(ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE))
 			{
 				TeamplayInfoMessage(ent);

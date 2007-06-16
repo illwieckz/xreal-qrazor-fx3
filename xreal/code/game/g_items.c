@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 #include "g_local.h"
 
 /*
@@ -185,6 +186,17 @@ int Pickup_PersistantPowerup(gentity_t * ent, gentity_t * other)
 
 			break;
 
+		case PW_SCOUT:
+			clientNum = other->client->ps.clientNum;
+			trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
+			handicap = atof(Info_ValueForKey(userinfo, "handicap"));
+			if(handicap <= 0.0f || handicap > 100.0f)
+			{
+				handicap = 100.0f;
+			}
+			other->client->pers.maxHealth = handicap;
+			other->client->ps.stats[STAT_ARMOR] = 0;
+			break;
 
 		case PW_DOUBLER:
 			clientNum = other->client->ps.clientNum;
@@ -586,9 +598,6 @@ int Pickup_Armor(gentity_t * ent, gentity_t * other)
 		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
 	}
 
-
-
-
 	return RESPAWN_ARMOR;
 }
 
@@ -688,8 +697,6 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
 	int             respawn;
 	qboolean        predict;
-
-
 
 	if(!other->client)
 		return;
@@ -865,7 +872,6 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 }
 
 
-
 //======================================================================
 
 /*
@@ -884,6 +890,7 @@ gentity_t      *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, vec3_
 	dropped->s.eType = ET_ITEM;
 	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
 	dropped->s.modelindex2 = 1;	// This is non-zero is it's a dropped item
+
 	dropped->classname = item->classname;
 	dropped->item = item;
 	VectorSet(dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
@@ -1006,13 +1013,13 @@ void FinishSpawningItem(gentity_t * ent)
 	}
 
 	// team slaves and targeted items aren't present at start
-	if((ent->flags & FL_TEAMSLAVE) || ent->targetname)
+	// Tr3B - Doom3 entities have always a name
+	if((ent->flags & FL_TEAMSLAVE) /*|| ent->name*/)
 	{
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;
 		return;
 	}
-
 
 	// powerups don't spawn in for a while
 	if(ent->item->giType == IT_POWERUP)
@@ -1026,8 +1033,6 @@ void FinishSpawningItem(gentity_t * ent)
 		ent->think = RespawnItem;
 		return;
 	}
-
-
 
 
 	trap_LinkEntity(ent);
@@ -1202,7 +1207,6 @@ void SaveRegisteredItems(void)
 		{
 			count++;
 			string[i] = '1';
-
 		}
 		else
 		{
@@ -1249,15 +1253,12 @@ void G_SpawnItem(gentity_t * ent, gitem_t * item)
 		return;
 
 	ent->item = item;
-
 	// some movers spawn on the second frame, so delay item
 	// spawns until the third frame so they can ride trains
 	ent->nextthink = level.time + FRAMETIME * 2;
 	ent->think = FinishSpawningItem;
 
 	ent->physicsBounce = 0.50;	// items are bouncy
-
-
 
 	if(item->giType == IT_WEAPON)
 	{
@@ -1271,7 +1272,7 @@ void G_SpawnItem(gentity_t * ent, gitem_t * item)
 		}
 		else
 		{
-			G_SoundIndex("sound/items/poweruprespawn.wav");
+			G_SoundIndex("sound/items/poweruprespawn.ogg");
 			G_SpawnFloat("noglobalsound", "0", &ent->speed);
 		}
 	}

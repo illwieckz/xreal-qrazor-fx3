@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // g_bot.c
 
 #include "g_local.h"
@@ -766,18 +767,15 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 			if(PickTeam(clientNum) == TEAM_RED)
 			{
 				team = "red";
-
 			}
 			else
 			{
 				team = "blue";
-
 			}
 		}
 		else
 		{
 			team = "red";
-
 		}
 	}
 
@@ -860,7 +858,6 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 
 	Info_SetValueForKey(userinfo, "characterfile", Info_ValueForKey(botinfo, "aifile"));
 	Info_SetValueForKey(userinfo, "skill", va("%5.2f", skill));
-
 
 	bot = &g_entities[clientNum];
 	bot->r.svFlags |= SVF_BOT;

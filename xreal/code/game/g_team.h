@@ -21,6 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 
 #ifdef MISSIONPACK
 
@@ -78,8 +79,6 @@ void            Team_DroppedFlagThink(gentity_t * ent);
 void            Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker);
 void            Team_CheckHurtCarrier(gentity_t * targ, gentity_t * attacker);
 void            Team_InitGame(void);
-
-//NT - added *flag param
 void            Team_ReturnFlag(gentity_t * flag, int team);
 void            Team_FreeEntity(gentity_t * ent);
 gentity_t      *SelectCTFSpawnPoint(team_t team, int teamstate, vec3_t origin, vec3_t angles);

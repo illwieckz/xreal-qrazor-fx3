@@ -1,4 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+
+This file is part of XreaL source code.
+
+XreaL source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+XreaL source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with XreaL source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 //
 
 /*****************************************************************************
@@ -7,10 +28,6 @@
  * desc:		Quake3 bot AI
  *
  * $Archive: /MissionPack/code/game/ai_main.c $
- * $Author$ 
- * $Revision$
- * $Modtime: 6/06/01 1:11p $
- * $Date$
  *
  *****************************************************************************/
 
@@ -39,7 +56,9 @@
 #include "inv.h"
 #include "syn.h"
 
+#ifndef MAX_PATH
 #define MAX_PATH		144
+#endif
 
 
 //bot states
@@ -310,7 +329,6 @@ void BotReportStatus(bot_state_t * bs)
 	{
 		if(BotCTFCarryingFlag(bs))
 		{
-			//NT
 			if(BotTeam(bs) == TEAM_RED)
 				strcpy(flagstatus, S_COLOR_RED "F ");
 			else
@@ -502,7 +520,6 @@ void BotSetInfoConfigString(bot_state_t * bs)
 	{
 		if(BotHarvesterCarryingCubes(bs))
 		{
-			//NT
 			if(BotTeam(bs) == TEAM_RED)
 				Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_REDCUBE]);
 			else
