@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -63,10 +62,6 @@ void AddScore(gentity_t * ent, vec3_t origin, int score)
 	{
 		return;
 	}
-	if(score == 0)
-	{
-		return;
-	}
 	// show score plum
 	ScorePlum(ent, origin, score);
 	//
@@ -94,38 +89,11 @@ void TossClientItems(gentity_t * self)
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->s.weapon;
 
-	if(Instagib.integer == 1)
-	{
-		if(g_gametype.integer != GT_TEAM)
-		{
-			angle = 45;
-			for(i = 1; i < PW_NUM_POWERUPS; i++)
-			{
-				if(self->client->ps.powerups[i] > level.time)
-				{
-					item = BG_FindItemForPowerup(i);
-					if(!item || item->giTag == PW_SPAWNPROT)
-					{
-						continue;
-					}
-					drop = Drop_Item(self, item, angle);
-					// decide how many seconds it has left
-					drop->count = (self->client->ps.powerups[i] - level.time) / 1000;
-					if(drop->count < 1)
-					{
-						drop->count = 1;
-					}
-					angle += 45;
-				}
-			}
-		}
-		return;
-	}
 	// make a special check to see if they are changing to a new
 	// weapon that isn't the mg or gauntlet.  Without this, a client
 	// can pick up a weapon, be killed, and not drop the weapon because
 	// their weapon change hasn't completed yet and they are still holding the MG.
-	if(weapon == WP_GRAPPLING_HOOK)
+	if(weapon == WP_MACHINEGUN || weapon == WP_GRAPPLING_HOOK)
 	{
 		if(self->client->ps.weaponstate == WEAPON_DROPPING)
 		{
@@ -137,7 +105,7 @@ void TossClientItems(gentity_t * self)
 		}
 	}
 
-	if(weapon >= WP_MACHINEGUN && weapon != WP_GRAPPLING_HOOK && weapon != WP_BFG && self->client->ps.ammo[weapon])
+	if(weapon > WP_MACHINEGUN && weapon != WP_GRAPPLING_HOOK && self->client->ps.ammo[weapon])
 	{
 		// find the item type for this weapon
 		item = BG_FindItemForWeapon(weapon);
@@ -147,24 +115,27 @@ void TossClientItems(gentity_t * self)
 	}
 
 	// drop all the powerups if not in teamplay
-	angle = 45;
-	for(i = 1; i < PW_NUM_POWERUPS; i++)
+	if(g_gametype.integer != GT_TEAM)
 	{
-		if(self->client->ps.powerups[i] > level.time)
+		angle = 45;
+		for(i = 1; i < PW_NUM_POWERUPS; i++)
 		{
-			item = BG_FindItemForPowerup(i);
-			if(!item || item->giTag == PW_SPAWNPROT)
+			if(self->client->ps.powerups[i] > level.time)
 			{
-				continue;
+				item = BG_FindItemForPowerup(i);
+				if(!item)
+				{
+					continue;
+				}
+				drop = Drop_Item(self, item, angle);
+				// decide how many seconds it has left
+				drop->count = (self->client->ps.powerups[i] - level.time) / 1000;
+				if(drop->count < 1)
+				{
+					drop->count = 1;
+				}
+				angle += 45;
 			}
-			drop = Drop_Item(self, item, angle);
-			// decide how many seconds it has left
-			drop->count = (self->client->ps.powerups[i] - level.time) / 1000;
-			if(drop->count < 1)
-			{
-				drop->count = 1;
-			}
-			angle += 45;
 		}
 	}
 }
@@ -222,7 +193,7 @@ void TossClientCubes(gentity_t * self)
 		VectorClear(origin);
 	}
 
-	drop = LaunchItem(item, origin, velocity, angles);
+	drop = LaunchItem(item, origin, velocity);
 
 	drop->nextthink = level.time + g_cubeTimeout.integer * 1000;
 	drop->think = G_FreeEntity;
@@ -289,8 +260,8 @@ void LookAtKiller(gentity_t * self, gentity_t * inflictor, gentity_t * attacker)
 	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw(dir);
 
 	angles[YAW] = vectoyaw(dir);
-	angles[PITCH] = dir[2];
-	angles[ROLL] = dir[1];
+	angles[PITCH] = 0;
+	angles[ROLL] = 0;
 }
 
 /*
@@ -298,424 +269,33 @@ void LookAtKiller(gentity_t * self, gentity_t * inflictor, gentity_t * attacker)
 GibEntity
 ==================
 */
-static void GibEntity(gentity_t * self, int killer, int mod)
+void GibEntity(gentity_t * self, int killer)
 {
-	trace_t         tr;
 	gentity_t      *ent;
+	int             i;
 
-//  int i;
-	gentity_t      *other = &g_entities[killer];
-	vec3_t          dir;
-
-	ent = &g_entities[killer];
-
-	trap_Trace(&tr, ent->s.origin, NULL, NULL, self->s.origin, killer, MASK_SHOT);
 	//if this entity still has kamikaze
-
-
-	VectorClear(dir);
-	if(other->inuse)
+	if(self->s.eFlags & EF_KAMIKAZE)
 	{
-		if(other->client)
+		// check if there is a kamikaze timer around for this owner
+		for(i = 0; i < MAX_GENTITIES; i++)
 		{
-			VectorSubtract(self->r.currentOrigin, other->r.currentOrigin, dir);
-			VectorNormalize(dir);
-		}
-		else if(!VectorCompare(other->s.pos.trDelta, vec3_origin))
-		{
-			VectorNormalize2(other->s.pos.trDelta, dir);
+			ent = &g_entities[i];
+			if(!ent->inuse)
+				continue;
+			if(ent->activator != self)
+				continue;
+			if(strcmp(ent->classname, "kamikaze timer"))
+				continue;
+			G_FreeEntity(ent);
+			break;
 		}
 	}
-
-	// TEST CODE
-	if(self->client && self->client->lasthurt_location == 1)
-	{
-		if(!(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE80HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20HEAD, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYERHEAD, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYERHEAD, DirToByte(dir));
-		}
-
-		self->takedamage = qtrue;
-		self->client->ps.stats[STAT_DEAD] = 2;
-//      self->client->ps.stats[STAT_HEALTH] = GIB_HEALTH+15;
-		self->s.eType = ET_DEADPLAYERHEAD;
-//      self->die = body_die;
-	}
-	else if(self->client && self->client->lasthurt_location <= 0)
-	{
-		if(!(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE80, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYER, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYER, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-		self->s.eType = ET_DEADPLAYER;
-	}
-	else if(self->client && self->client->lasthurt_location == 2)
-	{
-		if(!(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE80LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20LEGS, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYERLEGS, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYERLEGS, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-		self->client->ps.stats[STAT_DEAD] = 1;
-		self->s.eType = ET_DEADPLAYERLEGS;
-	}
-	else
-	{
-		if(self->client && !(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE80, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERFIRE20, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYER, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYER, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-
-		self->s.eType = ET_DEADPLAYER;
-	}
-
-
-	if(self->client && self->client->ps.generic1 & GNF_ONFIRE)
-	{
-		self->s.generic1 |= GNF_ONFIRE;
-	}
-	self->r.contents = CONTENTS_CORPSE;
-
-
+	G_AddEvent(self, EV_GIB_PLAYER, killer);
+	self->takedamage = qfalse;
+	self->s.eType = ET_INVISIBLE;
+	self->r.contents = 0;
 }
-
-// ENC
-static void GibEntityQ(gentity_t * self, int killer, int team, int mod)
-{
-	trace_t         tr;
-	gentity_t      *ent;
-
-//  int i;
-	gentity_t      *other = &g_entities[killer];
-	vec3_t          dir;
-
-	ent = &g_entities[killer];
-
-	trap_Trace(&tr, ent->s.origin, NULL, NULL, self->s.origin, killer, MASK_SHOT);
-	//if this entity still has kamikaze
-
-
-	VectorClear(dir);
-	if(other->inuse)
-	{
-		if(other->client)
-		{
-			VectorSubtract(self->r.currentOrigin, other->r.currentOrigin, dir);
-			VectorNormalize(dir);
-		}
-		else if(!VectorCompare(other->s.pos.trDelta, vec3_origin))
-		{
-			VectorNormalize2(other->s.pos.trDelta, dir);
-		}
-	}
-
-
-	if(self->client && self->client->lasthurt_location == 1)
-	{
-		if(!(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE80HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50HEAD, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20HEAD, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQHEAD, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYERQHEAD, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-		self->s.eType = ET_DEADQPLAYERHEAD;
-		self->client->ps.stats[STAT_DEAD] = 2;
-//      self->client->ps.stats[STAT_HEALTH] = GIB_HEALTH+15;
-//      self->die = body_die;
-	}
-	else if(self->client && self->client->lasthurt_location <= 0)
-	{
-		if(!(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE80, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQ, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYERQ, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-		self->s.eType = ET_DEADQPLAYER;
-
-	}
-	else if(self->client && self->client->lasthurt_location == 2)
-	{
-		if(!(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE80LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50LEGS, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20LEGS, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQLEGS, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYERQLEGS, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-		self->s.eType = ET_DEADQPLAYERLEGS;
-		self->client->ps.stats[STAT_DEAD] = 1;
-	}
-	else
-	{
-		if(self->client && !(self->client->ps.generic1 & GNF_ONFIRE) && !(self->s.generic1 & GNF_ONFIRE))
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_BFG)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE80, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE50, DirToByte(dir));
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQFIRE20, DirToByte(dir));
-			}
-			else
-			{
-				G_AddEvent(self, EV_GIB_PLAYERQ, DirToByte(dir));
-			}
-		}
-		else
-		{
-			G_AddEvent(self, EV_GIB_PLAYERQ, DirToByte(dir));
-		}
-
-		self->takedamage = qfalse;
-		self->s.eType = ET_DEADQPLAYER;
-	}
-
-	self->r.contents = CONTENTS_CORPSE;
-	self->s.otherEntityNum2 = team;
-
-
-}
-
-// ENC
 
 /*
 ==================
@@ -724,31 +304,17 @@ body_die
 */
 void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath)
 {
-
-
+	if(self->health > GIB_HEALTH)
+	{
+		return;
+	}
 	if(!g_blood.integer)
 	{
 		self->health = GIB_HEALTH + 1;
 		return;
 	}
 
-	if(self->health > GIB_HEALTH)
-	{
-		return;
-	}
-
-
-	if(attacker->client && attacker->client->ps.powerups[PW_QUAD] >= 1 && meansOfDeath != MOD_UNKNOWN && meansOfDeath != MOD_WATER
-	   && meansOfDeath != MOD_SLIME && meansOfDeath != MOD_LAVA && meansOfDeath != MOD_CRUSH && meansOfDeath != MOD_TELEFRAG
-	   && meansOfDeath != MOD_FALLING && meansOfDeath != MOD_SUICIDE && meansOfDeath != MOD_TARGET_LASER &&
-	   meansOfDeath != MOD_TRIGGER_HURT)
-	{
-		GibEntityQ(self, inflictor->s.clientNum, attacker->client->sess.sessionTeam, meansOfDeath);
-	}
-	else
-	{
-		GibEntity(self, inflictor->s.clientNum, meansOfDeath);
-	}
+	GibEntity(self, 0);
 }
 
 
@@ -777,7 +343,6 @@ char           *modNames[] = {
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
 	"MOD_TRIGGER_HURT",
-	"MOD_FLAMETHROWER",
 #ifdef MISSIONPACK
 	"MOD_NAIL",
 	"MOD_CHAINGUN",
@@ -833,7 +398,8 @@ void CheckAlmostCapture(gentity_t * self, gentity_t * attacker)
 	char           *classname;
 
 	// if this player was carrying a flag
-	if(self->client->ps.powerups[PW_REDFLAG] || self->client->ps.powerups[PW_BLUEFLAG])
+	if(self->client->ps.powerups[PW_REDFLAG] ||
+	   self->client->ps.powerups[PW_BLUEFLAG] || self->client->ps.powerups[PW_NEUTRALFLAG])
 	{
 		// get the goal flag this player should have been going for
 		if(g_gametype.integer == GT_CTF)
@@ -920,171 +486,6 @@ void CheckAlmostScored(gentity_t * self, gentity_t * attacker)
 	}
 }
 
-// TEST CODE
-
-/* 
-============
-G_LocationDamage
-============
-*/
-void G_LocationDamage(vec3_t point, gentity_t * targ, gentity_t * attacker, int take)
-{
-	vec3_t          bulletPath;
-	vec3_t          bulletAngle;
-
-	int             clientHeight;
-	int             clientFeetZ;
-	int             clientRotation;
-	int             bulletHeight;
-	int             bulletRotation;	// Degrees rotation around client.
-
-	// used to check Back of head vs. Face
-	int             impactRotation;
-
-
-	// First things first.  If we're not damaging them, why are we here? 
-	if(!take)
-	{
-		return;
-	}
-
-	// Point[2] is the REAL world Z. We want Z relative to the clients feet
-
-	// Where the feet are at [real Z]
-	clientFeetZ = targ->r.currentOrigin[2] + targ->r.mins[2];
-	// How tall the client is [Relative Z]
-	clientHeight = targ->r.maxs[2] - targ->r.mins[2];
-	// Where the bullet struck [Relative Z]
-	bulletHeight = point[2] - clientFeetZ;
-
-	// Get a vector aiming from the client to the bullet hit 
-	VectorSubtract(targ->r.currentOrigin, point, bulletPath);
-	// Convert it into PITCH, ROLL, YAW
-	vectoangles(bulletPath, bulletAngle);
-
-	clientRotation = targ->client->ps.viewangles[YAW];
-	bulletRotation = bulletAngle[YAW];
-
-	impactRotation = abs(clientRotation - bulletRotation);
-
-	impactRotation += 45;		// just to make it easier to work with
-	impactRotation = impactRotation % 360;	// Keep it in the 0-359 range
-
-	if(impactRotation < 90)
-	{
-		targ->client->lasthurt_location = LOCATION_BACK;
-	}
-	else if(impactRotation < 180)
-	{
-		targ->client->lasthurt_location = LOCATION_RIGHT;
-	}
-	else if(impactRotation < 270)
-	{
-		targ->client->lasthurt_location = LOCATION_FRONT;
-	}
-	else if(impactRotation < 360)
-	{
-		targ->client->lasthurt_location = LOCATION_LEFT;
-	}
-	else
-	{
-		targ->client->lasthurt_location = LOCATION_NONE;
-	}
-	// The upper body never changes height, just distance from the feet
-	if(bulletHeight > clientHeight - 2)
-	{
-		targ->client->lasthurt_location = 1;
-	}
-	else if(bulletHeight > clientHeight - 8)
-	{
-		targ->client->lasthurt_location = 1;
-	}
-	else if(bulletHeight > clientHeight - 10)
-	{
-		targ->client->lasthurt_location = 0;
-	}
-	else if(bulletHeight > clientHeight - 16)
-	{
-		targ->client->lasthurt_location = 0;
-	}
-	else if(bulletHeight > clientHeight - 26)
-	{
-		targ->client->lasthurt_location = 0;
-	}
-	else if(bulletHeight > clientHeight - 29)
-	{
-		targ->client->lasthurt_location = 2;
-	}
-	else if(bulletHeight < 4)
-	{
-		targ->client->lasthurt_location = 2;
-	}
-	else
-	{
-		// The leg is the only thing that changes size when you duck,
-		// so we check for every other parts RELATIVE location, and
-		// whats left over must be the leg. 
-		targ->client->lasthurt_location = 2;
-	}
-
-
-	// Check the location ignoring the rotation info
-	switch (targ->client->lasthurt_location & ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT))
-	{
-		case LOCATION_HEAD:
-			take = 1;
-			break;
-		case LOCATION_FACE:
-			if(targ->client->lasthurt_location & LOCATION_FRONT)
-			{
-				take = 1;		// Faceshots REALLY suck
-			}
-			else
-			{
-				take = 1;
-			}
-			break;
-		case LOCATION_SHOULDER:
-			if(targ->client->lasthurt_location & (LOCATION_FRONT | LOCATION_BACK))
-			{
-				take = 2;		// Throat or nape of neck
-			}
-			else
-			{
-				take = 2;		// Shoulders
-			}
-			break;
-		case LOCATION_CHEST:
-			if(targ->client->lasthurt_location & (LOCATION_FRONT | LOCATION_BACK))
-			{
-				take = 2;		// Belly or back
-			}
-			else
-			{
-				take = 2;		// Arms
-			}
-			break;
-		case LOCATION_STOMACH:
-			take = 2;
-			break;
-		case LOCATION_GROIN:
-			if(targ->client->lasthurt_location & LOCATION_FRONT)
-			{
-				take = 3;		// Groin shot
-			}
-			break;
-		case LOCATION_LEG:
-			take = 3;
-			break;
-		case LOCATION_FOOT:
-			take = 3;
-			break;
-
-	}
-
-}
-
-
 /*
 ==================
 player_die
@@ -1108,10 +509,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	{
 		return;
 	}
-//unlagged - backward reconciliation #2
-	// make sure the body shows up in the client's current position
-	//G_UnTimeShiftClient( self );
-//unlagged - backward reconciliation #2
+
 	// check for an almost capture
 	CheckAlmostCapture(self, attacker);
 	// check for a player that almost brought in cubes
@@ -1198,8 +596,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &=
-					~(EF_AWARD_RLRGCOMBO | EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST |
-					  EF_AWARD_DEFEND | EF_AWARD_CAP);
+					~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND |
+					  EF_AWARD_CAP);
 				attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
@@ -1216,8 +614,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &=
-					~(EF_AWARD_RLRGCOMBO | EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST |
-					  EF_AWARD_DEFEND | EF_AWARD_CAP);
+					~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND |
+					  EF_AWARD_CAP);
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
@@ -1233,6 +631,26 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	// Add team bonuses
 	Team_FragBonuses(self, inflictor, attacker);
 
+	// if I committed suicide, the flag does not fall, it returns.
+	if(meansOfDeath == MOD_SUICIDE)
+	{
+		if(self->client->ps.powerups[PW_NEUTRALFLAG])
+		{						// only happens in One Flag CTF
+			Team_ReturnFlag(TEAM_FREE);
+			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+		}
+		else if(self->client->ps.powerups[PW_REDFLAG])
+		{						// only happens in standard CTF
+			Team_ReturnFlag(TEAM_RED);
+			self->client->ps.powerups[PW_REDFLAG] = 0;
+		}
+		else if(self->client->ps.powerups[PW_BLUEFLAG])
+		{						// only happens in standard CTF
+			Team_ReturnFlag(TEAM_BLUE);
+			self->client->ps.powerups[PW_BLUEFLAG] = 0;
+		}
+	}
+
 	// if client is in a nodrop area, don't drop anything (but return CTF flags!)
 	contents = trap_PointContents(self->r.currentOrigin, -1);
 	if(!(contents & CONTENTS_NODROP))
@@ -1241,13 +659,17 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	}
 	else
 	{
-		if(self->client->ps.powerups[PW_REDFLAG])
-		{						// only happens in standard CTF
-			Team_ReturnFlag(NULL, TEAM_RED);
+		if(self->client->ps.powerups[PW_NEUTRALFLAG])
+		{						// only happens in One Flag CTF
+			Team_ReturnFlag(TEAM_FREE);
 		}
-		if(self->client->ps.powerups[PW_BLUEFLAG])
+		else if(self->client->ps.powerups[PW_REDFLAG])
 		{						// only happens in standard CTF
-			Team_ReturnFlag(NULL, TEAM_BLUE);
+			Team_ReturnFlag(TEAM_RED);
+		}
+		else if(self->client->ps.powerups[PW_BLUEFLAG])
+		{						// only happens in standard CTF
+			Team_ReturnFlag(TEAM_BLUE);
 		}
 	}
 #ifdef MISSIONPACK
@@ -1281,10 +703,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	}
 
 	self->takedamage = qtrue;	// can still be gibbed
-	if(Instagib.integer == 0)
-	{
-		self->s.weapon = WP_NONE;
-	}
+
+	self->s.weapon = WP_NONE;
 	self->s.powerups = 0;
 	self->r.contents = CONTENTS_CORPSE;
 
@@ -1300,85 +720,16 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
-	if(level.intermissionQueued == 0)
-	{
-		if(SpeedSpawn.integer == 1)
-		{
-			self->client->respawnTime = level.time + 50;
-		}
-		else
-		{
-			self->client->respawnTime = -1;
-		}
-	}
-	else
-	{
-		self->client->respawnTime = level.time + 7000;
-	}
+	self->client->respawnTime = level.time + 1700;
 
 	// remove powerups
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
-	if((meansOfDeath == MOD_ROCKET && !(contents & CONTENTS_NODROP) && g_blood.integer))
-	{
-		self->health = GIB_HEALTH - 1;
-	}
-	else if((meansOfDeath == MOD_GRENADE && !(contents & CONTENTS_NODROP) && g_blood.integer))
-	{
-		self->health = GIB_HEALTH - 1;
-	}
-
 	// never gib in a nodrop
-	if((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer))
+	if((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)
 	{
 		// gib death
-		static int      i;
-
-		switch (i)
-		{
-			case 0:
-
-				anim = BOTH_DEATH1;
-
-				break;
-			case 1:
-
-				anim = BOTH_DEATH2;
-
-				break;
-			case 2:
-			default:
-
-				anim = BOTH_DEATH3;
-
-				break;
-		}
-
-		self->client->ps.stats[STAT_ARMOR] = 0;
-
-		self->client->ps.legsAnim = ((self->client->ps.legsAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
-		self->client->ps.torsoAnim = ((self->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
-
-		G_AddEvent(self, EV_DEATH1 + i, killer);
-
-
-		if(attacker->client)
-		{
-			if(attacker->client->ps.powerups[PW_QUAD] >= 1)
-			{
-				GibEntityQ(self, killer, attacker->client->sess.sessionTeam, meansOfDeath);
-			}
-			else
-			{
-				GibEntity(self, killer, meansOfDeath);
-			}
-		}
-		else
-		{
-			GibEntity(self, killer, meansOfDeath);
-		}
-
-		i = (i + 1) % 3;
+		GibEntity(self, killer);
 	}
 	else
 	{
@@ -1405,8 +756,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		{
 			self->health = GIB_HEALTH + 1;
 		}
-
-		self->client->ps.stats[STAT_ARMOR] = 0;
 
 		self->client->ps.legsAnim = ((self->client->ps.legsAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 		self->client->ps.torsoAnim = ((self->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
@@ -1437,16 +786,14 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 CheckArmor
 ================
 */
-int CheckArmor(gentity_t * ent, int damage, int dflags, gentity_t * attacker, int mod)
+int CheckArmor(gentity_t * ent, int damage, int dflags)
 {
 	gclient_t      *client;
-	int             save, damage3, damage4, final;
+	int             save;
+	int             count;
 
 	if(!damage)
 		return 0;
-
-	damage3 = damage;
-	damage4 = damage;
 
 	client = ent->client;
 
@@ -1456,84 +803,16 @@ int CheckArmor(gentity_t * ent, int damage, int dflags, gentity_t * attacker, in
 	if(dflags & DAMAGE_NO_ARMOR)
 		return 0;
 
-	switch (mod)
-	{
-		case MOD_WATER:
-		case MOD_SLIME:
-		case MOD_LAVA:
-		case MOD_CRUSH:
-		case MOD_TELEFRAG:
-		case MOD_FALLING:
-		case MOD_SUICIDE:
-		case MOD_TARGET_LASER:
-		case MOD_TRIGGER_HURT:
-			save = 0;
-			return save;
-			break;
-		case MOD_MACHINEGUN:
-			//  more = damage * 1.6f;
-			//  damage2 = damage - more;
-			//  final = damage + damage2;
-			save = damage * 1.6;	//ceil( final * ARMOR_PROTECTION );
-			break;
-		case MOD_SHOTGUN:
-			//  more = damage * 1.3f;
-			//  damage2 = damage - more;
-			//  final = damage + damage2;
-			save = damage * 1.3;	//ceil( final * ARMOR_PROTECTION );
-			break;
-		case MOD_RAILGUN:
-			//  more = damage * 1.7f;
-			//  damage2 = damage - more;
-			//  final = damage + damage2;
-			save = damage * 1.6;	//ceil( final * ARMOR_PROTECTION );
-			break;
-		case MOD_PLASMA:
-		case MOD_GAUNTLET:
-		case MOD_LIGHTNING:
-		case MOD_ROCKET:
-			//  more = damage * 1.1f;
-			//  damage2 = damage - more;
-			//  final = damage + damage2;
-			save = damage;		//ceil( final * ARMOR_PROTECTION );
-			break;
-		case MOD_GRENADE:
-			final = damage3 / 1.2f;
-			save = ceil(final * ARMOR_PROTECTION);
-			break;
-		case MOD_BFG_SPLASH:
-		case MOD_BFG:
-			save = 0;
-			return save;
-			break;
-		case MOD_ROCKET_SPLASH:
-		case MOD_GRENADE_SPLASH:
-		case MOD_PLASMA_SPLASH:
-			final = damage3 / 1.8f;
-			save = ceil(final * ARMOR_PROTECTION);
-			break;
-		case MOD_FLAMETHROWER:
-			final = damage3 / 2.5f;
-			save = ceil(final * ARMOR_PROTECTION);
-			break;
-	}
-	if(save >= client->ps.stats[STAT_ARMOR])
-	{
-		save = client->ps.stats[STAT_ARMOR];
-	}
-	if(!save)
-	{
-		return 0;
-	}
+	// armor
+	count = client->ps.stats[STAT_ARMOR];
+	save = ceil(damage * ARMOR_PROTECTION);
+	if(save >= count)
+		save = count;
 
-	G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/armorbullet.wav"));
+	if(!save)
+		return 0;
 
 	client->ps.stats[STAT_ARMOR] -= save;
-
-	if(client->ps.stats[STAT_ARMOR] <= 0)
-	{
-		client->ps.stats[STAT_ARMOR] = 0;
-	}
 
 	return save;
 }
@@ -1652,14 +931,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	int             take;
 	int             save;
 	int             asave;
-
-//  int damagegt;
-//  int damagert;
 	int             knockback;
-	int             count;
 	int             max;
 
-//  trace_t     trace;
 #ifdef MISSIONPACK
 	vec3_t          bouncedir, impactpoint;
 #endif
@@ -1745,53 +1019,11 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		VectorNormalize(dir);
 	}
 
-	if(Instagib.integer == 1)
+	knockback = damage;
+	if(knockback > 200)
 	{
-		if(mod == MOD_ROCKET_SPLASH || mod == MOD_ROCKET)
-		{
-			knockback = damage * 2;
-		}
-		else
-		{
-			if(InstaWeapon.integer == 2)
-			{
-				knockback = 60;
-			}
-			else
-			{
-				knockback = 0;
-			}
-		}
-		if(knockback > 200)
-		{
-			knockback = 200;
-		}
-		if(attacker->client && attacker->client->ps.powerups[PW_QUAD] >= 1)
-		{
-			knockback = damage / 4;
-		}
+		knockback = 200;
 	}
-	else
-	{
-		if(attacker->client && attacker->client->ps.powerups[PW_QUAD] >= 1)
-		{
-			knockback = damage / 4;
-		}
-		else
-		{
-			knockback = damage;
-		}
-		if(knockback > 200)
-		{
-			knockback = 200;
-		}
-	}
-
-	if(mod == MOD_RAILGUN && targ->client->ps.stats[STAT_HEALTH] <= 0)
-	{
-		knockback = 0;
-	}
-
 	if(targ->flags & FL_NO_KNOCKBACK)
 	{
 		knockback = 0;
@@ -1799,40 +1031,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if(dflags & DAMAGE_NO_KNOCKBACK)
 	{
 		knockback = 0;
-	}
-	if(client && client->ps.powerups[PW_SPAWNPROT])
-	{
-		knockback = 0;
-	}
-
-	if(mod == MOD_MACHINEGUN)
-	{
-		knockback += 4;
-	}
-	if(mod == MOD_PLASMA)
-	{
-		knockback += 5;
-	}
-	if(mod == MOD_GRENADE)
-	{
-		knockback += 5;
-	}
-	if(mod == MOD_PLASMA_SPLASH)
-	{
-		knockback += 7;
-	}
-	if(mod == MOD_GRENADE_SPLASH)
-	{
-		knockback += 65;
-	}
-	if(mod == MOD_FLAMETHROWER)
-	{
-		knockback = 0;
-	}
-
-	if(mod == MOD_GRENADE && targ->client->ps.stats[STAT_HEALTH] <= 0)
-	{
-		knockback = 5;
 	}
 
 	// figure momentum add, even if the damage won't be taken
@@ -1903,25 +1101,14 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		{
 			return;
 		}
-		if(client && client->ps.powerups[PW_SPAWNPROT])
-		{
-			G_AddEvent(targ, EV_POWERUP_BATTLESUIT, 0);
-			return;
-		}
 	}
-	if(Falling.integer == 0)
-	{
-		if(mod == MOD_FALLING)
-		{
-			return;
-		}
-	}
+
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
 	if(client && client->ps.powerups[PW_BATTLESUIT])
 	{
 		G_AddEvent(targ, EV_POWERUP_BATTLESUIT, 0);
-		if((dflags & DAMAGE_RADIUS) || (mod == MOD_FALLING) || (mod == MOD_FLAMETHROWER))
+		if((dflags & DAMAGE_RADIUS) || (mod == MOD_FALLING))
 		{
 			return;
 		}
@@ -1946,72 +1133,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// calculated after knockback, so rocket jumping works
 	if(targ == attacker)
 	{
-		if(mod != MOD_FLAMETHROWER)
-		{
-			damage *= 0.5;
-		}
+		damage *= 0.5;
 	}
-
-	if(targ == attacker)
-	{
-		if(dflags & DAMAGE_NO_SELF)
-		{
-			return;
-		}
-	}
-
-	if(Hurtself.integer == 0)
-	{
-		if(targ == attacker)
-		{
-			if(mod == MOD_BFG_SPLASH)
-			{
-				return;
-			}
-		}
-	}
-	if(Hurtself.integer == 0)
-	{
-		if(targ == attacker)
-		{
-			if(mod == MOD_PLASMA_SPLASH)
-			{
-				return;
-			}
-		}
-	}
-	if(Hurtself.integer == 0)
-	{
-		if(targ == attacker)
-		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				return;
-			}
-		}
-	}
-	if(Hurtself.integer == 0)
-	{
-		if(targ == attacker)
-		{
-			if(mod == MOD_FLAMETHROWER)
-			{
-				return;
-			}
-		}
-	}
-	if(Hurtself.integer == 0)
-	{
-		if(targ == attacker)
-		{
-			if(mod == MOD_GRENADE_SPLASH)
-			{
-				return;
-			}
-		}
-	}
-
-
 
 	if(damage < 1)
 	{
@@ -2020,74 +1143,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	take = damage;
 	save = 0;
 
-
-
-	if(targ->client && targ->client->ps.stats[STAT_HEALTH] > 0)
-	{
-		if(targ != attacker && targ->client)
-		{
-			switch (mod)
-			{
-				case MOD_MACHINEGUN:
-				case MOD_SHOTGUN:
-				case MOD_RAILGUN:
-				case MOD_PLASMA:
-				case MOD_GAUNTLET:
-				case MOD_LIGHTNING:
-				case MOD_GRENADE:
-				case MOD_ROCKET:
-				case MOD_BFG_SPLASH:
-				case MOD_BFG:
-				case MOD_ROCKET_SPLASH:
-				case MOD_GRENADE_SPLASH:
-				case MOD_PLASMA_SPLASH:
-				case MOD_FLAMETHROWER:
-					if(damage >= targ->client->ps.stats[STAT_HEALTH])
-					{
-						count = targ->client->ps.stats[STAT_HEALTH];
-					}
-					else if(damage < targ->client->ps.stats[STAT_HEALTH])
-					{
-						count = damage;
-					}
-					targ->client->damageRT += count;
-					break;
-			}
-		}
-		if(targ != attacker && attacker->client)
-		{
-			switch (mod)
-			{
-				case MOD_MACHINEGUN:
-				case MOD_SHOTGUN:
-				case MOD_RAILGUN:
-				case MOD_PLASMA:
-				case MOD_GAUNTLET:
-				case MOD_LIGHTNING:
-				case MOD_GRENADE:
-				case MOD_ROCKET:
-				case MOD_BFG_SPLASH:
-				case MOD_BFG:
-				case MOD_ROCKET_SPLASH:
-				case MOD_GRENADE_SPLASH:
-				case MOD_PLASMA_SPLASH:
-				case MOD_FLAMETHROWER:
-					if(damage >= targ->client->ps.stats[STAT_HEALTH])
-					{
-						count = targ->client->ps.stats[STAT_HEALTH];
-					}
-					else if(damage < targ->client->ps.stats[STAT_HEALTH])
-					{
-						count = damage;
-					}
-					attacker->client->damageGT += count;
-					break;
-			}
-		}
-	}
-
 	// save some from armor
-	asave = CheckArmor(targ, damage, dflags, attacker, mod);
+	asave = CheckArmor(targ, take, dflags);
 	take -= asave;
 
 	if(g_debugDamage.integer)
@@ -2095,112 +1152,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		G_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number, targ->health, take, asave);
 	}
 
-	if(attacker->client)
-	{
-		//  who = g_entities + attacker->client->lastkilled_client;
-		if(mod == MOD_RAILGUN)
-		{
-			if(targ->client->lasthurt_mod == (MOD_ROCKET_SPLASH || MOD_GRENADE_SPLASH || MOD_BFG_SPLASH) &&
-			   targ->client->ps.groundEntityNum == ENTITYNUM_NONE)
-			{
-				if(targ->client->ps.groundEntityNum != ENTITYNUM_NONE)
-				{
-					attacker->client->lasthurt_cltime = 0;
-				}
-				if(level.time - attacker->client->lasthurt_cltime < 1150)
-				{
-					if(targ->client->ps.groundEntityNum == ENTITYNUM_NONE && targ->client->ps.stats[STAT_HEALTH] >= 1)
-					{
-//                          attacker->client->ps.persistant[PERS_RLRGCOMBO_COUNT]++;
-						targ->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-						if(attacker->client)
-						{
-							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-						}
-						// add the sprite over the player's head
-						attacker->client->ps.eFlags &=
-							~(EF_AWARD_RLRGCOMBO | EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST
-							  | EF_AWARD_DEFEND | EF_AWARD_CAP);
-						attacker->client->ps.eFlags |= EF_AWARD_RLRGCOMBO;
-						attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-					}
-				}
-			}
-			else if(targ->client->lasthurt_mod == (MOD_ROCKET || MOD_GRENADE || MOD_BFG) &&
-					targ->client->ps.groundEntityNum == ENTITYNUM_NONE)
-			{
-				if(targ->client->ps.groundEntityNum != ENTITYNUM_NONE)
-				{
-					attacker->client->lasthurt_cltime = 0;
-				}
-				if(level.time - attacker->client->lasthurt_cltime < 900)
-				{
-					if(targ->client->ps.groundEntityNum == ENTITYNUM_NONE && targ->client->ps.stats[STAT_HEALTH] >= 1)
-					{
-//                          attacker->client->ps.persistant[PERS_RLRGCOMBO_COUNT]++;
-						targ->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-						if(attacker->client)
-						{
-							attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-						}
-						// add the sprite over the player's head
-						attacker->client->ps.eFlags &=
-							~(EF_AWARD_RLRGCOMBO | EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST
-							  | EF_AWARD_DEFEND | EF_AWARD_CAP);
-						attacker->client->ps.eFlags |= EF_AWARD_RLRGCOMBO;
-						attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-					}
-				}
-			}
-		}
-
-		attacker->client->lasthurt_cltime = level.time;
-
-		if(mod == MOD_ROCKET)
-		{
-			if(targ->client->lasthurt_mod == MOD_ROCKET_SPLASH && targ->client->ps.groundEntityNum == ENTITYNUM_NONE)
-			{
-				if(targ->client->ps.groundEntityNum != ENTITYNUM_NONE)
-				{
-					attacker->client->lasthurt_cl1time = 0;
-				}
-				if(level.time - attacker->client->lasthurt_cl1time < 2000)
-				{
-					if(targ->client->ps.groundEntityNum == ENTITYNUM_NONE && targ->client->ps.stats[STAT_HEALTH] >= 1)
-					{
-						attacker->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-						// add the sprite over the player's head
-						attacker->client->ps.eFlags &=
-							~(EF_AWARD_RLRGCOMBO | EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST
-							  | EF_AWARD_DEFEND | EF_AWARD_CAP);
-						attacker->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
-						attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-					}
-				}
-			}
-			else if(targ->client->lasthurt_mod == MOD_ROCKET && targ->client->ps.groundEntityNum == ENTITYNUM_NONE)
-			{
-				if(targ->client->ps.groundEntityNum != ENTITYNUM_NONE)
-				{
-					attacker->client->lasthurt_cl1time = 0;
-				}
-				if(level.time - attacker->client->lasthurt_cl1time < 2000)
-				{
-					if(targ->client->ps.groundEntityNum == ENTITYNUM_NONE && targ->client->ps.stats[STAT_HEALTH] >= 1)
-					{
-						attacker->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-						// add the sprite over the player's head
-						attacker->client->ps.eFlags &=
-							~(EF_AWARD_RLRGCOMBO | EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST
-							  | EF_AWARD_DEFEND | EF_AWARD_CAP);
-						attacker->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
-						attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-					}
-				}
-			}
-		}
-		attacker->client->lasthurt_cl1time = level.time;
-	}
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
 	// at the end of the frame
@@ -2250,149 +1201,19 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// do the damage
 	if(take)
 	{
+		targ->health = targ->health - take;
 		if(targ->client)
 		{
-			if(mod == MOD_ROCKET_SPLASH)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_GRENADE_SPLASH)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_PLASMA_SPLASH)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_FLAMETHROWER)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_MACHINEGUN)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_SHOTGUN)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_GRENADE)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_PLASMA)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_RAILGUN)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_GAUNTLET)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_ROCKET)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else if(mod == MOD_LIGHTNING)
-			{
-				if(targ->client->ps.stats[STAT_ARMOR] <= 0)
-				{
-					targ->health = targ->health - take;
-				}
-			}
-			else
-			{
-				targ->health = targ->health - take;
-			}
-		}
-		else
-		{
-			targ->health = targ->health - take;
-		}
-		// vampire mode
-		if(vampire.integer == 1)
-		{
-			if(targ->client && attacker->client)
-			{
-				if(attacker->health >= 1 && attacker->health < 100)
-				{
-					if(targ->r.contents != CONTENTS_CORPSE)
-					{
-						if(targ != attacker)
-						{
-							if(targ->client->ps.stats[STAT_ARMOR] == 0)
-							{
-								if(targ != attacker)
-								{
-									if(!OnSameTeam(targ, attacker))
-									{
-										if(attacker->health + take / 4.0 <= 100)
-										{
-											attacker->health += take / 4.0;
-										}
-										else if(attacker->health + take / 4.0 >= 100)
-										{
-											attacker->health = 100;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// vampire mode
-		if(targ->client)
-		{
-
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
 		}
 
 		if(targ->health <= 0)
 		{
 			if(client)
-				//  targ->flags |= FL_NO_KNOCKBACK;
+				targ->flags |= FL_NO_KNOCKBACK;
 
-				if(targ->health < -999)
-					targ->health = -999;
+			if(targ->health < -999)
+				targ->health = -999;
 
 			targ->enemy = attacker;
 			targ->die(targ, inflictor, attacker, take, mod);
@@ -2546,59 +1367,3 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 
 	return hitClient;
 }
-
-/*
-qboolean G_RadiusRailDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
-					 gentity_t *ignore, int mod,vec3_t start,const vec3_t end) {
-	float		points, dist;
-	gentity_t	*ent;
-	int			entityList[MAX_GENTITIES];
-//	int			numListedEntities;
-	vec3_t		mins, maxs;
-	vec3_t		v;
-	vec3_t		dir;
-	trace_t		*trace;
-	int			i, e;
-	qboolean	hitClient = qfalse;
-
-	if ( radius < 1 ) {
-		radius = 1;
-	}
-
-	for ( i = 0 ; i < 3 ; i++ ) {
-		mins[i] = origin[i] - radius;
-		maxs[i] = origin[i] + radius;
-	}
-
-//	trap_TraceCapsule( trace, start, mins, maxs, end, ignore->client->ps.clientNum, MASK_SHOT );
-	ent = &g_entities[ trace->entityNum ];
-
-	if( ent->client) {
-	//	if( LogAccuracyHit( ent, attacker ) ) {
-				hitClient = qtrue;
-	//	}
-		VectorSubtract (ent->r.currentOrigin, origin, dir);
-			// push the center of mass higher than the origin so players
-			// get knocked into the air more
-		dir[2] += 24;
-		G_Damage (ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS, mod);
-	}
-
-//	numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-
-
-	for ( e = 0 ; e < trace.entityNum ; e++ ) {
-		ent = &g_entities[ e ];
-
-		if (ent == ignore)
-			continue;
-		if (!ent->takedamage)
-			continue;
-
-
-
-	}
-
-	return hitClient;
-}
-*/

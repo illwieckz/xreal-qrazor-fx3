@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -46,9 +45,6 @@ typedef long    intptr_t;
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
-//unlagged - lag simulation #2
-#define MAX_LATENT_CMDS 50
-//unlagged - lag simulation #2
 #define MAX_TEAMNAME 32
 
 #ifdef _MSC_VER
@@ -73,7 +69,7 @@ typedef long    intptr_t;
 #pragma warning(disable : 4702)	// unreachable code
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
-#pragma warning(disable : 4996)	// deprecated functions
+#pragma warning(disable : 4996) // deprecated functions
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
@@ -508,8 +504,6 @@ typedef int     clipHandle_t;
 
 #define	MAX_NAME_LENGTH		32	// max length of a client name
 
-#define	MAX_MOTD_LENGTH		62	// max length of a client name
-
 #define	MAX_SAY_TEXT	150
 
 // paramters for command buffer stuffing
@@ -673,8 +667,6 @@ extern vec3_t   bytedirs[NUMVERTEXNORMALS];
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	16
 
-#define SMALLSCORE_SIZE		14
-
 #define BIGCHAR_WIDTH		16
 #define BIGCHAR_HEIGHT		16
 
@@ -695,13 +687,6 @@ extern vec4_t   colorDkGrey;
 
 #define Q_COLOR_ESCAPE	'^'
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
-#define ishex(ch) ((ch) && (( (ch) >= '0' && (ch) <= '9' ) || ( (ch) >= 'A' && (ch) <= 'F' ) || ( (ch) >= 'a' && (ch) <= 'f' )) )
-#define Q_IsAbsoluteColorString(p)  (ishex(*(p)) && ishex(*((p)+1)) && ishex(*((p)+2)) && \
- 					ishex(*((p)+3)) && ishex(*((p)+4)) && ishex(*((p)+5)) )
-#define gethex(ch) ((ch) > '9' ? ((ch) >= 'a' ? ((ch) - 'a' + 10) : ((ch) - '7')): ((ch) - '0'))
-#define Q_IsBlackColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == '0' )
-#define Q_IsNewColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == 'b' || *((p)+1) == 'B' || *((p)+1) == 'f' || *((p)+1) == 'F' || *((p)+1) == 'i' || *((p)+1) == 'I')
-#define Q_IsMultiFontString(p)	( (p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == 'a') || (p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) == 'A'))
 
 #define COLOR_BLACK		'0'
 #define COLOR_RED		'1'
@@ -746,7 +731,6 @@ extern quat_t   quatIdentity;
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
-// *INDENT-OFF*
 static ID_INLINE float Q_rsqrt(float number)
 {
 	float           y;
@@ -849,7 +833,6 @@ static ID_INLINE vec_t Q_recip(vec_t in)
 	return ((float)(1.0f / (in)));
 #endif
 }
-// *INDENT-ON*
 
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
@@ -891,11 +874,6 @@ void            ByteToDir(int b, vec3_t dir);
 #endif
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
-void            SnapVectorTowards(vec3_t v, vec3_t to);
-
-void            vectoangles(const vec3_t value1, vec3_t angles);
-float           vectoyaw(const vec3_t vec);
-
 // just in case you do't want to use the macros
 vec_t           _DotProduct(const vec3_t a, const vec3_t b);
 void            _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out);
@@ -1060,8 +1038,8 @@ float           Q_crandom(int *seed);
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
+void            vectoangles(const vec3_t value1, vec3_t angles);
 void            AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
-void            AxisToAngles(vec3_t axis[3], vec3_t angles);
 
 void            AxisClear(vec3_t axis[3]);
 void            AxisCopy(vec3_t in[3], vec3_t out[3]);
@@ -1323,9 +1301,6 @@ int             Q_isprint(int c);
 int             Q_islower(int c);
 int             Q_isupper(int c);
 int             Q_isalpha(int c);
-int             Q_isnumeric(int c);	//----(SA)  added
-int             Q_isalphanumeric(int c);	//----(SA)  added
-int             Q_isforfilename(int c);	//----(SA)  added
 
 // portable case insensitive compare
 int             Q_stricmp(const char *s1, const char *s2);
@@ -1346,8 +1321,6 @@ int             Q_PrintStrlen(const char *string);
 
 // removes color sequences from string
 char           *Q_CleanStr(char *string);
-char           *Q_CleanAbsoluteColorStr(char *string);
-char           *Q_MultiFontStr(char *string);
 
 //=============================================
 
@@ -1587,10 +1560,6 @@ typedef enum
 #define	ENTITYNUM_WORLD		(MAX_GENTITIES-2)
 #define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
-#define	MAX_LOCAL_ENTITIES	10000
-#define FIRE_FLASH_TIME		2200
-#define	MAX_CAMERAFX		2048
-#define	MAX_MAPFX			1600
 
 #define	MAX_MODELS			256	// these are sent over the net as 8 bits
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
@@ -1760,11 +1729,7 @@ typedef enum
 	TR_LINEAR,
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
-	TR_GRAVITY_LOW,
-	TR_GRAVITY_FLOAT,			// super low grav with no gravity acceleration (floating feathers/fabric/leaves/...)
-	TR_GRAVITY,
-	TR_ACCELERATE,
-	TR_DECCELERATE
+	TR_GRAVITY
 } trType_t;
 
 typedef struct
@@ -1919,18 +1884,9 @@ typedef enum _flag_status
 	FLAG_TAKEN,					// CTF
 	FLAG_TAKEN_RED,				// One Flag CTF
 	FLAG_TAKEN_BLUE,			// One Flag CTF
-	FLAG_DROPPED,
-	FLAG_RETURNING
+	FLAG_DROPPED
 } flagStatus_t;
 
-// generic flags
-#define GNF_GRENSPARKS	0x00000002	// for grenade sparks
-#define GNF_ONFIRE		0x00000004
-#define GNF_ONFIREHEAD	0x00000008
-#define GNF_ONFIREARM	0x00000010
-#define GNF_INWATER		0x00000020	// a flag to tell the client that this missle started in water
-#define GNF_OUTWATER	0x00000040	// a flag to tell the client that this missle started out of water
-#define GNF_DEADVIEW	0x00000080	// a flag to tell the client that this missle started out of water
 
 
 #define	MAX_GLOBAL_SERVERS				4096

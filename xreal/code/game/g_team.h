@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -79,7 +78,7 @@ void            Team_DroppedFlagThink(gentity_t * ent);
 void            Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker);
 void            Team_CheckHurtCarrier(gentity_t * targ, gentity_t * attacker);
 void            Team_InitGame(void);
-void            Team_ReturnFlag(gentity_t * flag, int team);
+void            Team_ReturnFlag(int team);
 void            Team_FreeEntity(gentity_t * ent);
 gentity_t      *SelectCTFSpawnPoint(team_t team, int teamstate, vec3_t origin, vec3_t angles);
 gentity_t      *Team_GetLocation(gentity_t * ent);

@@ -39,8 +39,8 @@ G_InitLua
 void G_InitLua()
 {
 	char            buf[MAX_STRING_CHARS];
-	char            filename[MAX_QPATH];
-
+	char			filename[MAX_QPATH];
+	
 	G_Printf("------- Lua Initialization -------\n");
 
 	g_luaState = lua_open();
@@ -54,11 +54,11 @@ void G_InitLua()
 	luaopen_game(g_luaState);
 	luaopen_qmath(g_luaState);
 	luaopen_vector(g_luaState);
-
+	
 	// load map specific Lua script as default
 	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
 	Com_sprintf(filename, sizeof(filename), "scripts/lua/%s.lua", buf);
-
+	
 	G_LoadLuaScript(NULL, filename);
 
 	G_Printf("-----------------------------------\n");
@@ -91,7 +91,7 @@ void G_LoadLuaScript(gentity_t * ent, const char *filename)
 	int             len;
 	fileHandle_t    f;
 	char            buf[MAX_LUAFILE];
-
+	
 	G_Printf("...loading '%s'\n", filename);
 
 	len = trap_FS_FOpenFile(filename, &f, FS_READ);
@@ -129,7 +129,7 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 	va_list         vl;
 	int             narg, nres;	// number of arguments and results
 	lua_State      *L = g_luaState;
-
+	
 	if(!func || !func[0])
 		return;
 
@@ -145,26 +145,23 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 			case 'd':
 				// double argument
 				lua_pushnumber(L, va_arg(vl, double));
-
 				break;
 
 			case 'i':
 				// int argument
 				lua_pushnumber(L, va_arg(vl, int));
-
 				break;
 
 			case 's':
 				// string argument
 				lua_pushstring(L, va_arg(vl, char *));
-
 				break;
-
+				
 			case 'e':
 				// entity argument
 				lua_pushentity(L, va_arg(vl, gentity_t *));
 				break;
-
+				
 			case 'v':
 				// vector argument
 				lua_pushvector(L, va_arg(vl, vec_t *));
@@ -201,7 +198,7 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 
 				break;
 
-			case 'i':
+			case 'i':			
 				// int result
 				if(!lua_isnumber(L, nres))
 					G_Printf("G_RunLuaFunction: wrong result type\n");
@@ -259,7 +256,7 @@ void G_DumpLuaStack()
 				G_Printf("%g", lua_tonumber(L, i));
 				break;
 
-			default:
+			default:			
 				// other values
 				G_Printf("%s", lua_typename(L, t));
 				break;

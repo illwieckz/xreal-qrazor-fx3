@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -69,16 +68,6 @@ gentity_t      *G_TestEntityPosition(gentity_t * ent)
 	if(ent->client)
 	{
 		trap_Trace(&tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask);
-	}
-	else if(ent->s.eType == ET_DEADQPLAYER || ent->s.eType == ET_DEADPLAYER || ent->s.eType == ET_PLAYER
-			|| ent->s.eType == ET_DEADPLAYERHEAD || ent->s.eType == ET_DEADPLAYERLEGS || ent->s.eType == ET_DEADQPLAYERHEAD
-			|| ent->s.eType == ET_DEADQPLAYERLEGS)
-	{
-		vec3_t          pos;
-
-		VectorCopy(ent->s.pos.trBase, pos);
-		pos[2] += 71;			// move up a bit - corpses normally got their origin slightly in the ground
-		trap_Trace(&tr, pos, ent->r.mins, ent->r.maxs, pos, ent->s.number, mask);
 	}
 	else
 	{
@@ -416,17 +405,13 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 		}
 #endif
 		// only push items and players
-		if(check->s.eType != ET_ITEM && check->s.eType != ET_DEADQPLAYER && check->s.eType != ET_DEADPLAYER
-		   && check->s.eType != ET_PLAYER && !check->physicsObject && check->s.eType != ET_DEADPLAYERHEAD &&
-		   check->s.eType != ET_DEADPLAYERLEGS && check->s.eType != ET_DEADQPLAYERLEGS && check->s.eType != ET_DEADQPLAYERHEAD)
+		if(check->s.eType != ET_ITEM && check->s.eType != ET_PLAYER && !check->physicsObject)
 		{
 			continue;
 		}
 
 		// if the entity is standing on the pusher, it will definitely be moved
-		if(check->s.groundEntityNum != pusher->s.number && check->s.eType != ET_DEADQPLAYER && check->s.eType != ET_DEADPLAYER
-		   && check->s.eType != ET_DEADPLAYERHEAD && check->s.eType != ET_DEADPLAYERLEGS && check->s.eType != ET_DEADQPLAYERLEGS
-		   && check->s.eType != ET_DEADQPLAYERHEAD)
+		if(check->s.groundEntityNum != pusher->s.number)
 		{
 			// see if the ent needs to be tested
 			if(check->r.absmin[0] >= maxs[0]
@@ -882,7 +867,6 @@ void InitMover(gentity_t * ent)
 	ent->moverState = MOVER_POS1;
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
-	ent->r.contents = CONTENTS_SOLID;
 	VectorCopy(ent->pos1, ent->r.currentOrigin);
 	trap_LinkEntity(ent);
 
@@ -1073,8 +1057,8 @@ START_OPEN	the door to moves to its destination when spawned, and operate in rev
 NOMONSTER	monsters will not trigger this door
 
 "model2"	.md3 model to also draw
-"angle"		determines the opening direction
-"targetname" if set, no touch field will be spawned and a remote button or trigger field activates the door.
+"movedir"	determines the opening direction
+"name" if set, no touch field will be spawned and a remote button or trigger field activates the door.
 "speed"		movement speed (100 default)
 "wait"		wait before returning (3 default, -1 = never return)
 "lip"		lip remaining at end of move (8 default)
@@ -1082,8 +1066,6 @@ NOMONSTER	monsters will not trigger this door
 "color"		constantLight color
 "light"		constantLight radius
 "health"	if set, the door must be shot open
-"startsound" specify a custom sound for the door starting
-"endsound" specify a custom sound for the door end movment
 */
 void SP_func_door(gentity_t * ent)
 {
@@ -1199,7 +1181,7 @@ void Touch_Plat(gentity_t * ent, gentity_t * other, trace_t * trace)
 	// delay return-to-pos1 by one second
 	if(ent->moverState == MOVER_POS2)
 	{
-		ent->nextthink = level.time + 1600;
+		ent->nextthink = level.time + 1000;
 	}
 }
 
@@ -1282,22 +1264,13 @@ Plats are always drawn in the extended position so they will light correctly.
 "model2"	.md3 model to also draw
 "color"		constantLight color
 "light"		constantLight radius
-"triggered"	 {1/0} value	If this is set then the platform will allways operate even if a player
-is still on it( mainly for triggered platforms where ppl from the top can call it and ride it down)
-"startsound" specify a custom sound for the platform starting
-"endsound" specify a custom sound for the platform end movment
 */
 void SP_func_plat(gentity_t * ent)
 {
 	float           lip, height;
-	char           *start;
-	char           *end;
 
-	G_SpawnString("startsound", "sound/movers/plats/pt1_strt.wav", &start);
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(start);
-
-	G_SpawnString("endsound", "sound/movers/plats/pt1_end.wav", &end);
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex(end);
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
+	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/plats/pt1_end.wav");
 
 	VectorClear(ent->s.angles);
 
@@ -1305,9 +1278,8 @@ void SP_func_plat(gentity_t * ent)
 	G_SpawnInt("dmg", "2", &ent->damage);
 	G_SpawnFloat("wait", "1", &ent->wait);
 	G_SpawnFloat("lip", "8", &lip);
-	G_SpawnInt("triggered", "0", &ent->waterlevel);
 
-	ent->wait = 1600;
+	ent->wait = 1000;
 
 	// create second position
 	trap_SetBrushModel(ent, ent->model);
@@ -1326,10 +1298,7 @@ void SP_func_plat(gentity_t * ent)
 
 	// touch function keeps the plat from returning while
 	// a live player is standing on it
-	if(ent->waterlevel == 0)
-	{
-		ent->touch = Touch_Plat;
-	}
+	ent->touch = Touch_Plat;
 
 	ent->blocked = Blocked_Door;
 
@@ -1543,9 +1512,7 @@ void Think_SetupTrainTargets(gentity_t * ent)
 {
 	gentity_t      *path, *next, *start;
 
-	//break q3/d3
 	ent->nextTrain = G_Find(NULL, FOFS(name), ent->target);
-//  ent->nextTrain = G_Find( NULL, FOFS(targetname), ent->target );
 	if(!ent->nextTrain)
 	{
 		G_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
@@ -1572,9 +1539,7 @@ void Think_SetupTrainTargets(gentity_t * ent)
 		next = NULL;
 		do
 		{
-			//break q3/d3
 			next = G_Find(next, FOFS(name), path->target);
-			//next = G_Find( next, FOFS(targetname), path->target );
 			if(!next)
 			{
 				G_Printf("Train corner at %s without a target path_corner\n", vtos(path->s.origin));
@@ -1599,9 +1564,9 @@ Target: next path corner and other targets to fire
 */
 void SP_path_corner(gentity_t * self)
 {
-	if(!self->targetname)
+	if(!self->name)
 	{
-		G_Printf("path_corner with no targetname at %s\n", vtos(self->s.origin));
+		G_Printf("path_corner with no name at %s\n", vtos(self->s.origin));
 		G_FreeEntity(self);
 		return;
 	}
@@ -1875,7 +1840,7 @@ void Think_Mover(gentity_t * self)
 	G_RunLuaFunction(self->luaThink, "e>", self);
 #endif
 
-//  self->nextthink = level.time + FRAMETIME;
+//	self->nextthink = level.time + FRAMETIME;
 }
 
 
@@ -1887,15 +1852,15 @@ void Think_Mover(gentity_t * self)
 void SP_func_mover(gentity_t * self)
 {
 	trap_SetBrushModel(self, self->model);
-
+	
 	InitMover(self);
-
+	
 	VectorCopy(self->s.origin, self->s.pos.trBase);
 	VectorCopy(self->s.origin, self->r.currentOrigin);
 
 	self->nextthink = level.time + FRAMETIME;
 	self->think = Think_Mover;
-
+	
 	trap_LinkEntity(self);
 }
 

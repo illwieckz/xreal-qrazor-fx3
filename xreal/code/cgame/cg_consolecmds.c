@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -21,6 +20,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+//
 // cg_consolecmds.c -- text commands typed in at the local console, or
 // executed by a key binding
 
@@ -84,8 +84,8 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-	CG_Printf("(%i %i %i) : %i\n", (int)cg.refdef[0].vieworg[0],
-			  (int)cg.refdef[0].vieworg[1], (int)cg.refdef[0].vieworg[2], (int)cg.refdefViewAngles[0][YAW]);
+	CG_Printf("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
+			  (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], (int)cg.refdefViewAngles[YAW]);
 }
 
 
@@ -501,41 +501,6 @@ static void CG_StartOrbit_f(void)
 }
 
 /*
-=================================
-	CG_ScrollMOTD
-=================================
-*/
-static void CG_Scrollmotd(void)
-{
-
-	cg.logoTime1 = 999999;		// <-- huge code work :P
-
-}
-
-/*
-=================================
-	CG_ScrollMOTD
-=================================
-*/
-static void CG_Scrollstat(void)
-{
-
-	trap_SendConsoleCommand("stats2");
-	cg.statTime = cg.laststatTime = 999999;
-
-}
-
-static void CG_parsefx(void)
-{
-	const char     *file;
-
-	file = va("fx/%s.fx", cgs.map);
-	CG_ParseFXFile(file);
-
-
-}
-
-/*
 static void CG_Camera_f( void ) {
 	char name[1024];
 	trap_Argv( 1, name, sizeof(name));
@@ -570,7 +535,8 @@ static consoleCommand_t commands[] = {
 	{"viewpos", CG_Viewpos_f},
 	{"+scores", CG_ScoresDown_f},
 	{"-scores", CG_ScoresUp_f},
-	{"+zoom", CG_Zoom_f},
+	{"+zoom", CG_ZoomDown_f},
+	{"-zoom", CG_ZoomUp_f},
 	{"sizeup", CG_SizeUp_f},
 	{"sizedown", CG_SizeDown_f},
 	{"weapnext", CG_NextWeapon_f},
@@ -581,12 +547,33 @@ static consoleCommand_t commands[] = {
 	{"vtell_target", CG_VoiceTellTarget_f},
 	{"vtell_attacker", CG_VoiceTellAttacker_f},
 	{"tcmd", CG_TargetCommand_f},
-	{"motd", CG_Scrollmotd},
-	{"statsw", CG_Scrollstat},
-	{"statprev", CG_ParseStatisticsInfo},
-	{"statnext", CG_ParseStatisticsInfo},
+#ifdef MISSIONPACK
+	{"loadhud", CG_LoadHud_f},
+	{"nextTeamMember", CG_NextTeamMember_f},
+	{"prevTeamMember", CG_PrevTeamMember_f},
+	{"nextOrder", CG_NextOrder_f},
+	{"confirmOrder", CG_ConfirmOrder_f},
+	{"denyOrder", CG_DenyOrder_f},
+	{"taskOffense", CG_TaskOffense_f},
+	{"taskDefense", CG_TaskDefense_f},
+	{"taskPatrol", CG_TaskPatrol_f},
+	{"taskCamp", CG_TaskCamp_f},
+	{"taskFollow", CG_TaskFollow_f},
+	{"taskRetrieve", CG_TaskRetrieve_f},
+	{"taskEscort", CG_TaskEscort_f},
+	{"taskSuicide", CG_TaskSuicide_f},
+	{"taskOwnFlag", CG_TaskOwnFlag_f},
+	{"tauntKillInsult", CG_TauntKillInsult_f},
+	{"tauntPraise", CG_TauntPraise_f},
+	{"tauntTaunt", CG_TauntTaunt_f},
+	{"tauntDeathInsult", CG_TauntDeathInsult_f},
+	{"tauntGauntlet", CG_TauntGauntlet_f},
+	{"spWin", CG_spWin_f},
+	{"spLose", CG_spLose_f},
+	{"scoresDown", CG_scrollScoresDown_f},
+	{"scoresUp", CG_scrollScoresUp_f},
+#endif
 	{"startOrbit", CG_StartOrbit_f},
-	{"fx", CG_parsefx},
 	//{ "camera", CG_Camera_f },
 	{"loaddeferred", CG_LoadDeferredPlayers}
 };
@@ -665,16 +652,9 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("vote");
 	trap_AddCommand("callteamvote");
 	trap_AddCommand("teamvote");
-	trap_AddCommand("statsw");
-	trap_AddCommand("stats2");
+	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
-	trap_AddCommand("motd");
-	trap_AddCommand("statistics");
 	trap_AddCommand("loaddefered");	// spelled wrong, but not changing for demo
-	trap_AddCommand("statprev");
-	trap_AddCommand("statnext");
-	trap_AddCommand("mview");
-	trap_AddCommand("fx");
 #ifdef LUA
 	trap_AddCommand("lua_script");
 	trap_AddCommand("lua_binaryfunction");

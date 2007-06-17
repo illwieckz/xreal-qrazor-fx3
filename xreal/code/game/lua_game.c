@@ -41,10 +41,10 @@ static int game_Print(lua_State * L)
 		lua_pushvalue(L, i);	// value to print
 		lua_call(L, 1, 1);
 		s = lua_tostring(L, -1);	// get result
-
+		
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
-
+		
 		trap_Printf(s);
 		lua_pop(L, 1);			// pop result
 	}
@@ -69,17 +69,17 @@ static int game_Broadcast(lua_State * L)
 		lua_pushvalue(L, i);	// value to print
 		lua_call(L, 1, 1);
 		s = lua_tostring(L, -1);	// get result
-
+		
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
-
+		
 		Q_strcat(buf, sizeof(buf), s);
-
+		
 		lua_pop(L, 1);			// pop result
 	}
-
+	
 	trap_SendServerCommand(-1, va("cp \"" S_COLOR_WHITE "%s\n\"", buf));
-
+	
 	return 0;
 }
 
@@ -92,9 +92,9 @@ static const luaL_reg gamelib[] = {
 int luaopen_game(lua_State * L)
 {
 	luaL_register(L, "game", gamelib);
-
+	
 	lua_pushliteral(L, "_GAMEVERSION");
 	lua_pushliteral(L, GAMEVERSION);
-
+	
 	return 1;
 }

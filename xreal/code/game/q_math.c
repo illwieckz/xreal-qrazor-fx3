@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -316,86 +315,6 @@ vec_t PlaneNormalize(vec4_t plane)
 	return length;
 }
 
-void vectoangles(const vec3_t value1, vec3_t angles)
-{
-	float           forward;
-	float           yaw, pitch;
-
-	if(value1[1] == 0 && value1[0] == 0)
-	{
-		yaw = 0;
-		if(value1[2] > 0)
-		{
-			pitch = 90;
-		}
-		else
-		{
-			pitch = 270;
-		}
-	}
-	else
-	{
-		if(value1[0])
-		{
-			yaw = (atan2(value1[1], value1[0]) * 180 / M_PI);
-		}
-		else if(value1[1] > 0)
-		{
-			yaw = 90;
-		}
-		else
-		{
-			yaw = 270;
-		}
-		if(yaw < 0)
-		{
-			yaw += 360;
-		}
-
-		forward = sqrt(value1[0] * value1[0] + value1[1] * value1[1]);
-		pitch = (atan2(value1[2], forward) * 180 / M_PI);
-		if(pitch < 0)
-		{
-			pitch += 360;
-		}
-	}
-
-	angles[PITCH] = -pitch;
-	angles[YAW] = yaw;
-	angles[ROLL] = 0;
-}
-
-float vectoyaw(const vec3_t vec)
-{
-	float           yaw;
-
-	if(vec[YAW] == 0 && vec[PITCH] == 0)
-	{
-		yaw = 0;
-	}
-	else
-	{
-		if(vec[PITCH])
-		{
-			yaw = (atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
-		}
-		else if(vec[YAW] > 0)
-		{
-			yaw = 90;
-		}
-		else
-		{
-			yaw = 270;
-		}
-		if(yaw < 0)
-		{
-			yaw += 360;
-		}
-	}
-
-	return yaw;
-}
-
 
 /*
 =====================
@@ -519,34 +438,63 @@ void RotateAroundDirection(vec3_t axis[3], float yaw)
 	CrossProduct(axis[0], axis[1], axis[2]);
 }
 
-/*
-======================
-SnapVectorTowards
 
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
-into a wall.
-======================
-*/
-void SnapVectorTowards(vec3_t v, vec3_t to)
+
+void vectoangles(const vec3_t value1, vec3_t angles)
 {
-	int             i;
+	float           forward;
+	float           yaw, pitch;
 
-	for(i = 0; i < 3; i++)
+	if(value1[1] == 0 && value1[0] == 0)
 	{
-		if(to[i] <= v[i])
+		yaw = 0;
+		if(value1[2] > 0)
 		{
-			v[i] = (int)v[i];
+			pitch = 90;
 		}
 		else
 		{
-			v[i] = (int)v[i] + 1;
+			pitch = 270;
 		}
 	}
+	else
+	{
+		if(value1[0])
+		{
+			yaw = (atan2(value1[1], value1[0]) * 180 / M_PI);
+		}
+		else if(value1[1] > 0)
+		{
+			yaw = 90;
+		}
+		else
+		{
+			yaw = 270;
+		}
+		if(yaw < 0)
+		{
+			yaw += 360;
+		}
+
+		forward = sqrt(value1[0] * value1[0] + value1[1] * value1[1]);
+		pitch = (atan2(value1[2], forward) * 180 / M_PI);
+		if(pitch < 0)
+		{
+			pitch += 360;
+		}
+	}
+
+	angles[PITCH] = -pitch;
+	angles[YAW] = yaw;
+	angles[ROLL] = 0;
 }
 
 
+/*
+=================
+AnglesToAxis
+=================
+*/
 void AnglesToAxis(const vec3_t angles, vec3_t axis[3])
 {
 	vec3_t          right;
@@ -554,14 +502,6 @@ void AnglesToAxis(const vec3_t angles, vec3_t axis[3])
 	// angle vectors returns "right" instead of "y axis"
 	AngleVectors(angles, axis[0], right, axis[2]);
 	VectorSubtract(vec3_origin, right, axis[1]);
-}
-
-void AxisToAngles(vec3_t axis[3], vec3_t angles)
-{
-	matrix_t        m;
-
-	MatrixFromVectorsFLU(m, axis[0], axis[1], axis[2]);
-	MatrixToAngles(m, angles);
 }
 
 void AxisClear(vec3_t axis[3])

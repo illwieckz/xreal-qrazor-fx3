@@ -97,7 +97,7 @@ typedef struct
 	refBone_t       bones[MAX_BONES];
 	
 	vec3_t          bounds[2];	// bounds of all applied animations
-	refSkeletonType_t type;		// skeleton has been reset
+	refSkeletonType_t	type;		// skeleton has been reset
 } refSkeleton_t;
 
 typedef struct
@@ -153,22 +153,22 @@ typedef enum
 typedef struct
 {
 	refLightType_t  rlType;
-//  int             lightfx;
-
+//	int             lightfx;
+	
 	qhandle_t       attenuationShader;
-
+	
 	vec3_t          origin;
 	vec3_t          center;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
-
+	
 	// omni-directional light specific
 	vec3_t          radius;
 
 	// projective light specific
-	float           fovX;
-	float           fovY;
-	float           distance;
-
+	float			fovX;
+	float			fovY;
+	float			distance;
+	
 	vec3_t          axis[3];	// rotation vectors
 	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	qboolean        noShadows;
@@ -261,7 +261,7 @@ typedef struct
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
 	qboolean        textureEnvAddAvailable;
-
+	
 	int             maxCubeMapTextureSize;
 	qboolean        textureCubeAvailable;
 	qboolean        vertexProgramAvailable;
@@ -277,9 +277,9 @@ typedef struct
 	qboolean        drawBuffersAvailable;
 	qboolean        textureFloatAvailable;
 	int             maxDrawBuffers;
-	qboolean        stencilWrapAvailable;
-	float           maxTextureAnisotropy;
-	qboolean        textureAnisotropyAvailable;
+	qboolean		stencilWrapAvailable;
+	float			maxTextureAnisotropy;
+	qboolean		textureAnisotropyAvailable;
 	qboolean        framebufferObjectAvailable;
 	int             maxRenderbufferSize;
 	int             maxColorAttachments;

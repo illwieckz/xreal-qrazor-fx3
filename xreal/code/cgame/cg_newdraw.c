@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -36,7 +35,7 @@ extern displayContextDef_t cgDC;
 
 //static int sortedTeamPlayers[TEAM_MAXOVERLAY];
 //static int numSortedTeamPlayers;
-//int drawTeamOverlayModificationCount = -1;
+int             drawTeamOverlayModificationCount = -1;
 
 //static char systemChat[256];
 //static char teamChat1[256];
@@ -807,7 +806,7 @@ static void CG_DrawBlueFlagStatus(rectDef_t * rect, qhandle_t shader)
 		{
 			vec4_t          color = { 0, 0, 1, 1 };
 			trap_R_SetColor(color);
-//      CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cgs.media.blueCubeIcon );
+			CG_DrawPic(rect->x, rect->y, rect->w, rect->h, cgs.media.blueCubeIcon);
 			trap_R_SetColor(NULL);
 		}
 		return;
@@ -877,7 +876,7 @@ static void CG_DrawRedFlagStatus(rectDef_t * rect, qhandle_t shader)
 		{
 			vec4_t          color = { 1, 0, 0, 1 };
 			trap_R_SetColor(color);
-//      CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cgs.media.redCubeIcon );
+			CG_DrawPic(rect->x, rect->y, rect->w, rect->h, cgs.media.redCubeIcon);
 			trap_R_SetColor(NULL);
 		}
 		return;
@@ -957,11 +956,11 @@ static void CG_HarvesterSkulls(rectDef_t * rect, float scale, vec4_t color, qboo
 			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 			{
-//              handle = cgs.media.redCubeModel;
+				handle = cgs.media.redCubeModel;
 			}
 			else
 			{
-//              handle = cgs.media.blueCubeModel;
+				handle = cgs.media.blueCubeModel;
 			}
 			CG_Draw3DModel(rect->x, rect->y, 35, 35, handle, 0, origin, angles);
 		}
@@ -969,11 +968,11 @@ static void CG_HarvesterSkulls(rectDef_t * rect, float scale, vec4_t color, qboo
 		{
 			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 			{
-//              handle = cgs.media.redCubeIcon;
+				handle = cgs.media.redCubeIcon;
 			}
 			else
 			{
-//              handle = cgs.media.blueCubeIcon;
+				handle = cgs.media.blueCubeIcon;
 			}
 			CG_DrawPic(rect->x + 3, rect->y + 16, 20, 20, handle);
 		}
@@ -985,6 +984,36 @@ static void CG_OneFlagStatus(rectDef_t * rect)
 	if(cgs.gametype != GT_1FCTF)
 	{
 		return;
+	}
+	else
+	{
+		gitem_t        *item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
+
+		if(item)
+		{
+			if(cgs.flagStatus >= 0 && cgs.flagStatus <= 4)
+			{
+				vec4_t          color = { 1, 1, 1, 1 };
+				int             index = 0;
+
+				if(cgs.flagStatus == FLAG_TAKEN_RED)
+				{
+					color[1] = color[2] = 0;
+					index = 1;
+				}
+				else if(cgs.flagStatus == FLAG_TAKEN_BLUE)
+				{
+					color[0] = color[1] = 0;
+					index = 1;
+				}
+				else if(cgs.flagStatus == FLAG_DROPPED)
+				{
+					index = 2;
+				}
+				trap_R_SetColor(color);
+				CG_DrawPic(rect->x, rect->y, rect->w, rect->h, cgs.media.flagShaders[index]);
+			}
+		}
 	}
 }
 
@@ -1370,7 +1399,7 @@ qboolean CG_OwnerDrawVisible(int flags)
 
 	if(flags & CG_SHOW_IF_PLAYER_HAS_FLAG)
 	{
-		if(cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_BLUEFLAG])
+		if(cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
 		{
 			return qtrue;
 		}
@@ -1391,6 +1420,10 @@ static void CG_DrawPlayerHasFlag(rectDef_t * rect, qboolean force2D)
 	else if(cg.predictedPlayerState.powerups[PW_BLUEFLAG])
 	{
 		CG_DrawFlagModel(rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_BLUE, force2D);
+	}
+	else if(cg.predictedPlayerState.powerups[PW_NEUTRALFLAG])
+	{
+		CG_DrawFlagModel(rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_FREE, force2D);
 	}
 }
 
@@ -1843,9 +1876,6 @@ void CG_DrawMedal(int ownerDraw, rectDef_t * rect, float scale, vec4_t color, qh
 		case CG_IMPRESSIVE:
 			value = score->impressiveCount;
 			break;
-//      case CG_RLRGCOMBO:
-//          value = score->rlrgcomboCount;
-//          break;
 		case CG_PERFECT:
 			value = score->perfect;
 			break;
@@ -2064,7 +2094,6 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 		case CG_DEFEND:
 		case CG_EXCELLENT:
 		case CG_IMPRESSIVE:
-		case CG_RLRGCOMBO:
 		case CG_PERFECT:
 		case CG_GAUNTLET:
 		case CG_CAPTURES:

@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -38,12 +37,12 @@ float           pm_duckScale = 0.25f;
 float           pm_swimScale = 0.50f;
 float           pm_wadeScale = 0.70f;
 
-float           pm_accelerate = 18.0f;
-float           pm_airaccelerate = 1.5f;
+float           pm_accelerate = 10.0f;
+float           pm_airaccelerate = 1.0f;
 float           pm_wateraccelerate = 4.0f;
 float           pm_flyaccelerate = 8.0f;
 
-float           pm_friction = 8.0f;
+float           pm_friction = 6.0f;
 float           pm_waterfriction = 1.0f;
 float           pm_flightfriction = 3.0f;
 float           pm_spectatorfriction = 5.0f;
@@ -286,7 +285,7 @@ static void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 	accelspeed = accel * pml.frametime * wishspeed;
 	if(accelspeed > addspeed)
 	{
-		accelspeed = addspeed + 7;
+		accelspeed = addspeed;
 	}
 
 	for(i = 0; i < 3; i++)
@@ -590,7 +589,7 @@ static void PM_WaterMove(void)
 	{
 		wishvel[0] = 0;
 		wishvel[1] = 0;
-		wishvel[2] = 10;		// sink towards bottom
+		wishvel[2] = -60;		// sink towards bottom
 	}
 	else
 	{
@@ -1120,10 +1119,7 @@ static void PM_CrashLand(void)
 	{
 		if(delta > 60)
 		{
-			if(pm->ps->stats[STAT_HEALTH] > 0)
-			{
-				PM_AddEvent(EV_FALL_FAR);
-			}
+			PM_AddEvent(EV_FALL_FAR);
 		}
 		else if(delta > 40)
 		{
@@ -1135,17 +1131,11 @@ static void PM_CrashLand(void)
 		}
 		else if(delta > 7)
 		{
-			if(pm->ps->stats[STAT_HEALTH] > 0)
-			{
-				PM_AddEvent(EV_FALL_SHORT);
-			}
+			PM_AddEvent(EV_FALL_SHORT);
 		}
 		else
 		{
-			if(pm->ps->stats[STAT_HEALTH] > 0)
-			{
-				PM_AddEvent(PM_FootstepForSurface());
-			}
+			PM_AddEvent(PM_FootstepForSurface());
 		}
 	}
 
@@ -1433,6 +1423,23 @@ static void PM_CheckDuck(void)
 {
 	trace_t         trace;
 
+	if(pm->ps->powerups[PW_INVULNERABILITY])
+	{
+		if(pm->ps->pm_flags & PMF_INVULEXPAND)
+		{
+			// invulnerability sphere has a 42 units radius
+			VectorSet(pm->mins, -42, -42, -42);
+			VectorSet(pm->maxs, 42, 42, 42);
+		}
+		else
+		{
+			VectorSet(pm->mins, -15, -15, MINS_Z);
+			VectorSet(pm->maxs, 15, 15, 16);
+		}
+		pm->ps->pm_flags |= PMF_DUCKED;
+		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		return;
+	}
 	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
 
 	pm->mins[0] = -15;
@@ -1503,6 +1510,10 @@ static void PM_Footsteps(void)
 	if(pm->ps->groundEntityNum == ENTITYNUM_NONE)
 	{
 
+		if(pm->ps->powerups[PW_INVULNERABILITY])
+		{
+			PM_ContinueLegsAnim(LEGS_IDLECR);
+		}
 		// airborne leaves position in cycle intact, but doesn't advance
 		if(pm->waterlevel > 1)
 		{
@@ -1684,7 +1695,7 @@ static void PM_BeginWeaponChange(int weapon)
 
 	PM_AddEvent(EV_CHANGE_WEAPON);
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	pm->ps->weaponTime += 80;	//200;
+	pm->ps->weaponTime += 200;
 	PM_StartTorsoAnim(TORSO_DROP);
 }
 
@@ -1711,7 +1722,7 @@ static void PM_FinishWeaponChange(void)
 
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
-	pm->ps->weaponTime += 80;	//250;
+	pm->ps->weaponTime += 250;
 	PM_StartTorsoAnim(TORSO_RAISE);
 }
 
@@ -1756,39 +1767,16 @@ static void PM_Weapon(void)
 		return;
 	}
 
-	if(pm->ps->powerups[PW_SPAWNPROT] > 0)
-	{
-		return;
-	}
-
 	// ignore if spectator
 	if(pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
 		return;
 	}
 
-	if(pm->ps->weapon == WP_GAUNTLET)
-	{
-		if(pm->ps->stats[STAT_HEALTH] <= 0)
-		{
-			pm->ps->weapon = WP_NONE;
-			return;
-		}
-	}
-
-	if(pm->ps->ammo[pm->ps->weapon] != 999)
-	{
-		if(pm->ps->stats[STAT_HEALTH] <= 0)
-		{
-			pm->ps->weapon = WP_NONE;
-			return;
-		}
-	}
-
 	// check for dead player
 	if(pm->ps->stats[STAT_HEALTH] <= 0)
 	{
-		//  pm->ps->weapon = WP_NONE;
+		pm->ps->weapon = WP_NONE;
 		return;
 	}
 
@@ -1822,211 +1810,26 @@ static void PM_Weapon(void)
 	{
 		pm->ps->weaponTime -= pml.msec;
 	}
-	if(pm->ps->weapon == WP_IRAILGUN && pm->ps->weaponstate == WEAPON_PREFIRING)
-	{
-		pm->chargetime += pml.msec;
-	}
-	else if(pm->ps->weapon == WP_IRAILGUN && pm->ps->weaponstate != WEAPON_PREFIRING)
-	{
-		pm->chargetime = 0;
-	}
-	else if(pm->ps->weapon == WP_GRENADE_LAUNCHER && pm->ps->weaponstate == WEAPON_PREFIRING)
-	{
-		pm->chargetime += pml.msec;
-	}
-	else if(pm->ps->weapon == WP_GRENADE_LAUNCHER && pm->ps->weaponstate != WEAPON_PREFIRING)
-	{
-		pm->chargetime = 0;
-	}
 
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
-	if(pm->ps->weapon != pm->cmd.weapon && pm->ps->weaponstate == WEAPON_PREFIRING && pm->ps->weapon == WP_IRAILGUN)
+	if(pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING)
 	{
-		pm->ps->weaponTime = 0;
-		PM_BeginWeaponChange(pm->cmd.weapon);
-	}
-
-	if(pm->ps->weapon != pm->cmd.weapon && pm->ps->weaponstate == WEAPON_PREFIRING && pm->ps->weapon == WP_GRENADE_LAUNCHER)
-	{
-		pm->ps->weaponTime = 0;
-		PM_BeginWeaponChange(pm->cmd.weapon);
-	}
-
-	if(pm->ps->weapon != pm->cmd.weapon && pm->ps->weaponstate == WEAPON_PREFIRING && pm->ps->weapon == WP_BFG)
-	{
-		pm->ps->weaponTime = 0;
-		PM_BeginWeaponChange(pm->cmd.weapon);
-	}
-
-	if(pm->ps->weaponstate == WEAPON_PREFIRING && pm->ps->weapon == WP_IRAILGUN)
-	{
-		pm->ps->stats[STAT_RAIL_CHARGE] -= pml.msec * 2;
-		if(pm->ps->stats[STAT_RAIL_CHARGE] < -30000)
+		if(pm->ps->weapon != pm->cmd.weapon)
 		{
-			pm->ps->stats[STAT_RAIL_CHARGE] = -30000;
-		}
-		else if(pm->ps->stats[STAT_RAIL_CHARGE] > 0)
-		{
-			pm->ps->stats[STAT_RAIL_CHARGE] = -30000;
-		}
-	}
-	else
-	{
-		pm->ps->stats[STAT_RAIL_CHARGE] = 0;
-	}
-
-	if(pm->ps->weaponstate == WEAPON_PREFIRING && pm->ps->weapon == WP_GRENADE_LAUNCHER)
-	{
-		pm->ps->stats[STAT_GREN_CHARGE] -= pml.msec * 2;
-		if(pm->ps->stats[STAT_GREN_CHARGE] < -30000)
-		{
-			pm->ps->stats[STAT_GREN_CHARGE] = -30000;
-		}
-		else if(pm->ps->stats[STAT_GREN_CHARGE] > 0)
-		{
-			pm->ps->stats[STAT_GREN_CHARGE] = -30000;
-		}
-	}
-	else
-	{
-		pm->ps->stats[STAT_GREN_CHARGE] = 0;
-	}
-
-	if(pm->ps->weaponstate == WEAPON_PREFIRING && pm->ps->weapon == WP_GRENADE_LAUNCHER)
-	{
-		pm->ps->stats[STAT_GREN_VELOC] += pml.msec / 1.419f;
-		if(pm->ps->stats[STAT_GREN_VELOC] < 0)
-		{
-			pm->ps->stats[STAT_GREN_VELOC] = 700;
-		}
-		else if(pm->ps->stats[STAT_GREN_VELOC] > 700)
-		{
-			pm->ps->stats[STAT_GREN_VELOC] = 700;
+			PM_BeginWeaponChange(pm->cmd.weapon);
 		}
 	}
 
-	if(pm->ps->stats[STAT_RAIL_READY] > 0)
+	if(pm->ps->weaponTime > 0)
 	{
-		pm->ps->stats[STAT_RAIL_READY] -= pml.msec;
-	}
-	else
-	{
-		pm->ps->stats[STAT_RAIL_READY] = 0;
-	}
-
-
-	if(pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING && pm->ps->weapon != WP_IRAILGUN)
-	{
-		if(pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING && pm->ps->weapon != WP_GRENADE_LAUNCHER)
-		{
-			if(pm->ps->weapon != pm->cmd.weapon)
-			{
-				if(pm->ps->weapon == WP_FLAMETHROWER && pm->cmd.buttons & BUTTON_ATTACK)
-				{
-					pm->ps->eFlags &= ~EF_FIRING;
-				}
-				PM_BeginWeaponChange(pm->cmd.weapon);
-			}
-		}
-	}
-	if(pm->ps->weapon == WP_IRAILGUN && pm->ps->weaponTime <= 5 && pm->ps->weaponstate == WEAPON_FIRING)
-	{
-		PM_AddEvent(EV_RAILGUN_READY);
-	}
-	if(pm->ps->weapon == WP_IRAILGUN && pm->ps->weaponTime <= 4000
-	   && pm->ps->weaponstate == WEAPON_PREFIRING && !(pm->cmd.buttons & BUTTON_ATTACK))
-	{
-		if(!pm->ps->ammo[WP_IRAILGUN])
-		{
-			PM_AddEvent(EV_NOAMMO);
-			return;
-		}
-		else if(pm->ps->ammo[WP_IRAILGUN] != -1 && pm->ps->ammo[WP_IRAILGUN] != 999)
-		{
-			pm->ps->ammo[WP_IRAILGUN]--;
-		}
-		PM_StartTorsoAnim(TORSO_ATTACK);
-		PM_AddEvent(EV_FIRE_WEAPON);
-		pm->ps->weaponstate = WEAPON_FIRING;
-		pm->ps->stats[STAT_RAIL_READY] += 1300;
-		pm->ps->weaponTime = 1300;
 		return;
-	}
-	else if(pm->ps->weapon == WP_GRENADE_LAUNCHER && pm->ps->weaponTime <= 5
-			&& pm->ps->weaponstate == WEAPON_PREFIRING && pm->cmd.buttons & BUTTON_ATTACK)
-	{
-		if(!pm->ps->ammo[WP_GRENADE_LAUNCHER])
-		{
-			PM_AddEvent(EV_NOAMMO);
-			return;
-		}
-		else if(pm->ps->ammo[WP_GRENADE_LAUNCHER] != -1 && pm->ps->ammo[WP_GRENADE_LAUNCHER] != 999)
-		{
-			pm->ps->ammo[WP_GRENADE_LAUNCHER]--;
-		}
-		PM_StartTorsoAnim(TORSO_ATTACK);
-		PM_AddEvent(EV_FIRE_WEAPON);
-		pm->ps->weaponstate = WEAPON_FIRING;
-		pm->ps->weaponTime = 650;
-		return;
-	}
-	else if(pm->ps->weapon == WP_GRENADE_LAUNCHER && pm->ps->weaponTime <= 4000
-			&& pm->ps->weaponstate == WEAPON_PREFIRING && !(pm->cmd.buttons & BUTTON_ATTACK))
-	{
-		if(!pm->ps->ammo[WP_GRENADE_LAUNCHER])
-		{
-			PM_AddEvent(EV_NOAMMO);
-			return;
-		}
-		else if(pm->ps->ammo[WP_GRENADE_LAUNCHER] != -1 && pm->ps->ammo[WP_GRENADE_LAUNCHER] != 999)
-		{
-			pm->ps->ammo[WP_GRENADE_LAUNCHER]--;
-		}
-		PM_StartTorsoAnim(TORSO_ATTACK);
-		PM_AddEvent(EV_FIRE_WEAPON);
-		pm->ps->weaponstate = WEAPON_FIRING;
-		pm->ps->weaponTime = 650;
-		return;
-	}
-	else if(pm->ps->weapon == WP_BFG && pm->ps->weaponTime <= 5
-			&& pm->ps->weaponstate == WEAPON_PREFIRING && pm->cmd.buttons & BUTTON_ATTACK)
-	{
-		if(!pm->ps->ammo[WP_BFG])
-		{
-			PM_AddEvent(EV_NOAMMO);
-			return;
-		}
-		else if(pm->ps->ammo[WP_BFG] != -1 && pm->ps->ammo[WP_BFG] != 999)
-		{
-			pm->ps->ammo[WP_BFG]--;
-		}
-		PM_StartTorsoAnim(TORSO_ATTACK);
-		PM_AddEvent(EV_FIRE_WEAPON);
-		pm->ps->weaponstate = WEAPON_FIRING;
-		pm->ps->weaponTime = 300;
-		return;
-	}
-	else if(pm->ps->weapon == WP_BFG && pm->ps->weaponTime >= 6
-			&& pm->ps->weaponstate == WEAPON_PREFIRING && !(pm->cmd.buttons & BUTTON_ATTACK))
-	{
-		pm->ps->weaponstate = WEAPON_READY;
-		pm->ps->weaponTime = 300;
-		return;
-	}
-	else
-	{
-		if(pm->ps->weaponTime > 0)
-		{
-			return;
-		}
 	}
 
 	// change weapon if time
 	if(pm->ps->weaponstate == WEAPON_DROPPING)
 	{
-		pm->ps->weaponTime = 0;
 		PM_FinishWeaponChange();
 		return;
 	}
@@ -2067,30 +1870,11 @@ static void PM_Weapon(void)
 	}
 	else
 	{
-		if(pm->ps->weapon != WP_IRAILGUN)
-		{
-			if(pm->ps->weapon != WP_BFG)
-			{
-				if(pm->ps->weapon != WP_GRENADE_LAUNCHER)
-				{
-					if(pm->ps->weapon != WP_FLAMETHROWER)
-					{
-						PM_StartTorsoAnim(TORSO_ATTACK);
-					}
-				}
-			}
-		}
+		PM_StartTorsoAnim(TORSO_ATTACK);
 	}
-	if(pm->ps->weapon != WP_IRAILGUN)
-	{
-		if(pm->ps->weapon != WP_BFG)
-		{
-			if(pm->ps->weapon != WP_GRENADE_LAUNCHER)
-			{
-				pm->ps->weaponstate = WEAPON_FIRING;
-			}
-		}
-	}
+
+	pm->ps->weaponstate = WEAPON_FIRING;
+
 	// check for out of ammo
 	if(!pm->ps->ammo[pm->ps->weapon])
 	{
@@ -2100,51 +1884,13 @@ static void PM_Weapon(void)
 	}
 
 	// take an ammo away if not infinite
-	if(pm->ps->weapon != WP_IRAILGUN)
+	if(pm->ps->ammo[pm->ps->weapon] != -1)
 	{
-		if(pm->ps->weapon != WP_BFG)
-		{
-			if(pm->ps->weapon != WP_GRENADE_LAUNCHER)
-			{
-				if(pm->ps->ammo[pm->ps->weapon] != -1 && pm->ps->ammo[pm->ps->weapon] != 999)
-				{
-					pm->ps->ammo[pm->ps->weapon]--;
-				}
-			}
-		}
+		pm->ps->ammo[pm->ps->weapon]--;
 	}
 
-
-	if(pm->cmd.buttons & BUTTON_ATTACK && pm->ps->weapon == WP_IRAILGUN)
-	{
-		pm->ps->weaponTime = 3500;
-		pm->ps->weaponstate = WEAPON_PREFIRING;
-		PM_AddEvent(EV_RAILGUN_PREFIRE);
-	}
-
-	if(pm->cmd.buttons & BUTTON_ATTACK && pm->ps->weapon == WP_GRENADE_LAUNCHER)
-	{
-		pm->ps->stats[STAT_GREN_VELOC] = 0;
-		pm->ps->weaponTime = 700;
-		pm->ps->weaponstate = WEAPON_PREFIRING;
-	}
-
-	if(pm->cmd.buttons & BUTTON_ATTACK && pm->ps->weapon == WP_BFG)
-	{
-		pm->ps->weaponTime = 300;
-		pm->ps->weaponstate = WEAPON_PREFIRING;
-	}
-
-	if(pm->ps->weapon != WP_IRAILGUN)
-	{
-		if(pm->ps->weapon != WP_BFG)
-		{
-			if(pm->ps->weapon != WP_GRENADE_LAUNCHER)
-			{
-				PM_AddEvent(EV_FIRE_WEAPON);
-			}
-		}
-	}
+	// fire weapon
+	PM_AddEvent(EV_FIRE_WEAPON);
 
 	switch (pm->ps->weapon)
 	{
@@ -2159,7 +1905,10 @@ static void PM_Weapon(void)
 			addTime = 1000;
 			break;
 		case WP_MACHINEGUN:
-			addTime = 70;
+			addTime = 100;
+			break;
+		case WP_GRENADE_LAUNCHER:
+			addTime = 800;
 			break;
 		case WP_ROCKET_LAUNCHER:
 			addTime = 800;
@@ -2168,15 +1917,38 @@ static void PM_Weapon(void)
 			addTime = 100;
 			break;
 		case WP_RAILGUN:
-			addTime = 1400;
+			addTime = 1500;
 			break;
-		case WP_FLAMETHROWER:
-			addTime = 100;
+		case WP_BFG:
+			addTime = 200;
 			break;
 		case WP_GRAPPLING_HOOK:
-			addTime = 100;
+			addTime = 400;
 			break;
+#ifdef MISSIONPACK
+		case WP_NAILGUN:
+			addTime = 1000;
+			break;
+		case WP_PROX_LAUNCHER:
+			addTime = 800;
+			break;
+		case WP_CHAINGUN:
+			addTime = 30;
+			break;
+#endif
 	}
+
+#ifdef MISSIONPACK
+	if(bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
+	{
+		addTime /= 1.5;
+	}
+	else if(bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN)
+	{
+		addTime /= 1.3;
+	}
+	else
+#endif
 	if(pm->ps->powerups[PW_HASTE])
 	{
 		addTime /= 1.3;
@@ -2195,14 +1967,11 @@ static void PM_Animate(void)
 {
 	if(pm->cmd.buttons & BUTTON_GESTURE)
 	{
-		if(pm->ps->stats[STAT_HEALTH] > 0)
+		if(pm->ps->torsoTimer == 0)
 		{
-			if(pm->ps->torsoTimer == 0)
-			{
-				PM_StartTorsoAnim(TORSO_GESTURE);
-				pm->ps->torsoTimer = TIMER_GESTURE;
-				PM_AddEvent(EV_TAUNT);
-			}
+			PM_StartTorsoAnim(TORSO_GESTURE);
+			pm->ps->torsoTimer = TIMER_GESTURE;
+			PM_AddEvent(EV_TAUNT);
 		}
 #ifdef MISSIONPACK
 	}
@@ -2312,10 +2081,6 @@ void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd)
 	short           temp;
 	int             i;
 
-	if(ps->pm_type == PM_FREEZE && ps->stats[STAT_HEALTH] > 0)
-	{
-		return;					// no view changes at all
-	}
 	if(ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION)
 	{
 		return;					// no view changes at all
@@ -2394,17 +2159,14 @@ void PmoveSingle(pmove_t * pmove)
 	}
 
 	// set the firing flag for continuous beam weapons
-	if(pm->ps->pm_type != PM_FREEZE)
+	if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
+	   && (pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->ammo[pm->ps->weapon])
 	{
-		if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
-		   && (pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->ammo[pm->ps->weapon])
-		{
-			pm->ps->eFlags |= EF_FIRING;
-		}
-		else
-		{
-			pm->ps->eFlags &= ~EF_FIRING;
-		}
+		pm->ps->eFlags |= EF_FIRING;
+	}
+	else
+	{
+		pm->ps->eFlags &= ~EF_FIRING;
 	}
 
 	// clear the respawned flag if attack and use are cleared
@@ -2445,20 +2207,7 @@ void PmoveSingle(pmove_t * pmove)
 	VectorCopy(pm->ps->origin, pml.previous_origin);
 
 	// save old velocity for crashlanding
-	if(pm->ps->pm_type != PM_FREEZE)
-	{
-		VectorCopy(pm->ps->velocity, pml.previous_velocity);
-	}
-	else if(pm->ps->pm_type == PM_FREEZE && pm->ps->stats[STAT_HEALTH] <= 0)
-	{
-		VectorCopy(pm->ps->velocity, pml.previous_velocity);
-	}
-	else
-	{
-		pm->ps->velocity[0] = 0;
-		pm->ps->velocity[1] = 0;
-		pm->ps->velocity[2] = 0;
-	}
+	VectorCopy(pm->ps->velocity, pml.previous_velocity);
 
 	pml.frametime = pml.msec * 0.001;
 
@@ -2505,6 +2254,11 @@ void PmoveSingle(pmove_t * pmove)
 		return;
 	}
 
+	if(pm->ps->pm_type == PM_FREEZE)
+	{
+		return;					// no movement at all
+	}
+
 	if(pm->ps->pm_type == PM_INTERMISSION || pm->ps->pm_type == PM_SPINTERMISSION)
 	{
 		return;					// no movement at all
@@ -2526,138 +2280,53 @@ void PmoveSingle(pmove_t * pmove)
 	}
 
 	PM_DropTimers();
-	if(pm->ps->pm_type != PM_FREEZE)
+
+#ifdef MISSIONPACK
+	if(pm->ps->powerups[PW_INVULNERABILITY])
 	{
-		if(pm->ps->powerups[PW_FLIGHT])
-		{
-			// flight powerup doesn't allow jump and has different friction
-			PM_FlyMove();
-		}
-		else if(pm->ps->pm_flags & PMF_GRAPPLE_PULL)
-		{
-			PM_GrappleMove();
-			// We can wiggle a bit
-			PM_AirMove();
-		}
-		else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
-		{
-			PM_WaterJumpMove();
-		}
-		else if(pm->waterlevel > 1)
-		{
-			// swimming
-			PM_WaterMove();
-		}
-		else if(pml.walking)
-		{
-			// walking on ground
-			PM_WalkMove();
-		}
-		else
-		{
-			// airborne
-			PM_AirMove();
-		}
+		PM_InvulnerabilityMove();
 	}
-	else if(pm->ps->pm_type == PM_FREEZE && pm->ps->stats[STAT_HEALTH] <= 0)
+	else
+#endif
+	if(pm->ps->powerups[PW_FLIGHT])
 	{
-		if(pm->ps->powerups[PW_FLIGHT])
-		{
-			// flight powerup doesn't allow jump and has different friction
-			PM_FlyMove();
-		}
-		else if(pm->ps->pm_flags & PMF_GRAPPLE_PULL)
-		{
-			PM_GrappleMove();
-			// We can wiggle a bit
-			PM_AirMove();
-		}
-		else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
-		{
-			PM_WaterJumpMove();
-		}
-		else if(pm->waterlevel > 1)
-		{
-			// swimming
-			PM_WaterMove();
-		}
-		else if(pml.walking)
-		{
-			// walking on ground
-			PM_WalkMove();
-		}
-		else
-		{
-			// airborne
-			PM_AirMove();
-		}
+		// flight powerup doesn't allow jump and has different friction
+		PM_FlyMove();
 	}
-	if(pm->ps->pm_type != PM_FREEZE)
+	else if(pm->ps->pm_flags & PMF_GRAPPLE_PULL)
 	{
-		if(pm->ps->weapon == WP_IRAILGUN)
-		{
-			pm->ps->eFlags &= ~EF_FIRING;
-			if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION)
-			{
-				if(pm->cmd.buttons & BUTTON_ATTACK)
-				{
-					if(pm->ps->ammo[pm->ps->weapon])
-					{
-						if(pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_PREFIRING)
-							pm->ps->eFlags |= EF_FIRING;
-					}
-				}
-			}
-		}
-		if(pm->ps->weapon == WP_GRENADE_LAUNCHER)
-		{
-			pm->ps->eFlags &= ~EF_FIRING;
-			if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION)
-			{
-				if(pm->cmd.buttons & BUTTON_ATTACK)
-				{
-					if(pm->ps->ammo[pm->ps->weapon])
-					{
-						if(pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_PREFIRING)
-							pm->ps->eFlags |= EF_FIRING;
-					}
-				}
-			}
-		}
-		if(pm->ps->weapon == WP_BFG)
-		{
-			pm->ps->eFlags &= ~EF_FIRING;
-			if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION)
-			{
-				if(pm->cmd.buttons & BUTTON_ATTACK)
-				{
-					if(pm->ps->ammo[pm->ps->weapon])
-					{
-						if(pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_PREFIRING)
-							pm->ps->eFlags |= EF_FIRING;
-					}
-				}
-			}
-		}
+		PM_GrappleMove();
+		// We can wiggle a bit
+		PM_AirMove();
 	}
-	if(pm->ps->pm_type != PM_FREEZE)
+	else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
 	{
-		PM_Animate();
+		PM_WaterJumpMove();
 	}
-	else if(pm->ps->pm_type == PM_FREEZE && pm->ps->stats[STAT_HEALTH] <= 0)
+	else if(pm->waterlevel > 1)
 	{
-		//  PM_Animate();
+		// swimming
+		PM_WaterMove();
 	}
+	else if(pml.walking)
+	{
+		// walking on ground
+		PM_WalkMove();
+	}
+	else
+	{
+		// airborne
+		PM_AirMove();
+	}
+
+	PM_Animate();
 
 	// set groundentity, watertype, and waterlevel
 	PM_GroundTrace();
 	PM_SetWaterLevel();
 
 	// weapons
-	if(pm->ps->pm_type != PM_FREEZE)
-	{
-		PM_Weapon();
-	}
+	PM_Weapon();
 
 	// torso animation
 	PM_TorsoAnimation();

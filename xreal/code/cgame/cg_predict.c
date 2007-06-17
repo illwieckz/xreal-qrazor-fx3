@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -75,20 +74,6 @@ void CG_BuildSolidList(void)
 			cg_numTriggerEntities++;
 			continue;
 		}
-
-/*		if ( ent->eType == ET_PLAYER || ent->eType == ET_DEADPLAYER || ent->eType == ET_DEADQPLAYER) {
-			ci = &cgs.clientinfo[ snap->entities[ i ].number ];
-			if ( ent->eType == ET_PLAYER && ci->health <= 0 || ent->eType == ET_PLAYER && ent->eFlags & EF_DEAD){
-				cg_solidEntities[cg_numSolidEntities] = cent;
-				cg_numSolidEntities++;
-				continue;
-			}
-			if(ent->eType == ET_DEADPLAYER || ent->eType == ET_DEADQPLAYER){
-				cg_solidEntities[cg_numSolidEntities] = cent;
-				cg_numSolidEntities++;
-				continue;
-			}
-		}*/
 
 		if(cent->nextState.solid)
 		{
@@ -305,12 +290,6 @@ static void CG_TouchItem(centity_t * cent)
 {
 	gitem_t        *item;
 
-	if(cgs.InstaGib == 1)
-	{
-		return;
-	}
-	item = &bg_itemlist[cent->currentState.modelindex];
-	CG_RegisterItemVisuals(item->giTag);
 	if(!cg_predictItems.integer)
 	{
 		return;
@@ -331,13 +310,27 @@ static void CG_TouchItem(centity_t * cent)
 		return;					// can't hold it
 	}
 
+	item = &bg_itemlist[cent->currentState.modelindex];
 
-
+	// Special case for flags.  
+	// We don't predict touching our own flag
+#ifdef MISSIONPACK
+	if(cgs.gametype == GT_1FCTF)
+	{
+		if(item->giTag != PW_NEUTRALFLAG)
+		{
+			return;
+		}
+	}
+	if(cgs.gametype == GT_CTF || cgs.gametype == GT_HARVESTER)
+	{
+#else
 	if(cgs.gametype == GT_CTF)
 	{
-
-		//NT - actually, don't predict touching any flags
-		if(item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG)
+#endif
+		if(cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED && item->giTag == PW_REDFLAG)
+			return;
+		if(cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE && item->giTag == PW_BLUEFLAG)
 			return;
 	}
 
@@ -481,7 +474,6 @@ void CG_PredictPlayerState(void)
 	qboolean        moved;
 	usercmd_t       oldestCmd;
 	usercmd_t       latestCmd;
-	vec3_t          deltaAngles;
 
 	cg.hyperspace = qfalse;		// will be set if touching a trigger_teleport
 
@@ -625,10 +617,7 @@ void CG_PredictPlayerState(void)
 				vec3_t          adjusted;
 
 				CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
-										  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted,
-										  deltaAngles);
-				// RF, add the deltaAngles (fixes jittery view while riding trains)
-				cg.predictedPlayerState.delta_angles[YAW] += ANGLE2SHORT(deltaAngles[YAW]);
+										  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted);
 
 				if(cg_showmiss.integer)
 				{
@@ -669,47 +658,6 @@ void CG_PredictPlayerState(void)
 					VectorAdd(delta, cg.predictedError, cg.predictedError);
 					cg.predictedErrorTime = cg.oldTime;
 				}
-
-
-
-
-
-
-
-				/*          vec3_t  adjusted;
-				   CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
-				   cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted );
-
-				   if ( cg_showmiss.integer ) {
-				   if (!VectorCompare( oldPlayerState.origin, adjusted )) {
-				   CG_Printf("prediction error\n");
-				   }
-				   }
-				   VectorSubtract( oldPlayerState.origin, adjusted, delta );
-				   len = VectorLength( delta );
-				   if ( len > 0.1 ) {
-				   if ( cg_showmiss.integer ) {
-				   CG_Printf("Prediction miss: %f\n", len);
-				   }
-				   if ( cg_errorDecay.integer ) {
-				   int      t;
-				   float    f;
-
-				   t = cg.time - cg.predictedErrorTime;
-				   f = ( cg_errorDecay.value - t ) / cg_errorDecay.value;
-				   if ( f < 0 ) {
-				   f = 0;
-				   }
-				   if ( f > 0 && cg_showmiss.integer ) {
-				   CG_Printf("Double prediction decay: %f\n", f);
-				   }
-				   VectorScale( cg.predictedError, f, cg.predictedError );
-				   } else {
-				   VectorClear( cg.predictedError );
-				   }
-				   VectorAdd( delta, cg.predictedError, cg.predictedError );
-				   cg.predictedErrorTime = cg.oldTime;
-				   } */
 			}
 		}
 
@@ -750,8 +698,7 @@ void CG_PredictPlayerState(void)
 
 	// adjust for the movement of the groundentity
 	CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
-							  cg.predictedPlayerState.groundEntityNum,
-							  cg.physicsTime, cg.time, cg.predictedPlayerState.origin, deltaAngles);
+							  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.time, cg.predictedPlayerState.origin);
 
 	if(cg_showmiss.integer)
 	{

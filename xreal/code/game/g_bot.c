@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -667,13 +666,11 @@ G_AddBot
 */
 static void G_AddBot(const char *name, float skill, const char *team, int delay, char *altname)
 {
-	int             clientNum, c, c2;
+	int             clientNum;
 	char           *botinfo;
 	gentity_t      *bot;
 	char           *key;
 	char           *s;
-	char           *bc;
-	char           *bcc;
 	char           *botname;
 	char           *model;
 	char           *headmodel;
@@ -704,25 +701,26 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	Info_SetValueForKey(userinfo, "rate", "25000");
 	Info_SetValueForKey(userinfo, "snaps", "20");
 	Info_SetValueForKey(userinfo, "skill", va("%1.2f", skill));
-/*
-	if ( skill >= 1 && skill < 2 ) {
-		Info_SetValueForKey( userinfo, "handicap", "50" );
+
+	if(skill >= 1 && skill < 2)
+	{
+		Info_SetValueForKey(userinfo, "handicap", "50");
 	}
-	else if ( skill >= 2 && skill < 3 ) {
-		Info_SetValueForKey( userinfo, "handicap", "70" );
+	else if(skill >= 2 && skill < 3)
+	{
+		Info_SetValueForKey(userinfo, "handicap", "70");
 	}
-	else if ( skill >= 3 && skill < 4 ) {
-		Info_SetValueForKey( userinfo, "handicap", "90" );
+	else if(skill >= 3 && skill < 4)
+	{
+		Info_SetValueForKey(userinfo, "handicap", "90");
 	}
-*/
+
 	key = "model";
 	model = Info_ValueForKey(botinfo, key);
 	if(!*model)
 	{
 		model = "visor/default";
 	}
-	Info_SetValueForKey(userinfo, key, model);
-	key = "team_model";
 	Info_SetValueForKey(userinfo, key, model);
 
 	key = "headmodel";
@@ -732,8 +730,6 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 		headmodel = model;
 	}
 	Info_SetValueForKey(userinfo, key, headmodel);
-	key = "team_headmodel";
-	Info_SetValueForKey(userinfo, key, headmodel);
 
 	key = "gender";
 	s = Info_ValueForKey(botinfo, key);
@@ -742,6 +738,22 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 		s = "male";
 	}
 	Info_SetValueForKey(userinfo, "sex", s);
+
+	key = "color1";
+	s = Info_ValueForKey(botinfo, key);
+	if(!*s)
+	{
+		s = "4";
+	}
+	Info_SetValueForKey(userinfo, key, s);
+
+	key = "color2";
+	s = Info_ValueForKey(botinfo, key);
+	if(!*s)
+	{
+		s = "5";
+	}
+	Info_SetValueForKey(userinfo, key, s);
 
 	s = Info_ValueForKey(botinfo, "aifile");
 	if(!*s)
@@ -778,86 +790,9 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 			team = "red";
 		}
 	}
-
-	Info_SetValueForKey(userinfo, "team", team);
-
-
-
-
-	c = rand() % 100;
-	if(c < 0)
-	{
-		c = 0;
-	}
-	if(c > 100)
-	{
-		c = 100;
-	}
-	if(c >= 0 && c <= 15)
-	{
-		bc = "1";
-	}
-	else if(c >= 16 && c <= 31)
-	{
-		bc = "2";
-	}
-	else if(c >= 32 && c <= 47)
-	{
-		bc = "3";
-	}
-	else if(c >= 48 && c <= 63)
-	{
-		bc = "4";
-	}
-	else if(c >= 64 && c <= 85)
-	{
-		bc = "5";
-	}
-	else if(c >= 86 && c <= 100)
-	{
-		bc = "6";
-	}
-
-	c2 = rand() % 100;
-	if(c2 < 0)
-	{
-		c2 = 0;
-	}
-	if(c2 > 100)
-	{
-		c2 = 100;
-	}
-	if(c2 >= 0 && c2 <= 15)
-	{
-		bcc = "2";
-	}
-	else if(c2 >= 16 && c2 <= 31)
-	{
-		bcc = "3";
-	}
-	else if(c2 >= 32 && c2 <= 47)
-	{
-		bcc = "1";
-	}
-	else if(c2 >= 48 && c2 <= 63)
-	{
-		bcc = "6";
-	}
-	else if(c2 >= 64 && c2 <= 85)
-	{
-		bcc = "4";
-	}
-	else if(c2 >= 86 && c2 <= 100)
-	{
-		bcc = "5";
-	}
-
-
-	Info_SetValueForKey(userinfo, "color1", bc);
-	Info_SetValueForKey(userinfo, "color2", bcc);
-
 	Info_SetValueForKey(userinfo, "characterfile", Info_ValueForKey(botinfo, "aifile"));
 	Info_SetValueForKey(userinfo, "skill", va("%5.2f", skill));
+	Info_SetValueForKey(userinfo, "team", team);
 
 	bot = &g_entities[clientNum];
 	bot->r.svFlags |= SVF_BOT;

@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -250,7 +249,7 @@ static void CelebrateStop(gentity_t * player)
 
 
 #define	TIMER_GESTURE	(34*66+50)
-void CelebrateStart(gentity_t * player)
+static void CelebrateStart(gentity_t * player)
 {
 	player->s.torsoAnim = ((player->s.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | TORSO_GESTURE;
 	player->nextthink = level.time + TIMER_GESTURE;

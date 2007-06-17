@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -111,10 +110,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
-//unlagged - backward reconciliation #3
-	// we don't want players being backward-reconciled back through teleporters
-	//G_ResetHistory( player );
-//unlagged - backward reconciliation #3
+
 	// set angles
 	SetClientViewAngle(player, angles);
 
@@ -125,7 +121,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 	}
 
 	// save results of pmove
-	BG_PlayerStateToEntityState(&player->client->ps, &player->s, qtrue, qfalse);
+	BG_PlayerStateToEntityState(&player->client->ps, &player->s, qtrue);
 
 	// use the precise origin for linking
 	VectorCopy(player->client->ps.origin, player->r.currentOrigin);
@@ -248,52 +244,6 @@ void SP_misc_portal_surface(gentity_t * ent)
 		ent->think = locateCamera;
 		ent->nextthink = level.time + 100;
 	}
-}
-
-/*QUAKED misc_portalsky_surface (0 0 1) (-8 -8 -8) (8 8 8)
-The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted.
-This must be within 64 world units of the surface!
-*/
-
-void SP_misc_portalsky_surface(gentity_t * ent)
-{
-	level.skyportal = qtrue;
-	VectorClear(ent->r.mins);
-	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
-	VectorCopy(ent->r.currentOrigin, level.skyportal_origin);
-}
-
-/*QUAKED emission_spark_emission (0 0 1) (-8 -8 -8) (8 8 8)
-This must have a target position to work!!!
-"speed" speed of the sparks
-*/
-void SP_spark_emission(gentity_t * ent)
-{
-	vec3_t          dir;
-	int             vel;
-
-//  gentity_t *owner;
-
-	VectorClear(ent->r.mins);
-	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
-
-	ent->s.eType = ET_SPARK;
-
-	G_SetOrigin(ent, ent->s.origin);
-
-	G_SpawnInt("speed", "20", &vel);
-	ent->s.powerups = vel;
-
-	VectorSubtract(ent->s.origin, ent->target, dir);
-	VectorNormalize(dir);
-
-	G_SetMovedir(ent->s.angles, dir);
-	ent->s.eventParm = DirToByte(dir);
-
-
-
 }
 
 /*QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate noswing
@@ -424,191 +374,6 @@ void SP_shooter_grenade(gentity_t * ent)
 	InitShooter(ent, WP_GRENADE_LAUNCHER);
 }
 
-/////////////////////////////
-// FIRES AND EXPLOSION PROPS
-/////////////////////////////
-
-/*QUAKED props_FireColumn (.3 .2 .7) (-8 -8 -8) (8 8 8) CORKSCREW SMOKE GRAVITY HALFGRAVITY 
-this entity will require a target use an infonotnull to specifiy its direction
-
-defaults:
-	will leave a flaming trail by default
-	will not be affected by gravity
-
-radius = distance flame will corkscrew from origin
-speed = default is 0 so this needs to be set
-duration = default is 3 sec
- 
-start_size = default is 5
-end_size = defaults 7 thru 17
-count = defaults 100 thru 500 
-
-Pending:   
-delay before it happens again use trigger_relay for now
-assign a model
-*/
-
-void propsFireColumnUse(gentity_t * ent)
-{
-	gentity_t      *tent;
-	vec3_t          dir;
-
-
-
-	AngleVectors(ent->r.currentAngles, dir, NULL, NULL);
-
-	tent = G_Spawn();
-	trap_UnlinkEntity(tent);
-
-	if(ent->spawnflags & 2)
-	{
-		tent->s.eType = ET_FIRE_COLUMN;
-	}
-	else
-	{
-		tent->s.eType = ET_FIRE_COLUMN;
-	}
-	tent->classname = "props_FireColumn";
-	tent->s.clientNum = tent - g_entities;
-	tent->r.svFlags = SVF_BROADCAST;
-	if(ent->spawnflags & 4)
-	{
-		tent->s.pos.trType = TR_GRAVITY;
-	}
-	else if(ent->spawnflags & 8)
-	{
-		tent->s.pos.trType = TR_GRAVITY_LOW;
-	}
-	else
-	{
-		tent->s.pos.trType = TR_LINEAR;
-	}
-
-	if(ent->spawnflags & 1)
-	{
-		tent->s.otherEntityNum2 = ent->radius;	// corkscrew effect
-	}
-
-	VectorCopy(dir, tent->s.angles);
-
-	tent->s.origin2[0] = ent->duration;
-
-	tent->s.origin2[1] = ent->speed;
-
-	tent->s.angles2[0] = ent->count;
-
-	tent->s.angles2[1] = ent->start_size;
-
-	tent->s.angles2[2] = ent->end_size;
-
-	tent->think = G_FreeEntity;
-	tent->nextthink = level.time + FRAMETIME;
-//  ent->think = G_FreeEntity;
-//  ent->nextthink = level.time + FRAMETIME;
-	VectorCopy(ent->r.currentOrigin, tent->s.origin);
-	VectorCopy(ent->r.currentOrigin, tent->r.currentOrigin);
-	trap_LinkEntity(tent);
-}
-
-void SP_propsFireColumn(gentity_t * ent)
-{
-	gentity_t      *target;
-	vec3_t          vec, angles;
-	vec3_t          dir;
-	int             i;
-	gentity_t      *pent;
-
-	G_SetOrigin(ent, ent->s.origin);
-
-	if(ent->target)
-	{
-		target = G_Find(NULL, FOFS(targetname), ent->target);
-		VectorSubtract(target->s.origin, ent->s.origin, vec);
-		vectoangles(vec, angles);
-		G_SetAngle(ent, angles);
-	}
-	else
-	{
-		// ok then just up
-		VectorSet(vec, 0, 0, 1);
-		vectoangles(vec, angles);
-		G_SetAngle(ent, angles);
-	}
-
-
-	if(ent->spawnflags & 2)
-	{
-		ent->s.eType = ET_FIRE_COLUMN;
-	}
-	else
-	{
-		ent->s.eType = ET_FIRE_COLUMN;
-	}
-	ent->classname = "props_FireColumn";
-	ent->s.clientNum = ent - g_entities;
-	ent->r.svFlags = SVF_SINGLECLIENT;
-
-	for(i = 0; i < MAX_CLIENTS; i++)
-	{
-		pent = &g_entities[i];
-		if(!pent->inuse)
-		{
-			continue;
-		}
-		if(!pent->client)
-		{
-			continue;
-		}
-		if(pent->client->pers.connected == CON_CONNECTING)
-		{
-			continue;
-		}
-		ent->r.singleClient = i;
-
-	}
-	if(ent->spawnflags & 4)
-	{
-		ent->s.pos.trType = TR_GRAVITY;
-	}
-	else if(ent->spawnflags & 8)
-	{
-		ent->s.pos.trType = TR_GRAVITY_LOW;
-	}
-	else
-	{
-		ent->s.pos.trType = TR_LINEAR;
-	}
-
-	if(ent->spawnflags & 1)
-	{
-		ent->s.otherEntityNum2 = ent->radius;	// corkscrew effect
-	}
-	AngleVectors(ent->r.currentAngles, dir, NULL, NULL);
-	VectorCopy(dir, ent->s.angles);
-
-	ent->s.origin2[0] = ent->duration;
-
-	ent->s.origin2[1] = ent->speed;
-
-	ent->s.angles2[0] = ent->count;
-
-	ent->s.angles2[1] = ent->start_size;
-
-	ent->s.angles2[2] = ent->end_size;
-
-//  tent->think = G_FreeEntity;
-//  tent->nextthink = level.time + FRAMETIME;
-	ent->think = G_FreeEntity;
-	ent->nextthink = level.time + 1005;
-	VectorCopy(ent->r.currentOrigin, ent->s.origin);
-//  VectorCopy (ent->r.currentOrigin, tent->r.currentOrigin);
-
-
-
-//  ent->think = propsFireColumnUse;
-//  ent->nextthink = level.time + FRAMETIME;
-	trap_LinkEntity(ent);
-}
 
 #ifdef MISSIONPACK
 static void PortalDie(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
@@ -669,13 +434,21 @@ static void PortalTouch(gentity_t * self, gentity_t * other, trace_t * trace)
 	{
 		return;
 	}
+//  if( other->client->ps.persistant[PERS_TEAM] != self->spawnflags ) {
+//      return;
+//  }
 
-	if(other->client->ps.powerups[PW_REDFLAG])
+	if(other->client->ps.powerups[PW_NEUTRALFLAG])
+	{							// only happens in One Flag CTF
+		Drop_Item(other, BG_FindItemForPowerup(PW_NEUTRALFLAG), 0);
+		other->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+	}
+	else if(other->client->ps.powerups[PW_REDFLAG])
 	{							// only happens in standard CTF
 		Drop_Item(other, BG_FindItemForPowerup(PW_REDFLAG), 0);
 		other->client->ps.powerups[PW_REDFLAG] = 0;
 	}
-	if(other->client->ps.powerups[PW_BLUEFLAG])
+	else if(other->client->ps.powerups[PW_BLUEFLAG])
 	{							// only happens in standard CTF
 		Drop_Item(other, BG_FindItemForPowerup(PW_BLUEFLAG), 0);
 		other->client->ps.powerups[PW_BLUEFLAG] = 0;

@@ -1106,13 +1106,7 @@ void RemoveColorEscapeSequences(char *text)
 	l = 0;
 	for(i = 0; text[i]; i++)
 	{
-
-		if(Q_IsAbsoluteColorString(&text[i]))
-		{
-			i += 5;
-			continue;
-		}
-		else if(Q_IsColorString(&text[i]))
+		if(Q_IsColorString(&text[i]))
 		{
 			i++;
 			continue;
@@ -1197,7 +1191,7 @@ int BotAI(int client, float thinktime)
 		}
 		else if(!Q_stricmp(buf, "vtell"))
 		{
-			BotVoiceChatCommand(bs, SAY_TEAM, args);
+			BotVoiceChatCommand(bs, SAY_TELL, args);
 		}
 #endif
 		else if(!Q_stricmp(buf, "scores"))

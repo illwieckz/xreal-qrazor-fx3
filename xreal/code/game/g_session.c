@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -47,12 +46,11 @@ void G_WriteClientSessionData(gclient_t * client)
 	const char     *s;
 	const char     *var;
 
-	s = va("%i %i %i %i %i %i %i %i %i",
+	s = va("%i %i %i %i %i %i %i",
 		   client->sess.sessionTeam,
 		   client->sess.spectatorTime,
 		   client->sess.spectatorState,
-		   client->sess.spectatorClient,
-		   client->sess.wins, client->sess.losses, client->sess.teamLeader, client->sess.ref, client->sess.speconly);
+		   client->sess.spectatorClient, client->sess.wins, client->sess.losses, client->sess.teamLeader);
 
 	var = va("session%i", client - level.clients);
 
@@ -79,10 +77,10 @@ void G_ReadSessionData(gclient_t * client)
 	var = va("session%i", client - level.clients);
 	trap_Cvar_VariableStringBuffer(var, s, sizeof(s));
 
-	sscanf(s, "%i %i %i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
+	sscanf(s, "%i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
 		   &client->sess.spectatorTime, &spectatorState,	// bk010221 - format
-		   &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader,	// bk010221 - format
-		   &client->sess.ref, &client->sess.speconly);
+		   &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader	// bk010221 - format
+		);
 
 	// bk001205 - format issues
 	client->sess.sessionTeam = (team_t) sessionTeam;
@@ -158,8 +156,6 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 		}
 	}
 
-	sess->ref = 0;
-	sess->speconly = 0;
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
 

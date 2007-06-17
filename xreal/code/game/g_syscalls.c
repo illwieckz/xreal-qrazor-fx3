@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -30,10 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error "Do not use in VM build"
 #endif
 
-static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
+static intptr_t      (QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...))-1;
 
 
-void dllEntry(intptr_t(QDECL * syscallptr) (intptr_t arg, ...))
+void dllEntry(intptr_t (QDECL * syscallptr) (intptr_t arg, ...))
 {
 	syscall = syscallptr;
 }

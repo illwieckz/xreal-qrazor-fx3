@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -46,23 +45,13 @@ void Use_Target_Give(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 	memset(&trace, 0, sizeof(trace));
 	t = NULL;
-	//break q3/d3
 	while((t = G_Find(t, FOFS(name), ent->target)) != NULL)
 	{
-		//while ( (t = G_Find (t, FOFS(targetname), ent->target)) != NULL ) {
 		if(!t->item)
 		{
 			continue;
 		}
-		if(t->item->giTag == WP_BFG)
-		{
-			Touch_Item(t, activator, &trace);
-			activator->client->ps.ammo[WP_BFG] = 999;
-		}
-		else
-		{
-			Touch_Item(t, activator, &trace);
-		}
+		Touch_Item(t, activator, &trace);
 
 		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
@@ -91,15 +80,15 @@ void Use_target_remove_powerups(gentity_t * ent, gentity_t * other, gentity_t * 
 
 	if(activator->client->ps.powerups[PW_REDFLAG])
 	{
-		Team_ReturnFlag(ent, TEAM_RED);
+		Team_ReturnFlag(TEAM_RED);
 	}
 	else if(activator->client->ps.powerups[PW_BLUEFLAG])
 	{
-		Team_ReturnFlag(ent, TEAM_BLUE);
+		Team_ReturnFlag(TEAM_BLUE);
 	}
 	else if(activator->client->ps.powerups[PW_NEUTRALFLAG])
 	{
-		Team_ReturnFlag(ent, TEAM_FREE);
+		Team_ReturnFlag(TEAM_FREE);
 	}
 
 	memset(activator->client->ps.powerups, 0, sizeof(activator->client->ps.powerups));
@@ -371,9 +360,7 @@ void target_laser_start(gentity_t * self)
 
 	if(self->target)
 	{
-		//break q3/d3
 		ent = G_Find(NULL, FOFS(name), self->target);
-		//ent = G_Find (NULL, FOFS(targetname), self->target);
 		if(!ent)
 		{
 			G_Printf("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
@@ -430,7 +417,7 @@ The activator will be teleported away.
 */
 void SP_target_teleporter(gentity_t * self)
 {
-	if(!self->targetname)
+	if(!self->name)
 		G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
 
 	self->use = target_teleporter_use;
@@ -560,7 +547,7 @@ target_fx_use
 Use function for effects system
 ===============
 */
-static void target_fx_use(gentity_t * self, gentity_t * other, gentity_t * activator)
+static void target_fx_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	self->s.eFlags ^= EF_NODRAW;
 }
@@ -569,7 +556,7 @@ static void target_fx_use(gentity_t * self, gentity_t * other, gentity_t * activ
 */
 void SP_target_fx(gentity_t * ent)
 {
-/*	char		   *effectName;
+	char		   *effectName;
 	int				startOn = 0;
 	
 	ent->s.eType = ET_EFFECT;
@@ -588,5 +575,5 @@ void SP_target_fx(gentity_t * ent)
 	VectorClear(ent->r.maxs);
 	trap_LinkEntity(ent);
 	
-	ent->use = target_fx_use;*/
+	ent->use = target_fx_use;
 }

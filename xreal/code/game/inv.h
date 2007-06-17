@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -74,10 +73,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_NEUTRALFLAG		47
 #define INVENTORY_REDCUBE			48
 #define INVENTORY_BLUECUBE			49
-#define INVENTORY_IRAILGUN			50
-#define INVENTORY_ISLUGS			51
-#define INVENTORY_FUEL			    52
-#define INVENTORY_FLAMETHROWER		53
 //enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200
 #define ENEMY_HEIGHT				201
@@ -170,5 +165,3 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WEAPONINDEX_NAILGUN				11
 #define WEAPONINDEX_PROXLAUNCHER		12
 #define WEAPONINDEX_CHAINGUN			13
-#define WEAPONINDEX_IRAILGUN			14
-#define WEAPONINDEX_FLAMETHROWER		15

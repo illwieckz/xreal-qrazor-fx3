@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -82,9 +81,8 @@ vmCvar_t        g_filterBan;
 vmCvar_t        g_smoothClients;
 vmCvar_t        pmove_fixed;
 vmCvar_t        pmove_msec;
+vmCvar_t        g_rankings;
 vmCvar_t        g_listEntity;
-vmCvar_t        Hurtself;
-vmCvar_t        Falling;
 
 #ifdef MISSIONPACK
 vmCvar_t        g_obeliskHealth;
@@ -95,80 +93,16 @@ vmCvar_t        g_cubeTimeout;
 vmCvar_t        g_redteam;
 vmCvar_t        g_blueteam;
 vmCvar_t        g_singlePlayer;
-vmCvar_t        g_proxMineTimeout;
-#endif
 vmCvar_t        g_enableDust;
 vmCvar_t        g_enableBreath;
-vmCvar_t        g_QSVersion;
-vmCvar_t        g_delagHitscan;
-vmCvar_t        g_unlaggedVersion;
-vmCvar_t        g_truePing;
-vmCvar_t        g_lightningDamage;
-vmCvar_t        sv_fps;
-vmCvar_t        Instagib;
-vmCvar_t        vampire;
-vmCvar_t        InstaWeapon;
-vmCvar_t        g_footsteps;
-vmCvar_t        Hook;
-vmCvar_t        HookFireSpeed;
-vmCvar_t        DisGaunt;
-vmCvar_t        DisableSG;
-vmCvar_t        DisableGL;
-vmCvar_t        DisableRL;
-vmCvar_t        DisableLG;
-vmCvar_t        DisableRG;
-vmCvar_t        DisablePG;
-vmCvar_t        DisableBFG;
-vmCvar_t        DisableMG;
-vmCvar_t        Disshard;
-vmCvar_t        DisableRA;
-vmCvar_t        DisableYA;
-vmCvar_t        Dis5health;
-vmCvar_t        Dis25health;
-vmCvar_t        Dis50health;
-vmCvar_t        DisMhealth;
-vmCvar_t        Disteleporter;
-vmCvar_t        Dismedkit;
-vmCvar_t        DisableQuad;
-vmCvar_t        Disenviro;
-vmCvar_t        DisableHaste;
-vmCvar_t        DisableInvis;
-vmCvar_t        DisableRegen;
-vmCvar_t        DisableFlight;
-vmCvar_t        Spaceprotect;
-vmCvar_t        Spawnprotect;
-vmCvar_t        Instapowups;
-
-// motd messages limit 62 characters
-vmCvar_t        motd1;
-vmCvar_t        motd2;
-vmCvar_t        motd3;
-vmCvar_t        motd4;
-vmCvar_t        motd5;
-vmCvar_t        motd6;
-
-// motd messages limit 62 characters
-vmCvar_t        ReplaceMG;
-vmCvar_t        ReplaceSG;
-vmCvar_t        ReplaceGL;
-vmCvar_t        ReplaceRL;
-vmCvar_t        ReplacePG;
-vmCvar_t        ReplacePA;
-vmCvar_t        ReplaceLG;
-vmCvar_t        ReplaceRG;
-vmCvar_t        ReplaceFT;
-vmCvar_t        ReplaceBFG;
-vmCvar_t        ref_password;
-vmCvar_t        mutespecs;
-vmCvar_t        sv_floodProtect;
-vmCvar_t        SpeedSpawn;
+vmCvar_t        g_proxMineTimeout;
+#endif
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
 	{&g_cheats, "sv_cheats", "", 0, 0, qfalse},
-// motd messages limit 62 characters
-	//ITEM replacement
+
 	// noset vars
 	{NULL, "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
 	{NULL, "gamedate", __DATE__, CVAR_ROM, 0, qfalse},
@@ -177,6 +111,7 @@ static cvarTable_t gameCvarTable[] = {
 
 	// latched vars
 	{&g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse},
+
 	{&g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 	{&g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 
@@ -185,117 +120,70 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	{&g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	{&g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
+
 	{&g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse},
+
 	{&g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue},
+
 	{&g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE},
 	{&g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE},
+
 	{&g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue},
 	{&g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue},
 	{&g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse},
 	{&g_logFileSync, "g_logFileSync", "0", CVAR_ARCHIVE, 0, qfalse},
 
 	{&g_password, "g_password", "", CVAR_USERINFO, 0, qfalse},
+
 	{&g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse},
 	{&g_filterBan, "g_filterBan", "1", CVAR_ARCHIVE, 0, qfalse},
+
 	{&g_needpass, "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
+
 	{&g_dedicated, "dedicated", "0", 0, 0, qfalse},
+
 	{&g_speed, "g_speed", "320", 0, 0, qtrue},
 	{&g_gravity, "g_gravity", "800", 0, 0, qtrue},
 	{&g_knockback, "g_knockback", "1000", 0, 0, qtrue},
-	{&g_quadfactor, "g_quadfactor", "4", 0, 0, qtrue},
+	{&g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue},
 	{&g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue},
 	{&g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue},
-	{&g_forcerespawn, "g_forcerespawn", "0", 0, 0, qtrue},
+	{&g_forcerespawn, "g_forcerespawn", "20", 0, 0, qtrue},
 	{&g_inactivity, "g_inactivity", "0", 0, 0, qtrue},
 	{&g_debugMove, "g_debugMove", "0", 0, 0, qfalse},
 	{&g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse},
 	{&g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse},
 	{&g_motd, "g_motd", "", 0, 0, qfalse},
 	{&g_blood, "com_blood", "1", 0, 0, qfalse},
+
 	{&g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse},
 	{&g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse},
+
 	{&g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse},
 	{&g_listEntity, "g_listEntity", "0", 0, 0, qfalse},
-	{&Hurtself, "Hurtself", "1", CVAR_ARCHIVE, 0, qfalse},
-	{&Falling, "Falling", "1", CVAR_ARCHIVE, 0, qfalse},
+
 #ifdef MISSIONPACK
-	{&g_enableDust, "g_enableDust", "1", CVAR_SERVERINFO, 0, qtrue, qfalse},
-	{&g_enableBreath, "g_enableBreath", "1", CVAR_SERVERINFO, 0, qtrue, qfalse},
 	{&g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, qfalse},
 	{&g_obeliskRegenPeriod, "g_obeliskRegenPeriod", "1", 0, 0, qfalse},
 	{&g_obeliskRegenAmount, "g_obeliskRegenAmount", "15", 0, 0, qfalse},
 	{&g_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO, 0, qfalse},
+
 	{&g_cubeTimeout, "g_cubeTimeout", "30", 0, 0, qfalse},
 	{&g_redteam, "g_redteam", "Stroggs", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue},
 	{&g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue},
 	{&g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse},
+
+	{&g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse},
+	{&g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse},
 	{&g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse},
 #endif
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
-	{&g_QSVersion, "g_QSVersion", Q3_VERSION, CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
-	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
-	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
-	{&g_truePing, "g_truePing", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&g_lightningDamage, "g_lightningDamage", "7", 0, 0, qtrue},
-	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
-	{&Instagib, "Instagib", "0", CVAR_SERVERINFO, 0, qtrue, qtrue},
-	{&InstaWeapon, "InstaWeapon", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue, qtrue},
-	{&Hook, "Hook", "0", CVAR_ARCHIVE, 0, qfalse},
-	{&Instapowups, "Instapowups", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
-	{&vampire, "vampire", "0", CVAR_ARCHIVE, 0, qfalse},
-	{&HookFireSpeed, "HookFireSpeed", "5000", CVAR_ARCHIVE, 0, qfalse},
-// motd messages limit 62 characters
-	{&motd1, "motd1", "", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&motd2, "motd2", "", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&motd3, "motd3", "", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&motd4, "motd4", "", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&motd5, "motd5", "", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&motd6, "motd6", "", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-// motd messages limit 62 characters
-	{&mutespecs, "mutespecs", "0", CVAR_ARCHIVE, 0, qfalse},
-	{&DisGaunt, "DisGaunt", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableSG, "DisableSG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableGL, "DisableGL", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableRL, "DisableRL", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableLG, "DisableLG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableRG, "DisableRG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisablePG, "DisablePG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableMG, "DisableMG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableBFG, "DisableBFG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Disshard, "Disshard", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableRA, "DisableRA", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableYA, "DisableYA", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Dis5health, "Dis5health", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Dis25health, "Dis25health", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Dis50health, "Dis50health", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Disteleporter, "Disteleporter", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Dismedkit, "Dismedkit", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableQuad, "DisableQuad", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Disenviro, "Disenviro", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableHaste, "DisableHaste", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableInvis, "DisableInvis", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableRegen, "DisableRegen", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&DisableFlight, "DisableFlight", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceSG, "ReplaceSG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceGL, "ReplaceGL", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceRL, "ReplaceRL", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplacePA, "ReplacePA", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceRG, "ReplaceRG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceFT, "ReplaceFT", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplacePG, "ReplacePG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceLG, "ReplaceLG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&ReplaceBFG, "ReplaceBFG", "0", CVAR_TEMP | CVAR_NORESTART, 0, qfalse},
-	{&Spaceprotect, "Spaceprotect", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&Spawnprotect, "Spawnprotect", "2", CVAR_ARCHIVE, 0, qtrue},
-	{&SpeedSpawn, "SpeedSpawn", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&ref_password, "ref_password", "", CVAR_SERVERINFO, 0, qtrue, qtrue},
-	{&sv_floodProtect, "sv_floodProtect", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
-	{&g_footsteps, "g_footsteps", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse}
+
+	{&g_rankings, "g_rankings", "0", 0, 0, qfalse}
 
 };
-
 
 // bk001129 - made static to avoid aliasing
 static int      gameCvarTableSize = sizeof(gameCvarTable) / sizeof(gameCvarTable[0]);
@@ -316,7 +204,7 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9,
-				int arg10, int arg11)
+		   int arg10, int arg11)
 {
 	switch (command)
 	{
@@ -431,10 +319,10 @@ void G_FindTeams(void)
 				e2->flags |= FL_TEAMSLAVE;
 
 				// make sure that targets only point at the master
-				if(e2->targetname)
+				if(e2->name)
 				{
-					e->targetname = e2->targetname;
-					e2->targetname = NULL;
+					e->name = e2->name;
+					e2->name = NULL;
 				}
 			}
 		}
@@ -518,6 +406,11 @@ void G_UpdateCvars(void)
 			if(cv->modificationCount != cv->vmCvar->modificationCount)
 			{
 				cv->modificationCount = cv->vmCvar->modificationCount;
+
+				if(cv->trackChange)
+				{
+					trap_SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string));
+				}
 
 				if(cv->teamShader)
 				{
@@ -787,12 +680,7 @@ void AddTournamentPlayer(void)
 
 	level.warmupTime = -1;
 
-	// set them to free-for-all team    
-	if(g_entities[nextInLine - level.clients].client->sess.speconly == 1 && level.numConnectedClients <= 2)
-	{
-		return;
-	}
-
+	// set them to free-for-all team
 	SetTeam(&g_entities[nextInLine - level.clients], "f");
 }
 
@@ -1200,7 +1088,6 @@ void BeginIntermission(void)
 {
 	int             i;
 	gentity_t      *client;
-	gentity_t      *te;
 
 	if(level.intermissiontime)
 	{
@@ -1240,46 +1127,9 @@ void BeginIntermission(void)
 		// respawn if dead
 		if(client->health <= 0)
 		{
-			respawn2(client, qfalse);
+			respawn(client);
 		}
 		MoveClientToIntermission(client);
-		Cmd_Statistics_f(client);
-
-		if(g_gametype.integer == 4)
-		{
-			if(level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE])
-			{
-				te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-				te->s.eventParm = G_SoundIndex("sound/feedback/redleads.wav");
-				te->r.svFlags |= SVF_BROADCAST;
-				G_Sound(client, CHAN_ANNOUNCER, G_SoundIndex("sound/feedback/redleads.wav"));
-			}
-			else if(level.teamScores[TEAM_BLUE] > level.teamScores[TEAM_RED])
-			{
-				te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-				te->s.eventParm = G_SoundIndex("sound/feedback/blueleads.wav");
-				te->r.svFlags |= SVF_BROADCAST;
-				G_Sound(client, CHAN_ANNOUNCER, G_SoundIndex("sound/feedback/blueleads.wav"));
-			}
-		}
-
-		if(g_gametype.integer == 3)
-		{
-			if(level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE])
-			{
-				te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-				te->s.eventParm = G_SoundIndex("sound/feedback/redleads.wav");
-				te->r.svFlags |= SVF_BROADCAST;
-				G_Sound(client, CHAN_ANNOUNCER, G_SoundIndex("sound/feedback/redleads.wav"));
-			}
-			else if(level.teamScores[TEAM_BLUE] > level.teamScores[TEAM_RED])
-			{
-				te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-				te->s.eventParm = G_SoundIndex("sound/feedback/blueleads.wav");
-				te->r.svFlags |= SVF_BROADCAST;
-				G_Sound(client, CHAN_ANNOUNCER, G_SoundIndex("sound/feedback/blueleads.wav"));
-			}
-		}
 	}
 
 	// send the current scoring to all clients
@@ -1312,32 +1162,16 @@ void ExitLevel(void)
 		if(!level.restarted)
 		{
 			RemoveTournamentLoser();
-			if(level.ExecuteTime && level.time < level.ExecuteTime + 10000)
-			{
-				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-				level.restarted = qfalse;
-				level.changemap = NULL;
-				level.intermissiontime = 0;
-			}
-			else
-			{
-				trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
-				level.restarted = qtrue;
-				level.changemap = NULL;
-				level.intermissiontime = 0;
-			}
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+			level.restarted = qtrue;
+			level.changemap = NULL;
+			level.intermissiontime = 0;
 		}
 		return;
 	}
 
-	if(level.ExecuteTime && level.time < level.ExecuteTime + 10000)
-	{
-		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-	}
-	else
-	{
-		trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
-	}
+
+	trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
 	level.changemap = NULL;
 	level.intermissiontime = 0;
 
@@ -1628,8 +1462,6 @@ void CheckExitRules(void)
 {
 	int             i;
 	gclient_t      *cl;
-	gentity_t      *te;
-	gentity_t      *te2;
 
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
@@ -1670,14 +1502,7 @@ void CheckExitRules(void)
 	{
 		if(level.time - level.startTime >= g_timelimit.integer * 60000)
 		{
-			te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te->s.eventParm = G_SoundIndex("sound/zpm/loudbuzzer.wav");
-			te->r.svFlags |= SVF_BROADCAST;
-			te2 = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te2->s.eventParm = G_SoundIndex("sound/zpm/loudbuzzer.wav");
-			te2->r.svFlags |= SVF_BROADCAST;
-			G_Sound(level.gentities, CHAN_LOCAL_SOUND, G_SoundIndex("sound/zpm/loudbuzzer.wav"));
-			trap_SendServerCommand(-1, "print \"Timelimit hit.");
+			trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
 			LogExit("Timelimit hit.");
 			return;
 		}
@@ -1692,28 +1517,14 @@ void CheckExitRules(void)
 	{
 		if(level.teamScores[TEAM_RED] >= g_fraglimit.integer)
 		{
-			te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te->s.eventParm = G_SoundIndex("sound/teamplay/flagtaken_yourteam_01.wav");
-			te->r.svFlags |= SVF_BROADCAST;
-			te2 = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te2->s.eventParm = G_SoundIndex("sound/zpm/flagtaken_loud.wav");
-			te2->r.svFlags |= SVF_BROADCAST;
-			G_Sound(level.gentities, CHAN_LOCAL_SOUND, G_SoundIndex("sound/teamplay/flagtaken_yourteam_01.wav"));
-			trap_SendServerCommand(-1, "print \"Red hit the fraglimit.");
+			trap_SendServerCommand(-1, "print \"Red hit the fraglimit.\n\"");
 			LogExit("Fraglimit hit.");
 			return;
 		}
 
 		if(level.teamScores[TEAM_BLUE] >= g_fraglimit.integer)
 		{
-			te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te->s.eventParm = G_SoundIndex("sound/teamplay/flagtaken_yourteam_01.wav");
-			te->r.svFlags |= SVF_BROADCAST;
-			te2 = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te2->s.eventParm = G_SoundIndex("sound/zpm/flagtaken_loud.wav");
-			te2->r.svFlags |= SVF_BROADCAST;
-			G_Sound(level.gentities, CHAN_LOCAL_SOUND, G_SoundIndex("sound/teamplay/flagtaken_yourteam_01.wav"));
-			trap_SendServerCommand(-1, "print \"Blue hit the fraglimit.");
+			trap_SendServerCommand(-1, "print \"Blue hit the fraglimit.\n\"");
 			LogExit("Fraglimit hit.");
 			return;
 		}
@@ -1732,20 +1543,8 @@ void CheckExitRules(void)
 
 			if(cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer)
 			{
-
-
-				te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-				te->s.eventParm = G_SoundIndex("sound/world/1shot_gong.wav");
-				te->r.svFlags |= SVF_BROADCAST;
-				te2 = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-				te2->s.eventParm = G_SoundIndex("sound/zpm/1shot_louder.wav");
-				te2->r.svFlags |= SVF_BROADCAST;
-				//  G_Sound(level.gentities, CHAN_LOCAL_SOUND, G_SoundIndex("sound/world/1shot_gong.wav"));
 				LogExit("Fraglimit hit.");
-
-
-
-				trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " ^Nhit the fraglimit.", cl->pers.netname));
+				trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"", cl->pers.netname));
 				return;
 			}
 		}
@@ -1756,22 +1555,14 @@ void CheckExitRules(void)
 
 		if(level.teamScores[TEAM_RED] >= g_capturelimit.integer)
 		{
-			te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te->s.eventParm = G_SoundIndex("sound/teamplay/flagcap_red.wav");
-			te->r.svFlags |= SVF_BROADCAST;
-			G_Sound(level.gentities, CHAN_AUTO, G_SoundIndex("sound/teamplay/flagcap_red.wav"));
-			trap_SendServerCommand(-1, "print \"Red hit the capturelimit.");
+			trap_SendServerCommand(-1, "print \"Red hit the capturelimit.\n\"");
 			LogExit("Capturelimit hit.");
 			return;
 		}
 
 		if(level.teamScores[TEAM_BLUE] >= g_capturelimit.integer)
 		{
-			te = G_TempEntity(level.gentities->s.pos.trBase, EV_GLOBAL_SOUND);
-			te->s.eventParm = G_SoundIndex("sound/teamplay/flagcap_red.wav");
-			te->r.svFlags |= SVF_BROADCAST;
-			G_Sound(level.gentities, CHAN_AUTO, G_SoundIndex("sound/teamplay/flagcap_red.wav"));
-			trap_SendServerCommand(-1, "print \"Blue hit the capturelimit.");
+			trap_SendServerCommand(-1, "print \"Blue hit the capturelimit.\n\"");
 			LogExit("Capturelimit hit.");
 			return;
 		}
@@ -1932,62 +1723,37 @@ CheckVote
 */
 void CheckVote(void)
 {
-	if(level.ExecuteTime && level.time >= level.ExecuteTime + 10000)
-	{
-		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-	}
 	if(level.voteExecuteTime && level.voteExecuteTime < level.time)
 	{
 		level.voteExecuteTime = 0;
-		if(!Q_stricmp(level.ExecuteString, "map"))
-		{
-			level.ExecuteTime = level.time;
-			BeginIntermission();
-		}
-		else
-		{
-			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-		}
+		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	}
 	if(!level.voteTime)
 	{
 		return;
 	}
-	if(level.voteRYes >= 1)
+	if(level.time - level.voteTime >= VOTE_TIME)
 	{
-		// execute the command, then remove the vote
-		trap_SendServerCommand(-1, "print \"Vote passed.");
-		level.voteExecuteTime = level.time + 3000;
-	}
-	else if(level.voteRNo >= 1)
-	{
-		trap_SendServerCommand(-1, "print \"Vote failed.");
+		trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
 	}
 	else
 	{
-		if(level.time - level.voteTime >= VOTE_TIME)
+		// ATVI Q3 1.32 Patch #9, WNF
+		if(level.voteYes > level.numVotingClients / 2)
 		{
-			trap_SendServerCommand(-1, "print \"Vote failed.");
+			// execute the command, then remove the vote
+			trap_SendServerCommand(-1, "print \"Vote passed.\n\"");
+			level.voteExecuteTime = level.time + 3000;
+		}
+		else if(level.voteNo >= level.numVotingClients / 2)
+		{
+			// same behavior as a timeout
+			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
 		}
 		else
 		{
-
-			if(level.voteYes > level.numVotingClients / 2)
-			{
-				// execute the command, then remove the vote
-				trap_SendServerCommand(-1, "print \"Vote passed.");
-				level.voteExecuteTime = level.time + 3000;
-			}
-			else if(level.voteNo >= level.numVotingClients / 2)
-			{
-				// same behavior as a timeout
-				trap_SendServerCommand(-1, "print \"Vote failed.");
-			}
-			else
-			{
-				// still waiting for a majority
-				return;
-			}
+			// still waiting for a majority
+			return;
 		}
 	}
 	level.voteTime = 0;
@@ -2023,12 +1789,12 @@ void SetLeader(int team, int client)
 
 	if(level.clients[client].pers.connected == CON_DISCONNECTED)
 	{
-		PrintTeam(team, va("print \"%s ^Nis not connected", level.clients[client].pers.netname));
+		PrintTeam(team, va("print \"%s is not connected\n\"", level.clients[client].pers.netname));
 		return;
 	}
 	if(level.clients[client].sess.sessionTeam != team)
 	{
-		PrintTeam(team, va("print \"%s ^Nis not on the team anymore", level.clients[client].pers.netname));
+		PrintTeam(team, va("print \"%s is not on the team anymore\n\"", level.clients[client].pers.netname));
 		return;
 	}
 	for(i = 0; i < level.maxclients; i++)
@@ -2043,7 +1809,7 @@ void SetLeader(int team, int client)
 	}
 	level.clients[client].sess.teamLeader = qtrue;
 	ClientUserinfoChanged(client);
-	PrintTeam(team, va("print \"%s ^Nis the new team leader", level.clients[client].pers.netname));
+	PrintTeam(team, va("print \"%s is the new team leader\n\"", level.clients[client].pers.netname));
 }
 
 /*
@@ -2106,14 +1872,14 @@ void CheckTeamVote(int team)
 	}
 	if(level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME)
 	{
-		trap_SendServerCommand(-1, "print \"Team vote failed.");
+		trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
 	}
 	else
 	{
 		if(level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset] / 2)
 		{
 			// execute the command, then remove the vote
-			trap_SendServerCommand(-1, "print \"Team vote passed.");
+			trap_SendServerCommand(-1, "print \"Team vote passed.\n\"");
 			//
 			if(!Q_strncmp("leader", level.teamVoteString[cs_offset], 6))
 			{
@@ -2128,7 +1894,7 @@ void CheckTeamVote(int team)
 		else if(level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset] / 2)
 		{
 			// same behavior as a timeout
-			trap_SendServerCommand(-1, "print \"Team vote failed.");
+			trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
 		}
 		else
 		{
@@ -2177,17 +1943,21 @@ void G_RunThink(gentity_t * ent)
 	float           thinktime;
 
 	thinktime = ent->nextthink;
-
-	if(thinktime > 0 && thinktime <= level.time)
+	if(thinktime <= 0)
 	{
-		ent->nextthink = 0;
-		if(!ent->think)
-		{
-			G_Error("NULL ent->think");
-		}
-
-		ent->think(ent);
+		return;
 	}
+	if(thinktime > level.time)
+	{
+		return;
+	}
+
+	ent->nextthink = 0;
+	if(!ent->think)
+	{
+		G_Error("NULL ent->think");
+	}
+	ent->think(ent);
 }
 
 /*
@@ -2269,34 +2039,12 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-/*/unlagged - backward reconciliation #2
-	// backward-reconcile the other clients
-	G_DoTimeShiftFor( ent );
-//unlagged - backward reconciliation #2
-		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
+		if(ent->s.eType == ET_MISSILE)
+		{
+			G_RunMissile(ent);
 			continue;
 		}
-//unlagged - backward reconciliation #2
-	// put them back
-			//G_UndoTimeShiftFor( ent );
-*///unlagged - backward reconciliation #2
-		if(ent->flags & FL_NODRAW)
-		{
-			ent->s.eFlags |= EF_NODRAW;
-		}
-		else
-		{
-			ent->s.eFlags &= ~EF_NODRAW;
-		}
-		if(ent->flags & FL_REMOVEITEM)
-		{
-			ent->s.eFlags |= EF_REMOVEITEM;
-		}
-		else
-		{
-			ent->s.eFlags &= ~EF_REMOVEITEM;
-		}
+
 		if(ent->s.eType == ET_ITEM || ent->physicsObject)
 		{
 			G_RunItem(ent);
@@ -2309,12 +2057,6 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-		if(ent->s.eType == ET_MVIEW1)
-		{
-			G_RunClient(ent);
-			continue;
-		}
-
 		if(i < MAX_CLIENTS)
 		{
 			G_RunClient(ent);
@@ -2323,50 +2065,6 @@ void G_RunFrame(int levelTime)
 
 		G_RunThink(ent);
 	}
-//unlagged - backward reconciliation #2
-	// NOW run the missiles, with all players backward-reconciled
-	// to the positions they were in exactly 50ms ago, at the end
-	// of the last server frame
-//unlagged - backward reconciliation #2
-	// backward-reconcile the other clients
-	//G_DoTimeShiftFor( ent );
-//unlagged - backward reconciliation #2
-//  G_TimeShiftAllClients( ent, NULL );
-
-	ent = &g_entities[0];
-	for(i = 0; i < level.numEntities; i++, ent++)
-	{
-		if(!ent->inuse)
-		{
-			continue;
-		}
-
-		// temporary entities don't think
-		if(ent->freeAfterEvent)
-		{
-			continue;
-		}
-
-		if(ent->s.eType == ET_MISSILE
-		   || ent->s.eType == ET_FLAMEBARREL || ent->s.eType == ET_FIRE_COLUMN || ent->s.eType == ET_FIRE_COLUMN_SMOKE)
-		{
-			G_RunMissile(ent);
-			continue;
-		}
-
-		if(ent->s.eType == ET_FLAMETHROWER_CHUNK)
-		{
-			G_RunFlamechunk(ent);
-			continue;
-		}
-	}
-
-//unlagged - backward reconciliation #2
-	// put them back
-//      G_UndoTimeShiftFor( ent );
-//unlagged - backward reconciliation #2
-	//G_UnTimeShiftAllClients( NULL );
-///unlagged - backward reconciliation #2
 	end = trap_Milliseconds();
 
 	start = trap_Milliseconds();
@@ -2408,10 +2106,4 @@ void G_RunFrame(int levelTime)
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
-//unlagged - backward reconciliation #4
-	// record the time at the end of this frame - it should be about
-	// the time the next frame begins - when the server starts
-	// accepting commands from connected clients
-	level.frameStartTime = trap_Milliseconds();
-//unlagged - backward reconciliation #4
 }

@@ -86,7 +86,7 @@ void G_RankRunFrame()
 					{
 						ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 						ent->client->sess.spectatorState = SPECTATOR_FREE;
-//                  ClientSpawn( ent );
+						ClientSpawn(ent);
 						// make sure by now CS_GRAND rankingsGameID is ready
 						trap_SendServerCommand(i, va("rank_status %i\n", status));
 						trap_SendServerCommand(i, "rank_menu\n");

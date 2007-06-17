@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -25,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-void            Weapon_GrapplingHook_Fire(gentity_t * ent);
 
 /*
 ===============
@@ -110,7 +108,6 @@ Check for lava / slime contents and drowning
 void P_WorldEffects(gentity_t * ent)
 {
 	qboolean        envirosuit;
-	qboolean        spawnprotect;
 	int             waterlevel;
 
 	if(ent->client->noclip)
@@ -122,7 +119,6 @@ void P_WorldEffects(gentity_t * ent)
 	waterlevel = ent->waterlevel;
 
 	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
-	spawnprotect = ent->client->ps.powerups[PW_SPAWNPROT] > level.time;
 
 	//
 	// check for drowning
@@ -130,7 +126,7 @@ void P_WorldEffects(gentity_t * ent)
 	if(waterlevel == 3)
 	{
 		// envirosuit give air
-		if(envirosuit || spawnprotect)
+		if(envirosuit)
 		{
 			ent->client->airOutTime = level.time + 10000;
 		}
@@ -179,10 +175,10 @@ void P_WorldEffects(gentity_t * ent)
 	//
 	if(waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
-		if(ent->health > 0)
+		if(ent->health > 0 && ent->pain_debounce_time <= level.time)
 		{
 
-			if(envirosuit || spawnprotect)
+			if(envirosuit)
 			{
 				G_AddEvent(ent, EV_POWERUP_BATTLESUIT, 0);
 			}
@@ -190,38 +186,16 @@ void P_WorldEffects(gentity_t * ent)
 			{
 				if(ent->watertype & CONTENTS_LAVA)
 				{
-					G_Damage(ent, NULL, NULL, NULL, NULL, 8 * waterlevel, 0, MOD_LAVA);
+					G_Damage(ent, NULL, NULL, NULL, NULL, 30 * waterlevel, 0, MOD_LAVA);
 				}
 
 				if(ent->watertype & CONTENTS_SLIME)
 				{
-					G_Damage(ent, NULL, NULL, NULL, NULL, 4 * waterlevel, 0, MOD_SLIME);
+					G_Damage(ent, NULL, NULL, NULL, NULL, 10 * waterlevel, 0, MOD_SLIME);
 				}
 			}
 		}
 	}
-
-	if(ent->onFireEnd && ent->client)
-	{
-		if(level.time - ent->client->lastBurnTime >= 399)
-		{
-
-			// JPW NERVE server-side incremental damage routine / player damage/health is int (not float)
-			// so I can't allocate 1.5 points per server tick, and 1 is too weak and 2 is too strong.  
-			// solution: allocate damage far less often (MIN_BURN_INTERVAL often) and do more damage.
-			// That way minimum resolution (1 point) damage changes become less critical.
-
-			ent->client->lastBurnTime = level.time;
-			if((ent->onFireEnd > level.time) && (ent->health > 0))
-			{
-				gentity_t      *attacker;
-
-				attacker = &g_entities[ent->flameBurnEnt];
-				G_Damage(ent, attacker, attacker, vec3_origin, attacker->r.currentOrigin, 5, 0, MOD_FLAMETHROWER);
-			}
-		}
-	}
-
 }
 
 
@@ -341,17 +315,7 @@ void G_TouchTriggers(gentity_t * ent)
 		{
 			continue;
 		}
-		if(!(hit->flags & FL_DROPPED_ITEM) &&
-		   strcmp(hit->classname, "team_CTF_blueflag") == 0 &&
-		   ent->client->sess.sessionTeam == TEAM_BLUE && ent->client->ps.powerups[PW_BLUEFLAG])
-		{
-		}
-		else if(!(hit->flags & FL_DROPPED_ITEM) &&
-				strcmp(hit->classname, "team_CTF_redflag") == 0 &&
-				ent->client->sess.sessionTeam == TEAM_RED && ent->client->ps.powerups[PW_REDFLAG])
-		{
-		}
-		else if(!(hit->r.contents & CONTENTS_TRIGGER))
+		if(!(hit->r.contents & CONTENTS_TRIGGER))
 		{
 			continue;
 		}
@@ -420,20 +384,16 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 
 	if(client->sess.spectatorState != SPECTATOR_FOLLOW)
 	{
-		client->ps.pm_type = PM_NOCLIP;
+		client->ps.pm_type = PM_SPECTATOR;
 		client->ps.speed = 400;	// faster than normal
-		client->noclip = qtrue;
-		client->ps.weapon = WP_NONE;
+
 		// set up for pmove
 		memset(&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
-		pm.tracemask = 0;		// spectators can fly through bodies
+		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
 		pm.trace = trap_Trace;
 		pm.pointcontents = trap_PointContents;
-
-
-		client->ps.speed *= 1.9;
 
 		// perform a pmove
 		Pmove(&pm);
@@ -452,11 +412,6 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 	{
 		Cmd_FollowCycle_f(ent, 1);
 	}
-	if(client->pers.cmd.upmove)
-	{
-		StopFollowing(ent);
-	}
-
 }
 
 
@@ -493,7 +448,7 @@ qboolean ClientInactivityTimer(gclient_t * client)
 		if(level.time > client->inactivityTime - 10000 && !client->inactivityWarning)
 		{
 			client->inactivityWarning = qtrue;
-			trap_SendServerCommand(client - level.clients, "cp \"^1Ten seconds until inactivity drop!\n\"");
+			trap_SendServerCommand(client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"");
 		}
 	}
 	return qtrue;
@@ -522,6 +477,40 @@ void ClientTimerActions(gentity_t * ent, int msec)
 		client->timeResidual -= 1000;
 
 		// regenerate
+#ifdef MISSIONPACK
+		if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD)
+		{
+			maxHealth = client->ps.stats[STAT_MAX_HEALTH] / 2;
+		}
+		else if(client->ps.powerups[PW_REGEN])
+		{
+			maxHealth = client->ps.stats[STAT_MAX_HEALTH];
+		}
+		else
+		{
+			maxHealth = 0;
+		}
+		if(maxHealth)
+		{
+			if(ent->health < maxHealth)
+			{
+				ent->health += 15;
+				if(ent->health > maxHealth * 1.1)
+				{
+					ent->health = maxHealth * 1.1;
+				}
+				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
+			}
+			else if(ent->health < maxHealth * 2)
+			{
+				ent->health += 5;
+				if(ent->health > maxHealth * 2)
+				{
+					ent->health = maxHealth * 2;
+				}
+				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
+			}
+#else
 		if(client->ps.powerups[PW_REGEN])
 		{
 			if(ent->health < client->ps.stats[STAT_MAX_HEALTH])
@@ -535,52 +524,28 @@ void ClientTimerActions(gentity_t * ent, int msec)
 			}
 			else if(ent->health < client->ps.stats[STAT_MAX_HEALTH] * 2)
 			{
-				ent->health += 10;
+				ent->health += 5;
 				if(ent->health > client->ps.stats[STAT_MAX_HEALTH] * 2)
 				{
-
 					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 2;
 				}
 				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
 			}
-			else if(client->ps.stats[STAT_ARMOR] < client->ps.stats[STAT_MAX_HEALTH])
-			{
-				client->ps.stats[STAT_ARMOR] += 15;
-				if(client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] * 1.1)
-				{
-					client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-			else if(client->ps.stats[STAT_ARMOR] < client->ps.stats[STAT_MAX_HEALTH] * 2)
-			{
-				client->ps.stats[STAT_ARMOR] += 10;
-				if(client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] * 2)
-				{
-					client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_MAX_HEALTH] * 2;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-
+#endif
 		}
 		else
 		{
-			if(Instagib.integer == 0)
+			// count down health when over max
+			if(ent->health > client->ps.stats[STAT_MAX_HEALTH])
 			{
-
-				// count down health when over max unless player has regen
-				if(client->ps.powerups[PW_REGEN] == 0)
-				{
-					if(ent->health > client->ps.stats[STAT_MAX_HEALTH])
-					{
-						ent->health--;
-					}
-				}
-				// count down armor when over max
-				/*      if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
-				   client->ps.stats[STAT_ARMOR]--;
-				   } */
+				ent->health--;
 			}
+		}
+
+		// count down armor when over max
+		if(client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH])
+		{
+			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
 #ifdef MISSIONPACK
@@ -588,8 +553,8 @@ void ClientTimerActions(gentity_t * ent, int msec)
 	{
 		int             w, max, inc, t, i;
 		int             weapList[] =
-			{ WP_MACHINEGUN, WP_SHOTGUN, WP_GRENADE_LAUNCHER, WP_ROCKET_LAUNCHER, WP_LIGHTNING, WP_RAILGUN, WP_IRAILGUN,
-WP_PLASMAGUN, WP_BFG, WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN };
+			{ WP_MACHINEGUN, WP_SHOTGUN, WP_GRENADE_LAUNCHER, WP_ROCKET_LAUNCHER, WP_LIGHTNING, WP_RAILGUN, WP_PLASMAGUN, WP_BFG,
+WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN };
 		int             weapCount = sizeof(weapList) / sizeof(int);
 
 		//
@@ -625,11 +590,6 @@ WP_PLASMAGUN, WP_BFG, WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN };
 					t = 1500;
 					break;
 				case WP_RAILGUN:
-					max = 10;
-					inc = 1;
-					t = 1750;
-					break;
-				case WP_IRAILGUN:
 					max = 10;
 					inc = 1;
 					t = 1750;
@@ -692,12 +652,6 @@ ClientIntermissionThink
 */
 void ClientIntermissionThink(gclient_t * client)
 {
-	gentity_t      *ent;
-
-//  int i;
-
-
-	ent = &g_entities[client->ps.clientNum];
 	client->ps.eFlags &= ~EF_TALK;
 	client->ps.eFlags &= ~EF_FIRING;
 
@@ -706,26 +660,11 @@ void ClientIntermissionThink(gclient_t * client)
 	// swap and latch button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->pers.cmd.buttons;
-	if(client->buttons & BUTTON_ATTACK & (client->oldbuttons ^ client->buttons))
+	if(client->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) & (client->oldbuttons ^ client->buttons))
 	{
 		// this used to be an ^1 but once a player says ready, it should stick
-		//  StopFollowing( ent );
 		client->readyToExit = 1;
 	}
-//  if ( client->buttons & BUTTON_USE_HOLDABLE & ( client->oldbuttons ^ client->buttons ) ) {
-//      Cmd_FollowCycle_f( ent, 1 );
-//  }
-
-//  for ( i = 0 ; i < level.numConnectedClients ; i++ ) {
-//          Cmd_Statistics_f( &g_entities[i] );
-//  }
-
-	if(client->pers.cmd.upmove && client->sess.spectatorState != SPECTATOR_FOLLOW)
-	{
-		//  Cmd_FollowCycle_f( ent, 1 );
-//      Cmd_StatCycle_f( ent, 1 );
-	}
-
 }
 
 
@@ -737,11 +676,9 @@ Events will be passed on to the clients for presentation,
 but any server game effects are handled here
 ================
 */
-void ClientEvents(gentity_t * ent, int oldEventSequence, int charge)
+void ClientEvents(gentity_t * ent, int oldEventSequence)
 {
-//  int     i, j;
-	int             i;
-	int             e;
+	int             i, j;
 	int             event;
 	gclient_t      *client;
 	int             damage;
@@ -749,8 +686,8 @@ void ClientEvents(gentity_t * ent, int oldEventSequence, int charge)
 	vec3_t          origin, angles;
 
 //  qboolean    fired;
-//  gitem_t *item;
-//  gentity_t *drop;
+	gitem_t        *item;
+	gentity_t      *drop;
 
 	client = ent->client;
 
@@ -766,46 +703,97 @@ void ClientEvents(gentity_t * ent, int oldEventSequence, int charge)
 		{
 			case EV_FALL_MEDIUM:
 			case EV_FALL_FAR:
-				if(ent->client->ps.stats[STAT_HEALTH] > 0)
+				if(ent->s.eType != ET_PLAYER)
 				{
-					if(ent->s.eType != ET_PLAYER)
-					{
-						break;	// not in the player model
-					}
-					if(g_dmflags.integer & DF_NO_FALLING)
-					{
-						break;
-					}
-					if(event == EV_FALL_FAR)
-					{
-						damage = 10;
-					}
-					else
-					{
-						damage = 5;
-					}
-					VectorSet(dir, 0, 0, 1);
-					ent->pain_debounce_time = level.time + 200;	// no normal pain sound
-					G_Damage(ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+					break;		// not in the player model
 				}
-				break;
-
-			case EV_FIRE_WEAPON:
-
-				if(ent->client->ps.weapon != WP_IRAILGUN)
+				if(g_dmflags.integer & DF_NO_FALLING)
 				{
-					FireWeapon(ent, 0);
+					break;
+				}
+				if(event == EV_FALL_FAR)
+				{
+					damage = 10;
 				}
 				else
 				{
-					e = ent->client->ps.weaponTime;
-					FireWeapon(ent, charge);
+					damage = 5;
 				}
+				VectorSet(dir, 0, 0, 1);
+				ent->pain_debounce_time = level.time + 200;	// no normal pain sound
+				G_Damage(ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+				break;
+
+			case EV_FIRE_WEAPON:
+				FireWeapon(ent);
 				break;
 
 			case EV_USE_ITEM1:	// teleporter
 				// drop flags in CTF
-				Team_DropFlags(ent);
+				item = NULL;
+				j = 0;
+
+				if(ent->client->ps.powerups[PW_REDFLAG])
+				{
+					item = BG_FindItemForPowerup(PW_REDFLAG);
+					j = PW_REDFLAG;
+				}
+				else if(ent->client->ps.powerups[PW_BLUEFLAG])
+				{
+					item = BG_FindItemForPowerup(PW_BLUEFLAG);
+					j = PW_BLUEFLAG;
+				}
+				else if(ent->client->ps.powerups[PW_NEUTRALFLAG])
+				{
+					item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
+					j = PW_NEUTRALFLAG;
+				}
+
+				if(item)
+				{
+					drop = Drop_Item(ent, item, 0);
+					// decide how many seconds it has left
+					drop->count = (ent->client->ps.powerups[j] - level.time) / 1000;
+					if(drop->count < 1)
+					{
+						drop->count = 1;
+					}
+
+					ent->client->ps.powerups[j] = 0;
+				}
+
+#ifdef MISSIONPACK
+				if(g_gametype.integer == GT_HARVESTER)
+				{
+					if(ent->client->ps.generic1 > 0)
+					{
+						if(ent->client->sess.sessionTeam == TEAM_RED)
+						{
+							item = BG_FindItem("Blue Cube");
+						}
+						else
+						{
+							item = BG_FindItem("Red Cube");
+						}
+						if(item)
+						{
+							for(j = 0; j < ent->client->ps.generic1; j++)
+							{
+								drop = Drop_Item(ent, item, 0);
+								if(ent->client->sess.sessionTeam == TEAM_RED)
+								{
+									drop->spawnflags = TEAM_BLUE;
+								}
+								else
+								{
+									drop->spawnflags = TEAM_RED;
+								}
+							}
+						}
+						ent->client->ps.generic1 = 0;
+					}
+				}
+#endif
 				SelectSpawnPoint(ent->client->ps.origin, origin, angles);
 				TeleportPlayer(ent, origin, angles);
 				break;
@@ -814,6 +802,29 @@ void ClientEvents(gentity_t * ent, int oldEventSequence, int charge)
 				ent->health = ent->client->ps.stats[STAT_MAX_HEALTH] + 25;
 
 				break;
+
+#ifdef MISSIONPACK
+			case EV_USE_ITEM3:	// kamikaze
+				// make sure the invulnerability is off
+				ent->client->invulnerabilityTime = 0;
+				// start the kamikze
+				G_StartKamikaze(ent);
+				break;
+
+			case EV_USE_ITEM4:	// portal
+				if(ent->client->portalID)
+				{
+					DropPortalSource(ent);
+				}
+				else
+				{
+					DropPortalDestination(ent);
+				}
+				break;
+			case EV_USE_ITEM5:	// invulnerability
+				ent->client->invulnerabilityTime = level.time + 10000;
+				break;
+#endif
 
 			default:
 				break;
@@ -883,25 +894,6 @@ void SendPendingPredictableEvents(playerState_t * ps)
 	gentity_t      *t;
 	int             event, seq;
 	int             extEvent, number;
-	gentity_t      *attacker;
-	qboolean        quad;
-
-	attacker = &g_entities[ps->persistant[PERS_ATTACKER]];
-	if(attacker->client)
-	{
-		if(attacker->client->ps.powerups[PW_QUAD] >= 1)
-		{
-			quad = qtrue;
-		}
-		else
-		{
-			quad = qfalse;
-		}
-	}
-	else
-	{
-		quad = qfalse;
-	}
 
 	// if there are still events pending
 	if(ps->entityEventSequence < ps->eventSequence)
@@ -916,7 +908,7 @@ void SendPendingPredictableEvents(playerState_t * ps)
 		// create temporary entity for event
 		t = G_TempEntity(ps->origin, event);
 		number = t->s.number;
-		BG_PlayerStateToEntityState(ps, &t->s, qtrue, quad);
+		BG_PlayerStateToEntityState(ps, &t->s, qtrue);
 		t->s.number = number;
 		t->s.eType = ET_EVENTS + event;
 		t->s.eFlags |= EF_PLAYER_EVENT;
@@ -947,12 +939,6 @@ void ClientThink_real(gentity_t * ent)
 	int             oldEventSequence;
 	int             msec;
 	usercmd_t      *ucmd;
-	int             Rcharge;
-	gentity_t      *attacker;
-	qboolean        quad;
-
-//  int         i;
-//  cvarTable_t *cv;
 
 	client = ent->client;
 
@@ -975,112 +961,7 @@ void ClientThink_real(gentity_t * ent)
 		ucmd->serverTime = level.time - 1000;
 //      G_Printf("serverTime >>>>>\n" );
 	}
-//unlagged - backward reconciliation #4
-	// frameOffset should be about the number of milliseconds into a frame 
-	// this command packet was received, depending on how fast the server
-	// does a G_RunFrame()
-	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
-//unlagged - backward reconciliation #4
-//unlagged - lag simulation #3
-	// if the client wants to simulate outgoing packet loss
-/*	if ( client->pers.plOut ) {
-		// see if a random value is below the threshhold
-		float thresh = (float)client->pers.plOut / 100.0f;
-		if ( random() < thresh ) {
-			// do nothing at all if it is - this is a lost command
-			return;
-		}
-	}*/
-//unlagged - lag simulation #3
-//unlagged - true ping
-	// save the estimated ping in a queue for averaging later
 
-	// we use level.previousTime to account for 50ms lag correction
-	// besides, this will turn out numbers more like what players are used to
-	client->pers.pingsamples[client->pers.samplehead] = level.previousTime + client->frameOffset - ucmd->serverTime;
-	client->pers.samplehead++;
-	if(client->pers.samplehead >= NUM_PING_SAMPLES)
-	{
-		client->pers.samplehead -= NUM_PING_SAMPLES;
-	}
-
-	// initialize the real ping
-	if(g_truePing.integer)
-	{
-		int             i, sum = 0;
-
-		// get an average of the samples we saved up
-		for(i = 0; i < NUM_PING_SAMPLES; i++)
-		{
-			sum += client->pers.pingsamples[i];
-		}
-
-		client->pers.realPing = sum / NUM_PING_SAMPLES;
-	}
-	else
-	{
-		// if g_truePing is off, use the normal ping
-		client->pers.realPing = client->ps.ping;
-	}
-//unlagged - true ping
-//unlagged - lag simulation #2
-	// keep a queue of past commands
-	client->pers.cmdqueue[client->pers.cmdhead] = client->pers.cmd;
-	client->pers.cmdhead++;
-	if(client->pers.cmdhead >= MAX_LATENT_CMDS)
-	{
-		client->pers.cmdhead -= MAX_LATENT_CMDS;
-	}
-
-	// if the client wants latency in commands (client-to-server latency)
-	if(client->pers.latentCmds)
-	{
-		// save the actual command time
-		int             time = ucmd->serverTime;
-
-		// find out which index in the queue we want
-		int             cmdindex = client->pers.cmdhead - client->pers.latentCmds - 1;
-
-		while(cmdindex < 0)
-		{
-			cmdindex += MAX_LATENT_CMDS;
-		}
-
-		// read in the old command
-		client->pers.cmd = client->pers.cmdqueue[cmdindex];
-
-		// adjust the real ping to reflect the new latency
-		client->pers.realPing += time - ucmd->serverTime;
-	}
-//unlagged - lag simulation #2
-//unlagged - backward reconciliation #4
-	// save the command time *before* pmove_fixed messes with the serverTime,
-	// and *after* lag simulation messes with it :)
-	// attackTime will be used for backward reconciliation later (time shift)
-	client->attackTime = ucmd->serverTime;
-//unlagged - backward reconciliation #4
-//unlagged - smooth clients #1
-	// keep track of this for later - we'll use this to decide whether or not
-	// to send extrapolated positions for this client
-	client->lastUpdateFrame = level.framenum;
-//unlagged - smooth clients #1
-//unlagged - lag simulation #1
-	// if the client is adding latency to received snapshots (server-to-client latency)
-	if(client->pers.latentSnaps)
-	{
-		// adjust the real ping
-		client->pers.realPing += client->pers.latentSnaps * (1000 / sv_fps.integer);
-		// adjust the attack time so backward reconciliation will work
-		client->attackTime -= client->pers.latentSnaps * (1000 / sv_fps.integer);
-	}
-//unlagged - lag simulation #1
-//unlagged - true ping
-	// make sure the true ping is over 0 - with cl_timenudge it can be less
-	if(client->pers.realPing < 0)
-	{
-		client->pers.realPing = 0;
-	}
-//unlagged - true ping
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
 	// to check for follow toggles
@@ -1118,11 +999,6 @@ void ClientThink_real(gentity_t * ent)
 		return;
 	}
 
-	if(client->sess.speconly == 1 && client->sess.sessionTeam != TEAM_SPECTATOR)
-	{
-		SetTeam(ent, "s");
-	}
-
 	// spectators don't do much
 	if(client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
@@ -1151,11 +1027,6 @@ void ClientThink_real(gentity_t * ent)
 	{
 		client->ps.pm_type = PM_NOCLIP;
 	}
-	else if(level.intermissionQueued)
-	{
-
-
-	}
 	else if(client->ps.stats[STAT_HEALTH] <= 0)
 	{
 		client->ps.pm_type = PM_DEAD;
@@ -1164,175 +1035,30 @@ void ClientThink_real(gentity_t * ent)
 	{
 		client->ps.pm_type = PM_NORMAL;
 	}
-	if(client->ps.stats[STAT_HEALTH] > 200)
-	{
-		client->ps.stats[STAT_HEALTH] = 200;
-	}
-	if(client->ps.stats[STAT_ARMOR] > 200)
-	{
-		client->ps.stats[STAT_ARMOR] = 200;
-	}
+
 	client->ps.gravity = g_gravity.value;
 
 	// set speed
 	client->ps.speed = g_speed.value;
-	client->ps.speed = 310;
 
-	if(Instagib.integer == 1)
+#ifdef MISSIONPACK
+	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
 	{
-		if(client->ps.stats[STAT_WEAPONS] & (1 << WP_MACHINEGUN))
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"^3InstaGib Mode is ^5Enabled."));
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_MACHINEGUN))
-			{
-				client->ps.ammo[WP_MACHINEGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_MACHINEGUN);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_SHOTGUN))
-			{
-				client->ps.ammo[WP_SHOTGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_SHOTGUN);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE_LAUNCHER))
-			{
-				client->ps.ammo[WP_GRENADE_LAUNCHER] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_GRENADE_LAUNCHER);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER))
-			{
-				client->ps.ammo[WP_ROCKET_LAUNCHER] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_ROCKET_LAUNCHER);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_LIGHTNING))
-			{
-				client->ps.ammo[WP_LIGHTNING] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_LIGHTNING);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN))
-			{
-				client->ps.ammo[WP_RAILGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_RAILGUN);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_PLASMAGUN))
-			{
-				client->ps.ammo[WP_PLASMAGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_PLASMAGUN);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_BFG))
-			{
-				client->ps.ammo[WP_BFG] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_BFG);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_IRAILGUN))
-			{
-				client->ps.ammo[WP_IRAILGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_IRAILGUN);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_FLAMETHROWER))
-			{
-				client->ps.ammo[WP_FLAMETHROWER] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_FLAMETHROWER);
-			}
-		}
-
-		if(InstaWeapon.integer == 0)
-		{
-			if(!(client->ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN)))
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"^3Railgun InstaGib Mode is ^5Enabled."));
-
-				client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
-				client->ps.ammo[WP_RAILGUN] = 999;
-
-
-
-				if(client->ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER))
-				{
-					client->ps.ammo[WP_ROCKET_LAUNCHER] = 0;
-					client->ps.stats[STAT_WEAPONS] -= (1 << WP_ROCKET_LAUNCHER);
-				}
-
-				if(client->ps.stats[STAT_WEAPONS] & (1 << WP_IRAILGUN))
-				{
-					client->ps.ammo[WP_IRAILGUN] = 0;
-					client->ps.stats[STAT_WEAPONS] -= (1 << WP_IRAILGUN);
-				}
-
-			}
-		}
-		else if(InstaWeapon.integer == 1)
-		{
-			if(!(client->ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER)))
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"^3Rocket InstaGib Mode is ^5Enabled."));
-				client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
-				client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
-
-
-				if(client->ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN))
-				{
-					client->ps.ammo[WP_RAILGUN] = 0;
-					client->ps.stats[STAT_WEAPONS] -= (1 << WP_RAILGUN);
-				}
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_IRAILGUN))
-			{
-				client->ps.ammo[WP_IRAILGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_IRAILGUN);
-			}
-
-		}
-		else if(InstaWeapon.integer == 2)
-		{
-			if(!(client->ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER)))
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"^3Rocket & Rail InstaGib Mode is ^5Enabled."));
-				client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
-				client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
-			}
-			if(!(client->ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
-				client->ps.ammo[WP_RAILGUN] = 999;
-			}
-		}
+		client->ps.speed *= 1.5;
 	}
 	else
-	{
-		if(!(client->ps.stats[STAT_WEAPONS] & (1 << WP_MACHINEGUN)))
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"^3InstaGib Mode is ^5Disabled."));
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MACHINEGUN);
-			client->ps.ammo[WP_MACHINEGUN] = 150;
-			client->firstTimeW = qfalse;
-
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN) && client->ps.ammo[WP_RAILGUN] == 999)
-			{
-				client->ps.ammo[WP_RAILGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_RAILGUN);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER) && client->ps.ammo[WP_ROCKET_LAUNCHER] == 999)
-			{
-				client->ps.ammo[WP_ROCKET_LAUNCHER] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_ROCKET_LAUNCHER);
-			}
-			if(client->ps.stats[STAT_WEAPONS] & (1 << WP_IRAILGUN) && client->ps.ammo[WP_IRAILGUN] == 999)
-			{
-				client->ps.ammo[WP_IRAILGUN] = 0;
-				client->ps.stats[STAT_WEAPONS] -= (1 << WP_IRAILGUN);
-			}
-		}
-
-	}
-
-	WarmupWeapons(ent);
-
+#endif
 	if(client->ps.powerups[PW_HASTE])
 	{
 		client->ps.speed *= 1.3;
 	}
 
 	// Let go of the hook if we aren't firing
+	if(client->ps.weapon == WP_GRAPPLING_HOOK && client->hook && !(ucmd->buttons & BUTTON_ATTACK))
+	{
+		Weapon_HookFree(client->hook);
+	}
+
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 
@@ -1406,82 +1132,41 @@ void ClientThink_real(gentity_t * ent)
 
 	VectorCopy(client->ps.origin, client->oldOrigin);
 
-
-	if(level.intermissionQueued)
+#ifdef MISSIONPACK
+	if(level.intermissionQueued != 0 && g_singlePlayer.integer)
 	{
-		pm.cmd.buttons = 0;
-		pm.cmd.forwardmove = 0;
-		pm.cmd.rightmove = 0;
-		pm.cmd.upmove = 0;
-		client->ps.eFlags &= ~EF_FIRING;
-		if(client->ps.stats[STAT_HEALTH] > 0)
+		if(level.time - level.intermissionQueued >= 1000)
 		{
-			client->ps.pm_type = PM_FREEZE;
+			pm.cmd.buttons = 0;
+			pm.cmd.forwardmove = 0;
+			pm.cmd.rightmove = 0;
+			pm.cmd.upmove = 0;
+			if(level.time - level.intermissionQueued >= 2000 && level.time - level.intermissionQueued <= 2500)
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, "centerview\n");
+			}
+			ent->client->ps.pm_type = PM_SPINTERMISSION;
 		}
 	}
-
-
 	Pmove(&pm);
+#else
+	Pmove(&pm);
+#endif
 
 	// save results of pmove
 	if(ent->client->ps.eventSequence != oldEventSequence)
 	{
 		ent->eventTime = level.time;
 	}
-//unlagged - smooth clients #2
-	// clients no longer do extrapolation if cg_smoothClients is 1, because
-	// skip correction is all handled server-side now
-	// since that's the case, it makes no sense to store the extra info
-	// in the client's snapshot entity, so let's save a little bandwidth
-/*
-	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
-	}
-	else {
-*/
-	attacker = &g_entities[ent->client->ps.persistant[PERS_ATTACKER]];
-	if(attacker->client)
+	if(g_smoothClients.integer)
 	{
-		if(attacker->client->ps.powerups[PW_QUAD] >= 1)
-		{
-			quad = qtrue;
-		}
-		else
-		{
-			quad = qfalse;
-		}
+		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
 	}
 	else
 	{
-		quad = qfalse;
+		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	}
-
-	if(!(ent->client->ps.generic1 & GNF_ONFIRE) && level.time < ent->onFireEnd)
-	{
-		ent->client->ps.generic1 |= GNF_ONFIRE;
-	}
-	else if(level.time >= ent->onFireEnd)
-	{
-		ent->client->ps.generic1 &= ~GNF_ONFIRE;
-	}
-
-	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue, quad);
-//  }
-//unlagged - smooth clients #2
 	SendPendingPredictableEvents(&ent->client->ps);
-
-	if((pm.cmd.buttons & 32) && ent->client->ps.pm_type != PM_DEAD && !ent->client->hookhasbeenfired)
-	{
-		Weapon_GrapplingHook_Fire(ent);
-		ent->client->hookhasbeenfired = qtrue;
-	}
-	if(!(pm.cmd.buttons & 32) && ent->client->ps.pm_type != PM_DEAD && ent->client->hookhasbeenfired && ent->client->fireHeld)
-	{
-		ent->client->fireHeld = qfalse;
-		ent->client->hookhasbeenfired = qfalse;
-	}
-	if(client->hook && client->fireHeld == qfalse)
-		Weapon_HookFree(client->hook);
 
 	if(!(ent->client->ps.eFlags & EF_FIRING))
 	{
@@ -1496,18 +1181,9 @@ void ClientThink_real(gentity_t * ent)
 
 	ent->waterlevel = pm.waterlevel;
 	ent->watertype = pm.watertype;
-	Rcharge = 0;
 
-	if(ent->client->ps.generic1 & GNF_ONFIRE && pm.waterlevel >= 2)
-	{
-		ent->client->ps.generic1 &= ~GNF_ONFIRE;
-		ent->onFireEnd = level.time;
-	}
-
-
-//  Rcharge = client->charge;
 	// execute client events
-	ClientEvents(ent, oldEventSequence, Rcharge);
+	ClientEvents(ent, oldEventSequence);
 
 	// link entity now, after any personal teleporters have been used
 	trap_LinkEntity(ent);
@@ -1543,11 +1219,17 @@ void ClientThink_real(gentity_t * ent)
 		if(level.time > client->respawnTime)
 		{
 			// forcerespawn is to prevent users from waiting out powerups
-			if(!ent->DeadView)
+			if(g_forcerespawn.integer > 0 && (level.time - client->respawnTime) > g_forcerespawn.integer * 1000)
 			{
-				respawn(ent, qtrue);
+				respawn(ent);
+				return;
 			}
-			return;
+
+			// pressing attack or use is the normal respawn method
+			if(ucmd->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE))
+			{
+				respawn(ent);
+			}
 		}
 		return;
 	}
@@ -1570,6 +1252,8 @@ void ClientThink(int clientNum)
 	ent = g_entities + clientNum;
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
 
+	// mark the time we got info, so we can display the
+	// phone jack if they don't get any for a while
 	ent->client->lastCmdTime = level.time;
 
 	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
@@ -1662,17 +1346,6 @@ void ClientEndFrame(gentity_t * ent)
 {
 	int             i;
 	clientPersistant_t *pers;
-	gentity_t      *attacker;
-	qboolean        quad;
-
-//unlagged - smooth clients #1
-	int             frames;
-
-//unlagged - smooth clients #1
-
-	//  if( (ent->r.svFlags & SVF_BOT) == 0 ){
-	//  Multiview1_f(ent);
-	//  }
 
 	if(ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
@@ -1697,6 +1370,10 @@ void ClientEndFrame(gentity_t * ent)
 	{
 		ent->client->ps.powerups[PW_GUARD] = level.time;
 	}
+	if(bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
+	{
+		ent->client->ps.powerups[PW_SCOUT] = level.time;
+	}
 	if(bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_DOUBLER)
 	{
 		ent->client->ps.powerups[PW_DOUBLER] = level.time;
@@ -1704,6 +1381,10 @@ void ClientEndFrame(gentity_t * ent)
 	if(bg_itemlist[ent->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN)
 	{
 		ent->client->ps.powerups[PW_AMMOREGEN] = level.time;
+	}
+	if(ent->client->invulnerabilityTime > level.time)
+	{
+		ent->client->ps.powerups[PW_INVULNERABILITY] = level.time;
 	}
 #endif
 
@@ -1728,94 +1409,33 @@ void ClientEndFrame(gentity_t * ent)
 	// burn from lava, etc
 	P_WorldEffects(ent);
 
-	if(ent->client->ps.weaponstate == WEAPON_PREFIRING)
-	{
-		ent->client->charge += 2;
-	}
-	else
-	{
-		ent->client->charge = 0;
-	}
-
 	// apply all the damage taken this frame
 	P_DamageFeedback(ent);
 
-//unlagged - smooth clients #1
-	// this is handled differently now
-/*
 	// add the EF_CONNECTION flag if we haven't gotten commands recently
-	if ( level.time - ent->client->lastCmdTime > 1000 ) {
-		ent->client->ps.eFlags |= EF_CONNECTION;
-	} else {
-		ent->client->ps.eFlags &= ~EF_CONNECTION;
+	if(level.time - ent->client->lastCmdTime > 1000)
+	{
+		ent->s.eFlags |= EF_CONNECTION;
 	}
-*/
-//unlagged - smooth clients #1
+	else
+	{
+		ent->s.eFlags &= ~EF_CONNECTION;
+	}
 
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
 	G_SetClientSound(ent);
 
-	// set the latest information
-//unlagged - smooth clients #2
-	// clients no longer do extrapolation if cg_smoothClients is 1, because
-	// skip correction is all handled server-side now
-	// since that's the case, it makes no sense to store the extra info
-	// in the client's snapshot entity, so let's save a little bandwidth
-/*
-	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
-	}
-	else {
-*/
-
-
-	attacker = &g_entities[ent->client->ps.persistant[PERS_ATTACKER]];
-	if(attacker->client)
+	// set the latest infor
+	if(g_smoothClients.integer)
 	{
-		if(attacker->client->ps.powerups[PW_QUAD] >= 1)
-		{
-			quad = qtrue;
-		}
-		else
-		{
-			quad = qfalse;
-		}
+		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
 	}
 	else
 	{
-		quad = qfalse;
+		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	}
-	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue, quad);
-//  }
-
-//unlagged - smooth clients #2
 	SendPendingPredictableEvents(&ent->client->ps);
-//unlagged - smooth clients #1
-	// mark as not missing updates initially
-	ent->client->ps.eFlags &= ~EF_CONNECTION;
-
-	// see how many frames the client has missed
-	frames = level.framenum - ent->client->lastUpdateFrame - 1;
-
-	// don't extrapolate more than two frames
-	if(frames > 2)
-	{
-		frames = 2;
-
-		// if they missed more than two in a row, show the phone jack
-		ent->client->ps.eFlags |= EF_CONNECTION;
-		ent->s.eFlags |= EF_CONNECTION;
-	}
-
-	// did the client miss any frames?
-	/*if ( frames > 0 && g_smoothClients.integer ) {
-	   // yep, missed one or more, so extrapolate the player's movement
-	   G_PredictPlayerMove( ent, (float)frames / sv_fps.integer );
-	   // save network bandwidth
-	   SnapVector( ent->s.pos.trBase );
-	   } */
-//unlagged - smooth clients #1
 
 	// set the bit for the reachability area the client is currently in
 //  i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );

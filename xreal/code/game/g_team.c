@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -212,16 +211,12 @@ qboolean OnSameTeam(gentity_t * ent1, gentity_t * ent2)
 }
 
 
-//NT - added status "3" - flag being returned
-static char     ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2', '3' };
+static char     ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
 static char     oneFlagStatusRemap[] = { '0', '1', '2', '3', '4' };
 
 void Team_SetFlagStatus(int team, flagStatus_t status)
 {
 	qboolean        modified = qfalse;
-
-	//NT - multi-flag CTF can have multiple statuses - we might as well
-	// not show any status at all
 
 	switch (team)
 	{
@@ -589,63 +584,11 @@ void Team_CheckHurtCarrier(gentity_t * targ, gentity_t * attacker)
 		attacker->client->pers.teamState.lasthurtcarrier = level.time;
 }
 
-//NT - added this func to drop a player's flags
-void Team_DropFlags(gentity_t * ent)
-{
-	gitem_t        *item;
-	gentity_t      *drop;
-	float           angle;
 
-	angle = 45;
-
-	item = NULL;
-	if(ent->client->ps.powerups[PW_REDFLAG])
-	{
-		item = BG_FindItemForPowerup(PW_REDFLAG);
-		if(item)
-		{
-			drop = Drop_Item(ent, item, angle);
-			// decide how many seconds it has left
-			drop->count = (ent->client->ps.powerups[PW_REDFLAG] - level.time) / 1000;
-			if(drop->count < 1)
-			{
-				drop->count = 1;
-			}
-			ent->client->ps.powerups[PW_REDFLAG] = 0;
-			angle += 45;
-		}
-	}
-
-	item = NULL;
-	if(ent->client->ps.powerups[PW_BLUEFLAG])
-	{
-		item = BG_FindItemForPowerup(PW_BLUEFLAG);
-		if(item)
-		{
-			drop = Drop_Item(ent, item, angle);
-			// decide how many seconds it has left
-			drop->count = (ent->client->ps.powerups[PW_BLUEFLAG] - level.time) / 1000;
-			if(drop->count < 1)
-			{
-				drop->count = 1;
-			}
-			ent->client->ps.powerups[PW_BLUEFLAG] = 0;
-			angle += 45;
-		}
-	}
-
-	item = NULL;
-
-}
-
-//NT - added *flag parameter
-gentity_t      *Team_ResetFlag(gentity_t * flag, int team)
+gentity_t      *Team_ResetFlag(int team)
 {
 	char           *c;
 	gentity_t      *ent, *rent = NULL;
-
-	//NT - we don't ever reset flags in multi-flag CTF, but we will
-	// get rid of them
 
 	switch (team)
 	{
@@ -683,15 +626,13 @@ void Team_ResetFlags(void)
 {
 	if(g_gametype.integer == GT_CTF)
 	{
-		//NT - added *flag param
-		Team_ResetFlag(NULL, TEAM_RED);
-		Team_ResetFlag(NULL, TEAM_BLUE);
+		Team_ResetFlag(TEAM_RED);
+		Team_ResetFlag(TEAM_BLUE);
 	}
 #ifdef MISSIONPACK
 	else if(g_gametype.integer == GT_1FCTF)
 	{
-		//NT - added *flag param
-		Team_ResetFlag(NULL, TEAM_FREE);
+		Team_ResetFlag(TEAM_FREE);
 	}
 #endif
 }
@@ -718,8 +659,7 @@ void Team_ReturnFlagSound(gentity_t * ent, int team)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-//NT - added enemy flag to parameter list
-void Team_TakeFlagSound(gentity_t * ent, int team, qboolean enemy)
+void Team_TakeFlagSound(gentity_t * ent, int team)
 {
 	gentity_t      *te;
 
@@ -728,8 +668,6 @@ void Team_TakeFlagSound(gentity_t * ent, int team, qboolean enemy)
 		G_Printf("Warning:  NULL passed to Team_TakeFlagSound\n");
 		return;
 	}
-
-	//NT - disregard FLAG_ATBASE status in multi-flag CTF
 
 	// only play sound when the flag was at the base
 	// or not picked up the last 10 seconds
@@ -755,30 +693,13 @@ void Team_TakeFlagSound(gentity_t * ent, int team, qboolean enemy)
 	}
 
 	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
-	//NT - is it the enemy that has the flag?
-	if(enemy)
+	if(team == TEAM_BLUE)
 	{
-		//NT
-		if(team == TEAM_BLUE)
-		{
-			te->s.eventParm = GTS_RED_TAKEN;
-		}
-		else
-		{
-			te->s.eventParm = GTS_BLUE_TAKEN;
-		}
+		te->s.eventParm = GTS_RED_TAKEN;
 	}
 	else
 	{
-		//NT
-		if(team == TEAM_BLUE)
-		{
-			te->s.eventParm = GTS_BLUE_TAKEN_OWN;
-		}
-		else
-		{
-			te->s.eventParm = GTS_RED_TAKEN_OWN;
-		}
+		te->s.eventParm = GTS_BLUE_TAKEN;
 	}
 	te->r.svFlags |= SVF_BROADCAST;
 }
@@ -805,11 +726,9 @@ void Team_CaptureFlagSound(gentity_t * ent, int team)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-//NT - added *flag param
-void Team_ReturnFlag(gentity_t * flag, int team)
+void Team_ReturnFlag(int team)
 {
-	//NT - added *flag param
-	Team_ReturnFlagSound(Team_ResetFlag(flag, team), team);
+	Team_ReturnFlagSound(Team_ResetFlag(team), team);
 	if(team == TEAM_FREE)
 	{
 		PrintMsg(NULL, "The flag has returned!\n");
@@ -824,17 +743,15 @@ void Team_FreeEntity(gentity_t * ent)
 {
 	if(ent->item->giTag == PW_REDFLAG)
 	{
-		//NT - added *flag param
-		Team_ReturnFlag(ent, TEAM_RED);
+		Team_ReturnFlag(TEAM_RED);
 	}
 	else if(ent->item->giTag == PW_BLUEFLAG)
 	{
-		//NT - added *flag param
-		Team_ReturnFlag(ent, TEAM_BLUE);
+		Team_ReturnFlag(TEAM_BLUE);
 	}
 	else if(ent->item->giTag == PW_NEUTRALFLAG)
 	{
-		Team_ReturnFlag(ent, TEAM_FREE);
+		Team_ReturnFlag(TEAM_FREE);
 	}
 }
 
@@ -859,10 +776,12 @@ void Team_DroppedFlagThink(gentity_t * ent)
 	{
 		team = TEAM_BLUE;
 	}
+	else if(ent->item->giTag == PW_NEUTRALFLAG)
+	{
+		team = TEAM_FREE;
+	}
 
-
-	//NT - added *flag param
-	Team_ReturnFlagSound(Team_ResetFlag(ent, team), team);
+	Team_ReturnFlagSound(Team_ResetFlag(team), team);
 	// Reset Flag will delete this entity
 }
 
@@ -877,57 +796,39 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 	int             i;
 	gentity_t      *player;
 	gclient_t      *cl = other->client;
-	int             enemy_flag, own_flag;	//NT - added own_flag
+	int             enemy_flag;
 
-
-	if(cl->sess.sessionTeam == TEAM_RED)
+#ifdef MISSIONPACK
+	if(g_gametype.integer == GT_1FCTF)
 	{
-		enemy_flag = PW_BLUEFLAG;
-		//NT
-		own_flag = PW_REDFLAG;
+		enemy_flag = PW_NEUTRALFLAG;
 	}
 	else
 	{
-		enemy_flag = PW_REDFLAG;
-		//NT
-		own_flag = PW_BLUEFLAG;
-	}
-
-	//NT - is the flag a dropped flag?
-	if(ent->flags & FL_DROPPED_ITEM)
-	{
-		//NT - yep - are we playing return-the-flag?
-
-		//NT - we are, so give it to the player if he hasn't already got one
-		if(cl->ps.powerups[own_flag] == 0)
+#endif
+		if(cl->sess.sessionTeam == TEAM_RED)
 		{
-			// Add it to the player's inventory
-			cl->ps.powerups[own_flag] = INT_MAX;	// flags never expire
-			Team_TakeFlagSound(ent, team, qfalse);
-			Team_SetFlagStatus(team, FLAG_RETURNING);
-			return -1;
+			enemy_flag = PW_BLUEFLAG;
 		}
 		else
 		{
-			return 0;
+			enemy_flag = PW_REDFLAG;
 		}
-	}
-	else
-	{
-		//NT - it's not a dropped flag - this means the player touched his own
-		// base, so put his flag back
-		if(cl->ps.powerups[own_flag])
+
+		if(ent->flags & FL_DROPPED_ITEM)
 		{
-			cl->ps.powerups[own_flag] = 0;
+			// hey, its not home.  return it by teleporting it back
 			PrintMsg(NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", cl->pers.netname, TeamName(team));
 			AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
 			other->client->pers.teamState.flagrecovery++;
 			other->client->pers.teamState.lastreturnedflag = level.time;
 			//ResetFlag will remove this entity!  We must return zero
-			Team_ReturnFlagSound(Team_ResetFlag(NULL, team), team);
+			Team_ReturnFlagSound(Team_ResetFlag(team), team);
 			return 0;
 		}
+#ifdef MISSIONPACK
 	}
+#endif
 
 	// the flag is at home base.  if the player has the enemy
 	// flag, he's just won!
@@ -983,8 +884,6 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 		{
 			if(player != other)
 				AddScore(player, ent->r.currentOrigin, CTF_TEAM_BONUS);
-
-			//NT - assists for non multi-flag games only
 			// award extra points for capture assists
 			if(player->client->pers.teamState.lastreturnedflag + CTF_RETURN_FLAG_ASSIST_TIMEOUT > level.time)
 			{
@@ -1024,42 +923,43 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 int Team_TouchEnemyFlag(gentity_t * ent, gentity_t * other, int team)
 {
 	gclient_t      *cl = other->client;
-	int             enemy_flag;	//NT
 
-	//NT - figure out the enemy flag
-	if(cl->sess.sessionTeam == TEAM_RED)
+#ifdef MISSIONPACK
+	if(g_gametype.integer == GT_1FCTF)
 	{
-		enemy_flag = PW_BLUEFLAG;
+		PrintMsg(NULL, "%s" S_COLOR_WHITE " got the flag!\n", other->client->pers.netname);
+
+		cl->ps.powerups[PW_NEUTRALFLAG] = INT_MAX;	// flags never expire
+
+		if(team == TEAM_RED)
+		{
+			Team_SetFlagStatus(TEAM_FREE, FLAG_TAKEN_RED);
+		}
+		else
+		{
+			Team_SetFlagStatus(TEAM_FREE, FLAG_TAKEN_BLUE);
+		}
 	}
 	else
 	{
-		enemy_flag = PW_REDFLAG;
-	}
-
-	// If we've already got a flag, leave it alone
-	if(cl->ps.powerups[enemy_flag] == 0)
-	{
-
-
+#endif
 		PrintMsg(NULL, "%s" S_COLOR_WHITE " got the %s flag!\n", other->client->pers.netname, TeamName(team));
 
-		//NT - use enemy_flag var
-		cl->ps.powerups[enemy_flag] = INT_MAX;	// flags never expire
+		if(team == TEAM_RED)
+			cl->ps.powerups[PW_REDFLAG] = INT_MAX;	// flags never expire
+		else
+			cl->ps.powerups[PW_BLUEFLAG] = INT_MAX;	// flags never expire
 
 		Team_SetFlagStatus(team, FLAG_TAKEN);
-
-		AddScore(other, ent->r.currentOrigin, CTF_FLAG_BONUS);
-		cl->pers.teamState.flagsince = level.time;
-		//NT - added enemy boolean to param
-		Team_TakeFlagSound(ent, team, qtrue);
-
-		// Do not respawn this automatically, but do delete it if it was FL_DROPPED
-		return -1;				
+#ifdef MISSIONPACK
 	}
-	else
-	{
-		return 0;
-	}
+#endif
+
+	AddScore(other, ent->r.currentOrigin, CTF_FLAG_BONUS);
+	cl->pers.teamState.flagsince = level.time;
+	Team_TakeFlagSound(ent, team);
+
+	return -1;					// Do not respawn this automatically, but do delete it if it was FL_DROPPED
 }
 
 int Pickup_Team(gentity_t * ent, gentity_t * other)
@@ -1625,7 +1525,11 @@ gentity_t      *SpawnObelisk(vec3_t origin, int team, int spawnflags)
 		if(tr.startsolid)
 		{
 			ent->s.origin[2] -= 1;
-			G_Printf("SpawnObelisk: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+			
+			if(ent->name)
+				G_Printf("SpawnObelisk: %s startsolid at %s\n", ent->name, vtos(ent->s.origin));
+			else
+				G_Printf("SpawnObelisk: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
 
 			ent->s.groundEntityNum = ENTITYNUM_NONE;
 			G_SetOrigin(ent, ent->s.origin);

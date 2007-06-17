@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -25,8 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 #define	MISSILE_PRESTEP_TIME	50
-
-void            G_ExplodeMissile(gentity_t * ent);
 
 /*
 ================
@@ -64,301 +61,6 @@ void G_BounceMissile(gentity_t * ent, trace_t * trace)
 
 
 /*
-===============
-KamikazeRadiusDamage
-===============
-*/
-static void KamikazeRadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float radius)
-{
-	float           dist;
-	gentity_t      *ent;
-	int             entityList[MAX_GENTITIES];
-	int             numListedEntities;
-	vec3_t          mins, maxs;
-	vec3_t          v;
-	vec3_t          dir;
-	int             i, e;
-
-	if(radius < 1)
-	{
-		radius = 1;
-	}
-	if(radius >= 290)
-	{
-		radius = 220;
-	}
-
-	for(i = 0; i < 3; i++)
-	{
-		mins[i] = origin[i] - radius;
-		maxs[i] = origin[i] + radius;
-	}
-
-	numListedEntities = trap_EntitiesInBox(mins, maxs, entityList, MAX_GENTITIES);
-
-	for(e = 0; e < numListedEntities; e++)
-	{
-		ent = &g_entities[entityList[e]];
-
-		//  if (!ent->takedamage) {
-		//      continue;
-		//  }
-
-		//  // dont hit things we have already hit
-		//  if( ent->kamikazeTime > level.time ) {
-		//      continue;
-		//  }
-
-		// find the distance from the edge of the bounding box
-		for(i = 0; i < 3; i++)
-		{
-			if(origin[i] < ent->r.absmin[i])
-			{
-				v[i] = ent->r.absmin[i] - origin[i];
-			}
-			else if(origin[i] > ent->r.absmax[i])
-			{
-				v[i] = origin[i] - ent->r.absmax[i];
-			}
-			else
-			{
-				v[i] = 0;
-			}
-		}
-
-		dist = VectorLength(v);
-		if(dist >= radius)
-		{
-			continue;
-		}
-
-//      if( CanDamage (ent, origin) ) {
-		VectorSubtract(ent->r.currentOrigin, origin, dir);
-		// push the center of mass higher than the origin so players
-		// get knocked into the air more
-		dir[2] += 24;
-		G_Damage(ent, NULL, attacker, dir, origin, damage, 0, MOD_BFG_SPLASH);
-		//  ent->kamikazeTime = level.time + 3000;
-//      }
-	}
-}
-
-/*
-===============
-KamikazeShockWave
-===============
-*/
-static void KamikazeShockWave(vec3_t origin, gentity_t * attacker, float damage, float push, float radius)
-{
-
-	gentity_t      *ent;
-	int             entityList[MAX_GENTITIES];
-	int             numListedEntities;
-	vec3_t          mins, maxs;
-	float           dist;
-	vec3_t          v;
-	vec3_t          dir;
-	int             i, e;
-
-	if(radius < 1)
-	{
-		radius = 1;
-	}
-
-	if(radius >= 350)
-	{
-		radius = 290;
-	}
-
-	for(i = 0; i < 3; i++)
-	{
-		mins[i] = origin[i] - radius;
-		maxs[i] = origin[i] + radius;
-	}
-
-	numListedEntities = trap_EntitiesInBox(mins, maxs, entityList, MAX_GENTITIES);
-
-	for(e = 0; e < numListedEntities; e++)
-	{
-		ent = &g_entities[entityList[e]];
-
-		// dont hit things we have already hit
-		//  if( ent->kamikazeShockTime > level.time ) {
-		//      continue;
-		//  }
-
-		// find the distance from the edge of the bounding box
-		for(i = 0; i < 3; i++)
-		{
-			if(origin[i] < ent->r.absmin[i])
-			{
-				v[i] = ent->r.absmin[i] - origin[i];
-			}
-			else if(origin[i] > ent->r.absmax[i])
-			{
-				v[i] = origin[i] - ent->r.absmax[i];
-			}
-			else
-			{
-				v[i] = 0;
-			}
-		}
-
-		dist = VectorLength(v);
-		if(dist >= radius)
-		{
-			continue;
-		}
-
-		VectorSubtract(ent->r.currentOrigin, origin, dir);
-		dir[2] += 24;
-		G_Damage(ent, NULL, attacker, dir, origin, damage, 0, MOD_BFG_SPLASH);
-		//
-		dir[2] = 0;
-		VectorNormalize(dir);
-		if(ent->client)
-		{
-			ent->client->ps.velocity[0] = dir[0] * push;
-			ent->client->ps.velocity[1] = dir[1] * push;
-			ent->client->ps.velocity[2] = 50;
-		}
-		//  ent->kamikazeShockTime = level.time + 3000;
-	}
-}
-
-/*
-===============
-KamikazeDamage
-===============
-*/
-static void KamikazeDamage(gentity_t * self)
-{
-	int             i;
-	float           t;
-	gentity_t      *ent;
-	vec3_t          newangles;
-	float           dist;
-	vec3_t          dir;
-	int             quad;
-
-
-	self->count += 100;
-
-	if(self->activator->client->ps.powerups[PW_QUAD])
-	{
-		G_AddEvent(self->activator, EV_POWERUP_QUAD, 0);
-		quad = g_quadfactor.value;
-	}
-	else
-	{
-		quad = 1;
-	}
-
-	if(self->count >= 1)
-	{
-		// shockwave push back
-		t = self->count;
-		KamikazeShockWave(self->r.currentOrigin, self->activator, 25 * quad, 200, (int)(float)t * 1200.0 / (1200 - 50));
-	}
-	//
-	if(self->count >= 1)
-	{
-		// do our damage
-		t = self->count;
-		if(self->count < 850)
-		{
-			KamikazeRadiusDamage(self->r.currentOrigin, self->activator, 400 * quad, /*(int) (float) t * 2.0 /(3 - 1) */ 390);
-		}
-	}
-
-	// either cycle or kill self
-	if(self->count >= 1400)
-	{
-		G_FreeEntity(self);
-		return;
-	}
-	self->nextthink = level.time + 100;
-
-	// add earth quake effect
-	newangles[0] = crandom() * 2;
-	newangles[1] = crandom() * 2;
-	newangles[2] = 0;
-	for(i = 0; i < MAX_CLIENTS; i++)
-	{
-		ent = &g_entities[i];
-		if(!ent->inuse)
-			continue;
-		if(!ent->client)
-			continue;
-
-		VectorSubtract(ent->r.currentOrigin, self->r.currentOrigin, dir);
-		dist = VectorLength(dir);
-		if(dist >= 600)
-		{
-			continue;
-		}
-
-		if(ent->client->ps.groundEntityNum != ENTITYNUM_NONE)
-		{
-			ent->client->ps.velocity[0] += crandom() * 120;
-			ent->client->ps.velocity[1] += crandom() * 120;
-			//  ent->client->ps.velocity[2] = 30 + random() * 25;
-		}
-
-		ent->client->ps.delta_angles[0] += ANGLE2SHORT(newangles[0] - self->movedir[0]);
-		ent->client->ps.delta_angles[1] += ANGLE2SHORT(newangles[1] - self->movedir[1]);
-		ent->client->ps.delta_angles[2] += ANGLE2SHORT(newangles[2] - self->movedir[2]);
-	}
-	VectorCopy(newangles, self->movedir);
-}
-
-/*
-===============
-G_StartKamikaze
-===============
-*/
-void G_StartKamikaze(gentity_t * ent)
-{
-	gentity_t      *explosion;
-	gentity_t      *te;
-	vec3_t          snapped;
-
-	// start up the explosion logic
-	explosion = G_Spawn();
-
-	explosion->s.eType = ET_GENERAL /*+ EV_KAMIKAZE */ ;
-	explosion->eventTime = level.time;
-
-//  if ( ent->client ) {
-	VectorCopy(ent->r.currentOrigin, snapped);
-//  }
-//  else {
-//      VectorCopy( ent->activator->s.pos.trBase, snapped );
-//  }
-	SnapVector(snapped);		// save network bandwidth
-	G_SetOrigin(explosion, snapped);
-
-	explosion->classname = "bfg";
-	explosion->s.pos.trType = TR_STATIONARY;
-
-	explosion->kamikazeTime = level.time;
-	explosion->parent = ent->parent;
-	explosion->think = KamikazeDamage;
-	explosion->nextthink = level.time + 100;
-	explosion->count = 0;
-	VectorClear(explosion->movedir);
-
-	trap_LinkEntity(explosion);
-	explosion->activator = ent->activator;
-
-
-	// play global sound at all clients
-	te = G_TempEntity(snapped, EV_GLOBAL_TEAM_SOUND);
-	te->r.svFlags |= SVF_BROADCAST;
-	te->s.eventParm = GTS_KAMIKAZE;
-}
-
-/*
 ================
 G_ExplodeMissile
 
@@ -369,9 +71,6 @@ void G_ExplodeMissile(gentity_t * ent)
 {
 	vec3_t          dir;
 	vec3_t          origin;
-	gentity_t      *me;
-
-	me = &g_entities[ent->r.ownerNum];
 
 	BG_EvaluateTrajectory(&ent->s.pos, level.time, origin);
 	SnapVector(origin);
@@ -398,80 +97,247 @@ void G_ExplodeMissile(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
+
+#ifdef MISSIONPACK
+/*
+================
+ProximityMine_Explode
+================
+*/
+static void ProximityMine_Explode(gentity_t * mine)
+{
+	G_ExplodeMissile(mine);
+	// if the prox mine has a trigger free it
+	if(mine->activator)
+	{
+		G_FreeEntity(mine->activator);
+		mine->activator = NULL;
+	}
+}
+
+/*
+================
+ProximityMine_Die
+================
+*/
+static void ProximityMine_Die(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
+{
+	ent->think = ProximityMine_Explode;
+	ent->nextthink = level.time + 1;
+}
+
+/*
+================
+ProximityMine_Trigger
+================
+*/
+void ProximityMine_Trigger(gentity_t * trigger, gentity_t * other, trace_t * trace)
+{
+	vec3_t          v;
+	gentity_t      *mine;
+
+	if(!other->client)
+	{
+		return;
+	}
+
+	// trigger is a cube, do a distance test now to act as if it's a sphere
+	VectorSubtract(trigger->s.pos.trBase, other->s.pos.trBase, v);
+	if(VectorLength(v) > trigger->parent->splashRadius)
+	{
+		return;
+	}
+
+
+	if(g_gametype.integer >= GT_TEAM)
+	{
+		// don't trigger same team mines
+		if(trigger->parent->s.generic1 == other->client->sess.sessionTeam)
+		{
+			return;
+		}
+	}
+
+	// ok, now check for ability to damage so we don't get triggered thru walls, closed doors, etc...
+	if(!CanDamage(other, trigger->s.pos.trBase))
+	{
+		return;
+	}
+
+	// trigger the mine!
+	mine = trigger->parent;
+	mine->s.loopSound = 0;
+	G_AddEvent(mine, EV_PROXIMITY_MINE_TRIGGER, 0);
+	mine->nextthink = level.time + 500;
+
+	G_FreeEntity(trigger);
+}
+
+/*
+================
+ProximityMine_Activate
+================
+*/
+static void ProximityMine_Activate(gentity_t * ent)
+{
+	gentity_t      *trigger;
+	float           r;
+
+	ent->think = ProximityMine_Explode;
+	ent->nextthink = level.time + g_proxMineTimeout.integer;
+
+	ent->takedamage = qtrue;
+	ent->health = 1;
+	ent->die = ProximityMine_Die;
+
+	ent->s.loopSound = G_SoundIndex("sound/weapons/proxmine/wstbtick.wav");
+
+	// build the proximity trigger
+	trigger = G_Spawn();
+
+	trigger->classname = "proxmine_trigger";
+
+	r = ent->splashRadius;
+	VectorSet(trigger->r.mins, -r, -r, -r);
+	VectorSet(trigger->r.maxs, r, r, r);
+
+	G_SetOrigin(trigger, ent->s.pos.trBase);
+
+	trigger->parent = ent;
+	trigger->r.contents = CONTENTS_TRIGGER;
+	trigger->touch = ProximityMine_Trigger;
+
+	trap_LinkEntity(trigger);
+
+	// set pointer to trigger so the entity can be freed when the mine explodes
+	ent->activator = trigger;
+}
+
+/*
+================
+ProximityMine_ExplodeOnPlayer
+================
+*/
+static void ProximityMine_ExplodeOnPlayer(gentity_t * mine)
+{
+	gentity_t      *player;
+
+	player = mine->enemy;
+	player->client->ps.eFlags &= ~EF_TICKING;
+
+	if(player->client->invulnerabilityTime > level.time)
+	{
+		G_Damage(player, mine->parent, mine->parent, vec3_origin, mine->s.origin, 1000, DAMAGE_NO_KNOCKBACK, MOD_JUICED);
+		player->client->invulnerabilityTime = 0;
+		G_TempEntity(player->client->ps.origin, EV_JUICED);
+	}
+	else
+	{
+		G_SetOrigin(mine, player->s.pos.trBase);
+		// make sure the explosion gets to the client
+		mine->r.svFlags &= ~SVF_NOCLIENT;
+		mine->splashMethodOfDeath = MOD_PROXIMITY_MINE;
+		G_ExplodeMissile(mine);
+	}
+}
+
+/*
+================
+ProximityMine_Player
+================
+*/
+static void ProximityMine_Player(gentity_t * mine, gentity_t * player)
+{
+	if(mine->s.eFlags & EF_NODRAW)
+	{
+		return;
+	}
+
+	G_AddEvent(mine, EV_PROXIMITY_MINE_STICK, 0);
+
+	if(player->s.eFlags & EF_TICKING)
+	{
+		player->activator->splashDamage += mine->splashDamage;
+		player->activator->splashRadius *= 1.50;
+		mine->think = G_FreeEntity;
+		mine->nextthink = level.time;
+		return;
+	}
+
+	player->client->ps.eFlags |= EF_TICKING;
+	player->activator = mine;
+
+	mine->s.eFlags |= EF_NODRAW;
+	mine->r.svFlags |= SVF_NOCLIENT;
+	mine->s.pos.trType = TR_LINEAR;
+	VectorClear(mine->s.pos.trDelta);
+
+	mine->enemy = player;
+	mine->think = ProximityMine_ExplodeOnPlayer;
+	if(player->client->invulnerabilityTime > level.time)
+	{
+		mine->nextthink = level.time + 2 * 1000;
+	}
+	else
+	{
+		mine->nextthink = level.time + 10 * 1000;
+	}
+}
+#endif
+
 /*
 ================
 G_MissileImpact
 ================
 */
-void G_MissileImpact(gentity_t * ent, trace_t * trace, vec3_t dir)
+void G_MissileImpact(gentity_t * ent, trace_t * trace)
 {
 	gentity_t      *other;
 	qboolean        hitClient = qfalse;
 
+#ifdef MISSIONPACK
+	vec3_t          forward, impactpoint, bouncedir;
+	int             eFlags;
+#endif
 	other = &g_entities[trace->entityNum];
+
 	// check for bounce
 	if(!other->takedamage && (ent->s.eFlags & (EF_BOUNCE | EF_BOUNCE_HALF)))
 	{
-		vec3_t          velocity2;
-
 		G_BounceMissile(ent, trace);
 		G_AddEvent(ent, EV_GRENADE_BOUNCE, 0);
-		BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, velocity2);
-
-		if(VectorLength(velocity2) > 150)
-		{
-			ent->s.generic1 |= GNF_GRENSPARKS;
-		}
-		else
-		{
-			ent->s.generic1 &= ~GNF_GRENSPARKS;
-		}
-		VectorCopy(trace->plane.normal, ent->s.angles);
 		return;
 	}
 
+#ifdef MISSIONPACK
+	if(other->takedamage)
+	{
+		if(ent->s.weapon != WP_PROX_LAUNCHER)
+		{
+			if(other->client && other->client->invulnerabilityTime > level.time)
+			{
+				//
+				VectorCopy(ent->s.pos.trDelta, forward);
+				VectorNormalize(forward);
+				if(G_InvulnerabilityEffect(other, forward, ent->s.pos.trBase, impactpoint, bouncedir))
+				{
+					VectorCopy(bouncedir, trace->plane.normal);
+					eFlags = ent->s.eFlags & EF_BOUNCE_HALF;
+					ent->s.eFlags &= ~EF_BOUNCE_HALF;
+					G_BounceMissile(ent, trace);
+					ent->s.eFlags |= eFlags;
+				}
+				ent->target_ent = other;
+				return;
+			}
+		}
+	}
+#endif
 	// impact damage
-
-	if(!strcmp(ent->classname, "bfg"))
+	if(other->takedamage)
 	{
-		gentity_t      *te3;
-
-		te3 = G_Spawn();
-
-		VectorCopy(ent->s.pos.trBase, te3->s.pos.trBase);
-		G_StartKamikaze(ent);
-		te3->activator = ent->activator;
-		te3->think = G_FreeEntity;
-		te3->nextthink = level.time + 100;
-
-		if(other->client)
-		{
-			G_AddEvent(ent, EV_MISSILE_HIT, DirToByte(dir));
-			ent->s.otherEntityNum = other->s.number;
-		}
-		else if(trace->surfaceFlags & SURF_METALSTEPS)
-		{
-			G_AddEvent(ent, EV_MISSILE_MISS_METAL, DirToByte(trace->plane.normal));
-			ent->s.clientNum = ent->r.ownerNum;
-		}
-		else
-		{
-			G_AddEvent(ent, EV_MISSILE_MISS, DirToByte(trace->plane.normal));
-			ent->s.clientNum = ent->r.ownerNum;
-		}
-		ent->freeAfterEvent = qtrue;
-
-		trap_LinkEntity(ent);
-
-		return;
-	}
-
-	if(other && other->takedamage)
-	{
-
-
 		// FIXME: wrong damage direction?
-		if(ent && ent->damage)
+		if(ent->damage)
 		{
 			vec3_t          velocity;
 
@@ -480,18 +346,54 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace, vec3_t dir)
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				hitClient = qtrue;
 			}
-
 			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, velocity);
 			if(VectorLength(velocity) == 0)
 			{
 				velocity[2] = 1;	// stepped on a grenade
 			}
+			G_Damage(other, ent, &g_entities[ent->r.ownerNum], velocity, ent->s.origin, ent->damage, 0, ent->methodOfDeath);
+		}
+	}
 
-			G_Damage(other, ent, &g_entities[ent->r.ownerNum], ent->s.pos.trDelta,
-					 ent->s.origin, ent->damage, 0, ent->methodOfDeath);
+#ifdef MISSIONPACK
+	if(ent->s.weapon == WP_PROX_LAUNCHER)
+	{
+		if(ent->s.pos.trType != TR_GRAVITY)
+		{
+			return;
 		}
 
+		// if it's a player, stick it on to them (flag them and remove this entity)
+		if(other->s.eType == ET_PLAYER && other->health > 0)
+		{
+			ProximityMine_Player(ent, other);
+			return;
+		}
+
+		SnapVectorTowards(trace->endpos, ent->s.pos.trBase);
+		G_SetOrigin(ent, trace->endpos);
+		ent->s.pos.trType = TR_STATIONARY;
+		VectorClear(ent->s.pos.trDelta);
+
+		G_AddEvent(ent, EV_PROXIMITY_MINE_STICK, trace->surfaceFlags);
+
+		ent->think = ProximityMine_Activate;
+		ent->nextthink = level.time + 2000;
+
+		vectoangles(trace->plane.normal, ent->s.angles);
+		ent->s.angles[0] += 90;
+
+		// link the prox mine to the other entity
+		ent->enemy = other;
+		ent->die = ProximityMine_Die;
+		VectorCopy(trace->plane.normal, ent->movedir);
+		VectorSet(ent->r.mins, -4, -4, -4);
+		VectorSet(ent->r.maxs, 4, 4, 4);
+		trap_LinkEntity(ent);
+
+		return;
 	}
+#endif
 
 	if(!strcmp(ent->classname, "hook"))
 	{
@@ -501,7 +403,8 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace, vec3_t dir)
 		nent = G_Spawn();
 		if(other->takedamage && other->client)
 		{
-			G_AddEvent(nent, EV_MISSILE_HIT, DirToByte(dir));
+
+			G_AddEvent(nent, EV_MISSILE_HIT, DirToByte(trace->plane.normal));
 			nent->s.otherEntityNum = other->s.number;
 
 			ent->enemy = other;
@@ -517,7 +420,6 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace, vec3_t dir)
 			VectorCopy(trace->endpos, v);
 			G_AddEvent(nent, EV_MISSILE_MISS, DirToByte(trace->plane.normal));
 			ent->enemy = NULL;
-			nent->s.clientNum = ent->r.ownerNum;
 		}
 
 		SnapVectorTowards(v, ent->s.pos.trBase);	// save net bandwidth
@@ -545,23 +447,19 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace, vec3_t dir)
 	// is it cheaper in bandwidth to just remove this ent and create a new
 	// one, rather than changing the missile into the explosion?
 
-	if(other->client || other->s.eFlags & EF_DEAD)
+	if(other->takedamage && other->client)
 	{
-		G_AddEvent(ent, EV_MISSILE_HIT, DirToByte(dir));
+		G_AddEvent(ent, EV_MISSILE_HIT, DirToByte(trace->plane.normal));
 		ent->s.otherEntityNum = other->s.number;
 	}
 	else if(trace->surfaceFlags & SURF_METALSTEPS)
 	{
 		G_AddEvent(ent, EV_MISSILE_MISS_METAL, DirToByte(trace->plane.normal));
-		ent->s.clientNum = ent->r.ownerNum;
 	}
 	else
 	{
 		G_AddEvent(ent, EV_MISSILE_MISS, DirToByte(trace->plane.normal));
-		ent->s.clientNum = ent->r.ownerNum;
-
 	}
-
 
 	ent->freeAfterEvent = qtrue;
 
@@ -581,10 +479,9 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace, vec3_t dir)
 			{
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 			}
-
 		}
-
 	}
+
 	trap_LinkEntity(ent);
 }
 
@@ -597,14 +494,7 @@ void G_RunMissile(gentity_t * ent)
 {
 	vec3_t          origin;
 	trace_t         tr;
-	gentity_t      *me;
 	int             passent;
-
-//  float   dir[3];
-//  vec3_t      forward, right, up;
-//  vec3_t      angles,vel;
-
-	me = &g_entities[ent->r.ownerNum];
 
 	// get current position
 	BG_EvaluateTrajectory(&ent->s.pos, level.time, origin);
@@ -614,7 +504,13 @@ void G_RunMissile(gentity_t * ent)
 	{
 		passent = ent->target_ent->s.number;
 	}
-
+#ifdef MISSIONPACK
+	// prox mines that left the owner bbox will attach to anything, even the owner
+	else if(ent->s.weapon == WP_PROX_LAUNCHER && ent->count)
+	{
+		passent = ENTITYNUM_NONE;
+	}
+#endif
 	else
 	{
 		// ignore interactions with the missile owner
@@ -636,301 +532,43 @@ void G_RunMissile(gentity_t * ent)
 
 	trap_LinkEntity(ent);
 
-
-//  client = me->client;
-
 	if(tr.fraction != 1)
 	{
 		// never explode or bounce on sky
 		if(tr.surfaceFlags & SURF_NOIMPACT)
 		{
 			// If grapple, reset owner
-			if(ent->parent && ent->parent->client->hook == ent)
+			if(ent->parent && ent->parent->client && ent->parent->client->hook == ent)
 			{
 				ent->parent->client->hook = NULL;
-				ent->parent->client->hookhasbeenfired = qfalse;
-				ent->parent->client->fireHeld = qfalse;
 			}
 			G_FreeEntity(ent);
 			return;
 		}
-
-
-//  VectorCopy(ent->s.angles, dir);
-//  VectorNormalize(dir);
-
-
-		G_MissileImpact(ent, &tr, ent->s.pos.trDelta);
-
-
+		G_MissileImpact(ent, &tr);
 		if(ent->s.eType != ET_MISSILE)
 		{
 			return;				// exploded
 		}
 	}
-
+#ifdef MISSIONPACK
+	// if the prox mine wasn't yet outside the player body
+	if(ent->s.weapon == WP_PROX_LAUNCHER && !ent->count)
+	{
+		// check if the prox mine is outside the owner bbox
+		trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ENTITYNUM_NONE, ent->clipmask);
+		if(!tr.startsolid || tr.entityNum != ent->r.ownerNum)
+		{
+			ent->count = 1;
+		}
+	}
+#endif
 	// check think function after bouncing
 	G_RunThink(ent);
 }
 
+
 //=============================================================================
-
-#define	FLAME_START_SIZE		1.0
-#define	FLAME_START_MAX_SIZE	100.0	// when the flame is spawned, it should endevour to reach this size
-#define	FLAME_START_SPEED		1200.0	// speed of flame as it leaves the nozzle
-#define	FLAME_MIN_SPEED			60.0
-
-// these are calculated (don't change)
-#define	FLAME_LENGTH			(FLAMETHROWER_RANGE + 50.0)	// NOTE: only modify the range, since this should always reflect that range
-
-#define	FLAME_LIFETIME			(int)((FLAME_LENGTH/FLAME_START_SPEED)*1000)	// life duration in milliseconds
-#define	FLAME_FRICTION_PER_SEC	(2.0f*FLAME_START_SPEED)
-#define	GET_FLAME_SIZE_SPEED(x)	(((float)x / FLAME_LIFETIME) / 0.3)	// x is the current sizeMax
-
-#define	FLAME_THRESHOLD	50
-
-void G_FlameDamage(gentity_t * self)
-{
-	gentity_t      *body;
-	int             entityList[MAX_GENTITIES];
-	int             i, e, numListedEntities;
-	float           radius, boxradius, dist;
-	vec3_t          mins, maxs, point, v;
-	trace_t         tr;
-	gentity_t      *attacker;
-
-
-	attacker = &g_entities[self->r.ownerNum];
-	radius = self->speed;
-	boxradius = 1.41421356 * radius;	// radius * sqrt(2) for bounding box enlargement
-
-	for(i = 0; i < 3; i++)
-	{
-		mins[i] = self->r.currentOrigin[i] - boxradius;
-		maxs[i] = self->r.currentOrigin[i] + boxradius;
-	}
-
-	numListedEntities = trap_EntitiesInBox(mins, maxs, entityList, MAX_GENTITIES);
-
-	for(e = 0; e < numListedEntities; e++)
-	{
-		body = &g_entities[entityList[e]];
-
-		if(!body->takedamage)
-			continue;
-
-		if(body->client)
-		{
-			if(!(g_friendlyFire.integer) && OnSameTeam(body, self->parent) && body->client->ps.clientNum != self->r.ownerNum)
-				continue;
-		}
-		if(body->waterlevel >= 3)
-		{
-			body->flameQuota = 0;
-			continue;
-		}
-		if(!body->r.bmodel)
-		{
-			VectorCopy(body->r.currentOrigin, point);
-			if(body->client)
-				point[2] += body->client->ps.viewheight;
-			VectorSubtract(point, self->r.currentOrigin, v);
-		}
-		else
-		{
-			for(i = 0; i < 3; i++)
-			{
-				if(self->s.origin[i] < body->r.absmin[i])
-				{
-					v[i] = body->r.absmin[i] - self->r.currentOrigin[i];
-				}
-				else if(self->r.currentOrigin[i] > body->r.absmax[i])
-				{
-					v[i] = self->r.currentOrigin[i] - body->r.absmax[i];
-				}
-				else
-				{
-					v[i] = 0;
-				}
-			}
-		}
-
-		dist = VectorLength(v);
-
-		// The person who shot the flame only burns when within 1/2 the radius
-		if(body->s.number == self->r.ownerNum && dist >= (radius * 0.5))
-			continue;
-		if(dist >= radius)
-			continue;
-
-		// Non-clients that take damage get damaged here
-		if(!body->client)
-		{
-			if(body->health > 0)
-				G_Damage(body, self->parent, self->parent, vec3_origin, self->r.currentOrigin, 40, 0, MOD_FLAMETHROWER);
-			continue;
-		}
-
-		// JPW NERVE -- do a trace to see if there's a wall btwn. body & flame centroid -- prevents damage through walls
-		trap_Trace(&tr, self->r.currentOrigin, NULL, NULL, point, body->s.number, MASK_SHOT);
-		if(tr.fraction < 1.0)
-			continue;
-
-		// now check the damageQuota to see if we should play a pain animation
-		// first reduce the current damageQuota with time
-		if(body->flameQuotaTime && body->flameQuota > 0)
-		{
-			body->flameQuota -= (int)(((float)(level.time - body->flameQuotaTime) / 1000) * 2.5f);
-			if(body->flameQuota < 0)
-				body->flameQuota = 0;
-		}
-		G_BurnMeGood(attacker, body);
-	}
-}
-
-static vec3_t   muzzle2;
-
-void G_RunFlamechunk(gentity_t * ent)
-{
-	vec3_t          vel, add;
-	vec3_t          neworg;
-	trace_t         tr;
-	float           speed, dot;
-
-//  trace_t     tr2;
-//  vec3_t      end;
-//  gentity_t   *traceEnt2;
-//  int          i;
-
-
-
-	// Adust the current speed of the chunk
-	if(level.time - ent->timestamp > 50)
-	{
-		VectorCopy(ent->s.pos.trDelta, vel);
-		speed = VectorNormalize(vel);
-		speed -= (50.f / 1000.f) * FLAME_FRICTION_PER_SEC;
-
-		if(speed < FLAME_MIN_SPEED)
-			speed = FLAME_MIN_SPEED;
-
-		VectorScale(vel, speed, ent->s.pos.trDelta);
-	}
-	else
-		speed = FLAME_START_SPEED;
-
-	// Move the chunk
-	VectorScale(ent->s.pos.trDelta, 50.f / 1000.f, add);
-	VectorAdd(ent->r.currentOrigin, add, neworg);
-
-	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, neworg, ent->r.ownerNum, MASK_FLAME);	// JPW NERVE
-
-	if(tr.startsolid)
-		VectorCopy(vec3_origin, ent->s.pos.trDelta);
-	else if(tr.fraction != 1.0f && !(tr.surfaceFlags & SURF_NOIMPACT))
-	{
-		VectorCopy(tr.endpos, ent->r.currentOrigin);
-
-		dot = DotProduct(vel, tr.plane.normal);
-		VectorMA(vel, -2 * dot, tr.plane.normal, vel);
-		VectorNormalize(vel);
-		speed *= 0.5 * (0.25 + 0.75 * ((dot + 1.0) * 0.5));
-		VectorScale(vel, speed, ent->s.pos.trDelta);
-	}
-	else
-		VectorCopy(neworg, ent->r.currentOrigin);
-
-	// Do damage to nearby entities, every 100ms
-	if(ent->flameQuotaTime <= level.time)
-	{
-		ent->flameQuotaTime = level.time + 100;
-		G_FlameDamage(ent);
-	}
-
-	// Adjust the size
-	if(ent->speed < FLAME_START_MAX_SIZE)
-	{
-		ent->speed += 10.f;
-
-		if(ent->speed > FLAME_START_MAX_SIZE)
-			ent->speed = FLAME_START_MAX_SIZE;
-	}
-
-	// Remove after 2 seconds
-	if(level.time - ent->timestamp > (FLAME_LIFETIME - 350))
-	{							// JPW NERVE increased to 350 from 250 to match visuals better
-		G_FreeEntity(ent);
-		return;
-	}
-	/*
-	   if ( !tr.startsolid ){
-	   for (i = 0; i < 2; i++) {
-	   trap_Trace( &tr2, muzzle2, ent->r.mins, ent->r.maxs, end, ent->r.ownerNum, MASK_SHOT );
-	   traceEnt2 = &g_entities[ tr2.entityNum ];
-	   if(tr2.contents & CONTENTS_SOLID){
-	   break;
-	   }
-
-	   if ( traceEnt2->takedamage) {
-	   G_FlameDamage( traceEnt2 );
-	   return;
-	   }
-	   }
-	   } */
-	G_RunThink(ent);
-
-}
-
-/*
-=================
-fire_flamechunk
-=================
-*/
-gentity_t      *fire_flamechunk(gentity_t * self, vec3_t start, vec3_t dir)
-{
-	gentity_t      *bolt;
-
-
-
-	// Only spawn every other frame
-//  if ( self->count2 ) {
-//      self->count2--;
-//      return NULL;
-//  }
-
-//  self->count2 = 1;
-	VectorNormalize(dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "flamechunk";
-
-	bolt->timestamp = level.time;
-	bolt->flameQuotaTime = level.time + 50;
-	bolt->s.eType = ET_FLAMETHROWER_CHUNK;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN | SVF_NOCLIENT;
-	bolt->s.weapon = self->s.weapon;
-	bolt->r.ownerNum = self->s.number;
-	bolt->s.clientNum = self->s.number;
-	bolt->parent = self;
-	bolt->methodOfDeath = MOD_FLAMETHROWER;
-	bolt->clipmask = MASK_FLAME;
-
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
-	bolt->s.pos.trDuration = 800;
-
-	// 'speed' will be the current size radius of the chunk
-	bolt->speed = FLAME_START_SIZE;
-	VectorSet(bolt->r.mins, -4, -4, -4);
-	VectorSet(bolt->r.maxs, 4, 4, 4);
-	VectorCopy(start, bolt->s.pos.trBase);
-	VectorScale(dir, FLAME_START_SPEED, bolt->s.pos.trDelta);
-
-	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
-	VectorCopy(start, bolt->r.currentOrigin);
-
-	return bolt;
-}
 
 /*
 =================
@@ -941,22 +579,6 @@ fire_plasma
 gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
-	int             speed;
-	vec3_t          vel;
-	float           pspeed;
-	int             contents;
-
-
-	contents = trap_PointContents(start, -1);
-
-	BG_EvaluateTrajectoryDelta(&self->s.pos, level.time, vel);
-
-	pspeed = VectorLength(vel);
-//  if(pspeed > 0){
-//      speed = 2000 + pspeed;
-//  }else{
-	speed = 1900;
-//  }
 
 	VectorNormalize(dir);
 
@@ -968,36 +590,19 @@ gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_PLASMAGUN;
 	bolt->r.ownerNum = self->s.number;
-	bolt->s.clientNum = self->s.number;
-	bolt->s.powerups = self->s.powerups;
-//unlagged - projectile nudge
-	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = self->s.number;
-//unlagged - projectile nudge
 	bolt->parent = self;
-	bolt->damage = 12;
-	bolt->splashDamage = 12;
+	bolt->damage = 20;
+	bolt->splashDamage = 15;
 	bolt->splashRadius = 20;
 	bolt->methodOfDeath = MOD_PLASMA;
 	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
-	VectorCopy(dir, bolt->s.angles);
 
 	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - 30;	// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
-	VectorScale(dir, speed, bolt->s.pos.trDelta);
-
-	if(contents & CONTENTS_WATER)
-	{
-		bolt->s.generic1 |= GNF_INWATER;
-	}
-	else if(!(contents & CONTENTS_WATER))
-	{
-		bolt->s.generic1 |= GNF_OUTWATER;
-	}
-
+	VectorScale(dir, 2000, bolt->s.pos.trDelta);
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
 
 	VectorCopy(start, bolt->r.currentOrigin);
@@ -1016,13 +621,6 @@ fire_grenade
 gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
-	int             a;
-	vec3_t          mins = { -3, -3, -3 };
-	vec3_t          maxs = { 3, 3, 3 };
-	int             contents;
-
-
-	contents = trap_PointContents(start, -1);
 
 	VectorNormalize(dir);
 
@@ -1035,41 +633,21 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.weapon = WP_GRENADE_LAUNCHER;
 	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
-	bolt->s.clientNum = self->s.number;
-	bolt->s.powerups = self->s.powerups;
-
-//unlagged - projectile nudge
-	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = self->s.number;
-//unlagged - projectile nudge
 	bolt->parent = self;
-	bolt->damage = 140;
-	bolt->splashDamage = 80;
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
 	bolt->splashRadius = 150;
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
-	VectorCopy(mins, bolt->r.mins);
-	VectorCopy(maxs, bolt->r.maxs);
-	VectorCopy(dir, bolt->s.angles);
 
 	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trTime = level.time - 19;	// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
-	a = 700 + self->client->ps.stats[STAT_GREN_VELOC];
-	VectorScale(dir, a, bolt->s.pos.trDelta);
-
-	if(contents & CONTENTS_WATER)
-	{
-		bolt->s.generic1 |= GNF_INWATER;
-	}
-	else if(!(contents & CONTENTS_WATER))
-	{
-		bolt->s.generic1 |= GNF_OUTWATER;
-	}
-
+	VectorScale(dir, 700, bolt->s.pos.trDelta);
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
+
 	VectorCopy(start, bolt->r.currentOrigin);
 
 	return bolt;
@@ -1086,47 +664,21 @@ fire_bfg
 gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
-	int             speed;
-	vec3_t          vel;
-	float           pspeed;
-	int             contents;
-
-
-	contents = trap_PointContents(start, -1);
-
-	BG_EvaluateTrajectoryDelta(&self->s.pos, level.time, vel);
-
-	pspeed = VectorLength(vel);
-	if(pspeed > 0)
-	{
-		speed = 2000 + pspeed;
-	}
-	else
-	{
-		speed = 2000;
-	}
 
 	VectorNormalize(dir);
 
 	bolt = G_Spawn();
 	bolt->classname = "bfg";
 	bolt->nextthink = level.time + 10000;
-	bolt->think = G_StartKamikaze;
+	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_BFG;
 	bolt->r.ownerNum = self->s.number;
-	bolt->s.clientNum = self->s.number;
-	bolt->s.powerups = self->s.powerups;
-	bolt->activator = self;
-//unlagged - projectile nudge
-	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = self->s.number;
-//unlagged - projectile nudge
 	bolt->parent = self;
-//  bolt->damage = 500;
-//  bolt->splashDamage = 500;
-//  bolt->splashRadius = 350;
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_BFG;
 	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
 	bolt->clipmask = MASK_SHOT;
@@ -1135,17 +687,7 @@ gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
-	VectorScale(dir, speed, bolt->s.pos.trDelta);
-
-	if(contents & CONTENTS_WATER)
-	{
-		bolt->s.generic1 |= GNF_INWATER;
-	}
-	else if(!(contents & CONTENTS_WATER))
-	{
-		bolt->s.generic1 |= GNF_OUTWATER;
-	}
-
+	VectorScale(dir, 2000, bolt->s.pos.trDelta);
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
 	VectorCopy(start, bolt->r.currentOrigin);
 
@@ -1163,50 +705,10 @@ fire_rocket
 gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
-	int             speed;
-	vec3_t          vel;
-	float           pspeed;
-	gclient_t      *client;
-	int             contents;
-
-
-	contents = trap_PointContents(start, -1);
-
-	client = self->client;
-	BG_EvaluateTrajectoryDelta(&self->s.pos, level.time, vel);
-
-	pspeed = VectorLength(vel);
-
-	if(pspeed > 0)
-	{
-		if(Instagib.integer == 0)
-		{
-			speed = 825 + pspeed;
-		}
-		else
-		{
-			speed = 1200 + pspeed;
-		}
-	}
-	else
-	{
-		if(Instagib.integer == 0)
-		{
-			speed = 825;
-		}
-		else
-		{
-			speed = 1200;
-		}
-	}
 
 	VectorNormalize(dir);
 
 	bolt = G_Spawn();
-//unlagged - backward reconciliation #2
-	// backward-reconcile the other clients
-	//G_DoTimeShiftFor( bolt );
-//unlagged - backward reconciliation #2
 	bolt->classname = "rocket";
 	bolt->nextthink = level.time + 15000;
 	bolt->think = G_ExplodeMissile;
@@ -1214,64 +716,22 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_ROCKET_LAUNCHER;
 	bolt->r.ownerNum = self->s.number;
-	bolt->s.clientNum = self->s.number;
-	bolt->s.powerups = self->s.powerups;
-//unlagged - projectile nudge
-	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = self->s.number;
-//unlagged - projectile nudge
 	bolt->parent = self;
-
-
-	if(Instagib.integer == 0)
-	{
-		bolt->damage = 100;
-		bolt->splashDamage = 100;
-		bolt->splashRadius = 125;
-	}
-
-	if(Instagib.integer == 1)
-	{
-		bolt->damage = 1000;
-		bolt->splashDamage = 80;
-		bolt->splashRadius = 120;
-	}
-
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_ROCKET;
 	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
-	if(Instagib.integer == 0)
-	{
-		VectorScale(dir, 900, bolt->s.pos.trDelta);
-	}
-
-	if(Instagib.integer == 1)
-	{
-		VectorScale(dir, 1200, bolt->s.pos.trDelta);
-	}
 
 	bolt->s.pos.trType = TR_LINEAR;
-
-	bolt->s.pos.trTime = level.time /*- 30*/ ;	// move a bit on the very first frame
-
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
-
-	if(contents & CONTENTS_WATER)
-	{
-		bolt->s.generic1 |= GNF_INWATER;
-	}
-	else if(!(contents & CONTENTS_WATER))
-	{
-		bolt->s.generic1 |= GNF_OUTWATER;
-	}
-
+	VectorScale(dir, 900, bolt->s.pos.trDelta);
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
 	VectorCopy(start, bolt->r.currentOrigin);
-//unlagged - backward reconciliation #2
-	// put them back
-	//G_UndoTimeShiftFor( bolt );
-//unlagged - backward reconciliation #2
+
 	return bolt;
 }
 
@@ -1283,14 +743,7 @@ fire_grapple
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *hook;
-	float           x;
 
-//unlagged - grapple
-	int             hooktime;
-
-//unlagged - grapple
-
-	x = HookFireSpeed.integer;
 	VectorNormalize(dir);
 
 	hook = G_Spawn();
@@ -1305,33 +758,12 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 	hook->clipmask = MASK_SHOT;
 	hook->parent = self;
 	hook->target_ent = NULL;
-//unlagged - grapple
-	// we might want this later
-	hook->s.otherEntityNum = self->s.number;
-
-	// setting the projectile base time back makes the hook's first
-	// step larger
-
-	if(self->client)
-	{
-		hooktime = self->client->pers.cmd.serverTime + 50;
-	}
-	else
-	{
-		hooktime = level.time - MISSILE_PRESTEP_TIME;
-	}
-
-	hook->s.pos.trTime = hooktime;
-//unlagged - grapple
-
 
 	hook->s.pos.trType = TR_LINEAR;
-//unlagged - grapple
-	//hook->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;       // move a bit on the very first frame
-//unlagged - grapple
+	hook->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	hook->s.otherEntityNum = self->s.number;	// use to match beam in client
 	VectorCopy(start, hook->s.pos.trBase);
-	VectorScale(dir, x, hook->s.pos.trDelta);
+	VectorScale(dir, 800, hook->s.pos.trDelta);
 	SnapVector(hook->s.pos.trDelta);	// save net bandwidth
 	VectorCopy(start, hook->r.currentOrigin);
 
@@ -1339,3 +771,103 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 
 	return hook;
 }
+
+
+#ifdef MISSIONPACK
+/*
+=================
+fire_nail
+=================
+*/
+#define NAILGUN_SPREAD	500
+
+gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up)
+{
+	gentity_t      *bolt;
+	vec3_t          dir;
+	vec3_t          end;
+	float           r, u, scale;
+
+	bolt = G_Spawn();
+	bolt->classname = "nail";
+	bolt->nextthink = level.time + 10000;
+	bolt->think = G_ExplodeMissile;
+	bolt->s.eType = ET_MISSILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_NAILGUN;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 20;
+	bolt->methodOfDeath = MOD_NAIL;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+
+	bolt->s.pos.trType = TR_LINEAR;
+	bolt->s.pos.trTime = level.time;
+	VectorCopy(start, bolt->s.pos.trBase);
+
+	r = random() * M_PI * 2.0f;
+	u = sin(r) * crandom() * NAILGUN_SPREAD * 16;
+	r = cos(r) * crandom() * NAILGUN_SPREAD * 16;
+	VectorMA(start, 8192 * 16, forward, end);
+	VectorMA(end, r, right, end);
+	VectorMA(end, u, up, end);
+	VectorSubtract(end, start, dir);
+	VectorNormalize(dir);
+
+	scale = 555 + random() * 1800;
+	VectorScale(dir, scale, bolt->s.pos.trDelta);
+	SnapVector(bolt->s.pos.trDelta);
+
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
+
+/*
+=================
+fire_prox
+=================
+*/
+gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t dir)
+{
+	gentity_t      *bolt;
+
+	VectorNormalize(dir);
+
+	bolt = G_Spawn();
+	bolt->classname = "prox mine";
+	bolt->nextthink = level.time + 3000;
+	bolt->think = G_ExplodeMissile;
+	bolt->s.eType = ET_MISSILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_PROX_LAUNCHER;
+	bolt->s.eFlags = 0;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 0;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 150;
+	bolt->methodOfDeath = MOD_PROXIMITY_MINE;
+	bolt->splashMethodOfDeath = MOD_PROXIMITY_MINE;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+	// count is used to check if the prox mine left the player bbox
+	// if count == 1 then the prox mine left the player bbox and can attack to it
+	bolt->count = 0;
+
+	//FIXME: we prolly wanna abuse another field
+	bolt->s.generic1 = self->client->sess.sessionTeam;
+
+	bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
+	VectorCopy(start, bolt->s.pos.trBase);
+	VectorScale(dir, 700, bolt->s.pos.trDelta);
+	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
+
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+#endif

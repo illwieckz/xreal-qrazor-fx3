@@ -1809,254 +1809,6 @@ void BotChooseWeapon(bot_state_t * bs)
 	}
 }
 
-void BotChooseBetterWeapon(bot_state_t * bs, int dist, bsp_trace_t bsptrace)
-{
-	int             weapon;
-
-	if(bs->inventory[INVENTORY_PLASMAGUN] <= 0 && bs->inventory[INVENTORY_ROCKETLAUNCHER] <= 0)
-	{
-		BotChooseWeapon(bs);
-		return;
-	}
-	if(dist < 80)
-	{
-		if(bs->inventory[INVENTORY_GAUNTLET] > 0)
-		{
-			weapon = WP_GAUNTLET;;
-		}
-		else
-		{
-			BotChooseWeapon(bs);
-			return;
-		}
-	}
-	else if(dist >= 80 && dist < 250)
-	{
-		if(bs->inventory[INVENTORY_LIGHTNING] > 0 && bs->inventory[INVENTORY_LIGHTNINGAMMO] > 1)
-		{
-			weapon = WP_LIGHTNING;
-		}
-		else if(bs->inventory[INVENTORY_SHOTGUN] > 0 && bs->inventory[INVENTORY_SHELLS] > 1)
-		{
-			weapon = WP_SHOTGUN;
-		}
-		else if(bs->inventory[INVENTORY_FLAMETHROWER] > 0 && bs->inventory[INVENTORY_FUEL] > 1)
-		{
-			weapon = WP_FLAMETHROWER;
-		}
-		else if(bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 1)
-		{
-			weapon = WP_PLASMAGUN;
-		}
-		else if(bs->inventory[INVENTORY_GRENADELAUNCHER] > 0 && bs->inventory[INVENTORY_GRENADES] > 1)
-		{
-			weapon = WP_GRENADE_LAUNCHER;
-		}
-		else if(bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 1)
-		{
-			weapon = WP_ROCKET_LAUNCHER;
-		}
-		else if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else
-		{
-			BotChooseWeapon(bs);
-			return;
-		}
-	}
-	else if(dist >= 250 && dist < 500)
-	{
-		if(bs->inventory[INVENTORY_LIGHTNING] > 0 && bs->inventory[INVENTORY_LIGHTNINGAMMO] > 1)
-		{
-			weapon = WP_LIGHTNING;
-		}
-		else if(bs->inventory[INVENTORY_FLAMETHROWER] > 0 && bs->inventory[INVENTORY_FUEL] > 1)
-		{
-			weapon = WP_FLAMETHROWER;
-		}
-		else
-		 if(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-		{
-			weapon = WP_BFG;
-		}
-		else
-		 if(bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 1)
-		{
-			weapon = WP_PLASMAGUN;
-		}
-		else if(bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 1)
-		{
-			weapon = WP_ROCKET_LAUNCHER;
-		}
-		else
-		 if(bs->inventory[INVENTORY_SHOTGUN] > 0 && bs->inventory[INVENTORY_SHELLS] > 1)
-		{
-			weapon = WP_SHOTGUN;
-		}
-		else
-		 if(bs->inventory[INVENTORY_GRENADELAUNCHER] > 0 && bs->inventory[INVENTORY_GRENADES] > 1)
-		{
-			weapon = WP_GRENADE_LAUNCHER;
-		}
-		else
-		 if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else
-		 if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else
-		{
-			BotChooseWeapon(bs);
-			return;
-		}
-	}
-	else if(dist >= 500 && dist < 650)
-	{
-		if(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-		{
-			weapon = WP_BFG;
-		}
-		else
-		 if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 1)
-		{
-			weapon = WP_ROCKET_LAUNCHER;
-		}
-		else if(bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 1)
-		{
-			weapon = WP_PLASMAGUN;
-		}
-		else if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else
-		 if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_FLAMETHROWER] > 0 && bs->inventory[INVENTORY_FUEL] > 1)
-		{
-			weapon = WP_FLAMETHROWER;
-		}
-		else
-		 if(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-		{
-			weapon = WP_BFG;
-		}
-		else
-		{
-			BotChooseWeapon(bs);
-			return;
-		}
-
-	}
-	else if(dist >= 650 && dist < 800)
-	{
-		if(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-		{
-			weapon = WP_BFG;
-		}
-		else
-		 if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else
-		 if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else
-		 if(bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 1)
-		{
-			weapon = WP_ROCKET_LAUNCHER;
-		}
-		else if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 1)
-		{
-			weapon = WP_PLASMAGUN;
-		}
-		else
-		{
-			BotChooseWeapon(bs);
-			return;
-		}
-
-	}
-	else if(dist >= 800)
-	{
-		if(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
-		{
-			weapon = WP_BFG;
-		}
-		else
-		 if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else
-		 if(bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 1)
-		{
-			weapon = WP_ROCKET_LAUNCHER;
-		}
-		else if(bs->inventory[INVENTORY_IRAILGUN] > 0 && bs->inventory[INVENTORY_ISLUGS] > 1)
-		{
-			weapon = WP_IRAILGUN;
-		}
-		else if(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 1)
-		{
-			weapon = WP_RAILGUN;
-		}
-		else
-		{
-			BotChooseWeapon(bs);
-			return;
-		}
-	}
-	else
-	{
-		weapon = WP_MACHINEGUN;
-	}
-
-	if(bs->weaponnum != weapon)
-	{
-		bs->weaponchange_time = FloatTime() - 100;
-		bs->weaponnum = weapon;
-		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
-	}
-
-
-}
-
 /*
 ==================
 BotSetupForMovement
@@ -2227,16 +1979,13 @@ void BotUpdateInventory(bot_state_t * bs)
 	//armor
 	bs->inventory[INVENTORY_ARMOR] = bs->cur_ps.stats[STAT_ARMOR];
 	//weapons
-	bs->inventory[INVENTORY_GAUNTLET] = /*(bs->cur_ps.stats[STAT_WEAPONS] & (1 << */ WP_GAUNTLET /*)) != 0 */ ;
-//  bs->inventory[INVENTORY_GAUNTLET] = bs->cur_ps.ammo[WP_GAUNTLET];
+	bs->inventory[INVENTORY_GAUNTLET] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GAUNTLET)) != 0;
 	bs->inventory[INVENTORY_SHOTGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_SHOTGUN)) != 0;
 	bs->inventory[INVENTORY_MACHINEGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_MACHINEGUN)) != 0;
 	bs->inventory[INVENTORY_GRENADELAUNCHER] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE_LAUNCHER)) != 0;
 	bs->inventory[INVENTORY_ROCKETLAUNCHER] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER)) != 0;
 	bs->inventory[INVENTORY_LIGHTNING] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_LIGHTNING)) != 0;
 	bs->inventory[INVENTORY_RAILGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_RAILGUN)) != 0;
-	bs->inventory[INVENTORY_IRAILGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_IRAILGUN)) != 0;
-	bs->inventory[INVENTORY_FLAMETHROWER] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_FLAMETHROWER)) != 0;
 	bs->inventory[INVENTORY_PLASMAGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_PLASMAGUN)) != 0;
 	bs->inventory[INVENTORY_BFG10K] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_BFG)) != 0;
 	bs->inventory[INVENTORY_GRAPPLINGHOOK] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GRAPPLING_HOOK)) != 0;
@@ -2253,8 +2002,6 @@ void BotUpdateInventory(bot_state_t * bs)
 	bs->inventory[INVENTORY_LIGHTNINGAMMO] = bs->cur_ps.ammo[WP_LIGHTNING];
 	bs->inventory[INVENTORY_ROCKETS] = bs->cur_ps.ammo[WP_ROCKET_LAUNCHER];
 	bs->inventory[INVENTORY_SLUGS] = bs->cur_ps.ammo[WP_RAILGUN];
-	bs->inventory[INVENTORY_ISLUGS] = bs->cur_ps.ammo[WP_IRAILGUN];
-	bs->inventory[INVENTORY_FUEL] = bs->cur_ps.ammo[WP_FLAMETHROWER];
 	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
 #ifdef MISSIONPACK
 	bs->inventory[INVENTORY_NAILS] = bs->cur_ps.ammo[WP_NAILGUN];
@@ -2815,10 +2562,6 @@ float BotAggression(bot_state_t * bs)
 		if(bs->inventory[INVENTORY_ARMOR] < 40)
 			return 0;
 	}
-
-	if(bs->inventory[INVENTORY_GAUNTLET] > 0)
-		return 100;
-
 	//if the bot can use the bfg
 	if(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 7)
 		return 100;
@@ -3031,7 +2774,7 @@ int BotCanAndWantsToRocketJump(bot_state_t * bs)
 			return qfalse;
 	}
 	rocketjumper = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1);
-	if(rocketjumper < 0.2)
+	if(rocketjumper < 0.5)
 		return qfalse;
 	return qtrue;
 }
@@ -3045,7 +2788,8 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t * bs)
 {
 #ifdef MISSIONPACK
 	// if the bot does not have a persistant powerup
-	if(!bs->inventory[INVENTORY_GUARD] && !bs->inventory[INVENTORY_DOUBLER] && !bs->inventory[INVENTORY_AMMOREGEN])
+	if(!bs->inventory[INVENTORY_SCOUT] &&
+	   !bs->inventory[INVENTORY_GUARD] && !bs->inventory[INVENTORY_DOUBLER] && !bs->inventory[INVENTORY_AMMOREGEN])
 	{
 		return qfalse;
 	}
@@ -3154,7 +2898,8 @@ int BotWantsToCamp(bot_state_t * bs)
 		return qfalse;
 	//the bot should have at least have the rocket launcher, the railgun or the bfg10k with some ammo
 	if((bs->inventory[INVENTORY_ROCKETLAUNCHER] <= 0 || bs->inventory[INVENTORY_ROCKETS < 10]) &&
-	   (bs->inventory[INVENTORY_RAILGUN] <= 0 || bs->inventory[INVENTORY_SLUGS] < 10))
+	   (bs->inventory[INVENTORY_RAILGUN] <= 0 || bs->inventory[INVENTORY_SLUGS] < 10) &&
+	   (bs->inventory[INVENTORY_BFG10K] <= 0 || bs->inventory[INVENTORY_BFGAMMO] < 10))
 	{
 		return qfalse;
 	}
@@ -3361,6 +3106,11 @@ bot_moveresult_t BotAttackMove(bot_state_t * bs, int tfl)
 		{
 			bs->attackjump_time = FloatTime() + 1;
 		}
+	}
+	if(bs->cur_ps.weapon == WP_GAUNTLET)
+	{
+		attack_dist = 0;
+		attack_range = 0;
 	}
 	else
 	{
@@ -4099,18 +3849,10 @@ void BotAimAtEnemy(bot_state_t * bs)
 	{
 		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_RAILGUN, 0, 1);
 	}
-	else if(wi.number == WP_IRAILGUN)
-	{
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_RAILGUN, 0, 1);
-	}
 	else if(wi.number == WP_PLASMAGUN)
 	{
 		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_PLASMAGUN, 0, 1);
 		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_PLASMAGUN, 0, 1);
-	}
-	else if(wi.number == WP_FLAMETHROWER)
-	{
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_LIGHTNING, 0, 1);
 	}
 	else if(wi.number == WP_BFG)
 	{
@@ -4318,8 +4060,7 @@ void BotAimAtEnemy(bot_state_t * bs)
 	//get aim direction
 	VectorSubtract(bestorigin, bs->eye, dir);
 	//
-	if(wi.number == WP_MACHINEGUN ||
-	   wi.number == WP_SHOTGUN || wi.number == WP_LIGHTNING || wi.number == WP_RAILGUN || wi.number == WP_IRAILGUN)
+	if(wi.number == WP_MACHINEGUN || wi.number == WP_SHOTGUN || wi.number == WP_LIGHTNING || wi.number == WP_RAILGUN)
 	{
 		//distance towards the enemy
 		dist = VectorLength(dir);
@@ -4396,14 +4137,7 @@ void BotCheckAttack(bot_state_t * bs)
 #endif
 	}
 	//
-	if(bs->weaponnum == WP_BFG)
-	{
-		reactiontime = 1.0f;
-	}
-	else
-	{
-		reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
-	}
+	reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 	if(bs->enemysight_time > FloatTime() - reactiontime)
 		return;
 	if(bs->teleport_time > FloatTime() - reactiontime)
@@ -4414,14 +4148,7 @@ void BotCheckAttack(bot_state_t * bs)
 	//check fire throttle characteristic
 	if(bs->firethrottlewait_time > FloatTime())
 		return;
-	if(bs->weaponnum == WP_BFG)
-	{
-		firethrottle = 1.0f;
-	}
-	else
-	{
-		firethrottle = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1);
-	}
+	firethrottle = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1);
 	if(bs->firethrottleshoot_time < FloatTime())
 	{
 		if(random() > firethrottle)
@@ -5079,7 +4806,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 	char            model[MAX_INFO_STRING], tmpmodel[128];
 	char            target[128], classname[128];
 	float           health;
-	char            targetname[10][128];
+	char            name[10][128];
 	aas_entityinfo_t entinfo;
 	aas_areainfo_t  areainfo;
 	vec3_t          origin, angles, absmins, absmaxs;
@@ -5179,12 +4906,12 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 	{
 		return 0;
 	}
-	// get the targetname so we can find an entity with a matching target
-	if(!trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0])))
+	// get the name so we can find an entity with a matching target
+	if(!trap_AAS_ValueForBSPEpairKey(ent, "name", name[0], sizeof(name[0])))
 	{
 		if(bot_developer.integer)
 		{
-			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no targetname\n", model);
+			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no name\n", model);
 		}
 		return 0;
 	}
@@ -5196,7 +4923,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		{
 			if(!trap_AAS_ValueForBSPEpairKey(ent, "target", target, sizeof(target)))
 				continue;
-			if(!strcmp(targetname[i], target))
+			if(!strcmp(name[i], target))
 			{
 				cur_entities[i] = trap_AAS_NextBSPEntity(ent);
 				break;
@@ -5206,7 +4933,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		{
 			if(bot_developer.integer)
 			{
-				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity with target \"%s\"\n", targetname[i]);
+				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity with target \"%s\"\n", name[i]);
 			}
 			i--;
 			continue;
@@ -5215,7 +4942,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		{
 			if(bot_developer.integer)
 			{
-				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", targetname[i]);
+				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", name[i]);
 			}
 			continue;
 		}
@@ -5281,7 +5008,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		// the actual button or trigger might be linked through a target_relay or target_delay
 		else if(!strcmp(classname, "target_relay") || !strcmp(classname, "target_delay"))
 		{
-			if(trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[i + 1], sizeof(targetname[0])))
+			if(trap_AAS_ValueForBSPEpairKey(ent, "name", name[i + 1], sizeof(name[0])))
 			{
 				i++;
 				cur_entities[i] = trap_AAS_NextBSPEntity(0);
@@ -5289,7 +5016,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		}
 	}
 #ifdef OBSTACLEDEBUG
-	BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no valid activator for entity with target \"%s\"\n", targetname[0]);
+	BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no valid activator for entity with target \"%s\"\n", name[0]);
 #endif
 	return 0;
 }
@@ -5411,7 +5138,7 @@ void BotAIBlocked(bot_state_t * bs, bot_moveresult_t * moveresult, int activate)
 #ifdef OBSTACLEDEBUG
 	ClientName(bs->client, netname, sizeof(netname));
 	BotAI_Print(PRT_MESSAGE, "%s: I'm blocked by model %d\n", netname, entinfo.modelindex);
-#endif	/* OBSTACLEDEBUG */
+#endif							// OBSTACLEDEBUG
 	// if blocked by a bsp model and the bot wants to activate it
 	if(activate && entinfo.modelindex > 0 && entinfo.modelindex <= max_bspmodelindex)
 	{
@@ -5846,20 +5573,27 @@ void BotCheckEvents(bot_state_t * bs, entityState_t * state)
 				break;
 			}
 			trap_GetConfigstring(CS_SOUNDS + state->eventParm, buf, sizeof(buf));
-
-			if(!strcmp(buf, "sound/teamplay/flagret_red.wav"))
+			/*
+			   if (!strcmp(buf, "sound/teamplay/flagret_red.wav")) {
+			   //red flag is returned
+			   bs->redflagstatus = 0;
+			   bs->flagstatuschanged = qtrue;
+			   }
+			   else if (!strcmp(buf, "sound/teamplay/flagret_blu.wav")) {
+			   //blue flag is returned
+			   bs->blueflagstatus = 0;
+			   bs->flagstatuschanged = qtrue;
+			   }
+			   else */
+#ifdef MISSIONPACK
+			if(!strcmp(buf, "sound/items/kamikazerespawn.wav"))
 			{
-				//red flag is returned
-				bs->redflagstatus = 0;
-				bs->flagstatuschanged = qtrue;
+				//the kamikaze respawned so dont avoid it
+				BotDontAvoid(bs, "Kamikaze");
 			}
-			else if(!strcmp(buf, "sound/teamplay/flagret_blu.wav"))
-			{
-				//blue flag is returned
-				bs->blueflagstatus = 0;
-				bs->flagstatuschanged = qtrue;
-			}
-			else if(!strcmp(buf, "sound/items/poweruprespawn.ogg"))
+			else
+#endif
+			if(!strcmp(buf, "sound/items/poweruprespawn.ogg"))
 			{
 				//powerup respawned... go get it
 				BotGoForPowerups(bs);
@@ -5985,7 +5719,6 @@ void BotCheckEvents(bot_state_t * bs, entityState_t * state)
 		case EV_STEP_16:
 		case EV_JUMP_PAD:
 		case EV_JUMP:
-		case EV_WALLJUMP:
 		case EV_TAUNT:
 		case EV_WATER_TOUCH:
 		case EV_WATER_LEAVE:

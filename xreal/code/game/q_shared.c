@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -136,7 +135,7 @@ float Com_Clamp(float min, float max, float value)
 Com_StringContains
 ============
 */
-const char     *Com_StringContains(const char *str1, const char *str2, int casesensitive)
+const char  *Com_StringContains(const char *str1, const char *str2, int casesensitive)
 {
 	int             len, i, j;
 
@@ -1391,12 +1390,7 @@ int Q_PrintStrlen(const char *string)
 	p = string;
 	while(*p)
 	{
-		if(Q_IsAbsoluteColorString(p))
-		{
-			p += 5;
-			continue;
-		}
-		else if(Q_IsColorString(p))
+		if(Q_IsColorString(p))
 		{
 			p += 2;
 			continue;
@@ -1419,11 +1413,7 @@ char           *Q_CleanStr(char *string)
 	d = string;
 	while((c = *s) != 0)
 	{
-		if(Q_IsAbsoluteColorString(s))
-		{
-			s += 5;
-		}
-		else if(Q_IsColorString(s))
+		if(Q_IsColorString(s))
 		{
 			s++;
 		}
@@ -1438,58 +1428,6 @@ char           *Q_CleanStr(char *string)
 	return string;
 }
 
-char           *Q_CleanAbsoluteColorStr(char *string)
-{
-	char           *d;
-	char           *s;
-	int             c;
-
-	s = string;
-	d = string;
-	while((c = *s) != 0)
-	{
-		if(Q_IsAbsoluteColorString(s))
-		{
-			s += 5;
-		}
-		else if(Q_IsBlackColorString(s))
-		{
-			s++;
-		}
-		else if(c >= 0x20 && c <= 0x7E)
-		{
-			*d++ = c;
-		}
-		s++;
-	}
-	*d = '\0';
-
-	return string;
-}
-
-char           *Q_MultiFontStr(char *string)
-{
-	char           *d;
-	char           *s;
-	int             c;
-
-	s = string;
-	d = string;
-	while((c = *s) != 0)
-	{
-		if(Q_IsMultiFontString(s))
-		{
-			s += 2;
-		}
-		else if(c >= 0x20 && c <= 0x7E)
-		{
-			*d++ = c;
-		}
-		s++;
-	}
-	*d = '\0';
-	return string;
-}
 
 void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 {
@@ -1901,3 +1839,7 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 	strcat(s, newi);
 }
 
+
+
+
+//====================================================================

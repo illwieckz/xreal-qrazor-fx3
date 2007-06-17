@@ -2,7 +2,6 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2007 Jeremy Hughes <Encryption767@msn.com>
 
 This file is part of XreaL source code.
 
@@ -408,35 +407,9 @@ void hurt_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 	}
 }
 
-void            SP_team_CTF_redspawn(gentity_t * ent);
-void            SP_team_CTF_bluespawn(gentity_t * ent);
-
 void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 {
 	int             dflags;
-	vec3_t          origin, angles;
-	gclient_t      *client;
-
-	client = other->client;
-
-	if(Spaceprotect.integer == 1 && self->damage > 100)
-	{
-		Team_DropFlags(other);
-		if(other->client->sess.sessionTeam == TEAM_RED)
-		{
-			SelectCTFSpawnPoint(other->client->sess.sessionTeam, other->client->pers.teamState.state, origin, angles);
-		}
-		else if(other->client->sess.sessionTeam == TEAM_BLUE)
-		{
-			SelectCTFSpawnPoint(other->client->sess.sessionTeam, other->client->pers.teamState.state, origin, angles);
-		}
-		else
-		{
-			SelectSpawnPoint(other->client->ps.origin, origin, angles);
-		}
-		TeleportPlayer(other, origin, angles);
-		return;
-	}
 
 	if(!other->takedamage)
 	{
