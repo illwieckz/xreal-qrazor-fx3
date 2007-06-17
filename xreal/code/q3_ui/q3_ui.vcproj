@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="q3_ui"
 	ProjectGUID="{D454C4C7-7765-4149-ABAD-05FDEB9D94F8}"
 	RootNamespace="q3_ui"
-	SccProjectName="&quot;$/MissionPack/code/q3_ui&quot;, VFLAAAAA"
-	SccLocalPath="."
 	>
 	<Platforms>
 		<Platform
