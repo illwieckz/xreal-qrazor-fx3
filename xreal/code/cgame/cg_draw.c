@@ -317,7 +317,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
-	refLight_t		light;
+	refLight_t      light;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -351,28 +351,28 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene(&ent);
-	
+
 	// add light
 	memset(&light, 0, sizeof(refLight_t));
-	
+
 	light.rlType = RL_PROJ;
-	
+
 	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
-	
+
 	VectorCopy(refdef.viewaxis[0], light.axis[0]);
 	VectorCopy(refdef.viewaxis[1], light.axis[1]);
 	VectorCopy(refdef.viewaxis[2], light.axis[2]);
-	
+
 	light.color[0] = 1.0;
 	light.color[1] = 1.0;
 	light.color[2] = 1.0;
-	
+
 	light.fovX = 90;
 	light.fovY = 90;
 	light.distance = 800;
-	
+
 	trap_R_AddRefLightToScene(&light);
-	
+
 	trap_R_RenderScene(&refdef);
 }
 
@@ -1755,7 +1755,7 @@ static int CG_DrawPickupItem(int y)
 {
 	int             value;
 	float          *fadeColor;
-	
+
 	if(cg.snap->ps.stats[STAT_HEALTH] <= 0)
 	{
 		return y;
@@ -1833,6 +1833,13 @@ static void CG_DrawTeamInfo(void)
 	{
 		y += 410;
 	}
+
+//  if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
+//      chatHeight = cg_teamChatHeight.integer;
+//  else
+	chatHeight = 6;
+//  if (chatHeight <= 0)
+//      return; // disabled
 
 	if(cgs.teamLastChatPos != cgs.teamChatPos)
 	{
@@ -4442,15 +4449,15 @@ void CG_DrawActive(stereoFrame_t stereoView, int view)
 	{
 		VectorCopy(baseOrg, cg.refdef[view].vieworg);
 	}
-	
+
 	CG_ZoomView();
-	
+
 	// draw bloom post process effect
 	CG_DrawBloom();
-	
+
 	// draw rotoscope post process effect
 	CG_DrawRotoscope();
-	
+
 	// draw status bar and other floating elements
 	CG_Draw2D();
 }
