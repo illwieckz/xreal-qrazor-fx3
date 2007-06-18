@@ -970,7 +970,6 @@ sprites/balloon3
 }
 
 // friend and foe icons floating over client's heads in teamplay games
-
 sprites/foe
 {
 	nomipmaps
@@ -1012,7 +1011,6 @@ sprites/plasma2
 }
 
 // this is an example of a crossfaded animation cycle
-
 textures/animationTest
 {
 	qer_editorimage	textures/liquids/bloodwater1.tga
@@ -1133,11 +1131,11 @@ waterBubble
 
 smokePuff
 {
-	cull none
+	twoSided
 	entityMergable		// allow all the sprites to be merged together
 	{
-		map gfx/misc/smokepuff.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		map gfx/misc/smoke1.png
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		rgbGen		vertex
 		alphaGen	vertex
 	}
@@ -1145,33 +1143,22 @@ smokePuff
 
 hasteSmokePuff			// drops behind player's feet when speeded
 {
-	cull none
+	twoSided
 	entityMergable		// allow all the sprites to be merged together
 	{
-		map gfx/misc/smokepuff3.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-      //blendfunc GL_ONE GL_ONE
+		map gfx/misc/smoke4.png
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		rgbGen		vertex
 		alphaGen	vertex
 	}
 }
 
-smokePuffRagePro
-{
-	cull none
-	entityMergable		// allow all the sprites to be merged together
-	{
-		map gfx/misc/smokepuffragepro.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-	}
-}
-
 shotgunSmokePuff
 {
-	cull none
+	twoSided
 	{
-		map gfx/misc/smokepuff2b.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		map gfx/misc/smoke2.png
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		alphaGen entity		
 		rgbGen entity
 	}
@@ -1179,20 +1166,20 @@ shotgunSmokePuff
 
 flareShader
 {
-	cull none
+	twoSided
 	{
-		map gfx/misc/flare.tga
-		blendFunc GL_ONE GL_ONE
+		map gfx/misc/flare.png
+		blend add
 		rgbGen vertex
 	}
 }
 
 sun
 {
-	cull none
+	twoSided
 	{
-		map gfx/misc/sun.tga
-		blendFunc GL_ONE GL_ONE
+		map gfx/misc/sun.png
+		blend add
 		rgbGen vertex
 	}
 }
