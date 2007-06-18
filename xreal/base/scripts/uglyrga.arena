@@ -1,0 +1,7 @@
+{
+	map  "uglyrga"
+	longname "UGLY R.G.A"
+	bots  "Visor"
+	fraglimit 25
+	type  "ffa tourney"
+}

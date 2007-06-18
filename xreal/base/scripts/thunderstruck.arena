@@ -1,0 +1,7 @@
+{
+	map  "thunderstruck"
+	longname "Thunderstruck by tyrelhill@hotmail.com"
+	bots  "Visor"
+	fraglimit 25
+	type  "ffa tourney"
+}
