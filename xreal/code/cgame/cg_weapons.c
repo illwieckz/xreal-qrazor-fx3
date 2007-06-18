@@ -868,7 +868,7 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_SHOTGUN:
 			MAKERGB(weaponInfo->flashLightColor, 1, 1, 0);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/shotgun/sshotf1b.wav", qfalse);
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/shotgun/sshotf1b.ogg", qfalse);
 			weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 			break;
 
@@ -883,7 +883,7 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->missileLightColor, 1, 0.75f, 0);
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.75f, 0);
 
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.wav", qfalse);
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg", qfalse);
 			cgs.media.rocketExplosionShader = trap_R_RegisterShader("rocketExplosion");
 			break;
 
@@ -935,7 +935,7 @@ void CG_RegisterWeapon(int weaponNum)
 		case WP_RAILGUN:
 			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/railgun/rg_hum.wav", qfalse);
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.5f, 0);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.wav", qfalse);
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg", qfalse);
 			cgs.media.railExplosionShader = trap_R_RegisterShader("railExplosion");
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
 			cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
@@ -952,7 +952,7 @@ void CG_RegisterWeapon(int weaponNum)
 
 		default:
 			MAKERGB(weaponInfo->flashLightColor, 1, 1, 1);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.wav", qfalse);
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg", qfalse);
 			break;
 	}
 }
