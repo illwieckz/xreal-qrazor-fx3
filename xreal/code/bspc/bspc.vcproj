@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="bspc"
 	ProjectGUID="{4E4EBC16-F345-4667-84E1-86633BAFDAE6}"
 	RootNamespace="bspc"
-	SccProjectName="&quot;$/source/code/bspc&quot;, IGAAAAAA"
-	SccLocalPath="."
 	>
 	<Platforms>
 		<Platform
@@ -1720,11 +1718,11 @@
 				>
 			</File>
 			<File
-				RelativePath="l_log.h"
+				RelativePath="..\botlib\l_log.h"
 				>
 			</File>
 			<File
-				RelativePath="..\botlib\l_log.h"
+				RelativePath="l_log.h"
 				>
 			</File>
 			<File
