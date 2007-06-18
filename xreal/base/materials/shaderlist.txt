@@ -70,7 +70,7 @@ recyc_light
 recyc_trim
 recyc_wall
 reflex_layout
-#reflex_ugly
+reflex_ugly
 rock
 #q4_buildings
 #q4_terrain
