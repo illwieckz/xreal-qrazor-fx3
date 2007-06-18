@@ -2100,13 +2100,14 @@ void            R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, 
 qboolean        R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst);
 void            R_CalcNormalForTriangle(vec3_t normal, const vec3_t v0, const vec3_t v1, const vec3_t v2);
 
-void            R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
-										  const vec3_t v0, const vec3_t v1, const vec3_t v2,
-										  const vec2_t t0, const vec2_t t1, const vec2_t t2);
-
 void            R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
-								   const vec2_t t0, const vec2_t t1, const vec2_t t2, const vec3_t n);
+								   const vec2_t t0, const vec2_t t1, const vec2_t t2);
+
+void            R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t normal,
+								   const vec3_t v0, const vec3_t v1, const vec3_t v2,
+								   const vec2_t t0, const vec2_t t1, const vec2_t t2);
+
 
 void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
 void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);

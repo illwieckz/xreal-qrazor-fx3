@@ -318,6 +318,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	vec3_t          tangent;
 	vec3_t          binormal;
 	vec3_t          normal;
+	vec_t			d;
 	srfVert_t      *dv0, *dv1, *dv2;
 	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 	srfTriangle_t  *tri;
@@ -355,8 +356,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 		t1 = dv1->st;
 		t2 = dv2->st;
 
-		R_CalcNormalForTriangle(normal, v0, v1, v2);
-		R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
+		R_CalcTangentSpace2(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
 
 		for(j = 0; j < 3; j++)
 		{
@@ -377,9 +377,19 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	{
 		dv0 = &ctrl2[i];
 
+		VectorNormalize(dv0->normal);
+#if 0
 		VectorNormalize(dv0->tangent);
 		VectorNormalize(dv0->binormal);
-		VectorNormalize(dv0->normal);
+#else
+		d = DotProduct(dv0->tangent, dv0->normal);
+		VectorMA(dv0->tangent, -d, dv0->normal, dv0->tangent);
+		VectorNormalize(dv0->tangent);
+
+		d = DotProduct(dv0->binormal, dv0->normal);
+		VectorMA(dv0->binormal, -d, dv0->normal, dv0->binormal);
+		VectorNormalize(dv0->binormal);
+#endif
 	}
 
 	// do another extra smoothing for normals to avoid flat shading

@@ -1652,7 +1652,6 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 		if(!tess.skipTangentSpaces)
 		{
 			int             i;
-			vec3_t          faceNormal;
 			float          *v;
 			const float    *v0, *v1, *v2;
 			const float    *t0, *t1, *t2;
@@ -1677,13 +1676,9 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 				t0 = tess.texCoords[indices[0]];
 				t1 = tess.texCoords[indices[1]];
 				t2 = tess.texCoords[indices[2]];
-#if 1
-				R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-#else
-				R_CalcNormalForTriangle(normal, v0, v1, v2);
-				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
-#endif
+
+				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+
 				for(j = 0; j < 3; j++)
 				{
 					v = tess.tangents[indices[j]];
@@ -1944,7 +1939,6 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 		if(!tess.skipTangentSpaces)
 		{
 			int             i;
-			vec3_t          faceNormal;
 			float          *v;
 			const float    *v0, *v1, *v2;
 			const float    *t0, *t1, *t2;
@@ -1969,13 +1963,9 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 				t0 = tess.texCoords[indices[0]];
 				t1 = tess.texCoords[indices[1]];
 				t2 = tess.texCoords[indices[2]];
-#if 1
-				R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
-#else
-				R_CalcNormalForTriangle(normal, v0, v1, v2);
-				R_CalcTangentsForTriangle(tangent, binormal, v0, v1, v2, t0, t1, t2);
-#endif
+
+				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+
 				for(j = 0; j < 3; j++)
 				{
 					v = tess.tangents[indices[j]];

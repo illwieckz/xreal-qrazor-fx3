@@ -341,7 +341,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 			t1 = cv->verts[tri->indexes[1]].st;
 			t2 = cv->verts[tri->indexes[2]].st;
 
-			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, cv->plane.normal);
+			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
 
 			for(j = 0; j < 3; j++)
 			{
@@ -520,7 +520,6 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 
 	// Tr3B - calc tangent spaces
 	{
-		vec3_t          faceNormal;
 		float          *v;
 		const float    *v0, *v1, *v2;
 		const float    *t0, *t1, *t2;
@@ -545,8 +544,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			t1 = cv->verts[tri->indexes[1]].st;
 			t2 = cv->verts[tri->indexes[2]].st;
 
-			R_CalcNormalForTriangle(faceNormal, v0, v1, v2);
-			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2, faceNormal);
+			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
 
 			for(j = 0; j < 3; j++)
 			{

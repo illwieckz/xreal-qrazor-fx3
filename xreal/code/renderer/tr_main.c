@@ -100,6 +100,7 @@ R_CalcTangentsForTriangle
 http://members.rogers.com/deseric/tangentspace.htm
 =============
 */
+/*
 void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 							   const vec3_t v0, const vec3_t v1, const vec3_t v2,
 							   const vec2_t t0, const vec2_t t1, const vec2_t t2)
@@ -137,26 +138,8 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 	binormal[1] = -planes[1][2] / planes[1][0];
 	binormal[2] = -planes[2][2] / planes[2][0];
 	VectorNormalizeFast(binormal);
-
-#if 0
-	// normal...
-	// compute the cross product TxB
-	CrossProduct(tangent, binormal, normal);
-	VectorNormalize(normal);
-
-	// Gram-Schmidt orthogonalization process for B
-	// compute the cross product B=NxT to obtain 
-	// an orthogonal basis
-	CrossProduct(normal, tangent, binormal);
-
-	if(DotProduct(normal, n) < 0)
-	{
-		VectorInverse(normal);
-	}
-
-//  VectorCopy(n, normal);
-#endif
 }
+*/
 
 /*
 =============
@@ -166,17 +149,16 @@ Tr3B - recoded from Nvidia's SDK
 */
 void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 						const vec3_t v0, const vec3_t v1, const vec3_t v2,
-						const vec2_t t0, const vec2_t t1, const vec2_t t2, const vec3_t n)
-{
-
+						const vec2_t t0, const vec2_t t1, const vec2_t t2)
+{	
 	vec3_t          cp, e0, e1;
+	vec3_t          faceNormal;
 
 	VectorSet(e0, v1[0] - v0[0], t1[0] - t0[0], t1[1] - t0[1]);
 	VectorSet(e1, v2[0] - v0[0], t2[0] - t0[0], t2[1] - t0[1]);
 
 	CrossProduct(e0, e1, cp);
-
-	if(Q_fabs(cp[0]) > 10e-6)
+	if(fabs(cp[0]) > 10e-6)
 	{
 		tangent[0] = -cp[1] / cp[0];
 		binormal[0] = -cp[2] / cp[0];
@@ -186,7 +168,7 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 	e1[0] = v2[1] - v0[1];
 
 	CrossProduct(e0, e1, cp);
-	if(Q_fabs(cp[0]) > 10e-6)
+	if(fabs(cp[0]) > 10e-6)
 	{
 		tangent[1] = -cp[1] / cp[0];
 		binormal[1] = -cp[2] / cp[0];
@@ -196,7 +178,7 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 	e1[0] = v2[2] - v0[2];
 
 	CrossProduct(e0, e1, cp);
-	if(Q_fabs(cp[0]) > 10e-6)
+	if(fabs(cp[0]) > 10e-6)
 	{
 		tangent[2] = -cp[1] / cp[0];
 		binormal[2] = -cp[2] / cp[0];
@@ -215,9 +197,78 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 	// an orthogonal basis
 	CrossProduct(normal, tangent, binormal);
 
-	if(DotProduct(normal, n) < 0)
+	// compute the face normal based on vertex points
+	VectorSubtract(v2, v0, e0);
+	VectorSubtract(v1, v0, e1);
+	CrossProduct(e0, e1, faceNormal);
+
+	VectorNormalizeFast(faceNormal);
+
+	if(DotProduct(normal, faceNormal) < 0)
 	{
 		VectorInverse(normal);
+		//VectorInverse(tangent);
+		//VectorInverse(binormal);
+	}
+}
+
+/*
+=============
+R_CalcTangentSpace2
+Tr3B - recoded from OverDose
+fixes some strange lighting bugs on curves but may mess with negative tangents
+=============
+*/
+void R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t normal,
+						const vec3_t v0, const vec3_t v1, const vec3_t v2,
+						const vec2_t t0, const vec2_t t1, const vec2_t t2)
+{	
+	vec3_t		cross;
+	vec_t		e0[5];
+	vec_t		e1[5];
+
+	// find edges
+	e0[0] = v1[0] - v0[0];
+	e0[1] = v1[1] - v0[1];
+	e0[2] = v1[2] - v0[2];
+	
+	e0[3] = t1[0] - t0[0];
+	e0[4] = t1[1] - t0[1];
+
+	e1[0] = v2[0] - v0[0];
+	e1[1] = v2[1] - v0[1];
+	e1[2] = v2[2] - v0[2];
+	
+	e1[3] = t2[0] - t0[0];
+	e1[4] = t2[1] - t0[1];
+
+	// compute normal vector
+	normal[0] = e1[1] * e0[2] - e1[2] * e0[1];
+	normal[1] = e1[2] * e0[0] - e1[0] * e0[2];
+	normal[2] = e1[0] * e0[1] - e1[1] * e0[0];
+
+	VectorNormalize(normal);
+
+	// compute tangent vector
+	binormal[0] = e1[4] * e0[0] - e1[0] * e0[4];
+	binormal[1] = e1[4] * e0[1] - e1[1] * e0[4];
+	binormal[2] = e1[4] * e0[2] - e1[2] * e0[4];
+
+	VectorNormalize(binormal);
+
+	// compute binormal vector
+	tangent[0] = e1[0] * e0[3] - e1[3] * e0[0];
+	tangent[1] = e1[1] * e0[3] - e1[3] * e0[1];
+	tangent[2] = e1[2] * e0[3] - e1[3] * e0[2];
+
+	VectorNormalize(tangent);
+
+	// inverse tangent vectors if needed
+	CrossProduct(tangent, binormal, cross);
+	if(DotProduct(cross, normal) < 0.0f)
+	{
+		VectorInverse(tangent);
+		VectorInverse(binormal);
 	}
 }
 
