@@ -41,9 +41,6 @@ dll_src = [
 
 cgame_env = env.Copy()
 
-if env['lua'] == 1:
-		cgame_env.Append(CCFLAGS='-DLUA')
-		
 if env['xppm'] == 1:
 		cgame_env.Append(CCFLAGS='-DXPPM')
 
