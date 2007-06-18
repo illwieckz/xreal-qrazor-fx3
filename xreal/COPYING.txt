@@ -44,6 +44,9 @@ http://creativecommons.org/licenses/sampling+/1.0/
 Creative Commons Attribution-NonCommercial-ShareAlike 2.5
 http://creativecommons.org/licenses/by-nc-sa/2.5/
 
+Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
+http://creativecommons.org/licenses/by-nc-sa/3.0/
+
 Creative Commons Attribution-ShareAlike 2.5
 http://creativecommons.org/licenses/by-sa/2.5/
 
