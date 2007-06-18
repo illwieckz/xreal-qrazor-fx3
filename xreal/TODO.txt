@@ -10,14 +10,8 @@ base/gfx/2d/select.png
 base/gfx/damage/plasma_mrk.png
 base/gfx/damage/shadow.png
 base/gfx/misc/
-base/gfx/misc/flare.png
 base/gfx/misc/railcorethin_mono.png
 base/gfx/misc/raildisc_mono2.png
-base/gfx/misc/smokepuff.png
-base/gfx/misc/smokepuff2.png
-base/gfx/misc/smokepuff2b.png
-base/gfx/misc/smokepuff3.png
-base/gfx/misc/sun.png
 base/gfx/misc/tracer.png
 base/icons/ammo_proxmine.png TA
 base/icons/ammo_regen.png
@@ -289,8 +283,7 @@ base/sprites/splash.png
 
 
 code/cgame
-- add better particle effects
-- add atmospheric effects
+- finish the Lua powered Quake4 style special effects target_fx system
 - add motion blur and other special effects
 
 code/game
