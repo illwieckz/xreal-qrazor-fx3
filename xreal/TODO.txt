@@ -13,10 +13,10 @@ base/gfx/misc/
 base/gfx/misc/flare.png
 base/gfx/misc/railcorethin_mono.png
 base/gfx/misc/raildisc_mono2.png
-base/gfx/misc/smokepuff2b.png
-base/gfx/misc/smokepuff2.png
-base/gfx/misc/smokepuff3.png
 base/gfx/misc/smokepuff.png
+base/gfx/misc/smokepuff2.png
+base/gfx/misc/smokepuff2b.png
+base/gfx/misc/smokepuff3.png
 base/gfx/misc/sun.png
 base/gfx/misc/tracer.png
 base/icons/ammo_proxmine.png TA
@@ -288,7 +288,6 @@ base/sprites/plasmaa.png
 base/sprites/splash.png
 
 
-
 code/cgame
 - add better particle effects
 - add atmospheric effects
@@ -315,7 +314,6 @@ code/renderer
 - support decals on static and dynamic abitrary triangle surfaces ?
 
 code/xmap
-- fix texcoords from .lwo models
 - merge AAS compiler into xmap ?
 - finish BSP tree optimizations like merging co-planar faces ?
 

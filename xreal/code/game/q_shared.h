@@ -30,11 +30,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	Q3_VERSION		"XreaL 1.32c"
 
 #ifdef Q3_VM
-typedef long    intptr_t;
-#elif defined(_MSC_VER) && !defined(intptr_t)
-//typedef long    intptr_t;
+typedef int     intptr_t;
 #else
+#ifndef _MSC_VER
 #include <stdint.h>
+#else
+#include <io.h>
+typedef __int64 int64_t;
+typedef __int32 int32_t;
+typedef __int16 int16_t;
+typedef __int8  int8_t;
+typedef unsigned __int64 uint64_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int8 uint8_t;
+#endif
 #endif
 
 /*
@@ -69,7 +79,7 @@ typedef long    intptr_t;
 #pragma warning(disable : 4702)	// unreachable code
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
-#pragma warning(disable : 4996) // deprecated functions
+#pragma warning(disable : 4996)	// deprecated functions
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
@@ -731,6 +741,7 @@ extern quat_t   quatIdentity;
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
+// *INDENT-OFF*
 static ID_INLINE float Q_rsqrt(float number)
 {
 	float           y;
@@ -833,6 +844,7 @@ static ID_INLINE vec_t Q_recip(vec_t in)
 	return ((float)(1.0f / (in)));
 #endif
 }
+// *INDENT-ON*
 
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
