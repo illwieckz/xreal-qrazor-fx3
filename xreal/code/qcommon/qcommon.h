@@ -695,7 +695,6 @@ void            FS_PureServerSetLoadedPaks(const char *pakSums, const char *pakN
 // separated checksums will be checked for files, with the
 // sole exception of .cfg files.
 
-qboolean        FS_idPak(char *pak, char *base);
 qboolean        FS_ComparePaks(char *neededpaks, int len, qboolean dlstring);
 
 void            FS_Rename(const char *from, const char *to);

@@ -2863,30 +2863,7 @@ static void FS_AddGameDirectory(const char *path, const char *dir)
 
 /*
 ================
-FS_idPak
-================
-*/
-qboolean FS_idPak(char *pak, char *base)
-{
-	int             i;
-
-	for(i = 0; i < NUM_ID_PAKS; i++)
-	{
-		if(!FS_FilenameCompare(pak, va("%s/pak%d", base, i)))
-		{
-			break;
-		}
-	}
-	if(i < NUM_ID_PAKS)
-	{
-		return qtrue;
-	}
-	return qfalse;
-}
-
-/*
-================
-FS_idPak
+FS_CheckDirTraversal
 
 Check whether the string contains stuff like "../" to prevent directory traversal bugs
 and return qtrue if it does.
@@ -2945,12 +2922,6 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 		badchecksum = qfalse;
 		havepak = qfalse;
 
-		// never autodownload any of the id paks
-		if(FS_idPak(fs_serverReferencedPakNames[i], "baseq3") || FS_idPak(fs_serverReferencedPakNames[i], "missionpack"))
-		{
-			continue;
-		}
-
 		// Make sure the server cannot make us write to non-xreal directories.
 		if(FS_CheckDirTraversal(fs_serverReferencedPakNames[i]))
 		{
@@ -2986,6 +2957,7 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 
 				// Local name
 				Q_strcat(neededpaks, len, "@");
+				
 				// Do we have one with the same name?
 				if(FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])))
 				{
@@ -3014,6 +2986,7 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 			{
 				Q_strcat(neededpaks, len, fs_serverReferencedPakNames[i]);
 				Q_strcat(neededpaks, len, ".pk3");
+				
 				// Do we have one with the same name?
 				if(FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])))
 				{

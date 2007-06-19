@@ -837,7 +837,6 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 	int             curindex;
 	int             rate;
 	int             blockspersnap;
-	int             idPack, missionPack;
 	char            errorMessage[1024];
 
 	if(!*cl->downloadName)
@@ -849,26 +848,10 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 
 		Com_Printf("clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName);
 
-		missionPack = FS_idPak(cl->downloadName, "missionpack");
-		idPack = missionPack || FS_idPak(cl->downloadName, "baseq3");
-
-		if(!sv_allowDownload->integer || idPack || (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) <= 0)
+		if(!sv_allowDownload->integer || (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) <= 0)
 		{
 			// cannot auto-download file
-			if(idPack)
-			{
-				Com_Printf("clientDownload: %d : \"%s\" cannot download id pk3 files\n", cl - svs.clients, cl->downloadName);
-				if(missionPack)
-				{
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload Team Arena file \"%s\"\n"
-								"The Team Arena mission pack can be found in your local game store.", cl->downloadName);
-				}
-				else
-				{
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
-				}
-			}
-			else if(!sv_allowDownload->integer)
+			if(!sv_allowDownload->integer)
 			{
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
 				if(sv_pure->integer)
