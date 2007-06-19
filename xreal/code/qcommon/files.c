@@ -1211,14 +1211,16 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 					l = strlen(filename);
 					if(!(pak->referenced & FS_GENERAL_REF))
 					{
-						if(Q_stricmp(filename + l - 7, ".shader") != 0 &&
+						if(Q_stricmp(filename + l - 7, ".mtr") != 0 &&
 						   Q_stricmp(filename + l - 4, ".txt") != 0 &&
 						   Q_stricmp(filename + l - 4, ".cfg") != 0 &&
 						   Q_stricmp(filename + l - 7, ".config") != 0 &&
 						   strstr(filename, "levelshots") == NULL &&
 						   Q_stricmp(filename + l - 4, ".bot") != 0 &&
-						   Q_stricmp(filename + l - 6, ".arena") != 0 && Q_stricmp(filename + l - 5, ".menu") != 0)
+						   Q_stricmp(filename + l - 6, ".arena") != 0 &&
+						   Q_stricmp(filename + l - 5, ".menu") != 0)
 						{
+							Com_Printf("...referencing pak '%s/%s' for used file '%s'\n", pak->pakGamename, pak->pakBasename, filename);
 							pak->referenced |= FS_GENERAL_REF;
 						}
 					}
