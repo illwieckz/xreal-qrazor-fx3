@@ -165,7 +165,6 @@ base/models/weapons/proxmine/* TA
 base/models/weapons/railgun/*
 base/models/weapons/rocketl/*
 base/models/weapons/shotgun/*
-base/models/weapons/shells/*
 base/models/weapons/vulcan/* TA
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg

@@ -23,6 +23,7 @@ MODELLING
 Robert "Tr3B" Beckebans - health pickup models
 Julian "Plaque" Morris - weapon and projectile models
 Mikael "Ruohis" Ruohomaa - weapon models
+Michael "mic" Denno - shotgun shells
 
 
 OpenArena Team
@@ -54,6 +55,7 @@ Stefan "ReFlex" Lautner
 Nathan "jitspoe" Wulf
 Adrian "otty" Fuhrmann
 Pat "raynorpat" Raynor
+Michael "mic" Denno
 CheapAlert
 hi_volt
 

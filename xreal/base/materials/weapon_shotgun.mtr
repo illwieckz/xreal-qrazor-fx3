@@ -75,3 +75,10 @@ muzzleSphere
 		blend add
 	}
 }
+
+models/weapons/shotgun/shell
+{
+	diffuseMap models/weapons/shells/shell_d.png
+	normalMap models/weapons/shells/shell_n.png
+	specularMap models/weapons/shells/shell_s.png
+}

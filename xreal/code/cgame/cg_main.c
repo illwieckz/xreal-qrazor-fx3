@@ -1002,8 +1002,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3");
 	cgs.media.armorIcon = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
 
-	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons2/shells/m_shell.md3");
-	cgs.media.shotgunBrassModel = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
+	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons/shells/m_shell.md3");
+	cgs.media.shotgunBrassModel = trap_R_RegisterModel("models/weapons/shells/s_shell.md3");
 
 	cgs.media.gibAbdomen = trap_R_RegisterModel("models/gibs/abdomen.md3");
 	cgs.media.gibArm = trap_R_RegisterModel("models/gibs/arm.md3");
@@ -1016,7 +1016,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.gibSkull = trap_R_RegisterModel("models/gibs/skull.md3");
 	cgs.media.gibBrain = trap_R_RegisterModel("models/gibs/brain.md3");
 
-	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
+	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons/shells/s_shell.md3");
 
 	cgs.media.balloonShader = trap_R_RegisterShader("sprites/balloon3");
 
