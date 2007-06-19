@@ -87,7 +87,7 @@ lagometer
 {
 	nopicmip
 	{
-		map gfx/2d/lag.tga
+		map gfx/2d/lag.png
 	}
 }
 
