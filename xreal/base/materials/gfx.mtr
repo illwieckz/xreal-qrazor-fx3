@@ -1203,7 +1203,7 @@ railDisc
 		clamp
 		deformMagnitude 2
 		tcMod stretch sawtooth 1.4 -10 0 .1
-		blend GL_ONE GL_ZERO
+		blend GL_ONE, GL_ZERO
 		alphaTest 0.5
       }
 }
