@@ -1118,23 +1118,21 @@ viewBloodBlend
 
 waterBubble
 {
-	sort	underwater
+	sort postProcess
 	twoSided
 	entityMergable		// allow all the sprites to be merged together
 	{
-		map gfx/misc/bubble.tga
+		map sprites/bubble.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		rgbGen		vertex
 		alphaGen	vertex
 	}
-	/*
 	{
 		stage	heathazemap
-		map		gfx/misc/bubble_n.tga
-		deformMagnitude 1
+		map		sprites/bubble_n.tga
+		deformMagnitude .1
 		alphaTest 0.5
-    }
-	*/
+      }
 }
 
 smokePuff
@@ -1192,20 +1190,21 @@ sun
 	}
 }
 
-
 railDisc
 {
-	sort postProcess
+	
 	twoSided
     //deformVertexes wave 100 sin 0 .5 0 2.4
 	translucent
+	sort postProcess
 	{
 		stage	heathazemap
 		map		gfx/misc/raildisc_mono2_n.tga 
-		deformMagnitude .3
-		//tcMod stretch sawtooth 1.4 -10 0 .1
-		alphaTest 0.5
 		clamp
+		deformMagnitude 2
+		tcMod stretch sawtooth 1.4 -10 0 .1
+		blend GL_ONE GL_ZERO
+		alphaTest 0.5
       }
 }
 
