@@ -993,20 +993,20 @@ sprites/friend
 
 sprites/plasma1
 {
-	cull disable
+	twoSided
 	{
-		clampmap sprites/plasmaa.tga
-				blendfunc GL_ONE GL_ONE
-				tcMod rotate 931
+		clampmap gfx/misc/plasmaa.png
+		blend add
+		rotate time * 3
 	}
 }
 
 sprites/plasma2
 {
-	cull disable
+	twoSided
 	{
 		map sprites/plasma2.tga
-				blendfunc GL_ONE GL_ONE
+		blend add
 	}
 }
 
@@ -1119,14 +1119,22 @@ viewBloodBlend
 waterBubble
 {
 	sort	underwater
-			cull none
-			entityMergable		// allow all the sprites to be merged together
+	twoSided
+	entityMergable		// allow all the sprites to be merged together
 	{
-		map sprites/bubble.tga
-				blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-				rgbGen		vertex
-				alphaGen	vertex
+		map gfx/misc/bubble.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		rgbGen		vertex
+		alphaGen	vertex
 	}
+	/*
+	{
+		stage	heathazemap
+		map		gfx/misc/bubble_n.tga
+		deformMagnitude 1
+		alphaTest 0.5
+    }
+	*/
 }
 
 smokePuff
@@ -1184,28 +1192,32 @@ sun
 	}
 }
 
+
 railDisc
 {
-	sort nearest
-	cull none
-    deformVertexes wave 100 sin 0 .5 0 2.4
+	sort postProcess
+	twoSided
+    //deformVertexes wave 100 sin 0 .5 0 2.4
+	translucent
 	{
-		clampmap gfx/misc/raildisc_mono2.tga 
-		blendFunc GL_ONE GL_ONE
-		rgbGen vertex
-        tcMod rotate -30
-	}
+		stage	heathazemap
+		map		gfx/misc/raildisc_mono2_n.tga 
+		deformMagnitude .3
+		//tcMod stretch sawtooth 1.4 -10 0 .1
+		alphaTest 0.5
+		clamp
+      }
 }
 
 railCore
 {
 	sort nearest
-	cull none
+	twoSided
 	{
 		map gfx/misc/railcorethin_mono.tga
-		blendFunc GL_ONE GL_ONE
+		blend add
 		rgbGen vertex
-		tcMod scroll -1 0
+		scroll time * -1,  0
 	}
 }
 
@@ -1311,12 +1323,14 @@ burnMark
 gfx/damage/bullet_mrk
 {
 	polygonOffset
+
 	{
 		map gfx/damage/bullet_mrk.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		rgbGen exactVertex
 	}
 }
+
 gfx/damage/burn_med_mrk
 {
 	polygonOffset
@@ -1340,9 +1354,8 @@ gfx/damage/plasma_mrk
 	polygonOffset
 	{
 		map gfx/damage/plasma_mrk.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		rgbGen vertex
-		alphaGen vertex
+		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		rgbGen exactVertex
 	}
 }
 

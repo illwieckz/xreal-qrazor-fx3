@@ -9,8 +9,6 @@ base/gfx/2d/select.png
 base/gfx/damage/plasma_mrk.png
 base/gfx/damage/shadow.png
 base/gfx/misc/
-base/gfx/misc/railcorethin_mono.png
-base/gfx/misc/raildisc_mono2.png
 base/icons/ammo_proxmine.png TA
 base/icons/ammo_regen.png
 base/icons/doubler.png TA
@@ -268,9 +266,7 @@ base/sound/weapons/vulcan/wvulimpl.ogg TA
 base/sound/weapons/vulcan/wvulimpm.ogg TA
 base/sound/weapons/vulcan/wvulwind.ogg TA
 base/base/sound/world/*
-base/sprites/bubble.png
 base/sprites/foe2.png
-base/sprites/plasmaa.png
 base/sprites/splash.png
 
 
