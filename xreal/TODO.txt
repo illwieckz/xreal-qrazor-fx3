@@ -265,12 +265,7 @@ base/sound/weapons/proxmine/wstbimpd.ogg TA
 base/sound/weapons/proxmine/wstbimpl.ogg TA
 base/sound/weapons/proxmine/wstbimpm.ogg TA
 base/sound/weapons/proxmine/wstbtick.ogg TA
-base/sound/weapons/railgun/railgf1a.ogg
 base/sound/weapons/railgun/rg_hum.ogg
-base/sound/weapons/rocket/rockfly.ogg
-base/sound/weapons/rocket/rocklf1a.ogg
-base/sound/weapons/rocket/rocklx1a.ogg
-base/sound/weapons/shotgun/sshotf1b.ogg
 base/sound/weapons/vulcan/wvulimpd.ogg TA
 base/sound/weapons/vulcan/wvulimpl.ogg TA
 base/sound/weapons/vulcan/wvulimpm.ogg TA
