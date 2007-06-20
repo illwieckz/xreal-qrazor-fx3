@@ -1201,7 +1201,7 @@ railDisc
 		stage	heathazemap
 		map		gfx/misc/raildisc_mono2_n.tga 
 		clamp
-		deformMagnitude 2
+		deformMagnitude 0.5
 		tcMod stretch sawtooth 1.4 -10 0 .1
 		blend GL_ONE, GL_ZERO
 		alphaTest 0.5
