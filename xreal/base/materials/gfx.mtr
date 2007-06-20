@@ -1194,7 +1194,6 @@ sun
 
 railDisc
 {
-	
 	twoSided
     //deformVertexes wave 100 sin 0 .5 0 2.4
 	translucent
@@ -1203,8 +1202,9 @@ railDisc
 		stage	heathazemap
 		map		gfx/misc/raildisc_mono2_n.tga 
 		clamp
-		deformMagnitude 0.5
-		tcMod stretch sawtooth 1.4 -10 0 .1
+		deformMagnitude 2
+		//tcMod stretch sawtooth 1.4 -10 0 .1
+		centerScale 0.7 + time * 0.4 , 0.7 + time * 0.4
 		blend GL_ONE, GL_ZERO
 		alphaTest 0.5
       }
@@ -1217,8 +1217,8 @@ railCore
 	{
 		map gfx/misc/railcorethin_mono.tga
 		blend add
-		rgbGen vertex
-		scroll time * -1,  0
+		colored
+		scroll time * -2,  0
 	}
 }
 
