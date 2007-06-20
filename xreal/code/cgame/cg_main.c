@@ -250,7 +250,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE},
 	{&cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE},
 	{&cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE},
-	{&cg_railTrailTime, "cg_railTrailTime", "800", CVAR_ARCHIVE},
+	{&cg_railTrailTime, "cg_railTrailTime", "1400", CVAR_ARCHIVE},
 	{&cg_gunX, "cg_gunX", "0", CVAR_CHEAT},
 	{&cg_gunY, "cg_gunY", "0", CVAR_CHEAT},
 	{&cg_gunZ, "cg_gunZ", "0", CVAR_CHEAT},
