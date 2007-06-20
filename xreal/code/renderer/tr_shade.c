@@ -794,6 +794,7 @@ void GLSL_InitGPUShaders(void)
 	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
 	tr.heatHazeShader.u_CurrentMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
 	tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
+	tr.heatHazeShader.u_AlphaTest = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_AlphaTest");
 	tr.heatHazeShader.u_FBufScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_FBufScale");
 	tr.heatHazeShader.u_NPOTScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NPOTScale");
 
@@ -2697,6 +2698,8 @@ static void Render_screen(int stage)
 
 static void Render_heatHaze(int stage)
 {
+	unsigned        stateBits;
+	float           alphaTest;
 	float           deformMagnitude;
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
@@ -2848,15 +2851,30 @@ static void Render_heatHaze(int stage)
 	}
 
 #if 1
+	// remove alpha test
+	stateBits = pStage->stateBits;
+	stateBits &= ~GLS_ATEST_BITS;
+
+	GL_State(stateBits);
+
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
-	GL_State(pStage->stateBits);
 	GL_ClientState(tr.heatHazeShader.attribs);
 	GL_SetVertexAttribs();
 
 	// set uniforms
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	
 	deformMagnitude = RB_EvalExpression(&pStage->deformMagnitudeExp, 1.0);
-
+	
+	qglUniform1fARB(tr.heatHazeShader.u_AlphaTest, alphaTest);
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.heatHazeShader.u_NPOTScale, npotWidthScale, npotHeightScale);

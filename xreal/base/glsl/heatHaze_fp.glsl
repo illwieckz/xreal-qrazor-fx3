@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_CurrentMap;
 uniform sampler2D	u_ContrastMap;
+uniform float		u_AlphaTest;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
 
@@ -35,7 +36,8 @@ void	main()
 	vec4 color0, color1;
 
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
+	color0 = texture2D(u_NormalMap, var_TexNormal).rgba;
+	vec3 N = 2.0 * (color0.rgb.xyz - 0.5);
 	N = normalize(N);
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -51,7 +53,7 @@ void	main()
 #if 1
 	// check if the distortion got too far
 	float vis = texture2D(u_ContrastMap, st).r;
-	if(vis > 0.0)
+	if(vis > 0.0 && color0.a > u_AlphaTest)
 	{
 		color0 = texture2D(u_CurrentMap, st);
 		color1 = vec4(0.0, 1.0, 0.0, color0.a);
