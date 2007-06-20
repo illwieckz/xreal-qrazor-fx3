@@ -887,35 +887,7 @@ lights/baronflash
 // 	}
 // }
 
-lights/defaultDynamicLight
-{
-	{
-		stage attenuationMapZ
-		map makeintensity(lights/squarelight1a.tga)
-		edgeClamp
-	}
-	{
-		stage attenuationMapXY
-		forceHighQuality
-		//map lights/squarelight1.tga
-		map lights/round.tga
-		colored
-		zeroClamp
-	}
-}
 
-lights/defaultPointLight
-{
-	lightFalloffImage	makeintensity( lights/squarelight1a.tga )	// this will also be the falloff for any
-																	// point light shaders that don't specify one
-	{
-		stage attenuationMapXY
-		forceHighQuality
-		map lights/squarelight1.tga
-		colored
-		zeroClamp
-	}
-}
 
 lights/desertambientlight
 {
@@ -955,16 +927,7 @@ lights/desertlight
 	}
 }
 
-lights/defaultProjectedLight
-{
-	lightFalloffImage	_noFalloff		// by default, stay bright almost all the way to the end
-	{
-		forceHighQuality
-		map lights/squarelight1.tga
-		colored
-		zeroClamp
-	}
-}
+
 
 
 // an ambient light will do non-directional bump mapping, and won't have specular lighting
@@ -3204,10 +3167,58 @@ lights/impflyflash
 	}
 }
 
+//*****************************************************Moved from zgraeme.mtr - end*****************************************
+
+
+//Verified good complete by Eutectic - Nov 23-04
+
 
 //
-// Tr3B - new test lights
+// Tr3B - new lights
 //
+
+lights/defaultDynamicLight
+{
+	{
+		stage attenuationMapZ
+		map makeintensity(lights/squarelight1a.tga)
+		edgeClamp
+	}
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		//map lights/squarelight1.tga
+		map lights/round.tga
+		colored
+		zeroClamp
+	}
+}
+
+lights/defaultPointLight
+{
+	lightFalloffImage	makeintensity( lights/squarelight1a.tga )	// this will also be the falloff for any
+																	// point light shaders that don't specify one
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		map lights/squarelight1.tga
+		colored
+		zeroClamp
+	}
+}
+
+lights/defaultProjectedLight
+{
+	lightFalloffImage	_noFalloff		// by default, stay bright almost all the way to the end
+	{
+		forceHighQuality
+		map lights/squarelight1.tga
+		colored
+		zeroClamp
+	}
+}
+
+
 lights/roqVideoLight
 {
 //	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
@@ -3235,8 +3246,3 @@ lights/stormLight
 		rgb storm3Table[time * 0.1]
 	}
 }
-
-//*****************************************************Moved from zgraeme.mtr - end*****************************************
-
-
-//Verified good complete by Eutectic - Nov 23-04
