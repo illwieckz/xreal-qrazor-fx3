@@ -23,6 +23,7 @@ decals
 #dk_goth
 #dk_goth2
 #dk_q4dm1
+dk_q4dm6
 door
 duffyTest
 enpro

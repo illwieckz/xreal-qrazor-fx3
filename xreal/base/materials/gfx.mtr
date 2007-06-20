@@ -1118,21 +1118,23 @@ viewBloodBlend
 
 waterBubble
 {
-	sort postProcess
+	sort underwater
 	twoSided
 	entityMergable		// allow all the sprites to be merged together
 	{
-		map sprites/bubble.tga
+		map gfx/misc/bubble.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		rgbGen		vertex
 		alphaGen	vertex
 	}
+	/*
 	{
 		stage	heathazemap
-		map		sprites/bubble_n.tga
+		map		gfx/misc/bubble_n.tga
 		deformMagnitude .1
 		alphaTest 0.5
-      }
+    }
+	*/
 }
 
 smokePuff
