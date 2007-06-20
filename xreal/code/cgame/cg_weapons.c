@@ -2411,14 +2411,13 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		trap_S_StartSound(origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx);
 	}
 
-	//
 	// create the explosion
-	//
-	if(mod)
+	if(mod || isSprite)
 	{
 		le = CG_MakeExplosion(origin, dir, mod, shader, duration, isSprite);
 		le->light = light;
 		VectorCopy(lightColor, le->lightColor);
+		
 		if(weapon == WP_RAILGUN)
 		{
 			// colorize with client color
@@ -2426,9 +2425,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		}
 	}
 
-	//
 	// impact mark
-	//
 	alphaFade = (mark == cgs.media.energyMarkShader);	// plasma fades alpha, all others fade color
 	if(weapon == WP_RAILGUN)
 	{

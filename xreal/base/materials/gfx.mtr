@@ -1778,18 +1778,79 @@ bulletExplosion
 rocketExplosion
 {
 	twoSided
+	/*
 	{
 		animmap 13 models/weaphits/rlboom_0.tga models/weaphits/rlboom_1.tga  models/weaphits/rlboom_2.tga models/weaphits/rlboom_3.tga models/weaphits/rlboom_4.tga models/weaphits/rlboom_5.tga models/weaphits/rlboom_6.tga models/weaphits/rlboom_7.tga models/weaphits/rlboom_8.tga models/weaphits/rlboom_9.tga models/weaphits/rlboom_10.tga models/weaphits/rlboom_11.tga models/weaphits/rlboom_12.tga
 		//rgbGen wave inversesawtooth 0 1 0 8
 		blend add
 	}
-	/*
+	*/
+	
 	{
-		animmap 13 models/weaphits/rlboom_1.tga models/weaphits/rlboom_3.tga models/weaphits/rlboom_4.tga models/weaphits/rlboom_5.tga models/weaphits/rlboom_6.tga models/weaphits/rlboom_7.tga models/weaphits/rlboom_8.tga models/weaphits/rlboom_9.tga models/weaphits/rlboom_10.tga models/weaphits/rlboom_11.tga models/weaphits/rlboom_12.tga _black
-		rgbGen wave sawtooth 0 1 0 8
+		if((time * 13) % 13 == 0)
+		map models/weaphits/rlboom_0.png
 		blend add
 	}
-	*/
+	{
+		if((time * 13) % 13 == 1)
+		map models/weaphits/rlboom_1.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 2)
+		map models/weaphits/rlboom_2.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 3)
+		map models/weaphits/rlboom_3.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 4)
+		map models/weaphits/rlboom_4.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 5)
+		map models/weaphits/rlboom_5.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 6)
+		map models/weaphits/rlboom_6.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 7)
+		map models/weaphits/rlboom_7.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 8)
+		map models/weaphits/rlboom_8.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 9)
+		map models/weaphits/rlboom_9.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 10)
+		map models/weaphits/rlboom_10.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 11)
+		map models/weaphits/rlboom_11.png
+		blend add
+	}
+	{
+		if((time * 13) % 13 == 12)
+		map models/weaphits/rlboom_12.png
+		blend add
+	}
 }
 
 grenadeExplosion
