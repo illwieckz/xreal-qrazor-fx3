@@ -1204,7 +1204,7 @@ railDisc
 		clamp
 		deformMagnitude 2
 		//tcMod stretch sawtooth 1.4 -10 0 .1
-		centerScale 0.7 + time * 0.4 , 0.7 + time * 0.4
+		centerScale 0.7 + time * (1 - parm0) , 0.7 + time * (1 - parm0)
 		blend GL_ONE, GL_ZERO
 		alphaTest 0.5
       }
