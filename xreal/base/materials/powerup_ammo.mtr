@@ -18,7 +18,8 @@ models/powerups/ammo/machammo
 
 models/powerups/ammo/machammo2
 {
-	diffuseMap models/powerups/ammo/machammo2.tga
+	diffuseMap _black
+	glowMap models/powerups/ammo/machammo2.tga
 }
 
 // 2.shotgun
@@ -37,10 +38,8 @@ models/powerups/ammo/shotammo
 
 models/powerups/ammo/shotammo2
 {
-	{
-		map models/powerups/ammo/shotammo2.tga
-		rgbGen identity
-	}
+	diffuseMap _black
+	glowMap models/powerups/ammo/shotammo2.tga
 }
 
 // 3.grenade launcher
@@ -59,7 +58,9 @@ models/powerups/ammo/grenammo
 
 models/powerups/ammo/grenammo2
 {
+	diffuseMap _black
 	{
+		blend add
 		map models/powerups/ammo/grenammo2.tga
 		rgbGen identity
 	}
@@ -81,7 +82,9 @@ models/powerups/ammo/lighammo
 
 models/powerups/ammo/lighammo2
 {
+	diffuseMap _black
 	{
+		blend add
 		map models/powerups/ammo/lighammo2.tga
 		rgbGen identity
 	}
@@ -103,7 +106,9 @@ models/powerups/ammo/plasammo
 
 models/powerups/ammo/plasammo2
 {
+	diffuseMap _black
 	{
+		blend add
 		map models/powerups/ammo/plasammo2.tga
 		rgbGen identity
 	}
@@ -125,7 +130,9 @@ models/powerups/ammo/rockammo
 
 models/powerups/ammo/rockammo2
 {
+	diffuseMap _black
 	{
+		blend add
 		map models/powerups/ammo/rockammo2.tga
 		rgbGen identity
 	}
@@ -147,7 +154,9 @@ models/powerups/ammo/railammo
 
 models/powerups/ammo/railammo2
 {
+	diffuseMap _black
 	{
+		blend add
 		map models/powerups/ammo/railammo2.tga
 		rgbGen identity
 	}
@@ -170,7 +179,9 @@ models/powerups/ammo/bfgammo
 
 models/powerups/ammo/bfgammo2
 {
+	diffuseMap _black
 	{
+		blend add
 		map models/powerups/ammo/bfgammo2.tga
 		rgbGen identity
 	}
