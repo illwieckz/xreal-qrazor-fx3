@@ -2550,24 +2550,11 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 		fogNum = drawSurf->fogNum;
 
-		//if(opaque)
+		// skip all translucent surfaces that don't matter for this pass
+		if(shader->sort > SS_OPAQUE)
 		{
-			// skip all translucent surfaces that don't matter for this pass
-			if(shader->sort > SS_OPAQUE)
-			{
-				break;
-			}
+			break;
 		}
-		/*
-		   else
-		   {
-		   // skip all opaque surfaces that don't matter for this pass
-		   if(shader->sort <= SS_OPAQUE)
-		   {
-		   continue;
-		   }
-		   }
-		 */
 
 		if(entity == oldEntity && shader == oldShader && fogNum == oldFogNum)
 		{
@@ -2912,8 +2899,29 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	// bind colorMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.deferredLightingFBOImage);
-	//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
+	
+	if(r_showDeferredDiffuse->integer)
+	{
+		GL_Bind(tr.deferredDiffuseFBOImage);
+	}
+	else if(r_showDeferredNormal->integer)
+	{
+		GL_Bind(tr.deferredNormalFBOImage);
+		//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
+	}
+	else if(r_showDeferredSpecular->integer)
+	{
+		GL_Bind(tr.deferredSpecularFBOImage);
+	}
+	else if(r_showDeferredPosition->integer)
+	{
+		GL_Bind(tr.deferredPositionFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.deferredLightingFBOImage);
+	}
+	
 
 	// set 2D virtual screen size
 	qglPushMatrix();

@@ -2047,6 +2047,11 @@ extern cvar_t  *r_showLightBatches;
 extern cvar_t  *r_showOcclusionQueries;
 extern cvar_t  *r_showBatches;
 
+extern cvar_t  *r_showDeferredDiffuse;
+extern cvar_t  *r_showDeferredNormal;
+extern cvar_t  *r_showDeferredSpecular;
+extern cvar_t  *r_showDeferredPosition;
+
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;

@@ -1475,7 +1475,7 @@ static void Render_genericSingle_FFP(int stage)
 	GL_CheckErrors();
 }
 
-#if 1
+#if 0
 #define Render_genericSingle Render_genericSingle_FFP
 #else
 static void Render_genericSingle(int stage)
@@ -1493,11 +1493,11 @@ static void Render_genericSingle(int stage)
 	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
 	{
 		qglColor4fv(tess.svars.color);
-		GL_ClientState(GLCS_VERTEX);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD0);
 	}
 	else
 	{
-		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR);
 	}
 	
 	GL_SetVertexAttribs();
@@ -1823,7 +1823,7 @@ static void Render_depthFill_FFP(int stage)
 	GL_CheckErrors();
 }
 
-#if 1
+#if 0
 #define Render_depthFill Render_depthFill_FFP
 #else
 static void Render_depthFill(int stage)
@@ -4153,6 +4153,7 @@ void Tess_StageIteratorGBuffer()
 		}
 		else
 		{
+			Tess_ComputeColors(pStage);
 			Tess_ComputeTexCoords(pStage);
 			Tess_ComputeTexMatrices(pStage);
 		}
@@ -4163,21 +4164,23 @@ void Tess_StageIteratorGBuffer()
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
+				//Render_depthFill(stage);
 				Render_genericSingle(stage);
+
+				//R_BindFBO(tr.geometricRenderFBO);
+				//Render_geometricFill_D(stage);
 				break;
 			}
 
 			case ST_DIFFUSEMAP:
 			{
-				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				//if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
 					R_BindFBO(tr.deferredRenderFBO);
-
 					Render_depthFill(stage);
 
 
 					R_BindFBO(tr.geometricRenderFBO);
-
 					Render_geometricFill_D(stage);
 				}
 				break;
@@ -4185,14 +4188,12 @@ void Tess_StageIteratorGBuffer()
 
 			case ST_COLLAPSE_lighting_DB:
 			{
-				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				//if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
 					R_BindFBO(tr.deferredRenderFBO);
-
 					Render_depthFill(stage);
 
 					R_BindFBO(tr.geometricRenderFBO);
-
 					if(r_lighting->integer == 1)
 					{
 						Render_geometricFill_DB(stage);
@@ -4202,23 +4203,17 @@ void Tess_StageIteratorGBuffer()
 						Render_geometricFill_D(stage);
 					}
 				}
-				else
-				{
-					// TODO
-				}
 				break;
 			}
 
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				//if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
 					R_BindFBO(tr.deferredRenderFBO);
-
 					Render_depthFill(stage);
 
 					R_BindFBO(tr.geometricRenderFBO);
-
 					if(r_lighting->integer == 2)
 					{
 						Render_geometricFill_DBS(stage);
@@ -4231,10 +4226,6 @@ void Tess_StageIteratorGBuffer()
 					{
 						Render_geometricFill_D(stage);
 					}
-				}
-				else
-				{
-					// TODO
 				}
 				break;
 			}

@@ -189,6 +189,11 @@ cvar_t         *r_showLightBatches;
 cvar_t         *r_showOcclusionQueries;
 cvar_t         *r_showBatches;
 
+cvar_t         *r_showDeferredDiffuse;
+cvar_t         *r_showDeferredNormal;
+cvar_t         *r_showDeferredSpecular;
+cvar_t         *r_showDeferredPosition;
+
 cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
 cvar_t         *r_vboTriangles;
@@ -1451,6 +1456,11 @@ void R_Register(void)
 	r_showLightBatches = ri.Cvar_Get("r_showLightBatches", "0", CVAR_CHEAT);
 	r_showOcclusionQueries = ri.Cvar_Get("r_showOcclusionQueries", "0", CVAR_CHEAT);
 	r_showBatches = ri.Cvar_Get("r_showBatches", "0", CVAR_CHEAT);
+
+	r_showDeferredDiffuse = ri.Cvar_Get("r_showDeferredDiffuse", "0", CVAR_CHEAT);
+	r_showDeferredNormal = ri.Cvar_Get("r_showDeferredNormal", "0", CVAR_CHEAT);
+	r_showDeferredSpecular = ri.Cvar_Get("r_showDeferredSpecular", "0", CVAR_CHEAT);
+	r_showDeferredPosition = ri.Cvar_Get("r_showDeferredPosition", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

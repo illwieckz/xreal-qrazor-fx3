@@ -467,8 +467,6 @@ void R_InitFBOs(void)
 
 			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
 			
-			//R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-			
 			R_CheckFBO(tr.deferredRenderFBO);
 		}
 	}
