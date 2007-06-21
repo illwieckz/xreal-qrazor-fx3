@@ -6,7 +6,8 @@ models/projectiles/grenade/grenade
 		map	models/projectiles/grenade/grenade.tga
 		rgbGen lightingDiffuse
 	}
-	bumpMap heightmap(models/projectiles/grenade/grenade_bump.tga, 3)
+	//bumpMap heightmap(models/projectiles/grenade/grenade_bump.tga, 3)
+	normalMap models/projectiles/grenade/grenade_bump.png
 	specularMap models/projectiles/grenade/grenade_spec.tga
 	{
 		map models/projectiles/grenade/grenade_glow.tga
