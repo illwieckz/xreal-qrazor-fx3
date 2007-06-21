@@ -1271,6 +1271,15 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			es->loopSound = 0;
 			break;
 
+		case EV_EFFECT:
+			DEBUGNAME("EV_EFFECT");
+			CG_ParticleTeleportEffect(position);
+
+			// Tr3B: TODO run Lua scriptable effects like "effects/category/mysuperfx.lua"
+			//s = CG_ConfigString(CS_EFFECTS + es->eventParm);
+			//CG_RunLuaFunction(s, ">");
+			break;
+
 		case EV_DEBUG_LINE:
 			DEBUGNAME("EV_DEBUG_LINE");
 			CG_Beam(cent);
@@ -1281,7 +1290,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			CG_Error("Unknown event: %i", event);
 			break;
 	}
-
 }
 
 

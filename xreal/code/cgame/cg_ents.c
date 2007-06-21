@@ -1164,8 +1164,6 @@ static void CG_AddCEntity(centity_t * cent)
 			break;
 		case ET_TEAM:
 			CG_TeamBase(cent);
-		case ET_EFFECT:
-			CG_Effect(cent);
 			break;
 	}
 }

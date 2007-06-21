@@ -547,33 +547,43 @@ target_fx_use
 Use function for effects system
 ===============
 */
+/*
 static void target_fx_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	self->s.eFlags ^= EF_NODRAW;
 }
+*/
+
+static void target_fx_think(gentity_t * self)
+{
+	G_AddEvent(self, EV_EFFECT, 0 /* TODO sef->s.modelindex */);
+
+	self->nextthink = level.time + 1000;
+}
+
 
 /*QUAKED target_fx (0 0 1) (-8 -8 -8) (8 8 8)
 */
-void SP_target_fx(gentity_t * ent)
+void SP_target_fx(gentity_t * self)
 {
 	char		   *effectName;
 	int				startOn = 0;
 	
-	ent->s.eType = ET_EFFECT;
-	
+	self->s.eType = ET_GENERAL;
 	
 	G_SpawnInt("start_on", "0", &startOn);
 	if(!startOn)
-		ent->s.eFlags |= EF_NODRAW;
+		self->s.eFlags |= EF_NODRAW;
 	
 	G_SpawnString("fx", "", &effectName);
-	ent->s.modelindex = G_EffectIndex(effectName);
+	self->s.modelindex = G_EffectIndex(effectName);
 
-	G_SetOrigin(ent, ent->s.origin);
+	G_SetOrigin(self, self->s.origin);
 	
-	VectorClear(ent->r.mins);
-	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
+	VectorClear(self->r.mins);
+	VectorClear(self->r.maxs);
+	trap_LinkEntity(self);
 	
-	ent->use = target_fx_use;
+	self->think = target_fx_think;
+	self->nextthink = level.time + 1000;
 }
