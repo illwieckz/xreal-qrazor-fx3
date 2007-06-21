@@ -26,12 +26,14 @@ uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_PositionMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
+uniform samplerCube	u_ShadowMap;
 uniform vec3		u_ViewOrigin;
 uniform vec3		u_LightOrigin;
 uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
+uniform int			u_ShadowCompare;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
 
@@ -77,6 +79,33 @@ void	main()
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
+	
+#if defined(VSM)
+	if(bool(u_ShadowCompare))
+	{
+		// compute incident ray
+		vec3 I = P.xyz - u_LightOrigin;
+
+		float vertexDistance = length(I) / u_LightRadius;
+		vec2 shadowDistances = textureCube(u_ShadowMap, I).rg;
+	
+		// standard shadow map comparison
+		float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
+	
+		// variance shadow mapping
+		float E_x2 = shadowDistances.g;
+		float Ex_2 = shadowDistances.r * shadowDistances.r;
+	
+		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+		const float	VSM_EPSILON = 0.0001;
+		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+	
+		float mD = shadowDistances.r - vertexDistance;
+		float pMax = variance / (variance + mD * mD);
+	
+		color.rgb *= max(shadow, pMax);
+	}
+#endif
 
 	gl_FragColor = color;
 //	gl_FragDepth = P.w;

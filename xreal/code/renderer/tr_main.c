@@ -2147,6 +2147,7 @@ void R_AddLightInteractions()
 		light->numLightOnlyInteractions = 0;
 		light->noSort = qfalse;
 
+		/*
 		if(r_deferredShading->integer)
 		{
 			// add one fake interaction for this light
@@ -2154,6 +2155,7 @@ void R_AddLightInteractions()
 			R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
 		}
 		else
+		*/
 		{
 			if(light->isStatic)
 			{
