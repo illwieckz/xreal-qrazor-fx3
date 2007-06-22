@@ -282,15 +282,17 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
-- fix tcMod turb
-- fix stencil shadow flickering bug
 - improve deferred shading
+ - fix sky rendering
+ - fix 3d model hud rendering
+ - add deferredLighting_DBS_proj GLSL shader
 - add stained shadow mapping
 - add volumetric lighting
 - add Percentage-Closer-Filtering to shadow mapping
-- add proper water shader with reflection and refraction
-- add lighting_DB_proj shader
-- add lighting_DBS_proj shader
+- add lighting_DB_proj GLSL shader
+- add lighting_DBS_proj GLSL shader
+- fix stencil shadow flickering bug ?
+- fix tcMod turb ?
 - change lighting_*_direct shaders to simulate non-lightgrid lighting ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 

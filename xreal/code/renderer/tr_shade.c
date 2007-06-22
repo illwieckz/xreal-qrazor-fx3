@@ -1480,7 +1480,7 @@ static void Render_genericSingle_FFP(int stage)
 	GL_CheckErrors();
 }
 
-#if 0
+#if 1
 #define Render_genericSingle Render_genericSingle_FFP
 #else
 static void Render_genericSingle(int stage)
@@ -1828,7 +1828,7 @@ static void Render_depthFill_FFP(int stage)
 	GL_CheckErrors();
 }
 
-#if 0
+#if 1
 #define Render_depthFill Render_depthFill_FFP
 #else
 static void Render_depthFill(int stage)

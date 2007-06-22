@@ -2475,6 +2475,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		}
 	}
 
+	// tell shader if this stage has an alpha test
+	if(atestBits & GLS_ATEST_BITS)
+	{
+		shader.alphaTest = qtrue;
+	}
+
 	// compute state bits
 	stage->stateBits = colorMaskBits | depthMaskBits | blendSrcBits | blendDstBits | atestBits | depthFuncBits;
 

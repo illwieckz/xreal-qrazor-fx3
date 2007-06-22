@@ -741,6 +741,7 @@ typedef struct shader_s
 	int             contentFlags;
 
 	qboolean        entityMergable;	// merge across entites optimizable (smoke, blood)
+	qboolean		alphaTest;		// helps merging shadowmap generating surfaces
 
 	qboolean        noShadows;
 	qboolean        fogLight;

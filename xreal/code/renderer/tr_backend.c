@@ -1850,6 +1850,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 	int             iaFirst;
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
+	qboolean		alphaTest, oldAlphaTest;
 	vec3_t          tmp;
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
@@ -1867,8 +1868,8 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 	oldLight = NULL;
 	oldEntity = NULL;
 	oldShader = NULL;
-	oldDepthRange = qfalse;
-	depthRange = qfalse;
+	oldDepthRange = depthRange = qfalse;
+	oldAlphaTest = alphaTest = qfalse;
 	drawShadows = qtrue;
 	cubeSide = 0;
 
@@ -1882,6 +1883,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
+		alphaTest = shader->alphaTest;
 
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -2189,7 +2191,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 				case RL_OMNI:
 				case RL_PROJ:
 				{
-					if(light == oldLight && entity == oldEntity && shader == oldShader)
+					if(light == oldLight && entity == oldEntity && alphaTest == oldAlphaTest)
 					{
 						if(r_logFile->integer)
 						{
@@ -2414,6 +2416,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
+		oldAlphaTest = alphaTest;
 
 	  skipInteraction:
 		if(!ia->next)
@@ -2684,6 +2687,7 @@ void RB_RenderInteractionsDeferred()
 	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 	// set 2D virtual screen size
+	qglMatrixMode(GL_MODELVIEW);
 	qglPushMatrix();
 	qglLoadIdentity();
 	qglMatrixMode(GL_PROJECTION);
@@ -2844,6 +2848,7 @@ void RB_RenderInteractionsDeferred()
 		oldLight = light;
 	}
 
+	qglMatrixMode(GL_PROJECTION);
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
@@ -2869,6 +2874,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 	trRefLight_t   *light, *oldLight;
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
+	qboolean		alphaTest, oldAlphaTest;
 	vec3_t          tmp;
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
@@ -2889,8 +2895,8 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 	oldLight = NULL;
 	oldEntity = NULL;
 	oldShader = NULL;
-	oldDepthRange = qfalse;
-	depthRange = qfalse;
+	oldDepthRange = depthRange = qfalse;
+	oldAlphaTest = alphaTest = qfalse;
 	drawShadows = qtrue;
 	cubeSide = 0;
 
@@ -2904,6 +2910,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
+		alphaTest = shader->alphaTest;
 
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -3148,11 +3155,11 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
-				qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-						   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+				//qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
+				//		   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// set light scissor to reduce fillrate
-				//qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
+				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				// restore camera matrices
 				qglMatrixMode(GL_PROJECTION);
@@ -3190,6 +3197,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 				npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 
 				// set 2D virtual screen size
+				qglMatrixMode(GL_MODELVIEW);
 				qglPushMatrix();
 				qglLoadIdentity();
 				qglMatrixMode(GL_PROJECTION);
@@ -3259,22 +3267,18 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.deferredDiffuseFBOImage);
-						//GL_TextureFilter(tr.deferredDiffuseFBOImage, FT_NEAREST);
 
 						// bind u_NormalMap
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
-						//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
 
 						// bind u_SpecularMap
 						GL_SelectTexture(2);
 						GL_Bind(tr.deferredSpecularFBOImage);
-						//GL_TextureFilter(tr.deferredSpecularFBOImage, FT_NEAREST);
 
 						// bind u_PositionMap
 						GL_SelectTexture(3);
 						GL_Bind(tr.deferredPositionFBOImage);
-						//GL_TextureFilter(tr.deferredPointFBOImage, FT_NEAREST);
 
 						// bind u_AttenuationMapXY
 						GL_SelectTexture(4);
@@ -3320,11 +3324,12 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 					}
 
 					// end of lighting
+					qglMatrixMode(GL_PROJECTION);
 					qglPopMatrix();
 					qglMatrixMode(GL_MODELVIEW);
 					qglPopMatrix();
 
-					//R_BindNullFBO();
+					R_BindNullFBO();
 				}
 			}
 		}						// end if(iaCount == iaFirst)
@@ -3366,7 +3371,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 				case RL_OMNI:
 				case RL_PROJ:
 				{
-					if(light == oldLight && entity == oldEntity && shader == oldShader)
+					if(light == oldLight && entity == oldEntity && alphaTest == oldAlphaTest)
 					{
 						if(r_logFile->integer)
 						{
@@ -3485,6 +3490,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 		}
 
 		// change the attenuation matrix if needed
+		/*
 		if(light != oldLight || entity != oldEntity)
 		{
 			// transform light origin into model space for u_LightOrigin parameter
@@ -3523,6 +3529,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
 			MatrixMultiply2(light->attenuationMatrix, modelToLight);
 		}
+		*/
 
 		if(drawShadows)
 		{
@@ -3542,8 +3549,8 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 		}
 		else
 		{
-			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			// DO NOTHING
+			//rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
 		}
 
 	  nextInteraction:
@@ -3552,6 +3559,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
+		oldAlphaTest = shader->alphaTest;
 
 	  skipInteraction:
 		if(!ia->next)
@@ -3613,10 +3621,6 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 					Render_lightVolume(light);
 				}
 #endif
-
-
-
-
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
@@ -4696,25 +4700,32 @@ static void RB_RenderView(void)
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.shadingLanguage100Available &&
 	   glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
+		// clear frame buffer objects
 		R_BindFBO(tr.deferredRenderFBO);
 		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		R_BindFBO(tr.geometricRenderFBO);
 		qglClear(GL_COLOR_BUFFER_BIT);
 
+		// draw everything that is opaque
 		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime);
 
 		if(r_shadows->integer == 4)
 		{
+			// render dynamic shadowing and lighting using shadow mapping
 			RB_RenderInteractionsDeferredShadowMapped(originalTime);
 		}
 		else
 		{
+			// render dynamic lighting
 			RB_RenderInteractionsDeferred();
 		}
 
+		// draw everything that is translucent
+		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDrawSurfaces(originalTime, qfalse);
 
+		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
 	}
 	else
