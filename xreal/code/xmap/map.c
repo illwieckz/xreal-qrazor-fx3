@@ -1182,9 +1182,12 @@ ParseMapEntity
 */
 qboolean ParseMapEntity(void)
 {
+	int             i;
+	entity_t       *otherEnt;
 	epair_t        *e;
 	const char     *classname;
 	const char     *name;
+	const char     *name2;
 	const char     *model;
 
 	if(!GetToken(qtrue))
@@ -1295,6 +1298,23 @@ qboolean ParseMapEntity(void)
 	classname = ValueForKey(mapEnt, "classname");
 	name = ValueForKey(mapEnt, "name");
 	model = ValueForKey(mapEnt, "model");
+
+
+	// Tr3B: check for bad duplicated names
+	for(i = 0; i < numEntities;  i++)
+	{
+		otherEnt = &entities[i];
+
+		if(mapEnt == otherEnt)
+			continue;
+
+		name2 = ValueForKey(otherEnt, "name");
+
+		if(!Q_stricmp(name, name2))
+		{
+			Sys_FPrintf(SYS_WRN, "WARNING: entity name '%s' is duplicated by entity %i\n", name, i);
+		}
+	}
 	
 	#if 1
 	// HACK: convert Doom3's func_static entities with custom models into misc_models
