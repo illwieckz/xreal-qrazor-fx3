@@ -1397,12 +1397,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 1000 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 228 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 -372 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 316 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( -1 0 0 -320 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 1000 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 228 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 -372 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 316 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( -1 0 0 -320 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 116
@@ -9320,12 +9320,12 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 1080 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 1080 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 ( 1 0 0 -1104 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/hell/bricks1a" 0 0 0
-( 0 -1 0 -564 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -704 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( 0 -1 0 -564 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -704 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 765
@@ -11363,12 +11363,12 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 -440 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 312 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 720 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -848 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 844 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -852 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 -440 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 312 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 720 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -848 ) ( ( 0.125 0 0 ) ( 0 0.125 3.5 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 844 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -852 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 938
@@ -13214,12 +13214,12 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 1464 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -1472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 1464 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -1472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1094
@@ -13596,36 +13596,36 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 568 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -1104 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 692 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -720 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 688 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 568 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -1104 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 692 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -720 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 688 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1126
 {
 brushDef3
 {
-( -1 0 0 504 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -568 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 656 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( -0.6000000238 -0.8000000119 0 899.2062988281 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0.6000000238 0.8000000119 0 -921.6016235352 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 504 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -568 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 656 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( -0.6000000238 -0.8000000119 0 899.2062988281 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0.6000000238 0.8000000119 0 -921.6016235352 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1127
 {
 brushDef3
 {
-( -1 0 0 -268 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -504 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 744 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -768 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 696 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 -268 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -504 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 744 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -768 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 696 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1128
@@ -14008,12 +14008,12 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 -268 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 256 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 -48 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -752 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 704 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 -268 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 256 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 -48 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -752 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 704 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1159
@@ -14452,12 +14452,12 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 -800 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 408 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -512 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 760 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -764 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 -800 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 408 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -512 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 760 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -764 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1196
@@ -14644,12 +14644,12 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 32 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -288 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 832 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -1008 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 792 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -796 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 32 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -288 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 832 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -1008 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 792 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -796 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1212
@@ -14990,48 +14990,48 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 600 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -1472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 600 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -1472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1241
 {
 brushDef3
 {
-( -1 0 0 928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -936 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -1472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -936 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -1472 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1242
 {
 brushDef3
 {
-( -1 0 0 608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -1464 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -480 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -1464 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 432 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -480 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1243
 {
 brushDef3
 {
-( -1 0 0 608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -1464 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 616 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -624 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 608 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -928 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 1400 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -1464 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 616 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -624 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1244
@@ -18000,7 +18000,7 @@ brushDef3
 ( 1 0 0 -1568 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/hell/rock1" 0 0 0
 ( 0 -1 0 176 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/hell/rock1" 0 0 0
 ( 0 1 0 -528 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/hell/rock1" 0 0 0
-( 0 0 -1 640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( 0 0 -1 640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 ( 0 0 1 -672 ) ( ( 0.00390625 0 0 ) ( 0 0.00390625 0 ) ) "textures/hell/rock1" 0 0 0
 }
 }
@@ -21086,48 +21086,48 @@ brushDef3
 {
 brushDef3
 {
-( -1 0 0 -124 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -1104 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 -576 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 564 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 -124 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -1104 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 -576 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 564 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 640 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1748
 {
 brushDef3
 {
-( 1 0 0 116 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 368 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 780 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0.7071087956 0.7071048021 0 478.0041809082 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( -0.7071070075 -0.7071070075 0 -489.3171691895 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( 1 0 0 116 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 368 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 780 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0.7071087956 0.7071048021 0 478.0041809082 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( -0.7071070075 -0.7071070075 0 -489.3171691895 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1749
 {
 brushDef3
 {
-( 0 -1 0 -228 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 48 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 704 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0.9607155919 -0.2775348723 0 240.3046569824 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( -0.9607139826 0.2775399983 0 -244.1504669189 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( 0 -1 0 -228 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 48 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 704 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0.9607155919 -0.2775348723 0 240.3046569824 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( -0.9607139826 0.2775399983 0 -244.1504669189 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1750
 {
 brushDef3
 {
-( -1 0 0 -320 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 1 0 0 -1104 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 -1 0 -576 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 1 0 -768 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 -1 1124 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
-( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/skies/hellsky4" 0 0 0
+( -1 0 0 -320 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 1 0 0 -1104 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 -1 0 -576 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 1 0 -768 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 1124 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 1 -1128 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
 }
 }
 // brush 1751
