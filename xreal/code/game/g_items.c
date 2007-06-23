@@ -764,13 +764,21 @@ void FinishSpawningItem(gentity_t * ent)
 		trap_Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID);
 		if(tr.startsolid)
 		{
-			if(ent->name)
-				G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->name, vtos(ent->s.origin));
-			else
-				G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+			// Tr3B: try again raising up a bit
+			ent->s.origin[2] += 32;
+
+			VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
+			trap_Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID);
+			if(tr.startsolid)
+			{
+				if(ent->name)
+					G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->name, vtos(ent->s.origin));
+				else
+					G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
 				
-			G_FreeEntity(ent);
-			return;
+				G_FreeEntity(ent);
+				return;
+			}
 		}
 
 		// allow to ride movers
