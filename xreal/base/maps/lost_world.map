@@ -24083,36 +24083,16 @@ brushDef3
 "_color" "1 0.56 0"
 "light_radius" "80 80 80"
 }
-// entity 8
-{
-"classname" "func_static"
-"name" "func_static_9541"
-"origin" "241 352 755"
-"model" "models/mapobjects/hell/evilmeat/evilmeat2.lwo"
-"rotation" "0.469471 -0.882948 0 0.882948 0.469471 0 0 0 1"
-"bind" "func_bobbing_16"
-}
 // entity 9
 {
 "classname" "func_bobbing"
 "name" "func_bobbing_16"
-"model" "func_bobbing_16"
+"model" "models/mapobjects/hell/evilmeat/evilmeat2.lwo"
+"rotation" "0.469471 -0.882948 0 0.882948 0.469471 0 0 0 1"
 "origin" "241 352 835"
-"height" "4"
-"speed" "5"
+"height" "32"
+"speed" "6"
 "phase" "0.3"
-// brush 0
-{
-brushDef3
-{
-( -1 0 0 -16 ) ( ( 0.0625 0 -186 ) ( 0 0.0625 173.1875 ) ) "textures/common/nodraw" 0 0 0
-( 0 1 0 -16 ) ( ( 0.0625 0 -240.9375 ) ( 0 0.0625 173.1875 ) ) "textures/common/nodraw" 0 0 0
-( 1 0 0 -16 ) ( ( 0.0625 0 186 ) ( 0 0.0625 173.1875 ) ) "textures/common/nodraw" 0 0 0
-( 0 -1 0 -16 ) ( ( 0.0625 0 240.9375 ) ( 0 0.0625 173.1875 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 1 -16 ) ( ( 0.0625 0 186 ) ( 0 0.0625 240.9375 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 -1 -16 ) ( ( 0.0625 0 186 ) ( 0 0.0625 -240.9375 ) ) "textures/common/nodraw" 0 0 0
-}
-}
 }
 // entity 10
 {
@@ -24173,15 +24153,6 @@ brushDef3
 "origin" "935 -129 184"
 "model" "models/mapobjects/hellhole/hellhole_tabletwall0.lwo"
 "rotation" "-1 2.68718e-007 0 -2.68718e-007 -1 0 0 0 1"
-}
-// entity 17
-{
-"classname" "func_static"
-"name" "func_static_9569"
-"origin" "376 80 520"
-"model" "models/mapobjects/steve_temp/hell1plat1.ase"
-"rotation" "0.766044 -0.642788 0 0.642788 0.766044 0 0 0 1"
-"bind" "func_bobbing_17"
 }
 // entity 18
 {
@@ -26573,23 +26544,12 @@ brushDef3
 {
 "classname" "func_bobbing"
 "name" "func_bobbing_17"
-"model" "func_bobbing_17"
+"model" "models/mapobjects/steve_temp/hell1plat1.ase"
+"rotation" "0.766044 -0.642788 0 0.642788 0.766044 0 0 0 1"
 "origin" "377 88 555"
-"height" "2"
-"speed" "3"
+"height" "16"
+"speed" "6"
 "phase" "0.5"
-// brush 0
-{
-brushDef3
-{
-( -1 0 0 -16 ) ( ( 0.0625 0 -202.5 ) ( 0 0.0625 155.6875 ) ) "textures/common/nodraw" 0 0 0
-( 0 1 0 -16 ) ( ( 0.0625 0 -232.4375 ) ( 0 0.0625 155.6875 ) ) "textures/common/nodraw" 0 0 0
-( 1 0 0 -16 ) ( ( 0.0625 0 202.5 ) ( 0 0.0625 155.6875 ) ) "textures/common/nodraw" 0 0 0
-( 0 -1 0 -16 ) ( ( 0.0625 0 232.4375 ) ( 0 0.0625 155.6875 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 1 -16 ) ( ( 0.0625 0 202.5 ) ( 0 0.0625 232.4375 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 -1 -16 ) ( ( 0.0625 0 202.5 ) ( 0 0.0625 -232.4375 ) ) "textures/common/nodraw" 0 0 0
-}
-}
 }
 // entity 262
 {
@@ -26751,15 +26711,6 @@ brushDef3
 "model" "models/mapobjects/hell/khell/cbrick_single.lwo"
 "rotation" "0.512584 0.642788 -0.569282 -0.430109 0.766044 0.477684 0.743145 6.58973e-009 0.669131"
 }
-// entity 279
-{
-"classname" "func_static"
-"name" "func_static_9584"
-"origin" "240 452 1016"
-"model" "models/mapobjects/hell/khell/cbrick_single.lwo"
-"rotation" "0.758589 0.488618 0.431039 -0.636532 0.697049 0.330076 -0.139174 -0.524762 0.839795"
-"bind" "func_bobbing_19"
-}
 // entity 280
 {
 "classname" "func_static"
@@ -26776,15 +26727,6 @@ brushDef3
 "model" "models/mapobjects/hell/khell/cbrick_single.lwo"
 "rotation" "-0.388544 0.317989 -0.864821 -0.387815 0.79495 0.466534 0.835843 0.51666 -0.185553"
 }
-// entity 282
-{
-"classname" "func_static"
-"name" "func_static_9587"
-"origin" "24 108 912"
-"model" "models/mapobjects/hell/khell/cbrick_single.lwo"
-"rotation" "-0.600515 -0.792599 -0.105676 0.725993 -0.485053 -0.487502 0.335135 -0.369472 0.866703"
-"bind" "func_bobbing_18"
-}
 // entity 283
 {
 "classname" "func_static"
@@ -26797,23 +26739,12 @@ brushDef3
 {
 "classname" "func_bobbing"
 "name" "func_bobbing_18"
-"model" "func_bobbing_18"
+"model" "models/mapobjects/hell/khell/cbrick_single.lwo"
+"rotation" "-0.600515 -0.792599 -0.105676 0.725993 -0.485053 -0.487502 0.335135 -0.369472 0.866703"
 "origin" "31 96 953"
-"height" "5"
-"speed" "3"
+"height" "32"
+"speed" "4"
 "phase" "0.4"
-// brush 0
-{
-brushDef3
-{
-( -1 0 0 -16 ) ( ( 0.0625 0 -202 ) ( 0 0.0625 180.5625 ) ) "textures/common/nodraw" 0 0 0
-( 0 1 0 -16 ) ( ( 0.0625 0 -254.0625 ) ( 0 0.0625 180.5625 ) ) "textures/common/nodraw" 0 0 0
-( 1 0 0 -16 ) ( ( 0.0625 0 202 ) ( 0 0.0625 180.5625 ) ) "textures/common/nodraw" 0 0 0
-( 0 -1 0 -16 ) ( ( 0.0625 0 254.0625 ) ( 0 0.0625 180.5625 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 1 -16 ) ( ( 0.0625 0 202 ) ( 0 0.0625 254.0625 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 -1 -16 ) ( ( 0.0625 0 202 ) ( 0 0.0625 -254.0625 ) ) "textures/common/nodraw" 0 0 0
-}
-}
 }
 // entity 285
 {
@@ -26843,23 +26774,12 @@ brushDef3
 {
 "classname" "func_bobbing"
 "name" "func_bobbing_19"
-"model" "func_bobbing_19"
+"model" "models/mapobjects/hell/khell/cbrick_single.lwo"
+"rotation" "0.758589 0.488618 0.431039 -0.636532 0.697049 0.330076 -0.139174 -0.524762 0.839795"
 "origin" "239 440 1057"
-"height" "4"
-"speed" "2"
+"height" "32"
+"speed" "5"
 "phase" "0.5"
-// brush 0
-{
-brushDef3
-{
-( -1 0 0 -16 ) ( ( 0.0625 0 -180.5 ) ( 0 0.0625 187.0625 ) ) "textures/common/nodraw" 0 0 0
-( 0 1 0 -16 ) ( ( 0.0625 0 -241.0625 ) ( 0 0.0625 187.0625 ) ) "textures/common/nodraw" 0 0 0
-( 1 0 0 -16 ) ( ( 0.0625 0 180.5 ) ( 0 0.0625 187.0625 ) ) "textures/common/nodraw" 0 0 0
-( 0 -1 0 -16 ) ( ( 0.0625 0 241.0625 ) ( 0 0.0625 187.0625 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 1 -16 ) ( ( 0.0625 0 180.5 ) ( 0 0.0625 241.0625 ) ) "textures/common/nodraw" 0 0 0
-( 0 0 -1 -16 ) ( ( 0.0625 0 180.5 ) ( 0 0.0625 -241.0625 ) ) "textures/common/nodraw" 0 0 0
-}
-}
 }
 // entity 288
 {
