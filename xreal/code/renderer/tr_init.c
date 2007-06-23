@@ -1644,7 +1644,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	
 	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
 //#if !defined(SMP)
-//	if(destroyWindow)
+	if(destroyWindow)
 //#endif
 	{
 		GLimp_Shutdown();
