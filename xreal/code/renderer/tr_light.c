@@ -97,7 +97,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		 */
 		
 		// skip all surfaces that don't matter for lighting only pass
-		if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+		if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
 			continue;
 
 		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
@@ -701,15 +701,9 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	int             iaIndex;
 	interaction_t  *ia;
 	
-	if(!r_deferredShading->integer)
-	{
-		// skip all surfaces that don't matter for lighting only pass
-		if(surfaceShader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
-			return qfalse;
-		
-		if(!surfaceShader->interactLight && iaType == IA_LIGHTONLY)
-			return qfalse;
-	}
+	// skip all surfaces that don't matter for lighting only pass
+	if(surfaceShader->isSky || (!surfaceShader->interactLight && surfaceShader->noShadows))
+		return qfalse;
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around

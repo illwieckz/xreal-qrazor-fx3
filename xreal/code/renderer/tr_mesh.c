@@ -437,7 +437,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		}
 		
 		// skip all surfaces that don't matter for lighting only pass
-		if(shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+		if(shader->isSky || (!shader->interactLight && shader->noShadows))
 			continue;
 		
 		// we will add shadows even if the main object isn't visible in the view

@@ -284,7 +284,6 @@ code/game
 code/renderer
 - improve deferred shading
  - fix 3d model hud rendering
- - add deferredLighting_DBS_proj GLSL shader
  - fix vertex painting support = depth peeling ?
 - add stained shadow mapping
 - add volumetric lighting

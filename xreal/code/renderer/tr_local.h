@@ -856,6 +856,7 @@ typedef struct shaderProgram_s
 	GLint           u_LightScale;
 	GLint			u_LightAttenuationMatrix;
 	
+	GLint			u_ShadowMatrix;
 	GLint			u_ShadowCompare;
 
 	GLint           u_SpecularExponent;
@@ -1767,6 +1768,7 @@ typedef struct
 	
 	// deferred lighting
 	shaderProgram_t deferredLightingShader_DBS_omni;
+	shaderProgram_t deferredLightingShader_DBS_proj;
 
 	// black depth fill rendering with textures
 	shaderProgram_t depthFillShader;

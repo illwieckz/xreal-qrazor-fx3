@@ -4515,7 +4515,10 @@ static shader_t *FinishShader(void)
 			
 			case ST_DIFFUSEMAP:
 			{
-				shader.interactLight = qtrue;
+				if(!shader.isSky)
+				{
+					shader.interactLight = qtrue;
+				}
 				
 				if(!pStage->bundle[0].image[0])
 				{

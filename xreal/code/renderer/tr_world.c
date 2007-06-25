@@ -288,7 +288,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefLight_t * light)
 	surf->lightCount = tr.lightCount;
 	
 	//  skip all surfaces that don't matter for lighting only pass
-	if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+	if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
 		return;
 
 	if(*surf->data == SF_FACE)

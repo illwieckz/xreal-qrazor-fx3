@@ -2769,7 +2769,6 @@ void R_LoadEntities(lump_t * l)
 				light->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
-#if 0
 			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
@@ -2779,7 +2778,6 @@ void R_LoadEntities(lump_t * l)
 				
 				MatrixToVectorsFLU(rotation, light->l.axis[0], light->l.axis[1], light->l.axis[2]);
 			}
-#endif
 			// check if this light does not cast any shadows
 			else if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
 			{
@@ -3826,7 +3824,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefLight_t * light
 	surf->lightCount = s_lightCount;
 
 	// skip all surfaces that don't matter for lighting only pass
-	if(surf->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY))
+	if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
 		return;
 
 	s_numLightIndexes = 0;

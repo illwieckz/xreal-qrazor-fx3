@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,37 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-attribute vec4		attr_TexCoord0;
-
-uniform mat4		u_ModelMatrix;
-
-varying vec3		var_Vertex;
-varying vec3		var_Normal;
-varying vec2		var_TexDiffuse;
-varying vec4		var_TexAtten;
-varying vec4		var_TexShadow;
-varying vec4		var_Color;
-
 void	main()
 {
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
-	
-	// transform position into world space
-	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
-	
-	// transform normal into world space
-	var_Normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-	
-	// transform diffusemap texcoords
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
-	
-	// calc light attenuation in light space
-	var_TexAtten = gl_TextureMatrix[1] * gl_Vertex;
-	
-	// calc shadow attenuation in light space
-	var_TexShadow = gl_TextureMatrix[2] * gl_Vertex;
-	
-	// assign color
-	var_Color = gl_Color;
 }
