@@ -387,7 +387,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		return;
 	}
 	
-	cubeSideBits = R_CalcLightCubeSideBits(light, NULL, ent->worldBounds);
+	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	// generate interactions with all surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)

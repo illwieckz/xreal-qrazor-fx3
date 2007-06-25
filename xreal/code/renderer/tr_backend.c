@@ -2220,7 +2220,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, 0, qtrue, qfalse);
+						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, cubeSide, qtrue, qfalse);
 					}
 					break;
 				}
@@ -2875,8 +2875,6 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
 	qboolean		alphaTest, oldAlphaTest;
-	vec3_t          tmp;
-	matrix_t        modelToLight;
 	qboolean        drawShadows;
 	int             cubeSide;
 
@@ -3488,48 +3486,6 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 				oldDepthRange = depthRange;
 			}
 		}
-
-		// change the attenuation matrix if needed
-		/*
-		if(light != oldLight || entity != oldEntity)
-		{
-			// transform light origin into model space for u_LightOrigin parameter
-			if(entity != &tr.worldEntity)
-			{
-				VectorSubtract(light->origin, backEnd.or.origin, tmp);
-				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
-				light->transformed[1] = DotProduct(tmp, backEnd.or.axis[1]);
-				light->transformed[2] = DotProduct(tmp, backEnd.or.axis[2]);
-			}
-			else
-			{
-				VectorCopy(light->origin, light->transformed);
-			}
-
-			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
-
-			// build the attenuation matrix using the entity transform
-			switch (light->l.rlType)
-			{
-				case RL_PROJ:
-				{
-					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);	// scale
-					break;
-				}
-
-				case RL_OMNI:
-				default:
-				{
-					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
-					break;
-				}
-			}
-			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
-			MatrixMultiply2(light->attenuationMatrix, modelToLight);
-		}
-		*/
 
 		if(drawShadows)
 		{
@@ -4353,19 +4309,24 @@ static void RB_RenderDebugUtils()
 
 	if(r_showLightInteractions->integer)
 	{
+		int             i;
+		int             cubeSides;
 		interaction_t  *ia;
 		int             iaCount;
+		trRefLight_t   *light;
 		trRefEntity_t  *entity;
 		surfaceType_t  *surface;
+		vec4_t          lightColor;
 
 		GL_Program(0);
-		GL_State(0);
+		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentEntity = entity = ia->entity;
+			light = ia->light;
 			surface = ia->surface;
 
 			if(entity != &tr.worldEntity)
@@ -4380,30 +4341,87 @@ static void RB_RenderDebugUtils()
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
+			if(r_shadows->integer == 4 && light->l.rlType == RL_OMNI)
+			{
+#if 0
+				VectorCopy4(colorMdGrey, lightColor);
+
+				if(ia->cubeSideBits & CUBESIDE_PX)
+				{
+					VectorCopy4(colorBlack, lightColor);
+				}
+				if(ia->cubeSideBits & CUBESIDE_PY)
+				{
+					VectorCopy4(colorRed, lightColor);
+				}
+				if(ia->cubeSideBits & CUBESIDE_PZ)
+				{
+					VectorCopy4(colorGreen, lightColor);
+				}
+				if(ia->cubeSideBits & CUBESIDE_NX)
+				{
+					VectorCopy4(colorYellow, lightColor);
+				}
+				if(ia->cubeSideBits & CUBESIDE_NY)
+				{
+					VectorCopy4(colorBlue, lightColor);
+				}
+				if(ia->cubeSideBits & CUBESIDE_NZ)
+				{
+					VectorCopy4(colorCyan, lightColor);
+				}
+				if(ia->cubeSideBits == CUBESIDE_CLIPALL)
+				{
+					VectorCopy4(colorMagenta, lightColor);
+				}
+#else
+				// count how many cube sides are in use for this interaction
+				cubeSides = 0;
+				for(i = 0; i < 6; i++)
+				{
+					if(ia->cubeSideBits & (1 << i))
+					{
+						cubeSides++;
+					}
+				}
+
+				VectorCopy4(g_color_table[cubeSides], lightColor);
+#endif
+			}
+			else
+			{
+				VectorCopy4(colorMdGrey, lightColor);
+			}
+
+			lightColor[0] *= 0.5f;
+			lightColor[1] *= 0.5f;
+			lightColor[2] *= 0.5f;
+			//lightColor[3] *= 0.2f;
+
 			if(*surface == SF_FACE)
 			{
 				srfSurfaceFace_t *face;
 
 				face = (srfSurfaceFace_t *) surface;
-				R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], colorYellow);
+				R_DebugBoundingBox(vec3_origin, face->bounds[0], face->bounds[1], lightColor);
 			}
 			else if(*surface == SF_GRID)
 			{
 				srfGridMesh_t  *grid;
 
 				grid = (srfGridMesh_t *) surface;
-				R_DebugBoundingBox(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], colorMagenta);
+				R_DebugBoundingBox(vec3_origin, grid->meshBounds[0], grid->meshBounds[1], lightColor);
 			}
 			else if(*surface == SF_TRIANGLES)
 			{
 				srfTriangles_t *tri;
 
 				tri = (srfTriangles_t *) surface;
-				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], colorCyan);
+				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], lightColor);
 			}
 			else if(*surface == SF_MDX)
 			{
-				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], colorMdGrey);
+				R_DebugBoundingBox(vec3_origin, entity->localBounds[0], entity->localBounds[1], lightColor);
 			}
 
 			if(!ia->next)

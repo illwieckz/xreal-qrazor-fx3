@@ -180,7 +180,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 }
 
 // *INDENT-OFF*
-static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light)
+static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light, byte * cubeSideBits)
 {
 #if 0
 	if(	light->l.origin[0] - light->l.radius[0] > face->bounds[1][0] ||
@@ -205,11 +205,15 @@ static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light)
 	}
 #endif
 	
+	if(r_cullShadowPyramidFaces->integer)
+	{
+		*cubeSideBits = R_CalcLightCubeSideBits(light, face->bounds);
+	}
 	return qtrue;
 }
 // *INDENT-ON*
 
-static int R_LightGrid(srfGridMesh_t * grid, trRefLight_t * light)
+static int R_LightGrid(srfGridMesh_t * grid, trRefLight_t * light, byte * cubeSideBits)
 {
 	if(	light->worldBounds[1][0] < grid->meshBounds[0][0] ||
 		light->worldBounds[1][1] < grid->meshBounds[0][1] ||
@@ -222,11 +226,15 @@ static int R_LightGrid(srfGridMesh_t * grid, trRefLight_t * light)
 		return qfalse;
 	}
 
+	if(r_cullShadowPyramidCurves->integer)
+	{
+		*cubeSideBits = R_CalcLightCubeSideBits(light, grid->meshBounds);
+	}
 	return qtrue;
 }
 
 
-static int R_LightTrisurf(srfTriangles_t * tri, trRefLight_t * light)
+static int R_LightTrisurf(srfTriangles_t * tri, trRefLight_t * light, byte * cubeSideBits)
 {
 	if(	light->worldBounds[1][0] < tri->bounds[0][0] ||
 		   light->worldBounds[1][1] < tri->bounds[0][1] ||
@@ -239,6 +247,10 @@ static int R_LightTrisurf(srfTriangles_t * tri, trRefLight_t * light)
 		return qfalse;
 	}
 
+	if(r_cullShadowPyramidTriangles->integer)
+	{
+		*cubeSideBits = R_CalcLightCubeSideBits(light, tri->bounds);
+	}
 	return qtrue;
 }
 
@@ -252,6 +264,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefLight_t * light)
 {
 	qboolean        intersects;
 	interactionType_t iaType = IA_DEFAULT;
+	byte            cubeSideBits = CUBESIDE_CLIPALL;
 	
 	// Tr3B - this surface is maybe not in this view but it may still cast a shadow
 	// into this view
@@ -280,15 +293,15 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefLight_t * light)
 
 	if(*surf->data == SF_FACE)
 	{
-		intersects = R_LightFace((srfSurfaceFace_t *) surf->data, light);
+		intersects = R_LightFace((srfSurfaceFace_t *) surf->data, light, &cubeSideBits);
 	}
 	else if(*surf->data == SF_GRID)
 	{
-		intersects = R_LightGrid((srfGridMesh_t *) surf->data, light);
+		intersects = R_LightGrid((srfGridMesh_t *) surf->data, light, &cubeSideBits);
 	}
 	else if(*surf->data == SF_TRIANGLES)
 	{
-		intersects = R_LightTrisurf((srfTriangles_t *) surf->data, light);
+		intersects = R_LightTrisurf((srfTriangles_t *) surf->data, light, &cubeSideBits);
 	}
 	else
 	{
@@ -297,7 +310,7 @@ static void R_AddInteractionSurface(msurface_t * surf, trRefLight_t * light)
 	
 	if(intersects)
 	{
-		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, iaType);
+		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
 		
 		if(light->isStatic)
 			tr.pc.c_slightSurfaces++;

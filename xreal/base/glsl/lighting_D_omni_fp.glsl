@@ -53,13 +53,26 @@ void	main()
 	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
 	
 	// compute final color
-	vec4 color = diffuse;
+	vec4 color;
+#if defined(DEBUG_VSM)
+	color = vec4(0.5, 0.5, 0.5, 1.0);
+	color.rgb *= attenuationXY;
+	color.rgb *= attenuationZ;
+#else
+	color = diffuse;
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
 	color.rgb *= u_LightScale;
 	color.rgb *= var_Color.rgb;
+#endif
 	
 #if defined(VSM)
+#if defined(DEBUG_VSM)
+	// compute incident ray
+	vec3 I = var_Vertex - u_LightOrigin;
+	vec4 shadowColor = textureCube(u_ShadowMap, I);
+	color.rgb *= shadowColor.rgb;
+#else
 	if(bool(u_ShadowCompare))
 	{
 		// compute incident ray
@@ -84,6 +97,7 @@ void	main()
 	
 		color.rgb *= max(shadow, pMax);
 	}
+#endif
 #endif
 
 	gl_FragColor = color;

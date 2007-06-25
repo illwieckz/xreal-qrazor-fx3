@@ -1590,6 +1590,7 @@ typedef struct
 	int             c_box_cull_light_in, c_box_cull_light_clip, c_box_cull_light_out;
 	int             c_pvs_cull_light_out;
 	
+	int				c_pyramidTests;
 	int             c_pyramid_cull_ent_in, c_pyramid_cull_ent_clip, c_pyramid_cull_ent_out;
 
 	int             c_leafs;
@@ -2009,6 +2010,11 @@ extern cvar_t  *r_shadowOffsetFactor;
 extern cvar_t  *r_shadowOffsetUnits;
 extern cvar_t  *r_shadowLodBias;
 extern cvar_t  *r_shadowLodScale;
+extern cvar_t  *r_noShadowPyramids;
+extern cvar_t  *r_cullShadowPyramidFaces;
+extern cvar_t  *r_cullShadowPyramidCurves;
+extern cvar_t  *r_cullShadowPyramidTriangles;
+extern cvar_t  *r_debugShadowMaps;
 
 extern cvar_t  *r_intensity;
 
@@ -2485,7 +2491,7 @@ void            R_SetupLightLOD(trRefLight_t * light);
 
 void            R_SetupLightShader(trRefLight_t * light);
 
-byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2]);
+byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2]);
 
 void            R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light);
 

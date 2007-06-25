@@ -27,6 +27,7 @@ uniform float       u_LightRadius;
 
 varying vec3		var_Vertex;
 varying vec2		var_Tex;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -39,6 +40,17 @@ void	main()
 	
 	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;
-		
-	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0);
+
+#if defined(DEBUG_VSM)
+#if 1
+	gl_FragColor = var_Color;
+#else
+	gl_FragColor.r = fract(distance * 1.0);
+	gl_FragColor.g = fract(distance * 256.0);
+	gl_FragColor.b = fract(distance * 65536.0);
+	gl_FragColor.a = fract(distance * 16777216.0);
+#endif
+#else
+	gl_FragColor = vec4(distance, distanceSquared, 1.0, 1.0);
+#endif
 }

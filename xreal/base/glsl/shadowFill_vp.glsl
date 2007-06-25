@@ -26,6 +26,7 @@ uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
 varying vec2		var_Tex;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -37,4 +38,7 @@ void	main()
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	
+	// assign color
+	var_Color = gl_Color;
 }

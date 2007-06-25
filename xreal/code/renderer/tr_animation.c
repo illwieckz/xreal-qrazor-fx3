@@ -644,7 +644,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 	md5Surface_t   *surface;
 	shader_t       *shader = 0;
 	qboolean        personalModel;
-	byte            cubeSideBits;
+	byte            cubeSideBits = CUBESIDE_CLIPALL;
 	interactionType_t iaType = IA_DEFAULT;
 	
 	// cull the entire model if merged bounding box of both frames
@@ -680,7 +680,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 		return;
 	}
 	
-	cubeSideBits = R_CalcLightCubeSideBits(light, NULL, ent->worldBounds);
+	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	// generate interactions with all surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)

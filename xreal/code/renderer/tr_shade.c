@@ -111,6 +111,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer == 4)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
+			
+			if(r_debugShadowMaps->integer)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef DEBUG_VSM\n#define DEBUG_VSM 1\n#endif\n");
+			}
 		}
 
 		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -1908,6 +1913,16 @@ static void Render_shadowFill(int stage)
 	GL_Program(tr.shadowFillShader.program);
 	GL_ClientState(tr.shadowFillShader.attribs);
 	GL_SetVertexAttribs();
+
+	if(r_debugShadowMaps->integer)
+	{
+		vec4_t			shadowMapColor;
+
+		//VectorCopy4(g_color_table[tess.fogNum], shadowMapColor);
+		VectorCopy4(g_color_table[backEnd.pc.c_batches % 8], shadowMapColor);
+		
+		qglColor4fv(shadowMapColor);
+	}
 
 	// set uniforms
 	if(pStage->stateBits & GLS_ATEST_BITS)
@@ -4271,7 +4286,7 @@ void Tess_StageIteratorShadowFill()
 	Tess_DeformGeometry();
 
 	// set face culling appropriately   
-	GL_Cull(CT_TWO_SIDED);
+	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
 	qglEnable(GL_POLYGON_OFFSET_FILL);

@@ -483,9 +483,10 @@ int R_CullLocalBox(vec3_t localBounds[2])
 		
 		if(r == 2)
 		{
-			return CULL_OUT; // completely outside frustum
+			// completely outside frustum
+			return CULL_OUT;
 		}
-		if(r == 1)
+		if(r == 3)
 		{
 			anyClip = qtrue;
 		}
@@ -493,10 +494,12 @@ int R_CullLocalBox(vec3_t localBounds[2])
 
 	if(!anyClip)
 	{
-		return CULL_CLIP; // partially clipped
+		// completely inside frustum
+		return CULL_IN;	
 	}
 
-	return CULL_IN;	// completely inside frustum
+	// partially clipped
+	return CULL_CLIP;
 #endif
 }
 
@@ -1914,6 +1917,10 @@ void R_AddEntitySurfaces(void)
 							{
 								break;
 							}
+							VectorClear(ent->localBounds[0]);
+							VectorClear(ent->localBounds[1]);
+							VectorClear(ent->worldBounds[0]);
+							VectorClear(ent->worldBounds[1]);
 							shader = R_GetShaderByHandle(ent->e.customShader);
 							R_AddDrawSurf(&entitySurface, tr.defaultShader, 0);
 							break;

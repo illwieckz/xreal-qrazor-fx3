@@ -2458,7 +2458,8 @@ void R_LoadEntities(lump_t * l)
 
 	// store for reference by the cgame
 	w->entityString = ri.Hunk_Alloc(l->filelen + 1, h_low);
-	strcpy(w->entityString, (char *)(fileBase + l->fileofs));
+	//strcpy(w->entityString, (char *)(fileBase + l->fileofs));
+	Q_strncpyz(w->entityString, (char *)(fileBase + l->fileofs), l->filelen + 1);
 	w->entityParsePoint = w->entityString;
 
 #if 1
@@ -2595,6 +2596,7 @@ void R_LoadEntities(lump_t * l)
 
 			if(!*token)
 			{
+				ri.Printf(PRINT_WARNING, "WARNING: missing value for key '%s'\n", keyname);
 				continue;
 			}
 
@@ -2604,7 +2606,6 @@ void R_LoadEntities(lump_t * l)
 			if(!Q_stricmp(keyname, "classname") && !Q_stricmp(value, "light"))
 			{
 				isLight = qtrue;
-				continue;
 			}
 		}
 
@@ -2648,6 +2649,8 @@ void R_LoadEntities(lump_t * l)
 
 		light->isStatic = qtrue;
 		light->additive = qtrue;
+
+		light->shadowLOD = 0;
 	}
 #endif
 
@@ -2655,10 +2658,11 @@ void R_LoadEntities(lump_t * l)
 	// parse lights
 	p = pOld;
 	numEntities = 1;
-	light = s_worldData.lights;
+	light = &s_worldData.lights[0];
 
 	while(1)
 	{
+		// parse {
 		token = Com_ParseExt(&p, qtrue);
 
 		if(!*token)
@@ -2700,6 +2704,7 @@ void R_LoadEntities(lump_t * l)
 
 			if(!*token)
 			{
+				ri.Printf(PRINT_WARNING, "WARNING: missing value for key '%s'\n", keyname);
 				continue;
 			}
 
@@ -2764,6 +2769,7 @@ void R_LoadEntities(lump_t * l)
 				light->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
+#if 0
 			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
@@ -2773,6 +2779,7 @@ void R_LoadEntities(lump_t * l)
 				
 				MatrixToVectorsFLU(rotation, light->l.axis[0], light->l.axis[1], light->l.axis[2]);
 			}
+#endif
 			// check if this light does not cast any shadows
 			else if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
 			{
@@ -2790,8 +2797,6 @@ void R_LoadEntities(lump_t * l)
 		{
 			if((numOmniLights + numProjLights) < s_worldData.numLights);
 			{
-				light++;
-
 				switch (light->l.rlType)
 				{
 					case RL_OMNI:
@@ -2805,6 +2810,8 @@ void R_LoadEntities(lump_t * l)
 					default:
 						break;
 				}
+
+				light++;
 			}
 		}
 
@@ -2812,12 +2819,10 @@ void R_LoadEntities(lump_t * l)
 	}
 #endif
 
-	/*
 	if((numOmniLights + numProjLights) != s_worldData.numLights)
 	{
 		ri.Error(ERR_DROP, "counted %i lights and parsed %i lights", s_worldData.numLights, (numOmniLights + numProjLights));
 	}
-	*/
 
 	ri.Printf(PRINT_ALL, "%i total entities parsed\n", numEntities);
 	ri.Printf(PRINT_ALL, "%i total lights parsed\n", numOmniLights + numProjLights);
@@ -4081,7 +4086,7 @@ void R_PrecacheInteractions()
 				{
 					srfGridMesh_t  *grid;
 
-					grid = (srfGridMesh_t *) surface;
+					grid = (srfGridMesh_t *) surface->data;
 
 					VectorCopy(grid->meshBounds[0], localBounds[0]);
 					VectorCopy(grid->meshBounds[1], localBounds[1]);
@@ -4090,7 +4095,7 @@ void R_PrecacheInteractions()
 				{
 					srfTriangles_t *tri;
 
-					tri = (srfTriangles_t *) surface;
+					tri = (srfTriangles_t *) surface->data;
 
 					VectorCopy(tri->bounds[0], localBounds[0]);
 					VectorCopy(tri->bounds[1], localBounds[1]);
@@ -4101,7 +4106,8 @@ void R_PrecacheInteractions()
 					continue;
 				}
 
-				iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, NULL, localBounds);
+				light->shadowLOD = 0;	// important for R_CalcLightCubeSideBits
+				iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, localBounds);
 			}
 		}
 	}
@@ -4126,6 +4132,7 @@ void R_PrecacheInteractions()
 	if(r_shadows->integer == 4)
 	{
 		// only interesting for omni-directional shadow mapping
+		ri.Printf(PRINT_ALL, "%i omni pyramid tests\n", tr.pc.c_pyramidTests);
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces visible\n", tr.pc.c_pyramid_cull_ent_in);
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);

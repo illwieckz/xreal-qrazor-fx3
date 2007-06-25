@@ -286,6 +286,7 @@ code/renderer
  - fix sky rendering
  - fix 3d model hud rendering
  - add deferredLighting_DBS_proj GLSL shader
+ - fix vertex painting support = depth peeling ?
 - add stained shadow mapping
 - add volumetric lighting
 - add Percentage-Closer-Filtering to shadow mapping
@@ -295,6 +296,9 @@ code/renderer
 - fix tcMod turb ?
 - change lighting_*_direct shaders to simulate non-lightgrid lighting ?
 - support decals on static and dynamic abitrary triangle surfaces ?
+
+code/win32
+- replace Q3A icon for the Win32 executable
 
 code/xmap
 - merge AAS compiler into xmap ?

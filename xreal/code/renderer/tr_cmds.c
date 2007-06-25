@@ -93,7 +93,8 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 5)
 	{
-		ri.Printf(PRINT_ALL, "omni pyramid ents: %i bin %i bclip %i bout\n",
+		ri.Printf(PRINT_ALL, "omni pyramid tests:%i bin:%i bclip:%i bout:%i\n",
+			      tr.pc.c_pyramidTests,
 				  tr.pc.c_pyramid_cull_ent_in, tr.pc.c_pyramid_cull_ent_clip, tr.pc.c_pyramid_cull_ent_out);
 	}
 	else if(r_speeds->integer == 6)

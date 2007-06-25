@@ -124,6 +124,11 @@ cvar_t         *r_shadowOffsetFactor;
 cvar_t         *r_shadowOffsetUnits;
 cvar_t         *r_shadowLodBias;
 cvar_t         *r_shadowLodScale;
+cvar_t         *r_noShadowPyramids;
+cvar_t         *r_cullShadowPyramidFaces;
+cvar_t         *r_cullShadowPyramidCurves;
+cvar_t         *r_cullShadowPyramidTriangles;
+cvar_t         *r_debugShadowMaps;
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
 cvar_t         *r_nobind;
@@ -1341,6 +1346,7 @@ void R_Register(void)
 	r_precacheLightIndexes = ri.Cvar_Get("r_precacheLightIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_precacheShadowIndexes = ri.Cvar_Get("r_precacheShadowIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_debugShadowMaps = ri.Cvar_Get("r_debugShadowMaps", "0", CVAR_CHEAT | CVAR_LATCH);
 	
 	// archived variables that can change at any time
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
@@ -1440,7 +1446,10 @@ void R_Register(void)
 	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
 	r_shadowLodBias = ri.Cvar_Get("r_shadowLodBias", "0", CVAR_CHEAT);
 	r_shadowLodScale = ri.Cvar_Get("r_shadowLodScale", "0.7", CVAR_CHEAT);
-	
+	r_noShadowPyramids = ri.Cvar_Get("r_noShadowPyramids", "0", CVAR_CHEAT);
+	r_cullShadowPyramidFaces = ri.Cvar_Get("r_cullShadowPyramidFaces", "0", CVAR_CHEAT);
+	r_cullShadowPyramidCurves = ri.Cvar_Get("r_cullShadowPyramidCurves", "1", CVAR_CHEAT);
+	r_cullShadowPyramidTriangles = ri.Cvar_Get("r_cullShadowPyramidTriangles", "1", CVAR_CHEAT);	
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);

@@ -72,7 +72,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		return;
 	}
 	
-	cubeSideBits = R_CalcLightCubeSideBits(light, NULL, ent->worldBounds);
+	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	// set the light bits in all the surfaces
 	for(i = 0; i < bModel->numSurfaces; i++)
@@ -1130,32 +1130,42 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 R_CalcLightCubeSideBits
 =============
 */
-byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_t worldBounds[2])
+// *INDENT-OFF*
+byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 {
-	int             i, j;
+	int             i;
 	int             cubeSide;
 	byte            cubeSideBits;
 	float           xMin, xMax, yMin, yMax;
 	float           width, height, depth;
 	float           zNear, zFar;
 	float           fovX, fovY;
-	qboolean        flipX, flipY;
 	float          *proj;
 	vec3_t          angles;
 	matrix_t        tmpMatrix, rotationMatrix, transformMatrix, viewMatrix, modelViewMatrix, projectionMatrix;
 	frustum_t       frustum;
 	cplane_t       *clipPlane;
 	int             r;
-	float           dists[8];
-	int             anyBack;
 	qboolean        anyClip;
-	int             front, back;
+	qboolean		culled;
+
+#if 0
+	static int		count = 0;
+	cubeSideBits = 0;
+	for(cubeSide = 0; cubeSide < 6; cubeSide++)
+	{
+		if(count % 2 == 0)
+		{
+			cubeSideBits |= (1 << cubeSide);
+		}
+	}
+	return cubeSideBits;
+#endif
 	
-	if(light->l.rlType != RL_OMNI || r_shadows->integer != 4)
-		return 0;
+	if(light->l.rlType != RL_OMNI || r_shadows->integer != 4 || r_noShadowPyramids->integer)
+		return CUBESIDE_CLIPALL;
 		
 	cubeSideBits = 0;
-	
 	for(cubeSide = 0; cubeSide < 6; cubeSide++)
 	{
 		switch (cubeSide)
@@ -1163,51 +1173,37 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 			case 0:
 			{
 				// view parameters
-				VectorSet(angles, 0, 0, 90);
-								
-				// projection parameters
-				flipX = qfalse;
-				flipY = qfalse;
+				VectorSet(angles, 0, 0, 0);
 				break;
 			}
 								
 			case 1:
 			{
-				VectorSet(angles, 0, 180, 90);
-				flipX = qtrue;
-				flipY = qtrue;
+				VectorSet(angles, 0, 180, 0);
 				break;
 			}
 								
 			case 2:
 			{
 				VectorSet(angles, 0, 90, 0);
-				flipX = qfalse;
-				flipY = qfalse;
 				break;
 			}
 								
 			case 3:
 			{
-				VectorSet(angles, 0,-90, 0);
-				flipX = qtrue;
-				flipY = qtrue;
+				VectorSet(angles, 0, 270, 0);
 				break;
 			}
 								
 			case 4:
 			{
-				VectorSet(angles, -90, 90, 0);
-				flipX = qfalse;
-				flipY = qfalse;
+				VectorSet(angles, -90, 0, 0);
 				break;
 			}
 
 			case 5:
 			{
-				VectorSet(angles, 90, 90, 0);
-				flipX = qtrue;
-				flipY = qtrue;
+				VectorSet(angles, 90, 0, 0);
 				break;
 			}
 								
@@ -1215,8 +1211,6 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 			{
 				// shut up compiler
 				VectorSet(angles, 0, 0, 0);
-				flipX = qfalse;
-				flipY = qfalse;
 				break;
 			}
 		}
@@ -1238,27 +1232,11 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 		zNear = 1.0;
 		zFar = light->sphereRadius;
 							
-		if(!flipX)
-		{
-			xMax = zNear * tan(fovX * M_PI / 360.0f);
-			xMin = -xMax;
-		}
-		else
-		{
-			xMin = zNear * tan(fovX * M_PI / 360.0f);
-			xMax = -xMin;
-		}
-							
-		if(!flipY)
-		{		
-			yMax = zNear * tan(fovY * M_PI / 360.0f);
-			yMin = -yMax;
-		}
-		else
-		{
-			yMin = zNear * tan(fovY * M_PI / 360.0f);
-			yMax = -yMin;
-		}
+		xMax = zNear * tan(fovX * M_PI / 360.0f);
+		xMin = -xMax;
+		
+		yMax = zNear * tan(fovY * M_PI / 360.0f);
+		yMin = -yMax;
 									
 		width = xMax - xMin;
 		height = yMax - yMin;
@@ -1272,42 +1250,29 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 		
 		// calculate frustum planes using the modelview projection matrix
 		R_SetupFrustum(frustum, modelViewMatrix, projectionMatrix);
-	
-		if(worldCorners)
+		
+		// use the frustum planes to cut off shadowmaps beyond the light volume
+		anyClip = qfalse;
+		culled = qfalse;
+		for(i = 0; i < 5; i++)
 		{
-			// check against frustum planes
-			anyBack = 0;
-			for(i = 0; i < FRUSTUM_PLANES; i++)
+			clipPlane = &frustum[i];
+			
+			r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], clipPlane);
+			if(r == 2)
 			{
-				clipPlane = &frustum[i];
-
-				front = back = 0;
-				for(j = 0; j < 8; j++)
-				{
-					dists[j] = DotProduct(worldCorners[j], clipPlane->normal);
-					if(dists[j] > clipPlane->dist)
-					{
-						front = 1;
-						if(back)
-						{
-							break;		// a point is in front
-						}
-					}
-					else
-					{
-						back = 1;
-					}
-				}
-				if(!front)
-				{
-					// all points were behind one of the planes
-					tr.pc.c_pyramid_cull_ent_out++;
-					goto skipCubeSide;
-				}
-				anyBack |= back;
+				culled = qtrue;
+				break;
 			}
-	
-			if(!anyBack)
+			if(r == 3)
+			{
+				anyClip = qtrue;
+			}
+		}
+
+		if(!culled)
+		{
+			if(!anyClip)
 			{
 				// completely inside frustum
 				tr.pc.c_pyramid_cull_ent_in++;
@@ -1317,48 +1282,21 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldCorners[8], vec3_
 				// partially clipped
 				tr.pc.c_pyramid_cull_ent_clip++;
 			}
+		
+			cubeSideBits |= (1 << cubeSide);
 		}
 		else
 		{
-			// determine wether worldBounds are in current cubeSide frustum or not
-			anyClip = qfalse;
-			for(i = 0; i < FRUSTUM_PLANES; i++)
-			{
-				clipPlane = &frustum[i];
-
-				r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], clipPlane);
-		
-				if(r == 2)
-				{
-					tr.pc.c_pyramid_cull_ent_out++;
-					goto skipCubeSide;
-				}
-				if(r == 1)
-				{
-					anyClip = qtrue;
-				}
-			}
-			
-			if(!anyClip)
-			{
-				// partially clipped
-				tr.pc.c_pyramid_cull_ent_clip++;
-			}
-			else
-			{
-				// completely inside frustum
-				tr.pc.c_pyramid_cull_ent_in++;
-			}
+			// completely outside frustum
+			tr.pc.c_pyramid_cull_ent_out++;
 		}
-		
-		cubeSideBits |= (1 << cubeSide);
-			
-		skipCubeSide:
-			continue;
 	}
+
+	tr.pc.c_pyramidTests++;
 
 	return cubeSideBits;
 }
+// *INDENT-ON*
 
 
 /*

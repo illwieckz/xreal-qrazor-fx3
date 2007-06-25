@@ -371,9 +371,9 @@ void CG_TestOmniLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius[0] = 200;
-	cg.testLight.radius[1] = 200;
-	cg.testLight.radius[2] = 200;
+	cg.testLight.radius[0] = 500;
+	cg.testLight.radius[1] = 500;
+	cg.testLight.radius[2] = 500;
 
 	angles[PITCH] = cg.refdefViewAngles[PITCH];
 	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
