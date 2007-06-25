@@ -2387,6 +2387,7 @@ typedef struct shaderCommands_s
 
 	// info extracted from current shader or backend mode
 	void            (*stageIteratorFunc) ();
+	void            (*stageIteratorFunc2) ();
 
 	int             numSurfaceStages;
 	shaderStage_t **surfaceStages;

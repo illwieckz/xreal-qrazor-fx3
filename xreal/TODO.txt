@@ -283,7 +283,6 @@ code/game
 
 code/renderer
 - improve deferred shading
- - fix sky rendering
  - fix 3d model hud rendering
  - add deferredLighting_DBS_proj GLSL shader
  - fix vertex painting support = depth peeling ?

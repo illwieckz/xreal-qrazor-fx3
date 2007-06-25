@@ -1407,13 +1407,26 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 	tess.lightShader = lightShader;
 	
 	tess.stageIteratorFunc = stageIteratorFunc;
+	tess.stageIteratorFunc2 = NULL;
 	if(!tess.stageIteratorFunc)
 	{
 		tess.stageIteratorFunc = Tess_StageIteratorGeneric;
 	}
 	if(tess.stageIteratorFunc == Tess_StageIteratorGeneric)
 	{
-		tess.stageIteratorFunc = state->isSky ? Tess_StageIteratorSky : Tess_StageIteratorGeneric;		
+		if(state->isSky)
+		{
+			tess.stageIteratorFunc = Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;
+		}
+	}
+	if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
+	{
+		if(state->isSky)
+		{
+			tess.stageIteratorFunc = Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = Tess_StageIteratorGBuffer;
+		}
 	}
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;

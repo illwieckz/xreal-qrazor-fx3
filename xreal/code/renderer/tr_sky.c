@@ -808,6 +808,11 @@ void Tess_StageIteratorSky(void)
 		GLimp_LogComment(va("--- Tess_StageIteratorSky( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
 	}
 
+	if(tess.stageIteratorFunc2 == Tess_StageIteratorGBuffer)
+	{
+		R_BindFBO(tr.deferredRenderFBO);
+	}
+
 	// go through all the polygons and project them onto
 	// the sky box to see which blocks on each side need
 	// to be drawn
@@ -847,10 +852,14 @@ void Tess_StageIteratorSky(void)
 	// by the generic shader routine
 	BuildCloudData();
 
-	Tess_StageIteratorGeneric();
+	tess.stageIteratorFunc2();
 
-	// draw the inner skybox
+	// Tr3B: TODO draw the inner skybox?
 
+	if(tess.stageIteratorFunc2 == Tess_StageIteratorGBuffer)
+	{
+		R_BindNullFBO();
+	}
 
 	// back to normal depth range
 	qglDepthRange(0.0, 1.0);
