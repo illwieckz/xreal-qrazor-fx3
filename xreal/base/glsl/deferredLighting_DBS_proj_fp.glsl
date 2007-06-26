@@ -52,6 +52,14 @@ void	main()
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
 	
+	// transform vertex position into light space
+	vec4 texAtten			= u_LightAttenuationMatrix * vec4(P.xyz, 1.0);
+	if(texAtten.q <= 0.0)
+	{
+		// point is behind the near clip plane
+		discard;
+	}
+	
 	// compute light direction in world space
 	vec3 L = normalize(u_LightOrigin - P.xyz);
 	
@@ -70,7 +78,6 @@ void	main()
 	vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a);
 	
 	// compute attenuation
-	vec4 texAtten			= u_LightAttenuationMatrix * vec4(P.xyz, 1.0);
 	vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
 	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(1.0 - texAtten.z, 0.0)).rgb;
 	
