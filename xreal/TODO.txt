@@ -284,6 +284,7 @@ code/game
 code/renderer
 - improve deferred shading
  - fix 3d model hud rendering
+ - fix mirrors/portals
  - fix vertex painting support = depth peeling ?
 - add stained shadow mapping
 - add volumetric lighting

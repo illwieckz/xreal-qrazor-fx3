@@ -167,7 +167,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)/uix86.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

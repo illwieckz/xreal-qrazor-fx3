@@ -36,15 +36,16 @@ svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal XreaL
 COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 ==========================================
 
-1. Download and install the Visual C++ 2005 Express Edition or use the Visual Studio 2005 Professional edition.
-2. Download and install the DirectX SDK.
-3. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
+1. Download and install the Visual C++ 2005 Express Edition.
+2. Download and install the Platform SDK.
+3. Download and install the DirectX SDK.
+4. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
 	and copy it over the existing $(PlatformSDK)/include/GL/glext.h.
-4. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
-5. Download http://xreal.varcache.org/STLport-5.0.2.7z
+5. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
+6. Download http://xreal.varcache.org/STLport-5.0.2.7z
 	and extract it to XreaL/code/.
 	
-6. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+7. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft DirectX SDK (April 2007)\Include
 	C:\GTK\include
@@ -59,12 +60,12 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	C:\GTK\include\gtkglext-1.0
 	C:\GTK\lib\gtkglext-1.0\include
 
-7. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+8. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft DirectX SDK (April 2007)\Lib\x86
 	C:\GTK\lib
 
-8. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
+9. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
 	XreaL/code/xreal.sln
 	XreaL/code/gtkradiant/GtkRadiant.sln
 	XreaL/code/xmap/xmap.sln
