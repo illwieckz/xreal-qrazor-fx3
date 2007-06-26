@@ -419,8 +419,6 @@ void CG_UpdateCvars(void)
 		{
 			trap_Cvar_Set("teamoverlay", "0");
 		}
-		// FIXME E3 HACK
-		trap_Cvar_Set("teamoverlay", "1");
 	}
 
 	// if force model changed
