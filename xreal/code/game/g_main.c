@@ -1335,7 +1335,7 @@ wait 10 seconds before going on.
 */
 void CheckIntermissionExit(void)
 {
-	int             ready, notReady;
+	int				ready, notReady, playerCount;
 	int             i;
 	gclient_t      *cl;
 	int             readyMask;
@@ -1349,6 +1349,7 @@ void CheckIntermissionExit(void)
 	ready = 0;
 	notReady = 0;
 	readyMask = 0;
+	playerCount = 0;
 	for(i = 0; i < g_maxclients.integer; i++)
 	{
 		cl = level.clients + i;
@@ -1360,6 +1361,9 @@ void CheckIntermissionExit(void)
 		{
 			continue;
 		}
+
+		// only count real players
+		playerCount++;
 
 		if(cl->readyToExit)
 		{
@@ -1393,19 +1397,25 @@ void CheckIntermissionExit(void)
 		return;
 	}
 
-	// if nobody wants to go, clear timer
-	if(!ready)
+	// 070331 mis - empty or bot only servers make the server
+	// hang indefinitely in the intermission, so execute the
+	// logic below only if there are any *real* players here.
+	if(playerCount > 0)
 	{
-		level.readyToExit = qfalse;
-		return;
-	}
-
-	// if everyone wants to go, go now
-	if(!notReady)
-	{
-		ExitLevel();
-		return;
-	}
+		// if nobody wants to go, clear timer
+		if(!ready)
+		{
+			level.readyToExit = qfalse;
+			return;
+		}
+ 
+		// if everyone wants to go, go now
+		if(!notReady)
+		{
+			ExitLevel();
+			return;
+		}
+ 	}
 
 	// the first person to ready starts the ten second timeout
 	if(!level.readyToExit)
