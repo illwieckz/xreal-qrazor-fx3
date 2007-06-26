@@ -4290,7 +4290,7 @@ void Tess_StageIteratorGBuffer()
 					Render_depthFill(stage);
 
 					R_BindFBO(tr.geometricRenderFBO);
-					if(r_lighting->integer == 1)
+					if(r_lighting->integer >= 1)
 					{
 						Render_geometricFill_DB(stage);
 					}
@@ -4843,7 +4843,7 @@ void Tess_StageIteratorStencilLighting()
 				case ST_COLLAPSE_lighting_DB:
 					if(glConfig.shadingLanguage100Available)
 					{
-						if(r_lighting->integer == 1)
+						if(r_lighting->integer >= 1)
 						{
 							if(light->l.rlType == RL_OMNI)
 							{
@@ -5100,7 +5100,7 @@ void Tess_StageIteratorLighting()
 				case ST_COLLAPSE_lighting_DB:
 					if(glConfig.shadingLanguage100Available)
 					{
-						if(r_lighting->integer == 1)
+						if(r_lighting->integer >= 1)
 						{
 							if(light->l.rlType == RL_OMNI)
 							{
