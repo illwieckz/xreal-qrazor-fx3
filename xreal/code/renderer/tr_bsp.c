@@ -2769,7 +2769,7 @@ void R_LoadEntities(lump_t * l)
 				light->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
-			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
+			else if(!Q_stricmp(keyname, "rotation")|| !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
 				
@@ -2791,7 +2791,12 @@ void R_LoadEntities(lump_t * l)
 			break;
 		}
 
-		if(isLight)
+		if(!isLight)
+		{
+			// reset rotation because it may be set to the rotation of other entities
+			AxisClear(light->l.axis);
+		}
+		else
 		{
 			if((numOmniLights + numProjLights) < s_worldData.numLights);
 			{
