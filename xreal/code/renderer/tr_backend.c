@@ -2707,11 +2707,31 @@ void RB_RenderInteractionsDeferred()
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
-			// build the attenuation matrix using the entity transform
-			MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-			MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
-			MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
-			MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+			switch (light->l.rlType)
+			{
+				case RL_OMNI:
+				{
+					// build the attenuation matrix
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
+					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+					break;
+				}
+
+				case RL_PROJ:
+				{
+					// build the attenuation matrix
+					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.0);	// bias
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 1.0 / light->l.distance);	// scale
+					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);
+					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
+					break;
+				}
+
+				default:
+					break;
+			}
 		}
 
 		if(!ia->next)
