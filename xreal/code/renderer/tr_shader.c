@@ -1603,7 +1603,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				filterType = shader.filterType;
 			}
 			
-			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, filterType, WT_CLAMP);
+			stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, filterType, WT_EDGE_CLAMP);
 			if(!stage->bundle[0].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name);

@@ -4657,9 +4657,9 @@ static void R_CreateShadowCubeFBOImage(void)
 		}
 
 		if(glConfig.textureFloatAvailable)
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_EDGE_CLAMP);
 		else
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_EDGE_CLAMP);
 
 		for(i = 5; i >= 0; i--)
 		{
