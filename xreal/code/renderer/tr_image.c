@@ -998,14 +998,12 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	vec4_t          zeroClampBorder = { 0, 0, 0, 1 };
 	vec4_t          alphaZeroClampBorder = { 0, 0, 0, 0 };
 
-	/*
 	if(glConfig.textureNPOTAvailable)
 	{
 		scaledWidth = image->width;
 		scaledHeight = image->height;
 	}
 	else
-	*/
 	{
 		// convert to exact power of 2 sizes
 		for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
@@ -4557,8 +4555,16 @@ static void R_CreateContrastRenderImage(void)
 	int             width, height;
 	byte           *data;
 	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
@@ -4573,8 +4579,16 @@ static void R_CreateCurrentRenderImage(void)
 	int             width, height;
 	byte           *data;
 	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
@@ -4588,8 +4602,16 @@ static void R_CreatePortalRenderImage(void)
 	int             width, height;
 	byte           *data;
 	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
@@ -4606,8 +4628,16 @@ static void R_CreateDeferredRenderFBOImages(void)
 	if(!r_deferredShading->integer)
 		return;
 	
-	width = NearestPowerOfTwo(glConfig.vidWidth);
-	height = NearestPowerOfTwo(glConfig.vidHeight);
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 	

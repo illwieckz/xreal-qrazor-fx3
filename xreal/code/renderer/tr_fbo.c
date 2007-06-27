@@ -367,57 +367,6 @@ void R_InitFBOs(void)
 
 	tr.numFBOs = 0;
 	
-	// currentRender FBO for main scene offscreen rendering
-	/*
-	tr.currentRenderFBO = R_CreateFBO("_currentRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
-	R_BindFBO(tr.currentRenderFBO);
-	
-	if(glConfig.maxColorAttachments >= 4)
-	{
-		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
-		{
-			// enable all attachments as draw buffers
-        	GLenum drawbuffers[] = {GL_COLOR_ATTACHMENT0_EXT,
-        							GL_COLOR_ATTACHMENT1_EXT,
-        							GL_COLOR_ATTACHMENT2_EXT,
-        							GL_COLOR_ATTACHMENT3_EXT};
-     
-        	qglDrawBuffersARB(4, drawbuffers);
-		}
-		
-		for(i = 1; i < 4; i++)
-		{
-			R_CreateFBOColorBuffer(tr.currentRenderFBO, GL_RGBA, i);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.currentRenderFBOImage[i]->texnum, i);
-		}	
-	}
-	R_CreateFBOColorBuffer(tr.currentRenderFBO, GL_RGBA, 0);
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.currentRenderFBOImage[0]->texnum, 0);
-	R_CreateFBODepthBuffer(tr.currentRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-//	R_CreateFBOStencilBuffer(tr.currentRenderFBO, GL_STENCIL_INDEX8_EXT);
-	R_CheckFBO(tr.currentRenderFBO);
-	*/
-	
-	// portalRender for portal scene offscreen rendering
-	/*
-	tr.portalRenderFBO = R_CreateFBO("_portalRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
-	R_BindFBO(tr.portalRenderFBO);
-			
-	if(glConfig.maxColorAttachments >= 4)
-	{
-		for(i = 1; i < 4; i++)
-		{
-			R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, i);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderFBOImage[i]->texnum, i);
-		}
-	}
-	R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, 0);
-	R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderFBOImage[0]->texnum, 0);
-	R_CreateFBODepthBuffer(tr.portalRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-//	R_CreateFBOStencilBuffer(tr.portalRenderFBO, GL_STENCIL_INDEX8_EXT);
-	R_CheckFBO(tr.portalRenderFBO);
-	*/
-	
 	if(r_deferredShading->integer)
 	{
 		if(glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -428,7 +377,18 @@ void R_InitFBOs(void)
     	    						GL_COLOR_ATTACHMENT2_EXT,
     	    						GL_COLOR_ATTACHMENT3_EXT};
 			
-			tr.geometricRenderFBO = R_CreateFBO("_geometricRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
+			if(glConfig.textureNPOTAvailable)
+			{
+				width = glConfig.vidWidth;
+				height = glConfig.vidHeight;
+			}
+			else
+			{
+				width = NearestPowerOfTwo(glConfig.vidWidth);
+				height = NearestPowerOfTwo(glConfig.vidHeight);
+			}
+
+			tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
 			R_BindFBO(tr.geometricRenderFBO);
 			
 			// enable all attachments as draw buffers
@@ -452,7 +412,7 @@ void R_InitFBOs(void)
 			
 			
 			// deferredRender FBO for the lighting pass
-			tr.deferredRenderFBO = R_CreateFBO("_deferredRender", NearestPowerOfTwo(glConfig.vidWidth), NearestPowerOfTwo(glConfig.vidHeight));
+			tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
 			R_BindFBO(tr.deferredRenderFBO);
 			
 			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);

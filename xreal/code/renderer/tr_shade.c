@@ -2777,8 +2777,17 @@ static void Render_screen(int stage)
 	// set uniforms
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
@@ -2805,8 +2814,17 @@ static void Render_heatHaze(int stage)
 
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	/*
 	   if(glConfig.framebufferObjectAvailable && glConfig.maxColorAttachments >= 4 &&
@@ -3055,10 +3073,20 @@ static void Render_bloom(int stage)
 
 	// calc uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -3108,10 +3136,20 @@ static void Render_bloom2(int stage)
 
 	// calc uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	// render contrast
 	GL_Program(tr.contrastShader.program);
@@ -3194,10 +3232,20 @@ static void Render_rotoscope(int stage)
 
 	// set uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
+	
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, blurMagnitude);
 	qglUniform2fARB(tr.rotoscopeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
@@ -3242,10 +3290,20 @@ static void Render_liquid(int stage)
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 	
 	qglUniform3fARB(tr.liquidShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.liquidShader.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));

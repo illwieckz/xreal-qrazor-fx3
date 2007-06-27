@@ -2683,8 +2683,17 @@ void RB_RenderInteractionsDeferred()
 
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	// set 2D virtual screen size
 	qglMatrixMode(GL_MODELVIEW);
@@ -3272,8 +3281,17 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 
 				fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 				fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-				npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-				npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+				if(glConfig.textureNPOTAvailable)
+				{
+					npotWidthScale = 1;
+					npotHeightScale = 1;
+				}
+				else
+				{
+					npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+					npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+				}
 
 				// set 2D virtual screen size
 				qglMatrixMode(GL_MODELVIEW);
@@ -3789,8 +3807,17 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	// set uniforms
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-	npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-	npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
 
 	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
