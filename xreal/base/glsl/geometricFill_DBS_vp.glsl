@@ -28,19 +28,19 @@ attribute vec3		attr_Binormal;
 
 uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
-varying mat3		var_TS2WSMatrix;
+varying mat3		var_TangentToWorldMatrix;
 
 void	main()
 {
 	// transform vertex position into homogenous clip-space
 	gl_Position = ftransform();
 	
-	// transform vertex position into view space
-	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
+	// assign vertex position in object space
+	var_Vertex = gl_Vertex;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
@@ -51,10 +51,11 @@ void	main()
 	// transform specularmap texture coords
 	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord2).st;
 	
-	// construct tangent-space-to-view-space 3x3 matrix
+	// construct tangent-space-to-world-space 3x3 matrix
 	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 	vec3 binormal = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
 	vec3 normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 	
-	var_TS2WSMatrix = mat3(tangent, binormal, normal);
+	var_TangentToWorldMatrix = mat3(tangent, binormal, normal);
 }
+

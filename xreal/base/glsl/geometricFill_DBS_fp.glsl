@@ -23,16 +23,115 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform vec3		u_ViewOrigin;
 uniform float		u_SpecularExponent;
+uniform float		u_DepthScale;
+uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
-varying mat3		var_TS2WSMatrix;
+varying mat3		var_TangentToWorldMatrix;
+
+
+float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
+{
+	const int linearSearchSteps = 16;
+	const int binarySearchSteps = 6;
+
+	float depthStep = 1.0 / float(linearSearchSteps);
+
+	// current size of search window
+	float size = depthStep;
+
+	// current depth position
+	float depth = 0.0;
+
+	// best match found (starts with last position 1.0)
+	float bestDepth = 1.0;
+
+	// search front to back for first point inside object
+	for(int i = 0; i < linearSearchSteps - 1; ++i)
+	{
+		depth += size;
+		
+		vec4 t = texture2D(u_NormalMap, dp + ds * depth);
+
+		if(bestDepth > 0.996)		// if no depth found yet
+			if(depth >= t.w)
+				bestDepth = depth;	// store best depth
+	}
+
+	depth = bestDepth;
+	
+	// recurse around first point (depth) for closest match
+	for(int i = 0; i < binarySearchSteps; ++i)
+	{
+		size *= 0.5;
+
+		vec4 t = texture2D(u_NormalMap, dp + ds * depth);
+		
+		if(depth >= t.w)
+		{
+			bestDepth = depth;
+			depth -= 2.0 * size;
+		}
+
+		depth += size;
+	}
+
+	return bestDepth;
+}
+
 
 void	main()
 {
+#if defined(PARALLAX)
+	// construct tangent-world-space-to-tangent-space 3x3 matrix
+	mat3 worldToTangentMatrix = transpose(var_TangentToWorldMatrix);
+
+	// transform vertex position into world space
+	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
+	
+	// compute view direction in tangent space
+	vec3 V = worldToTangentMatrix * (u_ViewOrigin - P);
+	V = normalize(V);
+	
+	// ray intersect in view direction
+	
+	// size and start position of search in texture space
+	vec2 S = V.xy * -u_DepthScale / V.z;
+		
+	float depth = RayIntersectDisplaceMap(var_TexNormal, S);
+	
+	// compute texcoords offset
+	vec2 texOffset = S * depth;
+	
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse + texOffset);
+	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular + texOffset).rgb;
+	
+	// compute normal in tangent space from normalmap
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal + texOffset).xyz - 0.5);
+	N.z = sqrt(1.0 - dot(N.xy, N.xy));
+	
+	// transform normal into world space
+	N = var_TangentToWorldMatrix * N;
+	
+	// convert normal back to [0,1] color space
+	N = N * 0.5 + 0.5;
+	
+	// transform vertex position into world space
+	P = (u_ModelMatrix * var_Vertex).xyz;
+
+	// transform parallax offset world space
+	//P += (u_ModelMatrix * vec4(texOffset, 0, 1)).xyz;
+
+	gl_FragData[0] = diffuse;
+	gl_FragData[1] = vec4(N, 0.0);
+	gl_FragData[2] = vec4(specular, u_SpecularExponent);
+	gl_FragData[3] = vec4(P, gl_FragCoord.z);
+#else
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb;
 
@@ -40,13 +139,19 @@ void	main()
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 	
 	// transform normal into world space
-	N = var_TS2WSMatrix * N;
+	N = var_TangentToWorldMatrix * N;
 	
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
+	
+	// transform vertex position into world space
+	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
 
 	gl_FragData[0] = diffuse;
 	gl_FragData[1] = vec4(N, 0.0);
 	gl_FragData[2] = vec4(specular, u_SpecularExponent);
-	gl_FragData[3] = vec4(var_Vertex, gl_FragCoord.z);
+	gl_FragData[3] = vec4(P, gl_FragCoord.z);
+#endif
 }
+
+
