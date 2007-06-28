@@ -17,7 +17,8 @@ textures/tr3b_lights/roqVideoLight
 
 textures/tr3b_lights/cloudscroll
 {
-	lightFalloffImage	_noFalloff
+//	lightFalloffImage	_noFalloff
+	lightFalloffImage	makeintensity(lights/squarelight1b.png)
 	{
 		forceHighQuality
 		map			textures/tr3b_sky/plasma_noise2.png

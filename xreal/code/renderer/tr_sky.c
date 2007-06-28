@@ -467,6 +467,8 @@ static void FillCloudySkySide(const int mins[2], const int maxs[2], qboolean add
 			
 			tess.texCoords[tess.numVertexes][0] = s_skyTexCoords[t][s][0];
 			tess.texCoords[tess.numVertexes][1] = s_skyTexCoords[t][s][1];
+			tess.texCoords[tess.numVertexes][2] = 0;
+			tess.texCoords[tess.numVertexes][3] = 1;
 
 			tess.numVertexes++;
 
@@ -719,7 +721,7 @@ void RB_DrawSun(void)
 	qglDepthRange(1.0, 1.0);
 
 	// FIXME: use quad stamp
-	Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.fogNum, tess.skipTangentSpaces, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse);
 	VectorCopy(origin, temp);
 	VectorSubtract(temp, vec1, temp);
 	VectorSubtract(temp, vec2, temp);
@@ -727,6 +729,8 @@ void RB_DrawSun(void)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = 255;
 	tess.colors[tess.numVertexes][1] = 255;
 	tess.colors[tess.numVertexes][2] = 255;
@@ -739,6 +743,8 @@ void RB_DrawSun(void)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = 255;
 	tess.colors[tess.numVertexes][1] = 255;
 	tess.colors[tess.numVertexes][2] = 255;
@@ -751,6 +757,8 @@ void RB_DrawSun(void)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 1;
 	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = 255;
 	tess.colors[tess.numVertexes][1] = 255;
 	tess.colors[tess.numVertexes][2] = 255;
@@ -763,6 +771,8 @@ void RB_DrawSun(void)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 1;
 	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = 255;
 	tess.colors[tess.numVertexes][1] = 255;
 	tess.colors[tess.numVertexes][2] = 255;

@@ -278,8 +278,6 @@ typedef enum
 	// in addition to alpha test
 	SS_BANNER,
 
-	SS_FOG,
-
 	SS_UNDERWATER,				// for items that should be drawn in front of the water plane
 	SS_WATER,
 
@@ -378,30 +376,10 @@ typedef enum
 	CGEN_ONE_MINUS_VERTEX,
 	CGEN_WAVEFORM,				// programmatically generated
 	CGEN_LIGHTING_DIFFUSE,
-	CGEN_FOG,					// standard fog
 	CGEN_CONST,					// fixed color
 	CGEN_CUSTOM_RGB,			// like fixed color but generated dynamically, single arithmetic expression
 	CGEN_CUSTOM_RGBs,			// multiple expressions
 } colorGen_t;
-
-typedef enum
-{
-	TCGEN_BAD,
-	TCGEN_SKIP,
-	TCGEN_IDENTITY,				// clear to 0,0
-	TCGEN_TEXTURE,
-	TCGEN_ENVIRONMENT_MAPPED,
-	TCGEN_FOG,
-	TCGEN_VECTOR				// S and T from world coordinates
-} texCoordGen_t;
-
-typedef enum
-{
-	ACFF_NONE,
-	ACFF_MODULATE_RGB,
-	ACFF_MODULATE_RGBA,
-	ACFF_MODULATE_ALPHA
-} acff_t;
 
 typedef enum
 {
@@ -570,11 +548,6 @@ enum
 typedef struct
 {
 	image_t        *image[MAX_IMAGE_ANIMATIONS];
-	int             numImageAnimations;
-	float           imageAnimationSpeed;
-
-	texCoordGen_t   tcGen;
-	vec3_t          tcGenVectors[2];
 
 	int             numTexMods;
 	texModInfo_t   *texMods;
@@ -648,8 +621,6 @@ typedef struct
 
 	unsigned        stateBits;	// GLS_xxxx mask
 
-	acff_t          adjustColorsForFog;
-
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
 	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
 	filterType_t    filterType;
@@ -674,8 +645,7 @@ typedef struct
 	expression_t    etaExp;
 	expression_t    etaDeltaExp;
 
-	expression_t    heightScaleExp;
-	expression_t    heightBiasExp;
+	expression_t    depthScaleExp;
 
 	expression_t    deformMagnitudeExp;
 
@@ -691,24 +661,11 @@ typedef enum
 	CT_TWO_SIDED
 } cullType_t;
 
-typedef enum
-{
-	FP_NONE,					// surface is translucent and will just be adjusted properly
-	FP_EQUAL,					// surface is opaque but possibly alpha tested
-	FP_LE						// surface is trnaslucent, but still needs a fog pass (fog surface)
-} fogPass_t;
-
 typedef struct
 {
 	float           cloudHeight;
 	image_t        *outerbox[6], *innerbox[6];
 } skyParms_t;
-
-typedef struct
-{
-	vec3_t          color;
-	float           depthForOpaque;
-} fogParms_t;
 
 typedef enum
 {
@@ -752,7 +709,6 @@ typedef struct shader_s
 	qboolean        forceOpaque;
 	qboolean        isSky;
 	skyParms_t      sky;
-	fogParms_t      fogParms;
 
 	float           portalRange;	// distance to fog out at
 	qboolean		isPortal;
@@ -768,8 +724,6 @@ typedef struct shader_s
 	qboolean        noPicMip;	// for images that must always be full resolution
 	filterType_t    filterType;	// for console fonts, 2D elements, etc.
 	wrapType_t      wrapType;
-
-	fogPass_t       fogPass;	// draw a blended pass, possibly with depth test equals
 
 	// spectrums are used for "invisible writing" that can only be illuminated by a light of matching spectrum
 	qboolean        spectrum;
@@ -869,8 +823,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_EtaRatio;
 
-	GLint           u_HeightScale;
-	GLint           u_HeightBias;
+	GLint           u_DepthScale;
 
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
@@ -880,6 +833,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
+	GLint           u_ModelViewMatrix;
 } shaderProgram_t;
 
 
@@ -936,21 +890,6 @@ typedef struct skin_s
 	int             numSurfaces;
 	skinSurface_t  *surfaces[MD3_MAX_SURFACES];
 } skin_t;
-
-
-typedef struct
-{
-	int             originalBrushNumber;
-	vec3_t          bounds[2];
-
-	unsigned        colorInt;	// in packed byte format
-	float           tcScale;	// texture coordinate vector scales
-	fogParms_t      parms;
-
-	// for clipping distance in fog when outside
-	qboolean        hasSurface;
-	float           surface[4];
-} fog_t;
 
 typedef struct
 {
@@ -1015,7 +954,6 @@ typedef struct drawSurf_s
 {
 	trRefEntity_t  *entity;
 	int             shaderNum;
-	int             fogNum;
 
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
@@ -1099,7 +1037,6 @@ typedef struct srfPoly_s
 {
 	surfaceType_t   surfaceType;
 	qhandle_t       hShader;
-	int             fogIndex;
 	int             numVerts;
 	polyVert_t     *verts;
 } srfPoly_t;
@@ -1242,7 +1179,6 @@ typedef struct msurface_s
 	int             viewCount;	// if == tr.viewCount, already added
 	int             lightCount;
 	struct shader_s *shader;
-	int             fogIndex;
 
 	surfaceType_t  *data;		// any of srf*_t
 } msurface_t;
@@ -1301,9 +1237,6 @@ typedef struct
 
 	int             nummarksurfaces;
 	msurface_t    **marksurfaces;
-
-	int             numfogs;
-	fog_t          *fogs;
 
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
@@ -1608,7 +1541,6 @@ typedef struct
 	int             c_depthBoundsTests, c_depthBoundsTestsRejected;
 } frontEndCounters_t;
 
-#define	FOG_TABLE_SIZE		256
 #define FUNCTABLE_SIZE		1024
 #define FUNCTABLE_SIZE2		10
 #define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
@@ -1643,9 +1575,6 @@ typedef struct
 	int             c_vboIndexBuffers;
 	int             c_vboVertexes;
 	int             c_vboIndexes;
-
-	int             c_fogSurfaces;
-	int             c_fogBatches;
 
 	int             c_flareAdds;
 	int             c_flareTests;
@@ -1708,8 +1637,6 @@ typedef struct
 
 	image_t        *defaultImage;
 	image_t        *scratchImage[32];
-	image_t        *fogImage;
-	image_t        *dlightImage;	// inverse-quare highlight for projective adding
 	image_t        *flareImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
@@ -1762,9 +1689,8 @@ typedef struct
 	shaderProgram_t genericSingleShader;
 	
 	// deferred Geometric-Buffer processing
-	shaderProgram_t geometricFillShader_D;
-	shaderProgram_t geometricFillShader_DB;
 	shaderProgram_t geometricFillShader_DBS;
+//	shaderProgram_t geometricFillShader_DBSP;
 	
 	// deferred lighting
 	shaderProgram_t deferredLightingShader_DBS_omni;
@@ -1782,17 +1708,9 @@ typedef struct
 	// shadowmap distance compression
 	shaderProgram_t shadowFillShader;
 
-	// Q3A rgbGen lightingDiffuse emulation
-	shaderProgram_t lightShader_D_direct;
-	shaderProgram_t lightShader_DB_direct;
-	shaderProgram_t lightShader_DBS_direct;
-
 	// Doom3 style omni-directional multi-pass lighting 
-	shaderProgram_t lightShader_D_omni;
-	shaderProgram_t lightShader_DB_omni;
-	shaderProgram_t lightShader_DBS_omni;
-
-	shaderProgram_t lightShader_D_proj;
+	shaderProgram_t forwardLightingShader_DBS_omni;
+	shaderProgram_t forwardLightingShader_DBS_proj;
 	
 #ifdef VOLUMETRIC_LIGHTING
 	// volumetric lighting
@@ -1870,7 +1788,6 @@ typedef struct
 	float           triangleTable[FUNCTABLE_SIZE];
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
-	float           fogTable[FOG_TABLE_SIZE];
 
 	int             occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 } trGlobals_t;
@@ -1926,7 +1843,6 @@ extern cvar_t  *r_debugLight;
 extern cvar_t  *r_inGameVideo;	// controls whether in game video should be draw
 extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
-extern cvar_t  *r_lighting;		// lighting mode, 0 = diffuse, 1 = bump mapping and so on
 extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_noStaticLighting;		// dynamic lights enabled/disabled
 
@@ -2069,6 +1985,8 @@ extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
 
 extern cvar_t  *r_deferredShading;
+extern cvar_t  *r_parallaxMapping;
+extern cvar_t  *r_parallaxDepthScale;
 
 
 //====================================================================
@@ -2089,7 +2007,7 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
 
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int fogIndex);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader);
 
 
 void            R_LocalNormalToWorld(const vec3_t local, vec3_t world);
@@ -2098,10 +2016,6 @@ void            R_LocalPointToWorld(const vec3_t local, vec3_t world);
 int             R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
-
-int             R_FogLocalPointAndRadius(const vec3_t pt, float radius);
-int             R_FogPointAndRadius(const vec3_t pt, float radius);
-int             R_FogWorldBox(vec3_t bounds[2]);
 
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
@@ -2277,8 +2191,6 @@ void            R_SkinList_f(void);
 // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=516
 const void     *RB_TakeScreenshotCmd(const void *data);
 
-void            R_InitFogTable(void);
-float           R_FogFactor(float s, float t);
 void            R_InitImages(void);
 void            R_ShutdownImages(void);
 int             R_SumOfUsedImages(void);
@@ -2343,8 +2255,6 @@ typedef struct stageVars
 {
 	color4f_t       color;
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
-	qboolean        skipCoords[MAX_TEXTURE_BUNDLES];
-	vec2_t          texCoords[MAX_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
 
@@ -2379,8 +2289,6 @@ typedef struct shaderCommands_s
 
 	float           shaderTime;
 
-	int             fogNum;
-
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;
 
@@ -2403,7 +2311,6 @@ void            GLSL_ShutdownGPUShaders();
 // *INDENT-OFF*
 void            Tess_Begin(	void (*stageIteratorFunc)(),
 							shader_t * surfaceShader, shader_t * lightShader,
-							int fogNum,
 							qboolean skipTangentSpaces,
 							qboolean shadowVolume);
 // *INDENT-ON*
@@ -2453,7 +2360,7 @@ FLARES
 
 void            R_ClearFlares(void);
 
-void            RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t normal);
+void            RB_AddFlare(void *surface, vec3_t point, vec3_t color, vec3_t normal);
 void            RB_AddLightFlares(void);
 void            RB_RenderFlares(void);
 
@@ -2630,13 +2537,8 @@ void            Tess_DeformGeometry(void);
 
 float           RB_EvalExpression(const expression_t * exp, float defaultValue);
 
-void            RB_CalcEnvironmentTexCoords(float *dstTexCoords);
-void            RB_CalcFogTexCoords(float *dstTexCoords);
 void			RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix);
 
-void            RB_CalcModulateColorsByFog(unsigned char *dstColors);
-void            RB_CalcModulateAlphasByFog(unsigned char *dstColors);
-void            RB_CalcModulateRGBAsByFog(unsigned char *dstColors);
 void            RB_CalcWaveAlpha(const waveForm_t * wf, unsigned char *dstColors);
 void            RB_CalcWaveColor(const waveForm_t * wf, unsigned char *dstColors);
 void            RB_CalcAlphaFromEntity(unsigned char *dstColors);

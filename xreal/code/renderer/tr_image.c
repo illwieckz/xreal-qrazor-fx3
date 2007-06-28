@@ -755,8 +755,8 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			*out++ = (byte) (128 + 127 * n[1]);
 			*out++ = (byte) (128 + 127 * n[2]);
 
-			// put in height as displacement map by default
-			*out++ = (byte) (Q_bound(0, c * 255.0 / 3.0, 255));
+			// put in no height as displacement map by default
+			*out++ = (byte) 0; //(Q_bound(0, c * 255.0 / 3.0, 255));
 		}
 	}
 }
@@ -4332,152 +4332,6 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 }
 
 
-/*
-================
-R_CreateLightImage
-================
-*/
-#define	DLIGHT_SIZE	16
-static void R_CreateLightImage(void)
-{
-	int             x, y;
-	byte            data[DLIGHT_SIZE][DLIGHT_SIZE][4];
-	int             b;
-
-	// make a centered inverse-square falloff blob for dynamic lighting
-	for(x = 0; x < DLIGHT_SIZE; x++)
-	{
-		for(y = 0; y < DLIGHT_SIZE; y++)
-		{
-			float           d;
-
-			d = (DLIGHT_SIZE / 2 - 0.5f - x) * (DLIGHT_SIZE / 2 - 0.5f - x) +
-				(DLIGHT_SIZE / 2 - 0.5f - y) * (DLIGHT_SIZE / 2 - 0.5f - y);
-			b = 4000 / d;
-			if(b > 255)
-			{
-				b = 255;
-			}
-			else if(b < 75)
-			{
-				b = 0;
-			}
-			data[y][x][0] = data[y][x][1] = data[y][x][2] = b;
-			data[y][x][3] = 255;
-		}
-	}
-	tr.dlightImage = R_CreateImage("_dlight", (byte *) data, DLIGHT_SIZE, DLIGHT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
-}
-
-
-
-/*
-=================
-R_InitFogTable
-=================
-*/
-void R_InitFogTable(void)
-{
-	int             i;
-	float           d;
-	float           exp;
-
-	exp = 0.5;
-
-	for(i = 0; i < FOG_TABLE_SIZE; i++)
-	{
-		d = pow((float)i / (FOG_TABLE_SIZE - 1), exp);
-
-		tr.fogTable[i] = d;
-	}
-}
-
-
-/*
-================
-R_FogFactor
-
-Returns a 0.0 to 1.0 fog density value
-This is called for each texel of the fog texture on startup
-and for each vertex of transparent shaders in fog dynamically
-================
-*/
-float R_FogFactor(float s, float t)
-{
-	float           d;
-
-	s -= 1.0 / 512;
-	if(s < 0)
-	{
-		return 0;
-	}
-	if(t < 1.0 / 32)
-	{
-		return 0;
-	}
-	if(t < 31.0 / 32)
-	{
-		s *= (t - 1.0f / 32.0f) / (30.0f / 32.0f);
-	}
-
-	// we need to leave a lot of clamp range
-	s *= 8;
-
-	if(s > 1.0)
-	{
-		s = 1.0;
-	}
-
-	d = tr.fogTable[(int)(s * (FOG_TABLE_SIZE - 1))];
-
-	return d;
-}
-
-
-/*
-================
-R_CreateFogImage
-================
-*/
-#define	FOG_S	256
-#define	FOG_T	32
-static void R_CreateFogImage(void)
-{
-	int             x, y;
-	byte           *data;
-	float           g;
-	float           d;
-	float           borderColor[4];
-
-	data = ri.Hunk_AllocateTempMemory(FOG_S * FOG_T * 4);
-
-	g = 2.0;
-
-	// S is distance, T is depth
-	for(x = 0; x < FOG_S; x++)
-	{
-		for(y = 0; y < FOG_T; y++)
-		{
-			d = R_FogFactor((x + 0.5f) / FOG_S, (y + 0.5f) / FOG_T);
-
-			data[(y * FOG_S + x) * 4 + 0] = data[(y * FOG_S + x) * 4 + 1] = data[(y * FOG_S + x) * 4 + 2] = 255;
-			data[(y * FOG_S + x) * 4 + 3] = 255 * d;
-		}
-	}
-	// standard openGL clamping doesn't really do what we want -- it includes
-	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
-	// what we want.
-	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
-	ri.Hunk_FreeTempMemory(data);
-
-	borderColor[0] = 1.0;
-	borderColor[1] = 1.0;
-	borderColor[2] = 1.0;
-	borderColor[3] = 1;
-
-	qglTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-}
-
 
 /*
 ==================
@@ -4495,7 +4349,6 @@ static void R_CreateDefaultImage(void)
 	for(x = 0; x < DEFAULT_SIZE; x++)
 	{
 		data[0][x][0] = data[0][x][1] = data[0][x][2] = data[0][x][3] = 255;
-
 		data[x][0][0] = data[x][0][1] = data[x][0][2] = data[x][0][3] = 255;
 
 		data[DEFAULT_SIZE - 1][x][0] =
@@ -4723,7 +4576,9 @@ void R_CreateBuiltinImages(void)
 	{
 		for(y = 0; y < DEFAULT_SIZE; y++)
 		{
-			data[y][x][0] = data[y][x][1] = data[y][x][2] = 128;
+			data[y][x][0] = 128;
+			data[y][x][1] = 128;
+			data[y][x][2] = 255;
 			data[y][x][3] = 0;
 		}
 	}
@@ -4749,8 +4604,6 @@ void R_CreateBuiltinImages(void)
 		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NONE, FT_LINEAR, WT_CLAMP);
 	}
 
-	R_CreateLightImage();
-	R_CreateFogImage();
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();
 	R_CreateContrastRenderImage();

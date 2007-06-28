@@ -45,14 +45,13 @@ GAME OPTIONS MENU
 #define ID_HIGHQUALITYSKY		129
 #define ID_EJECTINGBRASS		130
 #define ID_WALLMARKS			131
-#define ID_LIGHTING				132
-#define ID_IDENTIFYTARGET		133
-#define ID_SYNCEVERYFRAME		134
-#define ID_FORCEMODEL			135
-#define ID_DRAWTEAMOVERLAY		136
-#define ID_ALLOWDOWNLOAD		137
-#define ID_BLOOM				138
-#define ID_BACK					139
+#define ID_IDENTIFYTARGET		132
+#define ID_SYNCEVERYFRAME		133
+#define ID_FORCEMODEL			134
+#define ID_DRAWTEAMOVERLAY		135
+#define ID_ALLOWDOWNLOAD		136
+#define ID_BLOOM				137
+#define ID_BACK					138
 
 #define	NUM_CROSSHAIRS			10
 
@@ -68,7 +67,6 @@ typedef struct {
 	menuradiobutton_s	simpleitems;
 	menuradiobutton_s	brass;
 	menuradiobutton_s	wallmarks;
-	menulist_s			lighting;
 	menuradiobutton_s	identifytarget;
 	menuradiobutton_s	highqualitysky;
 	menuradiobutton_s	synceveryframe;
@@ -82,14 +80,6 @@ typedef struct {
 } preferences_t;
 
 static preferences_t s_preferences;
-
-static const char *lighting_names[] =
-{
-	"simple diffuse",
-	"bump mapping",
-	"specular bump mapping",
-	0
-};
 
 static const char *teamoverlay_names[] =
 {
@@ -114,7 +104,6 @@ static void Preferences_SetMenuItems( void ) {
 	s_preferences.brass.curvalue			= trap_Cvar_VariableValue( "cg_brassTime" ) != 0;
 	s_preferences.wallmarks.curvalue		= trap_Cvar_VariableValue( "cg_marks" ) != 0;
 	s_preferences.identifytarget.curvalue	= trap_Cvar_VariableValue( "cg_drawCrosshairNames" ) != 0;
-	s_preferences.lighting.curvalue			= Com_Clamp(0, 2, trap_Cvar_VariableValue("r_lighting"));
 	s_preferences.highqualitysky.curvalue	= trap_Cvar_VariableValue ( "r_fastsky" ) == 0;
 	s_preferences.synceveryframe.curvalue	= trap_Cvar_VariableValue( "r_finish" ) != 0;
 	s_preferences.forcemodel.curvalue		= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
@@ -155,10 +144,6 @@ static void Preferences_Event( void* ptr, int notification ) {
 
 	case ID_WALLMARKS:
 		trap_Cvar_SetValue( "cg_marks", s_preferences.wallmarks.curvalue );
-		break;
-		
-	case ID_LIGHTING:
-		trap_Cvar_SetValue("r_lighting", s_preferences.lighting.curvalue);
 		break;
 
 	case ID_IDENTIFYTARGET:
@@ -315,16 +300,6 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.brass.generic.id                = ID_EJECTINGBRASS;
 	s_preferences.brass.generic.x	              = PREFERENCES_X_POS;
 	s_preferences.brass.generic.y	              = y;
-	
-	y += BIGCHAR_HEIGHT+2;
-	s_preferences.lighting.generic.type           = MTYPE_SPINCONTROL;
-	s_preferences.lighting.generic.name	          = "Lighting Mode:";
-	s_preferences.lighting.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	s_preferences.lighting.generic.callback       = Preferences_Event;
-	s_preferences.lighting.generic.id             = ID_LIGHTING;
-	s_preferences.lighting.generic.x	          = PREFERENCES_X_POS;
-	s_preferences.lighting.generic.y	          = y;
-	s_preferences.lighting.itemnames		      = lighting_names;
 
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences.identifytarget.generic.type     = MTYPE_RADIOBUTTON;
@@ -411,7 +386,6 @@ static void Preferences_MenuInit( void ) {
 	Menu_AddItem( &s_preferences.menu, &s_preferences.simpleitems );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.wallmarks );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.brass );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.lighting );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.identifytarget );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.highqualitysky );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.synceveryframe );

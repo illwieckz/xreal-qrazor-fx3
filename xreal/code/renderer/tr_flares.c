@@ -63,7 +63,6 @@ typedef struct flare_s
 	qboolean        inPortal;	// true if in a portal view of the scene
 	int             frameSceneNum;
 	void           *surface;
-	int             fogNum;
 
 	int             fadeTime;
 
@@ -110,7 +109,7 @@ RB_AddFlare
 This is called at surface tesselation time
 ==================
 */
-void RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t normal)
+void RB_AddFlare(void *surface, vec3_t point, vec3_t color, vec3_t normal)
 {
 	int             i;
 	flare_t        *f, *oldest;
@@ -177,7 +176,6 @@ void RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t n
 	}
 
 	f->addedFrame = backEnd.viewParms.frameCount;
-	f->fogNum = fogNum;
 
 	VectorCopy(color, f->color);
 
@@ -224,41 +222,18 @@ RB_AddLightFlares
 void RB_AddLightFlares(void)
 {
 	trRefLight_t   *l;
-	int             i, j, k;
-	fog_t          *fog;
+	int             i;
 
 	if(!r_flares->integer)
 		return;
 
 	l = backEnd.refdef.lights;
-	fog = tr.world->fogs;
 	for(i = 0; i < backEnd.refdef.numLights; i++, l++)
 	{
 		if(!l->isStatic)
 			continue;
-		
-		// find which fog volume the light is in 
-		for(j = 1; j < tr.world->numfogs; j++)
-		{
-			fog = &tr.world->fogs[j];
-			for(k = 0; k < 3; k++)
-			{
-				if(l->l.origin[k] < fog->bounds[0][k] || l->l.origin[k] > fog->bounds[1][k])
-				{
-					break;
-				}
-			}
-			if(k == 3)
-			{
-				break;
-			}
-		}
-		if(j == tr.world->numfogs)
-		{
-			j = 0;
-		}
 
-		RB_AddFlare((void *)l, j, l->l.origin, l->l.color, NULL);
+		RB_AddFlare((void *)l, l->l.origin, l->l.color, NULL);
 	}
 }
 
@@ -382,7 +357,7 @@ void RB_RenderFlare(flare_t * f)
 	iColor[2] = color[2] * 255;
 #endif
 
-	Tess_Begin(Tess_StageIteratorGeneric, tr.flareShader, NULL, f->fogNum, qfalse, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, tr.flareShader, NULL, qfalse, qfalse);
 
 	// FIXME: use quadstamp?
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;
@@ -391,6 +366,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];
@@ -403,6 +380,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];
@@ -415,6 +394,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 1;
 	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];
@@ -427,6 +408,8 @@ void RB_RenderFlare(flare_t * f)
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 1;
 	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = iColor[0];
 	tess.colors[tess.numVertexes][1] = iColor[1];
 	tess.colors[tess.numVertexes][2] = iColor[2];

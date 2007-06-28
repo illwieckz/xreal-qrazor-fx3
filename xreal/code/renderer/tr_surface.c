@@ -49,7 +49,7 @@ Tess_EndBegin
 void Tess_EndBegin()
 {
 	Tess_End();
-	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
+	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 /*
@@ -88,7 +88,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "Tess_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.fogNum, tess.skipTangentSpaces, tess.shadowVolume);
+	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume);
 }
 
 
@@ -148,15 +148,23 @@ void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, f
 	// standard square texture coordinates
 	tess.texCoords[ndx][0] = s1;
 	tess.texCoords[ndx][1] = t1;
+	tess.texCoords[ndx][2] = 0;
+	tess.texCoords[ndx][3] = 1;
 
 	tess.texCoords[ndx + 1][0] = s2;
 	tess.texCoords[ndx + 1][1] = t1;
+	tess.texCoords[ndx + 1][2] = 0;
+	tess.texCoords[ndx + 1][3] = 1;
 
 	tess.texCoords[ndx + 2][0] = s2;
 	tess.texCoords[ndx + 2][1] = t2;
+	tess.texCoords[ndx + 2][2] = 0;
+	tess.texCoords[ndx + 2][3] = 1;
 
 	tess.texCoords[ndx + 3][0] = s1;
 	tess.texCoords[ndx + 3][1] = t2;
+	tess.texCoords[ndx + 3][2] = 0;
+	tess.texCoords[ndx + 3][3] = 1;
 
 	// constant color all the way around
 	// should this be identity and let the shader specify from entity?
@@ -249,6 +257,8 @@ static void Tess_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *light
 		tess.xyz[numv][3] = 1;
 		tess.texCoords[numv][0] = p->verts[i].st[0];
 		tess.texCoords[numv][1] = p->verts[i].st[1];
+		tess.texCoords[numv][2] = 0;
+		tess.texCoords[numv][3] = 1;
 		*(int *)&tess.colors[numv] = *(int *)p->verts[i].modulate;
 
 		numv++;
@@ -517,6 +527,8 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 
 				texCoords[0] = dv->st[0];
 				texCoords[1] = dv->st[1];
+				texCoords[2] = 0;
+				texCoords[3] = 1;
 
 				*(int *)color = *(int *)dv->color;
 			}
@@ -777,6 +789,8 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 
 				texCoords[0] = dv->st[0];
 				texCoords[1] = dv->st[1];
+				texCoords[2] = 0;
+				texCoords[3] = 1;
 
 				*(int *)color = *(int *)dv->color;
 			}
@@ -1037,9 +1051,8 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 
 				texCoords[0] = dv->st[0];
 				texCoords[1] = dv->st[1];
-
-				texCoords[2] = dv->st[0];
-				texCoords[3] = dv->st[1];
+				texCoords[2] = 0;
+				texCoords[3] = 1;
 
 				*(int *)color = *(int *)dv->color;
 			}
@@ -1130,6 +1143,8 @@ static void Tess_DoRailCore(const vec3_t start, const vec3_t end, const vec3_t u
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 0.25;
 	tess.colors[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] * 0.25;
 	tess.colors[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] * 0.25;
@@ -1139,6 +1154,8 @@ static void Tess_DoRailCore(const vec3_t start, const vec3_t end, const vec3_t u
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
 	tess.colors[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1];
 	tess.colors[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2];
@@ -1148,6 +1165,8 @@ static void Tess_DoRailCore(const vec3_t start, const vec3_t end, const vec3_t u
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = t;
 	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
 	tess.colors[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1];
 	tess.colors[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2];
@@ -1157,6 +1176,8 @@ static void Tess_DoRailCore(const vec3_t start, const vec3_t end, const vec3_t u
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0] = t;
 	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
 	tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
 	tess.colors[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1];
 	tess.colors[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2];
@@ -1215,6 +1236,8 @@ static void Tess_DoRailDiscs(int numSegs, const vec3_t start, const vec3_t dir, 
 			tess.xyz[tess.numVertexes][3] = 1;
 			tess.texCoords[tess.numVertexes][0] = (j < 2);
 			tess.texCoords[tess.numVertexes][1] = (j && j != 3);
+			tess.texCoords[tess.numVertexes][2] = 0;
+			tess.texCoords[tess.numVertexes][3] = 1;
 			tess.colors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0];
 			tess.colors[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1];
 			tess.colors[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2];
@@ -1646,6 +1669,8 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 
 			tess.texCoords[tess.numVertexes + j][0] = st->st[0];
 			tess.texCoords[tess.numVertexes + j][1] = st->st[1];
+			tess.texCoords[tess.numVertexes + j][2] = 0;
+			tess.texCoords[tess.numVertexes + j][3] = 1;
 		}
 
 		// calc tangent spaces
@@ -1933,6 +1958,8 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 
 			tess.texCoords[tess.numVertexes + j][0] = v->texCoords[0];
 			tess.texCoords[tess.numVertexes + j][1] = v->texCoords[1];
+			tess.texCoords[tess.numVertexes + j][2] = 0;
+			tess.texCoords[tess.numVertexes + j][3] = 1;
 		}
 
 		// calc tangent spaces
@@ -2095,7 +2122,7 @@ static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *light
 	if(d < 0)
 		return;
 
-	RB_AddFlare((void *)surf, 0, origin, surf->color, surf->normal);
+	RB_AddFlare((void *)surf, origin, surf->color, surf->normal);
 }
 
 

@@ -527,7 +527,6 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	md5Surface_t   *surface;
 	shader_t       *shader;
 	int             i;
-	int             fogNum = 0;
 	qboolean        personalModel;
 	
 	model = tr.currentModel->md5;
@@ -571,9 +570,6 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	{
 		R_SetupEntityLighting(&tr.refdef, ent);
 	}
-
-	// FIXME: see if we are in a fog volume
-	//fogNum = R_ComputeFogNumForMDS(header, ent);
 
 	// finally add surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)
@@ -619,15 +615,15 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 		// we will add shadows even if the main object isn't visible in the view
 
 		// projection shadows work fine with personal models
-		if(r_shadows->integer == 2 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
+		if(r_shadows->integer == 2 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
 		{
-			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
+			R_AddDrawSurf((void *)surface, tr.projectionShadowShader);
 		}
 
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDrawSurf((void *)surface, shader, fogNum);
+			R_AddDrawSurf((void *)surface, shader);
 		}
 	}
 }

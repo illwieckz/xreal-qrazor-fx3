@@ -282,6 +282,10 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
+- check for shader model 3 hardware
+- add fog lights
+- ignore shadow pyramids that don't cast into the view
+- use shadow caster volumes to kill obselete shadows
 - improve deferred shading
  - fix 3d model hud rendering
  - fix mirrors/portals
@@ -289,11 +293,7 @@ code/renderer
 - add stained shadow mapping
 - add volumetric lighting
 - add Percentage-Closer-Filtering to shadow mapping
-- add lighting_DB_proj GLSL shader
-- add lighting_DBS_proj GLSL shader
 - fix stencil shadow flickering bug ?
-- fix tcMod turb ?
-- change lighting_*_direct shaders to simulate non-lightgrid lighting ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 
 code/win32

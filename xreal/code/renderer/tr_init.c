@@ -55,7 +55,6 @@ cvar_t         *r_measureOverdraw;
 cvar_t         *r_inGameVideo;
 cvar_t         *r_fastsky;
 cvar_t         *r_drawSun;
-cvar_t         *r_lighting;
 
 cvar_t         *r_lodbias;
 cvar_t         *r_lodscale;
@@ -207,6 +206,8 @@ cvar_t         *r_precacheLightIndexes;
 cvar_t         *r_precacheShadowIndexes;
 
 cvar_t         *r_deferredShading;
+cvar_t         *r_parallaxMapping;
+cvar_t         *r_parallaxDepthScale;
 
 
 // GL_ARB_multitexture
@@ -1329,6 +1330,8 @@ void R_Register(void)
 	r_uiFullScreen = ri.Cvar_Get("r_uifullscreen", "0", 0);
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
+
 #if (defined(MACOS_X) || defined(__linux__)) && defined(SMP)
 	// Default to using SMP on Mac OS X or Linux if we have multiple processors
 	r_smp = ri.Cvar_Get("r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1358,8 +1361,6 @@ void R_Register(void)
 	r_fastsky = ri.Cvar_Get("r_fastsky", "0", CVAR_ARCHIVE);
 	r_inGameVideo = ri.Cvar_Get("r_inGameVideo", "1", CVAR_ARCHIVE);
 	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE);
-	r_lighting = ri.Cvar_Get("r_lighting", "2", CVAR_ARCHIVE);
-	AssertCvarRange(r_lighting, 0, 2, qtrue);
 	r_finish = ri.Cvar_Get("r_finish", "0", CVAR_ARCHIVE);
 	r_textureMode = ri.Cvar_Get("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	r_swapInterval = ri.Cvar_Get("r_swapInterval", "0", CVAR_ARCHIVE);
@@ -1423,6 +1424,7 @@ void R_Register(void)
 	r_offsetFactor = ri.Cvar_Get("r_offsetFactor", "-1", CVAR_CHEAT);
 	r_offsetUnits = ri.Cvar_Get("r_offsetUnits", "-2", CVAR_CHEAT);
 	r_specularExponent = ri.Cvar_Get("r_specularExponent", "16", CVAR_CHEAT);
+	r_parallaxDepthScale = ri.Cvar_Get("r_parallaxDepthScale", "0.05", CVAR_CHEAT);
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
@@ -1539,8 +1541,6 @@ void R_Init(void)
 			tr.triangleTable[i] = -tr.triangleTable[i - FUNCTABLE_SIZE / 2];
 		}
 	}
-
-	R_InitFogTable();
 
 	R_NoiseInit();
 

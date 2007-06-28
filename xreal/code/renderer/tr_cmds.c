@@ -99,19 +99,15 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 6)
 	{
-		ri.Printf(PRINT_ALL, "fog srf:%i batches:%i\n", backEnd.pc.c_fogSurfaces, backEnd.pc.c_fogBatches);
-	}
-	else if(r_speeds->integer == 7)
-	{
 		ri.Printf(PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
 				  backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);
 	}
-	else if(r_speeds->integer == 8)
+	else if(r_speeds->integer == 7)
 	{
 		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled:%i\n",
 				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable, backEnd.pc.c_occlusionQueriesCulled);
 	}
-	else if(r_speeds->integer == 9)
+	else if(r_speeds->integer == 8)
 	{
 		ri.Printf(PRINT_ALL, "depth bounds tests:%i rejected:%i\n", tr.pc.c_depthBoundsTests, tr.pc.c_depthBoundsTestsRejected);
 	}

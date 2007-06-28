@@ -1071,241 +1071,6 @@ static void ParseWaveForm(char **text, waveForm_t * wave)
 }
 
 
-/*
-===================
-ParseTexMod
-===================
-*/
-static qboolean ParseTexMod(char **text, shaderStage_t * stage)
-{
-	const char     *token;
-	texModInfo_t   *tmi;
-
-	if(stage->bundle[0].numTexMods == TR_MAX_TEXMODS)
-	{
-		ri.Error(ERR_DROP, "ERROR: too many tcMod stages in shader '%s'\n", shader.name);
-		return qfalse;
-	}
-
-	tmi = &stage->bundle[0].texMods[stage->bundle[0].numTexMods];
-	stage->bundle[0].numTexMods++;
-
-	token = Com_ParseExt(text, qfalse);
-	
-//	ri.Printf(PRINT_ALL, "using tcMod '%s' in shader '%s'\n", token, shader.name);
-
-	// turb
-	if(!Q_stricmp(token, "turb"))
-	{
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.base = atof(token);
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.amplitude = atof(token);
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.phase = atof(token);
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.frequency = atof(token);
-
-		tmi->type = TMOD_TURBULENT;
-	}
-	// scale
-	else if(!Q_stricmp(token, "scale"))
-	{
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing scale parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->scale[0] = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing scale parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->scale[1] = atof(token);
-		tmi->type = TMOD_SCALE;
-	}
-	// scroll
-	else if(!Q_stricmp(token, "scroll"))
-	{
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->scroll[0] = atof(token);
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->scroll[1] = atof(token);
-		tmi->type = TMOD_SCROLL;
-	}
-	// stretch
-	else if(!Q_stricmp(token, "stretch"))
-	{
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.func = NameToGenFunc(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.base = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.amplitude = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.phase = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->wave.frequency = atof(token);
-
-		tmi->type = TMOD_STRETCH;
-	}
-	// transform
-	else if(!Q_stricmp(token, "transform"))
-	{
-		MatrixIdentity(tmi->matrix);
-		
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->matrix[ 0] = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->matrix[ 1] = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->matrix[ 4] = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->matrix[ 5] = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->matrix[12] = atof(token);
-
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->matrix[13] = atof(token);
-
-		tmi->type = TMOD_TRANSFORM;
-	}
-	// rotate
-	else if(!Q_stricmp(token, "rotate"))
-	{
-		token = Com_ParseExt(text, qfalse);
-		if(token[0] == 0)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod rotate parms in shader '%s'\n", shader.name);
-			return qfalse;
-		}
-		tmi->rotateSpeed = atof(token);
-		tmi->type = TMOD_ROTATE;
-	}
-	// entityTranslate
-	else if(!Q_stricmp(token, "entityTranslate"))
-	{
-		tmi->type = TMOD_ENTITY_TRANSLATE;
-	}
-	else
-	{
-		ri.Printf(PRINT_WARNING, "WARNING: unknown tcMod '%s' in shader '%s'\n", token, shader.name);
-		return qfalse;
-	}
-	
-	// Tr3B NOTE: some shaders using tcMod are messed up by artists so we need this bugfix
-	while(1)
-	{
-		token = Com_ParseExt(text, qfalse);
-				
-		if(token[0] == 0)
-			break;
-		
-		ri.Printf(PRINT_WARNING, "WARNING: obselete tcMod parameter '%s' in shader '%s'\n", token, shader.name);
-	}
-	
-	return qtrue;
-}
-
-
-
 static qboolean ParseMap(shaderStage_t * stage, char **text, char *buffer, int bufferSize)
 {
 	int				len;
@@ -1511,52 +1276,8 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// animMap <frequency> <image1> .... <imageN>
 		else if(!Q_stricmp(token, "animMap"))
 		{
-			token = Com_ParseExt(text, qfalse);
-			if(!token[0])
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'animMmap' keyword in shader '%s'\n", shader.name);
-				return qfalse;
-			}
-			stage->bundle[0].imageAnimationSpeed = atof(token);
-			
-			imageBits = 0;
-			if(stage->overrideNoPicMip || shader.noPicMip)
-			{
-				imageBits |= IF_NOPICMIP;
-			}
-			
-			if(stage->overrideFilterType)
-			{
-				filterType = stage->filterType;
-			}
-			else
-			{
-				filterType = shader.filterType;
-			}
-
-			// parse up to MAX_IMAGE_ANIMATIONS animations
-			while(1)
-			{
-				int             num;
-
-				token = Com_ParseExt(text, qfalse);
-				if(!token[0])
-				{
-					break;
-				}
-				num = stage->bundle[0].numImageAnimations;
-				if(num < MAX_IMAGE_ANIMATIONS)
-				{
-					stage->bundle[0].image[num] = R_FindImageFile(token, imageBits, filterType, WT_REPEAT);
-					if(!stage->bundle[0].image[num])
-					{
-						ri.Printf(PRINT_WARNING,
-								  "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
-						return qfalse;
-					}
-					stage->bundle[0].numImageAnimations++;
-				}
-			}
+			ri.Printf(PRINT_WARNING, "WARNING: animMap keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
 		}
 		else if(!Q_stricmp(token, "videoMap"))
 		{
@@ -2152,6 +1873,8 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// tcGen <function>
 		else if(!Q_stricmp(token, "texGen") || !Q_stricmp(token, "tcGen"))
 		{
+			ri.Printf(PRINT_WARNING, "WARNING: tcGen environment keyword not supported in shader '%s'\n", shader.name);
+
 			token = Com_ParseExt(text, qfalse);
 			if(token[0] == 0)
 			{
@@ -2161,43 +1884,41 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 			if(!Q_stricmp(token, "environment"))
 			{
-				stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED;
+				ri.Printf(PRINT_WARNING, "WARNING: texGen environment keyword not supported in shader '%s'\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "lightmap"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obselete tcGen lightmap in shader '%s': tcMods will be ignored\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: texGen lightmap keyword not supported in shader '%s'\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "texture") || !Q_stricmp(token, "base"))
 			{
-				stage->bundle[0].tcGen = TCGEN_TEXTURE;
+				ri.Printf(PRINT_WARNING, "WARNING: texGen texture keyword not supported in shader '%s'\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "vector"))
 			{
-				ParseVector(text, 3, stage->bundle[0].tcGenVectors[0]);
-				ParseVector(text, 3, stage->bundle[0].tcGenVectors[1]);
-
-				stage->bundle[0].tcGen = TCGEN_VECTOR;
+				ri.Printf(PRINT_WARNING, "WARNING: texGen vector keyword not supported in shader '%s'\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "reflect"))
 			{
+				ri.Printf(PRINT_WARNING, "WARNING: use stage reflectionmap instead of texGen reflect keyword shader '%s'\n", shader.name);
 				stage->type = ST_REFLECTIONMAP;
 			}
 			else if(!Q_stricmp(token, "skybox"))
 			{
+				ri.Printf(PRINT_WARNING, "WARNING: use stage skyboxmap instead of texGen skybox keyword shader '%s'\n", shader.name);
 				stage->type = ST_SKYBOXMAP;
 			}
 			else
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: unknown texgen parm in shader '%s'\n", shader.name);
+				Com_SkipRestOfLine(text);
+				//ri.Printf(PRINT_WARNING, "WARNING: unknown texgen parm in shader '%s'\n", shader.name);
 			}
 		}
 		// tcMod <type> <...>
 		else if(!Q_stricmp(token, "tcMod"))
 		{
-			if(!ParseTexMod(text, stage))
-			{
-				return qfalse;
-			}
+			ri.Printf(PRINT_WARNING, "WARNING: tcMod keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
 		}
 		// scroll
 		else if(!Q_stricmp(token, "scroll") || !Q_stricmp(token, "translate"))
@@ -2356,15 +2077,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			ParseExpression(text, &stage->fresnelBiasExp);
 		}
-		// heightScale <arithmetic expression>
-		else if(!Q_stricmp(token, "heightScale"))
+		// depthScale <arithmetic expression>
+		else if(!Q_stricmp(token, "depthScale"))
 		{
-			ParseExpression(text, &stage->heightScaleExp);
-		}
-		// heightBias <arithmetic expression>
-		else if(!Q_stricmp(token, "heightBias"))
-		{
-			ParseExpression(text, &stage->heightBiasExp);
+			ParseExpression(text, &stage->depthScaleExp);
 		}
 		// deformMagnitude <arithmetic expression>
 		else if(!Q_stricmp(token, "deformMagnitude"))
@@ -2415,6 +2131,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name);
+			Com_SkipRestOfLine(text);
 			return qfalse;
 		}
 	}
@@ -3647,20 +3364,7 @@ static qboolean ParseShader(char *_text)
 		// fogParms
 		else if(!Q_stricmp(token, "fogParms"))
 		{
-			if(!ParseVector(text, 3, shader.fogParms.color))
-			{
-				return qfalse;
-			}
-
-			token = Com_ParseExt(text, qfalse);
-			if(!token[0])
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.name);
-				continue;
-			}
-			shader.fogParms.depthForOpaque = atof(token);
-
-			// skip any old gradient directions
+			ri.Printf(PRINT_WARNING, "WARNING: fogParms keyword not supported in shader '%s'\n", shader.name);
 			Com_SkipRestOfLine(text);
 			continue;
 		}
@@ -3843,7 +3547,7 @@ static qboolean ParseShader(char *_text)
 	}
 
 	// ignore shaders that don't have any stages, unless it is a sky or fog
-	if(s == 0 && !shader.forceOpaque && !shader.isSky && !(shader.contentFlags & CONTENTS_FOG))
+	if(s == 0 && !shader.forceOpaque && !shader.isSky)
 	{
 		return qfalse;
 	}
@@ -4022,16 +3726,7 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-			}
-			
 			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_SPECULARMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_SPECULARMAP].tcGen = TCGEN_SKIP;
-			}
 			
 			numStages++;
 			j += 2;
@@ -4050,10 +3745,6 @@ static void CollapseStages(void)
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB;
 			
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-			if(!tmpStages[numStages].bundle[TB_NORMALMAP].numTexMods)
-			{
-				tmpStages[numStages].bundle[TB_NORMALMAP].tcGen = TCGEN_SKIP;
-			}
 	
 			numStages++;
 			j += 1;
@@ -4330,15 +4021,6 @@ static shader_t *GeneratePermanentShader(void)
 
 	*newShader = shader;
 
-	if(shader.sort <= SS_OPAQUE)
-	{
-		newShader->fogPass = FP_EQUAL;
-	}
-	else if(shader.contentFlags & CONTENTS_FOG)
-	{
-		newShader->fogPass = FP_LE;
-	}
-
 	tr.shaders[tr.numShaders] = newShader;
 	newShader->index = tr.numShaders;
 
@@ -4570,47 +4252,6 @@ static shader_t *FinishShader(void)
 				break;
 			}
 		}
-
-		// default texture coordinate generation
-		switch(pStage->type)
-		{
-			case ST_COLORMAP:
-			{
-				if(pStage->bundle[0].tcGen == TCGEN_BAD)
-				{
-					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
-				}
-				break;
-			}
-			
-			case ST_DIFFUSEMAP:
-			case ST_NORMALMAP:
-			case ST_SPECULARMAP:
-			case ST_HEATHAZEMAP:
-			case ST_LIQUIDMAP:
-			{
-				if(pStage->bundle[0].tcGen == TCGEN_BAD)
-				{
-					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
-				}
-				break;
-			}
-			
-			case ST_ATTENUATIONMAP_XY:
-			case ST_ATTENUATIONMAP_Z:
-			{
-				if(pStage->bundle[0].tcGen == TCGEN_BAD)
-				{
-					pStage->bundle[0].tcGen = TCGEN_TEXTURE;
-				}
-				break;
-			}
-		
-			default:
-			{
-				break;	
-			}
-		}
 		
 		if(shader.forceOpaque)
 		{
@@ -4621,37 +4262,6 @@ static shader_t *FinishShader(void)
 		if((pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) &&
 		   (stages[0].stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 		{
-			int             blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
-			int             blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
-
-			// fog color adjustment only works for blend modes that have a contribution
-			// that aproaches 0 as the modulate values aproach 0 --
-			// GL_ONE, GL_ONE
-			// GL_ZERO, GL_ONE_MINUS_SRC_COLOR
-			// GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-
-			// modulate, additive
-			if(((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE)) ||
-			   ((blendSrcBits == GLS_SRCBLEND_ZERO) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR)))
-			{
-				pStage->adjustColorsForFog = ACFF_MODULATE_RGB;
-			}
-			// strict blend
-			else if((blendSrcBits == GLS_SRCBLEND_SRC_ALPHA) &&
-					(blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA))
-			{
-				pStage->adjustColorsForFog = ACFF_MODULATE_ALPHA;
-			}
-			// premultiplied alpha
-			else if((blendSrcBits == GLS_SRCBLEND_ONE) && (blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA))
-			{
-				pStage->adjustColorsForFog = ACFF_MODULATE_RGBA;
-			}
-			else
-			{
-				// we can't adjust this one correctly, so it won't be exactly correct in fog
-			}
-
 			// don't screw with sort order if this is a portal or environment
 			if(!shader.sort)
 			{
@@ -4691,12 +4301,6 @@ static shader_t *FinishShader(void)
 
 	// look for multitexture potential
 	CollapseStages();
-
-	// fogonly shaders don't have any normal passes
-	if(shader.numStages == 0 && !shader.isSky)
-	{
-		shader.sort = SS_FOG;
-	}
 
 	return GeneratePermanentShader();
 }
@@ -5333,10 +4937,6 @@ void R_ShaderList_f(void)
 		else if(shader->sort == SS_BANNER)
 		{
 			ri.Printf(PRINT_ALL, "SS_BANNER           ");	
-		}
-		else if(shader->sort == SS_FOG)
-		{
-			ri.Printf(PRINT_ALL, "SS_FOG              ");	
 		}
 		else if(shader->sort == SS_UNDERWATER)
 		{

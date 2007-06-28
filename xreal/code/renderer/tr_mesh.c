@@ -215,12 +215,10 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 {
 	int             i;
 	mdxModel_t     *model = 0;
-	mdxFrame_t     *frame = 0;
 	mdxSurface_t   *surface = 0;
 	mdxShader_t    *mdxShader = 0;
 	shader_t       *shader = 0;
 	int             lod;
-	int             fogNum;
 	qboolean        personalModel;
 
 	// don't add third_person objects if not in a portal
@@ -264,12 +262,7 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 	{
 		R_SetupEntityLighting(&tr.refdef, ent);
 	}
-
-	// see if we are in a fog volume
-	// FIXME: non-normalized axis issues
-	frame = model->frames + ent->e.frame;
-	fogNum = R_FogLocalPointAndRadius(frame->localOrigin, frame->radius);
-
+	
 	// draw all surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)
 	{
@@ -321,15 +314,15 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 		// we will add shadows even if the main object isn't visible in the view
 
 		// projection shadows work fine with personal models
-		if(r_shadows->integer == 2 && fogNum == 0 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
+		if(r_shadows->integer == 2 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
 		{
-			R_AddDrawSurf((void *)surface, tr.projectionShadowShader, 0);
+			R_AddDrawSurf((void *)surface, tr.projectionShadowShader);
 		}
 
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddDrawSurf((void *)surface, shader, fogNum);
+			R_AddDrawSurf((void *)surface, shader);
 		}
 	}
 }

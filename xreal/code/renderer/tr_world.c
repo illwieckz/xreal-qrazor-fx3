@@ -337,15 +337,13 @@ static void R_AddWorldSurface(msurface_t * surf)
 	}
 	surf->viewCount = tr.viewCount;
 	
-	// FIXME: bmodel fog?
-
 	// try to cull before lighting or adding
 	if(R_CullSurface(surf->data, surf->shader))
 	{
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, surf->fogIndex);
+	R_AddDrawSurf(surf->data, surf->shader);
 }
 
 /*
@@ -361,7 +359,7 @@ static void R_AddWorldSurface(msurface_t * surf)
 R_AddBrushModelSurface
 ======================
 */
-static void R_AddBrushModelSurface(msurface_t * surf, int fogIndex)
+static void R_AddBrushModelSurface(msurface_t * surf)
 {
 	if(surf->viewCount == tr.viewCount)
 	{
@@ -375,7 +373,7 @@ static void R_AddBrushModelSurface(msurface_t * surf, int fogIndex)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, fogIndex);
+	R_AddDrawSurf(surf->data, surf->shader);
 }
 
 /*
@@ -390,7 +388,6 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 	int             i;
 	vec3_t          v;
 	vec3_t          transformed;
-	int             fogNum = 0;
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bModel = pModel->bmodel;
@@ -423,11 +420,9 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		return;
 	}
 	
-	fogNum = R_FogWorldBox(ent->worldBounds);
-
 	for(i = 0; i < bModel->numSurfaces; i++)
 	{
-		R_AddBrushModelSurface(bModel->firstSurface + i, fogNum);
+		R_AddBrushModelSurface(bModel->firstSurface + i);
 	}
 }
 
