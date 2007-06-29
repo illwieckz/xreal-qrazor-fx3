@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="GtkRadiant"
 	ProjectGUID="{8E70385C-223A-4DD1-9B99-28FF2331A2B5}"
 	RootNamespace="GtkRadiant"
@@ -70,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib oldnames.lib winmm.lib kernel32.lib user32.lib gdi32.lib shfolder.lib wsock32.lib dbghelp.lib glib-2.0.lib gobject-2.0.lib gdk-win32-2.0.lib gdk_pixbuf-2.0.lib gtk-win32-2.0.lib pango-1.0.lib gtkglext-win32-1.0.lib gdkglext-win32-1.0.lib opengl32.lib xml2.lib"
+				AdditionalDependencies="msvcrt.lib oldnames.lib winmm.lib kernel32.lib user32.lib gdi32.lib shfolder.lib wsock32.lib dbghelp.lib comdlg32.lib shell32.lib glib-2.0.lib gobject-2.0.lib gdk-win32-2.0.lib gdk_pixbuf-2.0.lib gtk-win32-2.0.lib pango-1.0.lib gtkglext-win32-1.0.lib gdkglext-win32-1.0.lib opengl32.lib xml2.lib"
 				OutputFile="$(OutDir)/$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -166,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib oldnames.lib winmm.lib kernel32.lib user32.lib gdi32.lib shfolder.lib wsock32.lib dbghelp.lib glib-2.0.lib gobject-2.0.lib gdk-win32-2.0.lib gdk_pixbuf-2.0.lib gtk-win32-2.0.lib pango-1.0.lib gtkglext-win32-1.0.lib gdkglext-win32-1.0.lib opengl32.lib xml2.lib"
+				AdditionalDependencies="msvcrt.lib oldnames.lib winmm.lib kernel32.lib user32.lib gdi32.lib shfolder.lib wsock32.lib dbghelp.lib comdlg32.lib shell32.lib glib-2.0.lib gobject-2.0.lib gdk-win32-2.0.lib gdk_pixbuf-2.0.lib gtk-win32-2.0.lib pango-1.0.lib gtkglext-win32-1.0.lib gdkglext-win32-1.0.lib opengl32.lib xml2.lib"
 				OutputFile="$(OutDir)/$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
