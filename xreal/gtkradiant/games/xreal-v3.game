@@ -2,7 +2,7 @@
 <game
   type="xreal"
   index="1"
-  name="XreaL - Map Version 2"
+  name="XreaL - Map Version 3"
   enginepath_win32="C:/Program Files/XreaL/"
   enginepath_linux="/opt/XreaL/"
   enginepath_macos="/opt/XreaL/"
@@ -18,11 +18,11 @@
   archivetypes="pk3"
   texturetypes="tga png jpg dds"
   modeltypes="md3 ase lwo"
-  maptypes="mapdoom3"
+  maptypes="mapquake4"
   shaders="doom3"
   entityclass="quake3"
   entityclasstype="xml"
   entities="xreal"
-  brushtypes="doom3"
+  brushtypes="quake4"
   patchtypes="doom3 def2doom3"
 />

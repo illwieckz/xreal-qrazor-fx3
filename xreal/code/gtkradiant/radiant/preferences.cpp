@@ -141,8 +141,24 @@ CGameDescription::CGameDescription(xmlDocPtr pDoc, const CopiedString& gameFile)
 
   {
     StringOutputStream path(256);
-    path << AppPath_get() << gameFile.c_str() << "/";
-    mGameToolsPath = path.c_str();
+
+	// Tr3B: added keyword gametoolspath so different configs can share the same game specific tools
+    //path << AppPath_get() << gameFile.c_str() << "/";
+
+	GameDescription::iterator i = m_gameDescription.find("gametoolspath");
+    if(i == m_gameDescription.end())
+    {
+      globalErrorStream() << "Warning, 'toolspath' attribute not found in '" << reinterpret_cast<const char*>(pDoc->URL) << "'\n";
+      
+	  // default
+      path << AppPath_get() << "xreal.game" << "/";
+    }
+    else
+    {
+      path << AppPath_get() << (*i).second.c_str() << "/";
+    }
+
+	mGameToolsPath = path.c_str();
   }
 
   ASSERT_MESSAGE(file_exists(mGameToolsPath.c_str()), "game directory not found: " << makeQuoted(mGameToolsPath.c_str()));
