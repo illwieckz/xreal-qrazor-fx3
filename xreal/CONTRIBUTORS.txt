@@ -42,7 +42,8 @@ NecEvil  - par machinegun model
 
 LEVEL DESIGN
 ============
-Stefan "ReFlex" Lautner - redm08
+Stefan "ReFlex" Lautner - REDM08, UGLY R.G.A
+Kai Moosmann - Lost World
 
 
 
@@ -50,15 +51,17 @@ Stefan "ReFlex" Lautner - redm08
 ======
 Christian "Lorax" Ballsieper
 Josef "cnuke" Söntgen
-Willi "whammes" Hammes
+Willi "whammes" Hammes - explosion sprites, particles, decals
 Robin "Wakey" Pengelstorfer
 Stefan "ReFlex" Lautner
-Nathan "jitspoe" Wulf
+Nathan "jitspoe" Wulf - hud numbers
 Adrian "otty" Fuhrmann
 Pat "raynorpat" Raynor
 Michael "mic" Denno
-CheapAlert
-hi_volt
+Yves "evillair" Allaire - Quake4 eX texture set
+Philip KlevestavPK01 - Quake4 pk01 texture set
+hi_volt - sky clouds
+CheapAlert - menu art, effect textures
 
 
 SFX

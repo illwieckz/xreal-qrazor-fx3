@@ -16,7 +16,6 @@ code/game
 - experimental Lua 5.1 layer for level entity scripting allowing map designers to control entities like in Doom3
 
 code/q3_ui
-- lighting mode game option
 - bloom rendering game option
 - anisotropic filter value slider in graphics options
 
@@ -63,12 +62,8 @@ code/renderer
   [cg/r]_shadows
   1 = blob
   2 = planar projection
-  3 = stencil shadow volumes (Doom3/Nvidia style)
+  3 = stencil shadow volumes (Doom3 style)
   4 = variance shadow mapping
-- r_lighting cvar determines lighting mode
-  0 = simple diffuse N dot L lighting
-  1 = bump mapping
-  2 = specular bump mapping
 - usage of vertex buffer objects (VBO) to speed up rendering of large static models
 - usage of frame buffer objects (FBO) to perfom offscreen rendering effects
 - heat haze post process effect
@@ -82,7 +77,6 @@ code/renderer
 - rotoscope cartoon post process effect
 - reactivated and extended TrueType font support using FreeType
 - optional deferred shading with r_deferredShading 1
-- screenshotPNG console command
 
 code/common/aselib
 - fixed bad Doom3 paths

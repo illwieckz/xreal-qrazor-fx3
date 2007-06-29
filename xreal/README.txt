@@ -47,7 +47,9 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	
 7. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
-	C:\Program Files\Microsoft DirectX SDK (April 2007)\Include
+	C:\Program Files\Microsoft Platform SDK\include
+	C:\Program Files\Microsoft Platform SDK\include\mfc
+	C:\Program Files\Microsoft DirectX SDK (April 2007)\include
 	C:\GTK\include
 	C:\GTK\include\libxml2
 	C:\GTK\include\glib-2.0
@@ -62,7 +64,8 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 
 8. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
-	C:\Program Files\Microsoft DirectX SDK (April 2007)\Lib\x86
+	C:\Program Files\Microsoft Platform SDK\lib
+	C:\Program Files\Microsoft DirectX SDK (April 2007)\lib\x86
 	C:\GTK\lib
 
 9. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
