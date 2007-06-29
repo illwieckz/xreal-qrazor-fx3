@@ -1560,11 +1560,13 @@ void ShaderCache_Destroy()
   }
   
   // Tr3B: FIXME: avoid "HashedCache::~HashedCache: not empty" using a better solution
+#ifdef __linux__
   g_ShaderCache->release("$Q3MAP2_LIGHT_SPHERE");
   g_ShaderCache->release("$PIVOT");
   g_ShaderCache->release("$BIGPOINT");
   g_ShaderCache->release("$SELPOINT");
   g_ShaderCache->release("$POINT");
+#endif
 
   GlobalShaderSystem().detach(*g_ShaderCache);
   GlobalTexturesCache().detach(*g_ShaderCache);
