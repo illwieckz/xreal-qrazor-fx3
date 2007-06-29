@@ -44,8 +44,8 @@ int FindMiptex(char *name)
 		if(!strcmp(name, textureref[i].name))
 		{
 			return i;
-		}						//end if
-	}							//end for
+		}
+	}
 	if(nummiptex == MAX_MAP_TEXTURES)
 		Error("MAX_MAP_TEXTURES");
 	strcpy(textureref[i].name, name);
@@ -59,7 +59,7 @@ int FindMiptex(char *name)
 		textureref[i].contents = LittleLong(mt->contents);
 		strcpy(textureref[i].animname, mt->animname);
 		FreeMemory(mt);
-	}							//end if
+	}
 	nummiptex++;
 
 	if(textureref[i].animname[0])

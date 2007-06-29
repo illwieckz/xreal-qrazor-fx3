@@ -132,8 +132,8 @@ void PrintContents(int contents)
 		if(contents & contentnames[i].value)
 		{
 			botimport.Print(PRT_MESSAGE, "%s\n", contentnames[i].name);
-		}						//end if
-	}							//end for
+		}
+	}
 }								//end of the function PrintContents
 
 #endif							// BSP_DEBUG
@@ -170,8 +170,8 @@ int AAS_PointContents(vec3_t point)
 // Returns:                 -
 // Changes Globals:     -
 //===========================================================================
-qboolean AAS_EntityCollision(int entnum,
-							 vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end, int contentmask, bsp_trace_t * trace)
+qboolean
+AAS_EntityCollision(int entnum, vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end, int contentmask, bsp_trace_t * trace)
 {
 	bsp_trace_t     enttrace;
 
@@ -180,7 +180,7 @@ qboolean AAS_EntityCollision(int entnum,
 	{
 		Com_Memcpy(trace, &enttrace, sizeof(bsp_trace_t));
 		return qtrue;
-	}							//end if
+	}
 	return qfalse;
 }								//end of the function AAS_EntityCollision
 
@@ -278,7 +278,7 @@ int AAS_BSPEntityInRange(int ent)
 	{
 		botimport.Print(PRT_MESSAGE, "bsp entity out of range\n");
 		return qfalse;
-	}							//end if
+	}
 	return qtrue;
 }								//end of the function AAS_BSPEntityInRange
 
@@ -302,8 +302,8 @@ int AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size)
 			strncpy(value, epair->value, size - 1);
 			value[size - 1] = '\0';
 			return qtrue;
-		}						//end if
-	}							//end for
+		}
+	}
 	return qfalse;
 }								//end of the function AAS_FindBSPEpair
 
@@ -388,8 +388,8 @@ void AAS_FreeBSPEntities(void)
 			if(epair->value)
 				FreeMemory(epair->value);
 			FreeMemory(epair);
-		}						//end for
-	}							//end for
+		}
+	}
 	bspworld.numentities = 0;
 }								//end of the function AAS_FreeBSPEntities
 
@@ -419,12 +419,12 @@ void AAS_ParseBSPEntities(void)
 			AAS_FreeBSPEntities();
 			FreeScript(script);
 			return;
-		}						//end if
+		}
 		if(bspworld.numentities >= MAX_BSPENTITIES)
 		{
 			botimport.Print(PRT_MESSAGE, "too many entities in BSP file\n");
 			break;
-		}						//end if
+		}
 		ent = &bspworld.entities[bspworld.numentities];
 		bspworld.numentities++;
 		ent->epairs = NULL;
@@ -441,7 +441,7 @@ void AAS_ParseBSPEntities(void)
 				AAS_FreeBSPEntities();
 				FreeScript(script);
 				return;
-			}					//end if
+			}
 			StripDoubleQuotes(token.string);
 			epair->key = (char *)GetHunkMemory(strlen(token.string) + 1);
 			strcpy(epair->key, token.string);
@@ -450,19 +450,19 @@ void AAS_ParseBSPEntities(void)
 				AAS_FreeBSPEntities();
 				FreeScript(script);
 				return;
-			}					//end if
+			}
 			StripDoubleQuotes(token.string);
 			epair->value = (char *)GetHunkMemory(strlen(token.string) + 1);
 			strcpy(epair->value, token.string);
-		}						//end while
+		}						
 		if(strcmp(token.string, "}"))
 		{
 			ScriptError(script, "missing }\n");
 			AAS_FreeBSPEntities();
 			FreeScript(script);
 			return;
-		}						//end if
-	}							//end while
+		}
+	}							
 	FreeScript(script);
 }								//end of the function AAS_ParseBSPEntities
 

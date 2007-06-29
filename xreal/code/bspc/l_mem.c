@@ -275,19 +275,19 @@ memoryblock_t  *BlockFromPointer(void *ptr, char *str)
 		//char *crash = (char *) NULL;
 		//crash[0] = 1;
 		Error("%s: NULL pointer\n", str);
-#endif	/* MEMDEBUG */
+#endif							/* MEMDEBUG */
 		return NULL;
-	}							//end if
+	}
 	block = (memoryblock_t *) ((char *)ptr - sizeof(memoryblock_t));
 	if(block->id != MEM_ID)
 	{
 		Error("%s: invalid memory block\n", str);
-	}							//end if
+	}
 	if(block->ptr != ptr)
 	{
 
 		Error("%s: memory block pointer invalid\n", str);
-	}							//end if
+	}
 	return block;
 }								//end of the function BlockFromPointer
 
@@ -369,7 +369,7 @@ void PrintMemoryLabels(void)
 		Log_Write("%6d, %p, %8d: %24s line %6d: %s", i, block->ptr, block->size, block->file, block->line, block->label);
 #endif							//MEMDEBUG
 		i++;
-	}							//end for
+	}
 }								//end of the function PrintMemoryLabels
 
 //===========================================================================
@@ -385,7 +385,7 @@ void DumpMemory(void)
 	for(block = memory; block; block = memory)
 	{
 		FreeMemory(block->ptr);
-	}							//end for
+	}
 	totalmemorysize = 0;
 }								//end of the function DumpMemory
 
@@ -430,7 +430,7 @@ void Hunk_ClearHigh(void)
 	{
 		nexth = h->next;
 		FreeMemory(h);
-	}							//end for
+	}
 	memhunk_high = NULL;
 	memhunk_high_size = 16 * 1024 * 1024;
 }								//end of the function Hunk_ClearHigh

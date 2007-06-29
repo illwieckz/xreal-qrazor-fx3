@@ -196,8 +196,8 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 		{
 			mins[i] = (mins[i] + maxs[i]) * 0.5 - max;
 			maxs[i] = (mins[i] + maxs[i]) * 0.5 + max;
-		}						//end for
-	}							//end if
+		}
+	}
 	if(outmins)
 		VectorCopy(mins, outmins);
 	if(outmaxs)

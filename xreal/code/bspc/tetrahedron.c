@@ -1251,7 +1251,8 @@ void TH_TetrahedralDecomposition(th_triangle_t * triangles)
 				TH_CreateTetrahedron(thtriangles);
 				qprintf("\r%6d", thworld.numtetrahedrons);
 			}					//end for
-		} while(numtriangles);
+		}
+		while(numtriangles);
 		for(i = 1; i < thworld.numtriangles; i++)
 		{
 			tri = &thworld.triangles[i];
@@ -1270,7 +1271,8 @@ void TH_TetrahedralDecomposition(th_triangle_t * triangles)
 			TH_CreateTetrahedron(thtriangles);
 			qprintf("\r%6d", thworld.numtetrahedrons);
 		}						//end for
-	} while(numtriangles);
+	}
+	while(numtriangles);
 	//
 	numtriangles = 0;
 	for(i = 1; i < thworld.numtriangles; i++)
@@ -1421,7 +1423,7 @@ th_triangle_t  *TH_CreateAASFaceTriangles(aas_face_t * face)
 //===========================================================================
 th_triangle_t  *TH_AASToTriangleMesh(void)
 {
-	int             i, j, facenum;//, otherareanum;
+	int             i, j, facenum;	//, otherareanum;
 	aas_face_t     *face;
 	th_triangle_t  *tri, *nexttri, *triangles;
 

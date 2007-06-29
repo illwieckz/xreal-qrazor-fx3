@@ -633,7 +633,7 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 					{
 						VectorNegate(newplane, newplane);
 						newplane[3] = -newplane[3];
-					}			//end if
+					}			
 					ChopWindingInPlace(&w2, newplane, newplane[3], 0.1f);
 					if(!w2)
 					{

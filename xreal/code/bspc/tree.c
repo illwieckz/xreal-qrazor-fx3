@@ -103,7 +103,7 @@ void Tree_Free_r(node_t * node)
 	{
 		Tree_Free_r(node->children[0]);
 		Tree_Free_r(node->children[1]);
-	}							//end if
+	}
 	//free bspbrushes
 //  FreeBrushList (node->brushlist);
 	for(brush = node->brushlist; brush; brush = nextbrush)
@@ -113,7 +113,7 @@ void Tree_Free_r(node_t * node)
 		freedtreemem += MemorySize(brush);
 #endif							//ME
 		FreeBrush(brush);
-	}							//end for
+	}
 	node->brushlist = NULL;
 
 	/*
@@ -127,7 +127,7 @@ void Tree_Free_r(node_t * node)
 	   freedtreemem += sizeof(face_t);
 	   #endif //ME
 	   FreeFace(f);
-	   } //end for
+	   } 
 	 */
 
 	// free the node
@@ -137,7 +137,7 @@ void Tree_Free_r(node_t * node)
 		freedtreemem += MemorySize(node->volume);
 #endif							//ME
 		FreeBrush(node->volume);
-	}							//end if
+	}
 
 	if(numthreads == 1)
 		c_nodes--;
@@ -268,13 +268,13 @@ void Tree_PruneNodes_r(node_t * node)
 			next = b->next;
 			b->next = node->brushlist;
 			node->brushlist = b;
-		}						//end for
+		}
 		//free the child nodes
 		FreeMemory(node->children[0]);
 		FreeMemory(node->children[1]);
 		//two nodes are cut away
 		c_pruned += 2;
-	}							//end if
+	}
 }								//end of the function Tree_PruneNodes_r
 
 //===========================================================================

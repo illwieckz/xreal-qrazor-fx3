@@ -71,8 +71,8 @@ int QuakeFileExtensionType(char *extension)
 		if(!stricmp(extension, quakefiletypes[i].extension))
 		{
 			return quakefiletypes[i].type;
-		}						//end if
-	}							//end for
+		}
+	}
 	return QFILETYPE_UNKNOWN;
 }								//end of the function QuakeFileExtensionType
 
@@ -91,8 +91,8 @@ char           *QuakeFileTypeExtension(int type)
 		if(quakefiletypes[i].type == type)
 		{
 			return quakefiletypes[i].extension;
-		}						//end if
-	}							//end for
+		}
+	}
 	return QFILEEXT_UNKNOWN;
 }								//end of the function QuakeFileExtension
 
@@ -129,16 +129,16 @@ char           *StringContains(char *str1, char *str2, int casesensitive)
 			{
 				if(str1[j] != str2[j])
 					break;
-			}					//end if
+			}
 			else
 			{
 				if(toupper(str1[j]) != toupper(str2[j]))
 					break;
-			}					//end else
-		}						//end for
+			}
+		}
 		if(!str2[j])
 			return str1;
-	}							//end for
+	}
 	return NULL;
 }								//end of the function StringContains
 
@@ -165,7 +165,7 @@ int FileFilter(char *filter, char *filename, int casesensitive)
 					break;
 				buf[i] = *filter;
 				filter++;
-			}					//end for
+			}
 			buf[i] = '\0';
 			if(strlen(buf))
 			{
@@ -173,17 +173,17 @@ int FileFilter(char *filter, char *filename, int casesensitive)
 				if(!ptr)
 					return false;
 				filename = ptr + strlen(buf);
-			}					//end if
-		}						//end if
+			}
+		}
 		else if(*filter == '?')
 		{
 			filter++;
 			filename++;
-		}						//end else if
+		}
 		else if(*filter == '[' && *(filter + 1) == '[')
 		{
 			filter++;
-		}						//end if
+		}
 		else if(*filter == '[')
 		{
 			filter++;
@@ -198,29 +198,29 @@ int FileFilter(char *filter, char *filename, int casesensitive)
 					{
 						if(*filename >= *filter && *filename <= *(filter + 2))
 							found = true;
-					}			//end if
+					}
 					else
 					{
 						if(toupper(*filename) >= toupper(*filter) && toupper(*filename) <= toupper(*(filter + 2)))
 							found = true;
-					}			//end else
+					}
 					filter += 3;
-				}				//end if
+				}
 				else
 				{
 					if(casesensitive)
 					{
 						if(*filter == *filename)
 							found = true;
-					}			//end if
+					}
 					else
 					{
 						if(toupper(*filter) == toupper(*filename))
 							found = true;
-					}			//end else
+					}
 					filter++;
-				}				//end else
-			}					//end while
+				}
+			}					
 			if(!found)
 				return false;
 			while(*filter)
@@ -228,26 +228,26 @@ int FileFilter(char *filter, char *filename, int casesensitive)
 				if(*filter == ']' && *(filter + 1) != ']')
 					break;
 				filter++;
-			}					//end while
+			}					
 			filter++;
 			filename++;
-		}						//end else if
+		}
 		else
 		{
 			if(casesensitive)
 			{
 				if(*filter != *filename)
 					return false;
-			}					//end if
+			}
 			else
 			{
 				if(toupper(*filter) != toupper(*filename))
 					return false;
-			}					//end else
+			}
 			filter++;
 			filename++;
-		}						//end else
-	}							//end while
+		}
+	}							
 	return true;
 }								//end of the function FileFilter
 
@@ -306,9 +306,9 @@ quakefile_t    *FindQuakeFilesInZip(char *zipfile, char *filter)
 			else
 				qfiles = qf;
 			lastqf = qf;
-		}						//end if
+		}
 		unzGoToNextFile(uf);
-	}							//end for
+	}
 
 	unzClose(uf);
 
@@ -338,16 +338,16 @@ quakefile_t    *FindQuakeFilesInPak(char *pakfile, char *filter)
 	{
 		Warning("can't open pak file %s", pakfile);
 		return NULL;
-	}							//end if
+	}
 	//read pak header, check for valid pak id and seek to the dir entries
-	if((fread(&packheader, 1, sizeof(dpackheader_t), fp) != sizeof(dpackheader_t))
-	   || (packheader.ident != IDPAKHEADER && packheader.ident != SINPAKHEADER)
-	   || (fseek(fp, LittleLong(packheader.dirofs), SEEK_SET)))
+	if((fread(&packheader, 1, sizeof(dpackheader_t), fp) !=
+		sizeof(dpackheader_t)) || (packheader.ident != IDPAKHEADER
+								   && packheader.ident != SINPAKHEADER) || (fseek(fp, LittleLong(packheader.dirofs), SEEK_SET)))
 	{
 		fclose(fp);
 		Warning("invalid pak file %s", pakfile);
 		return NULL;
-	}							//end if
+	}
 	//if it is a pak file from id software
 	if(packheader.ident == IDPAKHEADER)
 	{
@@ -363,7 +363,7 @@ quakefile_t    *FindQuakeFilesInPak(char *pakfile, char *filter)
 			free(idpackfiles);
 			Warning("can't read the Quake pak file dir entries from %s", pakfile);
 			return NULL;
-		}						//end if
+		}
 		fclose(fp);
 		//convert to sin pack files
 		packfiles = (dsinpackfile_t *) malloc(numpackdirs * sizeof(dsinpackfile_t));
@@ -374,9 +374,9 @@ quakefile_t    *FindQuakeFilesInPak(char *pakfile, char *filter)
 			strcpy(packfiles[i].name, idpackfiles[i].name);
 			packfiles[i].filepos = LittleLong(idpackfiles[i].filepos);
 			packfiles[i].filelen = LittleLong(idpackfiles[i].filelen);
-		}						//end for
+		}
 		free(idpackfiles);
-	}							//end if
+	}
 	else						//its a Sin pack file
 	{
 		//number of dir entries in the pak file
@@ -391,14 +391,14 @@ quakefile_t    *FindQuakeFilesInPak(char *pakfile, char *filter)
 			free(packfiles);
 			Warning("can't read the Sin pak file dir entries from %s", pakfile);
 			return NULL;
-		}						//end if
+		}
 		fclose(fp);
 		for(i = 0; i < numpackdirs; i++)
 		{
 			packfiles[i].filepos = LittleLong(packfiles[i].filepos);
 			packfiles[i].filelen = LittleLong(packfiles[i].filelen);
-		}						//end for
-	}							//end else
+		}
+	}
 	//
 	for(i = 0; i < numpackdirs; i++)
 	{
@@ -423,8 +423,8 @@ quakefile_t    *FindQuakeFilesInPak(char *pakfile, char *filter)
 			else
 				qfiles = qf;
 			lastqf = qf;
-		}						//end if
-	}							//end for
+		}
+	}
 	free(packfiles);
 	return qfiles;
 }								//end of the function FindQuakeFilesInPak
@@ -485,7 +485,7 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 				lastqf = qf;
 				while(lastqf->next)
 					lastqf = lastqf->next;
-			}					//end if
+			}
 			else
 			{
 #if defined(WIN32)|defined(_WIN32)
@@ -496,11 +496,11 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 				if(str && str == pakfile + strlen(pakfile) - strlen(".pk3"))
 				{
 					qf = FindQuakeFilesInZip(pakfile, filter);
-				}				//end if
+				}
 				else
 				{
 					qf = FindQuakeFilesInPak(pakfile, filter);
-				}				//end else
+				}
 				//
 				if(qf)
 				{
@@ -511,18 +511,18 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 					lastqf = qf;
 					while(lastqf->next)
 						lastqf = lastqf->next;
-				}				//end if
-			}					//end else
+				}
+			}
 			//
 #if defined(WIN32)|defined(_WIN32)
 			//find the next file
 			done = !FindNextFile(handle, &filedata);
-		}						//end while
+		}						
 #else
-		}						//end for
+		}
 		globfree(&globbuf);
 #endif
-	}							//end if
+	}
 	else
 	{
 #if defined(WIN32)|defined(_WIN32)
@@ -561,12 +561,12 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 #if defined(WIN32)|defined(_WIN32)
 			//find the next file
 			done = !FindNextFile(handle, &filedata);
-		}						//end while
+		}						
 #else
-		}						//end for
+		}
 		globfree(&globbuf);
 #endif
-	}							//end else
+	}
 	return qfiles;
 }								//end of the function FindQuakeFilesWithPakFilter
 
@@ -601,8 +601,8 @@ quakefile_t    *FindQuakeFiles(char *filter)
 				str++;
 			strcpy(filefilter, str);
 			return FindQuakeFilesWithPakFilter(pakfilter, filefilter);
-		}						//end if
-	}							//end else
+		}
+	}
 	return FindQuakeFilesWithPakFilter(NULL, newfilter);
 }								//end of the function FindQuakeFiles
 
@@ -639,7 +639,7 @@ int LoadQuakeFile(quakefile_t * qf, void **bufferptr)
 
 		*bufferptr = buffer;
 		return length;
-	}							//end if
+	}
 	else
 	{
 		fp = SafeOpenRead(qf->filename);
@@ -655,7 +655,7 @@ int LoadQuakeFile(quakefile_t * qf, void **bufferptr)
 
 		*bufferptr = buffer;
 		return length;
-	}							//end else
+	}
 }								//end of the function LoadQuakeFile
 
 //===========================================================================
@@ -687,7 +687,7 @@ int ReadQuakeFile(quakefile_t * qf, void *buffer, int offset, int length)
 				read = sizeof(tmpbuf);
 			unzReadCurrentFile(&qf->zipinfo, tmpbuf, read);
 			offset -= read;
-		}						//end while
+		}						
 		//read the Quake file from the zip file
 		length = unzReadCurrentFile(&qf->zipinfo, buffer, length);
 		//close the Quake file in the zip file
@@ -696,7 +696,7 @@ int ReadQuakeFile(quakefile_t * qf, void *buffer, int offset, int length)
 		unzClose(zf);
 
 		return length;
-	}							//end if
+	}
 	else
 	{
 		fp = SafeOpenRead(qf->filename);
@@ -708,5 +708,5 @@ int ReadQuakeFile(quakefile_t * qf, void *buffer, int offset, int length)
 		fclose(fp);
 
 		return length;
-	}							//end else
+	}
 }								//end of the function ReadQuakeFile

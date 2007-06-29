@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 bbox							//30x30x56
 {
-	presencetype    PRESENCE_NORMAL flags 0x0000 mins
+	presencetype PRESENCE_NORMAL flags 0x0000 mins
 	{
 	-15, -15, -24}
 	maxs
@@ -41,7 +41,7 @@ bbox							//30x30x56
 
 bbox							//30x30x40
 {
-	presencetype    PRESENCE_CROUCH flags 0x0001 mins
+	presencetype PRESENCE_CROUCH flags 0x0001 mins
 	{
 	-15, -15, -24}
 	maxs

@@ -237,11 +237,11 @@ void EA_Jump(int client)
 	if(bi->actionflags & ACTION_JUMPEDLASTFRAME)
 	{
 		bi->actionflags &= ~ACTION_JUMP;
-	}							//end if
+	}
 	else
 	{
 		bi->actionflags |= ACTION_JUMP;
-	}							//end if
+	}
 }								//end of the function EA_Jump
 
 //===========================================================================
@@ -259,11 +259,11 @@ void EA_DelayedJump(int client)
 	if(bi->actionflags & ACTION_JUMPEDLASTFRAME)
 	{
 		bi->actionflags &= ~ACTION_DELAYEDJUMP;
-	}							//end if
+	}
 	else
 	{
 		bi->actionflags |= ACTION_DELAYEDJUMP;
-	}							//end if
+	}
 }								//end of the function EA_DelayedJump
 
 //===========================================================================

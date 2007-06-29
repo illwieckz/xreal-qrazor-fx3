@@ -318,7 +318,8 @@ void HL_DecompressVis(byte * in, byte * decompressed)
 			*out++ = 0;
 			c--;
 		}
-	} while(out - decompressed < row);
+	}
+	while(out - decompressed < row);
 }
 
 //=============================================================================
@@ -685,7 +686,7 @@ Dumps info about current file
 */
 void HL_PrintBSPFileSizes(void)
 {
-//	int             numtextures = hl_texdatasize ? ((hl_dmiptexlump_t *) hl_dtexdata)->nummiptex : 0;
+//      int             numtextures = hl_texdatasize ? ((hl_dmiptexlump_t *) hl_dtexdata)->nummiptex : 0;
 	int             totalmemory = 0;
 
 	qprintf("\n");
@@ -791,7 +792,7 @@ void HL_ParseEntities(void)
 
 	while(ParseEntity(script))
 	{
-	}							//end while
+	}							
 
 	FreeScript(script);
 }								//end of the function HL_ParseEntities

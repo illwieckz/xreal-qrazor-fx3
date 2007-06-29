@@ -55,24 +55,24 @@ float LibVarStringValue(char *string)
 			if(dotfound || *string != '.')
 			{
 				return 0;
-			}					//end if
+			}
 			else
 			{
 				dotfound = 10;
 				string++;
-			}					//end if
-		}						//end if
+			}
+		}
 		if(dotfound)
 		{
 			value = value + (float)(*string - '0') / (float)dotfound;
 			dotfound *= 10;
-		}						//end if
+		}
 		else
 		{
 			value = value * 10.0 + (float)(*string - '0');
-		}						//end else
+		}
 		string++;
-	}							//end while
+	}							
 	return value;
 }								//end of the function LibVarStringValue
 
@@ -123,7 +123,7 @@ void LibVarDeAllocAll(void)
 	{
 		libvarlist = libvarlist->next;
 		LibVarDeAlloc(v);
-	}							//end for
+	}
 	libvarlist = NULL;
 }								//end of the function LibVarDeAllocAll
 
@@ -142,8 +142,8 @@ libvar_t       *LibVarGet(char *var_name)
 		if(!Q_stricmp(v->name, var_name))
 		{
 			return v;
-		}						//end if
-	}							//end for
+		}
+	}
 	return NULL;
 }								//end of the function LibVarGet
 
@@ -161,11 +161,11 @@ char           *LibVarGetString(char *var_name)
 	if(v)
 	{
 		return v->string;
-	}							//end if
+	}
 	else
 	{
 		return "";
-	}							//end else
+	}
 }								//end of the function LibVarGetString
 
 //===========================================================================
@@ -182,11 +182,11 @@ float LibVarGetValue(char *var_name)
 	if(v)
 	{
 		return v->value;
-	}							//end if
+	}
 	else
 	{
 		return 0;
-	}							//end else
+	}
 }								//end of the function LibVarGetValue
 
 //===========================================================================
@@ -257,11 +257,11 @@ void LibVarSet(char *var_name, char *value)
 	if(v)
 	{
 		FreeMemory(v->string);
-	}							//end if
+	}
 	else
 	{
 		v = LibVarAlloc(var_name);
-	}							//end else
+	}
 	//variable string
 	v->string = (char *)GetMemory(strlen(value) + 1);
 	strcpy(v->string, value);
@@ -285,11 +285,11 @@ qboolean LibVarChanged(char *var_name)
 	if(v)
 	{
 		return v->modified;
-	}							//end if
+	}
 	else
 	{
 		return qfalse;
-	}							//end else
+	}
 }								//end of the function LibVarChanged
 
 //===========================================================================
@@ -306,5 +306,5 @@ void LibVarSetNotModified(char *var_name)
 	if(v)
 	{
 		v->modified = qfalse;
-	}							//end if
+	}
 }								//end of the function LibVarSetNotModified

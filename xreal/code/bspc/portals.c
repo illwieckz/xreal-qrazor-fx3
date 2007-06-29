@@ -50,9 +50,9 @@ portal_t       *AllocPortal(void)
 		if(c_active_portals > c_peak_portals)
 		{
 			c_peak_portals = c_active_portals;
-		}						//end if
+		}
 		c_portalmemory += MemorySize(p);
-	}							//end if
+	}
 
 //  p->nextportal = portallist;
 //  portallist = p;
@@ -74,7 +74,7 @@ void FreePortal(portal_t * p)
 	{
 		c_active_portals--;
 		c_portalmemory -= MemorySize(p);
-	}							//end if
+	}
 	FreeMemory(p);
 }								//end of the function FreePortal
 
@@ -244,16 +244,16 @@ void RemovePortalFromNode(portal_t * portal, node_t * l)
 	{
 		*pp = portal->next[0];
 		portal->nodes[0] = NULL;
-	}							//end if
+	}
 	else if(portal->nodes[1] == l)
 	{
 		*pp = portal->next[1];
 		portal->nodes[1] = NULL;
-	}							//end else if
+	}
 	else
 	{
 		Error("RemovePortalFromNode: mislinked portal");
-	}							//end else
+	}
 //#ifdef ME
 	n = 0;
 	for(p = l->portals; p; p = p->next[s])
@@ -262,15 +262,15 @@ void RemovePortalFromNode(portal_t * portal, node_t * l)
 		{
 			if(p == portals[i])
 				Error("RemovePortalFromNode: circular linked\n");
-		}						//end for
+		}
 		if(p->nodes[0] != l && p->nodes[1] != l)
 		{
 			Error("RemovePortalFromNodes: portal does not belong to node\n");
-		}						//end if
+		}
 		portals[n] = p;
 		s = (p->nodes[1] == l);
 //      if (++n >= 4096) Error("RemovePortalFromNode: more than 4096 portals\n");
-	}							//end for
+	}
 //#endif
 }								//end of the function RemovePortalFromNode
 
@@ -358,8 +358,8 @@ void MakeHeadnodePortals(tree_t * tree)
 			if(j == i)
 				continue;
 			ChopWindingInPlace(&portals[i]->winding, bplanes[j].normal, bplanes[j].dist, ON_EPSILON);
-		}						//end for
-	}							//end for
+		}
+	}
 }								//end of the function MakeHeadNodePortals
 
 //===========================================================================
@@ -431,31 +431,31 @@ void MakeNodePortal(node_t * node)
 			side = 0;
 			VectorCopy(p->plane.normal, normal);
 			dist = p->plane.dist;
-		}						//end if
+		}
 		else if(p->nodes[1] == node)
 		{
 			side = 1;
 			VectorSubtract(vec3_origin, p->plane.normal, normal);
 			dist = -p->plane.dist;
-		}						//end else if
+		}
 		else
 		{
 			Error("MakeNodePortal: mislinked portal");
-		}						//end else
+		}
 		ChopWindingInPlace(&w, normal, dist, 0.1);
-	}							//end for
+	}
 
 	if(!w)
 	{
 		return;
-	}							//end if
+	}
 
 	if(WindingIsTiny(w))
 	{
 		c_tinyportals++;
 		FreeWinding(w);
 		return;
-	}							//end if
+	}
 
 #ifdef _DEBUG
 /* //NOTE: don't use this winding ok check
@@ -465,7 +465,7 @@ void MakeNodePortal(node_t * node)
 		Log_Print("MakeNodePortal: %s\n", WindingErrorString());
 		FreeWinding(w);
 		return;
-	} //end if*/
+	} */
 #endif							//DEBUG
 
 
@@ -525,14 +525,14 @@ void SplitNodePortals(node_t * node)
 			FreeWinding(frontwinding);
 			frontwinding = NULL;
 			c_tinyportals++;
-		}						//end if
+		}
 
 		if(backwinding && WindingIsTiny(backwinding))
 		{
 			FreeWinding(backwinding);
 			backwinding = NULL;
 			c_tinyportals++;
-		}						//end if
+		}
 
 #ifdef _DEBUG
 /* 	//NOTE: don't use this winding ok check
@@ -542,13 +542,13 @@ void SplitNodePortals(node_t * node)
 			Log_Print("SplitNodePortals: front %s\n", WindingErrorString());
 			FreeWinding(frontwinding);
 			frontwinding = NULL;
-		} //end if
+		} 
 		if (backwinding && WindingError(backwinding))
 		{
 			Log_Print("SplitNodePortals: back %s\n", WindingErrorString());
 			FreeWinding(backwinding);
 			backwinding = NULL;
-		} //end if*/
+		} */
 #endif							//DEBUG
 
 		if(!frontwinding && !backwinding)
@@ -586,12 +586,12 @@ void SplitNodePortals(node_t * node)
 		{
 			AddPortalToNodes(p, f, other_node);
 			AddPortalToNodes(new_portal, b, other_node);
-		}						//end if
+		}
 		else
 		{
 			AddPortalToNodes(p, other_node, f);
 			AddPortalToNodes(new_portal, other_node, b);
-		}						//end else
+		}
 	}
 
 	node->portals = NULL;
@@ -776,8 +776,8 @@ void FloodPortals(node_t * firstnode)
 			p->nodes[!s]->occupied = node->occupied + 1;
 			//
 			P_AddNodeToList(p->nodes[!s]);
-		}						//end for
-	}							//end for
+		}
+	}
 }								//end of the function FloodPortals
 
 //===========================================================================
@@ -802,7 +802,7 @@ void FloodPortals_r(node_t * node, int dist)
 	if(!node)
 	{
 		Error("FloodPortals_r: NULL node\n");
-	}							//end if*/
+	}
 	node->occupied = dist;
 
 	for(p = node->portals; p; p = p->next[s])
@@ -816,7 +816,7 @@ void FloodPortals_r(node_t * node, int dist)
 			continue;
 		//flood recursively through the current portal
 		FloodPortals_r(p->nodes[!s], dist + 1);
-	}							//end for
+	}
 	Log_Print("\r%6d", --numrec);
 }								//end of the function FloodPortals_r
 
@@ -839,7 +839,7 @@ qboolean PlaceOccupant(node_t * headnode, vec3_t origin, entity_t * occupant)
 		if(node->planenum < 0 || node->planenum > nummapplanes)
 		{
 			Error("PlaceOccupant: invalid node->planenum\n");
-		}						//end if
+		}
 		plane = &mapplanes[node->planenum];
 		d = DotProduct(origin, plane->normal) - plane->dist;
 		if(d >= 0)
@@ -849,8 +849,8 @@ qboolean PlaceOccupant(node_t * headnode, vec3_t origin, entity_t * occupant)
 		if(!node)
 		{
 			Error("PlaceOccupant: invalid child %d\n", d < 0);
-		}						//end if
-	}							//end while
+		}
+	}							
 	//don't start in solid
 //  if (node->contents == CONTENTS_SOLID)
 	//ME: replaced because in LeafNode in brushbsp.c
@@ -920,29 +920,29 @@ qboolean FloodEntities(tree_t * tree)
 						inside = true;
 						x = 999;	//stop for this info_player_start
 						break;
-					}			//end if
+					}
 					origin[0] -= x;
 					origin[1] -= y;
-				}				//end for
-			}					//end for
-		}						//end if
+				}
+			}
+		}
 		else
 		{
 			if(PlaceOccupant(headnode, origin, &entities[i]))
 			{
 				inside = true;
-			}					//end if
-		}						//end else
-	}							//end for
+			}
+		}
+	}
 
 	if(!inside)
 	{
 		Log_Print("WARNING: no entities inside\n");
-	}							//end if
+	}
 	else if(tree->outside_node.occupied)
 	{
 		Log_Print("WARNING: entity reached from outside\n");
-	}							//end else if
+	}
 
 	return (qboolean) (inside && !tree->outside_node.occupied);
 }								//end of the function FloodEntities
@@ -972,7 +972,7 @@ void FillOutside_r(node_t * node)
 		FillOutside_r(node->children[0]);
 		FillOutside_r(node->children[1]);
 		return;
-	}							//end if
+	}
 	// anything not reachable by an entity
 	// can be filled away (by setting solid contents)
 	if(!node->occupied)
@@ -981,16 +981,16 @@ void FillOutside_r(node_t * node)
 		{
 			c_outside++;
 			node->contents |= CONTENTS_SOLID;
-		}						//end if
+		}
 		else
 		{
 			c_solid++;
-		}						//end else
-	}							//end if
+		}
+	}
 	else
 	{
 		c_inside++;
-	}							//end else
+	}
 }								//end of the function FillOutside_r
 
 //===========================================================================
@@ -1058,7 +1058,7 @@ void FloodAreas_r(node_t * node)
 			e->portalareas[0] = c_areas;
 
 		return;
-	}							//end if
+	}
 
 	if(node->area)
 		return;					// allready got it
@@ -1075,7 +1075,7 @@ void FloodAreas_r(node_t * node)
 			continue;
 
 		FloodAreas_r(p->nodes[!s]);
-	}							//end for
+	}
 }								//end of the function FloodAreas_r
 
 //===========================================================================
@@ -1131,7 +1131,7 @@ void SetAreaPortalAreas_r(node_t * node)
 		SetAreaPortalAreas_r(node->children[0]);
 		SetAreaPortalAreas_r(node->children[1]);
 		return;
-	}							//end if
+	}
 
 	if(node->contents == CONTENTS_AREAPORTAL)
 	{
@@ -1145,8 +1145,8 @@ void SetAreaPortalAreas_r(node_t * node)
 		{
 			Log_Print("WARNING: areaportal entity %i doesn't touch two areas\n", b->original->entitynum);
 			return;
-		}						//end if
-	}							//end if
+		}
+	}
 }								//end of the function SetAreaPortalAreas_r
 
 //===========================================================================
@@ -1181,16 +1181,16 @@ void EmitAreaPortals(node_t *headnode)
 				dp->portalnum = e->areaportalnum;
 				dp->otherarea = e->portalareas[1];
 				numareaportals++;
-			} //end if
+			} 
 			else if (e->portalareas[1] == i)
 			{
 				dp->portalnum = e->areaportalnum;
 				dp->otherarea = e->portalareas[0];
 				numareaportals++;
-			} //end else if
-		} //end for
+			} 
+		} 
 		dareas[i].numareaportals = numareaportals - dareas[i].firstareaportal;
-	} //end for
+	} 
 
 	Log_Print("%5i numareas\n", numareas);
 	Log_Print("%5i numareaportals\n", numareaportals);
@@ -1260,7 +1260,7 @@ void FindPortalSide(portal_t * p)
 				{				// exact match
 					bestside = &brush->original_sides[i];
 					goto gotit;
-				}				//end if
+				}
 				// see how close the match is
 				p2 = &mapplanes[side->planenum & ~1];
 				dot = DotProduct(p1->normal, p2->normal);
@@ -1268,10 +1268,10 @@ void FindPortalSide(portal_t * p)
 				{
 					bestdot = dot;
 					bestside = side;
-				}				//end if
-			}					//end for
-		}						//end for
-	}							//end for
+				}
+			}
+		}
+	}
 
   gotit:
 	if(!bestside)
@@ -1297,7 +1297,7 @@ void MarkVisibleSides_r(node_t * node)
 		MarkVisibleSides_r(node->children[0]);
 		MarkVisibleSides_r(node->children[1]);
 		return;
-	}							//end if
+	}
 
 	// empty leaves are never boundary leaves
 	if(!node->contents)
@@ -1313,7 +1313,7 @@ void MarkVisibleSides_r(node_t * node)
 			FindPortalSide(p);
 		if(p->side)
 			p->side->flags |= SFL_VISIBLE;
-	}							//end for
+	}
 }								//end of the function MarkVisibleSides_r
 
 //===========================================================================

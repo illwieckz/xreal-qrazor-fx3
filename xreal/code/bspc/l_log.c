@@ -50,18 +50,18 @@ void Log_Open(char *filename)
 	{
 		printf("openlog <filename>\n");
 		return;
-	}							//end if
+	}
 	if(logfile.fp)
 	{
 		printf("log file %s is already opened\n", logfile.filename);
 		return;
-	}							//end if
+	}
 	logfile.fp = fopen(filename, "wb");
 	if(!logfile.fp)
 	{
 		printf("can't open the log file %s\n", filename);
 		return;
-	}							//end if
+	}
 	strncpy(logfile.filename, filename, MAX_LOGFILENAMESIZE);
 	printf("Opened log %s\n", logfile.filename);
 }								//end of the function Log_Create
@@ -78,12 +78,12 @@ void Log_Close(void)
 	{
 		printf("no log file to close\n");
 		return;
-	}							//end if
+	}
 	if(fclose(logfile.fp))
 	{
 		printf("can't close log file %s\n", logfile.filename);
 		return;
-	}							//end if
+	}
 	logfile.fp = NULL;
 	printf("Closed log %s\n", logfile.filename);
 }								//end of the function Log_Close
@@ -119,9 +119,9 @@ void Log_UnifyEndOfLine(char *buf)
 				memmove(&buf[i + 1], &buf[i], strlen(&buf[i]) + 1);
 				buf[i] = '\r';
 				i++;
-			}					//end if
-		}						//end if
-	}							//end for
+			}
+		}
+	}
 }								//end of the function Log_UnifyEndOfLine
 
 //===========================================================================
@@ -146,14 +146,14 @@ void Log_Print(char *fmt, ...)
 #else
 		printf("%s", buf);
 #endif							//WINBSPS
-	}							//end if
+	}
 
 	if(logfile.fp)
 	{
 		Log_UnifyEndOfLine(buf);
 		fprintf(logfile.fp, "%s", buf);
 		fflush(logfile.fp);
-	}							//end if
+	}
 }								//end of the function Log_Print
 
 //===========================================================================

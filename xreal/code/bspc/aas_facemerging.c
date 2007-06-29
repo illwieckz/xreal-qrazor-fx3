@@ -59,12 +59,12 @@ int AAS_TryMergeFaces(tmp_face_t * face1, tmp_face_t * face2)
 				if(face1->frontarea && face1->backarea)
 				{
 					neww = MergeWindings(face1->winding, face2->winding, mapplanes[face1->planenum].normal);
-				}				//end if
+				}
 				else
 				{
 					//this function is to be found in l_poly.c
 					neww = TryMergeWinding(face1->winding, face2->winding, mapplanes[face1->planenum].normal);
-				}				//end else
+				}
 				if(neww)
 				{
 					FreeWinding(face1->winding);
@@ -75,14 +75,14 @@ int AAS_TryMergeFaces(tmp_face_t * face1, tmp_face_t * face2)
 						AAS_RemoveFaceFromArea(face2, face2->backarea);
 					AAS_FreeTmpFace(face2);
 					return true;
-				}				//end if
-			}					//end if
+				}
+			}
 			else if((face1->planenum & ~1) == (face2->planenum & ~1))
 			{
 				Log_Write("face %d and %d, same front and back area but flipped planes\r\n", face1->num, face2->num);
-			}					//end if
-		}						//end if
-	}							//end if
+			}
+		}
+	}
 	return false;
 }								//end of the function AAS_TryMergeFaces
 
@@ -109,7 +109,7 @@ int AAS_TryMergeFaces(tmp_face_t *face1, tmp_face_t *face2)
 		else if (face1->frontarea != face2->backarea ||
 					face1->backarea != face2->frontarea) return false;
 //		return false;
-	} //end if
+	} 
 	//this function is to be found in l_poly.c
 	neww = TryMergeWinding(face1->winding, face2->winding,
 					mapplanes[face1->planenum].normal);
@@ -163,16 +163,16 @@ void AAS_MergeAreaFaces(void)
 					qprintf("\r%6d", num_facemerges);
 					AAS_CheckArea(tmparea);
 					break;
-				}				//end if
-			}					//end for
+				}
+			}
 			if(restart)
 			{
 				tmparea = lasttmparea;
 				break;
-			}					//end if
-		}						//end for
+			}
+		}
 		lasttmparea = tmparea;
-	}							//end for
+	}
 	qprintf("\n");
 	Log_Write("%6d face merges\r\n", num_facemerges);
 }								//end of the function AAS_MergeAreaFaces
@@ -213,8 +213,8 @@ void AAS_MergePlaneFaces(tmp_area_t * tmparea, int planenum)
 			AAS_FreeTmpFace(face2);
 			//
 			nextface2 = face1->next[side1];
-		}						//end for
-	}							//end for
+		}
+	}
 }								//end of the function AAS_MergePlaneFaces
 
 //===========================================================================
@@ -241,7 +241,7 @@ int AAS_CanMergePlaneFaces(tmp_area_t * tmparea, int planenum)
 			frontarea = face1->frontarea;
 			backarea = face1->backarea;
 			faceflags = face1->faceflags;
-		}						//end if
+		}
 		else
 		{
 			if(frontarea != face1->frontarea)
@@ -251,8 +251,8 @@ int AAS_CanMergePlaneFaces(tmp_area_t * tmparea, int planenum)
 			if(faceflags != face1->faceflags)
 				return false;
 			merge = true;
-		}						//end else
-	}							//end for
+		}
+	}
 	return merge;
 }								//end of the function AAS_CanMergePlaneFaces
 
@@ -290,9 +290,9 @@ void AAS_MergeAreaPlaneFaces(void)
 				num_facemerges++;
 				qprintf("\r%6d", num_facemerges);
 				break;
-			}					//end if
-		}						//end for
-	}							//end for
+			}
+		}
+	}
 	qprintf("\n");
 	Log_Write("%6d plane face merges\r\n", num_facemerges);
 }								//end of the function AAS_MergeAreaPlaneFaces

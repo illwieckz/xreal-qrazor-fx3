@@ -567,7 +567,7 @@ void Q1_ParseEntities(void)
 
 	while(ParseEntity(script))
 	{
-	}							//end while
+	}							
 
 	FreeScript(script);
 }								//end of the function Q1_ParseEntities

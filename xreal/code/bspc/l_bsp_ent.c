@@ -111,7 +111,8 @@ qboolean ParseEntity(script_t * script)
 		e = ParseEpair(script);
 		e->next = mapent->epairs;
 		mapent->epairs = e;
-	} while(1);
+	}
+	while(1);
 
 	return true;
 }								//end of the function ParseEntity

@@ -339,7 +339,7 @@ int InsideWinding(winding_t * w, vec3_t point, int planenum)
 		//
 		if(DotProduct(normal, point) - dist > WCONVEX_EPSILON)
 			return false;
-	}							//end for
+	}
 	return true;
 }								//end of the function InsideWinding
 
@@ -368,7 +368,7 @@ int InsideFace(dface_t * face, vec3_t point)
 		//
 		if(DotProduct(normal, point) - dist > WCONVEX_EPSILON)
 			return false;
-	}							//end for
+	}
 	return true;
 }								//end of the function InsideFace
 
@@ -396,7 +396,7 @@ float Q2_FaceOnWinding(q2_dface_t * face, winding_t * winding)
 	{
 		VectorNegate(plane.normal, plane.normal);
 		plane.dist = -plane.dist;
-	}							//end if
+	}
 	for(i = 0; i < face->numedges && w; i++)
 	{
 		//get the first and second vertex of the edge
@@ -413,13 +413,13 @@ float Q2_FaceOnWinding(q2_dface_t * face, winding_t * winding)
 		dist = DotProduct(normal, v1);
 		//
 		ChopWindingInPlace(&w, normal, dist, -0.1);	//CLIP_EPSILON
-	}							//end for
+	}
 	if(w)
 	{
 		area = WindingArea(w);
 		FreeWinding(w);
 		return area;
-	}							//end if
+	}
 	return 0;
 }								//end of the function Q2_FaceOnWinding
 
@@ -453,7 +453,7 @@ winding_t      *Q2_BrushSideWinding(dbrush_t * brush, dbrushside_t * baseside)
 		//
 		plane = &dplanes[side->planenum ^ 1];
 		ChopWindingInPlace(&w, plane->normal, plane->dist, -0.1);	//CLIP_EPSILON);
-	}							//end for
+	}
 	return w;
 }								//end of the function Q2_BrushSideWinding
 
@@ -476,9 +476,9 @@ int Q2_HintSkipBrush(dbrush_t * brush)
 			if(texinfo[brushside->texinfo].flags & (SURF_SKIP | SURF_HINT))
 			{
 				return true;
-			}					//end if
-		}						//end if
-	}							//end for
+			}
+		}
+	}
 	return false;
 }								//end of the function Q2_HintSkipBrush
 
@@ -517,7 +517,7 @@ void Q2_FixTextureReferences(void)
 			{
 				brushsidetextured[brush->firstside + j] = true;
 				continue;
-			}					//end if
+			}
 			else
 			{
 				//RemoveEqualPoints(w, 0.2);
@@ -526,7 +526,7 @@ void Q2_FixTextureReferences(void)
 					FreeWinding(w);
 					brushsidetextured[brush->firstside + j] = true;
 					continue;
-				}				//end if
+				}
 				else
 				{
 					we = WindingError(w);
@@ -537,13 +537,13 @@ void Q2_FixTextureReferences(void)
 						FreeWinding(w);
 						brushsidetextured[brush->firstside + j] = true;
 						continue;
-					}			//end if
-				}				//end else
-			}					//end else
+					}
+				}
+			}
 			if(WindingArea(w) < 20)
 			{
 				brushsidetextured[brush->firstside + j] = true;
-			}					//end if
+			}
 			//find a face for texturing this brush
 			for(k = 0; k < numfaces; k++)
 			{
@@ -557,11 +557,11 @@ void Q2_FixTextureReferences(void)
 					brushside->texinfo = face->texinfo;
 					brushsidetextured[brush->firstside + j] = true;
 					break;
-				}				//end if
-			}					//end for
+				}
+			}
 			FreeWinding(w);
-		}						//end for
-	}							//end for
+		}
+	}
 }								//end of the function Q2_FixTextureReferences*/
 
 //#endif //ME
@@ -636,7 +636,8 @@ void Q2_DecompressVis(byte * in, byte * decompressed)
 			*out++ = 0;
 			c--;
 		}
-	} while(out - decompressed < row);
+	}
+	while(out - decompressed < row);
 }
 
 //=============================================================================
@@ -1070,7 +1071,7 @@ void Q2_ParseEntities(void)
 
 	while(ParseEntity(script))
 	{
-	}							//end while
+	}							
 
 	FreeScript(script);
 }								//end of the function Q2_ParseEntities

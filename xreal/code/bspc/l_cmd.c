@@ -99,7 +99,8 @@ void ExpandWildcards(int *argc, char ***argv)
 		{
 			sprintf(filename, "%s%s", filebase, fileinfo.name);
 			ex_argv[ex_argc++] = copystring(filename);
-		} while(_findnext(handle, &fileinfo) != -1);
+		}
+		while(_findnext(handle, &fileinfo) != -1);
 
 		_findclose(handle);
 	}
@@ -485,7 +486,8 @@ char           *Com_Parse(char *data)
 			}
 			com_token[len] = c;
 			len++;
-		} while(1);
+		}
+		while(1);
 	}
 
 // parse single characters
@@ -506,7 +508,8 @@ char           *Com_Parse(char *data)
 		c = *data;
 		if(c == '{' || c == '}' || c == ')' || c == '(' || c == '\'' || c == ':')
 			break;
-	} while(c > 32);
+	}
+	while(c > 32);
 
 	com_token[len] = 0;
 	return data;
@@ -534,7 +537,8 @@ int Q_strncasecmp(char *s1, char *s2, int n)
 			if(c1 != c2)
 				return -1;		// strings not equal
 		}
-	} while(c1);
+	}
+	while(c1);
 
 	return 0;					// strings are equal
 }

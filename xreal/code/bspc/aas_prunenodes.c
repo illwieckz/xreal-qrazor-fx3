@@ -67,15 +67,15 @@ tmp_node_t     *AAS_PruneNodes_r(tmp_node_t * tmpnode)
 			tmpnode->children[0] = NULL;
 			tmpnode->children[1] = NULL;
 			return tmpnode;
-		}						//end if
-	}							//end if
+		}
+	}
 	//if both solid leafs
 	if(!tmpnode->children[0] && !tmpnode->children[1])
 	{
 		c_numprunes++;
 		AAS_FreeTmpNode(tmpnode);
 		return NULL;
-	}							//end if
+	}
 	//
 	return tmpnode;
 }								//end of the function AAS_PruneNodes_r

@@ -120,13 +120,13 @@ void AAS_InitMaxAAS(void)
 		numfaces++;
 		if(f->winding)
 			numpoints += f->winding->numpoints;
-	}							//end for
+	}
 	//
 	numareas = 0;
 	for(a = tmpaasworld.areas; a; a = a->l_next)
 	{
 		numareas++;
-	}							//end for
+	}
 	max_aas.max_bboxes = AAS_MAX_BBOXES;
 	max_aas.max_vertexes = numpoints + 1;
 	max_aas.max_planes = nummapplanes;
@@ -348,7 +348,7 @@ unsigned AAS_HashVec(vec3_t vec)
 		Log_Print("WARNING! HashVec: point %f %f %f outside valid range\n", vec[0], vec[1], vec[2]);
 		Log_Print("This should never happen!\n");
 		return -1;
-	}							//end if
+	}
 
 	return y * VERTEX_HASH_SIZE + x;
 }								//end of the function AAS_HashVec
@@ -380,7 +380,7 @@ qboolean AAS_GetVertex(vec3_t v, int *vnum)
 			vert[i] = Q_rint(v[i]);
 		else
 			vert[i] = v[i];
-	}							//end for
+	}
 
 	h = AAS_HashVec(vert);
 	//if the vertex was outside the valid range
@@ -388,7 +388,7 @@ qboolean AAS_GetVertex(vec3_t v, int *vnum)
 	{
 		*vnum = -1;
 		return true;
-	}							//end if
+	}
 
 	for(vn = aas_hashverts[h]; vn >= 0; vn = aas_vertexchain[vn])
 	{
@@ -398,8 +398,8 @@ qboolean AAS_GetVertex(vec3_t v, int *vnum)
 		{
 			*vnum = vn;
 			return true;
-		}						//end if
-	}							//end for
+		}
+	}
 #else							//VERTEX_HASHING
 	//check if the vertex is already stored
 	//stupid linear search
@@ -416,16 +416,16 @@ qboolean AAS_GetVertex(vec3_t v, int *vnum)
 				{
 					*vnum = i;
 					return true;
-				}				//end if
-			}					//end if
-		}						//end if
-	}							//end for
+				}
+			}
+		}
+	}
 #endif							//VERTEX_HASHING
 
 	if(aasworld.numvertexes >= max_aas.max_vertexes)
 	{
 		Error("AAS_MAX_VERTEXES = %d", max_aas.max_vertexes);
-	}							//end if
+	}
 	VectorCopy(vert, aasworld.vertexes[aasworld.numvertexes]);
 	*vnum = aasworld.numvertexes;
 
@@ -453,12 +453,12 @@ unsigned AAS_HashEdge(int v1, int v2)
 	{
 		vnum1 = v1;
 		vnum2 = v2;
-	}							//end if
+	}
 	else
 	{
 		vnum1 = v2;
 		vnum2 = v1;
-	}							//end else
+	}
 	return (vnum1 + vnum2) & (EDGE_HASH_SIZE - 1);
 }								//end of the function AAS_HashVec
 
@@ -502,8 +502,8 @@ qboolean AAS_FindHashedEdge(int v1num, int v2num, int *edgenum)
 			{
 				*edgenum = e;
 				return true;
-			}					//end if
-		}						//end if
+			}
+		}
 		else if(edge->v[1] == v1num)
 		{
 			if(edge->v[0] == v2num)
@@ -511,9 +511,9 @@ qboolean AAS_FindHashedEdge(int v1num, int v2num, int *edgenum)
 				//negative for a reversed edge
 				*edgenum = -e;
 				return true;
-			}					//end if
-		}						//end else
-	}							//end for
+			}
+		}
+	}
 	return false;
 }								//end of the function AAS_FindHashedPlane
 
@@ -543,13 +543,13 @@ qboolean AAS_GetEdge(vec3_t v1, vec3_t v2, int *edgenum)
 	{
 		*edgenum = 0;
 		return true;
-	}							//end if
+	}
 	//if both vertexes are the same or snapped onto each other
 	if(v1num == v2num)
 	{
 		*edgenum = 0;
 		return true;
-	}							//end if
+	}
 	//if both vertexes where already stored
 	if(found)
 	{
@@ -567,8 +567,8 @@ qboolean AAS_GetEdge(vec3_t v1, vec3_t v2, int *edgenum)
 				{
 					*edgenum = i;
 					return true;
-				}				//end if
-			}					//end if
+				}
+			}
 			else if(aasworld.edges[i].v[1] == v1num)
 			{
 				if(aasworld.edges[i].v[0] == v2num)
@@ -576,15 +576,15 @@ qboolean AAS_GetEdge(vec3_t v1, vec3_t v2, int *edgenum)
 					//negative for a reversed edge
 					*edgenum = -i;
 					return true;
-				}				//end if
-			}					//end else
-		}						//end for
+				}
+			}
+		}
 #endif							//EDGE_HASHING
-	}							//end if
+	}
 	if(aasworld.numedges >= max_aas.max_edges)
 	{
 		Error("AAS_MAX_EDGES = %d", max_aas.max_edges);
-	}							//end if
+	}
 	aasworld.edges[aasworld.numedges].v[0] = v1num;
 	aasworld.edges[aasworld.numedges].v[1] = v2num;
 	*edgenum = aasworld.numedges;
@@ -667,10 +667,10 @@ int AAS_PlaneEqual(vec3_t normal, float dist, int planenum)
 				if(diff > -NORMAL_EPSILON && diff < NORMAL_EPSILON)
 				{
 					return true;
-				}				//end if
-			}					//end if
-		}						//end if
-	}							//end if
+				}
+			}
+		}
+	}
 	return false;
 }								//end of the function AAS_PlaneEqual
 
@@ -690,8 +690,8 @@ qboolean AAS_FindPlane(vec3_t normal, float dist, int *planenum)
 		{
 			*planenum = i;
 			return true;
-		}						//end if
-	}							//end for
+		}
+	}
 	return false;
 }								//end of the function AAS_FindPlane
 
@@ -721,9 +721,9 @@ qboolean AAS_FindHashedPlane(vec3_t normal, float dist, int *planenum)
 			{
 				*planenum = p;
 				return true;
-			}					//end if
-		}						//end for
-	}							//end for
+			}
+		}
+	}
 	return false;
 }								//end of the function AAS_FindHashedPlane
 
@@ -744,7 +744,7 @@ qboolean AAS_GetPlane(vec3_t normal, vec_t dist, int *planenum)
 	if(aasworld.numplanes >= max_aas.max_planes - 1)
 	{
 		Error("AAS_MAX_PLANES = %d", max_aas.max_planes);
-	}							//end if
+	}
 
 #ifdef STOREPLANESDOUBLE
 	plane = &aasworld.planes[aasworld.numplanes];
@@ -769,8 +769,8 @@ qboolean AAS_GetPlane(vec3_t normal, vec_t dist, int *planenum)
 			*(plane + 1) = temp;
 			*planenum = aasworld.numplanes - 1;
 			return false;
-		}						//end if
-	}							//end if
+		}
+	}
 	*planenum = aasworld.numplanes - 2;
 	//add the planes to the hash
 	AAS_AddPlaneToHash(aasworld.numplanes - 1);
@@ -808,7 +808,7 @@ qboolean AAS_GetFace(winding_t * w, plane_t * p, int side, int *facenum)
 	if(aasworld.numfaces >= max_aas.max_faces)
 	{
 		Error("AAS_MAX_FACES = %d", max_aas.max_faces);
-	}							//end if
+	}
 	face = &aasworld.faces[aasworld.numfaces];
 	AAS_GetPlane(p->normal, p->dist, &face->planenum);
 	face->faceflags = 0;
@@ -821,7 +821,7 @@ qboolean AAS_GetFace(winding_t * w, plane_t * p, int side, int *facenum)
 		if(aasworld.edgeindexsize >= max_aas.max_edgeindexsize)
 		{
 			Error("AAS_MAX_EDGEINDEXSIZE = %d", max_aas.max_edgeindexsize);
-		}						//end if
+		}
 		j = (i + 1) % w->numpoints;
 		AAS_GetEdge(w->p[i], w->p[j], &edgenum);
 		//if the edge wasn't degenerate
@@ -829,12 +829,12 @@ qboolean AAS_GetFace(winding_t * w, plane_t * p, int side, int *facenum)
 		{
 			aasworld.edgeindex[aasworld.edgeindexsize++] = edgenum;
 			face->numedges++;
-		}						//end if
+		}
 		else if(verbose)
 		{
 			Log_Write("AAS_GetFace: face %d had degenerate edge %d-%d\r\n", aasworld.numfaces, i, j);
-		}						//end else
-	}							//end for
+		}
+	}
 	if(face->numedges < 1
 #ifdef NOTHREEVERTEXFACES
 	   || face->numedges < 3
@@ -844,7 +844,7 @@ qboolean AAS_GetFace(winding_t * w, plane_t * p, int side, int *facenum)
 		memset(&aasworld.faces[aasworld.numfaces], 0, sizeof(aas_face_t));
 		Log_Write("AAS_GetFace: face %d was tiny\r\n", aasworld.numfaces);
 		return false;
-	}							//end if
+	}
 	*facenum = aasworld.numfaces;
 	aasworld.numfaces++;
 	return true;
@@ -876,7 +876,7 @@ qboolean AAS_GetFace(winding_t *w, plane_t *p, int side, int *facenum)
 	{
 		if (i >= 1024) Error("AAS_GetFace: more than %d edges\n", 1024);
 		foundedges &= AAS_GetEdge(w->p[i], w->p[(i+1 >= w->numpoints ? 0 : i+1)], &edges[i]);
-	} //end for
+	} 
 
 	//FIXME: use portal number instead of a search
 	//if the plane and all edges already existed
@@ -893,21 +893,21 @@ qboolean AAS_GetFace(winding_t *w, plane_t *p, int side, int *facenum)
 					{
 						edgenum = abs(aasworld.edgeindex[face->firstedge + j]);
 						if (abs(edges[i]) != edgenum) break;
-					} //end for
+					} 
 					if (j == numedges)
 					{
 						//jippy found the face
 						*facenum = -i;
 						return true;
-					} //end if
-				} //end if
-			} //end if
-		} //end for
-	} //end if
+					} 
+				} 
+			} 
+		} 
+	} 
 	if (aasworld.numfaces >= max_aas.max_faces)
 	{
 		Error("AAS_MAX_FACES = %d", max_aas.max_faces);
-	} //end if
+	} 
 	face = &aasworld.faces[aasworld.numfaces];
 	face->planenum = planenum;
 	face->faceflags = 0;
@@ -920,9 +920,9 @@ qboolean AAS_GetFace(winding_t *w, plane_t *p, int side, int *facenum)
 		if (aasworld.edgeindexsize >= max_aas.max_edgeindexsize)
 		{
 			Error("AAS_MAX_EDGEINDEXSIZE = %d", max_aas.max_edgeindexsize);
-		} //end if
+		} 
 		aasworld.edgeindex[aasworld.edgeindexsize++] = edges[i];
-	} //end for
+	} 
 	*facenum = aasworld.numfaces;
 	aasworld.numfaces++;
 	return false;
@@ -981,7 +981,7 @@ int AAS_StoreArea(tmp_area_t * tmparea)
 	if(aasworld.numareas >= max_aas.max_areas)
 	{
 		Error("AAS_MAX_AREAS = %d", max_aas.max_areas);
-	}							//end if
+	}
 	//area zero is a dummy
 	if(aasworld.numareas == 0)
 		aasworld.numareas = 1;
@@ -1009,11 +1009,11 @@ int AAS_StoreArea(tmp_area_t * tmparea)
 			if(tmpface->aasfacenum < 0 || tmpface->aasfacenum > max_aas.max_faces)
 			{
 				Error("AAS_CreateTree_r: face number out of range");
-			}					//end if
+			}
 #endif							//DEBUG
 			aasface = &aasworld.faces[tmpface->aasfacenum];
 			aasface->backarea = aasarea->areanum;
-		}						//end if
+		}
 		else
 		{
 			plane = &mapplanes[tmpface->planenum ^ side];
@@ -1021,21 +1021,21 @@ int AAS_StoreArea(tmp_area_t * tmparea)
 			{
 				w = tmpface->winding;
 				tmpface->winding = ReverseWinding(tmpface->winding);
-			}					//end if
+			}
 			if(!AAS_GetFace(tmpface->winding, plane, 0, &aasfacenum))
 				continue;
 			if(side)
 			{
 				FreeWinding(tmpface->winding);
 				tmpface->winding = w;
-			}					//end if
+			}
 			aasface = &aasworld.faces[aasfacenum];
 			aasface->frontarea = aasarea->areanum;
 			aasface->backarea = 0;
 			aasface->faceflags = tmpface->faceflags;
 			//set the face number at the tmp face
 			tmpface->aasfacenum = aasfacenum;
-		}						//end else
+		}
 		//add face points to the area bounds and
 		//calculate the face 'center'
 		VectorClear(facecenter);
@@ -1046,8 +1046,8 @@ int AAS_StoreArea(tmp_area_t * tmparea)
 			{
 				AddPointToBounds(aasworld.vertexes[edge->v[i]], aasarea->mins, aasarea->maxs);
 				VectorAdd(aasworld.vertexes[edge->v[i]], facecenter, facecenter);
-			}					//end for
-		}						//end for
+			}
+		}
 		VectorScale(facecenter, 1.0 / (aasface->numedges * 2.0), facecenter);
 		//add the face 'center' to the area 'center'
 		VectorAdd(aasarea->center, facecenter, aasarea->center);
@@ -1055,10 +1055,10 @@ int AAS_StoreArea(tmp_area_t * tmparea)
 		if(aasworld.faceindexsize >= max_aas.max_faceindexsize)
 		{
 			Error("AAS_MAX_FACEINDEXSIZE = %d", max_aas.max_faceindexsize);
-		}						//end if
+		}
 		aasworld.faceindex[aasworld.faceindexsize++] = aasfacenum;
 		aasarea->numfaces++;
-	}							//end for
+	}
 	//if the area has no faces at all (return 0, = solid leaf)
 	if(!aasarea->numfaces)
 		return 0;
@@ -1101,7 +1101,7 @@ int AAS_StoreTree_r(tmp_node_t * tmpnode)
 	if(aasworld.numnodes >= max_aas.max_nodes)
 	{
 		Error("AAS_MAX_NODES = %d", max_aas.max_nodes);
-	}							//end if
+	}
 	aasnodenum = aasworld.numnodes;
 	aasnode = &aasworld.nodes[aasworld.numnodes++];
 	plane = &mapplanes[tmpnode->planenum];
@@ -1122,7 +1122,7 @@ void AAS_StoreBoundingBoxes(void)
 	if(cfg.numbboxes > max_aas.max_bboxes)
 	{
 		Error("more than %d bounding boxes", max_aas.max_bboxes);
-	}							//end if
+	}
 	aasworld.numbboxes = cfg.numbboxes;
 	memcpy(aasworld.bboxes, cfg.bboxes, cfg.numbboxes * sizeof(aas_bbox_t));
 }								//end of the function AAS_StoreBoundingBoxes

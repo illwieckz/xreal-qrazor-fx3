@@ -95,7 +95,7 @@ qboolean ValidClientNumber(int num, char *str)
 		//weird: the disabled stuff results in a crash
 		botimport.Print(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n", str, num, botlibglobals.maxclients);
 		return qfalse;
-	}							//end if
+	}
 	return qtrue;
 }								//end of the function BotValidateClientNumber
 
@@ -111,7 +111,7 @@ qboolean ValidEntityNumber(int num, char *str)
 	{
 		botimport.Print(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n", str, num, botlibglobals.maxentities);
 		return qfalse;
-	}							//end if
+	}
 	return qtrue;
 }								//end of the function BotValidateClientNumber
 
@@ -127,7 +127,7 @@ qboolean BotLibSetup(char *str)
 	{
 		botimport.Print(PRT_ERROR, "%s: bot library used before being setup\n", str);
 		return qfalse;
-	}							//end if
+	}
 	return qtrue;
 }								//end of the function BotLibSetup
 
@@ -322,8 +322,9 @@ void            AAS_TestMovementPrediction(int entnum, vec3_t origin, vec3_t dir
 void            ElevatorBottomCenter(aas_reachability_t * reach, vec3_t bottomcenter);
 int             BotGetReachabilityToGoal(vec3_t origin, int areanum,
 										 int lastgoalareanum, int lastareanum,
-										 int *avoidreach, float *avoidreachtimes, int *avoidreachtries,
-										 bot_goal_t * goal, int travelflags, int movetravelflags,
+										 int *avoidreach, float *avoidreachtimes,
+										 int *avoidreachtries, bot_goal_t * goal,
+										 int travelflags, int movetravelflags,
 										 struct bot_avoidspot_s *avoidspots, int numavoidspots, int *flags);
 
 int             AAS_PointLight(vec3_t origin, int *red, int *green, int *blue);
@@ -376,7 +377,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	   {
 	   AAS_ClearShownPolygons();
 	   AAS_FloodAreas(parm2);
-	   } //end if
+	   } 
 	   return 0;
 	 */
 	for(i = 0; i < 2; i++)
@@ -393,63 +394,66 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	if(highlightarea > 0)
 	{
 		newarea = highlightarea;
-	}							//end if
+	}
 	else
 	{
 		VectorCopy(parm2, origin);
 		origin[2] += 0.5;
 		//newarea = AAS_PointAreaNum(origin);
 		newarea = BotFuzzyPointReachabilityArea(origin);
-	}							//end else
+	}
 
-	botimport.Print(PRT_MESSAGE, "\rtravel time to goal (%d) = %d  ", botlibglobals.goalareanum,
+	botimport.Print(PRT_MESSAGE, "\rtravel time to goal (%d) = %d  ",
+					botlibglobals.goalareanum,
 					AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, TFL_DEFAULT));
 	//newarea = BotReachabilityArea(origin, qtrue);
 	if(newarea != area)
 	{
 		botimport.Print(PRT_MESSAGE, "origin = %f, %f, %f\n", origin[0], origin[1], origin[2]);
 		area = newarea;
-		botimport.Print(PRT_MESSAGE, "new area %d, cluster %d, presence type %d\n",
-						area, AAS_AreaCluster(area), AAS_PointPresenceType(origin));
+		botimport.Print(PRT_MESSAGE,
+						"new area %d, cluster %d, presence type %d\n", area,
+						AAS_AreaCluster(area), AAS_PointPresenceType(origin));
 		botimport.Print(PRT_MESSAGE, "area contents: ");
 		if(aasworld.areasettings[area].contents & AREACONTENTS_WATER)
 		{
 			botimport.Print(PRT_MESSAGE, "water &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_LAVA)
 		{
 			botimport.Print(PRT_MESSAGE, "lava &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_SLIME)
 		{
 			botimport.Print(PRT_MESSAGE, "slime &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_JUMPPAD)
 		{
 			botimport.Print(PRT_MESSAGE, "jump pad &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_CLUSTERPORTAL)
 		{
 			botimport.Print(PRT_MESSAGE, "cluster portal &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_VIEWPORTAL)
 		{
 			botimport.Print(PRT_MESSAGE, "view portal &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_DONOTENTER)
 		{
 			botimport.Print(PRT_MESSAGE, "do not enter &");
-		}						//end if
+		}
 		if(aasworld.areasettings[area].contents & AREACONTENTS_MOVER)
 		{
 			botimport.Print(PRT_MESSAGE, "mover &");
-		}						//end if
+		}
 		if(!aasworld.areasettings[area].contents)
 		{
 			botimport.Print(PRT_MESSAGE, "empty");
-		}						//end if
+		}
 		botimport.Print(PRT_MESSAGE, "\n");
-		botimport.Print(PRT_MESSAGE, "travel time to goal (%d) = %d\n", botlibglobals.goalareanum,
+		botimport.Print(PRT_MESSAGE, "travel time to goal (%d) = %d\n",
+						botlibglobals.goalareanum,
 						AAS_AreaTravelTimeToGoalArea(newarea, origin, botlibglobals.goalareanum, TFL_DEFAULT | TFL_ROCKETJUMP));
 		/*
 		   VectorCopy(origin, end);
@@ -464,7 +468,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		   botimport.Print(PRT_MESSAGE, "new goal %2.1f %2.1f %2.1f area %d\n",
 		   origin[0], origin[1], origin[2], newarea);
 		 */
-	}							//end if
+	}
 	//*
 	flood = LibVarGetValue("bot_flood");
 	if(parm0 & 1)
@@ -481,8 +485,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 			VectorCopy(parm2, botlibglobals.goalorigin);
 			botimport.Print(PRT_MESSAGE, "new goal %2.1f %2.1f %2.1f area %d\n", origin[0], origin[1], origin[2], newarea);
 		}
-	}							//end if*/
-	if(flood)
+	}
+	*/if(flood)
 		return 0;
 //  if (parm0 & BUTTON_USE)
 //  {
@@ -498,7 +502,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	   if (!reachnum)
 	   {
 	   botimport.Print(PRT_MESSAGE, "goal not reachable\n");
-	   } //end if
+	   } 
 	   else
 	   {
 	   AAS_ReachabilityFromNum(reachnum, &reach);
@@ -512,19 +516,19 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	   {
 	   ElevatorBottomCenter(&reach, bottomcenter);
 	   AAS_DrawCross(bottomcenter, 10, LINECOLOR_GREEN);
-	   } //end if
-	   } //end else */
+	   } 
+	   }  */
 //      botimport.Print(PRT_MESSAGE, "travel time to goal = %d\n",
 //                  AAS_AreaTravelTimeToGoalArea(area, origin, botlibglobals.goalareanum, TFL_DEFAULT));
 //      botimport.Print(PRT_MESSAGE, "test rj from 703 to 716\n");
 //      AAS_Reachability_WeaponJump(703, 716);
-//  } //end if*/
+//  } */
 
 /*	face = AAS_AreaGroundFace(newarea, parm2);
 	if (face)
 	{
 		AAS_ShowFace(face - aasworld.faces);
-	} //end if*/
+	} */
 	/*
 	   AAS_ClearShownDebugLines();
 	   AAS_ShowArea(newarea, parm0 & BUTTON_USE);
@@ -571,8 +575,10 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 			}
 			reachnum = BotGetReachabilityToGoal(curorigin, curarea,
 												lastgoalareanum, lastareanum,
-												avoidreach, avoidreachtimes, avoidreachtries,
-												&goal, TFL_DEFAULT | TFL_FUNCBOB | TFL_ROCKETJUMP,
+												avoidreach, avoidreachtimes,
+												avoidreachtries, &goal,
+												TFL_DEFAULT | TFL_FUNCBOB |
+												TFL_ROCKETJUMP,
 												TFL_DEFAULT | TFL_FUNCBOB | TFL_ROCKETJUMP, NULL, 0, &resultFlags);
 			AAS_ReachabilityFromNum(reachnum, &reach);
 			AAS_ShowReachability(&reach);
@@ -580,7 +586,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 			lastareanum = curarea;
 			curarea = reach.areanum;
 		}
-	}							//end else
+	}
 	VectorClear(forward);
 	//BotGapDistance(origin, forward, 0);
 	/*
@@ -588,7 +594,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	   {
 	   botimport.Print(PRT_MESSAGE, "test rj from 703 to 716\n");
 	   AAS_Reachability_WeaponJump(703, 716);
-	   } //end if */
+	   }  */
 
 	AngleVectors(parm3, forward, right, NULL);
 	//get the eye 16 units to the right of the origin
@@ -610,7 +616,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	{
 		ent = &aasworld.entities[trace.ent];
 		AAS_ShowBoundingBox(ent->origin, ent->mins, ent->maxs);
-	} //end if
+	} 
 */
 
 /*
@@ -619,14 +625,14 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	{
 		AAS_Trace2(eye, mins, maxs, end, 1, MASK_PLAYERSOLID);
 //		AAS_TraceClientBBox(eye, end, PRESENCE_NORMAL, 1);
-	} //end for
+	} 
 	end_time = clock();
 	botimport.Print(PRT_MESSAGE, "me %lu clocks, %lu CLOCKS_PER_SEC\n", end_time - start_time, CLOCKS_PER_SEC);
 	start_time = clock();
 	for (i = 0; i < 2000; i++)
 	{
 		AAS_Trace(eye, mins, maxs, end, 1, MASK_PLAYERSOLID);
-	} //end for
+	} 
 	end_time = clock();
 	botimport.Print(PRT_MESSAGE, "id %lu clocks, %lu CLOCKS_PER_SEC\n", end_time - start_time, CLOCKS_PER_SEC);
 */
@@ -645,7 +651,7 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		if(face)
 		{
 			AAS_ShowFace(face - aasworld.faces);
-		}						//end if
+		}
 
 		AAS_DrawPlaneCross(bsptrace.endpos,
 						   bsptrace.plane.normal, bsptrace.plane.dist + bsptrace.exp_dist, bsptrace.plane.type, LINECOLOR_GREEN);
@@ -653,8 +659,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		{
 			ent = &aasworld.entities[trace.ent];
 			AAS_ShowBoundingBox(ent->origin, ent->mins, ent->maxs);
-		}						//end if
-	}							//end if
+		}
+	}
 	//bsptrace = AAS_Trace2(eye, NULL, NULL, end, 1, MASK_PLAYERSOLID);
 	bsptrace = AAS_Trace2(eye, mins, maxs, end, 1, MASK_PLAYERSOLID);
 	botimport.DebugLineShow(line[1], eye, bsptrace.endpos, LINECOLOR_BLUE);
@@ -666,8 +672,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 		{
 			ent = &aasworld.entities[bsptrace.ent];
 			AAS_ShowBoundingBox(ent->origin, ent->mins, ent->maxs);
-		}						//end if
-	}							//end if
+		}
+	}
 #endif
 #endif
 	return 0;

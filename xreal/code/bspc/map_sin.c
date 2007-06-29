@@ -69,8 +69,8 @@ int Sin_BrushContents(mapbrush_t * b)
 		if(s->contents != contents)
 		{
 #ifdef SIN
-			if((s->contents & CONTENTS_DETAIL && !(contents & CONTENTS_DETAIL)) ||
-			   (!(s->contents & CONTENTS_DETAIL) && contents & CONTENTS_DETAIL))
+			if((s->contents & CONTENTS_DETAIL && !(contents & CONTENTS_DETAIL))
+			   || (!(s->contents & CONTENTS_DETAIL) && contents & CONTENTS_DETAIL))
 			{
 				s->contents |= CONTENTS_DETAIL;
 				contents |= CONTENTS_DETAIL;
@@ -758,7 +758,7 @@ void Sin_CreateMapTexinfo(void)
 		map_texinfo[i].value = 0;
 		strcpy(map_texinfo[i].texture, sin_texinfo[i].texture);
 		map_texinfo[i].nexttexinfo = -1;
-	}							//end for
+	}
 }								//end of the function Sin_CreateMapTexinfo
 
 //===========================================================================
@@ -778,7 +778,7 @@ void Sin_SetLeafBrushesModelNumbers(int leafnum, int modelnum)
 		brushnum = sin_dleafbrushes[leaf->firstleafbrush + i];
 		brushmodelnumbers[brushnum] = modelnum;
 		dbrushleafnums[brushnum] = leafnum;
-	}							//end for
+	}
 }								//end of the function Sin_SetLeafBrushesModelNumbers
 
 //===========================================================================
@@ -808,7 +808,7 @@ void Sin_PushNodeStack(int num)
 	if(nodestackptr >= &nodestack[NODESTACKSIZE])
 	{
 		Error("Sin_PushNodeStack: stack overflow\n");
-	}							//end if
+	}
 }								//end of the function Sin_PushNodeStack
 
 //===========================================================================
@@ -861,7 +861,7 @@ void Sin_SetBrushModelNumbers(entity_t * mapent)
 				//if we took the first child at the parent node
 				if(sin_dnodes[pn].children[0] == n)
 					break;
-			}					//end for
+			}
 			//if the stack wasn't empty (if not processed whole tree)
 			if(pn >= 0)
 			{
@@ -869,16 +869,17 @@ void Sin_SetBrushModelNumbers(entity_t * mapent)
 				Sin_PushNodeStack(pn);
 				//we proceed with the second child of the parent node
 				n = sin_dnodes[pn].children[1];
-			}					//end if
-		}						//end if
+			}
+		}
 		else
 		{
 			//push the current node onto the stack
 			Sin_PushNodeStack(n);
 			//walk forward into the tree to the first child
 			n = sin_dnodes[n].children[0];
-		}						//end else
-	} while(pn >= 0);
+		}
+	}
+	while(pn >= 0);
 }								//end of the function Sin_SetBrushModelNumbers
 
 //===========================================================================
@@ -913,7 +914,7 @@ void Sin_BSPBrushToMapBrush(sin_dbrush_t * bspbrush, entity_t * mapent)
 		if(nummapbrushsides >= MAX_MAPFILE_BRUSHSIDES)
 		{
 			Error("MAX_MAPFILE_BRUSHSIDES");
-		}						//end if
+		}
 		//pointer to the map brush side
 		side = &brushsides[nummapbrushsides];
 		//if the BSP brush side is textured
@@ -995,7 +996,7 @@ void Sin_BSPBrushToMapBrush(sin_dbrush_t * bspbrush, entity_t * mapent)
 
 		nummapbrushsides++;
 		b->numsides++;
-	}							//end for
+	}
 
 	// get the content for the entire brush
 	b->contents = bspbrush->contents;
@@ -1006,7 +1007,7 @@ void Sin_BSPBrushToMapBrush(sin_dbrush_t * bspbrush, entity_t * mapent)
 		c_squattbrushes++;
 		b->numsides = 0;
 		return;
-	}							//end if
+	}
 
 	//if we're creating AAS
 	if(create_aas)
@@ -1014,21 +1015,21 @@ void Sin_BSPBrushToMapBrush(sin_dbrush_t * bspbrush, entity_t * mapent)
 		//create the AAS brushes from this brush, don't add brush bevels
 		AAS_CreateMapBrushes(b, mapent, false);
 		return;
-	}							//end if
+	}
 
 	// allow detail brushes to be removed 
 	if(nodetail && (b->contents & CONTENTS_DETAIL))
 	{
 		b->numsides = 0;
 		return;
-	}							//end if
+	}
 
 	// allow water brushes to be removed
 	if(nowater && (b->contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER)))
 	{
 		b->numsides = 0;
 		return;
-	}							//end if
+	}
 
 	// create windings for sides and bounds for brush
 	MakeBrushWindings(b);
@@ -1043,7 +1044,7 @@ void Sin_BSPBrushToMapBrush(sin_dbrush_t * bspbrush, entity_t * mapent)
 		c_clipbrushes++;
 		for(i = 0; i < b->numsides; i++)
 			b->original_sides[i].texinfo = TEXINFO_NODE;
-	}							//end for
+	}
 
 	//
 	// origin brushes are removed, but they set
@@ -1105,8 +1106,8 @@ void Sin_ParseBSPBrushes(entity_t * mapent)
 		{
 			testnum++;
 			Sin_BSPBrushToMapBrush(&sin_dbrushes[i], mapent);
-		}						//end if
-	}							//end for
+		}
+	}
 }								//end of the function Sin_ParseBSPBrushes
 
 //===========================================================================
@@ -1131,7 +1132,7 @@ qboolean Sin_ParseBSPEntity(int entnum)
 		mapent->modelnum = atoi(&model[1]);
 		//Log_Print("model = %s\n", model);
 		//Log_Print("mapent->modelnum = %d\n", mapent->modelnum);
-	}							//end if
+	}
 
 	GetVectorForKey(mapent, "origin", mapent->origin);
 
@@ -1140,14 +1141,14 @@ qboolean Sin_ParseBSPEntity(int entnum)
 	if(!strcmp("worldspawn", ValueForKey(mapent, "classname")))
 	{
 		mapent->modelnum = 0;
-	}							//end if
+	}
 	//if the map entity has a BSP model (a modelnum of -1 is used for
 	//entities that aren't using a BSP model)
 	if(mapent->modelnum >= 0)
 	{
 		//parse the bsp brushes
 		Sin_ParseBSPBrushes(mapent);
-	}							//end if
+	}
 	//
 	//the origin of the entity is already taken into account
 	//
@@ -1159,7 +1160,7 @@ qboolean Sin_ParseBSPEntity(int entnum)
 		c_areaportals++;
 		mapent->areaportalnum = c_areaportals;
 		return true;
-	}							//end if
+	}
 	return true;
 }								//end of the function Sin_ParseBSPEntity
 
@@ -1195,7 +1196,7 @@ void Sin_LoadMapFromBSP(char *filename, int offset, int length)
 	for(i = 0; i < num_entities; i++)
 	{
 		Sin_ParseBSPEntity(i);
-	}							//end for
+	}
 
 	//get the map mins and maxs from the world model
 	ClearBounds(map_mins, map_maxs);
@@ -1205,7 +1206,7 @@ void Sin_LoadMapFromBSP(char *filename, int offset, int length)
 			continue;			//no valid points
 		AddPointToBounds(mapbrushes[i].mins, map_mins, map_maxs);
 		AddPointToBounds(mapbrushes[i].maxs, map_mins, map_maxs);
-	}							//end for
+	}
 	//
 	Sin_CreateMapTexinfo();
 }								//end of the function Sin_LoadMapFromBSP

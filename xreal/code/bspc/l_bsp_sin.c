@@ -296,7 +296,7 @@ float Sin_FaceOnWinding(sin_dface_t * face, winding_t * winding)
 	{
 		VectorNegate(plane.normal, plane.normal);
 		plane.dist = -plane.dist;
-	}							//end if
+	}
 	for(i = 0; i < face->numedges && w; i++)
 	{
 		//get the first and second vertex of the edge
@@ -313,13 +313,13 @@ float Sin_FaceOnWinding(sin_dface_t * face, winding_t * winding)
 		dist = DotProduct(normal, v1);
 		//
 		ChopWindingInPlace(&w, normal, dist, 0.9);	//CLIP_EPSILON
-	}							//end for
+	}
 	if(w)
 	{
 		area = WindingArea(w);
 		FreeWinding(w);
 		return area;
-	}							//end if
+	}
 	return 0;
 }								//end of the function Sin_FaceOnWinding
 
@@ -353,7 +353,7 @@ winding_t      *Sin_BrushSideWinding(sin_dbrush_t * brush, sin_dbrushside_t * ba
 		//
 		plane = &sin_dplanes[side->planenum ^ 1];
 		ChopWindingInPlace(&w, plane->normal, plane->dist, 0);	//CLIP_EPSILON);
-	}							//end for
+	}
 	return w;
 }								//end of the function Sin_BrushSideWinding
 
@@ -376,9 +376,9 @@ int Sin_HintSkipBrush(sin_dbrush_t * brush)
 			if(sin_texinfo[brushside->texinfo].flags & (SURF_SKIP | SURF_HINT))
 			{
 				return true;
-			}					//end if
-		}						//end if
-	}							//end for
+			}
+		}
+	}
 	return false;
 }								//end of the function Sin_HintSkipBrush
 
@@ -417,7 +417,7 @@ void Sin_FixTextureReferences(void)
 			{
 				sin_dbrushsidetextured[brush->firstside + j] = true;
 				continue;
-			}					//end if
+			}
 			else
 			{
 				//RemoveEqualPoints(w, 0.2);
@@ -426,7 +426,7 @@ void Sin_FixTextureReferences(void)
 					FreeWinding(w);
 					sin_dbrushsidetextured[brush->firstside + j] = true;
 					continue;
-				}				//end if
+				}
 				else
 				{
 					we = WindingError(w);
@@ -437,13 +437,13 @@ void Sin_FixTextureReferences(void)
 						FreeWinding(w);
 						sin_dbrushsidetextured[brush->firstside + j] = true;
 						continue;
-					}			//end if
-				}				//end else
-			}					//end else
+					}
+				}
+			}
 			if(WindingArea(w) < 20)
 			{
 				sin_dbrushsidetextured[brush->firstside + j] = true;
-			}					//end if
+			}
 			//find a face for texturing this brush
 			for(k = 0; k < sin_numfaces; k++)
 			{
@@ -457,11 +457,11 @@ void Sin_FixTextureReferences(void)
 					brushside->texinfo = face->texinfo;
 					sin_dbrushsidetextured[brush->firstside + j] = true;
 					break;
-				}				//end if
-			}					//end for
+				}
+			}
 			FreeWinding(w);
-		}						//end for
-	}							//end for
+		}
+	}
 }								//end of the function Sin_FixTextureReferences*/
 
 /*
@@ -533,7 +533,8 @@ void Sin_DecompressVis(byte * in, byte * decompressed)
 			*out++ = 0;
 			c--;
 		}
-	} while(out - decompressed < row);
+	}
+	while(out - decompressed < row);
 }								//end of the function Sin_DecompressVis
 
 //=============================================================================
@@ -1071,7 +1072,7 @@ void Sin_ParseEntities(void)
 
 	while(ParseEntity(script))
 	{
-	}							//end while
+	}							
 
 	FreeScript(script);
 }								//end of the function Sin_ParseEntities
