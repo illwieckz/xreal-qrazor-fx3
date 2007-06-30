@@ -161,11 +161,7 @@ punctuation_t   default_punctuations[] = {
 	{NULL, 0}
 };
 
-#ifdef BSPC
-char            basefolder[MAX_PATH];
-#else
 char            basefolder[MAX_QPATH];
-#endif
 
 //===========================================================================
 //

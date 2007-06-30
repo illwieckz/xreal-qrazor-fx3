@@ -245,8 +245,8 @@ int AAS_PointAreaNum(vec3_t point)
 	nodenum = 1;
 	while(nodenum > 0)
 	{
-//      botimport.Print(PRT_MESSAGE, "[%d]", nodenum);
-#ifdef AAS_SAMPLE_DEBUG
+		//botimport.Print(PRT_MESSAGE, "[%d]", nodenum);
+#if AAS_SAMPLE_DEBUG
 		if(nodenum >= aasworld.numnodes)
 		{
 			botimport.Print(PRT_ERROR, "nodenum = %d >= aasworld.numnodes = %d\n", nodenum, aasworld.numnodes);

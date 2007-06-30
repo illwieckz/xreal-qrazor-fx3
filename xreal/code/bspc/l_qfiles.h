@@ -48,9 +48,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define QFILEEXT_WAV				".WAV"
 #define QFILEEXT_AAS				".AAS"
 
-//maximum path length
-#ifndef _MAX_PATH
-#define _MAX_PATH				1024
+// maximum path length
+#define	MAX_QPATH			256	// max length of a quake game pathname, formerly 64
+#ifdef PATH_MAX
+#define MAX_OSPATH			PATH_MAX
+#else
+#define	MAX_OSPATH			256	// max length of a filesystem pathname
 #endif
 
 //for Sin packs
@@ -65,9 +68,9 @@ typedef struct
 
 typedef struct quakefile_s
 {
-	char            pakfile[_MAX_PATH];
-	char            filename[_MAX_PATH];
-	char            origname[_MAX_PATH];
+	char            pakfile[MAX_QPATH];
+	char            filename[MAX_QPATH];
+	char            origname[MAX_QPATH];
 	int             zipfile;
 	int             type;
 	int             offset;

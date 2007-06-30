@@ -104,7 +104,7 @@ char           *QuakeFileTypeExtension(int type)
 //===========================================================================
 int QuakeFileType(char *filename)
 {
-	char            ext[_MAX_PATH] = ".";
+	char            ext[MAX_QPATH] = ".";
 
 	ExtractFileExtension(filename, ext + 1);
 	return QuakeFileExtensionType(ext);
@@ -262,7 +262,7 @@ quakefile_t    *FindQuakeFilesInZip(char *zipfile, char *filter)
 	unzFile         uf;
 	int             err;
 	unz_global_info gi;
-	char            filename_inzip[MAX_PATH];
+	char            filename_inzip[MAX_QPATH];
 	unz_file_info   file_info;
 	int             i;
 	quakefile_t    *qfiles, *lastqf, *qf;
@@ -448,7 +448,7 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 	int             j;
 #endif
 	quakefile_t    *qfiles, *lastqf, *qf;
-	char            pakfile[_MAX_PATH], filename[_MAX_PATH], *str;
+	char            pakfile[MAX_QPATH], filename[MAX_QPATH], *str;
 
 	qfiles = NULL;
 	lastqf = NULL;
@@ -461,7 +461,7 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 		{
 			_splitpath(pakfilter, pakfile, NULL, NULL, NULL);
 			_splitpath(pakfilter, NULL, &pakfile[strlen(pakfile)], NULL, NULL);
-			AppendPathSeperator(pakfile, _MAX_PATH);
+			AppendPathSeperator(pakfile, MAX_QPATH);
 			strcat(pakfile, filedata.cFileName);
 			_stat(pakfile, &statbuf);
 #else
@@ -475,7 +475,7 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 			if(statbuf.st_mode & S_IFDIR)
 			{
 				strcpy(filename, pakfilter);
-				AppendPathSeperator(filename, _MAX_PATH);
+				AppendPathSeperator(filename, MAX_QPATH);
 				strcat(filename, filter);
 				qf = FindQuakeFilesWithPakFilter(NULL, filename);
 				if(lastqf)
@@ -532,7 +532,7 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 		{
 			_splitpath(filter, filename, NULL, NULL, NULL);
 			_splitpath(filter, NULL, &filename[strlen(filename)], NULL, NULL);
-			AppendPathSeperator(filename, _MAX_PATH);
+			AppendPathSeperator(filename, MAX_QPATH);
 			strcat(filename, filedata.cFileName);
 #else
 		glob(filter, 0, NULL, &globbuf);
@@ -579,9 +579,9 @@ quakefile_t    *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 quakefile_t    *FindQuakeFiles(char *filter)
 {
 	char           *str;
-	char            newfilter[_MAX_PATH];
-	char            pakfilter[_MAX_PATH];
-	char            filefilter[_MAX_PATH];
+	char            newfilter[MAX_QPATH];
+	char            pakfilter[MAX_QPATH];
+	char            filefilter[MAX_QPATH];
 
 	strcpy(newfilter, filter);
 	ConvertPath(newfilter);

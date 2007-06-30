@@ -1559,6 +1559,7 @@ void AAS_InitClustering(void)
 
 	if(!aasworld.loaded)
 		return;
+	
 	//if there are clusters
 	if(aasworld.numclusters >= 1)
 	{
@@ -1570,45 +1571,59 @@ void AAS_InitClustering(void)
 	}
 	//set all view portals as cluster portals in case we re-calculate the reachabilities and clusters (with -reach)
 	AAS_SetViewPortalsAsClusterPortals();
+	
 	//count the number of forced cluster portals
 	AAS_CountForcedClusterPortals();
+	
 	//remove all area cluster marks
 	AAS_RemoveClusterAreas();
+	
 	//find possible cluster portals
 	AAS_FindPossiblePortals();
+	
 	//craete portals to for the bot view
 	AAS_CreateViewPortals();
+	
 	//remove all portals that are not closing a cluster
 	//AAS_RemoveNotClusterClosingPortals();
+	
 	//initialize portal memory
 	if(aasworld.portals)
 		FreeMemory(aasworld.portals);
 	aasworld.portals = (aas_portal_t *) GetClearedMemory(AAS_MAX_PORTALS * sizeof(aas_portal_t));
+	
 	//initialize portal index memory
 	if(aasworld.portalindex)
 		FreeMemory(aasworld.portalindex);
 	aasworld.portalindex = (aas_portalindex_t *) GetClearedMemory(AAS_MAX_PORTALINDEXSIZE * sizeof(aas_portalindex_t));
+	
 	//initialize cluster memory
 	if(aasworld.clusters)
 		FreeMemory(aasworld.clusters);
 	aasworld.clusters = (aas_cluster_t *) GetClearedMemory(AAS_MAX_CLUSTERS * sizeof(aas_cluster_t));
+	
 	//
 	removedPortalAreas = 0;
 	botimport.Print(PRT_MESSAGE, "\r%6d removed portal areas", removedPortalAreas);
 	while(1)
 	{
 		botimport.Print(PRT_MESSAGE, "\r%6d", removedPortalAreas);
+		
 		//initialize the number of portals and clusters
 		aasworld.numportals = 1;	//portal 0 is a dummy
 		aasworld.portalindexsize = 0;
 		aasworld.numclusters = 1;	//cluster 0 is a dummy
+		
 		//create the portals from the portal areas
 		AAS_CreatePortals();
+		
 		//
 		removedPortalAreas++;
+		
 		//find the clusters
 		if(!AAS_FindClusters())
 			continue;
+		
 		//test the portals
 		if(!AAS_TestPortals())
 			continue;
@@ -1616,13 +1631,16 @@ void AAS_InitClustering(void)
 		break;
 	}							
 	botimport.Print(PRT_MESSAGE, "\n");
+	
 	//the AAS file should be saved
 	aasworld.savefile = qtrue;
+	
 	//write the portal areas to the log file
 	for(i = 1; i < aasworld.numportals; i++)
 	{
 		Log_Write("portal %d: area %d\r\n", i, aasworld.portals[i].areanum);
 	}
+	
 	// report cluster info
 	botimport.Print(PRT_MESSAGE, "%6d portals created\n", aasworld.numportals);
 	botimport.Print(PRT_MESSAGE, "%6d clusters created\n", aasworld.numclusters);
@@ -1630,6 +1648,7 @@ void AAS_InitClustering(void)
 	{
 		botimport.Print(PRT_MESSAGE, "cluster %d has %d reachability areas\n", i, aasworld.clusters[i].numreachabilityareas);
 	}
+	
 	// report AAS file efficiency
 	numreachabilityareas = 0;
 	total = 0;
@@ -1640,6 +1659,7 @@ void AAS_InitClustering(void)
 		total += n * n;
 	}
 	total += numreachabilityareas * aasworld.numportals;
+	
 	//
 	botimport.Print(PRT_MESSAGE, "%6i total reachability areas\n", numreachabilityareas);
 	botimport.Print(PRT_MESSAGE, "%6i AAS memory/CPU usage (the lower the better)\n", total * 3);

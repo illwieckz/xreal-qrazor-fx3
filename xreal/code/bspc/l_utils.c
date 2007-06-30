@@ -124,7 +124,7 @@ qboolean FindFileInPak(char *pakfile, char *filename, foundfile_t * file)
 	dpackheader_t   packheader;
 	dpackfile_t    *packfiles;
 	int             numdirs, i;
-	char            path[MAX_PATH];
+	char            path[MAX_QPATH];
 
 	//open the pak file
 	fp = fopen(pakfile, "rb");
@@ -186,13 +186,13 @@ qboolean FindQuakeFile2(char *basedir, char *gamedir, char *filename, foundfile_
 	int             dir, i;
 
 	//NOTE: 3 is necessary (LCC bug???)
-	char            gamedirs[3][MAX_PATH] = { "", "", "" };
-	char            filedir[MAX_PATH] = "";
+	char            gamedirs[3][MAX_QPATH] = { "", "", "" };
+	char            filedir[MAX_QPATH] = "";
 
 	//
 	if(gamedir)
-		strncpy(gamedirs[0], gamedir, MAX_PATH);
-	strncpy(gamedirs[1], "baseq2", MAX_PATH);
+		strncpy(gamedirs[0], gamedir, MAX_QPATH);
+	strncpy(gamedirs[1], "baseq2", MAX_QPATH);
 	//
 	//find the file in the two game directories
 	for(dir = 0; dir < 2; dir++)
@@ -201,15 +201,15 @@ qboolean FindQuakeFile2(char *basedir, char *gamedir, char *filename, foundfile_
 		filedir[0] = 0;
 		if(basedir && strlen(basedir))
 		{
-			strncpy(filedir, basedir, MAX_PATH);
-			AppendPathSeperator(filedir, MAX_PATH);
+			strncpy(filedir, basedir, MAX_QPATH);
+			AppendPathSeperator(filedir, MAX_QPATH);
 		}
 		if(strlen(gamedirs[dir]))
 		{
-			strncat(filedir, gamedirs[dir], MAX_PATH - strlen(filedir));
-			AppendPathSeperator(filedir, MAX_PATH);
+			strncat(filedir, gamedirs[dir], MAX_QPATH - strlen(filedir));
+			AppendPathSeperator(filedir, MAX_QPATH);
 		}
-		strncat(filedir, filename, MAX_PATH - strlen(filedir));
+		strncat(filedir, filename, MAX_QPATH - strlen(filedir));
 		ConvertPath(filedir);
 		Log_Write("accessing %s", filedir);
 		if(!access(filedir, 0x04))
@@ -225,13 +225,13 @@ qboolean FindQuakeFile2(char *basedir, char *gamedir, char *filename, foundfile_
 			filedir[0] = 0;
 			if(basedir && strlen(basedir))
 			{
-				strncpy(filedir, basedir, MAX_PATH);
-				AppendPathSeperator(filedir, MAX_PATH);
+				strncpy(filedir, basedir, MAX_QPATH);
+				AppendPathSeperator(filedir, MAX_QPATH);
 			}
 			if(strlen(gamedirs[dir]))
 			{
-				strncat(filedir, gamedirs[dir], MAX_PATH - strlen(filedir));
-				AppendPathSeperator(filedir, MAX_PATH);
+				strncat(filedir, gamedirs[dir], MAX_QPATH - strlen(filedir));
+				AppendPathSeperator(filedir, MAX_QPATH);
 			}
 			sprintf(&filedir[strlen(filedir)], "pak%d.pak\0", i);
 			if(!access(filedir, 0x04))

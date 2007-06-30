@@ -56,7 +56,13 @@ typedef enum
 typedef unsigned char byte;
 #endif
 
-#define	MAX_OS_PATH		1024
+#define	MAX_QPATH			256	// max length of a quake game pathname, formerly 64
+#ifdef PATH_MAX
+#define MAX_OSPATH			PATH_MAX
+#else
+#define	MAX_OSPATH			256	// max length of a filesystem pathname
+#endif
+
 #define MEM_BLOCKSIZE 4096
 
 // the dec offsetof macro doesnt work very well...

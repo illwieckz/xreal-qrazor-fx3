@@ -321,14 +321,14 @@ void Map2Bsp(char *mapfilename, char *outputfilename)
 //===========================================================================
 void AASOuputFile(quakefile_t * qf, char *outputpath, char *filename)
 {
-	char            ext[MAX_PATH];
+	char            ext[MAX_QPATH];
 
 	//
 	if(strlen(outputpath))
 	{
 		strcpy(filename, outputpath);
 		//append the bsp file base
-		AppendPathSeperator(filename, MAX_PATH);
+		AppendPathSeperator(filename, MAX_QPATH);
 		ExtractFileBase(qf->origname, &filename[strlen(filename)]);
 		//append .aas
 		strcat(filename, ".aas");
@@ -347,7 +347,7 @@ void AASOuputFile(quakefile_t * qf, char *outputpath, char *filename)
 		if(access(filename, 0x04))
 			CreatePath(filename);
 		//append the bsp file base
-		AppendPathSeperator(filename, MAX_PATH);
+		AppendPathSeperator(filename, MAX_QPATH);
 		ExtractFileBase(qf->origname, &filename[strlen(filename)]);
 		//append .aas
 		strcat(filename, ".aas");
@@ -381,8 +381,8 @@ void CreateAASFilesForAllBSPFiles(char *quakepath)
 	struct stat     statbuf;
 	int             j;
 #endif
-	char            filter[_MAX_PATH], bspfilter[_MAX_PATH], aasfilter[_MAX_PATH];
-	char            aasfile[_MAX_PATH], buf[_MAX_PATH], foldername[_MAX_PATH];
+	char            filter[MAX_QPATH], bspfilter[MAX_QPATH], aasfilter[MAX_QPATH];
+	char            aasfile[MAX_QPATH], buf[MAX_QPATH], foldername[MAX_QPATH];
 	quakefile_t    *qf, *qf2, *files, *bspfiles, *aasfiles;
 
 	strcpy(filter, quakepath);
@@ -396,7 +396,7 @@ void CreateAASFilesForAllBSPFiles(char *quakepath)
 	{
 		_splitpath(filter, foldername, NULL, NULL, NULL);
 		_splitpath(filter, NULL, &foldername[strlen(foldername)], NULL, NULL);
-		AppendPathSeperator(foldername, _MAX_PATH);
+		AppendPathSeperator(foldername, MAX_QPATH);
 		strcat(foldername, filedata.cFileName);
 		_stat(foldername, &statbuf);
 #else
@@ -519,8 +519,8 @@ quakefile_t    *GetArgumentFiles(int argc, char *argv[], int *i, char *ext)
 int main(int argc, char **argv)
 {
 	int             i, comp = 0;
-	char            outputpath[MAX_PATH] = "";
-	char            filename[MAX_PATH] = "unknown";
+	char            outputpath[MAX_QPATH] = "";
+	char            filename[MAX_QPATH] = "unknown";
 	quakefile_t    *qfiles = NULL, *qf;
 	double          start_time;
 
@@ -796,7 +796,7 @@ int main(int argc, char **argv)
 					//copy the output path
 					strcpy(filename, outputpath);
 					//append the bsp file base
-					AppendPathSeperator(filename, MAX_PATH);
+					AppendPathSeperator(filename, MAX_QPATH);
 					ExtractFileBase(qf->origname, &filename[strlen(filename)]);
 					//append .map
 					strcat(filename, ".map");

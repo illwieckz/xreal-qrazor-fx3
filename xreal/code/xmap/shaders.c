@@ -788,7 +788,7 @@ void LoadShaderInfo(void)
 		{
 			break;
 		}
-		shaderFiles[numShaderFiles] = malloc(MAX_OS_PATH);
+		shaderFiles[numShaderFiles] = malloc(MAX_QPATH);
 		strcpy(shaderFiles[numShaderFiles], token);
 		numShaderFiles++;
 	}

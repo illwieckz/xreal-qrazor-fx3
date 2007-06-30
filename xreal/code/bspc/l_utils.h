@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef MAX_PATH
-#define MAX_PATH			64
+#ifndef MAX_QPATH
+#define MAX_QPATH			256
 #endif
 
 #ifndef PATH_SEPERATORSTR
@@ -59,7 +59,7 @@ typedef struct foundfile_s
 {
 	int             offset;
 	int             length;
-	char            filename[MAX_PATH];	//screw LCC, array must be at end of struct
+	char            filename[MAX_QPATH];	//screw LCC, array must be at end of struct
 } foundfile_t;
 
 void            Vector2Angles(vec3_t value1, vec3_t angles);
