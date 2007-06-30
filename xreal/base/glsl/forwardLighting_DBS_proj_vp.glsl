@@ -26,13 +26,14 @@ attribute vec3		attr_Binormal;
 
 uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec4		var_Vertex;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec4		var_TexAtten;
-varying vec4		var_TexShadow;
-varying mat3		var_TangentToWorldMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 
 void	main()
 {
@@ -40,7 +41,7 @@ void	main()
 	gl_Position = ftransform();
 	
 	// transform position into world space
-	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
+	var_Vertex.xyz = (u_ModelMatrix * gl_Vertex).xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse.st = (gl_TextureMatrix[0] * attr_TexCoord0).st;
@@ -54,15 +55,19 @@ void	main()
 	// calc light attenuation in light space
 	var_TexAtten = gl_TextureMatrix[3] * gl_Vertex;
 	
-	// calc shadow attenuation in light space
-	var_TexShadow = gl_TextureMatrix[4] * gl_Vertex;
-	
 	// construct tangent-space-to-world-space 3x3 matrix
-	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	vec3 binormal = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	vec3 normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
+	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0));
+	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0));
+	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0));
 	
-	var_TangentToWorldMatrix = mat3(tangent, binormal, normal);
+	// calc shadow attenuation in light space
+	vec4 texShadow = gl_TextureMatrix[4] * gl_Vertex;
+	
+	// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
+	var_Vertex.w = texShadow.s;
+	var_Tangent.w = texShadow.t;
+	var_Binormal.w = texShadow.p;
+	var_Normal.w = texShadow.q;
 	
 	// assign color
 	var_TexDiffuse.p = gl_Color.r;

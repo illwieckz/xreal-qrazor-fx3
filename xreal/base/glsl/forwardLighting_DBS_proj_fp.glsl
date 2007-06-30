@@ -35,13 +35,14 @@ uniform int			u_ShadowCompare;
 uniform float		u_SpecularExponent;
 uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec4		var_Vertex;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec4		var_TexAtten;
-varying vec4		var_TexShadow;
-varying mat3		var_TangentToWorldMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 
 void	main()
 {
@@ -51,19 +52,21 @@ void	main()
 	}
 	
 	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - var_Vertex);
+	vec3 V = normalize(u_ViewOrigin - var_Vertex.xyz);
 	
 	// compute light direction in world space
-	vec3 L = normalize(u_LightOrigin - var_Vertex);
+	vec3 L = normalize(u_LightOrigin - var_Vertex.xyz);
 	
 	// compute half angle in world space
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+	
+	mat3 tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 
 	// transform normal into world space
-	N = var_TangentToWorldMatrix * N;
+	N = tangentToWorldMatrix * N;
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
@@ -89,8 +92,14 @@ void	main()
 #if defined(VSM)
 	if(bool(u_ShadowCompare))
 	{
-		float vertexDistance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
-		vec2 shadowDistances = texture2DProj(u_ShadowMap, var_TexShadow.xyw).rg;
+		vec4 texShadow;
+		texShadow.s = var_Vertex.w;
+		texShadow.t = var_Tangent.w;
+		texShadow.p = var_Binormal.w;
+		texShadow.q = var_Normal.w;
+	
+		float vertexDistance = length(var_Vertex.xyz - u_LightOrigin) / u_LightRadius;
+		vec2 shadowDistances = texture2DProj(u_ShadowMap, texShadow.xyw).rg;
 	
 		// standard shadow map comparison
 		float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
