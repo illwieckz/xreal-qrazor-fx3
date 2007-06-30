@@ -71,7 +71,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
+				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
 				OutputFile="$(OutDir)/xmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -165,7 +165,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib odbc32.lib odbccp32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
+				AdditionalDependencies="glaux.lib glu32.lib wsock32.lib opengl32.lib  xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib xml2.lib z.lib iconv.lib ws2_32.lib intl.lib glib-2.0.lib"
 				OutputFile="$(OutDir)/xmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
