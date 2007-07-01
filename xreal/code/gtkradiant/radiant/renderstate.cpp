@@ -1309,9 +1309,13 @@ public:
         if(useShaderLanguage())
         {
           delete g_lighting_D_omni;
+		  g_lighting_D_omni = NULL;
           delete g_lighting_DB_omni;
+		  g_lighting_DB_omni = NULL;
           delete g_lighting_DBS_omni;
+		  g_lighting_DBS_omni = NULL;
           delete g_depthFill;
+		  g_depthFill = NULL;
         }
       }
     }
