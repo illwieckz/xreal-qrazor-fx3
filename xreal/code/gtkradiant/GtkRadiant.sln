@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+# Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "entityq3", "plugins\entity\entityq3.vcproj", "{49C5823A-5E50-4029-ACEE-1627EBB79E47}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GtkRadiant", "radiant\GtkRadiant.vcproj", "{8E70385C-223A-4DD1-9B99-28FF2331A2B5}"
@@ -30,8 +30,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "archivezip", "plugins\archi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imageq3", "plugins\image\imageq3.vcproj", "{0A0D3519-2ADD-4B47-A890-746170B2CCD8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modelmd3", "plugins\md3model\modelmd3.vcproj", "{C2A5530D-C2DB-4503-A651-4B92AEC5FE74}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modelpico", "plugins\model\modelpico.vcproj", "{386DBF35-2F76-4BB1-8B4B-1D69C34F8996}"
 	ProjectSection(ProjectDependencies) = postProject
 		{015EA9D3-85F2-4C4E-BFC3-430AC59093B9} = {015EA9D3-85F2-4C4E-BFC3-430AC59093B9}
@@ -40,8 +38,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vfsq3", "plugins\vfspk3\vfsq3.vcproj", "{0BB50F1C-E139-48A2-B9D8-1E781275777F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mapq3", "plugins\mapq3\mapq3.vcproj", "{D6130A5F-12DC-487B-BB9E-4BFDA60FBADF}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mapxml", "plugins\mapxml\mapxml.vcproj", "{B43DBA9D-6EE0-421C-83D9-9776064B66B4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shadersq3", "plugins\shaders\shadersq3.vcproj", "{F79DCF6D-72B1-45F6-A471-5209951C0BDD}"
 EndProject
@@ -55,20 +51,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "include", "include\include.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "profile", "libs\profile\profile.vcproj", "{853632F4-6420-40C5-B80B-38B678E472B8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample", "plugins\sample\sample.vcproj", "{46B36F0C-5E17-458E-AE6F-AECE52F66EDE}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtkutil", "libs\gtkutil\gtkutil.vcproj", "{68E2C6B6-96CA-4BBD-A485-FEE6F2E65407}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PrtView", "contrib\prtview\PrtView.vcproj", "{B20364D1-4329-4D4E-B9CE-C9767618FDD6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{853632F4-6420-40C5-B80B-38B678E472B8} = {853632F4-6420-40C5-B80B-38B678E472B8}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bobtoolz", "contrib\bobtoolz\bobtoolz.vcproj", "{EDDC8F94-3B2D-49CD-8540-E5F0AE271BC1}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sunplug", "contrib\sunplug\sunplug.vcproj", "{46B36F0C-5E17-458E-AE6F-AECE52F66EDF}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "brushexport", "contrib\brushexport\brushexport.vcproj", "{9FE945E2-7A4F-494F-BFCC-B0B008D24188}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagejpeg", "plugins\imagejpeg\imagejpeg.vcproj", "{B607F51F-7813-442C-9FB4-CE67DCF4441D}"
 EndProject
@@ -102,8 +85,6 @@ Global
 		{0A0D3519-2ADD-4B47-A890-746170B2CCD8}.Debug|Win32.Build.0 = Debug|Win32
 		{0A0D3519-2ADD-4B47-A890-746170B2CCD8}.Release|Win32.ActiveCfg = Release|Win32
 		{0A0D3519-2ADD-4B47-A890-746170B2CCD8}.Release|Win32.Build.0 = Release|Win32
-		{C2A5530D-C2DB-4503-A651-4B92AEC5FE74}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C2A5530D-C2DB-4503-A651-4B92AEC5FE74}.Release|Win32.ActiveCfg = Release|Win32
 		{386DBF35-2F76-4BB1-8B4B-1D69C34F8996}.Debug|Win32.ActiveCfg = Debug|Win32
 		{386DBF35-2F76-4BB1-8B4B-1D69C34F8996}.Debug|Win32.Build.0 = Debug|Win32
 		{386DBF35-2F76-4BB1-8B4B-1D69C34F8996}.Release|Win32.ActiveCfg = Release|Win32
@@ -116,8 +97,6 @@ Global
 		{D6130A5F-12DC-487B-BB9E-4BFDA60FBADF}.Debug|Win32.Build.0 = Debug|Win32
 		{D6130A5F-12DC-487B-BB9E-4BFDA60FBADF}.Release|Win32.ActiveCfg = Release|Win32
 		{D6130A5F-12DC-487B-BB9E-4BFDA60FBADF}.Release|Win32.Build.0 = Release|Win32
-		{B43DBA9D-6EE0-421C-83D9-9776064B66B4}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B43DBA9D-6EE0-421C-83D9-9776064B66B4}.Release|Win32.ActiveCfg = Release|Win32
 		{F79DCF6D-72B1-45F6-A471-5209951C0BDD}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F79DCF6D-72B1-45F6-A471-5209951C0BDD}.Debug|Win32.Build.0 = Debug|Win32
 		{F79DCF6D-72B1-45F6-A471-5209951C0BDD}.Release|Win32.ActiveCfg = Release|Win32
@@ -142,16 +121,10 @@ Global
 		{853632F4-6420-40C5-B80B-38B678E472B8}.Debug|Win32.Build.0 = Debug|Win32
 		{853632F4-6420-40C5-B80B-38B678E472B8}.Release|Win32.ActiveCfg = Release|Win32
 		{853632F4-6420-40C5-B80B-38B678E472B8}.Release|Win32.Build.0 = Release|Win32
-		{46B36F0C-5E17-458E-AE6F-AECE52F66EDE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{46B36F0C-5E17-458E-AE6F-AECE52F66EDE}.Release|Win32.ActiveCfg = Release|Win32
 		{68E2C6B6-96CA-4BBD-A485-FEE6F2E65407}.Debug|Win32.ActiveCfg = Debug|Win32
 		{68E2C6B6-96CA-4BBD-A485-FEE6F2E65407}.Debug|Win32.Build.0 = Debug|Win32
 		{68E2C6B6-96CA-4BBD-A485-FEE6F2E65407}.Release|Win32.ActiveCfg = Release|Win32
 		{68E2C6B6-96CA-4BBD-A485-FEE6F2E65407}.Release|Win32.Build.0 = Release|Win32
-		{B20364D1-4329-4D4E-B9CE-C9767618FDD6}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B20364D1-4329-4D4E-B9CE-C9767618FDD6}.Release|Win32.ActiveCfg = Release|Win32
-		{46B36F0C-5E17-458E-AE6F-AECE52F66EDF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{46B36F0C-5E17-458E-AE6F-AECE52F66EDF}.Release|Win32.ActiveCfg = Release|Win32
 		{B607F51F-7813-442C-9FB4-CE67DCF4441D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B607F51F-7813-442C-9FB4-CE67DCF4441D}.Debug|Win32.Build.0 = Debug|Win32
 		{B607F51F-7813-442C-9FB4-CE67DCF4441D}.Release|Win32.ActiveCfg = Release|Win32
