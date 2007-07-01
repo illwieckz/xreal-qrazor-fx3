@@ -24,6 +24,7 @@ attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
+uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelMatrix;
 
 varying vec4		var_Vertex;
@@ -70,6 +71,15 @@ void	main()
 	var_Normal.w = texShadow.q;
 	
 	// assign color
-	var_TexDiffuse.p = gl_Color.r;
-	var_TexNormal.pq = gl_Color.gb;
+	if(bool(u_InverseVertexColor))
+	{
+		var_TexDiffuse.p = 1.0 - gl_Color.r;
+		var_TexNormal.p = 1.0 - gl_Color.g;
+		var_TexNormal.q = 1.0 - gl_Color.b;
+	}
+	else
+	{
+		var_TexDiffuse.p = gl_Color.r;
+		var_TexNormal.pq = gl_Color.gb;
+	}
 }

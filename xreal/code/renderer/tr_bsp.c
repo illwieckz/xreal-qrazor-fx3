@@ -1596,21 +1596,6 @@ static void R_CreateVBOs()
 					memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
 					dataOfs += sizeof(color4ub_t);
 				}
-
-				// set up inversed colors array
-				cv->ofsColorsInversed = dataOfs;
-				for(i = 0; i < cv->numVerts; i++)
-				{
-					color4ub_t            colorInv;
-					
-					colorInv[0] = 255 - cv->verts[i].color[0];
-					colorInv[1] = 255 - cv->verts[i].color[1];
-					colorInv[2] = 255 - cv->verts[i].color[2];
-					colorInv[3] = 255 - cv->verts[i].color[3];
-
-					memcpy(data + dataOfs, colorInv, sizeof(color4ub_t));
-					dataOfs += sizeof(color4ub_t);
-				}
 			}
 			else
 			{
@@ -1722,21 +1707,6 @@ static void R_CreateVBOs()
 					memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
 					dataOfs += sizeof(color4ub_t);
 				}
-
-				// set up inversed colors array
-				cv->ofsColorsInversed = dataOfs;
-				for(i = 0; i < cv->numVerts; i++)
-				{
-					color4ub_t            colorInv;
-					
-					colorInv[0] = 255 - cv->verts[i].color[0];
-					colorInv[1] = 255 - cv->verts[i].color[1];
-					colorInv[2] = 255 - cv->verts[i].color[2];
-					colorInv[3] = 255 - cv->verts[i].color[3];
-
-					memcpy(data + dataOfs, colorInv, sizeof(color4ub_t));
-					dataOfs += sizeof(color4ub_t);
-				}
 			}
 			else
 			{
@@ -1846,21 +1816,6 @@ static void R_CreateVBOs()
 				for(i = 0; i < cv->numVerts; i++)
 				{
 					memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
-					dataOfs += sizeof(color4ub_t);
-				}
-
-				// set up inversed colors array
-				cv->ofsColorsInversed = dataOfs;
-				for(i = 0; i < cv->numVerts; i++)
-				{
-					color4ub_t            colorInv;
-					
-					colorInv[0] = 255 - cv->verts[i].color[0];
-					colorInv[1] = 255 - cv->verts[i].color[1];
-					colorInv[2] = 255 - cv->verts[i].color[2];
-					colorInv[3] = 255 - cv->verts[i].color[3];
-
-					memcpy(data + dataOfs, colorInv, sizeof(color4ub_t));
 					dataOfs += sizeof(color4ub_t);
 				}
 			}

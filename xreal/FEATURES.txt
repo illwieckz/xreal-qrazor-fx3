@@ -27,7 +27,6 @@ code/qcommon/cm
 - optional per triangle collision detection for world surfaces
 
 code/renderer
-- OpenGL extension GL_ARB_transpose_matrix
 - OpenGL extension GL_ARB_vertex_program
 - OpenGL extension GL_ARB_vertex_buffer_object
 - OpenGL extension GL_ARB_shader_objects

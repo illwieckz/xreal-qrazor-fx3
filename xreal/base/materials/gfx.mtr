@@ -638,7 +638,6 @@ icons/iconw_shotgun
 	{
 		map icons/iconw_shotgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		rgbgen identitylighting
 	}
 }
 
@@ -749,7 +748,6 @@ icons/icona_shotgun
 	{
 		map icons/icona_shotgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		rgbgen identitylighting
 	}
 }
 
@@ -1110,7 +1108,6 @@ viewBloodBlend
 		clampmap textures/decals/blood_splat02.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		//rgbGen identityLighting
 		rgbGen		vertex
 		alphaGen	vertex
 	}
@@ -1144,8 +1141,7 @@ smokePuff
 	{
 		map gfx/misc/smoke1.png
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1156,8 +1152,7 @@ hasteSmokePuff			// drops behind player's feet when speeded
 	{
 		map gfx/misc/smoke4.png
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1167,8 +1162,7 @@ shotgunSmokePuff
 	{
 		map gfx/misc/smoke2.png
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-		alphaGen entity		
-		rgbGen entity
+		vertexColor
 	}
 }
 
@@ -1178,7 +1172,7 @@ flareShader
 	{
 		map gfx/misc/flare.png
 		blend add
-		rgbGen vertex
+		vertexColor
 	}
 }
 
@@ -1188,7 +1182,7 @@ sun
 	{
 		map gfx/misc/sun.png
 		blend add
-		rgbGen vertex
+		vertexColor
 	}
 }
 
@@ -1217,6 +1211,7 @@ railCore
 	{
 		map gfx/misc/railcorethin_mono.tga
 		blend add
+		//vertexColor
 		colored
 		scroll time * -2,  0
 	}
@@ -1247,7 +1242,7 @@ gfx/misc/tracer
 	cull none
 	{
 		map	gfx/misc/tracer.tga
-		blendFunc GL_ONE GL_ONE
+		blend add
 	}
 }
 
@@ -1265,9 +1260,7 @@ bloodMark
 		clampmap textures/decals/blood_splat01.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		//rgbGen identityLighting
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1278,8 +1271,7 @@ bloodMark2
 	{
 		clampmap textures/decals/blood_splat02.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1290,8 +1282,7 @@ bloodMark3
 	{
 		clampmap textures/decals/blood_splat03.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1306,8 +1297,7 @@ bloodTrail
 		clampmap textures/particles/blood2.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1317,7 +1307,7 @@ burnMark
 	{
 		map textures/decals/explo_burn01.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen exactVertex
+		vertexColor
 	}
 }
 
@@ -1328,7 +1318,7 @@ gfx/damage/bullet_mrk
 	{
 		map gfx/damage/bullet_mrk.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen exactVertex
+		vertexColor
 	}
 }
 
@@ -1338,7 +1328,7 @@ gfx/damage/burn_med_mrk
 	{
 		map textures/decals/explo_burn01.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen exactVertex
+		vertexColor
 	}
 }
 gfx/damage/hole_lg_mrk
@@ -1347,7 +1337,7 @@ gfx/damage/hole_lg_mrk
 	{
 		map gfx/damage/hole_lg_mrk.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen exactVertex
+		vertexColor
 	}
 }
 gfx/damage/plasma_mrk
@@ -1356,7 +1346,7 @@ gfx/damage/plasma_mrk
 	{
 		map gfx/damage/plasma_mrk.tga
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen exactVertex
+		vertexColor
 	}
 }
 
@@ -1368,8 +1358,7 @@ textures/particles/glow
 	{
 		map textures/particles/glow.tga
 		blend add
-		rgbGen vertex
-		alphaGen vertex
+		vertexColor
 	}
 }
 
@@ -1379,8 +1368,7 @@ textures/particles/glow1
 	{
 		map textures/particles/glow1.tga
 		blend add
-		rgbGen vertex
-		alphaGen vertex
+		vertexColor
 	}
 }
 
@@ -1395,7 +1383,7 @@ scoreboardName
 	nomipmaps
 	{
 		clampmap menu/tab/name.tga
-		blendfunc blend
+		blend blend
 	}
 }
 
@@ -1404,8 +1392,9 @@ scoreboardScore
 	nopicmip
 	nomipmaps
 	{
-		clampmap menu/tab/score.tga
-		blendfunc blend
+		clamp
+		map menu/tab/score.tga
+		blend blend
 	}
 }
 
@@ -1414,8 +1403,9 @@ scoreboardTime
 	nopicmip
 	nomipmaps
 	{
-		clampmap menu/tab/time.tga
-		blendfunc blend
+		clamp
+		map menu/tab/time.tga
+		blend blend
 	}
 }
 
@@ -1424,8 +1414,9 @@ scoreboardPing
 	nopicmip
 	nomipmaps
 	{
-		clampmap menu/tab/ping.tga
-		blendfunc blend
+		clamp
+		map menu/tab/ping.tga
+		blend blend
 	}
 }
 

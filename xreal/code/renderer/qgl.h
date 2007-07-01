@@ -75,6 +75,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINAPI
 #endif
 
+
+#if defined(_WIN32)
+#define OPENGL_DRIVER_NAME	"opengl32"
+#else
+#define OPENGL_DRIVER_NAME	"libGL.so.1"
+#endif
+
 #ifndef GL_ARB_multitexture
 #define GL_TEXTURE0_ARB                   0x84C0
 #define GL_TEXTURE1_ARB                   0x84C1
@@ -211,9 +218,6 @@ typedef void    (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
 extern void     (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
 extern void     (APIENTRY * qglActiveTextureARB) (GLenum texture);
 extern void     (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
-
-// GL_ARB_transpose_matrix
-extern void     (APIENTRY * qglLoadTransposeMatrixfARB) (const GLfloat * m);
 
 // GL_ARB_vertex_program
 extern void     (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
@@ -712,9 +716,6 @@ extern int      (WINAPI * qwglDescribePixelFormat) (HDC, int, UINT, LPPIXELFORMA
 extern int      (WINAPI * qwglGetPixelFormat) (HDC);
 extern          BOOL(WINAPI * qwglSetPixelFormat) (HDC, int, CONST PIXELFORMATDESCRIPTOR *);
 extern          BOOL(WINAPI * qwglSwapBuffers) (HDC);
-
-extern          BOOL(WINAPI * qwglGetDeviceGammaRamp3DFX) (HDC, LPVOID);
-extern          BOOL(WINAPI * qwglSetDeviceGammaRamp3DFX) (HDC, LPVOID);
 
 extern          BOOL(WINAPI * qwglCopyContext) (HGLRC, HGLRC, UINT);
 extern          HGLRC(WINAPI * qwglCreateContext) (HDC);

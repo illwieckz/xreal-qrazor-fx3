@@ -3187,7 +3187,6 @@ lights/defaultDynamicLight
 	{
 		stage attenuationMapXY
 		forceHighQuality
-		//map lights/squarelight1.tga
 		map lights/round.tga
 		colored
 		zeroClamp

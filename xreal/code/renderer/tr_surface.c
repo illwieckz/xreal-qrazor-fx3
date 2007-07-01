@@ -488,7 +488,6 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 			tess.ofsBinormals = cv->ofsBinormals;
 			tess.ofsNormals = cv->ofsNormals;
 			tess.ofsColors = cv->ofsColors;
-			tess.ofsColorsInversed = cv->ofsColorsInversed;
 
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
 		}
@@ -750,7 +749,6 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 			tess.ofsBinormals = cv->ofsBinormals;
 			tess.ofsNormals = cv->ofsNormals;
 			tess.ofsColors = cv->ofsColors;
-			tess.ofsColorsInversed = cv->ofsColorsInversed;
 
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
 		}
@@ -1012,7 +1010,6 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 			tess.ofsBinormals = cv->ofsBinormals;
 			tess.ofsNormals = cv->ofsNormals;
 			tess.ofsColors = cv->ofsColors;
-			tess.ofsColorsInversed = cv->ofsColorsInversed;
 
 			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
 		}

@@ -355,11 +355,7 @@ typedef enum
 	AGEN_SKIP,
 	AGEN_ENTITY,
 	AGEN_ONE_MINUS_ENTITY,
-	AGEN_VERTEX,
-	AGEN_ONE_MINUS_VERTEX,
-	AGEN_LIGHTING_SPECULAR,
 	AGEN_WAVEFORM,
-	AGEN_PORTAL,
 	AGEN_CONST,
 	AGEN_CUSTOM
 } alphaGen_t;
@@ -371,11 +367,7 @@ typedef enum
 	CGEN_IDENTITY,				// always (1,1,1,1)
 	CGEN_ENTITY,				// grabbed from entity's modulate field
 	CGEN_ONE_MINUS_ENTITY,		// grabbed from 1 - entity.modulate
-	CGEN_EXACT_VERTEX,			// tess.vertexColors
-	CGEN_VERTEX,				// tess.vertexColors * tr.identityLight
-	CGEN_ONE_MINUS_VERTEX,
 	CGEN_WAVEFORM,				// programmatically generated
-	CGEN_LIGHTING_DIFFUSE,
 	CGEN_CONST,					// fixed color
 	CGEN_CUSTOM_RGB,			// like fixed color but generated dynamically, single arithmetic expression
 	CGEN_CUSTOM_RGBs,			// multiple expressions
@@ -615,7 +607,8 @@ typedef struct
 
 	expression_t    alphaTestExp;
 
-	qboolean		vertexPainting;
+	qboolean		vertexColor;
+	qboolean		inverseVertexColor;
 
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
@@ -802,6 +795,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_Color;
 	GLint           u_AmbientColor;
+	GLint			u_InverseVertexColor;
 
 	GLint           u_LightDir;
 	GLint           u_LightOrigin;
@@ -1109,7 +1103,6 @@ typedef struct srfGridMesh_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
-	GLuint          ofsColorsInversed;
 } srfGridMesh_t;
 
 typedef struct
@@ -1135,7 +1128,6 @@ typedef struct
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
-	GLuint          ofsColorsInversed;
 } srfSurfaceFace_t;
 
 
@@ -1162,7 +1154,6 @@ typedef struct
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
-	GLuint          ofsColorsInversed;
 } srfTriangles_t;
 
 
@@ -1641,7 +1632,6 @@ typedef struct
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
 	image_t        *flatImage;	// use this as default normalmap
-	image_t        *identityLightImage;	// full of tr.identityLightByte
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
 
@@ -1866,22 +1856,13 @@ extern cvar_t  *r_gamma;
 extern cvar_t  *r_displayRefresh;	// optional display refresh option
 extern cvar_t  *r_ignorehwgamma;	// overrides hardware gamma capabilities
 
-extern cvar_t  *r_allowExtensions;	// global enable/disable of OpenGL extensions
 extern cvar_t  *r_ext_compressed_textures;	// these control use of specific extensions
 extern cvar_t  *r_ext_gamma_control;
-extern cvar_t  *r_ext_texenv_op;
 extern cvar_t  *r_ext_multitexture;
 extern cvar_t  *r_ext_compiled_vertex_array;
-extern cvar_t  *r_ext_texture_env_add;
-extern cvar_t  *r_ext_transpose_matrix;
 extern cvar_t  *r_ext_texture_cube_map;
-extern cvar_t  *r_ext_vertex_program;
 extern cvar_t  *r_ext_vertex_buffer_object;
 extern cvar_t  *r_ext_occlusion_query;
-extern cvar_t  *r_ext_shader_objects;
-extern cvar_t  *r_ext_vertex_shader;
-extern cvar_t  *r_ext_fragment_shader;
-extern cvar_t  *r_ext_shading_language_100;
 extern cvar_t  *r_ext_texture_non_power_of_two;
 extern cvar_t  *r_ext_draw_buffers;
 extern cvar_t  *r_ext_texture_float;
@@ -2254,7 +2235,6 @@ typedef float   color4f_t[4];
 typedef struct stageVars
 {
 	color4f_t       color;
-	color4ub_t      colors[SHADER_MAX_VERTEXES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
 
@@ -2278,11 +2258,8 @@ typedef struct shaderCommands_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
-	GLuint          ofsColorsInversed;
 
 	stageVars_t     svars;
-
-	color4ub_t      constantColor255[SHADER_MAX_VERTEXES];
 
 	shader_t       *surfaceShader;
 	shader_t       *lightShader;
@@ -2317,7 +2294,6 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 void            Tess_End(void);
 void            Tess_CheckOverflow(int verts, int indexes);
 
-void            Tess_ComputeColors(shaderStage_t * pStage);
 void            Tess_ComputeColor(shaderStage_t * pStage);
 
 void            Tess_StageIteratorGeneric();
@@ -2535,23 +2511,12 @@ float           R_ProjectRadius(float r, vec3_t location);
 
 void            Tess_DeformGeometry(void);
 
+float           RB_EvalWaveForm(const waveForm_t * wf);
+float           RB_EvalWaveFormClamped(const waveForm_t * wf);
 float           RB_EvalExpression(const expression_t * exp, float defaultValue);
 
 void			RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix);
 
-void            RB_CalcWaveAlpha(const waveForm_t * wf, unsigned char *dstColors);
-void            RB_CalcWaveColor(const waveForm_t * wf, unsigned char *dstColors);
-void            RB_CalcAlphaFromEntity(unsigned char *dstColors);
-void            RB_CalcAlphaFromOneMinusEntity(unsigned char *dstColors);
-void            RB_CalcStretchTexCoords(const waveForm_t * wf, float *texCoords);
-void            RB_CalcColorFromEntity(unsigned char *dstColors);
-void            RB_CalcColorFromOneMinusEntity(unsigned char *dstColors);
-void            RB_CalcSpecularAlpha(unsigned char *alphas);
-void            RB_CalcDiffuseColor(unsigned char *colors);
-void            RB_CalcCustomColor(const expression_t * rgbExp, unsigned char *dstColors);
-void            RB_CalcCustomColors(const expression_t * redExp, const expression_t * greenExp, const expression_t * blueExp,
-									unsigned char *dstColors);
-void            RB_CalcCustomAlpha(const expression_t * alphaExp, unsigned char *dstColors);
 
 /*
 =============================================================

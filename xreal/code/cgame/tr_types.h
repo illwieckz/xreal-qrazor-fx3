@@ -228,18 +228,11 @@ typedef enum
 	// should always be the lowest value in this
 	// enum set
 	GLDRV_STANDALONE,			// driver is a non-3Dfx standalone driver
-	GLDRV_VOODOO				// driver is a 3Dfx standalone driver
 } glDriverType_t;
 
 typedef enum
 {
 	GLHW_GENERIC,				// where everthing works the way it should
-	GLHW_3DFX_2D3D,				// Voodoo Banshee or Voodoo3, relevant since if this is
-	// the hardware type then there can NOT exist a secondary
-	// display adapter
-	GLHW_RIVA128,				// where you can't interpolate alpha
-	GLHW_RAGEPRO,				// where you can't modulate alpha on alpha textures
-	GLHW_PERMEDIA2,				// where you don't have src*dst
 	GLHW_ATI					// where you don't have proper GLSL support
 } glHardwareType_t;
 
@@ -260,26 +253,27 @@ typedef struct
 
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
-	qboolean        textureEnvAddAvailable;
 	
 	int             maxCubeMapTextureSize;
-	qboolean        textureCubeAvailable;
-	qboolean        vertexProgramAvailable;
+	
 	qboolean        vertexBufferObjectAvailable;
+	
 	qboolean        occlusionQueryAvailable;
 	int             occlusionQueryBits;
-	qboolean        shaderObjectsAvailable;
-	qboolean        vertexShaderAvailable;
-	qboolean        fragmentShaderAvailable;
-	qboolean        shadingLanguage100Available;
+	
 	char            shadingLanguageVersion[MAX_STRING_CHARS];
+	
 	qboolean        textureNPOTAvailable;
+	
 	qboolean        drawBuffersAvailable;
 	qboolean        textureFloatAvailable;
 	int             maxDrawBuffers;
+	
 	qboolean		stencilWrapAvailable;
+	
 	float			maxTextureAnisotropy;
 	qboolean		textureAnisotropyAvailable;
+	
 	qboolean        framebufferObjectAvailable;
 	int             maxRenderbufferSize;
 	int             maxColorAttachments;
@@ -292,28 +286,10 @@ typedef struct
 
 	int             displayFrequency;
 
-	// synonymous with "does rendering consume the entire screen?", therefore
-	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
-	// used CDS.
+	// synonymous with "does rendering consume the entire screen?"
 	qboolean        isFullscreen;
 	qboolean        stereoEnabled;
 	qboolean        smpActive;	// dual processor
 } glConfig_t;
-
-
-// FIXME: VM should be OS agnostic .. in theory
-
-#if defined(Q3_VM) || defined(_WIN32)
-
-#define _3DFX_DRIVER_NAME	"3dfxvgl"
-#define OPENGL_DRIVER_NAME	"opengl32"
-
-#else
-
-#define _3DFX_DRIVER_NAME	"libMesaVoodooGL.so"
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=524
-#define OPENGL_DRIVER_NAME	"libGL.so.1"
-
-#endif							// !defined _WIN32
 
 #endif							// __TR_TYPES_H

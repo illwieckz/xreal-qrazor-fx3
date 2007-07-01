@@ -275,15 +275,13 @@ void GLSL_InitGPUShaders(void)
 
 	ri.Printf(PRINT_ALL, "------- GLSL_InitGPUShaders -------\n");
 
-	if(!glConfig.shadingLanguage100Available)
-		return;
-
 	startTime = ri.Milliseconds();
 
 	// single texture rendering
-	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
+	tr.genericSingleShader.u_InverseVertexColor = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_InverseVertexColor");
 
 	qglUseProgramObjectARB(tr.genericSingleShader.program);
 	qglUniform1iARB(tr.genericSingleShader.u_ColorMap, 0);
@@ -496,6 +494,7 @@ void GLSL_InitGPUShaders(void)
 	tr.forwardLightingShader_DBS_omni.u_AttenuationMapZ = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_AttenuationMapZ");
 	tr.forwardLightingShader_DBS_omni.u_ShadowMap = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowMap");
 	tr.forwardLightingShader_DBS_omni.u_ViewOrigin = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ViewOrigin");
+	tr.forwardLightingShader_DBS_omni.u_InverseVertexColor = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_InverseVertexColor");
 	tr.forwardLightingShader_DBS_omni.u_LightOrigin = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightOrigin");
 	tr.forwardLightingShader_DBS_omni.u_LightColor = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightColor");
 	tr.forwardLightingShader_DBS_omni.u_LightRadius = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightRadius");
@@ -528,6 +527,7 @@ void GLSL_InitGPUShaders(void)
 	tr.forwardLightingShader_DBS_proj.u_AttenuationMapZ = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_AttenuationMapZ");
 	tr.forwardLightingShader_DBS_proj.u_ShadowMap = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowMap");
 	tr.forwardLightingShader_DBS_proj.u_ViewOrigin = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ViewOrigin");
+	tr.forwardLightingShader_DBS_proj.u_InverseVertexColor = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_InverseVertexColor");
 	tr.forwardLightingShader_DBS_proj.u_LightOrigin = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightOrigin");
 	tr.forwardLightingShader_DBS_proj.u_LightColor = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightColor");
 	tr.forwardLightingShader_DBS_proj.u_LightRadius = qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_LightRadius");
@@ -815,9 +815,6 @@ void GLSL_InitGPUShaders(void)
 void GLSL_ShutdownGPUShaders(void)
 {
 	ri.Printf(PRINT_ALL, "------- GLSL_ShutdownGPUShaders -------\n");
-
-	if(!glConfig.shadingLanguage100Available)
-		return;
 
 	if(tr.genericSingleShader.program)
 	{
@@ -1250,58 +1247,6 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 }
 // *INDENT-ON*
 
-static void Render_genericSingle_FFP(int stage)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_genericSingle_FFP ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-	GL_Program(0);
-	GL_State(pStage->stateBits);
-
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		qglColor4fv(tess.svars.color);
-		GL_ClientState(GLCS_VERTEX);
-	}
-	else
-	{
-		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
-	}
-
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-//  qglEnable(GL_TEXTURE_2D);
-	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-	{
-		qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-	}
-	else
-	{
-		qglTexCoordPointer(4, GL_FLOAT, 0, tess.texCoords);
-	}
-
-	BindAnimatedImage(&pStage->bundle[0]);
-
-	DrawElements();
-
-	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//  qglDisable(GL_TEXTURE_2D);
-
-	GL_CheckErrors();
-}
-
-#if 1
-#define Render_genericSingle Render_genericSingle_FFP
-#else
 static void Render_genericSingle(int stage)
 {
 	shaderStage_t  *pStage;
@@ -1313,18 +1258,20 @@ static void Render_genericSingle(int stage)
 	GL_State(pStage->stateBits);
 	GL_Program(tr.genericSingleShader.program);
 	
-	// GL_ClientState(tr.genericSingleShader.attribs);
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		qglColor4fv(tess.svars.color);
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD0);
+		GL_ClientState(tr.genericSingleShader.attribs | GLCS_COLOR);
 	}
 	else
 	{
-		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_COLOR);
+		GL_ClientState(tr.genericSingleShader.attribs);
+
+		qglColor4fv(tess.svars.color);
 	}
-	
 	GL_SetVertexAttribs();
+
+	// set uniforms
+	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, pStage->inverseVertexColor);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -1337,7 +1284,6 @@ static void Render_genericSingle(int stage)
 
 	GL_CheckErrors();
 }
-#endif
 
 static void Render_geometricFill_DBS(int stage)
 {
@@ -1617,28 +1563,17 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	// enable shader, set arrays
 	GL_Program(tr.forwardLightingShader_DBS_omni.program);
 
-	// HACK: support vertex painting
-	if(diffuseStage->vertexPainting)
+	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
 		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs | GLCS_COLOR);
-
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO && diffuseStage->rgbGen == CGEN_ONE_MINUS_VERTEX)
-		{
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColorsInversed));
-		}
-		else
-		{
-			GL_SetVertexAttribs();
-		}
 	}
 	else
 	{
 		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs);
-		GL_SetVertexAttribs();
 
-		// pass white default to gl_Color
 		qglColor4fv(colorWhite);
 	}
+	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
@@ -1647,6 +1582,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 
 	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_InverseVertexColor, diffuseStage->inverseVertexColor);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
@@ -1728,28 +1664,17 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	// enable shader, set arrays
 	GL_Program(tr.forwardLightingShader_DBS_proj.program);
 	
-	// HACK: support vertex painting
-	if(diffuseStage->vertexPainting)
+	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs | GLCS_COLOR);
-
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO && diffuseStage->rgbGen == CGEN_ONE_MINUS_VERTEX)
-		{
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColorsInversed));
-		}
-		else
-		{
-			GL_SetVertexAttribs();
-		}
+		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs | GLCS_COLOR);
 	}
 	else
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs);
-		GL_SetVertexAttribs();
+		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs);
 
-		// pass white default to gl_Color
 		qglColor4fv(colorWhite);
 	}
+	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
@@ -1758,6 +1683,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
 
 	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_InverseVertexColor, diffuseStage->inverseVertexColor);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform3fARB(tr.forwardLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
 	qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
@@ -2579,6 +2505,7 @@ static void Render_liquid(int stage)
 Tess_ComputeColors
 ===============
 */
+/*
 void Tess_ComputeColors(shaderStage_t * pStage)
 {
 	int             i;
@@ -2770,71 +2697,7 @@ void Tess_ComputeColors(shaderStage_t * pStage)
 			break;
 	}
 }
-
-
-/*
-===============
-Tess_ComputeColors
-===============
 */
-void Tess_ComputeVertexPaintingColors(shaderStage_t * pStage)
-{
-	int             i;
-
-	GLimp_LogComment("--- Tess_ComputeColors ---\n");
-
-	if(pStage->vertexPainting)
-	{
-		// rgbGen
-		switch (pStage->rgbGen)
-		{
-			default:
-			case CGEN_VERTEX:
-				if(tr.identityLight == 1)
-				{
-					Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
-				}
-				else
-				{
-					for(i = 0; i < tess.numVertexes; i++)
-					{
-						tess.svars.colors[i][0] = tess.colors[i][0] * tr.identityLight;
-						tess.svars.colors[i][1] = tess.colors[i][1] * tr.identityLight;
-						tess.svars.colors[i][2] = tess.colors[i][2] * tr.identityLight;
-						tess.svars.colors[i][3] = tess.colors[i][3];
-					}
-				}
-				break;
-
-			case CGEN_ONE_MINUS_VERTEX:
-				if(tr.identityLight == 1)
-				{
-					for(i = 0; i < tess.numVertexes; i++)
-					{
-						tess.svars.colors[i][0] = 255 - tess.colors[i][0];
-						tess.svars.colors[i][1] = 255 - tess.colors[i][1];
-						tess.svars.colors[i][2] = 255 - tess.colors[i][2];
-					}
-				}
-				else
-				{
-					for(i = 0; i < tess.numVertexes; i++)
-					{
-						tess.svars.colors[i][0] = (255 - tess.colors[i][0]) * tr.identityLight;
-						tess.svars.colors[i][1] = (255 - tess.colors[i][1]) * tr.identityLight;
-						tess.svars.colors[i][2] = (255 - tess.colors[i][2]) * tr.identityLight;
-					}
-				}
-				break;
-		}
-	}
-	/*
-	else
-	{
-		Com_Memset(tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4);
-	}
-	*/
-}
 
 
 /*
@@ -2935,6 +2798,38 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 			break;
 		}
 
+		case CGEN_WAVEFORM:
+		{
+			float           glow;
+			waveForm_t     *wf;
+
+			wf = &pStage->rgbWave;
+			
+			if(wf->func == GF_NOISE)
+			{
+				glow = wf->base + R_NoiseGet4f(0, 0, 0, (tess.shaderTime + wf->phase) * wf->frequency) * wf->amplitude;
+			}
+			else
+			{
+				glow = RB_EvalWaveForm(wf) * tr.identityLight;
+			}
+
+			if(glow < 0)
+			{
+				glow = 0;
+			}
+			else if(glow > 1)
+			{
+				glow = 1;
+			}
+
+			tess.svars.color[0] = glow;
+			tess.svars.color[1] = glow;
+			tess.svars.color[2] = glow;
+			tess.svars.color[3] = 1.0;
+			break;
+		}
+
 		case CGEN_CUSTOM_RGB:
 		{
 			rgb = Q_bound(0.0, RB_EvalExpression(&pStage->rgbExp, 1.0), 1.0);
@@ -2989,10 +2884,7 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 		{
 			if(pStage->rgbGen != CGEN_IDENTITY)
 			{
-				if((pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1) || pStage->rgbGen != CGEN_VERTEX)
-				{
-					tess.svars.color[3] = 1.0;
-				}
+				tess.svars.color[3] = 1.0;
 			}
 			break;
 		}
@@ -3010,7 +2902,7 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 		{
 			if(backEnd.currentLight)
 			{
-				tess.svars.color[3] = 1.0;	// FIXME
+				tess.svars.color[3] = 1.0;	// FIXME ?
 			}
 			else if(backEnd.currentEntity)
 			{
@@ -3027,7 +2919,7 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 		{
 			if(backEnd.currentLight)
 			{
-				tess.svars.color[3] = 0.0;	// FIXME
+				tess.svars.color[3] = 0.0;	// FIXME ?
 			}
 			else if(backEnd.currentEntity)
 			{
@@ -3037,6 +2929,19 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 			{
 				tess.svars.color[3] = 0.0;
 			}
+			break;
+		}
+
+		case AGEN_WAVEFORM:
+		{
+			float           glow;
+			waveForm_t     *wf;
+
+			wf = &pStage->alphaWave;
+
+			glow = RB_EvalWaveFormClamped(wf);
+
+			tess.svars.color[3] = glow;
 			break;
 		}
 
@@ -3130,29 +3035,14 @@ void Tess_StageIteratorGeneric()
 			continue;
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			Tess_ComputeColor(pStage);
-			Tess_ComputeTexMatrices(pStage);
-		}
-		else
-		{
-			Tess_ComputeColors(pStage);
-			Tess_ComputeTexMatrices(pStage);
-		}
+		Tess_ComputeColor(pStage);
+		Tess_ComputeTexMatrices(pStage);
 
 		switch (pStage->type)
 		{
 			case ST_COLORMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_genericSingle(stage);
-				}
-				else
-				{
-					Render_genericSingle_FFP(stage);
-				}
+				Render_genericSingle(stage);
 				break;
 			}
 
@@ -3162,159 +3052,74 @@ void Tess_StageIteratorGeneric()
 			{
 				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_depthFill(stage);
-					}
-					else
-					{
-						Render_depthFill_FFP(stage);
-					}
+					Render_depthFill(stage);
 				}
 				break;
 			}
 
 			case ST_COLLAPSE_reflection_CB:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_reflection_CB(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_reflection_CB(stage);
 				break;
 			}
 
 			case ST_REFLECTIONMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_reflection_C(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_reflection_C(stage);
 				break;
 			}
 
 			case ST_REFRACTIONMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_refraction_C(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_refraction_C(stage);
 				break;
 			}
 
 			case ST_DISPERSIONMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_dispersion_C(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_dispersion_C(stage);
 				break;
 			}
 
 			case ST_SKYBOXMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_skybox(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_skybox(stage);
 				break;
 			}
 
 			case ST_SCREENMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_screen(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_screen(stage);
 				break;
 			}
 
 			case ST_HEATHAZEMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_heatHaze(stage);
-					//Render_fboTest(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_heatHaze(stage);
 				break;
 			}
 
 			case ST_BLOOMMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_bloom(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_bloom(stage);
 				break;
 			}
 
 			case ST_BLOOM2MAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_bloom2(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_bloom2(stage);
 				break;
 			}
 
 			case ST_ROTOSCOPEMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_rotoscope(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_rotoscope(stage);
 				break;
 			}
 			
 			case ST_LIQUIDMAP:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_liquid(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_liquid(stage);
 				break;
 			}
 
@@ -3396,16 +3201,8 @@ void Tess_StageIteratorGBuffer()
 			continue;
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			Tess_ComputeColor(pStage);
-			Tess_ComputeTexMatrices(pStage);
-		}
-		else
-		{
-			Tess_ComputeColors(pStage);
-			Tess_ComputeTexMatrices(pStage);
-		}
+		Tess_ComputeColor(pStage);
+		Tess_ComputeTexMatrices(pStage);
 
 		switch (pStage->type)
 		{
@@ -3548,15 +3345,7 @@ void Tess_StageIteratorShadowFill()
 			continue;
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			Tess_ComputeColor(pStage);
-			Tess_ComputeTexMatrices(pStage);
-		}
-		else
-		{
-			Tess_ComputeTexMatrices(pStage);
-		}
+		Tess_ComputeTexMatrices(pStage);
 
 		switch (pStage->type)
 		{
@@ -3564,14 +3353,7 @@ void Tess_StageIteratorShadowFill()
 			{
 				if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					if(glConfig.shadingLanguage100Available)
-					{
-						Render_shadowFill(stage);
-					}
-					else
-					{
-						// TODO
-					}
+					Render_shadowFill(stage);
 				}
 				break;
 			}
@@ -3580,14 +3362,7 @@ void Tess_StageIteratorShadowFill()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				if(glConfig.shadingLanguage100Available)
-				{
-					Render_shadowFill(stage);
-				}
-				else
-				{
-					// TODO
-				}
+				Render_shadowFill(stage);
 				break;
 			}
 
@@ -3931,15 +3706,7 @@ void Tess_StageIteratorStencilLighting()
 			continue;
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			Tess_ComputeTexMatrices(diffuseStage);
-		}
-		else
-		{
-			Tess_ComputeVertexPaintingColors(diffuseStage);
-			Tess_ComputeTexMatrices(diffuseStage);
-		}
+		Tess_ComputeTexMatrices(diffuseStage);
 
 		for(j = 1; j < MAX_SHADER_STAGES; j++)
 		{
@@ -3968,20 +3735,17 @@ void Tess_StageIteratorStencilLighting()
 				case ST_DIFFUSEMAP:
 				case ST_COLLAPSE_lighting_DB:
 				case ST_COLLAPSE_lighting_DBS:
-					if(glConfig.shadingLanguage100Available)
+					if(light->l.rlType == RL_OMNI)
 					{
-						if(light->l.rlType == RL_OMNI)
-						{
-							Render_forwardLighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
-						}
-						else if(light->l.rlType == RL_PROJ)
-						{
-							Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
-						}
-						else
-						{
-							// TODO ?
-						}
+						Render_forwardLighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+					}
+					else if(light->l.rlType == RL_PROJ)
+					{
+						Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+					}
+					else
+					{
+						// TODO ?
 					}
 					break;
 
@@ -4090,15 +3854,7 @@ void Tess_StageIteratorLighting()
 			continue;
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			Tess_ComputeTexMatrices(diffuseStage);
-		}
-		else
-		{
-			Tess_ComputeVertexPaintingColors(diffuseStage);
-			Tess_ComputeTexMatrices(diffuseStage);
-		}
+		Tess_ComputeTexMatrices(diffuseStage);
 
 		for(j = 1; j < MAX_SHADER_STAGES; j++)
 		{
@@ -4127,20 +3883,17 @@ void Tess_StageIteratorLighting()
 				case ST_DIFFUSEMAP:
 				case ST_COLLAPSE_lighting_DB:
 				case ST_COLLAPSE_lighting_DBS:
-					if(glConfig.shadingLanguage100Available)
+					if(light->l.rlType == RL_OMNI)
 					{
-						if(light->l.rlType == RL_OMNI)
-						{
-							Render_forwardLighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
-						}
-						else if(light->l.rlType == RL_PROJ)
-						{
-							Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
-						}
-						else
-						{
-							// TODO ?
-						}
+						Render_forwardLighting_DBS_omni(diffuseStage, attenuationXYStage, attenuationZStage, light);
+					}
+					else if(light->l.rlType == RL_PROJ)
+					{
+						Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
+					}
+					else
+					{
+						// TODO ?
 					}
 					break;
 

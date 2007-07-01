@@ -917,16 +917,6 @@ static qboolean GLW_StartDriverAndSetMode(const char *drivername, int mode, qboo
 {
 	rserr_t         err;
 
-	// don't ever bother going into fullscreen with a voodoo card
-#if 1							// JDC: I reenabled this
-	if(Q_stristr(drivername, "Voodoo"))
-	{
-		ri.Cvar_Set("r_fullscreen", "0");
-		r_fullscreen->modified = qfalse;
-		fullscreen = qfalse;
-	}
-#endif
-
 	if(fullscreen && in_nograb->value)
 	{
 		ri.Printf(PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
@@ -1084,7 +1074,7 @@ int GLW_SetMode(const char *drivername, int mode, qboolean fullscreen)
 		}
 		else
 		{
-			ri.Printf(PRINT_ALL, "XFree86-VidModeExtension:  Ignored on non-fullscreen/Voodoo\n");
+			ri.Printf(PRINT_ALL, "XFree86-VidModeExtension:  Ignored on non-fullscreen\n");
 		}
 	}
 
@@ -1093,9 +1083,6 @@ int GLW_SetMode(const char *drivername, int mode, qboolean fullscreen)
 		colorbits = 24;
 	else
 		colorbits = r_colorbits->value;
-
-	if(!Q_stricmp(r_glDriver->string, _3DFX_DRIVER_NAME))
-		colorbits = 16;
 
 	if(!r_depthbits->value)
 		depthbits = 24;
@@ -1275,12 +1262,6 @@ void           *qwglGetProcAddress(char *symbol);
 
 static void GLW_InitExtensions(void)
 {
-	if(!r_allowExtensions->integer)
-	{
-		ri.Printf(PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n");
-		return;
-	}
-
 	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
 
 	// GL_ARB_multitexture
@@ -1321,72 +1302,32 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_multitexture not found\n");
 	}
-
-	// GL_ARB_transpose_matrix
-	qglLoadTransposeMatrixfARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_transpose_matrix"))
-	{
-		if(r_ext_transpose_matrix->value)
-		{
-			qglLoadTransposeMatrixfARB = (PFNGLLOADTRANSPOSEMATRIXFARBPROC) qwglGetProcAddress("glLoadTransposeMatrixfARB");
-			ri.Printf(PRINT_ALL, "...using GL_ARB_transpose_matrix\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_transpose_matrix\n");
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_transpose_matrix not found\n");
-	}
 	
 	// GL_ARB_texture_cube_map
-	glConfig.textureCubeAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
 	{
 		qglGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
-		
-		if(r_ext_texture_cube_map->integer)
-		{
-			glConfig.textureCubeAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_texture_cube_map\n");
-		}
+		ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_texture_cube_map\n");
+		ri.Error(ERR_FATAL, "...GL_ARB_texture_cube_map not found\n");
 	}
 
 	// GL_ARB_vertex_program
-	glConfig.vertexProgramAvailable = qfalse;
 	qglVertexAttribPointerARB = NULL;
 	qglEnableVertexAttribArrayARB = NULL;
 	qglDisableVertexAttribArrayARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_program"))
 	{
-		if(r_ext_vertex_program->value)
-		{
-			qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) qwglGetProcAddress("glVertexAttribPointerARB");
-			qglEnableVertexAttribArrayARB =
-				(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glEnableVertexAttribArrayARB");
-			qglDisableVertexAttribArrayARB =
-				(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glDisableVertexAttribArrayARB");
-			glConfig.vertexProgramAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_program\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_vertex_program\n");
-		}
+		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) qwglGetProcAddress("glVertexAttribPointerARB");
+		qglEnableVertexAttribArrayARB =	(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glEnableVertexAttribArrayARB");
+		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glDisableVertexAttribArrayARB");
+		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_program\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_program not found\n");
+		ri.Error(ERR_FATAL, "...GL_ARB_vertex_program not found\n");
 	}
 	
 	// GL_ARB_vertex_buffer_object
@@ -1468,7 +1409,6 @@ static void GLW_InitExtensions(void)
 	}
 
 	// GL_ARB_shader_objects
-	glConfig.shaderObjectsAvailable = qfalse;
 	qglDeleteObjectARB = NULL;
 	qglGetHandleARB = NULL;
 	qglDetachObjectARB = NULL;
@@ -1508,121 +1448,85 @@ static void GLW_InitExtensions(void)
 	qglGetShaderSourceARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_shader_objects"))
 	{
-		if(r_ext_shader_objects->value)
-		{
-			qglDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC) qwglGetProcAddress("glDeleteObjectARB");
-			qglGetHandleARB = (PFNGLGETHANDLEARBPROC) qwglGetProcAddress("glGetHandleARB");
-			qglDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) qwglGetProcAddress("glDetachObjectARB");
-			qglCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) qwglGetProcAddress("glCreateShaderObjectARB");
-			qglShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) qwglGetProcAddress("glShaderSourceARB");
-			qglCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) qwglGetProcAddress("glCompileShaderARB");
-			qglCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) qwglGetProcAddress("glCreateProgramObjectARB");
-			qglAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) qwglGetProcAddress("glAttachObjectARB");
-			qglLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) qwglGetProcAddress("glLinkProgramARB");
-			qglUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC) qwglGetProcAddress("glUseProgramObjectARB");
-			qglValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC) qwglGetProcAddress("glValidateProgramARB");
-			qglUniform1fARB = (PFNGLUNIFORM1FARBPROC) qwglGetProcAddress("glUniform1fARB");
-			qglUniform2fARB = (PFNGLUNIFORM2FARBPROC) qwglGetProcAddress("glUniform2fARB");
-			qglUniform3fARB = (PFNGLUNIFORM3FARBPROC) qwglGetProcAddress("glUniform3fARB");
-			qglUniform4fARB = (PFNGLUNIFORM4FARBPROC) qwglGetProcAddress("glUniform4fARB");
-			qglUniform1iARB = (PFNGLUNIFORM1IARBPROC) qwglGetProcAddress("glUniform1iARB");
-			qglUniform2iARB = (PFNGLUNIFORM2IARBPROC) qwglGetProcAddress("glUniform2iARB");
-			qglUniform3iARB = (PFNGLUNIFORM3IARBPROC) qwglGetProcAddress("glUniform3iARB");
-			qglUniform4iARB = (PFNGLUNIFORM4IARBPROC) qwglGetProcAddress("glUniform4iARB");
-			qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) qwglGetProcAddress("glUniform2fvARB");
-			qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC) qwglGetProcAddress("glUniform3fvARB");
-			qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) qwglGetProcAddress("glUniform4fvARB");
-			qglUniform2ivARB = (PFNGLUNIFORM2IVARBPROC) qwglGetProcAddress("glUniform2ivARB");
-			qglUniform3ivARB = (PFNGLUNIFORM3IVARBPROC) qwglGetProcAddress("glUniform3ivARB");
-			qglUniform4ivARB = (PFNGLUNIFORM4IVARBPROC) qwglGetProcAddress("glUniform4ivARB");
-			qglUniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC) qwglGetProcAddress("glUniformMatrix2fvARB");
-			qglUniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC) qwglGetProcAddress("glUniformMatrix3fvARB");
-			qglUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) qwglGetProcAddress("glUniformMatrix4fvARB");
-			qglGetObjectParameterfvARB = (PFNGLGETOBJECTPARAMETERFVARBPROC) qwglGetProcAddress("glGetObjectParameterfvARB");
-			qglGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC) qwglGetProcAddress("glGetObjectParameterivARB");
-			qglGetInfoLogARB = (PFNGLGETINFOLOGARBPROC) qwglGetProcAddress("glGetInfoLogARB");
-			qglGetAttachedObjectsARB = (PFNGLGETATTACHEDOBJECTSARBPROC) qwglGetProcAddress("glGetAttachedObjectsARB");
-			qglGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) qwglGetProcAddress("glGetUniformLocationARB");
-			qglGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC) qwglGetProcAddress("glGetActiveUniformARB");
-			qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC) qwglGetProcAddress("glGetUniformfvARB");
-			qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC) qwglGetProcAddress("glGetUniformivARB");
-			qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) qwglGetProcAddress("glGetShaderSourceARB");
-			glConfig.shaderObjectsAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_shader_objects\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_shader_objects\n");
-		}
+		qglDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC) qwglGetProcAddress("glDeleteObjectARB");
+		qglGetHandleARB = (PFNGLGETHANDLEARBPROC) qwglGetProcAddress("glGetHandleARB");
+		qglDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) qwglGetProcAddress("glDetachObjectARB");
+		qglCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) qwglGetProcAddress("glCreateShaderObjectARB");
+		qglShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) qwglGetProcAddress("glShaderSourceARB");
+		qglCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) qwglGetProcAddress("glCompileShaderARB");
+		qglCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) qwglGetProcAddress("glCreateProgramObjectARB");
+		qglAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) qwglGetProcAddress("glAttachObjectARB");
+		qglLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) qwglGetProcAddress("glLinkProgramARB");
+		qglUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC) qwglGetProcAddress("glUseProgramObjectARB");
+		qglValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC) qwglGetProcAddress("glValidateProgramARB");
+		qglUniform1fARB = (PFNGLUNIFORM1FARBPROC) qwglGetProcAddress("glUniform1fARB");
+		qglUniform2fARB = (PFNGLUNIFORM2FARBPROC) qwglGetProcAddress("glUniform2fARB");
+		qglUniform3fARB = (PFNGLUNIFORM3FARBPROC) qwglGetProcAddress("glUniform3fARB");
+		qglUniform4fARB = (PFNGLUNIFORM4FARBPROC) qwglGetProcAddress("glUniform4fARB");
+		qglUniform1iARB = (PFNGLUNIFORM1IARBPROC) qwglGetProcAddress("glUniform1iARB");
+		qglUniform2iARB = (PFNGLUNIFORM2IARBPROC) qwglGetProcAddress("glUniform2iARB");
+		qglUniform3iARB = (PFNGLUNIFORM3IARBPROC) qwglGetProcAddress("glUniform3iARB");
+		qglUniform4iARB = (PFNGLUNIFORM4IARBPROC) qwglGetProcAddress("glUniform4iARB");
+		qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) qwglGetProcAddress("glUniform2fvARB");
+		qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC) qwglGetProcAddress("glUniform3fvARB");
+		qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) qwglGetProcAddress("glUniform4fvARB");
+		qglUniform2ivARB = (PFNGLUNIFORM2IVARBPROC) qwglGetProcAddress("glUniform2ivARB");
+		qglUniform3ivARB = (PFNGLUNIFORM3IVARBPROC) qwglGetProcAddress("glUniform3ivARB");
+		qglUniform4ivARB = (PFNGLUNIFORM4IVARBPROC) qwglGetProcAddress("glUniform4ivARB");
+		qglUniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC) qwglGetProcAddress("glUniformMatrix2fvARB");
+		qglUniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC) qwglGetProcAddress("glUniformMatrix3fvARB");
+		qglUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) qwglGetProcAddress("glUniformMatrix4fvARB");
+		qglGetObjectParameterfvARB = (PFNGLGETOBJECTPARAMETERFVARBPROC) qwglGetProcAddress("glGetObjectParameterfvARB");
+		qglGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC) qwglGetProcAddress("glGetObjectParameterivARB");
+		qglGetInfoLogARB = (PFNGLGETINFOLOGARBPROC) qwglGetProcAddress("glGetInfoLogARB");
+		qglGetAttachedObjectsARB = (PFNGLGETATTACHEDOBJECTSARBPROC) qwglGetProcAddress("glGetAttachedObjectsARB");
+		qglGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) qwglGetProcAddress("glGetUniformLocationARB");
+		qglGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC) qwglGetProcAddress("glGetActiveUniformARB");
+		qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC) qwglGetProcAddress("glGetUniformfvARB");
+		qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC) qwglGetProcAddress("glGetUniformivARB");
+		qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) qwglGetProcAddress("glGetShaderSourceARB");
+		ri.Printf(PRINT_ALL, "...using GL_ARB_shader_objects\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_shader_objects not found\n");
+		ri.Error(ERR_FATAL, "...GL_ARB_shader_objects not found\n");
 	}
 
 	// GL_ARB_vertex_shader
-	glConfig.vertexShaderAvailable = qfalse;
 	qglBindAttribLocationARB = NULL;
 	qglGetActiveAttribARB = NULL;
 	qglGetAttribLocationARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_shader"))
 	{
-		if(r_ext_vertex_shader->value)
-		{
-			qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) qwglGetProcAddress("glBindAttribLocationARB");
-			qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) qwglGetProcAddress("glGetActiveAttribARB");
-			qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) qwglGetProcAddress("glGetAttribLocationARB");
-			glConfig.vertexShaderAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_shader\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_vertex_shader\n");
-		}
+		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) qwglGetProcAddress("glBindAttribLocationARB");
+		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) qwglGetProcAddress("glGetActiveAttribARB");
+		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) qwglGetProcAddress("glGetAttribLocationARB");
+		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_shader\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_shader not found\n");
+		ri.Error(ERR_FATAL, "...GL_ARB_vertex_shader not found\n");
 	}
 
 	// GL_ARB_fragment_shader
-	glConfig.fragmentShaderAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_fragment_shader"))
 	{
-		if(r_ext_fragment_shader->value)
-		{
-			glConfig.fragmentShaderAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_fragment_shader\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_fragment_shader\n");
-		}
+		ri.Printf(PRINT_ALL, "...using GL_ARB_fragment_shader\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_fragment_shader not found\n");
+		ri.Error(ERR_FATAL, "...GL_ARB_fragment_shader not found\n");
 	}
 
 	// GL_ARB_shading_language_100
-	glConfig.shadingLanguage100Available = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_shading_language_100"))
 	{
 		Q_strncpyz(glConfig.shadingLanguageVersion, qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB), sizeof(glConfig.shadingLanguageVersion));
-		
-		if(r_ext_shading_language_100->value)
-		{
-			glConfig.shadingLanguage100Available = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_shading_language_100\n");
-		}
+		ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_shading_language_100 not found\n");
+		ri.Printf(ERR_FATAL, "...GL_ARB_shading_language_100 not found\n");
 	}
 	
 	// GL_ARB_texture_non_power_of_two
@@ -1683,26 +1587,6 @@ static void GLW_InitExtensions(void)
 	else
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_float not found\n");
-	}
-	
-	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "EXT_texture_env_add"))
-	{
-		if(r_ext_texture_env_add->integer)
-		{
-			glConfig.textureEnvAddAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_env_add\n");
-		}
-		else
-		{
-			glConfig.textureEnvAddAvailable = qfalse;
-			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n");
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "...GL_EXT_texture_env_add not found\n");
 	}
 
 	// GL_EXT_compiled_vertex_array
@@ -1958,14 +1842,6 @@ static qboolean GLW_LoadOpenGL(const char *name)
 
 	ri.Printf(PRINT_ALL, "...loading %s: ", name);
 
-	// disable the 3Dfx splash screen and set gamma
-	// we do this all the time, but it shouldn't hurt anything
-	// on non-3Dfx stuff
-	putenv("FX_GLIDE_NO_SPLASH=0");
-
-	// Mesa VooDoo hacks
-	putenv("MESA_GLX_FX=fullscreen\n");
-
 	// load the QGL layer
 	if(QGL_Init(name))
 	{
@@ -2026,7 +1902,6 @@ int qXErrorHandler(Display * dpy, XErrorEvent * ev)
 void GLimp_Init(void)
 {
 	qboolean        attemptedlibGL = qfalse;
-	qboolean        attempted3Dfx = qfalse;
 	qboolean        success = qfalse;
 	char            buf[1024];
 	cvar_t         *lastValidRenderer = ri.Cvar_Get("r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE);
@@ -2057,36 +1932,14 @@ void GLimp_Init(void)
 	// set up our custom error handler for X failures
 	XSetErrorHandler(&qXErrorHandler);
 
-	//
 	// load and initialize the specific OpenGL driver
-	//
 	if(!GLW_LoadOpenGL(r_glDriver->string))
 	{
 		if(!Q_stricmp(r_glDriver->string, OPENGL_DRIVER_NAME))
 		{
 			attemptedlibGL = qtrue;
 		}
-		else if(!Q_stricmp(r_glDriver->string, _3DFX_DRIVER_NAME))
-		{
-			attempted3Dfx = qtrue;
-		}
-
-#if 0
-		// TTimo
-		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=455
-		// old legacy load code, was confusing people who had a bad OpenGL setup
-		if(!attempted3Dfx && !success)
-		{
-			attempted3Dfx = qtrue;
-			if(GLW_LoadOpenGL(_3DFX_DRIVER_NAME))
-			{
-				ri.Cvar_Set("r_glDriver", _3DFX_DRIVER_NAME);
-				r_glDriver->modified = qfalse;
-				success = qtrue;
-			}
-		}
-#endif
-
+		
 		// try ICD before trying 3Dfx standalone driver
 		if(!attemptedlibGL && !success)
 		{
@@ -2119,71 +1972,26 @@ void GLimp_Init(void)
 	Q_strncpyz(glConfig.version_string, qglGetString(GL_VERSION), sizeof(glConfig.version_string));
 	Q_strncpyz(glConfig.extensions_string, qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
 
-	//
 	// chipset specific configuration
-	//
 	strcpy(buf, glConfig.renderer_string);
 	strlwr(buf);
 
-	//
 	// NOTE: if changing cvars, do it within this block.  This allows them
 	// to be overridden when testing driver fixes, etc. but only sets
 	// them to their default state when the hardware is first installed/run.
-	//
 	if(Q_stricmp(lastValidRenderer->string, glConfig.renderer_string))
 	{
 		glConfig.hardwareType = GLHW_GENERIC;
 
 		ri.Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST");
-
-		// VOODOO GRAPHICS w/ 2MB
-		if(Q_stristr(buf, "voodoo graphics/1 tmu/2 mb"))
-		{
-			ri.Cvar_Set("r_picmip", "2");
-			ri.Cvar_Get("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH);
-		}
-		else
-		{
-			ri.Cvar_Set("r_picmip", "1");
-
-			if(Q_stristr(buf, "rage 128") || Q_stristr(buf, "rage128"))
-			{
-				ri.Cvar_Set("r_finish", "0");
-			}
-			// Savage3D and Savage4 should always have trilinear enabled
-			else if(Q_stristr(buf, "savage3d") || Q_stristr(buf, "s3 savage4"))
-			{
-				ri.Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			}
-		}
+		ri.Cvar_Set("r_picmip", "1");
 	}
 
-	//
 	// this is where hardware specific workarounds that should be
 	// detected/initialized every startup should go.
-	//
-	if(Q_stristr(buf, "banshee") || Q_stristr(buf, "Voodoo_Graphics"))
-	{
-		glConfig.hardwareType = GLHW_3DFX_2D3D;
-	}
-	else if(Q_stristr(buf, "radeon"))
+	if(Q_stristr(buf, "radeon"))
 	{
 		glConfig.hardwareType = GLHW_ATI;
-	}
-	else if(Q_stristr(buf, "rage pro") || Q_stristr(buf, "RagePro"))
-	{
-		glConfig.hardwareType = GLHW_RAGEPRO;
-	}
-	else if(Q_stristr(buf, "permedia2"))
-	{
-		glConfig.hardwareType = GLHW_PERMEDIA2;
-	}
-	else if(Q_stristr(buf, "riva 128"))
-	{
-		glConfig.hardwareType = GLHW_RIVA128;
-	}
-	else if(Q_stristr(buf, "riva tnt "))
-	{
 	}
 
 	ri.Cvar_Set("r_lastValidRenderer", glConfig.renderer_string);
@@ -2408,8 +2216,7 @@ void IN_Frame(void)
 	{
 		// temporarily deactivate if not in the game and
 		// running on the desktop
-		// voodoo always counts as full screen
-		if(Cvar_VariableValue("r_fullscreen") == 0 && strcmp(Cvar_VariableString("r_glDriver"), _3DFX_DRIVER_NAME))
+		if(Cvar_VariableValue("r_fullscreen") == 0)
 		{
 			IN_DeactivateMouse();
 			return;

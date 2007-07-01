@@ -110,13 +110,10 @@ void GL_TextureFilter(image_t * image, filterType_t filterType)
 
 void GL_Program(GLhandleARB program)
 {
-	if(glConfig.shadingLanguage100Available)
+	if(glState.currentProgram != program)
 	{
-		if(glState.currentProgram != program)
-		{
-			glState.currentProgram = program;
-			qglUseProgramObjectARB(program);
-		}
+		glState.currentProgram = program;
+		qglUseProgramObjectARB(program);
 	}
 }
 
@@ -657,7 +654,7 @@ void GL_SetVertexAttribs()
 			qglNormalPointer(GL_FLOAT, 16, tess.normals);
 
 		if(glState.glClientStateBits & GLCS_COLOR)
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
 	}
 }
 
@@ -867,6 +864,7 @@ static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 	oldShader = NULL;
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
+	backEnd.currentLight = NULL;
 
 	for(i = 0, drawSurf = backEnd.viewParms.drawSurfs; i < backEnd.viewParms.numDrawSurfs; i++, drawSurf++)
 	{
@@ -1398,7 +1396,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
 
-	if(glConfig.stencilBits < 4 || !glConfig.shadingLanguage100Available)
+	if(glConfig.stencilBits < 4)
 	{
 		RB_RenderInteractions(originalTime);
 		return;
@@ -1845,7 +1843,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 	qboolean        drawShadows;
 	int             cubeSide;
 
-	if(!glConfig.framebufferObjectAvailable || !glConfig.shadingLanguage100Available || !glConfig.textureFloatAvailable)
+	if(!glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
 	{
 		RB_RenderInteractions(originalTime);
 		return;
@@ -2530,6 +2528,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
 	oldShader = NULL;
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
+	backEnd.currentLight = NULL;
 
 	GL_CheckErrors();
 
@@ -4860,8 +4859,7 @@ static void RB_RenderView(void)
 
 	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
 
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.shadingLanguage100Available &&
-	   glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		// clear frame buffer objects
 		R_BindFBO(tr.deferredRenderFBO);

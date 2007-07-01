@@ -284,6 +284,7 @@ code/game
 code/renderer
 - check for shader model 3 hardware
 - add fog lights
+- replace alphaGen portal by a cool post process effect
 - ignore shadow pyramids that don't cast into the view
 - use shadow caster volumes to kill obselete shadows
 - improve deferred shading

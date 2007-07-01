@@ -98,7 +98,6 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 	int				boneIndex;
 	orientation_t   lerped;
 	vec3_t          tempAxis[3];
-	quat_t			q;	
 
 	// lerp the tag
 	boneIndex = trap_R_BoneIndex(parentModel, tagName);

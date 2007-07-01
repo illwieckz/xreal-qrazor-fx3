@@ -128,15 +128,6 @@ void GL_TextureMode(const char *string)
 		}
 	}
 
-	// hack to prevent trilinear from being set on voodoo,
-	// because their driver freaks...
-	if(i == 5 && glConfig.hardwareType == GLHW_3DFX_2D3D)
-	{
-		ri.Printf(PRINT_ALL, "Refusing to set trilinear on a voodoo.\n");
-		i = 3;
-	}
-
-
 	if(i == 6)
 	{
 		ri.Printf(PRINT_ALL, "bad filter name\n");
@@ -4584,20 +4575,6 @@ void R_CreateBuiltinImages(void)
 	}
 	tr.flatImage = R_CreateImage("_flat", (byte *) data, 8, 8, IF_NOPICMIP | IF_NORMALMAP, FT_LINEAR, WT_REPEAT);
 
-	// with overbright bits active, we need an image which is some fraction of full color,
-	// for default lightmaps, etc
-	for(x = 0; x < DEFAULT_SIZE; x++)
-	{
-		for(y = 0; y < DEFAULT_SIZE; y++)
-		{
-			data[y][x][0] = data[y][x][1] = data[y][x][2] = tr.identityLightByte;
-			data[y][x][3] = 255;
-		}
-	}
-
-	tr.identityLightImage = R_CreateImage("_identityLight", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
-
-
 	for(x = 0; x < 32; x++)
 	{
 		// scratchimage is usually used for cinematic drawing
@@ -4664,7 +4641,6 @@ void R_SetColorMappings(void)
 
 	tr.identityLight = 1.0f / (1 << tr.overbrightBits);
 	tr.identityLightByte = 255 * tr.identityLight;
-
 
 	if(r_intensity->value <= 1)
 	{

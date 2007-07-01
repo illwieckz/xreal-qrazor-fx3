@@ -76,22 +76,12 @@ cvar_t         *r_noInteractionSort;
 cvar_t         *r_noDynamicLighting;
 cvar_t         *r_noStaticLighting;
 
-cvar_t         *r_allowExtensions;
-
 cvar_t         *r_ext_compressed_textures;
 cvar_t         *r_ext_gamma_control;
 cvar_t         *r_ext_multitexture;
 cvar_t         *r_ext_compiled_vertex_array;
-cvar_t         *r_ext_texture_env_add;
-cvar_t         *r_ext_transpose_matrix;
-cvar_t         *r_ext_texture_cube_map;
-cvar_t         *r_ext_vertex_program;
 cvar_t         *r_ext_vertex_buffer_object;
 cvar_t         *r_ext_occlusion_query;
-cvar_t         *r_ext_shader_objects;
-cvar_t         *r_ext_vertex_shader;
-cvar_t         *r_ext_fragment_shader;
-cvar_t         *r_ext_shading_language_100;
 cvar_t         *r_ext_texture_non_power_of_two;
 cvar_t         *r_ext_draw_buffers;
 cvar_t         *r_ext_texture_float;
@@ -214,9 +204,6 @@ cvar_t         *r_parallaxDepthScale;
 void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
 void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
-
-// GL_ARB_transpose_matrix
-void            (APIENTRY * qglLoadTransposeMatrixfARB) (const GLfloat * m);
 
 // GL_ARB_vertex_program
 void            (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
@@ -1125,12 +1112,10 @@ void GL_SetDefaultState(void)
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 	glState.glClientStateBits = GLCS_DEFAULT;
-	glState.currentProgram = 0;
 	
-	if(glConfig.shadingLanguage100Available)
-	{
-		qglUseProgramObjectARB(0);
-	}
+	glState.currentProgram = 0;
+	qglUseProgramObjectARB(0);
+	
 	
 	/*
 	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -1191,10 +1176,7 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
 	}
 	
-	if(glConfig.shadingLanguage100Available)
-	{
-		ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig.shadingLanguageVersion);
-	}
+	ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig.shadingLanguageVersion);
 	
 	if(glConfig.drawBuffersAvailable)
 	{
@@ -1241,18 +1223,7 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "texture bits: %d\n", r_texturebits->integer);
 	ri.Printf(PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0]);
 	ri.Printf(PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0]);
-	ri.Printf(PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0]);
 	ri.Printf(PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE]);
-
-	if(glConfig.hardwareType == GLHW_RAGEPRO)
-	{
-		ri.Printf(PRINT_ALL, "HACK: ragePro approximations\n");
-	}
-
-	if(glConfig.hardwareType == GLHW_RIVA128)
-	{
-		ri.Printf(PRINT_ALL, "HACK: riva128 approximations\n");
-	}
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
@@ -1279,25 +1250,12 @@ void R_Register(void)
 {
 	// latched and archived variables
 	r_glDriver = ri.Cvar_Get("r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH);
-	r_allowExtensions = ri.Cvar_Get("r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_gamma_control = ri.Cvar_Get("r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE | CVAR_LATCH);
-#ifdef __linux__				// broken on linux
-	r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH);
-#else
-	r_ext_texture_env_add = ri.Cvar_Get("r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH);
-#endif
-	r_ext_transpose_matrix = ri.Cvar_Get("r_ext_transpose_matrix", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_texture_cube_map = ri.Cvar_Get("r_ext_texture_cube_map", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_vertex_program = ri.Cvar_Get("r_ext_vertex_program", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_shader_objects = ri.Cvar_Get("r_ext_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_vertex_shader = ri.Cvar_Get("r_ext_vertex_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_fragment_shader = ri.Cvar_Get("r_ext_fragment_shader", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_shading_language_100 = ri.Cvar_Get("r_ext_shading_language_100", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1513,11 +1471,8 @@ void R_Init(void)
 	{
 		Com_Printf("WARNING: tess.xyz not 16 byte aligned\n");
 	}
-	Com_Memset(tess.constantColor255, 255, sizeof(tess.constantColor255));
 
-	//
 	// init function tables
-	//
 	for(i = 0; i < FUNCTABLE_SIZE; i++)
 	{
 		tr.sinTable[i] = sin(DEG2RAD(i * 360.0f / ((float)(FUNCTABLE_SIZE - 1))));

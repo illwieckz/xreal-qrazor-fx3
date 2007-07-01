@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform int			u_InverseVertexColor;
+
 varying vec2		var_Tex;
 varying vec4		var_Color;
 
@@ -34,5 +36,15 @@ void	main()
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// assign color
-	var_Color = gl_Color;
+	if(bool(u_InverseVertexColor))
+	{
+		var_Color.r = 1.0 - gl_Color.r;
+		var_Color.g = 1.0 - gl_Color.g;
+		var_Color.b = 1.0 - gl_Color.b;
+		var_Color.a = 1.0 - gl_Color.a;
+	}
+	else
+	{
+		var_Color = gl_Color;
+	}
 }

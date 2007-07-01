@@ -42,17 +42,6 @@ void WG_CheckHardwareGamma(void)
 
 	glConfig.deviceSupportsGamma = qfalse;
 
-	if(qwglSetDeviceGammaRamp3DFX)
-	{
-		glConfig.deviceSupportsGamma = qtrue;
-
-		hDC = GetDC(GetDesktopWindow());
-		glConfig.deviceSupportsGamma = qwglGetDeviceGammaRamp3DFX(hDC, s_oldHardwareGamma);
-		ReleaseDC(GetDesktopWindow(), hDC);
-
-		return;
-	}
-
 	// non-3Dfx standalone drivers don't support gamma changes, period
 	if(glConfig.driverType == GLDRV_STANDALONE)
 	{
@@ -67,9 +56,7 @@ void WG_CheckHardwareGamma(void)
 
 		if(glConfig.deviceSupportsGamma)
 		{
-			//
 			// do a sanity check on the gamma values
-			//
 			if((HIBYTE(s_oldHardwareGamma[0][255]) <= HIBYTE(s_oldHardwareGamma[0][0])) ||
 			   (HIBYTE(s_oldHardwareGamma[1][255]) <= HIBYTE(s_oldHardwareGamma[1][0])) ||
 			   (HIBYTE(s_oldHardwareGamma[2][255]) <= HIBYTE(s_oldHardwareGamma[2][0])))
@@ -78,10 +65,8 @@ void WG_CheckHardwareGamma(void)
 				ri.Printf(PRINT_WARNING, "WARNING: device has broken gamma support, generated gamma.dat\n");
 			}
 
-			//
 			// make sure that we didn't have a prior crash in the game, and if so we need to
 			// restore the gamma values to at least a linear value
-			//
 			if((HIBYTE(s_oldHardwareGamma[0][181]) == 255))
 			{
 				int             g;
@@ -159,17 +144,10 @@ void GLimp_SetGamma(unsigned char red[256], unsigned char green[256], unsigned c
 	}
 
 
-	if(qwglSetDeviceGammaRamp3DFX)
+	ret = SetDeviceGammaRamp(glw_state.hDC, table);
+	if(!ret)
 	{
-		qwglSetDeviceGammaRamp3DFX(glw_state.hDC, table);
-	}
-	else
-	{
-		ret = SetDeviceGammaRamp(glw_state.hDC, table);
-		if(!ret)
-		{
-			Com_Printf("SetDeviceGammaRamp failed.\n");
-		}
+		Com_Printf("SetDeviceGammaRamp failed.\n");
 	}
 }
 
@@ -180,17 +158,10 @@ void WG_RestoreGamma(void)
 {
 	if(glConfig.deviceSupportsGamma)
 	{
-		if(qwglSetDeviceGammaRamp3DFX)
-		{
-			qwglSetDeviceGammaRamp3DFX(glw_state.hDC, s_oldHardwareGamma);
-		}
-		else
-		{
-			HDC             hDC;
+		HDC             hDC;
 
-			hDC = GetDC(GetDesktopWindow());
-			SetDeviceGammaRamp(hDC, s_oldHardwareGamma);
-			ReleaseDC(GetDesktopWindow(), hDC);
-		}
+		hDC = GetDC(GetDesktopWindow());
+		SetDeviceGammaRamp(hDC, s_oldHardwareGamma);
+		ReleaseDC(GetDesktopWindow(), hDC);
 	}
 }

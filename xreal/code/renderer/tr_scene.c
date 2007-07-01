@@ -159,14 +159,6 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numPolyVerts];
 
 		Com_Memcpy(poly->verts, &verts[numVerts * j], numVerts * sizeof(*verts));
-
-		if(glConfig.hardwareType == GLHW_RAGEPRO)
-		{
-			poly->verts->modulate[0] = 255;
-			poly->verts->modulate[1] = 255;
-			poly->verts->modulate[2] = 255;
-			poly->verts->modulate[3] = 255;
-		}
 		
 		// done.
 		r_numPolys++;
