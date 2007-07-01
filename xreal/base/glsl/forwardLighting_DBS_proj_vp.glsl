@@ -57,9 +57,9 @@ void	main()
 	var_TexAtten = gl_TextureMatrix[3] * gl_Vertex;
 	
 	// construct tangent-space-to-world-space 3x3 matrix
-	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0));
-	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0));
-	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0));
+	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 	
 	// calc shadow attenuation in light space
 	vec4 texShadow = gl_TextureMatrix[4] * gl_Vertex;
