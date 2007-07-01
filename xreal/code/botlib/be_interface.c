@@ -140,12 +140,31 @@ qboolean BotLibSetup(char *str)
 int Export_BotLibSetup(void)
 {
 	int             errnum;
+	char            logfilename[MAX_QPATH];
+	char		   *homedir, *gamedir;
 
 	bot_developer = LibVarGetValue("bot_developer");
 	memset(&botlibglobals, 0, sizeof(botlibglobals));	// bk001207 - init
 	//initialize byte swapping (litte endian etc.)
 //  Swap_Init();
-	Log_Open("botlib.log");
+	homedir = LibVarGetString("homedir");
+	gamedir = LibVarGetString("gamedir");
+	if(homedir[0])
+	{
+		if(gamedir[0])
+		{
+			Com_sprintf(logfilename, sizeof(logfilename), "%s%c%s%cbotlib.log", homedir, PATH_SEP, gamedir, PATH_SEP);
+		}
+		else
+		{
+			Com_sprintf(logfilename, sizeof(logfilename), "%s%c" BASEGAME "%cbotlib.log", homedir, PATH_SEP, PATH_SEP);
+		}
+	}
+	else
+	{
+		Com_sprintf(logfilename, sizeof(logfilename), "botlib.log");
+	}
+	Log_Open(logfilename);
 	//
 	botimport.Print(PRT_MESSAGE, "------- BotLib Initialization -------\n");
 	//
@@ -486,7 +505,8 @@ int BotExportTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 			botimport.Print(PRT_MESSAGE, "new goal %2.1f %2.1f %2.1f area %d\n", origin[0], origin[1], origin[2], newarea);
 		}
 	}
-	*/if(flood)
+	//*/
+	if(flood)
 		return 0;
 //  if (parm0 & BUTTON_USE)
 //  {

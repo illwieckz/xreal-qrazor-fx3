@@ -869,7 +869,7 @@ BotGetReachabilityToGoal(vec3_t origin, int areanum,
 			continue;
 		//if (AAS_AreaContentsTravelFlags(reach.areanum) & ~travelflags) continue;
 		//if the travel isn't valid
-		if(!BotValidTravel(origin, &reach, movetravelflags))
+		if(!BotValidTravel(origin, &reach, travelflags))
 			continue;
 		//get the travel time
 		t = AAS_AreaTravelTimeToGoalArea(reach.areanum, reach.end, goal->areanum, travelflags);
@@ -3707,7 +3707,6 @@ void BotMoveToGoal(bot_moveresult_t * result, int movestate, bot_goal_t * goal, 
 							ms->lastreachnum = lastreachnum;
 							ms->lastareanum = areas[i];
 							//botimport.Print(PRT_MESSAGE, "found jumppad reachability hard!!\n");
-							break;
 						}
 					}
 					if(lastreachnum)

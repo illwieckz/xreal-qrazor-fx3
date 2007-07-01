@@ -560,8 +560,6 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-#define BASEGAME "base"
-
 qboolean        FS_Initialized();
 
 void            FS_InitFilesystem(void);

@@ -107,7 +107,7 @@ void AAS_RoutingInfo(void)
 // Returns:             -
 // Changes Globals:     -
 //===========================================================================
-__inline int AAS_ClusterAreaNum(int cluster, int areanum)
+ID_INLINE int AAS_ClusterAreaNum(int cluster, int areanum)
 {
 	int             side, areacluster;
 
@@ -170,7 +170,7 @@ void AAS_InitTravelFlagFromType(void)
 // Returns:             -
 // Changes Globals:     -
 //===========================================================================
-__inline int AAS_TravelFlagForType_inline(int traveltype)
+ID_INLINE int AAS_TravelFlagForType_inline(int traveltype)
 {
 	int             tfl;
 
@@ -355,7 +355,7 @@ int AAS_EnableRoutingArea(int areanum, int enable)
 // Returns:             -
 // Changes Globals:     -
 //===========================================================================
-__inline float AAS_RoutingTime(void)
+ID_INLINE float AAS_RoutingTime(void)
 {
 	return AAS_Time();
 }								//end of the function AAS_RoutingTime
@@ -397,7 +397,7 @@ int AAS_GetAreaContentsTravelFlags(int areanum)
 // Returns:             -
 // Changes Globals:     -
 //===========================================================================
-__inline int AAS_AreaContentsTravelFlags_inline(int areanum)
+ID_INLINE int AAS_AreaContentsTravelFlags_inline(int areanum)
 {
 	return aasworld.areacontentstravelflags[areanum];
 }								//end of the function AAS_AreaContentsTravelFlags
@@ -554,7 +554,7 @@ void AAS_CalculateAreaTravelTimes(void)
 		//
 		size += settings->numreachableareas * sizeof(unsigned short *);
 		//
-		size += settings->numreachableareas * revreach->numlinks * sizeof(unsigned short);
+		size += settings->numreachableareas * PAD(revreach->numlinks, sizeof(long)) * sizeof(unsigned short);
 	}
 	//allocate memory for the area travel times
 	ptr = (char *)GetClearedMemory(size);
@@ -574,7 +574,7 @@ void AAS_CalculateAreaTravelTimes(void)
 		for(l = 0; l < settings->numreachableareas; l++)
 		{
 			aasworld.areatraveltimes[i][l] = (unsigned short *)ptr;
-			ptr += revreach->numlinks * sizeof(unsigned short);
+			ptr += PAD(revreach->numlinks, sizeof(long)) * sizeof(unsigned short);
 			//reachability link
 			reach = &aasworld.reachability[settings->firstreachablearea + l];
 			//

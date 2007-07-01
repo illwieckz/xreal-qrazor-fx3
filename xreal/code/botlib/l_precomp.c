@@ -490,9 +490,9 @@ int PC_StringizeTokens(token_t * tokens, token_t * token)
 	strcat(token->string, "\"");
 	for(t = tokens; t; t = t->next)
 	{
-		strncat(token->string, t->string, MAX_TOKEN - strlen(token->string));
+		strncat(token->string, t->string, MAX_TOKEN - strlen(token->string) - 1);
 	}
-	strncat(token->string, "\"", MAX_TOKEN - strlen(token->string));
+	strncat(token->string, "\"", MAX_TOKEN - strlen(token->string) - 1);
 	return qtrue;
 }								//end of the function PC_StringizeTokens
 
@@ -743,7 +743,11 @@ void PC_AddBuiltinDefines(source_t * source)
 int PC_ExpandBuiltinDefine(source_t * source, token_t * deftoken, define_t * define, token_t ** firsttoken, token_t ** lasttoken)
 {
 	token_t        *token;
-	unsigned long   t;			//  time_t t; //to prevent LCC warning
+#ifdef _WIN32
+	unsigned long   t;
+#else
+	time_t			t;
+#endif
 	char           *curtime;
 
 	token = PC_CopyToken(deftoken);
@@ -1063,7 +1067,7 @@ int PC_Directive_include(source_t * source)
 			}
 			if(token.type == TT_PUNCTUATION && *token.string == '>')
 				break;
-			strncat(path, token.string, MAX_QPATH);
+			strncat(path, token.string, MAX_QPATH - 1);
 		}						
 		if(*token.string != '>')
 		{

@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	Q3_VERSION		"XreaL 1.32c"
 
+#define BASEGAME		"base"
+
 #ifdef Q3_VM
 typedef int     intptr_t;
 #else

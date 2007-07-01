@@ -608,7 +608,7 @@ int PS_ReadName(script_t * script, token_t * token)
 // Returns:                 -
 // Changes Globals:     -
 //============================================================================
-void NumberValue(char *string, int subtype, unsigned long int *intvalue, long double *floatvalue)
+void NumberValue(char *string, int subtype, unsigned long int *intvalue, double *floatvalue)
 {
 	unsigned long int dotfound = 0;
 
@@ -628,12 +628,12 @@ void NumberValue(char *string, int subtype, unsigned long int *intvalue, long do
 			}
 			if(dotfound)
 			{
-				*floatvalue = *floatvalue + (long double)(*string - '0') / (long double)dotfound;
+				*floatvalue = *floatvalue + (double)(*string - '0') / (double)dotfound;
 				dotfound *= 10;
 			}
 			else
 			{
-				*floatvalue = *floatvalue * 10.0 + (long double)(*string - '0');
+				*floatvalue = *floatvalue * 10.0 + (double)(*string - '0');
 			}
 			string++;
 		}						
@@ -693,7 +693,7 @@ int PS_ReadNumber(script_t * script, token_t * token)
 	char            c;
 
 //  unsigned long int intvalue = 0;
-//  long double floatvalue = 0;
+//  double floatvalue = 0;
 
 	token->type = TT_NUMBER;
 	//check for a hexadecimal number
@@ -1246,15 +1246,15 @@ void StripSingleQuotes(char *string)
 // Returns:                 -
 // Changes Globals:     -
 //============================================================================
-long double ReadSignedFloat(script_t * script)
+double ReadSignedFloat(script_t * script)
 {
 	token_t         token;
-	long double     sign = 1;
+	double			sign = 1.0;
 
 	PS_ExpectAnyToken(script, &token);
 	if(!strcmp(token.string, "-"))
 	{
-		sign = -1;
+		sign = -1.0;
 		PS_ExpectTokenType(script, TT_NUMBER, 0, &token);
 	}
 	else if(token.type != TT_NUMBER)
