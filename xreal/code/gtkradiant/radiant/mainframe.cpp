@@ -2024,7 +2024,7 @@ GtkWidget* g_toggle_entitylist_item = 0;
 GtkMenuItem* create_view_menu(MainFrame::EViewStyle style)
 {
   // View menu
-  GtkMenuItem* view_menu_item = new_sub_menu_item_with_mnemonic("_View");
+  GtkMenuItem* view_menu_item = new_sub_menu_item_with_mnemonic("Vie_w");
   GtkMenu* menu = GTK_MENU(gtk_menu_item_get_submenu(view_menu_item));
   if (g_Layout_enableDetachableMenus.m_value)
     menu_tearoff (menu);
@@ -2417,6 +2417,12 @@ void File_constructToolbar(GtkToolbar* toolbar)
   toolbar_append_button(toolbar, "Save the active map (CTRL + S)", "file_save.bmp", "SaveMap");
 }
 
+void UndoRedo_constructToolbar(GtkToolbar* toolbar)
+{
+  toolbar_append_button(toolbar, "Undo (CTRL + Z)", "undo.bmp", "Undo");
+  toolbar_append_button(toolbar, "Redo (CTRL + Y)", "redo.bmp", "Redo");
+}
+
 void RotateFlip_constructToolbar(GtkToolbar* toolbar)
 {
   toolbar_append_button(toolbar, "x-axis Flip", "brush_flipx.bmp", "MirrorSelectionX");
@@ -2480,6 +2486,10 @@ GtkToolbar* create_main_toolbar(MainFrame::EViewStyle style)
 
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
 
+  UndoRedo_constructToolbar(toolbar);
+
+  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
+
   RotateFlip_constructToolbar(toolbar);
 
   gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
@@ -2527,6 +2537,10 @@ GtkToolbar* create_main_toolbar(MainFrame::EViewStyle style)
   GtkButton* g_view_textures_button = toolbar_append_button(toolbar, "Texture Browser (T)", "texture_browser.bmp", "ToggleTextures");
   // TODO: call light inspector
   //GtkButton* g_view_lightinspector_button = toolbar_append_button(toolbar, "Light Inspector", "lightinspector.bmp", "ToggleLightInspector");
+
+  gtk_toolbar_append_space (GTK_TOOLBAR (toolbar));
+  GtkButton* g_refresh_models_button = toolbar_append_button(toolbar, "Refresh Models", "refresh_models.bmp", "RefreshReferences");
+
 
   // disable the console and texture button in the regular layouts
   if(style == MainFrame::eRegular || style == MainFrame::eRegularLeft)
@@ -2876,7 +2890,7 @@ void MainFrame::Create()
 
 #if !defined(WIN32)
   {
-    GdkPixbuf* pixbuf = pixbuf_new_from_file_with_mask("icon.bmp");
+    GdkPixbuf* pixbuf = pixbuf_new_from_file_with_mask("bitmaps/icon.bmp");
     if(pixbuf != 0)
     {
       gtk_window_set_icon(window, pixbuf);
@@ -3296,7 +3310,11 @@ void GlobalGL_sharedContextCreated()
   GlobalShaderCache().realise();
   Textures_Realise();
 
+#ifdef __linux__
+  g_font = glfont_create("fixed 8");
+#else
   g_font = glfont_create("courier 8");
+#endif
   GlobalOpenGL().m_font = g_font.getDisplayList();
   GlobalOpenGL().m_fontHeight = g_font.getPixelHeight();
 }

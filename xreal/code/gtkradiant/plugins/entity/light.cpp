@@ -826,17 +826,7 @@ class Light :
   bool m_useLightOrigin;
   Float9 m_lightRotation;
   bool m_useLightRotation;
-
-  //Vector3 m_lightTarget;
-  //bool m_useLightTarget;
-  //Vector3 m_lightUp;
-  //bool m_useLightUp;
-  //Vector3 m_lightRight;
-  //bool m_useLightRight;
-  //Vector3 m_lightStart;
-  //bool m_useLightStart;
-  //Vector3 m_lightEnd;
-  //bool m_useLightEnd;
+  
   float m_lightFovX;
   bool m_useLightFovX;
   float m_lightFovY;
@@ -887,13 +877,7 @@ class Light :
       m_keyObservers.insert("light_fovX", Light::LightFovXChangedCaller(*this));
       m_keyObservers.insert("light_fovY", Light::LightFovYChangedCaller(*this));
       m_keyObservers.insert("light_distance", Light::LightDistanceChangedCaller(*this));
-      //m_keyObservers.insert("light_target", Light::LightTargetChangedCaller(*this));
-      //m_keyObservers.insert("light_up", Light::LightUpChangedCaller(*this));
-      //m_keyObservers.insert("light_right", Light::LightRightChangedCaller(*this));
-      //m_keyObservers.insert("light_start", Light::LightStartChangedCaller(*this));
-      //m_keyObservers.insert("light_end", Light::LightEndChangedCaller(*this));
       m_keyObservers.insert("texture", LightShader::ValueChangedCaller(m_shader));
-      //m_useLightTarget = m_useLightUp = m_useLightRight = m_useLightStart = m_useLightEnd = false;
       m_useLightFovX = false;
       m_useLightFovY = false;
       m_useLightDistance = false;
@@ -916,6 +900,11 @@ class Light :
       m_traverse.detach(&m_traverseObservers);
     }
   }
+  
+// vc 2k5 compiler fix
+#if _MSC_VER >= 1400
+	public:
+#endif
 
   void updateOrigin()
   {
@@ -931,10 +920,6 @@ class Light :
     GlobalSelectionSystem().pivotChanged();
   }
 
-// VC8 compiler fix
-#if _MSC_VER >= 1400
-public:
-#endif
   void originChanged()
   {
     m_aabb_light.origin = m_useLightOrigin ? m_lightOrigin : m_originKey.m_origin;
@@ -952,58 +937,6 @@ public:
     originChanged();
   }
   typedef MemberCaller1<Light, const char*, &Light::lightOriginChanged> LightOriginChangedCaller;
-  /*
-  void lightTargetChanged(const char* value)
-  {
-    m_useLightTarget = !string_empty(value);
-    if(m_useLightTarget)
-    {
-      read_origin(m_lightTarget, value);
-    }
-    projectionChanged();
-  }
-  typedef MemberCaller1<Light, const char*, &Light::lightTargetChanged> LightTargetChangedCaller;
-  void lightUpChanged(const char* value)
-  {
-    m_useLightUp = !string_empty(value);
-    if(m_useLightUp)
-    {
-      read_origin(m_lightUp, value);
-    }
-    projectionChanged();
-  }
-  typedef MemberCaller1<Light, const char*, &Light::lightUpChanged> LightUpChangedCaller;
-  void lightRightChanged(const char* value)
-  {
-    m_useLightRight = !string_empty(value);
-    if(m_useLightRight)
-    {
-      read_origin(m_lightRight, value);
-    }
-    projectionChanged();
-  }
-  typedef MemberCaller1<Light, const char*, &Light::lightRightChanged> LightRightChangedCaller;
-  void lightStartChanged(const char* value)
-  {
-    m_useLightStart = !string_empty(value);
-    if(m_useLightStart)
-    {
-      read_origin(m_lightStart, value);
-    }
-    projectionChanged();
-  }
-  typedef MemberCaller1<Light, const char*, &Light::lightStartChanged> LightStartChangedCaller;
-  void lightEndChanged(const char* value)
-  {
-    m_useLightEnd = !string_empty(value);
-    if(m_useLightEnd)
-    {
-      read_origin(m_lightEnd, value);
-    }
-    projectionChanged();
-  }
-  typedef MemberCaller1<Light, const char*, &Light::lightEndChanged> LightEndChangedCaller;
-  */
   void lightFovXChanged(const char* value)
   {
     m_useLightFovX = !string_empty(value);
@@ -1391,14 +1324,7 @@ public:
       write_rotation(m_rotationKey.m_rotation, &m_entity);
 
       m_doom3Radius.m_radius = m_doom3Radius.m_radiusTransformed;
-      if(m_doom3Radius.m_radius == m_doom3Radius.m_defaultRadius)
-      {
-        m_entity.setKeyValue("light_radius", "");
-      }
-      else
-      {
-        write_origin(m_doom3Radius.m_radius, &m_entity, "light_radius");
-      }
+      write_origin(m_doom3Radius.m_radius, &m_entity, "light_radius");
     }
   }
   void transformChanged()
@@ -1490,8 +1416,7 @@ public:
     m_doom3Projection = g_matrix4_identity;
     matrix4_translate_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 0));
     matrix4_scale_by_vec3(m_doom3Projection, Vector3(0.5f, 0.5f, 1));
-
-#if 1
+    
     float           xMin, xMax, yMin, yMax;
     float           zNear, zFar;
     
@@ -1506,125 +1431,7 @@ public:
     
     matrix4_multiply_by_matrix4(m_doom3Projection, matrix4_frustum(xMin, xMax, yMin, yMax, zNear, zFar));
     m_doom3Frustum = frustum_from_viewproj(m_doom3Projection);
-#elif 0
-    Vector3 right = vector3_cross(m_lightUp, vector3_normalised(m_lightTarget));
-    Vector3 up = vector3_cross(vector3_normalised(m_lightTarget), m_lightRight);
-    Vector3 target = m_lightTarget;
-    Matrix4 test(
-      -right.x(), -right.y(), -right.z(), 0,
-      -up.x(), -up.y(), -up.z(), 0,
-      -target.x(), -target.y(), -target.z(), 0,
-      0, 0, 0, 1
-    );
-    Matrix4 frustum = matrix4_frustum(-0.01, 0.01, -0.01, 0.01, 0.01, 1.0);
-    test = matrix4_full_inverse(test);
-    matrix4_premultiply_by_matrix4(test, frustum);
-    matrix4_multiply_by_matrix4(m_doom3Projection, test);
-#elif 0
-    const float nearFar = 1 / 49.5f;
-    Vector3 right = vector3_cross(m_lightUp, vector3_normalised(m_lightTarget + m_lightRight));
-    Vector3 up = vector3_cross(vector3_normalised(m_lightTarget + m_lightUp), m_lightRight);
-    Vector3 target = vector3_negated(m_lightTarget * (1 + nearFar));
-    float scale = -1 / vector3_length(m_lightTarget);
-    Matrix4 test(
-      -inverse(right.x()), -inverse(up.x()), -inverse(target.x()), 0,
-      -inverse(right.y()), -inverse(up.y()), -inverse(target.y()), 0,
-      -inverse(right.z()), -inverse(up.z()), -inverse(target.z()), scale,
-      0, 0, -nearFar, 0
-    );
-    matrix4_multiply_by_matrix4(m_doom3Projection, test);
-#elif 0
-    Vector3 leftA(m_lightTarget - m_lightRight);
-    Vector3 leftB(m_lightRight + m_lightUp);
-    Plane3 left(vector3_normalised(vector3_cross(leftA, leftB)) * (1.0 / 128), 0);
-    Vector3 rightA(m_lightTarget + m_lightRight);
-    Vector3 rightB(vector3_cross(rightA, m_lightTarget));
-    Plane3 right(vector3_normalised(vector3_cross(rightA, rightB)) * (1.0 / 128), 0);
-    Vector3 bottomA(m_lightTarget - m_lightUp);
-    Vector3 bottomB(vector3_cross(bottomA, m_lightTarget));
-    Plane3 bottom(vector3_normalised(vector3_cross(bottomA, bottomB)) * (1.0 / 128), 0);
-    Vector3 topA(m_lightTarget + m_lightUp);
-    Vector3 topB(vector3_cross(topA, m_lightTarget));
-    Plane3 top(vector3_normalised(vector3_cross(topA, topB)) * (1.0 / 128), 0);
-    Plane3 front(vector3_normalised(m_lightTarget) * (1.0 / 128), 1);
-    Plane3 back(vector3_normalised(vector3_negated(m_lightTarget)) * (1.0 / 128), 0);
-    Matrix4 test(matrix4_from_planes(plane3_flipped(left), plane3_flipped(right), plane3_flipped(bottom), plane3_flipped(top), plane3_flipped(front), plane3_flipped(back)));
-    matrix4_multiply_by_matrix4(m_doom3Projection, test);
-#else
-
-    Plane3 lightProject[4];
-
-    Vector3 start = m_useLightStart && m_useLightEnd ? m_lightStart : vector3_normalised(m_lightTarget);
-    Vector3 stop = m_useLightStart && m_useLightEnd ? m_lightEnd : m_lightTarget;
-
-	  float rLen = vector3_length(m_lightRight);
-	  Vector3 right = vector3_divided(m_lightRight, rLen);
-	  float uLen = vector3_length(m_lightUp);
-	  Vector3 up = vector3_divided(m_lightUp, uLen);
-	  Vector3 normal = vector3_normalised(vector3_cross(up, right));
-
-	  float dist = vector3_dot(m_lightTarget, normal);
-	  if ( dist < 0 ) {
-		  dist = -dist;
-		  normal = vector3_negated(normal);
-	  }
-
-	  right *= ( 0.5f * dist ) / rLen;
-	  up *= -( 0.5f * dist ) / uLen;
-
-	  lightProject[2] = Plane3(normal, 0);
-	  lightProject[0] = Plane3(right, 0);
-	  lightProject[1] = Plane3(up, 0);
-
-	  // now offset to center
-	  Vector4 targetGlobal(m_lightTarget, 1);
-    {
-      float a = vector4_dot(targetGlobal, plane3_to_vector4(lightProject[0]));
-      float b = vector4_dot(targetGlobal, plane3_to_vector4(lightProject[2]));
-	    float ofs = 0.5f - a / b;
-	    plane3_to_vector4(lightProject[0]) += plane3_to_vector4(lightProject[2]) * ofs;
-    }
-    {
-      float a = vector4_dot(targetGlobal, plane3_to_vector4(lightProject[1]));
-      float b = vector4_dot(targetGlobal, plane3_to_vector4(lightProject[2]));
-	    float ofs = 0.5f - a / b;
-	    plane3_to_vector4(lightProject[1]) += plane3_to_vector4(lightProject[2]) * ofs;
-    }
-
-	  // set the falloff vector
-	  Vector3 falloff = stop - start;
-	  float length = vector3_length(falloff);
-    falloff = vector3_divided(falloff, length);
-	  if ( length <= 0 ) {
-		  length = 1;
-	  }
-    falloff *= (1.0f / length);
-	  lightProject[3] = Plane3(falloff, -vector3_dot(start, falloff));
-
-	  // we want the planes of s=0, s=q, t=0, and t=q
-	  m_doom3Frustum.left = lightProject[0];
-	  m_doom3Frustum.bottom = lightProject[1];
-	  m_doom3Frustum.right = Plane3(lightProject[2].normal() - lightProject[0].normal(), lightProject[2].dist() - lightProject[0].dist());
-	  m_doom3Frustum.top = Plane3(lightProject[2].normal() - lightProject[1].normal(), lightProject[2].dist() - lightProject[1].dist());
-
-	  // we want the planes of s=0 and s=1 for front and rear clipping planes
-	  m_doom3Frustum.front = lightProject[3];
-
-	  m_doom3Frustum.back = lightProject[3];
-	  m_doom3Frustum.back.dist() -= 1.0f;
-	  m_doom3Frustum.back = plane3_flipped(m_doom3Frustum.back);
-
-    Matrix4 test(matrix4_from_planes(m_doom3Frustum.left, m_doom3Frustum.right, m_doom3Frustum.bottom, m_doom3Frustum.top, m_doom3Frustum.front, m_doom3Frustum.back));
-    matrix4_multiply_by_matrix4(m_doom3Projection, test);
-
-    m_doom3Frustum.left = plane3_normalised(m_doom3Frustum.left);
-    m_doom3Frustum.right = plane3_normalised(m_doom3Frustum.right);
-    m_doom3Frustum.bottom = plane3_normalised(m_doom3Frustum.bottom);
-    m_doom3Frustum.top = plane3_normalised(m_doom3Frustum.top);
-    m_doom3Frustum.back = plane3_normalised(m_doom3Frustum.back);
-    m_doom3Frustum.front = plane3_normalised(m_doom3Frustum.front);
-#endif
-    //matrix4_scale_by_vec3(m_doom3Projection, Vector3(1.0 / 128, 1.0 / 128, 1.0 / 128));
+    
     return m_doom3Projection;
   }
 

@@ -163,7 +163,6 @@ void environment_init(int argc, char* argv[])
 
   {
     char appdata[MAX_PATH+1];
-    
     SHGetFolderPath(0, CSIDL_APPDATA, 0, 0, appdata);
 
     StringOutputStream home(256);

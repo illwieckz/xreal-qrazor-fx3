@@ -116,10 +116,11 @@ class GenericEntity :
     m_keyObservers.insert("origin", OriginKey::OriginChangedCaller(m_originKey));
   }
 
-// VC8 compiler fix
+// vc 2k5 compiler fix  
 #if _MSC_VER >= 1400
-public:
+	public:
 #endif
+
   void updateTransform()
   {
     m_transform.localToParent() = g_matrix4_identity;

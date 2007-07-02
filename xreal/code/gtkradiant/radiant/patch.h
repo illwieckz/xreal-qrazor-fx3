@@ -297,20 +297,10 @@ public:
     {
       if((state & RENDER_BUMP) != 0)
       {
-        if(GlobalShaderCache().useShaderLanguage())
-        {
-          glNormalPointer(GL_FLOAT, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->normal);
-          glVertexAttribPointerARB(c_attr_TexCoord0, 2, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->texcoord);
-          glVertexAttribPointerARB(c_attr_Tangent, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->tangent);
-          glVertexAttribPointerARB(c_attr_Binormal, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->bitangent);
-        }
-        /*else
-        {
-          glVertexAttribPointerARB(11, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->normal);
-          glVertexAttribPointerARB(8, 2, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->texcoord);
-          glVertexAttribPointerARB(9, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->tangent);
-          glVertexAttribPointerARB(10, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->bitangent);
-        }*/
+        glNormalPointer(GL_FLOAT, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->normal);
+        glVertexAttribPointerARB(c_attr_TexCoord0, 2, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->texcoord);
+        glVertexAttribPointerARB(c_attr_Tangent, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->tangent);
+        glVertexAttribPointerARB(c_attr_Binormal, 3, GL_FLOAT, 0, sizeof(ArbitraryMeshVertex), &m_tess.m_vertices.data()->bitangent);
       }
       else
       {

@@ -84,10 +84,8 @@ class MiscModel :
     m_keyObservers.insert(Static<KeyIsName>::instance().m_nameKey, NamedEntity::IdentifierChangedCaller(m_named));
     m_keyObservers.insert("model", SingletonModel::ModelChangedCaller(m_model));
     m_keyObservers.insert("origin", OriginKey::OriginChangedCaller(m_originKey));
-    m_keyObservers.insert("modelscale", ScaleKey::UniformScaleChangedCaller(m_scaleKey));
-    m_keyObservers.insert("modelscale_vec", ScaleKey::ScaleChangedCaller(m_scaleKey));
-    
-    if(g_gameType == eGameTypeXreaL)
+	
+	if(g_gameType == eGameTypeXreaL)
     {
       m_keyObservers.insert("angle", RotationKey::AngleChangedCaller(m_rotationKey));
       m_keyObservers.insert("angles", RotationKey::AngleChangedCaller(m_rotationKey));
@@ -98,6 +96,9 @@ class MiscModel :
       m_keyObservers.insert("angle", AnglesKey::AngleChangedCaller(m_anglesKey));
  	  m_keyObservers.insert("angles", AnglesKey::AnglesChangedCaller(m_anglesKey));
     }
+    
+    m_keyObservers.insert("modelscale", ScaleKey::UniformScaleChangedCaller(m_scaleKey));
+    m_keyObservers.insert("modelscale_vec", ScaleKey::ScaleChangedCaller(m_scaleKey));
   }
 
   void updateTransform()
@@ -118,10 +119,11 @@ class MiscModel :
     m_transformChanged();
   }
 
-// VC8 compiler fix
+// vc 2k5 compiler fix 
 #if _MSC_VER >= 1400
-public:
-#endif
+	public:
+#endif 
+ 
   void originChanged()
   {
     m_origin = m_originKey.m_origin;

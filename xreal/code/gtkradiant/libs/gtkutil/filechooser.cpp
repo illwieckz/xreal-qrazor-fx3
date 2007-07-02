@@ -92,6 +92,7 @@ public:
   }
 };
 
+
 class GTKMasks
 {
   const FileTypeList& m_types;

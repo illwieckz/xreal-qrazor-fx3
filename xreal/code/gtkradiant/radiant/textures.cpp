@@ -49,6 +49,7 @@ enum ETexturesMode
   eTextures_LINEAR = 3,
   eTextures_LINEAR_MIPMAP_NEAREST = 4,
   eTextures_LINEAR_MIPMAP_LINEAR = 5,
+  eTextures_MAX_ANISOTROPY = 6,
 };
 
 enum TextureCompressionFormat
@@ -90,6 +91,8 @@ texture_globals_t g_texture_globals(GL_RGBA);
 
 void SetTexParameters(ETexturesMode mode)
 {
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+
   switch (mode)
   {
   case eTextures_NEAREST:
@@ -115,6 +118,9 @@ void SetTexParameters(ETexturesMode mode)
   case eTextures_LINEAR_MIPMAP_LINEAR:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    break;
+  case eTextures_MAX_ANISOTROPY:
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, QGL_maxTextureAnisotropy());
     break;
   default:
     globalOutputStream() << "invalid texture mode\n";
@@ -528,7 +534,6 @@ TexturesCache& GetTexturesCache()
 
 void Textures_Realise()
 {
-  SetTexParameters(g_texture_mode);
   g_texturesmap->realise();
 }
 
@@ -558,7 +563,6 @@ void Textures_ModeChanged()
     }
 
     glBindTexture( GL_TEXTURE_2D, 0 );
-    //qglFinish();
   }
   g_texturesModeChangedNotify();
 }
@@ -587,55 +591,64 @@ void Textures_UpdateTextureCompressionFormat()
 {
   GLint texture_components = GL_RGBA;
 
-  if (g_texture_globals.bTextureCompressionSupported)
-  {
-    if(g_texture_globals.m_nTextureCompressionFormat != TEXTURECOMPRESSION_NONE
-      && g_texture_globals.m_nTextureCompressionFormat != TEXTURECOMPRESSION_RGBA
-      && !g_texture_globals.m_bS3CompressionSupported)
-    {
-      globalOutputStream() << "OpenGL extension GL_EXT_texture_compression_s3tc not supported by current graphics drivers\n";
-      g_texture_globals.m_nTextureCompressionFormat = TEXTURECOMPRESSION_RGBA; // if this is not supported either, see below
-    }
-    if (g_texture_globals.m_nTextureCompressionFormat == TEXTURECOMPRESSION_RGBA && !g_texture_globals.m_bOpenGLCompressionSupported)
-    {
-      globalOutputStream() << "OpenGL extension GL_ARB_texture_compression not supported by current graphics drivers\n";
-      g_texture_globals.m_nTextureCompressionFormat = TEXTURECOMPRESSION_NONE;
-    }
+	if(!g_texturesmap->realised())
+	{
+		texture_components = g_texture_globals.m_nTextureCompressionFormat;
+		if(texture_components == TEXTURECOMPRESSION_NONE)
+			texture_components = GL_RGBA;
+	}
+	else
+	{
+		if (g_texture_globals.bTextureCompressionSupported)
+		{
+			if(g_texture_globals.m_nTextureCompressionFormat != TEXTURECOMPRESSION_NONE
+				&& g_texture_globals.m_nTextureCompressionFormat != TEXTURECOMPRESSION_RGBA
+				&& !g_texture_globals.m_bS3CompressionSupported)
+			{
+				globalOutputStream() << "OpenGL extension GL_EXT_texture_compression_s3tc not supported by current graphics drivers\n";
+				g_texture_globals.m_nTextureCompressionFormat = TEXTURECOMPRESSION_RGBA; // if this is not supported either, see below
+			}
+			if (g_texture_globals.m_nTextureCompressionFormat == TEXTURECOMPRESSION_RGBA && !g_texture_globals.m_bOpenGLCompressionSupported)
+			{
+				globalOutputStream() << "OpenGL extension GL_ARB_texture_compression not supported by current graphics drivers\n";
+				g_texture_globals.m_nTextureCompressionFormat = TEXTURECOMPRESSION_NONE;
+			}
 
-    switch (g_texture_globals.m_nTextureCompressionFormat)
-    {
-    case (TEXTURECOMPRESSION_NONE):
-      {
-        texture_components = GL_RGBA;
-        break;
-      }
-    case (TEXTURECOMPRESSION_RGBA):
-      {
-        texture_components = GL_COMPRESSED_RGBA_ARB;
-        break;
-      }
-    case (TEXTURECOMPRESSION_RGBA_S3TC_DXT1):
-      {
-        texture_components = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        break;
-      }
-    case (TEXTURECOMPRESSION_RGBA_S3TC_DXT3):
-      {
-        texture_components = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        break;
-      }
-    case (TEXTURECOMPRESSION_RGBA_S3TC_DXT5):
-      {
-        texture_components = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-        break;
-      }
-    }
-  }
-  else
-  {
-    texture_components = GL_RGBA;
-    g_texture_globals.m_nTextureCompressionFormat = TEXTURECOMPRESSION_NONE;
-  }
+			switch (g_texture_globals.m_nTextureCompressionFormat)
+			{
+			case (TEXTURECOMPRESSION_NONE):
+				{
+					texture_components = GL_RGBA;
+					break;
+				}
+			case (TEXTURECOMPRESSION_RGBA):
+				{
+					texture_components = GL_COMPRESSED_RGBA_ARB;
+					break;
+				}
+			case (TEXTURECOMPRESSION_RGBA_S3TC_DXT1):
+				{
+					texture_components = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+					break;
+				}
+			case (TEXTURECOMPRESSION_RGBA_S3TC_DXT3):
+				{
+					texture_components = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+					break;
+				}
+			case (TEXTURECOMPRESSION_RGBA_S3TC_DXT5):
+				{
+					texture_components = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+					break;
+				}
+			}
+		}
+		else
+		{
+			texture_components = GL_RGBA;
+			g_texture_globals.m_nTextureCompressionFormat = TEXTURECOMPRESSION_NONE;
+		}
+	}
 
   Textures_setTextureComponents(texture_components);
 }
@@ -703,6 +716,8 @@ void TextureModeImport(ETexturesMode& self, int value)
   case 5:
     Textures_SetMode(eTextures_LINEAR_MIPMAP_LINEAR);
     break;
+  case 6:
+    Textures_SetMode(eTextures_MAX_ANISOTROPY);
   }
 }
 typedef ReferenceCaller1<ETexturesMode, int, TextureModeImport> TextureModeImportCaller;
@@ -728,6 +743,9 @@ void TextureModeExport(ETexturesMode& self, const IntImportCallback& importer)
     break;
   case eTextures_LINEAR_MIPMAP_LINEAR:
     importer(5);
+    break;
+  case eTextures_MAX_ANISOTROPY:
+    importer(6);
     break;
   default:
     importer(4);
@@ -755,7 +773,7 @@ void Textures_constructPreferences(PreferencesPage& page)
     FloatExportCallback(FloatExportCaller(g_texture_globals.fGamma))
   );
   {
-    const char* texture_mode[] = { "Nearest", "Nearest Mipmap", "Linear", "Bilinear", "Bilinear Mipmap", "Trilinear" };
+    const char* texture_mode[] = { "Nearest", "Nearest Mipmap", "Linear", "Bilinear", "Bilinear Mipmap", "Trilinear", "Anisotropy" };
     page.appendCombo(
       "Texture Render Mode",
       STRING_ARRAY_RANGE(texture_mode),

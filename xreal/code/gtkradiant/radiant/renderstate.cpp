@@ -243,7 +243,7 @@ private:
 };
 
 
-static void printShaderLog(GLhandleARB object)
+void printShaderLog(GLhandleARB object)
 {
   GLint log_length = 0;
   glGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &log_length);
@@ -254,7 +254,7 @@ static void printShaderLog(GLhandleARB object)
   globalErrorStream() << StringRange(log.begin(), log.begin() + log_length) << "\n";
 }
 
-static void createShader(GLhandleARB program, const char* filename, GLenum type)
+void createShader(GLhandleARB program, const char* filename, GLenum type)
 {
   GLhandleARB shader = glCreateShaderObjectARB(type);
   GlobalOpenGL_debugAssertNoErrors();
@@ -295,7 +295,7 @@ static void createShader(GLhandleARB program, const char* filename, GLenum type)
   GlobalOpenGL_debugAssertNoErrors();
 }
 
-static void GLSLProgram_link(GLhandleARB program)
+void GLSLProgram_link(GLhandleARB program)
 {
   glLinkProgramARB(program);
   
@@ -310,7 +310,7 @@ static void GLSLProgram_link(GLhandleARB program)
   ASSERT_MESSAGE(linked, "program link failed");
 }
 
-static void GLSLProgram_validate(GLhandleARB program)
+void GLSLProgram_validate(GLhandleARB program)
 {
   glValidateProgramARB(program);
   
@@ -444,7 +444,7 @@ public:
     GlobalOpenGL_debugAssertNoErrors();
   }
 };
-GLSLProgram_lighting_D_omni *g_lighting_D_omni = NULL;
+GLSLProgram_lighting_D_omni *g_lighting_D_omni = 0;
 
 
 class GLSLProgram_lighting_DB_omni :
@@ -530,7 +530,7 @@ public:
     GlobalOpenGL_debugAssertNoErrors();
   }
 };
-GLSLProgram_lighting_DB_omni *g_lighting_DB_omni = NULL;
+GLSLProgram_lighting_DB_omni *g_lighting_DB_omni = 0;
 
 
 class GLSLProgram_lighting_DBS_omni :
@@ -623,7 +623,7 @@ public:
     GlobalOpenGL_debugAssertNoErrors();
   }
 };
-GLSLProgram_lighting_DBS_omni *g_lighting_DBS_omni = NULL;
+GLSLProgram_lighting_DBS_omni *g_lighting_DBS_omni = 0;
 
 
 class GLSLProgram_depthFill :
@@ -653,7 +653,7 @@ public:
   {
   }
 };
-GLSLProgram_depthFill *g_depthFill = NULL;
+GLSLProgram_depthFill *g_depthFill = 0;
 
 bool g_vertexArray_enabled = false;
 bool g_normalArray_enabled = false;
@@ -1118,7 +1118,6 @@ class OpenGLShaderCache : public ShaderCache, public TexturesCacheObserver, publ
 
   bool m_lightingEnabled;
   bool m_lightingSupported;
-  bool m_useShaderLanguage;
 
 public:
   OpenGLShaderCache()
@@ -1126,7 +1125,6 @@ public:
     m_unrealised(3), // wait until shaders, gl-context and textures are realised before creating any render-states
     m_lightingEnabled(true),
     m_lightingSupported(false),
-    m_useShaderLanguage(GlobalOpenGL().ARB_shader_objects()),
     m_lightsChanged(true),
     m_traverseRenderablesMutex(false)
   {
@@ -1275,13 +1273,10 @@ public:
     {
       if(lightingSupported() && lightingEnabled())
       {
-        if(useShaderLanguage())
-        {
-          g_lighting_D_omni = new GLSLProgram_lighting_D_omni();
-          g_lighting_DB_omni = new GLSLProgram_lighting_DB_omni();
-          g_lighting_DBS_omni = new GLSLProgram_lighting_DBS_omni();
-          g_depthFill = new GLSLProgram_depthFill();
-        }
+        g_lighting_D_omni = new GLSLProgram_lighting_D_omni();
+        g_lighting_DB_omni = new GLSLProgram_lighting_DB_omni();
+        g_lighting_DBS_omni = new GLSLProgram_lighting_DBS_omni();
+        g_depthFill = new GLSLProgram_depthFill();
       }
 
       for(Shaders::iterator i = m_shaders.begin(); i != m_shaders.end(); ++i)
@@ -1306,17 +1301,17 @@ public:
       }
       if(GlobalOpenGL().contextValid && lightingSupported() && lightingEnabled())
       {
-        if(useShaderLanguage())
-        {
-          delete g_lighting_D_omni;
-		  g_lighting_D_omni = NULL;
-          delete g_lighting_DB_omni;
-		  g_lighting_DB_omni = NULL;
-          delete g_lighting_DBS_omni;
-		  g_lighting_DBS_omni = NULL;
-          delete g_depthFill;
-		  g_depthFill = NULL;
-        }
+        delete g_lighting_D_omni;
+		g_lighting_D_omni = 0;
+        
+		delete g_lighting_DB_omni;
+		g_lighting_DB_omni = 0;
+        
+		delete g_lighting_DBS_omni;
+		g_lighting_DBS_omni = 0;
+        
+		delete g_depthFill;
+		g_depthFill = 0;
       }
     }
   }
@@ -1333,10 +1328,6 @@ public:
   bool lightingSupported() const
   {
     return m_lightingSupported;
-  }
-  bool useShaderLanguage() const
-  {
-    return m_useShaderLanguage;
   }
   void setLighting(bool supported, bool enabled)
   {
@@ -2379,11 +2370,7 @@ void OpenGLShader::construct(const char* name)
       state.m_colour[2] = 0;
       state.m_colour[3] = 1;
       state.m_sort = OpenGLState::eSortOpaque;
-
-      if(g_ShaderCache->useShaderLanguage())
-      {
-        state.m_program = g_depthFill;
-      }
+	  state.m_program = g_depthFill;
 
       OpenGLState& lightPass = appendDefaultPass();
       
@@ -2396,30 +2383,19 @@ void OpenGLShader::construct(const char* name)
       {
       	lightPass.m_texture1 = m_shader->getBump()->texture_number;
       	lightPass.m_texture2 = m_shader->getSpecular()->texture_number;
-      	
-      	if(g_ShaderCache->useShaderLanguage())
-        {
-          lightPass.m_state |= RENDER_LIGHTING;
-          lightPass.m_program = g_lighting_DBS_omni;
-        }
+		lightPass.m_state |= RENDER_LIGHTING;
+		lightPass.m_program = g_lighting_DBS_omni;
       }
       else if(m_shader->getBump() != 0 && m_shader->getBump()->texture_number != 0)
       {
       	lightPass.m_texture1 = m_shader->getBump()->texture_number;
-      	
-      	if(g_ShaderCache->useShaderLanguage())
-        {
-          lightPass.m_state |= RENDER_LIGHTING;
-          lightPass.m_program = g_lighting_DB_omni;
-        }
+		lightPass.m_state |= RENDER_LIGHTING;
+		lightPass.m_program = g_lighting_DB_omni;
       }
       else
       {
-      	if(g_ShaderCache->useShaderLanguage())
-        {
-          lightPass.m_state |= RENDER_LIGHTING;
-          lightPass.m_program = g_lighting_D_omni;
-        }
+      	lightPass.m_state |= RENDER_LIGHTING;
+		lightPass.m_program = g_lighting_D_omni;
       }
 
       lightPass.m_depthfunc = GL_LEQUAL;

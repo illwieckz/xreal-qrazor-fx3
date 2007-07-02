@@ -82,6 +82,7 @@ class Doom3Group :
   SingletonModel m_model;
   OriginKey m_originKey;
   Vector3 m_origin;
+  
   RotationKey m_rotationKey;
   Float9 m_rotation;
 
@@ -92,6 +93,7 @@ class Doom3Group :
   Doom3GroupOrigin m_funcStaticOrigin;
   RenderablePivot m_renderOrigin;
   RenderableNamedEntity m_renderName;
+  mutable Vector3 m_name_origin;
   ModelSkinKey m_skin;
 
 public:
@@ -201,10 +203,11 @@ private:
     setIsModel(!string_equal(m_modelKey.c_str(), m_name.c_str()));
   }
 
-  // VC8 compiler fix
+// vc 2k5 compiler fix
 #if _MSC_VER >= 1400
-public:
+	public:
 #endif
+
   void nameChanged(const char* value)
   {
     m_name = value;
@@ -280,7 +283,8 @@ public:
     m_named(m_entity),
     m_nameKeys(m_entity),
     m_funcStaticOrigin(m_traverse, m_origin),
-    m_renderName(m_named, g_vector3_identity),
+    m_renderName(m_named, m_name_origin),
+	m_name_origin(g_vector3_identity),
     m_skin(SkinChangedCaller(*this)),
     m_curveNURBS(boundsChanged),
     m_curveCatmullRom(boundsChanged),
@@ -403,11 +407,24 @@ public:
       renderer.addRenderable(m_curveCatmullRom.m_renderCurve, localToWorld);
     }
   }
-  void renderWireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld, bool selected) const
+
+  void renderWireframe(Renderer& renderer, const VolumeTest& volume, const Matrix4& localToWorld, bool selected, const AABB& childBounds) const
   {
     renderSolid(renderer, volume, localToWorld, selected);
-    if(g_showNames && isModel())
+
+    if(g_showNames)
     {
+      // draw models as usual
+      if(!isModel())
+      {
+        // don't draw the name for worldspawn
+        if(!strcmp(m_entity.getEntityClass().name(), "worldspawn"))
+            return;
+
+		// place name in the middle of the "children cloud"
+		m_name_origin = childBounds.origin;
+      }
+
       renderer.addRenderable(m_renderName, localToWorld);
     }
   }
@@ -550,7 +567,7 @@ public:
   }
   void renderWireframe(Renderer& renderer, const VolumeTest& volume) const
   {
-    m_contained.renderWireframe(renderer, volume, Instance::localToWorld(), getSelectable().isSelected());
+	m_contained.renderWireframe(renderer, volume, Instance::localToWorld(), getSelectable().isSelected(), Instance::childBounds());
 
     m_curveNURBS.renderComponentsSelected(renderer, volume, localToWorld());
     m_curveCatmullRom.renderComponentsSelected(renderer, volume, localToWorld());

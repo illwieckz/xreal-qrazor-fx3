@@ -145,7 +145,6 @@ public:
   virtual void unrealise() = 0;
 
   virtual bool lightingSupported() const = 0;
-  virtual bool useShaderLanguage() const = 0;
 
   virtual const LightList& attach(LightCullable& cullable) = 0;
   virtual void detach(LightCullable& cullable) = 0;

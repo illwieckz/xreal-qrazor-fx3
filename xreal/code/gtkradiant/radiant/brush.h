@@ -130,20 +130,11 @@ inline void Winding_Draw(const Winding& winding, const Vector3& normal, RenderSt
     {
       *i = normal;
     }
-    if(GlobalShaderCache().useShaderLanguage())
-    {
-      glNormalPointer(GL_FLOAT, sizeof(Vector3), normals);
-      glVertexAttribPointerARB(c_attr_TexCoord0, 2, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->texcoord);
-      glVertexAttribPointerARB(c_attr_Tangent, 3, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->tangent);
-      glVertexAttribPointerARB(c_attr_Binormal, 3, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->bitangent);
-    }
-    /*else
-    {
-      glVertexAttribPointerARB(11, 3, GL_FLOAT, 0, sizeof(Vector3), normals);
-      glVertexAttribPointerARB(8, 2, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->texcoord);
-      glVertexAttribPointerARB(9, 3, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->tangent);
-      glVertexAttribPointerARB(10, 3, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->bitangent);
-    }*/
+    
+	glNormalPointer(GL_FLOAT, sizeof(Vector3), normals);
+    glVertexAttribPointerARB(c_attr_TexCoord0, 2, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->texcoord);
+    glVertexAttribPointerARB(c_attr_Tangent, 3, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->tangent);
+    glVertexAttribPointerARB(c_attr_Binormal, 3, GL_FLOAT, 0, sizeof(WindingVertex), &winding.points.data()->bitangent);
   }
   else
   {
@@ -200,8 +191,6 @@ inline void Winding_Draw(const Winding& winding, const Vector3& normal, RenderSt
   glEnd();
 #endif
 }
-
-const Colour4b colour_vertex(0, 255, 0, 255);
 
 
 #include "shaderlib.h"
@@ -1283,6 +1272,7 @@ public:
     Brush_textureChanged();
     m_observer->shaderChanged();
     updateFiltered();
+	planeChanged();
     SceneChangeNotify();
   }
 
@@ -1908,6 +1898,7 @@ public:
   void shaderChanged()
   {
     updateFiltered();
+	planeChanged();
   }
 
   void evaluateBRep() const
@@ -3099,7 +3090,7 @@ public:
         m_face->getWinding()[2].vertex
       ),
       "update_move_planepts_vertex2: error"
-    )
+    );
 
     m_face->m_move_planepts[0] = m_face->getWinding()[opposite].vertex;
     m_face->m_move_planepts[1] = m_face->getWinding()[index].vertex;
@@ -4167,6 +4158,14 @@ template<typename Functor>
 inline const Functor& Scene_ForEachBrush_ForEachFace(scene::Graph& graph, const Functor& functor)
 {
   Scene_forEachBrush(graph, BrushForEachFace(FaceInstanceVisitFace<Functor>(functor)));
+  return functor;
+}
+
+// d1223m
+template<typename Functor>
+inline const Functor& Scene_ForEachBrush_ForEachFaceInstance(scene::Graph& graph, const Functor& functor)
+{
+  Scene_forEachBrush(graph, BrushForEachFace(FaceInstanceVisitAll<Functor>(functor)));
   return functor;
 }
 
