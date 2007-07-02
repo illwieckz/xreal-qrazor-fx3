@@ -517,15 +517,6 @@ vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *
 	Q_strncpyz(vm->name, module, sizeof(vm->name));
 	vm->systemCall = systemCalls;
 
-	// never allow dll loading with a demo
-	if(interpret == VMI_NATIVE)
-	{
-		if(Cvar_VariableValue("fs_restrict"))
-		{
-			interpret = VMI_COMPILED;
-		}
-	}
-
 	if(interpret == VMI_NATIVE)
 	{
 		// try to load as a system dll

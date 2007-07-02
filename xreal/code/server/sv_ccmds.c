@@ -472,6 +472,12 @@ static void SV_Ban_f(void)
 		return;
 	}
 
+	if(strlen(AUTHORIZE_SERVER_NAME) < 1)
+	{
+		Com_Printf("Ban function disabled due to lack of authorizing server.\n");
+		return;
+	}
+
 	// look up the authorize server's IP
 	if(!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD)
 	{
@@ -530,6 +536,12 @@ static void SV_BanNum_f(void)
 	if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
 	{
 		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		return;
+	}
+
+	if(strlen(AUTHORIZE_SERVER_NAME) < 1)
+	{
+		Com_Printf("Ban function disabled due to lack of authorizing server.\n");
 		return;
 	}
 

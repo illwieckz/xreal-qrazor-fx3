@@ -69,7 +69,6 @@ cvar_t         *cl_conXOffset;
 cvar_t         *cl_inGameVideo;
 
 cvar_t         *cl_serverStatusResendTime;
-cvar_t         *cl_trn;
 
 clientActive_t  cl;
 clientConnection_t clc;
@@ -969,6 +968,7 @@ in anyway.
 */
 void CL_RequestAuthorization(void)
 {
+#if 0
 	char            nums[64];
 	int             i, j, l;
 	cvar_t         *fs;
@@ -1020,6 +1020,7 @@ void CL_RequestAuthorization(void)
 	fs = Cvar_Get("cl_anonymous", "0", CVAR_INIT | CVAR_SYSTEMINFO);
 
 	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, va("getKeyAuthorize %i %s", fs->integer, nums));
+#endif
 }
 
 /*
@@ -2780,7 +2781,6 @@ static void CL_SetServerInfo(serverInfo_t * server, const char *info, int ping)
 			server->netType = atoi(Info_ValueForKey(info, "nettype"));
 			server->minPing = atoi(Info_ValueForKey(info, "minping"));
 			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
-			server->punkbuster = atoi(Info_ValueForKey(info, "punkbuster"));
 		}
 		server->ping = ping;
 	}
@@ -2927,7 +2927,6 @@ void CL_ServerInfoPacket(netadr_t from, msg_t * msg)
 	cls.localServers[i].game[0] = '\0';
 	cls.localServers[i].gameType = 0;
 	cls.localServers[i].netType = from.type;
-	cls.localServers[i].punkbuster = 0;
 
 	Q_strncpyz(info, MSG_ReadString(msg), MAX_INFO_STRING);
 	if(strlen(info))
@@ -3261,12 +3260,6 @@ void CL_GlobalServers_f(void)
 	count = Cmd_Argc();
 	for(i = 3; i < count; i++)
 		buffptr += sprintf(buffptr, " %s", Cmd_Argv(i));
-
-	// if we are a demo, automatically add a "demo" keyword
-	if(Cvar_VariableValue("fs_restrict"))
-	{
-		buffptr += sprintf(buffptr, " demo");
-	}
 
 	NET_OutOfBandPrint(NS_SERVER, to, command);
 }
@@ -3662,11 +3655,12 @@ void CL_ShowIP_f(void)
 
 /*
 =================
-bool CL_CDKeyValidate
+CL_CDKeyValidate
 =================
 */
 qboolean CL_CDKeyValidate(const char *key, const char *checksum)
 {
+#if 0
 	char            ch;
 	byte            sum;
 	char            chs[3];
@@ -3730,4 +3724,7 @@ qboolean CL_CDKeyValidate(const char *key, const char *checksum)
 	}
 
 	return qfalse;
+#else
+	return qtrue;
+#endif
 }

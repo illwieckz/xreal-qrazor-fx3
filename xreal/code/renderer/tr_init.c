@@ -1147,7 +1147,6 @@ GfxInfo_f
 */
 void GfxInfo_f(void)
 {
-	cvar_t         *sys_cpustring = ri.Cvar_Get("sys_cpustring", "", 0);
 	const char     *enablestrings[] = {
 		"disabled",
 		"enabled"
@@ -1216,7 +1215,6 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "GAMMA: software w/ %d overbright bits\n", tr.overbrightBits);
 	}
-	ri.Printf(PRINT_ALL, "CPU: %s\n", sys_cpustring->string);
 
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
@@ -1569,7 +1567,6 @@ RE_Shutdown
 */
 void RE_Shutdown(qboolean destroyWindow)
 {
-
 	ri.Printf(PRINT_ALL, "RE_Shutdown( destroyWindow = %i )\n", destroyWindow);
 
 	ri.Cmd_RemoveCommand("modellist");

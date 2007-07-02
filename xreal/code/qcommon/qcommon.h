@@ -230,21 +230,23 @@ PROTOCOL
 // NOTE: that stuff only works with two digits protocols
 extern int      demo_protocols[];
 
-#define	UPDATE_SERVER_NAME	"update.quake3arena.com"
-// override on command line, config files etc.
-#ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME	"master.quake3arena.com"
+#ifndef UPDATE_SERVER_NAME
+#define	UPDATE_SERVER_NAME		"update.quake3arena.com"
 #endif
+
+#ifndef MASTER_SERVER_NAME
+#define MASTER_SERVER_NAME		"master.quake3arena.com"
+#endif
+
 #ifndef AUTHORIZE_SERVER_NAME
-#define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
+#define	AUTHORIZE_SERVER_NAME	""
 #endif
 
 #define	PORT_MASTER			27950
 #define	PORT_UPDATE			27951
-#ifndef PORT_AUTHORIZE
 #define	PORT_AUTHORIZE		27952
-#endif
 #define	PORT_SERVER			27960
+
 #define	NUM_SERVER_PORTS	4	// broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
 									// run multiple servers
@@ -739,18 +741,6 @@ MISC
 // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
 extern char     cl_cdkey[34];
 
-// returnbed by Sys_GetProcessorId
-#define CPUID_GENERIC			0	// any unrecognized processor
-
-#define CPUID_AXP				0x10
-
-#define CPUID_INTEL_UNSUPPORTED	0x20	// Intel 386/486
-#define CPUID_INTEL_PENTIUM		0x21	// Intel Pentium or PPro
-#define CPUID_INTEL_MMX			0x22	// Intel Pentium/MMX or P2/MMX
-#define CPUID_INTEL_KATMAI		0x23	// Intel Katmai
-
-#define CPUID_AMD_3DNOW			0x30	// AMD K6 3DNOW!
-
 // TTimo
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define	MAXPRINTMSG	4096
@@ -1047,8 +1037,6 @@ void            Sys_SnapVector(float *v);
 // the system console is shown when a dedicated server is running
 void            Sys_DisplaySystemConsole(qboolean show);
 
-int             Sys_GetProcessorId(void);
-
 void            Sys_BeginStreamedFile(fileHandle_t f, int readahead);
 void            Sys_EndStreamedFile(fileHandle_t f);
 int             Sys_StreamedRead(void *buffer, int size, int count, fileHandle_t f);
@@ -1065,8 +1053,6 @@ qboolean        Sys_StringToAdr(const char *s, netadr_t * a);
 
 qboolean        Sys_IsLANAddress(netadr_t adr);
 void            Sys_ShowIP(void);
-
-qboolean        Sys_CheckCD(void);
 
 void            Sys_Mkdir(const char *path);
 char           *Sys_Cwd(void);

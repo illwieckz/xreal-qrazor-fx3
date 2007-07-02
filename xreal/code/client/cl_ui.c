@@ -367,7 +367,6 @@ static void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
 		Info_SetValueForKey(info, "gametype", va("%i", server->gameType));
 		Info_SetValueForKey(info, "nettype", va("%i", server->netType));
 		Info_SetValueForKey(info, "addr", NET_AdrToString(server->adr));
-		Info_SetValueForKey(info, "punkbuster", va("%i", server->punkbuster));
 		Q_strncpyz(buf, info, buflen);
 	}
 	else
@@ -1146,9 +1145,6 @@ intptr_t CL_UISystemCalls(intptr_t *args)
 
 		case UI_SET_CDKEY:
 			CLUI_SetCDKey(VMA(1));
-			return 0;
-
-		case UI_SET_PBCLSTATUS:
 			return 0;
 
 		case UI_R_REGISTERFONT:

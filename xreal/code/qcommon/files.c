@@ -250,8 +250,9 @@ static cvar_t  *fs_basegame;
 static cvar_t  *fs_cdpath;
 static cvar_t  *fs_copyfiles;
 static cvar_t  *fs_gamedirvar;
-static cvar_t  *fs_restrict;
+
 static searchpath_t *fs_searchpaths;
+
 static int      fs_readCount;	// total bytes read
 static int      fs_loadCount;	// total files read
 static int      fs_loadStack;	// total files in memory
@@ -1263,18 +1264,15 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 		else if(search->dir)
 		{
 			// check a file in the directory tree
-
-			// if we are running restricted, the only files we
-			// will allow to come from the directory are .cfg files
 			l = strlen(filename);
+
 			// FIXME TTimo I'm not sure about the fs_numServerPaks test
 			// if you are using FS_ReadFile to find out if a file exists,
 			//   this test can make the search fail although the file is in the directory
 			// I had the problem on https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=8
 			// turned out I used FS_FileExists instead
-			if(fs_restrict->integer || fs_numServerPaks)
+			if(fs_numServerPaks)
 			{
-
 				if(Q_stricmp(filename + l - 4, ".cfg")	// for config files
 				   && Q_stricmp(filename + l - 5, ".menu")	// menu files
 				   && Q_stricmp(filename + l - 5, ".game")	// menu files
@@ -2167,14 +2165,15 @@ char          **FS_ListFilteredFiles(const char *path, const char *extension, ch
 			}
 		}
 		else if(search->dir)
-		{						// scan for files in the filesystem
+		{
+			// scan for files in the filesystem
 			char           *netpath;
 			int             numSysFiles;
 			char          **sysFiles;
 			char           *name;
 
-			// don't scan directories for files if we are pure or restricted
-			if(fs_restrict->integer || fs_numServerPaks)
+			// don't scan directories for files if we are pure
+			if(fs_numServerPaks)
 			{
 				continue;
 			}
@@ -3013,6 +3012,7 @@ void FS_Shutdown(qboolean closemfp)
 
 		if(p->pack)
 		{
+			fs_packFiles -= p->pack->numfiles;
 			unzClose(p->pack->handle);
 			Z_Free(p->pack->buildBuffer);
 			Z_Free(p->pack);
@@ -3110,7 +3110,6 @@ static void FS_Startup(const char *gameName)
 	}
 	fs_homepath = Cvar_Get("fs_homepath", homePath, CVAR_INIT);
 	fs_gamedirvar = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
-	fs_restrict = Cvar_Get("fs_restrict", "", CVAR_INIT);
 
 	// add search path elements in reverse priority order
 	if(fs_cdpath->string[0])
@@ -3193,78 +3192,6 @@ static void FS_Startup(const char *gameName)
 	}
 #endif
 	Com_Printf("%d files in pk3 files\n", fs_packFiles);
-}
-
-/*
-===================
-FS_SetRestrictions
-
-Looks for product keys and restricts media add on ability
-if the full version is not found
-===================
-*/
-static void FS_SetRestrictions(void)
-{
-// Tr3B - outcommented to allow base game running without id media
-#if 0
-	searchpath_t   *path;
-
-#ifndef PRE_RELEASE_DEMO
-	char           *productId;
-
-	// if fs_restrict is set, don't even look for the id file,
-	// which allows the demo release to be tested even if
-	// the full game is present
-	if(!fs_restrict->integer)
-	{
-		// look for the full game id
-		FS_ReadFile("productid.txt", (void **)&productId);
-		if(productId)
-		{
-			// check against the hardcoded string
-			int             seed, i;
-
-			seed = 5000;
-			for(i = 0; i < sizeof(fs_scrambledProductId); i++)
-			{
-				if((fs_scrambledProductId[i] ^ (seed & 255)) != productId[i])
-				{
-					break;
-				}
-				seed = (69069 * seed + 1);
-			}
-
-			FS_FreeFile(productId);
-
-			if(i == sizeof(fs_scrambledProductId))
-			{
-				return;			// no restrictions
-			}
-			Com_Error(ERR_FATAL, "Invalid product identification");
-		}
-	}
-#endif
-	Cvar_Set("fs_restrict", "1");
-
-	Com_Printf("\nRunning in restricted demo mode.\n\n");
-
-	// restart the filesystem with just the demo directory
-	FS_Shutdown(qfalse);
-	FS_Startup(DEMOGAME);
-
-	// make sure that the pak file has the header checksum we expect
-	for(path = fs_searchpaths; path; path = path->next)
-	{
-		if(path->pack)
-		{
-			// a tiny attempt to keep the checksum from being scannable from the exe
-			if((path->pack->checksum ^ 0x02261994u) != (DEMO_PAK_CHECKSUM ^ 0x02261994u))
-			{
-				Com_Error(ERR_FATAL, "Corrupted pak0.pk3: %u", path->pack->checksum);
-			}
-		}
-	}
-#endif
 }
 
 /*
@@ -3684,13 +3611,9 @@ void FS_InitFilesystem(void)
 	Com_StartupVariable("fs_homepath");
 	Com_StartupVariable("fs_game");
 	Com_StartupVariable("fs_copyfiles");
-	Com_StartupVariable("fs_restrict");
 
 	// try to start up normally
 	FS_Startup(BASEGAME);
-
-	// see if we are going to allow add-ons
-	FS_SetRestrictions();
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
@@ -3715,7 +3638,6 @@ FS_Restart
 */
 void FS_Restart(int checksumFeed)
 {
-
 	// free anything we currently have loaded
 	FS_Shutdown(qfalse);
 
@@ -3727,9 +3649,6 @@ void FS_Restart(int checksumFeed)
 
 	// try to start up normally
 	FS_Startup(BASEGAME);
-
-	// see if we are going to allow add-ons
-	FS_SetRestrictions();
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
@@ -3745,7 +3664,6 @@ void FS_Restart(int checksumFeed)
 			Cvar_Set("fs_gamedirvar", lastValidGame);
 			lastValidBase[0] = '\0';
 			lastValidGame[0] = '\0';
-			Cvar_Set("fs_restrict", "0");
 			FS_Restart(checksumFeed);
 			Com_Error(ERR_DROP, "Invalid game folder\n");
 			return;

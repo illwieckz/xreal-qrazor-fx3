@@ -633,7 +633,7 @@ void NumberValue(char *string, int subtype, unsigned long int *intvalue, double 
 			}
 			else
 			{
-				*floatvalue = *floatvalue * 10.0 + (double)(*string - '0');
+				*floatvalue = *floatvalue * 10.0f + (double)(*string - '0');
 			}
 			string++;
 		}						
@@ -929,7 +929,8 @@ int PS_ReadToken(script_t * script, token_t * token)
 	//save line counter
 	script->lastline = script->line;
 	//clear the token stuff
-	Com_Memset(token, 0, sizeof(token_t));
+	Com_Memset((byte *)token + sizeof(token->string), 0, sizeof(token_t) - sizeof(token->string));
+	token->string[0] = 0;
 	//start of the white space
 	script->whitespace_p = script->script_p;
 	token->whitespace_p = script->script_p;

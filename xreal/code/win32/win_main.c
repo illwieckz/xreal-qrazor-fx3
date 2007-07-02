@@ -42,61 +42,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma comment(lib, "ole32.lib")
 #endif
 
-#define	CD_BASEDIR	"xreal"
-#define	CD_EXE		"xreal.exe"
-#define	CD_BASEDIR_LINUX	"bin\\x86\\glibc-2.1"
-#define	CD_EXE_LINUX "xreal"
 #define MEM_THRESHOLD 96*1024*1024
 
 static char     sys_cmdline[MAX_STRING_CHARS];
 
-// define this to use alternate spanking method
-// I found out that the regular way doesn't work on my box for some reason
-// see the associated spank.sh script
-#define ALT_SPANK
-#ifdef ALT_SPANK
-#include <stdio.h>
-#include <sys/stat.h>
-
-int             fh = 0;
-
-void Spk_Open(char *name)
-{
-	fh = open(name, O_TRUNC | O_CREAT | O_WRONLY, S_IREAD | S_IWRITE);
-};
-
-void Spk_Close(void)
-{
-	if(!fh)
-		return;
-
-	close(fh);
-	fh = 0;
-}
-
-void Spk_Printf(const char *text, ...)
-{
-	va_list         argptr;
-	char            buf[32768];
-
-	if(!fh)
-		return;
-
-	va_start(argptr, text);
-	vsprintf(buf, text, argptr);
-	write(fh, buf, strlen(buf));
-	_commit(fh);
-	va_end(argptr);
-
-};
-#endif
-
 /*
 ==================
-Sys_LowPhysicalMemory()
+Sys_LowPhysicalMemory
 ==================
 */
-
 qboolean Sys_LowPhysicalMemory()
 {
 	MEMORYSTATUS    stat;
@@ -451,86 +405,9 @@ void Sys_FreeFileList(char **list)
 
 //========================================================
 
-
-/*
-================
-Sys_ScanForCD
-
-Search all the drives to see if there is a valid CD to grab
-the cddir from
-================
-*/
-qboolean Sys_ScanForCD(void)
-{
-	static char     cddir[MAX_OSPATH];
-	char            drive[4];
-	FILE           *f;
-	char            test[MAX_OSPATH];
-
-#if 0
-	// don't override a cdpath on the command line
-	if(strstr(sys_cmdline, "cdpath"))
-	{
-		return;
-	}
-#endif
-
-	drive[0] = 'c';
-	drive[1] = ':';
-	drive[2] = '\\';
-	drive[3] = 0;
-
-	// scan the drives
-	for(drive[0] = 'c'; drive[0] <= 'z'; drive[0]++)
-	{
-		if(GetDriveType(drive) != DRIVE_CDROM)
-		{
-			continue;
-		}
-
-		sprintf(cddir, "%s%s", drive, CD_BASEDIR);
-		sprintf(test, "%s\\%s", cddir, CD_EXE);
-		f = fopen(test, "r");
-		if(f)
-		{
-			fclose(f);
-			return qtrue;
-		}
-		else
-		{
-			sprintf(cddir, "%s%s", drive, CD_BASEDIR_LINUX);
-			sprintf(test, "%s\\%s", cddir, CD_EXE_LINUX);
-			f = fopen(test, "r");
-			if(f)
-			{
-				fclose(f);
-				return qtrue;
-			}
-		}
-	}
-
-	return qfalse;
-}
-
-/*
-================
-Sys_CheckCD
-
-Return true if the proper CD is in the drive
-================
-*/
-qboolean Sys_CheckCD(void)
-{
-	// FIXME: mission pack
-	return qtrue;
-	//return Sys_ScanForCD();
-}
-
-
 /*
 ================
 Sys_GetClipboardData
-
 ================
 */
 char           *Sys_GetClipboardData(void)
@@ -570,7 +447,6 @@ LOAD/UNLOAD DLL
 /*
 =================
 Sys_UnloadDll
-
 =================
 */
 void Sys_UnloadDll(void *dllHandle)
@@ -609,44 +485,11 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDEC
 	char           *cdpath;
 	char           *gamedir;
 	char           *fn;
-
-/*
-#ifdef NDEBUG
-	int             timestamp;
-	int             ret;
-#endif
-*/
 	char            filename[MAX_QPATH];
 
 	*fqpath = 0;				// added 7/20/02 by T.Ray
 
 	Com_sprintf(filename, sizeof(filename), "%sx86.dll", name);
-
-/*
-#ifdef NDEBUG
-	timestamp = Sys_Milliseconds();
-	if(((timestamp - lastWarning) > (5 * 60000)) && !Cvar_VariableIntegerValue("dedicated")
-	   && !Cvar_VariableIntegerValue("com_blindlyLoadDLLs"))
-	{
-		if(FS_FileExists(filename))
-		{
-			lastWarning = timestamp;
-			ret = MessageBoxEx(NULL, "You are about to load a .DLL executable that\n"
-							   "has not been verified for use with XreaL.\n"
-							   "This type of file can compromise the security of\n"
-							   "your computer.\n\n"
-							   "Select 'OK' if you choose to load it anyway.",
-							   "Security Warning",
-							   MB_OKCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2 | MB_TOPMOST | MB_SETFOREGROUND,
-							   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT));
-			if(ret != IDOK)
-			{
-				return NULL;
-			}
-		}
-	}
-#endif
-*/
 
 #ifndef NDEBUG
 	libHandle = LoadLibrary(filename);
@@ -1129,7 +972,6 @@ sysEvent_t Sys_GetEvent(void)
 	}
 
 	// create an empty event to return
-
 	memset(&ev, 0, sizeof(ev));
 	ev.evTime = timeGetTime();
 
@@ -1178,8 +1020,6 @@ are initialized
 
 void Sys_Init(void)
 {
-	int             cpuid;
-
 	// make sure the timer is high precision, otherwise
 	// NT gets 18ms resolution
 	timeBeginPeriod(1);
@@ -1226,89 +1066,10 @@ void Sys_Init(void)
 	Cvar_Get("win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM);
 	Cvar_Get("win_wndproc", va("%i", (int)MainWndProc), CVAR_ROM);
 
-	//
-	// figure out our CPU
-	//
-	Cvar_Get("sys_cpustring", "detect", 0);
-	if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "detect"))
-	{
-		Com_Printf("...detecting CPU, found ");
-
-#ifndef __MINGW32__
-		cpuid = Sys_GetProcessorId();
-#else							// See comments in win_shared.c
-		cpuid = CPUID_GENERIC;
-#endif
-
-		switch (cpuid)
-		{
-			case CPUID_GENERIC:
-				Cvar_Set("sys_cpustring", "generic");
-				break;
-			case CPUID_INTEL_UNSUPPORTED:
-				Cvar_Set("sys_cpustring", "x86 (pre-Pentium)");
-				break;
-			case CPUID_INTEL_PENTIUM:
-				Cvar_Set("sys_cpustring", "x86 (P5/PPro, non-MMX)");
-				break;
-			case CPUID_INTEL_MMX:
-				Cvar_Set("sys_cpustring", "x86 (P5/Pentium2, MMX)");
-				break;
-			case CPUID_INTEL_KATMAI:
-				Cvar_Set("sys_cpustring", "Intel Pentium III");
-				break;
-			case CPUID_AMD_3DNOW:
-				Cvar_Set("sys_cpustring", "AMD w/ 3DNow!");
-				break;
-			case CPUID_AXP:
-				Cvar_Set("sys_cpustring", "Alpha AXP");
-				break;
-			default:
-				Com_Error(ERR_FATAL, "Unknown cpu type %d\n", cpuid);
-				break;
-		}
-	}
-	else
-	{
-		Com_Printf("...forcing CPU type to ");
-		if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "generic"))
-		{
-			cpuid = CPUID_GENERIC;
-		}
-		else if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "x87"))
-		{
-			cpuid = CPUID_INTEL_PENTIUM;
-		}
-		else if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "mmx"))
-		{
-			cpuid = CPUID_INTEL_MMX;
-		}
-		else if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "3dnow"))
-		{
-			cpuid = CPUID_AMD_3DNOW;
-		}
-		else if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "PentiumIII"))
-		{
-			cpuid = CPUID_INTEL_KATMAI;
-		}
-		else if(!Q_stricmp(Cvar_VariableString("sys_cpustring"), "axp"))
-		{
-			cpuid = CPUID_AXP;
-		}
-		else
-		{
-			Com_Printf("WARNING: unknown sys_cpustring '%s'\n", Cvar_VariableString("sys_cpustring"));
-			cpuid = CPUID_GENERIC;
-		}
-	}
-	Cvar_SetValue("sys_cpuid", cpuid);
-	Com_Printf("%s\n", Cvar_VariableString("sys_cpustring"));
-
 	Cvar_Set("username", Sys_GetCurrentUser());
 
 	IN_Init();					// FIXME: not in dedicated?
 }
-
 
 //=======================================================================
 
@@ -1317,7 +1078,6 @@ int             totalMsec, countMsec;
 /*
 ==================
 WinMain
-
 ==================
 */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -1342,10 +1102,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// get the initial time base
 	Sys_Milliseconds();
-#if 0
-	// if we find the CD, add a +set cddir xxx command line
-	Sys_ScanForCD();
-#endif
 
 	Sys_InitStreamThread();
 
@@ -1370,12 +1126,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			Sleep(5);
 		}
-
-		// set low precision every frame, because some system calls
-		// reset it arbitrarily
-//      _controlfp( _PC_24, _MCW_PC );
-//    _controlfp( -1, _MCW_EM  ); // no exceptions, even if some crappy
-		// syscall turns them back on!
 
 		startTime = Sys_Milliseconds();
 

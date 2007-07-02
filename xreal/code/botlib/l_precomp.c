@@ -743,11 +743,7 @@ void PC_AddBuiltinDefines(source_t * source)
 int PC_ExpandBuiltinDefine(source_t * source, token_t * deftoken, define_t * define, token_t ** firsttoken, token_t ** lasttoken)
 {
 	token_t        *token;
-#ifdef _WIN32
-	unsigned long   t;
-#else
 	time_t			t;
-#endif
 	char           *curtime;
 
 	token = PC_CopyToken(deftoken);
@@ -3466,7 +3462,7 @@ int PC_ReadTokenHandle(int handle, pc_token_t * pc_token)
 	pc_token->type = token.type;
 	pc_token->subtype = token.subtype;
 	pc_token->intvalue = token.intvalue;
-	pc_token->floatvalue = token.floatvalue;
+	pc_token->floatvalue = (float)token.floatvalue;
 	if(pc_token->type == TT_STRING)
 		StripDoubleQuotes(pc_token->string);
 	return ret;

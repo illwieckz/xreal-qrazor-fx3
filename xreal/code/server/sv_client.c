@@ -96,6 +96,15 @@ void SV_GetChallenge(netadr_t from)
 		return;
 	}
 
+	// if there's no authorize server defined, just let them in
+	if(strlen(AUTHORIZE_SERVER_NAME) < 1)
+	{
+		Com_Printf("Not authorizing client due to lack of auth server\n");
+		challenge->pingTime = svs.time;
+		NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
+		return;
+	}
+
 	// look up the authorize server's IP
 	if(!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD)
 	{
@@ -189,20 +198,6 @@ void SV_AuthorizeIpPacket(netadr_t from)
 	s = Cmd_Argv(2);
 	r = Cmd_Argv(3);			// reason
 
-	if(!Q_stricmp(s, "demo"))
-	{
-		if(Cvar_VariableValue("fs_restrict"))
-		{
-			// a demo client connecting to a demo server
-			NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "challengeResponse %i", svs.challenges[i].challenge);
-			return;
-		}
-		// they are a demo client trying to connect to a real server
-		NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "print\nServer is not a demo server\n");
-		// clear the challenge record so it won't timeout and let them through
-		Com_Memset(&svs.challenges[i], 0, sizeof(svs.challenges[i]));
-		return;
-	}
 	if(!Q_stricmp(s, "accept"))
 	{
 		NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "challengeResponse %i", svs.challenges[i].challenge);
@@ -246,11 +241,6 @@ SV_DirectConnect
 A "connect" OOB command has been received
 ==================
 */
-
-#define PB_MESSAGE "PunkBuster Anti-Cheat software must be installed " \
-				"and Enabled in order to join this server. An updated game patch can be downloaded from " \
-				"www.idsoftware.com"
-
 void SV_DirectConnect(netadr_t from)
 {
 	char            userinfo[MAX_INFO_STRING];
