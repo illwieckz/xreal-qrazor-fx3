@@ -1915,7 +1915,7 @@ void ClipperChangeNotify()
 }
 
 
-LatchedInt g_Layout_viewStyle(0, "Window Layout");
+LatchedInt g_Layout_viewStyle(3, "Window Layout");
 LatchedBool g_Layout_enableDetachableMenus(true, "Detachable Menus");
 LatchedBool g_Layout_enablePatchToolbar(true, "Patch Toolbar");
 LatchedBool g_Layout_enablePluginToolbar(true, "Plugin Toolbar");

@@ -332,7 +332,7 @@ public:
     m_textureScale(50),
 	m_showShaders(true),
     m_showTextureScrollbar(true),
-    m_startupShaders(STARTUPSHADERS_NONE),
+    m_startupShaders(STARTUPSHADERS_COMMON),
 	m_hideUnused(false),
 	m_rmbSelected(false),
 	m_searchedTags(false),
