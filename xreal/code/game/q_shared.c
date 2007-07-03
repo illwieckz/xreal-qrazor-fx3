@@ -1355,8 +1355,6 @@ qboolean Q_strreplace(char *dest, int destsize, const char *find, const char *re
 		Com_Error(ERR_FATAL, "Q_strreplace: already overflowed");
 	}
 
-	Q_strncpyz(backup, dest, lend + 1);
-
 	s = strstr(dest, find);
 	if(!s)
 	{
@@ -1364,12 +1362,13 @@ qboolean Q_strreplace(char *dest, int destsize, const char *find, const char *re
 	}
 	else
 	{
+		Q_strncpyz(backup, dest, lend + 1);
 		lstart = s - dest;
 		lfind = strlen(find);
 		lreplace = strlen(replace);
 
-		strncpy(dest + lstart, replace, destsize - 1);
-		strncpy(dest + lstart + lreplace, backup + lstart + lfind, destsize - 1);
+		strncpy(s, replace, destsize - lstart - 1);
+		strncpy(s + lreplace, backup + lstart + lfind, destsize - lstart - lreplace - 1);
 
 		return qtrue;
 	}
