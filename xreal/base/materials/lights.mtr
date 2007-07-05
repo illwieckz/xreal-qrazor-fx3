@@ -18,7 +18,7 @@ lights/roundfire2
 {
 	{
 		forceHighQuality
-		map	lights/roundfire.tga
+		map	lights/round.tga
 		red 	( firetable2 [Parm4 + (time / 6) ]) * Parm0
 		green 	( firetable2 [Parm4 + (time / 6) ]) * Parm1
 		blue 	( firetable2 [Parm4 + (time / 6) ]) * Parm2
@@ -135,21 +135,6 @@ lights/ambientLight2
 	}
 }
 
-
-lights/roundfire
-{
-	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
-	{
-		stage attenuationMapXY
-		forceHighQuality
-		map	lights/roundfire.tga
-		red 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm0
-		green 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm1
-		blue 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm2
-		rotate	firelightrot [ time * 2 ]
-		zeroClamp
-	}
-}
 
 lights/floorpgrate
 {
@@ -861,5 +846,20 @@ lights/flashlight2
 		map	lights/flashlight2.tga
 		zeroClamp
 		colored
+	}
+}
+
+lights/roundfire
+{
+	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		map	lights/round.tga
+		red 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm0
+		green 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm1
+		blue 	( firetable [Parm4 + (time / 6 * (Parm3)) ]) * Parm2
+		rotate	firelightrot [ time * 2 ]
+		zeroClamp
 	}
 }
