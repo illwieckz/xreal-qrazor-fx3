@@ -1,10 +1,3 @@
-//================textures/common & textures/editor shader stats================
-//
-// Total # of shaders : 43
-// Working shaders: 42
-// Broken/CommentedOut shaders: 1
-//==============================================================================
-
 
 // none of the surfaces in this file generate visible drawing,
 // they are just for modifying the game and utility behavior
@@ -210,7 +203,6 @@ textures/common/hint
 //==============================================================================
 
 // This is an invisible brush that should cast a shadow
-// - Xian (Jul.9.2001)
 textures/common/shadow
 {
 	qer_editorimage textures/common/shadow.tga
@@ -220,7 +212,6 @@ textures/common/shadow
 	forceshadows
 }
 
-// Invisible Shadow 2
 textures/common/shadow2
 {
 	qer_editorimage textures/common/shadow.tga
