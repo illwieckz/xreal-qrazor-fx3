@@ -24,6 +24,7 @@ Robert "Tr3B" Beckebans - health pickup models
 Julian "Plaque" Morris - weapon and projectile models
 Mikael "Ruohis" Ruohomaa - weapon models
 Michael "mic" Denno - shotgun shells
+Robert "BJA" Hodri - map objects, light models  http://www.bja-design.de
 gw - teleporter, fan models
 
 
