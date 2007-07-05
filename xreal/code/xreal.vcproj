@@ -1666,18 +1666,6 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="win32\cursor2.cur"
-				>
-			</File>
-			<File
-				RelativePath="win32\cursor3.cur"
-				>
-			</File>
-			<File
-				RelativePath="win32\qe3.ico"
-				>
-			</File>
-			<File
 				RelativePath="win32\winquake.rc"
 				>
 				<FileConfiguration
@@ -1698,6 +1686,10 @@
 						AdditionalIncludeDirectories="win32"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\win32\xreal.ico"
+				>
 			</File>
 		</Filter>
 		<Filter

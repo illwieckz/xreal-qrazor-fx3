@@ -294,9 +294,6 @@ code/renderer
 - fix stencil shadow flickering bug ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 
-code/win32
-- replace Q3A icon for the Win32 executable
-
 code/xmap
 - merge AAS compiler into xmap ?
 - finish BSP tree optimizations like merging co-planar faces ?
