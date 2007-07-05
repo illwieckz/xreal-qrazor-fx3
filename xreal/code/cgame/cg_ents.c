@@ -125,7 +125,7 @@ CG_TransformSkeleton
 transform relative bones to absolute ones required for vertex skinning
 =================
 */
-void CG_TransformSkeleton(refSkeleton_t * skel)
+void CG_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 {
 	int             i;
 	refBone_t      *bone;
@@ -145,25 +145,41 @@ void CG_TransformSkeleton(refSkeleton_t * skel)
 	// calculate absolute transforms
 	for(i = 0, bone = &skel->bones[0]; i < skel->numBones; i++, bone++)
 	{
-		if(bone->parentIndex < 0)
+		if(bone->parentIndex >= 0)
 		{
-			MatrixSetupTransformFromQuat(boneMatrices[i], bone->rotation, bone->origin);
+			vec3_t			rotated;
+			quat_t			quat;
+
+			refBone_t      *parent;
+
+			parent = &skel->bones[bone->parentIndex];
+
+			QuatTransformVector(parent->rotation, bone->origin, rotated);
+
+			if(scale)
+			{
+				rotated[0] *= scale[0];
+				rotated[1] *= scale[1];
+				rotated[2] *= scale[2];
+			}
+
+			VectorAdd(parent->origin, rotated, bone->origin);
+
+			QuatMultiply1(parent->rotation, bone->rotation, quat);
+			QuatCopy(quat, bone->rotation);
 		}
-		else
-		{
-			MatrixSetupTransformFromQuat(mat, bone->rotation, bone->origin);
-			MatrixMultiply(boneMatrices[bone->parentIndex], mat, boneMatrices[i]);
-		}
-		
-		// encode full transform matrix into vec3/quat to save memory
-		bone->origin[0] = boneMatrices[i][12];
-		bone->origin[1] = boneMatrices[i][13];
-		bone->origin[2] = boneMatrices[i][14];
-			
-		QuatFromMatrix(bone->rotation, boneMatrices[i]);
 	}
 	
 	skel->type = SK_ABSOLUTE;
+
+	if(scale)
+	{
+		VectorCopy(scale, skel->scale);
+	}
+	else
+	{
+		VectorSet(skel->scale, 1, 1, 1);
+	}
 }
 
 

@@ -93,11 +93,13 @@ typedef enum
 
 typedef struct
 {
+	refSkeletonType_t	type;		// skeleton has been reset
+
 	int             numBones;
 	refBone_t       bones[MAX_BONES];
 	
 	vec3_t          bounds[2];	// bounds of all applied animations
-	refSkeletonType_t	type;		// skeleton has been reset
+	vec3_t			scale;
 } refSkeleton_t;
 
 typedef struct

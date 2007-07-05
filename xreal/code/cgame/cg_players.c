@@ -636,12 +636,13 @@ static qboolean CG_RegisterClientSkin(clientInfo_t * ci, const char *teamName, c
 }
 
 #ifdef XPPM
-static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName, qboolean loop, qboolean reversed)
+static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName, qboolean loop, qboolean reversed, qboolean clearOrigin)
 {
 	char            filename[MAX_QPATH];
 	int             frameRate;
 	
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/%s.md5anim", modelName, animName);
+	Com_sprintf(filename, sizeof(filename), "models/players/animations/%s.md5anim", animName);
+	//Com_sprintf(filename, sizeof(filename), "models/players/%s/%s.md5anim", modelName, animName);
 	ci->animations[anim].handle = trap_R_RegisterAnimation(filename);
 	if(!ci->animations[anim].handle)
 	{
@@ -658,14 +659,19 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 		frameRate = 1;
 	}
 	ci->animations[anim].frameLerp = 1000 / frameRate;
-	ci->animations[anim].initialLerp = 1000 / frameRate;
+	ci->animations[anim].initialLerp = 0; //1000 / frameRate;
 	
 	if(loop)
 	{
 		ci->animations[anim].loopFrames = ci->animations[anim].numFrames;
 	}
+	else
+	{
+		ci->animations[anim].loopFrames = 0;
+	}
 	
 	ci->animations[anim].reversed = reversed;
+	ci->animations[anim].clearOrigin = clearOrigin;
 	
 	return qtrue;
 }
@@ -707,12 +713,12 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		ci->fixedlegs = qfalse;
 		ci->fixedtorso = qfalse;
 
-		/*
-		the af pose animation is good for testing player angles
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "af_pose", qtrue, qfalse))
-		*/
-		
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse))
+		// the af pose animation is good for testing player angles
+#if 0
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "af_pose", qtrue, qfalse, qfalse))
+#else	
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse))
+#endif
 		{
 			return qfalse;
 		}
@@ -726,32 +732,32 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 			ci->animations[i] = ci->animations[LEGS_IDLE];
 		}
 		
-		// FIXME death animations
+		// FIXME we don't have death animations
 		
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "taunt_1", qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "taunt_1", qfalse, qfalse, qfalse);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "machinegun_fire", qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "gauntlet_fire", qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "machinegun_fire", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "gauntlet_fire", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_walk_forward", qtrue, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run", qtrue, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_walk_forward", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run", qtrue, qtrue, qtrue);
 		
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "soft_land", qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "soft_land", qfalse, qfalse, qfalse);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qfalse);	// FIXME ?
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "fall", qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qfalse, qfalse);	// FIXME ?
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "fall", qfalse, qfalse, qfalse);
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse);
 		
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_backward", qtrue, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_backward", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue);
 
 
 		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
@@ -1636,7 +1642,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 							 lf->animation->handle,
 							 lf->oldFrame, lf->frame,
 							 1.0 - lf->backlerp,
-							 qtrue))
+							 lf->animation->clearOrigin))
 	{
 		CG_Printf("Can't build lf->skeleton\n");
 	}
@@ -3014,6 +3020,7 @@ void CG_Player(centity_t * cent)
 	int             i;
 	int				boneIndex;
 	int				boneIndex2;
+	vec3_t			scale = {0.83, 0.83, 0.83};	// approx. Quake4 to Q3A player size
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3107,9 +3114,10 @@ void CG_Player(centity_t * cent)
 		CG_Error("cent->pe.legs.skeleton.numBones != cent->pe.torso.skeleton.numBones");
 		return;
 	}
-	
+
 	// combine legs and torso skeletons
-	boneIndex = trap_R_BoneIndex(body.hModel, "spinner");
+#if 1
+	boneIndex = trap_R_BoneIndex(body.hModel, "waist");
 	
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
@@ -3138,6 +3146,7 @@ void CG_Player(centity_t * cent)
 		// bad no hips found
 		body.skeleton.type = SK_INVALID;
 	}
+#endif
 	
 	// rotate legs
 #if 0
@@ -3177,7 +3186,7 @@ void CG_Player(centity_t * cent)
 #endif
 	
 	// transform relative bones to absolute ones required for vertex skinning and tag attachments
-	CG_TransformSkeleton(&body.skeleton);
+	CG_TransformSkeleton(&body.skeleton, scale);
 	
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);

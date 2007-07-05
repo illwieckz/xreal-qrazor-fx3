@@ -1774,8 +1774,12 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 
 				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
-					
 					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
+				
+					offsetVec[0] *= backEnd.currentEntity->e.skeleton.scale[0];
+					offsetVec[1] *= backEnd.currentEntity->e.skeleton.scale[1];
+					offsetVec[2] *= backEnd.currentEntity->e.skeleton.scale[2];
+
 					VectorAdd(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].origin, offsetVec, offsetVec);
 				}
 				else
@@ -1937,6 +1941,11 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
 					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
+
+					offsetVec[0] *= backEnd.currentEntity->e.skeleton.scale[0];
+					offsetVec[1] *= backEnd.currentEntity->e.skeleton.scale[1];
+					offsetVec[2] *= backEnd.currentEntity->e.skeleton.scale[2];
+
 					VectorAdd(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].origin, offsetVec, offsetVec);
 				}
 				else

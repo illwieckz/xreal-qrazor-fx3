@@ -28,8 +28,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	GAME_VERSION		"XreaL"
 
+// Tr3B: define this to use the new Quake4 like player model system
+//#define XPPM 1
+
 #define	DEFAULT_GRAVITY		800
+
+#ifdef XPPM
+#define	GIB_HEALTH			0
+#else
 #define	GIB_HEALTH			-40
+#endif
+
 #define	ARMOR_PROTECTION	0.66
 
 #define	MAX_ITEMS			256
@@ -554,15 +563,16 @@ typedef enum
 typedef struct animation_s
 {
 #ifdef XPPM
-	qhandle_t		handle;		// registered md5Animation or whatever
+	qhandle_t		handle;			// registered md5Animation or whatever
+	qboolean		clearOrigin;	// reset the origin bone
 #endif
 	int             firstFrame;
 	int             numFrames;
-	int             loopFrames;	// 0 to numFrames
-	int             frameLerp;	// msec between frames
+	int             loopFrames;		// 0 to numFrames
+	int             frameLerp;		// msec between frames
 	int             initialLerp;	// msec to get to first frame
-	int             reversed;	// true if animation is reversed
-	int             flipflop;	// true if animation should flipflop back to base
+	int             reversed;		// true if animation is reversed
+	int             flipflop;		// true if animation should flipflop back to base
 } animation_t;
 
 

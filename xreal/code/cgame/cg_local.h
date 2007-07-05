@@ -1416,7 +1416,7 @@ void            CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEnt
 void            CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent,
 											   qhandle_t parentModel, char *tagName);
 											   
-void			CG_TransformSkeleton(refSkeleton_t * skel);
+void			CG_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale);
 
 
 

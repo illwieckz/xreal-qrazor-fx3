@@ -840,8 +840,13 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 			QuatCalcW(newQuat);
 			QuatNormalize(newQuat);
 			
+#if 1
 			VectorLerp(oldOrigin, newOrigin, frac, lerpedOrigin);
 			QuatSlerp(oldQuat, newQuat, frac, lerpedQuat);
+#else
+			VectorCopy(newOrigin, lerpedOrigin);
+			QuatCopy(newQuat, lerpedQuat);
+#endif
 			
 			// copy lerped information to the bone + extra data
 			skel->bones[i].parentIndex = channel->parentIndex;
@@ -849,6 +854,7 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 			if(channel->parentIndex < 0 && clearOrigin)
 			{
 				VectorClear(skel->bones[i].origin);
+				QuatClear(skel->bones[i].rotation);
 				
 				// move bounding box back
 				VectorSubtract(skel->bounds[0], lerpedOrigin, skel->bounds[0]);

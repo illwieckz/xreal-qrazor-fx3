@@ -324,11 +324,36 @@ static void CG_AddTestModel(void)
 			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gunZ.value;
 		}
 	}
+
+#if 0
+	if(cg.testAnimation)
+	{
+		int max = trap_R_AnimNumFrames(cg.testAnimation);
+		
+		cg.testModelEntity.oldframe = cg.testModelEntity.frame;
+
+		cg.testModelEntity.frame++;
+		if(cg.testModelEntity.frame >= max)
+		{
+			cg.testModelEntity.frame = 0;
+		}
+
+		if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
+			cg.testAnimation,
+			cg.testModelEntity.oldframe,
+			cg.testModelEntity.frame,
+			1.0 - cg.testModelEntity.backlerp,
+			qfalse))
+		{
+			CG_Printf("Can't build animation\n");
+		}
+	}
+#endif
 	
 	if(cg.testModelEntity.skeleton.type == SK_RELATIVE)
 	{
 		// transform relative bones to absolute ones required for vertex skinning
-		CG_TransformSkeleton(&cg.testModelEntity.skeleton);	
+		CG_TransformSkeleton(&cg.testModelEntity.skeleton, NULL);	
 	}
 
 	trap_R_AddRefEntityToScene(&cg.testModelEntity);
