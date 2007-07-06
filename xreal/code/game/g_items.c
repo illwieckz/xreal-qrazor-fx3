@@ -443,7 +443,15 @@ void RespawnItem(gentity_t * ent)
 		{
 			te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_SOUND);
 		}
-		te->s.eventParm = G_SoundIndex("sound/items/poweruprespawn.ogg");
+
+		if(ent->item->giTag == PW_QUAD)
+		{
+			te->s.eventParm = G_SoundIndex("sound/items/quadrespawn.ogg");
+		}
+		else
+		{
+			te->s.eventParm = G_SoundIndex("sound/items/poweruprespawn.ogg");
+		}
 		te->r.svFlags |= SVF_BROADCAST;
 	}
 

@@ -5586,17 +5586,21 @@ void BotCheckEvents(bot_state_t * bs, entityState_t * state)
 			   }
 			   else */
 #ifdef MISSIONPACK
-			if(!strcmp(buf, "sound/items/kamikazerespawn.wav"))
+			if(!Q_stricmp(buf, "sound/items/kamikazerespawn.wav"))
 			{
-				//the kamikaze respawned so dont avoid it
+				// the kamikaze respawned so dont avoid it
 				BotDontAvoid(bs, "Kamikaze");
 			}
 			else
 #endif
-			if(!strcmp(buf, "sound/items/poweruprespawn.ogg"))
+			if(!Q_stricmp(buf, "sound/items/poweruprespawn.ogg"))
 			{
-				//powerup respawned... go get it
+				// powerup respawned... go get it
 				BotGoForPowerups(bs);
+			}
+			else if(!Q_stricmp(buf, "sound/items/quadrespawn.ogg"))
+			{
+				BotDontAvoid(bs, "Quad Damage");
 			}
 			break;
 		}

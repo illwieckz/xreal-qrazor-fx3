@@ -578,7 +578,7 @@ gitem_t         bg_itemlist[] = {
 */
 	{
 	 "item_quad",
-	 "sound/items/quaddamage.wav",
+	 "sound/items/quaddamage.ogg",
 	 {"models/powerups/instant/quad.md3",
 	  "models/powerups/instant/quad_ring.md3",
 	  0, 0}
@@ -589,7 +589,7 @@ gitem_t         bg_itemlist[] = {
 	 IT_POWERUP,
 	 PW_QUAD,
 /* precache */ "",
-/* sounds */ "sound/items/damage2.wav sound/items/damage3.wav"
+/* sounds */ "sound/items/damage.ogg sound/items/quadrespawn.ogg"
 	 }
 	,
 
@@ -741,7 +741,7 @@ Only in CTF games
 	 IT_HOLDABLE,
 	 HI_KAMIKAZE,
 /* precache */ "",
-/* sounds */ "sound/items/kamikazerespawn.wav"
+/* sounds */ "sound/items/kamikazerespawn.ogg"
 	 }
 	,
 

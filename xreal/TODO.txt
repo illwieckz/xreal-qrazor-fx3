@@ -169,9 +169,7 @@ base/sound/items/ammoregen.ogg TA
 base/sound/items/doubler.ogg TA
 base/sound/items/guard.ogg TA
 base/sound/items/scout.ogg TA
-base/sound/items/damage2.ogg
-base/sound/items/damage3.ogg
-base/sound/items/doubler.ogg
+base/sound/items/doubler.ogg TA
 base/sound/items/flight.ogg
 base/sound/items/haste.ogg
 base/sound/items/holdable.ogg
@@ -192,13 +190,11 @@ base/sound/items/obelisk_hit_03.ogg	TA
 base/sound/items/obelisk_respawn.ogg TA
 base/sound/items/protect3.ogg
 base/sound/items/protect.ogg
-base/sound/items/quaddamage.ogg
 base/sound/items/regeneration.ogg
 base/sound/items/regen.ogg TA
 base/sound/items/scout.ogg TA
 base/sound/items/use_medkit.ogg
 base/sound/items/use_nothing.ogg
-base/sound/items/wearoff.ogg
 base/sound/player/footsteps/energy*.ogg
 base/sound/player/DEFAULT_MODEL/death1.ogg
 base/sound/player/DEFAULT_MODEL/death2.ogg
@@ -263,11 +259,12 @@ base/sound/weapons/vulcan/wvulimpl.ogg TA
 base/sound/weapons/vulcan/wvulimpm.ogg TA
 base/sound/weapons/vulcan/wvulwind.ogg TA
 base/base/sound/world/*
-base/sprites/foe2.png
 base/sprites/splash.png
 
 
 code/cgame
+- improve quad damage effect
+- improve invisible effect with heatHaze
 - finish the Lua powered Quake4 style special effects target_fx system
 - add motion blur and other special effects
 
