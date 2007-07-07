@@ -7,7 +7,6 @@ ui_src = [
 'code/q3_ui/ui_main.c',
 'code/q3_ui/ui_addbots.c',
 'code/q3_ui/ui_atoms.c',
-'code/q3_ui/ui_cdkey.c',
 'code/q3_ui/ui_cinematics.c',
 'code/q3_ui/ui_confirm.c',
 'code/q3_ui/ui_connect.c',
@@ -71,5 +70,6 @@ elif env['arch'] == 'linux-x86_64':
 elif env['arch'] == 'win32-mingw':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
+
 
 
