@@ -61,6 +61,8 @@ Pat "raynorpat" Raynor
 Michael "mic" Denno
 Yves "evillair" Allaire - Quake4 eX texture set
 Philip Klevestav - Quake4 pk01 texture set
+Matt "Lunaran"  Breit - Quake4 Powerplant texture set
+Oilpainter - Quake4 Rustex texture set
 hi_volt - sky clouds
 CheapAlert - menu art, effect textures
 
