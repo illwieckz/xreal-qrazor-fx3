@@ -119,9 +119,9 @@ qboolean CheatsOk(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"Cheats are not enabled on this server.\n\""));
 		return qfalse;
 	}
-	if(ent->health <= 0)
+	if(ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->health <= 0)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"You must be alive to use this command.\n\""));
+		trap_SendServerCommand(ent-g_entities, va("print \"You must be alive to use this command.\n\""));
 		return qfalse;
 	}
 	return qtrue;

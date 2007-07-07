@@ -371,59 +371,60 @@ Kick a user off of the server  FIXME: move to game
 */
 static void SV_Kick_f(void)
 {
-	client_t       *cl;
-	int             i;
+	client_t   *cl;
+	int         i;
+	char      *arg;
 
 	// make sure server is running
-	if(!com_sv_running->integer)
+	if (!com_sv_running->integer)
 	{
 		Com_Printf("Server is not running.\n");
 		return;
 	}
 
-	if(Cmd_Argc() != 2)
+	if (Cmd_Argc() != 2)
 	{
-		Com_Printf("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+		Com_Printf("Usage: kick [player name]\nkick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
 	}
 
-	cl = SV_GetPlayerByName();
-	if(!cl)
+	arg = Cmd_Argv(1);
+	if (!Q_stricmp(arg, "all"))
 	{
-		if(!Q_stricmp(Cmd_Argv(1), "all"))
+		for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
 		{
-			for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
-			{
-				if(!cl->state)
-				{
-					continue;
-				}
-				if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
-				{
-					continue;
-				}
-				SV_DropClient(cl, "was kicked");
-				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-			}
-		}
-		else if(!Q_stricmp(Cmd_Argv(1), "allbots"))
-		{
-			for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
-			{
-				if(!cl->state)
-				{
-					continue;
-				}
-				if(cl->netchan.remoteAddress.type != NA_BOT)
-				{
-					continue;
-				}
-				SV_DropClient(cl, "was kicked");
-				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-			}
-		}
-		return;
+            if (!cl->state)
+               continue;
+
+            if (cl->netchan.remoteAddress.type == NA_LOOPBACK)
+               continue;
+
+            SV_DropClient(cl, "was kicked");
+            cl->lastPacketTime = svs.time; // in case there is a funny zombie
+         }
+         return;
 	}
+	else if (!Q_stricmp(arg, "allbots"))
+	{
+		for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
+		{
+            if (!cl->state)
+               continue;
+
+            if (cl->netchan.remoteAddress.type != NA_BOT)
+               continue;
+
+            SV_DropClient(cl, "was kicked");
+            cl->lastPacketTime = svs.time; // in case there is a funny zombie
+         }
+         return;
+	}
+
+	cl = SV_GetPlayerByName();
+
+	if (!cl)
+		return;
+
 	if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
 	{
 		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
@@ -431,7 +432,7 @@ static void SV_Kick_f(void)
 	}
 
 	SV_DropClient(cl, "was kicked");
-	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	cl->lastPacketTime = svs.time; // in case there is a funny zombie 
 }
 
 /*

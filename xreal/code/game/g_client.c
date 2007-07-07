@@ -626,7 +626,6 @@ int TeamLeader(int team)
 /*
 ================
 PickTeam
-
 ================
 */
 team_t PickTeam(int ignoreClientNum)
@@ -649,28 +648,8 @@ team_t PickTeam(int ignoreClientNum)
 	{
 		return TEAM_RED;
 	}
-	return TEAM_BLUE;
+	return rand() & 1 ? TEAM_RED : TEAM_BLUE;
 }
-
-/*
-===========
-ForceClientSkin
-
-Forces a client's skin (for teamplay)
-===========
-*/
-/*
-static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
-	char *p;
-
-	if ((p = Q_strrchr(model, '/')) != 0) {
-		*p = 0;
-	}
-
-	Q_strcat(model, MAX_QPATH, "/");
-	Q_strcat(model, MAX_QPATH, skin);
-}
-*/
 
 /*
 ===========
@@ -1038,7 +1017,7 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
 	//   this means this client is not running in our current process
-	if(!(ent->r.svFlags & SVF_BOT) && (strcmp(value, "localhost") != 0))
+	if(!isBot && (strcmp(value, "localhost") != 0))
 	{
 		// check for a password
 		value = Info_ValueForKey(userinfo, "password");
@@ -1475,6 +1454,15 @@ void ClientDisconnect(int clientNum)
 	{
 		level.clients[level.sortedClients[0]].sess.wins++;
 		ClientUserinfoChanged(level.sortedClients[0]);
+	}
+
+	if((g_gametype.integer == GT_TOURNAMENT)
+		&& ent->client->sess.sessionTeam == TEAM_FREE && level.intermissiontime)
+	{
+		trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+		level.restarted = qtrue;
+		level.changemap = NULL;
+		level.intermissiontime = 0;
 	}
 
 	trap_UnlinkEntity(ent);

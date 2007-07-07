@@ -1231,13 +1231,13 @@ void CL_Rcon_f(void)
 	message[3] = -1;
 	message[4] = 0;
 
-	strcat(message, "rcon ");
+	// raynorpat: these all were strcat, but could allow a stack-based buffer overflow
+	Q_strcat(message, sizeof(message), "rcon ");
 
-	strcat(message, rcon_client_password->string);
-	strcat(message, " ");
+	Q_strcat(message, sizeof(message), rcon_client_password->string);
+	Q_strcat(message, sizeof(message), " ");
 
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
-	strcat(message, Cmd_Cmd() + 5);
+	Q_strcat(message, sizeof(message), Cmd_Cmd() + 5);
 
 	if(cls.state >= CA_CONNECTED)
 	{
