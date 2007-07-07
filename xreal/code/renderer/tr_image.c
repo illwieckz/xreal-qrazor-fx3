@@ -4046,7 +4046,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		return;
 	}
 
-//  ri.Printf(PRINT_ALL, "R_LoadImage: token '%s'\n", token);
+	//ri.Printf(PRINT_ALL, "R_LoadImage: token '%s'\n", token);
 
 	// heightMap(<map>, <float>)  Turns a grayscale height map into a normal map. <float> varies the bumpiness
 	if(!Q_stricmp(token, "heightMap"))
@@ -4112,7 +4112,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		Q_strncpyz(filename, token, sizeof(filename));
 		Com_DefaultExtension(filename, sizeof(filename), ".tga");
 
-//      ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
+		//ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
 
 		len = strlen(filename);
 
@@ -4213,10 +4213,9 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	for(image = hashTable[hash]; image; image = image->next)
 	{
 		if(!Q_stricmpn(buffer, image->name, sizeof(image->name)))
-			//if(!strcmp(name, image->name))
 		{
 			// the white image can be used with any set of parms, but other mismatches are errors
-			if(!Q_stricmp(buffer, "_white"))
+			if(Q_stricmp(buffer, "_white"))
 			{
 				diff = bits ^ image->bits;
 
@@ -4271,22 +4270,22 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	byte           *pic[6];
 	long            hash;
 	static char    *suf[6] = { "px", "nx", "py", "ny", "pz", "nz" };
-	char            filename[MAX_QPATH];
-	//int             bitsIgnore;
+	int             bitsIgnore;
+	char            buffer[1024], filename[1024];
+	char           *filename_p;
 
 	if(!name)
 	{
 		return NULL;
 	}
 
-	Q_strncpyz(filename, name, sizeof(filename));
-	hash = generateHashValue(filename);
+	Q_strncpyz(buffer, name, sizeof(buffer));
+	hash = generateHashValue(buffer);
 
 	// see if the image is already loaded
 	for(image = hashTable[hash]; image; image = image->next)
 	{
-		if(!Q_stricmp(name, image->name))
-			//if(!strcmp(name, image->name))
+		if(!Q_stricmp(buffer, image->name))
 		{
 			return image;
 		}
@@ -4300,9 +4299,10 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	// load the pic from disk
 	for(i = 0; i < 6; i++)
 	{
-		Com_sprintf(filename, sizeof(filename), "%s_%s.tga", name, suf[i]);
-		//R_LoadImage(filename, &pic[i], &width, &height, &bitsIgnore);
-		LoadTGA(filename, &pic[i], &width, &height, 0xFF);
+		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, suf[i]);
+
+		filename_p = &filename[0];
+		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
 
 		if(!pic[i] || width != height)
 		{
@@ -4311,7 +4311,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		}
 	}
 
-	image = R_CreateCubeImage((char *)name, (const byte **)pic, width, height, bits, filterType, wrapType);
+	image = R_CreateCubeImage((char *)buffer, (const byte **)pic, width, height, bits, filterType, wrapType);
 
   done:
 	for(i = 0; i < 6; i++)

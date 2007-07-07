@@ -139,6 +139,9 @@ typedef struct
 	
 	// extra animation information
 	refSkeleton_t   skeleton;
+
+	// extra light interaction information
+	int				noShadowID;
 } refEntity_t;
 
 
@@ -174,6 +177,7 @@ typedef struct
 	vec3_t          axis[3];	// rotation vectors
 	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	qboolean        noShadows;
+	int				noShadowID;	// don't cast shadows of all entities with this id
 } refLight_t;
 
 

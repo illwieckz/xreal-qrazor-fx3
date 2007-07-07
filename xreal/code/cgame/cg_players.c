@@ -2386,10 +2386,12 @@ static void CG_PlayerTokens(centity_t * cent, int renderfx)
 CG_PlayerPowerups
 ===============
 */
-static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
+static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID)
 {
 	int             powerups;
 	clientInfo_t   *ci;
+	refLight_t		light;
+	float			radius;
 
 	powerups = cent->currentState.powerups;
 	if(!powerups)
@@ -2400,7 +2402,28 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	// quad gives a light
 	if(powerups & (1 << PW_QUAD))
 	{
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1);
+		// add light
+		memset(&light, 0, sizeof(refLight_t));
+	
+		light.rlType = RL_OMNI;
+
+		VectorCopy(cent->lerpOrigin, light.origin);
+
+		light.color[0] = 0.2f;
+		light.color[1] = 0.2f;
+		light.color[2] = 1;
+
+		radius = 200 + (rand() & 31);
+
+		light.radius[0] = radius;
+		light.radius[1] = radius;
+		light.radius[2] = radius;
+		
+		AxisClear(light.axis);
+
+		light.noShadowID = noShadowID;
+
+		trap_R_AddRefLightToScene(&light);
 	}
 
 	// flight plays a looped sound
@@ -2410,6 +2433,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	}
 
 	ci = &cgs.clientinfo[cent->currentState.clientNum];
+	
 	// redflag
 	if(powerups & (1 << PW_REDFLAG))
 	{
@@ -2421,7 +2445,29 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		{
 			CG_TrailItem(cent, cgs.media.redFlagModel);
 		}
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 0.2f, 0.2f);
+
+		// add light
+		memset(&light, 0, sizeof(refLight_t));
+	
+		light.rlType = RL_OMNI;
+
+		VectorCopy(cent->lerpOrigin, light.origin);
+
+		light.color[0] = 1.0;
+		light.color[1] = 0.2f;
+		light.color[2] = 0.2f;
+
+		radius = 200 + (rand() & 31);
+
+		light.radius[0] = radius;
+		light.radius[1] = radius;
+		light.radius[2] = radius;
+		
+		AxisClear(light.axis);
+
+		light.noShadowID = noShadowID;
+
+		trap_R_AddRefLightToScene(&light);
 	}
 
 	// blueflag
@@ -2435,7 +2481,29 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		{
 			CG_TrailItem(cent, cgs.media.blueFlagModel);
 		}
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1.0);
+
+		// add light
+		memset(&light, 0, sizeof(refLight_t));
+	
+		light.rlType = RL_OMNI;
+
+		VectorCopy(cent->lerpOrigin, light.origin);
+
+		light.color[0] = 0.2f;
+		light.color[1] = 0.2f;
+		light.color[2] = 1;
+
+		radius = 200 + (rand() & 31);
+
+		light.radius[0] = radius;
+		light.radius[1] = radius;
+		light.radius[2] = radius;
+		
+		AxisClear(light.axis);
+
+		light.noShadowID = noShadowID;
+
+		trap_R_AddRefLightToScene(&light);
 	}
 
 	// neutralflag
@@ -2449,7 +2517,29 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		{
 			CG_TrailItem(cent, cgs.media.neutralFlagModel);
 		}
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 1.0, 1.0);
+
+		// add light
+		memset(&light, 0, sizeof(refLight_t));
+	
+		light.rlType = RL_OMNI;
+
+		VectorCopy(cent->lerpOrigin, light.origin);
+
+		light.color[0] = 1;
+		light.color[1] = 1;
+		light.color[2] = 1;
+
+		radius = 200 + (rand() & 31);
+
+		light.radius[0] = radius;
+		light.radius[1] = radius;
+		light.radius[2] = radius;
+		
+		AxisClear(light.axis);
+
+		light.noShadowID = noShadowID;
+
+		trap_R_AddRefLightToScene(&light);
 	}
 
 	// haste leaves smoke trails
@@ -3213,6 +3303,7 @@ void CG_Player(centity_t * cent)
 	int             renderfx;
 	qboolean        shadow;
 	float           shadowPlane;
+	int				noShadowID;
 	
 	vec3_t			legsAngles;
 	vec3_t			torsoAngles;
@@ -3261,10 +3352,17 @@ void CG_Player(centity_t * cent)
 		}
 	}
 
-
 	memset(&legs, 0, sizeof(legs));
 	memset(&torso, 0, sizeof(torso));
 	memset(&head, 0, sizeof(head));
+
+	// generate a new unique noShadowID to avoid that the lights of the quad damage
+	// will cause bad player shadows
+	noShadowID = CG_UniqueNoShadowID();
+
+	legs.noShadowID = noShadowID;
+	torso.noShadowID = noShadowID;
+	head.noShadowID = noShadowID;
 
 	// get the rotation information
 	CG_PlayerAngles(cent, legsAngles, torsoAngles, headAngles);
@@ -3585,7 +3683,7 @@ void CG_Player(centity_t * cent)
 	CG_AddPlayerWeapon(&torso, NULL, cent, ci->team);
 
 	// add powerups floating behind the player
-	CG_PlayerPowerups(cent, &torso);
+	CG_PlayerPowerups(cent, &torso, noShadowID);
 
 	// add the bounding box (if cg_drawPlayerAABB is 1)
 	CG_PlayerBoundingBox(cent);

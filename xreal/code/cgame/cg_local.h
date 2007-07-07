@@ -1417,7 +1417,7 @@ void            CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEn
 											   qhandle_t parentModel, char *tagName);
 											   
 void			CG_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale);
-
+int             CG_UniqueNoShadowID(void);
 
 
 //

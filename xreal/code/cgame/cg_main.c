@@ -989,7 +989,7 @@ static void CG_RegisterGraphics(void)
 
 	if(cgs.gametype >= GT_TEAM || cg_buildScript.integer)
 	{
-		cgs.media.friendShader = trap_R_RegisterShader("sprites/foe");
+		cgs.media.friendShader = trap_R_RegisterShader("sprites/friend");
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
 		cgs.media.teamStatusBar = trap_R_RegisterShader("gfx/2d/colorbar.tga");
 #ifdef MISSIONPACK

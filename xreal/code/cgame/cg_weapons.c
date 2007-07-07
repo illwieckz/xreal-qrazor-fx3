@@ -1414,6 +1414,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	VectorCopy(parent->lightingOrigin, gun.lightingOrigin);
 	gun.shadowPlane = parent->shadowPlane;
 	gun.renderfx = parent->renderfx;
+	gun.noShadowID = parent->noShadowID;
 
 	// set custom shading for railgun refire rate
 	if(ps)
@@ -1496,6 +1497,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		VectorCopy(parent->lightingOrigin, barrel.lightingOrigin);
 		barrel.shadowPlane = parent->shadowPlane;
 		barrel.renderfx = parent->renderfx;
+		barrel.noShadowID = parent->noShadowID;
 
 		barrel.hModel = weapon->barrelModel;
 		angles[YAW] = 0;
@@ -1538,6 +1540,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	VectorCopy(parent->lightingOrigin, flash.lightingOrigin);
 	flash.shadowPlane = parent->shadowPlane;
 	flash.renderfx = parent->renderfx;
+	flash.noShadowID = parent->noShadowID;
 
 	flash.hModel = weapon->flashModel;
 	if(!flash.hModel)

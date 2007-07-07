@@ -56,6 +56,10 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			iaType = IA_LIGHTONLY;
 	}
 
+	// avoid drawing of certain objects
+	if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))
+		return;
+
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bModel = pModel->bmodel;
 

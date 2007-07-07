@@ -1243,3 +1243,22 @@ void CG_AddPacketEntities(void)
 		CG_AddCEntity(cent);
 	}
 }
+
+/*
+===============
+CG_UniqueNoShadowID
+===============
+*/
+int CG_UniqueNoShadowID(void)
+{
+	static int noShadowID = 1;
+
+	noShadowID++;
+
+	if(!noShadowID)
+	{
+		noShadowID = 1;
+	}
+
+	return noShadowID;
+}

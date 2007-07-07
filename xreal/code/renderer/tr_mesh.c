@@ -359,6 +359,10 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			iaType = IA_LIGHTONLY;
 	}
 
+	// avoid drawing of certain objects
+	if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))
+		return;
+
 	// don't add third_person objects if not in a portal
 	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
 
