@@ -104,19 +104,6 @@ void            CL_ServerStatus_f(void);
 void            CL_ServerStatusResponse(netadr_t from, msg_t * msg);
 
 /*
-===============
-CL_CDDialog
-
-Called by Com_Error when a cd is needed
-===============
-*/
-void CL_CDDialog(void)
-{
-	cls.cddialog = qtrue;		// start it next frame
-}
-
-
-/*
 =======================================================================
 
 CLIENT RELIABLE COMMAND COMMUNICATION
@@ -2186,13 +2173,7 @@ void CL_Frame(int msec)
 		return;
 	}
 
-	if(cls.cddialog)
-	{
-		// bring up the cd error dialog if needed
-		cls.cddialog = qfalse;
-		VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD);
-	}
-	else if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !com_sv_running->integer)
+	if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !com_sv_running->integer)
 	{
 		// if disconnected, bring up the menu
 		S_StopAllSounds();

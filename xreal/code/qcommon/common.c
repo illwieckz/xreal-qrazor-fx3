@@ -245,7 +245,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	int             currentTime;
 
 #if defined(_MSC_VER) && defined(_DEBUG)
-	if(code != ERR_DISCONNECT && code != ERR_NEED_CD)
+	if(code != ERR_DISCONNECT)
 	{
 		if(com_noErrorInterrupt && !com_noErrorInterrupt->integer)
 		{
@@ -292,7 +292,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	vsprintf(com_errorMessage, fmt, argptr);
 	va_end(argptr);
 
-	if(code != ERR_DISCONNECT && code != ERR_NEED_CD)
+	if(code != ERR_DISCONNECT)
 	{
 		Cvar_Set("com_errorMessage", com_errorMessage);
 	}
@@ -311,22 +311,6 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 		CL_Disconnect(qtrue);
 		CL_FlushMemory();
 		com_errorEntered = qfalse;
-		longjmp(abortframe, -1);
-	}
-	else if(code == ERR_NEED_CD)
-	{
-		SV_Shutdown("Server didn't have CD\n");
-		if(com_cl_running && com_cl_running->integer)
-		{
-			CL_Disconnect(qtrue);
-			CL_FlushMemory();
-			com_errorEntered = qfalse;
-			CL_CDDialog();
-		}
-		else
-		{
-			Com_Printf("Server didn't have CD\n");
-		}
 		longjmp(abortframe, -1);
 	}
 	else
@@ -2384,7 +2368,7 @@ static void Com_PrintQuat(const quat_t q)
 
 static void Com_MathTest_f(void)
 {
-	matrix_t        m, m2;
+	matrix_t        m; //, m2;
 
 	Com_Printf("...matrices\n");
 	
@@ -2627,9 +2611,6 @@ Writes key bindings and archived cvars to config file if modified
 */
 void Com_WriteConfiguration(void)
 {
-#ifndef DEDICATED				// bk001204
-	cvar_t         *fs;
-#endif
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
 	if(!com_fullyInitialized)
