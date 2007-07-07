@@ -287,9 +287,6 @@ typedef struct
 	int             numfavoriteservers;
 	serverInfo_t    favoriteServers[MAX_OTHER_SERVERS];
 
-	int             nummplayerservers;
-	serverInfo_t    mplayerServers[MAX_OTHER_SERVERS];
-
 	int             pingUpdateSource;	// source currently pinging or updating
 
 	int             masterNum;
@@ -390,9 +387,8 @@ int             CL_GetPingQueueCount(void);
 
 void            CL_ShutdownRef(void);
 void            CL_InitRef(void);
-qboolean        CL_CDKeyValidate(const char *key, const char *checksum);
-int             CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen);
 
+int             CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen);
 
 //
 // cl_input

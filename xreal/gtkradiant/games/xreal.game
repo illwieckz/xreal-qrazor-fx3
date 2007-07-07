@@ -3,7 +3,7 @@
   type="xreal"
   index="1"
   name="XreaL - Map Version 2"
-  enginepath_win32="C:/Program Files/XreaL/"
+  enginepath_win32="D:/Games/XreaL_testing"
   enginepath_linux="/opt/XreaL/"
   enginepath_macos="/opt/XreaL/"
   engine_win32="xreal.exe"

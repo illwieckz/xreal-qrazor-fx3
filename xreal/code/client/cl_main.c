@@ -1826,11 +1826,6 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 		cls.numGlobalServerAddresses = 0;
 	}
 
-	if(cls.nummplayerservers == -1)
-	{
-		cls.nummplayerservers = 0;
-	}
-
 	// parse through server response string
 	numservers = 0;
 	buffptr = msg->data;
@@ -1884,21 +1879,13 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 		}
 	}
 
-	if(cls.masterNum == 0)
-	{
-		count = cls.numglobalservers;
-		max = MAX_GLOBAL_SERVERS;
-	}
-	else
-	{
-		count = cls.nummplayerservers;
-		max = MAX_OTHER_SERVERS;
-	}
+	count = cls.numglobalservers;
+	max = MAX_GLOBAL_SERVERS;
 
 	for(i = 0; i < numservers && count < max; i++)
 	{
 		// build net address
-		serverInfo_t   *server = (cls.masterNum == 0) ? &cls.globalServers[count] : &cls.mplayerServers[count];
+		serverInfo_t   *server = &cls.globalServers[count];
 
 		CL_InitServerInfo(server, &addresses[i]);
 		// advance to next slot
@@ -1906,36 +1893,25 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 	}
 
 	// if getting the global list
-	if(cls.masterNum == 0)
+	if(cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS)
 	{
-		if(cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS)
+		// if we couldn't store the servers in the main list anymore
+		for(; i < numservers && count >= max; i++)
 		{
-			// if we couldn't store the servers in the main list anymore
-			for(; i < numservers && count >= max; i++)
-			{
-				serverAddress_t *addr;
+			serverAddress_t *addr;
 
-				// just store the addresses in an additional list
-				addr = &cls.globalServerAddresses[cls.numGlobalServerAddresses++];
-				addr->ip[0] = addresses[i].ip[0];
-				addr->ip[1] = addresses[i].ip[1];
-				addr->ip[2] = addresses[i].ip[2];
-				addr->ip[3] = addresses[i].ip[3];
-				addr->port = addresses[i].port;
-			}
+			// just store the addresses in an additional list
+			addr = &cls.globalServerAddresses[cls.numGlobalServerAddresses++];
+			addr->ip[0] = addresses[i].ip[0];
+			addr->ip[1] = addresses[i].ip[1];
+			addr->ip[2] = addresses[i].ip[2];
+			addr->ip[3] = addresses[i].ip[3];
+			addr->port = addresses[i].port;
 		}
 	}
 
-	if(cls.masterNum == 0)
-	{
-		cls.numglobalservers = count;
-		total = count + cls.numGlobalServerAddresses;
-	}
-	else
-	{
-		cls.nummplayerservers = count;
-		total = count;
-	}
+	cls.numglobalservers = count;
+	total = count + cls.numGlobalServerAddresses;
 
 	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
 }
@@ -2798,14 +2774,6 @@ static void CL_SetServerInfoByAddress(netadr_t from, const char *info, int ping)
 		}
 	}
 
-	for(i = 0; i < MAX_OTHER_SERVERS; i++)
-	{
-		if(NET_CompareAdr(from, cls.mplayerServers[i].adr))
-		{
-			CL_SetServerInfo(&cls.mplayerServers[i], info, ping);
-		}
-	}
-
 	for(i = 0; i < MAX_GLOBAL_SERVERS; i++)
 	{
 		if(NET_CompareAdr(from, cls.globalServers[i].adr))
@@ -3233,20 +3201,19 @@ void CL_GlobalServers_f(void)
 
 	cls.masterNum = atoi(Cmd_Argv(1));
 
-	Com_Printf("Requesting servers from the master...\n");
-
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
-
-	if(cls.masterNum == 1)
+	if(cls.masterNum == 0)
 	{
+		Com_Printf("Requesting servers from the Primary Master Server..\n");
 		NET_StringToAdr(MASTER_SERVER_NAME, &to);
-		cls.nummplayerservers = -1;
-		cls.pingUpdateSource = AS_MPLAYER;
+		cls.numglobalservers = -1;
+		cls.pingUpdateSource = AS_GLOBAL;
 	}
 	else
 	{
-		NET_StringToAdr(MASTER_SERVER_NAME, &to);
+		Com_Printf("Requesting servers from the Secondary Master Server..\n");
+		NET_StringToAdr(MASTER_SERVER_NAME, &to); // FIXME: add second master server define (maybe for lan tests?)
 		cls.numglobalservers = -1;
 		cls.pingUpdateSource = AS_GLOBAL;
 	}
@@ -3506,10 +3473,6 @@ qboolean CL_UpdateVisiblePings_f(int source)
 				server = &cls.localServers[0];
 				max = cls.numlocalservers;
 				break;
-			case AS_MPLAYER:
-				server = &cls.mplayerServers[0];
-				max = cls.nummplayerservers;
-				break;
 			case AS_GLOBAL:
 				server = &cls.globalServers[0];
 				max = cls.numglobalservers;
@@ -3651,80 +3614,4 @@ CL_ShowIP_f
 void CL_ShowIP_f(void)
 {
 	Sys_ShowIP();
-}
-
-/*
-=================
-CL_CDKeyValidate
-=================
-*/
-qboolean CL_CDKeyValidate(const char *key, const char *checksum)
-{
-#if 0
-	char            ch;
-	byte            sum;
-	char            chs[3];
-	int             i, len;
-
-	len = strlen(key);
-	if(len != CDKEY_LEN)
-	{
-		return qfalse;
-	}
-
-	if(checksum && strlen(checksum) != CDCHKSUM_LEN)
-	{
-		return qfalse;
-	}
-
-	sum = 0;
-	// for loop gets rid of conditional assignment warning
-	for(i = 0; i < len; i++)
-	{
-		ch = *key++;
-		if(ch >= 'a' && ch <= 'z')
-		{
-			ch -= 32;
-		}
-		switch (ch)
-		{
-			case '2':
-			case '3':
-			case '7':
-			case 'A':
-			case 'B':
-			case 'C':
-			case 'D':
-			case 'G':
-			case 'H':
-			case 'J':
-			case 'L':
-			case 'P':
-			case 'R':
-			case 'S':
-			case 'T':
-			case 'W':
-				sum += ch;
-				continue;
-			default:
-				return qfalse;
-		}
-	}
-
-	sprintf(chs, "%02x", sum);
-
-	if(checksum && !Q_stricmp(chs, checksum))
-	{
-		return qtrue;
-	}
-
-	if(!checksum)
-	{
-		return qtrue;
-	}
-
-	return qfalse;
-#else
-	return qtrue;
-#endif
 }

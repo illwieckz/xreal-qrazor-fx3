@@ -1040,9 +1040,7 @@ void UI_Cache_f(void)
 //  UI_LoadConfig_Cache();
 //  UI_SaveConfigMenu_Cache();
 	UI_BotSelectMenu_Cache();
-	UI_CDKeyMenu_Cache();
 	UI_ModsMenu_Cache();
-
 }
 
 
@@ -1099,12 +1097,6 @@ qboolean UI_ConsoleCommand(int realTime)
 	if(Q_stricmp(cmd, "iamamonkey") == 0)
 	{
 		UI_SPUnlockMedals_f();
-		return qtrue;
-	}
-
-	if(Q_stricmp(cmd, "ui_cdkey") == 0)
-	{
-		UI_CDKeyMenu_f();
 		return qtrue;
 	}
 
