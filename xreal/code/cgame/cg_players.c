@@ -642,8 +642,8 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	char            filename[MAX_QPATH];
 	int             frameRate;
 	
-	Com_sprintf(filename, sizeof(filename), "models/players/animations/%s.md5anim", animName);
-	//Com_sprintf(filename, sizeof(filename), "models/players/%s/%s.md5anim", modelName, animName);
+	//Com_sprintf(filename, sizeof(filename), "models/players/animations/%s.md5anim", animName);
+	Com_sprintf(filename, sizeof(filename), "models/players/%s/%s.md5anim", modelName, animName);
 	ci->animations[anim].handle = trap_R_RegisterAnimation(filename);
 	if(!ci->animations[anim].handle)
 	{
@@ -739,6 +739,8 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		
 		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "machinegun_fire", qfalse, qfalse, qfalse);
 		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "gauntlet_fire", qfalse, qfalse, qfalse);
+
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2, "gauntlet_aim", qfalse, qfalse, qfalse);
 
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_walk_forward", qtrue, qfalse, qtrue);
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue);
