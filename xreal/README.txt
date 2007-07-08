@@ -9,7 +9,7 @@ COMPILING ON WIN32
 COMPILING ON GNU/LINUX
 COMPILING ON MAC
 LICENSE
-
+USING HTTP/FTP DOWNLOAD SUPPORT
 
 GENERAL NOTES
 =============
@@ -44,8 +44,10 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 5. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
 6. Download http://xreal.varcache.org/STLport-5.0.2.7z
 	and extract it to XreaL/code/.
+7. Download libcURL from http://curl.hoxt.com/download/libcurl-7.15.5-win32-msvc.zip
+	and extract it to C:\libcURL
 	
-7. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+8. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\include
 	C:\Program Files\Microsoft Platform SDK\include\mfc
@@ -61,14 +63,16 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	C:\GTK\include\atk-1.0
 	C:\GTK\include\gtkglext-1.0
 	C:\GTK\lib\gtkglext-1.0\include
+	C:\libcURL\include
 
-8. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+9. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\lib
 	C:\Program Files\Microsoft DirectX SDK (April 2007)\lib\x86
 	C:\GTK\lib
+	C:\libcURL
 
-9. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
+10. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
 	XreaL/code/xreal.sln
 	XreaL/code/gtkradiant/GtkRadiant.sln
 	XreaL/code/xmap/xmap.sln
@@ -86,10 +90,11 @@ COMPILING ON WIN32 WITH MINGW
 	and copy it over the existing C:\MingW\include\GL\glext.h.
 4. Download and install Python from http://www.python.org/.
 5. Download and install SCons from http://www.scons.org/.
-6. Add the Python installation directory to the system variable %PATH%
-7. Download and install Gtk+ 2.10.7 development environment from http://gladewin32.sourceforge.net
-8. Set the system variable: PKG_CONFIG_PATH to %GTK_BASEPATH%\lib\pkgconfig
-9. Compile XreaL:
+6. Download and install libcURL from http://curl.haxx.se/.
+7. Add the Python installation directory to the system variable %PATH%
+8. Download and install Gtk+ 2.10.7 development environment from http://gladewin32.sourceforge.net
+9. Set the system variable: PKG_CONFIG_PATH to %GTK_BASEPATH%\lib\pkgconfig
+10. Compile XreaL:
 	>scons arch=win32-mingw
 
 
@@ -112,3 +117,39 @@ LICENSE
 =======
 
 See COPYING.txt for all the legal stuff.
+
+
+USING HTTP/FTP DOWNLOAD SUPPORT
+===============================
+
+You can enable redirected downloads on your server by using the 'sets'
+command to put the sv_dlURL cvar into your SERVERINFO string and
+ensure sv_allowDownloads is set to 1.
+ 
+sv_dlURL is the base of the URL that contains your custom .pk3 files
+the client will append both fs_game and the filename to the end of
+this value.  For example, if you have sv_dlURL set to
+"http://xreal.sourceforge.net/", fs_game is "base", and the client is
+missing "test.pk3", it will attempt to download from the URL
+"http://xreal.sourceforge.net/base/test.pk3"
+
+sv_allowDownload's value is now a bitmask made up of the following
+flags:
+    1 - ENABLE
+    2 - do not use HTTP/FTP downloads
+    4 - do not use UDP downloads
+    8 - do not ask the client to disconnect when using HTTP/FTP
+
+Server operators who are concerned about potential "leeching" from their
+HTTP servers from other XreaL servers can make use of the HTTP_REFERER
+that XreaL sets which is "XreaL://{SERVER_IP}:{SERVER_PORT}".  For,
+example, Apache's mod_rewrite can restrict access based on HTTP_REFERER. 
+
+Simply setting cl_allowDownload to 1 will enable HTTP/FTP downloads on 
+the clients side assuming XreaL was compiled with USE_CURL=1.
+Like sv_allowDownload, cl_allowDownload also uses a bitmask value
+supporting the following flags:
+    1 - ENABLE
+    2 - do not use HTTP/FTP downloads
+    4 - do not use UDP downloads
+

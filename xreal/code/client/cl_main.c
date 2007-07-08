@@ -646,11 +646,17 @@ CL_ShutdownAll
 */
 void CL_ShutdownAll(void)
 {
+#if USE_CURL
+	// shutdown the curl library
+	CL_cURL_Shutdown();
+#endif
 
 	// clear sounds
 	S_DisableSounds();
+
 	// shutdown CGame
 	CL_ShutdownCGame();
+
 	// shutdown UI
 	CL_ShutdownUI();
 
@@ -1433,7 +1439,6 @@ void CL_Clientinfo_f(void)
 	Com_Printf("--------------------------------------\n");
 }
 
-
 //====================================================================
 
 /*
@@ -1445,6 +1450,25 @@ Called when all downloading has been completed
 */
 void CL_DownloadsComplete(void)
 {
+#if USE_CURL
+	// if we downloaded with curl
+	if(clc.cURLUsed)
+	{ 
+		clc.cURLUsed = qfalse;
+		CL_cURL_Shutdown();
+		if(clc.cURLDisconnected)
+		{
+			if(clc.downloadRestart)
+			{
+				FS_Restart(clc.checksumFeed);
+				clc.downloadRestart = qfalse;
+			}
+			clc.cURLDisconnected = qfalse;
+			CL_Reconnect_f();
+			return;
+		}
+	}
+#endif
 
 	// if we downloaded files we need to restart the file system
 	if(clc.downloadRestart)
@@ -1505,7 +1529,6 @@ game directory.
 */
 void CL_BeginDownload(const char *localName, const char *remoteName)
 {
-
 	Com_DPrintf("***** CL_BeginDownload *****\n"
 				"Localname: %s\n" "Remotename: %s\n" "****************************\n", localName, remoteName);
 
@@ -1535,6 +1558,7 @@ void CL_NextDownload(void)
 {
 	char           *s;
 	char           *remoteName, *localName;
+	qboolean		useCURL = qfalse;
 
 	// We are looking to start a download here
 	if(*clc.downloadList)
@@ -1561,13 +1585,52 @@ void CL_NextDownload(void)
 		else
 			s = localName + strlen(localName);	// point at the nul byte
 
-		CL_BeginDownload(localName, remoteName);
+#if USE_CURL
+		if(!(cl_allowDownload->integer & DLF_NO_REDIRECT))
+		{
+			if(clc.sv_allowDownload & DLF_NO_REDIRECT)
+			{
+				Com_Printf("WARNING: server does not allow download redirection (sv_allowDownload is %d)\n",
+					clc.sv_allowDownload);
+			}
+			else if(!*clc.sv_dlURL)
+			{
+				Com_Printf("WARNING: server allows download redirection, but does not have sv_dlURL set\n");
+			}
+			else if(!CL_cURL_Init())
+			{
+				Com_Printf("WARNING: could not load cURL library\n");
+			}
+			else
+			{
+				CL_cURL_BeginDownload(localName, va("%s/%s", clc.sv_dlURL, remoteName));
+				useCURL = qtrue;
+			}
+		}
+		else if(!(clc.sv_allowDownload & DLF_NO_REDIRECT))
+		{
+			Com_Printf("WARNING: server allows download redirection, but it disabled by client "
+				"configuration (cl_allowDownload is %d)\n",	cl_allowDownload->integer);
+		}
+#endif /* USE_CURL */
+		if(!useCURL)
+		{	
+			if((cl_allowDownload->integer & DLF_NO_UDP))
+			{
+				Com_Error(ERR_DROP, "UDP Downloads are disabled on your client. (cl_allowDownload is %d)",
+					cl_allowDownload->integer);
+				return;	
+			}
+			else
+			{
+				CL_BeginDownload(localName, remoteName);
+			}
+		}
 
 		clc.downloadRestart = qtrue;
 
 		// move over the rest
 		memmove(clc.downloadList, s, strlen(s) + 1);
-
 		return;
 	}
 
@@ -1586,7 +1649,7 @@ void CL_InitDownloads(void)
 {
 	char            missingfiles[1024];
 
-	if(!cl_allowDownload->integer)
+	if(!(cl_allowDownload->integer & DLF_ENABLE))
 	{
 		// autodownload is disabled on the client
 		// but it's possible that some referenced files on the server are missing
@@ -2130,13 +2193,11 @@ void CL_CheckTimeout(void)
 	}
 }
 
-
 //============================================================================
 
 /*
 ==================
 CL_CheckUserinfo
-
 ==================
 */
 void CL_CheckUserinfo(void)
@@ -2163,7 +2224,6 @@ void CL_CheckUserinfo(void)
 /*
 ==================
 CL_Frame
-
 ==================
 */
 void CL_Frame(int msec)
@@ -2172,6 +2232,27 @@ void CL_Frame(int msec)
 	{
 		return;
 	}
+
+#if USE_CURL
+	if(clc.downloadCURLM)
+	{
+		CL_cURL_PerformDownload();
+		// we can't process frames normally when in disconnected
+		// download mode since the ui vm expects cls.state to be
+		// CA_CONNECTED
+		if(clc.cURLDisconnected)
+		{
+			cls.realFrametime = msec;
+			cls.frametime = msec;
+			cls.realtime += cls.frametime;
+			SCR_UpdateScreen();
+			S_Update();
+			Con_RunConsole();
+			cls.framecount++;
+			return;
+		}
+	}
+#endif
 
 	if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !com_sv_running->integer)
 	{

@@ -9,6 +9,7 @@ xreal_src = [
 'code/client/cl_cgame.c',
 'code/client/cl_cin.c',
 'code/client/cl_console.c',
+'code/client/cl_curl.c',
 'code/client/cl_input.c',
 'code/client/cl_keys.c',
 'code/client/cl_main.c',
@@ -228,6 +229,10 @@ xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 
 if env['purevm'] == 1:
 	xreal_env.Append(CCFLAGS='-DVM_SV_PURE')
+	
+if env['curl'] == 1:
+	xreal_env.Append(CCFLAGS='-DUSE_CURL')
+	xreal_env.Append(LIBS='curl')
 
 if env['arch'] == 'linux-i386':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')

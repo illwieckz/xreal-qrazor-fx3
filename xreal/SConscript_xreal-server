@@ -86,6 +86,9 @@ xreal_server_env.Append(CCFLAGS='-DDEDICATED')
 if env['purevm'] == 1:
 	xreal_server_env.Append(CCFLAGS='-DVM_SV_PURE')
 
+if env['curl'] == 1:
+	xreal_server_env.Append(CCFLAGS='-DUSE_CURL')
+
 if env['arch'] == 'linux-i386':
 	if env['qvm'] == 1:
 		vm_src += ['code/qcommon/vm_x86.c']

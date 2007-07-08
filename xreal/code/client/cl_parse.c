@@ -89,7 +89,6 @@ void CL_DeltaEntity(msg_t * msg, clSnapshot_t * frame, int newnum, entityState_t
 /*
 ==================
 CL_ParsePacketEntities
-
 ==================
 */
 void CL_ParsePacketEntities(msg_t * msg, clSnapshot_t * oldframe, clSnapshot_t * newframe)
@@ -362,7 +361,6 @@ void CL_ParseSnapshot(msg_t * msg)
 	cl.newSnapshots = qtrue;
 }
 
-
 //=====================================================================
 
 int             cl_connectedToPureServer;
@@ -388,7 +386,7 @@ void CL_SystemInfoChanged(void)
 	// NOTE TTimo:
 	// when the serverId changes, any further messages we send to the server will use this new serverId
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=475
-	// in some cases, outdated cp commands might get sent with this news serverId
+	// in some cases, outdated cp commands might get sent with this new serverId
 	cl.serverId = atoi(Info_ValueForKey(systemInfo, "sv_serverid"));
 
 	// don't set any vars when playing a demo
@@ -436,6 +434,22 @@ void CL_SystemInfoChanged(void)
 		Cvar_Set("fs_game", "");
 	}
 	cl_connectedToPureServer = Cvar_VariableValue("sv_pure");
+}
+
+/*
+==================
+CL_ParseServerInfo
+==================
+*/
+static void CL_ParseServerInfo(void)
+{
+	const char *serverInfo;
+
+	serverInfo = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
+
+	clc.sv_allowDownload = atoi(Info_ValueForKey(serverInfo, "sv_allowDownload"));
+
+	Q_strncpyz(clc.sv_dlURL, Info_ValueForKey(serverInfo, "sv_dlURL"), sizeof(clc.sv_dlURL));
 }
 
 /*
@@ -516,6 +530,9 @@ void CL_ParseGamestate(msg_t * msg)
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong(msg);
 
+	// parse useful values out of CS_SERVERINFO
+	CL_ParseServerInfo();
+
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
 
@@ -529,7 +546,6 @@ void CL_ParseGamestate(msg_t * msg)
 	// make sure the game starts
 	Cvar_Set("cl_paused", "0");
 }
-
 
 //=====================================================================
 
@@ -659,7 +675,6 @@ void CL_ParseCommandString(msg_t * msg)
 	Q_strncpyz(clc.serverCommands[index], s, sizeof(clc.serverCommands[index]));
 }
 
-
 /*
 =====================
 CL_ParseServerMessage
@@ -682,15 +697,13 @@ void CL_ParseServerMessage(msg_t * msg)
 
 	// get the reliable sequence acknowledge number
 	clc.reliableAcknowledge = MSG_ReadLong(msg);
-	// 
+
 	if(clc.reliableAcknowledge < clc.reliableSequence - MAX_RELIABLE_COMMANDS)
 	{
 		clc.reliableAcknowledge = clc.reliableSequence;
 	}
 
-	//
 	// parse the message
-	//
 	while(1)
 	{
 		if(msg->readcount > msg->cursize)

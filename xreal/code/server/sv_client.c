@@ -838,10 +838,11 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 
 		Com_Printf("clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName);
 
-		if(!sv_allowDownload->integer || (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) <= 0)
+		if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP) ||
+			(cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) <= 0)
 		{
 			// cannot auto-download file
-			if(!sv_allowDownload->integer)
+			if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP))
 			{
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
 				if(sv_pure->integer)
@@ -1019,7 +1020,6 @@ If we are pure, disconnect the client if they do no meet the following condition
 2. there are no any additional checksums that we do not have
 
 This routine would be a bit simpler with a goto but i abstained
-
 =================
 */
 static void SV_VerifyPaks_f(client_t * cl)

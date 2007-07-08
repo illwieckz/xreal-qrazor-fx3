@@ -20,6 +20,7 @@ opts.Add(BoolOption('mapping', 'Set to 1 to compile GtkRadiant, XMap and BSPC ma
 #opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 opts.Add(BoolOption('freetype', 'Set to 1 to compile engine with FreeType 2.x support', 0))
 opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
+opts.Add(BoolOption('curl', 'Set to 1 to compile engine with http-download redirection support', 1))
 
 #
 # initialize compiler environment base
@@ -66,7 +67,6 @@ if env['simd'] == 'sse':
 	env.Append(CCFLAGS = '-DSIMD_SSE')
 elif env['simd'] == '3dnow':
 	env.Append(CCFLAGS = '-DSIMD_3DNOW')
-
 
 conf = Configure(env)
 env = conf.Finish()

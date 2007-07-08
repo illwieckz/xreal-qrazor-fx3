@@ -13,6 +13,7 @@ Ryan C. Gordon "icculus" - Linux SDL sound backend
 Stuart Dalton - Ogg Vorbis support
 Joerg Dietrich - Ogg Vorbis support
 Andrew Tridgell - MD4 checksum GPL code
+Tony J. White - libcURL http-download redirection support
 ensiform - console clock enhancements
 Berserk - ASElib color support
 
