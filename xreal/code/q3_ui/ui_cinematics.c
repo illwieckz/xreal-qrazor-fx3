@@ -103,7 +103,7 @@ static void UI_CinematicsMenu_Event( void *ptr, int event ) {
 
 	n = ((menucommon_s*)ptr)->id - ID_CIN_IDLOGO;
 	trap_Cvar_Set( "nextmap", va( "ui_cinematics %i", n ) );
-	if( uis.demoversion && ((menucommon_s*)ptr)->id == ID_CIN_END ) {
+	if( ((menucommon_s*)ptr)->id == ID_CIN_END ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect; cinematic demoEnd.RoQ 1\n" );
 	}
 	else {
@@ -169,9 +169,6 @@ static void UI_CinematicsMenu_Init( void ) {
 	cinematicsMenuInfo.cin_intro.string				= "INTRO";
 	cinematicsMenuInfo.cin_intro.color				= color_red;
 	cinematicsMenuInfo.cin_intro.style				= UI_CENTER;
-	if( uis.demoversion ) {
-		cinematicsMenuInfo.cin_intro.generic.flags |= QMF_GRAYED;
-	}
 
 	y += VERTICAL_SPACING;
 	cinematicsMenuInfo.cin_tier1.generic.type		= MTYPE_PTEXT;

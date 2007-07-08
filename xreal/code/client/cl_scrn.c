@@ -471,8 +471,8 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 	re.BeginFrame(stereoFrame);
 
 	// wide aspect ratio screens need to have the sides cleared
-	// unless they are displaying game renderings
-	if(cls.state != CA_ACTIVE)
+	// unless they are displaying game renderings or cinematics
+	if(cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC)
 	{
 		if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640)
 		{

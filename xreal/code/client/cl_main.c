@@ -224,10 +224,7 @@ void CL_DemoFilename(int number, char *fileName)
 	int             a, b, c, d;
 
 	if(number < 0 || number > 9999)
-	{
-		Com_sprintf(fileName, MAX_OSPATH, "demo9999.tga");
-		return;
-	}
+		number = 9999;
 
 	a = number / 1000;
 	number -= a * 1000;
@@ -283,7 +280,7 @@ void CL_Record_f(void)
 	}
 
 	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
-	if(!Cvar_VariableValue("g_synchronousClients"))
+	if(NET_IsLocalAddress(clc.serverAddress) && !Cvar_VariableValue("g_synchronousClients"))
 	{
 		Com_Printf(S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
 	}
@@ -304,16 +301,12 @@ void CL_Record_f(void)
 			CL_DemoFilename(number, demoName);
 			Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
 
-			len = FS_ReadFile(name, NULL);
-			if(len <= 0)
-			{
+			if(!FS_FileExists(name))
 				break;			// file doesn't exist
-			}
 		}
 	}
 
 	// open the demo file
-
 	Com_Printf("recording to %s.\n", name);
 	clc.demofile = FS_FOpenFileWrite(name);
 	if(!clc.demofile)
@@ -330,7 +323,6 @@ void CL_Record_f(void)
 	{
 		clc.spDemoRecording = qfalse;
 	}
-
 
 	Q_strncpyz(clc.demoName, demoName, sizeof(clc.demoName));
 
@@ -534,7 +526,8 @@ void CL_PlayDemo_f(void)
 	}
 
 	// make sure a local server is killed
-	Cvar_Set("sv_killserver", "1");
+	// 2 means don't force disconnect of local client
+	Cvar_Set("sv_killserver", "2");
 
 	CL_Disconnect(qtrue);
 
@@ -1149,7 +1142,7 @@ void CL_Connect_f(void)
 	if(com_sv_running->integer && !strcmp(server, "localhost"))
 	{
 		// if running a local server, kill it
-		SV_Shutdown("Server quit\n");
+		SV_Shutdown("Server quit");
 	}
 
 	// make sure a local server is killed
@@ -1304,22 +1297,28 @@ void CL_Vid_Restart_f(void)
 {
 	// settings may have changed so stop recording now
 	if(CL_VideoRecording())
-	{
 		CL_CloseAVI();
-	}
+	if(clc.demorecording)
+		CL_StopRecord_f();
 
 	// don't let them loop during the restart
 	S_StopAllSounds();
+
 	// shutdown the UI
 	CL_ShutdownUI();
+
 	// shutdown the CGame
 	CL_ShutdownCGame();
+
 	// shutdown the renderer and clear the renderer interface
 	CL_ShutdownRef();
+
 	// client is no longer pure untill new checksums are sent
 	CL_ResetPureClientAtServer();
+
 	// clear pak references
 	FS_ClearPakReferences(FS_UI_REF | FS_CGAME_REF);
+
 	// reinitialize the filesystem if the game directory or checksum has changed
 	FS_ConditionalRestart(clc.checksumFeed);
 
@@ -1353,7 +1352,9 @@ void CL_Vid_Restart_f(void)
 	if(cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC)
 	{
 		cls.cgameStarted = qtrue;
+
 		CL_InitCGame();
+
 		// send pure checksums
 		CL_SendPureChecksums();
 	}
@@ -2551,6 +2552,12 @@ void CL_Video_f(void)
 	char            filename[MAX_OSPATH];
 	int             i, last;
 
+	if(!clc.demoplaying)
+	{
+		Com_Printf("The video command can only be used when playing back demos\n");
+		return;
+	}
+
 	if(Cmd_Argc() == 2)
 	{
 		// explicit filename
@@ -2751,12 +2758,15 @@ void CL_Init(void)
 /*
 ===============
 CL_Shutdown
-
 ===============
 */
 void CL_Shutdown(void)
 {
 	static qboolean recursive = qfalse;
+
+	// check whether the client is running at all.
+	if(!(com_cl_running && com_cl_running->integer))
+		return;
 
 	Com_Printf("----- CL_Shutdown -----\n");
 

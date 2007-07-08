@@ -501,6 +501,10 @@ void            Cvar_VariableStringBuffer(const char *var_name, char *buffer, in
 
 // returns an empty string if not defined
 
+int				Cvar_Flags(const char *var_name);
+
+// returns CVAR_NONEXISTENT if cvar doesn't exist or the flags of that particular CVAR.
+
 void            Cvar_CommandCompletion(void (*callback) (const char *s));
 
 // callback with each valid string
@@ -695,6 +699,7 @@ void            FS_PureServerSetLoadedPaks(const char *pakSums, const char *pakN
 // separated checksums will be checked for files, with the
 // sole exception of .cfg files.
 
+qboolean		FS_CheckDirTraversal(const char *checkdir);
 qboolean        FS_ComparePaks(char *neededpaks, int len, qboolean dlstring);
 
 void            FS_Rename(const char *from, const char *to);

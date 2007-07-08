@@ -36,6 +36,7 @@ static UINT     MSH_MOUSEWHEEL;
 cvar_t         *vid_xpos;		// X coordinate of window position
 cvar_t         *vid_ypos;		// Y coordinate of window position
 cvar_t         *r_fullscreen;
+cvar_t		   *win_allowAltTab;
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
@@ -47,6 +48,16 @@ static void WIN_DisableAltTab(void)
 {
 	if(s_alttab_disabled)
 		return;
+
+	if(win_allowAltTab->integer)
+	{
+		Com_Printf("Alt-Tab support enabled (win_allowAltTab = 1)\n");
+		return;
+	}
+	else
+	{
+		Com_Printf("Alt-Tab support disabled (win_allowAltTab = 0)\n");
+	}
 
 	if(!Q_stricmp(Cvar_VariableString("arch"), "winnt"))
 	{
@@ -85,8 +96,14 @@ static void WIN_EnableAltTab(void)
 VID_AppActivate
 ==================
 */
+extern void				R_SetColorMappings(void);
+extern void				WG_RestoreGamma(void);
+extern qboolean			GLW_ResetFullScreenMode(void);
+
 static void VID_AppActivate(BOOL fActive, BOOL minimize)
 {
+	BOOL wasMinimized = g_wv.isMinimized;
+
 	g_wv.isMinimized = minimize;
 
 	Com_DPrintf("VID_AppActivate: %i\n", fActive);
@@ -107,10 +124,22 @@ static void VID_AppActivate(BOOL fActive, BOOL minimize)
 	if(!g_wv.activeApp)
 	{
 		IN_Activate(qfalse);
+		if(r_fullscreen->integer)
+		{
+			WG_RestoreGamma();
+			ShowWindow(g_wv.hWnd, SW_MINIMIZE);
+			ChangeDisplaySettings(0, 0);
+		}
 	}
 	else
 	{
 		IN_Activate(qtrue);
+		if(r_fullscreen->integer && wasMinimized)
+		{
+			if(!GLW_ResetFullScreenMode())
+				Cbuf_AddText("vid_restart\n");
+			R_SetColorMappings();
+		}
 	}
 }
 
@@ -302,12 +331,12 @@ LONG WINAPI MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_CREATE:
-
 			g_wv.hWnd = hWnd;
 
 			vid_xpos = Cvar_Get("vid_xpos", "3", CVAR_ARCHIVE);
 			vid_ypos = Cvar_Get("vid_ypos", "22", CVAR_ARCHIVE);
 			r_fullscreen = Cvar_Get("r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH);
+			win_allowAltTab = Cvar_Get("win_allowAltTab", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 			MSH_MOUSEWHEEL = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 			if(r_fullscreen->integer)

@@ -723,7 +723,7 @@ void SV_FinalMessage(char *message)
 				// don't send a disconnect to a local client
 				if(cl->netchan.remoteAddress.type != NA_LOOPBACK)
 				{
-					SV_SendServerCommand(cl, "print \"%s\"", message);
+					SV_SendServerCommand(cl, "print \"%s\n\"\n", message);
 					SV_SendServerCommand(cl, "disconnect");
 				}
 				// force a snapshot to be sent
@@ -777,5 +777,6 @@ void SV_Shutdown(char *finalmsg)
 	Com_Printf("---------------------------\n");
 
 	// disconnect any local clients
-	CL_Disconnect(qfalse);
+	if(sv_killserver->integer != 2)
+		CL_Disconnect(qfalse);
 }

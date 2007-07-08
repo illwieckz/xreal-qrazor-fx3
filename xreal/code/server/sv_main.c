@@ -186,6 +186,10 @@ void QDECL SV_SendServerCommand(client_t * cl, const char *fmt, ...)
 	Q_vsnprintf((char *)message, sizeof(message), fmt, argptr);
 	va_end(argptr);
 
+	// raynorpat: fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
+	if(strlen ((char *)message) > 1022)
+		return;
+
 	if(cl != NULL)
 	{
 		SV_AddServerCommand(cl, (char *)message);
@@ -842,7 +846,7 @@ void SV_Frame(int msec)
 	// the menu kills the server with this cvar
 	if(sv_killserver->integer)
 	{
-		SV_Shutdown("Server was killed.\n");
+		SV_Shutdown("Server was killed.");
 		Cvar_Set("sv_killserver", "0");
 		return;
 	}

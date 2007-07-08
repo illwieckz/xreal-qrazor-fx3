@@ -298,6 +298,13 @@ void CL_ParseSnapshot(msg_t * msg)
 
 	// read areamask
 	len = MSG_ReadByte(msg);
+
+	if(len > sizeof(newSnap.areamask))
+	{
+		Com_Error(ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask.", len);
+		return;
+	}
+
 	MSG_ReadData(msg, &newSnap.areamask, len);
 
 	// read playerinfo
@@ -364,6 +371,7 @@ void CL_ParseSnapshot(msg_t * msg)
 //=====================================================================
 
 int             cl_connectedToPureServer;
+int				cl_connectedToCheatServer;
 
 /*
 ==================
@@ -395,8 +403,10 @@ void CL_SystemInfoChanged(void)
 		return;
 	}
 
+	// check cheats string
 	s = Info_ValueForKey(systemInfo, "sv_cheats");
-	if(atoi(s) == 0)
+	cl_connectedToCheatServer = atoi(s);
+	if(!cl_connectedToCheatServer)
 	{
 		Cvar_SetCheatState();
 	}
@@ -411,28 +421,50 @@ void CL_SystemInfoChanged(void)
 	FS_PureServerSetReferencedPaks(s, t);
 
 	gameSet = qfalse;
+
 	// scan through all the variables in the systeminfo and locally set cvars to match
 	s = systemInfo;
 	while(s)
 	{
+		int cvar_flags;
+
 		Info_NextPair(&s, key, value);
 		if(!key[0])
-		{
 			break;
-		}
+
 		// ehw!
 		if(!Q_stricmp(key, "fs_game"))
 		{
+			if(FS_CheckDirTraversal(value))
+			{
+				Com_Printf(S_COLOR_YELLOW "WARNING: Server sent invalid fs_game value %s\n", value);
+				continue;
+			}
+
 			gameSet = qtrue;
 		}
 
-		Cvar_Set(key, value);
+		if((cvar_flags = Cvar_Flags(key)) == CVAR_NONEXISTENT)
+		{
+			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM);
+		}
+		else
+		{
+			// If this cvar may not be modified by a server discard the value.
+			if(!(cvar_flags & (CVAR_SYSTEMINFO | CVAR_SERVER_CREATED)))
+			{
+				Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+				continue;
+			}
+
+			Cvar_Set(key, value);
+		}
 	}
+
 	// if game folder should not be set and it is set at the client side
 	if(!gameSet && *Cvar_VariableString("fs_game"))
-	{
 		Cvar_Set("fs_game", "");
-	}
+
 	cl_connectedToPureServer = Cvar_VariableValue("sv_pure");
 }
 
@@ -536,6 +568,14 @@ void CL_ParseGamestate(msg_t * msg)
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
 
+	// stop recording now so the demo won't have an unnecessary level load at the end.
+	if(clc.demorecording)
+		CL_StopRecord_f();
+
+	// same goes for AVI recording
+	if(CL_VideoRecording())
+		CL_CloseAVI();
+
 	// reinitialize the filesystem if the game directory has changed
 	FS_ConditionalRestart(clc.checksumFeed);
 
@@ -580,8 +620,14 @@ void CL_ParseDownload(msg_t * msg)
 	}
 
 	size = MSG_ReadShort(msg);
-	if(size > 0)
-		MSG_ReadData(msg, data, size);
+
+	if(size < 0 || size > sizeof(data))
+	{
+		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk.", size);
+		return;
+	}
+
+	MSG_ReadData(msg, data, size);
 
 	if(clc.downloadBlock != block)
 	{
@@ -592,13 +638,6 @@ void CL_ParseDownload(msg_t * msg)
 	// open the file if not opened yet
 	if(!clc.download)
 	{
-		if(!*clc.downloadTempName)
-		{
-			Com_Printf("Server sending download, but no download was requested\n");
-			CL_AddReliableCommand("stopdl");
-			return;
-		}
-
 		clc.download = FS_SV_FOpenFileWrite(clc.downloadTempName);
 
 		if(!clc.download)

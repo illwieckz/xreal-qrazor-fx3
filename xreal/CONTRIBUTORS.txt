@@ -1,4 +1,4 @@
-PROGRAMMING
+﻿PROGRAMMING
 ===========
 Robert "Tr3B" Beckebans - lead programming
 Adrian "otty" Fuhrmann - user interface
@@ -13,7 +13,7 @@ Ryan C. Gordon "icculus" - Linux SDL sound backend
 Stuart Dalton - Ogg Vorbis support
 Joerg Dietrich - Ogg Vorbis support
 Andrew Tridgell - MD4 checksum GPL code
-Tony J. White - libcURL http-download redirection support
+Tony J. White - libcURL http-download redirection support, Win Alt-Tab support
 ensiform - console clock enhancements
 Berserk - ASElib color support
 
@@ -104,4 +104,5 @@ DEVELOPMENT ASSISTANCE
 ======================
 Josef "cnuke" Söntgen - development media mirror and game server
 Mathias "Skynet" Heyer - OpenGL guru
+
 

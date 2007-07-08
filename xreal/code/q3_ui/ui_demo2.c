@@ -248,7 +248,8 @@ static void Demos_MenuInit( void ) {
 		if (!Q_stricmp(demoname +  len - 4,".dm3"))
 			demoname[len-4] = '\0';
 
-		Q_strupr(demoname);
+		// raynorpat: commented out because this breaks demo selection on case sensitive file systems
+		//Q_strupr(demoname);
 
 		demoname += len + 1;
 	}

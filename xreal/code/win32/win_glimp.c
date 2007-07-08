@@ -73,11 +73,10 @@ void            QGL_Shutdown(void);
 
 // variable declarations
 glwstate_t      glw_state;
+static DEVMODE  glw_fs_dm;
 
 cvar_t         *r_allowSoftwareGL;	// don't abort out if the pixelformat claims software
 cvar_t         *r_maskMinidriver;	// allow a different dll name to be treated as if it were opengl32.dll
-
-
 
 /*
 ** GLW_StartDriverAndSetMode
@@ -99,6 +98,17 @@ static qboolean GLW_StartDriverAndSetMode(const char *drivername, int mode, int 
 		default:
 			break;
 	}
+	return qtrue;
+}
+
+qboolean GLW_ResetFullScreenMode( void )
+{
+	if(!glw_fs_dm.dmSize)
+		return qfalse;
+
+	// restore the last working fullscreen DEVMODE 
+	ChangeDisplaySettings(&glw_fs_dm, CDS_FULLSCREEN);
+	GLimp_Init();
 	return qtrue;
 }
 
@@ -579,6 +589,9 @@ static qboolean GLW_CreateWindow(const char *drivername, int width, int height, 
 	int             x, y, w, h;
 	int             exstyle;
 
+	// fullscreen DEVMODE for use with win_allowAltTab 
+	memset(&glw_fs_dm, 0, sizeof(glw_fs_dm));
+
 	// register the window class if necessary
 	if(!s_classRegistered)
 	{
@@ -622,7 +635,7 @@ static qboolean GLW_CreateWindow(const char *drivername, int width, int height, 
 		else
 		{
 			exstyle = 0;
-			stylebits = WINDOW_STYLE | WS_SYSMENU;
+			stylebits = WINDOW_STYLE | WS_SYSMENU | WS_MINIMIZEBOX;
 			AdjustWindowRect(&r, stylebits, FALSE);
 		}
 
@@ -892,6 +905,11 @@ static rserr_t GLW_SetMode(const char *drivername, int mode, int colorbits, qboo
 				}
 			}
 		}
+
+		if(glw_state.cdsFullscreen)
+			memcpy(&glw_fs_dm, &dm, sizeof(glw_fs_dm));
+		else
+			memset(&glw_fs_dm, 0, sizeof(glw_fs_dm));
 	}
 	else
 	{

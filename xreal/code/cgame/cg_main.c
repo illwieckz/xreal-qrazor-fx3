@@ -471,9 +471,6 @@ void QDECL CG_Error(const char *msg, ...)
 	trap_Error(text);
 }
 
-#ifndef CGAME_HARD_LINKED
-// this is only here so the functions in q_shared.c and bg_*.c can link (FIXME)
-
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
@@ -497,8 +494,6 @@ void QDECL Com_Printf(const char *msg, ...)
 
 	CG_Printf("%s", text);
 }
-
-#endif
 
 /*
 ================
@@ -751,7 +746,9 @@ static void CG_RegisterSounds(void)
 	}
 
 	// only register the items that the server says we need
-	strcpy(items, CG_ConfigString(CS_ITEMS));
+	// raynorpat: used to be a standard strcpy, but can be exploited via
+	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
+	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
 	for(i = 1; i < bg_numItems; i++)
 	{
@@ -1039,7 +1036,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.invulnerabilityJuicedModel = trap_R_RegisterModel("models/powerups/shield/juicer.md3");
 	cgs.media.medkitUsageModel = trap_R_RegisterModel("models/powerups/regen.md3");
 	cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/selectedhealth.tga");
-
 #endif
 
 	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3");
@@ -1050,12 +1046,13 @@ static void CG_RegisterGraphics(void)
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
 
-
 	memset(cg_items, 0, sizeof(cg_items));
 	memset(cg_weapons, 0, sizeof(cg_weapons));
 
 	// only register the items that the server says we need
-	strcpy(items, CG_ConfigString(CS_ITEMS));
+	// raynorpat: used to be a standard strcpy, but can be exploited via
+	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
+	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
 	for(i = 1; i < bg_numItems; i++)
 	{
@@ -1966,11 +1963,10 @@ static void CG_RunCinematicFrame(int handle)
 
 /*
 =================
-CG_LoadHudMenu();
-
+CG_LoadHudMenu
 =================
 */
-void CG_LoadHudMenu()
+static void CG_LoadHudMenu(void)
 {
 	char            buff[1024];
 	const char     *hudSet;
@@ -2039,7 +2035,7 @@ void CG_LoadHudMenu()
 	CG_LoadMenus(hudSet);
 }
 
-void CG_AssetCache()
+static void CG_AssetCache(void)
 {
 	//if (Assets.textFont == NULL) {
 	//  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
@@ -2065,6 +2061,7 @@ void CG_AssetCache()
 	cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
 }
 #endif
+
 /*
 =================
 CG_Init
@@ -2103,8 +2100,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cg.weaponSelect = WP_MACHINEGUN;
 
 	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for
-	cgs.flagStatus = -1;
-	// old servers
+	cgs.flagStatus = -1;				// old servers
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig(&cgs.glconfig);

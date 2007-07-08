@@ -45,6 +45,7 @@ static void signal_handler(int sig)	// bk010104 - replace this... (NOTE TTimo hu
 #ifndef DEDICATED
 	GLimp_Shutdown();			// bk010104 - shouldn't this be CL_Shutdown
 #endif
+	SV_Shutdown("Signal caught"); // ensures clients dont hang
 	Sys_Exit(0);				// bk010104 - abstraction NOTE TTimo send a 0 to avoid DOUBLE SIGNAL FAULT
 }
 

@@ -227,17 +227,8 @@ static void Main_MenuDraw(void)
 		Menu_Draw(&s_main.menu);	
 	}
 
-	if(uis.demoversion)
-	{
-		UI_DrawProportionalString( 320, 372, "DEMO      FOR MATURE AUDIENCES      DEMO", UI_CENTER|UI_SMALLFONT, color );
-		//UI_DrawString( 320, 400, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 400, "XreaL(c) 2005-2007, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
-	}
-	else
-	{
-		//UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
-		UI_DrawString( 320, 450, "XreaL(c) 2005-2007, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
-	}
+	//UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+	UI_DrawString( 320, 450, "XreaL(c) 2005-2007, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
 	
 //	UI_DrawHandlePic(0, 0, 640, 480, s_main.bloomShader);
 }

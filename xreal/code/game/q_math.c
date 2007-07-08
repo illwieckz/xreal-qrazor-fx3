@@ -438,7 +438,33 @@ void RotateAroundDirection(vec3_t axis[3], float yaw)
 	CrossProduct(axis[0], axis[1], axis[2]);
 }
 
+/*
+=====================
+Q_acos
 
+the msvc acos doesn't always return a value between -PI and PI:
+
+int i;
+i = 1065353246;
+acos(*(float*) &i) == -1.#IND0
+=====================
+*/
+float Q_acos(float c)
+{
+	float           angle;
+
+	angle = acos(c);
+
+	if(angle > M_PI)
+	{
+		return (float)M_PI;
+	}
+	else if(angle < -M_PI)
+	{
+		return (float)M_PI;
+	}
+	return angle;
+}
 
 void vectoangles(const vec3_t value1, vec3_t angles)
 {
@@ -715,7 +741,7 @@ void SetPlaneSignbits(cplane_t * out)
 
 #if !( (defined __linux__ || __FreeBSD__ || __MINGW32__) && (defined __i386__) && (!defined C_ONLY))	// rb010123
 
-#if defined __LCC__ || defined C_ONLY || !id386 || defined __VECTORC
+#if defined Q3_VM || defined C_ONLY || !id386
 
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {

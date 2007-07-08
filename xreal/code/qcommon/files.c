@@ -2779,7 +2779,6 @@ static void FS_AddGameDirectory(const char *path, const char *dir)
 	char           *pakfile;
 	int             numfiles;
 	char          **pakfiles;
-	char           *sorted[MAX_PAKFILES];
 
 	// this fixes the case where fs_basepath is the same as fs_cdpath
 	// which happens on full installs
@@ -2799,23 +2798,12 @@ static void FS_AddGameDirectory(const char *path, const char *dir)
 
 	pakfiles = Sys_ListFiles(pakfile, ".pk3", NULL, &numfiles, qfalse);
 
-	// sort them so that later alphabetic matches override
-	// earlier ones.  This makes pak1.pk3 override pak0.pk3
-	if(numfiles > MAX_PAKFILES)
-	{
-		numfiles = MAX_PAKFILES;
-	}
-	for(i = 0; i < numfiles; i++)
-	{
-		sorted[i] = pakfiles[i];
-	}
-
-	qsort(sorted, numfiles, sizeof(char *), paksort);
+	qsort(pakfiles, numfiles, sizeof(char*), paksort);
 
 	for(i = 0; i < numfiles; i++)
 	{
-		pakfile = FS_BuildOSPath(path, dir, sorted[i]);
-		if((pak = FS_LoadZipFile(pakfile, sorted[i])) == 0)
+		pakfile = FS_BuildOSPath(path, dir, pakfiles[i]);
+		if((pak = FS_LoadZipFile(pakfile, pakfiles[i])) == 0)
 			continue;
 		// store the game name for downloading
 		strcpy(pak->pakGamename, dir);
@@ -2849,7 +2837,6 @@ Check whether the string contains stuff like "../" to prevent directory traversa
 and return qtrue if it does.
 ================
 */
-
 qboolean FS_CheckDirTraversal(const char *checkdir)
 {
 	if(strstr(checkdir, "../") || strstr(checkdir, "..\\"))
@@ -2999,7 +2986,7 @@ void FS_Shutdown(qboolean closemfp)
 
 	for(i = 0; i < MAX_FILE_HANDLES; i++)
 	{
-		if(fsh[i].fileSize)
+		if(fsh[i].handleFiles.file.o)
 		{
 			FS_FCloseFile(i);
 		}

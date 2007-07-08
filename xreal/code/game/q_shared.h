@@ -170,8 +170,6 @@ float           FloatSwap(const float *f);
 
 #ifdef WIN32
 
-#define	MAC_STATIC
-
 #undef QDECL
 #define	QDECL	__cdecl
 
@@ -231,7 +229,6 @@ static ID_INLINE float BigFloat(const float *l)
 
 #if defined(MACOS_X)
 
-#define MAC_STATIC
 #define __cdecl
 #define __declspec(x)
 #define stricmp strcasecmp
@@ -295,50 +292,13 @@ static inline float LittleFloat(const float l)
 
 #endif
 
-//======================= MAC DEFINES =================================
-
-#ifdef __MACOS__
-
-#include <MacTypes.h>
-#define	MAC_STATIC
-#define ID_INLINE inline
-
-#define	CPUSTRING	"MacOS-PPC"
-
-#define	PATH_SEP ':'
-
-void            Sys_PumpEvents(void);
-
-#define BigShort
-static inline short LittleShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define BigLong
-static inline int LittleLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define BigFloat
-static inline float LittleFloat(const float l)
-{
-	return FloatSwap(&l);
-}
-
-#endif
-
 //======================= LINUX DEFINES =================================
 
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
 #ifdef __linux__
 
 // bk001205 - from Makefile
 #define stricmp strcasecmp
 
-#define	MAC_STATIC				// bk: FIXME
 #define ID_INLINE inline
 
 #ifdef __i386__
@@ -352,14 +312,6 @@ static inline float LittleFloat(const float l)
 #endif
 
 #define	PATH_SEP '/'
-
-// bk001205 - try
-#ifdef Q3_STATIC
-#define	GAME_HARD_LINKED
-#define	CGAME_HARD_LINKED
-#define	UI_HARD_LINKED
-#define	BOTLIB_HARD_LINKED
-#endif
 
 #if !idppc
 inline static short BigShort(short l)
@@ -407,7 +359,6 @@ inline static float LittleFloat(const float *l)
 
 #define stricmp strcasecmp
 
-#define MAC_STATIC
 #define ID_INLINE inline
 
 #ifdef __i386__
@@ -606,13 +557,8 @@ void            Snd_Memset(void *dest, const int val, const size_t count);
 #define Snd_Memset Com_Memset
 #endif
 
-#if !( defined __VECTORC )
-void            Com_Memset(void *dest, const int val, const size_t count);
-void            Com_Memcpy(void *dest, const void *src, const size_t count);
-#else
 #define Com_Memset memset
 #define Com_Memcpy memcpy
-#endif
 
 #define Com_Allocate malloc
 #define Com_Dealloc free
@@ -1413,6 +1359,8 @@ default values.
 #define	CVAR_TEMP			256	// can be set even when cheats are disabled, but is not archived
 #define CVAR_CHEAT			512	// can not be changed if cheats are disabled
 #define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
+#define CVAR_SERVER_CREATED 2048    // cvar was created by a server the client connected to
+#define CVAR_NONEXISTENT	0xFFFFFFFF // cvar doesn't exist
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s

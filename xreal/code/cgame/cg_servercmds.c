@@ -1250,6 +1250,8 @@ static void CG_ServerCommand(void)
 			
 			trap_R_RemapShader(shader1, shader2, shader3);
 		}
+
+		return;
 	}
 
 	// loaddeferred can be both a servercmd and a consolecmd

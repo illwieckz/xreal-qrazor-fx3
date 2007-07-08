@@ -112,6 +112,21 @@ static cvar_t  *Cvar_FindVar(const char *var_name)
 
 /*
 ============
+Cvar_Flags
+============
+*/
+int Cvar_Flags(const char *var_name)
+{
+	cvar_t *var;
+
+	if(!(var = Cvar_FindVar(var_name)))
+		return CVAR_NONEXISTENT;
+	else
+		return var->flags;
+}
+
+/*
+============
 Cvar_VariableValue
 ============
 */

@@ -331,7 +331,7 @@ void G_FindTeams(void)
 	G_Printf("%i teams with %i entities\n", c, c2);
 }
 
-void G_RemapTeamShaders()
+void G_RemapTeamShaders(void)
 {
 #ifdef MISSIONPACK
 	char            string[1024];
@@ -548,7 +548,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 
 	G_RemapTeamShaders();
-
 }
 
 
@@ -586,9 +585,6 @@ void G_ShutdownGame(int restart)
 
 //===================================================================
 
-#ifndef GAME_HARD_LINKED
-// this is only here so the functions in q_shared.c and bg_*.c can link
-
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
@@ -612,8 +608,6 @@ void QDECL Com_Printf(const char *msg, ...)
 
 	G_Printf("%s", text);
 }
-
-#endif
 
 /*
 ========================================================================

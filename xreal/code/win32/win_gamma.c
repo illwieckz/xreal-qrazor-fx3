@@ -42,11 +42,9 @@ void WG_CheckHardwareGamma(void)
 
 	glConfig.deviceSupportsGamma = qfalse;
 
-	// non-3Dfx standalone drivers don't support gamma changes, period
+	// non standalone drivers don't support gamma changes, period
 	if(glConfig.driverType == GLDRV_STANDALONE)
-	{
 		return;
-	}
 
 	if(!r_ignorehwgamma->integer)
 	{
@@ -97,9 +95,10 @@ void GLimp_SetGamma(unsigned char red[256], unsigned char green[256], unsigned c
 	OSVERSIONINFO   vinfo;
 
 	if(!glConfig.deviceSupportsGamma || r_ignorehwgamma->integer || !glw_state.hDC)
-	{
 		return;
-	}
+
+	if (!g_wv.activeApp)
+		return;
 
 	for(i = 0; i < 256; i++)
 	{

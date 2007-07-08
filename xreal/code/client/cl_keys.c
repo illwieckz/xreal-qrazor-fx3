@@ -1083,7 +1083,7 @@ void CL_InitKeyCommands(void)
 CL_AddKeyUpCommands
 ===================
 */
-void CL_AddKeyUpCommands(int key, char *kb)
+static void CL_AddKeyUpCommands(int key, char *kb, unsigned time)
 {
 	int             i;
 	char            button[1024], *buttonPtr;
@@ -1198,9 +1198,9 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 			return;
 		}
 		Con_ToggleConsole_f();
+		Key_ClearStates();
 		return;
 	}
-
 
 	// keys can still be used for bound actions
 	if(down && (key < 128 || key == K_MOUSE1) && (clc.demoplaying || cls.state == CA_CINEMATIC) && !cls.keyCatchers)
@@ -1212,7 +1212,6 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 			key = K_ESCAPE;
 		}
 	}
-
 
 	// escape is always handled special
 	if(key == K_ESCAPE && down)
@@ -1251,17 +1250,15 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 		return;
 	}
 
-	//
 	// key up events only perform actions if the game key binding is
 	// a button command (leading + sign).  These will be processed even in
 	// console mode and menu mode, to keep the character from continuing 
 	// an action started before a mode switch.
-	//
 	if(!down)
 	{
 		kb = keys[key].binding;
 
-		CL_AddKeyUpCommands(key, kb);
+		CL_AddKeyUpCommands(key, kb, time);
 
 		if(cls.keyCatchers & KEYCATCH_UI && uivm)
 		{
@@ -1275,6 +1272,10 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 		return;
 	}
 
+	// delete is not a printable character and is otherwise
+	// handled by Field_KeyDownEvent
+	if(key == 127)
+		return;
 
 	// distribute the key down event to the apropriate handler
 	if(cls.keyCatchers & KEYCATCH_CONSOLE)

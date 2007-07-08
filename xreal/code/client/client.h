@@ -388,6 +388,7 @@ void            CL_Snd_Restart_f(void);
 void            CL_StartDemoLoop(void);
 void            CL_NextDemo(void);
 void            CL_ReadDemoMessage(void);
+void			CL_StopRecord_f(void);
 
 void            CL_InitDownloads(void);
 void            CL_NextDownload(void);
@@ -435,6 +436,7 @@ char           *Key_KeynumToString(int keynum);
 // cl_parse.c
 //
 extern int      cl_connectedToPureServer;
+extern int		cl_connectedToCheatServer;
 
 void            CL_SystemInfoChanged(void);
 void            CL_ParseServerMessage(msg_t * msg);
