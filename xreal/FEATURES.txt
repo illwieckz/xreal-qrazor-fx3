@@ -22,6 +22,7 @@ code/q3_ui
 code/client
 - .avi video and audio recording
 - .ogg Vorbis audio file format support
+- libcURL http-download redirection support for fast downloads of referenced server .pk3 files
 
 code/qcommon/cm
 - optional per triangle collision detection for world surfaces
