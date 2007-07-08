@@ -2986,7 +2986,7 @@ void FS_Shutdown(qboolean closemfp)
 
 	for(i = 0; i < MAX_FILE_HANDLES; i++)
 	{
-		if(fsh[i].handleFiles.file.o)
+		if(fsh[i].fileSize)
 		{
 			FS_FCloseFile(i);
 		}
