@@ -1504,6 +1504,25 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_NV_depth_clamp not found\n");
 	}
+
+	// GL_SGIS_generate_mipmap
+	glConfig.generateMipmapAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_SGIS_generate_mipmap"))
+	{
+		if(r_ext_generate_mipmap->value)
+		{
+			glConfig.generateMipmapAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_SGIS_generate_mipmap\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_SGIS_generate_mipmap\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_SGIS_generate_mipmap not found\n");
+	}
 }
 
 /*

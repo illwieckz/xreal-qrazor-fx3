@@ -1873,6 +1873,7 @@ extern cvar_t  *r_ext_separate_stencil;
 extern cvar_t  *r_ext_depth_clamp;
 extern cvar_t  *r_ext_depth_bounds_test;
 extern cvar_t  *r_ext_framebuffer_object;
+extern cvar_t  *r_ext_generate_mipmap;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures
 extern cvar_t  *r_collapseStages;

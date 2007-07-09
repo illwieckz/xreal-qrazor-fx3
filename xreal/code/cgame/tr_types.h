@@ -284,6 +284,8 @@ typedef struct
 	int             maxRenderbufferSize;
 	int             maxColorAttachments;
 
+	qboolean		generateMipmapAvailable;
+
 	int             vidWidth, vidHeight;
 	// aspect is the screen's physical width / height, which may be different
 	// than scrWidth / scrHeight if the pixels are non-square

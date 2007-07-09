@@ -1671,7 +1671,7 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n");
 	}
-	
+
 	// GL_EXT_stencil_two_side
 	qglActiveStencilFaceEXT = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_stencil_two_side"))
@@ -1805,6 +1805,25 @@ static void GLW_InitExtensions(void)
 	else
 	{
 		ri.Printf(PRINT_ALL, "...GL_NV_depth_clamp not found\n");
+	}
+
+	// GL_SGIS_generate_mipmap
+	glConfig.generateMipmapAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_SGIS_generate_mipmap"))
+	{
+		if(r_ext_generate_mipmap->value)
+		{
+			glConfig.generateMipmapAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_SGIS_generate_mipmap\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_SGIS_generate_mipmap\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_SGIS_generate_mipmap not found\n");
 	}
 }
 

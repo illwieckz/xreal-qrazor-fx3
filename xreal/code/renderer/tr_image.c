@@ -687,6 +687,20 @@ static void R_MipNormalMap(byte * in, int width, int height)
 }
 // *INDENT-ON*
 
+static qboolean R_MipMapSGI(byte* in, int w, int h, GLenum internalFormat)
+{
+	if(!glConfig.generateMipmapAvailable || r_simpleMipMaps->integer)
+		return qfalse;
+
+	//R_GammaCorrect(tex, w * h * 4);
+	qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+	qglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, in);
+	qglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
+
+	return qtrue;
+}
 
 static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale)
 {
@@ -970,7 +984,7 @@ byte            mipBlendColors[16][4] = {
 
 /*
 ===============
-Upload32
+R_UploadImage
 ===============
 */
 extern qboolean charSet;
@@ -1157,6 +1171,10 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 	}
 
+	// raynorpat: if hardware mipmap generation is available, use it
+	if(R_MipMapSGI((byte *)data, scaledWidth, scaledHeight, internalFormat))
+		goto done;
+
 	for(i = 0; i < numData; i++)
 	{
 		data = dataArray[i];
@@ -1237,6 +1255,8 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 	}
 	
+done:
+
 	// set filter type
 	switch (image->filterType)
 	{
