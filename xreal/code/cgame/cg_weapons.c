@@ -810,8 +810,8 @@ void CG_RegisterWeapon(int weaponNum)
 	{
 		case WP_GAUNTLET:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/melee/fstrun.wav", qfalse);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/melee/fstatck.wav", qfalse);
+			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/gauntlet/electrocute.ogg", qfalse);
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/gauntlet/slashkut.ogg", qfalse);
 			break;
 
 		case WP_LIGHTNING:
@@ -837,7 +837,7 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->trailRadius = 64;
 			MAKERGB(weaponInfo->missileLightColor, 1, 0.75f, 0);
 			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/melee/fsthum.wav", qfalse);
-			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/melee/fstrun.wav", qfalse);
+			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/gauntlet/electrocute.ogg", qfalse);
 			cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
 			break;
 

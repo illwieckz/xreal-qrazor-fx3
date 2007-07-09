@@ -5,7 +5,6 @@ NOTE: TA means Team Arena replacement which is optional and not needed
 Media that needs to be created:
 base/gfx/2d/net.png
 base/gfx/damage/plasma_mrk.png
-base/gfx/damage/shadow.png
 base/icons/ammo_proxmine.png TA
 base/icons/ammo_regen.png
 base/icons/doubler.png TA
@@ -56,7 +55,6 @@ base/icons/scout.png TA
 base/icons/skull_blue.png TA
 base/icons/skull_red.png TA
 base/icons/teleporter.png
-base/lights/flashlight2.png
 base/menu/medals/medal_accuracy.png
 base/menu/medals/medal_assist.png
 base/menu/medals/medal_capture.png
@@ -152,14 +150,12 @@ base/models/weaphits/ring02_2.png
 base/models/weaphits/ring02_3.png
 base/models/weaphits/ring02_4.png
 base/models/weaphits/ring02.md3
-base/models/weapons/gauntlet/*
 base/models/weapons/grenadel/*
 base/models/weapons/nailgun/* TA
 base/models/weapons/plasma/*
 base/models/weapons/proxmine/* TA
 base/models/weapons/railgun/*
 base/models/weapons/rocketl/*
-base/models/weapons/shotgun/*
 base/models/weapons/vulcan/* TA
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
@@ -237,9 +233,6 @@ base/sound/weapons/machinegun/buletby1.ogg
 base/sound/weapons/machinegun/ric1.ogg
 base/sound/weapons/machinegun/ric2.ogg
 base/sound/weapons/machinegun/ric3.ogg
-base/sound/weapons/melee/fstatck.ogg
-base/sound/weapons/melee/fsthum.ogg
-base/sound/weapons/melee/fstrun.ogg
 base/sound/weapons/nailgun/wnalimpd.ogg
 base/sound/weapons/nailgun/wnalimpl.ogg
 base/sound/weapons/nailgun/wnalimpm.ogg
