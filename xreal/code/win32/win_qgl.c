@@ -3249,8 +3249,6 @@ qboolean QGL_Init(const char *dllname)
 
 	GetSystemDirectory(systemDir, sizeof(systemDir));
 
-	assert(glw_state.hinstOpenGL == 0);
-
 	ri.Printf(PRINT_ALL, "...initializing QGL\n");
 
 	if(dllname[0] != '!')
@@ -3270,6 +3268,10 @@ qboolean QGL_Init(const char *dllname)
 		return qfalse;
 	}
 	ri.Printf(PRINT_ALL, "succeeded\n");
+
+	// raynorpat: moved below, because hinstOpenGL will always be zero until
+	// its loaded
+	assert(glw_state.hinstOpenGL == 0);
 
 	qglAccum = dllAccum = GPA("glAccum");
 	qglAlphaFunc = dllAlphaFunc = GPA("glAlphaFunc");
