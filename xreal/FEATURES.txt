@@ -37,6 +37,9 @@ code/renderer
 - OpenGL extension GL_ARB_non_power_of_two
 - OpenGL extension GL_ARB_draw_buffers
 - OpenGL extension GL_ARB_texture_float
+- OpenGL extension GL_ATI_seperate_stencil
+- OpenGL extension GL_NV_depth_clamp
+- OpenGL extension GL_SGIS_generate_mipmap
 - OpenGL extension GL_EXT_texture_filter_anisotropic
 - OpenGL extension GL_EXT_stencil_wrap
 - OpenGL extension GL_EXT_stencil_two_side
@@ -44,6 +47,7 @@ code/renderer
 - OpenGL extension GL_EXT_framebuffer_object
 - OpenGL shader language usage in renderer backend
 - anisotropic texture filtering
+- hardware mipmap generation
 - .png image file format support
 - DirectX .dds image file format support
 - skeletal animation
