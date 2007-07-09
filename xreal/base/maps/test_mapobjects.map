@@ -88,7 +88,7 @@ brushDef3
 {
 "classname" "light"
 "name" "light_2"
-"origin" "-128 192 128"
+"origin" "-32 160 216"
 "noshadows" "0"
 "nospecular" "0"
 "nodiffuse" "0"
@@ -112,13 +112,13 @@ brushDef3
 {
 "classname" "light"
 "name" "light_4"
-"origin" "-128 -64 128"
+"origin" "-120 -40 240"
 "noshadows" "0"
 "nospecular" "0"
 "nodiffuse" "0"
 "falloff" "0"
 "_color" "0.78 0.78 0.84"
-"light_radius" "225 225 225"
+"light_radius" "180 180 180"
 }
 // entity 5
 {
@@ -239,6 +239,7 @@ brushDef3
 "name" "func_static_3"
 "origin" "-160 216 0"
 "model" "models/mapobjects/bja/bja_light03.ase"
+"angle" "45"
 }
 // entity 17
 {
@@ -251,7 +252,7 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_5"
-"origin" "-192 80 48"
+"origin" "-192 64 48"
 "model" "models/mapobjects/bja/bja_light05.ase"
 }
 // entity 19
@@ -281,4 +282,103 @@ brushDef3
 "name" "func_static_10"
 "origin" "0 -64 0"
 "model" "models/mapobjects/power/pad.lwo"
+}
+// entity 23
+{
+"classname" "func_static"
+"name" "func_static_6"
+"origin" "192 64 8"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
+}
+// entity 24
+{
+"classname" "light"
+"name" "light_11"
+"origin" "-176 64 48"
+"noshadows" "1"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0.000000"
+"_color" "0.78 0.78 0.84"
+"light_radius" "70 70 70"
+}
+// entity 25
+{
+"classname" "light"
+"name" "light_13"
+"origin" "-160 -96 48"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0.000000"
+"_color" "0.78 0.78 0.84"
+"light_fovX" "90"
+"light_fovY" "90"
+"light_distance" "300"
+"rotation" "0 0 1 0 1 0 -1 0 0"
+"light_radius" "300 300 300"
+"texture" "lights/flashLight"
+}
+// entity 26
+{
+"classname" "trigger_push"
+"name" "trigger_push_1"
+"model" "trigger_push_1"
+"target" "target_push_1"
+// brush 0
+{
+brushDef3
+{
+( 0 0 1 -12 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 1 0 -128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( 1 0 0 -256 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 -1 0 -0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( -1 0 0 128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+}
+}
+}
+// entity 27
+{
+"classname" "target_push"
+"name" "target_push_1"
+"origin" "192 64 192"
+}
+// entity 28
+{
+"classname" "func_static"
+"name" "func_static_11"
+"origin" "192 192 4"
+"model" "models/mapobjects/kat/weapon_marker.ase"
+}
+// entity 29
+{
+"classname" "weapon_lightning"
+"name" "weapon_lightning_1"
+"origin" "192 192 34"
+}
+// entity 30
+{
+"classname" "light"
+"name" "light_12"
+"origin" "-128 192 56"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0.000000"
+"_color" "0.78 0.78 0.84"
+"light_radius" "225 225 225"
+}
+// entity 31
+{
+"classname" "light"
+"name" "light_14"
+"origin" "-160 -96 24"
+"noshadows" "1"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0.000000"
+"_color" "0.78 0.78 0.84"
+"light_radius" "70 70 70"
+"light_center" "0 0 50"
 }

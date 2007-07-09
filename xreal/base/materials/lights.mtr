@@ -835,21 +835,21 @@ lights/stormLight
 	}
 }
 
-lights/flashlight2
+lights/flashLight
 {
-//	lightFalloffImage	lights/skyline1.png
-	lightFalloffImage	makeintensity(lights/squarelight1b.tga)
-//	lightFalloffImage	makeintensity(lights/flashoff.tga)
 //	lightFalloffImage	_noFalloff
+//	lightFalloffImage	lights/skyline1.png
+	lightFalloffImage	makeintensity(lights/squarelight1b.png)
+	
 	{
 		forceHighQuality
-		map	lights/flashlight2.tga
+		map	lights/round.png
 		zeroClamp
 		colored
 	}
 }
 
-lights/roundfire
+lights/roundFire
 {
 	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
 	{
