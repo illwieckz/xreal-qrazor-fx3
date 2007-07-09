@@ -1179,10 +1179,12 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		image->uploadHeight = scaledHeight;
 		image->internalFormat = internalFormat;
 
-		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable && !r_simpleMipMaps->integer)
+		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable)
 		{
 			// raynorpat: if hardware mipmap generation is available, use it
+			qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST); // make sure its nice
 			qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+			qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // default to trilinear
 		}
 
 		switch (image->type)
@@ -1196,7 +1198,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				break;
 		}
 
-		if(!glConfig.generateMipmapAvailable || !r_simpleMipMaps->integer)
+		if(!glConfig.generateMipmapAvailable)
 		{
 			if(image->filterType == FT_DEFAULT)
 			{
