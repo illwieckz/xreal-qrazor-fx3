@@ -1,9 +1,8 @@
-models/weapons/gauntlet/ldagauntlet
+models/weapons2/gauntlet/ldagauntlet
 {
 	{
 		blend diffuseMap
 		map models/weapons/gauntlet/ldagauntlet_d.tga
-		rgbGen lightingDiffuse
 	}
 	{
 		blend bumpMap
@@ -15,12 +14,11 @@ models/weapons/gauntlet/ldagauntlet
 	}
 }
 
-models/weapons/gauntlet/ldagauntlet_b
+models/weapons2/gauntlet/ldagauntlet_b
 {
 	{
 		blend diffuseMap
 		map models/weapons/gauntlet/ldagauntlet_b_d.tga
-		rgbGen lightingDiffuse
 		//centerScale 1.2, 1.2
 	}
 	{
@@ -34,10 +32,52 @@ models/weapons/gauntlet/ldagauntlet_b
 	}
 }
 
-models/weapons/gauntlet/sparky1
+models/weapons2/gauntlet/sparky1
 {
 	twoSided
-	
+	{
+		if((time * 7) % 7 == 0)
+		map models/weapons/gauntlet/sparky1.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	{
+		if((time * 7) % 7 == 1)
+		map models/weapons/gauntlet/sparky2.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	{
+		if((time * 7) % 7 == 2)
+		map models/weapons/gauntlet/sparky3.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	{
+		if((time * 7) % 7 == 3)
+		map models/weapons/gauntlet/sparky4.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	{
+		if((time * 7) % 7 == 4)
+		map models/weapons/gauntlet/sparky5.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	{
+		if((time * 7) % 7 == 5)
+		map models/weapons/gauntlet/sparky6.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	{
+		if((time * 7) % 7 == 6)
+		map models/weapons/gauntlet/sparky7.tga
+		blend add
+		rgbGen wave sin 0.3 1.1 0 17
+	}
+	/*
 	{
 		animMap 13 models/weapons/gauntlet/sparky1.tga models/weapons/gauntlet/sparky2.tga models/weapons/gauntlet/sparky3.tga models/weapons/gauntlet/sparky4.tga models/weapons/gauntlet/sparky5.tga models/weapons/gauntlet/sparky6.tga models/weapons/gauntlet/sparky7.tga 
 		blend add
@@ -48,42 +88,42 @@ models/weapons/gauntlet/sparky1
 		blend add
 		rgbGen wave sin 0.8 0.1 0 5 
 	}
+	*/
 }
 
-models/weapons/gauntlet/ldagauntlet_ifx
+models/weapons2/gauntlet/ldagauntlet_ifx
 {
 	twoSided
-	
 	{
 		map models/weapons/gauntlet/ldagauntlet_ifx.tga
 		blend add
-		rgbGen wave sin 0.1 0.6 0 9 
-		tcMod rotate 512
-		tcMod transform 0.9 0 0 0.9 1.05 1.05
+		rgbGen wave sin 0.1 0.6 0 9
+		rotate time * 2
+		centerScale 0.9, 0.9
+		//tcMod transform 0.9 0 0 0.9 1.05 1.05
 	}
 }
 
-models/weapons/gauntlet/ldagauntlet_afx1
+models/weapons2/gauntlet/ldagauntlet_afx1
 {
 	twoSided
-	
 	{
 		map models/weapons/gauntlet/ldagauntlet_afx1.tga
 		blend add
-		tcMod scroll 5 0
-		tcMod turb 0.01 0.09 0 9
+		scroll time * 5, 0
+		//tcMod turb 0.01 0.09 0 9
 	}
 	{
 		map models/weapons/gauntlet/ldagauntlet_afx2.tga
 		blend add
 		rgbGen wave sin 0.1 0.9 88 9 
-		tcMod scroll -11 0
+		scroll time * -11, 0
 	}
 	{
 		map models/weapons/gauntlet/ldagauntlet_afx3.tga
 		blend add
-		tcMod scroll 256 0
-		tcMod scale 0.01 1
+		scroll time * 256, 0
+		scale 0.01, 1
 	}
 }
 

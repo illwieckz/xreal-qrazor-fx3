@@ -26,6 +26,7 @@ Julian "Plaque" Morris - weapon and projectile models
 Mikael "Ruohis" Ruohomaa - weapon models
 Michael "mic" Denno - shotgun shells
 Robert "BJA" Hodri - map objects, light models  http://www.bja-design.de
+Lee David Ash - gauntlet weapon model
 gw - teleporter, fan models
 
 
