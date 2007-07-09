@@ -1179,7 +1179,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		image->uploadHeight = scaledHeight;
 		image->internalFormat = internalFormat;
 
-		if(glConfig.generateMipmapAvailable || !r_simpleMipMaps->integer)
+		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable && !r_simpleMipMaps->integer)
 		{
 			// raynorpat: if hardware mipmap generation is available, use it
 			qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
