@@ -687,21 +687,6 @@ static void R_MipNormalMap(byte * in, int width, int height)
 }
 // *INDENT-ON*
 
-static qboolean R_MipMapSGI(byte* in, int w, int h, GLenum internalFormat)
-{
-	if(!glConfig.generateMipmapAvailable || r_simpleMipMaps->integer)
-		return qfalse;
-
-	//R_GammaCorrect(tex, w * h * 4);
-	qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-	qglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	qglTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, in);
-	qglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
-
-	return qtrue;
-}
-
 static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale)
 {
 	int             x, y;
@@ -1171,10 +1156,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 	}
 
-	// raynorpat: if hardware mipmap generation is available, use it
-	if(R_MipMapSGI((byte *)data, scaledWidth, scaledHeight, internalFormat))
-		goto done;
-
 	for(i = 0; i < numData; i++)
 	{
 		data = dataArray[i];
@@ -1198,6 +1179,12 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		image->uploadHeight = scaledHeight;
 		image->internalFormat = internalFormat;
 
+		if(glConfig.generateMipmapAvailable || !r_simpleMipMaps->integer)
+		{
+			// raynorpat: if hardware mipmap generation is available, use it
+			qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+		}
+
 		switch (image->type)
 		{
 			case GL_TEXTURE_CUBE_MAP_ARB:
@@ -1209,64 +1196,65 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				break;
 		}
 
-		if(image->filterType == FT_DEFAULT)
+		if(!glConfig.generateMipmapAvailable || !r_simpleMipMaps->integer)
 		{
-			int             mipLevel;
-			int             mipWidth, mipHeight;
-
-			mipLevel = 0;
-			mipWidth = scaledWidth;
-			mipHeight = scaledHeight;
-
-			while(mipWidth > 1 || mipHeight > 1)
+			if(image->filterType == FT_DEFAULT)
 			{
-				if(image->bits & IF_NORMALMAP)
-					R_MipNormalMap(scaledBuffer, mipWidth, mipHeight);
-				else
-					R_MipMap(scaledBuffer, mipWidth, mipHeight);
+				int             mipLevel;
+				int             mipWidth, mipHeight;
 
-				mipWidth >>= 1;
-				mipHeight >>= 1;
+				mipLevel = 0;
+				mipWidth = scaledWidth;
+				mipHeight = scaledHeight;
 
-				if(mipWidth < 1)
-					mipWidth = 1;
-
-				if(mipHeight < 1)
-					mipHeight = 1;
-
-				mipLevel++;
-
-				if(r_colorMipLevels->integer && !(image->bits & IF_NORMALMAP))
+				while(mipWidth > 1 || mipHeight > 1)
 				{
-					R_BlendOverTexture(scaledBuffer, mipWidth * mipHeight, mipBlendColors[mipLevel]);
-				}
+					if(image->bits & IF_NORMALMAP)
+						R_MipNormalMap(scaledBuffer, mipWidth, mipHeight);
+					else
+						R_MipMap(scaledBuffer, mipWidth, mipHeight);
 
-				switch (image->type)
-				{
-					case GL_TEXTURE_CUBE_MAP_ARB:
-						qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
-						break;
+					mipWidth >>= 1;
+					mipHeight >>= 1;
 
-					default:
-						qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
-						break;
+					if(mipWidth < 1)
+						mipWidth = 1;
+
+					if(mipHeight < 1)
+						mipHeight = 1;
+
+					mipLevel++;
+
+					if(r_colorMipLevels->integer && !(image->bits & IF_NORMALMAP))
+					{
+						R_BlendOverTexture(scaledBuffer, mipWidth * mipHeight, mipBlendColors[mipLevel]);
+					}
+
+					switch (image->type)
+					{
+						case GL_TEXTURE_CUBE_MAP_ARB:
+							qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+							break;
+
+						default:
+							qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+							break;
+					}
 				}
 			}
 		}
 	}
 	
-done:
-
 	// set filter type
 	switch (image->filterType)
 	{
 		case FT_DEFAULT:
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-
 			// set texture anisotropy
 			if(glConfig.textureAnisotropyAvailable)
 				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+
+			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			break;
 
 		case FT_LINEAR:
