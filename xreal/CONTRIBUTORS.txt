@@ -25,9 +25,10 @@ Robert "Tr3B" Beckebans - health pickup models
 Julian "Plaque" Morris - weapon and projectile models
 Mikael "Ruohis" Ruohomaa - weapon models
 Michael "mic" Denno - shotgun shells
-Robert "BJA" Hodri - map objects, light models  http://www.bja-design.de
+Robert "BJA" Hodri - map objects: light models  http://www.bja-design.de
+Ken "kat" Beyer - map objects: jumppad, lantern, weapon marker http://www.quake3bits.com
 Lee David Ash - gauntlet weapon model
-gw - teleporter, fan models
+gw - map objects: teleporter, fan models
 
 
 OpenArena Team
@@ -46,7 +47,6 @@ NecEvil  - par machinegun model
 LEVEL DESIGN
 ============
 Stefan "ReFlex" Lautner - REDM08, UGLY R.G.A
-Kai Moosmann - Lost World
 
 
 
