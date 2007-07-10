@@ -102,18 +102,27 @@ COMPILING ON GNU/LINUX
 ======================
 
 The new build system is using SCons. 
-Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11.
-Just type "scons" in the source toplevel dir xreal/.
+Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
+or if using the SDL backend the SDL headers and libraries.
 You can provide SCons options for compiling. Use "scons -h" to list those options.
+
+Compile XreaL for x86 processers:
+	>scons arch=linux-i386
+Compile XreaL for x86_64 processers:
+	>scons arch=linux-x86_64
+Compile XreaL with SDL:
+	>scons arch=sdl
 
 
 COMPILING ON MAC OS X
 ================
 
-The new build system is using SCons. 
 Make sure you have libcURL and SDL.
-Just type "scons arch=sdl" in the source toplevel dir xreal/.
-You can provide SCons options for compiling. Use "scons -h" to list those options.
+
+Compile XreaL for PowerPC Macs:
+	>scons arch=macosx-ppc
+Compile XreaL for Intel Macs:
+	>scons arch=macosx-i386
 
 
 LICENSE

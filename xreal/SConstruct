@@ -39,6 +39,11 @@ env.Append(CCFLAGS = '-pipe -fsigned-char')
 if env['arch'] == 'sdl':
 	env.Append(CCFLAGS = '-DUSE_SDL')
 
+if env['arch'] == 'macosx-ppc':
+	env.Append(CCFLAGS = '-DMACOS_X')
+elif env['arch'] == 'macosx-i386':
+	env.Append(CCFLAGS = '-DMACOS_X')
+
 if env['arch'] == 'win32-mingw':
 	env.Tool('mingw')
 elif env['arch'] == 'win32-xmingw':
