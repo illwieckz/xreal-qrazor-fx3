@@ -206,10 +206,6 @@ base/sound/player/DEFAULT_MODEL/pain50_1.ogg
 base/sound/player/DEFAULT_MODEL/pain75_1.ogg
 base/sound/player/DEFAULT_MODEL/taunt.ogg
 base/sound/player/fry.ogg
-base/sound/player/gibimp1.ogg
-base/sound/player/gibimp2.ogg
-base/sound/player/gibimp3.ogg
-base/sound/player/gibsplt1.ogg
 base/sound/player/gurp1.ogg
 base/sound/player/gurp2.ogg
 base/sound/player/land1.ogg

@@ -661,10 +661,10 @@ static void CG_RegisterSounds(void)
 	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.ogg", qfalse);
 	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.ogg", qfalse);
 	cgs.media.useNothingSound = trap_S_RegisterSound("sound/items/use_nothing.wav", qfalse);
-	cgs.media.gibSound = trap_S_RegisterSound("sound/player/gibsplt1.wav", qfalse);
-	cgs.media.gibBounce1Sound = trap_S_RegisterSound("sound/player/gibimp1.wav", qfalse);
-	cgs.media.gibBounce2Sound = trap_S_RegisterSound("sound/player/gibimp2.wav", qfalse);
-	cgs.media.gibBounce3Sound = trap_S_RegisterSound("sound/player/gibimp3.wav", qfalse);
+	cgs.media.gibSound = trap_S_RegisterSound("sound/player/gibsplt1.ogg", qfalse);
+	cgs.media.gibBounce1Sound = trap_S_RegisterSound("sound/player/gibimp1.ogg", qfalse);
+	cgs.media.gibBounce2Sound = trap_S_RegisterSound("sound/player/gibimp2.ogg", qfalse);
+	cgs.media.gibBounce3Sound = trap_S_RegisterSound("sound/player/gibimp3.ogg", qfalse);
 
 #ifdef MISSIONPACK
 	cgs.media.useInvulnerabilitySound = trap_S_RegisterSound("sound/items/invul_activate.wav", qfalse);
