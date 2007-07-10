@@ -853,20 +853,22 @@ void SV_Frame(int msec)
 
 	if(!com_sv_running->integer)
 	{
+		if(com_dedicated->integer)
+		{
+			// Block indefinitely until something interesting happens on STDIN.
+			NET_Sleep(-1);
+		}
+
 		return;
 	}
 
 	// allow pause if only the local client is connected
 	if(SV_CheckPaused())
-	{
 		return;
-	}
 
 	// if it isn't time for the next frame, do nothing
 	if(sv_fps->integer < 1)
-	{
 		Cvar_Set("sv_fps", "10");
-	}
 	frameMsec = 1000 / sv_fps->integer;
 
 	sv.timeResidual += msec;
