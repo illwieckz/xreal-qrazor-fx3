@@ -1,0 +1,32 @@
+{
+	map  "redm08"
+	longname "Dead Simple Redux by Reflex"
+	bots  "Visor"
+	fraglimit 10
+	type  "single ffa tourney team"
+}
+
+{
+	map  "thunderstruck"
+	longname "Thunderstruck by tyrelhill"
+	bots  "Visor"
+	fraglimit 10
+	type  "single ffa tourney team"
+}
+
+{
+	map  "longest"
+	longname "The Longest Yard-ish by Pat Raynor"
+	bots  "Visor"
+	fraglimit 10
+	type  "single ffa tourney team"
+}
+
+{
+	map  "uglyrga"
+	longname "UGLY Rail Gun Arena by Reflex"
+	bots  "Visor"
+	fraglimit 10
+	type  "single ffa tourney team"
+}
+
