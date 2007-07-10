@@ -90,11 +90,7 @@ elif env['arch'] == 'linux-x86_64':
 	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
 	game_env.InstallAs('#base/qagamex86_64.so', 'libgame.so')
 
-elif env['arch'] == 'macosx-ppc':
-	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
-	game_env.InstallAs('#base/qagame.dylib', 'libgame.dylib')
-
-elif env['arch'] == 'macosx-i386':
+elif env['arch'] == 'macosx':
 	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
 	game_env.InstallAs('#base/qagame.dylib', 'libgame.dylib')
 

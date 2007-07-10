@@ -52,11 +52,7 @@ elif env['arch'] == 'linux-x86_64':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgamex86_64.so', 'libcgame.so')
 
-elif env['arch'] == 'macosx-ppc':
-	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
-	cgame_env.InstallAs('#base/cgame.dylib', 'libcgame.dylib')
-
-elif env['arch'] == 'macosx-i386':
+elif env['arch'] == 'macosx':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src], LIBS=['m'])
 	cgame_env.InstallAs('#base/cgame.dylib', 'libcgame.dylib')
 

@@ -119,10 +119,8 @@ COMPILING ON MAC OS X
 
 Make sure you have libcURL and SDL.
 
-Compile XreaL for PowerPC Macs:
-	>scons arch=macosx-ppc
-Compile XreaL for Intel Macs:
-	>scons arch=macosx-i386
+Compile XreaL for Macs:
+	>scons arch=macosx
 
 
 LICENSE
