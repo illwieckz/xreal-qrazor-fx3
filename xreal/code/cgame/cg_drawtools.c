@@ -477,13 +477,8 @@ void CG_ColorForHealth(vec4_t hcolor)
 	CG_GetColorForHealth(cg.snap->ps.stats[STAT_HEALTH], cg.snap->ps.stats[STAT_ARMOR], hcolor);
 }
 
-
-
-
 // bk001205 - code below duplicated in q3_ui/ui-atoms.c
 // bk001205 - FIXME: does this belong in ui_shared.c?
-// bk001205 - FIXME: HARD_LINKED flags not visible here
-#ifndef Q3_STATIC				// bk001205 - q_shared defines not visible here
 /*
 =================
 UI_DrawProportionalString2
@@ -895,4 +890,4 @@ void UI_DrawProportionalString(int x, int y, const char *str, int style, vec4_t 
 
 	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp1);
 }
-#endif							// Q3STATIC
+

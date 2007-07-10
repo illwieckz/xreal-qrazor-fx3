@@ -120,13 +120,6 @@ typedef unsigned __int8 uint8_t;
 
 #endif
 
-#ifdef _MSC_VER
-
-//#pragma intrinsic( memset, memcpy )
-
-#endif
-
-
 // this is the define for determining if we have an asm version of a C function
 #if (defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__
 #define id386	1
@@ -158,8 +151,13 @@ typedef unsigned __int8 uint8_t;
 #define idppc_altivec 0
 #endif
 
-// for windows fastcall option
+#if (MACOS_X)  // Apple's GCC does this differently than the FSF.
+#define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) (vector unsigned char) (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
+#else
+#define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) (vector unsigned char) {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p}
+#endif
 
+// for windows fastcall option
 #define	QDECL
 
 short           ShortSwap(short l);
@@ -175,30 +173,14 @@ float           FloatSwap(const float *f);
 
 // buildstring will be incorporated into the version string
 #ifdef _MSC_VER
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define	CPUSTRING	"win-x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"win-AXP"
-#endif
-#else
-#ifdef _M_IX86
-#define	CPUSTRING	"win-x86-debug"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"win-AXP-debug"
-#endif
-#endif
+#define OS_STRING "win_msvc"
+#define ARCH_STRING "x86"
 #elif defined __MINGW32__
-#ifdef NDEBUG
-#ifdef __i386__
-#define CPUSTRING       "mingw-x86"
+#define OS_STRING "win_mingw"
+#define ARCH_STRING "x86"
 #endif
-#else
-#ifdef __i386__
-#define CPUSTRING       "mingw-x86-debug"
-#endif
-#endif
-#endif
+
+#define DLL_EXT ".dll"
 
 #define ID_INLINE __inline
 
@@ -234,43 +216,17 @@ static ID_INLINE float BigFloat(const float *l)
 #define stricmp strcasecmp
 #define ID_INLINE inline
 
+#define OS_STRING "macosx"
+
 #ifdef __ppc__
-#define CPUSTRING	"MacOSX-ppc"
+#define ARCH_STRING "ppc"
 #elif defined __i386__
-#define CPUSTRING	"MacOSX-i386"
-#else
-#define CPUSTRING	"MacOSX-other"
+#define ARCH_STRING "i386"
 #endif
 
+#define DLL_EXT ".dylib"
+
 #define	PATH_SEP	'/'
-
-#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
-#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
-
-static inline unsigned int __lwbrx(register void *addr, register int offset)
-{
-	register unsigned int word;
-
-  asm("lwbrx %0,%2,%1": "=r"(word):"r"(addr), "b"(offset));
-	return word;
-}
-
-static inline unsigned short __lhbrx(register void *addr, register int offset)
-{
-	register unsigned short halfword;
-
-  asm("lhbrx %0,%2,%1": "=r"(halfword):"r"(addr), "b"(offset));
-	return halfword;
-}
-
-static inline float __fctiw(register float f)
-{
-	register float  fi;
-
-  asm("fctiw %0,%1": "=f"(fi):"f"(f));
-
-	return fi;
-}
 
 #define BigShort
 static inline short LittleShort(short l)
@@ -301,15 +257,35 @@ static inline float LittleFloat(const float l)
 
 #define ID_INLINE inline
 
+#define OS_STRING "linux"
+
 #ifdef __i386__
-#define	CPUSTRING	"linux-i386"
+#define ARCH_STRING "i386"
 #elif __x86_64__
-#define	CPUSTRING	"linux-x86_64"
-#elif defined __axp__
-#define	CPUSTRING	"linux-alpha"
+#define ARCH_STRING "x86_64"
+#elif defined __powerpc64__
+#define ARCH_STRING "ppc64"
+#elif defined __powerpc__
+#define ARCH_STRING "ppc"
+#elif defined __ia64__
+#define ARCH_STRING "ia64"
+#elif defined __sparc__
+#define ARCH_STRING "sparc"
+#elif defined __arm__
+#define ARCH_STRING "arm"
+#elif defined __cris__
+#define ARCH_STRING "cris"
+#elif defined __hppa__
+#define ARCH_STRING "hppa"
+#elif defined __mips__
+#define ARCH_STRING "mips"
+#elif defined __sh__
+#define ARCH_STRING "sh"
 #else
-#define	CPUSTRING	"linux-other"
+#error "Unsupported architecture"
 #endif
+
+#define DLL_EXT ".so"
 
 #define	PATH_SEP '/'
 
@@ -361,17 +337,19 @@ inline static float LittleFloat(const float *l)
 
 #define ID_INLINE inline
 
+#define OS_STRING "freebsd"
+
 #ifdef __i386__
-#define CPUSTRING       "freebsd-i386"
+#define ARCH_STRING "i386"
 #elif defined __axp__
-#define CPUSTRING       "freebsd-alpha"
+#define ARCH_STRING "alpha"
 #else
-#define CPUSTRING       "freebsd-other"
+#error "Unsupported architecture"
 #endif
 
-#define	PATH_SEP '/'
+#define DLL_EXT ".so"
 
-// bk010116 - omitted Q3STATIC (see Linux above), broken target
+#define	PATH_SEP '/'
 
 #if !idppc
 static short BigShort(short l)
@@ -412,6 +390,12 @@ static float LittleFloat(const float *l)
 }
 #endif
 
+#endif
+
+#ifdef NDEBUG
+#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
+#else
+#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif
 
 //=============================================================

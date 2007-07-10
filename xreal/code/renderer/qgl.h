@@ -43,21 +43,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <GL/glext.h>
 #elif defined(MACOS_X)
 
-#include "macosx_glimp.h"
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <OpenGL/glext.h>
 
-#elif defined( __linux__ )
+#elif defined( __linux__ ) || defined( __FreeBSD__ )
 
 #include <GL/gl.h>
 #include <GL/glx.h>
 // bk001129 - from cvs1.17 (mkv)
-#if defined(__FX__)
-#include <GL/fxmesa.h>
-#endif
-
-#elif defined( __FreeBSD__ )	// rb010123
-
-#include <GL/gl.h>
-#include <GL/glx.h>
 #if defined(__FX__)
 #include <GL/fxmesa.h>
 #endif
@@ -78,6 +73,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(_WIN32)
 #define OPENGL_DRIVER_NAME	"opengl32"
+#elif defined(MACOS_X)
+#define OPENGL_DRIVER_NAME	"/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib"
 #else
 #define OPENGL_DRIVER_NAME	"libGL.so.1"
 #endif
@@ -349,10 +346,6 @@ extern void     (APIENTRY * qglGenerateMipmapEXT) (GLenum target);
 #if !defined( _WIN32 ) && !defined(MACOS_X) && !defined( __linux__ ) && !defined( __FreeBSD__ )	// rb010123
 
 #include "qgl_linked.h"
-
-#elif defined(MACOS_X)
-// This includes #ifdefs for optional logging and GL error checking after every GL call as well as #defines to prevent incorrect usage of the non-'qgl' versions of the GL API.
-#include "macosx_qgl.h"
 
 #else
 

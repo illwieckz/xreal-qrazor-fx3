@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
 */
 
+#if !USE_SDL
+
 #include <termios.h>
 #include <sys/ioctl.h>
 #ifdef __linux__
@@ -153,9 +155,9 @@ static int      mouse_threshold;
 
 static char    *XLateKey(XKeyEvent * ev, int *key)
 {
-	static char     buf[64];
-	KeySym          keysym;
-	int             XLookupRet;
+	static unsigned char	buf[64];
+	KeySym					keysym;
+	int						XLookupRet;
 
 	*key = 0;
 
@@ -482,7 +484,7 @@ static void install_grabs(void)
 
 		if(!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion))
 		{
-			// unable to query, probalby not supported, force the setting to 0
+			// unable to query, probably not supported, force the setting to 0
 			ri.Printf(PRINT_ALL, "Failed to detect XF86DGA Mouse\n");
 			ri.Cvar_Set("in_dgamouse", "0");
 		}
@@ -649,14 +651,8 @@ static void HandleEvents(void)
 				{
 					if(in_dgamouse->value)
 					{
-						if(abs(event.xmotion.x_root) > 1)
-							mx += event.xmotion.x_root * 2;
-						else
-							mx += event.xmotion.x_root;
-						if(abs(event.xmotion.y_root) > 1)
-							my += event.xmotion.y_root * 2;
-						else
-							my += event.xmotion.y_root;
+						mx += event.xmotion.x_root;
+						my += event.xmotion.y_root;
 						if(t - mouseResetTime > MOUSE_RESET_DELAY)
 						{
 							Sys_QueEvent(t, SE_MOUSE, mx, my, 0, NULL);
@@ -680,14 +676,8 @@ static void HandleEvents(void)
 
 						dx = ((int)event.xmotion.x - mwx);
 						dy = ((int)event.xmotion.y - mwy);
-						if(abs(dx) > 1)
-							mx += dx * 2;
-						else
-							mx += dx;
-						if(abs(dy) > 1)
-							my += dy * 2;
-						else
-							my += dy;
+						mx += dx;
+						my += dy;
 
 						mwx = event.xmotion.x;
 						mwy = event.xmotion.y;
@@ -1227,7 +1217,7 @@ int GLW_SetMode(const char *drivername, int mode, qboolean fullscreen)
 	qglXMakeCurrent(dpy, win, ctx);
 
 	// bk001130 - from cvs1.17 (mkv)
-	glstring = qglGetString(GL_RENDERER);
+	glstring = (char *)qglGetString(GL_RENDERER);
 	ri.Printf(PRINT_ALL, "GL_RENDERER: %s\n", glstring);
 
 	// bk010122 - new software token (Indirect)
@@ -1827,7 +1817,7 @@ static void GLW_InitExtensions(void)
 	}
 }
 
-static void GLW_InitGamma()
+static void GLW_InitGamma(void)
 {
 	/* Minimum extension version required */
 #define GAMMA_MINMAJOR 2
@@ -1940,6 +1930,8 @@ void GLimp_Init(void)
 
 	InitSig();
 
+	IN_Init();   // rcg08312005 moved into glimp.
+
 	// Hack here so that if the UI 
 	if(*r_previousglDriver->string)
 	{
@@ -1984,12 +1976,12 @@ void GLimp_Init(void)
 	glConfig.hardwareType = GLHW_GENERIC;
 
 	// get our config strings
-	Q_strncpyz(glConfig.vendor_string, qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
-	Q_strncpyz(glConfig.renderer_string, qglGetString(GL_RENDERER), sizeof(glConfig.renderer_string));
+	Q_strncpyz(glConfig.vendor_string, (char *)qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
+	Q_strncpyz(glConfig.renderer_string, (char *)qglGetString(GL_RENDERER), sizeof(glConfig.renderer_string));
 	if(*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')
 		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
-	Q_strncpyz(glConfig.version_string, qglGetString(GL_VERSION), sizeof(glConfig.version_string));
-	Q_strncpyz(glConfig.extensions_string, qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
+	Q_strncpyz(glConfig.version_string, (char *)qglGetString(GL_VERSION), sizeof(glConfig.version_string));
+	Q_strncpyz(glConfig.extensions_string, (char *)qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
 
 	// chipset specific configuration
 	strcpy(buf, glConfig.renderer_string);
@@ -2035,7 +2027,7 @@ void GLimp_Init(void)
 void GLimp_EndFrame(void)
 {
 	// don't flip if drawing to front buffer
-	if(stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
+	if(Q_stricmp(r_drawBuffer->string, "GL_FRONT") != 0)
 	{
 		qglXSwapBuffers(dpy, win);
 	}
@@ -2195,6 +2187,7 @@ void GLimp_WakeRenderer(void *data)
 void IN_Init(void)
 {
 	Com_Printf("\n------- Input Initialization -------\n");
+
 	// mouse variables
 	in_mouse = Cvar_Get("in_mouse", "1", CVAR_ARCHIVE);
 	in_dgamouse = Cvar_Get("in_dgamouse", "1", CVAR_ARCHIVE);
@@ -2210,6 +2203,8 @@ void IN_Init(void)
 	// bk001130 - changed this to match win32
 	in_joystickDebug = Cvar_Get("in_debugjoystick", "0", CVAR_TEMP);
 	joy_threshold = Cvar_Get("joy_threshold", "0.15", CVAR_ARCHIVE);	// FIXME: in_joythreshold
+
+	Cvar_Set("cl_platformSensitivity", "2.0");
 
 	if(in_mouse->value)
 		mouse_avail = qtrue;
@@ -2272,3 +2267,5 @@ void IN_JoyMove(void)
 {
 }
 #endif
+
+#endif // !USE_SDL

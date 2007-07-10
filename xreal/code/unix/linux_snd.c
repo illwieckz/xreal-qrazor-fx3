@@ -20,6 +20,9 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
+#if !USE_SDL
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -78,11 +81,8 @@ qboolean SNDDMA_Init(void)
 	int             fmt;
 	int             tmp;
 	int             i;
-
-	// char *s; // bk001204 - unused
 	struct audio_buf_info info;
 	int             caps;
-	extern uid_t    saved_euid;
 
 	if(snd_inited)
 		return 1;
@@ -98,11 +98,7 @@ qboolean SNDDMA_Init(void)
 	// open /dev/dsp, confirm capability to mmap, and get size of dma buffer
 	if(!audio_fd)
 	{
-		seteuid(saved_euid);
-
 		audio_fd = open(snddevice->string, O_RDWR);
-
-		seteuid(getuid());
 
 		if(audio_fd < 0)
 		{
@@ -315,3 +311,6 @@ void SNDDMA_Submit(void)
 void SNDDMA_BeginPainting(void)
 {
 }
+
+#endif
+

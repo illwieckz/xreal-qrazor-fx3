@@ -40,36 +40,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderer/tr_local.h"
 #include "unix_glw.h"
 
-// bk001129 - from cvs1.17 (mkv)
-//#if defined(__FX__)
-//#include <GL/fxmesa.h>
-//#endif
-//#include <GL/glx.h> // bk010216 - FIXME: all of the above redundant? renderer/qgl.h
-
+#if defined(USE_SDL)
+#include "SDL.h"
+#include "SDL_loadso.h"
+#else
 #include <dlfcn.h>
-
+#endif
 
 // bk001129 - from cvs1.17 (mkv)
 #if defined(__FX__)
 //FX Mesa Functions
-fxMesaContext(*qfxMesaCreateContext) (GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
-fxMesaContext(*qfxMesaCreateBestContext) (GLuint win, GLint width, GLint height, const GLint attribList[]);
+fxMesaContext	(*qfxMesaCreateContext) (GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
+fxMesaContext	(*qfxMesaCreateBestContext) (GLuint win, GLint width, GLint height, const GLint attribList[]);
 void            (*qfxMesaDestroyContext) (fxMesaContext ctx);
 void            (*qfxMesaMakeCurrent) (fxMesaContext ctx);
-
-fxMesaContext(*qfxMesaGetCurrentContext) (void);
+fxMesaContext	(*qfxMesaGetCurrentContext) (void);
 void            (*qfxMesaSwapBuffers) (void);
 #endif
 
 //GLX Functions
+#if !defined(USE_SDL)
 XVisualInfo    *(*qglXChooseVisual) (Display * dpy, int screen, int *attribList);
-
-GLXContext(*qglXCreateContext) (Display * dpy, XVisualInfo * vis, GLXContext shareList, Bool direct);
+GLXContext		(*qglXCreateContext) (Display * dpy, XVisualInfo * vis, GLXContext shareList, Bool direct);
 void            (*qglXDestroyContext) (Display * dpy, GLXContext ctx);
-
-Bool(*qglXMakeCurrent) (Display * dpy, GLXDrawable drawable, GLXContext ctx);
+Bool			(*qglXMakeCurrent) (Display * dpy, GLXDrawable drawable, GLXContext ctx);
 void            (*qglXCopyContext) (Display * dpy, GLXContext src, GLXContext dst, GLuint mask);
 void            (*qglXSwapBuffers) (Display * dpy, GLXDrawable drawable);
+#endif
 
 void            (APIENTRY * qglAccum) (GLenum op, GLfloat value);
 void            (APIENTRY * qglAlphaFunc) (GLenum func, GLclampf ref);
@@ -2869,11 +2866,13 @@ void QGL_Shutdown(void)
 {
 	if(glw_state.OpenGLLib)
 	{
+#if USE_SDL
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#else
 		dlclose(glw_state.OpenGLLib);
+#endif
 		glw_state.OpenGLLib = NULL;
 	}
-
-	glw_state.OpenGLLib = NULL;
 
 	qglAccum                     = NULL;
 	qglAlphaFunc                 = NULL;
@@ -3222,16 +3221,23 @@ void QGL_Shutdown(void)
 	qfxMesaSwapBuffers           = NULL;
 #endif
 
+#if !defined(USE_SDL)
 	qglXChooseVisual             = NULL;
 	qglXCreateContext            = NULL;
 	qglXDestroyContext           = NULL;
 	qglXMakeCurrent              = NULL;
 	qglXCopyContext              = NULL;
 	qglXSwapBuffers              = NULL;
+#endif
 }
 // *INDENT-ON*
 
-#define GPA( a ) dlsym( glw_state.OpenGLLib, a )
+#if USE_SDL
+#define GPA(a) SDL_GL_GetProcAddress(a)
+qboolean GLimp_sdl_init_video(void);
+#else
+#define GPA(a) dlsym(glw_state.OpenGLLib, a)
+#endif
 
 void           *qwglGetProcAddress(char *symbol)
 {
@@ -3239,6 +3245,8 @@ void           *qwglGetProcAddress(char *symbol)
 		return GPA(symbol);
 	return NULL;
 }
+
+char *do_dlerror(void);
 
 /*
 ** QGL_Init
@@ -3254,28 +3262,43 @@ void           *qwglGetProcAddress(char *symbol)
 // *INDENT-OFF*
 qboolean QGL_Init(const char *dllname)
 {
-	if((glw_state.OpenGLLib = dlopen(dllname, RTLD_LAZY|RTLD_GLOBAL)) == 0)
+	if(glw_state.OpenGLLib == 0)
+	{
+#if USE_SDL
+		if(GLimp_sdl_init_video() == qfalse)
+			return qfalse;
+
+		glw_state.OpenGLLib = (void*)(long)((SDL_GL_LoadLibrary(dllname) == -1) ? 0 : 1);
+#else
+		glw_state.OpenGLLib = dlopen(dllname, RTLD_LAZY | RTLD_GLOBAL);
+#endif
+	}
+
+	if(glw_state.OpenGLLib == 0)
 	{
 		char	fn[1024];
-		// FILE *fp; // bk001204 - unused
-		extern uid_t saved_euid; // unix_main.c
 
 		// if we are not setuid, try current directory
-		if(getuid() == saved_euid)
+		if(dllname != NULL)
 		{
 			getcwd(fn, sizeof(fn));
 			Q_strcat(fn, sizeof(fn), "/");
 			Q_strcat(fn, sizeof(fn), dllname);
 
-			if((glw_state.OpenGLLib = dlopen(fn, RTLD_LAZY)) == 0)
+#if USE_SDL
+			glw_state.OpenGLLib = (void*)(long)((SDL_GL_LoadLibrary(fn) == -1) ? 0 : 1);
+#else
+			glw_state.OpenGLLib = dlopen(fn, RTLD_LAZY);
+#endif
+			if(glw_state.OpenGLLib == 0)
 			{
-				ri.Printf(PRINT_ALL, "QGL_Init: Can't load %s from /etc/ld.so.conf or current dir: %s\n", dllname, dlerror());
+				ri.Printf(PRINT_ALL, "QGL_Init: Can't load %s from /etc/ld.so.conf or current dir: %s\n", dllname, do_dlerror());
 				return qfalse;
 			}
 		}
 		else
 		{
-			ri.Printf(PRINT_ALL, "QGL_Init: Can't load %s from /etc/ld.so.conf: %s\n", dllname, dlerror());
+			ri.Printf(PRINT_ALL, "QGL_Init: Can't load %s from /etc/ld.so.conf: %s\n", dllname, do_dlerror());
 			return qfalse;
 		}
 	}
@@ -3625,23 +3648,25 @@ qboolean QGL_Init(const char *dllname)
 	qfxMesaSwapBuffers           =  GPA("fxMesaSwapBuffers");
 #endif
 
+#if !defined(USE_SDL)
 	qglXChooseVisual             =  GPA("glXChooseVisual");
 	qglXCreateContext            =  GPA("glXCreateContext");
 	qglXDestroyContext           =  GPA("glXDestroyContext");
 	qglXMakeCurrent              =  GPA("glXMakeCurrent");
 	qglXCopyContext              =  GPA("glXCopyContext");
 	qglXSwapBuffers              =  GPA("glXSwapBuffers");
+#endif
 
-	qglLockArraysEXT = 0;
-	qglUnlockArraysEXT = 0;
-	qglPointParameterfEXT = 0;
-	qglPointParameterfvEXT = 0;
-	qglColorTableEXT = 0;
-	qglSelectTextureSGIS = 0;
-	qglMTexCoord2fSGIS = 0;
-	qglActiveTextureARB = 0;
-	qglClientActiveTextureARB = 0;
-	qglMultiTexCoord2fARB = 0;
+	qglLockArraysEXT = NULL;
+	qglUnlockArraysEXT = NULL;
+	qglPointParameterfEXT = NULL;
+	qglPointParameterfvEXT = NULL;
+	qglColorTableEXT = NULL;
+	qglSelectTextureSGIS = NULL;
+	qglMTexCoord2fSGIS = NULL;
+	qglActiveTextureARB = NULL;
+	qglClientActiveTextureARB = NULL;
+	qglMultiTexCoord2fARB = NULL;
 
 	return qtrue;
 }

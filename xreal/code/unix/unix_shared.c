@@ -78,7 +78,7 @@ int Sys_Milliseconds(void)
 	return curtime;
 }
 
-#if defined(__linux__) && !defined(DEDICATED)
+#if (defined(__linux__) || defined(__FreeBSD__)) && !defined(DEDICATED)
 /*
 ================
 Sys_XTimeToSysTime
@@ -92,7 +92,6 @@ disable with in_subframe 0
  I didn't find much info in the XWindow documentation about the wrapping
    we clamp sys_timeBase*1000 to unsigned long, that gives us the current origin for xtime
    the computation will still work if xtime wraps (at ~49 days period since the Epoch) after we set sys_timeBase
-
 ================
 */
 extern cvar_t  *in_subframe;
@@ -142,9 +141,8 @@ int Sys_XTimeToSysTime(unsigned long xtime)
 #endif
 
 //#if 0 // bk001215 - see snapvector.nasm for replacement
-// rcg010206 - using this for PPC builds...
 #if defined(__APPLE__) || (defined(__linux__) && defined(C_ONLY)) || defined(__x86_64__)
-//#if !(defined __i386__)
+//#if !id386 // rcg010206 - using this for PPC builds...
 long fastftol(float f)
 {								// bk001213 - from win32/win_shared.c
 	//static int tmp;
@@ -277,7 +275,7 @@ char          **Sys_ListFiles(const char *directory, const char *extension, char
 		nfiles = 0;
 		Sys_ListFilteredFiles(directory, "", filter, list, &nfiles);
 
-		list[nfiles] = 0;
+		list[nfiles] = NULL;
 		*numfiles = nfiles;
 
 		if(!nfiles)
@@ -335,7 +333,7 @@ char          **Sys_ListFiles(const char *directory, const char *extension, char
 		nfiles++;
 	}
 
-	list[nfiles] = 0;
+	list[nfiles] = NULL;
 
 	closedir(fdir);
 

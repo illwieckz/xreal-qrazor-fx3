@@ -38,10 +38,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include <libgen.h> // dirname
 #ifdef __linux__				// rb010123
 #include <mntent.h>
 #endif
+
+#if (defined(DEDICATED) && defined(USE_SDL))
+#undef USE_SDL
+#endif
+  	 
+#if USE_SDL
+#include "SDL.h"
+#include "SDL_loadso.h"
+#else
 #include <dlfcn.h>
+#endif
 
 #ifdef __linux__
 #include <fpu_control.h>		// bk001213 - force dumps on divide by zero
@@ -56,12 +67,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "linux_local.h"		// bk001204
 
-// Structure containing functions exported from refresh DLL
-refexport_t     re;
+#if idppc_altivec
+#ifdef MACOS_X
+#include <Carbon/Carbon.h>
+#endif
+#endif
 
 unsigned        sys_frame_time;
 
-uid_t           saved_euid;
 qboolean        stdin_active = qtrue;
 
 // =============================================================
@@ -134,20 +147,6 @@ Sys_FunctionCheckSum
 int Sys_FunctionCheckSum(void *f1)
 {
 	return 0;
-}
-
-/*
-==================
-Sys_MonkeyShouldBeSpanked
-==================
-*/
-int Sys_MonkeyShouldBeSpanked(void)
-{
-	return 0;
-}
-
-void Sys_BeginProfiling(void)
-{
 }
 
 /*
@@ -359,54 +358,57 @@ void Sys_Quit(void)
 	Sys_Exit(0);
 }
 
+#if idppc_altivec && !MACOS_X
+/* This is the brute force way of detecting instruction sets...
+   the code is borrowed from SDL, which got the idea from the libmpeg2
+   library - thanks!
+*/
+#include <signal.h>
+#include <setjmp.h>
+static jmp_buf jmpbuf;
+static void illegal_instruction(int sig)
+{
+	longjmp(jmpbuf, 1);
+}
+#endif
+
+qboolean Sys_DetectAltivec(void)
+{	 
+	qboolean altivec = qfalse;
+
+#if idppc_altivec
+#ifdef MACOS_X
+	long feat = 0;
+	OSErr err = Gestalt(gestaltPowerPCProcessorFeatures, &feat);
+	if ((err==noErr) && ((1 << gestaltPowerPCHasVectorInstructions) & feat))
+	altivec = qtrue;
+#else
+	void (*handler)(int sig);
+	handler = signal(SIGILL, illegal_instruction);
+	if(setjmp(jmpbuf) == 0)
+	{
+		asm volatile ("mtspr 256, %0\n\t"
+			"vand %%v0, %%v0, %%v0"
+			:
+			: "r" (-1));
+		altivec = qtrue;
+	}
+	signal(SIGILL, handler);
+#endif	 
+#endif
+
+	return altivec;
+}
+
 void Sys_Init(void)
 {
 	Cmd_AddCommand("in_restart", Sys_In_Restart_f);
 
-#if defined __linux__
-#if defined __i386__
-	Cvar_Set("arch", "linux i386");
-#elif defined __x86_64__
-	Cvar_Set("arch", "linux x86_64");
-#elif defined __alpha__
-	Cvar_Set("arch", "linux alpha");
-#elif defined __sparc__
-	Cvar_Set("arch", "linux sparc");
-#elif defined __FreeBSD__
-
-#if defined __i386__			// FreeBSD
-	Cvar_Set("arch", "freebsd i386");
-#elif defined __alpha__
-	Cvar_Set("arch", "freebsd alpha");
-#else
-	Cvar_Set("arch", "freebsd unknown");
-#endif							// FreeBSD
-
-#else
-	Cvar_Set("arch", "linux unknown");
-#endif
-#elif defined __sun__
-#if defined __i386__
-	Cvar_Set("arch", "solaris x86");
-#elif defined __sparc__
-	Cvar_Set("arch", "solaris sparc");
-#else
-	Cvar_Set("arch", "solaris unknown");
-#endif
-#elif defined __sgi__
-#if defined __mips__
-	Cvar_Set("arch", "sgi mips");
-#else
-	Cvar_Set("arch", "sgi unknown");
-#endif
-#else
-	Cvar_Set("arch", "unknown");
-#endif
+	Cvar_Set("arch", OS_STRING " " ARCH_STRING);
 
 	Cvar_Set("username", Sys_GetCurrentUser());
 
-	IN_Init();
-
+	//IN_Init();   // rcg08312005 moved into glimp.
 }
 
 void Sys_Error(const char *error, ...)
@@ -688,28 +690,43 @@ char           *Sys_ConsoleInput(void)
 
 /*****************************************************************************/
 
+char *do_dlerror(void)
+{
+#if USE_SDL
+	return SDL_GetError();
+#else
+	return dlerror();
+#endif
+}
+
 /*
 =================
 Sys_UnloadDll
-
 =================
 */
 void Sys_UnloadDll(void *dllHandle)
 {
 	// bk001206 - verbose error reporting
-	const char     *err;		// rb010123 - now const
 
 	if(!dllHandle)
 	{
 		Com_Printf("Sys_UnloadDll(NULL)\n");
 		return;
 	}
-	dlclose(dllHandle);
-	err = dlerror();
-	if(err != NULL)
-		Com_Printf("Sys_UnloadGame failed on dlclose: \"%s\"!\n", err);
-}
 
+#if USE_SDL
+	SDL_UnloadObject(dllHandle);
+#else
+	dlclose(dllHandle);
+	{
+		const char* err; // rb010123 - now const
+
+		err = dlerror();
+		if(err != NULL)
+			Com_Printf("Sys_UnloadGame failed on dlclose: \"%s\"!\n", err);
+	}
+#endif
+}
 
 /*
 =================
@@ -725,6 +742,37 @@ changed the load procedure to match VFS logic, and allow developer use
 */
 extern char    *FS_BuildOSPath(const char *base, const char *game, const char *qpath);
 
+static void	   *try_dlopen(const char* base, const char* gamedir, const char* fname, char* fqpath)
+{
+	void* libHandle;
+	char* fn;
+  	 
+	*fqpath = 0;
+  	 
+// bk001129 - was RTLD_LAZY
+#define Q_RTLD    RTLD_NOW
+  	 
+	fn = FS_BuildOSPath(base, gamedir, fname);
+	Com_Printf("Sys_LoadDll(%s)... \n", fn);
+
+#if USE_SDL
+	libHandle = SDL_LoadObject(fn);
+#else
+	libHandle = dlopen(fn, Q_RTLD);
+#endif
+
+	if(!libHandle)
+	{
+		Com_Printf("Sys_LoadDll(%s) failed:\n\"%s\"\n", fn, do_dlerror());
+		return NULL;
+	}
+  	 
+	Com_Printf("Sys_LoadDll(%s): succeeded ...\n", fn);
+	Q_strncpyz(fqpath, fn, MAX_QPATH); // added 7/20/02 by T.Ray
+  	 
+	return libHandle;
+}
+
 void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoint) (int, ...), intptr_t (*systemcalls) (intptr_t, ...))
 {
 	void           *libHandle;
@@ -734,98 +782,74 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 	char           *basepath;
 	char           *homepath;
 	char           *pwdpath;
+	char		   *cdpath;
 	char           *gamedir;
-	char           *fn;
 	const char     *err = NULL;
-
-	*fqpath = 0;
 
 	// bk001206 - let's have some paranoia
 	assert(name);
 
 	getcwd(curpath, sizeof(curpath));
-#if defined __i386__
-	snprintf(fname, sizeof(fname), "%si386.so", name);
-#elif defined __x86_64__
-	snprintf(fname, sizeof(fname), "%sx86_64.so", name);
-#elif defined __powerpc__		//rcg010207 - PPC support.
-	snprintf(fname, sizeof(fname), "%sppc.so", name);
-#elif defined __axp__
-	snprintf(fname, sizeof(fname), "%saxp.so", name);
-#elif defined __mips__
-	snprintf(fname, sizeof(fname), "%smips.so", name);
-#else
-#error Unknown arch
-#endif
+	snprintf(fname, sizeof(fname), "%s" ARCH_STRING DLL_EXT, name);
 
-// bk001129 - was RTLD_LAZY 
-#define Q_RTLD    RTLD_NOW
-
+	// TODO: use fs_searchpaths from files.c
 	pwdpath = Sys_Cwd();
 	basepath = Cvar_VariableString("fs_basepath");
 	homepath = Cvar_VariableString("fs_homepath");
+	cdpath = Cvar_VariableString("fs_cdpath");
 	gamedir = Cvar_VariableString("fs_game");
 
-	// pwdpath
-	fn = FS_BuildOSPath(pwdpath, gamedir, fname);
-	Com_Printf("Sys_LoadDll(%s)... \n", fn);
-	libHandle = dlopen(fn, Q_RTLD);
+	libHandle = try_dlopen(pwdpath, gamedir, fname, fqpath);
+
+	if(!libHandle && homepath)
+		libHandle = try_dlopen(homepath, gamedir, fname, fqpath);
+
+	if(!libHandle && basepath)
+		libHandle = try_dlopen(basepath, gamedir, fname, fqpath);
+
+	if(!libHandle && cdpath)
+		libHandle = try_dlopen(cdpath, gamedir, fname, fqpath);
 
 	if(!libHandle)
 	{
-		Com_Printf("Sys_LoadDll(%s) failed:\n\"%s\"\n", fn, dlerror());
-		// fs_homepath
-		fn = FS_BuildOSPath(homepath, gamedir, fname);
-		Com_Printf("Sys_LoadDll(%s)... \n", fn);
-		libHandle = dlopen(fn, Q_RTLD);
-
-		if(!libHandle)
-		{
-			Com_Printf("Sys_LoadDll(%s) failed:\n\"%s\"\n", fn, dlerror());
-			// fs_basepath
-			fn = FS_BuildOSPath(basepath, gamedir, fname);
-			Com_Printf("Sys_LoadDll(%s)... \n", fn);
-			libHandle = dlopen(fn, Q_RTLD);
-
-			if(!libHandle)
-			{
-#ifndef NDEBUG					// bk001206 - in debug abort on failure
-				Com_Error(ERR_FATAL, "Sys_LoadDll(%s) failed dlopen() completely!\n", name);
+#ifndef NDEBUG // bk001206 - in debug abort on failure
+		Com_Error(ERR_FATAL, "Sys_LoadDll(%s) failed dlopen() completely!\n", name);
 #else
-				Com_Printf("Sys_LoadDll(%s) failed dlopen() completely!\n", name);
+		Com_Printf("Sys_LoadDll(%s) failed dlopen() completely!\n", name);
 #endif
-				return NULL;
-			}
-			else
-				Com_Printf("Sys_LoadDll(%s): succeeded ...\n", fn);
-		}
-		else
-			Com_Printf("Sys_LoadDll(%s): succeeded ...\n", fn);
+		return NULL;
 	}
-	else
-		Com_Printf("Sys_LoadDll(%s): succeeded ...\n", fn);
 
+#if USE_SDL
+	dllEntry = SDL_LoadFunction( libHandle, "dllEntry" );
+	*entryPoint = SDL_LoadFunction( libHandle, "vmMain" );
+#else
 	dllEntry = dlsym(libHandle, "dllEntry");
 	*entryPoint = dlsym(libHandle, "vmMain");
+#endif
 	if(!*entryPoint || !dllEntry)
 	{
-		err = dlerror();
+		err = do_dlerror();
 #ifndef NDEBUG					// bk001206 - in debug abort on failure
 		Com_Error(ERR_FATAL, "Sys_LoadDll(%s) failed dlsym(vmMain):\n\"%s\" !\n", name, err);
 #else
 		Com_Printf("Sys_LoadDll(%s) failed dlsym(vmMain):\n\"%s\" !\n", name, err);
 #endif
+#if USE_SDL
+		SDL_UnloadObject(libHandle);
+#else
 		dlclose(libHandle);
-		err = dlerror();
+		err = do_dlerror();
 		if(err != NULL)
 			Com_Printf("Sys_LoadDll(%s) failed dlcose:\n\"%s\"\n", name, err);
+#endif
+
 		return NULL;
 	}
 	Com_Printf("Sys_LoadDll(%s) found **vmMain** at  %p  \n", name, *entryPoint);	// bk001212
 	dllEntry(systemcalls);
 	Com_Printf("Sys_LoadDll(%s) succeeded!\n", name);
-	if(libHandle)
-		Q_strncpyz(fqpath, fn, MAX_QPATH);	// added 7/20/02 by T.Ray
+
 	return libHandle;
 }
 
@@ -915,7 +939,6 @@ void Sys_StreamThread(void)
 /*
 ===============
 Sys_InitStreamThread
-
 ================
 */
 void Sys_InitStreamThread(void)
@@ -925,7 +948,6 @@ void Sys_InitStreamThread(void)
 /*
 ===============
 Sys_ShutdownStreamThread
-
 ================
 */
 void Sys_ShutdownStreamThread(void)
@@ -936,7 +958,6 @@ void Sys_ShutdownStreamThread(void)
 /*
 ===============
 Sys_BeginStreamedFile
-
 ================
 */
 void Sys_BeginStreamedFile(fileHandle_t f, int readAhead)
@@ -957,7 +978,6 @@ void Sys_BeginStreamedFile(fileHandle_t f, int readAhead)
 /*
 ===============
 Sys_EndStreamedFile
-
 ================
 */
 void Sys_EndStreamedFile(fileHandle_t f)
@@ -975,7 +995,6 @@ void Sys_EndStreamedFile(fileHandle_t f)
 /*
 ===============
 Sys_StreamedRead
-
 ================
 */
 int Sys_StreamedRead(void *buffer, int size, int count, fileHandle_t f)
@@ -1028,7 +1047,6 @@ int Sys_StreamedRead(void *buffer, int size, int count, fileHandle_t f)
 /*
 ===============
 Sys_StreamSeek
-
 ================
 */
 void Sys_StreamSeek(fileHandle_t f, int offset, int origin)
@@ -1106,7 +1124,6 @@ void Sys_QueEvent(int time, sysEventType_t type, int value, int value2, int ptrL
 /*
 ================
 Sys_GetEvent
-
 ================
 */
 sysEvent_t Sys_GetEvent(void)
@@ -1175,11 +1192,6 @@ sysEvent_t Sys_GetEvent(void)
 
 /*****************************************************************************/
 
-qboolean Sys_CheckCD(void)
-{
-	return qtrue;
-}
-
 void Sys_AppActivate(void)
 {
 }
@@ -1201,7 +1213,6 @@ void Sys_Print(const char *msg)
 		tty_Show();
 	}
 }
-
 
 void Sys_ConfigureFPU()
 {								// bk001213 - divide by zero
@@ -1232,6 +1243,54 @@ void Sys_ConfigureFPU()
 #endif							// __linux
 }
 
+/*
+=================
+Sys_BinName
+
+This resolves any symlinks to the binary. It's disabled for debug
+builds because there are situations where you are likely to want
+to symlink to binaries and /not/ have the links resolved.
+=================
+*/
+char *Sys_BinName(const char *arg0)
+{
+#ifdef NDEBUG
+	int           n;
+	char          src[PATH_MAX];
+	char          dir[PATH_MAX];
+	qboolean      links = qfalse;
+#endif
+  	 
+	static char   dst[PATH_MAX];
+  	 
+	Q_strncpyz(dst, arg0, PATH_MAX);
+  	 
+#ifdef NDEBUG
+	while((n = readlink(dst, src, PATH_MAX)) >= 0)
+	{
+		src[n] = '\0';
+  	 
+		Q_strncpyz(dir, dirname(dst), PATH_MAX);
+		Q_strncpyz(dst, dir, PATH_MAX);
+		Q_strcat(dst, PATH_MAX, "/");
+		Q_strcat(dst, PATH_MAX, src);
+  	 
+		links = qtrue;
+	}
+  	 
+	if(links)
+	{
+		Q_strncpyz(dst, Sys_Cwd(), PATH_MAX);
+		Q_strcat(dst, PATH_MAX, "/");
+		Q_strcat(dst, PATH_MAX, dir);
+		Q_strcat(dst, PATH_MAX, "/");
+		Q_strcat(dst, PATH_MAX, src);
+	}
+#endif
+  	 
+	return dst;
+}
+
 void Sys_PrintBinVersion(const char *name)
 {
 	char           *date = __DATE__;
@@ -1255,11 +1314,48 @@ void Sys_ParseArgs(int argc, char *argv[])
 	{
 		if((!strcmp(argv[1], "--version")) || (!strcmp(argv[1], "-v")))
 		{
-			Sys_PrintBinVersion(argv[0]);
+			Sys_PrintBinVersion(Sys_BinName(argv[0]));
 			Sys_Exit(0);
 		}
 	}
 }
+
+#ifdef MACOS_X
+/*
+=================
+Sys_EscapeAppBundle
+  	 
+Discovers if passed dir is suffixed with the directory structure of a
+Mac OS X .app bundle.  If it is, the .app directory structure is stripped off
+the end and the result is returned.   If not, dir is returned untouched.  	 
+=================
+*/
+char *Sys_StripAppBundle(char *dir)
+{
+	static char cwd[MAX_OSPATH];
+  	 
+	Q_strncpyz(cwd, dir, sizeof(cwd));
+	if(strcmp(basename(cwd), "MacOS"))
+		return dir;
+	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
+	if(strcmp(basename(cwd), "Contents"))
+		return dir;
+	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
+	if(!strstr(basename(cwd), ".app"))
+		return dir;
+	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
+	return cwd;
+}
+#endif /* MACOS_X */
+
+#ifndef DEFAULT_BASEDIR
+#ifdef MACOS_X
+// if run from an .app bundle, we want to also search its containing dir
+#define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_DefaultCDPath())
+#else
+#define DEFAULT_BASEDIR Sys_DefaultCDPath()
+#endif
+#endif
 
 #include "../client/client.h"
 extern clientStatic_t cls;
@@ -1269,15 +1365,13 @@ int main(int argc, char *argv[])
 	// int    oldtime, newtime; // bk001204 - unused
 	int             len, i;
 	char           *cmdline;
+	char			cdpath[PATH_MAX] = {0};
 	void            Sys_SetDefaultCDPath(const char *path);
-
-	// go back to real user for config loads
-	saved_euid = geteuid();
-	seteuid(getuid());
 
 	Sys_ParseArgs(argc, argv);	// bk010104 - added this for support
 
-	Sys_SetDefaultCDPath(argv[0]);
+	strncat(cdpath, Sys_BinName(argv[0]), sizeof(cdpath)-1);
+	Sys_SetDefaultCDPath(dirname(cdpath));
 
 	// merge the command line, this is kinda silly
 	for(len = 1, i = 1; i < argc; i++)
@@ -1309,9 +1403,24 @@ int main(int argc, char *argv[])
 
 	while(1)
 	{
+#if !defined(DEDICATED) && USE_SDL
+		int appState = SDL_GetAppState();
+  	 
+		// If we have no input focus at all, sleep a bit
+		if(!(appState & (SDL_APPMOUSEFOCUS | SDL_APPINPUTFOCUS)))
+			usleep(16000);
+  	 
+		// If we're minimised, sleep a bit more
+		if(!( appState & SDL_APPACTIVE))
+			usleep(32000);
+#endif
+
 #ifdef __linux__
 		Sys_ConfigureFPU();
 #endif
+
 		Com_Frame();
 	}
+
+	return 0;
 }

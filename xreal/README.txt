@@ -107,10 +107,13 @@ Just type "scons" in the source toplevel dir xreal/.
 You can provide SCons options for compiling. Use "scons -h" to list those options.
 
 
-COMPILING ON MAC
+COMPILING ON MAC OS X
 ================
 
-project file for OSX compile is in code/macosx/Quake3.pbproj
+The new build system is using SCons. 
+Make sure you have libcURL and SDL.
+Just type "scons arch=sdl" in the source toplevel dir xreal/.
+You can provide SCons options for compiling. Use "scons -h" to list those options.
 
 
 LICENSE

@@ -60,16 +60,6 @@ qboolean Sys_LowPhysicalMemory()
 }
 
 /*
-==================
-Sys_BeginProfiling
-==================
-*/
-void Sys_BeginProfiling(void)
-{
-	// this is just used on the mac build
-}
-
-/*
 =============
 Sys_Error
 
@@ -1069,6 +1059,11 @@ void Sys_Init(void)
 	Cvar_Set("username", Sys_GetCurrentUser());
 
 	IN_Init();					// FIXME: not in dedicated?
+}
+
+qboolean Sys_DetectAltivec(void)
+{
+	return qfalse;  // never altivec on Windows...
 }
 
 //=======================================================================

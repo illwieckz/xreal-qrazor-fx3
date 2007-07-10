@@ -64,6 +64,7 @@ cvar_t         *com_fixedtime;
 cvar_t         *com_dropsim;	// 0.0 to 1.0, simulated packet drops
 cvar_t         *com_journal;
 cvar_t         *com_maxfps;
+cvar_t		   *com_altivec;
 cvar_t         *com_timedemo;
 cvar_t         *com_sv_running;
 cvar_t         *com_cl_running;
@@ -2410,8 +2411,28 @@ static void Com_MathTest_f(void)
 	QuatFromMatrix(q, r);
 	Com_PrintQuat(q);
 	*/
-	
 }
+
+#ifdef idppc
+static void Com_DetectAltivec(void)
+{
+	// Only detect if user hasn't forcibly disabled it.
+	if(com_altivec->integer)
+	{
+		static qboolean altivec = qfalse;
+		static qboolean detected = qfalse;
+
+		if(!detected)
+		{
+			altivec = Sys_DetectAltivec();
+			detected = qtrue;
+		}
+  	 
+		if(!altivec)
+			Cvar_Set("com_altivec", "0");  // we don't have it! Disable support!
+	}
+}
+#endif
 
 /*
 =================
@@ -2422,7 +2443,7 @@ void Com_Init(char *commandLine)
 {
 	char           *s;
 
-	Com_Printf("%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__);
+	Com_Printf("%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__);
 
 	if(setjmp(abortframe))
 	{
@@ -2489,6 +2510,7 @@ void Com_Init(char *commandLine)
 	//
 	// init commands and vars
 	//
+	com_altivec = Cvar_Get("com_altivec", "1", CVAR_ARCHIVE);
 	com_maxfps = Cvar_Get("com_maxfps", "85", CVAR_ARCHIVE);
 	com_blood = Cvar_Get("com_blood", "1", CVAR_ARCHIVE);
 
@@ -2536,7 +2558,7 @@ void Com_Init(char *commandLine)
 
 	Cmd_AddCommand("mathtest", Com_MathTest_f);
 
-	s = va("%s %s %s", Q3_VERSION, CPUSTRING, __DATE__);
+	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get("version", s, CVAR_ROM | CVAR_SERVERINFO);
 
 	Sys_Init();
@@ -2580,6 +2602,12 @@ void Com_Init(char *commandLine)
 	Cvar_Set("ui_singlePlayerActive", "0");
 
 	com_fullyInitialized = qtrue;
+
+#if idppc
+	Com_DetectAltivec();
+	Com_Printf("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
+#endif
+
 	Com_Printf("--- Common Initialization Complete ---\n");
 }
 
@@ -2788,6 +2816,14 @@ void Com_Frame(void)
 		msec = com_frameTime - lastTime;
 	} while(msec < minMsec);
 	Cbuf_Execute();
+
+#ifdef idppc_altivec
+	if(com_altivec->modified)
+	{
+		Com_DetectAltivec();
+		com_altivec->modified = qfalse;
+	}
+#endif
 
 	lastTime = com_frameTime;
 

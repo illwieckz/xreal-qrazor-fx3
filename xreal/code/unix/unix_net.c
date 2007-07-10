@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 
 #include <unistd.h>
+#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+// needed for socket_t on OSX 10.2
+#define _BSD_SOCKLEN_T_
+#endif
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/in.h>
@@ -161,7 +165,7 @@ qboolean Sys_GetPacket(netadr_t * net_from, msg_t * net_message)
 {
 	int             ret;
 	struct sockaddr_in from;
-	int             fromlen;
+	socklen_t       fromlen;
 	int             net_socket;
 	int             protocol;
 	int             err;
@@ -277,6 +281,19 @@ qboolean Sys_IsLANAddress(netadr_t adr)
 		return qfalse;
 	}
 
+	// RFC1918:
+	// 10.0.0.0        -   10.255.255.255  (10/8 prefix)
+	// 172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
+	// 192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
+	if(adr.ip[0] == 10)
+		return qtrue;
+	if(adr.ip[0] == 172 && (adr.ip[1]&0xf0) == 16)
+		return qtrue;
+	if(adr.ip[0] == 192 && adr.ip[1] == 168)
+		return qtrue;
+  	 
+	// the checks below are bogus, aren't they? -- ln
+
 	// choose which comparison to use based on the class of the address being tested
 	// any local adresses of a different class than the address being tested will fail based on the first byte
 
@@ -349,12 +366,25 @@ NET_GetLocalAddress
 =====================
 */
 #ifdef MACOS_X
-// Don't do a forward mapping from the hostname of the machine to the IP.  The reason is that we might have obtained an IP address from DHCP and there might not be any name registered for the machine.  On Mac OS X, the machine name defaults to 'localhost' and NetInfo has 127.0.0.1 listed for this name.  Instead, we want to get a list of all the IP network interfaces on the machine.
-// This code adapted from OmniNetworking.
 
+// Don't do a forward mapping from the hostname of the machine to the IP.
+// The reason is that we might have obtained an IP address from DHCP and
+// there might not be any name registered for the machine.  On Mac OS X,
+// the machine name defaults to 'localhost' and NetInfo has 127.0.0.1
+// listed for this name.  Instead, we want to get a list of all the IP
+// network interfaces on the machine. This code adapted from
+// OmniNetworking.
+
+#ifdef _SIZEOF_ADDR_IFREQ
+// tjw: OSX 10.4 does not have sa_len
+#define IFR_NEXT(ifr)   \
+	((struct ifreq *) ((char *) ifr + _SIZEOF_ADDR_IFREQ(*ifr)))
+#else
+// tjw: assume that once upon a time some version did have sa_len
 #define IFR_NEXT(ifr)	\
     ((struct ifreq *) ((char *) (ifr) + sizeof(*(ifr)) + \
       MAX(0, (int) (ifr)->ifr_addr.sa_len - (int) sizeof((ifr)->ifr_addr))))
+#endif
 
 void NET_GetLocalAddress(void)
 {
@@ -365,7 +395,7 @@ void NET_GetLocalAddress(void)
 	int             interfaceSocket;
 	int             family;
 
-	//Com_Printf("NET_GetLocalAddress: Querying for network interfaces\n");
+	Com_Printf("NET_GetLocalAddress: Querying for network interfaces\n");
 
 	// Set this early so we can just return if there is an error
 	numIP = 0;
@@ -373,7 +403,10 @@ void NET_GetLocalAddress(void)
 	ifc.ifc_len = sizeof(requestBuffer);
 	ifc.ifc_buf = (caddr_t) requestBuffer;
 
-	// Since we get at this info via an ioctl, we need a temporary little socket.  This will only get AF_INET interfaces, but we probably don't care about anything else.  If we do end up caring later, we should add a ONAddressFamily and at a -interfaces method to it.
+	// Since we get at this info via an ioctl, we need a temporary little socket.
+	// This will only get AF_INET interfaces, but we probably don't care about
+	// anything else.  If we do end up caring later, we should add a
+	// ONAddressFamily and at a -interfaces method to it.
 	family = AF_INET;
 	if((interfaceSocket = socket(family, SOCK_DGRAM, 0)) < 0)
 	{
@@ -393,7 +426,14 @@ void NET_GetLocalAddress(void)
 	{
 		unsigned int    nameLength;
 
-		// The ioctl returns both the entries having the address (AF_INET) and the link layer entries (AF_LINK).  The AF_LINK entry has the link layer address which contains the interface type.  This is the only way I can see to get this information.  We cannot assume that we will get bot an AF_LINK and AF_INET entry since the interface may not be configured.  For example, if you have a 10Mb port on the motherboard and a 100Mb card, you may not configure the motherboard port.
+		// The ioctl returns both the entries having the address (AF_INET)
+		// and the link layer entries (AF_LINK).  The AF_LINK entry has the
+		// link layer address which contains the interface type.  This is the
+		// only way I can see to get this information.  We cannot assume that
+		// we will get bot an AF_LINK and AF_INET entry since the interface
+		// may not be configured.  For example, if you have a 10Mb port on
+		// the motherboard and a 100Mb card, you may not configure the
+		// motherboard port.
 
 		// For each AF_LINK entry...
 		if(linkInterface->ifr_addr.sa_family == AF_LINK)
@@ -449,6 +489,8 @@ void NET_GetLocalAddress(void)
 		}
 		linkInterface = IFR_NEXT(linkInterface);
 	}
+
+	Com_Printf("NET_GetLocalAddress: DONE querying for network interfaces\n");
 
 	close(interfaceSocket);
 }
@@ -644,15 +686,36 @@ void NET_Sleep(int msec)
 	struct timeval  timeout;
 	fd_set          fdset;
 	extern qboolean stdin_active;
+	int				highestfd = 0;
 
 	if(!ip_socket || !com_dedicated->integer)
 		return;					// we're not a server, just run full speed
 
 	FD_ZERO(&fdset);
 	if(stdin_active)
+	{
 		FD_SET(0, &fdset);		// stdin is processed too
-	FD_SET(ip_socket, &fdset);	// network socket
-	timeout.tv_sec = msec / 1000;
-	timeout.tv_usec = (msec % 1000) * 1000;
-	select(ip_socket + 1, &fdset, NULL, NULL, &timeout);
+		highestfd = 1;
+	}
+	if(ip_socket)
+	{
+		FD_SET(ip_socket, &fdset);	// network socket
+		if(ip_socket >= highestfd)
+			highestfd = ip_socket + 1;
+	}
+
+	if(highestfd)
+	{
+		if(msec >= 0)
+		{
+			timeout.tv_sec = msec / 1000;
+			timeout.tv_usec = (msec % 1000) * 1000;
+			select(highestfd, &fdset, NULL, NULL, &timeout);
+		}
+		else
+		{
+			// Block indefinitely
+			select(highestfd, &fdset, NULL, NULL, NULL);
+		}
+	}
 }

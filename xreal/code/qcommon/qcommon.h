@@ -784,6 +784,7 @@ extern cvar_t  *com_blood;
 extern cvar_t  *com_buildScript;	// for building release pak files
 extern cvar_t  *com_journal;
 extern cvar_t  *com_cameraMode;
+extern cvar_t  *com_altivec;
 
 // both client and server must agree to pause
 extern cvar_t  *cl_paused;
@@ -1067,13 +1068,10 @@ char           *Sys_DefaultHomePath(void);
 char          **Sys_ListFiles(const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs);
 void            Sys_FreeFileList(char **list);
 
-void            Sys_BeginProfiling(void);
-void            Sys_EndProfiling(void);
-
 qboolean        Sys_LowPhysicalMemory();
 unsigned int    Sys_ProcessorCount();
 
-int             Sys_MonkeyShouldBeSpanked(void);
+qboolean		Sys_DetectAltivec(void);
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

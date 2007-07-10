@@ -196,9 +196,15 @@ unix_src = [
 ]
 
 linux_src = [
-'code/unix/linux_common.c',
 'code/unix/linux_glimp.c',
 'code/unix/linux_joystick.c',
+'code/unix/linux_qgl.c',
+'code/unix/linux_signals.c'
+]
+
+sdl_src = [
+'code/unix/sdl_glimp.c',
+'code/unix/sdl_sound.c',
 'code/unix/linux_qgl.c',
 'code/unix/linux_signals.c'
 ]
@@ -293,6 +299,25 @@ elif env['arch'] == 'linux-x86_64':
 		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86_64')
+
+elif env['arch'] == 'sdl':
+	xreal_env.Append(LIBS=['dl', 'm'])
+	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+	
+	if env['freetype'] == 1:
+		xreal_env.ParseConfig('freetype-config --cflags --libs')
+		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	
+	xreal_env.Append(CCFLAGS='-DDLL_ONLY')
+		
+	if env['smp'] == 1:
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
+	
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
+	xreal_env.Program('xreal.sdl', [xreal_src, unix_src, sdl_src, vm_src])
+		
+	xreal_env.Install('#', 'xreal.sdl')
 
 elif env['arch'] == 'win32-mingw':
 	if env['freetype'] == 1:

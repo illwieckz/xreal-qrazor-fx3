@@ -71,8 +71,8 @@ unix_src = [
 ]
 
 linux_src = [
-'code/unix/linux_common.c',
-'code/unix/linux_signals.c']
+'code/unix/linux_signals.c'
+]
 
 vm_src = [
 'code/qcommon/vm.c',
@@ -105,7 +105,12 @@ elif env['arch'] == 'linux-x86_64':
 	else:
 		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 
-	xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src, linux_src, vm_src])
 	xreal_server_env.Install('#', 'xreal-server.x86_64')
+
+elif env['arch'] == 'sdl':
+	xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
+	xreal_server_env.Append(LIBS=['dl', 'm'])
+	xreal_server_env.Program('xreal-server.sdl', [xreal_server_src, unix_src, linux_src, vm_src])
+	xreal_server_env.Install('#', 'xreal-server.sdl')
