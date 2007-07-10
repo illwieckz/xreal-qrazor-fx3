@@ -43,3 +43,4 @@ tr3b_wood
 #zogg_terrain
 #zogg_trim
 #zogg_wall
+raynorpat

@@ -1,0 +1,13 @@
+textures/raynorpat/black_sky
+{
+	qer_editorimage textures/raynorpat/black.png
+	
+	noimpact
+	sky
+	xmap_sun 1 1 1 32	90 90
+	skyparms - 2048 -
+
+	{
+		map textures/raynorpat/black.png
+	}
+}
