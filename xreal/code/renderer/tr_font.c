@@ -447,7 +447,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 			fdOffset += 32;
 		}
 		font->glyphScale = readFloat();
-		Com_Memcpy(font->name, &fdFile[fdOffset], MAX_QPATH);
+		Com_Memcpy(font->name, &fdFile[fdOffset], 64);
 
 //      Com_Memcpy(font, faceData, sizeof(fontInfo_t));
 		Q_strncpyz(font->name, fileName, sizeof(font->name));
