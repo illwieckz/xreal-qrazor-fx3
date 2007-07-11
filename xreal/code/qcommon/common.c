@@ -2542,14 +2542,16 @@ static void Com_GenerateMediaTXT_f(void)
 			license[0] = '\0';
 			source[0] = '\0';
 
-			// skip "to" or "zu"
+			// skip "on" or "zu"
 			token = Com_ParseExt(&buf_p, qfalse);
-
-			// skip "-"
-			//token = Com_ParseExt(&buf_p, qfalse);
 
 			// parse filename name
 			token = Com_ParseExt(&buf_p, qfalse);
+			if(!strcmp(token, "'"))
+			{
+				// try again
+				token = Com_ParseExt(&buf_p, qfalse);
+			}
 			if(!token[0])
 				break;
 
