@@ -216,7 +216,8 @@ void G_SetClientSound(gentity_t * ent)
 #endif
 	if(ent->waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
-		ent->client->ps.loopSound = level.snd_fry;
+		// FIXME standing in lava / slime
+		ent->client->ps.loopSound = G_SoundIndex("sound/player/fry.ogg");
 	}
 	else
 	{

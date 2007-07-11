@@ -391,8 +391,6 @@ typedef struct
 	int             sortedClients[MAX_CLIENTS];	// sorted by score
 	int             follow1, follow2;	// clientNums for auto-follow spectators
 
-	int             snd_fry;	// sound index for standing in lava
-
 	int             warmupModificationCount;	// for detecting if g_warmup is changed
 
 	// voting state
