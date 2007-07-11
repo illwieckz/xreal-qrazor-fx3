@@ -597,7 +597,11 @@ textures/power/models/pad
 	{
 		map textures/power/models/pad_g.tga
 		blend add
-		colored
+		//colored
+		red 	( firetable2 [Parm4 + (time / 6) ]) * Parm0
+		green 	( firetable2 [Parm4 + (time / 6) ]) * Parm1
+		blue 	( firetable2 [Parm4 + (time / 6) ]) * Parm2
+		alpha	1
 	}
 }
 
