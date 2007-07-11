@@ -82,11 +82,8 @@ typedef struct
 	int             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
 
 	int             restartTime;
+	int				time;
 } server_t;
-
-
-
-
 
 typedef struct
 {
@@ -173,6 +170,8 @@ typedef struct client_s
 	// buffer them into this queue, and hand them out to netchan as needed
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
+
+	int				oldServerTime;
 } client_t;
 
 //=============================================================================
