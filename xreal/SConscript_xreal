@@ -204,7 +204,7 @@ linux_src = [
 
 sdl_src = [
 'code/unix/sdl_glimp.c',
-'code/unix/sdl_sound.c',
+'code/unix/sdl_snd.c',
 'code/unix/linux_qgl.c',
 'code/unix/linux_signals.c'
 ]
