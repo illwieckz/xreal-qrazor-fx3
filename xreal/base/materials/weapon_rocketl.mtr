@@ -75,3 +75,83 @@ models/projectiles/missile/missilefls2
 		blend add
 	}
 }
+
+models/ammo/rocket/rocket
+{
+	{
+		stage diffuseMap
+		map models/projectiles/rocket/rocket.tga
+	}
+	normalMap heightMap(models/projectiles/rocket/rocket.tga, 1)
+	specularMap models/projectiles/rocket/rocket.tga
+}
+
+/*
+rocketThrustf
+{
+	deformVertexes autosprite2
+
+	{
+		map models/weapons2/machinegun/f_machinegun.tga
+		blend add
+		tcMod rotate 1246
+	}
+	{
+		map models/weapons2/machinegun/f_machinegun.tga
+		blend add
+		tcMod rotate -1246
+	}
+}
+*/
+
+rocketThrust
+{
+	twoSided
+	{
+		if((time * 15) % 3 == 0)
+		map models/projectiles/rocket/thrustc1.tga
+		blend GL_ONE, GL_SRC_ALPHA
+		rgbGen wave inversesawtooth 0 1 0 15 
+	}
+	{
+		if((time * 15) % 3 == 0)
+		map models/projectiles/rocket/thrustc1.tga
+		blend GL_ONE, GL_SRC_ALPHA
+		rgbGen wave sawtooth 0 1 0 15 
+	}
+	{
+		if((time * 15) % 3 == 1)
+		map models/projectiles/rocket/thrustc2.tga
+		blend GL_ONE, GL_SRC_ALPHA
+		rgbGen wave inversesawtooth 0 1 0 15 
+	}
+	{
+		if((time * 15) % 3 == 1)
+		map models/projectiles/rocket/thrustc3.tga
+		blend GL_ONE, GL_SRC_ALPHA
+		rgbGen wave sawtooth 0 1 0 15 
+	}
+	{
+		if((time * 15) % 3 == 2)
+		map models/projectiles/rocket/thrustc3.tga 
+		blend GL_ONE, GL_SRC_ALPHA
+		rgbGen wave inversesawtooth 0 1 0 15 
+	}
+	{
+		if((time * 15) % 3 == 2)
+		map models/projectiles/rocket/thrustc1.tga 
+		blend GL_ONE, GL_SRC_ALPHA
+		rgbGen wave sawtooth 0 1 0 15 
+	}
+}
+
+rocketFlare
+{
+	twoSided
+	deformVertexes autosprite
+
+	{
+		map models/projectiles/rocket/rocketflare.tga
+		blendfunc add
+	}
+}

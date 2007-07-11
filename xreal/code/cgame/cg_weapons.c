@@ -830,7 +830,7 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_GRAPPLING_HOOK:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/rocket/rocket.md3");
 			weaponInfo->missileTrailFunc = CG_GrappleTrail;
 			weaponInfo->missileLight = 200;
 			weaponInfo->wiTrailTime = 2000;
@@ -873,7 +873,7 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_ROCKET_LAUNCHER:
-			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/rocket/rocket.md3");
 			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.wav", qfalse);
 			weaponInfo->missileTrailFunc = CG_RocketTrail;
 			weaponInfo->missileLight = 200;
