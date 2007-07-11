@@ -400,6 +400,10 @@ void SVC_Info(netadr_t from)
 		return;
 	}
 
+	// raynorpat: make sure we have a sane length. see http://aluigi.altervista.org/
+	if(strlen(Cmd_Argv(1)) > 128)
+		return;
+
 	// don't count privateclients
 	count = 0;
 	for(i = sv_privateClients->integer; i < sv_maxclients->integer; i++)
@@ -549,7 +553,7 @@ void SV_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	MSG_BeginReadingOOB(msg);
 	MSG_ReadLong(msg);			// skip the -1 marker
 
-	if(!Q_strncmp("connect", &msg->data[4], 7))
+	if(!Q_strncmp("connect", (char *)&msg->data[4], 7))
 	{
 		Huff_Decompress(msg, 12);
 	}
