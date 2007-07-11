@@ -240,7 +240,7 @@ textures/common/trigger
 // trigger entities use this material
 textures/common/trigmulti
 {
-	qer_editorimage textures/common/trigmulti.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -251,7 +251,7 @@ textures/common/trigmulti
 // trigger entities use this material
 textures/common/trigonce
 {
-	qer_editorimage textures/common/trigonce.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -262,7 +262,7 @@ textures/common/trigonce
 // trigger entities use this material
 textures/common/trigtimer
 {
-	qer_editorimage textures/common/trigtimer.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -273,7 +273,7 @@ textures/common/trigtimer
 // trigger entities use this material
 textures/common/trigrelay
 {
-	qer_editorimage textures/common/trigrelay.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -284,7 +284,7 @@ textures/common/trigrelay
 // trigger entities use this material
 textures/common/trighurt
 {
-	qer_editorimage textures/common/trighurt.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -295,7 +295,7 @@ textures/common/trighurt
 // trigger entities use this material
 textures/common/trigfade
 {
-	qer_editorimage textures/common/trigfade.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -306,7 +306,7 @@ textures/common/trigfade
 // trigger entities use this material
 textures/common/triggui
 {
-	qer_editorimage textures/common/triggui.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -317,7 +317,7 @@ textures/common/triggui
 // trigger entities use this material
 textures/common/trigair
 {
-	qer_editorimage textures/common/trigair.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -328,7 +328,7 @@ textures/common/trigair
 // trigger entities use this material
 textures/common/trigentityname
 {
-	qer_editorimage textures/common/trigentity.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -339,7 +339,7 @@ textures/common/trigentityname
 // trigger entities use this material
 textures/common/trigentityname_once
 {
-	qer_editorimage textures/common/trigentity.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
@@ -350,7 +350,7 @@ textures/common/trigentityname_once
 // flashlight trigger entities use this material
 textures/common/trigflashlight
 {
-	qer_editorimage textures/common/trigflash.tga
+	qer_editorimage textures/common/trigger.tga
 	qer_nocarve		// don't let an awry CSG operation cut it up
 	qer_trans 0.5
 	
