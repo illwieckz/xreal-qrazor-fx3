@@ -120,9 +120,7 @@ void P_WorldEffects(gentity_t * ent)
 
 	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
 
-	//
 	// check for drowning
-	//
 	if(waterlevel == 3)
 	{
 		// envirosuit give air
@@ -150,11 +148,11 @@ void P_WorldEffects(gentity_t * ent)
 				}
 				else if(rand() & 1)
 				{
-					G_Sound(ent, CHAN_VOICE, G_SoundIndex("sound/player/gurp1.wav"));
+					G_Sound(ent, CHAN_VOICE, G_SoundIndex("sound/player/gurp1.ogg"));
 				}
 				else
 				{
-					G_Sound(ent, CHAN_VOICE, G_SoundIndex("sound/player/gurp2.wav"));
+					G_Sound(ent, CHAN_VOICE, G_SoundIndex("sound/player/gurp2.ogg"));
 				}
 
 				// don't play a normal pain sound
@@ -170,9 +168,7 @@ void P_WorldEffects(gentity_t * ent)
 		ent->damage = 2;
 	}
 
-	//
 	// check for sizzle damage (move to pmove?)
-	//
 	if(waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
 		if(ent->health > 0 && ent->pain_debounce_time <= level.time)

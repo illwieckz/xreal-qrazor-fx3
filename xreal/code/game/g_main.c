@@ -534,8 +534,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	if(g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue("com_buildScript"))
 	{
 		G_ModelIndex(SP_PODIUM_MODEL);
-		G_SoundIndex("sound/player/gurp1.wav");
-		G_SoundIndex("sound/player/gurp2.wav");
+		G_SoundIndex("sound/player/gurp1.ogg");
+		G_SoundIndex("sound/player/gurp2.ogg");
 	}
 
 	if(trap_Cvar_VariableIntegerValue("bot_enable"))
