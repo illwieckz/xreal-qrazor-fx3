@@ -205,7 +205,6 @@ base/sound/player/DEFAULT_MODEL/pain25_1.ogg
 base/sound/player/DEFAULT_MODEL/pain50_1.ogg
 base/sound/player/DEFAULT_MODEL/pain75_1.ogg
 base/sound/player/DEFAULT_MODEL/taunt.ogg
-base/sound/player/land1.ogg
 base/sound/teamplay/flagcapture_opponent.ogg
 base/sound/teamplay/flagcapture_yourteam.ogg
 base/sound/teamplay/flagreturn_opponent.ogg
