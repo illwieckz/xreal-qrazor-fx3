@@ -3271,7 +3271,7 @@ qboolean QGL_Init(const char *dllname)
 
 	// raynorpat: moved below, because hinstOpenGL will always be zero until
 	// its loaded
-	assert(glw_state.hinstOpenGL == 0);
+	assert(glw_state.hinstOpenGL != 0);
 
 	qglAccum = dllAccum = GPA("glAccum");
 	qglAlphaFunc = dllAlphaFunc = GPA("glAlphaFunc");
