@@ -26,10 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_local.h"
 #include "snd_public.h"
 
-cvar_t *s_volume;
-cvar_t *s_musicVolume;
-cvar_t *s_doppler;
-cvar_t *s_backend;
+cvar_t         *s_volume;
+cvar_t         *s_musicVolume;
+cvar_t         *s_doppler;
+cvar_t         *s_backend;
 
 static soundInterface_t si;
 
@@ -38,28 +38,48 @@ static soundInterface_t si;
 S_ValidateInterface
 =================
 */
-static qboolean S_ValidSoundInterface(soundInterface_t *si)
+static qboolean S_ValidSoundInterface(soundInterface_t * si)
 {
-	if(!si->Shutdown) return qfalse;
-	if(!si->StartSound) return qfalse;
-	if(!si->StartLocalSound) return qfalse;
-	if(!si->StartBackgroundTrack) return qfalse;
-	if(!si->StopBackgroundTrack) return qfalse;
-	if(!si->RawSamples) return qfalse;
-	if(!si->StopAllSounds) return qfalse;
-	if(!si->ClearLoopingSounds) return qfalse;
-	if(!si->AddLoopingSound) return qfalse;
-	if(!si->AddRealLoopingSound) return qfalse;
-	if(!si->StopLoopingSound) return qfalse;
-	if(!si->Respatialize) return qfalse;
-	if(!si->UpdateEntityPosition) return qfalse;
-	if(!si->Update) return qfalse;
-	if(!si->DisableSounds) return qfalse;
-	if(!si->BeginRegistration) return qfalse;
-	if(!si->RegisterSound) return qfalse;
-	if(!si->ClearSoundBuffer) return qfalse;
-	if(!si->SoundInfo) return qfalse;
-	if(!si->SoundList) return qfalse;
+	if(!si->Shutdown)
+		return qfalse;
+	if(!si->StartSound)
+		return qfalse;
+	if(!si->StartLocalSound)
+		return qfalse;
+	if(!si->StartBackgroundTrack)
+		return qfalse;
+	if(!si->StopBackgroundTrack)
+		return qfalse;
+	if(!si->RawSamples)
+		return qfalse;
+	if(!si->StopAllSounds)
+		return qfalse;
+	if(!si->ClearLoopingSounds)
+		return qfalse;
+	if(!si->AddLoopingSound)
+		return qfalse;
+	if(!si->AddRealLoopingSound)
+		return qfalse;
+	if(!si->StopLoopingSound)
+		return qfalse;
+	if(!si->Respatialize)
+		return qfalse;
+	if(!si->UpdateEntityPosition)
+		return qfalse;
+	if(!si->Update)
+		return qfalse;
+	if(!si->DisableSounds)
+		return qfalse;
+	if(!si->BeginRegistration)
+		return qfalse;
+	if(!si->RegisterSound)
+		return qfalse;
+	if(!si->ClearSoundBuffer)
+		return qfalse;
+	if(!si->SoundInfo)
+		return qfalse;
+	if(!si->SoundList)
+		return qfalse;
 
 	return qtrue;
 }
@@ -113,7 +133,7 @@ void S_StopBackgroundTrack(void)
 S_RawSamples
 =================
 */
-void S_RawSamples(int samples, int rate, int width, int channels, const byte *data, float volume)
+void S_RawSamples(int samples, int rate, int width, int channels, const byte * data, float volume)
 {
 	if(si.RawSamples)
 		si.RawSamples(samples, rate, width, channels, data, volume);
@@ -146,7 +166,7 @@ void S_ClearLoopingSounds(qboolean killall)
 S_AddLoopingSound
 =================
 */
-void S_AddLoopingSound(int entityNum, const vec3_t origin,	const vec3_t velocity, sfxHandle_t sfx)
+void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx)
 {
 	if(si.AddLoopingSound)
 		si.AddLoopingSound(entityNum, origin, velocity, sfx);
@@ -234,7 +254,7 @@ void S_BeginRegistration(void)
 S_RegisterSound
 =================
 */
-sfxHandle_t	S_RegisterSound(const char *sample, qboolean compressed)
+sfxHandle_t S_RegisterSound(const char *sample, qboolean compressed)
 {
 	if(si.RegisterSound)
 	{
@@ -288,15 +308,15 @@ S_Play_f
 */
 void S_Play_f(void)
 {
-	int 		i;
-	sfxHandle_t	h;
-	char		name[256];
+	int             i;
+	sfxHandle_t     h;
+	char            name[256];
 
 	if(!si.RegisterSound || !si.StartLocalSound)
 		return;
 
 	i = 1;
-	while(i<Cmd_Argc())
+	while(i < Cmd_Argc())
 	{
 		if(!Q_strrchr(Cmd_Argv(i), '.'))
 		{
@@ -322,7 +342,7 @@ S_Music_f
 */
 void S_Music_f(void)
 {
-	int		c;
+	int             c;
 
 	if(!si.StartBackgroundTrack)
 		return;
@@ -353,12 +373,12 @@ S_Init
 */
 void S_Init(void)
 {
-	cvar_t		*cv;
-	qboolean	started = qfalse;
+	cvar_t         *cv;
+	qboolean        started = qfalse;
 
 	Com_Printf("------ Initializing Sound ------\n");
 
-	s_volume = Cvar_Get("s_volume", "0.8", CVAR_ARCHIVE );
+	s_volume = Cvar_Get("s_volume", "0.8", CVAR_ARCHIVE);
 	s_musicVolume = Cvar_Get("s_musicvolume", "0.75", CVAR_ARCHIVE);
 	s_doppler = Cvar_Get("s_doppler", "1", CVAR_ARCHIVE);
 	s_backend = Cvar_Get("s_backend", "", CVAR_ROM);
@@ -388,14 +408,14 @@ void S_Init(void)
 
 		if(!started)
 		{
-			started = S_Base_Init( &si );
-			Cvar_Set( "s_backend", "base" );
+			started = S_Base_Init(&si);
+			Cvar_Set("s_backend", "base");
 		}
 
 		if(started)
 		{
 			if(!S_ValidSoundInterface(&si))
-				Com_Error( ERR_FATAL, "Sound interface invalid." );
+				Com_Error(ERR_FATAL, "Sound interface invalid.");
 
 			S_SoundInfo();
 			Com_Printf("Sound initialization successful.\n");
@@ -429,4 +449,3 @@ void S_Shutdown(void)
 
 	S_CodecShutdown();
 }
-
