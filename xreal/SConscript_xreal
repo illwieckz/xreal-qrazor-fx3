@@ -240,7 +240,11 @@ if env['purevm'] == 1:
 	
 if env['curl'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')
-	xreal_env.Append(LIBS='curl')
+	xreal_env.Append(LIBS=['curl'])
+
+if env['openal'] == 1:
+	xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
+	xreal_env.Append(LIBS=['openal'])
 
 if env['arch'] == 'linux-i386':
 	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
