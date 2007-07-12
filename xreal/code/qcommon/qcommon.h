@@ -427,6 +427,7 @@ char           *Cmd_Cmd(void);
 // if arg > argc, so string operations are allways safe.
 
 void            Cmd_TokenizeString(const char *text);
+void			Cmd_TokenizeStringIgnoreQuotes(const char *text_in);
 
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
@@ -587,6 +588,8 @@ void            FS_FreeFileList(char **list);
 void            FS_HomeRemove(const char *homePath);
 qboolean        FS_FileExists(const char *file);
 
+void			FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void(*callback)(const char *s));
+
 int             FS_LoadStack();
 
 int             FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
@@ -722,7 +725,7 @@ typedef struct
 } field_t;
 
 void            Field_Clear(field_t * edit);
-void            Field_CompleteCommand(field_t * edit);
+void            Field_AutoComplete(field_t *edit);
 
 /*
 ==============================================================

@@ -453,7 +453,7 @@ For rcon use when you want to transmit without altering quoting
 https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
 ============
 */
-char           *Cmd_Cmd()
+char           *Cmd_Cmd(void)
 {
 	return cmd_cmd;
 }
@@ -470,7 +470,7 @@ will point into this temporary buffer.
 */
 // NOTE TTimo define that to track tokenization issues
 //#define TKN_DBG
-void Cmd_TokenizeString(const char *text_in)
+static void Cmd_TokenizeString2(const char *text_in, qboolean ignoreQuotes)
 {
 	const char     *text;
 	char           *textOut;
@@ -484,9 +484,7 @@ void Cmd_TokenizeString(const char *text_in)
 	cmd_argc = 0;
 
 	if(!text_in)
-	{
 		return;
-	}
 
 	Q_strncpyz(cmd_cmd, text_in, sizeof(cmd_cmd));
 
@@ -539,7 +537,7 @@ void Cmd_TokenizeString(const char *text_in)
 
 		// handle quoted strings
 		// NOTE TTimo this doesn't handle \" escaping
-		if(*text == '"')
+		if(!ignoreQuotes && *text == '"')
 		{
 			cmd_argv[cmd_argc] = textOut;
 			cmd_argc++;
@@ -564,7 +562,7 @@ void Cmd_TokenizeString(const char *text_in)
 		// skip until whitespace, quote, or command
 		while(*text > ' ')
 		{
-			if(text[0] == '"')
+			if(!ignoreQuotes && text[0] == '"')
 			{
 				break;
 			}
@@ -590,9 +588,27 @@ void Cmd_TokenizeString(const char *text_in)
 			return;				// all tokens parsed
 		}
 	}
-
 }
 
+/*
+============
+Cmd_TokenizeString
+============
+*/
+void Cmd_TokenizeString(const char *text_in)
+{
+	Cmd_TokenizeString2(text_in, qfalse);
+}
+  	 
+/*
+============
+Cmd_TokenizeStringIgnoreQuotes
+============
+*/
+void Cmd_TokenizeStringIgnoreQuotes(const char *text_in)
+{
+	Cmd_TokenizeString2(text_in, qtrue);
+}
 
 /*
 ============

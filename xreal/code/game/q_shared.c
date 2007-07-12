@@ -1757,9 +1757,9 @@ void Info_SetValueForKey(char *s, const char *key, const char *value)
 
 	for(; *blacklist; ++blacklist)
 	{
-		if(strchr (key, *blacklist) || strchr (value, *blacklist))
+		if(strchr(key, *blacklist) || strchr (value, *blacklist))
 		{
-			Com_Printf (S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
+			Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
 			return;
 		}
 	}
@@ -1799,9 +1799,9 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 
 	for(; *blacklist; ++blacklist)
 	{
-		if(strchr (key, *blacklist) || strchr (value, *blacklist))
+		if(strchr(key, *blacklist) || strchr (value, *blacklist))
 		{
-			Com_Printf (S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
+			Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
 			return;
 		}
 	}
@@ -1821,7 +1821,74 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 	strcat(s, newi);
 }
 
+//====================================================================
 
+/*
+==================
+Com_CharIsOneOfCharset
+==================
+*/
+static qboolean Com_CharIsOneOfCharset(char c, char *set)
+{
+	int i;
 
+	for(i = 0; i < strlen(set); i++)
+	{
+		if(set[i] == c)
+			return qtrue;
+	}
+
+	return qfalse;
+}
+
+/*
+==================
+Com_SkipCharset
+==================
+*/
+char *Com_SkipCharset(char *s, char *sep)
+{
+	char	*p = s;
+
+	while(p)
+	{
+		if(Com_CharIsOneOfCharset(*p, sep))
+			p++;
+		else
+			break;
+	}
+
+	return p;
+}
+
+/*
+==================
+Com_SkipTokens
+==================
+*/
+char *Com_SkipTokens(char *s, int numTokens, char *sep)
+{
+	int		sepCount = 0;
+	char	*p = s;
+
+	while(sepCount < numTokens)
+	{
+		if(Com_CharIsOneOfCharset(*p++, sep))
+		{
+			sepCount++;
+			while(Com_CharIsOneOfCharset(*p, sep))
+				p++;
+		}
+		else if(*p == '\0')
+		{
+			break;
+		}
+	}
+
+	if(sepCount == numTokens)
+		return p;
+	else
+		return s;
+}
 
 //====================================================================
