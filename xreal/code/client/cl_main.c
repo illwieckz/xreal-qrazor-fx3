@@ -1329,9 +1329,6 @@ void CL_Vid_Restart_f(void)
 	cls.cgameStarted = qfalse;
 	cls.soundRegistered = qfalse;
 
-	// unpause so the cgame definately gets a snapshot and renders a frame
-	Cvar_Set("cl_paused", "0");
-
 	// if not running a server clear the whole hunk
 	if(!com_sv_running->integer)
 	{
@@ -2178,11 +2175,12 @@ CL_CheckTimeout
 void CL_CheckTimeout(void)
 {
 	// check timeout
-	if((!CL_CheckPaused() || !sv_paused->integer)
-	   && cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
+	if(cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC &&
+		cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
 	{
 		if(++cl.timeoutcount > 5)
-		{						// timeoutcount saves debugger
+		{
+			// timeoutcount saves debugger
 			Com_Printf("\nServer connection timed out.\n");
 			CL_Disconnect(qtrue);
 			return;
@@ -2192,24 +2190,6 @@ void CL_CheckTimeout(void)
 	{
 		cl.timeoutcount = 0;
 	}
-}
-
-/*
-==================
-CL_CheckPaused
-
-Check whether client has been paused.
-==================
-*/
-qboolean CL_CheckPaused(void)
-{
-	// if cl_paused->modified is set, the cvar has only been changed in
-	// this frame. Keep paused in this frame to ensure the server doesn't
-	// lag behind.
-	if(cl_paused->integer || cl_paused->modified)
-		return qtrue;
-  	 
-	return qfalse;
 }
 
 //============================================================================
@@ -2223,10 +2203,6 @@ void CL_CheckUserinfo(void)
 {
 	// don't add reliable commands when not yet connected
 	if(cls.state < CA_CHALLENGING)
-		return;
-
-	// don't overflow the reliable command buffer when paused
-	if(CL_CheckPaused())
 		return;
 
 	// send a reliable userinfo update if needed
@@ -2526,14 +2502,9 @@ void CL_InitRef(void)
 	}
 
 	re = *ret;
-
-	// unpause so the cgame definately gets a snapshot and renders a frame
-	Cvar_Set("cl_paused", "0");
 }
 
-
 //===========================================================================================
-
 
 void CL_SetModel_f(void)
 {

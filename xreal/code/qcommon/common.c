@@ -74,8 +74,6 @@ cvar_t         *com_version;
 cvar_t         *com_blood;
 cvar_t         *com_buildScript;	// for automated data building scripts
 cvar_t         *com_introPlayed;
-cvar_t         *cl_paused;
-cvar_t         *sv_paused;
 cvar_t         *com_cameraMode;
 
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -2692,8 +2690,6 @@ void Com_Init(char *commandLine)
 	com_timedemo = Cvar_Get("timedemo", "0", CVAR_CHEAT);
 	com_cameraMode = Cvar_Get("com_cameraMode", "0", CVAR_CHEAT);
 
-	cl_paused = Cvar_Get("cl_paused", "0", CVAR_ROM);
-	sv_paused = Cvar_Get("sv_paused", "0", CVAR_ROM);
 	com_sv_running = Cvar_Get("sv_running", "0", CVAR_ROM);
 	com_cl_running = Cvar_Get("cl_running", "0", CVAR_ROM);
 	com_buildScript = Cvar_Get("com_buildScript", "0", 0);

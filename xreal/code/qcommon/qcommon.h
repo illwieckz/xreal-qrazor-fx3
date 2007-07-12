@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/cm_public.h"
 
-//#define   PRE_RELEASE_DEMO
-
 //============================================================================
 
 //
@@ -789,10 +787,6 @@ extern cvar_t  *com_buildScript;	// for building release pak files
 extern cvar_t  *com_journal;
 extern cvar_t  *com_cameraMode;
 extern cvar_t  *com_altivec;
-
-// both client and server must agree to pause
-extern cvar_t  *cl_paused;
-extern cvar_t  *sv_paused;
 
 // com_speeds times
 extern int      time_game;

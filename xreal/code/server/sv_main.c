@@ -793,46 +793,6 @@ void SV_CheckTimeouts(void)
 	}
 }
 
-
-/*
-==================
-SV_CheckPaused
-==================
-*/
-qboolean SV_CheckPaused(void)
-{
-	int             count;
-	client_t       *cl;
-	int             i;
-
-	if(!cl_paused->integer)
-	{
-		return qfalse;
-	}
-
-	// only pause if there is just a single client connected
-	count = 0;
-	for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
-	{
-		if(cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT)
-		{
-			count++;
-		}
-	}
-
-	if(count > 1)
-	{
-		// don't pause
-		if(sv_paused->integer)
-			Cvar_Set("sv_paused", "0");
-		return qfalse;
-	}
-
-	if(!sv_paused->integer)
-		Cvar_Set("sv_paused", "1");
-	return qtrue;
-}
-
 /*
 ==================
 SV_Frame
@@ -864,10 +824,6 @@ void SV_Frame(int msec)
 
 		return;
 	}
-
-	// allow pause if only the local client is connected
-	if(SV_CheckPaused())
-		return;
 
 	// if it isn't time for the next frame, do nothing
 	if(sv_fps->integer < 1)

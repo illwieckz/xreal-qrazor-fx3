@@ -222,42 +222,40 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.game.color						= color_red;
 	setupMenuInfo.game.style						= UI_CENTER;
 
-	if( !trap_Cvar_VariableValue( "cl_paused" ) ) {
 #if 0
-		y += SETUP_MENU_VERTICAL_SPACING;
-		setupMenuInfo.load.generic.type					= MTYPE_PTEXT;
-		setupMenuInfo.load.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
-		setupMenuInfo.load.generic.x					= 320;
-		setupMenuInfo.load.generic.y					= y;
-		setupMenuInfo.load.generic.id					= ID_LOAD;
-		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event; 
-		setupMenuInfo.load.string						= "LOAD CONFIG";
-		setupMenuInfo.load.color						= color_red;
-		setupMenuInfo.load.style						= UI_CENTER;
+	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.load.generic.type					= MTYPE_PTEXT;
+	setupMenuInfo.load.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.load.generic.x					= 320;
+	setupMenuInfo.load.generic.y					= y;
+	setupMenuInfo.load.generic.id					= ID_LOAD;
+	setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event; 
+	setupMenuInfo.load.string						= "LOAD CONFIG";
+	setupMenuInfo.load.color						= color_red;
+	setupMenuInfo.load.style						= UI_CENTER;
 
-		y += SETUP_MENU_VERTICAL_SPACING;
-		setupMenuInfo.save.generic.type					= MTYPE_PTEXT;
-		setupMenuInfo.save.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
-		setupMenuInfo.save.generic.x					= 320;
-		setupMenuInfo.save.generic.y					= y;
-		setupMenuInfo.save.generic.id					= ID_SAVE;
-		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event; 
-		setupMenuInfo.save.string						= "SAVE CONFIG";
-		setupMenuInfo.save.color						= color_red;
-		setupMenuInfo.save.style						= UI_CENTER;
+	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.save.generic.type					= MTYPE_PTEXT;
+	setupMenuInfo.save.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.save.generic.x					= 320;
+	setupMenuInfo.save.generic.y					= y;
+	setupMenuInfo.save.generic.id					= ID_SAVE;
+	setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event; 
+	setupMenuInfo.save.string						= "SAVE CONFIG";
+	setupMenuInfo.save.color						= color_red;
+	setupMenuInfo.save.style						= UI_CENTER;
 #endif
 
-		y += SETUP_MENU_VERTICAL_SPACING;
-		setupMenuInfo.defaults.generic.type				= MTYPE_PTEXT;
-		setupMenuInfo.defaults.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
-		setupMenuInfo.defaults.generic.x				= 320;
-		setupMenuInfo.defaults.generic.y				= y;
-		setupMenuInfo.defaults.generic.id				= ID_DEFAULTS;
-		setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event; 
-		setupMenuInfo.defaults.string					= "DEFAULTS";
-		setupMenuInfo.defaults.color					= color_red;
-		setupMenuInfo.defaults.style					= UI_CENTER;
-	}
+	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.defaults.generic.type				= MTYPE_PTEXT;
+	setupMenuInfo.defaults.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.defaults.generic.x				= 320;
+	setupMenuInfo.defaults.generic.y				= y;
+	setupMenuInfo.defaults.generic.id				= ID_DEFAULTS;
+	setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event; 
+	setupMenuInfo.defaults.string					= "DEFAULTS";
+	setupMenuInfo.defaults.color					= color_red;
+	setupMenuInfo.defaults.style					= UI_CENTER;
 
 	setupMenuInfo.back.generic.type					= MTYPE_BITMAP;
 	setupMenuInfo.back.generic.name					= ART_BACK0;
@@ -279,9 +277,7 @@ static void UI_SetupMenu_Init( void ) {
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.game );
 //	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.load );
 //	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.save );
-	if( !trap_Cvar_VariableValue( "cl_paused" ) ) {
-		Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.defaults );
-	}
+	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.defaults );
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.back );
 }
 

@@ -164,7 +164,6 @@ void UI_ForceMenuOff(void)
 
 	trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
 	trap_Key_ClearStates();
-	trap_Cvar_Set("cl_paused", "0");
 }
 
 /*
@@ -851,7 +850,6 @@ void UI_SetActiveMenu(uiMenuCommand_t menu)
 			   UI_RankingsMenu();
 			   return;
 			 */
-			trap_Cvar_Set("cl_paused", "1");
 			UI_InGameMenu();
 			return;
 

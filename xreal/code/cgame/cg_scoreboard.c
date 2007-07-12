@@ -318,7 +318,7 @@ qboolean CG_DrawOldScoreboard(void)
 	int             lineHeight;
 	int             topBorderSize, bottomBorderSize;
 
-	// don't draw amuthing if the menu or console is up
+	// don't draw anything if the menu or console is up
 	if(cg_paused.integer)
 	{
 		cg.deferredPlayerLoading = 0;

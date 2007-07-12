@@ -292,10 +292,10 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE},
 	{&cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE},
 	{&cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE},
+
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 	{&cg_buildScript, "com_buildScript", "0", 0},	// force loading of all possible data amd error on failures
-	{&cg_paused, "cl_paused", "0", CVAR_ROM},
 	{&cg_blood, "com_blood", "1", CVAR_ARCHIVE},
 	{&cg_synchronousClients, "g_synchronousClients", "0", 0},	// communicated by systeminfo
 #ifdef MISSIONPACK
