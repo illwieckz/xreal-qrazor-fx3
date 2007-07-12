@@ -719,8 +719,6 @@ static ID_INLINE float Q_rsqrt(float number)
 		rsqrtss xmm0, number
 		movss y, xmm0
 	}
-#elif __x86_64__
-	y = 1 / sqrt(number);
 #else
 	union {
 		float f;
