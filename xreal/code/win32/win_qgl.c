@@ -3269,10 +3269,6 @@ qboolean QGL_Init(const char *dllname)
 	}
 	ri.Printf(PRINT_ALL, "succeeded\n");
 
-	// raynorpat: moved below, because hinstOpenGL will always be zero until
-	// its loaded
-	assert(glw_state.hinstOpenGL != 0);
-
 	qglAccum = dllAccum = GPA("glAccum");
 	qglAlphaFunc = dllAlphaFunc = GPA("glAlphaFunc");
 	qglAreTexturesResident = dllAreTexturesResident = GPA("glAreTexturesResident");
