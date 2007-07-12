@@ -369,6 +369,8 @@ extern cvar_t  *cl_downloadMethod;
 extern cvar_t  *cl_conXOffset;
 extern cvar_t  *cl_inGameVideo;
 
+extern cvar_t  *cl_lanForcePackets;
+
 //=================================================
 
 //
@@ -403,6 +405,8 @@ void            CL_ShutdownRef(void);
 void            CL_InitRef(void);
 
 int             CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen);
+
+qboolean		CL_CheckPaused(void);
 
 //
 // cl_input

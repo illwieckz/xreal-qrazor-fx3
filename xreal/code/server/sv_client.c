@@ -256,6 +256,7 @@ void SV_DirectConnect(netadr_t from)
 	int             startIndex;
 	intptr_t		denied;
 	int             count;
+	char		   *ip;
 
 	Com_DPrintf("SVC_DirectConnect ()\n");
 
@@ -291,6 +292,20 @@ void SV_DirectConnect(netadr_t from)
 		}
 	}
 
+	// don't let "ip" overflow userinfo string
+	if(NET_IsLocalAddress(from))
+		ip = "localhost";
+	else
+		ip = (char *)NET_AdrToString(from);
+
+	if((strlen(ip) + strlen(userinfo) + 4) >= MAX_INFO_STRING)
+	{
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nUserinfo string length exceeded. " 
+			"Try removing setu cvars from your config.\n");
+		return;
+	}
+	Info_SetValueForKey(userinfo, "ip", ip);
+
 	// see if the challenge is valid (LAN clients don't need to challenge)
 	if(!NET_IsLocalAddress(from))
 	{
@@ -306,13 +321,12 @@ void SV_DirectConnect(netadr_t from)
 				}
 			}
 		}
+
 		if(i == MAX_CHALLENGES)
 		{
 			NET_OutOfBandPrint(NS_SERVER, from, "print\nNo or bad challenge for address.\n");
 			return;
 		}
-		// force the IP key/value pair so the game can filter based on ip
-		Info_SetValueForKey(userinfo, "ip", NET_AdrToString(from));
 
 		ping = svs.time - svs.challenges[i].pingTime;
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
@@ -338,11 +352,6 @@ void SV_DirectConnect(netadr_t from)
 				return;
 			}
 		}
-	}
-	else
-	{
-		// force the "ip" info key to "localhost"
-		Info_SetValueForKey(userinfo, "ip", "localhost");
 	}
 
 	newcl = &temp;
@@ -526,7 +535,7 @@ void SV_DropClient(client_t * drop, const char *reason)
 		return;					// already dropped
 	}
 
-	if(!drop->gentity || !(drop->gentity->r.svFlags & SVF_BOT))
+	if(drop->netchan.remoteAddress.type != NA_BOT)
 	{
 		// see if we already have a challenge for this ip
 		challenge = &svs.challenges[0];
@@ -546,9 +555,6 @@ void SV_DropClient(client_t * drop, const char *reason)
 
 	// tell everyone why they got dropped
 	SV_SendServerCommand(NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason);
-
-	Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
-	drop->state = CS_ZOMBIE;	// become free in a few seconds
 
 	if(drop->download)
 	{
@@ -570,6 +576,9 @@ void SV_DropClient(client_t * drop, const char *reason)
 
 	// nuke user info
 	SV_SetUserinfo(drop - svs.clients, "");
+
+	Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
+	drop->state = CS_ZOMBIE;	// become free in a few seconds
 
 	// if this was the last client on the server, send a heartbeat
 	// to the master so it is known the server is empty
@@ -681,6 +690,10 @@ void SV_ClientEnterWorld(client_t * client, usercmd_t * cmd)
 
 	Com_DPrintf("Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name);
 	client->state = CS_ACTIVE;
+
+	// resend all configstrings using the cs commands since these are
+	// no longer sent when the client is CS_PRIMED
+	SV_UpdateConfigstrings(client);
 
 	// set up the entity for the client
 	clientNum = client - svs.clients;
@@ -925,16 +938,21 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 	// based on the rate, how many bytes can we fit in the snapMsec time of the client
 	// normal rate / snapshotMsec calculation
 	rate = cl->rate;
+
+	if(sv_minRate->integer)
+	{
+		if(sv_minRate->integer < 1000)
+			Cvar_Set("sv_minRate", "1000");
+		if(sv_minRate->integer > rate)
+			rate = sv_minRate->integer;
+	}
+
 	if(sv_maxRate->integer)
 	{
 		if(sv_maxRate->integer < 1000)
-		{
 			Cvar_Set("sv_MaxRate", "1000");
-		}
 		if(sv_maxRate->integer < rate)
-		{
 			rate = sv_maxRate->integer;
-		}
 	}
 
 	if(!rate)
@@ -1250,7 +1268,9 @@ into a more C friendly form.
 void SV_UserinfoChanged(client_t * cl)
 {
 	char           *val;
+	char		   *ip;
 	int             i;
+	int				len;
 
 	// name for C code
 	Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
@@ -1316,18 +1336,22 @@ void SV_UserinfoChanged(client_t * cl)
 
 	// TTimo
 	// maintain the IP information
-	// this is set in SV_DirectConnect (directly on the server, not transmitted), may be lost when client updates it's userinfo
 	// the banning code relies on this being consistently present
+	if(NET_IsLocalAddress(cl->netchan.remoteAddress))
+		ip = "localhost";
+	else
+		ip = (char*)NET_AdrToString(cl->netchan.remoteAddress);
+
 	val = Info_ValueForKey(cl->userinfo, "ip");
-	if(!val[0])
-	{
-		//Com_DPrintf("Maintain IP in userinfo for '%s'\n", cl->name);
-		if(!NET_IsLocalAddress(cl->netchan.remoteAddress))
-			Info_SetValueForKey(cl->userinfo, "ip", NET_AdrToString(cl->netchan.remoteAddress));
-		else
-			// force the "ip" info key to "localhost" for local clients
-			Info_SetValueForKey(cl->userinfo, "ip", "localhost");
-	}
+	if(val[0])
+		len = strlen(ip) - strlen(val) + strlen(cl->userinfo);
+	else
+		len = strlen(ip) + 4 + strlen(cl->userinfo);
+
+	if(len >= MAX_INFO_STRING)
+		SV_DropClient(cl, "userinfo string length exceeded");
+	else
+		Info_SetValueForKey(cl->userinfo, "ip", ip);
 }
 
 
@@ -1550,7 +1574,7 @@ static void SV_UserMove(client_t * cl, msg_t * msg, qboolean delta)
 		if(cl->state == CS_ACTIVE)
 		{
 			// we didn't get a cp yet, don't assume anything and just send the gamestate all over again
-			Com_DPrintf("%s: didn't get cp command, resending gamestate\n", cl->name, cl->state);
+			Com_DPrintf("%s: didn't get cp command, resending gamestate\n", cl->name);
 			SV_SendClientGameState(cl);
 		}
 		return;

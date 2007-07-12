@@ -25,31 +25,96 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ===============
-SV_SetConfigstring
+SV_SendConfigstring
 
+Creates and sends the server command necessary to update the CS index for the
+given client
+===============
+*/
+static void SV_SendConfigstring(client_t *client, int index)
+{
+	int	maxChunkSize = MAX_STRING_CHARS - 24;
+	int	len;
+
+	len = strlen(sv.configstrings[index]);
+
+	if(len >= maxChunkSize)
+	{
+		int             sent = 0;
+		int             remaining = len;
+		char		   *cmd;
+		char			buf[MAX_STRING_CHARS];
+  	 
+		while(remaining > 0)
+		{
+			if(sent == 0)
+				cmd = "bcs0";
+			else if(remaining < maxChunkSize)
+				cmd = "bcs2";
+			else
+				cmd = "bcs1";
+
+			Q_strncpyz(buf, &sv.configstrings[index][sent], maxChunkSize);
+  	 
+			SV_SendServerCommand(client, "%s %i \"%s\"\n", cmd, index, buf);
+  	 
+			sent += (maxChunkSize - 1);
+			remaining -= (maxChunkSize - 1);
+		}
+	}
+	else
+	{
+		// standard cs, just send it
+		SV_SendServerCommand(client, "cs %i \"%s\"\n", index, sv.configstrings[index]);
+	}
+}
+  	 
+/*
+===============
+SV_UpdateConfigstrings
+
+Called when a client goes from CS_PRIMED to CS_ACTIVE.  Updates all
+Configstring indexes that have changed while the client was in CS_PRIMED
+===============
+*/
+void SV_UpdateConfigstrings(client_t *client)
+{
+	int index;
+  	 
+	for(index = 0; index <= MAX_CONFIGSTRINGS; index++)
+	{
+		// if the CS hasn't changed since we went to CS_PRIMED, ignore
+		if(!client->csUpdated[index])
+			continue;
+  	 
+		// do not always send server info to all clients
+		if(index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO))
+			continue;
+
+		SV_SendConfigstring(client, index);
+		client->csUpdated[index] = qfalse;
+	}
+}
+
+/*
+===============
+SV_SetConfigstring
 ===============
 */
 void SV_SetConfigstring(int index, const char *val)
 {
 	int             len, i;
-	int             maxChunkSize = MAX_STRING_CHARS - 24;
 	client_t       *client;
 
 	if(index < 0 || index >= MAX_CONFIGSTRINGS)
-	{
 		Com_Error(ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
-	}
 
 	if(!val)
-	{
 		val = "";
-	}
 
 	// don't bother broadcasting an update if no change
 	if(!strcmp(val, sv.configstrings[index]))
-	{
 		return;
-	}
 
 	// change the string in sv
 	Z_Free(sv.configstrings[index]);
@@ -63,61 +128,26 @@ void SV_SetConfigstring(int index, const char *val)
 		// send the data to all relevent clients
 		for(i = 0, client = svs.clients; i < sv_maxclients->integer; i++, client++)
 		{
-			if(client->state < CS_PRIMED)
+			if(client->state < CS_ACTIVE)
 			{
+				if(client->state == CS_PRIMED)
+					client->csUpdated[index] = qtrue;
 				continue;
 			}
+
 			// do not always send server info to all clients
 			if(index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO))
-			{
 				continue;
-			}
 
 			len = strlen(val);
-			if(len >= maxChunkSize)
-			{
-				int             sent = 0;
-				int             remaining = len;
-				char           *cmd;
-				char            buf[MAX_STRING_CHARS];
-
-				while(remaining > 0)
-				{
-					if(sent == 0)
-					{
-						cmd = "bcs0";
-					}
-					else if(remaining < maxChunkSize)
-					{
-						cmd = "bcs2";
-					}
-					else
-					{
-						cmd = "bcs1";
-					}
-					Q_strncpyz(buf, &val[sent], maxChunkSize);
-
-					SV_SendServerCommand(client, "%s %i \"%s\"\n", cmd, index, buf);
-
-					sent += (maxChunkSize - 1);
-					remaining -= (maxChunkSize - 1);
-				}
-			}
-			else
-			{
-				// standard cs, just send it
-				SV_SendServerCommand(client, "cs %i \"%s\"\n", index, val);
-			}
+			SV_SendConfigstring(client, index);
 		}
 	}
 }
 
-
-
 /*
 ===============
 SV_GetConfigstring
-
 ===============
 */
 void SV_GetConfigstring(int index, char *buffer, int bufferSize)
@@ -139,11 +169,9 @@ void SV_GetConfigstring(int index, char *buffer, int bufferSize)
 	Q_strncpyz(buffer, sv.configstrings[index], bufferSize);
 }
 
-
 /*
 ===============
 SV_SetUserinfo
-
 ===============
 */
 void SV_SetUserinfo(int index, const char *val)
@@ -162,12 +190,9 @@ void SV_SetUserinfo(int index, const char *val)
 	Q_strncpyz(svs.clients[index].name, Info_ValueForKey(val, "name"), sizeof(svs.clients[index].name));
 }
 
-
-
 /*
 ===============
 SV_GetUserinfo
-
 ===============
 */
 void SV_GetUserinfo(int index, char *buffer, int bufferSize)
@@ -182,7 +207,6 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize)
 	}
 	Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 }
-
 
 /*
 ================
@@ -214,11 +238,9 @@ void SV_CreateBaseline(void)
 	}
 }
 
-
 /*
 ===============
 SV_BoundMaxClients
-
 ===============
 */
 void SV_BoundMaxClients(int minimum)
@@ -237,7 +259,6 @@ void SV_BoundMaxClients(int minimum)
 		Cvar_Set("sv_maxclients", va("%i", MAX_CLIENTS));
 	}
 }
-
 
 /*
 ===============
@@ -271,7 +292,6 @@ void SV_Startup(void)
 
 	Cvar_Set("sv_running", "1");
 }
-
 
 /*
 ==================
@@ -374,7 +394,7 @@ void SV_ClearServer(void)
 ================
 SV_TouchCGame
 
-  touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
+touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
 ================
 */
 void SV_TouchCGame(void)
@@ -658,6 +678,7 @@ void SV_Init(void)
 	sv_hostname = Cvar_Get("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	sv_maxclients = Cvar_Get("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
 
+	sv_minRate = Cvar_Get("sv_minRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_maxRate = Cvar_Get("sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_minPing = Cvar_Get("sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	sv_maxPing = Cvar_Get("sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
@@ -759,7 +780,7 @@ void SV_Shutdown(char *finalmsg)
 		return;
 	}
 
-	Com_Printf("----- Server Shutdown -----\n");
+	Com_Printf("----- Server Shutdown (%s) -----\n", finalmsg);
 
 	if(svs.clients && !com_errorEntered)
 	{

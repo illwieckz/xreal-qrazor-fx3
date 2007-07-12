@@ -616,22 +616,27 @@ static int SV_RateMsec(client_t * client, int messageSize)
 
 	// individual messages will never be larger than fragment size
 	if(messageSize > 1500)
-	{
 		messageSize = 1500;
-	}
+
 	rate = client->rate;
+
+	if(sv_minRate->integer)
+	{
+		if(sv_minRate->integer < 1000)
+			Cvar_Set("sv_minRate", "1000");
+		if(sv_minRate->integer > rate)
+			rate = sv_minRate->integer;
+	}
+
 	if(sv_maxRate->integer)
 	{
 		if(sv_maxRate->integer < 1000)
-		{
 			Cvar_Set("sv_MaxRate", "1000");
-		}
 		if(sv_maxRate->integer < rate)
-		{
 			rate = sv_maxRate->integer;
-		}
 	}
-	rateMsec = (messageSize + HEADER_RATE_BYTES) * 1000 / rate;
+
+	rateMsec = (messageSize + HEADER_RATE_BYTES) * 1000 / rate * com_timescale->value;
 
 	return rateMsec;
 }
@@ -665,17 +670,17 @@ void SV_SendMessageToClient(msg_t * msg, client_t * client)
 	{
 		// Tr3B: changed nextSnapshotTime to the server framerate
 		// see https://bugzilla.icculus.org/show_bug.cgi?id=2817 for more
-		client->nextSnapshotTime = svs.time + (1000 / sv_fps->integer);
+		client->nextSnapshotTime = svs.time + (1000 / sv_fps->integer * com_timescale->value);
 		return;
 	}
 
 	// normal rate / snapshotMsec calculation
 	rateMsec = SV_RateMsec(client, msg->cursize);
 
-	if(rateMsec < client->snapshotMsec)
+	if(rateMsec < client->snapshotMsec * com_timescale->value)
 	{
 		// never send more packets than this, no matter what the rate is at
-		rateMsec = client->snapshotMsec;
+		rateMsec = client->snapshotMsec * com_timescale->value;
 		client->rateDelayed = qfalse;
 	}
 	else
@@ -683,7 +688,7 @@ void SV_SendMessageToClient(msg_t * msg, client_t * client)
 		client->rateDelayed = qtrue;
 	}
 
-	client->nextSnapshotTime = svs.time + rateMsec;
+	client->nextSnapshotTime = svs.time + rateMsec * com_timescale->value;
 
 	// don't pile up empty snapshots while connecting
 	if(client->state != CS_ACTIVE)
@@ -691,10 +696,8 @@ void SV_SendMessageToClient(msg_t * msg, client_t * client)
 		// a gigantic connection message may have already put the nextSnapshotTime
 		// more than a second away, so don't shorten it
 		// do shorten if client is downloading
-		if(!*client->downloadName && client->nextSnapshotTime < svs.time + 1000)
-		{
-			client->nextSnapshotTime = svs.time + 1000;
-		}
+		if(!*client->downloadName && client->nextSnapshotTime < svs.time + 1000 * com_timescale->value)
+			client->nextSnapshotTime = svs.time + 1000 * com_timescale->value;
 	}
 }
 

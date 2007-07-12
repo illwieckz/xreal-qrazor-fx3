@@ -45,6 +45,7 @@ cvar_t         *sv_killserver;	// menu system can set to 1 to shut server down
 cvar_t         *sv_mapname;
 cvar_t         *sv_mapChecksum;
 cvar_t         *sv_serverid;
+cvar_t		   *sv_minRate;
 cvar_t         *sv_maxRate;
 cvar_t         *sv_minPing;
 cvar_t         *sv_maxPing;
@@ -145,6 +146,10 @@ void SV_AddServerCommand(client_t * client, const char *cmd)
 //      return;
 //  }
 
+	// do not send commands until the gamestate has been sent
+	if(client->state < CS_PRIMED)
+		return;
+
 	client->reliableSequence++;
 	// if we would be losing an old command that hasn't been acknowledged,
 	// we must drop the connection
@@ -205,10 +210,6 @@ void QDECL SV_SendServerCommand(client_t * cl, const char *fmt, ...)
 	// send the data to all relevent clients
 	for(j = 0, client = svs.clients; j < sv_maxclients->integer; j++, client++)
 	{
-		if(client->state < CS_PRIMED)
-		{
-			continue;
-		}
 		SV_AddServerCommand(client, (char *)message);
 	}
 }
@@ -279,10 +280,10 @@ void SV_MasterHeartbeat(void)
 				sv_master[i]->modified = qfalse;
 				continue;
 			}
-			if(!strstr(":", sv_master[i]->string))
-			{
+
+			if(!strchr(sv_master[i]->string, ':'))
 				adr[i].port = BigShort(PORT_MASTER);
-			}
+
 			Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
 					   adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3], BigShort(adr[i].port));
 		}
@@ -480,10 +481,8 @@ void SVC_RemoteCommand(netadr_t from, msg_t * msg)
 
 	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
 	time = Com_Milliseconds();
-	if(time < (lasttime + 500))
-	{
+	if((unsigned)(time - lasttime) < 500u)
 		return;
-	}
 	lasttime = time;
 
 	if(!strlen(sv_rconPassword->string) || strcmp(Cmd_Argv(1), sv_rconPassword->string))
@@ -873,7 +872,15 @@ void SV_Frame(int msec)
 	// if it isn't time for the next frame, do nothing
 	if(sv_fps->integer < 1)
 		Cvar_Set("sv_fps", "10");
-	frameMsec = 1000 / sv_fps->integer;
+
+	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+
+	// don't let it scale below 1ms
+	if(frameMsec < 1)
+	{
+		Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
+		frameMsec = 1;
+	}
 
 	sv.timeResidual += msec;
 
@@ -895,18 +902,18 @@ void SV_Frame(int msec)
 	if(svs.time > 0x70000000)
 	{
 		SV_Shutdown("Restarting server due to time wrapping");
-		Cbuf_AddText("vstr nextmap\n");
+		Cbuf_AddText(va("map %s\n", Cvar_VariableString("mapname")));
 		return;
 	}
 	// this can happen considerably earlier when lots of clients play and the map doesn't change
 	if(svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities)
 	{
 		SV_Shutdown("Restarting server due to numSnapshotEntities wrapping");
-		Cbuf_AddText("vstr nextmap\n");
+		Cbuf_AddText(va("map %s\n", Cvar_VariableString("mapname")));
 		return;
 	}
 
-	if(sv.restartTime && svs.time >= sv.restartTime)
+	if(sv.restartTime && sv.time >= sv.restartTime)
 	{
 		sv.restartTime = 0;
 		Cbuf_AddText("map_restart 0\n");
