@@ -40,7 +40,7 @@ Handles byte ordering and avoids alignment errors
 
 int             oldsize = 0;
 
-void            MSG_initHuffman();
+void            MSG_initHuffman(void);
 
 void MSG_Init(msg_t * buf, byte * data, int length)
 {
@@ -2039,7 +2039,7 @@ int             msg_hData[256] = {
 	13504,						// 255
 };
 
-void MSG_initHuffman()
+void MSG_initHuffman(void)
 {
 	int             i, j;
 
