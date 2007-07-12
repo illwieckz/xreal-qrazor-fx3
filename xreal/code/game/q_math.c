@@ -192,7 +192,6 @@ signed short ClampShort(int i)
 	return i;
 }
 
-
 // this isn't a real cheap function to call!
 int DirToByte(vec3_t dir)
 {
@@ -228,7 +227,6 @@ void ByteToDir(int b, vec3_t dir)
 	}
 	VectorCopy(bytedirs[b], dir);
 }
-
 
 unsigned ColorBytes3(float r, float g, float b)
 {
@@ -294,7 +292,6 @@ void ClampColor(vec4_t color)
 	}
 }
 
-
 vec_t PlaneNormalize(vec4_t plane)
 {
 	vec_t           length, ilength;
@@ -314,7 +311,6 @@ vec_t PlaneNormalize(vec4_t plane)
 
 	return length;
 }
-
 
 /*
 =====================
@@ -347,7 +343,6 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 	plane[3] = DotProduct(a, plane);
 	return qtrue;
 }
-
 
 /*
 ===============
@@ -413,7 +408,6 @@ void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, f
 	}
 }
 
-
 /*
 ===============
 RotateAroundDirection
@@ -464,6 +458,27 @@ float Q_acos(float c)
 		return (float)M_PI;
 	}
 	return angle;
+}
+
+/*
+================
+Q_isnan
+
+Don't pass doubles to this
+================
+*/
+int Q_isnan(float x)
+{
+	union {
+		float f;
+		unsigned int i;
+	} t;
+  	 
+	t.f = x;
+	t.i &= 0x7FFFFFFF;
+	t.i = 0x7F800000 - t.i;
+  	 
+	return (int) ((unsigned int)t.i >> 31);
 }
 
 void vectoangles(const vec3_t value1, vec3_t angles)

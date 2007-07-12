@@ -10,7 +10,7 @@ Tim "Timbo" Angus - .avi video recording support
 Manfred "Defcon-x" Nerurkar - misc renderer enhancements
 Jason Thomas Dolan - Linux ALSA sound backend
 Ryan C. Gordon "icculus" - Linux SDL sound backend
-Stuart Dalton - Ogg Vorbis support
+Stuart Dalton - Ogg Vorbis support, OpenAL sound backend
 Joerg Dietrich - Ogg Vorbis support
 Andrew Tridgell - MD4 checksum GPL code
 Tony J. White - libcURL http-download redirection support, Win Alt-Tab support

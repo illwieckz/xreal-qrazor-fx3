@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/xreal.pch"
@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib libcurl.lib"
+				AdditionalDependencies="winmm.lib wsock32.lib libcurl.lib openal32.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -152,7 +152,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib libcurl.lib"
+				AdditionalDependencies="winmm.lib wsock32.lib libcurl.lib openal32.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -907,6 +907,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\client\snd_main.c"
+				>
+			</File>
+			<File
 				RelativePath="client\snd_mem.c"
 				>
 				<FileConfiguration
@@ -951,6 +955,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\client\snd_openal.c"
+				>
 			</File>
 			<File
 				RelativePath="client\snd_wavelet.c"

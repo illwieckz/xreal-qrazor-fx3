@@ -22,10 +22,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // snd_local.h -- private sound definations
 
-
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "snd_public.h"
+
+#if USE_OPENAL
+#ifdef _MSC_VER
+// MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
+#include <al.h>
+#include <alc.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
+#endif
 
 #define	PAINTBUFFER_SIZE		4096	// this is in samples
 
@@ -126,6 +136,30 @@ typedef struct
 	int             dataofs;	// chunk starts this many bytes from file start
 } wavinfo_t;
 
+// Interface between Q3 sound "api" and the sound backend
+typedef struct
+{
+	void		(*Shutdown) (void);
+	void		(*StartSound) (vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx);
+	void		(*StartLocalSound) (sfxHandle_t sfx, int channelNum);
+	void		(*StartBackgroundTrack) (const char *intro, const char *loop);
+	void		(*StopBackgroundTrack) (void);
+	void		(*RawSamples) (int samples, int rate, int width, int channels, const byte *data, float volume);
+	void		(*StopAllSounds) (void);
+	void		(*ClearLoopingSounds) (qboolean killall);
+	void		(*AddLoopingSound) (int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
+	void		(*AddRealLoopingSound) (int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
+	void		(*StopLoopingSound) (int entityNum);
+	void		(*Respatialize) (int entityNum, const vec3_t origin, vec3_t axis[3], int inwater);
+	void		(*UpdateEntityPosition) (int entityNum, const vec3_t origin);
+	void		(*Update) (void);
+	void		(*DisableSounds) (void);
+	void		(*BeginRegistration) (void);
+	sfxHandle_t (*RegisterSound) (const char *sample, qboolean compressed);
+	void		(*ClearSoundBuffer) (void);
+	void		(*SoundInfo) (void);
+	void		(*SoundList) (void);
+} soundInterface_t;
 
 /*
 ====================================================================
@@ -167,10 +201,8 @@ extern dma_t    dma;
 extern portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
 
 extern cvar_t  *s_volume;
-extern cvar_t  *s_nosound;
-extern cvar_t  *s_khz;
-extern cvar_t  *s_show;
-extern cvar_t  *s_mixahead;
+extern cvar_t  *s_musicVolume;
+extern cvar_t  *s_doppler;
 
 extern cvar_t  *s_testsound;
 
@@ -211,3 +243,19 @@ extern short    mulawToShort[256];
 extern short   *sfxScratchBuffer;
 extern sfx_t   *sfxScratchPointer;
 extern int      sfxScratchIndex;
+
+qboolean S_Base_Init(soundInterface_t *si);
+  	 
+// OpenAL stuff
+typedef enum
+{
+	SRCPRI_AMBIENT = 0,		// Ambient sound effects
+	SRCPRI_ENTITY,			// Entity sound effects
+	SRCPRI_ONESHOT,			// One-shot sounds
+	SRCPRI_LOCAL,			// Local sounds
+	SRCPRI_STREAM			// Streams (music, cutscenes)
+} alSrcPriority_t;
+  	 
+typedef int srcHandle_t;
+  	 
+qboolean S_AL_Init(soundInterface_t *si);

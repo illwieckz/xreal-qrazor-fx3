@@ -471,6 +471,16 @@ void Cvar_SetLatched(const char *var_name, const char *value)
 
 /*
 ============
+Cvar_ForceReset
+============
+*/
+void Cvar_ForceReset(const char *var_name)
+{
+	Cvar_Set2(var_name, NULL, qtrue);
+}
+
+/*
+============
 Cvar_SetValue
 ============
 */

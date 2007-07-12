@@ -3311,7 +3311,7 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 						!Q_stricmp(baseCmd, "spdevmap")) &&
 					completionArgument == 2)
 			{
-				Field_CompleteFilename( "maps", "bsp", qtrue );
+				Field_CompleteFilename("maps", "bsp", qtrue);
 			}
 			else if((!Q_stricmp(baseCmd, "exec") ||
 						!Q_stricmp(baseCmd, "writeconfig")) &&
@@ -3337,7 +3337,7 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 						!Q_stricmp(baseCmd, "seta") ||
 						!Q_stricmp(baseCmd, "setu") ||
 						!Q_stricmp(baseCmd, "sets")) &&
-					completionArgument == 2 )
+					completionArgument == 2)
 			{
 				// Skip "<cmd> "
 				p = Com_SkipTokens(cmd, 1, " ");

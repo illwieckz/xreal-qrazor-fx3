@@ -46,12 +46,14 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	and extract it to XreaL/code/.
 7. Download libcURL from http://curl.hoxt.com/download/libcurl-7.15.5-win32-msvc.zip
 	and extract it to C:\libcURL
+8. Download and install the OpenAL SDK from http://www.openal.org.
 	
-8. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+9. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\include
 	C:\Program Files\Microsoft Platform SDK\include\mfc
 	C:\Program Files\Microsoft DirectX SDK (April 2007)\include
+	C:\Program Files\OpenAL 1.1 SDK\include
 	C:\GTK\include
 	C:\GTK\include\libxml2
 	C:\GTK\include\glib-2.0
@@ -65,14 +67,15 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	C:\GTK\lib\gtkglext-1.0\include
 	C:\libcURL\include
 
-9. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+10. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\lib
 	C:\Program Files\Microsoft DirectX SDK (April 2007)\lib\x86
+	C:\Program Files\OpenAL 1.1 SDK\lib\Win32
 	C:\GTK\lib
 	C:\libcURL
 
-10. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
+11. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
 	XreaL/code/xreal.sln
 	XreaL/code/gtkradiant/GtkRadiant.sln
 	XreaL/code/xmap/xmap.sln
@@ -91,20 +94,20 @@ COMPILING ON WIN32 WITH MINGW
 4. Download and install Python from http://www.python.org/.
 5. Download and install SCons from http://www.scons.org/.
 6. Download and install libcURL from http://curl.haxx.se/.
-7. Add the Python installation directory to the system variable %PATH%
-8. Download and install Gtk+ 2.10.7 development environment from http://gladewin32.sourceforge.net
-9. Set the system variable: PKG_CONFIG_PATH to %GTK_BASEPATH%\lib\pkgconfig
-10. Compile XreaL:
+7. Download and install the OpenAL SDK from http://www.openal.org.
+8. Add the Python installation directory to the system variable %PATH%
+9. Download and install Gtk+ 2.10.7 development environment from http://gladewin32.sourceforge.net
+10. Set the system variable: PKG_CONFIG_PATH to %GTK_BASEPATH%\lib\pkgconfig
+11. Compile XreaL:
 	>scons arch=win32-mingw
 
 
 COMPILING ON GNU/LINUX
 ======================
 
-The new build system is using SCons. 
-Make sure you have the X Direct Graphics Access and X Video Mode extensions headers for your X11
-or if using the SDL backend the SDL headers and libraries.
-You can provide SCons options for compiling. Use "scons -h" to list those options.
+Make sure you have OpenAL headers and libraries and the X Direct Graphics Access and
+X Video Mode extensions headers for your X11 or if using the SDL backend the SDL
+headers and libraries.
 
 Compile XreaL for x86 processers:
 	>scons arch=linux-i386
@@ -117,7 +120,7 @@ Compile XreaL with SDL:
 COMPILING ON MAC OS X
 ================
 
-Make sure you have libcURL and SDL.
+Make sure you have libcURL and SDL installed.
 
 Compile XreaL for Macs:
 	>scons arch=macosx
