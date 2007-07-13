@@ -828,10 +828,10 @@ void Tess_StageIteratorSky(void)
 	// to be drawn
 	Tess_ClipSkyPolygons();
 
-	// r_showsky will let all the sky blocks be drawn in
+	// r_showSky will let all the sky blocks be drawn in
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
-	if(r_showsky->integer)
+	if(r_showSky->integer)
 	{
 		qglDepthRange(0.0, 0.0);
 	}

@@ -3955,13 +3955,13 @@ void Tess_End()
 	if(!tess.shadowVolume)
 	{
 		// draw debugging stuff
-		if(r_showtris->integer || r_showBatches->integer ||
+		if(r_showTris->integer || r_showBatches->integer ||
 		   (r_showLightBatches->integer && (tess.stageIteratorFunc == Tess_StageIteratorLighting)))
 		{
 			DrawTris();
 		}
 
-		if(r_shownormals->integer)
+		if(r_showNormals->integer)
 		{
 			DrawNormals();
 		}

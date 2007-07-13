@@ -1488,23 +1488,6 @@ static void GLW_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_ATI_separate_stencil not found\n");
 	}
 	
-	// GL_NV_depth_clamp
-	if(strstr(glConfig.extensions_string, "GL_NV_depth_clamp"))
-	{
-		if(r_ext_depth_clamp->value)
-		{
-			ri.Printf(PRINT_ALL, "...using GL_NV_depth_clamp\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_NV_depth_clamp\n");
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "...GL_NV_depth_clamp not found\n");
-	}
-
 	// GL_SGIS_generate_mipmap
 	glConfig.generateMipmapAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_SGIS_generate_mipmap"))

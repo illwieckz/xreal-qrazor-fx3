@@ -1870,7 +1870,6 @@ extern cvar_t  *r_ext_stencil_wrap;
 extern cvar_t  *r_ext_texture_filter_anisotropic;
 extern cvar_t  *r_ext_stencil_two_side;
 extern cvar_t  *r_ext_separate_stencil;
-extern cvar_t  *r_ext_depth_clamp;
 extern cvar_t  *r_ext_depth_bounds_test;
 extern cvar_t  *r_ext_framebuffer_object;
 extern cvar_t  *r_ext_generate_mipmap;
@@ -1894,10 +1893,7 @@ extern cvar_t  *r_fullbright;	// avoid lightmap pass
 extern cvar_t  *r_uiFullScreen;	// ui is running fullscreen
 
 extern cvar_t  *r_logFile;		// number of frames to emit GL logs
-extern cvar_t  *r_showtris;		// enables wireframe rendering of the world
-extern cvar_t  *r_showsky;		// forces sky in front of all surfaces
-extern cvar_t  *r_shownormals;	// draws wireframe normals
-extern cvar_t  *r_showTangentSpaces;	// draws wireframe tangents, binormals and normals
+
 extern cvar_t  *r_clear;		// force screen clear every frame
 
 extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black planar projection,
@@ -1942,7 +1938,10 @@ extern cvar_t  *r_debugSort;
 
 extern cvar_t  *r_printShaders;
 
-extern cvar_t  *r_showNormalMaps;
+extern cvar_t  *r_showTris; // enables wireframe rendering of the world
+extern cvar_t  *r_showSky; // forces sky in front of all surfaces
+extern cvar_t  *r_showNormals; // draws wireframe normals
+extern cvar_t  *r_showTangentSpaces; // draws wireframe tangents, binormals and normals
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showShadowLod;
 extern cvar_t  *r_showSkeleton;
