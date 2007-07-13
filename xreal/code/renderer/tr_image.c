@@ -478,11 +478,15 @@ void R_LightScaleTexture(unsigned *in, int inwidth, int inheight, qboolean onlyG
 
 		if(glConfig.deviceSupportsGamma)
 		{
-			for(i = 0; i < c; i++, p += 4)
+			// raynorpat: small optimization
+			if(r_intensity->value != 1.0f)
 			{
-				p[0] = s_intensitytable[p[0]];
-				p[1] = s_intensitytable[p[1]];
-				p[2] = s_intensitytable[p[2]];
+				for(i = 0; i < c; i++, p += 4)
+				{
+					p[0] = s_intensitytable[p[0]];
+					p[1] = s_intensitytable[p[1]];
+					p[2] = s_intensitytable[p[2]];
+				}
 			}
 		}
 		else
