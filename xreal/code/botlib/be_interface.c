@@ -145,8 +145,7 @@ int Export_BotLibSetup(void)
 
 	bot_developer = LibVarGetValue("bot_developer");
 	memset(&botlibglobals, 0, sizeof(botlibglobals));	// bk001207 - init
-	//initialize byte swapping (litte endian etc.)
-//  Swap_Init();
+
 	homedir = LibVarGetString("homedir");
 	gamedir = LibVarGetString("gamedir");
 	if(homedir[0])

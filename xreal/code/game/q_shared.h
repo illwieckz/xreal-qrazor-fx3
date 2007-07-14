@@ -1289,16 +1289,12 @@ qint64  BigLong64 (qint64 l);
 qint64  LittleLong64 (qint64 l);
 float	BigFloat (const float *l);
 float	LittleFloat (const float *l);
-
-void	Swap_Init (void);
 */
 char           *QDECL va(char *format, ...);
 
 //=============================================
 
-//
 // key / value info strings
-//
 char           *Info_ValueForKey(const char *s, const char *key);
 void            Info_RemoveKey(char *s, const char *key);
 void            Info_RemoveKey_big(char *s, const char *key);

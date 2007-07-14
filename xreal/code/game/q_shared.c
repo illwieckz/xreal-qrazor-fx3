@@ -389,10 +389,9 @@ void Com_DefaultExtension(char *path, int maxSize, const char *extension)
 	char            oldPath[MAX_QPATH];
 	char           *src;
 
-//
-// if path doesn't have a .EXT, append extension
-// (extension should include the .)
-//
+
+	// if path doesn't have a .EXT, append extension
+	// (extension should include the .)
 	src = path + strlen(path) - 1;
 
 	while(*src != '/' && src != path)
@@ -510,43 +509,6 @@ float FloatNoSwap(const float *f)
 {
 	return *f;
 }
-
-/*
-================
-Swap_Init
-================
-*/
-/*
-void Swap_Init (void)
-{
-	byte	swaptest[2] = {1,0};
-
-// set the byte swapping variables in a portable manner	
-	if ( *(short *)swaptest == 1)
-	{
-		_BigShort = ShortSwap;
-		_LittleShort = ShortNoSwap;
-		_BigLong = LongSwap;
-		_LittleLong = LongNoSwap;
-		_BigLong64 = Long64Swap;
-		_LittleLong64 = Long64NoSwap;
-		_BigFloat = FloatSwap;
-		_LittleFloat = FloatNoSwap;
-	}
-	else
-	{
-		_BigShort = ShortNoSwap;
-		_LittleShort = ShortSwap;
-		_BigLong = LongNoSwap;
-		_LittleLong = LongSwap;
-		_BigLong64 = Long64NoSwap;
-		_LittleLong64 = Long64Swap;
-		_BigFloat = FloatNoSwap;
-		_LittleFloat = FloatSwap;
-	}
-
-}
-*/
 
 /*
 ============================================================================
@@ -1436,10 +1398,12 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 	va_start(argptr, fmt);
 	len = vsprintf(bigbuffer, fmt, argptr);
 	va_end(argptr);
+
 	if(len >= sizeof(bigbuffer))
 	{
 		Com_Error(ERR_FATAL, "Com_sprintf: overflowed bigbuffer");
 	}
+
 	if(len >= size)
 	{
 		Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size);
@@ -1450,6 +1414,7 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 		}
 #endif
 	}
+
 	Q_strncpyz(dest, bigbuffer, size);
 }
 
@@ -1495,16 +1460,13 @@ Info_ValueForKey
 
 Searches the string for the given
 key and returns the associated value, or an empty string.
-FIXME: overflow check?
 ===============
 */
 char           *Info_ValueForKey(const char *s, const char *key)
 {
 	char            pkey[BIG_INFO_KEY];
 	static char     value[2][BIG_INFO_VALUE];	// use two buffers so compares
-
-	// work without stomping on each other
-	static int      valueindex = 0;
+	static int      valueindex = 0;				// work without stomping on each other
 	char           *o;
 
 	if(!s || !key)
@@ -1644,16 +1606,19 @@ void Info_RemoveKey(char *s, const char *key)
 		}
 		*o = 0;
 
-		if(!strcmp(key, pkey))
+		if(!Q_stricmp(key, pkey))
 		{
-			strcpy(start, s);	// remove this part
+			size_t memlen;
+
+			memlen = strlen(s);
+			memmove(start, s, memlen);
+			start[memlen] = 0;
 			return;
 		}
 
 		if(!*s)
 			return;
 	}
-
 }
 
 /*
@@ -1702,20 +1667,20 @@ void Info_RemoveKey_Big(char *s, const char *key)
 		}
 		*o = 0;
 
-		if(!strcmp(key, pkey))
+		if(!Q_stricmp(key, pkey))
 		{
-			strcpy(start, s);	// remove this part
+			size_t memlen;
+
+			memlen = strlen(s);
+			memmove(start, s, memlen);
+			start[memlen] = 0;
 			return;
 		}
 
 		if(!*s)
 			return;
 	}
-
 }
-
-
-
 
 /*
 ==================
