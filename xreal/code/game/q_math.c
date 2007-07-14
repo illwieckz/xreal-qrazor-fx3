@@ -345,22 +345,37 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 }
 
 /*
+================
+ConcatRotations
+================
+*/
+static void ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3])
+{
+	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +	in1[0][2] * in2[2][0];
+	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +	in1[0][2] * in2[2][1];
+	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +	in1[0][2] * in2[2][2];
+	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +	in1[1][2] * in2[2][0];
+	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +	in1[1][2] * in2[2][1];
+	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +	in1[1][2] * in2[2][2];
+	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +	in1[2][2] * in2[2][0];
+	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +	in1[2][2] * in2[2][1];
+	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +	in1[2][2] * in2[2][2];
+}
+
+/*
 ===============
 RotatePointAroundVector
-
-This is not implemented very well...
 ===============
 */
 void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees)
 {
-	float           m[3][3];
-	float           im[3][3];
-	float           zrot[3][3];
-	float           tmpmat[3][3];
-	float           rot[3][3];
-	int             i;
-	vec3_t          vr, vup, vf;
-	float           rad;
+	float	m[3][3];
+	float	im[3][3];
+	float	zrot[3][3];
+	float	tmpmat[3][3];
+	float	rot[3][3];
+
+	vec3_t vr, vup, vf;
 
 	vf[0] = dir[0];
 	vf[1] = dir[1];
@@ -381,31 +396,36 @@ void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, f
 	m[1][2] = vf[1];
 	m[2][2] = vf[2];
 
-	memcpy(im, m, sizeof(im));
-
+	im[0][0] = m[0][0];
 	im[0][1] = m[1][0];
 	im[0][2] = m[2][0];
+
 	im[1][0] = m[0][1];
+	im[1][1] = m[1][1];
 	im[1][2] = m[2][1];
+
 	im[2][0] = m[0][2];
 	im[2][1] = m[1][2];
+	im[2][2] = m[2][2];
 
-	memset(zrot, 0, sizeof(zrot));
-	zrot[0][0] = zrot[1][1] = zrot[2][2] = 1.0F;
+	zrot[0][0] = (float)cos(DEG2RAD(degrees));
+	zrot[0][1] = (float)sin(DEG2RAD(degrees));
+	zrot[0][2] = 0;
 
-	rad = DEG2RAD(degrees);
-	zrot[0][0] = cos(rad);
-	zrot[0][1] = sin(rad);
-	zrot[1][0] = -sin(rad);
-	zrot[1][1] = cos(rad);
+	zrot[1][0] = (float)-sin(DEG2RAD(degrees));
+	zrot[1][1] = (float)cos(DEG2RAD(degrees));
+	zrot[1][2] = 0;
 
-	AxisMultiply(m, zrot, tmpmat);
-	AxisMultiply(tmpmat, im, rot);
+	zrot[2][0] = 0.0f;
+	zrot[2][1] = 0.0f;
+	zrot[2][2] = 1.0f;
 
-	for(i = 0; i < 3; i++)
-	{
-		dst[i] = rot[i][0] * point[0] + rot[i][1] * point[1] + rot[i][2] * point[2];
-	}
+	ConcatRotations(m, zrot, tmpmat);
+	ConcatRotations(tmpmat, im, rot);
+
+	dst[0] = rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2];
+	dst[1] = rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2];
+	dst[2] = rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2];
 }
 
 /*
@@ -415,7 +435,6 @@ RotateAroundDirection
 */
 void RotateAroundDirection(vec3_t axis[3], float yaw)
 {
-
 	// create an arbitrary axis[1] 
 	PerpendicularVector(axis[1], axis[0]);
 
