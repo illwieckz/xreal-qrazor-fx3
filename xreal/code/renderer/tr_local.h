@@ -969,8 +969,12 @@ typedef struct interactionCache_s
 
 	int             numShadowIndexes;
 	int            *shadowIndexes;	// precached triangle indices of shadow edges
+
+	int				numShadowPlanes;
+	cplane_t       *shadowPlanes;	// shadow frustum to test against other interactions
 	
 	byte            cubeSideBits;
+	qboolean		redundant;
 	
 	struct interactionCache_s *next;
 } interactionCache_t;
@@ -1008,9 +1012,9 @@ typedef struct interaction_s
 typedef struct
 {
 	int             numDegenerated;			// number of bad triangles
-	qboolean        degenerated[SHADER_MAX_INDEXES / 3];
+	qboolean        degenerated[SHADER_MAX_TRIANGLES];
 	
-	qboolean        facing[SHADER_MAX_INDEXES / 3];
+	qboolean        facing[SHADER_MAX_TRIANGLES];
 	int             numFacing;			// number of triangles facing the light origin
 
 	int             numIndexes;
@@ -1911,6 +1915,8 @@ extern cvar_t  *r_cullShadowPyramidFaces;
 extern cvar_t  *r_cullShadowPyramidCurves;
 extern cvar_t  *r_cullShadowPyramidTriangles;
 extern cvar_t  *r_debugShadowMaps;
+extern cvar_t  *r_noShadowFrustums;
+extern cvar_t  *r_noLightFrustums;
 
 extern cvar_t  *r_intensity;
 
@@ -2360,8 +2366,6 @@ void            R_SetupLightView(trRefLight_t * light);
 void            R_SetupLightFrustum(trRefLight_t * light);
 void            R_SetupLightProjection(trRefLight_t * light);
 
-int             R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3]);
-
 qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
 									  int numLightIndexes, int *lightIndexes,
 									  int numShadowIndexes, int *shadowIndexes,
@@ -2378,6 +2382,9 @@ void            R_SetupLightLOD(trRefLight_t * light);
 void            R_SetupLightShader(trRefLight_t * light);
 
 byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2]);
+
+int             R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3]);
+int             R_CullLightWorldBounds(trRefLight_t * light, vec3_t worldBounds[2]);
 
 void            R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light);
 

@@ -118,6 +118,9 @@ cvar_t         *r_cullShadowPyramidFaces;
 cvar_t         *r_cullShadowPyramidCurves;
 cvar_t         *r_cullShadowPyramidTriangles;
 cvar_t         *r_debugShadowMaps;
+cvar_t         *r_noShadowFrustums;
+cvar_t         *r_noLightFrustums;
+
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
 cvar_t         *r_nobind;
@@ -1480,7 +1483,9 @@ void R_Register(void)
 	r_noShadowPyramids = ri.Cvar_Get("r_noShadowPyramids", "0", CVAR_CHEAT);
 	r_cullShadowPyramidFaces = ri.Cvar_Get("r_cullShadowPyramidFaces", "0", CVAR_CHEAT);
 	r_cullShadowPyramidCurves = ri.Cvar_Get("r_cullShadowPyramidCurves", "1", CVAR_CHEAT);
-	r_cullShadowPyramidTriangles = ri.Cvar_Get("r_cullShadowPyramidTriangles", "1", CVAR_CHEAT);	
+	r_cullShadowPyramidTriangles = ri.Cvar_Get("r_cullShadowPyramidTriangles", "1", CVAR_CHEAT);
+	r_noShadowFrustums = ri.Cvar_Get("r_noShadowFrustums", "0", CVAR_CHEAT);
+	r_noLightFrustums = ri.Cvar_Get("r_noLightFrustums", "0", CVAR_CHEAT);
 
 	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);

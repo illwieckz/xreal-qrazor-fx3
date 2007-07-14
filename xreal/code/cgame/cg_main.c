@@ -683,8 +683,8 @@ static void CG_RegisterSounds(void)
 	cgs.media.scoutSound = trap_S_RegisterSound("sound/items/cl_scout.wav", qfalse);
 #endif
 
-	cgs.media.teleInSound = trap_S_RegisterSound("sound/world/telein.wav", qfalse);
-	cgs.media.teleOutSound = trap_S_RegisterSound("sound/world/teleout.wav", qfalse);
+	cgs.media.teleInSound = trap_S_RegisterSound("sound/player/telein.ogg", qfalse);
+	cgs.media.teleOutSound = trap_S_RegisterSound("sound/player/teleout.ogg", qfalse);
 	cgs.media.respawnSound = trap_S_RegisterSound("sound/items/respawn.ogg", qfalse);
 
 	cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.ogg", qfalse);

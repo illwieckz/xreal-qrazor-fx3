@@ -182,28 +182,20 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 // *INDENT-OFF*
 static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light, byte * cubeSideBits)
 {
-#if 0
-	if(	light->l.origin[0] - light->l.radius[0] > face->bounds[1][0] ||
-		light->l.origin[0] + light->l.radius[0] < face->bounds[0][0] ||
-		light->l.origin[1] - light->l.radius[0] > face->bounds[1][1] ||
-		light->l.origin[1] + light->l.radius[0] < face->bounds[0][1] ||
-		light->l.origin[2] - light->l.radius[0] > face->bounds[1][2] ||
-		light->l.origin[2] + light->l.radius[0] < face->bounds[0][2])
-	{
-		// light doesn't reach the bounds
-		return qfalse;
-	}
-#else
-	if(	light->worldBounds[1][0] < face->bounds[0][0] ||
-		light->worldBounds[1][1] < face->bounds[0][1] ||
-		light->worldBounds[1][2] < face->bounds[0][2] ||
-		light->worldBounds[0][0] > face->bounds[1][0] ||
-		light->worldBounds[0][1] > face->bounds[1][1] ||
-		light->worldBounds[0][2] > face->bounds[1][2])
+	// do a quick AABB cull
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], face->bounds[0], face->bounds[1]))
 	{
 		return qfalse;
 	}
-#endif
+
+	// do a more expensive and precise light frustum cull
+	if(!r_noLightFrustums->integer)
+	{
+		if(R_CullLightWorldBounds(light, face->bounds) == CULL_OUT)
+		{
+			return qfalse;
+		}
+	}
 	
 	if(r_cullShadowPyramidFaces->integer)
 	{
@@ -215,15 +207,19 @@ static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light, byte
 
 static int R_LightGrid(srfGridMesh_t * grid, trRefLight_t * light, byte * cubeSideBits)
 {
-	if(	light->worldBounds[1][0] < grid->meshBounds[0][0] ||
-		light->worldBounds[1][1] < grid->meshBounds[0][1] ||
-		light->worldBounds[1][2] < grid->meshBounds[0][2] ||
-		light->worldBounds[0][0] > grid->meshBounds[1][0] ||
-		light->worldBounds[0][1] > grid->meshBounds[1][1] ||
-		light->worldBounds[0][2] > grid->meshBounds[1][2])
+	// do a quick AABB cull
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], grid->meshBounds[0], grid->meshBounds[1]))
 	{
-		// light doesn't reach the bounds
 		return qfalse;
+	}
+
+	// do a more expensive and precise light frustum cull
+	if(!r_noLightFrustums->integer)
+	{
+		if(R_CullLightWorldBounds(light, grid->meshBounds) == CULL_OUT)
+		{
+			return qfalse;
+		}
 	}
 
 	if(r_cullShadowPyramidCurves->integer)
@@ -236,15 +232,19 @@ static int R_LightGrid(srfGridMesh_t * grid, trRefLight_t * light, byte * cubeSi
 
 static int R_LightTrisurf(srfTriangles_t * tri, trRefLight_t * light, byte * cubeSideBits)
 {
-	if(	light->worldBounds[1][0] < tri->bounds[0][0] ||
-		   light->worldBounds[1][1] < tri->bounds[0][1] ||
-		   light->worldBounds[1][2] < tri->bounds[0][2] ||
-		   light->worldBounds[0][0] > tri->bounds[1][0] ||
-		   light->worldBounds[0][1] > tri->bounds[1][1] ||
-		   light->worldBounds[0][2] > tri->bounds[1][2])
+	// do a quick AABB cull
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], tri->bounds[0], tri->bounds[1]))
 	{
-		// light doesn't reach the bounds
 		return qfalse;
+	}
+
+	// do a more expensive and precise light frustum cull
+	if(!r_noLightFrustums->integer)
+	{
+		if(R_CullLightWorldBounds(light, tri->bounds) == CULL_OUT)
+		{
+			return qfalse;
+		}
 	}
 
 	if(r_cullShadowPyramidTriangles->integer)
@@ -946,6 +946,11 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 	{
 		surface = iaCache->surface;
+
+		if(iaCache->redundant)
+		{
+			continue;
+		}
 		
 		// Tr3B - this surface is maybe not in this view but it may still cast a shadow
 		// into this view

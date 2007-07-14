@@ -22,6 +22,7 @@ XreaL/code/			   		XreaL source code ( renderer, game code, OS layer etc. )
 XreaL/code/bspc				bot routes compiler source code
 XreaL/code/common			framework source code for command line tools like xmap
 XreaL/code/xmap				map compiler ( .map -> .bsp )
+XreaL/code/xmass			master server
 XreaL/code/gtkradiant		GtkRadiant editor source based off GPL release on 17th February 2006
 
 

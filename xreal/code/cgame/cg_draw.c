@@ -352,9 +352,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	
 	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
 	
-	VectorCopy(refdef.viewaxis[0], light.axis[0]);
-	VectorCopy(refdef.viewaxis[1], light.axis[1]);
-	VectorCopy(refdef.viewaxis[2], light.axis[2]);
+	QuatClear(light.rotation);
 	
 	light.color[0] = 1.0;
 	light.color[1] = 1.0;
@@ -440,9 +438,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	
 	light.rlType = RL_PROJ;
 	
-	VectorCopy(refdef.viewaxis[0], light.axis[0]);
-	VectorCopy(refdef.viewaxis[1], light.axis[1]);
-	VectorCopy(refdef.viewaxis[2], light.axis[2]);
+	QuatClear(light.rotation);
 	
 	light.color[0] = 1.0;
 	light.color[1] = 1.0;

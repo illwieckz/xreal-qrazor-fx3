@@ -667,18 +667,23 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 
 	model = tr.currentModel->md5;
 
-	// cull the entire model if merged bounding box of both frames
-	// does not intersect with light
-	if(	light->worldBounds[1][0] < ent->worldBounds[0][0] ||
-		   light->worldBounds[1][1] < ent->worldBounds[0][1] ||
-		   light->worldBounds[1][2] < ent->worldBounds[0][2] ||
-		   light->worldBounds[0][0] > ent->worldBounds[1][0] ||
-		   light->worldBounds[0][1] > ent->worldBounds[1][1] ||
-		   light->worldBounds[0][2] > ent->worldBounds[1][2])
+	// do a quick AABB cull
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], ent->worldBounds[0], ent->worldBounds[1]))
 	{
 		tr.pc.c_dlightSurfacesCulled += model->numSurfaces;
 		return;
 	}
+
+	// do a more expensive and precise light frustum cull
+	if(!r_noLightFrustums->integer)
+	{
+		if(R_CullLightWorldBounds(light, ent->worldBounds) == CULL_OUT)
+		{
+			tr.pc.c_dlightSurfacesCulled += model->numSurfaces;
+			return;
+		}
+	}
+	
 	
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 

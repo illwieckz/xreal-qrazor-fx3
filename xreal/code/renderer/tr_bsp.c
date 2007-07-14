@@ -41,12 +41,11 @@ static int      s_lightIndexes[SHADER_MAX_INDEXES];
 static int      s_numLightIndexes;
 static int      s_shadowIndexes[SHADER_MAX_INDEXES];
 static int      s_numShadowIndexes;
+static cplane_t s_shadowPlanes[SHADER_MAX_TRIANGLES * 4];
+static int      s_numShadowPlanes;
 static byte    *fileBase;
 
-int             c_culledFaceTriangles;
-int             c_culledTriTriangles;
-int             c_culledGridTriangles;
-
+int             c_redundantInteractions;
 //===============================================================================
 
 void HSVtoRGB(float h, float s, float v, float rgb[3])
@@ -371,7 +370,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 	srfGridMesh_t  *grid;
 	int             i, j;
 	int             width, height, numPoints;
-	srfVert_t		points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
+	srfVert_t       points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
 	vec3_t          bounds[2];
 	vec3_t          tmpVec;
 	static surfaceType_t skipData = SF_SKIP;
@@ -472,7 +471,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			cv->verts[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
 			cv->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
-		
+
 		for(j = 0; j < 2; j++)
 		{
 			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
@@ -495,7 +494,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 			}
 		}
 	}
-	
+
 	// calc bounding box
 	// HACK: don't loop only through the vertices because they can contain bad data with .lwo models ...
 	ClearBounds(cv->bounds[0], cv->bounds[1]);
@@ -2362,7 +2361,6 @@ void R_LoadEntities(lump_t * l)
 
 //  ri.Printf(PRINT_ALL, "-----------\n%s\n----------\n", p);
 
-#if 1
 	pOld = p;
 	numEntities = 1;			// parsed worldspawn so far
 
@@ -2447,6 +2445,8 @@ void R_LoadEntities(lump_t * l)
 	// basic light setup
 	for(i = 0, light = s_worldData.lights; i < s_worldData.numLights; i++, light++)
 	{
+		QuatClear(light->l.rotation);
+
 		light->l.color[0] = 1;
 		light->l.color[1] = 1;
 		light->l.color[2] = 1;
@@ -2454,22 +2454,17 @@ void R_LoadEntities(lump_t * l)
 		light->l.radius[0] = 300;
 		light->l.radius[1] = 300;
 		light->l.radius[2] = 300;
-		
+
 		light->l.fovX = 90;
 		light->l.fovY = 90;
 		light->l.distance = 300;
-
-		AxisClear(light->l.axis);
-		light->l.nonNormalizedAxes = qfalse;
 
 		light->isStatic = qtrue;
 		light->additive = qtrue;
 
 		light->shadowLOD = 0;
 	}
-#endif
 
-#if 1
 	// parse lights
 	p = pOld;
 	numEntities = 1;
@@ -2584,14 +2579,14 @@ void R_LoadEntities(lump_t * l)
 				light->l.attenuationShader = RE_RegisterShaderLightAttenuation(value);
 			}
 			// check for rotation
-			else if(!Q_stricmp(keyname, "rotation")|| !Q_stricmp(keyname, "light_rotation"))
+			else if(!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
 			{
 				matrix_t        rotation;
-				
+
 				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
-				
-				MatrixToVectorsFLU(rotation, light->l.axis[0], light->l.axis[1], light->l.axis[2]);
+
+				QuatFromMatrix(light->l.rotation, rotation);
 			}
 			// check if this light does not cast any shadows
 			else if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
@@ -2609,7 +2604,7 @@ void R_LoadEntities(lump_t * l)
 		if(!isLight)
 		{
 			// reset rotation because it may be set to the rotation of other entities
-			AxisClear(light->l.axis);
+			QuatClear(light->l.rotation);
 		}
 		else
 		{
@@ -2635,7 +2630,6 @@ void R_LoadEntities(lump_t * l)
 
 		numEntities++;
 	}
-#endif
 
 	if((numOmniLights + numProjLights) != s_worldData.numLights)
 	{
@@ -2700,6 +2694,9 @@ static void R_PrecacheInteraction(trRefLight_t * light, msurface_t * surface)
 	iaCache->next = NULL;
 	iaCache->surface = surface;
 
+	iaCache->redundant = qfalse;
+
+	// copy triangle indices used for lighting
 	if(s_numLightIndexes >= 3)
 	{
 		iaCache->numLightIndexes = s_numLightIndexes;
@@ -2712,6 +2709,7 @@ static void R_PrecacheInteraction(trRefLight_t * light, msurface_t * surface)
 		iaCache->lightIndexes = NULL;
 	}
 
+	// copy triangle indices used for shadowing
 	if(s_numShadowIndexes >= (6 + 2) * 3)
 	{
 		iaCache->numShadowIndexes = s_numShadowIndexes;
@@ -2723,508 +2721,26 @@ static void R_PrecacheInteraction(trRefLight_t * light, msurface_t * surface)
 		iaCache->numShadowIndexes = 0;
 		iaCache->shadowIndexes = NULL;
 	}
-}
 
-/*
-Triangle-box collider by Alen Ladavac and Vedran Klanac.
-Ported to ODE by Oskari Nyman.
-Ported to Q3A by Robert Beckebans.
-*/
-
-// global collider data
-static vec3_t   vBestNormal;
-static vec_t    fBestDepth;
-static int      iBestAxis = 0;
-static int      iExitAxis = 0;
-static vec3_t   vE0, vE1, vE2, vN;
-
-// test normal of mesh face as separating axis for intersection
-static qboolean _cldTestNormal(vec_t fp0, vec_t fR, vec3_t vNormal, int iAxis)
-{
-	// calculate overlapping interval of box and triangle
-	vec_t           fDepth = fR + fp0;
-	vec_t           fLength;
-
-	// if we do not overlap
-	if(fDepth < 0)
+	// copy shadow frustum
+	if(s_numShadowPlanes)
 	{
-		// do nothing
-		return qfalse;
-	}
-
-	// calculate normal's length
-	fLength = VectorLength(vNormal);
-
-	// if long enough
-	if(fLength > 0.0f)
-	{
-
-		vec_t           fOneOverLength = 1.0f / fLength;
-
-		// normalize depth
-		fDepth = fDepth * fOneOverLength;
-
-		// get minimum depth
-		if(fDepth < fBestDepth)
-		{
-			vBestNormal[0] = -vNormal[0] * fOneOverLength;
-			vBestNormal[1] = -vNormal[1] * fOneOverLength;
-			vBestNormal[2] = -vNormal[2] * fOneOverLength;
-			iBestAxis = iAxis;
-			//dAASSERT(fDepth>=0);
-			fBestDepth = fDepth;
-		}
-
-	}
-
-	return qtrue;
-}
-
-// test box axis as separating axis
-static qboolean _cldTestFace(vec_t fp0, vec_t fp1, vec_t fp2, vec_t fR, vec_t fD, vec3_t vNormal, int iAxis)
-{
-	vec_t           fMin, fMax;
-	vec_t           fDepthMin;
-	vec_t           fDepthMax;
-	vec_t           fDepth;
-
-	// find min of triangle interval 
-	if(fp0 < fp1)
-	{
-		if(fp0 < fp2)
-		{
-			fMin = fp0;
-		}
-		else
-		{
-			fMin = fp2;
-		}
+		iaCache->numShadowPlanes = s_numShadowPlanes;
+		iaCache->shadowPlanes = ri.Hunk_Alloc(s_numShadowPlanes * sizeof(cplane_t), h_low);
+		Com_Memcpy(iaCache->shadowPlanes, s_shadowPlanes, s_numShadowPlanes * sizeof(cplane_t));
 	}
 	else
 	{
-		if(fp1 < fp2)
-		{
-			fMin = fp1;
-		}
-		else
-		{
-			fMin = fp2;
-		}
+		iaCache->numShadowPlanes = 0;
+		iaCache->shadowPlanes = NULL;
 	}
-
-	// find max of triangle interval 
-	if(fp0 > fp1)
-	{
-		if(fp0 > fp2)
-		{
-			fMax = fp0;
-		}
-		else
-		{
-			fMax = fp2;
-		}
-	}
-	else
-	{
-		if(fp1 > fp2)
-		{
-			fMax = fp1;
-		}
-		else
-		{
-			fMax = fp2;
-		}
-	}
-
-	// calculate minimum and maximum depth
-	fDepthMin = fR - fMin;
-	fDepthMax = fMax + fR;
-
-	// if we dont't have overlapping interval
-	if(fDepthMin < 0 || fDepthMax < 0)
-	{
-		// do nothing
-		return qfalse;
-	}
-
-	fDepth = 0;
-
-	// if greater depth is on negative side 
-	if(fDepthMin > fDepthMax)
-	{
-		// use smaller depth (one from positive side)
-		fDepth = fDepthMax;
-		// flip normal direction
-		vNormal[0] = -vNormal[0];
-		vNormal[1] = -vNormal[1];
-		vNormal[2] = -vNormal[2];
-		fD = -fD;
-		// if greater depth is on positive side 
-	}
-	else
-	{
-		// use smaller depth (one from negative side)
-		fDepth = fDepthMin;
-	}
-
-
-	// if lower depth than best found so far 
-	if(fDepth < fBestDepth)
-	{
-		// remember current axis as best axis
-		vBestNormal[0] = vNormal[0];
-		vBestNormal[1] = vNormal[1];
-		vBestNormal[2] = vNormal[2];
-		iBestAxis = iAxis;
-		//dAASSERT(fDepth>=0);
-		fBestDepth = fDepth;
-	}
-
-	return qtrue;
-}
-
-// test cross products of box axis and triangle edges as separating axis
-static qboolean _cldTestEdge(vec_t fp0, vec_t fp1, vec_t fR, vec_t fD, vec3_t vNormal, int iAxis)
-{
-	vec_t           fMin, fMax;
-	vec_t           fDepthMin;
-	vec_t           fDepthMax;
-	vec_t           fDepth;
-	vec_t           fLength;
-
-	// calculate min and max interval values  
-	if(fp0 < fp1)
-	{
-		fMin = fp0;
-		fMax = fp1;
-	}
-	else
-	{
-		fMin = fp1;
-		fMax = fp0;
-	}
-
-	// check if we overlapp
-	fDepthMin = fR - fMin;
-	fDepthMax = fMax + fR;
-
-	// if we don't overlapp
-	if(fDepthMin < 0 || fDepthMax < 0)
-	{
-		// do nothing
-		return qfalse;
-	}
-
-	// if greater depth is on negative side 
-	if(fDepthMin > fDepthMax)
-	{
-		// use smaller depth (one from positive side)
-		fDepth = fDepthMax;
-		// flip normal direction
-		vNormal[0] = -vNormal[0];
-		vNormal[1] = -vNormal[1];
-		vNormal[2] = -vNormal[2];
-		fD = -fD;
-		// if greater depth is on positive side 
-	}
-	else
-	{
-		// use smaller depth (one from negative side)
-		fDepth = fDepthMin;
-	}
-
-	// calculate normal's length
-	fLength = VectorLength(vNormal);
-
-	// if long enough
-	if(fLength > 0.0f)
-	{
-		// normalize depth
-		vec_t           fOneOverLength = 1.0f / fLength;
-
-		fDepth = fDepth * fOneOverLength;
-		fD *= fOneOverLength;
-
-		// if lower depth than best found so far (favor face over edges)
-		if(fDepth * 1.5f < fBestDepth)
-		{
-			// remember current axis as best axis
-			vBestNormal[0] = vNormal[0] * fOneOverLength;
-			vBestNormal[1] = vNormal[1] * fOneOverLength;
-			vBestNormal[2] = vNormal[2] * fOneOverLength;
-			iBestAxis = iAxis;
-			//dAASSERT(fDepth>=0);
-			fBestDepth = fDepth;
-		}
-	}
-
-	return qtrue;
-}
-
-static qboolean _cldTestSeparatingAxes(trRefLight_t * light, const vec3_t v0, const vec3_t v1, const vec3_t v2)
-{
-	vec3_t          vA0, vA1, vA2;
-	vec_t           fa0, fa1, fa2;
-	vec3_t          vD;
-	vec_t           fNLen;
-	vec3_t          vL;
-	vec_t           fp0, fp1, fp2, fR, fD;
-
-	// reset best axis
-	iBestAxis = 0;
-	iExitAxis = -1;
-	fBestDepth = FLT_MAX;
-
-	// calculate edges
-	VectorSubtract(v1, v0, vE0);
-	VectorSubtract(v2, v0, vE1);
-	VectorSubtract(vE1, vE0, vE2);
-
-	// calculate poly normal
-	CrossProduct(vE0, vE1, vN);
-
-	// extract box axes as vectors
-	VectorCopy(light->l.axis[0], vA0);
-	VectorCopy(light->l.axis[1], vA1);
-	VectorCopy(light->l.axis[2], vA2);
-
-	// box halfsizes
-	fa0 = light->l.radius[0];
-	fa1 = light->l.radius[1];
-	fa2 = light->l.radius[2];
-
-	// calculate relative position between box and triangle
-	VectorSubtract(v0, light->l.origin, vD);
-
-	// calculate length of face normal
-	fNLen = VectorLength(vN);
-
-	//
-	// test separating axes for intersection
-	//
-
-	// Axis 1 - Triangle Normal
-	VectorCopy(vN, vL);
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0;
-	fp2 = fp0;
-	fR = fa0 * Q_fabs(DotProduct(vN, vA0)) + fa1 * Q_fabs(DotProduct(vN, vA1)) + fa2 * Q_fabs(DotProduct(vN, vA2));
-
-	if(!_cldTestNormal(fp0, fR, vL, 1))
-	{
-		iExitAxis = 1;
-		return qfalse;
-	}
-
-	//
-	// test faces
-	//
-
-	// Axis 2 - Box X-Axis
-	VectorCopy(vA0, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 + DotProduct(vA0, vE0);
-	fp2 = fp0 + DotProduct(vA0, vE1);
-	fR = fa0;
-
-	if(!_cldTestFace(fp0, fp1, fp2, fR, fD, vL, 2))
-	{
-		iExitAxis = 2;
-		return qfalse;
-	}
-
-	// Axis 3 - Box Y-Axis
-	VectorCopy(vA1, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 + DotProduct(vA1, vE0);
-	fp2 = fp0 + DotProduct(vA1, vE1);
-	fR = fa1;
-
-	if(!_cldTestFace(fp0, fp1, fp2, fR, fD, vL, 3))
-	{
-		iExitAxis = 3;
-		return qfalse;
-	}
-
-	// Axis 4 - Box Z-Axis
-	VectorCopy(vA2, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 + DotProduct(vA2, vE0);
-	fp2 = fp0 + DotProduct(vA2, vE1);
-	fR = fa2;
-
-	if(!_cldTestFace(fp0, fp1, fp2, fR, fD, vL, 4))
-	{
-		iExitAxis = 4;
-		return qfalse;
-	}
-
-	//
-	// test edges
-	//
-
-	// Axis 5 - Box X-Axis cross Edge0
-	CrossProduct(vA0, vE0, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0;
-	fp2 = fp0 + DotProduct(vA0, vN);
-	fR = fa1 * Q_fabs(DotProduct(vA2, vE0)) + fa2 * Q_fabs(DotProduct(vA1, vE0));
-
-	if(!_cldTestEdge(fp1, fp2, fR, fD, vL, 5))
-	{
-		iExitAxis = 5;
-		return qfalse;
-	}
-
-	// Axis 6 - Box X-Axis cross Edge1
-	CrossProduct(vA0, vE1, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 - DotProduct(vA0, vN);
-	fp2 = fp0;
-	fR = fa1 * Q_fabs(DotProduct(vA2, vE1)) + fa2 * Q_fabs(DotProduct(vA1, vE1));
-
-	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 6))
-	{
-		iExitAxis = 6;
-		return qfalse;
-	}
-
-	// Axis 7 - Box X-Axis cross Edge2
-	CrossProduct(vA0, vE2, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 - DotProduct(vA0, vN);
-	fp2 = fp0 - DotProduct(vA0, vN);
-	fR = fa1 * Q_fabs(DotProduct(vA2, vE2)) + fa2 * Q_fabs(DotProduct(vA1, vE2));
-
-	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 7))
-	{
-		iExitAxis = 7;
-		return qfalse;
-	}
-
-	// Axis 8 - Box Y-Axis cross Edge0
-	CrossProduct(vA1, vE0, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0;
-	fp2 = fp0 + DotProduct(vA1, vN);
-	fR = fa0 * Q_fabs(DotProduct(vA2, vE0)) + fa2 * Q_fabs(DotProduct(vA0, vE0));
-
-	if(!_cldTestEdge(fp0, fp2, fR, fD, vL, 8))
-	{
-		iExitAxis = 8;
-		return qfalse;
-	}
-
-	// Axis 9 - Box Y-Axis cross Edge1
-	CrossProduct(vA1, vE1, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 - DotProduct(vA1, vN);
-	fp2 = fp0;
-	fR = fa0 * Q_fabs(DotProduct(vA2, vE1)) + fa2 * Q_fabs(DotProduct(vA0, vE1));
-
-	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 9))
-	{
-		iExitAxis = 9;
-		return qfalse;
-	}
-
-	// Axis 10 - Box Y-Axis cross Edge2
-	CrossProduct(vA1, vE2, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 - DotProduct(vA1, vN);
-	fp2 = fp0 - DotProduct(vA1, vN);
-	fR = fa0 * Q_fabs(DotProduct(vA2, vE2)) + fa2 * Q_fabs(DotProduct(vA0, vE2));
-
-	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 10))
-	{
-		iExitAxis = 10;
-		return qfalse;
-	}
-
-	// Axis 11 - Box Z-Axis cross Edge0
-	CrossProduct(vA2, vE0, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0;
-	fp2 = fp0 + DotProduct(vA2, vN);
-	fR = fa0 * Q_fabs(DotProduct(vA1, vE0)) + fa1 * Q_fabs(DotProduct(vA0, vE0));
-
-	if(!_cldTestEdge(fp0, fp2, fR, fD, vL, 11))
-	{
-		iExitAxis = 11;
-		return qfalse;
-	}
-
-	// Axis 12 - Box Z-Axis cross Edge1
-	CrossProduct(vA2, vE1, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 - DotProduct(vA2, vN);
-	fp2 = fp0;
-	fR = fa0 * Q_fabs(DotProduct(vA1, vE1)) + fa1 * Q_fabs(DotProduct(vA0, vE1));
-
-	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 12))
-	{
-		iExitAxis = 12;
-		return qfalse;
-	}
-
-	// Axis 13 - Box Z-Axis cross Edge2
-	CrossProduct(vA2, vE2, vL);
-	fD = DotProduct(vL, vN) / fNLen;
-	fp0 = DotProduct(vL, vD);
-	fp1 = fp0 - DotProduct(vA2, vN);
-	fp2 = fp0 - DotProduct(vA2, vN);
-	fR = fa0 * Q_fabs(DotProduct(vA1, vE2)) + fa1 * Q_fabs(DotProduct(vA0, vE2));
-
-	if(!_cldTestEdge(fp0, fp1, fR, fD, vL, 13))
-	{
-		iExitAxis = 13;
-		return qfalse;
-	}
-
-	return qtrue;
-}
-
-// test one mesh triangle on intersection with given box
-static qboolean _cldTestOneTriangle(trRefLight_t * light, const vec3_t v0, const vec3_t v1, const vec3_t v2)
-{
-	// do intersection test and find best separating axis
-	if(!_cldTestSeparatingAxes(light, v0, v1, v2))
-	{
-		// if not found do nothing
-		return qfalse;
-	}
-
-	return qtrue;
-
-	/*
-	   // if best separation axis is not found
-	   if ( iBestAxis == 0 ) {
-	   // this should not happen (we should already exit in that case)
-	   //dMessage (0, "best separation axis not found");
-	   // do nothing
-	   return;
-	   }
-
-	   _cldClipping(v0, v1, v2);
-	 */
 }
 
 static int R_BuildShadowVolume(int numTriangles, const srfTriangle_t * triangles, int numVerts, int indexes[SHADER_MAX_INDEXES])
 {
 	int             i;
-	int				numIndexes;
-	const srfTriangle_t  *tri;
+	int             numIndexes;
+	const srfTriangle_t *tri;
 
 	// calculate zfail shadow volume
 	numIndexes = 0;
@@ -3301,12 +2817,255 @@ static int R_BuildShadowVolume(int numTriangles, const srfTriangle_t * triangles
 	return numIndexes;
 }
 
-static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shader, trRefLight_t * light)
+static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles, int numVerts, srfVert_t * verts,
+							   cplane_t shadowPlanes[SHADER_MAX_TRIANGLES], trRefLight_t * light)
 {
 	int             i;
-	srfTriangle_t  *tri;
+	int             numShadowPlanes;
+	const srfTriangle_t *tri;
+	vec3_t          pos[3];
+	vec3_t          lightDir;
+	vec4_t          plane;
+
+	if(r_noShadowFrustums->integer)
+	{
+		return 0;
+	}
+
+	// calculate shadow frustum
+	numShadowPlanes = 0;
+
+	// set up indices for silhouette edges
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		if(tri->neighbors[0] < 0 || !sh.facing[tri->neighbors[0]])
+		{
+			//indexes[numIndexes + 0] = tri->indexes[1];
+			//indexes[numIndexes + 1] = tri->indexes[0];
+			//indexes[numIndexes + 2] = tri->indexes[0] + numVerts;
+
+			VectorCopy(verts[tri->indexes[1]].xyz, pos[0]);
+			VectorCopy(verts[tri->indexes[0]].xyz, pos[1]);
+			VectorCopy(light->origin, pos[2]);
+
+			// extrude the infinite one
+			//VectorSubtract(verts[tri->indexes[0]].xyz, light->origin, lightDir);
+			//VectorAdd(verts[tri->indexes[0]].xyz, lightDir, pos[2]);
+			//VectorNormalize(lightDir);
+			//VectorMA(verts[tri->indexes[0]].xyz, 9999, lightDir, pos[2]);
+			
+			if(PlaneFromPoints(plane, pos[0], pos[1], pos[2], qtrue))
+			{
+				shadowPlanes[numShadowPlanes].normal[0] = plane[0];
+				shadowPlanes[numShadowPlanes].normal[1] = plane[1];
+				shadowPlanes[numShadowPlanes].normal[2] = plane[2];
+				shadowPlanes[numShadowPlanes].dist = plane[3];
+
+				numShadowPlanes++;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		if(tri->neighbors[1] < 0 || !sh.facing[tri->neighbors[1]])
+		{
+			//indexes[numIndexes + 0] = tri->indexes[2];
+			//indexes[numIndexes + 1] = tri->indexes[1];
+			//indexes[numIndexes + 2] = tri->indexes[1] + numVerts;
+
+			VectorCopy(verts[tri->indexes[2]].xyz, pos[0]);
+			VectorCopy(verts[tri->indexes[1]].xyz, pos[1]);
+			VectorCopy(light->origin, pos[2]);
+
+			// extrude the infinite one
+			//VectorSubtract(verts[tri->indexes[1]].xyz, light->origin, lightDir);
+			//VectorNormalize(lightDir);
+			//VectorMA(verts[tri->indexes[1]].xyz, 9999, lightDir, pos[2]);
+
+			if(PlaneFromPoints(plane, pos[0], pos[1], pos[2], qtrue))
+			{
+				shadowPlanes[numShadowPlanes].normal[0] = plane[0];
+				shadowPlanes[numShadowPlanes].normal[1] = plane[1];
+				shadowPlanes[numShadowPlanes].normal[2] = plane[2];
+				shadowPlanes[numShadowPlanes].dist = plane[3];
+
+				numShadowPlanes++;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		if(tri->neighbors[2] < 0 || !sh.facing[tri->neighbors[2]])
+		{
+			//indexes[numIndexes + 0] = tri->indexes[0];
+			//indexes[numIndexes + 1] = tri->indexes[2];
+			//indexes[numIndexes + 2] = tri->indexes[2] + numVerts;
+
+			VectorCopy(verts[tri->indexes[0]].xyz, pos[0]);
+			VectorCopy(verts[tri->indexes[2]].xyz, pos[1]);
+			VectorCopy(light->origin, pos[2]);
+
+			// extrude the infinite one
+			//VectorSubtract(verts[tri->indexes[2]].xyz, light->origin, lightDir);
+			//VectorNormalize(lightDir);
+			//VectorMA(verts[tri->indexes[2]].xyz, 9999, lightDir, pos[2]);
+
+			if(PlaneFromPoints(plane, pos[0], pos[1], pos[2], qtrue))
+			{
+				shadowPlanes[numShadowPlanes].normal[0] = plane[0];
+				shadowPlanes[numShadowPlanes].normal[1] = plane[1];
+				shadowPlanes[numShadowPlanes].normal[2] = plane[2];
+				shadowPlanes[numShadowPlanes].dist = plane[3];
+
+				numShadowPlanes++;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+	}
+
+	// set up indices for light and dark caps
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		if(!sh.facing[i])
+		{
+			continue;
+		}
+
+		// light cap
+		//indexes[numIndexes + 0] = tri->indexes[0];
+		//indexes[numIndexes + 1] = tri->indexes[1];
+		//indexes[numIndexes + 2] = tri->indexes[2];
+
+		VectorCopy(verts[tri->indexes[0]].xyz, pos[0]);
+		VectorCopy(verts[tri->indexes[1]].xyz, pos[1]);
+		VectorCopy(verts[tri->indexes[2]].xyz, pos[2]);
+
+		if(PlaneFromPoints(plane, pos[0], pos[1], pos[2], qfalse))
+		{
+			shadowPlanes[numShadowPlanes].normal[0] = plane[0];
+			shadowPlanes[numShadowPlanes].normal[1] = plane[1];
+			shadowPlanes[numShadowPlanes].normal[2] = plane[2];
+			shadowPlanes[numShadowPlanes].dist = plane[3];
+			
+			numShadowPlanes++;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+
+	for(i = 0; i < numShadowPlanes; i++)
+	{
+		vec_t           length, ilength;
+
+		shadowPlanes[i].type = PLANE_NON_AXIAL;
+		/*
+		// normalize plane
+		length = VectorLength(shadowPlanes[i].normal);
+		if(length)
+		{
+			ilength = 1.0 / length;
+			light->frustum[i].normal[0] *= ilength;
+			light->frustum[i].normal[1] *= ilength;
+			light->frustum[i].normal[2] *= ilength;
+			light->frustum[i].dist *= ilength;
+		}
+		*/
+
+		SetPlaneSignbits(&shadowPlanes[i]);
+	}
+
+	return numShadowPlanes;
+}
+
+static int R_BuildLightIndexes(int numTriangles, const srfTriangle_t * triangles, srfVert_t * verts,
+							   int indexes[SHADER_MAX_INDEXES], trRefLight_t * light)
+{
+	int             i;
+	const srfTriangle_t *tri;
 	int             numIndexes;
-	int            *indexes;
+
+	// build a list of triangles that need light
+	Com_Memset(&sh, 0, sizeof(shadowState_t));
+
+	numIndexes = 0;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		vec3_t          pos[3];
+
+		vec4_t          plane;
+		float           d;
+
+		// assume the triangle is ok and visible
+		sh.facing[i] = qtrue;
+
+		VectorCopy(verts[tri->indexes[0]].xyz, pos[0]);
+		VectorCopy(verts[tri->indexes[1]].xyz, pos[1]);
+		VectorCopy(verts[tri->indexes[2]].xyz, pos[2]);
+
+		if(PlaneFromPoints(plane, pos[0], pos[1], pos[2], qtrue))
+		{
+			sh.degenerated[i] = qfalse;
+
+			// check if light origin is behind triangle
+			d = DotProduct(plane, light->origin) - plane[3];
+
+			if(d <= 0 /* || shader->cullType == CT_BACK_SIDED */ )
+			{
+				sh.facing[i] = qfalse;
+			}
+		}
+		else
+		{
+			sh.numDegenerated++;
+			sh.degenerated[i] = qtrue;
+
+			sh.facing[i] = qtrue;
+		}
+
+		if(R_CullLightTriangle(light, pos) == CULL_OUT)
+		{
+			sh.facing[i] = qfalse;
+		}
+
+		if(numIndexes >= SHADER_MAX_INDEXES)
+		{
+			ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
+		}
+
+		// create triangle indices
+		if(sh.facing[i])
+		{
+			indexes[numIndexes + 0] = tri->indexes[0];
+			indexes[numIndexes + 1] = tri->indexes[1];
+			indexes[numIndexes + 2] = tri->indexes[2];
+			numIndexes += 3;
+
+			sh.numFacing++;
+		}
+	}
+
+	return numIndexes;
+}
+
+static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shader, trRefLight_t * light)
+{
+	int             numIndexes;
 
 	// check if bounds intersect
 	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->bounds[0], cv->bounds[1]))
@@ -3316,90 +3075,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 	if(r_precacheLightIndexes->integer)
 	{
-		// build a list of triangles that need light
-		Com_Memset(&sh, 0, sizeof(shadowState_t));
-
-		numIndexes = 0;
-		indexes = s_lightIndexes;
-
-		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-		{
-			vec3_t          verts[3];
-
-			vec4_t          plane;
-			float           d;
-
-			// assume the triangle is ok and visible
-			sh.facing[i] = qtrue;
-
-			VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
-			VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
-			VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
-
-			/*
-			   VectorSubtract(verts[1], verts[0], d1);
-			   VectorSubtract(verts[2], verts[0], d2);
-
-			   CrossProduct(d1, d2, plane);
-			   plane[3] = DotProduct(plane, verts[0]);
-
-			   d = DotProduct(plane, light->origin) - plane[3];
-			   if(d > 0)
-			   {
-			   sh.facing[i] = qtrue;
-			   }
-			   else
-			   {
-			   sh.facing[i] = qfalse;
-			   }
-			 */
-
-			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
-			{
-				sh.degenerated[i] = qfalse;
-				
-				// check if light origin is behind triangle
-				d = DotProduct(plane, light->origin) - plane[3];
-
-				if(d <= 0 || shader->cullType == CT_BACK_SIDED)
-				{
-					sh.facing[i] = qfalse;
-				}
-			}
-			else
-			{
-				sh.numDegenerated++;
-				sh.degenerated[i] = qtrue;
-
-				sh.facing[i] = qtrue;
-			}
-
-			// check with ODE's triangle<->OBB collider for an intersection
-			if(light->l.rlType == RL_OMNI && !sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
-			{
-				sh.facing[i] = qfalse;
-			}
-
-			if(numIndexes >= SHADER_MAX_INDEXES)
-			{
-				ri.Error(ERR_DROP, "R_PrecacheFaceInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
-			}
-
-			// create triangle indices
-			if(sh.facing[i])
-			{
-				indexes[numIndexes + 0] = tri->indexes[0];
-				indexes[numIndexes + 1] = tri->indexes[1];
-				indexes[numIndexes + 2] = tri->indexes[2];
-				numIndexes += 3;
-
-				sh.numFacing++;
-			}
-			else
-			{
-				c_culledFaceTriangles++;
-			}
-		}
+		numIndexes = R_BuildLightIndexes(cv->numTriangles, cv->triangles, cv->verts, s_lightIndexes, light);
 
 		if(numIndexes == 0)
 		{
@@ -3418,6 +3094,10 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 			s_numShadowIndexes = R_BuildShadowVolume(cv->numTriangles, cv->triangles, cv->numVerts, s_shadowIndexes);
 		}
 
+		if(r_shadows->integer >= 3)
+		{
+			s_numShadowPlanes =	R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
+		}
 	}
 
 	return qtrue;
@@ -3426,10 +3106,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRefLight_t * light)
 {
-	int             i;
-	srfTriangle_t  *tri;
 	int             numIndexes;
-	int            *indexes;
 
 	// check if bounds intersect
 	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->meshBounds[0], cv->meshBounds[1]))
@@ -3439,70 +3116,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 	if(r_precacheLightIndexes->integer)
 	{
-		// build a list of triangles that need light
-		Com_Memset(&sh, 0, sizeof(shadowState_t));
-
-		numIndexes = 0;
-		indexes = s_lightIndexes;
-
-		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-		{
-			vec3_t          verts[3];
-			vec4_t          plane;
-			float           d;
-
-			sh.facing[i] = qtrue;
-
-			VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
-			VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
-			VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
-
-			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
-			{
-				sh.degenerated[i] = qfalse;
-				
-				// check if light origin is behind triangle
-				d = DotProduct(plane, light->origin) - plane[3];
-
-				if(d <= 0 || shader->cullType == CT_BACK_SIDED)
-				{
-					sh.facing[i] = qfalse;
-				}
-			}
-			else
-			{
-				sh.numDegenerated++;
-				sh.degenerated[i] = qtrue;
-
-				sh.facing[i] = qtrue;
-			}
-
-			// check with ODE's triangle<->OBB collider for an intersection
-			if(light->l.rlType == RL_OMNI && !sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
-			{
-				sh.facing[i] = qfalse;
-			}
-
-			if(numIndexes >= SHADER_MAX_INDEXES)
-			{
-				ri.Error(ERR_DROP, "R_PrecacheGridInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
-			}
-
-			// create triangle indices
-			if(sh.facing[i])
-			{
-				indexes[numIndexes + 0] = tri->indexes[0];
-				indexes[numIndexes + 1] = tri->indexes[1];
-				indexes[numIndexes + 2] = tri->indexes[2];
-				numIndexes += 3;
-
-				sh.numFacing++;
-			}
-			else
-			{
-				c_culledGridTriangles++;
-			}
-		}
+		numIndexes = R_BuildLightIndexes(cv->numTriangles, cv->triangles, cv->verts, s_lightIndexes, light);
 
 		if(numIndexes == 0)
 		{
@@ -3519,6 +3133,11 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 			}
 
 			s_numShadowIndexes = R_BuildShadowVolume(cv->numTriangles, cv->triangles, cv->numVerts, s_shadowIndexes);
+		}
+
+		if(r_shadows->integer >= 3)
+		{
+			s_numShadowPlanes =	R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
 		}
 	}
 
@@ -3528,10 +3147,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, trRefLight_t * light)
 {
-	int             i;
-	srfTriangle_t  *tri;
 	int             numIndexes;
-	int            *indexes;
 
 	// check if bounds intersect
 	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], cv->bounds[0], cv->bounds[1]))
@@ -3541,70 +3157,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 	if(r_precacheLightIndexes->integer)
 	{
-		// build a list of triangles that need light
-		Com_Memset(&sh, 0, sizeof(shadowState_t));
-
-		numIndexes = 0;
-		indexes = s_lightIndexes;
-
-		for(i = 0, tri = cv->triangles; i < cv->numTriangles; i++, tri++)
-		{
-			vec3_t          verts[3];
-			vec4_t          plane;
-			float           d;
-
-			sh.facing[i] = qtrue;
-
-			VectorCopy(cv->verts[tri->indexes[0]].xyz, verts[0]);
-			VectorCopy(cv->verts[tri->indexes[1]].xyz, verts[1]);
-			VectorCopy(cv->verts[tri->indexes[2]].xyz, verts[2]);
-
-			if(PlaneFromPoints(plane, verts[0], verts[1], verts[2], qtrue))
-			{
-				sh.degenerated[i] = qfalse;
-				
-				// check if light origin is behind triangle
-				d = DotProduct(plane, light->origin) - plane[3];
-
-				if(d <= 0 || shader->cullType == CT_BACK_SIDED)
-				{
-					sh.facing[i] = qfalse;
-				}
-			}
-			else
-			{
-				sh.numDegenerated++;
-				sh.degenerated[i] = qtrue;
-
-				sh.facing[i] = qtrue;
-			}
-
-			// check with ODE's triangle<->OBB collider for an intersection
-			if(light->l.rlType == RL_OMNI && !sh.degenerated && !_cldTestOneTriangle(light, verts[0], verts[1], verts[2]))
-			{
-				sh.facing[i] = qfalse;
-			}
-
-			if(numIndexes >= SHADER_MAX_INDEXES)
-			{
-				ri.Error(ERR_DROP, "R_PrecacheTrisurfInteraction: indices > MAX (%d > %d)", numIndexes, SHADER_MAX_INDEXES);
-			}
-
-			// create triangle indices
-			if(sh.facing[i])
-			{
-				indexes[numIndexes + 0] = tri->indexes[0];
-				indexes[numIndexes + 1] = tri->indexes[1];
-				indexes[numIndexes + 2] = tri->indexes[2];
-				numIndexes += 3;
-
-				sh.numFacing++;
-			}
-			else
-			{
-				c_culledTriTriangles++;
-			}
-		}
+		numIndexes = R_BuildLightIndexes(cv->numTriangles, cv->triangles, cv->verts, s_lightIndexes, light);
 
 		if(numIndexes == 0)
 		{
@@ -3621,6 +3174,11 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 			}
 
 			s_numShadowIndexes = R_BuildShadowVolume(cv->numTriangles, cv->triangles, cv->numVerts, s_shadowIndexes);
+		}
+
+		if(r_shadows->integer >= 3)
+		{
+			s_numShadowPlanes =	R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
 		}
 	}
 
@@ -3649,6 +3207,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefLight_t * light
 
 	s_numLightIndexes = 0;
 	s_numShadowIndexes = 0;
+	s_numShadowPlanes = 0;
 
 	if(*surf->data == SF_FACE)
 	{
@@ -3785,6 +3344,149 @@ static void R_RecursiveAddInteractionNode(mnode_t * node, trRefLight_t * light, 
 }
 
 /*
+=================
+R_ShadowFrustumCullWorldBounds
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+int R_ShadowFrustumCullWorldBounds(int numShadowPlanes, cplane_t * shadowPlanes, vec3_t worldBounds[2])
+{
+	int             i;
+	cplane_t       *plane;
+	qboolean        anyClip;
+	int             r;
+
+	if(!numShadowPlanes)
+		return CULL_CLIP;
+
+	// check against frustum planes
+	anyClip = qfalse;
+	for(i = 0; i < numShadowPlanes; i++)
+	{
+		plane = &shadowPlanes[i];
+
+		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], plane);
+
+		if(r == 2)
+		{
+			// completely outside frustum
+			return CULL_OUT;
+		}
+		if(r == 3)
+		{
+			anyClip = qtrue;
+		}
+	}
+
+	if(!anyClip)
+	{
+		// completely inside frustum
+		return CULL_IN;
+	}
+
+	// partially clipped
+	return CULL_CLIP;
+}
+
+/*
+=============
+R_KillRedundantInteractions
+=============
+*/
+static void R_KillRedundantInteractions(trRefLight_t * light)
+{
+	interactionCache_t *iaCache, *iaCache2;
+	msurface_t     *surface;
+	vec3_t          localBounds[2];
+
+	if(r_shadows->integer <= 2)
+		return;
+
+	if(!light->firstInteractionCache)
+	{
+		// this light has no interactions precached
+		return;
+	}
+
+	if(light->l.noShadows)
+	{
+		// actually noShadows lights are quite bad concerning this optimization
+		return;
+	}
+
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		surface = iaCache->surface;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		// HACK: allow fancy alphatest shadows with shadow mapping
+		if(r_shadows->integer == 4 && surface->shader->alphaTest)
+			continue;
+
+		for(iaCache2 = light->firstInteractionCache; iaCache2; iaCache2 = iaCache2->next)
+		{
+			if(iaCache == iaCache2)
+			{
+				// don't check the surface of the current interaction with its shadow frustum
+				continue;
+			}
+
+			surface = iaCache2->surface;
+
+			if(*surface->data == SF_FACE)
+			{
+				srfSurfaceFace_t *face;
+
+				face = (srfSurfaceFace_t *) surface->data;
+
+				VectorCopy(face->bounds[0], localBounds[0]);
+				VectorCopy(face->bounds[1], localBounds[1]);
+			}
+			else if(*surface->data == SF_GRID)
+			{
+				srfGridMesh_t  *grid;
+
+				grid = (srfGridMesh_t *) surface->data;
+
+				VectorCopy(grid->meshBounds[0], localBounds[0]);
+				VectorCopy(grid->meshBounds[1], localBounds[1]);
+			}
+			else if(*surface->data == SF_TRIANGLES)
+			{
+				srfTriangles_t *tri;
+
+				tri = (srfTriangles_t *) surface->data;
+
+				VectorCopy(tri->bounds[0], localBounds[0]);
+				VectorCopy(tri->bounds[1], localBounds[1]);
+			}
+			else
+			{
+				iaCache2->redundant = qfalse;
+				continue;
+			}
+
+			if(R_ShadowFrustumCullWorldBounds(iaCache->numShadowPlanes, iaCache->shadowPlanes, localBounds) == CULL_IN)
+			{
+				iaCache2->redundant = qtrue;
+				c_redundantInteractions++;
+			}
+		}
+
+		if(iaCache->redundant)
+		{
+			c_redundantInteractions++;
+		}
+	}
+}
+
+/*
 =============
 R_PrecacheInteractions
 =============
@@ -3798,16 +3500,13 @@ void R_PrecacheInteractions()
 	msurface_t     *surface;
 	vec3_t          localBounds[2];
 	int             startTime, endTime;
-		
+
 	startTime = ri.Milliseconds();
 
 	s_lightCount = 0;
 	Com_InitGrowList(&s_interactions, 100);
 
-	c_culledFaceTriangles = 0;
-	c_culledGridTriangles = 0;
-	c_culledTriTriangles = 0;
-
+	c_redundantInteractions = 0;
 	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numLights);
 
 	for(i = 0; i < s_worldData.numLights; i++)
@@ -3823,7 +3522,7 @@ void R_PrecacheInteractions()
 #endif
 
 		// set up light transform matrix
-		MatrixSetupTransform(light->transformMatrix, light->l.axis[0], light->l.axis[1], light->l.axis[2], light->l.origin);
+		MatrixSetupTransformFromQuat(light->transformMatrix, light->l.rotation, light->l.origin);
 
 		// set up light origin for lighting and shadowing
 		R_SetupLightOrigin(light);
@@ -3846,24 +3545,7 @@ void R_PrecacheInteractions()
 		// setup interactions
 		light->firstInteractionCache = NULL;
 		light->lastInteractionCache = NULL;
-
-		/*
-		switch (light->l.rlType)
-		{
-			case RL_OMNI:
-				break;
-
-			case RL_PROJ:
-				// FIXME support these in the future
-				break;
-
-			case RL_DIRECT:
-				break;
-
-			default:
-				break;
-		}
-		*/
+		
 
 		// perform culling and add all the potentially visible surfaces
 		s_lightCount++;
@@ -3883,6 +3565,9 @@ void R_PrecacheInteractions()
 		s_lightCount++;
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
+
+		// check if interactions are inside shadows of other interactions
+		R_KillRedundantInteractions(light);
 
 		// calculate pyramid bits for each interaction in omni-directional lights
 		if(light->l.rlType == RL_OMNI)
@@ -3943,9 +3628,7 @@ void R_PrecacheInteractions()
 
 
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_worldData.numInteractions);
-	ri.Printf(PRINT_ALL, "%i planar surface triangles culled\n", c_culledFaceTriangles);
-	ri.Printf(PRINT_ALL, "%i bezier surface triangles culled\n", c_culledGridTriangles);
-	ri.Printf(PRINT_ALL, "%i abitrary surface triangles culled\n", c_culledTriTriangles);
+    ri.Printf(PRINT_ALL, "%i interactions were hidden in shadows\n", c_redundantInteractions);
 
 	if(r_shadows->integer == 4)
 	{
@@ -3955,9 +3638,9 @@ void R_PrecacheInteractions()
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces clipped\n", tr.pc.c_pyramid_cull_ent_clip);
 		ri.Printf(PRINT_ALL, "%i omni pyramid surfaces culled\n", tr.pc.c_pyramid_cull_ent_out);
 	}
-	
+
 	endTime = ri.Milliseconds();
-	
+
 	ri.Printf(PRINT_ALL, "lights precaching time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 }
 
@@ -4044,7 +3727,7 @@ void RE_LoadWorldMap(const char *name)
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
 
 	//ri.Printf(PRINT_ALL, "total world data size: %d.%02d MB\n", s_worldData.dataSize / (1024 * 1024),
-	//		  (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	//        (s_worldData.dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;

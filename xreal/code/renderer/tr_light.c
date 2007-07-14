@@ -63,17 +63,21 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bModel = pModel->bmodel;
 
-	// cull the entire model if merged bounding box of both frames
-	// does not intersect with light
-	if(light->worldBounds[1][0] < ent->worldBounds[0][0] ||
-	   light->worldBounds[1][1] < ent->worldBounds[0][1] ||
-	   light->worldBounds[1][2] < ent->worldBounds[0][2] ||
-	   light->worldBounds[0][0] > ent->worldBounds[1][0] ||
-	   light->worldBounds[0][1] > ent->worldBounds[1][1] ||
-	   light->worldBounds[0][2] > ent->worldBounds[1][2])
+	// do a quick AABB cull
+	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], ent->worldBounds[0], ent->worldBounds[1]))
 	{
 		tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
 		return;
+	}
+
+	// do a more expensive and precise light frustum cull
+	if(!r_noLightFrustums->integer)
+	{
+		if(R_CullLightWorldBounds(light, ent->worldBounds) == CULL_OUT)
+		{
+			tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
+			return;
+		}
 	}
 	
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
@@ -546,31 +550,48 @@ void R_SetupLightFrustum(trRefLight_t * light)
 			int             i;
 			vec3_t          planeNormal;
 			vec3_t          planeOrigin;
+			axis_t			axis;
+
+			QuatToAxis(light->l.rotation, axis);
 
 			for(i = 0; i < 3; i++)
 			{
-				VectorCopy(light->l.origin, planeOrigin);
-
-				VectorNegate(light->l.axis[i], planeNormal);
-				planeOrigin[i] += light->l.radius[i];
+				VectorMA(light->l.origin, light->l.radius[i], axis[i], planeOrigin);
+				VectorNegate(axis[i], planeNormal);
+				//VectorNormalize(planeNormal);
 
 				VectorCopy(planeNormal, light->frustum[i].normal);
-				light->frustum[i].type = PlaneTypeForNormal(planeNormal);
 				light->frustum[i].dist = DotProduct(planeOrigin, planeNormal);
-				SetPlaneSignbits(&light->frustum[i]);
 			}
 
 			for(i = 0; i < 3; i++)
 			{
-				VectorCopy(light->l.origin, planeOrigin);
-
-				VectorCopy(light->l.axis[i], planeNormal);
-				planeOrigin[i] -= light->l.radius[i];
+				VectorMA(light->l.origin, -light->l.radius[i], axis[i], planeOrigin);
+				VectorCopy(axis[i], planeNormal);
+				//VectorNormalize(planeNormal);
 
 				VectorCopy(planeNormal, light->frustum[i + 3].normal);
-				light->frustum[i + 3].type = PlaneTypeForNormal(planeNormal);
 				light->frustum[i + 3].dist = DotProduct(planeOrigin, planeNormal);
-				SetPlaneSignbits(&light->frustum[i + 3]);
+			}
+
+			for(i = 0; i < 6; i++)
+			{
+				vec_t           length, ilength;
+		
+				light->frustum[i].type = PLANE_NON_AXIAL;
+		
+				// normalize
+				length = VectorLength(light->frustum[i].normal);
+				if(length)
+				{	
+					ilength = 1.0 / length;
+					light->frustum[i].normal[0] *= ilength;
+					light->frustum[i].normal[1] *= ilength;
+					light->frustum[i].normal[2] *= ilength;
+					light->frustum[i].dist *= ilength;
+				}
+		
+				SetPlaneSignbits(&light->frustum[i]);
 			}
 			break;
 		}
@@ -638,61 +659,6 @@ void R_SetupLightProjection(trRefLight_t * light)
 }
 // *INDENT-ON*
 
-
-
-/*
-=================
-R_CullLightTriangle
-
-Returns CULL_IN, CULL_CLIP, or CULL_OUT
-=================
-*/
-int R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3])
-{
-	int             i, j;
-	float           dists[3];
-	cplane_t       *frust;
-	int             anyBack;
-	int             front, back;
-
-	// check against frustum planes
-	anyBack = 0;
-	for(i = 0; i < 6; i++)
-	{
-		frust = &light->frustum[i];
-
-		front = back = 0;
-		for(j = 0; j < 3; j++)
-		{
-			dists[j] = DotProduct(verts[j], frust->normal);
-			if(dists[j] > frust->dist)
-			{
-				front = 1;
-				if(back)
-				{
-					break;		// a point is in front
-				}
-			}
-			else
-			{
-				back = 1;
-			}
-		}
-		if(!front)
-		{
-			// all points were behind one of the planes
-			return CULL_OUT;
-		}
-		anyBack |= back;
-	}
-
-	if(!anyBack)
-	{
-		return CULL_IN;			// completely inside frustum
-	}
-
-	return CULL_CLIP;			// partially clipped
-}
 
 
 /*
@@ -1413,4 +1379,79 @@ void R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light)
 	RB_CalcTexMatrix(&pStage->bundle[TB_COLORMAP], matrix);
 
 	MatrixMultiply(matrix, light->attenuationMatrix, light->attenuationMatrix2);
+}
+
+/*
+=================
+R_CullLightTriangle
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+int R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3])
+{
+	int             i;
+	vec3_t          worldBounds[2];
+
+	if(r_nocull->integer)
+	{
+		return CULL_CLIP;
+	}
+
+	// calc AABB of the triangle
+	ClearBounds(worldBounds[0], worldBounds[1]);
+	for(i = 0; i < 3; i++)
+	{		
+		AddPointToBounds(verts[i], worldBounds[0], worldBounds[1]);
+	}
+
+	return R_CullLightWorldBounds(light, worldBounds);
+}
+
+/*
+=================
+R_CullLightTriangle
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+int R_CullLightWorldBounds(trRefLight_t * light, vec3_t worldBounds[2])
+{
+	int             i;
+	cplane_t       *frust;
+	qboolean        anyClip;
+	int             r;
+
+	if(r_nocull->integer)
+	{
+		return CULL_CLIP;
+	}
+
+	// check against frustum planes
+	anyClip = qfalse;
+	for(i = 0; i < 6; i++)
+	{
+		frust = &light->frustum[i];
+
+		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], frust);
+		
+		if(r == 2)
+		{
+			// completely outside frustum
+			return CULL_OUT;
+		}
+		if(r == 3)
+		{
+			anyClip = qtrue;
+		}
+	}
+
+	if(!anyClip)
+	{
+		// completely inside frustum
+		return CULL_IN;	
+	}
+
+	// partially clipped
+	return CULL_CLIP;
 }

@@ -847,13 +847,10 @@ R_RotateLightForViewParms
 void R_RotateLightForViewParms(const trRefLight_t * light, const viewParms_t * viewParms, orientationr_t * or)
 {
 	vec3_t          delta;
-	float           axisLength;
 
 	VectorCopy(light->l.origin, or->origin);
 
-	VectorCopy(light->l.axis[0], or->axis[0]);
-	VectorCopy(light->l.axis[1], or->axis[1]);
-	VectorCopy(light->l.axis[2], or->axis[2]);
+	QuatToAxis(light->l.rotation, or->axis);
 
 	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
 	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
@@ -863,27 +860,9 @@ void R_RotateLightForViewParms(const trRefLight_t * light, const viewParms_t * v
 	// needed for fog, specular, and environment mapping
 	VectorSubtract(viewParms->or.origin, or->origin, delta);
 
-	// compensate for scale in the axes if necessary
-	if(light->l.nonNormalizedAxes)
-	{
-		axisLength = VectorLength(light->l.axis[0]);
-		if(!axisLength)
-		{
-			axisLength = 0;
-		}
-		else
-		{
-			axisLength = 1.0f / axisLength;
-		}
-	}
-	else
-	{
-		axisLength = 1.0f;
-	}
-
-	or->viewOrigin[0] = DotProduct(delta, or->axis[0]) * axisLength;
-	or->viewOrigin[1] = DotProduct(delta, or->axis[1]) * axisLength;
-	or->viewOrigin[2] = DotProduct(delta, or->axis[2]) * axisLength;
+	or->viewOrigin[0] = DotProduct(delta, or->axis[0]);
+	or->viewOrigin[1] = DotProduct(delta, or->axis[1]);
+	or->viewOrigin[2] = DotProduct(delta, or->axis[2]);
 }
 
 
@@ -1960,7 +1939,7 @@ void R_AddLightInteractions()
 		if(!light->isStatic)
 		{
 			// set up light transform matrix
-			MatrixSetupTransform(light->transformMatrix, light->l.axis[0], light->l.axis[1], light->l.axis[2], light->l.origin);
+			MatrixSetupTransformFromQuat(light->transformMatrix, light->l.rotation, light->l.origin);
 
 			// set up light origin for lighting and shadowing
 			R_SetupLightOrigin(light);

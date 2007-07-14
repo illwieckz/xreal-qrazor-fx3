@@ -163,6 +163,7 @@ typedef struct
 	qhandle_t       attenuationShader;
 	
 	vec3_t          origin;
+	quat_t          rotation;
 	vec3_t          center;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
 	
@@ -174,8 +175,6 @@ typedef struct
 	float			fovY;
 	float			distance;
 	
-	vec3_t          axis[3];	// rotation vectors
-	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	qboolean        noShadows;
 	int				noShadowID;	// don't cast shadows of all entities with this id
 } refLight_t;

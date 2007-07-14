@@ -2422,7 +2422,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[1] = radius;
 		light.radius[2] = radius;
 		
-		AxisClear(light.axis);
+		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
 
@@ -2466,7 +2466,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[1] = radius;
 		light.radius[2] = radius;
 		
-		AxisClear(light.axis);
+		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
 
@@ -2502,7 +2502,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[1] = radius;
 		light.radius[2] = radius;
 		
-		AxisClear(light.axis);
+		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
 
@@ -2538,7 +2538,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[1] = radius;
 		light.radius[2] = radius;
 		
-		AxisClear(light.axis);
+		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
 

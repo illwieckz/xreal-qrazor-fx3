@@ -396,15 +396,15 @@ void CG_TestOmniLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-	cg.testLight.radius[0] = 500;
-	cg.testLight.radius[1] = 500;
-	cg.testLight.radius[2] = 500;
+	cg.testLight.radius[0] = 300;
+	cg.testLight.radius[1] = 300;
+	cg.testLight.radius[2] = 300;
 
 	angles[PITCH] = cg.refdefViewAngles[PITCH];
 	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
 	angles[ROLL] = 0;
 
-	AnglesToAxis(angles, cg.testLight.axis);
+	AnglesToQuat(angles, cg.testLight.rotation);
 	
 	cg.testFlashLight = qfalse;
 }
@@ -444,13 +444,7 @@ void CG_TestProjLight_f(void)
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
 	
-#if 1
-	VectorCopy(cg.refdef.viewaxis[0], cg.testLight.axis[0]);
-	VectorCopy(cg.refdef.viewaxis[1], cg.testLight.axis[1]);
-	VectorCopy(cg.refdef.viewaxis[2], cg.testLight.axis[2]);
-#else
-	AxisClear(cg.testLight.axis);
-#endif
+	AnglesToQuat(cg.refdefViewAngles, cg.testLight.rotation);
 	
 	cg.testLight.fovX = 45;
 	cg.testLight.fovY = 45;
@@ -494,10 +488,8 @@ static void CG_AddTestLight(void)
 	if(cg.testFlashLight)
 	{
 		VectorMA(cg.refdef.vieworg, 10, cg.refdef.viewaxis[0], cg.testLight.origin);
-		
-		VectorCopy(cg.refdef.viewaxis[0], cg.testLight.axis[0]);
-		VectorCopy(cg.refdef.viewaxis[1], cg.testLight.axis[1]);
-		VectorCopy(cg.refdef.viewaxis[2], cg.testLight.axis[2]);
+
+		AnglesToQuat(cg.refdefViewAngles, cg.testLight.rotation);
 	}
 
 	trap_R_AddRefLightToScene(&cg.testLight);

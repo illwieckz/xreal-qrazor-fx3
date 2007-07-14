@@ -313,6 +313,8 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 //	light->l.lightfx = 0;
 	VectorCopy(org, light->l.origin);
 
+	QuatClear(light->l.rotation);
+
 	// HACK: this will tell the renderer backend to use tr.defaultLightShader
 	light->l.attenuationShader = 0;
 	
@@ -324,8 +326,6 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	light->l.color[1] = g;
 	light->l.color[2] = b;
 	
-	AxisCopy(axisDefault, light->l.axis);
-	light->l.nonNormalizedAxes = qfalse;
 	light->l.noShadows = qfalse;
 	
 	light->isStatic = qfalse;
