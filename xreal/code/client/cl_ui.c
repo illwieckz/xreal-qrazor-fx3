@@ -731,55 +731,6 @@ void Key_SetCatcher(int catcher)
 	cls.keyCatchers = catcher;
 }
 
-
-/*
-====================
-CLUI_GetCDKey
-====================
-*/
-static void CLUI_GetCDKey(char *buf, int buflen)
-{
-	cvar_t         *fs;
-
-	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
-	if(UI_usesUniqueCDKey() && fs && fs->string[0] != 0)
-	{
-		Com_Memcpy(buf, &cl_cdkey[16], 16);
-		buf[16] = 0;
-	}
-	else
-	{
-		Com_Memcpy(buf, cl_cdkey, 16);
-		buf[16] = 0;
-	}
-}
-
-
-/*
-====================
-CLUI_SetCDKey
-====================
-*/
-static void CLUI_SetCDKey(char *buf)
-{
-	cvar_t         *fs;
-
-	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
-	if(UI_usesUniqueCDKey() && fs && fs->string[0] != 0)
-	{
-		Com_Memcpy(&cl_cdkey[16], buf, 16);
-		cl_cdkey[32] = 0;
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	}
-	else
-	{
-		Com_Memcpy(cl_cdkey, buf, 16);
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	}
-}
-
 /*
 ====================
 GetConfigString

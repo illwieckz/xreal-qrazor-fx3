@@ -221,28 +221,17 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	68
-// 1.31 - 67
+#define	PROTOCOL_VERSION 68
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols
 extern int      demo_protocols[];
 
-#ifndef UPDATE_SERVER_NAME
-#define	UPDATE_SERVER_NAME		"update.quake3arena.com"
-#endif
-
 #ifndef MASTER_SERVER_NAME
 #define MASTER_SERVER_NAME		"master.quake3arena.com"
 #endif
 
-#ifndef AUTHORIZE_SERVER_NAME
-#define	AUTHORIZE_SERVER_NAME	""
-#endif
-
 #define	PORT_MASTER			27950
-#define	PORT_UPDATE			27951
-#define	PORT_AUTHORIZE		27952
 #define	PORT_SERVER			27960
 
 #define	NUM_SERVER_PORTS	4	// broadcast scan this many ports after
@@ -743,10 +732,6 @@ MISC
 // TODO: do we need Mac define?
 #define Q_vsnprintf vsnprintf
 #endif
-
-// centralizing the declarations for cl_cdkey
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
-extern char     cl_cdkey[34];
 
 // TTimo
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)

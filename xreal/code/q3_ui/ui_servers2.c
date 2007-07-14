@@ -943,8 +943,8 @@ ArenaServers_StartRefresh
 */
 static void ArenaServers_StartRefresh( void )
 {
-	int		i;
 	char	myargs[32], protocol[32];
+	int		i;
 
 	memset( g_arenaservers.serverlist, 0, g_arenaservers.maxservers*sizeof(table_t) );
 
@@ -973,8 +973,6 @@ static void ArenaServers_StartRefresh( void )
 	}
 	else if( g_servertype == AS_GLOBAL )
 	{
-		i = 0;
-
 		switch( g_arenaservers.gametype.curvalue )
 		{
 			default:
@@ -1013,11 +1011,11 @@ static void ArenaServers_StartRefresh( void )
 		trap_Cvar_VariableStringBuffer( "debug_protocol", protocol, sizeof(protocol) );
 		if (strlen(protocol))
 		{
-			trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d %s%s\n", i, protocol, myargs ));
+			trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %s%s\n", protocol, myargs ));
 		}
 		else
 		{
-			trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d %d%s\n", i, (int)trap_Cvar_VariableValue( "protocol" ), myargs ) );
+			trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d%s\n", (int)trap_Cvar_VariableValue( "protocol" ), myargs ) );
 		}
 	}
 }

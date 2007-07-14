@@ -53,7 +53,6 @@ cvar_t         *sv_gametype;
 cvar_t         *sv_pure;
 cvar_t         *sv_floodProtect;
 cvar_t         *sv_lanForceRate;	// dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-cvar_t         *sv_strictAuth;
 
 /*
 =============================================================================
@@ -578,10 +577,6 @@ void SV_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	else if(!Q_stricmp(c, "connect"))
 	{
 		SV_DirectConnect(from);
-	}
-	else if(!Q_stricmp(c, "ipAuthorize"))
-	{
-		SV_AuthorizeIpPacket(from);
 	}
 	else if(!Q_stricmp(c, "rcon"))
 	{

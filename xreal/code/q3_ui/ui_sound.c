@@ -44,7 +44,7 @@ SOUND OPTIONS MENU
 #define ID_EFFECTSVOLUME	14
 #define ID_MUSICVOLUME		15
 #define ID_QUALITY			16
-//#define ID_A3D				17
+#define ID_OPENAL			17
 #define ID_BACK				18
 
 
@@ -67,7 +67,7 @@ typedef struct {
 	menuslider_s		sfxvolume;
 	menuslider_s		musicvolume;
 	menulist_s			quality;
-//	menuradiobutton_s	a3d;
+	menuradiobutton_s	openal;
 
 	menubitmap_s		back;
 } soundOptionsInfo_t;
@@ -124,17 +124,16 @@ static void UI_SoundOptionsMenu_Event( void* ptr, int event ) {
 		UI_ForceMenuOff();
 		trap_Cmd_ExecuteText( EXEC_APPEND, "snd_restart\n" );
 		break;
-/*
-	case ID_A3D:
-		if( soundOptionsInfo.a3d.curvalue ) {
-			trap_Cmd_ExecuteText( EXEC_NOW, "s_enable_a3d\n" );
-		}
-		else {
-			trap_Cmd_ExecuteText( EXEC_NOW, "s_disable_a3d\n" );
-		}
-		soundOptionsInfo.a3d.curvalue = (int)trap_Cvar_VariableValue( "s_usingA3D" );
+
+	case ID_OPENAL:
+		if(soundOptionsInfo.openal.curvalue)
+			trap_Cvar_SetValue( "s_useOpenAL", 1 );
+		else
+			trap_Cvar_SetValue( "s_useOpenAL", 0 );
+		UI_ForceMenuOff();
+		trap_Cmd_ExecuteText( EXEC_APPEND, "snd_restart\n" );
 		break;
-*/
+
 	case ID_BACK:
 		UI_PopMenu();
 		break;
@@ -251,16 +250,16 @@ static void UI_SoundOptionsMenu_Init( void ) {
 	soundOptionsInfo.quality.generic.x			= 400;
 	soundOptionsInfo.quality.generic.y			= y;
 	soundOptionsInfo.quality.itemnames			= quality_items;
-/*
+
 	y += BIGCHAR_HEIGHT+2;
-	soundOptionsInfo.a3d.generic.type			= MTYPE_RADIOBUTTON;
-	soundOptionsInfo.a3d.generic.name			= "A3D:";
-	soundOptionsInfo.a3d.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	soundOptionsInfo.a3d.generic.callback		= UI_SoundOptionsMenu_Event;
-	soundOptionsInfo.a3d.generic.id				= ID_A3D;
-	soundOptionsInfo.a3d.generic.x				= 400;
-	soundOptionsInfo.a3d.generic.y				= y;
-*/
+	soundOptionsInfo.openal.generic.type		= MTYPE_RADIOBUTTON;
+	soundOptionsInfo.openal.generic.name		= "OpenAL:";
+	soundOptionsInfo.openal.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	soundOptionsInfo.openal.generic.callback	= UI_SoundOptionsMenu_Event;
+	soundOptionsInfo.openal.generic.id			= ID_OPENAL;
+	soundOptionsInfo.openal.generic.x			= 400;
+	soundOptionsInfo.openal.generic.y			= y;
+
 	soundOptionsInfo.back.generic.type			= MTYPE_BITMAP;
 	soundOptionsInfo.back.generic.name			= ART_BACK0;
 	soundOptionsInfo.back.generic.flags			= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -282,13 +281,13 @@ static void UI_SoundOptionsMenu_Init( void ) {
 	Menu_AddItem( &soundOptionsInfo.menu, ( void * ) &soundOptionsInfo.sfxvolume );
 	Menu_AddItem( &soundOptionsInfo.menu, ( void * ) &soundOptionsInfo.musicvolume );
 	Menu_AddItem( &soundOptionsInfo.menu, ( void * ) &soundOptionsInfo.quality );
-//	Menu_AddItem( &soundOptionsInfo.menu, ( void * ) &soundOptionsInfo.a3d );
+	Menu_AddItem( &soundOptionsInfo.menu, ( void * ) &soundOptionsInfo.openal );
 	Menu_AddItem( &soundOptionsInfo.menu, ( void * ) &soundOptionsInfo.back );
 
 	soundOptionsInfo.sfxvolume.curvalue = trap_Cvar_VariableValue( "s_volume" ) * 10;
 	soundOptionsInfo.musicvolume.curvalue = trap_Cvar_VariableValue( "s_musicvolume" ) * 10;
 	soundOptionsInfo.quality.curvalue = !trap_Cvar_VariableValue( "s_compression" );
-//	soundOptionsInfo.a3d.curvalue = (int)trap_Cvar_VariableValue( "s_usingA3D" );
+	soundOptionsInfo.openal.curvalue = trap_Cvar_VariableValue( "s_useOpenAL" );
 }
 
 

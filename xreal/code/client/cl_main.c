@@ -37,6 +37,7 @@ cvar_t         *rconAddress;
 cvar_t         *cl_timeout;
 cvar_t         *cl_maxpackets;
 cvar_t         *cl_packetdup;
+cvar_t		   *cl_master;
 cvar_t         *cl_timeNudge;
 cvar_t         *cl_showTimeDelta;
 cvar_t         *cl_freezeDemo;
@@ -95,10 +96,6 @@ typedef struct serverStatus_s
 
 serverStatus_t  cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 int             serverStatusCount;
-
-#if defined __USEA3D && defined __A3D_GEOM
-void            hA3Dg_ExportRenderGeom(refexport_t * incoming_re);
-#endif
 
 extern void     SV_BotFrame(int time);
 void            CL_CheckForResend(void);
@@ -880,7 +877,6 @@ void CL_ForwardCommandToServer(const char *string)
 /*
 ===================
 CL_RequestMotd
-
 ===================
 */
 void CL_RequestMotd(void)
@@ -888,17 +884,16 @@ void CL_RequestMotd(void)
 	char            info[MAX_INFO_STRING];
 
 	if(!cl_motd->integer)
-	{
 		return;
-	}
-	Com_Printf("Resolving %s\n", UPDATE_SERVER_NAME);
-	if(!NET_StringToAdr(UPDATE_SERVER_NAME, &cls.updateServer))
+
+	Com_Printf("Resolving %s\n", cl_master->string);
+	if(!NET_StringToAdr(cl_master->string, &cls.updateServer))
 	{
 		Com_Printf("Couldn't resolve address\n");
 		return;
 	}
-	cls.updateServer.port = BigShort(PORT_UPDATE);
-	Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
+	cls.updateServer.port = BigShort(PORT_MASTER);
+	Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", cl_master->string,
 			   cls.updateServer.ip[0], cls.updateServer.ip[1],
 			   cls.updateServer.ip[2], cls.updateServer.ip[3], BigShort(cls.updateServer.port));
 
@@ -914,102 +909,7 @@ void CL_RequestMotd(void)
 	Info_SetValueForKey(info, "renderer", cls.glconfig.renderer_string);
 	Info_SetValueForKey(info, "version", com_version->string);
 
-	NET_OutOfBandPrint(NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info);
-}
-
-/*
-===================
-CL_RequestAuthorization
-
-Authorization server protocol
------------------------------
-
-All commands are text in Q3 out of band packets (leading 0xff 0xff 0xff 0xff).
-
-Whenever the client tries to get a challenge from the server it wants to
-connect to, it also blindly fires off a packet to the authorize server:
-
-getKeyAuthorize <challenge> <cdkey>
-
-cdkey may be "demo"
-
-
-#OLD The authorize server returns a:
-#OLD 
-#OLD keyAthorize <challenge> <accept | deny>
-#OLD 
-#OLD A client will be accepted if the cdkey is valid and it has not been used by any other IP
-#OLD address in the last 15 minutes.
-
-
-The server sends a:
-
-getIpAuthorize <challenge> <ip>
-
-The authorize server returns a:
-
-ipAuthorize <challenge> <accept | deny | demo | unknown >
-
-A client will be accepted if a valid cdkey was sent by that ip (only) in the last 15 minutes.
-If no response is received from the authorize server after two tries, the client will be let
-in anyway.
-===================
-*/
-void CL_RequestAuthorization(void)
-{
-#if 0
-	char            nums[64];
-	int             i, j, l;
-	cvar_t         *fs;
-
-	if(!cls.authorizeServer.port)
-	{
-		Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
-		if(!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.authorizeServer))
-		{
-			Com_Printf("Couldn't resolve address\n");
-			return;
-		}
-
-		cls.authorizeServer.port = BigShort(PORT_AUTHORIZE);
-		Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-				   cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-				   cls.authorizeServer.ip[2], cls.authorizeServer.ip[3], BigShort(cls.authorizeServer.port));
-	}
-	if(cls.authorizeServer.type == NA_BAD)
-	{
-		return;
-	}
-
-	if(Cvar_VariableValue("fs_restrict"))
-	{
-		Q_strncpyz(nums, "demota", sizeof(nums));
-	}
-	else
-	{
-		// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
-		j = 0;
-		l = strlen(cl_cdkey);
-		if(l > 32)
-		{
-			l = 32;
-		}
-		for(i = 0; i < l; i++)
-		{
-			if((cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9')
-			   || (cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z') || (cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z'))
-			{
-				nums[j] = cl_cdkey[i];
-				j++;
-			}
-		}
-		nums[j] = 0;
-	}
-
-	fs = Cvar_Get("cl_anonymous", "0", CVAR_INIT | CVAR_SYSTEMINFO);
-
-	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, va("getKeyAuthorize %i %s", fs->integer, nums));
-#endif
+	NET_OutOfBandPrint(NS_CLIENT, cls.updateServer, "getmotd%s", info);
 }
 
 /*
@@ -1718,10 +1618,6 @@ void CL_CheckForResend(void)
 	{
 		case CA_CONNECTING:
 			// requesting a challenge
-			if(!Sys_IsLANAddress(clc.serverAddress))
-			{
-				CL_RequestAuthorization();
-			}
 			NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
 			break;
 
@@ -1794,37 +1690,30 @@ void CL_DisconnectPacket(netadr_t from)
 	CL_Disconnect(qtrue);
 }
 
-
 /*
 ===================
 CL_MotdPacket
-
 ===================
 */
-void CL_MotdPacket(netadr_t from)
+void CL_MotdPacket(netadr_t from, const char *info)
 {
-	char           *challenge;
-	char           *info;
+	char    *v;
 
 	// if not from our server, ignore it
 	if(!NET_CompareAdr(from, cls.updateServer))
-	{
 		return;
-	}
 
 	info = Cmd_Argv(1);
 
 	// check challenge
-	challenge = Info_ValueForKey(info, "challenge");
-	if(strcmp(challenge, cls.updateChallenge))
-	{
+	v = Info_ValueForKey(info, "challenge");
+	if(strcmp(v, cls.updateChallenge))
 		return;
-	}
 
-	challenge = Info_ValueForKey(info, "motd");
+	v = Info_ValueForKey(info, "motd");
 
 	Q_strncpyz(cls.updateInfoString, info, sizeof(cls.updateInfoString));
-	Cvar_Set("cl_motdString", challenge);
+	Cvar_Set("cl_motdString", v);
 }
 
 /*
@@ -1914,7 +1803,7 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 		Com_DPrintf("server: %d ip: %d.%d.%d.%d:%d\n", numservers,
 					addresses[numservers].ip[0],
 					addresses[numservers].ip[1],
-					addresses[numservers].ip[2], addresses[numservers].ip[3], addresses[numservers].port);
+					addresses[numservers].ip[2], addresses[numservers].ip[3], BigShort(addresses[numservers].port));
 
 		numservers++;
 		if(numservers >= MAX_SERVERSPERPACKET)
@@ -1976,7 +1865,8 @@ Responses to broadcasts, etc
 void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 {
 	char           *s;
-	char           *c;
+	char			c[BIG_INFO_STRING];
+	char			arg1[BIG_INFO_STRING];
 
 	MSG_BeginReadingOOB(msg);
 	MSG_ReadLong(msg);			// skip the -1
@@ -1985,7 +1875,8 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 
 	Cmd_TokenizeString(s);
 
-	c = Cmd_Argv(0);
+	Q_strncpyz(c, Cmd_Argv(0), BIG_INFO_STRING);
+	Q_strncpyz(arg1, Cmd_Argv(1), BIG_INFO_STRING);
 
 	Com_DPrintf("CL packet %s: %s\n", NET_AdrToString(from), c);
 
@@ -1999,7 +1890,7 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 		else
 		{
 			// start sending challenge repsonse instead of challenge request packets
-			clc.challenge = atoi(Cmd_Argv(1));
+			clc.challenge = atoi(arg1);
 			cls.state = CA_CHALLENGING;
 			clc.connectPacketCount = 0;
 			clc.connectTime = -99999;
@@ -2062,21 +1953,14 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	// echo request from server
 	if(!Q_stricmp(c, "echo"))
 	{
-		NET_OutOfBandPrint(NS_CLIENT, from, "%s", Cmd_Argv(1));
+		NET_OutOfBandPrint(NS_CLIENT, from, "%s", arg1);
 		return;
 	}
 
-	// cd check
-	if(!Q_stricmp(c, "keyAuthorize"))
-	{
-		// we don't use these now, so dump them on the floor
-		return;
-	}
-
-	// global MOTD from id
+	// global MOTD from XreaL master server
 	if(!Q_stricmp(c, "motd"))
 	{
-		CL_MotdPacket(from);
+		CL_MotdPacket(from, arg1);
 		return;
 	}
 
@@ -2490,10 +2374,6 @@ void CL_InitRef(void)
 
 	ret = GetRefAPI(REF_API_VERSION, &ri);
 
-#if defined __USEA3D && defined __A3D_GEOM
-	hA3Dg_ExportRenderGeom(ret);
-#endif
-
 	Com_Printf("-------------------------------\n");
 
 	if(!ret)
@@ -2618,6 +2498,8 @@ void CL_Init(void)
 	cl_motd = Cvar_Get("cl_motd", "1", 0);
 
 	cl_timeout = Cvar_Get("cl_timeout", "200", 0);
+
+	cl_master = Cvar_Get("cl_master", MASTER_SERVER_NAME, CVAR_ARCHIVE);
 
 	cl_timeNudge = Cvar_Get("cl_timeNudge", "0", CVAR_TEMP);
 	cl_shownet = Cvar_Get("cl_shownet", "0", CVAR_TEMP);
@@ -3253,34 +3135,23 @@ void CL_GlobalServers_f(void)
 	char           *buffptr;
 	char            command[1024];
 
-	if(Cmd_Argc() < 3)
+	if(Cmd_Argc() < 2)
 	{
-		Com_Printf("usage: globalservers <master# 0-1> <protocol> [keywords]\n");
+		Com_Printf("usage: globalservers <protocol> [keywords]\n");
 		return;
 	}
 
-	cls.masterNum = atoi(Cmd_Argv(1));
-
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
-	if(cls.masterNum == 0)
-	{
-		Com_Printf("Requesting servers from the Primary Master Server..\n");
-		NET_StringToAdr(MASTER_SERVER_NAME, &to);
-		cls.numglobalservers = -1;
-		cls.pingUpdateSource = AS_GLOBAL;
-	}
-	else
-	{
-		Com_Printf("Requesting servers from the Secondary Master Server..\n");
-		NET_StringToAdr(MASTER_SERVER_NAME, &to); // FIXME: add second master server define (maybe for lan tests?)
-		cls.numglobalservers = -1;
-		cls.pingUpdateSource = AS_GLOBAL;
-	}
+	Com_Printf("Requesting servers from the Primary Master Server..\n");
+	NET_StringToAdr(cl_master->string, &to);
+	cls.numglobalservers = -1;
+	cls.pingUpdateSource = AS_GLOBAL;
+
 	to.type = NA_IP;
 	to.port = BigShort(PORT_MASTER);
 
-	sprintf(command, "getservers %s", Cmd_Argv(2));
+	sprintf(command, "getservers %s", Cmd_Argv(1));
 
 	// tack on keywords
 	buffptr = command + strlen(command);

@@ -1,0 +1,27 @@
+import os, string, sys
+
+Import('env')
+
+xmass_src = [
+'code/xmap/master.c',
+'code/xmap/messages.c'
+'code/xmap/servers.c',
+'code/xmap/stats.c'
+]
+
+xmass_env = env.Copy()
+
+if env['arch'] == 'linux-i386':
+	xmass_env.Append(LIBS=['m'])
+	xmass_env.Program('xmass.x86', xmass_src)
+	xmass_env.Install('#', 'xmass.x86')
+	
+elif env['arch'] == 'linux-x86_64':
+	xmass_env.Append(LIBS=['m'])
+	xmass_env.Program('xmass.x86_64', xmass_src)
+	xmass_env.Install('#', 'xmass.x86_64')
+
+elif env['arch'] == 'win32-mingw':
+	xmass_env.Append(LIBS=['m', 'wsock32'])
+	xmass_env.Program('xmass', xmass_src)
+	xmass_env.Install('#', 'xmass.exe')

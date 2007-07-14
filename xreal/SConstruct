@@ -6,7 +6,7 @@ import SCons.Errors
 # set configuration options
 #
 opts = Options('xreal.conf')
-opts.Add(EnumOption('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('linux-i386', 'linux-x86_64', 'win32-mingw', 'sdl')))
+opts.Add(EnumOption('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('linux-i386', 'linux-x86_64', 'macosx', 'win32-mingw', 'sdl')))
 opts.Add(EnumOption('warnings', 'Choose warnings level', '1', allowed_values=('0', '1', '2')))
 opts.Add(EnumOption('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
@@ -17,6 +17,7 @@ opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machin
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolOption('mapping', 'Set to 1 to compile GtkRadiant, XMap and BSPC mapping tools', 0))
+opts.Add(BoolOption('xmass', 'Set to 1 to compile XMass', 0))
 #opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 opts.Add(BoolOption('freetype', 'Set to 1 to compile engine with FreeType 2.x support', 0))
 opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
@@ -40,9 +41,7 @@ env.Append(CCFLAGS = '-pipe -fsigned-char')
 if env['arch'] == 'sdl':
 	env.Append(CCFLAGS = '-DUSE_SDL')
 
-if env['arch'] == 'macosx-ppc':
-	env.Append(CCFLAGS = '-DMACOS_X')
-elif env['arch'] == 'macosx-i386':
+if env['arch'] == 'macosx':
 	env.Append(CCFLAGS = '-DMACOS_X')
 
 if env['arch'] == 'win32-mingw':
@@ -99,3 +98,6 @@ if env['mapping'] == 1:
 	SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
 	SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
+
+if env['xmass'] == 1:
+	SConscript('SConscript_xmass', build_dir='build/xmass', duplicate=0)
