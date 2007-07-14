@@ -3,21 +3,21 @@ import os, string, sys
 Import('env')
 
 xmass_src = [
-'code/xmap/master.c',
-'code/xmap/messages.c'
-'code/xmap/servers.c',
-'code/xmap/stats.c'
+'code/xmass/master.c',
+'code/xmass/messages.c',
+'code/xmass/servers.c',
+'code/xmass/stats.c'
 ]
 
 xmass_env = env.Copy()
 
 if env['arch'] == 'linux-i386':
-	xmass_env.Append(LIBS=['m'])
+	xmass_env.Append(LIBS=['m', 'tdb'])
 	xmass_env.Program('xmass.x86', xmass_src)
 	xmass_env.Install('#', 'xmass.x86')
 	
 elif env['arch'] == 'linux-x86_64':
-	xmass_env.Append(LIBS=['m'])
+	xmass_env.Append(LIBS=['m', 'tdb'])
 	xmass_env.Program('xmass.x86_64', xmass_src)
 	xmass_env.Install('#', 'xmass.x86_64')
 

@@ -83,6 +83,11 @@ extern char     peer_address[128];
 # define snprintf _snprintf
 #endif
 
+#ifndef max
+#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
+#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
+#endif
+
 // Print a message to screen, depending on its verbose level
 int             MsgPrint(msg_level_t msg_level, const char *format, ...);
 
