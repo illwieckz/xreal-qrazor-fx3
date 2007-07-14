@@ -1530,43 +1530,63 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	}
 }
 
-
 /*
-** assumes "src" is normalized
+=================
+PerpendicularVector
+
+assumes "src" is normalized
+=================
 */
 void PerpendicularVector(vec3_t dst, const vec3_t src)
 {
 	int             pos;
-	int             i;
-	float           minelem = 1.0F;
-	vec3_t          tempvec;
+	float           minelem;
 
-	/*
-	 ** find the smallest magnitude axially aligned vector
-	 */
-	for(pos = 0, i = 0; i < 3; i++)
+	if(src[0])
 	{
-		if(fabs(src[i]) < minelem)
+		dst[0] = 0;
+		if(src[1])
 		{
-			pos = i;
-			minelem = fabs(src[i]);
+			dst[1] = 0;
+			if(src[2])
+			{
+				dst[2] = 0;
+				pos = 0;
+				minelem = fabs(src[0]);
+				if(Q_fabs(src[1]) < minelem)
+				{
+					pos = 1;
+					minelem = fabs(src[1]);
+				}
+
+				if(Q_fabs(src[2]) < minelem)
+					pos = 2;
+
+				dst[pos] = 1;
+				dst[0] -= src[pos] * src[0];
+				dst[1] -= src[pos] * src[1];
+				dst[2] -= src[pos] * src[2];
+
+				VectorNormalize(dst);
+			}
+			else
+			{
+				dst[2] = 1;
+			}
+		}
+		else
+		{
+			dst[1] = 1;
+			dst[2] = 0;
 		}
 	}
-	tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
-	tempvec[pos] = 1.0F;
-
-	/*
-	 ** project the point onto the plane defined by src
-	 */
-	ProjectPointOnPlane(dst, tempvec, src);
-
-	/*
-	 ** normalize the result
-	 */
-	VectorNormalize(dst);
+	else
+	{
+		dst[0] = 1;
+		dst[1] = 0;
+		dst[2] = 0;
+	}
 }
-
-
 
 // *INDENT-OFF*
 void MatrixIdentity(matrix_t m)
