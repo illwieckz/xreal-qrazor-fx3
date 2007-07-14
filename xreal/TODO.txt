@@ -223,9 +223,9 @@ base/sound/weapons/machinegun/buletby1.ogg
 base/sound/weapons/machinegun/ric1.ogg
 base/sound/weapons/machinegun/ric2.ogg
 base/sound/weapons/machinegun/ric3.ogg
-base/sound/weapons/nailgun/wnalimpd.ogg
-base/sound/weapons/nailgun/wnalimpl.ogg
-base/sound/weapons/nailgun/wnalimpm.ogg
+base/sound/weapons/nailgun/wnalimpd.ogg (optional)
+base/sound/weapons/nailgun/wnalimpl.ogg (optional)
+base/sound/weapons/nailgun/wnalimpm.ogg (optional)
 base/sound/weapons/plasma/hyprbf1a.ogg
 base/sound/weapons/plasma/lasfly.ogg
 base/sound/weapons/plasma/plasmx1a.ogg
