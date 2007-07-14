@@ -551,7 +551,6 @@ static void PM_WaterMove(void)
 	float           wishspeed;
 	vec3_t          wishdir;
 	float           scale;
-	float           vel;
 
 	if(PM_CheckWaterJump())
 	{
@@ -612,12 +611,8 @@ static void PM_WaterMove(void)
 	// make sure we can go up slopes easily under water
 	if(pml.groundPlane && DotProduct(pm->ps->velocity, pml.groundTrace.plane.normal) < 0)
 	{
-		vel = VectorLength(pm->ps->velocity);
 		// slide along the ground plane
 		PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
-
-		VectorNormalize(pm->ps->velocity);
-		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
 
 	PM_SlideMove(qfalse);
@@ -797,7 +792,6 @@ static void PM_WalkMove(void)
 	float           scale;
 	usercmd_t       cmd;
 	float           accelerate;
-	float           vel;
 
 	if(pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)
 	{
@@ -902,14 +896,8 @@ static void PM_WalkMove(void)
 //      pm->ps->velocity[2] = 0;
 	}
 
-	vel = VectorLength(pm->ps->velocity);
-
 	// slide along the ground plane
 	PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
-
-	// don't decrease velocity when going up or down a slope
-	VectorNormalize(pm->ps->velocity);
-	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 
 	// don't do anything if standing still
 	if(!pm->ps->velocity[0] && !pm->ps->velocity[1])
@@ -920,7 +908,6 @@ static void PM_WalkMove(void)
 	PM_StepSlideMove(qfalse);
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-
 }
 
 
