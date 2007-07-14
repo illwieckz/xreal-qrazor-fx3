@@ -45,34 +45,35 @@
 // ---------- Types ---------- //
 
 // A few basic types
-typedef enum {qfalse, qtrue} qboolean;
+typedef enum
+{ qfalse, qtrue } qboolean;
 typedef unsigned char qbyte;
 
 // The various messages levels
 typedef enum
 {
-	MSG_NOPRINT,	// used by "max_msg_level" (= no printings)
-	MSG_ERROR,		// errors
-	MSG_WARNING,	// warnings
-	MSG_NORMAL,		// standard messages
-	MSG_DEBUG		// for debugging purpose
+	MSG_NOPRINT,				// used by "max_msg_level" (= no printings)
+	MSG_ERROR,					// errors
+	MSG_WARNING,				// warnings
+	MSG_NORMAL,					// standard messages
+	MSG_DEBUG					// for debugging purpose
 } msg_level_t;
 
 
 // ---------- Public variables ---------- //
 
 // The master socket
-extern int inSock;
-extern int outSock;
+extern int      inSock;
+extern int      outSock;
 
 // The current time (updated every time we receive a packet)
-extern time_t crt_time;
+extern time_t   crt_time;
 
 // Maximum level for a message to be printed
 extern msg_level_t max_msg_level;
 
 // Peer address. We rebuild it every time we receive a new packet
-extern char peer_address [128];
+extern char     peer_address[128];
 
 
 // ---------- Public functions ---------- //
@@ -83,9 +84,9 @@ extern char peer_address [128];
 #endif
 
 // Print a message to screen, depending on its verbose level
-int MsgPrint (msg_level_t msg_level, const char* format, ...);
+int             MsgPrint(msg_level_t msg_level, const char *format, ...);
 
-void RecordClientStat( const char *address, const char *version, const char *renderer );
-void RecordGameStat( const char *address, const char *dataText );
+void            RecordClientStat(const char *address, const char *version, const char *renderer);
+void            RecordGameStat(const char *address, const char *dataText);
 
-#endif  // _COMMON_H_
+#endif							// _COMMON_H_
