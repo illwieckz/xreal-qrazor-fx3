@@ -73,16 +73,16 @@ static void     swapfunc(char *, char *, int, int);
 #define SWAPINIT(a, es) swaptype = ((char *)a - (char *)0) % sizeof(long) || \
 	es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
 
-static void swapfunc(char * a, char * b, int n, int swaptype)
+static void swapfunc(char *a, char *b, int n, int swaptype)
 {
 	if(swaptype <= 1)
-    {
-        swapcode(long, a, b, n);
-    }
+	{
+		swapcode(long, a, b, n);
+	}
 	else
-    {
-        swapcode(char, a, b, n);
-    }
+	{
+		swapcode(char, a, b, n);
+	}
 }
 
 #define swap(a, b)					\

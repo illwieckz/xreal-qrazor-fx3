@@ -109,6 +109,24 @@ int MaskBits(unsigned int mask)
 	return bits;
 }
 
+static qboolean SV_CheckColorCodes(const char *s)
+{
+	while(s[0])
+	{
+		if(s[0] == Q_COLOR_ESCAPE)
+		{
+			if(!s[1])
+				return qfalse;
+
+			if(s[1] < '1' || s[1] > '7')
+				return qfalse;
+		}
+		s++;
+	}
+
+	return qtrue;
+}
+
 /*
 ==================
 SV_DirectConnect
@@ -133,8 +151,9 @@ void SV_DirectConnect(netadr_t from)
 	int             count;
 	char           *ip;
 
-	// r1: bans
-	serverban_t    *s;
+	// r1:
+	const char     *name;
+	char            cleanname[32];
 
 	Com_DPrintf("SVC_DirectConnect ()\n");
 
@@ -143,7 +162,7 @@ void SV_DirectConnect(netadr_t from)
 	version = atoi(Info_ValueForKey(userinfo, "protocol"));
 	if(version != PROTOCOL_VERSION)
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION);
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i.", PROTOCOL_VERSION);
 		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -184,14 +203,41 @@ void SV_DirectConnect(netadr_t from)
 	}
 	Info_SetValueForKey(userinfo, "ip", ip);
 
-	// r1: bans
-	s = SV_BanMatch(&from);
-	if(s)
+	// r1: no dupe names
+	name = Info_ValueForKey(userinfo, "name");
+
+	Q_strncpyz(cleanname, name, sizeof(cleanname));
+	Q_CleanStr(cleanname);
+
+	if(!SV_CheckColorCodes(cleanname))
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
-		Com_Printf("Rejected %s[%s], matched ban %s/%d (%s)\n", Info_ValueForKey(userinfo, "name"), NET_AdrToString(from),
-				   NET_inet_ntoa(s->ip), MaskBits(s->mask), s->reason);
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid name, please check your color codes.");
 		return;
+	}
+
+	if(!cleanname[0])
+	{
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlease set your name before connecting.");
+		return;
+	}
+
+	for(i = 0; i < sv_maxclients->integer; i++)
+	{
+		cl = &svs.clients[i];
+		if(cl->state >= CS_CONNECTED)
+		{
+			char            namebuff[64];
+
+			Q_strncpyz(namebuff, cl->name, sizeof(namebuff));
+			Q_CleanStr(namebuff);
+			if(!Q_stricmp(namebuff, cleanname))
+			{
+				NET_OutOfBandPrint(NS_SERVER, from,
+								   "print\nPlayer name '%s' is already in use, please choose another name. If you were just disconnected, please wait a few minutes.",
+								   cleanname);
+				return;
+			}
+		}
 	}
 
 	// see if the challenge is valid (LAN clients don't need to challenge)
@@ -212,12 +258,13 @@ void SV_DirectConnect(netadr_t from)
 
 		if(i == MAX_CHALLENGES)
 		{
-			NET_OutOfBandPrint(NS_SERVER, from, "print\nNo or bad challenge for address.\n");
+			NET_OutOfBandPrint(NS_SERVER, from, "print\nNo or bad challenge for address.");
 			return;
 		}
 
 		ping = svs.time - svs.challenges[i].pingTime;
-		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
+		Com_Printf("Client %i (%s" S_COLOR_WHITE "[%s]) connecting with %i challenge ping\n", i, name, NET_AdrToString(from),
+				   ping);
 		svs.challenges[i].connected = qtrue;
 
 		// never reject a LAN client based on ping
@@ -226,7 +273,7 @@ void SV_DirectConnect(netadr_t from)
 			if(sv_minPing->value && ping < sv_minPing->value)
 			{
 				// don't let them keep trying until they get a big delay
-				NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for high pings only\n");
+				NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for high pings only");
 				Com_DPrintf("Client %i rejected on a too low ping\n", i);
 				// reset the address otherwise their ping will keep increasing
 				// with each connect message and they'd eventually be able to connect
@@ -235,7 +282,7 @@ void SV_DirectConnect(netadr_t from)
 			}
 			if(sv_maxPing->value && ping > sv_maxPing->value)
 			{
-				NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for low pings only\n");
+				NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is for low pings only");
 				Com_DPrintf("Client %i rejected on a too high ping\n", i);
 				return;
 			}
@@ -248,10 +295,10 @@ void SV_DirectConnect(netadr_t from)
 	// if there is already a slot for this ip, reuse it
 	for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
 	{
-		if(cl->state == CS_FREE)
-		{
+		// r1: only reuse zombie slots (right?)
+		if(cl->state != CS_ZOMBIE)
 			continue;
-		}
+
 		if(NET_CompareBaseAdr(from, cl->netchan.remoteAddress)
 		   && (cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port))
 		{
@@ -328,7 +375,7 @@ void SV_DirectConnect(netadr_t from)
 		}
 		else
 		{
-			NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is full.\n");
+			NET_OutOfBandPrint(NS_SERVER, from, "print\nServer is full.");
 			Com_DPrintf("Rejected a connection.\n");
 			return;
 		}
@@ -365,7 +412,7 @@ void SV_DirectConnect(netadr_t from)
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
 		denied = VM_ExplicitArgPtr(gvm, (int)denied);
 
-		NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", denied);
+		NET_OutOfBandPrint(NS_SERVER, from, "print\n%s", denied);
 		Com_DPrintf("Game rejected a connection: %s.\n", denied);
 		return;
 	}
@@ -378,8 +425,11 @@ void SV_DirectConnect(netadr_t from)
 	Com_DPrintf("Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name);
 
 	newcl->state = CS_CONNECTED;
+
 	newcl->nextSnapshotTime = svs.time;
-	newcl->lastPacketTime = svs.time;
+	//r1: if the above connectResponse is dropped unreliable, client will be stuck for sv_timeout, fixed here
+	//newcl->lastPacketTime = svs.time;
+	newcl->lastPacketTime = svs.time + (sv_timeout->integer - 5) * 1000;
 	newcl->lastConnectTime = svs.time;
 
 	// when we receive the first packet from the client, we will
@@ -402,7 +452,6 @@ void SV_DirectConnect(netadr_t from)
 		SV_Heartbeat_f();
 	}
 }
-
 
 /*
 =====================
@@ -567,7 +616,6 @@ void SV_SendClientGameState(client_t * client)
 	SV_SendMessageToClient(&msg, client);
 }
 
-
 /*
 ==================
 SV_ClientEnterWorld
@@ -635,7 +683,6 @@ static void SV_CloseDownload(client_t * cl)
 			cl->downloadBlocks[i] = NULL;
 		}
 	}
-
 }
 
 /*
@@ -663,6 +710,7 @@ Downloads are finished
 void SV_DoneDownload_f(client_t * cl)
 {
 	Com_DPrintf("clientDownload: %s Done\n", cl->name);
+
 	// resend the game state to update any clients that entered during the download
 	SV_SendClientGameState(cl);
 }
@@ -708,7 +756,6 @@ SV_BeginDownload_f
 */
 void SV_BeginDownload_f(client_t * cl)
 {
-
 	// Kill any existing download
 	SV_CloseDownload(cl);
 
@@ -1160,9 +1207,53 @@ void SV_UserinfoChanged(client_t * cl)
 	char           *ip;
 	int             i;
 	int             len;
+	char            cleanName[32];
+	client_t       *other;
+	qboolean        nameOK = qtrue;
+
+	Q_strncpyz(cleanName, Info_ValueForKey(cl->userinfo, "name"), sizeof(cleanName));
+
+	if(!SV_CheckColorCodes(cleanName))
+	{
+		SV_SendServerCommand(cl, "print \"Invalid name, please check your color codes.\n\"");
+		nameOK = qfalse;
+	}
+	else
+	{
+		Q_CleanStr(cleanName);
+
+		if(!cleanName[0])
+		{
+			SV_SendServerCommand(cl, "print \"Invalid name, please check your color codes.\n\"");
+			nameOK = qfalse;
+		}
+		else
+		{
+			for(i = 0; i < sv_maxclients->integer; i++)
+			{
+				other = &svs.clients[i];
+				if(other != cl && other->state >= CS_CONNECTED)
+				{
+					char            namebuff[64];
+
+					Q_strncpyz(namebuff, other->name, sizeof(namebuff));
+					Q_CleanStr(namebuff);
+					if(!Q_stricmp(namebuff, cleanName))
+					{
+						SV_SendServerCommand(cl, "print \"Name '%s' is already in use, please choose another.\n\"", cleanName);
+						nameOK = qfalse;
+						break;
+					}
+				}
+			}
+		}
+	}
 
 	// name for C code
-	Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
+	if(nameOK)
+		Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
+	else
+		Info_SetValueForKey(cl->userinfo, "name", cl->name);
 
 	// rate command
 
@@ -1243,182 +1334,6 @@ void SV_UserinfoChanged(client_t * cl)
 		Info_SetValueForKey(cl->userinfo, "ip", ip);
 }
 
-static void SV_Login_f(client_t * cl)
-{
-	useraccount_t  *account;
-
-	if(cl->account)
-	{
-		SV_SendServerCommand(cl, "print \"You are already logged in!\n\"");
-		return;
-	}
-
-	if(Cmd_Argc() < 3)
-	{
-		SV_SendServerCommand(cl, "print \"Usage: login username password\n\"");
-		return;
-	}
-
-	account = SV_CheckLogin(Cmd_Argv(1), Cmd_Argv(2));
-	if(!account)
-	{
-		Com_Printf("%s[%s] failed to login as '%s'.\n", cl->name, NET_AdrToString(cl->netchan.remoteAddress), Cmd_Argv(1));
-		SV_SendServerCommand(cl, "print \"Invalid username/password.\"\n");
-	}
-	else
-	{
-		SV_SendServerCommand(NULL, "print \"%s" S_COLOR_WHITE " logged in as a server administrator.\n\"", cl->name);
-		cl->account = account;
-	}
-}
-
-static void SV_Cl_Kick_f(client_t * cl)
-{
-	client_t       *victim;
-	char            message[64];
-
-	if(!SV_ClientHasPermission(cl, PERMISSION_KICK))
-	{
-		SV_SendServerCommand(cl, "print \"You don't have permission to use this command.\n\"");
-		return;
-	}
-
-	if(Cmd_Argc() != 2)
-	{
-		SV_SendServerCommand(cl, "print \"Usage: @kick <id/name/subname>\n\"");
-		return;
-	}
-
-	if(StringIsNumeric(Cmd_Argv(1)))
-	{
-		victim = SV_GetPlayerByNum();
-	}
-	else
-	{
-		victim = SV_GetPlayerByName();
-	}
-
-	if(!victim)
-	{
-		SV_SendServerCommand(cl, "print \"Player not found.\n\"");
-		return;
-	}
-
-	if(victim->netchan.remoteAddress.type == NA_LOOPBACK)
-	{
-		SV_SendServerCommand(cl, "print \"Cannot kick host player.\n\"");
-		return;
-	}
-
-	SV_SendServerCommand(cl, "print \"Kicking %s" S_COLOR_WHITE " (%s).\n\"", victim->name,
-						 NET_AdrToString(victim->netchan.remoteAddress));
-
-	Com_sprintf(message, sizeof(message), "was kicked by %s", cl->name);
-	SV_DropClient(victim, message);
-	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-}
-
-static void SV_Cl_Ban_f(client_t * cl)
-{
-	int             duration, x;
-	const char     *unit, *reason;
-	client_t       *victim;
-	char            message[64], realreason[64];
-
-	if(!SV_ClientHasPermission(cl, PERMISSION_BAN))
-	{
-		SV_SendServerCommand(cl, "print \"You don't have permission to use this command.\n\"");
-		return;
-	}
-
-	if(Cmd_Argc() < 4)
-	{
-		SV_SendServerCommand(cl, "print \"Usage: @ban <id/name/subname> <time> <unit> [reason]\n\"");
-		return;
-	}
-
-	if(StringIsNumeric(Cmd_Argv(1)))
-	{
-		victim = SV_GetPlayerByNum();
-	}
-	else
-	{
-		victim = SV_GetPlayerByName();
-	}
-
-	if(!victim)
-	{
-		SV_SendServerCommand(cl, "print \"Player not found.\n\"");
-		return;
-	}
-
-	duration = atoi(Cmd_Argv(2));
-	if(!duration)
-	{
-		SV_SendServerCommand(cl, "print \"Must specify ban time (use -1 for permanent).\n\"");
-		return;
-	}
-
-	if(duration > 0)
-	{
-		unit = Cmd_Argv(3);
-		if(!Q_stricmpn(unit, "min", 3))
-			duration *= (60);
-		else if(!Q_stricmpn(unit, "hour", 4))
-			duration *= (60 * 60);
-		else if(!Q_stricmpn(unit, "day", 3))
-			duration *= (60 * 60 * 24);
-		else if(!Q_stricmpn(unit, "week", 4))
-			duration *= (60 * 60 * 24 * 7);
-		else if(!Q_stricmpn(unit, "year", 4))
-			duration *= (60 * 60 * 24 * 365);
-		else if(!Q_stricmpn(unit, "sec", 3))
-			duration *= 1;
-		else
-		{
-			SV_SendServerCommand(cl, "print \"Unit must be one of: secs, mins, hours, days, weeks, years\n\"");
-			return;
-		}
-		x = 4;
-	}
-	else
-		x = 3;
-
-	reason = Cmd_ArgsFrom(x);
-	if(!reason[0])
-		reason = "unspecified";
-
-	SV_SendServerCommand(cl, "print \"%s" S_COLOR_WHITE "[%s] was banned.\n\"", victim->name,
-						 NET_AdrToString(victim->netchan.remoteAddress));
-
-	Com_sprintf(realreason, sizeof(realreason), "[%s] %s", cl->account->username, reason);
-	SV_BanClient(victim, duration, CalcMask(24), realreason);
-	Com_sprintf(message, sizeof(message), "was banned by %s", cl->name);
-	SV_DropClient(victim, message);
-}
-
-static void SV_Cl_Playerlist_f(client_t * cl)
-{
-	int             i;
-	client_t       *c;
-	char            message[MAX_STRING_CHARS], buff[64];
-
-	message[0] = 0;
-
-	for(i = 0; i < sv_maxclients->integer; i++)
-	{
-		c = &svs.clients[i];
-
-		if(c->state < CS_CONNECTED)
-			continue;
-
-		Com_sprintf(buff, sizeof(buff), "%.2d: %s" S_COLOR_WHITE "\n", i, c->name);
-		Q_strcat(message, sizeof(message), buff);
-	}
-
-	SV_SendServerCommand(cl, "print \"Player List:\n%s\"", message);
-}
-
 /*
 ==================
 SV_UpdateUserinfo_f
@@ -1448,13 +1363,6 @@ static ucmd_t   ucmds[] = {
 	{"nextdl", SV_NextDownload_f},
 	{"stopdl", SV_StopDownload_f},
 	{"donedl", SV_DoneDownload_f},
-
-	// r1:
-	{"login", SV_Login_f},
-	{"@kick", SV_Cl_Kick_f},
-	{"@ban", SV_Cl_Ban_f},
-	{"playerlist", SV_Cl_Playerlist_f},
-	//{"@map", SV_Cl_Map_f},
 
 	{NULL, NULL}
 };
@@ -1553,7 +1461,7 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 	SV_ExecuteClientCommand(cl, s, clientOk);
 
 	cl->lastClientCommand = seq;
-	Com_sprintf(cl->lastClientCommandString, sizeof(cl->lastClientCommandString), "%s", s);
+	Q_strncpyz(cl->lastClientCommandString, s, sizeof(cl->lastClientCommandString));
 
 	return qtrue;				// continue procesing
 }

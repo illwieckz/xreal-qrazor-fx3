@@ -55,8 +55,6 @@ cvar_t         *sv_floodProtect;
 cvar_t         *sv_lanForceRate;	// dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 
 // r1:
-cvar_t         *sv_banfile;
-cvar_t         *sv_accountfile;
 cvar_t         *sv_enhanced_getplayer;
 
 /*
@@ -167,7 +165,7 @@ void SV_AddServerCommand(client_t * client, const char *cmd)
 			Com_Printf("cmd %5d: %s\n", i, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
 		}
 		Com_Printf("cmd %5d: %s\n", i, cmd);
-		SV_DropClient(client, "Server command overflow");
+		SV_DropClient(client, "overflowed");
 		return;
 	}
 	index = client->reliableSequence & (MAX_RELIABLE_COMMANDS - 1);
@@ -648,7 +646,7 @@ void SV_PacketEvent(netadr_t from, msg_t * msg)
 		// port assignments
 		if(cl->netchan.remoteAddress.port != from.port)
 		{
-			Com_Printf("SV_PacketEvent: fixing up a translated port\n");
+			Com_Printf("SV_PacketEvent: fixing up a translated port for %s[%s]\n", cl->name, NET_AdrToString(from));
 			cl->netchan.remoteAddress.port = from.port;
 		}
 

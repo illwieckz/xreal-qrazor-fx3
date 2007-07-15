@@ -1525,7 +1525,7 @@ gentity_t      *SpawnObelisk(vec3_t origin, int team, int spawnflags)
 		if(tr.startsolid)
 		{
 			ent->s.origin[2] -= 1;
-			
+
 			if(ent->name)
 				G_Printf("SpawnObelisk: %s startsolid at %s\n", ent->name, vtos(ent->s.origin));
 			else

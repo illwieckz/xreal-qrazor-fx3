@@ -727,6 +727,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\g_r1admin.c"
+				>
+			</File>
+			<File
 				RelativePath="g_session.c"
 				>
 				<FileConfiguration

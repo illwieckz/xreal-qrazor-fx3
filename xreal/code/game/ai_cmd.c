@@ -1295,7 +1295,7 @@ void BotMatch_LeaveSubteam(bot_state_t * bs, bot_match_t * match)
 		trap_BotMatchVariable(match, NETNAME, netname, sizeof(netname));
 		client = ClientFromName(netname);
 		trap_BotEnterChat(bs->cs, client, CHAT_TELL);
-	}							
+	}
 	strcpy(bs->subteam, "");
 }
 
@@ -1526,7 +1526,7 @@ void BotMatch_StopTeamLeaderShip(bot_state_t * bs, bot_match_t * match)
 	else
 	{
 		client = FindClientByName(teammate);
-	}							
+	}
 	if(client >= 0)
 	{
 		if(!Q_stricmp(bs->teamleader, ClientName(client, netname, sizeof(netname))))

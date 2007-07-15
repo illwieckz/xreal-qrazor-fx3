@@ -351,13 +351,13 @@ RotatePointAroundVector
 */
 void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees)
 {
-	float	m[3][3];
-	float	im[3][3];
-	float	zrot[3][3];
-	float	tmpmat[3][3];
-	float	rot[3][3];
+	float           m[3][3];
+	float           im[3][3];
+	float           zrot[3][3];
+	float           tmpmat[3][3];
+	float           rot[3][3];
 
-	vec3_t vr, vup, vf;
+	vec3_t          vr, vup, vf;
 
 	vf[0] = dir[0];
 	vf[1] = dir[1];
@@ -470,16 +470,17 @@ Don't pass doubles to this
 */
 int Q_isnan(float x)
 {
-	union {
-		float f;
-		unsigned int i;
+	union
+	{
+		float           f;
+		unsigned int    i;
 	} t;
-  	 
+
 	t.f = x;
 	t.i &= 0x7FFFFFFF;
 	t.i = 0x7F800000 - t.i;
-  	 
-	return (int) ((unsigned int)t.i >> 31);
+
+	return (int)((unsigned int)t.i >> 31);
 }
 
 void vectoangles(const vec3_t value1, vec3_t angles)
@@ -574,7 +575,7 @@ void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 
 	inv_denom = DotProduct(normal, normal);
 #ifndef Q3_VM
-	//assert(Q_fabs(inv_denom) != 0.0f);	// bk010122 - zero vectors get here
+	//assert(Q_fabs(inv_denom) != 0.0f);    // bk010122 - zero vectors get here
 #endif
 	inv_denom = 1.0f / inv_denom;
 

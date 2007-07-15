@@ -875,27 +875,6 @@ void ClientUserinfoChanged(int clientNum)
 		team = client->sess.sessionTeam;
 	}
 
-/*	NOTE: all client side now
-
-	// team
-	switch( team ) {
-	case TEAM_RED:
-		ForceClientSkin(client, model, "red");
-//		ForceClientSkin(client, headModel, "red");
-		break;
-	case TEAM_BLUE:
-		ForceClientSkin(client, model, "blue");
-//		ForceClientSkin(client, headModel, "blue");
-		break;
-	}
-	// don't ever use a default skin in teamplay, it would just waste memory
-	// however bots will always join a team but they spawn in as spectator
-	if ( g_gametype.integer >= GT_TEAM && team == TEAM_SPECTATOR) {
-		ForceClientSkin(client, model, "red");
-//		ForceClientSkin(client, headModel, "red");
-	}
-*/
-
 #ifdef MISSIONPACK
 	if(g_gametype.integer >= GT_TEAM)
 	{
@@ -925,18 +904,10 @@ void ClientUserinfoChanged(int clientNum)
 		client->pers.teamInfo = qfalse;
 	}
 #endif
-	/*
-	   s = Info_ValueForKey( userinfo, "cg_pmove_fixed" );
-	   if ( !*s || atoi( s ) == 0 ) {
-	   client->pers.pmoveFixed = qfalse;
-	   }
-	   else {
-	   client->pers.pmoveFixed = qtrue;
-	   }
-	 */
 
-	// team task (0 = none, 1 = offence, 2 = defence)
+	// team Task (0 = none, 1 = offence, 2 = defence)
 	teamTask = atoi(Info_ValueForKey(userinfo, "teamtask"));
+
 	// team Leader (1 = leader, 0 is normal player)
 	teamLeader = client->sess.teamLeader;
 
@@ -949,22 +920,27 @@ void ClientUserinfoChanged(int clientNum)
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
+
+	// r1: we can't use va here, if the configstring call below overflows a client,
+	// then clientdisconnect is called which trashesthe static buffer, causing
+	// all clients after the overflown one to receive garbage. this is the cause of the 'sarge bug'.
+
 	if(ent->r.svFlags & SVF_BOT)
 	{
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-			   client->pers.netname, team, model, headModel, c1, c2,
-			   client->pers.maxHealth, client->sess.wins, client->sess.losses,
-			   Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
+		Com_sprintf(userinfo, sizeof(userinfo),
+					"n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+					client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
+					client->sess.wins, client->sess.losses, Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
 	}
 	else
 	{
-		s = va
-			("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			 client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
-			 client->sess.wins, client->sess.losses, teamTask, teamLeader);
+		Com_sprintf(userinfo, sizeof(userinfo),
+					"n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+					client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
+					client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
-	trap_SetConfigstring(CS_PLAYERS + clientNum, s);
+	trap_SetConfigstring(CS_PLAYERS + clientNum, userinfo);
 
 	// this is not the userinfo, more like the configstring actually
 	G_LogPrintf("ClientUserinfoChanged: %i %s\n", clientNum, s);
@@ -997,7 +973,8 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	gclient_t      *client;
 	char            userinfo[MAX_INFO_STRING];
 	gentity_t      *ent;
-	char			ipaddress[32];
+	char            ipaddress[32];
+	g_ban_t        *ban;
 
 	ent = &g_entities[clientNum];
 
@@ -1008,8 +985,14 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey(userinfo, "ip");
-	if(G_FilterPacket(value))
+
+	ban = Admin_BanMatch(value);
+	if(ban)
+	{
+		G_Printf("Rejected client %s, matched ban %s/%d (%s)\n", value, Admin_IPIntToString(ban->ip),
+				 Admin_BitsFromMask(ban->mask), ban->reason);
 		return "You are banned from this server.";
+	}
 
 	// r1: set the ip
 	Q_strncpyz(ipaddress, value, sizeof(ipaddress));
@@ -1030,8 +1013,6 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// they can connect
 	ent->client = level.clients + clientNum;
 	client = ent->client;
-
-//  areabits = client->areabits;
 
 	memset(client, 0, sizeof(*client));
 
@@ -1067,22 +1048,15 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if(firstTime)
-	{
 		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
-	}
+	else
+		client->pers.wasConnected = qtrue;
 
 	if(g_gametype.integer >= GT_TEAM && client->sess.sessionTeam != TEAM_SPECTATOR)
-	{
 		BroadcastTeamChange(client, -1);
-	}
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
-
-	// for statistics
-//  client->areabits = areabits;
-//  if ( !client->areabits )
-//      client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }
@@ -1138,9 +1112,46 @@ void ClientBegin(int clientNum)
 		tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
 		tent->s.clientNum = ent->s.clientNum;
 
-		if(g_gametype.integer != GT_TOURNAMENT)
+		// r1: don't spam this on map_restart or levelchanges, overflows and other errors happen.
+		if(!client->pers.wasConnected)
 		{
-			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
+			if(g_gametype.integer != GT_TOURNAMENT)
+				trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
+		}
+
+		// r1:
+		if(!client->pers.account)
+		{
+			char            userinfo[MAX_STRING_CHARS];
+			char           *s;
+
+			trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
+			s = Info_ValueForKey(userinfo, "user");
+
+			if(s[0])
+			{
+				char           *username;
+				char           *password;
+
+				username = s;
+				password = strchr(s, ':');
+				if(password)
+				{
+					password[0] = 0;
+					password++;
+					if(password[0])
+					{
+						client->pers.account = Admin_GetAccount(username, password);
+						if(client->pers.account)
+							trap_SendServerCommand(-1,
+												   va("print \"%s" S_COLOR_WHITE " logged in as a server admin.\n\"",
+													  ent->client->pers.netname));
+						else
+							G_Printf("FAILED LOGIN from %s" S_COLOR_WHITE "[%s] (%s)\n", ent->client->pers.netname,
+									 ent->client->pers.ip, username);
+					}
+				}
+			}
 		}
 	}
 	G_LogPrintf("ClientBegin: %i\n", clientNum);
@@ -1170,8 +1181,6 @@ void ClientSpawn(gentity_t * ent)
 	gentity_t      *spawnPoint;
 	int             flags;
 	int             savedPing;
-
-//  char    *savedAreaBits;
 	int             accuracy_hits, accuracy_shots;
 	int             eventSequence;
 	char            userinfo[MAX_INFO_STRING];
@@ -1238,7 +1247,6 @@ void ClientSpawn(gentity_t * ent)
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
-//  savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
 	for(i = 0; i < MAX_PERSISTANT; i++)
@@ -1252,7 +1260,6 @@ void ClientSpawn(gentity_t * ent)
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
-//  client->areabits = savedAreaBits;
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
@@ -1308,7 +1315,7 @@ void ClientSpawn(gentity_t * ent)
 
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
-	
+
 	// Tr3B - start with grappling hook
 	//client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRAPPLING_HOOK);
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
@@ -1420,8 +1427,14 @@ void ClientDisconnect(int clientNum)
 
 	ent = g_entities + clientNum;
 	if(!ent->client)
-	{
 		return;
+
+	if(level.voteTime && ent == level.voteTarget)
+	{
+		trap_SendServerCommand(-1, "print \"Victim has left, banned them anyway.\n\"");
+		trap_SendConsoleCommand(EXEC_APPEND,
+								va("addban \"%s\" 1 hour \"autoban: disconnect during vote\"", ent->client->pers.ip));
+		G_ResetVote();
 	}
 
 	// stop any following clients
@@ -1463,8 +1476,7 @@ void ClientDisconnect(int clientNum)
 		ClientUserinfoChanged(level.sortedClients[0]);
 	}
 
-	if((g_gametype.integer == GT_TOURNAMENT)
-		&& ent->client->sess.sessionTeam == TEAM_FREE && level.intermissiontime)
+	if((g_gametype.integer == GT_TOURNAMENT) && ent->client->sess.sessionTeam == TEAM_FREE && level.intermissiontime)
 	{
 		trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
 		level.restarted = qtrue;

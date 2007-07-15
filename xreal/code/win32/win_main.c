@@ -1117,7 +1117,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	while(1)
 	{
 		// if not running as a game client, sleep a bit
-		if(g_wv.isMinimized || (com_dedicated && com_dedicated->integer))
+		if(!g_wv.activeApp && !(com_sv_running && com_sv_running->integer))
 		{
 			Sleep(5);
 		}

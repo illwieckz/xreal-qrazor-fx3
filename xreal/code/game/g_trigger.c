@@ -37,7 +37,7 @@ void InitTrigger(gentity_t * self)
 	{
 		trap_SetBrushModel(self, self->model);
 	}
-	
+
 	self->r.contents = CONTENTS_TRIGGER;	// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 }
@@ -170,7 +170,7 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	{
 		return;
 	}
-	
+
 #ifdef LUA
 	G_RunLuaFunction(self->luaTouch, "ee>", self, other);
 #endif
@@ -229,7 +229,7 @@ Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
 void SP_trigger_push(gentity_t * self)
-{	
+{
 	InitTrigger(self);
 
 	// unlike other triggers, we need to send this one to the client

@@ -493,7 +493,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	{
 		trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST");
 	}
-	
+
 	trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", s_graphicsoptions.anisotropicFilter.curvalue);
 
 	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
@@ -684,7 +684,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	{
 		s_graphicsoptions.colordepth.curvalue = 0;
 	}
-	
+
 	s_graphicsoptions.anisotropicFilter.curvalue = trap_Cvar_VariableValue("r_ext_texture_filter_anisotropic");
 	if(s_graphicsoptions.anisotropicFilter.curvalue < 0)
 	{

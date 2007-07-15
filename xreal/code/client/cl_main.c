@@ -2449,9 +2449,7 @@ void CL_Init(void)
 
 	CL_InitInput();
 
-	//
 	// register our variables
-	//
 	cl_noprint = Cvar_Get("cl_noprint", "0", 0);
 	cl_motd = Cvar_Get("cl_motd", "1", 0);
 
@@ -2524,7 +2522,7 @@ void CL_Init(void)
 
 	// userinfo
 	Cvar_Get("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE);
-	Cvar_Get("rate", "3000", CVAR_USERINFO | CVAR_ARCHIVE);
+	Cvar_Get("rate", "15000", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("model", "visor", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("headmodel", "visor", CVAR_USERINFO | CVAR_ARCHIVE);
@@ -2540,13 +2538,10 @@ void CL_Init(void)
 	Cvar_Get("password", "", CVAR_USERINFO);
 	Cvar_Get("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE);
 
-
 	// cgame might not be initialized before menu is used
 	Cvar_Get("cg_viewsize", "100", CVAR_ARCHIVE);
 
-	//
 	// register our commands
-	//
 	Cmd_AddCommand("cmd", CL_ForwardToServer_f);
 	Cmd_AddCommand("configstrings", CL_Configstrings_f);
 	Cmd_AddCommand("clientinfo", CL_Clientinfo_f);

@@ -151,7 +151,7 @@ typedef unsigned __int8 uint8_t;
 #define idppc_altivec 0
 #endif
 
-#if (MACOS_X)  // Apple's GCC does this differently than the FSF.
+#if (MACOS_X)					// Apple's GCC does this differently than the FSF.
 #define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) (vector unsigned char) (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
 #else
 #define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) (vector unsigned char) {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p}
@@ -968,7 +968,7 @@ int             Q_log2(int val);
 
 float           Q_acos(float c);
 
-int				Q_isnan(float x);
+int             Q_isnan(float x);
 
 int             Q_rand(int *seed);
 float           Q_random(int *seed);
@@ -1217,8 +1217,8 @@ void            Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m);
 
 void QDECL      Com_sprintf(char *dest, int size, const char *fmt, ...);
 
-char		   *Com_SkipTokens(char *s, int numTokens, char *sep);
-char		   *Com_SkipCharset(char *s, char *sep);
+char           *Com_SkipTokens(char *s, int numTokens, char *sep);
+char           *Com_SkipCharset(char *s, char *sep);
 
 // mode parm for FS_FOpenFile
 typedef enum
@@ -1337,8 +1337,8 @@ default values.
 #define	CVAR_TEMP			256	// can be set even when cheats are disabled, but is not archived
 #define CVAR_CHEAT			512	// can not be changed if cheats are disabled
 #define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
-#define CVAR_SERVER_CREATED 2048    // cvar was created by a server the client connected to
-#define CVAR_NONEXISTENT	0xFFFFFFFF // cvar doesn't exist
+#define CVAR_SERVER_CREATED 2048	// cvar was created by a server the client connected to
+#define CVAR_NONEXISTENT	0xFFFFFFFF	// cvar doesn't exist
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s

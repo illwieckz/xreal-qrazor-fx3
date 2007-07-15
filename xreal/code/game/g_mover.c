@@ -1100,7 +1100,7 @@ void SP_func_door(gentity_t * ent)
 
 	// calculate second position
 	trap_SetBrushModel(ent, ent->model);
-	
+
 	if(VectorCompare(ent->movedir, vec3_origin))
 	{
 		// movedir was not set directly so use entity's angles
@@ -1109,12 +1109,12 @@ void SP_func_door(gentity_t * ent)
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
 	abs_movedir[2] = fabs(ent->movedir[2]);
-	
+
 	VectorSubtract(ent->r.maxs, ent->r.mins, size);
-	
+
 	AnglesToMatrix(ent->s.angles, rotation);
 	MatrixTransformNormal(rotation, size, sizeRotated);
-	
+
 	distance = DotProduct(abs_movedir, sizeRotated) - lip;
 	VectorMA(ent->pos1, distance, ent->movedir, ent->pos2);
 
@@ -1129,7 +1129,7 @@ void SP_func_door(gentity_t * ent)
 	}
 
 	InitMover(ent);
-	
+
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
@@ -1140,12 +1140,12 @@ void SP_func_door(gentity_t * ent)
 		int             health;
 
 		G_SpawnInt("health", "0", &health);
-		
+
 		// Tr3B - Doom3 entities have always a name
 		if(health)
 		{
 			ent->takedamage = qtrue;
-		
+
 			// non touch/shoot doors
 			ent->think = Think_MatchTeam;
 		}
@@ -1305,7 +1305,7 @@ void SP_func_plat(gentity_t * ent)
 	ent->parent = ent;			// so it can be treated as a door
 
 	// spawn the trigger if one hasn't been custom made
-	
+
 	// Tr3B - Doom3 entities have always a name
 	//if(!ent->name)
 	{
@@ -1644,15 +1644,15 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_static(gentity_t * ent)
 {
 	trap_SetBrushModel(ent, ent->model);
-	
+
 	InitMover(ent);
-	
+
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
-	
+
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
-	
+
 	trap_LinkEntity(ent);
 }
 
@@ -1840,7 +1840,7 @@ void Think_Mover(gentity_t * self)
 	G_RunLuaFunction(self->luaThink, "e>", self);
 #endif
 
-//	self->nextthink = level.time + FRAMETIME;
+//  self->nextthink = level.time + FRAMETIME;
 }
 
 
@@ -1852,15 +1852,15 @@ void Think_Mover(gentity_t * self)
 void SP_func_mover(gentity_t * self)
 {
 	trap_SetBrushModel(self, self->model);
-	
+
 	InitMover(self);
-	
+
 	VectorCopy(self->s.origin, self->s.pos.trBase);
 	VectorCopy(self->s.origin, self->r.currentOrigin);
 
 	self->nextthink = level.time + FRAMETIME;
 	self->think = Think_Mover;
-	
+
 	trap_LinkEntity(self);
 }
 

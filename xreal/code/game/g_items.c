@@ -776,7 +776,7 @@ void FinishSpawningItem(gentity_t * ent)
 				G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->name, vtos(ent->s.origin));
 			else
 				G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
-				
+
 			G_FreeEntity(ent);
 			return;
 		}
@@ -789,7 +789,7 @@ void FinishSpawningItem(gentity_t * ent)
 
 	// team slaves and targeted items aren't present at start
 	// Tr3B - Doom3 entities have always a name
-	if((ent->flags & FL_TEAMSLAVE) /*|| ent->name*/)
+	if((ent->flags & FL_TEAMSLAVE) /*|| ent->name */ )
 	{
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = 0;

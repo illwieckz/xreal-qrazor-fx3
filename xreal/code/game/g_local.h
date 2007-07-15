@@ -183,7 +183,7 @@ struct gentity_s
 	float           random;
 
 	gitem_t        *item;		// for bonus items
-	
+
 #ifdef LUA
 	// Lua scripting
 	// like function pointers but pointing to
@@ -235,6 +235,36 @@ typedef struct
 	float           lastfraggedcarrier;
 } playerTeamState_t;
 
+// r1admin shit
+typedef struct g_account_s
+{
+	struct g_account_s *next;
+	char            username[16];
+	char            password[16];
+	unsigned int    permissions;
+} g_account_t;
+
+// r1ch:
+typedef struct g_ban_s
+{
+	struct g_ban_s *next;
+	unsigned int    ip;
+	unsigned int    mask;
+	unsigned int    expiretime;
+	char            reason[64];
+} g_ban_t;
+
+typedef enum PERMISSIONS_E
+{
+	PERMISSION_BAN,
+	PERMISSION_KICK,
+	PERMISSION_VIEW,
+	PERMISSION_RENAME,
+	PERMISSION_MAP,
+	PERMISSION_MUTE,
+	PERMISSION_VETO
+} g_permissions_e;
+
 // the auto following clients don't follow a specific client
 // number, but instead follow the first two active players
 #define	FOLLOW_ACTIVE1	-1
@@ -258,6 +288,14 @@ typedef struct
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		3
 
+typedef enum
+{
+	VOTE_INVALID,
+	VOTE_YES,
+	VOTE_NO,
+	VOTE_ABSTAIN
+} voteResponse_t;
+
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct
@@ -273,11 +311,15 @@ typedef struct
 	int             enterTime;	// level.time the client entered the game
 	playerTeamState_t teamState;	// status in teamplay games
 	int             voteCount;	// to prevent people from constantly calling votes
-	int             teamVoteCount;	// to prevent people from constantly calling votes
+	voteResponse_t  voteResponse;	//r1
+	int             voteChanges;	//r1
 	qboolean        teamInfo;	// send team overlay updates?
 
 	// r1:
-	char			ip[16];
+	char            ip[24];
+	g_account_t    *account;
+	int             muted;
+	qboolean        wasConnected;
 } clientPersistant_t;
 
 
@@ -359,6 +401,16 @@ struct gclient_s
 #define	MAX_SPAWN_VARS			64
 #define	MAX_SPAWN_VARS_CHARS	4096
 
+typedef enum
+{
+	VOTETYPE_INVALID,
+	VOTETYPE_KICK,
+	VOTETYPE_TEAMKICK,
+	VOTETYPE_RESTARTMAP,
+	VOTETYPE_NEXTMAP,
+	VOTETYPE_MAP
+} voteType_t;
+
 typedef struct
 {
 	struct gclient_s *clients;	// [maxclients]
@@ -400,17 +452,9 @@ typedef struct
 	char            voteString[MAX_STRING_CHARS];
 	char            voteDisplayString[MAX_STRING_CHARS];
 	int             voteTime;	// level.time vote was called
-	int             voteExecuteTime;	// time the vote is executed
-	int             voteYes;
-	int             voteNo;
-	int             numVotingClients;	// set by CalculateRanks
-
-	// team voting state
-	char            teamVoteString[2][MAX_STRING_CHARS];
-	int             teamVoteTime[2];	// level.time vote was called
-	int             teamVoteYes[2];
-	int             teamVoteNo[2];
-	int             numteamVotingClients[2];	// set by CalculateRanks
+	gentity_t      *voteStarter;
+	gentity_t      *voteTarget;
+	voteType_t      voteType;
 
 	// spawn variables
 	qboolean        spawning;	// the G_Spawn*() functions are valid
@@ -462,6 +506,7 @@ void            StopFollowing(gentity_t * ent);
 void            BroadcastTeamChange(gclient_t * client, int oldTeam);
 void            SetTeam(gentity_t * ent, char *s);
 void            Cmd_FollowCycle_f(gentity_t * ent, int dir);
+void            G_ResetVote(void);
 
 //
 // g_items.c
@@ -621,8 +666,6 @@ qboolean        SpotWouldTelefrag(gentity_t * spot);
 // g_svcmds.c
 //
 qboolean        ConsoleCommand(void);
-void            G_ProcessIPBans(void);
-qboolean        G_FilterPacket(char *from);
 
 //
 // g_weapon.c
@@ -725,11 +768,11 @@ void            BotInterbreedEndMatch(void);
 // g_lua.c
 //
 #include <lua.h>
-void			G_InitLua();
-void			G_ShutdownLua();
-void			G_LoadLuaScript(gentity_t * ent, const char *filename);
-void			G_RunLuaFunction(const char *func, const char *sig, ...);
-void			G_DumpLuaStack();
+void            G_InitLua();
+void            G_ShutdownLua();
+void            G_LoadLuaScript(gentity_t * ent, const char *filename);
+void            G_RunLuaFunction(const char *func, const char *sig, ...);
+void            G_DumpLuaStack();
 
 //
 // lua_entity.c
@@ -740,7 +783,7 @@ typedef struct
 } lua_Entity;
 
 int             luaopen_entity(lua_State * L);
-void			lua_pushentity(lua_State * L, gentity_t * ent);
+void            lua_pushentity(lua_State * L, gentity_t * ent);
 lua_Entity     *lua_getentity(lua_State * L, int argNum);
 
 //
@@ -838,6 +881,33 @@ extern vmCvar_t g_enableDust;
 extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
+
+// r1:
+extern vmCvar_t g_accountsFile;
+extern vmCvar_t g_bansFile;
+
+// r1admin
+unsigned int    Admin_IPStringToInt(const char *s);
+const char     *Admin_IPIntToString(unsigned int ip);
+void            Admin_LoadAccounts(void);
+void            Admin_WriteAccounts(void);
+void            Admin_LoadBans(void);
+void            Admin_WriteBans(void);
+g_account_t    *Admin_GetAccount(const char *username, const char *password);
+qboolean        Admin_AddAccount(const char *username, const char *password, unsigned int permissions);
+qboolean        Admin_RemoveAccount(const char *username);
+void            Admin_Ban(unsigned int ip, unsigned int duration, unsigned int mask, const char *reason);
+void            Admin_BanClient(gclient_t * cl, unsigned int duration, unsigned int mask, const char *reason);
+g_ban_t        *Admin_BanMatch(const char *ipString);
+int             Admin_BitsFromMask(unsigned int mask);
+unsigned int    Admin_MaskFromBits(int bits);
+qboolean        Admin_RemoveBan(unsigned int ip, unsigned int mask);
+void            Admin_PrintBans(void);
+qboolean        Admin_HasPermission(gentity_t * cl, int permission);
+void            Admin_PrintBansToClient(gentity_t * ent);
+void            Admin_ExpireBans(void);
+
+char           *ConcatArgs(int start);
 
 void            trap_Printf(const char *fmt);
 void            trap_Error(const char *fmt);
@@ -1052,3 +1122,4 @@ void            trap_BotResetWeaponState(int weaponstate);
 int             trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void            trap_SnapVector(float *v);
+int             trap_RealTime(qtime_t * qtime);

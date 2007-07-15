@@ -76,7 +76,7 @@ int Com_AddToGrowList(growList_t * list, void *data)
 
 	list->maxElements *= 2;
 
-//	Com_DPrintf("Resizing growlist to %i maxElements\n", list->maxElements);
+//  Com_DPrintf("Resizing growlist to %i maxElements\n", list->maxElements);
 
 	list->elements = (void **)Com_Allocate(list->maxElements * sizeof(void *));
 
@@ -135,7 +135,7 @@ float Com_Clamp(float min, float max, float value)
 Com_StringContains
 ============
 */
-const char  *Com_StringContains(const char *str1, const char *str2, int casesensitive)
+const char     *Com_StringContains(const char *str1, const char *str2, int casesensitive)
 {
 	int             len, i, j;
 
@@ -532,7 +532,7 @@ static int      com_lines;
 void Com_BeginParseSession(const char *name)
 {
 	com_lines = 0;
-	Com_sprintf(com_parsename, sizeof(com_parsename), "%s", name);
+	Q_strncpyz(com_parsename, name, sizeof(com_parsename));
 }
 
 int Com_GetCurrentParseLine(void)
@@ -1466,7 +1466,7 @@ char           *Info_ValueForKey(const char *s, const char *key)
 {
 	char            pkey[BIG_INFO_KEY];
 	static char     value[2][BIG_INFO_VALUE];	// use two buffers so compares
-	static int      valueindex = 0;				// work without stomping on each other
+	static int      valueindex = 0;	// work without stomping on each other
 	char           *o;
 
 	if(!s || !key)
@@ -1608,7 +1608,7 @@ void Info_RemoveKey(char *s, const char *key)
 
 		if(!Q_stricmp(key, pkey))
 		{
-			size_t memlen;
+			size_t          memlen;
 
 			memlen = strlen(s);
 			memmove(start, s, memlen);
@@ -1669,7 +1669,7 @@ void Info_RemoveKey_Big(char *s, const char *key)
 
 		if(!Q_stricmp(key, pkey))
 		{
-			size_t memlen;
+			size_t          memlen;
 
 			memlen = strlen(s);
 			memmove(start, s, memlen);
@@ -1713,7 +1713,7 @@ Changes or adds a key/value pair
 void Info_SetValueForKey(char *s, const char *key, const char *value)
 {
 	char            newi[MAX_INFO_STRING];
-	const char	   *blacklist = "\\;\"";
+	const char     *blacklist = "\\;\"";
 
 	if(strlen(s) >= MAX_INFO_STRING)
 	{
@@ -1722,7 +1722,7 @@ void Info_SetValueForKey(char *s, const char *key, const char *value)
 
 	for(; *blacklist; ++blacklist)
 	{
-		if(strchr(key, *blacklist) || strchr (value, *blacklist))
+		if(strchr(key, *blacklist) || strchr(value, *blacklist))
 		{
 			Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
 			return;
@@ -1755,7 +1755,7 @@ Changes or adds a key/value pair
 void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 {
 	char            newi[BIG_INFO_STRING];
-	const char	   *blacklist = "\\;\"";
+	const char     *blacklist = "\\;\"";
 
 	if(strlen(s) >= BIG_INFO_STRING)
 	{
@@ -1764,7 +1764,7 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 
 	for(; *blacklist; ++blacklist)
 	{
-		if(strchr(key, *blacklist) || strchr (value, *blacklist))
+		if(strchr(key, *blacklist) || strchr(value, *blacklist))
 		{
 			Com_Printf(S_COLOR_YELLOW "Can't use keys or values with a '%c': %s = %s\n", *blacklist, key, value);
 			return;
@@ -1795,7 +1795,7 @@ Com_CharIsOneOfCharset
 */
 static qboolean Com_CharIsOneOfCharset(char c, char *set)
 {
-	int i;
+	int             i;
 
 	for(i = 0; i < strlen(set); i++)
 	{
@@ -1811,9 +1811,9 @@ static qboolean Com_CharIsOneOfCharset(char c, char *set)
 Com_SkipCharset
 ==================
 */
-char *Com_SkipCharset(char *s, char *sep)
+char           *Com_SkipCharset(char *s, char *sep)
 {
-	char	*p = s;
+	char           *p = s;
 
 	while(p)
 	{
@@ -1831,10 +1831,10 @@ char *Com_SkipCharset(char *s, char *sep)
 Com_SkipTokens
 ==================
 */
-char *Com_SkipTokens(char *s, int numTokens, char *sep)
+char           *Com_SkipTokens(char *s, int numTokens, char *sep)
 {
-	int		sepCount = 0;
-	char	*p = s;
+	int             sepCount = 0;
+	char           *p = s;
 
 	while(sepCount < numTokens)
 	{

@@ -124,6 +124,7 @@ void SV_SetConfigstring(int index, const char *val)
 	// spawning a new server
 	if(sv.state == SS_GAME || sv.restarting)
 	{
+		len = strlen(val);
 
 		// send the data to all relevent clients
 		for(i = 0, client = svs.clients; i < sv_maxclients->integer; i++, client++)
@@ -139,7 +140,6 @@ void SV_SetConfigstring(int index, const char *val)
 			if(index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO))
 				continue;
 
-			len = strlen(val);
 			SV_SendConfigstring(client, index);
 		}
 	}
@@ -717,12 +717,7 @@ void SV_Init(void)
 	sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
 
 	// r1:
-	sv_banfile = Cvar_Get("sv_banfile", "", CVAR_INIT);
-	sv_accountfile = Cvar_Get("sv_accountfile", "", CVAR_INIT);
 	sv_enhanced_getplayer = Cvar_Get("sv_enhanced_getplayer", "1", CVAR_TEMP);
-
-	SV_ReadBans();
-	SV_ReadAccounts();
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();

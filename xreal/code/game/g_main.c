@@ -98,6 +98,10 @@ vmCvar_t        g_enableBreath;
 vmCvar_t        g_proxMineTimeout;
 #endif
 
+// r1:
+vmCvar_t        g_accountsFile;
+vmCvar_t        g_bansFile;
+
 // bk001129 - made static to avoid aliasing
 static cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -181,19 +185,20 @@ static cvarTable_t gameCvarTable[] = {
 	{&pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-	{&g_rankings, "g_rankings", "0", 0, 0, qfalse}
+	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 
+	// r1
+	{&g_accountsFile, "g_accountsFile", "", 0, 0},
+	{&g_bansFile, "g_bansFile", "", 0, 0}
 };
 
 // bk001129 - made static to avoid aliasing
 static int      gameCvarTableSize = sizeof(gameCvarTable) / sizeof(gameCvarTable[0]);
 
-
 void            G_InitGame(int levelTime, int randomSeed, int restart);
 void            G_RunFrame(int levelTime);
 void            G_ShutdownGame(int restart);
 void            CheckExitRules(void);
-
 
 /*
 ================
@@ -204,7 +209,7 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9,
-		   int arg10, int arg11)
+				int arg10, int arg11)
 {
 	switch (command)
 	{
@@ -264,7 +269,7 @@ void QDECL G_Error(const char *fmt, ...)
 	va_start(argptr, fmt);
 	vsprintf(text, fmt, argptr);
 	va_end(argptr);
-	
+
 #ifdef LUA
 	G_ShutdownLua();
 #endif
@@ -443,8 +448,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_RegisterCvars();
 
-	G_ProcessIPBans();
-
 	G_InitMemory();
 
 #ifdef LUA
@@ -529,6 +532,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	SaveRegisteredItems();
 
+	// r1
+	Admin_LoadAccounts();
+	Admin_LoadBans();
+
 	G_Printf("-----------------------------------\n");
 
 	if(g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue("com_buildScript"))
@@ -547,8 +554,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_RemapTeamShaders();
 }
-
-
 
 /*
 =================
@@ -569,6 +574,10 @@ void G_ShutdownGame(int restart)
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
 
+	// r1
+	Admin_WriteAccounts();
+	Admin_WriteBans();
+
 	if(trap_Cvar_VariableIntegerValue("bot_enable"))
 	{
 		BotAIShutdown(restart);
@@ -578,8 +587,6 @@ void G_ShutdownGame(int restart)
 	G_ShutdownLua();
 #endif
 }
-
-
 
 //===================================================================
 
@@ -838,16 +845,16 @@ void CalculateRanks(void)
 	int             newScore;
 	gclient_t      *cl;
 
+	// r1: we should avoid use of va() here since we're used in
+	// callback on ClientDisconnect which can smash buffers.
+	char            str[16];
+
 	level.follow1 = -1;
 	level.follow2 = -1;
 	level.numConnectedClients = 0;
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
-	level.numVotingClients = 0;	// don't count bots
-	for(i = 0; i < TEAM_NUM_TEAMS; i++)
-	{
-		level.numteamVotingClients[i] = 0;
-	}
+
 	for(i = 0; i < level.maxclients; i++)
 	{
 		if(level.clients[i].pers.connected != CON_DISCONNECTED)
@@ -863,14 +870,7 @@ void CalculateRanks(void)
 				if(level.clients[i].pers.connected == CON_CONNECTED)
 				{
 					level.numPlayingClients++;
-					if(!(g_entities[i].r.svFlags & SVF_BOT))
-					{
-						level.numVotingClients++;
-						if(level.clients[i].sess.sessionTeam == TEAM_RED)
-							level.numteamVotingClients[0]++;
-						else if(level.clients[i].sess.sessionTeam == TEAM_BLUE)
-							level.numteamVotingClients[1]++;
-					}
+
 					if(level.follow1 == -1)
 					{
 						level.follow1 = i;
@@ -938,25 +938,35 @@ void CalculateRanks(void)
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
 	if(g_gametype.integer >= GT_TEAM)
 	{
-		trap_SetConfigstring(CS_SCORES1, va("%i", level.teamScores[TEAM_RED]));
-		trap_SetConfigstring(CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE]));
+		// r1: va() is bad here
+		Com_sprintf(str, sizeof(str), "%i", SCORE_NOT_PRESENT);
+		trap_SetConfigstring(CS_SCORES1, str);
+		trap_SetConfigstring(CS_SCORES2, str);
 	}
 	else
 	{
+		// r1: va() is bad here
 		if(level.numConnectedClients == 0)
 		{
-			trap_SetConfigstring(CS_SCORES1, va("%i", SCORE_NOT_PRESENT));
-			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
+			Com_sprintf(str, sizeof(str), "%i", SCORE_NOT_PRESENT);
+			trap_SetConfigstring(CS_SCORES1, str);
+			trap_SetConfigstring(CS_SCORES2, str);
 		}
 		else if(level.numConnectedClients == 1)
 		{
-			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]));
-			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
+			Com_sprintf(str, sizeof(str), "%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]);
+			trap_SetConfigstring(CS_SCORES1, str);
+
+			Com_sprintf(str, sizeof(str), "%i", SCORE_NOT_PRESENT);
+			trap_SetConfigstring(CS_SCORES2, str);
 		}
 		else
 		{
-			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]));
-			trap_SetConfigstring(CS_SCORES2, va("%i", level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE]));
+			Com_sprintf(str, sizeof(str), "%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]);
+			trap_SetConfigstring(CS_SCORES1, str);
+
+			Com_sprintf(str, sizeof(str), "%i", level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE]);
+			trap_SetConfigstring(CS_SCORES2, str);
 		}
 	}
 
@@ -1142,8 +1152,8 @@ void ExitLevel(void)
 {
 	int             i;
 	gclient_t      *cl;
-	char			nextmap[MAX_STRING_CHARS];
-	char			d1[MAX_STRING_CHARS];
+	char            nextmap[MAX_STRING_CHARS];
+	char            d1[MAX_STRING_CHARS];
 
 	//bot interbreeding
 	BotInterbreedEndMatch();
@@ -1164,13 +1174,13 @@ void ExitLevel(void)
 	}
 
 	trap_Cvar_VariableStringBuffer("nextmap", nextmap, sizeof(nextmap));
-	trap_Cvar_VariableStringBuffer("d1", d1, sizeof(d1));   
-     
+	trap_Cvar_VariableStringBuffer("d1", d1, sizeof(d1));
+
 	if(!Q_stricmp(nextmap, "map_restart 0") && Q_stricmp(d1, ""))
 	{
-		trap_Cvar_Set( "nextmap", "vstr d2");
-		trap_SendConsoleCommand( EXEC_APPEND, "vstr d1\n" );
-   	}
+		trap_Cvar_Set("nextmap", "vstr d2");
+		trap_SendConsoleCommand(EXEC_APPEND, "vstr d1\n");
+	}
 	else
 	{
 		trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
@@ -1339,7 +1349,7 @@ wait 10 seconds before going on.
 */
 void CheckIntermissionExit(void)
 {
-	int				ready, notReady, playerCount;
+	int             ready, notReady, playerCount;
 	int             i;
 	gclient_t      *cl;
 	int             readyMask;
@@ -1412,14 +1422,14 @@ void CheckIntermissionExit(void)
 			level.readyToExit = qfalse;
 			return;
 		}
- 
+
 		// if everyone wants to go, go now
 		if(!notReady)
 		{
 			ExitLevel();
 			return;
 		}
- 	}
+	}
 
 	// the first person to ready starts the ten second timeout
 	if(!level.readyToExit)
@@ -1654,8 +1664,8 @@ void CheckTournament(void)
 					level.warmupTime = level.time + (g_warmup.integer - 1) * 1000;
 				}
 				else
-				{ 
-					level.warmupTime = 0;				
+				{
+					level.warmupTime = 0;
 				}
 
 				trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
@@ -1741,46 +1751,106 @@ void CheckTournament(void)
 /*
 ==================
 CheckVote
+
+r1: super rigged new version that actually isn't useless.
 ==================
 */
 void CheckVote(void)
 {
-	if(level.voteExecuteTime && level.voteExecuteTime < level.time)
-	{
-		level.voteExecuteTime = 0;
-		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-	}
+	int             i;
+	int             votes_yes, votes_no, votes_invalid;
+	gclient_t      *cl;
+
 	if(!level.voteTime)
-	{
 		return;
+
+	votes_yes = votes_no = votes_invalid = 0;
+
+	for(i = 0; i < g_maxclients.integer; i++)
+	{
+		cl = level.clients + i;
+
+		if(cl->pers.connected != CON_CONNECTED)
+			continue;
+
+		if(level.voteType == VOTETYPE_TEAMKICK)
+		{
+			if(cl->sess.sessionTeam != level.voteStarter->client->sess.sessionTeam)
+				continue;
+		}
+
+		switch (cl->pers.voteResponse)
+		{
+			case VOTE_INVALID:
+				votes_invalid++;
+				break;
+			case VOTE_YES:
+				votes_yes++;
+				break;
+			case VOTE_NO:
+				votes_no++;
+				break;
+			default:
+				break;
+		}
 	}
+
+	votes_no += votes_invalid / 2;
+
+	//vote ended, calculate results
 	if(level.time - level.voteTime >= VOTE_TIME)
 	{
-		trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
-	}
-	else
-	{
-		// ATVI Q3 1.32 Patch #9, WNF
-		if(level.voteYes > level.numVotingClients / 2)
+		trap_SendServerCommand(-1, va("print \"%d voted yes, %d voted no.\n\"", votes_yes, votes_no));
+
+		if(votes_yes > votes_no)
 		{
-			// execute the command, then remove the vote
 			trap_SendServerCommand(-1, "print \"Vote passed.\n\"");
-			level.voteExecuteTime = level.time + 3000;
-		}
-		else if(level.voteNo >= level.numVotingClients / 2)
-		{
-			// same behavior as a timeout
-			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
+
+			switch (level.voteType)
+			{
+				case VOTETYPE_NEXTMAP:
+					LogExit("Vote for next map.");
+					break;
+
+				case VOTETYPE_MAP:
+				case VOTETYPE_RESTARTMAP:
+					trap_SendConsoleCommand(EXEC_APPEND, level.voteString);
+					break;
+
+				case VOTETYPE_KICK:
+				case VOTETYPE_TEAMKICK:
+				{
+					char            netName1[16];
+					char            netName2[16];
+
+					Q_strncpyz(netName1, level.voteStarter->client->pers.netname, sizeof(netName1));
+					Q_strncpyz(netName2, level.voteTarget->client->pers.netname, sizeof(netName2));
+
+					Q_CleanStr(netName1);
+					Q_CleanStr(netName2);
+
+					i = level.voteTarget - g_entities;
+					Admin_BanClient(level.voteTarget->client, 3600, Admin_MaskFromBits(24),
+									va("autoban: %s vote kick by %s", netName2, netName1));
+					trap_DropClient(i, "was vote-kicked");
+				}
+					break;
+				default:
+					G_Printf("WARNING: CheckVote: Unknown vote type %d\n", level.voteType);
+			}
 		}
 		else
 		{
-			// still waiting for a majority
-			return;
+			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
 		}
-	}
-	level.voteTime = 0;
-	trap_SetConfigstring(CS_VOTE_TIME, "");
 
+		G_ResetVote();
+	}
+	else
+	{
+		trap_SetConfigstring(CS_VOTE_YES, va("%i", votes_yes));
+		trap_SetConfigstring(CS_VOTE_NO, va("%i", votes_no));
+	}
 }
 
 /*
@@ -1871,64 +1941,6 @@ void CheckTeamLeader(int team)
 		}
 	}
 }
-
-/*
-==================
-CheckTeamVote
-==================
-*/
-void CheckTeamVote(int team)
-{
-	int             cs_offset;
-
-	if(team == TEAM_RED)
-		cs_offset = 0;
-	else if(team == TEAM_BLUE)
-		cs_offset = 1;
-	else
-		return;
-
-	if(!level.teamVoteTime[cs_offset])
-	{
-		return;
-	}
-	if(level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME)
-	{
-		trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
-	}
-	else
-	{
-		if(level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset] / 2)
-		{
-			// execute the command, then remove the vote
-			trap_SendServerCommand(-1, "print \"Team vote passed.\n\"");
-			//
-			if(!Q_strncmp("leader", level.teamVoteString[cs_offset], 6))
-			{
-				//set the team leader
-				SetLeader(team, atoi(level.teamVoteString[cs_offset] + 7));
-			}
-			else
-			{
-				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
-			}
-		}
-		else if(level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset] / 2)
-		{
-			// same behavior as a timeout
-			trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
-		}
-		else
-		{
-			// still waiting for a majority
-			return;
-		}
-	}
-	level.teamVoteTime[cs_offset] = 0;
-	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "");
-
-}
-
 
 /*
 ==================
@@ -2112,10 +2124,6 @@ void G_RunFrame(int levelTime)
 
 	// cancel vote if timed out
 	CheckVote();
-
-	// check team votes
-	CheckTeamVote(TEAM_RED);
-	CheckTeamVote(TEAM_BLUE);
 
 	// for tracking changes
 	CheckCvars();

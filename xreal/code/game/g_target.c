@@ -556,7 +556,7 @@ static void target_fx_use(gentity_t *self, gentity_t *other, gentity_t *activato
 
 static void target_fx_think(gentity_t * self)
 {
-	G_AddEvent(self, EV_EFFECT, 0 /* TODO sef->s.modelindex */);
+	G_AddEvent(self, EV_EFFECT, 0 /* TODO sef->s.modelindex */ );
 
 	self->nextthink = level.time + 1000;
 }
@@ -566,24 +566,24 @@ static void target_fx_think(gentity_t * self)
 */
 void SP_target_fx(gentity_t * self)
 {
-	char		   *effectName;
-	int				startOn = 0;
-	
+	char           *effectName;
+	int             startOn = 0;
+
 	self->s.eType = ET_GENERAL;
-	
+
 	G_SpawnInt("start_on", "0", &startOn);
 	if(!startOn)
 		self->s.eFlags |= EF_NODRAW;
-	
+
 	G_SpawnString("fx", "", &effectName);
 	self->s.modelindex = G_EffectIndex(effectName);
 
 	G_SetOrigin(self, self->s.origin);
-	
+
 	VectorClear(self->r.mins);
 	VectorClear(self->r.maxs);
 	trap_LinkEntity(self);
-	
+
 	self->think = target_fx_think;
 	self->nextthink = level.time + 1000;
 }

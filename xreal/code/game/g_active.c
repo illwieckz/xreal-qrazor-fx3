@@ -394,6 +394,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 
 		// perform a pmove
 		Pmove(&pm);
+
 		// save results of pmove
 		VectorCopy(client->ps.origin, ent->s.origin);
 
@@ -410,8 +411,6 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		Cmd_FollowCycle_f(ent, 1);
 	}
 }
-
-
 
 /*
 =================
@@ -551,7 +550,8 @@ void ClientTimerActions(gentity_t * ent, int msec)
 		int             w, max, inc, t, i;
 		int             weapList[] =
 			{ WP_MACHINEGUN, WP_SHOTGUN, WP_GRENADE_LAUNCHER, WP_ROCKET_LAUNCHER, WP_LIGHTNING, WP_RAILGUN, WP_PLASMAGUN, WP_BFG,
-WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN };
+			WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN
+		};
 		int             weapCount = sizeof(weapList) / sizeof(int);
 
 		//
@@ -1069,6 +1069,12 @@ void ClientThink_real(gentity_t * ent)
 		pm.gauntletHit = CheckGauntletAttack(ent);
 	}
 
+
+	// r1admin
+	if(ent->client->pers.muted)
+		ucmd->buttons &= ~BUTTON_GESTURE;
+
+	// r1: check this, looks broken (pers.cmd vs ucmd)
 	if(ent->flags & FL_FORCE_GESTURE)
 	{
 		ent->flags &= ~FL_FORCE_GESTURE;
