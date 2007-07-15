@@ -811,6 +811,9 @@ void            ByteToDir(int b, vec3_t dir);
 #endif
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
+
+void			SnapVectorTowards(vec3_t v, vec3_t to);
+
 // just in case you do't want to use the macros
 vec_t           _DotProduct(const vec3_t a, const vec3_t b);
 void            _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out);

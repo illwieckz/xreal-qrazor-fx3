@@ -84,6 +84,11 @@ vmCvar_t        pmove_msec;
 vmCvar_t        g_rankings;
 vmCvar_t        g_listEntity;
 
+// this is for convenience - using "sv_fps.integer" is nice :)
+vmCvar_t		sv_fps;
+
+vmCvar_t		g_delagHitscan;
+
 #ifdef MISSIONPACK
 vmCvar_t        g_obeliskHealth;
 vmCvar_t        g_obeliskRegenPeriod;
@@ -186,6 +191,11 @@ static cvarTable_t gameCvarTable[] = {
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
+
+	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
+	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
+
+	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 
 	// r1
 	{&g_accountsFile, "g_accountsFile", "accounts", 0, 0},
@@ -2073,12 +2083,6 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-		if(ent->s.eType == ET_MISSILE)
-		{
-			G_RunMissile(ent);
-			continue;
-		}
-
 		if(ent->s.eType == ET_ITEM || ent->physicsObject)
 		{
 			G_RunItem(ent);
@@ -2099,6 +2103,28 @@ void G_RunFrame(int levelTime)
 
 		G_RunThink(ent);
 	}
+
+	// run the missiles, with all players backward-reconciled
+	// to the positions they were in exactly 50ms ago, at the end
+	// of the last server frame
+	G_TimeShiftAllClients(level.previousTime, NULL);
+
+	ent = &g_entities[0];
+	for(i=0 ; i<level.numEntities ; i++, ent++)
+	{
+		if(!ent->inuse)
+			continue;
+
+		// temporary entities don't think
+		if(ent->freeAfterEvent)
+			continue;
+
+		if(ent->s.eType == ET_MISSILE)
+			G_RunMissile(ent);
+	}
+
+	G_UnTimeShiftAllClients(NULL);
+
 	end = trap_Milliseconds();
 
 	start = trap_Milliseconds();
@@ -2136,4 +2162,9 @@ void G_RunFrame(int levelTime)
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
+
+	// record the time at the end of this frame - it should be about
+	// the time the next frame begins - when the server starts
+	// accepting commands from connected clients
+	level.frameStartTime = trap_Milliseconds();
 }

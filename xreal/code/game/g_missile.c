@@ -567,13 +567,11 @@ void G_RunMissile(gentity_t * ent)
 	G_RunThink(ent);
 }
 
-
 //=============================================================================
 
 /*
 =================
 fire_plasma
-
 =================
 */
 gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
@@ -590,6 +588,8 @@ gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_PLASMAGUN;
 	bolt->r.ownerNum = self->s.number;
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 20;
 	bolt->splashDamage = 15;
@@ -612,7 +612,6 @@ gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 
 //=============================================================================
 
-
 /*
 =================
 fire_grenade
@@ -633,6 +632,8 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.weapon = WP_GRENADE_LAUNCHER;
 	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 100;
 	bolt->splashDamage = 100;
@@ -655,7 +656,6 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 
 //=============================================================================
 
-
 /*
 =================
 fire_bfg
@@ -675,6 +675,8 @@ gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_BFG;
 	bolt->r.ownerNum = self->s.number;
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 100;
 	bolt->splashDamage = 100;
@@ -696,7 +698,6 @@ gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir)
 
 //=============================================================================
 
-
 /*
 =================
 fire_rocket
@@ -716,6 +717,8 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_ROCKET_LAUNCHER;
 	bolt->r.ownerNum = self->s.number;
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 100;
 	bolt->splashDamage = 100;
@@ -743,6 +746,7 @@ fire_grapple
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *hook;
+	int				hooktime;
 
 	VectorNormalize(dir);
 
@@ -759,8 +763,18 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 	hook->parent = self;
 	hook->target_ent = NULL;
 
+	// we might want this later
+	hook->s.otherEntityNum = self->s.number;
+
+	// setting the projectile base time back makes the hook's first
+	// step larger
+	if(self->client)
+		hooktime = self->client->pers.cmd.serverTime + 50;
+	else
+		hooktime = level.time - MISSILE_PRESTEP_TIME;
+
+	hook->s.pos.trTime = hooktime;
 	hook->s.pos.trType = TR_LINEAR;
-	hook->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	hook->s.otherEntityNum = self->s.number;	// use to match beam in client
 	VectorCopy(start, hook->s.pos.trBase);
 	VectorScale(dir, 800, hook->s.pos.trDelta);
@@ -796,6 +810,8 @@ gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_NAILGUN;
 	bolt->r.ownerNum = self->s.number;
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 20;
 	bolt->methodOfDeath = MOD_NAIL;
@@ -845,6 +861,8 @@ gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.weapon = WP_PROX_LAUNCHER;
 	bolt->s.eFlags = 0;
 	bolt->r.ownerNum = self->s.number;
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 0;
 	bolt->splashDamage = 100;

@@ -33,6 +33,7 @@ game_src = [
 'code/game/g_target.c',
 'code/game/g_team.c',
 'code/game/g_trigger.c',
+'code/game/g_unlagged.c',
 'code/game/g_utils.c',
 'code/game/g_weapon.c',
 'code/game/q_math.c',

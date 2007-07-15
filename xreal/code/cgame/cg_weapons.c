@@ -1131,9 +1131,16 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 
 	memset(&beam, 0, sizeof(beam));
 
-	// CPMA  "true" lightning
-	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
+	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
+	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 8))
 	{
+		// always shoot straight forward from our current position
+		AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
+		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
+	}
+	else if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
+	{
+		// CPMA  "true" lightning
 		vec3_t          angle;
 		int             i;
 		vec3_t			viewangles;
@@ -2127,6 +2134,8 @@ void CG_FireWeapon(centity_t * cent)
 	{
 		weap->ejectBrassFunc(cent);
 	}
+
+	CG_PredictWeaponEffects(cent);
 }
 
 
@@ -2493,7 +2502,7 @@ Perform the same traces the server did to locate the
 hit splashes
 ================
 */
-static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
+void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
 {
 	int             i;
 	float           r, u;

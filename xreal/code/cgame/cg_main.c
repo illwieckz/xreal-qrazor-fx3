@@ -170,10 +170,7 @@ vmCvar_t        cg_noVoiceChats;
 vmCvar_t        cg_noVoiceText;
 vmCvar_t        cg_hudFiles;
 vmCvar_t        cg_scorePlum;
-vmCvar_t        cg_smoothClients;
 vmCvar_t        pmove_fixed;
-
-//vmCvar_t  cg_pmove_fixed;
 vmCvar_t        pmove_msec;
 vmCvar_t        cg_pmove_msec;
 vmCvar_t        cg_cameraMode;
@@ -195,6 +192,8 @@ vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
 vmCvar_t		cg_drawPlayerAABB;
 
+vmCvar_t		cg_delag;
+vmCvar_t		cg_projectileNudge;
 vmCvar_t		cg_optimizePrediction;
 vmCvar_t		sv_fps;
 
@@ -321,7 +320,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
 	{&cg_timescale, "timescale", "1", 0},
 	{&cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
-	{&cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
 
 	{&pmove_fixed, "pmove_fixed", "0", 0},
@@ -334,12 +332,13 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{&cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
-//  { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
 
+	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
+	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},
 	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
 	// this will be automagically copied from the server
 	{&sv_fps, "sv_fps", "20", 0}

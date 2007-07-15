@@ -138,33 +138,6 @@ MACHINEGUN
 ======================================================================
 */
 
-/*
-======================
-SnapVectorTowards
-
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
-into a wall.
-======================
-*/
-void SnapVectorTowards(vec3_t v, vec3_t to)
-{
-	int             i;
-
-	for(i = 0; i < 3; i++)
-	{
-		if(to[i] <= v[i])
-		{
-			v[i] = (int)v[i];
-		}
-		else
-		{
-			v[i] = (int)v[i] + 1;
-		}
-	}
-}
-
 #ifdef MISSIONPACK
 #define CHAINGUN_SPREAD		600
 #endif
@@ -176,7 +149,6 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 {
 	trace_t         tr;
 	vec3_t          end;
-
 #ifdef MISSIONPACK
 	vec3_t          impactpoint, bouncedir;
 #endif
@@ -186,11 +158,14 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 	gentity_t      *traceEnt;
 	int             i, passent;
 
+	// we have to use something now that the client knows in advance
+	int				seed = ent->client->attackTime % 256;
+
 	damage *= s_quadFactor;
 
-	r = random() * M_PI * 2.0f;
-	u = sin(r) * crandom() * spread * 16;
-	r = cos(r) * crandom() * spread * 16;
+	r = Q_random(&seed) * M_PI * 2.0f;
+	u = sin(r) * Q_crandom(&seed) * spread * 16;
+	r = cos(r) * Q_crandom(&seed) * spread * 16;
 	VectorMA(muzzle, 8192 * 16, forward, end);
 	VectorMA(end, r, right, end);
 	VectorMA(end, u, up, end);
@@ -198,12 +173,16 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 	passent = ent->s.number;
 	for(i = 0; i < 10; i++)
 	{
+		// backward-reconcile the other clients
+		G_DoTimeShiftFor(ent);
 
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+
+		// put them back
+		G_UndoTimeShiftFor(ent);
+
 		if(tr.surfaceFlags & SURF_NOIMPACT)
-		{
 			return;
-		}
 
 		traceEnt = &g_entities[tr.entityNum];
 
@@ -215,6 +194,9 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 		{
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
 			tent->s.eventParm = traceEnt->s.number;
+			// we need the client number to determine whether or not to
+			// suppress this event
+			tent->s.clientNum = ent->s.clientNum;
 			if(LogAccuracyHit(traceEnt, ent))
 			{
 				ent->client->accuracy_hits++;
@@ -224,6 +206,9 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 		{
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
+			// we need the client number to determine whether or not to
+			// suppress this event
+			tent->s.clientNum = ent->s.clientNum;
 		}
 		tent->s.otherEntityNum = ent->s.number;
 
@@ -375,6 +360,9 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent)
 
 	oldScore = ent->client->ps.persistant[PERS_SCORE];
 
+	// backward-reconcile the other clients
+	G_DoTimeShiftFor(ent);
+
 	// generate the "random" spread pattern
 	for(i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
 	{
@@ -389,6 +377,9 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent)
 			ent->client->accuracy_hits++;
 		}
 	}
+
+	// put them back
+	G_UndoTimeShiftFor(ent);
 }
 
 
@@ -400,7 +391,7 @@ void weapon_supershotgun_fire(gentity_t * ent)
 	tent = G_TempEntity(muzzle, EV_SHOTGUN);
 	VectorScale(forward, 4096, tent->s.origin2);
 	SnapVector(tent->s.origin2);
-	tent->s.eventParm = rand() & 255;	// seed for spread pattern
+	tent->s.eventParm = ent->client->attackTime % 256; // seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
 
 	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent);
@@ -505,6 +496,9 @@ void weapon_railgun_fire(gentity_t * ent)
 
 	VectorMA(muzzle, 8192, forward, end);
 
+	// backward-reconcile the other clients
+	G_DoTimeShiftFor(ent);
+
 	// trace only against the solids, so the railgun will go through people
 	unlinked = 0;
 	hits = 0;
@@ -567,6 +561,9 @@ void weapon_railgun_fire(gentity_t * ent)
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
 	} while(unlinked < MAX_RAIL_HITS);
+
+	// put them back
+	G_UndoTimeShiftFor(ent);
 
 	// link back in any entities we unlinked
 	for(i = 0; i < unlinked; i++)
@@ -695,7 +692,13 @@ void Weapon_LightningFire(gentity_t * ent)
 	{
 		VectorMA(muzzle, LIGHTNING_RANGE, forward, end);
 
+		// backward-reconcile the other clients
+		G_DoTimeShiftFor(ent);
+
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+
+		// put them back
+		G_UndoTimeShiftFor(ent);
 
 #ifdef MISSIONPACK
 		// if not the first trace (the lightning bounced of an invulnerability sphere)

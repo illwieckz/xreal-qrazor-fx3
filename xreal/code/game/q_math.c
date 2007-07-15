@@ -1198,6 +1198,29 @@ qboolean BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t
 	return qtrue;
 }
 
+/*
+======================
+SnapVectorTowards
+
+Round a vector to integers for more efficient network
+transmission, but make sure that it rounds towards a given point
+rather than blindly truncating.  This prevents it from truncating 
+into a wall.
+======================
+*/
+void SnapVectorTowards(vec3_t v, vec3_t to)
+{
+	int		i;
+
+	for(i = 0 ; i < 3 ; i++)
+	{
+		if(to[i] <= v[i])
+			v[i] = (int)v[i];
+		else
+			v[i] = (int)v[i] + 1;
+	}
+}
+
 // *INDENT-OFF*
 vec_t VectorNormalize(vec3_t v)
 {

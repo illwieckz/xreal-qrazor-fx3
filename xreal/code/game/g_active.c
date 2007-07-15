@@ -936,6 +936,7 @@ void ClientThink_real(gentity_t * ent)
 	int             oldEventSequence;
 	int             msec;
 	usercmd_t      *ucmd;
+	int				i, sum = 0; // initialize the real ping
 
 	client = ent->client;
 
@@ -958,6 +959,37 @@ void ClientThink_real(gentity_t * ent)
 		ucmd->serverTime = level.time - 1000;
 //      G_Printf("serverTime >>>>>\n" );
 	}
+
+	// frameOffset should be about the number of milliseconds into a frame 
+	// this command packet was received, depending on how fast the server
+	// does a G_RunFrame()
+	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
+
+	// save the estimated ping in a queue for averaging later
+	// we use level.previousTime to account for 50ms lag correction
+	// besides, this will turn out numbers more like what players are used to
+	client->pers.pingsamples[client->pers.samplehead] = level.previousTime + client->frameOffset - ucmd->serverTime;
+	client->pers.samplehead++;
+	if(client->pers.samplehead >= NUM_PING_SAMPLES)
+		client->pers.samplehead -= NUM_PING_SAMPLES;
+
+	// get an average of the samples we saved up
+	for(i = 0; i < NUM_PING_SAMPLES; i++)
+		sum += client->pers.pingsamples[i];
+
+	client->pers.realPing = sum / NUM_PING_SAMPLES;
+
+	// save the command time *before* pmove_fixed messes with the serverTime
+	// attackTime will be used for backward reconciliation later (time shift)
+	client->attackTime = ucmd->serverTime;
+
+	// keep track of this for later - we'll use this to decide whether or not
+	// to send extrapolated positions for this client
+	client->lastUpdateFrame = level.framenum;
+
+	// make sure the real ping is over 0 - with cl_timenudge it can be less
+	if(client->pers.realPing < 0)
+		client->pers.realPing = 0;
 
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
@@ -1161,14 +1193,9 @@ void ClientThink_real(gentity_t * ent)
 	{
 		ent->eventTime = level.time;
 	}
-	if(g_smoothClients.integer)
-	{
-		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
-	}
-	else
-	{
-		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	}
+
+	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
+
 	SendPendingPredictableEvents(&ent->client->ps);
 
 	if(!(ent->client->ps.eFlags & EF_FIRING))
@@ -1254,10 +1281,6 @@ void ClientThink(int clientNum)
 
 	ent = g_entities + clientNum;
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
-
-	// mark the time we got info, so we can display the
-	// phone jack if they don't get any for a while
-	ent->client->lastCmdTime = level.time;
 
 	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
 	{
@@ -1348,6 +1371,7 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame(gentity_t * ent)
 {
 	int             i;
+	int				frames;
 	clientPersistant_t *pers;
 
 	if(ent->client->sess.sessionTeam == TEAM_SPECTATOR)
@@ -1400,10 +1424,8 @@ void ClientEndFrame(gentity_t * ent)
 	}
 #endif
 
-	//
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
-	//
 	if(level.intermissiontime)
 	{
 		return;
@@ -1415,32 +1437,41 @@ void ClientEndFrame(gentity_t * ent)
 	// apply all the damage taken this frame
 	P_DamageFeedback(ent);
 
-	// add the EF_CONNECTION flag if we haven't gotten commands recently
-	if(level.time - ent->client->lastCmdTime > 1000)
-	{
-		ent->s.eFlags |= EF_CONNECTION;
-	}
-	else
-	{
-		ent->s.eFlags &= ~EF_CONNECTION;
-	}
-
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
 	G_SetClientSound(ent);
 
-	// set the latest infor
-	if(g_smoothClients.integer)
-	{
-		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
-	}
-	else
-	{
-		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	}
+	// set the latest info
+	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
+
 	SendPendingPredictableEvents(&ent->client->ps);
 
-	// set the bit for the reachability area the client is currently in
-//  i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
-//  ent->client->areabits[i >> 3] |= 1 << (i & 7);
+	// mark as not missing updates initially
+	ent->client->ps.eFlags &= ~EF_CONNECTION;
+
+	// see how many frames the client has missed
+	frames = level.framenum - ent->client->lastUpdateFrame - 1;
+
+	// don't extrapolate more than two frames
+	if(frames > 2)
+	{
+		frames = 2;
+
+		// if they missed more than two in a row, show the phone jack
+		ent->client->ps.eFlags |= EF_CONNECTION;
+		ent->s.eFlags |= EF_CONNECTION;
+	}
+
+	// did the client miss any frames?
+	if(frames > 0 && g_smoothClients.integer)
+	{
+		// yep, missed one or more, so extrapolate the player's movement
+		G_PredictPlayerMove(ent, (float)frames / sv_fps.integer);
+
+		// save network bandwidth
+		SnapVector(ent->s.pos.trBase);
+	}
+
+	// store the client's position for backward reconciliation later
+	G_StoreHistory(ent);
 }

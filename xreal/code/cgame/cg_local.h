@@ -163,8 +163,6 @@ typedef struct
 
 //=================================================
 
-
-
 // centity_t have a direct corespondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
 typedef struct centity_s
@@ -201,7 +199,6 @@ typedef struct centity_s
 	vec3_t          lerpAngles;
 } centity_t;
 
-
 //======================================================================
 
 // local entities are created as a result of events or predicted actions,
@@ -217,7 +214,6 @@ typedef struct markPoly_s
 	poly_t          poly;
 	polyVert_t      verts[MAX_VERTS_ON_POLY];
 } markPoly_t;
-
 
 typedef enum
 {
@@ -297,7 +293,6 @@ typedef struct localEntity_s
 } localEntity_t;
 
 //======================================================================
-
 
 typedef struct
 {
@@ -398,7 +393,6 @@ typedef struct
 	sfxHandle_t     sounds[MAX_CUSTOM_SOUNDS];
 } clientInfo_t;
 
-
 // each WP_* weapon enum has an associated weaponInfo_t
 // that contains media references necessary to present the
 // weapon and its effects
@@ -446,7 +440,6 @@ typedef struct weaponInfo_s
 	qboolean        loopFireSound;
 } weaponInfo_t;
 
-
 // each IT_* item has an associated itemInfo_t
 // that constains media references necessary to present the
 // item and its effects
@@ -457,12 +450,10 @@ typedef struct
 	qhandle_t       icon;
 } itemInfo_t;
 
-
 typedef struct
 {
 	int             itemNum;
 } powerupInfo_t;
-
 
 #define MAX_SKULLTRAIL		10
 
@@ -471,7 +462,6 @@ typedef struct
 	vec3_t          positions[MAX_SKULLTRAIL];
 	int             numpositions;
 } skulltrail_t;
-
 
 #define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
@@ -1038,9 +1028,7 @@ typedef struct
 	// debug utils
 	qhandle_t       debugPlayerAABB;
 	qhandle_t       debugPlayerAABB_twoSided;
-
 } cgMedia_t;
-
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1130,6 +1118,8 @@ typedef struct
 	// media
 	cgMedia_t       media;
 
+	// this will be set to the server's g_delagHitscan
+	int				delagHitscan;
 } cgs_t;
 
 //==============================================================================
@@ -1217,11 +1207,9 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
-extern vmCvar_t cg_smoothClients;
 extern vmCvar_t pmove_fixed;
 extern vmCvar_t pmove_msec;
 
-//extern    vmCvar_t        cg_pmove_fixed;
 extern vmCvar_t cg_cameraOrbit;
 extern vmCvar_t cg_cameraOrbitDelay;
 extern vmCvar_t cg_timescaleFadeEnd;
@@ -1241,6 +1229,8 @@ extern vmCvar_t cg_drawBloom;
 extern vmCvar_t cg_drawRotoscope;
 extern vmCvar_t cg_drawPlayerAABB;
 
+extern vmCvar_t cg_delag;
+extern vmCvar_t cg_projectileNudge;
 extern vmCvar_t	cg_optimizePrediction;
 extern vmCvar_t	sv_fps;
 
@@ -1257,6 +1247,13 @@ extern vmCvar_t cg_recordSPDemo;
 extern vmCvar_t cg_recordSPDemoName;
 extern vmCvar_t cg_obeliskRespawnDelay;
 #endif
+
+
+//
+// unlagged - cg_unlagged.c
+//
+void			CG_PredictWeaponEffects(centity_t *cent);
+
 
 //
 // cg_main.c
@@ -1501,6 +1498,7 @@ localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qh
 // cg_snapshot.c
 //
 void            CG_ProcessSnapshots(void);
+void			CG_TransitionEntity(centity_t *cent);
 
 //
 // cg_info.c

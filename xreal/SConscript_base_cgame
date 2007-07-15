@@ -27,6 +27,7 @@ cgame_src = [
 'code/cgame/cg_servercmds.c',
 'code/cgame/cg_snapshot.c',
 'code/cgame/cg_view.c',
+'code/cgame/cg_unlagged.c',
 'code/cgame/cg_weapons.c'
 ]
 

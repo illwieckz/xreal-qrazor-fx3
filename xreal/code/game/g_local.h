@@ -58,6 +58,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FL_NO_HUMANS			0x00004000	// spawn point just for bots
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
 
+#define NUM_PING_SAMPLES	64
+
 // movers are things like doors, plats, buttons, etc
 typedef enum
 {
@@ -320,8 +322,25 @@ typedef struct
 	g_account_t    *account;
 	int             muted;
 	qboolean        wasConnected;
+
+	// unlagged:
+	int				delag;
+	int				cmdTimeNudge;
+	int				realPing;
+	int				pingsamples[NUM_PING_SAMPLES];
+	int				samplehead;
 } clientPersistant_t;
 
+// the size of history we'll keep
+#define NUM_CLIENT_HISTORY 17
+
+// everything we need to know to backward reconcile
+typedef struct
+{
+	vec3_t			mins, maxs;
+	vec3_t			currentOrigin;
+	int				leveltime;
+} clientHistory_t;
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
@@ -392,8 +411,21 @@ struct gclient_s
 #endif
 
 	char           *areabits;
-};
 
+	// the serverTime the button was pressed
+	// (stored before pmove_fixed changes serverTime)
+	int				attackTime;
+	// the head of the history queue
+	int				historyHead;
+	// the history queue
+	clientHistory_t	history[NUM_CLIENT_HISTORY];
+	// the client's saved position
+	clientHistory_t	saved;			// used to restore after time shift
+	// an approximation of the actual server time we received this
+	// command (not in 50ms increments)
+	int				frameOffset;
+	int				lastUpdateFrame;
+};
 
 //
 // this structure is cleared as each map is entered
@@ -483,8 +515,22 @@ typedef struct
 #ifdef MISSIONPACK
 	int             portalSequence;
 #endif
+
+	// actual time this server frame started
+	int				frameStartTime;
 } level_locals_t;
 
+//
+//unlagged - g_unlagged.c
+//
+void			G_ResetHistory(gentity_t *ent);
+void			G_StoreHistory(gentity_t *ent);
+void			G_TimeShiftAllClients(int time, gentity_t *skip);
+void			G_UnTimeShiftAllClients(gentity_t *skip);
+void			G_DoTimeShiftFor(gentity_t *ent);
+void			G_UndoTimeShiftFor(gentity_t *ent);
+void			G_UnTimeShiftClient(gentity_t *client);
+void			G_PredictPlayerMove(gentity_t *ent, float frametime);
 
 //
 // g_spawn.c
@@ -636,7 +682,6 @@ void            DropPortalDestination(gentity_t * ent);
 //
 qboolean        LogAccuracyHit(gentity_t * target, gentity_t * attacker);
 void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint);
-void            SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean        CheckGauntletAttack(gentity_t * ent);
 void            Weapon_HookFree(gentity_t * ent);
 void            Weapon_HookThink(gentity_t * ent);
@@ -881,6 +926,11 @@ extern vmCvar_t g_enableDust;
 extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
+
+// this is for convenience - using "sv_fps.integer" is nice :)
+extern vmCvar_t sv_fps;
+
+extern vmCvar_t g_delagHitscan;
 
 // r1:
 extern vmCvar_t g_accountsFile;
