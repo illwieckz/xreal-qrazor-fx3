@@ -82,7 +82,7 @@ typedef struct
 	int             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
 
 	int             restartTime;
-	int				time;
+	int             time;
 } server_t;
 
 typedef struct
@@ -119,19 +119,19 @@ typedef struct netchan_buffer_s
 // r1:
 typedef struct serverban_s
 {
-	struct serverban_s     *next;
-	unsigned int            ip;
-	unsigned int            mask;
-	unsigned int            expiretime;
-	char					reason[64];
+	struct serverban_s *next;
+	unsigned int    ip;
+	unsigned int    mask;
+	unsigned int    expiretime;
+	char            reason[64];
 } serverban_t;
 
 typedef struct useraccount_s
 {
-	struct useraccount_s   *next;
-	char					username[16];
-	char					password[16];
-	unsigned int			permissions;
+	struct useraccount_s *next;
+	char            username[16];
+	char            password[16];
+	unsigned int    permissions;
 } useraccount_t;
 
 typedef enum PERMISSIONS_E
@@ -196,8 +196,8 @@ typedef struct client_s
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
 
-	int				oldServerTime;
-	qboolean		csUpdated[MAX_CONFIGSTRINGS + 1];
+	int             oldServerTime;
+	qboolean        csUpdated[MAX_CONFIGSTRINGS + 1];
 
 	useraccount_t  *account;
 } client_t;
@@ -289,17 +289,17 @@ extern cvar_t  *sv_enhanced_getplayer;
 //===========================================================
 
 // r1:
-serverban_t *SV_BanMatch (netadr_t *adr);
-int MaskBits (unsigned int mask);
-void SV_ReadBans (void);
-void SV_ReadAccounts (void);
-qboolean SV_ClientHasPermission (client_t *cl, int permission);
-void SV_BanClient (client_t *cl, unsigned int duration, unsigned int mask, const char *reason);
-useraccount_t *SV_CheckLogin (const char *username, const char *password);
-qboolean StringIsNumeric (const char *s);
-unsigned int CalcMask (int bits);
-client_t *SV_GetPlayerByName( void );
-client_t *SV_GetPlayerByNum( void );
+serverban_t    *SV_BanMatch(netadr_t * adr);
+int             MaskBits(unsigned int mask);
+void            SV_ReadBans(void);
+void            SV_ReadAccounts(void);
+qboolean        SV_ClientHasPermission(client_t * cl, int permission);
+void            SV_BanClient(client_t * cl, unsigned int duration, unsigned int mask, const char *reason);
+useraccount_t  *SV_CheckLogin(const char *username, const char *password);
+qboolean        StringIsNumeric(const char *s);
+unsigned int    CalcMask(int bits);
+client_t       *SV_GetPlayerByName(void);
+client_t       *SV_GetPlayerByNum(void);
 
 //===========================================================
 
@@ -325,7 +325,7 @@ void            SV_MasterShutdown(void);
 //
 void            SV_SetConfigstring(int index, const char *val);
 void            SV_GetConfigstring(int index, char *buffer, int bufferSize);
-void			SV_UpdateConfigstrings(client_t *client);
+void            SV_UpdateConfigstrings(client_t * client);
 
 void            SV_SetUserinfo(int index, const char *val);
 void            SV_GetUserinfo(int index, char *buffer, int bufferSize);

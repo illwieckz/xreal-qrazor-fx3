@@ -31,10 +31,10 @@ Creates and sends the server command necessary to update the CS index for the
 given client
 ===============
 */
-static void SV_SendConfigstring(client_t *client, int index)
+static void SV_SendConfigstring(client_t * client, int index)
 {
-	int	maxChunkSize = MAX_STRING_CHARS - 24;
-	int	len;
+	int             maxChunkSize = MAX_STRING_CHARS - 24;
+	int             len;
 
 	len = strlen(sv.configstrings[index]);
 
@@ -42,9 +42,9 @@ static void SV_SendConfigstring(client_t *client, int index)
 	{
 		int             sent = 0;
 		int             remaining = len;
-		char		   *cmd;
-		char			buf[MAX_STRING_CHARS];
-  	 
+		char           *cmd;
+		char            buf[MAX_STRING_CHARS];
+
 		while(remaining > 0)
 		{
 			if(sent == 0)
@@ -55,9 +55,9 @@ static void SV_SendConfigstring(client_t *client, int index)
 				cmd = "bcs1";
 
 			Q_strncpyz(buf, &sv.configstrings[index][sent], maxChunkSize);
-  	 
+
 			SV_SendServerCommand(client, "%s %i \"%s\"\n", cmd, index, buf);
-  	 
+
 			sent += (maxChunkSize - 1);
 			remaining -= (maxChunkSize - 1);
 		}
@@ -68,7 +68,7 @@ static void SV_SendConfigstring(client_t *client, int index)
 		SV_SendServerCommand(client, "cs %i \"%s\"\n", index, sv.configstrings[index]);
 	}
 }
-  	 
+
 /*
 ===============
 SV_UpdateConfigstrings
@@ -77,16 +77,16 @@ Called when a client goes from CS_PRIMED to CS_ACTIVE.  Updates all
 Configstring indexes that have changed while the client was in CS_PRIMED
 ===============
 */
-void SV_UpdateConfigstrings(client_t *client)
+void SV_UpdateConfigstrings(client_t * client)
 {
-	int index;
-  	 
+	int             index;
+
 	for(index = 0; index <= MAX_CONFIGSTRINGS; index++)
 	{
 		// if the CS hasn't changed since we went to CS_PRIMED, ignore
 		if(!client->csUpdated[index])
 			continue;
-  	 
+
 		// do not always send server info to all clients
 		if(index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO))
 			continue;
@@ -721,8 +721,8 @@ void SV_Init(void)
 	sv_accountfile = Cvar_Get("sv_accountfile", "", CVAR_INIT);
 	sv_enhanced_getplayer = Cvar_Get("sv_enhanced_getplayer", "1", CVAR_TEMP);
 
-	SV_ReadBans ();
-	SV_ReadAccounts ();
+	SV_ReadBans();
+	SV_ReadAccounts();
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();

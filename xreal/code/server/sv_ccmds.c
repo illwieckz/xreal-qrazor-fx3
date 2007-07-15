@@ -32,30 +32,30 @@ These commands can only be entered from stdin or by a remote operator datagram
 ===============================================================================
 */
 
-serverban_t	serverbans = {0};
+serverban_t     serverbans = { 0 };
 
-useraccount_t	accounts = {0};
+useraccount_t   accounts = { 0 };
 
-qboolean SV_ClientHasPermission (client_t *cl, int permission)
+qboolean SV_ClientHasPermission(client_t * cl, int permission)
 {
-	if (cl->account && (cl->account->permissions & (1 << permission)))
+	if(cl->account && (cl->account->permissions & (1 << permission)))
 		return qtrue;
 
 	return qfalse;
 }
 
-qboolean StringIsNumeric (const char *s)
+qboolean StringIsNumeric(const char *s)
 {
-	const char	*p;
+	const char     *p;
 
-	if (!s[0])
+	if(!s[0])
 		return qfalse;
 
 	p = s;
 
-	while (p[0])
+	while(p[0])
 	{
-		if (!isdigit (p[0]))
+		if(!isdigit(p[0]))
 			return qfalse;
 		p++;
 	}
@@ -64,68 +64,68 @@ qboolean StringIsNumeric (const char *s)
 }
 
 
-void SV_ReadAccounts (void)
+void SV_ReadAccounts(void)
 {
-	int				len, i;
-	byte			*buff;
-	useraccount_t	*data, *u;
+	int             len, i;
+	byte           *buff;
+	useraccount_t  *data, *u;
 
-	if (!sv_accountfile->string[0])
+	if(!sv_accountfile->string[0])
 		return;
 
 	u = &accounts;
 
-	while (u->next)
+	while(u->next)
 		u = u->next;
 
-	len = FS_ReadFile (sv_accountfile->string, (void **)&buff);
+	len = FS_ReadFile(sv_accountfile->string, (void **)&buff);
 
-	if (len == -1)
+	if(len == -1)
 	{
-		Com_Printf ("Can't read sv_accountfile %s\n", sv_accountfile->string);
+		Com_Printf("Can't read sv_accountfile %s\n", sv_accountfile->string);
 		return;
 	}
 
-	if (len % sizeof(useraccount_t))
+	if(len % sizeof(useraccount_t))
 	{
-		Com_Printf ("Malformed sv_accountfile %s\n", sv_accountfile->string);
+		Com_Printf("Malformed sv_accountfile %s\n", sv_accountfile->string);
 		return;
 	}
 
 	i = 0;
 
-	while (len)
+	while(len)
 	{
-		data = (useraccount_t *)buff + i;
-		u->next = S_Malloc (sizeof(*u));
+		data = (useraccount_t *) buff + i;
+		u->next = S_Malloc(sizeof(*u));
 		u = u->next;
 
 		u->next = NULL;
-		Q_strncpyz (u->username, data->username, sizeof(u->username));
-		Q_strncpyz (u->password, data->password, sizeof(u->password));
+		Q_strncpyz(u->username, data->username, sizeof(u->username));
+		Q_strncpyz(u->password, data->password, sizeof(u->password));
 		u->permissions = data->permissions;
 		i++;
 		len -= sizeof(useraccount_t);
 	}
 
-	FS_FreeFile (buff);
+	FS_FreeFile(buff);
 
-	Com_Printf ("Loaded %d accounts from %s\n", i, sv_accountfile->string);
+	Com_Printf("Loaded %d accounts from %s\n", i, sv_accountfile->string);
 }
 
-void SV_WriteAccounts (void)
+void SV_WriteAccounts(void)
 {
-	fileHandle_t	f;
-	useraccount_t	*u;
-	int				i;
+	fileHandle_t    f;
+	useraccount_t  *u;
+	int             i;
 
-	if (!sv_accountfile->string[0])
+	if(!sv_accountfile->string[0])
 		return;
 
-	f = FS_FOpenFileWrite (sv_accountfile->string);
-	if (!f)
+	f = FS_FOpenFileWrite(sv_accountfile->string);
+	if(!f)
 	{
-		Com_Printf ("Couldn't write sv_accountfile %s\n", sv_accountfile->string);
+		Com_Printf("Couldn't write sv_accountfile %s\n", sv_accountfile->string);
 		return;
 	}
 
@@ -133,150 +133,150 @@ void SV_WriteAccounts (void)
 
 	i = 0;
 
-	while (u->next)
+	while(u->next)
 	{
 		u = u->next;
-		FS_Write (u, sizeof(*u), f);
+		FS_Write(u, sizeof(*u), f);
 		i++;
 	}
 
-	FS_FCloseFile (f);
-	Com_DPrintf ("Wrote %d accounts to %s\n", i, sv_accountfile->string);
+	FS_FCloseFile(f);
+	Com_DPrintf("Wrote %d accounts to %s\n", i, sv_accountfile->string);
 }
 
-void SV_AddAccount_f (void)
+void SV_AddAccount_f(void)
 {
-	useraccount_t	*u;
+	useraccount_t  *u;
 
-	if (Cmd_Argc() != 4)
+	if(Cmd_Argc() != 4)
 	{
-		Com_Printf ("Usage: addaccount username password permissions\n");
+		Com_Printf("Usage: addaccount username password permissions\n");
 		return;
 	}
 
 	u = &accounts;
 
-	while (u->next)
+	while(u->next)
 		u = u->next;
 
-	u->next = S_Malloc (sizeof(*u));
+	u->next = S_Malloc(sizeof(*u));
 	u = u->next;
 
 	u->next = NULL;
-	Q_strncpyz (u->username, Cmd_Argv(1), sizeof(u->username));
-	Q_strncpyz (u->password, Cmd_Argv(2), sizeof(u->password));
-	u->permissions = atoi (Cmd_Argv(3));
-	SV_WriteAccounts ();
-	Com_Printf ("User account '%s' added.\n", u->username);
+	Q_strncpyz(u->username, Cmd_Argv(1), sizeof(u->username));
+	Q_strncpyz(u->password, Cmd_Argv(2), sizeof(u->password));
+	u->permissions = atoi(Cmd_Argv(3));
+	SV_WriteAccounts();
+	Com_Printf("User account '%s' added.\n", u->username);
 }
 
-useraccount_t *SV_CheckLogin (const char *username, const char *password)
+useraccount_t  *SV_CheckLogin(const char *username, const char *password)
 {
-	useraccount_t	*u;
+	useraccount_t  *u;
 
 	u = &accounts;
 
-	while (u->next)
+	while(u->next)
 	{
 		u = u->next;
-		if (!strcmp (u->username, username) && !strcmp (u->password, password))
+		if(!strcmp(u->username, username) && !strcmp(u->password, password))
 			return u;
 	}
 
 	return NULL;
 }
 
-void SV_RemoveAccount_f (void)
+void SV_RemoveAccount_f(void)
 {
-	useraccount_t	*u, *last;
+	useraccount_t  *u, *last;
 
-	if (Cmd_Argc() != 2)
+	if(Cmd_Argc() != 2)
 	{
-		Com_Printf ("Usage: removeaccount username\n");
+		Com_Printf("Usage: removeaccount username\n");
 		return;
 	}
 
 	u = last = &accounts;
 
-	while (u->next)
+	while(u->next)
 	{
 		u = u->next;
-		if (!Q_stricmp (Cmd_Argv(1), u->username))
+		if(!Q_stricmp(Cmd_Argv(1), u->username))
 		{
 			last->next = u->next;
-			Com_Printf ("User account '%s' removed.\n", u->username);
-			Z_Free (u);
-			SV_WriteAccounts ();
+			Com_Printf("User account '%s' removed.\n", u->username);
+			Z_Free(u);
+			SV_WriteAccounts();
 			return;
 		}
 	}
 
-	Com_Printf ("User account '%s' not found.\n", Cmd_Argv(1));
+	Com_Printf("User account '%s' not found.\n", Cmd_Argv(1));
 }
 
-void SV_ReadBans (void)
+void SV_ReadBans(void)
 {
-	int			len, i;
-	byte		*buff;
-	serverban_t	*data, *s;
+	int             len, i;
+	byte           *buff;
+	serverban_t    *data, *s;
 
-	if (!sv_banfile->string[0])
+	if(!sv_banfile->string[0])
 		return;
 
 	s = &serverbans;
 
-	while (s->next)
+	while(s->next)
 		s = s->next;
 
-	len = FS_ReadFile (sv_banfile->string, (void **)&buff);
+	len = FS_ReadFile(sv_banfile->string, (void **)&buff);
 
-	if (len == -1)
+	if(len == -1)
 	{
-		Com_Printf ("Can't read sv_banfile %s\n", sv_banfile->string);
+		Com_Printf("Can't read sv_banfile %s\n", sv_banfile->string);
 		return;
 	}
 
-	if (len % sizeof(serverban_t))
+	if(len % sizeof(serverban_t))
 	{
-		Com_Printf ("Malformed sv_banfile %s\n", sv_banfile->string);
+		Com_Printf("Malformed sv_banfile %s\n", sv_banfile->string);
 		return;
 	}
 
 	i = 0;
 
-	while (len)
+	while(len)
 	{
-		data = (serverban_t *)buff + i;
-		s->next = S_Malloc (sizeof(*s));
+		data = (serverban_t *) buff + i;
+		s->next = S_Malloc(sizeof(*s));
 		s = s->next;
 
 		s->next = NULL;
 		s->ip = data->ip;
 		s->mask = data->mask;
 		s->expiretime = data->expiretime;
-		Q_strncpyz (s->reason, data->reason, sizeof(s->reason));
+		Q_strncpyz(s->reason, data->reason, sizeof(s->reason));
 		i++;
 		len -= sizeof(serverban_t);
 	}
 
-	FS_FreeFile (buff);
+	FS_FreeFile(buff);
 
-	Com_Printf ("Loaded %d IP bans from %s\n", i, sv_banfile->string);
+	Com_Printf("Loaded %d IP bans from %s\n", i, sv_banfile->string);
 }
 
-void SV_WriteBans (void)
+void SV_WriteBans(void)
 {
-	fileHandle_t	f;
-	serverban_t		*s;
-	int				i;
+	fileHandle_t    f;
+	serverban_t    *s;
+	int             i;
 
-	if (!sv_banfile->string[0])
+	if(!sv_banfile->string[0])
 		return;
 
-	f = FS_FOpenFileWrite (sv_banfile->string);
-	if (!f)
+	f = FS_FOpenFileWrite(sv_banfile->string);
+	if(!f)
 	{
-		Com_Printf ("Couldn't write sv_banfile %s\n", sv_banfile->string);
+		Com_Printf("Couldn't write sv_banfile %s\n", sv_banfile->string);
 		return;
 	}
 
@@ -284,68 +284,68 @@ void SV_WriteBans (void)
 
 	i = 0;
 
-	while (s->next)
+	while(s->next)
 	{
 		s = s->next;
-		FS_Write (s, sizeof(*s), f);
+		FS_Write(s, sizeof(*s), f);
 		i++;
 	}
 
-	FS_FCloseFile (f);
-	Com_DPrintf ("Wrote %d IP bans to %s\n", i, sv_banfile->string);
+	FS_FCloseFile(f);
+	Com_DPrintf("Wrote %d IP bans to %s\n", i, sv_banfile->string);
 }
 
-static void SV_Ban (unsigned int ip, unsigned int duration, unsigned int mask, const char *reason)
+static void SV_Ban(unsigned int ip, unsigned int duration, unsigned int mask, const char *reason)
 {
-	serverban_t	*s;
+	serverban_t    *s;
 
 	s = &serverbans;
 
-	while (s->next)
+	while(s->next)
 		s = s->next;
 
-	s->next = S_Malloc (sizeof(*s));
+	s->next = S_Malloc(sizeof(*s));
 	s = s->next;
 
 	s->next = NULL;
 	s->ip = ip;
 	s->mask = mask;
-	if (duration == -1)
+	if(duration == -1)
 		s->expiretime = 0;
 	else
 		s->expiretime = time(NULL) + duration;
-	Q_strncpyz (s->reason, reason, sizeof(s->reason));
+	Q_strncpyz(s->reason, reason, sizeof(s->reason));
 
-	SV_WriteBans ();
+	SV_WriteBans();
 }
 
-void SV_BanClient (client_t *cl, unsigned int duration, unsigned int mask, const char *reason)
+void SV_BanClient(client_t * cl, unsigned int duration, unsigned int mask, const char *reason)
 {
-	SV_Ban (*(unsigned int *)cl->netchan.remoteAddress.ip, duration, mask, reason);
+	SV_Ban(*(unsigned int *)cl->netchan.remoteAddress.ip, duration, mask, reason);
 }
 
-serverban_t *SV_BanMatch (netadr_t *adr)
+serverban_t    *SV_BanMatch(netadr_t * adr)
 {
-	serverban_t	*s, *last;
-	int			now;
+	serverban_t    *s, *last;
+	int             now;
 
 	s = last = &serverbans;
 
-	now = time (NULL);
+	now = time(NULL);
 
-	while (s->next)
+	while(s->next)
 	{
 		s = s->next;
 
-		if (s->expiretime && s->expiretime < now)
+		if(s->expiretime && s->expiretime < now)
 		{
-			Com_Printf ("Expiring IP ban %s.\n", NET_inet_ntoa (s->ip));
+			Com_Printf("Expiring IP ban %s.\n", NET_inet_ntoa(s->ip));
 			last->next = s->next;
-			Z_Free (s);
+			Z_Free(s);
 			continue;
 		}
 
-		if (((*(unsigned int *)adr->ip) & s->mask) == (s->ip & s->mask))
+		if(((*(unsigned int *)adr->ip) & s->mask) == (s->ip & s->mask))
 			return s;
 	}
 
@@ -359,7 +359,7 @@ SV_GetPlayerByName
 Returns the player with player name from Cmd_Argv(1)
 ==================
 */
-client_t *SV_GetPlayerByName(void)
+client_t       *SV_GetPlayerByName(void)
 {
 	client_t       *cl;
 	int             i;
@@ -404,18 +404,18 @@ client_t *SV_GetPlayerByName(void)
 	if(sv_enhanced_getplayer->integer)
 	{
 		Q_strlwr(s);
-		for(i = 0, cl=svs.clients; i < sv_maxclients->integer ; i++,cl++)
+		for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
 		{
-			if ( !cl->state )
+			if(!cl->state)
 				continue;
-			if ( strstr ( cl->name, s ) )
+			if(strstr(cl->name, s))
 				return cl;
 
-			Q_strncpyz( cleanName, cl->name, sizeof(cleanName) );
-			Q_CleanStr( cleanName );
-			Q_strlwr ( cleanName);
+			Q_strncpyz(cleanName, cl->name, sizeof(cleanName));
+			Q_CleanStr(cleanName);
+			Q_strlwr(cleanName);
 
-			if (strstr ( cleanName, s ) )
+			if(strstr(cleanName, s))
 				return cl;
 		}
 	}
@@ -432,7 +432,7 @@ SV_GetPlayerByNum
 Returns the player with idnum from Cmd_Argv(1)
 ==================
 */
-client_t *SV_GetPlayerByNum(void)
+client_t       *SV_GetPlayerByNum(void)
 {
 	client_t       *cl;
 	int             i;
@@ -493,7 +493,7 @@ static void SV_Map_f(void)
 	qboolean        killBots, cheat;
 	char            expanded[MAX_QPATH];
 	char            mapname[MAX_QPATH];
-	int				i;
+	int             i;
 
 	map = Cmd_Argv(1);
 	if(!map)
@@ -715,143 +715,148 @@ Kick a user off of the server  FIXME: move to game
 */
 static void SV_Kick_f(void)
 {
-	client_t	*cl;
+	client_t       *cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
+	if(!com_sv_running->integer)
+	{
+		Com_Printf("Server is not running.\n");
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kick <player name/id>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+	if(Cmd_Argc() != 2)
+	{
+		Com_Printf("Usage: kick <player name/id>\nkick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
 	}
 
 	//r1: support both id/name here.
-	if (StringIsNumeric (Cmd_Argv(1)))
+	if(StringIsNumeric(Cmd_Argv(1)))
 	{
-		cl = SV_GetPlayerByNum ();
+		cl = SV_GetPlayerByNum();
 	}
 	else
 	{
-		cl = SV_GetPlayerByName ();
+		cl = SV_GetPlayerByName();
 	}
 
-	if ( !cl ) {
+	if(!cl)
+	{
 		/*if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
-			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( !cl->state ) {
-					continue;
-				}
-				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-					continue;
-				}
-				SV_DropClient( cl, "was kicked" );
-				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-			}
-		}
-		else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
-			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( !cl->state ) {
-					continue;
-				}
-				if( cl->netchan.remoteAddress.type != NA_BOT ) {
-					continue;
-				}
-				SV_DropClient( cl, "was kicked" );
-				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-			}
-		}*/
+		   for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+		   if ( !cl->state ) {
+		   continue;
+		   }
+		   if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+		   continue;
+		   }
+		   SV_DropClient( cl, "was kicked" );
+		   cl->lastPacketTime = svs.time;   // in case there is a funny zombie
+		   }
+		   }
+		   else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
+		   for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+		   if ( !cl->state ) {
+		   continue;
+		   }
+		   if( cl->netchan.remoteAddress.type != NA_BOT ) {
+		   continue;
+		   }
+		   SV_DropClient( cl, "was kicked" );
+		   cl->lastPacketTime = svs.time;   // in case there is a funny zombie
+		   }
+		   } */
 		return;
 	}
 
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		Com_Printf ("Cannot kick host player.\n");
+	if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
+	{
+		Com_Printf("Cannot kick host player.\n");
 		return;
 	}
 
-	SV_DropClient( cl, "was kicked" );
+	SV_DropClient(cl, "was kicked");
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
-unsigned int CalcMask (int bits)
+unsigned int CalcMask(int bits)
 {
-	int				i;
-	unsigned int	mask;
+	int             i;
+	unsigned int    mask;
 
 	mask = 0xFFFFFFFF;
 
-	for (i = 0; i < 32; i++)
+	for(i = 0; i < 32; i++)
 	{
-		if (i >= bits)
+		if(i >= bits)
 			mask &= ~(1 << i);
 	}
 
 	return mask;
 }
 
-static void SV_AddBan_f (void)
+static void SV_AddBan_f(void)
 {
-	int			mask, duration, x;
-	unsigned	realmask;
-	netadr_t	adr;
-	const char	*reason;
-	char		*ip, *p, *unit;
+	int             mask, duration, x;
+	unsigned        realmask;
+	netadr_t        adr;
+	const char     *reason;
+	char           *ip, *p, *unit;
 
-	if (Cmd_Argc() < 4)
+	if(Cmd_Argc() < 4)
 	{
-		Com_Printf ("Usage: addban ip[/bitmask] time unit [reason]\n");
+		Com_Printf("Usage: addban ip[/bitmask] time unit [reason]\n");
 		return;
 	}
 
 	ip = Cmd_Argv(1);
-	p = strchr (ip, '/');
-	if (p)
+	p = strchr(ip, '/');
+	if(p)
 	{
 		p[0] = 0;
 		p++;
-		mask = atoi (p);
+		mask = atoi(p);
 	}
 	else
 		mask = 32;
 
-	if (mask <= 0 || mask > 32)
+	if(mask <= 0 || mask > 32)
 	{
-		Com_Printf ("Invalid ban mask %d, must be 1-32\n", mask);
+		Com_Printf("Invalid ban mask %d, must be 1-32\n", mask);
 		return;
 	}
 
-	if (!NET_StringToAdr (ip, &adr))
+	if(!NET_StringToAdr(ip, &adr))
 	{
-		Com_Printf ("Bad address %s\n", Cmd_Argv(1));
+		Com_Printf("Bad address %s\n", Cmd_Argv(1));
 		return;
 	}
 
-	duration = atoi (Cmd_Argv(2));
-	if (!duration)
+	duration = atoi(Cmd_Argv(2));
+	if(!duration)
 	{
-		Com_Printf ("Must specify ban time (use -1 for permanent).\n");
+		Com_Printf("Must specify ban time (use -1 for permanent).\n");
 		return;
 	}
 
-	if (duration > 0)
+	if(duration > 0)
 	{
 		unit = Cmd_Argv(3);
-		if (!Q_stricmpn (unit, "min", 3))
+		if(!Q_stricmpn(unit, "min", 3))
 			duration *= (60);
-		else if (!Q_stricmpn (unit, "hour", 4))
-			duration *= (60*60);
-		else if (!Q_stricmpn (unit, "day", 3))
-			duration *= (60*60*24);
-		else if (!Q_stricmpn (unit, "week", 4))
-			duration *= (60*60*24*7);
-		else if (!Q_stricmpn (unit, "year", 4))
-			duration *= (60*60*24*365);
-		else if (!Q_stricmpn (unit, "sec", 3))
+		else if(!Q_stricmpn(unit, "hour", 4))
+			duration *= (60 * 60);
+		else if(!Q_stricmpn(unit, "day", 3))
+			duration *= (60 * 60 * 24);
+		else if(!Q_stricmpn(unit, "week", 4))
+			duration *= (60 * 60 * 24 * 7);
+		else if(!Q_stricmpn(unit, "year", 4))
+			duration *= (60 * 60 * 24 * 365);
+		else if(!Q_stricmpn(unit, "sec", 3))
 			duration *= 1;
-		else {
-			Com_Printf ("Unit must be one of: secs, mins, hours, days, weeks, years\n");
+		else
+		{
+			Com_Printf("Unit must be one of: secs, mins, hours, days, weeks, years\n");
 			return;
 		}
 		x = 4;
@@ -859,108 +864,108 @@ static void SV_AddBan_f (void)
 	else
 		x = 3;
 
-	realmask = CalcMask (mask);
+	realmask = CalcMask(mask);
 	reason = Cmd_ArgsFrom(x);
 
-	if (!reason[0])
+	if(!reason[0])
 		reason = "unspecified";
 
-	SV_Ban (*(unsigned int *)&adr.ip, duration, realmask, reason);
-	Com_Printf ("%s/%d added to IP banlist.\n", NET_inet_ntoa (*(unsigned int *)&adr.ip), MaskBits(realmask));
+	SV_Ban(*(unsigned int *)&adr.ip, duration, realmask, reason);
+	Com_Printf("%s/%d added to IP banlist.\n", NET_inet_ntoa(*(unsigned int *)&adr.ip), MaskBits(realmask));
 }
 
-static void SV_RemoveBan_f (void)
+static void SV_RemoveBan_f(void)
 {
-	netadr_t	adr;
-	unsigned	mask, realmask;
-	serverban_t	*last, *s;
-	char		*ip, *p;
+	netadr_t        adr;
+	unsigned        mask, realmask;
+	serverban_t    *last, *s;
+	char           *ip, *p;
 
-	if (Cmd_Argc() != 2)
+	if(Cmd_Argc() != 2)
 	{
-		Com_Printf ("Usage: removeban ip[/mask]\n");
+		Com_Printf("Usage: removeban ip[/mask]\n");
 		return;
 	}
 
 	ip = Cmd_Argv(1);
-	p = strchr (ip, '/');
-	if (p)
+	p = strchr(ip, '/');
+	if(p)
 	{
 		p[0] = 0;
 		p++;
-		mask = atoi (p);
+		mask = atoi(p);
 	}
 	else
 		mask = 32;
 
-	realmask = CalcMask (mask);
+	realmask = CalcMask(mask);
 
-	if (!NET_StringToAdr (ip, &adr))
+	if(!NET_StringToAdr(ip, &adr))
 	{
-		Com_Printf ("Bad address %s\n", Cmd_Argv(1));
+		Com_Printf("Bad address %s\n", Cmd_Argv(1));
 		return;
 	}
 
 	s = last = &serverbans;
 
-	while (s->next)
+	while(s->next)
 	{
 		s = s->next;
-		if (s->ip == *(unsigned int *)&adr.ip && s->mask == realmask)
+		if(s->ip == *(unsigned int *)&adr.ip && s->mask == realmask)
 		{
 			last->next = s->next;
-			Com_Printf ("Removed %s/%d from IP banlist.\n", NET_inet_ntoa(s->ip), mask);
-			Z_Free (s);
-			SV_WriteBans ();
+			Com_Printf("Removed %s/%d from IP banlist.\n", NET_inet_ntoa(s->ip), mask);
+			Z_Free(s);
+			SV_WriteBans();
 			return;
 		}
 		last = s;
 	}
 
-	Com_Printf ("Could not find ban for %s.\n", Cmd_Argv(1));
+	Com_Printf("Could not find ban for %s.\n", Cmd_Argv(1));
 }
 
-static void SV_ListBans_f (void)
+static void SV_ListBans_f(void)
 {
-	const char	*unit;
-	int			mask, timeleft;
-	serverban_t	*s;
+	const char     *unit;
+	int             mask, timeleft;
+	serverban_t    *s;
 
 	s = &serverbans;
 
-	Com_Printf ("+------------------+---------+---------------------------------+\n");
-	Com_Printf ("| IP Address / Mask| Expires |    Reason for ban               |\n");
-	Com_Printf ("+------------------+---------+---------------------------------+\n");
+	Com_Printf("+------------------+---------+---------------------------------+\n");
+	Com_Printf("| IP Address / Mask| Expires |    Reason for ban               |\n");
+	Com_Printf("+------------------+---------+---------------------------------+\n");
 
-	while (s->next)
+	while(s->next)
 	{
 		s = s->next;
-		mask = MaskBits (s->mask);
+		mask = MaskBits(s->mask);
 
-		if (s->expiretime)
+		if(s->expiretime)
 		{
 			timeleft = s->expiretime - time(NULL);
-			if (timeleft >= 60*60*24*365.25)
+			if(timeleft >= 60 * 60 * 24 * 365.25)
 			{
-				timeleft = (int)(timeleft / (60*60*24*365.25));
+				timeleft = (int)(timeleft / (60 * 60 * 24 * 365.25));
 				unit = "years";
 			}
-			else if (timeleft >= 60*60*24*7)
+			else if(timeleft >= 60 * 60 * 24 * 7)
 			{
-				timeleft = (int)(timeleft / (60*60*24*7));
+				timeleft = (int)(timeleft / (60 * 60 * 24 * 7));
 				unit = "weeks";
 			}
-			else if (timeleft >= 60*60*24)
+			else if(timeleft >= 60 * 60 * 24)
 			{
-				timeleft = (int)(timeleft / (60*60*24));
+				timeleft = (int)(timeleft / (60 * 60 * 24));
 				unit = "days ";
 			}
-			else if (timeleft >= 60*60)
+			else if(timeleft >= 60 * 60)
 			{
-				timeleft = (int)(timeleft / (60*60));
+				timeleft = (int)(timeleft / (60 * 60));
 				unit = "hours";
 			}
-			else if (timeleft >= 60)
+			else if(timeleft >= 60)
 			{
 				timeleft = (int)(timeleft / (60));
 				unit = "mins ";
@@ -972,71 +977,72 @@ static void SV_ListBans_f (void)
 
 			timeleft++;
 
-			Com_Printf ("|%-15.15s/%2d|%2d %s |%-33.33s|\n", NET_inet_ntoa (s->ip), mask, timeleft, unit, s->reason);
+			Com_Printf("|%-15.15s/%2d|%2d %s |%-33.33s|\n", NET_inet_ntoa(s->ip), mask, timeleft, unit, s->reason);
 		}
 		else
 		{
-			Com_Printf ("|%-15.15s/%2d|  never  |%-33.33s|\n", NET_inet_ntoa (s->ip), mask, s->reason);
+			Com_Printf("|%-15.15s/%2d|  never  |%-33.33s|\n", NET_inet_ntoa(s->ip), mask, s->reason);
 		}
 	}
 
-	Com_Printf ("+------------------+---------+---------------------------------+\n");
+	Com_Printf("+------------------+---------+---------------------------------+\n");
 }
 
-static void SV_Ban_f (void)
+static void SV_Ban_f(void)
 {
-	int			duration, x;
-	const char	*unit, *reason;
-	client_t	*cl;
+	int             duration, x;
+	const char     *unit, *reason;
+	client_t       *cl;
 
-	if (!com_sv_running->integer)
+	if(!com_sv_running->integer)
 	{
-		Com_Printf ("Server is not running.\n");
+		Com_Printf("Server is not running.\n");
 		return;
 	}
 
-	if (Cmd_Argc() < 4)
+	if(Cmd_Argc() < 4)
 	{
-		Com_Printf ("Usage: ban name/id time unit [reason]\n");
+		Com_Printf("Usage: ban name/id time unit [reason]\n");
 		return;
 	}
 
-	if (StringIsNumeric (Cmd_Argv(1)))
+	if(StringIsNumeric(Cmd_Argv(1)))
 	{
-		cl = SV_GetPlayerByNum ();
+		cl = SV_GetPlayerByNum();
 	}
 	else
 	{
-		cl = SV_GetPlayerByName ();
+		cl = SV_GetPlayerByName();
 	}
 
-	if (!cl)
+	if(!cl)
 		return;
 
-	duration = atoi (Cmd_Argv(2));
-	if (!duration)
+	duration = atoi(Cmd_Argv(2));
+	if(!duration)
 	{
-		Com_Printf ("Must specify ban time (use -1 for permanent).\n");
+		Com_Printf("Must specify ban time (use -1 for permanent).\n");
 		return;
 	}
 
-	if (duration > 0)
+	if(duration > 0)
 	{
 		unit = Cmd_Argv(3);
-		if (!Q_stricmpn (unit, "min", 3))
+		if(!Q_stricmpn(unit, "min", 3))
 			duration *= (60);
-		else if (!Q_stricmpn (unit, "hour", 4))
-			duration *= (60*60);
-		else if (!Q_stricmpn (unit, "day", 3))
-			duration *= (60*60*24);
-		else if (!Q_stricmpn (unit, "week", 4))
-			duration *= (60*60*24*7);
-		else if (!Q_stricmpn (unit, "year", 4))
-			duration *= (60*60*24*365);
-		else if (!Q_stricmpn (unit, "sec", 3))
+		else if(!Q_stricmpn(unit, "hour", 4))
+			duration *= (60 * 60);
+		else if(!Q_stricmpn(unit, "day", 3))
+			duration *= (60 * 60 * 24);
+		else if(!Q_stricmpn(unit, "week", 4))
+			duration *= (60 * 60 * 24 * 7);
+		else if(!Q_stricmpn(unit, "year", 4))
+			duration *= (60 * 60 * 24 * 365);
+		else if(!Q_stricmpn(unit, "sec", 3))
 			duration *= 1;
-		else {
-			Com_Printf ("Unit must be one of: secs, mins, hours, days, weeks, years\n");
+		else
+		{
+			Com_Printf("Unit must be one of: secs, mins, hours, days, weeks, years\n");
 			return;
 		}
 		x = 4;
@@ -1044,14 +1050,14 @@ static void SV_Ban_f (void)
 	else
 		x = 3;
 
-	reason = Cmd_ArgsFrom (x);
-	if (!reason[0])
+	reason = Cmd_ArgsFrom(x);
+	if(!reason[0])
 		reason = "unspecified";
 
-	Com_Printf ("%s[%s] was banned.\n", cl->name, NET_AdrToString(cl->netchan.remoteAddress));
+	Com_Printf("%s[%s] was banned.\n", cl->name, NET_AdrToString(cl->netchan.remoteAddress));
 
-	SV_BanClient (cl, duration, CalcMask (24), reason);
-	SV_DropClient (cl, "was banned");
+	SV_BanClient(cl, duration, CalcMask(24), reason);
+	SV_DropClient(cl, "was banned");
 }
 
 /*
@@ -1303,12 +1309,12 @@ void SV_AddOperatorCommands(void)
 
 	Cmd_AddCommand("heartbeat", SV_Heartbeat_f);
 	Cmd_AddCommand("kick", SV_Kick_f);
-	Cmd_AddCommand ("addban", SV_AddBan_f);
-	Cmd_AddCommand ("removeban", SV_RemoveBan_f);
-	Cmd_AddCommand ("listbans", SV_ListBans_f);
-	Cmd_AddCommand ("addaccount", SV_AddAccount_f);
-	Cmd_AddCommand ("removeaccount", SV_RemoveAccount_f);
-	Cmd_AddCommand ("ban", SV_Ban_f);
+	Cmd_AddCommand("addban", SV_AddBan_f);
+	Cmd_AddCommand("removeban", SV_RemoveBan_f);
+	Cmd_AddCommand("listbans", SV_ListBans_f);
+	Cmd_AddCommand("addaccount", SV_AddAccount_f);
+	Cmd_AddCommand("removeaccount", SV_RemoveAccount_f);
+	Cmd_AddCommand("ban", SV_Ban_f);
 	Cmd_AddCommand("clientkick", SV_KickNum_f);
 	Cmd_AddCommand("status", SV_Status_f);
 	Cmd_AddCommand("serverinfo", SV_Serverinfo_f);

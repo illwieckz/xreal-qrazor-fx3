@@ -45,7 +45,7 @@ cvar_t         *sv_killserver;	// menu system can set to 1 to shut server down
 cvar_t         *sv_mapname;
 cvar_t         *sv_mapChecksum;
 cvar_t         *sv_serverid;
-cvar_t		   *sv_minRate;
+cvar_t         *sv_minRate;
 cvar_t         *sv_maxRate;
 cvar_t         *sv_minPing;
 cvar_t         *sv_maxPing;
@@ -55,9 +55,9 @@ cvar_t         *sv_floodProtect;
 cvar_t         *sv_lanForceRate;	// dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 
 // r1:
-cvar_t		   *sv_banfile;
-cvar_t		   *sv_accountfile;
-cvar_t		   *sv_enhanced_getplayer;
+cvar_t         *sv_banfile;
+cvar_t         *sv_accountfile;
+cvar_t         *sv_enhanced_getplayer;
 
 /*
 =============================================================================
@@ -196,7 +196,7 @@ void QDECL SV_SendServerCommand(client_t * cl, const char *fmt, ...)
 	va_end(argptr);
 
 	// raynorpat: fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
-	if(strlen ((char *)message) > 1022)
+	if(strlen((char *)message) > 1022)
 		return;
 
 	if(cl != NULL)

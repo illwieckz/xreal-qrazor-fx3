@@ -331,7 +331,7 @@ The module is making a system call
 ====================
 */
 
-intptr_t SV_GameSystemCalls(intptr_t *args)
+intptr_t SV_GameSystemCalls(intptr_t * args)
 {
 	switch (args[0])
 	{
