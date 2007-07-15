@@ -892,12 +892,10 @@ static void CG_InterpolateEntityPosition(centity_t * cent)
 /*
 ===============
 CG_CalcEntityLerpPositions
-
 ===============
 */
 static void CG_CalcEntityLerpPositions(centity_t * cent)
 {
-
 	// if this player does not want to see extrapolated players
 	if(!cg_smoothClients.integer)
 	{
@@ -921,6 +919,16 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	{
 		CG_InterpolateEntityPosition(cent);
 		return;
+	}
+
+	// interpolating failed (probably no nextSnap), so extrapolate
+	// this can also happen if the teleport bit is flipped, but that
+	// won't be noticeable
+	if(cent->currentState.number < MAX_CLIENTS && cent->currentState.clientNum != cg.predictedPlayerState.clientNum)
+	{
+		cent->currentState.pos.trType = TR_LINEAR_STOP;
+		cent->currentState.pos.trTime = cg.snap->serverTime;
+		cent->currentState.pos.trDuration = 1000 / sv_fps.integer;
 	}
 
 	// just use the current frame and evaluate as best we can

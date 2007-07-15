@@ -195,6 +195,9 @@ vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
 vmCvar_t		cg_drawPlayerAABB;
 
+vmCvar_t		cg_optimizePrediction;
+vmCvar_t		sv_fps;
+
 #ifdef MISSIONPACK
 vmCvar_t        cg_redTeamName;
 vmCvar_t        cg_blueTeamName;
@@ -335,7 +338,11 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
-	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT}
+	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
+
+	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
+	// this will be automagically copied from the server
+	{&sv_fps, "sv_fps", "20", 0}
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);

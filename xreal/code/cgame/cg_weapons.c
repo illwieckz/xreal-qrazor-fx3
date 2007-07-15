@@ -1136,10 +1136,13 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	{
 		vec3_t          angle;
 		int             i;
+		vec3_t			viewangles;
+
+		VectorCopy(cg.predictedPlayerState.viewangles, viewangles);
 
 		for(i = 0; i < 3; i++)
 		{
-			float           a = cent->lerpAngles[i] - cg.refdefViewAngles[i];
+			float           a = cent->lerpAngles[i] - viewangles[i];
 
 			if(a > 180)
 			{
@@ -1150,7 +1153,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 				a += 360;
 			}
 
-			angle[i] = cg.refdefViewAngles[i] + a * (1.0 - cg_trueLightning.value);
+			angle[i] = viewangles[i] + a * (1.0 - cg_trueLightning.value);
 			if(angle[i] < 0)
 			{
 				angle[i] += 360;
@@ -1162,8 +1165,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		}
 
 		AngleVectors(angle, forward, NULL, NULL);
-		VectorCopy(cent->lerpOrigin, muzzlePoint);
-//      VectorCopy(cg.refdef.vieworg, muzzlePoint );
+		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
 	}
 	else
 	{
@@ -1216,70 +1218,6 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		trap_R_AddRefEntityToScene(&beam);
 	}
 }
-
-/*
-
-static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
-	trace_t		trace;
-	refEntity_t		beam;
-	vec3_t			forward;
-	vec3_t			muzzlePoint, endPoint;
-
-	if ( cent->currentState.weapon != WP_LIGHTNING ) {
-		return;
-	}
-
-	memset( &beam, 0, sizeof( beam ) );
-
-	// find muzzle point for this frame
-	VectorCopy( cent->lerpOrigin, muzzlePoint );
-	AngleVectors( cent->lerpAngles, forward, NULL, NULL );
-
-	// FIXME: crouch
-	muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
-
-	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
-
-	// project forward by the lightning range
-	VectorMA( muzzlePoint, LIGHTNING_RANGE, forward, endPoint );
-
-	// see if it hit a wall
-	CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint, 
-		cent->currentState.number, MASK_SHOT );
-
-	// this is the endpoint
-	VectorCopy( trace.endpos, beam.oldorigin );
-
-	// use the provided origin, even though it may be slightly
-	// different than the muzzle origin
-	VectorCopy( origin, beam.origin );
-
-	beam.reType = RT_LIGHTNING;
-	beam.customShader = cgs.media.lightningShader;
-	trap_R_AddRefEntityToScene( &beam );
-
-	// add the impact flare if it hit something
-	if ( trace.fraction < 1.0 ) {
-		vec3_t	angles;
-		vec3_t	dir;
-
-		VectorSubtract( beam.oldorigin, beam.origin, dir );
-		VectorNormalize( dir );
-
-		memset( &beam, 0, sizeof( beam ) );
-		beam.hModel = cgs.media.lightningExplosionModel;
-
-		VectorMA( trace.endpos, -16, dir, beam.origin );
-
-		// make a random orientation
-		angles[0] = rand() % 360;
-		angles[1] = rand() % 360;
-		angles[2] = rand() % 360;
-		AnglesToAxis( angles, beam.axis );
-		trap_R_AddRefEntityToScene( &beam );
-	}
-}
-*/
 
 /*
 ===============

@@ -482,6 +482,7 @@ typedef struct
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
 #define MAX_PREDICTED_EVENTS	16
+#define NUM_SAVED_STATES		(CMD_BACKUP + 2)
 
 typedef struct
 {
@@ -542,6 +543,12 @@ typedef struct
 
 	float           landChange;	// for landing hard
 	int             landTime;
+
+	// optimized prediction state
+	int				lastPredictedCommand;
+	int				lastServerTime;
+	playerState_t	savedPmoveStates[NUM_SAVED_STATES];
+	int				stateHead, stateTail;
 
 	// input state sent to server
 	int             weaponSelect;
@@ -672,7 +679,6 @@ typedef struct
 
 	//qboolean cameraMode;      // if rendering from a loaded camera
 
-
 	// development tools
 	refEntity_t     testModelEntity;
 	char            testModelName[MAX_QPATH];
@@ -687,7 +693,7 @@ typedef struct
 	refSkeleton_t   testAnimation2Skeleton;
 
 	// play with doom3 style light materials
-	refLight_t     testLight;
+	refLight_t		testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testFlashLight;
 } cg_t;
@@ -1234,6 +1240,9 @@ extern vmCvar_t cg_trueLightning;
 extern vmCvar_t cg_drawBloom;
 extern vmCvar_t cg_drawRotoscope;
 extern vmCvar_t cg_drawPlayerAABB;
+
+extern vmCvar_t	cg_optimizePrediction;
+extern vmCvar_t	sv_fps;
 
 #ifdef MISSIONPACK
 extern vmCvar_t cg_redTeamName;
