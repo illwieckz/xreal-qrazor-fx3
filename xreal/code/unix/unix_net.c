@@ -55,7 +55,6 @@ static cvar_t  *noudp;
 netadr_t        net_local_adr;
 
 int             ip_socket;
-int             ipx_socket;
 
 #define	MAX_IPS		16
 static int      numIP;
@@ -174,8 +173,6 @@ qboolean Sys_GetPacket(netadr_t * net_from, msg_t * net_message)
 	{
 		if(protocol == 0)
 			net_socket = ip_socket;
-		else
-			net_socket = ipx_socket;
 
 		if(!net_socket)
 			continue;
@@ -226,14 +223,6 @@ void Sys_SendPacket(int length, const void *data, netadr_t to)
 	{
 		net_socket = ip_socket;
 	}
-	else if(to.type == NA_IPX)
-	{
-		net_socket = ipx_socket;
-	}
-	else if(to.type == NA_BROADCAST_IPX)
-	{
-		net_socket = ipx_socket;
-	}
 	else
 	{
 		Com_Error(ERR_FATAL, "NET_SendPacket: bad address type");
@@ -267,11 +256,6 @@ qboolean Sys_IsLANAddress(netadr_t adr)
 	int             i;
 
 	if(adr.type == NA_LOOPBACK)
-	{
-		return qtrue;
-	}
-
-	if(adr.type == NA_IPX)
 	{
 		return qtrue;
 	}
@@ -680,7 +664,13 @@ char           *NET_ErrorString(void)
 	return strerror(code);
 }
 
-// sleeps msec or until net socket is ready
+/*
+====================
+NET_Sleep
+
+sleeps msec or until net socket is ready
+====================
+*/
 void NET_Sleep(int msec)
 {
 	struct timeval  timeout;
@@ -719,3 +709,16 @@ void NET_Sleep(int msec)
 		}
 	}
 }
+
+/*
+====================
+NET_inet_ntoa
+
+wrapper for inet_ntoa
+====================
+*/
+const char *NET_inet_ntoa(unsigned int ip)
+{
+	return inet_ntoa(*(struct in_addr *)&ip);
+}
+

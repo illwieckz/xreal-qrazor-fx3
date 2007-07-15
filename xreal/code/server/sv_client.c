@@ -93,6 +93,22 @@ void SV_GetChallenge(netadr_t from)
 	NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
 }
 
+int MaskBits (unsigned int mask)
+{
+	int             i;
+	int             bits;
+
+	bits = 0;
+
+	for (i = 0; i < 32; i++)
+	{
+		if (mask & (1 << i))
+			bits++;
+	}
+
+	return bits;
+}
+
 /*
 ==================
 SV_DirectConnect
@@ -116,6 +132,9 @@ void SV_DirectConnect(netadr_t from)
 	intptr_t		denied;
 	int             count;
 	char		   *ip;
+
+	// r1: bans
+	serverban_t	   *s;
 
 	Com_DPrintf("SVC_DirectConnect ()\n");
 
@@ -164,6 +183,15 @@ void SV_DirectConnect(netadr_t from)
 		return;
 	}
 	Info_SetValueForKey(userinfo, "ip", ip);
+
+	// r1: bans
+	s = SV_BanMatch (&from);
+	if (s)
+	{
+		NET_OutOfBandPrint( NS_SERVER, from, "print\nYou are banned from this server.\n");
+		Com_Printf ("Rejected %s[%s], matched ban %s/%d (%s)\n", Info_ValueForKey (userinfo, "name"), NET_AdrToString (from), NET_inet_ntoa(s->ip), MaskBits(s->mask), s->reason);
+		return;
+	}
 
 	// see if the challenge is valid (LAN clients don't need to challenge)
 	if(!NET_IsLocalAddress(from))
@@ -393,6 +421,8 @@ void SV_DropClient(client_t * drop, const char *reason)
 	{
 		return;					// already dropped
 	}
+
+	Com_Printf ("Dropping %s" S_COLOR_WHITE "[%s], %s\n", drop->name, NET_AdrToString(drop->netchan.remoteAddress), reason);
 
 	if(drop->netchan.remoteAddress.type != NA_BOT)
 	{
@@ -923,7 +953,6 @@ static void SV_VerifyPaks_f(client_t * cl)
 #endif
 		nClientPaks = Cmd_Argc();
 		
-		
 #if 0
 		// Tr3B - only for debugging
 		for(i = 0; i < Cmd_Argc(); i++)
@@ -1213,6 +1242,178 @@ void SV_UserinfoChanged(client_t * cl)
 		Info_SetValueForKey(cl->userinfo, "ip", ip);
 }
 
+static void SV_Login_f (client_t *cl)
+{
+	useraccount_t	*account;
+
+	if (cl->account)
+	{
+		SV_SendServerCommand (cl, "print \"You are already logged in!\n\"");
+		return;
+	}
+
+	if (Cmd_Argc() < 3)
+	{
+		SV_SendServerCommand (cl, "print \"Usage: login username password\n\"");
+		return;
+	}
+
+	account = SV_CheckLogin (Cmd_Argv(1), Cmd_Argv(2));
+	if (!account)
+	{
+		Com_Printf ("%s[%s] failed to login as '%s'.\n", cl->name, NET_AdrToString(cl->netchan.remoteAddress), Cmd_Argv(1));
+		SV_SendServerCommand (cl, "print \"Invalid username/password.\"\n");
+	}
+	else
+	{
+		SV_SendServerCommand (NULL, "print \"%s" S_COLOR_WHITE " logged in as a server administrator.\n\"", cl->name);
+		cl->account = account;
+	}
+}
+
+static void SV_Cl_Kick_f (client_t *cl)
+{
+	client_t	*victim;
+	char		message[64];
+
+	if (!SV_ClientHasPermission (cl, PERMISSION_KICK))
+	{
+		SV_SendServerCommand (cl, "print \"You don't have permission to use this command.\n\"");
+		return;
+	}
+
+	if (Cmd_Argc () != 2)
+	{
+		SV_SendServerCommand (cl, "print \"Usage: @kick <id/name/subname>\n\"");
+		return;
+	}
+
+	if (StringIsNumeric (Cmd_Argv(1)))
+	{
+		victim = SV_GetPlayerByNum ();
+	}
+	else
+	{
+		victim = SV_GetPlayerByName ();
+	}
+
+	if (!victim)
+	{
+		SV_SendServerCommand (cl, "print \"Player not found.\n\"");
+		return;
+	}
+
+	if( victim->netchan.remoteAddress.type == NA_LOOPBACK )
+	{
+		SV_SendServerCommand (cl, "print \"Cannot kick host player.\n\"");
+		return;
+	}
+
+	SV_SendServerCommand (cl, "print \"Kicking %s" S_COLOR_WHITE " (%s).\n\"", victim->name, NET_AdrToString(victim->netchan.remoteAddress));
+
+	Com_sprintf (message, sizeof(message), "was kicked by %s", cl->name);
+	SV_DropClient( victim, message );
+	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+}
+
+static void SV_Cl_Ban_f (client_t *cl)
+{
+	int			duration, x;
+	const char	*unit, *reason;
+	client_t	*victim;
+	char		message[64], realreason[64];
+
+	if (!SV_ClientHasPermission (cl, PERMISSION_BAN))
+	{
+		SV_SendServerCommand (cl, "print \"You don't have permission to use this command.\n\"");
+		return;
+	}
+
+	if (Cmd_Argc() < 4)
+	{
+		SV_SendServerCommand (cl, "print \"Usage: @ban <id/name/subname> <time> <unit> [reason]\n\"");
+		return;
+	}
+
+	if (StringIsNumeric (Cmd_Argv(1)))
+	{
+		victim = SV_GetPlayerByNum ();
+	}
+	else
+	{
+		victim = SV_GetPlayerByName ();
+	}
+
+	if (!victim)
+	{
+		SV_SendServerCommand (cl, "print \"Player not found.\n\"");
+		return;
+	}
+
+	duration = atoi (Cmd_Argv(2));
+	if (!duration)
+	{
+		SV_SendServerCommand (cl, "print \"Must specify ban time (use -1 for permanent).\n\"");
+		return;
+	}
+
+	if (duration > 0)
+	{
+		unit = Cmd_Argv(3);
+		if (!Q_stricmpn (unit, "min", 3))
+			duration *= (60);
+		else if (!Q_stricmpn (unit, "hour", 4))
+			duration *= (60*60);
+		else if (!Q_stricmpn (unit, "day", 3))
+			duration *= (60*60*24);
+		else if (!Q_stricmpn (unit, "week", 4))
+			duration *= (60*60*24*7);
+		else if (!Q_stricmpn (unit, "year", 4))
+			duration *= (60*60*24*365);
+		else if (!Q_stricmpn (unit, "sec", 3))
+			duration *= 1;
+		else {
+			SV_SendServerCommand (cl, "print \"Unit must be one of: secs, mins, hours, days, weeks, years\n\"");
+			return;
+		}
+		x = 4;
+	}
+	else
+		x = 3;
+
+	reason = Cmd_ArgsFrom (x);
+	if (!reason[0])
+		reason = "unspecified";
+
+	SV_SendServerCommand (cl, "print \"%s" S_COLOR_WHITE "[%s] was banned.\n\"", victim->name, NET_AdrToString(victim->netchan.remoteAddress));
+
+	Com_sprintf (realreason, sizeof(realreason), "[%s] %s", cl->account->username, reason);
+	SV_BanClient (victim, duration, CalcMask (24), realreason);
+	Com_sprintf (message, sizeof(message), "was banned by %s", cl->name);
+	SV_DropClient (victim, message);
+}
+
+static void SV_Cl_Playerlist_f (client_t *cl)
+{
+	int                     i;
+	client_t        *c;
+	char            message[MAX_STRING_CHARS], buff[64];
+
+	message[0] = 0;
+
+	for (i=0 ; i < sv_maxclients->integer ; i++)
+	{
+		c = &svs.clients[i];
+
+		if (c->state < CS_CONNECTED)
+			continue;
+
+		Com_sprintf (buff, sizeof(buff), "%.2d: %s" S_COLOR_WHITE "\n", i, c->name);
+		Q_strcat (message, sizeof(message), buff);
+	}
+
+	SV_SendServerCommand (cl, "print \"Player List:\n%s\"", message);
+}
 
 /*
 ==================
@@ -1244,6 +1445,13 @@ static ucmd_t   ucmds[] = {
 	{"stopdl", SV_StopDownload_f},
 	{"donedl", SV_DoneDownload_f},
 
+	// r1:
+	{"login", SV_Login_f},
+	{"@kick", SV_Cl_Kick_f},
+	{"@ban", SV_Cl_Ban_f},
+	{"playerlist", SV_Cl_Playerlist_f},
+	//{"@map", SV_Cl_Map_f},
+
 	{NULL, NULL}
 };
 
@@ -1260,6 +1468,13 @@ void SV_ExecuteClientCommand(client_t * cl, const char *s, qboolean clientOK)
 	qboolean        bProcessed = qfalse;
 
 	Cmd_TokenizeString(s);
+
+	// r1: hack to prevent q3 shitty console from echoing info
+	if (!strncmp (s, "say login", 9))
+	{
+		SV_SendServerCommand (cl, "print \"Wrong command format, prefix commands with \\\n\"");
+		return;
+	}
 
 	// see if it is a server level command
 	for(u = ucmds; u->name; u++)
@@ -1328,8 +1543,8 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 		clientOk = qfalse;
 	}
 
-	// don't allow another command for one second
-	cl->nextReliableTime = svs.time + 1000;
+	// don't allow another command for half a second
+	cl->nextReliableTime = svs.time + 500;
 
 	SV_ExecuteClientCommand(cl, s, clientOk);
 

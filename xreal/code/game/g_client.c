@@ -994,11 +994,10 @@ restarts.
 char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
 	char           *value;
-
-//  char        *areabits;
 	gclient_t      *client;
 	char            userinfo[MAX_INFO_STRING];
 	gentity_t      *ent;
+	char			ipaddress[32];
 
 	ent = &g_entities[clientNum];
 
@@ -1010,9 +1009,10 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey(userinfo, "ip");
 	if(G_FilterPacket(value))
-	{
 		return "You are banned from this server.";
-	}
+
+	// r1: set the ip
+	Q_strncpyz(ipaddress, value, sizeof(ipaddress));
 
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
@@ -1037,6 +1037,9 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	client->pers.connected = CON_CONNECTING;
 
+	// r1: save the clients ip
+	Q_strncpyz(client->pers.ip, ipaddress, sizeof(client->pers.ip));
+
 	// read or initialize the session data
 	if(firstTime || level.newSession)
 	{
@@ -1056,7 +1059,11 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	// get and distribute relevent paramters
 	G_LogPrintf("ClientConnect: %i\n", clientNum);
+
 	ClientUserinfoChanged(clientNum);
+
+	// r1: semi-useful info for once
+	G_Printf("%s" S_COLOR_WHITE "[%s] connected, client id %i\n", client->pers.netname, client->pers.ip, clientNum);
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if(firstTime)

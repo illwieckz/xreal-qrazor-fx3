@@ -116,6 +116,31 @@ typedef struct netchan_buffer_s
 	struct netchan_buffer_s *next;
 } netchan_buffer_t;
 
+// r1:
+typedef struct serverban_s
+{
+	struct serverban_s     *next;
+	unsigned int            ip;
+	unsigned int            mask;
+	unsigned int            expiretime;
+	char					reason[64];
+} serverban_t;
+
+typedef struct useraccount_s
+{
+	struct useraccount_s   *next;
+	char					username[16];
+	char					password[16];
+	unsigned int			permissions;
+} useraccount_t;
+
+typedef enum PERMISSIONS_E
+{
+	PERMISSION_BAN,
+	PERMISSION_KICK,
+	PERMISSION_MAP
+} permissions_e;
+
 typedef struct client_s
 {
 	clientState_t   state;
@@ -173,6 +198,8 @@ typedef struct client_s
 
 	int				oldServerTime;
 	qboolean		csUpdated[MAX_CONFIGSTRINGS + 1];
+
+	useraccount_t  *account;
 } client_t;
 
 //=============================================================================
@@ -253,6 +280,26 @@ extern cvar_t  *sv_gametype;
 extern cvar_t  *sv_pure;
 extern cvar_t  *sv_floodProtect;
 extern cvar_t  *sv_lanForceRate;
+
+// r1:
+extern cvar_t  *sv_banfile;
+extern cvar_t  *sv_accountfile;
+extern cvar_t  *sv_enhanced_getplayer;
+
+//===========================================================
+
+// r1:
+serverban_t *SV_BanMatch (netadr_t *adr);
+int MaskBits (unsigned int mask);
+void SV_ReadBans (void);
+void SV_ReadAccounts (void);
+qboolean SV_ClientHasPermission (client_t *cl, int permission);
+void SV_BanClient (client_t *cl, unsigned int duration, unsigned int mask, const char *reason);
+useraccount_t *SV_CheckLogin (const char *username, const char *password);
+qboolean StringIsNumeric (const char *s);
+unsigned int CalcMask (int bits);
+client_t *SV_GetPlayerByName( void );
+client_t *SV_GetPlayerByNum( void );
 
 //===========================================================
 

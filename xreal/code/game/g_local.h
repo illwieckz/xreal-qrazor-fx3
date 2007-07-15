@@ -275,6 +275,9 @@ typedef struct
 	int             voteCount;	// to prevent people from constantly calling votes
 	int             teamVoteCount;	// to prevent people from constantly calling votes
 	qboolean        teamInfo;	// send team overlay updates?
+
+	// r1:
+	char			ip[16];
 } clientPersistant_t;
 
 

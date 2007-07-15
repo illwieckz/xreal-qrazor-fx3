@@ -128,9 +128,7 @@ typedef enum
 	NA_BAD,						// an address lookup failed
 	NA_LOOPBACK,
 	NA_BROADCAST,
-	NA_IP,
-	NA_IPX,
-	NA_BROADCAST_IPX
+	NA_IP
 } netadrtype_t;
 
 typedef enum
@@ -158,14 +156,20 @@ void            NET_SendPacket(netsrc_t sock, int length, const void *data, neta
 void QDECL      NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr, const char *format, ...);
 void QDECL      NET_OutOfBandData(netsrc_t sock, netadr_t adr, byte * format, int len);
 
-qboolean        NET_CompareAdr(netadr_t a, netadr_t b);
-qboolean        NET_CompareBaseAdr(netadr_t a, netadr_t b);
+#define NET_CompareAdr(a,b) \
+	(((a).type == NA_LOOPBACK && (b).type == NA_LOOPBACK) || ((*(unsigned int *)(a).ip == *(unsigned int *)(b).ip) && (a).port == (b).port))
+
+#define NET_CompareBaseAdr(a,b) \
+	(((a).type == NA_LOOPBACK && (b).type == NA_LOOPBACK) || ((*(unsigned int *)(a).ip == *(unsigned int *)(b).ip)))
+
 qboolean        NET_IsLocalAddress(netadr_t adr);
 const char     *NET_AdrToString(netadr_t a);
 qboolean        NET_StringToAdr(const char *s, netadr_t * a);
 qboolean        NET_GetLoopPacket(netsrc_t sock, netadr_t * net_from, msg_t * net_message);
 void            NET_Sleep(int msec);
 
+// r1:
+const char	   *NET_inet_ntoa(unsigned int ip);
 
 #define	MAX_MSGLEN				16384	// max length of a message, which may
 											// be fragmented into multiple packets

@@ -2735,12 +2735,6 @@ void CL_ServerInfoPacket(netadr_t from, msg_t * msg)
 					type = 1;
 					break;
 
-				case NA_IPX:
-				case NA_BROADCAST_IPX:
-					str = "ipx";
-					type = 2;
-					break;
-
 				default:
 					str = "???";
 					type = 0;
@@ -3070,9 +3064,6 @@ void CL_LocalServers_f(void)
 			to.port = BigShort((short)(PORT_SERVER + j));
 
 			to.type = NA_BROADCAST;
-			NET_SendPacket(NS_CLIENT, strlen(message), message, to);
-
-			to.type = NA_BROADCAST_IPX;
 			NET_SendPacket(NS_CLIENT, strlen(message), message, to);
 		}
 	}

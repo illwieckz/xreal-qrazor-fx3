@@ -227,17 +227,28 @@ int ClientNumberFromString(gentity_t * to, char *s)
 
 	// check for a name match
 	SanitizeString(s, s2);
+	Q_CleanStr(s2);
 	for(idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++)
 	{
 		if(cl->pers.connected != CON_CONNECTED)
-		{
 			continue;
-		}
+
 		SanitizeString(cl->pers.netname, n2);
+		Q_CleanStr(n2);
+
 		if(!strcmp(n2, s2))
-		{
 			return idnum;
-		}
+	}
+
+	for(idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++)
+	{
+		if(cl->pers.connected != CON_CONNECTED)
+			continue;
+
+		SanitizeString(cl->pers.netname, n2);
+
+		if(strstr(n2, s2))
+			return idnum;
 	}
 
 	trap_SendServerCommand(to - g_entities, va("print \"User %s is not on the server\n\"", s));
@@ -1380,6 +1391,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	int             i;
 	char            arg1[MAX_STRING_TOKENS];
 	char            arg2[MAX_STRING_TOKENS];
+	char			kickee[MAX_STRING_CHARS];
 
 	if(!g_allowVote.integer)
 	{
@@ -1498,13 +1510,71 @@ void Cmd_CallVote_f(gentity_t * ent)
 		Com_sprintf(level.voteString, sizeof(level.voteString), "vstr nextmap");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 	}
+	else if(!Q_stricmp(arg1, "kick"))
+	{
+		int			i;
+		gclient_t  *cl;
+
+		Q_strncpyz(kickee, arg2, sizeof(kickee));
+
+		for(i = 3; i < 10; i++)
+		{
+			trap_Argv(i, arg2, sizeof(arg2));
+			if(arg2[0])
+			{
+				Q_strcat(kickee, sizeof(kickee), " ");
+				Q_strcat(kickee, sizeof(kickee), arg2);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		i = ClientNumberFromString(ent, kickee);
+		if(i == -1)
+			return;
+
+		cl = &level.clients[i];
+
+		Q_strncpyz(kickee, cl->pers.netname, sizeof(kickee));
+		Q_CleanStr(kickee);
+
+		Com_sprintf(level.voteString, sizeof(level.voteString), "clientkick \"%d\"", i);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", kickee);
+	}
+	else if(!Q_stricmp(arg1, "clientkick"))
+	{
+		int			i;
+		gclient_t  *cl;
+
+		i = atoi (arg2);
+		if(i < 0 || i >= level.maxclients)
+		{
+			trap_SendServerCommand(ent-g_entities, "print \"Invalid player id.\n\"");
+			return;
+		}
+
+		cl = &level.clients[ i ];
+		if(cl->pers.connected != CON_CONNECTED)
+		{
+			trap_SendServerCommand(ent-g_entities, va("print \"Player id %d is not connected.\n\"", i));
+			return;
+		}
+
+		Q_strncpyz(kickee, cl->pers.netname, sizeof(kickee));
+		Q_CleanStr(kickee);
+
+		Com_sprintf(level.voteString, sizeof(level.voteString), "clientkick \"%d\"", i);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "kick %s", kickee);
+	}
 	else
 	{
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 	}
 
-	trap_SendServerCommand(-1, va("print \"%s called a vote.\n\"", ent->client->pers.netname));
+	trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " called a vote\n\"", ent->client->pers.netname));
 
 	// start the voting, the caller autoamtically votes yes
 	level.voteTime = level.time;
@@ -1579,6 +1649,7 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 	int             i, team, cs_offset;
 	char            arg1[MAX_STRING_TOKENS];
 	char            arg2[MAX_STRING_TOKENS];
+	char			niceString[MAX_STRING_CHARS];
 
 	team = ent->client->sess.sessionTeam;
 	if(team == TEAM_RED)
@@ -1660,6 +1731,19 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 			else
 			{
 				Q_strncpyz(leader, arg2, sizeof(leader));
+				for (i = 3; i < 10; i++)
+				{
+					trap_Argv(i, arg2, sizeof(arg2));
+					if(arg2[0])
+					{
+						Q_strcat(leader, sizeof(leader), " ");
+						Q_strcat(leader, sizeof(leader), arg2);
+					}
+					else
+					{
+						break;
+					}
+				}
 				Q_CleanStr(leader);
 				for(i = 0; i < level.maxclients; i++)
 				{
@@ -1671,12 +1755,13 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 					Q_CleanStr(netname);
 					if(!Q_stricmp(netname, leader))
 					{
+						Com_sprintf(niceString, sizeof(niceString), "kick %s" S_COLOR_WHITE, netname);
 						break;
 					}
 				}
 				if(i >= level.maxclients)
 				{
-					trap_SendServerCommand(ent - g_entities, va("print \"%s is not a valid player on your team.\n\"", arg2));
+					trap_SendServerCommand(ent-g_entities, va("print \"%s is not a valid player on your team\n\"", leader));
 					return;
 				}
 			}
@@ -1690,14 +1775,14 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 		return;
 	}
 
-	Com_sprintf(level.teamVoteString[cs_offset], sizeof(level.teamVoteString[cs_offset]), "%s %s", arg1, arg2);
+	Com_sprintf(level.teamVoteString[cs_offset], sizeof(level.teamVoteString[cs_offset]), "clientkick \"%d\"", i);
 
 	for(i = 0; i < level.maxclients; i++)
 	{
 		if(level.clients[i].pers.connected == CON_DISCONNECTED)
 			continue;
 		if(level.clients[i].sess.sessionTeam == team)
-			trap_SendServerCommand(i, va("print \"%s called a team vote.\n\"", ent->client->pers.netname));
+			trap_SendServerCommand(i, va("print \"%s" S_COLOR_WHITE " called a team vote\n\"", ent->client->pers.netname));
 	}
 
 	// start the voting, the caller autoamtically votes yes
@@ -1713,7 +1798,7 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 	ent->client->ps.eFlags |= EF_TEAMVOTED;
 
 	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, va("%i", level.teamVoteTime[cs_offset]));
-	trap_SetConfigstring(CS_TEAMVOTE_STRING + cs_offset, level.teamVoteString[cs_offset]);
+	trap_SetConfigstring(CS_TEAMVOTE_STRING + cs_offset, niceString);
 	trap_SetConfigstring(CS_TEAMVOTE_YES + cs_offset, va("%i", level.teamVoteYes[cs_offset]));
 	trap_SetConfigstring(CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset]));
 }
