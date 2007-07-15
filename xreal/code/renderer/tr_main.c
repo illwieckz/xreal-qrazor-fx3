@@ -1859,8 +1859,8 @@ void R_AddLightInteractions()
 {
 	int             i, j;
 	trRefLight_t   *light;
-	mnode_t       **leafs;
-	mnode_t        *leaf;
+	bspNode_t       **leafs;
+	bspNode_t        *leaf;
 
 	for(i = 0; i < tr.refdef.numLights; i++)
 	{

@@ -229,7 +229,7 @@ static shader_t *ShaderForShaderNum(int shaderNum)
 ParseFace
 ===============
 */
-static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, int *indexes)
+static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, int *indexes)
 {
 	int             i, j;
 	srfSurfaceFace_t *cv;
@@ -365,7 +365,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, in
 ParseMesh
 ===============
 */
-static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
+static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 {
 	srfGridMesh_t  *grid;
 	int             i, j;
@@ -434,7 +434,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, msurface_t * surf)
 ParseTriSurf
 ===============
 */
-static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, int *indexes)
+static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, int *indexes)
 {
 	srfTriangles_t *cv;
 	srfTriangle_t  *tri;
@@ -578,7 +578,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, msurface_t * surf,
 ParseFlare
 ===============
 */
-static void ParseFlare(dsurface_t * ds, drawVert_t * verts, msurface_t * surf, int *indexes)
+static void ParseFlare(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, int *indexes)
 {
 	srfFlare_t     *flare;
 	int             i;
@@ -1438,10 +1438,10 @@ void R_MovePatchSurfacesToHunk(void)
 
 /*
 ===============
-R_CreateVBOs
+R_CreateWorldVBOs
 ===============
 */
-static void R_CreateVBOs()
+static void R_CreateWorldVBOs()
 {
 	int             i, j, k;
 
@@ -1455,7 +1455,7 @@ static void R_CreateVBOs()
 	int             indexesSize;
 	int             indexesOfs;
 
-	msurface_t     *surface;
+	bspSurface_t     *surface;
 	vec4_t          tmp;
 
 
@@ -1871,7 +1871,7 @@ R_LoadSurfaces
 static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 {
 	dsurface_t     *in;
-	msurface_t     *out;
+	bspSurface_t     *out;
 	drawVert_t     *dv;
 	int            *indexes;
 	int             count;
@@ -1942,7 +1942,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 		R_MovePatchSurfacesToHunk();
 	}
 
-	R_CreateVBOs();
+	R_CreateWorldVBOs();
 }
 
 
@@ -1955,7 +1955,7 @@ R_LoadSubmodels
 static void R_LoadSubmodels(lump_t * l)
 {
 	dmodel_t       *in;
-	bmodel_t       *out;
+	bspModel_t       *out;
 	int             i, j, count;
 
 	ri.Printf(PRINT_ALL, "...loading submodels\n");
@@ -1999,7 +1999,7 @@ static void R_LoadSubmodels(lump_t * l)
 R_SetParent
 =================
 */
-static void R_SetParent(mnode_t * node, mnode_t * parent)
+static void R_SetParent(bspNode_t * node, bspNode_t * parent)
 {
 	node->parent = parent;
 	if(node->contents != -1)
@@ -2018,7 +2018,7 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	int             i, j, p;
 	dnode_t        *in;
 	dleaf_t        *inLeaf;
-	mnode_t        *out;
+	bspNode_t        *out;
 	int             numNodes, numLeafs;
 
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
@@ -2129,7 +2129,7 @@ static void R_LoadMarksurfaces(lump_t * l)
 {
 	int             i, j, count;
 	int            *in;
-	msurface_t    **out;
+	bspSurface_t    **out;
 
 	ri.Printf(PRINT_ALL, "...loading mark surfaces\n");
 
@@ -2671,7 +2671,7 @@ qboolean R_GetEntityToken(char *buffer, int size)
 R_PrecacheInteraction
 =================
 */
-static void R_PrecacheInteraction(trRefLight_t * light, msurface_t * surface)
+static void R_PrecacheInteraction(trRefLight_t * light, bspSurface_t * surface)
 {
 	interactionCache_t *iaCache;
 
@@ -2824,7 +2824,7 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 	int             numShadowPlanes;
 	const srfTriangle_t *tri;
 	vec3_t          pos[3];
-	vec3_t          lightDir;
+//	vec3_t          lightDir;
 	vec4_t          plane;
 
 	if(r_noShadowFrustums->integer)
@@ -2970,7 +2970,7 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 
 	for(i = 0; i < numShadowPlanes; i++)
 	{
-		vec_t           length, ilength;
+		//vec_t           length, ilength;
 
 		shadowPlanes[i].type = PLANE_NON_AXIAL;
 		/*
@@ -3191,7 +3191,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 R_PrecacheInteractionSurface
 ======================
 */
-static void R_PrecacheInteractionSurface(msurface_t * surf, trRefLight_t * light)
+static void R_PrecacheInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 {
 	qboolean        intersects;
 
@@ -3237,7 +3237,7 @@ static void R_PrecacheInteractionSurface(msurface_t * surf, trRefLight_t * light
 R_RecursivePrecacheInteractionNode
 ================
 */
-static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefLight_t * light)
+static void R_RecursivePrecacheInteractionNode(bspNode_t * node, trRefLight_t * light)
 {
 	int             r;
 
@@ -3252,7 +3252,7 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefLight_t * li
 	{
 		// leaf node, so add mark surfaces
 		int             c;
-		msurface_t     *surf, **mark;
+		bspSurface_t     *surf, **mark;
 
 		// add the individual surfaces
 		mark = node->firstmarksurface;
@@ -3297,7 +3297,7 @@ static void R_RecursivePrecacheInteractionNode(mnode_t * node, trRefLight_t * li
 R_RecursiveAddInteractionNode
 ================
 */
-static void R_RecursiveAddInteractionNode(mnode_t * node, trRefLight_t * light, int *numLeafs, qboolean onlyCount)
+static void R_RecursiveAddInteractionNode(bspNode_t * node, trRefLight_t * light, int *numLeafs, qboolean onlyCount)
 {
 	int             r;
 
@@ -3397,7 +3397,7 @@ R_KillRedundantInteractions
 static void R_KillRedundantInteractions(trRefLight_t * light)
 {
 	interactionCache_t *iaCache, *iaCache2;
-	msurface_t     *surface;
+	bspSurface_t     *surface;
 	vec3_t          localBounds[2];
 
 	if(r_shadows->integer <= 2)
@@ -3487,6 +3487,283 @@ static void R_KillRedundantInteractions(trRefLight_t * light)
 }
 
 /*
+===============
+R_CreateVBOShadowVolume
+Go through all static interactions of this light and create a new VBO shadow volume surface,
+so we can render all static shadows of this light using a single glDrawElements call
+without any renderer backend batching
+===============
+*/
+static void R_CreateVBOShadowVolume(trRefLight_t * light)
+{
+	int             i, j;//, k;
+
+	int             vertexesNum;
+	byte           *data;
+	int             dataSize;
+	int             dataOfs;
+
+	int             indexesNum;
+	byte           *indexes;
+	int             indexesSize;
+	int             indexesOfs;
+
+	interactionCache_t *iaCache;
+	bspSurface_t     *surface;
+	vec4_t          tmp;
+	int				index;
+
+	srfVBOShadowVolume_t *shadowSurf;
+
+	if(r_shadows->integer <= 2)
+		return;
+
+	if(!glConfig.vertexBufferObjectAvailable)
+		return;
+
+	if(!r_vboShadows->integer)
+		return;
+
+	if(!light->firstInteractionCache)
+	{
+		// this light has no interactions precached
+		return;
+	}
+
+	if(light->l.noShadows)
+	{
+		// actually noShadows lights are quite bad concerning this optimization
+		return;
+	}
+
+	// count vertices and indices
+	vertexesNum = 0;
+	indexesNum = 0;
+
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		if(iaCache->redundant)
+			continue;
+
+		surface = iaCache->surface;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		if(!iaCache->numShadowIndexes)
+			continue;
+
+		indexesNum += iaCache->numShadowIndexes;
+
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
+
+			if(face->numVerts)
+				vertexesNum += face->numVerts * 2;
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
+
+			if(grid->numVerts)
+				vertexesNum += grid->numVerts * 2;
+		}
+		else if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t *tri = (srfTriangles_t *) surface->data;
+
+			if(tri->numVerts)
+				vertexesNum += tri->numVerts * 2;
+		}
+	}
+
+	if(!vertexesNum || !indexesNum)
+		return;
+
+	//ri.Printf(PRINT_ALL, "...calculating world VBOs %i verts %i tris\n", vertexesNum, indexesNum / 3);
+
+	// create surface
+	shadowSurf = ri.Hunk_Alloc(sizeof(*shadowSurf), h_low);
+	shadowSurf->surfaceType = SF_VBO_SHADOW_VOLUME;
+	shadowSurf->numIndexes = indexesNum;
+	shadowSurf->numVerts = vertexesNum;
+
+	// create VBOs
+	qglGenBuffersARB(1, &shadowSurf->vertsVBO);
+	qglGenBuffersARB(1, &shadowSurf->indexesVBO);
+
+	dataSize = vertexesNum * (sizeof(vec4_t) * 2);
+	data = ri.Hunk_AllocateTempMemory(dataSize);
+	dataOfs = 0;
+	vertexesNum = 0;
+
+	indexesSize = indexesNum * sizeof(int);
+	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+	indexesOfs = 0;
+	indexesNum = 0;
+
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		if(iaCache->redundant)
+			continue;
+
+		surface = iaCache->surface;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		if(!iaCache->numShadowIndexes)
+			continue;
+
+		// set the interaction to lightonly because we will render the shadows
+		// using the new srfVBOShadowVolume
+		iaCache->type = IA_LIGHTONLY;
+
+		// set up triangle indices
+		for(i = 0; i < iaCache->numShadowIndexes; i++)
+		{
+			index = vertexesNum + iaCache->shadowIndexes[i];
+
+			memcpy(indexes + indexesOfs, &index, sizeof(int));
+			indexesOfs += sizeof(int);
+		}
+		indexesNum += iaCache->numShadowIndexes;
+
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+			if(cv->numVerts)
+			{
+				// set up xyz array
+				for(i = 0; i < cv->numVerts; i++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						tmp[j] = cv->verts[i].xyz[j];
+					}
+					tmp[3] = 1;
+
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
+				}
+
+				for(i = 0; i < cv->numVerts; i++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						tmp[j] = cv->verts[i].xyz[j];
+					}
+					tmp[3] = 0;
+
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
+				}
+
+				vertexesNum += cv->numVerts * 2;
+			}
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+			if(cv->numVerts)
+			{
+				// set up xyz array
+				for(i = 0; i < cv->numVerts; i++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						tmp[j] = cv->verts[i].xyz[j];
+					}
+					tmp[3] = 1;
+
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
+				}
+
+				for(i = 0; i < cv->numVerts; i++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						tmp[j] = cv->verts[i].xyz[j];
+					}
+					tmp[3] = 0;
+
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
+				}
+
+				vertexesNum += cv->numVerts * 2;
+			}
+		}
+		else if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+			if(cv->numVerts)
+			{
+				// set up xyz array
+				for(i = 0; i < cv->numVerts; i++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						tmp[j] = cv->verts[i].xyz[j];
+					}
+					tmp[3] = 1;
+
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
+				}
+
+				for(i = 0; i < cv->numVerts; i++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						tmp[j] = cv->verts[i].xyz[j];
+					}
+					tmp[3] = 0;
+
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
+				}
+
+				vertexesNum += cv->numVerts * 2;
+			}
+		}
+	}
+
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, shadowSurf->vertsVBO);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, shadowSurf->indexesVBO);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+	ri.Hunk_FreeTempMemory(indexes);
+	ri.Hunk_FreeTempMemory(data);
+
+	light->vboShadowVolume = (struct srfVBOShadowVolume_s *) shadowSurf;
+
+#if 0
+	// megs
+	ri.Printf(PRINT_ALL, "shadow volume data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+			  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+	ri.Printf(PRINT_ALL, "shadow volume tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+			  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+#endif
+}
+
+/*
 =============
 R_PrecacheInteractions
 =============
@@ -3497,7 +3774,7 @@ void R_PrecacheInteractions()
 	trRefLight_t   *light;
 	int             numLeafs;
 	interactionCache_t *iaCache;
-	msurface_t     *surface;
+	bspSurface_t     *surface;
 	vec3_t          localBounds[2];
 	int             startTime, endTime;
 
@@ -3558,7 +3835,7 @@ void R_PrecacheInteractions()
 		//ri.Printf(PRINT_ALL, "light %i touched %i leaves\n", i, numLeafs);
 
 		// create storage room for them
-		light->leafs = (struct mnode_s **)ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
+		light->leafs = (struct bspNode_s **)ri.Hunk_Alloc(numLeafs * sizeof(*light->leafs), h_low);
 		light->numLeafs = numLeafs;
 
 		// fill storage with them
@@ -3568,6 +3845,9 @@ void R_PrecacheInteractions()
 
 		// check if interactions are inside shadows of other interactions
 		R_KillRedundantInteractions(light);
+
+		// create a static VBO surface of all shadow volumes
+		R_CreateVBOShadowVolume(light);
 
 		// calculate pyramid bits for each interaction in omni-directional lights
 		if(light->l.rlType == RL_OMNI)

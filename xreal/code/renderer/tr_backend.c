@@ -1539,22 +1539,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 			{
 				goto skipInteraction;
 			}
-		}
-		else
-		{
-			if(!shader->interactLight)
-			{
-				goto skipInteraction;
-			}
 
-			if(ia->type == IA_SHADOWONLY)
-			{
-				goto skipInteraction;
-			}
-		}
-
-		if(drawShadows)
-		{
 			if(light == oldLight && entity == oldEntity)
 			{
 				if(r_logFile->integer)
@@ -1589,6 +1574,16 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 		}
 		else
 		{
+			if(!shader->interactLight)
+			{
+				goto skipInteraction;
+			}
+
+			if(ia->type == IA_SHADOWONLY)
+			{
+				goto skipInteraction;
+			}
+
 			if(light == oldLight && entity == oldEntity && shader == oldShader)
 			{
 				if(r_logFile->integer)

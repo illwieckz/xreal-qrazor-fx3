@@ -353,11 +353,6 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		else
 			iaType = IA_SHADOWONLY;
 	}
-	else
-	{
-		if(r_shadows->integer <= 2)
-			iaType = IA_LIGHTONLY;
-	}
 
 	// avoid drawing of certain objects
 	if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))

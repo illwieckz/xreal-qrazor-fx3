@@ -147,12 +147,12 @@ R_BoxSurfaces_r
 
 =================
 */
-void R_BoxSurfaces_r(mnode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t ** list, int listsize,
+void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t ** list, int listsize,
 					 int *listlength, vec3_t dir)
 {
 
 	int             s, c;
-	msurface_t     *surf, **mark;
+	bspSurface_t     *surf, **mark;
 
 	// do the tail recursion in a loop
 	while(node->contents == -1)

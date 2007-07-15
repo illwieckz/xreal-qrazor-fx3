@@ -193,6 +193,7 @@ cvar_t         *r_showDeferredPosition;
 cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
 cvar_t         *r_vboTriangles;
+cvar_t         *r_vboShadows;
 
 cvar_t         *r_precacheLightIndexes;
 cvar_t         *r_precacheShadowIndexes;
@@ -1332,7 +1333,7 @@ void R_Register(void)
 	r_ext_gamma_control = ri.Cvar_Get("r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1411,9 +1412,10 @@ void R_Register(void)
 	r_directedScale = ri.Cvar_Get("r_directedScale", "1", CVAR_CHEAT);
 	r_lightScale = ri.Cvar_Get("r_lightScale", "2", CVAR_CHEAT);
 
-	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_ARCHIVE);
-	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_ARCHIVE);
+	r_vboFaces = ri.Cvar_Get("r_vboFaces", "0", CVAR_CHEAT);
+	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_CHEAT);
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_ARCHIVE);
+	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 	

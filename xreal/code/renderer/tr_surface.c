@@ -2147,6 +2147,42 @@ static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes
 	qglCallList(surf->listNum);
 }
 
+/*
+==============
+Tess_SurfaceVBOShadowVolume
+==============
+*/
+static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+{
+	GLimp_LogComment("--- Tess_SurfaceVBOShadowVolume ---\n");
+
+	if(!glConfig.vertexBufferObjectAvailable || !cv->indexesVBO || !cv->vertsVBO || !r_vboShadows->integer)
+	{
+		return;
+	}
+
+	Tess_EndBegin();
+
+	tess.indexesVBO = cv->indexesVBO;
+	tess.ofsIndexes = 0;
+	tess.numIndexes += cv->numIndexes;
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
+
+	tess.vertexesVBO = cv->vertsVBO;
+	tess.ofsXYZ = 0;
+	tess.ofsTexCoords = 0;
+	tess.ofsTangents = 0;
+	tess.ofsBinormals = 0;
+	tess.ofsNormals = 0;
+	tess.ofsColors = 0;
+	tess.numVertexes += cv->numVerts;
+
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
+
+	Tess_End();
+}
+
 static void Tess_SurfaceSkip(void *surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
 }
@@ -2165,5 +2201,6 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceMD5,	// SF_MD5,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceEntity,	// SF_ENTITY
-		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDisplayList	// SF_DISPLAY_LIST
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDisplayList,	// SF_DISPLAY_LIST
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOShadowVolume	// SF_VBO_SHADOW_VOLUME
 };

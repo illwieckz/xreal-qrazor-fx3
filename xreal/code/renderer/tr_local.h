@@ -152,8 +152,10 @@ typedef struct trRefLight_s
 	qboolean        noSort;		// don't sort interactions by material
 
 	int             visCount;	// node needs to be traversed if current
-	struct mnode_s **leafs;
+	struct bspNode_s **leafs;
 	int             numLeafs;
+
+	struct srfVBOShadowVolume_s * vboShadowVolume;	// only if cg_shadows 3
 } trRefLight_t;
 
 
@@ -939,6 +941,7 @@ typedef enum
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
+	SF_VBO_SHADOW_VOLUME,
 
 	SF_NUM_SURFACE_TYPES,
 	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
@@ -962,7 +965,9 @@ typedef enum
 // an interactionCache is a node between a light and a precached world surface
 typedef struct interactionCache_s
 {
-	struct msurface_s *surface;
+	interactionType_t type;
+
+	struct bspSurface_s *surface;
 
 	int             numLightIndexes;
 	int            *lightIndexes;	// precached triangle indices facing light
@@ -1161,6 +1166,19 @@ typedef struct
 } srfTriangles_t;
 
 
+typedef struct
+{
+	surfaceType_t   surfaceType;
+
+	// triangle definitions
+	int             numIndexes;
+	GLuint          indexesVBO;
+
+	int             numVerts;
+	GLuint          vertsVBO;
+} srfVBOShadowVolume_t;
+
+
 extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
 														  int *shadowIndexes);
 
@@ -1169,44 +1187,44 @@ extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 BRUSH MODELS - in memory representation
 ==============================================================================
 */
-typedef struct msurface_s
+typedef struct bspSurface_s
 {
 	int             viewCount;	// if == tr.viewCount, already added
 	int             lightCount;
 	struct shader_s *shader;
 
 	surfaceType_t  *data;		// any of srf*_t
-} msurface_t;
+} bspSurface_t;
 
 
 #define	CONTENTS_NODE		-1
-typedef struct mnode_s
+typedef struct bspNode_s
 {
 	// common with leaf and node
 	int             contents;	// -1 for nodes, to differentiate from leafs
 	int             visCount;	// node needs to be traversed if current
 	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
-	struct mnode_s *parent;
+	struct bspNode_s *parent;
 
 	// node specific
 	cplane_t       *plane;
-	struct mnode_s *children[2];
+	struct bspNode_s *children[2];
 
 	// leaf specific
 	int             cluster;
 	int             area;
 
-	msurface_t    **firstmarksurface;
+	bspSurface_t    **firstmarksurface;
 	int             nummarksurfaces;
-} mnode_t;
+} bspNode_t;
 
 typedef struct
 {
 	vec3_t          bounds[2];	// for culling
-	msurface_t     *firstSurface;
+	bspSurface_t     *firstSurface;
 	int             numSurfaces;
-} bmodel_t;
+} bspModel_t;
 
 typedef struct
 {
@@ -1218,20 +1236,20 @@ typedef struct
 	int             numShaders;
 	dshader_t      *shaders;
 
-	bmodel_t       *bmodels;
+	bspModel_t       *bmodels;
 
 	int             numplanes;
 	cplane_t       *planes;
 
 	int             numnodes;	// includes leafs
 	int             numDecisionNodes;
-	mnode_t        *nodes;
+	bspNode_t        *nodes;
 
 	int             numsurfaces;
-	msurface_t     *surfaces;
+	bspSurface_t     *surfaces;
 
 	int             nummarksurfaces;
-	msurface_t    **marksurfaces;
+	bspSurface_t    **marksurfaces;
 
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
@@ -1469,7 +1487,7 @@ typedef struct model_s
 	int             index;		// model = tr.models[model->index]
 
 	int             dataSize;	// just for listing purposes
-	bmodel_t       *bmodel;		// only if type == MOD_BRUSH
+	bspModel_t       *bmodel;		// only if type == MOD_BRUSH
 	mdxModel_t     *mdx[MD3_MAX_LODS];	// only if type == MOD_MD3
 	md5Model_t     *md5;		// only if type == MOD_MD5
 
@@ -1967,6 +1985,7 @@ extern cvar_t  *r_showDeferredPosition;
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;
+extern cvar_t  *r_vboShadows;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;

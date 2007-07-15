@@ -33,10 +33,9 @@ Determine which dynamic lights may effect this bmodel
 */
 void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 {
-#if 1
 	int             i;
-	msurface_t     *surf;
-	bmodel_t       *bModel = NULL;
+	bspSurface_t     *surf;
+	bspModel_t       *bModel = NULL;
 	model_t        *pModel = NULL;
 	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
@@ -49,11 +48,6 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			return;
 		else
 			iaType = IA_SHADOWONLY;
-	}
-	else
-	{
-		if(r_shadows->integer <= 2)
-			iaType = IA_LIGHTONLY;
 	}
 
 	// avoid drawing of certain objects
@@ -111,7 +105,6 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
 		tr.pc.c_dlightSurfaces++;
 	}
-#endif
 }
 
 
