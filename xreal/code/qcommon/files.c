@@ -1194,7 +1194,7 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 					l = strlen(filename);
 					if(!(pak->referenced & FS_GENERAL_REF))
 					{
-						if(Q_stricmp(filename + l - 7, ".mtr") != 0 &&
+						if(Q_stricmp(filename + l - 4, ".mtr") != 0 &&
 						   Q_stricmp(filename + l - 4, ".txt") != 0 &&
 						   Q_stricmp(filename + l - 4, ".cfg") != 0 &&
 						   Q_stricmp(filename + l - 7, ".config") != 0 &&
