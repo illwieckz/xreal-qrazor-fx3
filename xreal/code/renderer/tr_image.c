@@ -202,23 +202,23 @@ void R_ImageList_f(void)
 	int             i;
 	image_t        *image;
 	int             texels;
-	int				dataSize;
+	int             dataSize;
 	const char     *yesno[] = {
 		"no ", "yes"
 	};
 
 	ri.Printf(PRINT_ALL, "\n      -w-- -h-- -mm- -type- -if-- wrap --name-------\n");
-	
+
 	texels = 0;
 	dataSize = 0;
-	
+
 	for(i = 0; i < tr.numImages; i++)
 	{
 		image = tr.images[i];
 
 		texels += image->uploadWidth * image->uploadHeight;
 		dataSize += image->uploadWidth * image->uploadHeight * 4;
-		
+
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
 				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
 
@@ -273,7 +273,7 @@ void R_ImageList_f(void)
 			case GL_RGB5:
 				ri.Printf(PRINT_ALL, "RGB5 ");
 				break;
-				
+
 			case GL_DEPTH_COMPONENT16_ARB:
 			case GL_DEPTH_COMPONENT24_ARB:
 			case GL_DEPTH_COMPONENT32_ARB:
@@ -750,7 +750,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			*out++ = (byte) (128 + 127 * n[2]);
 
 			// put in no height as displacement map by default
-			*out++ = (byte) 0; //(Q_bound(0, c * 255.0 / 3.0, 255));
+			*out++ = (byte) 0;	//(Q_bound(0, c * 255.0 / 3.0, 255));
 		}
 	}
 }
@@ -1003,9 +1003,9 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		for(scaledWidth = 1; scaledWidth < image->width; scaledWidth <<= 1)
 			;
 		for(scaledHeight = 1; scaledHeight < image->height; scaledHeight <<= 1)
-			;	
+			;
 	}
-	
+
 	if(r_roundImagesDown->integer && scaledWidth > image->width)
 		scaledWidth >>= 1;
 	if(r_roundImagesDown->integer && scaledHeight > image->height)
@@ -1067,7 +1067,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	c = scaledWidth * scaledHeight;
 	scan = data;
 	samples = 3;
-	
+
 	if(glConfig.textureFloatAvailable && (image->bits & (IF_RGBA16F | IF_ALPHA32F | IF_RGBA32F)))
 	{
 		if(image->bits & IF_RGBA16F)
@@ -1171,7 +1171,8 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 		else
 		{
-			ResampleTexture((unsigned *)data, image->width, image->height, (unsigned *)scaledBuffer, scaledWidth, scaledHeight, (image->bits & IF_NORMALMAP));
+			ResampleTexture((unsigned *)data, image->width, image->height, (unsigned *)scaledBuffer, scaledWidth, scaledHeight,
+							(image->bits & IF_NORMALMAP));
 		}
 
 		if(!(image->bits & (IF_NORMALMAP | IF_RGBA32F)))
@@ -1186,15 +1187,16 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable)
 		{
 			// raynorpat: if hardware mipmap generation is available, use it
-			qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST); // make sure its nice
+			qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
 			qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-			qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // default to trilinear
+			qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
 		}
 
 		switch (image->type)
 		{
 			case GL_TEXTURE_CUBE_MAP_ARB:
-				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE,
+							  scaledBuffer);
 				break;
 
 			default:
@@ -1239,18 +1241,20 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 					switch (image->type)
 					{
 						case GL_TEXTURE_CUBE_MAP_ARB:
-							qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+							qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE,
+										  scaledBuffer);
 							break;
 
 						default:
-							qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+							qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE,
+										  scaledBuffer);
 							break;
 					}
 				}
 			}
 		}
 	}
-	
+
 	// set filter type
 	switch (image->filterType)
 	{
@@ -2599,8 +2603,8 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 {
 	int             bit_depth;
 	int             color_type;
-	png_uint_32		w;
-	png_uint_32		h;
+	png_uint_32     w;
+	png_uint_32     h;
 	unsigned int    row;
 	size_t          rowbytes;
 	png_infop       info;
@@ -2646,21 +2650,21 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 		// if we get here, we had a problem reading the file
 		ri.Printf(PRINT_WARNING, "LoadPNG: first exception handler called for (%s)\n", name);
 		ri.FS_FreeFile(data);
-		png_destroy_read_struct(&png, (png_infopp) &info, (png_infopp) NULL);
+		png_destroy_read_struct(&png, (png_infopp) & info, (png_infopp) NULL);
 		return;
 	}
 
 	//png_set_write_fn(png, buffer, png_write_data, png_flush_data);
 	png_set_read_fn(png, data, png_read_data);
-	
+
 	png_set_sig_bytes(png, 0);
 
 	// The call to png_read_info() gives us all of the information from the
-    // PNG file before the first IDAT (image data chunk).  REQUIRED
+	// PNG file before the first IDAT (image data chunk).  REQUIRED
 	png_read_info(png, info);
 
 	// get picture info
-	png_get_IHDR(png, info, (png_uint_32 *)&w, (png_uint_32 *)&h, &bit_depth, &color_type, NULL, NULL, NULL);
+	png_get_IHDR(png, info, (png_uint_32 *) & w, (png_uint_32 *) & h, &bit_depth, &color_type, NULL, NULL, NULL);
 
 	// tell libpng to strip 16 bit/color files down to 8 bits/color
 	png_set_strip_16(png);
@@ -2672,11 +2676,11 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 	// expand gray-scaled images to RGB triplets
 	if(!(color_type & PNG_COLOR_MASK_COLOR))
 		png_set_gray_to_rgb(png);
-		
+
 	// expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel
 	//if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-	//	png_set_gray_1_2_4_to_8(png);
-		
+	//  png_set_gray_1_2_4_to_8(png);
+
 	// expand paletted or RGB images with transparency to full alpha channels
 	// so the data will be available as RGBA quartets
 	if(png_get_valid(png, info, PNG_INFO_tRNS))
@@ -2697,7 +2701,7 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 	*width = w;
 	*height = h;
 	*pic = out = (byte *) ri.Malloc(w * h * 4);
-	
+
 	row_pointers = (png_bytep *) ri.Hunk_AllocateTempMemory(sizeof(png_bytep) * h);
 
 	// set a new exception handler
@@ -2706,14 +2710,14 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 		ri.Printf(PRINT_WARNING, "LoadPNG: second exception handler called for (%s)\n", name);
 		ri.Hunk_FreeTempMemory(row_pointers);
 		ri.FS_FreeFile(data);
-		png_destroy_read_struct(&png, (png_infopp) &info, (png_infopp) NULL);
+		png_destroy_read_struct(&png, (png_infopp) & info, (png_infopp) NULL);
 		return;
 	}
 
 	rowbytes = png_get_rowbytes(png, info);
 
 	for(row = 0; row < h; row++)
-		row_pointers[row] = (png_bytep)(out + (row * 4 * w));
+		row_pointers[row] = (png_bytep) (out + (row * 4 * w));
 
 	// read image data
 	png_read_image(png, row_pointers);
@@ -4139,7 +4143,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		if(!Q_stricmp(filename + len - 4, ".tga"))
 		{
 			LoadTGA(filename, pic, width, height, alphaByte);	// try tga first
-			
+
 			if(!*pic)
 			{
 				char            altname[MAX_QPATH];	// try png in place of tga 
@@ -4151,7 +4155,7 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 				altname[len - 1] = 'g';
 				LoadPNG(altname, pic, width, height, alphaByte);
 			}
-			
+
 			if(!*pic)
 			{
 				char            altname[MAX_QPATH];	// try jpg in place of tga
@@ -4418,7 +4422,7 @@ static void R_CreateContrastRenderImage(void)
 {
 	int             width, height;
 	byte           *data;
-	
+
 	if(glConfig.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
@@ -4432,8 +4436,7 @@ static void R_CreateContrastRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.contrastRenderImage =
-		R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4442,7 +4445,7 @@ static void R_CreateCurrentRenderImage(void)
 {
 	int             width, height;
 	byte           *data;
-	
+
 	if(glConfig.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
@@ -4465,7 +4468,7 @@ static void R_CreatePortalRenderImage(void)
 {
 	int             width, height;
 	byte           *data;
-	
+
 	if(glConfig.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
@@ -4488,10 +4491,10 @@ static void R_CreateDeferredRenderFBOImages(void)
 {
 	int             width, height;
 	byte           *data;
-	
+
 	if(!r_deferredShading->integer)
 		return;
-	
+
 	if(glConfig.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
@@ -4504,11 +4507,15 @@ static void R_CreateDeferredRenderFBOImages(void)
 	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	
-	tr.deferredDiffuseFBOImage = R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
-	tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
-	tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
-	tr.deferredPositionFBOImage = R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+
+	tr.deferredDiffuseFBOImage =
+		R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredNormalFBOImage =
+		R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredSpecularFBOImage =
+		R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	tr.deferredPositionFBOImage =
+		R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
 	tr.deferredLightingFBOImage = R_CreateImage("_deferredLightingFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	ri.Hunk_FreeTempMemory(data);
@@ -4519,17 +4526,19 @@ static void R_CreateShadowMapFBOImage(void)
 	int             i;
 	int             width, height;
 	byte           *data;
-	
+
 	for(i = 0; i < 3; i++)
 	{
 		width = height = shadowMapResolutions[i];
-		
+
 		data = ri.Hunk_AllocateTempMemory(width * height * 4);
-		
+
 		if(glConfig.textureFloatAvailable)
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+			tr.shadowMapFBOImage[i] =
+				R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
 		else
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+			tr.shadowMapFBOImage[i] =
+				R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 		ri.Hunk_FreeTempMemory(data);
 	}
@@ -4540,20 +4549,24 @@ static void R_CreateShadowCubeFBOImage(void)
 	int             i, j;
 	int             width, height;
 	byte           *data[6];
-	
+
 	for(j = 0; j < 3; j++)
 	{
 		width = height = shadowMapResolutions[j];
-		
+
 		for(i = 0; i < 6; i++)
 		{
 			data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
 		}
 
 		if(glConfig.textureFloatAvailable)
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] =
+				R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16F,
+								  FT_LINEAR, WT_EDGE_CLAMP);
 		else
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] =
+				R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP, FT_NEAREST,
+								  WT_EDGE_CLAMP);
 
 		for(i = 5; i >= 0; i--)
 		{

@@ -74,7 +74,9 @@ void Tess_CheckOverflow(int verts, int indexes)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- Tess_CheckOverflow(%i + %i vertices, %i + %i triangles ) ---\n", tess.numVertexes, verts, (tess.numIndexes / 3), indexes));
+		GLimp_LogComment(va
+						 ("--- Tess_CheckOverflow(%i + %i vertices, %i + %i triangles ) ---\n", tess.numVertexes, verts,
+						  (tess.numIndexes / 3), indexes));
 	}
 
 	Tess_End();
@@ -101,7 +103,7 @@ void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, f
 {
 	vec3_t          normal;
 	int             ndx;
-	
+
 	GLimp_LogComment("--- Tess_AddQuadStampExt ---\n");
 
 	Tess_CheckOverflow(4, 6);
@@ -196,7 +198,7 @@ static void Tess_SurfaceSprite(void)
 {
 	vec3_t          left, up;
 	float           radius;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceSprite ---\n");
 
 	// calculate the xyz locations for the four corners
@@ -239,7 +241,7 @@ static void Tess_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *light
 {
 	int             i;
 	int             numv;
-	
+
 	GLimp_LogComment("--- Tess_SurfacePolychain ---\n");
 
 	if(tess.shadowVolume)
@@ -281,7 +283,8 @@ static void Tess_SurfacePolychain(srfPoly_t * p, int numLightIndexes, int *light
 Tess_SurfaceFace
 ==============
 */
-static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+							 int *shadowIndexes)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -290,13 +293,13 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceFace ---\n");
 
 	if(tess.shadowVolume)
 	{
 		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-		
+
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
@@ -349,7 +352,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-	
+
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -366,7 +369,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-	
+
 					tess.numIndexes += 6;
 				}
 
@@ -375,7 +378,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-	
+
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
@@ -398,7 +401,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
-	
+
 					// dark cap
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -420,15 +423,15 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * cv, int numLightIndexes, int *li
 
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
-			#if 1
+#if 1
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
-			#else
+#else
 			xyz[0] = dv->xyz[0] - lightOrigin[0];
 			xyz[1] = dv->xyz[1] - lightOrigin[1];
 			xyz[2] = dv->xyz[2] - lightOrigin[2];
-			#endif
+#endif
 			xyz[3] = 0.0;
 		}
 
@@ -551,13 +554,13 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceGrid ---\n");
 
 	if(tess.shadowVolume)
 	{
 		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-		
+
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
@@ -610,7 +613,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-	
+
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -627,7 +630,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-	
+
 					tess.numIndexes += 6;
 				}
 
@@ -636,7 +639,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-	
+
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
@@ -659,7 +662,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
-	
+
 					// dark cap
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -681,15 +684,15 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
-			#if 1
+#if 1
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
-			#else
+#else
 			xyz[0] = dv->xyz[0] - lightOrigin[0];
 			xyz[1] = dv->xyz[1] - lightOrigin[1];
 			xyz[2] = dv->xyz[2] - lightOrigin[2];
-			#endif
+#endif
 			xyz[3] = 0.0;
 		}
 
@@ -803,7 +806,8 @@ static void Tess_SurfaceGrid(srfGridMesh_t * cv, int numLightIndexes, int *light
 Tess_SurfaceTriangles
 =============
 */
-static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+								  int *shadowIndexes)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -812,13 +816,13 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceTriangles ---\n");
 
 	if(tess.shadowVolume)
 	{
 		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
-		
+
 		if(numShadowIndexes)
 		{
 			// this case is always zfail with light and dark caps
@@ -871,7 +875,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
-	
+
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -888,7 +892,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-	
+
 					tess.numIndexes += 6;
 				}
 
@@ -897,7 +901,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[2];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
-	
+
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 5] = tess.numVertexes + tri->indexes[0] + cv->numVerts;
@@ -920,7 +924,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 					tess.indexes[tess.numIndexes + 0] = tess.numVertexes + tri->indexes[0];
 					tess.indexes[tess.numIndexes + 1] = tess.numVertexes + tri->indexes[1];
 					tess.indexes[tess.numIndexes + 2] = tess.numVertexes + tri->indexes[2];
-	
+
 					// dark cap
 					tess.indexes[tess.numIndexes + 3] = tess.numVertexes + tri->indexes[2] + cv->numVerts;
 					tess.indexes[tess.numIndexes + 4] = tess.numVertexes + tri->indexes[1] + cv->numVerts;
@@ -942,15 +946,15 @@ static void Tess_SurfaceTriangles(srfTriangles_t * cv, int numLightIndexes, int 
 
 		for(i = 0, dv = cv->verts, xyz = tess.xyz[tess.numVertexes + cv->numVerts]; i < cv->numVerts; i++, dv++, xyz += 4)
 		{
-			#if 1
+#if 1
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
-			#else
+#else
 			xyz[0] = dv->xyz[0] - lightOrigin[0];
 			xyz[1] = dv->xyz[1] - lightOrigin[1];
 			xyz[2] = dv->xyz[2] - lightOrigin[2];
-			#endif
+#endif
 			xyz[3] = 0.0;
 		}
 
@@ -1075,7 +1079,7 @@ static void Tess_SurfaceBeam(void)
 	vec3_t          direction, normalized_direction;
 	vec3_t          start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t          oldorigin, origin;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceBeam ---\n");
 
 	e = &backEnd.currentEntity->e;
@@ -1265,7 +1269,7 @@ static void Tess_SurfaceRailRings(void)
 	vec3_t          vec;
 	vec3_t          right, up;
 	vec3_t          start, end;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceRailRings ---\n");
 
 	e = &backEnd.currentEntity->e;
@@ -1301,7 +1305,7 @@ static void Tess_SurfaceRailCore(void)
 	vec3_t          vec;
 	vec3_t          start, end;
 	vec3_t          v1, v2;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceRailCore ---\n");
 
 	e = &backEnd.currentEntity->e;
@@ -1337,7 +1341,7 @@ static void Tess_SurfaceLightningBolt(void)
 	vec3_t          start, end;
 	vec3_t          v1, v2;
 	int             i;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceLightningBolt ---\n");
 
 	e = &backEnd.currentEntity->e;
@@ -1446,9 +1450,9 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 	vec3_t          lightOrigin;
 	float           backlerp;
 	float           oldXyzScale, newXyzScale;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceMDX ---\n");
-	
+
 	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
 	{
 		backlerp = 0;
@@ -1457,7 +1461,7 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 	{
 		backlerp = backEnd.currentEntity->e.backlerp;
 	}
-	
+
 	newXyzScale = MD3_XYZ_SCALE * (1.0 - backlerp);
 	oldXyzScale = MD3_XYZ_SCALE * backlerp;
 
@@ -1479,12 +1483,12 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 		// lerp vertices and extrude to infinity
 		newVert = srf->verts + (backEnd.currentEntity->e.frame * srf->numVerts);
 		oldVert = srf->verts + (backEnd.currentEntity->e.oldframe * srf->numVerts);
-		
+
 		numVertexes = srf->numVerts;
 		for(j = 0; j < numVertexes; j++, newVert++, oldVert++)
 		{
 			vec3_t          tmpVert;
-			
+
 			if(backlerp == 0)
 			{
 				// just copy
@@ -1504,18 +1508,18 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 			tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
 			tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
 			tess.xyz[tess.numVertexes + j][3] = 1;
-			
-			#if 1
+
+#if 1
 			tess.xyz[tess.numVertexes + numVertexes + j][0] = tmpVert[0];
 			tess.xyz[tess.numVertexes + numVertexes + j][1] = tmpVert[1];
 			tess.xyz[tess.numVertexes + numVertexes + j][2] = tmpVert[2];
 			tess.xyz[tess.numVertexes + numVertexes + j][3] = 0;
-			#else
+#else
 			tess.xyz[tess.numVertexes + numVertexes + j][0] = tmpVert[0] - lightOrigin[0];
 			tess.xyz[tess.numVertexes + numVertexes + j][1] = tmpVert[1] - lightOrigin[1];
 			tess.xyz[tess.numVertexes + numVertexes + j][2] = tmpVert[2] - lightOrigin[2];
 			tess.xyz[tess.numVertexes + numVertexes + j][3] = 0;
-			#endif
+#endif
 		}
 
 		// decide which triangles face the light
@@ -1638,12 +1642,12 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf, int numLightIndexes, int *lightI
 		newVert = srf->verts + (backEnd.currentEntity->e.frame * srf->numVerts);
 		oldVert = srf->verts + (backEnd.currentEntity->e.oldframe * srf->numVerts);
 		st = srf->st;
-		
+
 		numVertexes = srf->numVerts;
 		for(j = 0; j < numVertexes; j++, newVert++, oldVert++, st++)
 		{
 			vec3_t          tmpVert;
-			
+
 			if(backlerp == 0)
 			{
 				// just copy
@@ -1739,7 +1743,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 	vec3_t          offsetVec;
 	vec3_t          lightOrigin;
 	float          *xyzw, *xyzw2;
-	
+
 	GLimp_LogComment("--- Tess_SurfaceMD5 ---\n");
 
 	if(tess.shadowVolume)
@@ -1775,7 +1779,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
 					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
-				
+
 					offsetVec[0] *= backEnd.currentEntity->e.skeleton.scale[0];
 					offsetVec[1] *= backEnd.currentEntity->e.skeleton.scale[1];
 					offsetVec[2] *= backEnd.currentEntity->e.skeleton.scale[2];
@@ -1796,15 +1800,15 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 			xyzw[2] = tmpVert[2];
 			xyzw[3] = 1;
 
-			#if 1
+#if 1
 			xyzw2[0] = tmpVert[0];
 			xyzw2[1] = tmpVert[1];
 			xyzw2[2] = tmpVert[2];
-			#else
+#else
 			xyzw2[0] = tmpVert[0] - lightOrigin[0];
 			xyzw2[1] = tmpVert[1] - lightOrigin[1];
 			xyzw2[2] = tmpVert[2] - lightOrigin[2];
-			#endif
+#endif
 			xyzw2[3] = 0;
 		}
 
@@ -2038,7 +2042,7 @@ Draws x/y/z lines from the origin for orientation debugging
 static void Tess_SurfaceAxis(void)
 {
 	GLimp_LogComment("--- Tess_SurfaceAxis ---\n");
-	
+
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
@@ -2066,10 +2070,11 @@ Tess_SurfaceEntity
 Entities that have a single procedurally generated surface
 ====================
 */
-static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+							   int *shadowIndexes)
 {
 	GLimp_LogComment("--- Tess_SurfaceEntity ---\n");
-	
+
 	if(tess.shadowVolume)
 	{
 		return;
@@ -2099,19 +2104,20 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, in
 	return;
 }
 
-static void Tess_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceBad(surfaceType_t * surfType, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+							int *shadowIndexes)
 {
 	GLimp_LogComment("--- Tess_SurfaceBad ---\n");
-	
+
 	ri.Printf(PRINT_ALL, "Bad surface tesselated.\n");
 }
 
 static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
 {
-	vec3_t      dir;
-	vec3_t      origin;
-	float		d;
-	
+	vec3_t          dir;
+	vec3_t          origin;
+	float           d;
+
 	GLimp_LogComment("--- Tess_SurfaceFlare ---\n");
 
 	if(tess.shadowVolume)
@@ -2133,10 +2139,11 @@ static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *light
 
 
 
-static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+									int *shadowIndexes)
 {
 	GLimp_LogComment("--- Tess_SurfaceDisplayist ---\n");
-	
+
 	if(tess.shadowVolume)
 	{
 		return;
@@ -2152,7 +2159,8 @@ static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes
 Tess_SurfaceVBOShadowVolume
 ==============
 */
-static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * cv, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+										int *shadowIndexes)
 {
 	GLimp_LogComment("--- Tess_SurfaceVBOShadowVolume ---\n");
 

@@ -1826,7 +1826,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 	int             iaFirst;
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
-	qboolean		alphaTest, oldAlphaTest;
+	qboolean        alphaTest, oldAlphaTest;
 	vec3_t          tmp;
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
@@ -2695,7 +2695,7 @@ void RB_RenderInteractionsDeferred()
 				{
 					// build the attenuation matrix
 					MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+					MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 					MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 					MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 					break;
@@ -2927,7 +2927,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 	trRefLight_t   *light, *oldLight;
 	surfaceType_t  *surface;
 	qboolean        depthRange, oldDepthRange;
-	qboolean		alphaTest, oldAlphaTest;
+	qboolean        alphaTest, oldAlphaTest;
 	qboolean        drawShadows;
 	int             cubeSide;
 
@@ -3207,7 +3207,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				//qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-				//		   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+				//         backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// set light scissor to reduce fillrate
 				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
@@ -3218,18 +3218,19 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 				qglMatrixMode(GL_MODELVIEW);
 
 				qglLoadMatrixf(backEnd.or.modelViewMatrix);
-				
+
 				switch (light->l.rlType)
 				{
 					case RL_OMNI:
 					{
 						// reset light view and projection matrices
 						MatrixAffineInverse(light->transformMatrix, light->viewMatrix);
-						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1], 1.0 / light->l.radius[2]);
+						MatrixSetupScale(light->projectionMatrix, 1.0 / light->l.radius[0], 1.0 / light->l.radius[1],
+										 1.0 / light->l.radius[2]);
 
 						// build the attenuation matrix
 						MatrixSetupTranslation(light->attenuationMatrix, 0.5, 0.5, 0.5);	// bias
-						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);		// scale
+						MatrixMultiplyScale(light->attenuationMatrix, 0.5, 0.5, 0.5);	// scale
 						MatrixMultiply2(light->attenuationMatrix, light->projectionMatrix);	// light projection (frustum)
 						MatrixMultiply2(light->attenuationMatrix, light->viewMatrix);
 						break;
@@ -3248,7 +3249,7 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 					default:
 						break;
 				}
-				
+
 				// update uniforms
 				VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
 
@@ -4848,7 +4849,8 @@ static void RB_RenderView(void)
 
 	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
 
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		// clear frame buffer objects
 		R_BindFBO(tr.deferredRenderFBO);

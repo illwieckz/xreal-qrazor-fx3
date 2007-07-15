@@ -39,26 +39,28 @@ static void R_CullMDX(mdxModel_t * model, trRefEntity_t * ent)
 	// compute frame pointers
 	newFrame = model->frames + ent->e.frame;
 	oldFrame = model->frames + ent->e.oldframe;
-	
+
 	// calculate a bounding box in the current coordinate system
 	for(i = 0; i < 3; i++)
 	{
-		ent->localBounds[0][i] = oldFrame->bounds[0][i] < newFrame->bounds[0][i] ? oldFrame->bounds[0][i] : newFrame->bounds[0][i];
-		ent->localBounds[1][i] = oldFrame->bounds[1][i] > newFrame->bounds[1][i] ? oldFrame->bounds[1][i] : newFrame->bounds[1][i];
+		ent->localBounds[0][i] =
+			oldFrame->bounds[0][i] < newFrame->bounds[0][i] ? oldFrame->bounds[0][i] : newFrame->bounds[0][i];
+		ent->localBounds[1][i] =
+			oldFrame->bounds[1][i] > newFrame->bounds[1][i] ? oldFrame->bounds[1][i] : newFrame->bounds[1][i];
 	}
-	
+
 	// setup world bounds for intersection tests
 	ClearBounds(ent->worldBounds[0], ent->worldBounds[1]);
-		
+
 	for(i = 0; i < 8; i++)
 	{
 		v[0] = ent->localBounds[i & 1][0];
 		v[1] = ent->localBounds[(i >> 1) & 1][1];
 		v[2] = ent->localBounds[(i >> 2) & 1][2];
-	
+
 		// transform local bounds vertices into world space
 		R_LocalPointToWorld(v, transformed);
-			
+
 		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
 	}
 
@@ -126,12 +128,12 @@ static void R_CullMDX(mdxModel_t * model, trRefEntity_t * ent)
 			tr.pc.c_box_cull_mdx_in++;
 			ent->cull = CULL_IN;
 			return;
-			
+
 		case CULL_CLIP:
 			tr.pc.c_box_cull_mdx_clip++;
 			ent->cull = CULL_CLIP;
 			return;
-			
+
 		case CULL_OUT:
 		default:
 			tr.pc.c_box_cull_mdx_out++;
@@ -235,8 +237,7 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 	// when the surfaces are rendered, they don't need to be
 	// range checked again.
 	if((ent->e.frame >= tr.currentModel->mdx[0]->numFrames)
-	   || (ent->e.frame < 0)
-	   || (ent->e.oldframe >= tr.currentModel->mdx[0]->numFrames) || (ent->e.oldframe < 0))
+	   || (ent->e.frame < 0) || (ent->e.oldframe >= tr.currentModel->mdx[0]->numFrames) || (ent->e.oldframe < 0))
 	{
 		ri.Printf(PRINT_DEVELOPER, "R_AddMDXSurfaces: no such frame %d to %d for '%s'\n",
 				  ent->e.oldframe, ent->e.frame, tr.currentModel->name);
@@ -262,7 +263,7 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 	{
 		R_SetupEntityLighting(&tr.refdef, ent);
 	}
-	
+
 	// draw all surfaces
 	for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)
 	{
@@ -290,13 +291,11 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 			}
 			if(shader == tr.defaultShader)
 			{
-				ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
-						  skin->name);
+				ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
 			}
 			else if(shader->defaultShader)
 			{
-				ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
-						  skin->name);
+				ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
 			}
 		}
 		else if(surface->numShaders <= 0)
@@ -343,7 +342,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	qboolean        personalModel;
 	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
-	
+
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum and we don't care about proper shadowing
 	if(ent->cull == CULL_OUT)
@@ -382,7 +381,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			return;
 		}
 	}
-	
+
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	// generate interactions with all surfaces
@@ -412,13 +411,11 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			}
 			if(shader == tr.defaultShader)
 			{
-				ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
-						  skin->name);
+				ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
 			}
 			else if(shader->defaultShader)
 			{
-				ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
-						  skin->name);
+				ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
 			}
 		}
 		else if(surface->numShaders <= 0)
@@ -431,11 +428,11 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			mdxShader += ent->e.skinNum % surface->numShaders;
 			shader = tr.shaders[mdxShader->shaderIndex];
 		}
-		
+
 		// skip all surfaces that don't matter for lighting only pass
 		if(shader->isSky || (!shader->interactLight && shader->noShadows))
 			continue;
-		
+
 		// we will add shadows even if the main object isn't visible in the view
 
 		// don't add third_person objects if not viewing through a portal
@@ -446,4 +443,3 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		}
 	}
 }
-

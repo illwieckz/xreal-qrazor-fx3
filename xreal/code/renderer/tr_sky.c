@@ -272,7 +272,7 @@ void Tess_ClipSkyPolygons()
 		{
 			VectorSubtract(tess.xyz[tess.indexes[i + j]], backEnd.viewParms.or.origin, p[j]);
 		}
-		
+
 		ClipSkyPolygon(3, p[0], 0);
 	}
 }
@@ -435,8 +435,7 @@ static void DrawSkyBox(shader_t * shader)
 		// iterate through the subdivisions
 		for(t = sky_mins_subd[1] + HALF_SKY_SUBDIVISIONS; t <= sky_maxs_subd[1] + HALF_SKY_SUBDIVISIONS; t++)
 		{
-			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS;
-				s++)
+			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS; s++)
 			{
 				MakeSkyVec((s - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
 						   (t - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
@@ -464,7 +463,7 @@ static void FillCloudySkySide(const int mins[2], const int maxs[2], qboolean add
 		{
 			VectorAdd(s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes]);
 			tess.xyz[tess.numVertexes][3] = 1;
-			
+
 			tess.texCoords[tess.numVertexes][0] = s_skyTexCoords[t][s][0];
 			tess.texCoords[tess.numVertexes][1] = s_skyTexCoords[t][s][1];
 			tess.texCoords[tess.numVertexes][2] = 0;
@@ -578,12 +577,10 @@ static void FillCloudBox(const shader_t * shader, int stage)
 		// iterate through the subdivisions
 		for(t = sky_mins_subd[1] + HALF_SKY_SUBDIVISIONS; t <= sky_maxs_subd[1] + HALF_SKY_SUBDIVISIONS; t++)
 		{
-			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS;
-				s++)
+			for(s = sky_mins_subd[0] + HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0] + HALF_SKY_SUBDIVISIONS; s++)
 			{
 				MakeSkyVec((s - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
-						   (t - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS,
-						   i, NULL, s_skyPoints[t][s]);
+						   (t - HALF_SKY_SUBDIVISIONS) / (float)HALF_SKY_SUBDIVISIONS, i, NULL, s_skyPoints[t][s]);
 
 				s_skyTexCoords[t][s][0] = s_cloudTexCoords[i][t][s][0];
 				s_skyTexCoords[t][s][1] = s_cloudTexCoords[i][t][s][1];
@@ -619,7 +616,7 @@ static void BuildCloudData()
 			{
 				break;
 			}
-			
+
 			FillCloudBox(tess.surfaceShader, i);
 		}
 	}
@@ -661,8 +658,7 @@ void R_InitSkyTexCoords(float heightCloud)
 							  SQR(skyVec[0]) * SQR(heightCloud) +
 							  2 * SQR(skyVec[1]) * radiusWorld * heightCloud +
 							  SQR(skyVec[1]) * SQR(heightCloud) +
-							  2 * SQR(skyVec[2]) * radiusWorld * heightCloud +
-							  SQR(skyVec[2]) * SQR(heightCloud)));
+							  2 * SQR(skyVec[2]) * radiusWorld * heightCloud + SQR(skyVec[2]) * SQR(heightCloud)));
 
 				s_cloudTexP[i][t][s] = p;
 
@@ -704,8 +700,7 @@ void RB_DrawSun(void)
 		return;
 	}
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-	qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
-				  backEnd.viewParms.or.origin[2]);
+	qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 
 	dist = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
 	size = dist * 0.4;
@@ -809,13 +804,15 @@ void Tess_StageIteratorSky(void)
 	{
 		return;
 	}
-	
+
 	// log this call
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
 		// a call to va() every frame!
-		GLimp_LogComment(va("--- Tess_StageIteratorSky( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name, tess.numVertexes, tess.numIndexes / 3));
+		GLimp_LogComment(va
+						 ("--- Tess_StageIteratorSky( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
+						  tess.numVertexes, tess.numIndexes / 3));
 	}
 
 	if(tess.stageIteratorFunc2 == Tess_StageIteratorGBuffer)
@@ -846,12 +843,11 @@ void Tess_StageIteratorSky(void)
 		qglColor3f(tr.identityLight, tr.identityLight, tr.identityLight);
 
 		qglPushMatrix();
-		
+
 		GL_State(0);
 		GL_Program(0);
-		
-		qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
-					  backEnd.viewParms.or.origin[2]);
+
+		qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 
 		DrawSkyBox(tess.surfaceShader);
 

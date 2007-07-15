@@ -50,30 +50,30 @@ qboolean R_CheckFBO(const frameBuffer_t * fbo)
 	switch (code)
 	{
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
-            break;
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Unsupported framebuffer format\n");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing attachment\n");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, duplicate attachment\n");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, attached images must have same dimensions\n");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, attached images must have same format\n");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing draw buffer\n");
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing read buffer\n");
-            break;
-        default:
-            assert(0);
+			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Unsupported framebuffer format\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing attachment\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, duplicate attachment\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, attached images must have same dimensions\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, attached images must have same format\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing draw buffer\n");
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing read buffer\n");
+			break;
+		default:
+			assert(0);
 	}
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, id);
@@ -89,7 +89,7 @@ R_CreateFBO
 frameBuffer_t  *R_CreateFBO(const char *name, int width, int height)
 {
 	frameBuffer_t  *fbo;
-	
+
 	if(strlen(name) >= MAX_QPATH)
 	{
 		ri.Error(ERR_DROP, "R_CreateFBO: \"%s\" is too long\n", name);
@@ -99,12 +99,12 @@ frameBuffer_t  *R_CreateFBO(const char *name, int width, int height)
 	{
 		ri.Error(ERR_DROP, "R_CreateFBO: bad width %i", width);
 	}
-		
+
 	if(height <= 0 || height > glConfig.maxRenderbufferSize)
 	{
 		ri.Error(ERR_DROP, "R_CreateFBO: bad height %i", height);
 	}
-		
+
 	if(tr.numFBOs == MAX_FBOS)
 	{
 		ri.Error(ERR_DROP, "R_CreateFBO: MAX_FBOS hit");
@@ -312,22 +312,22 @@ void R_BindFBO(frameBuffer_t * fbo)
 	if(glState.currentFBO != fbo)
 	{
 		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->frameBuffer);
-		
+
 		/*
-		if(fbo->colorBuffers[0])
-		{
-			qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->colorBuffers[0]);
-		}
-		*/
-		
+		   if(fbo->colorBuffers[0])
+		   {
+		   qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->colorBuffers[0]);
+		   }
+		 */
+
 		/*
-		if(fbo->depthBuffer)
-		{
-			qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->depthBuffer);
-			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->depthBuffer);
-		}
-		*/
-		
+		   if(fbo->depthBuffer)
+		   {
+		   qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->depthBuffer);
+		   qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->depthBuffer);
+		   }
+		 */
+
 		glState.currentFBO = fbo;
 	}
 }
@@ -361,22 +361,24 @@ void R_InitFBOs(void)
 {
 	int             i;
 	int             width, height;
-	
+
 	if(!glConfig.framebufferObjectAvailable)
 		return;
 
 	tr.numFBOs = 0;
-	
+
 	if(r_deferredShading->integer)
 	{
-		if(glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		if(glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable && glConfig.drawBuffersAvailable &&
+		   glConfig.maxDrawBuffers >= 4)
 		{
 			// geometricRender FBO as G-Buffer for deferred shading
-			GLenum drawbuffers[] = {GL_COLOR_ATTACHMENT0_EXT,
-    	    						GL_COLOR_ATTACHMENT1_EXT,
-    	    						GL_COLOR_ATTACHMENT2_EXT,
-    	    						GL_COLOR_ATTACHMENT3_EXT};
-			
+			GLenum          drawbuffers[] = { GL_COLOR_ATTACHMENT0_EXT,
+				GL_COLOR_ATTACHMENT1_EXT,
+				GL_COLOR_ATTACHMENT2_EXT,
+				GL_COLOR_ATTACHMENT3_EXT
+			};
+
 			if(glConfig.textureNPOTAvailable)
 			{
 				width = glConfig.vidWidth;
@@ -390,43 +392,44 @@ void R_InitFBOs(void)
 
 			tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
 			R_BindFBO(tr.geometricRenderFBO);
-			
+
 			// enable all attachments as draw buffers
 			qglDrawBuffersARB(4, drawbuffers);
-				
+
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA16F_ARB, 0);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
-			
+
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA16F_ARB, 1);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
-			
+
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA16F_ARB, 2);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
-			
+
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA16F_ARB, 3);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredPositionFBOImage->texnum, 3);
-		
+
 			R_CreateFBODepthBuffer(tr.geometricRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 			R_CheckFBO(tr.geometricRenderFBO);
-			
-			
-			
+
+
+
 			// deferredRender FBO for the lighting pass
 			tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
 			R_BindFBO(tr.deferredRenderFBO);
-			
+
 			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredLightingFBOImage->texnum, 0);
-			
+
 			// share depth buffer
-			tr.deferredRenderFBO->depthFormat = tr.geometricRenderFBO->depthFormat; 
+			tr.deferredRenderFBO->depthFormat = tr.geometricRenderFBO->depthFormat;
 			tr.deferredRenderFBO->depthBuffer = tr.geometricRenderFBO->depthBuffer;
-			
+
 			//qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
 			//qglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthFormat, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height);
 
-			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
-			
+			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
+										  tr.deferredRenderFBO->depthBuffer);
+
 			R_CheckFBO(tr.deferredRenderFBO);
 		}
 	}
@@ -437,20 +440,20 @@ void R_InitFBOs(void)
 		for(i = 0; i < 3; i++)
 		{
 			width = height = shadowMapResolutions[i];
-		
+
 			tr.shadowMapFBO[i] = R_CreateFBO(va("_shadowMap%d", i), width, height);
 			R_BindFBO(tr.shadowMapFBO[i]);
-		
+
 			if(glConfig.textureFloatAvailable)
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA16F_ARB, 0);
 			else
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA, 0);
-		
+
 			R_CreateFBODepthBuffer(tr.shadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);
 			R_CheckFBO(tr.shadowMapFBO[i]);
 		}
 	}
-		
+
 	GL_CheckErrors();
 
 	R_BindNullFBO();

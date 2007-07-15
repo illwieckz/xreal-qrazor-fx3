@@ -93,7 +93,8 @@ typedef struct
 	int             (*LerpTag) (orientation_t * tag, qhandle_t model, int startFrame, int endFrame,
 								float frac, const char *tagName);
 
-	int             (*BuildSkeleton) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin);
+	int             (*BuildSkeleton) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
+									  qboolean clearOrigin);
 	int             (*BlendSkeleton) (refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
 	int             (*BoneIndex) (qhandle_t hModel, const char *boneName);
 	int             (*AnimNumFrames) (qhandle_t hAnim);

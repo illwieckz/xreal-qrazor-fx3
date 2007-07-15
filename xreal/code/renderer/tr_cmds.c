@@ -45,13 +45,13 @@ void R_PerformanceCounters(void)
 	if(r_speeds->integer == 1)
 	{
 		ri.Printf(PRINT_ALL, "%i views %i portals %i batches %i surfs %i leafs %i verts %i tris\n",
-				  backEnd.pc.c_views, backEnd.pc.c_portals, backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
+				  backEnd.pc.c_views, backEnd.pc.c_portals, backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs,
+				  backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
 
 		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i interactions\n",
 				  tr.pc.c_dlights + tr.pc.c_slights,
 				  tr.pc.c_box_cull_light_out,
-				  tr.pc.c_pvs_cull_light_out,
-				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions);
+				  tr.pc.c_pvs_cull_light_out, tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions);
 
 		/*
 		   ri.Printf(PRINT_ALL, "%i draws %.2f mtex %.2f dc\n",
@@ -94,8 +94,7 @@ void R_PerformanceCounters(void)
 	else if(r_speeds->integer == 5)
 	{
 		ri.Printf(PRINT_ALL, "omni pyramid tests:%i bin:%i bclip:%i bout:%i\n",
-			      tr.pc.c_pyramidTests,
-				  tr.pc.c_pyramid_cull_ent_in, tr.pc.c_pyramid_cull_ent_clip, tr.pc.c_pyramid_cull_ent_out);
+				  tr.pc.c_pyramidTests, tr.pc.c_pyramid_cull_ent_in, tr.pc.c_pyramid_cull_ent_clip, tr.pc.c_pyramid_cull_ent_out);
 	}
 	else if(r_speeds->integer == 6)
 	{

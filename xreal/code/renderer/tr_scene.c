@@ -23,19 +23,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-static int             r_firstSceneDrawSurf;
-static int             r_firstSceneInteraction;
+static int      r_firstSceneDrawSurf;
+static int      r_firstSceneInteraction;
 
-static int             r_numLights;
-static int             r_firstSceneLight;
+static int      r_numLights;
+static int      r_firstSceneLight;
 
-static int             r_numEntities;
-static int             r_firstSceneEntity;
+static int      r_numEntities;
+static int      r_firstSceneEntity;
 
-static int             r_numPolys;
-static int             r_firstScenePoly;
+static int      r_numPolys;
+static int      r_firstScenePoly;
 
-static int             r_numPolyVerts;
+static int      r_numPolyVerts;
 
 
 /*
@@ -147,8 +147,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 			   since we don't plan on changing the const and making for room for those effects
 			   simply cut this message to developer only
 			 */
-			ri.Printf(PRINT_DEVELOPER,
-					  "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
+			ri.Printf(PRINT_DEVELOPER, "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
 			return;
 		}
 
@@ -159,7 +158,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 		poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numPolyVerts];
 
 		Com_Memcpy(poly->verts, &verts[numVerts * j], numVerts * sizeof(*verts));
-		
+
 		// done.
 		r_numPolys++;
 		r_numPolyVerts += numVerts;
@@ -181,13 +180,13 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 	{
 		return;
 	}
-	
+
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=402
 	if(r_numEntities >= ENTITYNUM_WORLD)
 	{
 		return;
 	}
-	
+
 	if(ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE)
 	{
 		ri.Error(ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType);
@@ -207,31 +206,31 @@ RE_AddRefLightToScene
 */
 void RE_AddRefLightToScene(const refLight_t * l)
 {
-	trRefLight_t *light;
-		
+	trRefLight_t   *light;
+
 	if(!tr.registered)
 	{
 		return;
 	}
-	
+
 	if(r_numLights >= MAX_LIGHTS)
 	{
 		return;
 	}
-	
+
 	if(l->radius[0] <= 0 && !VectorLength(l->radius) && l->distance <= 0)
 	{
 		return;
 	}
-	
+
 	if(l->rlType < 0 || l->rlType >= RL_MAX_REF_LIGHT_TYPE)
 	{
 		ri.Error(ERR_DROP, "RE_AddRefLightToScene: bad rlType %i", l->rlType);
 	}
-	
+
 	light = &backEndData[tr.smpFrame]->lights[r_numLights++];
 	light->l = *l;
-	
+
 	light->isStatic = qfalse;
 	light->additive = qtrue;
 }
@@ -244,40 +243,40 @@ R_AddWorldLightsToScene
 static void R_AddWorldLightsToScene()
 {
 	int             i;
-	trRefLight_t *light;
-		
+	trRefLight_t   *light;
+
 	if(!tr.registered)
 	{
 		return;
 	}
-	
+
 	if(tr.refdef.rdflags & RDF_NOWORLDMODEL)
 	{
-		return;	
+		return;
 	}
-	
+
 	for(i = 0; i < tr.world->numLights; i++)
 	{
 		light = tr.currentLight = &tr.world->lights[i];
-	
+
 		if(r_numLights >= MAX_LIGHTS)
 		{
 			return;
 		}
-	
+
 		/*
-		if(light->radius[0] <= 0 && !VectorLength(light->radius) && light->distance <= 0)
-		{
-			continue;
-		}
-		*/
-		
+		   if(light->radius[0] <= 0 && !VectorLength(light->radius) && light->distance <= 0)
+		   {
+		   continue;
+		   }
+		 */
+
 		if(!light->firstInteractionCache)
 		{
 			// this light has no interactions precached
 			continue;
 		}
-		
+
 		Com_Memcpy(&backEndData[tr.smpFrame]->lights[r_numLights], light, sizeof(trRefLight_t));
 		r_numLights++;
 	}
@@ -290,34 +289,34 @@ RE_AddDynamicLightToScene
 */
 static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r, float g, float b, int additive)
 {
-	trRefLight_t *light;
-		
+	trRefLight_t   *light;
+
 	if(!tr.registered)
 	{
 		return;
 	}
-	
+
 	if(r_numLights >= MAX_LIGHTS)
 	{
 		return;
 	}
-	
+
 	if(intensity <= 0)
 	{
 		return;
 	}
-	
+
 	light = &backEndData[tr.smpFrame]->lights[r_numLights++];
-	
+
 	light->l.rlType = RL_OMNI;
-//	light->l.lightfx = 0;
+//  light->l.lightfx = 0;
 	VectorCopy(org, light->l.origin);
 
 	QuatClear(light->l.rotation);
 
 	// HACK: this will tell the renderer backend to use tr.defaultLightShader
 	light->l.attenuationShader = 0;
-	
+
 	light->l.radius[0] = intensity;
 	light->l.radius[1] = intensity;
 	light->l.radius[2] = intensity;
@@ -325,9 +324,9 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	light->l.color[0] = r;
 	light->l.color[1] = g;
 	light->l.color[2] = b;
-	
+
 	light->l.noShadows = qfalse;
-	
+
 	light->isStatic = qfalse;
 	light->additive = additive;
 }
@@ -433,7 +432,7 @@ void RE_RenderScene(const refdef_t * fd)
 
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData[tr.smpFrame]->drawSurfs;
-	
+
 	tr.refdef.numInteractions = r_firstSceneInteraction;
 	tr.refdef.interactions = backEndData[tr.smpFrame]->interactions;
 

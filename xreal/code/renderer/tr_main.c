@@ -43,7 +43,7 @@ const matrix_t  openGLToQuakeMatrix = {
 	0, 0, 0, 1
 };
 
-int     shadowMapResolutions[3] = {512, 256, 128};
+int             shadowMapResolutions[3] = { 512, 256, 128 };
 
 refimport_t     ri;
 
@@ -148,9 +148,8 @@ Tr3B - recoded from Nvidia's SDK
 =============
 */
 void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
-						const vec3_t v0, const vec3_t v1, const vec3_t v2,
-						const vec2_t t0, const vec2_t t1, const vec2_t t2)
-{	
+						const vec3_t v0, const vec3_t v1, const vec3_t v2, const vec2_t t0, const vec2_t t1, const vec2_t t2)
+{
 	vec3_t          cp, e0, e1;
 	vec3_t          faceNormal;
 
@@ -220,25 +219,24 @@ fixes some strange lighting bugs on curves but may mess with negative tangents
 =============
 */
 void R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t normal,
-						const vec3_t v0, const vec3_t v1, const vec3_t v2,
-						const vec2_t t0, const vec2_t t1, const vec2_t t2)
-{	
-	vec3_t		cross;
-	vec_t		e0[5];
-	vec_t		e1[5];
+						 const vec3_t v0, const vec3_t v1, const vec3_t v2, const vec2_t t0, const vec2_t t1, const vec2_t t2)
+{
+	vec3_t          cross;
+	vec_t           e0[5];
+	vec_t           e1[5];
 
 	// find edges
 	e0[0] = v1[0] - v0[0];
 	e0[1] = v1[1] - v0[1];
 	e0[2] = v1[2] - v0[2];
-	
+
 	e0[3] = t1[0] - t0[0];
 	e0[4] = t1[1] - t0[1];
 
 	e1[0] = v2[0] - v0[0];
 	e1[1] = v2[1] - v0[1];
 	e1[2] = v2[2] - v0[2];
-	
+
 	e1[3] = t2[0] - t0[0];
 	e1[4] = t2[1] - t0[1];
 
@@ -290,8 +288,7 @@ static int R_FindSurfaceTriangleWithEdge(int numTriangles, srfTriangle_t * trian
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
 		if((tri->indexes[0] == start && tri->indexes[1] == end) ||
-		   (tri->indexes[1] == start && tri->indexes[2] == end) ||
-		   (tri->indexes[2] == start && tri->indexes[0] == end))
+		   (tri->indexes[1] == start && tri->indexes[2] == end) || (tri->indexes[2] == start && tri->indexes[0] == end))
 		{
 			if(i != ignore)
 			{
@@ -301,8 +298,7 @@ static int R_FindSurfaceTriangleWithEdge(int numTriangles, srfTriangle_t * trian
 			count++;
 		}
 		else if((tri->indexes[1] == start && tri->indexes[0] == end) ||
-				(tri->indexes[2] == start && tri->indexes[1] == end) ||
-				(tri->indexes[0] == start && tri->indexes[2] == end))
+				(tri->indexes[2] == start && tri->indexes[1] == end) || (tri->indexes[0] == start && tri->indexes[2] == end))
 		{
 			count++;
 		}
@@ -326,7 +322,7 @@ Tr3B - recoded from Q2E
 void R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles)
 {
 	int             i;
-	srfTriangle_t *tri;
+	srfTriangle_t  *tri;
 
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
@@ -344,8 +340,8 @@ R_CalcSurfaceTrianglePlanes
 void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts)
 {
 	int             i;
-	srfTriangle_t *tri;
-	
+	srfTriangle_t  *tri;
+
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
 		float          *v1, *v2, *v3;
@@ -371,7 +367,7 @@ float R_CalcFov(float fovX, float width, float height)
 	x = width / tan(fovX / 360 * M_PI);
 	fovY = atan2(height, x);
 	fovY = fovY * 360 / M_PI;
-	
+
 	return fovY;
 }
 
@@ -469,7 +465,7 @@ int R_CullLocalBox(vec3_t localBounds[2])
 		v[2] = localBounds[(j >> 2) & 1][2];
 
 		R_LocalPointToWorld(v, transformed);
-		
+
 		AddPointToBounds(transformed, worldBounds[0], worldBounds[1]);
 	}
 
@@ -480,7 +476,7 @@ int R_CullLocalBox(vec3_t localBounds[2])
 		frust = &tr.viewParms.frustum[i];
 
 		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], frust);
-		
+
 		if(r == 2)
 		{
 			// completely outside frustum
@@ -495,7 +491,7 @@ int R_CullLocalBox(vec3_t localBounds[2])
 	if(!anyClip)
 	{
 		// completely inside frustum
-		return CULL_IN;	
+		return CULL_IN;
 	}
 
 	// partially clipped
@@ -587,7 +583,8 @@ void R_LocalPointToWorld(const vec3_t local, vec3_t world)
 R_TransformWorldToClip
 ==========================
 */
-void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye, vec4_t dst)
+void R_TransformWorldToClip(const vec3_t src, const float *cameraViewMatrix, const float *projectionMatrix, vec4_t eye,
+							vec4_t dst)
 {
 	vec4_t          src2;
 
@@ -640,11 +637,11 @@ R_ProjectRadius
 */
 float R_ProjectRadius(float r, vec3_t location)
 {
-	float		pr;
-	float		dist;
-	float		c;
-	vec3_t		p;
-	float		projected[4];
+	float           pr;
+	float           dist;
+	float           c;
+	vec3_t          p;
+	float           projected[4];
 
 	c = DotProduct(tr.viewParms.or.axis[0], tr.viewParms.or.origin);
 	dist = DotProduct(tr.viewParms.or.axis[0], location) - c;
@@ -656,25 +653,17 @@ float R_ProjectRadius(float r, vec3_t location)
 	p[1] = fabs(r);
 	p[2] = -dist;
 
-	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] + 
-		           p[1] * tr.viewParms.projectionMatrix[4] +
-				   p[2] * tr.viewParms.projectionMatrix[8] +
-				   tr.viewParms.projectionMatrix[12];
+	projected[0] = p[0] * tr.viewParms.projectionMatrix[0] +
+		p[1] * tr.viewParms.projectionMatrix[4] + p[2] * tr.viewParms.projectionMatrix[8] + tr.viewParms.projectionMatrix[12];
 
-	projected[1] = p[0] * tr.viewParms.projectionMatrix[1] + 
-		           p[1] * tr.viewParms.projectionMatrix[5] +
-				   p[2] * tr.viewParms.projectionMatrix[9] +
-				   tr.viewParms.projectionMatrix[13];
+	projected[1] = p[0] * tr.viewParms.projectionMatrix[1] +
+		p[1] * tr.viewParms.projectionMatrix[5] + p[2] * tr.viewParms.projectionMatrix[9] + tr.viewParms.projectionMatrix[13];
 
-	projected[2] = p[0] * tr.viewParms.projectionMatrix[2] + 
-		           p[1] * tr.viewParms.projectionMatrix[6] +
-				   p[2] * tr.viewParms.projectionMatrix[10] +
-				   tr.viewParms.projectionMatrix[14];
+	projected[2] = p[0] * tr.viewParms.projectionMatrix[2] +
+		p[1] * tr.viewParms.projectionMatrix[6] + p[2] * tr.viewParms.projectionMatrix[10] + tr.viewParms.projectionMatrix[14];
 
-	projected[3] = p[0] * tr.viewParms.projectionMatrix[3] + 
-		           p[1] * tr.viewParms.projectionMatrix[7] +
-				   p[2] * tr.viewParms.projectionMatrix[11] +
-				   tr.viewParms.projectionMatrix[15];
+	projected[3] = p[0] * tr.viewParms.projectionMatrix[3] +
+		p[1] * tr.viewParms.projectionMatrix[7] + p[2] * tr.viewParms.projectionMatrix[11] + tr.viewParms.projectionMatrix[15];
 
 
 	pr = projected[1] / projected[3];
@@ -787,13 +776,13 @@ void R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * ligh
 	if(ent->e.reType != RT_MODEL)
 	{
 		Com_Memset(or, 0, sizeof(*or));
-					
+
 		or->axis[0][0] = 1;
 		or->axis[1][1] = 1;
 		or->axis[2][2] = 1;
-		
+
 		VectorCopy(light->l.origin, or->viewOrigin);
-					
+
 		MatrixIdentity(or->transformMatrix);
 		//MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
 		MatrixMultiply(light->viewMatrix, or->transformMatrix, or->viewMatrix);
@@ -809,7 +798,7 @@ void R_RotateEntityForLight(const trRefEntity_t * ent, const trRefLight_t * ligh
 
 	MatrixSetupTransform(or->transformMatrix, or->axis[0], or->axis[1], or->axis[2], or->origin);
 	MatrixAffineInverse(or->transformMatrix, or->viewMatrix);
-	
+
 	MatrixMultiply(light->viewMatrix, or->transformMatrix, or->modelViewMatrix);
 
 	// calculate the viewer origin in the model's space
@@ -889,7 +878,7 @@ void R_RotateForViewer(void)
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
 
 	MatrixAffineInverse(transformMatrix, viewMatrix);
-//	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
+//  MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
@@ -1125,7 +1114,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	trRefEntity_t  *e;
 	float           d;
 	vec3_t          transformed;
-	shader_t	   *shader;
+	shader_t       *shader;
 
 	// create plane axis for the portal we are seeing
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
@@ -1154,13 +1143,13 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	VectorCopy(plane.normal, surface->axis[0]);
 	PerpendicularVector(surface->axis[1], surface->axis[0]);
 	CrossProduct(surface->axis[0], surface->axis[1], surface->axis[2]);
-	
+
 	// Doom3 style mirror support
 	shader = tr.sortedShaders[drawSurf->shaderNum];
 	if(shader->isMirror)
 	{
 		//ri.Printf(PRINT_ALL, "Portal surface with a mirror\n");
-		
+
 		VectorScale(plane.normal, plane.dist, surface->origin);
 		VectorCopy(surface->origin, camera->origin);
 		VectorSubtract(vec3_origin, surface->axis[0], camera->axis[0]);
@@ -1195,7 +1184,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 		if(e->e.oldorigin[0] == e->e.origin[0] && e->e.oldorigin[1] == e->e.origin[1] && e->e.oldorigin[2] == e->e.origin[2])
 		{
 			//ri.Printf(PRINT_ALL, "Portal surface with a mirror entity\n");
-			
+
 			VectorScale(plane.normal, plane.dist, surface->origin);
 			VectorCopy(surface->origin, camera->origin);
 			VectorSubtract(vec3_origin, surface->axis[0], camera->axis[0]);
@@ -1344,7 +1333,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	tr.currentEntity = drawSurf->entity;
 	shader = tr.sortedShaders[drawSurf->shaderNum];
-	
+
 	// rotate if necessary
 	if(tr.currentEntity != &tr.worldEntity)
 	{
@@ -1399,7 +1388,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	// range to the surface), but it's good enough for the types of portals
 	// we have in the game right now.
 	numTriangles = tess.numIndexes / 3;
-	
+
 	for(i = 0; i < tess.numIndexes; i += 3)
 	{
 		vec3_t          normal;
@@ -1424,7 +1413,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		//ri.Printf(PRINT_ALL, "entity Portal surface triangles culled\n");
 		return qtrue;
 	}
-	
+
 	// mirrors can early out at this point, since we don't do a fade over distance
 	// with them (although we could)
 	if(shader->isMirror || IsMirror(drawSurf))
@@ -1614,17 +1603,17 @@ static void R_SortDrawSurfs()
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 
 		/*
-		if(shader->sort > SS_PORTAL && !shader->isMirror)
-		{
-			break;
-		}
-		*/
-		
+		   if(shader->sort > SS_PORTAL && !shader->isMirror)
+		   {
+		   break;
+		   }
+		 */
+
 		if(!shader->isPortal && !shader->isMirror)
 		{
 			continue;
 		}
-		
+
 		//ri.Printf(PRINT_ALL, "portal or mirror surface\n");
 
 		// no shader should ever have this sort type
@@ -1859,13 +1848,13 @@ void R_AddLightInteractions()
 {
 	int             i, j;
 	trRefLight_t   *light;
-	bspNode_t       **leafs;
-	bspNode_t        *leaf;
+	bspNode_t     **leafs;
+	bspNode_t      *leaf;
 
 	for(i = 0; i < tr.refdef.numLights; i++)
 	{
 		light = tr.currentLight = &tr.refdef.lights[i];
-		
+
 		if(light->isStatic)
 		{
 			if(r_noStaticLighting->integer)
@@ -1880,7 +1869,7 @@ void R_AddLightInteractions()
 			{
 				light->cull = CULL_OUT;
 				continue;
-			}			
+			}
 		}
 
 		// we must set up parts of tr.or for light culling
@@ -1895,13 +1884,13 @@ void R_AddLightInteractions()
 				for(j = 0, leafs = light->leafs; j < light->numLeafs; j++, leafs++)
 				{
 					leaf = *leafs;
-			
+
 					if(leaf->visCount == tr.visCount)
 					{
 						light->visCount = tr.visCount;
 					}
 				}
-			
+
 				if(light->visCount != tr.visCount)
 				{
 					tr.pc.c_pvs_cull_light_out++;
@@ -1951,7 +1940,8 @@ void R_AddLightInteractions()
 			R_SetupLightFrustum(light);
 
 			// ignore if not in visible bounds
-			if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
+			if(!BoundsIntersect
+			   (light->worldBounds[0], light->worldBounds[1], tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]))
 			{
 				light->cull = CULL_OUT;
 				continue;
@@ -1966,34 +1956,34 @@ void R_AddLightInteractions()
 
 		// set up view dependent light scissor
 		R_SetupLightScissor(light);
-		
+
 		// set up view dependent light depth bounds
 		R_SetupLightDepthBounds(light);
-		
+
 		// set up view dependent light Level of Detail
 		R_SetupLightLOD(light);
-		
+
 		// look for proper attenuation shader
 		R_SetupLightShader(light);
 
 		// setup interactions
 		light->firstInteraction = NULL;
 		light->lastInteraction = NULL;
-		
+
 		light->numInteractions = 0;
 		light->numShadowOnlyInteractions = 0;
 		light->numLightOnlyInteractions = 0;
 		light->noSort = qfalse;
 
 		/*
-		if(r_deferredShading->integer)
-		{
-			// add one fake interaction for this light
-			// because the renderer backend only loops through interactions
-			R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
-		}
-		else
-		*/
+		   if(r_deferredShading->integer)
+		   {
+		   // add one fake interaction for this light
+		   // because the renderer backend only loops through interactions
+		   R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
+		   }
+		   else
+		 */
 		{
 			if(light->isStatic)
 			{
@@ -2003,14 +1993,14 @@ void R_AddLightInteractions()
 			{
 				R_AddWorldInteractions(light);
 			}
-		
+
 			R_AddEntityInteractions(light);
 		}
 
 		if(light->numInteractions && light->numInteractions != light->numShadowOnlyInteractions)
 		{
 			R_SortInteractions(light);
-			
+
 			if(light->isStatic)
 			{
 				tr.pc.c_slights++;
@@ -2204,7 +2194,7 @@ void R_RenderView(viewParms_t * parms)
 	// added, because they use the projection
 	// matrix for lod calculation
 	R_SetupProjection();
-	
+
 	// set camera frustum planes in world space
 	R_SetupFrustum(tr.viewParms.frustum, tr.or.modelViewMatrix, tr.viewParms.projectionMatrix);
 
@@ -2215,17 +2205,14 @@ void R_RenderView(viewParms_t * parms)
 	R_AddEntitySurfaces();
 
 	R_AddLightInteractions();
-	
+
 	tr.viewParms.drawSurfs = tr.refdef.drawSurfs + firstDrawSurf;
 	tr.viewParms.numDrawSurfs = tr.refdef.numDrawSurfs - firstDrawSurf;
-	
+
 	tr.viewParms.interactions = tr.refdef.interactions + firstInteraction;
 	tr.viewParms.numInteractions = tr.refdef.numInteractions - firstInteraction;
 
-	R_SortDrawSurfs(tr.viewParms.drawSurfs,
-					tr.viewParms.numDrawSurfs,
-					tr.viewParms.interactions,
-					tr.viewParms.numInteractions);
+	R_SortDrawSurfs(tr.viewParms.drawSurfs, tr.viewParms.numDrawSurfs, tr.viewParms.interactions, tr.viewParms.numInteractions);
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();

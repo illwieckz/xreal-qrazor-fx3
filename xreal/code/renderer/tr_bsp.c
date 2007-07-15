@@ -46,6 +46,7 @@ static int      s_numShadowPlanes;
 static byte    *fileBase;
 
 int             c_redundantInteractions;
+
 //===============================================================================
 
 void HSVtoRGB(float h, float s, float v, float rgb[3])
@@ -1455,7 +1456,7 @@ static void R_CreateWorldVBOs()
 	int             indexesSize;
 	int             indexesOfs;
 
-	bspSurface_t     *surface;
+	bspSurface_t   *surface;
 	vec4_t          tmp;
 
 
@@ -1871,7 +1872,7 @@ R_LoadSurfaces
 static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 {
 	dsurface_t     *in;
-	bspSurface_t     *out;
+	bspSurface_t   *out;
 	drawVert_t     *dv;
 	int            *indexes;
 	int             count;
@@ -1955,7 +1956,7 @@ R_LoadSubmodels
 static void R_LoadSubmodels(lump_t * l)
 {
 	dmodel_t       *in;
-	bspModel_t       *out;
+	bspModel_t     *out;
 	int             i, j, count;
 
 	ri.Printf(PRINT_ALL, "...loading submodels\n");
@@ -2018,7 +2019,7 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	int             i, j, p;
 	dnode_t        *in;
 	dleaf_t        *inLeaf;
-	bspNode_t        *out;
+	bspNode_t      *out;
 	int             numNodes, numLeafs;
 
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
@@ -2129,7 +2130,7 @@ static void R_LoadMarksurfaces(lump_t * l)
 {
 	int             i, j, count;
 	int            *in;
-	bspSurface_t    **out;
+	bspSurface_t  **out;
 
 	ri.Printf(PRINT_ALL, "...loading mark surfaces\n");
 
@@ -2824,7 +2825,8 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 	int             numShadowPlanes;
 	const srfTriangle_t *tri;
 	vec3_t          pos[3];
-//	vec3_t          lightDir;
+
+//  vec3_t          lightDir;
 	vec4_t          plane;
 
 	if(r_noShadowFrustums->integer)
@@ -2858,7 +2860,7 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 			//VectorAdd(verts[tri->indexes[0]].xyz, lightDir, pos[2]);
 			//VectorNormalize(lightDir);
 			//VectorMA(verts[tri->indexes[0]].xyz, 9999, lightDir, pos[2]);
-			
+
 			if(PlaneFromPoints(plane, pos[0], pos[1], pos[2], qtrue))
 			{
 				shadowPlanes[numShadowPlanes].normal[0] = plane[0];
@@ -2958,7 +2960,7 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 			shadowPlanes[numShadowPlanes].normal[1] = plane[1];
 			shadowPlanes[numShadowPlanes].normal[2] = plane[2];
 			shadowPlanes[numShadowPlanes].dist = plane[3];
-			
+
 			numShadowPlanes++;
 		}
 		else
@@ -2974,17 +2976,17 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 
 		shadowPlanes[i].type = PLANE_NON_AXIAL;
 		/*
-		// normalize plane
-		length = VectorLength(shadowPlanes[i].normal);
-		if(length)
-		{
-			ilength = 1.0 / length;
-			light->frustum[i].normal[0] *= ilength;
-			light->frustum[i].normal[1] *= ilength;
-			light->frustum[i].normal[2] *= ilength;
-			light->frustum[i].dist *= ilength;
-		}
-		*/
+		   // normalize plane
+		   length = VectorLength(shadowPlanes[i].normal);
+		   if(length)
+		   {
+		   ilength = 1.0 / length;
+		   light->frustum[i].normal[0] *= ilength;
+		   light->frustum[i].normal[1] *= ilength;
+		   light->frustum[i].normal[2] *= ilength;
+		   light->frustum[i].dist *= ilength;
+		   }
+		 */
 
 		SetPlaneSignbits(&shadowPlanes[i]);
 	}
@@ -3096,7 +3098,8 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 		if(r_shadows->integer >= 3)
 		{
-			s_numShadowPlanes =	R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
+			s_numShadowPlanes =
+				R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
 		}
 	}
 
@@ -3137,7 +3140,8 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 		if(r_shadows->integer >= 3)
 		{
-			s_numShadowPlanes =	R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
+			s_numShadowPlanes =
+				R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
 		}
 	}
 
@@ -3178,7 +3182,8 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 		if(r_shadows->integer >= 3)
 		{
-			s_numShadowPlanes =	R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
+			s_numShadowPlanes =
+				R_BuildShadowPlanes(cv->numTriangles, cv->triangles, cv->numVerts, cv->verts, s_shadowPlanes, light);
 		}
 	}
 
@@ -3252,7 +3257,7 @@ static void R_RecursivePrecacheInteractionNode(bspNode_t * node, trRefLight_t * 
 	{
 		// leaf node, so add mark surfaces
 		int             c;
-		bspSurface_t     *surf, **mark;
+		bspSurface_t   *surf, **mark;
 
 		// add the individual surfaces
 		mark = node->firstmarksurface;
@@ -3397,7 +3402,7 @@ R_KillRedundantInteractions
 static void R_KillRedundantInteractions(trRefLight_t * light)
 {
 	interactionCache_t *iaCache, *iaCache2;
-	bspSurface_t     *surface;
+	bspSurface_t   *surface;
 	vec3_t          localBounds[2];
 
 	if(r_shadows->integer <= 2)
@@ -3496,7 +3501,7 @@ without any renderer backend batching
 */
 static void R_CreateVBOShadowVolume(trRefLight_t * light)
 {
-	int             i, j;//, k;
+	int             i, j;		//, k;
 
 	int             vertexesNum;
 	byte           *data;
@@ -3509,9 +3514,9 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 	int             indexesOfs;
 
 	interactionCache_t *iaCache;
-	bspSurface_t     *surface;
+	bspSurface_t   *surface;
 	vec4_t          tmp;
-	int				index;
+	int             index;
 
 	srfVBOShadowVolume_t *shadowSurf;
 
@@ -3752,7 +3757,7 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
 
-	light->vboShadowVolume = (struct srfVBOShadowVolume_s *) shadowSurf;
+	light->vboShadowVolume = (struct srfVBOShadowVolume_s *)shadowSurf;
 
 #if 0
 	// megs
@@ -3774,7 +3779,7 @@ void R_PrecacheInteractions()
 	trRefLight_t   *light;
 	int             numLeafs;
 	interactionCache_t *iaCache;
-	bspSurface_t     *surface;
+	bspSurface_t   *surface;
 	vec3_t          localBounds[2];
 	int             startTime, endTime;
 
@@ -3822,7 +3827,7 @@ void R_PrecacheInteractions()
 		// setup interactions
 		light->firstInteractionCache = NULL;
 		light->lastInteractionCache = NULL;
-		
+
 
 		// perform culling and add all the potentially visible surfaces
 		s_lightCount++;
@@ -3908,7 +3913,7 @@ void R_PrecacheInteractions()
 
 
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_worldData.numInteractions);
-    ri.Printf(PRINT_ALL, "%i interactions were hidden in shadows\n", c_redundantInteractions);
+	ri.Printf(PRINT_ALL, "%i interactions were hidden in shadows\n", c_redundantInteractions);
 
 	if(r_shadows->integer == 4)
 	{

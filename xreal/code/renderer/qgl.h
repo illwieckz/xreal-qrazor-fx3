@@ -203,7 +203,7 @@ typedef void    (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
 #endif
 
 // TTimo - VC7 / XP ?
-#if defined(WIN32) && ! defined(__MINGW32__) 
+#if defined(WIN32) && ! defined(__MINGW32__)
 typedef void    (APIENTRY * PFNGLMULTITEXCOORD2FARBPROC) (GLenum target, GLfloat s, GLfloat t);
 typedef void    (APIENTRY * PFNGLACTIVETEXTUREARBPROC) (GLenum target);
 typedef void    (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
@@ -240,7 +240,7 @@ extern void     (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pnam
 // GL_ARB_occlusion_query
 extern void     (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
 extern void     (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
-extern GLboolean (APIENTRY * qglIsQueryARB) (GLuint id);
+extern          GLboolean(APIENTRY * qglIsQueryARB) (GLuint id);
 extern void     (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
 extern void     (APIENTRY * qglEndQueryARB) (GLenum target);
 extern void     (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
@@ -299,7 +299,7 @@ extern void     (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLui
 extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 
 // GL_ARB_draw_buffers
-extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum *bufs);
+extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 
 // GL_EXT_compiled_vertex_array
 extern void     (APIENTRY * qglLockArraysEXT) (GLint, GLint);
@@ -312,8 +312,8 @@ extern void     (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
 extern void     (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
 
 // GL_ATI_separate_stencil
-extern void		(APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
-extern void		(APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
+extern void     (APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
+extern void     (APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
 
 // GL_EXT_framebuffer_object
 extern          GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);

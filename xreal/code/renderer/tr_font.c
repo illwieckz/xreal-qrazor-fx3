@@ -91,8 +91,7 @@ static int      registeredFontCount = 0;
 static fontInfo_t registeredFont[MAX_FONTS];
 
 #ifdef BUILD_FREETYPE
-void R_GetGlyphInfo(FT_GlyphSlot glyph, int *left, int *right, int *width, int *top, int *bottom,
-					int *height, int *pitch)
+void R_GetGlyphInfo(FT_GlyphSlot glyph, int *left, int *right, int *width, int *top, int *bottom, int *height, int *pitch)
 {
 
 	*left = _FLOOR(glyph->metrics.horiBearingX);
@@ -172,13 +171,13 @@ static void WriteTGA(char *filename, byte * data, int width, int height)
 		buffer[i + 2] = data[i - 18 + 0];	// red
 		buffer[i + 3] = data[i - 18 + 3];	// alpha
 	}
-	
+
 	// Tr3B: flip upside down
 	{
 		int             row;
 		unsigned char  *flip;
 		unsigned char  *src, *dst;
-				
+
 		flip = (unsigned char *)malloc(width * 4);
 		for(row = 0; row < height / 2; row++)
 		{
@@ -198,8 +197,7 @@ static void WriteTGA(char *filename, byte * data, int width, int height)
 }
 
 static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, int *yOut,
-										  int *maxHeight, FT_Face face, const unsigned char c,
-										  qboolean calcHeight)
+										  int *maxHeight, FT_Face face, const unsigned char c, qboolean calcHeight)
 {
 	int             i;
 	static glyphInfo_t glyph;
@@ -346,8 +344,7 @@ static byte    *fdFile;
 int readInt()
 {
 	int             i =
-		fdFile[fdOffset] + (fdFile[fdOffset + 1] << 8) + (fdFile[fdOffset + 2] << 16) +
-		(fdFile[fdOffset + 3] << 24);
+		fdFile[fdOffset] + (fdFile[fdOffset + 1] << 8) + (fdFile[fdOffset + 2] << 16) + (fdFile[fdOffset + 3] << 24);
 	fdOffset += 4;
 	return i;
 }
@@ -517,7 +514,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	while(i <= GLYPH_END)
 	{
 
-		glyph =	RE_ConstructGlyphInfo(out, &xOut, &yOut, &maxHeight, face, (unsigned char)i, qfalse);
+		glyph = RE_ConstructGlyphInfo(out, &xOut, &yOut, &maxHeight, face, (unsigned char)i, qfalse);
 
 		if(xOut == -1 || yOut == -1 || i == GLYPH_END)
 		{

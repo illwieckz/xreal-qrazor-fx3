@@ -34,8 +34,8 @@ Determine which dynamic lights may effect this bmodel
 void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 {
 	int             i;
-	bspSurface_t     *surf;
-	bspModel_t       *bModel = NULL;
+	bspSurface_t   *surf;
+	bspModel_t     *bModel = NULL;
 	model_t        *pModel = NULL;
 	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
@@ -73,7 +73,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			return;
 		}
 	}
-	
+
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	// set the light bits in all the surfaces
@@ -97,7 +97,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		   ((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
 		   }
 		 */
-		
+
 		// skip all surfaces that don't matter for lighting only pass
 		if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
 			continue;
@@ -416,7 +416,7 @@ Tr3B - needs finished transformMatrix
 void R_SetupLightOrigin(trRefLight_t * light)
 {
 	vec3_t          transformed;
-	
+
 	MatrixTransformNormal(light->transformMatrix, light->l.center, transformed);
 	VectorAdd(light->l.origin, transformed, light->origin);
 }
@@ -440,7 +440,7 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 			light->localBounds[1][2] = light->l.radius[2];
 			break;
 		}
-		
+
 		case RL_PROJ:
 		{
 			float           xMin, xMax, yMin, yMax;
@@ -454,7 +454,7 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 
 			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
 			yMin = -yMax;
-			
+
 			light->localBounds[0][0] = -zNear;
 			light->localBounds[0][1] = xMin * zFar;
 			light->localBounds[0][2] = yMin * zFar;
@@ -463,11 +463,11 @@ void R_SetupLightLocalBounds(trRefLight_t * light)
 			light->localBounds[1][2] = yMax * zFar;
 			break;
 		}
-		
+
 		default:
 			break;
 	}
-	
+
 	light->sphereRadius = RadiusFromBounds(light->localBounds[0], light->localBounds[1]);
 }
 
@@ -543,7 +543,7 @@ void R_SetupLightFrustum(trRefLight_t * light)
 			int             i;
 			vec3_t          planeNormal;
 			vec3_t          planeOrigin;
-			axis_t			axis;
+			axis_t          axis;
 
 			QuatToAxis(light->l.rotation, axis);
 
@@ -570,32 +570,32 @@ void R_SetupLightFrustum(trRefLight_t * light)
 			for(i = 0; i < 6; i++)
 			{
 				vec_t           length, ilength;
-		
+
 				light->frustum[i].type = PLANE_NON_AXIAL;
-		
+
 				// normalize
 				length = VectorLength(light->frustum[i].normal);
 				if(length)
-				{	
+				{
 					ilength = 1.0 / length;
 					light->frustum[i].normal[0] *= ilength;
 					light->frustum[i].normal[1] *= ilength;
 					light->frustum[i].normal[2] *= ilength;
 					light->frustum[i].dist *= ilength;
 				}
-		
+
 				SetPlaneSignbits(&light->frustum[i]);
 			}
 			break;
 		}
-		
+
 		case RL_PROJ:
 		{
 			// calculate frustum planes using the modelview projection matrix
 			R_SetupFrustum(light->frustum, light->viewMatrix, light->projectionMatrix);
-			break;	
+			break;
 		}
-		
+
 		default:
 			break;
 	}
@@ -659,11 +659,13 @@ void R_SetupLightProjection(trRefLight_t * light)
 R_AddLightInteraction
 =================
 */
-qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes, byte cubeSideBits, interactionType_t iaType)
+qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes,
+							   int *lightIndexes, int numShadowIndexes, int *shadowIndexes, byte cubeSideBits,
+							   interactionType_t iaType)
 {
 	int             iaIndex;
 	interaction_t  *ia;
-	
+
 	// skip all surfaces that don't matter for lighting only pass
 	if(surfaceShader->isSky || (!surfaceShader->interactLight && surfaceShader->noShadows))
 		return qfalse;
@@ -673,7 +675,7 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	iaIndex = tr.refdef.numInteractions & INTERACTION_MASK;
 	ia = &tr.refdef.interactions[iaIndex];
 	tr.refdef.numInteractions++;
-	
+
 	light->noSort = iaIndex == 0;
 
 	// connect to interaction grid
@@ -681,53 +683,53 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	{
 		light->firstInteraction = ia;
 	}
-	
+
 	if(light->lastInteraction)
 	{
 		light->lastInteraction->next = ia;
 	}
-	
+
 	light->lastInteraction = ia;
-	
+
 	// update counters
 	light->numInteractions++;
-	
+
 	switch (iaType)
 	{
 		case IA_SHADOWONLY:
 			light->numShadowOnlyInteractions++;
 			break;
-			
+
 		case IA_LIGHTONLY:
 			light->numLightOnlyInteractions++;
 			break;
-			
+
 		default:
 			break;
 	}
 
 	ia->next = NULL;
-	
+
 	ia->type = iaType;
-	
+
 	ia->light = light;
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
-	
+
 	ia->numLightIndexes = numLightIndexes;
 	ia->lightIndexes = lightIndexes;
-	
+
 	ia->numShadowIndexes = numShadowIndexes;
 	ia->shadowIndexes = shadowIndexes;
-	
+
 	ia->cubeSideBits = cubeSideBits;
 
 	ia->scissorX = light->scissor.coords[0];
 	ia->scissorY = light->scissor.coords[1];
 	ia->scissorWidth = light->scissor.coords[2] - light->scissor.coords[0];
 	ia->scissorHeight = light->scissor.coords[3] - light->scissor.coords[1];
-	
+
 	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
 	{
 		ia->depthNear = light->depthNear;
@@ -760,7 +762,7 @@ static int InteractionCompare(const void *a, const void *b)
 	// shader first
 	if(((interaction_t *) a)->surfaceShader < ((interaction_t *) b)->surfaceShader)
 		return -1;
-	
+
 	else if(((interaction_t *) a)->surfaceShader > ((interaction_t *) b)->surfaceShader)
 		return 1;
 #endif
@@ -769,13 +771,13 @@ static int InteractionCompare(const void *a, const void *b)
 	// then entity
 	if(((interaction_t *) a)->entity == &tr.worldEntity && ((interaction_t *) b)->entity != &tr.worldEntity)
 		return -1;
-	
+
 	else if(((interaction_t *) a)->entity != &tr.worldEntity && ((interaction_t *) b)->entity == &tr.worldEntity)
 		return 1;
-	
+
 	else if(((interaction_t *) a)->entity < ((interaction_t *) b)->entity)
 		return -1;
-	
+
 	else if(((interaction_t *) a)->entity > ((interaction_t *) b)->entity)
 		return 1;
 #endif
@@ -791,40 +793,40 @@ R_SortInteractions
 void R_SortInteractions(trRefLight_t * light)
 {
 	int             i;
-	int				iaFirstIndex;
+	int             iaFirstIndex;
 	interaction_t  *iaFirst;
 	interaction_t  *ia;
 	interaction_t  *iaLast;
-	
+
 	if(r_noInteractionSort->integer)
 	{
-		return;	
+		return;
 	}
 
 	if(!light->numInteractions || light->noSort)
 	{
 		return;
 	}
-	
+
 	iaFirst = light->firstInteraction;
-	iaFirstIndex = light->firstInteraction - tr.refdef.interactions; 
-	
+	iaFirstIndex = light->firstInteraction - tr.refdef.interactions;
+
 	// sort by material etc. for geometry batching in the renderer backend
 	qsort(iaFirst, light->numInteractions, sizeof(interaction_t), InteractionCompare);
-	
+
 	// fix linked list
 	iaLast = NULL;
 	for(i = 0; i < light->numInteractions; i++)
 	{
 		ia = &tr.refdef.interactions[iaFirstIndex + i];
-		
+
 		if(iaLast)
 		{
 			iaLast->next = ia;
 		}
-		
+
 		ia->next = NULL;
-		
+
 		iaLast = ia;
 	}
 }
@@ -868,19 +870,19 @@ R_AddPointToLightScissor
 static void R_AddPointToLightScissor(trRefLight_t * light, const vec3_t world)
 {
 	vec4_t          eye, clip, normalized, window;
-	
+
 	R_TransformWorldToClip(world, tr.viewParms.world.viewMatrix, tr.viewParms.projectionMatrix, eye, clip);
 	R_TransformClipToWindow(clip, &tr.viewParms, normalized, window);
-	
+
 	if(window[0] > light->scissor.coords[2])
 		light->scissor.coords[2] = (int)window[0];
-	
+
 	if(window[0] < light->scissor.coords[0])
 		light->scissor.coords[0] = (int)window[0];
-	
+
 	if(window[1] > light->scissor.coords[3])
 		light->scissor.coords[3] = (int)window[1];
-	
+
 	if(window[1] < light->scissor.coords[1])
 		light->scissor.coords[1] = (int)window[1];
 }
@@ -897,20 +899,20 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 	vec3_t          world1, world2;
 	qboolean        side1, side2;
 	cplane_t       *frust;
-	
+
 	for(i = 0; i < FRUSTUM_PLANES; i++)
 	{
 		R_LocalPointToWorld(local1, world1);
 		R_LocalPointToWorld(local2, world2);
-		
+
 		frust = &tr.viewParms.frustum[i];
-	
+
 		// check edge to frustrum plane
 		side1 = ((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
 		side2 = ((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
 
 		if(!side1 && !side2)
-			continue;					// edge behind plane
+			continue;			// edge behind plane
 
 		if(!side1 || !side2)
 			R_IntersectRayPlane(world1, world2, frust, intersect);
@@ -923,7 +925,7 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 		{
 			VectorCopy(intersect, world2);
 		}
-		
+
 		R_AddPointToLightScissor(light, world1);
 		R_AddPointToLightScissor(light, world2);
 	}
@@ -940,7 +942,7 @@ Tr3B - recoded from Tenebrae2
 void R_SetupLightScissor(trRefLight_t * light)
 {
 	vec3_t          v1, v2;
-	
+
 	light->scissor.coords[0] = tr.viewParms.viewportX;
 	light->scissor.coords[1] = tr.viewParms.viewportY;
 	light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
@@ -957,7 +959,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	light->scissor.coords[1] = 100000000;
 	light->scissor.coords[2] = -100000000;
 	light->scissor.coords[3] = -100000000;
-	
+
 	// top plane
 	VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 	VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
@@ -1022,14 +1024,14 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 	vec3_t          v, world;
 	vec4_t          eye, clip, normalized, window;
 	float           depthMin, depthMax;
-	
+
 	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
 	{
 		tr.pc.c_depthBoundsTestsRejected++;
-		
+
 		depthMin = 1.0;
 		depthMax = 0.0;
-		
+
 		for(j = 0; j < 8; j++)
 		{
 			v[0] = light->localBounds[j & 1][0];
@@ -1038,9 +1040,9 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 
 			// transform local bounds vertices into world space
 			MatrixTransformPoint(light->transformMatrix, v, world);
-			
+
 			R_TransformWorldToClip(world, tr.viewParms.world.viewMatrix, tr.viewParms.projectionMatrix, eye, clip);
-			
+
 			// check to see if the point is completely off screen
 			for(i = 0; i < 3; i++)
 			{
@@ -1050,11 +1052,11 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 					return;
 				}
 			}
-			
+
 			R_TransformClipToWindow(clip, &tr.viewParms, normalized, window);
-			
+
 			if(window[0] < 0 || window[0] >= tr.viewParms.viewportWidth
-			|| window[1] < 0 || window[1] >= tr.viewParms.viewportHeight)
+			   || window[1] < 0 || window[1] >= tr.viewParms.viewportHeight)
 			{
 				// shouldn't happen, since we check the clip[] above, except for FP rounding
 				light->noDepthBoundsTest = qtrue;
@@ -1064,7 +1066,7 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 			depthMin = min(normalized[2], depthMin);
 			depthMax = max(normalized[2], depthMax);
 		}
-		
+
 		if(depthMin > depthMax)
 		{
 			// light behind near plane or clipped
@@ -1075,7 +1077,7 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 			light->noDepthBoundsTest = qfalse;
 			light->depthNear = depthMin;
 			light->depthFar = depthMax;
-			
+
 			tr.pc.c_depthBoundsTestsRejected--;
 			tr.pc.c_depthBoundsTests++;
 		}
@@ -1268,7 +1270,7 @@ void R_SetupLightLOD(trRefLight_t * light)
 	float           projectedRadius;
 	int             lod;
 	int             numLods;
-	
+
 	numLods = 3;
 
 	// compute projected bounding sphere
@@ -1278,10 +1280,10 @@ void R_SetupLightLOD(trRefLight_t * light)
 	if((projectedRadius = R_ProjectRadius(radius, light->l.origin)) != 0)
 	{
 		lodscale = r_shadowLodScale->value;
-		
+
 		if(lodscale > 20)
 			lodscale = 20;
-		
+
 		flod = 1.0f - projectedRadius * lodscale;
 	}
 	else
@@ -1306,7 +1308,7 @@ void R_SetupLightLOD(trRefLight_t * light)
 
 	if(lod >= numLods)
 		lod = numLods - 1;
-		
+
 	if(lod < 0)
 		lod = 0;
 
@@ -1331,7 +1333,7 @@ void R_SetupLightShader(trRefLight_t * light)
 				case RL_OMNI:
 					light->shader = tr.defaultPointLightShader;
 					break;
-				
+
 				case RL_PROJ:
 					light->shader = tr.defaultProjectedLightShader;
 					break;
@@ -1345,7 +1347,7 @@ void R_SetupLightShader(trRefLight_t * light)
 				case RL_OMNI:
 					light->shader = tr.defaultDynamicLightShader;
 					break;
-				
+
 				case RL_PROJ:
 					light->shader = tr.defaultProjectedLightShader;
 					break;
@@ -1394,7 +1396,7 @@ int R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3])
 	// calc AABB of the triangle
 	ClearBounds(worldBounds[0], worldBounds[1]);
 	for(i = 0; i < 3; i++)
-	{		
+	{
 		AddPointToBounds(verts[i], worldBounds[0], worldBounds[1]);
 	}
 
@@ -1427,7 +1429,7 @@ int R_CullLightWorldBounds(trRefLight_t * light, vec3_t worldBounds[2])
 		frust = &light->frustum[i];
 
 		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], frust);
-		
+
 		if(r == 2)
 		{
 			// completely outside frustum
@@ -1442,7 +1444,7 @@ int R_CullLightWorldBounds(trRefLight_t * light, vec3_t worldBounds[2])
 	if(!anyClip)
 	{
 		// completely inside frustum
-		return CULL_IN;	
+		return CULL_IN;
 	}
 
 	// partially clipped

@@ -91,7 +91,7 @@ cvar_t         *r_ext_stencil_two_side;
 cvar_t         *r_ext_separate_stencil;
 cvar_t         *r_ext_depth_bounds_test;
 cvar_t         *r_ext_framebuffer_object;
-cvar_t		   *r_ext_generate_mipmap;
+cvar_t         *r_ext_generate_mipmap;
 
 cvar_t         *r_ignoreGLErrors;
 cvar_t         *r_logFile;
@@ -219,7 +219,7 @@ void            (APIENTRY * qglBindBufferARB) (GLenum target, GLuint buffer);
 void            (APIENTRY * qglDeleteBuffersARB) (GLsizei n, const GLuint * buffers);
 void            (APIENTRY * qglGenBuffersARB) (GLsizei n, GLuint * buffers);
 
-GLboolean       (APIENTRY * qglIsBufferARB) (GLuint buffer);
+GLboolean(APIENTRY * qglIsBufferARB) (GLuint buffer);
 void            (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
 void            (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 void            (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
@@ -229,14 +229,14 @@ GLvoid         *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
 void            (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);
 void            (APIENTRY * qglDeleteQueriesARB) (GLsizei n, const GLuint * ids);
 
-GLboolean       (APIENTRY * qglIsQueryARB) (GLuint id);
+GLboolean(APIENTRY * qglIsQueryARB) (GLuint id);
 void            (APIENTRY * qglBeginQueryARB) (GLenum target, GLuint id);
 void            (APIENTRY * qglEndQueryARB) (GLenum target);
 void            (APIENTRY * qglGetQueryivARB) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetQueryObjectivARB) (GLuint id, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetQueryObjectuivARB) (GLuint id, GLenum pname, GLuint * params);
 
-GLboolean       (APIENTRY * qglUnmapBufferARB) (GLenum target);
+GLboolean(APIENTRY * qglUnmapBufferARB) (GLenum target);
 void            (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pname, GLvoid * *params);
 
@@ -251,7 +251,7 @@ void            (APIENTRY * qglShaderSourceARB) (GLhandleARB shaderObj, GLsizei 
 												 const GLint * length);
 void            (APIENTRY * qglCompileShaderARB) (GLhandleARB shaderObj);
 
-GLhandleARB     (APIENTRY * qglCreateProgramObjectARB) (void);
+GLhandleARB(APIENTRY * qglCreateProgramObjectARB) (void);
 void            (APIENTRY * qglAttachObjectARB) (GLhandleARB containerObj, GLhandleARB obj);
 void            (APIENTRY * qglLinkProgramARB) (GLhandleARB programObj);
 void            (APIENTRY * qglUseProgramObjectARB) (GLhandleARB programObj);
@@ -278,7 +278,7 @@ void            (APIENTRY * qglGetObjectParameterivARB) (GLhandleARB obj, GLenum
 void            (APIENTRY * qglGetInfoLogARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * infoLog);
 void            (APIENTRY * qglGetAttachedObjectsARB) (GLhandleARB containerObj, GLsizei maxCount, GLsizei * count,
 													   GLhandleARB * obj);
-GLint           (APIENTRY * qglGetUniformLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+GLint(APIENTRY * qglGetUniformLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 void            (APIENTRY * qglGetActiveUniformARB) (GLhandleARB programObj, GLuint index, GLsizei maxIndex, GLsizei * length,
 													 GLint * size, GLenum * type, GLcharARB * name);
 void            (APIENTRY * qglGetUniformfvARB) (GLhandleARB programObj, GLint location, GLfloat * params);
@@ -289,10 +289,10 @@ void            (APIENTRY * qglGetShaderSourceARB) (GLhandleARB obj, GLsizei max
 void            (APIENTRY * qglBindAttribLocationARB) (GLhandleARB programObj, GLuint index, const GLcharARB * name);
 void            (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei * length,
 													GLint * size, GLenum * type, GLcharARB * name);
-GLint           (APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 
 // GL_ARB_draw_buffers
-void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum *bufs);
+void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 
 // GL_EXT_compiled_vertex_array
 void            (APIENTRY * qglLockArraysEXT) (GLint, GLint);
@@ -302,26 +302,26 @@ void            (APIENTRY * qglUnlockArraysEXT) (void);
 void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
 
 // GL_ATI_separate_stencil
-void			(APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
-void			(APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
+void            (APIENTRY * qglStencilFuncSeparateATI) (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
+void            (APIENTRY * qglStencilOpSeparateATI) (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
 
 // GL_EXT_depth_bounds_test
 void            (APIENTRY * qglDepthBoundsEXT) (GLclampd zmin, GLclampd zmax);
 
 // GL_EXT_framebuffer_object
-GLboolean       (APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
+GLboolean(APIENTRY * qglIsRenderbufferEXT) (GLuint renderbuffer);
 void            (APIENTRY * qglBindRenderbufferEXT) (GLenum target, GLuint renderbuffer);
 void            (APIENTRY * qglDeleteRenderbuffersEXT) (GLsizei n, const GLuint * renderbuffers);
 void            (APIENTRY * qglGenRenderbuffersEXT) (GLsizei n, GLuint * renderbuffers);
 void            (APIENTRY * qglRenderbufferStorageEXT) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 void            (APIENTRY * qglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint * params);
 
-GLboolean       (APIENTRY * qglIsFramebufferEXT) (GLuint framebuffer);
+GLboolean(APIENTRY * qglIsFramebufferEXT) (GLuint framebuffer);
 void            (APIENTRY * qglBindFramebufferEXT) (GLenum target, GLuint framebuffer);
 void            (APIENTRY * qglDeleteFramebuffersEXT) (GLsizei n, const GLuint * framebuffers);
 void            (APIENTRY * qglGenFramebuffersEXT) (GLsizei n, GLuint * framebuffers);
 
-GLenum          (APIENTRY * qglCheckFramebufferStatusEXT) (GLenum target);
+GLenum(APIENTRY * qglCheckFramebufferStatusEXT) (GLenum target);
 void            (APIENTRY * qglFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
 														 GLint level);
 void            (APIENTRY * qglFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture,
@@ -439,7 +439,7 @@ void GL_CheckErrors_(const char *filename, int line)
 	{
 		return;
 	}
-	
+
 	switch (err)
 	{
 		case GL_INVALID_ENUM:
@@ -673,17 +673,17 @@ const void     *RB_TakeScreenshotCmd(const void *data)
 	switch (cmd->format)
 	{
 		case SSF_TGA:
-			RB_TakeScreenshot(cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);			
+			RB_TakeScreenshot(cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
 			break;
-			
+
 		case SSF_JPEG:
 			RB_TakeScreenshotJPEG(cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
 			break;
-		
+
 		case SSF_PNG:
 			RB_TakeScreenshotPNG(cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
 			break;
-	}		
+	}
 
 	return (const void *)(cmd + 1);
 }
@@ -1065,7 +1065,7 @@ static void R_GenerateMaterialFile_f(void)
 		// clean name
 		Q_strncpyz(fileName, dirnames[i], sizeof(fileName));
 		Q_strncpyz(cleanName, dirnames[i], sizeof(cleanName));
-		
+
 		Q_strreplace(cleanName, sizeof(cleanName), "MaPZone[", "");
 		Q_strreplace(cleanName, sizeof(cleanName), "]", "");
 		Q_strreplace(cleanName, sizeof(cleanName), "&", "_");
@@ -1096,7 +1096,7 @@ static void R_GenerateMaterialFile_f(void)
 		}
 	}
 	FS_FreeFileList(dirnames);
-	
+
 	FS_FCloseFile(f);
 }
 
@@ -1193,23 +1193,23 @@ void GL_SetDefaultState(void)
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 	glState.glClientStateBits = GLCS_DEFAULT;
-	
+
 	glState.currentProgram = 0;
 	qglUseProgramObjectARB(0);
-	
-	
+
+
 	/*
-	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
-	{
-		// enable all attachments as draw buffers
-       	GLenum drawbuffers[] = {GL_DRAW_BUFFER0_ARB,
-       							GL_DRAW_BUFFER1_ARB,
-       							GL_DRAW_BUFFER2_ARB,
-       							GL_DRAW_BUFFER3_ARB};
-     
-       	qglDrawBuffersARB(4, drawbuffers);
-	}
-	*/
+	   if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	   {
+	   // enable all attachments as draw buffers
+	   GLenum drawbuffers[] = {GL_DRAW_BUFFER0_ARB,
+	   GL_DRAW_BUFFER1_ARB,
+	   GL_DRAW_BUFFER2_ARB,
+	   GL_DRAW_BUFFER3_ARB};
+
+	   qglDrawBuffersARB(4, drawbuffers);
+	   }
+	 */
 
 	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask(GL_TRUE);
@@ -1255,14 +1255,14 @@ void GfxInfo_f(void)
 	{
 		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
 	}
-	
+
 	ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig.shadingLanguageVersion);
-	
+
 	if(glConfig.drawBuffersAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_MAX_DRAW_BUFFERS_ARB: %d\n", glConfig.maxDrawBuffers);
 	}
-	
+
 	if(glConfig.textureAnisotropyAvailable)
 	{
 		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
@@ -1387,7 +1387,7 @@ void R_Register(void)
 	r_precacheShadowIndexes = ri.Cvar_Get("r_precacheShadowIndexes", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_debugShadowMaps = ri.Cvar_Get("r_debugShadowMaps", "0", CVAR_CHEAT | CVAR_LATCH);
-	
+
 	// archived variables that can change at any time
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
 	r_flares = ri.Cvar_Get("r_flares", "0", CVAR_ARCHIVE);
@@ -1418,7 +1418,7 @@ void R_Register(void)
 	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
-	
+
 	// temporary variables that can change at any time
 	r_showImages = ri.Cvar_Get("r_showImages", "0", CVAR_TEMP);
 
@@ -1464,20 +1464,20 @@ void R_Register(void)
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadows, 0, 4, qtrue);
-	
+
 	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeHigh, 32, 1024, qtrue);
-	
+
 	r_shadowMapSizeMedium = ri.Cvar_Get("r_shadowMapSizeMedium", "256", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeMedium, 32, 1024, qtrue);
-	
+
 	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "128", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeLow, 32, 1024, qtrue);
-	
+
 	shadowMapResolutions[0] = r_shadowMapSizeHigh->integer;
 	shadowMapResolutions[1] = r_shadowMapSizeMedium->integer;
 	shadowMapResolutions[2] = r_shadowMapSizeLow->integer;
-	
+
 	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
 	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
 	r_shadowLodBias = ri.Cvar_Get("r_shadowLodBias", "0", CVAR_CHEAT);
@@ -1606,7 +1606,7 @@ void R_Init(void)
 	{
 		backEndData[1] = NULL;
 	}
-	
+
 	R_ToggleSmpFrame();
 
 	InitOpenGL();
@@ -1687,7 +1687,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	R_DoneFreeType();
 
 	// shut down platform specific OpenGL stuff
-	
+
 	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
 //#if !defined(SMP)
 	if(destroyWindow)
@@ -1710,13 +1710,13 @@ Touch all images to make sure they are resident
 void RE_EndRegistration(void)
 {
 	R_SyncRenderThread();
-	
+
 	/*
-	if(!Sys_LowPhysicalMemory())
-	{
-		RB_ShowImages();
-	}
-	*/
+	   if(!Sys_LowPhysicalMemory())
+	   {
+	   RB_ShowImages();
+	   }
+	 */
 }
 
 
@@ -1764,7 +1764,7 @@ refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.BoneIndex = RE_BoneIndex;
 	re.AnimNumFrames = RE_AnimNumFrames;
 	re.AnimFrameRate = RE_AnimFrameRate;
-	
+
 	re.ModelBounds = R_ModelBounds;
 
 	re.ClearScene = RE_ClearScene;

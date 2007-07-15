@@ -318,7 +318,7 @@ static void MakeTangentSpaces(int width, int height, srfVert_t ctrl[MAX_GRID_SIZ
 	vec3_t          tangent;
 	vec3_t          binormal;
 	vec3_t          normal;
-	vec_t			d;
+	vec_t           d;
 	srfVert_t      *dv0, *dv1, *dv2;
 	srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
 	srfTriangle_t  *tri;

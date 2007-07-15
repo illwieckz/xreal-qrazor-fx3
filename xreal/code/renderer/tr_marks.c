@@ -147,12 +147,11 @@ R_BoxSurfaces_r
 
 =================
 */
-void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t ** list, int listsize,
-					 int *listlength, vec3_t dir)
+void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t ** list, int listsize, int *listlength, vec3_t dir)
 {
 
 	int             s, c;
-	bspSurface_t     *surf, **mark;
+	bspSurface_t   *surf, **mark;
 
 	// do the tail recursion in a loop
 	while(node->contents == -1)
@@ -184,8 +183,7 @@ void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t *
 		//
 		surf = *mark;
 		// check if the surface has NOIMPACT or NOMARKS set
-		if((surf->shader->surfaceFlags & (SURF_NOIMPACT | SURF_NOMARKS))
-		   || (surf->shader->contentFlags & CONTENTS_FOG))
+		if((surf->shader->surfaceFlags & (SURF_NOIMPACT | SURF_NOMARKS)) || (surf->shader->contentFlags & CONTENTS_FOG))
 		{
 			surf->viewCount = tr.viewCount;
 		}
@@ -406,8 +404,7 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 						R_AddMarkFragments(numClipPoints, clipPoints,
 										   numPlanes, normals, dists,
 										   maxPoints, pointBuffer,
-										   maxFragments, fragmentBuffer,
-										   &returnedPoints, &returnedFragments, mins, maxs);
+										   maxFragments, fragmentBuffer, &returnedPoints, &returnedFragments, mins, maxs);
 
 						if(returnedFragments == maxFragments)
 						{
@@ -432,8 +429,7 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 						R_AddMarkFragments(numClipPoints, clipPoints,
 										   numPlanes, normals, dists,
 										   maxPoints, pointBuffer,
-										   maxFragments, fragmentBuffer,
-										   &returnedPoints, &returnedFragments, mins, maxs);
+										   maxFragments, fragmentBuffer, &returnedPoints, &returnedFragments, mins, maxs);
 
 						if(returnedFragments == maxFragments)
 						{
@@ -446,7 +442,7 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 		else if(*surfaces[i] == SF_FACE)
 		{
 			surf = (srfSurfaceFace_t *) surfaces[i];
-			
+
 			// check the normal of this face
 			if(DotProduct(surf->plane.normal, projectionDir) > -0.5)
 			{
@@ -471,8 +467,7 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 				R_AddMarkFragments(3, clipPoints,
 								   numPlanes, normals, dists,
 								   maxPoints, pointBuffer,
-								   maxFragments, fragmentBuffer,
-								   &returnedPoints, &returnedFragments, mins, maxs);
+								   maxFragments, fragmentBuffer, &returnedPoints, &returnedFragments, mins, maxs);
 				if(returnedFragments == maxFragments)
 				{
 					return returnedFragments;	// not enough space for more fragments

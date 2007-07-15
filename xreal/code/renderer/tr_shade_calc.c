@@ -999,13 +999,14 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 			case TMOD_TURBULENT:
 			{
 				waveForm_t     *wf;
-				
+
 				wf = &bundle->texMods[j].wave;
 
 				x = (1.0 / 4.0);
 				y = (wf->phase + tess.shaderTime * wf->frequency);
 
-				MatrixMultiplyScale(matrix, 1 + (wf->amplitude * sin(y) + wf->base) * x, 1 + (wf->amplitude * sin(y + 0.25) + wf->base) * x, 0.0);
+				MatrixMultiplyScale(matrix, 1 + (wf->amplitude * sin(y) + wf->base) * x,
+									1 + (wf->amplitude * sin(y + 0.25) + wf->base) * x, 0.0);
 				break;
 			}
 
@@ -1049,7 +1050,7 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 			case TMOD_STRETCH:
 			{
 				float           p;
-				
+
 				p = 1.0f / RB_EvalWaveForm(&bundle->texMods[j].wave);
 
 				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
@@ -1145,12 +1146,10 @@ long myftol(float f)
 {
 #ifndef __MINGW32__
 	static int      tmp;
-	__asm fld       f __asm fistp tmp __asm mov eax, tmp
+	__asm fld f __asm fistp tmp __asm mov eax, tmp
 #else
 	return (long)f;
 #endif
 }
 
 #endif
-
-
