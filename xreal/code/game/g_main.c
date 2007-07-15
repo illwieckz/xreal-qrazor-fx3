@@ -188,8 +188,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 
 	// r1
-	{&g_accountsFile, "g_accountsFile", "", 0, 0},
-	{&g_bansFile, "g_bansFile", "", 0, 0}
+	{&g_accountsFile, "g_accountsFile", "accounts", 0, 0},
+	{&g_bansFile, "g_bansFile", "bans", 0, 0}
 };
 
 // bk001129 - made static to avoid aliasing

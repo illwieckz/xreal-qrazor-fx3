@@ -2086,10 +2086,6 @@ void Cmd_Map_Restart_f(gentity_t * ent)
 	trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
 }
 
-void Cmd_Status_f(gentity_t * ent)
-{
-}
-
 void Cmd_ListIP_f(gentity_t * ent)
 {
 	if(Admin_HasPermission(ent, PERMISSION_VIEW))
@@ -2358,8 +2354,6 @@ void ClientCommand(int clientNum)
 		Cmd_Kick_f(ent);
 	else if(!Q_stricmp(cmd, "@ban"))
 		Cmd_Ban_f(ent);
-	else if(!Q_stricmp(cmd, "@status"))
-		Cmd_Status_f(ent);
 	else if(!Q_stricmp(cmd, "@mute"))
 		Cmd_Mute_f(ent);
 	else if(!Q_stricmp(cmd, "@map"))
