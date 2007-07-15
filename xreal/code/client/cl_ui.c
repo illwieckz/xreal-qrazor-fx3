@@ -437,8 +437,8 @@ static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int 
 	{
 		case SORT_HOST:
 			{
-				char	hostName1[MAX_HOSTNAME_LENGTH];
-				char	hostName2[MAX_HOSTNAME_LENGTH];
+				char	hostName1[80];
+				char	hostName2[80];
 				char   *p;
 				int		i;
   	 
