@@ -567,8 +567,8 @@ void GLSL_InitGPUShaders(void)
 
 	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_proj.program);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_NormalMap, 1);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_SpecularMap, 2);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_NormalMap, 1);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_SpecularMap, 2);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_AttenuationMapZ, 4);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowMap, 5);
@@ -1697,11 +1697,11 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs | GLCS_COLOR);
+		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs | GLCS_COLOR);
 	}
 	else
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs);
+		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs);
 
 		qglColor4fv(colorWhite);
 	}
