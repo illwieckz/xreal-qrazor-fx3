@@ -749,9 +749,6 @@ void CG_PredictPlayerState(void)
 		// get the command
 		trap_GetUserCmd(cmdNum, &cg_pmove.cmd);
 
-		if(cg_pmove.pmove_fixed)
-			PM_UpdateViewAngles(cg_pmove.ps, &cg_pmove.cmd);
-
 		// don't do anything if the time is before the snapshot player time
 		if(cg_pmove.cmd.serverTime <= cg.predictedPlayerState.commandTime)
 			continue;
