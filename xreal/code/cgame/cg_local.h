@@ -825,7 +825,6 @@ typedef struct
 	qhandle_t       blueKamikazeShader;
 
 	// weapon effect models
-	qhandle_t       bulletFlashModel;
 	qhandle_t       ringFlashModel;
 	qhandle_t       dishFlashModel;
 	qhandle_t       lightningExplosionModel;
@@ -833,7 +832,6 @@ typedef struct
 	// weapon effect shaders
 	qhandle_t       railExplosionShader;
 	qhandle_t       plasmaExplosionShader;
-	qhandle_t       bulletExplosionShader;
 	qhandle_t       rocketExplosionShader;
 	qhandle_t       grenadeExplosionShader;
 	qhandle_t       bfgExplosionShader;
@@ -1742,6 +1740,7 @@ void            CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2
 void            CG_ParticleSmoke(qhandle_t pshader, centity_t * cent);
 void            CG_AddParticleShrapnel(localEntity_t * le);
 void            CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent);
+void			CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin);
 void            CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);
 void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);

@@ -851,7 +851,6 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/vulcan/vulcanf3b.wav", qfalse);
 			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/vulcan/vulcanf4b.wav", qfalse);
 			weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-			cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 			break;
 #endif
 
@@ -863,7 +862,6 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_4.ogg", qfalse);
 			weaponInfo->flashSound[4] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_5.ogg", qfalse);
 			//weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-			cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 			break;
 
 		case WP_SHOTGUN:
@@ -2138,6 +2136,51 @@ void CG_FireWeapon(centity_t * cent)
 	CG_PredictWeaponEffects(cent);
 }
 
+/*
+=================
+CG_AddBulletParticles
+=================
+*/
+static void CG_AddBulletParticles(vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale)
+{
+	vec3_t				velocity, pos;
+	int					i;
+
+	// add the falling particles
+	for(i = 0; i < count; i++)
+	{
+		VectorSet(velocity, dir[0] + crandom() * randScale, dir[1] + crandom() * randScale, dir[2] + crandom() * randScale);
+		VectorScale(velocity, (float)speed, velocity);
+
+		VectorCopy(origin, pos);
+		VectorMA(pos, 2 + random() * 4, dir, pos);
+
+		CG_ParticleBulletDebris(pos, velocity, 300 + rand() % 300);
+	}
+}
+
+/*
+=================
+CG_AddSparks
+=================
+*/
+static void CG_AddSparks(vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale)
+{
+	vec3_t				velocity, pos;
+	int					i;
+
+	// add the falling particles
+	for(i = 0; i < count; i++)
+	{
+		VectorSet(velocity, dir[0] + crandom() * randScale, dir[1] + crandom() * randScale, dir[2] + crandom() * randScale);
+		VectorScale(velocity, (float)speed, velocity);
+
+		VectorCopy(origin, pos);
+		VectorMA(pos, 2 + random() * 4, dir, pos);
+
+		CG_ParticleSparks(pos, velocity, 300 + rand() % 300, 20, 30, 375);
+	}
+}
 
 /*
 =================
@@ -2196,6 +2239,14 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			}
 			mark = cgs.media.holeMarkShader;
 			radius = 12;
+
+			// some debris particles
+			VectorMA(origin, 12, dir, partOrigin);
+
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			if(sfx && (rand() % 3 == 0))
+				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 #endif
 		case WP_LIGHTNING:
@@ -2291,16 +2342,21 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			isSprite = qtrue;
 			break;
 		case WP_SHOTGUN:
-			mod = cgs.media.bulletFlashModel;
-			shader = cgs.media.bulletExplosionShader;
 			mark = cgs.media.bulletMarkShader;
 			sfx = 0;
 			radius = 4;
+
+			// some debris particles
+			VectorMA(origin, 12, dir, partOrigin);
+
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			if(sfx && (rand() % 3 == 0))
+				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 
 #ifdef MISSIONPACK
 		case WP_CHAINGUN:
-			mod = cgs.media.bulletFlashModel;
 			if(soundType == IMPACTSOUND_FLESH)
 			{
 				sfx = cgs.media.sfx_chghitflesh;
@@ -2330,12 +2386,18 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			}
 
 			radius = 8;
+
+			// some debris particles
+			VectorMA(origin, 12, dir, partOrigin);
+
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			if(sfx && (rand() % 3 == 0))
+				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 #endif
 
 		case WP_MACHINEGUN:
-			mod = cgs.media.bulletFlashModel;
-			shader = cgs.media.bulletExplosionShader;
 			mark = cgs.media.bulletMarkShader;
 
 			r = rand() & 3;
@@ -2353,6 +2415,14 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			}
 
 			radius = 8;
+
+			// some debris particles
+			VectorMA(origin, 12, dir, partOrigin);
+
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			if(sfx && (rand() % 3 == 0))
+				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 	}
 
@@ -2641,9 +2711,7 @@ void CG_Tracer(vec3_t source, vec3_t dest)
 
 	// add the tracer sound
 	trap_S_StartSound(midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound);
-
 }
-
 
 /*
 ======================

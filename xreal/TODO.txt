@@ -112,13 +112,6 @@ base/models/weaphits/blood203.png
 base/models/weaphits/blood204.png
 base/models/weaphits/blood205.png
 base/models/weaphits/boom01.md3
-base/models/weaphits/bullet1.png
-base/models/weaphits/bullet1.png
-base/models/weaphits/bullet2.png
-base/models/weaphits/bullet2.png
-base/models/weaphits/bullet3.png
-base/models/weaphits/bullet3.png
-base/models/weaphits/bullet.md3
 base/models/weaphits/crackle.md3
 base/models/weaphits/electric.png
 base/models/weaphits/kam03b.png (optional)

@@ -860,7 +860,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 		trap_R_AddPolyToScene(p->pshader, 3, TRIverts);
 	else
 		trap_R_AddPolyToScene(p->pshader, 4, verts);
-
 }
 
 // Ridah, made this static so it doesn't interfere with other files
@@ -1068,7 +1067,6 @@ void CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent)
 		p->accel[0] = crandom() * 16;
 		p->accel[1] = crandom() * 16;
 	}
-
 }
 
 void CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum)
@@ -1125,7 +1123,6 @@ void CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb,
 	// Rafael snow pvs check
 	p->snum = snum;
 	p->link = qtrue;
-
 }
 
 void CG_ParticleBubble(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum)
@@ -1191,7 +1188,6 @@ void CG_ParticleBubble(qhandle_t pshader, vec3_t origin, vec3_t origin2, int tur
 
 void CG_ParticleSmoke(qhandle_t pshader, centity_t * cent)
 {
-
 	// using cent->density = enttime
 	//       cent->frame = startfade
 	cparticle_t    *p;
@@ -1236,10 +1232,8 @@ void CG_ParticleSmoke(qhandle_t pshader, centity_t * cent)
 	p->roll = 8 + (crandom() * 4);
 }
 
-
 void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
 {
-
 	cparticle_t    *p;
 
 	if(!free_particles)
@@ -1275,7 +1269,6 @@ void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
 
 	p->accel[2] = -60;
 	p->vel[2] += -20;
-
 }
 
 /*
@@ -1283,7 +1276,6 @@ void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
 CG_ParticleExplosion
 ======================
 */
-
 void CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd)
 {
 	cparticle_t    *p;
@@ -1533,7 +1525,6 @@ void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEnt
 
 	p->color = BLOODRED;
 	p->alpha = 0.75;
-
 }
 
 void CG_Particle_OilParticle(qhandle_t pshader, centity_t * cent)
@@ -1596,9 +1587,7 @@ void CG_Particle_OilParticle(qhandle_t pshader, centity_t * cent)
 	p->roll = rand() % 179;
 
 	p->alpha = 0.75;
-
 }
-
 
 void CG_Particle_OilSlick(qhandle_t pshader, centity_t * cent)
 {
@@ -1663,7 +1652,6 @@ void CG_Particle_OilSlick(qhandle_t pshader, centity_t * cent)
 	p->roll = rand() % 179;
 
 	p->alpha = 0.75;
-
 }
 
 void CG_OilSlickRemove(centity_t * cent)
@@ -1876,8 +1864,6 @@ void CG_ParticleBloodCloud(centity_t * cent, vec3_t origin, vec3_t dir)
 		p->alpha = 0.75;
 
 	}
-
-
 }
 
 void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed)
@@ -1925,7 +1911,6 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 
 	p->accel[0] = crandom() * 4;
 	p->accel[1] = crandom() * 4;
-
 }
 
 void CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir)
@@ -2018,10 +2003,7 @@ void CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir)
 		p->roll = rand() % 179;
 
 		p->alpha = 0.75;
-
 	}
-
-
 }
 
 void CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha)
@@ -2069,6 +2051,7 @@ void CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, f
 /*
 ==========================
 CG_ParticleTeleportEffect
+
 Tr3B: Tenebrae style player teleporting in or out
 ==========================
 */
