@@ -4,7 +4,6 @@ models/weapons/lightning/w_lightning
 	{
 		blend diffuseMap
 		map models/weapons/lightning/lightning.tga
-		rgbGen lightingDiffuse
 	}
 	normalMap models/weapons/lightning/lightning_local.tga
 	specularMap models/weapons/lightning/lightning_s.tga

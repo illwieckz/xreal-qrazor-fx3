@@ -2,7 +2,6 @@
 
 Media that needs to be created:
 base/gfx/2d/net.png
-base/gfx/damage/plasma_mrk.png
 base/icons/ammo_proxmine.png (optional)
 base/icons/ammo_regen.png
 base/icons/doubler.png (optional)

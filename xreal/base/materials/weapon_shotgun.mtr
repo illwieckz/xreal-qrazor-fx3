@@ -3,7 +3,6 @@ models/weapons/shotgun/shotgun
 {
 	{
 		blend diffuseMap
-		rgbGen lightingDiffuse
 		map	models/weapons/shotgun/shotgun.tga
 	}
 	{

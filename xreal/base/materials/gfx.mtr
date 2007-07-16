@@ -87,16 +87,6 @@ menubacknologo
 	}
 }
 
-menubackRagePro	// blends turn to shit on rage pro, so skip it
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map menu/art/background.tga
-	}
-}
-
 menuCursor
 {
 	nopicmip
@@ -879,7 +869,6 @@ gfx/2d/cursor
 
 //==========================================================================
 
-
 sprites/balloon3
 {
 	{
@@ -919,33 +908,6 @@ sprites/plasma1
 	}
 }
 
-sprites/plasma2
-{
-	twoSided
-	{
-		map sprites/plasma2.tga
-		blend add
-	}
-}
-
-// this is an example of a crossfaded animation cycle
-textures/animationTest
-{
-	qer_editorimage	textures/liquids/bloodwater1.tga
-	{
-		animMap 0.5 textures/liquids/bloodwater1.tga textures/liquids/pool.tga textures/liquids/slime7.tga
-	}	
-	{
-		animMap 0.5 textures/liquids/pool.tga textures/liquids/slime7.tga textures/liquids/bloodwater1.tga
-		blendFunc	GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		alphaGen	wave sawtooth 0 1 0 0.5
-	}	
-	{
-		map _lightmap
-		blendFunc GL_DST_COLOR GL_ZERO
-	}
-}
-
 teleportEffect
 {
 	twosided
@@ -966,8 +928,7 @@ teleportFlare
 	{
 		map textures/particles/flare2.tga
 		blend add
-		rgbGen vertex
-		alphaGen vertex
+		vertexColor
 	}
 }
 
@@ -1024,12 +985,11 @@ viewBloodBlend
 	sort	nearest
 	{
 		//map models/weaphits/blood201.tga
-        //map gfx/damage/blood_screen.tga
+        	//map gfx/damage/blood_screen.tga
 		clampmap textures/decals/blood_splat02.tga
 		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 }
 
@@ -1041,8 +1001,7 @@ waterBubble
 	{
 		map gfx/misc/bubble.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-		rgbGen		vertex
-		alphaGen	vertex
+		vertexColor
 	}
 	/*
 	{
@@ -1050,7 +1009,7 @@ waterBubble
 		map		gfx/misc/bubble_n.tga
 		deformMagnitude .1
 		alphaTest 0.5
-    }
+	}
 	*/
 }
 
@@ -1109,7 +1068,7 @@ sun
 railDisc
 {
 	twoSided
-    //deformVertexes wave 100 sin 0 .5 0 2.4
+	//deformVertexes wave 100 sin 0 .5 0 2.4
 	translucent
 	sort postProcess
 	{
@@ -1264,7 +1223,8 @@ gfx/damage/plasma_mrk
 {
 	polygonOffset
 	{
-		map gfx/damage/plasma_mrk.tga
+		//map gfx/damage/plasma_mrk.tga
+		map textures/decals/particle_burn01.png
 		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
 		vertexColor
 	}
@@ -1291,7 +1251,6 @@ textures/particles/glow1
 		vertexColor
 	}
 }
-
 
 //===============================================================
 
@@ -1628,23 +1587,23 @@ gfx/2d/numbers/minus_32b
 // can be expected to start at time 0 for each separate explosion
 //
 // Many of these are use smoothly morphed animating textures by pairing
-// sawtooth and iverse sawtooth rgbGens
+// sawtooth and inverse sawtooth rgbGens
 plasmaExplosion
 {
 	cull disable
 	{
 		clampmap models/weaphits/plasmaboom.tga
 		blendfunc add
-        tcMod stretch triangle .6 0.1 0 8
-        tcmod rotate 999
-        rgbGen wave inversesawtooth 0 1 0 1.5
+		tcMod stretch triangle .6 0.1 0 8
+		tcmod rotate 999
+		rgbGen wave inversesawtooth 0 1 0 1.5
 	}
 }
 
 railExplosion
 {
 	cull disable
-    {
+    	{
 		animmap 5 models/weaphits/ring02_1.tga  models/weaphits/ring02_2.tga  models/weaphits/ring02_3.tga models/weaphits/ring02_4.tga _black
 		alphaGen wave inversesawtooth 0 1 0 5
 		blendfunc blend

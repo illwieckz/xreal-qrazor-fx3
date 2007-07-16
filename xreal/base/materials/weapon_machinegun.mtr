@@ -4,7 +4,6 @@ models/weapons/machinegun/machinegun
 	{
 		blend diffusemap
 		map models/weapons/machinegun/machinegun.png
-		rgbGen lightingDiffuse
 	}
 	{
 		stage normalmap
