@@ -810,7 +810,10 @@ void            ByteToDir(int b, vec3_t dir);
 
 #endif
 
-#define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
+extern void		init_tonextint(void);
+extern float	tonextint(float x);
+
+#define SnapVector(v) {v[0] = tonextint(v[0]); v[1] = tonextint(v[1]); v[2]= tonextint(v[2]);}
 
 void			SnapVectorTowards(vec3_t v, vec3_t to);
 

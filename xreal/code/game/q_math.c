@@ -20,10 +20,12 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 // q_math.c -- stateless support routines that are included in each code module
 #include "q_shared.h"
 #include <float.h>
+
+int				nonansicast = 0;
 
 // *INDENT-OFF*
 vec3_t          vec3_origin = { 0, 0, 0 };
@@ -148,7 +150,8 @@ vec3_t  bytedirs[NUMVERTEXNORMALS] =
 };
 // *INDENT-ON*
 
-//==============================================================
+// ==============================================================
+
 int Q_rand(int *seed)
 {
 	*seed = (69069 * *seed + 1);
@@ -165,7 +168,8 @@ float Q_crandom(int *seed)
 	return 2.0 * (Q_random(seed) - 0.5);
 }
 
-//=======================================================
+// ==============================================================
+
 signed char ClampChar(int i)
 {
 	if(i < -128)
@@ -290,6 +294,33 @@ void ClampColor(vec4_t color)
 		if(color[i] > 1)
 			color[i] = 1;
 	}
+}
+
+// Rounds the argument to the next integer. Used by SnapVector.
+void init_tonextint()
+{
+	float		decimal = 0.9f;
+  	 
+	nonansicast = (int)decimal;
+}
+  	 
+float tonextint(float x)
+{
+	int			casted;
+	float		rest;
+  	 
+	if(nonansicast)
+		return (int)x;
+  	 
+	casted = (int)x;
+	rest = x - (float)casted;
+  	 
+	if(rest >= 0.5f)
+		return casted + 1;
+	else if(rest <= -0.5f)
+		return casted - 1;
+	else
+		return casted;
 }
 
 vec_t PlaneNormalize(vec4_t plane)

@@ -117,7 +117,6 @@ static const int numSortKeys = sizeof(sortKeys) / sizeof(const char *);
 static char    *netnames[] = {
 	"???",
 	"UDP",
-	"IPX",
 	NULL
 };
 
@@ -6260,6 +6259,8 @@ void _UI_Init(qboolean inGameLoad)
 	int             start;
 
 	//uiInfo.inGameLoad = inGameLoad;
+
+	init_tonextint();
 
 	UI_RegisterCvars();
 	UI_InitMemory();
