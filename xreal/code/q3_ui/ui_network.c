@@ -31,7 +31,6 @@ NETWORK OPTIONS MENU
 
 #include "ui_local.h"
 
-
 #define ART_FRAMEL			"menu/art/frame2_l"
 #define ART_FRAMER			"menu/art/frame1_r"
 #define ART_BACK0			"menu/art/back_0"
@@ -42,15 +41,14 @@ NETWORK OPTIONS MENU
 #define ID_SOUND			12
 #define ID_NETWORK			13
 #define ID_RATE				14
-#define ID_BACK				15
-
+#define ID_PACKETDUP		15
+#define ID_MAXPACKETS		16
+#define ID_BACK				17
 
 static const char *rate_items[] = {
-	"<= 28.8K",
-	"33.6K",
-	"56K",
+	"Modem",
 	"ISDN",
-	"LAN/Cable/xDSL",
+	"Cable/xDSL/LAN",
 	0
 };
 
@@ -67,13 +65,14 @@ typedef struct
 	menutext_s      sound;
 	menutext_s      network;
 
-	menulist_s      rate;
+	menulist_s		rate;
+	menuslider_s	packetdup;
+	menuslider_s	maxpackets;
 
 	menubitmap_s    back;
 } networkOptionsInfo_t;
 
 static networkOptionsInfo_t networkOptionsInfo;
-
 
 /*
 =================
@@ -109,25 +108,19 @@ static void UI_NetworkOptionsMenu_Event(void *ptr, int event)
 
 		case ID_RATE:
 			if(networkOptionsInfo.rate.curvalue == 0)
-			{
-				trap_Cvar_SetValue("rate", 2500);
-			}
+				trap_Cvar_SetValue("rate", 5500);
 			else if(networkOptionsInfo.rate.curvalue == 1)
-			{
-				trap_Cvar_SetValue("rate", 3000);
-			}
+				trap_Cvar_SetValue("rate", 14000);
 			else if(networkOptionsInfo.rate.curvalue == 2)
-			{
-				trap_Cvar_SetValue("rate", 4000);
-			}
-			else if(networkOptionsInfo.rate.curvalue == 3)
-			{
-				trap_Cvar_SetValue("rate", 5000);
-			}
-			else if(networkOptionsInfo.rate.curvalue == 4)
-			{
 				trap_Cvar_SetValue("rate", 25000);
-			}
+			break;
+
+		case ID_PACKETDUP:
+			trap_Cvar_SetValue("cl_packetdup", (int)networkOptionsInfo.packetdup.curvalue);
+			break;
+
+		case ID_MAXPACKETS:
+			trap_Cvar_SetValue("cl_maxpackets", (int)networkOptionsInfo.maxpackets.curvalue);
 			break;
 
 		case ID_BACK:
@@ -135,7 +128,6 @@ static void UI_NetworkOptionsMenu_Event(void *ptr, int event)
 			break;
 	}
 }
-
 
 /*
 ===============
@@ -217,7 +209,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.style = UI_RIGHT;
 	networkOptionsInfo.network.color = color_red;
 
-	y = 240 - 1 * (BIGCHAR_HEIGHT + 2);
+	y = 240 - 1.5 * (BIGCHAR_HEIGHT + 2);
 	networkOptionsInfo.rate.generic.type = MTYPE_SPINCONTROL;
 	networkOptionsInfo.rate.generic.name = "Data Rate:";
 	networkOptionsInfo.rate.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -226,6 +218,28 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.rate.generic.x = 400;
 	networkOptionsInfo.rate.generic.y = y;
 	networkOptionsInfo.rate.itemnames = rate_items;
+
+	y += BIGCHAR_HEIGHT + 2;
+	networkOptionsInfo.packetdup.generic.type = MTYPE_SLIDER;
+	networkOptionsInfo.packetdup.generic.name = "Duplicate Packets:";
+	networkOptionsInfo.packetdup.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	networkOptionsInfo.packetdup.generic.callback = UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.packetdup.generic.id = ID_PACKETDUP;
+	networkOptionsInfo.packetdup.generic.x = 400;
+	networkOptionsInfo.packetdup.generic.y = y;
+	networkOptionsInfo.packetdup.minvalue = 0;
+	networkOptionsInfo.packetdup.maxvalue = 5;
+
+	y += BIGCHAR_HEIGHT + 2;
+	networkOptionsInfo.maxpackets.generic.type = MTYPE_SLIDER;
+	networkOptionsInfo.maxpackets.generic.name = "Max. Packets:";
+	networkOptionsInfo.maxpackets.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	networkOptionsInfo.maxpackets.generic.callback = UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.maxpackets.generic.id = ID_MAXPACKETS;
+	networkOptionsInfo.maxpackets.generic.x = 400;
+	networkOptionsInfo.maxpackets.generic.y = y;
+	networkOptionsInfo.maxpackets.minvalue = 1;
+	networkOptionsInfo.maxpackets.maxvalue = 125;
 
 	networkOptionsInfo.back.generic.type = MTYPE_BITMAP;
 	networkOptionsInfo.back.generic.name = ART_BACK0;
@@ -246,31 +260,21 @@ static void UI_NetworkOptionsMenu_Init(void)
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.sound);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.network);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.rate);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.packetdup);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.maxpackets);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.back);
 
 	rate = trap_Cvar_VariableValue("rate");
-	if(rate <= 2500)
-	{
+	if(rate <= 5500)
 		networkOptionsInfo.rate.curvalue = 0;
-	}
-	else if(rate <= 3000)
-	{
+	else if(rate <= 14000)
 		networkOptionsInfo.rate.curvalue = 1;
-	}
-	else if(rate <= 4000)
-	{
-		networkOptionsInfo.rate.curvalue = 2;
-	}
-	else if(rate <= 5000)
-	{
-		networkOptionsInfo.rate.curvalue = 3;
-	}
 	else
-	{
-		networkOptionsInfo.rate.curvalue = 4;
-	}
-}
+		networkOptionsInfo.rate.curvalue = 2;
 
+	networkOptionsInfo.packetdup.curvalue = trap_Cvar_VariableValue("cl_packetdup");
+	networkOptionsInfo.maxpackets.curvalue = trap_Cvar_VariableValue("cl_maxpackets");
+}
 
 /*
 ===============
@@ -284,7 +288,6 @@ void UI_NetworkOptionsMenu_Cache(void)
 	trap_R_RegisterShaderNoMip(ART_BACK0);
 	trap_R_RegisterShaderNoMip(ART_BACK1);
 }
-
 
 /*
 ===============
