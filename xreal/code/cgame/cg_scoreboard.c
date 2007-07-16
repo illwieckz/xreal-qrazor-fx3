@@ -74,11 +74,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static qboolean localClient;	// true if local client has been displayed
 
 
-							 /*
-							    =================
-							    CG_DrawScoreboard
-							    =================
-							  */
+/*
+=================
+CG_DrawClientScore
+=================
+*/
 static void CG_DrawClientScore(int y, score_t * score, float *color, float fade, qboolean largeFormat)
 {
 	char            string[1024];
@@ -133,21 +133,7 @@ static void CG_DrawClientScore(int y, score_t * score, float *color, float fade,
 	}
 	else
 	{
-		if(ci->botSkill > 0 && ci->botSkill <= 5)
-		{
-			if(cg_drawIcons.integer)
-			{
-				if(largeFormat)
-				{
-					CG_DrawPic(iconx, y - (32 - BIGCHAR_HEIGHT) / 2, 32, 32, cgs.media.botSkillShaders[ci->botSkill - 1]);
-				}
-				else
-				{
-					CG_DrawPic(iconx, y, 16, 16, cgs.media.botSkillShaders[ci->botSkill - 1]);
-				}
-			}
-		}
-		else if(ci->handicap < 100)
+		if(ci->handicap < 100)
 		{
 			Com_sprintf(string, sizeof(string), "%i", ci->handicap);
 			if(cgs.gametype == GT_TOURNAMENT)

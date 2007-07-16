@@ -919,17 +919,18 @@ extern vmCvar_t g_cubeTimeout;
 extern vmCvar_t g_redteam;
 extern vmCvar_t g_blueteam;
 extern vmCvar_t g_smoothClients;
-extern vmCvar_t pmove_fixed;
-extern vmCvar_t pmove_msec;
+
 extern vmCvar_t g_rankings;
 extern vmCvar_t g_enableDust;
 extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
 
+extern vmCvar_t cg_fixedPmove;
+extern vmCvar_t cg_fixedPmoveFPS;
+
 // this is for convenience - using "sv_fps.integer" is nice :)
 extern vmCvar_t sv_fps;
-
 extern vmCvar_t g_delagHitscan;
 
 // r1:

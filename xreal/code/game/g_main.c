@@ -79,14 +79,14 @@ vmCvar_t        g_teamForceBalance;
 vmCvar_t        g_banIPs;
 vmCvar_t        g_filterBan;
 vmCvar_t        g_smoothClients;
-vmCvar_t        pmove_fixed;
-vmCvar_t        pmove_msec;
 vmCvar_t        g_rankings;
 vmCvar_t        g_listEntity;
 
+vmCvar_t		cg_fixedPmove;
+vmCvar_t		cg_fixedPmoveFPS;
+
 // this is for convenience - using "sv_fps.integer" is nice :)
 vmCvar_t		sv_fps;
-
 vmCvar_t		g_delagHitscan;
 
 #ifdef MISSIONPACK
@@ -187,14 +187,13 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse},
 #endif
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
-	{&pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
-
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
+
+	{&cg_fixedPmove, "cg_fixedPmove", "1", CVAR_SYSTEMINFO}, 
+	{&cg_fixedPmoveFPS, "cg_fixedPmoveFPS", "125", CVAR_SYSTEMINFO}, 
 
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
-
 	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 
 	// r1
@@ -397,6 +396,11 @@ void G_RegisterCvars(void)
 		G_Printf("g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");
 	}
+
+	if(cg_fixedPmoveFPS.integer < 60)  
+		trap_Cvar_Set("cg_fixedPmoveFPS", "60"); 
+	else if(cg_fixedPmoveFPS.integer > 333) 
+		trap_Cvar_Set("cg_fixedPmoveFPS", "333"); 
 
 	level.warmupModificationCount = g_warmup.modificationCount;
 }

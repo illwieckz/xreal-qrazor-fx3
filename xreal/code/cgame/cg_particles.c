@@ -1890,7 +1890,7 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 	p->endHeight = 0.5;
 	p->endWidth = 0.5;
 
-	p->pshader = cgs.media.tracerShader;
+	p->pshader = cgs.media.sparkShader;
 
 	p->type = P_SMOKE;
 

@@ -800,8 +800,6 @@ typedef struct
 
 	qhandle_t       shadowMarkShader;
 
-	qhandle_t       botSkillShaders[5];
-
 	// wall mark shaders
 	qhandle_t       wakeMarkShader;
 	qhandle_t       bloodMarkShader;
@@ -1008,7 +1006,13 @@ typedef struct
 	sfxHandle_t     doublerSound;
 	sfxHandle_t     guardSound;
 	sfxHandle_t     scoutSound;
+
+	sfxHandle_t     wstbimplSound;
+	sfxHandle_t     wstbimpmSound;
+	sfxHandle_t     wstbimpdSound;
+	sfxHandle_t     wstbactvSound;
 #endif
+
 	qhandle_t       cursor;
 	qhandle_t       selectCursor;
 	qhandle_t       sizeCursor;
@@ -1018,10 +1022,6 @@ typedef struct
 	sfxHandle_t     n_healthSound;
 	sfxHandle_t     hgrenb1aSound;
 	sfxHandle_t     hgrenb2aSound;
-	sfxHandle_t     wstbimplSound;
-	sfxHandle_t     wstbimpmSound;
-	sfxHandle_t     wstbimpdSound;
-	sfxHandle_t     wstbactvSound;
 
 	// debug utils
 	qhandle_t       debugPlayerAABB;
@@ -1205,8 +1205,6 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
-extern vmCvar_t pmove_fixed;
-extern vmCvar_t pmove_msec;
 
 extern vmCvar_t cg_cameraOrbit;
 extern vmCvar_t cg_cameraOrbitDelay;
@@ -1226,6 +1224,9 @@ extern vmCvar_t cg_trueLightning;
 extern vmCvar_t cg_drawBloom;
 extern vmCvar_t cg_drawRotoscope;
 extern vmCvar_t cg_drawPlayerAABB;
+
+extern vmCvar_t cg_fixedPmove;
+extern vmCvar_t cg_fixedPmoveFPS;
 
 extern vmCvar_t cg_delag;
 extern vmCvar_t cg_projectileNudge;

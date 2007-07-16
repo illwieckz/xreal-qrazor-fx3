@@ -170,9 +170,6 @@ vmCvar_t        cg_noVoiceChats;
 vmCvar_t        cg_noVoiceText;
 vmCvar_t        cg_hudFiles;
 vmCvar_t        cg_scorePlum;
-vmCvar_t        pmove_fixed;
-vmCvar_t        pmove_msec;
-vmCvar_t        cg_pmove_msec;
 vmCvar_t        cg_cameraMode;
 vmCvar_t        cg_cameraOrbit;
 vmCvar_t        cg_cameraOrbitDelay;
@@ -191,6 +188,9 @@ vmCvar_t        cg_trueLightning;
 vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
 vmCvar_t		cg_drawPlayerAABB;
+
+vmCvar_t		cg_fixedPmove;
+vmCvar_t		cg_fixedPmoveFPS;
 
 vmCvar_t		cg_delag;
 vmCvar_t		cg_projectileNudge;
@@ -322,8 +322,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
 
-	{&pmove_fixed, "pmove_fixed", "0", 0},
-	{&pmove_msec, "pmove_msec", "8", 0},
 	{&cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
 	{&cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
 	{&cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
@@ -336,6 +334,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
+
+	{&cg_fixedPmove, "cg_fixedPmove", "1", 0}, 
+	{&cg_fixedPmoveFPS, "cg_fixedPmoveFPS", "125", 0}, 
 
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},
@@ -859,12 +860,6 @@ static void CG_RegisterGraphics(void)
 	{
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
 	}
-
-	cgs.media.botSkillShaders[0] = trap_R_RegisterShader("menu/art/skill1.tga");
-	cgs.media.botSkillShaders[1] = trap_R_RegisterShader("menu/art/skill2.tga");
-	cgs.media.botSkillShaders[2] = trap_R_RegisterShader("menu/art/skill3.tga");
-	cgs.media.botSkillShaders[3] = trap_R_RegisterShader("menu/art/skill4.tga");
-	cgs.media.botSkillShaders[4] = trap_R_RegisterShader("menu/art/skill5.tga");
 
 	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
 
@@ -1800,11 +1795,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 				}
 				else
 				{
-					if(info->botSkill > 0 && info->botSkill <= 5)
-					{
-						*handle = cgs.media.botSkillShaders[info->botSkill - 1];
-					}
-					else if(info->handicap < 100)
+					if(info->handicap < 100)
 					{
 						return va("%i", info->handicap);
 					}

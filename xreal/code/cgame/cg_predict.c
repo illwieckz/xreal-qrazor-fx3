@@ -645,14 +645,6 @@ void CG_PredictPlayerState(void)
 		cg.physicsTime = cg.snap->serverTime;
 	}
 
-	if(pmove_msec.integer < 8)
-		trap_Cvar_Set("pmove_msec", "8");
-	else if(pmove_msec.integer > 33)
-		trap_Cvar_Set("pmove_msec", "33");
-
-	cg_pmove.pmove_fixed = pmove_fixed.integer;
-	cg_pmove.pmove_msec = pmove_msec.integer;
-
 	// Like the comments described above, a player's state is entirely
 	// re-predicted from the last valid snapshot every client frame, which
 	// can be really, really, really slow.  Every old command has to be
@@ -822,8 +814,13 @@ void CG_PredictPlayerState(void)
 		// when it actually inflicts damage
 		cg_pmove.gauntletHit = qfalse;
 
-		if(cg_pmove.pmove_fixed)
-			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
+		if(cg_fixedPmoveFPS.integer < 60)
+			trap_Cvar_Set("cg_fixedPmoveFPS", "60");
+		else if(cg_fixedPmoveFPS.integer > 333)
+			trap_Cvar_Set("cg_fixedPmoveFPS", "333");
+
+		cg_pmove.fixedPmove = cg_fixedPmove.integer;
+		cg_pmove.fixedPmoveFPS = cg_fixedPmoveFPS.integer;
 
 		if(cg_optimizePrediction.integer)
 		{
@@ -850,12 +847,6 @@ void CG_PredictPlayerState(void)
 			else
 			{
 				numPlayedBack++; // debug code
-
-				if(cg_showmiss.integer && cg.savedPmoveStates[stateIndex].commandTime != cg_pmove.cmd.serverTime)
-				{
-					// this should ONLY happen just after changing the value of pmove_fixed
-					CG_Printf("saved state miss\n");
-				}
 
 				// play back the command from the saved states
 				*cg_pmove.ps = cg.savedPmoveStates[stateIndex];

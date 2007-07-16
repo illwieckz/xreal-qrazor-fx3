@@ -35,7 +35,7 @@ damage values to that client for pain blends and kicks, and
 global pain sound events for all clients.
 ===============
 */
-void P_DamageFeedback(gentity_t * player)
+void G_DamageFeedback(gentity_t * player)
 {
 	gclient_t      *client;
 	float           count;
@@ -100,12 +100,12 @@ void P_DamageFeedback(gentity_t * player)
 
 /*
 =============
-P_WorldEffects
+G_WorldEffects
 
 Check for lava / slime contents and drowning
 =============
 */
-void P_WorldEffects(gentity_t * ent)
+void G_WorldEffects(gentity_t * ent)
 {
 	qboolean        envirosuit;
 	int             waterlevel;
@@ -979,7 +979,7 @@ void ClientThink_real(gentity_t * ent)
 
 	client->pers.realPing = sum / NUM_PING_SAMPLES;
 
-	// save the command time *before* pmove_fixed messes with the serverTime
+	// save the command time *before* pmove messes with the serverTime
 	// attackTime will be used for backward reconciliation later (time shift)
 	client->attackTime = ucmd->serverTime;
 
@@ -1003,25 +1003,7 @@ void ClientThink_real(gentity_t * ent)
 		msec = 200;
 	}
 
-	if(pmove_msec.integer < 8)
-	{
-		trap_Cvar_Set("pmove_msec", "8");
-	}
-	else if(pmove_msec.integer > 33)
-	{
-		trap_Cvar_Set("pmove_msec", "33");
-	}
-
-	if(pmove_fixed.integer || client->pers.pmoveFixed)
-	{
-		ucmd->serverTime = ((ucmd->serverTime + pmove_msec.integer - 1) / pmove_msec.integer) * pmove_msec.integer;
-		//if (ucmd->serverTime - client->ps.commandTime <= 0)
-		//  return;
-	}
-
-	//
 	// check for exiting intermission
-	//
 	if(level.intermissiontime)
 	{
 		ClientIntermissionThink(client);
@@ -1162,8 +1144,13 @@ void ClientThink_real(gentity_t * ent)
 	pm.debugLevel = g_debugMove.integer;
 	pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0;
 
-	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
-	pm.pmove_msec = pmove_msec.integer;
+	if(cg_fixedPmoveFPS.integer < 60)  
+		trap_Cvar_Set("cg_fixedPmoveFPS", "60"); 
+	else if(cg_fixedPmoveFPS.integer > 333) 
+		trap_Cvar_Set("cg_fixedPmoveFPS", "333"); 
+
+	pm.fixedPmove = cg_fixedPmove.integer; 
+	pm.fixedPmoveFPS = cg_fixedPmoveFPS.integer; 
 
 	VectorCopy(client->ps.origin, client->oldOrigin);
 
@@ -1432,10 +1419,10 @@ void ClientEndFrame(gentity_t * ent)
 	}
 
 	// burn from lava, etc
-	P_WorldEffects(ent);
+	G_WorldEffects(ent);
 
 	// apply all the damage taken this frame
-	P_DamageFeedback(ent);
+	G_DamageFeedback(ent);
 
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
