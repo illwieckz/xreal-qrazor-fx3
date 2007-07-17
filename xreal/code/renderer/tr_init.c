@@ -1331,21 +1331,20 @@ void R_Register(void)
 	// latched and archived variables
 	r_glDriver = ri.Cvar_Get("r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_gamma_control = ri.Cvar_Get("r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_stencil_wrap = ri.Cvar_Get("r_ext_stencil_wrap", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic", "8", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_separate_stencil = ri.Cvar_Get("r_ext_separate_stencil", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_depth_bounds_test = ri.Cvar_Get("r_ext_depth_bounds_test", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_stencil_two_side = ri.Cvar_Get("r_ext_stencil_two_side", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_separate_stencil = ri.Cvar_Get("r_ext_separate_stencil", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_depth_bounds_test = ri.Cvar_Get("r_ext_depth_bounds_test", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get("r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_generate_mipmap = ri.Cvar_Get("r_ext_generate_mipmap", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_generate_mipmap = ri.Cvar_Get("r_ext_generate_mipmap", "1", CVAR_CHEAT | CVAR_LATCH);
 
 	r_collapseStages = ri.Cvar_Get("r_collapseStages", "1", CVAR_LATCH | CVAR_CHEAT);
 	r_picmip = ri.Cvar_Get("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH);

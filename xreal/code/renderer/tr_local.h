@@ -1901,10 +1901,8 @@ extern cvar_t  *r_displayRefresh;	// optional display refresh option
 extern cvar_t  *r_ignorehwgamma;	// overrides hardware gamma capabilities
 
 extern cvar_t  *r_ext_compressed_textures;	// these control use of specific extensions
-extern cvar_t  *r_ext_gamma_control;
 extern cvar_t  *r_ext_multitexture;
 extern cvar_t  *r_ext_compiled_vertex_array;
-extern cvar_t  *r_ext_texture_cube_map;
 extern cvar_t  *r_ext_vertex_buffer_object;
 extern cvar_t  *r_ext_occlusion_query;
 extern cvar_t  *r_ext_texture_non_power_of_two;
