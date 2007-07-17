@@ -419,7 +419,7 @@ qboolean Admin_RemoveAccount(const char *username)
 			}
 
 			last->next = u->next;
-			free(u);
+			G_Free(u);
 			Admin_WriteAccounts();
 			return qtrue;
 		}
@@ -512,7 +512,7 @@ void Admin_ExpireBans(void)
 			doneWork = qtrue;
 			Com_Printf("Expiring IP ban %s.\n", Admin_IPIntToString(s->ip));
 			last->next = s->next;
-			free(s);
+			G_Free(s);
 			s = last;
 			continue;
 		}
