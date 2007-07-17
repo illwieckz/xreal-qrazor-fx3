@@ -806,8 +806,8 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_LIGHTNING:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/melee/fsthum.wav", qfalse);
-			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/lightning/lg_hum.wav", qfalse);
+			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/lightning/lg_hum.wav", qfalse);
+			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/lightning/lg_fire_hum.wav", qfalse);
 
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/lightning/lg_fire.wav", qfalse);
 			cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
@@ -862,7 +862,7 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_ROCKET_LAUNCHER:
 			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
-			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.wav", qfalse);
+			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg", qfalse);
 			weaponInfo->missileTrailFunc = CG_RocketTrail;
 			weaponInfo->missileLight = 200;
 			weaponInfo->wiTrailTime = 2000;
@@ -935,7 +935,7 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/bfg/bfg_fire.wav", qfalse);
 			cgs.media.bfgExplosionShader = trap_R_RegisterShader("bfgExplosion");
 			weaponInfo->missileModel = trap_R_RegisterModel("models/weaphits/bfg.md3");
-			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.wav", qfalse);
+			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg", qfalse);
 			break;
 
 		default:
