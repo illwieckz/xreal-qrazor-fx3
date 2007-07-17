@@ -1789,6 +1789,9 @@ void CheckVote(void)
 		if(cl->pers.connected != CON_CONNECTED)
 			continue;
 
+		if(g_entities[i].r.svFlags & SVF_BOT)
+			continue;
+
 		if(level.voteType == VOTETYPE_TEAMKICK)
 		{
 			if(cl->sess.sessionTeam != level.voteStarter->client->sess.sessionTeam)
