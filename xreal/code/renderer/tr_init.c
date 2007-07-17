@@ -194,6 +194,7 @@ cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
 cvar_t         *r_vboTriangles;
 cvar_t         *r_vboShadows;
+cvar_t         *r_vboLighting;
 
 cvar_t         *r_precacheLightIndexes;
 cvar_t         *r_precacheShadowIndexes;
@@ -1416,6 +1417,7 @@ void R_Register(void)
 	r_vboCurves = ri.Cvar_Get("r_vboCurves", "0", CVAR_CHEAT);
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_ARCHIVE);
 	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
+	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 

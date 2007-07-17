@@ -917,7 +917,6 @@ R_AddPrecachedWorldInteractions
 void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 {
 	interactionCache_t *iaCache;
-	bspSurface_t   *surface;
 	interactionType_t iaType = IA_DEFAULT;
 
 	if(!r_drawworld->integer)
@@ -938,38 +937,71 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 	tr.currentEntity = &tr.worldEntity;
 
-	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	if(glConfig.vertexBufferObjectAvailable && r_vboLighting->integer)
 	{
-		surface = iaCache->surface;
+		srfVBOLightMesh_t *srf;
+		shader_t       *shader;
 
-		if(iaCache->redundant)
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 		{
-			continue;
-		}
-
-		// Tr3B - this surface is maybe not in this view but it may still cast a shadow
-		// into this view
-		if(surface->viewCount != tr.viewCount)
-		{
-			if(r_shadows->integer <= 2 || r_shadows->integer == 3 || light->l.noShadows)
+			if(iaCache->redundant)
 				continue;
-			else
-				iaType = IA_SHADOWONLY;
-		}
-		else
-		{
-			iaType = iaCache->type;
-		}
 
-		R_AddLightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes,
-							  iaCache->numShadowIndexes, iaCache->shadowIndexes, iaCache->cubeSideBits, iaType);
+			if(!iaCache->vboLightMesh)
+				continue;
+
+			srf = iaCache->vboLightMesh;
+			shader = iaCache->shader;
+			
+			R_AddLightInteraction(light, (void *) srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+		}
+	}
+	else
+	{
+		bspSurface_t   *surface;
+
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+		{
+			if(iaCache->redundant)
+				continue;
+
+			surface = iaCache->surface;
+
+			// Tr3B - this surface is maybe not in this view but it may still cast a shadow
+			// into this view
+			if(surface->viewCount != tr.viewCount)
+			{
+				if(r_shadows->integer <= 3 || light->l.noShadows)
+					continue;
+				else
+					iaType = IA_SHADOWONLY;
+			}
+			else
+			{
+				iaType = iaCache->type;
+			}
+
+			R_AddLightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes,
+								  iaCache->numShadowIndexes, iaCache->shadowIndexes, iaCache->cubeSideBits, iaType);
+		}
 	}
 
-	// add special VBO shadow volume
 	if(glConfig.vertexBufferObjectAvailable && r_shadows->integer == 3 && r_vboShadows->integer)
 	{
-		R_AddLightInteraction(light, (void *)light->vboShadowVolume, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL,
-							  IA_SHADOWONLY);
+		srfVBOShadowVolume_t *srf;
+
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+		{
+			if(iaCache->redundant)
+				continue;
+
+			if(!iaCache->vboShadowVolume)
+				continue;
+
+			srf = iaCache->vboShadowVolume;
+			
+			R_AddLightInteraction(light, (void *) srf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
+		}
 	}
 }
 
@@ -983,6 +1015,7 @@ void R_ShutdownVBOs()
 {
 	int             i;
 	trRefLight_t   *light;
+	interactionCache_t *iaCache;
 
 //  bspSurface_t     *surface;
 
@@ -1010,18 +1043,45 @@ void R_ShutdownVBOs()
 	{
 		light = &tr.world->lights[i];
 
-		if(light->vboShadowVolume)
+		if(!light->firstInteractionCache)
 		{
-			srfVBOShadowVolume_t *srf = (srfVBOShadowVolume_t *) light->vboShadowVolume;
+			// this light has no interactions precached
+			continue;
+		}
 
-			if(srf->vertsVBO)
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+		{
+			if(iaCache->redundant)
+				continue;
+
+			if(iaCache->vboLightMesh)
 			{
-				qglDeleteBuffersARB(1, &srf->vertsVBO);
+				srfVBOLightMesh_t *srf = (srfVBOLightMesh_t *) iaCache->vboLightMesh;
+	
+				if(srf->vertsVBO)
+				{
+					qglDeleteBuffersARB(1, &srf->vertsVBO);
+				}
+
+				if(srf->indexesVBO)
+				{
+					qglDeleteBuffersARB(1, &srf->indexesVBO);
+				}
 			}
 
-			if(srf->indexesVBO)
+			if(iaCache->vboShadowVolume)
 			{
-				qglDeleteBuffersARB(1, &srf->indexesVBO);
+				srfVBOShadowVolume_t *srf = (srfVBOShadowVolume_t *) iaCache->vboShadowVolume;
+	
+				if(srf->vertsVBO)
+				{
+					qglDeleteBuffersARB(1, &srf->vertsVBO);
+				}
+
+				if(srf->indexesVBO)
+				{
+					qglDeleteBuffersARB(1, &srf->indexesVBO);
+				}
 			}
 		}
 	}

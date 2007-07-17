@@ -154,8 +154,6 @@ typedef struct trRefLight_s
 	int             visCount;	// node needs to be traversed if current
 	struct bspNode_s **leafs;
 	int             numLeafs;
-
-	struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
 } trRefLight_t;
 
 
@@ -941,6 +939,7 @@ typedef enum
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
+	SF_VBO_LIGHT_MESH,
 	SF_VBO_SHADOW_VOLUME,
 
 	SF_NUM_SURFACE_TYPES,
@@ -980,6 +979,11 @@ typedef struct interactionCache_s
 
 	byte            cubeSideBits;
 	qboolean        redundant;
+
+	struct shader_s * shader;
+
+	struct srfVBOLightMesh_s *vboLightMesh;
+	struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
 
 	struct interactionCache_s *next;
 } interactionCache_t;
@@ -1165,8 +1169,26 @@ typedef struct
 	GLuint          ofsColors;
 } srfTriangles_t;
 
+typedef struct srfVBOLightMesh_s
+{
+	surfaceType_t   surfaceType;
 
-typedef struct
+	// triangle definitions
+	int             numIndexes;
+	GLuint          indexesVBO;
+//	GLuint          ofsIndexes = 0;
+
+	int             numVerts;
+	GLuint          vertsVBO;
+//	GLuint          ofsXYZ = 0;
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
+} srfVBOLightMesh_t;
+
+typedef struct srfVBOShadowVolume_s
 {
 	surfaceType_t   surfaceType;
 
@@ -1987,6 +2009,7 @@ extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;
 extern cvar_t  *r_vboShadows;
+extern cvar_t  *r_vboLighting;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
