@@ -1,37 +1,61 @@
+// feuer
 
-models/weapons/rocketl/rocketl
-{
-	{
-		stage diffuseMap
-		map models/weapons/rocketl/rocketl.tga
-		rgbGen lightingDiffuse
-	}
-	//normalMap heightMap(models/weapons/rocketl/rocketl_bump.tga, 3)
-	normalMap models/weapons/rocketl/rocketl_local.tga
-	specularMap models/weapons/rocketl/rocketl_s.tga
-}
-
-models/weapons/rocketl/v_rocketl
-{
-	{
-		stage diffuseMap
-		map models/weapons/rocketl/v_rocketl.tga
-		rgbGen lightingDiffuse
-	}
-	normalMap models/weapons/rocketl/v_rocketl_local.tga
-	specularMap models/weapons/rocketl/v_rocketl_s.tga
-}
-
-
-models/weapons2/rocketl/f_rocketl
+models/weapons/rocketl/f_rocketl
 {
 	twoSided
 	sort additive
 	{
-		map models/weapons2/rocketl/f_rocketl.tga
+		map models/weapons/rocketl/f_rocketl.tga
 		blend add
 	}
 }
+models/weapons/rocketl/flame_small
+{
+	twoSided
+	sort additive
+	{
+		map models/weapons/rocketl/f_small.tga
+		blend add
+	}
+}
+
+
+// rocketlauncher
+
+
+models/weapons/rocketl/rocketl_uvw_frame_exp_d // rahmen ums rohr
+{
+	diffuseMap models/weapons/rocketl/rocketl_uvw_frame_exp_d.tga
+	normalMap models/weapons/rocketl/frame_n.png
+	specularMap models/weapons/rocketl/frame_s.tga
+}
+models/weapons/rocketl/tube_d //schläuche 
+{
+	diffuseMap models/weapons/rocketl/tube_d.tga
+	normalMap models/weapons/rocketl/tube_n.png
+	specularMap models/weapons/rocketl/tube_d.tga
+}
+models/weapons/rocketl/rocketl_uvw_exp //inneres rohr
+{
+	diffuseMap models/weapons/rocketl/rocketl_uvw_exp.tga
+	normalMap models/weapons/rocketl/roor_n.png
+	specularMap models/weapons/rocketl/roor_s.tga
+}
+
+models/weapons/rocketl/rocketl_uvw_rtop_exp_d //platte vorne/oben, griff, abzug, schale
+{
+	diffuseMap models/weapons/rocketl/rocketl_uvw_rtop_exp_d.tga
+	normalMap models/weapons/rocketl/front_n.png
+	specularMap models/weapons/rocketl/rocketl_uvw_rtop_exp_d.tga
+}
+models/weapons/rocketl/rocketl_body_d // hinterteil -.-
+{
+	diffuseMap models/weapons/rocketl/rocketl_body_d.tga
+	normalMap models/weapons/rocketl/body_n2.png
+	specularMap models/weapons/rocketl/rocketl_body_d.tga
+}
+
+// missile
 
 models/projectiles/missile/missile
 {
@@ -73,85 +97,5 @@ models/projectiles/missile/missilefls2
 	{
 		map models/projectiles/missile/missilefls2.tga
 		blend add
-	}
-}
-
-models/ammo/rocket/rocket
-{
-	{
-		stage diffuseMap
-		map models/projectiles/rocket/rocket.tga
-	}
-	normalMap heightMap(models/projectiles/rocket/rocket.tga, 1)
-	specularMap models/projectiles/rocket/rocket.tga
-}
-
-/*
-rocketThrustf
-{
-	deformVertexes autosprite2
-
-	{
-		map models/weapons2/machinegun/f_machinegun.tga
-		blend add
-		tcMod rotate 1246
-	}
-	{
-		map models/weapons2/machinegun/f_machinegun.tga
-		blend add
-		tcMod rotate -1246
-	}
-}
-*/
-
-rocketThrust
-{
-	twoSided
-	{
-		if((time * 15) % 3 == 0)
-		map models/projectiles/rocket/thrustc1.tga
-		blend GL_ONE, GL_SRC_ALPHA
-		rgbGen wave inversesawtooth 0 1 0 15 
-	}
-	{
-		if((time * 15) % 3 == 0)
-		map models/projectiles/rocket/thrustc1.tga
-		blend GL_ONE, GL_SRC_ALPHA
-		rgbGen wave sawtooth 0 1 0 15 
-	}
-	{
-		if((time * 15) % 3 == 1)
-		map models/projectiles/rocket/thrustc2.tga
-		blend GL_ONE, GL_SRC_ALPHA
-		rgbGen wave inversesawtooth 0 1 0 15 
-	}
-	{
-		if((time * 15) % 3 == 1)
-		map models/projectiles/rocket/thrustc3.tga
-		blend GL_ONE, GL_SRC_ALPHA
-		rgbGen wave sawtooth 0 1 0 15 
-	}
-	{
-		if((time * 15) % 3 == 2)
-		map models/projectiles/rocket/thrustc3.tga 
-		blend GL_ONE, GL_SRC_ALPHA
-		rgbGen wave inversesawtooth 0 1 0 15 
-	}
-	{
-		if((time * 15) % 3 == 2)
-		map models/projectiles/rocket/thrustc1.tga 
-		blend GL_ONE, GL_SRC_ALPHA
-		rgbGen wave sawtooth 0 1 0 15 
-	}
-}
-
-rocketFlare
-{
-	twoSided
-	deformVertexes autosprite
-
-	{
-		map models/projectiles/rocket/rocketflare.tga
-		blendfunc add
 	}
 }
