@@ -2942,12 +2942,6 @@ static qboolean CG_DrawScoreboard()
 	{
 		menuScoreboard->window.flags &= ~WINDOW_FORCED;
 	}
-	if(cg_paused.integer)
-	{
-		cg.deferredPlayerLoading = 0;
-		firstTime = qtrue;
-		return qfalse;
-	}
 
 	// should never happen in Team Arena
 	if(cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION)
@@ -3442,14 +3436,7 @@ static void CG_Draw2D(void)
 
 	CG_DrawLagometer();
 
-#ifdef MISSIONPACK
-	if(!cg_paused.integer)
-	{
-		CG_DrawUpperRight();
-	}
-#else
 	CG_DrawUpperRight();
-#endif
 
 #ifndef MISSIONPACK
 	CG_DrawLowerRight();

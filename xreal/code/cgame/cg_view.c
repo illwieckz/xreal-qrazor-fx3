@@ -54,10 +54,6 @@ q3default.cfg.
 If a gun is being tested, the "gun_x", "gun_y", and "gun_z" variables will let
 you adjust the positioning.
 
-Note that none of the model testing features update while the game is paused, so
-it may be convenient to test with deathmatch set to 1 so that bringing down the
-console doesn't pause the game.
-
 =============================================================================
 */
 

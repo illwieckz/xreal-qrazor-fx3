@@ -1281,9 +1281,6 @@ void CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration
 	cparticle_t    *p;
 	int             anim;
 
-	if(animStr < (char *)10)
-		CG_Error("CG_ParticleExplosion: animStr is probably an index rather than a string");
-
 	// find the animation string
 	for(anim = 0; shaderAnimNames[anim]; anim++)
 	{
@@ -1461,8 +1458,8 @@ void CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin)
 	p->endTime = cg.time + 1000;
 	p->startfade = cg.time + 100;
 
-	p->width = rand() % 4 + 8;
-	p->height = rand() % 4 + 8;
+	p->width = 8.0f * (1.0f + random()* 0.5f);
+	p->height = 8.0f * (1.0f + random() * 0.5f);
 
 	p->endHeight = p->height * 2;
 	p->endWidth = p->width * 2;

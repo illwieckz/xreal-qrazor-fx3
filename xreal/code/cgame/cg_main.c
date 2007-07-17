@@ -158,7 +158,6 @@ vmCvar_t        cg_teamChatHeight;
 vmCvar_t        cg_stats;
 vmCvar_t        cg_buildScript;
 vmCvar_t        cg_forceModel;
-vmCvar_t        cg_paused;
 vmCvar_t        cg_blood;
 vmCvar_t        cg_predictItems;
 vmCvar_t        cg_deferPlayers;

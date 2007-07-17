@@ -1196,7 +1196,6 @@ extern vmCvar_t cg_teamChatHeight;
 extern vmCvar_t cg_stats;
 extern vmCvar_t cg_forceModel;
 extern vmCvar_t cg_buildScript;
-extern vmCvar_t cg_paused;
 extern vmCvar_t cg_blood;
 extern vmCvar_t cg_predictItems;
 extern vmCvar_t cg_deferPlayers;
@@ -1734,6 +1733,8 @@ void            trap_startCamera(int time);
 qboolean        trap_getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
 
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
+
+int				trap_RealTime(qtime_t *qtime);
 
 void            CG_ClearParticles(void);
 void            CG_AddParticles(void);

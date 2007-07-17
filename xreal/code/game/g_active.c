@@ -1453,7 +1453,7 @@ void ClientEndFrame(gentity_t * ent)
 	if(frames > 0 && g_smoothClients.integer)
 	{
 		// yep, missed one or more, so extrapolate the player's movement
-		G_PredictPlayerMove(ent, (float)frames / sv_fps.integer);
+		G_PredictPlayerMove(ent, (float)frames / (float)sv_fps.integer);
 
 		// save network bandwidth
 		SnapVector(ent->s.pos.trBase);
