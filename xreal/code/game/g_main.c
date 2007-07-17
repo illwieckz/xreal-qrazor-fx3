@@ -1849,8 +1849,7 @@ void CheckVote(void)
 					Q_CleanStr(netName2);
 
 					i = level.voteTarget - g_entities;
-					Admin_BanClient(level.voteTarget->client, 3600, Admin_MaskFromBits(24),
-									va("autoban: %s vote kick by %s", netName2, netName1));
+
 					trap_DropClient(i, "was vote-kicked");
 				}
 					break;
