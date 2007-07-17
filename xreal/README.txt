@@ -179,6 +179,13 @@ commands, you must have access to the server console.
 
 Once an account is created you can login yourself in using the login
 command. When your logged in to the server, you can then use the r1admin
-commands such as kick, ban, mute, change the map, restart the map, list
-the players and their ips and remove ips from the banlist. You also have
-immunity to kicks and bans.
+commands:
+
+	@kick <player/id> - kick a player
+	@ban <player/id> - ban a player
+	@mute <player/id> - mute a player
+	@map <map> - change the map
+	@map_restart - restart the current map
+	@ip <player/id> - show the players ip
+	@listip - list all the players and their ips
+	@removeip <ip/mask> - remove an ip from the banlist
