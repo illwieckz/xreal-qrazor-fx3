@@ -249,7 +249,7 @@ CG_RailTrail
 */
 void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 {
-	if(cg_railType == 1)
+	if(cg_railType.integer == 1)
 	{
 		localEntity_t  *le;
 		refEntity_t    *re;
@@ -308,7 +308,7 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 
 		AxisClear(re->axis);
 	}
-	else if(cg_railType == 2)
+	else if(cg_railType.integer == 2)
 	{
 		vec3_t          axis[36], move, move2, next_move, vec, temp;
 		float           len;
