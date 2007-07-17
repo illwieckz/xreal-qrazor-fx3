@@ -849,6 +849,18 @@ lights/flashLight
 	}
 }
 
+lights/flashLight1
+{
+	lightFalloffImage	makeintensity(lights/squarelight1b.png)
+	
+	{
+		forceHighQuality
+		map	lights/flashlight1.png
+		zeroClamp
+		colored
+	}
+}
+
 lights/roundFire
 {
 	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
