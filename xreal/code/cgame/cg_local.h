@@ -1154,6 +1154,7 @@ extern vmCvar_t cg_crosshairY;
 extern vmCvar_t cg_crosshairSize;
 extern vmCvar_t cg_crosshairHealth;
 extern vmCvar_t cg_drawStatus;
+extern vmCvar_t cg_drawStatusLines;
 extern vmCvar_t cg_drawSideBar;
 extern vmCvar_t cg_drawPickupItem;
 extern vmCvar_t cg_drawWeaponSelect;
