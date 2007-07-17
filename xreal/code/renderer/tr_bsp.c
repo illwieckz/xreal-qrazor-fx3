@@ -3655,8 +3655,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			if(!vertexesNum || !indexesNum)
 				return;
 
-			ri.Printf(PRINT_ALL, "...calculating light mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum,
-					  indexesNum / 3);
+			//ri.Printf(PRINT_ALL, "...calculating light mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
 
 			// create surface
 			lightSurf = ri.Hunk_Alloc(sizeof(*lightSurf), h_low);
@@ -4131,10 +4130,12 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			iaCache->vboLightMesh = (struct srfVBOLightMesh_s *)lightSurf;
 
 			// megs
+			/*
 			ri.Printf(PRINT_ALL, "light mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
 					  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
 			ri.Printf(PRINT_ALL, "light mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
 					  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+			*/
 		}
 	}
 
