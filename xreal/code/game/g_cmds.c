@@ -73,13 +73,12 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		perfect = (cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0) ? 1 : 0;
 
 		Com_sprintf(entry, sizeof(entry),
-					" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
+					" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 					cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime) / 60000,
 					scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
 					cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 					cl->ps.persistant[PERS_EXCELLENT_COUNT],
 					cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
-					cl->ps.persistant[PERS_TELEFRAG_FRAG_COUNT],
 					cl->ps.persistant[PERS_DEFEND_COUNT],
 					cl->ps.persistant[PERS_ASSIST_COUNT], perfect, cl->ps.persistant[PERS_CAPTURES]);
 		j = strlen(entry);
