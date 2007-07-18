@@ -252,7 +252,8 @@ typedef enum
 	PERS_DEFEND_COUNT,			// defend awards
 	PERS_ASSIST_COUNT,			// assist awards
 	PERS_GAUNTLET_FRAG_COUNT,	// kills with the guantlet
-	PERS_CAPTURES				// captures
+	PERS_CAPTURES,				// captures
+	PERS_TELEFRAG_FRAG_COUNT	// kills by telefragging
 } persEnum_t;
 
 
@@ -280,6 +281,7 @@ typedef enum
 #define	EF_AWARD_ASSIST		0x00020000	// draw a assist sprite
 #define EF_AWARD_DENIED		0x00040000	// denied
 #define EF_TEAMVOTED		0x00080000	// already cast a team vote
+#define	EF_AWARD_TELEFRAG	0x00160000	// draw a telefrag sprite
 
 // NOTE: may not have more than 16
 typedef enum
@@ -348,6 +350,7 @@ typedef enum
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
 #define	PLAYEREVENT_GAUNTLETREWARD		0x0002
 #define PLAYEREVENT_HOLYSHIT			0x0004
+#define PLAYEREVENT_TELEFRAGREWARD		0x0008
 
 // entityState_t->event values
 // entity events are for effects that take place reletive

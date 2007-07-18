@@ -1031,7 +1031,7 @@ void ClientThink_real(gentity_t * ent)
 	if(level.time > client->rewardTime)
 	{
 		client->ps.eFlags &=
-			~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
+			~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP | EF_AWARD_TELEFRAG);
 	}
 
 	if(client->noclip)

@@ -711,6 +711,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.humiliationSound = trap_S_RegisterSound("sound/feedback/humiliation.ogg", qtrue);
 	cgs.media.assistSound = trap_S_RegisterSound("sound/feedback/assist.ogg", qtrue);
 	cgs.media.defendSound = trap_S_RegisterSound("sound/feedback/defense.ogg", qtrue);
+	cgs.media.telefragSound = trap_S_RegisterSound("sound/feedback/telefrag.ogg", qtrue);
 
 	cgs.media.takenLeadSound = trap_S_RegisterSound("sound/feedback/takenlead.ogg", qtrue);
 	cgs.media.tiedLeadSound = trap_S_RegisterSound("sound/feedback/tiedlead.ogg", qtrue);
@@ -1045,6 +1046,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.medalDefend = trap_R_RegisterShaderNoMip("medal_defend");
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
+	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip("medal_telefrag");
 
 	memset(cg_items, 0, sizeof(cg_items));
 	memset(cg_weapons, 0, sizeof(cg_weapons));

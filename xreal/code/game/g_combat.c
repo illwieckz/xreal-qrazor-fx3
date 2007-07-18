@@ -590,19 +590,34 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 			if(meansOfDeath == MOD_GAUNTLET)
 			{
-
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &=
 					~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND |
-					  EF_AWARD_CAP);
+					  EF_AWARD_CAP | EF_AWARD_TELEFRAG);
 				attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 				// also play humiliation on target
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
+			}
+
+			if(meansOfDeath == MOD_TELEFRAG)
+			{
+				// play telefrag on player
+				attacker->client->ps.persistant[PERS_TELEFRAG_FRAG_COUNT]++;
+
+				// add the sprite over the player's head
+				attacker->client->ps.eFlags &=
+					~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND |
+					  EF_AWARD_CAP | EF_AWARD_TELEFRAG);
+				attacker->client->ps.eFlags |= EF_AWARD_TELEFRAG;
+				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+
+				// also play telefrag on target
+				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_TELEFRAGREWARD;
 			}
 
 			// check for two kills in a short amount of time
@@ -615,7 +630,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &=
 					~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND |
-					  EF_AWARD_CAP);
+					  EF_AWARD_CAP | EF_AWARD_TELEFRAG);
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}

@@ -2649,6 +2649,12 @@ static void CG_PlayerSprites(centity_t * cent)
 		return;
 	}
 
+	if(cent->currentState.eFlags & EF_AWARD_TELEFRAG)
+	{
+		CG_PlayerFloatSprite(cent, cgs.media.medalTelefrag);
+		return;
+	}
+
 	team = cgs.clientinfo[cent->currentState.clientNum].team;
 	if(!(cent->currentState.eFlags & EF_DEAD) && cg.snap->ps.persistant[PERS_TEAM] == team && cgs.gametype >= GT_TEAM)
 	{

@@ -201,7 +201,6 @@ code/cgame
 - add motion blur and other special effects
 
 code/game
-- add telefrag award
 - add more extensive Lua scripting support
  - improve game class
  - improve entity class

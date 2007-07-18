@@ -427,6 +427,13 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 		reward = qtrue;
 		//Com_Printf("assist\n");
 	}
+	if(ps->persistant[PERS_TELEFRAG_FRAG_COUNT] != ops->persistant[PERS_TELEFRAG_FRAG_COUNT])
+	{
+		sfx = cgs.media.telefragSound;
+		pushReward(sfx, cgs.media.medalTelefrag, ps->persistant[PERS_TELEFRAG_FRAG_COUNT]);
+		reward = qtrue;
+		//Com_Printf("telefrag\n");
+	}
 	// if any of the player event bits changed
 	if(ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS])
 	{
@@ -444,6 +451,11 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_HOLYSHIT))
 		{
 			trap_S_StartLocalSound(cgs.media.holyShitSound, CHAN_ANNOUNCER);
+		}
+		else if((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_TELEFRAGREWARD) !=
+				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_TELEFRAGREWARD))
+		{
+			trap_S_StartLocalSound(cgs.media.telefragSound, CHAN_ANNOUNCER);
 		}
 		reward = qtrue;
 	}

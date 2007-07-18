@@ -867,6 +867,7 @@ typedef struct
 	qhandle_t       medalDefend;
 	qhandle_t       medalAssist;
 	qhandle_t       medalCapture;
+	qhandle_t       medalTelefrag;
 
 	// sounds
 	sfxHandle_t     quadSound;
@@ -938,6 +939,7 @@ typedef struct
 	sfxHandle_t     humiliationSound;
 	sfxHandle_t     assistSound;
 	sfxHandle_t     defendSound;
+	sfxHandle_t     telefragSound;
 
 	sfxHandle_t     takenLeadSound;
 	sfxHandle_t     tiedLeadSound;
