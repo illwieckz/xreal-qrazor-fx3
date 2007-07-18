@@ -379,7 +379,7 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 				re->shaderTime = cg.time / 1000.0f;
 				re->reType = RT_SPRITE;
 				re->radius = 1.1f;
-				re->customShader = cgs.media.railRingsShader;
+				re->customShader = cgs.media.railRings2Shader;
 
 				re->shaderRGBA[0] = ci->color2[0] * 255;
 				re->shaderRGBA[1] = ci->color2[1] * 255;
@@ -911,7 +911,6 @@ void CG_RegisterWeapon(int weaponNum)
 #endif
 
 		case WP_PLASMAGUN:
-//      weaponInfo->missileModel = cgs.media.invulnerabilityPowerupModel;
 			weaponInfo->missileTrailFunc = CG_PlasmaTrail;
 			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav", qfalse);
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
@@ -926,6 +925,7 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg", qfalse);
 			cgs.media.railExplosionShader = trap_R_RegisterShader("railExplosion");
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
+			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
 			cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
 			break;
 

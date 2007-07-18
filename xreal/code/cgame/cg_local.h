@@ -760,6 +760,7 @@ typedef struct
 	qhandle_t       shotgunBrassModel;
 
 	qhandle_t       railRingsShader;
+	qhandle_t       railRings2Shader;
 	qhandle_t       railCoreShader;
 
 	qhandle_t       lightningShader;
