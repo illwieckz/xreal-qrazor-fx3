@@ -352,7 +352,6 @@ typedef enum
 typedef enum
 {
 	AGEN_IDENTITY,
-	AGEN_SKIP,
 	AGEN_ENTITY,
 	AGEN_ONE_MINUS_ENTITY,
 	AGEN_WAVEFORM,

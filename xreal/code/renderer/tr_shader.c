@@ -2427,15 +2427,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		depthMaskBits = GLS_DEPTHMASK_TRUE;
 	}
 
-	// decide which agens we can skip
-	if(stage->alphaGen == CGEN_IDENTITY)
-	{
-		if(stage->rgbGen == CGEN_IDENTITY)
-		{
-			stage->alphaGen = AGEN_SKIP;
-		}
-	}
-
 	// tell shader if this stage has an alpha test
 	if(atestBits & GLS_ATEST_BITS)
 	{

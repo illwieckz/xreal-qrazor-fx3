@@ -2907,9 +2907,6 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 	// alphaGen
 	switch (pStage->alphaGen)
 	{
-		case AGEN_SKIP:
-			break;
-
 		default:
 		case AGEN_IDENTITY:
 		{
