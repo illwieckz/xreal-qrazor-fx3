@@ -240,7 +240,9 @@ powerups/quad
 {
 	//deformVertexes wave 100 sin 3 0 0 0
 	{
-		stage colorMap
+		//stage reflectionMap
+		//cubeMap cubemaps/pete/carbon-creek512
+		
 		map textures/effects/quadmap2.tga
 		//alphaTest 0.5
 		blend add
@@ -518,95 +520,95 @@ medal_capture
 //
 // weapon icons
 //
-icons/iconw_gauntlet
+icons/weapon_gauntlet
 {
 	nopicmip
 	{
-		map icons/iconw_gauntlet.tga
+		map icons/weapon_gauntlet.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
-icons/iconw_machinegun
+icons/weapon_machinegun
 {
 	nopicmip
 	{
-		map icons/iconw_machinegun.tga
+		map icons/ammo_machinegun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
-icons/iconw_rocket
+icons/weapon_rocket
 {
 	nopicmip
 	{
-		map icons/iconw_rocket.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-	}
-}
-
-icons/iconw_shotgun
-{
-	nopicmip
-	{
-		map icons/iconw_shotgun.tga
+		map icons/ammo_rocket.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_grenade
+icons/weapon_shotgun
 {
 	nopicmip
 	{
-		map icons/iconw_grenade.tga
+		map icons/ammo_shotgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_lightning
+icons/weapon_grenade
 {
 	nopicmip
 	{
-		map icons/iconw_lightning.tga
+		map icons/ammo_grenade.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_plasma
+icons/weapon_lightning
 {
 	nopicmip
 	{
-		map icons/iconw_plasma.tga
+		map icons/ammo_lightning.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_railgun
+icons/weapon_plasma
 {
 	nopicmip
 	{
-		map icons/iconw_railgun.tga
+		map icons/ammo_plasma.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_bfg
+icons/weapon_railgun
 {
 	nopicmip
 	{
-		map icons/iconw_bfg.tga
+		map icons/ammo_railgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_grapple
+icons/weapon_bfg
 {
 	nopicmip
 	{
-		map icons/iconw_grapple.tga
+		map icons/ammo_bfg.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/iconw_nailgun
+icons/weapon_grapple
+{
+	nopicmip
+	{
+		map icons/ammo_grapple.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+	}
+}
+
+icons/weapon_nailgun
 {
 	nopicmip
 	{
@@ -615,7 +617,7 @@ icons/iconw_nailgun
 	}
 }
 
-icons/iconw_chaingun
+icons/weapon_chaingun
 {
 	nopicmip
 	{
@@ -624,7 +626,7 @@ icons/iconw_chaingun
 	}
 }
 
-icons/iconw_proxlauncher
+icons/weapon_proxlauncher
 {
 	nopicmip
 	{
@@ -636,78 +638,78 @@ icons/iconw_proxlauncher
 //
 // ammo icons
 //
-icons/icona_machinegun
+icons/ammo_machinegun
 {
 	nopicmip
 	{
-		map icons/icona_machinegun.tga
+		map icons/ammo_machinegun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
-icons/icona_rocket
+icons/ammo_rocket
 {
 	nopicmip
 	{
-		map icons/icona_rocket.tga
-		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-	}
-}
-
-icons/icona_shotgun
-{
-	nopicmip
-	{
-		map icons/icona_shotgun.tga
+		map icons/ammo_rocket.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/icona_grenade
+icons/ammo_shotgun
 {
 	nopicmip
 	{
-		map icons/icona_grenade.tga
+		map icons/ammo_shotgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/icona_lightning
+icons/ammo_grenade
 {
 	nopicmip
 	{
-		map icons/icona_lightning.tga
+		map icons/ammo_grenade.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/icona_plasma
+icons/ammo_lightning
 {
 	nopicmip
 	{
-		map icons/icona_plasma.tga
+		map icons/ammo_lightning.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/icona_railgun
+icons/ammo_plasma
 {
 	nopicmip
 	{
-		map icons/icona_railgun.tga
+		map icons/ammo_plasma.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/icona_bfg
+icons/ammo_railgun
 {
 	nopicmip
 	{
-		map icons/icona_bfg.tga
+		map icons/ammo_railgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
 
-icons/icona_nailgun
+icons/ammo_bfg
+{
+	nopicmip
+	{
+		map icons/ammo_bfg.tga
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+	}
+}
+
+icons/ammo_nailgun
 {
 	nopicmip
 	{
@@ -716,7 +718,7 @@ icons/icona_nailgun
 	}
 }
 
-icons/icona_chaingun
+icons/ammo_chaingun
 {
 	nopicmip
 	{
@@ -725,7 +727,7 @@ icons/icona_chaingun
 	}
 }
 
-icons/icona_proxlauncher
+icons/ammo_proxlauncher
 {
 	nopicmip
 	{

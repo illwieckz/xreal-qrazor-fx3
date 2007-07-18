@@ -211,7 +211,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons/gauntlet/gauntlet.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_gauntlet",
+/* icon */ "icons/weapon_gauntlet",
 /* pickup */ "Gauntlet",
 	 0,
 	 IT_WEAPON,
@@ -229,7 +229,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons/shotgun/shotgun.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_shotgun",
+/* icon */ "icons/weapon_shotgun",
 /* pickup */ "Shotgun",
 	 10,
 	 IT_WEAPON,
@@ -247,7 +247,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons/machinegun/machinegun.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_machinegun",
+/* icon */ "icons/weapon_machinegun",
 /* pickup */ "Machinegun",
 	 40,
 	 IT_WEAPON,
@@ -265,7 +265,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons2/grenadel/grenadel.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_grenade",
+/* icon */ "icons/weapon_grenade",
 /* pickup */ "Grenade Launcher",
 	 10,
 	 IT_WEAPON,
@@ -283,7 +283,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons/rocketl/rocketl.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_rocket",
+/* icon */ "icons/weapon_rocket",
 /* pickup */ "Rocket Launcher",
 	 10,
 	 IT_WEAPON,
@@ -301,7 +301,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons/lightning/lightning.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_lightning",
+/* icon */ "icons/weapon_lightning",
 /* pickup */ "Lightning Gun",
 	 100,
 	 IT_WEAPON,
@@ -319,7 +319,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons2/railgun/railgun.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_railgun",
+/* icon */ "icons/weapon_railgun",
 /* pickup */ "Railgun",
 	 10,
 	 IT_WEAPON,
@@ -337,7 +337,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons2/plasma/plasma.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_plasma",
+/* icon */ "icons/weapon_plasma",
 /* pickup */ "Plasma Gun",
 	 50,
 	 IT_WEAPON,
@@ -355,7 +355,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons2/bfg/bfg.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_bfg",
+/* icon */ "icons/weapon_bfg",
 /* pickup */ "BFG10K",
 	 20,
 	 IT_WEAPON,
@@ -373,7 +373,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/weapons2/grapple/grapple.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_grapple",
+/* icon */ "icons/weapon_grapple",
 /* pickup */ "Grappling Hook",
 	 0,
 	 IT_WEAPON,
@@ -395,7 +395,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/shotgunam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_shotgun",
+/* icon */ "icons/ammo_shotgun",
 /* pickup */ "Shells",
 	 10,
 	 IT_AMMO,
@@ -413,7 +413,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/machinegunam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_machinegun",
+/* icon */ "icons/ammo_machinegun",
 /* pickup */ "Bullets",
 	 50,
 	 IT_AMMO,
@@ -431,7 +431,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/grenadeam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_grenade",
+/* icon */ "icons/ammo_grenade",
 /* pickup */ "Grenades",
 	 5,
 	 IT_AMMO,
@@ -449,7 +449,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/plasmaam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_plasma",
+/* icon */ "icons/ammo_plasma",
 /* pickup */ "Cells",
 	 30,
 	 IT_AMMO,
@@ -467,7 +467,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/lightningam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_lightning",
+/* icon */ "icons/ammo_lightning",
 /* pickup */ "Lightning",
 	 60,
 	 IT_AMMO,
@@ -485,7 +485,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/rocketam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_rocket",
+/* icon */ "icons/ammo_rocket",
 /* pickup */ "Rockets",
 	 5,
 	 IT_AMMO,
@@ -503,7 +503,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/railgunam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_railgun",
+/* icon */ "icons/ammo_railgun",
 /* pickup */ "Slugs",
 	 10,
 	 IT_AMMO,
@@ -521,7 +521,7 @@ gitem_t         bg_itemlist[] = {
 	 {"models/powerups/ammo/bfgam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_bfg",
+/* icon */ "icons/ammo_bfg",
 /* pickup */ "Bfg Ammo",
 	 15,
 	 IT_AMMO,
@@ -789,7 +789,7 @@ Only in CTF games
 	 {"models/powerups/ammo/nailgunam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_nailgun",
+/* icon */ "icons/ammo_nailgun",
 /* pickup */ "Nails",
 	 20,
 	 IT_AMMO,
@@ -807,7 +807,7 @@ Only in CTF games
 	 {"models/powerups/ammo/proxmineam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_proxlauncher",
+/* icon */ "icons/ammo_proxlauncher",
 /* pickup */ "Proximity Mines",
 	 10,
 	 IT_AMMO,
@@ -825,7 +825,7 @@ Only in CTF games
 	 {"models/powerups/ammo/chaingunam.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_chaingun",
+/* icon */ "icons/ammo_chaingun",
 /* pickup */ "Chaingun Belt",
 	 100,
 	 IT_AMMO,
@@ -968,7 +968,7 @@ Only in CTF games
 	 {"models/weapons/nailgun/nailgun.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_nailgun",
+/* icon */ "icons/weapon_nailgun",
 /* pickup */ "Nailgun",
 	 10,
 	 IT_WEAPON,
@@ -986,7 +986,7 @@ Only in CTF games
 	 {"models/weapons/proxmine/proxmine.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_proxlauncher",
+/* icon */ "icons/weapon_proxlauncher",
 /* pickup */ "Prox Launcher",
 	 5,
 	 IT_WEAPON,
@@ -1006,7 +1006,7 @@ Only in CTF games
 	 {"models/weapons/vulcan/vulcan.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_chaingun",
+/* icon */ "icons/weapon_chaingun",
 /* pickup */ "Chaingun",
 	 80,
 	 IT_WEAPON,

@@ -2,17 +2,10 @@
 
 Media that needs to be created:
 base/icons/ammo_proxmine.png (optional)
-base/icons/ammo_regen.png
+base/icons/ammo_regen.png (optional)
 base/icons/doubler.png (optional)
 base/icons/guard.png (optional)
-base/icons/icona_bfg.png
-base/icons/icona_grenade.png
-base/icons/icona_lightning.png
-base/icons/icona_machinegun.png
-base/icons/icona_plasma.png
-base/icons/icona_railgun.png
-base/icons/icona_rocket.png
-base/icons/icona_shotgun.png
+base/icons/iconw_gauntlet.png
 base/icons/iconf_blu1.png (optional)
 base/icons/iconf_blu2.png (optional)
 base/icons/iconf_blu3.png (optional)
@@ -22,16 +15,7 @@ base/icons/iconf_red1.png (optional)
 base/icons/iconf_red2.png (optional)
 base/icons/iconf_red3.png (optional)
 base/icons/iconh_borb.png (optional)
-base/icons/iconw_bfg.png
-base/icons/iconw_gauntlet.png
-base/icons/iconw_grapple.png
-base/icons/iconw_grenade.png
-base/icons/iconw_lightning.png
-base/icons/iconw_machinegun.png
-base/icons/iconw_plasma.png
-base/icons/iconw_railgun.png
-base/icons/iconw_rocket.png
-base/icons/iconw_shotgun.png
+base/icons/weapon_grapple.png (optional)
 base/icons/invulnerability.png (optional)
 base/icons/kamikaze.png (optional)
 base/icons/proxmine.png (optional)
