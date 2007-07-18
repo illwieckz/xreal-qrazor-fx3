@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_scoreboard -- draw the scoreboard on top of the game screen
 #include "cg_local.h"
 
-
 #define	SCOREBOARD_X		(0)
 
 #define SB_HEADER			86
@@ -95,10 +94,10 @@ static void CG_DrawClientScore(int y, score_t * score, float *color, float fade,
 	}
 
 	// draw the players head
-	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2) - 10;
+	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2) - 5;
 
 	VectorClear(headAngles);
-	headAngles[YAW] = 180;
+	headAngles[YAW] = 90 * (cg.time / 1000.0) + 30;
 
 	if(largeFormat)
 		CG_DrawHead(headx, y, 24, 24, score->client, headAngles);
@@ -442,6 +441,4 @@ void CG_DrawOldTourneyScoreboard(void)
 			y += 64;
 		}
 	}
-
-
 }
