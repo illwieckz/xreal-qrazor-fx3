@@ -39,15 +39,6 @@ base/icons/proxmine.png (optional)
 base/icons/scout.png (optional)
 base/icons/skull_blue.png (optional)
 base/icons/skull_red.png (optional)
-base/menu/medals/medal_accuracy.png
-base/menu/medals/medal_assist.png
-base/menu/medals/medal_capture.png
-base/menu/medals/medal_defend.png
-base/menu/medals/medal_excellent.png
-base/menu/medals/medal_frags.png
-base/menu/medals/medal_gauntlet.png
-base/menu/medals/medal_impressive.png
-base/menu/medals/medal_victory.png
 base/models/*
 base/models/flag/flagflap3.md3
 base/models/flag/flagpole.md3
@@ -230,6 +221,7 @@ code/cgame
 - add motion blur and other special effects
 
 code/game
+- add telefrag award
 - add more extensive Lua scripting support
  - improve game class
  - improve entity class
