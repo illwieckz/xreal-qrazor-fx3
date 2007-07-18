@@ -1,7 +1,6 @@
 === XreaL 1.0 Features ===
 
 Media that needs to be created:
-base/gfx/2d/net.png
 base/icons/ammo_proxmine.png (optional)
 base/icons/ammo_regen.png
 base/icons/doubler.png (optional)
@@ -211,7 +210,7 @@ base/sound/weapons/vulcan/wvulimpl.ogg (optional)
 base/sound/weapons/vulcan/wvulimpm.ogg (optional)
 base/sound/weapons/vulcan/wvulwind.ogg (optional)
 base/base/sound/world/*
-base/sprites/splash.png
+base/sprites/splash.png (optional)
 
 
 code/cgame
