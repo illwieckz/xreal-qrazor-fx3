@@ -1239,7 +1239,7 @@ void ClientSpawn(gentity_t * ent)
 
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
-	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
+	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED);
 	flags ^= EF_TELEPORT_BIT;
 
 	// we don't want players being backward-reconciled to the place they died
