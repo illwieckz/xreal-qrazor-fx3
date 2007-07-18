@@ -70,7 +70,10 @@ models/powerups/armor/shard_d
 	diffuseMap models/powerups/armor/shard_d.tga
 	bumpMap models/powerups/armor/shard_n.tga
 	specularMap models/powerups/armor/shard_s.tga
-	
+	{
+		map models/powerups/armor/shard_glo.tga
+		blend add
+	}
 	{
 		map models/powerups/armor/shard_glo.tga
 		blend add
