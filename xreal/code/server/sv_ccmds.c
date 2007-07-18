@@ -208,6 +208,9 @@ static void SV_Map_f(void)
 	{
 		if(!Q_stricmp(cmd, "devmap") || !Q_stricmp(cmd, "spdevmap"))
 		{
+			// raynorpat: prevents typing when testing :)
+			Cvar_SetValue("sv_pure", 0);
+
 			cheat = qtrue;
 			killBots = qtrue;
 		}
@@ -216,6 +219,7 @@ static void SV_Map_f(void)
 			cheat = qfalse;
 			killBots = qfalse;
 		}
+
 		if(sv_gametype->integer == GT_SINGLE_PLAYER)
 		{
 			Cvar_SetValue("g_gametype", GT_FFA);
