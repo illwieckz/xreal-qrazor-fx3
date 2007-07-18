@@ -1046,7 +1046,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.medalDefend = trap_R_RegisterShaderNoMip("medal_defend");
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
-	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip("medal_telefrag");
+	cgs.media.medalTelefrag = trap_R_RegisterShaderNoMip("medal_telefrag");
 
 	memset(cg_items, 0, sizeof(cg_items));
 	memset(cg_weapons, 0, sizeof(cg_weapons));
