@@ -65,16 +65,25 @@ models/powerups/armor/newyellow
          
 }
 
-models/powerups/armor/shard2
+models/powerups/armor/shard_d
 {
-        {
-                map textures/effects/tinfx2c.tga
-                tcGen environment
-                rgbGen identity
-        }
-        {
-                map models/powerups/armor/shard2.tga
-                blendFunc blend
-                rgbGen lightingdiffuse
-        }
+	diffuseMap models/powerups/armor/shard_d.tga
+	bumpMap models/powerups/armor/shard_n.tga
+	specularMap models/powerups/armor/shard_s.tga
+	
+	{
+		map models/powerups/armor/shard_glo.tga
+		blend add
+		
+		//red sinTable[time * 2] * 0.5 + 0.5
+		//green sinTable[time * 2] * 0.5 + 0.5
+		//blue sinTable[time * 2] * 0.5 + 0.5
+		
+		red spark_neontable1[time * 0.7]
+		green spark_neontable1[time * 0.7]
+		blue spark_neontable1[time * 0.7]
+		
+		//rgbGen identity
+		//alphaGen wave sawtooth 0 1 0 1 
+	}
 }

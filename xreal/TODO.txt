@@ -5,7 +5,6 @@ base/icons/ammo_proxmine.png (optional)
 base/icons/ammo_regen.png (optional)
 base/icons/doubler.png (optional)
 base/icons/guard.png (optional)
-base/icons/iconw_gauntlet.png
 base/icons/iconf_blu1.png (optional)
 base/icons/iconf_blu2.png (optional)
 base/icons/iconf_blu3.png (optional)
@@ -37,8 +36,6 @@ base/models/gibs/leg.md3
 base/models/gibs/skull.md3
 base/models/powerups/armor/armor_red.md3
 base/models/powerups/armor/armor_yel.md3
-base/models/powerups/armor/shard.md3
-base/models/powerups/armor/shard_sphere.md3
 base/models/powerups/harvester/harvester.md3 (optional)
 base/models/powerups/holdable/medkit.md3
 base/models/powerups/holdable/teleporter.md3
