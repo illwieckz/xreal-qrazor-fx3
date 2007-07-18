@@ -1939,7 +1939,7 @@ static void CG_DrawLowerRight(void)
 {
 	float           y;
 
-	y = 480 - ICON_SIZE - 5;
+	y = 480 - 48;	// offset above lagometer
 
 	if(cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2)
 	{
