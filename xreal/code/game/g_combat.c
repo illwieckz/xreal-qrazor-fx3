@@ -274,6 +274,7 @@ void GibEntity(gentity_t * self, int killer)
 	gentity_t      *ent;
 	int             i;
 
+#ifdef MISSIONPACK
 	//if this entity still has kamikaze
 	if(self->s.eFlags & EF_KAMIKAZE)
 	{
@@ -291,6 +292,8 @@ void GibEntity(gentity_t * self, int killer)
 			break;
 		}
 	}
+#endif
+
 	G_AddEvent(self, EV_GIB_PLAYER, killer);
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;

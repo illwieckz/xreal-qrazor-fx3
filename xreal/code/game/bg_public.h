@@ -270,18 +270,18 @@ enum
 	EF_AWARD_GAUNTLET		= BIT(6),	// draw a gauntlet sprite
 	EF_NODRAW				= BIT(7),	// may have an event, but no model (unspawned items)
 	EF_FIRING				= BIT(8),	// for lightning gun
-	EF_KAMIKAZE				= BIT(9),
-	EF_MOVER_STOP			= BIT(10),	// will push otherwise
-	EF_AWARD_CAP			= BIT(11),	// draw the capture sprite
-	EF_TALK					= BIT(12),	// draw a talk balloon
-	EF_CONNECTION			= BIT(13),	// draw a connection trouble sprite
-	EF_VOTED				= BIT(14),	// already cast a vote
-	EF_AWARD_IMPRESSIVE		= BIT(15),	// draw an impressive sprite
-	EF_AWARD_DEFEND			= BIT(16),	// draw a defend sprite
-	EF_AWARD_ASSIST			= BIT(17),	// draw a assist sprite
-	EF_AWARD_DENIED			= BIT(18),	// denied
-	EF_AWARD_TELEFRAG		= BIT(19)	// draw a telefrag sprite
+	EF_MOVER_STOP			= BIT(9),	// will push otherwise
+	EF_AWARD_CAP			= BIT(10),	// draw the capture sprite
+	EF_TALK					= BIT(11),	// draw a talk balloon
+	EF_CONNECTION			= BIT(12),	// draw a connection trouble sprite
+	EF_VOTED				= BIT(13),	// already cast a vote
+	EF_AWARD_IMPRESSIVE		= BIT(14),	// draw an impressive sprite
+	EF_AWARD_DEFEND			= BIT(15),	// draw a defend sprite
+	EF_AWARD_ASSIST			= BIT(16),	// draw a assist sprite
+	EF_AWARD_DENIED			= BIT(17),	// denied
+	EF_AWARD_TELEFRAG		= BIT(18)	// draw a telefrag sprite
 #ifdef MISSIONPACK
+	EF_KAMIKAZE				= BIT(19),
 	EF_TICKING				= BIT(20),	// used to make players play the prox mine ticking sound
 #endif
 };
