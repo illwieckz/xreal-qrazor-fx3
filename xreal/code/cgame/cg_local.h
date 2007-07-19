@@ -824,13 +824,9 @@ typedef struct
 	qhandle_t       blueKamikazeShader;
 
 	// weapon effect models
-	qhandle_t       ringFlashModel;
 	qhandle_t       dishFlashModel;
-	qhandle_t       lightningExplosionModel;
 
 	// weapon effect shaders
-	qhandle_t       railExplosionShader;
-	qhandle_t       plasmaExplosionShader;
 	qhandle_t       rocketExplosionShader;
 	qhandle_t       grenadeExplosionShader;
 	qhandle_t       bfgExplosionShader;
@@ -1215,13 +1211,9 @@ extern vmCvar_t cg_timescaleFadeEnd;
 extern vmCvar_t cg_timescaleFadeSpeed;
 extern vmCvar_t cg_timescale;
 extern vmCvar_t cg_cameraMode;
-extern vmCvar_t cg_smallFont;
-extern vmCvar_t cg_bigFont;
 extern vmCvar_t cg_noTaunt;
 extern vmCvar_t cg_noProjectileTrail;
 extern vmCvar_t cg_railType;
-extern vmCvar_t cg_oldRocket;
-extern vmCvar_t cg_oldPlasma;
 extern vmCvar_t cg_trueLightning;
 
 extern vmCvar_t cg_drawBloom;
@@ -1237,6 +1229,8 @@ extern vmCvar_t	cg_optimizePrediction;
 extern vmCvar_t	sv_fps;
 
 #ifdef MISSIONPACK
+extern vmCvar_t cg_smallFont;
+extern vmCvar_t cg_bigFont;
 extern vmCvar_t cg_redTeamName;
 extern vmCvar_t cg_blueTeamName;
 extern vmCvar_t cg_currentSelectedPlayer;
@@ -1748,6 +1742,7 @@ void            CG_AddParticleShrapnel(localEntity_t * le);
 void            CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent);
 void			CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin);
 void            CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);
+void			CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, float width, float height, float alpha, qhandle_t shader);
 void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);

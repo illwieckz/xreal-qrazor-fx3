@@ -546,7 +546,7 @@ static void CG_NailTrail(centity_t * ent, const weaponInfo_t * wi)
 
 /*
 ==========================
-CG_NailTrail
+CG_PlasmaTrail
 ==========================
 */
 static void CG_PlasmaTrail(centity_t * cent, const weaponInfo_t * wi)
@@ -558,13 +558,10 @@ static void CG_PlasmaTrail(centity_t * cent, const weaponInfo_t * wi)
 	vec3_t          offset, xoffset;
 	vec3_t          v[3];
 	int             t, startTime, step;
-
 	float           waterScale = 1.0f;
 
-	if(cg_noProjectileTrail.integer || cg_oldPlasma.integer)
-	{
+	if(cg_noProjectileTrail.integer)
 		return;
-	}
 
 	step = 50;
 
@@ -619,7 +616,7 @@ static void CG_PlasmaTrail(centity_t * cent, const weaponInfo_t * wi)
 	re->shaderTime = cg.time / 1000.0f;
 	re->reType = RT_SPRITE;
 	re->radius = 0.25f;
-	re->customShader = cgs.media.railRingsShader;
+	re->customShader = cgs.media.railRings2Shader;
 	le->bounceFactor = 0.3f;
 
 	re->shaderRGBA[0] = wi->flashLightColor[0] * 63;
@@ -808,14 +805,11 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/lightning/lg_hum.wav", qfalse);
 			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/lightning/lg_fire_hum.wav", qfalse);
-
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/lightning/lg_fire.wav", qfalse);
 			cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
-			cgs.media.lightningExplosionModel = trap_R_RegisterModel("models/weaphits/crackle.md3");
 			cgs.media.sfx_lghit1 = trap_S_RegisterSound("sound/weapons/lightning/lg_hit.wav", qfalse);
 			cgs.media.sfx_lghit2 = trap_S_RegisterSound("sound/weapons/lightning/lg_hit2.wav", qfalse);
 			cgs.media.sfx_lghit3 = trap_S_RegisterSound("sound/weapons/lightning/lg_hit3.wav", qfalse);
-
 			break;
 
 		case WP_GRAPPLING_HOOK:
@@ -915,7 +909,6 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav", qfalse);
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/plasma/hyprbf1a.wav", qfalse);
-			cgs.media.plasmaExplosionShader = trap_R_RegisterShader("plasmaExplosion");
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
 			break;
 
@@ -923,7 +916,6 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/railgun/rg_hum.wav", qfalse);
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.5f, 0);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg", qfalse);
-			cgs.media.railExplosionShader = trap_R_RegisterShader("railExplosion");
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
 			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
 			cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
@@ -1113,9 +1105,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	vec3_t          muzzlePoint, endPoint;
 
 	if(cent->currentState.weapon != WP_LIGHTNING)
-	{
 		return;
-	}
 
 	memset(&beam, 0, sizeof(beam));
 
@@ -1190,28 +1180,6 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	beam.reType = RT_LIGHTNING;
 	beam.customShader = cgs.media.lightningShader;
 	trap_R_AddRefEntityToScene(&beam);
-
-	// add the impact flare if it hit something
-	if(trace.fraction < 1.0)
-	{
-		vec3_t          angles;
-		vec3_t          dir;
-
-		VectorSubtract(beam.oldorigin, beam.origin, dir);
-		VectorNormalize(dir);
-
-		memset(&beam, 0, sizeof(beam));
-		beam.hModel = cgs.media.lightningExplosionModel;
-
-		VectorMA(trace.endpos, -16, dir, beam.origin);
-
-		// make a random orientation
-		angles[0] = rand() % 360;
-		angles[1] = rand() % 360;
-		angles[2] = rand() % 360;
-		AnglesToAxis(angles, beam.axis);
-		trap_R_AddRefEntityToScene(&beam);
-	}
 }
 
 /*
@@ -2209,6 +2177,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	// set defaults
 	isSprite = qfalse;
 	duration = 600;
+	VectorMA(origin, 12, dir, partOrigin);
 
 	switch (weapon)
 	{
@@ -2216,47 +2185,43 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 #ifdef MISSIONPACK
 		case WP_NAILGUN:
 			if(soundType == IMPACTSOUND_FLESH)
-			{
 				sfx = cgs.media.sfx_nghitflesh;
-			}
 			else if(soundType == IMPACTSOUND_METAL)
-			{
 				sfx = cgs.media.sfx_nghitmetal;
-			}
 			else
-			{
 				sfx = cgs.media.sfx_nghit;
-			}
+
 			mark = cgs.media.holeMarkShader;
+
 			radius = 12;
 
 			// some debris particles
-			VectorMA(origin, 12, dir, partOrigin);
-
 			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
 				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 #endif
+
 		case WP_LIGHTNING:
-			// no explosion at LG impact, it is added with the beam
+			mark = cgs.media.holeMarkShader;
+
 			r = rand() & 3;
 			if(r < 2)
-			{
 				sfx = cgs.media.sfx_lghit2;
-			}
 			else if(r == 2)
-			{
 				sfx = cgs.media.sfx_lghit1;
-			}
 			else
-			{
 				sfx = cgs.media.sfx_lghit3;
-			}
-			mark = cgs.media.holeMarkShader;
+
 			radius = 12;
+
+			// some debris particles
+			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			if(sfx && (rand() % 3 == 0))
+				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
+
 #ifdef MISSIONPACK
 		case WP_PROX_LAUNCHER:
 			mod = cgs.media.dishFlashModel;
@@ -2268,6 +2233,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			isSprite = qtrue;
 			break;
 #endif
+
 		case WP_GRENADE_LAUNCHER:
 			mod = cgs.media.dishFlashModel;
 			shader = cgs.media.grenadeExplosionShader;
@@ -2276,7 +2242,14 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			radius = 64;
 			light = 300;
 			isSprite = qtrue;
+
+			// explosion particles
+			VectorScale(dir, 100, partVel);
+
+			//CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
+			CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
 			break;
+
 		case WP_ROCKET_LAUNCHER:
 			mod = cgs.media.dishFlashModel;
 			shader = cgs.media.rocketExplosionShader;
@@ -2286,43 +2259,35 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			light = 300;
 			isSprite = qtrue;
 			duration = 1000;
-			lightColor[0] = 1;
-			lightColor[1] = 0.75;
-			lightColor[2] = 0.0;
-			/*
-			   if(cg_oldRocket.integer == 0)
-			   {
-			   // explosion sprite animation
-			   VectorMA(origin, 24, dir, sprOrg);
-			   VectorScale(dir, 64, sprVel);
+			lightColor[0] = 0.75f;
+			lightColor[1] = 0.5f;
+			lightColor[2] = 0.1f;
 
-			   CG_ParticleExplosion("explode1", sprOrg, sprVel, 1400, 20, 30);
-			   }
-			 */
+			// explosion particles
+			VectorScale(dir, 100, partVel);
 
-			// explosion spark particles
-			//if(cg_explosionSparks.integer)
-			{
-				VectorMA(origin, 24, dir, partOrigin);
-				VectorScale(dir, 64, partVel);
-
-				CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
-			}
+			//CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
+			CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
 			break;
+
 		case WP_RAILGUN:
-			mod = cgs.media.ringFlashModel;
-			shader = cgs.media.railExplosionShader;
 			sfx = cgs.media.sfx_plasmaexp;
 			mark = cgs.media.energyMarkShader;
 			radius = 24;
+
+			// some debris particles
+			CG_AddBulletParticles(origin, dir, 20, 1800, 6 + rand() % 6, 1.8f);
 			break;
+
 		case WP_PLASMAGUN:
-			mod = cgs.media.ringFlashModel;
-			shader = cgs.media.plasmaExplosionShader;
 			sfx = cgs.media.sfx_plasmaexp;
 			mark = cgs.media.energyMarkShader;
 			radius = 16;
+
+			// some debris particles
+			CG_AddBulletParticles(origin, dir, 20, 1800, 6 + rand() % 6, 1.5f);
 			break;
+
 		case WP_BFG:
 			mod = cgs.media.dishFlashModel;
 			shader = cgs.media.bfgExplosionShader;
@@ -2330,15 +2295,20 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			mark = cgs.media.burnMarkShader;
 			radius = 32;
 			isSprite = qtrue;
+
+			// explosion particles
+			VectorScale(dir, 100, partVel);
+
+			//CG_ParticleExplosion("bfg1", partOrigin, partVel, 700, 60, 240);
+			CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
 			break;
+
 		case WP_SHOTGUN:
 			mark = cgs.media.bulletMarkShader;
 			sfx = 0;
 			radius = 4;
 
 			// some debris particles
-			VectorMA(origin, 12, dir, partOrigin);
-
 			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
@@ -2347,39 +2317,26 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 #ifdef MISSIONPACK
 		case WP_CHAINGUN:
-			if(soundType == IMPACTSOUND_FLESH)
-			{
-				sfx = cgs.media.sfx_chghitflesh;
-			}
-			else if(soundType == IMPACTSOUND_METAL)
-			{
-				sfx = cgs.media.sfx_chghitmetal;
-			}
-			else
-			{
-				sfx = cgs.media.sfx_chghit;
-			}
 			mark = cgs.media.bulletMarkShader;
 
 			r = rand() & 3;
 			if(r < 2)
-			{
 				sfx = cgs.media.sfx_ric1;
-			}
 			else if(r == 2)
-			{
 				sfx = cgs.media.sfx_ric2;
-			}
 			else
-			{
 				sfx = cgs.media.sfx_ric3;
-			}
+
+			if(soundType == IMPACTSOUND_FLESH)
+				sfx = cgs.media.sfx_chghitflesh;
+			else if(soundType == IMPACTSOUND_METAL)
+				sfx = cgs.media.sfx_chghitmetal;
+			else
+				sfx = cgs.media.sfx_chghit;
 
 			radius = 8;
 
 			// some debris particles
-			VectorMA(origin, 12, dir, partOrigin);
-
 			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
@@ -2392,23 +2349,15 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 			r = rand() & 3;
 			if(r == 0)
-			{
 				sfx = cgs.media.sfx_ric1;
-			}
 			else if(r == 1)
-			{
 				sfx = cgs.media.sfx_ric2;
-			}
 			else
-			{
 				sfx = cgs.media.sfx_ric3;
-			}
 
 			radius = 8;
 
 			// some debris particles
-			VectorMA(origin, 12, dir, partOrigin);
-
 			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
@@ -2478,8 +2427,6 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum)
 			break;
 	}
 }
-
-
 
 /*
 ============================================================================

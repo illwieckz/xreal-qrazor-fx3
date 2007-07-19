@@ -1271,6 +1271,41 @@ void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)
 	p->vel[2] += -20;
 }
 
+void CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, float width, float height, float alpha, qhandle_t shader)
+{
+	cparticle_t	   *p;
+
+	if (!free_particles)
+		return;
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+
+	p->time = cg.time;
+	p->endTime = cg.time + duration;
+	p->startfade = cg.time + duration / 2;
+	
+	p->color = EMISIVEFADE;
+	p->alpha = alpha;
+	p->alphaVel = 0;
+
+	p->height =	width;
+	p->width = height;
+	p->endHeight = p->height;
+	p->endWidth = p->width;
+
+	p->rotate = 0;
+
+	p->type = P_SMOKE;
+
+	p->pshader = shader;
+	
+	VectorCopy(org, p->org);
+	VectorCopy(vel, p->vel);
+	VectorSet(p->accel, 0, 0, -330);
+}
+
 /*
 ======================
 CG_ParticleExplosion

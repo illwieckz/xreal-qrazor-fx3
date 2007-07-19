@@ -526,7 +526,6 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 
 	if(!force2D && cg_draw3dIcons.integer)
 	{
-
 		VectorClear(angles);
 
 		cm = cgs.media.redFlagModel;
@@ -1052,23 +1051,19 @@ CG_DrawSideBarItem
 static void CG_DrawSideBarItem(int x, int y, int i)
 {
 	char           *ammo;
-
 	// a colors[][] array would be better
 	vec4_t         *colorItemNormal;
 	vec4_t         *colorItemSelected;
-
 	vec4_t          colorItemBlackNormal = { 0.0f, 0.0f, 0.0f, 0.5f };	// black
 	vec4_t          colorItemBlackSelected = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
 	vec4_t          colorTeamBlueNormal = { 0.0f, 0.0f, 1.0f, 1.0f };	// blue
 	vec4_t          colorTeamBlueSelected = { 0.0f, 0.0f, 1.0f, 0.5f };
 	vec4_t          colorTeamRedNormal = { 1.0f, 0.0f, 0.0f, 1.0f };	// red
 	vec4_t          colorTeamRedSelected = { 1.0f, 0.0f, 0.0f, 0.5f };
-
 	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
 	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
 	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
 	vec4_t          colorActiveField = { 0.25f, 1.0f, 0.25f, 0.1f };
-
 	vec3_t          angles;
 	vec3_t          origin;
 

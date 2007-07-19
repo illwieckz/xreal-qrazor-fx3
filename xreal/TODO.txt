@@ -69,7 +69,6 @@ base/models/weaphits/blood203.png
 base/models/weaphits/blood204.png
 base/models/weaphits/blood205.png
 base/models/weaphits/boom01.md3
-base/models/weaphits/crackle.md3
 base/models/weaphits/electric.png
 base/models/weaphits/kam03b.png (optional)
 base/models/weaphits/kam03.png (optional)
@@ -84,7 +83,6 @@ base/models/weaphits/kamiwave02.png (optional)
 base/models/weaphits/kamwave.md3 (optional)
 base/models/weaphits/nailtrail.png (optional)
 base/models/weaphits/newexplo1.png
-base/models/weaphits/plasmaboom.png
 base/models/weaphits/proxmine2.png (optional)
 base/models/weaphits/proxmine2t.png (optional)
 base/models/weaphits/proxmineb.md3 (optional)
@@ -92,12 +90,6 @@ base/models/weaphits/proxmineb.png (optional)
 base/models/weaphits/proxminebt.png (optional)
 base/models/weaphits/proxmine.md3 (optional)
 base/models/weaphits/proxmine.png (optional)
-base/models/weaphits/ring01_1.png
-base/models/weaphits/ring02_1.png
-base/models/weaphits/ring02_2.png
-base/models/weaphits/ring02_3.png
-base/models/weaphits/ring02_4.png
-base/models/weaphits/ring02.md3
 base/models/weapons/grenadel/*
 base/models/weapons/nailgun/* (optional)
 base/models/weapons/plasma/*
