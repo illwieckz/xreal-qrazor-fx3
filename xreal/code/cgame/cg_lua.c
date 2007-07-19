@@ -38,6 +38,15 @@ CG_InitLua
 */
 void CG_InitLua()
 {
+	int             numdirs;
+	char            filename[MAX_QPATH];
+	char            dirlist[1024];
+	char           *dirptr;
+	int             i;
+	int             dirlen;
+	vec3_t			in;
+	float			out;
+
 	CG_Printf("------- CGame Lua Initialization -------\n");
 
 	cg_luaState = lua_open();
@@ -52,6 +61,30 @@ void CG_InitLua()
 	luaopen_cgame(cg_luaState);
 	luaopen_qmath(cg_luaState);
 	luaopen_vector(cg_luaState);
+
+	// get all effects from effects/*.lua files
+	numdirs = trap_FS_GetFileList("effects", ".lua", dirlist, 1024);
+	dirptr = dirlist;
+	for(i = 0; i < numdirs; i++, dirptr += dirlen + 1)
+	{
+		dirlen = strlen(dirptr);
+		Q_strncpyz(filename, "effects/", sizeof(filename));
+		Q_strcat(filename, sizeof(filename), dirptr);
+		
+		CG_LoadLuaScript(filename);
+	}
+
+	CG_DumpLuaStack();
+
+#if 0
+	// run some tests
+	VectorSet(in, 5, 7, 3);
+	CG_RunLuaFunction("testParticleSpawn", "", in);
+	
+	CG_RunLuaFunction("testVectors", "v>f", in, &out);
+	CG_Printf("result of testVectors() is %f\n", out);
+	//CG_Printf("result of testVectors() is %i %i %i\n", (int)out[0], (int)out[1], (int)out[2]);
+#endif
 
 	CG_Printf("-----------------------------------\n");
 }
@@ -134,9 +167,9 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 	{
 		switch (*sig++)
 		{
-			case 'd':
-				// double argument
-				lua_pushnumber(L, va_arg(vl, double));
+			case 'f':
+				// float argument
+				lua_pushnumber(L, va_arg(vl, float));
 
 				break;
 
@@ -188,11 +221,11 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 		switch (*sig++)
 		{
 
-			case 'd':
-				// double result
+			case 'f':
+				// float result
 				if(!lua_isnumber(L, nres))
 					CG_Printf("CG_RunLuaFunction: wrong result type\n");
-				*va_arg(vl, double *) = lua_tonumber(L, nres);
+				*va_arg(vl, float *) = lua_tonumber(L, nres);
 
 				break;
 
@@ -209,6 +242,14 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 				if(!lua_isstring(L, nres))
 					CG_Printf("CG_RunLuaFunction: wrong result type\n");
 				*va_arg(vl, const char **) = lua_tostring(L, nres);
+
+				break;
+
+			case 'v':
+				// string result
+				//if(!lua_getvector(L, nres))
+				//	CG_Printf("CG_RunLuaFunction: wrong result type\n");
+				*va_arg(vl, vec_t **) = lua_getvector(L, nres);
 
 				break;
 
@@ -263,4 +304,16 @@ void CG_DumpLuaStack()
 		CG_Printf("  ");			// put a separator
 	}
 	CG_Printf("\n");				// end the listing
+}
+
+
+/*
+=================
+CG_RestartLua_f
+=================
+*/
+void CG_RestartLua_f(void)
+{
+	CG_ShutdownLua();
+	CG_InitLua();
 }

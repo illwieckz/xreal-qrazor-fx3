@@ -573,6 +573,10 @@ static consoleCommand_t commands[] = {
 	{"scoresDown", CG_scrollScoresDown_f},
 	{"scoresUp", CG_scrollScoresUp_f},
 #endif
+
+#ifdef LUA
+	{"restartLuaCGameVM", CG_RestartLua_f},
+#endif
 	{"startOrbit", CG_StartOrbit_f},
 	//{ "camera", CG_Camera_f },
 	{"loaddeferred", CG_LoadDeferredPlayers}
@@ -655,8 +659,5 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
 	trap_AddCommand("loaddeferred");
-	trap_AddCommand("lua_script");
-	trap_AddCommand("lua_binaryfunction");
-	trap_AddCommand("lua_stackdump");
-	trap_AddCommand("lua_restart");
+	trap_AddCommand("restartLuaGameVM");
 }

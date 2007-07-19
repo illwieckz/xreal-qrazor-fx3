@@ -420,7 +420,7 @@ qboolean ConsoleCommand(void)
 	}
 
 #ifdef LUA
-	if(Q_stricmp(cmd, "lua_restart") == 0)
+	if(Q_stricmp(cmd, "restartLuaGameVM") == 0)
 	{
 		Svcmd_LuaRestart_f();
 		return qtrue;

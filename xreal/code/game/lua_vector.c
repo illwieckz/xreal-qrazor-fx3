@@ -163,6 +163,18 @@ static int vector_SubOperator(lua_State * L)
 	return 1;
 }
 
+static int vector_DotOperator(lua_State * L)
+{
+	vec_t          *a, *b;
+
+	a = lua_getvector(L, 1);
+	b = lua_getvector(L, 2);
+
+	lua_pushnumber(L, DotProduct(a, b));
+
+	return 1;
+}
+
 static const luaL_reg vector_ctor[] = {
 	{"New", vector_New},
 	{"Construct", vector_Construct},
@@ -175,6 +187,7 @@ static const luaL_reg vector_meta[] = {
 	{"__newindex", vector_NewIndex},
 	{"__add", vector_AddOperator},
 	{"__sub", vector_SubOperator},
+	{"__mul", vector_DotOperator},
 	{"__gc", vector_GC},
 	{"__tostring", vector_ToString},
 	{NULL, NULL}

@@ -504,6 +504,8 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 			return 0;
 		case CG_FS_SEEK:
 			return FS_Seek(args[1], args[2], args[3]);
+		case CG_FS_GETFILELIST:
+			return FS_GetFileList(VMA(1), VMA(2), VMA(3), args[4]);
 		case CG_SENDCONSOLECOMMAND:
 			Cbuf_AddText(VMA(1));
 			return 0;

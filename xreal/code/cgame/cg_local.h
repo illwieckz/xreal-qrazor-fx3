@@ -1549,6 +1549,7 @@ void            CG_ShutdownLua();
 void            CG_LoadLuaScript(const char *filename);
 void            CG_RunLuaFunction(const char *func, const char *sig, ...);
 void            CG_DumpLuaStack();
+void			CG_RestartLua_f(void);
 
 //
 // lua_cgame.c
@@ -1604,6 +1605,7 @@ void            trap_FS_Read(void *buffer, int len, fileHandle_t f);
 void            trap_FS_Write(const void *buffer, int len, fileHandle_t f);
 void            trap_FS_FCloseFile(fileHandle_t f);
 int             trap_FS_Seek(fileHandle_t f, long offset, int origin);	// fsOrigin_t
+int             trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
 
 // add commands to the local console as if they were typed in
 // for map changing, etc.  The command is not executed immediately,

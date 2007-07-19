@@ -1128,20 +1128,17 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 
 	CG_ClearParticles();	
-	
+}
+
+
 /*
-	for (i=1; i<MAX_PARTICLES_AREAS; i++)
-	{
-		{
-			int rval;
-
-			rval = CG_NewParticleArea ( CS_PARTICLES + i);
-			if (!rval)
-				break;
-		}
-	}
+=================
+CG_RegisterEffects
+=================
 */
-
+static void CG_RegisterEffects(void)
+{
+	int             i;
 
 	// register all the server specified effects
 	for(i = 1; i < MAX_EFFECTS; i++)
@@ -1157,6 +1154,7 @@ static void CG_RegisterGraphics(void)
 		// TODO cgs.gameEffects[i] = CG_RegisterEffect(effectName);
 	}
 }
+
 
 
 
@@ -2145,6 +2143,10 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_LoadingString("graphics");
 
 	CG_RegisterGraphics();
+
+	CG_LoadingString("effects");
+
+	CG_RegisterEffects();
 
 	CG_LoadingString("clients");
 

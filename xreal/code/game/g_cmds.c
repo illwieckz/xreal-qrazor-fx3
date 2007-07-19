@@ -1864,70 +1864,7 @@ void Cmd_Stats_f(gentity_t * ent)
 	//trap_SendServerCommand( ent-g_entities, va("print \"visited %d of %d areas\n\"", n, max));
 	trap_SendServerCommand( ent-g_entities, va("print \"%d%% level coverage\n\"", n * 100 / max));
 	*/
-}
-
-#ifdef LUA
-
-/*
-=================
-Cmd_LuaScript_f
-=================
-*/
-void Cmd_LuaScript_f(gentity_t * ent)
-{
-	char            filename[MAX_QPATH];
-
-	if(trap_Argc() != 2)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"usage: lua_script <filename>\n\""));
-		return;
-	}
-
-	trap_Argv(1, filename, sizeof(filename));
-	G_LoadLuaScript(ent, filename);
-}
-
-/*
-=================
-Cmd_LuaFunction_f
-=================
-*/
-void Cmd_LuaBinaryFunction_f(gentity_t * ent)
-{
-	char            function[MAX_TOKEN_CHARS];
-	char            arg[MAX_TOKEN_CHARS];
-	double          x, y;
-	double          z;
-
-	if(trap_Argc() != 4)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"usage: lua_binaryfunction <functionname> <1stnum> <2ndnum>\n\""));
-		return;
-	}
-
-	trap_Argv(1, function, sizeof(function));
-
-	trap_Argv(2, arg, sizeof(arg));
-	x = atoi(arg);
-
-	trap_Argv(3, arg, sizeof(arg));
-	y = atoi(arg);
-
-	G_RunLuaFunction(function, "dd>d", x, y, &z);
-	trap_SendServerCommand(ent - g_entities, va("print \"result: %i\n\"", (int)z));
-}
-
-/*
-=================
-Cmd_LuaStackDump_f
-=================
-*/
-void Cmd_LuaStackDump_f(gentity_t * ent)
-{
-	G_DumpLuaStack();
-}
-
-#endif							// LUA
+}							// LUA
 
 //r1admin
 void Cmd_Login_f(gentity_t * ent)
@@ -2344,14 +2281,6 @@ void ClientCommand(int clientNum)
 		Cmd_SetViewpos_f(ent);
 	else if(Q_stricmp(cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
-#ifdef LUA
-	else if(Q_stricmp(cmd, "lua_script") == 0)
-		Cmd_LuaScript_f(ent);
-	else if(Q_stricmp(cmd, "lua_binaryfunction") == 0)
-		Cmd_LuaBinaryFunction_f(ent);
-	else if(Q_stricmp(cmd, "lua_stackdump") == 0)
-		Cmd_LuaStackDump_f(ent);
-#endif
 	// r1admin
 	else if(!Q_stricmp(cmd, "login"))
 		Cmd_Login_f(ent);

@@ -72,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	5
+#define	CGAME_IMPORT_API_VERSION	6
 
 typedef enum
 {
@@ -90,6 +90,8 @@ typedef enum
 	CG_FS_READ,
 	CG_FS_WRITE,
 	CG_FS_FCLOSEFILE,
+	CG_FS_SEEK,
+	CG_FS_GETFILELIST,
 	CG_SENDCONSOLECOMMAND,
 	CG_ADDCOMMAND,
 	CG_SENDCLIENTCOMMAND,
@@ -166,7 +168,6 @@ typedef enum
 	CG_GET_ENTITY_TOKEN,
 	CG_R_ADDPOLYSTOSCENE,
 	CG_R_INPVS,
-	CG_FS_SEEK,
 	
 	// Tr3B - XreaL extensions
 	CG_R_REGISTERANIMATION,

@@ -142,9 +142,9 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 	{
 		switch (*sig++)
 		{
-			case 'd':
-				// double argument
-				lua_pushnumber(L, va_arg(vl, double));
+			case 'f':
+				// float argument
+				lua_pushnumber(L, va_arg(vl, float));
 
 				break;
 
@@ -193,11 +193,11 @@ void G_RunLuaFunction(const char *func, const char *sig, ...)
 		switch (*sig++)
 		{
 
-			case 'd':
-				// double result
+			case 'f':
+				// float result
 				if(!lua_isnumber(L, nres))
 					G_Printf("G_RunLuaFunction: wrong result type\n");
-				*va_arg(vl, double *) = lua_tonumber(L, nres);
+				*va_arg(vl, float *) = lua_tonumber(L, nres);
 
 				break;
 
