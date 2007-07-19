@@ -2,11 +2,107 @@
 
 material for instant powerups, rewritten and checked by otty 2007
 
-TODO: invis, regen, flight, haste, enviro
+TODO: invis, regen, flight,  enviro
 
-- quad is testing
+- haste is testing
 
 */
+
+models/powerups/instant/haste
+{
+	
+	twosided
+	{
+		map models/powerups/instant/haste.png
+       		
+		blend GL_ONE, GL_ZERO
+	}
+
+	{
+		clampmap gfx/effect/effmap02.png
+        		tcGen environment
+        		
+  		red	0.714 + sinTable[time * 0.2] * 0.4
+     		green 0.66 + sinTable[time * 0.2] * 0.4
+     		blue	0.075 + sinTable[time * 0.2] * 0.4
+          	rotate time * -0.8
+          	blend add
+	}
+
+	{
+		clampmap gfx/effect/effmap01.png
+        		tcGen environment
+        		rotate time * 0.6
+		blend add
+		red	0.714 + sinTable[time * 0.2] * 0.4
+     		green 0.66 + sinTable[time * 0.2] * 0.4
+     		blue	0.075 + sinTable[time * 0.2] * 0.4
+
+	}
+	
+	
+	{
+		map models/powerups/instant/haste_glow.png
+		rgbGen wave sin .5 .5 .3 0.5	
+		blend blend
+	}
+	
+}
+
+
+
+
+models/powerups/instant/haste_flare
+{
+	deformVertexes autosprite
+	{
+		edgeClamp
+		map gfx/effect/flare01.png
+		blend add
+       		rotate time * 0.3
+		blend add
+		red	0.1 + sinTable[time * 0.29] * 0.5
+		green 0.1 + sinTable[time * 0.29] * 0.5
+
+	}
+	{
+		edgeClamp
+		map gfx/effect/flare01.png
+		blend add
+       		rotate time * -0.5
+		blend add
+		red	0.02 + sinTable[time * 0.29] * 0.5
+		green 0.02 + sinTable[time * 0.29] * 0.5
+
+	}
+}
+
+
+models/powerups/instant/haste_ring
+{
+	{
+		clampmap gfx/effect/effmap02.png
+        		tcGen environment
+        		
+  		red	0.75 + sinTable[time * 2] * 0.4
+     		green 0.66 + sinTable[time * 2] * 0.4
+     		blue	0.14 + sinTable[time *2] * 0.4
+          	rotate time * -0.1
+          	blend add
+	}
+
+	{
+		clampmap gfx/effect/effmap01.png
+        		tcGen environment
+        		rotate time * 0.2
+		blend add
+		red	0.5  + sinTable[time * 0.3] * 0.5
+     		green 0.66 + sinTable[time * 0.3] * 0.5
+		blue	0.15 + sinTable[time * 3] * 0.5
+
+	}
+}
+
 
 models/powerups/instant/quad
 {
