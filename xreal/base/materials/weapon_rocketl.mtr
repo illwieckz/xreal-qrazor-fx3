@@ -61,13 +61,12 @@ models/projectiles/missile/missile
 {
 	{
 		stage diffuseMap
-		map	models/projectiles/missile/missile.tga
-		rgbGen lightingDiffuse
+		map	models/projectiles/missile/missile.png
 	}
-	normalMap heightmap(models/projectiles/missile/missile_h.tga, 3)
-	specularMap models/projectiles/missile/missile_s.tga
+	normalMap heightmap(models/projectiles/missile/missile_bump.png, 3)
+	specularMap models/projectiles/missile/missile_spec.png
 	{
-		map models/projectiles/missile/missile_glow.tga
+		map models/projectiles/missile/missile_glow.png
 		blend add
 	}
 }
@@ -76,7 +75,7 @@ models/projectiles/missile/missileflar
 {
 	twoSided
 	{
-		map models/projectiles/missile/missileflar.tga
+		map models/projectiles/missile/missileflar.png
 		blend add
 		scroll time * 10.0, 0
 	}
@@ -86,7 +85,7 @@ models/projectiles/missile/missilefls1
 {
 	twoSided
 	{
-		map models/projectiles/missile/missilefls1.tga
+		map models/projectiles/missile/missilefls1.png
 		blend add
 	}
 }
@@ -95,7 +94,7 @@ models/projectiles/missile/missilefls2
 {
 	twoSided
 	{
-		map models/projectiles/missile/missilefls2.tga
+		map models/projectiles/missile/missilefls2.png
 		blend add
 	}
 }
