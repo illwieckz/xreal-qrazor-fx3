@@ -472,6 +472,10 @@ void QDECL CG_Error(const char *msg, ...)
 	vsprintf(text, msg, argptr);
 	va_end(argptr);
 
+#ifdef LUA
+	CG_ShutdownLua();
+#endif
+
 	trap_Error(text);
 }
 
@@ -2067,6 +2071,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 {
 	const char     *s;
 
+	CG_Printf("------- CGame Initialization -------\n");
+
 	// clear everything
 	memset(&cgs, 0, sizeof(cgs));
 	memset(&cg, 0, sizeof(cg));
@@ -2091,6 +2097,10 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_RegisterCvars();
 
 	CG_InitConsoleCommands();
+
+#ifdef LUA
+	CG_InitLua();
+#endif
 
 	cg.weaponSelect = WP_MACHINEGUN;
 
@@ -2181,6 +2191,12 @@ void CG_Shutdown(void)
 {
 	// some mods may need to do cleanup work here,
 	// like closing files or archiving session data
+
+	CG_Printf("------- CGame Shutdown -------\n");
+
+#ifdef LUA
+	CG_ShutdownLua();
+#endif
 }
 
 

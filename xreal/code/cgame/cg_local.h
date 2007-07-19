@@ -32,6 +32,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
+#ifndef LUA
+#define LUA
+#endif
+
 #ifdef MISSIONPACK
 #define CG_FONT_THRESHOLD 0.1
 #endif
@@ -1533,6 +1537,36 @@ void            CG_PlayBufferedVoiceChats(void);
 void            CG_Respawn(void);
 void            CG_TransitionPlayerState(playerState_t * ps, playerState_t * ops);
 void            CG_CheckChangedPredictableEvents(playerState_t * ps);
+
+
+#ifdef LUA
+//
+// cg_lua.c
+//
+#include <lua.h>
+void            CG_InitLua();
+void            CG_ShutdownLua();
+void            CG_LoadLuaScript(const char *filename);
+void            CG_RunLuaFunction(const char *func, const char *sig, ...);
+void            CG_DumpLuaStack();
+
+//
+// lua_cgame.c
+//
+int             luaopen_cgame(lua_State * L);
+
+//
+// lua_qmath.c
+//
+int             luaopen_qmath(lua_State * L);
+
+//
+// lua_vector.c
+//
+int             luaopen_vector(lua_State * L);
+void            lua_pushvector(lua_State * L, vec3_t v);
+vec_t          *lua_getvector(lua_State * L, int argNum);
+#endif
 
 
 //===============================================
