@@ -2078,7 +2078,7 @@ When the random key is set, its value is used to calculate a minimum and a maxim
 =============================================================================
 -->
 
-<point name="weapon_rocketlauncher" color="1 0 .5" box="-16 -16 -16 16 16 16" model="models/weapons/rocketl/rocketl.md3">
+<point name="weapon_rocketlauncher" color="1 0 .5" box="-16 -16 -16 16 16 16" model="models/weapons/rocketl/_rocketl.md3">
 Rocket Launcher.
 -------- KEYS --------
 <real key="wait" name="Respawn Delay">time in seconds before item respawns after being picked up (default 5, -1 = never respawn).</real>
