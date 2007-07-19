@@ -124,6 +124,10 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD )
 	picoVertexCombinationHash_t **hashTable;
 	picoVertexCombinationHash_t	*vertexCombinationHash;
 
+	/* Local polygon index for this surface. We don't want to use i in the loop
+	 * since that is the global poly index for the entire layer */
+	int surfacePolyCount = 0;
+
 #ifdef DEBUG_PM_LWO
 	clock_t load_start, load_finish, convert_start, convert_finish;
 	double load_elapsed, convert_elapsed;
@@ -289,6 +293,9 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD )
 				continue;
 			}
 
+			/* We haven't discarded this polygon, so bump the surface polycount */
+			surfacePolyCount++;
+
 			for( j = 0, v = pol->v; j < 3; j++, v++ )
 			{
 				pt = &layer->point.pt[ v->index ];
@@ -368,7 +375,7 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD )
 				if (vertexCombinationHash)
 				{
 					/* found an existing one */
-					PicoSetSurfaceIndex( picoSurface, (i * 3 + j ), vertexCombinationHash->index );
+					PicoSetSurfaceIndex( picoSurface, (surfacePolyCount * 3 + j ), vertexCombinationHash->index );
 				}
 				else
 				{
@@ -397,7 +404,7 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD )
 					PicoSetSurfaceST( picoSurface, 0, numverts, st );
 
 					/* set index */
-					PicoSetSurfaceIndex( picoSurface, (i * 3 + j ), (picoIndex_t) numverts );
+					PicoSetSurfaceIndex( picoSurface, (surfacePolyCount * 3 + j ), (picoIndex_t) numverts );
 
 					numverts++;
 				}
