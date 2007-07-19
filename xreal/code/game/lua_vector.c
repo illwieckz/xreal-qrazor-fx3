@@ -129,6 +129,40 @@ static int vector_ToString(lua_State * L)
 	return 1;
 }
 
+static int vector_AddOperator(lua_State * L)
+{
+	vec_t          *a, *b, *c;
+
+	a = lua_getvector(L, 1);
+	b = lua_getvector(L, 2);
+
+	c = lua_newuserdata(L, sizeof(vec3_t));
+
+	luaL_getmetatable(L, "vector");
+	lua_setmetatable(L, -2);
+
+	VectorAdd(a, b, c);
+
+	return 1;
+}
+
+static int vector_SubOperator(lua_State * L)
+{
+	vec_t          *a, *b, *c;
+
+	a = lua_getvector(L, 1);
+	b = lua_getvector(L, 2);
+
+	c = lua_newuserdata(L, sizeof(vec3_t));
+
+	luaL_getmetatable(L, "vector");
+	lua_setmetatable(L, -2);
+
+	VectorSubtract(a, b, c);
+
+	return 1;
+}
+
 static const luaL_reg vector_ctor[] = {
 	{"New", vector_New},
 	{"Construct", vector_Construct},
@@ -139,6 +173,8 @@ static const luaL_reg vector_ctor[] = {
 static const luaL_reg vector_meta[] = {
 	{"__index", vector_Index},
 	{"__newindex", vector_NewIndex},
+	{"__add", vector_AddOperator},
+	{"__sub", vector_SubOperator},
 	{"__gc", vector_GC},
 	{"__tostring", vector_ToString},
 	{NULL, NULL}
