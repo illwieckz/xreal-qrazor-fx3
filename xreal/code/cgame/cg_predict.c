@@ -569,7 +569,6 @@ void CG_PredictPlayerState(void)
 	usercmd_t		oldestCmd;
 	usercmd_t		latestCmd;
 	int				stateIndex = 0, predictCmd = 0;
-	int				numPredicted = 0, numPlayedBack = 0; // debug code
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
@@ -582,8 +581,8 @@ void CG_PredictPlayerState(void)
 		cg.predictedPlayerState = cg.snap->ps;
 	}
 
-	// demo playback just copies the moves
-	if(cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW))
+	// demo playback and spectators just copy moves
+	if(cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR))
 	{
 		CG_InterpolatePlayerState(qfalse);
 		return;
@@ -830,8 +829,6 @@ void CG_PredictPlayerState(void)
 				// run the Pmove
 				Pmove(&cg_pmove);
 
-				numPredicted++; // debug code
-
 				// record the last predicted command
 				cg.lastPredictedCommand = cmdNum;
 
@@ -846,8 +843,6 @@ void CG_PredictPlayerState(void)
 			}
 			else
 			{
-				numPlayedBack++; // debug code
-
 				// play back the command from the saved states
 				*cg_pmove.ps = cg.savedPmoveStates[stateIndex];
 
@@ -859,8 +854,6 @@ void CG_PredictPlayerState(void)
 		{
 			// run the Pmove
 			Pmove(&cg_pmove);
-
-			numPredicted++; // debug code
 		}
 
 		moved = qtrue;
