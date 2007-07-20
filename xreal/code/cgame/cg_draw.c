@@ -1649,10 +1649,10 @@ static float CG_DrawScores(float y)
 		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH + 8;
 		x -= w;
 		CG_FillRect(x, y - 4, w, BIGCHAR_HEIGHT + 8, color);
+
 		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		{
 			CG_DrawPic(x, y - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.selectShader);
-		}
+
 		CG_DrawBigString(x + 4, y, s, 1.0F);
 
 		if(cgs.gametype == GT_CTF)
@@ -1664,9 +1664,7 @@ static float CG_DrawScores(float y)
 			{
 				y1 = y - BIGCHAR_HEIGHT - 8;
 				if(cgs.blueflag >= 0 && cgs.blueflag <= 2)
-				{
 					CG_DrawPic(x, y1 - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.blueFlagShader[cgs.blueflag]);
-				}
 			}
 		}
 		color[0] = 1.0f;
@@ -1677,10 +1675,10 @@ static float CG_DrawScores(float y)
 		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH + 8;
 		x -= w;
 		CG_FillRect(x, y - 4, w, BIGCHAR_HEIGHT + 8, color);
+
 		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		{
 			CG_DrawPic(x, y - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.selectShader);
-		}
+
 		CG_DrawBigString(x + 4, y, s, 1.0F);
 
 		if(cgs.gametype == GT_CTF)
@@ -1692,9 +1690,7 @@ static float CG_DrawScores(float y)
 			{
 				y1 = y - BIGCHAR_HEIGHT - 8;
 				if(cgs.redflag >= 0 && cgs.redflag <= 2)
-				{
 					CG_DrawPic(x, y1 - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.redFlagShader[cgs.redflag]);
-				}
 			}
 		}
 
@@ -1714,14 +1710,12 @@ static float CG_DrawScores(float y)
 			}
 		}
 #endif
+
 		if(cgs.gametype >= GT_CTF)
-		{
 			v = cgs.capturelimit;
-		}
 		else
-		{
 			v = cgs.fraglimit;
-		}
+
 		if(v)
 		{
 			s = va("%2i", v);
@@ -1741,9 +1735,8 @@ static float CG_DrawScores(float y)
 
 		// always show your score in the second box if not in first place
 		if(s1 != score)
-		{
 			s2 = score;
-		}
+
 		if(s2 != SCORE_NOT_PRESENT)
 		{
 			s = va("%2i", s2);
@@ -1802,7 +1795,6 @@ static float CG_DrawScores(float y)
 			x -= w;
 			CG_DrawBigString(x + 4, y, s, 1.0F);
 		}
-
 	}
 
 	return y1 - 8;
@@ -2832,46 +2824,6 @@ static void CG_DrawVote(void)
 #endif
 }
 
-/*
-=================
-CG_DrawTeamVote
-=================
-*/
-static void CG_DrawTeamVote(void)
-{
-	char           *s;
-	int             sec, cs_offset;
-
-	if(cgs.clientinfo->team == TEAM_RED)
-		cs_offset = 0;
-	else if(cgs.clientinfo->team == TEAM_BLUE)
-		cs_offset = 1;
-	else
-		return;
-
-	if(!cgs.teamVoteTime[cs_offset])
-	{
-		return;
-	}
-
-	// play a talk beep whenever it is modified
-	if(cgs.teamVoteModified[cs_offset])
-	{
-		cgs.teamVoteModified[cs_offset] = qfalse;
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-	}
-
-	sec = (VOTE_TIME - (cg.time - cgs.teamVoteTime[cs_offset])) / 1000;
-	if(sec < 0)
-	{
-		sec = 0;
-	}
-	s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
-		   cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset]);
-	CG_DrawSmallString(0, 90, s, 1.0F);
-}
-
-
 static qboolean CG_DrawScoreboard()
 {
 #ifdef MISSIONPACK
@@ -3372,7 +3324,6 @@ static void CG_Draw2D(void)
 	}
 
 	CG_DrawVote();
-	CG_DrawTeamVote();
 
 	CG_DrawLagometer();
 
