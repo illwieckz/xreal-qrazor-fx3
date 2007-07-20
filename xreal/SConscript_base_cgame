@@ -70,7 +70,7 @@ lua_src = [
 'code/lua-5.1/src/loadlib.c',
 'code/cgame/cg_lua.c',
 #'code/cgame/lua_localEntity.c',
-#'code/cgame/lua_particle.c',
+'code/cgame/lua_particle.c',
 'code/cgame/lua_cgame.c',
 'code/game/lua_qmath.c',
 'code/game/lua_vector.c'
