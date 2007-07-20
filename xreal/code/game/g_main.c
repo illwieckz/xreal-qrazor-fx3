@@ -955,8 +955,10 @@ void CalculateRanks(void)
 	if(g_gametype.integer >= GT_TEAM)
 	{
 		// r1: va() is bad here
-		Com_sprintf(str, sizeof(str), "%i", SCORE_NOT_PRESENT);
+		Com_sprintf(str, sizeof(str), "%i", level.teamScores[TEAM_RED]);
 		trap_SetConfigstring(CS_SCORES1, str);
+
+		Com_sprintf(str, sizeof(str), "%i", level.teamScores[TEAM_BLUE]);
 		trap_SetConfigstring(CS_SCORES2, str);
 	}
 	else
