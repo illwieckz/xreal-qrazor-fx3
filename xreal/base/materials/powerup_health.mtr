@@ -13,7 +13,7 @@ models/powerups/health/small
 	}
 	{
 		map models/powerups/health/health_glow.png
-		tcGen environment
+		
 		rgbGen wave sin .5 .5 0 1.5	
 		blend blend
 	}
@@ -24,7 +24,7 @@ models/powerups/health/small_sphere
 {
 	{
 		clampmap gfx/effect/effmap01.png
-        		tcGen environment
+        		
         		rotate time * -0.4
 		blend add
 		green	0.5 + sinTable[time * 0.3] * 0.5
@@ -33,7 +33,7 @@ models/powerups/health/small_sphere
 	
 	{
 		clampmap gfx/effect/effmap02.png
-        		tcGen environment
+        		
         		
   		green	0.6 + sinTable[time * 0.2] * 0.4
       	  	scroll sinTable[time * 0.2] * 0.5 + 0.5, 0
@@ -75,7 +75,7 @@ models/powerups/health/medium
 	}
 	{
 		map models/powerups/health/health_glow.png
-		tcGen environment
+		
 		rgbGen wave sin .5 .5 0 1.5	
 
 		blend blend
@@ -87,7 +87,7 @@ models/powerups/health/medium_sphere
 {
 	{
 		clampmap gfx/effect/effmap01.png
-        		tcGen environment
+        		
         		rotate time * -0.4
 		blend add
 		green	0.5 + sinTable[time * 0.3] * 0.56
@@ -97,7 +97,7 @@ models/powerups/health/medium_sphere
 	
 	{
 		clampmap gfx/effect/effmap02.png
-        		tcGen environment
+        		
         		
   		green	0.7 + sinTable[time * 0.2] * 0.46
       		red	0.62 + sinTable[time * 0.32] * 0.4
@@ -141,7 +141,7 @@ models/powerups/health/large
 	}
 	{
 		map models/powerups/health/health_glow.png
-		tcGen environment
+		
 		rgbGen wave sin .5 .5 0 1.5	
 		blend blend
 	}
@@ -152,7 +152,7 @@ models/powerups/health/large_sphere
 {
 	{
 		clampmap gfx/effect/effmap01.png
-        		tcGen environment
+        		
         		rotate time * -0.4
 		blend add
 		red	0.5 + sinTable[time * 0.3] * 0.5
@@ -161,7 +161,7 @@ models/powerups/health/large_sphere
 	
 	{
 		clampmap gfx/effect/effmap02.png
-        		tcGen environment
+        		
         		
         		red	0.7 + sinTable[time * 0.3] * 0.4
       	  	scroll sinTable[time * 0.3] * 0.5 + 0.5, 0
@@ -202,7 +202,7 @@ models/powerups/health/mega
 	}
 	{
 		map models/powerups/health/mega_glow.png
-		 tcGen environment
+		 
 		blend blend
 	}
 }
@@ -213,7 +213,7 @@ models/powerups/health/mega_sphere
 {
 	{
 		clampmap gfx/effect/effmap01.png
-        		tcGen environment
+        		
         		rotate time * -0.4
 		blend add
 		blue	0.55 + sinTable[time * 0.35] * 0.55
@@ -222,7 +222,7 @@ models/powerups/health/mega_sphere
 	
 	{
 		clampmap gfx/effect/effmap02.png
-        		tcGen environment
+        		
         		
   		blue	0.6 + sinTable[time * 0.2] * 0.4
       	  	scroll sinTable[time * 0.2] * 0.5 + 0.5, 0
