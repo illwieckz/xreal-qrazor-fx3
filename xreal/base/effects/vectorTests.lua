@@ -1,5 +1,5 @@
 
-function testVectors(inputVector)
+function TestVectors(inputVector)
 	cgame.Print("lets do some lua vector tests ...")
 
 	a = vector.New()
@@ -22,8 +22,8 @@ function testVectors(inputVector)
 	c = a * b
 	cgame.Print(c, " = a dot b")
 
-	-- c = -a
-	-- cgame.Print(c, " = -a")
+	--c = -a
+	--cgame.Print(c, " = -a")
 	
 	return c;
 end

@@ -44,12 +44,6 @@ base/models/powerups/instant/enviro.md3
 base/models/powerups/instant/enviro_ring.md3
 base/models/powerups/instant/flight.md3
 base/models/powerups/instant/flight_ring.md3
-base/models/powerups/instant/haste.md3
-base/models/powerups/instant/haste_ring.md3
-base/models/powerups/instant/invis.md3
-base/models/powerups/instant/invis_ring.md3
-base/models/powerups/instant/quad.md3
-base/models/powerups/instant/quad_ring.md3
 base/models/powerups/instant/regen.md3
 base/models/powerups/instant/regen_ring.md3
 base/models/powerups/obelisk/obelisk.md3 (optional)
@@ -187,6 +181,7 @@ base/sprites/splash.png (optional)
 
 
 code/cgame
+- fix team deathmatch stats
 - improve quad damage effect
 - improve invisible effect with heatHaze
 - finish the Lua powered Quake4 style special effects target_fx system
@@ -216,6 +211,7 @@ code/renderer
 - support decals on static and dynamic abitrary triangle surfaces ?
 
 code/xmap
+- add small lights to powerup items
 - merge AAS compiler into xmap ?
 - finish BSP tree optimizations like merging co-planar faces ?
 

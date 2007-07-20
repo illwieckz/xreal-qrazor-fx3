@@ -29,65 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define EMISIVEFADE	3
 #define GREY75		4
 
-typedef struct particle_s
-{
-	struct particle_s *next;
-
-	float           time;
-	float           endTime;
-
-	vec3_t          org;
-	vec3_t          vel;
-	vec3_t          accel;
-	int             color;
-	float           colorVel;
-	float           alpha;
-	float           alphaVel;
-	int             type;
-	qhandle_t       pshader;
-
-	float           height;
-	float           width;
-
-	float           endHeight;
-	float           endWidth;
-
-	float           start;
-	float           end;
-
-	float           startfade;
-	qboolean        rotate;
-	int             snum;
-
-	qboolean        link;
-
-	int             shaderAnim;
-	int             roll;
-
-	int             accumroll;
-
-} cparticle_t;
-
-typedef enum
-{
-	P_NONE,
-	P_WEATHER,
-	P_FLAT,
-	P_SMOKE,
-	P_ROTATE,
-	P_WEATHER_TURBULENT,
-	P_ANIM,						// Ridah
-	P_BAT,
-	P_BLEED,
-	P_FLAT_SCALEUP,
-	P_FLAT_SCALEUP_FADE,
-	P_WEATHER_FLURRY,
-	P_SMOKE_IMPACT,
-	P_BUBBLE,
-	P_BUBBLE_TURBULENT,
-	P_SPRITE
-} particle_type_t;
-
 #define	MAX_SHADER_ANIMS		32
 #define	MAX_SHADER_ANIM_FRAMES	64
 
@@ -996,6 +937,31 @@ void CG_AddParticles(void)
 
 	active_particles = active;
 }
+
+/*
+==========================
+CG_ParticleTeleportEffect
+==========================
+*/
+cparticle_t *CG_SpawnParticle()
+{
+	cparticle_t    *p;
+
+	if(!free_particles)
+		return NULL;
+
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+
+	// add some nice default values
+	p->time = cg.time;
+	p->startfade = cg.time;
+
+	return p;
+}
+
 
 /*
 ======================

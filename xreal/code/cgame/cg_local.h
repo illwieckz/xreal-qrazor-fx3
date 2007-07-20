@@ -472,6 +472,67 @@ typedef struct
 
 //======================================================================
 
+typedef struct particle_s
+{
+	int             type;
+	qhandle_t       pshader;
+
+	float           time;
+	float           endTime;
+
+	vec3_t          org;
+	vec3_t          vel;
+	vec3_t          accel;
+	int             color;
+	float           colorVel;
+	float           alpha;
+	float           alphaVel;
+
+	float           width;
+	float           height;
+
+	float           endWidth;
+	float           endHeight;
+
+	float           start;
+	float           end;
+
+	float           startfade;
+	qboolean        rotate;
+	int             snum;
+
+	qboolean        link;
+
+	int             shaderAnim;
+	int             roll;
+
+	int             accumroll;
+
+	struct particle_s *next;
+} cparticle_t;
+
+typedef enum
+{
+	P_NONE,
+	P_WEATHER,
+	P_FLAT,
+	P_SMOKE,
+	P_ROTATE,
+	P_WEATHER_TURBULENT,
+	P_ANIM,						// Ridah
+	P_BAT,
+	P_BLEED,
+	P_FLAT_SCALEUP,
+	P_FLAT_SCALEUP_FADE,
+	P_WEATHER_FLURRY,
+	P_SMOKE_IMPACT,
+	P_BUBBLE,
+	P_BUBBLE_TURBULENT,
+	P_SPRITE
+} particle_type_t;
+
+//======================================================================
+
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
@@ -1556,6 +1617,19 @@ void			CG_RestartLua_f(void);
 //
 int             luaopen_cgame(lua_State * L);
 
+
+//
+// lua_particle.c
+//
+typedef struct
+{
+	cparticle_t      *p;
+} lua_Particle;
+
+int             luaopen_particle(lua_State * L);
+void            lua_pushparticle(lua_State * L, cparticle_t * p);
+lua_Particle   *lua_getparticle(lua_State * L, int argNum);
+
 //
 // lua_qmath.c
 //
@@ -1568,6 +1642,28 @@ int             luaopen_vector(lua_State * L);
 void            lua_pushvector(lua_State * L, vec3_t v);
 vec_t          *lua_getvector(lua_State * L, int argNum);
 #endif
+
+
+//
+// cg_particles.c
+//
+void            CG_ClearParticles(void);
+void            CG_AddParticles(void);
+cparticle_t    *CG_SpawnParticle(void);
+void            CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
+void            CG_ParticleSmoke(qhandle_t pshader, centity_t * cent);
+void            CG_AddParticleShrapnel(localEntity_t * le);
+void            CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent);
+void			CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin);
+void            CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);
+void			CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, float width, float height, float alpha, qhandle_t shader);
+void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
+void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
+void            CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
+void            CG_ParticleTeleportEffect(const vec3_t origin);
+extern qboolean initparticles;
+int             CG_NewParticleArea(int num);
 
 
 //===============================================
@@ -1770,19 +1866,4 @@ qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int				trap_RealTime(qtime_t *qtime);
 
-void            CG_ClearParticles(void);
-void            CG_AddParticles(void);
-void            CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
-void            CG_ParticleSmoke(qhandle_t pshader, centity_t * cent);
-void            CG_AddParticleShrapnel(localEntity_t * le);
-void            CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent);
-void			CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin);
-void            CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);
-void			CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, float width, float height, float alpha, qhandle_t shader);
-void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
-void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
-void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
-void            CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
-void            CG_ParticleTeleportEffect(const vec3_t origin);
-extern qboolean initparticles;
-int             CG_NewParticleArea(int num);
+

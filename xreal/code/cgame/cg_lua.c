@@ -56,7 +56,7 @@ void CG_InitLua()
 	luaopen_string(cg_luaState);
 
 	// Quake lib
-	// TODO luaopen_particle(cg_luaState);
+	luaopen_particle(cg_luaState);
 	// TODO luaopen_localEntity(cg_luaState);
 	luaopen_cgame(cg_luaState);
 	luaopen_qmath(cg_luaState);
@@ -74,14 +74,12 @@ void CG_InitLua()
 		CG_LoadLuaScript(filename);
 	}
 
+#if 0
 	CG_DumpLuaStack();
 
-#if 0
 	// run some tests
-	VectorSet(in, 5, 7, 3);
-	CG_RunLuaFunction("testParticleSpawn", "", in);
-	
-	CG_RunLuaFunction("testVectors", "v>f", in, &out);
+	VectorSet(in, 5, 7, 3);	
+	CG_RunLuaFunction("TestVectors", "v>f", in, &out);
 	CG_Printf("result of testVectors() is %f\n", out);
 	//CG_Printf("result of testVectors() is %i %i %i\n", (int)out[0], (int)out[1], (int)out[2]);
 #endif
@@ -189,7 +187,7 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 			TODO ?
 			case 'p':
 				// particle argument
-				lua_pushparticle(L, va_arg(vl, particle_t *));
+				lua_pushparticle(L, va_arg(vl, lua_Particle *));
 				break;
 			*/
 
@@ -245,13 +243,16 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 
 				break;
 
+#if 0
+			FIXME this causes a crash
 			case 'v':
 				// string result
-				//if(!lua_getvector(L, nres))
-				//	CG_Printf("CG_RunLuaFunction: wrong result type\n");
+				if(!lua_getvector(L, nres))
+					CG_Printf("CG_RunLuaFunction: wrong result type\n");
 				*va_arg(vl, vec_t **) = lua_getvector(L, nres);
 
 				break;
+#endif
 
 			default:
 				CG_Printf("CG_RunLuaFunction: invalid option (%c)\n", *(sig - 1));

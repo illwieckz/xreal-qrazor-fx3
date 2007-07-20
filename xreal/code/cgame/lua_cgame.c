@@ -52,8 +52,24 @@ static int cgame_Print(lua_State * L)
 	return 0;
 }
 
+static int cgame_RegisterShader(lua_State * L)
+{
+	const char     *s;
+	char			shaderName[MAX_QPATH];
+	qhandle_t		shader;
+	
+	s = luaL_checkstring(L, 1);
+	Q_strncpyz(shaderName, s, sizeof(shaderName));
+
+	shader = trap_R_RegisterShader(shaderName);
+	lua_pushinteger(L, shader);
+	
+	return 1;
+}
+
 static const luaL_reg cgamelib[] = {
 	{"Print", cgame_Print},
+	{"RegisterShader", cgame_RegisterShader},
 	{NULL, NULL}
 };
 

@@ -783,6 +783,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lua_particle.c"
+				>
+			</File>
+			<File
 				RelativePath="..\game\lua_qmath.c"
 				>
 			</File>
