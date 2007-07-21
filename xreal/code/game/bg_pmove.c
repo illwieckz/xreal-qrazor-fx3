@@ -1429,11 +1429,13 @@ static void PM_CheckDuck(void)
 	}
 
 	if(pm->cmd.upmove < 0)
-	{							// duck
+	{
+		// duck
 		pm->ps->pm_flags |= PMF_DUCKED;
 	}
 	else
-	{							// stand up if possible
+	{
+		// stand up if possible
 		if(pm->ps->pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
@@ -1456,10 +1458,7 @@ static void PM_CheckDuck(void)
 	}
 }
 
-
-
 //===================================================================
-
 
 /*
 ===============
