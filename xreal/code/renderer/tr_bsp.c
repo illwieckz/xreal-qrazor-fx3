@@ -4564,8 +4564,12 @@ void R_PrecacheInteractions()
 		numLeafs = 0;
 		R_RecursiveAddInteractionNode(s_worldData.nodes, light, &numLeafs, qfalse);
 
+#if 0
+		// Tr3b: this can cause really bad shadow problems :/
+
 		// check if interactions are inside shadows of other interactions
 		R_KillRedundantInteractions(light);
+#endif
 
 		// create a static VBO surface for each light geometry batch
 		R_CreateVBOLightMeshes(light);
