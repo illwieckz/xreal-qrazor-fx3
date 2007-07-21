@@ -1324,13 +1324,13 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 		case EV_EFFECT:
 			DEBUGNAME("EV_EFFECT");
-			//CG_ParticleTeleportEffect(position);
-
-			// Tr3B: TODO run Lua scriptable effects like "effects/category/mysuperfx.lua"
-			//s = CG_ConfigString(CS_EFFECTS + es->eventParm);
-			//CG_RunLuaFunction(s, "v", position);
-
-			CG_RunLuaFunction("TestParticleSpawn", "v", position);
+			
+			// Tr3B: run scriptable effects like "TestParticleSpawn" in "effects/particleTests.lua"
+			s = CG_ConfigString(CS_EFFECTS + es->eventParm);
+			if(s[0])
+			{
+				CG_RunLuaFunction(s, "v", position);
+			}
 			break;
 
 		case EV_DEBUG_LINE:

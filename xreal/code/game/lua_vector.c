@@ -157,6 +157,23 @@ static int vector_NormalizeFast(lua_State * L)
 	return 1;
 }
 
+static int vector_RotatePointAround(lua_State * L)
+{
+	vec_t          *dst;
+	vec_t          *dir;
+	vec_t          *point;
+	vec_t			degrees;
+
+	dst = lua_getvector(L, 1);
+	dir = lua_getvector(L, 2);
+	point = lua_getvector(L, 3);
+	degrees = luaL_checknumber(L, 4);
+
+	RotatePointAroundVector(dst, dir, point, degrees);
+
+	return 1;
+}
+
 // *INDENT-OFF*
 static int vector_Index(lua_State * L)
 {
@@ -318,6 +335,7 @@ static const luaL_reg vector_ctor[] = {
 	{"Length", vector_Length},
 	{"Normalize", vector_Normalize},
 	{"NormalizeFast", vector_NormalizeFast},
+	{"RotatePointAround", vector_RotatePointAround},
 	{NULL, NULL}
 };
 

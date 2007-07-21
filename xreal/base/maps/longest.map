@@ -4458,3 +4458,27 @@ brushDef3
 "rotation" "0 0.645601 -0.763675 -1 0 0 0 0.763675 0.645601"
 "texture" "lights/ambientLight"
 }
+// entity 156
+{
+"classname" "target_fx"
+"name" "target_fx_1"
+"origin" "-392 -64 32"
+"luaThink" "TestParticleSpawn"
+"wait" "0.2"
+}
+// entity 157
+{
+"classname" "target_fx"
+"name" "target_fx_2"
+"origin" "1152 -64 32"
+"luaThink" "TestParticleSpawn"
+"wait" "0.2"
+}
+// entity 158
+{
+"classname" "target_fx"
+"name" "target_fx_3"
+"origin" "384 -88 880"
+"luaThink" "TestParticleSpawn"
+"wait" "0.2"
+}

@@ -1669,7 +1669,8 @@ Activating this will teleport players to the location of the targeted misc_telep
 Lua scriptable XreaL special effect of any kind. Can be used for particle emitters, lightning bolts or whatever.
 -------- KEYS --------
 <targetname key="name" name="Name">activating trigger points to this.</targetname>
-<string key="fx" name="Effect">name of the Lua scripted client game effect.</string>
+<string key="luaThink" name="Effect">name of the Lua scripted client game effect that will be called by every thought of this entity.</string>
+<real key="wait" name="Repeat Time">time in seconds until this entity thinks again (default 0.5, -1 = think once).</real>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>

@@ -556,7 +556,21 @@ static void target_fx_use(gentity_t *self, gentity_t *other, gentity_t *activato
 
 static void target_fx_think(gentity_t * self)
 {
-	G_AddEvent(self, EV_EFFECT, 0 /* TODO sef->s.modelindex */ );
+	G_AddEvent(self, EV_EFFECT, self->s.modelindex);
+
+	if(self->wait > 0)
+	{
+		//ent->think = multi_wait;
+		self->nextthink = level.time + (self->wait + self->random * crandom()) * 1000;
+	}
+	else
+	{
+		// we can't just remove (self) here, because this is a touch function
+		// called while looping through area links...
+		self->touch = NULL;
+		self->nextthink = level.time + FRAMETIME;
+		self->think = G_FreeEntity;
+	}
 
 	self->nextthink = level.time + 1000;
 }
@@ -569,13 +583,16 @@ void SP_target_fx(gentity_t * self)
 	char           *effectName;
 	int             startOn = 0;
 
-	self->s.eType = ET_GENERAL;
+	self->s.eType = ET_INVISIBLE;
+
+	G_SpawnFloat("wait", "0.5", &self->wait);
+	G_SpawnFloat("random", "0", &self->random);
 
 	G_SpawnInt("start_on", "0", &startOn);
 	if(!startOn)
 		self->s.eFlags |= EF_NODRAW;
 
-	G_SpawnString("fx", "", &effectName);
+	G_SpawnString("luaThink", "TestParticleSpawn", &effectName);
 	self->s.modelindex = G_EffectIndex(effectName);
 
 	G_SetOrigin(self, self->s.origin);
