@@ -542,7 +542,7 @@ icons/weapon_machinegun
 {
 	nopicmip
 	{
-		map icons/ammo_machinegun.tga
+		map icons/weapon_machinegun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -550,7 +550,7 @@ icons/weapon_rocket
 {
 	nopicmip
 	{
-		map icons/ammo_rocket.tga
+		map icons/weapon_rocket.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -559,7 +559,7 @@ icons/weapon_shotgun
 {
 	nopicmip
 	{
-		map icons/ammo_shotgun.tga
+		map icons/weapon_shotgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -568,7 +568,7 @@ icons/weapon_grenade
 {
 	nopicmip
 	{
-		map icons/ammo_grenade.tga
+		map icons/weapon_grenade.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -577,7 +577,7 @@ icons/weapon_lightning
 {
 	nopicmip
 	{
-		map icons/ammo_lightning.tga
+		map icons/weapon_lightning.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -586,7 +586,7 @@ icons/weapon_plasma
 {
 	nopicmip
 	{
-		map icons/ammo_plasma.tga
+		map icons/weapon_plasma.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -595,7 +595,7 @@ icons/weapon_railgun
 {
 	nopicmip
 	{
-		map icons/ammo_railgun.tga
+		map icons/weapon_railgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -604,7 +604,7 @@ icons/weapon_bfg
 {
 	nopicmip
 	{
-		map icons/ammo_bfg.tga
+		map icons/weapon_bfg.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -613,7 +613,7 @@ icons/weapon_grapple
 {
 	nopicmip
 	{
-		map icons/ammo_grapple.tga
+		map icons/weapon_grapple.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -622,7 +622,7 @@ icons/weapon_nailgun
 {
 	nopicmip
 	{
-		map icons/nailgun128.tga
+		map icons/weapon_nailgun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -631,7 +631,7 @@ icons/weapon_chaingun
 {
 	nopicmip
 	{
-		map icons/chaingun128.tga
+		map icons/weapon_chaingun.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
@@ -640,7 +640,7 @@ icons/weapon_proxlauncher
 {
 	nopicmip
 	{
-		map icons/proxmine.tga
+		map icons/weapon_proxmine.tga
 		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 	}
 }
