@@ -1269,7 +1269,8 @@ void ClientThink(int clientNum)
 	ent = g_entities + clientNum;
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
 
-	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
+	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR 
+		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.spectatorState == SPECTATOR_FOLLOW)))
 	{
 		ClientThink_real(ent);
 	}
@@ -1278,7 +1279,8 @@ void ClientThink(int clientNum)
 
 void G_RunClient(gentity_t * ent)
 {
-	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
+	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR 
+		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.spectatorState == SPECTATOR_FOLLOW)))
 	{
 		return;
 	}
