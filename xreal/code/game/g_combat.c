@@ -271,13 +271,13 @@ GibEntity
 */
 void GibEntity(gentity_t * self, int killer)
 {
-	gentity_t      *ent;
-	int             i;
-
 #ifdef MISSIONPACK
 	//if this entity still has kamikaze
 	if(self->s.eFlags & EF_KAMIKAZE)
 	{
+		gentity_t      *ent;
+		int             i;
+
 		// check if there is a kamikaze timer around for this owner
 		for(i = 0; i < MAX_GENTITIES; i++)
 		{

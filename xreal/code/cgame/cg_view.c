@@ -757,7 +757,6 @@ static void CG_OffsetFirstPersonView(void)
 
 	origin[2] += bob;
 
-
 	// add fall height
 	delta = cg.time - cg.landTime;
 	if(delta < LAND_DEFLECT_TIME)
@@ -798,9 +797,8 @@ static void CG_OffsetFirstPersonView(void)
 void CG_ZoomDown_f(void)
 {
 	if(cg.zoomed)
-	{
 		return;
-	}
+
 	cg.zoomed = qtrue;
 	cg.zoomTime = cg.time;
 }
@@ -808,9 +806,8 @@ void CG_ZoomDown_f(void)
 void CG_ZoomUp_f(void)
 {
 	if(!cg.zoomed)
-	{
 		return;
-	}
+
 	cg.zoomed = qfalse;
 	cg.zoomTime = cg.time;
 }
@@ -840,6 +837,11 @@ static int CG_CalcFov(void)
 	if(cg.predictedPlayerState.pm_type == PM_INTERMISSION)
 	{
 		// if in intermission, use a fixed value
+		fov_x = 90;
+	}
+	else if(cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+	{
+		// if a spectator, use a fixed value
 		fov_x = 90;
 	}
 	else
