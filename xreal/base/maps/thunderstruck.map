@@ -6291,6 +6291,30 @@ brushDef3
 ( -0.7071067691 -0.7071067691 0 -1001.263194487 ) ( ( 0.0624999925 0 30.4124298096 ) ( 0 0.0625 0 ) ) "textures/common/clip" 0 0 0
 }
 }
+// brush 517
+{
+brushDef3
+{
+( 0 0 1 -192 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/donotenter" 0 0 0
+( 0 1 0 -192 ) ( ( 0.03125 0 62.75 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+( 1 0 0 1088 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/donotenter" 0 0 0
+( 0 -1 0 -192 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+( -1 0 0 -1152 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+}
+}
+// brush 518
+{
+brushDef3
+{
+( 0 0 1 -192 ) ( ( 0 0.03125 28 ) ( -0.03125 0 34 ) ) "textures/common/donotenter" 0 0 0
+( 1 0 0 832 ) ( ( 0.03125 0 28.75 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+( 0 -1 0 128 ) ( ( 0.03125 0 28 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+( 0 0 -1 -0 ) ( ( 0 -0.03125 28 ) ( 0.03125 0 30 ) ) "textures/common/donotenter" 0 0 0
+( -1 0 0 -1088 ) ( ( 0.03125 0 34 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+( 0 1 0 -192 ) ( ( 0.03125 0 36 ) ( 0 0.03125 0.75 ) ) "textures/common/donotenter" 0 0 0
+}
+}
 }
 // entity 1
 {
@@ -8016,25 +8040,11 @@ patchDef2
 }
 // entity 78
 {
-"classname" "item_botroam"
-"name" "item_botroam_1"
-"origin" "-40 -352 -24"
-"angle" "180"
-}
-// entity 79
-{
-"classname" "item_botroam"
-"name" "item_botroam_2"
-"origin" "-360 -352 40"
-"angle" "90"
-}
-// entity 80
-{
 "classname" "item_health_large"
 "name" "item_health_large_4"
 "origin" "224 -192 -224"
 }
-// entity 81
+// entity 79
 {
 "classname" "func_static"
 "name" "func_static_1"
