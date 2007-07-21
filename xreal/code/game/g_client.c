@@ -975,6 +975,7 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	gentity_t      *ent;
 	char            ipaddress[32];
 	g_ban_t        *ban;
+	int				team;
 
 	ent = &g_entities[clientNum];
 
@@ -1053,7 +1054,11 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		client->pers.wasConnected = qtrue;
 
 	if(g_gametype.integer >= GT_TEAM && client->sess.sessionTeam != TEAM_SPECTATOR)
-		BroadcastTeamChange(client, -1);
+	{
+		team = PickTeam(clientNum);
+		client->sess.sessionTeam = team;
+		BroadcastTeamChange(client, team);
+	}
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
