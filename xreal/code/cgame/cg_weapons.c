@@ -910,6 +910,7 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/plasma/hyprbf1a.wav", qfalse);
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
+			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
 			break;
 
 		case WP_RAILGUN:
