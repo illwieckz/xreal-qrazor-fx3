@@ -8,7 +8,7 @@ Version 2
 {
 brushDef3
 {
-( 1 0 0 1264 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/raynorpat/black_sky" 0 0 0
+( 1 0 0 1264 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/tr3b_sky/jump2_512" 0 0 0
 ( -1 0 0 -1280 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -1152 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 -1 0 -2480 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
@@ -20,7 +20,7 @@ brushDef3
 {
 brushDef3
 {
-( 0 -1 0 1152 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/raynorpat/black_sky" 0 0 0
+( 0 -1 0 1152 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/tr3b_sky/jump2_512" 0 0 0
 ( -1 0 0 -1264 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -1168 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -1792 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
@@ -37,7 +37,7 @@ brushDef3
 ( 0 -1 0 -2480 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -1152 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -1808 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( -1 0 0 1792 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/raynorpat/black_sky" 0 0 0
+( -1 0 0 1792 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/tr3b_sky/jump2_512" 0 0 0
 }
 }
 // brush 3
@@ -188,7 +188,7 @@ brushDef3
 ( 1 0 0 -1792 ) ( ( 0.03125 0 0 ) ( 0 0.03125 -40 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -1152 ) ( ( 0.03125 0 0 ) ( 0 0.03125 -40 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -1264 ) ( ( 0.03125 0 0 ) ( 0 0.03125 -40 ) ) "textures/common/caulk" 0 0 0
-( 0 0 1 1536 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/raynorpat/black_sky" 0 0 0
+( 0 0 1 1536 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/tr3b_sky/jump2_512" 0 0 0
 }
 }
 // brush 15
@@ -564,7 +564,7 @@ brushDef3
 ( 0 -1 0 -2496 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 1 0 0 -1792 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -1264 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( 0 1 0 2480 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/raynorpat/black_sky" 0 0 0
+( 0 1 0 2480 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/tr3b_sky/jump2_512" 0 0 0
 }
 }
 // brush 47
@@ -1091,7 +1091,7 @@ brushDef3
 ( 1 0 0 -1792 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( 0 1 0 -1152 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 ( -1 0 0 -1264 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( 0 0 -1 1480 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/raynorpat/black_sky" 0 0 0
+( 0 0 -1 1480 ) ( ( 0.25 0 -0 ) ( -0 0.25 0 ) ) "textures/tr3b_sky/jump2_512" 0 0 0
 }
 }
 // brush 91
