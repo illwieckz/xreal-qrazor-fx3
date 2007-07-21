@@ -1,4 +1,22 @@
 
+
+textures/tr3b_sky/jump2_512
+{
+	qer_editorimage cubemaps/pete/jump2_512_px.png
+	
+	noFragment 
+	noshadows 
+	nooverlays
+	noimpact 
+	forceOpaque
+	
+	{ 
+		stage skyboxMap
+		cubeMap   cubemaps/pete/jump2_512
+	}
+} 
+
+
 textures/tr3b_sky/thunders_cloudyskydark_stormy
 {
 	qer_editorimage   textures/tr3b_sky/baseskystormy.jpg
