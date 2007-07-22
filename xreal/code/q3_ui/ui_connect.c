@@ -227,7 +227,6 @@ void UI_DrawConnectScreen(qboolean overlay)
 
 	UI_DrawProportionalString(320, 64, va("Connecting to %s", cstate.servername), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
 							  menu_text_color);
-	//UI_DrawProportionalString( 320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 
 	// display global MOTD at bottom
 	UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,
@@ -240,30 +239,6 @@ void UI_DrawConnectScreen(qboolean overlay)
 		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
 											  menu_text_color);
 	}
-
-#if 0
-	// display password field
-	if(passwordNeeded)
-	{
-		s_ingame_menu.x = SCREEN_WIDTH * 0.50 - 128;
-		s_ingame_menu.nitems = 0;
-		s_ingame_menu.wrapAround = qtrue;
-
-		passwordField.generic.type = MTYPE_FIELD;
-		passwordField.generic.name = "Password:";
-		passwordField.generic.callback = 0;
-		passwordField.generic.x = 10;
-		passwordField.generic.y = 180;
-		Field_Clear(&passwordField.field);
-		passwordField.width = 256;
-		passwordField.field.widthInChars = 16;
-		Q_strncpyz(passwordField.field.buffer, Cvar_VariableString("password"), sizeof(passwordField.field.buffer));
-
-		Menu_AddItem(&s_ingame_menu, (void *)&s_customize_player_action);
-
-		MField_Draw(&passwordField);
-	}
-#endif
 
 	if(lastConnState > cstate.connState)
 	{

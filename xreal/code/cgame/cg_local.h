@@ -1559,8 +1559,6 @@ void			CG_TransitionEntity(centity_t *cent);
 // cg_info.c
 //
 void            CG_LoadingString(const char *s);
-void            CG_LoadingItem(int itemNum);
-void            CG_LoadingClient(int clientNum);
 void            CG_DrawInformation(void);
 
 //

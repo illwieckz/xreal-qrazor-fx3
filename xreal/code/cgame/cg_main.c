@@ -1058,10 +1058,7 @@ static void CG_RegisterGraphics(void)
 	for(i = 1; i < bg_numItems; i++)
 	{
 		if(items[i] == '1' || cg_buildScript.integer)
-		{
-			CG_LoadingItem(i);
 			CG_RegisterItemVisuals(i);
-		}
 	}
 
 	// wall marks
@@ -1194,7 +1191,6 @@ static void CG_RegisterClients(void)
 {
 	int             i;
 
-	CG_LoadingClient(cg.clientNum);
 	CG_NewClientInfo(cg.clientNum);
 
 	for(i = 0; i < MAX_CLIENTS; i++)
@@ -1202,18 +1198,15 @@ static void CG_RegisterClients(void)
 		const char     *clientInfo;
 
 		if(cg.clientNum == i)
-		{
 			continue;
-		}
 
 		clientInfo = CG_ConfigString(CS_PLAYERS + i);
 		if(!clientInfo[0])
-		{
 			continue;
-		}
-		CG_LoadingClient(i);
+
 		CG_NewClientInfo(i);
 	}
+
 	CG_BuildSpectatorString();
 }
 

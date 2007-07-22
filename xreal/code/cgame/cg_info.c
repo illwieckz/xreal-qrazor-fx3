@@ -20,48 +20,9 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 // cg_info.c -- display information while data is being loading
-
 #include "cg_local.h"
-
-#define MAX_LOADING_PLAYER_ICONS	16
-#define MAX_LOADING_ITEM_ICONS		26
-
-static int      loadingPlayerIconCount;
-static int      loadingItemIconCount;
-static qhandle_t loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
-static qhandle_t loadingItemIcons[MAX_LOADING_ITEM_ICONS];
-
-/*
-===================
-CG_DrawLoadingIcons
-===================
-*/
-static void CG_DrawLoadingIcons(void)
-{
-	int             n;
-	int             w, x, y;
-
-	for(n = 0; n < loadingPlayerIconCount; n++)
-	{
-		w = loadingPlayerIconCount * 48;
-		x = (SCREEN_WIDTH - w) / 2;
-		y = 352 - 48;
-
-		CG_DrawPic(x, y, 48, 48, loadingPlayerIcons[n]);
-	}
-
-	for(n = 0; n < loadingItemIconCount; n++)
-	{
-		//w = loadingItemIconCount * 18;
-		y = 400 - 16;
-		x = 16 + n * 16;
-		//x = (SCREEN_WIDTH - w) / 16 + n * 16;
-
-		CG_DrawPic(x, y, 12, 12, loadingItemIcons[n]);
-	}
-}
 
 /*
 ======================
@@ -76,71 +37,202 @@ void CG_LoadingString(const char *s)
 }
 
 /*
-===================
-CG_LoadingItem
-===================
+======================
+CG_DrawLoadBar
+======================
 */
-void CG_LoadingItem(int itemNum)
+void CG_DrawLoadBar(void)
 {
-	gitem_t        *item;
+	int			x,y,pad;
 
-	item = &bg_itemlist[itemNum];
+	// Round LCARS buttons
+	y = 309;
+	x = 10;
+	pad = 22;
 
-	if(item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS)
-		loadingItemIcons[loadingItemIconCount++] = trap_R_RegisterShaderNoMip(item->icon);
+	/*
+        if (cg.loadLCARSStage < 1)
+        {
+                trap_R_SetColor( colorTable[CT_VDKPURPLE3]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14, 16,  16,cgs.media.circle2);
+                UI_DrawProportionalString( x + 222, y + 14, ingame_text[IGT_REPLICATION_MATRIX],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
+                trap_R_SetColor( colorTable[CT_VLTPURPLE3]);
+        }
+        CG_DrawPic( x + 18,   y +102, 128,  64,cgs.media.loading1);
 
-	CG_LoadingString(item->pickup_name);
-}
 
-/*
-===================
-CG_LoadingClient
-===================
-*/
-void CG_LoadingClient(int clientNum)
-{
-	const char     *info;
-	char           *skin;
-	char            personality[MAX_QPATH];
-	char            model[MAX_QPATH];
-	char            iconName[MAX_QPATH];
+        if (cg.loadLCARSStage < 2)
+        {
+                trap_R_SetColor( colorTable[CT_VDKBLUE1]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14, 16,  16,cgs.media.circle);
+                trap_R_SetColor( colorTable[CT_VLTBLUE1]);
+        }
+        CG_DrawPic(      x,   y + 37,  64,  64,cgs.media.loading2);
 
-	info = CG_ConfigString(CS_PLAYERS + clientNum);
 
-	if(loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS)
-	{
-		Q_strncpyz(model, Info_ValueForKey(info, "model"), sizeof(model));
-		skin = Q_strrchr(model, '/');
-		if(skin)
-			*skin++ = '\0';
-		else
-			skin = "default";
+        if (cg.loadLCARSStage < 3)
+        {
+                trap_R_SetColor( colorTable[CT_VDKPURPLE1]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14+pad, 16,  16,cgs.media.circle2);
+                UI_DrawProportionalString( x + 222, y + 14 + pad, ingame_text[IGT_HOLOGRAPHIC_PROJECTORS],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
+                trap_R_SetColor( colorTable[CT_LTPURPLE1]);
+        }
+        CG_DrawPic( x + 17,        y, 128,  64,cgs.media.loading3);
 
-		Com_sprintf(iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin);
 
-		loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
-		if(!loadingPlayerIcons[loadingPlayerIconCount])
-		{
-			Com_sprintf(iconName, MAX_QPATH, "models/players/characters/%s/icon_%s.tga", model, skin);
-			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
-		}
-		if(!loadingPlayerIcons[loadingPlayerIconCount])
-		{
-			Com_sprintf(iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, "default");
-			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
-		}
+        if (cg.loadLCARSStage < 4)
+        {
+                trap_R_SetColor( colorTable[CT_VDKPURPLE2]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14+pad, 16,  16,cgs.media.circle);
+                trap_R_SetColor( colorTable[CT_LTPURPLE2]);
+        }
+        CG_DrawPic( x + 99,        y, 128, 128,cgs.media.loading4);
 
-		if(loadingPlayerIcons[loadingPlayerIconCount])
-			loadingPlayerIconCount++;
-	}
 
-	Q_strncpyz(personality, Info_ValueForKey(info, "n"), sizeof(personality));
-	Q_CleanStr(personality);
+        if (cg.loadLCARSStage < 5)
+        {
+                trap_R_SetColor( colorTable[CT_VDKBLUE2]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14+pad+pad, 16,  16,cgs.media.circle2);
+                UI_DrawProportionalString( x + 222, y + 14 + pad + pad, ingame_text[IGT_SIMULATION_DATA_BASE],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
+                trap_R_SetColor( colorTable[CT_VLTBLUE2]);
+        }
+        CG_DrawPic( x +137,   y + 81,  64,  64,cgs.media.loading5);
 
-	if(cgs.gametype == GT_SINGLE_PLAYER)
-		trap_S_RegisterSound(va("sound/player/announce/%s.wav", personality), qtrue);
 
-	CG_LoadingString(personality);
+        if (cg.loadLCARSStage < 6)
+        {
+                trap_R_SetColor( colorTable[CT_VDKORANGE]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14+pad+pad, 16,  16,cgs.media.circle);
+                trap_R_SetColor( colorTable[CT_LTORANGE]);
+        }
+        CG_DrawPic( x + 45,   y + 99, 128,  64,cgs.media.loading6);
+
+
+        if (cg.loadLCARSStage < 7)
+        {
+                trap_R_SetColor( colorTable[CT_VDKBLUE2]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14+pad+pad+pad, 16,  16,cgs.media.circle2);
+                UI_DrawProportionalString( x + 222, y + 14 + pad + pad + pad, ingame_text[IGT_SAFETY_LOCKS],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
+                trap_R_SetColor( colorTable[CT_LTBLUE2]);
+        }
+        CG_DrawPic( x + 38,   y + 24,  64, 128,cgs.media.loading7);
+
+        if (cg.loadLCARSStage < 8)
+        {
+                trap_R_SetColor( colorTable[CT_VDKPURPLE1]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
+                CG_DrawPic( x + 222 - 20,y + 14+pad+pad+pad, 16,  16,cgs.media.circle);
+                trap_R_SetColor( colorTable[CT_LTPURPLE1]);
+        }
+        CG_DrawPic( x + 78,   y + 20, 128,  64,cgs.media.loading8);
+
+        if (cg.loadLCARSStage < 9)
+        {
+                trap_R_SetColor( colorTable[CT_VDKBROWN1]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_VLTBROWN1]);
+        }
+        CG_DrawPic( x +112,   y + 66,  64, 128,cgs.media.loading9);
+
+
+        if (cg.loadLCARSStage < 9)
+        {
+                trap_R_SetColor( colorTable[CT_DKBLUE2]);
+        }
+        else
+        {
+                trap_R_SetColor( colorTable[CT_LTBLUE2]);
+        }
+        CG_DrawPic( x + 62,   y + 44, 128, 128,cgs.media.loadingcircle);	// Center arrows
+
+        cg.loadLCARScnt++;
+        if (cg.loadLCARScnt > 3)
+        {
+                cg.loadLCARScnt = 0;
+        }
+
+        trap_R_SetColor( colorTable[CT_DKPURPLE2]);
+        CG_DrawPic( x +  61,   y + 43,  32,  32,cgs.media.loadingquarter);	// Quad UL
+	CG_DrawPic( x + 135,   y + 43, -32,  32,cgs.media.loadingquarter);	// Quad UR
+	CG_DrawPic( x + 135,   y +117, -32, -32,cgs.media.loadingquarter);	// Quad LR
+	CG_DrawPic( x +  61,   y +117,  32, -32,cgs.media.loadingquarter);	// Quad LL
+
+        trap_R_SetColor( colorTable[CT_LTPURPLE2]);
+        switch (cg.loadLCARScnt)
+        {
+        case 0 :
+                CG_DrawPic( x +  61,   y + 43,  32,  32,cgs.media.loadingquarter);	// Quad UL
+		break;
+        case 1 :
+                CG_DrawPic( x + 135,   y + 43, -32,  32,cgs.media.loadingquarter);	// Quad UR
+		break;
+        case 2 :
+                CG_DrawPic( x + 135,   y +117, -32, -32,cgs.media.loadingquarter);	// Quad LR
+		break;
+        case 3 :
+                CG_DrawPic( x +  61,   y +117,  32, -32,cgs.media.loadingquarter);	// Quad LL
+		break;
+        } 
+
+        UI_DrawProportionalString( x +  21, y + 150, "0987",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x +   3, y +  90,   "18",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x +  24, y +  20,    "7",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x +  93, y +   5,   "51",UI_RIGHT|UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x + 103, y +   5,   "35",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x + 165, y +  83,   "21",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x + 101, y + 149,   "67",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x + 123, y +  36,   "8",UI_TINYFONT, colorTable[CT_BLACK]);
+
+        UI_DrawProportionalString( x +  90, y +  65, "1",UI_RIGHT|UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x + 105, y +  65, "2",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x + 105, y +  87, "3",UI_TINYFONT, colorTable[CT_BLACK]);
+        UI_DrawProportionalString( x +  91, y +  87, "4",UI_RIGHT|UI_TINYFONT, colorTable[CT_BLACK]);
+
+        trap_R_SetColor( colorTable[CT_DKBROWN1]);
+        y +=10;
+        CG_DrawPic( x + 130, y - 10 ,  64, 16,cgs.media.loadingtrim);	
+        CG_DrawPic( x +  130, y + 150,  64, -16,cgs.media.loadingtrim);	
+
+        CG_DrawPic( x +  150, y - 10,   432,  8, cgs.media.whiteShader);		// Top line
+	CG_DrawPic( x +  150, y + 142, 432,  8, cgs.media.whiteShader);		// Bottom line
+	CG_DrawPic( x +  583, y - 7,      16, 151, cgs.media.whiteShader);	// Side line
+
+        CG_DrawPic( x +  580, y + 1,      32, -16,cgs.media.loadingcorner);	
+        CG_DrawPic( x +  580, y + 139,    32, 16,cgs.media.loadingcorner);	
+		*/
 }
 
 /*
@@ -176,8 +268,8 @@ void CG_DrawInformation(void)
 	detail = trap_R_RegisterShader("levelShotDetail");
 	trap_R_DrawStretchPic(0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail);
 
-	// draw the icons of things as they are loaded
-	CG_DrawLoadingIcons();
+	// draw the loading bar
+	CG_DrawLoadBar();
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
