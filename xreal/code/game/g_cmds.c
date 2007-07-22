@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /*
 ==================
 DeathmatchScoreboardMessage
-
 ==================
 */
 void DeathmatchScoreboardMessage(gentity_t * ent)
@@ -2161,6 +2160,35 @@ void Cmd_Ban_f(gentity_t * ent)
 	trap_DropClient(victim - g_entities, va("was banned by %s", ent->client->pers.netname));
 }
 
+void Cmd_Status_f(gentity_t * ent)
+{
+	int				i;
+	gentity_t	   *cl;
+	char			msg[1000];
+
+	if(!Admin_HasPermission(ent, PERMISSION_VIEW))
+		return;
+
+	msg[0] = 0;
+
+	for(i = 0; i < g_maxclients.integer; i++)
+	{
+		cl = g_entities + i;
+
+		if(cl->client->pers.connected != CON_CONNECTED)
+			continue;
+
+		Q_strcat(msg, sizeof(msg), va("%d. %-15s " S_COLOR_WHITE " (%s)\n", i, cl->client->pers.netname, cl->client->pers.ip));
+		if(strlen(msg) > 900)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"%s\"", msg));
+			msg[0] = 0;
+		}
+	}
+
+	trap_SendServerCommand(ent - g_entities, va("print \"%s\"", msg));
+}
+
 /*
 =================
 ClientCommand
@@ -2174,11 +2202,18 @@ void ClientCommand(int clientNum)
 	ent = g_entities + clientNum;
 	if(!ent->client)
 	{
-		return;					// not fully in game yet
+		// not fully in game yet
+		return;
 	}
 
-
 	trap_Argv(0, cmd, sizeof(cmd));
+
+	// r1:
+	if(!Com_CheckColorCodes(cmd))
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Invalid color code sequence in command.\n\"");
+		return;
+	}
 
 	if(Q_stricmp(cmd, "say") == 0)
 	{
@@ -2300,6 +2335,10 @@ void ClientCommand(int clientNum)
 		Cmd_ListIP_f(ent);
 	else if(!Q_stricmp(cmd, "@removeip"))
 		Cmd_RemoveIP_f(ent);
+	else if(!Q_stricmp(cmd, "@status"))
+		Cmd_Status_f(ent);
+	else if(!Q_stricmp(cmd, "@search"))
+		Admin_Search_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

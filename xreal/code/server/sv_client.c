@@ -109,24 +109,6 @@ int MaskBits(unsigned int mask)
 	return bits;
 }
 
-static qboolean SV_CheckColorCodes(const char *s)
-{
-	while(s[0])
-	{
-		if(s[0] == Q_COLOR_ESCAPE)
-		{
-			if(!s[1])
-				return qfalse;
-
-			if(s[1] < '1' || s[1] > '7')
-				return qfalse;
-		}
-		s++;
-	}
-
-	return qtrue;
-}
-
 /*
 ==================
 SV_DirectConnect
@@ -209,15 +191,27 @@ void SV_DirectConnect(netadr_t from)
 	Q_strncpyz(cleanname, name, sizeof(cleanname));
 	Q_CleanStr(cleanname);
 
-	if(!SV_CheckColorCodes(cleanname))
+	if(!Com_CheckColorCodes(cleanname))
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid name, please check your color codes.");
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid player name, please check your color codes.");
 		return;
 	}
 
 	if(!cleanname[0])
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlease set your name before connecting.");
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlease set your player name before connecting.");
+		return;
+	}
+
+	if(strlen(cleanname) > 20)
+	{
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlayer name is too long, please choose another.");
+		return;
+	}
+
+	if(SV_ExcessiveWhiteSpaceCheck(cleanname))
+	{
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlayer name contains too much whitespace.");
 		return;
 	}
 
@@ -1195,6 +1189,49 @@ static void SV_ResetPureClient_f(client_t * cl)
 
 /*
 =================
+SV_ExcessiveWhiteSpaceCheck
+
+r1: Checks for white space in player names
+=================
+*/
+qboolean SV_ExcessiveWhiteSpaceCheck(const char *s)
+{
+	int				normal, white;
+
+	normal = white = 0;
+
+	while(s[0])
+	{
+		if(s[0] == ' ' || s[0] == '\t' || s[0] == '\n')
+		{
+			// don't allow whitespace at start
+			if(!normal)
+				return qtrue;
+
+			white++;
+
+			// 3 consecutive spaces is bad
+			if(white == 3)
+				return qtrue;
+		}
+		else
+		{
+			// a normal character
+			white = 0;
+			normal++;
+		}
+		s++;
+	}
+
+	// must have at least one normal character
+	if(!normal)
+		return qtrue;
+
+	return qfalse;
+}
+
+/*
+=================
 SV_UserinfoChanged
 
 Pull specific info from a newly changed userinfo string
@@ -1213,9 +1250,19 @@ void SV_UserinfoChanged(client_t * cl)
 
 	Q_strncpyz(cleanName, Info_ValueForKey(cl->userinfo, "name"), sizeof(cleanName));
 
-	if(!SV_CheckColorCodes(cleanName))
+	if(!Com_CheckColorCodes(cleanName))
 	{
-		SV_SendServerCommand(cl, "print \"Invalid name, please check your color codes.\n\"");
+		SV_SendServerCommand(cl, "print \"Invalid or empty name, please check your color codes.\n\"");
+		nameOK = qfalse;
+	}
+	else if(strlen(cleanName) > 20)
+	{
+		SV_SendServerCommand(cl, "print \"Name is too long, please choose another.\n\"");
+		nameOK = qfalse;
+	}
+	else if(SV_ExcessiveWhiteSpaceCheck(cleanName))
+	{
+		SV_SendServerCommand(cl, "print \"Too much whitespace in your name, please choose another.\n\"");
 		nameOK = qfalse;
 	}
 	else
@@ -1271,27 +1318,23 @@ void SV_UserinfoChanged(client_t * cl)
 			i = atoi(val);
 			cl->rate = i;
 			if(cl->rate < 1000)
-			{
 				cl->rate = 1000;
-			}
 			else if(cl->rate > 90000)
-			{
 				cl->rate = 90000;
-			}
 		}
 		else
 		{
 			cl->rate = 3000;
 		}
 	}
+
+	// handicap
 	val = Info_ValueForKey(cl->userinfo, "handicap");
 	if(strlen(val))
 	{
 		i = atoi(val);
 		if(i <= 0 || i > 100 || strlen(val) > 4)
-		{
 			Info_SetValueForKey(cl->userinfo, "handicap", "100");
-		}
 	}
 
 	// snaps command
@@ -1300,13 +1343,10 @@ void SV_UserinfoChanged(client_t * cl)
 	{
 		i = atoi(val);
 		if(i < 1)
-		{
 			i = 1;
-		}
 		else if(i > sv_fps->integer)
-		{
 			i = sv_fps->integer;
-		}
+
 		cl->snapshotMsec = 1000 / i;
 	}
 	else
@@ -1374,10 +1414,11 @@ SV_ExecuteClientCommand
 Also called by bot code
 ==================
 */
-void SV_ExecuteClientCommand(client_t * cl, const char *s, qboolean clientOK)
+void SV_ExecuteClientCommand(client_t * cl, char *s, qboolean clientOK)
 {
 	ucmd_t         *u;
 	qboolean        bProcessed = qfalse;
+	char		   *p;
 
 	Cmd_TokenizeString(s);
 
@@ -1386,6 +1427,20 @@ void SV_ExecuteClientCommand(client_t * cl, const char *s, qboolean clientOK)
 	{
 		SV_SendServerCommand(cl, "print \"Wrong command format, prefix commands with \\\n\"");
 		return;
+	}
+
+	// r1: high/low ascii protection
+	p = s;
+	while (p[0])
+	{
+		if ((p[0] < 32 || p[0] >= 127) && !(p[0] == '\n' && !p[1]))
+		{
+			int oldChar = p[0];
+			p[0] = '.';
+			Com_Printf("Warning, removed illegal ASCII char %d in command '%s' from %s" S_COLOR_WHITE "[%s]\n",
+				oldChar, s, cl->name, NET_AdrToString(cl->netchan.remoteAddress));
+		}
+		p++;
 	}
 
 	// see if it is a server level command
@@ -1419,7 +1474,7 @@ SV_ClientCommand
 static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 {
 	int             seq;
-	const char     *s;
+	char		   *s;
 	qboolean        clientOk = qtrue;
 
 	seq = MSG_ReadLong(msg);
@@ -1427,9 +1482,7 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 
 	// see if we have already executed it
 	if(cl->lastClientCommand >= seq)
-	{
 		return qtrue;
-	}
 
 	Com_DPrintf("clientCommand: %s : %i : %s\n", cl->name, seq, s);
 

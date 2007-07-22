@@ -992,16 +992,14 @@ void ClientThink_real(gentity_t * ent)
 		client->pers.realPing = 0;
 
 	msec = ucmd->serverTime - client->ps.commandTime;
+
 	// following others may result in bad times, but we still want
 	// to check for follow toggles
 	if(msec < 1 && client->sess.spectatorState != SPECTATOR_FOLLOW)
-	{
 		return;
-	}
+
 	if(msec > 200)
-	{
 		msec = 200;
-	}
 
 	// check for exiting intermission
 	if(level.intermissiontime)
@@ -1014,18 +1012,15 @@ void ClientThink_real(gentity_t * ent)
 	if(client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		if(client->sess.spectatorState == SPECTATOR_SCOREBOARD)
-		{
 			return;
-		}
+
 		SpectatorThink(ent, ucmd);
 		return;
 	}
 
 	// check for inactivity timer, but never drop the local client of a non-dedicated server
 	if(!ClientInactivityTimer(client))
-	{
 		return;
-	}
 
 	// clear the rewards if time
 	if(level.time > client->rewardTime)
@@ -1034,18 +1029,16 @@ void ClientThink_real(gentity_t * ent)
 			~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP | EF_AWARD_TELEFRAG);
 	}
 
+	// r1: if in console/chat, disallow any other buttons for exploit fixes
+	if(ucmd->buttons & BUTTON_TALK)
+		ucmd->buttons = BUTTON_TALK;
+
 	if(client->noclip)
-	{
 		client->ps.pm_type = PM_NOCLIP;
-	}
 	else if(client->ps.stats[STAT_HEALTH] <= 0)
-	{
 		client->ps.pm_type = PM_DEAD;
-	}
 	else
-	{
 		client->ps.pm_type = PM_NORMAL;
-	}
 
 	client->ps.gravity = g_gravity.value;
 
@@ -1054,21 +1047,15 @@ void ClientThink_real(gentity_t * ent)
 
 #ifdef MISSIONPACK
 	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
-	{
 		client->ps.speed *= 1.5;
-	}
 	else
 #endif
 	if(client->ps.powerups[PW_HASTE])
-	{
 		client->ps.speed *= 1.3;
-	}
 
 	// Let go of the hook if we aren't firing
 	if(client->ps.weapon == WP_GRAPPLING_HOOK && client->hook && !(ucmd->buttons & BUTTON_ATTACK))
-	{
 		Weapon_HookFree(client->hook);
-	}
 
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;

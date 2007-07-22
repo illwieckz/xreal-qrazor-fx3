@@ -653,102 +653,6 @@ team_t PickTeam(int ignoreClientNum)
 
 /*
 ===========
-ClientCheckName
-============
-*/
-static void ClientCleanName(const char *in, char *out, int outSize)
-{
-	int             len, colorlessLen;
-	char            ch;
-	char           *p;
-	int             spaces;
-
-	//save room for trailing null byte
-	outSize--;
-
-	len = 0;
-	colorlessLen = 0;
-	p = out;
-	*p = 0;
-	spaces = 0;
-
-	while(1)
-	{
-		ch = *in++;
-		if(!ch)
-		{
-			break;
-		}
-
-		// don't allow leading spaces
-		if(!*p && ch == ' ')
-		{
-			continue;
-		}
-
-		// check colors
-		if(ch == Q_COLOR_ESCAPE)
-		{
-			// solo trailing carat is not a color prefix
-			if(!*in)
-			{
-				break;
-			}
-
-			// don't allow black in a name, period
-			if(ColorIndex(*in) == 0)
-			{
-				in++;
-				continue;
-			}
-
-			// make sure room in dest for both chars
-			if(len > outSize - 2)
-			{
-				break;
-			}
-
-			*out++ = ch;
-			*out++ = *in++;
-			len += 2;
-			continue;
-		}
-
-		// don't allow too many consecutive spaces
-		if(ch == ' ')
-		{
-			spaces++;
-			if(spaces > 3)
-			{
-				continue;
-			}
-		}
-		else
-		{
-			spaces = 0;
-		}
-
-		if(len > outSize - 1)
-		{
-			break;
-		}
-
-		*out++ = ch;
-		colorlessLen++;
-		len++;
-	}
-	*out = 0;
-
-	// don't allow empty names
-	if(*p == 0 || colorlessLen == 0)
-	{
-		Q_strncpyz(p, "UnnamedPlayer", outSize);
-	}
-}
-
-
-/*
-===========
 ClientUserInfoChanged
 
 Called from ClientConnect when the player first connects and
@@ -805,14 +709,12 @@ void ClientUserinfoChanged(int clientNum)
 	// set name
 	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
 	s = Info_ValueForKey(userinfo, "name");
-	ClientCleanName(s, client->pers.netname, sizeof(client->pers.netname));
+	Q_strncpyz(client->pers.netname, s, sizeof(client->pers.netname));
 
 	if(client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		if(client->sess.spectatorState == SPECTATOR_SCOREBOARD)
-		{
 			Q_strncpyz(client->pers.netname, "scoreboard", sizeof(client->pers.netname));
-		}
 	}
 
 	if(client->pers.connected == CON_CONNECTED)
@@ -820,6 +722,7 @@ void ClientUserinfoChanged(int clientNum)
 		if(strcmp(oldname, client->pers.netname))
 		{
 			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, client->pers.netname));
+			Admin_IPLog(client);
 		}
 	}
 
@@ -1122,6 +1025,7 @@ void ClientBegin(int clientNum)
 		{
 			if(g_gametype.integer != GT_TOURNAMENT)
 				trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
+			Admin_IPLog(client);
 		}
 
 		// r1:
@@ -1444,8 +1348,7 @@ void ClientDisconnect(int clientNum)
 	if(level.voteTime && ent == level.voteTarget)
 	{
 		trap_SendServerCommand(-1, "print \"Victim has left, banned them anyway.\n\"");
-		trap_SendConsoleCommand(EXEC_APPEND,
-								va("addban \"%s\" 1 hour \"autoban: disconnect during vote\"", ent->client->pers.ip));
+		Admin_BanClient(ent->client, 3600, Admin_MaskFromBits(24), va("autoban: %s disconnect during vote", ent->client->pers.netname));
 		G_ResetVote();
 	}
 

@@ -189,3 +189,6 @@ commands:
 	@ip <player/id> - show the players ip
 	@listip - list all the players and their ips
 	@removeip <ip/mask> - remove an ip from the banlist
+	@status - show the current players on the server along with their ip
+	@search <[name|ip] - player/ip> - search for the player name or ip
+

@@ -1232,6 +1232,8 @@ void QDECL      Com_sprintf(char *dest, int size, const char *fmt, ...);
 char           *Com_SkipTokens(char *s, int numTokens, char *sep);
 char           *Com_SkipCharset(char *s, char *sep);
 
+qboolean		Com_CheckColorCodes(const char *s);
+
 // mode parm for FS_FOpenFile
 typedef enum
 {

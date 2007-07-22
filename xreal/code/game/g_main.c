@@ -1851,6 +1851,7 @@ void CheckVote(void)
 					Q_CleanStr(netName2);
 
 					i = level.voteTarget - g_entities;
+					level.voteTarget = NULL;
 
 					trap_DropClient(i, "was vote-kicked");
 				}

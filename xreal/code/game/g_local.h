@@ -246,6 +246,19 @@ typedef struct g_account_s
 	unsigned int    permissions;
 } g_account_t;
 
+// iplog
+typedef struct g_iplog_s
+{
+	char			netname[32];
+	char			ip[32];
+	unsigned int	time;
+} g_iplog_t;
+
+#define MAX_IP_LOG_ENTRIES 10000
+
+void			Admin_IPLog(gclient_t *cl);
+void			Admin_Search_f(gentity_t *ent);
+
 // r1ch:
 typedef struct g_ban_s
 {

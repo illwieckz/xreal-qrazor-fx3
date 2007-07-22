@@ -1855,4 +1855,22 @@ char           *Com_SkipTokens(char *s, int numTokens, char *sep)
 		return s;
 }
 
+qboolean Com_CheckColorCodes(const char *s)
+{
+	while(s[0])
+	{
+		if(s[0] == Q_COLOR_ESCAPE)
+		{
+			if(!s[1])
+				return qfalse;
+
+			if(s[1] < '1' || s[1] > '7')
+				return qfalse;
+		}
+		s++;
+	}
+
+	return qtrue;
+}
+
 //====================================================================

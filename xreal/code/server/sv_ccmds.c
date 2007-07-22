@@ -507,6 +507,7 @@ static void SV_Status_f(void)
 	playerState_t  *ps;
 	const char     *s;
 	int             ping;
+	char			cleanName[32];
 
 	// make sure server is running
 	if(!com_sv_running->integer)
@@ -541,7 +542,9 @@ static void SV_Status_f(void)
 		// TTimo adding a ^7 to reset the color
 		// NOTE: colored names in status breaks the padding (WONTFIX)
 		Com_Printf("^7");
-		l = 16 - strlen(cl->name);
+		Q_strncpyz(cleanName, cl->name, sizeof(cleanName));
+		Q_CleanStr(cleanName);
+		l = 16 - strlen(cleanName);
 		for(j = 0; j < l; j++)
 			Com_Printf(" ");
 
@@ -593,7 +596,7 @@ static void SV_ConSay_f(void)
 		p[strlen(p) - 1] = 0;
 	}
 
-	strcat(text, p);
+	Q_strcat(text, sizeof(text), p);
 
 	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
 }

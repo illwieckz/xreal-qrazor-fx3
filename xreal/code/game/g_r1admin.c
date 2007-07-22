@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 g_account_t     g_accounts = { 0 };
 g_ban_t         g_bans = { 0 };
 
+g_iplog_t		g_iplog[MAX_IP_LOG_ENTRIES];
+unsigned int	iplog_index = 0;
+
 int Admin_BitsFromMask(unsigned int mask)
 {
 	int             i;
@@ -548,3 +551,72 @@ g_ban_t        *Admin_BanMatch(const char *ipString)
 
 	return NULL;
 }
+
+void Admin_IPLog(gclient_t *cl)
+{
+	iplog_index++;
+
+	g_iplog[iplog_index % MAX_IP_LOG_ENTRIES].time = trap_RealTime(NULL);
+
+	Q_strncpyz(g_iplog[iplog_index % MAX_IP_LOG_ENTRIES].netname, cl->pers.netname, sizeof(g_iplog[iplog_index % MAX_IP_LOG_ENTRIES].netname));
+	Q_CleanStr(g_iplog[iplog_index % MAX_IP_LOG_ENTRIES].netname);
+	Q_strncpyz(g_iplog[iplog_index % MAX_IP_LOG_ENTRIES].ip, cl->pers.ip, sizeof(g_iplog[iplog_index % MAX_IP_LOG_ENTRIES].ip));
+}
+
+void Admin_Search_f(gentity_t *ent)
+{
+	char		type[256];
+	char		match[256];
+	int			i, count;
+
+	if(!Admin_HasPermission(ent, PERMISSION_VIEW))
+		return;
+
+	trap_Argv(1, type, sizeof(type));
+	trap_Argv(2, match, sizeof(match));
+
+	if(!type[0] || !match[0])
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: @search [name|ip] match.\n\"");
+		return;
+	}
+
+	count = 0;
+
+	if(!strcmp(type, "name"))
+	{
+		for(i = 0; i < MAX_IP_LOG_ENTRIES; i++)
+		{
+			if(g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].time)
+			{
+				if(strstr(g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].netname, match))
+				{
+					trap_SendServerCommand(ent - g_entities, va("print \"%s: %s\n\"", g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].netname, g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].ip));
+					if(count++ == 16)
+						break;
+				}
+			}	
+		}
+	}
+	else if(!strcmp (type, "ip"))
+	{
+		for(i = 0; i < MAX_IP_LOG_ENTRIES; i++)
+		{
+			if(g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].time)
+			{
+				if(strstr(g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].ip, match))
+				{
+					trap_SendServerCommand(ent - g_entities, va("print \"%s: %s\n\"", g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].netname, g_iplog[(iplog_index + i) % MAX_IP_LOG_ENTRIES].ip));
+					if(count++ == 16)
+						break;
+				}
+			}	
+		}
+	}
+	else
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"Usage: @search [name|ip] match.\n\"");
+		return;
+	}
+}
+
