@@ -48,18 +48,13 @@ void CG_DrawLoadBar(void)
 
 	w = 400 - SMALLCHAR_WIDTH;
 	x = (SCREEN_WIDTH - w) / 2;
-	y = 452;
+	y = 462;
 	rectColor[0] = 0.7f;
 	rectColor[1] = 0.7f;
 	rectColor[2] = 0.7f;
 	rectColor[3] = 0.7f;
 
-	CG_DrawPic(x, y + 2, w, 8, cgs.media.whiteShader); // top line
-
-	CG_FillRect(x, y + 10, w, 18, rectColor); // middle line
-
-	CG_DrawPic(x, y + 10, 8, 18, cgs.media.whiteShader); // left line
-	CG_DrawPic(x * 4 + 12, y + 10, 8, 18, cgs.media.whiteShader); // right line
+	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor); // grey progress bar
 }
 
 /*
