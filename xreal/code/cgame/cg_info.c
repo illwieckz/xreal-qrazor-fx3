@@ -33,7 +33,6 @@ static int      loadingItemIconCount;
 static qhandle_t loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
 static qhandle_t loadingItemIcons[MAX_LOADING_ITEM_ICONS];
 
-
 /*
 ===================
 CG_DrawLoadingIcons
@@ -42,32 +41,31 @@ CG_DrawLoadingIcons
 static void CG_DrawLoadingIcons(void)
 {
 	int             n;
-	int             x, y;
+	int             w, x, y;
 
 	for(n = 0; n < loadingPlayerIconCount; n++)
 	{
-		x = 16 + n * 78;
-		y = 324 - 40;
-		CG_DrawPic(x, y, 64, 64, loadingPlayerIcons[n]);
+		w = loadingPlayerIconCount * 48;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = 352 - 48;
+
+		CG_DrawPic(x, y, 48, 48, loadingPlayerIcons[n]);
 	}
 
 	for(n = 0; n < loadingItemIconCount; n++)
 	{
-		y = 400 - 40;
-		if(n >= 13)
-		{
-			y += 40;
-		}
-		x = 16 + n % 13 * 48;
-		CG_DrawPic(x, y, 32, 32, loadingItemIcons[n]);
+		//w = loadingItemIconCount * 18;
+		y = 400 - 16;
+		x = 16 + n * 16;
+		//x = (SCREEN_WIDTH - w) / 16 + n * 16;
+
+		CG_DrawPic(x, y, 12, 12, loadingItemIcons[n]);
 	}
 }
-
 
 /*
 ======================
 CG_LoadingString
-
 ======================
 */
 void CG_LoadingString(const char *s)
@@ -89,9 +87,7 @@ void CG_LoadingItem(int itemNum)
 	item = &bg_itemlist[itemNum];
 
 	if(item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS)
-	{
 		loadingItemIcons[loadingItemIconCount++] = trap_R_RegisterShaderNoMip(item->icon);
-	}
 
 	CG_LoadingString(item->pickup_name);
 }
@@ -116,13 +112,9 @@ void CG_LoadingClient(int clientNum)
 		Q_strncpyz(model, Info_ValueForKey(info, "model"), sizeof(model));
 		skin = Q_strrchr(model, '/');
 		if(skin)
-		{
 			*skin++ = '\0';
-		}
 		else
-		{
 			skin = "default";
-		}
 
 		Com_sprintf(iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin);
 
@@ -137,23 +129,19 @@ void CG_LoadingClient(int clientNum)
 			Com_sprintf(iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, "default");
 			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
 		}
+
 		if(loadingPlayerIcons[loadingPlayerIconCount])
-		{
 			loadingPlayerIconCount++;
-		}
 	}
 
 	Q_strncpyz(personality, Info_ValueForKey(info, "n"), sizeof(personality));
 	Q_CleanStr(personality);
 
 	if(cgs.gametype == GT_SINGLE_PLAYER)
-	{
 		trap_S_RegisterSound(va("sound/player/announce/%s.wav", personality), qtrue);
-	}
 
 	CG_LoadingString(personality);
 }
-
 
 /*
 ====================
@@ -164,7 +152,7 @@ Draw all the status / pacifier stuff during level loading
 */
 void CG_DrawInformation(void)
 {
-	const char     *s;
+	const char     *s = NULL;
 	const char     *info;
 	const char     *sysInfo;
 	int             y;
@@ -179,9 +167,8 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(info, "mapname");
 	levelshot = trap_R_RegisterShaderNoMip(va("levelshots/%s.tga", s));
 	if(!levelshot)
-	{
 		levelshot = trap_R_RegisterShaderNoMip("menu/art/unknownmap");
-	}
+
 	trap_R_SetColor(NULL);
 	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot);
 
@@ -196,16 +183,15 @@ void CG_DrawInformation(void)
 	// screen to write into
 	if(cg.infoScreenText[0])
 	{
-		UI_DrawProportionalString(320, 128 - 32, va("Loading... %s", cg.infoScreenText),
+		UI_DrawProportionalString(320, 128 - 16, va("Loading... %s", cg.infoScreenText),
 								  UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
 	}
 	else
 	{
-		UI_DrawProportionalString(320, 128 - 32, "Awaiting snapshot...", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		UI_DrawProportionalString(320, 128 - 16, "Awaiting snapshot...", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
 	}
 
 	// draw info string information
-
 	y = 180 - 32;
 
 	// don't print server lines if playing a local game
@@ -250,7 +236,7 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		UI_DrawProportionalString(320, y, "CHEATS ARE ENABLED", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		UI_DrawProportionalString(320, y, "CHEATS ARE ENABLED", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorRed);
 		y += PROP_HEIGHT;
 	}
 
@@ -288,7 +274,7 @@ void CG_DrawInformation(void)
 			break;
 	}
 	UI_DrawProportionalString(320, y, s, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
-	y += PROP_HEIGHT;
+	y += PROP_HEIGHT / PROP_SMALL_SIZE_SCALE;
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if(value)
@@ -306,8 +292,7 @@ void CG_DrawInformation(void)
 			y += PROP_HEIGHT;
 		}
 	}
-
-	if(cgs.gametype >= GT_CTF)
+	else if(cgs.gametype >= GT_CTF)
 	{
 		value = atoi(Info_ValueForKey(info, "capturelimit"));
 		if(value)
