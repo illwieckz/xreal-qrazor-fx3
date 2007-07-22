@@ -42,7 +42,7 @@ if env['arch'] == 'sdl':
 	env.Append(CCFLAGS = '-DUSE_SDL')
 
 if env['arch'] == 'macosx':
-	env.Append(CCFLAGS = '-DMACOS_X')
+	env.Append(CCFLAGS = '-DMACOS_X -DUSE_SDL -fno-common -force_cpusubtype_ALL')
 
 if env['arch'] == 'win32-mingw':
 	env.Tool('mingw')

@@ -122,9 +122,12 @@ Compile XreaL with SDL:
 COMPILING ON MAC OS X
 ================
 
-Make sure you have libcURL and SDL installed.
+Make sure you have libcURL and the SDL framework installed.
 
-Compile XreaL for Macs:
+Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
+	and copy it to XreaL/code/renderer
+
+Compile XreaL for Mac OS X/Darwin:
 	>scons arch=macosx
 
 

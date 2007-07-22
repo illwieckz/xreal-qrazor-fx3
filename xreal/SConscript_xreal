@@ -339,7 +339,7 @@ elif env['arch'] == 'macosx':
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
-	xreal_env.ParseConfig('sdl-config --cflags --libs')
+	xreal_env.Append(LIBS=['SDL', 'objc'])
 	xreal_env.Program('xreal.osx', [xreal_src, unix_src, sdl_src, vm_src])
 		
 	xreal_env.Install('#', 'xreal.osx')
