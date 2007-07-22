@@ -196,7 +196,7 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if(Q_IsColorString(s))
 			{
-				memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
+				memcpy(newColor, (float *)g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
 				newColor[3] = color[3];
 				trap_R_SetColor(newColor);
 				s += 2;
@@ -3037,7 +3037,7 @@ static void CG_DrawProxWarning(void)
 	}
 
 	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-	CG_DrawBigStringColor(320 - w / 2, 64 + BIGCHAR_HEIGHT, s, g_color_table[ColorIndex(COLOR_RED)]);
+	CG_DrawBigStringColor(320 - w / 2, 64 + BIGCHAR_HEIGHT, s, (float *)g_color_table[ColorIndex(COLOR_RED)]);
 }
 #endif
 

@@ -558,19 +558,16 @@ void Con_DrawNotify(void)
 		text = con.text + (i % con.totallines) * con.linewidth;
 
 		if(cl.snap.ps.pm_type != PM_INTERMISSION && cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME))
-		{
 			continue;
-		}
 
 		for(x = 0; x < con.linewidth; x++)
 		{
 			if((text[x] & 0xff) == ' ')
-			{
 				continue;
-			}
-			if(((text[x] >> 8) & 7) != currentColor)
+
+			if((text[x] >> 8) != currentColor)
 			{
-				currentColor = (text[x] >> 8) & 7;
+				currentColor = (text[x] >> 8);
 				re.SetColor(g_color_table[currentColor]);
 			}
 			SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH, v, text[x] & 0xff);
@@ -582,9 +579,7 @@ void Con_DrawNotify(void)
 	re.SetColor(NULL);
 
 	if(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME))
-	{
 		return;
-	}
 
 	// draw the chat line
 	if(cls.keyCatchers & KEYCATCH_MESSAGE)
@@ -604,7 +599,6 @@ void Con_DrawNotify(void)
 
 		v += BIGCHAR_HEIGHT;
 	}
-
 }
 
 /*
@@ -621,11 +615,8 @@ void Con_DrawSolidConsole(float frac)
 	short          *text;
 	int             row;
 	int             lines;
-
-//  qhandle_t       conShader;
 	int             currentColor;
 	vec4_t          color;
-
 	int             t, d;
 	char            displayTime[12];
 	char            displayDate[15];
@@ -646,20 +637,15 @@ void Con_DrawSolidConsole(float frac)
 	// draw the background
 	y = frac * SCREEN_HEIGHT - 2;
 	if(y < 1)
-	{
 		y = 0;
-	}
 	else
-	{
 		SCR_DrawPic(0, 0, SCREEN_WIDTH, y, cls.consoleShader);
-	}
 
 	color[0] = 1;
 	color[1] = 0;
 	color[2] = 0;
 	color[3] = 1;
 	SCR_FillRect(0, y, SCREEN_WIDTH, 2, color);
-
 
 	// draw the version number
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
@@ -671,9 +657,7 @@ void Con_DrawSolidConsole(float frac)
 
 		SCR_DrawSmallChar(cls.glconfig.vidWidth - (i - x) * SMALLCHAR_WIDTH,
 						  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2)), Q3_VERSION[x]);
-
 	}
-
 
 	// draw the date
 	if(con_showDate->integer)
@@ -710,18 +694,14 @@ void Con_DrawSolidConsole(float frac)
 			Q_strcat(displayTime, sizeof(displayTime),
 					 va("%d:%02d", ((tm.tm_hour == 0 || tm.tm_hour == 12) ? 12 : tm.tm_hour % 12), tm.tm_min));
 			if(con_clockSeconds->integer)
-			{
 				Q_strcat(displayTime, sizeof(displayTime), va(":%02d", tm.tm_sec));
-			}
 			Q_strcat(displayTime, sizeof(displayTime), (tm.tm_hour < 12) ? " AM" : " PM");
 		}
 		else
 		{
 			Q_strcat(displayTime, sizeof(displayTime), va("%d:%02d", tm.tm_hour, tm.tm_min));
 			if(con_clockSeconds->integer)
-			{
 				Q_strcat(displayTime, sizeof(displayTime), va(":%02d", tm.tm_sec));
-			}
 		}
 		t = strlen(displayTime);
 		for(x = 0; x < t; x++)
@@ -730,8 +710,6 @@ void Con_DrawSolidConsole(float frac)
 							  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT), displayTime[x]);
 		}
 	}
-
-
 
 	// draw the text
 	con.vislines = lines;
@@ -753,9 +731,7 @@ void Con_DrawSolidConsole(float frac)
 	row = con.display;
 
 	if(con.x == 0)
-	{
 		row--;
-	}
 
 	currentColor = 7;
 	re.SetColor(g_color_table[currentColor]);
@@ -775,13 +751,11 @@ void Con_DrawSolidConsole(float frac)
 		for(x = 0; x < con.linewidth; x++)
 		{
 			if((text[x] & 0xff) == ' ')
-			{
 				continue;
-			}
 
-			if(((text[x] >> 8) & 7) != currentColor)
+			if((text[x] >> 8) != currentColor)
 			{
-				currentColor = (text[x] >> 8) & 7;
+				currentColor = (text[x] >> 8);
 				re.SetColor(g_color_table[currentColor]);
 			}
 			SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, text[x] & 0xff);
@@ -793,8 +767,6 @@ void Con_DrawSolidConsole(float frac)
 
 	re.SetColor(NULL);
 }
-
-
 
 /*
 ==================
@@ -824,9 +796,7 @@ void Con_DrawConsole(void)
 	{
 		// draw notify lines
 		if(cls.state == CA_ACTIVE)
-		{
 			Con_DrawNotify();
-		}
 	}
 }
 

@@ -1059,6 +1059,24 @@ void Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m)
 	Com_MatchToken(buf_p, ")");
 }
 
+/*
+=============
+ColorIndex
+ 
+Returns the index in g_color_table[] corresponding to the colour code.
+=============
+*/
+int ColorIndex(char ccode)
+{
+	if(ccode >= '0' && ccode <= '9')
+		return(ccode - '0');
+	else if(ccode >= 'a' && ccode <= 'z')
+		return(2 * (ccode - 'a') + 10);
+	else if(ccode >= 'A' && ccode <= 'Z')
+		return(2 * (ccode - 'A') + 11);
+	else
+		return 7;
+}
 
 /*
 ============================================================================
@@ -1117,10 +1135,12 @@ char           *Q_strrchr(const char *string, int c)
 }
 
 /*
-* Find the first occurrence of find in s.
+=============
+Q_stristr
+ 
+Find the first occurrence of find in s.
+=============
 */
-// bk001130 - from cvs1.17 (mkv), const
-// bk001130 - made first argument const
 char           *Q_stristr(const char *s, const char *find)
 {
 	char            c, sc;

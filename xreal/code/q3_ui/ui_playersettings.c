@@ -137,7 +137,7 @@ static void PlayerSettings_DrawName(void *self)
 	basex += 64;
 	y += PROP_HEIGHT;
 	txt = f->field.buffer;
-	color = g_color_table[ColorIndex(COLOR_WHITE)];
+	color = (float *)g_color_table[ColorIndex(COLOR_WHITE)];
 	x = basex;
 	while((c = *txt) != 0)
 	{
@@ -145,10 +145,8 @@ static void PlayerSettings_DrawName(void *self)
 		{
 			n = ColorIndex(*(txt + 1));
 			if(n == 0)
-			{
 				n = 7;
-			}
-			color = g_color_table[n];
+			color = (float *)g_color_table[n];
 			txt += 2;
 			continue;
 		}
