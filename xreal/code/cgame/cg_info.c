@@ -43,196 +43,23 @@ CG_DrawLoadBar
 */
 void CG_DrawLoadBar(void)
 {
-	int			x,y,pad;
+	int				x, y, w;
+	float           rectColor[4];
 
-	// Round LCARS buttons
-	y = 309;
-	x = 10;
-	pad = 22;
+	w = 400 - SMALLCHAR_WIDTH;
+	x = (SCREEN_WIDTH - w) / 2;
+	y = 452;
+	rectColor[0] = 0.7f;
+	rectColor[1] = 0.7f;
+	rectColor[2] = 0.7f;
+	rectColor[3] = 0.7f;
 
-	/*
-        if (cg.loadLCARSStage < 1)
-        {
-                trap_R_SetColor( colorTable[CT_VDKPURPLE3]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14, 16,  16,cgs.media.circle2);
-                UI_DrawProportionalString( x + 222, y + 14, ingame_text[IGT_REPLICATION_MATRIX],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
-                trap_R_SetColor( colorTable[CT_VLTPURPLE3]);
-        }
-        CG_DrawPic( x + 18,   y +102, 128,  64,cgs.media.loading1);
+	CG_DrawPic(x, y + 2, w, 8, cgs.media.whiteShader); // top line
 
+	CG_FillRect(x, y + 10, w, 18, rectColor); // middle line
 
-        if (cg.loadLCARSStage < 2)
-        {
-                trap_R_SetColor( colorTable[CT_VDKBLUE1]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14, 16,  16,cgs.media.circle);
-                trap_R_SetColor( colorTable[CT_VLTBLUE1]);
-        }
-        CG_DrawPic(      x,   y + 37,  64,  64,cgs.media.loading2);
-
-
-        if (cg.loadLCARSStage < 3)
-        {
-                trap_R_SetColor( colorTable[CT_VDKPURPLE1]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14+pad, 16,  16,cgs.media.circle2);
-                UI_DrawProportionalString( x + 222, y + 14 + pad, ingame_text[IGT_HOLOGRAPHIC_PROJECTORS],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
-                trap_R_SetColor( colorTable[CT_LTPURPLE1]);
-        }
-        CG_DrawPic( x + 17,        y, 128,  64,cgs.media.loading3);
-
-
-        if (cg.loadLCARSStage < 4)
-        {
-                trap_R_SetColor( colorTable[CT_VDKPURPLE2]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14+pad, 16,  16,cgs.media.circle);
-                trap_R_SetColor( colorTable[CT_LTPURPLE2]);
-        }
-        CG_DrawPic( x + 99,        y, 128, 128,cgs.media.loading4);
-
-
-        if (cg.loadLCARSStage < 5)
-        {
-                trap_R_SetColor( colorTable[CT_VDKBLUE2]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14+pad+pad, 16,  16,cgs.media.circle2);
-                UI_DrawProportionalString( x + 222, y + 14 + pad + pad, ingame_text[IGT_SIMULATION_DATA_BASE],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
-                trap_R_SetColor( colorTable[CT_VLTBLUE2]);
-        }
-        CG_DrawPic( x +137,   y + 81,  64,  64,cgs.media.loading5);
-
-
-        if (cg.loadLCARSStage < 6)
-        {
-                trap_R_SetColor( colorTable[CT_VDKORANGE]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14+pad+pad, 16,  16,cgs.media.circle);
-                trap_R_SetColor( colorTable[CT_LTORANGE]);
-        }
-        CG_DrawPic( x + 45,   y + 99, 128,  64,cgs.media.loading6);
-
-
-        if (cg.loadLCARSStage < 7)
-        {
-                trap_R_SetColor( colorTable[CT_VDKBLUE2]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14+pad+pad+pad, 16,  16,cgs.media.circle2);
-                UI_DrawProportionalString( x + 222, y + 14 + pad + pad + pad, ingame_text[IGT_SAFETY_LOCKS],UI_SMALLFONT, colorTable[CT_VLTGOLD1]);
-                trap_R_SetColor( colorTable[CT_LTBLUE2]);
-        }
-        CG_DrawPic( x + 38,   y + 24,  64, 128,cgs.media.loading7);
-
-        if (cg.loadLCARSStage < 8)
-        {
-                trap_R_SetColor( colorTable[CT_VDKPURPLE1]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTGOLD1]);
-                CG_DrawPic( x + 222 - 20,y + 14+pad+pad+pad, 16,  16,cgs.media.circle);
-                trap_R_SetColor( colorTable[CT_LTPURPLE1]);
-        }
-        CG_DrawPic( x + 78,   y + 20, 128,  64,cgs.media.loading8);
-
-        if (cg.loadLCARSStage < 9)
-        {
-                trap_R_SetColor( colorTable[CT_VDKBROWN1]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_VLTBROWN1]);
-        }
-        CG_DrawPic( x +112,   y + 66,  64, 128,cgs.media.loading9);
-
-
-        if (cg.loadLCARSStage < 9)
-        {
-                trap_R_SetColor( colorTable[CT_DKBLUE2]);
-        }
-        else
-        {
-                trap_R_SetColor( colorTable[CT_LTBLUE2]);
-        }
-        CG_DrawPic( x + 62,   y + 44, 128, 128,cgs.media.loadingcircle);	// Center arrows
-
-        cg.loadLCARScnt++;
-        if (cg.loadLCARScnt > 3)
-        {
-                cg.loadLCARScnt = 0;
-        }
-
-        trap_R_SetColor( colorTable[CT_DKPURPLE2]);
-        CG_DrawPic( x +  61,   y + 43,  32,  32,cgs.media.loadingquarter);	// Quad UL
-	CG_DrawPic( x + 135,   y + 43, -32,  32,cgs.media.loadingquarter);	// Quad UR
-	CG_DrawPic( x + 135,   y +117, -32, -32,cgs.media.loadingquarter);	// Quad LR
-	CG_DrawPic( x +  61,   y +117,  32, -32,cgs.media.loadingquarter);	// Quad LL
-
-        trap_R_SetColor( colorTable[CT_LTPURPLE2]);
-        switch (cg.loadLCARScnt)
-        {
-        case 0 :
-                CG_DrawPic( x +  61,   y + 43,  32,  32,cgs.media.loadingquarter);	// Quad UL
-		break;
-        case 1 :
-                CG_DrawPic( x + 135,   y + 43, -32,  32,cgs.media.loadingquarter);	// Quad UR
-		break;
-        case 2 :
-                CG_DrawPic( x + 135,   y +117, -32, -32,cgs.media.loadingquarter);	// Quad LR
-		break;
-        case 3 :
-                CG_DrawPic( x +  61,   y +117,  32, -32,cgs.media.loadingquarter);	// Quad LL
-		break;
-        } 
-
-        UI_DrawProportionalString( x +  21, y + 150, "0987",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x +   3, y +  90,   "18",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x +  24, y +  20,    "7",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x +  93, y +   5,   "51",UI_RIGHT|UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x + 103, y +   5,   "35",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x + 165, y +  83,   "21",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x + 101, y + 149,   "67",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x + 123, y +  36,   "8",UI_TINYFONT, colorTable[CT_BLACK]);
-
-        UI_DrawProportionalString( x +  90, y +  65, "1",UI_RIGHT|UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x + 105, y +  65, "2",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x + 105, y +  87, "3",UI_TINYFONT, colorTable[CT_BLACK]);
-        UI_DrawProportionalString( x +  91, y +  87, "4",UI_RIGHT|UI_TINYFONT, colorTable[CT_BLACK]);
-
-        trap_R_SetColor( colorTable[CT_DKBROWN1]);
-        y +=10;
-        CG_DrawPic( x + 130, y - 10 ,  64, 16,cgs.media.loadingtrim);	
-        CG_DrawPic( x +  130, y + 150,  64, -16,cgs.media.loadingtrim);	
-
-        CG_DrawPic( x +  150, y - 10,   432,  8, cgs.media.whiteShader);		// Top line
-	CG_DrawPic( x +  150, y + 142, 432,  8, cgs.media.whiteShader);		// Bottom line
-	CG_DrawPic( x +  583, y - 7,      16, 151, cgs.media.whiteShader);	// Side line
-
-        CG_DrawPic( x +  580, y + 1,      32, -16,cgs.media.loadingcorner);	
-        CG_DrawPic( x +  580, y + 139,    32, 16,cgs.media.loadingcorner);	
-		*/
+	CG_DrawPic(x, y + 10, 8, 18, cgs.media.whiteShader); // left line
+	CG_DrawPic(x * 4 + 12, y + 10, 8, 18, cgs.media.whiteShader); // right line
 }
 
 /*
@@ -247,11 +74,12 @@ void CG_DrawInformation(void)
 	const char     *s = NULL;
 	const char     *info;
 	const char     *sysInfo;
-	int             y;
+	int             x, y, w;
 	int             value;
 	qhandle_t       levelshot;
 	qhandle_t       detail;
 	char            buf[1024];
+	char			st[1024];
 
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
@@ -275,12 +103,21 @@ void CG_DrawInformation(void)
 	// screen to write into
 	if(cg.infoScreenText[0])
 	{
-		UI_DrawProportionalString(320, 128 - 16, va("Loading... %s", cg.infoScreenText),
-								  UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		Com_sprintf(st, sizeof(st), "Loading... %s", cg.infoScreenText);
+		w = CG_DrawStrlen(st) * SMALLCHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = 463;
+
+		CG_DrawStringExt(x, y, st, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 200);
 	}
 	else
 	{
-		UI_DrawProportionalString(320, 128 - 16, "Awaiting snapshot...", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		Com_sprintf(st, sizeof(st), "Awaiting snapshot...");
+		w = CG_DrawStrlen(st) * SMALLCHAR_WIDTH;
+		x = (SCREEN_WIDTH - w) / 2;
+		y = 463;
+
+		CG_DrawStringExt(x, y, st, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 200);
 	}
 
 	// draw info string information
