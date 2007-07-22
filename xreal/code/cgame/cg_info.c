@@ -49,12 +49,12 @@ void CG_DrawLoadBar(void)
 	w = 400 - SMALLCHAR_WIDTH;
 	x = (SCREEN_WIDTH - w) / 2;
 	y = 462;
-	rectColor[0] = 0.7f;
-	rectColor[1] = 0.7f;
-	rectColor[2] = 0.7f;
-	rectColor[3] = 0.7f;
+	rectColor[0] = 0.0f;
+	rectColor[1] = 0.0f;
+	rectColor[2] = 0.0f;
+	rectColor[3] = 0.4f;
 
-	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor); // grey progress bar
+	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor); // semi black progress bar
 }
 
 /*
