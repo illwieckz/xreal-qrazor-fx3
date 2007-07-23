@@ -1461,6 +1461,17 @@ gfx/2d/chromechars
 	}
 }
 
+gfx/2d/weapon_select
+{
+	nopicmip
+	{
+		map gfx/2d/weapon_select.png
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+		rgbGen identity
+		rgbgen vertex
+	}
+}
+
 gfx/2d/select
 {
 	nopicmip
