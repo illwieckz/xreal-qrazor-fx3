@@ -89,6 +89,7 @@ base/models/weapons/nailgun/* (optional)
 base/models/weapons/plasma/*
 base/models/weapons/proxmine/* (optional)
 base/models/weapons/railgun/*
+base/models/weapons/shotun/shotgun.md3
 base/models/weapons/vulcan/* (optional)
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
@@ -181,6 +182,7 @@ base/sprites/splash.png (optional)
 
 
 code/cgame
+- add support for Doom3 style muzzleflashes
 - improve quad damage effect
 - improve invisible effect with heatHaze
 - finish the Lua powered Quake4 style special effects target_fx system
@@ -194,6 +196,7 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
+- fix r_vboLighting with shadow mapping
 - use static VBOs for md3 models that only have 1 frame -> killer optimization
 - fix stencil shadow flickering bug
 - check for shader model 3 hardware

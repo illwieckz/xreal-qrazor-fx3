@@ -22,20 +22,29 @@ Neil “haste” Toronto - Unlagged game and cgame code
 
 MODELLING
 =========
-Robert "Tr3B" Beckebans - health pickup models
-Julian "Plaque" Morris - weapon and projectile models
-Mikael "Ruohis" Ruohomaa - weapon models
-Michael "mic" Denno - shotgun shells
+Julian "Plaque" Morris - projectile models
+Mikael "Ruohis" Ruohomaa - lightning gun weapon model
 Robert "BJA" Hodri - map objects: light models  http://www.bja-design.de
 Ken "kat" Beyer - map objects: jumppad, lantern, weapon marker http://www.quake3bits.com
 Lee David Ash - gauntlet weapon model
 gw - map objects: teleporter, fan models
 
 
+XreaL Team
+----------
+Adrian "otty" Fuhrmann - health and powerup models
+Michael "mic" Denno - shotgun shells, rocket launcher weapon model
+
+
+QuakeII: Lost Marine Team
+-------------------------
+Thearrel "Kiltron" McKinney - granted permission to use the weapon models, Thank You !
+Jim "Revility" Kern - shotgun model                 http://www.art.atomicarmadillo.com/
+
+
 OpenArena Team
 --------------
-jzero - weapon and ammo models
-leileilol - OpenArena models
+jzero - ammo models
 
 
 Sapphire Scar Team
@@ -43,7 +52,6 @@ Sapphire Scar Team
 dfacto - par machinegun model
 Earthquake - par machinegun model
 NecEvil  - par machinegun model
-
 
 
 LEVEL DESIGN

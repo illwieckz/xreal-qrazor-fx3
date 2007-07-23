@@ -1,19 +1,114 @@
 
+
+//==================
+// SUPER SHOTGUN
+//==================
+
 models/weapons/shotgun/shotgun
 {
+
+	noShadows
+	noselfShadow
+	unsmoothedTangents
+	
+	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	{
-		blend diffuseMap
-		map	models/weapons/shotgun/shotgun.tga
+		blend 		bumpmap
+		map  		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
+	}
+    specularmap	 	models/weapons/shotgun/shotgun_s.tga
+}
+
+models/weapons/shotgun/shotgun_world
+{
+
+	noShadows
+	noselfShadow
+	unsmoothedTangents
+	
+	diffusemap		models/weapons/shotgun/shotgun_d.tga
+	{
+		blend 		add
+		map			models/q2_items/q2_item_pulse.tga
+		red 			( q2iteminout [Parm4 + (time / 1.5) ]) * Parm0
+		green 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm1
+		blue 			( q2iteminout [Parm4 + (time / 1.5) ]) * Parm2
 	}
 	{
-		blend bumpMap
-		map	models/weapons/shotgun/shotgun_n.tga
+		blend 		bumpmap
+		map  			addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )
 	}
+    specularmap	 	models/weapons/shotgun/shotgun_s.tga
+}
+
+
+models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash
+{
+	qer_editorimage models/weapons/shotgun/shotgun_muzzflash_strip.tga
+   	
+	sort nearest
+	deform sprite
 	{
-		blend specularMap
-		map	models/weapons/shotgun/shotgun_s.tga
+		forceHighQuality
+		if 			( time + parm4 ) * 6.4 < 1.0
+		blend 		add
+		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
+		scale 		1 / 32 , 1
+		scroll 		q2table32[ (time + parm4) * 6.4] , 0
+		rotate		rotate90[ parm5 ]
+		clamp
 	}
 }
+
+models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash2
+{
+	qer_editorimage models/weapons/shotgun/shotgun_muzzflash2_strip.tga
+   	sort nearest
+	deform tube
+	{
+		forceHighQuality
+		if 			( time + parm4 ) * 5 < 1.0
+		blend 		add
+		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
+		scale 		1 / 8 , 1
+		scroll 		q2table8[ (time + parm4) * 5] , 0
+		clamp
+	}
+}
+
+models/q2_weapons/q2_shotgun/q2_shotgun_muzzflashb
+{
+	qer_editorimage textures/q2_particles/q2_shotgun_muzzflash_strip.tga
+    	sort nearest
+	deform sprite
+	{
+		forceHighQuality
+		if 			( time + parm4 ) * 7 < 1.0
+		blend 		add
+		map 			textures/q2_particles/q2_shotgun_muzzflash_strip.tga
+		scale 		1 / 32 , 1
+		scroll 		q2table32[ (time + parm4) * 7] , 0
+		rotate		rotate90[ parm5 ]
+		clamp
+	}
+}
+
+models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash2b
+{
+	qer_editorimage textures/q2_particles/q2_shotgun_muzzflash2_strip.tga
+   	sort nearest
+	deform tube
+	{
+		forceHighQuality
+		if 			( time + parm4 ) * 5 < 1.0
+		blend 		add
+		map 			textures/q2_particles/q2_shotgun_muzzflash2_strip.tga
+		scale 		1 / 8 , 1
+		scroll 		q2table8[ (time + parm4) * 5] , 0
+		clamp
+	}
+}
+
 
 /*
 models/weapons/shotgun/f_shotgun
@@ -27,53 +122,6 @@ models/weapons/shotgun/f_shotgun
 }
 */
 
-models/weapons/shotgun/shotgun_laser
-{
-	{
-		map	models/weapons/shotgun/shotgun_laser.tga
-		blend add
-	}
-}
-
-shotgunFlash
-{
-	cull disable
-	{
-		map models/weapons/shotgun/muzzley.tga
-		blend add
-	}
-}
-
-muzzleSprite
-{
-	sort additive
-	cull disable
-	deformVertexes autosprite
-	{
-		map	models/weapons/shotgun/shotgun_flash.tga
-		blend add
-	}
-}
-
-muzzleSide
-{
-	sort additive
-	deformVertexes autosprite2
-	{
-		map	models/weapons/shotgun/shotgun_flashside.tga
-		blend add
-	}
-}
-
-muzzleSphere
-{
-	sort additive
-	cull disable
-	{
-		map	models/weapons/shotgun/shotgun_flash.tga
-		blend add
-	}
-}
 
 models/weapons/shotgun/shell
 {
