@@ -30,9 +30,9 @@ models/weapons/shotgun/shotgun_world
 	{
 		blend 		add
 		map			models/q2_items/q2_item_pulse.tga
-		red 			( q2iteminout [Parm4 + (time / 1.5) ]) * Parm0
+		red 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm0
 		green 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm1
-		blue 			( q2iteminout [Parm4 + (time / 1.5) ]) * Parm2
+		blue 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm2
 	}
 	{
 		blend 		bumpmap
@@ -42,15 +42,13 @@ models/weapons/shotgun/shotgun_world
 }
 
 
-models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash
+models/weapons/shotgun/shotgun_muzzflash
 {
-	qer_editorimage models/weapons/shotgun/shotgun_muzzflash_strip.tga
-   	
 	sort nearest
 	deform sprite
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 6.4 < 1.0
+		if 		0	//( time + parm4 ) * 6.4 < 1.0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
 		scale 		1 / 32 , 1
@@ -60,49 +58,47 @@ models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash
 	}
 }
 
-models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash2
+models/weapons/shotgun/shotgun_muzzflash2
 {
-	qer_editorimage models/weapons/shotgun/shotgun_muzzflash2_strip.tga
-   	sort nearest
-	deform tube
+	sort nearest
+	//deform tube
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 5 < 1.0
+		if 0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
 		scale 		1 / 8 , 1
-		scroll 		q2table8[ (time + parm4) * 5] , 0
+		scroll 		q2table8[ parm4 * 5] , 0
+		//scroll 		(time - parm4) * 5, 0
 		clamp
 	}
 }
 
-models/q2_weapons/q2_shotgun/q2_shotgun_muzzflashb
+models/weapons/shotgun/shotgun_muzzflashb
 {
-	qer_editorimage textures/q2_particles/q2_shotgun_muzzflash_strip.tga
-    	sort nearest
+	sort nearest
 	deform sprite
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 7 < 1.0
+		if 		0 //	( time + parm4 ) * 7 < 1.0
 		blend 		add
-		map 			textures/q2_particles/q2_shotgun_muzzflash_strip.tga
+		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
 		scale 		1 / 32 , 1
 		scroll 		q2table32[ (time + parm4) * 7] , 0
-		rotate		rotate90[ parm5 ]
+		rotate		q2rotate90[ parm5 ]
 		clamp
 	}
 }
 
-models/q2_weapons/q2_shotgun/q2_shotgun_muzzflash2b
+models/weapons/shotgun/shotgun_muzzflash2b
 {
-	qer_editorimage textures/q2_particles/q2_shotgun_muzzflash2_strip.tga
-   	sort nearest
-	deform tube
+	sort nearest
+	//deform tube
 	{
 		forceHighQuality
-		if 			( time + parm4 ) * 5 < 1.0
+		if 		0	//	( time + parm4 ) * 5 < 1.0
 		blend 		add
-		map 			textures/q2_particles/q2_shotgun_muzzflash2_strip.tga
+		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
 		scale 		1 / 8 , 1
 		scroll 		q2table8[ (time + parm4) * 5] , 0
 		clamp
