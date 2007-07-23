@@ -38,10 +38,10 @@ void CG_LoadingString(const char *s)
 
 /*
 ======================
-CG_DrawLoadBar
+CG_DrawProgressBar
 ======================
 */
-void CG_DrawLoadBar(void)
+static void CG_DrawProgressBar(void)
 {
 	int				x, y, w, status = 0;
 	float           rectColor[4];
@@ -149,8 +149,8 @@ void CG_DrawInformation(void)
 	detail = trap_R_RegisterShader("levelShotDetail");
 	trap_R_DrawStretchPic(0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail);
 
-	// draw the loading bar
-	CG_DrawLoadBar();
+	// draw the progress bar
+	CG_DrawProgressBar();
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
