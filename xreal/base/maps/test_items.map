@@ -301,6 +301,7 @@ brushDef3
 "classname" "item_armor_combat"
 "name" "item_armor_combat_1"
 "origin" "320 0 24"
+"wait" "1"
 }
 // entity 28
 {
@@ -313,34 +314,47 @@ brushDef3
 "classname" "item_armor_body"
 "name" "item_armor_body_1"
 "origin" "384 0 24"
+"wait" "1"
 }
 // entity 30
 {
 "classname" "item_enviro"
 "name" "item_enviro_1"
 "origin" "448 0 24"
+"wait" "1"
 }
 // entity 31
 {
 "classname" "item_flight"
 "name" "item_flight_1"
 "origin" "512 0 24"
+"wait" "1"
 }
 // entity 32
 {
 "classname" "item_haste"
 "name" "item_haste_1"
 "origin" "576 0 24"
+"wait" "1"
 }
 // entity 33
 {
 "classname" "item_invis"
 "name" "item_invis_1"
 "origin" "640 0 24"
+"wait" "1"
 }
 // entity 34
 {
 "classname" "item_quad"
 "name" "item_quad_1"
 "origin" "704 0 24"
+"wait" "1"
+}
+// entity 35
+{
+"classname" "item_regen"
+"name" "item_regen_1"
+"origin" "784 0 24"
+"wait" "1"
 }
