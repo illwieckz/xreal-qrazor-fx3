@@ -46,7 +46,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_NAMELENGTH	20
 
-
 typedef struct
 {
 	menuframework_s menu;
@@ -58,7 +57,8 @@ typedef struct
 
 	menufield_s     name;
 	menulist_s      handicap;
-	menulist_s      effects;
+	menulist_s      color1;
+	menulist_s      color2;
 
 	menubitmap_s    back;
 	menubitmap_s    model;
@@ -99,7 +99,6 @@ static const char *handicap_items[] = {
 	"5",
 	0
 };
-
 
 /*
 =================
@@ -179,7 +178,6 @@ static void PlayerSettings_DrawName(void *self)
 	UI_DrawProportionalString(320, 440, name, UI_CENTER | UI_BIGFONT, text_color_normal);
 }
 
-
 /*
 =================
 PlayerSettings_DrawHandicap
@@ -206,7 +204,6 @@ static void PlayerSettings_DrawHandicap(void *self)
 	UI_DrawProportionalString(item->generic.x, item->generic.y, "Handicap", style, color);
 	UI_DrawProportionalString(item->generic.x + 64, item->generic.y + PROP_HEIGHT, handicap_items[item->curvalue], style, color);
 }
-
 
 /*
 =================
@@ -238,6 +235,21 @@ static void PlayerSettings_DrawEffects(void *self)
 					 s_playersettings.fxPic[item->curvalue]);
 }
 
+/*
+=================
+PlayerSettings_DrawSecondaryEffects
+=================
+*/
+static void PlayerSettings_DrawSecondaryEffects(void *self)
+{
+	menulist_s     *item;
+
+	item = (menulist_s *) self;
+
+	UI_DrawHandlePic(item->generic.x + 64, item->generic.y + PROP_HEIGHT + 8, 128, 8, s_playersettings.fxBasePic);
+	UI_DrawHandlePic(item->generic.x + 64 + item->curvalue * 16 + 8, item->generic.y + PROP_HEIGHT + 6, 16, 12,
+					 s_playersettings.fxPic[item->curvalue]);
+}
 
 /*
 =================
@@ -267,7 +279,6 @@ static void PlayerSettings_DrawPlayer(void *self)
 	UI_DrawPlayer(b->generic.x, b->generic.y, b->width, b->height, &s_playersettings.playerinfo, uis.realtime / 2);
 }
 
-
 /*
 =================
 PlayerSettings_SaveChanges
@@ -282,9 +293,11 @@ static void PlayerSettings_SaveChanges(void)
 	trap_Cvar_SetValue("handicap", 100 - s_playersettings.handicap.curvalue * 5);
 
 	// effects color
-	trap_Cvar_SetValue("color1", uitogamecode[s_playersettings.effects.curvalue]);
-}
+	trap_Cvar_SetValue("color1", uitogamecode[s_playersettings.color1.curvalue]);
 
+	// secondary effects color
+	trap_Cvar_SetValue("color2", uitogamecode[s_playersettings.color2.curvalue]);
+}
 
 /*
 =================
@@ -299,7 +312,6 @@ static sfxHandle_t PlayerSettings_MenuKey(int key)
 	}
 	return Menu_DefaultKey(&s_playersettings.menu, key);
 }
-
 
 /*
 =================
@@ -318,10 +330,14 @@ static void PlayerSettings_SetMenuItems(void)
 	// effects color
 	c = trap_Cvar_VariableValue("color1") - 1;
 	if(c < 0 || c > 6)
-	{
 		c = 6;
-	}
-	s_playersettings.effects.curvalue = gamecodetoui[c];
+	s_playersettings.color1.curvalue = gamecodetoui[c];
+
+	// secondary effects color
+	c = trap_Cvar_VariableValue("color2") - 1;
+	if(c < 0 || c > 6)
+		c = 6;
+	s_playersettings.color2.curvalue = gamecodetoui[c];
 
 	// model/skin
 	memset(&s_playersettings.playerinfo, 0, sizeof(playerInfo_t));
@@ -337,7 +353,6 @@ static void PlayerSettings_SetMenuItems(void)
 	h = Com_Clamp(5, 100, trap_Cvar_VariableValue("handicap"));
 	s_playersettings.handicap.curvalue = 20 - h / 5;
 }
-
 
 /*
 =================
@@ -368,7 +383,6 @@ static void PlayerSettings_MenuEvent(void *ptr, int event)
 			break;
 	}
 }
-
 
 /*
 =================
@@ -437,17 +451,29 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.handicap.numitems = 20;
 
 	y += 3 * PROP_HEIGHT;
-	s_playersettings.effects.generic.type = MTYPE_SPINCONTROL;
-	s_playersettings.effects.generic.flags = QMF_NODEFAULTINIT;
-	s_playersettings.effects.generic.id = ID_EFFECTS;
-	s_playersettings.effects.generic.ownerdraw = PlayerSettings_DrawEffects;
-	s_playersettings.effects.generic.x = 192;
-	s_playersettings.effects.generic.y = y;
-	s_playersettings.effects.generic.left = 192 - 8;
-	s_playersettings.effects.generic.top = y - 8;
-	s_playersettings.effects.generic.right = 192 + 200;
-	s_playersettings.effects.generic.bottom = y + 2 * PROP_HEIGHT;
-	s_playersettings.effects.numitems = 7;
+	s_playersettings.color1.generic.type = MTYPE_SPINCONTROL;
+	s_playersettings.color1.generic.flags = QMF_NODEFAULTINIT;
+	s_playersettings.color1.generic.id = ID_EFFECTS;
+	s_playersettings.color1.generic.ownerdraw = PlayerSettings_DrawEffects;
+	s_playersettings.color1.generic.x = 192;
+	s_playersettings.color1.generic.y = y;
+	s_playersettings.color1.generic.left = 192 - 8;
+	s_playersettings.color1.generic.top = y - 8;
+	s_playersettings.color1.generic.right = 192 + 200;
+	s_playersettings.color1.generic.bottom = y + 2 * PROP_HEIGHT;
+	s_playersettings.color1.numitems = 7;
+
+	y += PROP_HEIGHT;
+	s_playersettings.color2.generic.type = MTYPE_SPINCONTROL;
+	s_playersettings.color2.generic.flags = QMF_NODEFAULTINIT;
+	s_playersettings.color2.generic.ownerdraw = PlayerSettings_DrawSecondaryEffects;
+	s_playersettings.color2.generic.x = 192;
+	s_playersettings.color2.generic.y = y;
+	s_playersettings.color2.generic.left = 192 - 8;
+	s_playersettings.color2.generic.top = y - 8;
+	s_playersettings.color2.generic.right = 192 + 200;
+	s_playersettings.color2.generic.bottom = y + 2 * PROP_HEIGHT;
+	s_playersettings.color2.numitems = 7;
 
 	s_playersettings.model.generic.type = MTYPE_BITMAP;
 	s_playersettings.model.generic.name = ART_MODEL0;
@@ -492,7 +518,8 @@ static void PlayerSettings_MenuInit(void)
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.name);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.handicap);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.effects);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.color1);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.color2);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.model);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.back);
 
@@ -502,7 +529,6 @@ static void PlayerSettings_MenuInit(void)
 
 	PlayerSettings_SetMenuItems();
 }
-
 
 /*
 =================
@@ -527,7 +553,6 @@ void PlayerSettings_Cache(void)
 	s_playersettings.fxPic[5] = trap_R_RegisterShaderNoMip(ART_FX_CYAN);
 	s_playersettings.fxPic[6] = trap_R_RegisterShaderNoMip(ART_FX_WHITE);
 }
-
 
 /*
 =================
