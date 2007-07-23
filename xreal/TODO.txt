@@ -42,10 +42,6 @@ base/models/powerups/holdable/teleporter.md3
 base/models/powerups/holdable/kamikaze.md3 (optional)
 base/models/powerups/instant/enviro.md3
 base/models/powerups/instant/enviro_ring.md3
-base/models/powerups/instant/flight.md3
-base/models/powerups/instant/flight_ring.md3
-base/models/powerups/instant/regen.md3
-base/models/powerups/instant/regen_ring.md3
 base/models/powerups/obelisk/obelisk.md3 (optional)
 base/models/powerups/orb/orb.md3 (optional)
 base/models/powerups/shield/shield.md3 (optional)
