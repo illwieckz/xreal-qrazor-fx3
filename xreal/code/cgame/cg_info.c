@@ -56,8 +56,8 @@ static void CG_DrawProgressBar(void)
 
 	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor); // semi black progress bar
 
-	rectColor[0] = 0.0f;
-	rectColor[1] = 0.7f;
+	rectColor[0] = 0.7f;
+	rectColor[1] = 0.0f;
 	rectColor[2] = 0.0f;
 	rectColor[3] = 0.4f;
 
@@ -81,7 +81,7 @@ static void CG_DrawProgressBar(void)
 		status = 6; // we are awaiting the snapshot
 	}
 
-	// draw the progress bar
+	// draw the red progress bar
 	switch(status)
 	{
 		default:
