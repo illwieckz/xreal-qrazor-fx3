@@ -75,7 +75,11 @@ void G_ShutdownLua()
 {
 	G_Printf("------- Game Lua Finalization -------\n");
 
-	lua_close(g_luaState);
+	if(g_luaState)
+	{
+		lua_close(g_luaState);
+		g_luaState = NULL;
+	}
 
 	G_Printf("-----------------------------------\n");
 }
