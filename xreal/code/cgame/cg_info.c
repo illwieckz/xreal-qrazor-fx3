@@ -43,7 +43,7 @@ CG_DrawLoadBar
 */
 void CG_DrawLoadBar(void)
 {
-	int				x, y, w;
+	int				x, y, w, status = 0;
 	float           rectColor[4];
 
 	w = 400 - SMALLCHAR_WIDTH;
@@ -55,6 +55,64 @@ void CG_DrawLoadBar(void)
 	rectColor[3] = 0.4f;
 
 	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor); // semi black progress bar
+
+	rectColor[0] = 0.0f;
+	rectColor[1] = 0.7f;
+	rectColor[2] = 0.0f;
+	rectColor[3] = 0.4f;
+
+	if(cg.infoScreenText[0])
+	{
+		if(Q_strncmp(cg.infoScreenText, "sounds", sizeof(cg.infoScreenText)) == 0)
+			status = 0;
+		else if(Q_strncmp(cg.infoScreenText, "collision map", sizeof(cg.infoScreenText)) == 0)
+			status = 1;
+		else if(Q_strncmp(cg.infoScreenText, "graphics", sizeof(cg.infoScreenText)) == 0)
+			status = 2;
+		else if(Q_strncmp(cg.infoScreenText, "game media", sizeof(cg.infoScreenText)) == 0)
+			status = 3;
+		else if(Q_strncmp(cg.infoScreenText, "effects", sizeof(cg.infoScreenText)) == 0)
+			status = 4;
+		else if(Q_strncmp(cg.infoScreenText, "clients", sizeof(cg.infoScreenText)) == 0)
+			status = 5;
+	}
+	else
+	{
+		status = 6; // we are awaiting the snapshot
+	}
+
+	// draw the progress bar
+	switch(status)
+	{
+		default:
+		case 0:
+			CG_FillRect(0, y, SCREEN_WIDTH - 500, 18, rectColor);
+			break;
+
+		case 1:
+			CG_FillRect(0, y, SCREEN_WIDTH - 425, 18, rectColor);
+			break;
+
+		case 2:
+			CG_FillRect(0, y, SCREEN_WIDTH - 325, 18, rectColor);
+			break;
+
+		case 3:
+			CG_FillRect(0, y, SCREEN_WIDTH - 235, 18, rectColor);
+			break;
+
+		case 4:
+			CG_FillRect(0, y, SCREEN_WIDTH - 150, 18, rectColor);
+			break;
+
+		case 5:
+			CG_FillRect(0, y, SCREEN_WIDTH - 75, 18, rectColor);
+			break;
+
+		case 6:
+			CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor);
+			break;
+	}
 }
 
 /*
