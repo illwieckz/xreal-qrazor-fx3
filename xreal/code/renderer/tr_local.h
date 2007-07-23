@@ -729,9 +729,6 @@ typedef struct shader_s
 	int             numStages;
 	shaderStage_t  *stages[MAX_SHADER_STAGES];
 
-	float           clampTime;	// time this shader is clamped to
-	float           timeOffset;	// current time offset for this shader
-
 	int             numStates;	// if non-zero this is a state shader
 	struct shader_s *currentShader;	// current state if this is a state shader
 	struct shader_s *parentShader;	// current state if this is a state shader
@@ -2310,8 +2307,6 @@ typedef struct shaderCommands_s
 
 	shader_t       *surfaceShader;
 	shader_t       *lightShader;
-
-	float           shaderTime;
 
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;

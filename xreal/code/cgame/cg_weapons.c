@@ -1270,8 +1270,8 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 	{
 		CG_Printf("CG_RunWeaponLerpFrame: Can't build lf->skeleton\n");
 	}
-	
-#if 0
+
+#if 1
 	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
 	{
 		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
@@ -1854,35 +1854,33 @@ void CG_AddViewWeapon(playerState_t * ps)
 		refEntity_t     gun;
 		vec3_t          angles;
 		centity_t      *nonPredictedCent;
+		int				boneIndex;
+		vec3_t			flashOrigin;
 
 		memset(&gun, 0, sizeof(gun));
 
 		// set up gun position
 		CG_CalculateWeaponPosition(gun.origin, angles);
 
-		VectorMA(gun.origin, cg_gunX.value, cg.refdef.viewaxis[0], gun.origin);
-		VectorMA(gun.origin, cg_gunY.value, cg.refdef.viewaxis[1], gun.origin);
-		VectorMA(gun.origin, (cg_gunZ.value + fovOffset), cg.refdef.viewaxis[2], gun.origin);
+		// HACK: tweak weapon positions
+		switch (weaponNum)
+		{
+			case WP_SHOTGUN:
+			{
+				VectorMA(gun.origin, cg_gunX.value + 1, cg.refdef.viewaxis[0], gun.origin);
+				VectorMA(gun.origin, cg_gunY.value - 2, cg.refdef.viewaxis[1], gun.origin);
+				VectorMA(gun.origin, (cg_gunZ.value + 1 + fovOffset), cg.refdef.viewaxis[2], gun.origin);
+				break;
+			}
+
+			default:
+				VectorMA(gun.origin, cg_gunX.value, cg.refdef.viewaxis[0], gun.origin);
+				VectorMA(gun.origin, cg_gunY.value, cg.refdef.viewaxis[1], gun.origin);
+				VectorMA(gun.origin, (cg_gunZ.value + fovOffset), cg.refdef.viewaxis[2], gun.origin);
+				break;
+		}
 
 		AnglesToAxis(angles, gun.axis);
-
-		// map torso animations to weapon animations
-		/*
-		if(cg_gun_frame.integer)
-		{
-			// development tool
-			gun.frame = gun.oldframe = cg_gun_frame.integer;
-			gun.backlerp = 0;
-		}
-		else
-		{
-			// get clientinfo for animation map
-			ci = &cgs.clientinfo[cent->currentState.clientNum];
-			gun.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame);
-			gun.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame);
-			gun.backlerp = cent->pe.torso.backlerp;
-		}
-		*/
 
 		// get the animation state
 		CG_WeaponAnimation(cent, weapon, weaponState);
@@ -1926,23 +1924,46 @@ void CG_AddViewWeapon(playerState_t * ps)
 			nonPredictedCent = cent;
 		}
 
-		
-		
-
-		// FIXME add lightning bolt
-		//CG_LightningBolt(nonPredictedCent, flash.origin);
-
-		// FIXME add rail trail
-		// CG_SpawnRailTrail(cent, flash.origin);
-
-		// FIXME add light
-		/*
-		if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
+		// add the flash
+		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK)
+		   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
 		{
-			trap_R_AddLightToScene(flashOrigin, 300 + (rand() & 31), weapon->flashLightColor[0],
-								   weapon->flashLightColor[1], weapon->flashLightColor[2]);
+			// continuous flash
 		}
-		*/
+		else
+		{
+			// impulse flash
+			if(cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
+			{
+				return;
+			}
+		}
+
+		// get flash origin
+		boneIndex = trap_R_BoneIndex(gun.hModel, "flash");
+
+		if(boneIndex >= 0 && boneIndex < cent->pe.gun.skeleton.numBones)
+		{
+			matrix_t modelToWorld;
+
+			MatrixSetupTransform(modelToWorld, gun.axis[0], gun.axis[1], gun.axis[2], gun.origin);
+			MatrixTransformPoint(modelToWorld, gun.skeleton.bones[boneIndex].origin, flashOrigin);
+
+			gun.shaderTime = cg.time / 1000.0f; //cent->pe.gun.frame;
+
+			// add lightning bolt
+			CG_LightningBolt(nonPredictedCent, flashOrigin);
+
+			// add rail trail
+			CG_SpawnRailTrail(cent, flashOrigin);
+
+			// add light
+			if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
+			{
+				trap_R_AddLightToScene(flashOrigin, 300 + (rand() & 31), weapon->flashLightColor[0],
+									   weapon->flashLightColor[1], weapon->flashLightColor[2]);
+			}
+		}
 	}
 	else
 	{

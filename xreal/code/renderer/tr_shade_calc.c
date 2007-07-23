@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 
-#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ myftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ myftol( ( ( (phase) + backEnd.refdef.floatTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
 static float   *TableForFunc(genFunc_t func)
 {
@@ -93,7 +93,7 @@ static float GetOpValue(const expOperation_t * op)
 			break;
 
 		case OP_TIME:
-			value = tess.shaderTime;
+			value = backEnd.refdef.floatTime;
 			break;
 
 		case OP_PARM0:
@@ -161,6 +161,15 @@ static float GetOpValue(const expOperation_t * op)
 			break;
 
 		case OP_PARM4:
+			if(backEnd.currentEntity)
+			{
+				value = backEnd.currentEntity->e.shaderTime;
+			}
+			else
+			{
+				value = 0.0;
+			}
+			break;
 		case OP_PARM5:
 		case OP_PARM6:
 		case OP_PARM7:
@@ -411,6 +420,14 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 						value = value1 * value2;
 						break;
 
+					case OP_LT:
+						value = value1 < value2;
+						break;
+
+					case OP_GT:
+						value = value1 > value2;
+						break;
+
 					default:
 						value = value1 = value2 = 0;
 						break;
@@ -505,17 +522,17 @@ void RB_CalcDeformNormals(deformStage_t * ds)
 	for(i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4)
 	{
 		scale = 0.98f;
-		scale = R_NoiseGet4f(xyz[0] * scale, xyz[1] * scale, xyz[2] * scale, tess.shaderTime * ds->deformationWave.frequency);
+		scale = R_NoiseGet4f(xyz[0] * scale, xyz[1] * scale, xyz[2] * scale, backEnd.refdef.floatTime * ds->deformationWave.frequency);
 		normal[0] += ds->deformationWave.amplitude * scale;
 
 		scale = 0.98f;
 		scale = R_NoiseGet4f(100 + xyz[0] * scale, xyz[1] * scale, xyz[2] * scale,
-							 tess.shaderTime * ds->deformationWave.frequency);
+							 backEnd.refdef.floatTime * ds->deformationWave.frequency);
 		normal[1] += ds->deformationWave.amplitude * scale;
 
 		scale = 0.98f;
 		scale = R_NoiseGet4f(200 + xyz[0] * scale, xyz[1] * scale, xyz[2] * scale,
-							 tess.shaderTime * ds->deformationWave.frequency);
+							 backEnd.refdef.floatTime * ds->deformationWave.frequency);
 		normal[2] += ds->deformationWave.amplitude * scale;
 
 		VectorNormalizeFast(normal);
@@ -1003,7 +1020,7 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 				wf = &bundle->texMods[j].wave;
 
 				x = (1.0 / 4.0);
-				y = (wf->phase + tess.shaderTime * wf->frequency);
+				y = (wf->phase + backEnd.refdef.floatTime * wf->frequency);
 
 				MatrixMultiplyScale(matrix, 1 + (wf->amplitude * sin(y) + wf->base) * x,
 									1 + (wf->amplitude * sin(y + 0.25) + wf->base) * x, 0.0);
@@ -1012,8 +1029,8 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 
 			case TMOD_ENTITY_TRANSLATE:
 			{
-				x = backEnd.currentEntity->e.shaderTexCoord[0] * tess.shaderTime;
-				y = backEnd.currentEntity->e.shaderTexCoord[1] * tess.shaderTime;
+				x = backEnd.currentEntity->e.shaderTexCoord[0] * backEnd.refdef.floatTime;
+				y = backEnd.currentEntity->e.shaderTexCoord[1] * backEnd.refdef.floatTime;
 
 				// clamp so coordinates don't continuously get larger, causing problems
 				// with hardware limits
@@ -1026,8 +1043,8 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 
 			case TMOD_SCROLL:
 			{
-				x = bundle->texMods[j].scroll[0] * tess.shaderTime;
-				y = bundle->texMods[j].scroll[1] * tess.shaderTime;
+				x = bundle->texMods[j].scroll[0] * backEnd.refdef.floatTime;
+				y = bundle->texMods[j].scroll[1] * backEnd.refdef.floatTime;
 
 				// clamp so coordinates don't continuously get larger, causing problems
 				// with hardware limits
@@ -1069,7 +1086,7 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 
 			case TMOD_ROTATE:
 			{
-				x = -bundle->texMods[j].rotateSpeed * tess.shaderTime;
+				x = -bundle->texMods[j].rotateSpeed * backEnd.refdef.floatTime;
 
 				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 				MatrixMultiplyZRotation(matrix, x);

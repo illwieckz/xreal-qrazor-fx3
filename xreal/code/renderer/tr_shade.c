@@ -1261,12 +1261,6 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 		}
 	}
 
-	tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-	if(tess.surfaceShader->clampTime && tess.shaderTime >= tess.surfaceShader->clampTime)
-	{
-		tess.shaderTime = tess.surfaceShader->clampTime;
-	}
-
 	
 	tess.skipTangentSpaces = skipTangentSpaces;
 	tess.shadowVolume = shadowVolume;
@@ -2838,7 +2832,7 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 
 			if(wf->func == GF_NOISE)
 			{
-				glow = wf->base + R_NoiseGet4f(0, 0, 0, (tess.shaderTime + wf->phase) * wf->frequency) * wf->amplitude;
+				glow = wf->base + R_NoiseGet4f(0, 0, 0, (backEnd.refdef.floatTime + wf->phase) * wf->frequency) * wf->amplitude;
 			}
 			else
 			{

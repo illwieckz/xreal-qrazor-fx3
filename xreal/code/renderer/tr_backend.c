@@ -849,7 +849,7 @@ static void RB_BeginRenderView(void)
 	GL_CheckErrors();
 }
 
-static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
+static void RB_RenderDrawSurfaces(qboolean opaque)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
@@ -918,11 +918,6 @@ static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 			if(entity != &tr.worldEntity)
 			{
 				backEnd.currentEntity = entity;
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -936,12 +931,7 @@ static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 			else
 			{
 				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
 				backEnd.or = backEnd.viewParms.world;
-
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -966,8 +956,6 @@ static void RB_RenderDrawSurfaces(float originalTime, qboolean opaque)
 		// add the triangles for this surface
 		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 	}
-
-	backEnd.refdef.floatTime = originalTime;
 
 	// draw the contents of the last shader batch
 	if(oldShader != NULL)
@@ -1152,7 +1140,7 @@ static void Render_lightVolume(trRefLight_t * light)
 RB_RenderInteractions
 =================
 */
-static void RB_RenderInteractions(float originalTime)
+static void RB_RenderInteractions()
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1231,11 +1219,6 @@ static void RB_RenderInteractions(float originalTime)
 
 			if(entity != &tr.worldEntity)
 			{
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
 				// set up the transformation matrix
 				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
 
@@ -1247,11 +1230,7 @@ static void RB_RenderInteractions(float originalTime)
 			}
 			else
 			{
-				backEnd.refdef.floatTime = originalTime;
 				backEnd.or = backEnd.viewParms.world;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -1360,8 +1339,6 @@ static void RB_RenderInteractions(float originalTime)
 		}
 	}
 
-	backEnd.refdef.floatTime = originalTime;
-
 	// go back to the world modelview matrix
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
@@ -1382,7 +1359,7 @@ static void RB_RenderInteractions(float originalTime)
 RB_RenderInteractionsStencilShadowed
 =================
 */
-static void RB_RenderInteractionsStencilShadowed(float originalTime)
+static void RB_RenderInteractionsStencilShadowed()
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1398,7 +1375,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 
 	if(glConfig.stencilBits < 4)
 	{
-		RB_RenderInteractions(originalTime);
+		RB_RenderInteractions();
 		return;
 	}
 
@@ -1624,11 +1601,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 
 			if(entity != &tr.worldEntity)
 			{
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
 				// set up the transformation matrix
 				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
 
@@ -1640,11 +1612,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 			}
 			else
 			{
-				backEnd.refdef.floatTime = originalTime;
 				backEnd.or = backEnd.viewParms.world;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -1782,8 +1750,6 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 		}
 	}
 
-	backEnd.refdef.floatTime = originalTime;
-
 	// go back to the world modelview matrix
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
@@ -1816,7 +1782,7 @@ static void RB_RenderInteractionsStencilShadowed(float originalTime)
 RB_RenderInteractionsShadowMapped
 =================
 */
-static void RB_RenderInteractionsShadowMapped(float originalTime)
+static void RB_RenderInteractionsShadowMapped()
 {
 	shader_t       *shader, *oldShader;
 	trRefEntity_t  *entity, *oldEntity;
@@ -1834,7 +1800,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 
 	if(!glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
 	{
-		RB_RenderInteractions(originalTime);
+		RB_RenderInteractions();
 		return;
 	}
 
@@ -2257,11 +2223,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 
 			if(entity != &tr.worldEntity)
 			{
-				backEnd.refdef.floatTime = originalTime - entity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
 				// set up the transformation matrix
 				if(drawShadows)
 				{
@@ -2280,11 +2241,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 			}
 			else
 			{
-				backEnd.refdef.floatTime = originalTime;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
 				// set up the transformation matrix
 				if(drawShadows)
 				{
@@ -2483,8 +2439,6 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 		}
 	}
 
-	backEnd.refdef.floatTime = originalTime;
-
 	// go back to the world modelview matrix
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
@@ -2502,7 +2456,7 @@ static void RB_RenderInteractionsShadowMapped(float originalTime)
 	GL_CheckErrors();
 }
 
-static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
+static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
@@ -2562,11 +2516,6 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
 			if(entity != &tr.worldEntity)
 			{
 				backEnd.currentEntity = entity;
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 
 				// set up the transformation matrix
 				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
@@ -2580,12 +2529,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
 			else
 			{
 				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
 				backEnd.or = backEnd.viewParms.world;
-
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
 			}
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -2610,8 +2554,6 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer(float originalTime)
 		// add the triangles for this surface
 		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 	}
-
-	backEnd.refdef.floatTime = originalTime;
 
 	// draw the contents of the last shader batch
 	if(oldShader != NULL)
@@ -2917,7 +2859,7 @@ void RB_RenderInteractionsDeferred()
 	GL_CheckErrors();
 }
 
-static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
+static void RB_RenderInteractionsDeferredShadowMapped()
 {
 	interaction_t  *ia;
 	int             iaCount;
@@ -3545,11 +3487,6 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 
 			if(entity != &tr.worldEntity)
 			{
-				backEnd.refdef.floatTime = originalTime - entity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
 				// set up the transformation matrix
 				if(drawShadows)
 				{
@@ -3568,11 +3505,6 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 			}
 			else
 			{
-				backEnd.refdef.floatTime = originalTime;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
-
 				// set up the transformation matrix
 				if(drawShadows)
 				{
@@ -3730,8 +3662,6 @@ static void RB_RenderInteractionsDeferredShadowMapped(float originalTime)
 			iaCount++;
 		}
 	}
-
-	backEnd.refdef.floatTime = originalTime;
 
 	// go back to the world modelview matrix
 	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
@@ -4829,8 +4759,6 @@ RB_RenderView
 */
 static void RB_RenderView(void)
 {
-	float           originalTime;
-
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
@@ -4840,9 +4768,6 @@ static void RB_RenderView(void)
 	}
 
 	GL_CheckErrors();
-
-	// save original time for entity shader offsets
-	originalTime = backEnd.refdef.floatTime;
 
 	// clear the z buffer, set the modelview, etc
 	RB_BeginRenderView();
@@ -4860,12 +4785,12 @@ static void RB_RenderView(void)
 		qglClear(GL_COLOR_BUFFER_BIT);
 
 		// draw everything that is opaque
-		RB_RenderDrawSurfacesIntoGeometricBuffer(originalTime);
+		RB_RenderDrawSurfacesIntoGeometricBuffer();
 
 		if(r_shadows->integer == 4)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
-			RB_RenderInteractionsDeferredShadowMapped(originalTime);
+			RB_RenderInteractionsDeferredShadowMapped();
 		}
 		else
 		{
@@ -4875,7 +4800,7 @@ static void RB_RenderView(void)
 
 		// draw everything that is translucent
 		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderDrawSurfaces(originalTime, qfalse);
+		RB_RenderDrawSurfaces(qfalse);
 
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
@@ -4883,7 +4808,7 @@ static void RB_RenderView(void)
 	else
 	{
 		// draw everything that is opaque
-		RB_RenderDrawSurfaces(originalTime, qtrue);
+		RB_RenderDrawSurfaces(qtrue);
 
 #if 0
 		// try to cull lights using occlusion queries
@@ -4893,21 +4818,21 @@ static void RB_RenderView(void)
 		if(r_shadows->integer == 4)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
-			RB_RenderInteractionsShadowMapped(originalTime);
+			RB_RenderInteractionsShadowMapped();
 		}
 		else if(r_shadows->integer == 3)
 		{
 			// render dynamic shadowing and lighting using stencil shadow volumes
-			RB_RenderInteractionsStencilShadowed(originalTime);
+			RB_RenderInteractionsStencilShadowed();
 		}
 		else
 		{
 			// render dynamic lighting
-			RB_RenderInteractions(originalTime);
+			RB_RenderInteractions();
 		}
 
 		// draw everything that is translucent
-		RB_RenderDrawSurfaces(originalTime, qfalse);
+		RB_RenderDrawSurfaces(qfalse);
 
 #if 0
 		// add the sun flare

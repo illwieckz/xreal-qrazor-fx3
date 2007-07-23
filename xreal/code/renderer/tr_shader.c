@@ -137,10 +137,6 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 			}
 		}
 	}
-	if(timeOffset)
-	{
-		sh2->timeOffset = atof(timeOffset);
-	}
 }
 
 /*
@@ -3540,14 +3536,6 @@ static qboolean ParseShader(char *_text)
 		if(!Q_stricmp(token, "noFragment"))
 		{
 			continue;
-		}
-		else if(!Q_stricmp(token, "clampTime"))
-		{
-			token = Com_ParseExt(text, qfalse);
-			if(token[0])
-			{
-				shader.clampTime = atof(token);
-			}
 		}
 		// skip stuff that only the xmap needs
 		else if(!Q_stricmpn(token, "xmap", 4) || !Q_stricmpn(token, "q3map", 5))
