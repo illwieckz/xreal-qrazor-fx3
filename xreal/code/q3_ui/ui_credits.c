@@ -73,12 +73,16 @@ static void UI_CreditMenu_Draw(void)
 	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Programming", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
+	UI_DrawProportionalString(320, y, "Robert Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
+	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	UI_DrawProportionalString(320, y, "Pat Raynor", UI_CENTER | UI_SMALLFONT, colorWhite);
 
 	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Art", UI_CENTER | UI_SMALLFONT, colorLtGrey);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "XreaL Team", UI_CENTER | UI_SMALLFONT, colorWhite);
+	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	UI_DrawProportionalString(320, y, "QuakeII: Lost Marine Team", UI_CENTER | UI_SMALLFONT, colorWhite);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "OpenArena Team", UI_CENTER | UI_SMALLFONT, colorWhite);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
@@ -125,10 +129,10 @@ static void UI_CreditMenu_Draw(void)
 
 	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Development Assistance", UI_CENTER | UI_SMALLFONT, colorLtGrey);
+	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+	//UI_DrawProportionalString(320, y, "Mathias Heyer", UI_CENTER | UI_SMALLFONT, colorWhite);
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Mathias 'Skynet' Heyer", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite);
+	UI_DrawProportionalString(320, y, "Josef Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite);
 
 	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
 	UI_DrawProportionalString(320, y, "Contributors", UI_CENTER | UI_SMALLFONT, colorLtGrey);
