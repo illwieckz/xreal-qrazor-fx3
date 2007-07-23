@@ -965,11 +965,9 @@ static ID_INLINE void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cros
 
 static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac, vec3_t out)
 {
-	//*this = to + ((from - to) * f);
-
-	out[0] = to[0] + ((from[0] - to[0]) * frac);
-	out[1] = to[1] + ((from[1] - to[1]) * frac);
-	out[2] = to[2] + ((from[2] - to[2]) * frac);
+	out[0] = from[0] + ((to[0] - from[0]) * frac);
+	out[1] = from[1] + ((to[1] - from[1]) * frac);
+	out[2] = from[2] + ((to[2] - from[2]) * frac);
 }
 
 vec_t           VectorNormalize(vec3_t v);	// returns vector length

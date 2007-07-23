@@ -145,7 +145,9 @@ typedef enum
 	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
-	WEAPON_FIRING
+	WEAPON_FIRING,
+
+	MAX_WEAPON_STATES
 } weaponstate_t;
 
 // pmove->pm_flags
@@ -559,15 +561,14 @@ typedef enum
 	FLAG_STAND2RUN,
 
 	MAX_TOTALANIMATIONS
-} animNumber_t;
-
+} playerAnimNumber_t;
 
 typedef struct animation_s
 {
-#ifdef XPPM
-	qhandle_t       handle;		// registered md5Animation or whatever
+
+	qhandle_t       handle;			// registered md5Animation or whatever
 	qboolean        clearOrigin;	// reset the origin bone
-#endif
+
 	int             firstFrame;
 	int             numFrames;
 	int             loopFrames;	// 0 to numFrames

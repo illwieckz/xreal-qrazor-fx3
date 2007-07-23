@@ -123,7 +123,8 @@ vmCvar_t        cg_drawSideBar;
 vmCvar_t        cg_drawPickupItem;
 vmCvar_t        cg_drawWeaponSelect;
 vmCvar_t        cg_animSpeed;
-vmCvar_t        cg_debugAnim;
+vmCvar_t        cg_debugPlayerAnim;
+vmCvar_t        cg_debugWeaponAnim;
 vmCvar_t        cg_debugPosition;
 vmCvar_t        cg_debugEvents;
 vmCvar_t        cg_errorDecay;
@@ -263,7 +264,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE},
 	{&cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT},
 	{&cg_animSpeed, "cg_animspeed", "1", CVAR_CHEAT},
-	{&cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT},
+	{&cg_debugPlayerAnim, "cg_debugPlayerAnim", "0", CVAR_CHEAT},
+	{&cg_debugWeaponAnim, "cg_debugWeaponAnim", "0", CVAR_CHEAT},
 	{&cg_debugPosition, "cg_debugposition", "0", CVAR_CHEAT},
 	{&cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT},
 	{&cg_errorDecay, "cg_errordecay", "100", 0},

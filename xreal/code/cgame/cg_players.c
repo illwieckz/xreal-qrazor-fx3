@@ -653,14 +653,14 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	
 	ci->animations[anim].firstFrame = 0;
 	ci->animations[anim].numFrames = trap_R_AnimNumFrames(ci->animations[anim].handle);
-	frameRate = trap_R_AnimNumFrames(ci->animations[anim].handle);
+	frameRate = trap_R_AnimFrameRate(ci->animations[anim].handle);
 
 	if(frameRate == 0)
 	{
 		frameRate = 1;
 	}
 	ci->animations[anim].frameLerp = 1000 / frameRate;
-	ci->animations[anim].initialLerp = 0; //1000 / frameRate;
+	ci->animations[anim].initialLerp = 1000 / frameRate;
 	
 	if(loop)
 	{
@@ -1481,7 +1481,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int ne
 
 	if(newAnimation < 0 || newAnimation >= MAX_TOTALANIMATIONS)
 	{
-		CG_Error("Bad animation number: %i", newAnimation);
+		CG_Error("bad player animation number: %i", newAnimation);
 	}
 
 	anim = &ci->animations[newAnimation];
@@ -1489,9 +1489,9 @@ static void CG_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int ne
 	lf->animation = anim;
 	lf->animationTime = lf->frameTime + anim->initialLerp;
 
-	if(cg_debugAnim.integer)
+	if(cg_debugPlayerAnim.integer)
 	{
-		CG_Printf("Anim: %i\n", newAnimation);
+		CG_Printf("player anim: %i\n", newAnimation);
 	}
 }
 
@@ -1613,9 +1613,9 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		if(cg.time > lf->frameTime)
 		{
 			lf->frameTime = cg.time;
-			if(cg_debugAnim.integer)
+			if(cg_debugPlayerAnim.integer)
 			{
-				CG_Printf("Clamp lf->frameTime\n");
+				CG_Printf("clamp player lf->frameTime\n");
 			}
 		}
 	}

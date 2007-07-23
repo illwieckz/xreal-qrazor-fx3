@@ -150,7 +150,7 @@ typedef struct
 
 typedef struct
 {
-	lerpFrame_t     legs, torso, flag;
+	lerpFrame_t     legs, torso, flag, gun;
 	int             painTime;
 	int             painDirection;	// flip from 0 to 1
 	int             lightningFiring;
@@ -411,10 +411,7 @@ typedef struct weaponInfo_s
 	qhandle_t       flashModel;
 	
 	qhandle_t		viewModel;
-	qhandle_t		viewModel_allAnimation;
-//	qhandle_t		viewModel_idleAnimation;
-//	qhandle_t		viewModel_attackAnimation;
-//	qhandle_t		viewModel_lowerAnimation;
+	animation_t		viewModel_animations[MAX_WEAPON_STATES];
 
 	vec3_t          weaponMidpoint;	// so it will rotate centered instead of by tag
 
@@ -1218,7 +1215,8 @@ extern vmCvar_t cg_drawPickupItem;
 extern vmCvar_t cg_drawWeaponSelect;
 extern vmCvar_t cg_draw2D;
 extern vmCvar_t cg_animSpeed;
-extern vmCvar_t cg_debugAnim;
+extern vmCvar_t cg_debugPlayerAnim;
+extern vmCvar_t cg_debugWeaponAnim;
 extern vmCvar_t cg_debugPosition;
 extern vmCvar_t cg_debugEvents;
 extern vmCvar_t cg_railTrailTime;

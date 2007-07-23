@@ -690,6 +690,43 @@ static void CG_GrenadeTrail(centity_t * ent, const weaponInfo_t * wi)
 }
 
 
+static qboolean CG_RegisterWeaponAnimation(animation_t * anim, const char *filename, qboolean loop, qboolean reversed, qboolean clearOrigin)
+{
+	int             frameRate;
+	
+	anim->handle = trap_R_RegisterAnimation(filename);
+	if(!anim->handle)
+	{
+		Com_Printf("Failed to load animation file %s\n", filename);
+		return qfalse;
+	}
+	
+	anim->firstFrame = 0;
+	anim->numFrames = trap_R_AnimNumFrames(anim->handle);
+	frameRate = trap_R_AnimFrameRate(anim->handle);
+
+	if(frameRate == 0)
+	{
+		frameRate = 1;
+	}
+	anim->frameLerp = 1000 / frameRate;
+	anim->initialLerp = 1000 / frameRate;
+	
+	if(loop)
+	{
+		anim->loopFrames = anim->numFrames;
+	}
+	else
+	{
+		anim->loopFrames = 0;
+	}
+	
+	anim->reversed = reversed;
+	anim->clearOrigin = clearOrigin;
+	
+	return qtrue;
+}
+
 /*
 =================
 CG_RegisterWeapon
@@ -779,10 +816,40 @@ void CG_RegisterWeapon(int weaponNum)
 	strcat(path, "_view.md5mesh");
 	weaponInfo->viewModel = trap_R_RegisterModel(path);
 	
-	strcpy(path, item->world_model[0]);
-	Com_StripExtension(path, path, sizeof(path));
-	strcat(path, "_view_all.md5anim");
-	weaponInfo->viewModel_allAnimation = trap_R_RegisterAnimation(path);
+	if(weaponInfo->viewModel)
+	{
+		strcpy(path, item->world_model[0]);
+		Com_StripExtension(path, path, sizeof(path));
+		strcat(path, "_view_idle.md5anim");
+		if(!CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_READY], path, qtrue, qfalse, qfalse))
+		{
+			CG_Error("could not find '%s'", path);
+		}
+
+		// default all weapon animations to the idle animation
+		for(i = 0; i < MAX_WEAPON_STATES; i++)
+		{
+			if(i == WEAPON_READY)
+				continue;
+			
+			weaponInfo->viewModel_animations[i] = weaponInfo->viewModel_animations[WEAPON_READY];
+		}
+
+		strcpy(path, item->world_model[0]);
+		Com_StripExtension(path, path, sizeof(path));
+		strcat(path, "_view_raise.md5anim");
+		CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_RAISING], path, qfalse, qfalse, qfalse);
+
+		strcpy(path, item->world_model[0]);
+		Com_StripExtension(path, path, sizeof(path));
+		strcat(path, "_view_lower.md5anim");
+		CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_DROPPING], path, qfalse, qfalse, qfalse);
+
+		strcpy(path, item->world_model[0]);
+		Com_StripExtension(path, path, sizeof(path));
+		strcat(path, "_view_fire.md5anim");
+		CG_RegisterWeaponAnimation(&weaponInfo->viewModel_animations[WEAPON_FIRING], path, qtrue, qfalse, qfalse);
+	}
 
 	/*
 	   if(!weaponInfo->handsModel)
@@ -997,12 +1064,10 @@ VIEW WEAPON
 /*
 =================
 CG_MapTorsoToWeaponFrame
-
 =================
 */
 static int CG_MapTorsoToWeaponFrame(clientInfo_t * ci, int frame)
 {
-
 	// change weapon
 	if(frame >= ci->animations[TORSO_DROP].firstFrame && frame < ci->animations[TORSO_DROP].firstFrame + 9)
 	{
@@ -1024,6 +1089,233 @@ static int CG_MapTorsoToWeaponFrame(clientInfo_t * ci, int frame)
 	return 0;
 }
 
+
+/*
+===============
+CG_SetLerpFrameAnimation
+
+may include ANIM_TOGGLEBIT
+===============
+*/
+static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, int newAnimation)
+{
+	animation_t    *anim;
+
+	lf->animationNumber = newAnimation;
+	newAnimation &= ~ANIM_TOGGLEBIT;
+
+	if(newAnimation < 0 || newAnimation >= MAX_WEAPON_STATES)
+	{
+		CG_Error("bad weapon animation number: %i", newAnimation);
+	}
+
+	anim = &wi->viewModel_animations[newAnimation];
+
+	lf->animation = anim;
+	lf->animationTime = lf->frameTime + anim->initialLerp;
+
+	if(cg_debugWeaponAnim.integer)
+	{
+		CG_Printf("weapon anim: %i\n", newAnimation);
+	}
+}
+
+/*
+===============
+CG_RunLerpFrame
+
+Sets cg.snap, cg.oldFrame, and cg.backlerp
+cg.time should be between oldFrameTime and frameTime after exit
+===============
+*/
+static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAnimation, float speedScale)
+{
+	int             f, numFrames;
+	animation_t    *anim;
+	qboolean		animChanged;
+
+	// debugging tool to get no animations
+	if(cg_animSpeed.integer == 0)
+	{
+		lf->oldFrame = lf->frame = lf->backlerp = 0;
+		return;
+	}
+
+	// see if the animation sequence is switching
+	if(newAnimation != lf->animationNumber || !lf->animation)
+	{
+		CG_SetWeaponLerpFrameAnimation(wi, lf, newAnimation);
+		
+		if(!lf->animation)
+		{
+			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+		}
+		
+
+		animChanged = qtrue;
+	}
+	else
+	{
+		animChanged = qfalse;	
+	}
+
+	// if we have passed the current frame, move it to
+	// oldFrame and calculate a new frame
+	if(cg.time >= lf->frameTime || animChanged)
+	{
+#if 0
+		if(animChanged)
+		{
+			lf->oldFrame = 0;
+			lf->oldFrameTime = cg.time;
+		}
+		else
+#endif
+		{
+			lf->oldFrame = lf->frame;
+			lf->oldFrameTime = lf->frameTime;
+		}
+
+		// get the next frame based on the animation
+		anim = lf->animation;
+		if(!anim->frameLerp)
+		{
+			return;				// shouldn't happen
+		}
+		
+		if(cg.time < lf->animationTime)
+		{
+			lf->frameTime = lf->animationTime;	// initial lerp
+		}
+		else
+		{
+			lf->frameTime = lf->oldFrameTime + anim->frameLerp;
+		}
+		f = (lf->frameTime - lf->animationTime) / anim->frameLerp;
+		f *= speedScale;		// adjust for haste, etc
+
+		numFrames = anim->numFrames;
+		
+		if(anim->flipflop)
+		{
+			numFrames *= 2;
+		}
+		
+		if(f >= numFrames)
+		{
+			f -= numFrames;
+			
+			if(anim->loopFrames)
+			{
+				f %= anim->loopFrames;
+				f += anim->numFrames - anim->loopFrames;
+			}
+			else
+			{
+				f = numFrames - 1;
+				// the animation is stuck at the end, so it
+				// can immediately transition to another sequence
+				lf->frameTime = cg.time;
+			}
+		}
+
+		if(anim->reversed)
+		{
+			lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
+		}
+		else if(anim->flipflop && f >= anim->numFrames)
+		{
+			lf->frame = anim->firstFrame + anim->numFrames - 1 - (f % anim->numFrames);
+		}
+		else
+		{
+			lf->frame = anim->firstFrame + f;
+		}
+		
+		if(cg.time > lf->frameTime)
+		{
+			lf->frameTime = cg.time;
+			if(cg_debugWeaponAnim.integer)
+			{
+				CG_Printf("clamp weapon lf->frameTime\n");
+			}
+		}
+	}
+
+	if(lf->frameTime > cg.time + 200)
+	{
+		lf->frameTime = cg.time;
+	}
+
+	if(lf->oldFrameTime > cg.time)
+	{
+		lf->oldFrameTime = cg.time;
+	}
+	
+	// calculate current lerp value
+	if(lf->frameTime == lf->oldFrameTime)
+	{
+		lf->backlerp = 0;
+	}
+	else
+	{
+		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
+	}
+	
+	if(!trap_R_BuildSkeleton(&lf->skeleton,
+							 lf->animation->handle,
+							 lf->oldFrame, lf->frame,
+							 1.0 - lf->backlerp,
+							 lf->animation->clearOrigin))
+	{
+		CG_Printf("CG_RunWeaponLerpFrame: Can't build lf->skeleton\n");
+	}
+	
+#if 0
+	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
+	{
+		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
+		{
+			CG_Printf("Can't blend lf->oldSkeleton\n");
+		}
+		
+		memcpy(&lf->skeleton, &lf->oldSkeleton, sizeof(refSkeleton_t));
+	}
+#endif
+}
+
+/*
+=================
+CG_WeaponAnimation
+=================
+*/
+static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponState)
+{
+	clientInfo_t   *ci;
+	int             clientNum;
+	float           speedScale;
+
+	clientNum = cent->currentState.clientNum;
+
+	if(cg_noPlayerAnims.integer)
+	{
+		return;
+	}
+
+	if(cent->currentState.powerups & (1 << PW_HASTE))
+	{
+		speedScale = 1.5;
+	}
+	else
+	{
+		speedScale = 1;
+	}
+
+	ci = &cgs.clientinfo[clientNum];
+
+	// change weapon animation
+	CG_RunWeaponLerpFrame(weapon, &cent->pe.gun, weaponState, speedScale);
+}
 
 /*
 ==============
@@ -1498,6 +1790,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 	float           fovOffset;
 	vec3_t          angles;
 	int				weaponNum;
+	int				weaponState;
 	weaponInfo_t   *weapon;
 
 	if(ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
@@ -1552,13 +1845,13 @@ void CG_AddViewWeapon(playerState_t * ps)
 	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
 	
 	weaponNum = ps->weapon;
+	weaponState = ps->weaponstate;
 	CG_RegisterWeapon(weaponNum);
 	weapon = &cg_weapons[weaponNum];
 
-	if(weapon->viewModel && weapon->viewModel_allAnimation)
+	if(weapon->viewModel && weapon->viewModel_animations[WEAPON_READY].handle)
 	{
 		refEntity_t     gun;
-		refEntity_t     flash;
 		vec3_t          angles;
 		centity_t      *nonPredictedCent;
 
@@ -1574,6 +1867,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 		AnglesToAxis(angles, gun.axis);
 
 		// map torso animations to weapon animations
+		/*
 		if(cg_gun_frame.integer)
 		{
 			// development tool
@@ -1588,6 +1882,10 @@ void CG_AddViewWeapon(playerState_t * ps)
 			gun.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame);
 			gun.backlerp = cent->pe.torso.backlerp;
 		}
+		*/
+
+		// get the animation state
+		CG_WeaponAnimation(cent, weapon, weaponState);
 
 		gun.hModel = weapon->viewModel;
 		gun.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
@@ -1608,43 +1906,14 @@ void CG_AddViewWeapon(playerState_t * ps)
 			gun.shaderRGBA[2] = 255;
 			gun.shaderRGBA[3] = 255;
 		}
+
+		// copy legs skeleton to have a base
+		memcpy(&gun.skeleton, &cent->pe.gun.skeleton, sizeof(refSkeleton_t));
 		
-		//CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-		
-		// modify bones and set proper local bounds for culling
-		if(!trap_R_BuildSkeleton(&gun.skeleton,
-						  		 weapon->viewModel_allAnimation,
-						  		 gun.oldframe,
-						  		 gun.frame,
-						  		 1.0 - gun.backlerp,
-						  		 qtrue))
-		{
-			CG_Printf("Can't build view weapon skeleton\n");
-			return;
-		}
+		// transform relative bones to absolute ones required for vertex skinning
+		CG_TransformSkeleton(&gun.skeleton, NULL);
 
 		CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
-
-		/*
-		// add the spinning barrel
-		if(weapon->barrelModel)
-		{
-			memset(&barrel, 0, sizeof(barrel));
-			VectorCopy(parent->lightingOrigin, barrel.lightingOrigin);
-			barrel.shadowPlane = parent->shadowPlane;
-			barrel.renderfx = parent->renderfx;
-
-			barrel.hModel = weapon->barrelModel;
-			angles[YAW] = 0;
-			angles[PITCH] = 0;
-			angles[ROLL] = CG_MachinegunSpinAngle(cent);
-			AnglesToAxis(angles, barrel.axis);
-
-			CG_PositionRotatedEntityOnTag(&barrel, &gun, weapon->weaponModel, "tag_barrel");
-
-			CG_AddWeaponWithPowerups(&barrel, cent->currentState.powerups);
-		}
-		*/
 
 		// make sure we aren't looking at cg.predictedPlayerEntity for LG
 		nonPredictedCent = &cg_entities[cent->currentState.clientNum];
@@ -1657,61 +1926,23 @@ void CG_AddViewWeapon(playerState_t * ps)
 			nonPredictedCent = cent;
 		}
 
-		// add the flash
-		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK)
-		   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
-		{
-			// continuous flash
-		}
-		else
-		{
-			// impulse flash
-			if(cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
-			{
-				return;
-			}
-		}
+		
+		
 
-		memset(&flash, 0, sizeof(flash));
-		VectorCopy(gun.lightingOrigin, flash.lightingOrigin);
-		flash.shadowPlane = gun.shadowPlane;
-		flash.renderfx = gun.renderfx;
+		// FIXME add lightning bolt
+		//CG_LightningBolt(nonPredictedCent, flash.origin);
 
-		flash.hModel = weapon->flashModel;
-		if(!flash.hModel)
-		{
-			return;
-		}
-		angles[YAW] = 0;
-		angles[PITCH] = 0;
-		angles[ROLL] = crandom() * 10;
-		AnglesToAxis(angles, flash.axis);
+		// FIXME add rail trail
+		// CG_SpawnRailTrail(cent, flash.origin);
 
-		// colorize the railgun blast
-		if(weaponNum == WP_RAILGUN)
-		{
-			clientInfo_t   *ci;
-
-			ci = &cgs.clientinfo[cent->currentState.clientNum];
-			flash.shaderRGBA[0] = 255 * ci->color1[0];
-			flash.shaderRGBA[1] = 255 * ci->color1[1];
-			flash.shaderRGBA[2] = 255 * ci->color1[2];
-		}
-
-		CG_PositionRotatedEntityOnBone(&flash, &gun, weapon->viewModel, "tag_flash");
-		trap_R_AddRefEntityToScene(&flash);
-
-		// add lightning bolt
-		CG_LightningBolt(nonPredictedCent, flash.origin);
-
-		// add rail trail
-		CG_SpawnRailTrail(cent, flash.origin);
-
+		// FIXME add light
+		/*
 		if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
 		{
-			trap_R_AddLightToScene(flash.origin, 300 + (rand() & 31), weapon->flashLightColor[0],
+			trap_R_AddLightToScene(flashOrigin, 300 + (rand() & 31), weapon->flashLightColor[0],
 								   weapon->flashLightColor[1], weapon->flashLightColor[2]);
 		}
+		*/
 	}
 	else
 	{
