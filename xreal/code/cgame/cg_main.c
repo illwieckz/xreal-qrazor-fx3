@@ -889,6 +889,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
 	cgs.media.selectShader = trap_R_RegisterShader("gfx/2d/select");
+	cgs.media.weaponSelectShader = trap_R_RegisterShader("gfx/2d/weapon_select");
 
 	for(i = 0; i < NUM_CROSSHAIRS; i++)
 	{
