@@ -492,6 +492,18 @@ static void CG_AddTestLight(void)
 }
 
 
+/*
+=================
+CG_TestGib_f
+=================
+*/
+void CG_TestGib_f(void)
+{
+	// raynorpat: spawn the gibs out in front of the testing player :)
+	VectorCopy(cg.refdef.vieworg, cg.testModelEntity.origin);
+
+	CG_GibPlayer(cg.testModelEntity.origin);
+}
 
 
 //============================================================================

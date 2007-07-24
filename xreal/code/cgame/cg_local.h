@@ -1348,6 +1348,7 @@ void            CG_TestBlend_f(void);
 void            CG_TestOmniLight_f(void);
 void            CG_TestProjLight_f(void);
 void            CG_TestFlashLight_f(void);
+void			CG_TestGib_f(void);
 void            CG_ZoomDown_f(void);
 void            CG_ZoomUp_f(void);
 void            CG_AddBufferedSound(sfxHandle_t sfx);
@@ -1542,7 +1543,6 @@ void            CG_LightningBoltBeam(vec3_t start, vec3_t end);
 void            CG_ScorePlum(int client, vec3_t org, int score);
 
 void            CG_GibPlayer(vec3_t playerOrigin);
-void            CG_BigExplode(vec3_t playerOrigin);
 
 void            CG_Bleed(vec3_t origin, int entityNum);
 
