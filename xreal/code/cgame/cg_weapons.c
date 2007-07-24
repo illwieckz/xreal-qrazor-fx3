@@ -1856,6 +1856,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 		centity_t      *nonPredictedCent;
 		int				boneIndex;
 		vec3_t			flashOrigin;
+		qboolean		addFlash;
 
 		memset(&gun, 0, sizeof(gun));
 
@@ -1865,6 +1866,14 @@ void CG_AddViewWeapon(playerState_t * ps)
 		// HACK: tweak weapon positions
 		switch (weaponNum)
 		{
+			case WP_MACHINEGUN:
+			{
+				VectorMA(gun.origin, cg_gunX.value + 1, cg.refdef.viewaxis[0], gun.origin);
+				VectorMA(gun.origin, cg_gunY.value - 2, cg.refdef.viewaxis[1], gun.origin);
+				VectorMA(gun.origin, (cg_gunZ.value + 1 + fovOffset), cg.refdef.viewaxis[2], gun.origin);
+				break;
+			}
+
 			case WP_SHOTGUN:
 			{
 				VectorMA(gun.origin, cg_gunX.value + 1, cg.refdef.viewaxis[0], gun.origin);
@@ -1911,8 +1920,6 @@ void CG_AddViewWeapon(playerState_t * ps)
 		// transform relative bones to absolute ones required for vertex skinning
 		CG_TransformSkeleton(&gun.skeleton, NULL);
 
-		CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
-
 		// make sure we aren't looking at cg.predictedPlayerEntity for LG
 		nonPredictedCent = &cg_entities[cent->currentState.clientNum];
 
@@ -1924,46 +1931,58 @@ void CG_AddViewWeapon(playerState_t * ps)
 			nonPredictedCent = cent;
 		}
 
+		addFlash = qfalse;
+
 		// add the flash
 		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK)
 		   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
 		{
 			// continuous flash
+			addFlash = qtrue;
 		}
 		else
 		{
 			// impulse flash
 			if(cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
 			{
-				return;
+				addFlash = qfalse;
+			}
+			else
+			{
+				addFlash = qtrue;
 			}
 		}
 
 		// get flash origin
-		boneIndex = trap_R_BoneIndex(gun.hModel, "flash");
-
-		if(boneIndex >= 0 && boneIndex < cent->pe.gun.skeleton.numBones)
+		if(addFlash)
 		{
-			matrix_t modelToWorld;
-
-			MatrixSetupTransform(modelToWorld, gun.axis[0], gun.axis[1], gun.axis[2], gun.origin);
-			MatrixTransformPoint(modelToWorld, gun.skeleton.bones[boneIndex].origin, flashOrigin);
-
 			gun.shaderTime = cg.time / 1000.0f; //cent->pe.gun.frame;
 
-			// add lightning bolt
-			CG_LightningBolt(nonPredictedCent, flashOrigin);
-
-			// add rail trail
-			CG_SpawnRailTrail(cent, flashOrigin);
-
-			// add light
-			if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
+			boneIndex = trap_R_BoneIndex(gun.hModel, "flash");
+	
+			if(boneIndex >= 0 && boneIndex < cent->pe.gun.skeleton.numBones)
 			{
-				trap_R_AddLightToScene(flashOrigin, 300 + (rand() & 31), weapon->flashLightColor[0],
+				matrix_t modelToWorld;
+
+				MatrixSetupTransform(modelToWorld, gun.axis[0], gun.axis[1], gun.axis[2], gun.origin);
+				MatrixTransformPoint(modelToWorld, gun.skeleton.bones[boneIndex].origin, flashOrigin);
+
+				// add lightning bolt
+				CG_LightningBolt(nonPredictedCent, flashOrigin);
+
+				// add rail trail
+				CG_SpawnRailTrail(cent, flashOrigin);
+
+				// add light
+				if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
+				{
+					trap_R_AddLightToScene(flashOrigin, 300 + (rand() & 31), weapon->flashLightColor[0],
 									   weapon->flashLightColor[1], weapon->flashLightColor[2]);
+				}
 			}
 		}
+
+		CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
 	}
 	else
 	{

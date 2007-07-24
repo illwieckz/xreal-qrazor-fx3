@@ -174,13 +174,13 @@ base/sprites/splash.png (optional)
 
 
 code/cgame
-- add support for Doom3 style muzzleflashes
 - improve quad damage effect
 - improve invisible effect with heatHaze
 - finish the Lua powered Quake4 style special effects target_fx system
 - add motion blur and other special effects
 
 code/game
+- change BFG to Quake2 BFG
 - add more extensive Lua scripting support
  - improve game class
  - improve entity class
