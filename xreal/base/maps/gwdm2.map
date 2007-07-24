@@ -40567,7 +40567,7 @@ patchDef3
 {
 "classname" "light"
 "name" "light_4"
-"origin" "32 -256 1920"
+"origin" "112 -328 1920"
 "noshadows" "0"
 "nospecular" "0"
 "nodiffuse" "0"
@@ -40579,8 +40579,8 @@ patchDef3
 "parallel" "1"
 "light_fovX" "30"
 "light_fovY" "30"
-"light_distance" "2000"
-"rotation" "0 0 -1 0 1 0 1 0 0"
+"light_distance" "2500"
+"rotation" "0 -0.0542696 -0.998526 0 0.998526 -0.0542696 1 0 0"
 }
 // entity 56
 {
