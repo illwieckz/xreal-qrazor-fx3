@@ -8,7 +8,7 @@
 
 models/weapons/arms/arm2
 {
-	noselfShadow
+	//noselfShadow
 	noShadows
 	clamp
 

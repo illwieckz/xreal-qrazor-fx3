@@ -47,7 +47,7 @@ models/weapons/shotgun/shotgun_muzzflash
 	deform sprite
 	{
 		forceHighQuality
-		if 		0	//( time + parm4 ) * 6.4 < 1.0
+		if 		( time + parm4 ) * 6.4 < 1.0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
 		scale 		1 / 32 , 1
@@ -63,12 +63,11 @@ models/weapons/shotgun/shotgun_muzzflash2
 	//deform tube
 	{
 		forceHighQuality
-		if 0
+		if ( time + parm4 ) * 5 < 1.0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
 		scale 		1 / 8 , 1
-		scroll 		q2table8[ parm4 * 5] , 0
-		//scroll 		(time - parm4) * 5, 0
+		scroll 		q2table8[ (time + parm4) * 5] , 0
 		clamp
 	}
 }
@@ -79,7 +78,7 @@ models/weapons/shotgun/shotgun_muzzflashb
 	deform sprite
 	{
 		forceHighQuality
-		if 		0 //	( time + parm4 ) * 7 < 1.0
+		if 		( time + parm4 ) * 7 < 1.0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
 		scale 		1 / 32 , 1
@@ -95,7 +94,7 @@ models/weapons/shotgun/shotgun_muzzflash2b
 	//deform tube
 	{
 		forceHighQuality
-		if 		0	//	( time + parm4 ) * 5 < 1.0
+		if 		( time + parm4 ) * 5 < 1.0
 		blend 		add
 		map 		models/weapons/shotgun/shotgun_muzzflash2_strip.tga
 		scale 		1 / 8 , 1
