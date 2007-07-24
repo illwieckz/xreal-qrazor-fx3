@@ -1930,7 +1930,6 @@ extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
 extern cvar_t  *r_specularExponent;
 
-extern cvar_t  *r_fullbright;	// avoid lightmap pass
 extern cvar_t  *r_uiFullScreen;	// ui is running fullscreen
 
 extern cvar_t  *r_logFile;		// number of frames to emit GL logs

@@ -63,7 +63,6 @@ cvar_t         *r_norefresh;
 cvar_t         *r_drawentities;
 cvar_t         *r_drawworld;
 cvar_t         *r_speeds;
-cvar_t         *r_fullbright;
 cvar_t         *r_novis;
 cvar_t         *r_nocull;
 cvar_t         *r_facePlaneCull;
@@ -1379,7 +1378,6 @@ void R_Register(void)
 	// temporary latched variables that can only change over a restart
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);
 	AssertCvarRange(r_displayRefresh, 0, 200, qtrue);
-	r_fullbright = ri.Cvar_Get("r_fullbright", "0", CVAR_LATCH | CVAR_CHEAT);
 	r_mapOverBrightBits = ri.Cvar_Get("r_mapOverBrightBits", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_intensity = ri.Cvar_Get("r_intensity", "1", CVAR_LATCH);
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
@@ -1547,8 +1545,6 @@ void R_Init(void)
 	Com_Memset(&tr, 0, sizeof(tr));
 	Com_Memset(&backEnd, 0, sizeof(backEnd));
 	Com_Memset(&tess, 0, sizeof(tess));
-
-//  Swap_Init();
 
 	if((int)tess.xyz & 15)
 	{
