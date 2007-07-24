@@ -358,3 +358,27 @@ brushDef3
 "origin" "784 0 24"
 "wait" "1"
 }
+// entity 36
+{
+"classname" "holdable_medkit"
+"name" "holdable_medkit_1"
+"origin" "512 128 24"
+}
+// entity 37
+{
+"classname" "holdable_teleporter"
+"name" "holdable_teleporter_1"
+"origin" "576 128 24"
+}
+// entity 38
+{
+"classname" "holdable_invulnerability"
+"name" "holdable_invulnerability_1"
+"origin" "704 128 24"
+}
+// entity 39
+{
+"classname" "holdable_kamikaze"
+"name" "holdable_kamikaze_1"
+"origin" "640 128 24"
+}
