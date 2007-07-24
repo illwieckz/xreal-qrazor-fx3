@@ -40529,20 +40529,19 @@ patchDef3
 {
 "classname" "light"
 "name" "light_4"
-"origin" "112 -328 1920"
+"origin" "32 -256 1920"
 "noshadows" "0"
 "nospecular" "0"
 "nodiffuse" "0"
 "falloff" "0"
-"texture" "lights/defaultpointlight"
 "_color" "1 0.95 0.65"
 "light_radius" "412 490 2000"
 "light_center" "-24 -28 96"
 "parallel" "1"
 "light_fovX" "30"
 "light_fovY" "30"
-"light_distance" "2500"
-"rotation" "0 -0.0542696 -0.998526 0 0.998526 -0.0542696 1 0 0"
+"light_distance" "2000"
+"rotation" "0 0 -1 0 1 0 1 0 0"
 }
 // entity 56
 {
@@ -43836,7 +43835,7 @@ brushDef3
 {
 "classname" "light"
 "name" "light_39"
-"origin" "8 420 -152"
+"origin" "8 408 -152"
 "noshadows" "1"
 "nospecular" "0"
 "nodiffuse" "0"
@@ -43849,7 +43848,7 @@ brushDef3
 {
 "classname" "light"
 "name" "light_40"
-"origin" "56 420 -152"
+"origin" "56 408 -152"
 "noshadows" "1"
 "nospecular" "0"
 "nodiffuse" "0"
