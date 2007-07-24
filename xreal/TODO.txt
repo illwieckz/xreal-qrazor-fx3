@@ -37,8 +37,6 @@ base/models/gibs/skull.md3
 base/models/powerups/armor/armor_red.md3
 base/models/powerups/armor/armor_yel.md3
 base/models/powerups/harvester/harvester.md3 (optional)
-base/models/powerups/holdable/medkit.md3
-base/models/powerups/holdable/teleporter.md3
 base/models/powerups/holdable/kamikaze.md3 (optional)
 base/models/powerups/instant/enviro.md3
 base/models/powerups/instant/enviro_ring.md3
