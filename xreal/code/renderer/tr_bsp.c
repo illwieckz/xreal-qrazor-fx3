@@ -3677,6 +3677,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			indexesOfs = 0;
 			indexesNum = 0;
 
+			ClearBounds(lightSurf->bounds[0], lightSurf->bounds[1]);
+
 			// build triangle indices
 			for(l = k; l < numCaches; l++)
 			{
@@ -3748,6 +3750,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
+
+							AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
 						}
 
 						vertexesNum += cv->numVerts;
@@ -3770,6 +3774,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
+
+							AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
 						}
 
 						vertexesNum += cv->numVerts;
@@ -3792,6 +3798,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
+
+							AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
 						}
 
 						vertexesNum += cv->numVerts;
@@ -4131,11 +4139,11 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 			// megs
 			/*
-			ri.Printf(PRINT_ALL, "light mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
-					  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
-			ri.Printf(PRINT_ALL, "light mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
-					  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
-			*/
+			   ri.Printf(PRINT_ALL, "light mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+			   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+			   ri.Printf(PRINT_ALL, "light mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+			   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+			 */
 		}
 	}
 
@@ -4445,45 +4453,71 @@ static void CalcLightCubeSideBits(trRefLight_t * light)
 	if(light->l.rlType != RL_OMNI)
 		return;
 
-	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	if(glConfig.vertexBufferObjectAvailable && r_vboLighting->integer)
 	{
-		surface = iaCache->surface;
+		srfVBOLightMesh_t *srf;
+		shader_t       *shader;
 
-		if(*surface->data == SF_FACE)
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 		{
-			srfSurfaceFace_t *face;
+			if(iaCache->redundant)
+				continue;
 
-			face = (srfSurfaceFace_t *) surface->data;
+			if(!iaCache->vboLightMesh)
+				continue;
 
-			VectorCopy(face->bounds[0], localBounds[0]);
-			VectorCopy(face->bounds[1], localBounds[1]);
+			srf = iaCache->vboLightMesh;
+			shader = iaCache->shader;
+
+			VectorCopy(srf->bounds[0], localBounds[0]);
+			VectorCopy(srf->bounds[1], localBounds[1]);
+
+			light->shadowLOD = 0;	// important for R_CalcLightCubeSideBits
+			iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, localBounds);
 		}
-		else if(*surface->data == SF_GRID)
+	}
+	else
+	{
+		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 		{
-			srfGridMesh_t  *grid;
+			surface = iaCache->surface;
 
-			grid = (srfGridMesh_t *) surface->data;
+			if(*surface->data == SF_FACE)
+			{
+				srfSurfaceFace_t *face;
 
-			VectorCopy(grid->meshBounds[0], localBounds[0]);
-			VectorCopy(grid->meshBounds[1], localBounds[1]);
+				face = (srfSurfaceFace_t *) surface->data;
+
+				VectorCopy(face->bounds[0], localBounds[0]);
+				VectorCopy(face->bounds[1], localBounds[1]);
+			}
+			else if(*surface->data == SF_GRID)
+			{
+				srfGridMesh_t  *grid;
+
+				grid = (srfGridMesh_t *) surface->data;
+
+				VectorCopy(grid->meshBounds[0], localBounds[0]);
+				VectorCopy(grid->meshBounds[1], localBounds[1]);
+			}
+			else if(*surface->data == SF_TRIANGLES)
+			{
+				srfTriangles_t *tri;
+
+				tri = (srfTriangles_t *) surface->data;
+
+				VectorCopy(tri->bounds[0], localBounds[0]);
+				VectorCopy(tri->bounds[1], localBounds[1]);
+			}
+			else
+			{
+				iaCache->cubeSideBits = CUBESIDE_CLIPALL;
+				continue;
+			}
+
+			light->shadowLOD = 0;	// important for R_CalcLightCubeSideBits
+			iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, localBounds);
 		}
-		else if(*surface->data == SF_TRIANGLES)
-		{
-			srfTriangles_t *tri;
-
-			tri = (srfTriangles_t *) surface->data;
-
-			VectorCopy(tri->bounds[0], localBounds[0]);
-			VectorCopy(tri->bounds[1], localBounds[1]);
-		}
-		else
-		{
-			iaCache->cubeSideBits = CUBESIDE_CLIPALL;
-			continue;
-		}
-
-		light->shadowLOD = 0;	// important for R_CalcLightCubeSideBits
-		iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, localBounds);
 	}
 }
 

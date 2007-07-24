@@ -953,7 +953,10 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 			srf = iaCache->vboLightMesh;
 			shader = iaCache->shader;
 			
-			R_AddLightInteraction(light, (void *) srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+			if(r_shadows->integer == 4)
+				R_AddLightInteraction(light, (void *) srf, shader, 0, NULL, 0, NULL, iaCache->cubeSideBits, IA_DEFAULT);
+			else
+				R_AddLightInteraction(light, (void *) srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
 		}
 	}
 	else

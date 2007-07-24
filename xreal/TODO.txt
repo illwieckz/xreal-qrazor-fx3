@@ -192,7 +192,6 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
-- fix r_vboLighting with shadow mapping
 - use static VBOs for md3 models that only have 1 frame -> killer optimization
 - fix stencil shadow flickering bug
 - check for shader model 3 hardware

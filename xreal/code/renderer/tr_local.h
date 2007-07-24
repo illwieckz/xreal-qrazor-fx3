@@ -1169,6 +1169,9 @@ typedef struct srfVBOLightMesh_s
 {
 	surfaceType_t   surfaceType;
 
+	// culling information
+	vec3_t          bounds[2];
+
 	// triangle definitions
 	int             numIndexes;
 	GLuint          indexesVBO;
