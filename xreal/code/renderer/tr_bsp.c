@@ -3315,13 +3315,21 @@ static void R_RecursiveAddInteractionNode(bspNode_t * node, trRefLight_t * light
 
 	if(node->contents != -1)
 	{
-		if(!onlyCount)
-		{
-			// assign leave and increase leave counter
-			light->leafs[*numLeafs] = node;
-		}
+		vec3_t          worldBounds[2];
 
-		*numLeafs = *numLeafs + 1;
+		VectorCopy(node->mins, worldBounds[0]);
+		VectorCopy(node->maxs, worldBounds[1]);
+
+		if(R_CullLightWorldBounds(light, worldBounds) != CULL_OUT)
+		{
+			if(!onlyCount)
+			{
+				// assign leave and increase leave counter
+				light->leafs[*numLeafs] = node;
+			}
+
+			*numLeafs = *numLeafs + 1;
+		}
 		return;
 	}
 
