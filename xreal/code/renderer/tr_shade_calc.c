@@ -163,7 +163,7 @@ static float GetOpValue(const expOperation_t * op)
 		case OP_PARM4:
 			if(backEnd.currentEntity)
 			{
-				value = backEnd.currentEntity->e.shaderTime;
+				value = -backEnd.currentEntity->e.shaderTime;
 			}
 			else
 			{
