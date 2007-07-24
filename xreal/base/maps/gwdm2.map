@@ -18328,9 +18328,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 -1 0 -312 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
-( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1449
@@ -18351,10 +18351,10 @@ brushDef3
 {
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 1 0 50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1451
@@ -18363,10 +18363,10 @@ brushDef3
 {
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 1 0 124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1452
@@ -18376,9 +18376,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 -8 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 -1 0 -50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 -1 0 -50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1453
@@ -18486,8 +18486,8 @@ brushDef3
 ( 0 -1 0 -312 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( -1 0 0 -624 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( -0.7071067691 -0.7071067691 0 -656.1950683594 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1462
@@ -18508,10 +18508,10 @@ brushDef3
 {
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1464
@@ -18520,10 +18520,10 @@ brushDef3
 {
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1465
@@ -18533,9 +18533,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 -8 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 576 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1466
@@ -19532,8 +19532,8 @@ brushDef3
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 -1 0 -312 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 1 0 0 496 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1549
@@ -19555,9 +19555,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 1 0 0 496 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 1 0 50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1551
@@ -19567,9 +19567,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 1 0 0 496 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 1 0 124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 124 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1552
@@ -19580,8 +19580,8 @@ brushDef3
 ( 0 0 1 -208 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 1 0 0 496 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 -8 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 -1 0 -50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 -1 0 -50 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -544 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1553
@@ -20216,7 +20216,7 @@ brushDef3
 ( -0.0000001343 -1 0 -168.0000762939 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_01" 0 0 0
 ( 1 0 0 696 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 0 0 1 128 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1606
@@ -20228,7 +20228,7 @@ brushDef3
 ( 1 0 0 696 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 0 1 0 136 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 0 0 1 128 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 -1 0 -164 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1607
@@ -20442,9 +20442,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 1 0 0 704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 -72 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1625
@@ -20464,11 +20464,11 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 -1 0 8 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 -1 0 8 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( 1 0 0 704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 -60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 -60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1627
@@ -20478,9 +20478,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 -72 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -1 0 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1628
@@ -20550,9 +20550,9 @@ brushDef3
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 -1 0 8 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( -1 0 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 -60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 -60 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 720 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 1634
@@ -29929,12 +29929,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 208 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -232 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 616 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 168 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 -1 208 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -232 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 616 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 168 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -624 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2390
@@ -29944,9 +29944,9 @@ brushDef3
 ( -0.0000001343 -1 0 -168.0000762939 ) ( ( 0.0078125009 0 -3.3125 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( -1 0 0 -696 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 0 0 -1 0 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 1 0 136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 0 1 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 664 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 0 1 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 664 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( 0.7864537239 -0.2621512413 -0.5592559576 488.6499023438 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
@@ -29957,8 +29957,8 @@ brushDef3
 ( -0.0000001343 -1 0 -168.0000762939 ) ( ( 0.0078125009 0 -3.3125 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 1 0 0 632 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 0 0 -1 0 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 1 0 136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 0 1 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 0 1 -32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( -1 0 0 -664 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( -0.5665097833 -0.4301277697 -0.7028917074 -439.3598022461 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
@@ -29971,8 +29971,8 @@ brushDef3
 ( 0 0 1 -160 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( -1 0 0 -696 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
 ( 1 0 0 632 ) ( ( 0.0078125009 0 -2.6210947037 ) ( 0 0.0078125 1 ) ) "textures/gw_dm2/wall/brick_03" 0 0 0
-( 0 1 0 136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 0 -1 32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 1 0 136 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 0 -1 32 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2393
@@ -30171,12 +30171,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 -1 0 -168 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( -1 0 0 -704 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 -56 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 1 0 0 584 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 0 -1 208 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 -1 0 -168 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( -1 0 0 -704 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 -56 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 1 0 0 584 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 0 -1 208 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2410
@@ -30261,7 +30261,7 @@ brushDef3
 ( 0 1 0 232 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -1 0 0 -624 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( -0.7071067691 -0.7071067691 0 -656.1950683594 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2417
@@ -30272,7 +30272,7 @@ brushDef3
 ( 1 0 0 624 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 232 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -0.7071067691 -0.7071067691 0 -625.0823974609 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2418
@@ -30284,7 +30284,7 @@ brushDef3
 ( 1 0 0 624 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 168 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -1 0 0 -680 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2419
@@ -30295,7 +30295,7 @@ brushDef3
 ( 1 0 0 680 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 168 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -0.7525767088 -0.6585046053 0 -664.528137207 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2420
@@ -30308,7 +30308,7 @@ brushDef3
 ( -1 0 0 -752 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( 0 1 0 88 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -0.7071067691 -0.7071067691 0 -644.8813476563 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2421
@@ -30319,8 +30319,8 @@ brushDef3
 ( 1 0 0 704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 -8 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -1 0 0 -784 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 -1 0 -88 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 -1 0 -88 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2422
@@ -30331,7 +30331,7 @@ brushDef3
 ( 1 0 0 752 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( 0 1 0 88 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
 ( -0.7071067691 -0.7071067691 0 -616.5971069336 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2423
@@ -30339,10 +30339,10 @@ brushDef3
 brushDef3
 {
 ( 0 0 -1 192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/gw_dm2/trim/rust_02" 0 0 0
-( 1 0 0 784 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
-( 0 1 0 -8 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 1 0 0 784 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
+( 0 1 0 -8 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 ( -0.7071067691 -0.7071067691 0 -571.3422851563 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
-( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/hell/bustage" 0 0 0
+( 0 0 1 -256 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_stone/Granit_Rock" 0 0 0
 }
 }
 // brush 2424
