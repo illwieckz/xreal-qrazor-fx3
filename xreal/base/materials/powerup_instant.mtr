@@ -2,9 +2,101 @@
 
 material for instant powerups, rewritten and checked by otty 2007
 
-TODO:  enviro
-
 */
+
+models/powerups/instant/enviro
+{
+	
+	{
+		map models/powerups/instant/enviro.png
+      		
+	}
+	{
+		edgeClamp
+		map gfx/effect/effmap02.png
+      		
+  		red	0.75 + sinTable[time * 2] * 0.4
+    		green 0.75 + sinTable[time * 0.52] * 0.4
+     		blue	0.02 + sinTable[time *0.52] * 0.4
+        		
+          	rotate time * -0.1
+          	blend add
+	}
+}
+
+models/powerups/instant/enviro_ring
+{
+	{
+		edgeClamp
+		map gfx/effect/effmap02.png
+      		
+  		red	0.75 + sinTable[time * 2] * 0.4
+    		green 0.75 + sinTable[time * 0.52] * 0.4
+     		blue	0.02 + sinTable[time *0.52] * 0.4
+        		
+          	rotate time * -0.1
+          	blend add
+	}
+
+	{
+		edgeClamp
+		map gfx/effect/effmap01.png
+		
+        		rotate time * 0.2
+        		
+		blend add
+		
+		red	0.75 + sinTable[time * 2] * 0.4
+      		green 0.75 + sinTable[time * 0.52] * 0.4
+     		blue	0.02 + sinTable[time *0.52] * 0.4
+        	
+	}
+}
+
+
+
+
+models/powerups/instant/enviro_flare
+{
+	deformVertexes autosprite
+	{
+		edgeClamp
+		map gfx/effect/flare01.png
+		blend add
+       		rotate time * 0.3
+		blend add
+		red	0.75 + sinTable[time * 0.52] * 0.4
+      		green 0.75 + sinTable[time * 0.52] * 0.4
+     		blue	0.02 + sinTable[time *0.52] * 0.4
+    	
+	}
+	{
+		edgeClamp
+		map gfx/effect/flare01.png
+		blend add
+       		rotate time * -0.5
+		blend add
+		red	0.75 + sinTable[time * 0.52] * 0.4
+     		green 0.75 + sinTable[time * 0.52] * 0.4
+     		blue	0.02 + sinTable[time *0.52] * 0.4
+     	
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 models/powerups/instant/regen
 {

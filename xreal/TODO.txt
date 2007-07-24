@@ -38,8 +38,6 @@ base/models/powerups/armor/armor_red.md3
 base/models/powerups/armor/armor_yel.md3
 base/models/powerups/harvester/harvester.md3 (optional)
 base/models/powerups/holdable/kamikaze.md3 (optional)
-base/models/powerups/instant/enviro.md3
-base/models/powerups/instant/enviro_ring.md3
 base/models/powerups/obelisk/obelisk.md3 (optional)
 base/models/powerups/orb/orb.md3 (optional)
 base/models/powerups/shield/shield.md3 (optional)
