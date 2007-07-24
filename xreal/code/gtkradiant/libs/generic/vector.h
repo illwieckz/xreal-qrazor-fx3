@@ -5,6 +5,10 @@
 #include <cstddef>
 #include <cmath>
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4244) // possible loss of data
+#endif
+
 template <typename Element>
 class BasicVector2
 {
