@@ -571,6 +571,20 @@ const char     *ValueForKey(const entity_t * ent, const char *key)
 	return "";
 }
 
+qboolean HasKey(const entity_t * ent, const char *key)
+{
+	epair_t        *ep;
+
+	for(ep = ent->epairs; ep; ep = ep->next)
+	{
+		if(!Q_stricmp(ep->key, key))
+		{
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
 vec_t FloatForKey(const entity_t * ent, const char *key)
 {
 	const char     *k;

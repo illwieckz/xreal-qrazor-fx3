@@ -1315,6 +1315,13 @@ qboolean ParseMapEntity(void)
 			Sys_FPrintf(SYS_WRN, "WARNING: entity name '%s' is duplicated by entity %i\n", name, i);
 		}
 	}
+
+	// HACK: check if "model" key has no value
+	if(HasKey(mapEnt, "model") && !model[0])
+	{
+		Sys_FPrintf(SYS_WRN, "WARNING: entity '%s' has empty model key\n", name);
+		SetKeyValue(mapEnt, "model", name);	
+	}
 	
 	#if 1
 	// HACK: convert Doom3's func_static entities with custom models into misc_models

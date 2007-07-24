@@ -106,6 +106,7 @@ void            UnparseEntities(void);
 
 void            SetKeyValue(entity_t * ent, const char *key, const char *value);
 const char     *ValueForKey(const entity_t * ent, const char *key);
+qboolean        HasKey(const entity_t * ent, const char *key);
 
 // will return "" if not present
 
