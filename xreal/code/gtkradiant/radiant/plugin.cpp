@@ -241,6 +241,7 @@ public:
     Preferences_Init();
 
     GlobalFiletypes().addType("sound", "wav", filetype_t("PCM sound files", "*.wav"));
+	GlobalFiletypes().addType("sound", "ogg", filetype_t("Ogg Vorbis sound files", "*.ogg"));
 
     Selection_construct();
     HomePaths_Construct();
