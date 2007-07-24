@@ -1,8 +1,11 @@
-import sys, os, os.path, struct, string, math
+import sys, struct, string, math
+from types import *
 
-import types
+import os
+from os import path
 
-GAMEDIR = '/opt/XreaL/base/'
+GAMEDIR = 'D:/Games/XreaL_testing/base/'
+#GAMEDIR = '/opt/XreaL/base/'
 MAX_QPATH = 64
 
 def asciiz(s):
@@ -29,15 +32,19 @@ def StripModel(path):
 
 # strips file type extension
 def StripExtension(name):
-	if name.find('.') != -1:
-		name = name[:name.find('.')]
+	n = 0
+	best = len(name)
+	while(n != -1):
+		n = name.find('.',n+1)
+		if(n != -1):
+			best = n
+	name = name[0:best]
 	return name
 	
 # strips gamedir
 def StripGamePath(name):
-	if name[0:len(GAMEDIR)] == GAMEDIR:
-		name = name[len(GAMEDIR):len(name)]
-	return name
-
-
-
+	gamepath = GAMEDIR.replace( '\\', '/' )
+	namepath = name.replace( '\\', '/' )
+	if namepath[0:len(gamepath)] == gamepath:
+		namepath= namepath[len(gamepath):len(namepath)]
+	return namepath
