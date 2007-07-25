@@ -173,7 +173,7 @@ void CG_TestBlend_f(void)
 		cg.testModelEntity.oldframe,
 		cg.testModelEntity.frame,
 		1.0 - cg.testModelEntity.backlerp,
-		cg.testGun))
+		qfalse))
 	{
 		CG_Printf("Can't build animation\n");
 		return;
@@ -184,7 +184,7 @@ void CG_TestBlend_f(void)
 		cg.testModelEntity.oldframe,
 		cg.testModelEntity.frame,
 		1.0 - cg.testModelEntity.backlerp,
-		cg.testGun))
+		qfalse))
 	{
 		CG_Printf("Can't build animation2\n");
 		return;
@@ -210,7 +210,7 @@ void CG_TestModelNextFrame_f(void)
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp,
-			cg.testGun))
+			qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
@@ -223,7 +223,7 @@ void CG_TestModelNextFrame_f(void)
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp,
-			cg.testGun))
+			qfalse))
 		{
 			CG_Printf("Can't build animation2\n");
 		}
@@ -251,7 +251,7 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp,
-			cg.testGun))
+			qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
@@ -264,7 +264,7 @@ void CG_TestModelPrevFrame_f(void)
 			cg.testModelEntity.oldframe,
 			cg.testModelEntity.frame,
 			1.0 - cg.testModelEntity.backlerp,
-			cg.testGun))
+			qfalse))
 		{
 			CG_Printf("Can't build animation2\n");
 		}

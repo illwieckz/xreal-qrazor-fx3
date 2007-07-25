@@ -239,7 +239,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 			if(i >= TORSO_GETFLAG && i <= TORSO_NEGATIVE)
 			{
 				animations[i].firstFrame = animations[TORSO_GESTURE].firstFrame;
-				animations[i].frameLerp = animations[TORSO_GESTURE].frameLerp;
+				animations[i].frameTime = animations[TORSO_GESTURE].frameTime;
 				animations[i].initialLerp = animations[TORSO_GESTURE].initialLerp;
 				animations[i].loopFrames = animations[TORSO_GESTURE].loopFrames;
 				animations[i].numFrames = animations[TORSO_GESTURE].numFrames;
@@ -293,7 +293,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 		{
 			fps = 1;
 		}
-		animations[i].frameLerp = 1000 / fps;
+		animations[i].frameTime = 1000 / fps;
 		animations[i].initialLerp = 1000 / fps;
 	}
 
@@ -313,21 +313,21 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 	animations[FLAG_RUN].firstFrame = 0;
 	animations[FLAG_RUN].numFrames = 16;
 	animations[FLAG_RUN].loopFrames = 16;
-	animations[FLAG_RUN].frameLerp = 1000 / 15;
+	animations[FLAG_RUN].frameTime = 1000 / 15;
 	animations[FLAG_RUN].initialLerp = 1000 / 15;
 	animations[FLAG_RUN].reversed = qfalse;
 	// flag not moving or moving slowly
 	animations[FLAG_STAND].firstFrame = 16;
 	animations[FLAG_STAND].numFrames = 5;
 	animations[FLAG_STAND].loopFrames = 0;
-	animations[FLAG_STAND].frameLerp = 1000 / 20;
+	animations[FLAG_STAND].frameTime = 1000 / 20;
 	animations[FLAG_STAND].initialLerp = 1000 / 20;
 	animations[FLAG_STAND].reversed = qfalse;
 	// flag speeding up
 	animations[FLAG_STAND2RUN].firstFrame = 16;
 	animations[FLAG_STAND2RUN].numFrames = 5;
 	animations[FLAG_STAND2RUN].loopFrames = 1;
-	animations[FLAG_STAND2RUN].frameLerp = 1000 / 15;
+	animations[FLAG_STAND2RUN].frameTime = 1000 / 15;
 	animations[FLAG_STAND2RUN].initialLerp = 1000 / 15;
 	animations[FLAG_STAND2RUN].reversed = qtrue;
 	//
@@ -659,7 +659,7 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	{
 		frameRate = 1;
 	}
-	ci->animations[anim].frameLerp = 1000 / frameRate;
+	ci->animations[anim].frameTime = 1000 / frameRate;
 	ci->animations[anim].initialLerp = 1000 / frameRate;
 	
 	if(loop)
@@ -1556,7 +1556,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 
 		// get the next frame based on the animation
 		anim = lf->animation;
-		if(!anim->frameLerp)
+		if(!anim->frameTime)
 		{
 			return;				// shouldn't happen
 		}
@@ -1567,9 +1567,9 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		}
 		else
 		{
-			lf->frameTime = lf->oldFrameTime + anim->frameLerp;
+			lf->frameTime = lf->oldFrameTime + anim->frameTime;
 		}
-		f = (lf->frameTime - lf->animationTime) / anim->frameLerp;
+		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
 		f *= speedScale;		// adjust for haste, etc
 
 		numFrames = anim->numFrames;

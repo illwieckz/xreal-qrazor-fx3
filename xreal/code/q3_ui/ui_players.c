@@ -426,9 +426,9 @@ static void UI_RunLerpFrame(playerInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		}
 		else
 		{
-			lf->frameTime = lf->oldFrameTime + anim->frameLerp;
+			lf->frameTime = lf->oldFrameTime + anim->frameTime;
 		}
-		f = (lf->frameTime - lf->animationTime) / anim->frameLerp;
+		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
 		if(f >= anim->numFrames)
 		{
 			f -= anim->numFrames;
@@ -1162,7 +1162,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 		{
 			fps = 1;
 		}
-		animations[i].frameLerp = 1000 / fps;
+		animations[i].frameTime = 1000 / fps;
 		animations[i].initialLerp = 1000 / fps;
 	}
 

@@ -573,7 +573,7 @@ typedef struct animation_s
 	int             firstFrame;
 	int             numFrames;
 	int             loopFrames;	// 0 to numFrames
-	int             frameLerp;	// msec between frames
+	int             frameTime;	// msec between frames
 	int             initialLerp;	// msec to get to first frame
 	int             reversed;	// true if animation is reversed
 	int             flipflop;	// true if animation should flipflop back to base

@@ -145,6 +145,7 @@ typedef struct
 	int             animationNumber;	// may include ANIM_TOGGLEBIT
 	animation_t    *animation;
 	int             animationTime;	// time when the first frame of the animation will be exact
+	float			animationScale;
 } lerpFrame_t;
 
 
