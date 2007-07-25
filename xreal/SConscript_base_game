@@ -15,6 +15,7 @@ game_src = [
 'code/game/bg_misc.c',
 'code/game/bg_pmove.c',
 'code/game/bg_slidemove.c',
+'code/game/bg_xreal.c',
 'code/game/g_active.c',
 'code/game/g_arenas.c',
 'code/game/g_bot.c',
