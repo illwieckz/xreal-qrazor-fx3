@@ -1279,9 +1279,9 @@ extern vmCvar_t cg_drawBloom;
 extern vmCvar_t cg_drawRotoscope;
 extern vmCvar_t cg_drawPlayerAABB;
 
-extern vmCvar_t server_airControl;
-extern vmCvar_t server_fixedPmove;
-extern vmCvar_t server_fixedPmoveFPS;
+extern vmCvar_t pm_airControl;
+extern vmCvar_t pm_fixedPmove;
+extern vmCvar_t pm_fixedPmoveFPS;
 
 extern vmCvar_t cg_delag;
 extern vmCvar_t cg_projectileNudge;

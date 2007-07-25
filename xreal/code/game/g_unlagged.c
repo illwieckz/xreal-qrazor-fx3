@@ -303,7 +303,7 @@ void G_DoTimeShiftFor(gentity_t * ent)
 	}
 
 	// if it's enabled server-side and the client wants it or wants it for this weapon
-	if(server_delagHitscan.integer && (ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag))
+	if(g_delag.integer && (ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag))
 	{
 		// do the full lag compensation, except what the client nudges
 		time = ent->client->attackTime + ent->client->pers.cmdTimeNudge;

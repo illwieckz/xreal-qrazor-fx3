@@ -941,13 +941,13 @@ extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
 
-extern vmCvar_t server_airControl;
-extern vmCvar_t server_fixedPmove;
-extern vmCvar_t server_fixedPmoveFPS;
-extern vmCvar_t server_delagHitscan;
+extern vmCvar_t pm_airControl;
+extern vmCvar_t pm_fixedPmove;
+extern vmCvar_t pm_fixedPmoveFPS;
 
 // this is for convenience - using "sv_fps.integer" is nice :)
 extern vmCvar_t sv_fps;
+extern vmCvar_t g_delag;
 
 // r1:
 extern vmCvar_t g_accountsFile;

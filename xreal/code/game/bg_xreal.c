@@ -32,7 +32,7 @@ float knockback_z = 40.0f;
 
 // XreaL Movement Physics
 float pm_airStopAccelerate = 2.5f;
-float pm_airControl = 150.0f;
+float pm_airControlAmount = 150.0f;
 float pm_strafeAccelerate = 70.0f;
 float pm_wishSpeed = 30.0f;
 
@@ -51,7 +51,7 @@ void PM_Aircontrol(pmove_t *pm, vec3_t wishdir, float wishspeed)
 
 	dot = DotProduct(pm->ps->velocity,wishdir);
 	k = 32; 
-	k *= pm_airControl * dot * dot * pml.frametime;
+	k *= pm_airControlAmount * dot * dot * pml.frametime;
 
 	if(dot > 0)
 	{
@@ -60,7 +60,7 @@ void PM_Aircontrol(pmove_t *pm, vec3_t wishdir, float wishspeed)
 			pm->ps->velocity[i] = pm->ps->velocity[i] * speed + wishdir[i] * k;
 		VectorNormalize(pm->ps->velocity);
 	}
-	
+
 	for(i = 0; i < 2; i++) 
 		pm->ps->velocity[i] *= speed;
 

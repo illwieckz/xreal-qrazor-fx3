@@ -20,12 +20,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 // cg_predict.c -- this file generates cg.predictedPlayerState by either
 // interpolating between snapshots from the server or locally predicting
 // ahead the client's movement.
 // It also handles local physics interaction, like fragments bouncing off walls
-
 #include "cg_local.h"
 
 static pmove_t  cg_pmove;
@@ -813,15 +812,15 @@ void CG_PredictPlayerState(void)
 		// when it actually inflicts damage
 		cg_pmove.gauntletHit = qfalse;
 
-		cg_pmove.airControl = server_airControl.integer;
+		cg_pmove.airControl = pm_airControl.integer;
 
-		if(server_fixedPmoveFPS.integer < 60)
-			trap_Cvar_Set("server_fixedPmoveFPS", "60");
-		else if(server_fixedPmoveFPS.integer > 333)
-			trap_Cvar_Set("server_fixedPmoveFPS", "333");
+		if(pm_fixedPmoveFPS.integer < 60)
+			trap_Cvar_Set("pm_fixedPmoveFPS", "60");
+		else if(pm_fixedPmoveFPS.integer > 333)
+			trap_Cvar_Set("pm_fixedPmoveFPS", "333");
 
-		cg_pmove.fixedPmove = server_fixedPmove.integer;
-		cg_pmove.fixedPmoveFPS = server_fixedPmoveFPS.integer;
+		cg_pmove.fixedPmove = pm_fixedPmove.integer;
+		cg_pmove.fixedPmoveFPS = pm_fixedPmoveFPS.integer;
 
 		if(cg_optimizePrediction.integer)
 		{

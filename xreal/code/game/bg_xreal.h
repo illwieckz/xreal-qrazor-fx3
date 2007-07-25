@@ -28,7 +28,7 @@ extern float knockback_z;
 
 // Player Movement Physics
 extern float pm_airStopAccelerate;
-extern float pm_airControl;
+extern float pm_airControlAmount;
 extern float pm_strafeAccelerate;
 extern float pm_wishSpeed;
 

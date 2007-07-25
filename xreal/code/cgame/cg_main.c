@@ -187,9 +187,9 @@ vmCvar_t        cg_drawRotoscope;
 vmCvar_t		cg_drawPlayerAABB;
 
 // these cvars are shared accross both games
-vmCvar_t		server_airControl;
-vmCvar_t		server_fixedPmove;
-vmCvar_t		server_fixedPmoveFPS;
+vmCvar_t		pm_airControl;
+vmCvar_t		pm_fixedPmove;
+vmCvar_t		pm_fixedPmoveFPS;
 
 vmCvar_t		cg_delag;
 vmCvar_t		cg_projectileNudge;
@@ -337,9 +337,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
 
 	// these cvars are shared accross both games
-	{&server_airControl, "server_airControl", "0", 0},
-	{&server_fixedPmove, "server_fixedPmove", "1", 0}, 
-	{&server_fixedPmoveFPS, "server_fixedPmoveFPS", "125", 0}, 
+	{&pm_airControl, "pm_airControl", "0", 0},
+	{&pm_fixedPmove, "pm_fixedPmove", "1", 0}, 
+	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0}, 
 
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},

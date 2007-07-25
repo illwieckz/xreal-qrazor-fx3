@@ -97,13 +97,13 @@ vmCvar_t        g_proxMineTimeout;
 #endif
 
 // these cvars are shared accross both games
-vmCvar_t		server_delagHitscan;
-vmCvar_t		server_airControl;
-vmCvar_t		server_fixedPmove;
-vmCvar_t		server_fixedPmoveFPS;
+vmCvar_t		pm_airControl;
+vmCvar_t		pm_fixedPmove;
+vmCvar_t		pm_fixedPmoveFPS;
 
 // this is for convenience - using "sv_fps.integer" is nice :)
 vmCvar_t		sv_fps;
+vmCvar_t		g_delag;
 
 // r1:
 vmCvar_t        g_accountsFile;
@@ -188,17 +188,18 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse},
 	{&g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse},
 #endif
+
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 
 	// these cvars are shared accross both games
-	{&server_delagHitscan, "server_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
-	{&server_airControl, "server_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{&server_fixedPmove, "server_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
-	{&server_fixedPmoveFPS, "server_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
+	{&pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{&pm_fixedPmove, "pm_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
+	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
 
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
+	{&g_delag, "g_delag", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 
 	// r1
 	{&g_accountsFile, "g_accountsFile", "accounts", 0, 0},
@@ -401,10 +402,10 @@ void G_RegisterCvars(void)
 		trap_Cvar_Set("g_gametype", "0");
 	}
 
-	if(server_fixedPmoveFPS.integer < 60)  
-		trap_Cvar_Set("server_fixedPmoveFPS", "60"); 
-	else if(server_fixedPmoveFPS.integer > 333) 
-		trap_Cvar_Set("server_fixedPmoveFPS", "333"); 
+	if(pm_fixedPmoveFPS.integer < 60)  
+		trap_Cvar_Set("pm_fixedPmoveFPS", "60"); 
+	else if(pm_fixedPmoveFPS.integer > 333) 
+		trap_Cvar_Set("pm_fixedPmoveFPS", "333"); 
 
 	level.warmupModificationCount = g_warmup.modificationCount;
 }
