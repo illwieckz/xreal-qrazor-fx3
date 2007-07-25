@@ -41,7 +41,8 @@ QuakeII: Lost Marine Team
 Thearrel "Kiltron" McKinney - granted permission to use the weapon models, Thank You !
 Jim "Revility" Kern  http://www.art.atomicarmadillo.com/
  - machinegun model
- - super shotgun model
+ - super shotgun model used as shotgun
+ - shotgun model used as railgun
 
 
 OpenArena Team

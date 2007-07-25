@@ -1,60 +1,37 @@
 
-models/weapons2/railgun/f_railgun2
+
+models/weapons/railgun/railgun
 {
-	sort additive
-	cull disable
+
+	noShadows
+//  noselfShadow
+//	unsmoothedTangents
+
+    diffusemap		models/weapons/railgun/v_railgun_d.tga
 	{
-		map	models/weapons2/railgun/f_railgun.tga
-		//map	models/weapons2/railgun/f_railgun2.tga
-		blendfunc GL_ONE GL_ONE
-		//rgbgen entity
+		blend bumpmap
+        map  			addnormals(models/weapons/railgun/v_railgun_local.tga, heightmap(models/weapons/railgun/v_railgun_h.tga, 5 ) ) 
+	}
+    specularmap	 	models/weapons/railgun/v_railgun_s.tga
+	{
+		map			models/weapons/railgun/v_railgun_add.tga
+		blend 		add
+		rgb			q2flickertable [ time * 4 ]
 	}
 }
 
-models/weapons2/railgun/railgun1
+models/weapons/rail/railgun_world
 {
-	{
-		blend diffuseMap
-		map models/weapons2/railgun/railgun1.tga
-		rgbGen lightingDiffuse
-	}
-	bumpMap models/weapons2/railgun/railgun1_n.tga
-	specularMap models/weapons2/railgun/railgun1_s.tga
-}
+	ricochet
+    //noselfShadow
+	//smoothedTangents
 
-models/weapons2/railgun/railgun2
-{
-	sort additive
-	cull disable
+    diffusemap	 	models/weapons/railgun/w_railgun_d.tga
+	bumpmap      	models/weapons/railgun/w_railgun_local.tga
+	specularmap	 	models/weapons/railgun/w_railgun_s.tga
 	{
-		map	models/weapons2/railgun/railgun2_glow.tga
-		blendfunc GL_ONE GL_ONE
-		rgbGen identity	// entity
-	}
-}
-
-models/weapons2/railgun/railgun3
-{
-	{
-		blend diffuseMap
-		map	models/weapons2/railgun/railgun3.tga
-		rgbGen lightingDiffuse
-	}
-	bumpMap models/weapons2/railgun/railgun3_n.tga
-	specularMap models/weapons2/railgun/railgun3_s.tga
-
-	{
-		map	models/weapons2/railgun/railgun3_glow.tga
-		blendfunc GL_ONE GL_ONE
-		rgbGen identity	// entity
-	}
-}
-
-models/weapons2/railgun/railgun4
-{
-	{
-		map models/weapons2/railgun/railgun4.tga
-		tcMod scroll 0 1
-		rgbGen identity	// entity
+		map			models/weapons/railgun/w_railgun_add.tga
+		blend			add
+		rgb			q2flickertable [ time * 4 ]
 	}
 }
