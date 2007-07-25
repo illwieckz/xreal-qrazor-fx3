@@ -12,7 +12,7 @@ this license as listed below.
 
 XreaL Media License
 ===================
-The media is licensed under several Creative Commons licenses with a few exceptions.
+The media is licensed under All Rights Reserved with a few exceptions.
 Each file has Subversion properties that tell you the license and who holds the copyright.
 
 To keep track of all artists and contributors, we use Subversion Properties for each file.
@@ -35,23 +35,7 @@ Properties on 'base/sound/misc/menu1.wav':
   svn:copyright : (c) 2006 young_daddy
 
 
-Most files use a Creative Commons license and a few use the GPL.
-Used CC licenses are listed below:
-
-Creative Commons Sampling Plus 1.0
-http://creativecommons.org/licenses/sampling+/1.0/
-
-Creative Commons Attribution-NonCommercial-ShareAlike 2.5
-http://creativecommons.org/licenses/by-nc-sa/2.5/
-
-Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
-http://creativecommons.org/licenses/by-nc-sa/3.0/
-
-Creative Commons Attribution-ShareAlike 2.5
-http://creativecommons.org/licenses/by-sa/2.5/
-
-Creative Commons Attribution 2.5
-http://creativecommons.org/licenses/by/2.5/
+See MEDIA.txt for a listing of the individual copyrights and licenses of media files in the XreaL/base/ dir.
 
 
 
