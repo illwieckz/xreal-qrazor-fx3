@@ -76,7 +76,7 @@ models/weapons/machinegun/machinegun_muzzflashb
 		map 		models/weapons/machinegun/machinegun_muzzflash_strip.tga
 		scale 		1 / 12 , 1
 		scroll 		q2table12[ (time + parm4) * 7 ] , 0
-		rotate		rotate90[ parm5 ]
+		rotate		q2rotate90[ parm5 ]
 	}
 }
 

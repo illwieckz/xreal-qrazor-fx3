@@ -8,8 +8,8 @@ models/weapons/shotgun/shotgun
 {
 
 	noShadows
-	noselfShadow
-	unsmoothedTangents
+	//noselfShadow
+	//unsmoothedTangents
 	
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	{
@@ -23,8 +23,8 @@ models/weapons/shotgun/q2_w_supershotgun01
 {
 
 	noShadows
-	noselfShadow
-	unsmoothedTangents
+	//noselfShadow
+	//unsmoothedTangents
 	
 	diffusemap		models/weapons/shotgun/shotgun_d.tga
 	normalmap		addnormals(models/weapons/shotgun/shotgun_local.tga, heightmap(models/weapons/shotgun/shotgun_h.tga, 5 ) )

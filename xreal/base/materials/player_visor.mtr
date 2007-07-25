@@ -4,7 +4,6 @@ models/players/visor/visor
 	{
 		stage diffuseMap
 		map models/players/visor/red.tga
-		rgbGen lightingDiffuse
 	}
 	{
 		stage bumpMap
@@ -21,7 +20,6 @@ models/players/visor/red
 	{
 		stage diffuseMap
 		map models/players/visor/red.tga
-		rgbGen lightingDiffuse
 	}
 	{
 		stage bumpMap
@@ -38,7 +36,6 @@ models/players/visor/blue
 	{
 		stage diffuseMap
 		map models/players/visor/blue.tga
-		rgbGen lightingDiffuse
 	}
 	{
 		stage bumpMap
@@ -55,7 +52,6 @@ models/players/visor/zindahsh
 	{
 		stage diffuseMap
 		map models/players/visor/zindahsh.tga
-		rgbGen lightingDiffuse
 	}
 	{
 		stage bumpMap
