@@ -20,8 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
 
+// g_main.c
 #include "g_local.h"
 
 level_locals_t  level;
@@ -82,13 +82,6 @@ vmCvar_t        g_smoothClients;
 vmCvar_t        g_rankings;
 vmCvar_t        g_listEntity;
 
-vmCvar_t		cg_fixedPmove;
-vmCvar_t		cg_fixedPmoveFPS;
-
-// this is for convenience - using "sv_fps.integer" is nice :)
-vmCvar_t		sv_fps;
-vmCvar_t		g_delagHitscan;
-
 #ifdef MISSIONPACK
 vmCvar_t        g_obeliskHealth;
 vmCvar_t        g_obeliskRegenPeriod;
@@ -102,6 +95,15 @@ vmCvar_t        g_enableDust;
 vmCvar_t        g_enableBreath;
 vmCvar_t        g_proxMineTimeout;
 #endif
+
+// these cvars are shared accross both games
+vmCvar_t		server_delagHitscan;
+vmCvar_t		server_airControl;
+vmCvar_t		server_fixedPmove;
+vmCvar_t		server_fixedPmoveFPS;
+
+// this is for convenience - using "sv_fps.integer" is nice :)
+vmCvar_t		sv_fps;
 
 // r1:
 vmCvar_t        g_accountsFile;
@@ -189,12 +191,14 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 
-	{&cg_fixedPmove, "cg_fixedPmove", "1", CVAR_SYSTEMINFO}, 
-	{&cg_fixedPmoveFPS, "cg_fixedPmoveFPS", "125", CVAR_SYSTEMINFO}, 
+	// these cvars are shared accross both games
+	{&server_delagHitscan, "server_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+	{&server_airControl, "server_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{&server_fixedPmove, "server_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
+	{&server_fixedPmoveFPS, "server_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
 
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
-	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 
 	// r1
 	{&g_accountsFile, "g_accountsFile", "accounts", 0, 0},
@@ -397,10 +401,10 @@ void G_RegisterCvars(void)
 		trap_Cvar_Set("g_gametype", "0");
 	}
 
-	if(cg_fixedPmoveFPS.integer < 60)  
-		trap_Cvar_Set("cg_fixedPmoveFPS", "60"); 
-	else if(cg_fixedPmoveFPS.integer > 333) 
-		trap_Cvar_Set("cg_fixedPmoveFPS", "333"); 
+	if(server_fixedPmoveFPS.integer < 60)  
+		trap_Cvar_Set("server_fixedPmoveFPS", "60"); 
+	else if(server_fixedPmoveFPS.integer > 333) 
+		trap_Cvar_Set("server_fixedPmoveFPS", "333"); 
 
 	level.warmupModificationCount = g_warmup.modificationCount;
 }

@@ -20,11 +20,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
-// g_local.h -- local definitions for game module
 
+// g_local.h -- local definitions for game module
 #include "q_shared.h"
 #include "bg_public.h"
+#include "bg_xreal.h"
 #include "g_public.h"
 
 //==================================================================
@@ -941,12 +941,13 @@ extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
 
-extern vmCvar_t cg_fixedPmove;
-extern vmCvar_t cg_fixedPmoveFPS;
+extern vmCvar_t server_airControl;
+extern vmCvar_t server_fixedPmove;
+extern vmCvar_t server_fixedPmoveFPS;
+extern vmCvar_t server_delagHitscan;
 
 // this is for convenience - using "sv_fps.integer" is nice :)
 extern vmCvar_t sv_fps;
-extern vmCvar_t g_delagHitscan;
 
 // r1:
 extern vmCvar_t g_accountsFile;

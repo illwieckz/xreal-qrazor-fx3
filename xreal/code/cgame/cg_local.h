@@ -20,12 +20,12 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
+// cg_local.h
 #include "../game/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
-
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
@@ -1172,7 +1172,7 @@ typedef struct
 	// media
 	cgMedia_t       media;
 
-	// this will be set to the server's g_delagHitscan
+	// this will be set to the server's server_delagHitscan
 	int				delagHitscan;
 } cgs_t;
 
@@ -1278,8 +1278,9 @@ extern vmCvar_t cg_drawBloom;
 extern vmCvar_t cg_drawRotoscope;
 extern vmCvar_t cg_drawPlayerAABB;
 
-extern vmCvar_t cg_fixedPmove;
-extern vmCvar_t cg_fixedPmoveFPS;
+extern vmCvar_t server_airControl;
+extern vmCvar_t server_fixedPmove;
+extern vmCvar_t server_fixedPmoveFPS;
 
 extern vmCvar_t cg_delag;
 extern vmCvar_t cg_projectileNudge;

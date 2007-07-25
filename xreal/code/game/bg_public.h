@@ -177,6 +177,7 @@ typedef struct
 	usercmd_t       cmd;
 	int             tracemask;	// collide against these types of surfaces
 	int             debugLevel;	// if set, diagnostic output will be printed
+	int             airControl;	// if set, air control will be allowed
 	qboolean        noFootsteps;	// if the game is setup for no footsteps by the server
 	qboolean        gauntletHit;	// true if a gauntlet attack would actually hit something
 

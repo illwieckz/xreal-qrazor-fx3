@@ -286,6 +286,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\game\bg_xreal.c"
+				>
+			</File>
+			<File
 				RelativePath="cg_consolecmds.c"
 				>
 				<FileConfiguration
@@ -871,6 +875,10 @@
 			>
 			<File
 				RelativePath="..\game\bg_public.h"
+				>
+			</File>
+			<File
+				RelativePath="..\game\bg_xreal.h"
 				>
 			</File>
 			<File

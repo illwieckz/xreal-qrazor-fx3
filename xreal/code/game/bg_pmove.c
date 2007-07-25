@@ -20,13 +20,13 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 // bg_pmove.c -- both games player movement code
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
-
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
+#include "bg_xreal.h"
 
 pmove_t        *pm;
 pml_t           pml;
@@ -37,23 +37,21 @@ float           pm_duckScale = 0.25f;
 float           pm_swimScale = 0.50f;
 float           pm_wadeScale = 0.70f;
 
-float           pm_accelerate = 10.0f;
+float           pm_accelerate = 15.0f;
 float           pm_airaccelerate = 1.0f;
 float           pm_wateraccelerate = 4.0f;
 float           pm_flyaccelerate = 8.0f;
 
-float           pm_friction = 6.0f;
+float           pm_friction = 8.0f;
 float           pm_waterfriction = 1.0f;
 float           pm_flightfriction = 3.0f;
 float           pm_spectatorfriction = 5.0f;
 
 int             c_pmove = 0;
 
-
 /*
 ===============
 PM_AddEvent
-
 ===============
 */
 void PM_AddEvent(int newEvent)
@@ -151,7 +149,6 @@ static void PM_ForceLegsAnim(int anim)
 	PM_StartLegsAnim(anim);
 }
 
-
 /*
 ==================
 PM_ClipVelocity
@@ -182,7 +179,6 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 		out[i] = in[i] - change;
 	}
 }
-
 
 /*
 ==================
@@ -261,7 +257,6 @@ static void PM_Friction(void)
 	vel[2] = vel[2] * newspeed;
 }
 
-
 /*
 ==============
 PM_Accelerate
@@ -313,8 +308,6 @@ static void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 #endif
 }
 
-
-
 /*
 ============
 PM_CmdScale
@@ -349,7 +342,6 @@ static float PM_CmdScale(usercmd_t * cmd)
 
 	return scale;
 }
-
 
 /*
 ================
@@ -411,7 +403,6 @@ static void PM_SetMovementDir(void)
 		}
 	}
 }
-
 
 /*
 =============
@@ -515,7 +506,6 @@ static qboolean PM_CheckWaterJump(void)
 
 //============================================================================
 
-
 /*
 ===================
 PM_WaterJumpMove
@@ -541,7 +531,6 @@ static void PM_WaterJumpMove(void)
 /*
 ===================
 PM_WaterMove
-
 ===================
 */
 static void PM_WaterMove(void)
@@ -557,6 +546,7 @@ static void PM_WaterMove(void)
 		PM_WaterJumpMove();
 		return;
 	}
+
 #if 0
 	// jump = head for surface
 	if(pm->cmd.upmove >= 10)
@@ -581,9 +571,8 @@ static void PM_WaterMove(void)
 	PM_Friction();
 
 	scale = PM_CmdScale(&pm->cmd);
-	//
+
 	// user intentions
-	//
 	if(!scale)
 	{
 		wishvel[0] = 0;
@@ -654,9 +643,8 @@ static void PM_FlyMove(void)
 	PM_Friction();
 
 	scale = PM_CmdScale(&pm->cmd);
-	//
+
 	// user intentions
-	//
 	if(!scale)
 	{
 		wishvel[0] = 0;
@@ -681,11 +669,9 @@ static void PM_FlyMove(void)
 	PM_StepSlideMove(qfalse);
 }
 
-
 /*
 ===================
 PM_AirMove
-
 ===================
 */
 static void PM_AirMove(void)
@@ -697,6 +683,7 @@ static void PM_AirMove(void)
 	float           wishspeed;
 	float           scale;
 	usercmd_t       cmd;
+	float			accel, wishspeed2;
 
 	PM_Friction();
 
@@ -725,8 +712,22 @@ static void PM_AirMove(void)
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
+	wishspeed2 = wishspeed;
+	if(DotProduct(pm->ps->velocity, wishdir) < 0)
+		accel = pm_airStopAccelerate;
+	else
+		accel = pm_airaccelerate;
+	if(pm->ps->movementDir == 2 || pm->ps->movementDir == 6)
+	{
+		if(wishspeed > pm_wishSpeed)
+			wishspeed = pm_wishSpeed;	
+		accel = pm_strafeAccelerate;
+	}
+
 	// not on ground, so little effect on velocity
-	PM_Accelerate(wishdir, wishspeed, pm_airaccelerate);
+	PM_Accelerate(wishdir, wishspeed, accel);
+	if(pm->airControl)
+		PM_Aircontrol(pm, wishdir, wishspeed2);
 
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity
@@ -752,7 +753,6 @@ static void PM_AirMove(void)
 /*
 ===================
 PM_GrappleMove
-
 ===================
 */
 static void PM_GrappleMove(void)
@@ -779,7 +779,6 @@ static void PM_GrappleMove(void)
 /*
 ===================
 PM_WalkMove
-
 ===================
 */
 static void PM_WalkMove(void)
@@ -799,7 +798,6 @@ static void PM_WalkMove(void)
 		PM_WaterMove();
 		return;
 	}
-
 
 	if(PM_CheckJump())
 	{
@@ -910,7 +908,6 @@ static void PM_WalkMove(void)
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
 }
 
-
 /*
 ==============
 PM_DeadMove
@@ -939,7 +936,6 @@ static void PM_DeadMove(void)
 		VectorScale(pm->ps->velocity, forward, pm->ps->velocity);
 	}
 }
-
 
 /*
 ===============
@@ -1023,7 +1019,6 @@ static int PM_FootstepForSurface(void)
 	}
 	return EV_FOOTSTEP;
 }
-
 
 /*
 =================
@@ -1178,7 +1173,6 @@ static int PM_CorrectAllSolid(trace_t * trace)
 	return qfalse;
 }
 
-
 /*
 =============
 PM_GroundTraceMissed
@@ -1224,7 +1218,6 @@ static void PM_GroundTraceMissed(void)
 	pml.groundPlane = qfalse;
 	pml.walking = qfalse;
 }
-
 
 /*
 =============
@@ -1336,10 +1329,11 @@ static void PM_GroundTrace(void)
 	PM_AddTouchEnt(trace.entityNum);
 }
 
-
 /*
 =============
-PM_SetWaterLevel	FIXME: avoid this twice?  certainly if not moving
+PM_SetWaterLevel
+
+FIXME: avoid this twice?  certainly if not moving
 =============
 */
 static void PM_SetWaterLevel(void)
@@ -1349,9 +1343,7 @@ static void PM_SetWaterLevel(void)
 	int             sample1;
 	int             sample2;
 
-	//
 	// get waterlevel, accounting for ducking
-	//
 	pm->waterlevel = 0;
 	pm->watertype = 0;
 
@@ -1380,7 +1372,6 @@ static void PM_SetWaterLevel(void)
 			}
 		}
 	}
-
 }
 
 /*
@@ -1471,10 +1462,8 @@ static void PM_Footsteps(void)
 	int             old;
 	qboolean        footstep;
 
-	//
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
-	//
 	pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
 
 	if(pm->ps->groundEntityNum == ENTITYNUM_NONE)
@@ -1509,7 +1498,6 @@ static void PM_Footsteps(void)
 		}
 		return;
 	}
-
 
 	footstep = qfalse;
 
@@ -1593,7 +1581,6 @@ static void PM_Footsteps(void)
 		else if(pm->waterlevel == 3)
 		{
 			// no sound when completely underwater
-
 		}
 	}
 }
@@ -1606,40 +1593,33 @@ Generate sound events for entering and leaving water
 ==============
 */
 static void PM_WaterEvents(void)
-{								// FIXME?
-	//
+{
+	// FIXME?
+
 	// if just entered a water volume, play a sound
-	//
 	if(!pml.previous_waterlevel && pm->waterlevel)
 	{
 		PM_AddEvent(EV_WATER_TOUCH);
 	}
 
-	//
 	// if just completely exited a water volume, play a sound
-	//
 	if(pml.previous_waterlevel && !pm->waterlevel)
 	{
 		PM_AddEvent(EV_WATER_LEAVE);
 	}
 
-	//
 	// check for head just going under water
-	//
 	if(pml.previous_waterlevel != 3 && pm->waterlevel == 3)
 	{
 		PM_AddEvent(EV_WATER_UNDER);
 	}
 
-	//
 	// check for head just coming out of water
-	//
 	if(pml.previous_waterlevel == 3 && pm->waterlevel != 3)
 	{
 		PM_AddEvent(EV_WATER_CLEAR);
 	}
 }
-
 
 /*
 ===============
@@ -1669,7 +1649,6 @@ static void PM_BeginWeaponChange(int weapon)
 	PM_StartTorsoAnim(TORSO_DROP);
 }
 
-
 /*
 ===============
 PM_FinishWeaponChange
@@ -1696,11 +1675,9 @@ static void PM_FinishWeaponChange(void)
 	PM_StartTorsoAnim(TORSO_RAISE);
 }
 
-
 /*
 ==============
 PM_TorsoAnimation
-
 ==============
 */
 static void PM_TorsoAnimation(void)
@@ -1718,7 +1695,6 @@ static void PM_TorsoAnimation(void)
 		return;
 	}
 }
-
 
 /*
 ==============
@@ -1773,7 +1749,6 @@ static void PM_Weapon(void)
 	{
 		pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
 	}
-
 
 	// make weapon function
 	if(pm->ps->weaponTime > 0)
@@ -1932,7 +1907,6 @@ static void PM_Weapon(void)
 PM_Animate
 ================
 */
-
 static void PM_Animate(void)
 {
 	if(pm->cmd.buttons & BUTTON_GESTURE)
@@ -1995,7 +1969,6 @@ static void PM_Animate(void)
 #endif
 	}
 }
-
 
 /*
 ================
@@ -2081,9 +2054,7 @@ void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd)
 		}
 		ps->viewangles[i] = SHORT2ANGLE(temp);
 	}
-
 }
-
 
 /*
 ================
@@ -2348,7 +2319,6 @@ void PmoveSingle(pmove_t * pmove)
 		SnapVector(pm->ps->velocity);
 	}
 }
-
 
 /*
 ================

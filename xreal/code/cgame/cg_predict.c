@@ -813,13 +813,15 @@ void CG_PredictPlayerState(void)
 		// when it actually inflicts damage
 		cg_pmove.gauntletHit = qfalse;
 
-		if(cg_fixedPmoveFPS.integer < 60)
-			trap_Cvar_Set("cg_fixedPmoveFPS", "60");
-		else if(cg_fixedPmoveFPS.integer > 333)
-			trap_Cvar_Set("cg_fixedPmoveFPS", "333");
+		cg_pmove.airControl = server_airControl.integer;
 
-		cg_pmove.fixedPmove = cg_fixedPmove.integer;
-		cg_pmove.fixedPmoveFPS = cg_fixedPmoveFPS.integer;
+		if(server_fixedPmoveFPS.integer < 60)
+			trap_Cvar_Set("server_fixedPmoveFPS", "60");
+		else if(server_fixedPmoveFPS.integer > 333)
+			trap_Cvar_Set("server_fixedPmoveFPS", "333");
+
+		cg_pmove.fixedPmove = server_fixedPmove.integer;
+		cg_pmove.fixedPmoveFPS = server_fixedPmoveFPS.integer;
 
 		if(cg_optimizePrediction.integer)
 		{

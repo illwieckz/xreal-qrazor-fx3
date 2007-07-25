@@ -20,7 +20,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 // cg_main.c -- initialization and primary entry point for cgame
 #include "cg_local.h"
 
@@ -186,8 +186,10 @@ vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
 vmCvar_t		cg_drawPlayerAABB;
 
-vmCvar_t		cg_fixedPmove;
-vmCvar_t		cg_fixedPmoveFPS;
+// these cvars are shared accross both games
+vmCvar_t		server_airControl;
+vmCvar_t		server_fixedPmove;
+vmCvar_t		server_fixedPmoveFPS;
 
 vmCvar_t		cg_delag;
 vmCvar_t		cg_projectileNudge;
@@ -334,8 +336,10 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
 
-	{&cg_fixedPmove, "cg_fixedPmove", "1", 0}, 
-	{&cg_fixedPmoveFPS, "cg_fixedPmoveFPS", "125", 0}, 
+	// these cvars are shared accross both games
+	{&server_airControl, "server_airControl", "0", 0},
+	{&server_fixedPmove, "server_fixedPmove", "1", 0}, 
+	{&server_fixedPmoveFPS, "server_fixedPmoveFPS", "125", 0}, 
 
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},

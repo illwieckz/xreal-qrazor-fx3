@@ -20,11 +20,9 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 // g_combat.c
-
 #include "g_local.h"
-
 
 /*
 ============
@@ -1378,7 +1376,15 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 			VectorSubtract(ent->r.currentOrigin, origin, dir);
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
-			dir[2] += 24;
+			if(ent == attacker)
+			{
+				// rocket jumps are 24 so we dont get into the sky :)
+				dir[2] +=24;
+			}
+			else
+			{
+				dir[2] += knockback_z;
+			}
 			G_Damage(ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 		}
 	}

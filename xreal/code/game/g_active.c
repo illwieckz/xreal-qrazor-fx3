@@ -1129,15 +1129,16 @@ void ClientThink_real(gentity_t * ent)
 	pm.trace = trap_Trace;
 	pm.pointcontents = trap_PointContents;
 	pm.debugLevel = g_debugMove.integer;
+	pm.airControl = server_airControl.integer;
 	pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0;
 
-	if(cg_fixedPmoveFPS.integer < 60)  
-		trap_Cvar_Set("cg_fixedPmoveFPS", "60"); 
-	else if(cg_fixedPmoveFPS.integer > 333) 
-		trap_Cvar_Set("cg_fixedPmoveFPS", "333"); 
+	if(server_fixedPmoveFPS.integer < 60)  
+		trap_Cvar_Set("server_fixedPmoveFPS", "60"); 
+	else if(server_fixedPmoveFPS.integer > 333) 
+		trap_Cvar_Set("server_fixedPmoveFPS", "333"); 
 
-	pm.fixedPmove = cg_fixedPmove.integer; 
-	pm.fixedPmoveFPS = cg_fixedPmoveFPS.integer; 
+	pm.fixedPmove = server_fixedPmove.integer; 
+	pm.fixedPmoveFPS = server_fixedPmoveFPS.integer; 
 
 	VectorCopy(client->ps.origin, client->oldOrigin);
 

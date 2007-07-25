@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+// g_unlagged.c -- functions that support the unlagged implementation
 #include "g_local.h"
 
 /*
@@ -302,7 +303,7 @@ void G_DoTimeShiftFor(gentity_t * ent)
 	}
 
 	// if it's enabled server-side and the client wants it or wants it for this weapon
-	if(g_delagHitscan.integer && (ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag))
+	if(server_delagHitscan.integer && (ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag))
 	{
 		// do the full lag compensation, except what the client nudges
 		time = ent->client->attackTime + ent->client->pers.cmdTimeNudge;

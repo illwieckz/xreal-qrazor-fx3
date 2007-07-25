@@ -447,6 +447,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\bg_xreal.c"
+				>
+			</File>
+			<File
 				RelativePath="g_active.c"
 				>
 				<FileConfiguration
@@ -1074,6 +1078,10 @@
 			</File>
 			<File
 				RelativePath="bg_public.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bg_xreal.h"
 				>
 			</File>
 			<File
