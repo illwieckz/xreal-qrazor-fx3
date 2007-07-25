@@ -231,6 +231,7 @@ powerups/invisibility
 	sort postProcess
 	
 	{
+		if 1
 		map gfx/effect/invismap.png	
         blue	0.3 + sinTable[time * 0.2] * 0.2
       	scroll sinTable[time * 0.2] * 0.5 + 0.5, 0
@@ -249,16 +250,10 @@ powerups/quad
 {
 	//deformVertexes wave 100 sin 3 0 0 0
 	{
-		//stage reflectionMap
-		//cubeMap cubemaps/pete/carbon-creek512
-		
-		map textures/effects/quadmap2.tga
-		//alphaTest 0.5
+		map gfx/effect/quad_fx.tga
 		blend add
-		//tcGen environment
 		rotate time * 30
 		scroll time * 1, time * .1
-		rgbGen identity
 	}
 	/*
 	{
@@ -273,9 +268,8 @@ powerups/quadWeapon
 {
 	//deformVertexes wave 100 sin 0.5 0 0 0
 	{
-		map textures/effects/quadmap2.tga
+		map gfx/effect/quad_fx.tga
 		blend add
-		tcGen environment
 		rotate time * 30
 		scroll time * 1, time * .1
 	}
