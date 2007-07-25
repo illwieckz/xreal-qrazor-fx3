@@ -24,105 +24,6 @@ http://creativecommons.org/licenses/by/2.5/
 
 FILE                                                                  COPYRIGHT                                         LICENSE                                                               SOURCE
 ====================================================================================================================================================================================================
-base\textures\raynorpat\black.png                                     ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\textures\tr3b_sky\plasma_noise2.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\tr3b_sky\basesky.jpg                                    ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\cloudstormy_d.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\orient_sun.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\tr3b_sky\clouds_d.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\thunders.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\baseskystormy.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\plasma_noise1.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\reflex_layout\bridge.png                                Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\lift.png                                  Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\wall.png                                  Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\floor.png                                 Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\pad.png                                   Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\stairs.png                                Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\pad2.png                                  Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\reflex_layout\ceiling.png                               Stefan Lautner                                    All Rights Reserved                                                   
-base\textures\radiant\notex.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\radiant\shadernotex.png                                 ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\reflex_ugly\black.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_a.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_b.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_c.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_d.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\decal1.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\decal2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_local.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_spec.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\tr3b_fog\deathfog.tga                                   ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\particles\lavasplash.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\smoke.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\blood.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\blood2.png                                    ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\glow.png                                      ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\glow1.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\slime.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\flare1.png                                    ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\particles\flare2.png                                    ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\common\botclip.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nodrawnonsolid.png                               ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\weapclip.png                                     ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\full_clip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\ikclip.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\missileclip.png                                  ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\lightgrid.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\white.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\qer_mirror.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\donotenter.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\shadow.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\nodrawsolid.png                                  <add author>                                      All Rights Reserved                                                   
-base\textures\common\origin.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\clip.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nodraw.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\collision.png                                    ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\mirror1.png                                      ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\monster_clip.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\caulk.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nodrop.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\moveable_clip.png                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\hint.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nolightmap.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\clusterportal.png                                ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\trigger.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\terrain.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\slick.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\qer_portal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\cushion.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\metalclip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\antiportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\invisible.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\areaportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\clipplus.png                                     ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\ladder.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\decals\explo_burn01.png                                 ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat01.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat02.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat03.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\glow2.png                                        ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\lavaburn.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\particle_burn01.png                              ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\tr3b_water\watertest_local.png                          ( c ) 2005 inolen                                 All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall_disp.png                         <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_d.png                               <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall2_d.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_local.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\roots_d.png                               <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_disp.png                            <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall2_local.png                       <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\stonewall_d.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick2_d.png                              <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\roots_local.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\relief_local.png                          <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall_d.png                            <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\tile1_d.png                               <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\stonewall_local.png                       <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\roots_disp.png                            <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick2_local.png                          <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall_local.png                        <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\tile1_local.png                           <add author>                                      All Rights Reserved                                                   
 base\models\projectiles\grenade\grenade_glow.png                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\projectiles\grenade\grenade_spec.png                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\projectiles\grenade\grenade.md3                           ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
@@ -405,22 +306,121 @@ base\models\weapons\shells\shell_s.png                                ( c ) 2007
 base\models\weapons\shells\shell_d.png                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_s.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_view_raise.md5anim          ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\machinegun\machinegun.ase                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_muzzflash_strip.png         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\machinegun\machinegun.ase                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_hand.md3                    ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\models\weapons\machinegun\machinegun_view_idle.md5anim           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun.md3                         ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\models\weapons\machinegun\machinegun.blend                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_d.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\machinegun\machinegun_view_fire.md5anim           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\f_machinegun.png                       ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\models\weapons\machinegun\machinegun_view_fire.md5anim           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_muzzflash2_strip.png        ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_h.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\machinegun\machinegun_view.md5mesh                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_add.png                     ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\machinegun\machinegun_view.md5mesh                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_view_lower.md5anim          ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_local.png                   ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_flash.md3                   ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\textures\raynorpat\black.png                                     ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\textures\tr3b_sky\plasma_noise2.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\tr3b_sky\basesky.jpg                                    ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\cloudstormy_d.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\orient_sun.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\tr3b_sky\clouds_d.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\thunders.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\baseskystormy.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\plasma_noise1.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\reflex_layout\bridge.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\lift.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\wall.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\floor.png                                 ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\pad.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\stairs.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\pad2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\ceiling.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\radiant\notex.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\radiant\shadernotex.png                                 ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\reflex_ugly\black.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_a.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_b.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_c.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_d.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\decal1.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\decal2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_local.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_spec.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\tr3b_fog\deathfog.tga                                   ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\particles\lavasplash.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\smoke.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\blood.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\blood2.png                                    ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\glow.png                                      ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\glow1.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\slime.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\flare1.png                                    ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\particles\flare2.png                                    ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\common\botclip.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nodrawnonsolid.png                               ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\weapclip.png                                     ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\full_clip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\ikclip.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\missileclip.png                                  ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\lightgrid.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\white.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\qer_mirror.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\donotenter.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\shadow.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\nodrawsolid.png                                  <add author>                                      All Rights Reserved                                                   
+base\textures\common\origin.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\clip.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nodraw.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\collision.png                                    ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\mirror1.png                                      ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\monster_clip.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\caulk.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nodrop.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\moveable_clip.png                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\hint.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nolightmap.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\clusterportal.png                                ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\trigger.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\terrain.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\slick.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\qer_portal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\cushion.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\metalclip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\antiportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\invisible.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\areaportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\clipplus.png                                     ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\ladder.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\decals\explo_burn01.png                                 ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat01.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat02.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat03.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\glow2.png                                        ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\lavaburn.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\particle_burn01.png                              ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\tr3b_water\watertest_local.png                          ( c ) 2005 inolen                                 All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall_disp.png                         <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall2_d.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_local.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\roots_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_disp.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall2_local.png                       <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\stonewall_d.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick2_d.png                              <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\roots_local.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\relief_local.png                          <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall_d.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\tile1_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\stonewall_local.png                       <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\roots_disp.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick2_local.png                          <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall_local.png                        <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\tile1_local.png                           <add author>                                      All Rights Reserved                                                   
 base\gfx\2d\crosshairh.tga                                            ( c ) 1999 tbird                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
 base\gfx\2d\crosshairi.tga                                            ( c ) 1999 lotek                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test4.shtm 
 base\gfx\2d\hud\sidebaritem_left.png                                  ( c ) 2006 Josef S ntgen                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
@@ -457,21 +457,21 @@ base\gfx\misc\smoke2.png                                              ( c ) 2007
 base\gfx\misc\smoke3.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\smoke4.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\lightning3.jpg                                          ( c ) 2006 OpenArena Team                         GPL                                                                   
-base\gfx\misc\raildisc_mono2.png                                      ( c ) 2007 Michael Denno                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\gfx\misc\raildisc_mono2.png                                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\gfx\misc\sun.png                                                 ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\friend.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\gfx\misc\bubble_n.png                                            ( c ) 2007 Michael Denno                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\gfx\misc\bubble_n.png                                            ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\gfx\misc\foe.png                                                 ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\gfx\misc\railcorethin_mono.png                                   ( c ) 2007 Michael Denno                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\gfx\misc\plasmaa.png                                             ( c ) 2007 Michael Denno                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\gfx\misc\railcorethin_mono.png                                   ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
+base\gfx\misc\plasmaa.png                                             ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\gfx\misc\detail_strip.jpg                                        ( c ) 2005 Robin Pengelstorfer                    GPL                                                                   
 base\gfx\misc\tracer.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\gfx\misc\raildisc_mono2_n.png                                    ( c ) 2007 Michael Denno                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\gfx\misc\raildisc_mono2_n.png                                    ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\gfx\misc\aabb.png                                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\gfx\misc\stripes.jpg                                             ( c ) 2005 Robin Pengelstorfer                    GPL                                                                   
 base\gfx\misc\shadow.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\flare.png                                               ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\gfx\misc\bubble.png                                              ( c ) 2007 Michael Denno                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\gfx\misc\bubble.png                                              ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\gfx\effect\effmap01.png                                          ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\gfx\effect\effmap02.png                                          ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\gfx\effect\Reptile_Skin_normal.png                               ( c ) 2007 Robert Beckebans                       All Rights Reserved                                                   
@@ -603,11 +603,11 @@ base\sound\weapons\machinegun\par_shot_2.ogg                          ( c ) 2006
 base\sound\weapons\machinegun\par_shot_3.ogg                          ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\weapons\machinegun\par_shot_4.ogg                          ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\weapons\machinegun\par_shot_5.ogg                          ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sprites\balloon4.png                                             ( c ) 2001 Maxell < maxell007@volny.cz >          All Rights Reserved                                                   
 base\fonts\Turok_0_12.tga                                             <add author>                                      All Rights Reserved                                                   
 base\fonts\Turok.ttf                                                  ( c ) 2000 Neale Davidson                         All Rights Reserved.                                                  
 base\fonts\Turok_0_16.tga                                             <add author>                                      All Rights Reserved                                                   
 base\fonts\Turok_0_20.tga                                             <add author>                                      All Rights Reserved                                                   
-base\sprites\balloon4.png                                             ( c ) 2001 Maxell < maxell007@volny.cz >          All Rights Reserved                                                   
 base\lights\skyline1.png                                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\lights\flashlight1.png                                           ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\lights\round.png                                                 ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
