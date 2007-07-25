@@ -228,13 +228,21 @@ powerups/battleWeapon
 
 powerups/invisibility
 {
+	sort postProcess
+	
 	{
-		map textures/effects/invismap.tga
-		//map textures/sfx/specular.tga
-		blendfunc GL_ONE GL_ONE
-		tcMod turb 0 0.15 0 0.25
-		tcGen environment
+		map gfx/effect/invismap.png	
+        blue	0.3 + sinTable[time * 0.2] * 0.2
+      	scroll sinTable[time * 0.2] * 0.5 + 0.5, 0
+		blend add
 	}
+	{
+		stage	heathazemap
+		map		gfx/effect/Reptile_Skin_normal.png
+		scroll	time * 0.05 , time * 0.05
+		//scale	0.3, 0.3
+		deformMagnitude	1.7
+    }
 }
 
 powerups/quad
