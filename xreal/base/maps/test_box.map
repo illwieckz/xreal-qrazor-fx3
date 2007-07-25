@@ -93,9 +93,8 @@ brushDef3
 "nospecular" "0"
 "nodiffuse" "0"
 "falloff" "0.000000"
-"_color" "1.0 0.5 0.5"
+"_color" "0.78 0.78 0.84"
 "light_radius" "225 225 225"
-"texture" "textures/tr3b_lights/volumetricLightTest"
 }
 // entity 3
 {
