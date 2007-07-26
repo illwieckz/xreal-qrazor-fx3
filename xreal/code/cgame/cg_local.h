@@ -479,6 +479,7 @@ typedef struct particle_s
 	float           endTime;
 
 	vec3_t          org;
+	vec3_t			oldOrg;
 	vec3_t          vel;
 	vec3_t          accel;
 	int             color;
@@ -505,6 +506,8 @@ typedef struct particle_s
 	int             roll;
 
 	int             accumroll;
+
+	float           bounceFactor;	// 0.0 = no bounce, 1.0 = perfect
 
 	struct particle_s *next;
 } cparticle_t;
@@ -1289,6 +1292,7 @@ extern vmCvar_t cg_delag;
 extern vmCvar_t cg_projectileNudge;
 extern vmCvar_t	cg_optimizePrediction;
 extern vmCvar_t	sv_fps;
+extern vmCvar_t	cg_gravity;
 
 #ifdef MISSIONPACK
 extern vmCvar_t cg_smallFont;
@@ -1642,9 +1646,10 @@ vec_t          *lua_getvector(lua_State * L, int argNum);
 //
 // cg_particles.c
 //
-void            CG_ClearParticles(void);
-void            CG_AddParticles(void);
+void            CG_InitParticles(void);
 cparticle_t    *CG_AllocParticle(void);
+void            CG_FreeParticle(cparticle_t * p);
+void            CG_AddParticles(void);
 void            CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
 void            CG_ParticleSmoke(qhandle_t pshader, centity_t * cent);
 void            CG_AddParticleShrapnel(localEntity_t * le);
@@ -1658,9 +1663,9 @@ void            CG_ParticleBloodCloud(vec3_t origin, vec3_t dir);
 void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
-void            CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 void            CG_ParticleTeleportEffect(const vec3_t origin);
 int             CG_NewParticleArea(int num);
+void			CG_TestParticles_f(void);
 
 
 //===============================================

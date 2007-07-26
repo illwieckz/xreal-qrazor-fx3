@@ -970,6 +970,17 @@ static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac,
 	out[2] = from[2] + ((to[2] - from[2]) * frac);
 }
 
+static ID_INLINE void VectorReflect(const vec3_t v, const vec3_t normal, vec3_t out)
+{
+	float d;
+
+	d = 2.0 * (v[0] * normal[0] + v[1] * normal[1] + v[2] * normal[2]);
+
+	out[0] = v[0] - normal[0] * d;
+	out[1] = v[1] - normal[1] * d;
+	out[2] = v[2] - normal[2] * d;
+}
+
 vec_t           VectorNormalize(vec3_t v);	// returns vector length
 vec_t           VectorNormalize2(const vec3_t v, vec3_t out);
 

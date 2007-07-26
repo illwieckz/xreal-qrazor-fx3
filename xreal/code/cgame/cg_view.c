@@ -499,10 +499,12 @@ CG_TestGib_f
 */
 void CG_TestGib_f(void)
 {
-	// raynorpat: spawn the gibs out in front of the testing player :)
-	VectorCopy(cg.refdef.vieworg, cg.testModelEntity.origin);
+	vec3_t			origin;
 
-	CG_GibPlayer(cg.testModelEntity.origin);
+	// raynorpat: spawn the gibs out in front of the testing player :)
+	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], origin);
+
+	CG_GibPlayer(origin);
 //	CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
 //	CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 }

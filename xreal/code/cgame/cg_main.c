@@ -195,6 +195,7 @@ vmCvar_t		cg_delag;
 vmCvar_t		cg_projectileNudge;
 vmCvar_t		cg_optimizePrediction;
 vmCvar_t		sv_fps;
+vmCvar_t		cg_gravity;
 
 #ifdef MISSIONPACK
 vmCvar_t        cg_smallFont;
@@ -344,8 +345,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},
 	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
-	// this will be automagically copied from the server
-	{&sv_fps, "sv_fps", "20", 0}
+	
+	{&sv_fps, "sv_fps", "20", 0},			// communicated by systeminfo
+	{&cg_gravity, "g_gravity", "0", 0}		// communicated by systeminfo
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -1132,7 +1134,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
 	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 
-	CG_ClearParticles();
+	CG_InitParticles();
 }
 
 

@@ -28,50 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define EMISIVEFADE	3
 #define GREY75		4
 
-#define	MAX_SHADER_ANIMS		32
-#define	MAX_SHADER_ANIM_FRAMES	64
-
-static char    *shaderAnimNames[MAX_SHADER_ANIMS] = {
-	"explode1",
-	"blacksmokeanim",
-	"twiltb2",
-	"expblue",
-	"blacksmokeanimb",			// uses 'explode1' sequence
-	"blood",
-	NULL
-};
-static qhandle_t shaderAnims[MAX_SHADER_ANIMS][MAX_SHADER_ANIM_FRAMES];
-
-#if 0
-// Tr3B - we don't need them for now
-static int      shaderAnimCounts[MAX_SHADER_ANIMS] = {
-	23,
-	25,
-	45,
-	25,
-	23,
-	5,
-};
-#else
-static int      shaderAnimCounts[MAX_SHADER_ANIMS] = {
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-};
-#endif
-static float    shaderAnimSTRatio[MAX_SHADER_ANIMS] = {
-	1.405f,
-	1.0f,
-	1.0f,
-	1.0f,
-	1.0f,
-	1.0f,
-};
-static int      numShaderAnims;
-
 #define PARTICLE_GRAVITY	40
 #define	MAX_PARTICLES		1024 * 8
 
@@ -88,10 +44,10 @@ static float    oldtime;
 
 /*
 ===============
-CL_ClearParticles
+CG_InitParticles
 ===============
 */
-void CG_ClearParticles(void)
+void CG_InitParticles(void)
 {
 	int             i;
 
@@ -109,20 +65,47 @@ void CG_ClearParticles(void)
 
 	oldtime = cg.time;
 
-	// Ridah, init the shaderAnims
-	for(i = 0; shaderAnimNames[i]; i++)
-	{
-		int             j;
-
-		for(j = 0; j < shaderAnimCounts[i]; j++)
-		{
-			shaderAnims[i][j] = trap_R_RegisterShader(va("%s%i", shaderAnimNames[i], j + 1));
-		}
-	}
-	numShaderAnims = i;
-	// done.
-
 	initparticles = qtrue;
+}
+
+/*
+==========================
+CG_AllocParticle
+==========================
+*/
+cparticle_t    *CG_AllocParticle()
+{
+	cparticle_t    *p;
+
+	if(!cg_freeParticles)
+		return NULL;
+
+	p = cg_freeParticles;
+	cg_freeParticles = p->next;
+	p->next = cg_activeParticles;
+	cg_activeParticles = p;
+
+	// add some nice default values
+	p->time = cg.time;
+	p->startfade = cg.time;
+	p->bounceFactor = 0.0f;
+
+	return p;
+}
+
+/*
+==========================
+CG_FreeParticle
+==========================
+*/
+void CG_FreeParticle(cparticle_t * p)
+{
+	p->next = cg_freeParticles;
+	cg_freeParticles = p;
+	
+	p->type = P_NONE;
+	p->color = 0;
+	p->alpha = 0;
 }
 
 
@@ -146,8 +129,8 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 
 	if(p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY
 	   || p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT)
-	{							// create a front facing polygon
-
+	{
+		// create a front facing polygon
 		if(p->type != P_WEATHER_FLURRY)
 		{
 			if(p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT)
@@ -190,7 +173,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 				}
 			}
 
-
 			// Rafael snow pvs check
 			if(!p->link)
 				return;
@@ -203,7 +185,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 		{
 			return;
 		}
-		// done.
 
 		if(p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT)
 		{
@@ -368,8 +349,8 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 		verts[3].modulate[3] = 255;
 	}
 	else if(p->type == P_SMOKE || p->type == P_SMOKE_IMPACT)
-	{							// create a front rotating facing polygon
-
+	{
+		// create a front rotating facing polygon
 		if(p->type == P_SMOKE_IMPACT && Distance(cg.snap->ps.origin, org) > 1024)
 		{
 			return;
@@ -684,108 +665,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 		verts[3].modulate[3] = 255;
 
 	}
-	// Ridah
-	else if(p->type == P_ANIM)
-	{
-		vec3_t          rr, ru;
-		vec3_t          rotate_ang;
-		int             i, j;
-
-		time = cg.time - p->time;
-		time2 = p->endTime - p->time;
-		ratio = time / time2;
-		if(ratio >= 1.0f)
-		{
-			ratio = 0.9999f;
-		}
-
-		width = p->width + (ratio * (p->endWidth - p->width));
-		height = p->height + (ratio * (p->endHeight - p->height));
-
-		// if we are "inside" this sprite, don't draw
-		if(Distance(cg.snap->ps.origin, org) < width / 1.5)
-		{
-			return;
-		}
-
-		i = p->shaderAnim;
-		j = (int)floor(ratio * shaderAnimCounts[p->shaderAnim]);
-		p->pshader = shaderAnims[i][j];
-
-		if(p->roll)
-		{
-			vectoangles(cg.refdef.viewaxis[0], rotate_ang);
-			rotate_ang[ROLL] += p->roll;
-			AngleVectors(rotate_ang, NULL, rr, ru);
-		}
-
-		if(p->roll)
-		{
-			VectorMA(org, -height, ru, point);
-			VectorMA(point, -width, rr, point);
-		}
-		else
-		{
-			VectorMA(org, -height, vup, point);
-			VectorMA(point, -width, vright, point);
-		}
-		VectorCopy(point, verts[0].xyz);
-		verts[0].st[0] = 0;
-		verts[0].st[1] = 0;
-		verts[0].modulate[0] = 255;
-		verts[0].modulate[1] = 255;
-		verts[0].modulate[2] = 255;
-		verts[0].modulate[3] = 255;
-
-		if(p->roll)
-		{
-			VectorMA(point, 2 * height, ru, point);
-		}
-		else
-		{
-			VectorMA(point, 2 * height, vup, point);
-		}
-		VectorCopy(point, verts[1].xyz);
-		verts[1].st[0] = 0;
-		verts[1].st[1] = 1;
-		verts[1].modulate[0] = 255;
-		verts[1].modulate[1] = 255;
-		verts[1].modulate[2] = 255;
-		verts[1].modulate[3] = 255;
-
-		if(p->roll)
-		{
-			VectorMA(point, 2 * width, rr, point);
-		}
-		else
-		{
-			VectorMA(point, 2 * width, vright, point);
-		}
-		VectorCopy(point, verts[2].xyz);
-		verts[2].st[0] = 1;
-		verts[2].st[1] = 1;
-		verts[2].modulate[0] = 255;
-		verts[2].modulate[1] = 255;
-		verts[2].modulate[2] = 255;
-		verts[2].modulate[3] = 255;
-
-		if(p->roll)
-		{
-			VectorMA(point, -2 * height, ru, point);
-		}
-		else
-		{
-			VectorMA(point, -2 * height, vup, point);
-		}
-		VectorCopy(point, verts[3].xyz);
-		verts[3].st[0] = 1;
-		verts[3].st[1] = 0;
-		verts[3].modulate[0] = 255;
-		verts[3].modulate[1] = 255;
-		verts[3].modulate[2] = 255;
-		verts[3].modulate[3] = 255;
-	}
-	// done.
 
 	if(!p->pshader)
 	{
@@ -800,9 +679,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 		trap_R_AddPolyToScene(p->pshader, 4, verts);
 }
 
-// Ridah, made this static so it doesn't interfere with other files
-static float    roll = 0.0;
-
 /*
 ===============
 CG_AddParticles
@@ -813,14 +689,18 @@ void CG_AddParticles(void)
 	cparticle_t    *p, *next;
 	float           alpha;
 	float           time, time2;
+	float			grav;
 	vec3_t          org;
 	int             color;
 	cparticle_t    *active, *tail;
 	int             type;
 	vec3_t          rotate_ang;
 
+	// Ridah, made this static so it doesn't interfere with other files
+	static float    roll = 0.0;
+
 	if(!initparticles)
-		CG_ClearParticles();
+		CG_InitParticles();
 
 	VectorCopy(cg.refdef.viewaxis[0], vforward);
 	VectorCopy(cg.refdef.viewaxis[1], vright);
@@ -836,6 +716,13 @@ void CG_AddParticles(void)
 	active = NULL;
 	tail = NULL;
 
+	// Tr3B: allow gravity tweaks by the server
+	grav = cg_gravity.value;
+	if(!grav)
+		grav = 1;
+	else
+		grav /= 800;
+
 	for(p = cg_activeParticles; p; p = next)
 	{
 		next = p->next;
@@ -844,12 +731,9 @@ void CG_AddParticles(void)
 
 		alpha = p->alpha + time * p->alphaVel;
 		if(alpha <= 0)
-		{						// faded out
-			p->next = cg_freeParticles;
-			cg_freeParticles = p;
-			p->type = 0;
-			p->color = 0;
-			p->alpha = 0;
+		{
+			// faded out
+			CG_FreeParticle(p);
 			continue;
 		}
 
@@ -857,11 +741,7 @@ void CG_AddParticles(void)
 		{
 			if(cg.time > p->endTime)
 			{
-				p->next = cg_freeParticles;
-				cg_freeParticles = p;
-				p->type = 0;
-				p->color = 0;
-				p->alpha = 0;
+				CG_FreeParticle(p);
 				continue;
 			}
 
@@ -871,11 +751,7 @@ void CG_AddParticles(void)
 		{
 			if(cg.time > p->endTime)
 			{
-				p->next = cg_freeParticles;
-				cg_freeParticles = p;
-				p->type = 0;
-				p->color = 0;
-				p->alpha = 0;
+				CG_FreeParticle(p);
 				continue;
 			}
 		}
@@ -885,11 +761,7 @@ void CG_AddParticles(void)
 		{
 			if(cg.time > p->endTime)
 			{
-				p->next = cg_freeParticles;
-				cg_freeParticles = p;
-				p->type = 0;
-				p->color = 0;
-				p->alpha = 0;
+				CG_FreeParticle(p);
 				continue;
 			}
 
@@ -899,11 +771,7 @@ void CG_AddParticles(void)
 		{
 			// temporary sprite
 			CG_AddParticleToScene(p, p->org, alpha);
-			p->next = cg_freeParticles;
-			cg_freeParticles = p;
-			p->type = 0;
-			p->color = 0;
-			p->alpha = 0;
+			CG_FreeParticle(p);
 			continue;
 		}
 
@@ -925,7 +793,60 @@ void CG_AddParticles(void)
 
 		org[0] = p->org[0] + p->vel[0] * time + p->accel[0] * time2;
 		org[1] = p->org[1] + p->vel[1] * time + p->accel[1] * time2;
-		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2;
+		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2 * grav;
+
+		// Tr3B: add some collision tests
+		if(p->bounceFactor)
+		{
+			vec3_t			origin;
+			trace_t         trace;
+
+			vec3_t          vel;
+			float           dot;
+			int             hitTime;
+			float			time;
+
+			CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
+
+			if(trace.fraction > 0 && trace.fraction < 1)
+			{
+				// reflect the velocity on the trace plane
+				hitTime = cg.time - cg.frametime + cg.frametime * trace.fraction;
+
+				time = ((float)hitTime - p->time) * 0.001;
+
+				VectorSet(vel, p->vel[0], p->vel[1], p->vel[2] + p->accel[2] * time * grav);
+				VectorReflect(vel, trace.plane.normal, p->vel);
+				VectorScale(p->vel, p->bounceFactor, p->vel);
+
+			/*	
+			// check for stop, making sure that even on low FPS systems it doesn't bobble
+			if(trace->allsolid ||
+			   (trace->plane.normal[2] > 0 &&
+				(le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2])))
+			{
+				le->pos.trType = TR_STATIONARY;
+			}
+			else
+			{
+				if(le->leFlags & LEF_TUMBLE)
+				{
+					// collided with a surface so calculate the new rotation axis
+					CrossProduct(trace->plane.normal, velocity, le->rotAxis);
+					le->angVel = VectorNormalize(le->rotAxis) / le->radius;
+
+					// save current orientation as a rotation from model's base orientation
+					QuatMultiply0(le->quatRot, le->quatOrient);
+
+					// reset the orientation
+					QuatClear(le->quatOrient);
+				}
+			}
+			*/
+			}
+
+			VectorCopy(trace.endpos, org);
+		}
 
 		type = p->type;
 
@@ -935,29 +856,7 @@ void CG_AddParticles(void)
 	cg_activeParticles = active;
 }
 
-/*
-==========================
-CG_AllocParticle
-==========================
-*/
-cparticle_t    *CG_AllocParticle()
-{
-	cparticle_t    *p;
 
-	if(!cg_freeParticles)
-		return NULL;
-
-	p = cg_freeParticles;
-	cg_freeParticles = p->next;
-	p->next = cg_activeParticles;
-	cg_activeParticles = p;
-
-	// add some nice default values
-	p->time = cg.time;
-	p->startfade = cg.time;
-
-	return p;
-}
 
 
 /*
@@ -976,7 +875,7 @@ void CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent)
 	p = CG_AllocParticle();
 	if(!p)
 		return;
-	
+
 	p->time = cg.time;
 	p->color = 0;
 	p->alpha = 0.90f;
@@ -1255,64 +1154,6 @@ void CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, floa
 	VectorCopy(org, p->org);
 	VectorCopy(vel, p->vel);
 	VectorSet(p->accel, 0, 0, -330);
-}
-
-/*
-======================
-CG_ParticleExplosion
-======================
-*/
-void CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd)
-{
-	cparticle_t    *p;
-	int             anim;
-
-	// find the animation string
-	for(anim = 0; shaderAnimNames[anim]; anim++)
-	{
-		if(!stricmp(animStr, shaderAnimNames[anim]))
-			break;
-	}
-	if(!shaderAnimNames[anim])
-	{
-		CG_Error("CG_ParticleExplosion: unknown animation string: %s\n", animStr);
-		return;
-	}
-
-	p = CG_AllocParticle();
-	if(!p)
-		return;
-
-	p->time = cg.time;
-	p->alpha = 1.0;
-	p->alphaVel = 0;
-
-	if(duration < 0)
-	{
-		duration *= -1;
-		p->roll = 0;
-	}
-	else
-	{
-		p->roll = crandom() * 179;
-	}
-
-	p->shaderAnim = anim;
-
-	p->width = sizeStart;
-	p->height = sizeStart * shaderAnimSTRatio[anim];	// for sprites that are stretch in either direction
-
-	p->endHeight = sizeEnd;
-	p->endWidth = sizeEnd * shaderAnimSTRatio[anim];
-
-	p->endTime = cg.time + duration;
-
-	p->type = P_ANIM;
-
-	VectorCopy(origin, p->org);
-	VectorCopy(vel, p->vel);
-	VectorClear(p->accel);
-
 }
 
 int CG_NewParticleArea(int num)
@@ -1644,7 +1485,7 @@ void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEnt
 
 	p->roll = rand() % 179;
 
-//	p->color = BLOODRED;
+//  p->color = BLOODRED;
 	p->alpha = 0.75;
 }
 
@@ -1744,7 +1585,7 @@ void CG_BloodPool(qhandle_t pshader, vec3_t origin)
 
 	p->alpha = 0.75;
 
-//	p->color = BLOODRED;
+//  p->color = BLOODRED;
 }
 
 #define NORMALSIZE	16
@@ -2049,7 +1890,27 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 				p->startfade = cg.time;
 				p->rotate = qtrue;
 				p->roll = rand() % 179;
+
+				//p->bounceFactor = 0.7f;
+				VectorCopy(p->org, p->oldOrg);	// necessary for coldet
 			}
 		}
 	}
+}
+
+
+/*
+=================
+CG_TestParticles_f
+=================
+*/
+void CG_TestParticles_f(void)
+{
+	vec3_t			origin;
+
+	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], origin);
+
+	CG_ParticleTeleportEffect(origin);
+//	CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
+//	CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 }
