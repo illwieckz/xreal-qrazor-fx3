@@ -20,8 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// common.c -- misc functions used in client and server
 
+// common.c -- misc functions used in client and server
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
@@ -1212,7 +1212,7 @@ void Com_Meminfo_f(void)
 	{
 		if(Cmd_Argc() != 1)
 		{
-			Com_Printf("block:%p    size:%7i    tag:%3i\n", block, block->size, block->tag);
+			Com_Printf("block:%p    size:%7i    tag:%3i\n", (void *)block, block->size, block->tag);
 		}
 		if(block->tag)
 		{
