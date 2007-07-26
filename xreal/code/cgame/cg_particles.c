@@ -102,7 +102,7 @@ void CG_FreeParticle(cparticle_t * p)
 {
 	p->next = cg_freeParticles;
 	cg_freeParticles = p;
-	
+
 	p->type = P_NONE;
 	p->color = 0;
 	p->alpha = 0;
@@ -680,6 +680,38 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 }
 
 /*
+==================
+ClipVelocity
+
+Slide off of the impacting surface
+==================
+*/
+static void ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
+{
+	float           backoff;
+	float           change;
+	int             i;
+
+	backoff = DotProduct(in, normal);
+
+	if(backoff < 0)
+	{
+		backoff *= overbounce;
+	}
+	else
+	{
+		backoff /= overbounce;
+	}
+
+	for(i = 0; i < 3; i++)
+	{
+		change = normal[i] * backoff;
+		out[i] = in[i] - change;
+	}
+}
+
+
+/*
 ===============
 CG_AddParticles
 ===============
@@ -689,7 +721,7 @@ void CG_AddParticles(void)
 	cparticle_t    *p, *next;
 	float           alpha;
 	float           time, time2;
-	float			grav;
+	float           grav;
 	vec3_t          org;
 	int             color;
 	cparticle_t    *active, *tail;
@@ -796,17 +828,19 @@ void CG_AddParticles(void)
 		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2 * grav;
 
 		// Tr3B: add some collision tests
-		if(p->bounceFactor)
+		if(cg_particleCollision.integer && p->bounceFactor)
 		{
-			vec3_t			origin;
 			trace_t         trace;
 
 			vec3_t          vel;
 			float           dot;
 			int             hitTime;
-			float			time;
+			float           time;
 
-			CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
+			//CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
+			
+			trap_CM_BoxTrace(&trace, p->oldOrg, org, NULL, NULL, 0, CONTENTS_SOLID);
+			trace.entityNum = trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 
 			if(trace.fraction > 0 && trace.fraction < 1)
 			{
@@ -819,33 +853,38 @@ void CG_AddParticles(void)
 				VectorReflect(vel, trace.plane.normal, p->vel);
 				VectorScale(p->vel, p->bounceFactor, p->vel);
 
-			/*	
-			// check for stop, making sure that even on low FPS systems it doesn't bobble
-			if(trace->allsolid ||
-			   (trace->plane.normal[2] > 0 &&
-				(le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2])))
-			{
-				le->pos.trType = TR_STATIONARY;
-			}
-			else
-			{
-				if(le->leFlags & LEF_TUMBLE)
+				// check for stop, making sure that even on low FPS systems it doesn't bobble
+				if(trace.allsolid || (trace.plane.normal[2] > 0 && (p->vel[2] < 40 || p->vel[2] < -cg.frametime * p->vel[2])))
 				{
-					// collided with a surface so calculate the new rotation axis
-					CrossProduct(trace->plane.normal, velocity, le->rotAxis);
-					le->angVel = VectorNormalize(le->rotAxis) / le->radius;
+					//if(p->vel[2] > 0.9)
+					{
+						VectorClear(p->vel);
+						VectorClear(p->accel);
 
-					// save current orientation as a rotation from model's base orientation
-					QuatMultiply0(le->quatRot, le->quatOrient);
+						p->bounceFactor = 0.0f;
+					}
+					//else
+					{
+						//ClipVelocity(p->vel, trace.plane.normal, p->vel, p->bounceFactor);
 
-					// reset the orientation
-					QuatClear(le->quatOrient);
+						// FIXME: check for new plane or free fall
+						/*
+						dot = DotProduct(p->vel, trace.plane.normal);
+						VectorMA(p->vel, -dot, trace.plane.normal, p->vel);
+
+						dot = DotProduct(p->accel, trace.plane.normal);
+						VectorMA(p->accel, -dot, trace.plane.normal, p->accel);
+						*/
+					}
 				}
-			}
-			*/
-			}
 
-			VectorCopy(trace.endpos, org);
+				VectorCopy(trace.endpos, org);
+
+				// reset particle
+				p->time = cg.time;
+				//VectorCopy(p->org, p->oldOrg);
+				VectorCopy(org, p->org);
+			}
 		}
 
 		type = p->type;
@@ -1845,11 +1884,11 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 	cparticle_t    *p;
 
 	// create particles inside the player box
-	for(i = -16; i < 16; i += 4)
+	for(i = -16; i < 16; i += 8)
 	{
-		for(j = -16; j < 16; j += 4)
+		for(j = -16; j < 16; j += 8)
 		{
-			for(k = MINS_Z; k < 32; k += 4)
+			for(k = MINS_Z; k < 32; k += 8)
 			{
 				p = CG_AllocParticle();
 				if(!p)
@@ -1891,7 +1930,7 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 				p->rotate = qtrue;
 				p->roll = rand() % 179;
 
-				//p->bounceFactor = 0.7f;
+				p->bounceFactor = 0.6f;
 				VectorCopy(p->org, p->oldOrg);	// necessary for coldet
 			}
 		}
@@ -1906,11 +1945,11 @@ CG_TestParticles_f
 */
 void CG_TestParticles_f(void)
 {
-	vec3_t			origin;
+	vec3_t          origin;
 
 	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], origin);
 
 	CG_ParticleTeleportEffect(origin);
-//	CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
-//	CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
+//  CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
+//  CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 }

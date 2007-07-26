@@ -186,6 +186,8 @@ vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
 vmCvar_t		cg_drawPlayerAABB;
 
+vmCvar_t        cg_particleCollision;
+
 // these cvars are shared accross both games
 vmCvar_t		pm_airControl;
 vmCvar_t		pm_fixedPmove;
@@ -336,6 +338,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
+	
+	{&cg_particleCollision, "cg_particleCollision", "0", CVAR_ARCHIVE},
 
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", 0},
