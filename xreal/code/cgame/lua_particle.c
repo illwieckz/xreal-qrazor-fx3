@@ -34,7 +34,7 @@ static int particle_Spawn(lua_State * L)
 
 	vec3_t          randVec, tempVec;
 
-	p = CG_SpawnParticle();
+	p = CG_AllocParticle();
 	if(!p)
 		return 0;
 

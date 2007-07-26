@@ -1642,7 +1642,7 @@ vec_t          *lua_getvector(lua_State * L, int argNum);
 //
 void            CG_ClearParticles(void);
 void            CG_AddParticles(void);
-cparticle_t    *CG_SpawnParticle(void);
+cparticle_t    *CG_AllocParticle(void);
 void            CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
 void            CG_ParticleSmoke(qhandle_t pshader, centity_t * cent);
 void            CG_AddParticleShrapnel(localEntity_t * le);
