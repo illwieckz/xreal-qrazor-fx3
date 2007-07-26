@@ -503,6 +503,8 @@ void CG_TestGib_f(void)
 	VectorCopy(cg.refdef.vieworg, cg.testModelEntity.origin);
 
 	CG_GibPlayer(cg.testModelEntity.origin);
+//	CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
+//	CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 }
 
 

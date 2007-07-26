@@ -886,6 +886,7 @@ static void CG_RegisterGraphics(void)
 #endif
 	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
 	cgs.media.bloodTrailShader = trap_R_RegisterShader("bloodTrail");
+	cgs.media.bloodSpurtShader = trap_R_RegisterShader("bloodSpurt");
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
 	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
 

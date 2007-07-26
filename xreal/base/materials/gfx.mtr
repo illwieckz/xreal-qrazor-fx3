@@ -1186,9 +1186,23 @@ bloodTrail
 	{
 		//clampmap gfx/misc/blood.tga
 		//clampmap gfx/damage/blood_spurt.tga
-		clampmap textures/particles/blood2.tga
-		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
+		clamp
+		map textures/particles/blood2.tga
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		vertexColor
+	}
+}
+
+bloodSpurt
+{
+	twoSided
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	
+	{
+		//clamp
+		map gfx/particle/blood2.tga
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
 		vertexColor
 	}
 }

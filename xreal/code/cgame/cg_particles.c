@@ -1448,52 +1448,7 @@ void CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin)
 	p->rotate = qtrue;
 }
 
-void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration)
-{
-	cparticle_t    *p;
 
-	if(!pshader)
-		CG_Printf("CG_Particle_Bleed pshader == ZERO!\n");
-
-	p = CG_AllocParticle();
-	if(!p)
-		return;
-
-	p->time = cg.time;
-	p->alpha = 1.0;
-	p->alphaVel = 0;
-	p->roll = 0;
-
-	p->pshader = pshader;
-
-	p->endTime = cg.time + duration;
-
-	if(fleshEntityNum)
-		p->startfade = cg.time;
-	else
-		p->startfade = cg.time + 100;
-
-	p->width = 4;
-	p->height = 4;
-
-	p->endHeight = 4 + rand() % 3;
-	p->endWidth = p->endHeight;
-
-	p->type = P_SMOKE;
-
-	VectorCopy(start, p->org);
-	p->vel[0] = 0;
-	p->vel[1] = 0;
-	p->vel[2] = -20;
-	VectorClear(p->accel);
-
-	p->rotate = qfalse;
-
-	p->roll = rand() % 179;
-
-	p->color = BLOODRED;
-	p->alpha = 0.75;
-}
 
 void CG_Particle_OilParticle(qhandle_t pshader, centity_t * cent)
 {
@@ -1646,6 +1601,53 @@ void CG_OilSlickRemove(centity_t * cent)
 	}
 }
 
+void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration)
+{
+	cparticle_t    *p;
+
+	if(!pshader)
+		CG_Printf("CG_Particle_Bleed pshader == ZERO!\n");
+
+	p = CG_AllocParticle();
+	if(!p)
+		return;
+
+	p->time = cg.time;
+	p->alpha = 1.0;
+	p->alphaVel = 0;
+	p->roll = 0;
+
+	p->pshader = pshader;
+
+	p->endTime = cg.time + duration;
+
+	if(fleshEntityNum)
+		p->startfade = cg.time;
+	else
+		p->startfade = cg.time + 100;
+
+	p->width = 4;
+	p->height = 4;
+
+	p->endHeight = 4 + rand() % 3;
+	p->endWidth = p->endHeight;
+
+	p->type = P_SMOKE;
+
+	VectorCopy(start, p->org);
+	p->vel[0] = 0;
+	p->vel[1] = 0;
+	p->vel[2] = -20;
+	VectorClear(p->accel);
+
+	p->rotate = qfalse;
+
+	p->roll = rand() % 179;
+
+//	p->color = BLOODRED;
+	p->alpha = 0.75;
+}
+
 static qboolean ValidBloodPool(vec3_t start)
 {
 #define EXTRUDE_DIST	0.5
@@ -1692,18 +1694,16 @@ static qboolean ValidBloodPool(vec3_t start)
 	return qtrue;
 }
 
-void CG_BloodPool(localEntity_t * le, qhandle_t pshader, trace_t * tr)
+void CG_BloodPool(qhandle_t pshader, vec3_t origin)
 {
 	cparticle_t    *p;
 	qboolean        legit;
-	vec3_t          start;
 	float           rndSize;
 
 	if(!pshader)
 		CG_Printf("CG_BloodPool pshader == ZERO!\n");
 
-	VectorCopy(tr->endpos, start);
-	legit = ValidBloodPool(start);
+	legit = ValidBloodPool(origin);
 
 	if(!legit)
 		return;
@@ -1731,7 +1731,7 @@ void CG_BloodPool(localEntity_t * le, qhandle_t pshader, trace_t * tr)
 
 	p->type = P_FLAT_SCALEUP;
 
-	VectorCopy(start, p->org);
+	VectorCopy(origin, p->org);
 
 	p->vel[0] = 0;
 	p->vel[1] = 0;
@@ -1744,13 +1744,13 @@ void CG_BloodPool(localEntity_t * le, qhandle_t pshader, trace_t * tr)
 
 	p->alpha = 0.75;
 
-	p->color = BLOODRED;
+//	p->color = BLOODRED;
 }
 
 #define NORMALSIZE	16
 #define LARGESIZE	32
 
-void CG_ParticleBloodCloud(centity_t * cent, vec3_t origin, vec3_t dir)
+void CG_ParticleBloodCloud(vec3_t origin, vec3_t dir)
 {
 	float           length;
 	float           dist;
@@ -1817,7 +1817,6 @@ void CG_ParticleBloodCloud(centity_t * cent, vec3_t origin, vec3_t dir)
 		p->color = BLOODRED;
 
 		p->alpha = 0.75;
-
 	}
 }
 
