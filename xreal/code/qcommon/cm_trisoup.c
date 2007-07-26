@@ -1013,6 +1013,9 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 	float           plane[4] = {0, 0, 0, 0}, bestplane[4] =	{0, 0, 0, 0};
 	vec3_t          startp, endp;
 
+	if(!cm_noExtraAABBs->integer && !BoundsIntersect(tw->bounds[0], tw->bounds[1], tc->bounds[0], tc->bounds[1]))
+		return;
+
 	if(tw->isPoint)
 	{
 		CM_TracePointThroughTriangleSoupCollide(tw, tc);

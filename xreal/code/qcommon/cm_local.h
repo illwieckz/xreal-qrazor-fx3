@@ -149,6 +149,7 @@ extern int      c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
 extern cvar_t  *cm_noAreas;
 extern cvar_t  *cm_noCurves;
 extern cvar_t  *cm_noTriangles;
+extern cvar_t  *cm_noExtraAABBs;
 extern cvar_t  *cm_playerCurveClip;
 
 // cm_test.c
