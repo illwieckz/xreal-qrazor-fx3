@@ -279,6 +279,12 @@ void trap_SnapVector(float *v)
 	return;
 }
 
+void trap_SendGameStat(const char *data)
+{
+	syscall(G_SEND_GAMESTAT, data);
+	return;
+}
+
 // BotLib traps start here
 int trap_BotLibSetup(void)
 {

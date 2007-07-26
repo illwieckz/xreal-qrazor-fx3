@@ -1280,6 +1280,71 @@ void QDECL G_LogPrintf(const char *fmt, ...)
 }
 
 /*
+=================
+G_SendGameStat
+=================
+*/
+static void G_SendGameStat(void)
+{
+	char		map[MAX_STRING_CHARS];
+	char		teamChar;
+	char		data[BIG_INFO_STRING];
+	char		entry[MAX_STRING_CHARS];
+	int			i, dataLength, entryLength;
+	gclient_t  *cl;
+  	 
+	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
+	 
+	Com_sprintf(data, BIG_INFO_STRING,
+  	       "%s M:%s D:%d CL:%d",
+  	       Q3_VERSION,
+  	       map,
+  	       level.time - level.startTime,
+  	       level.numConnectedClients);
+  	 
+	dataLength = strlen(data);
+  	 
+	for(i = 0; i < level.numConnectedClients; i++)
+	{
+		int ping;
+  	 
+		cl = &level.clients[level.sortedClients[i]];
+  	 
+		if(cl->pers.connected == CON_CONNECTING)
+			ping = -1;
+		else
+			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
+  	 
+		switch(cl->sess.sessionTeam)
+		{
+			case TEAM_FREE: teamChar = 'F'; break;
+			case TEAM_RED: teamChar = 'R'; break;
+			case TEAM_BLUE: teamChar = 'B'; break;
+			case TEAM_SPECTATOR: teamChar = 'S'; break;
+			default: return;
+		}
+  	 
+		Com_sprintf(entry, MAX_STRING_CHARS,
+  	       " %s %c %d %d %d",
+  	       cl->pers.netname,
+  	       teamChar,
+  	       cl->ps.persistant[PERS_SCORE],
+  	       ping,
+  	       (level.time - cl->pers.enterTime) / 60000);
+  	 
+		entryLength = strlen(entry);
+  	 
+		if(dataLength + entryLength > MAX_STRING_CHARS)
+			break;
+  	 
+		Q_strncpyz(data + dataLength, entry, BIG_INFO_STRING);
+		dataLength += entryLength;
+	}
+  	 
+	trap_SendGameStat(data);
+}
+
+/*
 ================
 LogExit
 
@@ -1290,10 +1355,10 @@ void LogExit(const char *string)
 {
 	int             i, numSorted;
 	gclient_t      *cl;
-
 #ifdef MISSIONPACK				// bk001205
 	qboolean        won = qtrue;
 #endif
+
 	G_LogPrintf("Exit: %s\n", string);
 
 	level.intermissionQueued = level.time;
@@ -1305,14 +1370,10 @@ void LogExit(const char *string)
 	// don't send more than 32 scores (FIXME?)
 	numSorted = level.numConnectedClients;
 	if(numSorted > 32)
-	{
 		numSorted = 32;
-	}
 
 	if(g_gametype.integer >= GT_TEAM)
-	{
 		G_LogPrintf("red:%i  blue:%i\n", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE]);
-	}
 
 	for(i = 0; i < numSorted; i++)
 	{
@@ -1321,13 +1382,10 @@ void LogExit(const char *string)
 		cl = &level.clients[level.sortedClients[i]];
 
 		if(cl->sess.sessionTeam == TEAM_SPECTATOR)
-		{
 			continue;
-		}
+
 		if(cl->pers.connected == CON_CONNECTING)
-		{
 			continue;
-		}
 
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
@@ -1342,7 +1400,6 @@ void LogExit(const char *string)
 			}
 		}
 #endif
-
 	}
 
 #ifdef MISSIONPACK
@@ -1356,7 +1413,8 @@ void LogExit(const char *string)
 	}
 #endif
 
-
+	// send the game stats to the master server
+	G_SendGameStat();
 }
 
 

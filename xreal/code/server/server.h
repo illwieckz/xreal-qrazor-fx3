@@ -270,16 +270,12 @@ client_t       *SV_GetPlayerByNum(void);
 void            SV_FinalMessage(char *message);
 void QDECL      SV_SendServerCommand(client_t * cl, const char *fmt, ...);
 
-
 void            SV_AddOperatorCommands(void);
 void            SV_RemoveOperatorCommands(void);
 
-
 void            SV_MasterHeartbeat(void);
 void            SV_MasterShutdown(void);
-
-
-
+void			SV_MasterGameStat(const char *data);
 
 //
 // sv_init.c
@@ -293,8 +289,6 @@ void            SV_GetUserinfo(int index, char *buffer, int bufferSize);
 
 void            SV_ChangeMaxClients(void);
 void            SV_SpawnServer(char *server, qboolean killBots);
-
-
 
 //
 // sv_client.c

@@ -245,9 +245,7 @@ void SV_MasterHeartbeat(void)
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if(!com_dedicated || com_dedicated->integer != 2)
-	{
 		return;					// only dedicated servers send heartbeats
-	}
 
 	// if not time yet, don't send anything
 	if(svs.time < svs.nextHeartbeatTime)
@@ -290,8 +288,8 @@ void SV_MasterHeartbeat(void)
 					   adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3], BigShort(adr[i].port));
 		}
 
-
 		Com_Printf("Sending heartbeat to %s\n", sv_master[i]->string);
+
 		// this command should be changed if the server info / status format
 		// ever incompatably changes
 		NET_OutOfBandPrint(NS_SERVER, adr[i], "heartbeat %s\n", HEARTBEAT_GAME);
@@ -319,6 +317,37 @@ void SV_MasterShutdown(void)
 	// it will be removed from the list
 }
 
+/*
+=================
+SV_MasterGameStat
+=================
+*/
+void SV_MasterGameStat(const char *data)
+{
+	static netadr_t adr;
+
+	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
+	if(!com_dedicated || com_dedicated->integer != 2)
+		return;					// only dedicated servers send stats
+  	 
+	Com_Printf("Resolving %s\n", MASTER_SERVER_NAME);
+	if(!NET_StringToAdr(MASTER_SERVER_NAME, &adr))
+	{
+		Com_Printf( "Couldn't resolve address: %s\n", MASTER_SERVER_NAME );
+		return;
+	}
+	else
+	{
+		if(!strstr(":", MASTER_SERVER_NAME))
+			adr.port = BigShort(PORT_MASTER);
+  	 
+		Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", MASTER_SERVER_NAME,
+		   adr.ip[0], adr.ip[1], adr.ip[2], adr.ip[3], BigShort(adr.port));
+	}
+
+	Com_Printf("Sending gamestat to %s\n", MASTER_SERVER_NAME);
+	NET_OutOfBandPrint(NS_SERVER, adr, "gamestat %s", data);
+}
 
 /*
 ==============================================================================

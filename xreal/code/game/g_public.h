@@ -20,7 +20,6 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
 
 // g_public.h -- game module information visible to server
 
@@ -233,6 +232,8 @@ typedef enum
 	// 1.32
 	G_FS_SEEK,
 
+	G_SEND_GAMESTAT,
+
 	BOTLIB_SETUP = 200,			// ( void );
 	BOTLIB_SHUTDOWN,			// ( void );
 	BOTLIB_LIBVAR_SET,
@@ -300,7 +301,6 @@ typedef enum
 	BOTLIB_EA_END_REGULAR,
 	BOTLIB_EA_GET_INPUT,
 	BOTLIB_EA_RESET_INPUT,
-
 
 	BOTLIB_AI_LOAD_CHARACTER = 500,
 	BOTLIB_AI_FREE_CHARACTER,
@@ -383,6 +383,7 @@ typedef enum
 
 	BOTLIB_AI_SET_AVOID_GOAL_TIME,
 	BOTLIB_AI_ADD_AVOID_SPOT,
+
 	BOTLIB_AAS_ALTERNATIVE_ROUTE_GOAL,
 	BOTLIB_AAS_PREDICT_ROUTE,
 	BOTLIB_AAS_POINT_REACHABILITY_AREA_INDEX,

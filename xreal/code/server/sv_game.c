@@ -20,8 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// sv_game.c -- interface to the game dll
 
+// sv_game.c -- interface to the game dll
 #include "server.h"
 
 #include "../game/botlib.h"
@@ -474,6 +474,10 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 			return Com_RealTime(VMA(1));
 		case G_SNAPVECTOR:
 			Sys_SnapVector(VMA(1));
+			return 0;
+
+		case G_SEND_GAMESTAT:
+			SV_MasterGameStat(VMA(1));
 			return 0;
 
 			//====================================
