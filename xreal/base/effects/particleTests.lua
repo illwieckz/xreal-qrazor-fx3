@@ -28,6 +28,10 @@ end
 function SpawnTeleportParticle(origin, shader, vel)
 	
 	p = particle.Spawn()
+
+	if not p then
+		return
+	end
 	
 	p:SetType(particle.SMOKE)
 	p:SetShader(shader)

@@ -36,7 +36,10 @@ static int particle_Spawn(lua_State * L)
 
 	p = CG_AllocParticle();
 	if(!p)
-		return 0;
+	{
+		lua_pushnil(L);
+		return 1;
+	}
 
 	lp = lua_newuserdata(L, sizeof(lua_Particle));
 
