@@ -339,7 +339,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
 	
-	{&cg_particleCollision, "cg_particleCollision", "0", CVAR_ARCHIVE},
+	{&cg_particleCollision, "cg_particleCollision", "1", CVAR_ARCHIVE},
 
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", 0},
