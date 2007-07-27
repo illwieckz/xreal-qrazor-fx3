@@ -178,6 +178,7 @@ code/cgame
 - add motion blur and other special effects
 
 code/game
+- repair weapon switch animations with pm_fastWeaponSwitches 0
 - change BFG to Quake2 BFG
 - add more extensive Lua scripting support
  - improve game class
