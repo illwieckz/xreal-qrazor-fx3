@@ -1580,11 +1580,11 @@ void CM_TraceThroughPatchCollide(traceWork_t * tw, const struct patchCollide_s *
 
 #ifndef BSPC
 	static cvar_t  *cv;
-#endif							//BSPC
 
 	// Tr3B: added simple AABB test
 	if(!cm_noExtraAABBs->integer && !BoundsIntersect(tw->bounds[0], tw->bounds[1], pc->bounds[0], pc->bounds[1]))
 		return;
+#endif
 
 	if(tw->isPoint)
 	{
