@@ -59,7 +59,7 @@ void CG_InitParticles(void)
 	for(i = 0; i < MAX_PARTICLES; i++)
 	{
 		cg_particles[i].next = &cg_particles[i + 1];
-		cg_particles[i].type = 0;
+		cg_particles[i].type = P_NONE;
 	}
 	cg_particles[MAX_PARTICLES - 1].next = NULL;
 
@@ -86,6 +86,7 @@ cparticle_t    *CG_AllocParticle()
 	cg_activeParticles = p;
 
 	// add some nice default values
+	p->flags = 0;
 	p->time = cg.time;
 	p->startfade = cg.time;
 	p->bounceFactor = 0.0f;
@@ -727,6 +728,7 @@ void CG_AddParticles(void)
 	cparticle_t    *active, *tail;
 	int             type;
 	vec3_t          rotate_ang;
+	int				contents;
 
 	// Ridah, made this static so it doesn't interfere with other files
 	static float    roll = 0.0;
@@ -807,14 +809,7 @@ void CG_AddParticles(void)
 			continue;
 		}
 
-		p->next = NULL;
-		if(!tail)
-			active = tail = p;
-		else
-		{
-			tail->next = p;
-			tail = p;
-		}
+		
 
 		if(alpha > 1.0)
 			alpha = 1;
@@ -837,10 +832,10 @@ void CG_AddParticles(void)
 			int             hitTime;
 			float           time;
 
-			//CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
+			CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
 			
-			trap_CM_BoxTrace(&trace, p->oldOrg, org, NULL, NULL, 0, CONTENTS_SOLID);
-			trace.entityNum = trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
+			//trap_CM_BoxTrace(&trace, p->oldOrg, org, NULL, NULL, 0, CONTENTS_SOLID);
+			//trace.entityNum = trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 
 			if(trace.fraction > 0 && trace.fraction < 1)
 			{
@@ -885,6 +880,35 @@ void CG_AddParticles(void)
 				//VectorCopy(p->org, p->oldOrg);
 				VectorCopy(org, p->org);
 			}
+		}
+
+		contents = trap_CM_PointContents(org, 0);
+
+		// Tr3B: kill all particles in solid
+		if(contents & MASK_SOLID)
+		{
+			CG_FreeParticle(p);
+			continue;
+		}
+
+		// kill all air only particles in water or slime
+		if(p->flags & PF_AIRONLY)
+		{
+			if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
+			{
+				CG_FreeParticle(p);
+				continue;
+			}
+		}
+
+		// have this always below CG_FreeParticle(p); !
+		p->next = NULL;
+		if(!tail)
+			active = tail = p;
+		else
+		{
+			tail->next = p;
+			tail = p;
 		}
 
 		type = p->type;
@@ -1884,16 +1908,17 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 	cparticle_t    *p;
 
 	// create particles inside the player box
-	for(i = -16; i < 16; i += 8)
+	for(i = -16; i < 16; i += 4)
 	{
-		for(j = -16; j < 16; j += 8)
+		for(j = -16; j < 16; j += 4)
 		{
-			for(k = MINS_Z; k < 32; k += 8)
+			for(k = MINS_Z; k < 32; k += 4)
 			{
 				p = CG_AllocParticle();
 				if(!p)
 					return;
 
+				p->flags = PF_AIRONLY;
 				p->endTime = cg.time + 700 + random() * 500;
 
 				randVec[0] = origin[0] + i + (rand() & 3);

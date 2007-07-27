@@ -470,9 +470,38 @@ typedef struct
 
 //======================================================================
 
+typedef enum
+{
+	P_NONE,
+	P_WEATHER,
+	P_FLAT,
+	P_SMOKE,
+	P_ROTATE,
+	P_WEATHER_TURBULENT,
+	P_ANIM,						// Ridah
+	P_BAT,
+	P_BLEED,
+	P_FLAT_SCALEUP,
+	P_FLAT_SCALEUP_FADE,
+	P_WEATHER_FLURRY,
+	P_SMOKE_IMPACT,
+	P_BUBBLE,
+	P_BUBBLE_TURBULENT,
+	P_SPRITE
+} particleType_t;
+
+// particle flags
+enum
+{
+	PF_UNDERWATER			= BIT(0),
+	PF_AIRONLY				= BIT(1),
+};
+
 typedef struct particle_s
 {
-	int             type;
+	particleType_t  type;
+	int				flags;
+
 	qhandle_t       pshader;
 
 	float           time;
@@ -511,26 +540,6 @@ typedef struct particle_s
 
 	struct particle_s *next;
 } cparticle_t;
-
-typedef enum
-{
-	P_NONE,
-	P_WEATHER,
-	P_FLAT,
-	P_SMOKE,
-	P_ROTATE,
-	P_WEATHER_TURBULENT,
-	P_ANIM,						// Ridah
-	P_BAT,
-	P_BLEED,
-	P_FLAT_SCALEUP,
-	P_FLAT_SCALEUP_FADE,
-	P_WEATHER_FLURRY,
-	P_SMOKE_IMPACT,
-	P_BUBBLE,
-	P_BUBBLE_TURBULENT,
-	P_SPRITE
-} particle_type_t;
 
 //======================================================================
 
