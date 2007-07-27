@@ -1339,6 +1339,7 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 {
 	float           deltaTime;
 	float           phase;
+	vec3_t          dir;
 
 	switch (tr->trType)
 	{
@@ -1372,6 +1373,36 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 			result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;	// FIXME: local gravity...
 			break;
+		case TR_ACCELERATION:
+			// Tr3B: see http://code3arena.planetquake.gamespy.com/tutorials/tutorial38.shtml
+
+			// simple physics equation, normally written like so:
+			// s = u*t + .5*a*t^2
+
+			// milliseconds to seconds
+			deltaTime = (atTime - tr->trTime) * 0.001;
+
+			// the u*t part. adds the velocity of the object
+			// multiplied by the time to the last result.
+			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+
+			// so far that was the same as TR_LINEAR
+
+			// the .5*a*t^2 part. trDuration = acceleration,
+			// phase gives the magnitude of the distance
+			// we need to move
+			phase = (0.5 * tr->trDuration) * (deltaTime * deltaTime);
+
+			// make dir equal to the velocity of the object
+			VectorCopy(tr->trDelta, dir);
+
+			// sets the magnitude of vector dir to 1
+			VectorNormalize(dir);
+
+			// move a distance "phase" in the direction "dir"
+			// from our starting point
+			VectorMA(result, phase, dir, result);
+			break;
 		default:
 			Com_Error(ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trTime);
 			break;
@@ -1389,6 +1420,7 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 {
 	float           deltaTime;
 	float           phase;
+	vec3_t          dir;
 
 	switch (tr->trType)
 	{
@@ -1417,6 +1449,17 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
 			VectorCopy(tr->trDelta, result);
 			result[2] -= DEFAULT_GRAVITY * deltaTime;	// FIXME: local gravity...
+			break;
+		case TR_ACCELERATION:
+			deltaTime = (atTime - tr->trTime) * 0.001;
+
+			// turn magnitude of acceleration into a vector
+			VectorCopy(tr->trDelta, dir);
+			VectorNormalize(dir);
+			VectorScale(dir, tr->trDuration, dir);
+
+			// u + t * a = v
+			VectorMA(tr->trDelta, deltaTime, dir, result);
 			break;
 		default:
 			Com_Error(ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime);
