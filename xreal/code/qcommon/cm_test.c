@@ -282,6 +282,10 @@ int CM_PointContents(const vec3_t p, clipHandle_t model)
 		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
 		b = &cm.brushes[brushnum];
 
+		// Tr3B: added simple AABB test
+		if(!cm_noExtraAABBs->integer && !BoundsIntersectPoint(b->bounds[0], b->bounds[1], p))
+			continue;
+
 		// see if the point is in the brush
 		for(i = 0; i < b->numsides; i++)
 		{
