@@ -98,6 +98,7 @@ vmCvar_t        g_proxMineTimeout;
 
 // these cvars are shared accross both games
 vmCvar_t		pm_airControl;
+vmCvar_t		pm_fastWeaponSwitches;
 vmCvar_t		pm_fixedPmove;
 vmCvar_t		pm_fixedPmoveFPS;
 
@@ -194,6 +195,7 @@ static cvarTable_t gameCvarTable[] = {
 
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fixedPmove, "pm_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
 
@@ -1414,7 +1416,8 @@ void LogExit(const char *string)
 #endif
 
 	// send the game stats to the master server
-	G_SendGameStat();
+	// Tr3B: FIXME this causes a fatal crash
+//	G_SendGameStat();
 }
 
 

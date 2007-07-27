@@ -1296,6 +1296,7 @@ extern vmCvar_t cg_drawPlayerAABB;
 extern vmCvar_t cg_particleCollision;
 
 extern vmCvar_t pm_airControl;
+extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;
 extern vmCvar_t pm_fixedPmoveFPS;
 

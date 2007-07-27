@@ -190,6 +190,7 @@ vmCvar_t        cg_particleCollision;
 
 // these cvars are shared accross both games
 vmCvar_t		pm_airControl;
+vmCvar_t		pm_fastWeaponSwitches;
 vmCvar_t		pm_fixedPmove;
 vmCvar_t		pm_fixedPmoveFPS;
 
@@ -343,6 +344,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", 0},
+	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", 0},
 	{&pm_fixedPmove, "pm_fixedPmove", "1", 0}, 
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0}, 
 

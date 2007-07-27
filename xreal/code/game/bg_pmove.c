@@ -1644,7 +1644,11 @@ static void PM_BeginWeaponChange(int weapon)
 	}
 
 	PM_AddEvent(EV_CHANGE_WEAPON);
+	
 	pm->ps->weaponstate = WEAPON_DROPPING;
+	if(!pm->fastWeaponSwitches)
+		pm->ps->weaponTime += 200;
+	
 	PM_StartTorsoAnim(TORSO_DROP);
 }
 
@@ -1670,6 +1674,9 @@ static void PM_FinishWeaponChange(void)
 
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
+	if(!pm->fastWeaponSwitches)
+		pm->ps->weaponTime += 250;
+
 	PM_StartTorsoAnim(TORSO_RAISE);
 }
 
@@ -1822,7 +1829,12 @@ static void PM_Weapon(void)
 	if(!pm->ps->ammo[pm->ps->weapon])
 	{
 		PM_AddEvent(EV_NOAMMO);
-		pm->ps->weaponTime += 100;
+		
+		if(pm->fastWeaponSwitches)
+			pm->ps->weaponTime += 100;
+		else
+			pm->ps->weaponTime += 500;
+
 		return;
 	}
 

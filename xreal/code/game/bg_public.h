@@ -178,6 +178,7 @@ typedef struct
 	int             tracemask;	// collide against these types of surfaces
 	int             debugLevel;	// if set, diagnostic output will be printed
 	int             airControl;	// if set, air control will be allowed
+	int             fastWeaponSwitches;	// if set, weapon lower and raise animations will be skipped
 	qboolean        noFootsteps;	// if the game is setup for no footsteps by the server
 	qboolean        gauntletHit;	// true if a gauntlet attack would actually hit something
 

@@ -1130,6 +1130,7 @@ void ClientThink_real(gentity_t * ent)
 	pm.pointcontents = trap_PointContents;
 	pm.debugLevel = g_debugMove.integer;
 	pm.airControl = pm_airControl.integer;
+	pm.fastWeaponSwitches = pm_fastWeaponSwitches.integer;
 	pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0;
 
 	if(pm_fixedPmoveFPS.integer < 60)  

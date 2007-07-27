@@ -813,6 +813,7 @@ void CG_PredictPlayerState(void)
 		cg_pmove.gauntletHit = qfalse;
 
 		cg_pmove.airControl = pm_airControl.integer;
+		cg_pmove.fastWeaponSwitches = pm_fastWeaponSwitches.integer;
 
 		if(pm_fixedPmoveFPS.integer < 60)
 			trap_Cvar_Set("pm_fixedPmoveFPS", "60");
