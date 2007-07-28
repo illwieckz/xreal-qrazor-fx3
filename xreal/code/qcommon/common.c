@@ -25,14 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
-#ifdef __linux__
-#include <netinet/in.h>
-#else
-#if defined(MACOS_X)
+#if defined __linux__ || defined MACOS_X || defined __FreeBSD__
 #include <netinet/in.h>
 #else
 #include <winsock.h>
-#endif
 #endif
 
 int             demo_protocols[] = { 66, 67, 68, 0 };

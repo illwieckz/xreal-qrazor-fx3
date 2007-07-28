@@ -53,7 +53,9 @@ static	int		pc = 0;
 static	int		*instructionPointers = NULL;
 
 // Tr3B - FTOL_PTR outcommented
+#ifndef __FreeBSD__
 //#define FTOL_PTR
+#endif
 
 #ifdef _WIN32
 
