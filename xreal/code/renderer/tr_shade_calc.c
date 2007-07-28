@@ -1141,7 +1141,7 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 
 			case TMOD_ROTATE2:
 			{
-				x = RAD2DEG(RB_EvalExpression(&bundle->texMods[j].rExp, 0)) * 5.0;
+				x = RB_EvalExpression(&bundle->texMods[j].rExp, 0);
 
 				MatrixMultiplyTranslation(matrix, 0.5, 0.5, 0.0);
 				MatrixMultiplyZRotation(matrix, x);
