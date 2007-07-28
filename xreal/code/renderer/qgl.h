@@ -20,10 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-/*
-** QGL.H
-*/
 
+// qgl.h
 #ifndef __QGL_H__
 #define __QGL_H__
 
@@ -159,10 +157,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GL_RGBA4_S3TC                     0x83A3
 #endif
 
-#ifndef GL_DEPTH_CLAMP_NV
-#define GL_DEPTH_CLAMP_NV				  0x864F
-#endif
-
 // TTimo - VC7 / XP ?
 #if defined(WIN32) && ! defined(__MINGW32__)
 typedef void    (APIENTRY * PFNGLMULTITEXCOORD2FARBPROC) (GLenum target, GLfloat s, GLfloat t);
@@ -184,8 +178,6 @@ extern void     (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
 extern void     (APIENTRY * qglDisableVertexAttribArrayARB) (GLuint index);
 
 // GL_ARB_vertex_buffer_object
-//typedef ptrdiff_t GLintptrARB;
-//typedef ptrdiff_t GLsizeiptrARB;
 extern void     (APIENTRY * qglBindBufferARB) (GLenum target, GLuint buffer);
 extern void     (APIENTRY * qglDeleteBuffersARB) (GLsizei n, const GLuint * buffers);
 extern void     (APIENTRY * qglGenBuffersARB) (GLsizei n, GLuint * buffers);
@@ -209,9 +201,6 @@ extern void     (APIENTRY * qglGetQueryObjectivARB) (GLuint id, GLenum pname, GL
 extern void     (APIENTRY * qglGetQueryObjectuivARB) (GLuint id, GLenum pname, GLuint * params);
 
 // GL_ARB_shader_objects
-//typedef char GLcharARB;           /* native character */
-//typedef unsigned int GLhandleARB; /* shader object handle */
-
 extern void     (APIENTRY * qglDeleteObjectARB) (GLhandleARB obj);
 extern          GLhandleARB(APIENTRY * qglGetHandleARB) (GLenum pname);
 extern void     (APIENTRY * qglDetachObjectARB) (GLhandleARB containerObj, GLhandleARB attachedObj);
@@ -300,17 +289,16 @@ extern void     (APIENTRY * qglGetFramebufferAttachmentParameterivEXT) (GLenum t
 																		GLint * params);
 extern void     (APIENTRY * qglGenerateMipmapEXT) (GLenum target);
 
-
 //===========================================================================
 
-// non-windows systems will just redefine qgl* to gl*
+// non-dlopening systems will just redefine qgl* to gl*
 #if !defined( _WIN32 ) && !defined(MACOS_X) && !defined( __linux__ ) && !defined( __FreeBSD__ )	// rb010123
 
 #include "qgl_linked.h"
 
 #else
 
-// windows systems use a function pointer for each call so we can load minidrivers
+// dlopening systems use a function pointer for each call so we can load minidrivers
 
 extern void     (APIENTRY * qglAccum) (GLenum op, GLfloat value);
 extern void     (APIENTRY * qglAlphaFunc) (GLenum func, GLclampf ref);
