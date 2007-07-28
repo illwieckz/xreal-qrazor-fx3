@@ -248,9 +248,6 @@ void ProcessWorldModel(void)
 		FixTJunctions(e);
 	}
 
-	// allocate lightmaps for faces and patches
-	AllocateLightmaps(e);
-
 	// add references to the final drawsurfs in the apropriate clusters
 	FilterDrawsurfsIntoTree(e, tree);
 
@@ -315,9 +312,6 @@ void ProcessSubModel(int entityNum)
 	{
 		FixTJunctions(e);
 	}
-
-	// allocate lightmaps for faces and patches
-	AllocateLightmaps(e);
 
 	// add references to the final drawsurfs in the apropriate clusters
 	FilterDrawsurfsIntoTree(e, tree);
@@ -558,14 +552,6 @@ int BspMain(int argc, char **argv)
 		{
 			fakemap = qtrue;
 			Sys_Printf("will generate fakemap.map\n");
-		}
-		else if(!strcmp(argv[i], "-samplesize"))
-		{
-			samplesize = atoi(argv[i + 1]);
-			if(samplesize < 1)
-				samplesize = 1;
-			i++;
-			Sys_Printf("lightmap sample size is %dx%d units\n", samplesize, samplesize);
 		}
 		else if(!strcmp(argv[i], "-connect"))
 		{

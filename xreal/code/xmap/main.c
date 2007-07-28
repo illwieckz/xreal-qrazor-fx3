@@ -32,8 +32,6 @@ main
 void            Bspinfo(int count, char **fileNames);
 int             BspMain(int argc, char **argv);
 int             VisMain(int argc, char **argv);
-int             LightMain(int argc, char **argv);
-int             VLightMain(int argc, char **argv);
 int             AASMain(int argc, char **argv);
 
 int main(int argc, char **argv)
@@ -61,16 +59,6 @@ int main(int argc, char **argv)
 		VisMain(argc - 1, argv + 1);
 		return 0;
 	}
-	if(!strcmp(argv[1], "-light"))
-	{
-		LightMain(argc - 1, argv + 1);
-		return 0;
-	}
-	if(!strcmp(argv[1], "-vlight"))
-	{
-		VLightMain(argc - 1, argv + 1);
-		return 0;
-	}
 #ifdef AAS
 	if(!strcmp(argv[1], "-bsp2aas"))
 	{
@@ -88,9 +76,7 @@ showUsage:
 			#ifdef AAS
 			"   bsp2aas        = convert BSP to AAS\n"
 			#endif
-			"   vis            = compute visibility\n"
-			"   light          = compute lighting\n"
-			"   vlight         = compute volume lighting\n");
+			"   vis            = compute visibility\n");
 
 	return 0;
 }

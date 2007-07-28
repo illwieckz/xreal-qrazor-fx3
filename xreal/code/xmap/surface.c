@@ -1256,16 +1256,24 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 		}
 		else if(ds->patch)
 		{
+			ds->lightmapNum = -1;
+
 			refs = FilterPatchSurfIntoTree(ds, tree);
 			EmitPatchSurf(ds);
 		}
 		else if(ds->flareSurface)
 		{
+			VectorCopy(mapPlanes[ds->side->planenum].normal, ds->lightmapVecs[2]);
+			ds->lightmapNum = -1;
+
 			refs = FilterFlareSurfIntoTree(ds, tree);
 			EmitFlareSurf(ds);
 		}
 		else
 		{
+			VectorCopy(mapPlanes[ds->side->planenum].normal, ds->lightmapVecs[2]);
+			ds->lightmapNum = -1;
+
 			refs = FilterFaceIntoTree(ds, tree);
 //          if ( ds->shaderInfo->value >= 1000 ) { // ds->shaderInfo->flareShader[0] ) {
 			if(ds->shaderInfo->flareShader[0])
