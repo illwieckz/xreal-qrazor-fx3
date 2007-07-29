@@ -755,7 +755,7 @@ void CG_AddParticles(void)
 	if(!grav)
 		grav = 1;
 	else
-		grav /= 800;
+		grav /= DEFAULT_GRAVITY;
 
 	for(p = cg_activeParticles; p; p = next)
 	{
@@ -820,7 +820,10 @@ void CG_AddParticles(void)
 
 		org[0] = p->org[0] + p->vel[0] * time + p->accel[0] * time2;
 		org[1] = p->org[1] + p->vel[1] * time + p->accel[1] * time2;
-		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2 * grav;
+		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2;
+		
+		// Tr3B: ah well particles shouldn't be affected by gravity
+		//org[2]-= 0.5 * cg_gravity.value * time2;
 
 		// Tr3B: add some collision tests
 		if(cg_particleCollision.integer && p->bounceFactor)
@@ -1974,7 +1977,7 @@ void CG_TestParticles_f(void)
 
 	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], origin);
 
-	CG_ParticleTeleportEffect(origin);
-//  CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
+//	CG_ParticleTeleportEffect(origin);
+	CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
 //  CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 }
