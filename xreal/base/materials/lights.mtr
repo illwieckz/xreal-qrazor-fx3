@@ -799,6 +799,7 @@ lights/defaultProjectedLight
 //	lightFalloffImage	makeintensity(lights/flashoff.tga)
 	
 	{
+		stage attenuationMapXY
 		forceHighQuality
 		map lights/squarelight1.tga
 		colored
@@ -809,15 +810,18 @@ lights/defaultProjectedLight
 
 lights/roqVideoLight
 {
-//	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
-	lightFalloffImage	_noFalloff
+	lightFalloffImage	makeintensity(lights/squarelight1b.tga)
+//	lightFalloffImage	lights/skyline1.png
+//	lightFalloffImage	_noFalloff
 	{
 		stage attenuationMapXY
-		//rotate	time * 3.7
 		colored
-		//rgb		flickerblink[ time * 1 ]
-		videoMap video/idlogo.RoQ
-		//map lights/squarelight1.tga
+		videoMap video/intro.RoQ
+		
+		//scale 1, 0.9
+		//scroll time * 0.1, 0
+		//scroll 0, time * 0.1
+		//rotate 180
 	}
 }
 
@@ -826,6 +830,7 @@ lights/stormLight
 	{
 		if(storm3Table[time * 0.1])
 	
+		stage attenuationMapXY
 		forceHighQuality		
 		map	lights/squarelight.tga
 		colored
@@ -842,6 +847,7 @@ lights/flashLight
 	lightFalloffImage	makeintensity(lights/squarelight1b.png)
 	
 	{
+		stage attenuationMapXY
 		forceHighQuality
 		map	lights/round.png
 		zeroClamp
@@ -854,6 +860,7 @@ lights/flashLight1
 	lightFalloffImage	makeintensity(lights/squarelight1b.png)
 	
 	{
+		stage attenuationMapXY
 		forceHighQuality
 		map	lights/flashlight1.png
 		zeroClamp
