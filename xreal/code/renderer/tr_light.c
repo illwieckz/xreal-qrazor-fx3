@@ -628,11 +628,23 @@ void R_SetupLightProjection(trRefLight_t * light)
 			zNear = 1.0;
 			zFar = light->l.distance;
 
+#if 1
 			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
 			xMin = -xMax;
+#else
+			// flip X projection
+			xMin = zNear * tan(light->l.fovX * M_PI / 360.0f);
+			xMax = -xMin;
+#endif
 
+#if 0
 			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
 			yMin = -yMax;
+#else
+			// HACK: flip Y projection to remove the mirror view from projected .RoQ videos
+			yMin = zNear * tan(light->l.fovY * M_PI / 360.0f);
+			yMax = -yMin;
+#endif
 
 			width = xMax - xMin;
 			height = yMax - yMin;

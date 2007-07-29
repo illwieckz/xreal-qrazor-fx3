@@ -19,6 +19,7 @@ gw_mapobject
 kat_mapobject
 #lights
 pk01
+pjw4tourney1
 reflex_layout
 reflex_ugly
 sfx
@@ -34,6 +35,7 @@ tr3b_paint
 tr3b_parallax
 tr3b_sky
 tr3b_stone
+tr3b_video
 tr3b_water
 tr3b_wood
 #zogg_env

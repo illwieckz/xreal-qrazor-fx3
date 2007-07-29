@@ -2006,6 +2006,7 @@ extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;
 extern cvar_t  *r_vboShadows;
 extern cvar_t  *r_vboLighting;
+extern cvar_t  *r_vboModels;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;

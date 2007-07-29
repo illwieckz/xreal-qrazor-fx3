@@ -1559,7 +1559,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
-			stage->bundle[0].videoMapHandle = ri.CIN_PlayCinematic(token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
+			stage->bundle[0].videoMapHandle = ri.CIN_PlayCinematic(token, 0, 0, 512, 512, (CIN_loop | CIN_silent | CIN_shader));
 			if(stage->bundle[0].videoMapHandle != -1)
 			{
 				stage->bundle[0].isVideoMap = qtrue;

@@ -1871,6 +1871,7 @@ void CIN_UploadCinematic(int handle)
 		{
 			return;
 		}
+
 		if(cinTable[handle].playonwalls <= 0 && cinTable[handle].dirty)
 		{
 			if(cinTable[handle].playonwalls == 0)
@@ -1889,7 +1890,9 @@ void CIN_UploadCinematic(int handle)
 				}
 			}
 		}
-		re.UploadCinematic(256, 256, 256, 256, cinTable[handle].buf, handle, cinTable[handle].dirty);
+
+		re.UploadCinematic(cinTable[handle].width, cinTable[handle].height, cinTable[handle].drawX, cinTable[handle].drawY, cinTable[handle].buf, handle, cinTable[handle].dirty);
+		
 		if(cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1)
 		{
 			cinTable[handle].playonwalls--;
