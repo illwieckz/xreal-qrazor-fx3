@@ -1371,7 +1371,7 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 		case TR_GRAVITY:
 			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
-			result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;	// FIXME: local gravity...
+			result[2] -= 0.5 * tr->trAcceleration * deltaTime * deltaTime;
 			break;
 		case TR_ACCELERATION:
 			// Tr3B: see http://code3arena.planetquake.gamespy.com/tutorials/tutorial38.shtml
@@ -1388,10 +1388,9 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 
 			// so far that was the same as TR_LINEAR
 
-			// the .5*a*t^2 part. trDuration = acceleration,
-			// phase gives the magnitude of the distance
-			// we need to move
-			phase = (0.5 * tr->trDuration) * (deltaTime * deltaTime);
+			// the .5*a*t^2 part.
+			// phase gives the magnitude of the distance we need to move
+			phase = (0.5 * tr->trAcceleration) * (deltaTime * deltaTime);
 
 			// make dir equal to the velocity of the object
 			VectorCopy(tr->trDelta, dir);
@@ -1448,7 +1447,7 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 		case TR_GRAVITY:
 			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
 			VectorCopy(tr->trDelta, result);
-			result[2] -= DEFAULT_GRAVITY * deltaTime;	// FIXME: local gravity...
+			result[2] -= tr->trAcceleration * deltaTime;
 			break;
 		case TR_ACCELERATION:
 			deltaTime = (atTime - tr->trTime) * 0.001;
@@ -1456,7 +1455,7 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 			// turn magnitude of acceleration into a vector
 			VectorCopy(tr->trDelta, dir);
 			VectorNormalize(dir);
-			VectorScale(dir, tr->trDuration, dir);
+			VectorScale(dir, tr->trAcceleration, dir);
 
 			// u + t * a = v
 			VectorMA(tr->trDelta, deltaTime, dir, result);

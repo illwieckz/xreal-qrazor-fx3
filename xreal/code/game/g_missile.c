@@ -644,6 +644,7 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trAcceleration = g_gravity.value;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 	VectorScale(dir, 700, bolt->s.pos.trDelta);
@@ -732,7 +733,7 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	{
 		// use acceleration instead of linear velocity
 		bolt->s.pos.trType = TR_ACCELERATION;
-		bolt->s.pos.trDuration = g_rocketAcceleration.integer;
+		bolt->s.pos.trAcceleration = g_rocketAcceleration.value;
 		VectorScale(dir, g_rocketVelocity.value, bolt->s.pos.trDelta);
 	}
 	else
@@ -891,6 +892,7 @@ gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.generic1 = self->client->sess.sessionTeam;
 
 	bolt->s.pos.trType = TR_GRAVITY;
+	bolt->s.pos.trAcceleration = g_gravity.value;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 	VectorScale(dir, 700, bolt->s.pos.trDelta);

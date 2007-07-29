@@ -144,7 +144,7 @@ void SV_DirectConnect(netadr_t from)
 	version = atoi(Info_ValueForKey(userinfo, "protocol"));
 	if(version != PROTOCOL_VERSION)
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i.", PROTOCOL_VERSION);
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i and you have version %i.", PROTOCOL_VERSION, version);
 		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
 	}
