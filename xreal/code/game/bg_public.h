@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Tr3B: define this to use the new Quake4 like player model system
 //#define XPPM 1
 
-#define	DEFAULT_GRAVITY		800
+#define	DEFAULT_GRAVITY		800	// FIXME: should be 313.92 = 9.81 * 32 SI gravity in Quake units
 
 #ifdef XPPM
 #define	GIB_HEALTH			0

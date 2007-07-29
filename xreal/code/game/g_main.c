@@ -96,6 +96,9 @@ vmCvar_t        g_enableBreath;
 vmCvar_t        g_proxMineTimeout;
 #endif
 
+vmCvar_t        g_rocketAcceleration;
+vmCvar_t        g_rocketVelocity;
+
 // these cvars are shared accross both games
 vmCvar_t		pm_airControl;
 vmCvar_t		pm_fastWeaponSwitches;
@@ -189,6 +192,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse},
 	{&g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse},
 #endif
+
+	{&g_rocketAcceleration, "g_rocketAcceleration", "0", 0, 0, qfalse},
+	{&g_rocketVelocity, "g_rocketVelocity", "900", 0, 0, qfalse},
 
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},

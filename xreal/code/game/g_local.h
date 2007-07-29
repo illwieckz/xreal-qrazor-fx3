@@ -941,6 +941,9 @@ extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
 
+extern vmCvar_t g_rocketAcceleration;
+extern vmCvar_t g_rocketVelocity;
+
 extern vmCvar_t pm_airControl;
 extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;

@@ -728,15 +728,19 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
 
-#if 1
-	bolt->s.pos.trType = TR_LINEAR;
-	VectorScale(dir, 900, bolt->s.pos.trDelta);
-#else
-	// use acceleration instead of linear velocity
-	bolt->s.pos.trType = TR_ACCELERATION;
-	bolt->s.pos.trDuration = 500;	// gravity has 800
-	VectorScale(dir, 300, bolt->s.pos.trDelta);
-#endif
+	if(g_rocketAcceleration.integer)
+	{
+		// use acceleration instead of linear velocity
+		bolt->s.pos.trType = TR_ACCELERATION;
+		bolt->s.pos.trDuration = g_rocketAcceleration.integer;
+		VectorScale(dir, g_rocketVelocity.value, bolt->s.pos.trDelta);
+	}
+	else
+	{
+		bolt->s.pos.trType = TR_LINEAR;
+		VectorScale(dir, g_rocketVelocity.value, bolt->s.pos.trDelta);
+	}
+
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
 	
