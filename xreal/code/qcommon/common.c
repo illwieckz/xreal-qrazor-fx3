@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <winsock.h>
 #endif
 
-int             demo_protocols[] = { 66, 67, 68, 0 };
+int             demo_protocols[] = { PROTOCOL_VERSION, 0 };
 
 #define MAX_NUM_ARGVS	50
 
