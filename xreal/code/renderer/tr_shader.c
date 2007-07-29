@@ -1414,7 +1414,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	}
 
 	// determine image options  
-	if(stage->overrideNoPicMip || shader.noPicMip)
+	if(stage->overrideNoPicMip || shader.noPicMip || stage->highQuality || stage->forceHighQuality)
 	{
 		imageBits |= IF_NOPICMIP;
 	}
@@ -1422,6 +1422,16 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	if(stage->type == ST_NORMALMAP || stage->type == ST_HEATHAZEMAP)
 	{
 		imageBits |= IF_NORMALMAP;
+	}
+
+	if(stage->uncompressed || stage->highQuality || stage->forceHighQuality)
+	{
+		imageBits |= IF_NOCOMPRESSION;
+	}
+
+	if(stage->forceHighQuality)
+	{
+		imageBits |= IF_NOCOMPRESSION;
 	}
 
 	if(stage->overrideFilterType)
@@ -1715,11 +1725,13 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "highQuality"))
 		{
 			stage->highQuality = qtrue;
+			stage->overrideNoPicMip = qtrue;
 		}
 		// forceHighQuality
 		else if(!Q_stricmp(token, "forceHighQuality"))
 		{
 			stage->forceHighQuality = qtrue;
+			stage->overrideNoPicMip = qtrue;
 		}
 		// detail
 		else if(!Q_stricmp(token, "detail"))
