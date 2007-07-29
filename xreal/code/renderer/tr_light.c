@@ -637,7 +637,7 @@ void R_SetupLightProjection(trRefLight_t * light)
 			xMax = -xMin;
 #endif
 
-#if 0
+#if 1
 			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
 			yMin = -yMax;
 #else

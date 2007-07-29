@@ -821,7 +821,7 @@ lights/roqVideoLight
 		//scale 1, 0.9
 		//scroll time * 0.1, 0
 		//scroll 0, time * 0.1
-		//rotate 180
+		rotate 180
 	}
 }
 
