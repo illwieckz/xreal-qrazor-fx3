@@ -1,5 +1,5 @@
 
-function tr3b_rain_Rain1(origin, dir)
+function tr3b_rain_RainGrid128(origin, dir)
 	
 	shader = cgame.RegisterShader("particles/rain01");
 	
@@ -12,8 +12,7 @@ function tr3b_rain_Rain1(origin, dir)
 			org[1] = origin[1] + j
 			org[2] = origin[2]
 		
-			
-			if ((qmath.random() * 10) % 3) then
+			if qmath.random() > 0.7 then
 				tr3b_rain_SpawnRainParticle(org, shader)
 			end
 		end

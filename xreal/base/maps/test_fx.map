@@ -137,9 +137,9 @@ brushDef3
 "classname" "target_fx"
 "name" "target_fx_1"
 "origin" "64 -88 32"
-"fx" "foobar"
 "start_on" "1"
 "angles" "-10 90 0"
+"luaThink" "TestParticleSpawn"
 }
 // entity 7
 {
@@ -157,7 +157,7 @@ brushDef3
 "name" "target_fx_3"
 "origin" "0 128 216"
 "start_on" "1"
-"luaThink" "tr3b_rain_Rain1"
+"luaThink" "tr3b_rain_RainGrid128"
 "angles" "-90 0 0"
 "rotation" "1 0 0 0 1.19249e-008 -1 0 1 1.19249e-008"
 "wait" "0.3"
