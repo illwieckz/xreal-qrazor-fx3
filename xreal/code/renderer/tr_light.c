@@ -354,7 +354,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	}
 
 	// bonus items and view weapons have a fixed minimum add
-	if(ent->e.renderfx & RF_MINLIGHT)
+	if((ent->e.renderfx & RF_MINLIGHT) && VectorLength(ent->ambientLight) <= 0)
 	{
 		// give everything a minimum light add
 		ent->ambientLight[0] += tr.identityLight * 0.125f;
