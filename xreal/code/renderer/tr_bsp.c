@@ -3097,7 +3097,7 @@ static qboolean R_PrecacheFaceInteraction(srfSurfaceFace_t * cv, shader_t * shad
 
 		if(r_shadows->integer == 3 && r_precacheShadowIndexes->integer)
 		{
-			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+			if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 			{
 				return qtrue;
 			}
@@ -3139,7 +3139,7 @@ static int R_PrecacheGridInteraction(srfGridMesh_t * cv, shader_t * shader, trRe
 
 		if(r_shadows->integer == 3 && r_precacheShadowIndexes->integer)
 		{
-			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+			if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 			{
 				return qtrue;
 			}
@@ -3181,7 +3181,7 @@ static int R_PrecacheTrisurfInteraction(srfTriangles_t * cv, shader_t * shader, 
 
 		if(r_shadows->integer == 3 && r_precacheShadowIndexes->integer)
 		{
-			if(r_shadows->integer != 3 || (sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
+			if((sh.numFacing * (6 + 2) * 3) >= SHADER_MAX_INDEXES)
 			{
 				return qtrue;
 			}
