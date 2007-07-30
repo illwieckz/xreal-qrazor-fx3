@@ -138,32 +138,34 @@ static int particle_SetAcceleration(lua_State * L)
 	return 1;
 }
 
-static int particle_SetAlpha(lua_State * L)
+static int particle_SetColor(lua_State * L)
 {
 	cparticle_t    *p;
 	lua_Particle   *lp;
-	float			f;
 
 	lp = lua_getparticle(L, 1);
 	p = lp->p;
 
-	f = luaL_checknumber(L, 2);
-	p->alpha = f;
+	p->color[0] = luaL_checknumber(L, 2);
+	p->color[1] = luaL_checknumber(L, 3);
+	p->color[2] = luaL_checknumber(L, 4);
+	p->color[3] = luaL_checknumber(L, 5);
 
 	return 1;
 }
 
-static int particle_SetAlphaVelocity(lua_State * L)
+static int particle_SetColorVelocity(lua_State * L)
 {
 	cparticle_t    *p;
 	lua_Particle   *lp;
-	float			f;
 
 	lp = lua_getparticle(L, 1);
 	p = lp->p;
 
-	f = luaL_checknumber(L, 2);
-	p->alphaVel = f;
+	p->colorVel[0] = luaL_checknumber(L, 2);
+	p->colorVel[1] = luaL_checknumber(L, 3);
+	p->colorVel[2] = luaL_checknumber(L, 4);
+	p->colorVel[3] = luaL_checknumber(L, 5);
 
 	return 1;
 }
@@ -267,8 +269,8 @@ static const luaL_reg particle_meta[] = {
 	{"SetOrigin", particle_SetOrigin},
 	{"SetVelocity", particle_SetVelocity},
 	{"SetAcceleration", particle_SetAcceleration},
-	{"SetAlpha", particle_SetAlpha},
-	{"SetAlphaVelocity", particle_SetAlphaVelocity},
+	{"SetColor", particle_SetColor},
+	{"SetColorVelocity", particle_SetColorVelocity},
 	{"SetWidth", particle_SetWidth},
 	{"SetHeight", particle_SetHeight},
 	{"SetEndWidth", particle_SetEndWidth},
@@ -311,9 +313,6 @@ int luaopen_particle(lua_State * L)
 
 	lua_pushinteger(L, P_ROTATE);
 	lua_setfield(L, -2, "ROTATE");
-
-	lua_pushinteger(L, P_ANIM);
-	lua_setfield(L, -2, "ANIM");
 
 	lua_pushinteger(L, P_BAT);
 	lua_setfield(L, -2, "BAT");

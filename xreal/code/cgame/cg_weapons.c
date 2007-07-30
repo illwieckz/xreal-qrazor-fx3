@@ -472,10 +472,14 @@ static void CG_RocketTrail(centity_t * ent, const weaponInfo_t * wi)
 		BG_EvaluateTrajectory(&es->pos, t, lastPos);
 
 		smoke = CG_SmokePuff(lastPos, up, wi->trailRadius, 1, 1, 1, 0.33f, wi->wiTrailTime, t, 0, 0, cgs.media.smokePuffShader);
+		
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
 	}
 
+
+//	BG_EvaluateTrajectory(&es->pos, ent->trailTime, lastPos);
+//	CG_ParticleRocketFire(origin, lastPos);
 }
 
 #ifdef MISSIONPACK
@@ -2600,7 +2604,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			radius = 4;
 
 			// some debris particles
-			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
 				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);

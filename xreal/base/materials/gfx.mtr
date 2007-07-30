@@ -922,17 +922,6 @@ teleportEffect
 	}
 }
 
-teleportFlare
-{
-	twoSided
-	
-	{
-		map textures/particles/flare2.tga
-		blend add
-		vertexColor
-	}
-}
-
 // markShadow is the very cheap blurry blob underneat the player
 markShadow
 {
@@ -1179,35 +1168,6 @@ bloodMark3
 	}
 }
 
-bloodTrail
-{
-        
-	nopicmip			// make sure a border remains
-	entityMergable		// allow all the sprites to be merged together
-	{
-		//clampmap gfx/misc/blood.tga
-		//clampmap gfx/damage/blood_spurt.tga
-		clamp
-		map textures/particles/blood2.tga
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
-		vertexColor
-	}
-}
-
-bloodSpurt
-{
-	twoSided
-	nopicmip			// make sure a border remains
-	entityMergable		// allow all the sprites to be merged together
-	
-	{
-		//clamp
-		map gfx/particle/blood2.tga
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
-		vertexColor
-	}
-}
-
 burnMark
 {
 	polygonOffset
@@ -1238,6 +1198,7 @@ gfx/damage/burn_med_mrk
 		vertexColor
 	}
 }
+
 gfx/damage/hole_lg_mrk
 {
 	polygonOffset
@@ -1247,6 +1208,7 @@ gfx/damage/hole_lg_mrk
 		vertexColor
 	}
 }
+
 gfx/damage/plasma_mrk
 {
 	polygonOffset
@@ -1258,27 +1220,6 @@ gfx/damage/plasma_mrk
 	}
 }
 
-
-
-textures/particles/glow
-{
-	twoSided
-	{
-		map textures/particles/glow.tga
-		blend add
-		vertexColor
-	}
-}
-
-textures/particles/glow1
-{
-	twoSided
-	{
-		map textures/particles/glow1.tga
-		blend add
-		vertexColor
-	}
-}
 
 //===============================================================
 

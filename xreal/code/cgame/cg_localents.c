@@ -148,8 +148,10 @@ void CG_BloodTrail(localEntity_t * le)
 							 0,	// fadeInTime
 							 0,	// flags
 							 cgs.media.bloodTrailShader);
+		
 		// use the optimized version
 		blood->leType = LE_FALL_SCALE_FADE;
+		
 		// drop a total of 40 units over its lifetime
 		blood->pos.trDelta[2] = 40;
 	}

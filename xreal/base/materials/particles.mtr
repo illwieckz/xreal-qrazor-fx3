@@ -1,0 +1,59 @@
+
+
+particles/teleportFlare
+{
+	twoSided
+	
+	{
+		map particles/flare2.tga
+		blend add
+		vertexColor
+	}
+}
+
+particles/bloodTrail
+{
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	{
+		clamp
+		map particles/blood2.tga
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		vertexColor
+	}
+}
+
+particles/bloodSpurt
+{
+	twoSided
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	
+	{
+		//clamp
+		map particles/blood2.tga
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		vertexColor
+	}
+}
+
+particles/glow
+{
+	twoSided
+	{
+		map particles/glow.tga
+		blend add
+		vertexColor
+	}
+}
+
+particles/glow1
+{
+	twoSided
+	{
+		map particles/glow1.tga
+		blend add
+		vertexColor
+	}
+}
+

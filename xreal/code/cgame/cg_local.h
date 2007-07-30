@@ -478,7 +478,6 @@ typedef enum
 	P_SMOKE,
 	P_ROTATE,
 	P_WEATHER_TURBULENT,
-	P_ANIM,						// Ridah
 	P_BAT,
 	P_BLEED,
 	P_FLAT_SCALEUP,
@@ -487,7 +486,8 @@ typedef enum
 	P_SMOKE_IMPACT,
 	P_BUBBLE,
 	P_BUBBLE_TURBULENT,
-	P_SPRITE
+	P_SPRITE,
+	P_SPARK
 } particleType_t;
 
 // particle flags
@@ -509,12 +509,12 @@ typedef struct particle_s
 
 	vec3_t          org;
 	vec3_t			oldOrg;
+	
 	vec3_t          vel;
 	vec3_t          accel;
-	int             color;
-	float           colorVel;
-	float           alpha;
-	float           alphaVel;
+	
+	vec4_t			color;
+	vec4_t			colorVel;
 
 	float           width;
 	float           height;
@@ -531,7 +531,6 @@ typedef struct particle_s
 
 	qboolean        link;
 
-	int             shaderAnim;
 	int             roll;
 
 	int             accumroll;
@@ -1673,6 +1672,7 @@ void            CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);
 void			CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, float width, float height, float alpha, qhandle_t shader);
 void            CG_ParticleBloodCloud(vec3_t origin, vec3_t dir);
 void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void            CG_ParticleSparks2(vec3_t org, vec3_t dir, int count);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void            CG_ParticleTeleportEffect(const vec3_t origin);

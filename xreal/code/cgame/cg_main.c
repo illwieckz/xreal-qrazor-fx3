@@ -893,8 +893,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.blueProxMine = trap_R_RegisterModel("models/weaphits/proxmineb.md3");
 #endif
 	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
-	cgs.media.bloodTrailShader = trap_R_RegisterShader("bloodTrail");
-	cgs.media.bloodSpurtShader = trap_R_RegisterShader("bloodSpurt");
+	cgs.media.bloodTrailShader = trap_R_RegisterShader("particles/bloodTrail");
+	cgs.media.bloodSpurtShader = trap_R_RegisterShader("particles/bloodSpurt");
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
 	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
 
@@ -919,7 +919,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
 	cgs.media.rotoscopeShader = trap_R_RegisterShader("rotoscope");
 	
-	cgs.media.sparkShader = trap_R_RegisterShader("textures/particles/glow1");
+	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
 
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
@@ -1037,7 +1037,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
 	
-	cgs.media.teleportFlareShader = trap_R_RegisterShader("teleportFlare");
+	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/teleportFlare");
 
 #ifdef MISSIONPACK
 	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3");

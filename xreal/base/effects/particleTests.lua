@@ -56,9 +56,8 @@ function SpawnTeleportParticle(origin, shader, vel)
 	tmpVec[2] = 30
 	p:SetAcceleration(tmpVec)
 	
-	-- don't fade too fast
-	p:SetAlpha(1.0)
-	p:SetAlphaVelocity(0)
+	-- set color
+	p:SetColor(1.0, 1.0, 1.0, 1.0)
 
 	-- size it
 	dim = 3 + qmath.random() * 2
