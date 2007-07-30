@@ -4673,7 +4673,6 @@ void R_SetColorMappings(void)
 	}
 
 	tr.identityLight = 1.0f / (1 << tr.overbrightBits);
-	tr.identityLightByte = 255 * tr.identityLight;
 
 	if(r_intensity->value <= 1)
 	{

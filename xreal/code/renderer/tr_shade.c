@@ -428,6 +428,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
 	tr.depthFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AlphaTest");
+	tr.depthFillShader.u_AmbientColor = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AmbientColor");
 
 	qglUseProgramObjectARB(tr.depthFillShader.program);
 	qglUniform1iARB(tr.depthFillShader.u_ColorMap, 0);
@@ -1393,70 +1394,12 @@ static void Render_geometricFill_DBS(int stage)
 }
 
 
-static void Render_depthFill_FFP(int stage)
-{
-	shaderStage_t  *pStage;
-
-	GLimp_LogComment("--- Render_depthFill_FFP ---\n");
-
-	pStage = tess.surfaceStages[stage];
-
-#if 1
-	qglColor3f(0, 0, 0);
-#else
-	qglColor3f(1, 1, 1);
-#endif
-
-	GL_Program(0);
-	GL_State(pStage->stateBits);
-	GL_ClientState(GLCS_VERTEX);
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		//qglEnable(GL_TEXTURE_2D);
-		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		qglMatrixMode(GL_TEXTURE);
-		qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
-		qglMatrixMode(GL_MODELVIEW);
-
-		if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
-		{
-			qglTexCoordPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsTexCoords));
-		}
-		else
-		{
-			qglTexCoordPointer(4, GL_FLOAT, 0, tess.texCoords);
-		}
-
-		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.whiteImage);
-	}
-
-	DrawElements();
-
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		//qglDisable(GL_TEXTURE_2D);
-	}
-
-	GL_CheckErrors();
-}
-
-#if 1
-#define Render_depthFill Render_depthFill_FFP
-#else
 static void Render_depthFill(int stage)
 {
 	shaderStage_t  *pStage;
 	unsigned        stateBits;
 	float           alphaTest;
+	vec4_t          ambientColor;
 
 	GLimp_LogComment("--- Render_depthFill ---\n");
 
@@ -1483,29 +1426,24 @@ static void Render_depthFill(int stage)
 		alphaTest = -1.0;
 	}
 
+	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
+	VectorScale(ambientColor, r_ambientScale->value, ambientColor);
+	ClampColor(ambientColor);
+
 	qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
+	qglUniform3fARB(tr.depthFillShader.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
-
-	if(pStage->stateBits & GLS_ATEST_BITS)
-	{
-		qglMatrixMode(GL_TEXTURE);
-		qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-		qglMatrixMode(GL_MODELVIEW);
-
-		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.whiteImage);
-	}
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 
 	DrawElements();
 
 	GL_CheckErrors();
 }
-#endif
 
 static void Render_shadowFill(int stage)
 {
@@ -2755,10 +2693,10 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 		default:
 		case CGEN_IDENTITY_LIGHTING:
 		{
-			tess.svars.color[0] = tr.identityLightByte * (1.0 / 255.0);
-			tess.svars.color[1] = tr.identityLightByte * (1.0 / 255.0);
-			tess.svars.color[2] = tr.identityLightByte * (1.0 / 255.0);
-			tess.svars.color[3] = tr.identityLightByte * (1.0 / 255.0);
+			tess.svars.color[0] = tr.identityLight;
+			tess.svars.color[1] = tr.identityLight;
+			tess.svars.color[2] = tr.identityLight;
+			tess.svars.color[3] = tr.identityLight;
 			break;
 		}
 

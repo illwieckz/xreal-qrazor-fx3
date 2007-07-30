@@ -790,8 +790,8 @@ typedef struct shaderProgram_s
 	GLint           u_ViewOrigin;
 
 	GLint           u_Color;
-	GLint           u_AmbientColor;
 	GLint           u_InverseVertexColor;
+	GLint           u_AmbientColor;
 
 	GLint           u_LightDir;
 	GLint           u_LightOrigin;
@@ -1772,7 +1772,6 @@ typedef struct
 	viewParms_t     viewParms;
 
 	float           identityLight;	// 1.0 / ( 1 << overbrightBits )
-	int             identityLightByte;	// identityLight * 255
 	int             overbrightBits;	// r_overbrightBits->integer, but set to 0 if no hw gamma
 
 	orientationr_t  or;			// for current entity
@@ -1783,6 +1782,8 @@ typedef struct
 
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;
+
+	vec3_t			ambientColor;
 
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
@@ -1869,7 +1870,6 @@ extern cvar_t  *r_lodbias;		// push/pull LOD transitions
 extern cvar_t  *r_lodscale;
 
 extern cvar_t  *r_ambientScale;
-extern cvar_t  *r_directedScale;
 extern cvar_t  *r_lightScale;
 extern cvar_t  *r_debugLight;
 

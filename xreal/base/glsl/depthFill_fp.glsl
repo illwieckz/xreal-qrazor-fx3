@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform float		u_AlphaTest;
+uniform vec3        u_AmbientColor;
 
 varying vec2		var_Tex;
 
@@ -34,5 +35,6 @@ void	main()
 		discard;
 	}
 
-	gl_FragColor = vec4(0.0, 0.0, 0.0, color.a);
+	color.rgb *= u_AmbientColor;
+	gl_FragColor = color;
 }

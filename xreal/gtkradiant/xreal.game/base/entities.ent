@@ -1265,14 +1265,13 @@ LIGHT ENTITY
 <point name="light" color=".65 .65 1" box="-8 -8 -8 8 8 8">
 Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights.
 -------- KEYS --------
-<color key="color" name="Light Color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
+<color key="_color" name="Light Color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
 <string key="texture" name="Light Material Shader">Shader to use for light attenuation.</string>
 <real3 key="light_radius" name="Boxed Light Radius">overrides the default 300 300 300 box radius</real3>
 <real key="light_distance" name="Spotlight Radius">overrides the default 300 unit radius of a spotlight.</real>
 <real key="light_fovX" name="Spotlight FOV width angle">overrides the default 90 degrees.</real>
 <real key="light_fovY" name="Spotlight FOV height angle">overrides the default 90 degrees.</real>
 <boolean key="noshadows" name="No Shadows">Set this key to 1 to disable shadow casting.</boolean>
-<boolean key="nospecular" name="No Specular Term">Set this key to 1 to disable specular rendering.</boolean>
 -------- SPAWNFLAGS --------
 <flag key="LINEAR" name="Linear Falloff" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
 <flag key="NOANGLE" name="No Angle Attenuation" bit="1">Ignore angle attenuation.</flag>
@@ -2215,8 +2214,7 @@ Only used for the world.
 -------- KEYS --------
 <string key="message" name="Logon Message">text to print at user logon. Used for name of level.</string>
 <sound key="music" name="Music File">path/name of looping .wav file used for level's music (eg. music/sonic5.wav).</sound>
-<real key="_ambient;ambient" name="Ambient Intensity">Adds a constant value to overall lighting. Use is not recommended. Ambient light will have a tendency to flatten out variations in light and shade.</real>
-<color key="color" name="Ambient Color">RGB value for ambient light color (default is 0 0 0).</color>
+<color key="ambientColor" name="Ambient Color">RGB value for ambient light color (default is 0 0 0).</color>
 <real key="gravity" name="Gravity">gravity of level (default is normal gravity: 800).</real>
 <integer3 key="gridsize" name="Dynamic Light Granularity">granularity of the lightgrid created by q3map. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 128 128 256. Use larger powers of 2 to reduce BSP size and compile time on very large maps.</integer3>
 <integer key="_blocksize" name="BSP Block Size">q3map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Default _blocksize value is 1024. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density.</integer>

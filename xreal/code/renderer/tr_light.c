@@ -254,9 +254,6 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 		VectorScale(ent->directedLight, totalFactor, ent->directedLight);
 	}
 
-	VectorScale(ent->ambientLight, r_ambientScale->value, ent->ambientLight);
-	VectorScale(ent->directedLight, r_directedScale->value, ent->directedLight);
-
 	VectorNormalize2(direction, ent->lightDir);
 }
 
@@ -340,26 +337,37 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	}
 	else
 	{
-		ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
+		if(!(refdef->rdflags & RDF_NOWORLDMODEL))
+		{
+			ent->ambientLight[0] = tr.ambientColor[0];
+			ent->ambientLight[1] = tr.ambientColor[1];
+			ent->ambientLight[2] = tr.ambientColor[2];
+		}
+		else
+		{
+			ent->ambientLight[0] = 0;
+			ent->ambientLight[1] = 0;
+			ent->ambientLight[2] = 0;
+		}
 		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
 		VectorCopy(tr.sunDirection, ent->lightDir);
 	}
 
 	// bonus items and view weapons have a fixed minimum add
-	if(1 /* ent->e.renderfx & RF_MINLIGHT */ )
+	if(ent->e.renderfx & RF_MINLIGHT)
 	{
 		// give everything a minimum light add
-		ent->ambientLight[0] += tr.identityLight * 32;
-		ent->ambientLight[1] += tr.identityLight * 32;
-		ent->ambientLight[2] += tr.identityLight * 32;
+		ent->ambientLight[0] += tr.identityLight * 0.125f;
+		ent->ambientLight[1] += tr.identityLight * 0.125f;
+		ent->ambientLight[2] += tr.identityLight * 0.125f;
 	}
 
 	// clamp ambient
 	for(i = 0; i < 3; i++)
 	{
-		if(ent->ambientLight[i] > tr.identityLightByte)
+		if(ent->ambientLight[i] > tr.identityLight)
 		{
-			ent->ambientLight[i] = tr.identityLightByte;
+			ent->ambientLight[i] = tr.identityLight;
 		}
 	}
 
@@ -367,12 +375,6 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	{
 		LogLight(ent);
 	}
-
-	// save out the byte packet version
-	((byte *) & ent->ambientLightInt)[0] = myftol(ent->ambientLight[0]);
-	((byte *) & ent->ambientLightInt)[1] = myftol(ent->ambientLight[1]);
-	((byte *) & ent->ambientLightInt)[2] = myftol(ent->ambientLight[2]);
-	((byte *) & ent->ambientLightInt)[3] = 0xff;
 
 	// transform the direction to local space
 	d = VectorLength(ent->directedLight);

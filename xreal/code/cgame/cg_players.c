@@ -3061,33 +3061,32 @@ int CG_LightVerts(vec3_t normal, int numVerts, polyVert_t * verts)
 		incoming = DotProduct(normal, lightDir);
 		if(incoming <= 0)
 		{
-			verts[i].modulate[0] = ambientLight[0];
-			verts[i].modulate[1] = ambientLight[1];
-			verts[i].modulate[2] = ambientLight[2];
+			verts[i].modulate[0] = 255 * ambientLight[0];
+			verts[i].modulate[1] = 255 * ambientLight[1];
+			verts[i].modulate[2] = 255 * ambientLight[2];
 			verts[i].modulate[3] = 255;
 			continue;
 		}
 		j = (ambientLight[0] + incoming * directedLight[0]);
-		if(j > 255)
+		if(j > 1)
 		{
-			j = 255;
+			j = 1;
 		}
-		verts[i].modulate[0] = j;
+		verts[i].modulate[0] = j * 255;
 
 		j = (ambientLight[1] + incoming * directedLight[1]);
-		if(j > 255)
+		if(j > 1)
 		{
-			j = 255;
+			j = 1;
 		}
-		verts[i].modulate[1] = j;
+		verts[i].modulate[1] = j * 255;
 
 		j = (ambientLight[2] + incoming * directedLight[2]);
-		if(j > 255)
+		if(j > 1)
 		{
-			j = 255;
+			j = 1;
 		}
-		verts[i].modulate[2] = j;
-
+		verts[i].modulate[2] = j * 255;
 		verts[i].modulate[3] = 255;
 	}
 	return qtrue;

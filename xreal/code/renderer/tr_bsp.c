@@ -2353,6 +2353,15 @@ void R_LoadEntities(lump_t * l)
 			continue;
 		}
 
+		// check for ambient color
+		else if(!Q_stricmp(keyname, "_color") || !Q_stricmp(keyname, "ambientColor"))
+		{
+			sscanf(value, "%f %f %f", &tr.ambientColor[0], &tr.ambientColor[1], &tr.ambientColor[2]);
+			
+			VectorCopy(tr.ambientColor, tr.worldEntity.ambientLight);
+			VectorScale(tr.worldEntity.ambientLight, r_ambientScale->value, tr.worldEntity.ambientLight);
+		}
+
 		if(!Q_stricmp(keyname, "classname") && Q_stricmp(value, "worldspawn"))
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: expected worldspawn found '%s'\n", value);
@@ -4681,6 +4690,11 @@ void RE_LoadWorldMap(const char *name)
 	tr.sunDirection[2] = 0.9f;
 
 	VectorNormalize(tr.sunDirection);
+
+	// set default ambient color
+	tr.ambientColor[0] = 0;
+	tr.ambientColor[1] = 0;
+	tr.ambientColor[2] = 0;
 
 	tr.worldMapLoaded = qtrue;
 
