@@ -2,7 +2,7 @@
 function TestParticleSpawn(origin)
 	-- cgame.Print("testParticleSpawn called")
 	
-	shader = cgame.RegisterShader("teleportFlare");
+	shader = cgame.RegisterShader("particles/teleportFlare");
 	
 	-- spawn particles in a small circle
 	up = vector.Construct(0, 0, 1)
