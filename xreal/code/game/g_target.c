@@ -566,8 +566,6 @@ static void target_fx_think(gentity_t * self)
 		self->nextthink = level.time + FRAMETIME;
 		self->think = G_FreeEntity;
 	}
-
-	self->nextthink = level.time + 1000;
 }
 
 
@@ -587,10 +585,18 @@ void SP_target_fx(gentity_t * self)
 	if(!startOn)
 		self->s.eFlags |= EF_NODRAW;
 
-	G_SpawnString("luaThink", "TestParticleSpawn", &effectName);
+	G_SpawnString("luaThink", "", &effectName);
 	self->s.modelindex = G_EffectIndex(effectName);
 
 	G_SetOrigin(self, self->s.origin);
+
+	// save angles
+	VectorCopy(self->s.angles, self->s.apos.trBase);
+	self->s.apos.trType = TR_STATIONARY;
+	self->s.apos.trTime = 0;
+	self->s.apos.trDuration = 0;
+	VectorClear(self->s.apos.trDelta);
+	//VectorCopy(origin, ent->r.currentAOrigin);
 
 	VectorClear(self->r.mins);
 	VectorClear(self->r.maxs);

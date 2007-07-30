@@ -104,6 +104,7 @@ static int particle_SetOrigin(lua_State * L)
 
 	origin = lua_getvector(L, 2);
 	VectorCopy(origin, p->org);
+	VectorCopy(origin, p->oldOrg);
 
 	return 1;
 }
@@ -334,6 +335,9 @@ int luaopen_particle(lua_State * L)
 
 	lua_pushinteger(L, P_SPRITE);
 	lua_setfield(L, -2, "SPRITE");
+
+	lua_pushinteger(L, P_SPARK);
+	lua_setfield(L, -2, "SPARK");
 
 	return 1;
 }

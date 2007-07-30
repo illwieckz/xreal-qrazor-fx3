@@ -57,3 +57,24 @@ particles/glow1
 	}
 }
 
+particles/steam
+{
+	twoSided
+	entityMergable		// allow all the sprites to be merged together
+	{
+		map particles/steam.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		vertexColor
+	}
+}
+
+particles/rain01
+{
+	twoSided
+	entityMergable		// allow all the sprites to be merged together
+	{
+		map particles/rain01.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		vertexColor
+	}
+}

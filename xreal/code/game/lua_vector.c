@@ -63,9 +63,9 @@ static int vector_Set(lua_State * L)
 
 	v = lua_getvector(L, 1);
 
-	v[0] = luaL_optnumber(L, 1, 0);
-	v[1] = luaL_optnumber(L, 2, 0);
-	v[2] = luaL_optnumber(L, 3, 0);
+	v[0] = luaL_optnumber(L, 2, 0);
+	v[1] = luaL_optnumber(L, 3, 0);
+	v[2] = luaL_optnumber(L, 4, 0);
 
 	return 1;
 }

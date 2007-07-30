@@ -1325,10 +1325,12 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_EFFECT");
 			
 			// Tr3B: run scriptable effects like "TestParticleSpawn" in "effects/particleTests.lua"
+			AngleVectors(cent->lerpAngles, dir, NULL, NULL);
+
 			s = CG_ConfigString(CS_EFFECTS + es->eventParm);
 			if(s[0])
 			{
-				CG_RunLuaFunction(s, "v", position);
+				CG_RunLuaFunction(s, "vv", position, dir);
 			}
 			break;
 

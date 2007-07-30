@@ -1,17 +1,18 @@
 
-function TestParticleSpawn(origin)
+function TestParticleSpawn(origin, dir)
 	-- cgame.Print("testParticleSpawn called")
 	
 	shader = cgame.RegisterShader("particles/teleportFlare");
 	
 	-- spawn particles in a small circle
-	up = vector.Construct(0, 0, 1)
+	vector.Set(dir, 0, 0, 1)  --  remove this to spawn particles into the forward direction of target_fx angles
+	
 	forward = vector.Construct(20, 0, 0)
 	dst = vector.New()
 	vel = vector.New()
 	for angle = 0, 360, 30 do
 		
-		vector.RotatePointAround(dst, up, forward, angle);
+		vector.RotatePointAround(dst, dir, forward, angle);
 		
 		-- move into center
 		vel[0] = -dst[0] * 0.4
@@ -21,11 +22,11 @@ function TestParticleSpawn(origin)
 		-- add circle origin to world origin
 		dst = dst + origin
 		
-		SpawnTeleportParticle(dst, shader, vel)
+		SpawnTeleportParticle(dst, shader, vel, dir)
 	end
 end
 
-function SpawnTeleportParticle(origin, shader, vel)
+function SpawnTeleportParticle(origin, shader, vel, dir)
 	
 	p = particle.Spawn()
 
@@ -50,11 +51,15 @@ function SpawnTeleportParticle(origin, shader, vel)
 	p:SetVelocity(vel)
 
 	-- add some gravity/randomness
-	tmpVec = vector.New()
-	tmpVec[0] = 0 --qmath.crandom() * 3
-	tmpVec[1] = 0 --qmath.crandom() * 3
-	tmpVec[2] = 30
-	p:SetAcceleration(tmpVec)
+	--tmpVec = vector.New()
+	--tmpVec[0] = 0 --qmath.crandom() * 3
+	--tmpVec[1] = 0 --qmath.crandom() * 3
+	--tmpVec[2] = 30
+	--p:SetAcceleration(tmpVec)
+	
+	accel = vector.New()
+	vector.Scale(dir, 30, accel)
+	p:SetAcceleration(accel)
 	
 	-- set color
 	p:SetColor(1.0, 1.0, 1.0, 1.0)
