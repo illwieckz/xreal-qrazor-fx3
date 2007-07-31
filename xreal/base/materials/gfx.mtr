@@ -1128,46 +1128,6 @@ gfx/misc/tracer
 	}
 }
 
-//
-// wall marks
-// use blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR so that
-// their "contribution" can be damped down in fog volumes
-// with distance
-bloodMark
-{
-	nopicmip			// make sure a border remains
-	polygonOffset
-	{
-		//clampmap gfx/damage/blood_stain.tga
-		clampmap textures/decals/blood_splat01.tga
-		//blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		vertexColor
-	}
-}
-
-bloodMark2
-{
-	nopicmip			// make sure a border remains
-	polygonOffset
-	{
-		clampmap textures/decals/blood_splat02.tga
-		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		vertexColor
-	}
-}
-
-bloodMark3
-{
-	nopicmip			// make sure a border remains
-	polygonOffset
-	{
-		clampmap textures/decals/blood_splat03.tga
-		blendFunc GL_ZERO GL_ONE_MINUS_SRC_COLOR
-		vertexColor
-	}
-}
-
 burnMark
 {
 	polygonOffset

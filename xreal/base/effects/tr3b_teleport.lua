@@ -1,8 +1,15 @@
 
+--
+-- TARGET_FX FUNCTIONS
+--
+
 function TestParticleSpawn(origin, dir)
-	-- cgame.Print("testParticleSpawn called")
+	tr3b_teleport_ParticleCircle1(origin, dir)
+end
+
+function tr3b_teleport_ParticleCircle1(origin, dir)
 	
-	shader = cgame.RegisterShader("particles/teleportFlare");
+	shader = cgame.RegisterShader("particles/flare2");
 	
 	-- spawn particles in a small circle
 	vector.Set(dir, 0, 0, 1)  --  remove this to spawn particles into the forward direction of target_fx angles
@@ -22,11 +29,17 @@ function TestParticleSpawn(origin, dir)
 		-- add circle origin to world origin
 		dst = dst + origin
 		
-		SpawnTeleportParticle(dst, shader, vel, dir)
+		tr3b_teleport_SpawnTeleportParticle(dst, shader, vel, dir)
 	end
 end
 
-function SpawnTeleportParticle(origin, shader, vel, dir)
+
+
+--
+-- HELPER FUNCTIONS
+--
+
+function tr3b_teleport_SpawnTeleportParticle(origin, shader, vel, dir)
 	
 	p = particle.Spawn()
 

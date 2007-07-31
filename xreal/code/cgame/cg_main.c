@@ -893,10 +893,10 @@ static void CG_RegisterGraphics(void)
 	cgs.media.blueProxMine = trap_R_RegisterModel("models/weaphits/proxmineb.md3");
 #endif
 	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
-	cgs.media.bloodTrailShader = trap_R_RegisterShader("particles/bloodTrail");
-	cgs.media.bloodSpurtShader = trap_R_RegisterShader("particles/bloodSpurt");
-	cgs.media.bloodSpurt2Shader = trap_R_RegisterShader("particles/bloodSpurt2");
-	cgs.media.bloodSpurt3Shader = trap_R_RegisterShader("particles/bloodSpurt3");
+	cgs.media.bloodTrailShader = trap_R_RegisterShader("particles/blood");
+	cgs.media.bloodSpurtShader = trap_R_RegisterShader("particles/blood2");
+	cgs.media.bloodSpurt2Shader = trap_R_RegisterShader("particles/blood2");
+	cgs.media.bloodSpurt3Shader = trap_R_RegisterShader("particles/blood2");
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
 	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
 
@@ -1039,7 +1039,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
 	
-	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/teleportFlare");
+	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
 
 #ifdef MISSIONPACK
 	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3");
@@ -1086,9 +1086,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.energyMarkShader = trap_R_RegisterShader("gfx/damage/plasma_mrk");
 	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
 	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
-	cgs.media.bloodMarkShader = trap_R_RegisterShader("bloodMark");
-	cgs.media.bloodMark2Shader = trap_R_RegisterShader("bloodMark2");
-	cgs.media.bloodMark3Shader = trap_R_RegisterShader("bloodMark3");
+	cgs.media.bloodMarkShader = trap_R_RegisterShader("textures/decals/blood_splat01");
+	cgs.media.bloodMark2Shader = trap_R_RegisterShader("textures/decals/blood_splat02");
+	cgs.media.bloodMark3Shader = trap_R_RegisterShader("textures/decals/blood_splat03");
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();

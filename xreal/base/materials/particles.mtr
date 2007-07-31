@@ -1,6 +1,6 @@
 
 
-particles/teleportFlare
+particles/flare2
 {
 	twoSided
 	
@@ -11,19 +11,19 @@ particles/teleportFlare
 	}
 }
 
-particles/bloodTrail
+particles/blood_trail
 {
 	nopicmip			// make sure a border remains
 	entityMergable		// allow all the sprites to be merged together
 	{
 		clamp
-		map particles/blood_splat01.tga
+		map particles/blood_trail.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
 	}
 }
 
-particles/bloodSpurt
+particles/blood
 {
 	twoSided
 	nopicmip			// make sure a border remains
@@ -31,17 +31,13 @@ particles/bloodSpurt
 	
 	{
 		clamp
-		
-		//map particles/blood2.tga
-		//blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR <-- Doom3 style
-		
-		map particles/blood03.tga
-		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA  // Q3A style
+		map particles/blood2.tga
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR		// Doom3 style
 		vertexColor
 	}
 }
 
-particles/bloodSpurt2
+particles/blood2
 {
 	twoSided
 	nopicmip			// make sure a border remains
@@ -49,13 +45,27 @@ particles/bloodSpurt2
 	
 	{
 		clamp
-		map particles/blood04.tga
+		map particles/blood2.tga
+		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR		// Doom3 style
+		vertexColor
+	}
+}
+
+particles/blood_spurt
+{
+	twoSided
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	
+	{
+		clamp
+		map particles/blood_spurt.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
 	}
 }
 
-particles/bloodSpurt3
+particles/blood_spurt2
 {
 	twoSided
 	nopicmip			// make sure a border remains
@@ -63,7 +73,21 @@ particles/bloodSpurt3
 	
 	{
 		clamp
-		map particles/blood05.tga
+		map particles/blood_spurt.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		vertexColor
+	}
+}
+
+particles/blood_spurt3
+{
+	twoSided
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	
+	{
+		clamp
+		map particles/blood_spurt.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
 	}
