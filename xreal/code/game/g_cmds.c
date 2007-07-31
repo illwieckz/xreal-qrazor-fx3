@@ -1863,7 +1863,7 @@ void Cmd_Stats_f(gentity_t * ent)
 	//trap_SendServerCommand( ent-g_entities, va("print \"visited %d of %d areas\n\"", n, max));
 	trap_SendServerCommand( ent-g_entities, va("print \"%d%% level coverage\n\"", n * 100 / max));
 	*/
-}							// LUA
+}								// LUA
 
 //r1admin
 void Cmd_Login_f(gentity_t * ent)
@@ -2162,9 +2162,9 @@ void Cmd_Ban_f(gentity_t * ent)
 
 void Cmd_Status_f(gentity_t * ent)
 {
-	int				i;
-	gentity_t	   *cl;
-	char			msg[1000];
+	int             i;
+	gentity_t      *cl;
+	char            msg[1000];
 
 	if(!Admin_HasPermission(ent, PERMISSION_VIEW))
 		return;

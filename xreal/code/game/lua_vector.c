@@ -123,7 +123,7 @@ static int vector_Scale(lua_State * L)
 static int vector_Length(lua_State * L)
 {
 	vec_t          *a;
-	vec_t			len;
+	vec_t           len;
 
 	a = lua_getvector(L, 1);
 
@@ -136,7 +136,7 @@ static int vector_Length(lua_State * L)
 static int vector_Normalize(lua_State * L)
 {
 	vec_t          *a;
-	vec_t			len;
+	vec_t           len;
 
 	a = lua_getvector(L, 1);
 
@@ -162,7 +162,7 @@ static int vector_RotatePointAround(lua_State * L)
 	vec_t          *dst;
 	vec_t          *dir;
 	vec_t          *point;
-	vec_t			degrees;
+	vec_t           degrees;
 
 	dst = lua_getvector(L, 1);
 	dir = lua_getvector(L, 2);
@@ -254,7 +254,7 @@ static int vector_SetElem(lua_State * L)
 static int vector_AddOperator(lua_State * L)
 {
 	vec_t          *a, *b;
-	vec3_t			c;
+	vec3_t          c;
 
 	a = lua_getvector(L, 1);
 	b = lua_getvector(L, 2);
@@ -269,7 +269,7 @@ static int vector_AddOperator(lua_State * L)
 static int vector_SubOperator(lua_State * L)
 {
 	vec_t          *a, *b;
-	vec3_t			c;
+	vec3_t          c;
 
 	a = lua_getvector(L, 1);
 	b = lua_getvector(L, 2);
@@ -296,7 +296,7 @@ static int vector_DotOperator(lua_State * L)
 static int vector_NegateOperator(lua_State * L)
 {
 	vec_t          *a;
-	vec3_t			b;
+	vec3_t          b;
 
 	a = lua_getvector(L, 1);
 
@@ -362,13 +362,13 @@ int luaopen_vector(lua_State * L)
 	// now the stack has the metatable at index 1 and `vector' at index 2
 	lua_pushstring(L, "__index");
 	lua_pushstring(L, "Get");
-	lua_gettable(L, 2);  /* get array.get */
-	lua_settable(L, 1);  /* metatable.__index = array.get */
+	lua_gettable(L, 2);			/* get array.get */
+	lua_settable(L, 1);			/* metatable.__index = array.get */
 
 	lua_pushstring(L, "__newindex");
 	lua_pushstring(L, "Set");
-	lua_gettable(L, 2); /* get array.set */
-	lua_settable(L, 1); /* metatable.__newindex = array.set */
+	lua_gettable(L, 2);			/* get array.set */
+	lua_settable(L, 1);			/* metatable.__newindex = array.set */
 #endif
 
 	return 1;

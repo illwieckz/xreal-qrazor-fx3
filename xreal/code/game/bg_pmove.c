@@ -683,7 +683,7 @@ static void PM_AirMove(void)
 	float           wishspeed;
 	float           scale;
 	usercmd_t       cmd;
-	float			accel, wishspeed2;
+	float           accel, wishspeed2;
 
 	PM_Friction();
 
@@ -720,7 +720,7 @@ static void PM_AirMove(void)
 	if(pm->ps->movementDir == 2 || pm->ps->movementDir == 6)
 	{
 		if(wishspeed > pm_wishSpeed)
-			wishspeed = pm_wishSpeed;	
+			wishspeed = pm_wishSpeed;
 		accel = pm_strafeAccelerate;
 	}
 
@@ -1644,11 +1644,11 @@ static void PM_BeginWeaponChange(int weapon)
 	}
 
 	PM_AddEvent(EV_CHANGE_WEAPON);
-	
+
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	if(!pm->fastWeaponSwitches)
 		pm->ps->weaponTime += 200;
-	
+
 	PM_StartTorsoAnim(TORSO_DROP);
 }
 
@@ -1829,7 +1829,7 @@ static void PM_Weapon(void)
 	if(!pm->ps->ammo[pm->ps->weapon])
 	{
 		PM_AddEvent(EV_NOAMMO);
-		
+
 		if(pm->fastWeaponSwitches)
 			pm->ps->weaponTime += 100;
 		else
@@ -2299,8 +2299,8 @@ void PmoveSingle(pmove_t * pmove)
 		}
 		else
 		{
-			int i;
-			float fac;
+			int             i;
+			float           fac;
 
 			fac = (float)pml.msec / (1000.0f / (float)pm->fixedPmoveFPS);
 

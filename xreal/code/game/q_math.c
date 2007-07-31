@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include <float.h>
 
-int				nonansicast = 0;
+int             nonansicast = 0;
 
 // *INDENT-OFF*
 vec3_t          vec3_origin = { 0, 0, 0 };
@@ -354,22 +354,22 @@ void ClampColor(vec4_t color)
 // Rounds the argument to the next integer. Used by SnapVector.
 void init_tonextint()
 {
-	float		decimal = 0.9f;
-  	 
+	float           decimal = 0.9f;
+
 	nonansicast = (int)decimal;
 }
-  	 
+
 float tonextint(float x)
 {
-	int			casted;
-	float		rest;
-  	 
+	int             casted;
+	float           rest;
+
 	if(nonansicast)
 		return (int)x;
-  	 
+
 	casted = (int)x;
 	rest = x - (float)casted;
-  	 
+
 	if(rest >= 0.5f)
 		return casted + 1;
 	else if(rest <= -0.5f)
@@ -1296,9 +1296,9 @@ into a wall.
 */
 void SnapVectorTowards(vec3_t v, vec3_t to)
 {
-	int		i;
+	int             i;
 
-	for(i = 0 ; i < 3 ; i++)
+	for(i = 0; i < 3; i++)
 	{
 		if(to[i] <= v[i])
 			v[i] = (int)v[i];

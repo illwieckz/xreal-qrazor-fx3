@@ -879,7 +879,7 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	gentity_t      *ent;
 	char            ipaddress[32];
 	g_ban_t        *ban;
-	int				team;
+	int             team;
 
 	ent = &g_entities[clientNum];
 
@@ -1349,7 +1349,8 @@ void ClientDisconnect(int clientNum)
 	if(level.voteTime && ent == level.voteTarget)
 	{
 		trap_SendServerCommand(-1, "print \"Victim has left, banned them anyway.\n\"");
-		Admin_BanClient(ent->client, 3600, Admin_MaskFromBits(24), va("autoban: %s disconnect during vote", ent->client->pers.netname));
+		Admin_BanClient(ent->client, 3600, Admin_MaskFromBits(24),
+						va("autoban: %s disconnect during vote", ent->client->pers.netname));
 		G_ResetVote();
 	}
 

@@ -645,7 +645,7 @@ extern vec4_t   colorDkGrey;
 #define COLOR_WHITE		'7'
 
 #define MAX_CCODES	62
-int				ColorIndex(char ccode);
+int             ColorIndex(char ccode);
 
 #define S_COLOR_BLACK	"^0"
 #define S_COLOR_RED		"^1"
@@ -656,7 +656,7 @@ int				ColorIndex(char ccode);
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
 
-extern const vec4_t	g_color_table[MAX_CCODES];
+extern const vec4_t g_color_table[MAX_CCODES];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
@@ -818,12 +818,12 @@ void            ByteToDir(int b, vec3_t dir);
 
 #endif
 
-extern void		init_tonextint(void);
-extern float	tonextint(float x);
+extern void     init_tonextint(void);
+extern float    tonextint(float x);
 
 #define SnapVector(v) {v[0] = tonextint(v[0]); v[1] = tonextint(v[1]); v[2]= tonextint(v[2]);}
 
-void			SnapVectorTowards(vec3_t v, vec3_t to);
+void            SnapVectorTowards(vec3_t v, vec3_t to);
 
 // just in case you do't want to use the macros
 vec_t           _DotProduct(const vec3_t a, const vec3_t b);
@@ -972,7 +972,7 @@ static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac,
 
 static ID_INLINE void VectorReflect(const vec3_t v, const vec3_t normal, vec3_t out)
 {
-	float d;
+	float           d;
 
 	d = 2.0 * (v[0] * normal[0] + v[1] * normal[1] + v[2] * normal[2]);
 
@@ -1243,7 +1243,7 @@ void QDECL      Com_sprintf(char *dest, int size, const char *fmt, ...);
 char           *Com_SkipTokens(char *s, int numTokens, char *sep);
 char           *Com_SkipCharset(char *s, char *sep);
 
-qboolean		Com_CheckColorCodes(const char *s);
+qboolean        Com_CheckColorCodes(const char *s);
 
 // mode parm for FS_FOpenFile
 typedef enum
@@ -1701,10 +1701,10 @@ typedef struct
 {
 	trType_t        trType;
 	int             trTime;
-	int             trDuration;		// if non 0, trTime + trDuration = stop time
-	float			trAcceleration;	// gravity factor, etc
+	int             trDuration;	// if non 0, trTime + trDuration = stop time
+	float           trAcceleration;	// gravity factor, etc
 	vec3_t          trBase;
-	vec3_t          trDelta;		// velocity, etc
+	vec3_t          trDelta;	// velocity, etc
 } trajectory_t;
 
 // entityState_t is the information conveyed from the server

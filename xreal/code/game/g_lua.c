@@ -31,6 +31,46 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static lua_State *g_luaState = NULL;
 
+
+/*
+============
+G_InitLua_Global
+
+load multiple global precreated lua scripts
+============
+*/
+
+void G_InitLua_Global()
+{
+
+	int             numdirs;
+	int             numFiles;
+	char            filename[128];
+	char            dirlist[1024];
+	char           *dirptr;
+	int             i;
+	int             dirlen;
+
+	numFiles = 0;
+
+	numdirs = trap_FS_GetFileList("scripts/lua/global/", ".lua", dirlist, 1024);
+	dirptr = dirlist;
+	for(i = 0; i < numdirs; i++, dirptr += dirlen + 1)
+	{
+		dirlen = strlen(dirptr);
+		strcpy(filename, "scripts/lua/global/");
+		strcat(filename, dirptr);
+		numFiles++;
+
+		// load the file
+		G_LoadLuaScript(NULL, filename);
+
+	}
+
+	Com_Printf("%i global files parsed\n", numFiles);
+
+}
+
 /*
 ============
 G_InitLua
@@ -54,6 +94,9 @@ void G_InitLua()
 	luaopen_game(g_luaState);
 	luaopen_qmath(g_luaState);
 	luaopen_vector(g_luaState);
+
+	//load global scripts
+	G_InitLua_Global();
 
 	// load map specific Lua script as default
 	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));

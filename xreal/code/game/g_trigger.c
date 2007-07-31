@@ -75,6 +75,14 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 
 	G_UseTargets(ent, ent->activator);
 
+	// otty: added luaTouch support
+#ifdef LUA
+	if(ent->luaTouch[0])
+		G_RunLuaFunction(ent->luaTouch, "ee>", ent, activator);
+
+#endif
+
+
 	if(ent->wait > 0)
 	{
 		ent->think = multi_wait;
@@ -172,7 +180,8 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	}
 
 #ifdef LUA
-	G_RunLuaFunction(self->luaTouch, "ee>", self, other);
+	if(self->luaTouch[0])
+		G_RunLuaFunction(self->luaTouch, "ee>", self, other);
 #endif
 
 	BG_TouchJumpPad(&other->client->ps, &self->s);

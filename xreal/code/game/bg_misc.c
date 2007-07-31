@@ -1560,6 +1560,8 @@ char           *eventnames[] = {
 	"EV_LIGHTNINGBOLT",			// lightning bolt bounced of invulnerability sphere
 //#endif
 
+	"EV_EFFECT",				// Lua scripted special effect
+
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",
 	"EV_TAUNT"

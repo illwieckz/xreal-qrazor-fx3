@@ -563,6 +563,10 @@ void G_RunMissile(gentity_t * ent)
 		}
 	}
 #endif
+
+	// otty: added
+	G_TouchTriggers(ent);
+
 	// check think function after bouncing
 	G_RunThink(ent);
 }
@@ -744,7 +748,7 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
-	
+
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
 	VectorCopy(start, bolt->r.currentOrigin);
 
@@ -759,7 +763,7 @@ fire_grapple
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *hook;
-	int				hooktime;
+	int             hooktime;
 
 	VectorNormalize(dir);
 

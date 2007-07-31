@@ -197,8 +197,8 @@ typedef struct
 	float           xyspeed;
 
 	// fixed pmove
-	int				fixedPmove; 
-	int				fixedPmoveFPS; 
+	int             fixedPmove;
+	int             fixedPmoveFPS;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
@@ -569,7 +569,7 @@ typedef enum
 typedef struct animation_s
 {
 
-	qhandle_t       handle;			// registered md5Animation or whatever
+	qhandle_t       handle;		// registered md5Animation or whatever
 	qboolean        clearOrigin;	// reset the origin bone
 
 	int             firstFrame;

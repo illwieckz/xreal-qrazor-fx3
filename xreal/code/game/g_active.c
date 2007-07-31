@@ -267,6 +267,80 @@ void ClientImpacts(gentity_t * ent, pmove_t * pm)
 
 }
 
+
+	// otty begin
+/*
+============
+G_OtherTouchTriggers
+
+Touch Triggers even if ent is not a client
+============
+*/
+void G_OtherTouchTriggers(gentity_t * ent)
+{
+	int             num;
+	int             touch[MAX_GENTITIES];
+	gentity_t      *hit;
+	trace_t         trace;
+	vec3_t          mins, maxs;
+	int             i;
+	static vec3_t   range = { 40, 40, 52 };
+
+	VectorSubtract(ent->r.currentOrigin, range, mins);
+	VectorAdd(ent->r.currentOrigin, range, maxs);
+
+	num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
+
+	// can't use ent->absmin, because that has a one unit pad
+	VectorAdd(ent->r.currentOrigin, ent->r.mins, mins);
+	VectorAdd(ent->r.currentOrigin, ent->r.maxs, maxs);
+
+	for(i = 0; i < num; i++)
+	{
+		hit = &g_entities[touch[i]];
+
+		if(!hit->touch && !ent->touch)
+		{
+			continue;
+		}
+		if(!(hit->r.contents & CONTENTS_TRIGGER))
+		{
+			continue;
+		}
+
+		if(hit->s.eType == ET_ITEM)
+		{
+			continue;
+
+		}
+		else
+		{
+			if(!trap_EntityContact(mins, maxs, hit))
+			{
+				continue;
+			}
+		}
+
+		memset(&trace, 0, sizeof(trace));
+
+		if(hit->touch)
+		{
+
+#ifdef LUA
+			if(hit->luaTouch[0])
+				G_RunLuaFunction(hit->luaTouch, "ee>", hit, ent);
+			else
+#endif
+				hit->touch(hit, ent, &trace);
+
+		}
+
+	}
+
+}
+
+	// otty end
+
 /*
 ============
 G_TouchTriggers
@@ -286,6 +360,8 @@ void G_TouchTriggers(gentity_t * ent)
 
 	if(!ent->client)
 	{
+		// otty: added
+		G_OtherTouchTriggers(ent);	// rockets, grenades etc touching triggers
 		return;
 	}
 
@@ -936,7 +1012,7 @@ void ClientThink_real(gentity_t * ent)
 	int             oldEventSequence;
 	int             msec;
 	usercmd_t      *ucmd;
-	int				i, sum = 0; // initialize the real ping
+	int             i, sum = 0;	// initialize the real ping
 
 	client = ent->client;
 
@@ -1026,7 +1102,8 @@ void ClientThink_real(gentity_t * ent)
 	if(level.time > client->rewardTime)
 	{
 		client->ps.eFlags &=
-			~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP | EF_AWARD_TELEFRAG);
+			~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP |
+			  EF_AWARD_TELEFRAG);
 	}
 
 	// r1: if in console/chat, disallow any other buttons for exploit fixes
@@ -1133,13 +1210,13 @@ void ClientThink_real(gentity_t * ent)
 	pm.fastWeaponSwitches = pm_fastWeaponSwitches.integer;
 	pm.noFootsteps = (g_dmflags.integer & DF_NO_FOOTSTEPS) > 0;
 
-	if(pm_fixedPmoveFPS.integer < 60)  
-		trap_Cvar_Set("pm_fixedPmoveFPS", "60"); 
-	else if(pm_fixedPmoveFPS.integer > 333) 
-		trap_Cvar_Set("pm_fixedPmoveFPS", "333"); 
+	if(pm_fixedPmoveFPS.integer < 60)
+		trap_Cvar_Set("pm_fixedPmoveFPS", "60");
+	else if(pm_fixedPmoveFPS.integer > 333)
+		trap_Cvar_Set("pm_fixedPmoveFPS", "333");
 
-	pm.fixedPmove = pm_fixedPmove.integer; 
-	pm.fixedPmoveFPS = pm_fixedPmoveFPS.integer; 
+	pm.fixedPmove = pm_fixedPmove.integer;
+	pm.fixedPmoveFPS = pm_fixedPmoveFPS.integer;
 
 	VectorCopy(client->ps.origin, client->oldOrigin);
 
@@ -1258,8 +1335,10 @@ void ClientThink(int clientNum)
 	ent = g_entities + clientNum;
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
 
-	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR 
-		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.spectatorState == SPECTATOR_FOLLOW)))
+	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
+																		|| (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+																			ent->client->sess.spectatorState ==
+																			SPECTATOR_FOLLOW)))
 	{
 		ClientThink_real(ent);
 	}
@@ -1268,8 +1347,10 @@ void ClientThink(int clientNum)
 
 void G_RunClient(gentity_t * ent)
 {
-	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR 
-		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR && ent->client->sess.spectatorState == SPECTATOR_FOLLOW)))
+	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
+																		|| (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+																			ent->client->sess.spectatorState ==
+																			SPECTATOR_FOLLOW)))
 	{
 		return;
 	}
@@ -1349,7 +1430,7 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame(gentity_t * ent)
 {
 	int             i;
-	int				frames;
+	int             frames;
 	clientPersistant_t *pers;
 
 	if(ent->client->sess.sessionTeam == TEAM_SPECTATOR)

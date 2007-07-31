@@ -193,6 +193,7 @@ struct gentity_s
 	// for each map
 	char           *luaThink;
 	char           *luaTouch;
+	char           *luaUse;
 #endif
 };
 
@@ -249,15 +250,15 @@ typedef struct g_account_s
 // iplog
 typedef struct g_iplog_s
 {
-	char			netname[32];
-	char			ip[32];
-	unsigned int	time;
+	char            netname[32];
+	char            ip[32];
+	unsigned int    time;
 } g_iplog_t;
 
 #define MAX_IP_LOG_ENTRIES 10000
 
-void			Admin_IPLog(gclient_t *cl);
-void			Admin_Search_f(gentity_t *ent);
+void            Admin_IPLog(gclient_t * cl);
+void            Admin_Search_f(gentity_t * ent);
 
 // r1ch:
 typedef struct g_ban_s
@@ -337,11 +338,11 @@ typedef struct
 	qboolean        wasConnected;
 
 	// unlagged:
-	int				delag;
-	int				cmdTimeNudge;
-	int				realPing;
-	int				pingsamples[NUM_PING_SAMPLES];
-	int				samplehead;
+	int             delag;
+	int             cmdTimeNudge;
+	int             realPing;
+	int             pingsamples[NUM_PING_SAMPLES];
+	int             samplehead;
 } clientPersistant_t;
 
 // the size of history we'll keep
@@ -350,9 +351,9 @@ typedef struct
 // everything we need to know to backward reconcile
 typedef struct
 {
-	vec3_t			mins, maxs;
-	vec3_t			currentOrigin;
-	int				leveltime;
+	vec3_t          mins, maxs;
+	vec3_t          currentOrigin;
+	int             leveltime;
 } clientHistory_t;
 
 // this structure is cleared on each ClientSpawn(),
@@ -427,17 +428,17 @@ struct gclient_s
 
 	// the serverTime the button was pressed
 	// (stored before pmove_fixed changes serverTime)
-	int				attackTime;
+	int             attackTime;
 	// the head of the history queue
-	int				historyHead;
+	int             historyHead;
 	// the history queue
-	clientHistory_t	history[NUM_CLIENT_HISTORY];
+	clientHistory_t history[NUM_CLIENT_HISTORY];
 	// the client's saved position
-	clientHistory_t	saved;			// used to restore after time shift
+	clientHistory_t saved;		// used to restore after time shift
 	// an approximation of the actual server time we received this
 	// command (not in 50ms increments)
-	int				frameOffset;
-	int				lastUpdateFrame;
+	int             frameOffset;
+	int             lastUpdateFrame;
 };
 
 //
@@ -530,20 +531,20 @@ typedef struct
 #endif
 
 	// actual time this server frame started
-	int				frameStartTime;
+	int             frameStartTime;
 } level_locals_t;
 
 //
 //unlagged - g_unlagged.c
 //
-void			G_ResetHistory(gentity_t *ent);
-void			G_StoreHistory(gentity_t *ent);
-void			G_TimeShiftAllClients(int time, gentity_t *skip);
-void			G_UnTimeShiftAllClients(gentity_t *skip);
-void			G_DoTimeShiftFor(gentity_t *ent);
-void			G_UndoTimeShiftFor(gentity_t *ent);
-void			G_UnTimeShiftClient(gentity_t *client);
-void			G_PredictPlayerMove(gentity_t *ent, float frametime);
+void            G_ResetHistory(gentity_t * ent);
+void            G_StoreHistory(gentity_t * ent);
+void            G_TimeShiftAllClients(int time, gentity_t * skip);
+void            G_UnTimeShiftAllClients(gentity_t * skip);
+void            G_DoTimeShiftFor(gentity_t * ent);
+void            G_UndoTimeShiftFor(gentity_t * ent);
+void            G_UnTimeShiftClient(gentity_t * client);
+void            G_PredictPlayerMove(gentity_t * ent, float frametime);
 
 //
 // g_spawn.c
@@ -684,6 +685,11 @@ void            trigger_teleporter_touch(gentity_t * self, gentity_t * other, tr
 //
 void            TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles);
 
+	// otty begin
+void            TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles);
+
+	// otty end
+
 #ifdef MISSIONPACK
 void            DropPortalSource(gentity_t * ent);
 void            DropPortalDestination(gentity_t * ent);
@@ -789,8 +795,8 @@ qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
 // g_mem.c
 //
 void           *G_Alloc(int size);
-void			G_Free(void *ptr);
-void			G_DefragmentMemory(void);
+void            G_Free(void *ptr);
+void            G_DefragmentMemory(void);
 void            G_InitMemory(void);
 void            Svcmd_GameMem_f(void);
 

@@ -133,6 +133,7 @@ field_t         fields[] = {
 #ifdef LUA
 	{"luaThink", FOFS(luaThink), F_LSTRING},
 	{"luaTouch", FOFS(luaTouch), F_LSTRING},
+	{"luaUse", FOFS(luaUse), F_LSTRING},
 #endif
 
 	{NULL}

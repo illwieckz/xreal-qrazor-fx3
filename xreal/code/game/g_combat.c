@@ -1379,7 +1379,7 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 			if(ent == attacker)
 			{
 				// rocket jumps are 24 so we dont get into the sky :)
-				dir[2] +=24;
+				dir[2] += 24;
 			}
 			else
 			{

@@ -100,14 +100,14 @@ vmCvar_t        g_rocketAcceleration;
 vmCvar_t        g_rocketVelocity;
 
 // these cvars are shared accross both games
-vmCvar_t		pm_airControl;
-vmCvar_t		pm_fastWeaponSwitches;
-vmCvar_t		pm_fixedPmove;
-vmCvar_t		pm_fixedPmoveFPS;
+vmCvar_t        pm_airControl;
+vmCvar_t        pm_fastWeaponSwitches;
+vmCvar_t        pm_fixedPmove;
+vmCvar_t        pm_fixedPmoveFPS;
 
 // this is for convenience - using "sv_fps.integer" is nice :)
-vmCvar_t		sv_fps;
-vmCvar_t		g_delag;
+vmCvar_t        sv_fps;
+vmCvar_t        g_delag;
 
 // r1:
 vmCvar_t        g_accountsFile;
@@ -410,10 +410,10 @@ void G_RegisterCvars(void)
 		trap_Cvar_Set("g_gametype", "0");
 	}
 
-	if(pm_fixedPmoveFPS.integer < 60)  
-		trap_Cvar_Set("pm_fixedPmoveFPS", "60"); 
-	else if(pm_fixedPmoveFPS.integer > 333) 
-		trap_Cvar_Set("pm_fixedPmoveFPS", "333"); 
+	if(pm_fixedPmoveFPS.integer < 60)
+		trap_Cvar_Set("pm_fixedPmoveFPS", "60");
+	else if(pm_fixedPmoveFPS.integer > 333)
+		trap_Cvar_Set("pm_fixedPmoveFPS", "333");
 
 	level.warmupModificationCount = g_warmup.modificationCount;
 }
@@ -1298,6 +1298,7 @@ void LogExit(const char *string)
 {
 	int             i, numSorted;
 	gclient_t      *cl;
+
 #ifdef MISSIONPACK				// bk001205
 	qboolean        won = qtrue;
 #endif
@@ -2124,7 +2125,7 @@ void G_RunFrame(int levelTime)
 	G_TimeShiftAllClients(level.previousTime, NULL);
 
 	ent = &g_entities[0];
-	for(i=0 ; i<level.numEntities ; i++, ent++)
+	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
 			continue;

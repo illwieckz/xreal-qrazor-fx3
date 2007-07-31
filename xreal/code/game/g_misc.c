@@ -81,6 +81,34 @@ TELEPORTERS
 =================================================================================
 */
 
+// otty: teleporting a rocket is more expensive than freeing the old and creating a new one. just keep the owner.
+void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
+{
+	gentity_t      *tent;
+	vec3_t          dir;
+
+	trap_UnlinkEntity(ent);
+
+	AngleVectors(angles, dir, NULL, NULL);
+
+	switch (ent->s.weapon)
+	{
+		default:
+			return;
+			break;
+		case WP_ROCKET_LAUNCHER:
+			fire_rocket(&g_entities[ent->r.ownerNum], origin, dir);
+			break;
+
+		case WP_GRENADE_LAUNCHER:
+			fire_grenade(&g_entities[ent->r.ownerNum], origin, dir);
+			break;
+
+	}
+
+	G_FreeEntity(ent);
+}
+
 void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 {
 	gentity_t      *tent;

@@ -27,6 +27,145 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lualib.h>
 #include "g_local.h"
 
+static int entity_Target(lua_State * L)
+{
+	lua_Entity     *lent;
+	lua_Entity     *target;
+	gentity_t      *t = NULL;
+
+	target = lua_newuserdata(L, sizeof(lua_Entity));
+	luaL_getmetatable(L, "game.entity");
+	lua_setmetatable(L, -2);
+
+	lent = lua_getentity(L, 1);
+
+
+	if(!lent->e)
+	{
+		Com_Printf("entity_Target: invalid entity!\n");
+		return 0;
+	}
+	if(!lent->e->target)
+	{
+		Com_Printf("entity_Target: no target!\n");
+		return 0;
+	}
+
+	t = G_PickTarget(lent->e->target);
+	if(!t)
+	{
+		G_Printf("entity_Target: Couldn't find target %s\n", lent->e->target);
+		return 0;
+	}
+
+	target->e = t;
+
+	return 1;
+
+
+}
+
+static int entity_Find(lua_State * L)
+{
+	char           *s;
+	lua_Entity     *lent;
+	int             i;
+	gentity_t      *t;
+
+	lent = lua_newuserdata(L, sizeof(lua_Entity));
+
+	luaL_getmetatable(L, "game.entity");
+	lua_setmetatable(L, -2);
+
+	s = (char *)luaL_checkstring(L, 1);
+
+	lent->e = NULL;
+
+	for(i = 0; i < level.numEntities; i++)
+	{
+		// Here we use tent to point to potential targets
+		t = &g_entities[i];
+
+		if(!t->inuse)
+			continue;
+
+		if(Q_stricmp(t->name, s) == 0)
+		{
+			lent->e = t;
+			break;
+		}
+
+	}
+
+	if(!lent->e)
+	{
+		Com_Printf("entity_Find: entity '%s' not found!\n", s);
+		return 0;
+	}
+
+	return 1;
+}
+
+
+static int entity_Teleport(lua_State * L)
+{
+	lua_Entity     *lent;
+	lua_Entity     *target;
+
+
+	lent = lua_getentity(L, 1);
+	target = lua_getentity(L, 2);
+
+	if(!lent->e)
+	{
+		Com_Printf("entity_Teleport: invalid entity!\n");
+		return 0;
+	}
+	if(!target->e)
+	{
+		Com_Printf("entity_Teleport: invalid target!\n");
+		return 0;
+	}
+
+	if(lent->e->client)
+		TeleportPlayer(lent->e, target->e->s.origin, target->e->s.angles);
+	else
+		TeleportEntity(lent->e, target->e->s.origin, target->e->s.angles);
+	return 1;
+}
+
+
+
+static int entity_IsRocket(lua_State * L)
+{
+	lua_Entity     *lent;
+	qboolean        rocket = qfalse;
+
+	lent = lua_getentity(L, 1);
+
+	if(lent->e->classname == "rocket")
+		rocket = qtrue;
+
+	lua_pushboolean(L, rocket);
+
+	return 1;
+}
+static int entity_IsGrenade(lua_State * L)
+{
+	lua_Entity     *lent;
+	qboolean        grenade = qfalse;
+
+	lent = lua_getentity(L, 1);
+
+	if(lent->e->classname == "grenade")
+		grenade = qtrue;
+
+	lua_pushboolean(L, grenade);
+
+	return 1;
+}
+
+
 static int entity_Spawn(lua_State * L)
 {
 	lua_Entity     *lent;
@@ -218,6 +357,11 @@ static int entity_ToString(lua_State * L)
 
 static const luaL_reg entity_ctor[] = {
 	{"Spawn", entity_Spawn},
+	// otty begin
+	{"Find", entity_Find},		//find an entity by name e.g ent = entity.Find("myentity");
+	{"Target", entity_Target},	//find an entitys target, e.g target = entity.Target(ent);
+
+	// otty end
 	{NULL, NULL}
 };
 
@@ -233,6 +377,11 @@ static const luaL_reg entity_meta[] = {
 	{"SetClassName", entity_SetClassName},
 	{"GetTargetName", entity_GetTargetName},
 	{"Rotate", entity_Rotate},
+
+	{"IsRocket", entity_IsRocket},
+	{"IsGrenade", entity_IsGrenade},
+	{"Teleport", entity_Teleport},
+
 	{NULL, NULL}
 };
 

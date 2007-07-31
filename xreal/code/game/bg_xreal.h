@@ -24,12 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // bg_xreal.h -- both games xreal definitions (weapon damage, etc.)
 
 // XreaL Weapons
-extern float knockback_z;
+extern float    knockback_z;
 
 // Player Movement Physics
-extern float pm_airStopAccelerate;
-extern float pm_airControlAmount;
-extern float pm_strafeAccelerate;
-extern float pm_wishSpeed;
+extern float    pm_airStopAccelerate;
+extern float    pm_airControlAmount;
+extern float    pm_strafeAccelerate;
+extern float    pm_wishSpeed;
 
-void			PM_Aircontrol(pmove_t *pm, vec3_t wishdir, float wishspeed);
+void            PM_Aircontrol(pmove_t * pm, vec3_t wishdir, float wishspeed);
+

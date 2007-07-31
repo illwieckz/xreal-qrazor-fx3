@@ -149,6 +149,7 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 {
 	trace_t         tr;
 	vec3_t          end;
+
 #ifdef MISSIONPACK
 	vec3_t          impactpoint, bouncedir;
 #endif
@@ -159,7 +160,7 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 	int             i, passent;
 
 	// we have to use something now that the client knows in advance
-	int				seed = ent->client->attackTime % 256;
+	int             seed = ent->client->attackTime % 256;
 
 	damage *= s_quadFactor;
 
@@ -391,7 +392,7 @@ void weapon_supershotgun_fire(gentity_t * ent)
 	tent = G_TempEntity(muzzle, EV_SHOTGUN);
 	VectorScale(forward, 4096, tent->s.origin2);
 	SnapVector(tent->s.origin2);
-	tent->s.eventParm = ent->client->attackTime % 256; // seed for spread pattern
+	tent->s.eventParm = ent->client->attackTime % 256;	// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
 
 	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent);

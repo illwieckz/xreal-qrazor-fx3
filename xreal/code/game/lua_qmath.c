@@ -285,7 +285,7 @@ static const luaL_reg qmathlib[] = {
 	{"rad", qmath_rad},
 	{"rand", qmath_rand},
 	{"random", qmath_random},
-//	{"randomseed", qmath_randomseed},
+//  {"randomseed", qmath_randomseed},
 	{"crandom", qmath_crandom},
 	{NULL, NULL}
 };
