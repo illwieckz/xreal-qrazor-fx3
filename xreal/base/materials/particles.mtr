@@ -17,8 +17,8 @@ particles/bloodTrail
 	entityMergable		// allow all the sprites to be merged together
 	{
 		clamp
-		map particles/blood2.tga
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		map particles/blood_splat01.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
 	}
 }
@@ -31,8 +31,40 @@ particles/bloodSpurt
 	
 	{
 		clamp
-		map particles/blood2.tga
-		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
+		
+		//map particles/blood2.tga
+		//blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR <-- Doom3 style
+		
+		map particles/blood03.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA  // Q3A style
+		vertexColor
+	}
+}
+
+particles/bloodSpurt2
+{
+	twoSided
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	
+	{
+		clamp
+		map particles/blood04.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		vertexColor
+	}
+}
+
+particles/bloodSpurt3
+{
+	twoSided
+	nopicmip			// make sure a border remains
+	entityMergable		// allow all the sprites to be merged together
+	
+	{
+		clamp
+		map particles/blood05.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
 	}
 }

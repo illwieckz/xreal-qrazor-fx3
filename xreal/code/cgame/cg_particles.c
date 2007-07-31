@@ -1566,6 +1566,7 @@ void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
 	int             i, j;
 	cparticle_t    *p;
 	float           d;
+	int             r;
 
 	if(!cg_blood.integer)
 	{
@@ -1579,7 +1580,20 @@ void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
 			return;
 
 		p->type = P_BLOOD;
-		p->pshader = cgs.media.bloodSpurtShader;
+
+		r = rand() & 3;
+		if(r == 0)
+		{
+			p->pshader = cgs.media.bloodSpurtShader;
+		}
+		else if(r == 1)
+		{
+			p->pshader = cgs.media.bloodSpurt2Shader;
+		}
+		else
+		{
+			p->pshader = cgs.media.bloodSpurt3Shader;
+		}
 
 		p->height = 1.1f;
 		p->width = 5;
@@ -1587,7 +1601,7 @@ void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
 		p->endWidth = 50;
 
 		p->time = cg.time;
-		p->endTime = cg.time + 10000;
+		p->endTime = cg.time + 5000;
 		p->color[0] = 1;
 		p->color[1] = 1;
 		p->color[2] = 1;

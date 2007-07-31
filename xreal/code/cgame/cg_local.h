@@ -864,8 +864,11 @@ typedef struct
 	qhandle_t       shotgunSmokePuffShader;
 	qhandle_t       plasmaBallShader;
 	qhandle_t       waterBubbleShader;
+	
 	qhandle_t       bloodTrailShader;
 	qhandle_t		bloodSpurtShader;
+	qhandle_t		bloodSpurt2Shader;
+	qhandle_t		bloodSpurt3Shader;
 
 #ifdef MISSIONPACK
 	qhandle_t       nailPuffShader;
