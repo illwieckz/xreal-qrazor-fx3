@@ -232,8 +232,6 @@ typedef enum
 	// 1.32
 	G_FS_SEEK,
 
-	G_SEND_GAMESTAT,
-
 	BOTLIB_SETUP = 200,			// ( void );
 	BOTLIB_SHUTDOWN,			// ( void );
 	BOTLIB_LIBVAR_SET,

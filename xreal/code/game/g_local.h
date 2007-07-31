@@ -1194,6 +1194,4 @@ int             trap_GeneticParentsAndChildSelection(int numranks, float *ranks,
 
 void            trap_SnapVector(float *v);
 
-void			trap_SendGameStat(const char *data);
-
 int             trap_RealTime(qtime_t * qtime);

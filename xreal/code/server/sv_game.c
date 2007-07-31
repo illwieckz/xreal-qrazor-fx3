@@ -476,10 +476,6 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 			Sys_SnapVector(VMA(1));
 			return 0;
 
-		case G_SEND_GAMESTAT:
-			SV_MasterGameStat(VMA(1));
-			return 0;
-
 			//====================================
 
 		case BOTLIB_SETUP:

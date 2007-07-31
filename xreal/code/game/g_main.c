@@ -1288,71 +1288,6 @@ void QDECL G_LogPrintf(const char *fmt, ...)
 }
 
 /*
-=================
-G_SendGameStat
-=================
-*/
-static void G_SendGameStat(void)
-{
-	char		map[MAX_STRING_CHARS];
-	char		teamChar;
-	char		data[BIG_INFO_STRING];
-	char		entry[MAX_STRING_CHARS];
-	int			i, dataLength, entryLength;
-	gclient_t  *cl;
-  	 
-	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
-	 
-	Com_sprintf(data, BIG_INFO_STRING,
-  	       "%s M:%s D:%d CL:%d",
-  	       Q3_VERSION,
-  	       map,
-  	       level.time - level.startTime,
-  	       level.numConnectedClients);
-  	 
-	dataLength = strlen(data);
-  	 
-	for(i = 0; i < level.numConnectedClients; i++)
-	{
-		int ping;
-  	 
-		cl = &level.clients[level.sortedClients[i]];
-  	 
-		if(cl->pers.connected == CON_CONNECTING)
-			ping = -1;
-		else
-			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
-  	 
-		switch(cl->sess.sessionTeam)
-		{
-			case TEAM_FREE: teamChar = 'F'; break;
-			case TEAM_RED: teamChar = 'R'; break;
-			case TEAM_BLUE: teamChar = 'B'; break;
-			case TEAM_SPECTATOR: teamChar = 'S'; break;
-			default: return;
-		}
-  	 
-		Com_sprintf(entry, MAX_STRING_CHARS,
-  	       " %s %c %d %d %d",
-  	       cl->pers.netname,
-  	       teamChar,
-  	       cl->ps.persistant[PERS_SCORE],
-  	       ping,
-  	       (level.time - cl->pers.enterTime) / 60000);
-  	 
-		entryLength = strlen(entry);
-  	 
-		if(dataLength + entryLength > MAX_STRING_CHARS)
-			break;
-  	 
-		Q_strncpyz(data + dataLength, entry, BIG_INFO_STRING);
-		dataLength += entryLength;
-	}
-  	 
-	trap_SendGameStat(data);
-}
-
-/*
 ================
 LogExit
 
@@ -1420,10 +1355,6 @@ void LogExit(const char *string)
 		trap_SendConsoleCommand(EXEC_APPEND, (won) ? "spWin\n" : "spLose\n");
 	}
 #endif
-
-	// send the game stats to the master server
-	// Tr3B: FIXME this causes a fatal crash
-//	G_SendGameStat();
 }
 
 
