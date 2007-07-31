@@ -30,7 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static int game_Print(lua_State * L)
 {
 	int             i;
+	char            buf[MAX_STRING_CHARS];
 	int             n = lua_gettop(L);	// number of arguments
+
+	memset(buf, 0, sizeof(buf));
 
 	lua_getglobal(L, "tostring");
 	for(i = 1; i <= n; i++)
@@ -45,10 +48,12 @@ static int game_Print(lua_State * L)
 		if(s == NULL)
 			return luaL_error(L, "`tostring' must return a string to `print'");
 
-		trap_Printf(s);
+		Q_strcat(buf, sizeof(buf), s);
+
 		lua_pop(L, 1);			// pop result
 	}
-	trap_Printf("\n");
+	
+	G_Printf("%s\n", buf);
 	return 0;
 }
 
@@ -79,7 +84,6 @@ static int game_Broadcast(lua_State * L)
 	}
 
 	trap_SendServerCommand(-1, va("cp \"" S_COLOR_WHITE "%s\n\"", buf));
-
 	return 0;
 }
 
