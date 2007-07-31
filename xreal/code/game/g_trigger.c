@@ -77,11 +77,10 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 
 	// otty: added luaTouch support
 #ifdef LUA
-	if(ent->luaTouch[0])
+	if(ent->luaTouch && ent->luaTouch[0])
 		G_RunLuaFunction(ent->luaTouch, "ee>", ent, activator);
 
 #endif
-
 
 	if(ent->wait > 0)
 	{
@@ -180,7 +179,7 @@ void trigger_push_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	}
 
 #ifdef LUA
-	if(self->luaTouch[0])
+	if(self->luaTouch && self->luaTouch[0])
 		G_RunLuaFunction(self->luaTouch, "ee>", self, other);
 #endif
 

@@ -1837,7 +1837,10 @@ MOVER
 void Think_Mover(gentity_t * self)
 {
 #ifdef LUA
-	G_RunLuaFunction(self->luaThink, "e>", self);
+	if(self->luaThink && self->luaThink[0])
+	{
+		G_RunLuaFunction(self->luaThink, "e>", self);
+	}
 #endif
 
 //  self->nextthink = level.time + FRAMETIME;

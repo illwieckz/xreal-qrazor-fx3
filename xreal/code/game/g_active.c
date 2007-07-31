@@ -327,16 +327,14 @@ void G_OtherTouchTriggers(gentity_t * ent)
 		{
 
 #ifdef LUA
-			if(hit->luaTouch[0])
+			if(hit->luaTouch && hit->luaTouch[0])
 				G_RunLuaFunction(hit->luaTouch, "ee>", hit, ent);
 			else
 #endif
 				hit->touch(hit, ent, &trace);
 
 		}
-
 	}
-
 }
 
 
