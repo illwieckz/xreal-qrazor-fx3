@@ -30,7 +30,7 @@ particles/bloodSpurt
 	entityMergable		// allow all the sprites to be merged together
 	
 	{
-		//clamp
+		clamp
 		map particles/blood2.tga
 		blend GL_ZERO, GL_ONE_MINUS_SRC_COLOR
 		vertexColor

@@ -2608,7 +2608,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			//CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			//if(sfx && (rand() % 3 == 0))
 			//	CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
-
+			CG_ParticleRick(origin, dir);
 			break;
 
 #ifdef MISSIONPACK
@@ -2654,11 +2654,13 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			radius = 8;
 
 			// some debris particles
-			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
-			//CG_ParticleSparks2
-			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
-			if(sfx && (rand() % 3 == 0))
-				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
+			//CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
+			CG_ParticleRick(origin, dir);
+			//CG_ParticleSparks2(
+			
+			//CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			//if(sfx && (rand() % 3 == 0))
+			//	CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 	}
 
@@ -2705,7 +2707,8 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum)
 {
-	CG_Bleed(origin, entityNum);
+	// CG_Bleed(origin, entityNum);
+	CG_ParticleBlood(origin, dir, 3);
 
 	// some weapons will make an explosion with the blood, while
 	// others will just make the blood
@@ -3043,9 +3046,8 @@ void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, i
 	// impact splash and mark
 	if(flesh)
 	{
-		CG_Bleed(end, fleshEntityNum);
-		//CG_Particle_Bleed(cgs.media.bloodSpurtShader, end, trace.plane.normal, fleshEntityNum, 500);
-		//CG_BloodPool(cgs.media.bloodSpurtShader, end);
+		//CG_Bleed(end, fleshEntityNum);  OLD
+		CG_ParticleBlood(end, trace.plane.normal, 3);
 	}
 	else
 	{

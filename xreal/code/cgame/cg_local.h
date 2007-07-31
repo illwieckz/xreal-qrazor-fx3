@@ -474,16 +474,14 @@ typedef enum
 {
 	P_NONE,
 	P_WEATHER,
-	P_FLAT,
-	P_SMOKE,
-	P_ROTATE,
 	P_WEATHER_TURBULENT,
-	P_BAT,
-	P_BLEED,
+	P_WEATHER_FLURRY,
+	P_FLAT,
 	P_FLAT_SCALEUP,
 	P_FLAT_SCALEUP_FADE,
-	P_WEATHER_FLURRY,
+	P_SMOKE,
 	P_SMOKE_IMPACT,
+	P_BLOOD,
 	P_BUBBLE,
 	P_BUBBLE_TURBULENT,
 	P_SPRITE,
@@ -1666,6 +1664,7 @@ void            CG_ParticleSmoke(qhandle_t pshader, centity_t * cent);
 void            CG_AddParticleShrapnel(localEntity_t * le);
 void            CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent);
 void			CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin);
+void            CG_ParticleBlood(vec3_t org, vec3_t dir, int count);
 void            CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration);
 void            CG_BloodPool(qhandle_t pshader, vec3_t origin);
 void            CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);

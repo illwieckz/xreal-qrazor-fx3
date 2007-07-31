@@ -306,26 +306,20 @@ int luaopen_particle(lua_State * L)
 	lua_pushinteger(L, P_FLAT);
 	lua_setfield(L, -2, "FLAT");
 
+	lua_pushinteger(L, P_FLAT_SCALEUP);
+	lua_setfield(L, -2, "FLAT_SCALEUP");
+
+	lua_pushinteger(L, P_FLAT_SCALEUP_FADE);
+	lua_setfield(L, -2, "FLAT_SCALEUP_FADE");
+
 	lua_pushinteger(L, P_SMOKE);
 	lua_setfield(L, -2, "SMOKE");
 
 	lua_pushinteger(L, P_SMOKE_IMPACT);
 	lua_setfield(L, -2, "SMOKE_IMPACT");
 
-	lua_pushinteger(L, P_ROTATE);
-	lua_setfield(L, -2, "ROTATE");
-
-	lua_pushinteger(L, P_BAT);
-	lua_setfield(L, -2, "BAT");
-
-	lua_pushinteger(L, P_BLEED);
-	lua_setfield(L, -2, "BLEED");
-
-	lua_pushinteger(L, P_FLAT_SCALEUP);
-	lua_setfield(L, -2, "FLAT_SCALEUP");
-
-	lua_pushinteger(L, P_FLAT_SCALEUP_FADE);
-	lua_setfield(L, -2, "FLAT_SCALEUP_FADE");
+	lua_pushinteger(L, P_BLOOD);
+	lua_setfield(L, -2, "BLOOD");
 
 	lua_pushinteger(L, P_BUBBLE);
 	lua_setfield(L, -2, "BUBBLE");

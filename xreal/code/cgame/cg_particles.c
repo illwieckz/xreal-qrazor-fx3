@@ -133,8 +133,8 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 	float           invratio;
 	polyVert_t      TRIverts[3];
 	vec3_t          rright2, rup2;
-	axis_t			axis;
-	vec3_t			oldOrigin;
+	axis_t          axis;
+	vec3_t          oldOrigin;
 
 	if(p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY
 	   || p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT)
@@ -508,67 +508,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 		verts[3].modulate[3] = 255 * invratio;
 
 	}
-	else if(p->type == P_BLEED)
-	{
-		vec3_t          rr, ru;
-		vec3_t          rotate_ang;
-		float           alpha;
-
-		alpha = color[3];
-
-		if(p->roll)
-		{
-			vectoangles(cg.refdef.viewaxis[0], rotate_ang);
-			rotate_ang[ROLL] += p->roll;
-			AngleVectors(rotate_ang, NULL, rr, ru);
-		}
-		else
-		{
-			VectorCopy(vup, ru);
-			VectorCopy(vright, rr);
-		}
-
-		VectorMA(org, -p->height, ru, point);
-		VectorMA(point, -p->width, rr, point);
-		VectorCopy(point, verts[0].xyz);
-		verts[0].st[0] = 0;
-		verts[0].st[1] = 0;
-		verts[0].modulate[0] = 111;
-		verts[0].modulate[1] = 19;
-		verts[0].modulate[2] = 9;
-		verts[0].modulate[3] = 255 * alpha;
-
-		VectorMA(org, -p->height, ru, point);
-		VectorMA(point, p->width, rr, point);
-		VectorCopy(point, verts[1].xyz);
-		verts[1].st[0] = 0;
-		verts[1].st[1] = 1;
-		verts[1].modulate[0] = 111;
-		verts[1].modulate[1] = 19;
-		verts[1].modulate[2] = 9;
-		verts[1].modulate[3] = 255 * alpha;
-
-		VectorMA(org, p->height, ru, point);
-		VectorMA(point, p->width, rr, point);
-		VectorCopy(point, verts[2].xyz);
-		verts[2].st[0] = 1;
-		verts[2].st[1] = 1;
-		verts[2].modulate[0] = 111;
-		verts[2].modulate[1] = 19;
-		verts[2].modulate[2] = 9;
-		verts[2].modulate[3] = 255 * alpha;
-
-		VectorMA(org, p->height, ru, point);
-		VectorMA(point, -p->width, rr, point);
-		VectorCopy(point, verts[3].xyz);
-		verts[3].st[0] = 1;
-		verts[3].st[1] = 0;
-		verts[3].modulate[0] = 111;
-		verts[3].modulate[1] = 19;
-		verts[3].modulate[2] = 9;
-		verts[3].modulate[3] = 255 * alpha;
-
-	}
 	else if(p->type == P_FLAT_SCALEUP)
 	{
 		float           width, height;
@@ -632,26 +571,26 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 		verts[3].modulate[2] = 255 * color[2];
 		verts[3].modulate[3] = 255;
 	}
-	else if(p->type == P_SPARK)
+	else if(p->type == P_SPARK || p->type == P_BLOOD)
 	{
 		time = cg.time - p->time;
 		time2 = p->endTime - p->time;
 		ratio = time / time2;
 
 		/*
-		if(cg.time > p->startfade)
-		{
-			invratio = 1 - ((cg.time - p->startfade) / (p->endTime - p->startfade));
-			invratio *= color[3];
-		}
-		else
-		{
-			invratio = 1 * color[3];
-		}
+		   if(cg.time > p->startfade)
+		   {
+		   invratio = 1 - ((cg.time - p->startfade) / (p->endTime - p->startfade));
+		   invratio *= color[3];
+		   }
+		   else
+		   {
+		   invratio = 1 * color[3];
+		   }
 
-		if(invratio > 1)
-			invratio = 1;
-		*/
+		   if(invratio > 1)
+		   invratio = 1;
+		 */
 
 		width = p->width + (ratio * (p->endWidth - p->width));
 		height = p->height + (ratio * (p->endHeight - p->height));
@@ -858,7 +797,9 @@ void CG_AddParticles(void)
 		color[1] = p->color[1] + p->colorVel[1] * time;
 		color[2] = p->color[2] + p->colorVel[2] * time;
 		color[3] = p->color[3] + p->colorVel[3] * time;
-		
+
+		ClampColor(color);
+
 		if(color[3] <= 0)
 		{
 			// faded out
@@ -866,7 +807,7 @@ void CG_AddParticles(void)
 			continue;
 		}
 
-		if(p->type == P_SMOKE || p->type == P_BLEED || p->type == P_SMOKE_IMPACT)
+		if(p->type == P_SMOKE || p->type == P_BLOOD || p->type == P_SMOKE_IMPACT || p->type == P_SPARK)
 		{
 			if(cg.time > p->endTime)
 			{
@@ -895,7 +836,7 @@ void CG_AddParticles(void)
 
 		}
 
-		if((p->type == P_BAT || p->type == P_SPRITE) && p->endTime < 0)
+		if(p->type == P_SPRITE && p->endTime < 0)
 		{
 			// temporary sprite
 			CG_AddParticleToScene(p, p->org, color);
@@ -903,9 +844,10 @@ void CG_AddParticles(void)
 			continue;
 		}
 
-		if(color[3] > 1.0)
-			color[3] = 1;
+		// backup old position
+		VectorCopy(p->org, p->oldOrg);
 
+		// calculate new position
 		time2 = time * time;
 
 		org[0] = p->org[0] + p->vel[0] * time + p->accel[0] * time2;
@@ -965,6 +907,30 @@ void CG_AddParticles(void)
 					   VectorMA(p->accel, -dot, trace.plane.normal, p->accel);
 					   }
 					 */
+				}
+
+				if(p->type == P_BLOOD)
+				{
+					int             radius, r = 0;
+					qhandle_t       shader;
+
+					radius = 3 + random() * 5;
+					r = rand() & 3;
+
+					if(r == 0)
+					{
+						shader = cgs.media.bloodMarkShader;
+					}
+					else if(r == 1)
+					{
+						shader = cgs.media.bloodMark2Shader;
+					}
+					else
+					{
+						shader = cgs.media.bloodMark3Shader;
+					}
+
+					CG_ImpactMark(shader, trace.endpos, trace.plane.normal, random() * 360, 1, 1, 1, 1, qtrue, radius, qfalse);
 				}
 
 				VectorCopy(trace.endpos, org);
@@ -1595,6 +1561,100 @@ void CG_OilSlickRemove(centity_t * cent)
 	}
 }
 
+void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
+{
+	int             i, j;
+	cparticle_t    *p;
+	float           d;
+
+	if(!cg_blood.integer)
+	{
+		return;
+	}
+
+	for(i = 0; i < count; i++)
+	{
+		p = CG_AllocParticle();
+		if(!p)
+			return;
+
+		p->type = P_BLOOD;
+		p->pshader = cgs.media.bloodSpurtShader;
+
+		p->height = 1.1f;
+		p->width = 5;
+		p->endHeight = 3;
+		p->endWidth = 50;
+
+		p->time = cg.time;
+		p->endTime = cg.time + 10000;
+		p->color[0] = 1;
+		p->color[1] = 1;
+		p->color[2] = 1;
+		p->color[3] = 1;
+
+		p->colorVel[0] = 0;
+		p->colorVel[1] = 0;
+		p->colorVel[2] = 0;
+		p->colorVel[3] = 0;
+
+		for(j = 0; j < 3; j++)
+		{
+			p->org[j] = org[j];
+			p->vel[j] = dir[j] * 30 + crandom() * 40;
+		}
+
+		p->accel[0] = p->accel[1] = 0;
+		p->accel[2] = -PARTICLE_GRAVITY * 4;
+
+		VectorCopy(p->org, p->oldOrg);
+
+		p->bounceFactor = 0.1f;
+	}
+
+#if 0
+	for(i = 0; i < count; i++)
+	{
+		if(!free_particles)
+			return;
+		p = free_particles;
+
+		free_particles = p->next;
+		p->next = active_particles;
+		active_particles = p;
+		VectorClear(p->vel);
+		p->orient = 0;
+		p->flags = 0;
+		p->time = cl.time;
+		p->endTime = cl.time + 5000;
+		p->blend_dst = GL_SRC_ALPHA;
+		p->blend_src = GL_ONE_MINUS_SRC_ALPHA;
+
+		p->color[0] = 0.1;
+		p->color[1] = 0;
+		p->color[2] = 0;
+
+		p->colorVel[0] = 0;
+		p->colorVel[1] = 0;
+		p->colorVel[2] = 0;
+
+		p->type = PT_BLOODMIST;
+		p->size = 2;
+		p->sizeVel = 10;
+
+		d = rand() & 7;
+		for(j = 0; j < 3; j++)
+			p->org[j] = org[j] + ((rand() & 7) - 4) + d * dir[j];
+
+
+		p->accel[0] = p->accel[1] = p->accel[2] = 0;
+		p->alpha = 0.7;
+
+		p->alphavel = -1.0 / (0.5 + frand() * 0.3);
+	}
+#endif
+}
+
 void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration)
 {
 	cparticle_t    *p;
@@ -1875,11 +1935,13 @@ void CG_ParticleSparks2(vec3_t org, vec3_t dir, int count)
 
 		p->color[0] = 1;
 		p->color[1] = 1;
-		p->color[2] = 0.3;
+		p->color[2] = 0.3f;
+		p->color[3] = 1.0;
 
-		//p->colorVel[0] = 0;
-		//p->colorVel[1] = -1;
-		//p->colorVel[2] = -1.5;
+		p->colorVel[0] = 0;
+		p->colorVel[1] = -1;
+		p->colorVel[2] = -1.5;
+		p->colorVel[3] = -1.0 / (1.5 + random() * 1.666);
 
 		p->height = 0.4f;
 		p->width = 5;
@@ -1899,9 +1961,6 @@ void CG_ParticleSparks2(vec3_t org, vec3_t dir, int count)
 
 		p->accel[0] = p->accel[1] = 0;
 		p->accel[2] = -PARTICLE_GRAVITY * 3;
-
-		p->color[3] = 1.0;
-		p->colorVel[3] = -1.0 / (1.5 + random() * 1.666);
 
 		VectorCopy(p->org, p->oldOrg);
 	}
@@ -2179,6 +2238,146 @@ void CG_ParticleRocketFire(vec3_t start, vec3_t end)
 
 }
 
+void CG_ParticleRick(vec3_t org, vec3_t dir)
+{
+	float           d;
+	int             j, i;
+	cparticle_t    *p;
+
+//  VectorNormalize(dir);
+
+#if 1
+	// SPARKS
+	for(i = 0; i < 3; i++)
+	{
+		p = CG_AllocParticle();
+		if(!p)
+			return;
+
+		VectorClear(p->accel);
+		VectorClear(p->vel);
+
+		p->flags = PF_AIRONLY;
+
+		p->time = cg.time;
+		p->endTime = cg.time + 20000;
+
+		p->type = P_SPARK;
+		p->pshader = cgs.media.sparkShader;
+
+		p->height = 0.7f;
+		p->width = 7;
+		p->endHeight = 1.3f;
+		p->endWidth = 30;
+
+		p->color[0] = 1;
+		p->color[1] = 0.7f;
+		p->color[2] = 0;
+		p->color[3] = 0.3f;
+
+		p->colorVel[0] = 0;
+		p->colorVel[1] = -1;
+		p->colorVel[2] = 0;
+		p->colorVel[3] = -1.0 / (0.7 + random() * 0.2);
+
+		d = rand() & 5;
+		for(j = 0; j < 3; j++)
+		{
+			p->org[j] = org[j] + d * dir[j];
+			p->vel[j] = dir[j] * 30 + crandom() * 10;
+		}
+		VectorCopy(p->org, p->oldOrg);
+
+		p->accel[0] = p->accel[1] = 0;
+		p->accel[2] = -PARTICLE_GRAVITY;
+	}
+#endif
+
+#if 1
+	// SMOKE
+	for(i = 0; i < 6; i++)
+	{
+		p = CG_AllocParticle();
+		if(!p)
+			return;
+
+		p->flags = PF_AIRONLY;
+		p->time = cg.time;
+		p->endTime = cg.time + 20000;
+		//p->endTime = cg.time + 500;
+
+		p->color[0] = 0.1f;
+		p->color[1] = 0.1f;
+		p->color[2] = 0.1f;
+		p->color[3] = 0.60f;
+
+		p->colorVel[0] = 0.7f;
+		p->colorVel[1] = 0.7f;
+		p->colorVel[2] = 0.7f;
+		p->colorVel[3] = -1.0 / (0.5 + random() * 0.5);
+
+		p->type = P_SMOKE_IMPACT;
+		p->pshader = cgs.media.smokePuffShader;
+
+		p->width = 5.0f * (1.0f + random() * 0.5f);
+		p->height = 5.0f * (1.0f + random() * 0.5f);
+
+		p->endHeight = p->height * 2;
+		p->endWidth = p->width * 2;
+
+		//p->size = 5;
+		//p->sizeVel = 11;
+
+		d = rand() & 15;
+		for(j = 0; j < 3; j++)
+		{
+			p->org[j] = org[j] + ((rand() & 7) - 4) + d * dir[j];
+			p->vel[j] = dir[j] * 30;
+		}
+
+		p->accel[0] = p->accel[1] = 0;
+		p->accel[2] = 15;
+	}
+#endif
+
+#if 0
+	p = CG_AllocParticle();
+	if(!p)
+		return;
+
+	VectorClear(p->accel);
+	VectorClear(p->vel);
+	VectorCopy(dir, p->dir);
+	VectorNormalize(p->dir);
+	p->flags = PARTICLE_ALIGNED | PARTICLE_AIRONLY;
+	p->time = cg.time;
+	p->endTime = cg.time + 20000;
+
+	//p->blend_dst = GL_SRC_ALPHA;
+	//p->blend_src = GL_ONE_MINUS_SRC_ALPHA;
+
+	p->color[0] = 0.1;
+	p->color[1] = 0.1;
+	p->color[2] = 0.1;
+	p->color[3] = 0.83;
+
+	p->colorVel[0] = 0.3;
+	p->colorVel[1] = 0.3;
+	p->colorVel[2] = 0.3;
+	p->colorVel[3] = -1.0 / (0.5 + frand() * 0.5);
+
+	p->type = P_SMOKE;
+	p->size = 5;
+	p->sizeVel = 11;
+
+	for(j = 0; j < 3; j++)
+	{
+		p->org[j] = org[j];
+		p->vel[j] = p->dir[j] * 2;
+	}
+#endif
+}
+
 
 /*
 =================
@@ -2195,6 +2394,8 @@ void CG_TestParticles_f(void)
 //  CG_ParticleTeleportEffect(origin);
 //  CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
 //  CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
-//	CG_ParticleRocketFire(start, end);
-	CG_ParticleSparks2(start, cg.refdef.viewaxis[2], 50);
+//  CG_ParticleRocketFire(start, end);
+//  CG_ParticleSparks2(start, cg.refdef.viewaxis[1], 50);
+//  CG_ParticleRick(start, cg.refdef.viewaxis[1]);
+	CG_ParticleBlood(start, cg.refdef.viewaxis[1], 3);
 }
