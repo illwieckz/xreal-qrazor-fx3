@@ -3,6 +3,7 @@ common
 #common_lights
 #common_misc
 #common_trims
+decals
 #dk_goth
 #dk_goth2
 #dk_q4dm1
