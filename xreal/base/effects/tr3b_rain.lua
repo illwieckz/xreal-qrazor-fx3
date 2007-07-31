@@ -1,12 +1,44 @@
 
+--
+-- TARGET_FX FUNCTIONS
+--
+function tr3b_rain_RainGrid512(origin, dir)
+	-- spawn particles in a 512x512 grid
+	tr3b_rain_RainGrid(origin, dir, 512, 8)
+end
+
+function tr3b_rain_RainGrid256(origin, dir)
+	-- spawn particles in a 256x256 grid
+	tr3b_rain_RainGrid(origin, dir, 256, 8)
+end
+
 function tr3b_rain_RainGrid128(origin, dir)
+	-- spawn particles in a 128x128 grid
+	tr3b_rain_RainGrid(origin, dir, 128, 8)
+end
+
+function tr3b_rain_RainGrid64(origin, dir)
+	-- spawn particles in a 64x64 grid
+	tr3b_rain_RainGrid(origin, dir, 64, 8)
+end
+
+function tr3b_rain_RainGrid32(origin, dir)
+	-- spawn particles in a 32x32 grid
+	tr3b_rain_RainGrid(origin, dir, 32, 8)
+end
+
+
+--
+-- HELPER FUNCTIONS
+--
+function tr3b_rain_RainGrid(origin, dir, gridSize, stepSize)
 	
 	shader = cgame.RegisterShader("particles/rain01");
 	
-	-- spawn particles in a 128x128 grid
 	org = vector.New()
-	for i = -64, 64, 8 do
-		for j = -64, 64, 8 do
+	gridSize = gridSize / 2
+	for i = -gridSize, gridSize, stepSize do
+		for j = -gridSize, gridSize, stepSize do
 		
 			org[0] = origin[0] + i
 			org[1] = origin[1] + j
