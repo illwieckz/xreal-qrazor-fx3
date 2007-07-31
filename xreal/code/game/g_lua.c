@@ -73,6 +73,45 @@ void G_InitLua_Global()
 
 /*
 ============
+G_InitLua_Local
+
+load multiple lua scripts from the maps directory
+============
+*/
+
+void G_InitLua_Local(char mapname[MAX_STRING_CHARS]) {
+
+	int             numdirs;
+	int 		numFiles;
+	char            filename[128];
+	char            dirlist[1024];
+	char           *dirptr;
+	int             i;
+	int             dirlen;
+
+	numFiles = 0;
+
+	numdirs = trap_FS_GetFileList(va("scripts/lua/%s", mapname), ".lua", dirlist, 1024);
+	dirptr = dirlist;
+	for(i = 0; i < numdirs; i++, dirptr += dirlen + 1)
+	{
+		dirlen = strlen(dirptr);
+		strcpy(filename, va("scripts/lua/%s/",mapname));
+		strcat(filename, dirptr);
+		numFiles++;
+
+		// load the file
+		G_LoadLuaScript(NULL, filename);
+
+	}
+
+	Com_Printf("%i local files parsed\n", numFiles);
+
+}
+
+
+/*
+============
 G_InitLua
 ============
 */
@@ -95,16 +134,18 @@ void G_InitLua()
 	luaopen_qmath(g_luaState);
 	luaopen_vector(g_luaState);
 
-	//load global scripts
+	// load global scripts
+	Com_Printf("global lua scripts:\n");
 	G_InitLua_Global();
 
-	// load map specific Lua script as default
+	// load map-specific lua scripts
+	Com_Printf("map specific lua scripts:\n");
 	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
-	Com_sprintf(filename, sizeof(filename), "scripts/lua/%s.lua", buf);
-
-	G_LoadLuaScript(NULL, filename);
+	G_InitLua_Local(buf);
 
 	G_Printf("-----------------------------------\n");
+
+
 }
 
 

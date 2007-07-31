@@ -81,13 +81,12 @@ TELEPORTERS
 =================================================================================
 */
 
-// otty: teleporting a rocket is more expensive than freeing the old and creating a new one. just keep the owner.
+// otty: teleporting a rocket is more expensive than freeing the old and creating a new one. just keep the owner and lifetime
 void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
 {
-	gentity_t      *tent;
 	vec3_t          dir;
 
-	trap_UnlinkEntity(ent);
+	gentity_t	*telep = NULL;
 
 	AngleVectors(angles, dir, NULL, NULL);
 
@@ -97,14 +96,17 @@ void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
 			return;
 			break;
 		case WP_ROCKET_LAUNCHER:
-			fire_rocket(&g_entities[ent->r.ownerNum], origin, dir);
+			telep = fire_rocket(&g_entities[ent->r.ownerNum], origin, dir);
 			break;
 
 		case WP_GRENADE_LAUNCHER:
-			fire_grenade(&g_entities[ent->r.ownerNum], origin, dir);
+			telep = fire_grenade(&g_entities[ent->r.ownerNum], origin, dir);
 			break;
 
 	}
+
+	if(telep)
+		telep->nextthink = ent->nextthink;
 
 	G_FreeEntity(ent);
 }

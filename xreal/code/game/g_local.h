@@ -684,11 +684,9 @@ void            trigger_teleporter_touch(gentity_t * self, gentity_t * other, tr
 // g_misc.c
 //
 void            TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles);
-
-	// otty begin
 void            TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles);
 
-	// otty end
+
 
 #ifdef MISSIONPACK
 void            DropPortalSource(gentity_t * ent);

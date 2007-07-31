@@ -339,7 +339,6 @@ void G_OtherTouchTriggers(gentity_t * ent)
 
 }
 
-	// otty end
 
 /*
 ============

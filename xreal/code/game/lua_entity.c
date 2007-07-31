@@ -357,11 +357,10 @@ static int entity_ToString(lua_State * L)
 
 static const luaL_reg entity_ctor[] = {
 	{"Spawn", entity_Spawn},
-	// otty begin
+
 	{"Find", entity_Find},		//find an entity by name e.g ent = entity.Find("myentity");
 	{"Target", entity_Target},	//find an entitys target, e.g target = entity.Target(ent);
 
-	// otty end
 	{NULL, NULL}
 };
 
