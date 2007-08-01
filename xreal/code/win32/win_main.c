@@ -20,8 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// win_main.c
 
+// win_main.c
 #include "../client/client.h"
 #include "../qcommon/qcommon.h"
 #include "win_local.h"
@@ -979,8 +979,10 @@ Restart the input subsystem
 */
 void Sys_In_Restart_f(void)
 {
+#ifndef DEDICATED
 	IN_Shutdown();
 	IN_Init();
+#endif
 }
 
 
@@ -1028,28 +1030,38 @@ void Sys_Init(void)
 	if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s)
 		Sys_Error("XreaL doesn't run on Win32s");
 
-	if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT)
+	switch(g_wv.osversion.dwMajorVersion)
 	{
-		Cvar_Set("arch", "winnt");
-	}
-	else if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-	{
-		if(LOWORD(g_wv.osversion.dwBuildNumber) >= WIN98_BUILD_NUMBER)
-		{
-			Cvar_Set("arch", "win98");
-		}
-		else if(LOWORD(g_wv.osversion.dwBuildNumber) >= OSR2_BUILD_NUMBER)
-		{
-			Cvar_Set("arch", "win95 osr2.x");
-		}
-		else
-		{
-			Cvar_Set("arch", "win95");
-		}
-	}
-	else
-	{
-		Cvar_Set("arch", "unknown Windows variant");
+		case 6:
+			Cvar_Set("arch", "winVista");
+			break;
+
+		case 5:
+			if(!g_wv.osversion.dwMinorVersion)
+				Cvar_Set("arch", "win2000");
+			else
+				Cvar_Set("arch", "winXP");
+			break;
+
+		case 4:
+			if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT)
+			{
+				Cvar_Set("arch", "winNT");
+			}
+			else if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
+			{
+				if(LOWORD(g_wv.osversion.dwBuildNumber) >= WIN98_BUILD_NUMBER)
+					Cvar_Set("arch", "win98");
+				else if(LOWORD(g_wv.osversion.dwBuildNumber) >= OSR2_BUILD_NUMBER)
+					Cvar_Set("arch", "win95 osr2.x");
+				else
+					Cvar_Set("arch", "win95");
+			}
+			break;
+
+		default:
+			Cvar_Set("arch", "unknown windows variant");
+			break;
 	}
 
 	// save out a couple things in rom cvars for the renderer to access
@@ -1058,7 +1070,9 @@ void Sys_Init(void)
 
 	Cvar_Set("username", Sys_GetCurrentUser());
 
-	IN_Init();					// FIXME: not in dedicated?
+#ifndef DEDICATED
+	IN_Init();
+#endif
 }
 
 qboolean Sys_DetectAltivec(void)
@@ -1124,8 +1138,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		startTime = Sys_Milliseconds();
 
+#ifndef DEDICATED
 		// make sure mouse and joystick are only called once a frame
 		IN_Frame();
+#endif
 
 		// run the game
 		Com_Frame();

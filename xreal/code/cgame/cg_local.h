@@ -1675,6 +1675,7 @@ void			CG_ParticleDirtBulletDebris_Core(vec3_t org, vec3_t vel, int duration, fl
 void            CG_ParticleBloodCloud(vec3_t origin, vec3_t dir);
 void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
 void            CG_ParticleSparks2(vec3_t org, vec3_t dir, int count);
+void			CG_ParticleRick(vec3_t org, vec3_t dir);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void            CG_ParticleTeleportEffect(const vec3_t origin);
