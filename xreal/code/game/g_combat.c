@@ -1383,7 +1383,7 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 			}
 			else
 			{
-				dir[2] += knockback_z;
+				dir[2] += g_knockbackZ.value;
 			}
 			G_Damage(ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 		}

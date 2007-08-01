@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007 Pat Raynor <raynorpat@sbcglobal.net>
 
 This file is part of XreaL source code.
 
@@ -26,7 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
-#include "bg_xreal.h"
 
 pmove_t        *pm;
 pml_t           pml;
@@ -46,6 +46,12 @@ float           pm_friction = 8.0f;
 float           pm_waterfriction = 1.0f;
 float           pm_flightfriction = 3.0f;
 float           pm_spectatorfriction = 5.0f;
+
+// XreaL Movement Physics
+float           pm_airStopAccelerate = 2.5f;
+float           pm_airControlAmount = 150.0f;
+float           pm_strafeAccelerate = 70.0f;
+float           pm_wishSpeed = 30.0f;
 
 int             c_pmove = 0;
 
@@ -671,6 +677,42 @@ static void PM_FlyMove(void)
 
 /*
 ===================
+PM_AirControl
+raynorpat: Air Control from CPM Land... :)
+===================
+*/
+static void PM_Aircontrol(pmove_t * pm, vec3_t wishdir, float wishspeed)
+{
+	float           zspeed, speed, dot, k;
+	int             i;
+
+	if((pm->ps->movementDir && pm->ps->movementDir != 4) || wishspeed == 0.0)
+		return;					// can't control movement if not moving forward or backward
+
+	zspeed = pm->ps->velocity[2];
+	pm->ps->velocity[2] = 0;
+	speed = VectorNormalize(pm->ps->velocity);
+
+	dot = DotProduct(pm->ps->velocity, wishdir);
+	k = 32;
+	k *= pm_airControlAmount * dot * dot * pml.frametime;
+
+	if(dot > 0)
+	{
+		// we can't change direction while slowing down
+		for(i = 0; i < 2; i++)
+			pm->ps->velocity[i] = pm->ps->velocity[i] * speed + wishdir[i] * k;
+		VectorNormalize(pm->ps->velocity);
+	}
+
+	for(i = 0; i < 2; i++)
+		pm->ps->velocity[i] *= speed;
+
+	pm->ps->velocity[2] = zspeed;
+}
+
+/*
+===================
 PM_AirMove
 ===================
 */
@@ -712,22 +754,30 @@ static void PM_AirMove(void)
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
 
-	wishspeed2 = wishspeed;
-	if(DotProduct(pm->ps->velocity, wishdir) < 0)
-		accel = pm_airStopAccelerate;
-	else
-		accel = pm_airaccelerate;
-	if(pm->ps->movementDir == 2 || pm->ps->movementDir == 6)
-	{
-		if(wishspeed > pm_wishSpeed)
-			wishspeed = pm_wishSpeed;
-		accel = pm_strafeAccelerate;
-	}
-
-	// not on ground, so little effect on velocity
-	PM_Accelerate(wishdir, wishspeed, accel);
 	if(pm->airControl)
+	{
+		wishspeed2 = wishspeed;
+		if(DotProduct(pm->ps->velocity, wishdir) < 0)
+			accel = pm_airStopAccelerate;
+		else
+			accel = pm_airaccelerate;
+		if(pm->ps->movementDir == 2 || pm->ps->movementDir == 6)
+		{
+			if(wishspeed > pm_wishSpeed)
+				wishspeed = pm_wishSpeed;
+			accel = pm_strafeAccelerate;
+		}
+
+		// not on ground, so little effect on velocity
+		PM_Accelerate(wishdir, wishspeed, accel);
+		
 		PM_Aircontrol(pm, wishdir, wishspeed2);
+	}
+	else
+	{
+		// not on ground, so little effect on velocity
+		PM_Accelerate(wishdir, wishspeed, pm_airaccelerate);
+	}	
 
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity

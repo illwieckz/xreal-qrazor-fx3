@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // g_local.h -- local definitions for game module
 #include "q_shared.h"
 #include "bg_public.h"
-#include "bg_xreal.h"
 #include "g_public.h"
 
 //==================================================================
@@ -912,6 +911,7 @@ extern vmCvar_t g_needpass;
 extern vmCvar_t g_gravity;
 extern vmCvar_t g_speed;
 extern vmCvar_t g_knockback;
+extern vmCvar_t g_knockbackZ;
 extern vmCvar_t g_quadfactor;
 extern vmCvar_t g_forcerespawn;
 extern vmCvar_t g_inactivity;
