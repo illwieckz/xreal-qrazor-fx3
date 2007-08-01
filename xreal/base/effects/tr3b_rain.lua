@@ -4,27 +4,27 @@
 --
 function tr3b_rain_RainGrid512(origin, dir)
 	-- spawn particles in a 512x512 grid
-	tr3b_rain_RainGrid(origin, dir, 512, 8)
+	tr3b_rain_RainGrid(origin, dir, 512, 16)
 end
 
 function tr3b_rain_RainGrid256(origin, dir)
 	-- spawn particles in a 256x256 grid
-	tr3b_rain_RainGrid(origin, dir, 256, 8)
+	tr3b_rain_RainGrid(origin, dir, 256, 16)
 end
 
 function tr3b_rain_RainGrid128(origin, dir)
 	-- spawn particles in a 128x128 grid
-	tr3b_rain_RainGrid(origin, dir, 128, 8)
+	tr3b_rain_RainGrid(origin, dir, 128, 16)
 end
 
 function tr3b_rain_RainGrid64(origin, dir)
 	-- spawn particles in a 64x64 grid
-	tr3b_rain_RainGrid(origin, dir, 64, 8)
+	tr3b_rain_RainGrid(origin, dir, 64, 16)
 end
 
 function tr3b_rain_RainGrid32(origin, dir)
 	-- spawn particles in a 32x32 grid
-	tr3b_rain_RainGrid(origin, dir, 32, 8)
+	tr3b_rain_RainGrid(origin, dir, 32, 16)
 end
 
 
@@ -64,8 +64,11 @@ function tr3b_rain_SpawnRainParticle(origin, shader)
 	p:SetDuration(10000)
 	p:SetOrigin(origin)
 	
-	
-	vel = vector.Construct(0, 0, -30)
+	-- add some randomess to avoid parallel rain drops
+	vel = vector.New()
+	vel[0] = qmath.random() * 5
+	vel[1] = qmath.random() * 5
+	vel[2] = -40
 	p:SetVelocity(vel)
 
 	-- add some gravity/randomness

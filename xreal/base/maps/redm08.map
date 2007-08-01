@@ -4,6 +4,7 @@ Version 3
 {
 "classname" "worldspawn"
 "music" "music/di.fm-progressive-shiodome-arena.ogg"
+"ambientColor" "0.51 0.54 0.62"
 // brush 0
 {
 patchDef2
@@ -6218,4 +6219,68 @@ brushDef3
 "_color" "0.959609 0.962936 0.971786"
 "light_radius" "700 700 1500"
 "texture" "lights/stormLight"
+}
+// entity 97
+{
+"classname" "target_fx"
+"name" "target_fx_11"
+"origin" "256 -192 360"
+"luaThink" "tr3b_rain_RainGrid256"
+"wait" "0.5"
+}
+// entity 98
+{
+"classname" "target_fx"
+"name" "target_fx_17"
+"origin" "256 -448 360"
+"luaThink" "tr3b_rain_RainGrid256"
+"wait" "0.5"
+}
+// entity 99
+{
+"classname" "target_fx"
+"name" "target_fx_18"
+"origin" "0 -448 360"
+"luaThink" "tr3b_rain_RainGrid256"
+"wait" "0.5"
+}
+// entity 100
+{
+"classname" "target_fx"
+"name" "target_fx_19"
+"origin" "0 -192 360"
+"luaThink" "tr3b_rain_RainGrid256"
+"wait" "0.5"
+}
+// entity 101
+{
+"classname" "target_speaker"
+"name" "target_speaker_1"
+"origin" "-32 -320 -240"
+"spawnflags" "1"
+"noise" "sound/world/ambient/lightrain.ogg"
+}
+// entity 102
+{
+"classname" "target_speaker"
+"name" "target_speaker_2"
+"origin" "128 -160 -240"
+"spawnflags" "1"
+"noise" "sound/world/ambient/lightrain.ogg"
+}
+// entity 103
+{
+"classname" "target_speaker"
+"name" "target_speaker_3"
+"origin" "288 -320 -240"
+"spawnflags" "1"
+"noise" "sound/world/ambient/lightrain.ogg"
+}
+// entity 104
+{
+"classname" "target_speaker"
+"name" "target_speaker_4"
+"origin" "128 -480 -240"
+"spawnflags" "1"
+"noise" "sound/world/ambient/lightrain.ogg"
 }
