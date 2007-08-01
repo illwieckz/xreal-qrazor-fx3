@@ -895,8 +895,8 @@ static void CG_DrawStatusBarXreaL(void)
 	vec4_t         *colorItem;
 	vec4_t          colorHudBlack = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
 	vec4_t          colorHudSemiBlack = { 0.0f, 0.0f, 0.0f, 0.2f };	// b/w
-	vec4_t          colorHealth = { 1.0f, 0.25f, 0.25f, 0.5f };
-	vec4_t          colorArmor = { 0.25f, 0.25f, 1.0f, 0.5f };
+	vec4_t          colorHealth = { 1.0f, 0.25f, 0.25f, 0.7f };
+	vec4_t          colorArmor = { 0.25f, 0.25f, 1.0f, 0.7f };
 	vec4_t          colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
 	vec4_t          colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
 
@@ -993,8 +993,11 @@ static void CG_DrawStatusBarXreaL(void)
 	
 	if(cg_drawStatusLines.integer)
 	{
-		CG_FillRect(320 + 5, 480 - 25, 200, 10, colorHudSemiBlack);
-		CG_FillRect(320 + 5, 480 - 25, Q_bound(0, value, 200), 10, colorHealth);
+		trap_R_SetColor(colorHudSemiBlack);
+		CG_DrawPic(320 + 5, 480 - 38, 300, 36, cgs.media.sideBarItemLShader);
+
+		trap_R_SetColor(colorHealth);
+		CG_DrawPic(320 + 5, 480 - 38, Q_bound(0, value, 300), 36, cgs.media.sideBarItemLShader);
 	}
 
 	// armor
@@ -1024,8 +1027,11 @@ static void CG_DrawStatusBarXreaL(void)
 	
 	if(cg_drawStatusLines.integer)
 	{
-		CG_FillRect(320 -205, 480 - 25, 200, 10, colorHudSemiBlack);
-		CG_FillRect(320 -205 + (200 - Q_bound(0, value, 200)), 480 - 25, Q_bound(0, value, 200), 10, colorArmor);
+		trap_R_SetColor(colorHudSemiBlack);
+		CG_DrawPic(320 -305, 480 - 38, 300, 36, cgs.media.sideBarItemRShader);
+
+		trap_R_SetColor(colorArmor);
+		CG_DrawPic(320 -305 + (300 - Q_bound(0, value, 300)), 480 - 38, Q_bound(0, value, 300), 36, cgs.media.sideBarItemRShader);
 	}
 }
 
