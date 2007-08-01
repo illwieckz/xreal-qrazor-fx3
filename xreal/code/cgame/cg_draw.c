@@ -355,9 +355,9 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	
 	QuatFromAngles(light.rotation, 0, 5, 0);
 	
-	light.color[0] = 0.8;
-	light.color[1] = 0.8;
-	light.color[2] = 0.8;
+	light.color[0] = 0.8f;
+	light.color[1] = 0.8f;
+	light.color[2] = 0.8f;
 	
 	light.fovX = 90;
 	light.fovY = 90;
@@ -444,9 +444,9 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	
 	QuatFromAngles(light.rotation, 0, 5, 0);
 	
-	light.color[0] = 0.8;
-	light.color[1] = 0.8;
-	light.color[2] = 0.8;
+	light.color[0] = 0.8f;
+	light.color[1] = 0.8f;
+	light.color[2] = 0.8f;
 	
 	light.fovX = 90;
 	light.fovY = 90;
