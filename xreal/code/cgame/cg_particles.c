@@ -858,106 +858,110 @@ void CG_AddParticles(void)
 		//org[2]-= 0.5 * cg_gravity.value * time2;
 
 		// Tr3B: add some collision tests
-		if(cg_particleCollision.integer && p->bounceFactor)
+		if(cg_particleCollision.integer)
 		{
-			trace_t         trace;
-
-			vec3_t          vel;
-			int             hitTime;
-			float           time;
-
-			CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
-
-			//trap_CM_BoxTrace(&trace, p->oldOrg, org, NULL, NULL, 0, CONTENTS_SOLID);
-			//trace.entityNum = trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
-
-			if(trace.fraction > 0 && trace.fraction < 1)
+			if(p->bounceFactor)
 			{
-				// reflect the velocity on the trace plane
-				hitTime = cg.time - cg.frametime + cg.frametime * trace.fraction;
+				trace_t         trace;
 
-				time = ((float)hitTime - p->time) * 0.001;
+				vec3_t          vel;
+				int             hitTime;
+				float           time;
 
-				VectorSet(vel, p->vel[0], p->vel[1], p->vel[2] + p->accel[2] * time * grav);
-				VectorReflect(vel, trace.plane.normal, p->vel);
-				VectorScale(p->vel, p->bounceFactor, p->vel);
+				CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
 
-				// check for stop, making sure that even on low FPS systems it doesn't bobble
-				if(trace.allsolid || (trace.plane.normal[2] > 0 && (p->vel[2] < 40 || p->vel[2] < -cg.frametime * p->vel[2])))
+				//trap_CM_BoxTrace(&trace, p->oldOrg, org, NULL, NULL, 0, CONTENTS_SOLID);
+				//trace.entityNum = trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
+
+				if(trace.fraction > 0 && trace.fraction < 1)
 				{
-					//if(p->vel[2] > 0.9)
+					// reflect the velocity on the trace plane
+					hitTime = cg.time - cg.frametime + cg.frametime * trace.fraction;
+
+					time = ((float)hitTime - p->time) * 0.001;
+
+					VectorSet(vel, p->vel[0], p->vel[1], p->vel[2] + p->accel[2] * time * grav);
+					VectorReflect(vel, trace.plane.normal, p->vel);
+					VectorScale(p->vel, p->bounceFactor, p->vel);
+
+					// check for stop, making sure that even on low FPS systems it doesn't bobble
+					if(trace.allsolid || (trace.plane.normal[2] > 0 && (p->vel[2] < 40 || p->vel[2] < -cg.frametime * p->vel[2])))
 					{
-						VectorClear(p->vel);
-						VectorClear(p->accel);
+						//if(p->vel[2] > 0.9)
+						{
+							VectorClear(p->vel);
+							VectorClear(p->accel);
 
-						p->bounceFactor = 0.0f;
+							p->bounceFactor = 0.0f;
+						}
+						/*
+						   else
+						   {
+						   float           dot;
+
+						   //ClipVelocity(p->vel, trace.plane.normal, p->vel, p->bounceFactor);
+
+						   // FIXME: check for new plane or free fall
+						   dot = DotProduct(p->vel, trace.plane.normal);
+						   VectorMA(p->vel, -dot, trace.plane.normal, p->vel);
+
+						   dot = DotProduct(p->accel, trace.plane.normal);
+						   VectorMA(p->accel, -dot, trace.plane.normal, p->accel);
+						   }
+						 */
 					}
-					/*
-					   else
-					   {
-					   float           dot;
 
-					   //ClipVelocity(p->vel, trace.plane.normal, p->vel, p->bounceFactor);
+					if(p->type == P_BLOOD)
+					{
+						int             radius, r = 0;
+						qhandle_t       shader;
 
-					   // FIXME: check for new plane or free fall
-					   dot = DotProduct(p->vel, trace.plane.normal);
-					   VectorMA(p->vel, -dot, trace.plane.normal, p->vel);
+						radius = 3 + random() * 5;
+						r = rand() & 3;
 
-					   dot = DotProduct(p->accel, trace.plane.normal);
-					   VectorMA(p->accel, -dot, trace.plane.normal, p->accel);
-					   }
-					 */
+						if(r == 0)
+						{
+							shader = cgs.media.bloodMarkShader;
+						}
+						else if(r == 1)
+						{
+							shader = cgs.media.bloodMark2Shader;
+						}
+						else
+						{
+							shader = cgs.media.bloodMark3Shader;
+						}
+
+						CG_ImpactMark(shader, trace.endpos, trace.plane.normal, random() * 360, 1, 1, 1, 1, qtrue, radius,
+									  qfalse);
+					}
+
+					VectorCopy(trace.endpos, org);
+
+					// reset particle
+					p->time = cg.time;
+					//VectorCopy(p->org, p->oldOrg);
+					VectorCopy(org, p->org);
 				}
-
-				if(p->type == P_BLOOD)
-				{
-					int             radius, r = 0;
-					qhandle_t       shader;
-
-					radius = 3 + random() * 5;
-					r = rand() & 3;
-
-					if(r == 0)
-					{
-						shader = cgs.media.bloodMarkShader;
-					}
-					else if(r == 1)
-					{
-						shader = cgs.media.bloodMark2Shader;
-					}
-					else
-					{
-						shader = cgs.media.bloodMark3Shader;
-					}
-
-					CG_ImpactMark(shader, trace.endpos, trace.plane.normal, random() * 360, 1, 1, 1, 1, qtrue, radius, qfalse);
-				}
-
-				VectorCopy(trace.endpos, org);
-
-				// reset particle
-				p->time = cg.time;
-				//VectorCopy(p->org, p->oldOrg);
-				VectorCopy(org, p->org);
 			}
-		}
 
-		contents = trap_CM_PointContents(org, 0);
+			contents = trap_CM_PointContents(org, 0);
 
-		// Tr3B: kill all particles in solid
-		if(contents & MASK_SOLID)
-		{
-			CG_FreeParticle(p);
-			continue;
-		}
-
-		// kill all air only particles in water or slime
-		if(p->flags & PF_AIRONLY)
-		{
-			if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
+			// Tr3B: kill all particles in solid
+			if(contents & MASK_SOLID)
 			{
 				CG_FreeParticle(p);
 				continue;
+			}
+
+			// kill all air only particles in water or slime
+			if(p->flags & PF_AIRONLY)
+			{
+				if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
+				{
+					CG_FreeParticle(p);
+					continue;
+				}
 			}
 		}
 
