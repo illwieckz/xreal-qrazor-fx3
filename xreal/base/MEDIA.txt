@@ -68,20 +68,20 @@ base\textures\common\nodrawsolid.png                                  <add autho
 base\textures\common\origin.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\clip.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\nodraw.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\mirror1.png                                      ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\textures\common\collision.png                                    ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\mirror1.png                                      ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\textures\common\monster_clip.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\textures\common\caulk.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\moveable_clip.png                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\textures\common\nodrop.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nolightmap.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\moveable_clip.png                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\textures\common\hint.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\trigger.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nolightmap.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\clusterportal.png                                ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\trigger.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\terrain.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\slick.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\cushion.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\qer_portal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\cushion.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\metalclip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\antiportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
 base\textures\common\invisible.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
@@ -92,26 +92,26 @@ base\textures\decals\explo_burn01.png                                 ( c ) 2004
 base\textures\decals\blood_splat01.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\textures\decals\blood_splat02.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\textures\decals\blood_splat03.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat04.png                                ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
-base\textures\decals\blood_splat05.png                                ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
-base\textures\decals\blood_splat06.png                                ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
+base\textures\decals\blood_splat04.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
+base\textures\decals\blood_splat05.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
+base\textures\decals\blood_splat06.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\textures\decals\glow2.png                                        ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\textures\decals\lavaburn.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\textures\decals\particle_burn01.png                              ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\textures\tr3b_water\watertest_local.png                          ( c ) 2005 inolen                                 All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_d.png                               <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\rockwall_disp.png                         <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_d.png                               <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\rockwall2_d.png                           <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\brick_local.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_disp.png                            <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\roots_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_disp.png                            <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\rockwall2_local.png                       <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\stonewall_d.png                           <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\brick2_d.png                              <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\relief_local.png                          <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\roots_local.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\tile1_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\relief_local.png                          <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\rockwall_d.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\tile1_d.png                               <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\stonewall_local.png                       <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\roots_disp.png                            <add author>                                      All Rights Reserved                                                   
 base\textures\tr3b_parallax\brick2_local.png                          <add author>                                      All Rights Reserved                                                   
@@ -162,8 +162,8 @@ base\models\powerups\instant\flight.md3                               ( c ) 2007
 base\models\powerups\instant\flight.png                               ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\instant\regen_ring.md3                           ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\instant\enviro_ring.md3                          ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
-base\models\powerups\instant\haste_ring.md3                           ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\instant\quad_glow.png                            ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
+base\models\powerups\instant\haste_ring.md3                           ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\instant\invis.md3                                ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\instant\invis.png                                ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\instant\quad.md3                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
@@ -185,15 +185,15 @@ base\models\powerups\health\mega.png                                  ( c ) 2007
 base\models\powerups\health\large.png                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\models\powerups\ammo\ammobox.jpg                                 ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\lightningam.md3                             ( c ) 2006 OpenArena Team                         GPL                                                                   
-base\models\powerups\ammo\shotgunam.md3                               ( c ) 2006 OpenArena Team                         GPL                                                                   
-base\models\powerups\ammo\rocketam.md3                                ( c ) 2006 OpenArena Team                         GPL                                                                   
-base\models\powerups\ammo\ammolights.png                              ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\machammo2.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
+base\models\powerups\ammo\ammolights.png                              ( c ) 2006 OpenArena Team                         GPL                                                                   
+base\models\powerups\ammo\rocketam.md3                                ( c ) 2006 OpenArena Team                         GPL                                                                   
+base\models\powerups\ammo\shotgunam.md3                               ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\shotammo2.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\bfgam.md3                                   ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\railgunam.md3                               ( c ) 2006 OpenArena Team                         GPL                                                                   
-base\models\powerups\ammo\ammobox_n.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\lighammo2.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
+base\models\powerups\ammo\ammobox_n.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\grenadeam.md3                               ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\railammo2.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\models\powerups\ammo\ammobox_s.png                               ( c ) 2006 OpenArena Team                         GPL                                                                   
@@ -236,21 +236,21 @@ base\models\mapobjects\kat\jumppad_mask.png                           ( c ) 2007
 base\models\mapobjects\kat\weapon_marker.ase                          ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\chainlink_64_h.png                         ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\jumppad_g2_neutral.png                     ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
-base\models\mapobjects\kat\lantern_top_2_n.png                        ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\jumppad_g3_neutral.png                     ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
+base\models\mapobjects\kat\lantern_top_2_n.png                        ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\crystal_h.png                              ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\lantern_top_s2.png                         ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\lantern_top_h.png                          ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\lantern_2b_h.png                           ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\jumppad_drum_h.png                         ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\weapon_marker_h.png                        ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
-base\models\mapobjects\kat\lantern_2b_n.png                           ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\crystal_s.png                              ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
+base\models\mapobjects\kat\lantern_2b_n.png                           ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\jumppad_drum_n.png                         ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\ground_stone512_v3.png                     ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\lantern_2b_s.png                           ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
-base\models\mapobjects\kat\chainlink_64.png                           ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\jumppad_drum_s.png                         ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
+base\models\mapobjects\kat\chainlink_64.png                           ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\lantern_top_d2.png                         ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\lantern_med.ase                            ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\models\mapobjects\kat\weapon_marker_s.png                        ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
@@ -279,16 +279,16 @@ base\models\mapobjects\bja\bja_light01_d.png                          ( c ) 2007
 base\models\mapobjects\bja\bja_light02_d.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light03_d.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light04_d.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\models\mapobjects\bja\bja_light05_d.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light01_h.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\models\mapobjects\bja\bja_light01_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\models\mapobjects\bja\bja_light05_d.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light02_h.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\models\mapobjects\bja\bja_light02_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\models\mapobjects\bja\bja_light01_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light03_h.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\models\mapobjects\bja\bja_light03_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\models\mapobjects\bja\bja_light02_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light04_h.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\models\mapobjects\bja\bja_light04_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\models\mapobjects\bja\bja_light03_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light05_h.png                          ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\models\mapobjects\bja\bja_light04_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_light05_add.png                        ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_trashcan_s.png                         ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\models\mapobjects\bja\bja_vent_local.png                         ( c ) 2007 Robert Hodri                           Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
@@ -315,21 +315,21 @@ base\models\mapobjects\gw\piller_s.png                                ( c ) 2005
 base\models\mapobjects\gw\teleporter_01.ase                           ( c ) 2005 gw < wrdgrg@yahoo.com >                All Rights Reserved.                                                  
 base\models\mapobjects\gw\piller_d.png                                ( c ) 2005 gw < wrdgrg@yahoo.com >                All Rights Reserved.                                                  
 base\models\mapobjects\gw\piller_01.ase                               ( c ) 2005 gw < wrdgrg@yahoo.com >                All Rights Reserved.                                                  
-base\models\weapons\railgun\v_railgun_add.png                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\railgun_view_idle.md5anim                 ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\railgun\v_railgun_add.png                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\w_railgun_add.png                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\v_railgun_local.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\railgun_view_fire.md5anim                 ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\v_railgun_s.png                           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\railgun\w_railgun_s.png                           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\railgun\railgun_view_lower.md5anim                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\railgun_view.md5mesh                      ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\railgun\railgun_view_lower.md5anim                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\railgun\w_railgun_s.png                           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\railgun_view_raise.md5anim                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\railgun.ase                               ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\v_railun_h.png                            ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\v_railgun_d.png                           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\railgun\w_railun_local.png                        ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\railgun\w_railgun_d.png                           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\railgun\w_railun_local.png                        ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\arms\arm2_s.png                                   ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\arms\arm2_d.png                                   ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\arms\arm2_h.png                                   ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
@@ -346,8 +346,8 @@ base\models\weapons\lightning\f_lightning.jpg                         ( c ) 2006
 base\models\weapons\lightning\lightning_local.tga                     ( c ) 2006 Mikael Ruohomaa                        All Rights Reserved                                                   
 base\models\weapons\lightning\lightning.tga                           ( c ) 2006 Mikael Ruohomaa                        All Rights Reserved                                                   
 base\models\weapons\gauntlet\sparky7.jpg                              ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
-base\models\weapons\gauntlet\gauntlet_hand.ms3d                       ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\gauntlet_flash.md3                       ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
+base\models\weapons\gauntlet\gauntlet_hand.ms3d                       ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\gauntlet_1.md3                           ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\gauntlet_2.md3                           ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet.png                          ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
@@ -355,11 +355,11 @@ base\models\weapons\gauntlet\ldagauntlet_b.png                        ( c ) 2005
 base\models\weapons\gauntlet\ldagauntlet_ifx.jpg                      ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet_d.png                        ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet_b_d.png                      ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
-base\models\weapons\gauntlet\gauntlet_barrel.md3                      ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\fx.jpg                                   ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
+base\models\weapons\gauntlet\gauntlet_barrel.md3                      ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet_h.png                        ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
-base\models\weapons\gauntlet\ldagauntlet_b_h.png                      ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\gauntlet_hand.md3                        ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
+base\models\weapons\gauntlet\ldagauntlet_b_h.png                      ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet_afx1.jpg                     ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet_afx2.jpg                     ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\ldagauntlet_afx3.jpg                     ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
@@ -375,10 +375,10 @@ base\models\weapons\gauntlet\sparky3.jpg                              ( c ) 2005
 base\models\weapons\gauntlet\sparky4.jpg                              ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\sparky5.jpg                              ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
 base\models\weapons\gauntlet\sparky6.jpg                              ( c ) 2005 Lee David Ash                          All Rights Reserved                                                   
-base\models\weapons\rocketl\body_n2.png                               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\rocketl_hand.md3                          ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
-base\models\weapons\rocketl\tube_d.jpg                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
+base\models\weapons\rocketl\body_n2.png                               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\roor_n.png                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
+base\models\weapons\rocketl\tube_d.jpg                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\roor_s.jpg                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\rocketl.md3                               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\f_rocketl.jpg                             ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
@@ -386,10 +386,10 @@ base\models\weapons\rocketl\front_n.png                               ( c ) 2007
 base\models\weapons\rocketl\frame_n.png                               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\frame_s.jpg                               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\f_small.jpg                               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
-base\models\weapons\rocketl\rocketl_uvw_exp.jpg                       ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\tube_n.png                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
-base\models\weapons\rocketl\rocketl_body_d.jpg                        ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
+base\models\weapons\rocketl\rocketl_uvw_exp.jpg                       ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\rocketl_flash.md3                         ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
+base\models\weapons\rocketl\rocketl_body_d.jpg                        ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\rocketl_uvw_rtop_exp_d.jpg                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\rocketl_uvw_frame_exp_d.jpg               ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\rocketl\rocketl_hand_old.md3                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
@@ -414,36 +414,36 @@ base\models\weapons\shells\shell_s.png                                ( c ) 2007
 base\models\weapons\shells\shell_d.png                                ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_s.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_view_raise.md5anim          ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\machinegun\machinegun.ase                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_muzzflash_strip.png         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\machinegun\machinegun.ase                         ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_hand.md3                    ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\models\weapons\machinegun\machinegun_view_idle.md5anim           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun.md3                         ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\models\weapons\machinegun\machinegun.blend                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_d.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\machinegun\machinegun_view_fire.md5anim           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\f_machinegun.png                       ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\models\weapons\machinegun\machinegun_view_fire.md5anim           ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_muzzflash2_strip.png        ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_h.png                       ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
-base\models\weapons\machinegun\machinegun_view.md5mesh                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_add.png                     ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
+base\models\weapons\machinegun\machinegun_view.md5mesh                ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_view_lower.md5anim          ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_local.png                   ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_flash.md3                   ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\gfx\2d\crosshairh.tga                                            ( c ) 1999 tbird                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
+base\gfx\2d\crosshairi.tga                                            ( c ) 1999 lotek                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test4.shtm 
 base\gfx\2d\hud\sidebaritem_left.png                                  ( c ) 2006 Josef S ntgen                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\gfx\2d\hud\sidebaritem_right.png                                 ( c ) 2006 Josef S ntgen                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\gfx\2d\crosshairi.tga                                            ( c ) 1999 lotek                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test4.shtm 
-base\gfx\2d\charset-bezerk-plain-rc2.png                              <add author>                                      All Rights Reserved                                                   http://gibbage.mine.nu 
 base\gfx\2d\crosshairj.tga                                            ( c ) 1999 mechcow                                All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test5.shtm 
+base\gfx\2d\charset-bezerk-plain-rc2.png                              <add author>                                      All Rights Reserved                                                   http://gibbage.mine.nu 
 base\gfx\2d\colorbar.jpg                                              ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\gfx\2d\lag.png                                                   ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\2d\backtile.jpg                                              ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\gfx\2d\select.png                                                ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
-base\gfx\2d\crosshaira.tga                                            ( c ) 1999 [ IH ] Malice                          All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
 base\gfx\2d\defer.png                                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
-base\gfx\2d\crosshairb.tga                                            ( c ) 1999 [ IH ] Malice                          All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
+base\gfx\2d\crosshaira.tga                                            ( c ) 1999 [ IH ] Malice                          All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
 base\gfx\2d\net.png                                                   ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
+base\gfx\2d\crosshairb.tga                                            ( c ) 1999 [ IH ] Malice                          All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
 base\gfx\2d\crosshairc.tga                                            ( c ) 1999 [ IH ] Malice                          All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
 base\gfx\2d\numbers\three_32b.png                                     ( c ) 1999 Nathan Wulf                            All Rights Reserved                                                   
 base\gfx\2d\numbers\five_32b.png                                      ( c ) 1999 Nathan Wulf                            All Rights Reserved                                                   
@@ -464,8 +464,8 @@ base\gfx\2d\crosshairg.tga                                            ( c ) 1999
 base\gfx\misc\smoke1.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\smoke2.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\smoke3.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\gfx\misc\smoke4.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\lightning3.jpg                                          ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
+base\gfx\misc\smoke4.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\raildisc_mono2.png                                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\gfx\misc\sun.png                                                 ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
 base\gfx\misc\friend.png                                              ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
@@ -491,7 +491,7 @@ base\gfx\effect\flare01.png                                           ( c ) 2007
 base\gfx\damage\hole_lg_mrk.jpg                                       ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\gfx\damage\bullet_mrk.png                                        ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
 base\gfx\damage\burn_med_mrk.jpg                                      ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\particles\blood_spurt.png                                        ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
+base\particles\blood_spurt.png                                        ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\particles\lavasplash.png                                         ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\particles\smoke.png                                              ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\particles\blood.png                                              ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
@@ -503,7 +503,7 @@ base\particles\slime.png                                              ( c ) 2003
 base\particles\steam.png                                              ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\particles\flare1.png                                             ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\particles\rain01.png                                             ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
-base\particles\blood_trail.png                                        <add author>                                      All Rights Reserved                                                   
+base\particles\blood_trail.png                                        ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\particles\flare2.png                                             ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
 base\sound\items\s_health.ogg                                         ( c ) 2006 loofa                                  Creative Commons Sampling Plus 1.0                                    http://freesound.iua.upf.edu/samplesViewSingle.php ? id = 23840 
 base\sound\items\wearoff.ogg                                          ( c ) 2007 hello_flowers                          Creative Commons Sampling Plus 1.0                                    http://freesound.iua.upf.edu/samplesViewSingle.php ? id = 28683 
@@ -517,8 +517,8 @@ base\sound\items\poweruprespawn.ogg                                   ( c ) 2005
 base\sound\items\n_health.ogg                                         ( c ) 2006 loofa                                  Creative Commons Sampling Plus 1.0                                    http://freesound.iua.upf.edu/samplesViewSingle.php ? id = 23841 
 base\sound\feedback\hit.wav                                           ( c ) 2006 AdcBicycle                             Creative Commons Sampling Plus 1.0                                    http://freesound.iua.upf.edu/usersViewSingle.php ? id = 33634 
 base\sound\feedback\three.ogg                                         ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
-base\sound\feedback\defense.ogg                                       ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\two.ogg                                           ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
+base\sound\feedback\defense.ogg                                       ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\one.ogg                                           ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\excellent_a.ogg                                   ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\takenlead.ogg                                     ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
@@ -538,8 +538,8 @@ base\sound\feedback\gauntlet.ogg                                      ( c ) 2006
 base\sound\feedback\impressive_a.ogg                                  ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\denied.ogg                                        ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\youwin.ogg                                        ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
-base\sound\feedback\excellent.ogg                                     ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\fight2.ogg                                        ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
+base\sound\feedback\excellent.ogg                                     ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\3_frags.ogg                                       ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\impressive.ogg                                    ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
 base\sound\feedback\sudden_death.ogg                                  ( c ) 2006 OpenArena Team - Mancubus              GPL                                                                   
@@ -572,20 +572,20 @@ base\sound\player\water_out.ogg                                       ( c ) 2006
 base\sound\player\gibimp2.ogg                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\sound\player\gibimp3.ogg                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\sound\player\footsteps\stone1.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\stone2.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\softrug1.ogg                              ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\stone3.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\splash1.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\stone2.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\softrug2.ogg                              ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\stone4.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\splash2.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\splash1.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\stone3.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\softrug3.ogg                              ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\splash3.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\splash2.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\stone4.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\softrug4.ogg                              ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\splash3.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\splash4.ogg                               ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\flesh1.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\sound\player\footsteps\flesh2.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\metal1.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\sound\player\footsteps\flesh2.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\metal2.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\flesh3.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\player\footsteps\metal3.ogg                                ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
@@ -645,16 +645,16 @@ base\cubemaps\pete\jump2_512_ny.png                                   ( c ) 2000
 base\cubemaps\pete\jump2_512_nz.png                                   ( c ) 2000 The Mighty Pete !                      All Rights Reserved                                                   http://wadfather.planethalflife.gamespy.com 
 base\cubemaps\pete\jump2_512_px.png                                   ( c ) 2000 The Mighty Pete !                      All Rights Reserved                                                   http://wadfather.planethalflife.gamespy.com 
 base\maps\test_parallax.map                                           <add author>                                      All Rights Reserved                                                   
-base\maps\test_video.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\thunderstruck.map                                           <add author>                                      All Rights Reserved                                                   
-base\maps\test_mirror.map                                             <add author>                                      All Rights Reserved                                                   
+base\maps\test_video.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\dk_q4dm6.map                                                <add author>                                      All Rights Reserved                                                   
-base\maps\test_fog.map                                                <add author>                                      All Rights Reserved                                                   
+base\maps\test_mirror.map                                             <add author>                                      All Rights Reserved                                                   
 base\maps\uglyrga.map                                                 ( c ) 2007 Stefan Lautner                         All Rights Reserved                                                   
+base\maps\test_fog.map                                                <add author>                                      All Rights Reserved                                                   
 base\maps\longest.map                                                 <add author>                                      All Rights Reserved                                                   
 base\maps\test_fx.map                                                 <add author>                                      All Rights Reserved                                                   
-base\maps\gwdm2.map                                                   ( c ) 2005 gw                                     All Rights Reserved                                                   
 base\maps\test_items.map                                              <add author>                                      All Rights Reserved                                                   
+base\maps\gwdm2.map                                                   ( c ) 2005 gw                                     All Rights Reserved                                                   
 base\maps\test_water.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\test_telerockets.map                                        ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\maps\test_team.map                                               <add author>                                      All Rights Reserved                                                   
@@ -673,19 +673,19 @@ base\menu\medals\medal_assist.png                                     ( c ) 2007
 base\menu\medals\medal_impressive.png                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\menu\medals\medal_telefrag.png                                   ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\menu\art\sliderbutt_0.png                                        ( c ) 2007 OpenArena Team                         GPL                                                                   
-base\menu\art\reset_0.png                                             ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\sliderbutt_1.png                                        ( c ) 2007 OpenArena Team                         GPL                                                                   
+base\menu\art\reset_0.png                                             ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\reset_1.png                                             ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\cut_frame.png                                           ( c ) 2007 OpenArena Team                         All Rights Reserved                                                   
 base\menu\art\3_cursor2.tga                                           ( c ) 2007 OpenArena Team                         GPL                                                                   
-base\menu\art\opponents_select.tga                                    ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\replay_0.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\opponents_select.tga                                    ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\replay_1.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\refresh_0.png                                           ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\font1_prop.tga                                          ( c ) 2005 Robin Pengelstorfer                    GPL                                                                   
 base\menu\art\refresh_1.png                                           ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\font1_prop_glo.tga                                      ( c ) 2005 Robin Pengelstorfer                    All Rights Reserved                                                   
+base\menu\art\font1_prop.tga                                          ( c ) 2005 Robin Pengelstorfer                    GPL                                                                   
 base\menu\art\back_0.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\font1_prop_glo.tga                                      ( c ) 2005 Robin Pengelstorfer                    All Rights Reserved                                                   
 base\menu\art\back_1.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\fight_0.png                                             ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\gs_arrows_l.png                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
@@ -703,33 +703,33 @@ base\menu\art\opponents_selected.tga                                  ( c ) 2007
 base\menu\art\menu_1.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\fx_blue.png                                             ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\play_1.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\fx_yel.png                                              ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\player_models_ports.png                                 ( c ) 2007 OpenArena Team                         GPL                                                                   
+base\menu\art\fx_yel.png                                              ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\unknownmap.jpg                                          ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\switch_on.png                                           ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\maps_selected.tga                                       ( c ) 2007 OpenArena Team                         GPL                                                                   
-base\menu\art\addbotframe.png                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\skirmish_0.png                                          ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\addbotframe.png                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\skirmish_1.png                                          ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\accept_0.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\accept_1.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\delete_0.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\arrows_vert_bot.png                                     ( c ) 2007 OpenArena Team                         GPL                                                                   
-base\menu\art\delete_1.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\delete_0.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\create_0.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\fx_grn.png                                              ( c ) 2007 OpenArena Team                         GPL                                                                   
+base\menu\art\delete_1.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\create_1.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\fx_grn.png                                              ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\gs_arrows_0.png                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\maps_select.tga                                         ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\fx_cyan.png                                             ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\switch_off.png                                          ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\frame1_r.png                                            ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\next_0.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\arrows_horz_0.png                                       ( c ) 2007 OpenArena Team                         GPL                                                                   
-base\menu\art\load_0.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\menu\art\next_1.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\menu\art\arrows_vert_top.png                                     ( c ) 2007 OpenArena Team                         GPL                                                                   
+base\menu\art\load_0.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\arrows_horz_0.png                                       ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\load_1.png                                              ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\menu\art\arrows_vert_top.png                                     ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\slider2.png                                             ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\fx_red.png                                              ( c ) 2007 OpenArena Team                         GPL                                                                   
 base\menu\art\background.jpg                                          <add author>                                      All Rights Reserved                                                   http://quakethewall.planetquake.gamespy.com 
@@ -767,13 +767,13 @@ base\icons\quad.png                                                   ( c ) 2007
 base\icons\haste.png                                                  ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\icons\envirosuit.png                                             ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\icons\medkit.png                                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
-base\icons\ammo_grenade.png                                           ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\icons\weapon_grenade.png                                         ( c ) 2007 Adrian Fuhrmann                        GPL                                                                   
-base\icons\ammo_plasma.png                                            ( c ) 2006 OpenArena Team                         GPL                                                                   
-base\icons\noammo.png                                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
+base\icons\ammo_grenade.png                                           ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\icons\weapon_plasma.png                                          ( c ) 2007 Adrian Fuhrmann                        GPL                                                                   
-base\icons\ammo_machinegun.png                                        ( c ) 2006 OpenArena Team                         GPL                                                                   
+base\icons\noammo.png                                                 ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
+base\icons\ammo_plasma.png                                            ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\icons\weapon_machinegun.png                                      ( c ) 2007 Adrian Fuhrmann                        GPL                                                                   
+base\icons\ammo_machinegun.png                                        ( c ) 2006 OpenArena Team                         GPL                                                                   
 base\icons\invis.png                                                  ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\icons\iconh_mega.png                                             ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\icons\iconh_red.png                                              ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
@@ -785,12 +785,12 @@ base\ui\assets\scrollbar_arrow_left.tga                               ( c ) 2005
 base\ui\assets\fadebox.tga                                            ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
 base\ui\assets\xreal.tga                                              ( c ) 2006 Adrian Fuhrmann                        Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\ui\assets\scrollbar_thumb.tga                                    ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
-base\ui\assets\halfgradleft.tga                                       ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
 base\ui\assets\scrollbar.tga                                          ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
+base\ui\assets\halfgradleft.tga                                       ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
 base\ui\assets\fire_a.tga                                             ( c ) 2006 Adrian Fuhrmann                        Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\ui\assets\fire_b.tga                                             ( c ) 2006 Adrian Fuhrmann                        Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\ui\assets\verticalgradient.tga                                   ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
 base\ui\assets\fire_c.tga                                             ( c ) 2006 Adrian Fuhrmann                        Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\ui\assets\verticalgradient.tga                                   ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
 base\ui\assets\scrollbar_arrow_right.tga                              ( c ) 2005 -2006 Darklegion Development           Creative Commons Attribution-ShareAlike 2.5                           
 base\ui\assets\xreal2.tga                                             ( c ) 2006 Adrian Fuhrmann                        Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\ui\assets\xreal3.tga                                             ( c ) 2006 Adrian Fuhrmann                        Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
