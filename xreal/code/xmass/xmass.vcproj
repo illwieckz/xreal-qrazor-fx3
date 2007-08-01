@@ -214,10 +214,6 @@
 				RelativePath=".\servers.c"
 				>
 			</File>
-			<File
-				RelativePath=".\stats.c"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

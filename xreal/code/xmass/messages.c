@@ -44,9 +44,6 @@
 // "heartbeat XreaL-1\n"
 #define S2M_HEARTBEAT "heartbeat"
 
-// "gamestat <data>"
-#define S2M_GAMESTAT "gamestat"
-
 // "getinfo A_Challenge"
 #define M2S_GETINFO "getinfo"
 
@@ -420,10 +417,6 @@ static void HandleGetMotd(const char *msg, const struct sockaddr_in *addr)
 		MsgPrint(MSG_DEBUG, "%s is using version %s\n", peer_address, value);
 	}
 
-#ifndef _WIN32
-	RecordClientStat(peer_address, version, renderer);
-#endif
-
 	// Initialize the packet contents with the header
 	packetind = headersize;
 	memcpy(packet, packetheader, headersize);
@@ -451,18 +444,6 @@ static void HandleGetMotd(const char *msg, const struct sockaddr_in *addr)
 
 	// Send the packet to the client
 	sendto(inSock, packet, packetind, 0, (const struct sockaddr *)addr, sizeof(*addr));
-}
-
-/*
-====================
-HandleGameStat
-====================
-*/
-static void HandleGameStat(const char *msg, const struct sockaddr_in *addr)
-{
-#ifndef _WIN32
-	RecordGameStat(peer_address, msg);
-#endif
 }
 
 // ---------- Public functions ---------- //
@@ -524,18 +505,5 @@ void HandleMessage(const char *msg, size_t length, const struct sockaddr_in *add
 	else if(!strncmp(C2M_GETMOTD, msg, strlen(C2M_GETMOTD)))
 	{
 		HandleGetMotd(msg + strlen(C2M_GETMOTD), address);
-	}
-
-	// If it's a game statistic
-	else if(!strncmp(S2M_GAMESTAT, msg, strlen(S2M_GAMESTAT)))
-	{
-		server = Sv_GetByAddr(address, qfalse);
-		if(server == NULL)
-			return;
-		if(crt_time - server->lastGameStat > MIN_GAMESTAT_DELAY)
-			HandleGameStat(msg + strlen(S2M_GAMESTAT), address);
-		else
-			MsgPrint(MSG_NORMAL, "%s flooding GAMESTAT messages\n", peer_address);
-		server->lastGameStat = crt_time;
 	}
 }

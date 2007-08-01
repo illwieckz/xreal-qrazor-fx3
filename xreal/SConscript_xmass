@@ -5,8 +5,7 @@ Import('env')
 xmass_src = [
 'code/xmass/master.c',
 'code/xmass/messages.c',
-'code/xmass/servers.c',
-'code/xmass/stats.c'
+'code/xmass/servers.c'
 ]
 
 xmass_env = env.Copy()
