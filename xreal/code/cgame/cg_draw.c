@@ -897,6 +897,7 @@ static void CG_DrawStatusBarXreaL(void)
 	vec4_t          colorHudSemiBlack = { 0.0f, 0.0f, 0.0f, 0.2f };	// b/w
 	vec4_t          colorHealth = { 1.0f, 0.25f, 0.25f, 0.7f };
 	vec4_t          colorArmor = { 0.25f, 0.25f, 1.0f, 0.7f };
+	vec4_t          colorAmmo = { 0.25f, 1.0f, 0.25f, 0.7f };
 	vec4_t          colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
 	vec4_t          colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
 
@@ -926,6 +927,12 @@ static void CG_DrawStatusBarXreaL(void)
 
 	if(cent->currentState.weapon)
 	{
+		if(cg_drawStatusLines.integer)
+		{
+			trap_R_SetColor(colorHudSemiBlack);
+			CG_DrawPic(320 + 5, 480 - 38, 300, 36, cgs.media.sideBarItemLShader);
+		}
+
 		value = ps->ammo[cent->currentState.weapon];
 		if(value > -1)
 		{
@@ -940,6 +947,16 @@ static void CG_DrawStatusBarXreaL(void)
 					color = 3;	// white
 				else
 					color = 1;	// red
+			}
+
+			if(cg_drawStatusLines.integer)
+			{
+				colorAmmo[0] = colors[color][0];
+				colorAmmo[1] = colors[color][1];
+				colorAmmo[2] = colors[color][2];
+
+				trap_R_SetColor(colorAmmo);
+				CG_DrawPic(320 + 5, 480 - 38, Q_bound(0, value * 300/200, 300), 36, cgs.media.sideBarItemLShader);
 			}
 
 			trap_R_SetColor(colors[color]);
@@ -994,10 +1011,10 @@ static void CG_DrawStatusBarXreaL(void)
 	if(cg_drawStatusLines.integer)
 	{
 		trap_R_SetColor(colorHudSemiBlack);
-		CG_DrawPic(320 + 5, 480 - 38, 300, 36, cgs.media.sideBarItemLShader);
+		CG_DrawPic(320 -305, 480 - 38, 300, 36, cgs.media.sideBarItemRShader);
 
 		trap_R_SetColor(colorHealth);
-		CG_DrawPic(320 + 5, 480 - 38, Q_bound(0, value, 300), 36, cgs.media.sideBarItemLShader);
+		CG_DrawPic(320 -305 + (300 - Q_bound(0, value * 300/200, 300)), 480 - 38, Q_bound(0, value * 300/200, 300), 36, cgs.media.sideBarItemRShader);
 	}
 
 	// armor
@@ -1028,10 +1045,10 @@ static void CG_DrawStatusBarXreaL(void)
 	if(cg_drawStatusLines.integer)
 	{
 		trap_R_SetColor(colorHudSemiBlack);
-		CG_DrawPic(320 -305, 480 - 38, 300, 36, cgs.media.sideBarItemRShader);
+		CG_DrawPic(320 -305, 480 - 79, 300, 36, cgs.media.sideBarItemRShader);
 
 		trap_R_SetColor(colorArmor);
-		CG_DrawPic(320 -305 + (300 - Q_bound(0, value, 300)), 480 - 38, Q_bound(0, value, 300), 36, cgs.media.sideBarItemRShader);
+		CG_DrawPic(320 -305 + (300 - Q_bound(0, value * 300/200, 300)), 480 - 79, Q_bound(0, value * 300/200, 300), 36, cgs.media.sideBarItemRShader);
 	}
 }
 
@@ -1933,7 +1950,7 @@ static void CG_DrawLowerRight(void)
 {
 	float           y;
 
-	y = 480 - 48;	// offset above lagometer
+	y = 480 - 88;	// offset above lagometer
 
 	if(cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2)
 	{
@@ -2381,7 +2398,7 @@ static void CG_DrawLagometer(void)
 	y = 480 - 144;
 #else
 	x = 640 - 48;
-	y = 480 - 48;
+	y = 480 - 90;
 #endif
 
 	trap_R_SetColor(NULL);
