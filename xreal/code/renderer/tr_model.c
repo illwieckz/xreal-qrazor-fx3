@@ -259,7 +259,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 	mdxModel_t     *mdxModel;
 	mdxFrame_t     *frame;
 	mdxSurface_t   *surf;
-	mdxShader_t    *shader, *oldShader;
+	mdxShader_t    *shader;
 	srfTriangle_t  *tri;
 	mdxVertex_t    *v;
 	mdxSt_t        *st;
