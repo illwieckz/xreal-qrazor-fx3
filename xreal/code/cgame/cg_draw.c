@@ -350,17 +350,18 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 	
 	light.rlType = RL_PROJ;
 	
-	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
+	VectorMA(refdef.vieworg, -200, refdef.viewaxis[0], light.origin);
+	light.origin[1] += 10;
 	
-	QuatClear(light.rotation);
+	QuatFromAngles(light.rotation, 0, 5, 0);
 	
-	light.color[0] = 1.0;
-	light.color[1] = 1.0;
-	light.color[2] = 1.0;
+	light.color[0] = 0.8;
+	light.color[1] = 0.8;
+	light.color[2] = 0.8;
 	
 	light.fovX = 90;
 	light.fovY = 90;
-	light.distance = 800;
+	light.distance = 500;
 	
 	trap_R_AddRefLightToScene(&light);
 	
@@ -437,20 +438,20 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 	memset(&light, 0, sizeof(refLight_t));
 	
 	light.rlType = RL_PROJ;
+
+	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
+	light.origin[1] += 10;
 	
-	QuatClear(light.rotation);
+	QuatFromAngles(light.rotation, 0, 5, 0);
 	
-	light.color[0] = 1.0;
-	light.color[1] = 1.0;
-	light.color[2] = 1.0;
+	light.color[0] = 0.8;
+	light.color[1] = 0.8;
+	light.color[2] = 0.8;
 	
 	light.fovX = 90;
 	light.fovY = 90;
-	light.distance = 800;
+	light.distance = 500;
 	
-	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
-	
-	//light.origin[1] -= 20;
 	trap_R_AddRefLightToScene(&light);
 
 	trap_R_RenderScene(&refdef);
