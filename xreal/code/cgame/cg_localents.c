@@ -133,7 +133,7 @@ void CG_BloodTrail(localEntity_t * le)
 	vec3_t          newOrigin;
 	localEntity_t  *blood;
 
-	step = 150;
+	step = 75;
 	t = step * ((cg.time - cg.frametime + step) / step);
 	t2 = step * (cg.time / step);
 
@@ -141,7 +141,7 @@ void CG_BloodTrail(localEntity_t * le)
 	{
 		BG_EvaluateTrajectory(&le->pos, t, newOrigin);
 
-		blood = CG_SmokePuff(newOrigin, vec3_origin, 20,	// radius
+		blood = CG_SmokePuff(newOrigin, vec3_origin, 10,	// radius
 							 1, 1, 1, 1,	// color
 							 2000,	// trailTime
 							 t,	// startTime
