@@ -1929,6 +1929,8 @@ extern cvar_t  *r_textureMode;
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
 extern cvar_t  *r_specularExponent;
+extern cvar_t  *r_specularScale;
+extern cvar_t  *r_normalScale;
 
 extern cvar_t  *r_uiFullScreen;	// ui is running fullscreen
 
