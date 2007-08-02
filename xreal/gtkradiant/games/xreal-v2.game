@@ -2,7 +2,7 @@
 <game
   type="xreal"
   index="1"
-  name="XreaL - Map Version 2"
+  name="XreaL - Map Version 2 (Doom3 compatible)"
   enginepath_win32="D:/Games/XreaL_testing"
   enginepath_linux="/opt/XreaL/"
   enginepath_macos="/opt/XreaL/"
