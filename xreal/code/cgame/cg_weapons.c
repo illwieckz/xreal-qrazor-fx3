@@ -1200,6 +1200,10 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 		anim = lf->animation;
 		if(!anim->frameTime)
 		{
+			if(cg_debugWeaponAnim.integer)
+			{
+				CG_Printf("clamp !anim->frameTime\n");
+			}
 			return;				// shouldn't happen
 		}
 		

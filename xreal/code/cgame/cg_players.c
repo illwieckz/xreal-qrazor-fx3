@@ -759,7 +759,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
 		
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_backward", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_forward", qtrue, qtrue, qtrue);
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue);
 
 
@@ -1650,7 +1650,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		CG_Printf("Can't build lf->skeleton\n");
 	}
 	
-#if 0
+#if 1
 	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
 	{
 		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
@@ -1986,7 +1986,11 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAng
 		vec3_t          axis[3];
 		float           side;
 
+#ifdef XPPM
+		speed *= 0.02f;
+#else
 		speed *= 0.05f;
+#endif
 
 		AnglesToAxis(legsAngles, axis);
 		side = speed * DotProduct(velocity, axis[1]);
@@ -3253,7 +3257,7 @@ void CG_Player(centity_t * cent)
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
-		QuatFromAngles(legsQuat, legsAngles[YAW], legsAngles[ROLL], legsAngles[PITCH]);
+		QuatFromAngles(legsQuat, legsAngles[YAW], -legsAngles[ROLL], legsAngles[PITCH]);
 		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, legsQuat);
 	}
 #endif
