@@ -1432,7 +1432,6 @@ static void Render_depthFill(int stage)
 	}
 
 	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
-	VectorScale(ambientColor, r_ambientScale->value, ambientColor);
 	ClampColor(ambientColor);
 
 	qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);

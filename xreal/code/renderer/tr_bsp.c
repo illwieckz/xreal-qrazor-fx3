@@ -2356,10 +2356,13 @@ void R_LoadEntities(lump_t * l)
 		// check for ambient color
 		else if(!Q_stricmp(keyname, "_color") || !Q_stricmp(keyname, "ambientColor"))
 		{
-			sscanf(value, "%f %f %f", &tr.ambientColor[0], &tr.ambientColor[1], &tr.ambientColor[2]);
-			
-			VectorCopy(tr.ambientColor, tr.worldEntity.ambientLight);
-			VectorScale(tr.worldEntity.ambientLight, r_ambientScale->value, tr.worldEntity.ambientLight);
+			if(r_forceAmbient->value <= 0)
+			{
+				sscanf(value, "%f %f %f", &tr.worldEntity.ambientLight[0], &tr.worldEntity.ambientLight[1], &tr.worldEntity.ambientLight[2]);
+				
+				VectorCopy(tr.worldEntity.ambientLight, tr.worldEntity.ambientLight);
+				VectorScale(tr.worldEntity.ambientLight, r_ambientScale->value, tr.worldEntity.ambientLight);
+			}
 		}
 
 		if(!Q_stricmp(keyname, "classname") && Q_stricmp(value, "worldspawn"))
@@ -4692,9 +4695,9 @@ void RE_LoadWorldMap(const char *name)
 	VectorNormalize(tr.sunDirection);
 
 	// set default ambient color
-	tr.ambientColor[0] = 0;
-	tr.ambientColor[1] = 0;
-	tr.ambientColor[2] = 0;
+	tr.worldEntity.ambientLight[0] = r_forceAmbient->value;
+	tr.worldEntity.ambientLight[1] = r_forceAmbient->value;
+	tr.worldEntity.ambientLight[2] = r_forceAmbient->value;
 
 	tr.worldMapLoaded = qtrue;
 

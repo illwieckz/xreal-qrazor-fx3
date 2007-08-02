@@ -168,8 +168,7 @@ typedef struct
 	float           axisLength;	// compensate for non-normalized axis
 	qboolean        lightingCalculated;
 	vec3_t          lightDir;	// normalized direction towards light
-	vec3_t          ambientLight;	// color normalized to 0-255
-	int             ambientLightInt;	// 32 bit rgba packed
+	vec3_t          ambientLight;	// color normalized to 0-1
 	vec3_t          directedLight;
 	qboolean        needZFail;
 
@@ -1783,8 +1782,6 @@ typedef struct
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;
 
-	vec3_t			ambientColor;
-
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
 
@@ -1869,6 +1866,7 @@ extern cvar_t  *r_measureOverdraw;	// enables stencil buffer overdraw measuremen
 extern cvar_t  *r_lodbias;		// push/pull LOD transitions
 extern cvar_t  *r_lodscale;
 
+extern cvar_t  *r_forceAmbient;
 extern cvar_t  *r_ambientScale;
 extern cvar_t  *r_lightScale;
 extern cvar_t  *r_debugLight;

@@ -159,6 +159,7 @@ cvar_t         *r_simpleMipMaps;
 
 cvar_t         *r_showImages;
 
+cvar_t         *r_forceAmbient;
 cvar_t         *r_ambientScale;
 cvar_t         *r_lightScale;
 cvar_t         *r_debugLight;
@@ -1369,6 +1370,9 @@ void R_Register(void)
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	
+	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
 
 #if (defined(MACOS_X) || defined(__linux__)) && defined(SMP)
 	// Default to using SMP on Mac OS X or Linux if we have multiple processors

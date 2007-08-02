@@ -339,20 +339,21 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	{
 		if(!(refdef->rdflags & RDF_NOWORLDMODEL))
 		{
-			ent->ambientLight[0] = tr.ambientColor[0];
-			ent->ambientLight[1] = tr.ambientColor[1];
-			ent->ambientLight[2] = tr.ambientColor[2];
+			ent->ambientLight[0] = tr.worldEntity.ambientLight[0];
+			ent->ambientLight[1] = tr.worldEntity.ambientLight[1];
+			ent->ambientLight[2] = tr.worldEntity.ambientLight[2];
 		}
 		else
 		{
-			ent->ambientLight[0] = 0;
-			ent->ambientLight[1] = 0;
-			ent->ambientLight[2] = 0;
+			ent->ambientLight[0] = r_forceAmbient->value;
+			ent->ambientLight[1] = r_forceAmbient->value;
+			ent->ambientLight[2] = r_forceAmbient->value;
 		}
 		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
 		VectorCopy(tr.sunDirection, ent->lightDir);
 	}
 
+#if 0
 	// bonus items and view weapons have a fixed minimum add
 	if((ent->e.renderfx & RF_MINLIGHT) && VectorLength(ent->ambientLight) <= 0)
 	{
@@ -361,6 +362,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 		ent->ambientLight[1] += tr.identityLight * 0.125f;
 		ent->ambientLight[2] += tr.identityLight * 0.125f;
 	}
+#endif
 
 	// clamp ambient
 	for(i = 0; i < 3; i++)
