@@ -146,6 +146,8 @@ typedef struct
 	animation_t    *animation;
 	int             animationTime;	// time when the first frame of the animation will be exact
 	float			animationScale;
+
+	int             weaponNumber;
 } lerpFrame_t;
 
 

@@ -1104,20 +1104,20 @@ CG_SetLerpFrameAnimation
 may include ANIM_TOGGLEBIT
 ===============
 */
-static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, int newAnimation, int weaponTime)
+static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime)
 {
 	animation_t    *anim;
 	int				shouldTime, wouldTime;
 
-	lf->animationNumber = newAnimation;
-	newAnimation &= ~ANIM_TOGGLEBIT;
+	lf->weaponNumber = weaponNumber;
+	lf->animationNumber = weaponAnimation;
 
-	if(newAnimation < 0 || newAnimation >= MAX_WEAPON_STATES)
+	if(weaponAnimation < 0 || weaponAnimation >= MAX_WEAPON_STATES)
 	{
-		CG_Error("bad weapon animation number: %i", newAnimation);
+		CG_Error("bad weapon animation number: %i", weaponAnimation);
 	}
 
-	anim = &wi->viewModel_animations[newAnimation];
+	anim = &wi->viewModel_animations[weaponAnimation];
 
 	lf->animation = anim;
 	lf->animationTime = lf->frameTime + anim->initialLerp;
@@ -1136,7 +1136,7 @@ static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, 
 
 	if(cg_debugWeaponAnim.integer)
 	{
-		CG_Printf("weapon anim: %i\n", newAnimation);
+		CG_Printf("weapon anim: %i\n", weaponAnimation);
 	}
 }
 
@@ -1148,7 +1148,7 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAnimation, int weaponTime, float speedScale)
+static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime, float speedScale)
 {
 	int             f, numFrames;
 	animation_t    *anim;
@@ -1162,15 +1162,16 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 	}
 
 	// see if the animation sequence is switching
-	if(newAnimation != lf->animationNumber || !lf->animation)
+	if(weaponAnimation != lf->animationNumber || !lf->animation || lf->weaponNumber != weaponNumber)
 	{
-		CG_SetWeaponLerpFrameAnimation(wi, lf, newAnimation, weaponTime);
+		CG_SetWeaponLerpFrameAnimation(wi, lf, weaponNumber, weaponAnimation, weaponTime);
 		
+		/*
 		if(!lf->animation)
 		{
 			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
 		}
-		
+		*/
 
 		animChanged = qtrue;
 	}
@@ -1183,7 +1184,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 	// oldFrame and calculate a new frame
 	if(cg.time >= lf->frameTime || animChanged)
 	{
-#if 0
+#if 1
 		if(animChanged)
 		{
 			lf->oldFrame = 0;
@@ -1202,7 +1203,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 		{
 			if(cg_debugWeaponAnim.integer)
 			{
-				CG_Printf("clamp !anim->frameTime\n");
+				CG_Printf("!anim->frameTime\n");
 			}
 			return;				// shouldn't happen
 		}
@@ -1295,7 +1296,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 		CG_Printf("CG_RunWeaponLerpFrame: Can't build lf->skeleton\n");
 	}
 
-#if 1
+#if 0
 	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
 	{
 		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
@@ -1313,18 +1314,13 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int newAn
 CG_WeaponAnimation
 =================
 */
-static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponState, int weaponTime)
+static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponNumber, int weaponState, int weaponTime)
 {
 	clientInfo_t   *ci;
 	int             clientNum;
 	float           speedScale;
 
 	clientNum = cent->currentState.clientNum;
-
-	if(cg_noPlayerAnims.integer)
-	{
-		return;
-	}
 
 	if(cent->currentState.powerups & (1 << PW_HASTE))
 	{
@@ -1338,7 +1334,7 @@ static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weap
 	ci = &cgs.clientinfo[clientNum];
 
 	// change weapon animation
-	CG_RunWeaponLerpFrame(weapon, &cent->pe.gun, weaponState, weaponTime, speedScale);
+	CG_RunWeaponLerpFrame(weapon, &cent->pe.gun, weaponNumber, weaponState, weaponTime, speedScale);
 }
 
 /*
@@ -1919,7 +1915,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 		AnglesToAxis(angles, gun.axis);
 
 		// get the animation state
-		CG_WeaponAnimation(cent, weapon, weaponState, weaponTime);
+		CG_WeaponAnimation(cent, weapon, weaponNum, weaponState, weaponTime);
 
 		gun.hModel = weapon->viewModel;
 		gun.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
