@@ -407,15 +407,12 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 	{
 		int             opcode, r0, r1;
 
-//      unsigned int    r2;
-
 	  nextInstruction:
 		r0 = ((int *)opStack)[0];
 		r1 = ((int *)opStack)[-1];
 	  nextInstruction2:
-		opcode = codeImage[programCounter++];
 #ifdef DEBUG_VM
-		if((unsigned)programCounter > vm->codeLength)
+		if((unsigned)programCounter >= vm->codeLength)
 		{
 			Com_Error(ERR_DROP, "VM pc out of range");
 		}
@@ -445,6 +442,8 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 		}
 		profileSymbol->profileCount++;
 #endif
+
+		opcode = codeImage[programCounter++];
 
 		switch (opcode)
 		{
@@ -563,8 +562,8 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 					stomped = *(int *)&image[programStack + 4];
 #endif
 					*(int *)&image[programStack + 4] = -1 - programCounter;
+					//VM_LogSyscalls((int *)&image[programStack + 4]);
 
-//VM_LogSyscalls( (int *)&image[ programStack + 4 ] );
 					{
 						intptr_t       *argptr = (intptr_t *) & image[programStack + 4];
 
@@ -600,6 +599,10 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 						Com_Printf("%s<--- %s\n", DEBUGSTR, VM_ValueToSymbol(vm, programCounter));
 					}
 #endif
+				}
+				else if((unsigned)programCounter >= vm->codeLength)
+				{
+					Com_Error(ERR_DROP, "VM program counter out of range in OP_CALL");
 				}
 				else
 				{
@@ -662,6 +665,11 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 				{
 					goto done;
 				}
+				else if((unsigned)programCounter >= vm->codeLength)
+				{
+					Com_Error(ERR_DROP, "VM program counter out of range in OP_LEAVE");
+				}
+
 				goto nextInstruction;
 
 				/*
@@ -942,7 +950,7 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 				opStack--;
 				goto nextInstruction;
 			case OP_BCOM:
-				opStack[-1] = ~((unsigned)r0);
+				*opStack = ~ ((unsigned)r0);
 				goto nextInstruction;
 
 			case OP_LSH:
@@ -998,7 +1006,7 @@ int VM_CallInterpreted(vm_t * vm, int *args)
 
 	if(opStack != &stack[1])
 	{
-		Com_Error(ERR_DROP, "Interpreter error: opStack = %i", opStack - stack);
+		Com_Error(ERR_DROP, "Interpreter error: opStack = %ld", (long int)(opStack - stack));
 	}
 
 	vm->programStack = stackOnEntry;

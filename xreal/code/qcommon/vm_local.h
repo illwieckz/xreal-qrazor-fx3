@@ -140,6 +140,7 @@ struct vm_s
 	// for dynamic linked modules
 	void           *dllHandle;
 	intptr_t        (QDECL * entryPoint) (int callNum, ...);
+	void			(*destroy)(vm_t *self);
 
 	// for interpreted modules
 	qboolean        currentlyInterpreting;
@@ -163,8 +164,11 @@ struct vm_s
 	int             breakFunction;	// increment breakCount on function entry to this
 	int             breakCount;
 
-// fqpath member added 7/20/02 by T.Ray
+	// fqpath member added 7/20/02 by T.Ray
 	char            fqpath[MAX_QPATH + 1];
+
+	byte		   *jumpTableTargets;
+	int				numJumpTableTargets;
 };
 
 
