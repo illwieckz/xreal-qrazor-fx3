@@ -231,7 +231,7 @@ PROTOCOL
 extern int      demo_protocols[];
 
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME		"master.quake3arena.com"
+#define MASTER_SERVER_NAME		"master.varcache.org"
 #endif
 
 #define	PORT_MASTER			27950

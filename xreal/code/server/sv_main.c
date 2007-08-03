@@ -237,7 +237,7 @@ but not on every player enter or exit.
 ================
 */
 #define	HEARTBEAT_MSEC	300*1000
-#define	HEARTBEAT_GAME	"QuakeArena-1"
+#define	HEARTBEAT_GAME	"XreaL-1"
 void SV_MasterHeartbeat(void)
 {
 	static netadr_t adr[MAX_MASTER_SERVERS];

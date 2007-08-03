@@ -42,7 +42,7 @@
 // Types of messages (with samples):
 
 // "heartbeat XreaL-1\n"
-#define S2M_HEARTBEAT "heartbeat"
+#define S2M_HEARTBEAT "heartbeat XreaL-1"
 
 // "getinfo A_Challenge"
 #define M2S_GETINFO "getinfo"

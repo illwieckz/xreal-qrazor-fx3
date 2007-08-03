@@ -3093,13 +3093,18 @@ void CL_GlobalServers_f(void)
 	to.type = NA_IP;
 	to.port = BigShort(PORT_MASTER);
 
+	// Tr3B: changed to use Cmd_Args()
+	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Args());
+
+	/*
 	sprintf(command, "getservers %s", Cmd_Argv(1));
 
 	// tack on keywords
 	buffptr = command + strlen(command);
 	count = Cmd_Argc();
-	for(i = 3; i < count; i++)
+	for(i = 2; i < count; i++)
 		buffptr += sprintf(buffptr, " %s", Cmd_Argv(i));
+	*/
 
 	NET_OutOfBandPrint(NS_SERVER, to, command);
 }

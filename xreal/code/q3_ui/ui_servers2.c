@@ -1047,12 +1047,12 @@ static void ArenaServers_StartRefresh(void)
 
 		if(g_emptyservers)
 		{
-			strcat(myargs, " empty");
+			Q_strcat(myargs, sizeof(myargs),  " empty");
 		}
 
 		if(g_fullservers)
 		{
-			strcat(myargs, " full");
+			Q_strcat(myargs, sizeof(myargs), " full");
 		}
 
 		protocol[0] = '\0';
