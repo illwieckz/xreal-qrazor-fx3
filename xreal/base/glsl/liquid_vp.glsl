@@ -30,7 +30,6 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexNormal;
 varying vec4		var_Color;
-//varying mat3		var_TS2WSMatrix;
 
 void	main()
 {
@@ -48,14 +47,5 @@ void	main()
 	
 	// assign color
 	var_Color = gl_Color;
-	
-	/*
-	// construct tangent-space-to-world-space 3x3 matrix
-	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	vec3 binormal = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	vec3 normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-	
-	var_TS2WSMatrix = mat3(tangent, binormal, normal);
-	*/
 }
 

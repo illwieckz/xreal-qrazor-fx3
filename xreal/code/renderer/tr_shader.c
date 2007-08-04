@@ -4308,8 +4308,7 @@ static shader_t *FinishShader(void)
 			case ST_BLOOMMAP:
 			case ST_BLOOM2MAP:
 			case ST_ROTOSCOPEMAP:
-				//case ST_SCREENMAP:
-				//case ST_LIQUIDMAP:
+			case ST_LIQUIDMAP:
 				// skip
 				break;
 

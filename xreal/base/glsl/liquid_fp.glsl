@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_CurrentMap;
 uniform sampler2D	u_PortalMap;
 uniform vec3		u_ViewOrigin;
@@ -36,7 +35,6 @@ varying vec3		var_Vertex;
 varying vec3		var_Normal;
 varying vec2		var_TexNormal;
 varying vec4		var_Color;
-//varying mat3		var_TS2WSMatrix;
 
 void	main()
 {
@@ -47,24 +45,9 @@ void	main()
 	
 	// compute normal
 	vec3 N = normalize(var_Normal);
-	
-	// compute normal in tangent space from normalmap
-	//vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
-	
-	/*
-	// transform normal into world space
-	N = var_TS2WSMatrix * N;
-	
-	// compute reflection ray
-	vec3 R = reflect(I, N);
-	
-	// compute refraction ray
-	vec3 T = refract(I, N, u_RefractionIndex);
-	*/
 			
 	// compute fresnel term
 	float fresnel = clamp(u_FresnelBias + pow(1.0 - dot(I, N), u_FresnelPower) * u_FresnelScale, 0.0, 1.0);
-	//fresnel = (1.0 - fresnel);
 	
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * u_FBufScale;
