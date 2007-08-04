@@ -824,7 +824,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
 					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
-	tr.liquidShader.u_NormalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_NormalMap");
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
 	tr.liquidShader.u_ViewOrigin = qglGetUniformLocationARB(tr.liquidShader.program, "u_ViewOrigin");
@@ -837,9 +836,8 @@ void GLSL_InitGPUShaders(void)
 	tr.liquidShader.u_ModelMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.liquidShader.program);
-	qglUniform1iARB(tr.liquidShader.u_NormalMap, 0);
-	qglUniform1iARB(tr.liquidShader.u_CurrentMap, 1);
-	qglUniform1iARB(tr.liquidShader.u_PortalMap, 2);
+	qglUniform1iARB(tr.liquidShader.u_CurrentMap, 0);
+	qglUniform1iARB(tr.liquidShader.u_PortalMap, 1);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.liquidShader.program);
@@ -2446,20 +2444,13 @@ static void Render_liquid(int stage)
 	qglUniform2fARB(tr.liquidShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 	qglUniformMatrix4fvARB(tr.liquidShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
-	// bind u_NormalMap
-	GL_SelectTexture(0);
-	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
 	// capture current color buffer for u_CurrentMap
-	GL_SelectTexture(1);
+	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
 	// bind u_PortalMap
-	GL_SelectTexture(2);
+	GL_SelectTexture(1);
 	GL_Bind(tr.portalRenderImage);
 
 	DrawElements();
