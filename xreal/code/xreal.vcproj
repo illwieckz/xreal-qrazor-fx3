@@ -849,6 +849,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\renderer\qgl.c"
+				>
+			</File>
+			<File
 				RelativePath="client\snd_adpcm.c"
 				>
 				<FileConfiguration
@@ -1454,10 +1458,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\win32\win_qgl.c"
-				>
 			</File>
 			<File
 				RelativePath="win32\win_shared.c"

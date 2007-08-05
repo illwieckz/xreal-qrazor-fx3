@@ -130,6 +130,7 @@ xreal_src = [
 'code/png/pngmem.c',
 'code/png/pngerror.c',
 'code/png/pngpread.c',
+'code/renderer/qgl.c',
 'code/renderer/tr_animation.c',
 'code/renderer/tr_backend.c',
 'code/renderer/tr_bsp.c',
@@ -200,14 +201,12 @@ unix_src = [
 linux_src = [
 'code/unix/linux_glimp.c',
 'code/unix/linux_joystick.c',
-'code/unix/linux_qgl.c',
 'code/unix/linux_signals.c'
 ]
 
 sdl_src = [
 'code/unix/sdl_glimp.c',
 'code/unix/sdl_snd.c',
-'code/unix/linux_qgl.c',
 'code/unix/linux_signals.c'
 ]
 
@@ -218,7 +217,6 @@ win_src = [
 'code/win32/win_glimp.c',
 'code/win32/win_gamma.c',
 'code/win32/win_input.c',
-'code/win32/win_qgl.c',
 'code/win32/win_net.c',
 'code/win32/win_snd.c',
 'code/win32/win_syscon.c',
