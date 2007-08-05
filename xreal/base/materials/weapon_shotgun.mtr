@@ -52,7 +52,7 @@ models/weapons/shotgun/shotgun_muzzflash
 		map 		models/weapons/shotgun/shotgun_muzzflash_strip.tga
 		scale 		1 / 32 , 1
 		scroll 		q2table32[ (time + parm4) * 6.4] , 0
-		rotate		rotate90[ parm5 ]
+		rotate		q2rotate90[ parm5 ]
 		clamp
 	}
 }
