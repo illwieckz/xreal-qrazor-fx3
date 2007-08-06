@@ -59,7 +59,7 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
-	if(glConfig.vertexBufferObjectAvailable && (tess.indexesVBO || tess.vertexesVBO))
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		Tess_EndBegin();
 		return;
@@ -439,22 +439,6 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf, int numLightIndexes, int *l
 	}
 	else
 	{
-		if(glConfig.vertexBufferObjectAvailable && (srf->indexesVBO || srf->vertsVBO) && r_vboFaces->integer)
-		{
-			Tess_EndBegin();
-		}
-
-		if(glConfig.vertexBufferObjectAvailable && srf->indexesVBO && r_vboFaces->integer)
-		{
-			Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
-
-			tess.indexesVBO = srf->indexesVBO;
-			tess.ofsIndexes = srf->ofsIndexes;
-			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-
-			tess.numIndexes += srf->numTriangles * 3;
-		}
-		else
 		{
 			if(numLightIndexes)
 			{
@@ -482,19 +466,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf, int numLightIndexes, int *l
 			}
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && srf->vertsVBO && r_vboFaces->integer)
-		{
-			tess.vertexesVBO = srf->vertsVBO;
-			tess.ofsXYZ = srf->ofsXYZ;
-			tess.ofsTexCoords = srf->ofsTexCoords;
-			tess.ofsTangents = srf->ofsTangents;
-			tess.ofsBinormals = srf->ofsBinormals;
-			tess.ofsNormals = srf->ofsNormals;
-			tess.ofsColors = srf->ofsColors;
 
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
-		}
-		else
 		{
 			dv = srf->verts;
 			xyz = tess.xyz[tess.numVertexes];
@@ -545,7 +517,8 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf, int numLightIndexes, int *l
 Tess_SurfaceGrid
 =============
 */
-static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes, int *shadowIndexes)
+static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+							 int *shadowIndexes)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -700,22 +673,6 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *ligh
 	}
 	else
 	{
-		if(glConfig.vertexBufferObjectAvailable && (srf->indexesVBO || srf->vertsVBO) && r_vboCurves->integer)
-		{
-			Tess_EndBegin();
-		}
-
-		if(glConfig.vertexBufferObjectAvailable && srf->indexesVBO && r_vboCurves->integer)
-		{
-			Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
-
-			tess.indexesVBO = srf->indexesVBO;
-			tess.ofsIndexes = srf->ofsIndexes;
-			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-
-			tess.numIndexes += srf->numTriangles * 3;
-		}
-		else
 		{
 			if(numLightIndexes)
 			{
@@ -743,19 +700,6 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *ligh
 			}
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && srf->vertsVBO && r_vboCurves->integer)
-		{
-			tess.vertexesVBO = srf->vertsVBO;
-			tess.ofsXYZ = srf->ofsXYZ;
-			tess.ofsTexCoords = srf->ofsTexCoords;
-			tess.ofsTangents = srf->ofsTangents;
-			tess.ofsBinormals = srf->ofsBinormals;
-			tess.ofsNormals = srf->ofsNormals;
-			tess.ofsColors = srf->ofsColors;
-
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
-		}
-		else
 		{
 			dv = srf->verts;
 			xyz = tess.xyz[tess.numVertexes];
@@ -962,22 +906,6 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf, int numLightIndexes, int
 	}
 	else
 	{
-		if(glConfig.vertexBufferObjectAvailable && (srf->indexesVBO || srf->vertsVBO) && r_vboTriangles->integer)
-		{
-			Tess_EndBegin();
-		}
-
-		if(glConfig.vertexBufferObjectAvailable && srf->indexesVBO && r_vboTriangles->integer)
-		{
-			Tess_CheckOverflow(srf->numVerts, srf->numTriangles * 3);
-
-			tess.indexesVBO = srf->indexesVBO;
-			tess.ofsIndexes = srf->ofsIndexes;
-			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-
-			tess.numIndexes += srf->numTriangles * 3;
-		}
-		else
 		{
 			if(numLightIndexes)
 			{
@@ -1005,19 +933,6 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf, int numLightIndexes, int
 			}
 		}
 
-		if(glConfig.vertexBufferObjectAvailable && srf->vertsVBO && r_vboTriangles->integer)
-		{
-			tess.vertexesVBO = srf->vertsVBO;
-			tess.ofsXYZ = srf->ofsXYZ;
-			tess.ofsTexCoords = srf->ofsTexCoords;
-			tess.ofsTangents = srf->ofsTangents;
-			tess.ofsBinormals = srf->ofsBinormals;
-			tess.ofsNormals = srf->ofsNormals;
-			tess.ofsColors = srf->ofsColors;
-
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
-		}
-		else
 		{
 			dv = srf->verts;
 			xyz = tess.xyz[tess.numVertexes];
@@ -2156,37 +2071,50 @@ static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes
 
 /*
 ==============
-Tess_SurfaceVBOLightMesh
+Tess_SurfaceVBOMesh
 ==============
 */
-static void Tess_SurfaceVBOLightMesh(srfVBOLightMesh_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
-										int *shadowIndexes)
+static void Tess_SurfaceVBOMesh(srfVBOMesh_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+								int *shadowIndexes)
 {
-	GLimp_LogComment("--- Tess_SurfaceVBOLightMesh ---\n");
+	GLimp_LogComment("--- Tess_SurfaceVBOMesh ---\n");
 
-	if(!glConfig.vertexBufferObjectAvailable || !srf->indexesVBO || !srf->vertsVBO)
+	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo)
 	{
 		return;
 	}
 
 	Tess_EndBegin();
 
-	tess.indexesVBO = srf->indexesVBO;
-	tess.ofsIndexes = 0;
+	R_BindVBO(srf->vbo);
+
 	tess.numIndexes += srf->numIndexes;
-
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-
-	tess.vertexesVBO = srf->vertsVBO;
-	tess.ofsXYZ = 0;
-	tess.ofsTexCoords = srf->ofsTexCoords;
-	tess.ofsTangents = srf->ofsTangents;
-	tess.ofsBinormals = srf->ofsBinormals;
-	tess.ofsNormals = srf->ofsNormals;
-	tess.ofsColors = srf->ofsColors;
 	tess.numVertexes += srf->numVerts;
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
+	Tess_End();
+}
+
+/*
+==============
+Tess_SurfaceVBOLightMesh
+==============
+*/
+static void Tess_SurfaceVBOLightMesh(srfVBOLightMesh_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
+									 int *shadowIndexes)
+{
+	GLimp_LogComment("--- Tess_SurfaceVBOLightMesh ---\n");
+
+	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo)
+	{
+		return;
+	}
+
+	Tess_EndBegin();
+
+	R_BindVBO(srf->vbo);
+
+	tess.numIndexes += srf->numIndexes;
+	tess.numVertexes += srf->numVerts;
 
 	Tess_End();
 }
@@ -2201,29 +2129,17 @@ static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * srf, int numLight
 {
 	GLimp_LogComment("--- Tess_SurfaceVBOShadowVolume ---\n");
 
-	if(!glConfig.vertexBufferObjectAvailable || !srf->indexesVBO || !srf->vertsVBO)
+	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo)
 	{
 		return;
 	}
 
 	Tess_EndBegin();
 
-	tess.indexesVBO = srf->indexesVBO;
-	tess.ofsIndexes = 0;
+	R_BindVBO(srf->vbo);
+
 	tess.numIndexes += srf->numIndexes;
-
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.indexesVBO);
-
-	tess.vertexesVBO = srf->vertsVBO;
-	tess.ofsXYZ = 0;
-	tess.ofsTexCoords = 0;
-	tess.ofsTangents = 0;
-	tess.ofsBinormals = 0;
-	tess.ofsNormals = 0;
-	tess.ofsColors = 0;
 	tess.numVertexes += srf->numVerts;
-
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vertexesVBO);
 
 	Tess_End();
 }
@@ -2247,6 +2163,7 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceEntity,	// SF_ENTITY
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDisplayList,	// SF_DISPLAY_LIST
+		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOMesh,	// SF_VBO_LIGHT_MESH
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOLightMesh,	// SF_VBO_LIGHT_MESH
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOShadowVolume	// SF_VBO_SHADOW_VOLUME
 };

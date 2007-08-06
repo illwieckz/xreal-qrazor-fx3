@@ -104,8 +104,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
 
 		// HACK: add some macros to avoid extra uniforms
-		Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
-		Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+				 va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+				 va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
 
 		// HACK: add ATI's GLSL quirks      
 		if(glConfig.hardwareType == GLHW_ATI)
@@ -1011,11 +1013,11 @@ DrawElements
 static void DrawElements()
 {
 	// move tess data through the GPU, finally
-	if(glConfig.vertexBufferObjectAvailable && tess.indexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 
-		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(tess.ofsIndexes));
+		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(glState.currentVBO->ofsIndexes));
 		backEnd.pc.c_indexes += tess.numIndexes;
 	}
 	else
@@ -1028,14 +1030,10 @@ static void DrawElements()
 	backEnd.pc.c_drawElements++;
 	backEnd.pc.c_vertexes += tess.numVertexes;
 
-	if(tess.indexesVBO)
-	{
-		backEnd.pc.c_vboIndexes += tess.numIndexes;
-	}
-
-	if(tess.vertexesVBO)
+	if(glState.currentVBO)
 	{
 		backEnd.pc.c_vboVertexes += tess.numVertexes;
+		backEnd.pc.c_vboIndexes += tess.numIndexes;
 	}
 }
 
@@ -1085,17 +1083,9 @@ static void DrawTris()
 	{
 		qglColor4fv(g_color_table[backEnd.pc.c_batches % 8]);
 	}
-	else if(tess.indexesVBO && tess.vertexesVBO)
+	else if(glState.currentVBO)
 	{
 		qglColor3f(0, 0, 1);
-	}
-	else if(tess.indexesVBO)
-	{
-		qglColor3f(0, 1, 0);
-	}
-	else if(tess.vertexesVBO)
-	{
-		qglColor3f(1, 0, 0);
 	}
 	else
 	{
@@ -1110,9 +1100,9 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
 
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -1230,9 +1220,6 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
 		
-	tess.indexesVBO = 0;
-	tess.vertexesVBO = 0;
-
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 	tess.surfaceShader = state;
@@ -1892,7 +1879,7 @@ static void Render_screen(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.screenShader.program);
 
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglColor4fv(tess.svars.color);
 		GL_ClientState(GLCS_VERTEX);
@@ -2407,7 +2394,7 @@ static void Render_liquid(int stage)
 
 	// enable shader, set arrays
 	GL_Program(tr.liquidShader.program);
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglColor4fv(tess.svars.color);
 		GL_ClientState(tr.liquidShader.attribs & (~GLCS_COLOR));
@@ -2960,9 +2947,9 @@ void Tess_StageIteratorGeneric()
 	}
 
 	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -3126,9 +3113,9 @@ void Tess_StageIteratorGBuffer()
 	}
 
 	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -3270,9 +3257,9 @@ void Tess_StageIteratorShadowFill()
 	qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -3352,9 +3339,9 @@ void Tess_StageIteratorStencilShadowVolume()
 	GL_CheckErrors();
 
 	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -3629,9 +3616,9 @@ void Tess_StageIteratorStencilLighting()
 	}
 
 	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -3777,9 +3764,9 @@ void Tess_StageIteratorLighting()
 	}
 
 	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(tess.ofsXYZ));
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
 	}
 	else
 	{
@@ -3930,21 +3917,7 @@ void Tess_End()
 	// unbind VBO
 	if(glConfig.vertexBufferObjectAvailable)
 	{
-		if(tess.indexesVBO)
-		{
-			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-			tess.indexesVBO = 0;
-
-			backEnd.pc.c_vboIndexBuffers++;
-		}
-
-		if(tess.vertexesVBO)
-		{
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-			tess.vertexesVBO = 0;
-
-			backEnd.pc.c_vboVertexBuffers++;
-		}
+		R_BindNullVBO();
 	}
 
 	// clear shader so we can tell we don't have any unclosed surfaces

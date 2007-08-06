@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 R_CheckFBO
 =============
 */
-qboolean R_CheckFBO(const frameBuffer_t * fbo)
+qboolean R_CheckFBO(const FBO_t * fbo)
 {
 	int             code;
 	int             id;
@@ -86,9 +86,9 @@ qboolean R_CheckFBO(const frameBuffer_t * fbo)
 R_CreateFBO
 ============
 */
-frameBuffer_t  *R_CreateFBO(const char *name, int width, int height)
+FBO_t          *R_CreateFBO(const char *name, int width, int height)
 {
-	frameBuffer_t  *fbo;
+	FBO_t          *fbo;
 
 	if(strlen(name) >= MAX_QPATH)
 	{
@@ -128,7 +128,7 @@ R_CreateFBOColorBuffer
 Framebuffer must be bound
 ================
 */
-void R_CreateFBOColorBuffer(frameBuffer_t * fbo, int format, int index)
+void R_CreateFBOColorBuffer(FBO_t * fbo, int format, int index)
 {
 	qboolean        absent;
 
@@ -166,7 +166,7 @@ void R_CreateFBOColorBuffer(frameBuffer_t * fbo, int format, int index)
 R_CreateFBODepthBuffer
 ================
 */
-void R_CreateFBODepthBuffer(frameBuffer_t * fbo, int format)
+void R_CreateFBODepthBuffer(FBO_t * fbo, int format)
 {
 	qboolean        absent;
 
@@ -197,7 +197,7 @@ void R_CreateFBODepthBuffer(frameBuffer_t * fbo, int format)
 R_CreateFBOStencilBuffer
 ================
 */
-void R_CreateFBOStencilBuffer(frameBuffer_t * fbo, int format)
+void R_CreateFBOStencilBuffer(FBO_t * fbo, int format)
 {
 	qboolean        absent;
 
@@ -295,7 +295,7 @@ void R_AttachFBOTextureDepth(int texId)
 R_BindFBO
 ============
 */
-void R_BindFBO(frameBuffer_t * fbo)
+void R_BindFBO(FBO_t * fbo)
 {
 	if(!fbo)
 	{
@@ -467,7 +467,7 @@ R_ShutdownFBOs
 void R_ShutdownFBOs(void)
 {
 	int             i, j;
-	frameBuffer_t  *fbo;
+	FBO_t          *fbo;
 
 	if(!glConfig.framebufferObjectAvailable)
 		return;
@@ -503,7 +503,7 @@ R_FBOList_f
 void R_FBOList_f(void)
 {
 	int             i;
-	frameBuffer_t  *fbo;
+	FBO_t          *fbo;
 
 	if(!glConfig.framebufferObjectAvailable)
 	{

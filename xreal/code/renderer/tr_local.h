@@ -240,7 +240,7 @@ typedef struct image_s
 	struct image_s *next;
 } image_t;
 
-typedef struct frameBuffer_s
+typedef struct FBO_s
 {
 	char            name[MAX_QPATH];
 
@@ -259,9 +259,25 @@ typedef struct frameBuffer_s
 
 	int             width;
 	int             height;
+} FBO_t;
 
-//  struct frameBuffer_s *next;
-} frameBuffer_t;
+typedef struct VBO_s
+{
+	char            name[MAX_QPATH];
+
+	GLuint          vertexesVBO;
+	int             vertexesSize;
+	GLuint          ofsXYZ;
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
+
+	GLuint          indexesVBO;
+	int             indexesSize;	// amount of memory data allocated for all triangles
+	GLuint          ofsIndexes;
+} VBO_t;
 
 //===============================================================================
 
@@ -934,6 +950,7 @@ typedef enum
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
+	SF_VBO_MESH,
 	SF_VBO_LIGHT_MESH,
 	SF_VBO_SHADOW_VOLUME,
 
@@ -975,7 +992,7 @@ typedef struct interactionCache_s
 	byte            cubeSideBits;
 	qboolean        redundant;
 
-	struct shader_s * shader;
+	struct shader_s *shader;
 
 	struct srfVBOLightMesh_s *vboLightMesh;
 	struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
@@ -1099,18 +1116,9 @@ typedef struct srfGridMesh_s
 
 	int             numTriangles;
 	srfTriangle_t  *triangles;
-	GLuint          indexesVBO;
-	GLuint          ofsIndexes;
 
 	int             numVerts;
 	srfVert_t      *verts;
-	GLuint          vertsVBO;
-	GLuint          ofsXYZ;
-	GLuint          ofsTexCoords;
-	GLuint          ofsTangents;
-	GLuint          ofsBinormals;
-	GLuint          ofsNormals;
-	GLuint          ofsColors;
 } srfGridMesh_t;
 
 typedef struct
@@ -1124,18 +1132,9 @@ typedef struct
 	// triangle definitions
 	int             numTriangles;
 	srfTriangle_t  *triangles;
-	GLuint          indexesVBO;
-	GLuint          ofsIndexes;
 
 	int             numVerts;
 	srfVert_t      *verts;
-	GLuint          vertsVBO;
-	GLuint          ofsXYZ;
-	GLuint          ofsTexCoords;
-	GLuint          ofsTangents;
-	GLuint          ofsBinormals;
-	GLuint          ofsNormals;
-	GLuint          ofsColors;
 } srfSurfaceFace_t;
 
 
@@ -1150,19 +1149,27 @@ typedef struct
 	// triangle definitions
 	int             numTriangles;
 	srfTriangle_t  *triangles;
-	GLuint          indexesVBO;
-	GLuint          ofsIndexes;
 
 	int             numVerts;
 	srfVert_t      *verts;
-	GLuint          vertsVBO;
-	GLuint          ofsXYZ;
-	GLuint          ofsTexCoords;
-	GLuint          ofsTangents;
-	GLuint          ofsBinormals;
-	GLuint          ofsNormals;
-	GLuint          ofsColors;
 } srfTriangles_t;
+
+typedef struct
+{
+	surfaceType_t   surfaceType;
+
+	struct shader_s *shader;
+
+	// culling information
+	vec3_t          bounds[2];
+
+	// backEnd stats
+	int             numIndexes;
+	int             numVerts;
+
+	// static render data
+	VBO_t          *vbo;
+} srfVBOMesh_t;
 
 typedef struct srfVBOLightMesh_s
 {
@@ -1171,31 +1178,24 @@ typedef struct srfVBOLightMesh_s
 	// culling information
 	vec3_t          bounds[2];
 
-	// triangle definitions
+	// backEnd stats
 	int             numIndexes;
-	GLuint          indexesVBO;
-//	GLuint          ofsIndexes = 0;
-
 	int             numVerts;
-	GLuint          vertsVBO;
-//	GLuint          ofsXYZ = 0;
-	GLuint          ofsTexCoords;
-	GLuint          ofsTangents;
-	GLuint          ofsBinormals;
-	GLuint          ofsNormals;
-	GLuint          ofsColors;
+
+	// static render data
+	VBO_t          *vbo;
 } srfVBOLightMesh_t;
 
 typedef struct srfVBOShadowVolume_s
 {
 	surfaceType_t   surfaceType;
 
-	// triangle definitions
+	// backEnd stats
 	int             numIndexes;
-	GLuint          indexesVBO;
-
 	int             numVerts;
-	GLuint          vertsVBO;
+
+	// static render data
+	VBO_t          *vbo;
 } srfVBOShadowVolume_t;
 
 
@@ -1243,6 +1243,7 @@ typedef struct
 {
 	vec3_t          bounds[2];	// for culling
 	bspSurface_t   *firstSurface;
+//  srfVBOMesh_t   *firstVBOSurface;    TODO
 	int             numSurfaces;
 } bspModel_t;
 
@@ -1265,6 +1266,8 @@ typedef struct
 	int             numDecisionNodes;
 	bspNode_t      *nodes;
 
+	int             numWorldSurfaces;
+
 	int             numsurfaces;
 	bspSurface_t   *surfaces;
 
@@ -1283,6 +1286,9 @@ typedef struct
 	int             numInteractions;
 	interactionCache_t **interactions;
 
+	int             numVBOSurfaces;
+	srfVBOMesh_t  **vboSurfaces;
+
 	int             numClusters;
 	int             clusterBytes;
 	const byte     *vis;		// may be passed in by CM_LoadMap to save space
@@ -1291,9 +1297,6 @@ typedef struct
 
 	char           *entityString;
 	char           *entityParsePoint;
-
-	GLuint          vertsVBO;
-	GLuint          indexesVBO;
 } world_t;
 
 
@@ -1590,7 +1593,8 @@ typedef struct
 	unsigned long   glStateBits;
 	unsigned long   glClientStateBits;
 	GLhandleARB     currentProgram;
-	frameBuffer_t  *currentFBO;
+	FBO_t          *currentFBO;
+	VBO_t          *currentVBO;
 } glstate_t;
 
 
@@ -1690,9 +1694,9 @@ typedef struct
 	image_t        *shadowCubeFBOImage[3];
 
 	// framebuffer objects
-	frameBuffer_t  *geometricRenderFBO;
-	frameBuffer_t  *deferredRenderFBO;
-	frameBuffer_t  *shadowMapFBO[3];
+	FBO_t          *geometricRenderFBO;
+	FBO_t          *deferredRenderFBO;
+	FBO_t          *shadowMapFBO[3];
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1799,7 +1803,9 @@ typedef struct
 	image_t        *images[MAX_DRAWIMAGES];
 
 	int             numFBOs;
-	frameBuffer_t  *fbos[MAX_FBOS];
+	FBO_t          *fbos[MAX_FBOS];
+
+	growList_t      vbos;
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
@@ -2007,6 +2013,7 @@ extern cvar_t  *r_vboTriangles;
 extern cvar_t  *r_vboShadows;
 extern cvar_t  *r_vboLighting;
 extern cvar_t  *r_vboModels;
+extern cvar_t  *r_vboWorld;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
@@ -2295,17 +2302,6 @@ typedef struct shaderCommands_s
 	vec4_t          texCoords[SHADER_MAX_VERTEXES];
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
 
-	GLuint          indexesVBO;
-	GLuint          ofsIndexes;
-
-	GLuint          vertexesVBO;
-	GLuint          ofsXYZ;
-	GLuint          ofsTexCoords;
-	GLuint          ofsTangents;
-	GLuint          ofsBinormals;
-	GLuint          ofsNormals;
-	GLuint          ofsColors;
-
 	stageVars_t     svars;
 
 	shader_t       *surfaceShader;
@@ -2478,25 +2474,43 @@ FRAME BUFFER OBJECTS
 
 ============================================================
 */
-qboolean        R_CheckFBO(const frameBuffer_t * fbo);
+qboolean        R_CheckFBO(const FBO_t * fbo);
 
-frameBuffer_t  *R_CreateFBO(const char *name, int width, int height);
+FBO_t          *R_CreateFBO(const char *name, int width, int height);
 
-void            R_CreateFBOColorBuffer(frameBuffer_t * fbo, int format, int index);
-void            R_CreateFBODepthBuffer(frameBuffer_t * fbo, int format);
-void            R_CreateFBOStencilBuffer(frameBuffer_t * fbo, int format);
+void            R_CreateFBOColorBuffer(FBO_t * fbo, int format, int index);
+void            R_CreateFBODepthBuffer(FBO_t * fbo, int format);
+void            R_CreateFBOStencilBuffer(FBO_t * fbo, int format);
 
 void            R_AttachFBOTexture1D(int texId, int attachmentIndex);
 void            R_AttachFBOTexture2D(int target, int texId, int attachmentIndex);
 void            R_AttachFBOTexture3D(int texId, int attachmentIndex, int zOffset);
 void            R_AttachFBOTextureDepth(int texId);
 
-void            R_BindFBO(frameBuffer_t * fbo);
+void            R_BindFBO(FBO_t * fbo);
 void            R_BindNullFBO(void);
 
 void            R_InitFBOs(void);
 void            R_ShutdownFBOs(void);
 void            R_FBOList_f(void);
+
+
+/*
+============================================================
+
+VERTEX BUFFER OBJECTS
+
+============================================================
+*/
+VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize, byte * indexes, int indexesSize);
+
+void            R_BindVBO(VBO_t * vbo);
+void            R_BindNullVBO(void);
+
+void            R_InitVBOs(void);
+void            R_ShutdownVBOs(void);
+void            R_VBOList_f(void);
+
 
 
 /*

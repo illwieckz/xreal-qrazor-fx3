@@ -197,6 +197,7 @@ cvar_t         *r_vboTriangles;
 cvar_t         *r_vboShadows;
 cvar_t         *r_vboLighting;
 cvar_t         *r_vboModels;
+cvar_t         *r_vboWorld;
 
 cvar_t         *r_precacheLightIndexes;
 cvar_t         *r_precacheShadowIndexes;
@@ -1200,6 +1201,20 @@ void GL_SetDefaultState(void)
 	glState.currentProgram = 0;
 	qglUseProgramObjectARB(0);
 
+	if(glConfig.vertexBufferObjectAvailable)
+	{
+		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glState.currentVBO = NULL;
+	}
+
+	if(glConfig.framebufferObjectAvailable)
+	{
+		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+		glState.currentFBO = NULL;
+	}
+
 
 	/*
 	   if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -1370,7 +1385,7 @@ void R_Register(void)
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	
+
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
 
@@ -1421,6 +1436,7 @@ void R_Register(void)
 	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
 	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);
 	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT);
+	r_vboWorld = ri.Cvar_Get("r_vboWorld", "1", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
@@ -1529,6 +1545,7 @@ void R_Register(void)
 	ri.Cmd_AddCommand("modelist", R_ModeList_f);
 	ri.Cmd_AddCommand("animationlist", R_AnimationList_f);
 	ri.Cmd_AddCommand("fbolist", R_FBOList_f);
+	ri.Cmd_AddCommand("vbolist", R_VBOList_f);
 	ri.Cmd_AddCommand("screenshot", R_ScreenShot_f);
 	ri.Cmd_AddCommand("screenshotJPEG", R_ScreenShotJPEG_f);
 	ri.Cmd_AddCommand("screenshotPNG", R_ScreenShotPNG_f);
@@ -1622,6 +1639,8 @@ void R_Init(void)
 
 	R_InitFBOs();
 
+	R_InitVBOs();
+
 	R_InitShaders();
 
 	R_InitSkins();
@@ -1671,6 +1690,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	ri.Cmd_RemoveCommand("shaderstate");
 	ri.Cmd_RemoveCommand("animationlist");
 	ri.Cmd_RemoveCommand("fbolist");
+	ri.Cmd_RemoveCommand("vbolist");
 	ri.Cmd_RemoveCommand("generatemtr");
 
 	if(tr.registered)

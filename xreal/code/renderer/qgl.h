@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include "glext.h" // raynorpat: the one shipped with OS X is outdated :|
+#include "glext.h"				// raynorpat: the one shipped with OS X is outdated :|
 
 #elif defined( __linux__ ) || defined( __FreeBSD__ )
 

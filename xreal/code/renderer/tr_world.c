@@ -326,11 +326,16 @@ R_AddWorldSurface
 */
 static void R_AddWorldSurface(bspSurface_t * surf)
 {
+	shader_t       *shader;
+
 	if(surf->viewCount == tr.viewCount)
-	{
-		return;					// already in this view
-	}
+		return;
 	surf->viewCount = tr.viewCount;
+
+	shader = surf->shader;
+
+	if(r_vboWorld->integer && !shader->isSky && !shader->numDeforms)
+		return;
 
 	// try to cull before lighting or adding
 	if(R_CullSurface(surf->data, surf->shader))
@@ -515,6 +520,7 @@ static void R_RecursiveWorldNode(bspNode_t * node, int planeBits)
 		{
 			tr.viewParms.visBounds[1][2] = node->maxs[2];
 		}
+
 
 		// add the individual surfaces
 		mark = node->firstmarksurface;
@@ -853,6 +859,7 @@ static void R_SetFarClip(void)
 	tr.viewParms.skyFar = sqrt(farthestCornerDistance);
 }
 
+
 /*
 =============
 R_AddWorldSurfaces
@@ -878,8 +885,29 @@ void R_AddWorldSurfaces(void)
 	// clear out the visible min/max
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
-	// perform frustum culling and add all the potentially visible surfaces
-	R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
+	if(glConfig.vertexBufferObjectAvailable && r_vboWorld->integer)
+	{
+		// new brute force method: just render everthing with static VBOs
+		int             i;
+		srfVBOMesh_t   *srf;
+		shader_t       *shader;
+
+		for(i = 0; i < tr.world->numVBOSurfaces; i++)
+		{
+			srf = tr.world->vboSurfaces[i];
+			shader = srf->shader;
+
+			R_AddDrawSurf((void *)srf, shader);
+		}
+
+		// update visbounds and add surfaces that weren't cached with VBOs
+		R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
+	}
+	else
+	{
+		// perform frustum culling and add all the potentially visible surfaces
+		R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
+	}
 
 	// dynamically compute far clip plane distance for sky
 	R_SetFarClip();
@@ -952,11 +980,11 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 			srf = iaCache->vboLightMesh;
 			shader = iaCache->shader;
-			
+
 			if(r_shadows->integer == 4)
-				R_AddLightInteraction(light, (void *) srf, shader, 0, NULL, 0, NULL, iaCache->cubeSideBits, IA_DEFAULT);
+				R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, iaCache->cubeSideBits, IA_DEFAULT);
 			else
-				R_AddLightInteraction(light, (void *) srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+				R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
 		}
 	}
 	else
@@ -1002,138 +1030,8 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				continue;
 
 			srf = iaCache->vboShadowVolume;
-			
-			R_AddLightInteraction(light, (void *) srf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
+
+			R_AddLightInteraction(light, (void *)srf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
 		}
 	}
-}
-
-
-/*
-===============
-R_ShutdownVBOs
-===============
-*/
-void R_ShutdownVBOs()
-{
-	int             i;
-	trRefLight_t   *light;
-	interactionCache_t *iaCache;
-
-//  bspSurface_t     *surface;
-
-	if(!tr.world || (tr.refdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		return;
-	}
-
-	if(!glConfig.vertexBufferObjectAvailable)
-	{
-		return;
-	}
-
-	if(tr.world->vertsVBO)
-	{
-		qglDeleteBuffersARB(1, &tr.world->vertsVBO);
-	}
-
-	if(tr.world->indexesVBO)
-	{
-		qglDeleteBuffersARB(1, &tr.world->indexesVBO);
-	}
-
-	for(i = 0; i < tr.world->numLights; i++)
-	{
-		light = &tr.world->lights[i];
-
-		if(!light->firstInteractionCache)
-		{
-			// this light has no interactions precached
-			continue;
-		}
-
-		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
-		{
-			if(iaCache->redundant)
-				continue;
-
-			if(iaCache->vboLightMesh)
-			{
-				srfVBOLightMesh_t *srf = (srfVBOLightMesh_t *) iaCache->vboLightMesh;
-	
-				if(srf->vertsVBO)
-				{
-					qglDeleteBuffersARB(1, &srf->vertsVBO);
-				}
-
-				if(srf->indexesVBO)
-				{
-					qglDeleteBuffersARB(1, &srf->indexesVBO);
-				}
-			}
-
-			if(iaCache->vboShadowVolume)
-			{
-				srfVBOShadowVolume_t *srf = (srfVBOShadowVolume_t *) iaCache->vboShadowVolume;
-	
-				if(srf->vertsVBO)
-				{
-					qglDeleteBuffersARB(1, &srf->vertsVBO);
-				}
-
-				if(srf->indexesVBO)
-				{
-					qglDeleteBuffersARB(1, &srf->indexesVBO);
-				}
-			}
-		}
-	}
-
-	/*
-	   for(i = 0, surface = &tr.world->surfaces[0]; i < tr.world->numsurfaces; i++, surface++)
-	   {
-	   if(*surface->data == SF_FACE)
-	   {
-	   srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
-
-	   if(face->indexesVBO)
-	   {
-	   qglDeleteBuffersARB(1, &face->indexesVBO);
-	   }
-
-	   if(face->vertsVBO)
-	   {
-	   qglDeleteBuffersARB(1, &face->vertsVBO);
-	   }
-	   }
-	   else if(*surface->data == SF_GRID)
-	   {
-	   srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
-
-	   if(grid->indexesVBO)
-	   {
-	   qglDeleteBuffersARB(1, &grid->indexesVBO);
-	   }
-
-	   if(grid->vertsVBO)
-	   {
-	   qglDeleteBuffersARB(1, &grid->vertsVBO);
-	   }
-	   }
-	   else if(*surface->data == SF_TRIANGLES)
-	   {
-	   srfTriangles_t  *tri = (srfTriangles_t *) surface->data;
-
-	   if(tri->indexesVBO)
-	   {
-	   qglDeleteBuffersARB(1, &tri->indexesVBO);
-	   }
-
-	   if(tri->vertsVBO)
-	   {
-	   qglDeleteBuffersARB(1, &tri->vertsVBO);
-	   }
-	   }
-	   }
-	 */
 }

@@ -448,7 +448,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 #if 0
 	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && mdxModel->numFrames == 1)
 	{
-		mdxSurface_t   **surfacesSorted;
+		mdxSurface_t  **surfacesSorted;
 
 		ri.Printf(PRINT_ALL, "...trying to calculate VBOs for model '%s'\n", modName);
 
@@ -459,7 +459,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		{
 			surfacesSorted[i] = surf;
 		}
-		
+
 		// sort interaction caches by shader
 		//qsort(surfacesSorted, md3Model->numSurfaces, sizeof(surfacesSorted), MDXSurfaceCompare);
 
@@ -467,9 +467,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		shader = oldShader = NULL;
 
 		TODO
-
 #if 0
-		for(k = 0; k < numCaches; k++)
+			for(k = 0; k < numCaches; k++)
 		{
 			iaCache = iaCachesSorted[k];
 

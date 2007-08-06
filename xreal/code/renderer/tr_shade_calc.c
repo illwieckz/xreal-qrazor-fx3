@@ -522,7 +522,9 @@ void RB_CalcDeformNormals(deformStage_t * ds)
 	for(i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4)
 	{
 		scale = 0.98f;
-		scale = R_NoiseGet4f(xyz[0] * scale, xyz[1] * scale, xyz[2] * scale, backEnd.refdef.floatTime * ds->deformationWave.frequency);
+		scale =
+			R_NoiseGet4f(xyz[0] * scale, xyz[1] * scale, xyz[2] * scale,
+						 backEnd.refdef.floatTime * ds->deformationWave.frequency);
 		normal[0] += ds->deformationWave.amplitude * scale;
 
 		scale = 0.98f;

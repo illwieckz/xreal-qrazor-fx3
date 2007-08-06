@@ -591,43 +591,31 @@ void GL_ClientState(unsigned long stateBits)
 
 void GL_SetVertexAttribs()
 {
-	//static GLuint   oldVertexesVBO = 0;
-
-	if(glConfig.vertexBufferObjectAvailable && tess.vertexesVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
-		/*
-		   if(oldVertexesVBO == tess.vertexesVBO)
-		   {
-		   // no update needed so avoid expensive glVertexPointer call
-		   return;
-		   }
-
-		   oldVertexesVBO = tess.vertexesVBO;
-		 */
-
 		//if(glState.glClientStateBits & GLCS_VERTEX)
 		//  qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 
 		if(glState.glClientStateBits & GLCS_TEXCOORD0)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
 
 		if(glState.glClientStateBits & GLCS_TEXCOORD1)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
 
 		if(glState.glClientStateBits & GLCS_TEXCOORD2)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.ofsTexCoords));
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
 
 		if(glState.glClientStateBits & GLCS_TANGENT)
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsTangents));
+			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsTangents));
 
 		if(glState.glClientStateBits & GLCS_BINORMAL)
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.ofsBinormals));
+			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsBinormals));
 
 		if(glState.glClientStateBits & GLCS_NORMAL)
-			qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsNormals));
+			qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(glState.currentVBO->ofsNormals));
 
 		if(glState.glClientStateBits & GLCS_COLOR)
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(tess.ofsColors));
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(glState.currentVBO->ofsColors));
 	}
 	else
 	{
@@ -4922,12 +4910,12 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	{
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		
+
 		qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		
+
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		
+
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	}
@@ -4966,15 +4954,15 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty)
 {
 	GL_Bind(tr.scratchImage[client]);
-	
+
 	// if the scratchImage isn't in the format we want, specify it as a new texture
 	if(cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height)
 	{
 		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
 		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		
+
 		qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		
+
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
