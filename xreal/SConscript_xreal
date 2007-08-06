@@ -154,6 +154,7 @@ xreal_src = [
 'code/renderer/tr_shadows.c',
 'code/renderer/tr_sky.c',
 'code/renderer/tr_surface.c',
+'code/renderer/tr_vbo.c',
 'code/renderer/tr_world.c',
 'code/zlib/adler32.c',
 'code/zlib/compress.c',
