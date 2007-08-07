@@ -824,7 +824,7 @@ void GLSL_InitGPUShaders(void)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
@@ -2394,16 +2394,10 @@ static void Render_liquid(int stage)
 
 	// enable shader, set arrays
 	GL_Program(tr.liquidShader.program);
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglColor4fv(tess.svars.color);
-		GL_ClientState(tr.liquidShader.attribs & (~GLCS_COLOR));
-	}
-	else
-	{
-		GL_ClientState(tr.liquidShader.attribs);
-	}
+	GL_ClientState(tr.liquidShader.attribs);
 	GL_SetVertexAttribs();
+
+	qglColor4fv(tess.svars.color);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2444,206 +2438,6 @@ static void Render_liquid(int stage)
 
 	GL_CheckErrors();
 }
-
-/*
-===============
-Tess_ComputeColors
-===============
-*/
-/*
-void Tess_ComputeColors(shaderStage_t * pStage)
-{
-	int             i;
-
-	GLimp_LogComment("--- Tess_ComputeColors ---\n");
-
-	// rgbGen
-	switch (pStage->rgbGen)
-	{
-		case CGEN_IDENTITY:
-			Com_Memset(tess.svars.colors, 0xff, tess.numVertexes * 4);
-			break;
-
-		default:
-		case CGEN_IDENTITY_LIGHTING:
-			Com_Memset(tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4);
-			break;
-
-		case CGEN_LIGHTING_DIFFUSE:
-			RB_CalcDiffuseColor((unsigned char *)tess.svars.colors);
-			break;
-
-		case CGEN_EXACT_VERTEX:
-			Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
-			break;
-
-		case CGEN_CONST:
-			for(i = 0; i < tess.numVertexes; i++)
-			{
-				*(int *)tess.svars.colors[i] = *(int *)pStage->constantColor;
-			}
-			break;
-
-		case CGEN_VERTEX:
-			if(tr.identityLight == 1)
-			{
-				Com_Memcpy(tess.svars.colors, tess.colors, tess.numVertexes * sizeof(tess.colors[0]));
-			}
-			else
-			{
-				for(i = 0; i < tess.numVertexes; i++)
-				{
-					tess.svars.colors[i][0] = tess.colors[i][0] * tr.identityLight;
-					tess.svars.colors[i][1] = tess.colors[i][1] * tr.identityLight;
-					tess.svars.colors[i][2] = tess.colors[i][2] * tr.identityLight;
-					tess.svars.colors[i][3] = tess.colors[i][3];
-				}
-			}
-			break;
-
-		case CGEN_ONE_MINUS_VERTEX:
-			if(tr.identityLight == 1)
-			{
-				for(i = 0; i < tess.numVertexes; i++)
-				{
-					tess.svars.colors[i][0] = 255 - tess.colors[i][0];
-					tess.svars.colors[i][1] = 255 - tess.colors[i][1];
-					tess.svars.colors[i][2] = 255 - tess.colors[i][2];
-				}
-			}
-			else
-			{
-				for(i = 0; i < tess.numVertexes; i++)
-				{
-					tess.svars.colors[i][0] = (255 - tess.colors[i][0]) * tr.identityLight;
-					tess.svars.colors[i][1] = (255 - tess.colors[i][1]) * tr.identityLight;
-					tess.svars.colors[i][2] = (255 - tess.colors[i][2]) * tr.identityLight;
-				}
-			}
-			break;
-
-		case CGEN_WAVEFORM:
-			RB_CalcWaveColor(&pStage->rgbWave, (unsigned char *)tess.svars.colors);
-			break;
-
-		case CGEN_ENTITY:
-			RB_CalcColorFromEntity((unsigned char *)tess.svars.colors);
-			break;
-
-		case CGEN_ONE_MINUS_ENTITY:
-			RB_CalcColorFromOneMinusEntity((unsigned char *)tess.svars.colors);
-			break;
-
-		case CGEN_CUSTOM_RGB:
-			RB_CalcCustomColor(&pStage->rgbExp, (unsigned char *)tess.svars.colors);
-			break;
-
-		case CGEN_CUSTOM_RGBs:
-			RB_CalcCustomColors(&pStage->redExp, &pStage->greenExp, &pStage->blueExp, (unsigned char *)tess.svars.colors);
-			break;
-	}
-
-	// alphaGen
-	switch (pStage->alphaGen)
-	{
-		case AGEN_SKIP:
-			break;
-
-		case AGEN_IDENTITY:
-			if(pStage->rgbGen != CGEN_IDENTITY)
-			{
-				if((pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1) || pStage->rgbGen != CGEN_VERTEX)
-				{
-					for(i = 0; i < tess.numVertexes; i++)
-					{
-						tess.svars.colors[i][3] = 0xff;
-					}
-				}
-			}
-			break;
-
-		case AGEN_CONST:
-			if(pStage->rgbGen != CGEN_CONST)
-			{
-				for(i = 0; i < tess.numVertexes; i++)
-				{
-					tess.svars.colors[i][3] = pStage->constantColor[3];
-				}
-			}
-			break;
-
-		case AGEN_WAVEFORM:
-			RB_CalcWaveAlpha(&pStage->alphaWave, (unsigned char *)tess.svars.colors);
-			break;
-
-		case AGEN_LIGHTING_SPECULAR:
-			RB_CalcSpecularAlpha((unsigned char *)tess.svars.colors);
-			break;
-
-		case AGEN_ENTITY:
-			RB_CalcAlphaFromEntity((unsigned char *)tess.svars.colors);
-			break;
-
-		case AGEN_ONE_MINUS_ENTITY:
-			RB_CalcAlphaFromOneMinusEntity((unsigned char *)tess.svars.colors);
-			break;
-
-		case AGEN_VERTEX:
-			if(pStage->rgbGen != CGEN_VERTEX)
-			{
-				for(i = 0; i < tess.numVertexes; i++)
-				{
-					tess.svars.colors[i][3] = tess.colors[i][3];
-				}
-			}
-			break;
-
-		case AGEN_ONE_MINUS_VERTEX:
-			for(i = 0; i < tess.numVertexes; i++)
-			{
-				tess.svars.colors[i][3] = 255 - tess.colors[i][3];
-			}
-			break;
-
-		case AGEN_PORTAL:
-		{
-			unsigned char   alpha;
-
-			for(i = 0; i < tess.numVertexes; i++)
-			{
-				float           len;
-				vec3_t          v;
-
-				VectorSubtract(tess.xyz[i], backEnd.viewParms.or.origin, v);
-				len = VectorLength(v);
-
-				len /= tess.surfaceShader->portalRange;
-
-				if(len < 0)
-				{
-					alpha = 0;
-				}
-				else if(len > 1)
-				{
-					alpha = 0xff;
-				}
-				else
-				{
-					alpha = len * 0xff;
-				}
-
-				tess.svars.colors[i][3] = alpha;
-			}
-			break;
-		}
-
-		case AGEN_CUSTOM:
-			RB_CalcCustomAlpha(&pStage->alphaExp, (unsigned char *)tess.svars.colors);
-			break;
-	}
-}
-*/
-
 
 /*
 ===============

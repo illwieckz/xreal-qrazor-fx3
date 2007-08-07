@@ -1509,6 +1509,9 @@ static void R_CreateVBOWorldSurfaces()
 		if(shader->isSky)
 			continue;
 
+		if(shader->isPortal || shader->isMirror)
+			continue;
+
 		if(shader->numDeforms)
 			continue;
 
@@ -1524,6 +1527,9 @@ static void R_CreateVBOWorldSurfaces()
 		shader = surface->shader;
 
 		if(shader->isSky)
+			continue;
+
+		if(shader->isPortal || shader->isMirror)
 			continue;
 
 		if(shader->numDeforms)

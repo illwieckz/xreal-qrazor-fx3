@@ -334,7 +334,7 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 
 	shader = surf->shader;
 
-	if(r_vboWorld->integer && !shader->isSky && !shader->numDeforms)
+	if(r_vboWorld->integer && !shader->isSky && !shader->isPortal && !shader->isMirror && !shader->numDeforms)
 		return;
 
 	// try to cull before lighting or adding
