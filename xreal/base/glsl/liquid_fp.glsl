@@ -33,7 +33,6 @@ uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
 varying vec3		var_Normal;
-varying vec2		var_TexNormal;
 varying vec4		var_Color;
 
 void	main()

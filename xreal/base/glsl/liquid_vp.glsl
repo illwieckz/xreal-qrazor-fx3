@@ -28,7 +28,6 @@ uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
 varying vec3		var_Normal;
-varying vec2		var_TexNormal;
 varying vec4		var_Color;
 
 void	main()
@@ -41,9 +40,6 @@ void	main()
 	
 	// transform normal into world space
 	var_Normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-	
-	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// assign color
 	var_Color = gl_Color;
