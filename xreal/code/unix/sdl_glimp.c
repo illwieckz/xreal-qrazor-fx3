@@ -1359,8 +1359,8 @@ void GLimp_Init( void )
   //
   // chipset specific configuration
   //
-  strcpy( buf, glConfig.renderer_string );
-  strlwr( buf );
+ Q_strncpyz(buf, glConfig.renderer_string, sizeof(buf));
+	Q_strlwr(buf);
 
   //
   // NOTE: if changing cvars, do it within this block.  This allows them
@@ -1376,10 +1376,17 @@ void GLimp_Init( void )
   // this is where hardware specific workarounds that should be
   // detected/initialized every startup should go.
   //
-  if ( Q_stristr( buf, "radeon" ) )
-  {
-    glConfig.hardwareType = GLHW_ATI;
-  }
+
+	if(strstr(buf, "radeon"))
+	{
+		glConfig.hardwareType = GLHW_ATI;
+	}
+
+	if(strstr(buf, "geforce"))
+	{
+		if(strstr(buf, "8800") || strstr(buf, "8600") || strstr(buf, "8200"))
+			glConfig.hardwareType = GLHW_G80;
+	}
 
   ri.Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
 
