@@ -143,6 +143,9 @@ typedef struct trRefLight_s
 	struct interactionCache_s *firstInteractionCache;	// only used by static lights
 	struct interactionCache_s *lastInteractionCache;	// only used by static lights
 
+	struct interactionVBO_s *firstInteractionVBO;	// only used by static lights
+	struct interactionVBO_s *lastInteractionVBO;	// only used by static lights
+
 	struct interaction_s *firstInteraction;
 	struct interaction_s *lastInteraction;
 
@@ -277,6 +280,8 @@ typedef struct VBO_s
 	GLuint          indexesVBO;
 	int             indexesSize;	// amount of memory data allocated for all triangles
 	GLuint          ofsIndexes;
+
+	int             attribs;
 } VBO_t;
 
 //===============================================================================
@@ -951,7 +956,6 @@ typedef enum
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
 	SF_VBO_MESH,
-	SF_VBO_LIGHT_MESH,
 	SF_VBO_SHADOW_VOLUME,
 
 	SF_NUM_SURFACE_TYPES,
@@ -992,13 +996,26 @@ typedef struct interactionCache_s
 	byte            cubeSideBits;
 	qboolean        redundant;
 
-	struct shader_s *shader;
-
-	struct srfVBOLightMesh_s *vboLightMesh;
-	struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
+	//struct srfVBOMesh_s *vboLightMesh;
+	//struct srfVBOLightMesh_s *vboShadowCubeMeshes[6];
+	//struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
 
 	struct interactionCache_s *next;
 } interactionCache_t;
+
+typedef struct interactionVBO_s
+{
+	interactionType_t type;
+
+	byte            cubeSideBits;
+
+	struct shader_s *shader;
+	struct srfVBOMesh_s *vboLightMesh;
+	struct srfVBOMesh_s *vboShadowMesh;
+	struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
+
+	struct interactionVBO_s *next;
+} interactionVBO_t;
 
 // an interaction is a node between a light and any surface
 typedef struct interaction_s
@@ -1154,11 +1171,11 @@ typedef struct
 	srfVert_t      *verts;
 } srfTriangles_t;
 
-typedef struct
+typedef struct srfVBOMesh_s
 {
 	surfaceType_t   surfaceType;
 
-	struct shader_s *shader;
+	struct shader_s *shader;		// FIXME move this to somewhere else
 
 	// culling information
 	vec3_t          bounds[2];
@@ -1170,21 +1187,6 @@ typedef struct
 	// static render data
 	VBO_t          *vbo;
 } srfVBOMesh_t;
-
-typedef struct srfVBOLightMesh_s
-{
-	surfaceType_t   surfaceType;
-
-	// culling information
-	vec3_t          bounds[2];
-
-	// backEnd stats
-	int             numIndexes;
-	int             numVerts;
-
-	// static render data
-	VBO_t          *vbo;
-} srfVBOLightMesh_t;
 
 typedef struct srfVBOShadowVolume_s
 {

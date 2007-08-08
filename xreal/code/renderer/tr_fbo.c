@@ -434,7 +434,7 @@ void R_InitFBOs(void)
 		}
 	}
 
-	if(r_shadows->integer == 4)
+	if(r_shadows->integer >= 4)
 	{
 		// shadowMap FBOs for shadow mapping offscreen rendering
 		for(i = 0; i < 3; i++)
@@ -445,9 +445,20 @@ void R_InitFBOs(void)
 			R_BindFBO(tr.shadowMapFBO[i]);
 
 			if(glConfig.textureFloatAvailable)
-				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA16F_ARB, 0);
+			{
+				if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
+				{
+					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA32F_ARB, 0);
+				}
+				else
+				{
+					R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA16F_ARB, 0);
+				}
+			}
 			else
+			{
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA, 0);
+			}
 
 			R_CreateFBODepthBuffer(tr.shadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);
 			R_CheckFBO(tr.shadowMapFBO[i]);

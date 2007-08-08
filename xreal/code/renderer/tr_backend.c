@@ -1069,7 +1069,7 @@ static void Render_lightVolume(trRefLight_t * light)
 			qglMatrixMode(GL_MODELVIEW);
 
 			// bind u_ShadowMap
-			if(r_shadows->integer == 4)
+			if(r_shadows->integer >= 4)
 			{
 				GL_SelectTexture(2);
 				GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
@@ -4393,7 +4393,7 @@ static void RB_RenderDebugUtils()
 
 			qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
-			if(r_shadows->integer == 4 && light->l.rlType == RL_OMNI)
+			if(r_shadows->integer >= 4 && light->l.rlType == RL_OMNI)
 			{
 #if 0
 				VectorCopy4(colorMdGrey, lightColor);
@@ -4470,6 +4470,11 @@ static void RB_RenderDebugUtils()
 
 				tri = (srfTriangles_t *) surface;
 				R_DebugBoundingBox(vec3_origin, tri->bounds[0], tri->bounds[1], lightColor);
+			}
+			else if(*surface == SF_VBO_MESH)
+			{
+				srfVBOMesh_t *srf  = (srfVBOMesh_t *) surface;
+				R_DebugBoundingBox(vec3_origin, srf->bounds[0], srf->bounds[1], lightColor);
 			}
 			else if(*surface == SF_MDX)
 			{
@@ -4775,7 +4780,7 @@ static void RB_RenderView(void)
 		// draw everything that is opaque
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
 
-		if(r_shadows->integer == 4)
+		if(r_shadows->integer >= 4)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
 			RB_RenderInteractionsDeferredShadowMapped();
@@ -4803,7 +4808,7 @@ static void RB_RenderView(void)
 		RB_RenderOcclusionQueries();
 #endif
 
-		if(r_shadows->integer == 4)
+		if(r_shadows->integer >= 4)
 		{
 			// render dynamic shadowing and lighting using shadow mapping
 			RB_RenderInteractionsShadowMapped();

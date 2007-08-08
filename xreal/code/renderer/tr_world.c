@@ -944,7 +944,7 @@ R_AddPrecachedWorldInteractions
 */
 void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 {
-	interactionCache_t *iaCache;
+	int               cubeSide;
 	interactionType_t iaType = IA_DEFAULT;
 
 	if(!r_drawworld->integer)
@@ -967,28 +967,45 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 	if(glConfig.vertexBufferObjectAvailable && r_vboLighting->integer)
 	{
-		srfVBOLightMesh_t *srf;
+		interactionVBO_t *iaVBO;
+		srfVBOMesh_t   *srf;
 		shader_t       *shader;
 
-		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+		for(iaVBO = light->firstInteractionVBO; iaVBO; iaVBO = iaVBO->next)
 		{
-			if(iaCache->redundant)
+			if(!iaVBO->vboLightMesh)
 				continue;
 
-			if(!iaCache->vboLightMesh)
+			srf = iaVBO->vboLightMesh;
+			shader = iaVBO->shader;
+
+			switch (light->l.rlType)
+			{
+				case RL_OMNI:
+					R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+					break;
+
+				default:
+				case RL_PROJ:
+					R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
+					break;
+			}
+		}
+
+		for(iaVBO = light->firstInteractionVBO; iaVBO; iaVBO = iaVBO->next)
+		{
+			if(!iaVBO->vboShadowMesh)
 				continue;
 
-			srf = iaCache->vboLightMesh;
-			shader = iaCache->shader;
+			srf = iaVBO->vboShadowMesh;
+			shader = iaVBO->shader;
 
-			if(r_shadows->integer == 4)
-				R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, iaCache->cubeSideBits, IA_DEFAULT);
-			else
-				R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+			R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, iaVBO->cubeSideBits, IA_SHADOWONLY);
 		}
 	}
 	else
 	{
+		interactionCache_t *iaCache;
 		bspSurface_t   *surface;
 
 		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
@@ -1017,21 +1034,21 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 		}
 	}
 
+#if 1
 	if(glConfig.vertexBufferObjectAvailable && r_shadows->integer == 3 && r_vboShadows->integer)
 	{
+		interactionVBO_t *iaVBO;
 		srfVBOShadowVolume_t *srf;
 
-		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+		for(iaVBO = light->firstInteractionVBO; iaVBO; iaVBO = iaVBO->next)
 		{
-			if(iaCache->redundant)
+			if(!iaVBO->vboShadowVolume)
 				continue;
 
-			if(!iaCache->vboShadowVolume)
-				continue;
-
-			srf = iaCache->vboShadowVolume;
+			srf = iaVBO->vboShadowVolume;
 
 			R_AddLightInteraction(light, (void *)srf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
 		}
 	}
+#endif
 }

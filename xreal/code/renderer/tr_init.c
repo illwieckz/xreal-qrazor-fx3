@@ -1327,6 +1327,11 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, "HACK: ATI approximations\n");
 	}
 
+	if(glConfig.hardwareType == GLHW_G80)
+	{
+		ri.Printf(PRINT_ALL, "Using G80 optimizations\n");
+	}
+
 	if(glConfig.smpActive)
 	{
 		ri.Printf(PRINT_ALL, "Using dual processor acceleration\n");
@@ -1485,8 +1490,9 @@ void R_Register(void)
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
+	
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadows, 0, 4, qtrue);
+	AssertCvarRange(r_shadows, 0, 5, qtrue);
 
 	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeHigh, 32, 1024, qtrue);

@@ -1750,6 +1750,12 @@ void GLimp_Init(void)
 		glConfig.hardwareType = GLHW_ATI;
 	}
 
+	if(strstr(buf, "geforce"))
+	{
+		if(strstr(buf, "8800") || strstr(buf, "8600") || strstr(buf, "8200"))
+			glConfig.hardwareType = GLHW_G80;
+	}
+
 	ri.Cvar_Set("r_lastValidRenderer", glConfig.renderer_string);
 
 	GLW_InitExtensions();

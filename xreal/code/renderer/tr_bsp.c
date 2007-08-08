@@ -45,7 +45,10 @@ static cplane_t s_shadowPlanes[SHADER_MAX_TRIANGLES * 4];
 static int      s_numShadowPlanes;
 static byte    *fileBase;
 
-int             c_redundantInteractions;
+static int      c_redundantInteractions;
+static int      c_vboWorldSurfaces;
+static int      c_vboLightSurfaces;
+static int      c_vboShadowSurfaces;
 
 //===============================================================================
 
@@ -3725,7 +3728,7 @@ static void R_KillRedundantInteractions(trRefLight_t * light)
 			continue;
 
 		// HACK: allow fancy alphatest shadows with shadow mapping
-		if(r_shadows->integer == 4 && surface->shader->alphaTest)
+		if(r_shadows->integer >= 4 && surface->shader->alphaTest)
 			continue;
 
 		for(iaCache2 = light->firstInteractionCache; iaCache2; iaCache2 = iaCache2->next)
@@ -3785,6 +3788,35 @@ static void R_KillRedundantInteractions(trRefLight_t * light)
 	}
 }
 
+
+/*
+=================
+R_CreateInteractionVBO
+=================
+*/
+static interactionVBO_t* R_CreateInteractionVBO(trRefLight_t * light)
+{
+	interactionVBO_t *iaVBO;
+
+	iaVBO = ri.Hunk_Alloc(sizeof(*iaVBO), h_low);
+
+	// connect to interaction grid
+	if(!light->firstInteractionVBO)
+	{
+		light->firstInteractionVBO = iaVBO;
+	}
+
+	if(light->lastInteractionVBO)
+	{
+		light->lastInteractionVBO->next = iaVBO;
+	}
+
+	light->lastInteractionVBO = iaVBO;
+	iaVBO->next = NULL;
+	
+	return iaVBO;
+}
+
 /*
 =================
 InteractionCacheCompare
@@ -3834,6 +3866,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 	int             indexesSize;
 	int             indexesOfs;
 
+	interactionVBO_t *iaVBO;
+
 	interactionCache_t *iaCache, *iaCache2;
 	interactionCache_t **iaCachesSorted;
 	int             numCaches;
@@ -3844,14 +3878,16 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 	vec4_t          tmp;
 	int             index;
 
-	static int      numLightSurfs = 0;
-	srfVBOLightMesh_t *lightSurf;
+	srfVBOMesh_t   *vboSurf;
 
 	if(!glConfig.vertexBufferObjectAvailable)
 		return;
 
 	if(!r_vboLighting->integer)
 		return;
+
+	//if(r_deferredShading->integer)
+	//	return;
 
 	if(!light->firstInteractionCache)
 	{
@@ -3959,10 +3995,10 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			//ri.Printf(PRINT_ALL, "...calculating light mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
 
 			// create surface
-			lightSurf = ri.Hunk_Alloc(sizeof(*lightSurf), h_low);
-			lightSurf->surfaceType = SF_VBO_LIGHT_MESH;
-			lightSurf->numIndexes = indexesNum;
-			lightSurf->numVerts = vertexesNum;
+			vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+			vboSurf->surfaceType = SF_VBO_MESH;
+			vboSurf->numIndexes = indexesNum;
+			vboSurf->numVerts = vertexesNum;
 
 			// create VBOs
 			dataSize = vertexesNum * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
@@ -3975,7 +4011,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			indexesOfs = 0;
 			indexesNum = 0;
 
-			ClearBounds(lightSurf->bounds[0], lightSurf->bounds[1]);
+			ClearBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
 
 			// build triangle indices
 			for(l = k; l < numCaches; l++)
@@ -4049,7 +4085,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
 
-							AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
+							AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
 						}
 
 						vertexesNum += cv->numVerts;
@@ -4073,7 +4109,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
 
-							AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
+							AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
 						}
 
 						vertexesNum += cv->numVerts;
@@ -4097,7 +4133,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 							dataOfs += sizeof(vec4_t);
 
-							AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
+							AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
 						}
 
 						vertexesNum += cv->numVerts;
@@ -4419,22 +4455,749 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 				}
 			}
 
-			lightSurf->vbo = R_CreateStaticVBO(va("staticLightMesh %i", numLightSurfs), data, dataSize, indexes, indexesSize);
-			lightSurf->vbo->ofsXYZ = 0;
-			lightSurf->vbo->ofsTexCoords = ofsTexCoords;
-			lightSurf->vbo->ofsTangents = ofsTangents;
-			lightSurf->vbo->ofsBinormals = ofsBinormals;
-			lightSurf->vbo->ofsNormals = ofsNormals;
-			lightSurf->vbo->ofsColors = ofsColors;
+			vboSurf->vbo =
+				R_CreateStaticVBO(va("staticLightMesh %i", c_vboLightSurfaces), data, dataSize, indexes, indexesSize);
+			vboSurf->vbo->ofsXYZ = 0;
+			vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+			vboSurf->vbo->ofsTangents = ofsTangents;
+			vboSurf->vbo->ofsBinormals = ofsBinormals;
+			vboSurf->vbo->ofsNormals = ofsNormals;
+			vboSurf->vbo->ofsColors = ofsColors;
 
 			ri.Hunk_FreeTempMemory(indexes);
 			ri.Hunk_FreeTempMemory(data);
 
-			// add everything needed to the current iaCache
-			iaCache->shader = (struct shader_s *)shader;
-			iaCache->vboLightMesh = (struct srfVBOLightMesh_s *)lightSurf;
+			// add everything needed to the light
+			iaVBO = R_CreateInteractionVBO(light);
+			iaVBO->shader = (struct shader_s *)shader;
+			iaVBO->vboLightMesh = (struct srfVBOMesh_s *)vboSurf;
 
-			numLightSurfs++;
+			c_vboLightSurfaces++;
+		}
+	}
+
+	ri.Hunk_FreeTempMemory(iaCachesSorted);
+#endif
+}
+
+/*
+===============
+R_CreateVBOShadowCubeMeshes
+===============
+*/
+static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
+{
+#if 1
+	int             i, j, k, l;
+
+	int             vertexesNum;
+	byte           *data;
+	int             dataSize;
+	int             dataOfs;
+
+	GLuint          ofsTexCoords;
+	GLuint          ofsTangents;
+	GLuint          ofsBinormals;
+	GLuint          ofsNormals;
+	GLuint          ofsColors;
+
+	int             indexesNum;
+	byte           *indexes;
+	int             indexesSize;
+	int             indexesOfs;
+
+	interactionVBO_t *iaVBO;
+
+	interactionCache_t *iaCache, *iaCache2;
+	interactionCache_t **iaCachesSorted;
+	int             numCaches;
+
+	shader_t       *shader, *oldShader;
+	qboolean        alphaTest, oldAlphaTest;
+	int             cubeSide;
+
+	bspSurface_t   *surface;
+	vec4_t          tmp;
+	int             index;
+
+	srfVBOMesh_t   *vboSurf;
+
+	if(!glConfig.vertexBufferObjectAvailable)
+		return;
+
+	if(!r_vboShadows->integer)
+		return;
+
+	if(r_shadows->integer < 4)
+		return;
+
+	if(!light->firstInteractionCache)
+	{
+		// this light has no interactions precached
+		return;
+	}
+
+	if(light->l.noShadows)
+		return;
+
+	if(light->l.rlType != RL_OMNI)
+		return;
+
+	// count number of interaction caches
+	numCaches = 0;
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		if(iaCache->redundant)
+			continue;
+
+		if(!iaCache->numLightIndexes)
+			continue;
+
+		surface = iaCache->surface;
+
+		if(!surface->shader->interactLight)
+			continue;
+
+		if(surface->shader->isSky)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		numCaches++;
+	}
+
+	// build interaction caches list
+	iaCachesSorted = ri.Hunk_AllocateTempMemory(numCaches * sizeof(iaCachesSorted[0]));
+
+	numCaches = 0;
+	for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	{
+		if(iaCache->redundant)
+			continue;
+
+		if(!iaCache->numLightIndexes)
+			continue;
+
+		surface = iaCache->surface;
+
+		if(!surface->shader->interactLight)
+			continue;
+
+		if(surface->shader->isSky)
+			continue;
+
+		if(surface->shader->noShadows)
+			continue;
+
+		if(surface->shader->sort > SS_OPAQUE)
+			continue;
+
+		iaCachesSorted[numCaches] = iaCache;
+		numCaches++;
+	}
+
+
+	// sort interaction caches by shader
+	qsort(iaCachesSorted, numCaches, sizeof(iaCachesSorted), InteractionCacheCompare);
+
+	// create a VBO for each shader
+	for(cubeSide = 0; cubeSide < 6; cubeSide++)
+	{
+		shader = oldShader = NULL;
+		oldAlphaTest = alphaTest = -1;
+
+		for(k = 0; k < numCaches; k++)
+		{
+			iaCache = iaCachesSorted[k];
+			shader = iaCache->surface->shader;
+			alphaTest = shader->alphaTest;
+
+			//if(!(iaCache->cubeSideBits & (1 << cubeSide)))
+			//  continue;
+
+			//if(shader != oldShader)
+			if(alphaTest != oldAlphaTest)
+			{
+				oldShader = shader;
+				oldAlphaTest = alphaTest;
+
+				// count vertices and indices
+				vertexesNum = 0;
+				indexesNum = 0;
+
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					indexesNum += iaCache2->numLightIndexes;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
+
+						if(face->numVerts)
+							vertexesNum += face->numVerts;
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
+
+						if(grid->numVerts)
+							vertexesNum += grid->numVerts;
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *tri = (srfTriangles_t *) surface->data;
+
+						if(tri->numVerts)
+							vertexesNum += tri->numVerts;
+					}
+				}
+
+				if(!vertexesNum || !indexesNum)
+					continue;
+
+				//ri.Printf(PRINT_ALL, "...calculating light mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
+
+				// create surface
+				vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+				vboSurf->surfaceType = SF_VBO_MESH;
+				vboSurf->numIndexes = indexesNum;
+				vboSurf->numVerts = vertexesNum;
+
+				// create VBOs
+				dataSize = vertexesNum * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
+				data = ri.Hunk_AllocateTempMemory(dataSize);
+				dataOfs = 0;
+				vertexesNum = 0;
+
+				indexesSize = indexesNum * sizeof(int);
+				indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+				indexesOfs = 0;
+				indexesNum = 0;
+
+				ClearBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
+
+				// build triangle indices
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					// set up triangle indices
+					for(i = 0; i < iaCache2->numLightIndexes; i++)
+					{
+						index = vertexesNum + iaCache2->lightIndexes[i];
+
+						memcpy(indexes + indexesOfs, &index, sizeof(int));
+						indexesOfs += sizeof(int);
+					}
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
+
+						if(face->numVerts)
+							vertexesNum += face->numVerts;
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
+
+						if(grid->numVerts)
+							vertexesNum += grid->numVerts;
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *tri = (srfTriangles_t *) surface->data;
+
+						if(tri->numVerts)
+							vertexesNum += tri->numVerts;
+					}
+
+					indexesNum += iaCache2->numLightIndexes;
+				}
+
+				// feed vertex XYZ
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							// set up xyz array
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].xyz[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+
+								AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
+							}
+
+							vertexesNum += cv->numVerts;
+						}
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							// set up xyz array
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].xyz[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+
+								AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
+							}
+
+							vertexesNum += cv->numVerts;
+						}
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							// set up xyz array
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].xyz[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+
+								AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
+							}
+
+							vertexesNum += cv->numVerts;
+						}
+					}
+				}
+
+				// feed vertex texcoords
+				ofsTexCoords = dataOfs;
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					 continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 2; j++)
+								{
+									tmp[j] = cv->verts[i].st[j];
+								}
+								tmp[2] = 0;
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 2; j++)
+								{
+									tmp[j] = cv->verts[i].st[j];
+								}
+								tmp[2] = 0;
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 2; j++)
+								{
+									tmp[j] = cv->verts[i].st[j];
+								}
+								tmp[2] = 0;
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+				}
+
+				// feed vertex tangents
+				ofsTangents = dataOfs;
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].tangent[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].tangent[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].tangent[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+				}
+
+				// feed vertex binormals
+				ofsBinormals = dataOfs;
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].binormal[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								tmp[j] = cv->verts[i].binormal[j];
+							}
+							tmp[3] = 1;
+
+							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							dataOfs += sizeof(vec4_t);
+						}
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								tmp[j] = cv->verts[i].binormal[j];
+							}
+							tmp[3] = 1;
+
+							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							dataOfs += sizeof(vec4_t);
+						}
+					}
+				}
+
+				// feed vertex normals
+				ofsNormals = dataOfs;
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									tmp[j] = cv->verts[i].normal[j];
+								}
+								tmp[3] = 1;
+
+								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+								dataOfs += sizeof(vec4_t);
+							}
+						}
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								tmp[j] = cv->verts[i].normal[j];
+							}
+							tmp[3] = 1;
+
+							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							dataOfs += sizeof(vec4_t);
+						}
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								tmp[j] = cv->verts[i].normal[j];
+							}
+							tmp[3] = 1;
+
+							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							dataOfs += sizeof(vec4_t);
+						}
+					}
+				}
+
+				// feed vertex colors
+				ofsColors = dataOfs;
+				for(l = k; l < numCaches; l++)
+				{
+					iaCache2 = iaCachesSorted[l];
+
+					surface = iaCache2->surface;
+
+					//if(surface->shader != shader)
+					//	continue;
+
+					if(surface->shader->alphaTest != alphaTest)
+					  continue;
+
+					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
+						continue;
+
+					if(*surface->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
+							dataOfs += sizeof(color4ub_t);
+						}
+					}
+					else if(*surface->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
+							dataOfs += sizeof(color4ub_t);
+						}
+					}
+					else if(*surface->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+
+						for(i = 0; i < cv->numVerts; i++)
+						{
+							memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
+							dataOfs += sizeof(color4ub_t);
+						}
+					}
+				}
+
+				vboSurf->vbo =
+					R_CreateStaticVBO(va("staticShadowPyramidMesh %i", c_vboShadowSurfaces), data, dataSize, indexes,
+									  indexesSize);
+				vboSurf->vbo->ofsXYZ = 0;
+				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+				vboSurf->vbo->ofsTangents = ofsTangents;
+				vboSurf->vbo->ofsBinormals = ofsBinormals;
+				vboSurf->vbo->ofsNormals = ofsNormals;
+				vboSurf->vbo->ofsColors = ofsColors;
+
+				ri.Hunk_FreeTempMemory(indexes);
+				ri.Hunk_FreeTempMemory(data);
+
+				// add everything needed to the light
+				iaVBO = R_CreateInteractionVBO(light);
+				iaVBO->cubeSideBits = (1 << cubeSide);
+				iaVBO->shader = (struct shader_s *)shader;
+				iaVBO->vboShadowMesh = (struct srfVBOMesh_s *)vboSurf;
+
+				c_vboShadowSurfaces++;
+			}
 		}
 	}
 
@@ -4465,21 +5228,24 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 	int             indexesSize;
 	int             indexesOfs;
 
+	interactionVBO_t *iaVBO;
 	interactionCache_t *iaCache;
 	bspSurface_t   *surface;
 	vec4_t          tmp;
 	int             index;
 
-	static int      numShadowSurfs = 0;
 	srfVBOShadowVolume_t *shadowSurf;
 
-	if(r_shadows->integer <= 2)
+	if(r_shadows->integer != 3)
 		return;
 
 	if(!glConfig.vertexBufferObjectAvailable)
 		return;
 
 	if(!r_vboShadows->integer)
+		return;
+
+	if(r_deferredShading->integer)
 		return;
 
 	if(!light->firstInteractionCache)
@@ -4695,19 +5461,20 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 		}
 	}
 
-	shadowSurf->vbo = R_CreateStaticVBO(va("staticShadowVolume %i", numShadowSurfs), data, dataSize, indexes, indexesSize);
+	shadowSurf->vbo = R_CreateStaticVBO(va("staticShadowVolume %i", c_vboShadowSurfaces), data, dataSize, indexes, indexesSize);
 
 	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
 
-	iaCache = light->firstInteractionCache;
-	iaCache->vboShadowVolume = (struct srfVBOShadowVolume_s *)shadowSurf;
+	// add everything needed to the light
+	iaVBO = R_CreateInteractionVBO(light);
+	iaVBO->vboShadowVolume = (struct srfVBOShadowVolume_s *)shadowSurf;
 
-	numShadowSurfs++;
+	c_vboShadowSurfaces++;
 #endif
 }
 
-static void CalcLightCubeSideBits(trRefLight_t * light)
+static void R_CalcInteractionCubeSideBits(trRefLight_t * light)
 {
 	interactionCache_t *iaCache;
 	bspSurface_t   *surface;
@@ -4731,30 +5498,30 @@ static void CalcLightCubeSideBits(trRefLight_t * light)
 	if(light->l.rlType != RL_OMNI)
 		return;
 
-	if(glConfig.vertexBufferObjectAvailable && r_vboLighting->integer)
-	{
-		srfVBOLightMesh_t *srf;
-		shader_t       *shader;
+	/*
+	   if(glConfig.vertexBufferObjectAvailable && r_vboLighting->integer)
+	   {
+	   srfVBOLightMesh_t *srf;
 
-		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
-		{
-			if(iaCache->redundant)
-				continue;
+	   for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
+	   {
+	   if(iaCache->redundant)
+	   continue;
 
-			if(!iaCache->vboLightMesh)
-				continue;
+	   if(!iaCache->vboLightMesh)
+	   continue;
 
-			srf = iaCache->vboLightMesh;
-			shader = iaCache->shader;
+	   srf = iaCache->vboLightMesh;
 
-			VectorCopy(srf->bounds[0], localBounds[0]);
-			VectorCopy(srf->bounds[1], localBounds[1]);
+	   VectorCopy(srf->bounds[0], localBounds[0]);
+	   VectorCopy(srf->bounds[1], localBounds[1]);
 
-			light->shadowLOD = 0;	// important for R_CalcLightCubeSideBits
-			iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, localBounds);
-		}
-	}
-	else
+	   light->shadowLOD = 0;    // important for R_CalcLightCubeSideBits
+	   iaCache->cubeSideBits = R_CalcLightCubeSideBits(light, localBounds);
+	   }
+	   }
+	   else
+	 */
 	{
 		for(iaCache = light->firstInteractionCache; iaCache; iaCache = iaCache->next)
 		{
@@ -4817,6 +5584,10 @@ void R_PrecacheInteractions()
 	Com_InitGrowList(&s_interactions, 100);
 
 	c_redundantInteractions = 0;
+	c_vboWorldSurfaces = 0;
+	c_vboLightSurfaces = 0;
+	c_vboShadowSurfaces = 0;
+
 	ri.Printf(PRINT_ALL, "...precaching %i lights\n", s_worldData.numLights);
 
 	for(i = 0; i < s_worldData.numLights; i++)
@@ -4856,6 +5627,8 @@ void R_PrecacheInteractions()
 		light->firstInteractionCache = NULL;
 		light->lastInteractionCache = NULL;
 
+		light->firstInteractionVBO = NULL;
+		light->lastInteractionVBO = NULL;
 
 		// perform culling and add all the potentially visible surfaces
 		s_lightCount++;
@@ -4886,12 +5659,14 @@ void R_PrecacheInteractions()
 		// create a static VBO surface for each light geometry batch
 		R_CreateVBOLightMeshes(light);
 
+		// calculate pyramid bits for each interaction in omni-directional lights
+		R_CalcInteractionCubeSideBits(light);
+
+		// create a static VBO surface for each light geometry batch inside a cubemap pyramid
+		R_CreateVBOShadowCubeMeshes(light);
+
 		// create a static VBO surface of all shadow volumes
 		R_CreateVBOShadowVolume(light);
-
-		// calculate pyramid bits for each interaction in omni-directional lights
-		CalcLightCubeSideBits(light);
-
 	}
 
 	// move interactions grow list to hunk
@@ -4909,7 +5684,7 @@ void R_PrecacheInteractions()
 	ri.Printf(PRINT_ALL, "%i interactions precached\n", s_worldData.numInteractions);
 	ri.Printf(PRINT_ALL, "%i interactions were hidden in shadows\n", c_redundantInteractions);
 
-	if(r_shadows->integer == 4)
+	if(r_shadows->integer >= 4)
 	{
 		// only interesting for omni-directional shadow mapping
 		ri.Printf(PRINT_ALL, "%i omni pyramid tests\n", tr.pc.c_pyramidTests);

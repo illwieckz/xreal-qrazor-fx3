@@ -2096,31 +2096,6 @@ static void Tess_SurfaceVBOMesh(srfVBOMesh_t * srf, int numLightIndexes, int *li
 
 /*
 ==============
-Tess_SurfaceVBOLightMesh
-==============
-*/
-static void Tess_SurfaceVBOLightMesh(srfVBOLightMesh_t * srf, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
-									 int *shadowIndexes)
-{
-	GLimp_LogComment("--- Tess_SurfaceVBOLightMesh ---\n");
-
-	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo)
-	{
-		return;
-	}
-
-	Tess_EndBegin();
-
-	R_BindVBO(srf->vbo);
-
-	tess.numIndexes += srf->numIndexes;
-	tess.numVertexes += srf->numVerts;
-
-	Tess_End();
-}
-
-/*
-==============
 Tess_SurfaceVBOShadowVolume
 ==============
 */
@@ -2164,6 +2139,5 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIn
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceEntity,	// SF_ENTITY
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceDisplayList,	// SF_DISPLAY_LIST
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOMesh,	// SF_VBO_LIGHT_MESH
-		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOLightMesh,	// SF_VBO_LIGHT_MESH
 		(void (*)(void *, int, int *, int, int *))Tess_SurfaceVBOShadowVolume	// SF_VBO_SHADOW_VOLUME
 };

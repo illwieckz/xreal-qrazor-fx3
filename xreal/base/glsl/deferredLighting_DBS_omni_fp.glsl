@@ -66,7 +66,7 @@ void	main()
 	
 	// compute the specular term
 	vec4 S = texture2D(u_SpecularMap, st);
-	vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a);
+	vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a) * r_SpecularScale;
 	
 	// compute attenuation
 	vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0)).xyz;
@@ -97,7 +97,6 @@ void	main()
 		float Ex_2 = shadowDistances.r * shadowDistances.r;
 	
 		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		const float	VSM_EPSILON = 0.0001;
 		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
 	
 		float mD = shadowDistances.r - vertexDistance;

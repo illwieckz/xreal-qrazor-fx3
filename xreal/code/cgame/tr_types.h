@@ -238,7 +238,8 @@ typedef enum
 typedef enum
 {
 	GLHW_GENERIC,				// where everthing works the way it should
-	GLHW_ATI					// where you don't have proper GLSL support
+	GLHW_ATI,					// where you don't have proper GLSL support
+	GLHW_G80,					// Geforce 8 class DX10 hardware
 } glHardwareType_t;
 
 typedef struct

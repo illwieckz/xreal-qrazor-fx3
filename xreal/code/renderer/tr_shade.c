@@ -115,13 +115,22 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI\n#endif\n");
 		}
 
-		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer == 4)
+		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer >= 4)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 
+			if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
+			}
+			else
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
+			}
+
 			if(r_debugShadowMaps->integer)
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef DEBUG_VSM\n#define DEBUG_VSM 1\n#endif\n");
+				Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
 			}
 		}
 
@@ -504,8 +513,11 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_AttenuationMapXY");
 	tr.forwardLightingShader_DBS_omni.u_AttenuationMapZ =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_AttenuationMapZ");
-	tr.forwardLightingShader_DBS_omni.u_ShadowMap =
-		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowMap");
+	if(r_shadows->integer >= 4)
+	{
+		tr.forwardLightingShader_DBS_omni.u_ShadowMap =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowMap");
+	}
 	tr.forwardLightingShader_DBS_omni.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ViewOrigin");
 	tr.forwardLightingShader_DBS_omni.u_InverseVertexColor =
@@ -531,7 +543,10 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_SpecularMap, 2);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_AttenuationMapZ, 4);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowMap, 5);
+	if(r_shadows->integer >= 4)
+	{
+		qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowMap, 5);
+	}
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.forwardLightingShader_DBS_omni.program);
@@ -552,8 +567,11 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_AttenuationMapXY");
 	tr.forwardLightingShader_DBS_proj.u_AttenuationMapZ =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_AttenuationMapZ");
-	tr.forwardLightingShader_DBS_proj.u_ShadowMap =
-		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowMap");
+	if(r_shadows->integer >= 4)
+	{
+		tr.forwardLightingShader_DBS_proj.u_ShadowMap =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowMap");
+	}
 	tr.forwardLightingShader_DBS_proj.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ViewOrigin");
 	tr.forwardLightingShader_DBS_proj.u_InverseVertexColor =
@@ -579,7 +597,10 @@ void GLSL_InitGPUShaders(void)
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_SpecularMap, 2);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_AttenuationMapXY, 3);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_AttenuationMapZ, 4);
-	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowMap, 5);
+	if(r_shadows->integer >= 4)
+	{
+		qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowMap, 5);
+	}
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.forwardLightingShader_DBS_proj.program);
@@ -1591,7 +1612,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
 	// bind u_ShadowMap
-	if(r_shadows->integer == 4)
+	if(r_shadows->integer >= 4)
 	{
 		GL_SelectTexture(5);
 		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
@@ -1695,7 +1716,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_ShadowMap
-	if(r_shadows->integer == 4)
+	if(r_shadows->integer >= 4)
 	{
 		GL_SelectTexture(5);
 		GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);

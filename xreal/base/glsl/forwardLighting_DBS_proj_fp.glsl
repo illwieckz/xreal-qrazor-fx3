@@ -111,7 +111,6 @@ void	main()
 		float Ex_2 = shadowDistances.r * shadowDistances.r;
 	
 		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		const float	VSM_EPSILON = 0.0001;
 		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
 	
 		float mD = shadowDistances.r - vertexDistance;

@@ -240,6 +240,29 @@ qhandle_t RE_RegisterModel(const char *name)
 
 /*
 =================
+MDXSurfaceCompare
+compare function for qsort()
+=================
+*/
+static int MDXSurfaceCompare(const void *a, const void *b)
+{
+	mdxSurface_t   *aa, *bb;
+
+	aa = *(mdxSurface_t **) a;
+	bb = *(mdxSurface_t **) b;
+
+	// shader first
+	if(&aa->shaders[0] < &bb->shaders[0])
+		return -1;
+
+	else if(&aa->shaders[0] > &bb->shaders[0])
+		return 1;
+
+	return 0;
+}
+
+/*
+=================
 R_LoadMD3
 =================
 */
@@ -258,8 +281,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 	mdxModel_t     *mdxModel;
 	mdxFrame_t     *frame;
-	mdxSurface_t   *surf;
-	mdxShader_t    *shader;
+	mdxSurface_t   *surf, *surf2;
+	mdxShader_t    *shader, *oldShader;
 	srfTriangle_t  *tri;
 	mdxVertex_t    *v;
 	mdxSt_t        *st;
@@ -445,34 +468,44 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		surf++;
 	}
 
-#if 0
+#if 1
 	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && mdxModel->numFrames == 1)
 	{
+		int             numSurfaces;
 		mdxSurface_t  **surfacesSorted;
 
 		ri.Printf(PRINT_ALL, "...trying to calculate VBOs for model '%s'\n", modName);
 
-		// build surfaces list
-		surfacesSorted = ri.Hunk_AllocateTempMemory(mdxModel->numSurfaces * sizeof(surfacesSorted[0]));
-
+		// count number of surfaces that we want to merge
+		numSurfaces = 0;
 		for(i = 0, surf = mdxModel->surfaces; i < mdxModel->numSurfaces; i++, surf++)
+		{
+			// TODO ignore deformVertexes
+			numSurfaces++;
+		}
+
+		// build surfaces list
+		surfacesSorted = ri.Hunk_AllocateTempMemory(numSurfaces * sizeof(surfacesSorted[0]));
+
+		for(i = 0, surf = mdxModel->surfaces; i < numSurfaces; i++, surf++)
 		{
 			surfacesSorted[i] = surf;
 		}
 
 		// sort interaction caches by shader
-		//qsort(surfacesSorted, md3Model->numSurfaces, sizeof(surfacesSorted), MDXSurfaceCompare);
+		qsort(surfacesSorted, numSurfaces, sizeof(surfacesSorted), MDXSurfaceCompare);
 
 		// create a VBO for each shader
 		shader = oldShader = NULL;
 
-		TODO
-#if 0
-			for(k = 0; k < numCaches; k++)
-		{
-			iaCache = iaCachesSorted[k];
+		// TODO
 
-			shader = iaCache->surface->shader;
+#if 0
+		for(k = 0; k < numSurfaces; k++)
+		{
+			surf = surfacesSorted[k];
+
+			shader = surf->shader;
 
 			if(shader != oldShader)
 			{
