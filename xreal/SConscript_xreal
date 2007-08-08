@@ -200,8 +200,9 @@ unix_src = [
 ]
 
 linux_src = [
-'code/unix/linux_glimp.c',
-'code/unix/linux_joystick.c',
+#'code/unix/linux_glimp.c',
+#'code/unix/linux_joystick.c',
+'code/unix/sdl_glimp.c',
 'code/unix/linux_signals.c'
 ]
 
@@ -246,8 +247,10 @@ if env['openal'] == 1:
 	xreal_env.Append(LIBS=['openal'])
 
 if env['arch'] == 'linux-i386':
-	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
-	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
+	#xreal_env.Append(LIBPATH='/usr/X11R6/lib')
+	#xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
+	xreal_env.Append(CCFLAGS = '-DUSE_SDL')
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['dl', 'm'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	
@@ -270,14 +273,15 @@ if env['arch'] == 'linux-i386':
 		xreal_env.Append(LIBS=['asound'])
 		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
 	else:
-		xreal_env.ParseConfig('sdl-config --cflags --libs')
 		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86')
 
 elif env['arch'] == 'linux-x86_64':
-	xreal_env.Append(LIBPATH='/usr/X11R6/lib')
-	xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
+	#xreal_env.Append(LIBPATH='/usr/X11R6/lib')
+	#xreal_env.Append(LIBS=['X11', 'Xext', 'Xxf86dga', 'Xxf86vm'])
+	xreal_env.Append(CCFLAGS = '-DUSE_SDL')
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['dl', 'm'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	
@@ -300,29 +304,9 @@ elif env['arch'] == 'linux-x86_64':
 		xreal_env.Append(LIBS=['asound'])
 		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
 	else:
-		xreal_env.ParseConfig('sdl-config --cflags --libs')
 		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86_64')
-
-elif env['arch'] == 'sdl':
-	xreal_env.Append(LIBS=['dl', 'm'])
-	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	
-	if env['freetype'] == 1:
-		xreal_env.ParseConfig('freetype-config --cflags --libs')
-		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-	
-	xreal_env.Append(CCFLAGS='-DDLL_ONLY')
-		
-	if env['smp'] == 1:
-		xreal_env.Append(CCFLAGS='-DSMP')
-		xreal_env.Append(LIBS=['pthread'])
-	
-	xreal_env.ParseConfig('sdl-config --cflags --libs')
-	xreal_env.Program('xreal_sdl', [xreal_src, unix_src, sdl_src, vm_src])
-		
-	xreal_env.Install('#', 'xreal_sdl')
 
 elif env['arch'] == 'macosx':
 	xreal_env.Append(LIBS=['dl', 'm'])
