@@ -777,11 +777,11 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 	assert(name);
 
 	getcwd(curpath, sizeof(curpath));
-#if USE_SDL
-	snprintf(fname, sizeof(fname), "%s" DLL_EXT, name);
-#else
+//#if USE_SDL
+//	snprintf(fname, sizeof(fname), "%s" DLL_EXT, name);
+//#else
 	snprintf(fname, sizeof(fname), "%s" ARCH_STRING DLL_EXT, name);
-#endif
+//#endif
 
 	// TODO: use fs_searchpaths from files.c
 	pwdpath = Sys_Cwd();
