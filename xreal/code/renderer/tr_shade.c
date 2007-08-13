@@ -119,7 +119,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 			
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
+			if(glConfig.hardwareType == GLHW_ATI)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
+			}
 
 			if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 			{
@@ -543,6 +546,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_LightScale");
 	tr.forwardLightingShader_DBS_omni.u_ShadowCompare =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowCompare");
+	tr.forwardLightingShader_DBS_omni.u_ShadowTexelSize =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowTexelSize");
 	tr.forwardLightingShader_DBS_omni.u_SpecularExponent =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_SpecularExponent");
 	tr.forwardLightingShader_DBS_omni.u_ModelMatrix =
@@ -1541,6 +1546,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
+	float           shadowTexelSize;
 	float           specularExponent;
 
 	GLimp_LogComment("--- Render_forwardLighting_DBS_omni ---\n");
@@ -1564,7 +1570,9 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
 	VectorCopy(light->origin, lightOrigin);
 	VectorCopy(tess.svars.color, lightColor);
+	shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
 	specularExponent = RB_EvalExpression(&diffuseStage->specularExponentExp, r_specularExponent->value);
+
 
 	qglUniform3fARB(tr.forwardLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_InverseVertexColor, diffuseStage->inverseVertexColor);
@@ -1573,6 +1581,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowCompare, !light->l.noShadows);
+	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_ShadowTexelSize, shadowTexelSize);
 	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_SpecularExponent, specularExponent);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 

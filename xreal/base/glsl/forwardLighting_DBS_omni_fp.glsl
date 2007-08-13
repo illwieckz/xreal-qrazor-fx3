@@ -34,6 +34,7 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform int			u_ShadowCompare;
+uniform float       u_ShadowTexelSize;
 uniform float		u_SpecularExponent;
 
 varying vec3		var_Vertex;
@@ -50,83 +51,87 @@ void	main()
 	float shadow = 1.0;
 
 #if defined(VSM)
-	// compute incident ray
-	vec3 I0 = var_Vertex - u_LightOrigin;
+	if(bool(u_ShadowCompare))
+	{
+		// compute incident ray
+		vec3 I0 = var_Vertex - u_LightOrigin;
 	
-#if defined(PCF_2X2)
-	// 2x2 PCF
-	float offsetScale = 0.5;
+		#if defined(PCF_2X2)
+		// 2x2 PCF
+		float offsetScale = u_ShadowTexelSize;
 	
-	vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
-	vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
-    vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
+		vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
+		vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
+		vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
+		
+		vec4 shadowMap = textureCube(u_ShadowMap, I0);
+		shadowMap += textureCube(u_ShadowMap, I1);
+		shadowMap += textureCube(u_ShadowMap, I2);
+		shadowMap += textureCube(u_ShadowMap, I3);
+		shadowMap *= 0.25;
 	
-	vec4 shadowMap = textureCube(u_ShadowMap, I0);
-	shadowMap += textureCube(u_ShadowMap, I1);
-	shadowMap += textureCube(u_ShadowMap, I2);
-	shadowMap += textureCube(u_ShadowMap, I3);
-	shadowMap *= 0.25;
+		#elif defined(PCF_3X3)
+		// 3x3 PCF
+		float offsetScale = 0.3; //u_ShadowTexelSize * 100;
 	
-#elif defined(PCF_3X3)
-	// 3x3 PCF
-	float offsetScale = 0.75;
-	vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
-	vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
-    vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
-	vec3 I4 = I0 + I1;
-	vec3 I5 = I0 + I2;
-	vec3 I6 = I0 + I3;
-	vec3 I7 = I1 + I2;
-	vec3 I8 = I2 + I3;
-	
-	vec4 shadowMap = textureCube(u_ShadowMap, I0);
-	shadowMap += textureCube(u_ShadowMap, I1);
-	shadowMap += textureCube(u_ShadowMap, I2);
-	shadowMap += textureCube(u_ShadowMap, I3);
-	shadowMap += textureCube(u_ShadowMap, I4);
-	shadowMap += textureCube(u_ShadowMap, I5);
-	shadowMap += textureCube(u_ShadowMap, I6);
-	shadowMap += textureCube(u_ShadowMap, I7);
-	shadowMap += textureCube(u_ShadowMap, I8);
-	shadowMap *= 0.11111111;
-#else
-	vec4 shadowMap = textureCube(u_ShadowMap, I0);
-#endif
+		vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
+		vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
+		vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
+		vec3 I4 = I0 + I1;
+		vec3 I5 = I0 + I2;
+		vec3 I6 = I0 + I3;
+		vec3 I7 = I1 + I2;
+		vec3 I8 = I2 + I3;
+		
+		vec4 shadowMap = textureCube(u_ShadowMap, I0);
+		shadowMap += textureCube(u_ShadowMap, I1);
+		shadowMap += textureCube(u_ShadowMap, I2);
+		shadowMap += textureCube(u_ShadowMap, I3);
+		shadowMap += textureCube(u_ShadowMap, I4);
+		shadowMap += textureCube(u_ShadowMap, I5);
+		shadowMap += textureCube(u_ShadowMap, I6);
+		shadowMap += textureCube(u_ShadowMap, I7);
+		shadowMap += textureCube(u_ShadowMap, I8);
+		shadowMap *= 0.11111111;
+		#else
+		vec4 shadowMap = textureCube(u_ShadowMap, I0);
+		#endif
 
-	const float	SHADOW_BIAS = 0.001;
-	float vertexDistance = length(I0) / u_LightRadius - SHADOW_BIAS;
+		const float	SHADOW_BIAS = 0.0;//01;
+		float vertexDistance = length(I0) / u_LightRadius - SHADOW_BIAS;
 	
-#if defined(VSM_CLAMP)
-	// convert to [-1, 1] vector space
-	shadowMap = 2.0 * (shadowMap - 0.5);
-#endif
+		#if defined(VSM_CLAMP)
+		// convert to [-1, 1] vector space
+		shadowMap = 2.0 * (shadowMap - 0.5);
+		#endif
 	
-	float shadowDistance = shadowMap.r;
-	float shadowDistanceSquared = shadowMap.g;
+		float shadowDistance = shadowMap.r;
+		float shadowDistanceSquared = shadowMap.g;
 	
-	// standard shadow map comparison
-	shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+		// standard shadow map comparison
+		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 	
-	// variance shadow mapping
-	float E_x2 = shadowDistanceSquared;
-	float Ex_2 = shadowDistance * shadowDistance;
+		// variance shadow mapping
+		float E_x2 = shadowDistanceSquared;
+		float Ex_2 = shadowDistance * shadowDistance;
 	
-	// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-	float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
 	
-	float mD = shadowDistance - vertexDistance;
-	float mD_2 = mD * mD;
-	float p = variance / (variance + mD_2);
+		float mD = shadowDistance - vertexDistance;
+		float mD_2 = mD * mD;
+		float p = variance / (variance + mD_2);
 	
-	#if defined(DEBUG_VSM)
-	gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
-	gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
-	gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
-	gl_FragColor.a = 1.0;
-	return;
-	#else
-	shadow = max(shadow, p);
-	#endif
+		#if defined(DEBUG_VSM)
+		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
+		gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
+		gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
+		#else
+		shadow = max(shadow, p);
+		#endif
+	}
 	
 	if(shadow <= 0.0)
 	{
