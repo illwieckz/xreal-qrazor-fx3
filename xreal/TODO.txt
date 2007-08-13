@@ -185,6 +185,10 @@ code/game
  - improve vector class
  - allow more existing level entities to be script-controlled
 
+code/q3_ui
+- add cg_shadows list option
+- add texture compression option
+
 code/renderer
 - add dynamic LOD support for md3 and md5 models
 - use static VBOs for md3 models that only have 1 frame -> killer optimization

@@ -944,7 +944,6 @@ R_AddPrecachedWorldInteractions
 */
 void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 {
-	int               cubeSide;
 	interactionType_t iaType = IA_DEFAULT;
 
 	if(!r_drawworld->integer)

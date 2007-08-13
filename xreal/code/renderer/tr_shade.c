@@ -118,6 +118,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer >= 4)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
+			
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
 
 			if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 			{
@@ -131,6 +133,15 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			if(r_debugShadowMaps->integer)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
+			}
+
+			if(r_softShadows->integer == 1)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_2X2\n#define PCF_2X2 1\n#endif\n");
+			}
+			else if(r_softShadows->integer == 2)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_3X3\n#define PCF_3X3 1\n#endif\n");
 			}
 		}
 
@@ -2200,7 +2211,6 @@ static void Render_heatHaze(int stage)
 
 static void Render_bloom(int stage)
 {
-	float           blurMagnitude;
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
@@ -2210,8 +2220,6 @@ static void Render_bloom(int stage)
 	GL_State(pStage->stateBits);
 
 	// calc uniforms
-	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
-
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 
@@ -2248,7 +2256,7 @@ static void Render_bloom(int stage)
 	GL_ClientState(tr.bloomShader.attribs);
 	GL_SetVertexAttribs();
 
-	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -2263,7 +2271,6 @@ static void Render_bloom(int stage)
 
 static void Render_bloom2(int stage)
 {
-	float           blurMagnitude;
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
@@ -2273,8 +2280,6 @@ static void Render_bloom2(int stage)
 	GL_State(pStage->stateBits);
 
 	// calc uniforms
-	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
-
 	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 
@@ -2311,6 +2316,7 @@ static void Render_bloom2(int stage)
 	GL_ClientState(tr.blurXShader.attribs);
 	GL_SetVertexAttribs();
 
+	qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
 	qglUniform2fARB(tr.blurXShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.blurXShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -2324,6 +2330,7 @@ static void Render_bloom2(int stage)
 	GL_ClientState(tr.blurYShader.attribs);
 	GL_SetVertexAttribs();
 
+	qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
 	qglUniform2fARB(tr.blurYShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.blurYShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -2337,7 +2344,7 @@ static void Render_bloom2(int stage)
 	GL_ClientState(tr.bloomShader.attribs);
 	GL_SetVertexAttribs();
 
-	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, blurMagnitude);
+	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
 	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 

@@ -36,7 +36,8 @@ void	main()
 	st00 *= u_NPOTScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
+	//vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
+	vec2 deform = u_BlurMagnitude * u_FBufScale;
 	
 	// these are the multipliers for the gaussian blur
 	float mu01 = 0.00261097;

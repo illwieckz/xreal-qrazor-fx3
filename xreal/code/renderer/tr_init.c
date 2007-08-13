@@ -105,6 +105,7 @@ cvar_t         *r_drawBuffer;
 cvar_t         *r_glDriver;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
+cvar_t         *r_softShadows;
 cvar_t         *r_shadowMapSizeHigh;
 cvar_t         *r_shadowMapSizeMedium;
 cvar_t         *r_shadowMapSizeLow;
@@ -205,6 +206,9 @@ cvar_t         *r_precacheShadowIndexes;
 cvar_t         *r_deferredShading;
 cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
+
+cvar_t         *r_bloomIntensity;
+cvar_t         *r_bloomBlur;
 
 
 // GL_ARB_multitexture
@@ -1445,6 +1449,9 @@ void R_Register(void)
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
+	r_bloomIntensity = ri.Cvar_Get("r_bloomIntensity", "1", CVAR_ARCHIVE);
+	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "2", CVAR_ARCHIVE);
+
 	// temporary variables that can change at any time
 	r_showImages = ri.Cvar_Get("r_showImages", "0", CVAR_TEMP);
 
@@ -1493,6 +1500,9 @@ void R_Register(void)
 	
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadows, 0, 5, qtrue);
+
+	r_softShadows = ri.Cvar_Get("r_softShadows", "2", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_softShadows, 0, 2, qtrue);
 
 	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeHigh, 32, 1024, qtrue);

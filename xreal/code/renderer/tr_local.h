@@ -996,10 +996,6 @@ typedef struct interactionCache_s
 	byte            cubeSideBits;
 	qboolean        redundant;
 
-	//struct srfVBOMesh_s *vboLightMesh;
-	//struct srfVBOLightMesh_s *vboShadowCubeMeshes[6];
-	//struct srfVBOShadowVolume_s *vboShadowVolume;	// only if cg_shadows 3
-
 	struct interactionCache_s *next;
 } interactionCache_t;
 
@@ -1948,6 +1944,7 @@ extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black p
 
 								// 3 = stencil shadow volumes
 								// 4 = shadow mapping
+extern cvar_t  *r_softShadows;
 extern cvar_t  *r_shadowMapSizeHigh;
 extern cvar_t  *r_shadowMapSizeMedium;
 extern cvar_t  *r_shadowMapSizeLow;
@@ -2024,6 +2021,8 @@ extern cvar_t  *r_deferredShading;
 extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
+extern cvar_t  *r_bloomIntensity;
+extern cvar_t  *r_bloomBlur;
 
 //====================================================================
 

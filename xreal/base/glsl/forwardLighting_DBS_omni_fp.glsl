@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -44,84 +44,136 @@ varying vec3		var_TexAttenXYZ;
 varying mat3		var_TangentToWorldMatrix;
 //varying vec4		var_Color;
 
+
 void	main()
 {
-	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - var_Vertex);
-	
-	// compute light direction in world space
-	vec3 L = normalize(u_LightOrigin - var_Vertex);
-	
-	// compute half angle in world space
-	vec3 H = normalize(L + V);
-	
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
-	N.z *= r_NormalScale;
-	normalize(N);
-	
-	// transform normal into world space
-	N = var_TangentToWorldMatrix * N;
-	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
-	diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-	
-	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent) * r_SpecularScale;
-	
-	// compute attenuation
-	vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
-	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
-					
-	// compute final color
-	vec4 color = diffuse;
-	color.rgb += specular;
-	color.rgb *= attenuationXY;
-	color.rgb *= attenuationZ;
-	color.rgb *= u_LightScale;
-	
-	color.r *= var_TexDiffuse.p;
-	color.gb *= var_TexNormal.pq;
-	
-#if defined(VSM)
-	if(bool(u_ShadowCompare))
-	{
-		// compute incident ray
-		vec3 I = var_Vertex - u_LightOrigin;
+	float shadow = 1.0;
 
-		const float	SHADOW_BIAS = 0.001;
-		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
-		
-		vec4 shadowMap = textureCube(u_ShadowMap, I);
-		float shadowDistance = shadowMap.r;
-		float shadowDistanceSquared = shadowMap.g;
+#if defined(VSM)
+	// compute incident ray
+	vec3 I0 = var_Vertex - u_LightOrigin;
 	
-		// standard shadow map comparison
-		float shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+#if defined(PCF_2X2)
+	// 2x2 PCF
+	float offsetScale = 0.5;
 	
-		// variance shadow mapping
-		float E_x2 = shadowDistanceSquared;
-		float Ex_2 = shadowDistance * shadowDistance;
+	vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
+	vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
+    vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
 	
-		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+	vec4 shadowMap = textureCube(u_ShadowMap, I0);
+	shadowMap += textureCube(u_ShadowMap, I1);
+	shadowMap += textureCube(u_ShadowMap, I2);
+	shadowMap += textureCube(u_ShadowMap, I3);
+	shadowMap *= 0.25;
 	
-		float mD = shadowDistance - vertexDistance;
-		float mD_2 = mD * mD;
-		float p = variance / (variance + mD_2);
+#elif defined(PCF_3X3)
+	// 3x3 PCF
+	float offsetScale = 0.75;
+	vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
+	vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
+    vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
+	vec3 I4 = I0 + I1;
+	vec3 I5 = I0 + I2;
+	vec3 I6 = I0 + I3;
+	vec3 I7 = I1 + I2;
+	vec3 I8 = I2 + I3;
 	
-		#if defined(DEBUG_VSM)
-		color.r = DEBUG_VSM & 1 ? variance : 0.0;
-		color.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
-		color.b = DEBUG_VSM & 4 ? p : 0.0;
-		color.a = 1.0;
-		#else
-		color.rgb *= max(shadow, p);
-		//color.rgb *= shadow;
-		#endif
-	}
+	vec4 shadowMap = textureCube(u_ShadowMap, I0);
+	shadowMap += textureCube(u_ShadowMap, I1);
+	shadowMap += textureCube(u_ShadowMap, I2);
+	shadowMap += textureCube(u_ShadowMap, I3);
+	shadowMap += textureCube(u_ShadowMap, I4);
+	shadowMap += textureCube(u_ShadowMap, I5);
+	shadowMap += textureCube(u_ShadowMap, I6);
+	shadowMap += textureCube(u_ShadowMap, I7);
+	shadowMap += textureCube(u_ShadowMap, I8);
+	shadowMap *= 0.11111111;
+#else
+	vec4 shadowMap = textureCube(u_ShadowMap, I0);
 #endif
 
-	gl_FragColor = color;
+	const float	SHADOW_BIAS = 0.001;
+	float vertexDistance = length(I0) / u_LightRadius - SHADOW_BIAS;
+	
+#if defined(VSM_CLAMP)
+	// convert to [-1, 1] vector space
+	shadowMap = 2.0 * (shadowMap - 0.5);
+#endif
+	
+	float shadowDistance = shadowMap.r;
+	float shadowDistanceSquared = shadowMap.g;
+	
+	// standard shadow map comparison
+	shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+	
+	// variance shadow mapping
+	float E_x2 = shadowDistanceSquared;
+	float Ex_2 = shadowDistance * shadowDistance;
+	
+	// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+	float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+	
+	float mD = shadowDistance - vertexDistance;
+	float mD_2 = mD * mD;
+	float p = variance / (variance + mD_2);
+	
+	#if defined(DEBUG_VSM)
+	gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
+	gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
+	gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
+	gl_FragColor.a = 1.0;
+	return;
+	#else
+	shadow = max(shadow, p);
+	#endif
+	
+	if(shadow <= 0.0)
+	{
+		discard;
+	}
+	else
+#endif
+	{
+		// compute view direction in world space
+		vec3 V = normalize(u_ViewOrigin - var_Vertex);
+	
+		// compute light direction in world space
+		vec3 L = normalize(u_LightOrigin - var_Vertex);
+	
+		// compute half angle in world space
+		vec3 H = normalize(L + V);
+	
+		// compute normal in tangent space from normalmap
+		vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+		N.z *= r_NormalScale;
+		normalize(N);
+	
+		// transform normal into world space
+		N = var_TangentToWorldMatrix * N;
+	
+		// compute the diffuse term
+		vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
+		diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+	
+		// compute the specular term
+		vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent) * r_SpecularScale;
+	
+		// compute attenuation
+		vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
+		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
+					
+		// compute final color
+		vec4 color = diffuse;
+		color.rgb += specular;
+		color.rgb *= attenuationXY;
+		color.rgb *= attenuationZ;
+		color.rgb *= u_LightScale;
+		color.rgb *= shadow;
+	
+		color.r *= var_TexDiffuse.p;
+		color.gb *= var_TexNormal.pq;
+
+		gl_FragColor = color;
+	}
 }

@@ -129,9 +129,6 @@ R_InitVBOs
 */
 void R_InitVBOs(void)
 {
-	int             i;
-	int             width, height;
-
 	if(!glConfig.vertexBufferObjectAvailable)
 		return;
 

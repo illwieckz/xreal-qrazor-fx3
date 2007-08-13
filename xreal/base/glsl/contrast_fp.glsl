@@ -41,6 +41,7 @@ void	main()
 	contrast.x += contrast.y;
 	contrast.x += contrast.z;
 	contrast.x *= 0.33333333;
+	contrast *= 0.5;
 	gl_FragColor = contrast;
 #else
 	vec4 color = texture2D(u_ColorMap, st00);

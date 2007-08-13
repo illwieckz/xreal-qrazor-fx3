@@ -37,7 +37,8 @@ void	main()
 	st00 *= u_NPOTScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
+	//vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
+	vec2 deform = u_BlurMagnitude * u_FBufScale;
 	
 	// fragment offsets for blur samples
 	vec2 offset01 = vec2( 0.0, -1.0);
@@ -60,7 +61,7 @@ void	main()
 	vec2 st08 = st00 + offset08 * deform;
 	
 	// cap the coordinates to the edge of the texture
-//	st01 = clamp(st01, 0.0, 1.0) * u_NPOTScale;
+	st01 = clamp(st01, 0.0, 1.0);// * u_NPOTScale;
 //	st02 = min(st02, u_NPOTScale);
 //	st03 = min(st03, u_NPOTScale);
 //	st04 = min(st04, u_NPOTScale);
