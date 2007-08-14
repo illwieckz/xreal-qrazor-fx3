@@ -822,7 +822,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_ShadowMatrix;
 	GLint           u_ShadowCompare;
-	GLint			u_ShadowTexelSize;
+	GLint           u_ShadowTexelSize;
 
 	GLint           u_SpecularExponent;
 
@@ -1172,7 +1172,7 @@ typedef struct srfVBOMesh_s
 {
 	surfaceType_t   surfaceType;
 
-	struct shader_s *shader;		// FIXME move this to somewhere else
+	struct shader_s *shader;	// FIXME move this to somewhere else
 
 	// culling information
 	vec3_t          bounds[2];

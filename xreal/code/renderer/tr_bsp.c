@@ -3794,7 +3794,7 @@ static void R_KillRedundantInteractions(trRefLight_t * light)
 R_CreateInteractionVBO
 =================
 */
-static interactionVBO_t* R_CreateInteractionVBO(trRefLight_t * light)
+static interactionVBO_t *R_CreateInteractionVBO(trRefLight_t * light)
 {
 	interactionVBO_t *iaVBO;
 
@@ -3813,7 +3813,7 @@ static interactionVBO_t* R_CreateInteractionVBO(trRefLight_t * light)
 
 	light->lastInteractionVBO = iaVBO;
 	iaVBO->next = NULL;
-	
+
 	return iaVBO;
 }
 
@@ -3887,7 +3887,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 		return;
 
 	//if(r_deferredShading->integer)
-	//	return;
+	//  return;
 
 	if(!light->firstInteractionCache)
 	{
@@ -4455,8 +4455,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 				}
 			}
 
-			vboSurf->vbo =
-				R_CreateStaticVBO(va("staticLightMesh %i", c_vboLightSurfaces), data, dataSize, indexes, indexesSize);
+			vboSurf->vbo = R_CreateStaticVBO(va("staticLightMesh %i", c_vboLightSurfaces), data, dataSize, indexes, indexesSize);
 			vboSurf->vbo->ofsXYZ = 0;
 			vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 			vboSurf->vbo->ofsTangents = ofsTangents;
@@ -4636,10 +4635,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -4701,10 +4700,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -4751,10 +4750,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -4842,10 +4841,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					 continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -4921,10 +4920,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -4997,10 +4996,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -5067,10 +5066,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -5137,10 +5136,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					surface = iaCache2->surface;
 
 					//if(surface->shader != shader)
-					//	continue;
+					//  continue;
 
 					if(surface->shader->alphaTest != alphaTest)
-					  continue;
+						continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;

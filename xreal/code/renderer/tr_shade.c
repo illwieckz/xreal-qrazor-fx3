@@ -115,10 +115,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI\n#endif\n");
 		}
 
-		if(glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && r_shadows->integer >= 4)
+		if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
-			
+
 			if(glConfig.hardwareType == GLHW_ATI)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
@@ -135,7 +135,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 			if(r_debugShadowMaps->integer)
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
 			}
 
 			if(r_softShadows->integer == 1)
@@ -156,7 +157,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			}
 		}
 
-		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.hardwareType != GLHW_ATI)
 		{
 			//Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#extension GL_ARB_draw_buffers : enable\n");
@@ -331,7 +332,8 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// geometric-buffer fill rendering with diffuse + bump + specular
-	if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
+	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.hardwareType != GLHW_ATI)
 	{
 		GLSL_InitGPUShader(&tr.geometricFillShader_DBS, "geometricFill_DBS",
 						   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL |
@@ -357,109 +359,109 @@ void GLSL_InitGPUShaders(void)
 		GLSL_ValidateProgram(tr.geometricFillShader_DBS.program);
 		GLSL_ShowProgramUniforms(tr.geometricFillShader_DBS.program);
 		GL_CheckErrors();
+
+		// deferred omni-directional lighting post process effect
+		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_omni, "deferredLighting_DBS_omni", GLCS_VERTEX, qtrue);
+
+		tr.deferredLightingShader_DBS_omni.u_CurrentMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_CurrentMap");
+		tr.deferredLightingShader_DBS_omni.u_NormalMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NormalMap");
+		tr.deferredLightingShader_DBS_omni.u_SpecularMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_SpecularMap");
+		tr.deferredLightingShader_DBS_omni.u_PositionMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_PositionMap");
+		tr.deferredLightingShader_DBS_omni.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_AttenuationMapXY");
+		tr.deferredLightingShader_DBS_omni.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_AttenuationMapZ");
+		tr.deferredLightingShader_DBS_omni.u_ShadowMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowMap");
+		tr.deferredLightingShader_DBS_omni.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ViewOrigin");
+		tr.deferredLightingShader_DBS_omni.u_LightOrigin =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightOrigin");
+		tr.deferredLightingShader_DBS_omni.u_LightColor =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightColor");
+		tr.deferredLightingShader_DBS_omni.u_LightRadius =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightRadius");
+		tr.deferredLightingShader_DBS_omni.u_LightScale =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightScale");
+		tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightAttenuationMatrix");
+		tr.deferredLightingShader_DBS_omni.u_ShadowCompare =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowCompare");
+		tr.deferredLightingShader_DBS_omni.u_FBufScale =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_FBufScale");
+		tr.deferredLightingShader_DBS_omni.u_NPOTScale =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NPOTScale");
+
+		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_omni.program);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DiffuseMap, 0);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_NormalMap, 1);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_SpecularMap, 2);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PositionMap, 3);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_AttenuationMapXY, 4);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_AttenuationMapZ, 5);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowMap, 6);
+		qglUseProgramObjectARB(0);
+
+		GLSL_ValidateProgram(tr.deferredLightingShader_DBS_omni.program);
+		GLSL_ShowProgramUniforms(tr.deferredLightingShader_DBS_omni.program);
+		GL_CheckErrors();
+
+		// deferred projective lighting post process effect
+		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_proj, "deferredLighting_DBS_proj", GLCS_VERTEX, qtrue);
+
+		tr.deferredLightingShader_DBS_proj.u_CurrentMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_CurrentMap");
+		tr.deferredLightingShader_DBS_proj.u_NormalMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NormalMap");
+		tr.deferredLightingShader_DBS_proj.u_SpecularMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_SpecularMap");
+		tr.deferredLightingShader_DBS_proj.u_PositionMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_PositionMap");
+		tr.deferredLightingShader_DBS_proj.u_AttenuationMapXY =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_AttenuationMapXY");
+		tr.deferredLightingShader_DBS_proj.u_AttenuationMapZ =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_AttenuationMapZ");
+		tr.deferredLightingShader_DBS_proj.u_ShadowMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMap");
+		tr.deferredLightingShader_DBS_proj.u_ViewOrigin =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ViewOrigin");
+		tr.deferredLightingShader_DBS_proj.u_LightOrigin =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightOrigin");
+		tr.deferredLightingShader_DBS_proj.u_LightColor =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightColor");
+		tr.deferredLightingShader_DBS_proj.u_LightRadius =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightRadius");
+		tr.deferredLightingShader_DBS_proj.u_LightScale =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightScale");
+		tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightAttenuationMatrix");
+		tr.deferredLightingShader_DBS_proj.u_ShadowMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMatrix");
+		tr.deferredLightingShader_DBS_proj.u_ShadowCompare =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowCompare");
+		tr.deferredLightingShader_DBS_proj.u_FBufScale =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_FBufScale");
+		tr.deferredLightingShader_DBS_proj.u_NPOTScale =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NPOTScale");
+
+		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_proj.program);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DiffuseMap, 0);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_NormalMap, 1);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_SpecularMap, 2);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_PositionMap, 3);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_AttenuationMapXY, 4);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_AttenuationMapZ, 5);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowMap, 6);
+		qglUseProgramObjectARB(0);
+
+		GLSL_ValidateProgram(tr.deferredLightingShader_DBS_proj.program);
+		GLSL_ShowProgramUniforms(tr.deferredLightingShader_DBS_proj.program);
+		GL_CheckErrors();
 	}
-
-	// deferred omni-directional lighting post process effect
-	GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_omni, "deferredLighting_DBS_omni", GLCS_VERTEX, qtrue);
-
-	tr.deferredLightingShader_DBS_omni.u_CurrentMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_CurrentMap");
-	tr.deferredLightingShader_DBS_omni.u_NormalMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NormalMap");
-	tr.deferredLightingShader_DBS_omni.u_SpecularMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_SpecularMap");
-	tr.deferredLightingShader_DBS_omni.u_PositionMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_PositionMap");
-	tr.deferredLightingShader_DBS_omni.u_AttenuationMapXY =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_AttenuationMapXY");
-	tr.deferredLightingShader_DBS_omni.u_AttenuationMapZ =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_AttenuationMapZ");
-	tr.deferredLightingShader_DBS_omni.u_ShadowMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowMap");
-	tr.deferredLightingShader_DBS_omni.u_ViewOrigin =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ViewOrigin");
-	tr.deferredLightingShader_DBS_omni.u_LightOrigin =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightOrigin");
-	tr.deferredLightingShader_DBS_omni.u_LightColor =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightColor");
-	tr.deferredLightingShader_DBS_omni.u_LightRadius =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightRadius");
-	tr.deferredLightingShader_DBS_omni.u_LightScale =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightScale");
-	tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightAttenuationMatrix");
-	tr.deferredLightingShader_DBS_omni.u_ShadowCompare =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowCompare");
-	tr.deferredLightingShader_DBS_omni.u_FBufScale =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_FBufScale");
-	tr.deferredLightingShader_DBS_omni.u_NPOTScale =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NPOTScale");
-
-	qglUseProgramObjectARB(tr.deferredLightingShader_DBS_omni.program);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_NormalMap, 1);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_SpecularMap, 2);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PositionMap, 3);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_AttenuationMapXY, 4);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_AttenuationMapZ, 5);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowMap, 6);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.deferredLightingShader_DBS_omni.program);
-	GLSL_ShowProgramUniforms(tr.deferredLightingShader_DBS_omni.program);
-	GL_CheckErrors();
-
-	// deferred projective lighting post process effect
-	GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_proj, "deferredLighting_DBS_proj", GLCS_VERTEX, qtrue);
-
-	tr.deferredLightingShader_DBS_proj.u_CurrentMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_CurrentMap");
-	tr.deferredLightingShader_DBS_proj.u_NormalMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NormalMap");
-	tr.deferredLightingShader_DBS_proj.u_SpecularMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_SpecularMap");
-	tr.deferredLightingShader_DBS_proj.u_PositionMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_PositionMap");
-	tr.deferredLightingShader_DBS_proj.u_AttenuationMapXY =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_AttenuationMapXY");
-	tr.deferredLightingShader_DBS_proj.u_AttenuationMapZ =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_AttenuationMapZ");
-	tr.deferredLightingShader_DBS_proj.u_ShadowMap =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMap");
-	tr.deferredLightingShader_DBS_proj.u_ViewOrigin =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ViewOrigin");
-	tr.deferredLightingShader_DBS_proj.u_LightOrigin =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightOrigin");
-	tr.deferredLightingShader_DBS_proj.u_LightColor =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightColor");
-	tr.deferredLightingShader_DBS_proj.u_LightRadius =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightRadius");
-	tr.deferredLightingShader_DBS_proj.u_LightScale =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightScale");
-	tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_LightAttenuationMatrix");
-	tr.deferredLightingShader_DBS_proj.u_ShadowMatrix =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMatrix");
-	tr.deferredLightingShader_DBS_proj.u_ShadowCompare =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowCompare");
-	tr.deferredLightingShader_DBS_proj.u_FBufScale =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_FBufScale");
-	tr.deferredLightingShader_DBS_proj.u_NPOTScale =
-		qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NPOTScale");
-
-	qglUseProgramObjectARB(tr.deferredLightingShader_DBS_proj.program);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DiffuseMap, 0);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_NormalMap, 1);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_SpecularMap, 2);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_PositionMap, 3);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_AttenuationMapXY, 4);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_AttenuationMapZ, 5);
-	qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowMap, 6);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.deferredLightingShader_DBS_proj.program);
-	GLSL_ShowProgramUniforms(tr.deferredLightingShader_DBS_proj.program);
-	GL_CheckErrors();
 
 	// black depth fill rendering with textures
 	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);

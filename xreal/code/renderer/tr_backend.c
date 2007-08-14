@@ -4473,7 +4473,8 @@ static void RB_RenderDebugUtils()
 			}
 			else if(*surface == SF_VBO_MESH)
 			{
-				srfVBOMesh_t *srf  = (srfVBOMesh_t *) surface;
+				srfVBOMesh_t   *srf = (srfVBOMesh_t *) surface;
+
 				R_DebugBoundingBox(vec3_origin, srf->bounds[0], srf->bounds[1], lightColor);
 			}
 			else if(*surface == SF_MDX)
