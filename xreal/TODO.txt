@@ -200,7 +200,6 @@ code/renderer
 - improve shadow caster volumes to kill more obselete shadows by melting neighboured surfaces with the same material
 - add stained shadow mapping
 - add volumetric lighting
-- add Percentage-Closer-Filtering to shadow mapping
 - improve deferred shading
  - fix 3d model hud rendering
  - fix mirrors/portals

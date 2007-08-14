@@ -46,6 +46,54 @@ varying mat3		var_TangentToWorldMatrix;
 //varying vec4		var_Color;
 
 
+/*
+================
+MakeNormalVectors
+
+Given a normalized forward vector, create two
+other perpendicular vectors
+================
+*/
+void MakeNormalVectors(const vec3 forward, inout vec3 right, inout vec3 up)
+{
+	// this rotate and negate guarantees a vector
+	// not colinear with the original
+	right.y = -forward.x;
+	right.z = forward.y;
+	right.x = forward.z;
+
+	float d = dot(right, forward);
+	right += forward * -d;
+	normalize(right);
+	up = cross(right, forward);	// GLSL cross product is the same as in Q3A
+}
+
+#if defined(VSM)
+vec4 PCF(vec3 I, float filterWidth, float samples)
+{
+	vec3 forward, right, up;
+	
+	forward = normalize(I);
+	MakeNormalVectors(forward, right, up);
+
+	// compute step size for iterating through the kernel
+	float stepSize = 2.0 * filterWidth / samples;
+	
+	vec4 moments = vec4(0.0, 0.0, 0.0, 0.0);
+	for(float i = -filterWidth; i < filterWidth; i += stepSize)
+	{
+		for(float j = -filterWidth; j < filterWidth; j += stepSize)
+		{
+			moments += textureCube(u_ShadowMap, I + right * i + up * j);
+		}
+	}
+	
+	// return average of the samples
+	moments *= (1.0 / (samples * samples));
+	return moments;
+}
+#endif
+
 void	main()
 {
 	float shadow = 1.0;
@@ -54,59 +102,28 @@ void	main()
 	if(bool(u_ShadowCompare))
 	{
 		// compute incident ray
-		vec3 I0 = var_Vertex - u_LightOrigin;
+		vec3 I = var_Vertex - u_LightOrigin;
 	
 		#if defined(PCF_2X2)
-		// 2x2 PCF
-		float offsetScale = u_ShadowTexelSize;
-	
-		vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
-		vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
-		vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
-		
-		vec4 shadowMap = textureCube(u_ShadowMap, I0);
-		shadowMap += textureCube(u_ShadowMap, I1);
-		shadowMap += textureCube(u_ShadowMap, I2);
-		shadowMap += textureCube(u_ShadowMap, I3);
-		shadowMap *= 0.25;
-	
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * 1.3 * length(I), 2.0);
 		#elif defined(PCF_3X3)
-		// 3x3 PCF
-		float offsetScale = 0.3; //u_ShadowTexelSize * 100;
-	
-		vec3 I1 = I0 + vec3( 2.0,-1.0, 1.0) * offsetScale;
-		vec3 I2 = I0 + vec3( 1.0, 2.0,-1.0) * offsetScale;
-		vec3 I3 = I0 + vec3(-1.0, 1.0, 2.0) * offsetScale;
-		vec3 I4 = I0 + I1;
-		vec3 I5 = I0 + I2;
-		vec3 I6 = I0 + I3;
-		vec3 I7 = I1 + I2;
-		vec3 I8 = I2 + I3;
-		
-		vec4 shadowMap = textureCube(u_ShadowMap, I0);
-		shadowMap += textureCube(u_ShadowMap, I1);
-		shadowMap += textureCube(u_ShadowMap, I2);
-		shadowMap += textureCube(u_ShadowMap, I3);
-		shadowMap += textureCube(u_ShadowMap, I4);
-		shadowMap += textureCube(u_ShadowMap, I5);
-		shadowMap += textureCube(u_ShadowMap, I6);
-		shadowMap += textureCube(u_ShadowMap, I7);
-		shadowMap += textureCube(u_ShadowMap, I8);
-		shadowMap *= 0.11111111;
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * 1.3 * length(I), 3.0);
+		#elif defined(PCF_4X4)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * 1.3 * length(I), 4.0);
 		#else
-		vec4 shadowMap = textureCube(u_ShadowMap, I0);
+		vec4 shadowMoments = textureCube(u_ShadowMap, I);
 		#endif
-
-		const float	SHADOW_BIAS = 0.0;//01;
-		float vertexDistance = length(I0) / u_LightRadius - SHADOW_BIAS;
-	
+		
 		#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
-		shadowMap = 2.0 * (shadowMap - 0.5);
+		shadowMoments = 2.0 * (shadowMoments - 0.5);
 		#endif
 	
-		float shadowDistance = shadowMap.r;
-		float shadowDistanceSquared = shadowMap.g;
+		float shadowDistance = shadowMoments.r;
+		float shadowDistanceSquared = shadowMoments.g;
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
 	
 		// standard shadow map comparison
 		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
