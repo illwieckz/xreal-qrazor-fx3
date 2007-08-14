@@ -48,7 +48,7 @@ varying vec4		var_Normal;
 
 float linstep(float min, float max, float v)
 {
-    return clamp((v - min) / (max - min), 0, 1);
+    return clamp((v - min) / (max - min), 0.0, 1.0);
 }
 
 #if defined(VSM)
