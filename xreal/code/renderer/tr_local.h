@@ -823,6 +823,7 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowMatrix;
 	GLint           u_ShadowCompare;
 	GLint           u_ShadowTexelSize;
+	GLint           u_ShadowBlur;
 
 	GLint           u_SpecularExponent;
 
@@ -1689,13 +1690,13 @@ typedef struct
 	image_t        *deferredSpecularFBOImage;
 	image_t        *deferredPositionFBOImage;
 	image_t        *deferredLightingFBOImage;
-	image_t        *shadowMapFBOImage[3];
-	image_t        *shadowCubeFBOImage[3];
+	image_t        *shadowMapFBOImage[5];
+	image_t        *shadowCubeFBOImage[5];
 
 	// framebuffer objects
 	FBO_t          *geometricRenderFBO;
 	FBO_t          *deferredRenderFBO;
-	FBO_t          *shadowMapFBO[3];
+	FBO_t          *shadowMapFBO[5];
 
 	// internal shaders
 	shader_t       *defaultShader;
@@ -1830,7 +1831,7 @@ typedef struct
 
 extern const matrix_t quakeToOpenGLMatrix;
 extern const matrix_t openGLToQuakeMatrix;
-extern int      shadowMapResolutions[3];
+extern int      shadowMapResolutions[5];
 
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
@@ -1946,6 +1947,9 @@ extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black p
 								// 3 = stencil shadow volumes
 								// 4 = shadow mapping
 extern cvar_t  *r_softShadows;
+extern cvar_t  *r_shadowBlur;
+extern cvar_t  *r_shadowMapSizeUltra;
+extern cvar_t  *r_shadowMapSizeVery;
 extern cvar_t  *r_shadowMapSizeHigh;
 extern cvar_t  *r_shadowMapSizeMedium;
 extern cvar_t  *r_shadowMapSizeLow;

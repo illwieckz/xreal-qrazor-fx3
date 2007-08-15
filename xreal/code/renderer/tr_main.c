@@ -43,7 +43,7 @@ const matrix_t  openGLToQuakeMatrix = {
 	0, 0, 0, 1
 };
 
-int             shadowMapResolutions[3] = { 512, 256, 128 };
+int             shadowMapResolutions[5] = { 2048, 1024, 512, 256, 128 };
 
 refimport_t     ri;
 

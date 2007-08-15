@@ -35,6 +35,7 @@ uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
+uniform float       u_ShadowBlur;
 uniform float		u_SpecularExponent;
 
 varying vec3		var_Vertex;
@@ -105,18 +106,22 @@ void	main()
 		vec3 I = var_Vertex - u_LightOrigin;
 	
 		#if defined(PCF_2X2)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * 1.3 * length(I), 2.0);
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
 		#elif defined(PCF_3X3)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * 1.3 * length(I), 3.0);
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 3.0);
 		#elif defined(PCF_4X4)
-		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * 1.3 * length(I), 4.0);
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 4.0);
+		#elif defined(PCF_5X5)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 5.0);
+		#elif defined(PCF_6X6)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 6.0);
 		#else
 		vec4 shadowMoments = textureCube(u_ShadowMap, I);
 		#endif
 		
 		#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
-		shadowMoments = 2.0 * (shadowMoments - 0.5);
+		shadowMoments = 0.5 * (shadowMoments + 1.0);
 		#endif
 	
 		float shadowDistance = shadowMoments.r;

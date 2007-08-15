@@ -106,6 +106,9 @@ cvar_t         *r_glDriver;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
 cvar_t         *r_softShadows;
+cvar_t         *r_shadowBlur;
+cvar_t         *r_shadowMapSizeUltra;
+cvar_t         *r_shadowMapSizeVeryHigh;
 cvar_t         *r_shadowMapSizeHigh;
 cvar_t         *r_shadowMapSizeMedium;
 cvar_t         *r_shadowMapSizeLow;
@@ -1502,25 +1505,35 @@ void R_Register(void)
 	AssertCvarRange(r_shadows, 0, 5, qtrue);
 
 	r_softShadows = ri.Cvar_Get("r_softShadows", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_softShadows, 0, 4, qtrue);
+	AssertCvarRange(r_softShadows, 0, 6, qtrue);
 
-	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
+	r_shadowBlur = ri.Cvar_Get("r_shadowBlur", "2", CVAR_CHEAT);
+
+	r_shadowMapSizeUltra = ri.Cvar_Get("r_shadowMapSizeUltra", "1024", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapSizeUltra, 32, 2048, qtrue);
+
+	r_shadowMapSizeVeryHigh = ri.Cvar_Get("r_shadowMapSizeVeryHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapSizeVeryHigh, 32, 1024, qtrue);
+
+	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "256", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeHigh, 32, 1024, qtrue);
 
-	r_shadowMapSizeMedium = ri.Cvar_Get("r_shadowMapSizeMedium", "256", CVAR_ARCHIVE | CVAR_LATCH);
+	r_shadowMapSizeMedium = ri.Cvar_Get("r_shadowMapSizeMedium", "128", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeMedium, 32, 1024, qtrue);
 
-	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "128", CVAR_ARCHIVE | CVAR_LATCH);
+	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "64", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeLow, 32, 1024, qtrue);
 
-	shadowMapResolutions[0] = r_shadowMapSizeHigh->integer;
-	shadowMapResolutions[1] = r_shadowMapSizeMedium->integer;
-	shadowMapResolutions[2] = r_shadowMapSizeLow->integer;
+	shadowMapResolutions[0] = r_shadowMapSizeUltra->integer;
+	shadowMapResolutions[1] = r_shadowMapSizeVeryHigh->integer;
+	shadowMapResolutions[2] = r_shadowMapSizeHigh->integer;
+	shadowMapResolutions[3] = r_shadowMapSizeMedium->integer;
+	shadowMapResolutions[4] = r_shadowMapSizeLow->integer;
 
 	r_shadowOffsetFactor = ri.Cvar_Get("r_shadowOffsetFactor", "0", CVAR_CHEAT);
 	r_shadowOffsetUnits = ri.Cvar_Get("r_shadowOffsetUnits", "0", CVAR_CHEAT);
 	r_shadowLodBias = ri.Cvar_Get("r_shadowLodBias", "0", CVAR_CHEAT);
-	r_shadowLodScale = ri.Cvar_Get("r_shadowLodScale", "0.7", CVAR_CHEAT);
+	r_shadowLodScale = ri.Cvar_Get("r_shadowLodScale", "0.8", CVAR_CHEAT);
 	r_noShadowPyramids = ri.Cvar_Get("r_noShadowPyramids", "0", CVAR_CHEAT);
 	r_cullShadowPyramidFaces = ri.Cvar_Get("r_cullShadowPyramidFaces", "0", CVAR_CHEAT);
 	r_cullShadowPyramidCurves = ri.Cvar_Get("r_cullShadowPyramidCurves", "1", CVAR_CHEAT);

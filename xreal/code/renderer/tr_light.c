@@ -629,7 +629,7 @@ void R_SetupLightProjection(trRefLight_t * light)
 			float           zNear, zFar;
 			float          *proj = light->projectionMatrix;
 
-			zNear = 1.0;
+			zNear = 0.1;
 			zFar = light->l.distance;
 
 #if 1
@@ -1287,7 +1287,7 @@ void R_SetupLightLOD(trRefLight_t * light)
 	int             lod;
 	int             numLods;
 
-	numLods = 3;
+	numLods = 5;
 
 	// compute projected bounding sphere
 	// and use that as a criteria for selecting LOD
@@ -1317,16 +1317,27 @@ void R_SetupLightLOD(trRefLight_t * light)
 	}
 	else if(lod >= numLods)
 	{
-		lod = numLods - 1;
+		//lod = numLods - 1;
 	}
 
 	lod += r_shadowLodBias->integer;
 
-	if(lod >= numLods)
-		lod = numLods - 1;
-
 	if(lod < 0)
+	{
 		lod = 0;
+	}
+
+	if(lod >= numLods)
+	{
+		// don't draw any shadow
+		lod = -1;
+
+		//lod = numLods - 1;
+	}
+
+	// never give ultra quality for point lights
+	if(lod == 0 && light->l.rlType == RL_OMNI)
+		lod = 1;
 
 	light->shadowLOD = lod;
 }

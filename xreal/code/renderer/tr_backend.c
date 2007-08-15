@@ -1828,7 +1828,7 @@ static void RB_RenderInteractionsShadowMapped()
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
 
-				if(light->l.noShadows)
+				if(light->l.noShadows || light->shadowLOD < 0)
 				{
 					if(r_logFile->integer)
 					{
@@ -2101,7 +2101,7 @@ static void RB_RenderInteractionsShadowMapped()
 				goto skipInteraction;
 			}
 
-			if(shader->noShadows || light->l.noShadows)
+			if(shader->noShadows || light->l.noShadows || light->shadowLOD < 0)
 			{
 				goto skipInteraction;
 			}
@@ -2870,6 +2870,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
+	qboolean		shadowCompare;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
 
@@ -2906,7 +2907,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				GL_SelectTexture(0);
 				GL_Bind(tr.whiteImage);
 
-				if(light->l.noShadows)
+				if(light->l.noShadows || light->shadowLOD < 0)
 				{
 					if(r_logFile->integer)
 					{
@@ -3250,6 +3251,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						// set uniforms
 						VectorCopy(light->origin, lightOrigin);
 						VectorCopy(tess.svars.color, lightColor);
+						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
 						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
 										viewOrigin[2]);
@@ -3261,7 +3263,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
-						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, !light->l.noShadows);
+						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
 						qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
 						qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -3290,8 +3292,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
 						// bind u_ShadowMap
-						GL_SelectTexture(6);
-						GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+						if(shadowCompare)
+						{
+							GL_SelectTexture(6);
+							GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
+						}
 
 						// draw lighting
 						qglBegin(GL_QUADS);
@@ -3317,6 +3322,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						// set uniforms
 						VectorCopy(light->origin, lightOrigin);
 						VectorCopy(tess.svars.color, lightColor);
+						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
 
 						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
 										viewOrigin[2]);
@@ -3330,7 +3336,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 											   light->attenuationMatrix2);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix);
-						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, !light->l.noShadows);
+						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
 						qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_FBufScale, fbufWidthScale, fbufHeightScale);
 						qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -3359,8 +3365,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
 						// bind u_ShadowMap
-						GL_SelectTexture(6);
-						GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+						if(shadowCompare)
+						{
+							GL_SelectTexture(6);
+							GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+						}
 
 						// draw lighting
 						qglBegin(GL_QUADS);
@@ -3404,7 +3413,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				goto skipInteraction;
 			}
 
-			if(shader->noShadows || light->l.noShadows)
+			if(shader->noShadows || light->l.noShadows || light->shadowLOD < 0)
 			{
 				goto skipInteraction;
 			}
@@ -4210,6 +4219,18 @@ static void RB_RenderDebugUtils()
 					else if(light->shadowLOD == 2)
 					{
 						VectorCopy4(colorBlue, lightColor);
+					}
+					else if(light->shadowLOD == 3)
+					{
+						VectorCopy4(colorYellow, lightColor);
+					}
+					else if(light->shadowLOD == 4)
+					{
+						VectorCopy4(colorMagenta, lightColor);
+					}
+					else if(light->shadowLOD == 5)
+					{
+						VectorCopy4(colorCyan, lightColor);
 					}
 					else
 					{

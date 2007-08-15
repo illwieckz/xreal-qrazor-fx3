@@ -43,7 +43,7 @@ void	main()
 
 #if defined(VSM_CLAMP)
 	// convert to [0,1] color space
-	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0) * 0.5 + 0.5;
+	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0) * 2.0 - 1.0;
 #else
 	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0);
 #endif

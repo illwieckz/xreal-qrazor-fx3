@@ -435,7 +435,7 @@ void R_InitFBOs(void)
 	if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable)
 	{
 		// shadowMap FBOs for shadow mapping offscreen rendering
-		for(i = 0; i < 3; i++)
+		for(i = 0; i < 5; i++)
 		{
 			width = height = shadowMapResolutions[i];
 
