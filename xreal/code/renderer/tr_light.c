@@ -850,19 +850,6 @@ void R_SortInteractions(trRefLight_t * light)
 
 /*
 =================
-R_LightIntersectsPoint
-=================
-*/
-qboolean R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p)
-{
-	// TODO light frustum test
-
-	return BoundsIntersectPoint(light->worldBounds[0], light->worldBounds[1], p);
-}
-
-
-/*
-=================
 R_IntersectRayPlane
 =================
 */
@@ -964,7 +951,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
 	light->scissor.coords[3] = tr.viewParms.viewportY + tr.viewParms.viewportHeight;
 
-	if(r_noLightScissors->integer || R_LightIntersectsPoint(light, tr.viewParms.or.origin))
+	if(r_noLightScissors->integer || R_CullLightPoint(light, tr.viewParms.or.origin) == CULL_IN)
 	{
 		return;
 	}
@@ -1401,6 +1388,36 @@ void R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t * light)
 	RB_CalcTexMatrix(&pStage->bundle[TB_COLORMAP], matrix);
 
 	MatrixMultiply(matrix, light->attenuationMatrix, light->attenuationMatrix2);
+}
+
+/*
+=================
+R_CullLightPoint
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+int R_CullLightPoint(trRefLight_t * light, const vec3_t p)
+{
+	int             i;
+	cplane_t       *frust;
+	float           dist;
+
+	// check against frustum planes
+	for(i = 0; i < 6; i++)
+	{
+		frust = &light->frustum[i];
+
+		dist = DotProduct(p, frust->normal) - frust->dist;
+		if(dist < 0)
+		{
+			// completely outside frustum
+			return CULL_OUT;
+		}
+	}
+
+	// completely inside frustum
+	return CULL_IN;
 }
 
 /*

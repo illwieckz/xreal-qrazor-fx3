@@ -1157,13 +1157,11 @@ static void RB_RenderInteractions()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
-		/*
-		   if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
-		   {
-		   // skip all interactions of this light because it failed the occlusion query
-		   goto skipInteraction;
-		   }
-		 */
+		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		{
+			// skip all interactions of this light because it failed the occlusion query
+			goto skipInteraction;
+		}
 
 		if(!shader->interactLight)
 		{
@@ -1391,6 +1389,12 @@ static void RB_RenderInteractionsStencilShadowed()
 		backEnd.currentEntity = entity = ia->entity;
 		surface = ia->surface;
 		shader = ia->surfaceShader;
+
+		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		{
+			// skip all interactions of this light because it failed the occlusion query
+			goto skipInteraction;
+		}
 
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -1814,6 +1818,12 @@ static void RB_RenderInteractionsShadowMapped()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
+
+		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		{
+			// skip all interactions of this light because it failed the occlusion query
+			goto skipInteraction;
+		}
 
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -3772,9 +3782,9 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	qglPopMatrix();
 }
 
-void RB_RenderOcclusionQueries()
+void RB_RenderLightOcclusionQueries()
 {
-	GLimp_LogComment("--- RB_RenderOcclusionQueries ---\n");
+	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
 
 	if(glConfig.occlusionQueryBits)
 	{
@@ -3810,13 +3820,14 @@ void RB_RenderOcclusionQueries()
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentLight = light = ia->light;
+			ia->occlusionQuerySamples = 1;
 
 			if(!ia->next)
 			{
 				ocCount++;
 
 				// last interaction of current light
-				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
+				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT)
 				{
 					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 					qglLoadMatrixf(backEnd.or.modelViewMatrix);
@@ -3826,37 +3837,44 @@ void RB_RenderOcclusionQueries()
 
 					qglBegin(GL_QUADS);
 
+					qglColor4fv(colorRed);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglColor4fv(colorGreen);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
+					qglColor4fv(colorBlue);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglColor4fv(colorYellow);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 
+					qglColor4fv(colorMagenta);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglColor4fv(colorCyan);
 					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 
 					qglEnd();
+
 
 					// end the query
 					// don't read back immediately so that we give the query time to be ready
@@ -3889,6 +3907,12 @@ void RB_RenderOcclusionQueries()
 		backEnd.or = backEnd.viewParms.world;
 		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
 
+		if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+		{
+			// FIXME it ain't work in subviews
+			return;
+		}
+
 		if(!ocCount)
 		{
 			qglEnable(GL_TEXTURE_2D);
@@ -3899,7 +3923,7 @@ void RB_RenderOcclusionQueries()
 
 		// do other work until "most" of the queries are back, to avoid
 		// wasting time spinning
-#if 1
+#if 0
 		i = (int)(ocCount * 3 / 4);	// instead of N-1, to prevent the GPU from going idle
 		do
 		{
@@ -3942,14 +3966,10 @@ void RB_RenderOcclusionQueries()
 				{
 					ocCount++;
 
-					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && !R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
+					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT)
 					{
-#if 1
 						qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 						if(available)
-#else
-						if(1)
-#endif
 						{
 							backEnd.pc.c_occlusionQueriesAvailable++;
 
@@ -4027,7 +4047,9 @@ void RB_RenderOcclusionQueries()
 		// don't write to the color buffer or depth buffer
 		if(r_showOcclusionQueries->integer)
 		{
-			GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+			GL_Cull(CT_BACK_SIDED);
+			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+			//GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		}
 		else
 		{
@@ -4038,7 +4060,7 @@ void RB_RenderOcclusionQueries()
 		calcSum = qtrue;
 
 		// loop trough all light interactions and render the light OBB for each last interaction
-		for(iaCount = 0, ia = &interactions[0]; iaCount < numInteractions;)
+		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
 			backEnd.currentLight = light = ia->light;
 
@@ -4057,7 +4079,7 @@ void RB_RenderOcclusionQueries()
 				// last interaction of current light
 				if(calcSum)
 				{
-					if(!R_LightIntersectsPoint(light, backEnd.viewParms.or.origin))
+					if(R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT)
 					{
 						// clear stencil buffer
 						qglClear(GL_STENCIL_BUFFER_BIT);
@@ -4071,37 +4093,44 @@ void RB_RenderOcclusionQueries()
 						R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 						qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
+						// draw the volume
 						qglBegin(GL_QUADS);
 
+						qglColor4fv(colorRed);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglColor4fv(colorGreen);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
+						qglColor4fv(colorBlue);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglColor4fv(colorYellow);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 
+						qglColor4fv(colorMagenta);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglColor4fv(colorCyan);
 						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 
 						qglEnd();
 
@@ -4138,13 +4167,13 @@ void RB_RenderOcclusionQueries()
 					}
 
 					// jump back to first interaction of this light copy sum to all interactions
-					ia = &interactions[iaFirst];
+					ia = &backEnd.viewParms.interactions[iaFirst];
 					iaCount = iaFirst;
 					calcSum = qfalse;
 				}
 				else
 				{
-					if(iaCount < (numInteractions - 1))
+					if(iaCount < (backEnd.viewParms.numInteractions - 1))
 					{
 						// jump to next interaction and continue
 						ia++;
@@ -4703,11 +4732,29 @@ static void RB_RenderDebugUtils()
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
-			if(qglDepthBoundsEXT)
+			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+			{
+				if(!ia->occlusionQuerySamples)
+				{
+					qglColor4fv(colorRed);
+				}
+				else
+				{
+					qglColor4fv(colorGreen);
+				}
+
+				qglBegin(GL_QUADS);
+				qglVertex2f(ia->scissorX, ia->scissorY);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglEnd();
+			}
+			else if(qglDepthBoundsEXT)
 			{
 				if(ia->noDepthBoundsTest)
 				{
-					qglColor4fv(colorRed);
+					qglColor4fv(colorBlue);
 				}
 				else
 				{
@@ -4825,10 +4872,8 @@ static void RB_RenderView(void)
 		// draw everything that is opaque
 		RB_RenderDrawSurfaces(qtrue);
 
-#if 0
-		// try to cull lights using occlusion queries
-		RB_RenderOcclusionQueries();
-#endif
+		// try to cull lights using hardware occlusion queries
+		RB_RenderLightOcclusionQueries();
 
 		if(r_shadows->integer >= 4)
 		{

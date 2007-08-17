@@ -2412,7 +2412,6 @@ qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surf
 									  int numShadowIndexes, int *shadowIndexes, byte cubeSideBits, interactionType_t iaType);
 
 void            R_SortInteractions(trRefLight_t * light);
-qboolean        R_LightIntersectsPoint(trRefLight_t * light, const vec3_t p);
 
 void            R_SetupLightScissor(trRefLight_t * light);
 void            R_SetupLightDepthBounds(trRefLight_t * light);
@@ -2422,6 +2421,7 @@ void            R_SetupLightShader(trRefLight_t * light);
 
 byte            R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2]);
 
+int             R_CullLightPoint(trRefLight_t * light, const vec3_t p);
 int             R_CullLightTriangle(trRefLight_t * light, vec3_t verts[3]);
 int             R_CullLightWorldBounds(trRefLight_t * light, vec3_t worldBounds[2]);
 

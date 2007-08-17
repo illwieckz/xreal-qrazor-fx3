@@ -186,10 +186,13 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/q3_ui
-- add cg_shadows list option
 - add texture compression option
+- add cg_shadows list option
+- add r_shadows list option
+- add r_shadowBlur slider option
 
 code/renderer
+- use hardware occlusion query samples for a new light LOD system
 - add dynamic LOD support for md3 and md5 models
 - use static VBOs for md3 models that only have 1 frame -> killer optimization
 - fix stencil shadow flickering bug

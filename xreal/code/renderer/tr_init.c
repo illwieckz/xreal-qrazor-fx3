@@ -1363,7 +1363,7 @@ void R_Register(void)
 	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_float = ri.Cvar_Get("r_ext_texture_float", "1", CVAR_CHEAT | CVAR_LATCH);
