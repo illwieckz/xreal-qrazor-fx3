@@ -249,8 +249,10 @@ void	main()
 	
 		// compute normal in tangent space from normalmap
 		vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+		#if defined(r_NormalScale)
 		N.z *= r_NormalScale;
 		normalize(N);
+		#endif
 	
 		mat3 tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 

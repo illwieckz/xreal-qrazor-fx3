@@ -106,8 +106,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		// HACK: add some macros to avoid extra uniforms
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-				 va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
+		//Q_strcat(bufferExtra, sizeof(bufferExtra),
+		//		 va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
 
 		// HACK: add ATI's GLSL quirks      
 		if(glConfig.hardwareType == GLHW_ATI)
