@@ -5607,6 +5607,12 @@ void R_PrecacheInteractions()
 		// set up light origin for lighting and shadowing
 		R_SetupLightOrigin(light);
 
+		// set up model to light view matrix
+		R_SetupLightView(light);
+
+		// set up projection
+		R_SetupLightProjection(light);
+
 		// calc local bounds for culling
 		R_SetupLightLocalBounds(light);
 
@@ -5615,12 +5621,6 @@ void R_PrecacheInteractions()
 
 		// setup frustum planes for intersection tests
 		R_SetupLightFrustum(light);
-
-		// set up model to light view matrix
-		R_SetupLightView(light);
-
-		// set up projection
-		R_SetupLightProjection(light);
 
 		// setup interactions
 		light->firstInteractionCache = NULL;

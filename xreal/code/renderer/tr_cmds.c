@@ -48,10 +48,12 @@ void R_PerformanceCounters(void)
 				  backEnd.pc.c_views, backEnd.pc.c_portals, backEnd.pc.c_batches, backEnd.pc.c_surfaces, tr.pc.c_leafs,
 				  backEnd.pc.c_vertexes, backEnd.pc.c_indexes / 3);
 
-		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i interactions\n",
-				  tr.pc.c_dlights + tr.pc.c_slights,
+		ri.Printf(PRINT_ALL, "%i lights %i bout %i pvsout %i queryout %i interactions\n",
+				  tr.pc.c_dlights + tr.pc.c_slights - backEnd.pc.c_occlusionQueriesLightsCulled,
 				  tr.pc.c_box_cull_light_out,
-				  tr.pc.c_pvs_cull_light_out, tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions);
+				  tr.pc.c_pvs_cull_light_out,
+				  backEnd.pc.c_occlusionQueriesLightsCulled,
+				  tr.pc.c_dlightInteractions + tr.pc.c_slightInteractions - backEnd.pc.c_occlusionQueriesInteractionsCulled);
 
 		/*
 		   ri.Printf(PRINT_ALL, "%i draws %.2f mtex %.2f dc\n",
@@ -103,8 +105,8 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 7)
 	{
-		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled:%i\n",
-				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable, backEnd.pc.c_occlusionQueriesCulled);
+		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled lights:%i\n",
+				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable, backEnd.pc.c_occlusionQueriesLightsCulled);
 	}
 	else if(r_speeds->integer == 8)
 	{

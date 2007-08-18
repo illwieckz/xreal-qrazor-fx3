@@ -953,16 +953,16 @@ void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float
 	MatrixMultiply(projectionMatrix, modelViewMatrix, m);
 
 	// left
-	frustum[FRUSTUM_LEFT].normal[0]	=  m[ 3] + m[ 0];
-	frustum[FRUSTUM_LEFT].normal[1]	=  m[ 7] + m[ 4];
-	frustum[FRUSTUM_LEFT].normal[2]	=  m[11] + m[ 8];
+	frustum[FRUSTUM_LEFT].normal[0]		=  m[ 3] + m[ 0];
+	frustum[FRUSTUM_LEFT].normal[1]		=  m[ 7] + m[ 4];
+	frustum[FRUSTUM_LEFT].normal[2]		=  m[11] + m[ 8];
 	frustum[FRUSTUM_LEFT].dist			=-(m[15] + m[12]);
 	
 	// right
 	frustum[FRUSTUM_RIGHT].normal[0]	=  m[ 3] - m[ 0];
 	frustum[FRUSTUM_RIGHT].normal[1]	=  m[ 7] - m[ 4];
 	frustum[FRUSTUM_RIGHT].normal[2]	=  m[11] - m[ 8];
-	frustum[FRUSTUM_RIGHT].dist		=-(m[15] - m[12]);
+	frustum[FRUSTUM_RIGHT].dist			=-(m[15] - m[12]);
 	
 	// bottom
 	frustum[FRUSTUM_BOTTOM].normal[0]	=  m[ 3] + m[ 1];
@@ -977,9 +977,9 @@ void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float
 	frustum[FRUSTUM_TOP].dist			=-(m[15] - m[13]);
 	
 	// near
-	frustum[FRUSTUM_NEAR].normal[0]	=  m[ 3] + m[ 2];
-	frustum[FRUSTUM_NEAR].normal[1]	=  m[ 7] + m[ 6];
-	frustum[FRUSTUM_NEAR].normal[2]	=  m[11] + m[10];
+	frustum[FRUSTUM_NEAR].normal[0]		=  m[ 3] + m[ 2];
+	frustum[FRUSTUM_NEAR].normal[1]		=  m[ 7] + m[ 6];
+	frustum[FRUSTUM_NEAR].normal[2]		=  m[11] + m[10];
 	frustum[FRUSTUM_NEAR].dist			=-(m[15] + m[14]);
 	
 	// far
@@ -1933,6 +1933,12 @@ void R_AddLightInteractions()
 			// set up light origin for lighting and shadowing
 			R_SetupLightOrigin(light);
 
+			// set up model to light view matrix
+			R_SetupLightView(light);
+
+			// set up projection
+			R_SetupLightProjection(light);
+
 			// setup world bounds for intersection tests
 			R_SetupLightWorldBounds(light);
 
@@ -1946,12 +1952,6 @@ void R_AddLightInteractions()
 				light->cull = CULL_OUT;
 				continue;
 			}
-
-			// set up model to light view matrix
-			R_SetupLightView(light);
-
-			// set up projection
-			R_SetupLightProjection(light);
 		}
 
 		// set up view dependent light scissor

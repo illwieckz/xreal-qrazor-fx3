@@ -134,6 +134,8 @@ typedef struct trRefLight_s
 	float           depthFar;
 	qboolean        noDepthBoundsTest;
 
+	qboolean        noOcclusionQueries;
+
 	frustum_t       frustum;
 
 	screenRect_t    scissor;
@@ -1041,6 +1043,7 @@ typedef struct interaction_s
 	qboolean        noDepthBoundsTest;
 
 	int             occlusionQuerySamples;	// visible fragment count
+	qboolean        noOcclusionQueries;
 
 	struct interaction_s *next;
 } interaction_t;
@@ -1619,7 +1622,8 @@ typedef struct
 
 	int             c_occlusionQueries;
 	int             c_occlusionQueriesAvailable;
-	int             c_occlusionQueriesCulled;
+	int             c_occlusionQueriesLightsCulled;
+	int             c_occlusionQueriesInteractionsCulled;
 
 	int             msec;		// total msec for backend run
 } backEndCounters_t;

@@ -3788,7 +3788,7 @@ void RB_RenderLightOcclusionQueries()
 
 	if(glConfig.occlusionQueryBits)
 	{
-		int             i;
+		int             i, j;
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
@@ -3824,56 +3824,120 @@ void RB_RenderLightOcclusionQueries()
 
 			if(!ia->next)
 			{
-				ocCount++;
-
 				// last interaction of current light
-				if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT)
+				if(!ia->noOcclusionQueries && ocCount < (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT*/)
 				{
+					ocCount++;
+
 					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 					qglLoadMatrixf(backEnd.or.modelViewMatrix);
 
 					// begin the occlusion query
 					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
 
-					qglBegin(GL_QUADS);
+					switch (light->l.rlType)
+					{
+						case RL_OMNI:
+						{
+							qglBegin(GL_QUADS);
 
-					qglColor4fv(colorRed);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglColor4fv(colorRed);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglColor4fv(colorGreen);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglColor4fv(colorGreen);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-					qglColor4fv(colorBlue);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglColor4fv(colorBlue);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-					qglColor4fv(colorYellow);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglColor4fv(colorYellow);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-					qglColor4fv(colorMagenta);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglColor4fv(colorMagenta);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-					qglColor4fv(colorCyan);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-					qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-					qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglColor4fv(colorCyan);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
+							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 
-					qglEnd();
+							qglEnd();
+							break;
+						}
+
+						case RL_PROJ:
+						{
+							float           xMin, xMax, yMin, yMax;
+							float           zNear, zFar;
+							vec3_t          corners[4];
+
+							zNear = 1.0;
+							zFar = light->l.distance;
+
+							xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
+							xMin = -xMax;
+
+							yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
+							yMin = -yMax;
+
+							corners[0][0] = zFar;
+							corners[0][1] = xMin * zFar;
+							corners[0][2] = yMin * zFar;
+
+							corners[1][0] = zFar;
+							corners[1][1] = xMax * zFar;
+							corners[1][2] = yMin * zFar;
+
+							corners[2][0] = zFar;
+							corners[2][1] = xMax * zFar;
+							corners[2][2] = yMax * zFar;
+
+							corners[3][0] = zFar;
+							corners[3][1] = xMin * zFar;
+							corners[3][2] = yMax * zFar;
+
+							// draw side planes
+							qglBegin(GL_TRIANGLES);
+							for(j = 0; j < 4; j++)
+							{
+								qglColor4fv(g_color_table[j]);
+
+								qglVertex3fv(vec3_origin);
+								qglVertex3fv(corners[j]);
+								qglVertex3fv(corners[(j + 1) % 4]);
+							}
+							qglEnd();
+
+							// draw far plane
+							qglBegin(GL_QUADS);
+							qglColor4fv(g_color_table[j]);
+							for(j = 0; j < 4; j++)
+							{
+								qglVertex3fv(corners[j]);
+							}
+							qglEnd();
+							break;
+						}
+
+						default:
+							break;
+					}
 
 
 					// end the query
@@ -3913,11 +3977,13 @@ void RB_RenderLightOcclusionQueries()
 			return;
 		}
 
+		/*
 		if(!ocCount)
 		{
 			qglEnable(GL_TEXTURE_2D);
 			return;
 		}
+		*/
 
 		qglFinish();
 
@@ -3958,16 +4024,21 @@ void RB_RenderLightOcclusionQueries()
 			if(!queryObjects)
 			{
 				ia->occlusionQuerySamples = ocSamples;
+
+				if(ocSamples <= 0)
+				{
+					backEnd.pc.c_occlusionQueriesInteractionsCulled++;
+				}
 			}
 
 			if(!ia->next)
 			{
 				if(queryObjects)
 				{
-					ocCount++;
-
-					if(ocCount < (MAX_OCCLUSION_QUERIES - 1) && R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT)
+					if(!ia->noOcclusionQueries && ocCount < (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT*/)
 					{
+						ocCount++;
+
 						qglGetQueryObjectivARB(tr.occlusionQueryObjects[ocCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 						if(available)
 						{
@@ -3978,7 +4049,7 @@ void RB_RenderLightOcclusionQueries()
 
 							if(ocSamples <= 0)
 							{
-								backEnd.pc.c_occlusionQueriesCulled++;
+								backEnd.pc.c_occlusionQueriesLightsCulled++;
 							}
 						}
 						else
@@ -4732,7 +4803,7 @@ static void RB_RenderDebugUtils()
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
-			if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+			if(glConfig.occlusionQueryBits)
 			{
 				if(!ia->occlusionQuerySamples)
 				{
@@ -4750,7 +4821,7 @@ static void RB_RenderDebugUtils()
 				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
 				qglEnd();
 			}
-			else if(qglDepthBoundsEXT)
+			else if(r_shadows->integer == 3 && qglDepthBoundsEXT)
 			{
 				if(ia->noDepthBoundsTest)
 				{
