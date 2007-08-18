@@ -1507,7 +1507,7 @@ void R_Register(void)
 	r_softShadows = ri.Cvar_Get("r_softShadows", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_softShadows, 0, 6, qtrue);
 
-	r_shadowBlur = ri.Cvar_Get("r_shadowBlur", "2", CVAR_CHEAT);
+	r_shadowBlur = ri.Cvar_Get("r_shadowBlur", "2", CVAR_ARCHIVE);
 
 	r_shadowMapSizeUltra = ri.Cvar_Get("r_shadowMapSizeUltra", "1024", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeUltra, 32, 2048, qtrue);
