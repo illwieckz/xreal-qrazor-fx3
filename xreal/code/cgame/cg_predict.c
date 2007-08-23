@@ -580,8 +580,8 @@ void CG_PredictPlayerState(void)
 		cg.predictedPlayerState = cg.snap->ps;
 	}
 
-	// demo playback and spectators just copy moves
-	if(cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR))
+	// demo playback just copies the moves
+	if(cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW))
 	{
 		CG_InterpolatePlayerState(qfalse);
 		return;
