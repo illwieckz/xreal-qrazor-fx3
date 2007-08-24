@@ -286,9 +286,9 @@ void _vp_psy_init(vorbis_look_psy *p,vorbis_info_psy *vi,
 
   /* AoTuV HF weighting */
   p->m_val = 1.;
-  if(rate < 26000) p->m_val = 0;
-  else if(rate < 38000) p->m_val = .94;   /* 32kHz */
-  else if(rate > 46000) p->m_val = 1.275; /* 48kHz */
+  if(rate < 26000) p->m_val = 0.0f;
+  else if(rate < 38000) p->m_val = .94f;   /* 32kHz */
+  else if(rate > 46000) p->m_val = 1.275f; /* 48kHz */
   
   /* set up the lookups for a given blocksize and sample rate */
 
@@ -553,7 +553,7 @@ static void bark_noise_hybridmp(int n,const long *b,
   int i;
 
   int lo, hi;
-  float R, A, B, D;
+  float R, A = 0, B = 0, D = 0;
   float w, x, y;
 
   tN = tX = tXX = tY = tXY = 0.f;
@@ -877,7 +877,7 @@ void _vp_offset_and_mix(vorbis_look_psy *p,
     */
 
     if(offset_select == 1) {
-      coeffi = -17.2;       /* coeffi is a -17.2dB threshold */
+      coeffi = -17.2f;       /* coeffi is a -17.2dB threshold */
       val = val - logmdct[i];  /* val == mdct line value relative to floor in dB */
       
       if(val > coeffi){
@@ -890,7 +890,7 @@ void _vp_offset_and_mix(vorbis_look_psy *p,
 	   -1.64 dB boost if mdct value is +17.2dB (relative to floor) 
 	   etc... */
 	
-	if(de < 0) de = 0.0001;
+	if(de < 0) de = 0.0001f;
       }else
 	/* mdct value is <= -17.2 dB below floor */
 	
@@ -940,14 +940,14 @@ static void couple_lossless(float A, float B,
 }
 
 static float hypot_lookup[32]={
-  -0.009935, -0.011245, -0.012726, -0.014397, 
-  -0.016282, -0.018407, -0.020800, -0.023494, 
-  -0.026522, -0.029923, -0.033737, -0.038010, 
-  -0.042787, -0.048121, -0.054064, -0.060671, 
-  -0.068000, -0.076109, -0.085054, -0.094892, 
-  -0.105675, -0.117451, -0.130260, -0.144134, 
-  -0.159093, -0.175146, -0.192286, -0.210490, 
-  -0.229718, -0.249913, -0.271001, -0.292893};
+  -0.009935f, -0.011245f, -0.012726f, -0.014397f, 
+  -0.016282f, -0.018407f, -0.020800f, -0.023494f, 
+  -0.026522f, -0.029923f, -0.033737f, -0.038010f, 
+  -0.042787f, -0.048121f, -0.054064f, -0.060671f, 
+  -0.068000f, -0.076109f, -0.085054f, -0.094892f, 
+  -0.105675f, -0.117451f, -0.130260f, -0.144134f, 
+  -0.159093f, -0.175146f, -0.192286f, -0.210490f, 
+  -0.229718f, -0.249913f, -0.271001f, -0.292893f};
 
 static void precomputed_couple_point(float premag,
 				     int floorA,int floorB,
@@ -1214,10 +1214,8 @@ void hf_reduction(vorbis_info_psy_global *g,
  
   int i,j,n=p->n, de=0.3*p->m_val;
   int limit=g->coupling_pointlimit[p->vi->blockflag][PACKETBLOBS/2];
-  int start=p->vi->normal_start;
   
   for(i=0; i<vi->coupling_steps; i++){
-    /* for(j=start; j<limit; j++){} // ???*/
     for(j=limit; j<n; j++) 
       mdct[i][j] *= (1.0 - de*((float)(j-limit) / (float)(n-limit)));
   }

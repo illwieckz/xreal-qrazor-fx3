@@ -221,6 +221,12 @@
  * #define PNG_NO_STDIO
  */
 
+/* raynorpat: fix annoying MSVC warnings */
+#if _MSC_VER
+#	pragma warning(disable : 4996)
+#	pragma warning(disable : 4244)
+#endif
+
 #if defined(_WIN32_WCE)
 #  include <windows.h>
    /* Console I/O functions are not supported on WindowsCE */

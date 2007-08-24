@@ -352,4 +352,12 @@ typedef unsigned int JDIMENSION;
 #endif
 #endif
 
+
+/* raynorpat: fix annoying MSVC warnings on deprecated functions */
+
+#if _MSC_VER
+#pragma warning(disable : 4996)
+#endif
+
+
 #endif							/* JPEG_INTERNAL_OPTIONS */

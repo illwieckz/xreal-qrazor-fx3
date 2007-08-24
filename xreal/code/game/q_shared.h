@@ -82,7 +82,6 @@ typedef unsigned __int8 uint8_t;
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
 #pragma warning(disable : 4996)	// deprecated functions
-#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
 /**********************************************************************

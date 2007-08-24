@@ -329,4 +329,12 @@ typedef uLong FAR uLongf;
 #   pragma map(inflate_copyright,"INCOPY")
 #endif
 
+/* raynorpat: fix annoying MSVC warnings */
+#if _MSC_VER
+#	pragma warning(disable : 4996)
+#	pragma warning(disable : 4244)
+#	pragma warning(disable : 4131)
+#	pragma warning(disable : 4127)
+#endif
+
 #endif /* ZCONF_H */

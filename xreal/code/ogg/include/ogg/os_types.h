@@ -53,6 +53,17 @@
      typedef unsigned __int32 ogg_uint32_t;
      typedef __int16 ogg_int16_t;
      typedef unsigned __int16 ogg_uint16_t;
+	
+	 /* raynorpat: fix annoying MSVC warnings */
+#     if _MSC_VER
+#        pragma warning(disable : 4996)
+#        pragma warning(disable : 4706)
+#        pragma warning(disable : 4701)
+#        pragma warning(disable : 4244)
+#        pragma warning(disable : 4189)
+#        pragma warning(disable : 4127)
+#        pragma warning(disable : 4100)
+#     endif
 #  endif
 
 #elif defined(__MACOS__)
