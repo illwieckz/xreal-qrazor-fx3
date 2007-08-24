@@ -42,14 +42,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(WIN32)
 #include "../win32/glw_win.h"
+#include "../win32/win_local.h"
 #else
 #include "../unix/unix_glw.h"
+#include "../unix/linux_local.h"
 #endif
 
 #if defined(WIN32)
 #include "wingdi.h"
-void            QGL_EnableLogging(qboolean enable);
-
 int             (WINAPI * qwglSwapIntervalEXT) (int interval);
 
 //BOOL(WINAPI * GetDeviceGammaRamp)( HDC , LPVOID );

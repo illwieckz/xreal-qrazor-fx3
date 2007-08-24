@@ -66,11 +66,6 @@ static rserr_t  GLW_SetMode(const char *drivername, int mode, int colorbits, qbo
 
 static qboolean s_classRegistered = qfalse;
 
-// function declaration
-void            QGL_EnableLogging(qboolean enable);
-qboolean        QGL_Init(const char *dllname);
-void            QGL_Shutdown(void);
-
 // variable declarations
 glwstate_t      glw_state;
 static DEVMODE  glw_fs_dm;

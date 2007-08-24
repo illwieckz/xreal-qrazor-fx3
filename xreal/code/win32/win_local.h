@@ -20,16 +20,9 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// win_local.h: Win32-specific XreaL header file
 
-#if defined (_MSC_VER) && (_MSC_VER >= 1200)
-#pragma warning(disable : 4201)
-#pragma warning( push )
-#endif
+// win_local.h: Win32-specific XreaL header file
 #include <windows.h>
-#if defined (_MSC_VER) && (_MSC_VER >= 1200)
-#pragma warning( pop )
-#endif
 
 #define	DIRECTSOUND_VERSION	0x0300
 #define	DIRECTINPUT_VERSION	0x0300
@@ -50,7 +43,6 @@ char           *Sys_ConsoleInput(void);
 qboolean        Sys_GetPacket(netadr_t * net_from, msg_t * net_message);
 
 // Input subsystem
-
 void            IN_Init(void);
 void            IN_Shutdown(void);
 void            IN_JoystickCommands(void);
@@ -58,7 +50,6 @@ void            IN_JoystickCommands(void);
 void            IN_Move(usercmd_t * cmd);
 
 // add additional non keyboard / non mouse movement on top of the keyboard move cmd
-
 void            IN_DeactivateWin32Mouse(void);
 
 void            IN_Activate(qboolean active);
@@ -71,6 +62,10 @@ void            Conbuf_AppendText(const char *msg);
 
 void            SNDDMA_Activate(void);
 int             SNDDMA_InitDS(void);
+
+void            QGL_EnableLogging(qboolean enable);
+qboolean        QGL_Init(const char *dllname);
+void            QGL_Shutdown(void);
 
 typedef struct
 {
