@@ -118,7 +118,6 @@ G_InitLua
 void G_InitLua()
 {
 	char            buf[MAX_STRING_CHARS];
-	char            filename[MAX_QPATH];
 
 	G_Printf("------- Game Lua Initialization -------\n");
 
@@ -135,11 +134,11 @@ void G_InitLua()
 	luaopen_vector(g_luaState);
 
 	// load global scripts
-	Com_Printf("global lua scripts:\n");
+	G_Printf("global lua scripts:\n");
 	G_InitLua_Global();
 
 	// load map-specific lua scripts
-	Com_Printf("map specific lua scripts:\n");
+	G_Printf("map specific lua scripts:\n");
 	trap_Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
 	G_InitLua_Local(buf);
 

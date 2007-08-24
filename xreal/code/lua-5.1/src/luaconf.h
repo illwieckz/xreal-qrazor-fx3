@@ -743,7 +743,12 @@ union luai_Cast { double l_d; long l_l; };
 ** without modifying the main part of the file.
 */
 
-
+/* raynorpat: fix annoying MSVC warnings */
+#if _MSC_VER
+#pragma warning(disable : 4996)
+#pragma warning(disable : 4244)
+#pragma warning(disable : 4127)
+#endif
 
 #endif
 
