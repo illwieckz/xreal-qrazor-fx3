@@ -187,7 +187,8 @@ code/game
 
 code/renderer
 - use hardware occlusion query samples for a new light LOD system
-- add dynamic LOD support for md3 and md5 models
+- use hardware occlusion query samples for light flares
+- add dynamic LOD support for md3 and md5 models ?
 - use static VBOs for md3 models that only have 1 frame -> killer optimization
 - fix stencil shadow flickering bug
 - check for shader model 3 hardware
@@ -197,54 +198,13 @@ code/renderer
 - improve shadow caster volumes to kill more obselete shadows by melting neighboured surfaces with the same material
 - add stained shadow mapping
 - add volumetric lighting
-- improve deferred shading
+- improve deferred shading ?
  - fix 3d model hud rendering
  - fix mirrors/portals
  - fix vertex painting support = depth peeling ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 
 code/xmap
-- finish BSP tree optimizations like merging co-planar faces ?
-- add small lights to powerup items ?
-- merge AAS compiler into xmap ?
+- add small lights below powerup items ?
 
 
-
-=== XreaL 2.0 Features ===
-
-code/cgame
-- add rag-doll effects
-
-code/game/bg_physics
-- add rigid body physics library used by client game and server game
- - rigid body
-  - position
-  - orientation
-  - linear velocity
-  - angular velocity
-  - inertia tensor adjusted mass
- - rigid body islands
- - LCP solver
- - quickstep iterator
- - ball and socket joint
- - hinge joint
- - slider joint
- - fixed joint
- - contact joint
-
-code/game
-- make advanced weapon usage of rigid body physics
-
-code/qcommon/cm
-- change brush and patch collision code to use
-  optimized continues axis aligned BSP tree per-polygon collisions
-- improve collision detection interface to allow creation of contact joints
-
-code/renderer
-- add COLLADA .dae model support ?
-- support Precomputed Irradiance Volumes for static scenes and
-  Precomputed Radiance Transfer for objects within those scenes ?
-  (http://www.ati.com/developer/gdc/GDC2005_PracticalPRT.pdf)
-
-code/xmap
-- add COLLADA .dae model support ?
