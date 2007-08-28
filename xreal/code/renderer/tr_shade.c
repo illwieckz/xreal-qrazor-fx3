@@ -84,7 +84,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", name);
 	}
 
-	ri.Printf(PRINT_ALL, "...loading '%s'\n", filename);
+	ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
 	size = ri.FS_ReadFile(filename, (void **)&buffer);
 	if(!buffer)
 	{

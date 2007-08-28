@@ -5219,7 +5219,7 @@ static void ScanAndLoadGuideFiles(void)
 	{
 		Com_sprintf(filename, sizeof(filename), "guides/%s", guideFiles[i]);
 
-		ri.Printf(PRINT_ALL, "...loading '%s'\n", filename);
+		ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
 		sum += ri.FS_ReadFile(filename, (void **)&buffers[i]);
 		if(!buffers[i])
 		{
@@ -5448,7 +5448,7 @@ static void ScanAndLoadShaderFiles(void)
 	{
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
 
-		ri.Printf(PRINT_ALL, "...loading '%s'\n", filename);
+		ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
 		sum += ri.FS_ReadFile(filename, (void **)&buffers[i]);
 		if(!buffers[i])
 		{
