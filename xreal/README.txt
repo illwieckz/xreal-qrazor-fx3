@@ -12,18 +12,19 @@ LICENSE
 USING HTTP/FTP DOWNLOAD SUPPORT
 USING R1ADMIN
 
+
 GENERAL NOTES
 =============
 
 A short summary of the file layout:
 
-XreaL/base/					XreaL media directory ( models, textures, sounds etc. )
-XreaL/gtkradiant/			XreaL configured GtkRadiant editor work dir
-XreaL/code/			   		XreaL source code ( renderer, game code, OS layer etc. )
-XreaL/code/bspc				bot routes compiler source code
-XreaL/code/common			framework source code for command line tools like xmap
-XreaL/code/xmap				map compiler ( .map -> .bsp )
-XreaL/code/xmass			master server
+XreaL/base/			XreaL media directory ( models, textures, sounds etc. )
+XreaL/gtkradiant/		XreaL configured GtkRadiant editor work dir
+XreaL/code/			XreaL source code ( renderer, game code, OS layer etc. )
+XreaL/code/bspc			bot routes compiler source code
+XreaL/code/common		framework source code for command line tools like xmap
+XreaL/code/xmap			map compiler ( .map -> .bsp )
+XreaL/code/xmass		master server
 XreaL/code/gtkradiant		GtkRadiant editor source based off GPL release on 17th February 2006
 
 
@@ -84,7 +85,6 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	XreaL/code/bspc/bspc.sln
 
 
-
 COMPILING ON WIN32 WITH MINGW
 =============================
 
@@ -115,8 +115,6 @@ Compile XreaL for x86 processers:
 	>scons arch=linux-i386
 Compile XreaL for x86_64 processers:
 	>scons arch=linux-x86_64
-Compile XreaL with SDL:
-	>scons arch=sdl
 
 
 COMPILING ON MAC OS X
