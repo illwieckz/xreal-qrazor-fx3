@@ -1195,6 +1195,7 @@ int             Com_Filter(const char *filter, const char *name, int casesensiti
 int             Com_FilterPath(const char *filter, const char *name, int casesensitive);
 int             Com_HashKey(const char *string, int maxlen);
 char           *Com_SkipPath(char *pathname);
+const char	   *COM_GetExtension(const char *name);
 void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);
 

@@ -4614,7 +4614,6 @@ pre-lit surfaces.
 shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRawImage)
 {
 	char            strippedName[MAX_QPATH];
-	char            fileName[MAX_QPATH];
 	int             i, hash;
 	char           *shaderText;
 	image_t        *image;
@@ -4681,15 +4680,12 @@ shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRa
 	}
 
 	// if not defined in the in-memory shader descriptions,
-	// look for a single image file
-	Q_strncpyz(fileName, name, sizeof(fileName));
-	Com_DefaultExtension(fileName, sizeof(fileName), ".tga");
-	image = R_FindImageFile(fileName,
-							mipRawImage ? IF_NONE : IF_NOPICMIP,
+	// look for a single supported image file
+	image = R_FindImageFile(name, mipRawImage ? IF_NONE : IF_NOPICMIP,
 							mipRawImage ? FT_DEFAULT : FT_LINEAR, mipRawImage ? WT_REPEAT : WT_CLAMP);
 	if(!image)
 	{
-		ri.Printf(PRINT_WARNING, "Couldn't find image for shader '%s'\n", name);
+		ri.Printf(PRINT_DEVELOPER, "Couldn't find image file for shader %s\n", name);
 		shader.defaultShader = qtrue;
 		return FinishShader();
 	}

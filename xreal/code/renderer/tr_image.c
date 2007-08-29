@@ -1440,185 +1440,6 @@ image_t        *R_CreateCubeImage(const char *name,
 #endif
 }
 
-
-
-/*
-=========================================================
-
-BMP LOADING
-
-=========================================================
-*/
-typedef struct
-{
-	char            id[2];
-	unsigned long   fileSize;
-	unsigned long   reserved0;
-	unsigned long   bitmapDataOffset;
-	unsigned long   bitmapHeaderSize;
-	unsigned long   width;
-	unsigned long   height;
-	unsigned short  planes;
-	unsigned short  bitsPerPixel;
-	unsigned long   compression;
-	unsigned long   bitmapDataSize;
-	unsigned long   hRes;
-	unsigned long   vRes;
-	unsigned long   colors;
-	unsigned long   importantColors;
-	unsigned char   palette[256][4];
-} BMPHeader_t;
-
-static void LoadBMP(const char *name, byte ** pic, int *width, int *height, byte alphaByte)
-{
-	int             columns, rows, numPixels;
-	byte           *pixbuf;
-	int             row, column;
-	byte           *buf_p;
-	byte           *buffer;
-	int             length;
-	BMPHeader_t     bmpHeader;
-	byte           *bmpRGBA;
-
-	*pic = NULL;
-
-	//
-	// load the file
-	//
-	length = ri.FS_ReadFile((char *)name, (void **)&buffer);
-	if(!buffer)
-	{
-		return;
-	}
-
-	buf_p = buffer;
-
-	bmpHeader.id[0] = *buf_p++;
-	bmpHeader.id[1] = *buf_p++;
-	bmpHeader.fileSize = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.reserved0 = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.bitmapDataOffset = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.bitmapHeaderSize = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.width = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.height = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.planes = LittleShort(*(short *)buf_p);
-	buf_p += 2;
-	bmpHeader.bitsPerPixel = LittleShort(*(short *)buf_p);
-	buf_p += 2;
-	bmpHeader.compression = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.bitmapDataSize = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.hRes = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.vRes = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.colors = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-	bmpHeader.importantColors = LittleLong(*(long *)buf_p);
-	buf_p += 4;
-
-	Com_Memcpy(bmpHeader.palette, buf_p, sizeof(bmpHeader.palette));
-
-	if(bmpHeader.bitsPerPixel == 8)
-		buf_p += 1024;
-
-	if(bmpHeader.id[0] != 'B' && bmpHeader.id[1] != 'M')
-	{
-		ri.Error(ERR_DROP, "LoadBMP: only Windows-style BMP files supported (%s)\n", name);
-	}
-	if(bmpHeader.fileSize != length)
-	{
-		ri.Error(ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name);
-	}
-	if(bmpHeader.compression != 0)
-	{
-		ri.Error(ERR_DROP, "LoadBMP: only uncompressed BMP files supported (%s)\n", name);
-	}
-	if(bmpHeader.bitsPerPixel < 8)
-	{
-		ri.Error(ERR_DROP, "LoadBMP: monochrome and 4-bit BMP files not supported (%s)\n", name);
-	}
-
-	columns = bmpHeader.width;
-	rows = bmpHeader.height;
-	if(rows < 0)
-		rows = -rows;
-	numPixels = columns * rows;
-
-	if(width)
-		*width = columns;
-	if(height)
-		*height = rows;
-
-	bmpRGBA = ri.Malloc(numPixels * 4);
-	*pic = bmpRGBA;
-
-
-	for(row = rows - 1; row >= 0; row--)
-	{
-		pixbuf = bmpRGBA + row * columns * 4;
-
-		for(column = 0; column < columns; column++)
-		{
-			unsigned char   red, green, blue, alpha;
-			int             palIndex;
-			unsigned short  shortPixel;
-
-			switch (bmpHeader.bitsPerPixel)
-			{
-				case 8:
-					palIndex = *buf_p++;
-					*pixbuf++ = bmpHeader.palette[palIndex][2];
-					*pixbuf++ = bmpHeader.palette[palIndex][1];
-					*pixbuf++ = bmpHeader.palette[palIndex][0];
-					*pixbuf++ = alphaByte;
-					break;
-				case 16:
-					shortPixel = *(unsigned short *)pixbuf;
-					pixbuf += 2;
-					*pixbuf++ = (shortPixel & (31 << 10)) >> 7;
-					*pixbuf++ = (shortPixel & (31 << 5)) >> 2;
-					*pixbuf++ = (shortPixel & (31)) << 3;
-					*pixbuf++ = alphaByte;
-					break;
-
-				case 24:
-					blue = *buf_p++;
-					green = *buf_p++;
-					red = *buf_p++;
-					*pixbuf++ = red;
-					*pixbuf++ = green;
-					*pixbuf++ = blue;
-					*pixbuf++ = alphaByte;
-					break;
-				case 32:
-					blue = *buf_p++;
-					green = *buf_p++;
-					red = *buf_p++;
-					alpha = *buf_p++;
-					*pixbuf++ = red;
-					*pixbuf++ = green;
-					*pixbuf++ = blue;
-					*pixbuf++ = alpha;
-					break;
-				default:
-					ri.Error(ERR_DROP, "LoadBMP: illegal pixel_size '%d' in file '%s'\n", bmpHeader.bitsPerPixel, name);
-					break;
-			}
-		}
-	}
-
-	ri.FS_FreeFile(buffer);
-
-}
-
 /*
 =========================================================
 
@@ -3573,7 +3394,7 @@ LoadDDS
 loads a dxtc (1, 3, 5) dds buffer into a valid rgba image
 =============
 */
-static void LoadDDS(const char *name, byte ** pic, int *width, int *height)
+static void LoadDDS(const char *name, byte ** pic, int *width, int *height, byte *alphabyte)
 {
 	int             w, h;
 	ddsPF_t         pf;
@@ -3909,6 +3730,25 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 	*bits &= IF_NORMALMAP;
 }
 
+typedef struct
+{
+	char *ext;
+	void (*ImageLoader) (const char *, unsigned char **, int *, int *, byte);
+} imageExtToLoaderMap_t;
+  	 
+// Note that the ordering indicates the order of preference used
+// when there are multiple images of different formats available
+static imageExtToLoaderMap_t imageLoaders[ ] =
+{
+	{ "tga",  LoadTGA },
+	{ "png",  LoadPNG },
+	{ "jpg",  LoadJPG },
+	{ "jpeg", LoadJPG },
+	{ "dds",  LoadDDS }
+};
+  	 
+static int numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0]);
+
 /*
 =================
 R_LoadImage
@@ -3919,7 +3759,6 @@ Loads any of the supported image types into a cannonical
 */
 static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits)
 {
-	int             len;
 	char           *token;
 
 	*pic = NULL;
@@ -3987,6 +3826,9 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	}
 	else
 	{
+		qboolean		orgNameFailed = qfalse;
+		int				i;
+		const char	   *ext;
 		char            filename[MAX_QPATH];
 		byte            alphaByte;
 
@@ -3997,67 +3839,57 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 			alphaByte = 0xFF;
 
 		Q_strncpyz(filename, token, sizeof(filename));
-		Com_DefaultExtension(filename, sizeof(filename), ".tga");
 
-		//ri.Printf(PRINT_ALL, "R_LoadImage: filename '%s'\n", filename);
+		ext = Com_GetExtension(filename);
 
-		len = strlen(filename);
-
-		if(!Q_stricmp(filename + len - 4, ".tga"))
+		if(*ext)
 		{
-			LoadTGA(filename, pic, width, height, alphaByte);	// try tga first
-
-			if(!*pic)
+			// look for the correct loader and use it
+			for(i = 0; i < numImageLoaders; i++)
 			{
-				char            altname[MAX_QPATH];	// try png in place of tga 
-
-				Q_strncpyz(altname, filename, sizeof(altname));
-				len = strlen(altname);
-				altname[len - 3] = 'p';
-				altname[len - 2] = 'n';
-				altname[len - 1] = 'g';
-				LoadPNG(altname, pic, width, height, alphaByte);
+				if(!Q_stricmp(ext, imageLoaders[i].ext))
+				{
+					// load
+					imageLoaders[i].ImageLoader(filename, pic, width, height, alphaByte);
+					break;
+				}
 			}
 
-			if(!*pic)
+			// a loader was found
+			if(i < numImageLoaders)
 			{
-				char            altname[MAX_QPATH];	// try jpg in place of tga
-
-				Q_strncpyz(altname, filename, sizeof(altname));
-				len = strlen(altname);
-				altname[len - 3] = 'j';
-				altname[len - 2] = 'p';
-				altname[len - 1] = 'g';
-				LoadJPG(altname, pic, width, height, alphaByte);
-			}
-
-			if(!*pic)
-			{
-				char            altname[MAX_QPATH];	// try dds in place of tga 
-
-				Q_strncpyz(altname, filename, sizeof(altname));
-				len = strlen(altname);
-				altname[len - 3] = 'd';
-				altname[len - 2] = 'd';
-				altname[len - 1] = 's';
-				LoadDDS(altname, pic, width, height);
+				if(*pic == NULL)
+				{
+					// loader failed, most likely because the file isn't there;
+					// try again without the extension
+					orgNameFailed = qtrue;
+					Com_StripExtension(token, filename, MAX_QPATH);
+				}
+				else
+				{
+					// something loaded
+					return;
+				}
 			}
 		}
-		else if(!Q_stricmp(filename + len - 4, ".bmp"))
+
+		// try and find a suitable match using all the image formats supported
+		for(i = 0; i < numImageLoaders; i++)
 		{
-			LoadBMP(filename, pic, width, height, alphaByte);
-		}
-		else if(!Q_stricmp(filename + len - 4, ".png"))
-		{
-			LoadPNG(filename, pic, width, height, alphaByte);
-		}
-		else if(!Q_stricmp(filename + len - 4, ".jpg"))
-		{
-			LoadJPG(filename, pic, width, height, alphaByte);
-		}
-		else if(!Q_stricmp(filename + len - 4, ".dds"))
-		{
-			LoadDDS(filename, pic, width, height);
+			char *altName = va("%s.%s", filename, imageLoaders[i].ext);
+  	 
+			// load
+			imageLoaders[i].ImageLoader(altName, pic, width, height, alphaByte);
+  	 
+			if(*pic)
+			{
+				if(orgNameFailed)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", token, altName);
+				}
+  	 
+				break;
+			}
 		}
 	}
 }
