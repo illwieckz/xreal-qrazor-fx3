@@ -432,7 +432,7 @@ void Sys_Error(const char *error, ...)
 	CL_Shutdown();
 
 	va_start(argptr, error);
-	vsprintf(string, error, argptr);
+	Q_vsnprintf(string, sizeof(string), error, argptr);
 	va_end(argptr);
 	fprintf(stderr, "Sys_Error: %s\n", string);
 
@@ -777,11 +777,7 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 	assert(name);
 
 	getcwd(curpath, sizeof(curpath));
-//#if USE_SDL
-//	snprintf(fname, sizeof(fname), "%s" DLL_EXT, name);
-//#else
 	snprintf(fname, sizeof(fname), "%s" ARCH_STRING DLL_EXT, name);
-//#endif
 
 	// TODO: use fs_searchpaths from files.c
 	pwdpath = Sys_Cwd();
