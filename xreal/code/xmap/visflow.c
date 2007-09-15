@@ -185,7 +185,7 @@ vwinding_t     *VisChopWinding(vwinding_t * in, pstack_t * stack, plane_t * spli
 			neww->numpoints++;
 		}
 
-		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
+		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i])) // raynorpat: branch optimization
 			continue;
 
 		if(neww->numpoints == MAX_POINTS_ON_FIXED_WINDING)
@@ -284,7 +284,7 @@ vwinding_t     *ClipToSeperators(vwinding_t * source, vwinding_t * pass, vwindin
 			fliptest = qfalse;
 			for(k = 0; k < source->numpoints; k++)
 			{
-				if(k == i || k == l)
+				if ((k == i) | (k == l)) // raynorpat: branch optimization
 					continue;
 				d = DotProduct(source->points[k], plane.normal) - plane.dist;
 				if(d < -ON_EPSILON)

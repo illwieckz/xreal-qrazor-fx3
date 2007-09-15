@@ -140,7 +140,6 @@ void WindingPlane(winding_t * w, vec3_t normal, vec_t * dist)
 	CrossProduct(v2, v1, normal);
 	VectorNormalize(normal);
 	*dist = DotProduct(w->p[0], normal);
-
 }
 
 /*
@@ -216,8 +215,7 @@ winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist)
 	vec3_t          org, vright, vup;
 	winding_t      *w;
 
-// find the major axis
-
+	// find the major axis
 	max = -BOGUS_RANGE;
 	x = -1;
 	for(i = 0; i < 3; i++)
@@ -330,7 +328,7 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 
 	counts[0] = counts[1] = counts[2] = 0;
 
-// determine sides for each point
+	// determine sides for each point
 	for(i = 0; i < in->numpoints; i++)
 	{
 		dot = DotProduct(in->p[i], normal);
@@ -392,7 +390,7 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 			b->numpoints++;
 		}
 
-		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
+		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i]))  // raynorpat: branch optimization
 			continue;
 
 		// generate a split point
@@ -415,9 +413,10 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 		b->numpoints++;
 	}
 
-	if(f->numpoints > maxpts || b->numpoints > maxpts)
+	if((f->numpoints > maxpts) | (b->numpoints > maxpts)) // raynorpat: branch optimization
 		Error("ClipWinding: points exceeded estimate");
-	if(f->numpoints > MAX_POINTS_ON_WINDING || b->numpoints > MAX_POINTS_ON_WINDING)
+
+    if((f->numpoints > MAX_POINTS_ON_WINDING) | (b->numpoints > MAX_POINTS_ON_WINDING)) // raynorpat: branch optimization
 		Error("ClipWinding: MAX_POINTS_ON_WINDING");
 }
 
@@ -443,7 +442,7 @@ void ChopWindingInPlace(winding_t ** inout, vec3_t normal, vec_t dist, vec_t eps
 	in = *inout;
 	counts[0] = counts[1] = counts[2] = 0;
 
-// determine sides for each point
+	// determine sides for each point
 	for(i = 0; i < in->numpoints; i++)
 	{
 		dot = DotProduct(in->p[i], normal);
@@ -493,7 +492,7 @@ void ChopWindingInPlace(winding_t ** inout, vec3_t normal, vec_t dist, vec_t eps
 			f->numpoints++;
 		}
 
-		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
+		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i]))  // raynorpat: branch optimization
 			continue;
 
 		// generate a split point
