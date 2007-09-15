@@ -48,7 +48,7 @@ typedef struct
 } plane_t;
 
 #define MAX_POINTS_ON_WINDING	64
-#define	MAX_POINTS_ON_FIXED_WINDING	12
+#define	MAX_POINTS_ON_FIXED_WINDING	24 // ydnar: increased this from 12 at the expense of more memory
 
 typedef struct
 {

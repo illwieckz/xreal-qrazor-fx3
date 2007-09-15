@@ -146,7 +146,7 @@ void SortPortals(void)
 
 	if(nosort)
 		return;
-	
+
 	qsort(sorted_portals, numportals * 2, sizeof(sorted_portals[0]), PComp);
 }
 
@@ -223,10 +223,10 @@ void ClusterMerge(int leafnum)
 
 		if(p->status != stat_done)
 			Error("portal not done");
-		
+
 		for(j = 0; j < portallongs; j++)
 			((long *)portalvector)[j] |= ((long *)p->portalvis)[j];
-		
+
 		pnum = p - portals;
 		portalvector[pnum >> 3] |= 1 << (pnum & 7);
 	}
@@ -339,7 +339,7 @@ void CalcVis(void)
 	int             i;
 
 	RunThreadsOnIndividual(numportals * 2, qtrue, BasePortalVis);
-//	RunThreadsOnIndividual(numportals * 2, qtrue, BetterPortalVis);
+//  RunThreadsOnIndividual(numportals * 2, qtrue, BetterPortalVis);
 
 	SortPortals();
 
@@ -359,7 +359,7 @@ void CalcVis(void)
 	{
 		CalcPassagePortalVis();
 	}
-	
+
 	// assemble the leaf vis lists by oring and compressing the portal lists
 	Sys_Printf("creating leaf vis...\n");
 	for(i = 0; i < portalclusters; i++)
@@ -755,10 +755,10 @@ int CountActivePortals(void)
 	for(j = 0; j < numportals * 2; j++)
 	{
 		p = portals + j;
-		
+
 		if(p->removed)
 			continue;
-		
+
 		if(p->hint)
 			hints++;
 		num++;
@@ -1189,6 +1189,17 @@ int VisMain(int argc, char **argv)
 	Sys_Printf("reading %s\n", portalfile);
 	LoadPortals(portalfile);
 
+	// ydnar: exit if no portals, hence no vis
+	if(numportals == 0)
+	{
+		Sys_Printf("No portals in %s, exiting.\n", portalfile);
+
+		// shut down connection
+		Broadcast_Shutdown();
+
+		return 0;
+	}
+
 	if(mergevis)
 	{
 		MergeLeaves();
@@ -1202,6 +1213,9 @@ int VisMain(int argc, char **argv)
 
 	CalcVis();
 //  CalcPHS();
+
+	// delete the portal file
+	remove(portalfile);
 
 	// write the bsp file
 	Sys_Printf("writing %s\n", name);

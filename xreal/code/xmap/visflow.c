@@ -1394,7 +1394,11 @@ void CreatePassages(int portalnum)
 			if(k < numseperators)
 				continue;
 
-			memcpy(&in, p->winding, (int)((vwinding_t *) 0)->points[p->winding->numpoints]);
+			// ydnar: prefer correctness to stack overflow
+			if(p->winding->numpoints <= MAX_POINTS_ON_FIXED_WINDING)
+				memcpy(&in, p->winding, (int)&(((vwinding_t*) 0)->points[p->winding->numpoints]));
+			else
+				memcpy(&in, p->winding, sizeof(vwinding_t));
 
 			for(k = 0; k < numseperators; k++)
 			{

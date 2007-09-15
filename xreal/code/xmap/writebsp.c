@@ -314,15 +314,21 @@ void EmitBrushes(bspBrush_t * brushes)
 			{
 				continue;
 			}
+
 			if(numBrushSides == MAX_MAP_BRUSHSIDES)
 			{
 				Error("MAX_MAP_BRUSHSIDES ");
 			}
+
 			cp = &dbrushsides[numBrushSides];
 			db->numSides++;
 			numBrushSides++;
 			cp->planeNum = b->sides[j].planenum;
-			cp->shaderNum = EmitShader(b->sides[j].shaderInfo->shader);
+
+			if(b->sides[j].shaderInfo)
+				cp->shaderNum = EmitShader(b->sides[j].shaderInfo->shader);
+			else
+				cp->shaderNum = EmitShader(NULL);
 		}
 	}
 
