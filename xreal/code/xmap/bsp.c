@@ -626,6 +626,10 @@ int BspMain(int argc, char **argv)
 	if(onlyents)
 	{
 		OnlyEnts();
+
+		// shut down connection
+		Broadcast_Shutdown();
+
 		return 0;
 	}
 
@@ -633,6 +637,10 @@ int BspMain(int argc, char **argv)
 	if(onlytextures)
 	{
 		OnlyTextures();
+
+		// shut down connection
+		Broadcast_Shutdown();
+
 		return 0;
 	}
 
