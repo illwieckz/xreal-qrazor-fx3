@@ -195,7 +195,7 @@ EDIT FIELDS
 Field_Draw
 
 Handles horizontal scrolling and cursor blinking
-x, y, amd width are in pixels
+x, y, and width are in pixels
 ===================
 */
 void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, qboolean showCursor)

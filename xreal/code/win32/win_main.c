@@ -152,16 +152,6 @@ char           *Sys_Cwd(void)
 
 /*
 ==============
-Sys_DefaultCDPath
-==============
-*/
-char           *Sys_DefaultCDPath(void)
-{
-	return "";
-}
-
-/*
-==============
 Sys_DefaultBasePath
 ==============
 */
@@ -472,7 +462,6 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDEC
 	HINSTANCE       libHandle;
 	void            (QDECL * dllEntry) (intptr_t (QDECL * syscallptr) (intptr_t, ...));
 	char           *basepath;
-	char           *cdpath;
 	char           *gamedir;
 	char           *fn;
 	char            filename[MAX_QPATH];
@@ -491,7 +480,6 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDEC
 	{
 #endif
 		basepath = Cvar_VariableString("fs_basepath");
-		cdpath = Cvar_VariableString("fs_cdpath");
 		gamedir = Cvar_VariableString("fs_game");
 
 		fn = FS_BuildOSPath(basepath, gamedir, filename);
@@ -505,22 +493,7 @@ void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDEC
 
 		if(!libHandle)
 		{
-			if(cdpath[0])
-			{
-				fn = FS_BuildOSPath(cdpath, gamedir, filename);
-				libHandle = LoadLibrary(fn);
-#ifndef NDEBUG
-				if(libHandle)
-					Com_Printf("LoadLibrary '%s' ok\n", fn);
-				else
-					Com_Printf("LoadLibrary '%s' failed\n", fn);
-#endif
-			}
-
-			if(!libHandle)
-			{
-				return NULL;
-			}
+			return NULL;
 		}
 #ifndef NDEBUG
 	}

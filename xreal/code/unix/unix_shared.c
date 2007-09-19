@@ -382,16 +382,6 @@ char           *Sys_Cwd(void)
 	return cwd;
 }
 
-void Sys_SetDefaultCDPath(const char *path)
-{
-	Q_strncpyz(cdPath, path, sizeof(cdPath));
-}
-
-char           *Sys_DefaultCDPath(void)
-{
-	return cdPath;
-}
-
 void Sys_SetDefaultInstallPath(const char *path)
 {
 	Q_strncpyz(installPath, path, sizeof(installPath));

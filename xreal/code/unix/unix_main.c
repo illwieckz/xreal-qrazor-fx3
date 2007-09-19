@@ -769,7 +769,6 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 	char           *basepath;
 	char           *homepath;
 	char           *pwdpath;
-	char		   *cdpath;
 	char           *gamedir;
 	const char     *err = NULL;
 
@@ -783,7 +782,6 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 	pwdpath = Sys_Cwd();
 	basepath = Cvar_VariableString("fs_basepath");
 	homepath = Cvar_VariableString("fs_homepath");
-	cdpath = Cvar_VariableString("fs_cdpath");
 	gamedir = Cvar_VariableString("fs_game");
 
 	libHandle = try_dlopen(pwdpath, gamedir, fname, fqpath);
@@ -793,9 +791,6 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 
 	if(!libHandle && basepath)
 		libHandle = try_dlopen(basepath, gamedir, fname, fqpath);
-
-	if(!libHandle && cdpath)
-		libHandle = try_dlopen(cdpath, gamedir, fname, fqpath);
 
 	if(!libHandle)
 	{
