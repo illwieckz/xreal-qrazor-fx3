@@ -783,7 +783,6 @@ void CL_InitCGame(void)
 	const char     *info;
 	const char     *mapname;
 	int             t1, t2;
-	vmInterpret_t   interpret;
 
 	t1 = Sys_Milliseconds();
 
@@ -795,23 +794,13 @@ void CL_InitCGame(void)
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s.bsp", mapname);
 
-	// load the dll or bytecode
-#ifdef VM_SV_PURE
-	if(cl_connectedToPureServer != 0)
-	{
-		// if sv_pure is set we only allow qvms to be loaded
-		interpret = VMI_COMPILED;
-	}
-	else
-#endif
-	{
-		interpret = Cvar_VariableValue("vm_cgame");
-	}
-	cgvm = VM_Create("cgame", CL_CgameSystemCalls, interpret);
+	// load the vm
+	cgvm = VM_Create("cgame", CL_CgameSystemCalls);
 	if(!cgvm)
 	{
 		Com_Error(ERR_DROP, "VM_Create on cgame failed");
 	}
+
 	cls.state = CA_LOADING;
 
 	// init for this gamestate
@@ -863,8 +852,6 @@ qboolean CL_GameCommand(void)
 	return VM_Call(cgvm, CG_CONSOLE_COMMAND);
 }
 
-
-
 /*
 =====================
 CL_CGameRendering
@@ -873,9 +860,7 @@ CL_CGameRendering
 void CL_CGameRendering(stereoFrame_t stereo)
 {
 	VM_Call(cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying);
-	VM_Debug(0);
 }
-
 
 /*
 =================

@@ -20,50 +20,19 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#ifndef __QFILES_H__
-#define __QFILES_H__
 
 //
 // qfiles.h: quake file formats
 // This file must be identical in the quake and utils directories
 //
 
+#ifndef __QFILES_H__
+#define __QFILES_H__
+
 // surface geometry should not exceed these limits
 #define	SHADER_MAX_VERTEXES	100000
 #define	SHADER_MAX_INDEXES	(SHADER_MAX_VERTEXES * 6)
 #define SHADER_MAX_TRIANGLES (SHADER_MAX_INDEXES / 3)
-
-
-
-/*
-========================================================================
-
-QVM files
-
-========================================================================
-*/
-
-#define	VM_MAGIC		0x12721444
-#define VM_MAGIC_VER2   0x12721445
-typedef struct
-{
-	int             vmMagic;
-
-	int             instructionCount;
-
-	int             codeOffset;
-	int             codeLength;
-
-	int             dataOffset;
-	int             dataLength;
-	int             litLength;	// ( dataLength - litLength ) should be byteswapped on load
-	int             bssLength;	// zero filled memory appended to datalength
-
-	//!!! below here is VM_MAGIC_VER2 !!!
-	int				jtrgLength;	// number of jump table targets
-} vmHeader_t;
-
-
 
 /*
 ========================================================================
@@ -81,7 +50,6 @@ typedef struct _TargaHeader
 	unsigned short  x_origin, y_origin, width, height;
 	unsigned char   pixel_size, attributes;
 } TargaHeader;
-
 
 
 /*
@@ -198,222 +166,6 @@ typedef struct
 	int             ofsEnd;		// end of file
 } md3Header_t;
 
-/*
-==============================================================================
-
-MD4 file format
-
-==============================================================================
-*/
-
-#define MD4_IDENT			(('4'<<24)+('P'<<16)+('D'<<8)+'I')
-#define MD4_VERSION			1
-#define	MD4_MAX_BONES		128
-
-typedef struct
-{
-	int             boneIndex;	// these are indexes into the boneReferences,
-	float           boneWeight;	// not the global per-frame bone list
-	float           offset[3];
-} md4Weight_t;
-
-typedef struct
-{
-	float           normal[3];
-	vec2_t          texCoords;
-	int             numWeights;
-	md4Weight_t     weights[1];	// variable sized
-} md4Vertex_t;
-
-typedef struct
-{
-	int             indexes[3];
-} md4Triangle_t;
-
-typedef struct
-{
-	int             ident;
-
-	char            name[64];	// polyset name
-	char            shader[64];
-	int             shaderIndex;	// for in-game use
-
-	int             ofsHeader;	// this will be a negative number
-
-	int             numVerts;
-	int             ofsVerts;
-
-	int             numTriangles;
-	int             ofsTriangles;
-
-	// Bone references are a set of ints representing all the bones
-	// present in any vertex weights for this surface.  This is
-	// needed because a model may have surfaces that need to be
-	// drawn at different sort times, and we don't want to have
-	// to re-interpolate all the bones for each surface.
-	int             numBoneReferences;
-	int             ofsBoneReferences;
-
-	int             ofsEnd;		// next surface follows
-} md4Surface_t;
-
-typedef struct
-{
-	float           matrix[3][4];
-} md4Bone_t;
-
-typedef struct
-{
-	float           bounds[2][3];	// bounds of all surfaces of all LOD's for this frame
-	float           localOrigin[3];	// midpoint of bounds, used for sphere cull
-	float           radius;		// dist from localOrigin to corner
-	md4Bone_t       bones[1];	// [numBones]
-} md4Frame_t;
-
-typedef struct
-{
-	int             numSurfaces;
-	int             ofsSurfaces;	// first surface, others follow
-	int             ofsEnd;		// next lod follows
-} md4LOD_t;
-
-typedef struct
-{
-	int             ident;
-	int             version;
-
-	char            name[64];	// model name
-
-	// frames and bones are shared by all levels of detail
-	int             numFrames;
-	int             numBones;
-	int             ofsBoneNames;	// char name[ 64 ]
-	int             ofsFrames;	// md4Frame_t[numFrames]
-
-	// each level of detail has completely separate sets of surfaces
-	int             numLODs;
-	int             ofsLODs;
-
-	int             ofsEnd;		// end of file
-} md4Header_t;
-
-
-
-/*
-==============================================================================
-
-MDS file format
-
-==============================================================================
-*/
-
-#define MDS_IDENT			(('W'<<24)+('S'<<16)+('D'<<8)+'M')
-#define MDS_VERSION			0x0004
-#define	MDS_MAX_BONES		128
-
-typedef struct
-{
-	int             boneIndex;	// these are indexes into the boneReferences,
-	float           boneWeight;	// not the global per-frame bone list
-	float           offset[3];
-} mdsWeight_t;
-
-typedef struct
-{
-	float           normal[3];
-	float           texCoords[2];
-	int             numWeights;
-	int             fixedParent;
-	float           fixedDist;
-	mdsWeight_t     weights[1];	// variable sized
-} mdsVertex_t;
-
-typedef struct
-{
-	int             indexes[3];
-} mdsTriangle_t;
-
-typedef struct
-{
-	int             ident;
-
-	char            name[64];	// polyset name
-	char            shader[64];
-	int             shaderIndex;	// for in-game use
-
-	int             minLod;
-	int             ofsHeader;	// this will be a negative number
-
-	int             numVerts;
-	int             ofsVerts;
-
-	int             numTriangles;
-	int             ofsTriangles;
-
-	int             ofsCollapseMap;
-
-	// Bone references are a set of ints representing all the bones
-	// present in any vertex weights for this surface.  This is
-	// needed because a model may have surfaces that need to be
-	// drawn at different sort times, and we don't want to have
-	// to re-interpolate all the bones for each surface.
-	int             numBoneReferences;
-	int             ofsBoneReferences;
-
-	int             ofsEnd;		// next surface follows
-} mdsSurface_t;
-
-typedef struct
-{
-	char            name[64];
-	int             parentIndex;	// parent index (-1 if root)
-	float           torsoWeight;	// 0.0 to 1.0
-	float           parentDist;	// distance from parent bone to this bone's pivot point
-	int             flags;		// bit 0 is set if bone is a tag
-} mdsBone_t;
-
-typedef struct
-{
-	short           angles[4];	// defines the bone orientation
-	short           ofsAngles[2];	// defines the direction of the bone pivot from this bone's parent
-} mdsBoneFrame_t;
-
-typedef struct
-{
-	float           bounds[2][3];	// bounds of all surfaces of all LOD's for this frame
-	float           localOrigin[3];	// midpoint of bounds, used for sphere cull
-	float           radius;		// dist from localOrigin to corner
-	float           parentOffset[3];
-	mdsBoneFrame_t  bones[1];	// [numBones]
-} mdsFrame_t;
-
-typedef struct
-{
-	int             ident;
-	int             version;
-
-	char            name[64];	// model name
-
-	float           lodScale;	// LOD Scale
-	float           lodBias;	// LOD Bias
-
-	// frames and bones are shared by all levels of detail
-	int             numFrames;
-	int             numBones;
-	int             ofsFrames;	// md4Frame_t[numFrames]
-	int             ofsBones;	// char name[ 64 ]
-
-	int             torsoParent;
-
-	int             numSurfaces;
-	int             ofsSurfaces;
-
-	int             numTags;
-	int             ofsTags;
-
-	int             ofsEnd;		// end of file
-} mdsHeader_t;
-
 
 /*
 ==============================================================================
@@ -428,7 +180,6 @@ typedef struct
 		// little-endian "IBSP"
 
 #define BSP_VERSION			46
-
 
 // there shouldn't be any problem with increasing these values at the
 // expense of more memory allocation in the utilities
@@ -455,7 +206,6 @@ typedef struct
 #define	MAX_MAP_DRAW_VERTS	0x80000
 #define	MAX_MAP_DRAW_INDEXES	0x80000
 
-
 // key / value pair sizes in the entities lump
 #define	MAX_KEY				32
 #define	MAX_VALUE			1024
@@ -472,7 +222,6 @@ typedef struct
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
 
 //=============================================================================
-
 
 typedef struct
 {

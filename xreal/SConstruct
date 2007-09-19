@@ -13,7 +13,6 @@ opts.Add(EnumOption('optimize', 'Set to >= 1 to build with general optimizations
 opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(EnumOption('sound', 'Choose sound api', 'sdl', allowed_values=('oss', 'alsa', 'sdl')))
-opts.Add(BoolOption('qvm', 'Set to 1 to compile engine with Quake virtual machine support', 0))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiprocessor support', 0))
 opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolOption('mapping', 'Set to 1 to compile GtkRadiant, XMap and BSPC mapping tools', 0))
@@ -85,8 +84,8 @@ opts.Save('xreal.conf', env)
 # compile targets
 #
 Export('env')
-SConscript('SConscript_xreal-server', build_dir='build/xreal-server', duplicate=0)
 SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
+SConscript('SConscript_xreal-server', build_dir='build/xreal-server', duplicate=0)
 SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
 SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)

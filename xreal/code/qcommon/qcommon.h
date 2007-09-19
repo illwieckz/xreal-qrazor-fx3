@@ -281,14 +281,21 @@ VIRTUAL MACHINE
 ==============================================================
 */
 
-typedef struct vm_s vm_t;
-
-typedef enum
+typedef struct
 {
-	VMI_NATIVE,
-	VMI_BYTECODE,
-	VMI_COMPILED
-} vmInterpret_t;
+	intptr_t		(*systemCall) (intptr_t * parms);
+	intptr_t        (QDECL * entryPoint) (int callNum, ...);
+
+	char            name[MAX_QPATH];
+	void           *dllHandle;
+
+	byte           *dataBase;
+
+	// fqpath member added 7/20/02 by T.Ray
+	char            fqpath[MAX_QPATH + 1];
+} vm_t;
+
+extern vm_t    *currentVM;
 
 typedef enum
 {
@@ -303,24 +310,18 @@ typedef enum
 	TRAP_ANGLEVECTORS,
 	TRAP_PERPENDICULARVECTOR,
 	TRAP_FLOOR,
-	TRAP_CEIL,
-
-	TRAP_TESTPRINTINT,
-	TRAP_TESTPRINTFLOAT
+	TRAP_CEIL
 } sharedTraps_t;
 
 void            VM_Init(void);
-vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *), vmInterpret_t interpret);
-
-// module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
+vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *));
 
 void            VM_Free(vm_t * vm);
 void            VM_Clear(void);
 vm_t           *VM_Restart(vm_t * vm);
 
 intptr_t QDECL  VM_Call(vm_t * vm, int callNum, ...);
-
-void            VM_Debug(int level);
+intptr_t QDECL	VM_DllSyscall(intptr_t arg, ...);
 
 void           *VM_ArgPtr(intptr_t intValue);
 void           *VM_ExplicitArgPtr(vm_t * vm, intptr_t intValue);

@@ -31,6 +31,7 @@ xreal_src = [
 'code/qcommon/md4.c',
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
+'code/qcommon/vm.c',
 'code/client/snd_adpcm.c',
 'code/client/snd_codec_ogg.c',
 'code/client/snd_codec_wav.c',
@@ -226,8 +227,7 @@ win_src = [
 ]
 
 vm_src = [
-'code/qcommon/vm.c',
-'code/qcommon/vm_interpreted.c'
+
 ]
 
 xreal_env.Append(CCFLAGS='-DBOTLIB')
@@ -257,23 +257,18 @@ if env['arch'] == 'linux-i386':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-	
-	if env['qvm'] == 1:
-		vm_src += ['code/qcommon/vm_x86.c']
-	else:
-		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
-		
+
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
 	if env['sound'] == 'oss':
-		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])
+		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, 'code/unix/linux_snd.c'])
 	elif env['sound'] == 'alsa':
 		xreal_env.Append(LIBS=['asound'])
-		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
+		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, 'code/unix/linux_alsa.c'])
 	else:
-		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
+		xreal_env.Program('xreal.x86', [xreal_src, unix_src, linux_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86')
 
@@ -289,22 +284,17 @@ elif env['arch'] == 'linux-x86_64':
 		xreal_env.ParseConfig('freetype-config --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 	
-	if env['qvm'] == 1:
-		vm_src += ['code/qcommon/vm_x86_64.c']
-	else:
-		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
-		
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
 		xreal_env.Append(LIBS=['pthread'])
 	
 	if env['sound'] == 'oss':
-		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_snd.c'])
+		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, 'code/unix/linux_snd.c'])
 	elif env['sound'] == 'alsa':
 		xreal_env.Append(LIBS=['asound'])
-		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/linux_alsa.c'])
+		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, 'code/unix/linux_alsa.c'])
 	else:
-		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, vm_src, 'code/unix/sdl_snd.c'])
+		xreal_env.Program('xreal.x86_64', [xreal_src, unix_src, linux_src, 'code/unix/sdl_snd.c'])
 		
 	xreal_env.Install('#', 'xreal.x86_64')
 
@@ -323,7 +313,7 @@ elif env['arch'] == 'macosx':
 		xreal_env.Append(LIBS=['pthread'])
 	
 	xreal_env.Append(LIBS=['SDL', 'objc'])
-	xreal_env.Program('xreal.osx', [xreal_src, unix_src, sdl_src, vm_src])
+	xreal_env.Program('xreal.osx', [xreal_src, unix_src, sdl_src])
 		
 	xreal_env.Install('#', 'xreal.osx')
 
@@ -331,12 +321,7 @@ elif env['arch'] == 'win32-mingw':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
 		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-		
-	if env['qvm'] == 1:
-		vm_src += ['code/qcommon/vm_x86.c']
-	else:
-		xreal_env.Append(CCFLAGS='-DDLL_ONLY')
 	
 	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
-	xreal_env.Program('xreal', [xreal_src, win_src, vm_src])
+	xreal_env.Program('xreal', [xreal_src, win_src])
 	xreal_env.Install('#', 'xreal.exe')

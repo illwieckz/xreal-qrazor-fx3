@@ -22,6 +22,7 @@ xreal_server_src = [
 'code/qcommon/md4.c',
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
+'code/qcommon/vm.c',
 'code/server/sv_bot.c',
 'code/server/sv_ccmds.c',
 'code/server/sv_client.c',
@@ -74,11 +75,6 @@ linux_src = [
 'code/unix/linux_signals.c'
 ]
 
-vm_src = [
-'code/qcommon/vm.c',
-'code/qcommon/vm_interpreted.c',
-]
-
 xreal_server_env.Append(CCFLAGS='-DBOTLIB')
 xreal_server_env.Append(CCFLAGS='-DC_ONLY')
 xreal_server_env.Append(CCFLAGS='-DDEDICATED')
@@ -90,33 +86,21 @@ if env['curl'] == 1:
 	xreal_server_env.Append(CCFLAGS='-DUSE_CURL')
 
 if env['arch'] == 'linux-i386':
-	if env['qvm'] == 1:
-		vm_src += ['code/qcommon/vm_x86.c']
-	else:
-		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
-
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, unix_src, linux_src, vm_src])
 	xreal_server_env.Install('#', 'xreal-server.x86')
 	
 elif env['arch'] == 'linux-x86_64':
-	if env['qvm'] == 1:
-		vm_src += ['code/qcommon/vm_x86_64.c']
-	else:
-		xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
-
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src, linux_src, vm_src])
 	xreal_server_env.Install('#', 'xreal-server.x86_64')
 
 elif env['arch'] == 'macosx':
-	xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server.osx-ppc', [xreal_server_src, unix_src, linux_src, vm_src])
 	xreal_server_env.Install('#', 'xreal-server.osx')
 
 elif env['arch'] == 'sdl':
-	xreal_server_env.Append(CCFLAGS='-DDLL_ONLY')
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server_sdl', [xreal_server_src, unix_src, linux_src, vm_src])
 	xreal_server_env.Install('#', 'xreal-server_sdl')
