@@ -92,7 +92,7 @@ static Image* LoadJPGBuffer(byte * fbuffer)
 	/* This struct contains the JPEG decompression parameters and pointers to
 	* working space (which is allocated as needed by the JPEG library).
 	*/
-	struct jpeg_decompress_struct cinfo;
+	struct jpeg_decompress_struct cinfo = {0};
 
 	/* We use our private extension JPEG error handler.
 	* Note that this struct must live as long as the main JPEG parameter
@@ -110,8 +110,9 @@ static Image* LoadJPGBuffer(byte * fbuffer)
 
 	/* More stuff */
 	JSAMPARRAY      buffer;		/* Output row buffer */
-	int             row_stride;	/* physical row width in output buffer */
-	unsigned char  *out;
+	unsigned		row_stride;	/* physical row width in output buffer */
+	unsigned		pixelcount;
+	unsigned char  *out, *out_converted;
 	byte           *bbuf;
 
 	/* In this example we want to open the input file before doing anything else,
@@ -170,7 +171,16 @@ static Image* LoadJPGBuffer(byte * fbuffer)
 	* In this example, we need to make an output work buffer of the right size.
 	*/
 	/* JSAMPLEs per row in output buffer */
+	pixelcount = cinfo.output_width * cinfo.output_height;
 	row_stride = cinfo.output_width * cinfo.output_components;
+	out = (unsigned char *)malloc(pixelcount * 4);
+
+	if(!cinfo.output_width || !cinfo.output_height
+		|| ((pixelcount * 4) / cinfo.output_width) / 4 != cinfo.output_height
+		|| pixelcount > 0x1FFFFFFF || cinfo.output_components > 4) // 4*1FFFFFFF == 0x7FFFFFFC < 0x7FFFFFFF
+	{
+		return 0;
+	}
 	
 	RGBAImage* image = new RGBAImage(cinfo.output_width, cinfo.output_height);
 	out = image->getRGBAPixels();
@@ -192,8 +202,31 @@ static Image* LoadJPGBuffer(byte * fbuffer)
 		(void)jpeg_read_scanlines(&cinfo, buffer, 1);
 	}
 
-	// clear all the alphas to 255
+	// If we are processing an 8-bit JPEG (greyscale), we'll have to convert
+	// the greyscale values to RGBA.
+	if(cinfo.output_components == 1)
 	{
+		int				sindex, dindex = 0;
+		unsigned char	greyshade;
+  	 
+		// allocate a new buffer for the transformed image
+		out_converted = (unsigned char *)malloc(pixelcount*4);
+  	 
+		for(sindex = 0; sindex < pixelcount; sindex++)
+		{
+			greyshade = out[sindex];
+			out_converted[dindex++] = greyshade;
+			out_converted[dindex++] = greyshade;
+			out_converted[dindex++] = greyshade;
+			out_converted[dindex++] = 255;
+		}
+  	 
+		free(out);
+		out = out_converted;
+	}
+	else
+	{
+		// clear all the alphas to 255
 		int             i, j;
 		byte           *buf;
 
