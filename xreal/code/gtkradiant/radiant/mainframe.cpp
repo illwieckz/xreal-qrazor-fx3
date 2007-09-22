@@ -972,35 +972,17 @@ void thunk_OnSleep()
   g_pParentWnd->OnSleep();
 }
 
-void OpenUpdateURL()
-{
-  // build the URL
-  StringOutputStream URL(256);
-  URL << "http://www.qeradiant.com/index.php?data=dlupdate&query_dlup=1";
-#ifdef WIN32
-  URL << "&OS_dlup=1";
-#else
-  URL << "&OS_dlup=2";
-#endif
-  URL << "&Version_dlup=" RADIANT_VERSION;
-  g_GamesDialog.AddPacksURL(URL);
-  OpenURL(URL.c_str());
-}
-
-// open the Q3Rad manual
 void OpenHelpURL()
 {
-  // at least on win32, AppPath + "Q3Rad_Manual/index.htm"
-  StringOutputStream help(256);
-  help << AppPath_get() << "Q3Rad_Manual/index.htm";
-  OpenURL(help.c_str());
+  // raynorpat: set to xreal development wiki url
+  OpenURL("http://xreal.sourceforge.net/xrealwiki/Development");
 }
 
 void OpenBugReportURL()
 {
-  OpenURL("http://www.qeradiant.com/?data=bugreport");
+  // raynorpat: set to xreal bug tracker url
+  OpenURL("http://sourceforge.net/tracker/?atid=389772&group_id=27204&func=browse");
 }
-
 
 GtkWidget* g_page_console;
 
@@ -1957,7 +1939,6 @@ GtkMenuItem* create_file_menu()
   menu_separator(menu);
   MRU_constructMenu(menu);
   menu_separator(menu);
-  create_menu_item_with_mnemonic(menu, "Check for GtkRadiant update (web)", "CheckForUpdate");
   create_menu_item_with_mnemonic(menu, "E_xit", "Exit");
 
   return file_menu_item;
@@ -2295,7 +2276,7 @@ GtkMenuItem* create_help_menu()
   if (g_Layout_enableDetachableMenus.m_value)
     menu_tearoff (menu);
 
-  create_menu_item_with_mnemonic(menu, "Manual", "OpenManual");
+  create_menu_item_with_mnemonic(menu, "XreaL Wiki", "OpenManual");
 
   // this creates all the per-game drop downs for the game pack helps
   // it will take care of hooking the Sys_OpenURL calls etc.
@@ -3388,7 +3369,6 @@ void MainFrame_Construct()
   GlobalCommands_insert("SaveRegion", FreeCaller<SaveRegion>());
   GlobalCommands_insert("RefreshReferences", FreeCaller<RefreshReferences>());
   GlobalCommands_insert("ProjectSettings", FreeCaller<DoProjectSettings>());
-  GlobalCommands_insert("CheckForUpdate", FreeCaller<OpenUpdateURL>());
   GlobalCommands_insert("Exit", FreeCaller<Exit>());
 
   GlobalCommands_insert("Undo", FreeCaller<Undo>(), Accelerator('Z', (GdkModifierType)GDK_CONTROL_MASK));
