@@ -734,28 +734,6 @@ static void Key_GetBindingBuf(int keynum, char *buf, int buflen)
 
 /*
 ====================
-Key_GetCatcher
-====================
-*/
-int Key_GetCatcher(void)
-{
-	return cls.keyCatchers;
-}
-
-/*
-====================
-Ket_SetCatcher
-====================
-*/
-void Key_SetCatcher(int catcher)
-{
-	// prevent console from being closed
-	catcher |= cls.keyCatchers & KEYCATCH_CONSOLE;
-	cls.keyCatchers = catcher;
-}
-
-/*
-====================
 GetConfigString
 ====================
 */
@@ -970,7 +948,8 @@ intptr_t CL_UISystemCalls(intptr_t *args)
 			return Key_GetCatcher();
 
 		case UI_KEY_SETCATCHER:
-			Key_SetCatcher(args[1]);
+			// Don't allow the ui module to close the console
+			Key_SetCatcher(args[1] | (Key_GetCatcher() & KEYCATCH_CONSOLE));
 			return 0;
 
 		case UI_GETCLIPBOARDDATA:
@@ -1146,7 +1125,7 @@ CL_ShutdownUI
 */
 void CL_ShutdownUI(void)
 {
-	cls.keyCatchers &= ~KEYCATCH_UI;
+	Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_UI);
 	cls.uiStarted = qfalse;
 	if(!uivm)
 	{

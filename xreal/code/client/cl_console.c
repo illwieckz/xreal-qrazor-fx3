@@ -70,7 +70,6 @@ cvar_t         *con_clockSeconds;
 
 vec4_t          console_color = { 1.0, 1.0, 1.0, 1.0 };
 
-
 /*
 ================
 Con_ToggleConsole_f
@@ -79,7 +78,7 @@ Con_ToggleConsole_f
 void Con_ToggleConsole_f(void)
 {
 	// closing a full screen console restarts the demo loop
-	if(cls.state == CA_DISCONNECTED && cls.keyCatchers == KEYCATCH_CONSOLE)
+	if(cls.state == CA_DISCONNECTED && Key_GetCatcher() == KEYCATCH_CONSOLE)
 	{
 		CL_StartDemoLoop();
 		return;
@@ -89,7 +88,7 @@ void Con_ToggleConsole_f(void)
 	g_consoleField.widthInChars = g_console_field_width;
 
 	Con_ClearNotify();
-	cls.keyCatchers ^= KEYCATCH_CONSOLE;
+	Key_SetCatcher(Key_GetCatcher() ^ KEYCATCH_CONSOLE);
 }
 
 /*
@@ -104,7 +103,7 @@ void Con_MessageMode_f(void)
 	Field_Clear(&chatField);
 	chatField.widthInChars = 30;
 
-	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+	Key_SetCatcher(Key_GetCatcher() ^ KEYCATCH_MESSAGE);
 }
 
 /*
@@ -118,7 +117,7 @@ void Con_MessageMode2_f(void)
 	chat_team = qtrue;
 	Field_Clear(&chatField);
 	chatField.widthInChars = 25;
-	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+	Key_SetCatcher(Key_GetCatcher() ^ KEYCATCH_MESSAGE);
 }
 
 /*
@@ -137,7 +136,7 @@ void Con_MessageMode3_f(void)
 	chat_team = qfalse;
 	Field_Clear(&chatField);
 	chatField.widthInChars = 30;
-	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+	Key_SetCatcher(Key_GetCatcher() ^ KEYCATCH_MESSAGE);
 }
 
 /*
@@ -156,7 +155,7 @@ void Con_MessageMode4_f(void)
 	chat_team = qfalse;
 	Field_Clear(&chatField);
 	chatField.widthInChars = 30;
-	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+	Key_SetCatcher(Key_GetCatcher() ^ KEYCATCH_MESSAGE);
 }
 
 /*
@@ -510,7 +509,7 @@ void Con_DrawInput(void)
 {
 	int             y;
 
-	if(cls.state != CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_CONSOLE))
+	if(cls.state != CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_CONSOLE))
 	{
 		return;
 	}
@@ -557,7 +556,7 @@ void Con_DrawNotify(void)
 			continue;
 		text = con.text + (i % con.totallines) * con.linewidth;
 
-		if(cl.snap.ps.pm_type != PM_INTERMISSION && cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME))
+		if(cl.snap.ps.pm_type != PM_INTERMISSION && Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME))
 			continue;
 
 		for(x = 0; x < con.linewidth; x++)
@@ -578,11 +577,11 @@ void Con_DrawNotify(void)
 
 	re.SetColor(NULL);
 
-	if(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME))
+	if(Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME))
 		return;
 
 	// draw the chat line
-	if(cls.keyCatchers & KEYCATCH_MESSAGE)
+	if(Key_GetCatcher() & KEYCATCH_MESSAGE)
 	{
 		if(chat_team)
 		{
@@ -781,7 +780,7 @@ void Con_DrawConsole(void)
 	// if disconnected, render console full screen
 	if(cls.state == CA_DISCONNECTED)
 	{
-		if(!(cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME)))
+		if(!(Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME)))
 		{
 			Con_DrawSolidConsole(1.0);
 			return;
@@ -812,7 +811,7 @@ Scroll it up or down
 void Con_RunConsole(void)
 {
 	// decide on the destination height of the console
-	if(cls.keyCatchers & KEYCATCH_CONSOLE)
+	if(Key_GetCatcher() & KEYCATCH_CONSOLE)
 		con.finalFrac = 0.5;	// half screen
 	else
 		con.finalFrac = 0;		// none visible
@@ -876,7 +875,7 @@ void Con_Close(void)
 	}
 	Field_Clear(&g_consoleField);
 	Con_ClearNotify();
-	cls.keyCatchers &= ~KEYCATCH_CONSOLE;
+	Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_CONSOLE);
 	con.finalFrac = 0;			// none visible
 	con.displayFrac = 0;
 }

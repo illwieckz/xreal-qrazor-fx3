@@ -386,7 +386,7 @@ static void HandleEvents(void)
 	if(screen == NULL)
 		return;					// no SDL context.
 
-	if(cls.keyCatchers == 0)
+	if(Key_GetCatcher() == 0 )
 	{
 		if(sdlrepeatenabled)
 		{
@@ -1830,11 +1830,10 @@ void IN_Shutdown(void)
 
 void IN_Frame(void)
 {
-
 	// bk001130 - from cvs 1.17 (mkv)
 	IN_JoyMove();				// FIXME: disable if on desktop?
 
-	if(cls.keyCatchers & KEYCATCH_CONSOLE)
+	if(Key_GetCatcher() & KEYCATCH_CONSOLE)
 	{
 		// temporarily deactivate if not in the game and
 		// running on the desktop

@@ -600,7 +600,7 @@ void CL_StartDemoLoop(void)
 {
 	// start the demo loop again
 	Cbuf_AddText("d1\n");
-	cls.keyCatchers = 0;
+	Key_SetCatcher(0);
 }
 
 /*
@@ -676,7 +676,6 @@ Also called by Com_Error
 */
 void CL_FlushMemory(void)
 {
-
 	// shutdown all the client stuff
 	CL_ShutdownAll();
 
@@ -685,6 +684,7 @@ void CL_FlushMemory(void)
 	{
 		// clear the whole hunk
 		Hunk_Clear();
+
 		// clear collision map data
 		CM_ClearMap();
 	}
@@ -714,7 +714,7 @@ void CL_MapLoading(void)
 	}
 
 	Con_Close();
-	cls.keyCatchers = 0;
+	Key_SetCatcher(0);
 
 	// if we are already connected to the local host, stay connected
 	if(cls.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost"))
@@ -733,7 +733,7 @@ void CL_MapLoading(void)
 		CL_Disconnect(qtrue);
 		Q_strncpyz(cls.servername, "localhost", sizeof(cls.servername));
 		cls.state = CA_CHALLENGING;	// so the connect screen is drawn
-		cls.keyCatchers = 0;
+		Key_SetCatcher(0);
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr(cls.servername, &clc.serverAddress);
@@ -752,7 +752,6 @@ Called before parsing a gamestate
 */
 void CL_ClearState(void)
 {
-
 //  S_StopAllSounds();
 
 	Com_Memset(&cl, 0, sizeof(cl));
@@ -1043,7 +1042,7 @@ void CL_Connect_f(void)
 		cls.state = CA_CONNECTING;
 	}
 
-	cls.keyCatchers = 0;
+	Key_SetCatcher(0);
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 
@@ -2088,7 +2087,7 @@ void CL_Frame(int msec)
 	}
 #endif
 
-	if(cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !com_sv_running->integer)
+	if(cls.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer)
 	{
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
@@ -2630,6 +2629,7 @@ void CL_Shutdown(void)
 	recursive = qfalse;
 
 	Com_Memset(&cls, 0, sizeof(cls));
+	Key_SetCatcher(0);
 
 	Com_Printf("-----------------------\n");
 
