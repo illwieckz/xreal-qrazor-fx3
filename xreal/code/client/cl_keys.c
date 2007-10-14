@@ -1042,6 +1042,19 @@ void Key_Bindlist_f(void)
 }
 
 /*
+============
+Key_KeynameCompletion
+============
+*/
+void Key_KeynameCompletion(void(*callback)(const char *s))
+{
+	int             i;
+
+	for(i = 0; keynames[i].name != NULL; i++)
+		callback(keynames[i].name);
+}
+
+/*
 ===================
 CL_InitKeyCommands
 ===================

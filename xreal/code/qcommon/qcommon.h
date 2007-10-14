@@ -920,6 +920,10 @@ void            CL_StartHunkUsers(void);
 
 // start all the client stuff using the hunk
 
+void			Key_KeynameCompletion(void(*callback)(const char *s));
+
+// for keyname autocompletion
+
 void            Key_WriteBindings(fileHandle_t f);
 
 // for writing the config files
