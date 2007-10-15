@@ -36,7 +36,7 @@ static UINT     MSH_MOUSEWHEEL;
 cvar_t         *vid_xpos;		// X coordinate of window position
 cvar_t         *vid_ypos;		// Y coordinate of window position
 cvar_t         *r_fullscreen;
-cvar_t		   *win_allowAltTab;
+cvar_t         *win_allowAltTab;
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
@@ -96,13 +96,13 @@ static void WIN_EnableAltTab(void)
 VID_AppActivate
 ==================
 */
-extern void				R_SetColorMappings(void);
-extern void				WG_RestoreGamma(void);
-extern qboolean			GLW_ResetFullScreenMode(void);
+extern void     R_SetColorMappings(void);
+extern void     WG_RestoreGamma(void);
+extern qboolean GLW_ResetFullScreenMode(void);
 
 static void VID_AppActivate(BOOL fActive, BOOL minimize)
 {
-	BOOL wasMinimized = g_wv.isMinimized;
+	BOOL            wasMinimized = g_wv.isMinimized;
 
 	g_wv.isMinimized = minimize;
 
@@ -442,6 +442,12 @@ LONG WINAPI MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if(wParam & MK_MBUTTON)
 				temp |= 4;
+
+			if(wParam & 0x0020)
+				temp |= 8;
+
+			if(wParam & 0x0040)
+				temp |= 16;
 
 			IN_MouseEvent(temp);
 		}

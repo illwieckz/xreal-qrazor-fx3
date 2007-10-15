@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "win_local.h"
 
-
 typedef struct
 {
 	int             oldButtonState;
@@ -39,24 +38,6 @@ typedef struct
 static WinMouseVars_t s_wmv;
 
 static int      window_center_x, window_center_y;
-
-//
-// MIDI definitions
-//
-static void     IN_StartupMIDI(void);
-static void     IN_ShutdownMIDI(void);
-
-#define MAX_MIDIIN_DEVICES	8
-
-typedef struct
-{
-	int             numDevices;
-	MIDIINCAPS      caps[MAX_MIDIIN_DEVICES];
-
-	HMIDIIN         hMidiIn;
-} MidiInfo_t;
-
-static MidiInfo_t s_midiInfo;
 
 //
 // Joystick definitions
@@ -77,13 +58,6 @@ typedef struct
 
 static joystickInfo_t joy;
 
-
-
-cvar_t         *in_midi;
-cvar_t         *in_midiport;
-cvar_t         *in_midichannel;
-cvar_t         *in_mididevice;
-
 cvar_t         *in_mouse;
 cvar_t         *in_logitechbug;
 cvar_t         *in_joystick;
@@ -96,8 +70,6 @@ qboolean        in_appactive;
 // forward-referenced functions
 void            IN_StartupJoystick(void);
 void            IN_JoyMove(void);
-
-static void     MidiInfo_f(void);
 
 /*
 ============================================================
@@ -190,7 +162,6 @@ void IN_Win32Mouse(int *mx, int *my)
 	*my = current_pos.y - window_center_y;
 }
 
-
 /*
 ============================================================
 
@@ -199,58 +170,21 @@ DIRECT INPUT MOUSE CONTROL
 ============================================================
 */
 
-#undef DEFINE_GUID
+#define	DI_BUFFER_SIZE			64
+#define MAX_MOUSE_BUTTONS 		8
 
-#define DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-        const GUID name \
-                = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
+#ifndef DIMOFS_BUTTON4
+#define DIMOFS_BUTTON4 (FIELD_OFFSET(DIMOUSESTATE2, rgbButtons) + 4)
+#define DIMOFS_BUTTON5 (FIELD_OFFSET(DIMOUSESTATE2, rgbButtons) + 5)
+#define DIMOFS_BUTTON6 (FIELD_OFFSET(DIMOUSESTATE2, rgbButtons) + 6)
+#define DIMOFS_BUTTON7 (FIELD_OFFSET(DIMOUSESTATE2, rgbButtons) + 7)
+#endif
 
-DEFINE_GUID(GUID_SysMouse, 0x6F1D2B60, 0xD5A0, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00);
-DEFINE_GUID(GUID_XAxis, 0xA36D02E0, 0xC9F3, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00);
-DEFINE_GUID(GUID_YAxis, 0xA36D02E1, 0xC9F3, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00);
-DEFINE_GUID(GUID_ZAxis, 0xA36D02E2, 0xC9F3, 0x11CF, 0xBF, 0xC7, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00);
-
-
-#define DINPUT_BUFFERSIZE           16
 #define iDirectInputCreate(a,b,c,d)	pDirectInputCreate(a,b,c,d)
 
 HRESULT(WINAPI * pDirectInputCreate) (HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUT * lplpDirectInput, LPUNKNOWN punkOuter);
 
 static HINSTANCE hInstDI;
-
-typedef struct MYDATA
-{
-	LONG            lX;			// X axis goes here
-	LONG            lY;			// Y axis goes here
-	LONG            lZ;			// Z axis goes here
-	BYTE            bButtonA;	// One button goes here
-	BYTE            bButtonB;	// Another button goes here
-	BYTE            bButtonC;	// Another button goes here
-	BYTE            bButtonD;	// Another button goes here
-} MYDATA;
-
-static DIOBJECTDATAFORMAT rgodf[] = {
-	{&GUID_XAxis, FIELD_OFFSET(MYDATA, lX), DIDFT_AXIS | DIDFT_ANYINSTANCE, 0,},
-	{&GUID_YAxis, FIELD_OFFSET(MYDATA, lY), DIDFT_AXIS | DIDFT_ANYINSTANCE, 0,},
-	{&GUID_ZAxis, FIELD_OFFSET(MYDATA, lZ), 0x80000000 | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0,},
-	{0, FIELD_OFFSET(MYDATA, bButtonA), DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
-	{0, FIELD_OFFSET(MYDATA, bButtonB), DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
-	{0, FIELD_OFFSET(MYDATA, bButtonC), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
-	{0, FIELD_OFFSET(MYDATA, bButtonD), 0x80000000 | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0,},
-};
-
-#define NUM_OBJECTS (sizeof(rgodf) / sizeof(rgodf[0]))
-
-// NOTE TTimo: would be easier using c_dfDIMouse or c_dfDIMouse2 
-static DIDATAFORMAT df = {
-	sizeof(DIDATAFORMAT),		// this structure
-	sizeof(DIOBJECTDATAFORMAT),	// size of object data format
-	DIDF_RELAXIS,				// absolute axis coordinates
-	sizeof(MYDATA),				// device data size
-	NUM_OBJECTS,				// number of objects
-	rgodf,						// and here they are
-};
-
 static LPDIRECTINPUT g_pdi;
 static LPDIRECTINPUTDEVICE g_pMouse;
 
@@ -273,7 +207,7 @@ qboolean IN_InitDIMouse(void)
 		 DIPH_DEVICE,			// diph.dwHow
 		 }
 		,
-		DINPUT_BUFFERSIZE,		// dwData
+		DI_BUFFER_SIZE,			// dwData
 	};
 
 	Com_Printf("Initializing DirectInput...\n");
@@ -302,11 +236,11 @@ qboolean IN_InitDIMouse(void)
 	}
 
 	// register with DirectInput and get an IDirectInput to play with.
-	hr = iDirectInputCreate(g_wv.hInstance, DIRECTINPUT_VERSION, &g_pdi, NULL);
+	hr = DirectInput8Create(g_wv.hInstance, DIRECTINPUT_VERSION, (const GUID *)&IID_IDirectInput8, &g_pdi, NULL);
 
 	if(FAILED(hr))
 	{
-		Com_Printf("iDirectInputCreate failed\n");
+		Com_Printf("DirectInput8Create failed\n");
 		return qfalse;
 	}
 
@@ -320,7 +254,8 @@ qboolean IN_InitDIMouse(void)
 	}
 
 	// set the data format to "mouse format".
-	hr = IDirectInputDevice_SetDataFormat(g_pMouse, &df);
+	hr = IDirectInputDevice_SetDataFormat(g_pMouse, &c_dfDIMouse2);
+
 
 	if(FAILED(hr))
 	{
@@ -337,7 +272,6 @@ qboolean IN_InitDIMouse(void)
 		Com_Printf("Couldn't set DI coop level\n");
 		return qfalse;
 	}
-
 
 	// set the buffer size to DINPUT_BUFFERSIZE elements.
 	// the buffer size is a DWORD property associated with the device
@@ -425,8 +359,8 @@ IN_DIMouse
 */
 void IN_DIMouse(int *mx, int *my)
 {
-	DIDEVICEOBJECTDATA od;
-	DIMOUSESTATE    state;
+	DIDEVICEOBJECTDATA od[DI_BUFFER_SIZE];
+	DIMOUSESTATE2   state;
 	DWORD           dwElements;
 	HRESULT         hr;
 	int             value;
@@ -439,9 +373,11 @@ void IN_DIMouse(int *mx, int *my)
 	// fetch new events
 	for(;;)
 	{
-		dwElements = 1;
+		int             i;
 
-		hr = IDirectInputDevice_GetDeviceData(g_pMouse, sizeof(DIDEVICEOBJECTDATA), &od, &dwElements, 0);
+		dwElements = DI_BUFFER_SIZE;
+
+		hr = IDirectInputDevice_GetDeviceData(g_pMouse, sizeof(DIDEVICEOBJECTDATA), od, &dwElements, 0);
 		if((hr == DIERR_INPUTLOST) || (hr == DIERR_NOTACQUIRED))
 		{
 			IDirectInputDevice_Acquire(g_pMouse);
@@ -459,64 +395,54 @@ void IN_DIMouse(int *mx, int *my)
 			break;
 		}
 
-		switch (od.dwOfs)
+		for(i = 0; i < dwElements; i++)
 		{
-			case DIMOFS_BUTTON0:
-				if(od.dwData & 0x80)
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE1, qtrue, 0, NULL);
-				else
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE1, qfalse, 0, NULL);
-				break;
+			switch (od[i].dwOfs)
+			{
+				case DIMOFS_BUTTON0:
+				case DIMOFS_BUTTON1:
+				case DIMOFS_BUTTON2:
+				case DIMOFS_BUTTON3:
+				case DIMOFS_BUTTON4:
+					Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MOUSE1 + od[i].dwOfs - DIMOFS_BUTTON0, (od[i].dwData & 0x80), 0,
+								 NULL);
+					break;
+				case DIMOFS_BUTTON5:
+					Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MOUSE6, (od[i].dwData & 0x80), 0, NULL);
+					break;
+				case DIMOFS_BUTTON6:
+					Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MOUSE7, (od[i].dwData & 0x80), 0, NULL);
+					break;
+				case DIMOFS_BUTTON7:
+					Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MOUSE8, (od[i].dwData & 0x80), 0, NULL);
+					break;
 
-			case DIMOFS_BUTTON1:
-				if(od.dwData & 0x80)
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE2, qtrue, 0, NULL);
-				else
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE2, qfalse, 0, NULL);
-				break;
-
-			case DIMOFS_BUTTON2:
-				if(od.dwData & 0x80)
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE3, qtrue, 0, NULL);
-				else
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE3, qfalse, 0, NULL);
-				break;
-
-			case DIMOFS_BUTTON3:
-				if(od.dwData & 0x80)
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE4, qtrue, 0, NULL);
-				else
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MOUSE4, qfalse, 0, NULL);
-				break;
-				// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=50
-			case DIMOFS_Z:
-				value = od.dwData;
-				if(value == 0)
-				{
-
-				}
-				else if(value < 0)
-				{
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MWHEELDOWN, qtrue, 0, NULL);
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MWHEELDOWN, qfalse, 0, NULL);
-				}
-				else
-				{
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MWHEELUP, qtrue, 0, NULL);
-					Sys_QueEvent(od.dwTimeStamp, SE_KEY, K_MWHEELUP, qfalse, 0, NULL);
-				}
-				break;
+				case DIMOFS_Z:
+					value = (int)od[i].dwData;
+					if(value < 0)
+					{
+						Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MWHEELDOWN, qtrue, 0, NULL);
+						Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MWHEELDOWN, qfalse, 0, NULL);
+					}
+					else if(value > 0)
+					{
+						Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MWHEELUP, qtrue, 0, NULL);
+						Sys_QueEvent(od[i].dwTimeStamp, SE_KEY, K_MWHEELUP, qfalse, 0, NULL);
+					}
+					break;
+			}
 		}
 	}
 
 	// read the raw delta counter and ignore
 	// the individual sample time / values
-	hr = IDirectInputDevice_GetDeviceState(g_pMouse, sizeof(DIDEVICEOBJECTDATA), &state);
+	hr = IDirectInputDevice_GetDeviceState(g_pMouse, sizeof(state), &state);
 	if(FAILED(hr))
 	{
 		*mx = *my = 0;
 		return;
 	}
+
 	*mx = state.lX;
 	*my = state.lY;
 }
@@ -646,7 +572,7 @@ void IN_MouseEvent(int mstate)
 		return;
 
 // perform button actions
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < MAX_MOUSE_BUTTONS; i++)
 	{
 		if((mstate & (1 << i)) && !(s_wmv.oldButtonState & (1 << i)))
 		{
@@ -687,152 +613,6 @@ void IN_MouseMove(void)
 	}
 
 	Sys_QueEvent(0, SE_MOUSE, mx, my, 0, NULL);
-}
-
-
-/*
-=========================================================================
-
-=========================================================================
-*/
-
-/*
-===========
-IN_Startup
-===========
-*/
-void IN_Startup(void)
-{
-	Com_Printf("\n------- Input Initialization -------\n");
-	IN_StartupMouse();
-	IN_StartupJoystick();
-	IN_StartupMIDI();
-	Com_Printf("------------------------------------\n");
-
-	in_mouse->modified = qfalse;
-	in_joystick->modified = qfalse;
-}
-
-/*
-===========
-IN_Shutdown
-===========
-*/
-void IN_Shutdown(void)
-{
-	IN_DeactivateMouse();
-	IN_ShutdownDIMouse();
-	IN_ShutdownMIDI();
-	Cmd_RemoveCommand("midiinfo");
-}
-
-
-/*
-===========
-IN_Init
-===========
-*/
-void IN_Init(void)
-{
-	// MIDI input controler variables
-	in_midi = Cvar_Get("in_midi", "0", CVAR_ARCHIVE);
-	in_midiport = Cvar_Get("in_midiport", "1", CVAR_ARCHIVE);
-	in_midichannel = Cvar_Get("in_midichannel", "1", CVAR_ARCHIVE);
-	in_mididevice = Cvar_Get("in_mididevice", "0", CVAR_ARCHIVE);
-
-	Cmd_AddCommand("midiinfo", MidiInfo_f);
-
-	// mouse variables
-	in_mouse = Cvar_Get("in_mouse", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	in_logitechbug = Cvar_Get("in_logitechbug", "0", CVAR_ARCHIVE);
-
-	// joystick variables
-	in_joystick = Cvar_Get("in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	in_joyBallScale = Cvar_Get("in_joyBallScale", "0.02", CVAR_ARCHIVE);
-	in_debugJoystick = Cvar_Get("in_debugjoystick", "0", CVAR_TEMP);
-
-	joy_threshold = Cvar_Get("joy_threshold", "0.15", CVAR_ARCHIVE);
-
-	IN_Startup();
-}
-
-
-/*
-===========
-IN_Activate
-
-Called when the main window gains or loses focus.
-The window may have been destroyed and recreated
-between a deactivate and an activate.
-===========
-*/
-void IN_Activate(qboolean active)
-{
-	in_appactive = active;
-
-	if(!active)
-	{
-		IN_DeactivateMouse();
-	}
-}
-
-
-/*
-==================
-IN_Frame
-
-Called every frame, even if not generating commands
-==================
-*/
-void IN_Frame(void)
-{
-	// post joystick events
-	IN_JoyMove();
-
-	if(!s_wmv.mouseInitialized)
-	{
-		if(s_wmv.mouseStartupDelayed && g_wv.hWnd)
-		{
-			Com_Printf("Proceeding with delayed mouse init\n");
-			IN_StartupMouse();
-			s_wmv.mouseStartupDelayed = qfalse;
-		}
-		return;
-	}
-
-	if(Key_GetCatcher() & KEYCATCH_CONSOLE)
-	{
-		// temporarily deactivate if not in the game and
-		// running on the desktop
-		if(Cvar_VariableValue("r_fullscreen") == 0)
-		{
-			IN_DeactivateMouse();
-			return;
-		}
-	}
-
-	if(!in_appactive)
-	{
-		IN_DeactivateMouse();
-		return;
-	}
-
-	IN_ActivateMouse();
-
-	// post events to the system que
-	IN_MouseMove();
-
-}
-
-
-/*
-===================
-IN_ClearStates
-===================
-*/
-void IN_ClearStates(void)
-{
-	s_wmv.oldButtonState = 0;
 }
 
 
@@ -1088,138 +868,123 @@ void IN_JoyMove(void)
 	}
 }
 
+// =============================================================================
+
 /*
-=========================================================================
-
-MIDI
-
-=========================================================================
+===========
+IN_Init
+===========
 */
-
-static void MIDI_NoteOff(int note)
+void IN_Init(void)
 {
-	int             qkey;
+	// mouse variables
+	in_mouse = Cvar_Get("in_mouse", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	in_logitechbug = Cvar_Get("in_logitechbug", "0", CVAR_ARCHIVE);
 
-	qkey = note - 60 + K_AUX1;
+	// joystick variables
+	in_joystick = Cvar_Get("in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	in_joyBallScale = Cvar_Get("in_joyBallScale", "0.02", CVAR_ARCHIVE);
+	in_debugJoystick = Cvar_Get("in_debugjoystick", "0", CVAR_TEMP);
 
-	if(qkey > 255 || qkey < K_AUX1)
-		return;
+	joy_threshold = Cvar_Get("joy_threshold", "0.15", CVAR_ARCHIVE);
 
-	Sys_QueEvent(g_wv.sysMsgTime, SE_KEY, qkey, qfalse, 0, NULL);
+	Com_Printf("\n------- Input Initialization -------\n");
+
+	IN_StartupMouse();
+
+	IN_StartupJoystick();
+
+	Com_Printf("------------------------------------\n");
+
+	// make sure these are set unmodified after initialization
+	in_mouse->modified = qfalse;
+	in_joystick->modified = qfalse;
 }
 
-static void MIDI_NoteOn(int note, int velocity)
+/*
+===========
+IN_Shutdown
+===========
+*/
+void IN_Shutdown(void)
 {
-	int             qkey;
+	IN_DeactivateMouse();
 
-	if(velocity == 0)
-		MIDI_NoteOff(note);
-
-	qkey = note - 60 + K_AUX1;
-
-	if(qkey > 255 || qkey < K_AUX1)
-		return;
-
-	Sys_QueEvent(g_wv.sysMsgTime, SE_KEY, qkey, qtrue, 0, NULL);
+	IN_ShutdownDIMouse();
 }
 
-static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
-{
-	int             message;
+/*
+===========
+IN_Activate
 
-	switch (uMsg)
+Called when the main window gains or loses focus.
+The window may have been destroyed and recreated
+between a deactivate and an activate.
+===========
+*/
+void IN_Activate(qboolean active)
+{
+	in_appactive = active;
+
+	if(!active)
 	{
-		case MIM_OPEN:
-			break;
-		case MIM_CLOSE:
-			break;
-		case MIM_DATA:
-			message = dwParam1 & 0xff;
-
-			// note on
-			if((message & 0xf0) == 0x90)
-			{
-				if(((message & 0x0f) + 1) == in_midichannel->integer)
-					MIDI_NoteOn((dwParam1 & 0xff00) >> 8, (dwParam1 & 0xff0000) >> 16);
-			}
-			else if((message & 0xf0) == 0x80)
-			{
-				if(((message & 0x0f) + 1) == in_midichannel->integer)
-					MIDI_NoteOff((dwParam1 & 0xff00) >> 8);
-			}
-			break;
-		case MIM_LONGDATA:
-			break;
-		case MIM_ERROR:
-			break;
-		case MIM_LONGERROR:
-			break;
-	}
-
-//  Sys_QueEvent( sys_msg_time, SE_KEY, wMsg, qtrue, 0, NULL );
-}
-
-static void MidiInfo_f(void)
-{
-	int             i;
-
-	const char     *enableStrings[] = { "disabled", "enabled" };
-
-	Com_Printf("\nMIDI control:       %s\n", enableStrings[in_midi->integer != 0]);
-	Com_Printf("port:               %d\n", in_midiport->integer);
-	Com_Printf("channel:            %d\n", in_midichannel->integer);
-	Com_Printf("current device:     %d\n", in_mididevice->integer);
-	Com_Printf("number of devices:  %d\n", s_midiInfo.numDevices);
-	for(i = 0; i < s_midiInfo.numDevices; i++)
-	{
-		if(i == Cvar_VariableValue("in_mididevice"))
-			Com_Printf("***");
-		else
-			Com_Printf("...");
-		Com_Printf("device %2d:       %s\n", i, s_midiInfo.caps[i].szPname);
-		Com_Printf("...manufacturer ID: 0x%hx\n", s_midiInfo.caps[i].wMid);
-		Com_Printf("...product ID:      0x%hx\n", s_midiInfo.caps[i].wPid);
-
-		Com_Printf("\n");
+		IN_DeactivateMouse();
 	}
 }
 
-static void IN_StartupMIDI(void)
+/*
+==================
+IN_Frame
+
+Called every frame, even if not generating commands
+==================
+*/
+void IN_Frame(void)
 {
-	int             i;
+	// post joystick events
+	IN_JoyMove();
 
-	if(!Cvar_VariableValue("in_midi"))
-		return;
-
-	//
-	// enumerate MIDI IN devices
-	//
-	s_midiInfo.numDevices = midiInGetNumDevs();
-
-	for(i = 0; i < s_midiInfo.numDevices; i++)
+	if(!s_wmv.mouseInitialized)
 	{
-		midiInGetDevCaps(i, &s_midiInfo.caps[i], sizeof(s_midiInfo.caps[i]));
-	}
-
-	//
-	// open the MIDI IN port
-	//
-	if(midiInOpen(&s_midiInfo.hMidiIn,
-				  in_mididevice->integer, (unsigned long)MidiInProc, (unsigned long)NULL, CALLBACK_FUNCTION) != MMSYSERR_NOERROR)
-	{
-		Com_Printf("WARNING: could not open MIDI device %d: '%s'\n", in_mididevice->integer,
-				   s_midiInfo.caps[(int)in_mididevice->value]);
+		if(s_wmv.mouseStartupDelayed && g_wv.hWnd)
+		{
+			Com_Printf("Proceeding with delayed mouse init\n");
+			IN_StartupMouse();
+			s_wmv.mouseStartupDelayed = qfalse;
+		}
 		return;
 	}
 
-	midiInStart(s_midiInfo.hMidiIn);
+	if(Key_GetCatcher() & KEYCATCH_CONSOLE)
+	{
+		// temporarily deactivate if not in the game and
+		// running on the desktop
+		if(Cvar_VariableValue("r_fullscreen") == 0)
+		{
+			IN_DeactivateMouse();
+			return;
+		}
+	}
+
+	if(!in_appactive)
+	{
+		IN_DeactivateMouse();
+		return;
+	}
+
+	IN_ActivateMouse();
+
+	// post events to the system que
+	IN_MouseMove();
+
 }
 
-static void IN_ShutdownMIDI(void)
+/*
+===================
+IN_ClearStates
+===================
+*/
+void IN_ClearStates(void)
 {
-	if(s_midiInfo.hMidiIn)
-	{
-		midiInClose(s_midiInfo.hMidiIn);
-	}
-	Com_Memset(&s_midiInfo, 0, sizeof(s_midiInfo));
+	s_wmv.oldButtonState = 0;
 }

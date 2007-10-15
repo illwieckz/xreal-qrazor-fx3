@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../ui/keycodes.h"
 
-#define	MAX_KEYS		256
-
 typedef struct
 {
 	qboolean        down;

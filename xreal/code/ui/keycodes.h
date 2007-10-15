@@ -30,7 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // normal keys should be passed as lowercased ascii
 
-typedef enum {
+typedef enum
+{
 	K_TAB = 9,
 	K_ENTER = 13,
 	K_ESCAPE = 27,
@@ -98,6 +99,10 @@ typedef enum {
 	K_MOUSE3,
 	K_MOUSE4,
 	K_MOUSE5,
+	K_MOUSE6,
+	K_MOUSE7,
+	K_MOUSE8,
+	K_MOUSE9,
 
 	K_MWHEELDOWN,
 	K_MWHEELUP,
@@ -152,7 +157,7 @@ typedef enum {
 	K_AUX15,
 	K_AUX16,
 
-	K_LAST_KEY		// this had better be <256!
+	MAX_KEYS
 } keyNum_t;
 
 

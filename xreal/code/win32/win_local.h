@@ -24,14 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // win_local.h: Win32-specific XreaL header file
 #include <windows.h>
 
-#define	DIRECTSOUND_VERSION	0x0300
-#define	DIRECTINPUT_VERSION	0x0300
+// raynorpat: use directinput 8
+#define DIRECTINPUT_VERSION 0x0800
 
 #include <dinput.h>
 #include <dsound.h>
 #include <winsock.h>
-
-void            IN_MouseEvent(int mstate);
 
 void            Sys_QueEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr);
 
@@ -47,7 +45,9 @@ void            IN_Init(void);
 void            IN_Shutdown(void);
 void            IN_JoystickCommands(void);
 
-void            IN_Move(usercmd_t * cmd);
+void            IN_Move(usercmd_t *cmd);
+
+void            IN_MouseEvent(int mstate);
 
 // add additional non keyboard / non mouse movement on top of the keyboard move cmd
 void            IN_DeactivateWin32Mouse(void);

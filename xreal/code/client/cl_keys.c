@@ -44,7 +44,7 @@ int             chat_playerNum;
 
 qboolean        key_overstrikeMode;
 
-int				anykeydown;
+int             anykeydown;
 qkey_t          keys[MAX_KEYS];
 
 
@@ -101,6 +101,10 @@ keyname_t       keynames[] = {
 	{"MOUSE3", K_MOUSE3},
 	{"MOUSE4", K_MOUSE4},
 	{"MOUSE5", K_MOUSE5},
+	{"MOUSE6", K_MOUSE6},
+	{"MOUSE7", K_MOUSE7},
+	{"MOUSE8", K_MOUSE8},
+	{"MOUSE9", K_MOUSE9},
 
 	{"MWHEELUP", K_MWHEELUP},
 	{"MWHEELDOWN", K_MWHEELDOWN},
@@ -207,7 +211,7 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 	char            str[MAX_STRING_CHARS];
 	int             i;
 
-	drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
+	drawLen = edit->widthInChars - 1;	// - 1 so there is always a space for the cursor
 	len = strlen(edit->buffer);
 
 	// guarantee that cursor will be visible
@@ -711,7 +715,7 @@ Key_IsDown
 */
 qboolean Key_IsDown(int keynum)
 {
-	if(keynum == -1)
+	if(keynum < 0 || keynum >= MAX_KEYS)
 	{
 		return qfalse;
 	}
@@ -811,7 +815,7 @@ char           *Key_KeynumToString(int keynum)
 		return "<KEY NOT FOUND>";
 	}
 
-	if(keynum < 0 || keynum > 255)
+	if(keynum < 0 || keynum >= MAX_KEYS)
 	{
 		return "<OUT OF RANGE>";
 	}
@@ -854,7 +858,7 @@ Key_SetBinding
 */
 void Key_SetBinding(int keynum, const char *binding)
 {
-	if(keynum == -1)
+	if(keynum < 0 || keynum >= MAX_KEYS)
 	{
 		return;
 	}
@@ -881,7 +885,7 @@ Key_GetBinding
 */
 char           *Key_GetBinding(int keynum)
 {
-	if(keynum == -1)
+	if(keynum < 0 || keynum >= MAX_KEYS)
 	{
 		return "";
 	}
@@ -901,7 +905,7 @@ int Key_GetKey(const char *binding)
 
 	if(binding)
 	{
-		for(i = 0; i < 256; i++)
+		for(i = 0; i < MAX_KEYS; i++)
 		{
 			if(keys[i].binding && Q_stricmp(binding, keys[i].binding) == 0)
 			{
@@ -946,7 +950,7 @@ void Key_Unbindall_f(void)
 {
 	int             i;
 
-	for(i = 0; i < 256; i++)
+	for(i = 0; i < MAX_KEYS; i++)
 		if(keys[i].binding)
 			Key_SetBinding(i, "");
 }
@@ -985,7 +989,7 @@ void Key_Bind_f(void)
 		return;
 	}
 
-// copy the rest of the command line
+	// copy the rest of the command line
 	cmd[0] = 0;					// start out with a null string
 	for(i = 2; i < c; i++)
 	{
@@ -1010,7 +1014,7 @@ void Key_WriteBindings(fileHandle_t f)
 
 	FS_Printf(f, "unbindall\n");
 
-	for(i = 0; i < 256; i++)
+	for(i = 0; i < MAX_KEYS; i++)
 	{
 		if(keys[i].binding && keys[i].binding[0])
 		{
@@ -1032,7 +1036,7 @@ void Key_Bindlist_f(void)
 {
 	int             i;
 
-	for(i = 0; i < 256; i++)
+	for(i = 0; i < MAX_KEYS; i++)
 	{
 		if(keys[i].binding && keys[i].binding[0])
 		{
@@ -1046,7 +1050,7 @@ void Key_Bindlist_f(void)
 Key_KeynameCompletion
 ============
 */
-void Key_KeynameCompletion(void(*callback)(const char *s))
+void Key_KeynameCompletion(void (*callback) (const char *s))
 {
 	int             i;
 
@@ -1181,7 +1185,7 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 #endif
 
 	// console key is hardcoded, so the user can never unbind it
-	if(key == '`' || key == '~')
+	if(key == '`' || key == '~' || (key == K_ESCAPE && keys[K_SHIFT].down))
 	{
 		if(!down)
 		{
@@ -1406,8 +1410,8 @@ void Key_ClearStates(void)
 	}
 }
 
-static int keyCatchers = 0;
-  	 
+static int      keyCatchers = 0;
+
 /*
 ====================
 Key_GetCatcher
@@ -1417,7 +1421,7 @@ int Key_GetCatcher(void)
 {
 	return keyCatchers;
 }
-  	 
+
 /*
 ====================
 Key_SetCatcher
@@ -1428,6 +1432,6 @@ void Key_SetCatcher(int catcher)
 	// If the catcher state is changing, clear all key states
 	if(catcher != keyCatchers)
 		Key_ClearStates();
-  	 
+
 	keyCatchers = catcher;
 }
