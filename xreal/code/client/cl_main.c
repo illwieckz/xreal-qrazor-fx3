@@ -509,7 +509,6 @@ static void CL_WalkDemoExt(char *arg, char *name, int *demofile)
 CL_PlayDemo_f
 
 demo <demoname>
-
 ====================
 */
 void CL_PlayDemo_f(void)
@@ -628,7 +627,6 @@ void CL_NextDemo(void)
 	Cbuf_AddText("\n");
 	Cbuf_Execute();
 }
-
 
 //======================================================================
 
@@ -757,7 +755,6 @@ void CL_ClearState(void)
 	Com_Memset(&cl, 0, sizeof(cl));
 }
 
-
 /*
 =====================
 CL_Disconnect
@@ -834,7 +831,6 @@ void CL_Disconnect(qboolean showMainMenu)
 		CL_CloseAVI();
 	}
 }
-
 
 /*
 ===================
@@ -939,7 +935,6 @@ void CL_ForwardToServer_f(void)
 	}
 }
 
-
 /*
 ==================
 CL_Disconnect_f
@@ -954,7 +949,6 @@ void CL_Disconnect_f(void)
 		Com_Error(ERR_DISCONNECT, "Disconnected from server");
 	}
 }
-
 
 /*
 ================
@@ -971,7 +965,6 @@ void CL_Reconnect_f(void)
 	Cvar_Set("ui_singlePlayerActive", "0");
 	Cbuf_AddText(va("connect %s\n", cls.servername));
 }
-
 
 /*
 ================
@@ -1049,7 +1042,6 @@ void CL_Connect_f(void)
 	// server connection string
 	Cvar_Set("cl_currentServerAddress", server);
 }
-
 
 /*
 =====================
@@ -1232,7 +1224,6 @@ void CL_Snd_Restart_f(void)
 
 	CL_Vid_Restart_f();
 }
-
 
 /*
 ==================
@@ -1470,6 +1461,8 @@ void CL_NextDownload(void)
 				"configuration (cl_allowDownload is %d)\n",	cl_allowDownload->integer);
 		}
 #endif /* USE_CURL */
+
+		// if curl is disabled, try udp downloads
 		if(!useCURL)
 		{	
 			if((cl_allowDownload->integer & DLF_NO_UDP))
@@ -1521,7 +1514,6 @@ void CL_InitDownloads(void)
 	}
 	else if(FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), qtrue))
 	{
-
 		Com_Printf("Need paks: %s\n", clc.downloadList);
 
 		if(*clc.downloadList)
@@ -1569,7 +1561,6 @@ void CL_CheckForResend(void)
 
 	clc.connectTime = cls.realtime;	// for retransmit requests
 	clc.connectPacketCount++;
-
 
 	switch (cls.state)
 	{
@@ -1940,7 +1931,6 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	Com_DPrintf("Unknown connectionless packet command.\n");
 }
 
-
 /*
 =================
 CL_PacketEvent
@@ -1971,9 +1961,7 @@ void CL_PacketEvent(netadr_t from, msg_t * msg)
 		return;
 	}
 
-	//
 	// packet from server
-	//
 	if(!NET_CompareAdr(from, clc.netchan.remoteAddress))
 	{
 		Com_DPrintf("%s:sequenced packet without connection\n", NET_AdrToString(from));
@@ -1997,10 +1985,8 @@ void CL_PacketEvent(netadr_t from, msg_t * msg)
 	clc.lastPacketTime = cls.realtime;
 	CL_ParseServerMessage(msg);
 
-	//
 	// we don't know if it is ok to save a demo message until
 	// after we have parsed the frame
-	//
 	if(clc.demorecording && !clc.demowaiting)
 	{
 		CL_WriteDemoMessage(msg, headerBytes);
@@ -2010,7 +1996,6 @@ void CL_PacketEvent(netadr_t from, msg_t * msg)
 /*
 ==================
 CL_CheckTimeout
-
 ==================
 */
 void CL_CheckTimeout(void)
@@ -2154,7 +2139,6 @@ void CL_Frame(int msec)
 	cls.framecount++;
 }
 
-
 //============================================================================
 
 /*
@@ -2186,8 +2170,6 @@ void QDECL CL_RefPrintf(int print_level, const char *fmt, ...)
 		Com_DPrintf(S_COLOR_RED "%s", msg);	// red
 	}
 }
-
-
 
 /*
 ============
@@ -2360,7 +2342,6 @@ void CL_SetModel_f(void)
 		Com_Printf("model is set to %s\n", name);
 	}
 }
-
 
 /*
 ===============
@@ -2564,6 +2545,8 @@ void CL_Init(void)
 	Cmd_AddCommand("model", CL_SetModel_f);
 	Cmd_AddCommand("video", CL_Video_f);
 	Cmd_AddCommand("stopvideo", CL_StopVideo_f);
+
+	// start the renderer
 	CL_InitRef();
 
 	SCR_Init();
@@ -2574,7 +2557,6 @@ void CL_Init(void)
 
 	Com_Printf("----- Client Initialization Complete -----\n");
 }
-
 
 /*
 ===============
@@ -2601,6 +2583,7 @@ void CL_Shutdown(void)
 	CL_Disconnect(qtrue);
 
 	S_Shutdown();
+
 	CL_ShutdownRef();
 
 	CL_ShutdownUI();
@@ -2632,7 +2615,6 @@ void CL_Shutdown(void)
 	Key_SetCatcher(0);
 
 	Com_Printf("-----------------------\n");
-
 }
 
 static void CL_SetServerInfo(serverInfo_t * server, const char *info, int ping)
@@ -2682,7 +2664,6 @@ static void CL_SetServerInfoByAddress(netadr_t from, const char *info, int ping)
 			CL_SetServerInfo(&cls.favoriteServers[i], info, ping);
 		}
 	}
-
 }
 
 /*
@@ -3108,7 +3089,6 @@ void CL_GlobalServers_f(void)
 
 	NET_OutOfBandPrint(NS_SERVER, to, command);
 }
-
 
 /*
 ==================
