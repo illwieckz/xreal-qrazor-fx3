@@ -298,25 +298,6 @@ elif env['arch'] == 'linux-x86_64':
 		
 	xreal_env.Install('#', 'xreal.x86_64')
 
-elif env['arch'] == 'macosx':
-	xreal_env.Append(LIBS=['dl', 'm'])
-	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	
-	if env['freetype'] == 1:
-		xreal_env.ParseConfig('freetype-config --cflags --libs')
-		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-	
-	xreal_env.Append(CCFLAGS='-DDLL_ONLY')
-		
-	if env['smp'] == 1:
-		xreal_env.Append(CCFLAGS='-DSMP')
-		xreal_env.Append(LIBS=['pthread'])
-	
-	xreal_env.Append(LIBS=['SDL', 'objc'])
-	xreal_env.Program('xreal.osx', [xreal_src, unix_src, sdl_src])
-		
-	xreal_env.Install('#', 'xreal.osx')
-
 elif env['arch'] == 'win32-mingw':
 	if env['freetype'] == 1:
 		xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')

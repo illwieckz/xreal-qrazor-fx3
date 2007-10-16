@@ -95,11 +95,6 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src, linux_src, vm_src])
 	xreal_server_env.Install('#', 'xreal-server.x86_64')
 
-elif env['arch'] == 'macosx':
-	xreal_server_env.Append(LIBS=['dl', 'm'])
-	xreal_server_env.Program('xreal-server.osx-ppc', [xreal_server_src, unix_src, linux_src, vm_src])
-	xreal_server_env.Install('#', 'xreal-server.osx')
-
 elif env['arch'] == 'sdl':
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server_sdl', [xreal_server_src, unix_src, linux_src, vm_src])

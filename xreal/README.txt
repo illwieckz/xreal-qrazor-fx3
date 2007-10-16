@@ -125,8 +125,9 @@ Make sure you have libcURL and the SDL framework installed.
 Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
 	and copy it to XreaL/code/renderer
 
-Compile XreaL for Mac OS X/Darwin:
-	>scons arch=macosx
+Use the included XCode project to compile XreaL and friends for both PPC & Intel Macs.
+The XCode project is located here:
+	>code/unix/MacSupport/XreaL.xcodeprj
 
 
 LICENSE
