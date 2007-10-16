@@ -76,7 +76,6 @@ cvar_t         *r_noDynamicLighting;
 cvar_t         *r_noStaticLighting;
 
 cvar_t         *r_ext_compressed_textures;
-cvar_t         *r_ext_gamma_control;
 cvar_t         *r_ext_multitexture;
 cvar_t         *r_ext_compiled_vertex_array;
 cvar_t         *r_ext_vertex_buffer_object;
