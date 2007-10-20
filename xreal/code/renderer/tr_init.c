@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // tr_init.c -- functions that are not called every frame
-
 #include "tr_local.h"
 
 glConfig_t      glConfig;
@@ -211,7 +210,6 @@ cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_bloomIntensity;
 cvar_t         *r_bloomBlur;
-
 
 // GL_ARB_multitexture
 void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
@@ -1563,8 +1561,7 @@ void R_Register(void)
 	r_showDeferredSpecular = ri.Cvar_Get("r_showDeferredSpecular", "0", CVAR_CHEAT);
 	r_showDeferredPosition = ri.Cvar_Get("r_showDeferredPosition", "0", CVAR_CHEAT);
 
-	// make sure all the commands added here are also
-	// removed in R_Shutdown
+	// make sure all the commands added here are also removed in R_Shutdown
 	ri.Cmd_AddCommand("imagelist", R_ImageList_f);
 	ri.Cmd_AddCommand("shaderlist", R_ShaderList_f);
 	ri.Cmd_AddCommand("shaderexp", R_ShaderExp_f);
@@ -1772,10 +1769,9 @@ void RE_EndRegistration(void)
 
 
 /*
-@@@@@@@@@@@@@@@@@@@@@
+=====================
 GetRefAPI
-
-@@@@@@@@@@@@@@@@@@@@@
+=====================
 */
 refexport_t    *GetRefAPI(int apiVersion, refimport_t * rimp)
 {

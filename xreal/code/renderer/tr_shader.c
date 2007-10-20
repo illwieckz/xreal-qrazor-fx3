@@ -20,13 +20,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "tr_local.h"
-
 // tr_shader.c -- this file deals with the parsing and definition of shaders
+#include "tr_local.h"
 
 #define MAX_GUIDETEXT_HASH		2048
 static char   **guideTextHashTable[MAX_GUIDETEXT_HASH];
-
 
 #define MAX_SHADERTABLE_HASH	1024
 static shaderTable_t *shaderTableHashTable[MAX_SHADERTABLE_HASH];

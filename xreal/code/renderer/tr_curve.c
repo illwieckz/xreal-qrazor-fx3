@@ -20,11 +20,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+// tr_curve.c
 #include "tr_local.h"
 
 /*
-
+======================================================================================
 This file does all of the processing necessary to turn a raw grid of points
 read from the map file into a srfGridMesh_t ready for rendering.
 
@@ -32,12 +32,9 @@ The level of detail solution is direction independent, based only on subdivided
 distance from the true curve.
 
 Only a single entry point:
-
-srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
-								srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] ) {
-
+R_SubdividePatchToGrid(int width, int height, srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE])
+======================================================================================
 */
-
 
 /*
 ============

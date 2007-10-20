@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 /*
-
-  THIS ENTIRE FILE IS BACK END
+==============================================================================
+THIS ENTIRE FILE IS BACK END!
 
 backEnd.currentEntity will be valid.
 
@@ -35,11 +35,8 @@ The modelview matrix will be set.
 
 It is safe to actually issue drawing commands here if you don't want to
 use the shader system.
+==============================================================================
 */
-
-
-//============================================================================
-
 
 /*
 ==============

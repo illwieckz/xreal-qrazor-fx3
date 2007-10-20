@@ -22,9 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
-
 /*
-
+====================================================
   for a projection shadow:
 
   point[x] += light vector * ( z - shadow plane )
@@ -32,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   point[z] = shadow plane
 
   1 0 light[x] / light[z]
-
+====================================================
 */
 
 shadowState_t   sh;

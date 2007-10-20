@@ -20,22 +20,19 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+// tr_animation.c
 #include "tr_local.h"
 
-
 /*
-
+===========================================================================
 All bones should be an identity orientation to display the mesh exactly
 as it is specified.
 
 For all other frames, the bones represent the transformation from the 
 orientation of the bone in the base frame to the orientation in this
 frame.
-
+===========================================================================
 */
-
-
 
 static md5Animation_t *R_AllocAnimation(void)
 {
@@ -53,7 +50,6 @@ static md5Animation_t *R_AllocAnimation(void)
 
 	return anim;
 }
-
 
 /*
 ===============

@@ -694,11 +694,8 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 	int             x, y;
 	float           r, g, b;
 	float           c, cx, cy;
-
-	float           dcx, dcy, sqlen, reciplen;
+	float           dcx, dcy;
 	float           inv255 = 1.0f / 255.0f;
-
-//  float           inv127 = 1.0f / 127.0f;
 	vec3_t          n;
 	byte           *out;
 
@@ -735,17 +732,9 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			dcy = scale * (c - cy);
 
 			// normalize the vector
-#if 0
-			sqlen = dcx * dcx + dcy * dcy + 1;
-			reciplen = 1.0 / (float)sqrt(sqlen);
-			n[0] = dcx * reciplen;
-			n[1] = -dcy * reciplen;
-			n[2] = reciplen;
-#else
 			VectorSet(n, dcx, dcy, scale);
 			if(!VectorNormalize(n))
 				VectorSet(n, 0, 0, 1);
-#endif
 
 			// repack the normalized vector into an RGB unsigned byte
 			// vector in the normal map image

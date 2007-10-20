@@ -21,13 +21,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // tr_shade.c
-
 #include "tr_local.h"
 
 /*
-  THIS ENTIRE FILE IS BACK END
+=================================================================================
+THIS ENTIRE FILE IS BACK END!
 
-  This file deals with applying shaders to surface data in the tess struct.
+This file deals with applying shaders to surface data in the tess struct.
+=================================================================================
 */
 
 static char    *GLSL_PrintInfoLog(GLhandleARB object)

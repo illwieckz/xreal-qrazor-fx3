@@ -20,18 +20,16 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// tr_map.c
-
+// tr_bsp.c
 #include "tr_local.h"
 
 /*
-
+========================================================
 Loads and prepares a map file for scene rendering.
 
 A single entry point:
-
-void RE_LoadWorldMap( const char *name );
-
+RE_LoadWorldMap(const char *name);
+========================================================
 */
 
 static world_t  s_worldData;
