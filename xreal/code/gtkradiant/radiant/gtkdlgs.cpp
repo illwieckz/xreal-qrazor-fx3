@@ -455,17 +455,10 @@ void DoSides (int type, int axis)
 // =============================================================================
 // About dialog (no program is complete without one)
 
-void about_button_changelog (GtkWidget *widget, gpointer data)
-{
-  StringOutputStream log(256);
-  log << AppPath_get() << "changelog.txt";
-  OpenURL(log.c_str());
-}
-
-void about_button_credits (GtkWidget *widget, gpointer data)
+void about_button_contributers (GtkWidget *widget, gpointer data)
 {
   StringOutputStream cred(256);
-  cred << AppPath_get() << "credits.html";
+  cred << "http://xreal.svn.sourceforge.net/viewvc/*checkout*/xreal/trunk/xreal/CONTRIBUTORS.txt";
   OpenURL(cred.c_str());
 }
 
@@ -474,7 +467,7 @@ void DoAbout()
   ModalDialog dialog;
   ModalDialogButton ok_button(dialog, eIDOK);
 
-  GtkWindow* window = create_modal_dialog_window(MainFrame_getWindow(), "About GtkRadiant", dialog);
+  GtkWindow* window = create_modal_dialog_window(MainFrame_getWindow(), "About Radiant", dialog);
 
   {
     GtkVBox* vbox = create_dialog_vbox(4, 4);
@@ -499,15 +492,15 @@ void DoAbout()
       }
 
       {
-        GtkLabel* label = GTK_LABEL(gtk_label_new("GtkRadiant " RADIANT_VERSION "\n"
+        GtkLabel* label = GTK_LABEL(gtk_label_new("Radiant " RADIANT_VERSION "\n"
           __DATE__ "\n\n"
           RADIANT_ABOUTMSG "\n\n"
-          "By qeradiant.com\n\n"
+          "By XreaL Team and Contributers\n\n"
           "This program is free software\n"
           "licensed under the GNU GPL.\n\n"
-          "GtkRadiant is unsupported, however\n"
-          "you may report your problems at\n"
-          "http://zerowing.idsoftware.com/bugzilla"
+          "You may report your problems on\n"
+		  "the XreaL bug tracker at SourceForge:\n"
+          "http://sourceforge.net/projects/xreal"
         ));
                        
         gtk_widget_show(GTK_WIDGET(label));
@@ -524,15 +517,12 @@ void DoAbout()
           gtk_box_pack_start (GTK_BOX (vbox2), GTK_WIDGET(button), FALSE, FALSE, 0);
         }
         {
-          GtkButton* button = create_dialog_button("Credits", G_CALLBACK(about_button_credits), 0);
-          gtk_box_pack_start (GTK_BOX (vbox2), GTK_WIDGET(button), FALSE, FALSE, 0);
-        }
-        {
-          GtkButton* button = create_dialog_button("Changelog", G_CALLBACK(about_button_changelog), 0);
+          GtkButton* button = create_dialog_button("Credits", G_CALLBACK(about_button_contributers), 0);
           gtk_box_pack_start (GTK_BOX (vbox2), GTK_WIDGET(button), FALSE, FALSE, 0);
         }
       }
     }
+
     {
       GtkFrame* frame = create_dialog_frame("OpenGL Properties");
       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(frame), FALSE, FALSE, 0);
