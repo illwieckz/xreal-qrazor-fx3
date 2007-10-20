@@ -202,7 +202,34 @@ imagejpeg_src = [
 ]
 
 imagepng_src = [
-'code/gtkradiant/plugins/imagepng/plugin.cpp'
+'code/gtkradiant/plugins/imagepng/plugin.cpp',
+'code/png/png.c',
+'code/png/pngset.c',
+'code/png/pngget.c',
+'code/png/pngrutil.c',
+'code/png/pngtrans.c',
+'code/png/pngwutil.c',
+'code/png/pngread.c',
+'code/png/pngrio.c',
+'code/png/pngwio.c',
+'code/png/pngwrite.c',
+'code/png/pngrtran.c',
+'code/png/pngwtran.c',
+'code/png/pngmem.c',
+'code/png/pngerror.c',
+'code/png/pngpread.c',
+'code/zlib/adler32.c',
+'code/zlib/compress.c',
+'code/zlib/crc32.c',
+'code/zlib/gzio.c',
+'code/zlib/uncompr.c',
+'code/zlib/deflate.c',
+'code/zlib/trees.c',
+'code/zlib/zutil.c',
+'code/zlib/inflate.c',
+'code/zlib/infback.c',
+'code/zlib/inftrees.c',
+'code/zlib/inffast.c'
 ]
 
 mapq3_src = [
@@ -314,7 +341,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.so', 'libimagejpeg.so')
 	
 	imagepng_env = module_env.Copy()
-	imagepng_env.ParseConfig('libpng-config --cflags --libs')
+	imagepng_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	imagepng_env.SharedLibrary('imagepng', imagepng_src)
 	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.so', 'libimagepng.so')
 	
@@ -367,7 +394,6 @@ if env['arch'] == 'win32-mingw':
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.dll', 'imagejpeg.dll')
 	
 	imagepng_env = module_env.Copy()
-	imagepng_env.ParseConfig('pkg-config libpng --cflags --libs')
 	imagepng_env.SharedLibrary('imagepng', imagepng_src)
 	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.dll', 'imagepng.dll')
 	

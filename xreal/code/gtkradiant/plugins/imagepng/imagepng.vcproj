@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="imagepng"
 	ProjectGUID="{15DEA4EA-9386-49C7-80C6-5B090DE1D536}"
 	RootNamespace="imagepng"
@@ -68,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glib-2.0.lib png.lib"
+				AdditionalDependencies="glib-2.0.lib"
 				OutputFile="$(OutDir)/imagepng.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glib-2.0.lib png.lib"
+				AdditionalDependencies="glib-2.0.lib"
 				OutputFile="$(OutDir)/imagepng.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -212,11 +212,135 @@
 			UniqueIdentifier="{4FC837F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\..\zlib\adler32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\compress.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\crc32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\deflate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\gzio.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\infback.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\inffast.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\inflate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\inftrees.c"
+				>
+			</File>
+			<File
 				RelativePath=".\plugin.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\plugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\png.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\png.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngconf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngerror.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngget.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngmem.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngpread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngrio.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngrtran.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngrutil.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngset.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngtest.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngtrans.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngvcrd.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngwio.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngwrite.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngwtran.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\png\pngwutil.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\trees.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\uncompr.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\zlib\zutil.c"
 				>
 			</File>
 		</Filter>
