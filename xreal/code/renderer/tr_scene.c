@@ -313,6 +313,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	VectorCopy(org, light->l.origin);
 
 	QuatClear(light->l.rotation);
+	VectorClear(light->l.center);
 
 	// HACK: this will tell the renderer backend to use tr.defaultLightShader
 	light->l.attenuationShader = 0;

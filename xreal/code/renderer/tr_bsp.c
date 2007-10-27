@@ -2734,6 +2734,7 @@ void R_LoadEntities(lump_t * l)
 	for(i = 0, light = s_worldData.lights; i < s_worldData.numLights; i++, light++)
 	{
 		QuatClear(light->l.rotation);
+		VectorClear(light->l.center);
 
 		light->l.color[0] = 1;
 		light->l.color[1] = 1;
