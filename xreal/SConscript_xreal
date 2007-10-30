@@ -226,9 +226,6 @@ win_src = [
 'code/win32/win_wndproc.c'
 ]
 
-vm_src = [
-
-]
 
 xreal_env.Append(CCFLAGS='-DBOTLIB')
 xreal_env.Append(CCFLAGS='-DC_ONLY')
