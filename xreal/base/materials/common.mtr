@@ -26,7 +26,7 @@ textures/common/areaportal
 
 textures/editor/visportal
 {
-	qer_editorimage	textures/editor/vis_p.tga
+	qer_editorimage	textures/common/visportal.tga
 	qer_trans 0.5
 	
 	nonsolid
@@ -620,11 +620,11 @@ invisible
 // interactive, use this surface for the view screen and place
 // a "gui" key containing the gui file, like "guis/mainmenu.gui"
 // on the entity
-textures/common/pda_gui {
+textures/common/pda_gui
+{
 	qer_editorimage	textures/editor/entityGui.tga
 	discrete
-	guiSurf	guis/lvlmaps/genericmap.gui
-	
+	guiSurf guis/lvlmaps/genericmap.gui
 }
 
 textures/common/npc_pda
@@ -638,7 +638,8 @@ textures/common/npc_pda
 // interactive, use this surface for the view screen and place
 // a "gui" key containing the gui file, like "guis/mainmenu.gui"
 // on the entity
-textures/common/entityGui {
+textures/common/entityGui
+{
 	qer_editorimage	textures/editor/entityGui.tga
 	discrete
 	playerclip
@@ -649,7 +650,8 @@ textures/common/entityGui {
 // interactive, use this surface for the view screen and place
 // a "gui" key containing the gui file, like "guis/mainmenu.gui"
 // on the entity
-textures/common/entityGui2 {
+textures/common/entityGui2
+{
 	qer_editorimage	textures/editor/entityGui2.tga
 	discrete
 	playerclip
@@ -660,7 +662,8 @@ textures/common/entityGui2 {
 // interactive, use this surface for the view screen and place
 // a "gui" key containing the gui file, like "guis/mainmenu.gui"
 // on the entity
-textures/common/entityGui3 {
+textures/common/entityGui3
+{
 	qer_editorimage	textures/editor/entityGui3.tga
 	discrete
 	guiSurf	entity3
