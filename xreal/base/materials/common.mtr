@@ -606,10 +606,17 @@ textures/common/particle
 	noshadows
 }
 
-// this is used during dmap development for some things
+// this is used during map development for some things
 invisible
 {
 	noshadows
+}
+
+textures/common/black
+{
+	qer_editorimage textures/common/black.tga
+
+	map textures/common/black.tga
 }
 
 //==============================================================================
