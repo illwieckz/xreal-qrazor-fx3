@@ -808,7 +808,7 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 
 #ifndef BSPC
 		// Tr3B: added simple AABB test
-		if(!cm_noExtraAABBs->integer && !BoundsIntersect(tw->bounds[0], tw->bounds[1], b->bounds[0], b->bounds[1]))
+		if(!cm_noExtraAABBs->integer && !CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], b->bounds[0], b->bounds[1]))
 			continue;
 #endif
 

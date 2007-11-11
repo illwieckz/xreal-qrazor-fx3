@@ -120,7 +120,7 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 
 	if(downloadSize > 0)
 	{
-		s = va("%s (%d%%)", downloadName, downloadCount * 100 / downloadSize);
+		s = va("%s (%d%%)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize));
 	}
 	else
 	{

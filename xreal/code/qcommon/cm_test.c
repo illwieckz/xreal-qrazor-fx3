@@ -284,7 +284,7 @@ int CM_PointContents(const vec3_t p, clipHandle_t model)
 
 #ifndef BSPC
 		// Tr3B: added simple AABB test
-		if(!cm_noExtraAABBs->integer && !BoundsIntersectPoint(b->bounds[0], b->bounds[1], p))
+		if(!cm_noExtraAABBs->integer && !CM_BoundsIntersectPoint(b->bounds[0], b->bounds[1], p))
 			continue;
 #endif
 
@@ -340,7 +340,45 @@ int CM_TransformedPointContents(const vec3_t p, clipHandle_t model, const vec3_t
 	return CM_PointContents(p_l, model);
 }
 
-
+/*
+====================
+CM_BoundsIntersect
+====================
+*/
+qboolean CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2)
+{
+	if(maxs[0] < mins2[0] - SURFACE_CLIP_EPSILON ||
+		maxs[1] < mins2[1] - SURFACE_CLIP_EPSILON ||
+		maxs[2] < mins2[2] - SURFACE_CLIP_EPSILON ||
+		mins[0] > maxs2[0] + SURFACE_CLIP_EPSILON ||
+		mins[1] > maxs2[1] + SURFACE_CLIP_EPSILON ||
+		mins[2] > maxs2[2] + SURFACE_CLIP_EPSILON)
+	{
+		return qfalse;
+	}
+  	 
+	return qtrue;
+}
+  	 
+/*
+====================
+CM_BoundsIntersectPoint
+====================
+*/
+qboolean CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t point)
+{
+	if(maxs[0] < point[0] - SURFACE_CLIP_EPSILON ||
+		maxs[1] < point[1] - SURFACE_CLIP_EPSILON ||
+		maxs[2] < point[2] - SURFACE_CLIP_EPSILON ||
+		mins[0] > point[0] + SURFACE_CLIP_EPSILON ||
+		mins[1] > point[1] + SURFACE_CLIP_EPSILON ||
+		mins[2] > point[2] + SURFACE_CLIP_EPSILON)
+	{
+		return qfalse;
+	}
+  	 
+	return qtrue;
+}
 
 /*
 ===============================================================================

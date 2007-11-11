@@ -1014,7 +1014,7 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 	vec3_t          startp, endp;
 
 #ifndef BSPC
-	if(!cm_noExtraAABBs->integer && !BoundsIntersect(tw->bounds[0], tw->bounds[1], tc->bounds[0], tc->bounds[1]))
+	if(!cm_noExtraAABBs->integer && !CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], tc->bounds[0], tc->bounds[1]))
 		return;
 #endif
 
