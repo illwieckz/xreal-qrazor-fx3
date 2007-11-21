@@ -828,6 +828,9 @@ void CL_Disconnect(qboolean showMainMenu)
 	// stop recording any video
 	if(CL_VideoRecording())
 	{
+		// finish rendering the current frame 
+		SCR_UpdateScreen();
+
 		CL_CloseAVI();
 	}
 }
@@ -3053,9 +3056,9 @@ CL_GlobalServers_f
 void CL_GlobalServers_f(void)
 {
 	netadr_t        to;
-	int             i;
-	int             count;
-	char           *buffptr;
+//	int             i;
+//	int             count;
+//	char           *buffptr;
 	char            command[1024];
 
 	if(Cmd_Argc() < 2)

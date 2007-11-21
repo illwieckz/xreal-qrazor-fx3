@@ -1793,14 +1793,6 @@ static void S_AL_Shutdown(void)
 	S_AL_SrcShutdown();
 	S_AL_BufferShutdown();
 
-	// Check for Linux shutdown race condition
-	// FIXME: this will probably not be necessary once OpenAL CVS
-	//        from 11/11/05 is released and prevelant
-	if(Q_stricmp((const char *)alGetString(AL_VENDOR), "J. Valenzuela"))
-	{
-		alcMakeContextCurrent(NULL);
-	}
-
 	alcDestroyContext(alContext);
 	alcCloseDevice(alDevice);
 }
