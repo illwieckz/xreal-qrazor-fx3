@@ -69,14 +69,10 @@ typedef unsigned __int8 uint8_t;
 #pragma warning(disable : 4125)	// decimal digit terminates octal escape sequence
 #pragma warning(disable : 4127)	// conditional expression is constant
 #pragma warning(disable : 4136)
-#pragma warning(disable : 4152)	// nonstandard extension, function/data pointer conversion in expression
-//#pragma warning(disable : 4201)
-//#pragma warning(disable : 4214)
+#pragma warning(disable : 4152)	// function/data pointer conversion in expression
 #pragma warning(disable : 4244)
+#pragma warning(disable : 4201) // nonstandard extension used
 #pragma warning(disable : 4142)	// benign redefinition
-//#pragma warning(disable : 4305)       // truncation from const double to float
-//#pragma warning(disable : 4310)       // cast truncates constant value
-//#pragma warning(disable:  4505)   // unreferenced local function has been removed
 #pragma warning(disable : 4514)
 #pragma warning(disable : 4702)	// unreachable code
 #pragma warning(disable : 4711)	// selected for automatic inline expansion

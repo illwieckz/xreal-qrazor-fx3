@@ -3787,7 +3787,7 @@ void RB_RenderLightOcclusionQueries()
 
 	if(glConfig.occlusionQueryBits)
 	{
-		int             i, j;
+		int             j;
 		interaction_t  *ia;
 		int             iaCount;
 		int             iaFirst;
@@ -3989,6 +3989,7 @@ void RB_RenderLightOcclusionQueries()
 		// do other work until "most" of the queries are back, to avoid
 		// wasting time spinning
 #if 0
+		int i;
 		i = (int)(ocCount * 3 / 4);	// instead of N-1, to prevent the GPU from going idle
 		do
 		{
