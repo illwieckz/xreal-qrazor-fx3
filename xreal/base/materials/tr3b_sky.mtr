@@ -12,7 +12,7 @@ textures/tr3b_sky/jump2_512
 	
 	{ 
 		stage skyboxMap
-		cubeMap   cubemaps/pete/jump2_512
+		cubeMap cubemaps/pete/jump2_512
 	}
 } 
 
@@ -20,17 +20,15 @@ textures/tr3b_sky/jump2_512
 textures/tr3b_sky/thunders_cloudyskydark_stormy
 {
 	qer_editorimage   textures/tr3b_sky/baseskystormy.jpg
-	
+
+	xmap_sun 1 1 1 32 90 90	
+
 	noFragment
 	noshadows
 	nooverlays
 	noimpact
 	nolightmap
 //	forceOpaque
-	
-//	xmap_surfacelight 100
-//	xmap_lightsubdivide 512
-//	xmap_sun	1 1 1 32	90 90
 	
 	skyparms - 2048 -
 	
@@ -66,12 +64,12 @@ textures/tr3b_sky/thunders_cloudyskydark_stormy
 textures/tr3b_sky/cloudyskybright
 {
 	qer_editorimage		textures/tr3b_sky/orient_sun.png
+
+	xmap_sun 1 1 1 32 90 90
 	
 	noimpact
 	sky
-//	xmap_surfacelight 100
-//	xmap_lightsubdivide 512
-//	xmap_sun	1 1 1 32	90 90
+
 	skyparms - 2048 -
 
 	{
@@ -85,7 +83,7 @@ textures/tr3b_sky/cloudyskybright
 		blend		blend
 		map			textures/tr3b_sky/plasma_noise2.png
 		translate 	time * 0.01, 0
-    }
+    	}
 	{
 		blend		add
 		map			textures/tr3b_sky/plasma_noise2.png
