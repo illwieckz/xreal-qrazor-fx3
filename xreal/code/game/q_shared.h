@@ -540,13 +540,11 @@ void            Snd_Memset(void *dest, const int val, const size_t count);
 #define Snd_Memset Com_Memset
 #endif
 
-#if !defined(BSPC)
 #define Com_Memset memset
 #define Com_Memcpy memcpy
 
 #define Com_Allocate malloc
 #define Com_Dealloc free
-#endif
 
 #define CIN_system	1
 #define CIN_loop	2
