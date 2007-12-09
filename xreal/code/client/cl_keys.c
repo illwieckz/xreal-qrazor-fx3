@@ -1074,60 +1074,6 @@ void CL_InitKeyCommands(void)
 
 /*
 ===================
-CL_AddKeyUpCommands
-===================
-*/
-static void CL_AddKeyUpCommands(int key, char *kb, unsigned time)
-{
-	int             i;
-	char            button[1024], *buttonPtr;
-	char            cmd[1024];
-	qboolean        keyevent;
-
-	if(!kb)
-	{
-		return;
-	}
-	keyevent = qfalse;
-	buttonPtr = button;
-	for(i = 0;; i++)
-	{
-		if(kb[i] == ';' || !kb[i])
-		{
-			*buttonPtr = '\0';
-			if(button[0] == '+')
-			{
-				// button commands add keynum and time as parms so that multiple
-				// sources can be discriminated and subframe corrected
-				Com_sprintf(cmd, sizeof(cmd), "-%s %i %i\n", button + 1, key, time);
-				Cbuf_AddText(cmd);
-				keyevent = qtrue;
-			}
-			else
-			{
-				if(keyevent)
-				{
-					// down-only command
-					Cbuf_AddText(button);
-					Cbuf_AddText("\n");
-				}
-			}
-			buttonPtr = button;
-			while((kb[i] <= ' ' || kb[i] == ';') && kb[i] != 0)
-			{
-				i++;
-			}
-		}
-		*buttonPtr++ = kb[i];
-		if(!kb[i])
-		{
-			break;
-		}
-	}
-}
-
-/*
-===================
 CL_KeyEvent
 
 Called by the system for both key up and key down events
@@ -1135,8 +1081,10 @@ Called by the system for both key up and key down events
 */
 void CL_KeyEvent(int key, qboolean down, unsigned time)
 {
-	char           *kb;
-	char            cmd[1024];
+	int			i;
+	char       *kb;
+	char		cmd[1024];
+	char		button[1024], *buttonPtr;
 
 	// update auto-repeat status and BUTTON_ANY status
 	keys[key].down = down;
@@ -1243,6 +1191,8 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 		return;
 	}
 
+	kb = keys[key].binding;
+
 	// key up events only perform actions if the game key binding is
 	// a button command (leading + sign).  These will be processed even in
 	// console mode and menu mode, to keep the character from continuing 
@@ -1251,9 +1201,32 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 	{
 		if(cls.state != CA_DISCONNECTED)
 		{
-			kb = keys[key].binding;
-
-			CL_AddKeyUpCommands(key, kb, time);
+			if(kb && kb[0])
+			{
+				buttonPtr = button;
+				for(i = 0; ; i++)
+				{
+					if(kb[i] == ';' || !kb[i])
+					{
+						*buttonPtr = '\0';
+						if(button[0] == '+')
+						{
+							// button commands add keynum and time as parms so that multiple
+							// sources can be discriminated and subframe corrected
+							Com_sprintf(cmd, sizeof(cmd), "-%s %i %i\n", button + 1, key, time);
+							Cbuf_AddText(cmd);
+						}
+						buttonPtr = button;
+						while((kb[i] <= ' ' || kb[i] == ';') && kb[i])
+						{
+							i++;
+						}
+					}
+					*buttonPtr++ = kb[i];
+					if(!kb[i])
+						break;
+				}
+			}
 		}
 
 		if(Key_GetCatcher() & KEYCATCH_UI && uivm)
@@ -1297,19 +1270,8 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 	else
 	{
 		// send the bound action
-		kb = keys[key].binding;
-		if(!kb)
+		if(kb && kb[0])
 		{
-			if(key >= 200)
-			{
-				Com_Printf("%s is unbound, use controls menu to set.\n", Key_KeynumToString(key));
-			}
-		}
-		else if(kb[0] == '+')
-		{
-			int             i;
-			char            button[1024], *buttonPtr;
-
 			buttonPtr = button;
 			for(i = 0;; i++)
 			{
@@ -1330,23 +1292,15 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 						Cbuf_AddText("\n");
 					}
 					buttonPtr = button;
-					while((kb[i] <= ' ' || kb[i] == ';') && kb[i] != 0)
+					while((kb[i] <= ' ' || kb[i] == ';') && kb[i])
 					{
 						i++;
 					}
 				}
 				*buttonPtr++ = kb[i];
 				if(!kb[i])
-				{
 					break;
-				}
 			}
-		}
-		else
-		{
-			// down-only command
-			Cbuf_AddText(kb);
-			Cbuf_AddText("\n");
 		}
 	}
 }

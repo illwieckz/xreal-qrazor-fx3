@@ -386,10 +386,16 @@ qboolean CL_OpenAVIForWriting(const char *fileName)
 	}
 	else if(Q_stricmp(Cvar_VariableString("s_backend"), "OpenAL"))
 	{
-		if(afd.a.bits == 16 && afd.a.channels == 2)
-			afd.audio = qtrue;
+		if(afd.a.bits != 16 || afd.a.channels != 2)
+		{
+			Com_Printf(S_COLOR_YELLOW "WARNING: Audio format of %d bit/%d channels not supported", 
+				afd.a.bits, afd.a.channels); 
+			afd.audio = qfalse; 
+		}
 		else
-			afd.audio = qfalse;	//FIXME: audio not implemented for this case
+		{
+			afd.audio = qtrue;
+		}
 	}
 	else
 	{
@@ -534,7 +540,7 @@ void CL_WriteAVIAudioFrame(const byte * pcmBuffer, int size)
 		WRITE_4BYTES(bytesInBuffer);
 
 		SafeFS_Write(buffer, 8, afd.f);
-		SafeFS_Write(pcmBuffer, bytesInBuffer, afd.f);
+		SafeFS_Write(pcmCaptureBuffer, bytesInBuffer, afd.f);
 		SafeFS_Write(padding, paddingSize, afd.f);
 		afd.fileSize += (chunkSize + paddingSize);
 
