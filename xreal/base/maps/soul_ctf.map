@@ -13506,307 +13506,344 @@ brushDef3
 {
 "classname" "light"
 "name" "light_5"
-"origin" "320 832 236"
+"origin" "-320 1344 236"
 "_color" "0.343467 0.302376 0.270254"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 2
 {
 "classname" "light"
 "name" "light_6"
 "_color" "0.343467 0.302376 0.270254"
-"origin" "-320 832 236"
+"origin" "320 1344 236"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 3
 {
 "classname" "light"
 "name" "light_7"
-"origin" "-256 960 236"
+"origin" "256 1216 236"
 "_color" "0.343467 0.302376 0.270254"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 4
 {
 "classname" "light"
 "name" "light_8"
 "_color" "0.343467 0.302376 0.270254"
-"origin" "256 960 236"
+"origin" "-256 1216 236"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 5
 {
 "classname" "light"
 "name" "light_9"
-"origin" "128 1024 236"
+"origin" "-128 1152 236"
 "_color" "0.343467 0.302376 0.270254"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 6
 {
 "classname" "light"
 "name" "light_10"
 "_color" "0.343467 0.302376 0.270254"
-"origin" "-128 1024 236"
+"origin" "128 1152 236"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 7
 {
 "classname" "light"
 "name" "light_11"
-"origin" "0 1024 236"
+"origin" "0 1152 236"
 "_color" "0.343467 0.302376 0.270254"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 8
 {
 "classname" "light"
 "name" "light_12"
 "_color" "0.343467 0.302376 0.270254"
-"origin" "-160 736 236"
+"origin" "160 1440 236"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 9
 {
 "classname" "light"
 "name" "light_13"
-"origin" "160 736 236"
+"origin" "-160 1440 236"
 "_color" "0.343467 0.302376 0.270254"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 10
 {
 "classname" "light"
 "name" "light_14"
 "_color" "0.343467 0.302376 0.270254"
-"origin" "0 736 236"
+"origin" "0 1440 236"
 "light_radius" "64 64 64"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 11
 {
 "classname" "light"
 "name" "light_1"
-"origin" "128 368 224"
+"origin" "-128 1808 224"
 "light_radius" "44 68 84"
 "_color" "0.870588 0.717647 0.494118"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 12
 {
 "classname" "light"
 "name" "light_2"
-"origin" "0 -432 256"
+"origin" "0 2608 256"
 "light_radius" "108 68 188"
 "_color" "0.960784 0.258824 0"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 13
 {
 "classname" "light"
 "name" "light_3"
-"origin" "128 -496 224"
+"origin" "-128 2672 224"
 "light_radius" "44 68 84"
 "_color" "0.870588 0.717647 0.494118"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 14
 {
 "classname" "light"
 "name" "light_17"
-"origin" "-128 368 224"
+"origin" "128 1808 224"
 "light_radius" "44 68 84"
 "_color" "0.870588 0.717647 0.494118"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 15
 {
 "classname" "light"
 "name" "light_18"
-"origin" "-128 -496 224"
+"origin" "128 2672 224"
 "light_radius" "44 68 84"
 "_color" "0.870588 0.717647 0.494118"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 16
 {
 "classname" "light"
 "name" "light_19"
-"origin" "0 304 256"
+"origin" "0 1872 256"
 "light_radius" "108 68 188"
 "_color" "0.960784 0.258824 0"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 17
 {
 "classname" "light"
 "name" "sky_light"
-"origin" "0 -58 545"
+"origin" "0 2250 -33"
 "light_radius" "1189 786 1140"
 "_color" "0.87451 0.32549 0.0156863"
 "texture" "textures/tr3b_lights/cloudscroll"
-"rotation" "0 0 -1 0 1 0 1 0 0"
+"rotation" "0 0 1 0 -1 0 1 0 0"
 }
 // entity 18
 {
 "classname" "light"
 "name" "light_4"
-"origin" "320 -768 144"
+"origin" "-320 2944 144"
 "light_radius" "52 52 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 19
 {
 "classname" "light"
 "name" "light_20"
-"origin" "0 -544 136"
+"origin" "0 2720 136"
 "light_radius" "52 52 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 20
 {
 "classname" "light"
 "name" "light_21"
-"origin" "0 -768 124"
+"origin" "0 2944 124"
 "light_radius" "52 52 184"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 21
 {
 "classname" "light"
 "name" "light_22"
-"origin" "-320 -768 144"
+"origin" "320 2944 144"
 "light_radius" "52 52 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 22
 {
 "classname" "light"
 "name" "light_23"
-"origin" "192 448 -24"
+"origin" "-192 1728 -24"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 23
 {
 "classname" "light"
 "name" "light_24"
-"origin" "-344 -536 176"
+"origin" "344 2712 176"
 "light_radius" "52 52 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 24
 {
 "classname" "light"
 "name" "light_25"
-"origin" "344 -536 176"
+"origin" "-344 2712 176"
 "light_radius" "52 52 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 25
 {
 "classname" "light"
 "name" "light_26"
-"origin" "340 404 176"
+"origin" "-340 1772 176"
 "light_radius" "56 56 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 26
 {
 "classname" "light"
 "name" "light_27"
-"origin" "-340 404 176"
+"origin" "340 1772 176"
 "light_radius" "56 56 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 27
 {
 "classname" "light"
 "name" "light_28"
-"origin" "0 448 -24"
+"origin" "0 1728 -24"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 28
 {
 "classname" "light"
 "name" "light_29"
-"origin" "-192 448 -24"
+"origin" "192 1728 -24"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 29
 {
 "classname" "light"
 "name" "light_15"
-"origin" "-192 616 -24"
+"origin" "192 1560 -24"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 30
 {
 "classname" "light"
 "name" "light_16"
-"origin" "192 616 -24"
+"origin" "-192 1560 -24"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 31
 {
 "classname" "light"
 "name" "light_30"
-"origin" "-320 640 112"
+"origin" "320 1536 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 32
 {
 "classname" "light"
 "name" "light_31"
-"origin" "-128 424 112"
+"origin" "128 1752 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 33
 {
 "classname" "light"
 "name" "light_32"
-"origin" "-128 472 112"
+"origin" "128 1704 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 34
 {
 "classname" "light"
 "name" "light_33"
-"origin" "128 472 112"
+"origin" "-128 1704 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 35
 {
 "classname" "light"
 "name" "light_34"
-"origin" "128 424 112"
+"origin" "-128 1752 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 36
 {
 "classname" "light"
 "name" "light_35"
-"origin" "320 640 112"
+"origin" "-320 1536 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 37
 {
 "classname" "light"
 "name" "light_36"
-"origin" "192 624 112"
+"origin" "-192 1552 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 38
 {
 "classname" "light"
 "name" "light_37"
-"origin" "-192 624 112"
+"origin" "192 1552 112"
 "light_radius" "60 60 156"
 "_color" "0.701961 0.631373 0.6"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 39
 {
@@ -13831,10 +13868,11 @@ brushDef3
 {
 "classname" "light"
 "name" "light_ambient"
-"origin" "32 4 516"
+"origin" "-32 2172 516"
 "light_radius" "844 1536 1536"
 "_color" "0.74902 0.65098 0.466667"
 "noshadows" "1"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 42
 {
@@ -13915,10 +13953,11 @@ brushDef3
 {
 "classname" "light"
 "name" "sky_light1"
-"origin" "2 -1088.91 128.394"
+"origin" "-2 3264.91 128.394"
 "light_radius" "441 346 268"
 "_color" "0.87451 0.32549 0.0156863"
 "texture" "textures/tr3b_lights/cloudscroll"
+"rotation" "-1 0 0 0 -1 0 0 0 1"
 }
 // entity 49
 {
