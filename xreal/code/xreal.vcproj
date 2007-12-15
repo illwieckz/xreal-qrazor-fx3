@@ -1295,27 +1295,8 @@
 				>
 			</File>
 			<File
-				RelativePath="qcommon\unzip.c"
+				RelativePath=".\qcommon\unzip.c"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="qcommon\vm.c"
@@ -2092,6 +2073,14 @@
 					Name="Header Files"
 					>
 					<File
+						RelativePath=".\zlib\inftrees.h"
+						>
+					</File>
+					<File
+						RelativePath=".\zlib\ioapi.h"
+						>
+					</File>
+					<File
 						RelativePath=".\zlib\zconf.h"
 						>
 					</File>
@@ -2140,7 +2129,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\zlib\inftrees.h"
+						RelativePath=".\zlib\ioapi.c"
 						>
 					</File>
 					<File

@@ -302,6 +302,7 @@ qboolean FS_PakIsPure(pack_t * pack)
 /*
 =================
 FS_LoadStack
+
 return load stack
 =================
 */
@@ -312,17 +313,17 @@ int FS_LoadStack()
 
 /*
 ================
+FS_HashFileName
+
 return a hash value for the filename
 ================
 */
 static long FS_HashFileName(const char *fname, int hashSize)
 {
-	int             i;
-	long            hash;
+	int             i = 0;
+	long            hash = 0;
 	char            letter;
 
-	hash = 0;
-	i = 0;
 	while(fname[i] != '\0')
 	{
 		letter = tolower(fname[i]);
@@ -989,13 +990,11 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 	pack_t         *pak;
 	fileInPack_t   *pakFile;
 	directory_t    *dir;
-	long            hash;
+	long            hash = 0;
 	unz_s          *zfi;
 	FILE           *temp;
 	int             l;
 	char            demoExt[16];
-
-	hash = 0;
 
 	if(!fs_searchpaths)
 	{
@@ -1162,13 +1161,13 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 					fsh[*file].zipFile = qtrue;
 					zfi = (unz_s *) fsh[*file].handleFiles.file.z;
 					// in case the file was new
-					temp = zfi->file;
+					temp = zfi->filestream;
 					// set the file position in the zip file (also sets the current file info)
-					unzSetCurrentFileInfoPosition(pak->handle, pakFile->pos);
+					unzSetOffset(pak->handle, pakFile->pos);
 					// copy the file info into the unzip structure
 					Com_Memcpy(zfi, pak->handle, sizeof(unz_s));
 					// we copy this back into the structure
-					zfi->file = temp;
+					zfi->filestream = temp;
 					// open the file in the zip
 					unzOpenCurrentFile(fsh[*file].handleFiles.file.z);
 					fsh[*file].zipFilePos = pakFile->pos;
@@ -1451,7 +1450,7 @@ int FS_Seek(fileHandle_t f, long offset, int origin)
 		switch (origin)
 		{
 			case FS_SEEK_SET:
-				unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
+				unzSetOffset(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
 				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
 				//fallthrough
 
@@ -1882,8 +1881,7 @@ static pack_t  *FS_LoadZipFile(char *zipfile, const char *basename)
 		strcpy(buildBuffer[i].name, filename_inzip);
 		namePtr += strlen(filename_inzip) + 1;
 		// store the file position in the zip
-		unzGetCurrentFileInfoPosition(uf, &buildBuffer[i].pos);
-		//
+		buildBuffer[i].pos = unzGetOffset(uf);
 		buildBuffer[i].next = pack->hashTable[hash];
 		pack->hashTable[hash] = &buildBuffer[i];
 		unzGoToNextFile(uf);
