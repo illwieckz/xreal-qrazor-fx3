@@ -714,7 +714,6 @@ void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out)
 /*
 ===============
 LerpAngle
-
 ===============
 */
 float LerpAngle(float from, float to, float frac)
@@ -815,6 +814,28 @@ returns the normalized delta from angle1 to angle2
 float AngleDelta(float angle1, float angle2)
 {
 	return AngleNormalize180(angle1 - angle2);
+}
+
+
+/*
+=================
+AngleBetweenVectors
+
+returns the angle between two vectors normalized to the range [0 <= angle <= 180]
+=================
+*/
+float AngleBetweenVectors(const vec3_t a, const vec3_t b)
+{
+	vec_t			alen, blen;
+
+	alen = VectorLength(a);
+    blen = VectorLength(b);
+
+    // complete dot product of two vectors a, b is |a| * |b| * cos(angle)
+    // this results in:
+	//
+	// angle = acos( (a * b) / (|a| * |b|) )
+    return RAD2DEG(acos(DotProduct(a, b) / (alen * blen)));
 }
 
 
