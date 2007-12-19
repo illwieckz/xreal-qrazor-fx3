@@ -169,6 +169,7 @@ xreal_src = [
 'code/zlib/infback.c',
 'code/zlib/inftrees.c',
 'code/zlib/inffast.c',
+'code/zlib/ioapi.c',
 'code/ogg/src/bitwise.c',
 'code/ogg/src/framing.c',
 'code/vorbis/lib/mdct.c',
