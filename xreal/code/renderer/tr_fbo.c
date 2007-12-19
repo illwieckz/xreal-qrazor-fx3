@@ -55,9 +55,9 @@ qboolean R_CheckFBO(const FBO_t * fbo)
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, missing attachment\n");
 			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, duplicate attachment\n");
-			break;
+		//case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
+		//	ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, duplicate attachment\n");
+		//	break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: Framebuffer incomplete, attached images must have same dimensions\n");
 			break;
