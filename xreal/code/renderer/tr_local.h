@@ -62,6 +62,8 @@ long            myftol(float f);
 
 #define	MAX_FBOS				64
 
+//#define VOLUMETRIC_LIGHTING
+
 // can't be increased without changing bit packing for drawsurfs
 
 typedef enum

@@ -882,3 +882,17 @@ lights/roundFire
 		zeroClamp
 	}
 }
+
+lights/volumetricLight
+{
+	volumetricLight
+	lightFalloffImage	makeintensity( lights/squarelight1a.tga )
+	
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		map lights/squarelight1.tga
+		colored
+		zeroClamp
+	}
+}

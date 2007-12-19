@@ -1293,7 +1293,7 @@ static void RB_RenderInteractions()
 
 #ifdef VOLUMETRIC_LIGHTING
 			// draw the light volume if needed
-			if(ia->lightShader->volumetricLight)
+			if(light->shader->volumetricLight)
 			{
 				Render_lightVolume(light);
 			}
@@ -2402,7 +2402,7 @@ static void RB_RenderInteractionsShadowMapped()
 			{
 #ifdef VOLUMETRIC_LIGHTING
 				// draw the light volume if needed
-				if(ia->lightShader->volumetricLight)
+				if(light->shader->volumetricLight)
 				{
 					Render_lightVolume(light);
 				}
@@ -3635,7 +3635,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			{
 #ifdef VOLUMETRIC_LIGHTING
 				// draw the light volume if needed
-				if(ia->lightShader->volumetricLight)
+				if(light->shader->volumetricLight)
 				{
 					Render_lightVolume(light);
 				}
