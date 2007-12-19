@@ -60,7 +60,20 @@ bspc_src = [
 'code/bspc/tetrahedron.c',
 'code/bspc/textures.c',
 'code/bspc/tree.c',
-'code/qcommon/unzip.c'
+'code/qcommon/unzip.c',
+'code/zlib/adler32.c',
+'code/zlib/compress.c',
+'code/zlib/crc32.c',
+'code/zlib/gzio.c',
+'code/zlib/uncompr.c',
+'code/zlib/deflate.c',
+'code/zlib/trees.c',
+'code/zlib/zutil.c',
+'code/zlib/inflate.c',
+'code/zlib/infback.c',
+'code/zlib/inftrees.c',
+'code/zlib/inffast.c',
+'code/zlib/ioapi.c'
 ]
 
 bspc_env = env.Copy()

@@ -1718,11 +1718,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\botlib\l_log.h"
+				RelativePath="l_log.h"
 				>
 			</File>
 			<File
-				RelativePath="l_log.h"
+				RelativePath="..\botlib\l_log.h"
 				>
 			</File>
 			<File
@@ -1822,6 +1822,90 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
+		</Filter>
+		<Filter
+			Name="Libs"
+			>
+			<Filter
+				Name="zlib"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\zlib\inftrees.h"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\ioapi.h"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\zconf.h"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\zlib.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\zlib\adler32.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\compress.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\crc32.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\deflate.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\gzio.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\infback.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\inffast.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\inflate.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\inftrees.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\ioapi.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\trees.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\uncompr.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\zutil.c"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

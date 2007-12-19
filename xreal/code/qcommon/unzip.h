@@ -175,6 +175,7 @@ typedef struct
 */
 typedef struct
 {
+	FILE           *file;		/* io structore of the zipfile */
     zlib_filefunc_def z_filefunc;
     voidpf filestream;        /* io structore of the zipfile */
     unz_global_info gi;       /* public global information */
