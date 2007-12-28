@@ -703,7 +703,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 
 #ifdef XPPM
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
-	ci->bodyModel = trap_R_RegisterModel(filename);
+	ci->bodyModel = trap_R_RegisterModel(filename, qfalse);
 	if(ci->bodyModel)
 	{
 		// TODO CG_ParseCharacterFile(filename, ci) ?
@@ -777,7 +777,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 #endif
 	{
 		Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md5mesh", modelName);
-		ci->legsModel = trap_R_RegisterModel(filename);
+		ci->legsModel = trap_R_RegisterModel(filename, qfalse);
 		if(ci->legsModel)
 		{
 			Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md5anim", modelName);
@@ -786,7 +786,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		if(!ci->legsModel || !ci->legsAnimation)
 		{
 			Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
-			ci->legsModel = trap_R_RegisterModel(filename);
+			ci->legsModel = trap_R_RegisterModel(filename, qfalse);
 			if(!ci->legsModel)
 			{
 				Com_Printf("Failed to load model file %s\n", filename);
@@ -795,7 +795,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		}
 
 		Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md5mesh", modelName);
-		ci->torsoModel = trap_R_RegisterModel(filename);
+		ci->torsoModel = trap_R_RegisterModel(filename, qfalse);
 		if(ci->torsoModel)
 		{
 			Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md5anim", modelName);
@@ -804,7 +804,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		if(!ci->torsoModel || !ci->torsoAnimation)
 		{
 			Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
-			ci->torsoModel = trap_R_RegisterModel(filename);
+			ci->torsoModel = trap_R_RegisterModel(filename, qfalse);
 			if(!ci->torsoModel)
 			{
 				Com_Printf("Failed to load model file %s\n", filename);
@@ -820,13 +820,13 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		{
 			Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", headName);
 		}
-		ci->headModel = trap_R_RegisterModel(filename);
+		ci->headModel = trap_R_RegisterModel(filename, qfalse);
 
 		// if the head model could not be found and we didn't load from the heads folder try to load from there
 		if(!ci->headModel && headName[0] != '*')
 		{
 			Com_sprintf(filename, sizeof(filename), "models/players/%s/head_%s.md3", modelName, headModelName);
-			ci->headModel = trap_R_RegisterModel(filename);
+			ci->headModel = trap_R_RegisterModel(filename, qfalse);
 		}
 
 		if(!ci->headModel)

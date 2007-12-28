@@ -1337,17 +1337,11 @@ typedef struct
 
 typedef struct
 {
-	int             shaderIndex;	// for in-game use
-} mdxShader_t;
-
-typedef struct
-{
 	surfaceType_t   surfaceType;
 
 	char            name[MAX_QPATH];	// polyset name
 
-	int             numShaders;	// all surfaces in a model should have the same
-	mdxShader_t    *shaders;
+	shader_t       *shader;
 
 	int             numVerts;
 	mdxVertex_t    *verts;
@@ -1369,6 +1363,9 @@ typedef struct mdxModel_s
 
 	int             numSurfaces;
 	mdxSurface_t   *surfaces;
+
+	int             numVBOSurfaces;
+	srfVBOMesh_t  **vboSurfaces;
 
 	int             numSkins;
 } mdxModel_t;
@@ -2213,7 +2210,7 @@ void            RE_BeginFrame(stereoFrame_t stereoFrame);
 void            RE_BeginRegistration(glConfig_t * glconfig);
 void            RE_LoadWorldMap(const char *mapname);
 void            RE_SetWorldVisData(const byte * vis);
-qhandle_t       RE_RegisterModel(const char *name);
+qhandle_t       RE_RegisterModel(const char *name, qboolean forceStatic);
 qhandle_t       RE_RegisterSkin(const char *name);
 void            RE_Shutdown(qboolean destroyWindow);
 

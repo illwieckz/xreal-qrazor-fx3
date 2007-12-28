@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../cgame/tr_types.h"
 
-#define	REF_API_VERSION		10
+#define	REF_API_VERSION		11
 
 //
 // these are the functions exported by the refresh module
@@ -47,7 +47,7 @@ typedef struct
 	// and height, which can be used by the client to intelligently
 	// size display elements
 	void            (*BeginRegistration) (glConfig_t * config);
-	                qhandle_t(*RegisterModel) (const char *name);
+	                qhandle_t(*RegisterModel) (const char *name, qboolean forceStatic);
 	                qhandle_t(*RegisterAnimation) (const char *name);
 	                qhandle_t(*RegisterSkin) (const char *name);
 	                qhandle_t(*RegisterShader) (const char *name);

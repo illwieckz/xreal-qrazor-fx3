@@ -1780,7 +1780,7 @@ void            trap_R_LoadWorldMap(const char *mapname);
 
 // all media should be registered during level startup to prevent
 // hitches during gameplay
-qhandle_t       trap_R_RegisterModel(const char *name);	// returns rgb axis if not found
+qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);	// returns rgb axis if not found
 qhandle_t       trap_R_RegisterAnimation(const char *name);
 qhandle_t       trap_R_RegisterSkin(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShader(const char *name);	// returns all white if not found

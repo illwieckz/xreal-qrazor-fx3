@@ -82,7 +82,7 @@ static void UI_PlayerInfo_SetWeapon(playerInfo_t * pi, weapon_t weaponNum)
 
 	if(item->classname)
 	{
-		pi->weaponModel = trap_R_RegisterModel(item->world_model[0]);
+		pi->weaponModel = trap_R_RegisterModel(item->world_model[0], qtrue);
 	}
 
 	if(pi->weaponModel == 0)
@@ -101,13 +101,13 @@ static void UI_PlayerInfo_SetWeapon(playerInfo_t * pi, weapon_t weaponNum)
 		strcpy(path, item->world_model[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, "_barrel.md3");
-		pi->barrelModel = trap_R_RegisterModel(path);
+		pi->barrelModel = trap_R_RegisterModel(path, qtrue);
 	}
 
 	strcpy(path, item->world_model[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_flash.md3");
-	pi->flashModel = trap_R_RegisterModel(path);
+	pi->flashModel = trap_R_RegisterModel(path, qtrue);
 
 	switch (weaponNum)
 	{
@@ -1214,7 +1214,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	// load cmodels before models so filecache works
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
-	pi->legsModel = trap_R_RegisterModel(filename);
+	pi->legsModel = trap_R_RegisterModel(filename, qfalse);
 	if(!pi->legsModel)
 	{
 		Com_Printf("Failed to load model file %s\n", filename);
@@ -1222,7 +1222,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
-	pi->torsoModel = trap_R_RegisterModel(filename);
+	pi->torsoModel = trap_R_RegisterModel(filename, qfalse);
 	if(!pi->torsoModel)
 	{
 		Com_Printf("Failed to load model file %s\n", filename);
@@ -1230,7 +1230,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", modelName);
-	pi->headModel = trap_R_RegisterModel(filename);
+	pi->headModel = trap_R_RegisterModel(filename, qfalse);
 	if(!pi->headModel)
 	{
 		Com_Printf("Failed to load model file %s\n", filename);

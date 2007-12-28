@@ -779,7 +779,7 @@ void CG_RegisterWeapon(int weaponNum)
 	CG_RegisterItemVisuals(item - bg_itemlist);
 
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel(item->world_model[0]);
+	weaponInfo->weaponModel = trap_R_RegisterModel(item->world_model[0], qtrue);
 
 	// calc midpoint for rotation
 	trap_R_ModelBounds(weaponInfo->weaponModel, mins, maxs);
@@ -800,28 +800,28 @@ void CG_RegisterWeapon(int weaponNum)
 	}
 	if(ammo->classname && ammo->world_model[0])
 	{
-		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->world_model[0]);
+		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->world_model[0], qtrue);
 	}
 
 	strcpy(path, item->world_model[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_flash.md3");
-	weaponInfo->flashModel = trap_R_RegisterModel(path);
+	weaponInfo->flashModel = trap_R_RegisterModel(path, qtrue);
 
 	strcpy(path, item->world_model[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_barrel.md3");
-	weaponInfo->barrelModel = trap_R_RegisterModel(path);
+	weaponInfo->barrelModel = trap_R_RegisterModel(path, qtrue);
 
 	strcpy(path, item->world_model[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_hand.md3");
-	weaponInfo->handsModel = trap_R_RegisterModel(path);
+	weaponInfo->handsModel = trap_R_RegisterModel(path, qfalse);
 
 	strcpy(path, item->world_model[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_view.md5mesh");
-	weaponInfo->viewModel = trap_R_RegisterModel(path);
+	weaponInfo->viewModel = trap_R_RegisterModel(path, qfalse);
 	
 	if(weaponInfo->viewModel)
 	{
@@ -888,7 +888,7 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_GRAPPLING_HOOK:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
 			weaponInfo->missileTrailFunc = CG_GrappleTrail;
 			weaponInfo->missileLight = 200;
 			weaponInfo->wiTrailTime = 2000;
@@ -929,7 +929,7 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_ROCKET_LAUNCHER:
-			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
 			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg", qfalse);
 			weaponInfo->missileTrailFunc = CG_RocketTrail;
 			weaponInfo->missileLight = 200;
@@ -956,7 +956,7 @@ void CG_RegisterWeapon(int weaponNum)
 #endif
 
 		case WP_GRENADE_LAUNCHER:
-			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/grenade/grenade.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/grenade/grenade.md3", qtrue);
 			weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 			weaponInfo->wiTrailTime = 700;
 			weaponInfo->trailRadius = 32;
@@ -1001,7 +1001,7 @@ void CG_RegisterWeapon(int weaponNum)
 			MAKERGB(weaponInfo->flashLightColor, 1, 0.7f, 1);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/bfg/bfg_fire.wav", qfalse);
 			cgs.media.bfgExplosionShader = trap_R_RegisterShader("bfgExplosion");
-			weaponInfo->missileModel = trap_R_RegisterModel("models/weaphits/bfg.md3");
+			weaponInfo->missileModel = trap_R_RegisterModel("models/weaphits/bfg.md3", qtrue);
 			weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket/rockfly.ogg", qfalse);
 			break;
 
@@ -1040,7 +1040,7 @@ void CG_RegisterItemVisuals(int itemNum)
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
 
-	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
+	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0], qtrue);
 
 	itemInfo->icon = trap_R_RegisterShader(item->icon);
 
@@ -1054,7 +1054,7 @@ void CG_RegisterItemVisuals(int itemNum)
 	{
 		if(item->world_model[1])
 		{
-			itemInfo->models[1] = trap_R_RegisterModel(item->world_model[1]);
+			itemInfo->models[1] = trap_R_RegisterModel(item->world_model[1], qtrue);
 		}
 	}
 }

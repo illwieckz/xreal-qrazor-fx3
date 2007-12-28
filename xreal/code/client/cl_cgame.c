@@ -588,7 +588,7 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 			re.LoadWorld(VMA(1));
 			return 0;
 		case CG_R_REGISTERMODEL:
-			return re.RegisterModel(VMA(1));
+			return re.RegisterModel(VMA(1), args[2]);
 		case CG_R_REGISTERANIMATION:
 			return re.RegisterAnimation(VMA(1));
 		case CG_R_REGISTERSKIN:

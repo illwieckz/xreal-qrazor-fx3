@@ -274,9 +274,9 @@ void trap_R_LoadWorldMap(const char *mapname)
 	syscall(CG_R_LOADWORLDMAP, mapname);
 }
 
-qhandle_t trap_R_RegisterModel(const char *name)
+qhandle_t trap_R_RegisterModel(const char *name, qboolean forceStatic)
 {
-	return syscall(CG_R_REGISTERMODEL, name);
+	return syscall(CG_R_REGISTERMODEL, name, forceStatic);
 }
 
 qhandle_t trap_R_RegisterAnimation(const char *name)

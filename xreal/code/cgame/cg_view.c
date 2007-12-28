@@ -76,7 +76,7 @@ void CG_TestModel_f(void)
 	}
 
 	Q_strncpyz(cg.testModelName, CG_Argv(1), MAX_QPATH);
-	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
+	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName, qfalse);
 
 	if(trap_Argc() == 3)
 	{
@@ -297,7 +297,7 @@ static void CG_AddTestModel(void)
 	int             i;
 
 	// re-register the model, because the level may have changed
-	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
+	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName, qfalse);
 	if(!cg.testModelEntity.hModel)
 	{
 		CG_Printf("Can't register model\n");

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	LL(x) x=LittleLong(x)
 #define	LF(x) x=LittleFloat(x)
 
-static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *name);
+static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *name, qboolean forceStatic);
 static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *name);
 
 model_t        *loadmodel;
@@ -83,7 +83,7 @@ optimization to prevent disk rescanning if they are
 asked for again.
 ====================
 */
-qhandle_t RE_RegisterModel(const char *name)
+qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 {
 	model_t        *mod;
 	unsigned       *buffer;
@@ -181,7 +181,7 @@ qhandle_t RE_RegisterModel(const char *name)
 				goto fail;
 			}
 
-			loaded = R_LoadMD3(mod, lod, buffer, name);
+			loaded = R_LoadMD3(mod, lod, buffer, name, forceStatic);
 		}
 
 		ri.FS_FreeFile(buffer);
@@ -251,10 +251,10 @@ static int MDXSurfaceCompare(const void *a, const void *b)
 	bb = *(mdxSurface_t **) b;
 
 	// shader first
-	if(&aa->shaders[0] < &bb->shaders[0])
+	if(&aa->shader < &bb->shader)
 		return -1;
 
-	else if(&aa->shaders[0] > &bb->shaders[0])
+	else if(&aa->shader > &bb->shader)
 		return 1;
 
 	return 0;
@@ -265,9 +265,9 @@ static int MDXSurfaceCompare(const void *a, const void *b)
 R_LoadMD3
 =================
 */
-static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modName)
+static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modName, qboolean forceStatic)
 {
-	int             i, j;
+	int             i, j, k, l;
 
 	md3Header_t    *md3Model;
 	md3Frame_t     *md3Frame;
@@ -280,8 +280,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 	mdxModel_t     *mdxModel;
 	mdxFrame_t     *frame;
-	mdxSurface_t   *surf;
-	mdxShader_t    *shader, *oldShader;
+	mdxSurface_t   *surf, *surface;
 	srfTriangle_t  *tri;
 	mdxVertex_t    *v;
 	mdxSt_t        *st;
@@ -407,24 +406,30 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		}
 
 		// register the shaders
-		surf->numShaders = md3Surf->numShaders;
-		surf->shaders = shader = ri.Hunk_Alloc(sizeof(*shader) * md3Surf->numShaders, h_low);
+		/*
+		   surf->numShaders = md3Surf->numShaders;
+		   surf->shaders = shader = ri.Hunk_Alloc(sizeof(*shader) * md3Surf->numShaders, h_low);
 
+		   md3Shader = (md3Shader_t *) ((byte *) md3Surf + md3Surf->ofsShaders);
+		   for(j = 0; j < md3Surf->numShaders; j++, shader++, md3Shader++)
+		   {
+		   shader_t       *sh;
+
+		   sh = R_FindShader(md3Shader->name, SHADER_3D_DYNAMIC, qtrue);
+		   if(sh->defaultShader)
+		   {
+		   shader->shaderIndex = 0;
+		   }
+		   else
+		   {
+		   shader->shaderIndex = sh->index;
+		   }
+		   }
+		 */
+
+		// only consider the first shader
 		md3Shader = (md3Shader_t *) ((byte *) md3Surf + md3Surf->ofsShaders);
-		for(j = 0; j < md3Surf->numShaders; j++, shader++, md3Shader++)
-		{
-			shader_t       *sh;
-
-			sh = R_FindShader(md3Shader->name, SHADER_3D_DYNAMIC, qtrue);
-			if(sh->defaultShader)
-			{
-				shader->shaderIndex = 0;
-			}
-			else
-			{
-				shader->shaderIndex = sh->index;
-			}
-		}
+		surf->shader = R_FindShader(md3Shader->name, SHADER_3D_DYNAMIC, qtrue);
 
 		// swap all the triangles
 		surf->numTriangles = md3Surf->numTriangles;
@@ -468,18 +473,57 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 	}
 
 #if 1
-	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && mdxModel->numFrames == 1)
+	// build static VBO surfaces
+	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && forceStatic)
 	{
+		int             vertexesNum;
+		byte           *data;
+		int             dataSize;
+		int             dataOfs;
+
+		GLuint          ofsTexCoords;
+		GLuint          ofsTangents;
+		GLuint          ofsBinormals;
+		GLuint          ofsNormals;
+		GLuint          ofsColors;
+
+		int             indexesNum;
+		byte           *indexes;
+		int             indexesSize;
+		int             indexesOfs;
+
+		shader_t       *shader, *oldShader;
+
 		int             numSurfaces;
 		mdxSurface_t  **surfacesSorted;
 
-		ri.Printf(PRINT_ALL, "...trying to calculate VBOs for model '%s'\n", modName);
+		vec4_t          tmp;
+		int             index;
+
+		static vec3_t   xyzs[SHADER_MAX_VERTEXES];
+		static vec2_t   texcoords[SHADER_MAX_VERTEXES];
+		static vec3_t   tangents[SHADER_MAX_VERTEXES];
+		static vec3_t   binormals[SHADER_MAX_VERTEXES];
+		static vec3_t   normals[SHADER_MAX_VERTEXES];
+		static int		indexes2[SHADER_MAX_INDEXES];
+
+		growList_t      vboSurfaces;
+		srfVBOMesh_t   *vboSurf;
+
+		color4ub_t		tmpColor = {255, 255, 255, 255};
+
+
+		//ri.Printf(PRINT_ALL, "...trying to calculate VBOs for model '%s'\n", modName);
 
 		// count number of surfaces that we want to merge
 		numSurfaces = 0;
 		for(i = 0, surf = mdxModel->surfaces; i < mdxModel->numSurfaces; i++, surf++)
 		{
-			// TODO ignore deformVertexes
+			// remove all deformVertexes surfaces
+			shader = surf->shader;
+			if(shader->numDeforms)
+				continue;
+
 			numSurfaces++;
 		}
 
@@ -499,11 +543,12 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 		// TODO
 
-#if 0
+		Com_InitGrowList(&vboSurfaces, 10);
+
+#if 1
 		for(k = 0; k < numSurfaces; k++)
 		{
 			surf = surfacesSorted[k];
-
 			shader = surf->shader;
 
 			if(shader != oldShader)
@@ -514,54 +559,31 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vertexesNum = 0;
 				indexesNum = 0;
 
-				for(l = k; l < numCaches; l++)
+				for(l = k; l < numSurfaces; l++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
+					surface = surfacesSorted[l];
 
 					if(surface->shader != shader)
 						continue;
 
-					indexesNum += iaCache2->numLightIndexes;
-
-					if(*surface->data == SF_FACE)
-					{
-						srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
-
-						if(face->numVerts)
-							vertexesNum += face->numVerts;
-					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
-
-						if(grid->numVerts)
-							vertexesNum += grid->numVerts;
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *tri = (srfTriangles_t *) surface->data;
-
-						if(tri->numVerts)
-							vertexesNum += tri->numVerts;
-					}
+					indexesNum += surface->numTriangles * 3;
+					vertexesNum += surface->numVerts;
 				}
 
 				if(!vertexesNum || !indexesNum)
-					return;
+					return qtrue;
 
-				//ri.Printf(PRINT_ALL, "...calculating light mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
+				ri.Printf(PRINT_ALL, "...calculating MD3 mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum,
+						  indexesNum / 3);
 
 				// create surface
-				lightSurf = ri.Hunk_Alloc(sizeof(*lightSurf), h_low);
-				lightSurf->surfaceType = SF_VBO_LIGHT_MESH;
-				lightSurf->numIndexes = indexesNum;
-				lightSurf->numVerts = vertexesNum;
+				vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+				Com_AddToGrowList(&vboSurfaces, vboSurf);
 
-				// create VBOs
-				qglGenBuffersARB(1, &lightSurf->vertsVBO);
-				qglGenBuffersARB(1, &lightSurf->indexesVBO);
+				vboSurf->surfaceType = SF_VBO_MESH;
+				vboSurf->shader = shader;
+				vboSurf->numIndexes = indexesNum;
+				vboSurf->numVerts = vertexesNum;
 
 				dataSize = vertexesNum * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
 				data = ri.Hunk_AllocateTempMemory(dataSize);
@@ -573,477 +595,276 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				indexesOfs = 0;
 				indexesNum = 0;
 
-				ClearBounds(lightSurf->bounds[0], lightSurf->bounds[1]);
-
 				// build triangle indices
-				for(l = k; l < numCaches; l++)
+				for(l = k; l < numSurfaces; l++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
+					surface = surfacesSorted[l];
 
 					if(surface->shader != shader)
 						continue;
 
 					// set up triangle indices
-					for(i = 0; i < iaCache2->numLightIndexes; i++)
+					if(surface->numTriangles)
 					{
-						index = vertexesNum + iaCache2->lightIndexes[i];
+						srfTriangle_t  *tri;
 
-						memcpy(indexes + indexesOfs, &index, sizeof(int));
-						indexesOfs += sizeof(int);
+						for(i = 0, tri = surface->triangles; i < surface->numTriangles; i++, tri++)
+						{
+							for(j = 0; j < 3; j++)
+							{
+								index = vertexesNum + tri->indexes[j];
+
+								memcpy(indexes + indexesOfs, &index, sizeof(int));
+								indexesOfs += sizeof(int);
+							}
+
+							for(j = 0; j < 3; j++)
+							{
+								indexes2[indexesNum + i * 3 + j] = vertexesNum + tri->indexes[j];
+							}
+						}
+
+						indexesNum += surface->numTriangles * 3;
 					}
 
-					if(*surface->data == SF_FACE)
-					{
-						srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
-
-						if(face->numVerts)
-							vertexesNum += face->numVerts;
-					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
-
-						if(grid->numVerts)
-							vertexesNum += grid->numVerts;
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *tri = (srfTriangles_t *) surface->data;
-
-						if(tri->numVerts)
-							vertexesNum += tri->numVerts;
-					}
-
-					indexesNum += iaCache2->numLightIndexes;
+					if(surface->numVerts)
+						vertexesNum += surface->numVerts;
 				}
 
-				// feed vertex XYZ
-				for(l = k; l < numCaches; l++)
-				{
-					iaCache2 = iaCachesSorted[l];
+				// don't forget to recount vertexesNum
+				vertexesNum = 0;
 
-					surface = iaCache2->surface;
+				// feed vertex XYZ
+				for(l = k; l < numSurfaces; l++)
+				{
+					surface = surfacesSorted[l];
 
 					if(surface->shader != shader)
 						continue;
 
-					if(*surface->data == SF_FACE)
+					if(surface->numVerts)
 					{
-						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-
-						if(cv->numVerts)
+						// set up xyz array
+						for(i = 0; i < surface->numVerts; i++)
 						{
-							// set up xyz array
-							for(i = 0; i < cv->numVerts; i++)
+							for(j = 0; j < 3; j++)
 							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].xyz[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-
-								AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
+								tmp[j] = surface->verts[i].xyz[j] * MD3_XYZ_SCALE;
 							}
-
-							vertexesNum += cv->numVerts;
-						}
-					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							// set up xyz array
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].xyz[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-
-								AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
-							}
-
-							vertexesNum += cv->numVerts;
-						}
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							// set up xyz array
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].xyz[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-
-								AddPointToBounds(cv->verts[i].xyz, lightSurf->bounds[0], lightSurf->bounds[1]);
-							}
-
-							vertexesNum += cv->numVerts;
+							tmp[3] = 1;
+							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							dataOfs += sizeof(vec4_t);
 						}
 					}
 				}
 
 				// feed vertex texcoords
-				lightSurf->ofsTexCoords = dataOfs;
-				for(l = k; l < numCaches; l++)
+				ofsTexCoords = dataOfs;
+				for(l = k; l < numSurfaces; l++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
+					surface = surfacesSorted[l];
 
 					if(surface->shader != shader)
 						continue;
 
-					if(*surface->data == SF_FACE)
+					if(surface->numVerts)
 					{
-						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-
-						if(cv->numVerts)
+						// set up xyz array
+						for(i = 0; i < surface->numVerts; i++)
 						{
-							for(i = 0; i < cv->numVerts; i++)
+							for(j = 0; j < 2; j++)
 							{
-								for(j = 0; j < 2; j++)
-								{
-									tmp[j] = cv->verts[i].st[j];
-								}
-								tmp[2] = 0;
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
+								tmp[j] = surface->st[i].st[j];
 							}
+							tmp[2] = 0;
+							tmp[3] = 1;
+							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+							dataOfs += sizeof(vec4_t);
+
 						}
 					}
-					else if(*surface->data == SF_GRID)
+				}
+
+				// prepare positions and texcoords for tangent space calculations
+				for(l = k; l < numSurfaces; l++)
+				{
+					surface = surfacesSorted[l];
+
+					if(surface->shader != shader)
+						continue;
+
+					if(surface->numVerts)
 					{
-						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-
-						if(cv->numVerts)
+						// set up xyz array
+						for(i = 0; i < surface->numVerts; i++)
 						{
-							for(i = 0; i < cv->numVerts; i++)
+							for(j = 0; j < 3; j++)
 							{
-								for(j = 0; j < 2; j++)
-								{
-									tmp[j] = cv->verts[i].st[j];
-								}
-								tmp[2] = 0;
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
+								xyzs[vertexesNum + i][j] = surface->verts[i].xyz[j] * MD3_XYZ_SCALE;
+							}
+							for(j = 0; j < 2; j++)
+							{
+								texcoords[vertexesNum + i][j] = surface->st[i].st[j];
 							}
 						}
+
+						vertexesNum += surface->numVerts;
 					}
-					else if(*surface->data == SF_TRIANGLES)
+				}
+
+				// calc tangent spaces
+				{
+					float          *v;
+					const float    *v0, *v1, *v2;
+					const float    *t0, *t1, *t2;
+					vec3_t          tangent;
+					vec3_t          binormal;
+					vec3_t          normal;
+
+					for(i = 0; i < vertexesNum; i++)
 					{
-						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
+						VectorClear(tangents[i]);
+						VectorClear(binormals[i]);
+						VectorClear(normals[i]);
+					}
 
-						if(cv->numVerts)
+					for(i = 0; i < indexesNum; i += 3)
+					{
+						v0 = xyzs[indexes2[i + 0]];
+						v1 = xyzs[indexes2[i + 1]];
+						v2 = xyzs[indexes2[i + 2]];
+
+						t0 = texcoords[indexes2[i + 0]];
+						t1 = texcoords[indexes2[i + 1]];
+						t2 = texcoords[indexes2[i + 2]];
+
+						R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+
+						for(j = 0; j < 3; j++)
 						{
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 2; j++)
-								{
-									tmp[j] = cv->verts[i].st[j];
-								}
-								tmp[2] = 0;
-								tmp[3] = 1;
+							v = tangents[indexes2[i + j]];
+							VectorAdd(v, tangent, v);
 
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-							}
+							v = binormals[indexes2[i + j]];
+							VectorAdd(v, binormal, v);
+
+							v = normals[indexes2[i + j]];
+							VectorAdd(v, normal, v);
 						}
 					}
+
+					for(i = 0; i < vertexesNum; i++)
+					{
+						VectorNormalize(tangents[i]);
+						VectorNormalize(binormals[i]);
+						VectorNormalize(normals[i]);
+					}
+
+					// TODO do another extra smoothing for normals to avoid flat shading
+					/*
+					   for(i = 0; i < surface->numVerts; i++)
+					   {
+					   for(j = 0; j < surface->numVerts; j++)
+					   {
+					   if(i == j)
+					   continue;
+
+					   if(R_CompareVert(&cv->verts[i], &cv->verts[j], qfalse))
+					   {
+					   VectorAdd(cv->verts[i].normal, cv->verts[j].normal, cv->verts[i].normal);
+					   }
+					   }
+
+					   VectorNormalize(cv->verts[i].normal);
+					   }
+					 */
 				}
 
 				// feed vertex tangents
-				lightSurf->ofsTangents = dataOfs;
-				for(l = k; l < numCaches; l++)
+				ofsTangents = dataOfs;
+				for(i = 0; i < vertexesNum; i++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
-
-					if(surface->shader != shader)
-						continue;
-
-					if(*surface->data == SF_FACE)
+					for(j = 0; j < 3; j++)
 					{
-						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].tangent[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-							}
-						}
+						tmp[j] = tangents[i][j];
 					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].tangent[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-							}
-						}
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].tangent[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-							}
-						}
-					}
+					tmp[3] = 1;
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
 				}
 
 				// feed vertex binormals
-				lightSurf->ofsBinormals = dataOfs;
-				for(l = k; l < numCaches; l++)
+				ofsBinormals = dataOfs;
+				for(i = 0; i < vertexesNum; i++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
-
-					if(surface->shader != shader)
-						continue;
-
-					if(*surface->data == SF_FACE)
+					for(j = 0; j < 3; j++)
 					{
-						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].binormal[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-							}
-						}
+						tmp[j] = binormals[i][j];
 					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							for(j = 0; j < 3; j++)
-							{
-								tmp[j] = cv->verts[i].binormal[j];
-							}
-							tmp[3] = 1;
-
-							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-							dataOfs += sizeof(vec4_t);
-						}
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							for(j = 0; j < 3; j++)
-							{
-								tmp[j] = cv->verts[i].binormal[j];
-							}
-							tmp[3] = 1;
-
-							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-							dataOfs += sizeof(vec4_t);
-						}
-					}
+					tmp[3] = 1;
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
 				}
 
 				// feed vertex normals
-				lightSurf->ofsNormals = dataOfs;
-				for(l = k; l < numCaches; l++)
+				ofsNormals = dataOfs;
+				for(i = 0; i < vertexesNum; i++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
-
-					if(surface->shader != shader)
-						continue;
-
-					if(*surface->data == SF_FACE)
+					for(j = 0; j < 3; j++)
 					{
-						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-
-						if(cv->numVerts)
-						{
-							for(i = 0; i < cv->numVerts; i++)
-							{
-								for(j = 0; j < 3; j++)
-								{
-									tmp[j] = cv->verts[i].normal[j];
-								}
-								tmp[3] = 1;
-
-								memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-								dataOfs += sizeof(vec4_t);
-							}
-						}
+						tmp[j] = normals[i][j];
 					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							for(j = 0; j < 3; j++)
-							{
-								tmp[j] = cv->verts[i].normal[j];
-							}
-							tmp[3] = 1;
-
-							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-							dataOfs += sizeof(vec4_t);
-						}
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							for(j = 0; j < 3; j++)
-							{
-								tmp[j] = cv->verts[i].normal[j];
-							}
-							tmp[3] = 1;
-
-							memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-							dataOfs += sizeof(vec4_t);
-						}
-					}
+					tmp[3] = 1;
+					memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
 				}
 
 				// feed vertex colors
-				lightSurf->ofsColors = dataOfs;
-				for(l = k; l < numCaches; l++)
+				ofsColors = dataOfs;
+				for(i = 0; i < vertexesNum; i++)
 				{
-					iaCache2 = iaCachesSorted[l];
-
-					surface = iaCache2->surface;
-
-					if(surface->shader != shader)
-						continue;
-
-					if(*surface->data == SF_FACE)
-					{
-						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
-							dataOfs += sizeof(color4ub_t);
-						}
-					}
-					else if(*surface->data == SF_GRID)
-					{
-						srfGridMesh_t  *cv = (srfGridMesh_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
-							dataOfs += sizeof(color4ub_t);
-						}
-					}
-					else if(*surface->data == SF_TRIANGLES)
-					{
-						srfTriangles_t *cv = (srfTriangles_t *) surface->data;
-
-						for(i = 0; i < cv->numVerts; i++)
-						{
-							memcpy(data + dataOfs, cv->verts[i].color, sizeof(color4ub_t));
-							dataOfs += sizeof(color4ub_t);
-						}
-					}
+					memcpy(data + dataOfs, tmpColor, sizeof(color4ub_t));
+					dataOfs += sizeof(color4ub_t);
 				}
 
-				qglBindBufferARB(GL_ARRAY_BUFFER_ARB, lightSurf->vertsVBO);
-				qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
-
-				qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, lightSurf->indexesVBO);
-				qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
-
-				qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-				qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+				vboSurf->vbo =
+					R_CreateStaticVBO(va("staticMD3Mesh %i", vboSurfaces.currentElements), data, dataSize, indexes,
+									  indexesSize);
+				vboSurf->vbo->ofsXYZ = 0;
+				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+				vboSurf->vbo->ofsTangents = ofsTangents;
+				vboSurf->vbo->ofsBinormals = ofsBinormals;
+				vboSurf->vbo->ofsNormals = ofsNormals;
+				vboSurf->vbo->ofsColors = ofsColors;
 
 				ri.Hunk_FreeTempMemory(indexes);
 				ri.Hunk_FreeTempMemory(data);
 
-				// add everything needed to the current iaCache
-				iaCache->shader = (struct shader_s *)shader;
-				iaCache->vboLightMesh = (struct srfVBOLightMesh_s *)lightSurf;
-
 				// megs
 				/*
-				   ri.Printf(PRINT_ALL, "light mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
-				   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
-				   ri.Printf(PRINT_ALL, "light mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
-				   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
-				 */
+				ri.Printf(PRINT_ALL, "md3 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+						  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+				ri.Printf(PRINT_ALL, "md3 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+						  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+				*/
+
 			}
 		}
 #endif
 		ri.Hunk_FreeTempMemory(surfacesSorted);
+
+		// move VBO surfaces list to hunk
+		mdxModel->numVBOSurfaces = vboSurfaces.currentElements;
+		mdxModel->vboSurfaces = ri.Hunk_Alloc(mdxModel->numVBOSurfaces * sizeof(*mdxModel->vboSurfaces), h_low);
+
+		for(i = 0; i < mdxModel->numVBOSurfaces; i++)
+		{
+			mdxModel->vboSurfaces[i] = (srfVBOMesh_t *) Com_GrowListElement(&vboSurfaces, i);
+		}
+
+		Com_DestroyGrowList(&vboSurfaces);
+
+		//ri.Printf(PRINT_ALL, "%i MD3 VBO surfaces created\n", mdxModel->numVBOSurfaces);
 	}
 #endif
 

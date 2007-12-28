@@ -939,8 +939,8 @@ static void CG_RegisterGraphics(void)
 	if(cgs.gametype == GT_CTF || cg_buildScript.integer)
 	{
 #endif
-		cgs.media.redCubeModel = trap_R_RegisterModel("models/powerups/orb/r_orb.md3");
-		cgs.media.blueCubeModel = trap_R_RegisterModel("models/powerups/orb/b_orb.md3");
+		cgs.media.redCubeModel = trap_R_RegisterModel("models/powerups/orb/r_orb.md3", qtrue);
+		cgs.media.blueCubeModel = trap_R_RegisterModel("models/powerups/orb/b_orb.md3", qtrue);
 		cgs.media.redCubeIcon = trap_R_RegisterShader("icons/skull_red");
 		cgs.media.blueCubeIcon = trap_R_RegisterShader("icons/skull_blue");
 	}
@@ -952,8 +952,8 @@ static void CG_RegisterGraphics(void)
 	if(cgs.gametype == GT_CTF || cg_buildScript.integer)
 	{
 #endif
-		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3");
-		cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3");
+		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3", qfalse);
+		cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3", qfalse);
 		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_red1");
 		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
 		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_red3");
@@ -1014,30 +1014,30 @@ static void CG_RegisterGraphics(void)
 #endif
 	}
 
-	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3");
+	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3", qtrue);
 	cgs.media.armorIcon = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
 
-	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons/shells/m_shell.md3");
-	cgs.media.shotgunBrassModel = trap_R_RegisterModel("models/weapons/shells/s_shell.md3");
+	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons/shells/m_shell.md3", qtrue);
+	cgs.media.shotgunBrassModel = trap_R_RegisterModel("models/weapons/shells/s_shell.md3", qtrue);
 
-	cgs.media.gibAbdomen = trap_R_RegisterModel("models/gibs/abdomen.md3");
-	cgs.media.gibArm = trap_R_RegisterModel("models/gibs/arm.md3");
-	cgs.media.gibChest = trap_R_RegisterModel("models/gibs/chest.md3");
-	cgs.media.gibFist = trap_R_RegisterModel("models/gibs/fist.md3");
-	cgs.media.gibFoot = trap_R_RegisterModel("models/gibs/foot.md3");
-	cgs.media.gibForearm = trap_R_RegisterModel("models/gibs/forearm.md3");
-	cgs.media.gibIntestine = trap_R_RegisterModel("models/gibs/intestine.md3");
-	cgs.media.gibLeg = trap_R_RegisterModel("models/gibs/leg.md3");
-	cgs.media.gibSkull = trap_R_RegisterModel("models/gibs/skull.md3");
-	cgs.media.gibBrain = trap_R_RegisterModel("models/gibs/brain.md3");
+	cgs.media.gibAbdomen = trap_R_RegisterModel("models/gibs/abdomen.md3", qtrue);
+	cgs.media.gibArm = trap_R_RegisterModel("models/gibs/arm.md3", qtrue);
+	cgs.media.gibChest = trap_R_RegisterModel("models/gibs/chest.md3", qtrue);
+	cgs.media.gibFist = trap_R_RegisterModel("models/gibs/fist.md3", qtrue);
+	cgs.media.gibFoot = trap_R_RegisterModel("models/gibs/foot.md3", qtrue);
+	cgs.media.gibForearm = trap_R_RegisterModel("models/gibs/forearm.md3", qtrue);
+	cgs.media.gibIntestine = trap_R_RegisterModel("models/gibs/intestine.md3", qtrue);
+	cgs.media.gibLeg = trap_R_RegisterModel("models/gibs/leg.md3", qtrue);
+	cgs.media.gibSkull = trap_R_RegisterModel("models/gibs/skull.md3", qtrue);
+	cgs.media.gibBrain = trap_R_RegisterModel("models/gibs/brain.md3", qtrue);
 
-	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons/shells/s_shell.md3");
+	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons/shells/s_shell.md3", qtrue);
 
 	cgs.media.balloonShader = trap_R_RegisterShader("sprites/balloon3");
 
 	cgs.media.bloodExplosionShader = trap_R_RegisterShader("bloodExplosion");
 
-	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
+	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3", qtrue);
 	
 	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
 
@@ -1056,7 +1056,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/selectedhealth.tga");
 #endif
 
-	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3");
+	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3", qtrue);
 	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
 	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
 	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip("medal_gauntlet");
@@ -1099,7 +1099,7 @@ static void CG_RegisterGraphics(void)
 		int             j;
 
 		Com_sprintf(name, sizeof(name), "*%i", i);
-		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name);
+		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name, qtrue);
 		trap_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
 		for(j = 0; j < 3; j++)
 		{
@@ -1117,7 +1117,7 @@ static void CG_RegisterGraphics(void)
 		{
 			break;
 		}
-		cgs.gameModels[i] = trap_R_RegisterModel(modelName);
+		cgs.gameModels[i] = trap_R_RegisterModel(modelName, qtrue);
 	}
 
 #ifdef MISSIONPACK
