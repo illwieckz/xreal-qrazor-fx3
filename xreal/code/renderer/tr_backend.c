@@ -960,6 +960,133 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 	GL_CheckErrors();
 }
 
+static void RB_RenderUniformFog()
+{
+	trRefEntity_t  *entity, *oldEntity;
+	shader_t       *shader, *oldShader;
+	qboolean        depthRange, oldDepthRange;
+	int             i;
+	drawSurf_t     *drawSurf;
+
+	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
+
+	// draw everything
+	oldEntity = NULL;
+	oldShader = NULL;
+	oldDepthRange = qfalse;
+	depthRange = qfalse;
+	backEnd.currentLight = NULL;
+
+	for(i = 0, drawSurf = backEnd.viewParms.drawSurfs; i < backEnd.viewParms.numDrawSurfs; i++, drawSurf++)
+	{
+		// update locals
+		entity = drawSurf->entity;
+		shader = tr.sortedShaders[drawSurf->shaderNum];
+
+		
+		//if(opaque)
+		{
+			// skip all translucent surfaces that don't matter for this pass
+			if(shader->sort > SS_OPAQUE)
+			{
+				break;
+			}
+		}
+		/*
+		else
+		{
+			// skip all opaque surfaces that don't matter for this pass
+			if(shader->sort <= SS_OPAQUE)
+			{
+				continue;
+			}
+		}
+		*/
+
+		if(entity == oldEntity && shader == oldShader)
+		{
+			// fast path, same as previous sort
+			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+			continue;
+		}
+
+		// change the tess parameters if needed
+		// a "entityMergable" shader is a shader that can have surfaces from seperate
+		// entities merged into a single batch, like smoke and blood puff sprites
+		if(shader != oldShader || (entity != oldEntity && !shader->entityMergable))
+		{
+			if(oldShader != NULL)
+			{
+				Tess_End();
+			}
+
+			Tess_Begin(Tess_StageIteratorUniformFog, shader, NULL, qtrue, qfalse);
+			oldShader = shader;
+		}
+
+		// change the modelview matrix if needed
+		if(entity != oldEntity)
+		{
+			depthRange = qfalse;
+
+			if(entity != &tr.worldEntity)
+			{
+				backEnd.currentEntity = entity;
+
+				// set up the transformation matrix
+				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
+
+				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+				{
+					// hack the depth range to prevent view model from poking into walls
+					depthRange = qtrue;
+				}
+			}
+			else
+			{
+				backEnd.currentEntity = &tr.worldEntity;
+				backEnd.or = backEnd.viewParms.world;
+			}
+
+			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+
+			// change depthrange if needed
+			if(oldDepthRange != depthRange)
+			{
+				if(depthRange)
+				{
+					qglDepthRange(0, 0.3);
+				}
+				else
+				{
+					qglDepthRange(0, 1);
+				}
+				oldDepthRange = depthRange;
+			}
+
+			oldEntity = entity;
+		}
+
+		// add the triangles for this surface
+		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+	}
+
+	// draw the contents of the last shader batch
+	if(oldShader != NULL)
+	{
+		Tess_End();
+	}
+
+	// go back to the world modelview matrix
+	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	if(depthRange)
+	{
+		qglDepthRange(0, 1);
+	}
+
+	GL_CheckErrors();
+}
+
 #ifdef VOLUMETRIC_LIGHTING
 static void Render_lightVolume(trRefLight_t * light)
 {
@@ -3147,7 +3274,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				//qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
-				//         backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+				//        backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// set light scissor to reduce fillrate
 				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
@@ -3578,7 +3705,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 		oldLight = light;
 		oldEntity = entity;
 		oldShader = shader;
-		oldAlphaTest = shader->alphaTest;
+		oldAlphaTest = alphaTest;
 
 	  skipInteraction:
 		if(!ia->next)
@@ -4962,6 +5089,14 @@ static void RB_RenderView(void)
 
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(qfalse);
+
+#if 0
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_forceFog->value > 0)
+		{
+			// render global fog
+			RB_RenderUniformFog();
+		}
+#endif
 
 #if 0
 		// add the sun flare

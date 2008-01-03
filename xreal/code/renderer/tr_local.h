@@ -62,7 +62,7 @@ long            myftol(float f);
 
 #define	MAX_FBOS				64
 
-//#define VOLUMETRIC_LIGHTING
+#define VOLUMETRIC_LIGHTING
 
 // can't be increased without changing bit packing for drawsurfs
 
@@ -838,6 +838,9 @@ typedef struct shaderProgram_s
 	GLint           u_FresnelBias;
 
 	GLint           u_EtaRatio;
+
+	GLint			u_FogDensity;
+	GLint			u_FogColor;
 
 	GLint           u_DepthScale;
 
@@ -1772,6 +1775,7 @@ typedef struct
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t screenShader;
 	shaderProgram_t liquidShader;
+	shaderProgram_t uniformFogShader;
 
 	// -----------------------------------------
 
@@ -1874,6 +1878,8 @@ extern cvar_t  *r_measureOverdraw;	// enables stencil buffer overdraw measuremen
 
 extern cvar_t  *r_lodbias;		// push/pull LOD transitions
 extern cvar_t  *r_lodscale;
+
+extern cvar_t  *r_forceFog;
 
 extern cvar_t  *r_forceAmbient;
 extern cvar_t  *r_ambientScale;
@@ -2353,6 +2359,7 @@ void            Tess_StageIteratorStencilShadowVolume();
 void            Tess_StageIteratorStencilLighting();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
+void            Tess_StageIteratorUniformFog();
 
 void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
 void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2);

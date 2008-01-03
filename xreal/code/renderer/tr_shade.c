@@ -908,6 +908,27 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.liquidShader.program);
 	GL_CheckErrors();
 
+	// uniform fog post process effect
+	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog",
+					   GLCS_VERTEX, qtrue);
+
+	tr.uniformFogShader.u_CurrentMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_CurrentMap");
+	tr.uniformFogShader.u_PortalMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_PortalMap");
+	//tr.uniformFogShader.u_ViewOrigin = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewOrigin");
+	tr.uniformFogShader.u_FogDensity = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogDensity");
+	tr.uniformFogShader.u_FogColor = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogColor");
+	tr.uniformFogShader.u_FBufScale = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FBufScale");
+	tr.uniformFogShader.u_NPOTScale = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_NPOTScale");
+	//tr.uniformFogShader.u_ModelMatrix = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ModelMatrix");
+
+	qglUseProgramObjectARB(tr.uniformFogShader.program);
+	qglUniform1iARB(tr.uniformFogShader.u_CurrentMap, 0);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.uniformFogShader.program);
+	GLSL_ShowProgramUniforms(tr.uniformFogShader.program);
+	GL_CheckErrors();
+
 	endTime = ri.Milliseconds();
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
@@ -1061,6 +1082,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.liquidShader.program);
 		tr.liquidShader.program = 0;
+	}
+
+	if(tr.uniformFogShader.program)
+	{
+		qglDeleteObjectARB(tr.uniformFogShader.program);
+		tr.uniformFogShader.program = 0;
 	}
 
 	glState.currentProgram = 0;
@@ -1293,10 +1320,12 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 	
 	tess.stageIteratorFunc = stageIteratorFunc;
 	tess.stageIteratorFunc2 = NULL;
+	
 	if(!tess.stageIteratorFunc)
 	{
 		tess.stageIteratorFunc = Tess_StageIteratorGeneric;
 	}
+	
 	if(tess.stageIteratorFunc == Tess_StageIteratorGeneric)
 	{
 		if(state->isSky)
@@ -1305,12 +1334,22 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 			tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;
 		}
 	}
+	
 	if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
 	{
 		if(state->isSky)
 		{
 			tess.stageIteratorFunc = Tess_StageIteratorSky;
 			tess.stageIteratorFunc2 = Tess_StageIteratorGBuffer;
+		}
+	}
+
+	if(tess.stageIteratorFunc == Tess_StageIteratorUniformFog)
+	{
+		if(state->isSky)
+		{
+			tess.stageIteratorFunc = Tess_StageIteratorSky;
+			tess.stageIteratorFunc2 = Tess_StageIteratorUniformFog;
 		}
 	}
 
@@ -2091,7 +2130,7 @@ static void Render_heatHaze(int stage)
 
 		// remove blend mode
 		stateBits = pStage->stateBits;
-		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_DEPTHMASK_TRUE);
 
 		GL_State(stateBits);
 
@@ -2515,6 +2554,60 @@ static void Render_liquid(int stage)
 	// bind u_PortalMap
 	GL_SelectTexture(1);
 	GL_Bind(tr.portalRenderImage);
+
+	DrawElements();
+
+	GL_CheckErrors();
+}
+
+static void Render_uniformFog()
+{
+	float			fogDensity;
+	vec3_t          fogColor;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
+	//shaderStage_t  *pStage = tess.surfaceStages[stage];
+
+	GLimp_LogComment("--- Render_uniformFog ---\n");
+
+	//GL_State(pStage->stateBits);
+	GL_State(0);
+
+	// enable shader, set arrays
+	GL_Program(tr.uniformFogShader.program);
+	GL_ClientState(tr.uniformFogShader.attribs);
+	GL_SetVertexAttribs();
+
+	qglColor4fv(tess.svars.color);
+
+	// set uniforms
+	fogDensity = r_forceFog->value;
+	VectorCopy(colorMdGrey, fogColor);
+
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
+
+	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
+	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
+	qglUniform2fARB(tr.uniformFogShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.uniformFogShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+	//qglUniformMatrix4fvARB(tr.uniformFogShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+
+	// capture current color buffer for u_CurrentMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
 	DrawElements();
 
@@ -2946,6 +3039,13 @@ void Tess_StageIteratorGeneric()
 		}
 	}
 
+	/*
+	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_forceFog->value > 0)
+	{
+		Render_uniformFog();
+	}
+	*/
+
 	// unlock arrays
 	if(qglUnlockArraysEXT)
 	{
@@ -3181,6 +3281,141 @@ void Tess_StageIteratorShadowFill()
 			case ST_COLLAPSE_lighting_DBS:
 			{
 				Render_shadowFill(stage);
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+
+	// unlock arrays
+	if(qglUnlockArraysEXT)
+	{
+		qglUnlockArraysEXT();
+		GLimp_LogComment("glUnlockArraysEXT\n");
+	}
+
+	// reset polygon offset
+	qglDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+void Tess_StageIteratorUniformFog()
+{
+	int             stage;
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va
+						 ("--- Tess_StageIteratorUniformFog( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
+						  tess.numVertexes, tess.numIndexes / 3));
+	}
+
+	GL_CheckErrors();
+
+	Tess_DeformGeometry();
+
+	// set face culling appropriately   
+	GL_Cull(tess.surfaceShader->cullType);
+
+	// set polygon offset if necessary
+	qglEnable(GL_POLYGON_OFFSET_FILL);
+	qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
+
+	// lock XYZ
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
+	}
+	else
+	{
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	}
+
+	if(qglLockArraysEXT)
+	{
+		qglLockArraysEXT(0, tess.numVertexes);
+		GLimp_LogComment("glLockArraysEXT\n");
+	}
+
+	// call shader function
+	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+	{
+		shaderStage_t  *pStage = tess.surfaceStages[stage];
+
+		if(!pStage)
+		{
+			break;
+		}
+
+		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
+		{
+			continue;
+		}
+
+		Tess_ComputeTexMatrices(pStage);
+
+		switch (pStage->type)
+		{
+			case ST_COLORMAP:
+			{
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				{
+					Render_uniformFog(stage);
+				}
+				break;
+			}
+
+			case ST_DIFFUSEMAP:
+			case ST_COLLAPSE_lighting_DB:
+			case ST_COLLAPSE_lighting_DBS:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_COLLAPSE_reflection_CB:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_REFLECTIONMAP:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_REFRACTIONMAP:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_DISPERSIONMAP:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_SKYBOXMAP:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_HEATHAZEMAP:
+			{
+				Render_uniformFog(stage);
+				break;
+			}
+
+			case ST_LIQUIDMAP:
+			{
+				Render_uniformFog(stage);
 				break;
 			}
 

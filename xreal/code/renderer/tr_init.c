@@ -161,6 +161,8 @@ cvar_t         *r_simpleMipMaps;
 
 cvar_t         *r_showImages;
 
+cvar_t         *r_forceFog;
+
 cvar_t         *r_forceAmbient;
 cvar_t         *r_ambientScale;
 cvar_t         *r_lightScale;
@@ -1394,6 +1396,9 @@ void R_Register(void)
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
+
+	r_forceFog = ri.Cvar_Get("r_forceFog", "0.0007", CVAR_ARCHIVE /* | CVAR_LATCH */);
+	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
