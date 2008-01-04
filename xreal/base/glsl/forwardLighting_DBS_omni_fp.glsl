@@ -125,7 +125,7 @@ void	main()
 		#endif
 	
 		float shadowDistance = shadowMoments.r;
-		float shadowDistanceSquared = shadowMoments.g;
+		float shadowDistanceSquared = shadowMoments.a;
 		
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;

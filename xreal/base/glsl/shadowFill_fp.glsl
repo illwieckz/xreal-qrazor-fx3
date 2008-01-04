@@ -41,10 +41,14 @@ void	main()
 	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;
 
+	// shadowmap can be float RGBA or luminance alpha so store distanceSquared into alpha
+	
 #if defined(VSM_CLAMP)
 	// convert to [0,1] color space
-	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0) * 2.0 - 1.0;
+	color = vec4(distance, 0.0 , 0.0, distanceSquared) * 2.0 - 1.0;
 #else
-	gl_FragColor = vec4(distance, distanceSquared, 0.0, 0.0);
+	color = vec4(distance, 0.0, 0.0, distanceSquared);
 #endif
+
+	gl_FragColor = color;
 }

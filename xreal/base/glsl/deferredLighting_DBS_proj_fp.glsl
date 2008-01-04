@@ -45,9 +45,6 @@ void	main()
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= u_NPOTScale;
-
-	// compute normal in world space
-	vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
 		
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
@@ -59,35 +56,104 @@ void	main()
 		// point is behind the near clip plane
 		discard;
 	}
+
+	float shadow = 1.0;
 	
-	// compute light direction in world space
-	vec3 L = normalize(u_LightOrigin - P.xyz);
+#if defined(VSM)
+	if(bool(u_ShadowCompare))
+	{
+		// compute incident ray
+		vec3 I = P.xyz - u_LightOrigin;
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
+		
+		// no filter
+		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 shadowMoments = texture2DProj(u_ShadowMap, texShadow.xyw);
+		//vec4 shadowMoments = texture2DProj(u_ShadowMap, SP.xyw);
 	
-	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - P.xyz);
+		#if defined(VSM_CLAMP)
+		// convert to [-1, 1] vector space
+		shadowMoments = 0.5 * (shadowMoments + 1.0);
+		#endif
+		
+		float shadowDistance = shadowMoments.r;
+		float shadowDistanceSquared = shadowMoments.a;
 	
-	// compute half angle in world space
-	vec3 H = normalize(L + V);
+		// standard shadow map comparison
+		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, st);
-	diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+		// variance shadow mapping
+		float E_x2 = shadowDistanceSquared;
+		float Ex_2 = shadowDistance * shadowDistance;
 	
-	// compute the specular term
-	vec4 S = texture2D(u_SpecularMap, st);
-	vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a) * r_SpecularScale;
+		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+		//float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
 	
-	// compute attenuation
-	vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
-	vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(1.0 - texAtten.z, 0.0)).rgb;
+		float mD = shadowDistance - vertexDistance;
+		float mD_2 = mD * mD;
+		float p = variance / (variance + mD_2);
+		p = smoothstep(0.0, 1.0, p);
 	
-	// compute final color
-	vec4 color = diffuse;
-	color.rgb += specular;
-	color.rgb *= attenuationXY;
-	color.rgb *= attenuationZ;
-	color.rgb *= u_LightScale;
+		#if defined(DEBUG_VSM)
+		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
+		gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
+		gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
+		#else
+		shadow = max(shadow, p);
+		#endif
+	}
 	
+	if(shadow <= 0.0)
+	{
+		discard;
+	}
+	else
+#endif
+	{
+		// compute normal in world space
+		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
+	
+		// compute light direction in world space
+		vec3 L = normalize(u_LightOrigin - P.xyz);
+	
+		// compute view direction in world space
+		vec3 V = normalize(u_ViewOrigin - P.xyz);
+	
+		// compute half angle in world space
+		vec3 H = normalize(L + V);
+	
+		// compute the diffuse term
+		vec4 diffuse = texture2D(u_DiffuseMap, st);
+		diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+	
+		// compute the specular term
+		vec4 S = texture2D(u_SpecularMap, st);
+		vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a) * r_SpecularScale;
+	
+		// compute attenuation
+		//vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
+		//vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(1.0 - texAtten.z, 0.0)).rgb;
+		
+		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
+		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(clamp(texAtten.z, 0.0, 1.0), 0.0)).rgb;
+	
+		// compute final color
+		vec4 color = diffuse;
+		color.rgb += specular;
+		color.rgb *= attenuationXY;
+		color.rgb *= attenuationZ;
+		color.rgb *= u_LightScale;
+		color.rgb *= shadow;
+		
+		gl_FragColor = color;
+	}
+	
+/*
 #if defined(VSM)
 	if(bool(u_ShadowCompare))
 	{
@@ -112,6 +178,5 @@ void	main()
 		color.rgb *= max(shadow, pMax);
 	}
 #endif
-
-	gl_FragColor = color;
+*/
 }

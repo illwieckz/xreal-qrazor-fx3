@@ -198,15 +198,16 @@ typedef struct
 enum
 {
 	IF_NONE,
-	IF_INTERNAL = (1 << 0),
-	IF_NOPICMIP = (1 << 1),
-	IF_NOCOMPRESSION = (1 << 2),
-	IF_INTENSITY = (1 << 3),
-	IF_ALPHA = (1 << 4),
-	IF_NORMALMAP = (1 << 5),
-	IF_RGBA16F = (1 << 6),
-	IF_ALPHA32F = (1 << 7),
-	IF_RGBA32F = (1 << 8)
+	IF_INTERNAL = BIT(0),
+	IF_NOPICMIP = BIT(1),
+	IF_NOCOMPRESSION = BIT(2),
+	IF_INTENSITY = BIT(3),
+	IF_ALPHA = BIT(4),
+	IF_NORMALMAP = BIT(5),
+	IF_RGBA16F = BIT(6),
+	IF_RGBA32F = BIT(7),
+	IF_LA16F = BIT(8),
+	IF_LA32F = BIT(9),
 };
 
 typedef enum

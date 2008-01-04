@@ -202,7 +202,7 @@ void	main()
 		#endif
 		
 		float shadowDistance = shadowMoments.r;
-		float shadowDistanceSquared = shadowMoments.g;
+		float shadowDistanceSquared = shadowMoments.a;
 	
 		// standard shadow map comparison
 		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
