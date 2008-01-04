@@ -983,7 +983,7 @@ static void RB_RenderUniformFog()
 		entity = drawSurf->entity;
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 
-		
+
 		//if(opaque)
 		{
 			// skip all translucent surfaces that don't matter for this pass
@@ -993,15 +993,15 @@ static void RB_RenderUniformFog()
 			}
 		}
 		/*
-		else
-		{
-			// skip all opaque surfaces that don't matter for this pass
-			if(shader->sort <= SS_OPAQUE)
-			{
-				continue;
-			}
-		}
-		*/
+		   else
+		   {
+		   // skip all opaque surfaces that don't matter for this pass
+		   if(shader->sort <= SS_OPAQUE)
+		   {
+		   continue;
+		   }
+		   }
+		 */
 
 		if(entity == oldEntity && shader == oldShader)
 		{
@@ -2144,6 +2144,46 @@ static void RB_RenderInteractionsShadowMapped()
 
 						case RL_PROJ:
 						{
+							float           xMin, xMax, yMin, yMax;
+							float           width, height, depth;
+							float           zNear, zFar;
+							float          *proj;
+
+							// TODO LiSPSM
+
+							zNear = 1;
+							zFar = light->l.distance;
+
+							xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
+							xMin = -xMax;
+
+
+							yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
+							yMin = -yMax;
+
+							width = xMax - xMin;
+							height = yMax - yMin;
+							depth = zFar - zNear;
+
+							// OpenGL projection matrix
+							proj = light->projectionMatrix;
+							proj[0] = (2 * zNear) / width;
+							proj[4] = 0;
+							proj[8] = (xMax + xMin) / width;
+							proj[12] = 0;
+							proj[1] = 0;
+							proj[5] = (2 * zNear) / height;
+							proj[9] = (yMax + yMin) / height;
+							proj[13] = 0;
+							proj[2] = 0;
+							proj[6] = 0;
+							proj[10] = -(zFar + zNear) / depth;
+							proj[14] = -(2 * zFar * zNear) / depth;
+							proj[3] = 0;
+							proj[7] = 0;
+							proj[11] = -1;
+							proj[15] = 0;
+							
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 
 							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
@@ -3006,7 +3046,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
-	qboolean		shadowCompare;
+	qboolean        shadowCompare;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
 
@@ -3951,7 +3991,9 @@ void RB_RenderLightOcclusionQueries()
 			if(!ia->next)
 			{
 				// last interaction of current light
-				if(!ia->noOcclusionQueries && ocCount < (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT*/)
+				if(!ia->noOcclusionQueries &&
+				   ocCount <
+				   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT */ )
 				{
 					ocCount++;
 
@@ -4104,29 +4146,49 @@ void RB_RenderLightOcclusionQueries()
 		}
 
 		/*
-		if(!ocCount)
-		{
-			qglEnable(GL_TEXTURE_2D);
-			return;
-		}
-		*/
+		   if(!ocCount)
+		   {
+		   qglEnable(GL_TEXTURE_2D);
+		   return;
+		   }
+		 */
 
 		qglFinish();
 
 		// do other work until "most" of the queries are back, to avoid
 		// wasting time spinning
-#if 0
-		int i;
-		i = (int)(ocCount * 3 / 4);	// instead of N-1, to prevent the GPU from going idle
-		do
+#if 1
+		if(ocCount >= 0)
 		{
-			i++;
+			int             i;
+			int				avCount;
+			int				limit;
 
-			//if(i >= ocCount)
-			//  i = (int)(ocCount * 3 / 4);
+			limit = (int)(ocCount * 5 / 6); // instead of N-1, to prevent the GPU from going idle
+			//limit = ocCount;
 
-			qglGetQueryObjectivARB(tr.occlusionQueryObjects[i], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-		} while(!available && i < ocCount);
+
+			if(limit >= (MAX_OCCLUSION_QUERIES - 1))
+				limit = (MAX_OCCLUSION_QUERIES - 1);
+
+			i = 0; 
+			avCount = -1;
+			do
+			{
+				if(i >= ocCount)
+				{
+					i = 0;
+				}
+
+				qglGetQueryObjectivARB(tr.occlusionQueryObjects[i], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+
+				if(available)
+					avCount++;
+
+				i++;
+
+			} while(avCount < limit);
+		}
 #endif
 
 		// reenable writes to depth and color buffers
@@ -4162,7 +4224,9 @@ void RB_RenderLightOcclusionQueries()
 			{
 				if(queryObjects)
 				{
-					if(!ia->noOcclusionQueries && ocCount < (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT*/)
+					if(!ia->noOcclusionQueries &&
+					   ocCount <
+					   (MAX_OCCLUSION_QUERIES - 1) /*&& R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT */ )
 					{
 						ocCount++;
 
@@ -5462,7 +5526,7 @@ void RB_ShowImages(void)
 	{
 		image = tr.images[i];
 
-		if(image->bits & (IF_RGBA16F | IF_ALPHA32F | IF_RGBA32F))
+		if(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F))
 		{
 			// don't render float textures using FFP
 			continue;
