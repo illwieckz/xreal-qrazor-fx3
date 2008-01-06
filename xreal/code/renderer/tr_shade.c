@@ -372,8 +372,8 @@ void GLSL_InitGPUShaders(void)
 		// deferred omni-directional lighting post process effect
 		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_omni, "deferredLighting_DBS_omni", GLCS_VERTEX, qtrue);
 
-		tr.deferredLightingShader_DBS_omni.u_CurrentMap =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_CurrentMap");
+		tr.deferredLightingShader_DBS_omni.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_DiffuseMap");
 		tr.deferredLightingShader_DBS_omni.u_NormalMap =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NormalMap");
 		tr.deferredLightingShader_DBS_omni.u_SpecularMap =
@@ -424,8 +424,8 @@ void GLSL_InitGPUShaders(void)
 		// deferred projective lighting post process effect
 		GLSL_InitGPUShader(&tr.deferredLightingShader_DBS_proj, "deferredLighting_DBS_proj", GLCS_VERTEX, qtrue);
 
-		tr.deferredLightingShader_DBS_proj.u_CurrentMap =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_CurrentMap");
+		tr.deferredLightingShader_DBS_proj.u_DiffuseMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_DiffuseMap");
 		tr.deferredLightingShader_DBS_proj.u_NormalMap =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NormalMap");
 		tr.deferredLightingShader_DBS_proj.u_SpecularMap =
@@ -3146,7 +3146,6 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLORMAP:
 			{
 				R_BindFBO(tr.deferredRenderFBO);
-				//Render_depthFill(stage);
 				Render_genericSingle(stage);
 
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
