@@ -573,8 +573,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				if(!vertexesNum || !indexesNum)
 					return qtrue;
 
-				ri.Printf(PRINT_ALL, "...calculating MD3 mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum,
-						  indexesNum / 3);
+				//ri.Printf(PRINT_ALL, "...calculating MD3 mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
 
 				// create surface
 				vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);

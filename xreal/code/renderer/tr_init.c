@@ -194,6 +194,7 @@ cvar_t         *r_showDeferredDiffuse;
 cvar_t         *r_showDeferredNormal;
 cvar_t         *r_showDeferredSpecular;
 cvar_t         *r_showDeferredPosition;
+cvar_t         *r_showDeferredRender;
 
 cvar_t         *r_vboFaces;
 cvar_t         *r_vboCurves;
@@ -1515,16 +1516,16 @@ void R_Register(void)
 	AssertCvarRange(r_shadowMapSizeUltra, 32, 2048, qtrue);
 
 	r_shadowMapSizeVeryHigh = ri.Cvar_Get("r_shadowMapSizeVeryHigh", "512", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadowMapSizeVeryHigh, 32, 1024, qtrue);
+	AssertCvarRange(r_shadowMapSizeVeryHigh, 32, 2048, qtrue);
 
 	r_shadowMapSizeHigh = ri.Cvar_Get("r_shadowMapSizeHigh", "256", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadowMapSizeHigh, 32, 1024, qtrue);
+	AssertCvarRange(r_shadowMapSizeHigh, 32, 2048, qtrue);
 
 	r_shadowMapSizeMedium = ri.Cvar_Get("r_shadowMapSizeMedium", "128", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadowMapSizeMedium, 32, 1024, qtrue);
+	AssertCvarRange(r_shadowMapSizeMedium, 32, 2048, qtrue);
 
 	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "64", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadowMapSizeLow, 32, 1024, qtrue);
+	AssertCvarRange(r_shadowMapSizeLow, 32, 2048, qtrue);
 
 	shadowMapResolutions[0] = r_shadowMapSizeUltra->integer;
 	shadowMapResolutions[1] = r_shadowMapSizeVeryHigh->integer;
@@ -1565,6 +1566,7 @@ void R_Register(void)
 	r_showDeferredNormal = ri.Cvar_Get("r_showDeferredNormal", "0", CVAR_CHEAT);
 	r_showDeferredSpecular = ri.Cvar_Get("r_showDeferredSpecular", "0", CVAR_CHEAT);
 	r_showDeferredPosition = ri.Cvar_Get("r_showDeferredPosition", "0", CVAR_CHEAT);
+	r_showDeferredRender = ri.Cvar_Get("r_showDeferredRender", "0", CVAR_CHEAT);
 
 	// make sure all the commands added here are also removed in R_Shutdown
 	ri.Cmd_AddCommand("imagelist", R_ImageList_f);

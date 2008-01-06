@@ -25,6 +25,8 @@ attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
 uniform int			u_InverseVertexColor;
+uniform mat4		u_LightAttenuationMatrix;
+uniform mat4		u_ShadowMatrix;
 uniform mat4		u_ModelMatrix;
 
 varying vec4		var_Vertex;
@@ -54,7 +56,7 @@ void	main()
 	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
 	
 	// calc light attenuation in light space
-	var_TexAtten = gl_TextureMatrix[3] * gl_Vertex;
+	var_TexAtten = u_LightAttenuationMatrix * gl_Vertex;
 	
 	// construct tangent-space-to-world-space 3x3 matrix
 	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
@@ -62,7 +64,7 @@ void	main()
 	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 	
 	// calc shadow attenuation in light space
-	vec4 texShadow = gl_TextureMatrix[4] * gl_Vertex;
+	vec4 texShadow = u_ShadowMatrix * gl_Vertex;
 	
 	// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
 	var_Vertex.w = texShadow.s;

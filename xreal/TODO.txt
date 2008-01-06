@@ -189,14 +189,14 @@ code/renderer
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
 - add dynamic LOD support for md3 and md5 models ?
-- fix stencil shadow flickering bug
 - check for shader model 3 hardware
 - add fog lights
 - replace alphaGen portal by a cool post process effect
 - ignore shadow pyramids that don't cast into the view
 - improve shadow caster volumes to kill more obselete shadows by melting neighboured surfaces with the same material
 - add stained shadow mapping
-- add volumetric lighting
+- improve volumetric lighting
+- fix stencil shadow flickering bug ?
 - improve deferred shading ?
  - fix 3d model hud rendering
  - fix mirrors/portals

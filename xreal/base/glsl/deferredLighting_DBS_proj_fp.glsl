@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -33,6 +33,7 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
+uniform vec4		u_LightFrustum[6];
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
 uniform vec2		u_FBufScale;
@@ -55,6 +56,19 @@ void	main()
 	{
 		// point is behind the near clip plane
 		discard;
+	}
+	
+	// make sure that the vertex position is inside the light frustum
+	for(int i = 0; i < 6; ++i)
+	{
+		vec4 plane = u_LightFrustum[i];
+
+		float dist = dot(P.xyz, plane.xyz) - plane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			break;
+		}
 	}
 
 	float shadow = 1.0;
@@ -133,7 +147,8 @@ void	main()
 	
 		// compute the specular term
 		vec4 S = texture2D(u_SpecularMap, st);
-		vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a) * r_SpecularScale;
+		float specularExponent = S.a * 255.0;
+		vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), specularExponent) * r_SpecularScale;
 	
 		// compute attenuation
 		//vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
@@ -152,31 +167,4 @@ void	main()
 		
 		gl_FragColor = color;
 	}
-	
-/*
-#if defined(VSM)
-	if(bool(u_ShadowCompare))
-	{
-		float vertexDistance = length(P.xyz - u_LightOrigin) / u_LightRadius;
-		
-		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
-		vec2 shadowDistances = texture2DProj(u_ShadowMap, texShadow.xyw).rg;
-	
-		// standard shadow map comparison
-		float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
-	
-		// variance shadow mapping
-		float E_x2 = shadowDistances.g;
-		float Ex_2 = shadowDistances.r * shadowDistances.r;
-	
-		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
-	
-		float mD = shadowDistances.r - vertexDistance;
-		float pMax = variance / (variance + mD * mD);
-	
-		color.rgb *= max(shadow, pMax);
-	}
-#endif
-*/
 }

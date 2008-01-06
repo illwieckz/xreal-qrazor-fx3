@@ -27,6 +27,7 @@ attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
 uniform int			u_InverseVertexColor;
+uniform mat4		u_LightAttenuationMatrix;
 uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
@@ -55,7 +56,7 @@ void	main()
 	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord2).st;
 	
 	// calc light xy,z attenuation in light space
-	var_TexAttenXYZ = (gl_TextureMatrix[3] * gl_Vertex).xyz;
+	var_TexAttenXYZ = (u_LightAttenuationMatrix * gl_Vertex).xyz;
 	
 	// construct tangent-space-to-world-space 3x3 matrix
 	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;

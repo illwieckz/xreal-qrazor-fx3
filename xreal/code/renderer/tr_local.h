@@ -824,6 +824,7 @@ typedef struct shaderProgram_s
 	GLint           u_LightRadius;
 	GLint           u_LightScale;
 	GLint           u_LightAttenuationMatrix;
+	GLint           u_LightFrustum;
 
 	GLint           u_ShadowMatrix;
 	GLint           u_ShadowCompare;
@@ -1696,7 +1697,7 @@ typedef struct
 	image_t        *deferredNormalFBOImage;
 	image_t        *deferredSpecularFBOImage;
 	image_t        *deferredPositionFBOImage;
-	image_t        *deferredLightingFBOImage;
+	image_t        *deferredRenderFBOImage;
 	image_t        *shadowMapFBOImage[5];
 	image_t        *shadowCubeFBOImage[5];
 
@@ -2020,6 +2021,7 @@ extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
 extern cvar_t  *r_showDeferredSpecular;
 extern cvar_t  *r_showDeferredPosition;
+extern cvar_t  *r_showDeferredRender;
 
 extern cvar_t  *r_vboFaces;
 extern cvar_t  *r_vboCurves;

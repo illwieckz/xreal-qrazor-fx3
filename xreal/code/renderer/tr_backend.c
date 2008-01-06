@@ -2746,12 +2746,14 @@ void RB_RenderInteractionsDeferred()
 	shader_t       *lightShader;
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
-	int             j;
+	int             i, j;
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
+	vec4_t			lightFrustum[6];
+	cplane_t       *frust;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
 
@@ -2790,11 +2792,18 @@ void RB_RenderInteractionsDeferred()
 	{
 		backEnd.currentLight = light = ia->light;
 
+		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		{
+			// skip all interactions of this light because it failed the occlusion query
+			goto skipInteraction;
+		}
+
 		if(light != oldLight)
 		{
 			// set light scissor to reduce fillrate
 			qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
+			// build world to light space matrix
 			switch (light->l.rlType)
 			{
 				case RL_OMNI:
@@ -2820,8 +2829,18 @@ void RB_RenderInteractionsDeferred()
 				default:
 					break;
 			}
+
+			// copy frustum planes for pixel shader
+			for(i = 0; i < 6; i++)
+			{
+				frust = &light->frustum[i];
+
+				VectorCopy(frust->normal, lightFrustum[i]);
+				lightFrustum[i][3] = frust->dist;
+			}
 		}
 
+		skipInteraction:
 		if(!ia->next)
 		{
 			// last interaction of current light
@@ -2865,6 +2884,7 @@ void RB_RenderInteractionsDeferred()
 					// set uniforms
 					VectorCopy(light->origin, lightOrigin);
 					VectorCopy(tess.svars.color, lightColor);
+					
 
 					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
@@ -2874,6 +2894,7 @@ void RB_RenderInteractionsDeferred()
 					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
+					qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
 					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -2943,6 +2964,7 @@ void RB_RenderInteractionsDeferred()
 					qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
+					qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 					qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_FBufScale, fbufWidthScale, fbufHeightScale);
 					qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_NPOTScale, npotWidthScale, npotHeightScale);
 
@@ -3040,12 +3062,14 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	shader_t       *lightShader;
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
-	int             j;
+	int             i, j;
 	float           fbufWidthScale, fbufHeightScale;
 	float           npotWidthScale, npotHeightScale;
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
+	vec4_t			lightFrustum[6];
+	cplane_t       *frust;
 	qboolean        shadowCompare;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
@@ -3069,6 +3093,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
+
+		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		{
+			// skip all interactions of this light because it failed the occlusion query
+			goto skipInteraction;
+		}
 
 		// only iaCount == iaFirst if first iteration or counters were reset
 		if(iaCount == iaFirst)
@@ -3374,6 +3404,15 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 				}
 
+				// copy frustum planes for pixel shader
+				for(i = 0; i < 6; i++)
+				{
+					frust = &light->frustum[i];
+
+					VectorCopy(frust->normal, lightFrustum[i]);
+					lightFrustum[i][3] = frust->dist;
+				}
+
 				// set 2D virtual screen size
 				qglMatrixMode(GL_MODELVIEW);
 				qglPushMatrix();
@@ -3439,6 +3478,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
+						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
 						qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
 						qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
@@ -3510,6 +3550,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
+						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
@@ -3921,7 +3962,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	}
 	else
 	{
-		GL_Bind(tr.deferredLightingFBOImage);
+		GL_Bind(tr.deferredRenderFBOImage);
 	}
 
 
@@ -5109,20 +5150,31 @@ static void RB_RenderView(void)
 		// draw everything that is opaque
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
 
-		if(r_shadows->integer >= 4)
+		// try to cull lights using hardware occlusion queries
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_RenderLightOcclusionQueries();
+
+		if(!r_showDeferredRender->integer)
 		{
-			// render dynamic shadowing and lighting using shadow mapping
-			RB_RenderInteractionsDeferredShadowMapped();
-		}
-		else
-		{
-			// render dynamic lighting
-			RB_RenderInteractionsDeferred();
+			if(r_shadows->integer >= 4)
+			{
+				// render dynamic shadowing and lighting using shadow mapping
+				RB_RenderInteractionsDeferredShadowMapped();
+			}
+			else
+			{
+				// render dynamic lighting
+				RB_RenderInteractionsDeferred();
+			}
 		}
 
 		// draw everything that is translucent
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDrawSurfaces(qfalse);
+
+		// render debug information
+		R_BindFBO(tr.deferredRenderFBO);
+		RB_RenderDebugUtils();
 
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
@@ -5171,10 +5223,10 @@ static void RB_RenderView(void)
 		// add light flares on lights that aren't obscured
 		RB_RenderFlares();
 #endif
-	}
 
-	// render debug information
-	RB_RenderDebugUtils();
+		// render debug information
+		RB_RenderDebugUtils();
+	}
 
 	if(backEnd.viewParms.isPortal)
 	{
@@ -5289,6 +5341,8 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	qglTexCoord2f(0.5f / cols, (rows - 0.5f) / rows);
 	qglVertex2f(x, y + h);
 	qglEnd();
+
+	GL_CheckErrors();
 }
 
 void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty)
@@ -5319,6 +5373,8 @@ void RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int
 			qglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		}
 	}
+
+	GL_CheckErrors();
 }
 
 
@@ -5526,11 +5582,13 @@ void RB_ShowImages(void)
 	{
 		image = tr.images[i];
 
+		/*
 		if(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F))
 		{
 			// don't render float textures using FFP
 			continue;
 		}
+		*/
 
 		w = glConfig.vidWidth / 20;
 		h = glConfig.vidHeight / 15;
@@ -5562,6 +5620,7 @@ void RB_ShowImages(void)
 	end = ri.Milliseconds();
 	ri.Printf(PRINT_ALL, "%i msec to draw all images\n", end - start);
 
+	GL_CheckErrors();
 }
 
 /*

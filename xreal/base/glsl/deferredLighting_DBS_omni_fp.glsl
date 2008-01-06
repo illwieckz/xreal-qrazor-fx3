@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -33,6 +33,7 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
+uniform vec4		u_LightFrustum[6];
 uniform int			u_ShadowCompare;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
@@ -47,6 +48,27 @@ void	main()
 	
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
+	
+#if 0
+	if(distance(P.xyz, u_LightOrigin) > u_LightRadius)
+	{
+		// position is outside of light volume
+		discard;
+	}
+#endif
+
+	// make sure that the vertex position is inside the light frustum
+	for(int i = 0; i < 6; ++i)
+	{
+		vec4 plane = u_LightFrustum[i];
+
+		float dist = dot(P.xyz, plane.xyz) - plane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			break;
+		}
+	}
 
 	float shadow = 1.0;
 
@@ -119,7 +141,8 @@ void	main()
 	
 		// compute the specular term
 		vec4 S = texture2D(u_SpecularMap, st);
-		vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), S.a) * r_SpecularScale;
+		float specularExponent = S.a * 255.0;
+		vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), specularExponent) * r_SpecularScale;
 	
 		// compute attenuation
 		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0)).xyz;
@@ -136,31 +159,4 @@ void	main()
 		
 		gl_FragColor = color;
 	}
-/*
-#if defined(VSM)
-	if(bool(u_ShadowCompare))
-	{
-		// compute incident ray
-		vec3 I = P.xyz - u_LightOrigin;
-
-		float vertexDistance = length(I) / u_LightRadius;
-		vec2 shadowDistances = textureCube(u_ShadowMap, I).rg;
-	
-		// standard shadow map comparison
-		float shadow = vertexDistance <= shadowDistances.r ? 1.0 : 0.0;
-	
-		// variance shadow mapping
-		float E_x2 = shadowDistances.g;
-		float Ex_2 = shadowDistances.r * shadowDistances.r;
-	
-		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
-	
-		float mD = shadowDistances.r - vertexDistance;
-		float pMax = variance / (variance + mD * mD);
-	
-		color.rgb *= max(shadow, pMax);
-	}
-#endif
-*/
 }

@@ -1606,8 +1606,7 @@ static void R_CreateVBOWorldSurfaces()
 			if(!vertexesNum || !indexesNum)
 				continue;
 
-			ri.Printf(PRINT_ALL, "...calculating world mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum,
-					  indexesNum / 3);
+			//ri.Printf(PRINT_DEVELOPER, "...calculating world mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
 
 			// create surface
 			vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
@@ -3885,8 +3884,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 	if(!r_vboLighting->integer)
 		return;
 
-	//if(r_deferredShading->integer)
-	//  return;
+	if(r_deferredShading->integer && r_shadows->integer <= 3)
+		return;
 
 	if(!light->firstInteractionCache)
 	{

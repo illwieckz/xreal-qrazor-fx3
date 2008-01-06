@@ -682,8 +682,11 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	interaction_t  *ia;
 
 	// skip all surfaces that don't matter for lighting only pass
-	if(surfaceShader->isSky || (!surfaceShader->interactLight && surfaceShader->noShadows))
-		return qfalse;
+	if(surfaceShader)
+	{
+		if(surfaceShader->isSky || (!surfaceShader->interactLight && surfaceShader->noShadows))
+			return qfalse;
+	}
 
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around

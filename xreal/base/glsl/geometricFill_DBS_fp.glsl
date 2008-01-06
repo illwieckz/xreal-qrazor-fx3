@@ -137,6 +137,10 @@ void	main()
 
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
+	#if defined(r_NormalScale)
+	N.z *= r_NormalScale;
+	normalize(N);
+	#endif
 	
 	// transform normal into world space
 	N = var_TangentToWorldMatrix * N;
