@@ -393,22 +393,40 @@ void R_InitFBOs(void)
 		// enable all attachments as draw buffers
 		qglDrawBuffersARB(4, drawbuffers);
 
-		R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
+		if(glConfig.hardwareType == GLHW_ATI)
+		{
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 0);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
 
-		R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 1);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
 
-		R_CreateFBOColorBuffer(tr.geometricRenderFBO,  GL_RGBA, 2);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO,  (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 2);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
 
-		R_CreateFBOColorBuffer(tr.geometricRenderFBO, (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 3);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredPositionFBOImage->texnum, 3);
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 3);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredPositionFBOImage->texnum, 3);
 
-		R_CreateFBODepthBuffer(tr.geometricRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-		R_CheckFBO(tr.geometricRenderFBO);
+			R_CreateFBODepthBuffer(tr.geometricRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+			R_CheckFBO(tr.geometricRenderFBO);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
 
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
 
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO,  GL_RGBA, 2);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
+
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 3);
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredPositionFBOImage->texnum, 3);
+
+			R_CreateFBODepthBuffer(tr.geometricRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+			R_CheckFBO(tr.geometricRenderFBO);
+		}
 
 		// deferredRender FBO for the lighting pass
 		tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);

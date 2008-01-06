@@ -784,11 +784,7 @@ static void RB_BeginRenderView(void)
 	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-#ifdef _DEBUG
-		qglClearColor(0.0f, 0.0f, 1.0f, 1.0f);	// FIXME: get color of sky
-#else
 		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-#endif
 	}
 	qglClear(clearBits);
 

@@ -33,7 +33,9 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
+#if !defined(ATI)
 uniform vec4		u_LightFrustum[6];
+#endif
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
 uniform vec2		u_FBufScale;
@@ -56,8 +58,10 @@ void	main()
 	{
 		// point is behind the near clip plane
 		discard;
+		return;
 	}
 	
+#if !defined(ATI)
 	// make sure that the vertex position is inside the light frustum
 	for(int i = 0; i < 6; ++i)
 	{
@@ -67,9 +71,10 @@ void	main()
 		if(dist < 0.0)
 		{
 			discard;
-			break;
+			return;
 		}
 	}
+#endif
 
 	float shadow = 1.0;
 	

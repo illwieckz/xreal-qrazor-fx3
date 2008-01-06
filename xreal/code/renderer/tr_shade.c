@@ -166,11 +166,13 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			}
 		}
 
+		/*
 		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
 			//Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#extension GL_ARB_draw_buffers : enable\n");
 		}
+		*/
 
 		if( /* TODO: check for shader model 3 hardware  && */ r_parallaxMapping->integer)
 		{
@@ -210,9 +212,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		ri.FS_FreeFile(buffer);
 		return;
 	}
-#ifdef _DEBUG
-	ri.Printf(PRINT_ALL, "GLSL compile log:\n%s\n", GLSL_PrintInfoLog(shader));
-#endif
+
+	ri.Printf(PRINT_DEVELOPER, "GLSL compile log:\n%s\n", GLSL_PrintInfoLog(shader));
 //  ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
 
 	// attach shader to program
