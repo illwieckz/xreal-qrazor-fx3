@@ -34,7 +34,6 @@ uniform float		u_LightScale;
 uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
-uniform float		u_SpecularExponent;
 uniform mat4		u_ModelMatrix;
 
 varying vec4		var_Vertex;
@@ -264,7 +263,7 @@ void	main()
 		diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	
 		// compute the specular term
-		vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent) * r_SpecularScale;
+		vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 		// compute attenuation
 		#if 0

@@ -651,8 +651,6 @@ typedef struct
 	qboolean        privatePolygonOffset;	// set for decals and other items that must be offset 
 	float           privatePolygonOffsetValue;
 
-	expression_t    specularExponentExp;
-
 	expression_t    refractionIndexExp;
 
 	expression_t    fresnelPowerExp;
@@ -831,8 +829,6 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowTexelSize;
 	GLint           u_ShadowBlur;
 
-	GLint           u_SpecularExponent;
-
 	GLint           u_RefractionIndex;
 
 	GLint           u_FresnelPower;
@@ -854,6 +850,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
+	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
 } shaderProgram_t;
 

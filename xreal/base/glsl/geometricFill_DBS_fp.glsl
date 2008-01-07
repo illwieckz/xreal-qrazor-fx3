@@ -23,8 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform float		u_AlphaTest;
 uniform vec3		u_ViewOrigin;
-uniform float		u_SpecularExponent;
+uniform vec3        u_AmbientColor;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
 
@@ -133,6 +134,13 @@ void	main()
 	gl_FragData[3] = vec4(P, gl_FragCoord.z);
 #else
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	
+	if(diffuse.a <= u_AlphaTest)
+	{
+		discard;
+		return;
+	}
+	
 	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb;
 
 	// compute normal in tangent space from normalmap
@@ -151,10 +159,13 @@ void	main()
 	// transform vertex position into world space
 	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
 
-	gl_FragData[0] = diffuse;
-	gl_FragData[1] = vec4(N, 0.0);
-	gl_FragData[2] = vec4(specular, u_SpecularExponent);
-	gl_FragData[3] = vec4(P, gl_FragCoord.z);
+	vec4 depthColor = diffuse;
+	depthColor.rgb *= u_AmbientColor;
+	
+	gl_FragData[0] = vec4(diffuse.rgb, N.x);
+	gl_FragData[1] = depthColor;
+	gl_FragData[2] = vec4(specular, N.y);
+	gl_FragData[3] = vec4(P, N.z);
 #endif
 }
 

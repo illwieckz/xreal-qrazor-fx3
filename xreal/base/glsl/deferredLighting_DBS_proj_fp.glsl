@@ -134,8 +134,21 @@ void	main()
 	else
 #endif
 	{
+		// compute the diffuse term
+		vec4 diffuse = texture2D(u_DiffuseMap, st);
+	
+		// compute the specular term
+		vec4 S = texture2D(u_SpecularMap, st);
+	
 		// compute normal in world space
-		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
+		//vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
+		
+		vec3 N;
+		N.x = diffuse.a;
+		N.y = S.a;
+		N.z = P.w;
+		N.xyz = 2.0 * (N.xyz - 0.5);
+		//N.z = sqrt(1.0 - dot(N.xy, N.xy));
 	
 		// compute light direction in world space
 		vec3 L = normalize(u_LightOrigin - P.xyz);
@@ -146,25 +159,14 @@ void	main()
 		// compute half angle in world space
 		vec3 H = normalize(L + V);
 	
-		// compute the diffuse term
-		vec4 diffuse = texture2D(u_DiffuseMap, st);
-		diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
-	
-		// compute the specular term
-		vec4 S = texture2D(u_SpecularMap, st);
-		float specularExponent = S.a * 255.0;
-		vec3 specular = S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), specularExponent) * r_SpecularScale;
-	
 		// compute attenuation
-		//vec3 attenuationXY		= texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
-		//vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(1.0 - texAtten.z, 0.0)).rgb;
-		
 		vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, texAtten.xyw).rgb;
 		vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(clamp(texAtten.z, 0.0, 1.0), 0.0)).rgb;
 	
 		// compute final color
 		vec4 color = diffuse;
-		color.rgb += specular;
+		color.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 		color.rgb *= attenuationXY;
 		color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;

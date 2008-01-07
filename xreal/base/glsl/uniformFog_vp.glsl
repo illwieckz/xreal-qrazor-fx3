@@ -20,9 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-attribute vec4		attr_TexCoord0;
+//attribute vec4		attr_TexCoord0;
 
-varying vec3		var_Vertex;
+//varying vec3		var_Vertex;
 
 void	main()
 {
@@ -30,5 +30,5 @@ void	main()
 	gl_Position = ftransform();
 	
 	// transform vertex position into view space
-	var_Vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	//var_Vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
 }

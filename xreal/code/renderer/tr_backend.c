@@ -733,104 +733,7 @@ static void RB_SetGL2D(void)
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
-/*
-=================
-RB_BeginRenderView
 
-Any mirrored or portaled views have already been drawn, so prepare
-to actually render the visible surfaces for this view
-=================
-*/
-static void RB_BeginRenderView(void)
-{
-	int             clearBits = 0;
-
-	GLimp_LogComment("--- RB_BeginRenderView ---\n");
-
-	// sync with gl if needed
-	if(r_finish->integer == 1 && !glState.finishCalled)
-	{
-		qglFinish();
-		glState.finishCalled = qtrue;
-	}
-	if(r_finish->integer == 0)
-	{
-		glState.finishCalled = qtrue;
-	}
-
-	// disable offscreen rendering
-	if(glConfig.framebufferObjectAvailable)
-	{
-		R_BindNullFBO();
-	}
-
-	// we will need to change the projection matrix before drawing
-	// 2D images again
-	backEnd.projection2D = qfalse;
-
-	// set the modelview matrix for the viewer
-	SetViewportAndScissor();
-
-	// ensures that depth writes are enabled for the depth clear
-	GL_State(GLS_DEFAULT);
-
-	// clear relevant buffers
-	clearBits = GL_DEPTH_BUFFER_BIT;
-
-	if(r_measureOverdraw->integer || r_shadows->integer == 3)
-	{
-		clearBits |= GL_STENCIL_BUFFER_BIT;
-	}
-	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-	}
-	qglClear(clearBits);
-
-	if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
-	{
-		RB_Hyperspace();
-		return;
-	}
-	else
-	{
-		backEnd.isHyperspace = qfalse;
-	}
-
-	glState.faceCulling = -1;	// force face culling to set next time
-
-	// we will only draw a sun if there was sky rendered in this view
-	backEnd.skyRenderedThisView = qfalse;
-
-	// clip to the plane of the portal
-	if(backEnd.viewParms.isPortal)
-	{
-		float           plane[4];
-		double          plane2[4];
-
-		plane[0] = backEnd.viewParms.portalPlane.normal[0];
-		plane[1] = backEnd.viewParms.portalPlane.normal[1];
-		plane[2] = backEnd.viewParms.portalPlane.normal[2];
-		plane[3] = backEnd.viewParms.portalPlane.dist;
-
-		plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
-		plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
-		plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
-		plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
-
-//      qglLoadIdentity();
-		qglLoadMatrixf(quakeToOpenGLMatrix);
-		qglClipPlane(GL_CLIP_PLANE0, plane2);
-		qglEnable(GL_CLIP_PLANE0);
-	}
-	else
-	{
-		qglDisable(GL_CLIP_PLANE0);
-	}
-
-	GL_CheckErrors();
-}
 
 static void RB_RenderDrawSurfaces(qboolean opaque)
 {
@@ -2179,7 +2082,7 @@ static void RB_RenderInteractionsShadowMapped()
 							proj[7] = 0;
 							proj[11] = -1;
 							proj[15] = 0;
-							
+
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 
 							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
@@ -2748,7 +2651,7 @@ void RB_RenderInteractionsDeferred()
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
-	vec4_t			lightFrustum[6];
+	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
@@ -2836,7 +2739,7 @@ void RB_RenderInteractionsDeferred()
 			}
 		}
 
-		skipInteraction:
+	  skipInteraction:
 		if(!ia->next)
 		{
 			// last interaction of current light
@@ -2880,7 +2783,7 @@ void RB_RenderInteractionsDeferred()
 					// set uniforms
 					VectorCopy(light->origin, lightOrigin);
 					VectorCopy(tess.svars.color, lightColor);
-					
+
 
 					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
@@ -3064,7 +2967,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
-	vec4_t			lightFrustum[6];
+	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
 
@@ -3890,6 +3793,89 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	GL_CheckErrors();
 }
 
+void RB_RenderUniformFogDeferred()
+{
+	vec3_t			viewOrigin;
+	float			fogDensity;
+	vec3_t          fogColor;
+	float           fbufWidthScale, fbufHeightScale;
+	float           npotWidthScale, npotHeightScale;
+
+	GLimp_LogComment("--- RB_RenderUniformFogDeferred ---\n");
+
+	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || r_forceFog->value <= 0)
+		return;
+
+	R_BindFBO(tr.deferredRenderFBO);
+
+	// enable shader, set arrays
+	GL_Program(tr.uniformFogShader.program);
+
+	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
+	GL_Cull(CT_TWO_SIDED);
+	
+	qglColor4fv(colorWhite);
+
+	// set uniforms
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	fogDensity = r_forceFog->value;
+	VectorCopy(colorMdGrey, fogColor);
+
+	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		npotWidthScale = 1;
+		npotHeightScale = 1;
+	}
+	else
+	{
+		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+	}
+
+	qglUniform3fARB(tr.uniformFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
+	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
+	qglUniform2fARB(tr.uniformFogShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
+	qglUniform2fARB(tr.uniformFogShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+	qglUniformMatrix4fvARB(tr.uniformFogShader.u_ViewMatrix, 1, GL_FALSE, backEnd.viewParms.world.viewMatrix);
+
+	// capture current color buffer for u_CurrentMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+
+	// bind u_PositionMap
+	GL_SelectTexture(1);
+	GL_Bind(tr.deferredPositionFBOImage);
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+	// draw viewport
+	qglBegin(GL_QUADS);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglEnd();
+
+	// go back to 3D
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+}
+
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
 	float           fbufWidthScale, fbufHeightScale;
@@ -4198,17 +4184,17 @@ void RB_RenderLightOcclusionQueries()
 		if(ocCount >= 0)
 		{
 			int             i;
-			int				avCount;
-			int				limit;
+			int             avCount;
+			int             limit;
 
-			limit = (int)(ocCount * 5 / 6); // instead of N-1, to prevent the GPU from going idle
+			limit = (int)(ocCount * 5 / 6);	// instead of N-1, to prevent the GPU from going idle
 			//limit = ocCount;
 
 
 			if(limit >= (MAX_OCCLUSION_QUERIES - 1))
 				limit = (MAX_OCCLUSION_QUERIES - 1);
 
-			i = 0; 
+			i = 0;
 			avCount = -1;
 			do
 			{
@@ -5128,20 +5114,97 @@ static void RB_RenderView(void)
 
 	GL_CheckErrors();
 
-	// clear the z buffer, set the modelview, etc
-	RB_BeginRenderView();
-
 	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
 
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
+		int             clearBits = 0;
+
+		// sync with gl if needed
+		if(r_finish->integer == 1 && !glState.finishCalled)
+		{
+			qglFinish();
+			glState.finishCalled = qtrue;
+		}
+		if(r_finish->integer == 0)
+		{
+			glState.finishCalled = qtrue;
+		}
+
+		// we will need to change the projection matrix before drawing
+		// 2D images again
+		backEnd.projection2D = qfalse;
+
+		// set the modelview matrix for the viewer
+		SetViewportAndScissor();
+
+		// ensures that depth writes are enabled for the depth clear
+		GL_State(GLS_DEFAULT);
+
 		// clear frame buffer objects
 		R_BindFBO(tr.deferredRenderFBO);
-		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		clearBits = GL_DEPTH_BUFFER_BIT;
+
+		/*
+		   if(r_measureOverdraw->integer || r_shadows->integer == 3)
+		   {
+		   clearBits |= GL_STENCIL_BUFFER_BIT;
+		   }
+		 */
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
+			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+		}
+		qglClear(clearBits);
 
 		R_BindFBO(tr.geometricRenderFBO);
 		qglClear(GL_COLOR_BUFFER_BIT);
+
+		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
+		{
+			RB_Hyperspace();
+			return;
+		}
+		else
+		{
+			backEnd.isHyperspace = qfalse;
+		}
+
+		glState.faceCulling = -1;	// force face culling to set next time
+
+		// we will only draw a sun if there was sky rendered in this view
+		backEnd.skyRenderedThisView = qfalse;
+
+		// clip to the plane of the portal
+		if(backEnd.viewParms.isPortal)
+		{
+			float           plane[4];
+			double          plane2[4];
+
+			plane[0] = backEnd.viewParms.portalPlane.normal[0];
+			plane[1] = backEnd.viewParms.portalPlane.normal[1];
+			plane[2] = backEnd.viewParms.portalPlane.normal[2];
+			plane[3] = backEnd.viewParms.portalPlane.dist;
+
+			plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
+			plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
+			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
+			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
+
+			qglLoadMatrixf(quakeToOpenGLMatrix);
+			qglClipPlane(GL_CLIP_PLANE0, plane2);
+			qglEnable(GL_CLIP_PLANE0);
+		}
+		else
+		{
+			qglDisable(GL_CLIP_PLANE0);
+		}
+
+		GL_CheckErrors();
 
 		// draw everything that is opaque
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
@@ -5168,6 +5231,9 @@ static void RB_RenderView(void)
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDrawSurfaces(qfalse);
 
+		// render global fog
+		RB_RenderUniformFogDeferred();
+
 		// render debug information
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDebugUtils();
@@ -5177,6 +5243,91 @@ static void RB_RenderView(void)
 	}
 	else
 	{
+		int             clearBits = 0;
+
+		// sync with gl if needed
+		if(r_finish->integer == 1 && !glState.finishCalled)
+		{
+			qglFinish();
+			glState.finishCalled = qtrue;
+		}
+		if(r_finish->integer == 0)
+		{
+			glState.finishCalled = qtrue;
+		}
+
+		// disable offscreen rendering
+		if(glConfig.framebufferObjectAvailable)
+		{
+			R_BindNullFBO();
+		}
+
+		// we will need to change the projection matrix before drawing
+		// 2D images again
+		backEnd.projection2D = qfalse;
+
+		// set the modelview matrix for the viewer
+		SetViewportAndScissor();
+
+		// ensures that depth writes are enabled for the depth clear
+		GL_State(GLS_DEFAULT);
+
+		// clear relevant buffers
+		clearBits = GL_DEPTH_BUFFER_BIT;
+
+		if(r_measureOverdraw->integer || r_shadows->integer == 3)
+		{
+			clearBits |= GL_STENCIL_BUFFER_BIT;
+		}
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
+			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+		}
+		qglClear(clearBits);
+
+		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
+		{
+			RB_Hyperspace();
+			return;
+		}
+		else
+		{
+			backEnd.isHyperspace = qfalse;
+		}
+
+		glState.faceCulling = -1;	// force face culling to set next time
+
+		// we will only draw a sun if there was sky rendered in this view
+		backEnd.skyRenderedThisView = qfalse;
+
+		// clip to the plane of the portal
+		if(backEnd.viewParms.isPortal)
+		{
+			float           plane[4];
+			double          plane2[4];
+
+			plane[0] = backEnd.viewParms.portalPlane.normal[0];
+			plane[1] = backEnd.viewParms.portalPlane.normal[1];
+			plane[2] = backEnd.viewParms.portalPlane.normal[2];
+			plane[3] = backEnd.viewParms.portalPlane.dist;
+
+			plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
+			plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
+			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
+			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
+
+			qglLoadMatrixf(quakeToOpenGLMatrix);
+			qglClipPlane(GL_CLIP_PLANE0, plane2);
+			qglEnable(GL_CLIP_PLANE0);
+		}
+		else
+		{
+			qglDisable(GL_CLIP_PLANE0);
+		}
+
+		GL_CheckErrors();
+
 		// draw everything that is opaque
 		RB_RenderDrawSurfaces(qtrue);
 
@@ -5579,12 +5730,12 @@ void RB_ShowImages(void)
 		image = tr.images[i];
 
 		/*
-		if(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F))
-		{
-			// don't render float textures using FFP
-			continue;
-		}
-		*/
+		   if(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F))
+		   {
+		   // don't render float textures using FFP
+		   continue;
+		   }
+		 */
 
 		w = glConfig.vidWidth / 20;
 		h = glConfig.vidHeight / 15;

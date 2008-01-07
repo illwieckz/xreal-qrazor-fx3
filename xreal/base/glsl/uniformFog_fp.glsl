@@ -21,17 +21,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_CurrentMap;
+uniform sampler2D	u_PositionMap;
+uniform vec3		u_ViewOrigin;
 uniform vec2		u_FBufScale;
 uniform vec2		u_NPOTScale;
 uniform float		u_FogDensity;
 uniform vec3		u_FogColor;
+uniform mat4        u_ViewMatrix;
 
-varying vec3		var_Vertex;
+//varying vec3		var_Vertex;
 
 void	main()
 {
+	// calculate the screen texcoord in the 0.0 to 1.0 range
+	vec2 st = gl_FragCoord.st * u_FBufScale;
+	
+	// scale by the screen non-power-of-two-adjust
+	st *= u_NPOTScale;
+	
+	// compute vertex position in world space
+	vec4 P = texture2D(u_PositionMap, st).xyzw;
+
+	// transform P into view space
+	//P = u_ViewMatrix * vec4(P.xyz, 1.0);
+
 	// calculate fog distance
-	float fogDistance = length(var_Vertex);
+	//float fogDistance = length(P);
+	float fogDistance = distance(P.xyz, u_ViewOrigin);
 	
 	// calculate fog exponent
 	float fogExponent = fogDistance * u_FogDensity;
@@ -39,12 +55,6 @@ void	main()
 	// calculate fog factor
 	float fogFactor = exp2(-abs(fogExponent));
 
-	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
-	
-	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
-	
 	// get current color
 	vec3 currentColor = texture2D(u_CurrentMap, st).rgb;
 	
