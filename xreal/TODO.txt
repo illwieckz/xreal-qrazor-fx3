@@ -186,6 +186,9 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
+- improve deferred shading
+ - add screen space ambient occlusion
+ - fix vertex painting support = depth peeling ?
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
 - add dynamic LOD support for md3 and md5 models ?
@@ -197,10 +200,6 @@ code/renderer
 - add stained shadow mapping
 - improve volumetric lighting
 - fix stencil shadow flickering bug ?
-- improve deferred shading ?
- - fix 3d model hud rendering
- - fix mirrors/portals
- - fix vertex painting support = depth peeling ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 
 code/xmap

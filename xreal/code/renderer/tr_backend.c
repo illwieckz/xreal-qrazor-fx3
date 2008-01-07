@@ -5156,13 +5156,19 @@ static void RB_RenderView(void)
 		 */
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
-			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
+			clearBits |= GL_COLOR_BUFFER_BIT;
 			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
 		qglClear(clearBits);
 
 		R_BindFBO(tr.geometricRenderFBO);
-		qglClear(GL_COLOR_BUFFER_BIT);
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits = GL_COLOR_BUFFER_BIT;
+			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+		}
+		qglClear(clearBits);
+		
 
 		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
 		{
