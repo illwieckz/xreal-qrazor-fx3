@@ -1759,6 +1759,25 @@ static void GLW_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 	}
 
+	// GL_EXTX_framebuffer_mixed_formats
+	glConfig.framebufferMixedFormatsAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_EXTX_framebuffer_mixed_formats"))
+	{
+		if(r_extx_framebuffer_mixed_formats->value)
+		{
+			glConfig.framebufferMixedFormatsAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_EXTX_framebuffer_mixed_formats\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXTX_framebuffer_mixed_formats\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXTX_framebuffer_mixed_formats not found\n");
+	}
+
 	// GL_ATI_separate_stencil
 	qglStencilFuncSeparateATI = NULL;
 	qglStencilOpSeparateATI = NULL;

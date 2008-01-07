@@ -283,6 +283,7 @@ typedef struct
 	qboolean        framebufferObjectAvailable;
 	int             maxRenderbufferSize;
 	int             maxColorAttachments;
+	qboolean		framebufferMixedFormatsAvailable;
 
 	qboolean		generateMipmapAvailable;
 

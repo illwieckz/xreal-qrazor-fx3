@@ -1925,6 +1925,7 @@ extern cvar_t  *r_ext_stencil_two_side;
 extern cvar_t  *r_ext_separate_stencil;
 extern cvar_t  *r_ext_depth_bounds_test;
 extern cvar_t  *r_ext_framebuffer_object;
+extern cvar_t  *r_extx_framebuffer_mixed_formats;
 extern cvar_t  *r_ext_generate_mipmap;
 
 extern cvar_t  *r_nobind;		// turns off binding to appropriate textures
