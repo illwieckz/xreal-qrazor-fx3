@@ -907,6 +907,9 @@ void R_SetupProjection(void)
 	zNear = r_znear->value;
 	zFar = r_zfar->value;
 
+	if(r_shadows->integer == 3)
+		zFar = 0;
+
 	yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
 	yMin = -yMax;
 
@@ -917,16 +920,21 @@ void R_SetupProjection(void)
 	height = yMax - yMin;
 	depth = zFar - zNear;
 
-	// Tr3B - far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
-	proj[0] = 2 * zNear / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
-	proj[1] = 0;					proj[5] = 2 * zNear / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
-	proj[2] = 0;					proj[6] = 0;					proj[10] = -1;						proj[14] = -2 * zNear;
-	proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
-
-	if(zFar > zNear)
+	if(r_shadows->integer == 3)
 	{
-		proj[10] = -(zFar + zNear) / depth;
-		proj[14] = -2 * zFar * zNear / depth;
+		// Tr3B - far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
+		proj[0] = 2 * zNear / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+		proj[1] = 0;					proj[5] = 2 * zNear / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+		proj[2] = 0;					proj[6] = 0;					proj[10] = -1;						proj[14] = -2 * zNear;
+		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
+	}
+	else
+	{
+		// standard OpenGL projection matrix
+		proj[0] = 2 * zNear / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
+		proj[1] = 0;					proj[5] = 2 * zNear / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
+		proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -2 * zFar * zNear / depth;
+		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 	}
 	
 	// convert from our coordinate system (looking down X)
