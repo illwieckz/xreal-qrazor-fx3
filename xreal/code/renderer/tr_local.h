@@ -845,9 +845,6 @@ typedef struct shaderProgram_s
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
 
-	GLint           u_FBufScale;
-	GLint           u_NPOTScale;
-
 	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
 	GLint           u_ViewMatrix;
@@ -2360,7 +2357,6 @@ void            Tess_StageIteratorStencilShadowVolume();
 void            Tess_StageIteratorStencilLighting();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
-void            Tess_StageIteratorUniformFog();
 
 void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
 void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2);

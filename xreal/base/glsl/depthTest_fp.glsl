@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform sampler2D	u_CurrentMap;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 
 varying vec2		var_Tex;
 
@@ -32,10 +30,10 @@ void	main()
 	vec4 color = texture2D(u_ColorMap, var_Tex);
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
+	st *= r_NPOTScale;
 
 #if defined(GL_ARB_draw_buffers)
 	gl_FragData[0] = texture2D(u_CurrentMap, st);

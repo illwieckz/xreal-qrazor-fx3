@@ -859,133 +859,6 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 	GL_CheckErrors();
 }
 
-static void RB_RenderUniformFog()
-{
-	trRefEntity_t  *entity, *oldEntity;
-	shader_t       *shader, *oldShader;
-	qboolean        depthRange, oldDepthRange;
-	int             i;
-	drawSurf_t     *drawSurf;
-
-	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
-
-	// draw everything
-	oldEntity = NULL;
-	oldShader = NULL;
-	oldDepthRange = qfalse;
-	depthRange = qfalse;
-	backEnd.currentLight = NULL;
-
-	for(i = 0, drawSurf = backEnd.viewParms.drawSurfs; i < backEnd.viewParms.numDrawSurfs; i++, drawSurf++)
-	{
-		// update locals
-		entity = drawSurf->entity;
-		shader = tr.sortedShaders[drawSurf->shaderNum];
-
-
-		//if(opaque)
-		{
-			// skip all translucent surfaces that don't matter for this pass
-			if(shader->sort > SS_OPAQUE)
-			{
-				break;
-			}
-		}
-		/*
-		   else
-		   {
-		   // skip all opaque surfaces that don't matter for this pass
-		   if(shader->sort <= SS_OPAQUE)
-		   {
-		   continue;
-		   }
-		   }
-		 */
-
-		if(entity == oldEntity && shader == oldShader)
-		{
-			// fast path, same as previous sort
-			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
-			continue;
-		}
-
-		// change the tess parameters if needed
-		// a "entityMergable" shader is a shader that can have surfaces from seperate
-		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || (entity != oldEntity && !shader->entityMergable))
-		{
-			if(oldShader != NULL)
-			{
-				Tess_End();
-			}
-
-			Tess_Begin(Tess_StageIteratorUniformFog, shader, NULL, qtrue, qfalse);
-			oldShader = shader;
-		}
-
-		// change the modelview matrix if needed
-		if(entity != oldEntity)
-		{
-			depthRange = qfalse;
-
-			if(entity != &tr.worldEntity)
-			{
-				backEnd.currentEntity = entity;
-
-				// set up the transformation matrix
-				R_RotateEntityForViewParms(backEnd.currentEntity, &backEnd.viewParms, &backEnd.or);
-
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			}
-			else
-			{
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.or = backEnd.viewParms.world;
-			}
-
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-			// change depthrange if needed
-			if(oldDepthRange != depthRange)
-			{
-				if(depthRange)
-				{
-					qglDepthRange(0, 0.3);
-				}
-				else
-				{
-					qglDepthRange(0, 1);
-				}
-				oldDepthRange = depthRange;
-			}
-
-			oldEntity = entity;
-		}
-
-		// add the triangles for this surface
-		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
-	}
-
-	// draw the contents of the last shader batch
-	if(oldShader != NULL)
-	{
-		Tess_End();
-	}
-
-	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-	if(depthRange)
-	{
-		qglDepthRange(0, 1);
-	}
-
-	GL_CheckErrors();
-}
-
 #ifdef VOLUMETRIC_LIGHTING
 static void Render_lightVolume(trRefLight_t * light)
 {
@@ -2646,8 +2519,6 @@ void RB_RenderInteractionsDeferred()
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 	int             i, j;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -2660,20 +2531,6 @@ void RB_RenderInteractionsDeferred()
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
-
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
 
 	// set 2D virtual screen size
 	qglMatrixMode(GL_MODELVIEW);
@@ -2794,8 +2651,6 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
-					qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -2864,8 +2719,6 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_FBufScale, fbufWidthScale, fbufHeightScale);
-					qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -3379,9 +3232,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
-						qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_FBufScale, fbufWidthScale, fbufHeightScale);
-						qglUniform2fARB(tr.deferredLightingShader_DBS_omni.u_NPOTScale, npotWidthScale, npotHeightScale);
-
+						
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.deferredDiffuseFBOImage);
@@ -3453,8 +3304,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
-						qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_FBufScale, fbufWidthScale, fbufHeightScale);
-						qglUniform2fARB(tr.deferredLightingShader_DBS_proj.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
@@ -3798,8 +3647,6 @@ void RB_RenderUniformFogDeferred()
 	vec3_t			viewOrigin;
 	float			fogDensity;
 	vec3_t          fogColor;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 
 	GLimp_LogComment("--- RB_RenderUniformFogDeferred ---\n");
 
@@ -3821,25 +3668,9 @@ void RB_RenderUniformFogDeferred()
 	fogDensity = r_forceFog->value;
 	VectorCopy(colorMdGrey, fogColor);
 
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
 	qglUniform3fARB(tr.uniformFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
 	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
-	qglUniform2fARB(tr.uniformFogShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.uniformFogShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 	qglUniformMatrix4fvARB(tr.uniformFogShader.u_ViewMatrix, 1, GL_FALSE, backEnd.viewParms.world.viewMatrix);
 
 	// capture current color buffer for u_CurrentMap
@@ -3878,9 +3709,6 @@ void RB_RenderUniformFogDeferred()
 
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
-
 	GLimp_LogComment("--- RB_RenderDeferredShadingResultToFrameBuffer ---\n");
 
 	R_BindNullFBO();
@@ -3905,22 +3733,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
-	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	// bind colorMap
 	GL_SelectTexture(0);
@@ -5358,14 +5170,6 @@ static void RB_RenderView(void)
 
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(qfalse);
-
-#if 0
-		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_forceFog->value > 0)
-		{
-			// render global fog
-			RB_RenderUniformFog();
-		}
-#endif
 
 #if 0
 		// add the sun flare

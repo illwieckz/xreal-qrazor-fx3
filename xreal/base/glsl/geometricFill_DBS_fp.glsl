@@ -28,6 +28,7 @@ uniform vec3		u_ViewOrigin;
 uniform vec3        u_AmbientColor;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
+//uniform vec4		u_FarPlane;
 
 varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
@@ -141,6 +142,9 @@ void	main()
 		return;
 	}
 	
+	vec4 depthColor = diffuse;
+	depthColor.rgb *= u_AmbientColor;
+	
 	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb;
 
 	// compute normal in tangent space from normalmap
@@ -158,14 +162,17 @@ void	main()
 	
 	// transform vertex position into world space
 	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
-
-	vec4 depthColor = diffuse;
-	depthColor.rgb *= u_AmbientColor;
+	
+	// compute depth instead of world vertex position in a [0..1] range
+	//float depth = gl_FragCoord.z;
+	//float depth = mul(mul(Position, World), View).z / FarPlane
+	//float depth = gl_ModelViewMatrix / u_FarPlane.w;
 	
 	gl_FragData[0] = vec4(diffuse.rgb, N.x);
 	gl_FragData[1] = depthColor;
 	gl_FragData[2] = vec4(specular, N.y);
 	gl_FragData[3] = vec4(P, N.z);
+	//gl_FragData[3] = vec4(depth, 0.0, 0.0, N.z);
 #endif
 }
 

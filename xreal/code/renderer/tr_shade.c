@@ -102,15 +102,37 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		char           *bufferFinal = NULL;
 		int             sizeFinal;
 
+		float           fbufWidthScale, fbufHeightScale;
+		float           npotWidthScale, npotHeightScale;
+
 		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
 
-		// HACK: add some macros to avoid extra uniforms
+		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
 		//Q_strcat(bufferExtra, sizeof(bufferExtra),
 		//		 va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
+
+		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
+		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+				va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
+
+		if(glConfig.textureNPOTAvailable)
+		{
+			npotWidthScale = 1;
+			npotHeightScale = 1;
+		}
+		else
+		{
+			npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
+			npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
+		}
+		Q_strcat(bufferExtra, sizeof(bufferExtra),
+			va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
+		
 
 		// HACK: add ATI's GLSL quirks      
 		if(glConfig.hardwareType == GLHW_ATI)
@@ -405,10 +427,6 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightFrustum");
 		tr.deferredLightingShader_DBS_omni.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowCompare");
-		tr.deferredLightingShader_DBS_omni.u_FBufScale =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_FBufScale");
-		tr.deferredLightingShader_DBS_omni.u_NPOTScale =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NPOTScale");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_omni.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DiffuseMap, 0);
@@ -459,10 +477,6 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMatrix");
 		tr.deferredLightingShader_DBS_proj.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowCompare");
-		tr.deferredLightingShader_DBS_proj.u_FBufScale =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_FBufScale");
-		tr.deferredLightingShader_DBS_proj.u_NPOTScale =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NPOTScale");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_proj.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DiffuseMap, 0);
@@ -499,8 +513,6 @@ void GLSL_InitGPUShaders(void)
 
 	tr.depthTestShader.u_ColorMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_ColorMap");
 	tr.depthTestShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_CurrentMap");
-	tr.depthTestShader.u_FBufScale = qglGetUniformLocationARB(tr.depthTestShader.program, "u_FBufScale");
-	tr.depthTestShader.u_NPOTScale = qglGetUniformLocationARB(tr.depthTestShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.depthTestShader.program);
 	qglUniform1iARB(tr.depthTestShader.u_ColorMap, 0);
@@ -786,8 +798,6 @@ void GLSL_InitGPUShaders(void)
 	tr.heatHazeShader.u_CurrentMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
 	tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
 	tr.heatHazeShader.u_AlphaTest = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_AlphaTest");
-	tr.heatHazeShader.u_FBufScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_FBufScale");
-	tr.heatHazeShader.u_NPOTScale = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
 	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
@@ -804,8 +814,6 @@ void GLSL_InitGPUShaders(void)
 
 	tr.bloomShader.u_ColorMap = qglGetUniformLocationARB(tr.bloomShader.program, "u_ColorMap");
 	tr.bloomShader.u_ContrastMap = qglGetUniformLocationARB(tr.bloomShader.program, "u_ContrastMap");
-	tr.bloomShader.u_FBufScale = qglGetUniformLocationARB(tr.bloomShader.program, "u_FBufScale");
-	tr.bloomShader.u_NPOTScale = qglGetUniformLocationARB(tr.bloomShader.program, "u_NPOTScale");
 	tr.bloomShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.bloomShader.program, "u_BlurMagnitude");
 
 	qglUseProgramObjectARB(tr.bloomShader.program);
@@ -821,8 +829,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.contrastShader, "contrast", GLCS_VERTEX, qtrue);
 
 	tr.contrastShader.u_ColorMap = qglGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
-	tr.contrastShader.u_FBufScale = qglGetUniformLocationARB(tr.contrastShader.program, "u_FBufScale");
-	tr.contrastShader.u_NPOTScale = qglGetUniformLocationARB(tr.contrastShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.contrastShader.program);
 	qglUniform1iARB(tr.contrastShader.u_ColorMap, 0);
@@ -836,8 +842,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.blurXShader, "blurX", GLCS_VERTEX, qtrue);
 
 	tr.blurXShader.u_ColorMap = qglGetUniformLocationARB(tr.blurXShader.program, "u_ColorMap");
-	tr.blurXShader.u_FBufScale = qglGetUniformLocationARB(tr.blurXShader.program, "u_FBufScale");
-	tr.blurXShader.u_NPOTScale = qglGetUniformLocationARB(tr.blurXShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.blurXShader.program);
 	qglUniform1iARB(tr.blurXShader.u_ColorMap, 0);
@@ -851,8 +855,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.blurYShader, "blurY", GLCS_VERTEX, qtrue);
 
 	tr.blurYShader.u_ColorMap = qglGetUniformLocationARB(tr.blurYShader.program, "u_ColorMap");
-	tr.blurYShader.u_FBufScale = qglGetUniformLocationARB(tr.blurYShader.program, "u_FBufScale");
-	tr.blurYShader.u_NPOTScale = qglGetUniformLocationARB(tr.blurYShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.blurYShader.program);
 	qglUniform1iARB(tr.blurYShader.u_ColorMap, 0);
@@ -866,8 +868,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
 
 	tr.rotoscopeShader.u_ColorMap = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
-	tr.rotoscopeShader.u_FBufScale = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_FBufScale");
-	tr.rotoscopeShader.u_NPOTScale = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_NPOTScale");
 	tr.rotoscopeShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
 
 	qglUseProgramObjectARB(tr.rotoscopeShader.program);
@@ -882,8 +882,6 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX | GLCS_COLOR, qtrue);
 
 	tr.screenShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenShader.program, "u_CurrentMap");
-	tr.screenShader.u_FBufScale = qglGetUniformLocationARB(tr.screenShader.program, "u_FBufScale");
-	tr.screenShader.u_NPOTScale = qglGetUniformLocationARB(tr.screenShader.program, "u_NPOTScale");
 
 	qglUseProgramObjectARB(tr.screenShader.program);
 	qglUniform1iARB(tr.screenShader.u_CurrentMap, 0);
@@ -904,8 +902,6 @@ void GLSL_InitGPUShaders(void)
 	tr.liquidShader.u_FresnelPower = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelPower");
 	tr.liquidShader.u_FresnelScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelScale");
 	tr.liquidShader.u_FresnelBias = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelBias");
-	tr.liquidShader.u_FBufScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_FBufScale");
-	tr.liquidShader.u_NPOTScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_NPOTScale");
 	tr.liquidShader.u_ModelMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_ModelMatrix");
 
 	qglUseProgramObjectARB(tr.liquidShader.program);
@@ -926,8 +922,6 @@ void GLSL_InitGPUShaders(void)
 	tr.uniformFogShader.u_ViewOrigin = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewOrigin");
 	tr.uniformFogShader.u_FogDensity = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogDensity");
 	tr.uniformFogShader.u_FogColor = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogColor");
-	tr.uniformFogShader.u_FBufScale = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FBufScale");
-	tr.uniformFogShader.u_NPOTScale = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_NPOTScale");
 	tr.uniformFogShader.u_ViewMatrix = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewMatrix");
 
 	qglUseProgramObjectARB(tr.uniformFogShader.program);
@@ -1351,15 +1345,6 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 		{
 			tess.stageIteratorFunc = Tess_StageIteratorSky;
 			tess.stageIteratorFunc2 = Tess_StageIteratorGBuffer;
-		}
-	}
-
-	if(tess.stageIteratorFunc == Tess_StageIteratorUniformFog)
-	{
-		if(state->isSky)
-		{
-			tess.stageIteratorFunc = Tess_StageIteratorSky;
-			tess.stageIteratorFunc2 = Tess_StageIteratorUniformFog;
 		}
 	}
 
@@ -2016,8 +2001,6 @@ static void Render_skybox(int stage)
 
 static void Render_screen(int stage)
 {
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_screen ---\n");
@@ -2039,24 +2022,6 @@ static void Render_screen(int stage)
 
 	GL_SetVertexAttribs();
 
-	// set uniforms
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
-	qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
-
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
@@ -2071,25 +2036,9 @@ static void Render_heatHaze(int stage)
 	unsigned        stateBits;
 	float           alphaTest;
 	float           deformMagnitude;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
-
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
 
 	/*
 	   if(glConfig.framebufferObjectAvailable && glConfig.maxColorAttachments >= 4 &&
@@ -2162,9 +2111,7 @@ static void Render_heatHaze(int stage)
 		GL_ClientState(tr.depthTestShader.attribs);
 		GL_SetVertexAttribs();
 
-		// set uniforms 
-		qglUniform2fARB(tr.depthTestShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-		qglUniform2fARB(tr.depthTestShader.u_NPOTScale, npotWidthScale, npotHeightScale);
+		// set uniforms
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -2199,8 +2146,6 @@ static void Render_heatHaze(int stage)
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
-		qglUniform2fARB(tr.screenShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-		qglUniform2fARB(tr.screenShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 		// bind u_CurrentMap
 		GL_SelectTexture(0);
@@ -2255,8 +2200,6 @@ static void Render_heatHaze(int stage)
 
 	qglUniform1fARB(tr.heatHazeShader.u_AlphaTest, alphaTest);
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
-	qglUniform2fARB(tr.heatHazeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.heatHazeShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
@@ -2327,36 +2270,16 @@ static void Render_heatHaze(int stage)
 
 static void Render_bloom(int stage)
 {
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_bloom ---\n");
 
 	GL_State(pStage->stateBits);
 
-	// calc uniforms
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
 	// render contrast
 	GL_Program(tr.contrastShader.program);
 	GL_ClientState(tr.contrastShader.attribs);
 	GL_SetVertexAttribs();
-
-	qglUniform2fARB(tr.contrastShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.contrastShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
@@ -2373,8 +2296,6 @@ static void Render_bloom(int stage)
 	GL_SetVertexAttribs();
 
 	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
-	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(1);
 	GL_Bind(tr.contrastRenderImage);
@@ -2387,36 +2308,16 @@ static void Render_bloom(int stage)
 
 static void Render_bloom2(int stage)
 {
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_bloom2 ---\n");
 
 	GL_State(pStage->stateBits);
 
-	// calc uniforms
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
 	// render contrast
 	GL_Program(tr.contrastShader.program);
 	GL_ClientState(tr.contrastShader.attribs);
 	GL_SetVertexAttribs();
-
-	qglUniform2fARB(tr.contrastShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.contrastShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
@@ -2433,8 +2334,6 @@ static void Render_bloom2(int stage)
 	GL_SetVertexAttribs();
 
 	qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
-	qglUniform2fARB(tr.blurXShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.blurXShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_Bind(tr.contrastRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
@@ -2447,8 +2346,6 @@ static void Render_bloom2(int stage)
 	GL_SetVertexAttribs();
 
 	qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
-	qglUniform2fARB(tr.blurYShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.blurYShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_Bind(tr.contrastRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
@@ -2461,8 +2358,6 @@ static void Render_bloom2(int stage)
 	GL_SetVertexAttribs();
 
 	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
-	qglUniform2fARB(tr.bloomShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.bloomShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
@@ -2478,8 +2373,6 @@ static void Render_bloom2(int stage)
 static void Render_rotoscope(int stage)
 {
 	float           blurMagnitude;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_rotoscope ---\n");
@@ -2494,23 +2387,7 @@ static void Render_rotoscope(int stage)
 	// set uniforms
 	blurMagnitude = RB_EvalExpression(&pStage->blurMagnitudeExp, 3.0);
 
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, blurMagnitude);
-	qglUniform2fARB(tr.rotoscopeShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.rotoscopeShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2528,8 +2405,6 @@ static void Render_rotoscope(int stage)
 static void Render_liquid(int stage)
 {
 	vec3_t          viewOrigin;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_liquid ---\n");
@@ -2546,27 +2421,11 @@ static void Render_liquid(int stage)
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
 	qglUniform3fARB(tr.liquidShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.liquidShader.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
-	qglUniform2fARB(tr.liquidShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.liquidShader.u_NPOTScale, npotWidthScale, npotHeightScale);
 	qglUniformMatrix4fvARB(tr.liquidShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// capture current color buffer for u_CurrentMap
@@ -2577,60 +2436,6 @@ static void Render_liquid(int stage)
 	// bind u_PortalMap
 	GL_SelectTexture(1);
 	GL_Bind(tr.portalRenderImage);
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_uniformFog()
-{
-	float			fogDensity;
-	vec3_t          fogColor;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
-	//shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-	GLimp_LogComment("--- Render_uniformFog ---\n");
-
-	//GL_State(pStage->stateBits);
-	GL_State(0);
-
-	// enable shader, set arrays
-	GL_Program(tr.uniformFogShader.program);
-	GL_ClientState(tr.uniformFogShader.attribs);
-	GL_SetVertexAttribs();
-
-	qglColor4fv(tess.svars.color);
-
-	// set uniforms
-	fogDensity = r_forceFog->value;
-	VectorCopy(colorMdGrey, fogColor);
-
-	fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-	fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-	if(glConfig.textureNPOTAvailable)
-	{
-		npotWidthScale = 1;
-		npotHeightScale = 1;
-	}
-	else
-	{
-		npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-		npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-	}
-
-	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
-	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
-	qglUniform2fARB(tr.uniformFogShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	qglUniform2fARB(tr.uniformFogShader.u_NPOTScale, npotWidthScale, npotHeightScale);
-	//qglUniformMatrix4fvARB(tr.uniformFogShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
-
-	// capture current color buffer for u_CurrentMap
-	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
 	DrawElements();
 
@@ -3307,141 +3112,6 @@ void Tess_StageIteratorShadowFill()
 			case ST_COLLAPSE_lighting_DBS:
 			{
 				Render_shadowFill(stage);
-				break;
-			}
-
-			default:
-				break;
-		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
-	// reset polygon offset
-	qglDisable(GL_POLYGON_OFFSET_FILL);
-}
-
-void Tess_StageIteratorUniformFog()
-{
-	int             stage;
-
-	// log this call
-	if(r_logFile->integer)
-	{
-		// don't just call LogComment, or we will get
-		// a call to va() every frame!
-		GLimp_LogComment(va
-						 ("--- Tess_StageIteratorUniformFog( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
-						  tess.numVertexes, tess.numIndexes / 3));
-	}
-
-	GL_CheckErrors();
-
-	Tess_DeformGeometry();
-
-	// set face culling appropriately   
-	GL_Cull(tess.surfaceShader->cullType);
-
-	// set polygon offset if necessary
-	qglEnable(GL_POLYGON_OFFSET_FILL);
-	qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
-
-	// lock XYZ
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
-	// call shader function
-	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
-	{
-		shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-		if(!pStage)
-		{
-			break;
-		}
-
-		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
-		{
-			continue;
-		}
-
-		Tess_ComputeTexMatrices(pStage);
-
-		switch (pStage->type)
-		{
-			case ST_COLORMAP:
-			{
-				if(tess.surfaceShader->sort <= SS_OPAQUE)
-				{
-					Render_uniformFog(stage);
-				}
-				break;
-			}
-
-			case ST_DIFFUSEMAP:
-			case ST_COLLAPSE_lighting_DB:
-			case ST_COLLAPSE_lighting_DBS:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_COLLAPSE_reflection_CB:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_REFLECTIONMAP:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_REFRACTIONMAP:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_DISPERSIONMAP:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_SKYBOXMAP:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_HEATHAZEMAP:
-			{
-				Render_uniformFog(stage);
-				break;
-			}
-
-			case ST_LIQUIDMAP:
-			{
-				Render_uniformFog(stage);
 				break;
 			}
 

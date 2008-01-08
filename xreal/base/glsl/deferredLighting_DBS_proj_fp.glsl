@@ -38,16 +38,14 @@ uniform vec4		u_LightFrustum[6];
 #endif
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
+	st *= r_NPOTScale;
 		
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;

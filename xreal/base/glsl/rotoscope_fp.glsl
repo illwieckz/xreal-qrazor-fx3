@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 uniform float		u_BlurMagnitude;
 
 void	main()
@@ -30,10 +28,10 @@ void	main()
 	vec2 st00 = gl_FragCoord.st;
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	st00 *= u_FBufScale;
+	st00 *= r_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st00 *= u_NPOTScale;
+	st00 *= r_NPOTScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
 	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);

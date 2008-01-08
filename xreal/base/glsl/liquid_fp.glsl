@@ -27,8 +27,6 @@ uniform float		u_RefractionIndex;
 uniform float		u_FresnelPower;
 uniform float		u_FresnelScale;
 uniform float		u_FresnelBias;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
@@ -49,10 +47,10 @@ void	main()
 	float fresnel = clamp(u_FresnelBias + pow(1.0 - dot(I, N), u_FresnelPower) * u_FresnelScale, 0.0, 1.0);
 	
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
+	st *= r_NPOTScale;
 	
 	color = texture2D(u_CurrentMap, st);
 	

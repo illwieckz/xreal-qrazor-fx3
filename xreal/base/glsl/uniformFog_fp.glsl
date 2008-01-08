@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_CurrentMap;
 uniform sampler2D	u_PositionMap;
 uniform vec3		u_ViewOrigin;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 uniform float		u_FogDensity;
 uniform vec3		u_FogColor;
 uniform mat4        u_ViewMatrix;
@@ -34,10 +32,10 @@ uniform mat4        u_ViewMatrix;
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
+	st *= r_NPOTScale;
 	
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;

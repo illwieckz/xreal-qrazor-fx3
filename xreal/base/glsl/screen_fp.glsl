@@ -21,18 +21,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_CurrentMap;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 
 varying vec4		var_Color;
 
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
 	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
+	st *= r_NPOTScale;
 	
 	vec4 color = texture2D(u_CurrentMap, st);
 	color *= var_Color;

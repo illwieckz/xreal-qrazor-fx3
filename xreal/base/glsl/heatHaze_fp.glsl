@@ -25,8 +25,6 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_CurrentMap;
 uniform sampler2D	u_ContrastMap;
 uniform float		u_AlphaTest;
-uniform vec2		u_FBufScale;
-uniform vec2		u_NPOTScale;
 
 varying vec2		var_TexNormal;
 varying float		var_Deform;
@@ -41,14 +39,14 @@ void	main()
 	N = normalize(N);
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * u_FBufScale;
+	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
 	st += N.xy * var_Deform;
 	st = clamp(st, 0.0, 1.0);
 	
 	// scale by the screen non-power-of-two-adjust
-	st *= u_NPOTScale;
+	st *= r_NPOTScale;
 	
 #if 1
 	// check if the distortion got too far
@@ -61,7 +59,7 @@ void	main()
 	else
 	{
 		// reset st and don't offset
-		st = gl_FragCoord.st * u_FBufScale * u_NPOTScale;
+		st = gl_FragCoord.st * r_FBufScale * r_NPOTScale;
 		
 		color0 = texture2D(u_CurrentMap, st);
 		color1 = vec4(1.0, 0.0, 0.0, color0.a);
