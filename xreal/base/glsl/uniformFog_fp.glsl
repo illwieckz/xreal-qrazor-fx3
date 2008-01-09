@@ -25,7 +25,7 @@ uniform sampler2D	u_PositionMap;
 uniform vec3		u_ViewOrigin;
 uniform float		u_FogDensity;
 uniform vec3		u_FogColor;
-uniform mat4        u_ViewMatrix;
+uniform mat4		u_UnprojectMatrix;
 
 //varying vec3		var_Vertex;
 
@@ -37,14 +37,26 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
+#if defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
-
-	// transform P into view space
-	//P = u_ViewMatrix * vec4(P.xyz, 1.0);
+#else
+	// reconstruct vertex position in world space
+#if 0
+	// gl_FragCoord.z with 32 bit precision
+	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
+	float depth = dot(texture2D(u_PositionMap, st), bitShifts);
+#else
+	// gl_FragCoord.z with 24 bit precision
+	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
+	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
+#endif
+	
+	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyz /= P.w;
+#endif
 
 	// calculate fog distance
-	//float fogDistance = length(P);
 	float fogDistance = distance(P.xyz, u_ViewOrigin);
 	
 	// calculate fog exponent

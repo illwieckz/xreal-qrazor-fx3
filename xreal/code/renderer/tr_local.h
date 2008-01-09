@@ -848,9 +848,9 @@ typedef struct shaderProgram_s
 
 	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
-	GLint			u_CameraMatrix;
 	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
+	GLint			u_UnprojectMatrix;
 } shaderProgram_t;
 
 

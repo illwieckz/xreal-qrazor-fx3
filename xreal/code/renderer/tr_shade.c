@@ -190,6 +190,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			}
 		}
 
+		if(glConfig.framebufferMixedFormatsAvailable)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_EXTX_framebuffer_mixed_formats\n#define GL_EXTX_framebuffer_mixed_formats 1\n#endif\n");
+		}
+
 		/*
 		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
@@ -427,8 +432,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightFrustum");
 		tr.deferredLightingShader_DBS_omni.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowCompare");
-		tr.deferredLightingShader_DBS_omni.u_CameraMatrix =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_CameraMatrix");
+		tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_UnprojectMatrix");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_omni.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DiffuseMap, 0);
@@ -479,8 +484,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMatrix");
 		tr.deferredLightingShader_DBS_proj.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowCompare");
-		tr.deferredLightingShader_DBS_proj.u_CameraMatrix =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_CameraMatrix");
+		tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_UnprojectMatrix");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_proj.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DiffuseMap, 0);
@@ -926,7 +931,7 @@ void GLSL_InitGPUShaders(void)
 	tr.uniformFogShader.u_ViewOrigin = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewOrigin");
 	tr.uniformFogShader.u_FogDensity = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogDensity");
 	tr.uniformFogShader.u_FogColor = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogColor");
-	tr.uniformFogShader.u_ViewMatrix = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewMatrix");
+	tr.uniformFogShader.u_UnprojectMatrix = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_UnprojectMatrix");
 
 	qglUseProgramObjectARB(tr.uniformFogShader.program);
 	qglUniform1iARB(tr.uniformFogShader.u_CurrentMap, 0);
@@ -2961,13 +2966,11 @@ void Tess_StageIteratorGBuffer()
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_genericSingle(stage);
 
-				/*
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 				{
 					R_BindFBO(tr.geometricRenderFBO);
 					Render_geometricFill_DBS(stage, qtrue);
 				}
-				*/
 				break;
 			}
 
@@ -2975,9 +2978,8 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				//R_BindFBO(tr.deferredRenderFBO);
-				//Render_depthFill(stage);
-
+				R_BindFBO(tr.deferredRenderFBO);
+				Render_depthFill(stage);
 
 				R_BindFBO(tr.geometricRenderFBO);
 				Render_geometricFill_DBS(stage, qfalse);

@@ -90,6 +90,9 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 void	main()
 {
 #if defined(PARALLAX)
+
+	// FIXME 
+
 	// construct tangent-world-space-to-tangent-space 3x3 matrix
 	mat3 worldToTangentMatrix = transpose(var_TangentToWorldMatrix);
 
@@ -162,23 +165,39 @@ void	main()
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
 	
-	gl_FragData[0] = vec4(diffuse.rgb, N.x);
-	gl_FragData[1] = depthColor;
-	gl_FragData[2] = vec4(specular, N.y);
+	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
+	gl_FragData[1] = vec4(N, 0.0);
+	gl_FragData[2] = vec4(specular, 0.0);
 	
-#if 1
+#if defined(GL_EXTX_framebuffer_mixed_formats)
 	// transform vertex position into world space
-	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
-	
-	gl_FragData[3] = vec4(P, N.z);
+	gl_FragData[3] = (u_ModelMatrix * var_Vertex).xyzw;
 #else
 	// compute depth instead of world vertex position in a [0..1] range
 	float depth = gl_FragCoord.z;
-	//float depth = mul(mul(Position, World), View).z / FarPlane
-	//float depth = gl_ModelViewMatrix / u_FarPlane.w;
 	
-	gl_FragData[3] = vec4(depth, depth, depth, N.z);
-#endif
+#if 0
+	// 32 bit precision
+	const vec4 bitSh = vec4(256 * 256 * 256,	256 * 256,				256,         1);
+	const vec4 bitMsk = vec4(			0,		1.0 / 256.0,    1.0 / 256.0,    1.0 / 256.0);
+	
+	vec4 comp;
+	comp = depth * bitSh;
+	comp = frac(comp);
+	comp -= comp.xxyz * bitMsk;
+	gl_FragData[3] = comp;
+#else
+	// 24 bit precision
+	const vec3 bitSh = vec3(256 * 256,			256,		1);
+	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
+	
+	vec3 comp;
+	comp = depth * bitSh;
+	comp = frac(comp);
+	comp -= comp.xxyz * bitMsk;
+	gl_FragData[3] = vec4(comp, 0.0);
+#endif // precision
+#endif // 
 
 #endif
 }

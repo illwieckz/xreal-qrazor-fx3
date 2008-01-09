@@ -1252,6 +1252,8 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 	}
 
+	GL_CheckErrors();
+
 	// set filter type
 	switch (image->filterType)
 	{
@@ -1280,6 +1282,8 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 	}
+
+	GL_CheckErrors();
 
 	// set wrap type
 	switch (image->wrapType)
@@ -4246,14 +4250,14 @@ static void R_CreateDeferredRenderFBOImages(void)
 	else
 	{
 		tr.deferredDiffuseFBOImage =
-			R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
+			R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredNormalFBOImage =
-			R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
+			R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredSpecularFBOImage =
-			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP |  (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
+			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredPositionFBOImage =
-			R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
-		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST , WT_REPEAT);
+			R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 	}
 
 	ri.Hunk_FreeTempMemory(data);

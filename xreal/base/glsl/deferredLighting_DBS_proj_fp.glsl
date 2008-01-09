@@ -38,7 +38,7 @@ uniform vec4		u_LightFrustum[6];
 #endif
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
-uniform mat4		u_CameraMatrix;
+uniform mat4		u_UnprojectMatrix;
 
 void	main()
 {
@@ -48,14 +48,23 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 		
-#if 1
+#if defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
 #else
-	/// reconstruct vertex position in world space
-	const float depth = texture2D(u_PositionMap, st).r;
-	vec4 P = u_CameraMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
-	P.xyzw /= P.w;
+	// reconstruct vertex position in world space
+#if 0
+	// gl_FragCoord.z with 32 bit precision
+	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
+	float depth = dot(texture2D(u_PositionMap, st), bitShifts);
+#else
+	// gl_FragCoord.z with 24 bit precision
+	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
+	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
+#endif
+	
+	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyz /= P.w;
 #endif
 	
 	// transform vertex position into light space
@@ -147,13 +156,13 @@ void	main()
 		vec4 S = texture2D(u_SpecularMap, st);
 	
 		// compute normal in world space
-		//vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
+		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
 		
-		vec3 N;
-		N.x = diffuse.a;
-		N.y = S.a;
-		N.z = P.w;
-		N.xyz = 2.0 * (N.xyz - 0.5);
+		//vec3 N;
+		//N.x = diffuse.a;
+		//N.y = S.a;
+		//N.z = P.w;
+		//N.xyz = 2.0 * (N.xyz - 0.5);
 		//N.z = sqrt(1.0 - dot(N.xy, N.xy));
 	
 		// compute light direction in world space
