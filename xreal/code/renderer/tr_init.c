@@ -1428,7 +1428,7 @@ void R_Register(void)
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
 	r_flares = ri.Cvar_Get("r_flares", "0", CVAR_ARCHIVE);
 	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_CHEAT);
-	r_zfar = ri.Cvar_Get("r_zfar", "2048", CVAR_CHEAT);
+	r_zfar = ri.Cvar_Get("r_zfar", "4096", CVAR_CHEAT);
 	AssertCvarRange(r_znear, 0.001f, 200, qtrue);
 	r_ignoreGLErrors = ri.Cvar_Get("r_ignoreGLErrors", "1", CVAR_ARCHIVE);
 	r_fastsky = ri.Cvar_Get("r_fastsky", "0", CVAR_ARCHIVE);
