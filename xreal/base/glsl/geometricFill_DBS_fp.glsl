@@ -194,7 +194,7 @@ void	main()
 	vec3 comp;
 	comp = depth * bitSh;
 	comp = fract(comp);
-	comp -= comp.xxyz * bitMsk;
+	comp -= comp.xxy * bitMsk;
 	gl_FragData[3] = vec4(comp, 0.0);
 #endif // precision
 #endif // 
