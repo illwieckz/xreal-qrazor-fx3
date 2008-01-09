@@ -71,7 +71,7 @@ typedef unsigned __int8 uint8_t;
 #pragma warning(disable : 4136)
 #pragma warning(disable : 4152)	// function/data pointer conversion in expression
 #pragma warning(disable : 4244)
-#pragma warning(disable : 4201) // nonstandard extension used
+#pragma warning(disable : 4201)	// nonstandard extension used
 #pragma warning(disable : 4142)	// benign redefinition
 #pragma warning(disable : 4514)
 #pragma warning(disable : 4702)	// unreachable code
@@ -568,6 +568,7 @@ typedef vec_t   vec4_t[4];
 typedef vec_t   vec5_t[5];
 
 typedef vec_t   axis_t[3][3];
+typedef vec_t   matrix3x3_t[9];
 typedef vec_t   matrix_t[16];
 typedef vec_t   quat_t[4];		// | x y z w |
 
@@ -1033,6 +1034,9 @@ void            MatrixClear(matrix_t m);
 void            MatrixCopy(const matrix_t in, matrix_t out);
 void            MatrixTransposeIntoXMM(const matrix_t m);
 void            MatrixTranspose(const matrix_t in, matrix_t out);
+
+// invert any m4x4 using Kramer's rule.. return qtrue if matrix is singular, else return qfalse
+qboolean        MatrixInverse(matrix_t m);
 void            MatrixSetupXRotation(matrix_t m, vec_t degrees);
 void            MatrixSetupYRotation(matrix_t m, vec_t degrees);
 void            MatrixSetupZRotation(matrix_t m, vec_t degrees);
@@ -1190,7 +1194,7 @@ int             Com_Filter(const char *filter, const char *name, int casesensiti
 int             Com_FilterPath(const char *filter, const char *name, int casesensitive);
 int             Com_HashKey(const char *string, int maxlen);
 char           *Com_SkipPath(char *pathname);
-const char	   *Com_GetExtension(const char *name);
+const char     *Com_GetExtension(const char *name);
 void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);
 
