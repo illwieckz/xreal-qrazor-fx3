@@ -192,6 +192,7 @@ typedef struct
 	vec3_t          viewOrigin;	// viewParms->or.origin in local coordinates
 	matrix_t        transformMatrix;	// transforms object to world: either used by camera, model or light
 	matrix_t        viewMatrix;	// affine inverse of transform matrix to transform other objects into this space
+	matrix_t        viewMatrix2;	// without quake2opengl conversion
 	matrix_t        modelViewMatrix;	// only used by models, camera viewMatrix * transformMatrix
 } orientationr_t;
 
@@ -847,6 +848,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
+	GLint			u_CameraMatrix;
 	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
 } shaderProgram_t;

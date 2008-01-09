@@ -37,8 +37,9 @@ uniform mat4		u_LightAttenuationMatrix;
 uniform vec4		u_LightFrustum[6];
 #endif
 uniform int			u_ShadowCompare;
-uniform vec4		u_NearPlane;
-uniform vec4		u_FarPlane;
+uniform mat4		u_CameraMatrix;
+//uniform vec4		u_NearPlane;
+//uniform vec4		u_FarPlane;
 
 void	main()
 {
@@ -48,12 +49,16 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
+#if 1
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
+#else
+	// reconstruct vertex position in world space
+	const float depth = texture2D(u_PositionMap, st).r;
+	vec4 P = u_CameraMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyzw /= P.w;
 	
-	// TODO reconstruct vertex position in view space from depth
-	//float depth = texture2D(u_PositionMap, st).x;
-	//Pv = 
+#endif
 	
 #if 0
 	if(distance(P.xyz, u_LightOrigin) > u_LightRadius)
@@ -144,8 +149,11 @@ void	main()
 		N.x = diffuse.a;
 		N.y = S.a;
 		N.z = P.w;
-		N.xyz = 2.0 * (N.xyz - 0.5);
+		N = 2.0 * (N - 0.5);
 		//N.z = sqrt(1.0 - dot(N.xy, N.xy));
+		//N.z = sqrt(1.0 - N.x*N.x - N.y*N.y);
+		//N.x = sqrt(1.0 - N.y*N.y - N.z*N.z);
+		//N = normalize(N);
 	
 		// compute light direction in world space
 		vec3 L = normalize(u_LightOrigin - P.xyz);

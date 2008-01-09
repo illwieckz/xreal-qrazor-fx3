@@ -2524,6 +2524,8 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
+	matrix_t        tmpMatrix, rotationMatrix, transformMatrix, viewMatrix, modelViewMatrix, projectionMatrix;
+	matrix_t        cameraMatrix;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
 
@@ -2531,6 +2533,27 @@ void RB_RenderInteractionsDeferred()
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
+	
+	//MatrixIdentity(tmpMatrix);
+	//MatrixMultiplyTranslation(tmpMatrix, -1.0, -1.0, -1.0);
+	//MatrixMultiplyScale(tmpMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
+
+	MatrixIdentity(cameraMatrix);
+	MatrixMultiply2(cameraMatrix, backEnd.viewParms.projectionMatrix);
+	MatrixMultiply2(cameraMatrix, quakeToOpenGLMatrix);
+	MatrixMultiply2(cameraMatrix, backEnd.viewParms.world.viewMatrix2);
+	//MatrixMultiply2(cameraMatrix, transformMatrix);
+
+	MatrixInverse(cameraMatrix);
+
+	MatrixMultiplyTranslation(cameraMatrix, -1.0, -1.0, -1.0);
+	MatrixMultiplyScale(cameraMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
+	
+
+	//MatrixMultiply2(tmpMatrix, cameraMatrix);
+	//MatrixCopy(tmpMatrix, cameraMatrix);
+	//MatrixMultiply2(tmpMatrix, cameraMatrix, tmpMatrix
+
 
 	// set 2D virtual screen size
 	qglMatrixMode(GL_MODELVIEW);
@@ -2651,6 +2674,7 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_CameraMatrix, 1, GL_FALSE, cameraMatrix);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -2719,6 +2743,7 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_CameraMatrix, 1, GL_FALSE, cameraMatrix);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -2815,8 +2840,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
 	int             i, j;
-	float           fbufWidthScale, fbufHeightScale;
-	float           npotWidthScale, npotHeightScale;
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -3141,20 +3164,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 				// update uniforms
 				VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
-
-				fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-				fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-
-				if(glConfig.textureNPOTAvailable)
-				{
-					npotWidthScale = 1;
-					npotHeightScale = 1;
-				}
-				else
-				{
-					npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-					npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-				}
 
 				// copy frustum planes for pixel shader
 				for(i = 0; i < 6; i++)

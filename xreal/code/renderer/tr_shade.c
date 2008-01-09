@@ -427,6 +427,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightFrustum");
 		tr.deferredLightingShader_DBS_omni.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowCompare");
+		tr.deferredLightingShader_DBS_omni.u_CameraMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_CameraMatrix");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_omni.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DiffuseMap, 0);
@@ -477,6 +479,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowMatrix");
 		tr.deferredLightingShader_DBS_proj.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_ShadowCompare");
+		tr.deferredLightingShader_DBS_proj.u_CameraMatrix =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_CameraMatrix");
 
 		qglUseProgramObjectARB(tr.deferredLightingShader_DBS_proj.program);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DiffuseMap, 0);

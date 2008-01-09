@@ -157,22 +157,29 @@ void	main()
 	// transform normal into world space
 	N = var_TangentToWorldMatrix * N;
 	
+	N = normalize(N);
+	
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
-	
-	// transform vertex position into world space
-	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
-	
-	// compute depth instead of world vertex position in a [0..1] range
-	//float depth = gl_FragCoord.z;
-	//float depth = mul(mul(Position, World), View).z / FarPlane
-	//float depth = gl_ModelViewMatrix / u_FarPlane.w;
 	
 	gl_FragData[0] = vec4(diffuse.rgb, N.x);
 	gl_FragData[1] = depthColor;
 	gl_FragData[2] = vec4(specular, N.y);
+	
+#if 1
+	// transform vertex position into world space
+	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
+	
 	gl_FragData[3] = vec4(P, N.z);
-	//gl_FragData[3] = vec4(depth, 0.0, 0.0, N.z);
+#else
+	// compute depth instead of world vertex position in a [0..1] range
+	float depth = gl_FragCoord.z;
+	//float depth = mul(mul(Position, World), View).z / FarPlane
+	//float depth = gl_ModelViewMatrix / u_FarPlane.w;
+	
+	gl_FragData[3] = vec4(depth, depth, depth, N.z);
+#endif
+
 #endif
 }
 

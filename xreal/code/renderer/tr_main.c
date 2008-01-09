@@ -876,13 +876,13 @@ void R_RotateForViewer(void)
 	MatrixSetupTransform(transformMatrix,
 						 tr.viewParms.or.axis[0], tr.viewParms.or.axis[1], tr.viewParms.or.axis[2], tr.viewParms.or.origin);
 
-	MatrixAffineInverse(transformMatrix, viewMatrix);
+	MatrixAffineInverse(transformMatrix, tr.or.viewMatrix2);
 //  MatrixAffineInverse(transformMatrix, tr.or.viewMatrix);
 
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 	MatrixIdentity(tr.or.transformMatrix);
-	MatrixMultiply(quakeToOpenGLMatrix, viewMatrix, tr.or.viewMatrix);
+	MatrixMultiply(quakeToOpenGLMatrix, tr.or.viewMatrix2, tr.or.viewMatrix);
 	MatrixCopy(tr.or.viewMatrix, tr.or.modelViewMatrix);
 
 	tr.viewParms.world = tr.or;

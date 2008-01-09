@@ -38,6 +38,7 @@ uniform vec4		u_LightFrustum[6];
 #endif
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
+uniform mat4		u_CameraMatrix;
 
 void	main()
 {
@@ -47,8 +48,15 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 		
+#if 1
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
+#else
+	/// reconstruct vertex position in world space
+	const float depth = texture2D(u_PositionMap, st).r;
+	vec4 P = u_CameraMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyzw /= P.w;
+#endif
 	
 	// transform vertex position into light space
 	vec4 texAtten			= u_LightAttenuationMatrix * vec4(P.xyz, 1.0);
