@@ -183,7 +183,7 @@ void	main()
 	
 	vec4 comp;
 	comp = depth * bitSh;
-	comp = frac(comp);
+	comp = fract(comp);
 	comp -= comp.xxyz * bitMsk;
 	gl_FragData[3] = comp;
 #else
@@ -193,7 +193,7 @@ void	main()
 	
 	vec3 comp;
 	comp = depth * bitSh;
-	comp = frac(comp);
+	comp = fract(comp);
 	comp -= comp.xxyz * bitMsk;
 	gl_FragData[3] = vec4(comp, 0.0);
 #endif // precision
