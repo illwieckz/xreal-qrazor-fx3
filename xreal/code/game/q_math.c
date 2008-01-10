@@ -2501,7 +2501,7 @@ void MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t or
 
 void MatrixAffineInverse(const matrix_t in, matrix_t out)
 {
-#if 1
+#if 0 
 		MatrixCopy(in, out);
 		MatrixInverse(out);
 #else
