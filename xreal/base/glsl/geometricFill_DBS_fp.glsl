@@ -28,7 +28,6 @@ uniform vec3		u_ViewOrigin;
 uniform vec3        u_AmbientColor;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
-//uniform vec4		u_FarPlane;
 
 varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
@@ -75,10 +74,13 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 		vec4 t = texture2D(u_NormalMap, dp + ds * depth);
 		
 		if(depth >= t.w)
-		{
-			bestDepth = depth;
-			depth -= 2.0 * size;
-		}
+		#ifdef RM_DOUBLEDEPTH
+			if(depth <= t.z)
+		#endif
+			{
+				bestDepth = depth;
+				depth -= 2.0 * size;
+			}
 
 		depth += size;
 	}
@@ -119,6 +121,10 @@ void	main()
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal + texOffset).xyz - 0.5);
 	N.z = sqrt(1.0 - dot(N.xy, N.xy));
+	#if defined(r_NormalScale)
+	N.z *= r_NormalScale;
+	normalize(N);
+	#endif
 	
 	// transform normal into world space
 	N = var_TangentToWorldMatrix * N;
@@ -132,11 +138,42 @@ void	main()
 	// transform parallax offset world space
 	//P += (u_ModelMatrix * vec4(texOffset, 0, 1)).xyz;
 
-	gl_FragData[0] = diffuse;
+	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
 	gl_FragData[1] = vec4(N, 0.0);
-	gl_FragData[2] = vec4(specular, u_SpecularExponent);
-	gl_FragData[3] = vec4(P, gl_FragCoord.z);
+	gl_FragData[2] = vec4(specular, 0.0);
+	
+#if defined(GL_EXTX_framebuffer_mixed_formats)
+	// transform vertex position into world space
+	gl_FragData[3] = (u_ModelMatrix * var_Vertex).xyzw;
 #else
+	// compute depth instead of world vertex position in a [0..1] range
+	depth = gl_FragCoord.z;
+	
+#if 0
+	// 32 bit precision
+	const vec4 bitSh = vec4(256 * 256 * 256,	256 * 256,				256,         1);
+	const vec4 bitMsk = vec4(			0,		1.0 / 256.0,    1.0 / 256.0,    1.0 / 256.0);
+	
+	vec4 comp;
+	comp = depth * bitSh;
+	comp = fract(comp);
+	comp -= comp.xxyz * bitMsk;
+	gl_FragData[3] = comp;
+#else
+	// 24 bit precision
+	const vec3 bitSh = vec3(256 * 256,			256,		1);
+	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
+	
+	vec3 comp;
+	comp = depth * bitSh;
+	comp = fract(comp);
+	comp -= comp.xxy * bitMsk;
+	gl_FragData[3] = vec4(comp, 0.0);
+#endif // precision
+#endif // 
+
+
+#else // defined(PARALLAX)
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	
 	if(diffuse.a <= u_AlphaTest)
