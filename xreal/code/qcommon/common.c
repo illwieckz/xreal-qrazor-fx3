@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
-#if defined __linux__ || defined MACOS_X || defined __FreeBSD__
+#if defined(__linux__) || defined(MACOS_X) || defined (__FreeBSD__) || defined (__NetBSD__)
 #include <netinet/in.h>
 #else
 #include <winsock.h>
@@ -2633,6 +2633,115 @@ static void Com_GenerateMediaTXT_f(void)
 	FS_FreeFile(buf);
 }
 
+
+static void Com_GenerateCorePK3_f(void)
+{
+	qtime_t         dt;
+	char            fileName[MAX_QPATH];
+	char           *buf;
+	char           *buf_p;
+	char           *token;
+	char            pakName[MAX_TOKEN_CHARS];
+	char            mediaName[MAX_TOKEN_CHARS];
+	char            propertyName[MAX_TOKEN_CHARS];
+	char            propertyValue[MAX_TOKEN_CHARS];
+	char            copyright[MAX_TOKEN_CHARS];
+	char            license[MAX_TOKEN_CHARS];
+	char            source[MAX_TOKEN_CHARS];
+	int             len;
+
+	// FIXME: this assumes fs_game is set to the default: "base"
+	system("svn proplist -R -v base/ > base/PROPERTIES.txt");
+
+	Com_sprintf(fileName, sizeof(fileName), "PROPERTIES.txt");
+	Com_Printf("reading '%s' ...\n", fileName);
+
+	FS_ReadFile(fileName, (void **)&buf);
+	if(!buf)
+	{
+		Com_Printf("couldn't load '%s'\n", fileName);
+		return;
+	}
+
+	Com_RealTime(&dt);
+	Q_strncpyz(pakName, va("base/core-%04d%02d%02d.pk3", 1900 + dt.tm_year, dt.tm_mon + 1, dt.tm_mday), sizeof(pakName));
+	Com_Printf("creating pak '%s' ...\n", pakName);
+
+	// TODO add texture and map packs
+	buf_p = buf;
+	while(qtrue)
+	{
+		token = Com_ParseExt(&buf_p, qtrue);
+		if(!token[0])
+			break;
+
+		// bleh german shell
+		if(!Q_stricmp(token, "properties") || !Q_stricmp(token, "eigenschaften"))
+		{
+			// skip "on" or "zu"
+			token = Com_ParseExt(&buf_p, qfalse);
+
+			// parse filename name
+			token = Com_ParseExt(&buf_p, qfalse);
+			if(!strcmp(token, "'"))
+			{
+				// try again
+				token = Com_ParseExt(&buf_p, qfalse);
+			}
+			if(!token[0])
+				break;
+
+			Q_strncpyz(mediaName, token, sizeof(mediaName));
+
+#if 0
+			len = strlen(mediaName);
+			if(Q_stricmp(mediaName + len - 4, ".txt") != 0 &&
+			   Q_stricmp(mediaName + len - 4, ".cfg") != 0 &&
+			   Q_stricmp(mediaName + len - 4, ".dat") != 0 &&
+			   Q_stricmp(mediaName + len - 4, ".lua") != 0 &&
+			   Q_stricmp(mediaName + len - 5, ".glsl") != 0 &&
+			   Q_stricmp(mediaName + len - 6, ".voice") != 0 &&
+			   Q_stricmp(mediaName + len - 6, ".arena") != 0 &&
+			   Q_stricmp(mediaName + len - 2, ".c") != 0 &&
+			   Q_stricmp(mediaName + len - 2, ".h") != 0 &&
+			   Q_stricmp(mediaName + len - 3, ".sh") != 0 &&
+			   Q_stricmp(mediaName + len - 4, ".mtr") != 0)
+#endif
+			{
+				Com_Printf("...zipping '%s' ...\n", mediaName);
+				//system(va("zip %s%s", pakName, mediaName));
+
+				// TODO
+			}
+
+			mediaName[0] = '\0';
+
+			Com_SkipRestOfLine(&buf_p);
+		}
+		else
+		{
+			// assume it is a property
+
+			// OK we can start parsing the properties
+			Q_strncpyz(propertyName, token, sizeof(propertyName));
+
+			// parse property value
+			propertyValue[0] = '\0';
+			while(qtrue)
+			{
+				token = Com_ParseExt(&buf_p, qfalse);
+				if(!token[0])
+					break;
+
+				if(!strcmp(token, ":"))
+					continue;
+			}
+		}
+	}
+
+	FS_FreeFile(buf);
+}
+
 /*
 =================
 Com_Init
@@ -2754,6 +2863,7 @@ void Com_Init(char *commandLine)
 
 	Cmd_AddCommand("mathtest", Com_MathTest_f);
 	Cmd_AddCommand("generateMEDIA.txt", Com_GenerateMediaTXT_f);
+	Cmd_AddCommand("generatecore.pk3", Com_GenerateCorePK3_f);
 
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__);
 	com_version = Cvar_Get("version", s, CVAR_ROM | CVAR_SERVERINFO);
