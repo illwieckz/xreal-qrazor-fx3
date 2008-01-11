@@ -387,6 +387,70 @@ static float LittleFloat(const float *l)
 
 #endif
 
+//======================= NetBSD DEFINES =====================
+#if defined(__NetBSD__)
+
+#define stricmp strcasecmp
+
+#define ID_INLINE inline
+
+#define OS_STRING "netbsd"
+
+#ifdef __i386__
+#define ARCH_STRING "i386"
+#elif defined __axp__
+#define ARCH_STRING "alpha"
+#else
+#error "Unsupported architecture"
+#endif
+
+#define DLL_EXT ".so"
+
+#define	PATH_SEP '/'
+
+#if !idppc
+static short BigShort(short l)
+{
+	return ShortSwap(l);
+}
+
+#define LittleShort
+static int BigLong(int l)
+{
+	LongSwap(l);
+}
+
+#define LittleLong
+static float BigFloat(const float *l)
+{
+	FloatSwap(l);
+}
+
+#define LittleFloat
+#else
+#define BigShort
+static short LittleShort(short l)
+{
+	return ShortSwap(l);
+}
+
+#define BigLong
+static int LittleLong(int l)
+{
+	return LongSwap(l);
+}
+
+#define BigFloat
+static float LittleFloat(const float *l)
+{
+	return FloatSwap(l);
+}
+#endif
+
+#endif
+
+//=============================================================
+
 #ifdef NDEBUG
 #define PLATFORM_STRING OS_STRING "-" ARCH_STRING
 #else
