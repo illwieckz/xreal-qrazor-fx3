@@ -93,10 +93,18 @@ void	main()
 {
 #if defined(PARALLAX)
 
-	// FIXME 
-
 	// construct tangent-world-space-to-tangent-space 3x3 matrix
+#if defined(ATI)
+
+	mat3 worldToTangentMatrix;
+	for(int i = 0; i < 3; ++i)
+	{
+		for(int j = 0; j < 3; ++j)
+			worldToTangentMatrix[i][j] = var_TangentToWorldMatrix[j][i];
+	}
+#else
 	mat3 worldToTangentMatrix = transpose(var_TangentToWorldMatrix);
+#endif
 
 	// transform vertex position into world space
 	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
