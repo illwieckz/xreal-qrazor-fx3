@@ -109,6 +109,6 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_server_env.Install('#', 'xreal-server.x86_64')
 
 elif env['arch'] == 'netbsd-i386':
-	xreal_server_env.Append(LIBS=['dl', 'm'])
+	xreal_server_env.Append(LIBS=['m'])
 	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, unix_src, linux_src])
-	xreal_server_env.Install('#', 'xreal-server_sdl')
+	xreal_server_env.Install('#', 'xreal-server.x86')
