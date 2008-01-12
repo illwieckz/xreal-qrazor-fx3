@@ -459,7 +459,7 @@ The cgame module is making a system call
 ====================
 */
 
-intptr_t CL_CgameSystemCalls(intptr_t *args)
+intptr_t CL_CgameSystemCalls(intptr_t * args)
 {
 	switch (args[0])
 	{
@@ -546,11 +546,11 @@ intptr_t CL_CgameSystemCalls(intptr_t *args)
 			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule */ qtrue);
 			return 0;
 		case CG_CM_TRANSFORMEDBOXTRACE:
-			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), /*int capsule */
+			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9),	/*int capsule */
 								   qfalse);
 			return 0;
 		case CG_CM_TRANSFORMEDCAPSULETRACE:
-			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), /*int capsule */
+			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9),	/*int capsule */
 								   qtrue);
 			return 0;
 		case CG_CM_MARKFRAGMENTS:

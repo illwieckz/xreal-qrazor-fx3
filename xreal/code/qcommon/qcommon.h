@@ -168,7 +168,7 @@ qboolean        NET_GetLoopPacket(netsrc_t sock, netadr_t * net_from, msg_t * ne
 void            NET_Sleep(int msec);
 
 // r1:
-const char	   *NET_inet_ntoa(unsigned int ip);
+const char     *NET_inet_ntoa(unsigned int ip);
 
 #define	MAX_MSGLEN				16384	// max length of a message, which may
 											// be fragmented into multiple packets
@@ -283,8 +283,8 @@ VIRTUAL MACHINE
 
 typedef struct
 {
-	intptr_t		(*systemCall) (intptr_t * parms);
-	intptr_t        (QDECL * entryPoint) (int callNum, ...);
+	intptr_t(*systemCall) (intptr_t * parms);
+	intptr_t(QDECL * entryPoint) (int callNum, ...);
 
 	char            name[MAX_QPATH];
 	void           *dllHandle;
@@ -321,7 +321,7 @@ void            VM_Clear(void);
 vm_t           *VM_Restart(vm_t * vm);
 
 intptr_t QDECL  VM_Call(vm_t * vm, int callNum, ...);
-intptr_t QDECL	VM_DllSyscall(intptr_t arg, ...);
+intptr_t QDECL  VM_DllSyscall(intptr_t arg, ...);
 
 void           *VM_ArgPtr(intptr_t intValue);
 void           *VM_ExplicitArgPtr(vm_t * vm, intptr_t intValue);
@@ -418,7 +418,7 @@ char           *Cmd_Cmd(void);
 // if arg > argc, so string operations are allways safe.
 
 void            Cmd_TokenizeString(const char *text);
-void			Cmd_TokenizeStringIgnoreQuotes(const char *text_in);
+void            Cmd_TokenizeStringIgnoreQuotes(const char *text_in);
 
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
@@ -493,7 +493,7 @@ void            Cvar_VariableStringBuffer(const char *var_name, char *buffer, in
 
 // returns an empty string if not defined
 
-int				Cvar_Flags(const char *var_name);
+int             Cvar_Flags(const char *var_name);
 
 // returns CVAR_NONEXISTENT if cvar doesn't exist or the flags of that particular CVAR.
 
@@ -502,7 +502,7 @@ void            Cvar_CommandCompletion(void (*callback) (const char *s));
 // callback with each valid string
 
 void            Cvar_Reset(const char *var_name);
-void			Cvar_ForceReset(const char *var_name);
+void            Cvar_ForceReset(const char *var_name);
 
 void            Cvar_SetCheatState(void);
 
@@ -580,7 +580,7 @@ void            FS_FreeFileList(char **list);
 void            FS_HomeRemove(const char *homePath);
 qboolean        FS_FileExists(const char *file);
 
-void			FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void(*callback)(const char *s));
+void            FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void (*callback) (const char *s));
 
 int             FS_LoadStack();
 
@@ -694,7 +694,7 @@ void            FS_PureServerSetLoadedPaks(const char *pakSums, const char *pakN
 // separated checksums will be checked for files, with the
 // sole exception of .cfg files.
 
-qboolean		FS_CheckDirTraversal(const char *checkdir);
+qboolean        FS_CheckDirTraversal(const char *checkdir);
 qboolean        FS_ComparePaks(char *neededpaks, int len, qboolean dlstring);
 
 void            FS_Rename(const char *from, const char *to);
@@ -717,7 +717,7 @@ typedef struct
 } field_t;
 
 void            Field_Clear(field_t * edit);
-void            Field_AutoComplete(field_t *edit);
+void            Field_AutoComplete(field_t * edit);
 
 /*
 ==============================================================
@@ -920,7 +920,7 @@ void            CL_StartHunkUsers(void);
 
 // start all the client stuff using the hunk
 
-void			Key_KeynameCompletion(void(*callback)(const char *s));
+void            Key_KeynameCompletion(void (*callback) (const char *s));
 
 // for keyname autocompletion
 
@@ -1061,7 +1061,7 @@ void            Sys_FreeFileList(char **list);
 qboolean        Sys_LowPhysicalMemory();
 unsigned int    Sys_ProcessorCount();
 
-qboolean		Sys_DetectAltivec(void);
+qboolean        Sys_DetectAltivec(void);
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

@@ -79,7 +79,7 @@ typedef enum
 
 typedef struct
 {
-	int				parentIndex;	// parent index (-1 if root)
+	int             parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;
 } refBone_t;
@@ -93,13 +93,13 @@ typedef enum
 
 typedef struct
 {
-	refSkeletonType_t	type;		// skeleton has been reset
+	refSkeletonType_t type;		// skeleton has been reset
 
 	int             numBones;
 	refBone_t       bones[MAX_BONES];
-	
+
 	vec3_t          bounds[2];	// bounds of all applied animations
-	vec3_t			scale;
+	vec3_t          scale;
 } refSkeleton_t;
 
 typedef struct
@@ -136,12 +136,12 @@ typedef struct
 	// extra sprite information
 	float           radius;
 	float           rotation;
-	
+
 	// extra animation information
 	refSkeleton_t   skeleton;
 
 	// extra light interaction information
-	int				noShadowID;
+	int             noShadowID;
 } refEntity_t;
 
 
@@ -158,25 +158,25 @@ typedef enum
 typedef struct
 {
 	refLightType_t  rlType;
-//	int             lightfx;
-	
+//  int             lightfx;
+
 	qhandle_t       attenuationShader;
-	
+
 	vec3_t          origin;
 	quat_t          rotation;
 	vec3_t          center;
 	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
-	
+
 	// omni-directional light specific
 	vec3_t          radius;
 
 	// projective light specific
-	float			fovX;
-	float			fovY;
-	float			distance;
-	
+	float           fovX;
+	float           fovY;
+	float           distance;
+
 	qboolean        noShadows;
-	int				noShadowID;	// don't cast shadows of all entities with this id
+	int             noShadowID;	// don't cast shadows of all entities with this id
 } refLight_t;
 
 
@@ -249,7 +249,7 @@ typedef struct
 	char            version_string[MAX_STRING_CHARS];
 	char            extensions_string[BIG_INFO_STRING];
 
-	int             maxTextureSize;		// queried from GL
+	int             maxTextureSize;	// queried from GL
 	int             maxTextureUnits;	// multitexture ability
 
 	int             colorBits, depthBits, stencilBits;
@@ -259,33 +259,33 @@ typedef struct
 
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
-	
+
 	int             maxCubeMapTextureSize;
-	
+
 	qboolean        vertexBufferObjectAvailable;
-	
+
 	qboolean        occlusionQueryAvailable;
 	int             occlusionQueryBits;
-	
+
 	char            shadingLanguageVersion[MAX_STRING_CHARS];
-	
+
 	qboolean        textureNPOTAvailable;
-	
+
 	qboolean        drawBuffersAvailable;
 	qboolean        textureFloatAvailable;
 	int             maxDrawBuffers;
-	
-	qboolean		stencilWrapAvailable;
-	
-	float			maxTextureAnisotropy;
-	qboolean		textureAnisotropyAvailable;
-	
+
+	qboolean        stencilWrapAvailable;
+
+	float           maxTextureAnisotropy;
+	qboolean        textureAnisotropyAvailable;
+
 	qboolean        framebufferObjectAvailable;
 	int             maxRenderbufferSize;
 	int             maxColorAttachments;
-	qboolean		framebufferMixedFormatsAvailable;
+	qboolean        framebufferMixedFormatsAvailable;
 
-	qboolean		generateMipmapAvailable;
+	qboolean        generateMipmapAvailable;
 
 	int             vidWidth, vidHeight;
 	// aspect is the screen's physical width / height, which may be different

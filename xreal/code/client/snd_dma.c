@@ -42,8 +42,8 @@ void            S_Music_f(void);
 void            S_Update_(void);
 void            S_UpdateBackgroundTrack(void);
 
-void			S_Base_StopAllSounds(void);
-void			S_Base_StopBackgroundTrack(void);
+void            S_Base_StopAllSounds(void);
+void            S_Base_StopBackgroundTrack(void);
 
 snd_stream_t   *s_backgroundStream = NULL;
 static char     s_backgroundLoop[MAX_QPATH];
@@ -326,7 +326,7 @@ S_BeginRegistration
 */
 void S_Base_BeginRegistration(void)
 {
-	s_soundMuted = qfalse; // we can play again
+	s_soundMuted = qfalse;		// we can play again
 
 	if(s_numSfx == 0)
 	{
@@ -335,8 +335,8 @@ void S_Base_BeginRegistration(void)
 		s_numSfx = 0;
 		Com_Memset(s_knownSfx, 0, sizeof(s_knownSfx));
 		Com_Memset(sfxHash, 0, sizeof(sfx_t *) * LOOP_HASH);
-  	 
-		S_Base_RegisterSound("sound/feedback/hit.wav", qfalse); // changed to a sound in baseq3
+
+		S_Base_RegisterSound("sound/feedback/hit.wav", qfalse);	// changed to a sound in baseq3
 	}
 }
 
@@ -1337,7 +1337,7 @@ void S_Base_SoundInfo(void)
 		Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
 		Com_Printf("%5d speed\n", dma.speed);
 		Com_Printf("0x%x dma buffer\n", dma.buffer);
-		
+
 		if(s_backgroundStream)
 		{
 			Com_Printf("Background file: %s\n", s_backgroundLoop);
@@ -1358,11 +1358,11 @@ S_Base_SoundList
 */
 void S_Base_SoundList(void)
 {
-	int		i;
-	sfx_t  *sfx;
-	int		size, total;
-	char	type[4][16];
-	char	mem[2][16];
+	int             i;
+	sfx_t          *sfx;
+	int             size, total;
+	char            type[4][16];
+	char            mem[2][16];
 
 	strcpy(type[0], "16bit");
 	strcpy(type[1], "adpcm");
@@ -1521,7 +1521,7 @@ void S_UpdateBackgroundTrack(void)
 		{
 			// add to raw buffer
 			S_RawSamples(fileSamples, s_backgroundStream->info.rate,
-							  s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, musicVolume);
+						 s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, musicVolume);
 		}
 		else
 		{
@@ -1594,52 +1594,52 @@ void S_Base_Shutdown(void)
 {
 	if(!s_soundStarted)
 		return;
-  	 
+
 	SNDDMA_Shutdown();
-  	 
+
 	s_soundStarted = 0;
-  	 
+
 	Cmd_RemoveCommand("s_info");
 }
-  	 
+
 /*
 ================
 S_Init
 ================
 */
-qboolean S_Base_Init(soundInterface_t *si)
+qboolean S_Base_Init(soundInterface_t * si)
 {
 	qboolean        r;
-  	 
+
 	if(!si)
 		return qfalse;
-  	 
+
 	s_khz = Cvar_Get("s_khz", "22", CVAR_ARCHIVE);
 	s_mixahead = Cvar_Get("s_mixahead", "0.2", CVAR_ARCHIVE);
 	s_mixPreStep = Cvar_Get("s_mixPreStep", "0.05", CVAR_ARCHIVE);
 	s_show = Cvar_Get("s_show", "0", CVAR_CHEAT);
 	s_testsound = Cvar_Get("s_testsound", "0", CVAR_CHEAT);
-  	 
+
 	r = SNDDMA_Init();
-  	 
+
 	if(r)
 	{
 		s_soundStarted = 1;
 		s_soundMuted = 1;
 		//s_numSfx = 0;
-  	 
-		Com_Memset(sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
-  	 
+
+		Com_Memset(sfxHash, 0, sizeof(sfx_t *) * LOOP_HASH);
+
 		s_soundtime = 0;
 		s_paintedtime = 0;
-  	 
-		S_Base_StopAllSounds( );
+
+		S_Base_StopAllSounds();
 	}
 	else
 	{
 		return qfalse;
 	}
-  	 
+
 	si->Shutdown = S_Base_Shutdown;
 	si->StartSound = S_Base_StartSound;
 	si->StartLocalSound = S_Base_StartLocalSound;
@@ -1660,6 +1660,6 @@ qboolean S_Base_Init(soundInterface_t *si)
 	si->ClearSoundBuffer = S_Base_ClearSoundBuffer;
 	si->SoundInfo = S_Base_SoundInfo;
 	si->SoundList = S_Base_SoundList;
-  	 
+
 	return qtrue;
 }

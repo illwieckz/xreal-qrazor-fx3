@@ -97,7 +97,7 @@ void GLimp_SetGamma(unsigned char red[256], unsigned char green[256], unsigned c
 	if(!glConfig.deviceSupportsGamma || r_ignorehwgamma->integer || !glw_state.hDC)
 		return;
 
-	if (!g_wv.activeApp)
+	if(!g_wv.activeApp)
 		return;
 
 	for(i = 0; i < 256; i++)
@@ -117,12 +117,12 @@ void GLimp_SetGamma(unsigned char red[256], unsigned char green[256], unsigned c
 		{
 			for(i = 0; i < 128; i++)
 			{
-				if(table[j][i] > ((128+i) << 8))
-					table[j][i] = (128+i) << 8;
+				if(table[j][i] > ((128 + i) << 8))
+					table[j][i] = (128 + i) << 8;
 			}
 
-			if(table[j][127] > 254<<8)
-				table[j][127] = 254<<8;
+			if(table[j][127] > 254 << 8)
+				table[j][127] = 254 << 8;
 		}
 	}
 	else

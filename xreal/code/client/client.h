@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if USE_CURL
 #include "cl_curl.h"
-#endif /* USE_CURL */
+#endif							/* USE_CURL */
 
 #define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
 
@@ -192,15 +192,15 @@ typedef struct
 	char            downloadTempName[MAX_OSPATH];
 	char            downloadName[MAX_OSPATH];
 #ifdef USE_CURL
-	qboolean		cURLEnabled;
-	qboolean		cURLUsed;
-	qboolean		cURLDisconnected;
-	char			downloadURL[MAX_OSPATH];
-	CURL		   *downloadCURL;
-	CURLM		   *downloadCURLM;
-#endif /* USE_CURL */
-	int				sv_allowDownload;
-	char			sv_dlURL[MAX_CVAR_VALUE_STRING];
+	qboolean        cURLEnabled;
+	qboolean        cURLUsed;
+	qboolean        cURLDisconnected;
+	char            downloadURL[MAX_OSPATH];
+	CURL           *downloadCURL;
+	CURLM          *downloadCURLM;
+#endif							/* USE_CURL */
+	int             sv_allowDownload;
+	char            sv_dlURL[MAX_CVAR_VALUE_STRING];
 	int             downloadNumber;
 	int             downloadBlock;	// block we are waiting for
 	int             downloadCount;	// how many bytes we got
@@ -390,7 +390,7 @@ void            CL_Snd_Restart_f(void);
 void            CL_StartDemoLoop(void);
 void            CL_NextDemo(void);
 void            CL_ReadDemoMessage(void);
-void			CL_StopRecord_f(void);
+void            CL_StopRecord_f(void);
 
 void            CL_InitDownloads(void);
 void            CL_NextDownload(void);
@@ -433,14 +433,14 @@ void            CL_VerifyCode(void);
 
 float           CL_KeyState(kbutton_t * key);
 char           *Key_KeynumToString(int keynum);
-int				Key_GetCatcher(void);
-void			Key_SetCatcher(int catcher);
+int             Key_GetCatcher(void);
+void            Key_SetCatcher(int catcher);
 
 //
 // cl_parse.c
 //
 extern int      cl_connectedToPureServer;
-extern int		cl_connectedToCheatServer;
+extern int      cl_connectedToCheatServer;
 
 void            CL_SystemInfoChanged(void);
 void            CL_ParseServerMessage(msg_t * msg);

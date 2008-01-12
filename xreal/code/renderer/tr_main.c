@@ -1984,9 +1984,9 @@ void R_AddLightInteractions()
 
 		if(r_deferredShading->integer && r_shadows->integer <= 3)
 		{
-		   // add one fake interaction for this light
-		   // because the renderer backend only loops through interactions
-		   R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
+			// add one fake interaction for this light
+			// because the renderer backend only loops through interactions
+			R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
 		}
 		else
 		{

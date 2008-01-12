@@ -595,7 +595,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 				vertexes[j][1] = LittleFloat(dv_p->xyz[1]);
 				vertexes[j][2] = LittleFloat(dv_p->xyz[2]);
 			}
-			
+
 			numIndexes = LittleLong(in->numIndexes);
 			if(numIndexes > SHADER_MAX_INDEXES)
 			{
@@ -606,7 +606,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			for(j = 0; j < numIndexes; j++, index_p++)
 			{
 				indexes[j] = LittleLong(*index_p);
-				
+
 				if(indexes[j] < 0 || indexes[j] >= numVertexes)
 				{
 					Com_Error(ERR_DROP, "CMod_LoadSurfaces: Bad index in trisoup surface");
@@ -620,7 +620,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			// create the internal facet structure
 			surface->tc = CM_GenerateTriangleSoupCollide(numVertexes, vertexes, numIndexes, indexes);
 		}
-#endif // BSPC
+#endif							// BSPC
 	}
 }
 

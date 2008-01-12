@@ -45,7 +45,7 @@ void            IN_Init(void);
 void            IN_Shutdown(void);
 void            IN_JoystickCommands(void);
 
-void            IN_Move(usercmd_t *cmd);
+void            IN_Move(usercmd_t * cmd);
 
 void            IN_MouseEvent(int mstate);
 

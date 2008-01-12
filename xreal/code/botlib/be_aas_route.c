@@ -1477,7 +1477,7 @@ void AAS_UpdateAreaRoutingCache(aas_routingcache_t * areacache)
 				}
 			}
 		}
-	}							
+	}
 }								//end of the function AAS_UpdateAreaRoutingCache
 
 //===========================================================================
@@ -1630,7 +1630,7 @@ void AAS_UpdatePortalRoutingCache(aas_routingcache_t * portalcache)
 				}
 			}
 		}
-	}							
+	}
 }								//end of the function AAS_UpdatePortalRoutingCache
 
 //===========================================================================
@@ -2004,7 +2004,7 @@ AAS_PredictRoute(struct aas_predictroute_s *route, int areanum,
 		//
 		if(maxtime && route->time > maxtime)
 			break;
-	}							
+	}
 	if(curareanum != goalareanum)
 		return qfalse;
 	return qtrue;
@@ -2338,6 +2338,6 @@ AAS_NearestHideArea(int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t
 				}
 			}
 		}
-	}							
+	}
 	return bestarea;
 }								//end of the function AAS_NearestHideArea

@@ -267,7 +267,7 @@ int AAS_PointAreaNum(vec3_t point)
 			nodenum = node->children[0];
 		else
 			nodenum = node->children[1];
-	}							
+	}
 	if(!nodenum)
 	{
 #ifdef AAS_SAMPLE_DEBUG
@@ -747,7 +747,7 @@ aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, int presencetype, int 
 				return trace;
 			}
 		}
-	}							
+	}
 //  return trace;
 }								//end of the function AAS_TraceClientBBox
 
@@ -941,7 +941,7 @@ int AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t * points, int ma
 				return numareas;
 			}
 		}
-	}							
+	}
 //  return numareas;
 }								//end of the function AAS_TraceAreas
 
@@ -1383,7 +1383,7 @@ aas_link_t     *AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum)
 			botimport.Print(PRT_ERROR, "AAS_LinkEntity: stack overflow\n");
 			break;
 		}
-	}							
+	}
 	return areas;
 }								//end of the function AAS_AASLinkEntity
 

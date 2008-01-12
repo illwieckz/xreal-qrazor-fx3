@@ -200,8 +200,8 @@ void            CM_BoxLeafnums_r(leafList_t * ll, int nodenum);
 
 cmodel_t       *CM_ClipHandleToModel(clipHandle_t handle);
 
-qboolean		CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
-qboolean		CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t point);
+qboolean        CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
+qboolean        CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t point);
 
 // cm_patch.c
 
@@ -212,7 +212,6 @@ void            CM_ClearLevelPatches(void);
 
 // cm_trisoup.c
 
-struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int * indexes);
+struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes);
 void            CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc);
 qboolean        CM_PositionTestInTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc);
-

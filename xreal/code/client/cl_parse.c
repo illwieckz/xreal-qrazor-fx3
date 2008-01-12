@@ -301,7 +301,7 @@ void CL_ParseSnapshot(msg_t * msg)
 
 	if(len > sizeof(newSnap.areamask))
 	{
-		Com_Error(ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask.", len);
+		Com_Error(ERR_DROP, "CL_ParseSnapshot: Invalid size %d for areamask.", len);
 		return;
 	}
 
@@ -371,7 +371,7 @@ void CL_ParseSnapshot(msg_t * msg)
 //=====================================================================
 
 int             cl_connectedToPureServer;
-int				cl_connectedToCheatServer;
+int             cl_connectedToCheatServer;
 
 /*
 ==================
@@ -426,7 +426,7 @@ void CL_SystemInfoChanged(void)
 	s = systemInfo;
 	while(s)
 	{
-		int cvar_flags;
+		int             cvar_flags;
 
 		Info_NextPair(&s, key, value);
 		if(!key[0])
@@ -464,7 +464,7 @@ CL_ParseServerInfo
 */
 static void CL_ParseServerInfo(void)
 {
-	const char *serverInfo;
+	const char     *serverInfo;
 
 	serverInfo = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
 

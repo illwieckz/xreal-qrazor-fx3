@@ -56,16 +56,17 @@ This allows a server to do a map_restart without changing memory allocation
 =================
 */
 vm_t           *VM_Restart(vm_t * vm)
-{	 
+{
 	// DLL's can't be restarted in place
-	char		name[MAX_QPATH];
-	intptr_t	(*systemCall)(intptr_t *parms);
-  	 
+	char            name[MAX_QPATH];
+
+	intptr_t(*systemCall) (intptr_t * parms);
+
 	systemCall = vm->systemCall;
 	Q_strncpyz(name, vm->name, sizeof(name));
-  	 
+
 	VM_Free(vm);
-  	 
+
 	vm = VM_Create(name, systemCall);
 	return vm;
 }
@@ -275,8 +276,7 @@ intptr_t QDECL VM_Call(vm_t * vm, int callnum, ...)
 	}
 	va_end(ap);
 
-	r = vm->entryPoint(callnum, args[0], args[1], args[2], args[3],
-					   args[4], args[5], args[6], args[7], args[8], args[9]);
+	r = vm->entryPoint(callnum, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
 
 	if(oldVM != NULL)			// bk001220 - assert(currentVM!=NULL) for oldVM==NULL
 		currentVM = oldVM;

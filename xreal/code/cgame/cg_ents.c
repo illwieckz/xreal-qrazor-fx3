@@ -95,7 +95,7 @@ tag location
 void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
 {
 	int             i;
-	int				boneIndex;
+	int             boneIndex;
 	orientation_t   lerped;
 	vec3_t          tempAxis[3];
 
@@ -129,26 +129,26 @@ void CG_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 {
 	int             i;
 	refBone_t      *bone;
-	matrix_t		boneMatrices[MAX_BONES];
-	matrix_t		mat;
-	
+	matrix_t        boneMatrices[MAX_BONES];
+	matrix_t        mat;
+
 	switch (skel->type)
 	{
 		case SK_INVALID:
 		case SK_ABSOLUTE:
 			return;
-		
+
 		default:
-			break;	
+			break;
 	}
-	
+
 	// calculate absolute transforms
 	for(i = 0, bone = &skel->bones[0]; i < skel->numBones; i++, bone++)
 	{
 		if(bone->parentIndex >= 0)
 		{
-			vec3_t			rotated;
-			quat_t			quat;
+			vec3_t          rotated;
+			quat_t          quat;
 
 			refBone_t      *parent;
 
@@ -169,7 +169,7 @@ void CG_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 			QuatCopy(quat, bone->rotation);
 		}
 	}
-	
+
 	skel->type = SK_ABSOLUTE;
 
 	if(scale)
@@ -429,7 +429,7 @@ static void CG_Item(centity_t * cent)
 		VectorScale(ent.axis[1], frac, ent.axis[1]);
 		VectorScale(ent.axis[2], frac, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
-		
+
 		// don't cast shadows in this time period
 		ent.renderfx |= RF_NOSHADOW;
 	}
@@ -452,7 +452,7 @@ static void CG_Item(centity_t * cent)
 		VectorScale(ent.axis[1], 1.5, ent.axis[1]);
 		VectorScale(ent.axis[2], 1.5, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
-#if 0 //defined(MISSIONPACK)
+#if 0							//defined(MISSIONPACK)
 		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound);
 #endif
 	}
@@ -517,7 +517,7 @@ static void CG_Item(centity_t * cent)
 					VectorScale(ent.axis[1], frac, ent.axis[1]);
 					VectorScale(ent.axis[2], frac, ent.axis[2]);
 					ent.nonNormalizedAxes = qtrue;
-					
+
 					// don't cast shadows in this time period
 					ent.renderfx |= RF_NOSHADOW;
 				}
@@ -722,7 +722,7 @@ static void CG_Mover(centity_t * cent)
 	AnglesToAxis(cent->lerpAngles, ent.axis);
 
 	// Tr3B - let movers cast shadows
-//	ent.renderfx = RF_NOSHADOW;
+//  ent.renderfx = RF_NOSHADOW;
 
 	// flicker between two skins (FIXME?)
 	ent.skinNum = (cg.time >> 6) & 1;
@@ -897,7 +897,7 @@ CG_CalcEntityLerpPositions
 static void CG_CalcEntityLerpPositions(centity_t * cent)
 {
 	// this will be set to how far forward projectiles will be extrapolated
-	int			timeshift = 0;
+	int             timeshift = 0;
 
 	if(cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE)
 	{
@@ -943,14 +943,14 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	}
 
 	// just use the current frame and evaluate as best we can
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time + timeshift, cent->lerpAngles );
+	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin);
+	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time + timeshift, cent->lerpAngles);
 
 	// if there's a time shift
 	if(timeshift != 0)
 	{
-		trace_t tr;
-		vec3_t lastOrigin;
+		trace_t         tr;
+		vec3_t          lastOrigin;
 
 		BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, lastOrigin);
 
@@ -1307,7 +1307,7 @@ CG_UniqueNoShadowID
 */
 int CG_UniqueNoShadowID(void)
 {
-	static int noShadowID = 1;
+	static int      noShadowID = 1;
 
 	noShadowID++;
 

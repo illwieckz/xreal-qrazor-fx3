@@ -141,7 +141,7 @@ int Export_BotLibSetup(void)
 {
 	int             errnum;
 	char            logfilename[MAX_QPATH];
-	char		   *homedir, *gamedir;
+	char           *homedir, *gamedir;
 
 	bot_developer = LibVarGetValue("bot_developer");
 	memset(&botlibglobals, 0, sizeof(botlibglobals));	// bk001207 - init

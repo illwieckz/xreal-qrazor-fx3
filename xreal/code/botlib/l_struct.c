@@ -361,8 +361,8 @@ int ReadStructure(source_t * source, structdef_t * def, char *structure)
 					return qfalse;
 				}
 			}
-		}						
-	}							
+		}
+	}
 	return qtrue;
 }								//end of the function ReadStructure
 
@@ -378,7 +378,7 @@ int WriteIndent(FILE * fp, int indent)
 	{
 		if(fprintf(fp, "\t") < 0)
 			return qfalse;
-	}							
+	}
 	return qtrue;
 }								//end of the function WriteIndent
 
@@ -406,7 +406,7 @@ int WriteFloat(FILE * fp, float value)
 			break;
 		}
 		buf[l] = 0;
-	}							
+	}
 	//write the float to file
 	if(fprintf(fp, "%s", buf) < 0)
 		return 0;
@@ -502,7 +502,7 @@ int WriteStructWithIndent(FILE * fp, structdef_t * def, char *structure, int ind
 						return qfalse;
 				}
 			}
-		}						
+		}
 		if(fprintf(fp, "\r\n") < 0)
 			return qfalse;
 	}

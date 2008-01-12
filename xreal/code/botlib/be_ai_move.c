@@ -977,7 +977,7 @@ int BotMovementViewTarget(int movestate, bot_goal_t * goal, int travelflags, flo
 			BotAddToTarget(reach.end, goal->origin, lookahead, &dist, target);
 			return qtrue;
 		}
-	}							
+	}
 	//
 	return qfalse;
 }								//end of the function BotMovementViewTarget
@@ -1061,7 +1061,7 @@ int BotPredictVisiblePosition(vec3_t origin, int areanum, bot_goal_t * goal, int
 		areanum = reach.areanum;
 		VectorCopy(reach.end, end);
 		//
-	}							
+	}
 	//
 	return qfalse;
 }								//end of the function BotPredictVisiblePosition

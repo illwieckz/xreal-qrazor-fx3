@@ -237,5 +237,4 @@ void IN_JoyMove(void)
 #endif
 }
 
-#endif // !USE_SDL
-
+#endif							// !USE_SDL

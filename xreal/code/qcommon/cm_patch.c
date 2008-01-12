@@ -1052,7 +1052,7 @@ void CM_AddFacetBevels(facet_t * facet)
 					{
 						VectorNegate(newplane, newplane);
 						newplane[3] = -newplane[3];
-					}			
+					}
 					ChopWindingInPlace(&w2, newplane, newplane[3], 0.1f);
 					if(!w2)
 					{
@@ -1575,7 +1575,9 @@ void CM_TraceThroughPatchCollide(traceWork_t * tw, const struct patchCollide_s *
 	float           offset, enterFrac, leaveFrac, t;
 	patchPlane_t   *planes;
 	facet_t        *facet;
-	float           plane[4] = {0, 0, 0, 0}, bestplane[4] =	{0, 0, 0, 0};
+	float           plane[4] = { 0, 0, 0, 0 }, bestplane[4] =
+	{
+	0, 0, 0, 0};
 	vec3_t          startp, endp;
 
 #ifndef BSPC
@@ -1935,7 +1937,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 					v1[n] = maxs[n];
 				else
 					v1[n] = mins[n];
-			}					
+			}
 			VectorNegate(plane, v2);
 			plane[3] += fabs(DotProduct(v1, v2));
 			//*/
@@ -1974,7 +1976,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 						v1[n] = maxs[n];
 					else
 						v1[n] = mins[n];
-				}				
+				}
 				VectorNegate(plane, v2);
 				plane[3] -= fabs(DotProduct(v1, v2));
 

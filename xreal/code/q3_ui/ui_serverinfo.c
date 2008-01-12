@@ -128,7 +128,7 @@ static void ServerInfo_MenuDraw(void)
 	const char     *s;
 	char            key[MAX_INFO_KEY];
 	char            value[MAX_INFO_VALUE];
-	int				i = 0, y;
+	int             i = 0, y;
 
 	y = SCREEN_HEIGHT / 2 - s_serverinfo.numlines * (SMALLCHAR_HEIGHT) / 2 - 20;
 	s = s_serverinfo.info;

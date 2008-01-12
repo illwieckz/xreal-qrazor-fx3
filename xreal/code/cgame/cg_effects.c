@@ -537,7 +537,7 @@ void CG_LaunchGib(vec3_t origin, vec3_t velocity, qhandle_t hModel)
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
 	le->angVel = 20 * crandom();	// random angular velocity
-	le->rotAxis[0] = crandom();		// random axis of rotation
+	le->rotAxis[0] = crandom();	// random axis of rotation
 	le->rotAxis[1] = crandom();
 	le->rotAxis[2] = crandom();
 	VectorNormalize(le->rotAxis);	// normalize the rotation axis
@@ -638,4 +638,3 @@ void CG_GibPlayer(vec3_t playerOrigin)
 	velocity[2] = GIB_JUMP + crandom() * GIB_VELOCITY;
 	CG_LaunchGib(origin, velocity, cgs.media.gibLeg);
 }
-

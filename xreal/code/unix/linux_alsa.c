@@ -154,7 +154,7 @@ qboolean SNDDMA_Init(void)
 		}
 		else
 		{
-			dma.samplebits = 16;	
+			dma.samplebits = 16;
 		}
 	}
 
@@ -265,7 +265,7 @@ qboolean SNDDMA_Init(void)
 		snd_pcm_hw_params_free(hw_params);
 		return qfalse;
 	}
-	
+
 	Com_Printf("ALSA: period size %d, buffer size %d\n", period_size, buffer_size);
 
 	sample_bytes = dma.samplebits / 8;
@@ -305,10 +305,10 @@ void SNDDMA_Shutdown(void)
 	{
 		snd_pcm_drop(pcm_handle);
 		snd_pcm_close(pcm_handle);
-		
+
 		Com_Dealloc(dma.buffer);
 		dma.buffer = NULL;
-		
+
 		snd_inited = 0;
 	}
 }

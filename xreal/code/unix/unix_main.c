@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <errno.h>
-#include <libgen.h> // dirname
+#include <libgen.h>				// dirname
 #ifdef __linux__				// rb010123
 #include <mntent.h>
 #endif
@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if (defined(DEDICATED) && defined(USE_SDL))
 #undef USE_SDL
 #endif
-  	 
+
 #if USE_SDL
 #include "SDL.h"
 #include "SDL_loadso.h"
@@ -365,7 +365,7 @@ void Sys_Quit(void)
 */
 #include <signal.h>
 #include <setjmp.h>
-static jmp_buf jmpbuf;
+static jmp_buf  jmpbuf;
 static void illegal_instruction(int sig)
 {
 	longjmp(jmpbuf, 1);
@@ -373,31 +373,30 @@ static void illegal_instruction(int sig)
 #endif
 
 qboolean Sys_DetectAltivec(void)
-{	 
-	qboolean altivec = qfalse;
+{
+	qboolean        altivec = qfalse;
 
 #if idppc_altivec
 #ifdef MACOS_X
-	int selectors[2] = {CTL_HW, HW_VECTORUNIT};
-	int hasVectorUnit = 0;
-	size_t length = sizeof(hasVectorUnit);
-	int error = sysctl(selectors, 2, &hasVectorUnit, &length, NULL, 0);
+	int             selectors[2] = { CTL_HW, HW_VECTORUNIT };
+	int             hasVectorUnit = 0;
+	size_t          length = sizeof(hasVectorUnit);
+	int             error = sysctl(selectors, 2, &hasVectorUnit, &length, NULL, 0);
 
 	if(0 == error)
 		altivec = (hasVectorUnit != 0);
 #else
-	void (*handler)(int sig);
+	void            (*handler) (int sig);
+
 	handler = signal(SIGILL, illegal_instruction);
 	if(setjmp(jmpbuf) == 0)
 	{
-		asm volatile ("mtspr 256, %0\n\t"
-			"vand %%v0, %%v0, %%v0"
-			:
-			: "r" (-1));
+		asm volatile    ("mtspr 256, %0\n\t" "vand %%v0, %%v0, %%v0"::"r" (-1));
+
 		altivec = qtrue;
 	}
 	signal(SIGILL, handler);
-#endif	 
+#endif
 #endif
 
 	return altivec;
@@ -677,7 +676,7 @@ char           *Sys_ConsoleInput(void)
 
 /*****************************************************************************/
 
-char *do_dlerror(void)
+char           *do_dlerror(void)
 {
 #if USE_SDL
 	return SDL_GetError();
@@ -706,7 +705,7 @@ void Sys_UnloadDll(void *dllHandle)
 #else
 	dlclose(dllHandle);
 	{
-		const char* err; // rb010123 - now const
+		const char     *err;	// rb010123 - now const
 
 		err = dlerror();
 		if(err != NULL)
@@ -729,16 +728,16 @@ changed the load procedure to match VFS logic, and allow developer use
 */
 extern char    *FS_BuildOSPath(const char *base, const char *game, const char *qpath);
 
-static void	   *try_dlopen(const char* base, const char* gamedir, const char* fname, char* fqpath)
+static void    *try_dlopen(const char *base, const char *gamedir, const char *fname, char *fqpath)
 {
-	void* libHandle;
-	char* fn;
-  	 
+	void           *libHandle;
+	char           *fn;
+
 	*fqpath = 0;
-  	 
+
 // bk001129 - was RTLD_LAZY
 #define Q_RTLD    RTLD_NOW
-  	 
+
 	fn = FS_BuildOSPath(base, gamedir, fname);
 	Com_Printf("Sys_LoadDll(%s)... \n", fn);
 
@@ -753,17 +752,18 @@ static void	   *try_dlopen(const char* base, const char* gamedir, const char* fn
 		Com_Printf("Sys_LoadDll(%s) failed:\n\"%s\"\n", fn, do_dlerror());
 		return NULL;
 	}
-  	 
+
 	Com_Printf("Sys_LoadDll(%s): succeeded ...\n", fn);
-	Q_strncpyz(fqpath, fn, MAX_QPATH); // added 7/20/02 by T.Ray
-  	 
+	Q_strncpyz(fqpath, fn, MAX_QPATH);	// added 7/20/02 by T.Ray
+
 	return libHandle;
 }
 
-void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoint) (int, ...), intptr_t (*systemcalls) (intptr_t, ...))
+void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t(**entryPoint) (int, ...),
+							intptr_t(*systemcalls) (intptr_t, ...))
 {
 	void           *libHandle;
-	void            (*dllEntry) (intptr_t (*syscallptr) (intptr_t, ...));
+	void            (*dllEntry) (intptr_t(*syscallptr) (intptr_t, ...));
 	char            curpath[MAX_OSPATH];
 	char            fname[MAX_OSPATH];
 	char           *basepath;
@@ -794,7 +794,7 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 
 	if(!libHandle)
 	{
-#ifndef NDEBUG // bk001206 - in debug abort on failure
+#ifndef NDEBUG					// bk001206 - in debug abort on failure
 		Com_Error(ERR_FATAL, "Sys_LoadDll(%s) failed dlopen() completely!\n", name);
 #else
 		Com_Printf("Sys_LoadDll(%s) failed dlopen() completely!\n", name);
@@ -803,8 +803,8 @@ void           *Sys_LoadDll(const char *name, char *fqpath, intptr_t (**entryPoi
 	}
 
 #if USE_SDL
-	dllEntry = SDL_LoadFunction( libHandle, "dllEntry" );
-	*entryPoint = SDL_LoadFunction( libHandle, "vmMain" );
+	dllEntry = SDL_LoadFunction(libHandle, "dllEntry");
+	*entryPoint = SDL_LoadFunction(libHandle, "vmMain");
 #else
 	dllEntry = dlsym(libHandle, "dllEntry");
 	*entryPoint = dlsym(libHandle, "vmMain");
@@ -1234,32 +1234,32 @@ builds because there are situations where you are likely to want
 to symlink to binaries and /not/ have the links resolved.
 =================
 */
-char *Sys_BinName(const char *arg0)
+char           *Sys_BinName(const char *arg0)
 {
 #ifdef NDEBUG
-	int           n;
-	char          src[PATH_MAX];
-	char          dir[PATH_MAX];
-	qboolean      links = qfalse;
+	int             n;
+	char            src[PATH_MAX];
+	char            dir[PATH_MAX];
+	qboolean        links = qfalse;
 #endif
-  	 
-	static char   dst[PATH_MAX];
-  	 
+
+	static char     dst[PATH_MAX];
+
 	Q_strncpyz(dst, arg0, PATH_MAX);
-  	 
+
 #ifdef NDEBUG
 	while((n = readlink(dst, src, PATH_MAX)) >= 0)
 	{
 		src[n] = '\0';
-  	 
+
 		Q_strncpyz(dir, dirname(dst), PATH_MAX);
 		Q_strncpyz(dst, dir, PATH_MAX);
 		Q_strcat(dst, PATH_MAX, "/");
 		Q_strcat(dst, PATH_MAX, src);
-  	 
+
 		links = qtrue;
 	}
-  	 
+
 	if(links)
 	{
 		Q_strncpyz(dst, Sys_Cwd(), PATH_MAX);
@@ -1269,7 +1269,7 @@ char *Sys_BinName(const char *arg0)
 		Q_strcat(dst, PATH_MAX, src);
 	}
 #endif
-  	 
+
 	return dst;
 }
 
@@ -1312,10 +1312,10 @@ Mac OS X .app bundle.  If it is, the .app directory structure is stripped off
 the end and the result is returned.   If not, dir is returned untouched.  	 
 =================
 */
-char *Sys_StripAppBundle(char *dir)
+char           *Sys_StripAppBundle(char *dir)
 {
-	static char cwd[MAX_OSPATH];
-  	 
+	static char     cwd[MAX_OSPATH];
+
 	Q_strncpyz(cwd, dir, sizeof(cwd));
 	if(strcmp(basename(cwd), "MacOS"))
 		return dir;
@@ -1328,7 +1328,7 @@ char *Sys_StripAppBundle(char *dir)
 	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
 	return cwd;
 }
-#endif /* MACOS_X */
+#endif							/* MACOS_X */
 
 #ifndef DEFAULT_BASEDIR
 #ifdef MACOS_X
@@ -1347,12 +1347,12 @@ int main(int argc, char *argv[])
 	// int    oldtime, newtime; // bk001204 - unused
 	int             len, i;
 	char           *cmdline;
-	char			cdpath[PATH_MAX] = {0};
+	char            cdpath[PATH_MAX] = { 0 };
 	void            Sys_SetDefaultCDPath(const char *path);
 
 	Sys_ParseArgs(argc, argv);	// bk010104 - added this for support
 
-	strncat(cdpath, Sys_BinName(argv[0]), sizeof(cdpath)-1);
+	strncat(cdpath, Sys_BinName(argv[0]), sizeof(cdpath) - 1);
 	Sys_SetDefaultCDPath(dirname(cdpath));
 
 	// merge the command line, this is kinda silly
@@ -1386,14 +1386,14 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 #if !defined(DEDICATED) && USE_SDL
-		int appState = SDL_GetAppState();
-  	 
+		int             appState = SDL_GetAppState();
+
 		// If we have no input focus at all, sleep a bit
 		if(!(appState & (SDL_APPMOUSEFOCUS | SDL_APPINPUTFOCUS)))
 			usleep(16000);
-  	 
+
 		// If we're minimised, sleep a bit more
-		if(!( appState & SDL_APPACTIVE))
+		if(!(appState & SDL_APPACTIVE))
 			usleep(32000);
 #endif
 

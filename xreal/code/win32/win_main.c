@@ -458,12 +458,12 @@ extern char    *FS_BuildOSPath(const char *base, const char *game, const char *q
 // fqpath param added 7/20/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
-void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t (QDECL ** entryPoint) (int, ...),
-								  intptr_t (QDECL * systemcalls) (intptr_t, ...))
+void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t(QDECL ** entryPoint) (int, ...),
+								  intptr_t(QDECL * systemcalls) (intptr_t, ...))
 {
 	static int      lastWarning = 0;
 	HINSTANCE       libHandle;
-	void            (QDECL * dllEntry) (intptr_t (QDECL * syscallptr) (intptr_t, ...));
+	void            (QDECL * dllEntry) (intptr_t(QDECL * syscallptr) (intptr_t, ...));
 	char           *basepath;
 	char           *gamedir;
 	char           *fn;
@@ -1002,11 +1002,11 @@ void Sys_Init(void)
 
 	if(g_wv.osversion.dwMajorVersion < 4)
 		Sys_Error("XreaL requires Windows version 4 or greater");
-	
+
 	if(g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s)
 		Sys_Error("XreaL doesn't run on Win32s");
 
-	switch(g_wv.osversion.dwMajorVersion)
+	switch (g_wv.osversion.dwMajorVersion)
 	{
 		case 6:
 			Cvar_Set("arch", "winVista");
@@ -1053,7 +1053,7 @@ void Sys_Init(void)
 
 qboolean Sys_DetectAltivec(void)
 {
-	return qfalse;  // never altivec on Windows...
+	return qfalse;				// never altivec on Windows...
 }
 
 //=======================================================================

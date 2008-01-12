@@ -207,12 +207,12 @@ qboolean CG_DrawOldScoreboard(void)
 	int             x, y, w, n1, n2;
 	float           fade;
 	float          *fadeColor;
-	const char	   *s;
+	const char     *s;
 	int             maxClients;
 	int             lineHeight;
 	int             topBorderSize, bottomBorderSize;
-	qtime_t			tm;
-	char			st[1024];
+	qtime_t         tm;
+	char            st[1024];
 
 	if(cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION)
 	{
@@ -338,12 +338,10 @@ qboolean CG_DrawOldScoreboard(void)
 
 	// plop the current date and time at the bottom
 	trap_RealTime(&tm);
-	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_YELLOW "XreaL http://xreal.sourceforge.net",
-				(1 + (tm.tm_hour + 11) % 12),	// 12 hour format
+	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_YELLOW "XreaL http://xreal.sourceforge.net", (1 + (tm.tm_hour + 11) % 12),	// 12 hour format
 				(tm.tm_min > 9 ? "" : "0"),	// minute padding
 				tm.tm_min, (tm.tm_sec > 9 ? "" : "0"),	// second padding
-				tm.tm_sec,
-				tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
+				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
 
 	w = CG_DrawStrlen(st) * SMALLCHAR_WIDTH;
 	x = (SCREEN_WIDTH - w) / 2;

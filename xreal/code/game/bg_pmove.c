@@ -770,14 +770,14 @@ static void PM_AirMove(void)
 
 		// not on ground, so little effect on velocity
 		PM_Accelerate(wishdir, wishspeed, accel);
-		
+
 		PM_Aircontrol(pm, wishdir, wishspeed2);
 	}
 	else
 	{
 		// not on ground, so little effect on velocity
 		PM_Accelerate(wishdir, wishspeed, pm_airaccelerate);
-	}	
+	}
 
 	// we may have a ground plane that is very steep, even
 	// though we don't have a groundentity

@@ -386,7 +386,7 @@ static void HandleEvents(void)
 	if(screen == NULL)
 		return;					// no SDL context.
 
-	if(Key_GetCatcher() == 0 )
+	if(Key_GetCatcher() == 0)
 	{
 		if(sdlrepeatenabled)
 		{

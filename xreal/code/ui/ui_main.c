@@ -1134,7 +1134,9 @@ void UI_Load()
 
 static const char *handicapValues[] =
 	{ "None", "95", "90", "85", "80", "75", "70", "65", "60", "55", "50", "45", "40", "35", "30", "25", "20", "15", "10", "5",
-NULL };
+	NULL
+};
+
 #ifndef MISSIONPACK				// bk001206
 static int      numHandicaps = sizeof(handicapValues) / sizeof(const char *);
 #endif
@@ -1496,7 +1498,7 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 	{
 		updateModel = qtrue;
 	}
-	
+
 	if(updateModel)
 	{
 		memset(&info, 0, sizeof(playerInfo_t));
@@ -4424,7 +4426,7 @@ static qboolean UI_hasSkinForBase(const char *base)
 	{
 		return qtrue;
 	}
-	
+
 	Com_sprintf(test, sizeof(test), "models/players/characters/%s/lower_default.skin", base);
 	if(trap_FS_FOpenFile(test, 0, FS_READ))
 	{
@@ -5693,7 +5695,8 @@ static qboolean Character_Parse(char **p)
 			}
 
 			uiInfo.characterList[uiInfo.characterCount].headImage = -1;
-			uiInfo.characterList[uiInfo.characterCount].imageName = String_Alloc(va("models/players/%s/icon_default.tga", uiInfo.characterList[uiInfo.characterCount].name));
+			uiInfo.characterList[uiInfo.characterCount].imageName =
+				String_Alloc(va("models/players/%s/icon_default.tga", uiInfo.characterList[uiInfo.characterCount].name));
 
 			if(tempStr && (!Q_stricmp(tempStr, "female")))
 			{
@@ -5710,7 +5713,7 @@ static qboolean Character_Parse(char **p)
 
 			Com_Printf("Loaded %s character %s.\n", uiInfo.characterList[uiInfo.characterCount].base,
 					   uiInfo.characterList[uiInfo.characterCount].name);
-			
+
 			if(uiInfo.characterCount < MAX_CHARACTERS)
 			{
 				uiInfo.characterCount++;
@@ -5769,7 +5772,7 @@ static qboolean Alias_Parse(char **p)
 
 			Com_Printf("Loaded character alias %s using character ai %s.\n", uiInfo.aliasList[uiInfo.aliasCount].name,
 					   uiInfo.aliasList[uiInfo.aliasCount].ai);
-			
+
 			if(uiInfo.aliasCount < MAX_ALIASES)
 			{
 				uiInfo.aliasCount++;

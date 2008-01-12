@@ -235,7 +235,7 @@ char           *PunctuationFromNum(script_t * script, int num)
 // Returns:                 -
 // Changes Globals:     -
 //===========================================================================
-void            QDECL ScriptError(script_t * script, char *str, ...)
+void QDECL ScriptError(script_t * script, char *str, ...)
 {
 	char            text[1024];
 	va_list         ap;
@@ -263,7 +263,7 @@ void            QDECL ScriptError(script_t * script, char *str, ...)
 // Returns:                 -
 // Changes Globals:     -
 //===========================================================================
-void            QDECL ScriptWarning(script_t * script, char *str, ...)
+void QDECL ScriptWarning(script_t * script, char *str, ...)
 {
 	char            text[1024];
 	va_list         ap;
@@ -325,7 +325,7 @@ int PS_ReadWhiteSpace(script_t * script)
 			if(*script->script_p == '\n')
 				script->line++;
 			script->script_p++;
-		}						
+		}
 		//skip comments
 		if(*script->script_p == '/')
 		{
@@ -369,7 +369,7 @@ int PS_ReadWhiteSpace(script_t * script)
 			}
 		}
 		break;
-	}							
+	}
 	return 1;
 }								//end of the function PS_ReadWhiteSpace
 
@@ -566,7 +566,7 @@ int PS_ReadString(script_t * script, token_t * token, int quote)
 			}
 			token->string[len++] = *script->script_p++;
 		}
-	}							
+	}
 	//trailing quote
 	token->string[len++] = quote;
 	//end string with a zero
@@ -639,7 +639,7 @@ void NumberValue(char *string, int subtype, unsigned long int *intvalue, double 
 				*floatvalue = *floatvalue * 10.0f + (double)(*string - '0');
 			}
 			string++;
-		}						
+		}
 		*intvalue = (unsigned long)*floatvalue;
 	}
 	else if(subtype & TT_DECIMAL)
@@ -662,7 +662,7 @@ void NumberValue(char *string, int subtype, unsigned long int *intvalue, double 
 			else
 				*intvalue += *string - '0';
 			string++;
-		}						
+		}
 		*floatvalue = *intvalue;
 	}
 	else if(subtype & TT_OCTAL)
@@ -715,7 +715,7 @@ int PS_ReadNumber(script_t * script, token_t * token)
 				return 0;
 			}
 			c = *script->script_p;
-		}						
+		}
 		token->subtype |= TT_HEX;
 	}
 #ifdef BINARYNUMBERS
@@ -735,7 +735,7 @@ int PS_ReadNumber(script_t * script, token_t * token)
 				return 0;
 			}
 			c = *script->script_p;
-		}						
+		}
 		token->subtype |= TT_BINARY;
 	}
 #endif							//BINARYNUMBERS
@@ -760,7 +760,7 @@ int PS_ReadNumber(script_t * script, token_t * token)
 				ScriptError(script, "number longer than MAX_TOKEN = %d", MAX_TOKEN);
 				return 0;
 			}
-		}						
+		}
 		if(octal)
 			token->subtype |= TT_OCTAL;
 		else
@@ -829,7 +829,7 @@ int PS_ReadLiteral(script_t * script, token_t * token)
 		while(*script->script_p && *script->script_p != '\'' && *script->script_p != '\n')
 		{
 			script->script_p++;
-		}						
+		}
 		if(*script->script_p == '\'')
 			script->script_p++;
 	}
@@ -904,7 +904,7 @@ int PS_ReadPrimitive(script_t * script, token_t * token)
 			return 0;
 		}
 		token->string[len++] = *script->script_p++;
-	}							
+	}
 	token->string[len] = 0;
 	//copy the token into the script structure
 	Com_Memcpy(&script->token, token, sizeof(token_t));
@@ -932,7 +932,7 @@ int PS_ReadToken(script_t * script, token_t * token)
 	//save line counter
 	script->lastline = script->line;
 	//clear the token stuff
-	Com_Memset((byte *)token + sizeof(token->string), 0, sizeof(token_t) - sizeof(token->string));
+	Com_Memset((byte *) token + sizeof(token->string), 0, sizeof(token_t) - sizeof(token->string));
 	token->string[0] = 0;
 	//start of the white space
 	script->whitespace_p = script->script_p;
@@ -1162,7 +1162,7 @@ int PS_SkipUntilString(script_t * script, char *string)
 	{
 		if(!strcmp(token.string, string))
 			return 1;
-	}							
+	}
 	return 0;
 }								//end of the function PS_SkipUntilString
 
@@ -1253,7 +1253,7 @@ void StripSingleQuotes(char *string)
 double ReadSignedFloat(script_t * script)
 {
 	token_t         token;
-	double			sign = 1.0;
+	double          sign = 1.0;
 
 	PS_ExpectAnyToken(script, &token);
 	if(!strcmp(token.string, "-"))

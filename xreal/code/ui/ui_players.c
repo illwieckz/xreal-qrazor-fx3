@@ -1051,18 +1051,19 @@ static qboolean UI_FindClientHeadFile(char *filename, int length, const char *he
 	}
 	while(1)
 	{
-		Com_sprintf(filename, length, "models/players/%s%s/%s/%s_%s.%s", headsFolder, headModelName, headSkinName, base, team, ext);
+		Com_sprintf(filename, length, "models/players/%s%s/%s/%s_%s.%s", headsFolder, headModelName, headSkinName, base, team,
+					ext);
 		if(UI_FileExists(filename))
 		{
 			return qtrue;
 		}
-			
+
 		Com_sprintf(filename, length, "models/players/%s%s/%s_%s.%s", headsFolder, headModelName, base, headSkinName, ext);
 		if(UI_FileExists(filename))
 		{
 			return qtrue;
 		}
-		
+
 		// if tried the heads folder first
 		if(headsFolder[0])
 		{
@@ -1079,7 +1080,8 @@ static qboolean UI_FindClientHeadFile(char *filename, int length, const char *he
 UI_RegisterClientSkin
 ==========================
 */
-static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName)
+static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, const char *skinName, const char *headModelName,
+									  const char *headSkinName)
 {
 	char            filename[MAX_QPATH * 2];
 

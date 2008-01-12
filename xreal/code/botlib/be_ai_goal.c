@@ -340,7 +340,7 @@ itemconfig_t   *LoadItemConfig(char *filename)
 			FreeSource(source);
 			return NULL;
 		}
-	}							
+	}
 	FreeSource(source);
 	//
 	if(!ic->numiteminfo)

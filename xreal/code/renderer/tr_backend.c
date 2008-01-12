@@ -2532,7 +2532,7 @@ void RB_RenderInteractionsDeferred()
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
-	
+
 	// create a matrix with similar functionality like gluUnproject, project from window space to world space
 	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
 	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
@@ -2833,7 +2833,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
-	matrix_t		unprojectMatrix;
+	matrix_t        unprojectMatrix;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
 
@@ -3237,8 +3237,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE, unprojectMatrix);
-						
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
+											   unprojectMatrix);
+
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.deferredDiffuseFBOImage);
@@ -3310,7 +3311,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE, unprojectMatrix);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
+											   unprojectMatrix);
 
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
@@ -3651,8 +3653,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 void RB_RenderUniformFogDeferred()
 {
-	vec3_t			viewOrigin;
-	float			fogDensity;
+	vec3_t          viewOrigin;
+	float           fogDensity;
 	vec3_t          fogColor;
 	matrix_t        unprojectMatrix;
 
@@ -3668,7 +3670,7 @@ void RB_RenderUniformFogDeferred()
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
-	
+
 	qglColor4fv(colorWhite);
 
 	// set uniforms
@@ -4996,7 +4998,7 @@ static void RB_RenderView(void)
 			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
 		qglClear(clearBits);
-		
+
 
 		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
 		{

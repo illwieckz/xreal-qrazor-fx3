@@ -28,15 +28,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
+.section.note.GNU - stack, "", @progbits
 #endif
-
 #ifdef ELF
 #define C(label) label
 #else
 #define C(label) _##label
 #endif
-
 // plane_t structure
 // !!! if this is changed, it must be changed in q_shared.h too !!!
 #define pl_normal	0
@@ -45,5 +43,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define pl_signbits	17
 #define pl_pad		18
 #define pl_size		20
-
 #endif

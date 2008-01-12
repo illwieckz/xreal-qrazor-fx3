@@ -599,7 +599,7 @@ void Cmd_TokenizeString(const char *text_in)
 {
 	Cmd_TokenizeString2(text_in, qfalse);
 }
-  	 
+
 /*
 ============
 Cmd_TokenizeStringIgnoreQuotes

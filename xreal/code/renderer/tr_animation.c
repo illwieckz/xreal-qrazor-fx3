@@ -762,13 +762,13 @@ int RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t hAnim, int startFrame, int 
 		// when the surfaces are rendered, they don't need to be
 		// range checked again.
 		/*
-		if((startFrame >= anim->numFrames) || (startFrame < 0) || (endFrame >= anim->numFrames) || (endFrame < 0))
-		{
-			ri.Printf(PRINT_DEVELOPER, "RE_BuildSkeleton: no such frame %d to %d for '%s'\n", startFrame, endFrame, anim->name);
-			//startFrame = 0;
-			//endFrame = 0;
-		}
-		*/
+		   if((startFrame >= anim->numFrames) || (startFrame < 0) || (endFrame >= anim->numFrames) || (endFrame < 0))
+		   {
+		   ri.Printf(PRINT_DEVELOPER, "RE_BuildSkeleton: no such frame %d to %d for '%s'\n", startFrame, endFrame, anim->name);
+		   //startFrame = 0;
+		   //endFrame = 0;
+		   }
+		 */
 
 		Q_clamp(startFrame, 0, anim->numFrames - 1);
 		Q_clamp(endFrame, 0, anim->numFrames - 1);

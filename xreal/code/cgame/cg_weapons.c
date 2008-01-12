@@ -472,14 +472,14 @@ static void CG_RocketTrail(centity_t * ent, const weaponInfo_t * wi)
 		BG_EvaluateTrajectory(&es->pos, t, lastPos);
 
 		smoke = CG_SmokePuff(lastPos, up, wi->trailRadius, 1, 1, 1, 0.33f, wi->wiTrailTime, t, 0, 0, cgs.media.smokePuffShader);
-		
+
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
 	}
 
 
-//	BG_EvaluateTrajectory(&es->pos, ent->trailTime, lastPos);
-//	CG_ParticleRocketFire(origin, lastPos);
+//  BG_EvaluateTrajectory(&es->pos, ent->trailTime, lastPos);
+//  CG_ParticleRocketFire(origin, lastPos);
 }
 
 #ifdef MISSIONPACK
@@ -697,17 +697,18 @@ static void CG_GrenadeTrail(centity_t * ent, const weaponInfo_t * wi)
 }
 
 
-static qboolean CG_RegisterWeaponAnimation(animation_t * anim, const char *filename, qboolean loop, qboolean reversed, qboolean clearOrigin)
+static qboolean CG_RegisterWeaponAnimation(animation_t * anim, const char *filename, qboolean loop, qboolean reversed,
+										   qboolean clearOrigin)
 {
 	int             frameRate;
-	
+
 	anim->handle = trap_R_RegisterAnimation(filename);
 	if(!anim->handle)
 	{
 		Com_Printf("Failed to load animation file %s\n", filename);
 		return qfalse;
 	}
-	
+
 	anim->firstFrame = 0;
 	anim->numFrames = trap_R_AnimNumFrames(anim->handle);
 	frameRate = trap_R_AnimFrameRate(anim->handle);
@@ -718,7 +719,7 @@ static qboolean CG_RegisterWeaponAnimation(animation_t * anim, const char *filen
 	}
 	anim->frameTime = 1000 / frameRate;
 	anim->initialLerp = 1000 / frameRate;
-	
+
 	if(loop)
 	{
 		anim->loopFrames = anim->numFrames;
@@ -727,10 +728,10 @@ static qboolean CG_RegisterWeaponAnimation(animation_t * anim, const char *filen
 	{
 		anim->loopFrames = 0;
 	}
-	
+
 	anim->reversed = reversed;
 	anim->clearOrigin = clearOrigin;
-	
+
 	return qtrue;
 }
 
@@ -822,7 +823,7 @@ void CG_RegisterWeapon(int weaponNum)
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_view.md5mesh");
 	weaponInfo->viewModel = trap_R_RegisterModel(path, qfalse);
-	
+
 	if(weaponInfo->viewModel)
 	{
 		strcpy(path, item->world_model[0]);
@@ -838,7 +839,7 @@ void CG_RegisterWeapon(int weaponNum)
 		{
 			if(i == WEAPON_READY)
 				continue;
-			
+
 			weaponInfo->viewModel_animations[i] = weaponInfo->viewModel_animations[WEAPON_READY];
 		}
 
@@ -1104,10 +1105,11 @@ CG_SetLerpFrameAnimation
 may include ANIM_TOGGLEBIT
 ===============
 */
-static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime)
+static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation,
+										   int weaponTime)
 {
 	animation_t    *anim;
-	int				shouldTime, wouldTime;
+	int             shouldTime, wouldTime;
 
 	lf->weaponNumber = weaponNumber;
 	lf->animationNumber = weaponAnimation;
@@ -1148,11 +1150,12 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime, float speedScale)
+static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime,
+								  float speedScale)
 {
 	int             f, numFrames;
 	animation_t    *anim;
-	qboolean		animChanged;
+	qboolean        animChanged;
 
 	// debugging tool to get no animations
 	if(cg_animSpeed.integer == 0)
@@ -1165,19 +1168,19 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 	if(weaponAnimation != lf->animationNumber || !lf->animation || lf->weaponNumber != weaponNumber)
 	{
 		CG_SetWeaponLerpFrameAnimation(wi, lf, weaponNumber, weaponAnimation, weaponTime);
-		
+
 		/*
-		if(!lf->animation)
-		{
-			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
-		}
-		*/
+		   if(!lf->animation)
+		   {
+		   memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+		   }
+		 */
 
 		animChanged = qtrue;
 	}
 	else
 	{
-		animChanged = qfalse;	
+		animChanged = qfalse;
 	}
 
 	// if we have passed the current frame, move it to
@@ -1207,7 +1210,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 			}
 			return;				// shouldn't happen
 		}
-		
+
 		if(cg.time < lf->animationTime)
 		{
 			lf->frameTime = lf->animationTime;	// initial lerp
@@ -1217,19 +1220,19 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 			lf->frameTime = lf->oldFrameTime + anim->frameTime;
 		}
 		f = (lf->frameTime - lf->animationTime) / anim->frameTime;
-		f *= lf->animationScale * speedScale;		// adjust for haste, etc
+		f *= lf->animationScale * speedScale;	// adjust for haste, etc
 
 		numFrames = anim->numFrames;
-		
+
 		if(anim->flipflop)
 		{
 			numFrames *= 2;
 		}
-		
+
 		if(f >= numFrames)
 		{
 			f -= numFrames;
-			
+
 			if(anim->loopFrames)
 			{
 				f %= anim->loopFrames;
@@ -1256,7 +1259,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 		{
 			lf->frame = anim->firstFrame + f;
 		}
-		
+
 		if(cg.time > lf->frameTime)
 		{
 			lf->frameTime = cg.time;
@@ -1276,7 +1279,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 	{
 		lf->oldFrameTime = cg.time;
 	}
-	
+
 	// calculate current lerp value
 	if(lf->frameTime == lf->oldFrameTime)
 	{
@@ -1286,12 +1289,9 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 	{
 		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
-	
+
 	if(!trap_R_BuildSkeleton(&lf->skeleton,
-							 lf->animation->handle,
-							 lf->oldFrame, lf->frame,
-							 1.0 - lf->backlerp,
-							 lf->animation->clearOrigin))
+							 lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
 	{
 		CG_Printf("CG_RunWeaponLerpFrame: Can't build lf->skeleton\n");
 	}
@@ -1303,7 +1303,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 		{
 			CG_Printf("Can't blend lf->oldSkeleton\n");
 		}
-		
+
 		memcpy(&lf->skeleton, &lf->oldSkeleton, sizeof(refSkeleton_t));
 	}
 #endif
@@ -1423,7 +1423,8 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	memset(&beam, 0, sizeof(beam));
 
 	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
-	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 8))
+	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan &&
+	   (cg_delag.integer & 1 || cg_delag.integer & 8))
 	{
 		// always shoot straight forward from our current position
 		AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
@@ -1434,7 +1435,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		// CPMA  "true" lightning
 		vec3_t          angle;
 		int             i;
-		vec3_t			viewangles;
+		vec3_t          viewangles;
 
 		VectorCopy(cg.predictedPlayerState.viewangles, viewangles);
 
@@ -1671,7 +1672,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
 		}
 	}
-	
+
 #ifdef XPPM
 	if(ps)
 	{
@@ -1685,14 +1686,14 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			default:
 			{
 				// HACK: this is bone specific
-				vec3_t		angles;
-				
+				vec3_t          angles;
+
 				angles[PITCH] = -90;
 				angles[YAW] = 0;
 				angles[ROLL] = -90;
-				
+
 				AnglesToAxis(angles, gun.axis);
-				
+
 				CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "MG_ATTACHER");
 				break;
 			}
@@ -1809,9 +1810,9 @@ void CG_AddViewWeapon(playerState_t * ps)
 	clientInfo_t   *ci;
 	float           fovOffset;
 	vec3_t          angles;
-	int				weaponNum;
-	int				weaponState;
-	int				weaponTime;
+	int             weaponNum;
+	int             weaponState;
+	int             weaponTime;
 	weaponInfo_t   *weapon;
 
 	if(ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
@@ -1864,7 +1865,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 	}
 
 	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
-	
+
 	weaponNum = ps->weapon;
 	weaponState = ps->weaponstate;
 	weaponTime = ps->weaponTime;
@@ -1876,9 +1877,9 @@ void CG_AddViewWeapon(playerState_t * ps)
 		refEntity_t     gun;
 		vec3_t          angles;
 		centity_t      *nonPredictedCent;
-		int				boneIndex;
-		vec3_t			flashOrigin;
-		qboolean		addFlash;
+		int             boneIndex;
+		vec3_t          flashOrigin;
+		qboolean        addFlash;
 
 		memset(&gun, 0, sizeof(gun));
 
@@ -1939,7 +1940,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 
 		// copy legs skeleton to have a base
 		memcpy(&gun.skeleton, &cent->pe.gun.skeleton, sizeof(refSkeleton_t));
-		
+
 		// transform relative bones to absolute ones required for vertex skinning
 		CG_TransformSkeleton(&gun.skeleton, NULL);
 
@@ -1979,13 +1980,13 @@ void CG_AddViewWeapon(playerState_t * ps)
 		// get flash origin
 		if(addFlash)
 		{
-			gun.shaderTime = cg.time / 1000.0f; //cent->pe.gun.frame;
+			gun.shaderTime = cg.time / 1000.0f;	//cent->pe.gun.frame;
 
 			boneIndex = trap_R_BoneIndex(gun.hModel, "flash");
-	
+
 			if(boneIndex >= 0 && boneIndex < cent->pe.gun.skeleton.numBones)
 			{
-				matrix_t modelToWorld;
+				matrix_t        modelToWorld;
 
 				MatrixSetupTransform(modelToWorld, gun.axis[0], gun.axis[1], gun.axis[2], gun.origin);
 				MatrixTransformPoint(modelToWorld, gun.skeleton.bones[boneIndex].origin, flashOrigin);
@@ -2000,7 +2001,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 				if(weapon->flashLightColor[0] || weapon->flashLightColor[1] || weapon->flashLightColor[2])
 				{
 					trap_R_AddLightToScene(flashOrigin, 300 + (rand() & 31), weapon->flashLightColor[0],
-									   weapon->flashLightColor[1], weapon->flashLightColor[2]);
+										   weapon->flashLightColor[1], weapon->flashLightColor[2]);
 				}
 			}
 		}
@@ -2396,8 +2397,8 @@ CG_AddBulletParticles
 */
 static void CG_AddBulletParticles(vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale)
 {
-	vec3_t				velocity, pos;
-	int					i;
+	vec3_t          velocity, pos;
+	int             i;
 
 	// add the falling particles
 	for(i = 0; i < count; i++)
@@ -2419,8 +2420,8 @@ CG_AddSparks
 */
 static void CG_AddSparks(vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale)
 {
-	vec3_t				velocity, pos;
-	int					i;
+	vec3_t          velocity, pos;
+	int             i;
 
 	// add the falling particles
 	for(i = 0; i < count; i++)
@@ -2491,7 +2492,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			radius = 12;
 
 			// some debris particles
-			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
 				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
@@ -2607,7 +2608,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			//CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
 			//CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			//if(sfx && (rand() % 3 == 0))
-			//	CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
+			//  CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			CG_ParticleRick(origin, dir);
 			break;
 
@@ -2633,7 +2634,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			radius = 8;
 
 			// some debris particles
-			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);		
+			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
 				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
@@ -2657,10 +2658,10 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			//CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
 			CG_ParticleRick(origin, dir);
 			//CG_ParticleSparks2(
-			
+
 			//CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			//if(sfx && (rand() % 3 == 0))
-			//	CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
+			//  CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 	}
 
@@ -2675,7 +2676,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		le = CG_MakeExplosion(origin, dir, mod, shader, duration, isSprite);
 		le->light = light;
 		VectorCopy(lightColor, le->lightColor);
-		
+
 		if(weapon == WP_RAILGUN)
 		{
 			// colorize with client color
@@ -2850,7 +2851,7 @@ void CG_ShotgunFire(entityState_t * es)
 	VectorNormalize(v);
 	VectorScale(v, 32, v);
 	VectorAdd(es->pos.trBase, v, v);
-	
+
 	contents = trap_CM_PointContents(es->pos.trBase, 0);
 	if(!(contents & CONTENTS_WATER))
 	{

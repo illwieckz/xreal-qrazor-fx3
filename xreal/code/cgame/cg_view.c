@@ -130,14 +130,11 @@ void CG_TestAnimation_f(void)
 		CG_Printf("Can't register animation\n");
 		return;
 	}
-	
+
 	// modify bones and set proper local bounds for culling
 	if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
-						  cg.testAnimation,
-						  cg.testModelEntity.oldframe,
-						  cg.testModelEntity.frame,
-						  1.0 - cg.testModelEntity.backlerp,
-						  qfalse))
+							 cg.testAnimation,
+							 cg.testModelEntity.oldframe, cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 	{
 		CG_Printf("Can't build animation\n");
 		return;
@@ -157,7 +154,7 @@ void CG_TestBlend_f(void)
 		CG_Printf("Use testAnimation first to set a valid animation\n");
 		return;
 	}
-	
+
 	Q_strncpyz(cg.testAnimation2Name, CG_Argv(1), MAX_QPATH);
 	cg.testAnimation2 = trap_R_RegisterAnimation(cg.testAnimation2Name);
 
@@ -166,30 +163,24 @@ void CG_TestBlend_f(void)
 		CG_Printf("Can't register animation2 for blending\n");
 		return;
 	}
-	
+
 	// modify bones and set proper local bounds for culling
 	if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
-		cg.testAnimation,
-		cg.testModelEntity.oldframe,
-		cg.testModelEntity.frame,
-		1.0 - cg.testModelEntity.backlerp,
-		qfalse))
+							 cg.testAnimation,
+							 cg.testModelEntity.oldframe, cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 	{
 		CG_Printf("Can't build animation\n");
 		return;
 	}
-	
+
 	if(!trap_R_BuildSkeleton(&cg.testAnimation2Skeleton,
-		cg.testAnimation2,
-		cg.testModelEntity.oldframe,
-		cg.testModelEntity.frame,
-		1.0 - cg.testModelEntity.backlerp,
-		qfalse))
+							 cg.testAnimation2,
+							 cg.testModelEntity.oldframe, cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 	{
 		CG_Printf("Can't build animation2\n");
 		return;
 	}
-	
+
 	// lerp between first and second animation
 	if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
 	{
@@ -202,32 +193,28 @@ void CG_TestModelNextFrame_f(void)
 {
 	cg.testModelEntity.frame++;
 	CG_Printf("frame %i\n", cg.testModelEntity.frame);
-	
+
 	if(cg.testAnimation)
 	{
 		if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
-			cg.testAnimation,
-			cg.testModelEntity.oldframe,
-			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp,
-			qfalse))
+								 cg.testAnimation,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
 	}
-	
+
 	if(cg.testAnimation2)
 	{
 		if(!trap_R_BuildSkeleton(&cg.testAnimation2Skeleton,
-			cg.testAnimation2,
-			cg.testModelEntity.oldframe,
-			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp,
-			qfalse))
+								 cg.testAnimation2,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 		{
 			CG_Printf("Can't build animation2\n");
 		}
-		
+
 		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
 		{
 			CG_Printf("Can't blend animation2\n");
@@ -243,32 +230,28 @@ void CG_TestModelPrevFrame_f(void)
 		cg.testModelEntity.frame = 0;
 	}
 	CG_Printf("frame %i\n", cg.testModelEntity.frame);
-	
+
 	if(cg.testAnimation)
 	{
 		if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
-			cg.testAnimation,
-			cg.testModelEntity.oldframe,
-			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp,
-			qfalse))
+								 cg.testAnimation,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
 	}
-	
+
 	if(cg.testAnimation2)
 	{
 		if(!trap_R_BuildSkeleton(&cg.testAnimation2Skeleton,
-			cg.testAnimation2,
-			cg.testModelEntity.oldframe,
-			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp,
-			qfalse))
+								 cg.testAnimation2,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 		{
 			CG_Printf("Can't build animation2\n");
 		}
-		
+
 		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
 		{
 			CG_Printf("Can't blend animation2\n");
@@ -324,8 +307,8 @@ static void CG_AddTestModel(void)
 #if 0
 	if(cg.testAnimation)
 	{
-		int max = trap_R_AnimNumFrames(cg.testAnimation);
-		
+		int             max = trap_R_AnimNumFrames(cg.testAnimation);
+
 		cg.testModelEntity.oldframe = cg.testModelEntity.frame;
 
 		cg.testModelEntity.frame++;
@@ -335,21 +318,19 @@ static void CG_AddTestModel(void)
 		}
 
 		if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
-			cg.testAnimation,
-			cg.testModelEntity.oldframe,
-			cg.testModelEntity.frame,
-			1.0 - cg.testModelEntity.backlerp,
-			qfalse))
+								 cg.testAnimation,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
 		{
 			CG_Printf("Can't build animation\n");
 		}
 	}
 #endif
-	
+
 	if(cg.testModelEntity.skeleton.type == SK_RELATIVE)
 	{
 		// transform relative bones to absolute ones required for vertex skinning
-		CG_TransformSkeleton(&cg.testModelEntity.skeleton, NULL);	
+		CG_TransformSkeleton(&cg.testModelEntity.skeleton, NULL);
 	}
 
 	trap_R_AddRefEntityToScene(&cg.testModelEntity);
@@ -376,32 +357,32 @@ void CG_TestOmniLight_f(void)
 
 	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
 	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
-	
+
 	if(!cg.testLight.attenuationShader)
 	{
 		CG_Printf("Can't register attenuation shader\n");
 		return;
 	}
-	
+
 	cg.testLight.rlType = RL_OMNI;
-//	cg.testLight.lightfx = LF_ROTATION;
+//  cg.testLight.lightfx = LF_ROTATION;
 
 	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], cg.testLight.origin);
-	
+
 	cg.testLight.color[0] = 1.0;
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
-	
+
 	cg.testLight.radius[0] = 300;
 	cg.testLight.radius[1] = 300;
 	cg.testLight.radius[2] = 300;
 
 	angles[PITCH] = cg.refdefViewAngles[PITCH];
-	angles[YAW] = cg.refdefViewAngles[YAW];// + 180;
+	angles[YAW] = cg.refdefViewAngles[YAW];	// + 180;
 	angles[ROLL] = 0;
 
 	AnglesToQuat(angles, cg.testLight.rotation);
-	
+
 	cg.testFlashLight = qfalse;
 }
 
@@ -424,28 +405,28 @@ void CG_TestProjLight_f(void)
 
 	Q_strncpyz(cg.testLightName, CG_Argv(1), sizeof(cg.testLightName));
 	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
-	
+
 	if(!cg.testLight.attenuationShader)
 	{
 		CG_Printf("Can't register attenuation shader\n");
 		return;
 	}
-	
+
 	cg.testLight.rlType = RL_PROJ;
-//	cg.testLight.lightfx = LF_ROTATION;
+//  cg.testLight.lightfx = LF_ROTATION;
 
 	VectorMA(cg.refdef.vieworg, 10, cg.refdef.viewaxis[0], cg.testLight.origin);
-	
+
 	cg.testLight.color[0] = 1.0;
 	cg.testLight.color[1] = 1.0;
 	cg.testLight.color[2] = 1.0;
-	
+
 	AnglesToQuat(cg.refdefViewAngles, cg.testLight.rotation);
-	
+
 	cg.testLight.fovX = 45;
 	cg.testLight.fovY = 45;
 	cg.testLight.distance = 800;
-	
+
 	cg.testFlashLight = qfalse;
 }
 
@@ -461,7 +442,7 @@ void CG_TestFlashLight_f(void)
 		CG_Printf("usage: testFlashLight <lightShaderName>\n");
 		return;
 	}
-	
+
 	CG_TestProjLight_f();
 	cg.testFlashLight = qtrue;
 }
@@ -470,7 +451,7 @@ void CG_TestFlashLight_f(void)
 static void CG_AddTestLight(void)
 {
 
-//	int             i;
+//  int             i;
 
 	// re-register the model, because the level may have changed
 	cg.testLight.attenuationShader = trap_R_RegisterShaderLightAttenuation(cg.testLightName);
@@ -499,14 +480,14 @@ CG_TestGib_f
 */
 void CG_TestGib_f(void)
 {
-	vec3_t			origin;
+	vec3_t          origin;
 
 	// raynorpat: spawn the gibs out in front of the testing player :)
 	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], origin);
 
 	CG_GibPlayer(origin);
-//	CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
-//	CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
+//  CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
+//  CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 }
 
 
@@ -1265,13 +1246,13 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	{
 		CG_AddTestModel();
 	}
-	
+
 	// Tr3B - test light to preview Doom3 style light attenuation shaders
 	if(cg.testLight.attenuationShader)
 	{
 		CG_AddTestLight();
 	}
-	
+
 	cg.refdef.time = cg.time;
 	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 

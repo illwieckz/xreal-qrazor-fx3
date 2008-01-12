@@ -86,7 +86,7 @@ void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
 {
 	vec3_t          dir;
 
-	gentity_t	*telep = NULL;
+	gentity_t      *telep = NULL;
 
 	AngleVectors(angles, dir, NULL, NULL);
 

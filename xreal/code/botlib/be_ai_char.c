@@ -349,7 +349,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 						indent++;
 					else if(!strcmp(token.string, "}"))
 						indent--;
-				}				
+				}
 			}
 		}
 		else
@@ -360,7 +360,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 			FreeMemory(ch);
 			return NULL;
 		}
-	}							
+	}
 	FreeSource(source);
 	//
 	if(!foundcharacter)

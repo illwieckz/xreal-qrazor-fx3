@@ -2493,8 +2493,7 @@ static void Com_GenerateMediaTXT_f(void)
 			  "http://creativecommons.org/licenses/by-nc-sa/3.0/\n\n"
 			  "Creative Commons Attribution-ShareAlike 2.5\n"
 			  "http://creativecommons.org/licenses/by-sa/2.5/\n\n"
-			  "Creative Commons Attribution 2.5\n"
-			  "http://creativecommons.org/licenses/by/2.5/\n\n\n\n");
+			  "Creative Commons Attribution 2.5\n" "http://creativecommons.org/licenses/by/2.5/\n\n\n\n");
 
 	Q_strncpyz(mediaName, "FILE", sizeof(mediaName));
 	Q_strncpyz(copyright, "COPYRIGHT", sizeof(copyright));
@@ -2526,8 +2525,7 @@ static void Com_GenerateMediaTXT_f(void)
 			   Q_stricmp(mediaName + len - 6, ".arena") != 0 &&
 			   Q_stricmp(mediaName + len - 2, ".c") != 0 &&
 			   Q_stricmp(mediaName + len - 2, ".h") != 0 &&
-			   Q_stricmp(mediaName + len - 3, ".sh") != 0 &&
-			   Q_stricmp(mediaName + len - 4, ".mtr") != 0)
+			   Q_stricmp(mediaName + len - 3, ".sh") != 0 && Q_stricmp(mediaName + len - 4, ".mtr") != 0)
 			{
 				FS_Printf(f, "%s", mediaName);
 				len = strlen(mediaName);
@@ -2704,8 +2702,7 @@ static void Com_GenerateCorePK3_f(void)
 			   Q_stricmp(mediaName + len - 6, ".arena") != 0 &&
 			   Q_stricmp(mediaName + len - 2, ".c") != 0 &&
 			   Q_stricmp(mediaName + len - 2, ".h") != 0 &&
-			   Q_stricmp(mediaName + len - 3, ".sh") != 0 &&
-			   Q_stricmp(mediaName + len - 4, ".mtr") != 0)
+			   Q_stricmp(mediaName + len - 3, ".sh") != 0 && Q_stricmp(mediaName + len - 4, ".mtr") != 0)
 #endif
 			{
 				Com_Printf("...zipping '%s' ...\n", mediaName);
@@ -3373,26 +3370,26 @@ static void Field_CompleteKeyname(void)
 {
 	matchCount = 0;
 	shortestMatch[0] = 0;
-  	 
+
 	Key_KeynameCompletion(FindMatches);
-  	 
+
 	if(matchCount == 0)
 		return;
-  	 
+
 	Q_strncpyz(&completionField->buffer[strlen(completionField->buffer) - strlen(completionString)],
-		shortestMatch, sizeof(completionField->buffer));
+			   shortestMatch, sizeof(completionField->buffer));
 
 	completionField->cursor = strlen(completionField->buffer);
-  	 
+
 	if(matchCount == 1)
 	{
 		Q_strcat(completionField->buffer, sizeof(completionField->buffer), " ");
 		completionField->cursor++;
 		return;
 	}
-  	 
+
 	Com_Printf("]%s\n", completionField->buffer);
-  	 
+
 	Key_KeynameCompletion(PrintMatches);
 }
 #endif
@@ -3413,7 +3410,7 @@ static void Field_CompleteFilename(const char *dir, const char *ext, qboolean st
 		return;
 
 	Q_strncpyz(&completionField->buffer[strlen(completionField->buffer) - strlen(completionString)],
-		shortestMatch, sizeof(completionField->buffer));
+			   shortestMatch, sizeof(completionField->buffer));
 
 	completionField->cursor = strlen(completionField->buffer);
 
@@ -3465,12 +3462,12 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 			// Buffer is full, refuse to complete
 			if(strlen(completionField->buffer) + 1 >= sizeof(completionField->buffer))
 				return;
-  	 
+
 			memmove(&completionField->buffer[1], &completionField->buffer[0], strlen(completionField->buffer) + 1);
 			completionField->cursor++;
 		}
 
-		completionField->buffer[ 0 ] = '\\';
+		completionField->buffer[0] = '\\';
 	}
 #endif
 
@@ -3522,8 +3519,8 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 #ifndef DEDICATED
 			else if(!Q_stricmp(baseCmd, "demo") && completionArgument == 2)
 			{
-				char demoExt[ 16 ];
-  	 
+				char            demoExt[16];
+
 				Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", PROTOCOL_VERSION);
 				Field_CompleteFilename("demos", demoExt, qtrue);
 			}
@@ -3541,7 +3538,7 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 				{
 					// Skip "bind "
 					p = Com_SkipTokens(cmd, 1, " ");
-  	 
+
 					if(p > cmd)
 						Field_CompleteKeyname();
 				}
@@ -3554,12 +3551,12 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 						Field_CompleteCommand(p, qtrue, qtrue);
 				}
 			}
-#endif		
+#endif
 		}
 	}
 	else
 	{
-		int completionOffset;
+		int             completionOffset;
 
 		if(completionString[0] == '\\' || completionString[0] == '/')
 			completionString++;
@@ -3581,8 +3578,7 @@ static void Field_CompleteCommand(char *cmd, qboolean doCommands, qboolean doCva
 
 		completionOffset = strlen(completionField->buffer) - strlen(completionString);
 
-		Q_strncpyz(&completionField->buffer[completionOffset], shortestMatch, 
-			sizeof(completionField->buffer) - completionOffset); 
+		Q_strncpyz(&completionField->buffer[completionOffset], shortestMatch, sizeof(completionField->buffer) - completionOffset);
 
 		completionField->cursor = strlen(completionField->buffer);
 

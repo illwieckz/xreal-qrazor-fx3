@@ -28,11 +28,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <curl/curl.h>
 
-qboolean		CL_cURL_Init(void);
-void			CL_cURL_Shutdown(void);
-void			CL_cURL_BeginDownload(const char *localName, const char *remoteURL);
-void			CL_cURL_PerformDownload(void);
-void			CL_cURL_Cleanup(void);
+qboolean        CL_cURL_Init(void);
+void            CL_cURL_Shutdown(void);
+void            CL_cURL_BeginDownload(const char *localName, const char *remoteURL);
+void            CL_cURL_PerformDownload(void);
+void            CL_cURL_Cleanup(void);
 
-#endif	// __QCURL_H__
-
+#endif							// __QCURL_H__

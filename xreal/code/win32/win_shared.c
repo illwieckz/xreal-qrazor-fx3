@@ -39,13 +39,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 Sys_Milliseconds
 ================
 */
-int			sys_timeBase;
-int Sys_Milliseconds (void)
+int             sys_timeBase;
+int Sys_Milliseconds(void)
 {
-	int			sys_curtime;
-	static qboolean	initialized = qfalse;
+	int             sys_curtime;
+	static qboolean initialized = qfalse;
 
-	if (!initialized) {
+	if(!initialized)
+	{
 		sys_timeBase = timeGetTime();
 		initialized = qtrue;
 	}
@@ -59,70 +60,71 @@ int Sys_Milliseconds (void)
 Sys_SnapVector
 ================
 */
-long fastftol( float f ) {
+long fastftol(float f)
+{
 #ifndef __MINGW32__
-	static int tmp;
-	__asm fld f
-	__asm fistp tmp
-	__asm mov eax, tmp
+	static int      tmp;
+	__asm fld       f __asm fistp tmp __asm mov eax, tmp
 #else
 	return (long)f;
 #endif
 }
 
-void Sys_SnapVector( float *v )
+void Sys_SnapVector(float *v)
 {
 #ifndef __MINGW32__
-	int i;
-	float f;
+	int             i;
+	float           f;
 
 	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
+	__asm fld       f;
+	__asm fistp     i;
+
 	*v = i;
 	v++;
 	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
+	__asm fld       f;
+	__asm fistp     i;
+
 	*v = i;
 	v++;
 	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
+	__asm fld       f;
+	__asm fistp     i;
+
 	*v = i;
 #else
 	v[0] = rint(v[0]);
-  	v[1] = rint(v[1]);
-  	v[2] = rint(v[2]);
+	v[1] = rint(v[1]);
+	v[2] = rint(v[2]);
 #endif
 }
 
 //============================================
 
-char *Sys_GetCurrentUser( void )
+char           *Sys_GetCurrentUser(void)
 {
-	static char s_userName[1024];
-	unsigned long size = sizeof( s_userName );
+	static char     s_userName[1024];
+	unsigned long   size = sizeof(s_userName);
 
 
-	if ( !GetUserName( s_userName, &size ) )
-		strcpy( s_userName, "player" );
+	if(!GetUserName(s_userName, &size))
+		strcpy(s_userName, "player");
 
-	if ( !s_userName[0] )
+	if(!s_userName[0])
 	{
-		strcpy( s_userName, "player" );
+		strcpy(s_userName, "player");
 	}
 
 	return s_userName;
 }
 
-char	*Sys_DefaultHomePath(void) {
+char           *Sys_DefaultHomePath(void)
+{
 	return NULL;
 }
 
-char *Sys_DefaultInstallPath(void)
+char           *Sys_DefaultInstallPath(void)
 {
 	return Sys_Cwd();
 }
-
-

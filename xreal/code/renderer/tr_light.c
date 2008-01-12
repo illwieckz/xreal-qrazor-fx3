@@ -1016,7 +1016,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 			VectorSet(v1, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 			VectorSet(v2, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 			R_AddEdgeToLightScissor(light, v1, v2);
-	
+
 			VectorSet(v1, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 			VectorSet(v2, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 			R_AddEdgeToLightScissor(light, v1, v2);
@@ -1046,42 +1046,42 @@ void R_SetupLightScissor(trRefLight_t * light)
 
 		case RL_PROJ:
 		{
-			int				j;
+			int             j;
 			float           xMin, xMax, yMin, yMax;
-						float           zNear, zFar;
-						vec3_t          corners[4];
+			float           zNear, zFar;
+			vec3_t          corners[4];
 
-						zNear = 1.0;
-						zFar = light->l.distance;
+			zNear = 1.0;
+			zFar = light->l.distance;
 
-						xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
-						xMin = -xMax;
+			xMax = zNear * tan(light->l.fovX * M_PI / 360.0f);
+			xMin = -xMax;
 
-						yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
-						yMin = -yMax;
+			yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
+			yMin = -yMax;
 
-						corners[0][0] = zFar;
-						corners[0][1] = xMin * zFar;
-						corners[0][2] = yMin * zFar;
+			corners[0][0] = zFar;
+			corners[0][1] = xMin * zFar;
+			corners[0][2] = yMin * zFar;
 
-						corners[1][0] = zFar;
-						corners[1][1] = xMax * zFar;
-						corners[1][2] = yMin * zFar;
+			corners[1][0] = zFar;
+			corners[1][1] = xMax * zFar;
+			corners[1][2] = yMin * zFar;
 
-						corners[2][0] = zFar;
-						corners[2][1] = xMax * zFar;
-						corners[2][2] = yMax * zFar;
+			corners[2][0] = zFar;
+			corners[2][1] = xMax * zFar;
+			corners[2][2] = yMax * zFar;
 
-						corners[3][0] = zFar;
-						corners[3][1] = xMin * zFar;
-						corners[3][2] = yMax * zFar;
+			corners[3][0] = zFar;
+			corners[3][1] = xMin * zFar;
+			corners[3][2] = yMax * zFar;
 
-						// draw pyramid
-						for(j = 0; j < 4; j++)
-						{
-							R_AddEdgeToLightScissor(light, corners[j], corners[(j + 1) % 4]);
-							R_AddEdgeToLightScissor(light, vec3_origin, corners[j]);
-						}
+			// draw pyramid
+			for(j = 0; j < 4; j++)
+			{
+				R_AddEdgeToLightScissor(light, corners[j], corners[(j + 1) % 4]);
+				R_AddEdgeToLightScissor(light, vec3_origin, corners[j]);
+			}
 			break;
 		}
 	}

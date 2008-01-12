@@ -55,14 +55,16 @@ qboolean R_CheckFBO(const FBO_t * fbo)
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, missing attachment\n", fbo->name);
 			break;
-		//case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-		//	ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, duplicate attachment\n", fbo->name);
-		//	break;
+			//case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
+			//  ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, duplicate attachment\n", fbo->name);
+			//  break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, attached images must have same dimensions\n", fbo->name);
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, attached images must have same dimensions\n",
+					  fbo->name);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, attached images must have same format\n", fbo->name);
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, attached images must have same format\n",
+					  fbo->name);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, missing draw buffer\n", fbo->name);
@@ -400,8 +402,8 @@ void R_InitFBOs(void)
 
 			R_CheckFBO(tr.deferredRenderFBO);
 
-			
-			
+
+
 			tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
 			R_BindFBO(tr.geometricRenderFBO);
 
@@ -413,9 +415,9 @@ void R_InitFBOs(void)
 
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
-			
 
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO,  GL_RGBA, 2);
+
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
 
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, (r_deferredShading->integer == 2 ? GL_RGBA32F_ARB : GL_RGBA16F_ARB), 3);
@@ -428,7 +430,8 @@ void R_InitFBOs(void)
 			//qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
 			//qglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthFormat, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height);
 
-			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, tr.geometricRenderFBO->depthBuffer);
+			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
+										  tr.geometricRenderFBO->depthBuffer);
 			//R_AttachFBOTextureDepth(tr.deferredPositionFBOImage->texnum);
 
 			R_CheckFBO(tr.geometricRenderFBO);
@@ -446,8 +449,8 @@ void R_InitFBOs(void)
 
 			R_CheckFBO(tr.deferredRenderFBO);
 
-			
-			
+
+
 			tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
 			R_BindFBO(tr.geometricRenderFBO);
 
@@ -459,9 +462,9 @@ void R_InitFBOs(void)
 
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
-			
 
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO,  GL_RGBA, 2);
+
+			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
 
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 3);
@@ -474,7 +477,8 @@ void R_InitFBOs(void)
 			//qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
 			//qglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthFormat, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height);
 
-			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, tr.geometricRenderFBO->depthBuffer);
+			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
+										  tr.geometricRenderFBO->depthBuffer);
 			//R_AttachFBOTextureDepth(tr.deferredPositionFBOImage->texnum);
 
 			R_CheckFBO(tr.geometricRenderFBO);
@@ -501,7 +505,7 @@ void R_InitFBOs(void)
 			}
 
 			R_CreateFBODepthBuffer(tr.shadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);
-			
+
 			R_CheckFBO(tr.shadowMapFBO[i]);
 		}
 	}

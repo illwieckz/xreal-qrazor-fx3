@@ -1218,14 +1218,14 @@ static void CG_ServerCommand(void)
 	{
 		if(trap_Argc() == 4)
 		{
-			char shader1[MAX_QPATH];
-			char shader2[MAX_QPATH];
-			char shader3[MAX_QPATH];
+			char            shader1[MAX_QPATH];
+			char            shader2[MAX_QPATH];
+			char            shader3[MAX_QPATH];
 
 			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
 			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
 			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
-			
+
 			trap_R_RemapShader(shader1, shader2, shader3);
 		}
 

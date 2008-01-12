@@ -44,8 +44,8 @@ void CG_InitLua()
 	char           *dirptr;
 	int             i;
 	int             dirlen;
-	vec3_t			in;
-	float			out;
+	vec3_t          in;
+	float           out;
 
 	CG_Printf("------- CGame Lua Initialization -------\n");
 
@@ -70,7 +70,7 @@ void CG_InitLua()
 		dirlen = strlen(dirptr);
 		Q_strncpyz(filename, "effects/", sizeof(filename));
 		Q_strcat(filename, sizeof(filename), dirptr);
-		
+
 		CG_LoadLuaScript(filename);
 	}
 
@@ -78,7 +78,7 @@ void CG_InitLua()
 	CG_DumpLuaStack();
 
 	// run some tests
-	VectorSet(in, 5, 7, 3);	
+	VectorSet(in, 5, 7, 3);
 	CG_RunLuaFunction("TestVectors", "v>f", in, &out);
 	CG_Printf("result of testVectors() is %f\n", out);
 	//CG_Printf("result of testVectors() is %i %i %i\n", (int)out[0], (int)out[1], (int)out[2]);
@@ -187,13 +187,13 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 
 				break;
 
-			/*
-			TODO ?
-			case 'p':
-				// particle argument
-				lua_pushparticle(L, va_arg(vl, lua_Particle *));
-				break;
-			*/
+				/*
+				   TODO ?
+				   case 'p':
+				   // particle argument
+				   lua_pushparticle(L, va_arg(vl, lua_Particle *));
+				   break;
+				 */
 
 			case 'v':
 				// vector argument
@@ -248,11 +248,11 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 				break;
 
 #if 0
-			FIXME this causes a crash
-			case 'v':
-				// string result
-				if(!lua_getvector(L, nres))
-					CG_Printf("CG_RunLuaFunction: wrong result type\n");
+				FIXME this causes a crash case 'v':
+					// string result
+				if              (!lua_getvector(L, nres))
+					                CG_Printf("CG_RunLuaFunction: wrong result type\n");
+
 				*va_arg(vl, vec_t **) = lua_getvector(L, nres);
 
 				break;
@@ -306,9 +306,9 @@ void CG_DumpLuaStack()
 				break;
 
 		}
-		CG_Printf("  ");			// put a separator
+		CG_Printf("  ");		// put a separator
 	}
-	CG_Printf("\n");				// end the listing
+	CG_Printf("\n");			// end the listing
 }
 
 

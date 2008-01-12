@@ -65,9 +65,9 @@ typedef struct
 	menutext_s      sound;
 	menutext_s      network;
 
-	menulist_s		rate;
-	menuslider_s	packetdup;
-	menuslider_s	maxpackets;
+	menulist_s      rate;
+	menuslider_s    packetdup;
+	menuslider_s    maxpackets;
 
 	menubitmap_s    back;
 } networkOptionsInfo_t;

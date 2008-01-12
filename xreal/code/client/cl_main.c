@@ -37,7 +37,7 @@ cvar_t         *rconAddress;
 cvar_t         *cl_timeout;
 cvar_t         *cl_maxpackets;
 cvar_t         *cl_packetdup;
-cvar_t		   *cl_master;
+cvar_t         *cl_master;
 cvar_t         *cl_timeNudge;
 cvar_t         *cl_showTimeDelta;
 cvar_t         *cl_freezeDemo;
@@ -51,7 +51,7 @@ cvar_t         *cl_aviMotionJpeg;
 
 cvar_t         *cl_freelook;
 cvar_t         *cl_sensitivity;
-cvar_t		   *cl_platformSensitivity;
+cvar_t         *cl_platformSensitivity;
 
 cvar_t         *cl_mouseAccel;
 cvar_t         *cl_showMouseRate;
@@ -72,7 +72,7 @@ cvar_t         *cl_inGameVideo;
 
 cvar_t         *cl_serverStatusResendTime;
 
-cvar_t		   *cl_lanForcePackets;
+cvar_t         *cl_lanForcePackets;
 
 clientActive_t  cl;
 clientConnection_t clc;
@@ -1304,7 +1304,7 @@ void CL_DownloadsComplete(void)
 #if USE_CURL
 	// if we downloaded with curl
 	if(clc.cURLUsed)
-	{ 
+	{
 		clc.cURLUsed = qfalse;
 		CL_cURL_Shutdown();
 		if(clc.cURLDisconnected)
@@ -1409,7 +1409,7 @@ void CL_NextDownload(void)
 {
 	char           *s;
 	char           *remoteName, *localName;
-	qboolean		useCURL = qfalse;
+	qboolean        useCURL = qfalse;
 
 	// We are looking to start a download here
 	if(*clc.downloadList)
@@ -1442,7 +1442,7 @@ void CL_NextDownload(void)
 			if(clc.sv_allowDownload & DLF_NO_REDIRECT)
 			{
 				Com_Printf("WARNING: server does not allow download redirection (sv_allowDownload is %d)\n",
-					clc.sv_allowDownload);
+						   clc.sv_allowDownload);
 			}
 			else if(!*clc.sv_dlURL)
 			{
@@ -1461,18 +1461,18 @@ void CL_NextDownload(void)
 		else if(!(clc.sv_allowDownload & DLF_NO_REDIRECT))
 		{
 			Com_Printf("WARNING: server allows download redirection, but it disabled by client "
-				"configuration (cl_allowDownload is %d)\n",	cl_allowDownload->integer);
+					   "configuration (cl_allowDownload is %d)\n", cl_allowDownload->integer);
 		}
-#endif /* USE_CURL */
+#endif							/* USE_CURL */
 
 		// if curl is disabled, try udp downloads
 		if(!useCURL)
-		{	
+		{
 			if((cl_allowDownload->integer & DLF_NO_UDP))
 			{
 				Com_Error(ERR_DROP, "UDP Downloads are disabled on your client. (cl_allowDownload is %d)",
-					cl_allowDownload->integer);
-				return;	
+						  cl_allowDownload->integer);
+				return;
 			}
 			else
 			{
@@ -1648,7 +1648,7 @@ CL_MotdPacket
 */
 void CL_MotdPacket(netadr_t from, const char *info)
 {
-	char    *v;
+	char           *v;
 
 	// if not from our server, ignore it
 	if(!NET_CompareAdr(from, cls.updateServer))
@@ -1816,8 +1816,8 @@ Responses to broadcasts, etc
 void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 {
 	char           *s;
-	char			c[BIG_INFO_STRING];
-	char			arg1[BIG_INFO_STRING];
+	char            c[BIG_INFO_STRING];
+	char            arg1[BIG_INFO_STRING];
 
 	MSG_BeginReadingOOB(msg);
 	MSG_ReadLong(msg);			// skip the -1
@@ -2004,8 +2004,7 @@ CL_CheckTimeout
 void CL_CheckTimeout(void)
 {
 	// check timeout
-	if(cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC &&
-		cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
+	if(cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
 	{
 		if(++cl.timeoutcount > 5)
 		{
@@ -3056,9 +3055,10 @@ CL_GlobalServers_f
 void CL_GlobalServers_f(void)
 {
 	netadr_t        to;
-//	int             i;
-//	int             count;
-//	char           *buffptr;
+
+//  int             i;
+//  int             count;
+//  char           *buffptr;
 	char            command[1024];
 
 	if(Cmd_Argc() < 2)
@@ -3081,14 +3081,14 @@ void CL_GlobalServers_f(void)
 	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Args());
 
 	/*
-	sprintf(command, "getservers %s", Cmd_Argv(1));
+	   sprintf(command, "getservers %s", Cmd_Argv(1));
 
-	// tack on keywords
-	buffptr = command + strlen(command);
-	count = Cmd_Argc();
-	for(i = 2; i < count; i++)
-		buffptr += sprintf(buffptr, " %s", Cmd_Argv(i));
-	*/
+	   // tack on keywords
+	   buffptr = command + strlen(command);
+	   count = Cmd_Argc();
+	   for(i = 2; i < count; i++)
+	   buffptr += sprintf(buffptr, " %s", Cmd_Argv(i));
+	 */
 
 	NET_OutOfBandPrint(NS_SERVER, to, command);
 }

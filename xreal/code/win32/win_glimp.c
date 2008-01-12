@@ -96,7 +96,7 @@ static qboolean GLW_StartDriverAndSetMode(const char *drivername, int mode, int 
 	return qtrue;
 }
 
-qboolean GLW_ResetFullScreenMode( void )
+qboolean GLW_ResetFullScreenMode(void)
 {
 	if(!glw_fs_dm.dmSize)
 		return qfalse;
@@ -665,8 +665,7 @@ static qboolean GLW_CreateWindow(const char *drivername, int width, int height, 
 			}
 		}
 
-		g_wv.hWnd = CreateWindowEx(exstyle,
-								   WINDOW_CLASS_NAME, "XreaL", stylebits, x, y, w, h, NULL, NULL, g_wv.hInstance, NULL);
+		g_wv.hWnd = CreateWindowEx(exstyle, WINDOW_CLASS_NAME, "XreaL", stylebits, x, y, w, h, NULL, NULL, g_wv.hInstance, NULL);
 
 		if(!g_wv.hWnd)
 		{
@@ -1001,14 +1000,15 @@ static void GLW_InitExtensions(void)
 	{
 		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) qwglGetProcAddress("glVertexAttribPointerARB");
 		qglEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glEnableVertexAttribArrayARB");
-		qglDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glDisableVertexAttribArrayARB");
+		qglDisableVertexAttribArrayARB =
+			(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) qwglGetProcAddress("glDisableVertexAttribArrayARB");
 		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_program\n");
 	}
 	else
 	{
 		ri.Error(ERR_FATAL, "...GL_ARB_vertex_program not found\n");
 	}
-	
+
 	// GL_ARB_vertex_buffer_object
 	glConfig.vertexBufferObjectAvailable = qfalse;
 	qglBindBufferARB = NULL;
@@ -1049,7 +1049,7 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_buffer_object not found\n");
 	}
-	
+
 	// GL_ARB_occlusion_query
 	glConfig.occlusionQueryAvailable = qfalse;
 	glConfig.occlusionQueryBits = 0;
@@ -1200,14 +1200,15 @@ static void GLW_InitExtensions(void)
 	// GL_ARB_shading_language_100
 	if(strstr(glConfig.extensions_string, "GL_ARB_shading_language_100"))
 	{
-		Q_strncpyz(glConfig.shadingLanguageVersion, qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB), sizeof(glConfig.shadingLanguageVersion));
+		Q_strncpyz(glConfig.shadingLanguageVersion, qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
+				   sizeof(glConfig.shadingLanguageVersion));
 		ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
 	}
 	else
 	{
 		ri.Error(ERR_FATAL, "...GL_ARB_shading_language_100 not found\n");
 	}
-	
+
 	// GL_ARB_texture_non_power_of_two
 	glConfig.textureNPOTAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_texture_non_power_of_two"))
@@ -1226,13 +1227,13 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_non_power_of_two not found\n");
 	}
-	
+
 	// GL_ARB_draw_buffers
 	glConfig.drawBuffersAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_draw_buffers"))
 	{
 		qglGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig.maxDrawBuffers);
-		
+
 		if(r_ext_draw_buffers->integer)
 		{
 			qglDrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC) qwglGetProcAddress("glDrawBuffersARB");
@@ -1248,7 +1249,7 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_draw_buffers not found\n");
 	}
-	
+
 	// GL_ARB_texture_float
 	glConfig.textureFloatAvailable = qfalse;
 	if(strstr(glConfig.extensions_string, "GL_ARB_texture_float"))
@@ -1267,7 +1268,7 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_float not found\n");
 	}
-	
+
 	// WGL_EXT_swap_control
 	qwglSwapIntervalEXT = (BOOL(WINAPI *) (int))qwglGetProcAddress("wglSwapIntervalEXT");
 	if(qwglSwapIntervalEXT)
@@ -1304,7 +1305,7 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
 	}
-	
+
 	// GL_S3_s3tc
 	glConfig.textureCompression = TC_NONE;
 	if(strstr(glConfig.extensions_string, "GL_S3_s3tc"))
@@ -1383,14 +1384,14 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_stencil_two_side not found\n");
 	}
-	
+
 	// GL_EXT_depth_bounds_test
 	qglDepthBoundsEXT = NULL;
 	if(strstr(glConfig.extensions_string, "GL_EXT_depth_bounds_test"))
 	{
 		if(r_ext_depth_bounds_test->value)
 		{
-			qglDepthBoundsEXT = (PFNGLDEPTHBOUNDSEXTPROC)qwglGetProcAddress("glDepthBoundsEXT");
+			qglDepthBoundsEXT = (PFNGLDEPTHBOUNDSEXTPROC) qwglGetProcAddress("glDepthBoundsEXT");
 			ri.Printf(PRINT_ALL, "...using GL_EXT_depth_bounds_test\n");
 		}
 		else
@@ -1426,7 +1427,7 @@ static void GLW_InitExtensions(void)
 	{
 		qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig.maxRenderbufferSize);
 		qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig.maxColorAttachments);
-		
+
 		if(r_ext_framebuffer_object->value)
 		{
 			qglIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) qwglGetProcAddress("glIsRenderbufferEXT");
@@ -1501,7 +1502,7 @@ static void GLW_InitExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, "...GL_ATI_separate_stencil not found\n");
 	}
-	
+
 	// GL_SGIS_generate_mipmap
 	glConfig.generateMipmapAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_SGIS_generate_mipmap"))

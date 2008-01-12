@@ -144,7 +144,9 @@ void SV_DirectConnect(netadr_t from)
 	version = atoi(Info_ValueForKey(userinfo, "protocol"));
 	if(version != PROTOCOL_VERSION)
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nNetwork Protocol Mismatch: Server uses protocol version %i and your client uses protocol version %i.\n", PROTOCOL_VERSION, version);
+		NET_OutOfBandPrint(NS_SERVER, from,
+						   "print\nNetwork Protocol Mismatch: Server uses protocol version %i and your client uses protocol version %i.\n",
+						   PROTOCOL_VERSION, version);
 		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -1196,7 +1198,7 @@ r1: Checks for white space in player names
 */
 qboolean SV_ExcessiveWhiteSpaceCheck(const char *s)
 {
-	int				normal, white;
+	int             normal, white;
 
 	normal = white = 0;
 
@@ -1418,7 +1420,7 @@ void SV_ExecuteClientCommand(client_t * cl, char *s, qboolean clientOK)
 {
 	ucmd_t         *u;
 	qboolean        bProcessed = qfalse;
-	char		   *p;
+	char           *p;
 
 	Cmd_TokenizeString(s);
 
@@ -1431,14 +1433,15 @@ void SV_ExecuteClientCommand(client_t * cl, char *s, qboolean clientOK)
 
 	// r1: high/low ascii protection
 	p = s;
-	while (p[0])
+	while(p[0])
 	{
-		if ((p[0] < 32 || p[0] >= 127) && !(p[0] == '\n' && !p[1]))
+		if((p[0] < 32 || p[0] >= 127) && !(p[0] == '\n' && !p[1]))
 		{
-			int oldChar = p[0];
+			int             oldChar = p[0];
+
 			p[0] = '.';
 			Com_Printf("Warning, removed illegal ASCII char %d in command '%s' from %s" S_COLOR_WHITE "[%s]\n",
-				oldChar, s, cl->name, NET_AdrToString(cl->netchan.remoteAddress));
+					   oldChar, s, cl->name, NET_AdrToString(cl->netchan.remoteAddress));
 		}
 		p++;
 	}
@@ -1474,7 +1477,7 @@ SV_ClientCommand
 static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 {
 	int             seq;
-	char		   *s;
+	char           *s;
 	qboolean        clientOk = qtrue;
 
 	seq = MSG_ReadLong(msg);

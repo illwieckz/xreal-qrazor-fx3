@@ -1521,8 +1521,8 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height, byte
 	{
 		ri.Error(ERR_DROP, "LoadTGA: %s has an invalid image size\n", name);
 	}
-  	 
-	targa_rgba = ri.Malloc (numPixels);
+
+	targa_rgba = ri.Malloc(numPixels);
 
 	*pic = targa_rgba;
 
@@ -1728,7 +1728,7 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 	/* This struct contains the JPEG decompression parameters and pointers to
 	 * working space (which is allocated as needed by the JPEG library).
 	 */
-	struct jpeg_decompress_struct cinfo = {NULL};
+	struct jpeg_decompress_struct cinfo = { NULL };
 
 	/* We use our private extension JPEG error handler.
 	 * Note that this struct must live as long as the main JPEG parameter
@@ -1746,8 +1746,8 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 
 	/* More stuff */
 	JSAMPARRAY      buffer;		/* Output row buffer */
-	unsigned		row_stride;	/* physical row width in output buffer */
-	unsigned		pixelcount;
+	unsigned        row_stride;	/* physical row width in output buffer */
+	unsigned        pixelcount;
 	unsigned char  *out, *out_converted;
 	byte           *fbuffer;
 	byte           *bbuf;
@@ -1813,12 +1813,10 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 	row_stride = cinfo.output_width * cinfo.output_components;
 	out = ri.Malloc(pixelcount * 4);
 
-	if(!cinfo.output_width || !cinfo.output_height
-		|| ((pixelcount * 4) / cinfo.output_width) / 4 != cinfo.output_height
-		|| pixelcount > 0x1FFFFFFF || cinfo.output_components > 4) // 4*1FFFFFFF == 0x7FFFFFFC < 0x7FFFFFFF
+	if(!cinfo.output_width || !cinfo.output_height || ((pixelcount * 4) / cinfo.output_width) / 4 != cinfo.output_height || pixelcount > 0x1FFFFFFF || cinfo.output_components > 4)	// 4*1FFFFFFF == 0x7FFFFFFC < 0x7FFFFFFF
 	{
 		ri.Error(ERR_DROP, "LoadJPG: %s has an invalid image size: %dx%d*4=%d, components: %d\n", filename,
-			cinfo.output_width, cinfo.output_height, pixelcount * 4, cinfo.output_components);
+				 cinfo.output_width, cinfo.output_height, pixelcount * 4, cinfo.output_components);
 	}
 
 	*width = cinfo.output_width;
@@ -1845,11 +1843,11 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 	// the greyscale values to RGBA.
 	if(cinfo.output_components == 1)
 	{
-		int sindex, dindex = 0;
-		unsigned char greyshade;
-  	 
+		int             sindex, dindex = 0;
+		unsigned char   greyshade;
+
 		// allocate a new buffer for the transformed image
-		out_converted = ri.Malloc(pixelcount*4);
+		out_converted = ri.Malloc(pixelcount * 4);
 
 		for(sindex = 0; sindex < pixelcount; sindex++)
 		{
@@ -1859,7 +1857,7 @@ static void LoadJPG(const char *filename, unsigned char **pic, int *width, int *
 			out_converted[dindex++] = greyshade;
 			out_converted[dindex++] = alphaByte;
 		}
-  	 
+
 		ri.Free(out);
 		out = out_converted;
 	}
@@ -3768,22 +3766,21 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 
 typedef struct
 {
-	char *ext;
-	void (*ImageLoader) (const char *, unsigned char **, int *, int *, byte);
+	char           *ext;
+	void            (*ImageLoader) (const char *, unsigned char **, int *, int *, byte);
 } imageExtToLoaderMap_t;
-  	 
+
 // Note that the ordering indicates the order of preference used
 // when there are multiple images of different formats available
-static imageExtToLoaderMap_t imageLoaders[ ] =
-{
-	{ "tga",  LoadTGA },
-	{ "png",  LoadPNG },
-	{ "jpg",  LoadJPG },
-	{ "jpeg", LoadJPG },
-	{ "dds",  LoadDDS }
+static imageExtToLoaderMap_t imageLoaders[] = {
+	{"tga", LoadTGA},
+	{"png", LoadPNG},
+	{"jpg", LoadJPG},
+	{"jpeg", LoadJPG},
+	{"dds", LoadDDS}
 };
-  	 
-static int numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0]);
+
+static int      numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0]);
 
 /*
 =================
@@ -3862,9 +3859,9 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	}
 	else
 	{
-		qboolean		orgNameFailed = qfalse;
-		int				i;
-		const char	   *ext;
+		qboolean        orgNameFailed = qfalse;
+		int             i;
+		const char     *ext;
 		char            filename[MAX_QPATH];
 		byte            alphaByte;
 
@@ -3912,18 +3909,18 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 		// try and find a suitable match using all the image formats supported
 		for(i = 0; i < numImageLoaders; i++)
 		{
-			char *altName = va("%s.%s", filename, imageLoaders[i].ext);
-  	 
+			char           *altName = va("%s.%s", filename, imageLoaders[i].ext);
+
 			// load
 			imageLoaders[i].ImageLoader(altName, pic, width, height, alphaByte);
-  	 
+
 			if(*pic)
 			{
 				if(orgNameFailed)
 				{
 					ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", token, altName);
 				}
-  	 
+
 				break;
 			}
 		}
@@ -4239,20 +4236,19 @@ static void R_CreateDeferredRenderFBOImages(void)
 	{
 		tr.deferredDiffuseFBOImage =
 			R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-		tr.deferredNormalFBOImage =
-			R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredSpecularFBOImage =
 			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredPositionFBOImage =
-			R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
+			R_CreateImage("_deferredPositionFBO", data, width, height,
+						  IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
 		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 	}
 	else
 	{
 		tr.deferredDiffuseFBOImage =
 			R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-		tr.deferredNormalFBOImage =
-			R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredSpecularFBOImage =
 			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredPositionFBOImage =

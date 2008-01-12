@@ -29,10 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static intptr_t      (QDECL * syscall) (intptr_t arg, ...) = (intptr_t (QDECL *) (intptr_t,...))-1;
+static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
 
 
-void dllEntry(intptr_t (QDECL * syscallptr) (intptr_t arg, ...))
+void dllEntry(intptr_t(QDECL * syscallptr) (intptr_t arg, ...))
 {
 	syscall = syscallptr;
 }
@@ -387,17 +387,17 @@ int trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, floa
 
 int trap_R_BoneIndex(qhandle_t hModel, const char *boneName)
 {
-	return syscall(CG_R_BONEINDEX, hModel, boneName);	
+	return syscall(CG_R_BONEINDEX, hModel, boneName);
 }
 
 int trap_R_AnimNumFrames(qhandle_t hAnim)
 {
-	return syscall(CG_R_ANIMNUMFRAMES, hAnim);	
+	return syscall(CG_R_ANIMNUMFRAMES, hAnim);
 }
 
 int trap_R_AnimFrameRate(qhandle_t hAnim)
 {
-	return syscall(CG_R_ANIMFRAMERATE, hAnim);	
+	return syscall(CG_R_ANIMFRAMERATE, hAnim);
 }
 
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset)

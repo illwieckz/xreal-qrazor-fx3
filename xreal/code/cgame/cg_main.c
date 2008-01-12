@@ -45,7 +45,7 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9,
-		   int arg10, int arg11)
+				int arg10, int arg11)
 {
 
 	switch (command)
@@ -184,21 +184,21 @@ vmCvar_t        cg_trueLightning;
 
 vmCvar_t        cg_drawBloom;
 vmCvar_t        cg_drawRotoscope;
-vmCvar_t		cg_drawPlayerAABB;
+vmCvar_t        cg_drawPlayerAABB;
 
 vmCvar_t        cg_particleCollision;
 
 // these cvars are shared accross both games
-vmCvar_t		pm_airControl;
-vmCvar_t		pm_fastWeaponSwitches;
-vmCvar_t		pm_fixedPmove;
-vmCvar_t		pm_fixedPmoveFPS;
+vmCvar_t        pm_airControl;
+vmCvar_t        pm_fastWeaponSwitches;
+vmCvar_t        pm_fixedPmove;
+vmCvar_t        pm_fixedPmoveFPS;
 
-vmCvar_t		cg_delag;
-vmCvar_t		cg_projectileNudge;
-vmCvar_t		cg_optimizePrediction;
-vmCvar_t		sv_fps;
-vmCvar_t		cg_gravity;
+vmCvar_t        cg_delag;
+vmCvar_t        cg_projectileNudge;
+vmCvar_t        cg_optimizePrediction;
+vmCvar_t        sv_fps;
+vmCvar_t        cg_gravity;
 
 #ifdef MISSIONPACK
 vmCvar_t        cg_smallFont;
@@ -339,21 +339,21 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
 	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
-	
+
 	{&cg_particleCollision, "cg_particleCollision", "1", CVAR_ARCHIVE},
 
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", 0},
 	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", 0},
-	{&pm_fixedPmove, "pm_fixedPmove", "1", 0}, 
-	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0}, 
+	{&pm_fixedPmove, "pm_fixedPmove", "1", 0},
+	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0},
 
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},
 	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
-	
-	{&sv_fps, "sv_fps", "20", 0},			// communicated by systeminfo
-	{&cg_gravity, "g_gravity", "0", 0}		// communicated by systeminfo
+
+	{&sv_fps, "sv_fps", "20", 0},	// communicated by systeminfo
+	{&cg_gravity, "g_gravity", "0", 0}	// communicated by systeminfo
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -913,14 +913,14 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
-	
+
 	cgs.media.sideBarItemLShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_left.tga");
 	cgs.media.sideBarItemRShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_right.tga");
 
 	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
 	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
 	cgs.media.rotoscopeShader = trap_R_RegisterShader("rotoscope");
-	
+
 	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
 
 	// powerup shaders
@@ -1038,7 +1038,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.bloodExplosionShader = trap_R_RegisterShader("bloodExplosion");
 
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3", qtrue);
-	
+
 	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
 
 #ifdef MISSIONPACK
@@ -1458,7 +1458,7 @@ void CG_ParseMenu(const char *menuFile)
 {
 	pc_token_t      token;
 	int             handle;
-	
+
 	Com_Printf("...parsing cgame menu file '%s'\n", menuFile);
 
 	handle = trap_PC_LoadSource(menuFile);
@@ -2087,7 +2087,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cg.weaponSelect = WP_MACHINEGUN;
 
 	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for
-	cgs.flagStatus = -1;				// old servers
+	cgs.flagStatus = -1;		// old servers
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig(&cgs.glconfig);

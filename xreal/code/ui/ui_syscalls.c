@@ -472,5 +472,3 @@ void trap_R_RemapShader(const char *oldShader, const char *newShader, const char
 {
 	syscall(UI_R_REMAP_SHADER, oldShader, newShader, timeOffset);
 }
-
-

@@ -298,8 +298,8 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 	float          *p1, *p2;
 	vec3_t          up;
 	int             p;
-	
-//	Com_Printf("CM_EdgePlaneNum: %i %i\n", tri, edgeType);
+
+//  Com_Printf("CM_EdgePlaneNum: %i %i\n", tri, edgeType);
 
 	switch (edgeType)
 	{
@@ -311,7 +311,7 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 				break;
 			VectorMA(p1, 4, planes[p].plane, up);
 			return CM_FindPlane(p1, p2, up);
-			
+
 		case 1:
 			p1 = triSoup->points[tri][1];
 			p2 = triSoup->points[tri][2];
@@ -329,12 +329,12 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 				break;
 			VectorMA(p1, 4, planes[p].plane, up);
 			return CM_FindPlane(p2, p1, up);
-		
+
 		default:
 			Com_Error(ERR_DROP, "CM_EdgePlaneNum: bad edgeType=%i", edgeType);
 
 	}
-	
+
 	return -1;
 }
 
@@ -633,7 +633,7 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 					{
 						VectorNegate(newplane, newplane);
 						newplane[3] = -newplane[3];
-					}			
+					}
 					ChopWindingInPlace(&w2, newplane, newplane[3], 0.1f);
 					if(!w2)
 					{
@@ -695,11 +695,11 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 		p2 = triSoup->points[i][1];
 		p3 = triSoup->points[i][2];
 		trianglePlanes[i] = CM_FindPlane(p1, p2, p3);
-		
+
 		//Com_Printf("trianglePlane[%i] = %i\n", i, trianglePlanes[i]);
 	}
-	
-//	Com_Printf("base triangle planes calculated\n");
+
+//  Com_Printf("base triangle planes calculated\n");
 
 	// create the borders for each triangle
 	for(i = 0; i < triSoup->numTriangles; i++)
@@ -742,9 +742,9 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 		triangle->borderNoAdjust[1] = noAdjust[EN_SECOND];
 		triangle->borderPlanes[2] = borders[EN_THIRD];
 		triangle->borderNoAdjust[2] = noAdjust[EN_THIRD];
-		
+
 		CM_SetBorderInward(triangle, triSoup, trianglePlanes, i, 0);
-		
+
 		if(CM_ValidateTriangle(triangle))
 		{
 			CM_AddTriangleBevels(triangle);
@@ -757,7 +757,7 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 	tc->numPlanes = numPlanes;
 	tc->planes = Hunk_Alloc(numPlanes * sizeof(*tc->planes), h_high);
 	Com_Memcpy(tc->planes, planes, numPlanes * sizeof(*tc->planes));
-	
+
 	tc->numTriangles = numTriangles;
 	tc->triangles = Hunk_Alloc(numTriangles * sizeof(*tc->triangles), h_high);
 	Com_Memcpy(tc->triangles, triangles, numTriangles * sizeof(*tc->triangles));
@@ -774,7 +774,7 @@ collision detection with a triangle soup mesh.
 Points is packed as concatenated rows.
 ===================
 */
-struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int * indexes)
+struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes)
 {
 	triSoupCollide_t *tc;
 	static cTriangleSoup_t triSoup;
@@ -782,7 +782,8 @@ struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t 
 
 	if(numVertexes <= 2 || !vertexes || numIndexes <= 2 || !indexes)
 	{
-		Com_Error(ERR_DROP, "CM_GenerateTriangleSoupCollide: bad parameters: (%i, %p, %i, %p)", numVertexes, vertexes, numIndexes, indexes);
+		Com_Error(ERR_DROP, "CM_GenerateTriangleSoupCollide: bad parameters: (%i, %p, %i, %p)", numVertexes, vertexes, numIndexes,
+				  indexes);
 	}
 
 	if(numIndexes > SHADER_MAX_INDEXES)
@@ -1010,7 +1011,9 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 	float           offset, enterFrac, leaveFrac, t;
 	trianglePlane_t *planes;
 	cTriangle_t    *triangle;
-	float           plane[4] = {0, 0, 0, 0}, bestplane[4] =	{0, 0, 0, 0};
+	float           plane[4] = { 0, 0, 0, 0 }, bestplane[4] =
+	{
+	0, 0, 0, 0};
 	vec3_t          startp, endp;
 
 #ifndef BSPC
@@ -1033,7 +1036,7 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 		planes = &tc->planes[triangle->surfacePlane];
 		VectorCopy(planes->plane, plane);
 		plane[3] = planes->plane[3];
-		
+
 		if(tw->sphere.use)
 		{
 			// adjust the plane distance apropriately for radius
@@ -1064,7 +1067,7 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 		{
 			continue;
 		}
-		
+
 		if(hit)
 		{
 			VectorCopy4(plane, bestplane);
@@ -1083,7 +1086,7 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 				VectorCopy(planes->plane, plane);
 				plane[3] = planes->plane[3];
 			}
-			
+
 			if(tw->sphere.use)
 			{
 				// adjust the plane distance apropriately for radius
@@ -1115,17 +1118,17 @@ void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCo
 			{
 				break;
 			}
-			
+
 			if(hit)
 			{
 				hitnum = j;
 				VectorCopy4(plane, bestplane);
 			}
 		}
-		
+
 		if(j < triangle->numBorders)
 			continue;
-		
+
 		//never clip against the back side
 		if(hitnum == triangle->numBorders - 1)
 			continue;
@@ -1174,7 +1177,7 @@ qboolean CM_PositionTestInTriangleSoupCollide(traceWork_t * tw, const struct tri
 	{
 		return qfalse;
 	}
-	
+
 	//
 	for(i = 0, triangle = tc->triangles; i < tc->numTriangles; i++, triangle++)
 	{
@@ -1251,12 +1254,12 @@ qboolean CM_PositionTestInTriangleSoupCollide(traceWork_t * tw, const struct tri
 				break;
 			}
 		}
-		
+
 		if(j < triangle->numBorders)
 		{
 			continue;
 		}
-		
+
 		// inside this triangle
 		return qtrue;
 	}

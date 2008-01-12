@@ -4231,7 +4231,7 @@ void AAS_SetWeaponJumpAreaFlags(void)
 			{
 				spawnflags = 0;
 				AAS_IntForBSPEpairKey(ent, "spawnflags", &spawnflags);
-				
+
 				//if not a stationary item
 				if(!(spawnflags & 1))
 				{
@@ -4241,10 +4241,10 @@ void AAS_SetWeaponJumpAreaFlags(void)
 										"%s in solid at (%1.1f %1.1f %1.1f)\n", classname, origin[0], origin[1], origin[2]);
 					}
 				}
-				
+
 				//areanum = AAS_PointAreaNum(origin);
 				areanum = AAS_BestReachableArea(origin, mins, maxs, origin);
-				
+
 				//the bot may rocket jump towards this area
 				aasworld.areasettings[areanum].areaflags |= AREA_WEAPONJUMP;
 				//

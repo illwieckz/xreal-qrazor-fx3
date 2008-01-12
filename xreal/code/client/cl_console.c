@@ -265,7 +265,7 @@ If the line width has changed, reformat the buffer.
 void Con_CheckResize(void)
 {
 	int             i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	short			tbuf[CON_TEXTSIZE];
+	short           tbuf[CON_TEXTSIZE];
 
 	width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
 
@@ -662,7 +662,7 @@ void Con_DrawSolidConsole(float frac)
 	if(con_showDate->integer)
 	{
 		re.SetColor(g_color_table[ColorIndex(COLOR_GREEN)]);
-		
+
 		Com_RealTime(&dt);
 		displayDate[0] = '\0';
 		Q_strcat(displayDate, sizeof(displayDate), va("%02d/%02d/%04d", dt.tm_mday, dt.tm_mon + 1, 1900 + dt.tm_year));

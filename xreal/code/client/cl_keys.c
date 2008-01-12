@@ -1081,10 +1081,10 @@ Called by the system for both key up and key down events
 */
 void CL_KeyEvent(int key, qboolean down, unsigned time)
 {
-	int			i;
-	char       *kb;
-	char		cmd[1024];
-	char		button[1024], *buttonPtr;
+	int             i;
+	char           *kb;
+	char            cmd[1024];
+	char            button[1024], *buttonPtr;
 
 	// update auto-repeat status and BUTTON_ANY status
 	keys[key].down = down;
@@ -1204,7 +1204,7 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 			if(kb && kb[0])
 			{
 				buttonPtr = button;
-				for(i = 0; ; i++)
+				for(i = 0;; i++)
 				{
 					if(kb[i] == ';' || !kb[i])
 					{

@@ -113,12 +113,12 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
 		//Q_strcat(bufferExtra, sizeof(bufferExtra),
-		//		 va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
+		//       va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
 
 		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
 		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
-				va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
+				 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
 
 		if(glConfig.textureNPOTAvailable)
 		{
@@ -131,8 +131,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
 		}
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
-			va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
-		
+				 va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
+
 
 		// HACK: add ATI's GLSL quirks      
 		if(glConfig.hardwareType == GLHW_ATI)
@@ -192,16 +192,17 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 		if(glConfig.framebufferMixedFormatsAvailable)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_EXTX_framebuffer_mixed_formats\n#define GL_EXTX_framebuffer_mixed_formats 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 "#ifndef GL_EXTX_framebuffer_mixed_formats\n#define GL_EXTX_framebuffer_mixed_formats 1\n#endif\n");
 		}
 
 		/*
-		if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
-		{
-			//Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#extension GL_ARB_draw_buffers : enable\n");
-		}
-		*/
+		   if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		   {
+		   //Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
+		   Q_strcat(bufferExtra, sizeof(bufferExtra), "#extension GL_ARB_draw_buffers : enable\n");
+		   }
+		 */
 
 		if( /* TODO: check for shader model 3 hardware  && */ r_parallaxMapping->integer)
 		{
@@ -383,7 +384,8 @@ void GLSL_InitGPUShaders(void)
 		tr.geometricFillShader_DBS.u_SpecularMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_SpecularMap");
 		tr.geometricFillShader_DBS.u_AlphaTest = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_AlphaTest");
 		tr.geometricFillShader_DBS.u_ViewOrigin = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ViewOrigin");
-		tr.geometricFillShader_DBS.u_AmbientColor = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_AmbientColor");
+		tr.geometricFillShader_DBS.u_AmbientColor =
+			qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_AmbientColor");
 		tr.geometricFillShader_DBS.u_DepthScale = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DepthScale");
 		tr.geometricFillShader_DBS.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ModelMatrix");
 		tr.geometricFillShader_DBS.u_ModelViewMatrix =
@@ -923,8 +925,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// uniform fog post process effect
-	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog",
-					   GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog", GLCS_VERTEX, qtrue);
 
 	tr.uniformFogShader.u_CurrentMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_CurrentMap");
 	tr.uniformFogShader.u_PositionMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_PositionMap");
@@ -1659,7 +1660,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	VectorCopy(tess.svars.color, lightColor);
 
 	shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-	
+
 	if(shadowCompare)
 		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
 	else
@@ -1743,7 +1744,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
 	float           shadowTexelSize;
-	qboolean		shadowCompare;
+	qboolean        shadowCompare;
 
 	GLimp_LogComment("--- Render_fowardLighting_DBS_proj ---\n");
 
@@ -1768,7 +1769,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	VectorCopy(tess.svars.color, lightColor);
 
 	shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-	
+
 	if(shadowCompare)
 		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
 	else
@@ -2877,11 +2878,11 @@ void Tess_StageIteratorGeneric()
 	}
 
 	/*
-	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_forceFog->value > 0)
-	{
-		Render_uniformFog();
-	}
-	*/
+	   if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_forceFog->value > 0)
+	   {
+	   Render_uniformFog();
+	   }
+	 */
 
 	// unlock arrays
 	if(qglUnlockArraysEXT)

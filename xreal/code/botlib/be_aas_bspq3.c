@@ -454,7 +454,7 @@ void AAS_ParseBSPEntities(void)
 			StripDoubleQuotes(token.string);
 			epair->value = (char *)GetHunkMemory(strlen(token.string) + 1);
 			strcpy(epair->value, token.string);
-		}						
+		}
 		if(strcmp(token.string, "}"))
 		{
 			ScriptError(script, "missing }\n");
@@ -462,7 +462,7 @@ void AAS_ParseBSPEntities(void)
 			FreeScript(script);
 			return;
 		}
-	}							
+	}
 	FreeScript(script);
 }								//end of the function AAS_ParseBSPEntities
 

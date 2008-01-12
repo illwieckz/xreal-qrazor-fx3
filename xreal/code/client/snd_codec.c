@@ -37,7 +37,7 @@ static char    *S_FileExtension(const char *fni)
 
 	char           *fn = (char *)fni + strlen(fni) - 1;
 	char           *eptr = NULL;
-	
+
 	while(*fn != '/' && fn != fni)
 	{
 		if(*fn == '.')
@@ -62,7 +62,7 @@ static snd_codec_t *S_FindCodecForFile(const char *filename)
 {
 	char           *ext = S_FileExtension(filename);
 	snd_codec_t    *codec = codecs;
-	
+
 	//Com_Printf("S_FindCodecForFile(%s) : ext %s\n", filename, ext);
 
 	if(!ext)
@@ -71,11 +71,11 @@ static snd_codec_t *S_FindCodecForFile(const char *filename)
 		while(codec)
 		{
 			char            fn[MAX_QPATH];
-			
+
 			// there is no extension so we do not need to subtract 4 chars
 			Q_strncpyz(fn, filename, MAX_QPATH);
 			Com_DefaultExtension(fn, MAX_QPATH, codec->ext);
-			
+
 			// Check it exists
 			if(FS_ReadFile(fn, NULL) != -1)
 				return codec;

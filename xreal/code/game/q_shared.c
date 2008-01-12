@@ -356,21 +356,21 @@ char           *Com_SkipPath(char *pathname)
 Com_GetExtension
 ============
 */
-const char *Com_GetExtension(const char *name)
+const char     *Com_GetExtension(const char *name)
 {
-	int length, i;
-  	 
-	length = strlen(name)-1;
+	int             length, i;
+
+	length = strlen(name) - 1;
 	i = length;
-  	 
+
 	while(name[i] != '.')
 	{
 		i--;
 		if(name[i] == '/' || i == 0)
-			return ""; // no extension
+			return "";			// no extension
 	}
-  	 
-	return &name[i+1];
+
+	return &name[i + 1];
 }
 
 /*

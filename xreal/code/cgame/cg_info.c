@@ -43,7 +43,7 @@ CG_DrawProgressBar
 */
 static void CG_DrawProgressBar(void)
 {
-	int				x, y, w, status = 0;
+	int             x, y, w, status = 0;
 	float           rectColor[4];
 
 	w = 400 - SMALLCHAR_WIDTH;
@@ -54,7 +54,7 @@ static void CG_DrawProgressBar(void)
 	rectColor[2] = 0.0f;
 	rectColor[3] = 0.4f;
 
-	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor); // semi black progress bar
+	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor);	// semi black progress bar
 
 	rectColor[0] = 0.7f;
 	rectColor[1] = 0.0f;
@@ -78,11 +78,11 @@ static void CG_DrawProgressBar(void)
 	}
 	else
 	{
-		status = 6; // we are awaiting the snapshot
+		status = 6;				// we are awaiting the snapshot
 	}
 
 	// draw the red progress bar
-	switch(status)
+	switch (status)
 	{
 		default:
 		case 0:
@@ -132,7 +132,7 @@ void CG_DrawInformation(void)
 	qhandle_t       levelshot;
 	qhandle_t       detail;
 	char            buf[1024];
-	char			st[1024];
+	char            st[1024];
 
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);

@@ -117,7 +117,7 @@ Cvar_Flags
 */
 int Cvar_Flags(const char *var_name)
 {
-	cvar_t *var;
+	cvar_t         *var;
 
 	if(!(var = Cvar_FindVar(var_name)))
 		return CVAR_NONEXISTENT;
@@ -315,7 +315,7 @@ cvar_t         *Cvar_Get(const char *var_name, const char *var_value, int flags)
 
 	var->flags = flags;
 	// note what types of cvars have been modified (userinfo, archive, serverinfo, systeminfo) 
-	cvar_modifiedFlags |= var->flags; 
+	cvar_modifiedFlags |= var->flags;
 
 	hash = generateHashValue(var_name);
 	var->hashNext = hashTable[hash];

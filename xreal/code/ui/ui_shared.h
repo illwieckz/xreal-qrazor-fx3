@@ -330,7 +330,7 @@ typedef struct
 
 typedef struct
 {
-	qhandle_t       (*registerShaderNoMip) (const char *p);
+	qhandle_t(*registerShaderNoMip) (const char *p);
 	void            (*setColor) (const vec4_t v);
 	void            (*drawHandlePic) (float x, float y, float w, float h, qhandle_t asset);
 	void            (*drawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2,

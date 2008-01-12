@@ -1400,7 +1400,7 @@ void R_Register(void)
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
-	r_forceFog = ri.Cvar_Get("r_forceFog", "0.0007", CVAR_ARCHIVE /* | CVAR_LATCH */);
+	r_forceFog = ri.Cvar_Get("r_forceFog", "0.0007", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1605,7 +1605,7 @@ void R_Init(void)
 	Com_Memset(&backEnd, 0, sizeof(backEnd));
 	Com_Memset(&tess, 0, sizeof(tess));
 
-	if((intptr_t)tess.xyz & 15)
+	if((intptr_t) tess.xyz & 15)
 		Com_Printf("WARNING: tess.xyz not 16 byte aligned\n");
 
 	// init function tables

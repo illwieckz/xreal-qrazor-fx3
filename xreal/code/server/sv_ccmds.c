@@ -507,7 +507,7 @@ static void SV_Status_f(void)
 	playerState_t  *ps;
 	const char     *s;
 	int             ping;
-	char			cleanName[32];
+	char            cleanName[32];
 
 	// make sure server is running
 	if(!com_sv_running->integer)

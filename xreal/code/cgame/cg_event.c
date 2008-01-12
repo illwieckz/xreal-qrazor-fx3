@@ -1023,7 +1023,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_RAILTRAIL");
 			cent->currentState.weapon = WP_RAILGUN;
 			// if the client is us, unlagged is on server-side, and we've got it client-side
-			if(es->clientNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 16))
+			if(es->clientNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan &&
+			   (cg_delag.integer & 1 || cg_delag.integer & 16))
 			{
 				// do nothing, because it was already predicted
 				//Com_Printf("Ignoring rail trail event\n");
@@ -1047,7 +1048,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_BULLET_HIT_WALL");
 			ByteToDir(es->eventParm, dir);
 			// if the client is us, unlagged is on server-side, and we've got it client-side
-			if(es->clientNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2))
+			if(es->clientNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan &&
+			   (cg_delag.integer & 1 || cg_delag.integer & 2))
 			{
 				// do nothing, because it was already predicted
 				//Com_Printf("Ignoring bullet event\n");
@@ -1064,7 +1066,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		case EV_BULLET_HIT_FLESH:
 			DEBUGNAME("EV_BULLET_HIT_FLESH");
 			// if the client is us, unlagged is on server-side, and we've got it client-side
-			if(es->clientNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2))
+			if(es->clientNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan &&
+			   (cg_delag.integer & 1 || cg_delag.integer & 2))
 			{
 				// do nothing, because it was already predicted
 				//Com_Printf("Ignoring bullet event\n");
@@ -1080,7 +1083,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		case EV_SHOTGUN:
 			DEBUGNAME("EV_SHOTGUN");
 			// if the client is us, unlagged is on server-side, and we've got it client-side
-			if(es->otherEntityNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 4))
+			if(es->otherEntityNum == cg.predictedPlayerState.clientNum && cgs.delagHitscan &&
+			   (cg_delag.integer & 1 || cg_delag.integer & 4))
 			{
 				// do nothing, because it was already predicted
 				//Com_Printf("Ignoring shotgun event\n");
@@ -1323,7 +1327,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 		case EV_EFFECT:
 			DEBUGNAME("EV_EFFECT");
-			
+
 			// Tr3B: run scriptable effects like "TestParticleSpawn" in "effects/particleTests.lua"
 			AngleVectors(cent->lerpAngles, dir, NULL, NULL);
 

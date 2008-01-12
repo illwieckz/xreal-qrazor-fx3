@@ -79,10 +79,11 @@ load multiple lua scripts from the maps directory
 ============
 */
 
-void G_InitLua_Local(char mapname[MAX_STRING_CHARS]) {
+void G_InitLua_Local(char mapname[MAX_STRING_CHARS])
+{
 
 	int             numdirs;
-	int 		numFiles;
+	int             numFiles;
 	char            filename[128];
 	char            dirlist[1024];
 	char           *dirptr;
@@ -96,7 +97,7 @@ void G_InitLua_Local(char mapname[MAX_STRING_CHARS]) {
 	for(i = 0; i < numdirs; i++, dirptr += dirlen + 1)
 	{
 		dirlen = strlen(dirptr);
-		strcpy(filename, va("scripts/lua/%s/",mapname));
+		strcpy(filename, va("scripts/lua/%s/", mapname));
 		strcat(filename, dirptr);
 		numFiles++;
 

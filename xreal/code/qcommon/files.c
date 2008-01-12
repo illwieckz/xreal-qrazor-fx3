@@ -1120,10 +1120,10 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 						   Q_stricmp(filename + l - 7, ".config") != 0 &&
 						   strstr(filename, "levelshots") == NULL &&
 						   Q_stricmp(filename + l - 4, ".bot") != 0 &&
-						   Q_stricmp(filename + l - 6, ".arena") != 0 &&
-						   Q_stricmp(filename + l - 5, ".menu") != 0)
+						   Q_stricmp(filename + l - 6, ".arena") != 0 && Q_stricmp(filename + l - 5, ".menu") != 0)
 						{
-							Com_Printf("...referencing pak '%s/%s' for used file '%s'\n", pak->pakGamename, pak->pakBasename, filename);
+							Com_Printf("...referencing pak '%s/%s' for used file '%s'\n", pak->pakGamename, pak->pakBasename,
+									   filename);
 							pak->referenced |= FS_GENERAL_REF;
 						}
 					}
@@ -2684,7 +2684,7 @@ static void FS_AddGameDirectory(const char *path, const char *dir)
 
 	pakfiles = Sys_ListFiles(pakfile, ".pk3", NULL, &numfiles, qfalse);
 
-	qsort(pakfiles, numfiles, sizeof(char*), paksort);
+	qsort(pakfiles, numfiles, sizeof(char *), paksort);
 
 	for(i = 0; i < numfiles; i++)
 	{
@@ -2810,7 +2810,7 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 
 				// Local name
 				Q_strcat(neededpaks, len, "@");
-				
+
 				// Do we have one with the same name?
 				if(FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])))
 				{
@@ -2839,7 +2839,7 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 			{
 				Q_strcat(neededpaks, len, fs_serverReferencedPakNames[i]);
 				Q_strcat(neededpaks, len, ".pk3");
-				
+
 				// Do we have one with the same name?
 				if(FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])))
 				{
@@ -3640,25 +3640,25 @@ void FS_Flush(fileHandle_t f)
 	fflush(fsh[f].handleFiles.file.o);
 }
 
-void FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void(*callback)(const char *s))
+void FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void (*callback) (const char *s))
 {
-	char		  **filenames;
+	char          **filenames;
 	int             nfiles;
 	int             i;
-	char			filename[MAX_STRING_CHARS];
-  	 
-	filenames = FS_ListFilteredFiles( dir, ext, NULL, &nfiles );
-  	 
-	FS_SortFileList( filenames, nfiles );
-  	 
+	char            filename[MAX_STRING_CHARS];
+
+	filenames = FS_ListFilteredFiles(dir, ext, NULL, &nfiles);
+
+	FS_SortFileList(filenames, nfiles);
+
 	for(i = 0; i < nfiles; i++)
 	{
 		FS_ConvertPath(filenames[i]);
 		Q_strncpyz(filename, filenames[i], MAX_STRING_CHARS);
-  	 
+
 		if(stripExt)
 			Com_StripExtension(filename, filename, sizeof(filename));
-  	 
+
 		callback(filename);
 	}
 

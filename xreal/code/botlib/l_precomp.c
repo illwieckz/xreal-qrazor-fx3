@@ -132,7 +132,7 @@ define_t       *globaldefines;
 // Returns:                 -
 // Changes Globals:     -
 //============================================================================
-void            QDECL SourceError(source_t * source, char *str, ...)
+void QDECL SourceError(source_t * source, char *str, ...)
 {
 	char            text[1024];
 	va_list         ap;
@@ -157,7 +157,7 @@ void            QDECL SourceError(source_t * source, char *str, ...)
 // Returns:                 -
 // Changes Globals:     -
 //===========================================================================
-void            QDECL SourceWarning(source_t * source, char *str, ...)
+void QDECL SourceWarning(source_t * source, char *str, ...)
 {
 	char            text[1024];
 	va_list         ap;
@@ -347,7 +347,7 @@ int PC_ReadSourceToken(source_t * source, token_t * token)
 		script = source->scriptstack;
 		source->scriptstack = source->scriptstack->next;
 		FreeScript(script);
-	}							
+	}
 	//copy the already available token
 	Com_Memcpy(token, source->tokens, sizeof(token_t));
 	//free the read token
@@ -471,7 +471,7 @@ int PC_ReadDefineParms(source_t * source, define_t * define, token_t ** parms, i
 					parms[numparms] = t;
 				last = t;
 			}
-		}						
+		}
 		numparms++;
 	}
 	return qtrue;
@@ -585,7 +585,7 @@ int PC_NameHash(char *name)
 		hash += name[i] * (119 + i);
 		//hash += (name[i] << 7) + i;
 		//hash += (name[i] << (i&15));
-	}							
+	}
 	hash = (hash ^ (hash >> 10) ^ (hash >> 20)) & (DEFINEHASHSIZE - 1);
 	return hash;
 }								//end of the function PC_NameHash
@@ -725,7 +725,7 @@ void PC_AddBuiltinDefines(source_t * source)
 	{
 		define = (define_t *) GetMemory(sizeof(define_t));
 		Com_Memset(define, 0, sizeof(define_t));
-		define->name = (char *) GetMemory(strlen(builtin[i].string) + 1);
+		define->name = (char *)GetMemory(strlen(builtin[i].string) + 1);
 		strcpy(define->name, builtin[i].string);
 		define->flags |= DEFINE_FIXED;
 		define->builtin = builtin[i].builtin;
@@ -748,7 +748,7 @@ void PC_AddBuiltinDefines(source_t * source)
 int PC_ExpandBuiltinDefine(source_t * source, token_t * deftoken, define_t * define, token_t ** firsttoken, token_t ** lasttoken)
 {
 	token_t        *token;
-	time_t			t;
+	time_t          t;
 	char           *curtime;
 
 	token = PC_CopyToken(deftoken);
@@ -1005,14 +1005,14 @@ void PC_ConvertPath(char *path)
 		{
 			ptr++;
 		}
-	}							
+	}
 	//set OS dependent path seperators
 	for(ptr = path; *ptr;)
 	{
 		if(*ptr == '/' || *ptr == '\\')
 			*ptr = PATHSEPERATOR_CHAR;
 		ptr++;
-	}							
+	}
 }								//end of the function PC_ConvertPath
 
 //============================================================================
@@ -1069,7 +1069,7 @@ int PC_Directive_include(source_t * source)
 			if(token.type == TT_PUNCTUATION && *token.string == '>')
 				break;
 			strncat(path, token.string, MAX_QPATH - 1);
-		}						
+		}
 		if(*token.string != '>')
 		{
 			SourceWarning(source, "#include missing trailing >");
@@ -1290,7 +1290,7 @@ int PC_Directive_define(source_t * source)
 	//allocate define
 	define = (define_t *) GetMemory(sizeof(define_t));
 	Com_Memset(define, 0, sizeof(define_t));
-	define->name = (char *) GetMemory(strlen(token.string) + 1);
+	define->name = (char *)GetMemory(strlen(token.string) + 1);
 	strcpy(define->name, token.string);
 	//add the define to the source
 #if DEFINEHASHING
@@ -1353,7 +1353,7 @@ int PC_Directive_define(source_t * source)
 					SourceError(source, "define not terminated");
 					return qfalse;
 				}
-			}					
+			}
 		}
 		if(!PC_ReadLine(source, &token))
 			return qtrue;
@@ -1543,7 +1543,7 @@ define_t       *PC_CopyDefine(source_t * source, define_t * define)
 
 	newdefine = (define_t *) GetMemory(sizeof(define_t));
 	//copy the define name
-	newdefine->name = (char *) GetMemory(strlen(define->name) + 1);
+	newdefine->name = (char *)GetMemory(strlen(define->name) + 1);
 	strcpy(newdefine->name, define->name);
 	newdefine->flags = define->flags;
 	newdefine->builtin = define->builtin;
@@ -2290,7 +2290,7 @@ int PC_EvaluateTokens(source_t * source, token_t * tokens, signed long int *intv
 			lastoperator = o->prev;
 		//FreeMemory(o);
 		FreeOperator(o);
-	}							
+	}
 	if(firstvalue)
 	{
 		if(intvalue)
@@ -3038,7 +3038,7 @@ int PC_ReadToken(source_t * source, token_t * token)
 		Com_Memcpy(&source->token, token, sizeof(token_t));
 		//found a token
 		return qtrue;
-	}							
+	}
 }								//end of the function PC_ReadToken
 
 //============================================================================
@@ -3208,7 +3208,7 @@ int PC_SkipUntilString(source_t * source, char *string)
 	{
 		if(!strcmp(token.string, string))
 			return qtrue;
-	}							
+	}
 	return qfalse;
 }								//end of the function PC_SkipUntilString
 
@@ -3370,7 +3370,7 @@ void FreeSource(source_t * source)
 			define = source->definehash[i];
 			source->definehash[i] = source->definehash[i]->hashnext;
 			PC_FreeDefine(define);
-		}						
+		}
 	}
 #else							//DEFINEHASHING
 	//free all defines

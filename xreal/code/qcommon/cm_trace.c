@@ -141,9 +141,10 @@ SquareRootFloat
 */
 float SquareRootFloat(float number)
 {
-	union {
-		float f;
-		int i;
+	union
+	{
+		float           f;
+		int             i;
 	} t;
 	float           x, y;
 	const float     f = 1.5F;
@@ -328,7 +329,7 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 				return;
 			}
 		}
-		
+
 #ifdef BSPC
 		if(1)
 		{
@@ -541,7 +542,7 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 		CM_TraceThroughPatchCollide(tw, surface->pc);
 		c_patch_traces++;
 	}
-	
+
 #ifdef BSPC
 	if(0)
 	{
@@ -820,34 +821,34 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 	}
 
 	// trace line against all surfaces in the leaf
-		for(k = 0; k < leaf->numLeafSurfaces; k++)
+	for(k = 0; k < leaf->numLeafSurfaces; k++)
+	{
+		surface = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
+
+		if(!surface)
 		{
-			surface = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
-			
-			if(!surface)
-			{
-				continue;
-			}
-			
-			if(surface->checkcount == cm.checkcount)
-			{
-				continue;		// already checked this surface in another leaf
-			}
-			
-			surface->checkcount = cm.checkcount;
-
-			if(!(surface->contents & tw->contents))
-			{
-				continue;
-			}
-
-			CM_TraceThroughSurface(tw, surface);
-			
-			if(!tw->trace.fraction)
-			{
-				return;
-			}
+			continue;
 		}
+
+		if(surface->checkcount == cm.checkcount)
+		{
+			continue;			// already checked this surface in another leaf
+		}
+
+		surface->checkcount = cm.checkcount;
+
+		if(!(surface->contents & tw->contents))
+		{
+			continue;
+		}
+
+		CM_TraceThroughSurface(tw, surface);
+
+		if(!tw->trace.fraction)
+		{
+			return;
+		}
+	}
 }
 
 #define RADIUS_EPSILON		1.0f

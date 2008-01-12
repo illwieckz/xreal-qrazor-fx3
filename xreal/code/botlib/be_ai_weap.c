@@ -282,7 +282,7 @@ weaponconfig_t *LoadWeaponConfig(char *filename)
 			FreeSource(source);
 			return NULL;
 		}
-	}							
+	}
 	FreeSource(source);
 	//fix up weapons
 	for(i = 0; i < wc->numweapons; i++)

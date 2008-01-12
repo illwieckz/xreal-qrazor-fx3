@@ -405,7 +405,7 @@ static void CG_TouchTriggerPrediction(void)
 		{
 			continue;
 		}
-		
+
 		// Tr3B: Doom3 triggers have the "origin" epair
 		// so a simple trap_CM_BoxTrace caused a bug where the triggers were located
 		// to the world origin
@@ -413,7 +413,7 @@ static void CG_TouchTriggerPrediction(void)
 		BG_EvaluateTrajectory(&cent->currentState.pos, cg.physicsTime, origin);
 
 		trap_CM_TransformedBoxTrace(&trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
-						 cg_pmove.mins, cg_pmove.maxs, cmodel, -1, origin, angles);
+									cg_pmove.mins, cg_pmove.maxs, cmodel, -1, origin, angles);
 
 		if(!trace.startsolid)
 		{
@@ -441,10 +441,10 @@ static void CG_TouchTriggerPrediction(void)
 //unlagged - optimized prediction
 #define ABS(x) ((x) < 0 ? (-(x)) : (x))
 
-static int IsUnacceptableError(playerState_t *ps, playerState_t *pps)
+static int IsUnacceptableError(playerState_t * ps, playerState_t * pps)
 {
-	vec3_t delta;
-	int i;
+	vec3_t          delta;
+	int             i;
 
 	if(pps->pm_type != ps->pm_type || pps->pm_flags != ps->pm_flags || pps->pm_time != ps->pm_time)
 		return 1;
@@ -465,13 +465,13 @@ static int IsUnacceptableError(playerState_t *ps, playerState_t *pps)
 		return 3;
 	}
 
-	if(pps->weaponTime != ps->weaponTime ||	pps->gravity != ps->gravity || pps->speed != ps->speed ||
-			pps->delta_angles[0] != ps->delta_angles[0] || pps->delta_angles[1] != ps->delta_angles[1] ||
-			pps->delta_angles[2] != ps->delta_angles[2] || pps->groundEntityNum != ps->groundEntityNum)
+	if(pps->weaponTime != ps->weaponTime || pps->gravity != ps->gravity || pps->speed != ps->speed ||
+	   pps->delta_angles[0] != ps->delta_angles[0] || pps->delta_angles[1] != ps->delta_angles[1] ||
+	   pps->delta_angles[2] != ps->delta_angles[2] || pps->groundEntityNum != ps->groundEntityNum)
 		return 4;
 
 	if(pps->legsTimer != ps->legsTimer || pps->legsAnim != ps->legsAnim || pps->torsoTimer != ps->torsoTimer ||
-			pps->torsoAnim != ps->torsoAnim || pps->movementDir != ps->movementDir)
+	   pps->torsoAnim != ps->torsoAnim || pps->movementDir != ps->movementDir)
 		return 5;
 
 	VectorSubtract(pps->grapplePoint, ps->grapplePoint, delta);
@@ -491,21 +491,21 @@ static int IsUnacceptableError(playerState_t *ps, playerState_t *pps)
 	}
 
 	if(pps->externalEvent != ps->externalEvent || pps->externalEventParm != ps->externalEventParm ||
-			pps->externalEventTime != ps->externalEventTime)
+	   pps->externalEventTime != ps->externalEventTime)
 		return 10;
 
 	if(pps->clientNum != ps->clientNum || pps->weapon != ps->weapon || pps->weaponstate != ps->weaponstate)
 		return 11;
 
 	if(ABS(pps->viewangles[0] - ps->viewangles[0]) > 1.0f || ABS(pps->viewangles[1] - ps->viewangles[1]) > 1.0f ||
-			ABS(pps->viewangles[2] - ps->viewangles[2]) > 1.0f )
+	   ABS(pps->viewangles[2] - ps->viewangles[2]) > 1.0f)
 		return 12;
 
 	if(pps->viewheight != ps->viewheight)
 		return 13;
 
 	if(pps->damageEvent != ps->damageEvent || pps->damageYaw != ps->damageYaw ||
-			pps->damagePitch != ps->damagePitch || pps->damageCount != ps->damageCount)
+	   pps->damagePitch != ps->damagePitch || pps->damageCount != ps->damageCount)
 		return 14;
 
 	for(i = 0; i < MAX_STATS; i++)
@@ -532,7 +532,7 @@ static int IsUnacceptableError(playerState_t *ps, playerState_t *pps)
 			return 18;
 	}
 
-	if(pps->generic1 != ps->generic1 ||	pps->loopSound != ps->loopSound || pps->jumppad_ent != ps->jumppad_ent)
+	if(pps->generic1 != ps->generic1 || pps->loopSound != ps->loopSound || pps->jumppad_ent != ps->jumppad_ent)
 		return 19;
 
 	return 0;
@@ -562,14 +562,14 @@ to ease the jerk.
 */
 void CG_PredictPlayerState(void)
 {
-	int				cmdNum, current;
-	playerState_t	oldPlayerState;
-	qboolean		moved;
-	usercmd_t		oldestCmd;
-	usercmd_t		latestCmd;
-	int				stateIndex = 0, predictCmd = 0;
+	int             cmdNum, current;
+	playerState_t   oldPlayerState;
+	qboolean        moved;
+	usercmd_t       oldestCmd;
+	usercmd_t       latestCmd;
+	int             stateIndex = 0, predictCmd = 0;
 
-	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
+	cg.hyperspace = qfalse;		// will be set if touching a trigger_teleport
 
 	// if this is the first frame we must guarantee
 	// predictedPlayerState is valid even if there is some
@@ -616,12 +616,12 @@ void CG_PredictPlayerState(void)
 	// can't accurately predict a current position, so just freeze at
 	// the last good position we had
 	cmdNum = current - CMD_BACKUP + 1;
-	trap_GetUserCmd( cmdNum, &oldestCmd );
+	trap_GetUserCmd(cmdNum, &oldestCmd);
 	if(oldestCmd.serverTime > cg.snap->ps.commandTime && oldestCmd.serverTime < cg.time)
 	{
 		// special check for map_restart
 		if(cg_showmiss.integer)
-			CG_Printf ("exceeded PACKET_BACKUP on commands\n");
+			CG_Printf("exceeded PACKET_BACKUP on commands\n");
 		return;
 	}
 
@@ -680,8 +680,8 @@ void CG_PredictPlayerState(void)
 		else
 		{
 			// we have a new snapshot
-			int i;
-			qboolean error = qtrue;
+			int             i;
+			qboolean        error = qtrue;
 
 			// loop through the saved states queue
 			for(i = cg.stateHead; i != cg.stateTail; i = (i + 1) % NUM_SAVED_STATES)
@@ -690,7 +690,7 @@ void CG_PredictPlayerState(void)
 				if(cg.savedPmoveStates[i].commandTime == cg.predictedPlayerState.commandTime)
 				{
 					// make sure the state differences are acceptable
-					int errorcode = IsUnacceptableError(&cg.predictedPlayerState, &cg.savedPmoveStates[i]);
+					int             errorcode = IsUnacceptableError(&cg.predictedPlayerState, &cg.savedPmoveStates[i]);
 
 					// too much change?
 					if(errorcode)
@@ -754,8 +754,8 @@ void CG_PredictPlayerState(void)
 		// we want to compare
 		if(cg.predictedPlayerState.commandTime == oldPlayerState.commandTime)
 		{
-			vec3_t	delta;
-			float	len;
+			vec3_t          delta;
+			float           len;
 
 			if(cg.thisFrameTeleport)
 			{
@@ -767,9 +767,10 @@ void CG_PredictPlayerState(void)
 			}
 			else
 			{
-				vec3_t adjusted;
+				vec3_t          adjusted;
+
 				CG_AdjustPositionForMover(cg.predictedPlayerState.origin, cg.predictedPlayerState.groundEntityNum,
-					cg.physicsTime, cg.oldTime, adjusted);
+										  cg.physicsTime, cg.oldTime, adjusted);
 
 				if(cg_showmiss.integer)
 				{
@@ -786,8 +787,8 @@ void CG_PredictPlayerState(void)
 
 					if(cg_errorDecay.integer)
 					{
-						int		t;
-						float	f;
+						int             t;
+						float           f;
 
 						t = cg.time - cg.predictedErrorTime;
 						f = (cg_errorDecay.value - t) / cg_errorDecay.value;
@@ -835,7 +836,8 @@ void CG_PredictPlayerState(void)
 				cg.lastPredictedCommand = cmdNum;
 
 				// if we haven't run out of space in the saved states queue
-				if ( (stateIndex + 1) % NUM_SAVED_STATES != cg.stateHead ) {
+				if((stateIndex + 1) % NUM_SAVED_STATES != cg.stateHead)
+				{
 					// save the state for the false case (of cmdNum >= predictCmd)
 					// in later calls to this function
 					cg.savedPmoveStates[stateIndex] = *cg_pmove.ps;
@@ -878,8 +880,8 @@ void CG_PredictPlayerState(void)
 	}
 
 	// adjust for the movement of the groundentity
-	CG_AdjustPositionForMover(cg.predictedPlayerState.origin, cg.predictedPlayerState.groundEntityNum, 
-		cg.physicsTime, cg.time, cg.predictedPlayerState.origin);
+	CG_AdjustPositionForMover(cg.predictedPlayerState.origin, cg.predictedPlayerState.groundEntityNum,
+							  cg.physicsTime, cg.time, cg.predictedPlayerState.origin);
 
 	if(cg_showmiss.integer)
 	{

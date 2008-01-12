@@ -87,7 +87,7 @@ static int particle_SetDuration(lua_State * L)
 	p = lp->p;
 
 	duration = luaL_checknumber(L, 2);
-	
+
 	p->endTime = cg.time + duration;
 
 	return 1;

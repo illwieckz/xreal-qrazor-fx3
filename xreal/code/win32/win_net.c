@@ -1043,7 +1043,7 @@ NET_inet_ntoa
 wrapper for inet_ntoa
 ====================
 */
-const char *NET_inet_ntoa(unsigned int ip)
+const char     *NET_inet_ntoa(unsigned int ip)
 {
 	return inet_ntoa(*(struct in_addr *)&ip);
 }

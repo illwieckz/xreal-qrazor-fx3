@@ -33,7 +33,7 @@ typedef struct
 typedef struct
 {
 	int             surfacePlane;
-	int             numBorders;	
+	int             numBorders;
 	int             borderPlanes[MAX_TRIANGLE_BEVELS];
 	int             borderInward[MAX_TRIANGLE_BEVELS];
 	qboolean        borderNoAdjust[MAX_TRIANGLE_BEVELS];
@@ -42,10 +42,10 @@ typedef struct
 typedef struct triSoupCollide_s
 {
 	vec3_t          bounds[2];
-	
+
 	int             numPlanes;	// surface planes plus edge planes
 	trianglePlane_t *planes;
-	
+
 	int             numTriangles;
 	cTriangle_t    *triangles;
 } triSoupCollide_t;
@@ -56,4 +56,4 @@ typedef struct
 	vec3_t          points[SHADER_MAX_TRIANGLES][3];
 } cTriangleSoup_t;
 
-struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int * indexes);
+struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes);

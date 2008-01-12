@@ -637,11 +637,12 @@ static qboolean CG_RegisterClientSkin(clientInfo_t * ci, const char *teamName, c
 }
 
 #ifdef XPPM
-static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName, qboolean loop, qboolean reversed, qboolean clearOrigin)
+static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelName, int anim, const char *animName,
+										   qboolean loop, qboolean reversed, qboolean clearOrigin)
 {
 	char            filename[MAX_QPATH];
 	int             frameRate;
-	
+
 	//Com_sprintf(filename, sizeof(filename), "models/players/animations/%s.md5anim", animName);
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/%s.md5anim", modelName, animName);
 	ci->animations[anim].handle = trap_R_RegisterAnimation(filename);
@@ -650,7 +651,7 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 		Com_Printf("Failed to load animation file %s\n", filename);
 		return qfalse;
 	}
-	
+
 	ci->animations[anim].firstFrame = 0;
 	ci->animations[anim].numFrames = trap_R_AnimNumFrames(ci->animations[anim].handle);
 	frameRate = trap_R_AnimFrameRate(ci->animations[anim].handle);
@@ -661,7 +662,7 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	}
 	ci->animations[anim].frameTime = 1000 / frameRate;
 	ci->animations[anim].initialLerp = 1000 / frameRate;
-	
+
 	if(loop)
 	{
 		ci->animations[anim].loopFrames = ci->animations[anim].numFrames;
@@ -670,10 +671,10 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 	{
 		ci->animations[anim].loopFrames = 0;
 	}
-	
+
 	ci->animations[anim].reversed = reversed;
 	ci->animations[anim].clearOrigin = clearOrigin;
-	
+
 	return qtrue;
 }
 #endif
@@ -707,7 +708,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	if(ci->bodyModel)
 	{
 		// TODO CG_ParseCharacterFile(filename, ci) ?
-		
+
 		ci->footsteps = FOOTSTEP_STONE;
 		VectorClear(ci->headOffset);
 		ci->gender = GENDER_MALE;
@@ -717,26 +718,26 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		// the af pose animation is good for testing player angles
 #if 0
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "af_pose", qtrue, qfalse, qfalse))
-#else	
+#else
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse))
 #endif
 		{
 			return qfalse;
 		}
-				
+
 		// make LEGS_IDLE the default animation
 		for(i = 0; i < MAX_ANIMATIONS; i++)
 		{
 			if(i == LEGS_IDLE)
 				continue;
-			
+
 			ci->animations[i] = ci->animations[LEGS_IDLE];
 		}
-		
+
 		// FIXME we don't have death animations
-		
+
 		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "taunt_1", qfalse, qfalse, qfalse);
-		
+
 		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "machinegun_fire", qfalse, qfalse, qfalse);
 		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "gauntlet_fire", qfalse, qfalse, qfalse);
 
@@ -746,19 +747,19 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue);
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse, qtrue);
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run", qtrue, qtrue, qtrue);
-		
+
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue);
-		
+
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse, qfalse);
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "soft_land", qfalse, qfalse, qfalse);
-		
+
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qfalse, qfalse);	// FIXME ?
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "fall", qfalse, qfalse, qfalse);
-		
+
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse);
-		
+
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
-		
+
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_forward", qtrue, qtrue, qtrue);
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue);
 
@@ -1507,7 +1508,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 {
 	int             f, numFrames;
 	animation_t    *anim;
-	qboolean		animChanged;
+	qboolean        animChanged;
 
 	// debugging tool to get no animations
 	if(cg_animSpeed.integer == 0)
@@ -1520,12 +1521,12 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	if(newAnimation != lf->animationNumber || !lf->animation)
 	{
 		CG_SetLerpFrameAnimation(ci, lf, newAnimation);
-		
+
 		if(!lf->animation)
 		{
 			memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
 		}
-		
+
 #ifdef XPPM
 		animChanged = qtrue;
 #else
@@ -1534,7 +1535,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	}
 	else
 	{
-		animChanged = qfalse;	
+		animChanged = qfalse;
 	}
 
 	// if we have passed the current frame, move it to
@@ -1560,7 +1561,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		{
 			return;				// shouldn't happen
 		}
-		
+
 		if(cg.time < lf->animationTime)
 		{
 			lf->frameTime = lf->animationTime;	// initial lerp
@@ -1573,16 +1574,16 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		f *= speedScale;		// adjust for haste, etc
 
 		numFrames = anim->numFrames;
-		
+
 		if(anim->flipflop)
 		{
 			numFrames *= 2;
 		}
-		
+
 		if(f >= numFrames)
 		{
 			f -= numFrames;
-			
+
 			if(anim->loopFrames)
 			{
 				f %= anim->loopFrames;
@@ -1609,7 +1610,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		{
 			lf->frame = anim->firstFrame + f;
 		}
-		
+
 		if(cg.time > lf->frameTime)
 		{
 			lf->frameTime = cg.time;
@@ -1629,7 +1630,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	{
 		lf->oldFrameTime = cg.time;
 	}
-	
+
 	// calculate current lerp value
 	if(lf->frameTime == lf->oldFrameTime)
 	{
@@ -1639,17 +1640,14 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	{
 		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
-	
+
 #ifdef XPPM
 	if(!trap_R_BuildSkeleton(&lf->skeleton,
-							 lf->animation->handle,
-							 lf->oldFrame, lf->frame,
-							 1.0 - lf->backlerp,
-							 lf->animation->clearOrigin))
+							 lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
 	{
 		CG_Printf("Can't build lf->skeleton\n");
 	}
-	
+
 #if 1
 	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
 	{
@@ -1657,12 +1655,12 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 		{
 			CG_Printf("Can't blend lf->oldSkeleton\n");
 		}
-		
+
 		memcpy(&lf->skeleton, &lf->oldSkeleton, sizeof(refSkeleton_t));
 	}
 #endif
 
-#endif // XPPM
+#endif							// XPPM
 }
 
 
@@ -2397,8 +2395,8 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 {
 	int             powerups;
 	clientInfo_t   *ci;
-	refLight_t		light;
-	float			radius;
+	refLight_t      light;
+	float           radius;
 
 	powerups = cent->currentState.powerups;
 	if(!powerups)
@@ -2411,7 +2409,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 	{
 		// add light
 		memset(&light, 0, sizeof(refLight_t));
-	
+
 		light.rlType = RL_OMNI;
 
 		VectorCopy(cent->lerpOrigin, light.origin);
@@ -2425,7 +2423,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[0] = radius;
 		light.radius[1] = radius;
 		light.radius[2] = radius;
-		
+
 		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
@@ -2440,7 +2438,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 	}
 
 	ci = &cgs.clientinfo[cent->currentState.clientNum];
-	
+
 	// redflag
 	if(powerups & (1 << PW_REDFLAG))
 	{
@@ -2455,7 +2453,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 
 		// add light
 		memset(&light, 0, sizeof(refLight_t));
-	
+
 		light.rlType = RL_OMNI;
 
 		VectorCopy(cent->lerpOrigin, light.origin);
@@ -2469,7 +2467,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[0] = radius;
 		light.radius[1] = radius;
 		light.radius[2] = radius;
-		
+
 		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
@@ -2491,7 +2489,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 
 		// add light
 		memset(&light, 0, sizeof(refLight_t));
-	
+
 		light.rlType = RL_OMNI;
 
 		VectorCopy(cent->lerpOrigin, light.origin);
@@ -2505,7 +2503,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[0] = radius;
 		light.radius[1] = radius;
 		light.radius[2] = radius;
-		
+
 		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
@@ -2527,7 +2525,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 
 		// add light
 		memset(&light, 0, sizeof(refLight_t));
-	
+
 		light.rlType = RL_OMNI;
 
 		VectorCopy(cent->lerpOrigin, light.origin);
@@ -2541,7 +2539,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 		light.radius[0] = radius;
 		light.radius[1] = radius;
 		light.radius[2] = radius;
-		
+
 		QuatClear(light.rotation);
 
 		light.noShadowID = noShadowID;
@@ -3110,19 +3108,19 @@ void CG_Player(centity_t * cent)
 	int             renderfx;
 	qboolean        shadow;
 	float           shadowPlane;
-	
-	vec3_t			legsAngles;
-	vec3_t			torsoAngles;
-	vec3_t			headAngles;
-	
+
+	vec3_t          legsAngles;
+	vec3_t          torsoAngles;
+	vec3_t          headAngles;
+
 	quat_t          legsQuat;
 	quat_t          torsoQuat;
 	quat_t          headQuat;
-	
+
 	int             i;
-	int				boneIndex;
-	int				boneIndex2;
-	vec3_t			scale = {0.83, 0.83, 0.83};	// approx. Quake4 to Q3A player size
+	int             boneIndex;
+	int             boneIndex2;
+	vec3_t          scale = { 0.83, 0.83, 0.83 };	// approx. Quake4 to Q3A player size
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3194,7 +3192,7 @@ void CG_Player(centity_t * cent)
 	// add the body
 	body.hModel = ci->bodyModel;
 	//body.customSkin = ci->bodySkin;
-	
+
 	if(!body.hModel)
 	{
 		return;
@@ -3207,10 +3205,10 @@ void CG_Player(centity_t * cent)
 	body.shadowPlane = shadowPlane;
 	body.renderfx = renderfx;
 	VectorCopy(body.origin, body.oldorigin);	// don't positionally lerp at all
-	
+
 	// copy legs skeleton to have a base
 	memcpy(&body.skeleton, &cent->pe.legs.skeleton, sizeof(refSkeleton_t));
-	
+
 	if(cent->pe.legs.skeleton.numBones != cent->pe.torso.skeleton.numBones)
 	{
 		CG_Error("cent->pe.legs.skeleton.numBones != cent->pe.torso.skeleton.numBones");
@@ -3220,11 +3218,11 @@ void CG_Player(centity_t * cent)
 	// combine legs and torso skeletons
 #if 1
 	boneIndex = trap_R_BoneIndex(body.hModel, "waist");
-	
+
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		boneIndex2 = trap_R_BoneIndex(body.hModel, "hips");
-	
+
 		if(boneIndex2 >= 0 && boneIndex2 < cent->pe.legs.skeleton.numBones)
 		{
 			// copy torso bones
@@ -3233,14 +3231,18 @@ void CG_Player(centity_t * cent)
 				memcpy(&body.skeleton.bones[i], &cent->pe.torso.skeleton.bones[i], sizeof(refBone_t));
 			}
 		}
-			
+
 		body.skeleton.type = SK_RELATIVE;
-		
+
 		// update AABB
 		for(i = 0; i < 3; i++)
 		{
-			body.skeleton.bounds[0][i] = cent->pe.torso.skeleton.bounds[0][i] < cent->pe.legs.skeleton.bounds[0][i] ? cent->pe.torso.skeleton.bounds[0][i] : cent->pe.legs.skeleton.bounds[0][i];
-			body.skeleton.bounds[1][i] = cent->pe.torso.skeleton.bounds[1][i] > cent->pe.legs.skeleton.bounds[1][i] ? cent->pe.torso.skeleton.bounds[1][i] : cent->pe.legs.skeleton.bounds[1][i];
+			body.skeleton.bounds[0][i] =
+				cent->pe.torso.skeleton.bounds[0][i] <
+				cent->pe.legs.skeleton.bounds[0][i] ? cent->pe.torso.skeleton.bounds[0][i] : cent->pe.legs.skeleton.bounds[0][i];
+			body.skeleton.bounds[1][i] =
+				cent->pe.torso.skeleton.bounds[1][i] >
+				cent->pe.legs.skeleton.bounds[1][i] ? cent->pe.torso.skeleton.bounds[1][i] : cent->pe.legs.skeleton.bounds[1][i];
 		}
 	}
 	else
@@ -3249,11 +3251,11 @@ void CG_Player(centity_t * cent)
 		body.skeleton.type = SK_INVALID;
 	}
 #endif
-	
+
 	// rotate legs
 #if 0
 	boneIndex = trap_R_BoneIndex(body.hModel, "origin");
-	
+
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
@@ -3261,12 +3263,12 @@ void CG_Player(centity_t * cent)
 		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, legsQuat);
 	}
 #endif
-	
-	
+
+
 	// rotate torso
 #if 1
 	boneIndex = trap_R_BoneIndex(body.hModel, "chest");
-	
+
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
@@ -3278,7 +3280,7 @@ void CG_Player(centity_t * cent)
 	// rotate head
 #if 1
 	boneIndex = trap_R_BoneIndex(body.hModel, "neckcontrol");
-	
+
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
@@ -3286,18 +3288,18 @@ void CG_Player(centity_t * cent)
 		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, headQuat);
 	}
 #endif
-	
+
 	// transform relative bones to absolute ones required for vertex skinning and tag attachments
 	CG_TransformSkeleton(&body.skeleton, scale);
-	
+
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
-	
+
 	// TODO add TA kamikaze model and other stuff
 
 	// add the gun / barrel / flash
 	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
-	
+
 	// TODO add powerups floating behind the player
 	//CG_PlayerPowerups(cent, &body);
 
@@ -3315,11 +3317,11 @@ void CG_Player(centity_t * cent)
 	int             renderfx;
 	qboolean        shadow;
 	float           shadowPlane;
-	int				noShadowID;
-	
-	vec3_t			legsAngles;
-	vec3_t			torsoAngles;
-	vec3_t			headAngles;
+	int             noShadowID;
+
+	vec3_t          legsAngles;
+	vec3_t          torsoAngles;
+	vec3_t          headAngles;
 
 #ifdef MISSIONPACK
 	refEntity_t     skull;
@@ -3378,7 +3380,7 @@ void CG_Player(centity_t * cent)
 
 	// get the rotation information
 	CG_PlayerAngles(cent, legsAngles, torsoAngles, headAngles);
-	
+
 	AnglesToAxis(legsAngles, legs.axis);
 	AnglesToAxis(torsoAngles, torso.axis);
 	AnglesToAxis(headAngles, head.axis);

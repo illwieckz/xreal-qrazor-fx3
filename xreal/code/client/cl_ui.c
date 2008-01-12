@@ -436,28 +436,28 @@ static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int 
 	switch (sortKey)
 	{
 		case SORT_HOST:
+		{
+			char            hostName1[80];
+			char            hostName2[80];
+			char           *p;
+			int             i;
+
+			for(p = server1->hostName, i = 0; *p != '\0'; p++)
 			{
-				char	hostName1[80];
-				char	hostName2[80];
-				char   *p;
-				int		i;
-  	 
-				for(p = server1->hostName, i = 0; *p != '\0'; p++)
-				{
-					if(Q_isalpha(*p))
-						hostName1[i++] = *p;
-				}
-				hostName1[i] = '\0';
-  	 
-				for(p = server2->hostName, i = 0; *p != '\0'; p++)
-				{
-					if(Q_isalpha(*p))
-						hostName2[i++] = *p;
-				}
-				hostName2[i] = '\0';
-  	 
-				res = Q_stricmp(hostName1, hostName2);
+				if(Q_isalpha(*p))
+					hostName1[i++] = *p;
 			}
+			hostName1[i] = '\0';
+
+			for(p = server2->hostName, i = 0; *p != '\0'; p++)
+			{
+				if(Q_isalpha(*p))
+					hostName2[i++] = *p;
+			}
+			hostName2[i] = '\0';
+
+			res = Q_stricmp(hostName1, hostName2);
+		}
 			break;
 
 		case SORT_MAP:
@@ -780,7 +780,7 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
-intptr_t CL_UISystemCalls(intptr_t *args)
+intptr_t CL_UISystemCalls(intptr_t * args)
 {
 	switch (args[0])
 	{

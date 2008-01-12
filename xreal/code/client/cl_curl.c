@@ -78,8 +78,8 @@ static int CL_cURL_CallbackProgress(void *dummy, double dltotal, double dlnow, d
 
 static int CL_cURL_CallbackWrite(void *buffer, size_t size, size_t nmemb, void *stream)
 {
-	FS_Write(buffer, size*nmemb, ((fileHandle_t*)stream)[0]);
-	return size*nmemb;
+	FS_Write(buffer, size * nmemb, ((fileHandle_t *) stream)[0]);
+	return size * nmemb;
 }
 
 void CL_cURL_BeginDownload(const char *localName, const char *remoteURL)
@@ -88,13 +88,11 @@ void CL_cURL_BeginDownload(const char *localName, const char *remoteURL)
 
 	Com_Printf("URL: %s\n", remoteURL);
 	Com_DPrintf("***** CL_cURL_BeginDownload *****\n"
-		"Localname: %s\n"
-		"RemoteURL: %s\n"
-		"****************************\n", localName, remoteURL);
+				"Localname: %s\n" "RemoteURL: %s\n" "****************************\n", localName, remoteURL);
 	CL_cURL_Cleanup();
 	Q_strncpyz(clc.downloadURL, remoteURL, sizeof(clc.downloadURL));
 	Q_strncpyz(clc.downloadName, localName, sizeof(clc.downloadName));
-	Com_sprintf(clc.downloadTempName, sizeof(clc.downloadTempName),	"%s.tmp", localName);
+	Com_sprintf(clc.downloadTempName, sizeof(clc.downloadTempName), "%s.tmp", localName);
 
 	// Set so UI gets access to it
 	Cvar_Set("cl_downloadName", localName);
@@ -102,7 +100,7 @@ void CL_cURL_BeginDownload(const char *localName, const char *remoteURL)
 	Cvar_Set("cl_downloadCount", "0");
 	Cvar_SetValue("cl_downloadTime", cls.realtime);
 
-	clc.downloadBlock = 0; // Starting new file
+	clc.downloadBlock = 0;		// Starting new file
 	clc.downloadCount = 0;
 
 	clc.downloadCURL = curl_easy_init();
@@ -132,7 +130,7 @@ void CL_cURL_BeginDownload(const char *localName, const char *remoteURL)
 	curl_easy_setopt(clc.downloadCURL, CURLOPT_FAILONERROR, 1);
 	curl_easy_setopt(clc.downloadCURL, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(clc.downloadCURL, CURLOPT_MAXREDIRS, 5);
-	clc.downloadCURLM = curl_multi_init();	
+	clc.downloadCURLM = curl_multi_init();
 	if(!clc.downloadCURLM)
 	{
 		curl_easy_cleanup(clc.downloadCURL);
@@ -154,10 +152,10 @@ void CL_cURL_BeginDownload(const char *localName, const char *remoteURL)
 
 void CL_cURL_PerformDownload(void)
 {
-	CURLMcode res;
-	CURLMsg *msg;
-	int c;
-	int i = 0;
+	CURLMcode       res;
+	CURLMsg        *msg;
+	int             c;
+	int             i = 0;
 
 	res = curl_multi_perform(clc.downloadCURLM, &c);
 	while(res == CURLM_CALL_MULTI_PERFORM && i < 100)
@@ -180,14 +178,13 @@ void CL_cURL_PerformDownload(void)
 	}
 	else
 	{
-		long code;
+		long            code;
 
-		curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &code);	
-		Com_Error(ERR_DROP, "Download Error: %s Code: %ld URL: %s",
-			curl_easy_strerror(msg->data.result), code, clc.downloadURL);
+		curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &code);
+		Com_Error(ERR_DROP, "Download Error: %s Code: %ld URL: %s", curl_easy_strerror(msg->data.result), code, clc.downloadURL);
 	}
 	*clc.downloadTempName = *clc.downloadName = 0;
 	Cvar_Set("cl_downloadName", "");
 	CL_NextDownload();
 }
-#endif /* USE_CURL */
+#endif							/* USE_CURL */

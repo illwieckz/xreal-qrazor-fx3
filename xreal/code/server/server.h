@@ -309,7 +309,7 @@ void            SV_ClientThink(client_t * cl, usercmd_t * cmd);
 
 void            SV_WriteDownloadToClient(client_t * cl, msg_t * msg);
 
-qboolean		SV_ExcessiveWhiteSpaceCheck(const char *s);
+qboolean        SV_ExcessiveWhiteSpaceCheck(const char *s);
 
 //
 // sv_ccmds.c

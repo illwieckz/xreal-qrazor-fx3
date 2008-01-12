@@ -313,4 +313,3 @@ void SNDDMA_BeginPainting(void)
 }
 
 #endif
-

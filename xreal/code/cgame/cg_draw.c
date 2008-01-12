@@ -310,7 +310,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
-	refLight_t		light;
+	refLight_t      light;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -344,27 +344,27 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene(&ent);
-	
+
 	// add light
 	memset(&light, 0, sizeof(refLight_t));
-	
+
 	light.rlType = RL_PROJ;
-	
+
 	VectorMA(refdef.vieworg, -200, refdef.viewaxis[0], light.origin);
 	light.origin[1] += 10;
-	
+
 	QuatFromAngles(light.rotation, 0, 5, 0);
-	
+
 	light.color[0] = 0.8f;
 	light.color[1] = 0.8f;
 	light.color[2] = 0.8f;
-	
+
 	light.fovX = 90;
 	light.fovY = 90;
 	light.distance = 500;
-	
+
 	trap_R_AddRefLightToScene(&light);
-	
+
 	trap_R_RenderScene(&refdef);
 }
 
@@ -379,7 +379,7 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 {
 	refdef_t        refdef;
 	refEntity_t     ent;
-	refLight_t		light;
+	refLight_t      light;
 
 	if(!cg_draw3dIcons.integer || !cg_drawIcons.integer)
 	{
@@ -433,25 +433,25 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponMo
 
 		trap_R_AddRefEntityToScene(&barrel);
 	}
-	
+
 	// add light
 	memset(&light, 0, sizeof(refLight_t));
-	
+
 	light.rlType = RL_PROJ;
 
 	VectorMA(refdef.vieworg, -30, refdef.viewaxis[0], light.origin);
 	light.origin[1] += 10;
-	
+
 	QuatFromAngles(light.rotation, 0, 5, 0);
-	
+
 	light.color[0] = 0.8f;
 	light.color[1] = 0.8f;
 	light.color[2] = 0.8f;
-	
+
 	light.fovX = 90;
 	light.fovY = 90;
 	light.distance = 500;
-	
+
 	trap_R_AddRefLightToScene(&light);
 
 	trap_R_RenderScene(&refdef);
@@ -708,6 +708,7 @@ static void CG_DrawStatusBarQ3(void)
 	vec4_t          hcolor;
 	vec3_t          angles;
 	vec3_t          origin;
+
 #ifdef MISSIONPACK
 	qhandle_t       handle;
 #endif
@@ -891,7 +892,7 @@ static void CG_DrawStatusBarXreaL(void)
 		{1.0f, 0.2f, 0.2f, 1.0f},	// low health
 		{0.5f, 0.5f, 0.5f, 1.0f},	// weapon firing
 		{1.0f, 1.0f, 1.0f, 1.0f}	// health > 100
-	};							
+	};
 	vec4_t         *colorItem;
 	vec4_t          colorHudBlack = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
 	vec4_t          colorHudSemiBlack = { 0.0f, 0.0f, 0.0f, 0.2f };	// b/w
@@ -956,7 +957,7 @@ static void CG_DrawStatusBarXreaL(void)
 				colorAmmo[2] = colors[color][2];
 
 				trap_R_SetColor(colorAmmo);
-				CG_DrawPic(320 + 5, 480 - 38, Q_bound(0, value * 300/200, 300), 36, cgs.media.sideBarItemLShader);
+				CG_DrawPic(320 + 5, 480 - 38, Q_bound(0, value * 300 / 200, 300), 36, cgs.media.sideBarItemLShader);
 			}
 
 			trap_R_SetColor(colors[color]);
@@ -1007,14 +1008,15 @@ static void CG_DrawStatusBarXreaL(void)
 	trap_R_SetColor(NULL);
 
 	CG_DrawStatusBarHead(10);
-	
+
 	if(cg_drawStatusLines.integer)
 	{
 		trap_R_SetColor(colorHudSemiBlack);
-		CG_DrawPic(320 -305, 480 - 38, 300, 36, cgs.media.sideBarItemRShader);
+		CG_DrawPic(320 - 305, 480 - 38, 300, 36, cgs.media.sideBarItemRShader);
 
 		trap_R_SetColor(colorHealth);
-		CG_DrawPic(320 -305 + (300 - Q_bound(0, value * 300/200, 300)), 480 - 38, Q_bound(0, value * 300/200, 300), 36, cgs.media.sideBarItemRShader);
+		CG_DrawPic(320 - 305 + (300 - Q_bound(0, value * 300 / 200, 300)), 480 - 38, Q_bound(0, value * 300 / 200, 300), 36,
+				   cgs.media.sideBarItemRShader);
 	}
 
 	// armor
@@ -1041,14 +1043,15 @@ static void CG_DrawStatusBarXreaL(void)
 			CG_Draw3DModel(13, 480 - ICON_SIZE * 2 - 13, ICON_SIZE, ICON_SIZE, cgs.media.armorModel, 0, origin, angles);
 		}
 	}
-	
+
 	if(cg_drawStatusLines.integer)
 	{
 		trap_R_SetColor(colorHudSemiBlack);
-		CG_DrawPic(320 -305, 480 - 79, 300, 36, cgs.media.sideBarItemRShader);
+		CG_DrawPic(320 - 305, 480 - 79, 300, 36, cgs.media.sideBarItemRShader);
 
 		trap_R_SetColor(colorArmor);
-		CG_DrawPic(320 -305 + (300 - Q_bound(0, value * 300/200, 300)), 480 - 79, Q_bound(0, value * 300/200, 300), 36, cgs.media.sideBarItemRShader);
+		CG_DrawPic(320 - 305 + (300 - Q_bound(0, value * 300 / 200, 300)), 480 - 79, Q_bound(0, value * 300 / 200, 300), 36,
+				   cgs.media.sideBarItemRShader);
 	}
 }
 
@@ -1075,6 +1078,7 @@ CG_DrawSideBarItem
 static void CG_DrawSideBarItem(int x, int y, int i)
 {
 	char           *ammo;
+
 	// a colors[][] array would be better
 	vec4_t         *colorItemNormal;
 	vec4_t         *colorItemSelected;
@@ -1123,7 +1127,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 		{
 			// draw image with color
 			trap_R_SetColor(*colorItemSelected);
-			
+
 			if(cg_drawSideBar.integer == 1)
 			{
 				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemRShader);
@@ -1132,7 +1136,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 			{
 				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemLShader);
 			}
-			
+
 			trap_R_SetColor(NULL);
 
 			CG_Draw3DWeaponModel(x, y - 5, 54, 54, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
@@ -1151,7 +1155,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 			{
 				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemLShader);
 			}
-			
+
 			trap_R_SetColor(NULL);
 
 			CG_Draw3DWeaponModel(x, y, 48, 48, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
@@ -1950,7 +1954,7 @@ static void CG_DrawLowerRight(void)
 {
 	float           y;
 
-	y = 480 - 88;	// offset above lagometer
+	y = 480 - 88;				// offset above lagometer
 
 	if(cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2)
 	{
@@ -1972,7 +1976,7 @@ static int CG_DrawPickupItem(int y)
 {
 	int             value;
 	float          *fadeColor;
-	
+
 	if(!cg_drawPickupItem.integer)
 		return y;
 
@@ -3444,7 +3448,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 
 	// draw bloom post process effect
 	CG_DrawBloom();
-	
+
 	// draw rotoscope post process effect
 	CG_DrawRotoscope();
 

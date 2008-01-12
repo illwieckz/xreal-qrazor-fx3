@@ -459,6 +459,6 @@ int AAS_NextEntity(int entnum)
 	{
 		if(aasworld.entities[entnum].i.valid)
 			return entnum;
-	}							
+	}
 	return 0;
 }								//end of the function AAS_NextEntity

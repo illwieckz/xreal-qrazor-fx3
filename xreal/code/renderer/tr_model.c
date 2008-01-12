@@ -505,12 +505,12 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		static vec3_t   tangents[SHADER_MAX_VERTEXES];
 		static vec3_t   binormals[SHADER_MAX_VERTEXES];
 		static vec3_t   normals[SHADER_MAX_VERTEXES];
-		static int		indexes2[SHADER_MAX_INDEXES];
+		static int      indexes2[SHADER_MAX_INDEXES];
 
 		growList_t      vboSurfaces;
 		srfVBOMesh_t   *vboSurf;
 
-		color4ub_t		tmpColor = {255, 255, 255, 255};
+		color4ub_t      tmpColor = { 255, 255, 255, 255 };
 
 
 		//ri.Printf(PRINT_ALL, "...trying to calculate VBOs for model '%s'\n", modName);
@@ -827,8 +827,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				}
 
 				vboSurf->vbo =
-					R_CreateStaticVBO(va("staticMD3Mesh %i", vboSurfaces.currentElements), data, dataSize, indexes,
-									  indexesSize);
+					R_CreateStaticVBO(va("staticMD3Mesh %i", vboSurfaces.currentElements), data, dataSize, indexes, indexesSize);
 				vboSurf->vbo->ofsXYZ = 0;
 				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 				vboSurf->vbo->ofsTangents = ofsTangents;
@@ -841,11 +840,11 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 				// megs
 				/*
-				ri.Printf(PRINT_ALL, "md3 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
-						  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
-				ri.Printf(PRINT_ALL, "md3 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
-						  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
-				*/
+				   ri.Printf(PRINT_ALL, "md3 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+				   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+				   ri.Printf(PRINT_ALL, "md3 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+				   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+				 */
 
 			}
 		}

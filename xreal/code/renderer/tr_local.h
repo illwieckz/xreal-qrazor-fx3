@@ -838,8 +838,8 @@ typedef struct shaderProgram_s
 
 	GLint           u_EtaRatio;
 
-	GLint			u_FogDensity;
-	GLint			u_FogColor;
+	GLint           u_FogDensity;
+	GLint           u_FogColor;
 
 	GLint           u_DepthScale;
 
@@ -850,7 +850,7 @@ typedef struct shaderProgram_s
 	GLint           u_ModelMatrix;
 	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
-	GLint			u_UnprojectMatrix;
+	GLint           u_UnprojectMatrix;
 } shaderProgram_t;
 
 

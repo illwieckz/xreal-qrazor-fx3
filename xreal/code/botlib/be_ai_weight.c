@@ -450,7 +450,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 			FreeSource(source);
 			return NULL;
 		}
-	}							
+	}
 	//free the source at the end of a pass
 	FreeSource(source);
 	//if the file was located in a pak file
@@ -672,10 +672,10 @@ float FuzzyWeight_r(int *inventory, fuzzyseperator_t * fs)
 			else
 				w2 = fs->next->weight;
 			//the scale factor
-			if(fs->next->value == MAX_INVENTORYVALUE) // is fs->next the default case?
-				return w2;      // can't interpolate, return default weight
+			if(fs->next->value == MAX_INVENTORYVALUE)	// is fs->next the default case?
+				return w2;		// can't interpolate, return default weight
 			else
-				scale = (float) (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
+				scale = (float)(inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
 			//scale between the two weights
 			return (1 - scale) * w1 + scale * w2;
 		}
@@ -716,10 +716,10 @@ float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t * fs)
 			else
 				w2 = fs->next->minweight + random() * (fs->next->maxweight - fs->next->minweight);
 			//the scale factor
-			if(fs->next->value == MAX_INVENTORYVALUE) // is fs->next the default case?
-				return w2;      // can't interpolate, return default weight
+			if(fs->next->value == MAX_INVENTORYVALUE)	// is fs->next the default case?
+				return w2;		// can't interpolate, return default weight
 			else
-				scale = (float) (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
+				scale = (float)(inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
 			//scale between the two weights
 			return (1 - scale) * w1 + scale * w2;
 		}
@@ -861,7 +861,7 @@ void ScaleFuzzySeperator_r(fuzzyseperator_t * fs, float scale)
 	}
 	else if(fs->type == WT_BALANCE)
 	{
-		fs->weight = (float) (fs->maxweight + fs->minweight) * scale;
+		fs->weight = (float)(fs->maxweight + fs->minweight) * scale;
 		//get the weight between bounds
 		if(fs->weight < fs->minweight)
 			fs->weight = fs->minweight;
