@@ -83,6 +83,7 @@ opts.Save('xreal.conf', env)
 Export('env')
 if env['dedicated'] == 1:
 	SConscript('SConscript_xreal-server', build_dir='build/xreal-server', duplicate=0)
+	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 else:
 	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 	SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
