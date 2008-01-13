@@ -31,6 +31,7 @@ xreal_src = [
 'code/qcommon/md4.c',
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
+'code/qcommon/net_ip.c',
 'code/qcommon/vm.c',
 'code/client/snd_adpcm.c',
 'code/client/snd_codec_ogg.c',
@@ -197,7 +198,6 @@ xreal_src = [
 
 unix_src = [
 'code/unix/unix_main.c',
-'code/unix/unix_net.c',
 'code/unix/unix_shared.c'
 ]
 
@@ -221,7 +221,6 @@ win_src = [
 'code/win32/win_glimp.c',
 'code/win32/win_gamma.c',
 'code/win32/win_input.c',
-'code/win32/win_net.c',
 'code/win32/win_snd.c',
 'code/win32/win_syscon.c',
 'code/win32/win_wndproc.c'
