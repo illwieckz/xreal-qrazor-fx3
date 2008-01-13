@@ -18,14 +18,14 @@ GENERAL NOTES
 
 A short summary of the file layout:
 
-XreaL/base/			XreaL media directory ( models, textures, sounds etc. )
+XreaL/base/				XreaL media directory ( models, textures, sounds etc. )
 XreaL/gtkradiant/		XreaL configured GtkRadiant editor work dir
-XreaL/code/			XreaL source code ( renderer, game code, OS layer etc. )
+XreaL/code/				XreaL source code ( renderer, game code, OS layer etc. )
 XreaL/code/bspc			bot routes compiler source code
 XreaL/code/common		framework source code for command line tools like xmap
 XreaL/code/xmap			map compiler ( .map -> .bsp )
 XreaL/code/xmass		master server
-XreaL/code/gtkradiant		GtkRadiant editor source based off GPL release on 17th February 2006
+XreaL/code/gtkradiant	GtkRadiant editor source based off GPL release on 17th February 2006
 
 
 GETTING THE SOURCE CODE AND MEDIA
@@ -41,22 +41,23 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 
 1. Download and install the Visual C++ 2005 Express Edition.
 2. Download and install the Platform SDK.
-3. Download and install the DirectX SDK.
-4. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
-	and copy it over the existing $(PlatformSDK)/include/GL/glext.h.
-5. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
-6. Download http://xreal.varcache.org/STLport-5.0.2.7z
-	and extract it to XreaL/code/.
-7. Download libcURL from http://curl.hoxt.com/download/libcurl-7.15.5-win32-msvc.zip
+3. Download libSDL from http://libsdl.org/release/SDL-devel-1.2.13-VC8.zip
+	and extract it to C:\libSDL-1.2.13.
+4. Download and install the OpenAL SDK from http://www.openal.org.
+5. Download libcURL from http://curl.hoxt.com/download/libcurl-7.15.5-win32-msvc.zip
 	and extract it to C:\libcURL
-8. Download and install the OpenAL SDK from http://www.openal.org.
+6. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
+7. Download http://xreal.varcache.org/STLport-5.0.2.7z and extract it to XreaL/code/.
+
+
 	
-9. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+8. Add necessary include Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\include
 	C:\Program Files\Microsoft Platform SDK\include\mfc
-	C:\Program Files\Microsoft DirectX SDK (April 2007)\include
+	C:\libSDL-1.2.13\include
 	C:\Program Files\OpenAL 1.1 SDK\include
+	C:\libcURL\include
 	C:\GTK\include
 	C:\GTK\include\libxml2
 	C:\GTK\include\glib-2.0
@@ -68,17 +69,16 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 	C:\GTK\include\atk-1.0
 	C:\GTK\include\gtkglext-1.0
 	C:\GTK\lib\gtkglext-1.0\include
-	C:\libcURL\include
 
-10. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+9. Add necessary lib Directories in VS 2005 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\lib
-	C:\Program Files\Microsoft DirectX SDK (April 2007)\lib\x86
+	C:\libSDL-1.2.13\lib
 	C:\Program Files\OpenAL 1.1 SDK\lib\Win32
-	C:\GTK\lib
 	C:\libcURL
+	C:\GTK\lib
 
-11. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
+10. Use the VC8 / Visual C++ 2005 solutions to compile what you need:
 	XreaL/code/xreal.sln
 	XreaL/code/gtkradiant/GtkRadiant.sln
 	XreaL/code/xmap/xmap.sln
