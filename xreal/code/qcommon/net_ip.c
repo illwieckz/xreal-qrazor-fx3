@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 #ifdef _WIN32
-
 #include <winsock.h>
 
 typedef int     socklen_t;
@@ -63,6 +62,10 @@ static qboolean winsockInitialized = qfalse;
 #include <net/if_dl.h>			// for 'struct sockaddr_dl'
 #endif
 
+#ifdef __sun
+#include <sys/filio.h>
+#endif
+
 typedef int     SOCKET;
 
 #define INVALID_SOCKET		-1
@@ -93,6 +96,7 @@ static int      numIP;
 static byte     localIP[MAX_IPS][4];
 
 //=============================================================================
+
 
 /*
 ====================
@@ -416,6 +420,7 @@ void Sys_SendPacket(int length, const void *data, netadr_t to)
 	}
 }
 
+
 //=============================================================================
 
 /*
@@ -512,7 +517,9 @@ void Sys_ShowIP(void)
 	}
 }
 
+
 //=============================================================================
+
 
 /*
 ====================
@@ -589,6 +596,7 @@ int NET_IPSocket(char *net_interface, int port)
 
 	return newsocket;
 }
+
 
 /*
 ====================
@@ -791,6 +799,7 @@ void NET_OpenSocks(int port)
 
 	usingSocks = qtrue;
 }
+
 
 /*
 =====================
@@ -1004,7 +1013,9 @@ void NET_OpenIP(void)
 	Com_Printf("WARNING: Couldn't allocate IP port\n");
 }
 
+
 //===================================================================
+
 
 /*
 ====================
@@ -1057,6 +1068,7 @@ static qboolean NET_GetCvars(void)
 
 	return modified;
 }
+
 
 /*
 ====================
@@ -1135,6 +1147,7 @@ void NET_Config(qboolean enableNetworking)
 	}
 }
 
+
 /*
 ====================
 NET_Init
@@ -1162,6 +1175,7 @@ void NET_Init(void)
 	NET_Config(qtrue);
 }
 
+
 /*
 ====================
 NET_Shutdown
@@ -1181,6 +1195,7 @@ void NET_Shutdown(void)
 	winsockInitialized = qfalse;
 #endif
 }
+
 
 /*
 ====================
@@ -1209,6 +1224,7 @@ void NET_Sleep(int msec)
 	timeout.tv_usec = (msec % 1000) * 1000;
 	select(ip_socket + 1, &fdset, NULL, NULL, &timeout);
 }
+
 
 /*
 ====================
