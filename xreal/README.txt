@@ -42,7 +42,7 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 1. Download and install the Visual C++ 2005 Express Edition.
 2. Download and install the Platform SDK.
 3. Download and install the DirectX SDK.
-4. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
+4. Download http://www.opengl.org/registry/api/glext.h
 	and copy it over the existing $(PlatformSDK)/include/GL/glext.h.
 5. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
 6. Download http://xreal.varcache.org/STLport-5.0.2.7z
@@ -91,7 +91,7 @@ COMPILING ON WIN32 WITH MINGW
 1. Download and install MinGW from http://www.mingw.org/.
 2. Download http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
      and untar it into your MinGW directory (usually C:\MinGW).
-3. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
+3. Download http://www.opengl.org/registry/api/glext.h
 	and copy it over the existing C:\MingW\include\GL\glext.h.
 4. Download and install Python from http://www.python.org/.
 5. Download and install SCons from http://www.scons.org/.
@@ -122,7 +122,7 @@ COMPILING ON MAC OS X
 
 Make sure you have libcURL and the SDL framework installed.
 
-Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
+Download http://www.opengl.org/registry/api/glext.h
 	and copy it to XreaL/code/renderer
 
 Use the included XCode project to compile XreaL and friends for both PPC & Intel Macs.
