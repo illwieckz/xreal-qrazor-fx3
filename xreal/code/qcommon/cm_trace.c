@@ -1466,7 +1466,7 @@ void CM_Trace(trace_t * results, const vec3_t start, const vec3_t end, vec3_t mi
 	{
 		if(model)
 		{
-#ifdef ALWAYS_BBOX_VS_BBOX		// bk010201 - FIXME - compile time flag?
+#ifdef ALWAYS_BBOX_VS_BBOX		// FIXME - compile time flag?
 			if(model == BOX_MODEL_HANDLE || model == CAPSULE_MODEL_HANDLE)
 			{
 				tw.sphere.use = qfalse;

@@ -27,10 +27,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"XreaL 1.32c"
+#define PRODUCT_NAME            "XreaL"
+#define PRODUCT_VERSION         "0.8.1"
+
+#ifdef SVN_VERSION
+# define Q3_VERSION PRODUCT_NAME " " SVN_VERSION
+#else
+# define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
+#endif
+
+#define CLIENT_WINDOW_TITLE     "XreaL"
+#define CLIENT_WINDOW_MIN_TITLE "xreal"
+// 1.32 released 7-10-2002
 
 #define BASEGAME		"base"
-
 
 /*
 #if !defined(DEBUG) && defined(_DEBUG)
@@ -46,6 +56,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4032)
 #pragma warning(disable : 4051)
+#pragma warning(disable : 4055) // 'type cast' : from data pointer 'void *' to function pointer 
 #pragma warning(disable : 4057)	// slightly different base types
 #pragma warning(disable : 4100)	// unreferenced formal parameter
 #pragma warning(disable : 4115)
@@ -934,11 +945,6 @@ int             Com_IndexForGrowListElement(const growList_t * list, const void 
 
 float           Com_Clamp(float min, float max, float value);
 
-const char     *Com_StringContains(const char *str1, const char *str2, int casesensitive);
-int             Com_Filter(const char *filter, const char *name, int casesensitive);
-int             Com_FilterPath(const char *filter, const char *name, int casesensitive);
-int             Com_HashKey(const char *string, int maxlen);
-char           *Com_SkipPath(char *pathname);
 const char     *Com_GetExtension(const char *name);
 void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);

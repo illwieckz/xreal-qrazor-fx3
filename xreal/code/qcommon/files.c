@@ -199,12 +199,16 @@ typedef struct searchpath_s
 static char     fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
 static cvar_t  *fs_debug;
 static cvar_t  *fs_homepath;
+
+#ifdef MACOS_X
+// Also search the .app bundle for .pk3 files
+static cvar_t  *fs_apppath;
+#endif
+
 static cvar_t  *fs_basepath;
 static cvar_t  *fs_basegame;
 static cvar_t  *fs_gamedirvar;
-
 static searchpath_t *fs_searchpaths;
-
 static int      fs_readCount;	// total bytes read
 static int      fs_loadCount;	// total files read
 static int      fs_loadStack;	// total files in memory
@@ -267,7 +271,8 @@ FILE           *missingFiles = NULL;
 FS_Initialized
 ==============
 */
-qboolean FS_Initialized()
+
+qboolean FS_Initialized(void)
 {
 	return (fs_searchpaths != NULL);
 }
@@ -302,28 +307,27 @@ qboolean FS_PakIsPure(pack_t * pack)
 /*
 =================
 FS_LoadStack
-
 return load stack
 =================
 */
-int FS_LoadStack()
+int FS_LoadStack(void)
 {
 	return fs_loadStack;
 }
 
 /*
 ================
-FS_HashFileName
-
 return a hash value for the filename
 ================
 */
 static long FS_HashFileName(const char *fname, int hashSize)
 {
-	int             i = 0;
-	long            hash = 0;
+	int             i;
+	long            hash;
 	char            letter;
 
+	hash = 0;
+	i = 0;
 	while(fname[i] != '\0')
 	{
 		letter = tolower(fname[i]);
@@ -560,7 +564,6 @@ void FS_HomeRemove(const char *homePath)
 {
 	remove(FS_BuildOSPath(fs_homepath->string, fs_gamedir, homePath));
 }
-
 
 /*
 ================
@@ -990,11 +993,13 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 	pack_t         *pak;
 	fileInPack_t   *pakFile;
 	directory_t    *dir;
-	long            hash = 0;
+	long            hash;
 	unz_s          *zfi;
 	FILE           *temp;
 	int             l;
 	char            demoExt[16];
+
+	hash = 0;
 
 	if(!fs_searchpaths)
 	{
@@ -1128,17 +1133,14 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 						}
 					}
 
-					// qagame.qvm
-					if(!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "game.qvm"))
+					if(!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "qagame.qvm"))
 					{
 						pak->referenced |= FS_QAGAME_REF;
 					}
-					// cgame.qvm
 					if(!(pak->referenced & FS_CGAME_REF) && strstr(filename, "cgame.qvm"))
 					{
 						pak->referenced |= FS_CGAME_REF;
 					}
-					// ui.qvm
 					if(!(pak->referenced & FS_UI_REF) && strstr(filename, "ui.qvm"))
 					{
 						pak->referenced |= FS_UI_REF;
@@ -1161,13 +1163,13 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 					fsh[*file].zipFile = qtrue;
 					zfi = (unz_s *) fsh[*file].handleFiles.file.z;
 					// in case the file was new
-					temp = zfi->filestream;
+					temp = zfi->file;
 					// set the file position in the zip file (also sets the current file info)
-					unzSetOffset(pak->handle, pakFile->pos);
+					unzSetCurrentFileInfoPosition(pak->handle, pakFile->pos);
 					// copy the file info into the unzip structure
 					Com_Memcpy(zfi, pak->handle, sizeof(unz_s));
 					// we copy this back into the structure
-					zfi->filestream = temp;
+					zfi->file = temp;
 					// open the file in the zip
 					unzOpenCurrentFile(fsh[*file].handleFiles.file.z);
 					fsh[*file].zipFilePos = pakFile->pos;
@@ -1184,8 +1186,10 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 		else if(search->dir)
 		{
 			// check a file in the directory tree
-			l = strlen(filename);
 
+			// if we are running restricted, the only files we
+			// will allow to come from the directory are .cfg files
+			l = strlen(filename);
 			// FIXME TTimo I'm not sure about the fs_numServerPaks test
 			// if you are using FS_ReadFile to find out if a file exists,
 			//   this test can make the search fail although the file is in the directory
@@ -1193,6 +1197,7 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 			// turned out I used FS_FileExists instead
 			if(fs_numServerPaks)
 			{
+
 				if(Q_stricmp(filename + l - 4, ".cfg")	// for config files
 				   && Q_stricmp(filename + l - 5, ".menu")	// menu files
 				   && Q_stricmp(filename + l - 5, ".game")	// menu files
@@ -1450,7 +1455,7 @@ int FS_Seek(fileHandle_t f, long offset, int origin)
 		switch (origin)
 		{
 			case FS_SEEK_SET:
-				unzSetOffset(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
+				unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
 				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
 				//fallthrough
 
@@ -1881,7 +1886,8 @@ static pack_t  *FS_LoadZipFile(char *zipfile, const char *basename)
 		strcpy(buildBuffer[i].name, filename_inzip);
 		namePtr += strlen(filename_inzip) + 1;
 		// store the file position in the zip
-		buildBuffer[i].pos = unzGetOffset(uf);
+		unzGetCurrentFileInfoPosition(uf, &buildBuffer[i].pos);
+		//
 		buildBuffer[i].next = pack->hashTable[hash];
 		pack->hashTable[hash] = &buildBuffer[i];
 		unzGoToNextFile(uf);
@@ -2073,14 +2079,13 @@ char          **FS_ListFilteredFiles(const char *path, const char *extension, ch
 			}
 		}
 		else if(search->dir)
-		{
-			// scan for files in the filesystem
+		{						// scan for files in the filesystem
 			char           *netpath;
 			int             numSysFiles;
 			char          **sysFiles;
 			char           *name;
 
-			// don't scan directories for files if we are pure
+			// don't scan directories for files if we are pure or restricted
 			if(fs_numServerPaks)
 			{
 				continue;
@@ -2288,7 +2293,6 @@ int FS_GetModList(char *listbuf, int bufsize)
 
 	pFiles0 = Sys_ListFiles(fs_homepath->string, NULL, NULL, &dummy, qtrue);
 	pFiles1 = Sys_ListFiles(fs_basepath->string, NULL, NULL, &dummy, qtrue);
-
 	// we searched for mods in the three paths
 	// it is likely that we have duplicate names now, which we will cleanup below
 	pFiles = Sys_ConcatenateFileLists(pFiles0, pFiles1);
@@ -2656,8 +2660,7 @@ Sets fs_gamedir, adds the directory to the head of the path,
 then loads the zip headers
 ================
 */
-#define	MAX_PAKFILES	1024
-static void FS_AddGameDirectory(const char *path, const char *dir)
+void FS_AddGameDirectory(const char *path, const char *dir)
 {
 	searchpath_t   *sp;
 	int             i;
@@ -2810,7 +2813,6 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 
 				// Local name
 				Q_strcat(neededpaks, len, "@");
-
 				// Do we have one with the same name?
 				if(FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])))
 				{
@@ -2839,7 +2841,6 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 			{
 				Q_strcat(neededpaks, len, fs_serverReferencedPakNames[i]);
 				Q_strcat(neededpaks, len, ".pk3");
-
 				// Do we have one with the same name?
 				if(FS_SV_FileExists(va("%s.pk3", fs_serverReferencedPakNames[i])))
 				{
@@ -2885,7 +2886,6 @@ void FS_Shutdown(qboolean closemfp)
 
 		if(p->pack)
 		{
-			fs_packFiles -= p->pack->numfiles;
 			unzClose(p->pack->handle);
 			Z_Free(p->pack->buildBuffer);
 			Z_Free(p->pack);
@@ -2933,7 +2933,7 @@ static void FS_ReorderPurePaks(void)
 
 	fs_reordered = qfalse;
 
-	p_insert_index = &fs_searchpaths;	// we insert in order at the beginning of the list 
+	p_insert_index = &fs_searchpaths;	// we insert in order at the beginning of the list
 	for(i = 0; i < fs_numServerPaks; i++)
 	{
 		p_previous = p_insert_index;	// track the pointer-to-current-item
@@ -2964,6 +2964,7 @@ FS_Startup
 static void FS_Startup(const char *gameName)
 {
 	const char     *homePath;
+	cvar_t         *fs;
 
 	Com_Printf("----- FS_Startup -----\n");
 
@@ -2984,6 +2985,14 @@ static void FS_Startup(const char *gameName)
 		FS_AddGameDirectory(fs_basepath->string, gameName);
 	}
 	// fs_homepath is somewhat particular to *nix systems, only add if relevant
+
+#ifdef MACOS_X
+	fs_apppath = Cvar_Get("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT);
+	// Make MacOSX also include the base path included with the .app bundle
+	if(fs_apppath->string[0])
+		FS_AddGameDirectory(fs_apppath->string, gameName);
+#endif
+
 	// NOTE: same filtering below for mods and basegame
 	if(fs_homepath->string[0] && Q_stricmp(fs_homepath->string, fs_basepath->string))
 	{
@@ -3457,7 +3466,6 @@ void FS_InitFilesystem(void)
 	Com_StartupVariable("fs_basepath");
 	Com_StartupVariable("fs_homepath");
 	Com_StartupVariable("fs_game");
-	Com_StartupVariable("fs_copyfiles");
 
 	// try to start up normally
 	FS_Startup(BASEGAME);
@@ -3468,13 +3476,10 @@ void FS_InitFilesystem(void)
 	if(FS_ReadFile("default.cfg", NULL) <= 0)
 	{
 		Com_Error(ERR_FATAL, "Couldn't load default.cfg");
-		// bk001208 - SafeMode see below, FIXME?
 	}
 
 	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
 	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
-
-	// bk001208 - SafeMode see below, FIXME?
 }
 
 
@@ -3485,6 +3490,7 @@ FS_Restart
 */
 void FS_Restart(int checksumFeed)
 {
+
 	// free anything we currently have loaded
 	FS_Shutdown(qfalse);
 
@@ -3518,7 +3524,6 @@ void FS_Restart(int checksumFeed)
 		Com_Error(ERR_FATAL, "Couldn't load default.cfg");
 	}
 
-	// bk010116 - new check before safeMode
 	if(Q_stricmp(fs_gamedirvar->string, lastValidGame))
 	{
 		// skip the xreal.cfg if "safe" is on the command line
@@ -3657,10 +3662,11 @@ void FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, 
 		Q_strncpyz(filename, filenames[i], MAX_STRING_CHARS);
 
 		if(stripExt)
+		{
 			Com_StripExtension(filename, filename, sizeof(filename));
+		}
 
 		callback(filename);
 	}
-
 	FS_FreeFileList(filenames);
 }

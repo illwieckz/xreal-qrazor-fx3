@@ -484,7 +484,9 @@ static void Cmd_TokenizeString2(const char *text_in, qboolean ignoreQuotes)
 	cmd_argc = 0;
 
 	if(!text_in)
+	{
 		return;
+	}
 
 	Q_strncpyz(cmd_cmd, text_in, sizeof(cmd_cmd));
 

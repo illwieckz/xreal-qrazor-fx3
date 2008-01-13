@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
+
 /*
 ===============
 SV_SendConfigstring
@@ -48,12 +49,17 @@ static void SV_SendConfigstring(client_t * client, int index)
 		while(remaining > 0)
 		{
 			if(sent == 0)
+			{
 				cmd = "bcs0";
+			}
 			else if(remaining < maxChunkSize)
+			{
 				cmd = "bcs2";
+			}
 			else
+			{
 				cmd = "bcs1";
-
+			}
 			Q_strncpyz(buf, &sv.configstrings[index][sent], maxChunkSize);
 
 			SV_SendServerCommand(client, "%s %i \"%s\"\n", cmd, index, buf);
@@ -89,8 +95,9 @@ void SV_UpdateConfigstrings(client_t * client)
 
 		// do not always send server info to all clients
 		if(index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO))
+		{
 			continue;
-
+		}
 		SV_SendConfigstring(client, index);
 		client->csUpdated[index] = qfalse;
 	}
@@ -99,6 +106,7 @@ void SV_UpdateConfigstrings(client_t * client)
 /*
 ===============
 SV_SetConfigstring
+
 ===============
 */
 void SV_SetConfigstring(int index, const char *val)
@@ -107,14 +115,20 @@ void SV_SetConfigstring(int index, const char *val)
 	client_t       *client;
 
 	if(index < 0 || index >= MAX_CONFIGSTRINGS)
+	{
 		Com_Error(ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
+	}
 
 	if(!val)
+	{
 		val = "";
+	}
 
 	// don't bother broadcasting an update if no change
 	if(!strcmp(val, sv.configstrings[index]))
+	{
 		return;
+	}
 
 	// change the string in sv
 	Z_Free(sv.configstrings[index]);
@@ -124,7 +138,6 @@ void SV_SetConfigstring(int index, const char *val)
 	// spawning a new server
 	if(sv.state == SS_GAME || sv.restarting)
 	{
-		len = strlen(val);
 
 		// send the data to all relevent clients
 		for(i = 0, client = svs.clients; i < sv_maxclients->integer; i++, client++)
@@ -135,11 +148,14 @@ void SV_SetConfigstring(int index, const char *val)
 					client->csUpdated[index] = qtrue;
 				continue;
 			}
-
 			// do not always send server info to all clients
 			if(index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO))
+			{
 				continue;
+			}
 
+
+			len = strlen(val);
 			SV_SendConfigstring(client, index);
 		}
 	}
@@ -148,6 +164,7 @@ void SV_SetConfigstring(int index, const char *val)
 /*
 ===============
 SV_GetConfigstring
+
 ===============
 */
 void SV_GetConfigstring(int index, char *buffer, int bufferSize)
@@ -169,9 +186,11 @@ void SV_GetConfigstring(int index, char *buffer, int bufferSize)
 	Q_strncpyz(buffer, sv.configstrings[index], bufferSize);
 }
 
+
 /*
 ===============
 SV_SetUserinfo
+
 ===============
 */
 void SV_SetUserinfo(int index, const char *val)
@@ -190,9 +209,12 @@ void SV_SetUserinfo(int index, const char *val)
 	Q_strncpyz(svs.clients[index].name, Info_ValueForKey(val, "name"), sizeof(svs.clients[index].name));
 }
 
+
+
 /*
 ===============
 SV_GetUserinfo
+
 ===============
 */
 void SV_GetUserinfo(int index, char *buffer, int bufferSize)
@@ -208,6 +230,7 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize)
 	Q_strncpyz(buffer, svs.clients[index].userinfo, bufferSize);
 }
 
+
 /*
 ================
 SV_CreateBaseline
@@ -222,7 +245,7 @@ void SV_CreateBaseline(void)
 	sharedEntity_t *svent;
 	int             entnum;
 
-	for(entnum = 1; entnum < sv.numEntities; entnum++)
+	for(entnum = 1; entnum < sv.num_entities; entnum++)
 	{
 		svent = SV_GentityNum(entnum);
 		if(!svent->r.linked)
@@ -238,9 +261,11 @@ void SV_CreateBaseline(void)
 	}
 }
 
+
 /*
 ===============
 SV_BoundMaxClients
+
 ===============
 */
 void SV_BoundMaxClients(int minimum)
@@ -259,6 +284,7 @@ void SV_BoundMaxClients(int minimum)
 		Cvar_Set("sv_maxclients", va("%i", MAX_CLIENTS));
 	}
 }
+
 
 /*
 ===============
@@ -290,8 +316,15 @@ void SV_Startup(void)
 	}
 	svs.initialized = qtrue;
 
+	// Don't respect sv_killserver unless a server is actually running
+	if(sv_killserver->integer)
+	{
+		Cvar_Set("sv_killserver", "0");
+	}
+
 	Cvar_Set("sv_running", "1");
 }
+
 
 /*
 ==================
@@ -394,7 +427,7 @@ void SV_ClearServer(void)
 ================
 SV_TouchCGame
 
-touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
+  touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
 ================
 */
 void SV_TouchCGame(void)
@@ -443,6 +476,11 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	// clear the whole hunk because we're (re)loading the server
 	Hunk_Clear();
 
+#ifndef DEDICATED
+	// Restart renderer
+	CL_StartHunkUsers(qtrue);
+#endif
+
 	// clear collision map data
 	CM_ClearMap();
 
@@ -480,7 +518,9 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	{
 		// save when the server started for each client already connected
 		if(svs.clients[i].state >= CS_CONNECTED)
+		{
 			svs.clients[i].oldServerTime = sv.time;
+		}
 	}
 
 	// wipe the entire per-level structure
@@ -712,9 +752,6 @@ void SV_Init(void)
 	sv_mapChecksum = Cvar_Get("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
 
-	// r1:
-	sv_enhanced_getplayer = Cvar_Get("sv_enhanced_getplayer", "1", CVAR_TEMP);
-
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
 
@@ -749,7 +786,7 @@ void SV_FinalMessage(char *message)
 				if(cl->netchan.remoteAddress.type != NA_LOOPBACK)
 				{
 					SV_SendServerCommand(cl, "print \"%s\n\"\n", message);
-					SV_SendServerCommand(cl, "disconnect");
+					SV_SendServerCommand(cl, "disconnect \"%s\"", message);
 				}
 				// force a snapshot to be sent
 				cl->nextSnapshotTime = -1;

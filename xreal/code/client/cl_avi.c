@@ -249,8 +249,8 @@ void CL_WriteAVIHeader(void)
 					WRITE_2BYTES(1);	//biPlanes
 					WRITE_2BYTES(24);	//biBitCount
 
-					if(afd.motionJpeg)
-					{			//biCompression
+					if(afd.motionJpeg)	//biCompression
+					{
 						WRITE_STRING("MJPG");
 						WRITE_4BYTES(afd.width * afd.height);	//biSizeImage
 					}
@@ -392,9 +392,7 @@ qboolean CL_OpenAVIForWriting(const char *fileName)
 			afd.audio = qfalse;
 		}
 		else
-		{
 			afd.audio = qtrue;
-		}
 	}
 	else
 	{

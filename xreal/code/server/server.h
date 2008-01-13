@@ -76,7 +76,7 @@ typedef struct
 	// the game virtual machine will update these on init and changes
 	sharedEntity_t *gentities;
 	int             gentitySize;
-	int             numEntities;	// current number, <= MAX_GENTITIES
+	int             num_entities;	// current number, <= MAX_GENTITIES
 
 	playerState_t  *gameClients;
 	int             gameClientSize;	// will be > sizeof(playerState_t) due to game private data
@@ -85,12 +85,16 @@ typedef struct
 	int             time;
 } server_t;
 
+
+
+
+
 typedef struct
 {
 	int             areabytes;
 	byte            areabits[MAX_MAP_AREA_BYTES];	// portalarea visibility bits
 	playerState_t   ps;
-	int             numEntities;
+	int             num_entities;
 	int             first_entity;	// into the circular sv_packet_entities[]
 	// the entities MUST be in increasing state number
 	// order, otherwise the delta compression will fail
@@ -177,6 +181,7 @@ typedef struct client_s
 
 //=============================================================================
 
+
 // MAX_CHALLENGES is made large to prevent a denial
 // of service attack that could cycle all of them
 // out before legitimate users connected
@@ -253,9 +258,6 @@ extern cvar_t  *sv_pure;
 extern cvar_t  *sv_floodProtect;
 extern cvar_t  *sv_lanForceRate;
 
-// r1:
-extern cvar_t  *sv_enhanced_getplayer;
-
 //===========================================================
 
 // r1:
@@ -270,11 +272,16 @@ client_t       *SV_GetPlayerByNum(void);
 void            SV_FinalMessage(char *message);
 void QDECL      SV_SendServerCommand(client_t * cl, const char *fmt, ...);
 
+
 void            SV_AddOperatorCommands(void);
 void            SV_RemoveOperatorCommands(void);
 
+
 void            SV_MasterHeartbeat(void);
 void            SV_MasterShutdown(void);
+
+
+
 
 //
 // sv_init.c
@@ -288,6 +295,8 @@ void            SV_GetUserinfo(int index, char *buffer, int bufferSize);
 
 void            SV_ChangeMaxClients(void);
 void            SV_SpawnServer(char *server, qboolean killBots);
+
+
 
 //
 // sv_client.c

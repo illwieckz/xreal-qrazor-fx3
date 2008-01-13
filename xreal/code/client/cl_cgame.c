@@ -853,6 +853,8 @@ qboolean CL_GameCommand(void)
 	return VM_Call(cgvm, CG_CONSOLE_COMMAND);
 }
 
+
+
 /*
 =====================
 CL_CGameRendering
@@ -862,6 +864,7 @@ void CL_CGameRendering(stereoFrame_t stereo)
 {
 	VM_Call(cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying);
 }
+
 
 /*
 =================
@@ -1105,10 +1108,35 @@ void CL_SetCGameTime(void)
 	// each time it is played back
 	if(cl_timedemo->integer)
 	{
+		int             now = Sys_Milliseconds();
+		int             frameDuration;
+
 		if(!clc.timeDemoStart)
 		{
-			clc.timeDemoStart = Sys_Milliseconds();
+			clc.timeDemoStart = clc.timeDemoLastFrame = now;
+			clc.timeDemoMinDuration = INT_MAX;
+			clc.timeDemoMaxDuration = 0;
 		}
+
+		frameDuration = now - clc.timeDemoLastFrame;
+		clc.timeDemoLastFrame = now;
+
+		// Ignore the first measurement as it'll always be 0
+		if(clc.timeDemoFrames > 0)
+		{
+			if(frameDuration > clc.timeDemoMaxDuration)
+				clc.timeDemoMaxDuration = frameDuration;
+
+			if(frameDuration < clc.timeDemoMinDuration)
+				clc.timeDemoMinDuration = frameDuration;
+
+			// 255 ms = about 4fps
+			if(frameDuration > UCHAR_MAX)
+				frameDuration = UCHAR_MAX;
+
+			clc.timeDemoDurations[(clc.timeDemoFrames - 1) % MAX_TIMEDEMO_DURATIONS] = frameDuration;
+		}
+
 		clc.timeDemoFrames++;
 		cl.serverTime = clc.timeDemoBaseTime + clc.timeDemoFrames * 50;
 	}

@@ -70,6 +70,7 @@ cvar_t         *con_clockSeconds;
 
 vec4_t          console_color = { 1.0, 1.0, 1.0, 1.0 };
 
+
 /*
 ================
 Con_ToggleConsole_f
@@ -77,10 +78,9 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f(void)
 {
-	// closing a full screen console restarts the demo loop
+	// Can't toggle the console when it's the only thing available
 	if(cls.state == CA_DISCONNECTED && Key_GetCatcher() == KEYCATCH_CONSOLE)
 	{
-		CL_StartDemoLoop();
 		return;
 	}
 
@@ -343,6 +343,7 @@ void Con_Init(void)
 		Field_Clear(&historyEditLines[i]);
 		historyEditLines[i].widthInChars = g_console_field_width;
 	}
+	CL_LoadConsoleHistory();
 
 	Cmd_AddCommand("toggleconsole", Con_ToggleConsole_f);
 	Cmd_AddCommand("messagemode", Con_MessageMode_f);
@@ -520,7 +521,7 @@ void Con_DrawInput(void)
 
 	SCR_DrawSmallChar(con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']');
 
-	Field_Draw(&g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue);
+	Field_Draw(&g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
 }
 
 
@@ -557,16 +558,19 @@ void Con_DrawNotify(void)
 		text = con.text + (i % con.totallines) * con.linewidth;
 
 		if(cl.snap.ps.pm_type != PM_INTERMISSION && Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME))
+		{
 			continue;
+		}
 
 		for(x = 0; x < con.linewidth; x++)
 		{
 			if((text[x] & 0xff) == ' ')
-				continue;
-
-			if((text[x] >> 8) != currentColor)
 			{
-				currentColor = (text[x] >> 8);
+				continue;
+			}
+			if(((text[x] >> 8) & 7) != currentColor)
+			{
+				currentColor = (text[x] >> 8) & 7;
 				re.SetColor(g_color_table[currentColor]);
 			}
 			SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH, v, text[x] & 0xff);
@@ -578,26 +582,29 @@ void Con_DrawNotify(void)
 	re.SetColor(NULL);
 
 	if(Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME))
+	{
 		return;
+	}
 
 	// draw the chat line
 	if(Key_GetCatcher() & KEYCATCH_MESSAGE)
 	{
 		if(chat_team)
 		{
-			SCR_DrawBigString(8, v, "say_team:", 1.0f);
-			skip = 11;
+			SCR_DrawBigString(8, v, "say_team:", 1.0f, qfalse);
+			skip = 10;
 		}
 		else
 		{
-			SCR_DrawBigString(8, v, "say:", 1.0f);
+			SCR_DrawBigString(8, v, "say:", 1.0f, qfalse);
 			skip = 5;
 		}
 
-		Field_BigDraw(&chatField, skip * BIGCHAR_WIDTH, v, SCREEN_WIDTH - (skip + 1) * BIGCHAR_WIDTH, qtrue);
+		Field_BigDraw(&chatField, skip * BIGCHAR_WIDTH, v, SCREEN_WIDTH - (skip + 1) * BIGCHAR_WIDTH, qtrue, qtrue);
 
 		v += BIGCHAR_HEIGHT;
 	}
+
 }
 
 /*
@@ -614,6 +621,8 @@ void Con_DrawSolidConsole(float frac)
 	short          *text;
 	int             row;
 	int             lines;
+
+//  qhandle_t       conShader;
 	int             currentColor;
 	vec4_t          color;
 	int             t, d;
@@ -636,9 +645,13 @@ void Con_DrawSolidConsole(float frac)
 	// draw the background
 	y = frac * SCREEN_HEIGHT - 2;
 	if(y < 1)
+	{
 		y = 0;
+	}
 	else
+	{
 		SCR_DrawPic(0, 0, SCREEN_WIDTH, y, cls.consoleShader);
+	}
 
 	color[0] = 1;
 	color[1] = 0;
@@ -646,7 +659,9 @@ void Con_DrawSolidConsole(float frac)
 	color[3] = 1;
 	SCR_FillRect(0, y, SCREEN_WIDTH, 2, color);
 
+
 	// draw the version number
+
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
 	i = strlen(Q3_VERSION);
@@ -730,7 +745,9 @@ void Con_DrawSolidConsole(float frac)
 	row = con.display;
 
 	if(con.x == 0)
+	{
 		row--;
+	}
 
 	currentColor = 7;
 	re.SetColor(g_color_table[currentColor]);
@@ -750,7 +767,9 @@ void Con_DrawSolidConsole(float frac)
 		for(x = 0; x < con.linewidth; x++)
 		{
 			if((text[x] & 0xff) == ' ')
+			{
 				continue;
+			}
 
 			if((text[x] >> 8) != currentColor)
 			{
@@ -766,6 +785,8 @@ void Con_DrawSolidConsole(float frac)
 
 	re.SetColor(NULL);
 }
+
+
 
 /*
 ==================
@@ -795,7 +816,9 @@ void Con_DrawConsole(void)
 	{
 		// draw notify lines
 		if(cls.state == CA_ACTIVE)
+		{
 			Con_DrawNotify();
+		}
 	}
 }
 

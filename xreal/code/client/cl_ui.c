@@ -143,7 +143,7 @@ static int LAN_AddServer(int source, const char *name, const char *address)
 	serverInfo_t   *servers = NULL;
 
 	max = MAX_OTHER_SERVERS;
-	count = 0;
+	count = NULL;
 
 	switch (source)
 	{
@@ -682,7 +682,7 @@ static void CL_GetGlconfig(glConfig_t * config)
 
 /*
 ====================
-GetClipboardData
+CL_GetClipboardData
 ====================
 */
 static void CL_GetClipboardData(char *buf, int buflen)
@@ -785,11 +785,11 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 	switch (args[0])
 	{
 		case UI_ERROR:
-			Com_Error(ERR_DROP, "%s", VMA(1));
+			Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
 			return 0;
 
 		case UI_PRINT:
-			Com_Printf("%s", VMA(1));
+			Com_Printf("%s", (const char *)VMA(1));
 			return 0;
 
 		case UI_MILLISECONDS:
@@ -1047,7 +1047,8 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 			return 0;
 
 		case UI_STRNCPY:
-			return (int)strncpy(VMA(1), VMA(2), args[3]);
+			strncpy(VMA(1), VMA(2), args[3]);
+			return args[1];
 
 		case UI_SIN:
 			return FloatAsInt(sin(VMF(1)));
@@ -1111,7 +1112,7 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 			return 0;
 
 		default:
-			Com_Error(ERR_DROP, "Bad UI system trap: %i", args[0]);
+			Com_Error(ERR_DROP, "Bad UI system trap: %ld", (long int)args[0]);
 
 	}
 
@@ -1178,7 +1179,7 @@ void CL_InitUI(void)
 		Cvar_SetCheatState();
 }
 
-qboolean UI_usesUniqueCDKey()
+qboolean UI_usesUniqueCDKey(void)
 {
 	if(uivm)
 	{

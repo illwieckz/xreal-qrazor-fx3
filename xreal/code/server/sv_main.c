@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 serverStatic_t  svs;			// persistant server info
 server_t        sv;				// local server
-vm_t           *gvm = NULL;		// game virtual machine // bk001212 init
+vm_t           *gvm = NULL;		// game virtual machine
 
 cvar_t         *sv_fps;			// time rate for running non-clients
 cvar_t         *sv_timeout;		// seconds without any message
@@ -53,9 +53,6 @@ cvar_t         *sv_gametype;
 cvar_t         *sv_pure;
 cvar_t         *sv_floodProtect;
 cvar_t         *sv_lanForceRate;	// dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-
-// r1:
-cvar_t         *sv_enhanced_getplayer;
 
 /*
 =============================================================================
@@ -165,7 +162,7 @@ void SV_AddServerCommand(client_t * client, const char *cmd)
 			Com_Printf("cmd %5d: %s\n", i, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
 		}
 		Com_Printf("cmd %5d: %s\n", i, cmd);
-		SV_DropClient(client, "overflowed");
+		SV_DropClient(client, "Server command overflow");
 		return;
 	}
 	index = client->reliableSequence & (MAX_RELIABLE_COMMANDS - 1);
@@ -193,9 +190,14 @@ void QDECL SV_SendServerCommand(client_t * cl, const char *fmt, ...)
 	Q_vsnprintf((char *)message, sizeof(message), fmt, argptr);
 	va_end(argptr);
 
-	// raynorpat: fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
+	// Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
+	// The actual cause of the bug is probably further downstream
+	// and should maybe be addressed later, but this certainly
+	// fixes the problem for now
 	if(strlen((char *)message) > 1022)
+	{
 		return;
+	}
 
 	if(cl != NULL)
 	{
@@ -245,7 +247,9 @@ void SV_MasterHeartbeat(void)
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if(!com_dedicated || com_dedicated->integer != 2)
+	{
 		return;					// only dedicated servers send heartbeats
+	}
 
 	// if not time yet, don't send anything
 	if(svs.time < svs.nextHeartbeatTime)
@@ -280,16 +284,16 @@ void SV_MasterHeartbeat(void)
 				sv_master[i]->modified = qfalse;
 				continue;
 			}
-
 			if(!strchr(sv_master[i]->string, ':'))
+			{
 				adr[i].port = BigShort(PORT_MASTER);
-
+			}
 			Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
 					   adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3], BigShort(adr[i].port));
 		}
 
-		Com_Printf("Sending heartbeat to %s\n", sv_master[i]->string);
 
+		Com_Printf("Sending heartbeat to %s\n", sv_master[i]->string);
 		// this command should be changed if the server info / status format
 		// ever incompatably changes
 		NET_OutOfBandPrint(NS_SERVER, adr[i], "heartbeat %s\n", HEARTBEAT_GAME);
@@ -316,6 +320,7 @@ void SV_MasterShutdown(void)
 	// when the master tries to poll the server, it won't respond, so
 	// it will be removed from the list
 }
+
 
 /*
 ==============================================================================
@@ -400,7 +405,12 @@ void SVC_Info(netadr_t from)
 		return;
 	}
 
-	// raynorpat: make sure we have a sane length. see http://aluigi.altervista.org/
+	/*
+	 * Check whether Cmd_Argv(1) has a sane length. This was not done in the original Quake3 version which led
+	 * to the Infostring bug discovered by Luigi Auriemma. See http://aluigi.altervista.org/ for the advisory.
+	 */
+
+	// A maximum challenge length of 128 should be more than plenty.
 	if(strlen(Cmd_Argv(1)) > 128)
 		return;
 
@@ -481,7 +491,9 @@ void SVC_RemoteCommand(netadr_t from, msg_t * msg)
 	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=534
 	time = Com_Milliseconds();
 	if((unsigned)(time - lasttime) < 500u)
+	{
 		return;
+	}
 	lasttime = time;
 
 	if(!strlen(sv_rconPassword->string) || strcmp(Cmd_Argv(1), sv_rconPassword->string))
@@ -804,28 +816,29 @@ void SV_Frame(int msec)
 	// the menu kills the server with this cvar
 	if(sv_killserver->integer)
 	{
-		SV_Shutdown("Server was killed.");
+		SV_Shutdown("Server was killed");
 		Cvar_Set("sv_killserver", "0");
 		return;
 	}
 
 	if(!com_sv_running->integer)
 	{
-		if(com_dedicated->integer)
-		{
-			// Block indefinitely until something interesting happens on STDIN.
-			NET_Sleep(-1);
-		}
+		// Running as a server, but no map loaded
+#ifdef DEDICATED
+		// Block until something interesting happens
+		Sys_Sleep(-1);
+#endif
 
 		return;
 	}
 
 	// if it isn't time for the next frame, do nothing
 	if(sv_fps->integer < 1)
+	{
 		Cvar_Set("sv_fps", "10");
+	}
 
 	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
-
 	// don't let it scale below 1ms
 	if(frameMsec < 1)
 	{

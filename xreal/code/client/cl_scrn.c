@@ -206,7 +206,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setColor, qboolean forceColor)
+void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape)
 {
 	vec4_t          color;
 	const char     *s;
@@ -220,7 +220,7 @@ void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setC
 	xx = x;
 	while(*s)
 	{
-		if(Q_IsColorString(s))
+		if(!noColorEscape && Q_IsColorString(s))
 		{
 			s += 2;
 			continue;
@@ -237,7 +237,7 @@ void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setC
 	re.SetColor(setColor);
 	while(*s)
 	{
-		if(Q_IsColorString(s))
+		if(!noColorEscape && Q_IsColorString(s))
 		{
 			if(!forceColor)
 			{
@@ -256,18 +256,18 @@ void SCR_DrawStringExt(int x, int y, float size, const char *string, float *setC
 }
 
 
-void SCR_DrawBigString(int x, int y, const char *s, float alpha)
+void SCR_DrawBigString(int x, int y, const char *s, float alpha, qboolean noColorEscape)
 {
 	float           color[4];
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	SCR_DrawStringExt(x, y, BIGCHAR_WIDTH, s, color, qfalse);
+	SCR_DrawStringExt(x, y, BIGCHAR_WIDTH, s, color, qfalse, noColorEscape);
 }
 
-void SCR_DrawBigStringColor(int x, int y, const char *s, vec4_t color)
+void SCR_DrawBigStringColor(int x, int y, const char *s, vec4_t color, qboolean noColorEscape)
 {
-	SCR_DrawStringExt(x, y, BIGCHAR_WIDTH, s, color, qtrue);
+	SCR_DrawStringExt(x, y, BIGCHAR_WIDTH, s, color, qtrue, noColorEscape);
 }
 
 
@@ -277,11 +277,9 @@ SCR_DrawSmallString[Color]
 
 Draws a multi-colored string with a drop shadow, optionally forcing
 to a fixed color.
-
-Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, qboolean forceColor)
+void SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape)
 {
 	vec4_t          color;
 	const char     *s;
@@ -293,7 +291,7 @@ void SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, q
 	re.SetColor(setColor);
 	while(*s)
 	{
-		if(Q_IsColorString(s))
+		if(!noColorEscape && Q_IsColorString(s))
 		{
 			if(!forceColor)
 			{
@@ -370,7 +368,7 @@ void SCR_DrawDemoRecording(void)
 	pos = FS_FTell(clc.demofile);
 	sprintf(string, "RECORDING %s: %ik", clc.demoName, pos / 1024);
 
-	SCR_DrawStringExt(320 - strlen(string) * 4, 20, 8, string, (float *)g_color_table[7], qtrue);
+	SCR_DrawStringExt(320 - strlen(string) * 4, 20, 8, string, g_color_table[7], qtrue, qfalse);
 }
 
 
@@ -471,7 +469,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 	re.BeginFrame(stereoFrame);
 
 	// wide aspect ratio screens need to have the sides cleared
-	// unless they are displaying game renderings or cinematics
+	// unless they are displaying game renderings
 	if(cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC)
 	{
 		if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640)
@@ -482,15 +480,9 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 		}
 	}
 
-	if(!uivm)
-	{
-		Com_DPrintf("draw screen without UI loaded\n");
-		return;
-	}
-
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
-	if(!VM_Call(uivm, UI_IS_FULLSCREEN))
+	if(uivm && !VM_Call(uivm, UI_IS_FULLSCREEN))
 	{
 		switch (cls.state)
 		{

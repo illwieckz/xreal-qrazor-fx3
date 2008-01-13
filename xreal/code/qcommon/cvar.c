@@ -112,21 +112,6 @@ static cvar_t  *Cvar_FindVar(const char *var_name)
 
 /*
 ============
-Cvar_Flags
-============
-*/
-int Cvar_Flags(const char *var_name)
-{
-	cvar_t         *var;
-
-	if(!(var = Cvar_FindVar(var_name)))
-		return CVAR_NONEXISTENT;
-	else
-		return var->flags;
-}
-
-/*
-============
 Cvar_VariableValue
 ============
 */
@@ -193,6 +178,20 @@ void Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize)
 	}
 }
 
+/*
+============
+Cvar_Flags
+============
+*/
+int Cvar_Flags(const char *var_name)
+{
+	cvar_t         *var;
+
+	if(!(var = Cvar_FindVar(var_name)))
+		return CVAR_NONEXISTENT;
+	else
+		return var->flags;
+}
 
 /*
 ============
@@ -314,7 +313,7 @@ cvar_t         *Cvar_Get(const char *var_name, const char *var_value, int flags)
 	cvar_vars = var;
 
 	var->flags = flags;
-	// note what types of cvars have been modified (userinfo, archive, serverinfo, systeminfo) 
+	// note what types of cvars have been modified (userinfo, archive, serverinfo, systeminfo)
 	cvar_modifiedFlags |= var->flags;
 
 	hash = generateHashValue(var_name);
@@ -333,7 +332,7 @@ cvar_t         *Cvar_Set2(const char *var_name, const char *value, qboolean forc
 {
 	cvar_t         *var;
 
-	Com_DPrintf("Cvar_Set2: %s %s\n", var_name, value);
+//  Com_DPrintf( "Cvar_Set2: %s %s\n", var_name, value );
 
 	if(!Cvar_ValidateString(var_name))
 	{
@@ -381,7 +380,6 @@ cvar_t         *Cvar_Set2(const char *var_name, const char *value, qboolean forc
 	{
 		return var;
 	}
-
 	// note what types of cvars have been modified (userinfo, archive, serverinfo, systeminfo)
 	cvar_modifiedFlags |= var->flags;
 
@@ -473,16 +471,6 @@ void Cvar_SetLatched(const char *var_name, const char *value)
 
 /*
 ============
-Cvar_ForceReset
-============
-*/
-void Cvar_ForceReset(const char *var_name)
-{
-	Cvar_Set2(var_name, NULL, qtrue);
-}
-
-/*
-============
 Cvar_SetValue
 ============
 */
@@ -512,6 +500,15 @@ void Cvar_Reset(const char *var_name)
 	Cvar_Set2(var_name, NULL, qfalse);
 }
 
+/*
+============
+Cvar_ForceReset
+============
+*/
+void Cvar_ForceReset(const char *var_name)
+{
+	Cvar_Set2(var_name, NULL, qtrue);
+}
 
 /*
 ============
@@ -565,7 +562,22 @@ qboolean Cvar_Command(void)
 	// perform a variable print or set
 	if(Cmd_Argc() == 1)
 	{
-		Com_Printf("\"%s\" is:\"%s" S_COLOR_WHITE "\" default:\"%s" S_COLOR_WHITE "\"\n", v->name, v->string, v->resetString);
+		Com_Printf("\"%s\" is:\"%s" S_COLOR_WHITE "\"", v->name, v->string);
+
+		if(!(v->flags & CVAR_ROM))
+		{
+			if(!Q_stricmp(v->string, v->resetString))
+			{
+				Com_Printf(", the default");
+			}
+			else
+			{
+				Com_Printf(" default:\"%s" S_COLOR_WHITE "\"", v->resetString);
+			}
+		}
+
+		Com_Printf("\n");
+
 		if(v->latchedString)
 		{
 			Com_Printf("latched: \"%s\"\n", v->latchedString);
@@ -751,13 +763,23 @@ void Cvar_WriteVariables(fileHandle_t f)
 			// write the latched value, even if it hasn't taken effect yet
 			if(var->latchedString)
 			{
+				if(strlen(var->name) + strlen(var->latchedString) + 10 > sizeof(buffer))
+				{
+					Com_Printf(S_COLOR_YELLOW "WARNING: value of variable " "\"%s\" too long to write to file\n", var->name);
+					continue;
+				}
 				Com_sprintf(buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->latchedString);
 			}
 			else
 			{
+				if(strlen(var->name) + strlen(var->string) + 10 > sizeof(buffer))
+				{
+					Com_Printf(S_COLOR_YELLOW "WARNING: value of variable " "\"%s\" too long to write to file\n", var->name);
+					continue;
+				}
 				Com_sprintf(buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->string);
 			}
-			FS_Printf(f, "%s", buffer);
+			FS_Write(buffer, strlen(buffer), f);
 		}
 	}
 }
@@ -1004,9 +1026,9 @@ updates an interpreted modules' version of a cvar
 */
 void Cvar_Update(vmCvar_t * vmCvar)
 {
-	cvar_t         *cv = NULL;	// bk001129
+	cvar_t         *cv = NULL;
 
-	assert(vmCvar);				// bk
+	assert(vmCvar);
 
 	if((unsigned)vmCvar->handle >= cvar_numIndexes)
 	{
@@ -1024,15 +1046,8 @@ void Cvar_Update(vmCvar_t * vmCvar)
 		return;					// variable might have been cleared by a cvar_restart
 	}
 	vmCvar->modificationCount = cv->modificationCount;
-	// bk001129 - mismatches.
 	if(strlen(cv->string) + 1 > MAX_CVAR_VALUE_STRING)
-		Com_Error(ERR_DROP, "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING",
-				  cv->string, strlen(cv->string), sizeof(vmCvar->string));
-	// bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0 
-	// bk001129 - paranoia. Never trust the destination string.
-	// bk001129 - beware, sizeof(char*) is always 4 (for cv->string). 
-	//            sizeof(vmCvar->string) always MAX_CVAR_VALUE_STRING
-	//Q_strncpyz( vmCvar->string, cv->string, sizeof( vmCvar->string ) ); // id
+		Com_Error(ERR_DROP, "Cvar_Update: src %s length %zd exceeds MAX_CVAR_VALUE_STRING", cv->string, strlen(cv->string));
 	Q_strncpyz(vmCvar->string, cv->string, MAX_CVAR_VALUE_STRING);
 
 	vmCvar->value = cv->value;

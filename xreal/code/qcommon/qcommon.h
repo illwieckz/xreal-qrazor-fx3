@@ -26,6 +26,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/cm_public.h"
 
+//Ignore __attribute__ on non-gcc platforms
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+//#define   PRE_RELEASE_DEMO
+
 //============================================================================
 
 //
@@ -150,25 +159,20 @@ void            NET_Init(void);
 void            NET_Shutdown(void);
 void            NET_Restart(void);
 void            NET_Config(qboolean enableNetworking);
-
+void            NET_FlushPacketQueue(void);
 void            NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to);
-void QDECL      NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr, const char *format, ...);
+void QDECL      NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr, const char *format, ...)
+	__attribute__ ((format(printf, 3, 4)));
 void QDECL      NET_OutOfBandData(netsrc_t sock, netadr_t adr, byte * format, int len);
 
-#define NET_CompareAdr(a,b) \
-	(((a).type == NA_LOOPBACK && (b).type == NA_LOOPBACK) || ((*(unsigned int *)(a).ip == *(unsigned int *)(b).ip) && (a).port == (b).port))
-
-#define NET_CompareBaseAdr(a,b) \
-	(((a).type == NA_LOOPBACK && (b).type == NA_LOOPBACK) || ((*(unsigned int *)(a).ip == *(unsigned int *)(b).ip)))
-
+qboolean        NET_CompareAdr(netadr_t a, netadr_t b);
+qboolean        NET_CompareBaseAdr(netadr_t a, netadr_t b);
 qboolean        NET_IsLocalAddress(netadr_t adr);
 const char     *NET_AdrToString(netadr_t a);
 qboolean        NET_StringToAdr(const char *s, netadr_t * a);
 qboolean        NET_GetLoopPacket(netsrc_t sock, netadr_t * net_from, msg_t * net_message);
 void            NET_Sleep(int msec);
 
-// r1:
-const char     *NET_inet_ntoa(unsigned int ip);
 
 #define	MAX_MSGLEN				16384	// max length of a message, which may
 											// be fragmented into multiple packets
@@ -559,7 +563,7 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-qboolean        FS_Initialized();
+qboolean        FS_Initialized(void);
 
 void            FS_InitFilesystem(void);
 void            FS_Shutdown(qboolean closemfp);
@@ -569,6 +573,8 @@ void            FS_Restart(int checksumFeed);
 
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
+void            FS_AddGameDirectory(const char *path, const char *dir);
+
 char          **FS_ListFiles(const char *directory, const char *extension, int *numfiles);
 
 // directory should not have either a leading or trailing /
@@ -577,12 +583,11 @@ char          **FS_ListFiles(const char *directory, const char *extension, int *
 
 void            FS_FreeFileList(char **list);
 
-void            FS_HomeRemove(const char *homePath);
 qboolean        FS_FileExists(const char *file);
 
-void            FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void (*callback) (const char *s));
+char           *FS_BuildOSPath(const char *base, const char *game, const char *qpath);
 
-int             FS_LoadStack();
+int             FS_LoadStack(void);
 
 int             FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
 int             FS_GetModList(char *listbuf, int bufsize);
@@ -649,7 +654,7 @@ int             FS_FTell(fileHandle_t f);
 
 void            FS_Flush(fileHandle_t f);
 
-void QDECL      FS_Printf(fileHandle_t f, const char *fmt, ...);
+void QDECL      FS_Printf(fileHandle_t f, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
 // like fprintf
 
@@ -699,6 +704,11 @@ qboolean        FS_ComparePaks(char *neededpaks, int len, qboolean dlstring);
 
 void            FS_Rename(const char *from, const char *to);
 
+void            FS_Remove(const char *osPath);
+void            FS_HomeRemove(const char *homePath);
+
+void            FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt, void (*callback) (const char *s));
+
 /*
 ==============================================================
 
@@ -727,7 +737,6 @@ MISC
 ==============================================================
 */
 
-// TTimo
 // vsnprintf is ISO/IEC 9899:1999
 // abstracting this to make it portable
 #ifdef _WIN32
@@ -738,22 +747,64 @@ MISC
 #define Q_snprintf snprintf
 #endif
 
-// TTimo
+// returned by Sys_GetProcessorFeatures
+typedef enum
+{
+	CF_RDTSC = 1 << 0,
+	CF_MMX = 1 << 1,
+	CF_MMX_EXT = 1 << 2,
+	CF_3DNOW = 1 << 3,
+	CF_3DNOW_EXT = 1 << 4,
+	CF_SSE = 1 << 5,
+	CF_SSE2 = 1 << 6,
+	CF_ALTIVEC = 1 << 7
+} cpuFeatures_t;
+
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define	MAXPRINTMSG	4096
+
+
+typedef enum
+{
+	// SE_NONE must be zero
+	SE_NONE = 0,				// evTime is still valid
+	SE_KEY,						// evValue is a key code, evValue2 is the down flag
+	SE_CHAR,					// evValue is an ascii char
+	SE_MOUSE,					// evValue and evValue2 are reletive signed x / y moves
+	SE_JOYSTICK_AXIS,			// evValue is an axis number and evValue2 is the current state (-127 to 127)
+	SE_CONSOLE,					// evPtr is a char*
+	SE_PACKET					// evPtr is a netadr_t followed by data bytes to evPtrLength
+} sysEventType_t;
+
+typedef struct
+{
+	int             evTime;
+	sysEventType_t  evType;
+	int             evValue, evValue2;
+	int             evPtrLength;	// bytes of data pointed to by evPtr, for journaling
+	void           *evPtr;		// this must be manually freed if not NULL
+} sysEvent_t;
+
+void            Com_QueueEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr);
+int             Com_EventLoop(void);
+sysEvent_t      Com_GetSystemEvent(void);
 
 char           *CopyString(const char *in);
 void            Info_Print(const char *s);
 
 void            Com_BeginRedirect(char *buffer, int buffersize, void (*flush) (char *));
 void            Com_EndRedirect(void);
-void QDECL      Com_Printf(const char *fmt, ...);
-void QDECL      Com_DPrintf(const char *fmt, ...);
-void QDECL      Com_Error(int code, const char *fmt, ...);
+void QDECL      Com_Printf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+void QDECL      Com_DPrintf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+void QDECL      Com_Error(int code, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 void            Com_Quit_f(void);
-int             Com_EventLoop(void);
+
 int             Com_Milliseconds(void);	// will be journaled properly
 unsigned        Com_BlockChecksum(const void *buffer, int length);
+char           *Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
+int             Com_HashKey(char *string, int maxlen);
+int             Com_Filter(char *filter, char *name, int casesensitive);
+int             Com_FilterPath(char *filter, char *name, int casesensitive);
 int             Com_RealTime(qtime_t * qtime);
 qboolean        Com_SafeMode(void);
 
@@ -770,13 +821,22 @@ extern cvar_t  *com_speeds;
 extern cvar_t  *com_timescale;
 extern cvar_t  *com_sv_running;
 extern cvar_t  *com_cl_running;
-extern cvar_t  *com_viewlog;	// 0 = hidden, 1 = visible, 2 = minimized
 extern cvar_t  *com_version;
 extern cvar_t  *com_blood;
 extern cvar_t  *com_buildScript;	// for building release pak files
 extern cvar_t  *com_journal;
 extern cvar_t  *com_cameraMode;
+extern cvar_t  *com_ansiColor;
+extern cvar_t  *com_unfocused;
+extern cvar_t  *com_minimized;
 extern cvar_t  *com_altivec;
+
+// both client and server must agree to pause
+extern cvar_t  *cl_paused;
+extern cvar_t  *sv_paused;
+
+extern cvar_t  *cl_packetdelay;
+extern cvar_t  *sv_packetdelay;
 
 // com_speeds times
 extern int      time_game;
@@ -916,7 +976,7 @@ void            CL_FlushMemory(void);
 
 // dump all memory on an error
 
-void            CL_StartHunkUsers(void);
+void            CL_StartHunkUsers(qboolean rendererOnly);
 
 // start all the client stuff using the hunk
 
@@ -934,7 +994,6 @@ void            S_ClearSoundBuffer(void);
 
 void            SCR_DebugGraph(float value, int color);	// FIXME: move logging to common?
 
-
 //
 // server interface
 //
@@ -949,7 +1008,7 @@ qboolean        SV_GameCommand(void);
 // UI interface
 //
 qboolean        UI_GameCommand(void);
-qboolean        UI_usesUniqueCDKey();
+qboolean        UI_usesUniqueCDKey(void);
 
 /*
 ==============================================================
@@ -970,33 +1029,9 @@ typedef enum
 	MAX_JOYSTICK_AXIS
 } joystickAxis_t;
 
-typedef enum
-{
-	// bk001129 - make sure SE_NONE is zero
-	SE_NONE = 0,				// evTime is still valid
-	SE_KEY,						// evValue is a key code, evValue2 is the down flag
-	SE_CHAR,					// evValue is an ascii char
-	SE_MOUSE,					// evValue and evValue2 are reletive signed x / y moves
-	SE_JOYSTICK_AXIS,			// evValue is an axis number and evValue2 is the current state (-127 to 127)
-	SE_CONSOLE,					// evPtr is a char*
-	SE_PACKET					// evPtr is a netadr_t followed by data bytes to evPtrLength
-} sysEventType_t;
-
-typedef struct
-{
-	int             evTime;
-	sysEventType_t  evType;
-	int             evValue, evValue2;
-	int             evPtrLength;	// bytes of data pointed to by evPtr, for journaling
-	void           *evPtr;		// this must be manually freed if not NULL
-} sysEvent_t;
-
-sysEvent_t      Sys_GetEvent(void);
-
 void            Sys_Init(void);
 
 // general development dll loading for virtual machine testing
-// fqpath param added 7/20/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t(QDECL ** entryPoint) (int, ...),
 								  intptr_t(QDECL * systemcalls) (intptr_t, ...));
 void            Sys_UnloadDll(void *dllHandle);
@@ -1016,7 +1051,7 @@ void           *Sys_GetBotLibAPI(void *parms);
 
 char           *Sys_GetCurrentUser(void);
 
-void QDECL      Sys_Error(const char *error, ...);
+void QDECL      Sys_Error(const char *error, ...) __attribute__ ((format(printf, 1, 2)));
 void            Sys_Quit(void);
 char           *Sys_GetClipboardData(void);	// note that this isn't journaled...
 
@@ -1028,18 +1063,17 @@ int             Sys_Milliseconds(void);
 
 void            Sys_SnapVector(float *v);
 
+qboolean        Sys_RandomBytes(byte * string, int len);
+
 // the system console is shown when a dedicated server is running
 void            Sys_DisplaySystemConsole(qboolean show);
 
-void            Sys_BeginStreamedFile(fileHandle_t f, int readahead);
-void            Sys_EndStreamedFile(fileHandle_t f);
-int             Sys_StreamedRead(void *buffer, int size, int count, fileHandle_t f);
-void            Sys_StreamSeek(fileHandle_t f, int offset, int origin);
+cpuFeatures_t   Sys_GetProcessorFeatures(void);
 
-void            Sys_ShowConsole(int level, qboolean quitOnClose);
 void            Sys_SetErrorText(const char *text);
 
 void            Sys_SendPacket(int length, const void *data, netadr_t to);
+qboolean        Sys_GetPacket(netadr_t * net_from, msg_t * net_message);
 
 qboolean        Sys_StringToAdr(const char *s, netadr_t * a);
 
@@ -1052,16 +1086,22 @@ void            Sys_Mkdir(const char *path);
 char           *Sys_Cwd(void);
 void            Sys_SetDefaultInstallPath(const char *path);
 char           *Sys_DefaultInstallPath(void);
+
+#ifdef MACOS_X
+char           *Sys_DefaultAppPath(void);
+#endif
+
 void            Sys_SetDefaultHomePath(const char *path);
 char           *Sys_DefaultHomePath(void);
+const char     *Sys_Dirname(char *path);
+const char     *Sys_Basename(char *path);
+char           *Sys_ConsoleInput(void);
 
 char          **Sys_ListFiles(const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs);
 void            Sys_FreeFileList(char **list);
+void            Sys_Sleep(int msec);
 
-qboolean        Sys_LowPhysicalMemory();
-unsigned int    Sys_ProcessorCount();
-
-qboolean        Sys_DetectAltivec(void);
+qboolean        Sys_LowPhysicalMemory(void);
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

@@ -287,7 +287,7 @@ void SV_LocateGameData(sharedEntity_t * gEnts, int numGEntities, int sizeofGEnti
 {
 	sv.gentities = gEnts;
 	sv.gentitySize = sizeofGEntity_t;
-	sv.numEntities = numGEntities;
+	sv.num_entities = numGEntities;
 
 	sv.gameClients = clients;
 	sv.gameClientSize = sizeofGameClient;
@@ -330,16 +330,15 @@ SV_GameSystemCalls
 The module is making a system call
 ====================
 */
-
 intptr_t SV_GameSystemCalls(intptr_t * args)
 {
 	switch (args[0])
 	{
 		case G_PRINT:
-			Com_Printf("%s", VMA(1));
+			Com_Printf("%s", (const char *)VMA(1));
 			return 0;
 		case G_ERROR:
-			Com_Error(ERR_DROP, "%s", VMA(1));
+			Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
 			return 0;
 		case G_MILLISECONDS:
 			return Sys_Milliseconds();
@@ -855,7 +854,8 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 			return 0;
 
 		case TRAP_STRNCPY:
-			return (int)strncpy(VMA(1), VMA(2), args[3]);
+			strncpy(VMA(1), VMA(2), args[3]);
+			return args[1];
 
 		case TRAP_SIN:
 			return FloatAsInt(sin(VMF(1)));
@@ -889,7 +889,7 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 
 
 		default:
-			Com_Error(ERR_DROP, "Bad game system trap: %i", args[0]);
+			Com_Error(ERR_DROP, "Bad game system trap: %ld", (long int)args[0]);
 	}
 	return -1;
 }
@@ -960,7 +960,7 @@ void SV_RestartGameProgs(void)
 	// do a restart instead of a free
 	gvm = VM_Restart(gvm);
 	if(!gvm)
-	{							// bk001212 - as done below
+	{
 		Com_Error(ERR_FATAL, "VM_Restart on game failed");
 	}
 

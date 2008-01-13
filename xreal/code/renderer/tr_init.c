@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 glConfig_t      glConfig;
 glstate_t       glState;
+float           displayAspect = 0.0f;
 
 static void     GfxInfo_f(void);
 
@@ -101,7 +102,6 @@ cvar_t         *r_stereo;
 cvar_t         *r_texturebits;
 
 cvar_t         *r_drawBuffer;
-cvar_t         *r_glDriver;
 cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
 cvar_t         *r_softShadows;
@@ -1359,7 +1359,6 @@ R_Register
 void R_Register(void)
 {
 	// latched and archived variables
-	r_glDriver = ri.Cvar_Get("r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_multitexture = ri.Cvar_Get("r_ext_multitexture", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_CHEAT | CVAR_LATCH);

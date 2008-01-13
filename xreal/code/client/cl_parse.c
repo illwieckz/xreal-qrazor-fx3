@@ -89,6 +89,7 @@ void CL_DeltaEntity(msg_t * msg, clSnapshot_t * frame, int newnum, entityState_t
 /*
 ==================
 CL_ParsePacketEntities
+
 ==================
 */
 void CL_ParsePacketEntities(msg_t * msg, clSnapshot_t * oldframe, clSnapshot_t * newframe)
@@ -368,6 +369,7 @@ void CL_ParseSnapshot(msg_t * msg)
 	cl.newSnapshots = qtrue;
 }
 
+
 //=====================================================================
 
 int             cl_connectedToPureServer;
@@ -394,7 +396,7 @@ void CL_SystemInfoChanged(void)
 	// NOTE TTimo:
 	// when the serverId changes, any further messages we send to the server will use this new serverId
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=475
-	// in some cases, outdated cp commands might get sent with this new serverId
+	// in some cases, outdated cp commands might get sent with this news serverId
 	cl.serverId = atoi(Info_ValueForKey(systemInfo, "sv_serverid"));
 
 	// don't set any vars when playing a demo
@@ -403,7 +405,6 @@ void CL_SystemInfoChanged(void)
 		return;
 	}
 
-	// check cheats string
 	s = Info_ValueForKey(systemInfo, "sv_cheats");
 	cl_connectedToCheatServer = atoi(s);
 	if(!cl_connectedToCheatServer)
@@ -421,7 +422,6 @@ void CL_SystemInfoChanged(void)
 	FS_PureServerSetReferencedPaks(s, t);
 
 	gameSet = qfalse;
-
 	// scan through all the variables in the systeminfo and locally set cvars to match
 	s = systemInfo;
 	while(s)
@@ -430,7 +430,9 @@ void CL_SystemInfoChanged(void)
 
 		Info_NextPair(&s, key, value);
 		if(!key[0])
+		{
 			break;
+		}
 
 		// ehw!
 		if(!Q_stricmp(key, "fs_game"))
@@ -447,13 +449,22 @@ void CL_SystemInfoChanged(void)
 		if((cvar_flags = Cvar_Flags(key)) == CVAR_NONEXISTENT)
 			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM);
 		else
-			Cvar_Set(key, value);
-	}
+		{
+			// If this cvar may not be modified by a server discard the value.
+			if(!(cvar_flags & (CVAR_SYSTEMINFO | CVAR_SERVER_CREATED)))
+			{
+				Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+				continue;
+			}
 
+			Cvar_Set(key, value);
+		}
+	}
 	// if game folder should not be set and it is set at the client side
 	if(!gameSet && *Cvar_VariableString("fs_game"))
+	{
 		Cvar_Set("fs_game", "");
-
+	}
 	cl_connectedToPureServer = Cvar_VariableValue("sv_pure");
 }
 
@@ -469,7 +480,6 @@ static void CL_ParseServerInfo(void)
 	serverInfo = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
 
 	clc.sv_allowDownload = atoi(Info_ValueForKey(serverInfo, "sv_allowDownload"));
-
 	Q_strncpyz(clc.sv_dlURL, Info_ValueForKey(serverInfo, "sv_dlURL"), sizeof(clc.sv_dlURL));
 }
 
@@ -558,12 +568,8 @@ void CL_ParseGamestate(msg_t * msg)
 	CL_SystemInfoChanged();
 
 	// stop recording now so the demo won't have an unnecessary level load at the end.
-	if(clc.demorecording)
+	if(cl_autoRecordDemo->integer && clc.demorecording)
 		CL_StopRecord_f();
-
-	// same goes for AVI recording
-	if(CL_VideoRecording())
-		CL_CloseAVI();
 
 	// reinitialize the filesystem if the game directory has changed
 	FS_ConditionalRestart(clc.checksumFeed);
@@ -572,6 +578,7 @@ void CL_ParseGamestate(msg_t * msg)
 	// cgame
 	CL_InitDownloads();
 }
+
 
 //=====================================================================
 
@@ -587,6 +594,13 @@ void CL_ParseDownload(msg_t * msg)
 	int             size;
 	unsigned char   data[MAX_MSGLEN];
 	int             block;
+
+	if(!*clc.downloadTempName)
+	{
+		Com_Printf("Server sending download, but no download was requested\n");
+		CL_AddReliableCommand("stopdl");
+		return;
+	}
 
 	// read the data
 	block = MSG_ReadShort(msg);
@@ -606,7 +620,6 @@ void CL_ParseDownload(msg_t * msg)
 	}
 
 	size = MSG_ReadShort(msg);
-
 	if(size < 0 || size > sizeof(data))
 	{
 		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk.", size);
@@ -700,6 +713,7 @@ void CL_ParseCommandString(msg_t * msg)
 	Q_strncpyz(clc.serverCommands[index], s, sizeof(clc.serverCommands[index]));
 }
 
+
 /*
 =====================
 CL_ParseServerMessage
@@ -722,13 +736,15 @@ void CL_ParseServerMessage(msg_t * msg)
 
 	// get the reliable sequence acknowledge number
 	clc.reliableAcknowledge = MSG_ReadLong(msg);
-
+	// 
 	if(clc.reliableAcknowledge < clc.reliableSequence - MAX_RELIABLE_COMMANDS)
 	{
 		clc.reliableAcknowledge = clc.reliableSequence;
 	}
 
+	//
 	// parse the message
+	//
 	while(1)
 	{
 		if(msg->readcount > msg->cursize)

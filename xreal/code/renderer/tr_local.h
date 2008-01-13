@@ -1843,6 +1843,8 @@ extern trGlobals_t tr;
 extern glConfig_t glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
+extern float     displayAspect;	// FIXME
+
 
 //
 // cvars
@@ -1935,7 +1937,6 @@ extern cvar_t  *r_colorMipLevels;	// development aid to see texture mip usage
 extern cvar_t  *r_picmip;		// controls picmip values
 extern cvar_t  *r_finish;
 extern cvar_t  *r_drawBuffer;
-extern cvar_t  *r_glDriver;
 extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
 extern cvar_t  *r_offsetFactor;

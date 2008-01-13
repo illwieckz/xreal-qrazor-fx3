@@ -95,7 +95,9 @@ static const char *S_AL_ErrorMsg(ALenum error)
 	}
 }
 
+
 //===========================================================================
+
 
 typedef struct alSfx_s
 {
@@ -437,7 +439,9 @@ static ALuint S_AL_BufferGet(sfxHandle_t sfx)
 	return knownSfx[sfx].buffer;
 }
 
+
 //===========================================================================
+
 
 typedef struct src_s
 {
@@ -501,18 +505,19 @@ static void _S_AL_SanitiseVector(vec3_t v, int line)
 	}
 }
 
+
 #define AL_THIRD_PERSON_THRESHOLD_SQ (48.0f*48.0f)
 
 /*
 =================
 S_AL_ScaleGain
-
 Adapt the gain if necessary to get a quicker fadeout when the source is too far away.
 =================
 */
+
 static void S_AL_ScaleGain(src_t * chksrc, vec3_t origin)
 {
-	float           distance = 0;
+	float           distance;
 
 	if(!chksrc->local)
 		distance = Distance(origin, lastListenerOrigin);
@@ -1202,7 +1207,9 @@ static ALuint S_AL_SrcGet(srcHandle_t src)
 	return srcList[src].alSource;
 }
 
+
 //===========================================================================
+
 
 static srcHandle_t streamSourceHandle = -1;
 static qboolean streamPlaying = qfalse;

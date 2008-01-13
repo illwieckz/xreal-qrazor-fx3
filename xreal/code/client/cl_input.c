@@ -913,7 +913,7 @@ qboolean CL_ReadyToSendPacket(void)
 		return qtrue;
 	}
 
-	// send every frame for LAN or if cl_lanForcePackets is set
+	// send every frame for LAN
 	if(cl_lanForcePackets->integer && Sys_IsLANAddress(clc.netchan.remoteAddress))
 	{
 		return qtrue;

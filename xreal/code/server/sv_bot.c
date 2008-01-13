@@ -134,7 +134,7 @@ void BotDrawDebugPolygons(void (*drawPoly) (int color, int numPoints, float *poi
 			parm0 |= 4;
 		botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
 		botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin, svs.clients[0].gentity->r.currentAngles);
-	}
+	}							//end if
 	//draw all debug polys
 	for(i = 0; i < bot_maxdebugpolys; i++)
 	{
@@ -562,9 +562,9 @@ void SV_BotInitCvars(void)
 	Cvar_Get("bot_nochat", "0", 0);	//disable chats
 	Cvar_Get("bot_pause", "0", CVAR_CHEAT);	//pause the bots thinking
 	Cvar_Get("bot_report", "0", CVAR_CHEAT);	//get a full report in ctf
-	Cvar_Get("bot_grapple", "1", 0);	//enable grapple
+	Cvar_Get("bot_grapple", "0", 0);	//enable grapple
 	Cvar_Get("bot_rocketjump", "1", 0);	//enable rocket jumping
-	Cvar_Get("bot_challenge", "1", 0);	//challenging bot
+	Cvar_Get("bot_challenge", "0", 0);	//challenging bot
 	Cvar_Get("bot_minplayers", "0", 0);	//minimum players in a team or the game
 	Cvar_Get("bot_interbreedchar", "", CVAR_CHEAT);	//bot character used for interbreeding
 	Cvar_Get("bot_interbreedbots", "10", CVAR_CHEAT);	//number of bots used for interbreeding
@@ -618,7 +618,7 @@ void SV_BotInitBotLib(void)
 	botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete;
 
 	botlib_export = (botlib_export_t *) GetBotLibAPI(BOTLIB_API_VERSION, &botlib_import);
-	assert(botlib_export);		// bk001129 - somehow we end up with a zero import.
+	assert(botlib_export);		// somehow we end up with a zero import.
 }
 
 
@@ -670,7 +670,7 @@ int EntityInPVS(int client, int entityNum)
 
 	cl = &svs.clients[client];
 	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
-	for(i = 0; i < frame->numEntities; i++)
+	for(i = 0; i < frame->num_entities; i++)
 	{
 		if(svs.snapshotEntities[(frame->first_entity + i) % svs.numSnapshotEntities].number == entityNum)
 		{
@@ -693,7 +693,7 @@ int SV_BotGetSnapshotEntity(int client, int sequence)
 
 	cl = &svs.clients[client];
 	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
-	if(sequence < 0 || sequence >= frame->numEntities)
+	if(sequence < 0 || sequence >= frame->num_entities)
 	{
 		return -1;
 	}

@@ -77,10 +77,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib libcurl.lib openal32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/xreal.pdb"
 				GenerateMapFile="true"
@@ -177,10 +178,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib libcurl.lib openal32.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/xreal.pdb"
 				GenerateMapFile="true"
@@ -665,6 +668,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\sys\con_log.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\con_passive.c"
+				>
+			</File>
+			<File
 				RelativePath="qcommon\cvar.c"
 				>
 				<FileConfiguration
@@ -757,6 +768,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\qcommon\md5.c"
+				>
+			</File>
+			<File
 				RelativePath="qcommon\msg.c"
 				>
 				<FileConfiguration
@@ -801,6 +816,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\qcommon\net_ip.c"
+				>
+			</File>
+			<File
+				RelativePath=".\qcommon\puff.c"
+				>
 			</File>
 			<File
 				RelativePath="game\q_math.c"
@@ -850,6 +873,22 @@
 			</File>
 			<File
 				RelativePath=".\renderer\qgl.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\sdl_gamma.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\sdl_glimp.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\sdl_input.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\sdl_snd.c"
 				>
 			</File>
 			<File
@@ -1195,6 +1234,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\sys\sys_main.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\sys_win32.c"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer\tr_animation.c"
 				>
 			</File>
@@ -1321,175 +1368,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\win32\win_gamma.c"
-				>
-			</File>
-			<File
-				RelativePath=".\win32\win_glimp.c"
-				>
-			</File>
-			<File
-				RelativePath="win32\win_input.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="win32\win_main.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="win32\win_net.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="win32\win_shared.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="win32\win_snd.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="win32\win_syscon.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="win32\win_wndproc.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1548,6 +1426,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\qcommon\puff.h"
+				>
+			</File>
+			<File
 				RelativePath=".\game\q_platform.h"
 				>
 			</File>
@@ -1592,6 +1474,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys\sys_loadlib.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sys\sys_local.h"
+				>
+			</File>
+			<File
 				RelativePath="renderer\tr_local.h"
 				>
 			</File>
@@ -1615,36 +1505,18 @@
 				RelativePath="qcommon\vm_local.h"
 				>
 			</File>
-			<File
-				RelativePath="win32\win_local.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="win32\winquake.rc"
+				RelativePath=".\sys\win_resource.h"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="win32"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="win32"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sys\win_resource.rc"
+				>
 			</File>
 			<File
 				RelativePath=".\win32\xreal.ico"

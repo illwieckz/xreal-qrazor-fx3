@@ -426,7 +426,7 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 		{
 			if(showdrop->integer || showpackets->integer)
 			{
-				Com_Printf("%s:Dropped a message fragment\n", NET_AdrToString(chan->remoteAddress), sequence);
+				Com_Printf("%s:Dropped a message fragment\n", NET_AdrToString(chan->remoteAddress));
 			}
 			// we can still keep the part that we have so far,
 			// so we don't need to clear chan->fragmentLength
@@ -486,7 +486,34 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 	return qtrue;
 }
 
+
 //==============================================================================
+
+/*
+===================
+NET_CompareBaseAdr
+
+Compares without the port
+===================
+*/
+qboolean NET_CompareBaseAdr(netadr_t a, netadr_t b)
+{
+	if(a.type != b.type)
+		return qfalse;
+
+	if(a.type == NA_LOOPBACK)
+		return qtrue;
+
+	if(a.type == NA_IP)
+	{
+		if(a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
+			return qtrue;
+		return qfalse;
+	}
+
+	Com_Printf("NET_CompareBaseAdr: bad address type\n");
+	return qfalse;
+}
 
 const char     *NET_AdrToString(netadr_t a)
 {
@@ -508,10 +535,33 @@ const char     *NET_AdrToString(netadr_t a)
 	return s;
 }
 
+
+qboolean NET_CompareAdr(netadr_t a, netadr_t b)
+{
+	if(a.type != b.type)
+		return qfalse;
+
+	if(a.type == NA_LOOPBACK)
+		return qtrue;
+
+	if(a.type == NA_IP)
+	{
+		if(a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port)
+			return qtrue;
+		return qfalse;
+	}
+
+	Com_Printf("NET_CompareAdr: bad address type\n");
+	return qfalse;
+}
+
+
 qboolean NET_IsLocalAddress(netadr_t adr)
 {
 	return adr.type == NA_LOOPBACK;
 }
+
+
 
 /*
 =============================================================================
@@ -581,6 +631,65 @@ void NET_SendLoopPacket(netsrc_t sock, int length, const void *data, netadr_t to
 
 //=============================================================================
 
+typedef struct packetQueue_s
+{
+	struct packetQueue_s *next;
+	int             length;
+	byte           *data;
+	netadr_t        to;
+	int             release;
+} packetQueue_t;
+
+packetQueue_t  *packetQueue = NULL;
+
+static void NET_QueuePacket(int length, const void *data, netadr_t to, int offset)
+{
+	packetQueue_t  *new, *next = packetQueue;
+
+	if(offset > 999)
+		offset = 999;
+
+	new = S_Malloc(sizeof(packetQueue_t));
+	new->data = S_Malloc(length);
+	Com_Memcpy(new->data, data, length);
+	new->length = length;
+	new->to = to;
+	new->release = Sys_Milliseconds() + offset;
+	new->next = NULL;
+
+	if(!packetQueue)
+	{
+		packetQueue = new;
+		return;
+	}
+	while(next)
+	{
+		if(!next->next)
+		{
+			next->next = new;
+			return;
+		}
+		next = next->next;
+	}
+}
+
+void NET_FlushPacketQueue(void)
+{
+	packetQueue_t  *last;
+	int             now;
+
+	while(packetQueue)
+	{
+		now = Sys_Milliseconds();
+		if(packetQueue->release >= now)
+			break;
+		Sys_SendPacket(packetQueue->length, packetQueue->data, packetQueue->to);
+		last = packetQueue;
+		packetQueue = packetQueue->next;
+		Z_Free(last->data);
+		Z_Free(last);
+	}
+}
 
 void NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 {
@@ -605,7 +714,18 @@ void NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 		return;
 	}
 
-	Sys_SendPacket(length, data, to);
+	if(sock == NS_CLIENT && cl_packetdelay->integer > 0)
+	{
+		NET_QueuePacket(length, data, to, cl_packetdelay->integer);
+	}
+	else if(sock == NS_SERVER && sv_packetdelay->integer > 0)
+	{
+		NET_QueuePacket(length, data, to, sv_packetdelay->integer);
+	}
+	else
+	{
+		Sys_SendPacket(length, data, to);
+	}
 }
 
 /*
@@ -619,6 +739,7 @@ void QDECL NET_OutOfBandPrint(netsrc_t sock, netadr_t adr, const char *format, .
 {
 	va_list         argptr;
 	char            string[MAX_MSGLEN];
+
 
 	// set the header
 	string[0] = -1;

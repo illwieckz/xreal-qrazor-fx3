@@ -153,6 +153,7 @@ demo through a file.
 =============================================================================
 */
 
+#define MAX_TIMEDEMO_DURATIONS	4096
 
 typedef struct
 {
@@ -220,6 +221,10 @@ typedef struct
 	int             timeDemoFrames;	// counter of rendered frames
 	int             timeDemoStart;	// cls.realtime before first frame
 	int             timeDemoBaseTime;	// each frame will be at this time + frameNum * 50
+	int             timeDemoLastFrame;	// time the last frame was rendered
+	int             timeDemoMinDuration;	// minimum frame duration
+	int             timeDemoMaxDuration;	// maximum frame duration
+	unsigned char   timeDemoDurations[MAX_TIMEDEMO_DURATIONS];	// log of frame durations
 
 	// big stuff at end of structure so most offsets are 15 bits or less
 	netchan_t       netchan;
@@ -369,6 +374,7 @@ extern cvar_t  *cl_conXOffset;
 extern cvar_t  *cl_inGameVideo;
 
 extern cvar_t  *cl_lanForcePackets;
+extern cvar_t  *cl_autoRecordDemo;
 
 //=================================================
 
@@ -381,7 +387,7 @@ void            CL_FlushMemory(void);
 void            CL_ShutdownAll(void);
 void            CL_AddReliableCommand(const char *cmd);
 
-void            CL_StartHunkUsers(void);
+void            CL_StartHunkUsers(qboolean rendererOnly);
 
 void            CL_Disconnect_f(void);
 void            CL_GetChallengePacket(void);
@@ -474,6 +480,8 @@ void            Con_Top(void);
 void            Con_Bottom(void);
 void            Con_Close(void);
 
+void            CL_LoadConsoleHistory(void);
+void            CL_SaveConsoleHistory(void);
 
 //
 // cl_scrn.c
@@ -490,9 +498,10 @@ void            SCR_FillRect(float x, float y, float width, float height, const 
 void            SCR_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
 void            SCR_DrawNamedPic(float x, float y, float width, float height, const char *picname);
 
-void            SCR_DrawBigString(int x, int y, const char *s, float alpha);	// draws a string with embedded color control characters with fade
-void            SCR_DrawBigStringColor(int x, int y, const char *s, vec4_t color);	// ignores embedded color control characters
-void            SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, qboolean forceColor);
+void            SCR_DrawBigString(int x, int y, const char *s, float alpha, qboolean noColorEscape);	// draws a string with embedded color control characters with fade
+void            SCR_DrawBigStringColor(int x, int y, const char *s, vec4_t color, qboolean noColorEscape);	// ignores embedded color control characters
+void            SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, qboolean forceColor,
+									   qboolean noColorEscape);
 void            SCR_DrawSmallChar(int x, int y, int ch);
 
 
@@ -531,8 +540,8 @@ void            CL_InitUI(void);
 void            CL_ShutdownUI(void);
 int             Key_GetCatcher(void);
 void            Key_SetCatcher(int catcher);
-void            LAN_LoadCachedServers();
-void            LAN_SaveServersToCache();
+void            LAN_LoadCachedServers(void);
+void            LAN_SaveServersToCache(void);
 
 
 //

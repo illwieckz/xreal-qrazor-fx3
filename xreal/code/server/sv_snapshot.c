@@ -67,16 +67,16 @@ static void SV_EmitPacketEntities(clientSnapshot_t * from, clientSnapshot_t * to
 	}
 	else
 	{
-		from_num_entities = from->numEntities;
+		from_num_entities = from->num_entities;
 	}
 
 	newent = NULL;
 	oldent = NULL;
 	newindex = 0;
 	oldindex = 0;
-	while(newindex < to->numEntities || oldindex < from_num_entities)
+	while(newindex < to->num_entities || oldindex < from_num_entities)
 	{
-		if(newindex >= to->numEntities)
+		if(newindex >= to->num_entities)
 		{
 			newnum = 9999;
 		}
@@ -362,7 +362,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t * fra
 
 	c_fullsend = 0;
 
-	for(e = 0; e < sv.numEntities; e++)
+	for(e = 0; e < sv.num_entities; e++)
 	{
 		ent = SV_GentityNum(e);
 
@@ -536,7 +536,7 @@ static void SV_BuildClientSnapshot(client_t * client)
 	Com_Memset(frame->areabits, 0, sizeof(frame->areabits));
 
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=62
-	frame->numEntities = 0;
+	frame->num_entities = 0;
 
 	clent = client->gentity;
 	if(!clent || client->state == CS_ZOMBIE)
@@ -582,7 +582,7 @@ static void SV_BuildClientSnapshot(client_t * client)
 	}
 
 	// copy the entity states out
-	frame->numEntities = 0;
+	frame->num_entities = 0;
 	frame->first_entity = svs.nextSnapshotEntities;
 	for(i = 0; i < entityNumbers.numSnapshotEntities; i++)
 	{
@@ -595,7 +595,7 @@ static void SV_BuildClientSnapshot(client_t * client)
 		{
 			Com_Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped");
 		}
-		frame->numEntities++;
+		frame->num_entities++;
 	}
 }
 
@@ -616,24 +616,27 @@ static int SV_RateMsec(client_t * client, int messageSize)
 
 	// individual messages will never be larger than fragment size
 	if(messageSize > 1500)
+	{
 		messageSize = 1500;
-
+	}
 	rate = client->rate;
-
+	if(sv_maxRate->integer)
+	{
+		if(sv_maxRate->integer < 1000)
+		{
+			Cvar_Set("sv_MaxRate", "1000");
+		}
+		if(sv_maxRate->integer < rate)
+		{
+			rate = sv_maxRate->integer;
+		}
+	}
 	if(sv_minRate->integer)
 	{
 		if(sv_minRate->integer < 1000)
 			Cvar_Set("sv_minRate", "1000");
 		if(sv_minRate->integer > rate)
 			rate = sv_minRate->integer;
-	}
-
-	if(sv_maxRate->integer)
-	{
-		if(sv_maxRate->integer < 1000)
-			Cvar_Set("sv_MaxRate", "1000");
-		if(sv_maxRate->integer < rate)
-			rate = sv_maxRate->integer;
 	}
 
 	rateMsec = (messageSize + HEADER_RATE_BYTES) * 1000 / rate * com_timescale->value;
@@ -662,7 +665,7 @@ void SV_SendMessageToClient(msg_t * msg, client_t * client)
 
 	// set nextSnapshotTime based on rate and requested number of updates
 
-	// local clients get snapshots every frame
+	// local clients get snapshots every server frame
 	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=491
 	// added sv_lanForceRate check
 	if(client->netchan.remoteAddress.type == NA_LOOPBACK ||

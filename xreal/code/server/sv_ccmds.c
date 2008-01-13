@@ -32,11 +32,12 @@ These commands can only be entered from stdin or by a remote operator datagram
 ===============================================================================
 */
 
+
 /*
 ==================
-SV_GetPlayerByName
+SV_GetPlayerByHandle
 
-Returns the player with player name from Cmd_Argv(1)
+Returns the player with player id or name from Cmd_Argv(1)
 ==================
 */
 client_t       *SV_GetPlayerByName(void)
@@ -60,6 +61,23 @@ client_t       *SV_GetPlayerByName(void)
 
 	s = Cmd_Argv(1);
 
+	// Check whether this is a numeric player handle
+	for(i = 0; s[i] >= '0' && s[i] <= '9'; i++);
+
+	if(!s[i])
+	{
+		int             plid = atoi(s);
+
+		// Check for numeric playerid match
+		if(plid >= 0 && plid < sv_maxclients->integer)
+		{
+			cl = &svs.clients[plid];
+
+			if(cl->state)
+				return cl;
+		}
+	}
+
 	// check for a name match
 	for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
 	{
@@ -81,7 +99,6 @@ client_t       *SV_GetPlayerByName(void)
 	}
 
 	// r1: substring matching
-	if(sv_enhanced_getplayer->integer)
 	{
 		Q_strlwr(s);
 		for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
@@ -112,7 +129,7 @@ SV_GetPlayerByNum
 Returns the player with idnum from Cmd_Argv(1)
 ==================
 */
-client_t       *SV_GetPlayerByNum(void)
+static client_t *SV_GetPlayerByNum(void)
 {
 	client_t       *cl;
 	int             i;
@@ -158,6 +175,7 @@ client_t       *SV_GetPlayerByNum(void)
 }
 
 //=========================================================
+
 
 /*
 ==================
@@ -208,9 +226,6 @@ static void SV_Map_f(void)
 	{
 		if(!Q_stricmp(cmd, "devmap") || !Q_stricmp(cmd, "spdevmap"))
 		{
-			// raynorpat: prevents typing when testing :)
-			Cvar_SetValue("sv_pure", 0);
-
 			cheat = qtrue;
 			killBots = qtrue;
 		}
@@ -219,7 +234,6 @@ static void SV_Map_f(void)
 			cheat = qfalse;
 			killBots = qfalse;
 		}
-
 		if(sv_gametype->integer == GT_SINGLE_PLAYER)
 		{
 			Cvar_SetValue("g_gametype", GT_FFA);
@@ -373,7 +387,7 @@ static void SV_MapRestart_f(void)
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
 			SV_DropClient(client, denied);
-			Com_Printf("SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i);	// bk010125
+			Com_Printf("SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i);
 			continue;
 		}
 
@@ -601,6 +615,7 @@ static void SV_ConSay_f(void)
 	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
 }
 
+
 /*
 ==================
 SV_Heartbeat_f
@@ -612,6 +627,7 @@ void SV_Heartbeat_f(void)
 {
 	svs.nextHeartbeatTime = -9999999;
 }
+
 
 /*
 ===========
@@ -626,6 +642,7 @@ static void SV_Serverinfo_f(void)
 	Info_Print(Cvar_InfoString(CVAR_SERVERINFO));
 }
 
+
 /*
 ===========
 SV_Systeminfo_f
@@ -638,6 +655,7 @@ static void SV_Systeminfo_f(void)
 	Com_Printf("System info settings:\n");
 	Info_Print(Cvar_InfoString(CVAR_SYSTEMINFO));
 }
+
 
 /*
 ===========
@@ -673,6 +691,7 @@ static void SV_DumpUser_f(void)
 	Com_Printf("--------\n");
 	Info_Print(cl->userinfo);
 }
+
 
 /*
 =================
@@ -732,6 +751,8 @@ void SV_RemoveOperatorCommands(void)
 	// removing these won't let the server start again
 	Cmd_RemoveCommand("heartbeat");
 	Cmd_RemoveCommand("kick");
+	Cmd_RemoveCommand("banUser");
+	Cmd_RemoveCommand("banClient");
 	Cmd_RemoveCommand("status");
 	Cmd_RemoveCommand("serverinfo");
 	Cmd_RemoveCommand("systeminfo");
