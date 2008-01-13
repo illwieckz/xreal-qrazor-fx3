@@ -252,6 +252,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 #endif
 
+	Cvar_Set("com_errorCode", va("%i", code));
+
 	// when we are running automated scripts, make sure we
 	// know if anything failed
 	if(com_buildScript && com_buildScript->integer)
