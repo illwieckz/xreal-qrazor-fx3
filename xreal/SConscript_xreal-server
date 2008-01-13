@@ -22,7 +22,6 @@ xreal_server_src = [
 'code/qcommon/md4.c',
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
-'code/qcommon/net_ip.c',
 'code/qcommon/vm.c',
 'code/server/sv_bot.c',
 'code/server/sv_ccmds.c',
@@ -81,6 +80,7 @@ xreal_server_src = [
 
 unix_src = [
 'code/unix/unix_main.c',
+'code/unix/unix_net.c',
 'code/unix/unix_shared.c'
 ]
 

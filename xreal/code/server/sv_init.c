@@ -749,7 +749,7 @@ void SV_FinalMessage(char *message)
 				if(cl->netchan.remoteAddress.type != NA_LOOPBACK)
 				{
 					SV_SendServerCommand(cl, "print \"%s\n\"\n", message);
-					SV_SendServerCommand(cl, "disconnect \"%s\"", message);
+					SV_SendServerCommand(cl, "disconnect");
 				}
 				// force a snapshot to be sent
 				cl->nextSnapshotTime = -1;

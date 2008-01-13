@@ -31,6 +31,14 @@
 }
 
 {
+	map  "soul_ctf"
+	longname "Soul Keep CTF by Pat Raynor"
+	bots  "Visor Nitro"
+	fraglimit 10
+	type  "ctf team"
+}
+
+{
 	map  "uglyrga"
 	longname "UGLY Rail Gun Arena by Reflex"
 	bots  "Visor"
