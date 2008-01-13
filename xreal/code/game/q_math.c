@@ -911,7 +911,7 @@ int BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane)
 ==================
 */
 
-#if !id386
+#if !(defined(_MSC_VER) && id386)
 
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
