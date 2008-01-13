@@ -206,7 +206,7 @@ vec3_t  bytedirs[NUMVERTEXNORMALS] =
 };
 // *INDENT-ON*
 
-// ==============================================================
+//==============================================================
 
 int Q_rand(int *seed)
 {
@@ -224,7 +224,7 @@ float Q_crandom(int *seed)
 	return 2.0 * (Q_random(seed) - 0.5);
 }
 
-// ==============================================================
+//=======================================================
 
 signed char ClampChar(int i)
 {
@@ -251,6 +251,7 @@ signed short ClampShort(int i)
 	}
 	return i;
 }
+
 
 // this isn't a real cheap function to call!
 int DirToByte(vec3_t dir)
@@ -287,6 +288,7 @@ void ByteToDir(int b, vec3_t dir)
 	}
 	VectorCopy(bytedirs[b], dir);
 }
+
 
 unsigned ColorBytes3(float r, float g, float b)
 {
@@ -504,6 +506,7 @@ RotateAroundDirection
 */
 void RotateAroundDirection(vec3_t axis[3], float yaw)
 {
+
 	// create an arbitrary axis[1] 
 	PerpendicularVector(axis[1], axis[0]);
 
@@ -677,7 +680,6 @@ void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 	dst[2] = p[2] - d * n[2];
 }
 
-
 /*
 ================
 MakeNormalVectors
@@ -712,9 +714,11 @@ void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out)
 
 
 //============================================================
+
 /*
 ===============
 LerpAngle
+
 ===============
 */
 float LerpAngle(float from, float to, float frac)
@@ -836,7 +840,7 @@ float AngleBetweenVectors(const vec3_t a, const vec3_t b)
 	// this results in:
 	//
 	// angle = acos( (a * b) / (|a| * |b|) )
-	return RAD2DEG(acos(DotProduct(a, b) / (alen * blen)));
+	return RAD2DEG(Q_acos(DotProduct(a, b) / (alen * blen)));
 }
 
 
@@ -864,9 +868,50 @@ void SetPlaneSignbits(cplane_t * out)
 }
 
 
-#if !( (defined __linux__ || __FreeBSD__ || __NetBSD__ || __MINGW32__) && (defined __i386__) && (!defined C_ONLY))	// rb010123
+/*
+==================
+BoxOnPlaneSide
 
-#if defined Q3_VM || defined C_ONLY || !id386
+Returns 1, 2, or 1 + 2
+
+// this is the slow, general version
+int BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane)
+{
+	int             i;
+	float           dist1, dist2;
+	int             sides;
+	vec3_t          corners[2];
+
+	for(i = 0; i < 3; i++)
+	{
+		if(plane[i] < 0)
+		{
+			corners[0][i] = mins[i];
+			corners[1][i] = maxs[i];
+		}
+		else
+		{
+			corners[1][i] = mins[i];
+			corners[0][i] = maxs[i];
+		}
+	}
+
+	dist1 = DotProduct(plane, corners[0]) - plane[3];
+	dist2 = DotProduct(plane, corners[1]) - plane[3];
+
+	sides = 0;
+	if(dist1 >= 0)
+		sides = 1;
+	if(dist2 < 0)
+		sides |= 2;
+
+	return sides;
+}
+
+==================
+*/
+
+#if !id386
 
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
@@ -1168,50 +1213,6 @@ Lerror:
 #pragma warning( default: 4035 )
 
 #endif
-#endif
-
-
-
-/*
-==================
-BoxOnPlaneSide
-
-Returns 1, 2, or 1 + 2
-==================
-*/
-// this is the slow, general version
-int BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane)
-{
-	int             i;
-	float           dist1, dist2;
-	int             sides;
-	vec3_t          corners[2];
-
-	for(i = 0; i < 3; i++)
-	{
-		if(plane[i] < 0)
-		{
-			corners[0][i] = mins[i];
-			corners[1][i] = maxs[i];
-		}
-		else
-		{
-			corners[1][i] = mins[i];
-			corners[0][i] = maxs[i];
-		}
-	}
-
-	dist1 = DotProduct(plane, corners[0]) - plane[3];
-	dist2 = DotProduct(plane, corners[1]) - plane[3];
-
-	sides = 0;
-	if(dist1 >= 0)
-		sides = 1;
-	if(dist2 < 0)
-		sides |= 2;
-
-	return sides;
-}
 
 /*
 =================
@@ -1580,15 +1581,15 @@ PlaneTypeForNormal
 =================
 */
 /*
-int     PlaneTypeForNormal (vec3_t normal) {
-        if ( normal[0] == 1.0 )
-                return PLANE_X;
-        if ( normal[1] == 1.0 )
-                return PLANE_Y;
-        if ( normal[2] == 1.0 )
-                return PLANE_Z;
-        
-        return PLANE_NON_AXIAL;
+int	PlaneTypeForNormal (vec3_t normal) {
+	if ( normal[0] == 1.0 )
+		return PLANE_X;
+	if ( normal[1] == 1.0 )
+		return PLANE_Y;
+	if ( normal[2] == 1.0 )
+		return PLANE_Z;
+	
+	return PLANE_NON_AXIAL;
 }
 */
 
@@ -1614,6 +1615,7 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	static float    sr, sp, sy, cr, cp, cy;
 
 	// static to help MS compiler fp bugs
+
 	angle = angles[YAW] * (M_PI * 2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);

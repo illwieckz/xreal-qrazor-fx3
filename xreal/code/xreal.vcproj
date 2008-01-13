@@ -1548,6 +1548,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\game\q_platform.h"
+				>
+			</File>
+			<File
 				RelativePath="game\q_shared.h"
 				>
 			</File>

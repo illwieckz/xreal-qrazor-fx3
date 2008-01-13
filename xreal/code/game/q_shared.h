@@ -31,23 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define BASEGAME		"base"
 
-#ifdef Q3_VM
-typedef int     intptr_t;
-#else
-#ifndef _MSC_VER
-#include <stdint.h>
-#else
-#include <io.h>
-typedef __int64 int64_t;
-typedef __int32 int32_t;
-typedef __int16 int16_t;
-typedef __int8  int8_t;
-typedef unsigned __int64 uint64_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int8 uint8_t;
-#endif
-#endif
 
 /*
 #if !defined(DEBUG) && defined(_DEBUG)
@@ -55,11 +38,11 @@ typedef unsigned __int8 uint8_t;
 #endif
 */
 
-#define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
 #define MAX_TEAMNAME 32
 
 #ifdef _MSC_VER
+
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4032)
 #pragma warning(disable : 4051)
@@ -69,15 +52,28 @@ typedef unsigned __int8 uint8_t;
 #pragma warning(disable : 4125)	// decimal digit terminates octal escape sequence
 #pragma warning(disable : 4127)	// conditional expression is constant
 #pragma warning(disable : 4136)
-#pragma warning(disable : 4152)	// function/data pointer conversion in expression
+#pragma warning(disable : 4152)	// nonstandard extension, function/data pointer conversion in expression
+//#pragma warning(disable : 4201)
+//#pragma warning(disable : 4214)
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4201)	// nonstandard extension used
 #pragma warning(disable : 4142)	// benign redefinition
+//#pragma warning(disable : 4305)       // truncation from const double to float
+//#pragma warning(disable : 4310)       // cast truncates constant value
+//#pragma warning(disable:  4505)   // unreferenced local function has been removed
 #pragma warning(disable : 4514)
 #pragma warning(disable : 4702)	// unreachable code
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
 #pragma warning(disable : 4996)	// deprecated functions
+//#pragma intrinsic( memset, memcpy )
+#endif
+
+//Ignore __attribute__ on non-gcc platforms
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
 #endif
 
 /**********************************************************************
@@ -115,349 +111,27 @@ typedef unsigned __int8 uint8_t;
 
 #endif
 
-// this is the define for determining if we have an asm version of a C function
-#if (defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__
-#define id386	1
-#if defined SIMD_3DNOW
-#define id386_3dnow  1
-#else
-#define id386_3dnow  0
-#endif
-#if defined SIMD_SSE
-#define id386_sse  1
-#else
-#define id386_sse  0
-#endif
-#else
-#define id386	0
-#define id386_3dnow  0
-#define id386_sse    0
-#endif
-
-#if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
-#define idppc	1
-#if defined(__VEC__)
-#define idppc_altivec 1
-#else
-#define idppc_altivec 0
-#endif
-#else
-#define idppc	0
-#define idppc_altivec 0
-#endif
-
-#if (MACOS_X)					// Apple's GCC does this differently than the FSF.
-#define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) (vector unsigned char) (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
-#else
-#define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) (vector unsigned char) {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p}
-#endif
-
-// for windows fastcall option
-#define	QDECL
-
-short           ShortSwap(short l);
-int             LongSwap(int l);
-float           FloatSwap(const float *f);
-
-//======================= WIN32 DEFINES =================================
-
-#ifdef WIN32
-
-#undef QDECL
-#define	QDECL	__cdecl
-
-// buildstring will be incorporated into the version string
-#ifdef _MSC_VER
-#define OS_STRING "win_msvc"
-#define ARCH_STRING "x86"
-#elif defined __MINGW32__
-#define OS_STRING "win_mingw"
-#define ARCH_STRING "x86"
-#endif
-
-#define DLL_EXT ".dll"
-
-#define ID_INLINE __inline
-
-static ID_INLINE short BigShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define LittleShort
-static ID_INLINE int BigLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define LittleLong
-static ID_INLINE float BigFloat(const float *l)
-{
-	return FloatSwap(l);
-}
-
-#define LittleFloat
-
-#define	PATH_SEP '\\'
-
-#endif
-
-//======================= MAC OS X DEFINES =====================
-
-#if defined(MACOS_X)
-
-#define __cdecl
-#define __declspec(x)
-#define stricmp strcasecmp
-#define ID_INLINE inline
-
-#define OS_STRING "macosx"
-
-#ifdef __ppc__
-#define ARCH_STRING "ppc"
-#elif defined __i386__
-#define ARCH_STRING "i386"
-#endif
-
-#define DLL_EXT ".dylib"
-
-#define	PATH_SEP	'/'
-
-#define BigShort
-static inline short LittleShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define BigLong
-static inline int LittleLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define BigFloat
-static inline float LittleFloat(const float l)
-{
-	return FloatSwap(&l);
-}
-
-#endif
-
-//======================= LINUX DEFINES =================================
-
-#ifdef __linux__
-
-// bk001205 - from Makefile
-#define stricmp strcasecmp
-
-#define ID_INLINE inline
-
-#define OS_STRING "linux"
-
-#ifdef __i386__
-#define ARCH_STRING "i386"
-#elif __x86_64__
-#define ARCH_STRING "x86_64"
-#elif defined __powerpc64__
-#define ARCH_STRING "ppc64"
-#elif defined __powerpc__
-#define ARCH_STRING "ppc"
-#elif defined __ia64__
-#define ARCH_STRING "ia64"
-#elif defined __sparc__
-#define ARCH_STRING "sparc"
-#elif defined __arm__
-#define ARCH_STRING "arm"
-#elif defined __cris__
-#define ARCH_STRING "cris"
-#elif defined __hppa__
-#define ARCH_STRING "hppa"
-#elif defined __mips__
-#define ARCH_STRING "mips"
-#elif defined __sh__
-#define ARCH_STRING "sh"
-#else
-#error "Unsupported architecture"
-#endif
-
-#define DLL_EXT ".so"
-
-#define	PATH_SEP '/'
-
-#if !idppc
-inline static short BigShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define LittleShort
-inline static int BigLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define LittleLong
-inline static float BigFloat(const float *l)
-{
-	return FloatSwap(l);
-}
-
-#define LittleFloat
-#else
-#define BigShort
-inline static short LittleShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define BigLong
-inline static int LittleLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define BigFloat
-inline static float LittleFloat(const float *l)
-{
-	return FloatSwap(l);
-}
-#endif
-
-#endif
-
-//======================= FreeBSD DEFINES =====================
-#ifdef __FreeBSD__				// rb010123
-
-#define stricmp strcasecmp
-
-#define ID_INLINE inline
-
-#define OS_STRING "freebsd"
-
-#ifdef __i386__
-#define ARCH_STRING "i386"
-#elif defined __axp__
-#define ARCH_STRING "alpha"
-#else
-#error "Unsupported architecture"
-#endif
-
-#define DLL_EXT ".so"
-
-#define	PATH_SEP '/'
-
-#if !idppc
-static short BigShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define LittleShort
-static int BigLong(int l)
-{
-	LongSwap(l);
-}
-
-#define LittleLong
-static float BigFloat(const float *l)
-{
-	FloatSwap(l);
-}
-
-#define LittleFloat
-#else
-#define BigShort
-static short LittleShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define BigLong
-static int LittleLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define BigFloat
-static float LittleFloat(const float *l)
-{
-	return FloatSwap(l);
-}
-#endif
-
-#endif
-
-//======================= NetBSD DEFINES =====================
-#if defined(__NetBSD__)
-
-#define stricmp strcasecmp
-
-#define ID_INLINE inline
-
-#define OS_STRING "netbsd"
-
-#ifdef __i386__
-#define ARCH_STRING "i386"
-#elif defined __axp__
-#define ARCH_STRING "alpha"
-#else
-#error "Unsupported architecture"
-#endif
-
-#define DLL_EXT ".so"
-
-#define	PATH_SEP '/'
-
-#if !idppc
-static short BigShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define LittleShort
-static int BigLong(int l)
-{
-	LongSwap(l);
-}
-
-#define LittleLong
-static float BigFloat(const float *l)
-{
-	FloatSwap(l);
-}
-
-#define LittleFloat
-#else
-#define BigShort
-static short LittleShort(short l)
-{
-	return ShortSwap(l);
-}
-
-#define BigLong
-static int LittleLong(int l)
-{
-	return LongSwap(l);
-}
-
-#define BigFloat
-static float LittleFloat(const float *l)
-{
-	return FloatSwap(l);
-}
-#endif
-
-#endif
+#include "q_platform.h"
 
 //=============================================================
 
-#ifdef NDEBUG
-#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
+#ifdef Q3_VM
+typedef int     intptr_t;
 #else
-#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
+#ifndef _MSC_VER
+#include <stdint.h>
+#else
+#include <io.h>
+typedef __int64 int64_t;
+typedef __int32 int32_t;
+typedef __int16 int16_t;
+typedef __int8  int8_t;
+typedef unsigned __int64 uint64_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int8 uint8_t;
 #endif
-
-//=============================================================
+#endif
 
 typedef unsigned char byte;
 
@@ -469,6 +143,13 @@ typedef int     sfxHandle_t;
 typedef int     fileHandle_t;
 typedef int     clipHandle_t;
 
+#define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
+
+#ifdef __GNUC__
+#define ALIGN(x) __attribute__((aligned(x)))
+#else
+#define ALIGN(x)
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -844,7 +525,7 @@ signed short    ClampShort(int i);
 int             DirToByte(vec3_t dir);
 void            ByteToDir(int b, vec3_t dir);
 
-#if 1
+#if	1
 
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
@@ -1377,12 +1058,19 @@ qint64  BigLong64 (qint64 l);
 qint64  LittleLong64 (qint64 l);
 float	BigFloat (const float *l);
 float	LittleFloat (const float *l);
+
+void	Swap_Init (void);
 */
-char           *QDECL va(char *format, ...);
+char           *QDECL va(char *format, ...) __attribute__ ((format(printf, 1, 2)));
+
+#define TRUNCATE_LENGTH	64
+void            Com_TruncateLongString(char *buffer, const char *s);
 
 //=============================================
 
+//
 // key / value info strings
+//
 char           *Info_ValueForKey(const char *s, const char *key);
 void            Info_RemoveKey(char *s, const char *key);
 void            Info_RemoveKey_big(char *s, const char *key);
@@ -1392,8 +1080,8 @@ qboolean        Info_Validate(const char *s);
 void            Info_NextPair(const char **s, char *key, char *value);
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void QDECL      Com_Error(int level, const char *error, ...);
-void QDECL      Com_Printf(const char *msg, ...);
+void QDECL      Com_Error(int level, const char *error, ...) __attribute__ ((format(printf, 2, 3)));
+void QDECL      Com_Printf(const char *msg, ...) __attribute__ ((format(printf, 1, 2)));
 
 
 /*

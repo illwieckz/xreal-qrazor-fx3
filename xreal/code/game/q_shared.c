@@ -373,6 +373,7 @@ const char     *Com_GetExtension(const char *name)
 	return &name[i + 1];
 }
 
+
 /*
 ============
 Com_StripExtension
@@ -1158,46 +1159,6 @@ char           *Q_strrchr(const char *string, int c)
 
 /*
 =============
-Q_stristr
- 
-Find the first occurrence of find in s.
-=============
-*/
-char           *Q_stristr(const char *s, const char *find)
-{
-	char            c, sc;
-	size_t          len;
-
-	if((c = *find++) != 0)
-	{
-		if(c >= 'a' && c <= 'z')
-		{
-			c -= ('a' - 'A');
-		}
-		len = strlen(find);
-		do
-		{
-			do
-			{
-				if((sc = *s++) == 0)
-				{
-					return NULL;
-				}
-
-				if(sc >= 'a' && sc <= 'z')
-				{
-					sc -= ('a' - 'A');
-				}
-			} while(sc != c);
-		} while(Q_stricmpn(s, find, len) != 0);
-		s--;
-	}
-	return (char *)s;
-}
-
-
-/*
-=============
 Q_strncpyz
  
 Safe strncpy that ensures a trailing zero
@@ -1205,7 +1166,6 @@ Safe strncpy that ensures a trailing zero
 */
 void Q_strncpyz(char *dest, const char *src, int destsize)
 {
-	// bk001129 - also NULL dest
 	if(!dest)
 	{
 		Com_Error(ERR_FATAL, "Q_strncpyz: NULL dest");
@@ -1227,7 +1187,6 @@ int Q_stricmpn(const char *s1, const char *s2, int n)
 {
 	int             c1, c2;
 
-	// bk001129 - moved in 1.17 fix not in id codebase
 	if(s1 == NULL)
 	{
 		if(s2 == NULL)
@@ -1339,6 +1298,47 @@ void Q_strcat(char *dest, int destsize, const char *src)
 	Q_strncpyz(dest + l1, src, destsize - l1);
 }
 
+
+/*
+=============
+Q_stristr
+ 
+Find the first occurrence of find in s.
+=============
+*/
+char           *Q_stristr(const char *s, const char *find)
+{
+	char            c, sc;
+	size_t          len;
+
+	if((c = *find++) != 0)
+	{
+		if(c >= 'a' && c <= 'z')
+		{
+			c -= ('a' - 'A');
+		}
+		len = strlen(find);
+		do
+		{
+			do
+			{
+				if((sc = *s++) == 0)
+				{
+					return NULL;
+				}
+
+				if(sc >= 'a' && sc <= 'z')
+				{
+					sc -= ('a' - 'A');
+				}
+			} while(sc != c);
+		} while(Q_stricmpn(s, find, len) != 0);
+		s--;
+	}
+	return (char *)s;
+}
+
+
 /*
 =============
 Q_strreplace
@@ -1440,12 +1440,10 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 	va_start(argptr, fmt);
 	len = vsprintf(bigbuffer, fmt, argptr);
 	va_end(argptr);
-
 	if(len >= sizeof(bigbuffer))
 	{
 		Com_Error(ERR_FATAL, "Com_sprintf: overflowed bigbuffer");
 	}
-
 	if(len >= size)
 	{
 		Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size);
@@ -1456,7 +1454,6 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 		}
 #endif
 	}
-
 	Q_strncpyz(dest, bigbuffer, size);
 }
 
@@ -1488,6 +1485,27 @@ char           *QDECL va(char *format, ...)
 }
 
 /*
+============
+Com_TruncateLongString
+
+Assumes buffer is atleast TRUNCATE_LENGTH big
+============
+*/
+void Com_TruncateLongString(char *buffer, const char *s)
+{
+	int             length = strlen(s);
+
+	if(length <= TRUNCATE_LENGTH)
+		Q_strncpyz(buffer, s, TRUNCATE_LENGTH);
+	else
+	{
+		Q_strncpyz(buffer, s, (TRUNCATE_LENGTH / 2) - 3);
+		Q_strcat(buffer, TRUNCATE_LENGTH, " ... ");
+		Q_strcat(buffer, TRUNCATE_LENGTH, s + length - (TRUNCATE_LENGTH / 2) + 3);
+	}
+}
+
+/*
 =====================================================================
 
   INFO STRINGS
@@ -1501,13 +1519,16 @@ Info_ValueForKey
 
 Searches the string for the given
 key and returns the associated value, or an empty string.
+FIXME: overflow check?
 ===============
 */
 char           *Info_ValueForKey(const char *s, const char *key)
 {
 	char            pkey[BIG_INFO_KEY];
 	static char     value[2][BIG_INFO_VALUE];	// use two buffers so compares
-	static int      valueindex = 0;	// work without stomping on each other
+
+	// work without stomping on each other
+	static int      valueindex = 0;
 	char           *o;
 
 	if(!s || !key)
@@ -1647,19 +1668,16 @@ void Info_RemoveKey(char *s, const char *key)
 		}
 		*o = 0;
 
-		if(!Q_stricmp(key, pkey))
+		if(!strcmp(key, pkey))
 		{
-			size_t          memlen;
-
-			memlen = strlen(s);
-			memmove(start, s, memlen);
-			start[memlen] = 0;
+			strcpy(start, s);	// remove this part
 			return;
 		}
 
 		if(!*s)
 			return;
 	}
+
 }
 
 /*
@@ -1708,20 +1726,20 @@ void Info_RemoveKey_Big(char *s, const char *key)
 		}
 		*o = 0;
 
-		if(!Q_stricmp(key, pkey))
+		if(!strcmp(key, pkey))
 		{
-			size_t          memlen;
-
-			memlen = strlen(s);
-			memmove(start, s, memlen);
-			start[memlen] = 0;
+			strcpy(start, s);	// remove this part
 			return;
 		}
 
 		if(!*s)
 			return;
 	}
+
 }
+
+
+
 
 /*
 ==================
@@ -1827,6 +1845,9 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 	strcat(s, newi);
 }
 
+
+
+
 //====================================================================
 
 /*
@@ -1886,9 +1907,7 @@ char           *Com_SkipTokens(char *s, int numTokens, char *sep)
 				p++;
 		}
 		else if(*p == '\0')
-		{
 			break;
-		}
 	}
 
 	if(sepCount == numTokens)
