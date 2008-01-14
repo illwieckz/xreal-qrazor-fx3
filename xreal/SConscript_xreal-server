@@ -84,6 +84,7 @@ xreal_server_src = [
 unix_src = [
 'code/sys/sys_main.c',
 'code/sys/sys_unix.c',
+'code/sys/con_log.c',
 'code/sys/con_tty.c'
 ]
 
