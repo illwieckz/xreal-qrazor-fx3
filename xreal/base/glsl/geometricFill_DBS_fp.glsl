@@ -97,11 +97,17 @@ void	main()
 #if defined(ATI)
 
 	mat3 worldToTangentMatrix;
+	/*
 	for(int i = 0; i < 3; ++i)
 	{
 		for(int j = 0; j < 3; ++j)
 			worldToTangentMatrix[i][j] = var_TangentToWorldMatrix[j][i];
 	}
+	*/
+	
+	worldToTangentMatrix = mat3(var_TangentToWorldMatrix[0][0], var_TangentToWorldMatrix[1][0], var_TangentToWorldMatrix[2][0],
+								var_TangentToWorldMatrix[0][1], var_TangentToWorldMatrix[1][1], var_TangentToWorldMatrix[2][1], 
+								var_TangentToWorldMatrix[0][2], var_TangentToWorldMatrix[1][2], var_TangentToWorldMatrix[2][2]);
 #else
 	mat3 worldToTangentMatrix = transpose(var_TangentToWorldMatrix);
 #endif
