@@ -260,12 +260,6 @@ extern cvar_t  *sv_lanForceRate;
 
 //===========================================================
 
-// r1:
-client_t       *SV_GetPlayerByName(void);
-client_t       *SV_GetPlayerByNum(void);
-
-//===========================================================
-
 //
 // sv_main.c
 //
