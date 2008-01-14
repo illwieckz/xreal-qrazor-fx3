@@ -88,13 +88,9 @@ void SV_GetChallenge(netadr_t from)
 		i = oldest;
 	}
 
-	// if they are on a lan address, send the challengeResponse immediately
-	if(Sys_IsLANAddress(from))
-	{
-		challenge->pingTime = svs.time;
-		NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
-		return;
-	}
+	// send the challengeResponse immediately
+	challenge->pingTime = svs.time;
+	NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
 }
 
 int MaskBits(unsigned int mask)
