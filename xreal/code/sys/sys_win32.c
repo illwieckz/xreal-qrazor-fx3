@@ -110,37 +110,6 @@ int Sys_Milliseconds(void)
 	return sys_curtime;
 }
 
-#ifndef __GNUC__				//see snapvectora.s
-/*
-================
-Sys_SnapVector
-================
-*/
-void Sys_SnapVector(float *v)
-{
-	int             i;
-	float           f;
-
-	f = *v;
-	__asm fld       f;
-	__asm fistp     i;
-
-	*v = i;
-	v++;
-	f = *v;
-	__asm fld       f;
-	__asm fistp     i;
-
-	*v = i;
-	v++;
-	f = *v;
-	__asm fld       f;
-	__asm fistp     i;
-
-	*v = i;
-}
-#endif
-
 /*
 ================
 Sys_RandomBytes

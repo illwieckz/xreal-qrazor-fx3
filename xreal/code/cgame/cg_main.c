@@ -2064,8 +2064,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.clientNum = clientNum;
 
-	init_tonextint();
-
 	cgs.processedSnapshotNum = serverMessageNum;
 	cgs.serverCommandSequence = serverCommandSequence;
 

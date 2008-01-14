@@ -89,7 +89,6 @@ unix_src = [
 ]
 
 xreal_server_env.Append(CCFLAGS='-DBOTLIB')
-xreal_server_env.Append(CCFLAGS='-DC_ONLY')
 xreal_server_env.Append(CCFLAGS='-DDEDICATED')
 
 if env['purevm'] == 1:
@@ -104,6 +103,7 @@ if env['arch'] == 'linux-i386':
 	xreal_server_env.Install('#', 'xreal-server.x86')
 	
 elif env['arch'] == 'linux-x86_64':
+	xreal_server_env.Append(CCFLAGS='-DC_ONLY')
 	xreal_server_env.Append(LIBS=['dl', 'm'])
 	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src])
 	xreal_server_env.Install('#', 'xreal-server.x86_64')

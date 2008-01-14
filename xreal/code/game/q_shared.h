@@ -431,6 +431,19 @@ extern quat_t   quatIdentity;
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
 // *INDENT-OFF*
+
+static ID_INLINE long Q_ftol(float f)
+{
+#if id386_sse && defined(_MSC_VER)
+	static int      tmp;
+	__asm fld f
+	__asm fistp tmp
+	__asm mov eax, tmp
+#else
+	return (long)f;
+#endif
+}
+
 static ID_INLINE float Q_rsqrt(float number)
 {
 	float           y;
@@ -568,10 +581,36 @@ void            ByteToDir(int b, vec3_t dir);
 
 #endif
 
-extern void     init_tonextint(void);
-extern float    tonextint(float x);
+static ID_INLINE void SnapVector(vec3_t v)
+{
+#if id386 && defined(_MSC_VER)
+	int             i;
+	float           f;
 
-#define SnapVector(v) {v[0] = tonextint(v[0]); v[1] = tonextint(v[1]); v[2]= tonextint(v[2]);}
+	f = *v;
+	__asm fld       f;
+	__asm fistp     i;
+
+	*v = i;
+	v++;
+	f = *v;
+	__asm fld       f;
+	__asm fistp     i;
+
+	*v = i;
+	v++;
+	f = *v;
+	__asm fld       f;
+	__asm fistp     i;
+
+	*v = i;
+#else
+	v[0] = (int)v[0];
+	v[1] = (int)v[1];
+	v[2] = (int)v[2];
+#endif
+	
+}
 
 void            SnapVectorTowards(vec3_t v, vec3_t to);
 

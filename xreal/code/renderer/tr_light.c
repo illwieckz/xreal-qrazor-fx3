@@ -1369,7 +1369,7 @@ void R_SetupLightLOD(trRefLight_t * light)
 	}
 
 	flod *= numLods;
-	lod = myftol(flod);
+	lod = Q_ftol(flod);
 
 	if(lod < 0)
 	{

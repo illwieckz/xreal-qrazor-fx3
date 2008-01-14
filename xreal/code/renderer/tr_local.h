@@ -35,14 +35,6 @@ typedef unsigned int glIndex_t;
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-// fast float to int conversion
-#if id386 && !( (defined __linux__ || defined __FreeBSD__ ) && (defined __i386__ ) )	// rb010123
-long            myftol(float f);
-#else
-#define	myftol(x) ((int)(x))
-#endif
-
-
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine

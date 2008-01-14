@@ -104,30 +104,6 @@ int Sys_Milliseconds(void)
 	return curtime;
 }
 
-#if !id386
-/*
-==================
-fastftol
-==================
-*/
-long fastftol(float f)
-{
-	return (long)f;
-}
-
-/*
-==================
-Sys_SnapVector
-==================
-*/
-void Sys_SnapVector(float *v)
-{
-	v[0] = rint(v[0]);
-	v[1] = rint(v[1]);
-	v[2] = rint(v[2]);
-}
-#endif
-
 
 /*
 ==================

@@ -355,6 +355,7 @@ void ClampColor(vec4_t color)
 }
 
 // Rounds the argument to the next integer. Used by SnapVector.
+/*
 void init_tonextint()
 {
 	float           decimal = 0.9f;
@@ -380,6 +381,7 @@ float tonextint(float x)
 	else
 		return casted;
 }
+*/
 
 vec_t PlaneNormalize(vec4_t plane)
 {

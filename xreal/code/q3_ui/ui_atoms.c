@@ -1090,8 +1090,6 @@ UI_Init
 */
 void UI_Init(void)
 {
-	init_tonextint();
-
 	UI_RegisterCvars();
 
 	UI_InitGameinfo();
