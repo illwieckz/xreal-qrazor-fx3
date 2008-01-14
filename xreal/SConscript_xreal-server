@@ -20,8 +20,11 @@ xreal_server_src = [
 'code/qcommon/files.c',
 'code/qcommon/huffman.c',
 'code/qcommon/md4.c',
+'code/qcommon/md5.c',
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
+'code/qcommon/net_ip.c',
+'code/qcommon/puff.c',
 'code/qcommon/vm.c',
 'code/server/sv_bot.c',
 'code/server/sv_ccmds.c',
@@ -78,14 +81,9 @@ xreal_server_src = [
 'code/botlib/l_struct.c',
 ]
 
-unix_src = [
-'code/unix/unix_main.c',
-'code/unix/unix_net.c',
-'code/unix/unix_shared.c'
-]
-
-linux_src = [
-'code/unix/linux_signals.c'
+sys_src = [
+'code/sys/sys_main.c',
+'code/sys/sys_unix.c'
 ]
 
 xreal_server_env.Append(CCFLAGS='-DBOTLIB')
@@ -110,5 +108,5 @@ elif env['arch'] == 'linux-x86_64':
 
 elif env['arch'] == 'netbsd-i386':
 	xreal_server_env.Append(LIBS=['m'])
-	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, unix_src, linux_src])
+	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, sys_src])
 	xreal_server_env.Install('#', 'xreal-server.x86')
