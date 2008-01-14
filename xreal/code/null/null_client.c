@@ -100,7 +100,7 @@ void CL_FlushMemory(void)
 {
 }
 
-void CL_StartHunkUsers(void)
+void CL_StartHunkUsers(qboolean rendererOnly)
 {
 }
 
