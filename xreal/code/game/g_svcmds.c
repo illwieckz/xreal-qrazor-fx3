@@ -152,10 +152,11 @@ void Svcmd_RemoveIP_f(void)
 void Svcmd_Addaccount_f(void)
 {
 	char            user[16], pass[16], str[16];
+	unsigned int	permissions;
 
 	if(trap_Argc() < 4)
 	{
-		G_Printf("Usage: addaccount <user> <pass> <permissionbits>\n");
+		G_Printf("Usage: addaccount <user> <password> <permissionbits>\n");
 		return;
 	}
 
@@ -163,7 +164,12 @@ void Svcmd_Addaccount_f(void)
 	trap_Argv(2, pass, sizeof(pass));
 	trap_Argv(3, str, sizeof(str));
 
-	if(Admin_AddAccount(user, pass, atoi(str)))
+	if(!Q_stricmp(str, "all"))
+		permissions = PERMISSION_BITS;
+	else
+		permissions = atoi(str);
+
+	if(Admin_AddAccount(user, pass, permissions))
 		G_Printf("Account '%s' added.\n", user);
 	else
 		G_Printf("Username '%s' already in use.\n", user);
