@@ -434,7 +434,7 @@ qboolean Admin_RemoveAccount(const char *username)
 
 qboolean Admin_HasPermission(gentity_t * ent, int permission)
 {
-	if(ent->client->pers.account && (ent->client->pers.account->permissions & (1 << permission)))
+	if(ent->client->pers.account && (ent->client->pers.account->permissions & permission))
 		return qtrue;
 
 	trap_SendServerCommand(ent - g_entities, "print \"You do not have permission to use this command.\n\"");
