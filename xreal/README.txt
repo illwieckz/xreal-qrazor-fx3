@@ -88,6 +88,8 @@ COMPILING ON WIN32 WITH VISUAL STUDIO 2005
 COMPILING ON WIN32 WITH MINGW
 =============================
 
+NOTE: OUTDATED
+
 1. Download and install MinGW from http://www.mingw.org/.
 2. Download http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
      and untar it into your MinGW directory (usually C:\MinGW).
@@ -107,9 +109,7 @@ COMPILING ON WIN32 WITH MINGW
 COMPILING ON GNU/LINUX
 ======================
 
-Make sure you have OpenAL headers and libraries and the X Direct Graphics Access and
-X Video Mode extensions headers for your X11 or if using the SDL backend the SDL
-headers and libraries.
+Make sure you have OpenAL headers and libraries and the SDL libraries and headers.
 
 Compile XreaL for x86 processers:
 	>scons arch=linux-i386

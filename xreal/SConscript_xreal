@@ -228,9 +228,6 @@ xreal_env.Append(CCFLAGS='-DC_ONLY')
 xreal_env.Append(CCFLAGS='-Icode/ogg/include')
 xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 
-if env['purevm'] == 1:
-	xreal_env.Append(CCFLAGS='-DVM_SV_PURE')
-	
 if env['curl'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')
 	xreal_env.Append(LIBS=['curl'])

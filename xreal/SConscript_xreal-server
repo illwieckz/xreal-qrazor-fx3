@@ -91,9 +91,6 @@ unix_src = [
 xreal_server_env.Append(CCFLAGS='-DBOTLIB')
 xreal_server_env.Append(CCFLAGS='-DDEDICATED')
 
-if env['purevm'] == 1:
-	xreal_server_env.Append(CCFLAGS='-DVM_SV_PURE')
-
 if env['curl'] == 1:
 	xreal_server_env.Append(CCFLAGS='-DUSE_CURL')
 
