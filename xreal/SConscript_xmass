@@ -11,12 +11,12 @@ xmass_src = [
 xmass_env = env.Copy()
 
 if env['arch'] == 'linux-i386':
-	xmass_env.Append(LIBS=['m', 'tdb'])
+	xmass_env.Append(LIBS=['m'])
 	xmass_env.Program('xmass.x86', xmass_src)
 	xmass_env.Install('#', 'xmass.x86')
 	
 elif env['arch'] == 'linux-x86_64':
-	xmass_env.Append(LIBS=['m', 'tdb'])
+	xmass_env.Append(LIBS=['m'])
 	xmass_env.Program('xmass.x86_64', xmass_src)
 	xmass_env.Install('#', 'xmass.x86_64')
 
