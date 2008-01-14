@@ -4277,15 +4277,15 @@ static void R_CreateShadowMapFBOImage(void)
 
 		if(glConfig.hardwareType == GLHW_ATI)
 		{
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA16F, FT_NEAREST, WT_CLAMP);
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), FT_NEAREST, WT_CLAMP);
 		}
 		else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 		{
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA32F, FT_LINEAR, WT_CLAMP);
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA32F), FT_LINEAR, WT_CLAMP);
 		}
 		else
 		{
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA16F, FT_LINEAR, WT_CLAMP);
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), FT_LINEAR, WT_CLAMP);
 		}
 
 		ri.Hunk_FreeTempMemory(data);
@@ -4314,15 +4314,15 @@ static void R_CreateShadowCubeFBOImage(void)
 
 		if(glConfig.hardwareType == GLHW_ATI)
 		{
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA16F, FT_NEAREST, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), FT_NEAREST, WT_EDGE_CLAMP);
 		}
 		else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 		{
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA32F, FT_LINEAR, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA32F), FT_LINEAR, WT_EDGE_CLAMP);
 		}
 		else
 		{
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA16F, FT_LINEAR, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), FT_LINEAR, WT_EDGE_CLAMP);
 		}
 
 		for(i = 5; i >= 0; i--)

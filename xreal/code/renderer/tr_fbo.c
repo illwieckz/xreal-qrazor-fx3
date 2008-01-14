@@ -497,11 +497,11 @@ void R_InitFBOs(void)
 
 			if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 			{
-				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA32F_ARB, 0);
+				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], (r_shadowMapLuminaceAlpha->integer ? GL_LUMINANCE_ALPHA32F_ARB : GL_RGBA32F_ARB), 0);
 			}
 			else
 			{
-				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA16F_ARB, 0);
+				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], (r_shadowMapLuminaceAlpha->integer ? GL_LUMINANCE_ALPHA16F_ARB : GL_RGBA16F_ARB), 0);
 			}
 
 			R_CreateFBODepthBuffer(tr.shadowMapFBO[i], GL_DEPTH_COMPONENT24_ARB);

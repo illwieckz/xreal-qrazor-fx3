@@ -1973,6 +1973,7 @@ extern cvar_t  *r_cullShadowPyramidTriangles;
 extern cvar_t  *r_debugShadowMaps;
 extern cvar_t  *r_noShadowFrustums;
 extern cvar_t  *r_noLightFrustums;
+extern cvar_t  *r_shadowMapLuminaceAlpha;
 
 extern cvar_t  *r_intensity;
 
