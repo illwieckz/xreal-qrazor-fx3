@@ -37,6 +37,8 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
+#if defined(r_deferredShading)
+
 #if defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
@@ -50,7 +52,14 @@ void	main()
 	// gl_FragCoord.z with 24 bit precision
 	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
 	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
+	
+	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyz /= P.w;
 #endif
+#endif
+
+#else // no r_deferredShading
+	float depth = texture2D(u_PositionMap, st).r;
 	
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;

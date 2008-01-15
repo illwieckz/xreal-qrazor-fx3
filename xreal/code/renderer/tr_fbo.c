@@ -376,6 +376,7 @@ void R_InitFBOs(void)
 			GL_COLOR_ATTACHMENT1_EXT,
 			GL_COLOR_ATTACHMENT2_EXT,
 			GL_COLOR_ATTACHMENT3_EXT
+			//GL_DEPTH_ATTACHMENT_EXT
 		};
 
 		if(glConfig.textureNPOTAvailable)
@@ -446,6 +447,7 @@ void R_InitFBOs(void)
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
 			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+			//R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
 
 			R_CheckFBO(tr.deferredRenderFBO);
 
@@ -479,7 +481,7 @@ void R_InitFBOs(void)
 
 			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
 										  tr.geometricRenderFBO->depthBuffer);
-			//R_AttachFBOTextureDepth(tr.deferredPositionFBOImage->texnum);
+			//R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
 
 			R_CheckFBO(tr.geometricRenderFBO);
 		}

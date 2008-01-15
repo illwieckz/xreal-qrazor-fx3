@@ -2553,6 +2553,12 @@ void RB_RenderInteractionsDeferred()
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
+
+	// update depth render image
+	//GL_SelectTexture(1);
+	//GL_Bind(tr.depthRenderImage);
+	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+
 	// loop trough all light interactions and render the light quad for each last interaction
 	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 	{
@@ -2678,6 +2684,7 @@ void RB_RenderInteractionsDeferred()
 					// bind u_PositionMap
 					GL_SelectTexture(3);
 					GL_Bind(tr.deferredPositionFBOImage);
+					//GL_Bind(tr.depthRenderImage);
 
 					// bind u_AttenuationMapXY
 					GL_SelectTexture(4);
@@ -2747,6 +2754,7 @@ void RB_RenderInteractionsDeferred()
 					// bind u_PositionMap
 					GL_SelectTexture(3);
 					GL_Bind(tr.deferredPositionFBOImage);
+					//GL_Bind(tr.depthRenderImage);
 
 					// bind u_AttenuationMapXY
 					GL_SelectTexture(4);
@@ -2847,6 +2855,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 	// if we need to clear the FBO color buffers then it should be white
 	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// update depth render image
+	//R_BindFBO(tr.deferredRenderFBO);
+	//GL_SelectTexture(1);
+	//GL_Bind(tr.depthRenderImage);
+	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 
 	// create a matrix with similar functionality like gluUnproject, project from window space to world space
 	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
@@ -3255,6 +3269,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						// bind u_PositionMap
 						GL_SelectTexture(3);
 						GL_Bind(tr.deferredPositionFBOImage);
+						//GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
 						GL_SelectTexture(4);
@@ -3329,6 +3344,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						// bind u_PositionMap
 						GL_SelectTexture(3);
 						GL_Bind(tr.deferredPositionFBOImage);
+						//GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
 						GL_SelectTexture(4);
@@ -3651,14 +3667,14 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	GL_CheckErrors();
 }
 
-void RB_RenderUniformFogDeferred()
+void RB_RenderUniformFog(qboolean deferred)
 {
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
 	matrix_t        unprojectMatrix;
 
-	GLimp_LogComment("--- RB_RenderUniformFogDeferred ---\n");
+	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
 
 	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || r_forceFog->value <= 0)
 		return;
@@ -3698,7 +3714,16 @@ void RB_RenderUniformFogDeferred()
 
 	// bind u_PositionMap
 	GL_SelectTexture(1);
-	GL_Bind(tr.deferredPositionFBOImage);
+	if(deferred)
+	{
+		GL_Bind(tr.deferredPositionFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	}
+	
 
 	// set 2D virtual screen size
 	qglPushMatrix();
@@ -5068,7 +5093,7 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfaces(qfalse);
 
 		// render global fog
-		RB_RenderUniformFogDeferred();
+		RB_RenderUniformFog(qtrue);
 
 		// render debug information
 		R_BindFBO(tr.deferredRenderFBO);
@@ -5188,6 +5213,9 @@ static void RB_RenderView(void)
 
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(qfalse);
+
+		// render global fog
+		RB_RenderUniformFog(qfalse);
 
 #if 0
 		// add the sun flare

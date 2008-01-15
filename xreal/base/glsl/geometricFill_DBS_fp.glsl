@@ -237,7 +237,7 @@ void	main()
 	comp = fract(comp);
 	comp -= comp.xxyz * bitMsk;
 	gl_FragData[3] = comp;
-#else
+#elif 1
 	// 24 bit precision
 	const vec3 bitSh = vec3(256 * 256,			256,		1);
 	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
@@ -247,6 +247,8 @@ void	main()
 	comp = fract(comp);
 	comp -= comp.xxy * bitMsk;
 	gl_FragData[3] = vec4(comp, 0.0);
+#else
+	// DO NOTHING
 #endif // precision
 #endif // 
 

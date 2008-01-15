@@ -1061,7 +1061,25 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	scan = data;
 	samples = 3;
 
-	if(glConfig.textureFloatAvailable && (image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F)))
+
+	if(image->bits & (IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32))
+	{
+		format = GL_DEPTH_COMPONENT;
+
+		if(image->bits & IF_DEPTH16)
+		{
+			internalFormat = GL_DEPTH_COMPONENT16_ARB;
+		}
+		else if(image->bits & IF_DEPTH24)
+		{
+			internalFormat = GL_DEPTH_COMPONENT24_ARB;
+		}
+		else if(image->bits & IF_DEPTH32)
+		{
+			internalFormat = GL_DEPTH_COMPONENT32_ARB;
+		}
+	}
+	else if(glConfig.textureFloatAvailable && (image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F)))
 	{
 		if(image->bits & IF_RGBA16F)
 		{
@@ -4188,6 +4206,29 @@ static void R_CreateCurrentRenderImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+static void R_CreateDepthRenderImage(void)
+{
+	int             width, height;
+	byte           *data;
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+
+	tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH24, FT_NEAREST, WT_REPEAT);
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
 static void R_CreatePortalRenderImage(void)
 {
 	int             width, height;
@@ -4376,6 +4417,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateAttenuationXYImage();
 	R_CreateContrastRenderImage();
 	R_CreateCurrentRenderImage();
+	R_CreateDepthRenderImage();
 	R_CreatePortalRenderImage();
 	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();

@@ -57,10 +57,12 @@ void	main()
 	// gl_FragCoord.z with 32 bit precision
 	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
 	float depth = dot(texture2D(u_PositionMap, st), bitShifts);
-#else
+#elif 1
 	// gl_FragCoord.z with 24 bit precision
 	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
 	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
+#else
+	float depth = texture2D(u_PositionMap, st).r;
 #endif
 	
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
