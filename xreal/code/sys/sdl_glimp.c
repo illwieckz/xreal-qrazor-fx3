@@ -476,6 +476,16 @@ static void GLimp_InitExtensions(void)
 		ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
 	}
 
+	// GL_ARB_depth_texture
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_depth_texture"))
+	{
+		ri.Printf(PRINT_ALL, "...using GL_ARB_depth_texture\n");
+	}
+	else
+	{
+		ri.Error(ERR_FATAL, "...GL_ARB_depth_texture not found\n");
+	}
+
 	// GL_ARB_texture_cube_map
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_cube_map"))
 	{
