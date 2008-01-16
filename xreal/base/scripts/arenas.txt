@@ -23,22 +23,6 @@
 }
 
 {
-	map  "soul_dm"
-	longname "Soul Keep by Pat Raynor"
-	bots  "Visor"
-	fraglimit 10
-	type  "single ffa tourney team"
-}
-
-{
-	map  "soul_ctf"
-	longname "Soul Keep CTF by Pat Raynor"
-	bots  "Visor Nitro"
-	fraglimit 10
-	type  "ctf team"
-}
-
-{
 	map  "uglyrga"
 	longname "UGLY Rail Gun Arena by Reflex"
 	bots  "Visor"
