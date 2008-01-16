@@ -86,3 +86,45 @@ textures/decals/blood_splat06
 		vertexColor
 	}
 }
+
+textures/decals/_grungemaps/grunge17
+{
+	// FIXME
+	
+	nonsolid
+	noshadows
+}
+
+textures/decals/_grungemaps/grunge7
+{
+	// FIXME
+	
+	nonsolid
+	noshadows
+}
+
+textures/decals/dirtblast
+{
+	// FIXME
+	
+	nonsolid
+	noshadows
+}
+
+textures/decals/sdirt10
+{
+	// FIXME
+	
+	nonsolid
+	noshadows
+}
+
+textures/decals/stain01b
+{
+	// FIXME
+	
+	nonsolid
+	noshadows
+}
+
+
