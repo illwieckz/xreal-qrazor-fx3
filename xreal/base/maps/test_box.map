@@ -154,7 +154,7 @@ brushDef3
 }
 // entity 9
 {
-"classname" "weapon_machinegun"
-"name" "weapon_machinegun_1"
+"classname" "weapon_rocketlauncher"
+"name" "weapon_rocketlauncher_1"
 "origin" "0 64 32"
 }
