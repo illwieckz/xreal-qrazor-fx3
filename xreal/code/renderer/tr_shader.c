@@ -1912,18 +1912,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_HEATHAZEMAP;
 			}
-			else if(!Q_stricmp(token, "bloomMap"))
-			{
-				stage->type = ST_BLOOMMAP;
-			}
-			else if(!Q_stricmp(token, "bloom2Map"))
-			{
-				stage->type = ST_BLOOM2MAP;
-			}
-			else if(!Q_stricmp(token, "rotoscopeMap"))
-			{
-				stage->type = ST_ROTOSCOPEMAP;
-			}
 			else if(!Q_stricmp(token, "liquidMap"))
 			{
 				stage->type = ST_LIQUIDMAP;
@@ -3888,9 +3876,6 @@ static void CollapseStages(void)
 			stages[j].type == ST_SKYBOXMAP ||
 			stages[j].type == ST_SCREENMAP ||
 			stages[j].type == ST_HEATHAZEMAP ||
-			stages[j].type == ST_BLOOMMAP ||
-			stages[j].type == ST_BLOOM2MAP ||
-			stages[j].type == ST_ROTOSCOPEMAP ||
 			stages[j].type == ST_LIQUIDMAP ||
 			stages[j].type == ST_ATTENUATIONMAP_XY ||
 			stages[j].type == ST_ATTENUATIONMAP_Z)
@@ -4298,9 +4283,6 @@ static shader_t *FinishShader(void)
 		// check for a missing texture
 		switch (pStage->type)
 		{
-			case ST_BLOOMMAP:
-			case ST_BLOOM2MAP:
-			case ST_ROTOSCOPEMAP:
 			case ST_LIQUIDMAP:
 				// skip
 				break;

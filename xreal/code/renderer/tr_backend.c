@@ -3679,8 +3679,6 @@ void RB_RenderUniformFog(qboolean deferred)
 	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || r_forceFog->value <= 0)
 		return;
 
-	R_BindFBO(tr.deferredRenderFBO);
-
 	// enable shader, set arrays
 	GL_Program(tr.uniformFogShader.program);
 
@@ -3723,7 +3721,7 @@ void RB_RenderUniformFog(qboolean deferred)
 		GL_Bind(tr.depthRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 	}
-	
+
 
 	// set 2D virtual screen size
 	qglPushMatrix();
@@ -3745,6 +3743,163 @@ void RB_RenderUniformFog(qboolean deferred)
 	qglEnd();
 
 	// go back to 3D
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+}
+
+void RB_RenderBloom(void)
+{
+	GLimp_LogComment("--- RB_RenderBloom ---\n");
+
+	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer)
+		return;
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+
+	if(r_bloom->integer == 1)
+	{
+		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_Cull(CT_TWO_SIDED);
+
+		// render contrast
+		GL_Program(tr.contrastShader.program);
+		GL_ClientState(tr.contrastShader.attribs);
+		GL_SetVertexAttribs();
+
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+							 tr.currentRenderImage->uploadHeight);
+
+		// draw viewport
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+
+		// render bloom
+		GL_Program(tr.bloomShader.program);
+		GL_ClientState(tr.bloomShader.attribs);
+		GL_SetVertexAttribs();
+
+		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
+
+		GL_SelectTexture(1);
+		GL_Bind(tr.contrastRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
+							 tr.contrastRenderImage->uploadHeight);
+
+		// draw viewport
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+	}
+	else if(r_bloom->integer == 2)
+	{
+		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_Cull(CT_TWO_SIDED);
+
+		// render contrast
+		GL_Program(tr.contrastShader.program);
+		GL_ClientState(tr.contrastShader.attribs);
+		GL_SetVertexAttribs();
+
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+							 tr.currentRenderImage->uploadHeight);
+
+		// draw viewport
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+
+		// render blurX
+		GL_Program(tr.blurXShader.program);
+		GL_ClientState(tr.blurXShader.attribs);
+		GL_SetVertexAttribs();
+
+		qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
+
+		GL_Bind(tr.contrastRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
+							 tr.contrastRenderImage->uploadHeight);
+
+		// draw viewport
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+
+		// render blurY
+		GL_Program(tr.blurYShader.program);
+		GL_ClientState(tr.blurYShader.attribs);
+		GL_SetVertexAttribs();
+
+		qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
+
+		GL_Bind(tr.contrastRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
+							 tr.contrastRenderImage->uploadHeight);
+
+		// draw viewport
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+
+		// render bloom
+		GL_Program(tr.bloomShader.program);
+		GL_ClientState(tr.bloomShader.attribs);
+		GL_SetVertexAttribs();
+
+		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
+
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderImage);
+
+		GL_SelectTexture(1);
+		GL_Bind(tr.contrastRenderImage);
+
+		// draw viewport
+		qglBegin(GL_QUADS);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglEnd();
+	}
+
+	// go back to 3D
+	qglMatrixMode(GL_PROJECTION);
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
@@ -5093,6 +5248,7 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfaces(qfalse);
 
 		// render global fog
+		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderUniformFog(qtrue);
 
 		// render debug information
@@ -5216,6 +5372,9 @@ static void RB_RenderView(void)
 
 		// render global fog
 		RB_RenderUniformFog(qfalse);
+
+		// render bloom post process effect
+		RB_RenderBloom();
 
 #if 0
 		// add the sun flare

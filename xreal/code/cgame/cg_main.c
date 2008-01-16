@@ -182,8 +182,6 @@ vmCvar_t        cg_noProjectileTrail;
 vmCvar_t        cg_railType;
 vmCvar_t        cg_trueLightning;
 
-vmCvar_t        cg_drawBloom;
-vmCvar_t        cg_drawRotoscope;
 vmCvar_t        cg_drawPlayerAABB;
 
 vmCvar_t        cg_particleCollision;
@@ -336,8 +334,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 
-	{&cg_drawBloom, "cg_drawBloom", "0", CVAR_ARCHIVE},
-	{&cg_drawRotoscope, "cg_drawRotoscope", "0", CVAR_ARCHIVE},
 	{&cg_drawPlayerAABB, "cg_drawPlayerAABB", "0", CVAR_CHEAT},
 
 	{&cg_particleCollision, "cg_particleCollision", "1", CVAR_ARCHIVE},
@@ -916,10 +912,6 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.sideBarItemLShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_left.tga");
 	cgs.media.sideBarItemRShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_right.tga");
-
-	cgs.media.bloomShader = trap_R_RegisterShader("bloom");
-	cgs.media.bloom2Shader = trap_R_RegisterShader("bloom2");
-	cgs.media.rotoscopeShader = trap_R_RegisterShader("rotoscope");
 
 	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
 

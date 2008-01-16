@@ -2236,36 +2236,6 @@ static void CG_DrawReward(void)
 	trap_R_SetColor(NULL);
 }
 
-/*
-==============
-CG_DrawBloom
-==============
-*/
-static void CG_DrawBloom(void)
-{
-	if(cg_drawBloom.integer == 1)
-	{
-		CG_DrawPic(0, 0, 640, 480, cgs.media.bloomShader);
-	}
-	else if(cg_drawBloom.integer == 2)
-	{
-		CG_DrawPic(0, 0, 640, 480, cgs.media.bloom2Shader);
-	}
-}
-
-/*
-==============
-CG_DrawRotoscope
-==============
-*/
-static void CG_DrawRotoscope(void)
-{
-	if(cg_drawRotoscope.integer == 1)
-	{
-		CG_DrawPic(0, 0, 640, 480, cgs.media.rotoscopeShader);
-	}
-}
-
 
 /*
 ===============================================================================
@@ -3445,12 +3415,6 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	{
 		VectorCopy(baseOrg, cg.refdef.vieworg);
 	}
-
-	// draw bloom post process effect
-	CG_DrawBloom();
-
-	// draw rotoscope post process effect
-	CG_DrawRotoscope();
 
 	// draw status bar and other floating elements
 	CG_Draw2D();

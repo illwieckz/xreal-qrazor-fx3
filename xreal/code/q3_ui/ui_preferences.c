@@ -109,7 +109,7 @@ static void Preferences_SetMenuItems(void)
 	s_preferences.forcemodel.curvalue = trap_Cvar_VariableValue("cg_forcemodel") != 0;
 	s_preferences.drawteamoverlay.curvalue = Com_Clamp(0, 3, trap_Cvar_VariableValue("cg_drawTeamOverlay"));
 	s_preferences.allowdownload.curvalue = trap_Cvar_VariableValue("cl_allowDownload") != 0;
-	s_preferences.bloom.curvalue = Com_Clamp(0, 2, trap_Cvar_VariableValue("cg_drawBloom"));
+	s_preferences.bloom.curvalue = Com_Clamp(0, 2, trap_Cvar_VariableValue("r_bloom"));
 }
 
 
@@ -172,7 +172,7 @@ static void Preferences_Event(void *ptr, int notification)
 			break;
 
 		case ID_BLOOM:
-			trap_Cvar_SetValue("cg_drawBloom", s_preferences.bloom.curvalue);
+			trap_Cvar_SetValue("r_bloom", s_preferences.bloom.curvalue);
 			break;
 
 		case ID_BACK:

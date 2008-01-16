@@ -201,6 +201,9 @@ enum
 	IF_RGBA32F = BIT(7),
 	IF_LA16F = BIT(8),
 	IF_LA32F = BIT(9),
+	IF_DEPTH16 = BIT(10),
+	IF_DEPTH24 = BIT(11),
+	IF_DEPTH32 = BIT(12),
 };
 
 typedef enum
@@ -578,9 +581,6 @@ typedef enum
 	ST_SKYBOXMAP,
 	ST_SCREENMAP,				// 2d offscreen or portal rendering
 	ST_HEATHAZEMAP,				// heatHaze post process effect
-	ST_BLOOMMAP,
-	ST_BLOOM2MAP,
-	ST_ROTOSCOPEMAP,
 	ST_LIQUIDMAP,
 
 	ST_COLLAPSE_lighting_DB,	// diffusemap + bumpmap
@@ -1679,6 +1679,7 @@ typedef struct
 
 	image_t        *contrastRenderImage;
 	image_t        *currentRenderImage;
+	image_t        *depthRenderImage;
 	image_t        *portalRenderImage;
 
 	image_t        *deferredDiffuseFBOImage;
@@ -2028,7 +2029,7 @@ extern cvar_t  *r_deferredShading;
 extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
-extern cvar_t  *r_bloomIntensity;
+extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
 
 //====================================================================

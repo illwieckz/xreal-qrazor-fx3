@@ -212,7 +212,7 @@ cvar_t         *r_deferredShading;
 cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
 
-cvar_t         *r_bloomIntensity;
+cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
 
 // GL_ARB_multitexture
@@ -1456,7 +1456,7 @@ void R_Register(void)
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
-	r_bloomIntensity = ri.Cvar_Get("r_bloomIntensity", "1", CVAR_ARCHIVE);
+	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "2", CVAR_ARCHIVE);
 
 	// temporary variables that can change at any time

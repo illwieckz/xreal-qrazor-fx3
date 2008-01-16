@@ -1071,6 +1071,8 @@ railDisc
 		centerScale 0.6 + (time + parm4) * 2.3 * (1 - parm0) , 0.6 + (time + parm4) * 2.3 * (1 - parm0)
 		blend GL_ONE, GL_ZERO
 		alphaTest 0.5
+		maskDepth	// don't write to depth buffer
+					// it would mess up depth buffer based post process effects
       }
 }
 
@@ -1760,43 +1762,6 @@ nailTrail
 		blendFunc Add
 		rgbGen vertex
         tcMod rotate -30
-	}
-}
-
-bloom
-{
-	{
-		stage bloomMap
-		blurMagnitude 1
-		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
-	}
-}
-
-bloomDynamic
-{
-	{
-		//if(sinTable[ time * 0.2] * 1)
-		
-		stage bloom2Map
-		//blurMagnitude 1
-		blurMagnitude 2 + (sinTable[ time * 0.2] * 1)
-	}
-}
-
-bloom2
-{
-	{
-		stage bloom2Map
-		blurMagnitude 1
-	}
-}
-
-rotoscope
-{
-	{
-		stage rotoscopeMap
-		blurMagnitude 1
-		//blurMagnitude 3 + (sinTable[ time * 1] * 2)
 	}
 }
 

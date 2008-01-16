@@ -856,10 +856,6 @@ typedef struct
 	qhandle_t       sideBarItemLShader;
 	qhandle_t       sideBarItemRShader;
 
-	qhandle_t       bloomShader;
-	qhandle_t       bloom2Shader;
-	qhandle_t       rotoscopeShader;
-
 	qhandle_t       sparkShader;
 
 	qhandle_t       smokePuffShader;
@@ -1291,8 +1287,6 @@ extern vmCvar_t cg_noProjectileTrail;
 extern vmCvar_t cg_railType;
 extern vmCvar_t cg_trueLightning;
 
-extern vmCvar_t cg_drawBloom;
-extern vmCvar_t cg_drawRotoscope;
 extern vmCvar_t cg_drawPlayerAABB;
 
 extern vmCvar_t cg_particleCollision;

@@ -190,11 +190,20 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			}
 		}
 
-		if(glConfig.framebufferMixedFormatsAvailable)
+		if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
+			glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 "#ifndef GL_EXTX_framebuffer_mixed_formats\n#define GL_EXTX_framebuffer_mixed_formats 1\n#endif\n");
+						 "#ifndef r_deferredShading\n#define r_deferredShading 1\n#endif\n");
+
+			if(glConfig.framebufferMixedFormatsAvailable)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 "#ifndef GL_EXTX_framebuffer_mixed_formats\n#define GL_EXTX_framebuffer_mixed_formats 1\n#endif\n");
+			}
 		}
+
+
 
 		/*
 		   if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -2278,108 +2287,7 @@ static void Render_heatHaze(int stage)
 	GL_CheckErrors();
 }
 
-static void Render_bloom(int stage)
-{
-	shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-	GLimp_LogComment("--- Render_bloom ---\n");
-
-	GL_State(pStage->stateBits);
-
-	// render contrast
-	GL_Program(tr.contrastShader.program);
-	GL_ClientState(tr.contrastShader.attribs);
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	DrawElements();
-
-	// render bloom
-	GL_Program(tr.bloomShader.program);
-	GL_ClientState(tr.bloomShader.attribs);
-	GL_SetVertexAttribs();
-
-	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	GL_SelectTexture(1);
-	GL_Bind(tr.contrastRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_bloom2(int stage)
-{
-	shaderStage_t  *pStage = tess.surfaceStages[stage];
-
-	GLimp_LogComment("--- Render_bloom2 ---\n");
-
-	GL_State(pStage->stateBits);
-
-	// render contrast
-	GL_Program(tr.contrastShader.program);
-	GL_ClientState(tr.contrastShader.attribs);
-	GL_SetVertexAttribs();
-
-	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	qglMatrixMode(GL_MODELVIEW);
-
-	DrawElements();
-
-	// render blurX
-	GL_Program(tr.blurXShader.program);
-	GL_ClientState(tr.blurXShader.attribs);
-	GL_SetVertexAttribs();
-
-	qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	GL_Bind(tr.contrastRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
-
-	DrawElements();
-
-	// render blurY
-	GL_Program(tr.blurYShader.program);
-	GL_ClientState(tr.blurYShader.attribs);
-	GL_SetVertexAttribs();
-
-	qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	GL_Bind(tr.contrastRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth, tr.contrastRenderImage->uploadHeight);
-
-	DrawElements();
-
-	// render bloom
-	GL_Program(tr.bloomShader.program);
-	GL_ClientState(tr.bloomShader.attribs);
-	GL_SetVertexAttribs();
-
-	qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-
-	GL_SelectTexture(1);
-	GL_Bind(tr.contrastRenderImage);
-
-	DrawElements();
-
-	GL_CheckErrors();
-}
-
+/*
 static void Render_rotoscope(int stage)
 {
 	float           blurMagnitude;
@@ -2411,6 +2319,7 @@ static void Render_rotoscope(int stage)
 
 	GL_CheckErrors();
 }
+*/
 
 static void Render_liquid(int stage)
 {
@@ -2848,24 +2757,6 @@ void Tess_StageIteratorGeneric()
 				break;
 			}
 
-			case ST_BLOOMMAP:
-			{
-				Render_bloom(stage);
-				break;
-			}
-
-			case ST_BLOOM2MAP:
-			{
-				Render_bloom2(stage);
-				break;
-			}
-
-			case ST_ROTOSCOPEMAP:
-			{
-				Render_rotoscope(stage);
-				break;
-			}
-
 			case ST_LIQUIDMAP:
 			{
 				Render_liquid(stage);
@@ -2967,11 +2858,13 @@ void Tess_StageIteratorGBuffer()
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_genericSingle(stage);
 
+#if 1
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 				{
 					R_BindFBO(tr.geometricRenderFBO);
 					Render_geometricFill_DBS(stage, qtrue);
 				}
+#endif
 				break;
 			}
 
@@ -2979,8 +2872,10 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
+#if 1
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_depthFill(stage);
+#endif
 
 				R_BindFBO(tr.geometricRenderFBO);
 				Render_geometricFill_DBS(stage, qfalse);
