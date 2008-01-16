@@ -197,18 +197,6 @@ brushDef3
 // entity 12
 {
 "classname" "light"
-"name" "light_9"
-"origin" "384 -64 128"
-"noshadows" "0"
-"nospecular" "0"
-"nodiffuse" "0"
-"falloff" "0"
-"_color" "0.78 0.78 0.84"
-"light_radius" "225 225 225"
-}
-// entity 13
-{
-"classname" "light"
 "name" "light_10"
 "origin" "896 -64 128"
 "noshadows" "0"
@@ -218,7 +206,7 @@ brushDef3
 "_color" "0.78 0.78 0.84"
 "light_radius" "225 225 225"
 }
-// entity 14
+// entity 13
 {
 "classname" "func_static"
 "name" "func_static_1"
@@ -226,14 +214,14 @@ brushDef3
 "model" "models/mapobjects/bja/bja_light01.ase"
 "rotation" "1 0 0 0 -0.999924 0.0123182 0 -0.0123182 -0.999924"
 }
-// entity 15
+// entity 14
 {
 "classname" "func_static"
 "name" "func_static_2"
 "origin" "-32 160 256"
 "model" "models/mapobjects/bja/bja_light02.ase"
 }
-// entity 16
+// entity 15
 {
 "classname" "func_static"
 "name" "func_static_3"
@@ -241,56 +229,56 @@ brushDef3
 "model" "models/mapobjects/bja/bja_light03.ase"
 "angle" "45"
 }
-// entity 17
+// entity 16
 {
 "classname" "func_static"
 "name" "func_static_4"
 "origin" "-160 -96 0"
 "model" "models/mapobjects/bja/bja_light04.ase"
 }
-// entity 18
+// entity 17
 {
 "classname" "func_static"
 "name" "func_static_5"
 "origin" "-192 64 48"
 "model" "models/mapobjects/bja/bja_light05.ase"
 }
-// entity 19
+// entity 18
 {
 "classname" "func_static"
 "name" "func_static_7"
 "origin" "-8 -128 128"
 "model" "models/mapobjects/bja/bja_vent.ase"
 }
-// entity 20
+// entity 19
 {
 "classname" "func_static"
 "name" "func_static_8"
 "origin" "0 192 0"
 "model" "models/mapobjects/power/pad.lwo"
 }
-// entity 21
+// entity 20
 {
 "classname" "func_static"
 "name" "func_static_9"
 "origin" "-128 64 0"
 "model" "models/mapobjects/power/pad.lwo"
 }
-// entity 22
+// entity 21
 {
 "classname" "func_static"
 "name" "func_static_10"
 "origin" "0 -64 0"
 "model" "models/mapobjects/power/pad.lwo"
 }
-// entity 23
+// entity 22
 {
 "classname" "func_static"
 "name" "func_static_6"
 "origin" "192 64 8"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
 }
-// entity 24
+// entity 23
 {
 "classname" "light"
 "name" "light_11"
@@ -302,7 +290,7 @@ brushDef3
 "_color" "0.78 0.78 0.84"
 "light_radius" "70 70 70"
 }
-// entity 25
+// entity 24
 {
 "classname" "light"
 "name" "light_13"
@@ -319,7 +307,7 @@ brushDef3
 "light_radius" "300 300 300"
 "texture" "lights/flashLight"
 }
-// entity 26
+// entity 25
 {
 "classname" "trigger_push"
 "name" "trigger_push_1"
@@ -338,26 +326,26 @@ brushDef3
 }
 }
 }
-// entity 27
+// entity 26
 {
 "classname" "target_push"
 "name" "target_push_1"
 "origin" "192 64 192"
 }
-// entity 28
+// entity 27
 {
 "classname" "func_static"
 "name" "func_static_11"
 "origin" "192 192 4"
 "model" "models/mapobjects/kat/weapon_marker.ase"
 }
-// entity 29
+// entity 28
 {
 "classname" "weapon_lightning"
 "name" "weapon_lightning_1"
 "origin" "192 192 34"
 }
-// entity 30
+// entity 29
 {
 "classname" "light"
 "name" "light_12"
@@ -369,7 +357,7 @@ brushDef3
 "_color" "0.78 0.78 0.84"
 "light_radius" "225 225 225"
 }
-// entity 31
+// entity 30
 {
 "classname" "light"
 "name" "light_14"
@@ -381,4 +369,44 @@ brushDef3
 "_color" "0.78 0.78 0.84"
 "light_radius" "70 70 70"
 "light_center" "0 0 50"
+}
+// entity 31
+{
+"classname" "func_static"
+"name" "func_static_129"
+"origin" "384 -72 0"
+"model" "models/gwdm2/teleporter_01.ase"
+"angle" "180"
+}
+// entity 32
+{
+"classname" "light"
+"name" "light_58"
+"origin" "383 -78 84"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"_color" "0.76 0.85 0.89"
+"light_radius" "126 104 204"
+"texture" "lights/roundfire2"
+}
+// entity 33
+{
+"classname" "trigger_teleport"
+"name" "trigger_teleport_1"
+"model" "trigger_teleport_1"
+"target" "info_player_start_1"
+// brush 0
+{
+brushDef3
+{
+( 0 0 1 -144 ) ( ( 0.03125 0 0.25 ) ( 0 0.03125 48.5 ) ) "textures/common/trigger" 0 0 0
+( 0 1 0 56 ) ( ( 0.03125 0 15.5 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 1 0 0 -400 ) ( ( 0.03125 0 0.25 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 8 ) ( ( 0.03125 0 0.25 ) ( 0 0.03125 15.5 ) ) "textures/common/trigger" 0 0 0
+( 0 -1 0 -88 ) ( ( 0.03125 0 48.5 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( -1 0 0 368 ) ( ( 0.03125 0 63.75 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+}
+}
 }
