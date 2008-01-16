@@ -1726,7 +1726,7 @@ void MatrixClear(matrix_t m)
 
 void MatrixCopy(const matrix_t in, matrix_t out)
 {
-#if id386_sse && defined __GNUC__
+#if id386_sse && defined __GNUC__ && 0
 	asm volatile
 	(
 	"movups         (%%edx),        %%xmm0\n"
@@ -1735,7 +1735,7 @@ void MatrixCopy(const matrix_t in, matrix_t out)
 	"movups         0x30(%%edx),    %%xmm3\n"
 
 	"movups         %%xmm0,         (%%eax)\n"
-    "movups         %%xmm1,         0x10(%%eax)\n"
+	"movups         %%xmm1,         0x10(%%eax)\n"
 	"movups         %%xmm2,         0x20(%%eax)\n"
 	"movups         %%xmm3,         0x30(%%eax)\n"
 	:
@@ -1778,7 +1778,7 @@ void MatrixCopy(const matrix_t in, matrix_t out)
 
 void MatrixTransposeIntoXMM(const matrix_t m)
 {
-#if id386_sse && defined __GNUC__
+#if id386_sse && defined __GNUC__ && 0
         asm volatile
         (                                                                               // reg[0]                       | reg[1]                | reg[2]                | reg[3]
         // load transpose into XMM registers
@@ -1818,7 +1818,7 @@ void MatrixTransposeIntoXMM(const matrix_t m)
 
 void MatrixTranspose(const matrix_t in, matrix_t out)
 {
-#if id386_sse && defined __GNUC__
+#if id386_sse && defined __GNUC__ && 0
         // transpose the matrix into the xmm4-7
         MatrixTransposeIntoXMM(in);
         
@@ -2005,7 +2005,7 @@ void MatrixSetupShear(matrix_t m, vec_t x, vec_t y)
 
 void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
 {
-#if id386_sse && defined __GNUC__
+#if id386_sse && defined __GNUC__ && 0
         asm volatile
         (
         // load m2 into the xmm4-7
