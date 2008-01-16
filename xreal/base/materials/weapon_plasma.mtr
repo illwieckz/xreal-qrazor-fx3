@@ -1,13 +1,45 @@
 
-models/weapons2/plasma/plasma
+models/weapons/plasma/plasmagun
 {
+
+	noShadows
+//  noselfShadow
+//	unsmoothedTangents
+
+    diffusemap		models/weapons/plasma/v_plasmagun_d.tga
 	{
-		blend diffuseMap
-		map models/weapons2/plasma/plasma.tga
-		rgbGen lightingDiffuse
+		blend bumpmap
+        map  			addnormals(models/weapons/plasma/v_plasmagun_local.tga, heightmap(models/weapons/plasma/v_plasmagun_h.tga, 5 ) ) 
 	}
-	bumpMap models/weapons2/plasma/plasma_n.tga
-	specularMap models/weapons2/plasma/plasma_s.tga
+    specularmap	 	models/weapons/plasma/v_plasmagun_s.tga
+	{
+		map			models/weapons/plasma/v_plasmagun_add.tga
+		blend 		add
+		rgb			q2flickertable [ time * 4 ]
+	}
+}
+
+models/weapons/plasma/plasmagun_world
+{
+		ricochet
+        	noselfShadow
+		unsmoothedTangents
+
+        	diffusemap	 	models/q2_weapons/q2_shotgun/q2_w_shotgun_d.tga
+		{
+		blend 		add
+		map			models/q2_items/q2_item_pulse.tga
+		red 			( q2iteminout [Parm4 + (time / 1.5) ]) * Parm0
+		green 		( q2iteminout [Parm4 + (time / 1.5) ]) * Parm1
+		blue 			( q2iteminout [Parm4 + (time / 1.5) ]) * Parm2
+		}
+		bumpmap      	models/q2_weapons/q2_shotgun/q2_w_shotgun_local.tga
+		specularmap	 	models/q2_weapons/q2_shotgun/q2_w_shotgun_s.tga
+		{
+		map			models/q2_weapons/q2_shotgun/q2_w_shotgun_add.tga
+		blend			add
+		rgb			q2flickertable [ time * 4 ]
+		}
 }
 
 models/weapons2/plasma/f_plasma

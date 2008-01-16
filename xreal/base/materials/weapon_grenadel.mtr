@@ -12,3 +12,11 @@ models/projectiles/grenade/grenade
 		blend add
 	}
 }
+
+models/weapons2/grenadel/gl_d
+{
+	diffuseMap models/weapons/grenadel/gl_d.tga
+	bumpMap models/weapons/grenadel/gl_n3.tga
+	specularMap models/weapons/grenadel/gl_s.tga
+
+}

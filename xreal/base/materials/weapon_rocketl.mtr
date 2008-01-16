@@ -28,6 +28,16 @@ models/weapons/rocketl/rocketl_uvw_frame_exp_d // rahmen ums rohr
 	diffuseMap models/weapons/rocketl/rocketl_uvw_frame_exp_d.tga
 	normalMap models/weapons/rocketl/frame_n.png
 	specularMap models/weapons/rocketl/frame_s.tga
+	
+	/*
+	{
+		stage reflectionMap
+		blend GL_ONE_MINUS_DST_COLOR, GL_ZERO
+		//blend GL_DST_COLOR, GL_ZERO
+		cubeMap cubemaps/pete/carbon-creek512
+	}
+	normalMap models/weapons/rocketl/frame_n.png
+	*/
 }
 models/weapons/rocketl/tube_d //schläuche 
 {
@@ -47,6 +57,16 @@ models/weapons/rocketl/rocketl_uvw_rtop_exp_d //platte vorne/oben, griff, abzug,
 	diffuseMap models/weapons/rocketl/rocketl_uvw_rtop_exp_d.tga
 	normalMap models/weapons/rocketl/front_n.png
 	specularMap models/weapons/rocketl/rocketl_uvw_rtop_exp_d.tga
+	
+	/*
+	{
+		stage reflectionMap
+		blend GL_ONE_MINUS_DST_COLOR, GL_ZERO
+		//blend GL_DST_COLOR, GL_ZERO
+		cubeMap cubemaps/pete/carbon-creek512
+	}
+	normalMap models/weapons/rocketl/front_n.png
+	*/
 }
 models/weapons/rocketl/rocketl_body_d // hinterteil -.-
 {
