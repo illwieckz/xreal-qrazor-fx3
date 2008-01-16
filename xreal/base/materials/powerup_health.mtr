@@ -7,8 +7,7 @@ material for health powerups, rewritten and checked by otty 2007
 models/powerups/health/small
 {
 	{
-		map models/powerups/health/small.png
-       		
+		map models/powerups/health/small.png		
 		blend GL_ONE, GL_ZERO
 	}
 	{
@@ -69,8 +68,11 @@ models/powerups/health/small_flare
 models/powerups/health/medium
 {
 	{
+		stage diffuseMap
+		map _black
+	}
+	{
 		map models/powerups/health/medium.png
-       		
 		blend GL_ONE, GL_ZERO
 	}
 	{
@@ -135,13 +137,15 @@ models/powerups/health/medium_flare
 models/powerups/health/large
 {
 	{
-		map models/powerups/health/large.png
-       		
+		stage diffuseMap
+		map _black
+	}
+	{
+		map models/powerups/health/large.png  		
 		blend GL_ONE, GL_ZERO
 	}
 	{
 		map models/powerups/health/health_glow.png
-		
 		rgbGen wave sin .5 .5 0 1.5	
 		blend blend
 	}
@@ -153,7 +157,7 @@ models/powerups/health/large_sphere
 	{
 		clampmap gfx/effect/effmap01.png
         		
-        		rotate time * -0.4
+        rotate time * -0.4
 		blend add
 		red	0.5 + sinTable[time * 0.3] * 0.5
 
@@ -163,8 +167,8 @@ models/powerups/health/large_sphere
 		clampmap gfx/effect/effmap02.png
         		
         		
-        		red	0.7 + sinTable[time * 0.3] * 0.4
-      	  	scroll sinTable[time * 0.3] * 0.5 + 0.5, 0
+        red	0.7 + sinTable[time * 0.3] * 0.4
+      	scroll sinTable[time * 0.3] * 0.5 + 0.5, 0
 		blend add
 	}
 }
@@ -176,7 +180,7 @@ models/powerups/health/large_flare
 		edgeClamp
 		map gfx/effect/flare01.png
 		blend add
-       		rotate time * 0.3
+       	rotate time * 0.3
 		blend add
 		red	0.66 + sinTable[time * 0.294] * 0.5
 
@@ -185,7 +189,7 @@ models/powerups/health/large_flare
 		edgeClamp
 		map gfx/effect/flare01.png
 		blend add
-       		rotate time * -0.5
+       	rotate time * -0.5
 		blend add
 		red	0.77 + sinTable[time * 0.351] * 0.5
 
@@ -196,13 +200,15 @@ models/powerups/health/large_flare
 models/powerups/health/mega
 {
 	{
+		stage diffuseMap
+		map _black
+	}
+	{
 		map models/powerups/health/mega.png
-       		
 		blend GL_ONE, GL_ZERO
 	}
 	{
 		map models/powerups/health/mega_glow.png
-		 
 		blend blend
 	}
 }
@@ -214,18 +220,16 @@ models/powerups/health/mega_sphere
 	{
 		clampmap gfx/effect/effmap01.png
         		
-        		rotate time * -0.4
+        rotate time * -0.4
 		blend add
 		blue	0.55 + sinTable[time * 0.35] * 0.55
 
 	}
 	
 	{
-		clampmap gfx/effect/effmap02.png
-        		
-        		
+		clampmap gfx/effect/effmap02.png	
   		blue	0.6 + sinTable[time * 0.2] * 0.4
-      	  	scroll sinTable[time * 0.2] * 0.5 + 0.5, 0
+      	scroll sinTable[time * 0.2] * 0.5 + 0.5, 0
 		blend add
 	}
 }
