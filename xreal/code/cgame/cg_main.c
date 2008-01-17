@@ -675,7 +675,7 @@ static void CG_RegisterSounds(void)
 #endif
 	}
 
-	cgs.media.tracerSound = trap_S_RegisterSound("sound/weapons/machinegun/buletby1.wav", qfalse);
+	cgs.media.tracerSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_2.ogg", qfalse);
 	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.ogg", qfalse);
 	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.ogg", qfalse);
 	cgs.media.useNothingSound = trap_S_RegisterSound("sound/items/use_nothing.wav", qfalse);
@@ -793,12 +793,18 @@ static void CG_RegisterSounds(void)
 	cgs.media.flightSound = trap_S_RegisterSound("sound/items/flight.wav", qfalse);
 	cgs.media.medkitSound = trap_S_RegisterSound("sound/items/use_medkit.wav", qfalse);
 	cgs.media.quadSound = trap_S_RegisterSound("sound/items/damage.ogg", qfalse);
-	cgs.media.sfx_ric1 = trap_S_RegisterSound("sound/weapons/machinegun/ric1.wav", qfalse);
-	cgs.media.sfx_ric2 = trap_S_RegisterSound("sound/weapons/machinegun/ric2.wav", qfalse);
-	cgs.media.sfx_ric3 = trap_S_RegisterSound("sound/weapons/machinegun/ric3.wav", qfalse);
 	cgs.media.sfx_railg = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg", qfalse);
 	cgs.media.sfx_plasmaexp = trap_S_RegisterSound("sound/weapons/plasma/plasmx1a.wav", qfalse);
+	cgs.media.impactFlesh1Sound = trap_S_RegisterSound("sound/weapons/impactFlesh1.ogg", qfalse);
+	cgs.media.impactFlesh2Sound = trap_S_RegisterSound("sound/weapons/impactFlesh2.ogg", qfalse);
+	cgs.media.impactFlesh3Sound = trap_S_RegisterSound("sound/weapons/impactFlesh3.ogg", qfalse);
+	cgs.media.impactMetal1Sound = trap_S_RegisterSound("sound/weapons/impactMetal1.ogg", qfalse);
+	cgs.media.impactMetal2Sound = trap_S_RegisterSound("sound/weapons/impactMetal2.ogg", qfalse);
+	cgs.media.impactMetal3Sound = trap_S_RegisterSound("sound/weapons/impactMetal3.ogg", qfalse);
+	cgs.media.impactMetal4Sound = trap_S_RegisterSound("sound/weapons/impactMetal4.ogg", qfalse);
+	cgs.media.impactWall1Sound = trap_S_RegisterSound("sound/weapons/impactWall1.ogg", qfalse);
+	cgs.media.impactWall2Sound = trap_S_RegisterSound("sound/weapons/impactWall2.ogg", qfalse);
 #ifdef MISSIONPACK
 	cgs.media.sfx_proxexp = trap_S_RegisterSound("sound/weapons/proxmine/wstbexpl.wav", qfalse);
 	cgs.media.sfx_nghit = trap_S_RegisterSound("sound/weapons/nailgun/wnalimpd.wav", qfalse);

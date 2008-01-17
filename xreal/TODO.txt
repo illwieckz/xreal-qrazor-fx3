@@ -62,10 +62,6 @@ base/sound/weapons/lightning/lg_hit2.ogg
 base/sound/weapons/lightning/lg_hit3.ogg
 base/sound/weapons/lightning/lg_hit.ogg
 base/sound/weapons/lightning/lg_hum.ogg
-base/sound/weapons/machinegun/buletby1.ogg
-base/sound/weapons/machinegun/ric1.ogg
-base/sound/weapons/machinegun/ric2.ogg
-base/sound/weapons/machinegun/ric3.ogg
 base/sound/weapons/plasma/hyprbf1a.ogg
 base/sound/weapons/plasma/lasfly.ogg
 base/sound/weapons/plasma/plasmx1a.ogg

@@ -915,11 +915,11 @@ void CG_RegisterWeapon(int weaponNum)
 
 		case WP_MACHINEGUN:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg", qfalse);
-			weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_2.ogg", qfalse);
-			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_3.ogg", qfalse);
-			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_4.ogg", qfalse);
-			weaponInfo->flashSound[4] = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_5.ogg", qfalse);
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/machinegun/shot1.ogg", qfalse);
+			weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/shot2.ogg", qfalse);
+			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/shot3.ogg", qfalse);
+			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/shot4.ogg", qfalse);
+			weaponInfo->flashSound[4] = trap_S_RegisterSound("sound/weapons/machinegun/shot5.ogg", qfalse);
 			//weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 			break;
 
@@ -2644,13 +2644,36 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		case WP_MACHINEGUN:
 			mark = cgs.media.bulletMarkShader;
 
-			r = rand() & 3;
-			if(r == 0)
-				sfx = cgs.media.sfx_ric1;
-			else if(r == 1)
-				sfx = cgs.media.sfx_ric2;
+			if(soundType == IMPACTSOUND_FLESH)
+			{
+				r = rand() & 3;
+				if(r == 0)
+					sfx = cgs.media.impactFlesh1Sound;
+				else if(r == 1)
+					sfx = cgs.media.impactFlesh2Sound;
+				else
+					sfx = cgs.media.impactFlesh3Sound;
+			}
+			else if(soundType == IMPACTSOUND_METAL)
+			{
+				r = rand() & 4;
+				if(r == 0)
+					sfx = cgs.media.impactMetal1Sound;
+				else if(r == 1)
+					sfx = cgs.media.impactMetal2Sound;
+				else if(r == 2)
+					sfx = cgs.media.impactMetal3Sound;
+				else
+					sfx = cgs.media.impactMetal4Sound;
+			}
 			else
-				sfx = cgs.media.sfx_ric3;
+			{
+				r = rand() & 2;
+				if(r == 0)
+					sfx = cgs.media.impactWall1Sound;
+				else
+					sfx = cgs.media.impactWall2Sound;
+			}
 
 			radius = 8;
 

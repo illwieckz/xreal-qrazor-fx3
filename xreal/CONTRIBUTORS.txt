@@ -57,6 +57,17 @@ Earthquake - par machinegun model
 NecEvil  - par machinegun model
 
 
+Alone Team
+----------
+Josh "Jack Rammsdell" Greenburg - Map and 3d/2d art creation creation, material defs and scripts.
+Peter_86 - Character and Weapon model creation
+Voldemort - Map, Texture, Def, material, and Script Creation
+Arkibator - Map creation
+MacBeth - Sound Creation
+Stephan - Texture Creation
+
+
+
 LEVEL DESIGN
 ============
 Stefan "ReFlex" Lautner - REDM08, UGLY R.G.A

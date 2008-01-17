@@ -952,12 +952,18 @@ typedef struct
 	sfxHandle_t     sfx_lghit1;
 	sfxHandle_t     sfx_lghit2;
 	sfxHandle_t     sfx_lghit3;
-	sfxHandle_t     sfx_ric1;
-	sfxHandle_t     sfx_ric2;
-	sfxHandle_t     sfx_ric3;
 	sfxHandle_t     sfx_railg;
 	sfxHandle_t     sfx_rockexp;
 	sfxHandle_t     sfx_plasmaexp;
+	sfxHandle_t     impactFlesh1Sound;
+	sfxHandle_t     impactFlesh2Sound;
+	sfxHandle_t     impactFlesh3Sound;
+	sfxHandle_t     impactMetal1Sound;
+	sfxHandle_t     impactMetal2Sound;
+	sfxHandle_t     impactMetal3Sound;
+	sfxHandle_t     impactMetal4Sound;
+	sfxHandle_t     impactWall1Sound;
+	sfxHandle_t     impactWall2Sound;
 #ifdef MISSIONPACK
 	sfxHandle_t     sfx_proxexp;
 	sfxHandle_t     sfx_nghit;
