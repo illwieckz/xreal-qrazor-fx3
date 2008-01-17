@@ -448,7 +448,7 @@ static void GLimp_InitExtensions(void)
 	qglMultiTexCoord2fARB = NULL;
 	qglActiveTextureARB = NULL;
 	qglClientActiveTextureARB = NULL;
-	if(Q_stristr(glConfig.extensions_string, "GL_ARB_multitexture"))
+	//if(Q_stristr(glConfig.extensions_string, "GL_ARB_multitexture"))
 	{
 		qglMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 		qglActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glActiveTextureARB");
@@ -471,10 +471,12 @@ static void GLimp_InitExtensions(void)
 			}
 		}
 	}
+	/*
 	else
 	{
 		ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
 	}
+	*/
 
 	// GL_ARB_depth_texture
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_depth_texture"))
