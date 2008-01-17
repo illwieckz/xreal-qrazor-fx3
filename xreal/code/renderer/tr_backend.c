@@ -2524,7 +2524,6 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
-	matrix_t        unprojectMatrix;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
 
@@ -2532,15 +2531,6 @@ void RB_RenderInteractionsDeferred()
 
 	// update uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
-
-	// create a matrix with similar functionality like gluUnproject, project from window space to world space
-	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
-	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
-	MatrixMultiply2(unprojectMatrix, backEnd.viewParms.world.viewMatrix2);
-	MatrixInverse(unprojectMatrix);
-	MatrixMultiplyTranslation(unprojectMatrix, -1.0, -1.0, -1.0);
-	MatrixMultiplyScale(unprojectMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
-
 
 	// set 2D virtual screen size
 	qglMatrixMode(GL_MODELVIEW);
@@ -2667,7 +2657,7 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE, unprojectMatrix);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -2737,7 +2727,7 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE, unprojectMatrix);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -2841,7 +2831,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
-	matrix_t        unprojectMatrix;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
 
@@ -2861,14 +2850,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	//GL_SelectTexture(1);
 	//GL_Bind(tr.depthRenderImage);
 	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
-
-	// create a matrix with similar functionality like gluUnproject, project from window space to world space
-	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
-	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
-	MatrixMultiply2(unprojectMatrix, backEnd.viewParms.world.viewMatrix2);
-	MatrixInverse(unprojectMatrix);
-	MatrixMultiplyTranslation(unprojectMatrix, -1.0, -1.0, -1.0);
-	MatrixMultiplyScale(unprojectMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -3252,7 +3233,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
-											   unprojectMatrix);
+											   backEnd.viewParms.unprojectionMatrix);
 
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
@@ -3327,7 +3308,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 											   light->attenuationMatrix);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
-											   unprojectMatrix);
+											   backEnd.viewParms.unprojectionMatrix);
 
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
@@ -3672,7 +3653,6 @@ void RB_RenderUniformFog(qboolean deferred)
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
-	matrix_t        unprojectMatrix;
 
 	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
 
@@ -3692,18 +3672,12 @@ void RB_RenderUniformFog(qboolean deferred)
 	fogDensity = r_forceFog->value;
 	VectorCopy(colorMdGrey, fogColor);
 
-	// create a matrix with similar functionality like gluUnproject, project from window space to world space
-	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
-	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
-	MatrixMultiply2(unprojectMatrix, backEnd.viewParms.world.viewMatrix2);
-	MatrixInverse(unprojectMatrix);
-	MatrixMultiplyTranslation(unprojectMatrix, -1.0, -1.0, -1.0);
-	MatrixMultiplyScale(unprojectMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
+	
 
 	qglUniform3fARB(tr.uniformFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);
 	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
-	qglUniformMatrix4fvARB(tr.uniformFogShader.u_UnprojectMatrix, 1, GL_FALSE, unprojectMatrix);
+	qglUniformMatrix4fvARB(tr.uniformFogShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);

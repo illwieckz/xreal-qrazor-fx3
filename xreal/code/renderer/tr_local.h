@@ -917,7 +917,8 @@ typedef struct
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
 
 	float           fovX, fovY;
-	float           projectionMatrix[16];
+	matrix_t        projectionMatrix;
+	matrix_t        unprojectionMatrix;	// transform pixel window space -> world space
 
 	frustum_t       frustum;
 

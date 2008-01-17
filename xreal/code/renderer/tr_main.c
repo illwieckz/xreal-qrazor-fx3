@@ -864,7 +864,7 @@ Sets up the modelview matrix for a given viewParm
 void R_RotateForViewer(void)
 {
 	matrix_t        transformMatrix;
-	matrix_t        viewMatrix;
+//	matrix_t        viewMatrix;
 
 	Com_Memset(&tr.or, 0, sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
@@ -942,6 +942,24 @@ void R_SetupProjection(void)
 //	MatrixMultiply(proj, quakeToOpenGLMatrix, tr.viewParms.projectionMatrix);
 }
 // *INDENT-ON*
+
+/*
+=================
+R_SetupUnprojection
+create a matrix with similar functionality like gluUnproject, project from window space to world space
+=================
+*/
+void R_SetupUnprojection(void)
+{
+	float          *unprojectMatrix = tr.viewParms.unprojectionMatrix;
+
+	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
+	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
+	MatrixMultiply2(unprojectMatrix, tr.viewParms.world.viewMatrix2);
+	MatrixInverse(unprojectMatrix);
+	MatrixMultiplyTranslation(unprojectMatrix, -1.0, -1.0, -1.0);
+	MatrixMultiplyScale(unprojectMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
+}
 
 /*
 =================
@@ -2199,6 +2217,8 @@ void R_RenderView(viewParms_t * parms)
 	// added, because they use the projection
 	// matrix for lod calculation
 	R_SetupProjection();
+
+	R_SetupUnprojection();
 
 	// set camera frustum planes in world space
 	R_SetupFrustum(tr.viewParms.frustum, tr.or.modelViewMatrix, tr.viewParms.projectionMatrix);
