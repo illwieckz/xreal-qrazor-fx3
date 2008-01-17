@@ -1,26 +1,6 @@
 === XreaL 1.0 Features ===
 
-Media that needs to be created:
-base/icons/ammo_proxmine.png (optional)
-base/icons/ammo_regen.png (optional)
-base/icons/doubler.png (optional)
-base/icons/guard.png (optional)
-base/icons/iconf_blu1.png (optional)
-base/icons/iconf_blu2.png (optional)
-base/icons/iconf_blu3.png (optional)
-base/icons/iconf_neutral1.png (optional)
-base/icons/iconf_neutral3.png (optional)
-base/icons/iconf_red1.png (optional)
-base/icons/iconf_red2.png (optional)
-base/icons/iconf_red3.png (optional)
-base/icons/iconh_borb.png (optional)
-base/icons/weapon_grapple.png (optional)
-base/icons/invulnerability.png (optional)
-base/icons/kamikaze.png (optional)
-base/icons/proxmine.png (optional)
-base/icons/scout.png (optional)
-base/icons/skull_blue.png (optional)
-base/icons/skull_red.png (optional)
+Q3A media replacements that need to be created:
 base/models/*
 base/models/flag/flagflap3.md3
 base/models/flag/flagpole.md3
@@ -36,85 +16,20 @@ base/models/gibs/leg.md3
 base/models/gibs/skull.md3
 base/models/powerups/armor/armor_red.md3
 base/models/powerups/armor/armor_yel.md3
-base/models/powerups/harvester/harvester.md3 (optional)
-base/models/powerups/holdable/kamikaze.md3 (optional)
-base/models/powerups/obelisk/obelisk.md3 (optional)
-base/models/powerups/orb/orb.md3 (optional)
-base/models/powerups/shield/shield.md3 (optional)
-base/models/powerups/persistant/ammo.md3 (optional)
-base/models/powerups/persistant/doubler.md3 (optional)
-base/models/powerups/persistant/guard.md3 (optional)
-base/models/powerups/persistant/scout.md3 (optional)
-base/models/powerups/overload_base.md3 (optional)
-base/models/powerups/overload_energy.md3 (optional)
-base/models/powerups/overload_lights.md3 (optional)
-base/models/powerups/overload_target.md3 (optional)
-base/models/weaphits/blood201.png
-base/models/weaphits/blood202.png
-base/models/weaphits/blood203.png
-base/models/weaphits/blood204.png
-base/models/weaphits/blood205.png
-base/models/weaphits/boom01.md3
-base/models/weaphits/electric.png
-base/models/weaphits/kam03b.png (optional)
-base/models/weaphits/kam03.png (optional)
-base/models/weaphits/kamboom2.blend (optional)
-base/models/weaphits/kamboom2.md3 (optional)
-base/models/weaphits/kamik01.png (optional)
-base/models/weaphits/kamik02b.png (optional)
-base/models/weaphits/kamik02r.png (optional)
-base/models/weaphits/kamik02.png (optional)
-base/models/weaphits/kamiwave01.png (optional)
-base/models/weaphits/kamiwave02.png (optional)
-base/models/weaphits/kamwave.md3 (optional)
-base/models/weaphits/nailtrail.png (optional)
-base/models/weaphits/newexplo1.png
-base/models/weaphits/proxmine2.png (optional)
-base/models/weaphits/proxmine2t.png (optional)
-base/models/weaphits/proxmineb.md3 (optional)
-base/models/weaphits/proxmineb.png (optional)
-base/models/weaphits/proxminebt.png (optional)
-base/models/weaphits/proxmine.md3 (optional)
-base/models/weaphits/proxmine.png (optional)
 base/models/weapons/grenadel/*
-base/models/weapons/nailgun/* (optional)
 base/models/weapons/plasma/*
-base/models/weapons/proxmine/* (optional)
-base/models/weapons/railgun/*
-base/models/weapons/shotun/shotgun.md3
-base/models/weapons/vulcan/* (optional)
+base/models/weapons/shotun/shotgun.md3 (optional)
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
 base/sound/feedback/vote_failed.ogg
 base/sound/items/airout.ogg
-base/sound/items/ammoregen.ogg (optional)
-base/sound/items/doubler.ogg (optional)
-base/sound/items/guard.ogg (optional)
-base/sound/items/scout.ogg (optional)
-base/sound/items/doubler.ogg (optional)
 base/sound/items/flight.ogg
 base/sound/items/haste.ogg
 base/sound/items/holdable.ogg
 base/sound/items/invisibility.ogg
-base/sound/items/invul_activate.ogg (optional)
-base/sound/items/invul_impact_01.ogg (optional)
-base/sound/items/invul_impact_02.ogg (optional)
-base/sound/items/invul_impact_03.ogg (optional)
-base/sound/items/invul_juiced.ogg (optional)
-base/sound/items/kam_explode_far.ogg (optional)
-base/sound/items/kam_explode.ogg (optional)
-base/sound/items/kamikaze_full.ogg (optional)
-base/sound/items/kamikazerespawn.ogg (optional)
-base/sound/items/kam_implode.ogg (optional)
-base/sound/items/obelisk_hit_01.ogg (optional)
-base/sound/items/obelisk_hit_02.ogg	(optional)
-base/sound/items/obelisk_hit_03.ogg	(optional)
-base/sound/items/obelisk_respawn.ogg (optional)
 base/sound/items/protect3.ogg
 base/sound/items/protect.ogg
 base/sound/items/regeneration.ogg
-base/sound/items/regen.ogg (optional)
-base/sound/items/scout.ogg (optional)
 base/sound/items/use_medkit.ogg
 base/sound/items/use_nothing.ogg
 base/sound/player/footsteps/energy*.ogg
@@ -151,32 +66,17 @@ base/sound/weapons/machinegun/buletby1.ogg
 base/sound/weapons/machinegun/ric1.ogg
 base/sound/weapons/machinegun/ric2.ogg
 base/sound/weapons/machinegun/ric3.ogg
-base/sound/weapons/nailgun/wnalimpd.ogg (optional)
-base/sound/weapons/nailgun/wnalimpl.ogg (optional)
-base/sound/weapons/nailgun/wnalimpm.ogg (optional)
 base/sound/weapons/plasma/hyprbf1a.ogg
 base/sound/weapons/plasma/lasfly.ogg
 base/sound/weapons/plasma/plasmx1a.ogg
-base/sound/weapons/proxmine/wstbactv.ogg (optional)
-base/sound/weapons/proxmine/wstbexpl.ogg (optional)
-base/sound/weapons/proxmine/wstbfire.ogg (optional) 
-base/sound/weapons/proxmine/wstbimpd.ogg (optional)
-base/sound/weapons/proxmine/wstbimpl.ogg (optional)
-base/sound/weapons/proxmine/wstbimpm.ogg (optional)
-base/sound/weapons/proxmine/wstbtick.ogg (optional)
 base/sound/weapons/railgun/rg_hum.ogg
-base/sound/weapons/vulcan/wvulimpd.ogg (optional)
-base/sound/weapons/vulcan/wvulimpl.ogg (optional)
-base/sound/weapons/vulcan/wvulimpm.ogg (optional)
-base/sound/weapons/vulcan/wvulwind.ogg (optional)
 base/base/sound/world/*
 base/sprites/splash.png (optional)
 
 
 code/cgame
 - finish the Lua powered Quake4 style special effects target_fx system
-- add motion blur and other special effects
-- improve rocket explosion effect
+- improve rocket explosion effect like in Entar's Vengeance
 
 code/game
 - change BFG to Quake2 BFG
@@ -187,14 +87,17 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
+- add motion blur post process effect
+- add depth of field post process effect
+- add screen space ambient occlusion post process effect
 - use stencil test for heatHaze with forward shading
-- improve deferred shading
- - add screen space ambient occlusion
- - fix vertex painting support = depth peeling ?
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
+- improve deferred shading
+ - fix depth write of skybox
+ - fix vertex painting support = depth peeling ?
 - add dynamic LOD support for md3 and md5 models ?
-- check for shader model 3 hardware
+- check for shader model 3 hardware ?
 - add fog lights
 - replace alphaGen portal by a cool post process effect
 - ignore shadow pyramids that don't cast into the view
@@ -208,3 +111,100 @@ code/xmap
 - add small lights below powerup items ?
 
 
+
+
+
+
+=== XreaL 1.1 Features ===
+
+Q3A: Team Arena media replacements that need to be created:
+base/icons/ammo_proxmine.png 
+base/icons/ammo_regen.png 
+base/icons/doubler.png 
+base/icons/guard.png 
+base/icons/iconf_blu1.png 
+base/icons/iconf_blu2.png 
+base/icons/iconf_blu3.png 
+base/icons/iconf_neutral1.png 
+base/icons/iconf_neutral3.png 
+base/icons/iconf_red1.png 
+base/icons/iconf_red2.png 
+base/icons/iconf_red3.png 
+base/icons/iconh_borb.png 
+base/icons/weapon_grapple.png 
+base/icons/invulnerability.png 
+base/icons/kamikaze.png 
+base/icons/proxmine.png 
+base/icons/scout.png 
+base/icons/skull_blue.png 
+base/icons/skull_red.png 
+base/models/powerups/harvester/harvester.md3 
+base/models/powerups/holdable/kamikaze.md3 
+base/models/powerups/obelisk/obelisk.md3 
+base/models/powerups/orb/orb.md3 
+base/models/powerups/shield/shield.md3 
+base/models/powerups/persistant/ammo.md3 
+base/models/powerups/persistant/doubler.md3 
+base/models/powerups/persistant/guard.md3 
+base/models/powerups/persistant/scout.md3 
+base/models/powerups/overload_base.md3 
+base/models/powerups/overload_energy.md3 
+base/models/powerups/overload_lights.md3 
+base/models/powerups/overload_target.md3 
+base/models/weaphits/kam03b.png 
+base/models/weaphits/kam03.png 
+base/models/weaphits/kamboom2.blend 
+base/models/weaphits/kamboom2.md3 
+base/models/weaphits/kamik01.png 
+base/models/weaphits/kamik02b.png 
+base/models/weaphits/kamik02r.png 
+base/models/weaphits/kamik02.png 
+base/models/weaphits/kamiwave01.png 
+base/models/weaphits/kamiwave02.png 
+base/models/weaphits/kamwave.md3 
+base/models/weaphits/nailtrail.png 
+base/models/weaphits/proxmine2.png 
+base/models/weaphits/proxmine2t.png 
+base/models/weaphits/proxmineb.md3 
+base/models/weaphits/proxmineb.png 
+base/models/weaphits/proxminebt.png 
+base/models/weaphits/proxmine.md3 
+base/models/weaphits/proxmine.png 
+base/models/weapons/nailgun/* 
+base/models/weapons/proxmine/* 
+base/models/weapons/vulcan/* 
+base/sound/items/ammoregen.ogg 
+base/sound/items/doubler.ogg 
+base/sound/items/guard.ogg 
+base/sound/items/scout.ogg 
+base/sound/items/doubler.ogg 
+base/sound/items/invul_activate.ogg 
+base/sound/items/invul_impact_01.ogg 
+base/sound/items/invul_impact_02.ogg 
+base/sound/items/invul_impact_03.ogg 
+base/sound/items/invul_juiced.ogg 
+base/sound/items/kam_explode_far.ogg 
+base/sound/items/kam_explode.ogg 
+base/sound/items/kamikaze_full.ogg 
+base/sound/items/kamikazerespawn.ogg 
+base/sound/items/kam_implode.ogg 
+base/sound/items/obelisk_hit_01.ogg 
+base/sound/items/obelisk_hit_02.ogg	
+base/sound/items/obelisk_hit_03.ogg	
+base/sound/items/obelisk_respawn.ogg 
+base/sound/items/regen.ogg 
+base/sound/items/scout.ogg 
+base/sound/weapons/nailgun/wnalimpd.ogg 
+base/sound/weapons/nailgun/wnalimpl.ogg 
+base/sound/weapons/nailgun/wnalimpm.ogg 
+base/sound/weapons/proxmine/wstbactv.ogg 
+base/sound/weapons/proxmine/wstbexpl.ogg 
+base/sound/weapons/proxmine/wstbfire.ogg  
+base/sound/weapons/proxmine/wstbimpd.ogg 
+base/sound/weapons/proxmine/wstbimpl.ogg 
+base/sound/weapons/proxmine/wstbimpm.ogg 
+base/sound/weapons/proxmine/wstbtick.ogg 
+base/sound/weapons/vulcan/wvulimpd.ogg 
+base/sound/weapons/vulcan/wvulimpl.ogg 
+base/sound/weapons/vulcan/wvulimpm.ogg 
+base/sound/weapons/vulcan/wvulwind.ogg 
