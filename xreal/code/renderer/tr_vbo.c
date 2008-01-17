@@ -67,6 +67,10 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 
 	GL_CheckErrors();
 
+	// unbind once created
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
 	return vbo;
 }
 

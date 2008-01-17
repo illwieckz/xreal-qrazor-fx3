@@ -984,6 +984,7 @@ int             Com_IndexForGrowListElement(const growList_t * list, const void 
 
 float           Com_Clamp(float min, float max, float value);
 
+char           *Com_SkipPath(char *pathname);
 const char     *Com_GetExtension(const char *name);
 void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);

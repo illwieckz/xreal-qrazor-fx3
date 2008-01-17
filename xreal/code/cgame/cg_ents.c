@@ -129,8 +129,6 @@ void CG_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 {
 	int             i;
 	refBone_t      *bone;
-	matrix_t        boneMatrices[MAX_BONES];
-	matrix_t        mat;
 
 	switch (skel->type)
 	{
