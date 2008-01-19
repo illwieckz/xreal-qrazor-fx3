@@ -500,39 +500,15 @@ void GL_ClientState(unsigned long stateBits)
 	   }
 	 */
 
-	if(diff & GLCS_TEXCOORD0)
+	if(diff & GLCS_TEXCOORD)
 	{
-		if(stateBits & GLCS_TEXCOORD0)
+		if(stateBits & GLCS_TEXCOORD)
 		{
 			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
 		}
 		else
 		{
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD0);
-		}
-	}
-
-	if(diff & GLCS_TEXCOORD1)
-	{
-		if(stateBits & GLCS_TEXCOORD1)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
-		}
-	}
-
-	if(diff & GLCS_TEXCOORD2)
-	{
-		if(stateBits & GLCS_TEXCOORD2)
-		{
-			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
-		}
-		else
-		{
-			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD2);
 		}
 	}
 
@@ -595,14 +571,8 @@ void GL_SetVertexAttribs()
 		//if(glState.glClientStateBits & GLCS_VERTEX)
 		//  qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
 
-		if(glState.glClientStateBits & GLCS_TEXCOORD0)
+		if(glState.glClientStateBits & GLCS_TEXCOORD)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
-
-		if(glState.glClientStateBits & GLCS_TEXCOORD1)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
-
-		if(glState.glClientStateBits & GLCS_TEXCOORD2)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
 
 		if(glState.glClientStateBits & GLCS_TANGENT)
 			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsTangents));
@@ -621,15 +591,8 @@ void GL_SetVertexAttribs()
 		//if(glState.glClientStateBits & GLCS_VERTEX)
 		//  qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 
-		// FIXME: TEXCOORD1/2 are obselete with the new system
-		if(glState.glClientStateBits & GLCS_TEXCOORD0)
+		if(glState.glClientStateBits & GLCS_TEXCOORD)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
-
-		if(glState.glClientStateBits & GLCS_TEXCOORD1)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.texCoords);
-
-		if(glState.glClientStateBits & GLCS_TEXCOORD2)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD2, 4, GL_FLOAT, 0, 0, tess.texCoords);
 
 		if(glState.glClientStateBits & GLCS_TANGENT)
 			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);

@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 attribute vec4		attr_TexCoord0;
-attribute vec4		attr_TexCoord1;
-attribute vec4		attr_TexCoord2;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
@@ -50,10 +48,10 @@ void	main()
 	var_TexDiffuse.xy = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// transform normalmap texcoords
-	var_TexNormal.xy = (gl_TextureMatrix[1] * attr_TexCoord1).st;
+	var_TexNormal.xy = (gl_TextureMatrix[1] * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
-	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord2).st;
+	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
 	
 	// calc light xy,z attenuation in light space
 	var_TexAttenXYZ = (u_LightAttenuationMatrix * gl_Vertex).xyz;

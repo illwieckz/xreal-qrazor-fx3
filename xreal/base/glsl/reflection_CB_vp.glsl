@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-attribute vec4		attr_TexCoord1;
+attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
@@ -40,7 +40,7 @@ void	main()
 	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	
 	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
+	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord0).st;
 	
 	// construct tangent-space-to-object-space 3x3 matrix
 	var_TS2OSMatrix = mat3(	attr_Tangent.x, attr_Tangent.y, attr_Tangent.z,

@@ -74,6 +74,7 @@ cvar_t         *r_noLightVisCull;
 cvar_t         *r_noInteractionSort;
 cvar_t         *r_noDynamicLighting;
 cvar_t         *r_noStaticLighting;
+cvar_t         *r_vertexLighting;
 
 cvar_t         *r_ext_compressed_textures;
 cvar_t         *r_ext_compiled_vertex_array;
@@ -1397,6 +1398,7 @@ void R_Register(void)
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
@@ -1404,12 +1406,7 @@ void R_Register(void)
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
 
-#if (defined(MACOS_X) || defined(__linux__)) && defined(SMP)
-	// Default to using SMP on Mac OS X or Linux if we have multiple processors
-	r_smp = ri.Cvar_Get("r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH);
-#else
 	r_smp = ri.Cvar_Get("r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
-#endif
 
 	// temporary latched variables that can only change over a restart
 	r_displayRefresh = ri.Cvar_Get("r_displayRefresh", "0", CVAR_LATCH);

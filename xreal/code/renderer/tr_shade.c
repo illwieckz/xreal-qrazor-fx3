@@ -203,6 +203,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			}
 		}
 
+		if(r_vertexLighting->integer)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_vertexLighting\n#define r_vertexLighting 1\n#endif\n");
+		}
+
 
 
 		/*
@@ -330,14 +335,14 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 //  if( attribs & ATTRVERTEX )
 //      qglBindAttribLocationARB( program->program, ATTR_INDEX_VERTEX, "attr_Vertex");
 
-	if(attribs & GLCS_TEXCOORD0)
+	if(attribs & GLCS_TEXCOORD)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
 
-	if(attribs & GLCS_TEXCOORD1)
-		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
+//	if(attribs & GLCS_TEXCOORD1)
+//		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
 
-	if(attribs & GLCS_TEXCOORD2)
-		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
+//	if(attribs & GLCS_TEXCOORD2)
+//		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
 
 //  if(attribs & GLCS_TEXCOORD3)
 //      qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
@@ -366,7 +371,7 @@ void GLSL_InitGPUShaders(void)
 	startTime = ri.Milliseconds();
 
 	// single texture rendering
-	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
 	tr.genericSingleShader.u_InverseVertexColor =
@@ -380,13 +385,43 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.genericSingleShader.program);
 	GL_CheckErrors();
 
+	// directional specular bump mapping
+	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_entity,
+					 "vertexLighting_DBS_entity",
+					 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL,
+					 qtrue);
+
+	tr.vertexLightingShader_DBS_entity.u_DiffuseMap =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_DiffuseMap");
+	tr.vertexLightingShader_DBS_entity.u_NormalMap =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_NormalMap");
+	tr.vertexLightingShader_DBS_entity.u_SpecularMap =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_SpecularMap");
+	tr.vertexLightingShader_DBS_entity.u_ViewOrigin =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ViewOrigin");
+	tr.vertexLightingShader_DBS_entity.u_AmbientColor =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_AmbientColor");
+	tr.vertexLightingShader_DBS_entity.u_LightDir =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_LightDir");
+	tr.vertexLightingShader_DBS_entity.u_LightColor =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_LightColor");
+
+	qglUseProgramObjectARB(tr.vertexLightingShader_DBS_entity.program);
+	qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_NormalMap, 1);
+	qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_SpecularMap, 2);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.vertexLightingShader_DBS_entity.program);
+	GLSL_ShowProgramUniforms(tr.vertexLightingShader_DBS_entity.program);
+	GL_CheckErrors();
+
 	// geometric-buffer fill rendering with diffuse + bump + specular
 	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		GLSL_InitGPUShader(&tr.geometricFillShader_DBS, "geometricFill_DBS",
-						   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL |
-						   GLCS_NORMAL, qtrue);
+							GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 		tr.geometricFillShader_DBS.u_DiffuseMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DiffuseMap");
 		tr.geometricFillShader_DBS.u_NormalMap = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_NormalMap");
@@ -514,7 +549,7 @@ void GLSL_InitGPUShaders(void)
 	}
 
 	// black depth fill rendering with textures
-	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
 	tr.depthFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AlphaTest");
@@ -529,7 +564,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// colored depth test rendering with textures into gl_FragData[1]
-	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.depthTestShader.u_ColorMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_ColorMap");
 	tr.depthTestShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_CurrentMap");
@@ -553,7 +588,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// shadowmap distance compression
-	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.shadowFillShader, "shadowFill", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.shadowFillShader.u_ColorMap = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ColorMap");
 	tr.shadowFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_AlphaTest");
@@ -572,8 +607,7 @@ void GLSL_InitGPUShaders(void)
 	// omni-directional specular bump mapping ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_omni,
 					   "forwardLighting_DBS_omni",
-					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TEXCOORD1 | GLCS_TEXCOORD2 | GLCS_TANGENT | GLCS_BINORMAL |
-					   GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.forwardLightingShader_DBS_omni.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DiffuseMap");
@@ -631,7 +665,7 @@ void GLSL_InitGPUShaders(void)
 
 	// projective lighting ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_proj, "forwardLighting_DBS_proj",
-					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.forwardLightingShader_DBS_proj.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DiffuseMap");
@@ -736,7 +770,7 @@ void GLSL_InitGPUShaders(void)
 
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
 	GLSL_InitGPUShader(&tr.reflectionShader_CB,
-					   "reflection_CB", GLCS_VERTEX | GLCS_TEXCOORD1 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   "reflection_CB", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.reflectionShader_CB.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ColorMap");
 	tr.reflectionShader_CB.u_NormalMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_NormalMap");
@@ -806,7 +840,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// heatHaze post process effect
-	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
@@ -885,7 +919,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// rotoscope post process effect
-	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", GLCS_VERTEX | GLCS_TEXCOORD0, qtrue);
+	GLSL_InitGPUShader(&tr.rotoscopeShader, "rotoscope", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.rotoscopeShader.u_ColorMap = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_ColorMap");
 	tr.rotoscopeShader.u_BlurMagnitude = qglGetUniformLocationARB(tr.rotoscopeShader.program, "u_BlurMagnitude");
@@ -913,7 +947,7 @@ void GLSL_InitGPUShaders(void)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-					   GLCS_VERTEX | GLCS_TEXCOORD0 | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
@@ -965,6 +999,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.genericSingleShader.program);
 		tr.genericSingleShader.program = 0;
+	}
+
+	if(tr.vertexLightingShader_DBS_entity.program)
+	{
+		qglDeleteObjectARB(tr.vertexLightingShader_DBS_entity.program);
+		tr.vertexLightingShader_DBS_entity.program = 0;
 	}
 
 	if(tr.geometricFillShader_DBS.program)
@@ -1418,6 +1458,75 @@ static void Render_genericSingle(int stage)
 	GL_CheckErrors();
 }
 
+static void Render_vertexLighting_DBS_entity(int stage)
+{
+	vec3_t			viewOrigin;
+	vec3_t          ambientColor;
+	vec3_t          lightDir;
+	vec4_t          directedLight;
+	
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+	
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.vertexLightingShader_DBS_entity.program);
+	GL_ClientState(tr.vertexLightingShader_DBS_entity.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorScale(backEnd.currentEntity->ambientLight, 1.0, ambientColor);
+	ClampColor(ambientColor);
+	VectorScale(backEnd.currentEntity->directedLight, 1.0, directedLight);
+	ClampColor(directedLight);
+	VectorCopy(backEnd.currentEntity->lightDir, lightDir);
+	
+	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
+	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
+	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
+
+	// bind u_DiffuseMap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+
+	// bind u_NormalMap
+	GL_SelectTexture(1);
+	if(pStage->bundle[TB_NORMALMAP].image[0])
+	{
+		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.flatImage);
+	}
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+
+	// bind u_SpecularMap
+	GL_SelectTexture(2);
+	if(pStage->bundle[TB_SPECULARMAP].image[0])
+	{
+		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.blackImage);
+	}
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+
+	DrawElements();
+
+	GL_CheckErrors();
+}
+
 static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 {
 	shaderStage_t  *pStage;
@@ -1538,6 +1647,17 @@ static void Render_depthFill(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.depthFillShader.program);
 	GL_ClientState(tr.depthFillShader.attribs);
+
+	if(r_vertexLighting->integer)
+	{
+		GL_ClientState(tr.depthFillShader.attribs | GLCS_COLOR);
+	}
+	else
+	{
+		GL_ClientState(tr.depthFillShader.attribs);
+
+		qglColor4fv(tess.svars.color);
+	}
 	GL_SetVertexAttribs();
 
 	// set uniforms
@@ -2708,9 +2828,16 @@ void Tess_StageIteratorGeneric()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				//if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					Render_depthFill(stage);
+					if(r_vertexLighting->integer && backEnd.currentEntity != &tr.worldEntity)
+					{
+						Render_vertexLighting_DBS_entity(stage);
+					}
+					else
+					{
+						Render_depthFill(stage);
+					}
 				}
 				break;
 			}

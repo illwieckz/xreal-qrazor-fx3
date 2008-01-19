@@ -20,21 +20,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_ColorMap;
-uniform float		u_AlphaTest;
+attribute vec4		attr_TexCoord0;
+attribute vec3		attr_Tangent;
+attribute vec3		attr_Binormal;
 
-varying vec2		var_Tex;
-varying vec4		var_Color;
+varying vec3		var_Vertex;
+varying vec2		var_TexDiffuse;
+varying vec2		var_TexNormal;
+varying vec2		var_TexSpecular;
+varying mat3		var_OS2TSMatrix;
 
 void	main()
 {
-	vec4 color = texture2D(u_ColorMap, var_Tex);
+	// transform vertex position into homogenous clip-space
+	gl_Position = ftransform();
 	
-	if(color.a <= u_AlphaTest)
-	{
-		discard;
-	}
-
-	color.rgb *= var_Color;
-	gl_FragColor = color;
+	// assign position in object space
+	var_Vertex = gl_Vertex.xyz;
+	
+	// transform diffusemap texcoords
+	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	
+	// transform normalmap texcoords
+	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord0).st;
+	
+	// transform specularmap texture coords
+	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
+	
+	// construct object-space-to-tangent-space 3x3 matrix
+	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,
+							attr_Tangent.y, attr_Binormal.y, gl_Normal.y,
+							attr_Tangent.z, attr_Binormal.z, gl_Normal.z	);
 }

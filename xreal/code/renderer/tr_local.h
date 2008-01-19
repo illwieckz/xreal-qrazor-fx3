@@ -771,8 +771,8 @@ typedef struct shaderState_s
 enum
 {
 	ATTR_INDEX_TEXCOORD0 = 8,
-	ATTR_INDEX_TEXCOORD1 = 9,
-	ATTR_INDEX_TEXCOORD2 = 10,
+//	ATTR_INDEX_TEXCOORD1 = 9,
+//	ATTR_INDEX_TEXCOORD2 = 10,
 //  ATTR_INDEX_TEXCOORD3 = 11,
 	ATTR_INDEX_TANGENT = 12,
 	ATTR_INDEX_BINORMAL = 13,
@@ -1722,6 +1722,9 @@ typedef struct
 	// Q3A standard simple vertex color rendering
 	shaderProgram_t genericSingleShader;
 
+	// Q3A standard simple vertex color shading for entities
+	shaderProgram_t vertexLightingShader_DBS_entity;
+
 	// deferred Geometric-Buffer processing
 	shaderProgram_t geometricFillShader_DBS;
 //  shaderProgram_t geometricFillShader_DBSP;
@@ -1885,6 +1888,7 @@ extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
 extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
+extern cvar_t  *r_vertexLighting;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering
@@ -2191,14 +2195,12 @@ enum
 
 enum
 {
-	GLCS_VERTEX = (1 << 0),
-	GLCS_TEXCOORD0 = (1 << 1),
-	GLCS_TEXCOORD1 = (1 << 2),
-	GLCS_TEXCOORD2 = (1 << 3),
-	GLCS_TANGENT = (1 << 4),
-	GLCS_BINORMAL = (1 << 5),
-	GLCS_NORMAL = (1 << 6),
-	GLCS_COLOR = (1 << 7),
+	GLCS_VERTEX = BIT(0),
+	GLCS_TEXCOORD = BIT(1),
+	GLCS_TANGENT = BIT(2),
+	GLCS_BINORMAL = BIT(3),
+	GLCS_NORMAL = BIT(4),
+	GLCS_COLOR = BIT(5),
 
 	GLCS_DEFAULT = GLCS_VERTEX
 };

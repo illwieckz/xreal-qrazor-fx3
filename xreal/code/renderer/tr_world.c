@@ -968,7 +968,8 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 	if(glConfig.vertexBufferObjectAvailable && (r_vboShadows->integer || r_vboLighting->integer))
 	{
 		interactionVBO_t *iaVBO;
-		srfVBOShadowVolume_t *srf;
+		srfVBOMesh_t   *srf;
+		srfVBOShadowVolume_t *shadowSrf;
 		shader_t       *shader;
 
 		if(r_shadows->integer == 3)
@@ -978,9 +979,9 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				if(!iaVBO->vboShadowVolume)
 					continue;
 
-				srf = iaVBO->vboShadowVolume;
+				shadowSrf = iaVBO->vboShadowVolume;
 
-				R_AddLightInteraction(light, (void *)srf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
+				R_AddLightInteraction(light, (void *)shadowSrf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
 			}
 
 			for(iaVBO = light->firstInteractionVBO; iaVBO; iaVBO = iaVBO->next)

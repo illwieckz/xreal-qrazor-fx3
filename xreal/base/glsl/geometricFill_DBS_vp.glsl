@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 attribute vec4		attr_TexCoord0;
-attribute vec4		attr_TexCoord1;
-attribute vec4		attr_TexCoord2;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
@@ -46,10 +44,10 @@ void	main()
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord1).st;
+	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
-	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord2).st;
+	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
 	
 	// construct tangent-space-to-world-space 3x3 matrix
 	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;

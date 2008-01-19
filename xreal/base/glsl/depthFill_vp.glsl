@@ -22,7 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform vec3        u_AmbientColor;
+
 varying vec2		var_Tex;
+varying vec4		var_Color;
 
 void	main()
 {
@@ -31,4 +34,11 @@ void	main()
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	
+#if defined(r_vertexLighting)
+	// assign color
+	var_Color = gl_Color;
+#else
+	var_Color = vec4(u_AmbientColor, 1.0);
+#endif
 }

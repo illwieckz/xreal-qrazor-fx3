@@ -589,6 +589,22 @@
 			>
 		</File>
 		<File
+			RelativePath=".\light.c"
+			>
+		</File>
+		<File
+			RelativePath=".\light_trace.c"
+			>
+		</File>
+		<File
+			RelativePath=".\lightmaps.c"
+			>
+		</File>
+		<File
+			RelativePath=".\lightv.c"
+			>
+		</File>
+		<File
 			RelativePath="..\lwobject\list.c"
 			>
 		</File>

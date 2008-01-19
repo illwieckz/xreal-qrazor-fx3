@@ -1882,6 +1882,16 @@ static void Tess_SurfaceMD5(md5Surface_t * srf, int numLightIndexes, int *lightI
 			tess.texCoords[tess.numVertexes + j][1] = v->texCoords[1];
 			tess.texCoords[tess.numVertexes + j][2] = 0;
 			tess.texCoords[tess.numVertexes + j][3] = 1;
+
+			/*
+			if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+			{
+				tess.colors[tess.numVertexes + j][0] = backEnd.currentEntity->ambientLight[0] * 255;
+				tess.colors[tess.numVertexes + j][1] = backEnd.currentEntity->ambientLight[1] * 255;
+				tess.colors[tess.numVertexes + j][2] = backEnd.currentEntity->ambientLight[2] * 255;
+				tess.colors[tess.numVertexes + j][3] = 255;
+			}
+			*/
 		}
 
 		// calc tangent spaces

@@ -5575,6 +5575,9 @@ void R_PrecacheInteractions()
 	int             numLeafs;
 	int             startTime, endTime;
 
+	if(r_vertexLighting->integer)
+		return;
+
 	startTime = ri.Milliseconds();
 
 	s_lightCount = 0;
