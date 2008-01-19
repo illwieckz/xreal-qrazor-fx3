@@ -82,7 +82,7 @@ gtkradiant_src = [
 'code/gtkradiant/radiant/winding.cpp',
 'code/gtkradiant/radiant/windowobservers.cpp',
 'code/gtkradiant/radiant/xmlstuff.cpp',
-'code/gtkradiant/radiant/xywindow.cpp',
+'code/gtkradiant/radiant/xywindow.cpp'
 ]
 
 gtkutil_src = [
@@ -315,11 +315,11 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	gtkradiant_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	
 	if env['arch'] == 'linux-i386':
-		gtkradiant_env.Program('gtkradiant.x86', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
-		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86')
+		gtkradiant_env.Program('gtkradiant', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
+		gtkradiant_env.InstallAs('#gtkradiant/gtkradiant.x86', 'gtkradiant')
 	elif env['arch'] == 'linux-x86_64':
-		gtkradiant_env.Program('gtkradiant.x86_64', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
-		gtkradiant_env.Install('#gtkradiant', 'gtkradiant.x86_64')
+		gtkradiant_env.Program('gtkradiant', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
+		gtkradiant_env.InstallAs('#gtkradiant/gtkradiant.x86_64', 'gtkradiant')
 		
 	module_env.Append(CCFLAGS='-DPOSIX')
 	
@@ -329,11 +329,11 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	
 	entity_env = module_env.Copy()
 	entity_env.SharedLibrary('entity', entity_src)
-	entity_env.InstallAs('#gtkradiant/modules/entity.so', 'libentity.so')
+	entity_env.InstallAs('#gtkradiant/modules/entityq3.so', 'libentity.so')
 	
 	image_env = module_env.Copy()
 	image_env.SharedLibrary('image', image_src)
-	image_env.InstallAs('#gtkradiant/modules/image.so', 'libimage.so')
+	image_env.InstallAs('#gtkradiant/modules/imageq3.so', 'libimage.so')
 	
 	imagejpeg_env = module_env.Copy()
 	imagejpeg_env.Append(CCFLAGS='-DRADIANT')
@@ -351,12 +351,12 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	
 	model_env = module_env.Copy()
 	model_env.SharedLibrary('model', model_src)
-	model_env.InstallAs('#gtkradiant/modules/model.so', 'libmodel.so')
+	model_env.InstallAs('#gtkradiant/modules/modelpico.so', 'libmodel.so')
 	
 	shaders_env = module_env.Copy()
 	shaders_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	shaders_env.SharedLibrary('shaders', shaders_src)
-	shaders_env.InstallAs('#gtkradiant/modules/shaders.so', 'libshaders.so')
+	shaders_env.InstallAs('#gtkradiant/modules/shadersq3.so', 'libshaders.so')
 	
 	vfspk3_env = module_env.Copy()
 	vfspk3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')

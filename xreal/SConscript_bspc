@@ -84,15 +84,15 @@ if env['arch'] == 'linux-i386':
 	bspc_env.Append(CCFLAGS='-Dstricmp=strcasecmp')
 	bspc_env.Append(CCFLAGS='-DLINUX')
 	bspc_env.Append(LIBS=['m', 'pthread'])
-	bspc_env.Program('bspc.x86', bspc_src)
-	bspc_env.Install('#', 'bspc.x86')
+	bspc_env.Program('bspc', bspc_src)
+	bspc_env.InstallAs('#bspc.x86', 'bspc')
 	
 elif env['arch'] == 'linux-x86_64':
 	bspc_env.Append(CCFLAGS='-Dstricmp=strcasecmp')
 	bspc_env.Append(CCFLAGS='-DLINUX')
 	bspc_env.Append(LIBS=['m', 'pthread'])
-	bspc_env.Program('bspc.x86_64', bspc_src)
-	bspc_env.Install('#', 'bspc.x86_64')
+	bspc_env.Program('bspc', bspc_src)
+	bspc_env.InstallAs('#bspc.x86_64', 'bspc')
 
 elif env['arch'] == 'win32-mingw':
 	bspc_env.Append(CCFLAGS='-Dstricmp=strcasecmp')

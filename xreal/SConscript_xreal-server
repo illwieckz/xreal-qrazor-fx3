@@ -96,16 +96,16 @@ if env['curl'] == 1:
 
 if env['arch'] == 'linux-i386':
 	xreal_server_env.Append(LIBS=['dl', 'm'])
-	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, unix_src])
-	xreal_server_env.Install('#', 'xreal-server.x86')
+	xreal_server_env.Program('xreal-server', [xreal_server_src, unix_src])
+	xreal_server_env.InstallAs('#xreal-server.x86', 'xreal-server')
 	
 elif env['arch'] == 'linux-x86_64':
 	xreal_server_env.Append(CCFLAGS='-DC_ONLY')
 	xreal_server_env.Append(LIBS=['dl', 'm'])
-	xreal_server_env.Program('xreal-server.x86_64', [xreal_server_src, unix_src])
-	xreal_server_env.Install('#', 'xreal-server.x86_64')
+	xreal_server_env.Program('xreal-server', [xreal_server_src, unix_src])
+	xreal_server_env.InstallAs('#xreal-server.x86_64', 'xreal-server')
 
 elif env['arch'] == 'netbsd-i386':
 	xreal_server_env.Append(LIBS=['m'])
-	xreal_server_env.Program('xreal-server.x86', [xreal_server_src, unix_src])
-	xreal_server_env.Install('#', 'xreal-server.x86')
+	xreal_server_env.Program('xreal-server', [xreal_server_src, unix_src])
+	xreal_server_env.InstallAs('#xreal-server.x86', 'xreal-server')
