@@ -953,7 +953,7 @@ void R_SetupUnprojection(void)
 {
 	float          *unprojectMatrix = tr.viewParms.unprojectionMatrix;
 
-	MatrixCopy(backEnd.viewParms.projectionMatrix, unprojectMatrix);
+	MatrixCopy(tr.viewParms.projectionMatrix, unprojectMatrix);
 	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
 	MatrixMultiply2(unprojectMatrix, tr.viewParms.world.viewMatrix2);
 	MatrixInverse(unprojectMatrix);
