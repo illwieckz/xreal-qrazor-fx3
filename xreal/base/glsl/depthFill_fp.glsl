@@ -35,6 +35,6 @@ void	main()
 		discard;
 	}
 
-	color.rgb *= var_Color;
+	color *= var_Color;
 	gl_FragColor = color;
 }
