@@ -416,6 +416,31 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.vertexLightingShader_DBS_entity.program);
 	GL_CheckErrors();
 
+	// directional specular bump mapping
+	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_world,
+					 "vertexLighting_DBS_world",
+					 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR,
+					 qtrue);
+
+	tr.vertexLightingShader_DBS_world.u_DiffuseMap =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DiffuseMap");
+	tr.vertexLightingShader_DBS_world.u_NormalMap =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_NormalMap");
+	tr.vertexLightingShader_DBS_world.u_SpecularMap =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_SpecularMap");
+	tr.vertexLightingShader_DBS_world.u_ViewOrigin =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ViewOrigin");
+
+	qglUseProgramObjectARB(tr.vertexLightingShader_DBS_world.program);
+	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_DiffuseMap, 0);
+	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_NormalMap, 1);
+	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_SpecularMap, 2);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.vertexLightingShader_DBS_world.program);
+	GLSL_ShowProgramUniforms(tr.vertexLightingShader_DBS_world.program);
+	GL_CheckErrors();
+
 	// geometric-buffer fill rendering with diffuse + bump + specular
 	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
@@ -1007,6 +1032,12 @@ void GLSL_ShutdownGPUShaders(void)
 		tr.vertexLightingShader_DBS_entity.program = 0;
 	}
 
+	if(tr.vertexLightingShader_DBS_world.program)
+	{
+		qglDeleteObjectARB(tr.vertexLightingShader_DBS_world.program);
+		tr.vertexLightingShader_DBS_world.program = 0;
+	}
+
 	if(tr.geometricFillShader_DBS.program)
 	{
 		qglDeleteObjectARB(tr.geometricFillShader_DBS.program);
@@ -1486,6 +1517,64 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
+
+	// bind u_DiffuseMap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_DIFFUSEMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+
+	// bind u_NormalMap
+	GL_SelectTexture(1);
+	if(pStage->bundle[TB_NORMALMAP].image[0])
+	{
+		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.flatImage);
+	}
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+
+	// bind u_SpecularMap
+	GL_SelectTexture(2);
+	if(pStage->bundle[TB_SPECULARMAP].image[0])
+	{
+		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.blackImage);
+	}
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
+	qglMatrixMode(GL_MODELVIEW);
+
+	DrawElements();
+
+	GL_CheckErrors();
+}
+
+static void Render_vertexLighting_DBS_world(int stage)
+{
+	vec3_t			viewOrigin;
+	
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+	
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.vertexLightingShader_DBS_world.program);
+	GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
+	GL_SetVertexAttribs();
+
+	// set uniforms
+	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	
+	qglUniform3fARB(tr.vertexLightingShader_DBS_world.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2830,9 +2919,16 @@ void Tess_StageIteratorGeneric()
 			{
 				//if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					if(r_vertexLighting->integer && backEnd.currentEntity != &tr.worldEntity)
+					if(r_vertexLighting->integer)
 					{
-						Render_vertexLighting_DBS_entity(stage);
+						if(backEnd.currentEntity != &tr.worldEntity)
+						{
+							Render_vertexLighting_DBS_entity(stage);
+						}
+						else
+						{
+							Render_vertexLighting_DBS_world(stage);
+						}
 					}
 					else
 					{

@@ -1725,6 +1725,9 @@ typedef struct
 	// Q3A standard simple vertex color shading for entities
 	shaderProgram_t vertexLightingShader_DBS_entity;
 
+	// Q3A standard simple vertex color shading for the world
+	shaderProgram_t vertexLightingShader_DBS_world;
+
 	// deferred Geometric-Buffer processing
 	shaderProgram_t geometricFillShader_DBS;
 //  shaderProgram_t geometricFillShader_DBSP;
