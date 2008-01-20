@@ -155,6 +155,13 @@ void ProcessWorldModel(void)
 	tree = FaceBSP(faces);
 	MakeTreePortals(tree);
 	FilterStructuralBrushesIntoTree(e, tree);
+
+	if(drawFlag)
+	{
+		// draw unoptimized portals in new window
+		drawTree = tree;
+		Draw_Scene(DrawTree);
+	}
 	
 	// see if the bsp is completely enclosed
 	if(FloodEntities(tree))
@@ -201,7 +208,7 @@ void ProcessWorldModel(void)
 	{
 		WritePortalFile(tree);
 	}
-	
+
 	if(drawFlag)
 	{
 		// draw optimized portals in new window
@@ -674,9 +681,6 @@ int BspMain(int argc, char **argv)
 	
 	// shut down connection
 	Broadcast_Shutdown();
-	
-	// close window
-	Draw_Shutdown();
 
 	return 0;
 }

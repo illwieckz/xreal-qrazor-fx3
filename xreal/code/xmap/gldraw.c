@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // can't use the glvertex3fv functions, because the vec3_t fields
 // could be either floats or doubles, depending on DOUBLEVEC_T
 
+qboolean drawFlag;
+
 static qboolean drawInit = qfalse;
-qboolean        drawFlag;
 static vec3_t   drawOrigin = { 0, 0, 0 };
 static vec3_t   drawAngles = { 0, 0, 0 };
 static SDL_VideoInfo *drawVideo = NULL;
@@ -70,12 +71,12 @@ static void Draw_BeginScene(void)
 {
 	int             w, h, g;
 	vec_t           mx, my;
-
-	if(!drawFlag)
-		return;
+	const char     *glString;
 
 	if(!drawInit)
 	{
+		Sys_FPrintf(SYS_VRB, "Draw_InitSDL()\n");
+
 		SDL_Init(SDL_INIT_VIDEO);
 
 		drawVideo = SDL_GetVideoInfo();
@@ -103,8 +104,23 @@ static void Draw_BeginScene(void)
 			SDL_Quit();
 			Error("Couldn't set GL video mode: %s\n", SDL_GetError());
 		}
+
+		if(SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1) < 0)
+		{
+			Error("Unable to guarantee accelerated " "visual with libSDL < 1.2.10\n");
+		}
 	
 		SDL_WM_SetCaption("XMap", "xmap");
+		
+
+		glString = (char *)glGetString(GL_VENDOR);
+		Sys_FPrintf(SYS_VRB, "GL_VENDOR: %s\n", glString);
+
+		glString = (char *)glGetString(GL_RENDERER);
+		Sys_FPrintf(SYS_VRB, "GL_RENDERER: %s\n", glString);
+
+		glString = (char *)glGetString(GL_VERSION);
+		Sys_FPrintf(SYS_VRB, "GL_VERSION: %s\n", glString);
 
 		//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 		
@@ -154,12 +170,22 @@ static void Draw_BeginScene(void)
 
 static void Draw_EndScene(void)
 {
+	//Sys_FPrintf(SYS_VRB, "Draw_EndScene()\n");
+
 	SDL_GL_SwapBuffers();
+}
+
+static void Draw_Shutdown(void)
+{
+	Sys_FPrintf(SYS_VRB, "Draw_Shutdown()\n");
+
+	SDL_Quit();
+	drawInit = qfalse;
 }
 
 void Draw_SetRed(void)
 {
-	if(!drawFlag)
+	if(!drawInit)
 		return;
 
 	glColor3f(1, 0, 0);
@@ -167,7 +193,7 @@ void Draw_SetRed(void)
 
 void Draw_SetGrey(void)
 {
-	if(!drawFlag)
+	if(!drawInit)
 		return;
 
 	glColor3f(0.5, 0.5, 0.5);
@@ -175,7 +201,7 @@ void Draw_SetGrey(void)
 
 void Draw_SetBlack(void)
 {
-	if(!drawFlag)
+	if(!drawInit)
 		return;
 
 	glColor3f(0, 0, 0);
@@ -185,7 +211,7 @@ void Draw_Winding(winding_t * w)
 {
 	int             i;
 
-	if(!drawFlag)
+	if(!drawInit)
 		return;
 
 	glColor4f(0, 0, 0, 0.5);
@@ -207,7 +233,7 @@ void Draw_AuxWinding(winding_t * w)
 {
 	int             i;
 
-	if(!drawFlag)
+	if(!drawInit)
 		return;
 
 	glColor4f(0, 0, 0, 0.5);
@@ -228,17 +254,15 @@ void Draw_AuxWinding(winding_t * w)
 void Draw_Scene(void (*drawFunc)(void))
 {
 	Uint8          *keys;
-	qboolean        done;
 	matrix_t        rotation;
 	vec3_t          forward, right, up;
 	qboolean        mouseGrabbed;
 	int             oldTime, newTime, deltaTime;	// for frame independent movement
 
-	done = qfalse;
 	mouseGrabbed = qfalse;
 
 	oldTime = SDL_GetTicks();
-	while(!done)
+	while(1)
 	{
 		SDL_Event       event;
 		
@@ -307,8 +331,8 @@ void Draw_Scene(void (*drawFunc)(void))
 
 				case SDL_QUIT:
 				{
-					done = qtrue;
-					break;
+					Draw_Shutdown();
+					return;
 				}
 
 				default:
@@ -321,7 +345,8 @@ void Draw_Scene(void (*drawFunc)(void))
 
 		if(keys[SDLK_ESCAPE])
 		{
-			done = 1;
+			Draw_Shutdown();
+			return;
 		}
 
 		if(keys[SDLK_w])
@@ -434,10 +459,4 @@ void Draw_Scene(void (*drawFunc)(void))
 		
 		oldTime = newTime;
 	}
-}
-
-void Draw_Shutdown(void)
-{
-	SDL_Quit();
-	drawInit = qfalse;
 }

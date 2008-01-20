@@ -252,7 +252,6 @@ extern qboolean drawFlag;
 void            Draw_Winding(winding_t * w);
 void            Draw_AuxWinding(winding_t * w);
 void            Draw_Scene(void (*drawFunc)(void));
-void            Draw_Shutdown(void);
 
 
 //#define DEBUGNET
@@ -2840,7 +2839,7 @@ int VL_LightLeafnum(vec3_t point)
 	return VL_PointInLeafnum(point);
 }
 
-//#define LIGHTPOLYS
+#define LIGHTPOLYS
 
 #ifdef LIGHTPOLYS
 
@@ -5967,9 +5966,6 @@ int VLightMain(int argc, char **argv)
 
 	// shut down connection
 	Broadcast_Shutdown();
-	
-	// close window
-	Draw_Shutdown();
 	
 	return 0;
 }
