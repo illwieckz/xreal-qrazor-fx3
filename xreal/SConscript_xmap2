@@ -124,7 +124,20 @@ xmap2_src = [
 'code/png/pngwtran.c',
 'code/png/pngmem.c',
 'code/png/pngerror.c',
-'code/png/pngpread.c'
+'code/png/pngpread.c',
+'code/zlib/adler32.c',
+'code/zlib/compress.c',
+'code/zlib/crc32.c',
+'code/zlib/gzio.c',
+'code/zlib/uncompr.c',
+'code/zlib/deflate.c',
+'code/zlib/trees.c',
+'code/zlib/zutil.c',
+'code/zlib/inflate.c',
+'code/zlib/infback.c',
+'code/zlib/inftrees.c',
+'code/zlib/inffast.c',
+'code/zlib/ioapi.c'
 ]
 
 xmap2_env = env.Copy()
