@@ -81,7 +81,7 @@ cgame_env.Append(CCFLAGS='-DLUA')
 cgame_env.Append(CCFLAGS='-Icode/lua-5.1/src')
 
 if env['xppm'] == 1:
-		cgame_env.Append(CCFLAGS='-DXPPM')
+	cgame_env.Append(CCFLAGS='-DXPPM')
 
 if env['arch'] == 'linux-i386':
 	cgame_env.SharedLibrary('cgame', [cgame_src, dll_src, lua_src], LIBS=['m'])
