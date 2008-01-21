@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,25 +20,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-attribute vec4		attr_TexCoord0;
+uniform sampler2D	u_DiffuseMap;
+uniform sampler2D	u_LightMap;
 
-uniform vec3        u_AmbientColor;
-
-varying vec2		var_Tex;
-varying vec4		var_Color;
+varying vec2		var_TexDiffuse;
+varying vec2		var_TexLight;
 
 void	main()
 {
-	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+	// compute light color from object space lightmap
+	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
 	
-	// transform texcoords
-	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	diffuse.rgb *= lightColor.rgb;
 	
-#if defined(r_precomputedLighting)
-	// assign color
-	var_Color = gl_Color;
+	// compute final color
+#if defined(r_showLightMaps)
+	gl_FragColor = lightColor;
 #else
-	var_Color = vec4(u_AmbientColor, 1.0);
+	gl_FragColor = diffuse;
 #endif
 }

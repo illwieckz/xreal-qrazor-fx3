@@ -1098,7 +1098,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			internalFormat = GL_LUMINANCE_ALPHA32F_ARB;
 		}
 	}
-	else
+	else if(!(image->bits & IF_LIGHTMAP))
 	{
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
@@ -1173,6 +1173,10 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				internalFormat = 4;
 			}
 		}
+	}
+	else
+	{
+		internalFormat = 3;
 	}
 
 	for(i = 0; i < numData; i++)

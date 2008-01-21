@@ -204,6 +204,7 @@ enum
 	IF_DEPTH16 = BIT(10),
 	IF_DEPTH24 = BIT(11),
 	IF_DEPTH32 = BIT(12),
+	IF_LIGHTMAP = BIT(13),
 };
 
 typedef enum
@@ -273,6 +274,7 @@ typedef struct VBO_s
 	int             vertexesSize;
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
+	GLuint          ofsLightCoords;
 	GLuint          ofsTangents;
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
@@ -771,7 +773,7 @@ typedef struct shaderState_s
 enum
 {
 	ATTR_INDEX_TEXCOORD0 = 8,
-//	ATTR_INDEX_TEXCOORD1 = 9,
+	ATTR_INDEX_TEXCOORD1 = 9,
 //	ATTR_INDEX_TEXCOORD2 = 10,
 //  ATTR_INDEX_TEXCOORD3 = 11,
 	ATTR_INDEX_TANGENT = 12,
@@ -795,6 +797,8 @@ typedef struct shaderProgram_s
 	GLint           u_DiffuseMap;
 	GLint           u_NormalMap;
 	GLint           u_SpecularMap;
+	GLint           u_LightMap;
+	GLint           u_DeluxeMap;
 	GLint           u_PositionMap;
 	GLint           u_PortalMap;
 	GLint           u_AttenuationMapXY;
@@ -966,6 +970,7 @@ typedef struct drawSurf_s
 {
 	trRefEntity_t  *entity;
 	int             shaderNum;
+	int             lightmapNum;
 
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
@@ -1093,6 +1098,7 @@ typedef struct
 {
 	vec3_t          xyz;
 	vec2_t          st;
+	vec2_t          lightmap;
 	vec3_t          tangent;
 	vec3_t          binormal;
 	vec3_t          normal;
@@ -1173,6 +1179,7 @@ typedef struct srfVBOMesh_s
 	surfaceType_t   surfaceType;
 
 	struct shader_s *shader;	// FIXME move this to somewhere else
+	int				lightmapNum;// FIXME get rid of this by merging all lightmaps at level load
 
 	// culling information
 	vec3_t          bounds[2];
@@ -1211,6 +1218,7 @@ typedef struct bspSurface_s
 	int             viewCount;	// if == tr.viewCount, already added
 	int             lightCount;
 	struct shader_s *shader;
+	int             lightmapNum;	// -1 = no lightmap
 
 	surfaceType_t  *data;		// any of srf*_t
 } bspSurface_t;
@@ -1532,6 +1540,7 @@ extern refimport_t ri;
 #define	MAX_ANIMATIONFILES		4096
 
 #define	MAX_DRAWIMAGES			4096
+#define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
 
 
@@ -1665,6 +1674,7 @@ typedef struct
 	int             frameSceneNum;	// zeroed at RE_BeginFrame
 
 	qboolean        worldMapLoaded;
+	qboolean        worldDeluxeMapping;
 	world_t        *world;
 
 	const byte     *externalVisData;	// from RE_SetWorldVisData, shared with CM_Load
@@ -1707,6 +1717,9 @@ typedef struct
 	shader_t       *flareShader;
 	shader_t       *sunShader;
 
+	int             numLightmaps;
+	image_t        *lightmaps[MAX_LIGHTMAPS];
+
 	// render entities
 	trRefEntity_t  *currentEntity;
 	trRefEntity_t   worldEntity;	// point currentEntity at this when rendering world
@@ -1722,15 +1735,20 @@ typedef struct
 	// Q3A standard simple vertex color rendering
 	shaderProgram_t genericSingleShader;
 
-	// Q3A standard simple vertex color shading for entities
+	// simple vertex color shading for entities
 	shaderProgram_t vertexLightingShader_DBS_entity;
 
-	// Q3A standard simple vertex color shading for the world
+	// simple vertex color shading for the world
 	shaderProgram_t vertexLightingShader_DBS_world;
+
+	// standard light mapping
+	shaderProgram_t lightMappingShader;
+
+	// directional light mapping
+	shaderProgram_t deluxeMappingShader;
 
 	// deferred Geometric-Buffer processing
 	shaderProgram_t geometricFillShader_DBS;
-//  shaderProgram_t geometricFillShader_DBSP;
 
 	// deferred lighting
 	shaderProgram_t deferredLightingShader_DBS_omni;
@@ -1891,7 +1909,7 @@ extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
 extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
-extern cvar_t  *r_vertexLighting;
+extern cvar_t  *r_precomputedLighting;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering
@@ -2015,6 +2033,8 @@ extern cvar_t  *r_showLightScissors;
 extern cvar_t  *r_showLightBatches;
 extern cvar_t  *r_showOcclusionQueries;
 extern cvar_t  *r_showBatches;
+extern cvar_t  *r_showLightMaps;	// render lightmaps only
+extern cvar_t  *r_showDeluxeMaps;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
@@ -2058,7 +2078,7 @@ void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
 
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum);
 
 
 void            R_LocalNormalToWorld(const vec3_t local, vec3_t world);
@@ -2200,10 +2220,11 @@ enum
 {
 	GLCS_VERTEX = BIT(0),
 	GLCS_TEXCOORD = BIT(1),
-	GLCS_TANGENT = BIT(2),
-	GLCS_BINORMAL = BIT(3),
-	GLCS_NORMAL = BIT(4),
-	GLCS_COLOR = BIT(5),
+	GLCS_LIGHTCOORD = BIT(2),
+	GLCS_TANGENT = BIT(3),
+	GLCS_BINORMAL = BIT(4),
+	GLCS_NORMAL = BIT(5),
+	GLCS_COLOR = BIT(6),
 
 	GLCS_DEFAULT = GLCS_VERTEX
 };
@@ -2315,6 +2336,7 @@ typedef struct shaderCommands_s
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
 	vec4_t          texCoords[SHADER_MAX_VERTEXES];
+	vec4_t          lightCoords[SHADER_MAX_VERTEXES];
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
 
 	stageVars_t     svars;
@@ -2324,6 +2346,7 @@ typedef struct shaderCommands_s
 
 	qboolean        skipTangentSpaces;
 	qboolean        shadowVolume;
+	int             lightmapNum;
 
 	int             numIndexes;
 	int             numVertexes;
@@ -2345,7 +2368,8 @@ void            GLSL_ShutdownGPUShaders();
 void            Tess_Begin(	void (*stageIteratorFunc)(),
 							shader_t * surfaceShader, shader_t * lightShader,
 							qboolean skipTangentSpaces,
-							qboolean shadowVolume);
+							qboolean shadowVolume,
+							int lightmapNum);
 // *INDENT-ON*
 void            Tess_End(void);
 void            Tess_CheckOverflow(int verts, int indexes);

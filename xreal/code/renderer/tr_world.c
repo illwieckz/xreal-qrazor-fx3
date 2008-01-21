@@ -342,7 +342,7 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader);
+	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum);
 }
 
 /*
@@ -372,7 +372,7 @@ static void R_AddBrushModelSurface(bspSurface_t * surf)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader);
+	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum);
 }
 
 /*
@@ -898,7 +898,7 @@ void R_AddWorldSurfaces(void)
 			srf = tr.world->vboSurfaces[i];
 			shader = srf->shader;
 
-			R_AddDrawSurf((void *)srf, shader);
+			R_AddDrawSurf((void *)srf, shader, srf->lightmapNum);
 		}
 
 		// update visbounds and add surfaces that weren't cached with VBOs

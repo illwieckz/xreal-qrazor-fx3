@@ -512,6 +512,18 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
+	if(diff & GLCS_LIGHTCOORD)
+	{
+		if(stateBits & GLCS_LIGHTCOORD)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TEXCOORD1);
+		}
+	}
+
 	if(diff & GLCS_TANGENT)
 	{
 		if(stateBits & GLCS_TANGENT)
@@ -574,6 +586,9 @@ void GL_SetVertexAttribs()
 		if(glState.glClientStateBits & GLCS_TEXCOORD)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
 
+		if(glState.glClientStateBits & GLCS_LIGHTCOORD)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsLightCoords));
+
 		if(glState.glClientStateBits & GLCS_TANGENT)
 			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsTangents));
 
@@ -593,6 +608,9 @@ void GL_SetVertexAttribs()
 
 		if(glState.glClientStateBits & GLCS_TEXCOORD)
 			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
+
+		if(glState.glClientStateBits & GLCS_LIGHTCOORD)
+			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
 
 		if(glState.glClientStateBits & GLCS_TANGENT)
 			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
@@ -702,6 +720,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
+	int             lightmapNum, oldLightmapNum;
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
@@ -711,6 +730,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 	// draw everything
 	oldEntity = NULL;
 	oldShader = NULL;
+	oldLightmapNum = -1;
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 	backEnd.currentLight = NULL;
@@ -720,6 +740,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 		// update locals
 		entity = drawSurf->entity;
 		shader = tr.sortedShaders[drawSurf->shaderNum];
+		lightmapNum = drawSurf->lightmapNum;
 
 		if(opaque)
 		{
@@ -738,7 +759,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 			}
 		}
 
-		if(entity == oldEntity && shader == oldShader)
+		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum )
 		{
 			// fast path, same as previous sort
 			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
@@ -748,15 +769,16 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader || (entity != oldEntity && !shader->entityMergable))
+		if(shader != oldShader  || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse);
+			Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, lightmapNum);
 			oldShader = shader;
+			oldLightmapNum = lightmapNum;
 		}
 
 		// change the modelview matrix if needed
@@ -1057,7 +1079,7 @@ static void RB_RenderInteractions()
 		Tess_End();
 
 		// begin a new batch
-		Tess_Begin(Tess_StageIteratorLighting, shader, light->shader, qfalse, qfalse);
+		Tess_Begin(Tess_StageIteratorLighting, shader, light->shader, qfalse, qfalse, -1);
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -1399,7 +1421,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				}
 
 				// we don't need tangent space calculations here
-				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, light->shader, qtrue, qtrue);
+				Tess_Begin(Tess_StageIteratorStencilShadowVolume, shader, light->shader, qtrue, qtrue, -1);
 			}
 		}
 		else
@@ -1443,7 +1465,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorStencilLighting, shader, light->shader, qfalse, qfalse);
+				Tess_Begin(Tess_StageIteratorStencilLighting, shader, light->shader, qfalse, qfalse, -1);
 			}
 		}
 
@@ -2061,7 +2083,7 @@ static void RB_RenderInteractionsShadowMapped()
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, qtrue, qfalse);
+						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, qtrue, qfalse, -1);
 					}
 					break;
 				}
@@ -2111,7 +2133,7 @@ static void RB_RenderInteractionsShadowMapped()
 				}
 
 				// begin a new batch
-				Tess_Begin(Tess_StageIteratorLighting, shader, light->shader, qfalse, qfalse);
+				Tess_Begin(Tess_StageIteratorLighting, shader, light->shader, qfalse, qfalse, -1);
 			}
 		}
 
@@ -2403,7 +2425,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorGBuffer, shader, NULL, qfalse, qfalse);
+			Tess_Begin(Tess_StageIteratorGBuffer, shader, NULL, qfalse, qfalse, -1);
 			oldShader = shader;
 		}
 
@@ -3396,7 +3418,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 
 						// we don't need tangent space calculations here
-						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, qtrue, qfalse);
+						Tess_Begin(Tess_StageIteratorShadowFill, shader, light->shader, qtrue, qfalse, -1);
 					}
 					break;
 				}
@@ -5526,7 +5548,7 @@ const void     *RB_StretchPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse);
+		Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, -1);
 	}
 
 	Tess_CheckOverflow(4, 6);

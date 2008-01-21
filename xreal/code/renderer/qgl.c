@@ -4288,6 +4288,20 @@ void QGL_EnableLogging(int enable)
 }
 // *INDENT-ON*
 
+
+/*
+===============
+GLimp_LogComment
+===============
+*/
+void GLimp_LogComment(char *comment)
+{
+	if(log_fp)
+	{
+		fprintf(log_fp, "%s", comment);
+	}
+}
+
 #ifdef _MSC_VER
 #pragma warning (default : 4113 4133 4047 )
 #endif

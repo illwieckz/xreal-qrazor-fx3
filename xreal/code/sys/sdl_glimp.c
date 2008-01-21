@@ -108,15 +108,6 @@ void GLimp_Shutdown(void)
 
 /*
 ===============
-GLimp_LogComment
-===============
-*/
-void GLimp_LogComment(char *comment)
-{
-}
-
-/*
-===============
 GLimp_CompareModes
 ===============
 */
@@ -1131,6 +1122,8 @@ void GLimp_EndFrame(void)
 
 		r_fullscreen->modified = qfalse;
 	}
+
+	QGL_EnableLogging(r_logFile->integer);
 }
 
 

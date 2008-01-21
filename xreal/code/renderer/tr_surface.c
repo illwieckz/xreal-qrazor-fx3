@@ -46,7 +46,7 @@ Tess_EndBegin
 void Tess_EndBegin()
 {
 	Tess_End();
-	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume);
+	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume, tess.lightmapNum);
 }
 
 /*
@@ -87,7 +87,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 		ri.Error(ERR_DROP, "Tess_CheckOverflow: indices > MAX (%d > %d)", indexes, SHADER_MAX_INDEXES);
 	}
 
-	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume);
+	Tess_Begin(tess.stageIteratorFunc, tess.surfaceShader, tess.lightShader, tess.skipTangentSpaces, tess.shadowVolume, tess.lightmapNum);
 }
 
 
@@ -286,7 +286,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf, int numLightIndexes, int *l
 	int             i;
 	srfTriangle_t  *tri;
 	srfVert_t      *dv;
-	float          *xyz, *tangent, *binormal, *normal, *texCoords;
+	float          *xyz, *tangent, *binormal, *normal, *texCoords, *lightCoords;
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
@@ -471,10 +471,11 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf, int numLightIndexes, int *l
 			binormal = tess.binormals[tess.numVertexes];
 			normal = tess.normals[tess.numVertexes];
 			texCoords = tess.texCoords[tess.numVertexes];
+			lightCoords = tess.lightCoords[tess.numVertexes];
 			color = tess.colors[tess.numVertexes];
 
 			for(i = 0; i < srf->numVerts;
-				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, lightCoords += 4, color += 4)
 			{
 				xyz[0] = dv->xyz[0];
 				xyz[1] = dv->xyz[1];
@@ -501,6 +502,11 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf, int numLightIndexes, int *l
 				texCoords[2] = 0;
 				texCoords[3] = 1;
 
+				lightCoords[0] = dv->lightmap[0];
+				lightCoords[1] = dv->lightmap[1];
+				lightCoords[2] = 0;
+				lightCoords[3] = 1;
+
 				*(int *)color = *(int *)dv->color;
 			}
 		}
@@ -520,7 +526,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *ligh
 	int             i;
 	srfTriangle_t  *tri;
 	srfVert_t      *dv;
-	float          *xyz, *tangent, *binormal, *normal, *texCoords;
+	float          *xyz, *tangent, *binormal, *normal, *texCoords, *lightCoords;
 	byte           *color;
 	vec3_t          lightOrigin;
 	float           d;
@@ -704,10 +710,11 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *ligh
 			binormal = tess.binormals[tess.numVertexes];
 			normal = tess.normals[tess.numVertexes];
 			texCoords = tess.texCoords[tess.numVertexes];
+			lightCoords = tess.lightCoords[tess.numVertexes];
 			color = tess.colors[tess.numVertexes];
 
 			for(i = 0; i < srf->numVerts;
-				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, color += 4)
+				i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, lightCoords += 4, color += 4)
 			{
 				xyz[0] = dv->xyz[0];
 				xyz[1] = dv->xyz[1];
@@ -733,6 +740,11 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf, int numLightIndexes, int *ligh
 				texCoords[1] = dv->st[1];
 				texCoords[2] = 0;
 				texCoords[3] = 1;
+
+				lightCoords[0] = dv->lightmap[0];
+				lightCoords[1] = dv->lightmap[1];
+				lightCoords[2] = 0;
+				lightCoords[3] = 1;
 
 				*(int *)color = *(int *)dv->color;
 			}

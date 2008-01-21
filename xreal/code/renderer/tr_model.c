@@ -581,6 +581,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 				vboSurf->surfaceType = SF_VBO_MESH;
 				vboSurf->shader = shader;
+				vboSurf->lightmapNum = -1;
 				vboSurf->numIndexes = indexesNum;
 				vboSurf->numVerts = vertexesNum;
 
@@ -830,6 +831,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 					R_CreateStaticVBO(va("staticMD3Mesh %i", vboSurfaces.currentElements), data, dataSize, indexes, indexesSize);
 				vboSurf->vbo->ofsXYZ = 0;
 				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+				vboSurf->vbo->ofsLightCoords = ofsTexCoords;
 				vboSurf->vbo->ofsTangents = ofsTangents;
 				vboSurf->vbo->ofsBinormals = ofsBinormals;
 				vboSurf->vbo->ofsNormals = ofsNormals;

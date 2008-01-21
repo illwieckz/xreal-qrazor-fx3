@@ -74,7 +74,7 @@ cvar_t         *r_noLightVisCull;
 cvar_t         *r_noInteractionSort;
 cvar_t         *r_noDynamicLighting;
 cvar_t         *r_noStaticLighting;
-cvar_t         *r_vertexLighting;
+cvar_t         *r_precomputedLighting;
 
 cvar_t         *r_ext_compressed_textures;
 cvar_t         *r_ext_compiled_vertex_array;
@@ -191,6 +191,8 @@ cvar_t         *r_showLightScissors;
 cvar_t         *r_showLightBatches;
 cvar_t         *r_showOcclusionQueries;
 cvar_t         *r_showBatches;
+cvar_t         *r_showLightMaps;
+cvar_t         *r_showDeluxeMaps;
 
 cvar_t         *r_showDeferredDiffuse;
 cvar_t         *r_showDeferredNormal;
@@ -1398,7 +1400,7 @@ void R_Register(void)
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_precomputedLighting = ri.Cvar_Get("r_precomputedLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
@@ -1559,6 +1561,8 @@ void R_Register(void)
 	r_showLightBatches = ri.Cvar_Get("r_showLightBatches", "0", CVAR_CHEAT);
 	r_showOcclusionQueries = ri.Cvar_Get("r_showOcclusionQueries", "0", CVAR_CHEAT);
 	r_showBatches = ri.Cvar_Get("r_showBatches", "0", CVAR_CHEAT);
+	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_showDeluxeMaps = ri.Cvar_Get("r_showDeluxeMaps", "0", CVAR_CHEAT | CVAR_LATCH);
 
 	r_showDeferredDiffuse = ri.Cvar_Get("r_showDeferredDiffuse", "0", CVAR_CHEAT);
 	r_showDeferredNormal = ri.Cvar_Get("r_showDeferredNormal", "0", CVAR_CHEAT);

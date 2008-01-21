@@ -1370,7 +1370,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 		tr.or = tr.viewParms.world;
 	}
 
-	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, -1);
 	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
 
 	// Tr3B: former assertion
@@ -1522,7 +1522,7 @@ static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader)
+void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum)
 {
 	int             index;
 	drawSurf_t     *drawSurf;
@@ -1536,6 +1536,7 @@ void R_AddDrawSurf(surfaceType_t * surface, shader_t * shader)
 	drawSurf->entity = tr.currentEntity;
 	drawSurf->surface = surface;
 	drawSurf->shaderNum = shader->sortedIndex;
+	drawSurf->lightmapNum = lightmapNum;
 
 	tr.refdef.numDrawSurfs++;
 }
@@ -1554,6 +1555,15 @@ static int DrawSurfCompare(const void *a, const void *b)
 		return -1;
 
 	else if(((drawSurf_t *) a)->shaderNum > ((drawSurf_t *) b)->shaderNum)
+		return 1;
+#endif
+
+#if 1
+	// by lightmap
+	if(((drawSurf_t *) a)->lightmapNum < ((drawSurf_t *) b)->lightmapNum)
+		return -1;
+
+	else if(((drawSurf_t *) a)->lightmapNum > ((drawSurf_t *) b)->lightmapNum)
 		return 1;
 #endif
 
@@ -1729,7 +1739,7 @@ void R_AddEntitySurfaces(void)
 					continue;
 				}
 				shader = R_GetShaderByHandle(ent->e.customShader);
-				R_AddDrawSurf(&entitySurface, shader);
+				R_AddDrawSurf(&entitySurface, shader, -1);
 				break;
 
 			case RT_MODEL:
@@ -1739,7 +1749,7 @@ void R_AddEntitySurfaces(void)
 				tr.currentModel = R_GetModelByHandle(ent->e.hModel);
 				if(!tr.currentModel)
 				{
-					R_AddDrawSurf(&entitySurface, tr.defaultShader);
+					R_AddDrawSurf(&entitySurface, tr.defaultShader, -1);
 				}
 				else
 				{
@@ -1767,7 +1777,7 @@ void R_AddEntitySurfaces(void)
 							VectorClear(ent->worldBounds[0]);
 							VectorClear(ent->worldBounds[1]);
 							shader = R_GetShaderByHandle(ent->e.customShader);
-							R_AddDrawSurf(&entitySurface, tr.defaultShader);
+							R_AddDrawSurf(&entitySurface, tr.defaultShader, -1);
 							break;
 
 						default:
@@ -1882,7 +1892,7 @@ void R_AddLightInteractions()
 
 		if(light->isStatic)
 		{
-			if(r_noStaticLighting->integer || r_vertexLighting->integer)
+			if(r_noStaticLighting->integer || r_precomputedLighting->integer)
 			{
 				light->cull = CULL_OUT;
 				continue;

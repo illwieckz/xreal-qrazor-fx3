@@ -716,7 +716,7 @@ void RB_DrawSun(void)
 	qglDepthRange(1.0, 1.0);
 
 	// FIXME: use quad stamp
-	Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse);
+	Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse, -1);
 	VectorCopy(origin, temp);
 	VectorSubtract(temp, vec1, temp);
 	VectorSubtract(temp, vec2, temp);

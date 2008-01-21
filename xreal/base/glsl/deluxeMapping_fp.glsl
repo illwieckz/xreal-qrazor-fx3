@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -23,43 +23,43 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform sampler2D	u_LightMap;
+uniform sampler2D	u_DeluxeMap;
 uniform vec3		u_ViewOrigin;
 
 varying vec3		var_Vertex;
-varying vec4		var_TexDiffuseNormal;
+varying vec2		var_TexDiffuse;
+varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
-varying vec3		var_LightDir;
-varying vec4		var_Color;
+varying vec2		var_TexLight;
 varying mat3		var_OS2TSMatrix;
 
 void	main()
 {
+	// compute normal in tangent space from normalmap
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
+	N = normalize(N);
+	
 	// compute view direction in tangent space
 	vec3 V = normalize(var_OS2TSMatrix * (u_ViewOrigin - var_Vertex));
-
-	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * var_LightDir);
+	
+	// compute light direction from object space deluxe map into tangent space
+	vec3 L = normalize(var_OS2TSMatrix * (2.0 * (texture2D(u_DeluxeMap, var_TexLight).xyz - 0.5)));
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
 	
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexDiffuseNormal.pq).xyz - 0.5);
-	#if defined(r_NormalScale)
-	N.z *= r_NormalScale;
-	normalize(N);
-	#endif
+	// compute light color from object space lightmap
+	vec3 C = texture2D(u_LightMap, var_TexLight).rgb;
 	
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
-	diffuse.rgb *= var_Color.rgb * clamp(dot(N, L), 0.0, 1.0);
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	diffuse.rgb *= C * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * var_Color.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * C * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute final color
-	vec4 color = diffuse;
-	color.rgb += specular;
-	
-	gl_FragColor = color;
+	gl_FragColor.rgba = diffuse;
+	gl_FragColor.rgb += specular;
 }

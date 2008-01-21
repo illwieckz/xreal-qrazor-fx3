@@ -383,6 +383,9 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 	{
 		return;
 	}
+
+	GLimp_LogComment("--- RE_BeginFrame ---\n");
+
 	glState.finishCalled = qfalse;
 
 	tr.frameCount++;
