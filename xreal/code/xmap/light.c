@@ -2388,7 +2388,7 @@ int LightMain(int argc, char **argv)
 				"   extrawide      = same as extra but smoothen more\n"
 				"   nogrid         = don't calculate light grid for dynamic model lighting\n"
 				"   novertex       = don't calculate vertex lighting\n"
-				"   border         = add debug border to lightmaps\n");
+				"   border         = add debug border to lightmaps\n"
 				"   samplesize <N> = set the lightmap pixel size to NxN units\n");
 	}
 
