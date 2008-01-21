@@ -500,6 +500,116 @@ void MatrixTranspose(const matrix_t in, matrix_t out)
 	out[12] = in[ 3];       out[13] = in[ 7];       out[14] = in[11];       out[15] = in[15];
 }
 
+// helper functions for MatrixInverse from GtkRadiant C mathlib
+typedef vec_t   matrix3x3_t[9];
+
+static float m3_det( matrix3x3_t mat )
+{
+  float det;
+  
+  det = mat[0] * ( mat[4]*mat[8] - mat[7]*mat[5] )
+    - mat[1] * ( mat[3]*mat[8] - mat[6]*mat[5] )
+    + mat[2] * ( mat[3]*mat[7] - mat[6]*mat[4] );
+  
+  return( det );
+}
+
+static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
+{
+  float det = m3_det( ma );
+ 
+  if (det == 0 )
+  {
+    return 1;
+  }
+
+  
+  mr[0] =    ma[4]*ma[8] - ma[5]*ma[7]   / det;
+  mr[1] = -( ma[1]*ma[8] - ma[7]*ma[2] ) / det;
+  mr[2] =    ma[1]*ma[5] - ma[4]*ma[2]   / det;
+  
+  mr[3] = -( ma[3]*ma[8] - ma[5]*ma[6] ) / det;
+  mr[4] =    ma[0]*ma[8] - ma[6]*ma[2]   / det;
+  mr[5] = -( ma[0]*ma[5] - ma[3]*ma[2] ) / det;
+  
+  mr[6] =    ma[3]*ma[7] - ma[6]*ma[4]   / det;
+  mr[7] = -( ma[0]*ma[7] - ma[6]*ma[1] ) / det;
+  mr[8] =    ma[0]*ma[4] - ma[1]*ma[3]   / det;
+
+  return 0;
+}
+
+static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
+{
+  int ti, tj, idst, jdst;
+  
+  for ( ti = 0; ti < 4; ti++ )
+  {
+    if ( ti < i )
+      idst = ti;
+    else
+      if ( ti > i )
+        idst = ti-1;
+      
+      for ( tj = 0; tj < 4; tj++ )
+      {
+        if ( tj < j )
+          jdst = tj;
+        else
+          if ( tj > j )
+            jdst = tj-1;
+          
+          if ( ti != i && tj != j )
+            mb[idst*3 + jdst] = mr[ti*4 + tj ];
+      }
+  }
+}
+
+static float m4_det( matrix_t mr )
+{
+  float  det, result = 0, i = 1;
+  matrix3x3_t msub3;
+  int     n;
+  
+  for ( n = 0; n < 4; n++, i *= -1 )
+  {
+    m4_submat( mr, msub3, 0, n );
+    
+    det     = m3_det( msub3 );
+    result += mr[n] * det * i;
+  }
+  
+  return result;
+}
+
+qboolean MatrixInverse(matrix_t matrix)
+{
+  float  mdet = m4_det(matrix);
+  matrix3x3_t mtemp;
+  int     i, j, sign;
+  matrix_t m4x4_temp;
+  
+#if 0
+  if ( fabs( mdet ) < 0.0000000001 )
+    return qtrue;
+#endif
+
+  MatrixCopy(matrix, m4x4_temp);
+  
+  for ( i = 0; i < 4; i++ )
+    for ( j = 0; j < 4; j++ )
+    {
+      sign = 1 - ( (i +j) % 2 ) * 2;
+      
+      m4_submat( m4x4_temp, mtemp, i, j );
+      
+	  // FIXME: try using * inverse det and see if speed/accuracy are good enough
+      matrix[i+j*4] = ( m3_det( mtemp ) * sign ) / mdet; 
+    }
+    
+  return qfalse;
+}
+
 void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
