@@ -243,9 +243,10 @@ void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, sha
 
 	/* create transform matrix for normals */
 	//memcpy(nTransform, transform, sizeof(matrix_t));
-	//if(m4x4_invert(nTransform))
+	MatrixCopy(transform, nTransform);
+	if(MatrixInverse(nTransform))
 		Sys_FPrintf(SYS_VRB, "WARNING: Can't invert model transform matrix, using transpose instead\n");
-	MatrixTranspose(transform, nTransform);
+	//MatrixTranspose(transform, nTransform);
 
 	/* fix bogus lightmap scale */
 	if(lightmapScale <= 0.0f)
