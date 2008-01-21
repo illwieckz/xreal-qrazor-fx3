@@ -4,6 +4,7 @@ build commands
 [RadiantPath]: path to Radiant .. C:\Program Files\Gtkradiant
 [EnginePath]: path to the engine .. C:\XreaL\ C:\Program Files\XreaL\ /opt/XreaL/
 -->
+
 <project version="2.0">
 <var name="xmap">"[EnginePath]xmap.[ExecutableType]"</var>
 <var name="connect"><cond value="[MonitorAddress]">-connect [MonitorAddress]</cond></var>
@@ -28,14 +29,17 @@ build commands
 <build name="xmap: (single test) -vis -fast -merge">
 <command>[xmap] -vis [connect] -fast -merge "[MapFile]"</command>
 </build>
+<build name="xmap: (debug) -light -border">
+<command>[xmap] -light -v [connect] -border "[MapFile]"</command>
+</build>
 <build name="xmap: (single) -light -patchshadows">
-<command>[xmap] -light [connect] -patchshadows "[MapFile]"</command>
+<command>[xmap] -light -v [connect] -patchshadows "[MapFile]"</command>
 </build>
 <build name="xmap: (single) -light -patchshadows -extra">
-<command>[xmap] -light [connect] -patchshadows -extra "[MapFile]"</command>
+<command>[xmap] -light -v [connect] -patchshadows -extra "[MapFile]"</command>
 </build>
 <build name="xmap: (single test) -vlight">
-<command>[xmap] -vlight [connect] "[MapFile]"</command>
+<command>[xmap] -vlight -v [connect] "[MapFile]"</command>
 </build>
 <build name="xmap: (single) -onlyents">
 <command>[xmap] [connect] -onlyents "[MapFile]"</command>
@@ -48,11 +52,19 @@ build commands
 <command>[xmap] -map2bsp -v [connect] "[MapFile]"</command>
 <command>[xmap] -vis [connect] "[MapFile]"</command>
 </build>
+</project>
 
 <!--
-<var name="xmap2">"[EnginePath]xmap2.[ExecutableType]" -v<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game xreal -fs_basepath "[EnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond></var>
+<project version="2.0">
+<var name="xmap2">"[EnginePath]xmap2.[ExecutableType]" <cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game xreal -fs_basepath "[EnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond></var>
+<build name="xmap2: (single) BSP">
+<command>[xmap2] -v "[MapFile]"</command>
+</build>
+<build name="xmap2: (single) BSP -leaktest">
+<command>[xmap2] -v -leaktest "[MapFile]"</command>
+</build>
 <build name="xmap2: (single) BSP -meta">
-<command>[xmap2] -meta "[MapFile]"</command>
+<command>[xmap2] -v -meta "[MapFile]"</command>
 </build>
 <build name="xmap2: (single) -vis">
 <command>[xmap2] -vis "[MapFile]"</command>
@@ -61,45 +73,44 @@ build commands
 <command>[xmap2] -vis -fast "[MapFile]"</command>
 </build>
 <build name="xmap2: (single test) -light -deluxe -faster">
-<command>[xmap2] -light -deluxe -faster "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -faster "[MapFile]"</command>
 </build>
 <build name="xmap2: (single test) -light -deluxe -fast">
-<command>[xmap2] -light -deluxe -fast "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast "[MapFile]"</command>
 </build>
 <build name="xmap2: (single) -light -deluxe -fast -super 2">
-<command>[xmap2] -light -deluxe -fast -super 2 "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -super 2 "[MapFile]"</command>
 </build>
 <build name="xmap2: (single) -light -deluxe -fast -super 2 -filter">
-<command>[xmap2] -light -deluxe -fast -super 2 -filter "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -super 2 -filter "[MapFile]"</command>
 </build>
 <build name="xmap2: (single) -light -deluxe -fast -super 2 -filter -bounce 8">
-<command>[xmap2] -light -deluxe -fast -super 2 -filter -bounce 8 "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -super 2 -filter -bounce 8 "[MapFile]"</command>
 </build>
 <build name="xmap2: (test) BSP -meta, -vis, -light -deluxe -fast -filter">
-<command>[xmap2] -meta "[MapFile]"</command>
+<command>[xmap2] -v -meta "[MapFile]"</command>
 <command>[xmap2] -vis -saveprt "[MapFile]"</command>
-<command>[xmap2] -light -deluxe -fast -filter "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -filter "[MapFile]"</command>
 </build>
 <build name="xmap2: (test) BSP -meta, -vis -fast, -light -deluxe -fast -super 2 -filter">
-<command>[xmap2] -meta "[MapFile]"</command>
+<command>[xmap2] -v -meta "[MapFile]"</command>
 <command>[xmap2] -vis -saveprt -fast "[MapFile]"</command>
-<command>[xmap2] -light -deluxe -fast -super 2 -filter "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -super 2 -filter "[MapFile]"</command>
 </build>
 <build name="xmap2: (final) BSP -meta, -vis, -light -deluxe -fast -filter -super 2">
-<command>[xmap2] -meta "[MapFile]"</command>
+<command>[xmap2] -v -meta "[MapFile]"</command>
 <command>[xmap2] -vis -saveprt "[MapFile]"</command>
-<command>[xmap2] -light -deluxe -fast -filter -super 2 "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -filter -super 2 "[MapFile]"</command>
 </build>
 <build name="xmap2: (final) BSP -meta, -vis, -light -deluxe -fast -filter -super 2 -bounce 8">
-<command>[xmap2] -meta "[MapFile]"</command>
+<command>[xmap2] -v -meta "[MapFile]"</command>
 <command>[xmap2] -vis -saveprt "[MapFile]"</command>
-<command>[xmap2] -light -deluxe -fast -super 2 -filter -bounce 8 "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -fast -super 2 -filter -bounce 8 "[MapFile]"</command>
 </build>
-<build name="xmap2: (simulate old style -light -deluxe -extra) BSP -meta, -vis, -light -deluxe -super 2">
-<command>[xmap2] -meta "[MapFile]"</command>
+<build name="xmap2: (simulate old style) BSP -meta, -vis, -light -deluxe -super 2">
+<command>[xmap2] -v -meta "[MapFile]"</command>
 <command>[xmap2] -vis -saveprt "[MapFile]"</command>
-<command>[xmap2] -light -deluxe -super 2 "[MapFile]"</command>
+<command>[xmap2] -v -light -deluxe -super 2 "[MapFile]"</command>
 </build>
--->
 </project>
-
+-->
