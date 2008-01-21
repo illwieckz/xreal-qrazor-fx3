@@ -155,7 +155,7 @@ game_t struct
 		
 		{ "water",			Q_CONT_WATER,				Q_CONT_SOLID,				0,							0,							C_LIQUID | C_TRANSLUCENT,	C_SOLID },
 		{ "slime",			Q_CONT_SLIME,				Q_CONT_SOLID,				0,							0,							C_LIQUID | C_TRANSLUCENT,	C_SOLID },
-		{ "lava",			Q_CONT_LAVA,				Q_CONT_SOLID,				0,							0,							C_LIQUID | C_TRANSLUCENT,	C_SOLID },
+		{ "lava",			Q_CONT_LAVA,				Q_CONT_SOLID,				0,							0,							C_LIQUID,					C_SOLID },
 		
 		{ "playerclip",		Q_CONT_PLAYERCLIP,			Q_CONT_SOLID,				0,							0,							C_DETAIL | C_TRANSLUCENT,	C_SOLID },
 		{ "monsterclip",	Q_CONT_MONSTERCLIP,			Q_CONT_SOLID,				0,							0,							C_DETAIL | C_TRANSLUCENT,	C_SOLID },
