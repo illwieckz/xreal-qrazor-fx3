@@ -87,7 +87,20 @@ xmap_src = [
 'code/jpeg-6/jidctflt.c',
 'code/jpeg-6/jmemmgr.c',
 'code/jpeg-6/jmemansi.c',
-'code/jpeg-6/jutils.c'
+'code/jpeg-6/jutils.c',
+'code/zlib/adler32.c',
+'code/zlib/compress.c',
+'code/zlib/crc32.c',
+'code/zlib/gzio.c',
+'code/zlib/uncompr.c',
+'code/zlib/deflate.c',
+'code/zlib/trees.c',
+'code/zlib/zutil.c',
+'code/zlib/inflate.c',
+'code/zlib/infback.c',
+'code/zlib/inftrees.c',
+'code/zlib/inffast.c',
+'code/zlib/ioapi.c'
 ]
 
 xmap_env = env.Copy()
