@@ -28,6 +28,9 @@ varying vec2		var_TexLight;
 
 void	main()
 {
+#if defined(r_showLightMaps)
+	gl_FragColor = lightColor;
+#else
 	// compute light color from object space lightmap
 	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
 	
@@ -35,10 +38,6 @@ void	main()
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	diffuse.rgb *= lightColor.rgb;
 	
-	// compute final color
-#if defined(r_showLightMaps)
-	gl_FragColor = lightColor;
-#else
 	gl_FragColor = diffuse;
 #endif
 }

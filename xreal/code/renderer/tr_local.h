@@ -1910,6 +1910,7 @@ extern cvar_t  *r_drawSun;		// controls drawing of sun quad
 extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_precomputedLighting;
+extern cvar_t  *r_vertexLighting;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering

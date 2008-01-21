@@ -1795,14 +1795,28 @@ static void Render_deluxeMapping(int stage)
 
 	// bind u_NormalMap
 	GL_SelectTexture(1);
-	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	if(pStage->bundle[TB_NORMALMAP].image[0])
+	{
+		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.flatImage);
+	}
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_NORMALMAP]);
 	qglMatrixMode(GL_MODELVIEW);
 
 	// bind u_SpecularMap
 	GL_SelectTexture(2);
-	GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	if(pStage->bundle[TB_SPECULARMAP].image[0])
+	{
+		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+	}
+	else
+	{
+		GL_Bind(tr.blackImage);
+	}
 	qglMatrixMode(GL_TEXTURE);
 	qglLoadMatrixf(tess.svars.texMatrices[TB_SPECULARMAP]);
 	qglMatrixMode(GL_MODELVIEW);
@@ -3129,20 +3143,8 @@ void Tess_StageIteratorGeneric()
 				{
 					if(r_precomputedLighting->integer)
 					{
-						if(tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+						if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 						{
-							/*
-							if(r_showLightMaps->integer)
-							{
-								Render_lightmap_FFP(stage, TB_LIGHTMAP);
-							}
-							else if(tr.worldDeluxeMapping && r_showDeluxeMaps->integer)
-							{
-								Render_deluxemap_FFP(stage, TB_LIGHTMAP);
-							}
-							else
-							*/
-
 							if(tr.worldDeluxeMapping)
 							{
 								Render_deluxeMapping(stage);

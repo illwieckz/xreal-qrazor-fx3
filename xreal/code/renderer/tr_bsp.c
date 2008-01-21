@@ -188,14 +188,32 @@ static void R_LoadLightmaps(lump_t * l)
 	int             len;
 	static byte     image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int             i, j;
-	float           maxIntensity = 0;
-	double          sumIntensity = 0;
 
-	ri.Printf(PRINT_ALL, "...loading lightmaps\n");
+	//ri.Printf(PRINT_ALL, "...loading lightmaps\n");
 
 	len = l->filelen;
 	if(!len)
 	{
+		// TODO load external lightmaps
+
+		/*
+		char          **lightmapFiles;
+		int             numLightmaps;
+
+		
+		//lightmapFiles = ri.FS_ListFiles("materials", ".mtr", &numShaders);
+
+		if(!lightmapFiles || !numLightmaps)
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: no shader files found\n");
+			return;
+		}
+
+		if(numLightmaps > MAX_LIGHTMAPS)
+		{
+			numLightmaps = MAX_LIGHTMAPS;
+		}
+		*/
 		return;
 	}
 	buf = fileBase + l->fileofs;
@@ -205,12 +223,8 @@ static void R_LoadLightmaps(lump_t * l)
 
 	// create all the lightmaps
 	tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-	if(tr.numLightmaps == 1)
-	{
-		//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
-		//this avoids this, but isn't the correct solution.
-		tr.numLightmaps++;
-	}
+
+	ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
 
 	for(i = 0; i < tr.numLightmaps; i++)
 	{
@@ -221,44 +235,10 @@ static void R_LoadLightmaps(lump_t * l)
 		{
 			if(i % 2 == 0)
 			{
-				if(r_showLightMaps->integer == 2)
+				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 				{
-					// color code by intensity as development tool  (FIXME: check range)
-					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-					{
-						float           r = buf_p[j * 3 + 0];
-						float           g = buf_p[j * 3 + 1];
-						float           b = buf_p[j * 3 + 2];
-						float           intensity;
-						float           out[3];
-
-						intensity = 0.33f * r + 0.685f * g + 0.063f * b;
-
-						if(intensity > 255)
-							intensity = 1.0f;
-						else
-							intensity /= 255.0f;
-
-						if(intensity > maxIntensity)
-							maxIntensity = intensity;
-
-						HSVtoRGB(intensity, 1.00, 0.50, out);
-
-						image[j * 4 + 0] = out[0] * 255;
-						image[j * 4 + 1] = out[1] * 255;
-						image[j * 4 + 2] = out[2] * 255;
-						image[j * 4 + 3] = 255;
-
-						sumIntensity += intensity;
-					}
-				}
-				else
-				{
-					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-					{
-						R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-						image[j * 4 + 3] = 255;
-					}
+					R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
+					image[j * 4 + 3] = 255;
 				}
 				tr.lightmaps[i] = R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
 			}
@@ -283,9 +263,9 @@ static void R_LoadLightmaps(lump_t * l)
 		}
 	}
 
-	if(r_showLightMaps->integer == 2)
+	if(tr.worldDeluxeMapping)
 	{
-		ri.Printf(PRINT_ALL, "Brightest lightmap value: %d\n", (int)(maxIntensity * 255));
+		tr.numLightmaps /= 2;
 	}
 }
 

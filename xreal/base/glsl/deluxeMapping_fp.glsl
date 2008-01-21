@@ -36,6 +36,11 @@ varying mat3		var_OS2TSMatrix;
 
 void	main()
 {
+#if defined(r_showLightMaps)
+	gl_FragColor = texture2D(u_LightMap, var_TexLight);
+#elif defined(r_showDeluxeMaps)
+	gl_FragColor = texture2D(u_DeluxeMap, var_TexLight);
+#else
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 	N = normalize(N);
@@ -50,16 +55,18 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute light color from object space lightmap
-	vec3 C = texture2D(u_LightMap, var_TexLight).rgb;
+	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
-	diffuse.rgb *= C * clamp(dot(N, L), 0.0, 1.0);
+	diffuse.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * C * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * lightColor.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute final color
 	gl_FragColor.rgba = diffuse;
 	gl_FragColor.rgb += specular;
+#endif
+	
 }
