@@ -25,6 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __NETLIB__
 #define __NETLIB__
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4996) // deprecated functions
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 //++timo FIXME: the l_net code understands that as the max size for the netmessage_s structure
 //  we have defined unsigned char data[MAX_NETMESSAGE] in netmessage_s but actually it cannot be filled completely
 //  we need to introduce a new #define and adapt to data[MAX_NETBUFFER]

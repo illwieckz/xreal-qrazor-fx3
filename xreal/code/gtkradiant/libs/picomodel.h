@@ -45,7 +45,11 @@ extern "C"
 
 #include <stddef.h>
 
-
+#ifdef _MSC_VER
+#pragma warning(disable : 4996) // deprecated functions
+#define _CRT_SECURE_NO_DEPRECATE
+#pragma check_stack(off)
+#endif
 
 /* version */
 #define PICOMODEL_VERSION		"0.8.20"
