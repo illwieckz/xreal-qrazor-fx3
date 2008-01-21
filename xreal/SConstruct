@@ -92,6 +92,7 @@ else:
 if env['mapping'] == 1:
 	SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
+	SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
 	SConscript('SConscript_bspc', build_dir='build/bspc', duplicate=0)
 
 if env['xmass'] == 1:
