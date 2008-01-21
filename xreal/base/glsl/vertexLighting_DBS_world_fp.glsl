@@ -27,8 +27,7 @@ uniform vec3		u_ViewOrigin;
 uniform float		u_SpecularExponent;
 
 varying vec3		var_Vertex;
-varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
+varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_LightDir;
 varying vec4		var_Color;
@@ -46,14 +45,14 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexDiffuseNormal.pq).xyz - 0.5);
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
 	
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
 	diffuse.rgb *= var_Color.rgb * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term

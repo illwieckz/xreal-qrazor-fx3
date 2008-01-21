@@ -25,8 +25,7 @@ attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
 varying vec3		var_Vertex;
-varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
+varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_LightDir;
 varying vec4		var_Color;
@@ -41,10 +40,10 @@ void	main()
 	var_Vertex = gl_Vertex.xyz;
 	
 	// transform diffusemap texcoords
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuseNormal.st = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 	
 	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord0).st;
+	var_TexDiffuseNormal.pq = (gl_TextureMatrix[1] * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
