@@ -396,10 +396,6 @@
 			Name="Source Files"
 			>
 			<File
-				RelativePath="..\common\aselib.c"
-				>
-			</File>
-			<File
 				RelativePath=".\brush.c"
 				>
 			</File>
@@ -409,22 +405,6 @@
 			</File>
 			<File
 				RelativePath=".\bsp.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\bspfile.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\clip.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\cmdlib.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\envelope.c"
 				>
 			</File>
 			<File
@@ -441,154 +421,6 @@
 			</File>
 			<File
 				RelativePath=".\glfile.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\imagelib.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\inout.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\inout.h"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcapimin.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jccoefct.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jccolor.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcdctmgr.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jchuff.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcinit.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcmainct.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcmarker.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcmaster.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcomapi.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcparam.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcphuff.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcprepct.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jcsample.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdapimin.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdapistd.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdatasrc.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdcoefct.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdcolor.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jddctmgr.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdhuff.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdinput.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdmainct.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdmarker.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdmaster.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdpostct.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdsample.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jdtrans.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jerror.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jfdctflt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jidctflt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jmemansi.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jmemmgr.c"
-				>
-			</File>
-			<File
-				RelativePath="..\jpeg-6\jutils.c"
 				>
 			</File>
 			<File
@@ -612,35 +444,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\lwobject\list.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\lwio.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\lwo2.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\lwob.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\lwsurface.c"
-				>
-			</File>
-			<File
 				RelativePath=".\main.c"
 				>
 			</File>
 			<File
 				RelativePath=".\map.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\mathlib.c"
 				>
 			</File>
 			<File
@@ -652,27 +460,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\common\mutex.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\netlib.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\netlib.h"
-				>
-			</File>
-			<File
 				RelativePath=".\patch.c"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\pntspols.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\polylib.c"
 				>
 			</File>
 			<File
@@ -681,10 +469,6 @@
 			</File>
 			<File
 				RelativePath=".\prtfile.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\scriplib.c"
 				>
 			</File>
 			<File
@@ -700,35 +484,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\common\threads.c"
-				>
-			</File>
-			<File
 				RelativePath=".\tjunction.c"
 				>
 			</File>
 			<File
 				RelativePath=".\tree.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\unzip.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\unzip.h"
-				>
-			</File>
-			<File
-				RelativePath="..\lwobject\vecmath.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\vfs.c"
-				>
-			</File>
-			<File
-				RelativePath="..\common\vfs.h"
 				>
 			</File>
 			<File
@@ -740,13 +500,13 @@
 				>
 			</File>
 			<File
-				RelativePath="..\lwobject\vmap.c"
-				>
-			</File>
-			<File
 				RelativePath=".\writebsp.c"
 				>
 			</File>
+			<Filter
+				Name="bsp"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -771,6 +531,394 @@
 				RelativePath=".\vis.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Libs"
+			>
+			<Filter
+				Name="jpeg"
+				>
+				<Filter
+					Name="Header Files"
+					>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\jpeg-6\jcapimin.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jccoefct.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jccolor.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcdctmgr.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jchuff.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcinit.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcmainct.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcmarker.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcmaster.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcomapi.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcparam.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcphuff.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcprepct.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jcsample.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdapimin.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdapistd.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdatasrc.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdcoefct.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdcolor.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jddctmgr.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdhuff.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdinput.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdmainct.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdmarker.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdmaster.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdpostct.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdsample.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jdtrans.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jerror.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jfdctflt.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jidctflt.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jmemansi.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jmemmgr.c"
+						>
+					</File>
+					<File
+						RelativePath="..\jpeg-6\jutils.c"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="lwobject"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\lwobject\lwo2.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\lwobject\clip.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\envelope.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\list.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\lwio.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\lwo2.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\lwob.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\lwsurface.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\pntspols.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\vecmath.c"
+						>
+					</File>
+					<File
+						RelativePath="..\lwobject\vmap.c"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="common"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\common\aselib.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\cmdlib.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\imagelib.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\inout.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\mathlib.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\mutex.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\netlib.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\polyset.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\scriplib.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\threads.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\unzip.h"
+						>
+					</File>
+					<File
+						RelativePath="..\common\vfs.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\common\aselib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\bspfile.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\cmdlib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\imagelib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\inout.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\mathlib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\mutex.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\netlib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\polylib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\scriplib.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\threads.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\unzip.c"
+						>
+					</File>
+					<File
+						RelativePath="..\common\vfs.c"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="zlib"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\zlib\zlib.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\zlib\adler32.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\compress.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\crc32.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\deflate.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\gzio.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\infback.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\inffast.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\inflate.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\inftrees.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\ioapi.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\trees.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\uncompr.c"
+						>
+					</File>
+					<File
+						RelativePath="..\zlib\zutil.c"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
