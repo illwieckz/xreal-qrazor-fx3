@@ -11,6 +11,11 @@
 // Always gain access to these files
 #include "g_local.h"
 
+// FIXME
+//#ifdef _MSC_VER
+//#pragma warning(disable : 4305)       // truncation from const double to float
+//#endif
+
 #include "botlib.h"
 #include "be_aas.h"
 #include "be_ea.h"

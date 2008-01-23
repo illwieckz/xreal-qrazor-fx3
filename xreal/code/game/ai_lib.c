@@ -1577,7 +1577,7 @@ comments by the tvl_entry_handler_t typedef in
 ai_lib.h for more information.
 ===============
 */
-int tvl_update_time(tvl_t * tvl, float time, tvl_entry_handler_t delete_handler, void *arg)
+int tvl_update_time(tvl_t * tvl, float time, tvl_entry_handler_t * delete_handler, void *arg)
 {
 	int             i, deleted;
 
@@ -1635,7 +1635,7 @@ test and the delete_handler.  Write your tests
 and handlers accordingly.
 ===============
 */
-int tvl_update_test(tvl_t * tvl, tvl_entry_test_t test, tvl_entry_handler_t delete_handler, void *arg)
+int tvl_update_test(tvl_t * tvl, tvl_entry_test_t * test, tvl_entry_handler_t * delete_handler, void *arg)
 {
 	int             i, deleted;
 
@@ -1749,7 +1749,7 @@ for more information.
 =======
 */
 int tvl_add(tvl_t * tvl, void *entry, float timeout, float value,
-			tvl_entry_handler_t insert_handler, tvl_entry_handler_t delete_handler, void *arg)
+			tvl_entry_handler_t * insert_handler, tvl_entry_handler_t * delete_handler, void *arg)
 {
 	int             found, deleted, index, source, dest, length;
 	void           *match;

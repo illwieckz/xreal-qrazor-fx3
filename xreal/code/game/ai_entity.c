@@ -869,7 +869,7 @@ float EntityKillValue(gentity_t * ent)
 #endif
 
 		// I have no idea what this entity could be, but don't get distracted by it
-		return 0.2;
+		return 0.2f;
 	}
 
 	// Default: 1 point per kill

@@ -301,13 +301,13 @@ float           tvl_data_timeout(tvl_t * tvl, void *entry);
 
 // Updating
 void            tvl_update_mins(tvl_t * tvl);
-int             tvl_update_time(tvl_t * tvl, float time, tvl_entry_handler_t delete_handler, void *arg);
-int             tvl_update_test(tvl_t * tvl, tvl_entry_test_t test, tvl_entry_handler_t delete_handler, void *arg);
+int             tvl_update_time(tvl_t * tvl, float time, tvl_entry_handler_t * delete_handler, void *arg);
+int             tvl_update_test(tvl_t * tvl, tvl_entry_test_t * test, tvl_entry_handler_t * delete_handler, void *arg);
 int             tvl_update_entry(tvl_t * tvl, int index, float timeout, float value);
 
 // Insertion
 int             tvl_add(tvl_t * tvl, void *entry, float timeout, float value,
-						tvl_entry_handler_t insert_handler, tvl_entry_handler_t delete_handler, void *arg);
+						tvl_entry_handler_t * insert_handler, tvl_entry_handler_t * delete_handler, void *arg);
 
 
 // This code defines an interface for octrees.  Octrees are the three dimensional

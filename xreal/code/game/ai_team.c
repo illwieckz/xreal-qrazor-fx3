@@ -601,7 +601,8 @@ void BotOrder_Accompany(bot_state_t * bs, gentity_t * client)
 {
 	// If the bot's target flag is missing, try returning the flag instead
 	// (This happens in one-flag CTF)
-	if(bs->our_target_flag == FS_MISSING)
+	// Tr3B: fixed '==' : 'gentity_t *' differs in levels of indirection from 'int'
+	if(bs->our_target_flag_status == FS_MISSING)
 	{
 		BotOrder_ReturnFlag(bs, client);
 		return;
