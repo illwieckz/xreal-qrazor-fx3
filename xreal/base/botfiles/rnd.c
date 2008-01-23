@@ -151,6 +151,7 @@ DEATH_FEM_INSULT = {
 	"I'm sorry. I forgot to mention that I hold grudges.";
 	"That's it, ", 0, ". We are just so over now.";
 	"Are you wearing your rabbit's foot AND your lucky underwear, ", 0, "?";
+	"That's the last time you plow my dirtbox, ", 0, "!";
 }
 
 DEATH_FEM_INSULT1 = {
@@ -268,7 +269,7 @@ D_PRAISE5 = {
 D_PRAISE6 = {
 	"I'd take a bow but I can't find my legs.";
 	"Looks like all the legends about ", 0, " are true.";
-	"That was bellisimo, baby!"; 
+	"That was bellisimo, baby!";
 	"They ~don't come much better than that.";
 }
 
@@ -277,7 +278,7 @@ LEVEL_END0 = {
 	"Quite the challenge.";
 	"This will not go unavenged.";
 	"Good match ... better if I win.";
-	
+
 }
 
 LEVEL_END1 = {
@@ -323,7 +324,7 @@ GOODBYE1 = {
 	"Beam me up scottie.";
 	"I'm outta here.";
 }
-	
+
 GOODBYE2 = {
 	"Goodbye";
 	"I gotta wash my hair.";
@@ -337,7 +338,7 @@ GOODBYE3 = {
 	"This is too much for me."
 	"Parting tis sweet sorrow ...";
 }
-	
+
 GOODBYE4 = {
 	"ttfn";
 	"C u l8er";
@@ -522,7 +523,7 @@ KILL_INSULT7 = {
 }
 
 KILL_INSULT8 = {
-	
+
 	"Pathetic. Truly pathetic.";
 	"~One unpleasant learning experience, sunny side up!";
 	"And I'm still just warming up.";
@@ -560,7 +561,7 @@ KILL_INSULT13 = {
 	"You fought the law and the law won."
 	"Just call me 'City Hall.'";
 	"Oh, Yesssssss!";
-	
+
 }
 
 KILL_INSULT14 = {
@@ -742,7 +743,7 @@ KILL_INSULT39  = {
 
 KILL_EXTREME_INSULT = {
 	"Maybe you're just in the wrong line of business.";
-	"I'm spittin' on your corpse and dancin' on your grave ", 0, "!"; 
+	"I'm spittin' on your corpse and dancin' on your grave ", 0, "!";
 	"Stupid, stupid, stupid.";
 }
 
@@ -825,6 +826,7 @@ MISC12 = {
 	"Where are you hiding little rabbit?";
 	"You know you are just delaying the inevitable ", 0, ".";
 	"You can run, but thre is no place you can hide.";
+	"ATTN Ghey Mens: Party at Xaero's place after this map!";
 }
 
 MISC13 = {
@@ -832,6 +834,7 @@ MISC13 = {
 	"Hey any of you ", fighter, "s got a map for ", 4, "?";
 	"Holy Crud. Where did that come from?";
 	"You're a master of disguise ", 1, ". I mistook you for someone dangerous.";
+	"Alright, who filled my ", weapon, " with sand?";
 }
 
 MISC14 = {
@@ -995,38 +998,38 @@ TAUNT_FEM = {
 	"I am nobody's bee-yatch.";
 	"Men are such babies.";
 }
-		
+
 TAUNT_FEM1 = {
 	"Trick or Treat. Hmmmm. Nothing left but tricks.";
 	"Pigs.";
 	"I am feeling so nasty right now.";
 }
-		
+
 TAUNT_FEM2 = {
 	"I think someone needs to have the air let out of him.";
 	"The difference is that I look good doing this.";
 	"You ought to let your mommy dress you ", 0, ".";
 	0, ", you can kiss my ... ", weapon, ".";
 }
-		
+
 TAUNT_FEM3 = {
 	"The lips says 'no' ... but my ", weapon, " says 'Hell NO.'";
 	"I ~don't have to pad it to flaunt it.";
 	"Oh ... that WAS a rocket launcher in your pocket.";
 }
-		
+
 TAUNT_FEM4 = {
 	"Ooooooo. Designer combat boots ", 0, ". How trendy.";
 	"When was the last time you even saw a REAL woman?";
 	"You know what they say about a man with a small gun?";
 }
-		
+
 TAUNT_FEM5 = {
 	"Is that the best you've got to offer?";
 	"Size does matter ", 0, ". Who told you it didn't?";
 	0, " is REALLY starting to piss me off.";
 }
-		
+
 TAUNT_FEM6 = {
 	"~Don't call me 'girl.' I am nobody's 'girl.'";
 	"A ", weapon, " is a grrrl's best friend!";
@@ -1154,7 +1157,7 @@ KILL_RAIL2 = {
 }
 
 DEATH_RAIL0 = {
-	"Camping Punk!";	
+	"Camping Punk!";
 	0, "!! You ... CAMPER!";
 	"Wow. Where did that shot come from?";
 	"Nice shot ", 0, "!";
@@ -1503,7 +1506,7 @@ family_member = {
 	"niece";
 	"nephew";
 	"kid";
-	
+
 }
 
 friendname = {
@@ -1565,51 +1568,51 @@ different = {
 }
 
 fighter = {
-	"bottom feeder"; 
+	"bottom feeder";
 	"camper";
 	"camping punk";
-	"cheap frag"; 
+	"cheap frag";
 	"chump";
 	"coward";
-	"dirtbag"; 
+	"dirtbag";
 	"frag bait";
 	"geek";
 	"girlie";
 	"goof-ball";
 	"hair-ball";
-	"~jerk"; 
+	"~jerk";
 	"lamer";
-	"little kitten"; 
+	"little kitten";
 	"llama";
 	"loser";
 	"loozR";
 	"lounge-lizard";
 	"microbe";
 	"monkey butt";
-	"miserable excuse"; 
+	"miserable excuse";
 	"nerd";
-	"newbie"; 
+	"newbie";
 	"no-account";
 	"pissant";
 	"puke";
-	"rodent"; 
+	"rodent";
 	"scab";
-	"scumbag"; 
-	"scumbutt"; 
-	"~scum-sucker"; 
-	"slimeball"; 
+	"scumbag";
+	"scumbutt";
+	"~scum-sucker";
+	"slimeball";
 	"slime surfer";
-	"slug"; 
+	"slug";
 	"spud";
 	"stiff";
 	"stupid cow";
-	"thug"; 
-	"vidiot"; 
+	"thug";
+	"vidiot";
 	"week-night warrior";
-	"weak-sister"; 
+	"weak-sister";
 	"wimp";
 	"yellow-belly";
-	"frag-weasel"; 
+	"frag-weasel";
 	"hairball";
 	"lowlife";
 	"frag farmer";
@@ -1696,7 +1699,7 @@ botnames = {
 "Mr. Elusive";
 "Cadavre";}
 
-negative = { 
+negative = {
 "No.";
 "Nope.";
 "No way.";
@@ -1723,7 +1726,7 @@ negative = {
 "Not now. Not ever.";
 }
 
-affirmative = { 
+affirmative = {
 "Yes.";
 "OK!";
 "Right!";
@@ -1757,7 +1760,7 @@ affirmative = {
 "Yeah, whatever.";
 }
 
-neutral = { 
+neutral = {
 "What are you talking about?";
 "Beats me.";
 "Geez.";
@@ -1832,7 +1835,7 @@ confused_response = {
 	response_insult;
 }
 
-ramblelist = { 
+ramblelist = {
 ":-(";
 ":-)";
 "I'm falling asleep here.";
@@ -1881,7 +1884,7 @@ ramblelist = {
 "Oh?";
 "Aaaaaah.";}
 
-item = { 
+item = {
 "2x3 flat-sawed board";
 "8-track tape player";
 "aluminum can";
@@ -1944,7 +1947,7 @@ item = {
 "wooden chair";
 }
 
-place = { 
+place = {
 	"Lake Titicaca";
 "42nd Street";
 "a pasture";
@@ -1991,7 +1994,7 @@ place = {
 "Indiana";
 "Indonesia";
 "Iowa";
-"Isle of Man"; 
+"Isle of Man";
 "Istanbul";
 "Jackson";
 "Jakarta";
@@ -1999,7 +2002,7 @@ place = {
 "Java";
 "Kalamazoo";
 "Kansas";
-"Katmandu"; 
+"Katmandu";
 "Kentucky";
 "Lake Geneva";
 "Lesotho";
@@ -2007,7 +2010,7 @@ place = {
 "Louisiana";
 "Lourdes";
 "Maastricht";
-"Madagascar"; 
+"Madagascar";
 "Madrid";
 "Maine";
 "Mars";
@@ -2133,7 +2136,7 @@ class = {
 "accounting";
 "marketing";}
 
-liquid = { 
+liquid = {
 "cola";
 "soda pop";
 "mocha latte";
@@ -2176,7 +2179,7 @@ liquid = {
 "bicarbonate of soda";
 "wine cooler";}
 
-number = { 
+number = {
 "0";
 "a billion";
 "a trillion";
@@ -2216,7 +2219,7 @@ number = {
 "a bazillion";
 "a trillion";}
 
-profession = { 
+profession = {
 "accountant";
 "actor";
 "archeologist";
@@ -2272,7 +2275,7 @@ profession = {
 "telephone sanitizer";
 }
 
-namez = { 
+namez = {
 "N37w1z4rd";
 "Sterling";
 "Zorgo";
@@ -2365,7 +2368,7 @@ female_one_liners = {
 "She shoots! She scores! The crowd goes wild!";
 "Call me 'Cleopatra,' because I am the queen of denial!";
 }
-one_liners = { 
+one_liners = {
 "Been there, done that, got the t-shirt.";
 "Been there, done that, sent the post cards.";
 "They got post cards for this place?";
@@ -2438,9 +2441,10 @@ one_liners = {
 "What's the sound of one hand slapping?";
 "I ~don't know which came first, you or the egg.";
 "I can't carry all this ammo. You want some?";
-"I got blisters on my trigger finger!";}
+"I got blisters on my trigger finger!";
+"In Soviet Russia, the rocket rides you!";}
 
-adj = { 
+adj = {
 "scary";
 "furry";
 "colorful";
@@ -2470,7 +2474,7 @@ adj = {
 "light";
 "heavy";}
 
-color = { 
+color = {
 "blue";
 "red";
 "white";
@@ -2502,7 +2506,7 @@ color = {
 
 }
 
-whenf = { 
+whenf = {
 "never";
 "when?";
 "next week";
@@ -2523,7 +2527,7 @@ whenf = {
 "in an aeon or ~two";
 "who knows when";}
 
-whenp = { 
+whenp = {
 "1 million BC";
 "a very long time ago";
 "just this morning";
@@ -2540,7 +2544,7 @@ number, " weeks ago";
 "1984";
 "before breakfast";}
 
-time = { 
+time = {
 "0:00";
 "1:00";
 "2:00";
@@ -2567,7 +2571,7 @@ time = {
 "11:30";
 "12:30";}
 
-food = { 
+food = {
 "anchovies";
 "asparagus puree";
 "baked potato";
@@ -2633,7 +2637,7 @@ food = {
 "goat meat";
 }
 
-animal = { 
+animal = {
 "monkey";
 "tiger";
 "horse";
@@ -2667,11 +2671,11 @@ animal = {
 "head louse";
 "mosquito";}
 
-weather = { 
+weather = {
 "hot";
 "Afica-hot";
 "showering meteors";
-"raining acid"; 
+"raining acid";
 "threatening tornadoes";
 "frigid";
 "snot-freezing cold";
@@ -2696,7 +2700,7 @@ weather = {
 "hailing";
 "sleeting";}
 
-month = { 
+month = {
 "January";
 "February";
 "March";
@@ -2922,7 +2926,7 @@ playtips = {
 "Learn the arenas & make them your home! Knowledge is power.";
 "Jumping frequently can help avoid enemy shots.";
 "Change directions frequently when moving.";
-"Develop paths that let you harvest or control items."; 
+"Develop paths that let you harvest or control items.";
 "~Don't be predictable.";
 "~Don't be a monkey.";
 "~Don't use splash weapons, like the rocket launcher, in close quarters.";

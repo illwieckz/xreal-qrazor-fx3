@@ -217,6 +217,26 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
+				RelativePath=".\ai_accuracy.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_action.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_aim.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_attack.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_aware.c"
+				>
+			</File>
+			<File
 				RelativePath="ai_chat.c"
 				>
 				<FileConfiguration
@@ -240,6 +260,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ai_client.c"
+				>
+			</File>
+			<File
 				RelativePath="ai_cmd.c"
 				>
 				<FileConfiguration
@@ -261,6 +285,10 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;GLOBALRANK;$(NoInherit)"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ai_command.c"
+				>
 			</File>
 			<File
 				RelativePath="ai_dmnet.c"
@@ -309,6 +337,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ai_dodge.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_entity.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_goal.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_item.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_level.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_lib.c"
+				>
+			</File>
+			<File
 				RelativePath="ai_main.c"
 				>
 				<FileConfiguration
@@ -330,6 +382,54 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;GLOBALRANK;$(NoInherit)"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ai_maingoal.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_motion.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_move.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_order.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_path.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_pickup.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_predict.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_region.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_resource.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_scan.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_self.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_subteam.c"
+				>
 			</File>
 			<File
 				RelativePath="ai_team.c"
@@ -355,6 +455,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ai_use.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_vars.c"
+				>
+			</File>
+			<File
 				RelativePath="ai_vcmd.c"
 				>
 				<FileConfiguration
@@ -376,6 +484,22 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;GLOBALRANK;$(NoInherit)"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ai_view.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_visible.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_waypoint.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_weapon.c"
+				>
 			</File>
 			<File
 				RelativePath="bg_misc.c"
@@ -1009,11 +1133,39 @@
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
 			<File
+				RelativePath=".\ai_accuracy.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_action.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_aim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_attack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_aware.h"
+				>
+			</File>
+			<File
 				RelativePath="ai_chat.h"
 				>
 			</File>
 			<File
+				RelativePath=".\ai_client.h"
+				>
+			</File>
+			<File
 				RelativePath="ai_cmd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_command.h"
 				>
 			</File>
 			<File
@@ -1025,7 +1177,79 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ai_dodge.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_entity.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_goal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_item.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_level.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_lib.h"
+				>
+			</File>
+			<File
 				RelativePath="ai_main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_maingoal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_motion.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_move.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_order.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_path.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_pickup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_predict.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_region.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_scan.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_self.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_subteam.h"
 				>
 			</File>
 			<File
@@ -1033,7 +1257,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ai_use.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_vars.h"
+				>
+			</File>
+			<File
 				RelativePath="ai_vcmd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_visible.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_waypoint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ai_weapon.h"
 				>
 			</File>
 			<File

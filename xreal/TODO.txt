@@ -89,17 +89,18 @@ code/renderer
 - use stencil test for heatHaze with forward shading
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
-- improve deferred shading
- - fix depth write of skybox
- - fix vertex painting support = depth peeling ?
-- add dynamic LOD support for md3 and md5 models ?
-- check for shader model 3 hardware ?
 - add fog lights
 - replace alphaGen portal by a cool post process effect
 - ignore shadow pyramids that don't cast into the view
 - improve shadow caster volumes to kill more obselete shadows by melting neighboured surfaces with the same material
 - add stained shadow mapping
 - improve volumetric lighting
+- add HDR tonemapping
+- improve deferred shading
+ - fix depth write of skybox
+ - fix vertex painting support = depth peeling ?
+- add dynamic LOD support for md3 and md5 models ?
+- check for shader model 3 hardware ?
 - fix stencil shadow flickering bug ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 

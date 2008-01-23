@@ -79,7 +79,8 @@
 	0,", you are gonna be so dead now.";\
 	0, ", you pig! You messed up my hair!";\
 	"Arrgh, just look what you've done to my make-up ", 0, "!";\
-	"That's it, ", 0, ". We are just so over now.";
+	"That's it, ", 0, ". We are just so over now.";\
+	"That's the last time you plow my dirtbox, ", 0, "!";
 
 #define DEATH_FEM_INSULT1 \
 	"Oooh, I just love the way you handle your tiny gun.";\
@@ -165,7 +166,7 @@
 #define D_PRAISE5 \
 	"You had me dead to rights with that one ", 0, ".";\
 	"Magnefique!";\
-	"Bellisimo, baby!"; 
+	"Bellisimo, baby!";
 
 #define D_PRAISE6 \
 	"I'd take a bow but I can't find my legs.";\
@@ -205,7 +206,7 @@
 	"I'm chillin' out";\
 	"gotta cruise";\
 	"I'm outta here";
-	
+
 #define GOODBYE2 \
 	"Goodbye";\
 	"I gotta wash my hair.";\
@@ -215,7 +216,7 @@
 	"Ciao motha's";\
 	"Later dudes";\
 	"This is too much for me";
-	
+
 #define GOODBYE4 \
 	"cya";\
 	"C u l8ter";\
@@ -399,7 +400,7 @@
 
 #define KILL_INSULT16 \
 	"Merry Christmas ", 0, "!";\
-	"Ever hear of the golden rule ", 0, "?";\ 
+	"Ever hear of the golden rule ", 0, "?";\
 	"Memento Mori, Baby!";
 
 #define KILL_INSULT17 \
@@ -592,13 +593,15 @@
 #define MISC12 \
 	"Where are you hiding little rabbit?";\
 	"You know you are just delaying the inevitable ",0, ".";\
-	"You can run, but I know where you will hide.";
+	"You can run, but I know where you will hide.";\
+	"ATTN Ghey Mens: Party at Xaero's place after this map!";
 
 #define MISC13 \
 	"Use it or lose it baby.";\
 	"Hey any of you ", fighter, " got a map for ", 4, "?";\
 	"Holy Crud. Where did that come from?";\
-	"You're a master of disguise ", 1, ". I mistook you for someone dangerous.";
+	"You're a master of disguise ", 1, ". I mistook you for someone dangerous.";\
+	"Alright, who filled my ", weapon, " with sand?";
 
 #define MISC14 \
 	"Let's agree right now, ", 0, ". I'm the winner and you're not.";\
@@ -662,7 +665,7 @@
 	"Oh good. I always win here.";\
 	"Uggh. Why is it always THIS arena?";
 
-#define LEVEL_START1 \	
+#define LEVEL_START1 \
 	"Let's rock and roll";\
 	"Oh yeah! I smell victory already.";\
 	"Let's rock!";\
@@ -736,32 +739,32 @@
 	0, ", I feel your pain ... and I'm getting darn tired of it.";\
 	"I am nobody's bee-yatch.";\
 	"Men are such babies.";
-		
+
 #define TAUNT_FEM1 \
 	"Which one of you boys wants it first?";\
 	"Men are such pigs.";\
 	"I am feeling so nasty right now.";
-		
+
 #define TAUNT_FEM2 \
 	"I think someone needs to have the air let out of him.";\
 	"Pineapple anyone?";\
 	0, ", you can kiss my broomstick.";
-		
+
 #define TAUNT_FEM3 \
 	"The lips says 'no' ... but my shotgun says 'Hell NO.'";\
 	"I don't have to pad it to flaunt it.";\
 	"Oh ... that WAS a rocket launcher in your pocket.";
-		
+
 #define TAUNT_FEM4 \
 	"Ooooooo. Designer combat boots ", 0, ". How trendy.";\
 	"When was the last time you even saw a woman?";\
 	"Oh my, ", 0, " what a small gun you have.";
-		
+
 #define TAUNT_FEM5 \
 	"Is that the best you've got to offer?";\
 	"Size does matter ", 0, ". Who told you it didn't?";\
 	0, " is REALLY starting to piss me off.";
-		
+
 #define TAUNT_FEM6 \
 	"Don't call me 'girl.' I am nobody's 'girl.'";\
 	"A rocket launcher is a grrrl's best friend!";\
@@ -867,7 +870,7 @@
 	"Man, I'd hate anyone doing that to me.";
 
 #define DEATH_RAIL0 \
-	"Camping Punk!";\	
+	"Camping Punk!";\
 	0, "!! You ... CAMPER!";\
 	"Wow. Where did that shot come from?";\
 	"Nice shot ", 0, "!";

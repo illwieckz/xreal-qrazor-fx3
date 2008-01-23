@@ -702,6 +702,7 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	Info_SetValueForKey(userinfo, "snaps", "20");
 	Info_SetValueForKey(userinfo, "skill", va("%1.2f", skill));
 
+	/* outcommented for brainworks
 	if(skill >= 1 && skill < 2)
 	{
 		Info_SetValueForKey(userinfo, "handicap", "50");
@@ -714,6 +715,7 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	{
 		Info_SetValueForKey(userinfo, "handicap", "90");
 	}
+	*/
 
 	key = "model";
 	model = Info_ValueForKey(botinfo, key);

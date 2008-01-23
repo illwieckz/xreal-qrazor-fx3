@@ -457,12 +457,29 @@
 		"I'm picking up some goodies.";
 	} //end type
 
-	type "wantoffence"
+	//bot chose to reject an order
+	type "reject_order_choice"
+	{
+		"Sorry, ", 0, ", I've got more important things to do.";
+		"No can do, ", 0, ", I'm needed elsewhere.";
+		"I don't have time for that now, ", 0, ".";
+		"Ask me again when I'm not so occupied, ", 0, ".";
+	} //end type
+
+	//bot rejected an order it couldn't figure out how to complete
+	type "reject_order_unable"
+	{
+		"Sorry, ", 0, ", I don't think I can handle that";
+		"That's a bit beyond my abilities, ", 0, ".";
+		"I'm not sure how to do that, ", 0, ".";
+	} //end type
+
+	type "wantoffense"
 	{
 		"I want to be on offense";
 	} //end type
 
-	type "wantdefence"
+	type "wantdefense"
 	{
 		"I want to be on defense";
 	} //end type

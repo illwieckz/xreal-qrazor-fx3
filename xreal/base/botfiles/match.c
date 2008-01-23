@@ -273,11 +273,14 @@ MTCONTEXT_TIME
 	" a while" = (MSG_FORAWHILE, 0);
 } //end MTCONTEXT_TIME
 
+// NOTE: (Brainworks) In the original code, the first match case always precluded the
+// loop and reverse cases (which matched "and" instead of "then").  By using a different
+// joiner, the loop and reverse cases can actually be matched.
 MTCONTEXT_PATROLKEYAREA
 {
 	"the "|"checkpoint "|"waypoint "|"", KEYAREA, " to "|" and ", MORE = (MSG_PATROLKEYAREA, ST_MORE);
-	"the "|"checkpoint "|"waypoint "|"", KEYAREA, " and loop"|" and back", " to the start"|"" = (MSG_PATROLKEYAREA, ST_BACK);
-	"the "|"checkpoint "|"waypoint "|"", KEYAREA, " and reverse" = (MSG_PATROLKEYAREA, ST_REVERSE);
+	"the "|"checkpoint "|"waypoint "|"", KEYAREA, " then loop"|" then back", " to the start"|"" = (MSG_PATROLKEYAREA, ST_BACK);
+	"the "|"checkpoint "|"waypoint "|"", KEYAREA, " then reverse" = (MSG_PATROLKEYAREA, ST_REVERSE);
 	"the "|"checkpoint "|"waypoint "|"", KEYAREA = (MSG_PATROLKEYAREA, 0);
 } //end MTCONTEXT_PATROL
 
@@ -289,7 +292,8 @@ MTCONTEXT_TEAMMATE
 MTCONTEXT_ADDRESSEE
 {
 	"everyone"|"everybody" = (MSG_EVERYONE, 0);
-	TEAMMATE, " and "|", "|","|" ,", MORE = (MSG_MULTIPLENAMES, 0);
+	"and ", TEAMMATE = (MSG_NAME, 0);
+	TEAMMATE, ", "|" ,"|","|" and ", MORE = (MSG_MULTIPLENAMES, 0);
 	TEAMMATE = (MSG_NAME, 0);
 } //end MTCONTEXT_ADDRESSEE
 

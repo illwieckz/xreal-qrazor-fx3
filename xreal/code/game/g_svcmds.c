@@ -425,6 +425,13 @@ qboolean ConsoleCommand(void)
 		return qtrue;
 	}
 
+	// brainworks
+	if(Q_stricmp(cmd, "ai_debug") == 0)
+	{
+		BotAIDebug();
+		return qtrue;
+	}
+
 #ifdef LUA
 	if(Q_stricmp(cmd, "restartLuaGameVM") == 0)
 	{
