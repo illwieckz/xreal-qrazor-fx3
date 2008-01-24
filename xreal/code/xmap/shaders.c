@@ -674,6 +674,13 @@ static void ParseShaderFile(const char *filename)
 					si->autosprite = qtrue;
 					si->contents = CONTENTS_DETAIL;
 				}
+				// FIXME: support dynamic doom3 style flare surfaces
+				if(!Q_stricmp(token, "flare"))
+				{
+					si->surfaceFlags |= SURF_NOMARKS;
+					si->surfaceFlags |= SURF_NODRAW;
+					si->surfaceFlags |= SURF_NOLIGHTMAP;
+				}
 				continue;
 			}
 
