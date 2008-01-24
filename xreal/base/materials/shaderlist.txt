@@ -19,8 +19,10 @@ gw_mapobject
 #incubation
 kat_mapobject
 #lights
+method
 pk01
 pjw4tourney1
+raynorpat
 reflex_layout
 reflex_ugly
 sfx
@@ -46,4 +48,3 @@ tr3b_wood
 #zogg_terrain
 #zogg_trim
 #zogg_wall
-raynorpat
