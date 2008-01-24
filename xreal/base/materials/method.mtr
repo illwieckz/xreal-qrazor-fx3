@@ -627,21 +627,3 @@ lights/meth_fog
 	}
 }
 
-//===========================================
-// SKY
-//===========================================
-
-// Note: Original sky is copyright of Raven Software
-
-textures/method/methsky
-{	
-	noFragment
-	forceOpaque
-	noimpact
-	noshadows
-	{
-		blend add
-		cameraCubeMap	gfx/env/methsky
-		texgen		skybox
-	}
-}
