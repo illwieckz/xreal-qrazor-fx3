@@ -1809,6 +1809,9 @@ typedef struct
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;
 
+	vec3_t			fogColor;
+	float			fogDensity;
+
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
 

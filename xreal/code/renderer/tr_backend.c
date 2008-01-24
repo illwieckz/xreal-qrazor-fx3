@@ -3641,7 +3641,13 @@ void RB_RenderUniformFog(qboolean deferred)
 
 	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
 
-	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || r_forceFog->value <= 0)
+	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+		return;
+
+	if(r_forceFog->value <= 0 && tr.fogDensity <= 0)
+		return;
+
+	if(r_forceFog->value <= 0 && VectorLength(tr.fogColor) <= 0)
 		return;
 
 	// enable shader, set arrays
@@ -3654,10 +3660,17 @@ void RB_RenderUniformFog(qboolean deferred)
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	fogDensity = r_forceFog->value;
-	VectorCopy(colorMdGrey, fogColor);
 
-	
+	if(r_forceFog->value)
+	{
+		fogDensity = r_forceFog->value;
+		VectorCopy(colorMdGrey, fogColor);
+	}
+	else
+	{
+		fogDensity = tr.fogDensity;
+		VectorCopy(tr.fogColor, fogColor);
+	}
 
 	qglUniform3fARB(tr.uniformFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.uniformFogShader.u_FogDensity, fogDensity);

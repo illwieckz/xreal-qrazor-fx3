@@ -2872,6 +2872,18 @@ void R_LoadEntities(lump_t * l)
 			}
 		}
 
+		// check for fog color
+		else if(!Q_stricmp(keyname, "fogColor"))
+		{
+			sscanf(value, "%f %f %f", &tr.fogColor[0], &tr.fogColor[1], &tr.fogColor[2]);
+		}
+
+		// check for fog density
+		else if(!Q_stricmp(keyname, "fogDensity"))
+		{
+			tr.fogDensity = atof(value);
+		}
+
 		// check for deluxe mapping support
 		if(!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1"))
 		{
@@ -5971,6 +5983,9 @@ void RE_LoadWorldMap(const char *name)
 	tr.sunDirection[2] = 0.9f;
 
 	VectorNormalize(tr.sunDirection);
+
+	VectorCopy(colorMdGrey, tr.fogColor);
+	tr.fogDensity = 0;
 
 	// set default ambient color
 	tr.worldEntity.ambientLight[0] = r_forceAmbient->value;
