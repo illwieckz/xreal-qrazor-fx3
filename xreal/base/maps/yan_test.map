@@ -20488,8 +20488,8 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_2"
-"origin" "-16 984 128"
-"model" "models/mapobjects/multiplayer/jump_pad/jump_pad_color.lwo"
+"origin" "-16 984 136"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
 "_color" "0.85098 0.968627 1"
 }
 // entity 54
@@ -21480,7 +21480,7 @@ patchDef2
 }
 }
 }
-// entity 96
+// entity 95
 {
 "classname" "func_static"
 "name" "func_static_256"
@@ -21513,7 +21513,7 @@ brushDef3
 }
 }
 }
-// entity 97
+// entity 96
 {
 "classname" "func_static"
 "name" "func_static_257"
@@ -21546,7 +21546,7 @@ patchDef2
 }
 }
 }
-// entity 98
+// entity 97
 {
 "classname" "func_static"
 "name" "func_static_258"
@@ -21579,7 +21579,7 @@ patchDef2
 }
 }
 }
-// entity 99
+// entity 98
 {
 "classname" "light"
 "name" "light_134"
@@ -21595,7 +21595,7 @@ patchDef2
 "light_radius" "216 224 264"
 "light_center" "-152 -120 0"
 }
-// entity 100
+// entity 99
 {
 "classname" "func_static"
 "name" "func_static_259"
@@ -21628,7 +21628,7 @@ brushDef3
 }
 }
 }
-// entity 101
+// entity 100
 {
 "classname" "func_static"
 "name" "func_static_260"
@@ -21661,7 +21661,7 @@ patchDef2
 }
 }
 }
-// entity 102
+// entity 101
 {
 "classname" "func_static"
 "name" "func_static_261"
@@ -21694,7 +21694,7 @@ patchDef2
 }
 }
 }
-// entity 103
+// entity 102
 {
 "classname" "func_group"
 "name" "func_group_63"
@@ -21780,28 +21780,28 @@ patchDef2
 }
 }
 }
-// entity 104
+// entity 103
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_6"
 "origin" "-288 928 0"
 "angle" "135"
 }
-// entity 105
+// entity 104
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_7"
 "origin" "-256 224 128"
 "angle" "45"
 }
-// entity 106
+// entity 105
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_8"
 "origin" "-208 784 0"
 "angle" "225"
 }
-// entity 107
+// entity 106
 {
 "classname" "func_static"
 "name" "func_static_262"
@@ -21834,7 +21834,7 @@ patchDef2
 }
 }
 }
-// entity 108
+// entity 107
 {
 "classname" "item_health"
 "name" "item_health_6"
@@ -21842,7 +21842,7 @@ patchDef2
 "origin" "224 1376 144"
 "nodrop" "1"
 }
-// entity 109
+// entity 108
 {
 "classname" "func_static"
 "name" "func_static_271"
@@ -22071,7 +22071,7 @@ patchDef3
 }
 }
 }
-// entity 110
+// entity 109
 {
 "classname" "func_static"
 "name" "func_static_273"
@@ -22093,7 +22093,7 @@ patchDef2
 }
 }
 }
-// entity 111
+// entity 110
 {
 "classname" "func_static"
 "name" "func_static_274"
@@ -22115,7 +22115,7 @@ patchDef2
 }
 }
 }
-// entity 112
+// entity 111
 {
 "classname" "func_group"
 "name" "func_group_64"
@@ -22201,7 +22201,7 @@ patchDef2
 }
 }
 }
-// entity 113
+// entity 112
 {
 "classname" "func_static"
 "name" "func_static_277"
@@ -22234,7 +22234,7 @@ patchDef2
 }
 }
 }
-// entity 114
+// entity 113
 {
 "classname" "func_static"
 "name" "func_static_278"
@@ -22267,7 +22267,7 @@ patchDef2
 }
 }
 }
-// entity 115
+// entity 114
 {
 "classname" "func_static"
 "name" "func_static_282"
@@ -22288,7 +22288,7 @@ patchDef2
 }
 }
 }
-// entity 116
+// entity 115
 {
 "classname" "func_static"
 "name" "func_static_283"
@@ -22309,7 +22309,7 @@ patchDef2
 }
 }
 }
-// entity 117
+// entity 116
 {
 "classname" "func_static"
 "name" "func_static_284"
@@ -22330,7 +22330,7 @@ patchDef2
 }
 }
 }
-// entity 118
+// entity 117
 {
 "classname" "func_static"
 "name" "func_static_287"
@@ -22363,7 +22363,7 @@ patchDef2
 }
 }
 }
-// entity 119
+// entity 118
 {
 "classname" "func_static"
 "name" "func_static_289"
@@ -22396,7 +22396,7 @@ patchDef2
 }
 }
 }
-// entity 120
+// entity 119
 {
 "classname" "func_static"
 "name" "func_static_291"
@@ -22429,7 +22429,7 @@ patchDef2
 }
 }
 }
-// entity 121
+// entity 120
 {
 "classname" "light"
 "name" "light_136"
@@ -22443,7 +22443,7 @@ patchDef2
 "_color" "1 0.93 0.84"
 "light_radius" "120 280 112"
 }
-// entity 122
+// entity 121
 {
 "classname" "func_static"
 "name" "func_static_295"
@@ -22476,7 +22476,7 @@ patchDef2
 }
 }
 }
-// entity 123
+// entity 122
 {
 "classname" "func_static"
 "name" "func_static_297"
@@ -22510,7 +22510,7 @@ patchDef2
 }
 }
 }
-// entity 124
+// entity 123
 {
 "classname" "func_static"
 "name" "func_static_298"
@@ -22544,7 +22544,7 @@ patchDef2
 }
 }
 }
-// entity 125
+// entity 124
 {
 "classname" "func_static"
 "name" "func_static_299"
@@ -22578,7 +22578,7 @@ patchDef2
 }
 }
 }
-// entity 126
+// entity 125
 {
 "classname" "func_static"
 "name" "func_static_300"
@@ -22612,7 +22612,7 @@ patchDef2
 }
 }
 }
-// entity 127
+// entity 126
 {
 "classname" "func_static"
 "name" "func_static_301"
@@ -22646,7 +22646,7 @@ patchDef2
 }
 }
 }
-// entity 128
+// entity 127
 {
 "classname" "func_static"
 "name" "func_static_302"
@@ -22680,7 +22680,7 @@ patchDef2
 }
 }
 }
-// entity 129
+// entity 128
 {
 "classname" "func_static"
 "name" "func_static_303"
@@ -22714,7 +22714,7 @@ patchDef2
 }
 }
 }
-// entity 130
+// entity 129
 {
 "classname" "func_fx"
 "name" "func_fx_2"
@@ -22725,7 +22725,7 @@ patchDef2
 "loop" "1"
 "_color" "0.85098 0.968627 1"
 }
-// entity 131
+// entity 130
 {
 "classname" "func_fx"
 "name" "func_fx_3"
@@ -22736,7 +22736,7 @@ patchDef2
 "loop" "1"
 "_color" "0.85098 0.968627 1"
 }
-// entity 132
+// entity 131
 {
 "classname" "func_fx"
 "name" "func_fx_5"
@@ -22747,7 +22747,7 @@ patchDef2
 "_color" "0.85098 0.968627 1"
 "rotation" "-1 -6.84571e-008 0 6.84571e-008 -1 0 0 0 1"
 }
-// entity 133
+// entity 132
 {
 "classname" "func_fx"
 "name" "func_fx_6"
@@ -22758,7 +22758,7 @@ patchDef2
 "_color" "0.85098 0.968627 1"
 "rotation" "1.71143e-007 -1 0 1 1.71143e-007 0 0 0 1"
 }
-// entity 134
+// entity 133
 {
 "classname" "speaker"
 "name" "speaker_2"
@@ -22769,7 +22769,7 @@ patchDef2
 "s_omni" "1"
 "s_volume" "-10"
 }
-// entity 135
+// entity 134
 {
 "classname" "speaker"
 "name" "speaker_3"
@@ -22780,7 +22780,7 @@ patchDef2
 "s_omni" "1"
 "s_volume" "-10"
 }
-// entity 136
+// entity 135
 {
 "classname" "speaker"
 "name" "speaker_4"
@@ -22789,7 +22789,7 @@ patchDef2
 "s_maxDistance" "600"
 "s_shader" "machine_teleport_01"
 }
-// entity 137
+// entity 136
 {
 "classname" "speaker"
 "name" "speaker_5"
@@ -22798,7 +22798,7 @@ patchDef2
 "s_maxDistance" "600"
 "s_shader" "machine_teleport_01"
 }
-// entity 138
+// entity 137
 {
 "classname" "speaker"
 "name" "speaker_6"
@@ -22808,7 +22808,7 @@ patchDef2
 "s_shader" "ambient_light_blink11"
 "s_volume" "-30"
 }
-// entity 139
+// entity 138
 {
 "classname" "speaker"
 "name" "speaker_7"
@@ -22818,7 +22818,7 @@ patchDef2
 "s_shader" "ambient_light_hum01"
 "s_volume" "-20"
 }
-// entity 140
+// entity 139
 {
 "classname" "speaker"
 "name" "speaker_8"
@@ -22828,7 +22828,7 @@ patchDef2
 "s_shader" "ambient_light_hum01"
 "s_volume" "-20"
 }
-// entity 141
+// entity 140
 {
 "classname" "speaker"
 "name" "speaker_9"
@@ -22838,7 +22838,7 @@ patchDef2
 "s_shader" "ambient_light_hum01"
 "s_volume" "-20"
 }
-// entity 142
+// entity 141
 {
 "classname" "speaker"
 "name" "speaker_10"
@@ -22848,7 +22848,7 @@ patchDef2
 "s_shader" "ambient_light_blink11"
 "s_volume" "-30"
 }
-// entity 143
+// entity 142
 {
 "classname" "speaker"
 "name" "speaker_11"
@@ -22858,7 +22858,7 @@ patchDef2
 "s_shader" "ambient_light_hum01"
 "s_volume" "-20"
 }
-// entity 144
+// entity 143
 {
 "classname" "func_group"
 "name" "func_group_65"
@@ -23057,7 +23057,7 @@ brushDef3
 }
 }
 }
-// entity 145
+// entity 144
 {
 "classname" "func_fx"
 "name" "func_fx_8"
@@ -23067,7 +23067,7 @@ brushDef3
 "start_on" "1"
 "angle" "-1"
 }
-// entity 146
+// entity 145
 {
 "classname" "func_static"
 "name" "func_static_313"
@@ -23076,7 +23076,7 @@ brushDef3
 "solid" "0"
 "inline" "1"
 }
-// entity 147
+// entity 146
 {
 "classname" "func_fx"
 "name" "func_fx_9"
@@ -23086,7 +23086,7 @@ brushDef3
 "start_on" "1"
 "angle" "-1"
 }
-// entity 148
+// entity 147
 {
 "classname" "func_static"
 "name" "func_static_314"
@@ -23095,7 +23095,7 @@ brushDef3
 "solid" "0"
 "inline" "1"
 }
-// entity 149
+// entity 148
 {
 "classname" "func_fx"
 "name" "func_fx_10"
@@ -23105,7 +23105,7 @@ brushDef3
 "start_on" "1"
 "angle" "-1"
 }
-// entity 150
+// entity 149
 {
 "classname" "func_static"
 "name" "func_static_315"
@@ -23114,7 +23114,7 @@ brushDef3
 "solid" "0"
 "inline" "1"
 }
-// entity 151
+// entity 150
 {
 "classname" "func_fx"
 "name" "func_fx_11"
@@ -23124,7 +23124,7 @@ brushDef3
 "start_on" "1"
 "angle" "-1"
 }
-// entity 152
+// entity 151
 {
 "classname" "func_static"
 "name" "func_static_316"

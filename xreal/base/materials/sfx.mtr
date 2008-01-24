@@ -23,6 +23,14 @@ textures/sfx/flare_32
 	noshadows
 }
 
+textures/flares/flare_sizeable
+{
+	// FIXME
+	
+	nonsolid
+	noshadows
+}
+
 textures/sfx/flare_8
 {
 	noshadows

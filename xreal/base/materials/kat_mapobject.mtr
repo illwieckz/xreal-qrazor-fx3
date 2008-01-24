@@ -185,7 +185,7 @@ models/mapobjects/kat/jumppad_body
 {
 	qer_editorimage			models/mapobjects/kat/jumppad_drum_v2.tga
 //	materialType hollowmetal
-	noSelfShadow			//leave this in place for the 'Pro' map :o|
+//	noSelfShadow			//leave this in place for the 'Pro' map :o|
 //	noshadows
 	nonsolid
 

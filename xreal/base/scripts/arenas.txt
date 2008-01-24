@@ -1,6 +1,17 @@
+
+/*
 {
 	map  "redm08"
 	longname "Dead Simple Redux by Reflex"
+	bots  "Visor"
+	fraglimit 10
+	type  "single ffa tourney team"
+}
+*/
+
+{
+	map  "yan_test"
+	longname "YAN'S TEST by Yan 'Method' Ostretsov"
 	bots  "Visor"
 	fraglimit 10
 	type  "single ffa tourney team"

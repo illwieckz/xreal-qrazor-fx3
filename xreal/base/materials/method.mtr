@@ -19,11 +19,13 @@ textures/method/window_small
 	bumpmap			textures/method/window_small_local.tga
 	specularmap		textures/method/window_small_s.tga
 
+	/*
 	{
-	    	blend GL_ONE, gl_one
-       		cubeMap		gfx/env/core
-        		texgen		reflect
+	    blend GL_ONE, gl_one
+       	cubeMap		gfx/env/core
+        texgen		reflect
 	}
+	*/
 }
 
 textures/method/metal2
@@ -356,7 +358,7 @@ textures/method/arena_zero
 	qer_editorimage textures/method/arena_zero.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -370,7 +372,7 @@ textures/method/arena_one
 	qer_editorimage textures/method/arena_one.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -384,7 +386,7 @@ textures/method/arena_two
 	qer_editorimage textures/method/arena_two.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -437,7 +439,7 @@ textures/method/dirt
 	qer_editorimage textures/method/dirt.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -451,7 +453,7 @@ textures/method/dirt1
 	qer_editorimage textures/method/dirt1.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -465,7 +467,7 @@ textures/method/dirt3
 	qer_editorimage textures/method/dirt3.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -479,7 +481,7 @@ textures/method/dirt4
 	qer_editorimage textures/method/dirt4.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -493,7 +495,7 @@ textures/method/dirt7
 	qer_editorimage textures/method/dirt7.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -507,7 +509,7 @@ textures/method/dirt8
 	qer_editorimage textures/method/dirt8.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
@@ -603,7 +605,7 @@ textures/method/puddle_dry
 	qer_editorimage textures/method/puddle.tga
 	DECAL_MACRO
 	noShadows
-	noimpact
+//	noimpact
 	translucent
 	
 	{	
