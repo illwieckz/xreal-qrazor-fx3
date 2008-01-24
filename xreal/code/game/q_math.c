@@ -226,6 +226,19 @@ float Q_crandom(int *seed)
 
 //=======================================================
 
+byte ClampByte(int i)
+{
+	if(i < 0)
+	{
+		return 0;
+	}
+	if(i > 255)
+	{
+		return 255;
+	}
+	return i;
+}
+
 signed char ClampChar(int i)
 {
 	if(i < -128)

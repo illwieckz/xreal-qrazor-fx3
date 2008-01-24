@@ -4099,7 +4099,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 R_CreateDefaultImage
 ==================
 */
-#define	DEFAULT_SIZE	16
+#define	DEFAULT_SIZE	128
 static void R_CreateDefaultImage(void)
 {
 	int             x;
@@ -4387,6 +4387,9 @@ void R_CreateBuiltinImages(void)
 {
 	int             x, y;
 	byte            data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+	byte           *out;
+	float           s, t, value;
+	byte            intensity;
 
 	R_CreateDefaultImage();
 
@@ -4416,6 +4419,28 @@ void R_CreateBuiltinImages(void)
 		// scratchimage is usually used for cinematic drawing
 		tr.scratchImage[x] = R_CreateImage("_scratch", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NONE, FT_LINEAR, WT_CLAMP);
 	}
+
+	out = data;
+	for(y = 0; y < 8; y++)
+	{
+		for (x = 0; x < 32; x++, out += 4)
+		{
+			s = (((float)x + 0.5f) * (2.0f/32) - 1.0f);
+
+			s = Q_fabs(s) - (1.0f/32);
+
+			value = 1.0f - (s * 2.0f) + (s * s);
+
+			intensity = ClampByte(Q_ftol(value * 255.0f));
+
+			out[0] = intensity;
+			out[1] = intensity;
+			out[2] = intensity;
+			out[3] = intensity;
+		}
+	}
+
+	tr.quadraticImage = R_CreateImage("_quadratic", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
 
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();

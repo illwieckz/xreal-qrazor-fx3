@@ -1681,7 +1681,7 @@ typedef struct
 
 	image_t        *defaultImage;
 	image_t        *scratchImage[32];
-	image_t        *flareImage;
+	image_t        *quadraticImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
 	image_t        *flatImage;	// use this as default normalmap

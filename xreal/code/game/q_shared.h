@@ -542,6 +542,7 @@ static ID_INLINE vec_t Q_recip(vec_t in)
 }
 // *INDENT-ON*
 
+byte            ClampByte(int i);
 signed char     ClampChar(int i);
 signed short    ClampShort(int i);
 
