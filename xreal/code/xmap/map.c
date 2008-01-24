@@ -1414,6 +1414,12 @@ qboolean ParseMapEntity(void)
 	// toss all brushes into the world entity
 	if(!strcmp("func_group", classname))
 	{
+		vec3_t          originNeg;
+		
+		// HACK: this is needed for Quake4 maps
+		VectorNegate(mapEnt->origin, originNeg);
+		AdjustBrushesForOrigin(mapEnt, originNeg);
+
 		if(!strcmp("1", ValueForKey(mapEnt, "terrain")))
 		{
 			SetTerrainTextures();
