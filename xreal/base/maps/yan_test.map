@@ -17980,7 +17980,7 @@ patchDef2
 {
 "classname" "info_player_start"
 "name" "info_player_start_1"
-"origin" "480 736 0"
+"origin" "480 736 32"
 "angle" "135"
 }
 // entity 9
@@ -20171,7 +20171,7 @@ patchDef2
 {
 "classname" "info_player_teleport"
 "name" "info_player_teleport_1"
-"origin" "-672 832 400"
+"origin" "-672 832 408"
 "angle" "90"
 }
 // entity 43
@@ -20250,7 +20250,7 @@ brushDef3
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_1"
-"origin" "-736 864 384"
+"origin" "-736 864 416"
 "angle" "45"
 }
 // entity 49
@@ -20523,21 +20523,21 @@ brushDef3
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_2"
-"origin" "256 224 128"
+"origin" "256 224 160"
 "angle" "135"
 }
 // entity 57
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_3"
-"origin" "32 1440 128"
-"angle" "225"
+"origin" "32 1440 160"
+"angle" "-135"
 }
 // entity 58
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_4"
-"origin" "32 864 128"
+"origin" "32 864 160"
 "angle" "180"
 }
 // entity 59
@@ -21077,8 +21077,8 @@ brushDef3
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_5"
-"origin" "352 1120 0"
-"angle" "315"
+"origin" "352 1120 32"
+"angle" "-45"
 }
 // entity 73
 {
@@ -21784,22 +21784,22 @@ patchDef2
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_6"
-"origin" "-288 928 0"
+"origin" "-288 928 32"
 "angle" "135"
 }
 // entity 104
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_7"
-"origin" "-256 224 128"
+"origin" "-256 224 160"
 "angle" "45"
 }
 // entity 105
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_8"
-"origin" "-208 784 0"
-"angle" "225"
+"origin" "-208 784 32"
+"angle" "-135"
 }
 // entity 106
 {
