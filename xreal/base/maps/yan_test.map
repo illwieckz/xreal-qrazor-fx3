@@ -4,7 +4,7 @@ Version 3
 {
 "classname" "worldspawn"
 "message" "YAN'S TEST by Yan 'Method' Ostretsov"
-"ambientColor" "0.51 0.54 0.62"
+"ambientColor" "0.11 0.12 0.13"
 "fogColor" "0.21 0.25 0.27"
 "fogDensity" "0.001"
 // brush 0
@@ -21479,22 +21479,6 @@ patchDef2
 )
 }
 }
-}
-// entity 95
-{
-"classname" "light"
-"name" "light_133"
-"origin" "-64 960 536"
-"detailLevel" "10"
-"shaderparm3" "4500"
-"nodynamicshadows" "0"
-"noshadows" "0"
-"nospecular" "0"
-"nodiffuse" "0"
-"falloff" "0"
-"texture" "lights/ambientlight_nofall"
-"_color" "0.11 0.12 0.13"
-"light_radius" "1248 1344 920"
 }
 // entity 96
 {
