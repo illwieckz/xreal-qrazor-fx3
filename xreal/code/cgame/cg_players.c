@@ -343,6 +343,191 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 }
 
 /*
+======================
+CG_ParseCharacterFile
+
+Read a configuration file containing body.md5mesh custom
+models/players/visor/character.cfg, etc
+======================
+*/
+#ifdef XPPM
+static qboolean CG_ParseCharacterFile(const char *filename, clientInfo_t * ci)
+{
+	char           *text_p, *prev;
+	int             len;
+	int             i;
+	char           *token;
+	float           fps;
+	int             skip;
+	char            text[20000];
+	fileHandle_t    f;
+
+	// load the file
+	len = trap_FS_FOpenFile(filename, &f, FS_READ);
+	if(len <= 0)
+	{
+		return qfalse;
+	}
+	if(len >= sizeof(text) - 1)
+	{
+		CG_Printf("File %s too long\n", filename);
+		trap_FS_FCloseFile(f);
+		return qfalse;
+	}
+	trap_FS_Read(text, len, f);
+	text[len] = 0;
+	trap_FS_FCloseFile(f);
+
+	// parse the text
+	text_p = text;
+	skip = 0;					// quite the compiler warning
+
+	ci->footsteps = FOOTSTEP_STONE;
+	VectorClear(ci->headOffset);
+	ci->gender = GENDER_MALE;
+	ci->fixedlegs = qfalse;
+	ci->fixedtorso = qfalse;
+	ci->firstTorsoBoneName[0] = '\0';
+	ci->lastTorsoBoneName[0] = '\0';
+	ci->torsoControlBoneName[0] = '\0';
+	ci->neckControlBoneName[0] = '\0';
+	ci->modelScale[0] = 1;
+	ci->modelScale[1] = 1;
+	ci->modelScale[2] = 1;
+
+	// read optional parameters
+	while(1)
+	{
+		prev = text_p;			// so we can unget
+		token = Com_Parse(&text_p);
+		if(!token[0])
+		{
+			break;
+		}
+		
+		if(!Q_stricmp(token, "footsteps"))
+		{
+			token = Com_Parse(&text_p);
+			if(!token)
+			{
+				break;
+			}
+			if(!Q_stricmp(token, "default") || !Q_stricmp(token, "normal") || !Q_stricmp(token, "stone"))
+			{
+				ci->footsteps = FOOTSTEP_STONE;
+			}
+			else if(!Q_stricmp(token, "boot"))
+			{
+				ci->footsteps = FOOTSTEP_BOOT;
+			}
+			else if(!Q_stricmp(token, "flesh"))
+			{
+				ci->footsteps = FOOTSTEP_FLESH;
+			}
+			else if(!Q_stricmp(token, "mech"))
+			{
+				ci->footsteps = FOOTSTEP_MECH;
+			}
+			else if(!Q_stricmp(token, "energy"))
+			{
+				ci->footsteps = FOOTSTEP_ENERGY;
+			}
+			else
+			{
+				CG_Printf("Bad footsteps parm in %s: %s\n", filename, token);
+			}
+			continue;
+		}
+		else if(!Q_stricmp(token, "headoffset"))
+		{
+			for(i = 0; i < 3; i++)
+			{
+				token = Com_Parse(&text_p);
+				if(!token)
+				{
+					break;
+				}
+				ci->headOffset[i] = atof(token);
+			}
+			continue;
+		}
+		else if(!Q_stricmp(token, "sex"))
+		{
+			token = Com_Parse(&text_p);
+			if(!token)
+			{
+				break;
+			}
+			if(token[0] == 'f' || token[0] == 'F')
+			{
+				ci->gender = GENDER_FEMALE;
+			}
+			else if(token[0] == 'n' || token[0] == 'N')
+			{
+				ci->gender = GENDER_NEUTER;
+			}
+			else
+			{
+				ci->gender = GENDER_MALE;
+			}
+			continue;
+		}
+		else if(!Q_stricmp(token, "fixedlegs"))
+		{
+			ci->fixedlegs = qtrue;
+			continue;
+		}
+		else if(!Q_stricmp(token, "fixedtorso"))
+		{
+			ci->fixedtorso = qtrue;
+			continue;
+		}
+		else if(!Q_stricmp(token, "firstTorsoBoneName"))
+		{
+			token = Com_Parse(&text_p);
+			Q_strncpyz(ci->firstTorsoBoneName, token, sizeof(ci->firstTorsoBoneName));
+			continue;
+		}
+		else if(!Q_stricmp(token, "lastTorsoBoneName"))
+		{
+			token = Com_Parse(&text_p);
+			Q_strncpyz(ci->lastTorsoBoneName, token, sizeof(ci->lastTorsoBoneName));
+			continue;
+		}
+		else if(!Q_stricmp(token, "torsoControlBoneName"))
+		{
+			token = Com_Parse(&text_p);
+			Q_strncpyz(ci->torsoControlBoneName, token, sizeof(ci->torsoControlBoneName));
+			continue;
+		}
+		else if(!Q_stricmp(token, "neckControlBoneName"))
+		{
+			token = Com_Parse(&text_p);
+			Q_strncpyz(ci->neckControlBoneName, token, sizeof(ci->neckControlBoneName));
+			continue;
+		}
+		else if(!Q_stricmp(token, "modelScale"))
+		{
+			for(i = 0; i < 3; i++)
+			{
+				token = Com_ParseExt(&text_p, qfalse);
+				if(!token)
+				{
+					break;
+				}
+				ci->modelScale[i] = atof(token);
+			}
+			continue;
+		}
+
+		Com_Printf("unknown token '%s' is %s\n", token, filename);
+	}
+	
+	return qtrue;
+}
+#endif
+
+/*
 ==========================
 CG_FileExists
 ==========================
@@ -707,13 +892,13 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	ci->bodyModel = trap_R_RegisterModel(filename, qfalse);
 	if(ci->bodyModel)
 	{
-		// TODO CG_ParseCharacterFile(filename, ci) ?
-
-		ci->footsteps = FOOTSTEP_STONE;
-		VectorClear(ci->headOffset);
-		ci->gender = GENDER_MALE;
-		ci->fixedlegs = qfalse;
-		ci->fixedtorso = qfalse;
+		// load the animations
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/character.cfg", modelName);
+		if(!CG_ParseCharacterFile(filename, ci))
+		{
+			Com_Printf("Failed to load character file %s\n", filename);
+			return qfalse;
+		}
 
 		// the af pose animation is good for testing player angles
 #if 0
@@ -874,7 +1059,6 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 			Com_Printf("Failed to load animation file %s\n", filename);
 			return qfalse;
 		}
-
 	}
 
 	if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin"))
@@ -3119,7 +3303,8 @@ void CG_Player(centity_t * cent)
 
 	int             i;
 	int             boneIndex;
-	int             boneIndex2;
+	int             firstTorsoBone;
+	int             lastTorsoBone;
 	vec3_t          scale = { 0.83, 0.83, 0.83 };	// approx. Quake4 to Q3A player size
 
 	// the client number is stored in clientNum.  It can't be derived
@@ -3163,7 +3348,6 @@ void CG_Player(centity_t * cent)
 	// get the rotation information
 	CG_PlayerAngles(cent, legsAngles, torsoAngles, headAngles);
 	AnglesToAxis(legsAngles, body.axis);
-	//QuatToAxis(legsQuat, body.axis);
 
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation(cent);
@@ -3217,16 +3401,16 @@ void CG_Player(centity_t * cent)
 
 	// combine legs and torso skeletons
 #if 1
-	boneIndex = trap_R_BoneIndex(body.hModel, "waist");
+	firstTorsoBone = trap_R_BoneIndex(body.hModel, ci->firstTorsoBoneName);
 
-	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
+	if(firstTorsoBone >= 0 && firstTorsoBone < cent->pe.torso.skeleton.numBones)
 	{
-		boneIndex2 = trap_R_BoneIndex(body.hModel, "hips");
+		lastTorsoBone = trap_R_BoneIndex(body.hModel, ci->lastTorsoBoneName);
 
-		if(boneIndex2 >= 0 && boneIndex2 < cent->pe.legs.skeleton.numBones)
+		if(lastTorsoBone >= 0 && lastTorsoBone < cent->pe.torso.skeleton.numBones)
 		{
 			// copy torso bones
-			for(i = boneIndex; i < boneIndex2; i++)
+			for(i = firstTorsoBone; i < lastTorsoBone; i++)
 			{
 				memcpy(&body.skeleton.bones[i], &cent->pe.torso.skeleton.bones[i], sizeof(refBone_t));
 			}
@@ -3267,7 +3451,7 @@ void CG_Player(centity_t * cent)
 
 	// rotate torso
 #if 1
-	boneIndex = trap_R_BoneIndex(body.hModel, "chest");
+	boneIndex = trap_R_BoneIndex(body.hModel, ci->torsoControlBoneName);
 
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
@@ -3279,7 +3463,7 @@ void CG_Player(centity_t * cent)
 
 	// rotate head
 #if 1
-	boneIndex = trap_R_BoneIndex(body.hModel, "neckcontrol");
+	boneIndex = trap_R_BoneIndex(body.hModel, ci->neckControlBoneName);
 
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
