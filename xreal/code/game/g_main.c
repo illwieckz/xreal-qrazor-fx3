@@ -195,8 +195,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse},
 #endif
 
-	{&g_rocketAcceleration, "g_rocketAcceleration", "2500", 0, 0, qfalse},
-	{&g_rocketVelocity, "g_rocketVelocity", "700", 0, 0, qfalse},
+	{&g_rocketAcceleration, "g_rocketAcceleration", "0", 0, 0, qfalse},
+	{&g_rocketVelocity, "g_rocketVelocity", "900", 0, 0, qfalse},
 
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
