@@ -23,7 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_CurrentMap;
+#if defined(r_heatHazeFix)
 uniform sampler2D	u_ContrastMap;
+#endif
 uniform float		u_AlphaTest;
 
 varying vec2		var_TexNormal;
@@ -48,7 +50,7 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
-#if 1
+#if defined(r_heatHazeFix)
 	// check if the distortion got too far
 	float vis = texture2D(u_ContrastMap, st).r;
 	if(vis > 0.0 && color0.a > u_AlphaTest)
@@ -66,7 +68,6 @@ void	main()
 	}
 #else
 	color0 = texture2D(u_CurrentMap, st);
-	color1 = vec4(0.0, 0.0, 0.0, color0.a);
 #endif
 	
 	gl_FragColor = color0;

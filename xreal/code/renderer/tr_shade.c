@@ -207,6 +207,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
 		}
 
+		if(r_heatHazeFix->integer)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_heatHazeFix\n#define r_heatHazeFix 1\n#endif\n");
+		}
+
 		if(r_showLightMaps->integer)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showLightMaps\n#define r_showLightMaps 1\n#endif\n");
@@ -921,13 +926,19 @@ void GLSL_InitGPUShaders(void)
 	tr.heatHazeShader.u_DeformMagnitude = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_DeformMagnitude");
 	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
 	tr.heatHazeShader.u_CurrentMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
-	tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
+	if(r_heatHazeFix->integer)
+	{
+		tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
+	}
 	tr.heatHazeShader.u_AlphaTest = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_AlphaTest");
 
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
 	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
 	qglUniform1iARB(tr.heatHazeShader.u_CurrentMap, 1);
-	qglUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
+	if(r_heatHazeFix->integer)
+	{
+		qglUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
+	}
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.heatHazeShader.program);
@@ -2490,54 +2501,7 @@ static void Render_heatHaze(int stage)
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
 
-	/*
-	   if(glConfig.framebufferObjectAvailable && glConfig.maxColorAttachments >= 4 &&
-	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
-	   {
-	   unsigned        stateBits;
-
-	   // remove blend mode
-	   stateBits = pStage->stateBits;
-	   stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
-
-	   GL_State(stateBits);
-
-	   // enable shader, set arrays
-	   GL_Program(tr.depthTestShader.program);
-	   GL_ClientState(tr.depthTestShader.attribs);
-	   GL_SetVertexAttribs();
-
-	   // set uniforms      
-	   qglUniform2fARB(tr.depthTestShader.u_FBufScale, fbufWidthScale, fbufHeightScale);
-	   qglUniform2fARB(tr.depthTestShader.u_NPOTScale, npotWidthScale, npotHeightScale);
-
-	   // bind u_ColorMap
-	   GL_SelectTexture(0);
-	   GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	   qglMatrixMode(GL_TEXTURE);
-	   qglLoadMatrixf(tess.svars.texMatrices[TB_COLORMAP]);
-	   qglMatrixMode(GL_MODELVIEW);
-
-	   // bind u_CurrentMap
-	   GL_SelectTexture(1);
-	   if(backEnd.viewParms.isPortal)
-	   {
-	   GL_Bind(tr.portalRenderFBOImage[0]);
-	   GL_TextureFilter(tr.portalRenderFBOImage[0], FT_NEAREST);
-	   }
-	   else
-	   {
-	   GL_Bind(tr.currentRenderFBOImage[0]);
-	   GL_TextureFilter(tr.currentRenderFBOImage[0], FT_NEAREST);
-	   }
-	   qglMatrixMode(GL_TEXTURE);
-	   qglLoadIdentity();
-	   qglMatrixMode(GL_MODELVIEW);
-
-	   DrawElements();
-	   }
-	   else
-	 */
+	if(r_heatHazeFix->integer)
 	{
 		unsigned        stateBits;
 
@@ -2624,10 +2588,10 @@ static void Render_heatHaze(int stage)
 		qglPopMatrix();
 	}
 
-#if 1
 	// remove alpha test
 	stateBits = pStage->stateBits;
 	stateBits &= ~GLS_ATEST_BITS;
+	stateBits &= ~GLS_DEPTHMASK_TRUE;
 
 	GL_State(stateBits);
 
@@ -2668,52 +2632,17 @@ static void Render_heatHaze(int stage)
 
 	// bind u_CurrentMap
 	GL_SelectTexture(1);
-	/*
-	   if(glConfig.framebufferObjectAvailable)
-	   {
-	   if(backEnd.viewParms.isPortal)
-	   {
-	   GL_Bind(tr.portalRenderFBOImage[0]);
-	   GL_TextureFilter(tr.portalRenderFBOImage[0], FT_NEAREST);
-	   }
-	   else
-	   {
-	   GL_Bind(tr.currentRenderFBOImage[0]);
-	   GL_TextureFilter(tr.currentRenderFBOImage[0], FT_NEAREST);
-	   }
-	   }
-	   else
-	 */
-	{
-		GL_Bind(tr.currentRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-							 tr.currentRenderImage->uploadHeight);
-	}
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
 	// bind u_ContrastMap
-	GL_SelectTexture(2);
-	/*
-	   if(glConfig.framebufferObjectAvailable)
-	   {
-	   if(backEnd.viewParms.isPortal)
-	   {
-	   GL_Bind(tr.portalRenderFBOImage[1]);
-	   GL_TextureFilter(tr.portalRenderFBOImage[1], FT_NEAREST);
-	   }
-	   else
-	   {
-	   GL_Bind(tr.currentRenderFBOImage[1]);
-	   GL_TextureFilter(tr.currentRenderFBOImage[1], FT_NEAREST);
-	   }
-	   }
-	   else
-	 */
+	if(r_heatHazeFix->integer)
 	{
+		GL_SelectTexture(2);
 		GL_Bind(tr.contrastRenderImage);
 	}
 
 	DrawElements();
-#endif
 
 	GL_CheckErrors();
 }

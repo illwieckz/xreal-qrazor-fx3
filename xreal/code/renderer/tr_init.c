@@ -76,6 +76,7 @@ cvar_t         *r_noDynamicLighting;
 cvar_t         *r_noStaticLighting;
 cvar_t         *r_precomputedLighting;
 cvar_t         *r_vertexLighting;
+cvar_t         *r_heatHazeFix;
 
 cvar_t         *r_ext_compressed_textures;
 cvar_t         *r_ext_compiled_vertex_array;
@@ -1403,6 +1404,7 @@ void R_Register(void)
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_precomputedLighting = ri.Cvar_Get("r_precomputedLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
