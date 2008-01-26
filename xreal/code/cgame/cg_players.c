@@ -3305,7 +3305,6 @@ void CG_Player(centity_t * cent)
 	int             boneIndex;
 	int             firstTorsoBone;
 	int             lastTorsoBone;
-	vec3_t          scale = { 0.83, 0.83, 0.83 };	// approx. Quake4 to Q3A player size
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -3474,7 +3473,7 @@ void CG_Player(centity_t * cent)
 #endif
 
 	// transform relative bones to absolute ones required for vertex skinning and tag attachments
-	CG_TransformSkeleton(&body.skeleton, scale);
+	CG_TransformSkeleton(&body.skeleton, ci->modelScale);
 
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
