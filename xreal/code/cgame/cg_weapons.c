@@ -2491,7 +2491,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 			radius = 12;
 
-			// some debris particles
 			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
@@ -2512,7 +2511,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 			radius = 12;
 
-			// some debris particles
 			CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
 			if(sfx && (rand() % 3 == 0))
 				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
@@ -2539,11 +2537,10 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			light = 300;
 			isSprite = qtrue;
 
-			// explosion particles
 			VectorScale(dir, 100, partVel);
-
-			//CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
+
+			// TODO CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			break;
 
 		case WP_ROCKET_LAUNCHER:
@@ -2559,11 +2556,10 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			lightColor[1] = 0.5f;
 			lightColor[2] = 0.1f;
 
-			// explosion particles
 			VectorScale(dir, 100, partVel);
-
-			//CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
+
+			// TODO CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			break;
 
 		case WP_RAILGUN:
@@ -2571,8 +2567,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			mark = cgs.media.energyMarkShader;
 			radius = 24;
 
-			// some debris particles
-			CG_AddBulletParticles(origin, dir, 20, 1800, 6 + rand() % 6, 1.8f);
+			CG_ParticleRailRick(origin, dir, cgs.clientinfo[clientNum].color2);
 			break;
 
 		case WP_PLASMAGUN:

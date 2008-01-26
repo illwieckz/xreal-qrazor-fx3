@@ -2357,43 +2357,73 @@ void CG_ParticleRick(vec3_t org, vec3_t dir)
 		p->accel[2] = 15;
 	}
 #endif
+}
+
+void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
+{
+	float           d;
+	int             j, i;
+	cparticle_t    *p;
+
+//  VectorNormalize(dir);
+
+	// SPARKS
+	for(i = 0; i < 25; i++)
+	{
+		p = CG_AllocParticle();
+		if(!p)
+			return;
+
+		VectorClear(p->accel);
+		VectorClear(p->vel);
+
+		p->flags = PF_AIRONLY;
+
+		p->time = cg.time;
+		
 
 #if 0
-	p = CG_AllocParticle();
-	if(!p)
-		return;
-
-	VectorClear(p->accel);
-	VectorClear(p->vel);
-	VectorCopy(dir, p->dir);
-	VectorNormalize(p->dir);
-	p->flags = PARTICLE_ALIGNED | PARTICLE_AIRONLY;
-	p->time = cg.time;
-	p->endTime = cg.time + 20000;
-
-	//p->blend_dst = GL_SRC_ALPHA;
-	//p->blend_src = GL_ONE_MINUS_SRC_ALPHA;
-
-	p->color[0] = 0.1;
-	p->color[1] = 0.1;
-	p->color[2] = 0.1;
-	p->color[3] = 0.83;
-
-	p->colorVel[0] = 0.3;
-	p->colorVel[1] = 0.3;
-	p->colorVel[2] = 0.3;
-	p->colorVel[3] = -1.0 / (0.5 + frand() * 0.5);
-
-	p->type = P_SMOKE;
-	p->size = 5;
-	p->sizeVel = 11;
-
-	for(j = 0; j < 3; j++)
-	{
-		p->org[j] = org[j];
-		p->vel[j] = p->dir[j] * 2;
-	}
+		p->endTime = cg.time + 20000;
+		p->type = P_SPARK;
+		p->pshader = cgs.media.sparkShader;
+		p->height = 0.7f;
+		p->width = 7;
+		p->endHeight = 1.3f;
+		p->endWidth = 30;
+#else
+		p->endTime = cg.time + 700 + random() * 500;
+		p->type = P_SMOKE;
+		p->pshader = cgs.media.teleportFlareShader;
+		p->width = 3 + random() * 2;
+		p->height = p->width;
+		p->endHeight = p->width * 0.1;
+		p->endWidth = p->height * 0.1;
 #endif
+
+		p->color[0] = clientColor[0];
+		p->color[1] = clientColor[1];
+		p->color[2] = clientColor[2];
+		p->color[3] = 0.3f;
+
+		//p->colorVel[0] = 0;
+		//p->colorVel[1] = -1;
+		//p->colorVel[2] = 0;
+		//p->colorVel[3] = -1.0 / (0.3 + random() * 0.2);
+
+		d = rand() & 5;
+		for(j = 0; j < 3; j++)
+		{
+			p->org[j] = org[j] + d * dir[j];
+			p->vel[j] = dir[j] * 90 + crandom() * 50;
+		}
+
+		p->accel[0] = 0;
+		p->accel[1] = 0;
+		p->accel[2] = -PARTICLE_GRAVITY * 3;
+
+		p->bounceFactor = 0.6f;
+		VectorCopy(p->org, p->oldOrg);	// necessary for coldet
+	}
 }
 
 
