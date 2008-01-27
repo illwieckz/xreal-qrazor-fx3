@@ -950,21 +950,32 @@ projectionShadow
 wake
 {
 	{
-		clampmap sprites/splash.tga
-		blendFunc GL_ONE GL_ONE
+		map gfx/misc/splash.tga
+		clamp
+		blend blend
 		rgbGen vertex
-        tcmod rotate 250
-        tcMod stretch sin .9 0.1 0 0.7
+        rotate 250 * time
+        //tcMod stretch sin .9 0.1 0 0.7
+		centerScale 1.3 + sinTable[time] * 0.1, 1.3 + cosTable[time] * 0.1
 		rgbGen wave sin .7 .3 .25 .5
-	}	
+	}
     {
-		clampmap sprites/splash.tga
-		blendFunc GL_ONE GL_ONE
+		map gfx/misc/splash.tga
+		clamp
+		blend blend
 		rgbGen vertex
-        tcmod rotate -230
-        tcMod stretch sin .9 0.05 0 0.9
+        rotate -230 * time
+        //tcMod stretch sin .9 0.05 0 0.9
 		rgbGen wave sin .7 .3 .25 .4
-	}	
+	}
+	/*
+	{       
+      	blend	gl_zero, gl_one_minus_src_color
+		map gfx/misc/splash.png
+		clamp
+		vertexColor
+	}
+	*/
 }
 
 
@@ -989,7 +1000,7 @@ waterBubble
 	twoSided
 	entityMergable		// allow all the sprites to be merged together
 	{
-		map gfx/misc/bubble.tga
+		map gfx/misc/bubble2.tga
 		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 		vertexColor
 	}
