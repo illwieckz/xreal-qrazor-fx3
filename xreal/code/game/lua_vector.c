@@ -174,6 +174,19 @@ static int vector_RotatePointAround(lua_State * L)
 	return 1;
 }
 
+static int vector_Perpendicular(lua_State * L)
+{
+	vec_t          *dst;
+	vec_t          *src;
+
+	dst = lua_getvector(L, 1);
+	src = lua_getvector(L, 2);
+	
+	PerpendicularVector(dst, src);
+
+	return 1;
+}
+
 // *INDENT-OFF*
 static int vector_Index(lua_State * L)
 {
@@ -336,6 +349,7 @@ static const luaL_reg vector_ctor[] = {
 	{"Normalize", vector_Normalize},
 	{"NormalizeFast", vector_NormalizeFast},
 	{"RotatePointAround", vector_RotatePointAround},
+	{"Perpendicular", vector_Perpendicular},
 	{NULL, NULL}
 };
 

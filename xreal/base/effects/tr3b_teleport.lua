@@ -12,7 +12,7 @@ function tr3b_teleport_ParticleCircle1(origin, dir)
 	shader = cgame.RegisterShader("particles/flare2");
 	
 	-- spawn particles in a small circle
-	vector.Set(dir, 0, 0, 1)  --  remove this to spawn particles into the forward direction of target_fx angles
+	vector.Set(dir, 0, 0, 1)
 	
 	forward = vector.Construct(20, 0, 0)
 	dst = vector.New()
@@ -33,6 +33,32 @@ function tr3b_teleport_ParticleCircle1(origin, dir)
 	end
 end
 
+function tr3b_teleport_ParticleCircle2(origin, dir)
+	
+	shader = cgame.RegisterShader("particles/flare2");
+	
+	-- create orthogonal vector to main direction
+	forward = vector.New()
+	vector.Perpendicular(forward, dir);
+	vector.Scale(forward, 40, forward);
+	
+	dst = vector.New()
+	vel = vector.New()
+	for angle = 0, 360, 30 do
+		
+		vector.RotatePointAround(dst, dir, forward, angle);
+		
+		-- move into center
+		vel[0] = -dst[0] * 0.4
+		vel[1] = -dst[1] * 0.4
+		vel[2] = -dst[2] * 0.4
+		
+		-- add circle origin to world origin
+		dst = dst + origin
+		
+		tr3b_teleport_SpawnTeleportParticle(dst, shader, vel, dir)
+	end
+end
 
 
 --
