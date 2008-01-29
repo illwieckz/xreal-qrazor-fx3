@@ -876,6 +876,10 @@ int BotRouteCanDodge(bot_state_t * bs, aas_predictroute_t * route)
 		return 0;
 #endif
 
+	// Tr3B: added option to disable dodging
+	if(!bot_dodge.integer)
+		return 0;
+
 	// Only bots who are skilled enough dodge
 	if(bs->settings.skill < 3)
 		return 0;

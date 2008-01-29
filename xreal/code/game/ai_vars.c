@@ -62,6 +62,7 @@ vmCvar_t        bot_grapple;	// False if bots should never grapple
 vmCvar_t        bot_rocketjump;	// False if bots should never rocket jump
 
 // Variables modifying dodging
+vmCvar_t        bot_dodge;
 vmCvar_t        bot_dodge_rate;	// Percent of time to spend dodging when going somewhere and being attacked
 vmCvar_t        bot_dodge_min;	// Minimum amount of time to continue dodging in one direction
 vmCvar_t        bot_dodge_max;	// Maximum amount of time to continue dodging in one direction
@@ -217,6 +218,7 @@ void LevelSetupVariables(void)
 	trap_Cvar_Register(&bot_grapple, "bot_grapple", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_rocketjump, "bot_rocketjump", "1", CVAR_CHEAT);
 
+	trap_Cvar_Register(&bot_dodge_rate, "bot_dodge", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_dodge_rate, "bot_dodge_rate", "0.35", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_dodge_min, "bot_dodge_min", "0.60", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_dodge_max, "bot_dodge_max", "1.00", CVAR_CHEAT);
@@ -297,6 +299,7 @@ void LevelUpdateVariables(void)
 	trap_Cvar_Update(&bot_grapple);
 	trap_Cvar_Update(&bot_rocketjump);
 
+	trap_Cvar_Update(&bot_dodge);
 	trap_Cvar_Update(&bot_dodge_rate);
 	trap_Cvar_Update(&bot_dodge_min);
 	trap_Cvar_Update(&bot_dodge_max);

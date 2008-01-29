@@ -43,6 +43,7 @@ extern vmCvar_t bot_testrchat;
 extern vmCvar_t bot_grapple;
 extern vmCvar_t bot_rocketjump;
 
+extern vmCvar_t bot_dodge;
 extern vmCvar_t bot_dodge_rate;
 extern vmCvar_t bot_dodge_min;
 extern vmCvar_t bot_dodge_max;
