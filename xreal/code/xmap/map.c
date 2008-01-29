@@ -898,6 +898,12 @@ void ParseRawBrush()
 			// read the texture matrix
 			Parse2DMatrix(2, 3, (float *)side->texMat);
 		}
+		else
+		{
+			// FIXME calculate texMat later
+			side->texMat[0][0] = 1;	side->texMat[0][1] = 0;	side->texMat[0][2] = 0;
+			side->texMat[1][0] = 0;	side->texMat[1][1] = 1;	side->texMat[1][2] = 0;
+		}
 
 		// read the texturedef
 		GetToken(qfalse);
@@ -1300,7 +1306,34 @@ qboolean ParseMapEntity(void)
 	name = ValueForKey(mapEnt, "name");
 	model = ValueForKey(mapEnt, "model");
 
+	if(convertType == CONVERT_QUAKE3)
+	{
+		const char     *targetname;
 
+		targetname = ValueForKey(mapEnt, "targetname");
+
+		if(targetname[0])
+		{
+			SetKeyValue(mapEnt, "name", targetname);
+			name = ValueForKey(mapEnt, "name");
+			RemoveKey(mapEnt, "targetname");
+		}
+	}
+
+	// Tr3B: check for empty name
+#if 1
+	if(!name[0] && numEntities != 1)
+	{
+		name = UniqueEntityName(mapEnt, classname);
+		if(!name[0])
+			Error("UniqueEntityName failed for entity %i", numEntities -1);
+
+		SetKeyValue(mapEnt, "name", name);
+		name = ValueForKey(mapEnt, "name");
+	}
+#endif
+
+#if 1
 	// Tr3B: check for bad duplicated names
 	for(i = 0; i < numEntities; i++)
 	{
@@ -1313,11 +1346,27 @@ qboolean ParseMapEntity(void)
 
 		if(!Q_stricmp(name, name2))
 		{
-			Sys_FPrintf(SYS_WRN, "WARNING: entity name '%s' is duplicated by entity %i\n", name, i);
+			//Sys_FPrintf(SYS_WRN, "WARNING: entity name '%s' is duplicated by entity %i\n", name, i);
+			Error("entity name '%s' is duplicated by entity %i\n", name, i);
 		}
 	}
+#endif
 
-	if(convertType == CONVERT_QUAKE4)
+	if(convertType == CONVERT_QUAKE3)
+	{
+		// TODO clean up things
+
+		if(!Q_stricmp(classname, "targetname"))
+			SetKeyValue(mapEnt, "classname", "name");
+
+		if(!model[0] && (mapEnt->brushes || mapEnt->patches) &&  numEntities != 1)
+		{
+			SetKeyValue(mapEnt, "model", name);
+			model = ValueForKey(mapEnt, "model");
+		}
+			
+	}
+	else if(convertType == CONVERT_QUAKE4)
 	{
 		// TODO rename items
 		// e.g. func_jumppad to trigger_push

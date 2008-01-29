@@ -79,6 +79,7 @@ qboolean        archive;
 char            archivedir[1024];
 
 
+
 /*
 ===================
 ExpandWildcards
@@ -521,6 +522,32 @@ char           *strlower(char *start)
 		in++;
 	}
 	return start;
+}
+
+/*
+============
+va
+
+does a varargs printf into a temp buffer, so I don't need to have
+varargs versions of all text functions.
+FIXME: make this buffer size safe someday
+============
+*/
+char* va(char *format, ...)
+{
+	va_list         argptr;
+	static char     string[2][32000];	// in case va is called by nested functions
+	static int      index = 0;
+	char           *buf;
+
+	buf = string[index & 1];
+	index++;
+
+	va_start(argptr, format);
+	vsprintf(buf, format, argptr);
+	va_end(argptr);
+
+	return buf;
 }
 
 

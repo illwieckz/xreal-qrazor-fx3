@@ -159,6 +159,11 @@ int ConvertMap(int argc, char **argv)
 			Sys_Printf("verbose = true\n");
 			verbose = qtrue;
 		}
+		else if(!strcmp(argv[i], "-quake3"))
+		{
+			convertType = CONVERT_QUAKE3;
+			Sys_Printf("converting from Quake3 to XreaL\n");
+		}
 		else if(!strcmp(argv[i], "-quake4"))
 		{
 			convertType = CONVERT_QUAKE4;
@@ -180,7 +185,7 @@ int ConvertMap(int argc, char **argv)
 			  "\n" "Switches:\n" "   v              = verbose output\n"
 			  //"   quake1       = convert from QuakeWorld to XreaL\n"
 			  //"   quake2       = convert from Quake2 to XreaL\n"
-			  //"   quake3       = convert from Quake3 to XreaL\n"
+			  "   quake3         = convert from Quake3 to XreaL\n"
 			  "   quake4         = convert from Quake4 to XreaL\n");
 	}
 

@@ -107,6 +107,7 @@ void            UnparseEntities(void);
 void            SetKeyValue(entity_t * ent, const char *key, const char *value);
 const char     *ValueForKey(const entity_t * ent, const char *key);
 qboolean        HasKey(const entity_t * ent, const char *key);
+void            RemoveKey(entity_t * ent, const char *key);
 
 // will return "" if not present
 
@@ -116,3 +117,5 @@ void            GetVectorForKey(const entity_t * ent, const char *key, vec3_t ve
 epair_t        *ParseEpair(void);
 
 void            PrintEntity(const entity_t * ent);
+
+const char     *UniqueEntityName(const entity_t * ent, const char *suggestion);
