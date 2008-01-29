@@ -986,6 +986,10 @@ void            Admin_ExpireBans(void);
 
 char           *ConcatArgs(int start);
 
+
+// Tr3B: added this to mark unneeded botlib traps
+#define BRAINWORKS 1
+
 void            trap_Printf(const char *fmt);
 void            trap_Error(const char *fmt);
 int             trap_Milliseconds(void);
@@ -1042,30 +1046,39 @@ int             trap_BotLibDefine(char *string);
 int             trap_BotLibStartFrame(float time);
 int             trap_BotLibLoadMap(const char *mapname);
 int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue);
+#if !defined(BRAINWORKS)
 int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3);
-
+#endif
 int             trap_BotGetSnapshotEntity(int clientNum, int sequence);
 int             trap_BotGetServerCommand(int clientNum, char *message, int size);
 void            trap_BotUserCommand(int client, usercmd_t * ucmd);
 
 int             trap_AAS_BBoxAreas(vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas);
 int             trap_AAS_AreaInfo(int areanum, void /* struct aas_areainfo_s */ *info);
+#if !defined(BRAINWORKS)
 void            trap_AAS_EntityInfo(int entnum, void /* struct aas_entityinfo_s */ *info);
+#endif
 
 int             trap_AAS_Initialized(void);
 void            trap_AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs);
+#if !defined(BRAINWORKS)
 float           trap_AAS_Time(void);
+#endif
 
 int             trap_AAS_PointAreaNum(vec3_t point);
+#if !defined(BRAINWORKS)
 int             trap_AAS_PointReachabilityAreaIndex(vec3_t point);
+#endif
 int             trap_AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t * points, int maxareas);
 
 int             trap_AAS_PointContents(vec3_t point);
+#if !defined(BRAINWORKS)
 int             trap_AAS_NextBSPEntity(int ent);
 int             trap_AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size);
 int             trap_AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v);
 int             trap_AAS_FloatForBSPEpairKey(int ent, char *key, float *value);
 int             trap_AAS_IntForBSPEpairKey(int ent, char *key, int *value);
+#endif
 
 int             trap_AAS_AreaReachability(int areanum);
 
@@ -1075,6 +1088,7 @@ int             trap_AAS_PredictRoute(void /*struct aas_predictroute_s */ *route
 									  int goalareanum, int travelflags, int maxareas, int maxtime,
 									  int stopevent, int stopcontents, int stoptfl, int stopareanum);
 
+#if !defined(BRAINWORKS)
 int             trap_AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags,
 											   void /*struct aas_altroutegoal_s */ *altroutegoals, int maxaltroutegoals,
 											   int type);
@@ -1082,6 +1096,7 @@ int             trap_AAS_Swimming(vec3_t origin);
 int             trap_AAS_PredictClientMovement(void /* aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype,
 											   int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes,
 											   float frametime, int stopevent, int stopareanum, int visualize);
+#endif
 
 
 void            trap_EA_Say(int client, char *str);
@@ -1089,6 +1104,7 @@ void            trap_EA_SayTeam(int client, char *str);
 void            trap_EA_Command(int client, char *command);
 
 void            trap_EA_Action(int client, int action);
+#if !defined(BRAINWORKS)
 void            trap_EA_Gesture(int client);
 void            trap_EA_Talk(int client);
 void            trap_EA_Attack(int client);
@@ -1101,16 +1117,19 @@ void            trap_EA_MoveForward(int client);
 void            trap_EA_MoveBack(int client);
 void            trap_EA_MoveLeft(int client);
 void            trap_EA_MoveRight(int client);
+#endif
 void            trap_EA_SelectWeapon(int client, int weapon);
+#if !defined(BRAINWORKS)
 void            trap_EA_Jump(int client);
 void            trap_EA_DelayedJump(int client);
 void            trap_EA_Move(int client, vec3_t dir, float speed);
+#endif
 void            trap_EA_View(int client, vec3_t viewangles);
-
+#if !defined(BRAINWORKS)
 void            trap_EA_EndRegular(int client, float thinktime);
+#endif
 void            trap_EA_GetInput(int client, float thinktime, void /* struct bot_input_s */ *input);
 void            trap_EA_ResetInput(int client);
-
 
 int             trap_BotLoadCharacter(char *charfile, float skill);
 void            trap_BotFreeCharacter(int character);
@@ -1142,6 +1161,7 @@ void            trap_BotReplaceSynonyms(char *string, unsigned long int context)
 int             trap_BotLoadChatFile(int chatstate, char *chatfile, char *chatname);
 void            trap_BotSetChatGender(int chatstate, int gender);
 void            trap_BotSetChatName(int chatstate, char *name, int client);
+#if !defined(BRAINWORKS)
 void            trap_BotResetGoalState(int goalstate);
 void            trap_BotRemoveFromAvoidGoals(int goalstate, int number);
 void            trap_BotResetAvoidGoals(int goalstate);
@@ -1156,11 +1176,16 @@ int             trap_BotGetSecondGoal(int goalstate, void /* struct bot_goal_s *
 int             trap_BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelflags);
 int             trap_BotChooseNBGItem(int goalstate, vec3_t origin, int *inventory, int travelflags,
 									  void /* struct bot_goal_s */ *ltg, float maxtime);
+#endif
 int             trap_BotTouchingGoal(vec3_t origin, void /* struct bot_goal_s */ *goal);
 int             trap_BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal);
 int             trap_BotGetNextCampSpotGoal(int num, void /* struct bot_goal_s */ *goal);
+#if !defined(BRAINWORKS)
 int             trap_BotGetMapLocationGoal(char *name, void /* struct bot_goal_s */ *goal);
+#endif
 int             trap_BotGetLevelItemGoal(int index, char *classname, void /* struct bot_goal_s */ *goal);
+
+#if !defined(BRAINWORKS)
 float           trap_BotAvoidGoalTime(int goalstate, int number);
 void            trap_BotSetAvoidGoalTime(int goalstate, int number, float avoidtime);
 void            trap_BotInitLevelItems(void);
@@ -1172,14 +1197,19 @@ void            trap_BotSaveGoalFuzzyLogic(int goalstate, char *filename);
 void            trap_BotMutateGoalFuzzyLogic(int goalstate, float range);
 int             trap_BotAllocGoalState(int state);
 void            trap_BotFreeGoalState(int handle);
+#endif
 
 void            trap_BotResetMoveState(int movestate);
 void            trap_BotMoveToGoal(void /* struct bot_moveresult_s */ *result, int movestate, void /* struct bot_goal_s */ *goal,
 								   int travelflags);
 int             trap_BotMoveInDirection(int movestate, vec3_t dir, float speed, int type);
 void            trap_BotResetAvoidReach(int movestate);
+
+#if !defined(BRAINWORKS)
 void            trap_BotResetLastAvoidReach(int movestate);
 int             trap_BotReachabilityArea(vec3_t origin, int testground);
+#endif
+
 int             trap_BotMovementViewTarget(int movestate, void /* struct bot_goal_s */ *goal, int travelflags, float lookahead,
 										   vec3_t target);
 int             trap_BotPredictVisiblePosition(vec3_t origin, int areanum, void /* struct bot_goal_s */ *goal, int travelflags,
@@ -1189,6 +1219,7 @@ void            trap_BotFreeMoveState(int handle);
 void            trap_BotInitMoveState(int handle, void /* struct bot_initmove_s */ *initmove);
 void            trap_BotAddAvoidSpot(int movestate, vec3_t origin, float radius, int type);
 
+#if !defined(BRAINWORKS)
 int             trap_BotChooseBestFightWeapon(int weaponstate, int *inventory);
 void            trap_BotGetWeaponInfo(int weaponstate, int weapon, void /* struct weaponinfo_s */ *weaponinfo);
 int             trap_BotLoadWeaponWeights(int weaponstate, char *filename);
@@ -1197,5 +1228,6 @@ void            trap_BotFreeWeaponState(int weaponstate);
 void            trap_BotResetWeaponState(int weaponstate);
 
 int             trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
+#endif
 
 int             trap_RealTime(qtime_t * qtime);
