@@ -276,6 +276,21 @@ void            FilterStructuralBrushesIntoTree(entity_t * e, tree_t * tree);
 
 //=============================================================================
 
+typedef enum
+{
+	CONVERT_NOTHING,
+//	CONVERT_QUAKE1,
+//	CONVERT_QUAKE2,
+//	CONVERT_QUAKE3,
+	CONVERT_QUAKE4,
+	CONVERT_DOOM3,
+//	CONVERT_PREY
+} convertType_t;
+
+extern convertType_t convertType;
+
+//=============================================================================
+
 // map.c
 
 extern int      entitySourceBrushes;

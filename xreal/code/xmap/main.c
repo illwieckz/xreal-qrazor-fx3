@@ -30,6 +30,7 @@ main
 */
 
 void            Bspinfo(int count, char **fileNames);
+int             ConvertMap(int argc, char **argv);
 int             BspMain(int argc, char **argv);
 int             VisMain(int argc, char **argv);
 int             LightMain(int argc, char **argv);
@@ -49,6 +50,11 @@ int main(int argc, char **argv)
 	if(!strcmp(argv[1], "-info"))
 	{
 		Bspinfo(argc - 2, argv + 2);
+		return 0;
+	}
+	if(!strcmp(argv[1], "-map2map"))
+	{
+		ConvertMap(argc - 1, argv + 1);
 		return 0;
 	}
 	if(!strcmp(argv[1], "-map2bsp"))
@@ -84,9 +90,10 @@ showUsage:
 		  	"\n"
 			"Switches:\n"
 			"   info           = print BSP information\n"
+			"   map2map        = convert from any map format to the XreaL map format\n"
 			"   map2bsp        = compile MAP to BSP\n"
 			#ifdef AAS
-			"   bsp2aas        = convert BSP to AAS\n"
+			"   bsp2aas        = compile BSP to AAS\n"
 			#endif
 			"   vis            = compute visibility\n"
 			"   light          = compute lighting\n"

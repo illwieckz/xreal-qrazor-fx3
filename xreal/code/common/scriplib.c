@@ -518,7 +518,7 @@ void Write1DMatrix(FILE * f, int x, vec_t * m)
 {
 	int             i;
 
-	fprintf(f, "( ");
+	fprintf(f, " ( ");
 	for(i = 0; i < x; i++)
 	{
 		if(m[i] == (int)m[i])
@@ -530,20 +530,20 @@ void Write1DMatrix(FILE * f, int x, vec_t * m)
 			fprintf(f, "%f ", m[i]);
 		}
 	}
-	fprintf(f, ")");
+	fprintf(f, " ) ");
 }
 
 void Write2DMatrix(FILE * f, int y, int x, vec_t * m)
 {
 	int             i;
 
-	fprintf(f, "( ");
+	fprintf(f, " ( ");
 	for(i = 0; i < y; i++)
 	{
 		Write1DMatrix(f, x, m + i * x);
 		fprintf(f, " ");
 	}
-	fprintf(f, ")\n");
+	fprintf(f, " ) ");
 }
 
 

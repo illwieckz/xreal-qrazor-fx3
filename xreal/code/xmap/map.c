@@ -55,7 +55,7 @@ int             c_edgebevels;
 int             c_areaportals;
 int             c_detail;
 int             c_structural;
-int				c_mergedFuncStatics;
+int             c_mergedFuncStatics;
 
 // brushes are parsed into a temporary array of sides,
 // which will have the bevels added and duplicates
@@ -339,7 +339,7 @@ void SetBrushContents(bspBrush_t * b)
 
 	if(mixed)
 	{
-//		Sys_FPrintf(SYS_VRB, "Entity %i, Brush %i: mixed face contents\n", b->entitynum, b->brushnum);
+//      Sys_FPrintf(SYS_VRB, "Entity %i, Brush %i: mixed face contents\n", b->entitynum, b->brushnum);
 	}
 
 	if((contents & CONTENTS_DETAIL) && (contents & CONTENTS_STRUCTURAL))
@@ -930,7 +930,7 @@ void ParseRawBrush()
 			sprintf(shader, "%s", name);
 		else
 			sprintf(shader, "textures/%s", name);
-		
+
 		si = ShaderInfoForShader(shader);
 		side->shaderInfo = si;
 		side->surfaceFlags = si->surfaceFlags;
@@ -1146,9 +1146,9 @@ void AdjustBrushesForOrigin(entity_t * ent, vec3_t origin)
 		for(i = 0; i < b->numsides; i++)
 		{
 			s = &b->sides[i];
-			
+
 			newdist = mapPlanes[s->planenum].dist - DotProduct(mapPlanes[s->planenum].normal, origin);
-			
+
 			s->planenum = FindFloatPlane(mapPlanes[s->planenum].normal, newdist);
 		}
 		CreateBrushWindings(b);
@@ -1218,7 +1218,8 @@ qboolean ParseMapEntity(void)
 
 	if(strcmp(token, "{"))
 	{
-		Error("ParseEntity: { not found, found %s - last entity was at: <%4.2f, %4.2f, %4.2f>...", token,	entities[numEntities].origin[0], entities[numEntities].origin[1], entities[numEntities].origin[2]);
+		Error("ParseEntity: { not found, found %s - last entity was at: <%4.2f, %4.2f, %4.2f>...", token,
+			  entities[numEntities].origin[0], entities[numEntities].origin[1], entities[numEntities].origin[2]);
 	}
 
 	if(numEntities == MAX_MAP_ENTITIES)
@@ -1294,14 +1295,14 @@ qboolean ParseMapEntity(void)
 
 	GetVectorForKey(mapEnt, "origin", mapEnt->origin);
 
-	
+
 	classname = ValueForKey(mapEnt, "classname");
 	name = ValueForKey(mapEnt, "name");
 	model = ValueForKey(mapEnt, "model");
 
 
 	// Tr3B: check for bad duplicated names
-	for(i = 0; i < numEntities;  i++)
+	for(i = 0; i < numEntities; i++)
 	{
 		otherEnt = &entities[i];
 
@@ -1316,47 +1317,58 @@ qboolean ParseMapEntity(void)
 		}
 	}
 
+	if(convertType == CONVERT_QUAKE4)
+	{
+		// TODO rename items
+		// e.g. func_jumppad to trigger_push
+	}
+	else if(convertType == CONVERT_DOOM3)
+	{
+		// TODO rename items
+	}
+
 	// HACK: check if "model" key has no value
 	if(HasKey(mapEnt, "model") && !model[0])
 	{
 		Sys_FPrintf(SYS_WRN, "WARNING: entity '%s' has empty model key\n", name);
-		SetKeyValue(mapEnt, "model", name);	
+		SetKeyValue(mapEnt, "model", name);
 	}
-	
-	#if 1
+
+#if 1
 	// HACK: convert Doom3's func_static entities with custom models into misc_models
-	if(!Q_stricmp("func_static", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
+	if(convertType == CONVERT_NOTHING && !Q_stricmp("func_static", classname) && !mapEnt->brushes && !mapEnt->patches &&
+	   model[0] != '\0')
 	{
-		SetKeyValue(mapEnt, "classname", "misc_model");	
+		SetKeyValue(mapEnt, "classname", "misc_model");
 	}
-	#endif
-	
+#endif
+
 	// TODO: we should support Doom3 style doors in engine code completely
 	if(nodoors && !Q_stricmp("func_door", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
 		numEntities--;
 		return qtrue;
 	}
-	
-	#if 0
+
+#if 0
 	// HACK:
 	if(!Q_stricmp("func_rotating", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
 		numEntities--;
 		return qtrue;
 	}
-	#endif
+#endif
 
-	#if 1
 	// HACK: determine if this is a func_static that can be merged into worldspawn
-	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
+	if(convertType == CONVERT_NOTHING && !Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' &&
+	   !Q_stricmp(name, model))
 	{
 		bspBrush_t     *brush;
 		vec3_t          originNeg;
-		
+
 		VectorNegate(mapEnt->origin, originNeg);
 		AdjustBrushesForOrigin(mapEnt, originNeg);
-		
+
 		// NOTE: func_static entities should contain always detail brushes
 		for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 		{
@@ -1367,7 +1379,7 @@ qboolean ParseMapEntity(void)
 				brush->detail = qtrue;
 			}
 		}
-		
+
 		if(!strcmp("1", ValueForKey(mapEnt, "noclipmodel")))
 		{
 			for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
@@ -1375,29 +1387,31 @@ qboolean ParseMapEntity(void)
 				brush->contents &= ~CONTENTS_SOLID;
 			}
 		}
-		
+
 		MoveBrushesToWorld(mapEnt);
 		MovePatchesToWorld(mapEnt);
-		
+
 		c_mergedFuncStatics++;
 		numEntities--;
 		return qtrue;
 	}
-	#endif
-		
+
 	// if there was an origin brush, offset all of the planes and texinfo
 	// for all the brushes in the entity
-	if(mapEnt->origin[0] || mapEnt->origin[1] || mapEnt->origin[2])
+	if(convertType == CONVERT_NOTHING)
 	{
-		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))// || !Q_stricmp("worldspawn", classname))
+		if(mapEnt->origin[0] || mapEnt->origin[1] || mapEnt->origin[2])
 		{
-			AdjustBrushesForOrigin(mapEnt, vec3_origin);
-			AdjustPatchesForOrigin(mapEnt);
-		}
-		else
-		{
-			AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
-			AdjustPatchesForOrigin(mapEnt);
+			if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))	// || !Q_stricmp("worldspawn", classname))
+			{
+				AdjustBrushesForOrigin(mapEnt, vec3_origin);
+				AdjustPatchesForOrigin(mapEnt);
+			}
+			else
+			{
+				AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
+				AdjustPatchesForOrigin(mapEnt);
+			}
 		}
 	}
 
@@ -1412,10 +1426,10 @@ qboolean ParseMapEntity(void)
 
 	// group entities are just for editor convenience
 	// toss all brushes into the world entity
-	if(!strcmp("func_group", classname))
+	if(convertType == CONVERT_NOTHING && !strcmp("func_group", classname))
 	{
 		vec3_t          originNeg;
-		
+
 		// HACK: this is needed for Quake4 maps
 		VectorNegate(mapEnt->origin, originNeg);
 		AdjustBrushesForOrigin(mapEnt, originNeg);
@@ -1482,7 +1496,7 @@ void LoadMapFile(char *filename)
 	Sys_FPrintf(SYS_VRB, "%5i planes\n", numMapPlanes);
 	Sys_FPrintf(SYS_VRB, "%5i areaportals\n", c_areaportals);
 	Sys_FPrintf(SYS_VRB, "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", mapMins[0], mapMins[1], mapMins[2],
-			mapMaxs[0], mapMaxs[1], mapMaxs[2]);
+				mapMaxs[0], mapMaxs[1], mapMaxs[2]);
 
 	if(fakemap)
 	{
