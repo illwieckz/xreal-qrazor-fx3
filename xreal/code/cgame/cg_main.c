@@ -358,7 +358,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", 0},
 	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", 0},
-	{&pm_fixedPmove, "pm_fixedPmove", "1", 0},
+	{&pm_fixedPmove, "pm_fixedPmove", "0", 0},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0},
 	
 	{&cg_gravity, "g_gravity", "0", 0},	// communicated by systeminfo
