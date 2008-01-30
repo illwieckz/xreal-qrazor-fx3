@@ -1501,7 +1501,7 @@ void R_Register(void)
 	r_offsetFactor = ri.Cvar_Get("r_offsetFactor", "-1", CVAR_CHEAT);
 	r_offsetUnits = ri.Cvar_Get("r_offsetUnits", "-2", CVAR_CHEAT);
 	r_specularExponent = ri.Cvar_Get("r_specularExponent", "16", CVAR_CHEAT);
-	r_specularScale = ri.Cvar_Get("r_specularScale", "1.3", CVAR_CHEAT | CVAR_LATCH);
+	r_specularScale = ri.Cvar_Get("r_specularScale", "1.4", CVAR_CHEAT | CVAR_LATCH);
 	r_normalScale = ri.Cvar_Get("r_normalScale", "1.1", CVAR_CHEAT | CVAR_LATCH);
 	r_parallaxDepthScale = ri.Cvar_Get("r_parallaxDepthScale", "0.05", CVAR_CHEAT);
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
