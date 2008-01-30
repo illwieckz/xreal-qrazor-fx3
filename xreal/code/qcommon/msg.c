@@ -964,7 +964,7 @@ netField_t      entityStateFields[] = {
 	{NETF(legsAnim), 8},
 	{NETF(groundEntityNum), GENTITYNUM_BITS},
 	{NETF(pos.trType), 8},
-	{NETF(eFlags), 19},
+	{NETF(eFlags), 21},
 	{NETF(otherEntityNum), GENTITYNUM_BITS},
 	{NETF(weapon), 8},
 	{NETF(clientNum), 8},
@@ -1361,7 +1361,7 @@ netField_t      playerStateFields[] = {
 	,
 	{PSF(weaponstate), 4}
 	,
-	{PSF(eFlags), 16}
+	{PSF(eFlags), 21}
 	,
 	{PSF(externalEvent), 10}
 	,
