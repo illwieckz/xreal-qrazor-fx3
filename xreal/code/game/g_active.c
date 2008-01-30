@@ -1014,7 +1014,6 @@ void ClientThink_real(gentity_t * ent)
 	int             oldEventSequence;
 	int             msec;
 	usercmd_t      *ucmd;
-	int             i, sum = 0;	// initialize the real ping
 
 	client = ent->client;
 
@@ -1038,36 +1037,131 @@ void ClientThink_real(gentity_t * ent)
 //      G_Printf("serverTime >>>>>\n" );
 	}
 
+
+//unlagged - backward reconciliation #4
 	// frameOffset should be about the number of milliseconds into a frame 
 	// this command packet was received, depending on how fast the server
 	// does a G_RunFrame()
 	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
+//unlagged - backward reconciliation #4
 
+
+//unlagged - lag simulation #3
+	// if the client wants to simulate outgoing packet loss
+	if(client->pers.plOut)
+	{
+		// see if a random value is below the threshhold
+		float           thresh = (float)client->pers.plOut / 100.0f;
+
+		if(random() < thresh)
+		{
+			// do nothing at all if it is - this is a lost command
+			return;
+		}
+	}
+//unlagged - lag simulation #3
+
+
+//unlagged - true ping
 	// save the estimated ping in a queue for averaging later
+
 	// we use level.previousTime to account for 50ms lag correction
 	// besides, this will turn out numbers more like what players are used to
 	client->pers.pingsamples[client->pers.samplehead] = level.previousTime + client->frameOffset - ucmd->serverTime;
 	client->pers.samplehead++;
 	if(client->pers.samplehead >= NUM_PING_SAMPLES)
+	{
 		client->pers.samplehead -= NUM_PING_SAMPLES;
+	}
 
-	// get an average of the samples we saved up
-	for(i = 0; i < NUM_PING_SAMPLES; i++)
-		sum += client->pers.pingsamples[i];
+	// initialize the real ping
+	if(g_truePing.integer)
+	{
+		int             i, sum = 0;
 
-	client->pers.realPing = sum / NUM_PING_SAMPLES;
+		// get an average of the samples we saved up
+		for(i = 0; i < NUM_PING_SAMPLES; i++)
+		{
+			sum += client->pers.pingsamples[i];
+		}
 
-	// save the command time *before* pmove messes with the serverTime
+		client->pers.realPing = sum / NUM_PING_SAMPLES;
+	}
+	else
+	{
+		// if g_truePing is off, use the normal ping
+		client->pers.realPing = client->ps.ping;
+	}
+//unlagged - true ping
+
+
+//unlagged - lag simulation #2
+	// keep a queue of past commands
+	client->pers.cmdqueue[client->pers.cmdhead] = client->pers.cmd;
+	client->pers.cmdhead++;
+	if(client->pers.cmdhead >= MAX_LATENT_CMDS)
+	{
+		client->pers.cmdhead -= MAX_LATENT_CMDS;
+	}
+
+	// if the client wants latency in commands (client-to-server latency)
+	if(client->pers.latentCmds)
+	{
+		// save the actual command time
+		int             time = ucmd->serverTime;
+
+		// find out which index in the queue we want
+		int             cmdindex = client->pers.cmdhead - client->pers.latentCmds - 1;
+
+		while(cmdindex < 0)
+		{
+			cmdindex += MAX_LATENT_CMDS;
+		}
+
+		// read in the old command
+		client->pers.cmd = client->pers.cmdqueue[cmdindex];
+
+		// adjust the real ping to reflect the new latency
+		client->pers.realPing += time - ucmd->serverTime;
+	}
+//unlagged - lag simulation #2
+
+
+//unlagged - backward reconciliation #4
+	// save the command time *before* pmove_fixed messes with the serverTime,
+	// and *after* lag simulation messes with it :)
 	// attackTime will be used for backward reconciliation later (time shift)
 	client->attackTime = ucmd->serverTime;
+//unlagged - backward reconciliation #4
 
+
+//unlagged - smooth clients #1
 	// keep track of this for later - we'll use this to decide whether or not
 	// to send extrapolated positions for this client
 	client->lastUpdateFrame = level.framenum;
+//unlagged - smooth clients #1
 
-	// make sure the real ping is over 0 - with cl_timenudge it can be less
+
+//unlagged - lag simulation #1
+	// if the client is adding latency to received snapshots (server-to-client latency)
+	if(client->pers.latentSnaps)
+	{
+		// adjust the real ping
+		client->pers.realPing += client->pers.latentSnaps * (1000 / sv_fps.integer);
+		// adjust the attack time so backward reconciliation will work
+		client->attackTime -= client->pers.latentSnaps * (1000 / sv_fps.integer);
+	}
+//unlagged - lag simulation #1
+
+
+//unlagged - true ping
+	// make sure the true ping is over 0 - with cl_timenudge it can be less
 	if(client->pers.realPing < 0)
+	{
 		client->pers.realPing = 0;
+	}
+//unlagged - true ping
+
 
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
@@ -1257,7 +1351,20 @@ void ClientThink_real(gentity_t * ent)
 		ent->eventTime = level.time;
 	}
 
+//unlagged - smooth clients #2
+	// clients no longer do extrapolation if cg_smoothClients is 1, because
+	// skip correction is all handled server-side now
+	// since that's the case, it makes no sense to store the extra info
+	// in the client's snapshot entity, so let's save a little bandwidth
+/*
+	if (g_smoothClients.integer) {
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
+	}
+	else {
+*/
 	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
+//  }
+//unlagged - smooth clients #2
 
 	SendPendingPredictableEvents(&ent->client->ps);
 
@@ -1345,10 +1452,16 @@ void ClientThink(int clientNum)
 	ent = g_entities + clientNum;
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
 
-	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
-																		|| (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-																			ent->client->sess.spectatorState ==
-																			SPECTATOR_FOLLOW)))
+//unlagged - smooth clients #1
+	// this is handled differently now
+/*
+	// mark the time we got info, so we can display the
+	// phone jack if they don't get any for a while
+	ent->client->lastCmdTime = level.time;
+*/
+//unlagged - smooth clients #1
+
+	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
 	{
 		ClientThink_real(ent);
 	}
@@ -1357,10 +1470,7 @@ void ClientThink(int clientNum)
 
 void G_RunClient(gentity_t * ent)
 {
-	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
-																		|| (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-																			ent->client->sess.spectatorState ==
-																			SPECTATOR_FOLLOW)))
+	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
 	{
 		return;
 	}
@@ -1440,8 +1550,12 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame(gentity_t * ent)
 {
 	int             i;
-	int             frames;
 	clientPersistant_t *pers;
+
+//unlagged - smooth clients #1
+	int             frames;
+
+//unlagged - smooth clients #1
 
 	if(ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
@@ -1508,15 +1622,41 @@ void ClientEndFrame(gentity_t * ent)
 	// apply all the damage taken this frame
 	P_DamageFeedback(ent);
 
+//unlagged - smooth clients #1
+	// this is handled differently now
+/*
+	// add the EF_CONNECTION flag if we haven't gotten commands recently
+	if ( level.time - ent->client->lastCmdTime > 1000 ) {
+		ent->client->ps.eFlags |= EF_CONNECTION;
+	} else {
+		ent->client->ps.eFlags &= ~EF_CONNECTION;
+	}
+*/
+//unlagged - smooth clients #1
+
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
 	G_SetClientSound(ent);
 
-	// set the latest info
+	// set the latest information
+//unlagged - smooth clients #2
+	// clients no longer do extrapolation if cg_smoothClients is 1, because
+	// skip correction is all handled server-side now
+	// since that's the case, it makes no sense to store the extra info
+	// in the client's snapshot entity, so let's save a little bandwidth
+/*
+	if (g_smoothClients.integer) {
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
+	}
+	else {
+*/
 	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
+//  }
+//unlagged - smooth clients #2
 
 	SendPendingPredictableEvents(&ent->client->ps);
 
+//unlagged - smooth clients #1
 	// mark as not missing updates initially
 	ent->client->ps.eFlags &= ~EF_CONNECTION;
 
@@ -1537,12 +1677,18 @@ void ClientEndFrame(gentity_t * ent)
 	if(frames > 0 && g_smoothClients.integer)
 	{
 		// yep, missed one or more, so extrapolate the player's movement
-		G_PredictPlayerMove(ent, (float)frames / (float)sv_fps.integer);
-
+		G_PredictPlayerMove(ent, (float)frames / sv_fps.integer);
 		// save network bandwidth
 		SnapVector(ent->s.pos.trBase);
 	}
+//unlagged - smooth clients #1
 
+//unlagged - backward reconciliation #1
 	// store the client's position for backward reconciliation later
 	G_StoreHistory(ent);
+//unlagged - backward reconciliation #1
+
+	// set the bit for the reachability area the client is currently in
+//  i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
+//  ent->client->areabits[i >> 3] |= 1 << (i & 7);
 }

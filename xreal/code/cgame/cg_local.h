@@ -170,6 +170,8 @@ typedef struct
 
 //=================================================
 
+
+
 // centity_t have a direct corespondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
 typedef struct centity_s
@@ -206,6 +208,7 @@ typedef struct centity_s
 	vec3_t          lerpAngles;
 } centity_t;
 
+
 //======================================================================
 
 // local entities are created as a result of events or predicted actions,
@@ -221,6 +224,7 @@ typedef struct markPoly_s
 	poly_t          poly;
 	polyVert_t      verts[MAX_VERTS_ON_POLY];
 } markPoly_t;
+
 
 typedef enum
 {
@@ -300,6 +304,7 @@ typedef struct localEntity_s
 } localEntity_t;
 
 //======================================================================
+
 
 typedef struct
 {
@@ -408,6 +413,7 @@ typedef struct
 	sfxHandle_t     sounds[MAX_CUSTOM_SOUNDS];
 } clientInfo_t;
 
+
 // each WP_* weapon enum has an associated weaponInfo_t
 // that contains media references necessary to present the
 // weapon and its effects
@@ -452,6 +458,7 @@ typedef struct weaponInfo_s
 	qboolean        loopFireSound;
 } weaponInfo_t;
 
+
 // each IT_* item has an associated itemInfo_t
 // that constains media references necessary to present the
 // item and its effects
@@ -462,10 +469,12 @@ typedef struct
 	qhandle_t       icon;
 } itemInfo_t;
 
+
 typedef struct
 {
 	int             itemNum;
 } powerupInfo_t;
+
 
 #define MAX_SKULLTRAIL		10
 
@@ -474,6 +483,7 @@ typedef struct
 	vec3_t          positions[MAX_SKULLTRAIL];
 	int             numpositions;
 } skulltrail_t;
+
 
 #define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
@@ -554,7 +564,10 @@ typedef struct particle_s
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
 #define MAX_PREDICTED_EVENTS	16
-#define NUM_SAVED_STATES		(CMD_BACKUP + 2)
+
+//unlagged - optimized prediction
+#define NUM_SAVED_STATES (CMD_BACKUP + 2)
+//unlagged - optimized prediction
 
 typedef struct
 {
@@ -615,12 +628,6 @@ typedef struct
 
 	float           landChange;	// for landing hard
 	int             landTime;
-
-	// optimized prediction state
-	int             lastPredictedCommand;
-	int             lastServerTime;
-	playerState_t   savedPmoveStates[NUM_SAVED_STATES];
-	int             stateHead, stateTail;
 
 	// input state sent to server
 	int             weaponSelect;
@@ -751,7 +758,8 @@ typedef struct
 
 	//qboolean cameraMode;      // if rendering from a loaded camera
 
-	// development tools
+
+	// development tool
 	refEntity_t     testModelEntity;
 	char            testModelName[MAX_QPATH];
 	qboolean        testGun;
@@ -768,6 +776,13 @@ typedef struct
 	refLight_t      testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testFlashLight;
+	
+//unlagged - optimized prediction
+	int             lastPredictedCommand;
+	int             lastServerTime;
+	playerState_t   savedPmoveStates[NUM_SAVED_STATES];
+	int             stateHead, stateTail;
+//unlagged - optimized prediction
 } cg_t;
 
 
@@ -1205,8 +1220,10 @@ typedef struct
 	// media
 	cgMedia_t       media;
 
-	// this will be set to the server's server_delagHitscan
+//unlagged - client options
+	// this will be set to the server's g_delagHitscan
 	int             delagHitscan;
+//unlagged - client options
 } cgs_t;
 
 //==============================================================================
@@ -1295,7 +1312,10 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
-
+//unlagged - smooth clients #2
+// this is done server-side now
+//extern    vmCvar_t        cg_smoothClients;
+//unlagged - smooth clients #2
 extern vmCvar_t cg_cameraOrbit;
 extern vmCvar_t cg_cameraOrbitDelay;
 extern vmCvar_t cg_timescaleFadeEnd;
@@ -1308,9 +1328,6 @@ extern vmCvar_t cg_noTaunt;
 extern vmCvar_t cg_noProjectileTrail;
 extern vmCvar_t cg_railType;
 extern vmCvar_t cg_trueLightning;
-
-extern vmCvar_t cg_drawPlayerAABB;
-
 extern vmCvar_t cg_particleCollision;
 
 extern vmCvar_t pm_airControl;
@@ -1318,10 +1335,6 @@ extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;
 extern vmCvar_t pm_fixedPmoveFPS;
 
-extern vmCvar_t cg_delag;
-extern vmCvar_t cg_projectileNudge;
-extern vmCvar_t cg_optimizePrediction;
-extern vmCvar_t sv_fps;
 extern vmCvar_t cg_gravity;
 
 #ifdef MISSIONPACK
@@ -1338,12 +1351,27 @@ extern vmCvar_t cg_recordSPDemoName;
 extern vmCvar_t cg_obeliskRespawnDelay;
 #endif
 
+//unlagged - client options
+extern vmCvar_t cg_delag;
+extern vmCvar_t cg_debugDelag;
+extern vmCvar_t cg_drawBBox;
+extern vmCvar_t cg_cmdTimeNudge;
+extern vmCvar_t sv_fps;
+extern vmCvar_t cg_projectileNudge;
+extern vmCvar_t cg_optimizePrediction;
+extern vmCvar_t cl_timeNudge;
+extern vmCvar_t cg_latentSnaps;
+extern vmCvar_t cg_latentCmds;
+extern vmCvar_t cg_plOut;
 
-//
-// unlagged - cg_unlagged.c
-//
+//unlagged - client options
+
+//unlagged - cg_unlagged.c
 void            CG_PredictWeaponEffects(centity_t * cent);
+void            CG_AddBoundingBox(centity_t * cent);
+qboolean        CG_Cvar_ClampInt(const char *name, vmCvar_t * vmCvar, int min, int max);
 
+//unlagged - cg_unlagged.c
 
 //
 // cg_main.c
@@ -1366,8 +1394,8 @@ void            CG_MouseEvent(int x, int y);
 void            CG_EventHandling(int type);
 void            CG_RankRunFrame(void);
 void            CG_SetScoreSelection(void *menu);
-score_t        *CG_GetSelectedScore(void);
-void            CG_BuildSpectatorString(void);
+score_t        *CG_GetSelectedScore();
+void            CG_BuildSpectatorString();
 
 
 //
@@ -1444,26 +1472,26 @@ void            CG_OwnerDraw(float x, float y, float w, float h, float text_x, f
 void            CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
 int             CG_Text_Width(const char *text, float scale, int limit);
 int             CG_Text_Height(const char *text, float scale, int limit);
-void            CG_SelectPrevPlayer(void);
-void            CG_SelectNextPlayer(void);
+void            CG_SelectPrevPlayer();
+void            CG_SelectNextPlayer();
 float           CG_GetValue(int ownerDraw);
 qboolean        CG_OwnerDrawVisible(int flags);
 void            CG_RunMenuScript(char **args);
-void            CG_ShowResponseHead(void);
+void            CG_ShowResponseHead();
 void            CG_SetPrintString(int type, const char *p);
-void            CG_InitTeamChat(void);
+void            CG_InitTeamChat();
 void            CG_GetTeamColor(vec4_t * color);
-const char     *CG_GetGameStatusText(void);
-const char     *CG_GetKillerText(void);
+const char     *CG_GetGameStatusText();
+const char     *CG_GetKillerText();
 void            CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles);
 void            CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel,
 									 qhandle_t skin, vec3_t origin, vec3_t angles);
 void            CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
 								  qhandle_t hShader);
-void            CG_CheckOrderPending(void);
-const char     *CG_GameTypeString(void);
-qboolean        CG_YourTeamHasFlag(void);
-qboolean        CG_OtherTeamHasFlag(void);
+void            CG_CheckOrderPending();
+const char     *CG_GameTypeString();
+qboolean        CG_YourTeamHasFlag();
+qboolean        CG_OtherTeamHasFlag();
 qhandle_t       CG_StatusHandle(int task);
 
 
@@ -1588,7 +1616,11 @@ localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qh
 // cg_snapshot.c
 //
 void            CG_ProcessSnapshots(void);
+
+//unlagged - early transitioning
 void            CG_TransitionEntity(centity_t * cent);
+
+//unlagged - early transitioning
 
 //
 // cg_info.c

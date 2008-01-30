@@ -828,6 +828,46 @@ void ClientUserinfoChanged(int clientNum)
 		client->pers.predictItemPickup = qtrue;
 	}
 
+//unlagged - client options
+	// see if the player has opted out
+	s = Info_ValueForKey(userinfo, "cg_delag");
+	if(!atoi(s))
+	{
+		client->pers.delag = 0;
+	}
+	else
+	{
+		client->pers.delag = atoi(s);
+	}
+
+	// see if the player is nudging his shots
+	s = Info_ValueForKey(userinfo, "cg_cmdTimeNudge");
+	client->pers.cmdTimeNudge = atoi(s);
+
+	// see if the player wants to debug the backward reconciliation
+	s = Info_ValueForKey(userinfo, "cg_debugDelag");
+	if(!atoi(s))
+	{
+		client->pers.debugDelag = qfalse;
+	}
+	else
+	{
+		client->pers.debugDelag = qtrue;
+	}
+
+	// see if the player is simulating incoming latency
+	s = Info_ValueForKey(userinfo, "cg_latentSnaps");
+	client->pers.latentSnaps = atoi(s);
+
+	// see if the player is simulating outgoing latency
+	s = Info_ValueForKey(userinfo, "cg_latentCmds");
+	client->pers.latentCmds = atoi(s);
+
+	// see if the player is simulating outgoing packet loss
+	s = Info_ValueForKey(userinfo, "cg_plOut");
+	client->pers.plOut = atoi(s);
+//unlagged - client options
+
 	// set name
 	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
 	s = Info_ValueForKey(userinfo, "name");
@@ -977,22 +1017,21 @@ void ClientUserinfoChanged(int clientNum)
 	// print scoreboards, display models, and play custom sounds
 	if(ent->r.svFlags & SVF_BOT)
 	{
-		Com_sprintf(userinfo, sizeof(userinfo),
-					"n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-					client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
-					client->sess.wins, client->sess.losses, Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+			   client->pers.netname, team, model, headModel, c1, c2,
+			   client->pers.maxHealth, client->sess.wins, client->sess.losses,
+			   Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
 	}
 	else
 	{
-		Com_sprintf(userinfo, sizeof(userinfo),
-					"n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-					client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
-					client->sess.wins, client->sess.losses, teamTask, teamLeader);
+		s = va
+			("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			 client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, client->pers.maxHealth,
+			 client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
-	trap_SetConfigstring(CS_PLAYERS + clientNum, userinfo);
+	trap_SetConfigstring(CS_PLAYERS + clientNum, s);
 
-	// this is not the userinfo, more like the configstring actually
 	G_LogPrintf("ClientUserinfoChanged: %i %s\n", clientNum, s);
 }
 
@@ -1102,6 +1141,18 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 //  client->areabits = areabits;
 //  if ( !client->areabits )
 //      client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
+
+//unlagged - backward reconciliation #5
+	// announce it
+	if(g_delagHitscan.integer)
+	{
+		trap_SendServerCommand(clientNum, "print \"This server is Unlagged: full lag compensation is ON!\n\"");
+	}
+	else
+	{
+		trap_SendServerCommand(clientNum, "print \"This server is Unlagged: full lag compensation is OFF!\n\"");
+	}
+//unlagged - backward reconciliation #5
 
 	return NULL;
 }
@@ -1254,13 +1305,16 @@ void ClientSpawn(gentity_t * ent)
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
 	flags ^= EF_TELEPORT_BIT;
 
+//unlagged - backward reconciliation #3
 	// we don't want players being backward-reconciled to the place they died
 	G_ResetHistory(ent);
 
 	// and this is as good a time as any to clear the saved state
 	ent->client->saved.leveltime = 0;
+//unlagged - backward reconciliation #3
 
 	// clear everything but the persistant data
+
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;

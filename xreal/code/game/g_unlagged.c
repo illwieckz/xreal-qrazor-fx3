@@ -107,11 +107,10 @@ G_TimeShiftClient
 Move a client back to where he was at the specified "time"
 =================
 */
-void G_TimeShiftClient(gentity_t * ent, int time, gentity_t * debugger)
+void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * debugger)
 {
 	int             j, k;
 	char            msg[2048];
-	qboolean        debug = qfalse;
 
 	// this will dump out the head index, and the time for all the stored positions
 /*
@@ -266,6 +265,7 @@ void G_TimeShiftAllClients(int time, gentity_t * skip)
 {
 	int             i;
 	gentity_t      *ent;
+	qboolean        debug = (skip != NULL && skip->client && skip->client->pers.debugDelag && skip->s.weapon == WP_RAILGUN);
 
 	// for every client
 	ent = &g_entities[0];
@@ -273,7 +273,7 @@ void G_TimeShiftAllClients(int time, gentity_t * skip)
 	{
 		if(ent->client && ent->inuse && ent->client->sess.sessionTeam < TEAM_SPECTATOR && ent != skip)
 		{
-			G_TimeShiftClient(ent, time, skip);
+			G_TimeShiftClient(ent, time, debug, skip);
 		}
 	}
 }
@@ -303,7 +303,7 @@ void G_DoTimeShiftFor(gentity_t * ent)
 	}
 
 	// if it's enabled server-side and the client wants it or wants it for this weapon
-	if(g_delag.integer && (ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag))
+	if(g_delagHitscan.integer && (ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag))
 	{
 		// do the full lag compensation, except what the client nudges
 		time = ent->client->attackTime + ent->client->pers.cmdTimeNudge;

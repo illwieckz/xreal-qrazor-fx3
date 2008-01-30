@@ -894,8 +894,26 @@ CG_CalcEntityLerpPositions
 */
 static void CG_CalcEntityLerpPositions(centity_t * cent)
 {
+//unlagged - projectile nudge
 	// this will be set to how far forward projectiles will be extrapolated
 	int             timeshift = 0;
+
+//unlagged - projectile nudge
+
+//unlagged - smooth clients #2
+	// this is done server-side now - cg_smoothClients is undefined
+	// players will always be TR_INTERPOLATE
+/*
+	// if this player does not want to see extrapolated players
+	if ( !cg_smoothClients.integer ) {
+		// make sure the clients use TR_INTERPOLATE
+		if ( cent->currentState.number < MAX_CLIENTS ) {
+			cent->currentState.pos.trType = TR_INTERPOLATE;
+			cent->nextState.pos.trType = TR_INTERPOLATE;
+		}
+	}
+*/
+//unlagged - smooth clients #2
 
 	if(cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE)
 	{
@@ -911,6 +929,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 		return;
 	}
 
+//unlagged - timenudge extrapolation
 	// interpolating failed (probably no nextSnap), so extrapolate
 	// this can also happen if the teleport bit is flipped, but that
 	// won't be noticeable
@@ -920,7 +939,9 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 		cent->currentState.pos.trTime = cg.snap->serverTime;
 		cent->currentState.pos.trDuration = 1000 / sv_fps.integer;
 	}
+//unlagged - timenudge extrapolation
 
+//unlagged - projectile nudge
 	// if it's a missile but not a grappling hook
 	if(cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GRAPPLING_HOOK)
 	{
@@ -941,6 +962,8 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	}
 
 	// just use the current frame and evaluate as best we can
+//  BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
+//  BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin);
 	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time + timeshift, cent->lerpAngles);
 
@@ -962,6 +985,8 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * (cent->lerpOrigin[2] - lastOrigin[2]);
 		}
 	}
+//unlagged - projectile nudge
+
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
@@ -1272,6 +1297,7 @@ void CG_AddPacketEntities(void)
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 
+//unlagged - early transitioning
 	if(cg.nextSnap)
 	{
 		// pre-add some of the entities sent over by the server
@@ -1288,13 +1314,18 @@ void CG_AddPacketEntities(void)
 			}
 		}
 	}
+//unlagged - early transitioning
 
 	// add each entity sent over by the server
 	for(num = 0; num < cg.snap->numEntities; num++)
 	{
 		cent = &cg_entities[cg.snap->entities[num].number];
+//unlagged - early transitioning
 		if(!cg.nextSnap || cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL)
+		{
+//unlagged - early transitioning
 			CG_AddCEntity(cent);
+		}
 	}
 }
 

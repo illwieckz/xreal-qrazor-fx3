@@ -97,6 +97,15 @@ vmCvar_t        g_enableBreath;
 vmCvar_t        g_proxMineTimeout;
 #endif
 
+//unlagged - server options
+vmCvar_t        g_delagHitscan;
+vmCvar_t        g_unlaggedVersion;
+vmCvar_t        g_truePing;
+vmCvar_t        g_lightningDamage;
+vmCvar_t        sv_fps;
+
+//unlagged - server options
+
 vmCvar_t        g_rocketAcceleration;
 vmCvar_t        g_rocketVelocity;
 
@@ -106,9 +115,6 @@ vmCvar_t        pm_fastWeaponSwitches;
 vmCvar_t        pm_fixedPmove;
 vmCvar_t        pm_fixedPmoveFPS;
 
-// this is for convenience - using "sv_fps.integer" is nice :)
-vmCvar_t        sv_fps;
-vmCvar_t        g_delag;
 
 static cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -202,9 +208,14 @@ static cvarTable_t gameCvarTable[] = {
 	{&pm_fixedPmove, "pm_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
 
+//unlagged - server options
+	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
+	{&g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue},
+	{&g_lightningDamage, "g_lightningDamage", "8", 0, 0, qtrue},
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
-	{&g_delag, "g_delag", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+//unlagged - server options
 };
 
 // bk001129 - made static to avoid aliasing
@@ -2086,6 +2097,16 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
+//unlagged - backward reconciliation #2
+		// we'll run missiles separately to save CPU in backward reconciliation
+/*
+		if ( ent->s.eType == ET_MISSILE ) {
+			G_RunMissile( ent );
+			continue;
+		}
+*/
+//unlagged - backward reconciliation #2
+
 		if(ent->s.eType == ET_ITEM || ent->physicsObject)
 		{
 			G_RunItem(ent);
@@ -2107,7 +2128,8 @@ void G_RunFrame(int levelTime)
 		G_RunThink(ent);
 	}
 
-	// run the missiles, with all players backward-reconciled
+//unlagged - backward reconciliation #2
+	// NOW run the missiles, with all players backward-reconciled
 	// to the positions they were in exactly 50ms ago, at the end
 	// of the last server frame
 	G_TimeShiftAllClients(level.previousTime, NULL);
@@ -2116,17 +2138,24 @@ void G_RunFrame(int levelTime)
 	for(i = 0; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
+		{
 			continue;
+		}
 
 		// temporary entities don't think
 		if(ent->freeAfterEvent)
+		{
 			continue;
+		}
 
 		if(ent->s.eType == ET_MISSILE)
+		{
 			G_RunMissile(ent);
+		}
 	}
 
 	G_UnTimeShiftAllClients(NULL);
+//unlagged - backward reconciliation #2
 
 	end = trap_Milliseconds();
 
@@ -2170,8 +2199,10 @@ void G_RunFrame(int levelTime)
 		trap_Cvar_Set("g_listEntity", "0");
 	}
 
+//unlagged - backward reconciliation #4
 	// record the time at the end of this frame - it should be about
 	// the time the next frame begins - when the server starts
 	// accepting commands from connected clients
 	level.frameStartTime = trap_Milliseconds();
+//unlagged - backward reconciliation #4
 }

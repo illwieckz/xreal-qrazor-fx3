@@ -173,6 +173,12 @@ void CG_ParseServerinfo(void)
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz(cgs.blueTeam, Info_ValueForKey(info, "g_blueTeam"), sizeof(cgs.blueTeam));
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+
+//unlagged - server options
+	// we'll need this for deciding whether or not to predict weapon effects
+	cgs.delagHitscan = atoi(Info_ValueForKey(info, "g_delagHitscan"));
+	trap_Cvar_Set("g_delagHitscan", va("%i", cgs.delagHitscan));
+//unlagged - server options
 }
 
 /*
@@ -356,6 +362,28 @@ static void CG_ConfigStringModified(void)
 #ifdef MISSIONPACK
 		trap_S_StartLocalSound(cgs.media.voteNow, CHAN_ANNOUNCER);
 #endif							//MISSIONPACK
+	}
+	else if(num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1)
+	{
+		cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = atoi(str);
+		cgs.teamVoteModified[num - CS_TEAMVOTE_TIME] = qtrue;
+	}
+	else if(num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1)
+	{
+		cgs.teamVoteYes[num - CS_TEAMVOTE_YES] = atoi(str);
+		cgs.teamVoteModified[num - CS_TEAMVOTE_YES] = qtrue;
+	}
+	else if(num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1)
+	{
+		cgs.teamVoteNo[num - CS_TEAMVOTE_NO] = atoi(str);
+		cgs.teamVoteModified[num - CS_TEAMVOTE_NO] = qtrue;
+	}
+	else if(num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1)
+	{
+		Q_strncpyz(cgs.teamVoteString[num - CS_TEAMVOTE_STRING], str, sizeof(cgs.teamVoteString));
+#ifdef MISSIONPACK
+		trap_S_StartLocalSound(cgs.media.voteNow, CHAN_ANNOUNCER);
+#endif
 	}
 	else if(num == CS_INTERMISSION)
 	{

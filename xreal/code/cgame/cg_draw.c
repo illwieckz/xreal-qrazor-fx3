@@ -749,11 +749,17 @@ static void CG_DrawStatusBarQ3(void)
 	CG_DrawStatusBarHead(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE);
 
 	if(cg.predictedPlayerState.powerups[PW_REDFLAG])
+	{
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_RED);
+	}
 	else if(cg.predictedPlayerState.powerups[PW_BLUEFLAG])
+	{
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_BLUE);
+	}
 	else if(cg.predictedPlayerState.powerups[PW_NEUTRALFLAG])
+	{
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_FREE);
+	}
 
 	if(ps->stats[STAT_ARMOR])
 	{
@@ -1749,7 +1755,6 @@ static float CG_DrawScores(float y)
 			}
 		}
 #endif
-
 		if(cgs.gametype >= GT_CTF)
 		{
 			v = cgs.capturelimit;
@@ -2376,8 +2381,10 @@ static void CG_DrawLagometer(void)
 	int             color;
 	float           vscale;
 
-	if(!cg_lagometer.integer || cgs.localServer)
+//unlagged - misc
+	if(!cg_lagometer.integer /* || cgs.localServer */ )
 	{
+//unlagged - misc
 		CG_DrawDisconnect();
 		return;
 	}

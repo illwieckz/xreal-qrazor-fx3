@@ -1422,6 +1422,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 
 	memset(&beam, 0, sizeof(beam));
 
+//unlagged - attack prediction #1
 	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
 	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan &&
 	   (cg_delag.integer & 1 || cg_delag.integer & 8))
@@ -1430,18 +1431,24 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
 		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
 	}
-	else if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
-	{
+	else
+//unlagged - attack prediction #1
 		// CPMA  "true" lightning
+	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
+	{
 		vec3_t          angle;
 		int             i;
+
+//unlagged - true lightning
+		// might as well fix up true lightning while we're at it
 		vec3_t          viewangles;
 
 		VectorCopy(cg.predictedPlayerState.viewangles, viewangles);
+//unlagged - true lightning
 
 		for(i = 0; i < 3; i++)
 		{
-			float           a = cent->lerpAngles[i] - viewangles[i];
+			float           a = cent->lerpAngles[i] - viewangles[i];	//unlagged: was cg.refdefViewAngles[i];
 
 			if(a > 180)
 			{
@@ -1452,7 +1459,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 				a += 360;
 			}
 
-			angle[i] = viewangles[i] + a * (1.0 - cg_trueLightning.value);
+			angle[i] = viewangles[i] /*unlagged: was cg.refdefViewAngles[i] */  + a * (1.0 - cg_trueLightning.value);
 			if(angle[i] < 0)
 			{
 				angle[i] += 360;
@@ -1464,7 +1471,12 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		}
 
 		AngleVectors(angle, forward, NULL, NULL);
+//unlagged - true lightning
+//      VectorCopy(cent->lerpOrigin, muzzlePoint );
+//      VectorCopy(cg.refdef.vieworg, muzzlePoint );
+		// *this* is the correct origin for true lightning
 		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
+//unlagged - true lightning
 	}
 	else
 	{
@@ -2387,7 +2399,9 @@ void CG_FireWeapon(centity_t * cent)
 		weap->ejectBrassFunc(cent);
 	}
 
+//unlagged - attack prediction #1
 	CG_PredictWeaponEffects(cent);
+//unlagged - attack prediction #1
 }
 
 /*
@@ -2481,14 +2495,18 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 #ifdef MISSIONPACK
 		case WP_NAILGUN:
 			if(soundType == IMPACTSOUND_FLESH)
+			{
 				sfx = cgs.media.sfx_nghitflesh;
+			}
 			else if(soundType == IMPACTSOUND_METAL)
+			{
 				sfx = cgs.media.sfx_nghitmetal;
+			}
 			else
+			{
 				sfx = cgs.media.sfx_nghit;
-
+			}
 			mark = cgs.media.holeMarkShader;
-
 			radius = 12;
 
 			CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
@@ -2497,17 +2515,22 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 				CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 #endif
-
 		case WP_LIGHTNING:
 			mark = cgs.media.holeMarkShader;
 
 			r = rand() & 3;
 			if(r < 2)
+			{
 				sfx = cgs.media.sfx_lghit2;
+			}
 			else if(r == 2)
+			{
 				sfx = cgs.media.sfx_lghit1;
+			}
 			else
+			{
 				sfx = cgs.media.sfx_lghit3;
+			}
 
 			radius = 12;
 
@@ -2527,7 +2550,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			isSprite = qtrue;
 			break;
 #endif
-
 		case WP_GRENADE_LAUNCHER:
 			mod = cgs.media.dishFlashModel;
 			shader = cgs.media.grenadeExplosionShader;
@@ -2542,7 +2564,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 			// TODO CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			break;
-
 		case WP_ROCKET_LAUNCHER:
 			mod = cgs.media.dishFlashModel;
 			shader = cgs.media.rocketExplosionShader;
@@ -2561,7 +2582,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 			// TODO CG_ParticleExplosion("explode1", partOrigin, partVel, 700, 60, 240);
 			break;
-
 		case WP_RAILGUN:
 			sfx = cgs.media.sfx_plasmaexp;
 			mark = cgs.media.energyMarkShader;
@@ -2578,7 +2598,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			// some debris particles
 			CG_AddBulletParticles(origin, dir, 20, 1800, 6 + rand() % 6, 1.5f);
 			break;
-
 		case WP_BFG:
 			mod = cgs.media.dishFlashModel;
 			shader = cgs.media.bfgExplosionShader;
@@ -2593,7 +2612,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 			//CG_ParticleExplosion("bfg1", partOrigin, partVel, 700, 60, 240);
 			CG_ParticleSparks(partOrigin, partVel, 1400, 20, 30, 600);
 			break;
-
 		case WP_SHOTGUN:
 			mark = cgs.media.bulletMarkShader;
 			sfx = 0;
@@ -2613,11 +2631,17 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
 			r = rand() & 3;
 			if(r < 2)
+			{
 				sfx = cgs.media.sfx_ric1;
+			}
 			else if(r == 2)
+			{
 				sfx = cgs.media.sfx_ric2;
+			}
 			else
+			{
 				sfx = cgs.media.sfx_ric3;
+			}
 
 			if(soundType == IMPACTSOUND_FLESH)
 				sfx = cgs.media.sfx_chghitflesh;
@@ -2747,6 +2771,8 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum)
 	}
 }
 
+
+
 /*
 ============================================================================
 
@@ -2828,6 +2854,8 @@ Perform the same traces the server did to locate the
 hit splashes
 ================
 */
+//unlagged - attack prediction
+// made this non-static for access from cg_unlagged.c
 void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
 {
 	int             i;
@@ -2967,7 +2995,9 @@ void CG_Tracer(vec3_t source, vec3_t dest)
 
 	// add the tracer sound
 	trap_S_StartSound(midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound);
+
 }
+
 
 /*
 ======================
@@ -3072,4 +3102,5 @@ void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, i
 	{
 		CG_MissileHitWall(WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT);
 	}
+
 }
