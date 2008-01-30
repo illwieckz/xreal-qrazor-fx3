@@ -3724,7 +3724,7 @@ void RB_RenderBloom(void)
 {
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
-	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer)
+	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer || backEnd.viewParms.isPortal)
 		return;
 
 	// set 2D virtual screen size
