@@ -143,6 +143,17 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 		return qfalse;
 	}
 
+	// now it must be a SF_FACE
+	sface = (srfSurfaceFace_t *) surface;
+
+	if(shader->isPortal || shader->isMirror)
+	{
+		if(R_CullLocalBox(sface->bounds) == CULL_OUT)
+		{
+			return qtrue;
+		}
+	}
+
 	if(shader->cullType == CT_TWO_SIDED)
 	{
 		return qfalse;
@@ -154,7 +165,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 		return qfalse;
 	}
 
-	sface = (srfSurfaceFace_t *) surface;
+	
 	d = DotProduct(tr.or.viewOrigin, sface->plane.normal);
 
 	// don't cull exactly on the plane, because there are levels of rounding
