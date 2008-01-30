@@ -4182,7 +4182,7 @@ static void R_CreateContrastRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4205,7 +4205,7 @@ static void R_CreateCurrentRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4228,7 +4228,7 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH24, FT_NEAREST, WT_REPEAT);
+	tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH24, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4251,7 +4251,7 @@ static void R_CreatePortalRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.portalRenderImage = R_CreateImage("_portalRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.portalRenderImage = R_CreateImage("_portalRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }
