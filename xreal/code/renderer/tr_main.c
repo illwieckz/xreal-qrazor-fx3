@@ -1169,6 +1169,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	PerpendicularVector(surface->axis[1], surface->axis[0]);
 	CrossProduct(surface->axis[0], surface->axis[1], surface->axis[2]);
 
+#if 0
 	// Doom3 style mirror support
 	shader = tr.sortedShaders[drawSurf->shaderNum];
 	if(shader->isMirror)
@@ -1184,6 +1185,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 		*mirror = qtrue;
 		return qtrue;
 	}
+#endif
 
 	// locate the portal entity closest to this plane.
 	// origin will be the origin of the portal, origin2 will be
@@ -1208,7 +1210,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 		// if the entity is just a mirror, don't use as a camera point
 		if(e->e.oldorigin[0] == e->e.origin[0] && e->e.oldorigin[1] == e->e.origin[1] && e->e.oldorigin[2] == e->e.origin[2])
 		{
-			//ri.Printf(PRINT_ALL, "Portal surface with a mirror entity\n");
+			//ri.Printf(PRINT_DEVELOPER, "Portal surface with a mirror entity\n");
 
 			VectorScale(plane.normal, plane.dist, surface->origin);
 			VectorCopy(surface->origin, camera->origin);
