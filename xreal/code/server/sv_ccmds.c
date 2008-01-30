@@ -40,7 +40,7 @@ SV_GetPlayerByHandle
 Returns the player with player id or name from Cmd_Argv(1)
 ==================
 */
-client_t       *SV_GetPlayerByName(void)
+static client_t *SV_GetPlayerByHandle(void)
 {
 	client_t       *cl;
 	int             i;
@@ -95,25 +95,6 @@ client_t       *SV_GetPlayerByName(void)
 		if(!Q_stricmp(cleanName, s))
 		{
 			return cl;
-		}
-	}
-
-	// r1: substring matching
-	{
-		Q_strlwr(s);
-		for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
-		{
-			if(!cl->state)
-				continue;
-			if(strstr(cl->name, s))
-				return cl;
-
-			Q_strncpyz(cleanName, cl->name, sizeof(cleanName));
-			Q_CleanStr(cleanName);
-			Q_strlwr(cleanName);
-
-			if(strstr(cleanName, s))
-				return cl;
 		}
 	}
 
@@ -404,25 +385,6 @@ static void SV_MapRestart_f(void)
 
 //===============================================================
 
-static qboolean StringIsNumeric(const char *s)
-{
-	const char     *p;
-
-	if(!s[0])
-		return qfalse;
-
-	p = s;
-
-	while(p[0])
-	{
-		if(!isdigit(p[0]))
-			return qfalse;
-		p++;
-	}
-
-	return qtrue;
-}
-
 /*
 ==================
 SV_Kick_f
@@ -433,6 +395,7 @@ Kick a user off of the server  FIXME: move to game
 static void SV_Kick_f(void)
 {
 	client_t       *cl;
+	int             i;
 
 	// make sure server is running
 	if(!com_sv_running->integer)
@@ -443,26 +406,50 @@ static void SV_Kick_f(void)
 
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf("Usage: kick <player name/id>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+		Com_Printf("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
 	}
 
-	//r1: support both id/name here.
-	if(StringIsNumeric(Cmd_Argv(1)))
-	{
-		cl = SV_GetPlayerByNum();
-	}
-	else
-	{
-		cl = SV_GetPlayerByName();
-	}
-
+	cl = SV_GetPlayerByHandle();
 	if(!cl)
+	{
+		if(!Q_stricmp(Cmd_Argv(1), "all"))
+		{
+			for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
+			{
+				if(!cl->state)
+				{
+					continue;
+				}
+				if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
+				{
+					continue;
+				}
+				SV_DropClient(cl, "was kicked");
+				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+			}
+		}
+		else if(!Q_stricmp(Cmd_Argv(1), "allbots"))
+		{
+			for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
+			{
+				if(!cl->state)
+				{
+					continue;
+				}
+				if(cl->netchan.remoteAddress.type != NA_BOT)
+				{
+					continue;
+				}
+				SV_DropClient(cl, "was kicked");
+				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+			}
+		}
 		return;
-
+	}
 	if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
 	{
-		Com_Printf("Cannot kick host player.\n");
+		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
 		return;
 	}
 
@@ -521,7 +508,6 @@ static void SV_Status_f(void)
 	playerState_t  *ps;
 	const char     *s;
 	int             ping;
-	char            cleanName[32];
 
 	// make sure server is running
 	if(!com_sv_running->integer)
@@ -556,9 +542,7 @@ static void SV_Status_f(void)
 		// TTimo adding a ^7 to reset the color
 		// NOTE: colored names in status breaks the padding (WONTFIX)
 		Com_Printf("^7");
-		Q_strncpyz(cleanName, cl->name, sizeof(cleanName));
-		Q_CleanStr(cleanName);
-		l = 16 - strlen(cleanName);
+		l = 16 - strlen(cl->name);
 		for(j = 0; j < l; j++)
 			Com_Printf(" ");
 
@@ -610,7 +594,7 @@ static void SV_ConSay_f(void)
 		p[strlen(p) - 1] = 0;
 	}
 
-	Q_strcat(text, sizeof(text), p);
+	strcat(text, p);
 
 	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
 }
@@ -681,7 +665,7 @@ static void SV_DumpUser_f(void)
 		return;
 	}
 
-	cl = SV_GetPlayerByName();
+	cl = SV_GetPlayerByHandle();
 	if(!cl)
 	{
 		return;

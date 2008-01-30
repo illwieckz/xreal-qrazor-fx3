@@ -57,7 +57,6 @@ game_src = [
 'code/game/g_misc.c',
 'code/game/g_missile.c',
 'code/game/g_mover.c',
-'code/game/g_r1admin.c',
 'code/game/g_session.c',
 'code/game/g_spawn.c',
 'code/game/g_svcmds.c',

@@ -60,7 +60,7 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset)
 	}
 }
 
-const char     *BuildShaderStateConfig()
+const char     *BuildShaderStateConfig(void)
 {
 	static char     buff[MAX_STRING_CHARS * 4];
 	char            out[(MAX_QPATH * 2) + 5];
@@ -87,6 +87,7 @@ model / sound configstring indexes
 /*
 ================
 G_FindConfigstringIndex
+
 ================
 */
 static int G_FindConfigstringIndex(const char *name, int start, int max, qboolean create)
@@ -613,6 +614,7 @@ void G_KillBox(gentity_t * ent)
 		// nail it
 		G_Damage(hit, ent, ent, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
 	}
+
 }
 
 //==============================================================================

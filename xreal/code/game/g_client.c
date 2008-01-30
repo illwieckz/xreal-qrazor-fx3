@@ -627,6 +627,7 @@ int TeamLeader(int team)
 /*
 ================
 PickTeam
+
 ================
 */
 team_t PickTeam(int ignoreClientNum)
@@ -649,8 +650,128 @@ team_t PickTeam(int ignoreClientNum)
 	{
 		return TEAM_RED;
 	}
-	return rand() & 1 ? TEAM_RED : TEAM_BLUE;
+	return TEAM_BLUE;
 }
+
+/*
+===========
+ForceClientSkin
+
+Forces a client's skin (for teamplay)
+===========
+*/
+/*
+static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
+	char *p;
+
+	if ((p = Q_strrchr(model, '/')) != 0) {
+		*p = 0;
+	}
+
+	Q_strcat(model, MAX_QPATH, "/");
+	Q_strcat(model, MAX_QPATH, skin);
+}
+*/
+
+/*
+===========
+ClientCheckName
+============
+*/
+static void ClientCleanName(const char *in, char *out, int outSize)
+{
+	int             len, colorlessLen;
+	char            ch;
+	char           *p;
+	int             spaces;
+
+	//save room for trailing null byte
+	outSize--;
+
+	len = 0;
+	colorlessLen = 0;
+	p = out;
+	*p = 0;
+	spaces = 0;
+
+	while(1)
+	{
+		ch = *in++;
+		if(!ch)
+		{
+			break;
+		}
+
+		// don't allow leading spaces
+		if(colorlessLen == 0 && ch == ' ')
+		{
+			continue;
+		}
+
+		// check colors
+		if(ch == Q_COLOR_ESCAPE)
+		{
+			// solo trailing carat is not a color prefix
+			if(!*in)
+			{
+				break;
+			}
+
+			// don't allow black in a name, period
+			if(ColorIndex(*in) == 0)
+			{
+				in++;
+				continue;
+			}
+
+			// make sure room in dest for both chars
+			if(len > outSize - 2)
+			{
+				break;
+			}
+
+			*out++ = ch;
+			*out++ = *in++;
+			len += 2;
+			continue;
+		}
+
+		// don't allow too many consecutive spaces
+		// don't count spaces in colorlessLen
+		if(ch == ' ')
+		{
+			spaces++;
+			if(spaces > 3)
+			{
+				continue;
+			}
+			*out++ = ch;
+			len++;
+			continue;
+		}
+		else
+		{
+			spaces = 0;
+		}
+
+		if(len > outSize - 1)
+		{
+			break;
+		}
+
+		*out++ = ch;
+		colorlessLen++;
+		len++;
+	}
+	*out = 0;
+
+	// don't allow empty names
+	if(*p == 0 || colorlessLen == 0)
+	{
+		Q_strncpyz(p, "UnnamedPlayer", outSize);
+	}
+}
+
 
 /*
 ===========
@@ -710,12 +831,14 @@ void ClientUserinfoChanged(int clientNum)
 	// set name
 	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
 	s = Info_ValueForKey(userinfo, "name");
-	Q_strncpyz(client->pers.netname, s, sizeof(client->pers.netname));
+	ClientCleanName(s, client->pers.netname, sizeof(client->pers.netname));
 
 	if(client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		if(client->sess.spectatorState == SPECTATOR_SCOREBOARD)
+		{
 			Q_strncpyz(client->pers.netname, "scoreboard", sizeof(client->pers.netname));
+		}
 	}
 
 	if(client->pers.connected == CON_CONNECTED)
@@ -723,7 +846,6 @@ void ClientUserinfoChanged(int clientNum)
 		if(strcmp(oldname, client->pers.netname))
 		{
 			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, client->pers.netname));
-			Admin_IPLog(client);
 		}
 	}
 
@@ -779,6 +901,27 @@ void ClientUserinfoChanged(int clientNum)
 		team = client->sess.sessionTeam;
 	}
 
+/*	NOTE: all client side now
+
+	// team
+	switch( team ) {
+	case TEAM_RED:
+		ForceClientSkin(client, model, "red");
+//		ForceClientSkin(client, headModel, "red");
+		break;
+	case TEAM_BLUE:
+		ForceClientSkin(client, model, "blue");
+//		ForceClientSkin(client, headModel, "blue");
+		break;
+	}
+	// don't ever use a default skin in teamplay, it would just waste memory
+	// however bots will always join a team but they spawn in as spectator
+	if ( g_gametype.integer >= GT_TEAM && team == TEAM_SPECTATOR) {
+		ForceClientSkin(client, model, "red");
+//		ForceClientSkin(client, headModel, "red");
+	}
+*/
+
 #ifdef MISSIONPACK
 	if(g_gametype.integer >= GT_TEAM)
 	{
@@ -808,10 +951,18 @@ void ClientUserinfoChanged(int clientNum)
 		client->pers.teamInfo = qfalse;
 	}
 #endif
+	/*
+	   s = Info_ValueForKey( userinfo, "cg_pmove_fixed" );
+	   if ( !*s || atoi( s ) == 0 ) {
+	   client->pers.pmoveFixed = qfalse;
+	   }
+	   else {
+	   client->pers.pmoveFixed = qtrue;
+	   }
+	 */
 
-	// team Task (0 = none, 1 = offence, 2 = defence)
+	// team task (0 = none, 1 = offence, 2 = defence)
 	teamTask = atoi(Info_ValueForKey(userinfo, "teamtask"));
-
 	// team Leader (1 = leader, 0 is normal player)
 	teamLeader = client->sess.teamLeader;
 
@@ -824,11 +975,6 @@ void ClientUserinfoChanged(int clientNum)
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
-
-	// r1: we can't use va here, if the configstring call below overflows a client,
-	// then clientdisconnect is called which trashesthe static buffer, causing
-	// all clients after the overflown one to receive garbage. this is the cause of the 'sarge bug'.
-
 	if(ent->r.svFlags & SVF_BOT)
 	{
 		Com_sprintf(userinfo, sizeof(userinfo),
@@ -874,12 +1020,11 @@ restarts.
 char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
 	char           *value;
+
+//  char        *areabits;
 	gclient_t      *client;
 	char            userinfo[MAX_INFO_STRING];
 	gentity_t      *ent;
-	char            ipaddress[32];
-	g_ban_t        *ban;
-	int             team;
 
 	ent = &g_entities[clientNum];
 
@@ -890,17 +1035,10 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey(userinfo, "ip");
-
-	ban = Admin_BanMatch(value);
-	if(ban)
+	if(G_FilterPacket(value))
 	{
-		G_Printf("Rejected client %s, matched ban %s/%d (%s)\n", value, Admin_IPIntToString(ban->ip),
-				 Admin_BitsFromMask(ban->mask), ban->reason);
 		return "You are banned from this server.";
 	}
-
-	// r1: set the ip
-	Q_strncpyz(ipaddress, value, sizeof(ipaddress));
 
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
@@ -919,12 +1057,11 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	ent->client = level.clients + clientNum;
 	client = ent->client;
 
+//  areabits = client->areabits;
+
 	memset(client, 0, sizeof(*client));
 
 	client->pers.connected = CON_CONNECTING;
-
-	// r1: save the clients ip
-	Q_strncpyz(client->pers.ip, ipaddress, sizeof(client->pers.ip));
 
 	// read or initialize the session data
 	if(firstTime || level.newSession)
@@ -945,27 +1082,26 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	// get and distribute relevent paramters
 	G_LogPrintf("ClientConnect: %i\n", clientNum);
-
 	ClientUserinfoChanged(clientNum);
-
-	// r1: semi-useful info for once
-	G_Printf("%s" S_COLOR_WHITE "[%s] connected, client id %i\n", client->pers.netname, client->pers.ip, clientNum);
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if(firstTime)
+	{
 		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
-	else
-		client->pers.wasConnected = qtrue;
+	}
 
 	if(g_gametype.integer >= GT_TEAM && client->sess.sessionTeam != TEAM_SPECTATOR)
 	{
-		team = PickTeam(clientNum);
-		client->sess.sessionTeam = team;
-		BroadcastTeamChange(client, team);
+		BroadcastTeamChange(client, -1);
 	}
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+
+	// for statistics
+//  client->areabits = areabits;
+//  if ( !client->areabits )
+//      client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }
@@ -1021,47 +1157,9 @@ void ClientBegin(int clientNum)
 		tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
 		tent->s.clientNum = ent->s.clientNum;
 
-		// r1: don't spam this on map_restart or levelchanges, overflows and other errors happen.
-		if(!client->pers.wasConnected)
+		if(g_gametype.integer != GT_TOURNAMENT)
 		{
-			if(g_gametype.integer != GT_TOURNAMENT)
-				trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
-			Admin_IPLog(client);
-		}
-
-		// r1:
-		if(!client->pers.account)
-		{
-			char            userinfo[MAX_STRING_CHARS];
-			char           *s;
-
-			trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
-			s = Info_ValueForKey(userinfo, "user");
-
-			if(s[0])
-			{
-				char           *username;
-				char           *password;
-
-				username = s;
-				password = strchr(s, ':');
-				if(password)
-				{
-					password[0] = 0;
-					password++;
-					if(password[0])
-					{
-						client->pers.account = Admin_GetAccount(username, password);
-						if(client->pers.account)
-							trap_SendServerCommand(-1,
-												   va("print \"%s" S_COLOR_WHITE " logged in as a server admin.\n\"",
-													  ent->client->pers.netname));
-						else
-							G_Printf("FAILED LOGIN from %s" S_COLOR_WHITE "[%s] (%s)\n", ent->client->pers.netname,
-									 ent->client->pers.ip, username);
-					}
-				}
-			}
+			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
 		}
 	}
 	G_LogPrintf("ClientBegin: %i\n", clientNum);
@@ -1091,6 +1189,8 @@ void ClientSpawn(gentity_t * ent)
 	gentity_t      *spawnPoint;
 	int             flags;
 	int             savedPing;
+
+//  char    *savedAreaBits;
 	int             accuracy_hits, accuracy_shots;
 	int             eventSequence;
 	char            userinfo[MAX_INFO_STRING];
@@ -1151,7 +1251,7 @@ void ClientSpawn(gentity_t * ent)
 
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
-	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED);
+	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
 	flags ^= EF_TELEPORT_BIT;
 
 	// we don't want players being backward-reconciled to the place they died
@@ -1164,6 +1264,7 @@ void ClientSpawn(gentity_t * ent)
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
+//  savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
 	for(i = 0; i < MAX_PERSISTANT; i++)
@@ -1177,6 +1278,7 @@ void ClientSpawn(gentity_t * ent)
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
+//  client->areabits = savedAreaBits;
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
@@ -1232,9 +1334,6 @@ void ClientSpawn(gentity_t * ent)
 
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
-
-	// Tr3B - start with grappling hook
-	//client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRAPPLING_HOOK);
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
 
 	// health will count down towards max_health
@@ -1344,14 +1443,8 @@ void ClientDisconnect(int clientNum)
 
 	ent = g_entities + clientNum;
 	if(!ent->client)
-		return;
-
-	if(level.voteTime && ent == level.voteTarget)
 	{
-		trap_SendServerCommand(-1, "print \"Victim has left, banned them anyway.\n\"");
-		Admin_BanClient(ent->client, 3600, Admin_MaskFromBits(24),
-						va("autoban: %s disconnect during vote", ent->client->pers.netname));
-		G_ResetVote();
+		return;
 	}
 
 	// stop any following clients
@@ -1393,8 +1486,9 @@ void ClientDisconnect(int clientNum)
 		ClientUserinfoChanged(level.sortedClients[0]);
 	}
 
-	if((g_gametype.integer == GT_TOURNAMENT) && ent->client->sess.sessionTeam == TEAM_FREE && level.intermissiontime)
+	if(g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_FREE && level.intermissiontime)
 	{
+
 		trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
 		level.restarted = qtrue;
 		level.changemap = NULL;

@@ -237,51 +237,6 @@ typedef struct
 	float           lastfraggedcarrier;
 } playerTeamState_t;
 
-// r1admin shit
-typedef struct g_account_s
-{
-	struct g_account_s *next;
-	char            username[16];
-	char            password[16];
-	unsigned int    permissions;
-} g_account_t;
-
-// iplog
-typedef struct g_iplog_s
-{
-	char            netname[32];
-	char            ip[32];
-	unsigned int    time;
-} g_iplog_t;
-
-#define MAX_IP_LOG_ENTRIES 10000
-
-void            Admin_IPLog(gclient_t * cl);
-void            Admin_Search_f(gentity_t * ent);
-
-// r1ch:
-typedef struct g_ban_s
-{
-	struct g_ban_s *next;
-	unsigned int    ip;
-	unsigned int    mask;
-	unsigned int    expiretime;
-	char            reason[64];
-} g_ban_t;
-
-typedef enum
-{
-	PERMISSION_BAN = BIT(0),
-	PERMISSION_KICK = BIT(1),
-	PERMISSION_VIEW = BIT(2),
-	PERMISSION_RENAME = BIT(3),
-	PERMISSION_MAP = BIT(4),
-	PERMISSION_MUTE = BIT(5),
-	PERMISSION_VETO = BIT(6),
-
-	PERMISSION_BITS = PERMISSION_BAN | PERMISSION_KICK | PERMISSION_VIEW | PERMISSION_RENAME | PERMISSION_MAP | PERMISSION_MUTE | PERMISSION_VETO
-} g_permissions_e;
-
 // the auto following clients don't follow a specific client
 // number, but instead follow the first two active players
 #define	FOLLOW_ACTIVE1	-1
@@ -305,14 +260,6 @@ typedef struct
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		3
 
-typedef enum
-{
-	VOTE_INVALID,
-	VOTE_YES,
-	VOTE_NO,
-	VOTE_ABSTAIN
-} voteResponse_t;
-
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct
@@ -328,15 +275,9 @@ typedef struct
 	int             enterTime;	// level.time the client entered the game
 	playerTeamState_t teamState;	// status in teamplay games
 	int             voteCount;	// to prevent people from constantly calling votes
-	voteResponse_t  voteResponse;	//r1
-	int             voteChanges;	//r1
+	int             teamVoteCount;	// to prevent people from constantly calling votes
 	qboolean        teamInfo;	// send team overlay updates?
 
-	// r1:
-	char            ip[24];
-	g_account_t    *account;
-	int             muted;
-	qboolean        wasConnected;
 
 	// unlagged:
 	int             delag;
@@ -448,16 +389,6 @@ struct gclient_s
 #define	MAX_SPAWN_VARS			64
 #define	MAX_SPAWN_VARS_CHARS	4096
 
-typedef enum
-{
-	VOTETYPE_INVALID,
-	VOTETYPE_KICK,
-	VOTETYPE_TEAMKICK,
-	VOTETYPE_RESTARTMAP,
-	VOTETYPE_NEXTMAP,
-	VOTETYPE_MAP
-} voteType_t;
-
 typedef struct
 {
 	struct gclient_s *clients;	// [maxclients]
@@ -499,9 +430,17 @@ typedef struct
 	char            voteString[MAX_STRING_CHARS];
 	char            voteDisplayString[MAX_STRING_CHARS];
 	int             voteTime;	// level.time vote was called
-	gentity_t      *voteStarter;
-	gentity_t      *voteTarget;
-	voteType_t      voteType;
+	int             voteExecuteTime;	// time the vote is executed
+	int             voteYes;
+	int             voteNo;
+	int             numVotingClients;	// set by CalculateRanks
+
+	// team voting state
+	char            teamVoteString[2][MAX_STRING_CHARS];
+	int             teamVoteTime[2];	// level.time vote was called
+	int             teamVoteYes[2];
+	int             teamVoteNo[2];
+	int             numteamVotingClients[2];	// set by CalculateRanks
 
 	// spawn variables
 	qboolean        spawning;	// the G_Spawn*() functions are valid
@@ -567,7 +506,6 @@ void            StopFollowing(gentity_t * ent);
 void            BroadcastTeamChange(gclient_t * client, int oldTeam);
 void            SetTeam(gentity_t * ent, char *s);
 void            Cmd_FollowCycle_f(gentity_t * ent, int dir);
-void            G_ResetVote(void);
 
 //
 // g_items.c
@@ -729,6 +667,8 @@ qboolean        SpotWouldTelefrag(gentity_t * spot);
 // g_svcmds.c
 //
 qboolean        ConsoleCommand(void);
+void            G_ProcessIPBans(void);
+qboolean        G_FilterPacket(char *from);
 
 //
 // g_weapon.c
@@ -794,8 +734,6 @@ qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
 // g_mem.c
 //
 void           *G_Alloc(int size);
-void            G_Free(void *ptr);
-void            G_DefragmentMemory(void);
 void            G_InitMemory(void);
 void            Svcmd_GameMem_f(void);
 
@@ -891,6 +829,7 @@ void            BotTestAAS(vec3_t origin);
 
 #include "g_team.h"				// teamplay specific stuff
 
+
 extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 
@@ -959,32 +898,6 @@ extern vmCvar_t pm_fixedPmoveFPS;
 extern vmCvar_t sv_fps;
 extern vmCvar_t g_delag;
 
-// r1:
-extern vmCvar_t g_accountsFile;
-extern vmCvar_t g_bansFile;
-
-// r1admin
-unsigned int    Admin_IPStringToInt(const char *s);
-const char     *Admin_IPIntToString(unsigned int ip);
-void            Admin_LoadAccounts(void);
-void            Admin_WriteAccounts(void);
-void            Admin_LoadBans(void);
-void            Admin_WriteBans(void);
-g_account_t    *Admin_GetAccount(const char *username, const char *password);
-qboolean        Admin_AddAccount(const char *username, const char *password, unsigned int permissions);
-qboolean        Admin_RemoveAccount(const char *username);
-void            Admin_Ban(unsigned int ip, unsigned int duration, unsigned int mask, const char *reason);
-void            Admin_BanClient(gclient_t * cl, unsigned int duration, unsigned int mask, const char *reason);
-g_ban_t        *Admin_BanMatch(const char *ipString);
-int             Admin_BitsFromMask(unsigned int mask);
-unsigned int    Admin_MaskFromBits(int bits);
-qboolean        Admin_RemoveBan(unsigned int ip, unsigned int mask);
-void            Admin_PrintBans(void);
-qboolean        Admin_HasPermission(gentity_t * cl, int permission);
-void            Admin_PrintBansToClient(gentity_t * ent);
-void            Admin_ExpireBans(void);
-
-char           *ConcatArgs(int start);
 
 
 // Tr3B: added this to mark unneeded botlib traps

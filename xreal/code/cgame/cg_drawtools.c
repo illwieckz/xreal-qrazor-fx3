@@ -640,7 +640,7 @@ UI_DrawBannerString
 static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 {
 	const char     *s;
-	unsigned char   ch;			// bk001204 : array subscript
+	unsigned char   ch;
 	float           ax;
 	float           ay;
 	float           aw;

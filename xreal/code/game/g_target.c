@@ -241,7 +241,7 @@ void SP_target_speaker(gentity_t * ent)
 	G_SpawnFloat("wait", "0", &ent->wait);
 	G_SpawnFloat("random", "0", &ent->random);
 
-	if(!G_SpawnString("noise", "NOSOUND", &s) && !G_SpawnString("s_shader", "NOSOUND", &s))
+	if(!G_SpawnString("noise", "NOSOUND", &s))
 	{
 		G_Error("target_speaker without a noise key at %s", vtos(ent->s.origin));
 	}

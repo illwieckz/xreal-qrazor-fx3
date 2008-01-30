@@ -754,6 +754,7 @@ static void CG_OffsetFirstPersonView(void)
 
 	origin[2] += bob;
 
+
 	// add fall height
 	delta = cg.time - cg.landTime;
 	if(delta < LAND_DEFLECT_TIME)
@@ -794,8 +795,9 @@ static void CG_OffsetFirstPersonView(void)
 void CG_ZoomDown_f(void)
 {
 	if(cg.zoomed)
+	{
 		return;
-
+	}
 	cg.zoomed = qtrue;
 	cg.zoomTime = cg.time;
 }
@@ -803,8 +805,9 @@ void CG_ZoomDown_f(void)
 void CG_ZoomUp_f(void)
 {
 	if(!cg.zoomed)
+	{
 		return;
-
+	}
 	cg.zoomed = qfalse;
 	cg.zoomTime = cg.time;
 }
@@ -1300,4 +1303,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	{
 		CG_Printf("cg.clientFrame:%i\n", cg.clientFrame);
 	}
+
+
 }

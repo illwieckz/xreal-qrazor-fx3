@@ -35,7 +35,7 @@ damage values to that client for pain blends and kicks, and
 global pain sound events for all clients.
 ===============
 */
-void G_DamageFeedback(gentity_t * player)
+void P_DamageFeedback(gentity_t * player)
 {
 	gclient_t      *client;
 	float           count;
@@ -100,12 +100,12 @@ void G_DamageFeedback(gentity_t * player)
 
 /*
 =============
-G_WorldEffects
+P_WorldEffects
 
 Check for lava / slime contents and drowning
 =============
 */
-void G_WorldEffects(gentity_t * ent)
+void P_WorldEffects(gentity_t * ent)
 {
 	qboolean        envirosuit;
 	int             waterlevel;
@@ -120,7 +120,9 @@ void G_WorldEffects(gentity_t * ent)
 
 	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
 
+	//
 	// check for drowning
+	//
 	if(waterlevel == 3)
 	{
 		// envirosuit give air
@@ -168,7 +170,9 @@ void G_WorldEffects(gentity_t * ent)
 		ent->damage = 2;
 	}
 
+	//
 	// check for sizzle damage (move to pmove?)
+	//
 	if(waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
 		if(ent->health > 0 && ent->pain_debounce_time <= level.time)
@@ -467,7 +471,6 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 
 		// perform a pmove
 		Pmove(&pm);
-
 		// save results of pmove
 		VectorCopy(client->ps.origin, ent->s.origin);
 
@@ -484,6 +487,8 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		Cmd_FollowCycle_f(ent, 1);
 	}
 }
+
+
 
 /*
 =================
@@ -1065,16 +1070,19 @@ void ClientThink_real(gentity_t * ent)
 		client->pers.realPing = 0;
 
 	msec = ucmd->serverTime - client->ps.commandTime;
-
 	// following others may result in bad times, but we still want
 	// to check for follow toggles
 	if(msec < 1 && client->sess.spectatorState != SPECTATOR_FOLLOW)
+	{
 		return;
-
+	}
 	if(msec > 200)
+	{
 		msec = 200;
+	}
 
 	// check for exiting intermission
+	//
 	if(level.intermissiontime)
 	{
 		ClientIntermissionThink(client);
@@ -1085,15 +1093,18 @@ void ClientThink_real(gentity_t * ent)
 	if(client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		if(client->sess.spectatorState == SPECTATOR_SCOREBOARD)
+		{
 			return;
-
+		}
 		SpectatorThink(ent, ucmd);
 		return;
 	}
 
 	// check for inactivity timer, but never drop the local client of a non-dedicated server
 	if(!ClientInactivityTimer(client))
+	{
 		return;
+	}
 
 	// clear the rewards if time
 	if(level.time > client->rewardTime)
@@ -1103,16 +1114,18 @@ void ClientThink_real(gentity_t * ent)
 			  EF_AWARD_TELEFRAG);
 	}
 
-	// r1: if in console/chat, disallow any other buttons for exploit fixes
-	if(ucmd->buttons & BUTTON_TALK)
-		ucmd->buttons = BUTTON_TALK;
-
 	if(client->noclip)
+	{
 		client->ps.pm_type = PM_NOCLIP;
+	}
 	else if(client->ps.stats[STAT_HEALTH] <= 0)
+	{
 		client->ps.pm_type = PM_DEAD;
+	}
 	else
+	{
 		client->ps.pm_type = PM_NORMAL;
+	}
 
 	client->ps.gravity = g_gravity.value;
 
@@ -1121,15 +1134,21 @@ void ClientThink_real(gentity_t * ent)
 
 #ifdef MISSIONPACK
 	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
+	{
 		client->ps.speed *= 1.5;
+	}
 	else
 #endif
 	if(client->ps.powerups[PW_HASTE])
+	{
 		client->ps.speed *= 1.3;
+	}
 
 	// Let go of the hook if we aren't firing
 	if(client->ps.weapon == WP_GRAPPLING_HOOK && client->hook && !(ucmd->buttons & BUTTON_ATTACK))
+	{
 		Weapon_HookFree(client->hook);
+	}
 
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
@@ -1144,12 +1163,6 @@ void ClientThink_real(gentity_t * ent)
 		pm.gauntletHit = CheckGauntletAttack(ent);
 	}
 
-
-	// r1admin
-	if(ent->client->pers.muted)
-		ucmd->buttons &= ~BUTTON_GESTURE;
-
-	// r1: check this, looks broken (pers.cmd vs ucmd)
 	if(ent->flags & FL_FORCE_GESTURE)
 	{
 		ent->flags &= ~FL_FORCE_GESTURE;
@@ -1387,7 +1400,7 @@ void SpectatorClientEndFrame(gentity_t * ent)
 			cl = &level.clients[clientNum];
 			if(cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR)
 			{
-				flags = (cl->ps.eFlags & ~EF_VOTED) | (ent->client->ps.eFlags & EF_VOTED);
+				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
 				ent->client->ps = cl->ps;
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
 				ent->client->ps.eFlags = flags;
@@ -1480,18 +1493,20 @@ void ClientEndFrame(gentity_t * ent)
 	}
 #endif
 
+	//
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
+	//
 	if(level.intermissiontime)
 	{
 		return;
 	}
 
 	// burn from lava, etc
-	G_WorldEffects(ent);
+	P_WorldEffects(ent);
 
 	// apply all the damage taken this frame
-	G_DamageFeedback(ent);
+	P_DamageFeedback(ent);
 
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 

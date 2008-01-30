@@ -20,9 +20,11 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+//
 // g_combat.c
+
 #include "g_local.h"
+
 
 /*
 ============
@@ -502,17 +504,20 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	char           *killerName, *obit;
 
 	if(self->client->ps.pm_type == PM_DEAD)
+	{
 		return;
+	}
 
 	if(level.intermissiontime)
+	{
 		return;
+	}
 
 	// make sure the body shows up in the client's current position
 	G_UnTimeShiftClient(self);
 
 	// check for an almost capture
 	CheckAlmostCapture(self, attacker);
-
 	// check for a player that almost brought in cubes
 	CheckAlmostScored(self, attacker);
 
@@ -591,6 +596,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 			if(meansOfDeath == MOD_GAUNTLET)
 			{
+
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
 

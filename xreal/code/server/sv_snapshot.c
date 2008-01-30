@@ -671,9 +671,7 @@ void SV_SendMessageToClient(msg_t * msg, client_t * client)
 	if(client->netchan.remoteAddress.type == NA_LOOPBACK ||
 	   (sv_lanForceRate->integer && Sys_IsLANAddress(client->netchan.remoteAddress)))
 	{
-		// Tr3B: changed nextSnapshotTime to the server framerate
-		// see https://bugzilla.icculus.org/show_bug.cgi?id=2817 for more
-		client->nextSnapshotTime = svs.time + (1000 / sv_fps->integer * com_timescale->value);
+		client->nextSnapshotTime = svs.time + (1000.0 / sv_fps->integer * com_timescale->value);
 		return;
 	}
 

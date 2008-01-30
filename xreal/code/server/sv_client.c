@@ -133,10 +133,6 @@ void SV_DirectConnect(netadr_t from)
 	int             count;
 	char           *ip;
 
-	// r1:
-	const char     *name;
-	char            cleanname[32];
-
 	Com_DPrintf("SVC_DirectConnect ()\n");
 
 	Q_strncpyz(userinfo, Cmd_Argv(1), sizeof(userinfo));
@@ -185,55 +181,6 @@ void SV_DirectConnect(netadr_t from)
 		return;
 	}
 	Info_SetValueForKey(userinfo, "ip", ip);
-
-	// r1: no dupe names
-	name = Info_ValueForKey(userinfo, "name");
-
-	Q_strncpyz(cleanname, name, sizeof(cleanname));
-	Q_CleanStr(cleanname);
-
-	if(!Com_CheckColorCodes(cleanname))
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nInvalid player name, please check your color codes.");
-		return;
-	}
-
-	if(!cleanname[0])
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlease set your player name before connecting.");
-		return;
-	}
-
-	if(strlen(cleanname) > 20)
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlayer name is too long, please choose another.");
-		return;
-	}
-
-	if(SV_ExcessiveWhiteSpaceCheck(cleanname))
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nPlayer name contains too much whitespace.");
-		return;
-	}
-
-	for(i = 0; i < sv_maxclients->integer; i++)
-	{
-		cl = &svs.clients[i];
-		if(cl->state >= CS_CONNECTED)
-		{
-			char            namebuff[64];
-
-			Q_strncpyz(namebuff, cl->name, sizeof(namebuff));
-			Q_CleanStr(namebuff);
-			if(!Q_stricmp(namebuff, cleanname))
-			{
-				NET_OutOfBandPrint(NS_SERVER, from,
-								   "print\nPlayer name '%s' is already in use, please choose another name. If you were just disconnected, please wait a few minutes.",
-								   cleanname);
-				return;
-			}
-		}
-	}
 
 	// see if the challenge is valid (LAN clients don't need to challenge)
 	if(!NET_IsLocalAddress(from))
@@ -288,8 +235,7 @@ void SV_DirectConnect(netadr_t from)
 	// if there is already a slot for this ip, reuse it
 	for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
 	{
-		// r1: only reuse zombie slots (right?)
-		if(cl->state != CS_ZOMBIE)
+		if(cl->state == CS_FREE)
 		{
 			continue;
 		}
@@ -420,9 +366,7 @@ void SV_DirectConnect(netadr_t from)
 
 	newcl->state = CS_CONNECTED;
 	newcl->nextSnapshotTime = svs.time;
-	//r1: if the above connectResponse is dropped unreliable, client will be stuck for sv_timeout, fixed here
-	//newcl->lastPacketTime = svs.time;
-	newcl->lastPacketTime = svs.time + (sv_timeout->integer - 5) * 1000;
+	newcl->lastPacketTime = svs.time;
 	newcl->lastConnectTime = svs.time;
 
 	// when we receive the first packet from the client, we will
@@ -446,6 +390,7 @@ void SV_DirectConnect(netadr_t from)
 	}
 }
 
+
 /*
 =====================
 SV_DropClient
@@ -464,8 +409,6 @@ void SV_DropClient(client_t * drop, const char *reason)
 	{
 		return;					// already dropped
 	}
-
-	Com_Printf("Dropping %s" S_COLOR_WHITE "[%s], %s\n", drop->name, NET_AdrToString(drop->netchan.remoteAddress), reason);
 
 	if(drop->netchan.remoteAddress.type != NA_BOT)
 	{
@@ -1188,49 +1131,6 @@ static void SV_ResetPureClient_f(client_t * cl)
 
 /*
 =================
-SV_ExcessiveWhiteSpaceCheck
-
-r1: Checks for white space in player names
-=================
-*/
-qboolean SV_ExcessiveWhiteSpaceCheck(const char *s)
-{
-	int             normal, white;
-
-	normal = white = 0;
-
-	while(s[0])
-	{
-		if(s[0] == ' ' || s[0] == '\t' || s[0] == '\n')
-		{
-			// don't allow whitespace at start
-			if(!normal)
-				return qtrue;
-
-			white++;
-
-			// 3 consecutive spaces is bad
-			if(white == 3)
-				return qtrue;
-		}
-		else
-		{
-			// a normal character
-			white = 0;
-			normal++;
-		}
-		s++;
-	}
-
-	// must have at least one normal character
-	if(!normal)
-		return qtrue;
-
-	return qfalse;
-}
-
-/*
-=================
 SV_UserinfoChanged
 
 Pull specific info from a newly changed userinfo string
@@ -1243,63 +1143,9 @@ void SV_UserinfoChanged(client_t * cl)
 	char           *ip;
 	int             i;
 	int             len;
-	char            cleanName[32];
-	client_t       *other;
-	qboolean        nameOK = qtrue;
-
-	Q_strncpyz(cleanName, Info_ValueForKey(cl->userinfo, "name"), sizeof(cleanName));
-
-	if(!Com_CheckColorCodes(cleanName))
-	{
-		SV_SendServerCommand(cl, "print \"Invalid or empty name, please check your color codes.\n\"");
-		nameOK = qfalse;
-	}
-	else if(strlen(cleanName) > 20)
-	{
-		SV_SendServerCommand(cl, "print \"Name is too long, please choose another.\n\"");
-		nameOK = qfalse;
-	}
-	else if(SV_ExcessiveWhiteSpaceCheck(cleanName))
-	{
-		SV_SendServerCommand(cl, "print \"Too much whitespace in your name, please choose another.\n\"");
-		nameOK = qfalse;
-	}
-	else
-	{
-		Q_CleanStr(cleanName);
-
-		if(!cleanName[0])
-		{
-			SV_SendServerCommand(cl, "print \"Invalid name, please check your color codes.\n\"");
-			nameOK = qfalse;
-		}
-		else
-		{
-			for(i = 0; i < sv_maxclients->integer; i++)
-			{
-				other = &svs.clients[i];
-				if(other != cl && other->state >= CS_CONNECTED)
-				{
-					char            namebuff[64];
-
-					Q_strncpyz(namebuff, other->name, sizeof(namebuff));
-					Q_CleanStr(namebuff);
-					if(!Q_stricmp(namebuff, cleanName))
-					{
-						SV_SendServerCommand(cl, "print \"Name '%s' is already in use, please choose another.\n\"", cleanName);
-						nameOK = qfalse;
-						break;
-					}
-				}
-			}
-		}
-	}
 
 	// name for C code
-	if(nameOK)
-		Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
-	else
-		Info_SetValueForKey(cl->userinfo, "name", cl->name);
+	Q_strncpyz(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
 
 	// rate command
 
@@ -1422,35 +1268,12 @@ SV_ExecuteClientCommand
 Also called by bot code
 ==================
 */
-void SV_ExecuteClientCommand(client_t * cl, char *s, qboolean clientOK)
+void SV_ExecuteClientCommand(client_t * cl, const char *s, qboolean clientOK)
 {
 	ucmd_t         *u;
 	qboolean        bProcessed = qfalse;
-	char           *p;
 
 	Cmd_TokenizeString(s);
-
-	// r1: hack to prevent q3 shitty console from echoing info
-	if(!strncmp(s, "say login", 9))
-	{
-		SV_SendServerCommand(cl, "print \"Wrong command format, prefix commands with \\\n\"");
-		return;
-	}
-
-	// r1: high/low ascii protection
-	p = s;
-	while(p[0])
-	{
-		if((p[0] < 32 || p[0] >= 127) && !(p[0] == '\n' && !p[1]))
-		{
-			int             oldChar = p[0];
-
-			p[0] = '.';
-			Com_Printf("Warning, removed illegal ASCII char %d in command '%s' from %s" S_COLOR_WHITE "[%s]\n",
-					   oldChar, s, cl->name, NET_AdrToString(cl->netchan.remoteAddress));
-		}
-		p++;
-	}
 
 	// see if it is a server level command
 	for(u = ucmds; u->name; u++)

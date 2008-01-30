@@ -177,6 +177,8 @@ vmCvar_t        cg_cameraOrbitDelay;
 vmCvar_t        cg_timescaleFadeEnd;
 vmCvar_t        cg_timescaleFadeSpeed;
 vmCvar_t        cg_timescale;
+vmCvar_t        cg_smallFont;
+vmCvar_t        cg_bigFont;
 vmCvar_t        cg_noTaunt;
 vmCvar_t        cg_noProjectileTrail;
 vmCvar_t        cg_railType;
@@ -199,8 +201,6 @@ vmCvar_t        sv_fps;
 vmCvar_t        cg_gravity;
 
 #ifdef MISSIONPACK
-vmCvar_t        cg_smallFont;
-vmCvar_t        cg_bigFont;
 vmCvar_t        cg_redTeamName;
 vmCvar_t        cg_blueTeamName;
 vmCvar_t        cg_currentSelectedPlayer;
@@ -306,8 +306,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_blood, "com_blood", "1", CVAR_ARCHIVE},
 	{&cg_synchronousClients, "g_synchronousClients", "0", 0},	// communicated by systeminfo
 #ifdef MISSIONPACK
-	{&cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
-	{&cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	{&cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO},
 	{&cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO},
 	{&cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE},
@@ -331,6 +329,10 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 	{&cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
 	{&cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
+	
+	{&cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
+	{&cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
+	
 	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 
@@ -1187,12 +1189,16 @@ static void CG_RegisterClients(void)
 		const char     *clientInfo;
 
 		if(cg.clientNum == i)
+		{
 			continue;
+		}
 
 		clientInfo = CG_ConfigString(CS_PLAYERS + i);
 		if(!clientInfo[0])
+		{
 			continue;
-
+		}
+		
 		CG_NewClientInfo(i);
 	}
 
@@ -1449,7 +1455,7 @@ qboolean CG_Asset_Parse(int handle)
 			continue;
 		}
 	}
-	return qfalse;				// bk001204 - why not?
+	return qfalse;
 }
 
 void CG_ParseMenu(const char *menuFile)
@@ -1875,7 +1881,7 @@ static void CG_FeederSelection(float feederID, int index)
 }
 #endif
 
-#ifdef MISSIONPACK				// bk001204 - only needed there
+#ifdef MISSIONPACK
 static float CG_Cvar_Get(const char *cvar)
 {
 	char            buff[128];

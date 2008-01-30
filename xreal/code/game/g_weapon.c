@@ -159,14 +159,11 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 	gentity_t      *traceEnt;
 	int             i, passent;
 
-	// we have to use something now that the client knows in advance
-	int             seed = ent->client->attackTime % 256;
-
 	damage *= s_quadFactor;
 
-	r = Q_random(&seed) * M_PI * 2.0f;
-	u = sin(r) * Q_crandom(&seed) * spread * 16;
-	r = cos(r) * Q_crandom(&seed) * spread * 16;
+	r = random() * M_PI * 2.0f;
+	u = sin(r) * crandom() * spread * 16;
+	r = cos(r) * crandom() * spread * 16;
 	VectorMA(muzzle, 8192 * 16, forward, end);
 	VectorMA(end, r, right, end);
 	VectorMA(end, u, up, end);
@@ -183,7 +180,9 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage)
 		G_UndoTimeShiftFor(ent);
 
 		if(tr.surfaceFlags & SURF_NOIMPACT)
+		{
 			return;
+		}
 
 		traceEnt = &g_entities[tr.entityNum];
 
@@ -392,7 +391,7 @@ void weapon_supershotgun_fire(gentity_t * ent)
 	tent = G_TempEntity(muzzle, EV_SHOTGUN);
 	VectorScale(forward, 4096, tent->s.origin2);
 	SnapVector(tent->s.origin2);
-	tent->s.eventParm = ent->client->attackTime % 256;	// seed for spread pattern
+	tent->s.eventParm = rand() & 255;	// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
 
 	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent);

@@ -110,11 +110,6 @@ vmCvar_t        pm_fixedPmoveFPS;
 vmCvar_t        sv_fps;
 vmCvar_t        g_delag;
 
-// r1:
-vmCvar_t        g_accountsFile;
-vmCvar_t        g_bansFile;
-
-// bk001129 - made static to avoid aliasing
 static cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
 	{&g_cheats, "sv_cheats", "", 0, 0, qfalse},
@@ -210,19 +205,17 @@ static cvarTable_t gameCvarTable[] = {
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
 	{&g_delag, "g_delag", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
-
-	// r1
-	{&g_accountsFile, "g_accountsFile", "accounts", 0, 0},
-	{&g_bansFile, "g_bansFile", "bans", 0, 0}
 };
 
 // bk001129 - made static to avoid aliasing
 static int      gameCvarTableSize = sizeof(gameCvarTable) / sizeof(gameCvarTable[0]);
 
+
 void            G_InitGame(int levelTime, int randomSeed, int restart);
 void            G_RunFrame(int levelTime);
 void            G_ShutdownGame(int restart);
 void            CheckExitRules(void);
+
 
 /*
 ================
@@ -360,7 +353,7 @@ void G_FindTeams(void)
 	G_Printf("%i teams with %i entities\n", c, c2);
 }
 
-void G_RemapTeamShaders(void)
+void G_RemapTeamShaders()
 {
 #ifdef MISSIONPACK
 	char            string[1024];
@@ -463,6 +456,7 @@ void G_UpdateCvars(void)
 /*
 ============
 G_InitGame
+
 ============
 */
 void G_InitGame(int levelTime, int randomSeed, int restart)
@@ -476,6 +470,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	srand(randomSeed);
 
 	G_RegisterCvars();
+
+	G_ProcessIPBans();
 
 	G_InitMemory();
 
@@ -561,10 +557,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	SaveRegisteredItems();
 
-	// r1
-	Admin_LoadAccounts();
-	Admin_LoadBans();
-
 	G_Printf("-----------------------------------\n");
 
 	if(g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue("com_buildScript"))
@@ -582,7 +574,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 
 	G_RemapTeamShaders();
+
 }
+
+
 
 /*
 =================
@@ -603,14 +598,11 @@ void G_ShutdownGame(int restart)
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
 
-	// r1
-	Admin_WriteAccounts();
-	Admin_WriteBans();
-
 	if(trap_Cvar_VariableIntegerValue("bot_enable"))
 	{
 		BotAIShutdown(restart);
 	}
+
 
 #ifdef LUA
 	G_ShutdownLua();
@@ -874,16 +866,16 @@ void CalculateRanks(void)
 	int             newScore;
 	gclient_t      *cl;
 
-	// r1: we should avoid use of va() here since we're used in
-	// callback on ClientDisconnect which can smash buffers.
-	char            str[16];
-
 	level.follow1 = -1;
 	level.follow2 = -1;
 	level.numConnectedClients = 0;
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
-
+	level.numVotingClients = 0;	// don't count bots
+	for(i = 0; i < TEAM_NUM_TEAMS; i++)
+	{
+		level.numteamVotingClients[i] = 0;
+	}
 	for(i = 0; i < level.maxclients; i++)
 	{
 		if(level.clients[i].pers.connected != CON_DISCONNECTED)
@@ -899,7 +891,14 @@ void CalculateRanks(void)
 				if(level.clients[i].pers.connected == CON_CONNECTED)
 				{
 					level.numPlayingClients++;
-
+					if(!(g_entities[i].r.svFlags & SVF_BOT))
+					{
+						level.numVotingClients++;
+						if(level.clients[i].sess.sessionTeam == TEAM_RED)
+							level.numteamVotingClients[0]++;
+						else if(level.clients[i].sess.sessionTeam == TEAM_BLUE)
+							level.numteamVotingClients[1]++;
+					}
 					if(level.follow1 == -1)
 					{
 						level.follow1 = i;
@@ -967,37 +966,25 @@ void CalculateRanks(void)
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
 	if(g_gametype.integer >= GT_TEAM)
 	{
-		// r1: va() is bad here
-		Com_sprintf(str, sizeof(str), "%i", level.teamScores[TEAM_RED]);
-		trap_SetConfigstring(CS_SCORES1, str);
-
-		Com_sprintf(str, sizeof(str), "%i", level.teamScores[TEAM_BLUE]);
-		trap_SetConfigstring(CS_SCORES2, str);
+		trap_SetConfigstring(CS_SCORES1, va("%i", level.teamScores[TEAM_RED]));
+		trap_SetConfigstring(CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE]));
 	}
 	else
 	{
-		// r1: va() is bad here
 		if(level.numConnectedClients == 0)
 		{
-			Com_sprintf(str, sizeof(str), "%i", SCORE_NOT_PRESENT);
-			trap_SetConfigstring(CS_SCORES1, str);
-			trap_SetConfigstring(CS_SCORES2, str);
+			trap_SetConfigstring(CS_SCORES1, va("%i", SCORE_NOT_PRESENT));
+			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
 		}
 		else if(level.numConnectedClients == 1)
 		{
-			Com_sprintf(str, sizeof(str), "%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]);
-			trap_SetConfigstring(CS_SCORES1, str);
-
-			Com_sprintf(str, sizeof(str), "%i", SCORE_NOT_PRESENT);
-			trap_SetConfigstring(CS_SCORES2, str);
+			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
 		}
 		else
 		{
-			Com_sprintf(str, sizeof(str), "%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]);
-			trap_SetConfigstring(CS_SCORES1, str);
-
-			Com_sprintf(str, sizeof(str), "%i", level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE]);
-			trap_SetConfigstring(CS_SCORES2, str);
+			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring(CS_SCORES2, va("%i", level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE]));
 		}
 	}
 
@@ -1177,6 +1164,7 @@ ExitLevel
 
 When the intermission has been exited, the server is either killed
 or moved to a new level based on the "nextmap" cvar 
+
 =============
 */
 void ExitLevel(void)
@@ -1299,10 +1287,9 @@ void LogExit(const char *string)
 	int             i, numSorted;
 	gclient_t      *cl;
 
-#ifdef MISSIONPACK				// bk001205
+#ifdef MISSIONPACK
 	qboolean        won = qtrue;
 #endif
-
 	G_LogPrintf("Exit: %s\n", string);
 
 	level.intermissionQueued = level.time;
@@ -1314,10 +1301,14 @@ void LogExit(const char *string)
 	// don't send more than 32 scores (FIXME?)
 	numSorted = level.numConnectedClients;
 	if(numSorted > 32)
+	{
 		numSorted = 32;
+	}
 
 	if(g_gametype.integer >= GT_TEAM)
+	{
 		G_LogPrintf("red:%i  blue:%i\n", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE]);
+	}
 
 	for(i = 0; i < numSorted; i++)
 	{
@@ -1326,10 +1317,13 @@ void LogExit(const char *string)
 		cl = &level.clients[level.sortedClients[i]];
 
 		if(cl->sess.sessionTeam == TEAM_SPECTATOR)
+		{
 			continue;
-
+		}
 		if(cl->pers.connected == CON_CONNECTING)
+		{
 			continue;
+		}
 
 		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
@@ -1344,6 +1338,7 @@ void LogExit(const char *string)
 			}
 		}
 #endif
+
 	}
 
 #ifdef MISSIONPACK
@@ -1356,6 +1351,8 @@ void LogExit(const char *string)
 		trap_SendConsoleCommand(EXEC_APPEND, (won) ? "spWin\n" : "spLose\n");
 	}
 #endif
+
+
 }
 
 
@@ -1398,9 +1395,7 @@ void CheckIntermissionExit(void)
 			continue;
 		}
 
-		// only count real players
 		playerCount++;
-
 		if(cl->readyToExit)
 		{
 			ready++;
@@ -1433,9 +1428,7 @@ void CheckIntermissionExit(void)
 		return;
 	}
 
-	// 070331 mis - empty or bot only servers make the server
-	// hang indefinitely in the intermission, so execute the
-	// logic below only if there are any *real* players here.
+	// only test ready status when there are real players present
 	if(playerCount > 0)
 	{
 		// if nobody wants to go, clear timer
@@ -1680,9 +1673,9 @@ void CheckTournament(void)
 		{
 			if(level.numPlayingClients == 2)
 			{
+				// fudge by -1 to account for extra delays
 				if(g_warmup.integer > 1)
 				{
-					// fudge by -1 to account for extra delays
 					level.warmupTime = level.time + (g_warmup.integer - 1) * 1000;
 				}
 				else
@@ -1773,109 +1766,46 @@ void CheckTournament(void)
 /*
 ==================
 CheckVote
-
-r1: super rigged new version that actually isn't useless.
 ==================
 */
 void CheckVote(void)
 {
-	int             i;
-	int             votes_yes, votes_no, votes_invalid;
-	gclient_t      *cl;
-
-	if(!level.voteTime)
-		return;
-
-	votes_yes = votes_no = votes_invalid = 0;
-
-	for(i = 0; i < g_maxclients.integer; i++)
+	if(level.voteExecuteTime && level.voteExecuteTime < level.time)
 	{
-		cl = level.clients + i;
-
-		if(cl->pers.connected != CON_CONNECTED)
-			continue;
-
-		if(g_entities[i].r.svFlags & SVF_BOT)
-			continue;
-
-		if(level.voteType == VOTETYPE_TEAMKICK)
-		{
-			if(cl->sess.sessionTeam != level.voteStarter->client->sess.sessionTeam)
-				continue;
-		}
-
-		switch (cl->pers.voteResponse)
-		{
-			case VOTE_INVALID:
-				votes_invalid++;
-				break;
-			case VOTE_YES:
-				votes_yes++;
-				break;
-			case VOTE_NO:
-				votes_no++;
-				break;
-			default:
-				break;
-		}
+		level.voteExecuteTime = 0;
+		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	}
-
-	votes_no += votes_invalid / 2;
-
-	//vote ended, calculate results
+	if(!level.voteTime)
+	{
+		return;
+	}
 	if(level.time - level.voteTime >= VOTE_TIME)
 	{
-		trap_SendServerCommand(-1, va("print \"%d voted yes, %d voted no.\n\"", votes_yes, votes_no));
-
-		if(votes_yes > votes_no)
-		{
-			trap_SendServerCommand(-1, "print \"Vote passed.\n\"");
-
-			switch (level.voteType)
-			{
-				case VOTETYPE_NEXTMAP:
-					LogExit("Vote for next map.");
-					break;
-
-				case VOTETYPE_MAP:
-				case VOTETYPE_RESTARTMAP:
-					trap_SendConsoleCommand(EXEC_APPEND, level.voteString);
-					break;
-
-				case VOTETYPE_KICK:
-				case VOTETYPE_TEAMKICK:
-				{
-					char            netName1[16];
-					char            netName2[16];
-
-					Q_strncpyz(netName1, level.voteStarter->client->pers.netname, sizeof(netName1));
-					Q_strncpyz(netName2, level.voteTarget->client->pers.netname, sizeof(netName2));
-
-					Q_CleanStr(netName1);
-					Q_CleanStr(netName2);
-
-					i = level.voteTarget - g_entities;
-					level.voteTarget = NULL;
-
-					trap_DropClient(i, "was vote-kicked");
-				}
-					break;
-				default:
-					G_Printf("WARNING: CheckVote: Unknown vote type %d\n", level.voteType);
-			}
-		}
-		else
-		{
-			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
-		}
-
-		G_ResetVote();
+		trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
 	}
 	else
 	{
-		trap_SetConfigstring(CS_VOTE_YES, va("%i", votes_yes));
-		trap_SetConfigstring(CS_VOTE_NO, va("%i", votes_no));
+		// ATVI Q3 1.32 Patch #9, WNF
+		if(level.voteYes > level.numVotingClients / 2)
+		{
+			// execute the command, then remove the vote
+			trap_SendServerCommand(-1, "print \"Vote passed.\n\"");
+			level.voteExecuteTime = level.time + 3000;
+		}
+		else if(level.voteNo >= level.numVotingClients / 2)
+		{
+			// same behavior as a timeout
+			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
+		}
+		else
+		{
+			// still waiting for a majority
+			return;
+		}
 	}
+	level.voteTime = 0;
+	trap_SetConfigstring(CS_VOTE_TIME, "");
+
 }
 
 /*
@@ -1966,6 +1896,64 @@ void CheckTeamLeader(int team)
 		}
 	}
 }
+
+/*
+==================
+CheckTeamVote
+==================
+*/
+void CheckTeamVote(int team)
+{
+	int             cs_offset;
+
+	if(team == TEAM_RED)
+		cs_offset = 0;
+	else if(team == TEAM_BLUE)
+		cs_offset = 1;
+	else
+		return;
+
+	if(!level.teamVoteTime[cs_offset])
+	{
+		return;
+	}
+	if(level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME)
+	{
+		trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
+	}
+	else
+	{
+		if(level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset] / 2)
+		{
+			// execute the command, then remove the vote
+			trap_SendServerCommand(-1, "print \"Team vote passed.\n\"");
+			//
+			if(!Q_strncmp("leader", level.teamVoteString[cs_offset], 6))
+			{
+				//set the team leader
+				SetLeader(team, atoi(level.teamVoteString[cs_offset] + 7));
+			}
+			else
+			{
+				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
+			}
+		}
+		else if(level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset] / 2)
+		{
+			// same behavior as a timeout
+			trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
+		}
+		else
+		{
+			// still waiting for a majority
+			return;
+		}
+	}
+	level.teamVoteTime[cs_offset] = 0;
+	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "");
+
+}
+
 
 /*
 ==================
@@ -2165,6 +2153,10 @@ void G_RunFrame(int levelTime)
 
 	// cancel vote if timed out
 	CheckVote();
+
+	// check team votes
+	CheckTeamVote(TEAM_RED);
+	CheckTeamVote(TEAM_BLUE);
 
 	// for tracking changes
 	CheckCvars();

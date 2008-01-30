@@ -304,6 +304,7 @@ static void CG_DrawField(int x, int y, int width, int value)
 /*
 ================
 CG_Draw3DModel
+
 ================
 */
 void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles)
@@ -527,6 +528,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 
 	if(!force2D && cg_draw3dIcons.integer)
 	{
+
 		VectorClear(angles);
 
 		cm = cgs.media.redFlagModel;
@@ -592,9 +594,11 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 /*
 ================
 CG_DrawStatusBarHead
+
 ================
 */
 #ifndef MISSIONPACK
+
 static void CG_DrawStatusBarHead(float x)
 {
 	vec3_t          angles;
@@ -639,7 +643,9 @@ static void CG_DrawStatusBarHead(float x)
 
 	// if the server was frozen for a while we may have a bad head start time
 	if(cg.headStartTime > cg.time)
+	{
 		cg.headStartTime = cg.time;
+	}
 
 	frac = (cg.time - cg.headStartTime) / (float)(cg.headEndTime - cg.headStartTime);
 	frac = frac * frac * (3 - 2 * frac);
@@ -653,6 +659,7 @@ static void CG_DrawStatusBarHead(float x)
 /*
 ================
 CG_DrawStatusBarFlag
+
 ================
 */
 #ifndef MISSIONPACK
@@ -665,6 +672,7 @@ static void CG_DrawStatusBarFlag(float x, int team)
 /*
 ================
 CG_DrawTeamBackground
+
 ================
 */
 void CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team)
@@ -688,7 +696,6 @@ void CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team)
 	{
 		return;
 	}
-
 	trap_R_SetColor(hcolor);
 	CG_DrawPic(x, y, w, h, cgs.media.teamStatusBar);
 	trap_R_SetColor(NULL);
@@ -1677,10 +1684,10 @@ static float CG_DrawScores(float y)
 		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH + 8;
 		x -= w;
 		CG_FillRect(x, y - 4, w, BIGCHAR_HEIGHT + 8, color);
-
 		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+		{
 			CG_DrawPic(x, y - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.selectShader);
-
+		}
 		CG_DrawBigString(x + 4, y, s, 1.0F);
 
 		if(cgs.gametype == GT_CTF)
@@ -1692,7 +1699,9 @@ static float CG_DrawScores(float y)
 			{
 				y1 = y - BIGCHAR_HEIGHT - 8;
 				if(cgs.blueflag >= 0 && cgs.blueflag <= 2)
+				{
 					CG_DrawPic(x, y1 - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.blueFlagShader[cgs.blueflag]);
+				}
 			}
 		}
 		color[0] = 1.0f;
@@ -1703,10 +1712,10 @@ static float CG_DrawScores(float y)
 		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH + 8;
 		x -= w;
 		CG_FillRect(x, y - 4, w, BIGCHAR_HEIGHT + 8, color);
-
 		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+		{
 			CG_DrawPic(x, y - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.selectShader);
-
+		}
 		CG_DrawBigString(x + 4, y, s, 1.0F);
 
 		if(cgs.gametype == GT_CTF)
@@ -1718,7 +1727,9 @@ static float CG_DrawScores(float y)
 			{
 				y1 = y - BIGCHAR_HEIGHT - 8;
 				if(cgs.redflag >= 0 && cgs.redflag <= 2)
+				{
 					CG_DrawPic(x, y1 - 4, w, BIGCHAR_HEIGHT + 8, cgs.media.redFlagShader[cgs.redflag]);
+				}
 			}
 		}
 
@@ -1740,10 +1751,13 @@ static float CG_DrawScores(float y)
 #endif
 
 		if(cgs.gametype >= GT_CTF)
+		{
 			v = cgs.capturelimit;
+		}
 		else
+		{
 			v = cgs.fraglimit;
-
+		}
 		if(v)
 		{
 			s = va("%2i", v);
@@ -1763,8 +1777,9 @@ static float CG_DrawScores(float y)
 
 		// always show your score in the second box if not in first place
 		if(s1 != score)
+		{
 			s2 = score;
-
+		}
 		if(s2 != SCORE_NOT_PRESENT)
 		{
 			s = va("%2i", s2);
@@ -1823,6 +1838,7 @@ static float CG_DrawScores(float y)
 			x -= w;
 			CG_DrawBigString(x + 4, y, s, 1.0F);
 		}
+
 	}
 
 	return y1 - 8;
@@ -1947,6 +1963,7 @@ static float CG_DrawPowerups(float y)
 /*
 =====================
 CG_DrawLowerRight
+
 =====================
 */
 #ifndef MISSIONPACK
@@ -2009,6 +2026,7 @@ static int CG_DrawPickupItem(int y)
 /*
 =====================
 CG_DrawLowerLeft
+
 =====================
 */
 #ifndef MISSIONPACK
@@ -2320,12 +2338,12 @@ static void CG_DrawDisconnect(void)
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
 	trap_GetUserCmd(cmdNum, &cmd);
 	if(cmd.serverTime <= cg.snap->ps.commandTime || cmd.serverTime > cg.time)
-	{							// special check for map_restart // bk 0102165 - FIXME
+	{							// special check for map_restart
 		return;
 	}
 
 	// also add text in center of screen
-	s = "Connection Interrupted";	// bk 010215 - FIXME
+	s = "Connection Interrupted";
 	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 	CG_DrawBigString(320 - w / 2, 100, s, 1.0F);
 
@@ -2531,7 +2549,7 @@ static void CG_DrawCenterString(void)
 	int             l;
 	int             x, y, w;
 
-#ifdef MISSIONPACK				// bk010221 - unused else
+#ifdef MISSIONPACK
 	int             h;
 #endif
 	float          *color;
@@ -2621,7 +2639,7 @@ static void CG_DrawCrosshair(void)
 	float           x, y;
 	int             ca;
 
-	if(cg_drawCrosshair.integer < 0)
+	if(!cg_drawCrosshair.integer)
 	{
 		return;
 	}
@@ -2822,7 +2840,47 @@ static void CG_DrawVote(void)
 #endif
 }
 
-static qboolean CG_DrawScoreboard()
+/*
+=================
+CG_DrawTeamVote
+=================
+*/
+static void CG_DrawTeamVote(void)
+{
+	char           *s;
+	int             sec, cs_offset;
+
+	if(cgs.clientinfo->team == TEAM_RED)
+		cs_offset = 0;
+	else if(cgs.clientinfo->team == TEAM_BLUE)
+		cs_offset = 1;
+	else
+		return;
+
+	if(!cgs.teamVoteTime[cs_offset])
+	{
+		return;
+	}
+
+	// play a talk beep whenever it is modified
+	if(cgs.teamVoteModified[cs_offset])
+	{
+		cgs.teamVoteModified[cs_offset] = qfalse;
+		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
+	}
+
+	sec = (VOTE_TIME - (cg.time - cgs.teamVoteTime[cs_offset])) / 1000;
+	if(sec < 0)
+	{
+		sec = 0;
+	}
+	s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
+		   cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset]);
+	CG_DrawSmallString(0, 90, s, 1.0F);
+}
+
+
+static qboolean CG_DrawScoreboard(void)
 {
 #ifdef MISSIONPACK
 	static qboolean firstTime = qtrue;
@@ -3221,7 +3279,7 @@ static void CG_DrawWarmup(void)
 CG_DrawTimedMenus
 =================
 */
-void CG_DrawTimedMenus()
+void CG_DrawTimedMenus(void)
 {
 	if(cg.voiceTime)
 	{
@@ -3271,7 +3329,6 @@ static void CG_Draw2D(void)
 		return;
 	}
 */
-
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
 		CG_DrawSpectator();
@@ -3322,6 +3379,7 @@ static void CG_Draw2D(void)
 	}
 
 	CG_DrawVote();
+	CG_DrawTeamVote();
 
 	CG_DrawLagometer();
 
@@ -3346,7 +3404,7 @@ static void CG_Draw2D(void)
 }
 
 
-static void CG_DrawTourneyScoreboard()
+static void CG_DrawTourneyScoreboard(void)
 {
 #ifdef MISSIONPACK
 #else

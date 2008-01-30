@@ -157,6 +157,9 @@ void SV_SetBrushModel(sharedEntity_t * ent, const char *name)
 	ent->r.bmodel = qtrue;
 
 	ent->r.contents = -1;		// we don't know exactly what is in the brushes
+
+	// Tr3B: uncommented
+	//SV_LinkEntity(ent);			// FIXME: remove
 }
 
 

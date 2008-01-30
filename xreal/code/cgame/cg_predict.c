@@ -556,6 +556,10 @@ but we simulate all unacknowledged commands each time, not just the new ones.
 This means that on an internet connection, quite a few pmoves may be issued
 each frame.
 
+OPTIMIZE: don't re-simulate unless the newly arrived snapshot playerState_t
+differs from the predicted one.  Would require saving all intermediate
+playerState_t during prediction.
+
 We detect prediction errors and allow them to be decayed off over several frames
 to ease the jerk.
 =================
@@ -599,12 +603,17 @@ void CG_PredictPlayerState(void)
 	cg_pmove.trace = CG_Trace;
 	cg_pmove.pointcontents = CG_PointContents;
 	if(cg_pmove.ps->pm_type == PM_DEAD)
+	{
 		cg_pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	}
 	else
+	{
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
+	}
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+	{
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
-
+	}
 	cg_pmove.noFootsteps = (cgs.dmflags & DF_NO_FOOTSTEPS) > 0;
 
 	// save the state before the pmove so we can detect transitions
@@ -618,10 +627,11 @@ void CG_PredictPlayerState(void)
 	cmdNum = current - CMD_BACKUP + 1;
 	trap_GetUserCmd(cmdNum, &oldestCmd);
 	if(oldestCmd.serverTime > cg.snap->ps.commandTime && oldestCmd.serverTime < cg.time)
-	{
-		// special check for map_restart
+	{							// special check for map_restart
 		if(cg_showmiss.integer)
+		{
 			CG_Printf("exceeded PACKET_BACKUP on commands\n");
+		}
 		return;
 	}
 

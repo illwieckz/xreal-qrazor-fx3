@@ -52,7 +52,7 @@ void G_WriteClientSessionData(gclient_t * client)
 		   client->sess.spectatorState,
 		   client->sess.spectatorClient, client->sess.wins, client->sess.losses, client->sess.teamLeader);
 
-	var = va("session%i", client - level.clients);
+	var = va("session%i", (int)(client - level.clients));
 
 	trap_Cvar_Set(var, s);
 }
@@ -68,21 +68,18 @@ void G_ReadSessionData(gclient_t * client)
 {
 	char            s[MAX_STRING_CHARS];
 	const char     *var;
-
-	// bk001205 - format
 	int             teamLeader;
 	int             spectatorState;
 	int             sessionTeam;
 
-	var = va("session%i", client - level.clients);
+	var = va("session%i", (int)(client - level.clients));
 	trap_Cvar_VariableStringBuffer(var, s, sizeof(s));
 
-	sscanf(s, "%i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
-		   &client->sess.spectatorTime, &spectatorState,	// bk010221 - format
-		   &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader	// bk010221 - format
-		);
+	sscanf(s, "%i %i %i %i %i %i %i",
+		   &sessionTeam,
+		   &client->sess.spectatorTime,
+		   &spectatorState, &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader);
 
-	// bk001205 - format issues
 	client->sess.sessionTeam = (team_t) sessionTeam;
 	client->sess.spectatorState = (spectatorState_t) spectatorState;
 	client->sess.teamLeader = (qboolean) teamLeader;
@@ -166,6 +163,7 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 /*
 ==================
 G_InitWorldSession
+
 ==================
 */
 void G_InitWorldSession(void)
@@ -188,6 +186,7 @@ void G_InitWorldSession(void)
 /*
 ==================
 G_WriteSessionData
+
 ==================
 */
 void G_WriteSessionData(void)
