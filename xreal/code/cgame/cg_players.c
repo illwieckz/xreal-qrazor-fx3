@@ -3324,8 +3324,10 @@ void CG_Player(centity_t * cent)
 	// TODO add powerups floating behind the player
 	//CG_PlayerPowerups(cent, &body);
 
-	// add the bounding box (if cg_drawPlayerAABB is 1)
-	CG_PlayerBoundingBox(cent);
+//unlagged - client options
+	// add the bounding box (if cg_drawBBox is 1)
+	CG_AddBoundingBox(cent);
+//unlagged - client options
 }
 #else							// XPPM
 void CG_Player(centity_t * cent)
