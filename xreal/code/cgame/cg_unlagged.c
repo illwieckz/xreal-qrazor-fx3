@@ -256,7 +256,6 @@ void CG_AddBoundingBox(centity_t * cent)
 	vec3_t          maxs = { 15, 15, 32 };
 	float           extx, exty, extz;
 	vec3_t          corners[8];
-	qhandle_t       bboxShader, bboxShader_nocull;
 
 	if(!cg_drawBBox.integer)
 	{
@@ -275,12 +274,8 @@ void CG_AddBoundingBox(centity_t * cent)
 		return;
 	}
 
-	// get the shader handles
-	bboxShader = trap_R_RegisterShader("bbox");
-	bboxShader_nocull = trap_R_RegisterShader("bbox_nocull");
-
 	// if they don't exist, forget it
-	if(!bboxShader || !bboxShader_nocull)
+	if(!cgs.media.debugPlayerAABB || !cgs.media.debugPlayerAABB_twoSided)
 	{
 		return;
 	}
@@ -379,42 +374,42 @@ void CG_AddBoundingBox(centity_t * cent)
 	VectorCopy(corners[1], verts[1].xyz);
 	VectorCopy(corners[2], verts[2].xyz);
 	VectorCopy(corners[3], verts[3].xyz);
-	trap_R_AddPolyToScene(bboxShader, 4, verts);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB, 4, verts);
 
 	// bottom
 	VectorCopy(corners[7], verts[0].xyz);
 	VectorCopy(corners[6], verts[1].xyz);
 	VectorCopy(corners[5], verts[2].xyz);
 	VectorCopy(corners[4], verts[3].xyz);
-	trap_R_AddPolyToScene(bboxShader, 4, verts);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB, 4, verts);
 
 	// top side
 	VectorCopy(corners[3], verts[0].xyz);
 	VectorCopy(corners[2], verts[1].xyz);
 	VectorCopy(corners[6], verts[2].xyz);
 	VectorCopy(corners[7], verts[3].xyz);
-	trap_R_AddPolyToScene(bboxShader_nocull, 4, verts);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
 
 	// left side
 	VectorCopy(corners[2], verts[0].xyz);
 	VectorCopy(corners[1], verts[1].xyz);
 	VectorCopy(corners[5], verts[2].xyz);
 	VectorCopy(corners[6], verts[3].xyz);
-	trap_R_AddPolyToScene(bboxShader_nocull, 4, verts);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
 
 	// right side
 	VectorCopy(corners[0], verts[0].xyz);
 	VectorCopy(corners[3], verts[1].xyz);
 	VectorCopy(corners[7], verts[2].xyz);
 	VectorCopy(corners[4], verts[3].xyz);
-	trap_R_AddPolyToScene(bboxShader_nocull, 4, verts);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
 
 	// bottom side
 	VectorCopy(corners[1], verts[0].xyz);
 	VectorCopy(corners[0], verts[1].xyz);
 	VectorCopy(corners[4], verts[2].xyz);
 	VectorCopy(corners[5], verts[3].xyz);
-	trap_R_AddPolyToScene(bboxShader_nocull, 4, verts);
+	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, verts);
 }
 
 /*
