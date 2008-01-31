@@ -130,6 +130,9 @@ vmCvar_t        bot_attack_lead_time_scale;	// The percentage of time beyond bot
 vmCvar_t        bot_debug_path;	// Describe obstacle and path planning setup during start up
 vmCvar_t        bot_debug_item;	// Describe item region setup during start up
 vmCvar_t        bot_debug_predict_time;	// The amount of time ahead to test predicted player movement
+
+vmCvar_t        bot_reachability;
+vmCvar_t        bot_groundonly;
 #endif
 
 
@@ -272,6 +275,9 @@ void LevelSetupVariables(void)
 	trap_Cvar_Register(&bot_debug_path, "bot_debug_path", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_debug_item, "bot_debug_item", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_debug_predict_time, "bot_debug_predict_time", "0.0", CVAR_CHEAT);
+
+	trap_Cvar_Register(&bot_reachability, "bot_reachability", "0", CVAR_CHEAT);
+	trap_Cvar_Register(&bot_groundonly, "bot_groundonly", "0", CVAR_CHEAT);
 #endif
 }
 

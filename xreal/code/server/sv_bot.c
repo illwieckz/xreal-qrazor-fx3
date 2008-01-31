@@ -118,9 +118,11 @@ void BotDrawDebugPolygons(void (*drawPoly) (int color, int numPoints, float *poi
 		//show reachabilities
 		if(!bot_reachability)
 			bot_reachability = Cvar_Get("bot_reachability", "0", 0);
+		
 		//show ground faces only
 		if(!bot_groundonly)
-			bot_groundonly = Cvar_Get("bot_groundonly", "1", 0);
+			bot_groundonly = Cvar_Get("bot_groundonly", "0", 0);
+		
 		//get the hightlight area
 		if(!bot_highlightarea)
 			bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0);
@@ -128,10 +130,13 @@ void BotDrawDebugPolygons(void (*drawPoly) (int color, int numPoints, float *poi
 		parm0 = 0;
 		if(svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK)
 			parm0 |= 1;
+		
 		if(bot_reachability->integer)
 			parm0 |= 2;
+		
 		if(bot_groundonly->integer)
 			parm0 |= 4;
+		
 		botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
 		botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin, svs.clients[0].gentity->r.currentAngles);
 	}							//end if
@@ -544,7 +549,7 @@ void SV_BotInitCvars(void)
 	Cvar_Get("bot_developer", "0", CVAR_CHEAT);	//bot developer mode
 	Cvar_Get("bot_debug", "0", CVAR_CHEAT);	//enable bot debugging
 	Cvar_Get("bot_maxdebugpolys", "4096", 0);	//maximum number of debug polys
-	Cvar_Get("bot_groundonly", "1", 0);	//only show ground faces of areas
+	Cvar_Get("bot_groundonly", "0", 0);	//only show ground faces of areas
 	Cvar_Get("bot_reachability", "0", 0);	//show all reachabilities to other areas
 	Cvar_Get("bot_visualizejumppads", "0", CVAR_CHEAT);	//show jumppads
 	Cvar_Get("bot_forceclustering", "0", 0);	//force cluster calculations

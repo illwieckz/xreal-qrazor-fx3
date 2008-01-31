@@ -894,4 +894,23 @@ void BotActions(bot_state_t * bs, float ai_elapsed, float game_elapsed)
 		bs->view_now[i].angle.real = AngleNormalize180(bs->view_now[i].angle.real - SHORT2ANGLE(bs->ps->delta_angles[i]));
 		bs->view_now[i].angle.error = AngleNormalize180(bs->view_now[i].angle.error - SHORT2ANGLE(bs->ps->delta_angles[i]));
 	}
+
+#ifdef DEBUG_AI
+	// Tr3B: added
+	if(bs->debug_flags & BOT_DEBUG_INFO_AAS)
+	{
+		int			parm0 = 0;
+
+		if(bs->cmd.buttons & BUTTON_ATTACK)
+			parm0 |= 1;
+		
+		if(bot_reachability.integer)
+			parm0 |= 2;
+		
+		if(bot_groundonly.integer)
+			parm0 |= 4;
+
+		trap_BotLibTest(parm0, NULL, bs->eye_now, bs->view_now);
+	}
+#endif
 }

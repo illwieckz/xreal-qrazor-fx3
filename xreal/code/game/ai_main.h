@@ -64,7 +64,7 @@
 // For reasons not known to mortals, the original coders decided no other files would
 // ever want to know the default player bounding boxes.  This AI code respectfully
 // disagrees.
-extern const vec3_t   playerMins, playerMaxs;
+extern const vec3_t playerMins, playerMaxs;
 
 
 
@@ -100,32 +100,36 @@ typedef struct bot_state_s bot_state_t;
 
 // Debugging flags that change bot behavior or provide output when turned on
 
+enum
+{
 	// Informative
-#define BOT_DEBUG_INFO_AIM				0x00000001	// Aim selection
-#define BOT_DEBUG_INFO_ACCSTATS			0x00000002	// Cumulative weapon accuracy statistics
-#define BOT_DEBUG_INFO_ACCURACY			0x00000004	// Tracking of weapon accuracy
-#define BOT_DEBUG_INFO_AWARENESS		0x00000008	// Awareness of enemy entities
-#define BOT_DEBUG_INFO_DODGE			0x00000010	// Dodge selection
-#define BOT_DEBUG_INFO_ENEMY			0x00000020	// Enemy selection
-#define BOT_DEBUG_INFO_GOAL				0x00000040	// Goal selection
-#define BOT_DEBUG_INFO_ITEM				0x00000080	// Item selection
-#define BOT_DEBUG_INFO_ITEM_REASON		0x00000100	// Reason for item selection
-#define BOT_DEBUG_INFO_PATH				0x00000200	// Path planning for obstacle avoidance
-#define BOT_DEBUG_INFO_SCAN				0x00000400	// Scanning of surrounding entities
-#define BOT_DEBUG_INFO_TIMED_ITEM		0x00000800	// Timed item selection and tracking
-#define BOT_DEBUG_INFO_WEAPON			0x00001000	// Weapon selection
-#define BOT_DEBUG_INFO_SHOOT			0x00002000	// Whether and why the bot shoots
+	BOT_DEBUG_INFO_AIM = BIT(0),	// Aim selection
+	BOT_DEBUG_INFO_ACCSTATS = BIT(1),	// Cumulative weapon accuracy statistics
+	BOT_DEBUG_INFO_ACCURACY = BIT(2),	// Tracking of weapon accuracy
+	BOT_DEBUG_INFO_AWARENESS = BIT(3),	// Awareness of enemy entities
+	BOT_DEBUG_INFO_DODGE = BIT(4),	// Dodge selection
+	BOT_DEBUG_INFO_ENEMY = BIT(5),	// Enemy selection
+	BOT_DEBUG_INFO_GOAL = BIT(6),	// Goal selection
+	BOT_DEBUG_INFO_ITEM = BIT(7),	// Item selection
+	BOT_DEBUG_INFO_ITEM_REASON = BIT(8),	// Reason for item selection
+	BOT_DEBUG_INFO_PATH = BIT(9),	// Path planning for obstacle avoidance
+	BOT_DEBUG_INFO_SCAN = BIT(10),	// Scanning of surrounding entities
+	BOT_DEBUG_INFO_TIMED_ITEM = BIT(11),	// Timed item selection and tracking
+	BOT_DEBUG_INFO_WEAPON = BIT(12),	// Weapon selection
+	BOT_DEBUG_INFO_SHOOT = BIT(13),	// Whether and why the bot shoots
+	BOT_DEBUG_INFO_AAS = BIT(14),	// Whether and why the bot shoots
 
 	// Behavioral
-#define BOT_DEBUG_MAKE_DODGE_STOP		0x00004000	// Stop dodging when moving
-#define BOT_DEBUG_MAKE_ITEM_STOP		0x00008000	// Stop selecting items to pick up
-#define BOT_DEBUG_MAKE_MOVE_STOP		0x00010000	// Stop moving
-#define BOT_DEBUG_MAKE_SHOOT_ALWAYS		0x00020000	// Always shoot
-#define BOT_DEBUG_MAKE_SHOOT_STOP		0x00040000	// Stop shooting
-#define BOT_DEBUG_MAKE_SKILL_STANDARD	0x00080000	// Fix weapon skill and accuracy
-#define BOT_DEBUG_MAKE_STRAFEJUMP_STOP	0x00100000	// Stop strafe jumping when moving
-#define BOT_DEBUG_MAKE_VIEW_FLAWLESS	0x00200000	// Incur no error when changing view
-#define BOT_DEBUG_MAKE_VIEW_PERFECT		0x00400000	// Always look in the ideal direction
+	BOT_DEBUG_MAKE_DODGE_STOP = BIT(15),	// Stop dodging when moving
+	BOT_DEBUG_MAKE_ITEM_STOP = BIT(16),	// Stop selecting items to pick up
+	BOT_DEBUG_MAKE_MOVE_STOP = BIT(17),	// Stop moving
+	BOT_DEBUG_MAKE_SHOOT_ALWAYS = BIT(18),	// Always shoot
+	BOT_DEBUG_MAKE_SHOOT_STOP = BIT(19),	// Stop shooting
+	BOT_DEBUG_MAKE_SKILL_STANDARD = BIT(20),	// Fix weapon skill and accuracy
+	BOT_DEBUG_MAKE_STRAFEJUMP_STOP = BIT(21),	// Stop strafe jumping when moving
+	BOT_DEBUG_MAKE_VIEW_FLAWLESS = BIT(22),	// Incur no error when changing view
+	BOT_DEBUG_MAKE_VIEW_PERFECT = BIT(23),	// Always look in the ideal direction
+};
 
 #endif
 
@@ -176,9 +180,9 @@ typedef struct bot_aware_s
 // the same name (for fast name searches).
 typedef struct item_link_s
 {
+	gentity_t      *ent;		// The current item entity in the list
 	struct item_link_s *next_near;	// Next item in the same cluster or NULL for end of list
 	struct item_link_s *next_name;	// Next item with the same name or NULL for end of list
-	gentity_t      *ent;		// The current item entity in the list
 	float           contribution;	// What percentage of the cluster's value this item accounts for
 	int             area;		// Entity's current area-- might need runtime updating
 } item_link_t;

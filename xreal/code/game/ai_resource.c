@@ -62,26 +62,26 @@ enum
 //
 // NOTE: These should total 1.0
 float           default_distribution[] = {
-	0.20f,						// DEFAULT_PLAYER_SPAWNED
-	0.30f,						// DEFAULT_PLAYER_POWERED
-	0.10f,						// DEFAULT_PLAYER_WOUNDED
-	0.40f,						// DEFAULT_PLAYER_AVERAGE
+	0.20,						// DEFAULT_PLAYER_SPAWNED
+	0.30,						// DEFAULT_PLAYER_POWERED
+	0.10,						// DEFAULT_PLAYER_WOUNDED
+	0.40,						// DEFAULT_PLAYER_AVERAGE
 };
 
 // Starting health of each kind of player
 float           default_health[] = {
-	125.0f,						// DEFAULT_PLAYER_SPAWNED
-	100.0f,						// DEFAULT_PLAYER_POWERED
-	60.0f,						// DEFAULT_PLAYER_WOUNDED
-	100.0f,						// DEFAULT_PLAYER_AVERAGE
+	125.0,						// DEFAULT_PLAYER_SPAWNED
+	100.0,						// DEFAULT_PLAYER_POWERED
+	60.0,						// DEFAULT_PLAYER_WOUNDED
+	100.0,						// DEFAULT_PLAYER_AVERAGE
 };
 
 // Starting armor of each kind of player
 float           default_armor[] = {
-	0.0f,						// DEFAULT_PLAYER_SPAWNED
-	100.0f,						// DEFAULT_PLAYER_POWERED
-	0.0f,						// DEFAULT_PLAYER_WOUNDED
-	25.0f,						// DEFAULT_PLAYER_AVERAGE
+	0.0,						// DEFAULT_PLAYER_SPAWNED
+	100.0,						// DEFAULT_PLAYER_POWERED
+	0.0,						// DEFAULT_PLAYER_WOUNDED
+	25.0,						// DEFAULT_PLAYER_AVERAGE
 };
 
 // Each kind of player has this many weapon pickups worth of ammo (0 for no weapons)
@@ -97,10 +97,10 @@ int             default_weapons[] = {
 
 // Each kind of player has this many boxes of of ammo
 float           default_ammo[] = {
-	0.0f,						// DEFAULT_PLAYER_SPAWNED
-	6.0f,						// DEFAULT_PLAYER_POWERED
-	0.0f,						// DEFAULT_PLAYER_WOUNDED
-	5.0f,						// DEFAULT_PLAYER_AVERAGE
+	0.0,						// DEFAULT_PLAYER_SPAWNED
+	6.0,						// DEFAULT_PLAYER_POWERED
+	0.0,						// DEFAULT_PLAYER_WOUNDED
+	5.0,						// DEFAULT_PLAYER_AVERAGE
 };
 
 
@@ -598,9 +598,9 @@ void PlayInfoFromBot(play_info_t * pi, bot_state_t * bs)
 		pi->dealt[weapon] = (acc.direct.damage + acc.splash.damage) * ws->shots / acc.shots;
 
 		// Compute the chance a firing of this weapon will not be the killing shot
-		survive_chance = 1.0f - (pi->kills_per_damage * pi->dealt[weapon]);
-		if(survive_chance < 0.1f)
-			survive_chance = 0.1f;
+		survive_chance = 1.0 - (pi->kills_per_damage * pi->dealt[weapon]);
+		if(survive_chance < 0.1)
+			survive_chance = 0.1;
 
 		// Only count reload time when not scoring the killing hit
 		//
@@ -739,9 +739,9 @@ void ResourceComputeHealthMod(resource_state_t * rs)
 		// all splash damage, making weapons like rockets totally ineffective against it.
 		hm->damage_factor = 1.0;
 		if(ResourcePowerup(rs, PW_INVIS, start_time))
-			hm->damage_factor *= .4f;
+			hm->damage_factor *= .4;
 		if(ResourcePowerup(rs, PW_BATTLESUIT, start_time))
-			hm->damage_factor *= .35f;
+			hm->damage_factor *= .35;
 
 		// Having regeneration or guard will change the health gain rate
 		if(ResourcePowerup(rs, PW_REGEN, start_time))
@@ -814,7 +814,7 @@ void ResourceComputeDamageMod(resource_state_t * rs)
 		else
 #endif
 		if(ResourcePowerup(rs, PW_HASTE, start_time))
-			dm->fire_factor = 1.3f;
+			dm->fire_factor = 1.3;
 		else
 			dm->fire_factor = 1.0;
 	}
@@ -1181,13 +1181,13 @@ int ResourceAddHoldable(resource_state_t * rs, gentity_t * ent)
 	switch (holdable)
 	{
 		case HI_TELEPORTER:
-			rs->score += 0.5f;
+			rs->score += .5;
 			break;
 		case HI_MEDKIT:
-			rs->score += 0.6f;
+			rs->score += .6;
 			break;
 		case HI_KAMIKAZE:
-			rs->score += 0.9f;
+			rs->score += .9;
 			break;
 		case HI_PORTAL:
 			break;				// Bots can't use this anyway
@@ -1863,15 +1863,15 @@ void ResourcePredictEncounter(resource_state_t * rs, float time, float score, fl
 	else
 #endif
 	if(rs->powerup[PW_HASTE] < 0)
-		time /= 1.3f;
+		time /= 1.3;
 	else if(rs->powerup[PW_HASTE] > rs->time)
 	{
 		// Computing the total time when haste runs out in-transit is a little tricky
 		haste_time = rs->powerup[PW_HASTE] - rs->time;
 		if(haste_time * 1.3 > time)
-			time /= 1.3f;
+			time /= 1.3;
 		else
-			time -= haste_time * 0.3f;
+			time -= haste_time * 0.3;
 	}
 
 	// Changes in armor and health affect the player's score
@@ -2012,8 +2012,8 @@ void ItemValuesCompute(item_link_t * items, int num_items)
 	pi.ps = NULL;
 	pi.max_health = 100;
 	pi.received = 10.0;
-	pi.deaths_per_damage = 1.0f / 150.0f;
-	pi.kills_per_damage = 1.0f / 150.0f;
+	pi.deaths_per_damage = 1.0 / 150;
+	pi.kills_per_damage = 1.0 / 150;
 
 	// Assume all opponents are equally good at killing this player
 	opponents = LevelNumTeams() - 1;
@@ -2033,8 +2033,8 @@ void ItemValuesCompute(item_link_t * items, int num_items)
 
 		// Estimate the chance a firing of this weapon will not be the killing shot
 		survive_chance = 1.0 - (pi.kills_per_damage * pi.dealt[i]);
-		if(survive_chance < 0.1f)
-			survive_chance = 0.1f;
+		if(survive_chance < 0.1)
+			survive_chance = 0.1;
 
 		// Only count reload time when not scoring the killing hit
 		pi.reload[i] *= survive_chance;
@@ -2169,7 +2169,7 @@ void ItemValuesCompute(item_link_t * items, int num_items)
 	{
 		// Compute the total points the player earns while alive
 		memcpy(&rs, &player[i], sizeof(resource_state_t));
-		ResourcePredictEncounter(&rs, LIFE_EXPECTANCY_MAX, 1.0f, ENCOUNTER_RATE_DEFAULT, ENCOUNTER_RATE_DEFAULT);
+		ResourcePredictEncounter(&rs, LIFE_EXPECTANCY_MAX, 1.0, ENCOUNTER_RATE_DEFAULT, ENCOUNTER_RATE_DEFAULT);
 		score[i] = rs.score;
 	}
 

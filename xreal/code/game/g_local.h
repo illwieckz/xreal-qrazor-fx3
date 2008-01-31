@@ -1001,9 +1001,9 @@ int             trap_BotLibDefine(char *string);
 int             trap_BotLibStartFrame(float time);
 int             trap_BotLibLoadMap(const char *mapname);
 int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue);
-#if !defined(BRAINWORKS)
+//#if !defined(BRAINWORKS)
 int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3);
-#endif
+//#endif
 int             trap_BotGetSnapshotEntity(int clientNum, int sequence);
 int             trap_BotGetServerCommand(int clientNum, char *message, int size);
 void            trap_BotUserCommand(int client, usercmd_t * ucmd);

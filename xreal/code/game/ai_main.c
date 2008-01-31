@@ -276,8 +276,9 @@ void BotInterbreedEndMatch()
 // there is only one such debug code (use_weapon) which is handled
 // through special cases.  It's not worth the effort of writing all
 // the handling code for just it, but that could change in the future.
-#define NUM_BOT_DEBUG_ENTRIES 23
+#define NUM_BOT_DEBUG_ENTRIES 24
 entry_string_int_t bot_debug_entries[NUM_BOT_DEBUG_ENTRIES] = {
+	{"info_aas", BOT_DEBUG_INFO_AAS},
 	{"info_accstats", BOT_DEBUG_INFO_ACCSTATS},
 	{"info_accuracy", BOT_DEBUG_INFO_ACCURACY},
 	{"info_aim", BOT_DEBUG_INFO_AIM},

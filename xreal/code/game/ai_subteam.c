@@ -81,7 +81,7 @@ void BotMatch_FormationSpace(bot_state_t * bs, bot_match_t * match)
 
 	// Scale the distance by the appropriate units if specified
 	if(match->subtype & ST_FEET)
-		bs->formation_dist *= 0.3048f;
+		bs->formation_dist *= 0.3048;
 
 	// Reasonably bound the formation distance
 	if(bs->formation_dist < 48 || bs->formation_dist > 500)

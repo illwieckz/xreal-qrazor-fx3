@@ -90,6 +90,9 @@ extern vmCvar_t bot_debug_path;
 extern vmCvar_t bot_debug_item;
 extern vmCvar_t bot_debug_predict_time;
 
+extern vmCvar_t bot_reachability;
+extern vmCvar_t bot_groundonly;
+
 #endif
 
 

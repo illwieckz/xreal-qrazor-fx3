@@ -598,20 +598,20 @@ void BotWeaponCharsLoad(bot_state_t * bs, int weapon)
 				bs->weapon_char_skill[weapon] = 1.0;
 				break;
 			case 4:
-				bs->weapon_char_acc[weapon] = 0.65f;
-				bs->weapon_char_skill[weapon] = 0.65f;
+				bs->weapon_char_acc[weapon] = 0.65;
+				bs->weapon_char_skill[weapon] = 0.65;
 				break;
 			case 3:
-				bs->weapon_char_acc[weapon] = 0.40f;
-				bs->weapon_char_skill[weapon] = 0.40f;
+				bs->weapon_char_acc[weapon] = 0.40;
+				bs->weapon_char_skill[weapon] = 0.40;
 				break;
 			case 2:
-				bs->weapon_char_acc[weapon] = 0.25f;
-				bs->weapon_char_skill[weapon] = 0.25f;
+				bs->weapon_char_acc[weapon] = 0.25;
+				bs->weapon_char_skill[weapon] = 0.25;
 				break;
 			case 1:
-				bs->weapon_char_acc[weapon] = 0.12f;
-				bs->weapon_char_skill[weapon] = 0.12f;
+				bs->weapon_char_acc[weapon] = 0.12;
+				bs->weapon_char_skill[weapon] = 0.12;
 				break;
 		}
 		return;
@@ -678,21 +678,21 @@ void BotWeaponCharsLoad(bot_state_t * bs, int weapon)
 	//   3: 0.25 to 0.60
 	//   2: 0.15 to 0.36
 	//   2: 0.07 to 0.18
-	bs->weapon_char_acc[weapon] = trap_Characteristic_BFloat(bs->character, acc_char, 0.1f, 1);
-	bs->weapon_char_skill[weapon] = trap_Characteristic_BFloat(bs->character, skill_char, 0.1f, 1);
+	bs->weapon_char_acc[weapon] = trap_Characteristic_BFloat(bs->character, acc_char, 0.1, 1);
+	bs->weapon_char_skill[weapon] = trap_Characteristic_BFloat(bs->character, skill_char, 0.1, 1);
 
 	// Skill 1-3 bots have identical characteristics, so this code
 	// must manually decrease the accuracies of lower skilled bots
 	// NOTE: The original code set handicaps instead of scaling these values
 	if(bs->settings.skill <= 1)
 	{
-		bs->weapon_char_acc[weapon] *= 0.30f;
-		bs->weapon_char_skill[weapon] *= 0.30f;
+		bs->weapon_char_acc[weapon] *= 0.30;
+		bs->weapon_char_skill[weapon] *= 0.30;
 	}
 	else if(bs->settings.skill <= 2)
 	{
-		bs->weapon_char_acc[weapon] *= 0.60f;
-		bs->weapon_char_skill[weapon] *= 0.60f;
+		bs->weapon_char_acc[weapon] *= 0.60;
+		bs->weapon_char_skill[weapon] *= 0.60;
 	}
 }
 

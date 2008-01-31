@@ -314,12 +314,12 @@ int trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue)
 	return syscall(BOTLIB_UPDATENTITY, ent, bue);
 }
 
-#if !defined(BRAINWORKS)
+//#if !defined(BRAINWORKS)
 int trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 {
 	return syscall(BOTLIB_TEST, parm0, parm1, parm2, parm3);
 }
-#endif
+//#endif
 
 int trap_BotGetSnapshotEntity(int clientNum, int sequence)
 {

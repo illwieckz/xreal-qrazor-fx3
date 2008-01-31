@@ -317,7 +317,7 @@ void BotViewCorrectIdeal(bot_state_t * bs)
 	// Determine how long to wait between corrections
 	delay = bs->react_time * bot_view_ideal_correct_factor.value;
 	if(delay <= 0.0)
-		delay = 0.100f;
+		delay = 0.100;
 
 	// Determine how many corrections to apply
 	//
@@ -387,12 +387,12 @@ for more information.
 void BotViewCorrectActual(bot_state_t * bs)
 {
 	int             i, corrections;
-	float           delay, elapsed;
+	float           delay, max_error, elapsed;
 
 	// Determine how long to wait between corrections
 	delay = bs->react_time * bot_view_actual_correct_factor.value;
 	if(delay <= 0.0)
-		delay = 0.100f;
+		delay = 0.100;
 
 	// Determine how many corrections to apply
 	//

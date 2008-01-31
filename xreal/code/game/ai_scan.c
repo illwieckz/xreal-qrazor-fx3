@@ -1188,7 +1188,7 @@ void BotScanComplete(bot_state_t * bs, bot_scan_t * scan, int scan_mode)
 
 			// Invisible players get attacked less
 			if(EntityIsInvisible(bs->ent))
-				attack_time *= 0.4f;
+				attack_time *= 0.4;
 
 			// Record the additional attack time that has passed
 			bs->enemy_attack_time += attack_time;
