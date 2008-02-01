@@ -7,6 +7,9 @@
  * Functions that the bot uses to process orders for new goals
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_order.h"
@@ -1214,3 +1217,5 @@ qboolean BotVoiceChatCommand(bot_state_t * bs, int mode, char *voiceChat)
 	}
 	return qfalse;
 }
+
+#endif

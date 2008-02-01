@@ -7,6 +7,9 @@
  * Functions that the bot uses to modify its view angles
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_view.h"
@@ -1189,3 +1192,5 @@ void BotViewProcess(bot_state_t * bs)
 	// Set this data as the bot's view command
 	BotCommandView(bs, view);
 }
+
+#endif

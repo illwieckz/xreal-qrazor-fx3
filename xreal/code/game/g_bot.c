@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 
+#if defined(BRAINWORKS)
+
 static int      g_numBots;
 static char    *g_botInfos[MAX_BOTS];
 
@@ -700,7 +702,7 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	Info_SetValueForKey(userinfo, "skill", va("%1.2f", skill));
 
 
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 	// outcommented for brainworks
 	if(skill >= 1 && skill < 2)
 	{
@@ -1178,3 +1180,5 @@ void G_InitBots(qboolean restart)
 		}
 	}
 }
+
+#endif

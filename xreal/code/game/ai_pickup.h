@@ -7,7 +7,12 @@
  * Includes used to determine item pickups
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotItemReset(bot_state_t * bs);
 qboolean        BotTimeCluster(bot_state_t * bs, item_cluster_t * cluster);
 qboolean        BotTimeClusterLoc(bot_state_t * bs, vec3_t loc);
 void            BotItemGoal(bot_state_t * bs);
+
+#endif

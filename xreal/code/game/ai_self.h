@@ -7,6 +7,9 @@
  * Includes used for accessing/setting data about the bot itself
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotSetUserInfo(bot_state_t * bs, char *key, char *value);
 qboolean        BotIsCarrier(bot_state_t * bs);
 int             BotTeam(bot_state_t * bs);
@@ -27,3 +30,5 @@ void            BotCheckServerCommands(bot_state_t * bs);
 void            BotReactionLoad(bot_state_t * bs);
 void            BotInitialize(bot_state_t * bs);
 void            BotResetState(bot_state_t * bs);
+
+#endif

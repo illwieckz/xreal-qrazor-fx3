@@ -7,6 +7,9 @@
  * Functions that the bot uses to determine how to attack a target
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_attack.h"
@@ -1184,3 +1187,5 @@ void BotAttackFireWeapon(bot_state_t * bs)
 	// frame.)
 	BotCommandAction(bs, ACTION_ATTACK);
 }
+
+#endif

@@ -7,6 +7,9 @@
  * Functions that the bot uses to randomly dodge
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_dodge.h"
@@ -400,3 +403,5 @@ void BotDodgeMovement(bot_state_t * bs)
 	// NOTE: No movement command is needed because the bot is already moving forward
 	BotSetDodge(bs, MOVE_FORWARD);
 }
+
+#endif

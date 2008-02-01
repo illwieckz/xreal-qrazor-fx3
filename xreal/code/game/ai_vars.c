@@ -7,6 +7,9 @@
  * Functions to manage bot variables
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 
@@ -221,7 +224,7 @@ void LevelSetupVariables(void)
 	trap_Cvar_Register(&bot_grapple, "bot_grapple", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_rocketjump, "bot_rocketjump", "1", CVAR_CHEAT);
 
-	trap_Cvar_Register(&bot_dodge_rate, "bot_dodge", "0", CVAR_CHEAT);
+	trap_Cvar_Register(&bot_dodge, "bot_dodge", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_dodge_rate, "bot_dodge_rate", "0.35", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_dodge_min, "bot_dodge_min", "0.60", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_dodge_max, "bot_dodge_max", "1.00", CVAR_CHEAT);
@@ -350,6 +353,9 @@ void LevelUpdateVariables(void)
 	trap_Cvar_Update(&bot_debug_path);
 	trap_Cvar_Update(&bot_debug_item);
 	trap_Cvar_Update(&bot_debug_predict_time);
+
+	trap_Cvar_Update(&bot_reachability);
+	trap_Cvar_Update(&bot_groundonly);
 #endif
 
 	// Handle some internal AI variable sets
@@ -370,3 +376,5 @@ void LevelUpdateVariables(void)
 	// Cache bot reaction times if the reaction time min or max changed
 	LevelCacheReactionTimes();
 }
+
+#endif

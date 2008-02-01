@@ -7,6 +7,9 @@
  * Functions that the bot uses for shooting and selecting weapons
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_weapon.h"
@@ -1262,3 +1265,5 @@ float BotWeaponExtraReloadTime(bot_state_t * bs)
 
 	return extra_reload_time;
 }
+
+#endif

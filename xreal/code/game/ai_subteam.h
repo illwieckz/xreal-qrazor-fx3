@@ -7,4 +7,9 @@
  * Includes for accessing subteam management functions
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 qboolean        BotMatch_Subteam(bot_state_t * bs, bot_match_t * match, gentity_t * sender);
+
+#endif

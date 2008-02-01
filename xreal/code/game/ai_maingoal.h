@@ -7,5 +7,10 @@
  * Includes used by the bot to select a main goal for this frame
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotGoalReset(bot_state_t * bs);
 void            BotMainGoal(bot_state_t * bs);
+
+#endif

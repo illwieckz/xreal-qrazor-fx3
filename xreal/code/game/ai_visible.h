@@ -7,8 +7,13 @@
  * Includes used for bot visibility tests
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 qboolean        BotTargetInFieldOfVision(bot_state_t * bs, vec3_t target, float fov);
 qboolean        BotGoalVisible(bot_state_t * bs, bot_goal_t * goal);
 qboolean        BotEntityVisibleFast(bot_state_t * bs, gentity_t * ent);
 qboolean        BotEntityVisible(bot_state_t * bs, gentity_t * ent);
 float           BotEntityVisibleCenter(bot_state_t * bs, gentity_t * ent, vec3_t eye, vec3_t center);
+
+#endif

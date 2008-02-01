@@ -7,6 +7,9 @@
  * Functions the bot uses to select a primary goal for this frame
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_maingoal.h"
@@ -1888,3 +1891,5 @@ void BotMainGoal(bot_state_t * bs)
 	// If no acceptable goal was found, do nothing by default
 	BotGoalReset(bs);
 }
+
+#endif

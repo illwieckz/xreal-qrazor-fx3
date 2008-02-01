@@ -7,9 +7,10 @@
  * Includes for the primary AI front-end
  *****************************************************************************/
 
-
 // Always gain access to these files
 #include "g_local.h"
+
+#if defined(BRAINWORKS)
 
 // FIXME
 //#ifdef _MSC_VER
@@ -1363,3 +1364,5 @@ struct bot_state_s
 	float           weapon_char_skill[WP_NUM_WEAPONS];	// Bot's skill rating characteristic for each weapon
 
 };
+
+#endif

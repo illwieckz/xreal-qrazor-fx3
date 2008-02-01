@@ -8,6 +8,9 @@
  *****************************************************************************/
 
 #include "g_local.h"
+#if defined(BRAINWORKS)
+
+#include "g_local.h"
 #include "ai_lib.h"
 
 // FIXME: This entire file is better placed in something like q_math.c.  I left this
@@ -2457,3 +2460,5 @@ char           *isi_string(index_subset_iter_t * isi, char *string, int max_leng
 	// Make functional programmers happy
 	return string;
 }
+
+#endif

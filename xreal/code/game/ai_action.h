@@ -6,4 +6,9 @@
  * Includes used for selecting bot actions
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotActions(bot_state_t * bs, float ai_elapsed, float game_elapsed);
+
+#endif

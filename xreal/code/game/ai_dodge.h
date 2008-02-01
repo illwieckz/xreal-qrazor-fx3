@@ -6,4 +6,9 @@
  * Includes for bot dodging
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotDodgeMovement(bot_state_t * bs);
+
+#endif

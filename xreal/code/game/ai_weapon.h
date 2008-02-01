@@ -7,6 +7,9 @@
  * Includes used for bot weapon algorithms
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 // The median expected damage per second of all weapons in the game
 extern float    damage_per_second_typical;
 
@@ -32,3 +35,5 @@ float           BotDamageRate(bot_state_t * bs, unsigned int weapon_list, combat
 int             BotTargetWeapon(bot_state_t * bs);
 void            BotBlastDamage(bot_state_t * bs, int weapon, vec3_t center, damage_multi_t * blast, gentity_t * ignore);
 float           BotWeaponExtraReloadTime(bot_state_t * bs);
+
+#endif

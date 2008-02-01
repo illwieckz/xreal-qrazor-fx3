@@ -7,6 +7,9 @@
  * Includes used for bot accuracy estimate
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 extern float    dist_zone_center[ZCD_NUM_IDS];
 extern float    pitch_zone_center[ZCP_NUM_IDS];
 
@@ -19,3 +22,5 @@ void            BotAccuracyRead(bot_state_t * bs, bot_accuracy_t * acc, int weap
 void            BotAccuracyReset(bot_state_t * bs);
 void            BotAccuracyUpdate(bot_state_t * bs);
 void            AccuracySetup(void);
+
+#endif

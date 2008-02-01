@@ -7,6 +7,9 @@
  * Functions the bot uses to process commands
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_command.h"
@@ -750,3 +753,5 @@ qboolean BotMatchMessage(bot_state_t * bs, char *message)
 	BotAI_Print(PRT_WARNING, "Unknown match type %i\n", match.type);
 	return qtrue;
 }
+
+#endif

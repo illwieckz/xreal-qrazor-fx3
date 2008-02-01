@@ -7,6 +7,9 @@
  * Functions that help the bot use special abilities (such as holdable items)
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_use.h"
@@ -130,3 +133,5 @@ void BotUse(bot_state_t * bs)
 	BotUseInvulnerability(bs);
 #endif
 }
+
+#endif

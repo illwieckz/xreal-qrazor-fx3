@@ -7,4 +7,9 @@
  * Includes used for bot aiming algorithms
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotAimSelect(bot_state_t * bs, bot_moveresult_t * moveresult);
+
+#endif

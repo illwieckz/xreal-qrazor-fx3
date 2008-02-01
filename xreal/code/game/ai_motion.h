@@ -7,6 +7,9 @@
  * Includes used to detect entity motion
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 float           EntityMotionUpdateRate(gentity_t * ent);
 void            EntityMotionStateUpdateCachedData(gentity_t * ent, motion_state_t * motion);
 void            EntityMotionStateNow(gentity_t * ent, motion_state_t * motion);
@@ -17,3 +20,5 @@ void            BotAIMotionReset(void);
 void            BotAIMotionUpdate(void);
 float           BotEntityMotionLagged(bot_state_t * bs, gentity_t * ent, float lag, motion_state_t * state);
 void            BotMotionUpdate(bot_state_t * bs);
+
+#endif

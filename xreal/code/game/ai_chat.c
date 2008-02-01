@@ -7,6 +7,9 @@
  * Functions that the bot uses to chat with other players
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_chat.h"
@@ -1174,3 +1177,5 @@ void BotChatTest(bot_state_t * bs)
 		trap_BotEnterChat(bs->cs, 0, CHAT_ALL);
 	}
 }
+
+#endif

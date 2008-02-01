@@ -7,6 +7,9 @@
  * Functions that the bot uses to plan paths to a specified goal
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_path.h"
@@ -581,12 +584,15 @@ void LevelPathSetup(void)
 		// Relay activators
 		if(!strcmp(ent->classname, "target_relay") || !strcmp(ent->classname, "target_delay"))
 			activator_setup = ActivatorSetupRelay;
+		
 		// Buttons
 		else if(!strcmp(ent->classname, "func_button"))
 			activator_setup = ActivatorSetupButton;
+		
 		// Trigger boxes
 		else if(!strcmp(ent->classname, "trigger_multiple"))
 			activator_setup = ActivatorSetupTrigger;
+		
 		// Not an activator
 		else
 			activator_setup = 0;
@@ -1085,3 +1091,5 @@ qboolean BotPathPlan(bot_state_t * bs, bot_path_t * path, bot_goal_t * objective
 	// Head towards the (possibly new) destination
 	return qtrue;
 }
+
+#endif

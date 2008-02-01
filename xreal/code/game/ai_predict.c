@@ -7,6 +7,9 @@
  * Functions the bot uses to predict motion in entities
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_predict.h"
@@ -1039,4 +1042,6 @@ void PredictDebugCheck(void)
 			i++;
 	}
 }
+#endif
+
 #endif

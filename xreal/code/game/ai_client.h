@@ -7,6 +7,9 @@
  * Includes used for accessing client data
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 // Number of bots currently in the game
 extern int      bots_connected;
 
@@ -36,3 +39,5 @@ char           *BotRandomOpponentName(bot_state_t * bs);
 // NOTE: ai_client.c also includes the functions BotAISetupClient() and
 // BotAIShutdownClient(), but those are called from the server code and
 // defined by the header file g_local.h.
+
+#endif

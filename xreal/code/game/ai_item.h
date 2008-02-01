@@ -7,6 +7,9 @@
  * Includes used for item and region processing
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 // Relatively important item clusters on the level, sorted by cluster pointer
 extern item_cluster_t *important_items[MAX_REGIONS];
 extern int      num_important_items;
@@ -30,3 +33,5 @@ void            LevelItemSetup(void);
 void            LevelItemUpdate(void);
 
 float           ItemPickup(gitem_t * item);
+
+#endif

@@ -7,6 +7,9 @@
  * Includes for accessing level information
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 extern bot_goal_t bases[NUM_BASES];
 extern gentity_t *flags[NUM_BASES];
 
@@ -24,3 +27,5 @@ qboolean        LevelAreasNearby(int start_area, vec3_t start_origin, int end_ar
 int             LevelBaseTravelTime(int from_base, int to_base);
 void            LevelBaseSetup(void);
 void            LevelFlagScan(void);
+
+#endif

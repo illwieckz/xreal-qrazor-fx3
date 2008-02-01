@@ -8,6 +8,9 @@
  * system
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_aware.h"
@@ -323,3 +326,5 @@ qboolean BotAwarenessLocation(bot_state_t * bs, vec3_t origin)
 
 	return qtrue;
 }
+
+#endif

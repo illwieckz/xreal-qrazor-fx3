@@ -7,4 +7,9 @@
  * Includes for using bot special abilities (such as holdable items)
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotUse(bot_state_t * bs);
+
+#endif

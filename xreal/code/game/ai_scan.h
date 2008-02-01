@@ -7,6 +7,9 @@
  * Includes used for scanning for nearby enemies, teammates, and so on
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #define SCAN_PLAYER_EVENT		0x01	// Process events on nearby players
 #define SCAN_NONPLAYER_EVENT	0x02	// Process events on nearby non-player entities,
 										// including audial awareness
@@ -32,3 +35,5 @@
 #define SCAN_ALL		(SCAN_PLAYER_EVENT|SCAN_NONPLAYER_EVENT|SCAN_TARGET|SCAN_MISSILE)
 
 void            BotScan(bot_state_t * bs, int scan_mode);
+
+#endif

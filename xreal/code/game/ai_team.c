@@ -7,6 +7,9 @@
  * Functions that the bot uses to manage team interactions
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_team.h"
@@ -1451,3 +1454,5 @@ qboolean BotMatch_Team(bot_state_t * bs, bot_match_t * match, gentity_t * sender
 
 	return qfalse;
 }
+
+#endif

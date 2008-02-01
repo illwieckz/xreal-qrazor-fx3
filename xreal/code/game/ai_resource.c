@@ -7,6 +7,9 @@
  * Functions used to predict the effectiveness of a specific resource state
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_resource.h"
@@ -2314,3 +2317,5 @@ void ItemValuesCompute(item_link_t * items, int num_items)
 	}
 #endif
 }
+
+#endif

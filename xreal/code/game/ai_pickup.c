@@ -7,6 +7,9 @@
  * Functions that the bot uses to determine item pickups
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_pickup.h"
@@ -1579,3 +1582,5 @@ void BotItemGoal(bot_state_t * bs)
 	GoalEntityArea(&item_goal, bs->item_ent, item->area);
 	BotPathPlan(bs, &bs->item_path, &item_goal, &bs->goal);
 }
+
+#endif

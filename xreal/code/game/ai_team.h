@@ -7,6 +7,9 @@
  * Includes used for team goal selection and communication
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 // Teamplay task preferences-- used both for the bot's self and by the team leader for teammates
 #define TASKPREF_ROAMER					0x00	// No bits-- can be anything
 #define TASKPREF_DEFENDER				0x01
@@ -36,3 +39,5 @@ void            BotVoiceChat(bot_state_t * bs, int toclient, char *voicechat);
 void            BotVoiceChatOnly(bot_state_t * bs, int toclient, char *voicechat);
 void            BotTeamAI(bot_state_t * bs);
 qboolean        BotMatch_Team(bot_state_t * bs, bot_match_t * match, gentity_t * sender);
+
+#endif

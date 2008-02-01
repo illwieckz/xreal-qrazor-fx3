@@ -7,6 +7,9 @@
  * Includes used for bot communication
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void QDECL QDECL Bot_InitialChat(bot_state_t * bs, char *type, ...);
 void            BotChatExitGame(bot_state_t * bs);
 void            BotChatEndLevel(bot_state_t * bs);
@@ -15,3 +18,5 @@ void            BotChatHitTalking(bot_state_t * bs);
 void            BotChatIngame(bot_state_t * bs);
 void            BotCheckConsoleMessages(bot_state_t * bs);
 void            BotChatTest(bot_state_t * bs);
+
+#endif

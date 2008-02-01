@@ -640,6 +640,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\g_bot_empty.c"
+				>
+			</File>
+			<File
 				RelativePath="g_client.c"
 				>
 				<FileConfiguration
@@ -1128,6 +1132,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
+			<File
+				RelativePath=".\acebot.h"
+				>
+			</File>
 			<File
 				RelativePath=".\ai_accuracy.h"
 				>

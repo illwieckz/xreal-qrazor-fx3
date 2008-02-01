@@ -7,6 +7,9 @@
  * Includes used for resource state predictions
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 float           BotItemUtility(bot_state_t * bs, gentity_t * ent);
 float           BaseItemValue(gitem_t * item);
 int             BaseItemRespawn(gitem_t * item);
@@ -21,3 +24,5 @@ qboolean        ResourceAddCluster(resource_state_t * rs, item_cluster_t * clust
 void            ResourcePredictEncounter(resource_state_t * rs, float time, float score, float player_rate, float enemy_rate);
 void            ItemValuesReset(void);
 void            ItemValuesCompute(item_link_t * items, int num_items);
+
+#endif

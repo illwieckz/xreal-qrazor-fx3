@@ -7,6 +7,9 @@
  * Includes for accessing entity information
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 char           *SimplifyName(char *name);
 char           *EntityName(gentity_t * ent, char *name, size_t size);
 char           *EntityNameFast(gentity_t * ent);
@@ -36,3 +39,5 @@ int             EntityHealth(gentity_t * ent);
 float           EntityRating(gentity_t * ent);
 float           EntityTravelTime(gentity_t * ent, int end_area, vec3_t end_loc, int tfl);
 float           EntityGoalTravelTime(gentity_t * ent, bot_goal_t * goal, int tfl);
+
+#endif

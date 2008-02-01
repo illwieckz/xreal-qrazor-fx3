@@ -7,6 +7,9 @@
  * Functions that the bot uses to test visibility
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_visible.h"
@@ -488,3 +491,5 @@ float BotEntityVisibleCenter(bot_state_t * bs, gentity_t * ent, vec3_t eye, vec3
 	// Return the entity's visibility
 	return visibility;
 }
+
+#endif

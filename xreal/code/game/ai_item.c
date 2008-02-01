@@ -7,6 +7,9 @@
  * Functions used to process items and the regions they define
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_item.h"
@@ -1070,3 +1073,5 @@ void LevelItemUpdate(void)
 		ClusterAddToRegion(cluster);
 	}
 }
+
+#endif

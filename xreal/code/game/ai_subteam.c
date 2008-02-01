@@ -7,6 +7,9 @@
  * Functions that the bot uses to manage subteams
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_subteam.h"
@@ -126,3 +129,5 @@ qboolean BotMatch_Subteam(bot_state_t * bs, bot_match_t * match, gentity_t * sen
 
 	return qtrue;
 }
+
+#endif

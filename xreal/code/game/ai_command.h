@@ -6,6 +6,9 @@
  * Includes used for processing commands
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotCommandAction(bot_state_t * bs, int action);
 void            BotCommandWeapon(bot_state_t * bs, int weapon);
 void            MoveCmdToViewAngles(usercmd_t * cmd, int *delta, vec3_t view);
@@ -18,3 +21,5 @@ void            BotCommandMove(bot_state_t * bs, vec3_t move_dir, float speed_ra
 void            BotCommandView(bot_state_t * bs, vec3_t view);
 qboolean        BotAddresseeMatch(bot_state_t * bs, bot_match_t * match);
 qboolean        BotMatchMessage(bot_state_t * bs, char *message);
+
+#endif

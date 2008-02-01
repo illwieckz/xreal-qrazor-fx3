@@ -7,7 +7,12 @@
  * Includes used for determining how to attack targets
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 qboolean        BotAttackSelect(bot_state_t * bs, gentity_t * ent, int weapon, float sighted);
 void            BotAttackAddError(bot_state_t * bs, vec3_t error);
 void            BotAttackFireUpdate(bot_state_t * bs);
 void            BotAttackFireWeapon(bot_state_t * bs);
+
+#endif

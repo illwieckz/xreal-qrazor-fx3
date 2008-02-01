@@ -7,6 +7,9 @@
  * Functions that the bot uses to scan its surroundings
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_scan.h"
@@ -1255,3 +1258,5 @@ void BotScan(bot_state_t * bs, int scan_mode)
 	// Complete the scanning
 	BotScanComplete(bs, &scan, scan_mode);
 }
+
+#endif

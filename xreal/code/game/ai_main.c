@@ -7,6 +7,9 @@
  * The AI front-end
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 
@@ -478,3 +481,5 @@ void BotAIDebug(void)
 
 #endif
 }
+
+#endif

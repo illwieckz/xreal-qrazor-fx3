@@ -7,6 +7,9 @@
  * Includes used to interface the enemy awareness system
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotAwarenessReset(bot_state_t * bs);
 gentity_t      *BotBestAwarenessEntity(bot_state_t * bs);
 bot_aware_t    *BotAwarenessOfEntity(bot_state_t * bs, gentity_t * ent);
@@ -14,3 +17,5 @@ qboolean        BotSightedEntity(bot_state_t * bs, gentity_t * ent);
 void            BotAwarenessUpdate(bot_state_t * bs);
 qboolean        BotAwareTrackEntity(bot_state_t * bs, gentity_t * ent, float event_radius, float refresh_radius);
 qboolean        BotAwarenessLocation(bot_state_t * bs, vec3_t origin);
+
+#endif

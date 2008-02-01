@@ -7,6 +7,9 @@
  * Functions the bot uses to estimate its combat accuracy
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_accuracy.h"
@@ -1102,3 +1105,5 @@ void AccuracySetup(void)
 		AccuracyCreate(&acc_default_weapon[weapon], weapon, shots, direct_hits, splash_hits, splash_damage);
 	}
 }
+
+#endif

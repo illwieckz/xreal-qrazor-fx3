@@ -7,9 +7,14 @@
  * Includes used for bot waypoint setup and use
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            LevelInitWaypoints(void);
 bot_waypoint_t *BotFindWaypoint(bot_state_t * bs, char *name);
 void            BotFreeWaypoints(bot_waypoint_t * wp);
 qboolean        BotMatch_PatrolWaypoints(bot_state_t * bs, bot_match_t * match, gentity_t * sender);
 void            BotMatch_CheckPoint(bot_state_t * bs, bot_match_t * match, gentity_t * sender);
 bot_goal_t     *BotNextPatrolPoint(bot_state_t * bs);
+
+#endif

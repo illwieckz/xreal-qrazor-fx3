@@ -7,6 +7,9 @@
  * Functions that the bot uses to move
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_move.h"
@@ -1266,3 +1269,5 @@ void BotMoveProcess(bot_state_t * bs)
 	// Setup the movement commands according to these preferences
 	BotCommandMove(bs, move_dir, speed_rate, jump_crouch);
 }
+
+#endif

@@ -49,6 +49,7 @@ game_src = [
 'code/game/g_active.c',
 'code/game/g_arenas.c',
 'code/game/g_bot.c',
+'code/game/g_bot_empty.c',
 'code/game/g_client.c',
 'code/game/g_cmds.c',
 'code/game/g_combat.c',

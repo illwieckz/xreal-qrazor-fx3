@@ -7,6 +7,9 @@
  * Functions that the bot uses for waypoints
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_waypoint.h"
@@ -339,3 +342,5 @@ bot_goal_t     *BotNextPatrolPoint(bot_state_t * bs)
 	// Return the current patrol point
 	return &bs->next_patrol->goal;
 }
+
+#endif

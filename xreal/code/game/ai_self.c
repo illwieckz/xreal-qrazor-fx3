@@ -7,6 +7,9 @@
  * Functions that the bot uses to get/set basic information about itself
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_self.h"
@@ -856,3 +859,5 @@ void BotResetState(bot_state_t * bs)
 	// Initialize internal bot data data, such as statistics and awareness
 	BotInitialize(bs);
 }
+
+#endif

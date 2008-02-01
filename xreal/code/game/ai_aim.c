@@ -7,6 +7,9 @@
  * Functions that the bot uses to aim
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_aim.h"
@@ -948,3 +951,5 @@ void BotAimSelect(bot_state_t * bs, bot_moveresult_t * moveresult)
 	// Use the prefered weapon for this aim style
 	BotCommandWeapon(bs, bs->weapon);
 }
+
+#endif

@@ -7,6 +7,9 @@
  * Includes used for region processing
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 // Item pickup regions the level is divided into
 extern region_t region_list[MAX_REGIONS];
 extern int      num_regions;
@@ -36,3 +39,5 @@ void            LevelRegionSetup(item_cluster_t * clusters, int num_clusters);
 void            ClusterAddToRegion(item_cluster_t * cluster);
 void            LevelPlayerRegionUpdate(void);
 region_t       *BotTrafficData(bot_state_t * bs, vec3_t loc, history_t * teammate, history_t * enemy);
+
+#endif

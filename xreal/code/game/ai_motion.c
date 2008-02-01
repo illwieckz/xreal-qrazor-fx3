@@ -7,6 +7,9 @@
  * Functions the bot uses to detect motion in entities
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_motion.h"
@@ -822,3 +825,5 @@ void BotMotionUpdate(bot_state_t * bs)
 	// BotMotionFutureUpdate() is called
 	bs->future.time = bs->now.time;
 }
+
+#endif

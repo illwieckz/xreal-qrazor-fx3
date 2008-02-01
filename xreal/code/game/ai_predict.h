@@ -7,6 +7,9 @@
  * Includes used to predict entity motion
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            BotAIPredictReset(void);
 void            EntityMotionPredict(gentity_t * ent, motion_state_t * motion, float time);
 void            BotMotionFutureUpdate(bot_state_t * bs);
@@ -15,4 +18,6 @@ void            BotMotionFutureUpdate(bot_state_t * bs);
 void            PredictDebugEntityAdd(gentity_t * ent, float time_lapse, motion_state_t * motion);
 void            PredictDebugEntityNow(gentity_t * ent);
 void            PredictDebugCheck(void);
+#endif
+
 #endif

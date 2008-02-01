@@ -7,6 +7,9 @@
  * Functions used to process the regions defined by items
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_region.h"
@@ -765,3 +768,5 @@ region_t       *BotTrafficData(bot_state_t * bs, vec3_t loc, history_t * teammat
 	// Inform the caller of the closest neighbor
 	return closest;
 }
+
+#endif

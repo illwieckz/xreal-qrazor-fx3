@@ -7,6 +7,8 @@
  * Includes for common library-style functions used in the AI code
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
 
 #if !defined( Q3_VM )
 	typedef int cmp_t(const void *, const void *);
@@ -436,3 +438,5 @@ int             isi_skip(index_subset_iter_t * isi);
 
 // Create a description string of the iterator's current state
 char           *isi_string(index_subset_iter_t * isi, char *string, int max_length);
+
+#endif

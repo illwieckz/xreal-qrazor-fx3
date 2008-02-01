@@ -7,6 +7,9 @@
  * Functions that the bot uses to get information about an entity
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_entity.h"
@@ -993,3 +996,5 @@ float EntityGoalTravelTime(gentity_t * ent, bot_goal_t * goal, int tfl)
 {
 	return EntityTravelTime(ent, goal->areanum, goal->origin, tfl);
 }
+
+#endif

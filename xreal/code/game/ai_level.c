@@ -7,6 +7,9 @@
  * Functions that the bot uses to get information about the level
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 #include "ai_main.h"
 #include "ai_vars.h"
 #include "ai_level.h"
@@ -43,6 +46,7 @@ int             base_travel_time[NUM_BASES][NUM_BASES];
 BotTestAAS
 ==========
 */
+/*
 void BotTestAAS(vec3_t origin)
 {
 	int             areanum;
@@ -79,6 +83,7 @@ void BotTestAAS(vec3_t origin)
 			BotAI_Print(PRT_MESSAGE, "\r^1Solid!                              ");
 	}
 }
+*/
 
 /*
 =================
@@ -901,3 +906,5 @@ int BotAILoadMap(int restart)
 
 	return qtrue;
 }
+
+#endif

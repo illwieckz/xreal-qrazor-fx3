@@ -7,6 +7,9 @@
  * Includes for accessing bot variables
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 extern int      gametype;
 extern int      game_style;
 extern int      maxclients;
@@ -100,3 +103,5 @@ extern vmCvar_t bot_groundonly;
 void            BotAIVariableSetup(void);
 void            LevelSetupVariables(void);
 void            LevelUpdateVariables(void);
+
+#endif

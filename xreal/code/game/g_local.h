@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef __G_LOCAL_H
+#define __G_LOCAL_H
+
 // g_local.h -- local definitions for game module
 #include "q_shared.h"
 #include "bg_public.h"
@@ -35,6 +38,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef LUA
 #define LUA
 #endif
+
+// Tr3B: added this to compile with different bot versions
+//#define GLADIATOR
+#define BRAINWORKS
+//#define ACEBOT
+
 
 #define BODY_QUEUE_SIZE		8
 
@@ -784,18 +793,43 @@ void            UpdateTournamentInfo(void);
 void            SpawnModelsOnVictoryPads(void);
 void            Svcmd_AbortPodium_f(void);
 
+
+
 //
 // g_bot.c
 //
 void            G_InitBots(qboolean restart);
-char           *G_GetBotInfoByNumber(int num);
-char           *G_GetBotInfoByName(const char *name);
 void            G_CheckBotSpawn(void);
+char           *G_GetBotInfoByName(const char *name);
 void            G_RemoveQueuedBotBegin(int clientNum);
 qboolean        G_BotConnect(int clientNum, qboolean restart);
 void            Svcmd_AddBot_f(void);
 void            Svcmd_BotList_f(void);
 void            BotInterbreedEndMatch(void);
+
+#if defined(BRAINWORKS)
+
+// ai_main.c
+#define MAX_FILEPATH			144
+
+//bot settings
+typedef struct bot_settings_s
+{
+	char            characterfile[MAX_FILEPATH];
+	float           skill;
+	char            team[MAX_FILEPATH];
+} bot_settings_t;
+
+#endif
+
+int             BotAISetup(int restart);
+int             BotAIShutdown(int restart);
+int             BotAILoadMap(int restart);
+int             BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart);
+int             BotAIShutdownClient(int client, qboolean restart);
+int             BotAIStartFrame(int time);
+void            BotAIDebug(void); // brainworks
+//void          BotTestAAS(vec3_t origin);
 
 #ifdef LUA
 //
@@ -836,27 +870,9 @@ int             luaopen_qmath(lua_State * L);
 int             luaopen_vector(lua_State * L);
 void            lua_pushvector(lua_State * L, vec3_t v);
 vec_t          *lua_getvector(lua_State * L, int argNum);
-#endif
 
-// ai_main.c
-#define MAX_FILEPATH			144
+#endif // LUA
 
-//bot settings
-typedef struct bot_settings_s
-{
-	char            characterfile[MAX_FILEPATH];
-	float           skill;
-	char            team[MAX_FILEPATH];
-} bot_settings_t;
-
-int             BotAISetup(int restart);
-int             BotAIShutdown(int restart);
-int             BotAILoadMap(int restart);
-int             BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart);
-int             BotAIShutdownClient(int client, qboolean restart);
-int             BotAIStartFrame(int time);
-void            BotAIDebug(void); // brainworks
-void            BotTestAAS(vec3_t origin);
 
 #include "g_team.h"				// teamplay specific stuff
 
@@ -942,9 +958,6 @@ extern vmCvar_t sv_fps;
 
 
 
-// Tr3B: added this to mark unneeded botlib traps
-#define BRAINWORKS 1
-
 void            trap_Printf(const char *fmt);
 void            trap_Error(const char *fmt);
 int             trap_Milliseconds(void);
@@ -985,14 +998,15 @@ void            trap_LinkEntity(gentity_t * ent);
 void            trap_UnlinkEntity(gentity_t * ent);
 int             trap_EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount);
 qboolean        trap_EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
-int             trap_BotAllocateClient(void);
-void            trap_BotFreeClient(int clientNum);
+int             trap_BotAllocateClient(void); // NO BOTLIB
+void            trap_BotFreeClient(int clientNum); // NO BOTLIB
 void            trap_GetUsercmd(int clientNum, usercmd_t * cmd);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int             trap_DebugPolygonCreate(int color, int numPoints, vec3_t * points);
 void            trap_DebugPolygonDelete(int id);
 
+#if defined(BRAINWORKS)
 int             trap_BotLibSetup(void);
 int             trap_BotLibShutdown(void);
 int             trap_BotLibVarSet(char *var_name, char *value);
@@ -1000,34 +1014,34 @@ int             trap_BotLibVarGet(char *var_name, char *value, int size);
 int             trap_BotLibDefine(char *string);
 int             trap_BotLibStartFrame(float time);
 int             trap_BotLibLoadMap(const char *mapname);
-int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue);
-//#if !defined(BRAINWORKS)
-int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3);
+int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue); // COULD BE REMOVED
+//#if defined(GLADIATOR)
+int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3); // COULD BE REMOVED
 //#endif
-int             trap_BotGetSnapshotEntity(int clientNum, int sequence);
-int             trap_BotGetServerCommand(int clientNum, char *message, int size);
-void            trap_BotUserCommand(int client, usercmd_t * ucmd);
+int             trap_BotGetSnapshotEntity(int clientNum, int sequence); // NO BOTLIB
+int             trap_BotGetServerCommand(int clientNum, char *message, int size); // NO BOTLIB
+void            trap_BotUserCommand(int client, usercmd_t * ucmd); // NO BOTLIB
 
 int             trap_AAS_BBoxAreas(vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas);
 int             trap_AAS_AreaInfo(int areanum, void /* struct aas_areainfo_s */ *info);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 void            trap_AAS_EntityInfo(int entnum, void /* struct aas_entityinfo_s */ *info);
 #endif
 
 int             trap_AAS_Initialized(void);
 void            trap_AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 float           trap_AAS_Time(void);
 #endif
 
 int             trap_AAS_PointAreaNum(vec3_t point);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 int             trap_AAS_PointReachabilityAreaIndex(vec3_t point);
 #endif
 int             trap_AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t * points, int maxareas);
 
 int             trap_AAS_PointContents(vec3_t point);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 int             trap_AAS_NextBSPEntity(int ent);
 int             trap_AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size);
 int             trap_AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v);
@@ -1043,7 +1057,7 @@ int             trap_AAS_PredictRoute(void /*struct aas_predictroute_s */ *route
 									  int goalareanum, int travelflags, int maxareas, int maxtime,
 									  int stopevent, int stopcontents, int stoptfl, int stopareanum);
 
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 int             trap_AAS_AlternativeRouteGoals(vec3_t start, int startareanum, vec3_t goal, int goalareanum, int travelflags,
 											   void /*struct aas_altroutegoal_s */ *altroutegoals, int maxaltroutegoals,
 											   int type);
@@ -1059,7 +1073,7 @@ void            trap_EA_SayTeam(int client, char *str);
 void            trap_EA_Command(int client, char *command);
 
 void            trap_EA_Action(int client, int action);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 void            trap_EA_Gesture(int client);
 void            trap_EA_Talk(int client);
 void            trap_EA_Attack(int client);
@@ -1074,13 +1088,13 @@ void            trap_EA_MoveLeft(int client);
 void            trap_EA_MoveRight(int client);
 #endif
 void            trap_EA_SelectWeapon(int client, int weapon);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 void            trap_EA_Jump(int client);
 void            trap_EA_DelayedJump(int client);
 void            trap_EA_Move(int client, vec3_t dir, float speed);
 #endif
 void            trap_EA_View(int client, vec3_t viewangles);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 void            trap_EA_EndRegular(int client, float thinktime);
 #endif
 void            trap_EA_GetInput(int client, float thinktime, void /* struct bot_input_s */ *input);
@@ -1116,7 +1130,7 @@ void            trap_BotReplaceSynonyms(char *string, unsigned long int context)
 int             trap_BotLoadChatFile(int chatstate, char *chatfile, char *chatname);
 void            trap_BotSetChatGender(int chatstate, int gender);
 void            trap_BotSetChatName(int chatstate, char *name, int client);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 void            trap_BotResetGoalState(int goalstate);
 void            trap_BotRemoveFromAvoidGoals(int goalstate, int number);
 void            trap_BotResetAvoidGoals(int goalstate);
@@ -1135,12 +1149,12 @@ int             trap_BotChooseNBGItem(int goalstate, vec3_t origin, int *invento
 int             trap_BotTouchingGoal(vec3_t origin, void /* struct bot_goal_s */ *goal);
 int             trap_BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal);
 int             trap_BotGetNextCampSpotGoal(int num, void /* struct bot_goal_s */ *goal);
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 int             trap_BotGetMapLocationGoal(char *name, void /* struct bot_goal_s */ *goal);
 #endif
 int             trap_BotGetLevelItemGoal(int index, char *classname, void /* struct bot_goal_s */ *goal);
 
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 float           trap_BotAvoidGoalTime(int goalstate, int number);
 void            trap_BotSetAvoidGoalTime(int goalstate, int number, float avoidtime);
 void            trap_BotInitLevelItems(void);
@@ -1160,7 +1174,7 @@ void            trap_BotMoveToGoal(void /* struct bot_moveresult_s */ *result, i
 int             trap_BotMoveInDirection(int movestate, vec3_t dir, float speed, int type);
 void            trap_BotResetAvoidReach(int movestate);
 
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 void            trap_BotResetLastAvoidReach(int movestate);
 int             trap_BotReachabilityArea(vec3_t origin, int testground);
 #endif
@@ -1174,7 +1188,7 @@ void            trap_BotFreeMoveState(int handle);
 void            trap_BotInitMoveState(int handle, void /* struct bot_initmove_s */ *initmove);
 void            trap_BotAddAvoidSpot(int movestate, vec3_t origin, float radius, int type);
 
-#if !defined(BRAINWORKS)
+#if defined(GLADIATOR)
 int             trap_BotChooseBestFightWeapon(int weaponstate, int *inventory);
 void            trap_BotGetWeaponInfo(int weaponstate, int weapon, void /* struct weaponinfo_s */ *weaponinfo);
 int             trap_BotLoadWeaponWeights(int weaponstate, char *filename);
@@ -1185,4 +1199,8 @@ void            trap_BotResetWeaponState(int weaponstate);
 int             trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 #endif
 
+#endif // defined(BRAINWORKS)
+
 int             trap_RealTime(qtime_t * qtime);
+
+#endif // __G_LOCAL_H

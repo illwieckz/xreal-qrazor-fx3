@@ -7,8 +7,13 @@
  * Includes used to help bots plan paths
  *****************************************************************************/
 
+#include "g_local.h"
+#if defined(BRAINWORKS)
+
 void            LevelPathReset(void);
 void            LevelPathSetup(void);
 void            BotPathReset(bot_path_t * path);
 void            BotPathUpdate(bot_state_t * bs, bot_path_t * path);
 qboolean        BotPathPlan(bot_state_t * bs, bot_path_t * path, bot_goal_t * objective, bot_goal_t * destination);
+
+#endif
