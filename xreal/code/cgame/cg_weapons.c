@@ -1588,6 +1588,7 @@ CG_AddWeaponWithPowerups
 */
 static void CG_AddWeaponWithPowerups(refEntity_t * gun, int powerups)
 {
+#if 0
 	// add powerup effects
 	if(powerups & (1 << PW_INVIS))
 	{
@@ -1609,6 +1610,9 @@ static void CG_AddWeaponWithPowerups(refEntity_t * gun, int powerups)
 			trap_R_AddRefEntityToScene(gun);
 		}
 	}
+#else
+	trap_R_AddRefEntityToScene(gun);
+#endif
 }
 
 
