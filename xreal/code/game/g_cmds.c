@@ -1842,6 +1842,11 @@ void Cmd_Stats_f(gentity_t * ent)
 */
 }
 
+
+#if defined(ACEBOT)
+qboolean        ACECM_Commands(gentity_t * ent);
+#endif
+
 /*
 =================
 ClientCommand
@@ -1858,6 +1863,10 @@ void ClientCommand(int clientNum)
 		return;					// not fully in game yet
 	}
 
+#if defined(ACEBOT)
+	if(ACECM_Commands(ent))
+		return;
+#endif
 
 	trap_Argv(0, cmd, sizeof(cmd));
 

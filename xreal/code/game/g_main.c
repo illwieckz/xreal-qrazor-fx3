@@ -270,7 +270,11 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 		case GAME_CONSOLE_COMMAND:
 			return ConsoleCommand();
 		case BOTAI_START_FRAME:
+#if defined(BRAINWORKS)
 			return BotAIStartFrame(arg0);
+#else
+			return 0;
+#endif
 	}
 
 	return -1;
@@ -577,12 +581,22 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_SoundIndex("sound/player/gurp2.ogg");
 	}
 
+#if defined(BRAINWORKS)
 	if(trap_Cvar_VariableIntegerValue("bot_enable"))
 	{
 		BotAISetup(restart);
 		BotAILoadMap(restart);
 		G_InitBots(restart);
 	}
+#elif defined(ACEBOT)
+	if(trap_Cvar_VariableIntegerValue("bot_enable"))
+	{
+		ACEND_InitNodes();
+		ACEND_LoadNodes();
+		//ACESP_LoadBots();
+	}
+	
+#endif
 
 	G_RemapTeamShaders();
 
@@ -609,10 +623,12 @@ void G_ShutdownGame(int restart)
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
 
+#if defined(BRAINWORKS)
 	if(trap_Cvar_VariableIntegerValue("bot_enable"))
 	{
 		BotAIShutdown(restart);
 	}
+#endif
 
 
 #ifdef LUA
@@ -1185,8 +1201,10 @@ void ExitLevel(void)
 	char            nextmap[MAX_STRING_CHARS];
 	char            d1[MAX_STRING_CHARS];
 
+#if defined(BRAINWORKS)
 	//bot interbreeding
 	BotInterbreedEndMatch();
+#endif
 
 	// if we are running a tournement map, kick the loser to spectator status,
 	// which will automatically grab the next spectator and restart

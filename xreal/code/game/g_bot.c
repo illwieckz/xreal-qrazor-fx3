@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 
-#if defined(BRAINWORKS)
+#if defined(BRAINWORKS) || defined(GLADIATOR)
 
 static int      g_numBots;
 static char    *g_botInfos[MAX_BOTS];

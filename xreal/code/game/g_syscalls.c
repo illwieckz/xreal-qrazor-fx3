@@ -248,6 +248,21 @@ void trap_BotFreeClient(int clientNum)
 	syscall(G_BOT_FREE_CLIENT, clientNum);
 }
 
+int trap_BotGetSnapshotEntity(int clientNum, int sequence)
+{
+	return syscall(BOTLIB_GET_SNAPSHOT_ENTITY, clientNum, sequence);
+}
+
+int trap_BotGetServerCommand(int clientNum, char *message, int size)
+{
+	return syscall(BOTLIB_GET_CONSOLE_MESSAGE, clientNum, message, size);
+}
+
+void trap_BotUserCommand(int clientNum, usercmd_t * ucmd)
+{
+	syscall(BOTLIB_USER_COMMAND, clientNum, ucmd);
+}
+
 void trap_GetUsercmd(int clientNum, usercmd_t * cmd)
 {
 	syscall(G_GET_USERCMD, clientNum, cmd);
@@ -272,6 +287,8 @@ int trap_RealTime(qtime_t * qtime)
 {
 	return syscall(G_REAL_TIME, qtime);
 }
+
+#if defined(BRAINWORKS)
 
 // BotLib traps start here
 int trap_BotLibSetup(void)
@@ -320,21 +337,6 @@ int trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 	return syscall(BOTLIB_TEST, parm0, parm1, parm2, parm3);
 }
 //#endif
-
-int trap_BotGetSnapshotEntity(int clientNum, int sequence)
-{
-	return syscall(BOTLIB_GET_SNAPSHOT_ENTITY, clientNum, sequence);
-}
-
-int trap_BotGetServerCommand(int clientNum, char *message, int size)
-{
-	return syscall(BOTLIB_GET_CONSOLE_MESSAGE, clientNum, message, size);
-}
-
-void trap_BotUserCommand(int clientNum, usercmd_t * ucmd)
-{
-	syscall(BOTLIB_USER_COMMAND, clientNum, ucmd);
-}
 
 #if defined(GLADIATOR)
 void trap_AAS_EntityInfo(int entnum, void /* struct aas_entityinfo_s */ *info)
@@ -991,3 +993,5 @@ int trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent
 	return syscall(BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION, numranks, ranks, parent1, parent2, child);
 }
 #endif
+
+#endif // BRAINWORKS

@@ -48,7 +48,7 @@ elif env['warnings'] == '2':
 	env.Append(CCFLAGS = '-Wall -Werror')
 
 if env['debug'] != '0':
-	env.Append(CCFLAGS = '-ggdb${debug} -D_DEBUG')
+	env.Append(CCFLAGS = '-ggdb${debug} -D_DEBUG -DDEBUG')
 else:
 	env.Append(CCFLAGS = '-DNDEBUG')
 

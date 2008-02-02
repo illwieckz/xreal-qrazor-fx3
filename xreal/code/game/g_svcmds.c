@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // g_svcmds.c - this file holds commands that can be executed by the server console, but not remote clients
 #include "g_local.h"
 
+#if defined(ACEBOT)
+#include "acebot.h"
+#endif
+
 
 /*
 ==============================================================================
@@ -478,6 +482,9 @@ ConsoleCommand
 qboolean ConsoleCommand(void)
 {
 	char            cmd[MAX_TOKEN_CHARS];
+	char            arg1[MAX_TOKEN_CHARS];
+	char            arg2[MAX_TOKEN_CHARS];
+	char            arg3[MAX_TOKEN_CHARS];
 
 	trap_Argv(0, cmd, sizeof(cmd));
 
@@ -499,6 +506,7 @@ qboolean ConsoleCommand(void)
 		return qtrue;
 	}
 
+#if defined(BRAINWORKS)
 	if(Q_stricmp(cmd, "addbot") == 0)
 	{
 		Svcmd_AddBot_f();
@@ -510,6 +518,7 @@ qboolean ConsoleCommand(void)
 		Svcmd_BotList_f();
 		return qtrue;
 	}
+#endif
 
 	if(Q_stricmp(cmd, "abort_podium") == 0)
 	{
@@ -540,6 +549,98 @@ qboolean ConsoleCommand(void)
 	if(Q_stricmp(cmd, "ai_debug") == 0)
 	{
 		BotAIDebug();
+		return qtrue;
+	}
+#endif
+
+#if defined(ACEBOT)
+	// ACEBOT_ADD
+
+	if(Q_stricmp(cmd, "acedebug") == 0)
+	{
+		if(trap_Argc() < 2)
+		{
+			G_Printf("Usage: acedebug <on|off>\n");
+			return qtrue;
+		}
+
+		trap_Argv(1, arg1, sizeof(arg1));
+
+		if(Q_stricmp(arg1, "on") == 0)
+		{
+			safe_bprintf(PRINT_MEDIUM, "ACE: Debug Mode On\n");
+			debug_mode = qtrue;
+		}
+		else
+		{
+			safe_bprintf(PRINT_MEDIUM, "ACE: Debug Mode Off\n");
+			debug_mode = qfalse;
+		}
+		return qtrue;
+	}
+
+	if(Q_stricmp(cmd, "addbot") == 0)
+	{
+		char            name[MAX_TOKEN_CHARS];
+		char            altname[MAX_TOKEN_CHARS];
+		char            string[MAX_TOKEN_CHARS];
+		char            team[MAX_TOKEN_CHARS];
+
+		// are bots enabled?
+		if(!trap_Cvar_VariableIntegerValue("bot_enable"))
+		{
+			return qtrue;
+		}
+
+		if(trap_Argc() < 4)
+		{
+			//G_Printf("Usage: addbot <name> <skin> <team>\n");
+			
+			ACESP_SpawnBot(NULL, NULL);
+		}
+		else
+		{
+			trap_Argv(1, arg1, sizeof(arg1));
+			trap_Argv(2, arg2, sizeof(arg2));
+
+			//if(ctf->value)			// name, skin, team
+			//	ACESP_SpawnBot(arg1, gi.argv(3), gi.argv(4), NULL);
+			//else					// name, skin
+		
+			ACESP_SpawnBot(arg1, NULL);
+		}
+
+		// if this was issued during gameplay and we are playing locally,
+		// go ahead and load the bot's media immediately
+		if(level.time - level.startTime > 1000 && trap_Cvar_VariableIntegerValue("cl_running"))
+		{
+			trap_SendServerCommand(-1, "loaddeferred\n");
+		}
+
+		return qtrue;
+	}
+
+	/*
+	// removebot
+	if(Q_stricmp(cmd, "removebot") == 0)
+	{
+		if(trap_Argc() < 2)
+		{
+			G_Printf("Usage: removebot <name>\n");
+			return qtrue;
+		}
+
+		trap_Argv(1, arg1, sizeof(arg1));
+
+		ACESP_RemoveBot(arg1);
+		return qtrue;
+	}
+	*/
+
+	// Node saving
+	if(Q_stricmp(cmd, "savenodes") == 0)
+	{
+		ACEND_SaveNodes();
 		return qtrue;
 	}
 #endif

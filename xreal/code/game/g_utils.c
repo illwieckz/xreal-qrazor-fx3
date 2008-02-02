@@ -171,6 +171,14 @@ void G_TeamCommand(team_t team, char *cmd)
 }
 
 
+void G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
+{
+	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1];
+	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1];
+	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] + distance[2];
+}
+
+
 /*
 =============
 G_Find
@@ -201,6 +209,42 @@ gentity_t      *G_Find(gentity_t * from, int fieldofs, const char *match)
 			continue;
 		if(!Q_stricmp(s, match))
 			return from;
+	}
+
+	return NULL;
+}
+
+/*
+=================
+G_FindRadius
+
+Returns entities that have origins within a spherical area
+
+G_FindRadius (origin, radius)
+=================
+*/
+gentity_t      *G_FindRadius(gentity_t * from, const vec3_t org, float rad)
+{
+	vec3_t          eorg;
+	int             j;
+
+	if(!from)
+		from = g_entities;
+	else
+		from++;
+
+	for(; from < &g_entities[level.numEntities]; from++)
+	{
+		if(!from->inuse)
+			continue;
+		
+		for(j = 0; j < 3; j++)
+			eorg[j] = org[j] - (from->s.origin[j] + (from->r.mins[j] + from->r.maxs[j]) * 0.5);
+		
+		if(VectorLength(eorg) > rad)
+			continue;
+			
+		return from;
 	}
 
 	return NULL;

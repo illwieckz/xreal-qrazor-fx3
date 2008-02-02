@@ -217,6 +217,34 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
+				RelativePath=".\acebot_ai.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acebot_cmds.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acebot_compress.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acebot_items.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acebot_movement.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acebot_nodes.c"
+				>
+			</File>
+			<File
+				RelativePath=".\acebot_spawn.c"
+				>
+			</File>
+			<File
 				RelativePath=".\ai_accuracy.c"
 				>
 			</File>
@@ -638,10 +666,6 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;GLOBALRANK;$(NoInherit)"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\g_bot_empty.c"
-				>
 			</File>
 			<File
 				RelativePath="g_client.c"

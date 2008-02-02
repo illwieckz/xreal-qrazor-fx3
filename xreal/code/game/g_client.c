@@ -1113,10 +1113,20 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	{
 		ent->r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;
+
+#if defined(BRAINWORKS)
 		if(!G_BotConnect(clientNum, !firstTime))
 		{
 			return "BotConnectfailed";
 		}
+#elif defined(ACEBOT)
+		if(!ACESP_BotConnect(clientNum, !firstTime))
+		{
+			return "BotConnectfailed";
+		}
+#else
+		return "BotConnectfailed";
+#endif
 	}
 
 	// get and distribute relevent paramters
@@ -1491,9 +1501,11 @@ void ClientDisconnect(int clientNum)
 	gentity_t      *tent;
 	int             i;
 
+#if defined(BRAINWORKS)
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet
 	G_RemoveQueuedBotBegin(clientNum);
+#endif
 
 	ent = g_entities + clientNum;
 	if(!ent->client)
@@ -1561,8 +1573,10 @@ void ClientDisconnect(int clientNum)
 
 	CalculateRanks();
 
+#if defined(BRAINWORKS)
 	if(ent->r.svFlags & SVF_BOT)
 	{
 		BotAIShutdownClient(clientNum, qfalse);
 	}
+#endif
 }

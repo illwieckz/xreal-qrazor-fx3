@@ -82,6 +82,31 @@ typedef enum
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
+#if defined(ACEBOT)
+typedef struct
+{
+	qboolean        is_jumping;
+
+	// for movement
+	vec3_t          viewAngles;
+	vec3_t          move_vector;
+	gentity_t      *movetarget;
+	gentity_t      *goalentity;
+	float           next_move_time;
+	float           wander_timeout;
+	float           suicide_timeout;
+
+	// for node code
+	int             current_node;	// current node
+	int             goal_node;	// current goal node
+	int             next_node;	// the node that will take us one step closer to our goal
+	int             node_timeout;
+	int             last_node;
+	int             tries;
+	int             state;
+} botState_t;
+#endif
+
 struct gentity_s
 {
 	entityState_t   s;			// communicated by server to clients
@@ -200,6 +225,10 @@ struct gentity_s
 	char           *luaThink;
 	char           *luaTouch;
 	char           *luaUse;
+#endif
+
+#if defined(ACEBOT)
+	botState_t      bs;
 #endif
 };
 
@@ -567,7 +596,9 @@ int             G_SoundIndex(const char *name);
 int             G_EffectIndex(const char *name);
 void            G_TeamCommand(team_t team, char *cmd);
 void            G_KillBox(gentity_t * ent);
+void            G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 gentity_t      *G_Find(gentity_t * from, int fieldofs, const char *match);
+gentity_t      *G_FindRadius(gentity_t * from, const vec3_t org, float rad);
 gentity_t      *G_PickTarget(char *name);
 void            G_UseTargets(gentity_t * ent, gentity_t * activator);
 void            G_SetMovedir(vec3_t angles, vec3_t movedir);
@@ -798,6 +829,8 @@ void            Svcmd_AbortPodium_f(void);
 //
 // g_bot.c
 //
+#if defined(BRAINWORKS) || defined(GLADIATOR)
+
 void            G_InitBots(qboolean restart);
 void            G_CheckBotSpawn(void);
 char           *G_GetBotInfoByName(const char *name);
@@ -806,8 +839,6 @@ qboolean        G_BotConnect(int clientNum, qboolean restart);
 void            Svcmd_AddBot_f(void);
 void            Svcmd_BotList_f(void);
 void            BotInterbreedEndMatch(void);
-
-#if defined(BRAINWORKS)
 
 // ai_main.c
 #define MAX_FILEPATH			144
@@ -820,7 +851,6 @@ typedef struct bot_settings_s
 	char            team[MAX_FILEPATH];
 } bot_settings_t;
 
-#endif
 
 int             BotAISetup(int restart);
 int             BotAIShutdown(int restart);
@@ -830,6 +860,11 @@ int             BotAIShutdownClient(int client, qboolean restart);
 int             BotAIStartFrame(int time);
 void            BotAIDebug(void); // brainworks
 //void          BotTestAAS(vec3_t origin);
+#endif
+
+#if defined(ACEBOT)
+#include "acebot.h"
+#endif
 
 #ifdef LUA
 //
@@ -1000,11 +1035,16 @@ int             trap_EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *en
 qboolean        trap_EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
 int             trap_BotAllocateClient(void); // NO BOTLIB
 void            trap_BotFreeClient(int clientNum); // NO BOTLIB
+int             trap_BotGetSnapshotEntity(int clientNum, int sequence); // NO BOTLIB
+int             trap_BotGetServerCommand(int clientNum, char *message, int size); // NO BOTLIB
+void            trap_BotUserCommand(int client, usercmd_t * ucmd); // NO BOTLIB
 void            trap_GetUsercmd(int clientNum, usercmd_t * cmd);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int             trap_DebugPolygonCreate(int color, int numPoints, vec3_t * points);
 void            trap_DebugPolygonDelete(int id);
+
+int             trap_RealTime(qtime_t * qtime);
 
 #if defined(BRAINWORKS)
 int             trap_BotLibSetup(void);
@@ -1018,9 +1058,6 @@ int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity
 //#if defined(GLADIATOR)
 int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3); // COULD BE REMOVED
 //#endif
-int             trap_BotGetSnapshotEntity(int clientNum, int sequence); // NO BOTLIB
-int             trap_BotGetServerCommand(int clientNum, char *message, int size); // NO BOTLIB
-void            trap_BotUserCommand(int client, usercmd_t * ucmd); // NO BOTLIB
 
 int             trap_AAS_BBoxAreas(vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas);
 int             trap_AAS_AreaInfo(int areanum, void /* struct aas_areainfo_s */ *info);
@@ -1200,7 +1237,5 @@ int             trap_GeneticParentsAndChildSelection(int numranks, float *ranks,
 #endif
 
 #endif // defined(BRAINWORKS)
-
-int             trap_RealTime(qtime_t * qtime);
 
 #endif // __G_LOCAL_H

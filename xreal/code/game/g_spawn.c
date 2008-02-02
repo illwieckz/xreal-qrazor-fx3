@@ -325,6 +325,16 @@ qboolean G_CallSpawn(gentity_t * ent)
 	{
 		if(!strcmp(item->classname, ent->classname))
 		{
+			// found it
+			if(ent->name)
+			{
+				G_Printf("...spawning %s\n", ent->name);
+			}
+			else
+			{
+				G_Printf("...spawning %s\n", ent->classname);
+			}
+			
 			G_SpawnItem(ent, item);
 			return qtrue;
 		}
