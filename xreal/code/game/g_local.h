@@ -41,8 +41,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // Tr3B: added this to compile with different bot versions
 //#define GLADIATOR
-#define BRAINWORKS
-//#define ACEBOT
+//#define BRAINWORKS
+#define ACEBOT
 
 
 #define BODY_QUEUE_SIZE		8
@@ -89,6 +89,8 @@ typedef struct
 
 	// for movement
 	vec3_t          viewAngles;
+	float           yawSpeed;
+	
 	vec3_t          move_vector;
 	gentity_t      *movetarget;
 	gentity_t      *goalentity;
@@ -104,6 +106,10 @@ typedef struct
 	int             last_node;
 	int             tries;
 	int             state;
+	
+	// result
+	// usercmd_t       cmd;	// this user command is generated every time the bot thinks
+	// using self->client->pers.cmd instead
 } botState_t;
 #endif
 
@@ -229,6 +235,10 @@ struct gentity_s
 
 #if defined(ACEBOT)
 	botState_t      bs;
+	
+	int             node;
+	float           weight;	
+	
 #endif
 };
 

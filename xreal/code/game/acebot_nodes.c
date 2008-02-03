@@ -33,9 +33,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // flags
 qboolean        newmap = qtrue;
 
-// Total number of nodes that are items
-int             numitemnodes;
-
 // Total number of nodes
 int             numnodes;
 
@@ -84,23 +81,23 @@ int ACEND_FindCost(int from, int to)
 // Faster than looking for the closest node, but not very 
 // accurate.
 ///////////////////////////////////////////////////////////////////////
-int ACEND_FindCloseReachableNode(gentity_t * self, int range, int type)
+int ACEND_FindCloseReachableNode(gentity_t * self, float range, int type)
 {
 	vec3_t          v;
 	int             i;
 	trace_t         tr;
 	float           dist;
 
-	range *= range;
+//	range *= range;
 
 	for(i = 0; i < numnodes; i++)
 	{
 		if(type == NODE_ALL || type == nodes[i].type)	// check node type
 		{
 
-			VectorSubtract(nodes[i].origin, self->s.origin, v);	// subtract first
+			VectorSubtract(nodes[i].origin, self->client->ps.origin, v);	// subtract first
 
-			dist = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+			dist = VectorLength(v);
 
 			if(dist < range)	// square range instead of sqrt
 			{
@@ -119,7 +116,7 @@ int ACEND_FindCloseReachableNode(gentity_t * self, int range, int type)
 ///////////////////////////////////////////////////////////////////////
 // Find the closest node to the player within a certain range
 ///////////////////////////////////////////////////////////////////////
-int ACEND_FindClosestReachableNode(gentity_t * self, int range, int type)
+int ACEND_FindClosestReachableNode(gentity_t * self, float range, int type)
 {
 	int             i;
 	float           closest = 99999;
@@ -140,19 +137,21 @@ int ACEND_FindClosestReachableNode(gentity_t * self, int range, int type)
 		VectorCopy(vec3_origin, mins);
 	}
 	else
-		mins[2] += 18;			// Stepsize
+	{
+		mins[2] += STEPSIZE;
+	}
 
-	rng = (float)(range * range);	// square range for distance comparison (eliminate sqrt)  
+//	rng = (float)(range * range);	// square range for distance comparison (eliminate sqrt)  
 
 	for(i = 0; i < numnodes; i++)
 	{
 		if(type == NODE_ALL || type == nodes[i].type)	// check node type
 		{
-			VectorSubtract(nodes[i].origin, self->s.origin, v);	// subtract first
+			VectorSubtract(nodes[i].origin, self->client->ps.origin, v);	// subtract first
 
-			dist = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+			dist = VectorLength(v);
 
-			if(dist < closest && dist < rng)
+			if(dist < closest && dist < range)
 			{
 				// make sure it is visible
 				trap_Trace(&tr, self->client->ps.origin, mins, maxs, nodes[i].origin, self->s.number, MASK_PLAYERSOLID);
@@ -204,7 +203,7 @@ qboolean ACEND_FollowPath(gentity_t * self)
 {
 	vec3_t          v;
 
-#if 1
+#if 0
 	// Show the path (uncomment for debugging)
 	show_path_from = self->bs.current_node;
 	show_path_to = self->bs.goal_node;
@@ -221,7 +220,7 @@ qboolean ACEND_FollowPath(gentity_t * self)
 	}
 
 	// Are we there yet?
-	VectorSubtract(self->s.origin, nodes[self->bs.next_node].origin, v);
+	VectorSubtract(self->client->ps.origin, nodes[self->bs.next_node].origin, v);
 
 	if(VectorLength(v) < 32)
 	{
@@ -246,7 +245,7 @@ qboolean ACEND_FollowPath(gentity_t * self)
 		return qfalse;
 
 	// Set bot's movement vector
-	VectorSubtract(nodes[self->bs.next_node].origin, self->s.origin, self->bs.move_vector);
+	VectorSubtract(nodes[self->bs.next_node].origin, self->client->ps.origin, self->bs.move_vector);
 
 	return qtrue;
 }
@@ -328,10 +327,8 @@ qboolean ACEND_CheckForLadder(gentity_t * self)
 }
 */
 
-///////////////////////////////////////////////////////////////////////
 // This routine is called to hook in the pathing code and sets
 // the current node if valid.
-///////////////////////////////////////////////////////////////////////
 void ACEND_PathMap(gentity_t * self)
 {
 	int             closest_node;
@@ -343,9 +340,13 @@ void ACEND_PathMap(gentity_t * self)
 
 	last_update = level.time + 150;	// slow down updates a bit
 
-	// Special node drawing code for debugging
+#if 1
+	// special node drawing code for debugging
 	if(show_path_to != -1)
+	{
 		ACEND_DrawPath();
+	}
+#endif
 
 	////////////////////////////////////////////////////////
 	// Special check for ladder nodes
@@ -357,18 +358,15 @@ void ACEND_PathMap(gentity_t * self)
 	if(self->s.groundEntityNum == ENTITYNUM_NONE && !self->waterlevel)
 		return;
 
-	////////////////////////////////////////////////////////
+	
 	// Lava/Slime
-	////////////////////////////////////////////////////////
-	VectorCopy(self->s.origin, v);
+	VectorCopy(self->client->ps.origin, v);
 	v[2] -= 18;
 	
-	if(trap_PointContents(self->r.currentOrigin, -1) & (CONTENTS_LAVA | CONTENTS_SLIME))
+	if(trap_PointContents(self->client->ps.origin, -1) & (CONTENTS_LAVA | CONTENTS_SLIME))
 		return;					// no nodes in slime
 
-	////////////////////////////////////////////////////////
 	// Jumping
-	///////////////////////////////////////////////////////
 	if(self->bs.is_jumping)
 	{
 		// See if there is a closeby jump landing node (prevent adding too many)
@@ -415,24 +413,24 @@ void ACEND_PathMap(gentity_t * self)
 	}
 	*/
 
-	////////////////////////////////////////////////////////
-	// Add Nodes as needed
-	////////////////////////////////////////////////////////
+	// add nodes as needed
 	if(closest_node == INVALID)
 	{
-		// Add nodes in the water as needed
+		// add nodes in the water as needed
 		if(self->waterlevel)
 			closest_node = ACEND_AddNode(self, NODE_WATER);
 		else
 			closest_node = ACEND_AddNode(self, NODE_MOVE);
 
-		// Now add link
+		// now add link
 		if(self->bs.last_node != -1)
 			ACEND_UpdateNodeEdge(self->bs.last_node, closest_node);
 
 	}
 	else if(closest_node != self->bs.last_node && self->bs.last_node != INVALID)
+	{
 		ACEND_UpdateNodeEdge(self->bs.last_node, closest_node);
+	}
 
 	self->bs.last_node = closest_node;	// set visited to last
 
@@ -444,7 +442,6 @@ void ACEND_PathMap(gentity_t * self)
 void ACEND_InitNodes(void)
 {
 	numnodes = 1;
-	numitemnodes = 1;
 	memset(nodes, 0, sizeof(node_t) * MAX_NODES);
 	memset(path_table, INVALID, sizeof(short int) * MAX_NODES * MAX_NODES);
 
@@ -507,6 +504,7 @@ void ACEND_DrawPath()
 		ent->s.eType = ET_BEAM;
 		
 		VectorCopy(nodes[current_node].origin, ent->s.origin);
+		VectorCopy(nodes[current_node].origin, ent->s.pos.trBase);
 		VectorCopy(nodes[next_node].origin, ent->s.origin2);
 	
 		ent->nextthink = level.time + 10000;
@@ -528,36 +526,54 @@ void ACEND_DrawPath()
 void ACEND_ShowPath(gentity_t * self, int goal_node)
 {
 	show_path_from = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
+	if(show_path_from == -1)
+	{
+		trap_SendServerCommand(self - g_entities, "print \"no closest reachable node!\n\"");
+		return;	
+	}
+	
 	show_path_to = goal_node;
+	
+	ACEND_DrawPath();
 }
 
-///////////////////////////////////////////////////////////////////////
-// Add a node of type ?
-///////////////////////////////////////////////////////////////////////
+
 int ACEND_AddNode(gentity_t * self, int type)
 {
 	vec3_t          v1, v2;
+	const char     *entityName;
 
-	// Block if we exceed maximum
+	// block if we exceed maximum
 	if(numnodes + 1 > MAX_NODES)
+	{
 		return qfalse;
+	}
+	
+	if(self->name)
+	{
+		entityName = self->name;
+	}
+	else
+	{
+		entityName = self->classname;
+	}
 
-	// Set location
-	VectorCopy(self->s.origin, nodes[numnodes].origin);
+	// set location
+	if(self->client)
+		VectorCopy(self->client->ps.origin, nodes[numnodes].origin);
+	else
+		VectorCopy(self->s.origin, nodes[numnodes].origin);
 
-	// Set type
+	// set type
 	nodes[numnodes].type = type;
 
-	/////////////////////////////////////////////////////
-	// ITEMS
-	// Move the z location up just a bit.
+	// move the z location up just a bit for items
 	if(type == NODE_ITEM)
 	{
 		nodes[numnodes].origin[2] += 16;
-		numitemnodes++;
 	}
 
-	// Teleporters
+	// teleporters
 	if(type == NODE_TELEPORTER)
 	{
 		// Up 32
@@ -570,7 +586,7 @@ int ACEND_AddNode(gentity_t * self, int type)
 
 		if(debug_mode)
 		{
-			debug_printf("Node added %d type: Ladder\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Ladder\n", numnodes, entityName);
 			ACEND_ShowNode(numnodes);
 		}
 
@@ -579,13 +595,13 @@ int ACEND_AddNode(gentity_t * self, int type)
 
 	}
 
-	// For platforms drop two nodes one at top, one at bottom
+	// for platforms drop two nodes one at top, one at bottom
 	if(type == NODE_PLATFORM)
 	{
 		VectorCopy(self->r.maxs, v1);
 		VectorCopy(self->r.mins, v2);
 
-		// To get the center
+		// to get the center
 		nodes[numnodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
 		nodes[numnodes].origin[1] = (v1[1] - v2[1]) / 2 + v2[1];
 		nodes[numnodes].origin[2] = self->r.maxs[2];
@@ -601,12 +617,12 @@ int ACEND_AddNode(gentity_t * self, int type)
 
 		nodes[numnodes].type = NODE_PLATFORM;
 
-		// Add a link
+		// add a link
 		ACEND_UpdateNodeEdge(numnodes, numnodes - 1);
 
 		if(debug_mode)
 		{
-			debug_printf("Node added %d type: Platform\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Platform\n", numnodes, entityName);
 			ACEND_ShowNode(numnodes);
 		}
 
@@ -618,18 +634,21 @@ int ACEND_AddNode(gentity_t * self, int type)
 	if(debug_mode)
 	{
 		if(nodes[numnodes].type == NODE_MOVE)
-			debug_printf("Node added %d type: Move\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Move\n", numnodes, entityName);
 		else if(nodes[numnodes].type == NODE_TELEPORTER)
-			debug_printf("Node added %d type: Teleporter\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Teleporter\n", numnodes, entityName);
 		else if(nodes[numnodes].type == NODE_ITEM)
-			debug_printf("Node added %d type: Item\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Item\n", numnodes, entityName);
 		else if(nodes[numnodes].type == NODE_WATER)
-			debug_printf("Node added %d type: Water\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Water\n", numnodes, entityName);
 		else if(nodes[numnodes].type == NODE_GRAPPLE)
-			debug_printf("Node added %d type: Grapple\n", numnodes);
+			debug_printf("Node %d added for entity %s type: Grapple\n", numnodes, entityName);
 
 		ACEND_ShowNode(numnodes);
 	}
+	
+	// add a link
+	//ACEND_UpdateNodeEdge(numnodes, numnodes - 1);
 
 	numnodes++;
 
@@ -651,11 +670,15 @@ void ACEND_UpdateNodeEdge(int from, int to)
 
 	// Now for the self-referencing part, linear time for each link added
 	for(i = 0; i < numnodes; i++)
+	{
 		if(path_table[i][from] != INVALID)
+		{
 			if(i == to)
 				path_table[i][to] = INVALID;	// make sure we terminate
 			else
 				path_table[i][to] = path_table[i][from];
+		}
+	}
 
 	if(debug_mode)
 		debug_printf("Link %d -> %d\n", from, to);
@@ -675,8 +698,10 @@ void ACEND_RemoveNodeEdge(gentity_t * self, int from, int to)
 
 	// Make sure this gets updated in our path array
 	for(i = 0; i < numnodes; i++)
+	{
 		if(path_table[from][i] == to)
 			path_table[from][i] = INVALID;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -688,9 +713,10 @@ void ACEND_ResolveAllPaths()
 	int             i, from, to;
 	int             num = 0;
 
-	safe_bprintf(PRINT_HIGH, "Resolving all paths...");
+	G_Printf("Resolving all paths...");
 
 	for(from = 0; from < numnodes; from++)
+	{
 		for(to = 0; to < numnodes; to++)
 		{
 			// update unresolved paths
@@ -701,15 +727,20 @@ void ACEND_ResolveAllPaths()
 
 				// Now for the self-referencing part linear time for each link added
 				for(i = 0; i < numnodes; i++)
+				{
 					if(path_table[i][from] != -1)
+					{
 						if(i == to)
 							path_table[i][to] = -1;	// make sure we terminate
 						else
 							path_table[i][to] = path_table[i][from];
+					}
+				}
 			}
 		}
+	}
 
-	safe_bprintf(PRINT_MEDIUM, "done (%d updated)\n", num);
+	G_Printf("done (%d updated)\n", num);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -722,7 +753,7 @@ void ACEND_ResolveAllPaths()
 ///////////////////////////////////////////////////////////////////////
 void ACEND_SaveNodes()
 {
-	FILE           *pOut;
+	fileHandle_t    file;
 	char            filename[MAX_QPATH];
 	int             i, j;
 	int             version = 1;
@@ -731,32 +762,29 @@ void ACEND_SaveNodes()
 	// Resolve paths
 	ACEND_ResolveAllPaths();
 
-	safe_bprintf(PRINT_MEDIUM, "Saving node table...");
+	G_Printf("Saving node table...");
 
 	trap_Cvar_VariableStringBuffer("mapname", mapname, sizeof(mapname));
-
-	strcpy(filename, "base\\nav\\");
-	strcat(filename, mapname);
-	strcat(filename, ".nod");
-
-	if((pOut = fopen(filename, "wb")) == NULL)
-		return;					// bail
-
-	fwrite(&version, sizeof(int), 1, pOut);	// write version
-	fwrite(&numnodes, sizeof(int), 1, pOut);	// write count
-	fwrite(&num_items, sizeof(int), 1, pOut);	// write facts count
-
-	fwrite(nodes, sizeof(node_t), numnodes, pOut);	// write nodes
-
+	Com_sprintf(filename, sizeof(filename), "nav/%s.nod", mapname);
+	
+	trap_FS_FOpenFile(filename, &file, FS_WRITE);
+	if(!file)
+	{
+		G_Printf("WARNING: Couldn't open node table: %s\n", filename);
+		return;
+	}
+	
+	trap_FS_Write(&version, sizeof(int), file);
+	trap_FS_Write(&numnodes, sizeof(int), file);
+	trap_FS_Write(nodes, sizeof(node_t) * numnodes, file);
+	
 	for(i = 0; i < numnodes; i++)
 		for(j = 0; j < numnodes; j++)
-			fwrite(&path_table[i][j], sizeof(short int), 1, pOut);	// write count
+			trap_FS_Write(&path_table[i][j], sizeof(short int), file);	// write count
+			
+	trap_FS_FCloseFile(file);
 
-	fwrite(item_table, sizeof(item_table_t), num_items, pOut);	// write out the fact table
-
-	fclose(pOut);
-
-	safe_bprintf(PRINT_MEDIUM, "done.\n");
+	G_Printf("done.\n");
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -764,50 +792,45 @@ void ACEND_SaveNodes()
 ///////////////////////////////////////////////////////////////////////
 void ACEND_LoadNodes(void)
 {
-	FILE           *pIn;
+	fileHandle_t    file;
 	int             i, j;
 	char            filename[MAX_QPATH];
 	int             version;
 	char            mapname[MAX_QPATH];
 
 	trap_Cvar_VariableStringBuffer("mapname", mapname, sizeof(mapname));
+	Com_sprintf(filename, sizeof(filename), "nav/%s.nod", mapname);
 
-	strcpy(filename, "ace\\nav\\");
-	strcat(filename, mapname);
-	strcat(filename, ".nod");
-
-	if((pIn = fopen(filename, "rb")) == NULL)
+	trap_FS_FOpenFile(filename, &file, FS_READ);
+	if(!file)
 	{
 		// Create item table
-		G_Printf("ACE: No node file found, creating new one...");
+		G_Printf("ACE: No node file found, creating new one...\n");
 		ACEIT_BuildItemNodeTable(qfalse);
 		G_Printf("done.\n");
 		return;
 	}
 
 	// determin version
-	fread(&version, sizeof(int), 1, pIn);	// read version
+	trap_FS_Read(&version, sizeof(int), file); // read version
 
 	if(version == 1)
 	{
-		G_Printf("ACE: Loading node table...");
+		G_Printf("ACE: Loading node table...\n");
 
-		fread(&numnodes, sizeof(int), 1, pIn);	// read count
-		fread(&num_items, sizeof(int), 1, pIn);	// read facts count
-
-		fread(nodes, sizeof(node_t), numnodes, pIn);
+		trap_FS_Read(&numnodes, sizeof(int), file); // read count
+		trap_FS_Read(&nodes, sizeof(node_t) * numnodes, file);
 
 		for(i = 0; i < numnodes; i++)
 			for(j = 0; j < numnodes; j++)
-				fread(&path_table[i][j], sizeof(short int), 1, pIn);	// write count
+				trap_FS_Read(&path_table[i][j], sizeof(short int), file);	// write count
 
-		fread(item_table, sizeof(item_table_t), num_items, pIn);
-		fclose(pIn);
+		trap_FS_FCloseFile(file);
 	}
 	else
 	{
 		// Create item table
-		G_Printf("ACE: No node file found, creating new one...");
+		G_Printf("ACE: No node file found, creating new one...\n");
 		ACEIT_BuildItemNodeTable(qfalse);
 		G_Printf("done.\n");
 		return;					// bail
@@ -816,7 +839,6 @@ void ACEND_LoadNodes(void)
 	G_Printf("done.\n");
 
 	ACEIT_BuildItemNodeTable(qtrue);
-
 }
 
 #endif

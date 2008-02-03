@@ -372,7 +372,7 @@ void target_laser_start(gentity_t * self)
 
 	if(!self->damage)
 	{
-		self->damage = 1;
+		self->damage = 9999;
 	}
 
 	if(self->spawnflags & 1)

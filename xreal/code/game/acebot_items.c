@@ -31,89 +31,64 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(ACEBOT)
 
-int             num_items;
-item_table_t    item_table[MAX_GENTITIES];
 
 
-///////////////////////////////////////////////////////////////////////
+
 // Can we get there?
-///////////////////////////////////////////////////////////////////////
 qboolean ACEIT_IsReachable(gentity_t * self, vec3_t goal)
 {
 	trace_t         trace;
 	vec3_t          v;
 
 	VectorCopy(self->r.mins, v);
-	v[2] += 18;					// Stepsize
+	v[2] += STEPSIZE;
 	
 	trap_Trace(&trace, self->client->ps.origin, v, self->r.maxs, goal, self->s.number, MASK_PLAYERSOLID);
 
 	// Yes we can see it
-	if(trace.fraction == 1.0)
+	if(trace.fraction == 1)
 		return qtrue;
 	else
 		return qfalse;
 }
 
-///////////////////////////////////////////////////////////////////////
 // Visiblilty check 
-///////////////////////////////////////////////////////////////////////
 qboolean ACEIT_IsVisible(gentity_t * self, vec3_t goal)
 {
 	trace_t         trace;
 	
-	trap_Trace(&trace, self->client->ps.origin, vec3_origin, vec3_origin, goal, self->s.number, MASK_PLAYERSOLID);
+	trap_Trace(&trace, self->client->ps.origin, NULL, NULL, goal, self->s.number, MASK_PLAYERSOLID);
 
 	// Yes we can see it
-	if(trace.fraction == 1.0)
+	if(trace.fraction == 1)
 		return qtrue;
 	else
 		return qfalse;
 }
 
-///////////////////////////////////////////////////////////////////////
 //  Weapon changing support
-///////////////////////////////////////////////////////////////////////
-qboolean ACEIT_ChangeWeapon(gentity_t * ent, gitem_t * item)
+qboolean ACEIT_ChangeWeapon(gentity_t * self, weapon_t weapon)
 {
-#if 0
-	int             ammo_index;
-	gitem_t        *ammo_item;
-
 	// see if we're already using it
-	if(item == ent->client->pers.weapon)
-		return true;
+//	if(self->client->ps.weapon == weapon)
+//		return qtrue;
 
-	// Has not picked up weapon yet
-	if(!ent->client->pers.inventory[ITEM_INDEX(item)])
-		return false;
+	// has not picked up weapon yet
+	if(!(self->client->ps.stats[STAT_WEAPONS] & BIT(weapon)))
+		return qfalse;
 
-	// Do we have ammo for it?
-	if(item->ammo)
-	{
-		ammo_item = FindItem(item->ammo);
-		ammo_index = ITEM_INDEX(ammo_item);
-		if(!ent->client->pers.inventory[ammo_index] && !g_select_empty->value)
-			return false;
-	}
+	// do we have ammo for it?
+	if(weapon != WP_GAUNTLET && weapon != WP_GRAPPLING_HOOK && !self->client->ps.ammo[weapon])
+		return qfalse;
 
-	// Change to this weapon
-	ent->client->newweapon = item;
+	// change to this weapon
+	self->client->pers.cmd.weapon = weapon;
 
-	return true;
-#else
-	return qfalse;
-#endif
+	return qtrue;
 }
 
 
-//extern gitem_armor_t jacketarmor_info;
-//extern gitem_armor_t combatarmor_info;
-//extern gitem_armor_t bodyarmor_info;
-
-///////////////////////////////////////////////////////////////////////
 // Check if we can use the armor
-///////////////////////////////////////////////////////////////////////
 qboolean ACEIT_CanUseArmor(gitem_t * item, gentity_t * other)
 {
 #if 0
@@ -164,329 +139,98 @@ qboolean ACEIT_CanUseArmor(gitem_t * item, gentity_t * other)
 }
 
 
-///////////////////////////////////////////////////////////////////////
-// Determins the NEED for an item
-//
-// This function can be modified to support new items to pick up
-// Any other logic that needs to be added for custom decision making
-// can be added here. For now it is very simple.
-///////////////////////////////////////////////////////////////////////
-float ACEIT_ItemNeed(gentity_t * self, int item)
+float ACEIT_ItemNeed(gentity_t * self, gitem_t * item)
 {
-	// Make sure item is at least close to being valid
-	if(item < 0 || item > 100)
-		return 0.0;
-
-	switch (item)
+	// Tr3B: logic based on BG_CanItemBeGrabbed
+	
+	switch (item->giType)
 	{
-			// Health
-		case ITEMLIST_HEALTH_SMALL:
-		case ITEMLIST_HEALTH_MEDIUM:
-		case ITEMLIST_HEALTH_LARGE:
-		case ITEMLIST_HEALTH_MEGA:
-			if(self->health < 100)
-				return 1.0 - (float)self->health / 100.0f;	// worse off, higher priority
-			else
-				return 0.0;
-
-		/*
-		case ITEMLIST_AMMOPACK:
-		case ITEMLIST_QUADDAMAGE:
-		case ITEMLIST_INVULNERABILITY:
-		case ITEMLIST_SILENCER:
-			//  case ITEMLIST_REBREATHER
-			//  case ITEMLIST_ENVIRONMENTSUIT
-		case ITEMLIST_ADRENALINE:
-		case ITEMLIST_BANDOLIER:
-			return 0.6;
-		*/
-
-			// Weapons
-		case ITEMLIST_ROCKETLAUNCHER:
+		case IT_WEAPON:
 		{
-			if(!(self->client->ps.stats[STAT_WEAPONS] & BIT(WP_ROCKET_LAUNCHER)))
-				return 0.7;
-			else
+			// weapons are always picked up
+			return 0.7;
+		}
+
+		case IT_AMMO:
+		{
+			if(self->client->ps.ammo[item->giTag] >= 200)
+			{
+				return 0.0;	// can't hold any more
+			}
+			return 0.3;
+		}
+
+		case IT_ARMOR:
+		{
+#ifdef MISSIONPACK
+			if(bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
+			{
 				return 0.0;
+			}
+
+			// we also clamp armor to the maxhealth for handicapping
+			if(bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD)
+			{
+				upperBound = ps->stats[STAT_MAX_HEALTH];
+			}
+			else
+			{
+				upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
+			}
+
+			if(ps->stats[STAT_ARMOR] >= upperBound)
+			{
+				return 0.0;
+			}
+#else
+			if(self->client->ps.stats[STAT_ARMOR] >= self->client->ps.stats[STAT_MAX_HEALTH] * 2)
+			{
+				return 0.0;
+			}
+#endif
+			return 0.6;
+		}
+
+		case IT_HEALTH:
+		{
+			// small and mega healths will go over the max, otherwise
+			// don't pick up if already at max
+#ifdef MISSIONPACK
+			if(bg_itemlist[self->client->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD)
+			{
+				upperBound = self->client->ps->stats[STAT_MAX_HEALTH];
+			}
+			else
+#endif
+			
+			if(item->quantity == 5 || item->quantity == 100)
+			{
+				if(self->client->ps.stats[STAT_HEALTH] >= self->client->ps.stats[STAT_MAX_HEALTH] * 2)
+				{
+					return 0.0;
+				}
+				
+				return 1.0 - (float)self->health / (self->client->ps.stats[STAT_MAX_HEALTH] * 2);	// worse off, higher priority;
+			}
+
+			if(self->client->ps.stats[STAT_HEALTH] >= self->client->ps.stats[STAT_MAX_HEALTH])
+			{
+				return 0.0;
+			}
+			
+			return 1.0 - (float)self->health / 100.0f;	// worse off, higher priority
+		}
+
+		case IT_POWERUP:
+		{
+			// powerups are always picked up
+			return 0.8;
 		}
 		
-		/*
-		case ITEMLIST_RAILGUN:
-		case ITEMLIST_MACHINEGUN:
-		case ITEMLIST_CHAINGUN:
-		case ITEMLIST_SHOTGUN:
-		case ITEMLIST_SUPERSHOTGUN:
-		case ITEMLIST_BFG10K:
-		case ITEMLIST_GRENADELAUNCHER:
-		case ITEMLIST_HYPERBLASTER:
-			if(!self->client->pers.inventory[item])
-			
-				return 0.7;
-			else
-				return 0.0;
-		*/
-
-		/*
-			// Ammo
-		case ITEMLIST_SLUGS:
-			if(self->client->pers.inventory[ITEMLIST_SLUGS] < self->client->pers.max_slugs)
-				return 0.4;
-			else
-				return 0.0;
-
-		case ITEMLIST_BULLETS:
-			if(self->client->pers.inventory[ITEMLIST_BULLETS] < self->client->pers.max_bullets)
-				return 0.3;
-			else
-				return 0.0;
-
-		case ITEMLIST_SHELLS:
-			if(self->client->pers.inventory[ITEMLIST_SHELLS] < self->client->pers.max_shells)
-				return 0.3;
-			else
-				return 0.0;
-
-		case ITEMLIST_CELLS:
-			if(self->client->pers.inventory[ITEMLIST_CELLS] < self->client->pers.max_cells)
-				return 0.3;
-			else
-				return 0.0;
-
-		case ITEMLIST_ROCKETS:
-			if(self->client->pers.inventory[ITEMLIST_ROCKETS] < self->client->pers.max_rockets)
-				return 1.5;
-			else
-				return 0.0;
-
-		case ITEMLIST_GRENADES:
-			if(self->client->pers.inventory[ITEMLIST_GRENADES] < self->client->pers.max_grenades)
-				return 0.3;
-			else
-				return 0.0;
-
-		case ITEMLIST_BODYARMOR:
-			if(ACEIT_CanUseArmor(FindItem("Body Armor"), self))
-				return 0.6;
-			else
-				return 0.0;
-
-		case ITEMLIST_COMBATARMOR:
-			if(ACEIT_CanUseArmor(FindItem("Combat Armor"), self))
-				return 0.6;
-			else
-				return 0.0;
-
-		case ITEMLIST_JACKETARMOR:
-			if(ACEIT_CanUseArmor(FindItem("Jacket Armor"), self))
-				return 0.6;
-			else
-				return 0.0;
-
-		case ITEMLIST_POWERSCREEN:
-		case ITEMLIST_POWERSHIELD:
-			return 0.5;
-
-		case ITEMLIST_FLAG1:
-			// If I am on team one, I want team two's flag
-			if(!self->client->pers.inventory[item] && self->client->resp.ctf_team == CTF_TEAM2)
-				return 10.0;
-			else
-				return 0.0;
-
-		case ITEMLIST_FLAG2:
-			if(!self->client->pers.inventory[item] && self->client->resp.ctf_team == CTF_TEAM1)
-				return 10.0;
-			else
-				return 0.0;
-
-		case ITEMLIST_RESISTANCETECH:
-		case ITEMLIST_STRENGTHTECH:
-		case ITEMLIST_HASTETECH:
-		case ITEMLIST_REGENERATIONTECH:
-			// Check for other tech
-			if(!self->client->pers.inventory[ITEMLIST_RESISTANCETECH] &&
-			   !self->client->pers.inventory[ITEMLIST_STRENGTHTECH] &&
-			   !self->client->pers.inventory[ITEMLIST_HASTETECH] && !self->client->pers.inventory[ITEMLIST_REGENERATIONTECH])
-				return 0.4;
-			else
-				return 0.0;
-		*/
-
+		
 		default:
 			return 0.0;
-
 	}
-}
-
-///////////////////////////////////////////////////////////////////////
-// Convert a classname to its index value
-//
-// I prefer to use integers/defines for simplicity sake. This routine
-// can lead to some slowdowns I guess, but makes the rest of the code
-// easier to deal with.
-///////////////////////////////////////////////////////////////////////
-int ACEIT_ClassnameToIndex(char *classname)
-{
-	if(strcmp(classname, "item_armor_body") == 0)
-		return ITEMLIST_BODYARMOR;
-
-	if(strcmp(classname, "item_armor_combat") == 0)
-		return ITEMLIST_COMBATARMOR;
-
-	if(strcmp(classname, "item_armor_jacket") == 0)
-		return ITEMLIST_JACKETARMOR;
-
-	if(strcmp(classname, "item_armor_shard") == 0)
-		return ITEMLIST_ARMORSHARD;
-
-	if(strcmp(classname, "item_power_screen") == 0)
-		return ITEMLIST_POWERSCREEN;
-
-	if(strcmp(classname, "item_power_shield") == 0)
-		return ITEMLIST_POWERSHIELD;
-
-	if(strcmp(classname, "weapon_grapple") == 0)
-		return ITEMLIST_GRAPPLE;
-
-	if(strcmp(classname, "weapon_blaster") == 0)
-		return ITEMLIST_BLASTER;
-
-	if(strcmp(classname, "weapon_shotgun") == 0)
-		return ITEMLIST_SHOTGUN;
-
-	if(strcmp(classname, "weapon_supershotgun") == 0)
-		return ITEMLIST_SUPERSHOTGUN;
-
-	if(strcmp(classname, "weapon_machinegun") == 0)
-		return ITEMLIST_MACHINEGUN;
-
-	if(strcmp(classname, "weapon_chaingun") == 0)
-		return ITEMLIST_CHAINGUN;
-
-	if(strcmp(classname, "weapon_chaingun") == 0)
-		return ITEMLIST_CHAINGUN;
-
-	if(strcmp(classname, "ammo_grenades") == 0)
-		return ITEMLIST_GRENADES;
-
-	if(strcmp(classname, "weapon_grenadelauncher") == 0)
-		return ITEMLIST_GRENADELAUNCHER;
-
-	if(strcmp(classname, "weapon_rocketlauncher") == 0)
-		return ITEMLIST_ROCKETLAUNCHER;
-
-	if(strcmp(classname, "weapon_hyperblaster") == 0)
-		return ITEMLIST_HYPERBLASTER;
-
-	if(strcmp(classname, "weapon_railgun") == 0)
-		return ITEMLIST_RAILGUN;
-
-	if(strcmp(classname, "weapon_bfg10k") == 0)
-		return ITEMLIST_BFG10K;
-
-	if(strcmp(classname, "ammo_shells") == 0)
-		return ITEMLIST_SHELLS;
-
-	if(strcmp(classname, "ammo_bullets") == 0)
-		return ITEMLIST_BULLETS;
-
-	if(strcmp(classname, "ammo_cells") == 0)
-		return ITEMLIST_CELLS;
-
-	if(strcmp(classname, "ammo_rockets") == 0)
-		return ITEMLIST_ROCKETS;
-
-	if(strcmp(classname, "ammo_slugs") == 0)
-		return ITEMLIST_SLUGS;
-
-	if(strcmp(classname, "item_quad") == 0)
-		return ITEMLIST_QUADDAMAGE;
-
-	if(strcmp(classname, "item_invunerability") == 0)
-		return ITEMLIST_INVULNERABILITY;
-
-	if(strcmp(classname, "item_silencer") == 0)
-		return ITEMLIST_SILENCER;
-
-	if(strcmp(classname, "item_rebreather") == 0)
-		return ITEMLIST_REBREATHER;
-
-	if(strcmp(classname, "item_enviornmentsuit") == 0)
-		return ITEMLIST_ENVIRONMENTSUIT;
-
-	if(strcmp(classname, "item_ancienthead") == 0)
-		return ITEMLIST_ANCIENTHEAD;
-
-	if(strcmp(classname, "item_adrenaline") == 0)
-		return ITEMLIST_ADRENALINE;
-
-	if(strcmp(classname, "item_bandolier") == 0)
-		return ITEMLIST_BANDOLIER;
-
-	if(strcmp(classname, "item_pack") == 0)
-		return ITEMLIST_AMMOPACK;
-
-	if(strcmp(classname, "item_datacd") == 0)
-		return ITEMLIST_DATACD;
-
-	if(strcmp(classname, "item_powercube") == 0)
-		return ITEMLIST_POWERCUBE;
-
-	if(strcmp(classname, "item_pyramidkey") == 0)
-		return ITEMLIST_PYRAMIDKEY;
-
-	if(strcmp(classname, "item_dataspinner") == 0)
-		return ITEMLIST_DATASPINNER;
-
-	if(strcmp(classname, "item_securitypass") == 0)
-		return ITEMLIST_SECURITYPASS;
-
-	if(strcmp(classname, "item_bluekey") == 0)
-		return ITEMLIST_BLUEKEY;
-
-	if(strcmp(classname, "item_redkey") == 0)
-		return ITEMLIST_REDKEY;
-
-	if(strcmp(classname, "item_commandershead") == 0)
-		return ITEMLIST_COMMANDERSHEAD;
-
-	if(strcmp(classname, "item_airstrikemarker") == 0)
-		return ITEMLIST_AIRSTRIKEMARKER;
-
-	if(strcmp(classname, "item_health") == 0)	// ??
-		return ITEMLIST_HEALTH;
-
-	if(strcmp(classname, "item_flag_team1") == 0)
-		return ITEMLIST_FLAG1;
-
-	if(strcmp(classname, "item_flag_team2") == 0)
-		return ITEMLIST_FLAG2;
-
-	if(strcmp(classname, "item_tech1") == 0)
-		return ITEMLIST_RESISTANCETECH;
-
-	if(strcmp(classname, "item_tech2") == 0)
-		return ITEMLIST_STRENGTHTECH;
-
-	if(strcmp(classname, "item_tech3") == 0)
-		return ITEMLIST_HASTETECH;
-
-	if(strcmp(classname, "item_tech4") == 0)
-		return ITEMLIST_REGENERATIONTECH;
-
-	if(strcmp(classname, "item_health_small") == 0)
-		return ITEMLIST_HEALTH_SMALL;
-
-	if(strcmp(classname, "item_health_medium") == 0)
-		return ITEMLIST_HEALTH_MEDIUM;
-
-	if(strcmp(classname, "item_health_large") == 0)
-		return ITEMLIST_HEALTH_LARGE;
-
-	if(strcmp(classname, "item_health_mega") == 0)
-		return ITEMLIST_HEALTH_MEGA;
-
-	return INVALID;
 }
 
 
@@ -501,18 +245,9 @@ int ACEIT_ClassnameToIndex(char *classname)
 ///////////////////////////////////////////////////////////////////////
 void ACEIT_BuildItemNodeTable(qboolean rebuild)
 {
+	int             i;
 	gentity_t        *ent;
-	int             i, item_index;
 	vec3_t          v, v1, v2;
-
-#ifdef DEBUG
-	FILE           *pOut;		// for testing
-
-	if((pOut = fopen("items.txt", "wt")) == NULL)
-		return;
-#endif
-
-	num_items = 0;
 
 	for(i = 0, ent = &g_entities[0]; i < level.numEntities; i++, ent++)
 	{
@@ -526,13 +261,13 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 			continue;
 		}
 
-		item_index = ACEIT_ClassnameToIndex(ent->item->classname);
+		/*
 
 		////////////////////////////////////////////////////////////////
 		// SPECIAL NAV NODE DROPPING CODE
 		////////////////////////////////////////////////////////////////
 		// Special node dropping for platforms
-		if(!Q_stricmp(ent->item->classname, "func_plat") == 0)
+		if(!Q_stricmp(ent->item->classname, "func_plat"))
 		{
 			if(!rebuild)
 				ACEND_AddNode(ent, NODE_PLATFORM);
@@ -540,35 +275,22 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 		}
 
 		// Special node dropping for teleporters
-		if(!Q_stricmp(ent->item->classname, "misc_teleporter_dest") == 0 || !Q_stricmp(ent->item->classname, "trigger_teleport") == 0)
+		if(!Q_stricmp(ent->item->classname, "misc_teleporter_dest") || !Q_stricmp(ent->item->classname, "trigger_teleport"))
 		{
 			if(!rebuild)
 				ACEND_AddNode(ent, NODE_TELEPORTER);
 			item_index = 99;
 		}
+		*/
 
-#ifdef DEBUG
-		if(item_index == INVALID)
-			fprintf(pOut, "Rejected item: %s node: %d pos: %f %f %f\n", ent->item->classname, item_table[num_items].node,
-					ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
-		else
-			fprintf(pOut, "item: %s node: %d pos: %f %f %f\n", ent->item->classname, item_table[num_items].node, ent->s.origin[0],
-					ent->s.origin[1], ent->s.origin[2]);
-#endif
+		//if(item_index == INVALID)
+		//	continue;
 
-		if(item_index == INVALID)
-			continue;
-
-		// add a pointer to the item entity
-		item_table[num_items].ent = ent;
-		item_table[num_items].item = item_index;
-
-		// If new, add nodes for items
+		// ff new, add nodes for items
 		if(!rebuild)
 		{
-			// Add a new node at the item's location.
-			item_table[num_items].node = ACEND_AddNode(ent, NODE_ITEM);
-			num_items++;
+			// add a new node at the item's location.
+			ent->node = ACEND_AddNode(ent, NODE_ITEM);
 		}
 		else					// Now if rebuilding, just relink ent structures 
 		{
@@ -601,24 +323,27 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 					if(v[0] == nodes[i].origin[0] && v[1] == nodes[i].origin[1] && v[2] == nodes[i].origin[2])
 					{
 						// found a match now link to facts
-						item_table[num_items].node = i;
+						ent->node = i;
 
 #ifdef DEBUG
-						fprintf(pOut, "Relink item: %s node: %d pos: %f %f %f\n", ent->item->classname, item_table[num_items].node,
+						G_Printf("Relink item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
 								ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
 #endif
-						num_items++;
 					}
 				}
 			}
 		}
-
+		
+#ifdef _DEBUG
+		//if(item_index == INVALID)
+		//	fprintf(pOut, "Rejected item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
+		//			ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+		//else
+		G_Printf("item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node, ent->s.origin[0],
+					ent->s.origin[1], ent->s.origin[2]);
+#endif
 
 	}
-
-#ifdef DEBUG
-	fclose(pOut);
-#endif
 
 }
 

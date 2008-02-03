@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2007 Neil “haste” Toronto <http://www.ra.is/unlagged/>
+Copyright (C) 2006-2007 Neil ï¿½hasteï¿½ Toronto <http://www.ra.is/unlagged/>
 
 This file is part of XreaL source code.
 
@@ -610,8 +610,6 @@ G_PredictPlayerStepSlideMove
 Advance the given entity frametime seconds, stepping and sliding as appropriate
 ============================
 */
-#define	STEPSIZE 18
-
 void G_PredictPlayerStepSlideMove(gentity_t * ent, float frametime)
 {
 	vec3_t          start_o, start_v, down_o, down_v;

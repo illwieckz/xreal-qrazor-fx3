@@ -1469,9 +1469,6 @@ typedef struct playerState_s
 
 #define	BUTTON_ANY			2048	// any key whatsoever
 
-#define	MOVE_RUN			120	// if forwardmove or rightmove are >= MOVE_RUN,
-										// then BUTTON_WALKING should be set
-
 // usercmd_t is sent to the server each client frame
 typedef struct usercmd_s
 {

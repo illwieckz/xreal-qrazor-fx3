@@ -470,6 +470,10 @@ void G_InitGentity(gentity_t * e)
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
+	
+#if defined(ACEBOT)
+	e->node = -1;
+#endif
 }
 
 /*
@@ -585,6 +589,10 @@ void G_FreeEntity(gentity_t * ed)
 	ed->classname = "freed";
 	ed->freetime = level.time;
 	ed->inuse = qfalse;
+
+#if defined(ACEBOT)
+	ed->node = -1;
+#endif
 }
 
 /*

@@ -1460,6 +1460,10 @@ void ClientSpawn(gentity_t * ent)
 			}
 		}
 	}
+	
+#if defined(ACEBOT)
+	ACESP_SetupBotState(ent);
+#endif
 
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things

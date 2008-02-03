@@ -756,8 +756,11 @@ Also called as an event
 */
 void CG_Beam(centity_t * cent)
 {
+#if 0
 	refEntity_t     ent;
 	entityState_t  *s1;
+	
+	//CG_Printf("CG_Beam()\n");
 
 	s1 = &cent->currentState;
 
@@ -766,12 +769,31 @@ void CG_Beam(centity_t * cent)
 	VectorCopy(s1->pos.trBase, ent.origin);
 	VectorCopy(s1->origin2, ent.oldorigin);
 	AxisClear(ent.axis);
+	
 	ent.reType = RT_BEAM;
+	ent.customShader = cgs.media.lightningShader;
 
 	ent.renderfx = RF_NOSHADOW;
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
+#else
+	refEntity_t     beam;
+	entityState_t  *s1;
+	
+	//CG_Printf("CG_Beam()\n");
+
+	s1 = &cent->currentState;
+
+	memset(&beam, 0, sizeof(beam));
+
+	VectorCopy(s1->pos.trBase, beam.origin);
+	VectorCopy(s1->origin2, beam.oldorigin);
+
+	beam.reType = RT_LIGHTNING;
+	beam.customShader = cgs.media.lightningShader;
+	trap_R_AddRefEntityToScene(&beam);
+#endif
 }
 
 

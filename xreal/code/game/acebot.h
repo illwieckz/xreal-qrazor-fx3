@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "g_local.h"
 #if defined(ACEBOT)
 
-// Only 100 allowed for now (probably never be enough edicts for 'em
-//#define MAX_BOTS 100
 
 // FIXME remove: game print flags
 #define	PRINT_LOW			0	// pickup messages
@@ -63,83 +61,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define NODE_ALL 99				// For selecting all nodes
 
 // Density setting for nodes
-#define NODE_DENSITY 128
+#define NODE_DENSITY 128		// fomerly 128
 
 // Bot state types
-#define STATE_STAND 0
-#define STATE_MOVE 1
-#define STATE_ATTACK 2
-#define STATE_WANDER 3
-#define STATE_FLEE 4
+enum
+{
+	STATE_STAND,
+	STATE_MOVE,
+	STATE_ATTACK,
+	STATE_WANDER,
+	STATE_FLEE,
+};
 
-#define MOVE_LEFT 0
-#define MOVE_RIGHT 1
-#define MOVE_FORWARD 2
-#define MOVE_BACK 3
-
-// Item defines (got this list from somewhere??....so thanks to whoever created it)
-#define ITEMLIST_NULLINDEX			0
-#define ITEMLIST_BODYARMOR			1
-#define ITEMLIST_COMBATARMOR		2
-#define ITEMLIST_JACKETARMOR		3
-#define ITEMLIST_ARMORSHARD			4
-#define ITEMLIST_POWERSCREEN		5
-#define ITEMLIST_POWERSHIELD		6
-
-#define ITEMLIST_GRAPPLE            7
-
-#define ITEMLIST_BLASTER			8
-#define ITEMLIST_SHOTGUN			9
-#define ITEMLIST_SUPERSHOTGUN		10
-#define ITEMLIST_MACHINEGUN			11
-#define ITEMLIST_CHAINGUN			12
-#define ITEMLIST_GRENADES			13
-#define ITEMLIST_GRENADELAUNCHER	14
-#define ITEMLIST_ROCKETLAUNCHER		15
-#define ITEMLIST_HYPERBLASTER		16
-#define ITEMLIST_RAILGUN			17
-#define ITEMLIST_BFG10K				18
-
-#define ITEMLIST_SHELLS				19
-#define ITEMLIST_BULLETS			20
-#define ITEMLIST_CELLS				21
-#define ITEMLIST_ROCKETS			22
-#define ITEMLIST_SLUGS				23
-#define ITEMLIST_QUADDAMAGE			24
-#define ITEMLIST_INVULNERABILITY	25
-#define ITEMLIST_SILENCER			26
-#define ITEMLIST_REBREATHER			27
-#define ITEMLIST_ENVIRONMENTSUIT	28
-#define ITEMLIST_ANCIENTHEAD		29
-#define ITEMLIST_ADRENALINE			30
-#define ITEMLIST_BANDOLIER			31
-#define ITEMLIST_AMMOPACK			32
-#define ITEMLIST_DATACD				33
-#define ITEMLIST_POWERCUBE			34
-#define ITEMLIST_PYRAMIDKEY			35
-#define ITEMLIST_DATASPINNER		36
-#define ITEMLIST_SECURITYPASS		37
-#define ITEMLIST_BLUEKEY			38
-#define ITEMLIST_REDKEY				39
-#define ITEMLIST_COMMANDERSHEAD		40
-#define ITEMLIST_AIRSTRIKEMARKER	41
-#define ITEMLIST_HEALTH				42
-
-// new for ctf
-#define ITEMLIST_FLAG1              43
-#define ITEMLIST_FLAG2              44
-#define ITEMLIST_RESISTANCETECH     45
-#define ITEMLIST_STRENGTHTECH       46
-#define ITEMLIST_HASTETECH          47
-#define ITEMLIST_REGENERATIONTECH   48
-
-// my additions
-#define ITEMLIST_HEALTH_SMALL		49
-#define ITEMLIST_HEALTH_MEDIUM		50
-#define ITEMLIST_HEALTH_LARGE		51
-#define ITEMLIST_BOT				52
-#define ITEMLIST_PLAYER				53
-#define ITEMLIST_HEALTH_MEGA        54
+enum
+{
+	MOVE_LEFT,
+	MOVE_RIGHT,
+	MOVE_FORWARD,
+	MOVE_BACK,
+};
 
 // Node structure
 typedef struct node_s
@@ -148,21 +88,10 @@ typedef struct node_s
 	int             type;		// type of node
 } node_t;
 
-typedef struct itemTable_s
-{
-	int             item;
-	float           weight;
-	gentity_t        *ent;
-	int             node;
-} item_table_t;
-
 
 // extern decs
 extern int      numnodes;
 extern node_t   nodes[MAX_NODES];
-
-extern int      num_items;
-extern item_table_t item_table[MAX_GENTITIES];
 
 extern qboolean debug_mode;
 
@@ -195,22 +124,22 @@ void            ACEIT_PlayerAdded(gentity_t * ent);
 void            ACEIT_PlayerRemoved(gentity_t * ent);
 qboolean        ACEIT_IsVisible(gentity_t * self, vec3_t goal);
 qboolean        ACEIT_IsReachable(gentity_t * self, vec3_t goal);
-qboolean        ACEIT_ChangeWeapon(gentity_t * ent, gitem_t * item);
+qboolean        ACEIT_ChangeWeapon(gentity_t * ent, weapon_t weapon);
 qboolean        ACEIT_CanUseArmor(gitem_t * item, gentity_t * other);
-float           ACEIT_ItemNeed(gentity_t * self, int item);
-int             ACEIT_ClassnameToIndex(char *classname);
+float           ACEIT_ItemNeed(gentity_t * self, gitem_t * item);
+//int             ACEIT_ClassnameToIndex(char *classname);
 void            ACEIT_BuildItemNodeTable(qboolean rebuild);
 
 // acebot_movement.c protos
-qboolean        ACEMV_SpecialMove(gentity_t * self, usercmd_t * ucmd);
-void            ACEMV_Move(gentity_t * self, usercmd_t * ucmd);
-void            ACEMV_Attack(gentity_t * self, usercmd_t * ucmd);
-void            ACEMV_Wander(gentity_t * self, usercmd_t * ucmd);
+qboolean        ACEMV_SpecialMove(gentity_t * self);
+void            ACEMV_Move(gentity_t * self);
+void            ACEMV_Attack(gentity_t * self);
+void            ACEMV_Wander(gentity_t * self);
 
 // acebot_nodes.c protos
 int             ACEND_FindCost(int from, int to);
-int             ACEND_FindCloseReachableNode(gentity_t * self, int dist, int type);
-int             ACEND_FindClosestReachableNode(gentity_t * self, int range, int type);
+int             ACEND_FindCloseReachableNode(gentity_t * self, float range, int type);
+int             ACEND_FindClosestReachableNode(gentity_t * self, float range, int type);
 void            ACEND_SetGoal(gentity_t * self, int goal_node);
 qboolean        ACEND_FollowPath(gentity_t * self);
 void            ACEND_GrapFired(gentity_t * self);
@@ -239,6 +168,7 @@ void            ACESP_SpawnBot(char *name, char *team);
 void            ACESP_ReAddBots();
 void            ACESP_RemoveBot(char *name);
 qboolean        ACESP_BotConnect(int clientNum, qboolean restart);
+void            ACESP_SetupBotState(gentity_t * bot);
 void            safe_cprintf(gentity_t * ent, int printlevel, char *fmt, ...);
 void            safe_centerprintf(gentity_t * ent, char *fmt, ...);
 void            safe_bprintf(int printlevel, char *fmt, ...);

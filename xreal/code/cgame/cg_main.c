@@ -1198,6 +1198,7 @@ static void CG_RegisterGraphics(void)
 #endif
 
 	// debug utils
+	cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
 	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
 	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 

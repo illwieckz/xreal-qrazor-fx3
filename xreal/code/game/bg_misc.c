@@ -1094,7 +1094,6 @@ gitem_t        *BG_FindItemForWeapon(weapon_t weapon)
 /*
 ===============
 BG_FindItem
-
 ===============
 */
 gitem_t        *BG_FindItem(const char *pickupName)
@@ -1104,6 +1103,24 @@ gitem_t        *BG_FindItem(const char *pickupName)
 	for(it = bg_itemlist + 1; it->classname; it++)
 	{
 		if(!Q_stricmp(it->pickup_name, pickupName))
+			return it;
+	}
+
+	return NULL;
+}
+
+/*
+===============
+BG_FindItem
+===============
+*/
+gitem_t        *BG_FindItemForClassname(const char *className)
+{
+	gitem_t        *it;
+
+	for(it = bg_itemlist + 1; it->classname; it++)
+	{
+		if(!Q_stricmp(it->classname, className))
 			return it;
 	}
 

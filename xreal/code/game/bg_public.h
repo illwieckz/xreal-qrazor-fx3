@@ -57,6 +57,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	VOTE_TIME			30000	// 30 seconds before vote times out
 
+#define	STEPSIZE			18
 #define	MINS_Z				-24
 #define	DEFAULT_VIEWHEIGHT	26
 #define CROUCH_VIEWHEIGHT	12
@@ -702,6 +703,7 @@ extern gitem_t  bg_itemlist[];
 extern int      bg_numItems;
 
 gitem_t        *BG_FindItem(const char *pickupName);
+gitem_t        *BG_FindItemForClassname(const char *className);
 gitem_t        *BG_FindItemForWeapon(weapon_t weapon);
 gitem_t        *BG_FindItemForPowerup(powerup_t pw);
 gitem_t        *BG_FindItemForHoldable(holdable_t pw);

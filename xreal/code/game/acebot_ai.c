@@ -31,39 +31,49 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(ACEBOT)
 
-///////////////////////////////////////////////////////////////////////
-// Main Think function for bot
-///////////////////////////////////////////////////////////////////////
+
+/*
+=============
+ACEAI_Think
+ 
+Main Think function for bot
+=============
+*/
 void ACEAI_Think(gentity_t * self)
 {
 	int             i;
-	usercmd_t       ucmd;
 	
 	//if(debug_mode)
 	//	G_Printf("ACEAI_Think(%s)\n", self->client->pers.netname);
 
-	// Set up client movement
+	// set up client movement
 	VectorCopy(self->client->ps.viewangles, self->bs.viewAngles);
 	VectorSet(self->client->ps.delta_angles, 0, 0, 0);
-	memset(&ucmd, 0, sizeof(ucmd));
+	
+	// FIXME: needed?
+	memset(&self->client->pers.cmd, 0, sizeof(self->client->pers.cmd));
+	
 	self->enemy = NULL;
 	self->bs.movetarget = NULL;
 		
 	// do this to avoid a time out
 	ACEAI_CheckServerCommands(self);
 
-	// Force respawn 
+	// force respawn 
 	if(self->health <= 0)
 	{
 		self->client->buttons = 0;
-		ucmd.buttons = BUTTON_ATTACK;
+		self->client->pers.cmd.buttons = BUTTON_ATTACK;
 	}
 
 	if(self->bs.state == STATE_WANDER && self->bs.wander_timeout < level.time)
-		ACEAI_PickLongRangeGoal(self);	// pick a new long range goal
+	{
+		// pick a new long range goal
+		ACEAI_PickLongRangeGoal(self);
+	}
 
 #if 0
-	// Kill the bot if completely stuck somewhere
+	// kill the bot if completely stuck somewhere
 	if(VectorLength(self->client->ps.velocity) > 37)	//
 		self->bs.suicide_timeout = level.time + 10000;
 
@@ -74,32 +84,39 @@ void ACEAI_Think(gentity_t * self)
 	}
 #endif
 
-	// Find any short range goal
+#if 1
+	// find any short range goal
 	ACEAI_PickShortRangeGoal(self);
+#endif
 
-	// Look for enemies
+#if 1
+	// look for enemies
 	if(ACEAI_FindEnemy(self))
 	{
 		ACEAI_ChooseWeapon(self);
-		ACEMV_Attack(self, &ucmd);
+		ACEMV_Attack(self);
 	}
 	else
+#endif
 	{
-		// Execute the move, or wander
+		// execute the move, or wander
 		if(self->bs.state == STATE_WANDER)
 		{
-			ACEMV_Wander(self, &ucmd);
+			ACEMV_Wander(self);
 		}
 		else if(self->bs.state == STATE_MOVE)
 		{
-			ACEMV_Move(self, &ucmd);
+			ACEMV_Move(self);
 		}
 	}
 
 	//debug_printf("State: %d\n",self->state);
 
 	// set approximate ping
-	ucmd.serverTime = 75 + floor(random() * 25) + 1;
+	//ucmd.serverTime = 75 + floor(random() * 25) + 1;
+	self->client->pers.cmd.serverTime = level.time;
+	
+	//self->client->ps.commandTime = level.time - 100;
 
 	// show random ping values in scoreboard
 	//self->client->ping = ucmd.msec;
@@ -113,11 +130,11 @@ void ACEAI_Think(gentity_t * self)
 
 	for(i = 0; i < 3; i++)
 	{
-		ucmd.angles[i] = ANGLE2SHORT(self->bs.viewAngles[i]);
+		self->client->pers.cmd.angles[i] = ANGLE2SHORT(self->bs.viewAngles[i]);
 	}
 
 	// send command through id's code
-	self->client->pers.cmd = ucmd;
+	self->client->pers.cmd = self->client->pers.cmd;
 	ClientThink_real(self);
 
 	//self->nextthink = level.time + FRAMETIME;
@@ -194,11 +211,9 @@ qboolean ACEAI_Visible(gentity_t * self, gentity_t * other)
 	return qfalse;
 }
 
-///////////////////////////////////////////////////////////////////////
 // Evaluate the best long range goal and send the bot on
 // its way. This is a good time waster, so use it sparingly. 
 // Do not call it for every think cycle.
-///////////////////////////////////////////////////////////////////////
 void ACEAI_PickLongRangeGoal(gentity_t * self)
 {
 #if 1
@@ -208,6 +223,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	int             current_node, goal_node;
 	gentity_t      *goal_ent;
 	gclient_t      *cl;
+	gentity_t      *ent;
 	gentity_t      *player;
 	float           cost;
 
@@ -224,21 +240,23 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		return;
 	}
 
-	///////////////////////////////////////////////////////
-	// Items
-	///////////////////////////////////////////////////////
-	for(i = 0; i < num_items; i++)
+	// look for items
+	for(i = 0, ent = &g_entities[0]; i < level.numEntities; i++, ent++)
 	{
-		if(item_table[i].ent == NULL /*|| item_table[i].ent->solid == SOLID_NOT */)	// ignore items that are not there.
+		if(!ent->inuse)
+			continue;
+		
+		if(!ent->item)
 			continue;
 
-		cost = ACEND_FindCost(current_node, item_table[i].node);
+		cost = ACEND_FindCost(current_node, ent->node);
 
 		if(cost == INVALID || cost < 2)	// ignore invalid and very short hops
 			continue;
 
-		weight = ACEIT_ItemNeed(self, item_table[i].item);
+		weight = ACEIT_ItemNeed(self, ent->item);
 
+#if 0
 		// If I am on team one and I have the flag for the other team....return it
 		if(g_gametype.integer >= GT_CTF && (item_table[i].item == ITEMLIST_FLAG2 || item_table[i].item == ITEMLIST_FLAG1) &&
 		   (self->client->sess.sessionTeam == TEAM_RED && self->client->ps.powerups[PW_BLUEFLAG] ||
@@ -246,6 +264,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		  {
 			weight = 10.0;
 		  }
+#endif
 
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
@@ -253,16 +272,13 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		if(weight > best_weight)
 		{
 			best_weight = weight;
-			goal_node = item_table[i].node;
-			goal_ent = item_table[i].ent;
+			goal_node = ent->node;
+			goal_ent = ent;
 		}
 	}
 
-	///////////////////////////////////////////////////////
-	// Players
-	///////////////////////////////////////////////////////
-	// This should be its own function and is for now just
-	// finds a player to set as the goal.
+	// this should be its own function and is for now just
+	// finds a player to set as the goal
 	for(i = 0; i < g_maxclients.integer; i++)
 	{
 		cl = level.clients + i;
@@ -284,7 +300,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		if(cost == INVALID || cost < 3)	// ignore invalid and very short hops
 			continue;
 
-		// Player carrying the flag?
+		// player carrying the flag?
 		if(g_gametype.integer >= GT_CTF &&
 		   (self->client->ps.powerups[PW_REDFLAG] || self->client->ps.powerups[PW_BLUEFLAG]))
 			weight = 2.0;
@@ -302,7 +318,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		}
 	}
 
-	// If do not find a goal, go wandering....
+	// if do not find a goal, go wandering....
 	if(best_weight == 0.0 || goal_node == INVALID)
 	{
 		self->bs.goal_node = INVALID;
@@ -313,9 +329,9 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		return;					// no path? 
 	}
 
-	// OK, everything valid, let's start moving to our goal.
+	// OK, everything valid, let's start moving to our goal
 	self->bs.state = STATE_MOVE;
-	self->bs.tries = 0;			// Reset the count of how many times we tried this goal
+	self->bs.tries = 0;			// reset the count of how many times we tried this goal
 
 	if(goal_ent != NULL && debug_mode)
 		debug_printf("%s selected a %s at node %d for LR goal.\n", self->client->pers.netname, goal_ent->classname, goal_node);
@@ -324,11 +340,10 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////
+
 // Pick best goal based on importance and range. This function
 // overrides the long range goal selection for items that
 // are very close to the bot and are reachable.
-///////////////////////////////////////////////////////////////////////
 void ACEAI_PickShortRangeGoal(gentity_t * self)
 {
 	gentity_t        *target;
@@ -337,15 +352,15 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 	int             index;
 
 	// look for a target (should make more efficent later)
-	target = G_FindRadius(NULL, self->s.origin, 300);
+	target = G_FindRadius(NULL, self->client->ps.origin, 300);
 
 	while(target)
 	{
 		if(target->classname == NULL)
 			return;
 
-		// Missle avoidance code
-		// Set our movetarget to be the rocket or grenade fired at us. 
+		// missile avoidance code
+		// set our movetarget to be the rocket or grenade fired at us. 
 		if(strcmp(target->classname, "rocket") == 0 || strcmp(target->classname, "grenade") == 0)
 		{
 			if(debug_mode)
@@ -359,19 +374,21 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 		{
 			if(ACEAI_InFront(self, target))
 			{
-				index = ACEIT_ClassnameToIndex(target->classname);
-				weight = ACEIT_ItemNeed(self, index);
-
-				if(weight > best_weight)
+				if(target->item)
 				{
-					best_weight = weight;
-					best = target;
+					weight = ACEIT_ItemNeed(self, target->item);
+
+					if(weight > best_weight)
+					{
+						best_weight = weight;
+						best = target;
+					}
 				}
 			}
 		}
 
 		// next target
-		target = G_FindRadius(target, self->s.origin, 300);
+		target = G_FindRadius(target, self->client->ps.origin, 300);
 	}
 
 	if(best_weight)
@@ -386,9 +403,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 	}
 }
 
-///////////////////////////////////////////////////////////////////////
 // Scan for enemy (simplifed for now to just pick any visible enemy)
-///////////////////////////////////////////////////////////////////////
 qboolean ACEAI_FindEnemy(gentity_t * self)
 {
 	int             i;
@@ -430,86 +445,78 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 
 }
 
-///////////////////////////////////////////////////////////////////////
 // Hold fire with RL/BFG?
-///////////////////////////////////////////////////////////////////////
 qboolean ACEAI_CheckShot(gentity_t * self)
 {
-#if 0
 	trace_t         tr;
 
-	tr = gi.trace(self->s.origin, tv(-8, -8, -8), tv(8, 8, 8), self->enemy->s.origin, self, MASK_OPAQUE);
+	trap_Trace(&tr,self->client->ps.origin,  tv(-8, -8, -8), tv(8, 8, 8), self->enemy->client->ps.origin, self->s.number, MASK_SHOT);
 
-	// Blocked, do not shoot
-	if(tr.fraction != 1.0)
-		return false;
+	// blocked, do not shoot
+	if(tr.entityNum == self->enemy->s.number)
+		return qtrue;
 
-	return true;
-#else
 	return qfalse;
-#endif
 }
 
-///////////////////////////////////////////////////////////////////////
 // Choose the best weapon for bot (simplified)
-///////////////////////////////////////////////////////////////////////
 void ACEAI_ChooseWeapon(gentity_t * self)
 {
-#if 0
 	float           range;
 	vec3_t          v;
 
 	// if no enemy, then what are we doing here?
 	if(!self->enemy)
 		return;
-
-	// always favor the railgun
-	if(ACEIT_ChangeWeapon(self, FindItem("railgun")))
-		return;
-
-	// Base selection on distance.
-	VectorSubtract(self->s.origin, self->enemy->s.origin, v);
+		
+	// base selection on distance
+	VectorSubtract(self->client->ps.origin, self->enemy->client->ps.origin, v);
 	range = VectorLength(v);
 
-	// Longer range 
+	// always favor the railgun
+	if(ACEIT_ChangeWeapon(self, WP_RAILGUN))
+		return;
+
+	// longer range 
 	if(range > 300)
 	{
 		// choose BFG if enough ammo
-		if(self->client->pers.inventory[ITEMLIST_CELLS] > 50)
-			if(ACEAI_CheckShot(self) && ACEIT_ChangeWeapon(self, FindItem("bfg10k")))
+		if(self->client->ps.ammo[WP_BFG] > 45)
+			if(ACEAI_CheckShot(self) && ACEIT_ChangeWeapon(self, WP_BFG))
 				return;
 
-		if(ACEAI_CheckShot(self) && ACEIT_ChangeWeapon(self, FindItem("rocket launcher")))
+		if(ACEAI_CheckShot(self) && ACEIT_ChangeWeapon(self, WP_ROCKET_LAUNCHER))
 			return;
 	}
 
-	// Only use GL in certain ranges and only on targets at or below our level
-	if(range > 100 && range < 500 && self->enemy->s.origin[2] - 20 < self->s.origin[2])
-		if(ACEIT_ChangeWeapon(self, FindItem("grenade launcher")))
+	// only use GL in certain ranges and only on targets at or below our level
+	if(range > 100 && range < 500 && self->enemy->client->ps.origin[2] - 20 < self->client->ps.origin[2])
+		if(ACEIT_ChangeWeapon(self, WP_GRENADE_LAUNCHER))
 			return;
 
-	if(ACEIT_ChangeWeapon(self, FindItem("hyperblaster")))
+	if(ACEIT_ChangeWeapon(self, WP_LIGHTNING))
 		return;
 
-	// Only use CG when ammo > 50
+#ifdef MISSIONPACK
+	// only use CG when ammo > 50
 	if(self->client->pers.inventory[ITEMLIST_BULLETS] >= 50)
 		if(ACEIT_ChangeWeapon(self, FindItem("chaingun")))
 			return;
+#endif
 
-	if(ACEIT_ChangeWeapon(self, FindItem("machinegun")))
+	if(ACEIT_ChangeWeapon(self, WP_PLASMAGUN))
 		return;
 
-	if(ACEIT_ChangeWeapon(self, FindItem("super shotgun")))
+	if(ACEIT_ChangeWeapon(self, WP_SHOTGUN))
 		return;
 
-	if(ACEIT_ChangeWeapon(self, FindItem("shotgun")))
+	if(ACEIT_ChangeWeapon(self, WP_MACHINEGUN))
 		return;
 
-	if(ACEIT_ChangeWeapon(self, FindItem("blaster")))
+	if(ACEIT_ChangeWeapon(self, WP_GAUNTLET))
 		return;
 
 	return;
-#endif
 }
 
 

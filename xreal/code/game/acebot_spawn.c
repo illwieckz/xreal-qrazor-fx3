@@ -120,7 +120,7 @@ void ACESP_HoldSpawn(gentity_t * self)
 	gi.WriteByte(svc_muzzleflash);
 	gi.WriteShort(self - g_edicts);
 	gi.WriteByte(MZ_LOGIN);
-	gi.multicast(self->s.origin, MULTICAST_PVS);
+	gi.multicast(self->client->ps.origin, MULTICAST_PVS);
 
 	if(ctf->value)
 		safe_bprintf(PRINT_MEDIUM, "%s joined the %s team.\n",
@@ -494,13 +494,15 @@ void ACESP_SpawnBot(char *name, char *team)
 
 	int             clientNum;
 //	char           *botinfo;
-	gentity_t      *bot;
+//	gentity_t      *bot;
 	char           *key;
 	char           *s;
 //	char           *botname;
 	char           *model;
 	char           *headmodel;
 	char            userinfo[MAX_INFO_STRING];
+	
+	G_Printf("ACESP_SpawnBot(%s, %s)\n", name, team);
 
 	// have the server allocate a client slot
 	clientNum = trap_BotAllocateClient();
@@ -511,9 +513,9 @@ void ACESP_SpawnBot(char *name, char *team)
 		return;
 	}
 
-	bot = &g_entities[clientNum];
-	bot->r.svFlags |= SVF_BOT;
-	bot->inuse = qtrue;
+//	bot = &g_entities[clientNum];
+//	bot->r.svFlags |= SVF_BOT;
+//	bot->inuse = qtrue;
 
 	// create the bot's userinfo
 	userinfo[0] = '\0';
@@ -608,29 +610,12 @@ void ACESP_SpawnBot(char *name, char *team)
 	trap_SetUserinfo(clientNum, userinfo);
 
 	// have it connect to the game as a normal client
-	if(ClientConnect(clientNum, qtrue, qtrue))
-	{
+	if(ClientConnect(clientNum, qtrue, qtrue) != NULL)
+	{		
 		return;
 	}
 
 	ClientBegin(clientNum);
-	
-	
-	// 
-	// set bot state
-	//
-	bot = g_entities + clientNum;
-
-	//bot->bs.enemy = NULL;
-	bot->bs.movetarget = NULL;
-	bot->bs.state = STATE_MOVE;
-
-	// Set the current node
-	bot->bs.current_node = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->bs.goal_node = bot->bs.current_node;
-	bot->bs.next_node = bot->bs.current_node;
-	bot->bs.next_move_time = level.time;
-	bot->bs.suicide_timeout = level.time + 15000;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -669,14 +654,10 @@ void ACESP_RemoveBot(char *name)
 #endif
 }
 
-/*
-===============
-G_BotConnect
-===============
-*/
 qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 {
 #if 1
+	gentity_t      *bot;
 	char            userinfo[MAX_INFO_STRING];
 
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
@@ -690,11 +671,47 @@ qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 	//	trap_DropClient(clientNum, "BotAISetupClient failed");
 	//	return qfalse;
 	//}
+	
+	/*
+	bot = &g_entities[clientNum];
+	
+	// set bot state
+	bot = g_entities + clientNum;
+
+	bot->enemy = NULL;
+	bot->bs.movetarget = NULL;
+	bot->bs.state = STATE_MOVE;
+
+	// set the current node
+	bot->bs.current_node = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
+	bot->bs.goal_node = bot->bs.current_node;
+	bot->bs.next_node = bot->bs.current_node;
+	bot->bs.next_move_time = level.time;
+	bot->bs.suicide_timeout = level.time + 15000;
+	*/
 
 	return qtrue;
 #endif
 }
 
+
+void  ACESP_SetupBotState(gentity_t * bot)
+{
+#if 1
+	bot->enemy = NULL;
+	
+	bot->bs.yawSpeed = 100;
+	bot->bs.movetarget = NULL;
+	bot->bs.state = STATE_MOVE;
+
+	// set the current node
+	bot->bs.current_node = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
+	bot->bs.goal_node = bot->bs.current_node;
+	bot->bs.next_node = bot->bs.current_node;
+	bot->bs.next_move_time = level.time;
+	bot->bs.suicide_timeout = level.time + 15000;
+#endif
+}
 
 
 
