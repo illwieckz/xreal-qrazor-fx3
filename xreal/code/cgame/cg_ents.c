@@ -832,6 +832,120 @@ static void CG_Portal(centity_t * cent)
 
 
 /*
+==================
+CG_AI_Node
+==================
+*/
+static void CG_AI_Node(centity_t * cent)
+{
+	refEntity_t     ent;
+	vec3_t          origin, delta, dir, vec, up = { 0, 0, 1 };
+	float           c, len;
+	int             i, node, digits[10], numdigits, negative;
+	int             numberSize = 8;
+	
+	
+	entityState_t  *s1;
+
+	s1 = &cent->currentState;
+
+	memset(&ent, 0, sizeof(ent));
+
+	// set frame
+	VectorCopy(cent->lerpOrigin, ent.origin);
+	VectorCopy(cent->lerpOrigin, ent.oldorigin);
+
+	// convert angles to axis
+	AnglesToAxis(cent->lerpAngles, ent.axis);
+
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
+	
+	
+#if 0
+	// draw node number as sprite
+	// code based on CG_AddScorePlum
+	
+	ent.reType = RT_SPRITE;
+	ent.radius = 4;
+	
+	ent.shaderRGBA[0] = 0xff;
+	ent.shaderRGBA[1] = 0xff;
+	ent.shaderRGBA[2] = 0xff;
+	ent.shaderRGBA[3] = 0xff;
+
+	VectorCopy(cent->lerpOrigin, origin);
+	origin[2] += 20;
+
+	VectorSubtract(cg.refdef.vieworg, origin, dir);
+	CrossProduct(dir, up, vec);
+	VectorNormalize(vec);
+
+	//VectorMA(origin, -10 + 20 * sin(c * 2 * M_PI), vec, origin);
+
+	// if the view would be "inside" the sprite, kill the sprite
+	// so it doesn't add too much overdraw
+	VectorSubtract(origin, cg.refdef.vieworg, delta);
+	len = VectorLength(delta);
+	if(len < 20)
+	{
+		return;
+	}
+
+	node = s1->otherEntityNum;
+	
+	negative = qfalse;
+	if(node < 0)
+	{
+		negative = qtrue;
+		node = -node;
+	}
+	
+	for(numdigits = 0; !(numdigits && !node); numdigits++)
+	{
+		digits[numdigits] = node % 10;
+		node = node / 10;
+	}
+
+	if(negative)
+	{
+		digits[numdigits] = 10;
+		numdigits++;
+	}
+
+	for(i = 0; i < numdigits; i++)
+	{
+		VectorMA(origin, (float)(((float)numdigits / 2) - i) * numberSize, vec, ent.origin);
+		ent.customShader = cgs.media.numberShaders[digits[numdigits - 1 - i]];
+		trap_R_AddRefEntityToScene(&ent);
+	}
+#endif
+}
+
+/*
+===============
+CG_AI_Link
+===============
+*/
+static void CG_AI_Link(centity_t * cent)
+{
+	refEntity_t     beam;
+	entityState_t  *s1;
+
+	s1 = &cent->currentState;
+
+	memset(&beam, 0, sizeof(beam));
+
+	VectorCopy(s1->pos.trBase, beam.origin);
+	VectorCopy(s1->origin2, beam.oldorigin);
+	
+	//beam.reType = RT_BEAM;
+	beam.reType = RT_LIGHTNING;
+	beam.customShader = cgs.media.lightningShader;
+	trap_R_AddRefEntityToScene(&beam);
+}
+
+/*
 =========================
 CG_AdjustPositionForMover
 
@@ -1262,6 +1376,12 @@ static void CG_AddCEntity(centity_t * cent)
 			break;
 		case ET_TEAM:
 			CG_TeamBase(cent);
+			break;
+		case ET_AI_NODE:
+			CG_AI_Node(cent);
+			break;
+		case ET_AI_LINK:
+			CG_AI_Link(cent);
 			break;
 	}
 }

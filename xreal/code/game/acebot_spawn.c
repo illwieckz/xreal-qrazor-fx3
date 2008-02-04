@@ -260,13 +260,13 @@ void ACESP_PutClientInServer(gentity_t * bot, qboolean respawn, int team)
 	ChangeWeapon(bot);
 
 	bot->enemy = NULL;
-	bot->movetarget = NULL;
+	bot->moveTarget = NULL;
 	bot->state = STATE_MOVE;
 
 	// Set the current node
-	bot->current_node = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->goal_node = bot->current_node;
-	bot->next_node = bot->current_node;
+	bot->currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
+	bot->goalNode = bot->currentNode;
+	bot->nextNode = bot->currentNode;
 	bot->next_move_time = level.time;
 	bot->suicide_timeout = level.time + 15.0;
 
@@ -584,7 +584,7 @@ void ACESP_SpawnBot(char *name, char *team)
 	Info_SetValueForKey(userinfo, key, s);
 
 	// initialize the bot settings
-	if(!team || !*team)
+	if(!team || !team[0])
 	{
 		if(g_gametype.integer >= GT_TEAM)
 		{
@@ -679,13 +679,13 @@ qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 	bot = g_entities + clientNum;
 
 	bot->enemy = NULL;
-	bot->bs.movetarget = NULL;
+	bot->bs.moveTarget = NULL;
 	bot->bs.state = STATE_MOVE;
 
 	// set the current node
-	bot->bs.current_node = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->bs.goal_node = bot->bs.current_node;
-	bot->bs.next_node = bot->bs.current_node;
+	bot->bs.currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
+	bot->bs.goalNode = bot->bs.currentNode;
+	bot->bs.nextNode = bot->bs.currentNode;
 	bot->bs.next_move_time = level.time;
 	bot->bs.suicide_timeout = level.time + 15000;
 	*/
@@ -697,20 +697,19 @@ qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 
 void  ACESP_SetupBotState(gentity_t * bot)
 {
-#if 1
 	bot->enemy = NULL;
 	
-	bot->bs.yawSpeed = 100;
-	bot->bs.movetarget = NULL;
+	bot->bs.yawSpeed = 100;		// FIXME 100 is deadly fast
+	bot->bs.moveTarget = NULL;
 	bot->bs.state = STATE_MOVE;
 
 	// set the current node
-	bot->bs.current_node = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->bs.goal_node = bot->bs.current_node;
-	bot->bs.next_node = bot->bs.current_node;
+	bot->bs.currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
+	bot->bs.goalNode = bot->bs.currentNode;
+	bot->bs.nextNode = bot->bs.currentNode;
+	bot->bs.lastNode = INVALID;
 	bot->bs.next_move_time = level.time;
 	bot->bs.suicide_timeout = level.time + 15000;
-#endif
 }
 
 

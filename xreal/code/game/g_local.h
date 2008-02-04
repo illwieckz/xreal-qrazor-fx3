@@ -85,25 +85,29 @@ typedef struct gclient_s gclient_t;
 #if defined(ACEBOT)
 typedef struct
 {
-	qboolean        is_jumping;
+	qboolean        isJumping;
 
 	// for movement
 	vec3_t          viewAngles;
 	float           yawSpeed;
 	
-	vec3_t          move_vector;
-	gentity_t      *movetarget;
-	gentity_t      *goalentity;
+	vec3_t          moveVector;
+	gentity_t      *moveTarget;
+	
+	gentity_t      *goalEntity;
+	
+	// timers
 	float           next_move_time;
 	float           wander_timeout;
 	float           suicide_timeout;
 
 	// for node code
-	int             current_node;	// current node
-	int             goal_node;	// current goal node
-	int             next_node;	// the node that will take us one step closer to our goal
+	int             currentNode;	// current node
+	int             goalNode;	// current goal node
+	int             nextNode;	// the node that will take us one step closer to our goal
+	int             lastNode;
+	
 	int             node_timeout;
-	int             last_node;
 	int             tries;
 	int             state;
 	
@@ -1001,6 +1005,16 @@ extern vmCvar_t sv_fps;
 
 //unlagged - server options
 
+
+#if defined(ACEBOT)
+extern vmCvar_t ace_debug;
+extern vmCvar_t ace_showNodes;
+extern vmCvar_t ace_showLinks;
+extern vmCvar_t ace_showPath;
+extern vmCvar_t ace_pickLongRangeGoal;
+extern vmCvar_t ace_pickShortRangeGoal;
+extern vmCvar_t ace_attackEnemies;
+#endif
 
 
 void            trap_Printf(const char *fmt);

@@ -43,7 +43,7 @@ void ACEAI_Think(gentity_t * self)
 {
 	int             i;
 	
-	//if(debug_mode)
+	//if(ace_debug.integer)
 	//	G_Printf("ACEAI_Think(%s)\n", self->client->pers.netname);
 
 	// set up client movement
@@ -54,7 +54,7 @@ void ACEAI_Think(gentity_t * self)
 	memset(&self->client->pers.cmd, 0, sizeof(self->client->pers.cmd));
 	
 	self->enemy = NULL;
-	self->bs.movetarget = NULL;
+	self->bs.moveTarget = NULL;
 		
 	// do this to avoid a time out
 	ACEAI_CheckServerCommands(self);
@@ -84,10 +84,8 @@ void ACEAI_Think(gentity_t * self)
 	}
 #endif
 
-#if 1
 	// find any short range goal
 	ACEAI_PickShortRangeGoal(self);
-#endif
 
 #if 1
 	// look for enemies
@@ -110,7 +108,10 @@ void ACEAI_Think(gentity_t * self)
 		}
 	}
 
-	//debug_printf("State: %d\n",self->state);
+#if 0
+	if(ace_debug.integer)
+		trap_SendServerCommand(-1, va("print \"%s: state %dl!\n\"", self->client->pers.netname, self->bs.state));
+#endif
 
 	// set approximate ping
 	//ucmd.serverTime = 75 + floor(random() * 25) + 1;
@@ -149,7 +150,7 @@ void ACEAI_CheckServerCommands(gentity_t * self)
 	{
 #if 0
 		//have buf point to the command and args to the command arguments
-		if(debug_mode)
+		if(ace_debug.integer)
 		{
 			G_Printf("ACEAI_CheckServerCommands for %s: %s\n", self->client->pers.netname, buf);		
 		}
@@ -216,27 +217,29 @@ qboolean ACEAI_Visible(gentity_t * self, gentity_t * other)
 // Do not call it for every think cycle.
 void ACEAI_PickLongRangeGoal(gentity_t * self)
 {
-#if 1
 	int             i;
 	int             node;
-	float           weight, best_weight = 0.0;
-	int             current_node, goal_node;
-	gentity_t      *goal_ent;
+	float           weight, bestWeight = 0.0;
+	int             currentNode, goalNode;
+	gentity_t      *goalEnt;
 	gclient_t      *cl;
 	gentity_t      *ent;
 	gentity_t      *player;
 	float           cost;
+	
+	goalNode = INVALID;
+	goalEnt = NULL;
 
 	// look for a target 
-	current_node = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
+	currentNode = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
 
-	self->bs.current_node = current_node;
+	self->bs.currentNode = currentNode;
 
-	if(current_node == -1)
+	if((ace_debug.integer && !ace_pickLongRangeGoal.integer) || currentNode == INVALID)
 	{
 		self->bs.state = STATE_WANDER;
 		self->bs.wander_timeout = level.time + 1000;
-		self->bs.goal_node = -1;
+		self->bs.goalNode = -1;
 		return;
 	}
 
@@ -248,8 +251,19 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		
 		if(!ent->item)
 			continue;
+			
+		if(ent->node == INVALID)
+			continue;
+			
+		// the same pickup rules are used for client side and server side
+		if(!BG_CanItemBeGrabbed(g_gametype.integer, &ent->s, &self->client->ps))
+			continue;
+			
+		// ignore items that were picked up recently
+		if(ent->r.svFlags & SVF_NOCLIENT)
+			continue;
 
-		cost = ACEND_FindCost(current_node, ent->node);
+		cost = ACEND_FindCost(currentNode, ent->node);
 
 		if(cost == INVALID || cost < 2)	// ignore invalid and very short hops
 			continue;
@@ -269,11 +283,11 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
 
-		if(weight > best_weight)
+		if(weight > bestWeight)
 		{
-			best_weight = weight;
-			goal_node = ent->node;
-			goal_ent = ent;
+			bestWeight = weight;
+			goalNode = ent->node;
+			goalEnt = ent;
 		}
 	}
 
@@ -295,7 +309,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		}
 
 		node = ACEND_FindClosestReachableNode(player, NODE_DENSITY, NODE_ALL);
-		cost = ACEND_FindCost(current_node, node);
+		cost = ACEND_FindCost(currentNode, node);
 
 		if(cost == INVALID || cost < 3)	// ignore invalid and very short hops
 			continue;
@@ -310,22 +324,23 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
 
-		if(weight > best_weight)
+		if(weight > bestWeight)
 		{
-			best_weight = weight;
-			goal_node = node;
-			goal_ent = player;
+			bestWeight = weight;
+			goalNode = node;
+			goalEnt = player;
 		}
 	}
 
 	// if do not find a goal, go wandering....
-	if(best_weight == 0.0 || goal_node == INVALID)
+	if(bestWeight == 0.0 || goalNode == INVALID)
 	{
-		self->bs.goal_node = INVALID;
+		self->bs.goalNode = INVALID;
 		self->bs.state = STATE_WANDER;
 		self->bs.wander_timeout = level.time + 1000;
-		if(debug_mode)
-			debug_printf("%s did not find a LR goal, wandering.\n", self->client->pers.netname);
+		
+		if(ace_debug.integer)
+			trap_SendServerCommand(-1, va("print \"%s: did not find a LR goal, wandering..\n\"", self->client->pers.netname));
 		return;					// no path? 
 	}
 
@@ -333,11 +348,10 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	self->bs.state = STATE_MOVE;
 	self->bs.tries = 0;			// reset the count of how many times we tried this goal
 
-	if(goal_ent != NULL && debug_mode)
-		debug_printf("%s selected a %s at node %d for LR goal.\n", self->client->pers.netname, goal_ent->classname, goal_node);
+	if(goalEnt != NULL && ace_debug.integer)
+		trap_SendServerCommand(-1, va("print \"%s: selected a %s at node %d for LR goal\n\"", self->client->pers.netname, goalEnt->classname, goalNode));
 
-	ACEND_SetGoal(self, goal_node);
-#endif
+	ACEND_SetGoal(self, goalNode);
 }
 
 
@@ -347,12 +361,17 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 void ACEAI_PickShortRangeGoal(gentity_t * self)
 {
 	gentity_t        *target;
-	float           weight, best_weight = 0.0;
+	float           weight, bestWeight = 0.0;
 	gentity_t        *best;
-	int             index;
+	
+	if(ace_debug.integer && !ace_pickShortRangeGoal.integer)
+		return;
+		
+	best = NULL;
+	
 
 	// look for a target (should make more efficent later)
-	target = G_FindRadius(NULL, self->client->ps.origin, 300);
+	target = G_FindRadius(NULL, self->client->ps.origin, 200);
 
 	while(target)
 	{
@@ -360,15 +379,27 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 			return;
 
 		// missile avoidance code
-		// set our movetarget to be the rocket or grenade fired at us. 
-		if(strcmp(target->classname, "rocket") == 0 || strcmp(target->classname, "grenade") == 0)
+		// set our moveTarget to be the rocket or grenade fired at us. 
+		if(!Q_stricmp(target->classname, "rocket") || !Q_stricmp(target->classname, "grenade"))
 		{
-			if(debug_mode)
-				debug_printf("ROCKET ALERT!\n");
+			if(ace_debug.integer)
+				trap_SendServerCommand(-1, va("print \"%s: ROCKET ALERT!\n\"", self->client->pers.netname));
 
-			self->bs.movetarget = target;
+			self->bs.moveTarget = target;
 			return;
 		}
+		
+		#if 0
+		// so players can't sneak RIGHT up on a bot
+		if(!Q_stricmp(target->classname, "player"))
+		{
+			if(target->health && !!OnSameTeam(self, target))
+			{
+				self->bs.movetarget = target;
+				return;
+			}
+		}
+		#endif
 
 		if(ACEIT_IsReachable(self, target->s.origin))
 		{
@@ -376,11 +407,19 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 			{
 				if(target->item)
 				{
+					// the same pickup rules are used for client side and server side
+					if(!BG_CanItemBeGrabbed(g_gametype.integer, &target->s, &self->client->ps))
+						goto nextTarget;
+			
+					// ignore items that were picked up recently
+					if(target->r.svFlags & SVF_NOCLIENT)
+						goto nextTarget;
+					
 					weight = ACEIT_ItemNeed(self, target->item);
 
-					if(weight > best_weight)
+					if(weight > bestWeight)
 					{
-						best_weight = weight;
+						bestWeight = weight;
 						best = target;
 					}
 				}
@@ -388,17 +427,18 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 		}
 
 		// next target
-		target = G_FindRadius(target, self->client->ps.origin, 300);
+		nextTarget:
+		target = G_FindRadius(target, self->client->ps.origin, 200);
 	}
 
-	if(best_weight)
+	if(bestWeight)
 	{
-		self->bs.movetarget = best;
+		self->bs.moveTarget = best;
 
-		if(debug_mode && self->bs.goalentity != self->bs.movetarget)
-			debug_printf("%s selected a %s for SR goal.\n", self->client->pers.netname, self->bs.movetarget->classname);
+		if(ace_debug.integer && self->bs.goalEntity != self->bs.moveTarget)
+			trap_SendServerCommand(-1, va("print \"%s: selected a %s for SR goal\n\"", self->client->pers.netname, self->bs.moveTarget->classname));
 
-		self->bs.goalentity = best;
+		self->bs.goalEntity = best;
 
 	}
 }
@@ -409,6 +449,9 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 	int             i;
 	gclient_t      *cl;
 	gentity_t      *player;
+	
+	if(ace_debug.integer && !ace_attackEnemies.integer)
+		return qfalse;
 
 	for(i = 0; i < g_maxclients.integer; i++)
 	{
@@ -433,8 +476,8 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 
 		if(player->health && ACEAI_InFront(self, player) && ACEAI_Visible(self, player) && trap_InPVS(self->client->ps.origin, player->client->ps.origin))
 		{
-			if(debug_mode && self->enemy != player)
-				debug_printf("%s found enemy %s\n", self->client->pers.netname, player->client->pers.netname);
+			if(ace_debug.integer && self->enemy != player)
+				trap_SendServerCommand(-1, va("print \"%s: found enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
 			
 			self->enemy = player;
 			return qtrue;

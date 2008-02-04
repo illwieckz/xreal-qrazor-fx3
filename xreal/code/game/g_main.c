@@ -115,6 +115,16 @@ vmCvar_t        pm_fastWeaponSwitches;
 vmCvar_t        pm_fixedPmove;
 vmCvar_t        pm_fixedPmoveFPS;
 
+#if defined(ACEBOT)
+vmCvar_t		ace_debug;
+vmCvar_t		ace_showNodes;
+vmCvar_t		ace_showLinks;
+vmCvar_t		ace_showPath;
+vmCvar_t		ace_pickLongRangeGoal;
+vmCvar_t		ace_pickShortRangeGoal;
+vmCvar_t        ace_attackEnemies;
+#endif
+
 
 static cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -216,6 +226,16 @@ static cvarTable_t gameCvarTable[] = {
 	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
 //unlagged - server options
+
+#if defined(ACEBOT)
+	{&ace_debug, "ace_debug", "1", 0, 0, qfalse},
+	{&ace_showNodes, "ace_showNodes", "0", 0, 0, qfalse},
+	{&ace_showLinks, "ace_showLinks", "0", 0, 0, qfalse},
+	{&ace_showPath, "ace_showPath", "1", 0, 0, qfalse},
+	{&ace_pickLongRangeGoal, "ace_pickLongRangeGoal", "1", 0, 0, qfalse},
+	{&ace_pickShortRangeGoal, "ace_pickShortRangeGoal", "1", 0, 0, qfalse},
+	{&ace_attackEnemies, "ace_attackEnemies", "1", 0, 0, qfalse},
+#endif
 };
 
 // bk001129 - made static to avoid aliasing
@@ -589,13 +609,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_InitBots(restart);
 	}
 #elif defined(ACEBOT)
-	if(trap_Cvar_VariableIntegerValue("bot_enable"))
-	{
-		ACEND_InitNodes();
-		ACEND_LoadNodes();
-		//ACESP_LoadBots();
-	}
 	
+	ACEND_InitNodes();
+	ACEND_LoadNodes();
+	//ACESP_LoadBots();
 #endif
 
 	G_RemapTeamShaders();

@@ -1397,13 +1397,13 @@ void ClientThink_real(gentity_t * ent)
 
 	// test for solid areas in the AAS file
 	//BotTestAAS(ent->r.currentOrigin);
+
+	// touch other objects
+	ClientImpacts(ent, &pm);
 	
 #if defined(ACEBOT)
 		ACEND_PathMap(ent);
 #endif
-
-	// touch other objects
-	ClientImpacts(ent, &pm);
 
 	// save results of triggers and client events
 	if(ent->client->ps.eventSequence != oldEventSequence)

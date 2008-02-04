@@ -327,9 +327,10 @@ Svcmd_EntityList_f
 */
 void Svcmd_EntityList_f(void)
 {
-	int             e;
+	int             e, count;
 	gentity_t      *check;
 
+	count = 0;
 	check = g_entities + 1;
 	for(e = 1; e < level.numEntities; e++, check++)
 	{
@@ -337,6 +338,9 @@ void Svcmd_EntityList_f(void)
 		{
 			continue;
 		}
+		
+		count++,
+		
 		G_Printf("%3i:", e);
 		switch (check->s.eType)
 		{
@@ -376,6 +380,12 @@ void Svcmd_EntityList_f(void)
 			case ET_GRAPPLE:
 				G_Printf("ET_GRAPPLE          ");
 				break;
+			case ET_AI_NODE:
+				G_Printf("ET_AI_NODE          ");
+				break;
+			case ET_AI_LINK:
+				G_Printf("ET_AI_LINK          ");
+				break;
 			default:
 				G_Printf("%3i                 ", check->s.eType);
 				break;
@@ -387,6 +397,8 @@ void Svcmd_EntityList_f(void)
 		}
 		G_Printf("\n");
 	}
+	
+	G_Printf("%i entities in use\n", count);
 }
 
 gclient_t      *ClientForString(const char *s)
@@ -556,41 +568,12 @@ qboolean ConsoleCommand(void)
 #if defined(ACEBOT)
 	// ACEBOT_ADD
 
-	if(Q_stricmp(cmd, "acedebug") == 0)
-	{
-		if(trap_Argc() < 2)
-		{
-			G_Printf("Usage: acedebug <on|off>\n");
-			return qtrue;
-		}
-
-		trap_Argv(1, arg1, sizeof(arg1));
-
-		if(Q_stricmp(arg1, "on") == 0)
-		{
-			safe_bprintf(PRINT_MEDIUM, "ACE: Debug Mode On\n");
-			debug_mode = qtrue;
-		}
-		else
-		{
-			safe_bprintf(PRINT_MEDIUM, "ACE: Debug Mode Off\n");
-			debug_mode = qfalse;
-		}
-		return qtrue;
-	}
-
 	if(Q_stricmp(cmd, "addbot") == 0)
 	{
 		char            name[MAX_TOKEN_CHARS];
 		char            altname[MAX_TOKEN_CHARS];
 		char            string[MAX_TOKEN_CHARS];
 		char            team[MAX_TOKEN_CHARS];
-
-		// are bots enabled?
-		if(!trap_Cvar_VariableIntegerValue("bot_enable"))
-		{
-			return qtrue;
-		}
 
 		if(trap_Argc() < 4)
 		{

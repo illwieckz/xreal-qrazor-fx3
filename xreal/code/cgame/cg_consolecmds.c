@@ -661,9 +661,12 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
 	trap_AddCommand("loaddeferred");
+	
+	// useful for development
 	trap_AddCommand("restartLuaGameVM");
+	trap_AddCommand("entitylist");
 	
 	// for ACEBot
-	trap_AddCommand("showpath");
 	trap_AddCommand("savenodes");
+	
 }

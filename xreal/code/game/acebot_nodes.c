@@ -30,31 +30,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(ACEBOT)
 
-// flags
-qboolean        newmap = qtrue;
+
 
 // Total number of nodes
-int             numnodes;
-
-// For debugging paths
-int             show_path_from = -1;
-int             show_path_to = -1;
+int             numNodes;
 
 // array for node data
 node_t          nodes[MAX_NODES];
 short int       path_table[MAX_NODES][MAX_NODES];
 
-///////////////////////////////////////////////////////////////////////
-// NODE INFORMATION FUNCTIONS
-///////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////
+
+
+
+
 // Determin cost of moving from one node to another
-///////////////////////////////////////////////////////////////////////
 int ACEND_FindCost(int from, int to)
 {
 	int             curnode;
 	int             cost = 1;	// Shortest possible is 1
+	
+	if(from == INVALID || to == INVALID)
+		return INVALID;
 
 	// If we can not get there then return invalid
 	if(path_table[from][to] == INVALID)
@@ -75,12 +72,10 @@ int ACEND_FindCost(int from, int to)
 	return cost;
 }
 
-///////////////////////////////////////////////////////////////////////
 // Find a close node to the player within dist.
 //
 // Faster than looking for the closest node, but not very 
 // accurate.
-///////////////////////////////////////////////////////////////////////
 int ACEND_FindCloseReachableNode(gentity_t * self, float range, int type)
 {
 	vec3_t          v;
@@ -90,7 +85,7 @@ int ACEND_FindCloseReachableNode(gentity_t * self, float range, int type)
 
 //	range *= range;
 
-	for(i = 0; i < numnodes; i++)
+	for(i = 0; i < numNodes; i++)
 	{
 		if(type == NODE_ALL || type == nodes[i].type)	// check node type
 		{
@@ -113,15 +108,15 @@ int ACEND_FindCloseReachableNode(gentity_t * self, float range, int type)
 	return -1;
 }
 
-///////////////////////////////////////////////////////////////////////
+
+
 // Find the closest node to the player within a certain range
-///////////////////////////////////////////////////////////////////////
 int ACEND_FindClosestReachableNode(gentity_t * self, float range, int type)
 {
 	int             i;
 	float           closest = 99999;
 	float           dist;
-	int             node = -1;
+	int             node = INVALID;
 	vec3_t          v;
 	trace_t         tr;
 	float           rng;
@@ -130,20 +125,11 @@ int ACEND_FindClosestReachableNode(gentity_t * self, float range, int type)
 	VectorCopy(self->r.mins, mins);
 	VectorCopy(self->r.maxs, maxs);
 
-	// For Ladders, do not worry so much about reachability
-	if(type == NODE_LADDER)
-	{
-		VectorCopy(vec3_origin, maxs);
-		VectorCopy(vec3_origin, mins);
-	}
-	else
-	{
-		mins[2] += STEPSIZE;
-	}
+	mins[2] += STEPSIZE;
 
 //	rng = (float)(range * range);	// square range for distance comparison (eliminate sqrt)  
 
-	for(i = 0; i < numnodes; i++)
+	for(i = 0; i < numNodes; i++)
 	{
 		if(type == NODE_ALL || type == nodes[i].type)	// check node type
 		{
@@ -168,100 +154,86 @@ int ACEND_FindClosestReachableNode(gentity_t * self, float range, int type)
 	return node;
 }
 
-///////////////////////////////////////////////////////////////////////
-// BOT NAVIGATION ROUTINES
-///////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////
-// Set up the goal
-///////////////////////////////////////////////////////////////////////
-void ACEND_SetGoal(gentity_t * self, int goal_node)
+
+void ACEND_SetGoal(gentity_t * self, int goalNode)
 {
 	int             node;
 
-	self->bs.goal_node = goal_node;
+	self->bs.goalNode = goalNode;
+	
 	node = ACEND_FindClosestReachableNode(self, NODE_DENSITY * 3, NODE_ALL);
 
-	if(node == -1)
+	if(node == INVALID)
 		return;
 
-	if(debug_mode)
-		debug_printf("%s new start node selected %d\n", self->client->pers.netname, node);
+	if(ace_debug.integer)
+		trap_SendServerCommand(-1, va("print \"%s: new start node selected %d\n\"", self->client->pers.netname, node));
 
-
-	self->bs.current_node = node;
-	self->bs.next_node = self->bs.current_node;	// make sure we get to the nearest node first
+	self->bs.currentNode = node;
+	self->bs.nextNode = self->bs.currentNode;	// make sure we get to the nearest node first
 	self->bs.node_timeout = 0;
-
 }
 
-///////////////////////////////////////////////////////////////////////
 // Move closer to goal by pointing the bot to the next node
 // that is closer to the goal
-///////////////////////////////////////////////////////////////////////
 qboolean ACEND_FollowPath(gentity_t * self)
 {
 	vec3_t          v;
+	
+	if(ace_debug.integer && ace_showPath.integer)
+	{
+		// draw path to LR goal
+		ACEND_DrawPath(self->bs.currentNode, self->bs.goalNode);
+	}
 
-#if 0
-	// Show the path (uncomment for debugging)
-	show_path_from = self->bs.current_node;
-	show_path_to = self->bs.goal_node;
-	ACEND_DrawPath();
-#endif
-
-	// Try again?
+	// try again?
 	if(self->bs.node_timeout++ > 30)
 	{
 		if(self->bs.tries++ > 3)
 			return qfalse;
 		else
-			ACEND_SetGoal(self, self->bs.goal_node);
+			ACEND_SetGoal(self, self->bs.goalNode);
 	}
 
-	// Are we there yet?
-	VectorSubtract(self->client->ps.origin, nodes[self->bs.next_node].origin, v);
+	// are we there yet?
+	VectorSubtract(self->client->ps.origin, nodes[self->bs.nextNode].origin, v);
 
 	if(VectorLength(v) < 32)
 	{
 		// reset timeout
 		self->bs.node_timeout = 0;
 
-		if(self->bs.next_node == self->bs.goal_node)
+		if(self->bs.nextNode == self->bs.goalNode)
 		{
-			if(debug_mode)
-				debug_printf("%s reached goal!\n", self->client->pers.netname);
+			if(ace_debug.integer)
+				trap_SendServerCommand(-1, va("print \"%s: reached goal!\n\"", self->client->pers.netname));
 
-			ACEAI_PickLongRangeGoal(self);	// Pick a new goal
+			ACEAI_PickLongRangeGoal(self);	// pick a new goal
 		}
 		else
 		{
-			self->bs.current_node = self->bs.next_node;
-			self->bs.next_node = path_table[self->bs.current_node][self->bs.goal_node];
+			self->bs.currentNode = self->bs.nextNode;
+			self->bs.nextNode = path_table[self->bs.currentNode][self->bs.goalNode];
 		}
 	}
 
-	if(self->bs.current_node == -1 || self->bs.next_node == -1)
+	if(self->bs.currentNode == INVALID || self->bs.nextNode == INVALID)
 		return qfalse;
 
-	// Set bot's movement vector
-	VectorSubtract(nodes[self->bs.next_node].origin, self->client->ps.origin, self->bs.move_vector);
+	// set bot's movement vector
+	VectorSubtract(nodes[self->bs.nextNode].origin, self->client->ps.origin, self->bs.moveVector);
 
 	return qtrue;
 }
 
 
-///////////////////////////////////////////////////////////////////////
-// MAPPING CODE
-///////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////
 // Capture when the grappling hook has been fired for mapping purposes.
-///////////////////////////////////////////////////////////////////////
 /*
 void ACEND_GrapFired(gentity_t * self)
 {
-	int             closest_node;
+	int             closestNode;
 	gentity_t      *owner;
 
 	if(self->r.ownerNum == ENTITYNUM_NONE)
@@ -275,266 +247,232 @@ void ACEND_GrapFired(gentity_t * self)
 	if(self->owner->client->ctf_grapplestate == CTF_GRAPPLE_STATE_PULL)
 	{
 		// Look for the closest node of type grapple
-		closest_node = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_GRAPPLE);
-		if(closest_node == -1)	// we need to drop a node
+		closestNode = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_GRAPPLE);
+		if(closestNode == -1)	// we need to drop a node
 		{
-			closest_node = ACEND_AddNode(self, NODE_GRAPPLE);
+			closestNode = ACEND_AddNode(self, NODE_GRAPPLE);
 
 			// Add an edge
-			ACEND_UpdateNodeEdge(self->owner->last_node, closest_node);
+			ACEND_UpdateNodeEdge(self->owner->lastNode, closestNode);
 
-			self->owner->last_node = closest_node;
+			self->owner->lastNode = closestNode;
 		}
 		else
-			self->owner->last_node = closest_node;	// zero out so other nodes will not be linked
+			self->owner->lastNode = closestNode;	// zero out so other nodes will not be linked
 	}
 }
 */
 
 
-///////////////////////////////////////////////////////////////////////
-// Check for adding ladder nodes
-///////////////////////////////////////////////////////////////////////
-/*
-qboolean ACEND_CheckForLadder(gentity_t * self)
-{
-	int             closest_node;
-
-	// If there is a ladder and we are moving up, see if we should add a ladder node
-	if(gi.pointcontents(self->s.origin) & CONTENTS_LADDER && self->velocity[2] > 0)
-	{
-		//debug_printf("contents: %x\n",tr.contents);
-
-		closest_node = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_LADDER);
-		if(closest_node == -1)
-		{
-			closest_node = ACEND_AddNode(self, NODE_LADDER);
-
-			// Now add link
-			ACEND_UpdateNodeEdge(self->last_node, closest_node);
-
-			// Set current to last
-			self->last_node = closest_node;
-		}
-		else
-		{
-			ACEND_UpdateNodeEdge(self->last_node, closest_node);
-			self->last_node = closest_node;	// set visited to last
-		}
-		return qtrue;
-	}
-	return qfalse;
-}
-*/
 
 // This routine is called to hook in the pathing code and sets
 // the current node if valid.
 void ACEND_PathMap(gentity_t * self)
 {
-	int             closest_node;
-	static float    last_update = 0;	// start off low
+	int             closestNode;
+	static float    lastUpdate = 0;	// start off low
 	vec3_t          v;
 
-	if(level.time < last_update)
+	if(level.time < lastUpdate)
 		return;
 
-	last_update = level.time + 150;	// slow down updates a bit
+	lastUpdate = level.time + 150;	// slow down updates a bit
+	
+	// don't add links when you went into a trap
+	if(self->health <= 0)
+		return;
 
-#if 1
-	// special node drawing code for debugging
-	if(show_path_to != -1)
+	// not on ground, and not in the water, so bail
+	if(self->s.groundEntityNum == ENTITYNUM_NONE)
 	{
-		ACEND_DrawPath();
+		/*
+		if(self->bs.lastNode != INVALID)
+		{
+			// we might have been pushed by a jump pad
+			if(nodes[self->bs.lastNode].type != NODE_JUMPPAD)
+				return;
+		}
+		else if(!self->waterlevel)
+		{
+			return;
+		}
+		*/
 	}
-#endif
-
-	////////////////////////////////////////////////////////
-	// Special check for ladder nodes
-	///////////////////////////////////////////////////////
-	//if(ACEND_CheckForLadder(self))	// check for ladder nodes
-	//	return;
-
-	// Not on ground, and not in the water, so bail
-	if(self->s.groundEntityNum == ENTITYNUM_NONE && !self->waterlevel)
-		return;
 
 	
-	// Lava/Slime
+	// lava / slime
 	VectorCopy(self->client->ps.origin, v);
 	v[2] -= 18;
 	
 	if(trap_PointContents(self->client->ps.origin, -1) & (CONTENTS_LAVA | CONTENTS_SLIME))
 		return;					// no nodes in slime
 
-	// Jumping
-	if(self->bs.is_jumping)
+	// jumping
+	if(self->bs.isJumping)
 	{
-		// See if there is a closeby jump landing node (prevent adding too many)
-		closest_node = ACEND_FindClosestReachableNode(self, 64, NODE_JUMP);
+		// see if there is a closeby jump landing node (prevent adding too many)
+		closestNode = ACEND_FindClosestReachableNode(self, 64, NODE_JUMP);
 
-		if(closest_node == INVALID)
-			closest_node = ACEND_AddNode(self, NODE_JUMP);
+		if(closestNode == INVALID)
+			closestNode = ACEND_AddNode(self, NODE_JUMP);
 
 		// Now add link
-		if(self->bs.last_node != -1)
-			ACEND_UpdateNodeEdge(self->bs.last_node, closest_node);
+		if(self->bs.lastNode != -1)
+			ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
 
-		self->bs.is_jumping = qfalse;
+		self->bs.isJumping = qfalse;
 		return;
 	}
 
-	////////////////////////////////////////////////////////////
+	
 	// Grapple
 	// Do not add nodes during grapple, added elsewhere manually
-	////////////////////////////////////////////////////////////
+	
 	/*
 	if(ctf->value && self->client->ctf_grapplestate == CTF_GRAPPLE_STATE_PULL)
 		return;
 	*/
 
 	// Iterate through all nodes to make sure far enough apart
-	closest_node = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
+	closestNode = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
 
-	////////////////////////////////////////////////////////
+	
 	// Special Check for Platforms
-	////////////////////////////////////////////////////////
 	/* FIXME
 	if(self->groundentity && self->groundentity->use == Use_Plat)
 	{
-		if(closest_node == INVALID)
+		if(closestNode == INVALID)
 			return;				// Do not want to do anything here.
 
 		// Here we want to add links
-		if(closest_node != self->last_node && self->last_node != INVALID)
-			ACEND_UpdateNodeEdge(self->last_node, closest_node);
+		if(closestNode != self->lastNode && self->lastNode != INVALID)
+			ACEND_UpdateNodeEdge(self->lastNode, closestNode);
 
-		self->last_node = closest_node;	// set visited to last
+		self->lastNode = closestNode;	// set visited to last
 		return;
 	}
 	*/
 
 	// add nodes as needed
-	if(closest_node == INVALID)
+	if(closestNode == INVALID && self->s.groundEntityNum != ENTITYNUM_NONE)
 	{
 		// add nodes in the water as needed
 		if(self->waterlevel)
-			closest_node = ACEND_AddNode(self, NODE_WATER);
+			closestNode = ACEND_AddNode(self, NODE_WATER);
 		else
-			closest_node = ACEND_AddNode(self, NODE_MOVE);
+			closestNode = ACEND_AddNode(self, NODE_MOVE);
 
 		// now add link
-		if(self->bs.last_node != -1)
-			ACEND_UpdateNodeEdge(self->bs.last_node, closest_node);
+		if(self->bs.lastNode != INVALID)
+		{
+			ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
+			
+			if(ace_debug.integer && ace_showLinks.integer)
+				ACEND_DrawPath(self->bs.lastNode, closestNode);
+		}
 
 	}
-	else if(closest_node != self->bs.last_node && self->bs.last_node != INVALID)
+	else if(closestNode != self->bs.lastNode && self->bs.lastNode != INVALID)
 	{
-		ACEND_UpdateNodeEdge(self->bs.last_node, closest_node);
+		ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
+		
+		if(ace_debug.integer && ace_showLinks.integer)
+				ACEND_DrawPath(self->bs.lastNode, closestNode);
 	}
 
-	self->bs.last_node = closest_node;	// set visited to last
+	self->bs.lastNode = closestNode;	// set visited to last
 
 }
 
-///////////////////////////////////////////////////////////////////////
-// Init node array (set all to INVALID)
-///////////////////////////////////////////////////////////////////////
+
 void ACEND_InitNodes(void)
 {
-	numnodes = 1;
+	// init node array (set all to INVALID)
+	
+	numNodes = 0;
 	memset(nodes, 0, sizeof(node_t) * MAX_NODES);
 	memset(path_table, INVALID, sizeof(short int) * MAX_NODES * MAX_NODES);
 
 }
 
-///////////////////////////////////////////////////////////////////////
-// Show the node for debugging (utility function)
-///////////////////////////////////////////////////////////////////////
+// show the node for debugging (utility function)
 void ACEND_ShowNode(int node)
 {
-#if 0
-	gentity_t        *ent;
-
-	return;						// commented out for now. uncommend to show nodes during debugging,
-	// but too many will cause overflows. You have been warned.
-
+	gentity_t      *ent;
+	
+	if(!ace_showNodes.integer)
+		return;
+		
 	ent = G_Spawn();
 
-	ent->movetype = MOVETYPE_NONE;
-	ent->solid = SOLID_NOT;
-
-	if(nodes[node].type == NODE_MOVE)
-		ent->s.renderfx = RF_SHELL_BLUE;
-	else if(nodes[node].type == NODE_WATER)
-		ent->s.renderfx = RF_SHELL_RED;
-	else
-		ent->s.renderfx = RF_SHELL_GREEN;	// action nodes
-
-	ent->s.modelindex = gi.modelindex("models/items/ammo/grenades/medium/tris.md2");
-	ent->owner = ent;
-	ent->nextthink = level.time + 200000.0;
-	ent->think = G_FreeEdict;
-	ent->dmg = 0;
-
+	ent->s.eType = ET_AI_NODE;
+	ent->r.svFlags |= SVF_BROADCAST;
+	
+	ent->classname = "ACEND_node";
+		
 	VectorCopy(nodes[node].origin, ent->s.origin);
-	gi.linkentity(ent);
-#endif
+	VectorCopy(nodes[node].origin, ent->s.pos.trBase);
+		
+	// otherEntityNum is transmitted with GENTITYNUM_BITS so enough for 1000 nodes
+	ent->s.otherEntityNum = node;
+	
+	//ent->nextthink = level.time + 200000;
+	//ent->think = G_FreeEntity;
+		
+	trap_LinkEntity(ent);
 }
 
-///////////////////////////////////////////////////////////////////////
-// Draws the current path (utility function)
-///////////////////////////////////////////////////////////////////////
-void ACEND_DrawPath()
+// draws the current path (utility function)
+void ACEND_DrawPath(int currentNode, int goalNode)
 {
-#if 1
-	int             current_node, goal_node, next_node;
+	int             nextNode;
+	
+	if(currentNode == INVALID || goalNode == INVALID)
+		return;
 
-	current_node = show_path_from;
-	goal_node = show_path_to;
-
-	next_node = path_table[current_node][goal_node];
+	nextNode = path_table[currentNode][goalNode];
 
 	// Now set up and display the path
-	while(current_node != goal_node && current_node != -1)
+	while(currentNode != goalNode && currentNode != -1)
 	{
 		gentity_t      *ent;
 		
 		ent = G_Spawn();
 
-		ent->s.eType = ET_BEAM;
+		ent->s.eType = ET_AI_LINK;
+		ent->r.svFlags |= SVF_BROADCAST;
 		
-		VectorCopy(nodes[current_node].origin, ent->s.origin);
-		VectorCopy(nodes[current_node].origin, ent->s.pos.trBase);
-		VectorCopy(nodes[next_node].origin, ent->s.origin2);
+		ent->classname = "ACEND_link";
+		
+		VectorCopy(nodes[currentNode].origin, ent->s.origin);
+		VectorCopy(nodes[currentNode].origin, ent->s.pos.trBase);
+		VectorCopy(nodes[nextNode].origin, ent->s.origin2);
 	
-		ent->nextthink = level.time + 10000;
+		ent->nextthink = level.time + FRAMETIME;
 		ent->think = G_FreeEntity;
 		
 		trap_LinkEntity(ent);
 		
 		
-		current_node = next_node;
-		next_node = path_table[current_node][goal_node];
+		currentNode = nextNode;
+		nextNode = path_table[currentNode][goalNode];
 	}
-#endif
 }
 
-///////////////////////////////////////////////////////////////////////
 // Turns on showing of the path, set goal to -1 to 
 // shut off. (utility function)
-///////////////////////////////////////////////////////////////////////
-void ACEND_ShowPath(gentity_t * self, int goal_node)
+void ACEND_ShowPath(gentity_t * self, int goalNode)
 {
-	show_path_from = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
-	if(show_path_from == -1)
+	int				currentNode;
+	
+	currentNode = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
+	if(currentNode == INVALID)
 	{
 		trap_SendServerCommand(self - g_entities, "print \"no closest reachable node!\n\"");
 		return;	
 	}
 	
-	show_path_to = goal_node;
-	
-	ACEND_DrawPath();
+	ACEND_DrawPath(currentNode, goalNode);
 }
 
 
@@ -544,7 +482,7 @@ int ACEND_AddNode(gentity_t * self, int type)
 	const char     *entityName;
 
 	// block if we exceed maximum
-	if(numnodes + 1 > MAX_NODES)
+	if(numNodes >= MAX_NODES)
 	{
 		return qfalse;
 	}
@@ -560,41 +498,35 @@ int ACEND_AddNode(gentity_t * self, int type)
 
 	// set location
 	if(self->client)
-		VectorCopy(self->client->ps.origin, nodes[numnodes].origin);
+		VectorCopy(self->client->ps.origin, nodes[numNodes].origin);
 	else
-		VectorCopy(self->s.origin, nodes[numnodes].origin);
+		VectorCopy(self->s.origin, nodes[numNodes].origin);
 
 	// set type
-	nodes[numnodes].type = type;
+	nodes[numNodes].type = type;
 
 	// move the z location up just a bit for items
 	if(type == NODE_ITEM)
 	{
-		nodes[numnodes].origin[2] += 16;
+		nodes[numNodes].origin[2] += 16;
 	}
-
 	// teleporters
-	if(type == NODE_TELEPORTER)
+	else if(type == NODE_TARGET_TELEPORT)
 	{
-		// Up 32
-		nodes[numnodes].origin[2] += 32;
+		nodes[numNodes].origin[2] += 32;
+	}
+	else if(type == NODE_TRIGGER_TELEPORT)
+	{
+		VectorAdd(self->r.absmin, self->r.absmax, nodes[numNodes].origin);
+		VectorScale(nodes[numNodes].origin, 0.5, nodes[numNodes].origin);
+	}
+	else if(type == NODE_JUMPPAD)
+	{
+		VectorAdd(self->r.absmin, self->r.absmax, nodes[numNodes].origin);
+		VectorScale(nodes[numNodes].origin, 0.5, nodes[numNodes].origin);
 	}
 
-	if(type == NODE_LADDER)
-	{
-		nodes[numnodes].type = NODE_LADDER;
-
-		if(debug_mode)
-		{
-			debug_printf("Node %d added for entity %s type: Ladder\n", numnodes, entityName);
-			ACEND_ShowNode(numnodes);
-		}
-
-		numnodes++;
-		return numnodes - 1;	// return the node added
-
-	}
-
+	/*
 	// for platforms drop two nodes one at top, one at bottom
 	if(type == NODE_PLATFORM)
 	{
@@ -602,62 +534,78 @@ int ACEND_AddNode(gentity_t * self, int type)
 		VectorCopy(self->r.mins, v2);
 
 		// to get the center
-		nodes[numnodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
-		nodes[numnodes].origin[1] = (v1[1] - v2[1]) / 2 + v2[1];
-		nodes[numnodes].origin[2] = self->r.maxs[2];
+		nodes[numNodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
+		nodes[numNodes].origin[1] = (v1[1] - v2[1]) / 2 + v2[1];
+		nodes[numNodes].origin[2] = self->r.maxs[2];
 
-		if(debug_mode)
-			ACEND_ShowNode(numnodes);
+		if(ace_debug.integer)
+			ACEND_ShowNode(numNodes);
 
-		numnodes++;
+		numNodes++;
 
-		nodes[numnodes].origin[0] = nodes[numnodes - 1].origin[0];
-		nodes[numnodes].origin[1] = nodes[numnodes - 1].origin[1];
-		nodes[numnodes].origin[2] = self->r.mins[2] + 64;
+		nodes[numNodes].origin[0] = nodes[numNodes - 1].origin[0];
+		nodes[numNodes].origin[1] = nodes[numNodes - 1].origin[1];
+		nodes[numNodes].origin[2] = self->r.mins[2] + 64;
 
-		nodes[numnodes].type = NODE_PLATFORM;
+		nodes[numNodes].type = NODE_PLATFORM;
 
 		// add a link
-		ACEND_UpdateNodeEdge(numnodes, numnodes - 1);
+		ACEND_UpdateNodeEdge(numNodes, numNodes - 1);
 
-		if(debug_mode)
+		if(ace_debug.integer)
 		{
-			debug_printf("Node %d added for entity %s type: Platform\n", numnodes, entityName);
-			ACEND_ShowNode(numnodes);
+			debug_printf("Node %d added for entity %s type: Platform\n", numNodes, entityName);
+			ACEND_ShowNode(numNodes);
 		}
 
-		numnodes++;
+		numNodes++;
 
-		return numnodes - 1;
+		return numNodes - 1;
 	}
+	*/
+	
+	SnapVector(nodes[numNodes].origin);
 
-	if(debug_mode)
+	if(ace_debug.integer)
 	{
-		if(nodes[numnodes].type == NODE_MOVE)
-			debug_printf("Node %d added for entity %s type: Move\n", numnodes, entityName);
-		else if(nodes[numnodes].type == NODE_TELEPORTER)
-			debug_printf("Node %d added for entity %s type: Teleporter\n", numnodes, entityName);
-		else if(nodes[numnodes].type == NODE_ITEM)
-			debug_printf("Node %d added for entity %s type: Item\n", numnodes, entityName);
-		else if(nodes[numnodes].type == NODE_WATER)
-			debug_printf("Node %d added for entity %s type: Water\n", numnodes, entityName);
-		else if(nodes[numnodes].type == NODE_GRAPPLE)
-			debug_printf("Node %d added for entity %s type: Grapple\n", numnodes, entityName);
+		if(nodes[numNodes].type == NODE_MOVE)
+		{
+			G_Printf("node %d added for entity %s type: Move\n", numNodes, entityName);
+		}
+		else if(nodes[numNodes].type == NODE_TRIGGER_TELEPORT)
+		{
+			G_Printf("node %d added for entity %s type: Teleporter\n", numNodes, entityName);
+		}
+		else if(nodes[numNodes].type == NODE_TARGET_TELEPORT)
+		{
+			G_Printf("node %d added for entity %s type: Teleporter dest\n", numNodes, entityName);
+		}
+		else if(nodes[numNodes].type == NODE_ITEM)
+		{
+			G_Printf("node %d added for entity %s type: Item\n", numNodes, entityName);
+		}
+		else if(nodes[numNodes].type == NODE_WATER)
+		{
+			G_Printf("node %d added for entity %s type: Water\n", numNodes, entityName);
+		}
+		else if(nodes[numNodes].type == NODE_GRAPPLE)
+		{
+			G_Printf("node %d added for entity %s type: Grapple\n", numNodes, entityName);
+		}
 
-		ACEND_ShowNode(numnodes);
+		ACEND_ShowNode(numNodes);
 	}
 	
 	// add a link
-	//ACEND_UpdateNodeEdge(numnodes, numnodes - 1);
+	//ACEND_UpdateNodeEdge(numNodes, numNodes - 1);
 
-	numnodes++;
+	numNodes++;
 
-	return numnodes - 1;		// return the node added
+	return numNodes - 1;		// return the node added
 }
 
-///////////////////////////////////////////////////////////////////////
-// Add/Update node connections (paths)
-///////////////////////////////////////////////////////////////////////
+
+// add / update node connections (paths)
 void ACEND_UpdateNodeEdge(int from, int to)
 {
 	int             i;
@@ -669,7 +617,7 @@ void ACEND_UpdateNodeEdge(int from, int to)
 	path_table[from][to] = to;
 
 	// Now for the self-referencing part, linear time for each link added
-	for(i = 0; i < numnodes; i++)
+	for(i = 0; i < numNodes; i++)
 	{
 		if(path_table[i][from] != INVALID)
 		{
@@ -680,34 +628,30 @@ void ACEND_UpdateNodeEdge(int from, int to)
 		}
 	}
 
-	if(debug_mode)
-		debug_printf("Link %d -> %d\n", from, to);
+	if(ace_debug.integer)
+		trap_SendServerCommand(-1, va("print \"Link %d -> %d\n\"", from, to));
 }
 
-///////////////////////////////////////////////////////////////////////
-// Remove a node edge
-///////////////////////////////////////////////////////////////////////
+// remove a node edge
 void ACEND_RemoveNodeEdge(gentity_t * self, int from, int to)
 {
 	int             i;
 
-	if(debug_mode)
-		debug_printf("%s: Removing Edge %d -> %d\n", self->client->pers.netname, from, to);
+	if(ace_debug.integer)
+		trap_SendServerCommand(-1, va("print \"%s: removing link %d -> %d\n\"", self->client->pers.netname, from, to));
 
 	path_table[from][to] = INVALID;	// set to invalid           
 
 	// Make sure this gets updated in our path array
-	for(i = 0; i < numnodes; i++)
+	for(i = 0; i < numNodes; i++)
 	{
 		if(path_table[from][i] == to)
 			path_table[from][i] = INVALID;
 	}
 }
 
-///////////////////////////////////////////////////////////////////////
 // This function will resolve all paths that are incomplete
 // usually called before saving to disk
-///////////////////////////////////////////////////////////////////////
 void ACEND_ResolveAllPaths()
 {
 	int             i, from, to;
@@ -715,9 +659,9 @@ void ACEND_ResolveAllPaths()
 
 	G_Printf("Resolving all paths...");
 
-	for(from = 0; from < numnodes; from++)
+	for(from = 0; from < numNodes; from++)
 	{
-		for(to = 0; to < numnodes; to++)
+		for(to = 0; to < numNodes; to++)
 		{
 			// update unresolved paths
 			// Not equal to itself, not equal to -1 and equal to the last link
@@ -726,7 +670,7 @@ void ACEND_ResolveAllPaths()
 				num++;
 
 				// Now for the self-referencing part linear time for each link added
-				for(i = 0; i < numnodes; i++)
+				for(i = 0; i < numNodes; i++)
 				{
 					if(path_table[i][from] != -1)
 					{
@@ -762,29 +706,31 @@ void ACEND_SaveNodes()
 	// Resolve paths
 	ACEND_ResolveAllPaths();
 
-	G_Printf("Saving node table...");
-
 	trap_Cvar_VariableStringBuffer("mapname", mapname, sizeof(mapname));
 	Com_sprintf(filename, sizeof(filename), "nav/%s.nod", mapname);
 	
 	trap_FS_FOpenFile(filename, &file, FS_WRITE);
 	if(!file)
 	{
-		G_Printf("WARNING: Couldn't open node table: %s\n", filename);
+		G_Printf("WARNING: Couldn't write node table: %s\n", filename);
 		return;
 	}
+	else
+		G_Printf("ACE: Saving node table '%s'...", filename);
 	
 	trap_FS_Write(&version, sizeof(int), file);
-	trap_FS_Write(&numnodes, sizeof(int), file);
-	trap_FS_Write(nodes, sizeof(node_t) * numnodes, file);
+	trap_FS_Write(&numNodes, sizeof(int), file);
+	trap_FS_Write(nodes, sizeof(node_t) * numNodes, file);
 	
-	for(i = 0; i < numnodes; i++)
-		for(j = 0; j < numnodes; j++)
+	for(i = 0; i < numNodes; i++)
+		for(j = 0; j < numNodes; j++)
 			trap_FS_Write(&path_table[i][j], sizeof(short int), file);	// write count
 			
 	trap_FS_FCloseFile(file);
 
 	G_Printf("done.\n");
+	
+	G_Printf("%i nodes saved\n", numNodes);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -805,7 +751,7 @@ void ACEND_LoadNodes(void)
 	if(!file)
 	{
 		// Create item table
-		G_Printf("ACE: No node file found, creating new one...\n");
+		G_Printf("ACE: No node file '%s' found, creating new one...\n", filename);
 		ACEIT_BuildItemNodeTable(qfalse);
 		G_Printf("done.\n");
 		return;
@@ -816,27 +762,34 @@ void ACEND_LoadNodes(void)
 
 	if(version == 1)
 	{
-		G_Printf("ACE: Loading node table...\n");
+		G_Printf("ACE: Loading node table '%s'...\n", filename);
 
-		trap_FS_Read(&numnodes, sizeof(int), file); // read count
-		trap_FS_Read(&nodes, sizeof(node_t) * numnodes, file);
+		trap_FS_Read(&numNodes, sizeof(int), file); // read count
+		trap_FS_Read(&nodes, sizeof(node_t) * numNodes, file);
 
-		for(i = 0; i < numnodes; i++)
-			for(j = 0; j < numnodes; j++)
+		for(i = 0; i < numNodes; i++)
+			for(j = 0; j < numNodes; j++)
 				trap_FS_Read(&path_table[i][j], sizeof(short int), file);	// write count
-
-		trap_FS_FCloseFile(file);
+				
+		if(ace_debug.integer && ace_showNodes.integer)
+		{
+			for(i = 0; i < numNodes; i++)
+				ACEND_ShowNode(i);
+		}
 	}
 	else
 	{
 		// Create item table
-		G_Printf("ACE: No node file found, creating new one...\n");
+		G_Printf("ACE: '%s' has wrong version %i, creating new one...\n", filename, version);
 		ACEIT_BuildItemNodeTable(qfalse);
 		G_Printf("done.\n");
 		return;					// bail
 	}
+	
+	trap_FS_FCloseFile(file);
 
 	G_Printf("done.\n");
+	G_Printf("%i nodes loaded\n", numNodes);
 
 	ACEIT_BuildItemNodeTable(qtrue);
 }
