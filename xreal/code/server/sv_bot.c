@@ -704,3 +704,13 @@ int SV_BotGetSnapshotEntity(int client, int sequence)
 	}
 	return svs.snapshotEntities[(frame->first_entity + sequence) % svs.numSnapshotEntities].number;
 }
+
+/*
+==================
+SV_BotClientCommand
+==================
+*/
+void SV_BotClientCommand(int client, char *command)
+{
+	SV_ExecuteClientCommand(&svs.clients[client], command, qtrue);
+}

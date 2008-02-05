@@ -228,10 +228,10 @@ static cvarTable_t gameCvarTable[] = {
 //unlagged - server options
 
 #if defined(ACEBOT)
-	{&ace_debug, "ace_debug", "1", 0, 0, qfalse},
+	{&ace_debug, "ace_debug", "0", 0, 0, qfalse},
 	{&ace_showNodes, "ace_showNodes", "0", 0, 0, qfalse},
 	{&ace_showLinks, "ace_showLinks", "0", 0, 0, qfalse},
-	{&ace_showPath, "ace_showPath", "1", 0, 0, qfalse},
+	{&ace_showPath, "ace_showPath", "0", 0, 0, qfalse},
 	{&ace_pickLongRangeGoal, "ace_pickLongRangeGoal", "1", 0, 0, qfalse},
 	{&ace_pickShortRangeGoal, "ace_pickShortRangeGoal", "1", 0, 0, qfalse},
 	{&ace_attackEnemies, "ace_attackEnemies", "1", 0, 0, qfalse},
@@ -292,6 +292,9 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 		case BOTAI_START_FRAME:
 #if defined(BRAINWORKS)
 			return BotAIStartFrame(arg0);
+#elif defined(ACEBOT)
+			ACEAI_StartFrame(arg0);
+			return 0;
 #else
 			return 0;
 #endif
@@ -2066,6 +2069,8 @@ void G_RunFrame(int levelTime)
 	gentity_t      *ent;
 	int             msec;
 	int             start, end;
+	
+	//G_Printf("G_RunFrame()\n");
 
 	// if we are waiting for the level to restart, do nothing
 	if(level.restarted)

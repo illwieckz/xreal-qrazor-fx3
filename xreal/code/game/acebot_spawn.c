@@ -100,206 +100,7 @@ void ACESP_LoadBots()
 }
 */
 
-///////////////////////////////////////////////////////////////////////
-// Called by PutClient in Server to actually release the bot into the game
-// Keep from killin' each other when all spawned at once
-///////////////////////////////////////////////////////////////////////
-void ACESP_HoldSpawn(gentity_t * self)
-{
-#if 0
-	if(!KillBox(self))
-	{							// could't spawn in?
-	}
 
-	gi.linkentity(self);
-
-	self->think = ACEAI_Think;
-	self->nextthink = level.time + FRAMETIME;
-
-	// send effect
-	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(MZ_LOGIN);
-	gi.multicast(self->client->ps.origin, MULTICAST_PVS);
-
-	if(ctf->value)
-		safe_bprintf(PRINT_MEDIUM, "%s joined the %s team.\n",
-					 self->client->pers.netname, CTFTeamName(self->client->resp.ctf_team));
-	else
-		safe_bprintf(PRINT_MEDIUM, "%s entered the game\n", self->client->pers.netname);
-
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////
-// Modified version of id's code
-///////////////////////////////////////////////////////////////////////
-void ACESP_PutClientInServer(gentity_t * bot, qboolean respawn, int team)
-{
-#if 0
-	vec3_t          mins = { -16, -16, -24 };
-	vec3_t          maxs = { 16, 16, 32 };
-	int             index;
-	vec3_t          spawn_origin, spawn_angles;
-	gclient_t      *client;
-	int             i;
-	client_persistant_t saved;
-	client_respawn_t resp;
-	char           *s;
-
-	// find a spawn point
-	// do it before setting health back up, so farthest
-	// ranging doesn't count this client
-	SelectSpawnPoint(bot, spawn_origin, spawn_angles);
-
-	index = bot - g_edicts - 1;
-	client = bot->client;
-
-	// deathmatch wipes most client data every spawn
-	if(deathmatch->value)
-	{
-		char            userinfo[MAX_INFO_STRING];
-
-		resp = bot->client->resp;
-		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
-		InitClientPersistant(client);
-		ClientUserinfoChanged(bot, userinfo);
-	}
-	else
-		memset(&resp, 0, sizeof(resp));
-
-	// clear everything but the persistant data
-	saved = client->pers;
-	memset(client, 0, sizeof(*client));
-	client->pers = saved;
-	client->resp = resp;
-
-	// copy some data from the client to the entity
-	FetchClientEntData(bot);
-
-	// clear entity values
-	bot->groundentity = NULL;
-	bot->client = &game.clients[index];
-	bot->takedamage = DAMAGE_AIM;
-	bot->movetype = MOVETYPE_WALK;
-	bot->viewheight = 24;
-	bot->classname = "bot";
-	bot->mass = 200;
-	bot->solid = SOLID_BBOX;
-	bot->deadflag = DEAD_NO;
-	bot->air_finished = level.time + 12;
-	bot->clipmask = MASK_PLAYERSOLID;
-	bot->model = "players/male/tris.md2";
-	bot->pain = player_pain;
-	bot->die = player_die;
-	bot->waterlevel = 0;
-	bot->watertype = 0;
-	bot->flags &= ~FL_NO_KNOCKBACK;
-	bot->svflags &= ~SVF_DEADMONSTER;
-	bot->is_jumping = false;
-
-	if(ctf->value)
-	{
-		client->resp.ctf_team = team;
-		client->resp.ctf_state = CTF_STATE_START;
-		s = Info_ValueForKey(client->pers.userinfo, "skin");
-		CTFAssignSkin(bot, s);
-	}
-
-	VectorCopy(mins, bot->mins);
-	VectorCopy(maxs, bot->maxs);
-	VectorClear(bot->velocity);
-
-	// clear playerstate values
-	memset(&bot->client->ps, 0, sizeof(client->ps));
-
-	client->ps.pmove.origin[0] = spawn_origin[0] * 8;
-	client->ps.pmove.origin[1] = spawn_origin[1] * 8;
-	client->ps.pmove.origin[2] = spawn_origin[2] * 8;
-
-//ZOID
-	client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-//ZOID
-
-	if(deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
-	{
-		client->ps.fov = 90;
-	}
-	else
-	{
-		client->ps.fov = atoi(Info_ValueForKey(client->pers.userinfo, "fov"));
-		if(client->ps.fov < 1)
-			client->ps.fov = 90;
-		else if(client->ps.fov > 160)
-			client->ps.fov = 160;
-	}
-
-	client->ps.gunindex = gi.modelindex(client->pers.weapon->view_model);
-
-	// clear entity state values
-	bot->s.effects = 0;
-	bot->s.skinnum = bot - g_edicts - 1;
-	bot->s.modelindex = 255;	// will use the skin specified model
-	bot->s.modelindex2 = 255;	// custom gun model
-	bot->s.frame = 0;
-	VectorCopy(spawn_origin, bot->s.origin);
-	bot->s.origin[2] += 1;		// make sure off ground
-
-	// set the delta angle
-	for(i = 0; i < 3; i++)
-		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(spawn_angles[i] - client->resp.cmd_angles[i]);
-
-	bot->s.angles[PITCH] = 0;
-	bot->s.angles[YAW] = spawn_angles[YAW];
-	bot->s.angles[ROLL] = 0;
-	VectorCopy(bot->s.angles, client->ps.viewangles);
-	VectorCopy(bot->s.angles, client->v_angle);
-
-	// force the current weapon up
-	client->newweapon = client->pers.weapon;
-	ChangeWeapon(bot);
-
-	bot->enemy = NULL;
-	bot->moveTarget = NULL;
-	bot->state = STATE_MOVE;
-
-	// Set the current node
-	bot->currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->goalNode = bot->currentNode;
-	bot->nextNode = bot->currentNode;
-	bot->next_move_time = level.time;
-	bot->suicide_timeout = level.time + 15.0;
-
-	// If we are not respawning hold off for up to three seconds before releasing into game
-	if(!respawn)
-	{
-		bot->think = ACESP_HoldSpawn;
-		bot->nextthink = level.time + 0.1;
-		bot->nextthink = level.time + random() * 3.0;	// up to three seconds
-	}
-	else
-	{
-		if(!KillBox(bot))
-		{						// could't spawn in?
-		}
-
-		gi.linkentity(bot);
-
-		bot->think = ACEAI_Think;
-		bot->nextthink = level.time + FRAMETIME;
-
-		// send effect
-		gi.WriteByte(svc_muzzleflash);
-		gi.WriteShort(bot - g_edicts);
-		gi.WriteByte(MZ_LOGIN);
-		gi.multicast(bot->s.origin, MULTICAST_PVS);
-	}
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////
-// Respawn the bot
-///////////////////////////////////////////////////////////////////////
 void ACESP_Respawn(gentity_t * self)
 {
 #if 0
@@ -321,9 +122,6 @@ void ACESP_Respawn(gentity_t * self)
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////
-// Find a free client spot
-///////////////////////////////////////////////////////////////////////
 gentity_t        *ACESP_FindFreeClient(void)
 {
 #if 0
@@ -443,55 +241,9 @@ void ACESP_SetName(gentity_t * bot, char *name, char *skin, char *team)
 }
 */
 
-///////////////////////////////////////////////////////////////////////
-// Spawn the bot
-///////////////////////////////////////////////////////////////////////
+
 void ACESP_SpawnBot(char *name, char *team)
 {
-#if 0
-	gentity_t        *bot;
-
-	bot = ACESP_FindFreeClient();
-
-	if(!bot)
-	{
-		safe_bprintf(PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
-		return;
-	}
-
-	bot->yaw_speed = 100;		// yaw speed
-	bot->inuse = true;
-	bot->is_bot = true;
-
-	// To allow bots to respawn
-	if(userinfo == NULL)
-		ACESP_SetName(bot, name, skin, team);
-	else
-		ClientConnect(bot, userinfo);
-
-	G_InitEdict(bot);
-
-	InitClientResp(bot->client);
-
-	// locate ent at a spawn point
-	if(ctf->value)
-	{
-		if(team != NULL && strcmp(team, "red") == 0)
-			ACESP_PutClientInServer(bot, false, CTF_TEAM1);
-		else
-			ACESP_PutClientInServer(bot, false, CTF_TEAM2);
-	}
-	else
-		ACESP_PutClientInServer(bot, false, 0);
-
-	// make sure all view stuff is valid
-	ClientEndServerFrame(bot);
-
-	ACEIT_PlayerAdded(bot);		// let the world know we added another
-
-	ACEAI_PickLongRangeGoal(bot);	// pick a new goal
-#endif
-
 	int             clientNum;
 //	char           *botinfo;
 //	gentity_t      *bot;
@@ -520,28 +272,19 @@ void ACESP_SpawnBot(char *name, char *team)
 	// create the bot's userinfo
 	userinfo[0] = '\0';
 
-	Info_SetValueForKey(userinfo, "name", va("ACEBot_clientNum_%d", clientNum));
 	Info_SetValueForKey(userinfo, "rate", "25000");
 	Info_SetValueForKey(userinfo, "snaps", "20");
-	//Info_SetValueForKey(userinfo, "skill", va("%1.2f", skill));
-
-#if defined(GLADIATOR)
-	// outcommented for brainworks
-	if(skill >= 1 && skill < 2)
-	{
-		Info_SetValueForKey(userinfo, "handicap", "50");
-	}
-	else if(skill >= 2 && skill < 3)
-	{
-		Info_SetValueForKey(userinfo, "handicap", "70");
-	}
-	else if(skill >= 3 && skill < 4)
-	{
-		Info_SetValueForKey(userinfo, "handicap", "90");
-	}
-#endif
-
+	Info_SetValueForKey(userinfo, "skill", va("%1.2f", 3.0));
+	
 	// TODO LUA bot characterristics
+
+	key = "name";
+	//model = Info_ValueForKey(botinfo, key);
+	if(!name || !*name)
+	{
+		name = va("ACEBot%d", clientNum);
+	}
+	Info_SetValueForKey(userinfo, key, name);
 
 	key = "model";
 	//model = Info_ValueForKey(botinfo, key);
@@ -584,7 +327,7 @@ void ACESP_SpawnBot(char *name, char *team)
 	Info_SetValueForKey(userinfo, key, s);
 
 	// initialize the bot settings
-	if(!team || !team[0])
+	if(!team || !*team)
 	{
 		if(g_gametype.integer >= GT_TEAM)
 		{
@@ -611,16 +354,15 @@ void ACESP_SpawnBot(char *name, char *team)
 
 	// have it connect to the game as a normal client
 	if(ClientConnect(clientNum, qtrue, qtrue) != NULL)
-	{		
+	{
 		return;
 	}
 
 	ClientBegin(clientNum);
 }
 
-///////////////////////////////////////////////////////////////////////
+
 // Remove a bot by name or all bots
-///////////////////////////////////////////////////////////////////////
 void ACESP_RemoveBot(char *name)
 {
 #if 0
@@ -657,7 +399,6 @@ void ACESP_RemoveBot(char *name)
 qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 {
 #if 1
-	gentity_t      *bot;
 	char            userinfo[MAX_INFO_STRING];
 
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
@@ -695,21 +436,33 @@ qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 }
 
 
-void  ACESP_SetupBotState(gentity_t * bot)
+void  ACESP_SetupBotState(gentity_t * self)
 {
-	bot->enemy = NULL;
+	int             clientNum;
+	char            userinfo[MAX_INFO_STRING];
 	
-	bot->bs.yawSpeed = 100;		// FIXME 100 is deadly fast
-	bot->bs.moveTarget = NULL;
-	bot->bs.state = STATE_MOVE;
+	clientNum = self->client - level.clients;
+	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
+	
+	self->enemy = NULL;
+	
+	self->bs.yawSpeed = 100;		// FIXME 100 is deadly fast
+	self->bs.moveTarget = NULL;
+	self->bs.state = STATE_MOVE;
 
 	// set the current node
-	bot->bs.currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->bs.goalNode = bot->bs.currentNode;
-	bot->bs.nextNode = bot->bs.currentNode;
-	bot->bs.lastNode = INVALID;
-	bot->bs.next_move_time = level.time;
-	bot->bs.suicide_timeout = level.time + 15000;
+	self->bs.currentNode = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
+	self->bs.goalNode = self->bs.currentNode;
+	self->bs.nextNode = self->bs.currentNode;
+	self->bs.lastNode = INVALID;
+	self->bs.next_move_time = level.time;
+	self->bs.suicide_timeout = level.time + 15000;
+	
+	if(g_gametype.integer != GT_TOURNAMENT)
+	{
+		// need to send this or bots will be spectators
+		trap_BotClientCommand(self - g_entities, va("team %s", Info_ValueForKey(userinfo, "team")));
+	}
 }
 
 

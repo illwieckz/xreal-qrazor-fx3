@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_public.h -- game module information visible to server
 
-#define	GAME_API_VERSION	8
+#define	GAME_API_VERSION	9
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
@@ -244,6 +244,7 @@ typedef enum
 	BOTLIB_GET_SNAPSHOT_ENTITY,	// ( int client, int ent );
 	BOTLIB_GET_CONSOLE_MESSAGE,	// ( int client, char *message, int size );
 	BOTLIB_USER_COMMAND,		// ( int client, usercmd_t *ucmd );
+	BOTLIB_CLIENT_COMMAND,		// ( int client, char *command );
 
 	BOTLIB_AAS_ENABLE_ROUTING_AREA = 300,
 	BOTLIB_AAS_BBOX_AREAS,

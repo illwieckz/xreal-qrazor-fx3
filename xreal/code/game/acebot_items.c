@@ -139,9 +139,11 @@ qboolean ACEIT_CanUseArmor(gitem_t * item, gentity_t * other)
 }
 
 
-float ACEIT_ItemNeed(gentity_t * self, gitem_t * item)
+float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 {
 	// Tr3B: logic based on BG_CanItemBeGrabbed
+	
+	gitem_t			*item = itemEnt->item;
 	
 	switch (item->giType)
 	{
@@ -227,6 +229,63 @@ float ACEIT_ItemNeed(gentity_t * self, gitem_t * item)
 			return 0.8;
 		}
 		
+		case IT_TEAM:
+		{
+			// team items, such as flags
+#ifdef MISSIONPACK
+			if(gametype == GT_1FCTF)
+			{
+				// neutral flag can always be picked up
+				if(itemEnt->item->giTag == PW_NEUTRALFLAG)
+				{
+					return qtrue;
+				}
+				if(self->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+				{
+					if(item->giTag == PW_BLUEFLAG && client->self->ps.powerups[PW_NEUTRALFLAG])
+					{
+						return qtrue;
+					}
+				}
+				else if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
+				{
+					if(item->giTag == PW_REDFLAG && ps->powerups[PW_NEUTRALFLAG])
+					{
+						return qtrue;
+					}
+				}
+			}
+#endif
+			if(g_gametype.integer == GT_CTF)
+			{
+				// ent->modelindex2 is non-zero on items if they are dropped
+				// we need to know this because we can pick up our dropped flag (and return it)
+				// but we can't pick up our flag at base
+				if(self->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+				{
+					if(item->giTag == PW_BLUEFLAG ||
+					   (item->giTag == PW_REDFLAG && itemEnt->s.modelindex2) ||
+					   (item->giTag == PW_REDFLAG && self->client->ps.powerups[PW_BLUEFLAG]))
+						return 10.0;
+				}
+				else if(self->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+				{
+					if(item->giTag == PW_REDFLAG ||
+					   (item->giTag == PW_BLUEFLAG && itemEnt->s.modelindex2) ||
+					   (item->giTag == PW_BLUEFLAG && self->client->ps.powerups[PW_REDFLAG]))
+						return 10.0;
+				}
+			}
+
+#ifdef MISSIONPACK
+			if(g_gametype.integer == GT_HARVESTER)
+			{
+				return qtrue;
+			}
+#endif
+			return 0.0;
+		}
+		
 		
 		default:
 			return 0.0;
@@ -234,19 +293,15 @@ float ACEIT_ItemNeed(gentity_t * self, gitem_t * item)
 }
 
 
-///////////////////////////////////////////////////////////////////////
 // Only called once per level, when saved will not be called again
 //
 // Downside of the routine is that items can not move about. If the level
 // has been saved before and reloaded, it could cause a problem if there
 // are items that spawn at random locations.
-//
-//#define DEBUG // uncomment to write out items to a file.
-///////////////////////////////////////////////////////////////////////
 void ACEIT_BuildItemNodeTable(qboolean rebuild)
 {
 	int             i;
-	gentity_t        *ent;
+	gentity_t      *ent;
 	vec3_t          v, v1, v2;
 	int				nodeType;
 
@@ -256,8 +311,6 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 		{
 			continue;
 		}
-
-		
 
 		/*
 		// special node dropping for platforms
@@ -280,16 +333,23 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 		
 		if(ent->item)
 		{
+			// FIXME: ignore dropped items for now, because they would create too many nodes
+			// it would be necessary to remove nodes if we want to support them
+			if(ent->flags & FL_DROPPED_ITEM)
+				continue;
+			
 			nodeType = NODE_ITEM;
 		}
 		else if(!Q_stricmp(ent->classname, "trigger_teleport"))
 		{
 			nodeType = NODE_TRIGGER_TELEPORT;
 		}
+		/*
 		else if(!Q_stricmp(ent->classname, "misc_teleporter_dest"))
 		{
 			nodeType = NODE_TARGET_TELEPORT;
 		}
+		*/
 		else if(!Q_stricmp(ent->classname, "trigger_push"))
 		{
 			nodeType = NODE_JUMPPAD;
@@ -314,27 +374,33 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 				if(	nodes[i].type == NODE_ITEM ||
 					nodes[i].type == NODE_PLATFORM ||
 					nodes[i].type == NODE_TRIGGER_TELEPORT || 
-					nodes[i].type == NODE_TARGET_TELEPORT)	// valid types
+					nodes[i].type == NODE_JUMPPAD)	// valid types
 				{
 					VectorCopy(ent->s.origin, v);
 					
 					if(nodes[i].type == NODE_ITEM)
 					{
-						v[2] += 16;
+						//v[2] += 16;
 					}
 					else if(nodes[i].type == NODE_TRIGGER_TELEPORT)
 					{
 						VectorAdd(ent->r.absmin, ent->r.absmax, v);
 						VectorScale(v, 0.5, v);
 					}
+					/*
 					else if(nodes[i].type == NODE_TARGET_TELEPORT)
 					{
 						v[2] += 32;
 					}
+					*/
 					else if(nodes[i].type == NODE_JUMPPAD)
 					{
 						VectorAdd(ent->r.absmin, ent->r.absmax, v);
 						VectorScale(v, 0.5, v);
+						
+						// add jumppad target offset
+						VectorNormalize2(ent->s.origin2, v2);
+						VectorMA(v, 32, v2, v);
 					}
 					else if(nodes[i].type == NODE_PLATFORM)
 					{
@@ -349,12 +415,18 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 					
 					SnapVector(v);
 					
-					if(VectorCompare(v, nodes[i].origin))
+					if(ent->node != INVALID || VectorCompare(v, nodes[i].origin))
 					{
 						// found a match now link to facts
 						ent->node = i;
+						
+						if(!VectorCompare(v, nodes[i].origin))
+						{
+							// update node origin
+							VectorCopy(v, nodes[i].origin);	
+						}
 
-#ifdef DEBUG
+#if 0 //defined(_DEBUG)
 						if(ent->item)
 						{
 							G_Printf("relink item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
@@ -365,13 +437,20 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 							G_Printf("relink entity: %s node: %d pos: %f %f %f\n", ent->classname, ent->node,
 									ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
 						}
-#endif
+#endif				
+						break;
 					}
 				}
 			}
+			
+			if(i == numNodes)
+			{
+				// add a new node at the item's location.
+				ent->node = ACEND_AddNode(ent, nodeType);
+			}
 		}
 		
-#ifdef _DEBUG
+#if 0 //defined(_DEBUG)
 		//if(item_index == INVALID)
 		//	fprintf(pOut, "Rejected item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
 		//			ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);

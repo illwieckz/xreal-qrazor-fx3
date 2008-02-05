@@ -844,12 +844,12 @@ static void CG_AI_Node(centity_t * cent)
 	int             i, node, digits[10], numdigits, negative;
 	int             numberSize = 8;
 	
-	
 	entityState_t  *s1;
-
 	s1 = &cent->currentState;
 
 	memset(&ent, 0, sizeof(ent));
+	
+#if 0
 
 	// set frame
 	VectorCopy(cent->lerpOrigin, ent.origin);
@@ -860,14 +860,13 @@ static void CG_AI_Node(centity_t * cent)
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
-	
-	
-#if 0
+
+#else
 	// draw node number as sprite
 	// code based on CG_AddScorePlum
 	
 	ent.reType = RT_SPRITE;
-	ent.radius = 4;
+	ent.radius = 5;
 	
 	ent.shaderRGBA[0] = 0xff;
 	ent.shaderRGBA[1] = 0xff;
@@ -875,7 +874,7 @@ static void CG_AI_Node(centity_t * cent)
 	ent.shaderRGBA[3] = 0xff;
 
 	VectorCopy(cent->lerpOrigin, origin);
-	origin[2] += 20;
+	origin[2] += 5;
 
 	VectorSubtract(cg.refdef.vieworg, origin, dir);
 	CrossProduct(dir, up, vec);

@@ -1062,6 +1062,7 @@ void            trap_BotFreeClient(int clientNum); // NO BOTLIB
 int             trap_BotGetSnapshotEntity(int clientNum, int sequence); // NO BOTLIB
 int             trap_BotGetServerCommand(int clientNum, char *message, int size); // NO BOTLIB
 void            trap_BotUserCommand(int client, usercmd_t * ucmd); // NO BOTLIB
+void            trap_BotClientCommand(int clientNum, char *command); // NO BOTLIB
 void            trap_GetUsercmd(int clientNum, usercmd_t * cmd);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 

@@ -575,9 +575,9 @@ qboolean ConsoleCommand(void)
 		char            string[MAX_TOKEN_CHARS];
 		char            team[MAX_TOKEN_CHARS];
 
-		if(trap_Argc() < 4)
+		if(trap_Argc() < 3)
 		{
-			//G_Printf("Usage: addbot <name> <skin> <team>\n");
+			//G_Printf("Usage: addbot <name> <team>\n");
 			
 			ACESP_SpawnBot(NULL, NULL);
 		}
@@ -590,7 +590,7 @@ qboolean ConsoleCommand(void)
 			//	ACESP_SpawnBot(arg1, gi.argv(3), gi.argv(4), NULL);
 			//else					// name, skin
 		
-			ACESP_SpawnBot(arg1, NULL);
+			ACESP_SpawnBot(arg1, arg2);
 		}
 
 		// if this was issued during gameplay and we are playing locally,

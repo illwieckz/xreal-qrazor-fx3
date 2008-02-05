@@ -229,7 +229,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION 71
+#define	PROTOCOL_VERSION 72
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols

@@ -342,13 +342,15 @@ void ACEMV_MoveToGoal(gentity_t * self)
 {
 	// If a rocket or grenade is around deal with it
 	// Simple, but effective (could be rewritten to be more accurate)
-	if(strcmp(self->bs.moveTarget->classname, "rocket") == 0 || strcmp(self->bs.moveTarget->classname, "grenade") == 0)
+	if((strcmp(self->bs.moveTarget->classname, "rocket") == 0 || strcmp(self->bs.moveTarget->classname, "grenade") == 0))
 	{
 		VectorSubtract(self->bs.moveTarget->s.origin, self->client->ps.origin, self->bs.moveVector);
 		ACEMV_ChangeBotAngle(self);
 		
 		if(ace_debug.integer)
-			trap_SendServerCommand(-1, va("print \"%s: Oh crap a rocket!\n\"", self->client->pers.netname));
+			trap_SendServerCommand(-1, va("chat \"%s: Oh crap a rocket!\n\"", self->client->pers.netname));
+			
+			//trap_SendServerCommand(-1, va("%s \"%s%c%c%s\"", mode == SAY_TEAM ? "tchat" : "chat", name, Q_COLOR_ESCAPE, color, message));
 
 		// strafe left/right
 		if(rand() % 1 && ACEMV_CanMove(self, MOVE_LEFT))
@@ -376,8 +378,8 @@ void ACEMV_MoveToGoal(gentity_t * self)
 void ACEMV_Move(gentity_t * self)
 {
 	vec3_t          dist;
-	int             current_node_type = -1;
-	int             next_node_type = -1;
+	int             currentNodeType = -1;
+	int             nextNodeType = -1;
 	int             i;
 
 	// get current and next node back from nav code.
@@ -391,8 +393,8 @@ void ACEMV_Move(gentity_t * self)
 		return;
 	}
 
-	current_node_type = nodes[self->bs.currentNode].type;
-	next_node_type = nodes[self->bs.nextNode].type;
+	currentNodeType = nodes[self->bs.currentNode].type;
+	nextNodeType = nodes[self->bs.nextNode].type;
 
 	// move to a selected goal, if any
 	if(self->bs.moveTarget)
@@ -403,7 +405,7 @@ void ACEMV_Move(gentity_t * self)
 	
 	// grapple
 	/*
-	if(next_node_type == NODE_GRAPPLE)
+	if(nextNodeType == NODE_GRAPPLE)
 	{
 		ACEMV_ChangeBotAngle(self);
 		ACEIT_ChangeWeapon(self, FindItem("grapple"));
@@ -411,7 +413,7 @@ void ACEMV_Move(gentity_t * self)
 		return;
 	}
 	// Reset the grapple if hangin on a graple node
-	if(current_node_type == NODE_GRAPPLE)
+	if(currentNodeType == NODE_GRAPPLE)
 	{
 		CTFPlayerResetGrapple(self);
 		return;
@@ -420,7 +422,7 @@ void ACEMV_Move(gentity_t * self)
 
 #if 0
 	// check for platforms
-	if(current_node_type != NODE_PLATFORM && next_node_type == NODE_PLATFORM)
+	if(currentNodeType != NODE_PLATFORM && nextNodeType == NODE_PLATFORM)
 	{
 		// check to see if lift is down?
 		for(i = 0; i < num_items; i++)
@@ -430,7 +432,7 @@ void ACEMV_Move(gentity_t * self)
 	}
 #endif
 	
-	if(current_node_type == NODE_PLATFORM && next_node_type == NODE_PLATFORM)
+	if(currentNodeType == NODE_PLATFORM && nextNodeType == NODE_PLATFORM)
 	{
 		// move to the center
 		self->bs.moveVector[2] = 0;	// kill z movement    
@@ -444,8 +446,8 @@ void ACEMV_Move(gentity_t * self)
 	}
 
 	// jumpto nodes
-	if(next_node_type == NODE_JUMP ||
-	   (current_node_type == NODE_JUMP && next_node_type != NODE_ITEM && nodes[self->bs.nextNode].origin[2] > self->client->ps.origin[2]))
+	if(nextNodeType == NODE_JUMP ||
+	   (currentNodeType == NODE_JUMP && nextNodeType != NODE_ITEM && nodes[self->bs.nextNode].origin[2] > self->client->ps.origin[2]))
 	{
 		// set up a jump move
 		self->client->pers.cmd.forwardmove = 127;
@@ -453,8 +455,8 @@ void ACEMV_Move(gentity_t * self)
 
 		ACEMV_ChangeBotAngle(self);
 
-		VectorCopy(self->bs.moveVector, dist);
-		VectorScale(dist, 127, self->client->ps.velocity);
+		//VectorCopy(self->bs.moveVector, dist);
+		//VectorScale(dist, 127, self->client->ps.velocity);
 
 		return;
 	}
@@ -462,7 +464,7 @@ void ACEMV_Move(gentity_t * self)
 	
 	// ladder nodes
 	/*
-	if(next_node_type == NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
+	if(nextNodeType == NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
 	{
 		// Otherwise move as fast as we can
 		self->client->pers.cmd.forwardmove = 400;
@@ -474,7 +476,7 @@ void ACEMV_Move(gentity_t * self)
 
 	}
 	// If getting off the ladder
-	if(current_node_type == NODE_LADDER && next_node_type != NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
+	if(currentNodeType == NODE_LADDER && nextNodeType != NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
 	{
 		self->client->pers.cmd.forwardmove = 400;
 		self->client->pers.cmd.upmove = 200;
@@ -486,13 +488,13 @@ void ACEMV_Move(gentity_t * self)
 
 	
 	// water nodes
-	if(current_node_type == NODE_WATER)
+	if(currentNodeType == NODE_WATER)
 	{
 		// we need to be pointed up/down
 		ACEMV_ChangeBotAngle(self);
 
 		// ff the next node is not in the water, then move up to get out.
-		if(next_node_type != NODE_WATER && !(trap_PointContents(nodes[self->bs.nextNode].origin, self->s.number) & MASK_WATER))
+		if(nextNodeType != NODE_WATER && !(trap_PointContents(nodes[self->bs.nextNode].origin, self->s.number) & MASK_WATER))
 		{	
 			// exit water
 			self->client->pers.cmd.upmove = 127;
@@ -687,9 +689,9 @@ void ACEMV_Attack(gentity_t * self)
 		VectorCopy(self->enemy->s.origin, target);
 
 	// modify attack angles based on accuracy (mess this up to make the bot's aim not so deadly)
-	target[0] += crandom() * 30;
-	target[1] += crandom() * 30;
-	target[2] += crandom() * 30;
+	target[0] += crandom() * 50;
+	target[1] += crandom() * 50;
+	target[2] += crandom() * 50;
 
 	// set direction
 	VectorSubtract(target, self->client->ps.origin, self->bs.moveVector);

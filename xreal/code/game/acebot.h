@@ -49,7 +49,7 @@ enum
 {	NODE_MOVE,
 	NODE_PLATFORM,
 	NODE_TRIGGER_TELEPORT,
-	NODE_TARGET_TELEPORT,
+//	NODE_TARGET_TELEPORT,
 	NODE_ITEM,
 	NODE_WATER,
 	NODE_GRAPPLE,
@@ -101,6 +101,7 @@ void            CopyToBodyQue(gentity_t * ent);
 char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot);
 
 // acebot_ai.c protos
+void            ACEAI_StartFrame(int time);
 void            ACEAI_Think(gentity_t * self);
 void            ACEAI_CheckServerCommands(gentity_t * self);
 void            ACEAI_PickLongRangeGoal(gentity_t * self);
@@ -119,7 +120,7 @@ qboolean        ACEIT_IsVisible(gentity_t * self, vec3_t goal);
 qboolean        ACEIT_IsReachable(gentity_t * self, vec3_t goal);
 qboolean        ACEIT_ChangeWeapon(gentity_t * ent, weapon_t weapon);
 qboolean        ACEIT_CanUseArmor(gitem_t * item, gentity_t * other);
-float           ACEIT_ItemNeed(gentity_t * self, gitem_t * item);
+float           ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt);
 //int             ACEIT_ClassnameToIndex(char *classname);
 void            ACEIT_BuildItemNodeTable(qboolean rebuild);
 
@@ -143,6 +144,7 @@ void            ACEND_ShowNode(int node);
 void            ACEND_DrawPath(int currentNode, int goalNode);
 void            ACEND_ShowPath(gentity_t * self, int goalNode);
 int             ACEND_AddNode(gentity_t * self, int type);
+const char*     ACEND_NodeTypeToString(int type);
 void            ACEND_UpdateNodeEdge(int from, int to);
 void            ACEND_RemoveNodeEdge(gentity_t * self, int from, int to);
 void            ACEND_ResolveAllPaths();

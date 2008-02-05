@@ -263,6 +263,11 @@ void trap_BotUserCommand(int clientNum, usercmd_t * ucmd)
 	syscall(BOTLIB_USER_COMMAND, clientNum, ucmd);
 }
 
+void trap_BotClientCommand(int clientNum, char *command)
+{
+	return syscall(BOTLIB_CLIENT_COMMAND, clientNum, command);
+}
+
 void trap_GetUsercmd(int clientNum, usercmd_t * cmd)
 {
 	syscall(G_GET_USERCMD, clientNum, cmd);

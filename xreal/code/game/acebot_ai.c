@@ -33,6 +33,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 /*
+ACEAI_StartFrame
+Simililar to int BotAIStartFrame(int time)
+will be called each bot frame after running G_RunFrame
+so entities like items can settle down in the level before we think
+about pathing the level
+*/
+
+void ACEAI_StartFrame(int time)
+{
+	//G_Printf("ACEAI_StartFrame()\n");
+	
+	ACEIT_BuildItemNodeTable(qtrue);
+}
+
+/*
 =============
 ACEAI_Think
  
@@ -45,6 +60,13 @@ void ACEAI_Think(gentity_t * self)
 	
 	//if(ace_debug.integer)
 	//	G_Printf("ACEAI_Think(%s)\n", self->client->pers.netname);
+	
+	// spectators should idle
+	if(self->client->sess.sessionTeam == TEAM_SPECTATOR)
+	{
+		G_Printf("%s: TEAM_SPECTATOR\n", self->client->pers.netname);
+		return;
+	}
 
 	// set up client movement
 	VectorCopy(self->client->ps.viewangles, self->bs.viewAngles);
@@ -152,8 +174,10 @@ void ACEAI_CheckServerCommands(gentity_t * self)
 		//have buf point to the command and args to the command arguments
 		if(ace_debug.integer)
 		{
-			G_Printf("ACEAI_CheckServerCommands for %s: %s\n", self->client->pers.netname, buf);		
+			G_Printf("ACEAI_CheckServerCommands for %s: '%s'\n", self->client->pers.netname, buf);		
 		}
+		
+		// TODO check for orders by team mates
 #endif
 	}
 }
@@ -235,7 +259,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 
 	self->bs.currentNode = currentNode;
 
-	if((ace_debug.integer && !ace_pickLongRangeGoal.integer) || currentNode == INVALID)
+	if(!ace_pickLongRangeGoal.integer || currentNode == INVALID)
 	{
 		self->bs.state = STATE_WANDER;
 		self->bs.wander_timeout = level.time + 1000;
@@ -268,17 +292,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		if(cost == INVALID || cost < 2)	// ignore invalid and very short hops
 			continue;
 
-		weight = ACEIT_ItemNeed(self, ent->item);
-
-#if 0
-		// If I am on team one and I have the flag for the other team....return it
-		if(g_gametype.integer >= GT_CTF && (item_table[i].item == ITEMLIST_FLAG2 || item_table[i].item == ITEMLIST_FLAG1) &&
-		   (self->client->sess.sessionTeam == TEAM_RED && self->client->ps.powerups[PW_BLUEFLAG] ||
-		   (self->client->sess.sessionTeam == TEAM_BLUE && self->client->ps.powerups[PW_BLUEFLAG])))
-		  {
-			weight = 10.0;
-		  }
-#endif
+		weight = ACEIT_ItemNeed(self, ent);
 
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
@@ -299,14 +313,13 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		player = level.gentities + cl->ps.clientNum;
 		
 		if(player == self)
-		{
 			continue;
-		}
 		
 		if(cl->pers.connected != CON_CONNECTED)
-		{
 			continue;
-		}
+		
+		if(player->health <= 0)
+			continue;
 
 		node = ACEND_FindClosestReachableNode(player, NODE_DENSITY, NODE_ALL);
 		cost = ACEND_FindCost(currentNode, node);
@@ -315,11 +328,14 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 			continue;
 
 		// player carrying the flag?
-		if(g_gametype.integer >= GT_CTF &&
-		   (self->client->ps.powerups[PW_REDFLAG] || self->client->ps.powerups[PW_BLUEFLAG]))
-			weight = 2.0;
-		else
-			weight = 0.3;
+		if(g_gametype.integer == GT_CTF)
+		{
+			// kill him, return our flag
+			if(!OnSameTeam(self, player) && (player->client->ps.powerups[PW_REDFLAG] || player->client->ps.powerups[PW_BLUEFLAG]))
+				weight = 2.0;
+			else
+				weight = 0.3;
+		}
 
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
@@ -389,13 +405,13 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 			return;
 		}
 		
-		#if 0
+		#if 1
 		// so players can't sneak RIGHT up on a bot
 		if(!Q_stricmp(target->classname, "player"))
 		{
-			if(target->health && !!OnSameTeam(self, target))
+			if(target->health && !OnSameTeam(self, target))
 			{
-				self->bs.movetarget = target;
+				self->bs.moveTarget = target;
 				return;
 			}
 		}
@@ -415,7 +431,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 					if(target->r.svFlags & SVF_NOCLIENT)
 						goto nextTarget;
 					
-					weight = ACEIT_ItemNeed(self, target->item);
+					weight = ACEIT_ItemNeed(self, target);
 
 					if(weight > bestWeight)
 					{
@@ -459,22 +475,19 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 		player = level.gentities + cl->ps.clientNum;
 		
 		if(player == self)
-		{
 			continue;
-		}
 		
 		if(cl->pers.connected != CON_CONNECTED)
-		{
 			continue;
-		}
+			
+		if(player->health <= 0)
+			continue;
 		
-		if(g_gametype.integer >= GT_CTF &&  self->client->sess.sessionTeam == player->client->sess.sessionTeam)
-		{
-			// don't attack team mates
+		// don't attack team mates
+		if(OnSameTeam(self, player))
 			continue;
-		}
 
-		if(player->health && ACEAI_InFront(self, player) && ACEAI_Visible(self, player) && trap_InPVS(self->client->ps.origin, player->client->ps.origin))
+		if(ACEAI_InFront(self, player) && ACEAI_Visible(self, player) && trap_InPVS(self->client->ps.origin, player->client->ps.origin))
 		{
 			if(ace_debug.integer && self->enemy != player)
 				trap_SendServerCommand(-1, va("print \"%s: found enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
@@ -537,8 +550,9 @@ void ACEAI_ChooseWeapon(gentity_t * self)
 		if(ACEIT_ChangeWeapon(self, WP_GRENADE_LAUNCHER))
 			return;
 
-	if(ACEIT_ChangeWeapon(self, WP_LIGHTNING))
-		return;
+	if(range > 100 && range < LIGHTNING_RANGE)
+		if(ACEIT_ChangeWeapon(self, WP_LIGHTNING))
+			return;
 
 #ifdef MISSIONPACK
 	// only use CG when ammo > 50

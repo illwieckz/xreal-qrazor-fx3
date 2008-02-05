@@ -173,6 +173,12 @@ void ACEND_SetGoal(gentity_t * self, int goalNode)
 	self->bs.currentNode = node;
 	self->bs.nextNode = self->bs.currentNode;	// make sure we get to the nearest node first
 	self->bs.node_timeout = 0;
+	
+	if(ace_debug.integer && ace_showPath.integer)
+	{
+		// draw path to LR goal
+		ACEND_DrawPath(self->bs.currentNode, self->bs.goalNode);
+	}
 }
 
 // Move closer to goal by pointing the bot to the next node
@@ -180,12 +186,6 @@ void ACEND_SetGoal(gentity_t * self, int goalNode)
 qboolean ACEND_FollowPath(gentity_t * self)
 {
 	vec3_t          v;
-	
-	if(ace_debug.integer && ace_showPath.integer)
-	{
-		// draw path to LR goal
-		ACEND_DrawPath(self->bs.currentNode, self->bs.goalNode);
-	}
 
 	// try again?
 	if(self->bs.node_timeout++ > 30)
@@ -272,15 +272,53 @@ void ACEND_PathMap(gentity_t * self)
 	int             closestNode;
 	static float    lastUpdate = 0;	// start off low
 	vec3_t          v;
+	qboolean        isJumping;
+	int             i;
 
+#if 0
 	if(level.time < lastUpdate)
 		return;
+#endif
 
 	lastUpdate = level.time + 150;	// slow down updates a bit
 	
 	// don't add links when you went into a trap
 	if(self->health <= 0)
 		return;
+		
+	
+	if(self->s.groundEntityNum == ENTITYNUM_NONE && !(self->r.svFlags & SVF_BOT))
+	{		
+#if 0
+		isJumping = qfalse;
+		for(i = 0; i < self->client->ps.eventSequence; i++)
+		{
+			if(self->client->ps.events[i] == EV_JUMP)
+				isJumping = qtrue;
+		}
+	
+		if(isJumping)
+#else
+		if((self->client->ps.pm_flags & PMF_JUMP_HELD))
+#endif
+		{
+			if(ace_debug.integer)
+				trap_SendServerCommand(-1, va("print \"%s: jumping\n\"", self->client->pers.netname));
+		
+			// see if there is a closeby jump landing node (prevent adding too many)
+			closestNode = ACEND_FindClosestReachableNode(self, 64, NODE_JUMP);
+
+			if(closestNode == INVALID)
+				closestNode = ACEND_AddNode(self, NODE_JUMP);
+
+			// now add link
+			if(self->bs.lastNode != -1)
+				ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
+
+			self->bs.isJumping = qfalse;
+			return;
+		}
+	}
 
 	// not on ground, and not in the water, so bail
 	if(self->s.groundEntityNum == ENTITYNUM_NONE)
@@ -307,22 +345,7 @@ void ACEND_PathMap(gentity_t * self)
 	if(trap_PointContents(self->client->ps.origin, -1) & (CONTENTS_LAVA | CONTENTS_SLIME))
 		return;					// no nodes in slime
 
-	// jumping
-	if(self->bs.isJumping)
-	{
-		// see if there is a closeby jump landing node (prevent adding too many)
-		closestNode = ACEND_FindClosestReachableNode(self, 64, NODE_JUMP);
-
-		if(closestNode == INVALID)
-			closestNode = ACEND_AddNode(self, NODE_JUMP);
-
-		// Now add link
-		if(self->bs.lastNode != -1)
-			ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
-
-		self->bs.isJumping = qfalse;
-		return;
-	}
+	
 
 	
 	// Grapple
@@ -367,7 +390,7 @@ void ACEND_PathMap(gentity_t * self)
 		{
 			ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
 			
-			if(ace_debug.integer && ace_showLinks.integer)
+			if(ace_showLinks.integer)
 				ACEND_DrawPath(self->bs.lastNode, closestNode);
 		}
 
@@ -376,7 +399,7 @@ void ACEND_PathMap(gentity_t * self)
 	{
 		ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
 		
-		if(ace_debug.integer && ace_showLinks.integer)
+		if(ace_showLinks.integer)
 				ACEND_DrawPath(self->bs.lastNode, closestNode);
 	}
 
@@ -448,7 +471,7 @@ void ACEND_DrawPath(int currentNode, int goalNode)
 		VectorCopy(nodes[currentNode].origin, ent->s.pos.trBase);
 		VectorCopy(nodes[nextNode].origin, ent->s.origin2);
 	
-		ent->nextthink = level.time + FRAMETIME;
+		ent->nextthink = level.time + 3000;
 		ent->think = G_FreeEntity;
 		
 		trap_LinkEntity(ent);
@@ -508,22 +531,32 @@ int ACEND_AddNode(gentity_t * self, int type)
 	// move the z location up just a bit for items
 	if(type == NODE_ITEM)
 	{
-		nodes[numNodes].origin[2] += 16;
+		//nodes[numNodes].origin[2] += 16;
 	}
 	// teleporters
+	/*
 	else if(type == NODE_TARGET_TELEPORT)
 	{
 		nodes[numNodes].origin[2] += 32;
 	}
+	*/
 	else if(type == NODE_TRIGGER_TELEPORT)
 	{
-		VectorAdd(self->r.absmin, self->r.absmax, nodes[numNodes].origin);
-		VectorScale(nodes[numNodes].origin, 0.5, nodes[numNodes].origin);
+		VectorAdd(self->r.absmin, self->r.absmax, v1);
+		VectorScale(v1, 0.5, v1);
+		
+		VectorCopy(v1, nodes[numNodes].origin);
 	}
 	else if(type == NODE_JUMPPAD)
 	{
-		VectorAdd(self->r.absmin, self->r.absmax, nodes[numNodes].origin);
-		VectorScale(nodes[numNodes].origin, 0.5, nodes[numNodes].origin);
+		VectorAdd(self->r.absmin, self->r.absmax, v1);
+		VectorScale(v1, 0.5, v1);
+		
+		// add jumppad target offset
+		VectorNormalize2(self->s.origin2, v2);
+		VectorMA(v1, 32, v2, v1);
+		
+		VectorCopy(v1, nodes[numNodes].origin);
 	}
 
 	/*
@@ -568,30 +601,7 @@ int ACEND_AddNode(gentity_t * self, int type)
 
 	if(ace_debug.integer)
 	{
-		if(nodes[numNodes].type == NODE_MOVE)
-		{
-			G_Printf("node %d added for entity %s type: Move\n", numNodes, entityName);
-		}
-		else if(nodes[numNodes].type == NODE_TRIGGER_TELEPORT)
-		{
-			G_Printf("node %d added for entity %s type: Teleporter\n", numNodes, entityName);
-		}
-		else if(nodes[numNodes].type == NODE_TARGET_TELEPORT)
-		{
-			G_Printf("node %d added for entity %s type: Teleporter dest\n", numNodes, entityName);
-		}
-		else if(nodes[numNodes].type == NODE_ITEM)
-		{
-			G_Printf("node %d added for entity %s type: Item\n", numNodes, entityName);
-		}
-		else if(nodes[numNodes].type == NODE_WATER)
-		{
-			G_Printf("node %d added for entity %s type: Water\n", numNodes, entityName);
-		}
-		else if(nodes[numNodes].type == NODE_GRAPPLE)
-		{
-			G_Printf("node %d added for entity %s type: Grapple\n", numNodes, entityName);
-		}
+		G_Printf("node %d added for entity %s type: %s\n", numNodes, entityName, ACEND_NodeTypeToString(nodes[numNodes].type));
 
 		ACEND_ShowNode(numNodes);
 	}
@@ -602,6 +612,46 @@ int ACEND_AddNode(gentity_t * self, int type)
 	numNodes++;
 
 	return numNodes - 1;		// return the node added
+}
+
+const char* ACEND_NodeTypeToString(int type)
+{
+	if(type == NODE_MOVE)
+	{
+		return "move";
+	}
+	else if(type == NODE_PLATFORM)
+	{
+		return "platform";
+	}
+	else if(type == NODE_TRIGGER_TELEPORT)
+	{
+		return "trigger_teleport";
+	}
+	/*
+	else if(type == NODE_TARGET_TELEPORT)
+	{
+		return "target_teleport";
+	}
+	*/
+	else if(type == NODE_ITEM)
+	{
+		return "item";
+	}
+	else if(type == NODE_WATER)
+	{
+		return "water";
+	}
+	else if(type == NODE_JUMP)
+	{
+		return "jump";
+	}
+	else if(type == NODE_JUMPPAD)
+	{
+		return "jumppad";
+	}
+	
+	return "BAD";
 }
 
 
@@ -628,7 +678,7 @@ void ACEND_UpdateNodeEdge(int from, int to)
 		}
 	}
 
-	if(ace_debug.integer)
+	if(ace_showLinks.integer)
 		trap_SendServerCommand(-1, va("print \"Link %d -> %d\n\"", from, to));
 }
 
@@ -637,7 +687,7 @@ void ACEND_RemoveNodeEdge(gentity_t * self, int from, int to)
 {
 	int             i;
 
-	if(ace_debug.integer)
+	if(ace_showLinks.integer)
 		trap_SendServerCommand(-1, va("print \"%s: removing link %d -> %d\n\"", self->client->pers.netname, from, to));
 
 	path_table[from][to] = INVALID;	// set to invalid           
@@ -687,14 +737,12 @@ void ACEND_ResolveAllPaths()
 	G_Printf("done (%d updated)\n", num);
 }
 
-///////////////////////////////////////////////////////////////////////
 // Save to disk file
 //
 // Since my compression routines are one thing I did not want to
 // release, I took out the compressed format option. Most levels will
 // save out to a node file around 50-200k, so compression is not really
 // a big deal.
-///////////////////////////////////////////////////////////////////////
 void ACEND_SaveNodes()
 {
 	fileHandle_t    file;
@@ -703,7 +751,6 @@ void ACEND_SaveNodes()
 	int             version = 1;
 	char            mapname[MAX_QPATH];
 
-	// Resolve paths
 	ACEND_ResolveAllPaths();
 
 	trap_Cvar_VariableStringBuffer("mapname", mapname, sizeof(mapname));
@@ -733,9 +780,7 @@ void ACEND_SaveNodes()
 	G_Printf("%i nodes saved\n", numNodes);
 }
 
-///////////////////////////////////////////////////////////////////////
 // Read from disk file
-///////////////////////////////////////////////////////////////////////
 void ACEND_LoadNodes(void)
 {
 	fileHandle_t    file;
@@ -751,9 +796,9 @@ void ACEND_LoadNodes(void)
 	if(!file)
 	{
 		// Create item table
-		G_Printf("ACE: No node file '%s' found, creating new one...\n", filename);
-		ACEIT_BuildItemNodeTable(qfalse);
-		G_Printf("done.\n");
+		G_Printf("ACE: No node file '%s' found\n", filename);
+		//ACEIT_BuildItemNodeTable(qfalse);
+		//G_Printf("done.\n");
 		return;
 	}
 
@@ -771,7 +816,7 @@ void ACEND_LoadNodes(void)
 			for(j = 0; j < numNodes; j++)
 				trap_FS_Read(&path_table[i][j], sizeof(short int), file);	// write count
 				
-		if(ace_debug.integer && ace_showNodes.integer)
+		if(ace_showNodes.integer)
 		{
 			for(i = 0; i < numNodes; i++)
 				ACEND_ShowNode(i);
@@ -780,10 +825,9 @@ void ACEND_LoadNodes(void)
 	else
 	{
 		// Create item table
-		G_Printf("ACE: '%s' has wrong version %i, creating new one...\n", filename, version);
-		ACEIT_BuildItemNodeTable(qfalse);
-		G_Printf("done.\n");
-		return;					// bail
+		G_Printf("ACE: '%s' has wrong version %i\n", filename, version);
+		//ACEIT_BuildItemNodeTable(qfalse);
+		//G_Printf("done.\n");
 	}
 	
 	trap_FS_FCloseFile(file);

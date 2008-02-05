@@ -513,6 +513,9 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 		case BOTLIB_USER_COMMAND:
 			SV_ClientThink(&svs.clients[args[1]], VMA(2));
 			return 0;
+		case BOTLIB_CLIENT_COMMAND:
+			SV_BotClientCommand(args[1], VMA(2));
+			return 0;
 
 		case BOTLIB_AAS_BBOX_AREAS:
 			return botlib_export->aas.AAS_BBoxAreas(VMA(1), VMA(2), VMA(3), args[4]);
