@@ -74,6 +74,10 @@ code/cgame
 - finish the Lua powered Quake4 style special effects target_fx system
 - improve rocket explosion effect like in Entar's Vengeance
 
+code/game/acebot
+- add support for dropped items as long range goal
+- fix bot spinning around when ai nodes are too high
+
 code/game
 - change BFG to Quake2 BFG
 - add more extensive Lua scripting support
