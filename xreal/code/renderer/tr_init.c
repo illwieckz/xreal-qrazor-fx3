@@ -166,6 +166,7 @@ cvar_t         *r_simpleMipMaps;
 cvar_t         *r_showImages;
 
 cvar_t         *r_forceFog;
+cvar_t         *r_noFog;
 
 cvar_t         *r_forceAmbient;
 cvar_t         *r_ambientScale;
@@ -174,10 +175,8 @@ cvar_t         *r_debugLight;
 cvar_t         *r_debugSort;
 cvar_t         *r_printShaders;
 
-cvar_t         *r_maxpolys;
-int             max_polys;
-cvar_t         *r_maxpolyverts;
-int             max_polyverts;
+cvar_t         *r_maxPolys;
+cvar_t         *r_maxPolyVerts;
 
 cvar_t         *r_showTris;
 cvar_t         *r_showSky;
@@ -1408,6 +1407,7 @@ void R_Register(void)
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
+	r_noFog = ri.Cvar_Get("r_noFog", "0", CVAR_ARCHIVE);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
@@ -1548,8 +1548,11 @@ void R_Register(void)
 	r_noShadowFrustums = ri.Cvar_Get("r_noShadowFrustums", "0", CVAR_CHEAT);
 	r_noLightFrustums = ri.Cvar_Get("r_noLightFrustums", "0", CVAR_CHEAT);
 
-	r_maxpolys = ri.Cvar_Get("r_maxpolys", va("%d", MAX_POLYS), 0);
-	r_maxpolyverts = ri.Cvar_Get("r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
+	r_maxPolys = ri.Cvar_Get("r_maxpolys", "20000", 0);				// 600 in vanilla Q3A
+	AssertCvarRange(r_maxPolys, 600, 30000, qtrue);
+	
+	r_maxPolyVerts = ri.Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A
+	AssertCvarRange(r_maxPolyVerts, 3000, 200000, qtrue);
 
 	r_showTris = ri.Cvar_Get("r_showTris", "0", CVAR_CHEAT);
 	r_showSky = ri.Cvar_Get("r_showSky", "0", CVAR_CHEAT);
@@ -1641,24 +1644,16 @@ void R_Init(void)
 
 	R_Register();
 
-	max_polys = r_maxpolys->integer;
-	if(max_polys < MAX_POLYS)
-		max_polys = MAX_POLYS;
-
-	max_polyverts = r_maxpolyverts->integer;
-	if(max_polyverts < MAX_POLYVERTS)
-		max_polyverts = MAX_POLYVERTS;
-
-	ptr = ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
+	ptr = ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer + sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 	backEndData[0] = (backEndData_t *) ptr;
 	backEndData[0]->polys = (srfPoly_t *) ((char *)ptr + sizeof(*backEndData[0]));
-	backEndData[0]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys);
+	backEndData[0]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer);
 	if(r_smp->integer)
 	{
-		ptr = ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
+		ptr = ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer + sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 		backEndData[1] = (backEndData_t *) ptr;
 		backEndData[1]->polys = (srfPoly_t *) ((char *)ptr + sizeof(*backEndData[1]));
-		backEndData[1]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys);
+		backEndData[1]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer);
 	}
 	else
 	{

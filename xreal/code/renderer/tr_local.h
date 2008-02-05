@@ -1901,6 +1901,7 @@ extern cvar_t  *r_lodbias;		// push/pull LOD transitions
 extern cvar_t  *r_lodscale;
 
 extern cvar_t  *r_forceFog;
+extern cvar_t  *r_noFog;
 
 extern cvar_t  *r_forceAmbient;
 extern cvar_t  *r_ambientScale;
@@ -2023,6 +2024,9 @@ extern cvar_t  *r_showImages;
 extern cvar_t  *r_debugSort;
 
 extern cvar_t  *r_printShaders;
+
+extern cvar_t  *r_maxPolys;
+extern cvar_t  *r_maxPolyVerts;
 
 extern cvar_t  *r_showTris;		// enables wireframe rendering of the world
 extern cvar_t  *r_showSky;		// forces sky in front of all surfaces
@@ -2739,12 +2743,6 @@ typedef enum
 } renderCommand_t;
 
 
-// these are sort of arbitrary limits.
-// the limits apply to the sum of all scenes in a frame --
-// the main view, all the 3D icons, etc
-#define	MAX_POLYS		12000	// 600 in Q3A
-#define	MAX_POLYVERTS	60000	// 3000 in Q3A
-
 // all of the information needed by the back end must be
 // contained in a backEndData_t.  This entire structure is
 // duplicated so the front and back end can run in parallel
@@ -2754,8 +2752,8 @@ typedef struct
 	drawSurf_t      drawSurfs[MAX_DRAWSURFS];
 	interaction_t   interactions[MAX_INTERACTIONS];
 
-	trRefLight_t    lights[MAX_LIGHTS];
-	trRefEntity_t   entities[MAX_ENTITIES];
+	trRefLight_t    lights[MAX_REF_LIGHTS];
+	trRefEntity_t   entities[MAX_REF_ENTITIES];
 
 	srfPoly_t      *polys;		//[MAX_POLYS];
 	polyVert_t     *polyVerts;	//[MAX_POLYVERTS];

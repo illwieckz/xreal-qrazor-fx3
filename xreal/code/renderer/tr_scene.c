@@ -139,7 +139,7 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 
 	for(j = 0; j < numPolys; j++)
 	{
-		if(r_numPolyVerts + numVerts > max_polyverts || r_numPolys >= max_polys)
+		if(r_numPolyVerts + numVerts >= r_maxPolyVerts->integer || r_numPolys >= r_maxPolys->integer)
 		{
 			/*
 			   NOTE TTimo this was initially a PRINT_WARNING
@@ -181,8 +181,8 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 		return;
 	}
 
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=402
-	if(r_numEntities >= ENTITYNUM_WORLD)
+	// Tr3B: fixed was ENTITYNUM_WORLD
+	if(r_numEntities >= MAX_REF_ENTITIES)
 	{
 		return;
 	}
@@ -213,7 +213,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		return;
 	}
 
-	if(r_numLights >= MAX_LIGHTS)
+	if(r_numLights >= MAX_REF_LIGHTS)
 	{
 		return;
 	}
@@ -259,7 +259,7 @@ static void R_AddWorldLightsToScene()
 	{
 		light = tr.currentLight = &tr.world->lights[i];
 
-		if(r_numLights >= MAX_LIGHTS)
+		if(r_numLights >= MAX_REF_LIGHTS)
 		{
 			return;
 		}
@@ -296,7 +296,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 		return;
 	}
 
-	if(r_numLights >= MAX_LIGHTS)
+	if(r_numLights >= MAX_REF_LIGHTS)
 	{
 		return;
 	}

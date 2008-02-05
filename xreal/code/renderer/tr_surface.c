@@ -1980,6 +1980,7 @@ static void Tess_SurfaceAxis(void)
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
+	
 	qglLineWidth(3);
 	qglBegin(GL_LINES);
 	qglColor3f(1, 0, 0);
