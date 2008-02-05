@@ -45,7 +45,6 @@ game_src = [
 'code/game/ai_weapon.c',
 'code/game/acebot_ai.c',
 'code/game/acebot_cmds.c',
-'code/game/acebot_compress.c',
 'code/game/acebot_items.c',
 'code/game/acebot_movement.c',
 'code/game/acebot_nodes.c',

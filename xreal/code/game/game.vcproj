@@ -225,10 +225,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\acebot_compress.c"
-				>
-			</File>
-			<File
 				RelativePath=".\acebot_items.c"
 				>
 			</File>
