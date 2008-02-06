@@ -88,57 +88,6 @@ qboolean ACEIT_ChangeWeapon(gentity_t * self, weapon_t weapon)
 }
 
 
-// Check if we can use the armor
-qboolean ACEIT_CanUseArmor(gitem_t * item, gentity_t * other)
-{
-#if 0
-	int             old_armor_index;
-	gitem_armor_t  *oldinfo;
-	gitem_armor_t  *newinfo;
-	int             newcount;
-	float           salvage;
-	int             salvagecount;
-
-	// get info on new armor
-	newinfo = (gitem_armor_t *) item->info;
-
-	old_armor_index = ArmorIndex(other);
-
-	// handle armor shards specially
-	if(item->tag == ARMOR_SHARD)
-		return true;
-
-	// get info on old armor
-	if(old_armor_index == ITEM_INDEX(FindItem("Jacket Armor")))
-		oldinfo = &jacketarmor_info;
-	else if(old_armor_index == ITEM_INDEX(FindItem("Combat Armor")))
-		oldinfo = &combatarmor_info;
-	else						// (old_armor_index == body_armor_index)
-		oldinfo = &bodyarmor_info;
-
-	if(newinfo->normal_protection <= oldinfo->normal_protection)
-	{
-		// calc new armor values
-		salvage = newinfo->normal_protection / oldinfo->normal_protection;
-		salvagecount = salvage * newinfo->base_count;
-		newcount = other->client->pers.inventory[old_armor_index] + salvagecount;
-
-		if(newcount > oldinfo->max_count)
-			newcount = oldinfo->max_count;
-
-		// if we're already maxed out then we don't need the new armor
-		if(other->client->pers.inventory[old_armor_index] >= newcount)
-			return false;
-
-	}
-
-	return true;
-#else
-	return qfalse;
-#endif
-}
-
-
 float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 {
 	// Tr3B: logic based on BG_CanItemBeGrabbed

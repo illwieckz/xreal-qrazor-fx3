@@ -47,6 +47,34 @@ void ACEAI_StartFrame(int time)
 	ACEIT_BuildItemNodeTable(qtrue);
 }
 
+void ACEAI_CheckServerCommands(gentity_t * self)
+{
+	char            buf[1024];
+
+	while(trap_BotGetServerCommand(self->client - level.clients, buf, sizeof(buf)))
+	{
+#if 0
+		//have buf point to the command and args to the command arguments
+		if(ace_debug.integer)
+		{
+			G_Printf("ACEAI_CheckServerCommands for %s: '%s'\n", self->client->pers.netname, buf);		
+		}
+		
+		// TODO check for orders by team mates
+#endif
+	}
+}
+
+void ACEAI_CheckSnapshotEntities(gentity_t * self)
+{
+	int             sequence, entnum;
+
+	// parse through the bot's list of snapshot entities and scan each of them
+	sequence = 0;
+	while((entnum = trap_BotGetSnapshotEntity(self - g_entities, sequence++)) >= 0)// && (entnum < MAX_CLIENTS))
+		;//BotScanEntity(bs, &g_entities[entnum], &scan, scan_mode);
+}
+
 /*
 =============
 ACEAI_Think
@@ -81,6 +109,8 @@ void ACEAI_Think(gentity_t * self)
 	// do this to avoid a time out
 	ACEAI_CheckServerCommands(self);
 
+	ACEAI_CheckSnapshotEntities(self);
+
 	// force respawn 
 	if(self->health <= 0)
 	{
@@ -109,7 +139,6 @@ void ACEAI_Think(gentity_t * self)
 	// find any short range goal
 	ACEAI_PickShortRangeGoal(self);
 
-#if 1
 	// look for enemies
 	if(ACEAI_FindEnemy(self))
 	{
@@ -117,7 +146,6 @@ void ACEAI_Think(gentity_t * self)
 		ACEMV_Attack(self);
 	}
 	else
-#endif
 	{
 		// execute the move, or wander
 		if(self->bs.state == STATE_WANDER)
@@ -136,10 +164,10 @@ void ACEAI_Think(gentity_t * self)
 #endif
 
 	// set approximate ping
-	//ucmd.serverTime = 75 + floor(random() * 25) + 1;
-	self->client->pers.cmd.serverTime = level.time;
-	
-	//self->client->ps.commandTime = level.time - 100;
+	if(!g_synchronousClients.integer)
+		self->client->pers.cmd.serverTime = level.time - (10 + floor(random() * 25) + 1);
+	else
+		self->client->ps.commandTime = level.time;
 
 	// show random ping values in scoreboard
 	//self->client->ping = ucmd.msec;
@@ -156,30 +184,11 @@ void ACEAI_Think(gentity_t * self)
 		self->client->pers.cmd.angles[i] = ANGLE2SHORT(self->bs.viewAngles[i]);
 	}
 
-	// send command through id's code
-	self->client->pers.cmd = self->client->pers.cmd;
-	ClientThink_real(self);
+	// send command through id's code, and update server information about this client
+	trap_BotUserCommand(self - g_entities, &self->client->pers.cmd);
 
+	//ClientThink_real(self);
 	//self->nextthink = level.time + FRAMETIME;
-}
-
-
-void ACEAI_CheckServerCommands(gentity_t * self)
-{
-	char            buf[1024];
-
-	while(trap_BotGetServerCommand(self->client - level.clients, buf, sizeof(buf)))
-	{
-#if 0
-		//have buf point to the command and args to the command arguments
-		if(ace_debug.integer)
-		{
-			G_Printf("ACEAI_CheckServerCommands for %s: '%s'\n", self->client->pers.netname, buf);		
-		}
-		
-		// TODO check for orders by team mates
-#endif
-	}
 }
 
 /*
@@ -192,15 +201,15 @@ returns 1 if the entity is in front (in sight) of self
 qboolean ACEAI_InFront(gentity_t * self, gentity_t * other)
 {
 	vec3_t          vec;
-	float           dot;
+	float           angle;
 	vec3_t          forward;
 
 	AngleVectors(self->bs.viewAngles, forward, NULL, NULL);
 	VectorSubtract(other->s.origin, self->client->ps.origin, vec);
 	VectorNormalize(vec);
-	dot = DotProduct(vec, forward);
+	angle = AngleBetweenVectors(vec, forward);
 
-	if(dot > 0.3)
+	if(angle <= 80)
 		return qtrue;
 	
 	return qfalse;
@@ -230,6 +239,7 @@ qboolean ACEAI_Visible(gentity_t * self, gentity_t * other)
 	
 	trap_Trace(&trace, spot1, NULL, NULL, spot2, self->s.number, MASK_PLAYERSOLID);
 
+	//if(trace.fraction == 1.0)
 	if(trace.entityNum == other->s.number)
 		return qtrue;
 	
@@ -328,14 +338,10 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 			continue;
 
 		// player carrying the flag?
-		if(g_gametype.integer == GT_CTF)
-		{
-			// kill him, return our flag
-			if(!OnSameTeam(self, player) && (player->client->ps.powerups[PW_REDFLAG] || player->client->ps.powerups[PW_BLUEFLAG]))
-				weight = 2.0;
-			else
-				weight = 0.3;
-		}
+		if(g_gametype.integer == GT_CTF && !OnSameTeam(self, player) && (player->client->ps.powerups[PW_REDFLAG] || player->client->ps.powerups[PW_BLUEFLAG]))
+			weight = 2.0;
+		else
+			weight = 0.3;
 
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
@@ -379,15 +385,16 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 	gentity_t        *target;
 	float           weight, bestWeight = 0.0;
 	gentity_t        *best;
+	const float       shortRange = 200.0;
 	
-	if(ace_debug.integer && !ace_pickShortRangeGoal.integer)
+	if(!ace_pickShortRangeGoal.integer)
 		return;
 		
 	best = NULL;
 	
 
 	// look for a target (should make more efficent later)
-	target = G_FindRadius(NULL, self->client->ps.origin, 200);
+	target = G_FindRadius(NULL, self->client->ps.origin, shortRange);
 
 	while(target)
 	{
@@ -444,7 +451,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 
 		// next target
 		nextTarget:
-		target = G_FindRadius(target, self->client->ps.origin, 200);
+		target = G_FindRadius(target, self->client->ps.origin, shortRange);
 	}
 
 	if(bestWeight)
@@ -466,7 +473,7 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 	gclient_t      *cl;
 	gentity_t      *player;
 	
-	if(ace_debug.integer && !ace_attackEnemies.integer)
+	if(!ace_attackEnemies.integer)
 		return qfalse;
 
 	for(i = 0; i < g_maxclients.integer; i++)

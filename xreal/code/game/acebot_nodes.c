@@ -174,7 +174,7 @@ void ACEND_SetGoal(gentity_t * self, int goalNode)
 	self->bs.nextNode = self->bs.currentNode;	// make sure we get to the nearest node first
 	self->bs.node_timeout = 0;
 	
-	if(ace_debug.integer && ace_showPath.integer)
+	if(ace_showPath.integer)
 	{
 		// draw path to LR goal
 		ACEND_DrawPath(self->bs.currentNode, self->bs.goalNode);
@@ -285,7 +285,6 @@ void ACEND_PathMap(gentity_t * self)
 	// don't add links when you went into a trap
 	if(self->health <= 0)
 		return;
-		
 	
 	if(self->s.groundEntityNum == ENTITYNUM_NONE && !(self->r.svFlags & SVF_BOT))
 	{		
@@ -344,9 +343,6 @@ void ACEND_PathMap(gentity_t * self)
 	
 	if(trap_PointContents(self->client->ps.origin, -1) & (CONTENTS_LAVA | CONTENTS_SLIME))
 		return;					// no nodes in slime
-
-	
-
 	
 	// Grapple
 	// Do not add nodes during grapple, added elsewhere manually

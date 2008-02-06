@@ -119,9 +119,7 @@ void            ACEIT_PlayerRemoved(gentity_t * ent);
 qboolean        ACEIT_IsVisible(gentity_t * self, vec3_t goal);
 qboolean        ACEIT_IsReachable(gentity_t * self, vec3_t goal);
 qboolean        ACEIT_ChangeWeapon(gentity_t * ent, weapon_t weapon);
-qboolean        ACEIT_CanUseArmor(gitem_t * item, gentity_t * other);
 float           ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt);
-//int             ACEIT_ClassnameToIndex(char *classname);
 void            ACEIT_BuildItemNodeTable(qboolean rebuild);
 
 // acebot_movement.c protos

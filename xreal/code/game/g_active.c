@@ -1465,10 +1465,17 @@ void ClientThink(int clientNum)
 */
 //unlagged - smooth clients #1
 
+#if defined(ACEBOT)
+	if(!g_synchronousClients.integer)
+	{
+		ClientThink_real(ent);
+	}
+#else
 	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
 	{
 		ClientThink_real(ent);
 	}
+#endif
 }
 
 
@@ -1481,11 +1488,12 @@ void G_RunClient(gentity_t * ent)
 		return;
 	}
 #endif
-	
+
 	if(!(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer)
 	{
 		return;
 	}
+
 	ent->client->pers.cmd.serverTime = level.time;
 	ClientThink_real(ent);
 }

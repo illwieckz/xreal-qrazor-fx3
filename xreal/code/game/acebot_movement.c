@@ -45,11 +45,11 @@ qboolean ACEMV_CanMove(gentity_t * self, int direction)
 	VectorCopy(self->bs.viewAngles, angles);
 
 	if(direction == MOVE_LEFT)
-		angles[1] += 90;
+		angles[YAW] += 90;
 	else if(direction == MOVE_RIGHT)
-		angles[1] -= 90;
+		angles[YAW] -= 90;
 	else if(direction == MOVE_BACK)
-		angles[1] -= 180;
+		angles[YAW] -= 180;
 
 	// set up the vectors
 	AngleVectors(angles, forward, right, NULL);
@@ -57,12 +57,12 @@ qboolean ACEMV_CanMove(gentity_t * self, int direction)
 	VectorSet(offset, 36, 0, 24);
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, start);
 
-	VectorSet(offset, 36, 0, -400);
+	VectorSet(offset, 36, 0, -100);
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, end);
 	
-	trap_Trace(&tr, self->client->ps.origin, NULL, NULL, end, self->s.number, MASK_PLAYERSOLID);
+	trap_Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_PLAYERSOLID);
 
-	if((tr.fraction > 0.3 && tr.fraction != 1) || tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME))
+	if((tr.fraction == 1.0 /* && tr.fraction != 1*/) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
 		if(ace_debug.integer)
 			trap_SendServerCommand(-1, va("print \"%s:" S_COLOR_WHITE " move blocked\n\"", self->client->pers.netname));
@@ -101,11 +101,11 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 
 	if(tr.allsolid)
 	{
-		// Check for crouching
+		// check for crouching
 		start[2] -= 14;
 		end[2] -= 14;
 
-		// Set up for crouching check
+		// set up for crouching check
 		VectorCopy(self->r.maxs, top);
 		top[2] = 0.0;			// crouching height
 		
@@ -115,12 +115,13 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 		// crouch
 		if(!tr.allsolid)
 		{
-			self->client->pers.cmd.forwardmove = 127;
+			if(ACEMV_CanMove(self, MOVE_FORWARD))
+				self->client->pers.cmd.forwardmove = 127;
 			self->client->pers.cmd.upmove = -127;
 			return qtrue;
 		}
 
-		// Check for jump
+		// check for jump
 		start[2] += 32;
 		end[2] += 32;
 		
@@ -129,7 +130,8 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 
 		if(!tr.allsolid)
 		{
-			self->client->pers.cmd.forwardmove = 127;
+			if(ACEMV_CanMove(self, MOVE_FORWARD))
+				self->client->pers.cmd.forwardmove = 127;
 			self->client->pers.cmd.upmove = 127;
 			return qtrue;
 		}
@@ -139,14 +141,13 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 }
 
 
-///////////////////////////////////////////////////////////////////////
+
 // Checks for obstructions in front of bot
 //
 // This is a function I created origianlly for ACE that
 // tries to help steer the bot around obstructions.
 //
 // If the move is resolved here, this function returns true.
-///////////////////////////////////////////////////////////////////////
 static qboolean ACEMV_CheckEyes(gentity_t * self)
 {
 	vec3_t          forward, right;
@@ -157,11 +158,11 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	trace_t         traceRight, traceLeft, traceUp, traceFront;	// for eyesight
 	gentity_t      *traceEntity;
 
-	// Get current angle and set up "eyes"
+	// get current angle and set up "eyes"
 	VectorCopy(self->bs.viewAngles, dir);
 	AngleVectors(dir, forward, right, NULL);
 
-	// Let them move to targets by walls
+	// let them move to targets by walls
 	if(!self->bs.moveTarget)
 		VectorSet(offset, 200, 0, 4);	// focalpoint 
 	else
@@ -175,21 +176,23 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, upend);
 	
 	//traceFront = gi.trace(self->s.origin, self->mins, self->maxs, upend, self, MASK_OPAQUE);
-	trap_Trace(&traceFront, self->client->ps.origin, self->r.mins, self->r.maxs, upend, self->s.number, MASK_PLAYERSOLID);
+	trap_Trace(&traceFront, self->client->ps.origin, self->r.mins, self->r.maxs, upend, self->s.number, MASK_OPAQUE);
 
 	/*
 	if(traceFront.contents & CONTENTS_DETAIL)	// using detail brush here cuz sometimes it does not pick up ladders...??
 	{
 		self->client->pers.cmd.upmove = 127;
-		self->client->pers.cmd.forwardmove = 127;
+		if(ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove = 127;
 		return qtrue;
 	}
 	*/
 
-	// If this check fails we need to continue on with more detailed checks
+	// if this check fails we need to continue on with more detailed checks
 	if(traceFront.fraction == 1)
 	{
-		self->client->pers.cmd.forwardmove = 127;
+		if(ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove = 127;
 		return qtrue;
 	}
 
@@ -199,18 +202,14 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	offset[1] -= 36;			// want to make sure this is correct
 	//VectorSet(offset, 0, -18, 4);
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, rightstart);
-
-	//traceRight = gi.trace(rightstart, NULL, NULL, focalpoint, self, MASK_OPAQUE);
-	//traceLeft = gi.trace(leftstart, NULL, NULL, focalpoint, self, MASK_OPAQUE);
 	
-	trap_Trace(&traceRight, rightstart, NULL, NULL, focalpoint, self->s.number, MASK_PLAYERSOLID);
-	trap_Trace(&traceLeft, leftstart, NULL, NULL, focalpoint, self->s.number, MASK_PLAYERSOLID);
+	trap_Trace(&traceRight, rightstart, NULL, NULL, focalpoint, self->s.number, MASK_OPAQUE);
+	trap_Trace(&traceLeft, leftstart, NULL, NULL, focalpoint, self->s.number, MASK_OPAQUE);
 
-	// Wall checking code, this will degenerate progressivly so the least cost 
+	// wall checking code, this will degenerate progressivly so the least cost 
 	// check will be done first.
 
-	// If open space move ok
-	
+	// if open space move ok
 	if(traceLeft.entityNum != ENTITYNUM_WORLD)
 	{
 		traceEntity = &g_entities[traceLeft.entityNum];	
@@ -222,19 +221,17 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	
 	if(traceRight.fraction != 1 || traceLeft.fraction != 1)// || (traceEntity && strcmp(traceEntity->classname, "func_door") != 0))
 	{
-		// Special uppoint logic to check for slopes/stairs/jumping etc.
+		// special uppoint logic to check for slopes/stairs/jumping etc.
 		VectorSet(offset, 0, 18, 24);
 		G_ProjectSource(self->client->ps.origin, offset, forward, right, upstart);
 
 		VectorSet(offset, 0, 0, 200);	// scan for height above head
 		G_ProjectSource(self->client->ps.origin, offset, forward, right, upend);
-		//traceUp = gi.trace(upstart, NULL, NULL, upend, self, MASK_OPAQUE);
-		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_PLAYERSOLID);
+		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_OPAQUE);
 
 		VectorSet(offset, 200, 0, 200 * traceUp.fraction - 5);	// set as high as possible
 		G_ProjectSource(self->client->ps.origin, offset, forward, right, upend);
-		//traceUp = gi.trace(upstart, NULL, NULL, upend, self, MASK_OPAQUE);
-		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_PLAYERSOLID);
+		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_OPAQUE);
 
 		// If the upper trace is not open, we need to turn.
 		if(traceUp.fraction != 1)
@@ -244,7 +241,8 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 			else
 				self->bs.viewAngles[YAW] += -(1.0 - traceRight.fraction) * 45.0;
 
-			self->client->pers.cmd.forwardmove = 127;
+			if(ACEMV_CanMove(self, MOVE_FORWARD))
+				self->client->pers.cmd.forwardmove = 127;
 			return qtrue;
 		}
 	}
@@ -340,8 +338,8 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 // Set bot to move to it's moveTarget. (following node path)
 void ACEMV_MoveToGoal(gentity_t * self)
 {
-	// If a rocket or grenade is around deal with it
-	// Simple, but effective (could be rewritten to be more accurate)
+	// if a rocket or grenade is around deal with it
+	// simple, but effective (could be rewritten to be more accurate)
 	if((strcmp(self->bs.moveTarget->classname, "rocket") == 0 || strcmp(self->bs.moveTarget->classname, "grenade") == 0))
 	{
 		VectorSubtract(self->bs.moveTarget->s.origin, self->client->ps.origin, self->bs.moveVector);
@@ -366,10 +364,12 @@ void ACEMV_MoveToGoal(gentity_t * self)
 	}
 	else
 	{
-		// Set bot's movement direction
+		// set bot's movement direction
 		VectorSubtract(self->bs.moveTarget->s.origin, self->client->ps.origin, self->bs.moveVector);
 		ACEMV_ChangeBotAngle(self);
-		self->client->pers.cmd.forwardmove = 127;
+
+		if(ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove = 127;
 		return;
 	}
 }
@@ -450,7 +450,9 @@ void ACEMV_Move(gentity_t * self)
 	   (currentNodeType == NODE_JUMP && nextNodeType != NODE_ITEM && nodes[self->bs.nextNode].origin[2] > self->client->ps.origin[2]))
 	{
 		// set up a jump move
-		self->client->pers.cmd.forwardmove = 127;
+		if(ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove = 127;
+
 		self->client->pers.cmd.upmove = 127;
 
 		ACEMV_ChangeBotAngle(self);
@@ -508,7 +510,8 @@ void ACEMV_Move(gentity_t * self)
 	// falling off ledge?
 	if(self->s.groundEntityNum == ENTITYNUM_NONE)
 	{
-		//ACEMV_ChangeBotAngle(self);
+		ACEMV_ChangeBotAngle(self);
+
 		//self->client->ps.velocity[0] = self->bs.moveVector[0] * 360;
 		//self->client->ps.velocity[1] = self->bs.moveVector[1] * 360;
 		return;
@@ -524,12 +527,16 @@ void ACEMV_Move(gentity_t * self)
 
 		self->bs.viewAngles[YAW] += random() * 180 - 90;
 
-		self->client->pers.cmd.forwardmove = 127;
+		if(ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove = 127;
+		else if(ACEMV_CanMove(self, MOVE_BACK))
+			self->client->pers.cmd.forwardmove = -127;
 		return;
 	}
 
 	// otherwise move as fast as we can
-	self->client->pers.cmd.forwardmove = 127;
+	if(ACEMV_CanMove(self, MOVE_FORWARD))
+		self->client->pers.cmd.forwardmove = 127;
 
 	ACEMV_ChangeBotAngle(self);
 }
@@ -626,25 +633,35 @@ void ACEMV_Wander(gentity_t * self)
 		return;
 	}
 
-	if(ACEMV_CheckEyes(self))
-		return;
-
 	// check for special movement if we have a normal move (have to test)
 	if(VectorLength(self->client->ps.velocity) < 37)
 	{
-		if(random() > 0.1 && ACEMV_SpecialMove(self))
-			return;
+		//if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
+		//	return; //removed this because when wandering, the last thing you want is bots jumping
+		//over things and going off ledges.  It's better for them to just bounce around the map.
 
 		self->bs.viewAngles[YAW] += random() * 180 - 90;
 
+		if(ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove = 127;
+		else if(ACEMV_CanMove(self, MOVE_BACK))
+			self->client->pers.cmd.forwardmove = -127;
+
 		// if there is ground continue otherwise wait for next move
 		if(/*!M_CheckBottom ||*/ self->s.groundEntityNum != ENTITYNUM_NONE)
-			self->client->pers.cmd.forwardmove = 127;
+		{
+			if(ACEMV_CanMove(self, MOVE_FORWARD))
+				self->client->pers.cmd.forwardmove = 127;
+		}
 
 		return;
 	}
 
-	self->client->pers.cmd.forwardmove = 127;
+	if(ACEMV_CheckEyes(self))
+		return;
+
+	if(ACEMV_CanMove(self, MOVE_FORWARD))
+		self->client->pers.cmd.forwardmove = 127;
 }
 
 
@@ -656,7 +673,8 @@ void ACEMV_Wander(gentity_t * self)
 void ACEMV_Attack(gentity_t * self)
 {
 	float           c;
-	vec3_t          target;
+	vec3_t          target, forward, right, up;
+	float           distance;
 	vec3_t          angles;
 
 	// randomly choose a movement direction
@@ -679,8 +697,9 @@ void ACEMV_Attack(gentity_t * self)
 	else
 		self->client->pers.cmd.upmove += 90;
 
-	// set the attack 
-	self->client->pers.cmd.buttons = BUTTON_ATTACK;
+	// attack not too much
+	if(random() < 0.8)
+		self->client->pers.cmd.buttons = BUTTON_ATTACK;
 
 	// aim
 	if(self->enemy->client)
@@ -689,12 +708,24 @@ void ACEMV_Attack(gentity_t * self)
 		VectorCopy(self->enemy->s.origin, target);
 
 	// modify attack angles based on accuracy (mess this up to make the bot's aim not so deadly)
-	target[0] += crandom() * 50;
-	target[1] += crandom() * 50;
-	target[2] += crandom() * 50;
+
+	VectorSubtract(target, self->client->ps.origin, forward);
+	distance = VectorNormalize(forward);
+
+	PerpendicularVector(up, forward);
+	CrossProduct(up, forward, right);
+
+	VectorMA(forward, crandom() * 0.17, up, forward);
+	VectorMA(forward, crandom() * 0.17, right, forward);
+	VectorNormalize(forward);
+	VectorScale(forward, distance, self->bs.moveVector);
+
+	//target[0] += crandom() * 70;
+	//target[1] += crandom() * 70;
+	//target[2] += crandom() * 50;
 
 	// set direction
-	VectorSubtract(target, self->client->ps.origin, self->bs.moveVector);
+	//VectorSubtract(target, self->client->ps.origin, self->bs.moveVector);
 	vectoangles(self->bs.moveVector, angles);
 	VectorCopy(angles, self->bs.viewAngles);
 

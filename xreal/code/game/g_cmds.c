@@ -1845,10 +1845,6 @@ void Cmd_Stats_f(gentity_t * ent)
 }
 
 
-#if defined(ACEBOT)
-qboolean        ACECM_Commands(gentity_t * ent);
-#endif
-
 /*
 =================
 ClientCommand

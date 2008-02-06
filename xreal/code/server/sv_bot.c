@@ -40,61 +40,7 @@ extern botlib_export_t *botlib_export;
 int             bot_enable;
 
 
-/*
-==================
-SV_BotAllocateClient
-==================
-*/
-int SV_BotAllocateClient(void)
-{
-	int             i;
-	client_t       *cl;
 
-	// find a client slot
-	for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
-	{
-		if(cl->state == CS_FREE)
-		{
-			break;
-		}
-	}
-
-	if(i == sv_maxclients->integer)
-	{
-		return -1;
-	}
-
-	cl->gentity = SV_GentityNum(i);
-	cl->gentity->s.number = i;
-	cl->state = CS_ACTIVE;
-	cl->lastPacketTime = svs.time;
-	cl->netchan.remoteAddress.type = NA_BOT;
-	cl->rate = 16384;
-
-	return i;
-}
-
-/*
-==================
-SV_BotFreeClient
-==================
-*/
-void SV_BotFreeClient(int clientNum)
-{
-	client_t       *cl;
-
-	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
-	{
-		Com_Error(ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum);
-	}
-	cl = &svs.clients[clientNum];
-	cl->state = CS_FREE;
-	cl->name[0] = 0;
-	if(cl->gentity)
-	{
-		cl->gentity->r.svFlags &= ~SVF_BOT;
-	}
-}
 
 /*
 ==================
@@ -484,6 +430,62 @@ void BotClientCommand(int client, char *command)
 
 /*
 ==================
+SV_BotAllocateClient
+==================
+*/
+int SV_BotAllocateClient(void)
+{
+	int             i;
+	client_t       *cl;
+
+	// find a client slot
+	for(i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
+	{
+		if(cl->state == CS_FREE)
+		{
+			break;
+		}
+	}
+
+	if(i == sv_maxclients->integer)
+	{
+		return -1;
+	}
+
+	cl->gentity = SV_GentityNum(i);
+	cl->gentity->s.number = i;
+	cl->state = CS_ACTIVE;
+	cl->lastPacketTime = svs.time;
+	cl->netchan.remoteAddress.type = NA_BOT;
+	cl->rate = 16384;
+
+	return i;
+}
+
+/*
+==================
+SV_BotFreeClient
+==================
+*/
+void SV_BotFreeClient(int clientNum)
+{
+	client_t       *cl;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum);
+	}
+	cl = &svs.clients[clientNum];
+	cl->state = CS_FREE;
+	cl->name[0] = 0;
+	if(cl->gentity)
+	{
+		cl->gentity->r.svFlags &= ~SVF_BOT;
+	}
+}
+
+/*
+==================
 SV_BotFrame
 ==================
 */
@@ -491,9 +493,11 @@ void SV_BotFrame(int time)
 {
 	if(!bot_enable)
 		return;
+	
 	//NOTE: maybe the game is already shutdown
 	if(!gvm)
 		return;
+
 	VM_Call(gvm, BOTAI_START_FRAME, time);
 }
 

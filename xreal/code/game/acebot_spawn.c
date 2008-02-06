@@ -440,13 +440,15 @@ void  ACESP_SetupBotState(gentity_t * self)
 {
 	int             clientNum;
 	char            userinfo[MAX_INFO_STRING];
+
+	//G_Printf("ACESP_SetupBotState()\n");
 	
 	clientNum = self->client - level.clients;
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 	
 	self->enemy = NULL;
 	
-	self->bs.yawSpeed = 100;		// FIXME 100 is deadly fast
+	self->bs.yawSpeed = 30;		// FIXME 100 is deadly fast
 	self->bs.moveTarget = NULL;
 	self->bs.state = STATE_MOVE;
 
