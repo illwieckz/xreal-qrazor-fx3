@@ -3644,7 +3644,7 @@ void RB_RenderUniformFog(qboolean deferred)
 	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 		return;
 		
-	if(!r_noFog->integer)
+	if(r_noFog->integer)
 		return;
 
 	if(r_forceFog->value <= 0 && tr.fogDensity <= 0)
