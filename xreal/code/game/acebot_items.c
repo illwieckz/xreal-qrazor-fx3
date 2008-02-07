@@ -99,7 +99,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 		case IT_WEAPON:
 		{
 			// weapons are always picked up
-			return 0.7;
+			return 0.9; // was 0.7
 		}
 
 		case IT_AMMO:
@@ -108,6 +108,11 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 0.0;		// can't hold any more
 			}
+			else if(item->giTag == WP_ROCKET_LAUNCHER)
+			{
+				return 1.5;		
+			}
+
 			return 0.3;
 		}
 
@@ -174,7 +179,11 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 
 		case IT_POWERUP:
 		{
-			// powerups are always picked up
+			if(item->giTag == PW_QUAD)
+			{
+				return 1.3;
+			}
+
 			return 0.8;
 		}
 

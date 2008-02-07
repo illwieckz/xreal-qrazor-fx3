@@ -316,7 +316,7 @@ void ACEND_PathMap(gentity_t * self)
 				closestNode = ACEND_AddNode(self, NODE_JUMP);
 
 			// now add link
-			if(self->bs.lastNode != -1)
+			if(self->bs.lastNode != INVALID)
 				ACEND_UpdateNodeEdge(self->bs.lastNode, closestNode);
 
 			self->bs.isJumping = qfalse;
@@ -419,7 +419,6 @@ void ACEND_PathMap(gentity_t * self)
 void ACEND_InitNodes(void)
 {
 	// init node array (set all to INVALID)
-
 	numNodes = 0;
 	memset(nodes, 0, sizeof(node_t) * MAX_NODES);
 	memset(path_table, INVALID, sizeof(short int) * MAX_NODES * MAX_NODES);

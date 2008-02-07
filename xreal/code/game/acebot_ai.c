@@ -292,8 +292,8 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		if(!BG_CanItemBeGrabbed(g_gametype.integer, &ent->s, &self->client->ps))
 			continue;
 
-		// ignore items that were picked up recently
-		if(ent->r.svFlags & SVF_NOCLIENT)
+		// ignore items that were picked up recently or are not fully spawned yet
+		if(ent->s.eFlags & EF_NODRAW)
 			continue;
 
 		cost = ACEND_FindCost(currentNode, ent->node);
@@ -402,6 +402,9 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 		if(target->classname == NULL)
 			return; //goto nextTarget;
 
+		if(target == self)
+			goto nextTarget;
+
 		// missile avoidance code
 		// set our moveTarget to be the rocket or grenade fired at us. 
 		if(!Q_stricmp(target->classname, "rocket") || !Q_stricmp(target->classname, "grenade"))
@@ -437,8 +440,8 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 					if(!BG_CanItemBeGrabbed(g_gametype.integer, &target->s, &self->client->ps))
 						goto nextTarget;
 
-					// ignore items that were picked up recently
-					if(target->r.svFlags & SVF_NOCLIENT)
+					// ignore items that were picked up recently or are not fully spawned yet
+					if(target->s.eFlags & EF_NODRAW)
 						goto nextTarget;
 
 					weight = ACEIT_ItemNeed(self, target);
