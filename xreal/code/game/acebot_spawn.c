@@ -442,6 +442,7 @@ void ACESP_SetupBotState(gentity_t * self)
 {
 	int             clientNum;
 	char            userinfo[MAX_INFO_STRING];
+	char           *team;
 
 	//G_Printf("ACESP_SetupBotState()\n");
 
@@ -463,11 +464,35 @@ void ACESP_SetupBotState(gentity_t * self)
 	self->bs.next_move_time = level.time;
 	self->bs.suicide_timeout = level.time + 15000;
 
-	if(g_gametype.integer != GT_TOURNAMENT)
+	/*
+	// is the bot part of a team when gameplay has changed?
+	team = Info_ValueForKey(userinfo, "team");
+	if(!team || !*team)
 	{
+		if(g_gametype.integer >= GT_TEAM)
+		{
+			if(PickTeam(clientNum) == TEAM_RED)
+			{
+				team = "red";
+			}
+			else
+			{
+				team = "blue";
+			}
+		}
+		else
+		{
+			team = "red";
+		}
+		//Info_SetValueForKey(userinfo, "team", team);
+
 		// need to send this or bots will be spectators
-		trap_BotClientCommand(self - g_entities, va("team %s", Info_ValueForKey(userinfo, "team")));
+		trap_BotClientCommand(self - g_entities, va("team %s", team));
 	}
+	*/
+
+	//if(g_gametype.integer >= GT_TEAM)
+	//	trap_BotClientCommand(self - g_entities, va("team %s", Info_ValueForKey(userinfo, "team")));
 }
 
 

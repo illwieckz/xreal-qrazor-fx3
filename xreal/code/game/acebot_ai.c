@@ -85,14 +85,44 @@ Main Think function for bot
 void ACEAI_Think(gentity_t * self)
 {
 	int             i;
+	int             clientNum;
+	char            userinfo[MAX_INFO_STRING];
+	char           *team;
 
 	//if(ace_debug.integer)
 	//  G_Printf("ACEAI_Think(%s)\n", self->client->pers.netname);
 
-	// spectators should idle
+	clientNum = self->client - level.clients;
+	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
+
+	// is the bot part of a team when gameplay has changed?
 	if(self->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
-		G_Printf("%s: TEAM_SPECTATOR\n", self->client->pers.netname);
+		if(ace_debug.integer)
+			trap_SendServerCommand(-1, va("print \"%s: I am a spectator, choosing a team...\n\"", self->client->pers.netname));
+		
+		team = Info_ValueForKey(userinfo, "team");
+		if(!team || !*team)
+		{
+			if(g_gametype.integer >= GT_TEAM)
+			{
+				if(PickTeam(clientNum) == TEAM_RED)
+				{
+					team = "red";
+				}
+				else
+				{
+					team = "blue";
+				}
+			}
+			else
+			{
+				team = "red";
+			}
+		}
+
+		// this sets the team status and updates the userinfo as well
+		trap_BotClientCommand(self - g_entities, va("team %s", team));
 		return;
 	}
 
