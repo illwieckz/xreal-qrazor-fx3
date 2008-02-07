@@ -338,10 +338,8 @@ void Svcmd_EntityList_f(void)
 		{
 			continue;
 		}
-		
-		count++,
-		
-		G_Printf("%3i:", e);
+
+		count++, G_Printf("%3i:", e);
 		switch (check->s.eType)
 		{
 			case ET_GENERAL:
@@ -397,7 +395,7 @@ void Svcmd_EntityList_f(void)
 		}
 		G_Printf("\n");
 	}
-	
+
 	G_Printf("%i entities in use\n", count);
 }
 
@@ -578,7 +576,7 @@ qboolean ConsoleCommand(void)
 		if(trap_Argc() < 3)
 		{
 			//G_Printf("Usage: addbot <name> <team>\n");
-			
+
 			ACESP_SpawnBot(NULL, NULL);
 		}
 		else
@@ -586,10 +584,10 @@ qboolean ConsoleCommand(void)
 			trap_Argv(1, arg1, sizeof(arg1));
 			trap_Argv(2, arg2, sizeof(arg2));
 
-			//if(ctf->value)			// name, skin, team
-			//	ACESP_SpawnBot(arg1, gi.argv(3), gi.argv(4), NULL);
-			//else					// name, skin
-		
+			//if(ctf->value)            // name, skin, team
+			//  ACESP_SpawnBot(arg1, gi.argv(3), gi.argv(4), NULL);
+			//else                  // name, skin
+
 			ACESP_SpawnBot(arg1, arg2);
 		}
 
@@ -604,21 +602,21 @@ qboolean ConsoleCommand(void)
 	}
 
 	/*
-	// removebot
-	if(Q_stricmp(cmd, "removebot") == 0)
-	{
-		if(trap_Argc() < 2)
-		{
-			G_Printf("Usage: removebot <name>\n");
-			return qtrue;
-		}
+	   // removebot
+	   if(Q_stricmp(cmd, "removebot") == 0)
+	   {
+	   if(trap_Argc() < 2)
+	   {
+	   G_Printf("Usage: removebot <name>\n");
+	   return qtrue;
+	   }
 
-		trap_Argv(1, arg1, sizeof(arg1));
+	   trap_Argv(1, arg1, sizeof(arg1));
 
-		ACESP_RemoveBot(arg1);
-		return qtrue;
-	}
-	*/
+	   ACESP_RemoveBot(arg1);
+	   return qtrue;
+	   }
+	 */
 
 	// Node saving
 	if(Q_stricmp(cmd, "savenodes") == 0)

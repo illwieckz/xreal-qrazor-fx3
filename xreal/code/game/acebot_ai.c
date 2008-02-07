@@ -43,7 +43,7 @@ about pathing the level
 void ACEAI_StartFrame(int time)
 {
 	//G_Printf("ACEAI_StartFrame()\n");
-	
+
 	ACEIT_BuildItemNodeTable(qtrue);
 }
 
@@ -57,9 +57,9 @@ void ACEAI_CheckServerCommands(gentity_t * self)
 		//have buf point to the command and args to the command arguments
 		if(ace_debug.integer)
 		{
-			G_Printf("ACEAI_CheckServerCommands for %s: '%s'\n", self->client->pers.netname, buf);		
+			G_Printf("ACEAI_CheckServerCommands for %s: '%s'\n", self->client->pers.netname, buf);
 		}
-		
+
 		// TODO check for orders by team mates
 #endif
 	}
@@ -71,8 +71,8 @@ void ACEAI_CheckSnapshotEntities(gentity_t * self)
 
 	// parse through the bot's list of snapshot entities and scan each of them
 	sequence = 0;
-	while((entnum = trap_BotGetSnapshotEntity(self - g_entities, sequence++)) >= 0)// && (entnum < MAX_CLIENTS))
-		;//BotScanEntity(bs, &g_entities[entnum], &scan, scan_mode);
+	while((entnum = trap_BotGetSnapshotEntity(self - g_entities, sequence++)) >= 0)	// && (entnum < MAX_CLIENTS))
+		;						//BotScanEntity(bs, &g_entities[entnum], &scan, scan_mode);
 }
 
 /*
@@ -85,10 +85,10 @@ Main Think function for bot
 void ACEAI_Think(gentity_t * self)
 {
 	int             i;
-	
+
 	//if(ace_debug.integer)
-	//	G_Printf("ACEAI_Think(%s)\n", self->client->pers.netname);
-	
+	//  G_Printf("ACEAI_Think(%s)\n", self->client->pers.netname);
+
 	// spectators should idle
 	if(self->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
@@ -99,13 +99,13 @@ void ACEAI_Think(gentity_t * self)
 	// set up client movement
 	VectorCopy(self->client->ps.viewangles, self->bs.viewAngles);
 	VectorSet(self->client->ps.delta_angles, 0, 0, 0);
-	
+
 	// FIXME: needed?
 	memset(&self->client->pers.cmd, 0, sizeof(self->client->pers.cmd));
-	
+
 	self->enemy = NULL;
 	self->bs.moveTarget = NULL;
-		
+
 	// do this to avoid a time out
 	ACEAI_CheckServerCommands(self);
 
@@ -209,9 +209,9 @@ qboolean ACEAI_InFront(gentity_t * self, gentity_t * other)
 	VectorNormalize(vec);
 	angle = AngleBetweenVectors(vec, forward);
 
-	if(angle <= 80)
+	if(angle <= 85)
 		return qtrue;
-	
+
 	return qfalse;
 }
 
@@ -227,22 +227,21 @@ qboolean ACEAI_Visible(gentity_t * self, gentity_t * other)
 	vec3_t          spot1;
 	vec3_t          spot2;
 	trace_t         trace;
-	
+
 	//if(!self->client || !other->client)
-	//	return qfalse;
+	//  return qfalse;
 
 	VectorCopy(self->client->ps.origin, spot1);
 	//spot1[2] += self->client->ps.viewheight;
-	
+
 	VectorCopy(other->client->ps.origin, spot2);
 	//spot2[2] += other->client->ps.viewheight;
-	
+
 	trap_Trace(&trace, spot1, NULL, NULL, spot2, self->s.number, MASK_PLAYERSOLID);
 
-	//if(trace.fraction == 1.0)
 	if(trace.entityNum == other->s.number)
 		return qtrue;
-	
+
 	return qfalse;
 }
 
@@ -260,7 +259,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	gentity_t      *ent;
 	gentity_t      *player;
 	float           cost;
-	
+
 	goalNode = INVALID;
 	goalEnt = NULL;
 
@@ -282,17 +281,17 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	{
 		if(!ent->inuse)
 			continue;
-		
+
 		if(!ent->item)
 			continue;
-			
+
 		if(ent->node == INVALID)
 			continue;
-			
+
 		// the same pickup rules are used for client side and server side
 		if(!BG_CanItemBeGrabbed(g_gametype.integer, &ent->s, &self->client->ps))
 			continue;
-			
+
 		// ignore items that were picked up recently
 		if(ent->r.svFlags & SVF_NOCLIENT)
 			continue;
@@ -321,13 +320,13 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	{
 		cl = level.clients + i;
 		player = level.gentities + cl->ps.clientNum;
-		
+
 		if(player == self)
 			continue;
-		
+
 		if(cl->pers.connected != CON_CONNECTED)
 			continue;
-		
+
 		if(player->health <= 0)
 			continue;
 
@@ -338,7 +337,8 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 			continue;
 
 		// player carrying the flag?
-		if(g_gametype.integer == GT_CTF && !OnSameTeam(self, player) && (player->client->ps.powerups[PW_REDFLAG] || player->client->ps.powerups[PW_BLUEFLAG]))
+		if(g_gametype.integer == GT_CTF && !OnSameTeam(self, player) &&
+		   (player->client->ps.powerups[PW_REDFLAG] || player->client->ps.powerups[PW_BLUEFLAG]))
 			weight = 2.0;
 		else
 			weight = 0.3;
@@ -360,7 +360,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		self->bs.goalNode = INVALID;
 		self->bs.state = STATE_WANDER;
 		self->bs.wander_timeout = level.time + 1000;
-		
+
 		if(ace_debug.integer)
 			trap_SendServerCommand(-1, va("print \"%s: did not find a LR goal, wandering..\n\"", self->client->pers.netname));
 		return;					// no path? 
@@ -371,7 +371,9 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	self->bs.tries = 0;			// reset the count of how many times we tried this goal
 
 	if(goalEnt != NULL && ace_debug.integer)
-		trap_SendServerCommand(-1, va("print \"%s: selected a %s at node %d for LR goal\n\"", self->client->pers.netname, goalEnt->classname, goalNode));
+		trap_SendServerCommand(-1,
+							   va("print \"%s: selected a %s at node %d for LR goal\n\"", self->client->pers.netname,
+								  goalEnt->classname, goalNode));
 
 	ACEND_SetGoal(self, goalNode);
 }
@@ -382,16 +384,15 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 // are very close to the bot and are reachable.
 void ACEAI_PickShortRangeGoal(gentity_t * self)
 {
-	gentity_t        *target;
+	gentity_t      *target;
 	float           weight, bestWeight = 0.0;
-	gentity_t        *best;
-	const float       shortRange = 200.0;
-	
+	gentity_t      *best;
+	float			shortRange = 200;
+
 	if(!ace_pickShortRangeGoal.integer)
 		return;
-		
+
 	best = NULL;
-	
 
 	// look for a target (should make more efficent later)
 	target = G_FindRadius(NULL, self->client->ps.origin, shortRange);
@@ -399,7 +400,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 	while(target)
 	{
 		if(target->classname == NULL)
-			return;
+			return; //goto nextTarget;
 
 		// missile avoidance code
 		// set our moveTarget to be the rocket or grenade fired at us. 
@@ -408,21 +409,23 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 			if(ace_debug.integer)
 				trap_SendServerCommand(-1, va("print \"%s: ROCKET ALERT!\n\"", self->client->pers.netname));
 
-			self->bs.moveTarget = target;
-			return;
+			best = target;
+			bestWeight++;
+			break;
 		}
-		
-		#if 1
+
+#if 0
 		// so players can't sneak RIGHT up on a bot
 		if(!Q_stricmp(target->classname, "player"))
 		{
 			if(target->health && !OnSameTeam(self, target))
 			{
-				self->bs.moveTarget = target;
-				return;
+				best = target;
+				bestWeight++;
+				break;
 			}
 		}
-		#endif
+#endif
 
 		if(ACEIT_IsReachable(self, target->s.origin))
 		{
@@ -433,11 +436,11 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 					// the same pickup rules are used for client side and server side
 					if(!BG_CanItemBeGrabbed(g_gametype.integer, &target->s, &self->client->ps))
 						goto nextTarget;
-			
+
 					// ignore items that were picked up recently
 					if(target->r.svFlags & SVF_NOCLIENT)
 						goto nextTarget;
-					
+
 					weight = ACEIT_ItemNeed(self, target);
 
 					if(weight > bestWeight)
@@ -450,7 +453,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 		}
 
 		// next target
-		nextTarget:
+	  nextTarget:
 		target = G_FindRadius(target, self->client->ps.origin, shortRange);
 	}
 
@@ -459,10 +462,11 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 		self->bs.moveTarget = best;
 
 		if(ace_debug.integer && self->bs.goalEntity != self->bs.moveTarget)
-			trap_SendServerCommand(-1, va("print \"%s: selected a %s for SR goal\n\"", self->client->pers.netname, self->bs.moveTarget->classname));
+			trap_SendServerCommand(-1,
+								   va("print \"%s: selected a %s for SR goal\n\"", self->client->pers.netname,
+									  self->bs.moveTarget->classname));
 
 		self->bs.goalEntity = best;
-
 	}
 }
 
@@ -472,7 +476,9 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 	int             i;
 	gclient_t      *cl;
 	gentity_t      *player;
-	
+	float           enemyRange;
+	float           bestRange = 99999;
+
 	if(!ace_attackEnemies.integer)
 		return qfalse;
 
@@ -480,32 +486,42 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 	{
 		cl = level.clients + i;
 		player = level.gentities + cl->ps.clientNum;
-		
+
 		if(player == self)
 			continue;
-		
+
 		if(cl->pers.connected != CON_CONNECTED)
 			continue;
-			
+
 		if(player->health <= 0)
 			continue;
-		
+
 		// don't attack team mates
 		if(OnSameTeam(self, player))
 			continue;
+		
+		enemyRange = Distance(self->client->ps.origin, player->client->ps.origin);
 
-		if(ACEAI_InFront(self, player) && ACEAI_Visible(self, player) && trap_InPVS(self->client->ps.origin, player->client->ps.origin))
+		if(ACEAI_InFront(self, player) && ACEAI_Visible(self, player) &&
+		   trap_InPVS(self->client->ps.origin, player->client->ps.origin) && enemyRange < bestRange)
 		{
+			/*
 			if(ace_debug.integer && self->enemy != player)
-				trap_SendServerCommand(-1, va("print \"%s: found enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
-			
+			{
+				if(self->enemy == NULL)
+					trap_SendServerCommand(-1, va("print \"%s: found enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
+				else
+					trap_SendServerCommand(-1, va("print \"%s: found better enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
+			}
+			*/
+
 			self->enemy = player;
-			return qtrue;
+			bestRange = enemyRange;
 		}
 	}
 
-	return qfalse;
-
+	// FIXME ? bad design
+	return self->enemy != NULL;
 }
 
 // Hold fire with RL/BFG?
@@ -513,9 +529,10 @@ qboolean ACEAI_CheckShot(gentity_t * self)
 {
 	trace_t         tr;
 
-	trap_Trace(&tr,self->client->ps.origin,  tv(-8, -8, -8), tv(8, 8, 8), self->enemy->client->ps.origin, self->s.number, MASK_SHOT);
+	trap_Trace(&tr, self->client->ps.origin, tv(-8, -8, -8), tv(8, 8, 8), self->enemy->client->ps.origin, self->s.number,
+			   MASK_SHOT);
 
-	// blocked, do not shoot
+	// if blocked, do not shoot
 	if(tr.entityNum == self->enemy->s.number)
 		return qtrue;
 
@@ -531,7 +548,7 @@ void ACEAI_ChooseWeapon(gentity_t * self)
 	// if no enemy, then what are we doing here?
 	if(!self->enemy)
 		return;
-		
+
 	// base selection on distance
 	VectorSubtract(self->client->ps.origin, self->enemy->client->ps.origin, v);
 	range = VectorLength(v);

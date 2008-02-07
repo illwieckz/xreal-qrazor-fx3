@@ -237,13 +237,13 @@ gentity_t      *G_FindRadius(gentity_t * from, const vec3_t org, float rad)
 	{
 		if(!from->inuse)
 			continue;
-		
+
 		for(j = 0; j < 3; j++)
 			eorg[j] = org[j] - (from->s.origin[j] + (from->r.mins[j] + from->r.maxs[j]) * 0.5);
-		
+
 		if(VectorLength(eorg) > rad)
 			continue;
-			
+
 		return from;
 	}
 
@@ -470,7 +470,7 @@ void G_InitGentity(gentity_t * e)
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
-	
+
 #if defined(ACEBOT)
 	e->node = -1;
 #endif

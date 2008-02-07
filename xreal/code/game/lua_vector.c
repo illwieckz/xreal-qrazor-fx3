@@ -181,7 +181,7 @@ static int vector_Perpendicular(lua_State * L)
 
 	dst = lua_getvector(L, 1);
 	src = lua_getvector(L, 2);
-	
+
 	PerpendicularVector(dst, src);
 
 	return 1;

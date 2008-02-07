@@ -747,7 +747,7 @@ void Cmd_Team_f(gentity_t * ent)
 {
 	int             oldTeam;
 	char            s[MAX_TOKEN_CHARS];
-	
+
 	//G_Printf("Cmd_Team_f()\n");
 
 	if(trap_Argc() != 2)

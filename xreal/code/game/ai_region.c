@@ -190,7 +190,7 @@ int LevelNearestRegions(vec3_t point, int max_neighbors, region_t * neighbors[],
 		return 0;
 
 	// Find the closest neighbors and the square of their distances
-	num_neighbors = octree_neighbors(point, region_tree, RegionLocation, max_neighbors, (void *) neighbors, dists);
+	num_neighbors = octree_neighbors(point, region_tree, RegionLocation, max_neighbors, (void *)neighbors, dists);
 
 	// Compute the actual distances
 	for(i = 0; i < num_neighbors; i++)

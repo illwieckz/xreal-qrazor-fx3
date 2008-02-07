@@ -59,7 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4032)
 #pragma warning(disable : 4051)
-#pragma warning(disable : 4055) // 'type cast' : from data pointer 'void *' to function pointer 
+#pragma warning(disable : 4055)	// 'type cast' : from data pointer 'void *' to function pointer
 #pragma warning(disable : 4057)	// slightly different base types
 #pragma warning(disable : 4100)	// unreferenced formal parameter
 #pragma warning(disable : 4115)
@@ -613,7 +613,7 @@ static ID_INLINE void SnapVector(vec3_t v)
 	v[1] = (int)v[1];
 	v[2] = (int)v[2];
 #endif
-	
+
 }
 
 void            SnapVectorTowards(vec3_t v, vec3_t to);

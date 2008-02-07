@@ -334,7 +334,7 @@ qboolean G_CallSpawn(gentity_t * ent)
 			{
 				G_Printf("...spawning %s\n", ent->classname);
 			}
-			
+
 			G_SpawnItem(ent, item);
 			return qtrue;
 		}

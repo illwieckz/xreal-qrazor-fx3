@@ -584,15 +584,15 @@ void LevelPathSetup(void)
 		// Relay activators
 		if(!strcmp(ent->classname, "target_relay") || !strcmp(ent->classname, "target_delay"))
 			activator_setup = ActivatorSetupRelay;
-		
+
 		// Buttons
 		else if(!strcmp(ent->classname, "func_button"))
 			activator_setup = ActivatorSetupButton;
-		
+
 		// Trigger boxes
 		else if(!strcmp(ent->classname, "trigger_multiple"))
 			activator_setup = ActivatorSetupTrigger;
-		
+
 		// Not an activator
 		else
 			activator_setup = 0;
@@ -636,8 +636,7 @@ void LevelPathSetup(void)
 		//   - Either is shootable -or-
 		//   - Has a valid target name
 		// NOTE: Most doors do not have a target name-- they automatically open
-		if((ent->s.eType == ET_MOVER) &&
-		   (!ent->target || !ent->target[0]) && (ent->takedamage || (ent->name && ent->name[0])))
+		if((ent->s.eType == ET_MOVER) && (!ent->target || !ent->target[0]) && (ent->takedamage || (ent->name && ent->name[0])))
 		{
 			NewObstacle(ent);
 			continue;
@@ -660,8 +659,7 @@ void LevelPathSetup(void)
 	// Create intra-structure links between obstacles and activators
 	for(i = 0; i < num_obstacles; i++)
 	{
-		LevelAddObstacleActivator(&level_obstacles[i], activator_target, num_activator_targets, i,
-								  level_obstacles[i].ent->name);
+		LevelAddObstacleActivator(&level_obstacles[i], activator_target, num_activator_targets, i, level_obstacles[i].ent->name);
 	}
 
 	// A setup completion message can make users feel a lot better

@@ -341,6 +341,7 @@ int trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3)
 {
 	return syscall(BOTLIB_TEST, parm0, parm1, parm2, parm3);
 }
+
 //#endif
 
 #if defined(GLADIATOR)
@@ -999,4 +1000,4 @@ int trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent
 }
 #endif
 
-#endif // BRAINWORKS
+#endif							// BRAINWORKS

@@ -11,7 +11,7 @@
 #if defined(BRAINWORKS)
 
 #if !defined( Q3_VM )
-	typedef int cmp_t(const void *, const void *);
+typedef int     cmp_t(const void *, const void *);
 #endif
 
 // FIXME: These should be in q_shared.h but aren't for some reason
@@ -236,6 +236,7 @@ int             bsearch_addr(const void *key, const void *list, size_t list_size
 							 void **match);
 //#if !defined ( Q3_VM )
 void           *bsearch(const void *match, const void *list, size_t list_size, size_t entry_size, cmp_t * compare);
+
 //#endif
 void           *bsearch_ins(const void *key, void *list, size_t * list_size, size_t max_list_size, size_t entry_size,
 							cmp_t * compare, int *insert);
@@ -366,9 +367,8 @@ octree_node_t  *octree_assemble(octree_node_t * nodes, int num_nodes, const floa
 void           *octree_neighbor(vec3_t point, octree_node_t * root, const float *(data_location) (const void *));
 
 int             octree_neighbors(vec3_t point, octree_node_t * root,
-					            const float *(data_location) (const void *),
-					            int max_neighbors, void *neighbors[],
-					            float dists[]);
+								 const float *(data_location) (const void *),
+								 int max_neighbors, void *neighbors[], float dists[]);
 
 // Print out the contents of the tree
 void            octree_print(octree_node_t * root, const char *(data_name) (const void *));

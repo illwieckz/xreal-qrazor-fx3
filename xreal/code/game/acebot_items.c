@@ -42,7 +42,7 @@ qboolean ACEIT_IsReachable(gentity_t * self, vec3_t goal)
 
 	VectorCopy(self->r.mins, v);
 	v[2] += STEPSIZE;
-	
+
 	trap_Trace(&trace, self->client->ps.origin, v, self->r.maxs, goal, self->s.number, MASK_PLAYERSOLID);
 
 	// Yes we can see it
@@ -56,7 +56,7 @@ qboolean ACEIT_IsReachable(gentity_t * self, vec3_t goal)
 qboolean ACEIT_IsVisible(gentity_t * self, vec3_t goal)
 {
 	trace_t         trace;
-	
+
 	trap_Trace(&trace, self->client->ps.origin, NULL, NULL, goal, self->s.number, MASK_PLAYERSOLID);
 
 	// Yes we can see it
@@ -70,8 +70,8 @@ qboolean ACEIT_IsVisible(gentity_t * self, vec3_t goal)
 qboolean ACEIT_ChangeWeapon(gentity_t * self, weapon_t weapon)
 {
 	// see if we're already using it
-//	if(self->client->ps.weapon == weapon)
-//		return qtrue;
+//  if(self->client->ps.weapon == weapon)
+//      return qtrue;
 
 	// has not picked up weapon yet
 	if(!(self->client->ps.stats[STAT_WEAPONS] & BIT(weapon)))
@@ -91,9 +91,9 @@ qboolean ACEIT_ChangeWeapon(gentity_t * self, weapon_t weapon)
 float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 {
 	// Tr3B: logic based on BG_CanItemBeGrabbed
-	
-	gitem_t			*item = itemEnt->item;
-	
+
+	gitem_t        *item = itemEnt->item;
+
 	switch (item->giType)
 	{
 		case IT_WEAPON:
@@ -106,7 +106,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 		{
 			if(self->client->ps.ammo[item->giTag] >= 200)
 			{
-				return 0.0;	// can't hold any more
+				return 0.0;		// can't hold any more
 			}
 			return 0.3;
 		}
@@ -153,14 +153,14 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			}
 			else
 #endif
-			
+
 			if(item->quantity == 5 || item->quantity == 100)
 			{
 				if(self->client->ps.stats[STAT_HEALTH] >= self->client->ps.stats[STAT_MAX_HEALTH] * 2)
 				{
 					return 0.0;
 				}
-				
+
 				return 1.0 - (float)self->health / (self->client->ps.stats[STAT_MAX_HEALTH] * 2);	// worse off, higher priority;
 			}
 
@@ -168,7 +168,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 0.0;
 			}
-			
+
 			return 1.0 - (float)self->health / 100.0f;	// worse off, higher priority
 		}
 
@@ -177,7 +177,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			// powerups are always picked up
 			return 0.8;
 		}
-		
+
 		case IT_TEAM:
 		{
 			// team items, such as flags
@@ -234,8 +234,8 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 #endif
 			return 0.0;
 		}
-		
-		
+
+
 		default:
 			return 0.0;
 	}
@@ -252,41 +252,39 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 	int             i;
 	gentity_t      *ent;
 	vec3_t          v, v1, v2;
-	int				nodeType;
+	int             nodeType;
 
 	for(i = 0, ent = &g_entities[0]; i < level.numEntities; i++, ent++)
 	{
 		if(!ent->inuse)
-		{
 			continue;
-		}
 
 		/*
-		// special node dropping for platforms
-		if(!Q_stricmp(ent->item->classname, "func_plat"))
-		{
-			if(!rebuild)
-				ACEND_AddNode(ent, NODE_PLATFORM);
-			item_index = 99;	// to allow to pass the item index test
-		}
+		   // special node dropping for platforms
+		   if(!Q_stricmp(ent->item->classname, "func_plat"))
+		   {
+		   if(!rebuild)
+		   ACEND_AddNode(ent, NODE_PLATFORM);
+		   item_index = 99; // to allow to pass the item index test
+		   }
 
-		// special node dropping for teleporters
-		if(!Q_stricmp(ent->item->classname, "misc_teleporter_dest") || !Q_stricmp(ent->item->classname, "trigger_teleport"))
-		{
-			if(!rebuild)
-				ACEND_AddNode(ent, NODE_TELEPORTER);
-			item_index = 99;
-		}
-		*/
-		
-		
+		   // special node dropping for teleporters
+		   if(!Q_stricmp(ent->item->classname, "misc_teleporter_dest") || !Q_stricmp(ent->item->classname, "trigger_teleport"))
+		   {
+		   if(!rebuild)
+		   ACEND_AddNode(ent, NODE_TELEPORTER);
+		   item_index = 99;
+		   }
+		 */
+
+
 		if(ent->item)
 		{
 			// FIXME: ignore dropped items for now, because they would create too many nodes
 			// it would be necessary to remove nodes if we want to support them
 			if(ent->flags & FL_DROPPED_ITEM)
 				continue;
-			
+
 			nodeType = NODE_ITEM;
 		}
 		else if(!Q_stricmp(ent->classname, "trigger_teleport"))
@@ -294,11 +292,11 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 			nodeType = NODE_TRIGGER_TELEPORT;
 		}
 		/*
-		else if(!Q_stricmp(ent->classname, "misc_teleporter_dest"))
-		{
-			nodeType = NODE_TARGET_TELEPORT;
-		}
-		*/
+		   else if(!Q_stricmp(ent->classname, "misc_teleporter_dest"))
+		   {
+		   nodeType = NODE_TARGET_TELEPORT;
+		   }
+		 */
 		else if(!Q_stricmp(ent->classname, "trigger_push"))
 		{
 			nodeType = NODE_JUMPPAD;
@@ -309,26 +307,22 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 			continue;
 		}
 
-		// ff new, add nodes for items
+		// if new, add nodes for items
 		if(!rebuild)
 		{
 			// add a new node at the item's location.
 			ent->node = ACEND_AddNode(ent, nodeType);
 		}
-		else					// Now if rebuilding, just relink ent structures 
+		else
 		{
-			// Find stored location
+			// find stored location
 			for(i = 0; i < numNodes; i++)
 			{
-				if(	nodes[i].type == NODE_ITEM ||
-					nodes[i].type == NODE_PLATFORM ||
-					nodes[i].type == NODE_TRIGGER_TELEPORT || 
-					nodes[i].type == NODE_JUMPPAD)	// valid types
+				if(nodes[i].type == NODE_ITEM || nodes[i].type == NODE_PLATFORM || nodes[i].type == NODE_TRIGGER_TELEPORT || nodes[i].type == NODE_JUMPPAD)	// valid types
 				{
-					VectorCopy(ent->s.origin, v);
-					
 					if(nodes[i].type == NODE_ITEM)
 					{
+						VectorCopy(ent->s.origin, v);
 						//v[2] += 16;
 					}
 					else if(nodes[i].type == NODE_TRIGGER_TELEPORT)
@@ -337,16 +331,16 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 						VectorScale(v, 0.5, v);
 					}
 					/*
-					else if(nodes[i].type == NODE_TARGET_TELEPORT)
-					{
-						v[2] += 32;
-					}
-					*/
+					   else if(nodes[i].type == NODE_TARGET_TELEPORT)
+					   {
+					   v[2] += 32;
+					   }
+					 */
 					else if(nodes[i].type == NODE_JUMPPAD)
 					{
 						VectorAdd(ent->r.absmin, ent->r.absmax, v);
 						VectorScale(v, 0.5, v);
-						
+
 						// add jumppad target offset
 						VectorNormalize2(ent->s.origin2, v2);
 						VectorMA(v, 32, v2, v);
@@ -361,58 +355,62 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 						v[1] = (v1[1] - v2[1]) / 2 + v2[1];
 						v[2] = ent->r.mins[2] + 64;
 					}
-					
+
 					SnapVector(v);
-					
-					if(ent->node != INVALID || VectorCompare(v, nodes[i].origin))
+
+					if(/*ent->node != INVALID ||*/ VectorCompare(v, nodes[i].origin))
 					{
-						// found a match now link to facts
-						ent->node = i;
-						
+						/*
 						if(!VectorCompare(v, nodes[i].origin))
 						{
 							// update node origin
-							VectorCopy(v, nodes[i].origin);	
+							VectorCopy(v, nodes[i].origin);
+						}
+						else
+						*/
+						{
+							// found a match now link to facts
+							ent->node = i;
 						}
 
-#if 0 //defined(_DEBUG)
+#if 0							//defined(_DEBUG)
 						if(ent->item)
 						{
 							G_Printf("relink item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
-									ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+									 ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
 						}
 						else
 						{
 							G_Printf("relink entity: %s node: %d pos: %f %f %f\n", ent->classname, ent->node,
-									ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+									 ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
 						}
-#endif				
+#endif
 						break;
 					}
 				}
 			}
-			
+
 			if(i == numNodes)
 			{
 				// add a new node at the item's location.
 				ent->node = ACEND_AddNode(ent, nodeType);
 			}
 		}
-		
-#if 0 //defined(_DEBUG)
+
+#if 0							//defined(_DEBUG)
 		//if(item_index == INVALID)
-		//	fprintf(pOut, "Rejected item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
-		//			ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
+		//  fprintf(pOut, "Rejected item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node,
+		//          ent->s.origin[0], ent->s.origin[1], ent->s.origin[2]);
 		//else
 		if(ent->item)
 		{
 			G_Printf("accepted item: %s node: %d pos: %f %f %f\n", ent->item->classname, ent->node, ent->s.origin[0],
-					ent->s.origin[1], ent->s.origin[2]);
+					 ent->s.origin[1], ent->s.origin[2]);
 		}
 		else
 		{
 			G_Printf("accepted entity: %s node: %d pos: %f %f %f\n", ent->classname, ent->node, ent->s.origin[0],
-					ent->s.origin[1], ent->s.origin[2]);
+					 ent->s.origin[1], ent->s.origin[2]);
 		}
 #endif
 
@@ -421,4 +419,3 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 }
 
 #endif
-

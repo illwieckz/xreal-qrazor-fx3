@@ -433,7 +433,7 @@ int ClusterSpawnedItemCount(item_cluster_t * cluster)
 		// Tr3B: bugfix
 		if(!item)
 			break;
-		
+
 		if(item->ent && item->ent->r.contents & CONTENTS_TRIGGER)
 			item_count++;
 	}

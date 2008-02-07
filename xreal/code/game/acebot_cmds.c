@@ -66,9 +66,10 @@ qboolean ACECM_Commands(gentity_t * ent)
 	else if(Q_stricmp(cmd, "findnode") == 0 && ace_debug.integer)
 	{
 		node = ACEND_FindClosestReachableNode(ent, NODE_DENSITY, NODE_ALL);
-		
-		trap_SendServerCommand(ent - g_entities, va("print \"node: %d type: %d x: %f y: %f z %f\n\"",  node, nodes[node].type, nodes[node].origin[0],
-					 nodes[node].origin[1], nodes[node].origin[2]));
+
+		trap_SendServerCommand(ent - g_entities,
+							   va("print \"node: %d type: %d x: %f y: %f z %f\n\"", node, nodes[node].type, nodes[node].origin[0],
+								  nodes[node].origin[1], nodes[node].origin[2]));
 	}
 	else if(Q_stricmp(cmd, "movenode") == 0 && ace_debug.integer)
 	{
@@ -81,9 +82,10 @@ qboolean ACECM_Commands(gentity_t * ent)
 		nodes[node].origin[0] = atof(arg2);
 		nodes[node].origin[1] = atof(arg3);
 		nodes[node].origin[2] = atof(arg4);
-		
-		trap_SendServerCommand(ent - g_entities, va("print \"node: %d moved to: %d x: %f y: %f z %f\n\"",  node, nodes[node].type, nodes[node].origin[0],
-					 nodes[node].origin[1], nodes[node].origin[2]));
+
+		trap_SendServerCommand(ent - g_entities,
+							   va("print \"node: %d moved to: %d x: %f y: %f z %f\n\"", node, nodes[node].type,
+								  nodes[node].origin[0], nodes[node].origin[1], nodes[node].origin[2]));
 	}
 	else
 	{
@@ -102,6 +104,3 @@ void ACECM_Store()
 
 
 #endif
-
-
-

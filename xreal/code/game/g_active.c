@@ -1400,9 +1400,9 @@ void ClientThink_real(gentity_t * ent)
 
 	// touch other objects
 	ClientImpacts(ent, &pm);
-	
+
 #if defined(ACEBOT)
-		ACEND_PathMap(ent);
+	ACEND_PathMap(ent);
 #endif
 
 	// save results of triggers and client events

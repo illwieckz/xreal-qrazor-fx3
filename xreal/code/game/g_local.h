@@ -90,12 +90,11 @@ typedef struct
 	// for movement
 	vec3_t          viewAngles;
 	float           yawSpeed;
-	
+
 	vec3_t          moveVector;
 	gentity_t      *moveTarget;
-	
-	gentity_t      *goalEntity;
-	
+	gentity_t      *goalEntity;	// moveTarget of previous frame
+
 	// timers
 	float           next_move_time;
 	float           wander_timeout;
@@ -106,13 +105,13 @@ typedef struct
 	int             goalNode;	// current goal node
 	int             nextNode;	// the node that will take us one step closer to our goal
 	int             lastNode;
-	
+
 	int             node_timeout;
 	int             tries;
 	int             state;
-	
+
 	// result
-	// usercmd_t       cmd;	// this user command is generated every time the bot thinks
+	// usercmd_t       cmd; // this user command is generated every time the bot thinks
 	// using self->client->pers.cmd instead
 } botState_t;
 #endif
@@ -239,10 +238,10 @@ struct gentity_s
 
 #if defined(ACEBOT)
 	botState_t      bs;
-	
+
 	int             node;
-	float           weight;	
-	
+	float           weight;
+
 #endif
 };
 
@@ -872,7 +871,8 @@ int             BotAILoadMap(int restart);
 int             BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart);
 int             BotAIShutdownClient(int client, qboolean restart);
 int             BotAIStartFrame(int time);
-void            BotAIDebug(void); // brainworks
+void            BotAIDebug(void);	// brainworks
+
 //void          BotTestAAS(vec3_t origin);
 #endif
 
@@ -920,7 +920,7 @@ int             luaopen_vector(lua_State * L);
 void            lua_pushvector(lua_State * L, vec3_t v);
 vec_t          *lua_getvector(lua_State * L, int argNum);
 
-#endif // LUA
+#endif							// LUA
 
 
 #include "g_team.h"				// teamplay specific stuff
@@ -1057,12 +1057,12 @@ void            trap_LinkEntity(gentity_t * ent);
 void            trap_UnlinkEntity(gentity_t * ent);
 int             trap_EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount);
 qboolean        trap_EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
-int             trap_BotAllocateClient(void); // NO BOTLIB
-void            trap_BotFreeClient(int clientNum); // NO BOTLIB
-int             trap_BotGetSnapshotEntity(int clientNum, int sequence); // NO BOTLIB
-int             trap_BotGetServerCommand(int clientNum, char *message, int size); // NO BOTLIB
-void            trap_BotUserCommand(int client, usercmd_t * ucmd); // NO BOTLIB
-void            trap_BotClientCommand(int clientNum, char *command); // NO BOTLIB
+int             trap_BotAllocateClient(void);	// NO BOTLIB
+void            trap_BotFreeClient(int clientNum);	// NO BOTLIB
+int             trap_BotGetSnapshotEntity(int clientNum, int sequence);	// NO BOTLIB
+int             trap_BotGetServerCommand(int clientNum, char *message, int size);	// NO BOTLIB
+void            trap_BotUserCommand(int client, usercmd_t * ucmd);	// NO BOTLIB
+void            trap_BotClientCommand(int clientNum, char *command);	// NO BOTLIB
 void            trap_GetUsercmd(int clientNum, usercmd_t * cmd);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
@@ -1079,30 +1079,36 @@ int             trap_BotLibVarGet(char *var_name, char *value, int size);
 int             trap_BotLibDefine(char *string);
 int             trap_BotLibStartFrame(float time);
 int             trap_BotLibLoadMap(const char *mapname);
-int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue); // COULD BE REMOVED
+int             trap_BotLibUpdateEntity(int ent, void /* struct bot_updateentity_s */ *bue);	// COULD BE REMOVED
+
 //#if defined(GLADIATOR)
-int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3); // COULD BE REMOVED
+int             trap_BotLibTest(int parm0, char *parm1, vec3_t parm2, vec3_t parm3);	// COULD BE REMOVED
+
 //#endif
 
 int             trap_AAS_BBoxAreas(vec3_t absmins, vec3_t absmaxs, int *areas, int maxareas);
 int             trap_AAS_AreaInfo(int areanum, void /* struct aas_areainfo_s */ *info);
+
 #if defined(GLADIATOR)
 void            trap_AAS_EntityInfo(int entnum, void /* struct aas_entityinfo_s */ *info);
 #endif
 
 int             trap_AAS_Initialized(void);
 void            trap_AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs);
+
 #if defined(GLADIATOR)
 float           trap_AAS_Time(void);
 #endif
 
 int             trap_AAS_PointAreaNum(vec3_t point);
+
 #if defined(GLADIATOR)
 int             trap_AAS_PointReachabilityAreaIndex(vec3_t point);
 #endif
 int             trap_AAS_TraceAreas(vec3_t start, vec3_t end, int *areas, vec3_t * points, int maxareas);
 
 int             trap_AAS_PointContents(vec3_t point);
+
 #if defined(GLADIATOR)
 int             trap_AAS_NextBSPEntity(int ent);
 int             trap_AAS_ValueForBSPEpairKey(int ent, char *key, char *value, int size);
@@ -1135,6 +1141,7 @@ void            trap_EA_SayTeam(int client, char *str);
 void            trap_EA_Command(int client, char *command);
 
 void            trap_EA_Action(int client, int action);
+
 #if defined(GLADIATOR)
 void            trap_EA_Gesture(int client);
 void            trap_EA_Talk(int client);
@@ -1150,12 +1157,14 @@ void            trap_EA_MoveLeft(int client);
 void            trap_EA_MoveRight(int client);
 #endif
 void            trap_EA_SelectWeapon(int client, int weapon);
+
 #if defined(GLADIATOR)
 void            trap_EA_Jump(int client);
 void            trap_EA_DelayedJump(int client);
 void            trap_EA_Move(int client, vec3_t dir, float speed);
 #endif
 void            trap_EA_View(int client, vec3_t viewangles);
+
 #if defined(GLADIATOR)
 void            trap_EA_EndRegular(int client, float thinktime);
 #endif
@@ -1192,6 +1201,7 @@ void            trap_BotReplaceSynonyms(char *string, unsigned long int context)
 int             trap_BotLoadChatFile(int chatstate, char *chatfile, char *chatname);
 void            trap_BotSetChatGender(int chatstate, int gender);
 void            trap_BotSetChatName(int chatstate, char *name, int client);
+
 #if defined(GLADIATOR)
 void            trap_BotResetGoalState(int goalstate);
 void            trap_BotRemoveFromAvoidGoals(int goalstate, int number);
@@ -1211,6 +1221,7 @@ int             trap_BotChooseNBGItem(int goalstate, vec3_t origin, int *invento
 int             trap_BotTouchingGoal(vec3_t origin, void /* struct bot_goal_s */ *goal);
 int             trap_BotItemGoalInVisButNotVisible(int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal);
 int             trap_BotGetNextCampSpotGoal(int num, void /* struct bot_goal_s */ *goal);
+
 #if defined(GLADIATOR)
 int             trap_BotGetMapLocationGoal(char *name, void /* struct bot_goal_s */ *goal);
 #endif
@@ -1261,6 +1272,6 @@ void            trap_BotResetWeaponState(int weaponstate);
 int             trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 #endif
 
-#endif // defined(BRAINWORKS)
+#endif							// defined(BRAINWORKS)
 
-#endif // __G_LOCAL_H
+#endif							// __G_LOCAL_H

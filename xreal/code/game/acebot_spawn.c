@@ -122,10 +122,10 @@ void ACESP_Respawn(gentity_t * self)
 #endif
 }
 
-gentity_t        *ACESP_FindFreeClient(void)
+gentity_t      *ACESP_FindFreeClient(void)
 {
 #if 0
-	gentity_t        *bot;
+	gentity_t      *bot;
 	int             i;
 	int             max_count = 0;
 
@@ -245,15 +245,17 @@ void ACESP_SetName(gentity_t * bot, char *name, char *skin, char *team)
 void ACESP_SpawnBot(char *name, char *team)
 {
 	int             clientNum;
-//	char           *botinfo;
-//	gentity_t      *bot;
+
+//  char           *botinfo;
+//  gentity_t      *bot;
 	char           *key;
 	char           *s;
-//	char           *botname;
+
+//  char           *botname;
 	char           *model;
 	char           *headmodel;
 	char            userinfo[MAX_INFO_STRING];
-	
+
 	G_Printf("ACESP_SpawnBot(%s, %s)\n", name, team);
 
 	// have the server allocate a client slot
@@ -265,9 +267,9 @@ void ACESP_SpawnBot(char *name, char *team)
 		return;
 	}
 
-//	bot = &g_entities[clientNum];
-//	bot->r.svFlags |= SVF_BOT;
-//	bot->inuse = qtrue;
+//  bot = &g_entities[clientNum];
+//  bot->r.svFlags |= SVF_BOT;
+//  bot->inuse = qtrue;
 
 	// create the bot's userinfo
 	userinfo[0] = '\0';
@@ -275,7 +277,7 @@ void ACESP_SpawnBot(char *name, char *team)
 	Info_SetValueForKey(userinfo, "rate", "25000");
 	Info_SetValueForKey(userinfo, "snaps", "20");
 	Info_SetValueForKey(userinfo, "skill", va("%1.2f", 3.0));
-	
+
 	// TODO LUA bot characterristics
 
 	key = "name";
@@ -368,7 +370,7 @@ void ACESP_RemoveBot(char *name)
 #if 0
 	int             i;
 	qboolean        freed = false;
-	gentity_t        *bot;
+	gentity_t      *bot;
 
 	for(i = 0; i < maxclients->value; i++)
 	{
@@ -392,7 +394,7 @@ void ACESP_RemoveBot(char *name)
 	if(!freed)
 		safe_bprintf(PRINT_MEDIUM, "%s not found\n", name);
 
-	//ACESP_SaveBots();			// Save them again
+	//ACESP_SaveBots();         // Save them again
 #endif
 }
 
@@ -409,46 +411,47 @@ qboolean ACESP_BotConnect(int clientNum, qboolean restart)
 
 	//if(!BotAISetupClient(clientNum, &settings, restart))
 	//{
-	//	trap_DropClient(clientNum, "BotAISetupClient failed");
-	//	return qfalse;
+	//  trap_DropClient(clientNum, "BotAISetupClient failed");
+	//  return qfalse;
 	//}
-	
+
 	/*
-	bot = &g_entities[clientNum];
-	
-	// set bot state
-	bot = g_entities + clientNum;
+	   bot = &g_entities[clientNum];
 
-	bot->enemy = NULL;
-	bot->bs.moveTarget = NULL;
-	bot->bs.state = STATE_MOVE;
+	   // set bot state
+	   bot = g_entities + clientNum;
 
-	// set the current node
-	bot->bs.currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
-	bot->bs.goalNode = bot->bs.currentNode;
-	bot->bs.nextNode = bot->bs.currentNode;
-	bot->bs.next_move_time = level.time;
-	bot->bs.suicide_timeout = level.time + 15000;
-	*/
+	   bot->enemy = NULL;
+	   bot->bs.moveTarget = NULL;
+	   bot->bs.state = STATE_MOVE;
+
+	   // set the current node
+	   bot->bs.currentNode = ACEND_FindClosestReachableNode(bot, NODE_DENSITY, NODE_ALL);
+	   bot->bs.goalNode = bot->bs.currentNode;
+	   bot->bs.nextNode = bot->bs.currentNode;
+	   bot->bs.next_move_time = level.time;
+	   bot->bs.suicide_timeout = level.time + 15000;
+	 */
 
 	return qtrue;
 #endif
 }
 
 
-void  ACESP_SetupBotState(gentity_t * self)
+void ACESP_SetupBotState(gentity_t * self)
 {
 	int             clientNum;
 	char            userinfo[MAX_INFO_STRING];
 
 	//G_Printf("ACESP_SetupBotState()\n");
-	
+
 	clientNum = self->client - level.clients;
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
-	
+
+	self->classname = "acebot";
 	self->enemy = NULL;
-	
-	self->bs.yawSpeed = 30;		// FIXME 100 is deadly fast
+
+	self->bs.yawSpeed = 20;		// FIXME 100 is deadly fast
 	self->bs.moveTarget = NULL;
 	self->bs.state = STATE_MOVE;
 
@@ -459,7 +462,7 @@ void  ACESP_SetupBotState(gentity_t * self)
 	self->bs.lastNode = INVALID;
 	self->bs.next_move_time = level.time;
 	self->bs.suicide_timeout = level.time + 15000;
-	
+
 	if(g_gametype.integer != GT_TOURNAMENT)
 	{
 		// need to send this or bots will be spectators
@@ -470,4 +473,3 @@ void  ACESP_SetupBotState(gentity_t * self)
 
 
 #endif
-

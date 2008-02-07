@@ -36,10 +36,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // pretty good job and looks for lava/slime. 
 qboolean ACEMV_CanMove(gentity_t * self, int direction)
 {
+#if 1
 	vec3_t          forward, right;
 	vec3_t          offset, start, end;
 	vec3_t          angles;
 	trace_t         tr;
+
+	// airborne
+	if(self->s.groundEntityNum == ENTITYNUM_NONE)
+		return qtrue;
 
 	// now check to see if move will move us off an edge
 	VectorCopy(self->bs.viewAngles, angles);
@@ -57,12 +62,12 @@ qboolean ACEMV_CanMove(gentity_t * self, int direction)
 	VectorSet(offset, 36, 0, 24);
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, start);
 
-	VectorSet(offset, 36, 0, -100);
+	VectorSet(offset, 36, 0, -600);
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, end);
-	
+
 	trap_Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_PLAYERSOLID);
 
-	if((tr.fraction == 1.0 /* && tr.fraction != 1*/) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
+	if((tr.fraction > 0.3 && tr.fraction != 1) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
 		if(ace_debug.integer)
 			trap_SendServerCommand(-1, va("print \"%s:" S_COLOR_WHITE " move blocked\n\"", self->client->pers.netname));
@@ -70,6 +75,9 @@ qboolean ACEMV_CanMove(gentity_t * self, int direction)
 	}
 
 	return qtrue;				// yup, can move
+#else
+	return qtrue;
+#endif
 }
 
 // Handle special cases of crouch/jump
@@ -95,7 +103,7 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 	// trace it
 	start[2] += 18;				// so they are not jumping all the time
 	end[2] += 18;
-	
+
 	//tr = gi.trace(start, self->mins, self->maxs, end, self, MASK_MONSTERSOLID);
 	trap_Trace(&tr, start, self->r.mins, self->r.maxs, end, self->s.number, MASK_PLAYERSOLID);
 
@@ -108,7 +116,7 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 		// set up for crouching check
 		VectorCopy(self->r.maxs, top);
 		top[2] = 0.0;			// crouching height
-		
+
 		//tr = gi.trace(start, self->mins, top, end, self, MASK_PLAYERSOLID);
 		trap_Trace(&tr, start, self->r.mins, self->r.maxs, top, self->s.number, MASK_PLAYERSOLID);
 
@@ -124,7 +132,7 @@ qboolean ACEMV_SpecialMove(gentity_t * self)
 		// check for jump
 		start[2] += 32;
 		end[2] += 32;
-		
+
 		//tr = gi.trace(start, self->mins, self->maxs, end, self, MASK_MONSTERSOLID);
 		trap_Trace(&tr, start, self->r.mins, self->r.maxs, end, self->s.number, MASK_PLAYERSOLID);
 
@@ -174,19 +182,18 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	// Ladder code
 	VectorSet(offset, 36, 0, 0);	// set as high as possible
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, upend);
-	
-	//traceFront = gi.trace(self->s.origin, self->mins, self->maxs, upend, self, MASK_OPAQUE);
-	trap_Trace(&traceFront, self->client->ps.origin, self->r.mins, self->r.maxs, upend, self->s.number, MASK_OPAQUE);
+
+	trap_Trace(&traceFront, self->client->ps.origin, self->r.mins, self->r.maxs, upend, self->s.number, MASK_PLAYERSOLID);
 
 	/*
-	if(traceFront.contents & CONTENTS_DETAIL)	// using detail brush here cuz sometimes it does not pick up ladders...??
-	{
-		self->client->pers.cmd.upmove = 127;
-		if(ACEMV_CanMove(self, MOVE_FORWARD))
-			self->client->pers.cmd.forwardmove = 127;
-		return qtrue;
-	}
-	*/
+	   if(traceFront.contents & CONTENTS_DETAIL)    // using detail brush here cuz sometimes it does not pick up ladders...??
+	   {
+	   self->client->pers.cmd.upmove = 127;
+	   if(ACEMV_CanMove(self, MOVE_FORWARD))
+	   self->client->pers.cmd.forwardmove = 127;
+	   return qtrue;
+	   }
+	 */
 
 	// if this check fails we need to continue on with more detailed checks
 	if(traceFront.fraction == 1)
@@ -202,9 +209,9 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	offset[1] -= 36;			// want to make sure this is correct
 	//VectorSet(offset, 0, -18, 4);
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, rightstart);
-	
-	trap_Trace(&traceRight, rightstart, NULL, NULL, focalpoint, self->s.number, MASK_OPAQUE);
-	trap_Trace(&traceLeft, leftstart, NULL, NULL, focalpoint, self->s.number, MASK_OPAQUE);
+
+	trap_Trace(&traceRight, rightstart, NULL, NULL, focalpoint, self->s.number, MASK_PLAYERSOLID);
+	trap_Trace(&traceLeft, leftstart, NULL, NULL, focalpoint, self->s.number, MASK_PLAYERSOLID);
 
 	// wall checking code, this will degenerate progressivly so the least cost 
 	// check will be done first.
@@ -212,14 +219,14 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 	// if open space move ok
 	if(traceLeft.entityNum != ENTITYNUM_WORLD)
 	{
-		traceEntity = &g_entities[traceLeft.entityNum];	
+		traceEntity = &g_entities[traceLeft.entityNum];
 	}
 	else
 	{
-		traceEntity = NULL;	
+		traceEntity = NULL;
 	}
-	
-	if(traceRight.fraction != 1 || traceLeft.fraction != 1)// || (traceEntity && strcmp(traceEntity->classname, "func_door") != 0))
+
+	if(traceRight.fraction != 1 || traceLeft.fraction != 1)	// || (traceEntity && strcmp(traceEntity->classname, "func_door") != 0))
 	{
 		// special uppoint logic to check for slopes/stairs/jumping etc.
 		VectorSet(offset, 0, 18, 24);
@@ -227,11 +234,11 @@ static qboolean ACEMV_CheckEyes(gentity_t * self)
 
 		VectorSet(offset, 0, 0, 200);	// scan for height above head
 		G_ProjectSource(self->client->ps.origin, offset, forward, right, upend);
-		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_OPAQUE);
+		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_PLAYERSOLID);
 
 		VectorSet(offset, 200, 0, 200 * traceUp.fraction - 5);	// set as high as possible
 		G_ProjectSource(self->client->ps.origin, offset, forward, right, upend);
-		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_OPAQUE);
+		trap_Trace(&traceUp, upstart, NULL, NULL, upend, self->s.number, MASK_PLAYERSOLID);
 
 		// If the upper trace is not open, we need to turn.
 		if(traceUp.fraction != 1)
@@ -344,11 +351,11 @@ void ACEMV_MoveToGoal(gentity_t * self)
 	{
 		VectorSubtract(self->bs.moveTarget->s.origin, self->client->ps.origin, self->bs.moveVector);
 		ACEMV_ChangeBotAngle(self);
-		
+
 		if(ace_debug.integer)
-			trap_SendServerCommand(-1, va("chat \"%s: Oh crap a rocket!\n\"", self->client->pers.netname));
-			
-			//trap_SendServerCommand(-1, va("%s \"%s%c%c%s\"", mode == SAY_TEAM ? "tchat" : "chat", name, Q_COLOR_ESCAPE, color, message));
+			trap_SendServerCommand(-1, va("print \"%s: Oh crap a rocket!\n\"", self->client->pers.netname));
+
+		//trap_SendServerCommand(-1, va("%s \"%s%c%c%s\"", mode == SAY_TEAM ? "tchat" : "chat", name, Q_COLOR_ESCAPE, color, message));
 
 		// strafe left/right
 		if(rand() % 1 && ACEMV_CanMove(self, MOVE_LEFT))
@@ -387,9 +394,9 @@ void ACEMV_Move(gentity_t * self)
 	{
 		self->bs.state = STATE_WANDER;
 		self->bs.wander_timeout = level.time + 1000;
-		
+
 		// center view
-		self->bs.viewAngles[PITCH] = 0;		//-self->client->ps.delta_angles[PITCH];
+		//self->bs.viewAngles[PITCH] = 0;	//-self->client->ps.delta_angles[PITCH];
 		return;
 	}
 
@@ -402,23 +409,22 @@ void ACEMV_Move(gentity_t * self)
 		ACEMV_MoveToGoal(self);
 	}
 
-	
 	// grapple
 	/*
-	if(nextNodeType == NODE_GRAPPLE)
-	{
-		ACEMV_ChangeBotAngle(self);
-		ACEIT_ChangeWeapon(self, FindItem("grapple"));
-		self->client->pers.cmd.buttons = BUTTON_ATTACK;
-		return;
-	}
-	// Reset the grapple if hangin on a graple node
-	if(currentNodeType == NODE_GRAPPLE)
-	{
-		CTFPlayerResetGrapple(self);
-		return;
-	}
-	*/
+	   if(nextNodeType == NODE_GRAPPLE)
+	   {
+	   ACEMV_ChangeBotAngle(self);
+	   ACEIT_ChangeWeapon(self, FindItem("grapple"));
+	   self->client->pers.cmd.buttons = BUTTON_ATTACK;
+	   return;
+	   }
+	   // Reset the grapple if hangin on a graple node
+	   if(currentNodeType == NODE_GRAPPLE)
+	   {
+	   CTFPlayerResetGrapple(self);
+	   return;
+	   }
+	 */
 
 #if 0
 	// check for platforms
@@ -431,12 +437,12 @@ void ACEMV_Move(gentity_t * self)
 					return;		// Wait for elevator
 	}
 #endif
-	
+
 	if(currentNodeType == NODE_PLATFORM && nextNodeType == NODE_PLATFORM)
 	{
 		// move to the center
 		self->bs.moveVector[2] = 0;	// kill z movement    
-		
+
 		if(VectorLength(self->bs.moveVector) > 10)
 			self->client->pers.cmd.forwardmove = 200;	// walk to center
 
@@ -447,7 +453,8 @@ void ACEMV_Move(gentity_t * self)
 
 	// jumpto nodes
 	if(nextNodeType == NODE_JUMP ||
-	   (currentNodeType == NODE_JUMP && nextNodeType != NODE_ITEM && nodes[self->bs.nextNode].origin[2] > self->client->ps.origin[2]))
+	   (currentNodeType == NODE_JUMP && nextNodeType != NODE_ITEM &&
+		nodes[self->bs.nextNode].origin[2] > self->client->ps.origin[2]))
 	{
 		// set up a jump move
 		if(ACEMV_CanMove(self, MOVE_FORWARD))
@@ -459,36 +466,34 @@ void ACEMV_Move(gentity_t * self)
 
 		//VectorCopy(self->bs.moveVector, dist);
 		//VectorScale(dist, 127, self->client->ps.velocity);
-
 		return;
 	}
 
-	
+
 	// ladder nodes
 	/*
-	if(nextNodeType == NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
-	{
-		// Otherwise move as fast as we can
-		self->client->pers.cmd.forwardmove = 400;
-		self->velocity[2] = 320;
+	   if(nextNodeType == NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
+	   {
+	   // Otherwise move as fast as we can
+	   self->client->pers.cmd.forwardmove = 400;
+	   self->velocity[2] = 320;
 
-		ACEMV_ChangeBotAngle(self);
+	   ACEMV_ChangeBotAngle(self);
 
-		return;
+	   return;
 
-	}
-	// If getting off the ladder
-	if(currentNodeType == NODE_LADDER && nextNodeType != NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
-	{
-		self->client->pers.cmd.forwardmove = 400;
-		self->client->pers.cmd.upmove = 200;
-		self->velocity[2] = 200;
-		ACEMV_ChangeBotAngle(self);
-		return;
-	}
-	*/
+	   }
+	   // If getting off the ladder
+	   if(currentNodeType == NODE_LADDER && nextNodeType != NODE_LADDER && nodes[self->nextNode].origin[2] > self->s.origin[2])
+	   {
+	   self->client->pers.cmd.forwardmove = 400;
+	   self->client->pers.cmd.upmove = 200;
+	   self->velocity[2] = 200;
+	   ACEMV_ChangeBotAngle(self);
+	   return;
+	   }
+	 */
 
-	
 	// water nodes
 	if(currentNodeType == NODE_WATER)
 	{
@@ -497,7 +502,7 @@ void ACEMV_Move(gentity_t * self)
 
 		// ff the next node is not in the water, then move up to get out.
 		if(nextNodeType != NODE_WATER && !(trap_PointContents(nodes[self->bs.nextNode].origin, self->s.number) & MASK_WATER))
-		{	
+		{
 			// exit water
 			self->client->pers.cmd.upmove = 127;
 		}
@@ -554,44 +559,43 @@ void ACEMV_Wander(gentity_t * self)
 	// Special check for elevators, stand still until the ride comes to a complete stop.
 	/*
 	 * FIXME
-	if(self->groundentity != NULL && self->groundentity->use == Use_Plat)
-		if(self->groundentity->moveinfo.state == STATE_UP || self->groundentity->moveinfo.state == STATE_DOWN)	// only move when platform not
-		{
-			self->velocity[0] = 0;
-			self->velocity[1] = 0;
-			self->velocity[2] = 0;
-			self->next_move_time = level.time + 500;
-			return;
-		}
-		
-	*/
-	
+	 if(self->groundentity != NULL && self->groundentity->use == Use_Plat)
+	 if(self->groundentity->moveinfo.state == STATE_UP || self->groundentity->moveinfo.state == STATE_DOWN) // only move when platform not
+	 {
+	 self->velocity[0] = 0;
+	 self->velocity[1] = 0;
+	 self->velocity[2] = 0;
+	 self->next_move_time = level.time + 500;
+	 return;
+	 }
+
+	 */
+
 	// touched jumppad last Frame?
 	if(self->s.groundEntityNum == ENTITYNUM_NONE)
 	{
-		vec3_t currentSpeed;
-		
+		vec3_t          currentSpeed;
+
 		if(VectorLength(self->client->ps.velocity) > 120)
 		{
 			VectorNormalize2(self->client->ps.velocity, tmp);
-			
-			if(DotProduct(self->bs.moveVector, tmp) <= 0.3)
+
+			if(AngleBetweenVectors(self->bs.moveVector, tmp) >= 120)
 			{
 				// we might have been knocked back by someone or something ..
 				if(!self->bs.moveTarget)
 				{
 					VectorCopy(tmp, self->bs.moveVector);
 					ACEMV_ChangeBotAngle(self);
-				}	
-			}	
+				}
+			}
 		}
-		
+
 		//ACEMV_ChangeBotAngle(self);
 		//self->client->ps.velocity[0] = self->bs.moveVector[0] * 360;
 		//self->client->ps.velocity[1] = self->bs.moveVector[1] * 360;
 		//return;
 	}
-
 
 	// is there a target to move to
 	if(self->bs.moveTarget)
@@ -599,7 +603,6 @@ void ACEMV_Wander(gentity_t * self)
 		ACEMV_MoveToGoal(self);
 	}
 
-	
 	// swimming?
 	VectorCopy(self->client->ps.origin, tmp);
 	tmp[2] += 24;
@@ -619,7 +622,7 @@ void ACEMV_Wander(gentity_t * self)
 	}
 	else
 	{
-		//self->client->>airOutTime = 0;	// probably shound not be messing with this, but
+		//self->client->airOutTime = 0;    // probably shound not be messing with this, but
 	}
 
 	// lava?
@@ -636,7 +639,7 @@ void ACEMV_Wander(gentity_t * self)
 	// check for special movement if we have a normal move (have to test)
 	if(VectorLength(self->client->ps.velocity) < 37)
 	{
-		//if(random() > 0.1 && ACEMV_SpecialMove(self,ucmd))
+		//if(random() > 0.1 && ACEMV_SpecialMove(self))
 		//	return; //removed this because when wandering, the last thing you want is bots jumping
 		//over things and going off ledges.  It's better for them to just bounce around the map.
 
@@ -648,7 +651,7 @@ void ACEMV_Wander(gentity_t * self)
 			self->client->pers.cmd.forwardmove = -127;
 
 		// if there is ground continue otherwise wait for next move
-		if(/*!M_CheckBottom ||*/ self->s.groundEntityNum != ENTITYNUM_NONE)
+		if( /*!M_CheckBottom || */ self->s.groundEntityNum != ENTITYNUM_NONE)
 		{
 			if(ACEMV_CanMove(self, MOVE_FORWARD))
 				self->client->pers.cmd.forwardmove = 127;
@@ -679,7 +682,7 @@ void ACEMV_Attack(gentity_t * self)
 
 	// randomly choose a movement direction
 	c = random();
-	
+
 	// TODO behave different when using the gauntlet
 
 	if(c < 0.2 && ACEMV_CanMove(self, MOVE_LEFT))
@@ -715,8 +718,8 @@ void ACEMV_Attack(gentity_t * self)
 	PerpendicularVector(up, forward);
 	CrossProduct(up, forward, right);
 
-	VectorMA(forward, crandom() * 0.17, up, forward);
-	VectorMA(forward, crandom() * 0.17, right, forward);
+	VectorMA(forward, crandom() * 0.125, up, forward);
+	VectorMA(forward, crandom() * 0.125, right, forward);
 	VectorNormalize(forward);
 	VectorScale(forward, distance, self->bs.moveVector);
 
@@ -729,9 +732,8 @@ void ACEMV_Attack(gentity_t * self)
 	vectoangles(self->bs.moveVector, angles);
 	VectorCopy(angles, self->bs.viewAngles);
 
-//	if(ace_debug.integer)
-//		trap_SendServerCommand(-1, va("print \"%s: attacking %s\n\"", self->client->pers.netname, self->enemy->client->pers.netname));
+//  if(ace_debug.integer)
+//      trap_SendServerCommand(-1, va("print \"%s: attacking %s\n\"", self->client->pers.netname, self->enemy->client->pers.netname));
 }
 
 #endif
-

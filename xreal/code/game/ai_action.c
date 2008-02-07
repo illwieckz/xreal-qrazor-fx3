@@ -902,14 +902,14 @@ void BotActions(bot_state_t * bs, float ai_elapsed, float game_elapsed)
 	// Tr3B: added
 	if(bs->debug_flags & BOT_DEBUG_INFO_AAS)
 	{
-		int			parm0 = 0;
+		int             parm0 = 0;
 
 		if(bs->cmd.buttons & BUTTON_ATTACK)
 			parm0 |= 1;
-		
+
 		if(bot_reachability.integer)
 			parm0 |= 2;
-		
+
 		if(bot_groundonly.integer)
 			parm0 |= 4;
 

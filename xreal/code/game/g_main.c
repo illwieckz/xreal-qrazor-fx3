@@ -116,12 +116,12 @@ vmCvar_t        pm_fixedPmove;
 vmCvar_t        pm_fixedPmoveFPS;
 
 #if defined(ACEBOT)
-vmCvar_t		ace_debug;
-vmCvar_t		ace_showNodes;
-vmCvar_t		ace_showLinks;
-vmCvar_t		ace_showPath;
-vmCvar_t		ace_pickLongRangeGoal;
-vmCvar_t		ace_pickShortRangeGoal;
+vmCvar_t        ace_debug;
+vmCvar_t        ace_showNodes;
+vmCvar_t        ace_showLinks;
+vmCvar_t        ace_showPath;
+vmCvar_t        ace_pickLongRangeGoal;
+vmCvar_t        ace_pickShortRangeGoal;
 vmCvar_t        ace_attackEnemies;
 #endif
 
@@ -612,7 +612,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_InitBots(restart);
 	}
 #elif defined(ACEBOT)
-	
+
 	ACEND_InitNodes();
 	ACEND_LoadNodes();
 	//ACESP_LoadBots();
@@ -2069,7 +2069,7 @@ void G_RunFrame(int levelTime)
 	gentity_t      *ent;
 	int             msec;
 	int             start, end;
-	
+
 	//G_Printf("G_RunFrame()\n");
 
 	// if we are waiting for the level to restart, do nothing

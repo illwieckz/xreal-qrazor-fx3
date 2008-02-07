@@ -46,10 +46,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // node types
 enum
-{	NODE_MOVE,
+{ NODE_MOVE,
 	NODE_PLATFORM,
 	NODE_TRIGGER_TELEPORT,
-//	NODE_TARGET_TELEPORT,
+//  NODE_TARGET_TELEPORT,
 	NODE_ITEM,
 	NODE_WATER,
 	NODE_GRAPPLE,
@@ -142,7 +142,7 @@ void            ACEND_ShowNode(int node);
 void            ACEND_DrawPath(int currentNode, int goalNode);
 void            ACEND_ShowPath(gentity_t * self, int goalNode);
 int             ACEND_AddNode(gentity_t * self, int type);
-const char*     ACEND_NodeTypeToString(int type);
+const char     *ACEND_NodeTypeToString(int type);
 void            ACEND_UpdateNodeEdge(int from, int to);
 void            ACEND_RemoveNodeEdge(gentity_t * self, int from, int to);
 void            ACEND_ResolveAllPaths();
@@ -164,6 +164,6 @@ qboolean        ACESP_BotConnect(int clientNum, qboolean restart);
 void            ACESP_SetupBotState(gentity_t * bot);
 
 
-#endif // ACEBOT
+#endif							// ACEBOT
 
 #endif
