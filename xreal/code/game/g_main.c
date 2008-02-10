@@ -123,6 +123,8 @@ vmCvar_t        ace_showPath;
 vmCvar_t        ace_pickLongRangeGoal;
 vmCvar_t        ace_pickShortRangeGoal;
 vmCvar_t        ace_attackEnemies;
+vmCvar_t        ace_spSkill;
+vmCvar_t        ace_botsFile;
 #endif
 
 
@@ -235,6 +237,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&ace_pickLongRangeGoal, "ace_pickLongRangeGoal", "1", 0, 0, qfalse},
 	{&ace_pickShortRangeGoal, "ace_pickShortRangeGoal", "1", 0, 0, qfalse},
 	{&ace_attackEnemies, "ace_attackEnemies", "1", 0, 0, qfalse},
+	{&ace_spSkill, "g_spSkill", "3", 0, 0, qfalse}, // FIXME rename
+	{&ace_botsFile, "g_botsFile", "3", 0, 0, qfalse}, // FIXME rename
 #endif
 };
 
@@ -612,10 +616,9 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_InitBots(restart);
 	}
 #elif defined(ACEBOT)
-
 	ACEND_InitNodes();
 	ACEND_LoadNodes();
-	//ACESP_LoadBots();
+	ACESP_InitBots(restart);
 #endif
 
 	G_RemapTeamShaders();

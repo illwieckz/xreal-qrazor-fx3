@@ -1014,6 +1014,8 @@ extern vmCvar_t ace_showPath;
 extern vmCvar_t ace_pickLongRangeGoal;
 extern vmCvar_t ace_pickShortRangeGoal;
 extern vmCvar_t ace_attackEnemies;
+extern vmCvar_t ace_spSkill;
+extern vmCvar_t ace_botsFile;
 #endif
 
 

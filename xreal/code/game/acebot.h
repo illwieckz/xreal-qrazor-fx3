@@ -150,14 +150,14 @@ void            ACEND_SaveNodes();
 void            ACEND_LoadNodes();
 
 // acebot_spawn.c protos
-//void            ACESP_SaveBots();
-//void            ACESP_LoadBots();
+void            ACESP_LoadBots();
+void            ACESP_InitBots(qboolean restart);
 void            ACESP_HoldSpawn(gentity_t * self);
 void            ACESP_PutClientInServer(gentity_t * bot, qboolean respawn, int team);
 void            ACESP_Respawn(gentity_t * self);
 gentity_t      *ACESP_FindFreeClient(void);
 void            ACESP_SetName(gentity_t * bot, char *name, char *skin, char *team);
-void            ACESP_SpawnBot(char *name, char *team);
+void            ACESP_SpawnBot(char *name, float skill, char *team);
 void            ACESP_ReAddBots();
 void            ACESP_RemoveBot(char *name);
 qboolean        ACESP_BotConnect(int clientNum, qboolean restart);

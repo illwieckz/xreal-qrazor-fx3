@@ -494,7 +494,7 @@ qboolean ConsoleCommand(void)
 	char            cmd[MAX_TOKEN_CHARS];
 	char            arg1[MAX_TOKEN_CHARS];
 	char            arg2[MAX_TOKEN_CHARS];
-	char            arg3[MAX_TOKEN_CHARS];
+//	char            arg3[MAX_TOKEN_CHARS];
 
 	trap_Argv(0, cmd, sizeof(cmd));
 
@@ -568,28 +568,29 @@ qboolean ConsoleCommand(void)
 
 	if(Q_stricmp(cmd, "addbot") == 0)
 	{
-		char            name[MAX_TOKEN_CHARS];
-		char            altname[MAX_TOKEN_CHARS];
 		char            string[MAX_TOKEN_CHARS];
+		char            name[MAX_TOKEN_CHARS];
+		float           skill;
 		char            team[MAX_TOKEN_CHARS];
 
-		if(trap_Argc() < 3)
+		// name
+		trap_Argv(1, name, sizeof(name));
+		
+		// skill
+		trap_Argv(2, string, sizeof(string));
+		if(!string[0])
 		{
-			//G_Printf("Usage: addbot <name> <team>\n");
-
-			ACESP_SpawnBot(NULL, NULL);
+			skill = 4;
 		}
 		else
 		{
-			trap_Argv(1, arg1, sizeof(arg1));
-			trap_Argv(2, arg2, sizeof(arg2));
-
-			//if(ctf->value)            // name, skin, team
-			//  ACESP_SpawnBot(arg1, gi.argv(3), gi.argv(4), NULL);
-			//else                  // name, skin
-
-			ACESP_SpawnBot(arg1, arg2);
+			skill = atof(string);
 		}
+
+		// team
+		trap_Argv(3, team, sizeof(team));
+
+		ACESP_SpawnBot(name, skill, team);
 
 		// if this was issued during gameplay and we are playing locally,
 		// go ahead and load the bot's media immediately

@@ -684,24 +684,25 @@ void ACEMV_Attack(gentity_t * self)
 	// randomly choose a movement direction
 	c = random();
 
-	// TODO behave different when using the gauntlet
+	//if(self->s.groundEntityNum != ENTITYNUM_NONE)
+	{
+		if(c < 0.2 && ACEMV_CanMove(self, MOVE_LEFT))
+			self->client->pers.cmd.rightmove -= 127;
+		else if(c < 0.4 && ACEMV_CanMove(self, MOVE_RIGHT))
+			self->client->pers.cmd.rightmove += 127;
 
-	if(c < 0.2 && ACEMV_CanMove(self, MOVE_LEFT))
-		self->client->pers.cmd.rightmove -= 127;
-	else if(c < 0.4 && ACEMV_CanMove(self, MOVE_RIGHT))
-		self->client->pers.cmd.rightmove += 127;
+		if(c < 0.6 && ACEMV_CanMove(self, MOVE_FORWARD))
+			self->client->pers.cmd.forwardmove += 127;
+		else if(c < 0.8 && ACEMV_CanMove(self, MOVE_FORWARD) && self->client->ps.weapon != WP_GAUNTLET)
+			self->client->pers.cmd.forwardmove -= 127;
 
-	if(c < 0.6 && ACEMV_CanMove(self, MOVE_FORWARD))
-		self->client->pers.cmd.forwardmove += 127;
-	else if(c < 0.8 && ACEMV_CanMove(self, MOVE_FORWARD) && self->client->ps.weapon != WP_GAUNTLET)
-		self->client->pers.cmd.forwardmove -= 127;
+		if(c < 0.95 && self->client->ps.weapon != WP_GAUNTLET)
+			self->client->pers.cmd.upmove -= 90;
+		else
+			self->client->pers.cmd.upmove += 90;
+	}
 
-	if(c < 0.95 && self->client->ps.weapon != WP_GAUNTLET)
-		self->client->pers.cmd.upmove -= 90;
-	else
-		self->client->pers.cmd.upmove += 90;
-
-	// attack not too much
+	// don't attack too much
 	if(random() < 0.8)
 		self->client->pers.cmd.buttons = BUTTON_ATTACK;
 
@@ -719,8 +720,8 @@ void ACEMV_Attack(gentity_t * self)
 	PerpendicularVector(up, forward);
 	CrossProduct(up, forward, right);
 
-	VectorMA(forward, crandom() * 0.125, up, forward);
-	VectorMA(forward, crandom() * 0.125, right, forward);
+	VectorMA(forward, crandom() * 0.3, up, forward);
+	VectorMA(forward, crandom() * 0.3, right, forward);
 	VectorNormalize(forward);
 	VectorScale(forward, distance, self->bs.moveVector);
 

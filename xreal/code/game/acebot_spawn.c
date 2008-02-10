@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1998 Steve Yeager
+Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
@@ -30,233 +31,377 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(ACEBOT)
 
-///////////////////////////////////////////////////////////////////////
-// Had to add this function in this version for some reason.
-// any globals are wiped out between level changes....so
-// save the bots out to a file. 
-//
-// NOTE: There is still a bug when the bots are saved for
-//       a dm game and then reloaded into a CTF game.
-///////////////////////////////////////////////////////////////////////
-/*
-void ACESP_SaveBots()
+static int      g_numBots;
+static char    *g_botInfos[MAX_BOTS];
+
+
+int             g_numArenas;
+static char    *g_arenaInfos[MAX_ARENAS];
+
+
+extern gentity_t *podium1;
+extern gentity_t *podium2;
+extern gentity_t *podium3;
+
+static int ACESP_ParseInfos(char *buf, int max, char *infos[])
 {
-	gentity_t        *bot;
-	FILE           *pOut;
-	int             i, count = 0;
+	char           *token;
+	int             count;
+	char            key[MAX_TOKEN_CHARS];
+	char            info[MAX_INFO_STRING];
 
-	if((pOut = fopen("ace\\bots.tmp", "wb")) == NULL)
-		return;					// bail
+	count = 0;
 
-	// Get number of bots
-	for(i = maxclients->value; i > 0; i--)
+	while(1)
 	{
-		bot = g_edicts + i + 1;
-
-		if(bot->inuse && bot->is_bot)
-			count++;
-	}
-
-	fwrite(&count, sizeof(int), 1, pOut);	// Write number of bots
-
-	for(i = maxclients->value; i > 0; i--)
-	{
-		bot = g_edicts + i + 1;
-
-		if(bot->inuse && bot->is_bot)
-			fwrite(bot->client->pers.userinfo, sizeof(char) * MAX_INFO_STRING, 1, pOut);
-	}
-
-	fclose(pOut);
-}
-*/
-
-///////////////////////////////////////////////////////////////////////
-// Had to add this function in this version for some reason.
-// any globals are wiped out between level changes....so
-// load the bots from a file.
-//
-// Side effect/benifit are that the bots persist between games.
-///////////////////////////////////////////////////////////////////////
-/*
-void ACESP_LoadBots()
-{
-	FILE           *pIn;
-	char            userinfo[MAX_INFO_STRING];
-	int             i, count;
-
-	if((pIn = fopen("ace\\bots.tmp", "rb")) == NULL)
-		return;					// bail
-
-	fread(&count, sizeof(int), 1, pIn);
-
-	for(i = 0; i < count; i++)
-	{
-		fread(userinfo, sizeof(char) * MAX_INFO_STRING, 1, pIn);
-		ACESP_SpawnBot(NULL, NULL, NULL, userinfo);
-	}
-
-	fclose(pIn);
-}
-*/
-
-
-void ACESP_Respawn(gentity_t * self)
-{
-#if 0
-	CopyToBodyQue(self);
-
-	if(ctf->value)
-		ACESP_PutClientInServer(self, true, self->client->resp.ctf_team);
-	else
-		ACESP_PutClientInServer(self, true, 0);
-
-	// add a teleportation effect
-	self->s.event = EV_PLAYER_TELEPORT;
-
-	// hold in place briefly
-	self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-	self->client->ps.pmove.pm_time = 14;
-
-	self->client->respawn_time = level.time;
-#endif
-}
-
-gentity_t      *ACESP_FindFreeClient(void)
-{
-#if 0
-	gentity_t      *bot;
-	int             i;
-	int             max_count = 0;
-
-	// This is for the naming of the bots
-	for(i = maxclients->value; i > 0; i--)
-	{
-		bot = g_edicts + i + 1;
-
-		if(bot->count > max_count)
-			max_count = bot->count;
-	}
-
-	// Check for free spot
-	for(i = maxclients->value; i > 0; i--)
-	{
-		bot = g_edicts + i + 1;
-
-		if(!bot->inuse)
+		token = Com_Parse(&buf);
+		if(!token[0])
+		{
 			break;
+		}
+		if(strcmp(token, "{"))
+		{
+			Com_Printf("Missing { in info file\n");
+			break;
+		}
+
+		if(count == max)
+		{
+			Com_Printf("Max infos exceeded\n");
+			break;
+		}
+
+		info[0] = '\0';
+		while(1)
+		{
+			token = Com_ParseExt(&buf, qtrue);
+			if(!token[0])
+			{
+				Com_Printf("Unexpected end of info file\n");
+				break;
+			}
+			if(!strcmp(token, "}"))
+			{
+				break;
+			}
+			Q_strncpyz(key, token, sizeof(key));
+
+			token = Com_ParseExt(&buf, qfalse);
+			if(!token[0])
+			{
+				strcpy(token, "<NULL>");
+			}
+			Info_SetValueForKey(info, key, token);
+		}
+		//NOTE: extra space for arena number
+		infos[count] = G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+		if(infos[count])
+		{
+			strcpy(infos[count], info);
+			count++;
+		}
 	}
-
-	bot->count = max_count + 1;	// Will become bot name...
-
-	if(bot->inuse)
-		bot = NULL;
-
-	return bot;
-#else
-	return NULL;
-#endif
+	return count;
 }
 
-///////////////////////////////////////////////////////////////////////
-// Set the name of the bot and update the userinfo
-///////////////////////////////////////////////////////////////////////
-/*
-void ACESP_SetName(gentity_t * bot, char *name, char *skin, char *team)
+static void ACESP_LoadArenasFromFile(char *filename)
 {
-#if 0
-	float           rnd;
-	char            userinfo[MAX_INFO_STRING];
-	char            bot_skin[MAX_INFO_STRING];
-	char            bot_name[MAX_INFO_STRING];
+	int             len;
+	fileHandle_t    f;
+	char            buf[MAX_ARENAS_TEXT];
 
-	// Set the name for the bot.
-	// name
-	if(strlen(name) == 0)
-		sprintf(bot_name, "ACEBot_%d", bot->count);
-	else
-		strcpy(bot_name, name);
-
-	// skin
-	if(strlen(skin) == 0)
+	len = trap_FS_FOpenFile(filename, &f, FS_READ);
+	if(!f)
 	{
-		// randomly choose skin 
-		rnd = random();
-		if(rnd < 0.05)
-			sprintf(bot_skin, "female/athena");
-		else if(rnd < 0.1)
-			sprintf(bot_skin, "female/brianna");
-		else if(rnd < 0.15)
-			sprintf(bot_skin, "female/cobalt");
-		else if(rnd < 0.2)
-			sprintf(bot_skin, "female/ensign");
-		else if(rnd < 0.25)
-			sprintf(bot_skin, "female/jezebel");
-		else if(rnd < 0.3)
-			sprintf(bot_skin, "female/jungle");
-		else if(rnd < 0.35)
-			sprintf(bot_skin, "female/lotus");
-		else if(rnd < 0.4)
-			sprintf(bot_skin, "female/stiletto");
-		else if(rnd < 0.45)
-			sprintf(bot_skin, "female/venus");
-		else if(rnd < 0.5)
-			sprintf(bot_skin, "female/voodoo");
-		else if(rnd < 0.55)
-			sprintf(bot_skin, "male/cipher");
-		else if(rnd < 0.6)
-			sprintf(bot_skin, "male/flak");
-		else if(rnd < 0.65)
-			sprintf(bot_skin, "male/grunt");
-		else if(rnd < 0.7)
-			sprintf(bot_skin, "male/howitzer");
-		else if(rnd < 0.75)
-			sprintf(bot_skin, "male/major");
-		else if(rnd < 0.8)
-			sprintf(bot_skin, "male/nightops");
-		else if(rnd < 0.85)
-			sprintf(bot_skin, "male/pointman");
-		else if(rnd < 0.9)
-			sprintf(bot_skin, "male/psycho");
-		else if(rnd < 0.95)
-			sprintf(bot_skin, "male/razor");
-		else
-			sprintf(bot_skin, "male/sniper");
+		trap_Printf(va(S_COLOR_RED "file not found: %s\n", filename));
+		return;
+	}
+	if(len >= MAX_ARENAS_TEXT)
+	{
+		trap_Printf(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT));
+		trap_FS_FCloseFile(f);
+		return;
+	}
+
+	trap_FS_Read(buf, len, f);
+	buf[len] = 0;
+	trap_FS_FCloseFile(f);
+
+	g_numArenas += ACESP_ParseInfos(buf, MAX_ARENAS - g_numArenas, &g_arenaInfos[g_numArenas]);
+}
+
+static void ACESP_LoadArenas(void)
+{
+	int             numdirs;
+	vmCvar_t        arenasFile;
+	char            filename[128];
+	char            dirlist[1024];
+	char           *dirptr;
+	int             i, n;
+	int             dirlen;
+
+	g_numArenas = 0;
+
+	trap_Cvar_Register(&arenasFile, "g_arenasFile", "", CVAR_INIT | CVAR_ROM);
+	if(*arenasFile.string)
+	{
+		ACESP_LoadArenasFromFile(arenasFile.string);
 	}
 	else
-		strcpy(bot_skin, skin);
+	{
+		ACESP_LoadArenasFromFile("scripts/arenas.txt");
+	}
 
-	// initialise userinfo
-	memset(userinfo, 0, sizeof(userinfo));
+	// get all arenas from .arena files
+	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024);
+	dirptr = dirlist;
+	for(i = 0; i < numdirs; i++, dirptr += dirlen + 1)
+	{
+		dirlen = strlen(dirptr);
+		strcpy(filename, "scripts/");
+		strcat(filename, dirptr);
+		ACESP_LoadArenasFromFile(filename);
+	}
+	trap_Printf(va("%i arenas parsed\n", g_numArenas));
 
-	// add bot's name/skin/hand to userinfo
-	Info_SetValueForKey(userinfo, "name", bot_name);
-	Info_SetValueForKey(userinfo, "skin", bot_skin);
-	Info_SetValueForKey(userinfo, "hand", "2");	// bot is center handed for now!
-
-	ClientConnect(bot, userinfo);
-
-	//ACESP_SaveBots();			// make sure to save the bots
-#endif
+	for(n = 0; n < g_numArenas; n++)
+	{
+		Info_SetValueForKey(g_arenaInfos[n], "num", va("%i", n));
+	}
 }
-*/
 
 
-void ACESP_SpawnBot(char *name, char *team)
+static const char     *ACESP_GetArenaInfoByMap(const char *map)
+{
+	int             n;
+
+	for(n = 0; n < g_numArenas; n++)
+	{
+		if(Q_stricmp(Info_ValueForKey(g_arenaInfos[n], "map"), map) == 0)
+		{
+			return g_arenaInfos[n];
+		}
+	}
+
+	return NULL;
+}
+
+static void ACESP_SpawnBots(char *botList)
+{
+	char           *bot;
+	char           *p;
+	float           skill;
+	char            bots[MAX_INFO_VALUE];
+
+	podium1 = NULL;
+	podium2 = NULL;
+	podium3 = NULL;
+
+	skill = ace_spSkill.integer;
+	if(skill < 1)
+	{
+		trap_Cvar_Set("g_spSkill", "1");
+		skill = 1;
+	}
+	else if(skill > 5)
+	{
+		trap_Cvar_Set("g_spSkill", "5");
+		skill = 5;
+	}
+
+	Q_strncpyz(bots, botList, sizeof(bots));
+	p = &bots[0];
+	while(*p)
+	{
+		//skip spaces
+		while(*p && *p == ' ')
+		{
+			p++;
+		}
+		if(!p)
+		{
+			break;
+		}
+
+		// mark start of bot name
+		bot = p;
+
+		// skip until space of null
+		while(*p && *p != ' ')
+		{
+			p++;
+		}
+		if(*p)
+		{
+			*p++ = 0;
+		}
+
+		// we must add the bot this way, calling G_AddBot directly at this stage
+		// does "Bad Things"
+		trap_SendConsoleCommand(EXEC_INSERT, va("addbot %s %f free\n", bot, skill));
+	}
+}
+
+static void ACESP_LoadBotsFromFile(char *filename)
+{
+	int             len;
+	fileHandle_t    f;
+	char            buf[MAX_BOTS_TEXT];
+
+	len = trap_FS_FOpenFile(filename, &f, FS_READ);
+	if(!f)
+	{
+		trap_Printf(va(S_COLOR_RED "file not found: %s\n", filename));
+		return;
+	}
+	if(len >= MAX_BOTS_TEXT)
+	{
+		trap_Printf(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT));
+		trap_FS_FCloseFile(f);
+		return;
+	}
+
+	trap_FS_Read(buf, len, f);
+	buf[len] = 0;
+	trap_FS_FCloseFile(f);
+
+	g_numBots += ACESP_ParseInfos(buf, MAX_BOTS - g_numBots, &g_botInfos[g_numBots]);
+}
+
+static void ACESP_LoadBots(void)
+{
+	int             numdirs;
+	char            filename[128];
+	char            dirlist[1024];
+	char           *dirptr;
+	int             i;
+	int             dirlen;
+
+	g_numBots = 0;
+
+	if(*ace_botsFile.string)
+	{
+		ACESP_LoadBotsFromFile(ace_botsFile.string);
+	}
+	else
+	{
+		ACESP_LoadBotsFromFile("scripts/bots.txt");
+	}
+
+	// get all bots from .bot files
+	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024);
+	dirptr = dirlist;
+	for(i = 0; i < numdirs; i++, dirptr += dirlen + 1)
+	{
+		dirlen = strlen(dirptr);
+		strcpy(filename, "scripts/");
+		strcat(filename, dirptr);
+		ACESP_LoadBotsFromFile(filename);
+	}
+	
+	trap_Printf(va("%i bots parsed\n", g_numBots));
+}
+
+
+
+static char           *ACESP_GetBotInfoByNumber(int num)
+{
+	if(num < 0 || num >= g_numBots)
+	{
+		trap_Printf(va(S_COLOR_RED "Invalid bot number: %i\n", num));
+		return NULL;
+	}
+	return g_botInfos[num];
+}
+
+
+static char           *ACESP_GetBotInfoByName(const char *name)
+{
+	int             n;
+	char           *value;
+
+	for(n = 0; n < g_numBots; n++)
+	{
+		value = Info_ValueForKey(g_botInfos[n], "name");
+		if(!Q_stricmp(value, name))
+		{
+			return g_botInfos[n];
+		}
+	}
+
+	return NULL;
+}
+
+void ACESP_InitBots(qboolean restart)
+{
+	int             fragLimit;
+	int             timeLimit;
+	const char     *arenainfo;
+	char           *strValue;
+	char            map[MAX_QPATH];
+	char            serverinfo[MAX_INFO_STRING];
+
+	ACESP_LoadBots();
+	ACESP_LoadArenas();
+
+	if(g_gametype.integer == GT_SINGLE_PLAYER)
+	{
+		trap_GetServerinfo(serverinfo, sizeof(serverinfo));
+		Q_strncpyz(map, Info_ValueForKey(serverinfo, "mapname"), sizeof(map));
+		arenainfo = ACESP_GetArenaInfoByMap(map);
+		if(!arenainfo)
+		{
+			return;
+		}
+
+		strValue = Info_ValueForKey(arenainfo, "fraglimit");
+		fragLimit = atoi(strValue);
+		if(fragLimit)
+		{
+			trap_Cvar_Set("fraglimit", strValue);
+		}
+		else
+		{
+			trap_Cvar_Set("fraglimit", "0");
+		}
+
+		strValue = Info_ValueForKey(arenainfo, "timelimit");
+		timeLimit = atoi(strValue);
+		if(timeLimit)
+		{
+			trap_Cvar_Set("timelimit", strValue);
+		}
+		else
+		{
+			trap_Cvar_Set("timelimit", "0");
+		}
+
+		if(!fragLimit && !timeLimit)
+		{
+			trap_Cvar_Set("fraglimit", "10");
+			trap_Cvar_Set("timelimit", "0");
+		}
+
+		if(!restart)
+		{
+			ACESP_SpawnBots(Info_ValueForKey(arenainfo, "bots"));
+		}
+	}
+}
+
+void ACESP_SpawnBot(char *name, float skill, char *team)
 {
 	int             clientNum;
-
-//  char           *botinfo;
+	char           *botinfo;
 //  gentity_t      *bot;
 	char           *key;
 	char           *s;
-
-//  char           *botname;
+	char           *botname;
 	char           *model;
 	char           *headmodel;
 	char            userinfo[MAX_INFO_STRING];
 
-	G_Printf("ACESP_SpawnBot(%s, %s)\n", name, team);
+	G_Printf("ACESP_SpawnBot(%s, %f, %s)\n", name, skill, team);
 
 	// have the server allocate a client slot
 	clientNum = trap_BotAllocateClient();
@@ -267,68 +412,69 @@ void ACESP_SpawnBot(char *name, char *team)
 		return;
 	}
 
-//  bot = &g_entities[clientNum];
-//  bot->r.svFlags |= SVF_BOT;
-//  bot->inuse = qtrue;
+	// get the botinfo from bots.txt
+	botinfo = ACESP_GetBotInfoByName(name);
+	if(!botinfo)
+	{
+		G_Printf(S_COLOR_YELLOW "WARNING: Bot '%s' not defined, using default values\n", name);
+	}
 
 	// create the bot's userinfo
 	userinfo[0] = '\0';
 
+	botname = Info_ValueForKey(botinfo, "name");
+	if(!botname[0])
+	{
+		if(!name || !name[0])
+			botname = va("ACEBot%d", clientNum);
+		else
+			botname = name;
+	}
+	Info_SetValueForKey(userinfo, "name", botname);
 	Info_SetValueForKey(userinfo, "rate", "25000");
 	Info_SetValueForKey(userinfo, "snaps", "20");
-	Info_SetValueForKey(userinfo, "skill", va("%1.2f", 3.0));
-
-	// TODO LUA bot characterristics
-
-	key = "name";
-	//model = Info_ValueForKey(botinfo, key);
-	if(!name || !*name)
-	{
-		name = va("ACEBot%d", clientNum);
-	}
-	Info_SetValueForKey(userinfo, key, name);
+	Info_SetValueForKey(userinfo, "skill", va("%1.2f", skill));
 
 	key = "model";
-	//model = Info_ValueForKey(botinfo, key);
-	//if(!*model)
+	model = Info_ValueForKey(botinfo, key);
+	if(!*model)
 	{
 		model = "visor/default";
 	}
 	Info_SetValueForKey(userinfo, key, model);
 
 	key = "headmodel";
-	//headmodel = Info_ValueForKey(botinfo, key);
-	//if(!*headmodel)
+	headmodel = Info_ValueForKey(botinfo, key);
+	if(!*headmodel)
 	{
 		headmodel = model;
 	}
 	Info_SetValueForKey(userinfo, key, headmodel);
 
 	key = "gender";
-	//s = Info_ValueForKey(botinfo, key);
-	//if(!*s)
+	s = Info_ValueForKey(botinfo, key);
+	if(!*s)
 	{
 		s = "male";
 	}
 	Info_SetValueForKey(userinfo, "sex", s);
 
 	key = "color1";
-	//s = Info_ValueForKey(botinfo, key);
-	//if(!*s)
+	s = Info_ValueForKey(botinfo, key);
+	if(!*s)
 	{
 		s = "4";
 	}
 	Info_SetValueForKey(userinfo, key, s);
 
 	key = "color2";
-	//s = Info_ValueForKey(botinfo, key);
-	//if(!*s)
+	s = Info_ValueForKey(botinfo, key);
+	if(!*s)
 	{
 		s = "5";
 	}
 	Info_SetValueForKey(userinfo, key, s);
 
-	// initialize the bot settings
 	if(!team || !*team)
 	{
 		if(g_gametype.integer >= GT_TEAM)
@@ -347,9 +493,10 @@ void ACESP_SpawnBot(char *name, char *team)
 			team = "red";
 		}
 	}
+	Info_SetValueForKey(userinfo, "team", team);
+
 	//Info_SetValueForKey(userinfo, "characterfile", Info_ValueForKey(botinfo, "aifile"));
 	//Info_SetValueForKey(userinfo, "skill", va("%5.2f", skill));
-	Info_SetValueForKey(userinfo, "team", team);
 
 	// register the userinfo
 	trap_SetUserinfo(clientNum, userinfo);
