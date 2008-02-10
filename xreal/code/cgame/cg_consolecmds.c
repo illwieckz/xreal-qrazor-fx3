@@ -660,7 +660,6 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("teamvote");
 	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
-	trap_AddCommand("loaddeferred");
 	
 	// useful for development
 	trap_AddCommand("restartLuaGameVM");

@@ -88,9 +88,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
 
-#define	DEFAULT_MODEL			"visor"
-#define	DEFAULT_HEADMODEL		"visor"
-
 #define DEFAULT_REDTEAM_NAME		"Stroggs"
 #define DEFAULT_BLUETEAM_NAME		"Pagans"
 
@@ -384,6 +381,7 @@ typedef struct
 	gender_t        gender;		// from model
 
 #ifdef XPPM
+	// Tr3B: don't forget to add these values to CG_CopyClientInfoModel !
 	char            firstTorsoBoneName[MAX_QPATH];
 	char            lastTorsoBoneName[MAX_QPATH];
 

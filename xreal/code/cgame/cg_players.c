@@ -1243,6 +1243,14 @@ static void CG_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to)
 	to->gender = from->gender;
 
 #ifdef XPPM
+	Q_strncpyz(to->firstTorsoBoneName, from->firstTorsoBoneName, sizeof(to->firstTorsoBoneName));
+	Q_strncpyz(to->lastTorsoBoneName, from->lastTorsoBoneName, sizeof(to->lastTorsoBoneName));
+
+	Q_strncpyz(to->torsoControlBoneName, from->torsoControlBoneName, sizeof(to->torsoControlBoneName));
+	Q_strncpyz(to->neckControlBoneName, from->neckControlBoneName, sizeof(to->neckControlBoneName));
+	
+	VectorCopy(from->modelScale, to->modelScale);
+
 	to->bodyModel = from->bodyModel;
 	to->bodySkin = from->bodySkin;
 #endif
@@ -1384,7 +1392,7 @@ static void CG_SetDeferredClientInfo(clientInfo_t * ci)
 
 	// we should never get here...
 	CG_Printf("CG_SetDeferredClientInfo: no valid clients!\n");
-
+	
 	CG_LoadClientInfo(ci);
 }
 
@@ -1410,6 +1418,8 @@ void CG_NewClientInfo(int clientNum)
 		memset(ci, 0, sizeof(*ci));
 		return;					// player just left
 	}
+
+	CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
 
 	// build into a temp buffer so the defer checks can use
 	// the old value
@@ -3130,6 +3140,7 @@ void CG_Player(centity_t * cent)
 	int             renderfx;
 	qboolean        shadow;
 	float           shadowPlane;
+	int             noShadowID;
 
 	vec3_t          legsAngles;
 	vec3_t          torsoAngles;
@@ -3158,6 +3169,7 @@ void CG_Player(centity_t * cent)
 	// not have valid clientinfo
 	if(!ci->infoValid)
 	{
+		CG_Printf("Bad clientInfo for player %i\n", clientNum);
 		return;
 	}
 
@@ -3195,6 +3207,11 @@ void CG_Player(centity_t * cent)
 	// add the shadow
 	shadow = CG_PlayerShadow(cent, &shadowPlane);
 
+	// generate a new unique noShadowID to avoid that the lights of the quad damage
+	// will cause bad player shadows
+	noShadowID = CG_UniqueNoShadowID();
+	body.noShadowID = noShadowID;
+
 	// add a water splash if partially in and out of water
 	CG_PlayerSplash(cent);
 
@@ -3216,6 +3233,7 @@ void CG_Player(centity_t * cent)
 
 	if(!body.hModel)
 	{
+		CG_Printf("No body model for player %i\n", clientNum);
 		return;
 	}
 
@@ -3321,8 +3339,8 @@ void CG_Player(centity_t * cent)
 	// add the gun / barrel / flash
 	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
 
-	// TODO add powerups floating behind the player
-	//CG_PlayerPowerups(cent, &body);
+	// add powerups floating behind the player
+	CG_PlayerPowerups(cent, &body, noShadowID);
 
 //unlagged - client options
 	// add the bounding box (if cg_drawBBox is 1)

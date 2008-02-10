@@ -439,7 +439,7 @@ void ACESP_SpawnBot(char *name, float skill, char *team)
 	model = Info_ValueForKey(botinfo, key);
 	if(!*model)
 	{
-		model = "visor/default";
+		model = DEFAULT_MODEL;
 	}
 	Info_SetValueForKey(userinfo, key, model);
 
