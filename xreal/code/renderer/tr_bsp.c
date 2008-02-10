@@ -372,7 +372,10 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 	int             numVerts, numTriangles;
 
 	// get lightmap
-	surf->lightmapNum = LittleLong(ds->lightmapNum);
+	if(r_vertexLighting->integer)
+		surf->lightmapNum = -1;
+	else
+		surf->lightmapNum = LittleLong(ds->lightmapNum);
 
 	// get shader value
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
@@ -515,7 +518,10 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 	static surfaceType_t skipData = SF_SKIP;
 
 	// get lightmap
-	surf->lightmapNum = LittleLong(ds->lightmapNum);
+	if(r_vertexLighting->integer)
+		surf->lightmapNum = -1;
+	else
+		surf->lightmapNum = LittleLong(ds->lightmapNum);
 
 	// get shader value
 	surf->shader = ShaderForShaderNum(ds->shaderNum);
