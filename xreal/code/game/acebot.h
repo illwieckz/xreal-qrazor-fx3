@@ -150,7 +150,6 @@ void            ACEND_SaveNodes();
 void            ACEND_LoadNodes();
 
 // acebot_spawn.c protos
-void            ACESP_LoadBots();
 void            ACESP_InitBots(qboolean restart);
 void            ACESP_HoldSpawn(gentity_t * self);
 void            ACESP_PutClientInServer(gentity_t * bot, qboolean respawn, int team);
