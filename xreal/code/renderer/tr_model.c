@@ -760,24 +760,22 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 						VectorNormalize(normals[i]);
 					}
 
-					// TODO do another extra smoothing for normals to avoid flat shading
-					/*
-					   for(i = 0; i < surface->numVerts; i++)
-					   {
-					   for(j = 0; j < surface->numVerts; j++)
-					   {
-					   if(i == j)
-					   continue;
+					// do another extra smoothing for normals to avoid flat shading
+					for(i = 0; i < vertexesNum; i++)
+					{
+						for(j = 0; j < vertexesNum; j++)
+						{
+							if(i == j)
+								continue;
 
-					   if(R_CompareVert(&cv->verts[i], &cv->verts[j], qfalse))
-					   {
-					   VectorAdd(cv->verts[i].normal, cv->verts[j].normal, cv->verts[i].normal);
-					   }
-					   }
+							if(VectorCompare(xyzs[i], xyzs[j]))
+							{
+								VectorAdd(normals[i], normals[j], normals[i]);
+							}
+						}
 
-					   VectorNormalize(cv->verts[i].normal);
-					   }
-					 */
+						VectorNormalize(normals[i]);
+					}
 				}
 
 				// feed vertex tangents
