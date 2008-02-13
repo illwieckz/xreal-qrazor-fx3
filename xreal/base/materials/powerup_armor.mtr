@@ -90,3 +90,61 @@ models/powerups/armor/shard_d
 		//alphaGen wave sawtooth 0 1 0 1 
 	}
 }
+
+
+
+
+//armor shaders by otty
+//dekor used by booth, front and back different for each red
+//and yellow armor
+
+models/powerups/armor/armor_red_front
+{
+	diffuseMap  models/powerups/armor/armor_red_front.png
+	bumpMap  models/powerups/armor/armor_front_n.png
+	specularMap  models/powerups/armor/armor_front_s.png
+	
+	
+}
+models/powerups/armor/armor_red_back
+{
+	diffuseMap  models/powerups/armor/armor_red_back.png
+	bumpMap  models/powerups/armor/armor_back_n.png
+	specularMap  models/powerups/armor/armor_back_s.png
+	
+}
+
+models/powerups/armor/armor_yellow_front
+{
+	diffuseMap  models/powerups/armor/armor_yellow_front.png
+	bumpMap  models/powerups/armor/armor_front_n.png
+	specularMap  models/powerups/armor/armor_front_s.png
+
+	
+}
+models/powerups/armor/armor_yellow_back
+{
+	diffuseMap  models/powerups/armor/armor_yellow_back.png
+	bumpMap  models/powerups/armor/armor_back_n.png
+	specularMap  models/powerups/armor/armor_back_s.png
+
+
+	
+}
+models/powerups/armor/armor_dekor
+{
+
+	diffuseMap  models/powerups/armor/armor_dekor.png
+	bumpMap  models/powerups/armor/armor_dekor_n.png
+	specularMap  models/powerups/armor/armor_dekor_s.png
+
+	{
+		map models/powerups/armor/armor_dekor_glow.png
+		blend add
+
+		red spark_neontable1[time * 0.2]
+		green spark_neontable1[time * 0.2]
+		blue spark_neontable1[time * 0.2]
+
+	}	
+}
