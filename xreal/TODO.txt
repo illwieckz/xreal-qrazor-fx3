@@ -14,8 +14,12 @@ base/models/gibs/forearm.md3
 base/models/gibs/intestine.md3
 base/models/gibs/leg.md3
 base/models/gibs/skull.md3
-base/models/powerups/armor/armor_red.md3
-base/models/powerups/armor/armor_yel.md3
+base/models/players/DEFAULT_MODEL/*
+base/models/players/DEFAULT_MODEL/body.md5mesh
+base/models/players/DEFAULT_MODEL/body_default.skin
+base/models/players/DEFAULT_MODEL/*.md5anim
+base/models/players/DEFAULT_MODEL/character.cfg
+base/models/players/DEFAULT_MODEL/icon_default.tga
 base/models/weapons/grenadel/*
 base/models/weapons/plasma/*
 base/models/weapons/shotun/shotgun.md3 (optional)
@@ -88,6 +92,10 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
+- reduce vertex cache trashing
+ - write D3DX style OptimizeFaces
+ - write D3DX style OptimizeVertices
+ - use those functions to upload optimized VBOs
 - add motion blur post process effect
 - add depth of field post process effect
 - add screen space ambient occlusion post process effect
