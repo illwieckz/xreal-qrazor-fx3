@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 
 
-drawSurface_t mapDrawSurfs[MAX_MAP_DRAW_SURFS];
+drawSurface_t   mapDrawSurfs[MAX_MAP_DRAW_SURFS];
 int             numMapDrawSurfs;
 
 /*
@@ -40,9 +40,9 @@ DRAWSURF CONSTRUCTION
 AllocDrawSurf
 =================
 */
-drawSurface_t *AllocDrawSurf(void)
+drawSurface_t  *AllocDrawSurf(void)
 {
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 
 	if(numMapDrawSurfs >= MAX_MAP_DRAW_SURFS)
 	{
@@ -62,9 +62,9 @@ DrawSurfaceForSide
 #define	SNAP_FLOAT_TO_INT	8
 #define	SNAP_INT_TO_FLOAT	(1.0/SNAP_FLOAT_TO_INT)
 
-drawSurface_t *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w)
+drawSurface_t  *DrawSurfaceForSide(bspBrush_t * b, side_t * s, winding_t * w)
 {
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	int             i, j;
 	shaderInfo_t   *si;
 	drawVert_t     *dv;
@@ -236,7 +236,7 @@ void SubdivideDrawSurf(drawSurface_t * ds, winding_t * w, float subdivisions)
 	const float     epsilon = 0.1;
 	int             subFloor, subCeil;
 	winding_t      *frontWinding, *backWinding;
-	drawSurface_t *newds;
+	drawSurface_t  *newds;
 
 	if(!w)
 	{
@@ -308,7 +308,7 @@ Chop up surfaces that have subdivision attributes
 void SubdivideDrawSurfs(entity_t * e, tree_t * tree)
 {
 	int             i;
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	int             numBaseDrawSurfs;
 	winding_t      *w;
 	float           subdivision;
@@ -508,7 +508,7 @@ reference into all the leafs we need.
 */
 int FilterMapDrawSurfIntoTree(vec3_t point, drawSurface_t * ds, node_t * node)
 {
-	drawSurfaceRef_t  *dsr;
+	drawSurfaceRef_t *dsr;
 	float           d;
 	plane_t        *plane;
 	int             c;
@@ -560,7 +560,7 @@ Place a reference to the given drawsurf in every leaf it is in
 */
 int FilterMapDrawSurfIntoTree_r(winding_t * w, drawSurface_t * ds, node_t * node)
 {
-	drawSurfaceRef_t  *dsr;
+	drawSurfaceRef_t *dsr;
 	plane_t        *plane;
 	int             total;
 	winding_t      *front, *back;
@@ -615,7 +615,7 @@ Place a reference to the given drawsurf in every leaf it contacts
 */
 int FilterSideIntoTree_r(winding_t * w, side_t * side, drawSurface_t * ds, node_t * node)
 {
-	drawSurfaceRef_t  *dsr;
+	drawSurfaceRef_t *dsr;
 	plane_t        *plane;
 	winding_t      *front, *back;
 	int             total;
@@ -1189,7 +1189,7 @@ Light flares from surface lights become
 */
 void CreateFlareSurface(drawSurface_t * faceDs)
 {
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	int             i;
 
 	ds = AllocDrawSurf();
@@ -1232,7 +1232,7 @@ will have valid final indexes
 void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 {
 	int             i;
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	int             refs;
 	int             c_surfs, c_refs;
 
@@ -1248,7 +1248,7 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 		{
 			continue;
 		}
-		
+
 		if(ds->miscModel)
 		{
 			refs = FilterMiscModelSurfIntoTree(ds, tree);

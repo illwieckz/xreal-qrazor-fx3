@@ -69,6 +69,7 @@ float           linearScale = 1.0 / 8000;
 light_t        *lights;
 int             numPointLights;
 int             numAreaLights;
+int             numLightMaps;
 
 FILE           *dumpFile;
 
@@ -312,7 +313,7 @@ void CreateSurfaceLights(void)
 				if(surfaceTest[i]->numFacets != 1 || f->numBoundaries != 4)
 				{
 					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
-							(int)f->points[0], (int)f->points[1], (int)f->points[2]);
+							   (int)f->points[0], (int)f->points[1], (int)f->points[2]);
 				}
 				VectorAdd(f->points[0], f->points[1], origin);
 				VectorAdd(f->points[2], origin, origin);
@@ -326,7 +327,7 @@ void CreateSurfaceLights(void)
 				if(ds->numVerts != 4)
 				{
 					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
-							(int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
+							   (int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
 					continue;
 				}
 
@@ -547,7 +548,7 @@ void CreateEntityLights(void)
 			intensity = FloatForKey(e, "_light");
 		if(!intensity)
 			intensity = 300;
-		
+
 		_color = ValueForKey(e, "_color");
 		if(_color && _color[0])
 		{
@@ -576,7 +577,7 @@ void CreateEntityLights(void)
 			if(!e2)
 			{
 				Sys_Printf("WARNING: light at (%i %i %i) has missing target\n",
-						(int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
+						   (int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
 			}
 			else
 			{
@@ -714,7 +715,7 @@ float PointToPolygonFormFactor(const vec3_t point, const vec3_t normal, const wi
 			{
 				printed = qtrue;
 				Sys_Printf("WARNING: bad PointToPolygonFormFactor: %f at %1.1f %1.1f %1.1f from %1.1f %1.1f %1.1f\n", total,
-						w->p[i][0], w->p[i][1], w->p[i][2], point[0], point[1], point[2]);
+						   w->p[i][0], w->p[i][1], w->p[i][2], point[0], point[1], point[2]);
 			}
 			return 0;
 		}
@@ -2119,7 +2120,8 @@ void CreateFilters(void)
 
 		if(ds->patchWidth != 3 || ds->patchHeight != 3)
 		{
-			Sys_Printf("WARNING: patch at %i %i %i has SURF_LIGHTFILTER but isn't a 3 by 3\n", v1->xyz[0], v1->xyz[1], v1->xyz[2]);
+			Sys_Printf("WARNING: patch at %i %i %i has SURF_LIGHTFILTER but isn't a 3 by 3\n", v1->xyz[0], v1->xyz[1],
+					   v1->xyz[2]);
 			continue;
 		}
 
@@ -2375,25 +2377,25 @@ int LightMain(int argc, char **argv)
 
 	if(i != argc - 1)
 	{
-		Error(	"usage: xmap -light [-<switch> [-<switch> ...]] <mapname.bsp>\n"
-				"\n"
-				"Switches:\n"
-				"   v              = verbose output\n"
-				"   threads <X>    = set number of threads to X\n"
-				"   area <V>       = set the area light scale to V\n"
-				"   point <W>      = set the point light scale to W\n"
-				"   notrace        = don't cast any shadows\n"
-				"   patchshadows   = enable patch shadow casting\n"
-				"   extra          = enable super sampling for anti-aliasing\n"
-				"   extrawide      = same as extra but smoothen more\n"
-				"   nogrid         = don't calculate light grid for dynamic model lighting\n"
-				"   novertex       = don't calculate vertex lighting\n"
-				"   border         = add debug border to lightmaps\n"
-				"   samplesize <N> = set the lightmap pixel size to NxN units\n");
+		Error("usage: xmap -light [-<switch> [-<switch> ...]] <mapname.bsp>\n"
+			  "\n"
+			  "Switches:\n"
+			  "   v              = verbose output\n"
+			  "   threads <X>    = set number of threads to X\n"
+			  "   area <V>       = set the area light scale to V\n"
+			  "   point <W>      = set the point light scale to W\n"
+			  "   notrace        = don't cast any shadows\n"
+			  "   patchshadows   = enable patch shadow casting\n"
+			  "   extra          = enable super sampling for anti-aliasing\n"
+			  "   extrawide      = same as extra but smoothen more\n"
+			  "   nogrid         = don't calculate light grid for dynamic model lighting\n"
+			  "   novertex       = don't calculate vertex lighting\n"
+			  "   border         = add debug border to lightmaps\n"
+			  "   samplesize <N> = set the lightmap pixel size to NxN units\n");
 	}
 
 	start = I_FloatTime();
-	
+
 	ThreadSetDefault();
 
 	SetQdirFromPath(argv[i]);
@@ -2436,7 +2438,7 @@ int LightMain(int argc, char **argv)
 
 	end = I_FloatTime();
 	Sys_Printf("%5.0f seconds elapsed\n", end - start);
-	
+
 	// shut down connection
 	Broadcast_Shutdown();
 

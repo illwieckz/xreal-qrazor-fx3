@@ -491,7 +491,7 @@ void MakeTreePortals_r(node_t * node)
 		Sys_Printf("WARNING: node without a volume\n");
 		Sys_Printf("node has %d tiny portals\n", node->tinyportals);
 		Sys_Printf("node reference point %1.2f %1.2f %1.2f\n", node->referencepoint[0],
-				node->referencepoint[1], node->referencepoint[2]);
+				   node->referencepoint[1], node->referencepoint[2]);
 	}
 
 	for(i = 0; i < 3; i++)
@@ -590,6 +590,7 @@ qboolean PlaceOccupant(node_t * headnode, vec3_t origin, entity_t * occupant)
 
 	if(node->opaque)
 		return qfalse;
+
 	node->occupant = occupant;
 
 	FloodPortals_r(node, 1);
@@ -623,7 +624,7 @@ qboolean FloodEntities(tree_t * tree)
 		GetVectorForKey(&entities[i], "origin", origin);
 		if(VectorCompare(origin, vec3_origin))
 			continue;
-		
+
 		// Tr3B - some entities may have this epair
 		if(!strcmp("1", ValueForKey(&entities[i], "noflood")))
 			continue;
@@ -678,7 +679,7 @@ void FloodAreas_r(node_t * node)
 		{
 			node->area = c_areas;
 		}
-		
+
 		// this node is part of an area portal brush
 		b = node->brushlist->original;
 
@@ -780,7 +781,7 @@ void CheckAreas_r(node_t * node)
 	if(node->cluster != -1)
 		if(node->area == -1)
 			Sys_Printf("WARNING: cluster %d has area set to -1\n", node->cluster);
-	
+
 	if(node->areaportal)
 	{
 		b = node->brushlist->original;

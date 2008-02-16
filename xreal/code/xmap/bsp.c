@@ -47,7 +47,7 @@ qboolean        showseams;
 char            outbase[32];
 
 
-static void DrawPortal(portal_t * p)
+static void DrawPortal(portal_t * p, qboolean areaportal)
 {
 	winding_t      *w;
 	int             sides;
@@ -61,7 +61,7 @@ static void DrawPortal(portal_t * p)
 	if(sides == 2)				// back side
 		w = ReverseWinding(w);
 
-	if(p->areaportal)
+	if(areaportal)
 	{
 		Draw_AuxWinding(w);
 	}
@@ -76,7 +76,9 @@ static void DrawPortal(portal_t * p)
 
 static void DrawTree_r(node_t * node)
 {
+	int             s;
 	portal_t       *p, *nextp;
+	winding_t      *w;
 
 	if(node->planenum != PLANENUM_LEAF)
 	{
@@ -86,22 +88,22 @@ static void DrawTree_r(node_t * node)
 	}
 
 	// draw all the portals
-	for(p = node->portals; p; p = nextp)
+	for(p = node->portals; p; p = p->next[s])
 	{
-		if(p->nodes[0] == node)
-		{
-			DrawPortal(p);
+		w = p->winding;
+		s = (p->nodes[1] == node);
 
-			nextp = p->next[0];
-		}
-		else
+		if(w)					// && p->nodes[0] == node)
 		{
-			nextp = p->next[1];
+			if(Portal_Passable(p))
+				continue;
+
+			DrawPortal(p, node->areaportal);
 		}
 	}
 }
 
-static tree_t *drawTree = NULL;
+static tree_t  *drawTree = NULL;
 static void DrawTree(void)
 {
 	DrawTree_r(drawTree->headnode);
@@ -120,10 +122,10 @@ void ProcessWorldModel(void)
 	bspFace_t      *faces;
 	qboolean        leaked;
 	const char     *value;
-	
+
 	e = &entities[0];
 	e->firstDrawSurf = 0;		//numMapDrawSurfs;
-	
+
 	// sets integer blockSize from worldspawn "_blocksize" key if it exists
 	value = ValueForKey(e, "_blocksize");
 	if(value[0] == '\0')
@@ -162,7 +164,7 @@ void ProcessWorldModel(void)
 		drawTree = tree;
 		Draw_Scene(DrawTree);
 	}
-	
+
 	// see if the bsp is completely enclosed
 	if(FloodEntities(tree))
 	{
@@ -203,11 +205,19 @@ void ProcessWorldModel(void)
 
 	// save out information for visibility processing
 	NumberClusters(tree);
-	
+
 	if(!leaked)
 	{
 		WritePortalFile(tree);
 	}
+
+	if(glview)
+	{
+		// dump the portals for debugging
+		WriteGLView(tree, source);
+	}
+
+	FloodAreas(tree);
 
 	if(drawFlag)
 	{
@@ -215,17 +225,10 @@ void ProcessWorldModel(void)
 		drawTree = tree;
 		Draw_Scene(DrawTree);
 	}
-	
-	if(glview)
-	{
-		// dump the portals for debugging
-		WriteGLView(tree, source);
-	}
-	FloodAreas(tree);
 
 	// add references to the detail brushes
 	FilterDetailBrushesIntoTree(e, tree);
-	
+
 	// create drawsurfs for triangle models
 	AddTriangleModels();
 
@@ -277,7 +280,7 @@ void ProcessSubModel(int entityNum)
 	tree_t         *tree;
 	bspBrush_t     *b, *bc;
 	node_t         *node;
-	
+
 	e = &entities[entityNum];
 	e->firstDrawSurf = numMapDrawSurfs;
 
@@ -300,7 +303,7 @@ void ProcessSubModel(int entityNum)
 	tree->headnode = node;
 
 	ClipSidesIntoTree(e, tree);
-	
+
 	// create drawsurfs for triangle models
 	AddTriangleModel(e, qfalse);
 
@@ -352,14 +355,15 @@ void ProcessModels(void)
 	for(i = 0; i < numEntities; i++)
 	{
 		entity = &entities[i];
-		
+
 		classname = ValueForKey(entity, "classname");
 		model = ValueForKey(entity, "model");
-		
-		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+
+		if(entity->brushes || entity->patches ||
+		   (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			Sys_FPrintf(SYS_VRB, "############### model %i ###############\n", numModels);
-			
+
 			if(i == 0)
 				ProcessWorldModel();
 			else
@@ -583,45 +587,42 @@ int BspMain(int argc, char **argv)
 		else
 			break;
 	}
-	
+
 	if(i != argc - 1)
 	{
-		Error(	"usage: xmap -map2bsp [-<switch> [-<switch> ...]] <mapname.map>\n"
-				"\n"
-				"Switches:\n"
-				"   v              = verbose output\n"
-				"   threads <X>    = set number of threads to X\n"
-				"   nocurves       = don't emit bezier surfaces\n"
-				"   nodoors        = disable door entities\n"
-				//"   breadthfirst   = breadth first bsp building\n"
-				//"   nobrushmerge   = don't merge brushes\n"
-				"   noliquids      = don't write liquids to map\n"
-				//"   nocsg                                = disables brush chopping\n"
-				//"   glview     = output a GL view\n"
-				"   draw           = enables mini BSP viewer\n"
-				//"   noweld     = disables weld\n"
-				//"   noshare    = disables sharing\n"
-				"   notjunc        = disables juncs\n"
-				"   nowater        = disables water brushes\n"
-				//"   noprune    = disables node prunes\n"
-				//"   nomerge    = disables face merging\n"
-				"   nofog          = disables fogs\n"
-				"   nosubdivide    = disables subdivision of draw surfaces\n"
-				"   nodetail       = disables detail brushes\n"
-				"   fulldetail     = enables full detail\n"
-				"   onlyents       = only compile entities with bsp\n"
-				"   micro <volume>\n"
-				"                  = sets the micro volume to the given float\n"
-				"   leaktest       = perform a leak test\n"
-				//"   chop <subdivide_size>\n"
-				//"              = sets the subdivide size to the given float\n"
-				"   samplesize <N> = set the lightmap pixel size to NxN units\n");
+		Error("usage: xmap -map2bsp [-<switch> [-<switch> ...]] <mapname.map>\n"
+			  "\n"
+			  "Switches:\n"
+			  "   v              = verbose output\n"
+			  "   threads <X>    = set number of threads to X\n"
+			  "   nocurves       = don't emit bezier surfaces\n" "   nodoors        = disable door entities\n"
+			  //"   breadthfirst   = breadth first bsp building\n"
+			  //"   nobrushmerge   = don't merge brushes\n"
+			  "   noliquids      = don't write liquids to map\n"
+			  //"   nocsg                                = disables brush chopping\n"
+			  //"   glview     = output a GL view\n"
+			  "   draw           = enables mini BSP viewer\n"
+			  //"   noweld     = disables weld\n"
+			  //"   noshare    = disables sharing\n"
+			  "   notjunc        = disables juncs\n" "   nowater        = disables water brushes\n"
+			  //"   noprune    = disables node prunes\n"
+			  //"   nomerge    = disables face merging\n"
+			  "   nofog          = disables fogs\n"
+			  "   nosubdivide    = disables subdivision of draw surfaces\n"
+			  "   nodetail       = disables detail brushes\n"
+			  "   fulldetail     = enables full detail\n"
+			  "   onlyents       = only compile entities with bsp\n"
+			  "   micro <volume>\n"
+			  "                  = sets the micro volume to the given float\n" "   leaktest       = perform a leak test\n"
+			  //"   chop <subdivide_size>\n"
+			  //"              = sets the subdivide size to the given float\n"
+			  "   samplesize <N> = set the lightmap pixel size to NxN units\n");
 	}
 
 	start = I_FloatTime();
 
 	ThreadSetDefault();
-	
+
 	SetQdirFromPath(argv[i]);
 
 	strcpy(source, ExpandArg(argv[i]));
@@ -669,16 +670,16 @@ int BspMain(int argc, char **argv)
 	LoadShaderInfo();
 
 	LoadMapFile(name);
-	
+
 	ProcessModels();
-	
+
 	SetModelNumbers();
 
 	EndBSPFile();
 
 	end = I_FloatTime();
 	Sys_Printf("%5.0f seconds elapsed\n", end - start);
-	
+
 	// shut down connection
 	Broadcast_Shutdown();
 

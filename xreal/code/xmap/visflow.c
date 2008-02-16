@@ -185,7 +185,7 @@ vwinding_t     *VisChopWinding(vwinding_t * in, pstack_t * stack, plane_t * spli
 			neww->numpoints++;
 		}
 
-		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i])) // raynorpat: branch optimization
+		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i]))	// raynorpat: branch optimization
 			continue;
 
 		if(neww->numpoints == MAX_POINTS_ON_FIXED_WINDING)
@@ -284,7 +284,7 @@ vwinding_t     *ClipToSeperators(vwinding_t * source, vwinding_t * pass, vwindin
 			fliptest = qfalse;
 			for(k = 0; k < source->numpoints; k++)
 			{
-				if ((k == i) | (k == l)) // raynorpat: branch optimization
+				if((k == i) | (k == l))	// raynorpat: branch optimization
 					continue;
 				d = DotProduct(source->points[k], plane.normal) - plane.dist;
 				if(d < -ON_EPSILON)
@@ -1344,7 +1344,9 @@ void CreatePassages(int portalnum)
 		passage = (passage_t *) malloc(sizeof(passage_t) + portalbytes);
 		memset(passage, 0, sizeof(passage_t) + portalbytes);
 		numseperators = AddSeperators(portal->winding, target->winding, qfalse, seperators, MAX_SEPERATORS * 2);
-		numseperators += AddSeperators(target->winding, portal->winding, qtrue, &seperators[numseperators], MAX_SEPERATORS * 2 - numseperators);
+		numseperators +=
+			AddSeperators(target->winding, portal->winding, qtrue, &seperators[numseperators],
+						  MAX_SEPERATORS * 2 - numseperators);
 
 		passage->next = NULL;
 		if(lastpassage)
@@ -1396,7 +1398,7 @@ void CreatePassages(int portalnum)
 
 			// ydnar: prefer correctness to stack overflow
 			if(p->winding->numpoints <= MAX_POINTS_ON_FIXED_WINDING)
-				memcpy(&in, p->winding, (int)&(((vwinding_t*) 0)->points[p->winding->numpoints]));
+				memcpy(&in, p->winding, (int)&(((vwinding_t *) 0)->points[p->winding->numpoints]));
 			else
 				memcpy(&in, p->winding, sizeof(vwinding_t));
 
@@ -1407,7 +1409,7 @@ void CreatePassages(int portalnum)
 					//Sys_Printf("[%d]", p->winding->numpoints);
 					in.numpoints = MAX_POINTS_ON_FIXED_WINDING;
 				}
-				
+
 				res = PassageChopWinding(&in, &out, &seperators[k]);
 
 				if(res == &out)
@@ -1515,12 +1517,12 @@ void SimpleFlood_r(vportal_t * srcportal, int leafnum)
 	for(i = 0; i < leaf->numportals; i++)
 	{
 		p = leaf->portals[i];
-		
+
 		if(p->removed)
 			continue;
-		
+
 		pnum = p - portals;
-		
+
 		if(!(srcportal->portalfront[pnum >> 3] & (1 << (pnum & 7))))
 			continue;
 
@@ -1563,7 +1565,7 @@ void BasePortalVis(int portalnum)
 	{
 		if(j == portalnum)
 			continue;
-		
+
 		if(tp->removed)
 			continue;
 		/*
@@ -1575,7 +1577,7 @@ void BasePortalVis(int portalnum)
 		   continue;
 		   }
 		 */
-		
+
 		w = tp->winding;
 		for(k = 0; k < w->numpoints; k++)
 		{
@@ -1583,7 +1585,7 @@ void BasePortalVis(int portalnum)
 			if(d > ON_EPSILON)
 				break;
 		}
-		
+
 		if(k == w->numpoints)
 			continue;			// no points on front
 
@@ -1594,7 +1596,7 @@ void BasePortalVis(int portalnum)
 			if(d < -ON_EPSILON)
 				break;
 		}
-		
+
 		if(k == w->numpoints)
 			continue;			// no points on front
 
@@ -1644,10 +1646,10 @@ void LeafBitFlow_r(int leafnum, byte * mightsee, byte * cansee)
 	for(i = 0; i < leaf->numportals; i++)
 	{
 		p = leaf->portals[i];
-		
+
 		if(p->removed)
 			continue;
-		
+
 		pnum = p - portals;
 
 		// if some previous portal can't see it, skip
@@ -1684,7 +1686,7 @@ void BetterPortalVis(int portalnum)
 
 	if(p->removed)
 		return;
-		
+
 	p->portalfront = malloc(portalbytes);
 	memset(p->portalfront, 0, portalbytes);
 

@@ -901,8 +901,12 @@ void ParseRawBrush()
 		else
 		{
 			// FIXME calculate texMat later
-			side->texMat[0][0] = 1;	side->texMat[0][1] = 0;	side->texMat[0][2] = 0;
-			side->texMat[1][0] = 0;	side->texMat[1][1] = 1;	side->texMat[1][2] = 0;
+			side->texMat[0][0] = 1;
+			side->texMat[0][1] = 0;
+			side->texMat[0][2] = 0;
+			side->texMat[1][0] = 0;
+			side->texMat[1][1] = 1;
+			side->texMat[1][2] = 0;
 		}
 
 		// read the texturedef
@@ -1326,7 +1330,7 @@ qboolean ParseMapEntity(void)
 	{
 		name = UniqueEntityName(mapEnt, classname);
 		if(!name[0])
-			Error("UniqueEntityName failed for entity %i", numEntities -1);
+			Error("UniqueEntityName failed for entity %i", numEntities - 1);
 
 		SetKeyValue(mapEnt, "name", name);
 		name = ValueForKey(mapEnt, "name");
@@ -1359,12 +1363,12 @@ qboolean ParseMapEntity(void)
 		if(!Q_stricmp(classname, "targetname"))
 			SetKeyValue(mapEnt, "classname", "name");
 
-		if(!model[0] && (mapEnt->brushes || mapEnt->patches) &&  numEntities != 1)
+		if(!model[0] && (mapEnt->brushes || mapEnt->patches) && numEntities != 1)
 		{
 			SetKeyValue(mapEnt, "model", name);
 			model = ValueForKey(mapEnt, "model");
 		}
-			
+
 	}
 	else if(convertType == CONVERT_QUAKE4)
 	{

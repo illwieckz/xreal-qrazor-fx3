@@ -84,20 +84,18 @@ int main(int argc, char **argv)
 		return 0;
 	}
 #endif
-	
-showUsage:
-	Error(	"usage: xmap [-<switch> [-<switch> ...]] <mapname>\n"
-		  	"\n"
-			"Switches:\n"
-			"   info           = print BSP information\n"
-			"   map2map        = convert from any map format to the XreaL map format\n"
-			"   map2bsp        = compile MAP to BSP\n"
-			#ifdef AAS
-			"   bsp2aas        = compile BSP to AAS\n"
-			#endif
-			"   vis            = compute visibility\n"
-			"   light          = compute lighting\n"
-			"   vlight         = compute volume lighting\n");
+
+  showUsage:
+	Error("usage: xmap [-<switch> [-<switch> ...]] <mapname>\n"
+		  "\n"
+		  "Switches:\n"
+		  "   info           = print BSP information\n"
+		  "   map2map        = convert from any map format to the XreaL map format\n" "   map2bsp        = compile MAP to BSP\n"
+#ifdef AAS
+		  "   bsp2aas        = compile BSP to AAS\n"
+#endif
+		  "   vis            = compute visibility\n"
+		  "   light          = compute lighting\n" "   vlight         = compute volume lighting\n");
 
 	return 0;
 }

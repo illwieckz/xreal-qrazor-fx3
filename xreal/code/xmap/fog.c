@@ -245,11 +245,11 @@ void SplitMeshByPlane(mesh_t * in, vec3_t normal, float dist, mesh_t ** front, m
 
 	/*
 	   PrintMesh( in );
-	  Sys_Printf("\n");
+	   Sys_Printf("\n");
 	   PrintMesh( f );
-	  Sys_Printf("\n");
+	   Sys_Printf("\n");
 	   PrintMesh( b );
-	  Sys_Printf("\n");
+	   Sys_Printf("\n");
 	 */
 
 	FreeMesh(in);
@@ -269,7 +269,7 @@ qboolean ChopPatchByBrush(drawSurface_t * ds, bspBrush_t * b)
 	mesh_t         *outside[MAX_BRUSH_SIDES];
 	int             numOutside;
 	mesh_t         *m, *front, *back;
-	drawSurface_t *newds;
+	drawSurface_t  *newds;
 
 	m = DrawSurfToMesh(ds);
 	numOutside = 0;
@@ -365,7 +365,7 @@ qboolean ChopFaceByBrush(drawSurface_t * ds, bspBrush_t * b)
 	winding_t      *front, *back;
 	winding_t      *outside[MAX_BRUSH_SIDES];
 	int             numOutside;
-	drawSurface_t *newds;
+	drawSurface_t  *newds;
 	drawVert_t     *dv;
 	shaderInfo_t   *si;
 	float           mins[2];
@@ -517,7 +517,7 @@ before lightmap allocation
 void FogDrawSurfs(void)
 {
 	int             i, j, k;
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	bspBrush_t     *b;
 	vec3_t          mins, maxs;
 	int             c_fogged;

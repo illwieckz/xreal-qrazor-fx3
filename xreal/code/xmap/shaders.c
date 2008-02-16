@@ -135,12 +135,11 @@ LoadShaderImage
 ===============
 */
 
-byte           *LoadImageFile(char *filename, qboolean * bTGA)
+static byte           *LoadImageFile(char *filename)
 {
 	byte           *buffer = NULL;
 	int             nLen = 0;
 
-	*bTGA = qtrue;
 	if(FileExists(filename))
 	{
 		LoadFileBlock(filename, (void **)&buffer);
@@ -152,14 +151,10 @@ byte           *LoadImageFile(char *filename, qboolean * bTGA)
 		filename[nLen - 3] = 'j';
 		filename[nLen - 2] = 'p';
 		filename[nLen - 1] = 'g';
+		
 		if(FileExists(filename))
 		{
 			LoadFileBlock(filename, (void **)&buffer);
-		}
-
-		if(buffer)
-		{
-			*bTGA = qfalse;
 		}
 	}
 	return buffer;
@@ -233,7 +228,7 @@ static void LoadShaderImage(shaderInfo_t * si)
 	return;
 
 	// load the image to get dimensions and color
-loadTga:
+  loadTga:
 	if(bTGA)
 	{
 		LoadTGABuffer(buffer, &si->pixels, &si->width, &si->height);
@@ -311,8 +306,8 @@ shaderInfo_t   *ShaderInfoForShader(const char *shaderName)
 	// strip off extension
 	strcpy(shader, shaderName);
 	StripExtension(shader);
-	
-//	Sys_FPrintf(SYS_VRB, "looking for shader '%s' ...\n", shaderName);
+
+//  Sys_FPrintf(SYS_VRB, "looking for shader '%s' ...\n", shaderName);
 
 	// search for it
 	for(i = 0; i < numShaderInfo; i++)
@@ -372,7 +367,7 @@ static void ParseShaderFile(const char *filename)
 			GetToken(qtrue);
 
 			Sys_FPrintf(SYS_VRB, "shader '%s' is guided\n", token);
-			
+
 			//si = AllocShaderInfo();
 			//strcpy(si->shader, token);
 
@@ -803,7 +798,7 @@ void LoadShaderInfo(void)
 	for(i = 0; i < numShaderFiles; i++)
 	{
 		sprintf(filename, "%smaterials/%s.mtr", gamedir, shaderFiles[i]);
-		
+
 		ParseShaderFile(filename);
 		free(shaderFiles[i]);
 	}

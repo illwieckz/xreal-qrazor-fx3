@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 
 
-int				blockSize[3] = {0, 0, 0};
+int             blockSize[3] = { 0, 0, 0 };
 
 int             c_faceLeafs;
 
@@ -80,16 +80,16 @@ static void SelectSplitPlaneNum(node_t * node, bspFace_t * list, int *splitPlane
 
 	*splitPlaneNum = -1;
 	*hintSplit = qfalse;
-	
+
 	// ydnar 2002-06-24: changed this to split on z-axis as well
 	// ydnar 2002-09-21: changed blocksize to be a vector, so mappers can specify a 3 element value
-	
+
 	// if it is crossing a 1k block boundary, force a split
 	for(i = 0; i < 3; i++)
 	{
 		if(blockSize[i] <= 0)
 			continue;
-		
+
 		dist = blockSize[i] * (floor(node->mins[i] / blockSize[i]) + 1);
 		if(node->maxs[i] > dist)
 		{
@@ -201,7 +201,7 @@ void BuildFaceTree_r(node_t * node, bspFace_t * list)
 	i = CountFaceList(list);
 
 	SelectSplitPlaneNum(node, list, &splitPlaneNum, &hintSplit);
-	
+
 	// if we don't have any more faces, this is a node
 	if(splitPlaneNum == -1)
 	{

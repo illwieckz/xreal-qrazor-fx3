@@ -279,12 +279,12 @@ void            FilterStructuralBrushesIntoTree(entity_t * e, tree_t * tree);
 typedef enum
 {
 	CONVERT_NOTHING,
-//	CONVERT_QUAKE1,
-//	CONVERT_QUAKE2,
+//  CONVERT_QUAKE1,
+//  CONVERT_QUAKE2,
 	CONVERT_QUAKE3,
 	CONVERT_QUAKE4,
 	CONVERT_DOOM3,
-//	CONVERT_PREY
+//  CONVERT_PREY
 } convertType_t;
 
 extern convertType_t convertType;
@@ -455,7 +455,7 @@ winding_t      *WindingFromDrawSurf(drawSurface_t * ds);
 
 // facebsp.c
 
-extern int		blockSize[3];
+extern int      blockSize[3];
 
 bspFace_t      *BspFaceForPortal(portal_t * p);
 bspFace_t      *MakeStructuralBspFaceList(bspBrush_t * list);

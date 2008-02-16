@@ -501,8 +501,9 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	int             i, j, k, l;
 	char            filename[1024];
 	drawSurface_t  *out;
-//	drawVert_t     *outv;
-	vec2_t			st;
+
+//  drawVert_t     *outv;
+	vec2_t          st;
 	int             defaultSTAxis[2];
 	vec2_t          defaultXYZtoSTScale;
 
@@ -515,7 +516,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 	lwPolVert      *v;
 	lwPoint        *pt;
 	lwVMap         *vmap;
-	
+
 	static int      indexes[SHADER_MAX_INDEXES];
 	int             numIndexes;
 
@@ -619,11 +620,11 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				Sys_Printf("WARNING: skipping non triangulated polygon\n");
 				continue;
 			}
-			
+
 			for(k = 0, v = pol->v; k < pol->nverts; k++, v++)
 			{
 				int             index;
-				
+
 				index = v->index;
 
 				pt = &layer->point.pt[index];
@@ -634,15 +635,15 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 
 				vertex.st[0] = vertex.xyz[defaultSTAxis[0]] * defaultXYZtoSTScale[0];
 				vertex.st[1] = vertex.xyz[defaultSTAxis[1]] * defaultXYZtoSTScale[1];
-				
+
 				vertex.lightmap[0] = 0;
 				vertex.lightmap[1] = 0;
-				
+
 				vertex.color[0] = surf->color.rgb[0] * surf->diffuse.val * 255;
 				vertex.color[1] = surf->color.rgb[1] * surf->diffuse.val * 255;
 				vertex.color[2] = surf->color.rgb[2] * surf->diffuse.val * 255;
 				vertex.color[3] = 255;
-				
+
 				// set dummy normal
 				vertex.normal[0] = 0;
 				vertex.normal[1] = 0;
@@ -659,7 +660,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 						vertex.st[0] = vmap->val[index][0];
 						vertex.st[1] = 1.0 - vmap->val[index][1];
 					}
-					
+
 					if(vmap->type == LWID_('R', 'G', 'B', 'A'))
 					{
 						vertex.color[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val * 255;
@@ -680,7 +681,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 						vertex.st[0] = vmap->val[index][0];
 						vertex.st[1] = 1.0 - vmap->val[index][1];
 					}
-					
+
 					if(vmap->type == LWID_('R', 'G', 'B', 'A'))
 					{
 						vertex.color[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val * 255;
@@ -689,7 +690,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 						vertex.color[3] = vmap->val[index][3] * 255;
 					}
 				}
-				
+
 				// Add it to the vertex list if not added yet
 				if(numIndexes == SHADER_MAX_INDEXES)
 				{
@@ -702,7 +703,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 					if(vertexes[l].xyz[0] != vertex.xyz[0] || vertexes[l].xyz[1] != vertex.xyz[1] ||
 					   vertexes[l].xyz[2] != vertex.xyz[2])
 						continue;
-					
+
 					if(vertexes[l].st[0] != vertex.st[0] || vertexes[l].st[1] != vertex.st[1])
 						continue;
 
@@ -724,7 +725,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				{
 					indexes[numIndexes++] = l;
 				}
-				
+
 			}
 		}
 
@@ -751,7 +752,7 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 		{
 			// transform the position
 			MatrixTransformPoint(transform, vertexes[j].xyz, out->verts[j].xyz);
-			
+
 			// rotate the normal
 			MatrixTransformNormal(transform, vertexes[j].normal, out->verts[j].normal);
 

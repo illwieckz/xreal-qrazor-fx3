@@ -147,10 +147,10 @@ void DrawBrushList(bspBrush_t * brush)
 		for(i = 0; i < brush->numsides; i++)
 		{
 			s = &brush->sides[i];
-			
+
 			if(!s->winding)
 				continue;
-			
+
 			Draw_Winding(s->winding);
 		}
 	}
@@ -177,13 +177,13 @@ void WriteBrushList(char *name, bspBrush_t * brush, qboolean onlyvis)
 		for(i = 0; i < brush->numsides; i++)
 		{
 			s = &brush->sides[i];
-			
+
 			if(!s->winding)
 				continue;
-			
+
 			if(onlyvis && !s->visible)
 				continue;
-			
+
 			OutputWinding(brush->sides[i].winding, f);
 		}
 	}

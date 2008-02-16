@@ -95,7 +95,7 @@ void EmitLeaf(node_t * node)
 {
 	dleaf_t        *leaf_p;
 	bspBrush_t     *b;
-	drawSurfaceRef_t  *dsr;
+	drawSurfaceRef_t *dsr;
 
 	// emit a leaf
 	if(numLeafs >= MAX_MAP_LEAFS)
@@ -222,11 +222,12 @@ void SetModelNumbers(void)
 	for(i = 1; i < numEntities; i++)
 	{
 		ent = &entities[i];
-		
+
 		classname = ValueForKey(ent, "classname");
 		model = ValueForKey(ent, "model");
-		
-		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+
+		if(ent->brushes || ent->patches ||
+		   (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			sprintf(value, "*%i", models);
 			models++;
@@ -343,7 +344,7 @@ BeginModel
 void BeginModel(entity_t * e)
 {
 	dmodel_t       *mod;
-	
+
 	Sys_FPrintf(SYS_VRB, "--- BeginModel ---\n");
 
 	if(numModels == MAX_MAP_MODELS)
@@ -354,7 +355,7 @@ void BeginModel(entity_t * e)
 
 	mod->firstSurface = numDrawSurfaces;
 	mod->firstBrush = numBrushes;
-	
+
 	EmitBrushes(e->brushes);
 }
 
@@ -372,14 +373,14 @@ void EndModel(entity_t * e, node_t * headnode)
 	vec3_t          mins, maxs;
 	bspBrush_t     *b;
 	parseMesh_t    *p;
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	const char     *model;
 	int             i, j;
 
 	Sys_FPrintf(SYS_VRB, "--- EndModel ---\n");
 
 	mod = &dmodels[numModels];
-	
+
 	// calculate the AABB
 	ClearBounds(mins, maxs);
 	for(b = e->brushes; b; b = b->next)
@@ -404,16 +405,16 @@ void EndModel(entity_t * e, node_t * headnode)
 	if(!e->brushes && !e->patches && model[0] != '\0')
 	{
 		//Sys_FPrintf(SYS_VRB, "calculating bbox from draw surfaces...\n");
-		
+
 		for(i = e->firstDrawSurf; i < numMapDrawSurfs; i++)
 		{
 			ds = &mapDrawSurfs[i];
-			
+
 			if(!ds->numVerts)
 			{
-				continue;			// leftover from a surface subdivision
+				continue;		// leftover from a surface subdivision
 			}
-			
+
 			// HACK: don't loop only through the vertices because they can contain bad data with .lwo models ...
 			for(j = 0; j < ds->numIndexes; j++)
 			{
@@ -424,7 +425,7 @@ void EndModel(entity_t * e, node_t * headnode)
 
 	VectorCopy(mins, mod->mins);
 	VectorCopy(maxs, mod->maxs);
-	
+
 	EmitDrawNode_r(headnode);
 	mod->numSurfaces = numDrawSurfaces - mod->firstSurface;
 	mod->numBrushes = numBrushes - mod->firstBrush;

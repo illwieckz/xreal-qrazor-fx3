@@ -79,7 +79,7 @@ void PrintMesh(mesh_t * m)
 		for(j = 0; j < m->width; j++)
 		{
 			Sys_Printf("(%5.2f %5.2f %5.2f) ", m->verts[i * m->width + j].xyz[0], m->verts[i * m->width + j].xyz[1],
-					m->verts[i * m->width + j].xyz[2]);
+					   m->verts[i * m->width + j].xyz[2]);
 		}
 		Sys_Printf("\n");
 	}
@@ -520,7 +520,7 @@ void ProjectPointOntoVector(vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vPr
 	VectorSubtract(point, vStart, pVec);
 	VectorSubtract(vEnd, vStart, vec);
 	VectorNormalize(vec);
-	
+
 	// project onto the directional vector for this segment
 	VectorMA(vStart, DotProduct(pVec, vec), vec, vProj);
 }

@@ -549,7 +549,7 @@ Call after the surface list has been pruned, but before lightmap allocation
 void FixTJunctions(entity_t * ent)
 {
 	int             i;
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	int             axialEdgeLines;
 	originalEdge_t *e;
 

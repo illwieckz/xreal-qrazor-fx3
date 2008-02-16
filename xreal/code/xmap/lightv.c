@@ -136,15 +136,15 @@ typedef struct lightvolume_s
 	plane_t         planes[MAX_POINTS_ON_WINDING];	// volume bounding planes
 	int             numPlanes;	// number of volume bounding planes
 	int             type;		// light volume type
-	
+
 	//list with translucent surfaces the volume went through
 	int             transFacets[MAX_TRANSLUCENTFACETS];
 	int             transSurfaces[MAX_TRANSLUCENTFACETS];
 	int             numtransFacets;
-	
+
 	//clusters already tested
 	byte            clusterTested[MAX_CLUSTERS / 8];
-	
+
 	//facets already tested
 	byte            facetTested[MAX_FACETS / 8];
 	int             facetNum;	// number of the facet blocking the light in this volume
@@ -172,7 +172,7 @@ typedef struct lightvolume_s
 typedef struct vlight_s
 {
 	vec3_t          origin;		// light origin, for point lights
-	vec3_t			radius;		// Doom3 style light box radius
+	vec3_t          radius;		// Doom3 style light box radius
 	winding_t       w;			// light winding, for area lights
 	vec4_t          plane;		// light winding plane
 	vec3_t          normal;		// direction of the light
@@ -251,7 +251,7 @@ extern qboolean drawFlag;
 
 void            Draw_Winding(winding_t * w);
 void            Draw_AuxWinding(winding_t * w);
-void            Draw_Scene(void (*drawFunc)(void));
+void            Draw_Scene(void (*drawFunc) (void));
 
 
 //#define DEBUGNET
@@ -2143,13 +2143,13 @@ void VL_SmoothenLightmapEdges(void)
 			{
 				p[0] = facet1->points[k];
 				p[1] = facet1->points[(k + 1) % facet1->numpoints];
-				
+
 				//
 				coords1[0][0] = facet1->lightmapCoords[k][0] * LIGHTMAP_SIZE;
 				coords1[0][1] = facet1->lightmapCoords[k][1] * LIGHTMAP_SIZE;
 				coords1[1][0] = facet1->lightmapCoords[(k + 1) % facet1->numpoints][0] * LIGHTMAP_SIZE;
 				coords1[1][1] = facet1->lightmapCoords[(k + 1) % facet1->numpoints][1] * LIGHTMAP_SIZE;
-				
+
 				if(coords1[0][0] >= LIGHTMAP_SIZE)
 					coords1[0][0] = LIGHTMAP_SIZE - 1;
 				if(coords1[0][1] >= LIGHTMAP_SIZE)
@@ -2158,7 +2158,7 @@ void VL_SmoothenLightmapEdges(void)
 					coords1[1][0] = LIGHTMAP_SIZE - 1;
 				if(coords1[1][1] >= LIGHTMAP_SIZE)
 					coords1[1][1] = LIGHTMAP_SIZE - 1;
-				
+
 				// try one row or column further because on flat faces the lightmap can
 				// extend beyond the edge
 				VectorSubtract(p[1], p[0], dir);
@@ -2839,7 +2839,7 @@ int VL_LightLeafnum(vec3_t point)
 	return VL_PointInLeafnum(point);
 }
 
-#define LIGHTPOLYS
+//#define LIGHTPOLYS
 
 #ifdef LIGHTPOLYS
 
@@ -4897,9 +4897,11 @@ void VL_TestLightLeafs(void)
 		if(leaf->cluster == -1)
 		{
 			if(light->type == LIGHT_POINTRADIAL)
-				Sys_FPrintf(SYS_VRB, "light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
+				Sys_FPrintf(SYS_VRB, "light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1],
+							light->origin[2]);
 			else if(light->type == LIGHT_POINTSPOT)
-				Sys_FPrintf(SYS_VRB, "spot light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1], light->origin[2]);
+				Sys_FPrintf(SYS_VRB, "spot light in solid at %1.1f %1.1f %1.1f\n", light->origin[0], light->origin[1],
+							light->origin[2]);
 		}
 	}
 }
@@ -5075,13 +5077,13 @@ void VL_LightWorld(void)
 	f = FloatForKey(&entities[0], "ambient");
 	VectorScale(lightAmbientColor, f, lightAmbientColor);
 	/*
-	  Sys_Printf("\r%6d lights out of %d", 0, numvlights);
+	   Sys_Printf("\r%6d lights out of %d", 0, numvlights);
 	   for (i = 0; i < numvlights; i++)
 	   {
-	  Sys_Printf("\r%6d", i);
+	   Sys_Printf("\r%6d", i);
 	   VL_FloodLight(vlights[i]);
 	   }
-	  Sys_Printf("\r%6d lights out of %d\n", i, numvlights);
+	   Sys_Printf("\r%6d lights out of %d\n", i, numvlights);
 	 */
 	Sys_Printf("%7i lights\n", numvlights);
 	RunThreadsOnIndividual(numvlights, qtrue, VL_FloodLightThread);
@@ -5208,7 +5210,7 @@ void VL_CreateEntityLights(void)
 			if(!e2)
 			{
 				Sys_Printf("WARNING: light at (%i %i %i) has missing target\n",
-						(int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
+						   (int)dl->origin[0], (int)dl->origin[1], (int)dl->origin[2]);
 			}
 			else
 			{
@@ -5389,7 +5391,7 @@ void VL_CreateFakeSurfaceLights(void)
 				if(lsurfaceTest[i]->numFacets != 1 || f->numpoints != 4)
 				{
 					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but isn't a quad\n",
-							(int)f->points[0], (int)f->points[1], (int)f->points[2]);
+							   (int)f->points[0], (int)f->points[1], (int)f->points[2]);
 				}
 				VectorAdd(f->points[0], f->points[1], origin);
 				VectorAdd(f->points[2], origin, origin);
@@ -5403,7 +5405,7 @@ void VL_CreateFakeSurfaceLights(void)
 				if(ds->numVerts != 4)
 				{
 					Sys_Printf("WARNING: surface at (%i %i %i) has autosprite shader but %i verts\n",
-							(int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
+							   (int)dv->xyz[0], (int)dv->xyz[1], (int)dv->xyz[2]);
 					continue;
 				}
 
@@ -5868,22 +5870,22 @@ int VLightMain(int argc, char **argv)
 	if(i != argc - 1)
 	{
 		Sys_Printf("usage: xmap -vlight [-<switch> [-<switch> ...]] <mapname.bsp>\n"
-				"\n"
-				"Switches:\n"
-				"   v              = verbose output\n"
-				"   threads <X>    = set number of threads to X\n"
-				"   area <V>       = set the area light scale to V\n"
-				"   point <W>      = set the point light scale to W\n"
-				"   novertex       = don't calculate vertex lighting\n"
-				"   nogrid         = don't calculate light grid for dynamic model lighting\n"
-				"   nostitching    = no polygon stitching before lighting\n"
-				"   noalphashading = don't use alpha shading\n"
-				"   nocolorshading = don't use color alpha shading\n"
-				"   tracelight     = use old light algorithm by default\n"
-				"   samplesize <N> = set the lightmap pixel size to NxN units\n");
+				   "\n"
+				   "Switches:\n"
+				   "   v              = verbose output\n"
+				   "   threads <X>    = set number of threads to X\n"
+				   "   area <V>       = set the area light scale to V\n"
+				   "   point <W>      = set the point light scale to W\n"
+				   "   novertex       = don't calculate vertex lighting\n"
+				   "   nogrid         = don't calculate light grid for dynamic model lighting\n"
+				   "   nostitching    = no polygon stitching before lighting\n"
+				   "   noalphashading = don't use alpha shading\n"
+				   "   nocolorshading = don't use color alpha shading\n"
+				   "   tracelight     = use old light algorithm by default\n"
+				   "   samplesize <N> = set the lightmap pixel size to NxN units\n");
 		exit(0);
 	}
-	
+
 	ThreadSetDefault();
 
 	SetQdirFromPath(argv[i]);
@@ -5966,6 +5968,6 @@ int VLightMain(int argc, char **argv)
 
 	// shut down connection
 	Broadcast_Shutdown();
-	
+
 	return 0;
 }

@@ -408,7 +408,7 @@ void CreateTerrainSurface(terrainSurf_t * surf, shaderInfo_t * shader)
 	int             i, j, k;
 	drawVert_t     *out;
 	drawVert_t     *in;
-	drawSurface_t *newsurf;
+	drawSurface_t  *newsurf;
 
 	newsurf = AllocDrawSurf();
 

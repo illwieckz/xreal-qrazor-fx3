@@ -43,8 +43,8 @@ typedef struct shaderInfo_s
 	qboolean        globalTexture;	// don't normalize texture repeats
 
 	qboolean        twoSided;	// cull none
-	qboolean		forceSolid; // may override clearSolid
-	qboolean		forceOpaque;	// block VIS
+	qboolean        forceSolid;	// may override clearSolid
+	qboolean        forceOpaque;	// block VIS
 	qboolean        autosprite;	// autosprite shaders will become point lights
 	// instead of area lights
 	qboolean        lightFilter;	// light rays that cross surfaces of this type
@@ -57,8 +57,8 @@ typedef struct shaderInfo_s
 	qboolean        forceSunLight;	// force sun light at this surface even tho we might not calculate shadows in vertex lighting
 	qboolean        notjunc;	// don't use this surface for tjunction fixing
 	float           vertexScale;	// vertex light scale
-	
-	qboolean		noFragment; // don't cut surface at each bsp boundary
+
+	qboolean        noFragment;	// don't cut surface at each bsp boundary
 
 	char            editorimage[MAX_QPATH];	// use this image to generate texture coordinates
 	char            lightimage[MAX_QPATH];	// use this image to generate color / averageColor

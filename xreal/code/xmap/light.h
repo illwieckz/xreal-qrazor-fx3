@@ -51,7 +51,7 @@ typedef struct light_s
 	struct shaderInfo_s *si;
 
 	vec3_t          origin;
-	vec3_t			radius;		// Doom3 style light box radius
+	vec3_t          radius;		// Doom3 style light box radius
 	vec3_t          normal;		// for surfaces, spotlights, and suns
 	float           dist;		// plane location along normal
 

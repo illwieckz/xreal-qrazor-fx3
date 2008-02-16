@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // can't use the glvertex3fv functions, because the vec3_t fields
 // could be either floats or doubles, depending on DOUBLEVEC_T
 
-qboolean drawFlag;
+qboolean        drawFlag;
 
 static qboolean drawInit = qfalse;
 static vec3_t   drawOrigin = { 0, 0, 0 };
@@ -109,9 +109,9 @@ static void Draw_BeginScene(void)
 		{
 			Error("Unable to guarantee accelerated " "visual with libSDL < 1.2.10\n");
 		}
-	
+
 		SDL_WM_SetCaption("XMap", "xmap");
-		
+
 
 		glString = (char *)glGetString(GL_VENDOR);
 		Sys_FPrintf(SYS_VRB, "GL_VENDOR: %s\n", glString);
@@ -123,7 +123,7 @@ static void Draw_BeginScene(void)
 		Sys_FPrintf(SYS_VRB, "GL_VERSION: %s\n", glString);
 
 		//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-		
+
 		drawInit = qtrue;
 	}
 
@@ -236,6 +236,8 @@ void Draw_AuxWinding(winding_t * w)
 	if(!drawInit)
 		return;
 
+//  Sys_FPrintf(SYS_VRB, "Draw_AuxWinding()\n");
+
 	glColor4f(0, 0, 0, 0.5);
 	glBegin(GL_LINE_LOOP);
 	for(i = 0; i < w->numpoints; i++)
@@ -251,7 +253,7 @@ void Draw_AuxWinding(winding_t * w)
 	glFlush();
 }
 
-void Draw_Scene(void (*drawFunc)(void))
+void Draw_Scene(void (*drawFunc) (void))
 {
 	Uint8          *keys;
 	matrix_t        rotation;
@@ -265,7 +267,7 @@ void Draw_Scene(void (*drawFunc)(void))
 	while(1)
 	{
 		SDL_Event       event;
-		
+
 		newTime = SDL_GetTicks();
 		deltaTime = newTime - oldTime;
 
@@ -456,7 +458,7 @@ void Draw_Scene(void (*drawFunc)(void))
 		Draw_BeginScene();
 		drawFunc();
 		Draw_EndScene();
-		
+
 		oldTime = newTime;
 	}
 }

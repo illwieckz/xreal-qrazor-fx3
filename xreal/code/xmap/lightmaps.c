@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 int             numSortShaders;
-drawSurface_t *surfsOnShader[MAX_MAP_SHADERS];
+drawSurface_t  *surfsOnShader[MAX_MAP_SHADERS];
 
 
 int             allocated[LIGHTMAP_WIDTH];
@@ -360,7 +360,7 @@ AllocateLightmaps
 void AllocateLightmaps(entity_t * e)
 {
 	int             i, j;
-	drawSurface_t *ds;
+	drawSurface_t  *ds;
 	shaderInfo_t   *si;
 
 	Sys_FPrintf(SYS_VRB, "--- AllocateLightmaps ---\n");
