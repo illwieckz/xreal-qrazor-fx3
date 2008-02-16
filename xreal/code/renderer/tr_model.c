@@ -571,7 +571,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				}
 
 				if(!vertexesNum || !indexesNum)
-					return qtrue;
+					continue;
 
 				//ri.Printf(PRINT_ALL, "...calculating MD3 mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
 

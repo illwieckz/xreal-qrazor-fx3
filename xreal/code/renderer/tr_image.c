@@ -4326,11 +4326,11 @@ static void R_CreateShadowMapFBOImage(void)
 		}
 		else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 		{
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA32F), FT_LINEAR, WT_CLAMP);
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA32F : IF_RGBA32F), (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
 		}
 		else
 		{
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), FT_LINEAR, WT_CLAMP);
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
 		}
 
 		ri.Hunk_FreeTempMemory(data);
@@ -4363,11 +4363,11 @@ static void R_CreateShadowCubeFBOImage(void)
 		}
 		else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 		{
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA32F), FT_LINEAR, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA32F : IF_RGBA32F), (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
 		else
 		{
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), FT_LINEAR, WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminaceAlpha->integer ? IF_LA16F : IF_RGBA16F), (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
 
 		for(i = 5; i >= 0; i--)
