@@ -29,7 +29,7 @@ varying vec2		var_TexLight;
 void	main()
 {
 #if defined(r_showLightMaps)
-	gl_FragColor = lightColor;
+	gl_FragColor = texture2D(u_LightMap, var_TexLight);
 #else
 	// compute light color from object space lightmap
 	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
