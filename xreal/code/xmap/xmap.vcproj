@@ -754,6 +754,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\common\bspfile.h"
+						>
+					</File>
+					<File
 						RelativePath="..\common\cmdlib.h"
 						>
 					</File>
@@ -919,6 +923,90 @@
 					</File>
 					<File
 						RelativePath="..\zlib\zutil.c"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="png"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\png\png.h"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngconf.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Source Files"
+					>
+					<File
+						RelativePath="..\png\png.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngerror.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngget.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngmem.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngpread.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngread.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngrio.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngrtran.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngrutil.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngset.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngtrans.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngvcrd.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngwio.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngwrite.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngwtran.c"
+						>
+					</File>
+					<File
+						RelativePath="..\png\pngwutil.c"
 						>
 					</File>
 				</Filter>
