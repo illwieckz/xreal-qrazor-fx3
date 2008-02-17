@@ -103,7 +103,7 @@ infoParm_t	infoParms[] = {
 	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
 	
 	// unsupported Doom3 surface types for sound effects and blood splats
-	{"metal",			0,	0,				0},
+	{"metal",			0,	SURF_METALSTEPS,	0},
 	{"stone",			0,	0,				0},
 	{"wood",			0,	0,				0},
 	{"cardboard",		0,	0,				0},
