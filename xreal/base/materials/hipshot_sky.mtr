@@ -1,0 +1,17 @@
+
+// ----------------------- Sky by hipshot
+
+textures/hipshot_sky/grimmnight
+{
+	qer_editorimage	cubemaps/hipshot/grimmnight_px.tga
+	noFragment
+	noshadows
+	forceOpaque				
+	noimpact
+	{
+		stage skyboxMap
+		noPicMip	
+		//blend			add		// so transparent windows can draw on top of it
+		cubeMap	cubemaps/hipshot/grimmnight
+	}
+}
