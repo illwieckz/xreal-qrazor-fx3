@@ -67,6 +67,7 @@ textures/common/mirror
 	discrete		// never merge with other surfaces
 	qer_editorimage textures/common/qer_mirror.tga
 	
+	//polygonOffset
 	solid
 	mirror
 	nolightmap
@@ -74,7 +75,7 @@ textures/common/mirror
 	{
 		stage screenMap
 		map _portalRender
-		depthWrite
+		//depthWrite
 	}
 }
 
@@ -105,12 +106,6 @@ textures/common/mirror2
 		depthWrite
 	}
 	{
-		if(fragmentShaders == 0)
-		map textures/sfx/mirror.tga
-		blend GL_ZERO , GL_ONE_MINUS_SRC_COLOR
-	}
-	{
-		if(fragmentShaders == 1)
 		stage	heathazemap
 		map		textures/liquids/liquid12_n.tga
 		scroll		0 , time * -0.2
@@ -126,22 +121,10 @@ textures/common/portal
 	portal
 	
 	{
-		//if(fragmentShaders == 0 || frameBufferObjects == 0)
-		map textures/common/mirror1.tga
-//		map textures/common/portal.tga
-		tcMod turb 0 0.25 0 0.05
-//		blend GL_ONE, GL_SRC_ALPHA
-		blend GL_ONE, GL_ONE_MINUS_SRC_ALPHA
+		stage screenMap
+		map _portalRender
 		depthWrite
 	}
-	/*
-	{
-		if(fragmentShaders == 1 && frameBufferObjects == 1)
-		stage portalMap
-		// TODO tcMod
-		depthWrite
-	}
-	*/
 }
 
 //==============================================================================
@@ -226,7 +209,6 @@ textures/common/shadow2
 // triggers
 //==============================================================================
 
-// trigger entities use this material
 textures/common/trigger
 {
 	qer_editorimage textures/common/trigger.tga
@@ -237,125 +219,124 @@ textures/common/trigger
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigmulti
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigonce
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigtimer
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigrelay
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trighurt
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigfade
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/triggui
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigair
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigentityname
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// trigger entities use this material
 textures/common/trigentityname_once
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	trigger
 }
 
-// flashlight trigger entities use this material
 textures/common/trigflashlight
 {
 	qer_editorimage textures/common/trigger.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
 	flashlight_trigger
+}
+
+textures/common/trigshotclip
+{
+	qer_editorimage textures/common/trigger.tga
+	qer_nocarve
+	qer_trans 0.5
+	
+	noshadows
+	trigger
 }
 
 //==============================================================================
@@ -591,7 +572,7 @@ textures/common/origin
 textures/common/speaker
 {
 	qer_editorimage textures/common/speaker.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
@@ -600,7 +581,7 @@ textures/common/speaker
 textures/common/particle
 {
 	qer_editorimage textures/common/particle.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	noshadows
@@ -685,7 +666,7 @@ textures/common/entityGui3
 textures/editor/aassolid
 {
 	qer_editorimage	textures/editor/aassolid.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	nonsolid
@@ -698,7 +679,7 @@ textures/editor/aassolid
 textures/editor/aasobstacle
 {
 	qer_editorimage	textures/editor/aasobstacle.tga
-	qer_nocarve		// don't let an awry CSG operation cut it up
+	qer_nocarve
 	qer_trans 0.5
 	
 	nonsolid
