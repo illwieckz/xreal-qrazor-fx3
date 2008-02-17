@@ -73,6 +73,7 @@ LEVEL DESIGN
 Yan "Method" Ostretsov - yan_test
 Stefan "ReFlex" Lautner - REDM08, UGLY R.G.A
 Pat "raynorpat" Raynor - Longest
+Tom "phantazm11" Perryman - phantq4dm4
 
 
 
@@ -91,6 +92,7 @@ Yves "evillair" Allaire - Quake4 eX texture set
 Philip Klevestav - Quake4 pk01 texture set
 Matt "Lunaran"  Breit - Quake4 Powerplant texture set
 Yan "Method" Ostretsov - Quake4 method texture set
+Tom "phantazm11" Perryman - Quake4 aztech texture set
 Oilpainter - Quake4 Rustex texture set
 hi_volt - sky clouds
 leileilol - menu art, effect textures

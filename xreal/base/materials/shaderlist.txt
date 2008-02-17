@@ -1,4 +1,3 @@
-#aztec
 bja_mapobject
 common
 #common_lights
@@ -23,8 +22,9 @@ kat_mapobject
 #lights
 method
 #otty_sfx
+phant_aztec
 pk01
-pjw4tourney1
+#pjw4tourney1
 raynorpat
 reflex_layout
 reflex_ugly
