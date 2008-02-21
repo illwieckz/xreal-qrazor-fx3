@@ -1394,19 +1394,11 @@
 				>
 			</File>
 			<File
-				RelativePath="qcommon\cm_patch.h"
-				>
-			</File>
-			<File
 				RelativePath="qcommon\cm_polylib.h"
 				>
 			</File>
 			<File
 				RelativePath="qcommon\cm_public.h"
-				>
-			</File>
-			<File
-				RelativePath="qcommon\cm_trisoup.h"
 				>
 			</File>
 			<File

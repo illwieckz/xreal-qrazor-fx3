@@ -782,6 +782,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\common\polylib.h"
+						>
+					</File>
+					<File
 						RelativePath="..\common\polyset.h"
 						>
 					</File>
