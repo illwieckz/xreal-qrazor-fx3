@@ -344,7 +344,8 @@ void SetBrushContents(bspBrush_t * b)
 
 	if((contents & CONTENTS_DETAIL) && (contents & CONTENTS_STRUCTURAL))
 	{
-		Sys_Printf("Entity %i, Brush %i: mixed CONTENTS_DETAIL and CONTENTS_STRUCTURAL\n", numEntities - 1, entitySourceBrushes);
+		xml_Select("Mixed detail and structural (defaulting to structural)", numEntities - 1, entitySourceBrushes, qfalse);
+		//Sys_Printf("Entity %i, Brush %i: mixed CONTENTS_DETAIL and CONTENTS_STRUCTURAL\n", numEntities - 1, entitySourceBrushes);
 		contents &= ~CONTENTS_DETAIL;
 	}
 
@@ -429,7 +430,7 @@ void AddBrushBevels(void)
 			{					// add a new side
 				if(buildBrush->numsides == MAX_BUILD_SIDES)
 				{
-					Error("MAX_BUILD_SIDES");
+					xml_Select("MAX_BUILD_SIDES", buildBrush->entitynum, buildBrush->brushnum, qtrue);
 				}
 				memset(s, 0, sizeof(*s));
 				buildBrush->numsides++;
@@ -530,7 +531,7 @@ void AddBrushBevels(void)
 						// add this plane
 						if(buildBrush->numsides == MAX_BUILD_SIDES)
 						{
-							Error("MAX_BUILD_SIDES");
+							xml_Select("MAX_BUILD_SIDES", buildBrush->entitynum, buildBrush->brushnum, qtrue);
 						}
 
 						s2 = &buildBrush->sides[buildBrush->numsides];
@@ -655,7 +656,10 @@ bspBrush_t     *FinishBrush(void)
 		}
 	}
 
-	AddBrushBevels();
+	if(convertType == CONVERT_NOTHING)
+	{
+		AddBrushBevels();
+	}
 
 	// keep it
 	b = CopyBrush(buildBrush);
@@ -873,7 +877,7 @@ void ParseRawBrush()
 
 		if(buildBrush->numsides == MAX_BUILD_SIDES)
 		{
-			Error("MAX_BUILD_SIDES");
+			xml_Select("MAX_BUILD_SIDES", buildBrush->entitynum, buildBrush->brushnum, qtrue);
 		}
 
 		side = &buildBrush->sides[buildBrush->numsides];
@@ -1010,7 +1014,8 @@ qboolean RemoveDuplicateBrushPlanes(bspBrush_t * b)
 		// check for a degenerate plane
 		if(sides[i].planenum == -1)
 		{
-			Sys_Printf("Entity %i, Brush %i: degenerate plane\n", b->entitynum, b->brushnum);
+			xml_Select("degenerate plane", b->entitynum, b->brushnum, qfalse);
+			
 			// remove it
 			for(k = i + 1; k < b->numsides; k++)
 			{
@@ -1026,7 +1031,8 @@ qboolean RemoveDuplicateBrushPlanes(bspBrush_t * b)
 		{
 			if(sides[i].planenum == sides[j].planenum)
 			{
-				//Sys_Printf("Entity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum);
+				xml_Select("duplicated plane", b->entitynum, b->brushnum, qfalse);
+				
 				// remove the second duplicate
 				for(k = i + 1; k < b->numsides; k++)
 				{
@@ -1040,7 +1046,7 @@ qboolean RemoveDuplicateBrushPlanes(bspBrush_t * b)
 			if(sides[i].planenum == (sides[j].planenum ^ 1))
 			{
 				// mirror plane, brush is invalid
-				Sys_Printf("Entity %i, Brush %i: mirrored plane\n", b->entitynum, b->brushnum);
+				xml_Select("mirrored plane", b->entitynum, b->brushnum, qfalse);
 				return qfalse;
 			}
 		}
@@ -1325,19 +1331,16 @@ qboolean ParseMapEntity(void)
 	}
 
 	// Tr3B: check for empty name
-#if 1
 	if(!name[0] && numEntities != 1)
 	{
 		name = UniqueEntityName(mapEnt, classname);
 		if(!name[0])
-			Error("UniqueEntityName failed for entity %i", numEntities - 1);
+			xml_Select("UniqueEntityName failed", numEntities - 1, 0, qtrue);
 
 		SetKeyValue(mapEnt, "name", name);
 		name = ValueForKey(mapEnt, "name");
 	}
-#endif
 
-#if 1
 	// Tr3B: check for bad duplicated names
 	for(i = 0; i < numEntities; i++)
 	{
@@ -1350,11 +1353,17 @@ qboolean ParseMapEntity(void)
 
 		if(!Q_stricmp(name, name2))
 		{
-			//Sys_FPrintf(SYS_WRN, "WARNING: entity name '%s' is duplicated by entity %i\n", name, i);
-			Error("entity name '%s' is duplicated by entity %i\n", name, i);
+			xml_Select("duplicated entity name", numEntities - 1, 0, qfalse);
+
+			name = UniqueEntityName(mapEnt, classname);
+			if(!name[0])
+				xml_Select("UniqueEntityName failed", numEntities - 1, 0, qtrue);
+
+			SetKeyValue(mapEnt, "name", name);
+			name = ValueForKey(mapEnt, "name");
+			break;
 		}
 	}
-#endif
 
 	if(convertType == CONVERT_QUAKE3)
 	{

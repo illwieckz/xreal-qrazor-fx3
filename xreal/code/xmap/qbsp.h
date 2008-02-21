@@ -386,7 +386,7 @@ void            WriteGLView(tree_t * tree, char *source);
 
 // leakfile.c
 
-void            LeakFile(tree_t * tree);
+xmlNodePtr      LeakFile(tree_t * tree);
 
 //=============================================================================
 

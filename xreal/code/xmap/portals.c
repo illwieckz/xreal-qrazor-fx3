@@ -498,7 +498,11 @@ void MakeTreePortals_r(node_t * node)
 	{
 		if(node->mins[i] < MIN_WORLD_COORD || node->maxs[i] > MAX_WORLD_COORD)
 		{
-			Sys_Printf("WARNING: node with unbounded volume\n");
+			//Sys_Printf("WARNING: node with unbounded volume\n");
+			if(node->portals && node->portals->winding)
+			{
+				xml_Winding("WARNING: Node With Unbounded Volume", node->portals->winding->p, node->portals->winding->numpoints, qfalse);
+			}
 			break;
 		}
 	}
@@ -610,12 +614,13 @@ qboolean FloodEntities(tree_t * tree)
 	int             i;
 	vec3_t          origin;
 	const char     *cl;
-	qboolean        inside;
+	qboolean        r, inside, tripped;
 	node_t         *headnode;
 
 	headnode = tree->headnode;
 	Sys_FPrintf(SYS_VRB, "--- FloodEntities ---\n");
 	inside = qfalse;
+	tripped = qfalse;
 	tree->outside_node.occupied = 0;
 
 	c_floodedleafs = 0;
@@ -633,8 +638,16 @@ qboolean FloodEntities(tree_t * tree)
 
 		origin[2] += 1;			// so objects on floor are ok
 
-		if(PlaceOccupant(headnode, origin, &entities[i]))
+		// find leaf for entity
+		r = PlaceOccupant(headnode, origin, &entities[i]);
+		if(r)
 			inside = qtrue;
+		
+		if((!r || tree->outside_node.occupied) && !tripped)
+		{
+			xml_Select("Entity leaked", i, 0, qfalse);
+			tripped = qtrue;
+		}
 	}
 
 	Sys_FPrintf(SYS_VRB, "%5i flooded leafs\n", c_floodedleafs);

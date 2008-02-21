@@ -121,6 +121,8 @@ void ProcessWorldModel(void)
 	tree_t         *tree;
 	bspFace_t      *faces;
 	qboolean        leaked;
+	xmlNodePtr      polyline, leaknode;
+	char            level[2];
 	const char     *value;
 
 	e = &entities[0];
@@ -186,10 +188,19 @@ void ProcessWorldModel(void)
 	}
 	else
 	{
-		Sys_Printf("**********************\n");
-		Sys_Printf("******* leaked *******\n");
-		Sys_Printf("**********************\n");
-		LeakFile(tree);
+		Sys_FPrintf(SYS_NOXML, "**********************\n");
+		Sys_FPrintf(SYS_NOXML, "******* leaked *******\n");
+		Sys_FPrintf(SYS_NOXML, "**********************\n");
+		
+		polyline = LeakFile(tree);
+		leaknode = xmlNewNode(NULL, "message");
+		xmlNodeSetContent(leaknode, "MAP LEAKED\n");
+		xmlAddChild(leaknode, polyline);
+		level[0] = (int)'0' + SYS_ERR;
+		level[1] = 0;
+		xmlSetProp(leaknode, "level", (char *)&level);
+		xml_SendNode(leaknode);
+		
 		if(leaktest)
 		{
 			Sys_Printf("--- MAP LEAKED, ABORTING LEAKTEST ---\n");
