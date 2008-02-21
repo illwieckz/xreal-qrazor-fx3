@@ -38,8 +38,6 @@ int             c_peak_windings;
 int             c_winding_allocs;
 int             c_winding_points;
 
-#define	BOGUS_RANGE	WORLD_SIZE
-
 void pw(winding_t * w)
 {
 	int             i;
@@ -164,13 +162,18 @@ vec_t WindingArea(winding_t * w)
 	return total;
 }
 
+/*
+=============
+WindingBounds
+=============
+*/
 void WindingBounds(winding_t * w, vec3_t mins, vec3_t maxs)
 {
 	vec_t           v;
 	int             i, j;
 
-	mins[0] = mins[1] = mins[2] = 99999;
-	maxs[0] = maxs[1] = maxs[2] = -99999;
+	mins[0] = mins[1] = mins[2] = MAX_WORLD_COORD;
+	maxs[0] = maxs[1] = maxs[2] = MIN_WORLD_COORD;
 
 	for(i = 0; i < w->numpoints; i++)
 	{
@@ -216,7 +219,7 @@ winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist)
 	winding_t      *w;
 
 	// find the major axis
-	max = -BOGUS_RANGE;
+	max = -MAX_WORLD_COORD;
 	x = -1;
 	for(i = 0; i < 3; i++)
 	{
@@ -390,7 +393,7 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 			b->numpoints++;
 		}
 
-		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i]))  // raynorpat: branch optimization
+		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
 			continue;
 
 		// generate a split point
@@ -413,10 +416,10 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 		b->numpoints++;
 	}
 
-	if((f->numpoints > maxpts) | (b->numpoints > maxpts)) // raynorpat: branch optimization
+	if(f->numpoints > maxpts || b->numpoints > maxpts)
 		Error("ClipWinding: points exceeded estimate");
 
-    if((f->numpoints > MAX_POINTS_ON_WINDING) | (b->numpoints > MAX_POINTS_ON_WINDING)) // raynorpat: branch optimization
+    if(f->numpoints > MAX_POINTS_ON_WINDING || b->numpoints > MAX_POINTS_ON_WINDING)
 		Error("ClipWinding: MAX_POINTS_ON_WINDING");
 }
 
@@ -492,7 +495,7 @@ void ChopWindingInPlace(winding_t ** inout, vec3_t normal, vec_t dist, vec_t eps
 			f->numpoints++;
 		}
 
-		if((sides[i + 1] == SIDE_ON) | (sides[i + 1] == sides[i]))  // raynorpat: branch optimization
+		if(sides[i + 1] == SIDE_ON || sides[i + 1] == sides[i])
 			continue;
 
 		// generate a split point
