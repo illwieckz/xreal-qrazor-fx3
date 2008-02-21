@@ -67,7 +67,8 @@ cvar_t         *cm_noAreas;
 cvar_t         *cm_noCurves;
 cvar_t         *cm_noTriangles;
 cvar_t         *cm_noExtraAABBs;
-cvar_t         *cm_playerCurveClip;
+cvar_t         *cm_showCurves;
+cvar_t         *cm_showTriangles;
 #endif
 
 cmodel_t        box_model;
@@ -549,6 +550,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			// FIXME: check for non-colliding patches
 
 			cm.surfaces[i] = surface = Hunk_Alloc(sizeof(*surface), h_high);
+			surface->type = MST_PATCH;
 
 			// load the full drawverts onto the stack
 			width = LittleLong(in->patchWidth);
@@ -572,7 +574,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			surface->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
 
 			// create the internal facet structure
-			surface->pc = CM_GeneratePatchCollide(width, height, vertexes);
+			surface->sc = CM_GeneratePatchCollide(width, height, vertexes);
 		}
 #ifndef BSPC
 		else if(LittleLong(in->surfaceType) == MST_TRIANGLE_SOUP && !cm_noTriangles->integer)
@@ -580,6 +582,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			// FIXME: check for non-colliding triangle soups
 
 			cm.surfaces[i] = surface = Hunk_Alloc(sizeof(*surface), h_high);
+			surface->type = MST_TRIANGLE_SOUP;
 
 			// load the full drawverts onto the stack
 			numVertexes = LittleLong(in->numVerts);
@@ -618,7 +621,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			surface->surfaceFlags = cm.shaders[shaderNum].surfaceFlags;
 
 			// create the internal facet structure
-			surface->tc = CM_GenerateTriangleSoupCollide(numVertexes, vertexes, numIndexes, indexes);
+			surface->sc = CM_GenerateTriangleSoupCollide(numVertexes, vertexes, numIndexes, indexes);
 		}
 #endif							// BSPC
 	}
@@ -675,7 +678,8 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 	cm_noCurves = Cvar_Get("cm_noCurves", "0", CVAR_CHEAT);
 	cm_noTriangles = Cvar_Get("cm_noTriangles", "1", CVAR_CHEAT | CVAR_LATCH);
 	cm_noExtraAABBs = Cvar_Get("cm_noExtraAABBs", "0", CVAR_CHEAT);
-	cm_playerCurveClip = Cvar_Get("cm_playerCurveClip", "1", CVAR_ARCHIVE | CVAR_CHEAT);
+	cm_showCurves = Cvar_Get("cm_showCurves", "0", CVAR_CHEAT);
+	cm_showTriangles = Cvar_Get("cm_showTriangles", "0", CVAR_CHEAT);
 #endif
 	Com_DPrintf("CM_LoadMap( %s, %i )\n", name, clientload);
 

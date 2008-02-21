@@ -172,7 +172,7 @@ POSITION TESTING
 CM_TestBoxInBrush
 ================
 */
-void CM_TestBoxInBrush(traceWork_t * tw, cbrush_t * brush)
+static void CM_TestBoxInBrush(traceWork_t * tw, cbrush_t * brush)
 {
 	int             i;
 	cplane_t       *plane;
@@ -255,6 +255,117 @@ void CM_TestBoxInBrush(traceWork_t * tw, cbrush_t * brush)
 }
 
 
+/*
+====================
+CM_PositionTestInSurfaceCollide
+====================
+*/
+static qboolean CM_PositionTestInSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * sc)
+{
+	int             i, j;
+	float           offset, t;
+	cPlane_t       *planes;
+	cFacet_t       *facet;
+	float           plane[4];
+	vec3_t          startp;
+
+	if(tw->isPoint)
+	{
+		return qfalse;
+	}
+	
+	for(i = 0, facet = sc->facets; i < sc->numFacets; i++, facet++)
+	{
+		planes = &sc->planes[facet->surfacePlane];
+		VectorCopy(planes->plane, plane);
+		plane[3] = planes->plane[3];
+		
+		if(tw->sphere.use)
+		{
+			// adjust the plane distance apropriately for radius
+			plane[3] += tw->sphere.radius;
+
+			// find the closest point on the capsule to the plane
+			t = DotProduct(plane, tw->sphere.offset);
+			if(t > 0)
+			{
+				VectorSubtract(tw->start, tw->sphere.offset, startp);
+			}
+			else
+			{
+				VectorAdd(tw->start, tw->sphere.offset, startp);
+			}
+		}
+		else
+		{
+			offset = DotProduct(tw->offsets[planes->signbits], plane);
+			plane[3] -= offset;
+			VectorCopy(tw->start, startp);
+		}
+
+		if(DotProduct(plane, startp) - plane[3] > 0.0f)
+		{
+			continue;
+		}
+
+		for(j = 0; j < facet->numBorders; j++)
+		{
+			planes = &sc->planes[facet->borderPlanes[j]];
+			
+			if(facet->borderInward[j])
+			{
+				VectorNegate(planes->plane, plane);
+				plane[3] = -planes->plane[3];
+			}
+			else
+			{
+				VectorCopy(planes->plane, plane);
+				plane[3] = planes->plane[3];
+			}
+			
+			if(tw->sphere.use)
+			{
+				// adjust the plane distance apropriately for radius
+				plane[3] += tw->sphere.radius;
+
+				// find the closest point on the capsule to the plane
+				t = DotProduct(plane, tw->sphere.offset);
+				if(t > 0.0f)
+				{
+					VectorSubtract(tw->start, tw->sphere.offset, startp);
+				}
+				else
+				{
+					VectorAdd(tw->start, tw->sphere.offset, startp);
+				}
+			}
+			else
+			{
+				// NOTE: this works even though the plane might be flipped because the bbox is centered
+				offset = DotProduct(tw->offsets[planes->signbits], plane);
+				plane[3] += fabs(offset);
+				VectorCopy(tw->start, startp);
+			}
+
+			if(DotProduct(plane, startp) - plane[3] > 0.0f)
+			{
+				break;
+			}
+		}
+		
+		if(j < facet->numBorders)
+		{
+			continue;
+		}
+		
+		// inside this patch facet
+		return qtrue;
+	}
+	
+	return qfalse;
+}
+
+
 
 /*
 ================
@@ -292,7 +403,6 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 	}
 
 	// test against all surfaces
-
 	for(k = 0; k < leaf->numLeafSurfaces; k++)
 	{
 		surface = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
@@ -321,7 +431,7 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		if(!cm_noCurves->integer)
 		{
 #endif
-			if(surface->pc && CM_PositionTestInPatchCollide(tw, surface->pc))
+			if(surface->type == MST_PATCH && surface->sc && CM_PositionTestInSurfaceCollide(tw, surface->sc))
 			{
 				tw->trace.startsolid = tw->trace.allsolid = qtrue;
 				tw->trace.fraction = 0;
@@ -337,7 +447,7 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		if(!cm_noTriangles->integer)
 		{
 #endif
-			if(surface->tc && CM_PositionTestInTriangleSoupCollide(tw, surface->tc))
+			if(surface->type == MST_TRIANGLE_SOUP && surface->sc && CM_PositionTestInSurfaceCollide(tw, surface->sc))
 			{
 				tw->trace.startsolid = tw->trace.allsolid = qtrue;
 				tw->trace.fraction = 0;
@@ -522,6 +632,354 @@ TRACING
 
 
 /*
+====================
+CM_TracePointThroughSurfaceCollide
+
+  special case for point traces because the surface collide "brushes" have no volume
+====================
+*/
+void CM_TracePointThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * sc)
+{
+	static qboolean        frontFacing[SHADER_MAX_TRIANGLES];
+	static float           intersection[SHADER_MAX_TRIANGLES];
+	float           intersect;
+	const cPlane_t *planes;
+	const cFacet_t *facet;
+	int             i, j, k;
+	float           offset;
+	float           d1, d2;
+
+#ifndef BSPC
+	static cvar_t  *cv;
+#endif							//BSPC
+
+#ifndef BSPC
+	if(!tw->isPoint)
+	{
+		return;
+	}
+#endif
+
+	// determine the trace's relationship to all planes
+	planes = sc->planes;
+	for(i = 0; i < sc->numPlanes; i++, planes++)
+	{
+		offset = DotProduct(tw->offsets[planes->signbits], planes->plane);
+		d1 = DotProduct(tw->start, planes->plane) - planes->plane[3] + offset;
+		d2 = DotProduct(tw->end, planes->plane) - planes->plane[3] + offset;
+		if(d1 <= 0)
+		{
+			frontFacing[i] = qfalse;
+		}
+		else
+		{
+			frontFacing[i] = qtrue;
+		}
+		if(d1 == d2)
+		{
+			intersection[i] = 99999;
+		}
+		else
+		{
+			intersection[i] = d1 / (d1 - d2);
+			if(intersection[i] <= 0)
+			{
+				intersection[i] = 99999;
+			}
+		}
+	}
+
+	// see if any of the surface planes are intersected
+	for(i = 0, facet = sc->facets; i < sc->numFacets; i++, facet++)
+	{
+		if(!frontFacing[facet->surfacePlane])
+		{
+			continue;
+		}
+		intersect = intersection[facet->surfacePlane];
+		if(intersect < 0)
+		{
+			continue;			// surface is behind the starting point
+		}
+		if(intersect > tw->trace.fraction)
+		{
+			continue;			// already hit something closer
+		}
+		for(j = 0; j < facet->numBorders; j++)
+		{
+			k = facet->borderPlanes[j];
+			if(frontFacing[k] ^ facet->borderInward[j])
+			{
+				if(intersection[k] > intersect)
+				{
+					break;
+				}
+			}
+			else
+			{
+				if(intersection[k] < intersect)
+				{
+					break;
+				}
+			}
+		}
+		if(j == facet->numBorders)
+		{
+			// we hit this facet
+#ifndef BSPC
+			if(!cv)
+			{
+				cv = Cvar_Get("r_debugSurfaceUpdate", "1", 0);
+			}
+			if(cv->integer)
+			{
+				debugSurfaceCollide = sc;
+				debugFacet = facet;
+			}
+#endif							//BSPC
+			planes = &sc->planes[facet->surfacePlane];
+
+			// calculate intersection with a slight pushoff
+			offset = DotProduct(tw->offsets[planes->signbits], planes->plane);
+			d1 = DotProduct(tw->start, planes->plane) - planes->plane[3] + offset;
+			d2 = DotProduct(tw->end, planes->plane) - planes->plane[3] + offset;
+			tw->trace.fraction = (d1 - SURFACE_CLIP_EPSILON) / (d1 - d2);
+
+			if(tw->trace.fraction < 0)
+			{
+				tw->trace.fraction = 0;
+			}
+
+			VectorCopy(planes->plane, tw->trace.plane.normal);
+			tw->trace.plane.dist = planes->plane[3];
+		}
+	}
+}
+
+/*
+====================
+CM_CheckFacetPlane
+====================
+*/
+int CM_CheckFacetPlane(float *plane, vec3_t start, vec3_t end, float *enterFrac, float *leaveFrac, int *hit)
+{
+	float           d1, d2, f;
+
+	*hit = qfalse;
+
+	d1 = DotProduct(start, plane) - plane[3];
+	d2 = DotProduct(end, plane) - plane[3];
+
+	// if completely in front of face, no intersection with the entire facet
+	if(d1 > 0 && (d2 >= SURFACE_CLIP_EPSILON || d2 >= d1))
+	{
+		return qfalse;
+	}
+
+	// if it doesn't cross the plane, the plane isn't relevent
+	if(d1 <= 0 && d2 <= 0)
+	{
+		return qtrue;
+	}
+
+	// crosses face
+	if(d1 > d2)
+	{
+		// enter
+		f = (d1 - SURFACE_CLIP_EPSILON) / (d1 - d2);
+		if(f < 0)
+		{
+			f = 0;
+		}
+		
+		//always favor previous plane hits and thus also the surface plane hit
+		if(f > *enterFrac)
+		{
+			*enterFrac = f;
+			*hit = qtrue;
+		}
+	}
+	else
+	{
+		// leave
+		f = (d1 + SURFACE_CLIP_EPSILON) / (d1 - d2);
+		if(f > 1)
+		{
+			f = 1;
+		}
+		if(f < *leaveFrac)
+		{
+			*leaveFrac = f;
+		}
+	}
+	return qtrue;
+}
+
+/*
+====================
+CM_TraceThroughSurfaceCollide
+====================
+*/
+void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * sc)
+{
+	int             i, j, hit, hitnum;
+	float           offset, enterFrac, leaveFrac, t;
+	cPlane_t       *planes;
+	cFacet_t       *facet;
+	float           plane[4] = {0, 0, 0, 0};
+	float           bestplane[4] = {0, 0, 0, 0};
+	vec3_t          startp, endp;
+
+#ifndef BSPC
+	static cvar_t  *cv;
+
+	// Tr3B: added simple AABB test
+	if(!cm_noExtraAABBs->integer && !CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], sc->bounds[0], sc->bounds[1]))
+		return;
+#endif
+
+	if(tw->isPoint)
+	{
+		CM_TracePointThroughSurfaceCollide(tw, sc);
+		return;
+	}
+
+	for(i = 0, facet = sc->facets; i < sc->numFacets; i++, facet++)
+	{
+		enterFrac = -1.0;
+		leaveFrac = 1.0;
+		hitnum = -1;
+		
+		planes = &sc->planes[facet->surfacePlane];
+		VectorCopy(planes->plane, plane);
+		plane[3] = planes->plane[3];
+		
+		if(tw->sphere.use)
+		{
+			// adjust the plane distance apropriately for radius
+			plane[3] += tw->sphere.radius;
+
+			// find the closest point on the capsule to the plane
+			t = DotProduct(plane, tw->sphere.offset);
+			if(t > 0.0f)
+			{
+				VectorSubtract(tw->start, tw->sphere.offset, startp);
+				VectorSubtract(tw->end, tw->sphere.offset, endp);
+			}
+			else
+			{
+				VectorAdd(tw->start, tw->sphere.offset, startp);
+				VectorAdd(tw->end, tw->sphere.offset, endp);
+			}
+		}
+		else
+		{
+			offset = DotProduct(tw->offsets[planes->signbits], plane);
+			plane[3] -= offset;
+			VectorCopy(tw->start, startp);
+			VectorCopy(tw->end, endp);
+		}
+
+		if(!CM_CheckFacetPlane(plane, startp, endp, &enterFrac, &leaveFrac, &hit))
+		{
+			continue;
+		}
+		
+		if(hit)
+		{
+			VectorCopy4(plane, bestplane);
+		}
+
+		for(j = 0; j < facet->numBorders; j++)
+		{
+			planes = &sc->planes[facet->borderPlanes[j]];
+			
+			if(facet->borderInward[j])
+			{
+				VectorNegate(planes->plane, plane);
+				plane[3] = -planes->plane[3];
+			}
+			else
+			{
+				VectorCopy(planes->plane, plane);
+				plane[3] = planes->plane[3];
+			}
+			
+			if(tw->sphere.use)
+			{
+				// adjust the plane distance apropriately for radius
+				plane[3] += tw->sphere.radius;
+
+				// find the closest point on the capsule to the plane
+				t = DotProduct(plane, tw->sphere.offset);
+				if(t > 0.0f)
+				{
+					VectorSubtract(tw->start, tw->sphere.offset, startp);
+					VectorSubtract(tw->end, tw->sphere.offset, endp);
+				}
+				else
+				{
+					VectorAdd(tw->start, tw->sphere.offset, startp);
+					VectorAdd(tw->end, tw->sphere.offset, endp);
+				}
+			}
+			else
+			{
+				// NOTE: this works even though the plane might be flipped because the bbox is centered
+				offset = DotProduct(tw->offsets[planes->signbits], plane);
+				plane[3] += fabs(offset);
+				VectorCopy(tw->start, startp);
+				VectorCopy(tw->end, endp);
+			}
+
+			if(!CM_CheckFacetPlane(plane, startp, endp, &enterFrac, &leaveFrac, &hit))
+			{
+				break;
+			}
+			
+			if(hit)
+			{
+				hitnum = j;
+				VectorCopy4(plane, bestplane);
+			}
+		}
+		
+		if(j < facet->numBorders)
+			continue;
+		
+		//never clip against the back side
+		if(hitnum == facet->numBorders - 1)
+			continue;
+
+		if(enterFrac < leaveFrac && enterFrac >= 0)
+		{
+			if(enterFrac < tw->trace.fraction)
+			{
+				if(enterFrac < 0)
+				{
+					enterFrac = 0;
+				}
+#ifndef BSPC
+				if(!cv)
+				{
+					cv = Cvar_Get("r_debugSurfaceUpdate", "1", 0);
+				}
+				if(cv && cv->integer)
+				{
+					debugSurfaceCollide = sc;
+					debugFacet = facet;
+				}
+#endif							//BSPC
+
+				tw->trace.fraction = enterFrac;
+				VectorCopy(bestplane, tw->trace.plane.normal);
+				tw->trace.plane.dist = bestplane[3];
+			}
+		}
+	}
+}
+
+/*
 ================
 CM_TraceThroughSurface
 ================
@@ -536,10 +994,10 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 	if(1)
 	{
 #else
-	if(!cm_noCurves->integer && surface->pc)
+	if(!cm_noCurves->integer && surface->type == MST_PATCH && surface->sc)
 	{
 #endif
-		CM_TraceThroughPatchCollide(tw, surface->pc);
+		CM_TraceThroughSurfaceCollide(tw, surface->sc);
 		c_patch_traces++;
 	}
 
@@ -547,10 +1005,10 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 	if(0)
 	{
 #else
-	if(!cm_noTriangles->integer && surface->tc)
+	if(!cm_noTriangles->integer && surface->type == MST_TRIANGLE_SOUP && surface->sc)
 	{
 #endif
-		CM_TraceThroughTriangleSoupCollide(tw, surface->tc);
+		CM_TraceThroughSurfaceCollide(tw, surface->sc);
 		c_trisoup_traces++;
 	}
 
@@ -650,7 +1108,8 @@ void CM_TraceThroughBrush(traceWork_t * tw, cbrush_t * brush)
 
 			// crosses face
 			if(d1 > d2)
-			{					// enter
+			{
+				// enter
 				f = (d1 - SURFACE_CLIP_EPSILON) / (d1 - d2);
 				if(f < 0)
 				{
@@ -664,7 +1123,8 @@ void CM_TraceThroughBrush(traceWork_t * tw, cbrush_t * brush)
 				}
 			}
 			else
-			{					// leave
+			{
+				// leave
 				f = (d1 + SURFACE_CLIP_EPSILON) / (d1 - d2);
 				if(f > 1)
 				{
@@ -1698,3 +2158,214 @@ void CM_TransformedBoxTrace(trace_t * results, const vec3_t start, const vec3_t 
 
 	*results = trace;
 }
+
+
+
+/*
+=======================================================================
+
+DEBUGGING
+
+=======================================================================
+*/
+
+
+/*
+==================
+CM_DrawDebugSurface
+
+Called from the renderer
+==================
+*/
+#ifndef BSPC
+void            BotDrawDebugPolygons(void (*drawPoly) (int color, int numPoints, float *points), int value);
+#endif
+
+void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *points))
+{
+	static cvar_t  *cv;
+
+#ifndef BSPC
+	static cvar_t  *cv2;
+#endif
+	const cSurfaceCollide_t *pc;
+	cFacet_t       *facet;
+	winding_t      *w;
+	int             i, j, k, n;
+	int             curplanenum, planenum, curinward, inward;
+	float           plane[4];
+//	vec3_t          mins = { -15, -15, -28 }, maxs = {15, 15, 28};
+//	vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0};
+//	vec3_t          v1, v2;
+
+#ifndef BSPC
+	if(!cv2)
+	{
+		cv2 = Cvar_Get("r_debugSurface", "0", 0);
+	}
+
+	if(cv2->integer != 1)
+	{
+		BotDrawDebugPolygons(drawPoly, cv2->integer);
+		return;
+	}
+#endif
+
+	if(!debugSurfaceCollide)
+	{
+		return;
+	}
+
+#ifndef BSPC
+	if(!cv)
+	{
+		cv = Cvar_Get("cm_debugSize", "2", 0);
+	}
+#endif
+
+	pc = debugSurfaceCollide;
+	for(i = 0, facet = pc->facets; i < pc->numFacets; i++, facet++)
+	{
+		for(k = 0; k < facet->numBorders + 1; k++)
+		{
+			//
+			if(k < facet->numBorders)
+			{
+				planenum = facet->borderPlanes[k];
+				inward = facet->borderInward[k];
+			}
+			else
+			{
+				planenum = facet->surfacePlane;
+				inward = qfalse;
+				//continue;
+			}
+
+			VectorCopy4(pc->planes[planenum].plane, plane);
+			if(inward)
+			{
+				VectorInverse(plane);
+				plane[3] = -plane[3];
+			}
+
+			/*
+			plane[3] += cv->value;
+			
+			for(n = 0; n < 3; n++)
+			{
+				if(plane[n] > 0)
+					v1[n] = maxs[n];
+				else
+					v1[n] = mins[n];
+			}
+			VectorNegate(plane, v2);
+			plane[3] += fabs(DotProduct(v1, v2));
+			*/
+
+			w = BaseWindingForPlane(plane, plane[3]);
+			for(j = 0; j < facet->numBorders + 1 && w; j++)
+			{
+				//
+				if(j < facet->numBorders)
+				{
+					curplanenum = facet->borderPlanes[j];
+					curinward = facet->borderInward[j];
+				}
+				else
+				{
+					curplanenum = facet->surfacePlane;
+					curinward = qfalse;
+					//continue;
+				}
+				
+				//
+				if(curplanenum == planenum)
+					continue;
+
+				VectorCopy4(pc->planes[curplanenum].plane, plane);
+				if(!curinward)
+				{
+					VectorInverse(plane);
+					plane[3] = -plane[3];
+				}
+				
+				/*
+				//          if ( !facet->borderNoAdjust[j] ) {
+				plane[3] -= cv->value;
+				//          }
+				for(n = 0; n < 3; n++)
+				{
+					if(plane[n] > 0)
+						v1[n] = maxs[n];
+					else
+						v1[n] = mins[n];
+				}
+				VectorNegate(plane, v2);
+				plane[3] -= fabs(DotProduct(v1, v2));
+				*/
+
+				ChopWindingInPlace(&w, plane, plane[3], 0.1f);
+			}
+			
+			if(w)
+			{
+				if(facet == debugFacet)
+				{
+					drawPoly(4, w->numpoints, w->p[0]);
+					//Com_Printf("blue facet has %d border planes\n", facet->numBorders);
+				}
+				else
+				{
+					drawPoly(1, w->numpoints, w->p[0]);
+				}
+				FreeWinding(w);
+			}
+			else
+			{
+				//Com_Printf("winding chopped away by border planes\n");
+			}
+		}
+	}
+
+#if 0
+	// draw the debug block
+	{
+		vec3_t          v[3];
+
+		VectorCopy(debugBlockPoints[0], v[0]);
+		VectorCopy(debugBlockPoints[1], v[1]);
+		VectorCopy(debugBlockPoints[2], v[2]);
+		drawPoly(2, 3, v[0]);
+
+		VectorCopy(debugBlockPoints[2], v[0]);
+		VectorCopy(debugBlockPoints[3], v[1]);
+		VectorCopy(debugBlockPoints[0], v[2]);
+		drawPoly(2, 3, v[0]);
+	}
+#endif
+
+#if 0
+	{
+		vec3_t          v[4];
+
+		v[0][0] = pc->bounds[1][0];
+		v[0][1] = pc->bounds[1][1];
+		v[0][2] = pc->bounds[1][2];
+	
+		v[1][0] = pc->bounds[1][0];
+		v[1][1] = pc->bounds[0][1];
+		v[1][2] = pc->bounds[1][2];
+
+		v[2][0] = pc->bounds[0][0];
+		v[2][1] = pc->bounds[0][1];
+		v[2][2] = pc->bounds[1][2];
+
+		v[3][0] = pc->bounds[0][0];
+		v[3][1] = pc->bounds[1][1];
+		v[3][2] = pc->bounds[1][2];
+
+		drawPoly(2, 4, v[0]);
+	}
+#endif
+}
+

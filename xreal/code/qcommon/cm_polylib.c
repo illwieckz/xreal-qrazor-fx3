@@ -96,8 +96,8 @@ void RemoveColinearPoints(winding_t * w)
 		k = (i + w->numpoints - 1) % w->numpoints;
 		VectorSubtract(w->p[j], w->p[i], v1);
 		VectorSubtract(w->p[i], w->p[k], v2);
-		VectorNormalize2(v1, v1);
-		VectorNormalize2(v2, v2);
+		VectorNormalize(v1);
+		VectorNormalize(v2);
 		if(DotProduct(v1, v2) < 0.999)
 		{
 			VectorCopy(w->p[i], p[nump]);
@@ -125,7 +125,7 @@ void WindingPlane(winding_t * w, vec3_t normal, vec_t * dist)
 	VectorSubtract(w->p[1], w->p[0], v1);
 	VectorSubtract(w->p[2], w->p[0], v2);
 	CrossProduct(v2, v1, normal);
-	VectorNormalize2(normal, normal);
+	VectorNormalize(normal);
 	*dist = DotProduct(w->p[0], normal);
 
 }
@@ -162,8 +162,8 @@ void WindingBounds(winding_t * w, vec3_t mins, vec3_t maxs)
 	vec_t           v;
 	int             i, j;
 
-	mins[0] = mins[1] = mins[2] = MAX_MAP_BOUNDS;
-	maxs[0] = maxs[1] = maxs[2] = -MAX_MAP_BOUNDS;
+	mins[0] = mins[1] = mins[2] = MAX_WORLD_COORD;
+	maxs[0] = maxs[1] = maxs[2] = MIN_WORLD_COORD;
 
 	for(i = 0; i < w->numpoints; i++)
 	{
@@ -208,9 +208,8 @@ winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist)
 	vec3_t          org, vright, vup;
 	winding_t      *w;
 
-// find the major axis
-
-	max = -MAX_MAP_BOUNDS;
+	// find the major axis
+	max = -MAX_WORLD_COORD;
 	x = -1;
 	for(i = 0; i < 3; i++)
 	{
@@ -238,16 +237,16 @@ winding_t      *BaseWindingForPlane(vec3_t normal, vec_t dist)
 
 	v = DotProduct(vup, normal);
 	VectorMA(vup, -v, normal, vup);
-	VectorNormalize2(vup, vup);
+	VectorNormalize(vup);
 
 	VectorScale(normal, dist, org);
 
 	CrossProduct(vup, normal, vright);
 
-	VectorScale(vup, MAX_MAP_BOUNDS, vup);
-	VectorScale(vright, MAX_MAP_BOUNDS, vright);
+	VectorScale(vup, MAX_WORLD_COORD, vup);
+	VectorScale(vright, MAX_WORLD_COORD, vright);
 
-// project a really big axis aligned box onto the plane
+	// project a really big axis aligned box onto the plane
 	w = AllocWinding(4);
 
 	VectorSubtract(org, vright, w->p[0]);
@@ -322,7 +321,7 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 
 	counts[0] = counts[1] = counts[2] = 0;
 
-// determine sides for each point
+	// determine sides for each point
 	for(i = 0; i < in->numpoints; i++)
 	{
 		dot = DotProduct(in->p[i], normal);
@@ -435,7 +434,7 @@ void ChopWindingInPlace(winding_t ** inout, vec3_t normal, vec_t dist, vec_t eps
 	in = *inout;
 	counts[0] = counts[1] = counts[2] = 0;
 
-// determine sides for each point
+	// determine sides for each point
 	for(i = 0; i < in->numpoints; i++)
 	{
 		dot = DotProduct(in->p[i], normal);
@@ -565,7 +564,7 @@ void CheckWinding(winding_t * w)
 		p1 = w->p[i];
 
 		for(j = 0; j < 3; j++)
-			if(p1[j] > MAX_MAP_BOUNDS || p1[j] < -MAX_MAP_BOUNDS)
+			if(p1[j] > MAX_WORLD_COORD || p1[j] < MIN_WORLD_COORD)
 				Com_Error(ERR_DROP, "CheckFace: BUGUS_RANGE: %f", p1[j]);
 
 		j = i + 1 == w->numpoints ? 0 : i + 1;
@@ -583,7 +582,7 @@ void CheckWinding(winding_t * w)
 			Com_Error(ERR_DROP, "CheckWinding: degenerate edge");
 
 		CrossProduct(facenormal, dir, edgenormal);
-		VectorNormalize2(edgenormal, edgenormal);
+		VectorNormalize(edgenormal);
 		edgedist = DotProduct(p1, edgenormal);
 		edgedist += ON_EPSILON;
 
@@ -680,7 +679,7 @@ void AddWindingToConvexHull(winding_t * w, winding_t ** hull, vec3_t normal)
 			k = (j + 1) % numHullPoints;
 
 			VectorSubtract(hullPoints[k], hullPoints[j], dir);
-			VectorNormalize2(dir, dir);
+			VectorNormalize(dir);
 			CrossProduct(normal, dir, hullDirs[j]);
 		}
 

@@ -74,13 +74,44 @@ typedef struct
 
 typedef struct
 {
+	float           plane[4];
+	int             signbits;	// signx + (signy<<1) + (signz<<2), used as lookup during collision
+} cPlane_t;
+
+// 3 or four + 6 axial bevels + 4 or 3 * 4 edge bevels
+#define MAX_FACET_BEVELS (4 + 6 + 16)
+
+// a facet is a subdivided element of a patch aproximation or model
+typedef struct
+{
+	int             surfacePlane;
+	int             numBorders;
+	int             borderPlanes[MAX_FACET_BEVELS];
+	int             borderInward[MAX_FACET_BEVELS];
+	qboolean        borderNoAdjust[MAX_FACET_BEVELS];
+} cFacet_t;
+
+typedef struct cSurfaceCollide_s
+{
+	vec3_t          bounds[2];
+
+	int             numPlanes;	// surface planes plus edge planes
+	cPlane_t       *planes;
+
+	int             numFacets;
+	cFacet_t       *facets;
+} cSurfaceCollide_t;
+
+typedef struct
+{
+	int             type;
+
 	int             checkcount;	// to avoid repeated testings
 	int             surfaceFlags;
 	int             contents;
-	struct patchCollide_s *pc;
-	struct triSoupCollide_s *tc;
-} cSurface_t;
 
+	cSurfaceCollide_t *sc;
+} cSurface_t;
 
 typedef struct
 {
@@ -150,9 +181,9 @@ extern cvar_t  *cm_noAreas;
 extern cvar_t  *cm_noCurves;
 extern cvar_t  *cm_noTriangles;
 extern cvar_t  *cm_noExtraAABBs;
-extern cvar_t  *cm_playerCurveClip;
+extern cvar_t  *cm_showCurves;
+extern cvar_t  *cm_showTriangles;
 
-// cm_test.c
 
 // Used for oriented capsule collision detection
 typedef struct
@@ -191,6 +222,86 @@ typedef struct leafList_s
 } leafList_t;
 
 
+
+// cm_patch.c
+
+/*
+
+This file does not reference any globals, and has these entry points:
+
+void CM_ClearLevelPatches( void );
+struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
+void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, flaot *points) );
+
+
+Issues for collision against curved surfaces:
+
+Surface edges need to be handled differently than surface planes
+
+Plane expansion causes raw surfaces to expand past expanded bounding box
+
+Position test of a volume against a surface is tricky.
+
+Position test of a point against a surface is not well defined, because the surface has no volume.
+
+
+Tracing leading edge points instead of volumes?
+Position test by tracing corner to corner? (8*7 traces -- ouch)
+
+coplanar edges
+triangulated patches
+degenerate patches
+
+  endcaps
+  degenerate
+
+WARNING: this may misbehave with meshes that have rows or columns that only
+degenerate a few triangles.  Completely degenerate rows and columns are handled
+properly.
+*/
+
+
+#define	MAX_FACETS			1024
+#define	MAX_PATCH_PLANES	2048
+
+#define	MAX_GRID_SIZE	129
+
+typedef struct
+{
+	int             width;
+	int             height;
+	qboolean        wrapWidth;
+	qboolean        wrapHeight;
+	vec3_t          points[MAX_GRID_SIZE][MAX_GRID_SIZE];	// [width][height]
+} cGrid_t;
+
+#define	SUBDIVIDE_DISTANCE	16	//4 // never more than this units away from curve
+#define	PLANE_TRI_EPSILON	0.1
+#define	WRAP_POINT_EPSILON	0.1
+
+
+cSurfaceCollide_t *CM_GeneratePatchCollide(int width, int height, vec3_t * points);
+void            CM_ClearLevelPatches(void);
+
+// cm_trisoup.c
+
+typedef struct
+{
+	int             numTriangles;
+	vec3_t          points[SHADER_MAX_TRIANGLES][3];
+} cTriangleSoup_t;
+
+cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes);
+
+
+// cm_test.c
+extern const cSurfaceCollide_t *debugSurfaceCollide;
+extern const cFacet_t *debugFacet;
+extern qboolean debugBlock;
+extern vec3_t   debugBlockPoints[4];
+
 int             CM_BoxBrushes(const vec3_t mins, const vec3_t maxs, cbrush_t ** list, int listsize);
 
 void            CM_StoreLeafs(leafList_t * ll, int nodenum);
@@ -202,16 +313,3 @@ cmodel_t       *CM_ClipHandleToModel(clipHandle_t handle);
 
 qboolean        CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 qboolean        CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t point);
-
-// cm_patch.c
-
-struct patchCollide_s *CM_GeneratePatchCollide(int width, int height, vec3_t * points);
-void            CM_TraceThroughPatchCollide(traceWork_t * tw, const struct patchCollide_s *pc);
-qboolean        CM_PositionTestInPatchCollide(traceWork_t * tw, const struct patchCollide_s *pc);
-void            CM_ClearLevelPatches(void);
-
-// cm_trisoup.c
-
-struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes);
-void            CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc);
-qboolean        CM_PositionTestInTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc);

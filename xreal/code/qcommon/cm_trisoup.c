@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cm_local.h"
-#include "cm_trisoup.h"
 
 
 /*
@@ -78,10 +77,10 @@ PATCH COLLIDE GENERATION
 */
 
 static int      numPlanes;
-static trianglePlane_t planes[SHADER_MAX_TRIANGLES];
+static cPlane_t planes[SHADER_MAX_TRIANGLES];
 
-static int      numTriangles;
-static cTriangle_t triangles[SHADER_MAX_TRIANGLES];
+static int      numFacets;
+static cFacet_t facets[SHADER_MAX_TRIANGLES];
 
 #define	NORMAL_EPSILON		0.0001
 #define	DIST_EPSILON		0.02
@@ -92,7 +91,7 @@ static cTriangle_t triangles[SHADER_MAX_TRIANGLES];
 CM_PlaneEqual
 ==================
 */
-static int CM_PlaneEqual(trianglePlane_t * p, float plane[4], int *flipped)
+static int CM_PlaneEqual(cPlane_t * p, float plane[4], int *flipped)
 {
 	float           invplane[4];
 
@@ -343,7 +342,7 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 CM_SetBorderInward
 ===================
 */
-static void CM_SetBorderInward(cTriangle_t * triangle, cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_MAX_TRIANGLES],
+static void CM_SetBorderInward(cFacet_t * facet, cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_MAX_TRIANGLES],
 							   int i, int which)
 {
 	int             k, l;
@@ -370,7 +369,7 @@ static void CM_SetBorderInward(cTriangle_t * triangle, cTriangleSoup_t * triSoup
 			break;
 	}
 
-	for(k = 0; k < triangle->numBorders; k++)
+	for(k = 0; k < facet->numBorders; k++)
 	{
 		int             front, back;
 
@@ -381,7 +380,7 @@ static void CM_SetBorderInward(cTriangle_t * triangle, cTriangleSoup_t * triSoup
 		{
 			int             side;
 
-			side = CM_PointOnPlaneSide(points[l], triangle->borderPlanes[k]);
+			side = CM_PointOnPlaneSide(points[l], facet->borderPlanes[k]);
 			if(side == SIDE_FRONT)
 			{
 				front++;
@@ -394,22 +393,22 @@ static void CM_SetBorderInward(cTriangle_t * triangle, cTriangleSoup_t * triSoup
 
 		if(front && !back)
 		{
-			triangle->borderInward[k] = qtrue;
+			facet->borderInward[k] = qtrue;
 		}
 		else if(back && !front)
 		{
-			triangle->borderInward[k] = qfalse;
+			facet->borderInward[k] = qfalse;
 		}
 		else if(!front && !back)
 		{
 			// flat side border
-			triangle->borderPlanes[k] = -1;
+			facet->borderPlanes[k] = -1;
 		}
 		else
 		{
 			// bisecting side border
 			Com_DPrintf("WARNING: CM_SetBorderInward: mixed plane sides\n");
-			triangle->borderInward[k] = qfalse;
+			facet->borderInward[k] = qfalse;
 		}
 	}
 }
@@ -421,29 +420,29 @@ CM_ValidateFacet
 If the facet isn't bounded by its borders, we screwed up.
 ==================
 */
-static qboolean CM_ValidateTriangle(cTriangle_t * triangle)
+static qboolean CM_ValidateFacet(cFacet_t * facet)
 {
 	float           plane[4];
 	int             j;
 	winding_t      *w;
 	vec3_t          bounds[2];
 
-	if(triangle->surfacePlane == -1)
+	if(facet->surfacePlane == -1)
 	{
 		return qfalse;
 	}
 
-	VectorCopy4(planes[triangle->surfacePlane].plane, plane);
+	VectorCopy4(planes[facet->surfacePlane].plane, plane);
 	w = BaseWindingForPlane(plane, plane[3]);
-	for(j = 0; j < triangle->numBorders && w; j++)
+	for(j = 0; j < facet->numBorders && w; j++)
 	{
-		if(triangle->borderPlanes[j] == -1)
+		if(facet->borderPlanes[j] == -1)
 		{
 			FreeWinding(w);
 			return qfalse;
 		}
-		VectorCopy4(planes[triangle->borderPlanes[j]].plane, plane);
-		if(!triangle->borderInward[j])
+		VectorCopy4(planes[facet->borderPlanes[j]].plane, plane);
+		if(!facet->borderInward[j])
 		{
 			VectorSubtract(vec3_origin, plane, plane);
 			plane[3] = -plane[3];
@@ -462,15 +461,15 @@ static qboolean CM_ValidateTriangle(cTriangle_t * triangle)
 
 	for(j = 0; j < 3; j++)
 	{
-		if(bounds[1][j] - bounds[0][j] > MAX_MAP_BOUNDS)
+		if(bounds[1][j] - bounds[0][j] > MAX_WORLD_COORD)
 		{
 			return qfalse;		// we must be missing a plane
 		}
-		if(bounds[0][j] >= MAX_MAP_BOUNDS)
+		if(bounds[0][j] >= MAX_WORLD_COORD)
 		{
 			return qfalse;
 		}
-		if(bounds[1][j] <= -MAX_MAP_BOUNDS)
+		if(bounds[1][j] <= MIN_WORLD_COORD)
 		{
 			return qfalse;
 		}
@@ -480,10 +479,10 @@ static qboolean CM_ValidateTriangle(cTriangle_t * triangle)
 
 /*
 ==================
-CM_AddTriangleBevels
+CM_AddFacetBevels
 ==================
 */
-static void CM_AddTriangleBevels(cTriangle_t * triangle)
+static void CM_AddFacetBevels(cFacet_t * facet)
 {
 
 	int             i, j, k, l;
@@ -492,17 +491,16 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 	winding_t      *w, *w2;
 	vec3_t          mins, maxs, vec, vec2;
 
-	VectorCopy4(planes[triangle->surfacePlane].plane, plane);
+	VectorCopy4(planes[facet->surfacePlane].plane, plane);
 
 	w = BaseWindingForPlane(plane, plane[3]);
-	for(j = 0; j < triangle->numBorders && w; j++)
+	for(j = 0; j < facet->numBorders && w; j++)
 	{
-		if(triangle->borderPlanes[j] == triangle->surfacePlane)
+		if(facet->borderPlanes[j] == facet->surfacePlane)
 			continue;
+		VectorCopy4(planes[facet->borderPlanes[j]].plane, plane);
 
-		VectorCopy4(planes[triangle->borderPlanes[j]].plane, plane);
-
-		if(!triangle->borderInward[j])
+		if(!facet->borderInward[j])
 		{
 			VectorSubtract(vec3_origin, plane, plane);
 			plane[3] = -plane[3];
@@ -534,25 +532,25 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 				plane[3] = -mins[axis];
 			}
 			//if it's the surface plane
-			if(CM_PlaneEqual(&planes[triangle->surfacePlane], plane, &flipped))
+			if(CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped))
 			{
 				continue;
 			}
 			// see if the plane is allready present
-			for(i = 0; i < triangle->numBorders; i++)
+			for(i = 0; i < facet->numBorders; i++)
 			{
-				if(CM_PlaneEqual(&planes[triangle->borderPlanes[i]], plane, &flipped))
+				if(CM_PlaneEqual(&planes[facet->borderPlanes[i]], plane, &flipped))
 					break;
 			}
 
-			if(i == triangle->numBorders)
+			if(i == facet->numBorders)
 			{
-				if(triangle->numBorders > MAX_TRIANGLE_BEVELS)
-					Com_Printf("ERROR: CM_AddTriangleBevels: too many bevels\n");
-				triangle->borderPlanes[triangle->numBorders] = CM_FindPlane2(plane, &flipped);
-				triangle->borderNoAdjust[triangle->numBorders] = 0;
-				triangle->borderInward[triangle->numBorders] = flipped;
-				triangle->numBorders++;
+				if(facet->numBorders > MAX_FACET_BEVELS)
+					Com_Printf("ERROR: too many bevels\n");
+				facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
+				facet->borderNoAdjust[facet->numBorders] = 0;
+				facet->borderInward[facet->numBorders] = flipped;
+				facet->numBorders++;
 			}
 		}
 	}
@@ -599,37 +597,37 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 					continue;
 
 				//if it's the surface plane
-				if(CM_PlaneEqual(&planes[triangle->surfacePlane], plane, &flipped))
+				if(CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped))
 				{
 					continue;
 				}
 				// see if the plane is allready present
-				for(i = 0; i < triangle->numBorders; i++)
+				for(i = 0; i < facet->numBorders; i++)
 				{
-					if(CM_PlaneEqual(&planes[triangle->borderPlanes[i]], plane, &flipped))
+					if(CM_PlaneEqual(&planes[facet->borderPlanes[i]], plane, &flipped))
 					{
 						break;
 					}
 				}
 
-				if(i == triangle->numBorders)
+				if(i == facet->numBorders)
 				{
-					if(triangle->numBorders > MAX_TRIANGLE_BEVELS)
+					if(facet->numBorders > MAX_FACET_BEVELS)
 						Com_Printf("ERROR: too many bevels\n");
-					triangle->borderPlanes[triangle->numBorders] = CM_FindPlane2(plane, &flipped);
+					facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
 
-					for(k = 0; k < triangle->numBorders; k++)
+					for(k = 0; k < facet->numBorders; k++)
 					{
-						if(triangle->borderPlanes[triangle->numBorders] == triangle->borderPlanes[k])
+						if(facet->borderPlanes[facet->numBorders] == facet->borderPlanes[k])
 							Com_Printf("WARNING: bevel plane already used\n");
 					}
 
-					triangle->borderNoAdjust[triangle->numBorders] = 0;
-					triangle->borderInward[triangle->numBorders] = flipped;
+					facet->borderNoAdjust[facet->numBorders] = 0;
+					facet->borderInward[facet->numBorders] = flipped;
 					//
 					w2 = CopyWinding(w);
-					VectorCopy4(planes[triangle->borderPlanes[triangle->numBorders]].plane, newplane);
-					if(!triangle->borderInward[triangle->numBorders])
+					VectorCopy4(planes[facet->borderPlanes[facet->numBorders]].plane, newplane);
+					if(!facet->borderInward[facet->numBorders])
 					{
 						VectorNegate(newplane, newplane);
 						newplane[3] = -newplane[3];
@@ -645,7 +643,7 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 						FreeWinding(w2);
 					}
 					//
-					triangle->numBorders++;
+					facet->numBorders++;
 					//already got a bevel
 //                  break;
 				}
@@ -656,10 +654,10 @@ static void CM_AddTriangleBevels(cTriangle_t * triangle)
 
 #ifndef BSPC
 	//add opposite plane
-	triangle->borderPlanes[triangle->numBorders] = triangle->surfacePlane;
-	triangle->borderNoAdjust[triangle->numBorders] = 0;
-	triangle->borderInward[triangle->numBorders] = qtrue;
-	triangle->numBorders++;
+	facet->borderPlanes[facet->numBorders] = facet->surfacePlane;
+	facet->borderNoAdjust[facet->numBorders] = 0;
+	facet->borderInward[facet->numBorders] = qtrue;
+	facet->numBorders++;
 #endif							//BSPC
 
 }
@@ -673,20 +671,20 @@ typedef enum
 
 /*
 ==================
-CM_TriangleSoupCollideFromTriangleSoup
+CM_SurfaceCollideFromTriangleSoup
 ==================
 */
-static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, triSoupCollide_t * tc)
+static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfaceCollide_t * sc)
 {
 	int             i;
 	float          *p1, *p2, *p3;
 	static int      trianglePlanes[SHADER_MAX_TRIANGLES];
-	cTriangle_t    *triangle;
+	cFacet_t       *facet;
 	int             borders[4];
 	int             noAdjust[4];
 
 	numPlanes = 0;
-	numTriangles = 0;
+	numFacets = 0;
 
 	// find the planes for each triangle of the grid
 	for(i = 0; i < triSoup->numTriangles; i++)
@@ -698,8 +696,6 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 
 		//Com_Printf("trianglePlane[%i] = %i\n", i, trianglePlanes[i]);
 	}
-
-//  Com_Printf("base triangle planes calculated\n");
 
 	// create the borders for each triangle
 	for(i = 0; i < triSoup->numTriangles; i++)
@@ -725,42 +721,43 @@ static void CM_TriangleSoupCollideFromTriangleSoup(cTriangleSoup_t * triSoup, tr
 			borders[EN_THIRD] = CM_EdgePlaneNum(triSoup, trianglePlanes, i, 2);
 		}
 
-		if(numTriangles == SHADER_MAX_TRIANGLES)
+		if(numFacets == SHADER_MAX_TRIANGLES)
 		{
 			Com_Error(ERR_DROP, "CM_TriangleSoupCollideFromTriangleSoup: SHADER_MAX_TRIANGLES");
 		}
-		triangle = &triangles[numTriangles];
-		Com_Memset(triangle, 0, sizeof(*triangle));
+
+		facet = &facets[numFacets];
+		Com_Memset(facet, 0, sizeof(*facet));
 
 
-		// two seperate triangles
-		triangle->surfacePlane = trianglePlanes[i];
-		triangle->numBorders = 3;
-		triangle->borderPlanes[0] = borders[EN_FIRST];
-		triangle->borderNoAdjust[0] = noAdjust[EN_FIRST];
-		triangle->borderPlanes[1] = borders[EN_SECOND];
-		triangle->borderNoAdjust[1] = noAdjust[EN_SECOND];
-		triangle->borderPlanes[2] = borders[EN_THIRD];
-		triangle->borderNoAdjust[2] = noAdjust[EN_THIRD];
+		// two seperate facets
+		facet->surfacePlane = trianglePlanes[i];
+		facet->numBorders = 3;
+		facet->borderPlanes[0] = borders[EN_FIRST];
+		facet->borderNoAdjust[0] = noAdjust[EN_FIRST];
+		facet->borderPlanes[1] = borders[EN_SECOND];
+		facet->borderNoAdjust[1] = noAdjust[EN_SECOND];
+		facet->borderPlanes[2] = borders[EN_THIRD];
+		facet->borderNoAdjust[2] = noAdjust[EN_THIRD];
 
-		CM_SetBorderInward(triangle, triSoup, trianglePlanes, i, 0);
+		CM_SetBorderInward(facet, triSoup, trianglePlanes, i, 0);
 
-		if(CM_ValidateTriangle(triangle))
+		if(CM_ValidateFacet(facet))
 		{
-			CM_AddTriangleBevels(triangle);
-			numTriangles++;
+			CM_AddFacetBevels(facet);
+			numFacets++;
 		}
 	}
 
 
 	// copy the results out
-	tc->numPlanes = numPlanes;
-	tc->planes = Hunk_Alloc(numPlanes * sizeof(*tc->planes), h_high);
-	Com_Memcpy(tc->planes, planes, numPlanes * sizeof(*tc->planes));
+	sc->numPlanes = numPlanes;
+	sc->planes = Hunk_Alloc(numPlanes * sizeof(*sc->planes), h_high);
+	Com_Memcpy(sc->planes, planes, numPlanes * sizeof(*sc->planes));
 
-	tc->numTriangles = numTriangles;
-	tc->triangles = Hunk_Alloc(numTriangles * sizeof(*tc->triangles), h_high);
-	Com_Memcpy(tc->triangles, triangles, numTriangles * sizeof(*tc->triangles));
+	sc->numFacets = numFacets;
+	sc->facets = Hunk_Alloc(numFacets * sizeof(*sc->facets), h_high);
+	Com_Memcpy(sc->facets, facets, numFacets * sizeof(*sc->facets));
 }
 
 
@@ -774,9 +771,9 @@ collision detection with a triangle soup mesh.
 Points is packed as concatenated rows.
 ===================
 */
-struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes)
+cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vertexes, int numIndexes, int *indexes)
 {
-	triSoupCollide_t *tc;
+	cSurfaceCollide_t *sc;
 	static cTriangleSoup_t triSoup;
 	int             i, j;
 
@@ -801,467 +798,29 @@ struct triSoupCollide_s *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t 
 		}
 	}
 
-	tc = Hunk_Alloc(sizeof(*tc), h_high);
-	ClearBounds(tc->bounds[0], tc->bounds[1]);
+	sc = Hunk_Alloc(sizeof(*sc), h_high);
+	ClearBounds(sc->bounds[0], sc->bounds[1]);
 	for(i = 0; i < triSoup.numTriangles; i++)
 	{
 		for(j = 0; j < 3; j++)
 		{
-			AddPointToBounds(triSoup.points[i][j], tc->bounds[0], tc->bounds[1]);
+			AddPointToBounds(triSoup.points[i][j], sc->bounds[0], sc->bounds[1]);
 		}
 	}
 
 	// generate a bsp tree for the surface
-	CM_TriangleSoupCollideFromTriangleSoup(&triSoup, tc);
+	CM_SurfaceCollideFromTriangleSoup(&triSoup, sc);
 
 	// expand by one unit for epsilon purposes
-	tc->bounds[0][0] -= 1;
-	tc->bounds[0][1] -= 1;
-	tc->bounds[0][2] -= 1;
+	sc->bounds[0][0] -= 1;
+	sc->bounds[0][1] -= 1;
+	sc->bounds[0][2] -= 1;
 
-	tc->bounds[1][0] += 1;
-	tc->bounds[1][1] += 1;
-	tc->bounds[1][2] += 1;
+	sc->bounds[1][0] += 1;
+	sc->bounds[1][1] += 1;
+	sc->bounds[1][2] += 1;
 
-	return tc;
-}
-
-/*
-================================================================================
-
-TRACE TESTING
-
-================================================================================
-*/
-
-/*
-====================
-CM_TracePointThroughTriangleSoupCollide
-
-  special case for point traces because the triangle soup collide "brushes" have no volume
-====================
-*/
-void CM_TracePointThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc)
-{
-	static qboolean frontFacing[SHADER_MAX_TRIANGLES];
-	static float    intersection[SHADER_MAX_TRIANGLES];
-	float           intersect;
-	const trianglePlane_t *planes;
-	const cTriangle_t *triangle;
-	int             i, j, k;
-	float           offset;
-	float           d1, d2;
-
-#ifndef BSPC
-	if(!cm_playerCurveClip->integer || !tw->isPoint)
-	{
-		return;
-	}
-#endif
-
-	// determine the trace's relationship to all planes
-	for(i = 0, planes = tc->planes; i < tc->numPlanes; i++, planes++)
-	{
-		offset = DotProduct(tw->offsets[planes->signbits], planes->plane);
-		d1 = DotProduct(tw->start, planes->plane) - planes->plane[3] + offset;
-		d2 = DotProduct(tw->end, planes->plane) - planes->plane[3] + offset;
-		if(d1 <= 0)
-		{
-			frontFacing[i] = qfalse;
-		}
-		else
-		{
-			frontFacing[i] = qtrue;
-		}
-		if(d1 == d2)
-		{
-			intersection[i] = 99999;
-		}
-		else
-		{
-			intersection[i] = d1 / (d1 - d2);
-			if(intersection[i] <= 0)
-			{
-				intersection[i] = 99999;
-			}
-		}
-	}
-
-
-	// see if any of the surface planes are intersected
-	for(i = 0, triangle = tc->triangles; i < tc->numTriangles; i++, triangle++)
-	{
-		if(!frontFacing[triangle->surfacePlane])
-		{
-			continue;
-		}
-		intersect = intersection[triangle->surfacePlane];
-		if(intersect < 0)
-		{
-			continue;			// surface is behind the starting point
-		}
-		if(intersect > tw->trace.fraction)
-		{
-			continue;			// already hit something closer
-		}
-		for(j = 0; j < triangle->numBorders; j++)
-		{
-			k = triangle->borderPlanes[j];
-			if(frontFacing[k] ^ triangle->borderInward[j])
-			{
-				if(intersection[k] > intersect)
-				{
-					break;
-				}
-			}
-			else
-			{
-				if(intersection[k] < intersect)
-				{
-					break;
-				}
-			}
-		}
-		if(j == triangle->numBorders)
-		{
-			// we hit this triangle
-			planes = &tc->planes[triangle->surfacePlane];
-
-			// calculate intersection with a slight pushoff
-			offset = DotProduct(tw->offsets[planes->signbits], planes->plane);
-			d1 = DotProduct(tw->start, planes->plane) - planes->plane[3] + offset;
-			d2 = DotProduct(tw->end, planes->plane) - planes->plane[3] + offset;
-			tw->trace.fraction = (d1 - SURFACE_CLIP_EPSILON) / (d1 - d2);
-
-			if(tw->trace.fraction < 0)
-			{
-				tw->trace.fraction = 0;
-			}
-
-			VectorCopy(planes->plane, tw->trace.plane.normal);
-			tw->trace.plane.dist = planes->plane[3];
-		}
-	}
-}
-
-/*
-====================
-CM_CheckTrianglePlane
-====================
-*/
-static int CM_CheckTrianglePlane(float *plane, vec3_t start, vec3_t end, float *enterFrac, float *leaveFrac, int *hit)
-{
-	float           d1, d2, f;
-
-	*hit = qfalse;
-
-	d1 = DotProduct(start, plane) - plane[3];
-	d2 = DotProduct(end, plane) - plane[3];
-
-	// if completely in front of face, no intersection with the entire triangle
-	if(d1 > 0 && (d2 >= SURFACE_CLIP_EPSILON || d2 >= d1))
-	{
-		return qfalse;
-	}
-
-	// if it doesn't cross the plane, the plane isn't relevent
-	if(d1 <= 0 && d2 <= 0)
-	{
-		return qtrue;
-	}
-
-	// crosses face
-	if(d1 > d2)
-	{							// enter
-		f = (d1 - SURFACE_CLIP_EPSILON) / (d1 - d2);
-		if(f < 0)
-		{
-			f = 0;
-		}
-		//always favor previous plane hits and thus also the surface plane hit
-		if(f > *enterFrac)
-		{
-			*enterFrac = f;
-			*hit = qtrue;
-		}
-	}
-	else
-	{							// leave
-		f = (d1 + SURFACE_CLIP_EPSILON) / (d1 - d2);
-		if(f > 1)
-		{
-			f = 1;
-		}
-		if(f < *leaveFrac)
-		{
-			*leaveFrac = f;
-		}
-	}
-	return qtrue;
-}
-
-/*
-====================
-CM_TraceThroughTriangleSoupCollide
-====================
-*/
-void CM_TraceThroughTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc)
-{
-	int             i, j, hit, hitnum;
-	float           offset, enterFrac, leaveFrac, t;
-	trianglePlane_t *planes;
-	cTriangle_t    *triangle;
-	float           plane[4] = { 0, 0, 0, 0 }, bestplane[4] =
-	{
-	0, 0, 0, 0};
-	vec3_t          startp, endp;
-
-#ifndef BSPC
-	if(!cm_noExtraAABBs->integer && !CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], tc->bounds[0], tc->bounds[1]))
-		return;
-#endif
-
-	if(tw->isPoint)
-	{
-		CM_TracePointThroughTriangleSoupCollide(tw, tc);
-		return;
-	}
-
-	for(i = 0, triangle = tc->triangles; i < tc->numTriangles; i++, triangle++)
-	{
-		enterFrac = -1.0;
-		leaveFrac = 1.0;
-		hitnum = -1;
-		//
-		planes = &tc->planes[triangle->surfacePlane];
-		VectorCopy(planes->plane, plane);
-		plane[3] = planes->plane[3];
-
-		if(tw->sphere.use)
-		{
-			// adjust the plane distance apropriately for radius
-			plane[3] += tw->sphere.radius;
-
-			// find the closest point on the capsule to the plane
-			t = DotProduct(plane, tw->sphere.offset);
-			if(t > 0.0f)
-			{
-				VectorSubtract(tw->start, tw->sphere.offset, startp);
-				VectorSubtract(tw->end, tw->sphere.offset, endp);
-			}
-			else
-			{
-				VectorAdd(tw->start, tw->sphere.offset, startp);
-				VectorAdd(tw->end, tw->sphere.offset, endp);
-			}
-		}
-		else
-		{
-			offset = DotProduct(tw->offsets[planes->signbits], plane);
-			plane[3] -= offset;
-			VectorCopy(tw->start, startp);
-			VectorCopy(tw->end, endp);
-		}
-
-		if(!CM_CheckTrianglePlane(plane, startp, endp, &enterFrac, &leaveFrac, &hit))
-		{
-			continue;
-		}
-
-		if(hit)
-		{
-			VectorCopy4(plane, bestplane);
-		}
-
-		for(j = 0; j < triangle->numBorders; j++)
-		{
-			planes = &tc->planes[triangle->borderPlanes[j]];
-			if(triangle->borderInward[j])
-			{
-				VectorNegate(planes->plane, plane);
-				plane[3] = -planes->plane[3];
-			}
-			else
-			{
-				VectorCopy(planes->plane, plane);
-				plane[3] = planes->plane[3];
-			}
-
-			if(tw->sphere.use)
-			{
-				// adjust the plane distance apropriately for radius
-				plane[3] += tw->sphere.radius;
-
-				// find the closest point on the capsule to the plane
-				t = DotProduct(plane, tw->sphere.offset);
-				if(t > 0.0f)
-				{
-					VectorSubtract(tw->start, tw->sphere.offset, startp);
-					VectorSubtract(tw->end, tw->sphere.offset, endp);
-				}
-				else
-				{
-					VectorAdd(tw->start, tw->sphere.offset, startp);
-					VectorAdd(tw->end, tw->sphere.offset, endp);
-				}
-			}
-			else
-			{
-				// NOTE: this works even though the plane might be flipped because the bbox is centered
-				offset = DotProduct(tw->offsets[planes->signbits], plane);
-				plane[3] += fabs(offset);
-				VectorCopy(tw->start, startp);
-				VectorCopy(tw->end, endp);
-			}
-
-			if(!CM_CheckTrianglePlane(plane, startp, endp, &enterFrac, &leaveFrac, &hit))
-			{
-				break;
-			}
-
-			if(hit)
-			{
-				hitnum = j;
-				VectorCopy4(plane, bestplane);
-			}
-		}
-
-		if(j < triangle->numBorders)
-			continue;
-
-		//never clip against the back side
-		if(hitnum == triangle->numBorders - 1)
-			continue;
-
-		if(enterFrac < leaveFrac && enterFrac >= 0)
-		{
-			if(enterFrac < tw->trace.fraction)
-			{
-				if(enterFrac < 0)
-				{
-					enterFrac = 0;
-				}
-
-				tw->trace.fraction = enterFrac;
-				VectorCopy(bestplane, tw->trace.plane.normal);
-				tw->trace.plane.dist = bestplane[3];
-			}
-		}
-	}
+	return sc;
 }
 
 
-/*
-=======================================================================
-
-POSITION TEST
-
-=======================================================================
-*/
-
-/*
-====================
-CM_PositionTestInTriangleSoupCollide
-====================
-*/
-qboolean CM_PositionTestInTriangleSoupCollide(traceWork_t * tw, const struct triSoupCollide_s *tc)
-{
-	int             i, j;
-	float           offset, t;
-	trianglePlane_t *planes;
-	cTriangle_t    *triangle;
-	float           plane[4];
-	vec3_t          startp;
-
-	if(tw->isPoint)
-	{
-		return qfalse;
-	}
-
-	//
-	for(i = 0, triangle = tc->triangles; i < tc->numTriangles; i++, triangle++)
-	{
-		planes = &tc->planes[triangle->surfacePlane];
-		VectorCopy(planes->plane, plane);
-		plane[3] = planes->plane[3];
-		if(tw->sphere.use)
-		{
-			// adjust the plane distance apropriately for radius
-			plane[3] += tw->sphere.radius;
-
-			// find the closest point on the capsule to the plane
-			t = DotProduct(plane, tw->sphere.offset);
-			if(t > 0)
-			{
-				VectorSubtract(tw->start, tw->sphere.offset, startp);
-			}
-			else
-			{
-				VectorAdd(tw->start, tw->sphere.offset, startp);
-			}
-		}
-		else
-		{
-			offset = DotProduct(tw->offsets[planes->signbits], plane);
-			plane[3] -= offset;
-			VectorCopy(tw->start, startp);
-		}
-
-		if(DotProduct(plane, startp) - plane[3] > 0.0f)
-		{
-			continue;
-		}
-
-		for(j = 0; j < triangle->numBorders; j++)
-		{
-			planes = &tc->planes[triangle->borderPlanes[j]];
-			if(triangle->borderInward[j])
-			{
-				VectorNegate(planes->plane, plane);
-				plane[3] = -planes->plane[3];
-			}
-			else
-			{
-				VectorCopy(planes->plane, plane);
-				plane[3] = planes->plane[3];
-			}
-			if(tw->sphere.use)
-			{
-				// adjust the plane distance apropriately for radius
-				plane[3] += tw->sphere.radius;
-
-				// find the closest point on the capsule to the plane
-				t = DotProduct(plane, tw->sphere.offset);
-				if(t > 0.0f)
-				{
-					VectorSubtract(tw->start, tw->sphere.offset, startp);
-				}
-				else
-				{
-					VectorAdd(tw->start, tw->sphere.offset, startp);
-				}
-			}
-			else
-			{
-				// NOTE: this works even though the plane might be flipped because the bbox is centered
-				offset = DotProduct(tw->offsets[planes->signbits], plane);
-				plane[3] += fabs(offset);
-				VectorCopy(tw->start, startp);
-			}
-
-			if(DotProduct(plane, startp) - plane[3] > 0.0f)
-			{
-				break;
-			}
-		}
-
-		if(j < triangle->numBorders)
-		{
-			continue;
-		}
-
-		// inside this triangle
-		return qtrue;
-	}
-	return qfalse;
-}
