@@ -1626,6 +1626,7 @@ typedef struct
 	int             c_occlusionQueriesAvailable;
 	int             c_occlusionQueriesLightsCulled;
 	int             c_occlusionQueriesInteractionsCulled;
+	int             c_occlusionQueriesResponseTime;
 
 	int             msec;		// total msec for backend run
 } backEndCounters_t;

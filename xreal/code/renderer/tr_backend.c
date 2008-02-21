@@ -4165,12 +4165,17 @@ void RB_RenderLightOcclusionQueries()
 
 		// do other work until "most" of the queries are back, to avoid
 		// wasting time spinning
-#if 1
 		if(ocCount >= 0)
 		{
 			int             i;
 			int             avCount;
 			int             limit;
+			int             startTime, endTime;
+
+			if(r_speeds->integer)
+			{
+				startTime = ri.Milliseconds();
+			}
 
 			limit = (int)(ocCount * 5 / 6);	// instead of N-1, to prevent the GPU from going idle
 			//limit = ocCount;
@@ -4196,8 +4201,13 @@ void RB_RenderLightOcclusionQueries()
 				i++;
 
 			} while(avCount < limit);
+
+			if(r_speeds->integer)
+			{
+				endTime = ri.Milliseconds();
+				backEnd.pc.c_occlusionQueriesResponseTime = endTime - startTime;
+			}
 		}
-#endif
 
 		// reenable writes to depth and color buffers
 		GL_State(GLS_DEPTHMASK_TRUE);

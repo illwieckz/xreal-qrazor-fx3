@@ -105,9 +105,10 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 7)
 	{
-		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled lights:%i\n",
+		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled lights:%i time:%i\n",
 				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable,
-				  backEnd.pc.c_occlusionQueriesLightsCulled);
+				  backEnd.pc.c_occlusionQueriesLightsCulled,
+				  backEnd.pc.c_occlusionQueriesResponseTime);
 	}
 	else if(r_speeds->integer == 8)
 	{
