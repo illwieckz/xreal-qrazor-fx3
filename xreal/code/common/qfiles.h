@@ -116,7 +116,7 @@ typedef struct _TargaHeader
 #define MD3_VERSION			15
 
 // limits
-#define MD3_MAX_LODS		4
+#define MD3_MAX_LODS		3
 #define	MD3_MAX_TRIANGLES	8192	// per surface
 #define MD3_MAX_VERTS		4096	// per surface
 #define MD3_MAX_SHADERS		256	// per surface
@@ -129,8 +129,8 @@ typedef struct _TargaHeader
 
 typedef struct md3Frame_s
 {
-	vec3_t          bounds[2];
-	vec3_t          localOrigin;
+	float           bounds[2][3];
+	float           localOrigin[3];
 	float           radius;
 	char            name[16];
 } md3Frame_t;
@@ -138,8 +138,8 @@ typedef struct md3Frame_s
 typedef struct md3Tag_s
 {
 	char            name[64];	// tag name
-	vec3_t          origin;
-	vec3_t          axis[3];
+	float           origin[3];
+	float           axis[3][3];
 } md3Tag_t;
 
 /*
@@ -222,106 +222,6 @@ typedef struct
 /*
 ==============================================================================
 
-MD4 file format
-
-==============================================================================
-*/
-
-#define MD4_IDENT			(('4'<<24)+('P'<<16)+('D'<<8)+'I')
-#define MD4_VERSION			1
-#define	MD4_MAX_BONES		128
-
-typedef struct
-{
-	int             boneIndex;	// these are indexes into the boneReferences,
-	float           boneWeight;	// not the global per-frame bone list
-} md4Weight_t;
-
-typedef struct
-{
-	vec3_t          vertex;
-	vec3_t          normal;
-	float           texCoords[2];
-	int             numWeights;
-	md4Weight_t     weights[1];	// variable sized
-} md4Vertex_t;
-
-typedef struct
-{
-	int             indexes[3];
-} md4Triangle_t;
-
-typedef struct
-{
-	int             ident;
-
-	char            name[64];	// polyset name
-	char            shader[64];
-	int             shaderIndex;	// for in-game use
-
-	int             ofsHeader;	// this will be a negative number
-
-	int             numVerts;
-	int             ofsVerts;
-
-	int             numTriangles;
-	int             ofsTriangles;
-
-	// Bone references are a set of ints representing all the bones
-	// present in any vertex weights for this surface.  This is
-	// needed because a model may have surfaces that need to be
-	// drawn at different sort times, and we don't want to have
-	// to re-interpolate all the bones for each surface.
-	int             numBoneReferences;
-	int             ofsBoneReferences;
-
-	int             ofsEnd;		// next surface follows
-} md4Surface_t;
-
-typedef struct
-{
-	float           matrix[3][4];
-} md4Bone_t;
-
-typedef struct
-{
-	vec3_t          bounds[2];	// bounds of all surfaces of all LOD's for this frame
-	vec3_t          localOrigin;	// midpoint of bounds, used for sphere cull
-	float           radius;		// dist from localOrigin to corner
-	char            name[16];
-	md4Bone_t       bones[1];	// [numBones]
-} md4Frame_t;
-
-typedef struct
-{
-	int             numSurfaces;
-	int             ofsSurfaces;	// first surface, others follow
-	int             ofsEnd;		// next lod follows
-} md4LOD_t;
-
-typedef struct
-{
-	int             ident;
-	int             version;
-
-	char            name[64];	// model name
-
-	// frames and bones are shared by all levels of detail
-	int             numFrames;
-	int             numBones;
-	int             ofsFrames;	// md4Frame_t[numFrames]
-
-	// each level of detail has completely separate sets of surfaces
-	int             numLODs;
-	int             ofsLODs;
-
-	int             ofsEnd;		// end of file
-} md4Header_t;
-
-
-/*
-==============================================================================
-
   .BSP file format
 
 ==============================================================================
@@ -376,7 +276,6 @@ typedef struct
 #define WORLD_SIZE			(MAX_WORLD_COORD - MIN_WORLD_COORD)
 
 //=============================================================================
-
 
 typedef struct
 {
@@ -477,10 +376,10 @@ typedef struct
 
 typedef struct
 {
-	vec3_t          xyz;
+	float           xyz[3];
 	float           st[2];
 	float           lightmap[2];
-	vec3_t          normal;
+	float           normal[3];
 	byte            color[4];
 } drawVert_t;
 
@@ -509,8 +408,8 @@ typedef struct
 	int             lightmapX, lightmapY;
 	int             lightmapWidth, lightmapHeight;
 
-	vec3_t          lightmapOrigin;
-	vec3_t          lightmapVecs[3];	// for patches, [0] and [1] are lodbounds
+	float           lightmapOrigin[3];
+	float           lightmapVecs[3][3];	// for patches, [0] and [1] are lodbounds
 
 	int             patchWidth;
 	int             patchHeight;

@@ -20,19 +20,70 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+#ifndef __QFILES_H__
+#define __QFILES_H__
 
 //
 // qfiles.h: quake file formats
 // This file must be identical in the quake and utils directories
 //
 
-#ifndef __QFILES_H__
-#define __QFILES_H__
-
 // surface geometry should not exceed these limits
 #define	SHADER_MAX_VERTEXES	100000
 #define	SHADER_MAX_INDEXES	(SHADER_MAX_VERTEXES * 6)
 #define SHADER_MAX_TRIANGLES (SHADER_MAX_INDEXES / 3)
+
+
+
+/*
+========================================================================
+
+QVM files
+
+========================================================================
+*/
+
+#define	VM_MAGIC	0x12721444
+typedef struct
+{
+	int             vmMagic;
+
+	int             instructionCount;
+
+	int             codeOffset;
+	int             codeLength;
+
+	int             dataOffset;
+	int             dataLength;
+	int             litLength;	// ( dataLength - litLength ) should be byteswapped on load
+	int             bssLength;	// zero filled memory appended to datalength
+} vmHeader_t;
+
+/*
+========================================================================
+
+PCX files are used for 8 bit images
+
+========================================================================
+*/
+
+typedef struct
+{
+	char            manufacturer;
+	char            version;
+	char            encoding;
+	char            bits_per_pixel;
+	unsigned short  xmin, ymin, xmax, ymax;
+	unsigned short  hres, vres;
+	unsigned char   palette[48];
+	char            reserved;
+	char            color_planes;
+	unsigned short  bytes_per_line;
+	unsigned short  palette_type;
+	char            filler[58];
+	unsigned char   data;		// unbounded
+} pcx_t;
+
 
 /*
 ========================================================================
@@ -50,6 +101,7 @@ typedef struct _TargaHeader
 	unsigned short  x_origin, y_origin, width, height;
 	unsigned char   pixel_size, attributes;
 } TargaHeader;
+
 
 
 /*
@@ -181,6 +233,7 @@ typedef struct
 
 #define BSP_VERSION			46
 
+
 // there shouldn't be any problem with increasing these values at the
 // expense of more memory allocation in the utilities
 #define	MAX_MAP_MODELS		0x400
@@ -193,7 +246,7 @@ typedef struct
 #define	MAX_MAP_FOGS		0x100
 #define	MAX_MAP_PLANES		0x20000
 #define	MAX_MAP_NODES		0x20000
-#define	MAX_MAP_BRUSHSIDES	0x20000
+#define	MAX_MAP_BRUSHSIDES	0x40000	//% 0x20000 /* ydnar */
 #define	MAX_MAP_LEAFS		0x20000
 #define	MAX_MAP_LEAFFACES	0x20000
 #define	MAX_MAP_LEAFBRUSHES 0x40000
@@ -206,6 +259,7 @@ typedef struct
 #define	MAX_MAP_DRAW_VERTS	0x80000
 #define	MAX_MAP_DRAW_INDEXES	0x80000
 
+
 // key / value pair sizes in the entities lump
 #define	MAX_KEY				32
 #define	MAX_VALUE			1024
@@ -217,9 +271,9 @@ typedef struct
 #define	LIGHTMAP_WIDTH		128
 #define	LIGHTMAP_HEIGHT		128
 
-#define MAX_WORLD_COORD		( 128*1024 )
-#define MIN_WORLD_COORD		( -128*1024 )
-#define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
+#define MIN_WORLD_COORD		(-65536)
+#define	MAX_WORLD_COORD		(65536)
+#define WORLD_SIZE			(MAX_WORLD_COORD - MIN_WORLD_COORD)
 
 //=============================================================================
 
