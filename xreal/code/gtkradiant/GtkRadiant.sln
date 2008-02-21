@@ -55,6 +55,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtkutil", "libs\gtkutil\gtk
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagejpeg", "plugins\imagejpeg\imagejpeg.vcproj", "{B607F51F-7813-442C-9FB4-CE67DCF4441D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "brushexport", "plugins\brushexport\brushexport.vcproj", "{334D54AE-9AF7-43EA-BC64-2E31846B972E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -129,6 +131,10 @@ Global
 		{B607F51F-7813-442C-9FB4-CE67DCF4441D}.Debug|Win32.Build.0 = Debug|Win32
 		{B607F51F-7813-442C-9FB4-CE67DCF4441D}.Release|Win32.ActiveCfg = Release|Win32
 		{B607F51F-7813-442C-9FB4-CE67DCF4441D}.Release|Win32.Build.0 = Release|Win32
+		{334D54AE-9AF7-43EA-BC64-2E31846B972E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{334D54AE-9AF7-43EA-BC64-2E31846B972E}.Debug|Win32.Build.0 = Debug|Win32
+		{334D54AE-9AF7-43EA-BC64-2E31846B972E}.Release|Win32.ActiveCfg = Release|Win32
+		{334D54AE-9AF7-43EA-BC64-2E31846B972E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
