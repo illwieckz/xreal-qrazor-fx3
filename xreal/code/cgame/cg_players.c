@@ -1419,7 +1419,7 @@ void CG_NewClientInfo(int clientNum)
 		return;					// player just left
 	}
 
-	CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
+	//CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
 
 	// build into a temp buffer so the defer checks can use
 	// the old value
