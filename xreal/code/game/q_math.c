@@ -1590,26 +1590,6 @@ int Q_log2(int val)
 
 
 
-/*
-=================
-PlaneTypeForNormal
-=================
-*/
-/*
-int	PlaneTypeForNormal (vec3_t normal) {
-	if ( normal[0] == 1.0 )
-		return PLANE_X;
-	if ( normal[1] == 1.0 )
-		return PLANE_Y;
-	if ( normal[2] == 1.0 )
-		return PLANE_Z;
-	
-	return PLANE_NON_AXIAL;
-}
-*/
-
-
-
 void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3])
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];

@@ -1209,19 +1209,28 @@ COLLISION DETECTION
 
 // plane types are used to speed some tests
 // 0-2 are axial planes
-#define	PLANE_X			0
-#define	PLANE_Y			1
-#define	PLANE_Z			2
-#define	PLANE_NON_AXIAL	3
+typedef enum
+{
+	PLANE_X			 = 0,
+	PLANE_Y			 = 1,
+	PLANE_Z			 = 2,
+	PLANE_NON_AXIAL	 = 3
+} planeType_t;
 
+//#define PlaneTypeForNormal(x) (x[0] == 1.0 ? PLANE_X : (x[1] == 1.0 ? PLANE_Y : (x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL) ) )
+static ID_INLINE int	PlaneTypeForNormal(vec3_t normal)
+{
+	if(normal[0] == 1.0)
+		return PLANE_X;
 
-/*
-=================
-PlaneTypeForNormal
-=================
-*/
-
-#define PlaneTypeForNormal(x) (x[0] == 1.0 ? PLANE_X : (x[1] == 1.0 ? PLANE_Y : (x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL) ) )
+	if(normal[1] == 1.0)
+		return PLANE_Y;
+	
+	if(normal[2] == 1.0)
+		return PLANE_Z;
+	
+	return PLANE_NON_AXIAL;
+}
 
 // plane_t structure
 // !!! if this is changed, it must be changed in asm code too !!!
