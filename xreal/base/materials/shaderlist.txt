@@ -16,13 +16,14 @@ eX
 #gw_dm1_tree
 gw_dm2
 gw_mapobject
-hipshot_grimnight
+hipshot_sky
 #incubation
 kat_mapobject
+kat_q4dm3
 #lights
 method
 #otty_sfx
-phant_aztec
+phant_aztech
 pk01
 #pjw4tourney1
 raynorpat
