@@ -76,6 +76,11 @@ PATCH COLLIDE GENERATION
 ================================================================================
 */
 
+
+#define	USE_HASHING
+#define	PLANE_HASHES	1024
+static cPlane_t *planeHashTable[PLANE_HASHES];
+
 static int      numPlanes;
 static cPlane_t planes[SHADER_MAX_TRIANGLES];
 
@@ -118,6 +123,38 @@ static int CM_PlaneEqual(cPlane_t * p, float plane[4], int *flipped)
 }
 
 /*
+================
+return a hash value for a plane
+================
+*/
+static long CM_GenerateHashValue(vec4_t plane)
+{
+	long            hash;
+
+	hash = (int)fabs(plane[3]) / 8;
+	hash &= (PLANE_HASHES - 1);
+
+	return hash;
+}
+
+/*
+================
+CM_AddPlaneToHash
+================
+*/
+static void CM_AddPlaneToHash(cPlane_t * p)
+{
+	long             hash;
+
+	hash = CM_GenerateHashValue(p->plane);
+
+	p->hashChain = planeHashTable[hash];
+	planeHashTable[hash] = p;
+}
+
+
+
+/*
 ==================
 CM_SnapVector
 ==================
@@ -134,6 +171,7 @@ static void CM_SnapVector(vec3_t normal)
 			normal[i] = 1;
 			break;
 		}
+		
 		if(fabs(normal[i] - -1) < NORMAL_EPSILON)
 		{
 			VectorClear(normal);
@@ -144,12 +182,81 @@ static void CM_SnapVector(vec3_t normal)
 }
 
 /*
+================
+CM_CreateNewFloatPlane
+================
+*/
+static int CM_CreateNewFloatPlane(vec4_t plane)
+{
+#ifndef USE_HASHING
+	
+	// add a new plane
+	if(numPlanes == SHADER_MAX_TRIANGLES)
+	{
+		Com_Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
+	}
+
+	VectorCopy4(plane, planes[numPlanes].plane);
+	planes[numPlanes].signbits = CM_SignbitsForNormal(plane);
+
+	numPlanes++;
+
+	return numPlanes - 1;
+#else
+
+	cPlane_t        *p;//, temp;
+
+	/*
+	if(VectorLength(normal) < 0.5)
+	{
+		Sys_Printf("FloatPlane: bad normal\n");
+		return -1;
+	}
+	*/
+
+	// create a new plane
+	if(numPlanes == SHADER_MAX_TRIANGLES)
+		Com_Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
+
+	p = &planes[numPlanes];
+	VectorCopy4(plane, p->plane);
+	
+	//p->type = PlaneTypeForNormal(p->normal);
+	p->signbits = CM_SignbitsForNormal(plane);
+
+	numPlanes++;
+
+	// allways put axial planes facing positive first
+	/*
+	if(p->type < 3)
+	{
+		if(p->normal[0] < 0 || p->normal[1] < 0 || p->normal[2] < 0)
+		{
+			// flip order
+			temp = *p;
+			*p = *(p + 1);
+			*(p + 1) = temp;
+
+			AddPlaneToHash(p);
+			AddPlaneToHash(p + 1);
+			return numMapPlanes - 1;
+		}
+	}
+	*/
+
+	CM_AddPlaneToHash(p);
+	return numPlanes - 1;
+#endif
+}
+
+/*
 ==================
 CM_FindPlane2
 ==================
 */
 static int CM_FindPlane2(float plane[4], int *flipped)
 {
+#ifndef USE_HASHING
 	int             i;
 
 	// see if the points are close enough to an existing plane
@@ -159,20 +266,31 @@ static int CM_FindPlane2(float plane[4], int *flipped)
 			return i;
 	}
 
-	// add a new plane
-	if(numPlanes == SHADER_MAX_TRIANGLES)
+	*flipped = qfalse;
+	return CM_CreateNewFloatPlane(plane);
+#else
+	int             i;
+	cPlane_t       *p;
+	int             hash, h;
+
+	//SnapPlane(normal, &dist);
+	hash = CM_GenerateHashValue(plane);
+
+	// search the border bins as well
+	for(i = -1; i <= 1; i++)
 	{
-		Com_Error(ERR_DROP, "CM_FindPlane2: SHADER_MAX_TRIANGLES");
+		h = (hash + i) & (PLANE_HASHES - 1);
+		
+		for(p = planeHashTable[h]; p; p = p->hashChain)
+		{
+			if(CM_PlaneEqual(p, plane, flipped))
+				return p - planes;
+		}
 	}
 
-	VectorCopy4(plane, planes[numPlanes].plane);
-	planes[numPlanes].signbits = CM_SignbitsForNormal(plane);
-
-	numPlanes++;
-
 	*flipped = qfalse;
-
-	return numPlanes - 1;
+	return CM_CreateNewFloatPlane(plane);
+#endif
 }
 
 /*
@@ -191,6 +309,7 @@ static int CM_FindPlane(float *p1, float *p2, float *p3)
 		return -1;
 	}
 
+#if 0
 	// see if the points are close enough to an existing plane
 	for(i = 0; i < numPlanes; i++)
 	{
@@ -221,18 +340,11 @@ static int CM_FindPlane(float *p1, float *p2, float *p3)
 		return i;
 	}
 
-	// add a new plane
-	if(numPlanes == SHADER_MAX_TRIANGLES)
-	{
-		Com_Error(ERR_DROP, "CM_FindPlane: SHADER_MAX_TRIANGLES");
-	}
-
-	VectorCopy4(plane, planes[numPlanes].plane);
-	planes[numPlanes].signbits = CM_SignbitsForNormal(plane);
-
-	numPlanes++;
-
-	return numPlanes - 1;
+	return CM_CreateNewFloatPlane(plane);
+#else
+	// use variable i as dummy
+	return CM_FindPlane2(plane, &i);
+#endif	
 }
 
 /*
@@ -292,7 +404,8 @@ static int CM_TrianglePlane(int trianglePlanes[SHADER_MAX_TRIANGLES], int tri)
 CM_EdgePlaneNum
 ==================
 */
-static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_MAX_TRIANGLES], int tri, int edgeType)
+/*
+static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int tri, int edgeType)
 {
 	float          *p1, *p2;
 	vec3_t          up;
@@ -305,7 +418,7 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 		case 0:
 			p1 = triSoup->points[tri][0];
 			p2 = triSoup->points[tri][1];
-			p = CM_TrianglePlane(trianglePlanes, tri);
+			p = CM_TrianglePlane(triSoup->trianglePlanes, tri);
 			if(p == -1)
 				break;
 			VectorMA(p1, 4, planes[p].plane, up);
@@ -314,7 +427,7 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 		case 1:
 			p1 = triSoup->points[tri][1];
 			p2 = triSoup->points[tri][2];
-			p = CM_TrianglePlane(trianglePlanes, tri);
+			p = CM_TrianglePlane(triSoup->trianglePlanes, tri);
 			if(p == -1)
 				break;
 			VectorMA(p1, 4, planes[p].plane, up);
@@ -323,7 +436,7 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 		case 2:
 			p1 = triSoup->points[tri][2];
 			p2 = triSoup->points[tri][0];
-			p = CM_TrianglePlane(trianglePlanes, tri);
+			p = CM_TrianglePlane(triSoup->trianglePlanes, tri);
 			if(p == -1)
 				break;
 			VectorMA(p1, 4, planes[p].plane, up);
@@ -336,14 +449,28 @@ static int CM_EdgePlaneNum(cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_
 
 	return -1;
 }
+*/
+
+/*
+==================
+CM_GenerateBoundaryForPoints
+==================
+*/
+static int CM_GenerateBoundaryForPoints(const vec4_t triPlane, const vec3_t p1, const vec3_t p2)
+{
+	vec3_t          up;
+		
+	VectorMA(p1, 4, triPlane, up);
+	
+	return CM_FindPlane(p1, p2, up);
+}
 
 /*
 ===================
 CM_SetBorderInward
 ===================
 */
-static void CM_SetBorderInward(cFacet_t * facet, cTriangleSoup_t * triSoup, int trianglePlanes[SHADER_MAX_TRIANGLES],
-							   int i, int which)
+static void CM_SetBorderInward(cFacet_t * facet, cTriangleSoup_t * triSoup, int i, int which)
 {
 	int             k, l;
 	float          *points[4];
@@ -433,6 +560,7 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 	}
 
 	VectorCopy4(planes[facet->surfacePlane].plane, plane);
+	
 	w = BaseWindingForPlane(plane, plane[3]);
 	for(j = 0; j < facet->numBorders && w; j++)
 	{
@@ -441,12 +569,15 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 			FreeWinding(w);
 			return qfalse;
 		}
+		
 		VectorCopy4(planes[facet->borderPlanes[j]].plane, plane);
+		
 		if(!facet->borderInward[j])
 		{
 			VectorSubtract(vec3_origin, plane, plane);
 			plane[3] = -plane[3];
 		}
+		
 		ChopWindingInPlace(&w, plane, plane[3], 0.1f);
 	}
 
@@ -465,10 +596,12 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 		{
 			return qfalse;		// we must be missing a plane
 		}
+		
 		if(bounds[0][j] >= MAX_WORLD_COORD)
 		{
 			return qfalse;
 		}
+		
 		if(bounds[1][j] <= MIN_WORLD_COORD)
 		{
 			return qfalse;
@@ -502,7 +635,7 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 
 		if(!facet->borderInward[j])
 		{
-			VectorSubtract(vec3_origin, plane, plane);
+			VectorInverse(plane);
 			plane[3] = -plane[3];
 		}
 
@@ -515,7 +648,9 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 
 	WindingBounds(w, mins, maxs);
 
+	//
 	// add the axial planes
+	//
 	order = 0;
 	for(axis = 0; axis < 3; axis++)
 	{
@@ -531,11 +666,13 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 			{
 				plane[3] = -mins[axis];
 			}
-			//if it's the surface plane
+			
+			// if it's the surface plane
 			if(CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped))
 			{
 				continue;
 			}
+			
 			// see if the plane is allready present
 			for(i = 0; i < facet->numBorders; i++)
 			{
@@ -547,6 +684,7 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 			{
 				if(facet->numBorders > MAX_FACET_BEVELS)
 					Com_Printf("ERROR: too many bevels\n");
+				
 				facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
 				facet->borderNoAdjust[facet->numBorders] = 0;
 				facet->borderInward[facet->numBorders] = flipped;
@@ -554,17 +692,21 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 			}
 		}
 	}
+	
 	//
 	// add the edge bevels
 	//
+	
 	// test the non-axial plane edges
 	for(j = 0; j < w->numpoints; j++)
 	{
 		k = (j + 1) % w->numpoints;
 		VectorSubtract(w->p[j], w->p[k], vec);
+		
 		//if it's a degenerate edge
 		if(VectorNormalize(vec) < 0.5)
 			continue;
+		
 		CM_SnapVector(vec);
 		for(k = 0; k < 3; k++)
 			if(vec[k] == -1 || vec[k] == 1)
@@ -596,11 +738,12 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 				if(l < w->numpoints)
 					continue;
 
-				//if it's the surface plane
+				// if it's the surface plane
 				if(CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped))
 				{
 					continue;
 				}
+				
 				// see if the plane is allready present
 				for(i = 0; i < facet->numBorders; i++)
 				{
@@ -662,12 +805,88 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 
 }
 
-typedef enum
+
+/*
+=====================
+CM_GenerateFacetFor3Points
+=====================
+*/
+qboolean CM_GenerateFacetFor3Points(cFacet_t * facet, const vec3_t p1, const vec3_t p2, const vec3_t p3)
 {
-	EN_FIRST,
-	EN_SECOND,
-	EN_THIRD
-} edgeName_t;
+	vec4_t plane;
+
+	// if we can't generate a valid plane for the points, ignore the facet
+	//if(!PlaneFromPoints(f->surface, a, b, c, qtrue))
+	if(facet->surfacePlane == -1)
+	{
+		facet->numBorders = 0;
+		return qfalse;
+	}
+	VectorCopy4(planes[facet->surfacePlane].plane, plane);
+
+	facet->numBorders = 3;
+
+	facet->borderNoAdjust[0] = qfalse;
+	facet->borderNoAdjust[1] = qfalse;
+	facet->borderNoAdjust[2] = qfalse;
+
+	facet->borderPlanes[0] = CM_GenerateBoundaryForPoints(plane, p1, p2);
+	facet->borderPlanes[1] = CM_GenerateBoundaryForPoints(plane, p2, p3);
+	facet->borderPlanes[2] = CM_GenerateBoundaryForPoints(plane, p3, p1);
+
+	//VectorCopy(a->xyz, f->points[0]);
+	//VectorCopy(b->xyz, f->points[1]);
+	//VectorCopy(c->xyz, f->points[2]);
+
+	return qtrue;
+}
+
+/*
+=====================
+CM_GenerateFacetFor4Points
+=====================
+*/
+#define	PLANAR_EPSILON	0.1
+qboolean CM_GenerateFacetFor4Points(cFacet_t * facet, const vec3_t p1, const vec3_t p2, const vec3_t p3, const vec3_t p4)
+{
+	float           dist;
+	int             i;
+	vec4_t          plane;
+
+	// if we can't generate a valid plane for the points, ignore the facet
+	if(facet->surfacePlane == -1)
+	{
+		facet->numBorders = 0;
+		return qfalse;
+	}
+	VectorCopy4(planes[facet->surfacePlane].plane, plane);
+
+	// if the fourth point is also on the plane, we can make a quad facet
+	dist = DotProduct(p4, plane) - plane[3];
+	if(fabs(dist) > PLANAR_EPSILON)
+	{
+		facet->numBorders = 0;
+		return qfalse;
+	}
+
+	facet->numBorders = 4;
+
+	facet->borderNoAdjust[0] = qfalse;
+	facet->borderNoAdjust[1] = qfalse;
+	facet->borderNoAdjust[2] = qfalse;
+	facet->borderNoAdjust[3] = qfalse;
+
+	facet->borderPlanes[0] = CM_GenerateBoundaryForPoints(plane, p1, p2);
+	facet->borderPlanes[1] = CM_GenerateBoundaryForPoints(plane, p2, p3);
+	facet->borderPlanes[2] = CM_GenerateBoundaryForPoints(plane, p3, p4);
+	facet->borderPlanes[3] = CM_GenerateBoundaryForPoints(plane, p4, p1);
+
+	//VectorCopy(a->xyz, f->points[0]);
+	//VectorCopy(b->xyz, f->points[1]);
+	//VectorCopy(c->xyz, f->points[2]);
+
+	return qtrue;
+}
 
 /*
 ==================
@@ -677,8 +896,9 @@ CM_SurfaceCollideFromTriangleSoup
 static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfaceCollide_t * sc)
 {
 	int             i;
-	float          *p1, *p2, *p3;
-	static int      trianglePlanes[SHADER_MAX_TRIANGLES];
+	float          *p1, *p2, *p3, *p4;
+	int             i1, i2, i3, i4, i5, i6;
+	
 	cFacet_t       *facet;
 	int             borders[4];
 	int             noAdjust[4];
@@ -686,13 +906,19 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 	numPlanes = 0;
 	numFacets = 0;
 
+#ifdef USE_HASHING
+	// initialize hash table
+	Com_Memset(planeHashTable, 0, sizeof(planeHashTable));
+#endif
+
 	// find the planes for each triangle of the grid
 	for(i = 0; i < triSoup->numTriangles; i++)
 	{
 		p1 = triSoup->points[i][0];
 		p2 = triSoup->points[i][1];
 		p3 = triSoup->points[i][2];
-		trianglePlanes[i] = CM_FindPlane(p1, p2, p3);
+		
+		triSoup->trianglePlanes[i] = CM_FindPlane(p1, p2, p3);
 
 		//Com_Printf("trianglePlane[%i] = %i\n", i, trianglePlanes[i]);
 	}
@@ -700,55 +926,59 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 	// create the borders for each triangle
 	for(i = 0; i < triSoup->numTriangles; i++)
 	{
-		borders[EN_FIRST] = -1;
-		noAdjust[EN_FIRST] = (borders[EN_FIRST] == trianglePlanes[i]);
-		if(borders[EN_FIRST] == -1 || noAdjust[EN_FIRST])
-		{
-			borders[EN_FIRST] = CM_EdgePlaneNum(triSoup, trianglePlanes, i, 0);
-		}
-
-		borders[EN_SECOND] = -1;
-		noAdjust[EN_SECOND] = (borders[EN_SECOND] == trianglePlanes[i]);
-		if(borders[EN_SECOND] == -1 || noAdjust[EN_SECOND])
-		{
-			borders[EN_SECOND] = CM_EdgePlaneNum(triSoup, trianglePlanes, i, 1);
-		}
-
-		borders[EN_THIRD] = -1;
-		noAdjust[EN_THIRD] = (borders[EN_THIRD] == trianglePlanes[i]);
-		if(borders[EN_THIRD] == -1 || noAdjust[EN_THIRD])
-		{
-			borders[EN_THIRD] = CM_EdgePlaneNum(triSoup, trianglePlanes, i, 2);
-		}
-
-		if(numFacets == SHADER_MAX_TRIANGLES)
-		{
-			Com_Error(ERR_DROP, "CM_TriangleSoupCollideFromTriangleSoup: SHADER_MAX_TRIANGLES");
-		}
-
 		facet = &facets[numFacets];
 		Com_Memset(facet, 0, sizeof(*facet));
 
+		i1 = triSoup->indexes[i * 3 + 0];
+		i2 = triSoup->indexes[i * 3 + 1];
+		i3 = triSoup->indexes[i * 3 + 2];
 
-		// two seperate facets
-		facet->surfacePlane = trianglePlanes[i];
-		facet->numBorders = 3;
-		facet->borderPlanes[0] = borders[EN_FIRST];
-		facet->borderNoAdjust[0] = noAdjust[EN_FIRST];
-		facet->borderPlanes[1] = borders[EN_SECOND];
-		facet->borderNoAdjust[1] = noAdjust[EN_SECOND];
-		facet->borderPlanes[2] = borders[EN_THIRD];
-		facet->borderNoAdjust[2] = noAdjust[EN_THIRD];
+		p1 = triSoup->points[i][0];
+		p2 = triSoup->points[i][1];
+		p3 = triSoup->points[i][2];
 
-		CM_SetBorderInward(facet, triSoup, trianglePlanes, i, 0);
+		facet->surfacePlane = triSoup->trianglePlanes[i]; //CM_FindPlane(p1, p2, p3);
 
-		if(CM_ValidateFacet(facet))
+		// try and make a quad out of two triangles
+#if 0
+		if(i != triSoup->numTriangles - 1)
 		{
-			CM_AddFacetBevels(facet);
-			numFacets++;
+			i4 = triSoup->indexes[i * 3 + 3];
+			i5 = triSoup->indexes[i * 3 + 4];
+			i6 = triSoup->indexes[i * 3 + 5];
+			
+			if(i4 == i3 && i5 == i2)
+			{
+				p4 = triSoup->points[i][5];  // vertex at i6
+				
+				if(CM_GenerateFacetFor4Points(facet, p1, p2, p4, p3)) //test->facets[count], v1, v2, v4, v3))
+				{
+					CM_SetBorderInward(facet, triSoup, i, 0);
+
+					if(CM_ValidateFacet(facet))
+					{
+						CM_AddFacetBevels(facet);
+						numFacets++;
+
+						i++;		// skip next tri
+						continue;
+					}
+				}
+			}
+		}
+#endif
+
+		if(CM_GenerateFacetFor3Points(facet, p1, p2, p3))
+		{
+			CM_SetBorderInward(facet, triSoup, i, 0);
+
+			if(CM_ValidateFacet(facet))
+			{
+				CM_AddFacetBevels(facet);
+				numFacets++;
+			}
 		}
 	}
-
 
 	// copy the results out
 	sc->numPlanes = numPlanes;
@@ -794,9 +1024,14 @@ cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vert
 	{
 		for(j = 0; j < 3; j++)
 		{
+			triSoup.indexes[i * 3 + j] = indexes[i * 3 + j];
+
+			//VectorCopy(
 			VectorCopy(vertexes[indexes[i * 3 + j]], triSoup.points[i][j]);
 		}
 	}
+
+	//for(i = 0; i < triSoup.num
 
 	sc = Hunk_Alloc(sizeof(*sc), h_high);
 	ClearBounds(sc->bounds[0], sc->bounds[1]);
@@ -819,6 +1054,8 @@ cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vert
 	sc->bounds[1][0] += 1;
 	sc->bounds[1][1] += 1;
 	sc->bounds[1][2] += 1;
+
+	Com_DPrintf("CM_GenerateTriangleSoupCollide: %i planes %i facets\n", sc->numPlanes, sc->numFacets);
 
 	return sc;
 }

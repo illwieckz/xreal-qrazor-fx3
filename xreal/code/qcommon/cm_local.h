@@ -72,10 +72,11 @@ typedef struct
 } cbrush_t;
 
 
-typedef struct
+typedef struct cPlane_s
 {
 	float           plane[4];
 	int             signbits;	// signx + (signy<<1) + (signz<<2), used as lookup during collision
+	struct cPlane_s *hashChain;
 } cPlane_t;
 
 // 3 or four + 6 axial bevels + 4 or 3 * 4 edge bevels
@@ -85,6 +86,7 @@ typedef struct
 typedef struct
 {
 	int             surfacePlane;
+	
 	int             numBorders;
 	int             borderPlanes[MAX_FACET_BEVELS];
 	int             borderInward[MAX_FACET_BEVELS];
@@ -290,6 +292,10 @@ void            CM_ClearLevelPatches(void);
 typedef struct
 {
 	int             numTriangles;
+	int             indexes[SHADER_MAX_INDEXES];
+
+	int             trianglePlanes[SHADER_MAX_TRIANGLES];
+
 	vec3_t          points[SHADER_MAX_TRIANGLES][3];
 } cTriangleSoup_t;
 
