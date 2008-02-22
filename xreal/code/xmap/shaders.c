@@ -85,7 +85,7 @@ infoParm_t	infoParms[] = {
 
 	// server attributes
 	{"slick",			0,	SURF_SLICK,		0},
-	{"collision",		0,	SURF_NODRAW,	0},
+	{"collision",		0,	SURF_COLLISION,	0},
 	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
 	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
 	{"nooverlays",		0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
@@ -99,7 +99,7 @@ infoParm_t	infoParms[] = {
 	{"nodraw",			0,	SURF_NODRAW,		0},		// don't generate a drawsurface (or a lightmap)
 	{"pointlight",		0,	SURF_POINTLIGHT,	0},		// sample lighting at vertexes
 	{"nolightmap",		0,	SURF_NOLIGHTMAP,	0},		// don't generate a lightmap
-	{"nodlight",		0,	SURF_NODLIGHT,		0},		// don't ever add dynamic lights
+	{"nodlight",		0,	0,					0},		// OBSELETE: don't ever add dynamic lights
 	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
 	
 	// unsupported Doom3 surface types for sound effects and blood splats
@@ -755,8 +755,14 @@ static void ParseShaderFile(const char *filename)
 		{
 			Sys_FPrintf(SYS_VRB, "shader '%s' has no passes\n", si->shader);
 			si->surfaceFlags |= SURF_NOMARKS;
-			si->surfaceFlags |= SURF_NODRAW;
 			si->surfaceFlags |= SURF_NOLIGHTMAP;
+
+			// collision surfaces will be ignored by the renderer
+			// but the collision code wants the polygons
+			if(!(si->surfaceFlags & SURF_COLLISION))
+			{
+				si->surfaceFlags |= SURF_NODRAW;
+			}
 
 			if(!si->forceOpaque)
 			{

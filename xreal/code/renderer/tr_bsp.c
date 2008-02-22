@@ -532,7 +532,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
 	// we may have a nodraw surface, because they might still need to
 	// be around for movement clipping
-	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & SURF_NODRAW)
+	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW | SURF_COLLISION))
 	{
 		surf->data = &skipData;
 		return;
@@ -589,6 +589,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 	srfTriangle_t  *tri;
 	int             i, j;
 	int             numVerts, numTriangles;
+	static surfaceType_t skipData = SF_SKIP;
 
 	// get lightmap
 	surf->lightmapNum = -1; // FIXME LittleLong(ds->lightmapNum);
@@ -598,6 +599,14 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 	if(r_singleShader->integer && !surf->shader->isSky)
 	{
 		surf->shader = tr.defaultShader;
+	}
+
+	// we may have a nodraw surface, because they might still need to
+	// be around for movement clipping
+	if(s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW | SURF_COLLISION))
+	{
+		surf->data = &skipData;
+		return;
 	}
 
 	numVerts = LittleLong(ds->numVerts);
