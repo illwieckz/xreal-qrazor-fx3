@@ -1150,9 +1150,9 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
               }
             }
             /* DoomEdit's ASE loader searches for /base/ */
-            else if(_pico_strnicmp(p, "/base/", 6) == 0)
+            else if(_pico_strnicmp(p, "base/", 5) == 0)
             {
-              p += 6;
+              p += 5;
               break;
             }
           }
