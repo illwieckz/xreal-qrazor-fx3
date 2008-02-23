@@ -169,6 +169,8 @@ typedef struct
 
 	int             floodvalid;
 	int             checkcount;	// incremented on each trace
+
+	qboolean        perPolyCollision;
 } clipMap_t;
 
 
@@ -181,7 +183,7 @@ extern int      c_pointcontents;
 extern int      c_traces, c_brush_traces, c_patch_traces, c_trisoup_traces;
 extern cvar_t  *cm_noAreas;
 extern cvar_t  *cm_noCurves;
-extern cvar_t  *cm_noTriangles;
+extern cvar_t  *cm_forceTriangles;
 extern cvar_t  *cm_noExtraAABBs;
 extern cvar_t  *cm_showCurves;
 extern cvar_t  *cm_showTriangles;

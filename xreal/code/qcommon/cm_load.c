@@ -65,7 +65,7 @@ byte           *cmod_base;
 #ifndef BSPC
 cvar_t         *cm_noAreas;
 cvar_t         *cm_noCurves;
-cvar_t         *cm_noTriangles;
+cvar_t         *cm_forceTriangles;
 cvar_t         *cm_noExtraAABBs;
 cvar_t         *cm_showCurves;
 cvar_t         *cm_showTriangles;
@@ -469,9 +469,65 @@ CMod_LoadEntityString
 */
 void CMod_LoadEntityString(lump_t * l)
 {
+	char           *p, *pOld, *token, *s;
+	char            keyname[MAX_TOKEN_CHARS];
+	char            value[MAX_TOKEN_CHARS];
+
 	cm.entityString = Hunk_Alloc(l->filelen, h_high);
 	cm.numEntityChars = l->filelen;
 	Com_Memcpy(cm.entityString, cmod_base + l->fileofs, l->filelen);
+	
+	p = cm.entityString;
+
+	// only parse the world spawn
+	while(1)
+	{
+		// parse key
+		token = Com_ParseExt(&p, qtrue);
+
+		if(!*token)
+		{
+			Com_Printf(S_COLOR_YELLOW "WARNING: unexpected end of entities string while parsing worldspawn\n", token);
+			break;
+		}
+
+		if(*token == '{')
+		{
+			continue;
+		}
+
+		if(*token == '}')
+		{
+			break;
+		}
+
+		Q_strncpyz(keyname, token, sizeof(keyname));
+
+		// parse value
+		token = Com_ParseExt(&p, qfalse);
+
+		if(!*token)
+		{
+			continue;
+		}
+
+		Q_strncpyz(value, token, sizeof(value));
+
+
+		// check for deluxe mapping support
+		if(!Q_stricmp(keyname, "perPolyCollision") && !Q_stricmp(value, "1"))
+		{
+			Com_Printf("map features per poly collision detection\n");
+			cm.perPolyCollision = qtrue;
+			continue;
+		}
+
+		if(!Q_stricmp(keyname, "classname") && Q_stricmp(value, "worldspawn"))
+		{
+			Com_Printf(S_COLOR_YELLOW "WARNING: expected worldspawn found '%s'\n", value);
+			break;
+		}
+	}
 }
 
 /*
@@ -577,7 +633,7 @@ void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 			surface->sc = CM_GeneratePatchCollide(width, height, vertexes);
 		}
 #ifndef BSPC
-		else if(LittleLong(in->surfaceType) == MST_TRIANGLE_SOUP && !cm_noTriangles->integer)
+		else if(LittleLong(in->surfaceType) == MST_TRIANGLE_SOUP && (cm.perPolyCollision || cm_forceTriangles->integer))
 		{
 			// FIXME: check for non-colliding triangle soups
 
@@ -676,7 +732,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 #ifndef BSPC
 	cm_noAreas = Cvar_Get("cm_noAreas", "0", CVAR_CHEAT);
 	cm_noCurves = Cvar_Get("cm_noCurves", "0", CVAR_CHEAT);
-	cm_noTriangles = Cvar_Get("cm_noTriangles", "1", CVAR_CHEAT | CVAR_LATCH);
+	cm_forceTriangles = Cvar_Get("cm_forceTriangles", "0", CVAR_CHEAT | CVAR_LATCH);
 	cm_noExtraAABBs = Cvar_Get("cm_noExtraAABBs", "0", CVAR_CHEAT);
 	cm_showCurves = Cvar_Get("cm_showCurves", "0", CVAR_CHEAT);
 	cm_showTriangles = Cvar_Get("cm_showTriangles", "0", CVAR_CHEAT);

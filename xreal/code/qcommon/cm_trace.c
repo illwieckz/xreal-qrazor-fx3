@@ -444,7 +444,7 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		if(1)
 		{
 #else
-		if(!cm_noTriangles->integer)
+		if(cm.perPolyCollision || cm_forceTriangles->integer)
 		{
 #endif
 			if(surface->type == MST_TRIANGLE_SOUP && surface->sc && CM_PositionTestInSurfaceCollide(tw, surface->sc))
@@ -1005,7 +1005,7 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 	if(0)
 	{
 #else
-	if(!cm_noTriangles->integer && surface->type == MST_TRIANGLE_SOUP && surface->sc)
+	if((cm.perPolyCollision || cm_forceTriangles->integer) && surface->type == MST_TRIANGLE_SOUP && surface->sc)
 	{
 #endif
 		CM_TraceThroughSurfaceCollide(tw, surface->sc);
