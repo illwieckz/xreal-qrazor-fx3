@@ -296,6 +296,15 @@ xml_src = [
 'code/gtkradiant/libs/xml/xmltextags.cpp'
 ]
 
+brushexport_src = [
+'code/gtkradiant/plugins/brushexport/plugin.cpp',
+'code/gtkradiant/plugins/brushexport/interface.cpp',
+'code/gtkradiant/plugins/brushexport/callbacks.cpp',
+'code/gtkradiant/plugins/brushexport/support.cpp',
+'code/gtkradiant/plugins/brushexport/export.cpp'
+]
+
+
 gtkradiant_env = env.Copy()
 gtkradiant_env.Append(CCFLAGS='-W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder -fno-exceptions -fno-rtti')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/include')
@@ -362,6 +371,12 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	vfspk3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	vfspk3_env.SharedLibrary('vfspk3', vfspk3_src)
 	vfspk3_env.InstallAs('#gtkradiant/modules/vfspk3.so', 'libvfspk3.so')
+	
+	brushexport_env = module_env.Copy()
+	brushexport_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	brushexport_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
+	brushexport_env.SharedLibrary('brushexport', brushexport_src)
+	brushexport_env.InstallAs('#gtkradiant/modules/brushexport.so', 'libbrushexport.so')
 	
 	
 if env['arch'] == 'win32-mingw':
