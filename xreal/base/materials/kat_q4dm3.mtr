@@ -33,22 +33,22 @@ textures/kat_q4dm3/stonedirtMix
 //### TEXTURE 2 - ROCK FACE
 	{
 		blend 	bumpmap
-//		map		textures/kat_q4dm3/rock_plain_local.tga
+//		map		models/mapobjects/kat/rock_plain_local.tga
 //		map		textures/kat_q4dm3/rock_v2_local.tga
-		map		addnormals (textures/kat_q4dm3/rock_v2b_local.tga, heightmap( textures/kat_q4dm3/rock_plain_h.tga, 4 ) )
-//		map		addnormals (textures/kat_q4dm3/rock_plain_local.tga, heightmap( textures/kat_q4dm3/rock_plain_h.tga, 1 ) )
+		map		addnormals (textures/kat_q4dm3/rock_v2b_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 4 ) )
+//		map		addnormals (models/mapobjects/kat/rock_plain_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 1 ) )
 		VertexColor
 		scale 1.5, 1.5
 	}
 	{
 		blend 	diffusemap
-		map		textures/kat_q4dm3/rock_plain.tga
+		map		models/mapobjects/kat/rock_plain.tga
 		VertexColor
 		scale 1.5, 1.5
 	}
 //	{
 //		blend	specularmap
-//		map		textures/kat_q4dm3/rock_plain_s.tga
+//		map		models/mapobjects/kat/rock_plain_s.tga
 //		VertexColor
 //		scale 1.5, 1.5
 //	}
