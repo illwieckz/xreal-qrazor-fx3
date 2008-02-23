@@ -5,8 +5,8 @@ Version 3
 "classname" "worldspawn"
 "message" "Kat's Klorr! by Ken 'kat' Beyer"
 "ambientColor" "0.16 0.15 0.21"
-"fogColor" "0.88 0.81 0.71"
-"fogDensity" "0.001"
+"fogColor" "0.77 0.81 0.89"
+"fogDensity" "0.0007"
 "perPolyCollision" "1"
 // brush 0
 {
@@ -5521,7 +5521,7 @@ brushDef3
 "classname" "item_health_mega"
 "name" "item_health_mega_1"
 "inv_item" "2"
-"origin" "1256 -56 352"
+"origin" "1224 -56 392"
 "nodrop" "1"
 }
 // entity 4
@@ -5529,7 +5529,7 @@ brushDef3
 "classname" "item_armor_shard"
 "name" "item_armor_shard_1"
 "inv_item" "2"
-"origin" "-272 -1400 264"
+"origin" "-272 -1400 288"
 "nodrop" "1"
 }
 // entity 5
@@ -5825,55 +5825,55 @@ brushDef3
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_9"
-"origin" "1040 640 -24"
+"origin" "1040 640 0"
 "angle" "45"
 }
 // entity 44
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_8"
-"origin" "536 -456 -16"
+"origin" "536 -456 8"
 "angle" "135"
 }
 // entity 45
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_7"
-"origin" "0 48 -24"
+"origin" "0 48 0"
 }
 // entity 46
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_6"
-"origin" "1152 1136 136"
-"angle" "315"
+"origin" "1152 1136 160"
+"angle" "-45"
 }
 // entity 47
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_5"
-"origin" "792 328 328"
-"angle" "225"
+"origin" "792 328 352"
+"angle" "-135"
 }
 // entity 48
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_4"
-"origin" "800 -224 336"
+"origin" "800 -224 360"
 "angle" "180"
 }
 // entity 49
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_3"
-"origin" "352 -1224 264"
+"origin" "352 -1224 288"
 "angle" "135"
 }
 // entity 50
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_2"
-"origin" "-440 -1352 272"
+"origin" "-440 -1352 296"
 "angle" "135"
 }
 // entity 51
@@ -5886,8 +5886,8 @@ brushDef3
 }
 // entity 52
 {
-"classname" "ammo_napalmgun"
-"name" "ammo_napalmgun_2"
+"classname" "ammo_rockets"
+"name" "ammo_rockets_2"
 "origin" "472 -736 348"
 "nodrop" "1"
 }
@@ -5979,7 +5979,7 @@ brushDef3
 // entity 63
 {
 "classname" "ammo_rockets"
-"name" "ammo_rockets_2"
+"name" "ammo_rockets_4"
 "origin" "232 -464 344"
 "nodrop" "1"
 }
@@ -5993,8 +5993,8 @@ brushDef3
 }
 // entity 65
 {
-"classname" "ammo_napalmgun"
-"name" "ammo_napalmgun_1"
+"classname" "ammo_rockets"
+"name" "ammo_rockets_1"
 "origin" "-1036 -88 -8"
 "nodrop" "1"
 }
@@ -6028,8 +6028,8 @@ brushDef3
 }
 // entity 69
 {
-"classname" "weapon_napalmgun"
-"name" "weapon_napalmgun_1"
+"classname" "weapon_rocketlauncher"
+"name" "weapon_rocketlauncher_1"
 "origin" "932 976 156"
 "nodrop" "1"
 }
@@ -6044,7 +6044,7 @@ brushDef3
 // entity 71
 {
 "classname" "weapon_rocketlauncher"
-"name" "weapon_rocketlauncher_1"
+"name" "weapon_rocketlauncher_2"
 "origin" "192 -1424 280"
 "nodrop" "1"
 }
@@ -6339,15 +6339,15 @@ brushDef3
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_1"
-"origin" "-704 -1032 144"
+"origin" "-704 -1032 168"
 "angle" "90"
 }
 // entity 102
 {
 "classname" "info_player_start"
 "name" "info_player_start_1"
-"origin" "-712 -496 136"
-"angle" "270"
+"origin" "-712 -496 160"
+"angle" "-90"
 }
 // entity 103
 {
@@ -7146,7 +7146,7 @@ brushDef3
 "classname" "item_armor_shard"
 "name" "item_armor_shard_2"
 "inv_item" "2"
-"origin" "-232 -1396 264"
+"origin" "-232 -1396 288"
 "nodrop" "1"
 }
 // entity 162
@@ -7154,7 +7154,7 @@ brushDef3
 "classname" "item_armor_shard"
 "name" "item_armor_shard_3"
 "inv_item" "2"
-"origin" "-192 -1392 264"
+"origin" "-192 -1392 288"
 "nodrop" "1"
 }
 // entity 163
@@ -7201,4 +7201,11 @@ brushDef3
 "texture" "lights/ambientlight"
 "_color" "0.81 0.8 0.89"
 "light_radius" "372 192 596"
+}
+// entity 166
+{
+"classname" "item_quad"
+"name" "item_quad_1"
+"origin" "336 -96 344"
+"spawnflags" "1"
 }
