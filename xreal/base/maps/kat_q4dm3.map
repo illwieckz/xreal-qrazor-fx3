@@ -5970,7 +5970,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_36"
 "origin" "-540 -788 136"
-"model" "models/mapobjects/kat_q4dm3/weapon_marker.ase"
+"model" "models/mapobjects/kat/weapon_marker.ase"
 }
 // entity 61
 {
@@ -6006,7 +6006,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_35"
 "origin" "192 -1424 260"
-"model" "models/mapobjects/kat_q4dm3/weapon_marker.ase"
+"model" "models/mapobjects/kat/weapon_marker.ase"
 }
 // entity 65
 {
@@ -6063,7 +6063,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_34"
 "origin" "932 976 137"
-"model" "models/mapobjects/kat_q4dm3/weapon_marker.ase"
+"model" "models/mapobjects/kat/weapon_marker.ase"
 }
 // entity 72
 {
@@ -6092,7 +6092,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_25"
 "origin" "599 1065 164"
-"model" "models/mapobjects/kat_q4dm3/lamp2.ase"
+"model" "models/mapobjects/kat/lamp2.ase"
 "rotation" "0.993768 0.0859297 -0.0710015 -0.0869434 0.996149 -0.0113072 0.0697565 0.0174099 0.997412"
 }
 // entity 76
@@ -6100,7 +6100,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_33"
 "origin" "608 45 -31"
-"model" "models/mapobjects/kat_q4dm3/lamp4.ase"
+"model" "models/mapobjects/kat/lamp4.ase"
 "rotation" "-0.29952 -0.947152 -0.114854 0.718213 -0.144587 -0.680636 0.628059 -0.286353 0.723563"
 }
 // entity 77
@@ -6108,7 +6108,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_32"
 "origin" "274 -192 -10"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.995588 0.0888558 0.0301577 -0.0871027 0.99467 -0.0551743 -0.0348995 0.0523041 0.998021"
 }
 // entity 78
@@ -6116,7 +6116,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_31"
 "origin" "276 96 -6"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.993916 0.105118 0.0328788 -0.104465 0.994307 -0.0210042 -0.0348995 0.0174418 0.999239"
 }
 // entity 79
@@ -6124,7 +6124,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_30"
 "origin" "565 104 -3"
-"model" "models/mapobjects/kat_q4dm3/lamp3.ase"
+"model" "models/mapobjects/kat/lamp3.ase"
 "rotation" "0.99863 -0.00728376 -0.0518266 -1.78e-010 0.990268 -0.139173 0.052336 0.138982 0.988911"
 }
 // entity 80
@@ -6132,7 +6132,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_29"
 "origin" "563 -179 -10"
-"model" "models/mapobjects/kat_q4dm3/lamp3.ase"
+"model" "models/mapobjects/kat/lamp3.ase"
 "rotation" "1 0 0 0 0.999391 -0.0348995 0 0.0348995 0.999391"
 }
 // entity 81
@@ -6140,7 +6140,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_28"
 "origin" "1193 -97 -8"
-"model" "models/mapobjects/kat_q4dm3/lamp3.ase"
+"model" "models/mapobjects/kat/lamp3.ase"
 "rotation" "0.970662 -0.218479 0.100407 0.224095 0.973364 -0.0484106 -0.0871557 0.069491 0.993768"
 }
 // entity 82
@@ -6148,7 +6148,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_27"
 "origin" "955 586 -9"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.795596 0.602938 0.0590919 -0.599525 0.797598 -0.0663817 -0.0871557 0.017386 0.996043"
 }
 // entity 83
@@ -6156,7 +6156,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_26"
 "origin" "1235 1166 154"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.855993 0.51668 0.0178442 -0.514332 0.854582 -0.0717787 -0.052336 0.0522642 0.997261"
 }
 // entity 84
@@ -6164,7 +6164,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_20"
 "origin" "310 -752 362"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.758589 0.642788 -0.106613 -0.636532 0.766044 0.0894587 0.139173 1.75652e-009 0.990268"
 }
 // entity 85
@@ -6172,7 +6172,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_19"
 "origin" "-371 -1423 282"
-"model" "models/mapobjects/kat_q4dm3/lamp3.ase"
+"model" "models/mapobjects/kat/lamp3.ase"
 "rotation" "0.945519 0.325568 0 -0.325568 0.945519 0 0 0 1"
 }
 // entity 86
@@ -6180,7 +6180,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_18"
 "origin" "-864 -1063 163"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.99392 -0.0518266 -0.0971414 0.0375216 0.988911 -0.143692 0.103511 0.139173 0.984843"
 }
 // entity 87
@@ -6188,7 +6188,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_17"
 "origin" "-787 -472 160"
-"model" "models/mapobjects/kat_q4dm3/lamp1.ase"
+"model" "models/mapobjects/kat/lamp1.ase"
 "rotation" "0.997564 0 0.0697565 0 1 0 -0.0697565 0 0.997564"
 }
 // entity 88
@@ -6294,7 +6294,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_6"
 "origin" "544 888 152"
-"model" "models/mapobjects/kat_q4dm3/jumppad_fx2.ase"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
 }
 // entity 97
 {
@@ -6329,21 +6329,21 @@ Version 3
 "classname" "func_static"
 "name" "func_static_5"
 "origin" "1184 816 -24"
-"model" "models/mapobjects/kat_q4dm3/jumppad_fx2.ase"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
 }
 // entity 100
 {
 "classname" "func_static"
 "name" "func_static_3"
 "origin" "-256 -872 142"
-"model" "models/mapobjects/kat_q4dm3/jumppad_fx2.ase"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
 }
 // entity 101
 {
 "classname" "func_static"
 "name" "func_static_2"
 "origin" "-556 -1120 150"
-"model" "models/mapobjects/kat_q4dm3/jumppad_fx2.ase"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
 "rotation" "0.999389 0.00243447 0.0348571 -0.00121798 0.999391 -0.0348783 -0.0349208 0.0348145 0.998784"
 }
 // entity 102
@@ -6632,7 +6632,7 @@ Version 3
 "classname" "func_static"
 "name" "func_static_4"
 "origin" "-416 -504 -8"
-"model" "models/mapobjects/kat_q4dm3/jumppad_fx2.ase"
+"model" "models/mapobjects/kat/jumppad_fx2.ase"
 }
 // entity 123
 {
