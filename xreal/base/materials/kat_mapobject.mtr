@@ -160,8 +160,9 @@ models/mapobjects/kat/accelpad
 //q4base/models/mapobjects/kat/jumppad
 models/mapobjects/kat/jumppad
 {
-      	noselfShadow
-		nonSolid
+	qer_editorImage models/mapobjects/kat/jumppad_f2.tga
+    noselfShadow
+	nonSolid
 
 	diffusemap 	models/mapobjects/kat/jumppad_f2.tga
 	bumpmap addnormals (models/mapobjects/kat/jumppad_4_n.tga, heightmap (models/mapobjects/kat/jumppad_h.tga, 2 ))
@@ -198,6 +199,8 @@ models/mapobjects/kat/jumppad_body
 //q4base/models/mapobjects/kat/accel_glow
 models/mapobjects/kat/accel_glow
 {
+	qer_editorImage models/mapobjects/kat/jumppad_g3_neutral.tga
+
 	translucent
 	nonSolid
 
@@ -223,6 +226,8 @@ models/mapobjects/kat/accel_glow
 //q4base/models/mapobjects/kat/jumppad_glow
 models/mapobjects/kat/jumppad_glow
 {
+	qer_editorImage models/mapobjects/kat/jumppad_g3_neutral.tga
+
 	translucent
 	nonSolid
 
