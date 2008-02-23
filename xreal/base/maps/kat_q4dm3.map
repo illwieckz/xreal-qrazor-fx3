@@ -5,7 +5,7 @@ Version 3
 "classname" "worldspawn"
 "message" "Kat's Klorr! by Ken 'kat' Beyer"
 "ambientColor" "0.16 0.15 0.21"
-"fogColor" "0.77 0.81 0.89"
+"fogColor" "0.88 0.81 0.71"
 "fogDensity" "0.001"
 "perPolyCollision" "1"
 // brush 0
@@ -7156,4 +7156,49 @@ brushDef3
 "inv_item" "2"
 "origin" "-192 -1392 264"
 "nodrop" "1"
+}
+// entity 163
+{
+"classname" "light"
+"name" "light_68"
+"origin" "-432 -16 1072"
+"detailLevel" "10"
+"nodynamicshadows" "0"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"texture" "lights/ambientlight"
+"_color" "0.81 0.8 0.89"
+"light_radius" "240 224 600"
+}
+// entity 164
+{
+"classname" "light"
+"name" "light_67"
+"origin" "368 -96 1168"
+"detailLevel" "10"
+"nodynamicshadows" "0"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"texture" "lights/ambientlight"
+"_color" "0.46 0.45 0.51"
+"light_radius" "328 416 512"
+}
+// entity 165
+{
+"classname" "light"
+"name" "light_66"
+"origin" "-160 -880 1040"
+"detailLevel" "10"
+"nodynamicshadows" "0"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"texture" "lights/ambientlight"
+"_color" "0.81 0.8 0.89"
+"light_radius" "372 192 596"
 }

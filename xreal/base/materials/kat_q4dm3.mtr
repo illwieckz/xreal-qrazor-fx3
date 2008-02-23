@@ -222,7 +222,7 @@ textures/kat_q4dm3/stone
 	qer_editorimage		models/mapobjects/kat/rock_plain.tga
 	
 		diffusemap		models/mapobjects/kat/rock_plain.tga
-		bumpmap			addnormals (models/mapobjects/kat/rock_v2_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 2 ) )
+		bumpmap			addnormals (models/textures/kat_q4dm3/rock_v2_local.tga, heightmap( models/mapobjects/kat/rock_plain_h.tga, 2 ) )
 		specularmap		models/mapobjects/kat/rock_plain_s.tga
 }
 
