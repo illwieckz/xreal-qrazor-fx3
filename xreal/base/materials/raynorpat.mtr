@@ -50,59 +50,41 @@ textures/raynorpat/effects/firewall
 	}
 }
 
-textures/raynorpat/effects/blue_firewall
-{
-	qer_editorimage textures/raynorpat/effects/blue_firewalla.png
-
-	noimpact
-
-	{
-		map textures/raynorpat/effects/blue_firewalla.png
-		blend gl_one, gl_zero
-		tcMod turb .2 .2 .1 1
-		tcMod scale .25 .25
-		tcMod scroll .5 1.5
-	}
-	{
-		map textures/raynorpat/effects/blue_firewallb.png
-		blend gl_dst_color, gl_src_alpha
-		tcMod turb .2 .1 .1 1
-		tcMod scale .1 .1
-		tcMod scroll 0 1.0
-	}
-	{
-		map textures/raynorpat/effects/blue_firewallc.png
-		blend gl_dst_color, gl_one
-		tcMod turb .1 .1 .5 .5
-		tcMod scroll 1 5.0
-	}
-}
-
 //
 // Blocks
 //
 
 textures/raynorpat/blocks/blocks_1
 {
-	qer_editorimage textures/raynorpat/blocks/blocks_1.png
+	qer_editorimage textures/raynorpat/blocks/block1_d.png
 
-	bumpMap textures/raynorpat/blocks/blocks_1_norm.png
-	diffuseMap textures/raynorpat/blocks/blocks_1.png
-	specularMap textures/raynorpat/blocks/blocks_1_spec.png
+	bumpMap displacemap( textures/raynorpat/blocks/block1_local, invertColor(textures/raynorpat/blocks/block1_b) )
+	diffuseMap textures/raynorpat/blocks/block1_d.png
+	specularMap textures/raynorpat/blocks/block1_s.png
 }
 
 textures/raynorpat/blocks/blocks_2
 {
-	qer_editorimage textures/raynorpat/blocks/blocks_2.png
+	qer_editorimage textures/raynorpat/blocks/block2_d.png
 
-	bumpMap textures/raynorpat/blocks/blocks_2_norm.png
-	diffuseMap textures/raynorpat/blocks/blocks_2.png
-	specularMap textures/raynorpat/blocks/blocks_2_spec.png
+	bumpMap displacemap( textures/raynorpat/blocks/block2_local, invertColor(textures/raynorpat/blocks/block2_b) )
+	diffuseMap textures/raynorpat/blocks/block2_d.png
+	specularMap textures/raynorpat/blocks/block2_s.png
 }
 
 //
 // Lights
 //
+raynorpat/lights/xreal_logo
+{
+	{
+		forceHighQuality
+		map textures/raynorpat/lights/xreal_logo.png
+		colored
+		zeroClamp
+	}
+}
+
 
 textures/raynorpat/lights/ironcross_tall
 {
@@ -136,13 +118,13 @@ textures/raynorpat/lights/ironcross_wide
 
 textures/raynorpat/floors/steel_floor
 {
-	qer_editorimage textures/raynorpat/floors/steel_floor.png
+	qer_editorimage textures/raynorpat/floors/diamondplate_d.png
 
 	metalsteps
 
-	bumpMap textures/raynorpat/floors/steel_floor_norm.png
-	diffuseMap textures/raynorpat/floors/steel_floor.png
-	specularMap textures/raynorpat/floors/steel_floor_spec.png
+	bumpMap displacemap( textures/raynorpat/floors/diamondplate_local, invertColor(textures/raynorpat/floors/diamondplate_b) )
+	diffuseMap textures/raynorpat/floors/diamondplate_d.png
+	specularMap textures/raynorpat/floors/diamondplate_s.png
 }
 
 textures/raynorpat/floors/skin1
@@ -165,13 +147,4 @@ textures/raynorpat/floors/skin2
 	bumpMap textures/raynorpat/floors/skin2_norm.png
 	diffuseMap textures/raynorpat/floors/skin2.png
 	specularMap textures/raynorpat/floors/skin2_spec.png
-}
-
-textures/raynorpat/floors/grass1
-{
-	qer_editorimage textures/raynorpat/floors/grass1.png
-
-	bumpMap textures/raynorpat/floors/grass1_norm.png
-	diffuseMap textures/raynorpat/floors/grass1.png
-	specularMap _black
 }
