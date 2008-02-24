@@ -8,6 +8,7 @@ xmap_src = [
 'code/xmap/brush.c',
 'code/xmap/brush_primit.c',
 'code/xmap/bsp.c',
+'code/xmap/convert_ase.c',
 'code/xmap/convert_map.c',
 'code/xmap/facebsp.c',
 'code/xmap/fog.c',

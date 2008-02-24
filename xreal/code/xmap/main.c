@@ -30,7 +30,8 @@ main
 */
 
 void            Bspinfo(int count, char **fileNames);
-int             ConvertMap(int argc, char **argv);
+int             ConvertMapToMap(int argc, char **argv);
+int             ConvertBspToASE(int argc, char **argv);
 int             BspMain(int argc, char **argv);
 int             VisMain(int argc, char **argv);
 int             LightMain(int argc, char **argv);
@@ -54,7 +55,12 @@ int main(int argc, char **argv)
 	}
 	if(!strcmp(argv[1], "-map2map"))
 	{
-		ConvertMap(argc - 1, argv + 1);
+		ConvertMapToMap(argc - 1, argv + 1);
+		return 0;
+	}
+	if(!strcmp(argv[1], "-bsp2ase"))
+	{
+		ConvertBspToASE(argc - 1, argv + 1);
 		return 0;
 	}
 	if(!strcmp(argv[1], "-map2bsp"))

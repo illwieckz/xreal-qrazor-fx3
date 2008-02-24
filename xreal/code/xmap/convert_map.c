@@ -137,7 +137,7 @@ static void WriteMapFile(char *filename)
 }
 
 
-int ConvertMap(int argc, char **argv)
+int ConvertMapToMap(int argc, char **argv)
 {
 	int             i;
 	double          start, end;
@@ -145,7 +145,7 @@ int ConvertMap(int argc, char **argv)
 	char            name[1024];
 	char            save[1024];
 
-	Sys_Printf("---- convertmap ----\n");
+	Sys_Printf("---- convert map to map ----\n");
 
 	for(i = 1; i < argc; i++)
 	{
