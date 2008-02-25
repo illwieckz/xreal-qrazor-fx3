@@ -10,7 +10,6 @@ COMPILING ON GNU/LINUX
 COMPILING ON MAC
 LICENSE
 USING HTTP/FTP DOWNLOAD SUPPORT
-USING R1ADMIN
 
 
 GENERAL NOTES
@@ -169,28 +168,3 @@ supporting the following flags:
     1 - ENABLE
     2 - do not use HTTP/FTP downloads
     4 - do not use UDP downloads
-
-
-USING R1ADMIN
-=============
-
-r1admin comes builtin with XreaL. To use it, you must have an admin
-account created. This is done by using the addaccount command. You can
-also remove accounts by using the removeaccount command. To use those
-commands, you must have access to the server console.
-
-Once an account is created you can login yourself in using the login
-command. When your logged in to the server, you can then use the r1admin
-commands:
-
-	@kick <player/id> - kick a player
-	@ban <player/id> - ban a player
-	@mute <player/id> - mute a player
-	@map <map> - change the map
-	@map_restart - restart the current map
-	@ip <player/id> - show the players ip
-	@listip - list all the players and their ips
-	@removeip <ip/mask> - remove an ip from the banlist
-	@status - show the current players on the server along with their ip
-	@search <[name|ip] - player/ip> - search for the player name or ip
-

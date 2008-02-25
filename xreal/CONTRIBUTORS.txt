@@ -16,7 +16,6 @@ Andrew Tridgell - MD4 checksum GPL code
 Tony J. White - libcURL http-download redirection support, Win Alt-Tab support
 ensiform - console clock enhancements
 Nicolas “Berserk” Flekenstein - ASElib color support
-Richard "r1ch" Stanway - R1Admin game code
 Neil “haste” Toronto - Unlagged game and cgame code
 
 
