@@ -116,12 +116,6 @@ typedef struct bspBrush_s
 	vec3_t          mins, maxs;
 	int             numsides;
 	side_t          sides[6];	// variably sized
-
-#ifdef AAS
-	int             expansionbbox;	//bbox used for expansion of the brush
-	int             leafnum;
-	int             modelnum;
-#endif
 } bspBrush_t;
 
 
@@ -197,11 +191,6 @@ typedef struct node_s
 	entity_t       *occupant;	// for leak file testing
 
 	struct portal_s *portals;	// also on nodes during construction
-
-#ifdef AAS
-	int             expansionbboxes;	// OR of all bboxes used for expansion of the brushes
-	int             modelnum;
-#endif
 } node_t;
 
 typedef struct portal_s
@@ -216,11 +205,6 @@ typedef struct portal_s
 	qboolean        hint;
 	qboolean        areaportal;
 	side_t         *side;		// NULL = non-visible
-
-#ifdef AAS
-	struct tmp_face_s *tmpface;	// pointer to the tmpface created for this portal
-	int             planenum;	// number of the map plane used by the portal
-#endif
 } portal_t;
 
 typedef struct
@@ -248,10 +232,6 @@ extern char     source[1024];
 extern int      samplesize;		//sample size in units
 extern int      novertexlighting;
 extern int      nogridlighting;
-
-#ifdef AAS
-extern qboolean createAAS;
-#endif
 
 //=============================================================================
 
