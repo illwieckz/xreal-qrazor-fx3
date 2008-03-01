@@ -282,7 +282,7 @@ shaders_src = [
 'code/gtkradiant/plugins/shaders/shaders.cpp'
 ]
 
-vfspk3_src = [
+vfsq3_src = [
 'code/gtkradiant/plugins/vfspk3/vfspk3.cpp',
 'code/gtkradiant/plugins/vfspk3/vfs.cpp',
 'code/gtkradiant/plugins/vfspk3/archive.cpp'
@@ -367,10 +367,10 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	shaders_env.SharedLibrary('shaders', shaders_src)
 	shaders_env.InstallAs('#gtkradiant/modules/shadersq3.so', 'libshaders.so')
 	
-	vfspk3_env = module_env.Copy()
-	vfspk3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
-	vfspk3_env.SharedLibrary('vfspk3', vfspk3_src)
-	vfspk3_env.InstallAs('#gtkradiant/modules/vfspk3.so', 'libvfspk3.so')
+	vfsq3_env = module_env.Copy()
+	vfsq3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	vfsq3_env.SharedLibrary('vfsq3', vfsq3_src)
+	vfsq3_env.InstallAs('#gtkradiant/modules/vfsq3.so', 'libvfsq3.so')
 	
 	brushexport_env = module_env.Copy()
 	brushexport_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
