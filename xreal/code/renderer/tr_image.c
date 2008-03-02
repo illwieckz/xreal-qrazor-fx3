@@ -630,7 +630,6 @@ static void R_MipNormalMap(byte * in, int width, int height)
 	vec_t           length;
 
 	float			inv255 = 1.0f / 255.0f;
-	float           inv127 = 1.0f / 127.0f;
 
 	if(width == 1 && height == 1)
 	{
@@ -646,20 +645,20 @@ static void R_MipNormalMap(byte * in, int width, int height)
 	{
 		for(j = 0; j < width; j += 8, out += 4, in += 8)
 		{
-			n[0] =	(inv127 * in[0] - 1.0) +
-					(inv127 * in[4] - 1.0) +
-					(inv127 * in[width + 0] - 1.0) +
-					(inv127 * in[width + 4] - 1.0);
+			n[0] =	(in[0] * inv255 - 0.5) * 2.0 +
+					(in[4] * inv255 - 0.5) * 2.0 +
+					(in[width + 0] * inv255 - 0.5) * 2.0 +
+					(in[width + 4] * inv255 - 0.5) * 2.0;
 
-			n[1] =	(inv127 * in[1] - 1.0) +
-					(inv127 * in[5] - 1.0) +
-					(inv127 * in[width + 1] - 1.0) +
-					(inv127 * in[width + 5] - 1.0);
+			n[1] =	(in[1] * inv255 - 0.5) * 2.0 +
+					(in[5] * inv255 - 0.5) * 2.0 +
+					(in[width + 1] * inv255 - 0.5) * 2.0 +
+					(in[width + 5] * inv255 - 0.5) * 2.0;
 
-			n[2] =	(inv127 * in[2] - 1.0) +
-					(inv127 * in[6] - 1.0) +
-					(inv127 * in[width + 2] - 1.0) +
-					(inv127 * in[width + 6] - 1.0);
+			n[2] =	(in[2] * inv255 - 0.5) * 2.0 +
+					(in[6] * inv255 - 0.5) * 2.0 +
+					(in[width + 2] * inv255 - 0.5) * 2.0 +
+					(in[width + 6] * inv255 - 0.5) * 2.0;
 					
 			n[3] =	(inv255 * in[3]) +
 					(inv255 * in[7]) +
@@ -715,16 +714,34 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			c = (r + g + b) * inv255;
 
 			// expand the texel to its right
-			r = in[4 * (y * width + ((x + 1) % width)) + 0];
-			g = in[4 * (y * width + ((x + 1) % width)) + 1];
-			b = in[4 * (y * width + ((x + 1) % width)) + 2];
+			if(x == width -1)
+			{
+				r = in[4 * (y * width + x) + 0];
+				g = in[4 * (y * width + x) + 1];
+				b = in[4 * (y * width + x) + 2];
+			}
+			else
+			{
+				r = in[4 * (y * width + ((x + 1) % width)) + 0];
+				g = in[4 * (y * width + ((x + 1) % width)) + 1];
+				b = in[4 * (y * width + ((x + 1) % width)) + 2];
+			}
 
 			cx = (r + g + b) * inv255;
 
 			// expand the texel one up
-			r = in[4 * (((y + 1) % height) * width + x) + 0];
-			g = in[4 * (((y + 1) % height) * width + x) + 1];
-			b = in[4 * (((y + 1) % height) * width + x) + 2];
+			if(y == height -1)
+			{
+				r = in[4 * (y * width + x) + 0];
+				g = in[4 * (y * width + x) + 1];
+				b = in[4 * (y * width + x) + 2];
+			}
+			else
+			{
+				r = in[4 * (((y + 1) % height) * width + x) + 0];
+				g = in[4 * (((y + 1) % height) * width + x) + 1];
+				b = in[4 * (((y + 1) % height) * width + x) + 2];
+			}
 
 			cy = (r + g + b) * inv255;
 
@@ -732,7 +749,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			dcy = scale * (c - cy);
 
 			// normalize the vector
-			VectorSet(n, dcx, dcy, scale);
+			VectorSet(n, dcx, dcy, 1.0); //scale);
 			if(!VectorNormalize(n))
 				VectorSet(n, 0, 0, 1);
 
@@ -753,7 +770,7 @@ static void R_DisplaceMap(byte * in, byte * in2, int width, int height)
 	int             x, y;
 	vec3_t          n;
 	int             avg;
-	float           inv127 = 1.0f / 127.0f;
+	float           inv255 = 1.0f / 255.0f;
 	byte           *out;
 
 	out = in;
@@ -762,9 +779,9 @@ static void R_DisplaceMap(byte * in, byte * in2, int width, int height)
 	{
 		for(x = 0; x < width; x++)
 		{
-			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
-			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
-			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
+			n[0] = (in[4 * (y * width + x) + 0] * inv255 - 0.5) * 2.0;
+			n[1] = (in[4 * (y * width + x) + 1] * inv255 - 0.5) * 2.0;
+			n[2] = (in[4 * (y * width + x) + 2] * inv255 - 0.5) * 2.0;
 
 			avg = 0;
 			avg += in2[4 * (y * width + x) + 0];
@@ -787,7 +804,7 @@ static void R_AddNormals(byte * in, byte * in2, int width, int height)
 	byte            a;
 	vec3_t          n2;
 	byte            a2;
-	float           inv127 = 1.0f / 127.0f;
+	float           inv255 = 1.0f / 255.0f;
 	byte           *out;
 
 	out = in;
@@ -796,14 +813,14 @@ static void R_AddNormals(byte * in, byte * in2, int width, int height)
 	{
 		for(x = 0; x < width; x++)
 		{
-			n[0] = (in[4 * (y * width + x) + 0] * inv127 - 1.0);
-			n[1] = (in[4 * (y * width + x) + 1] * inv127 - 1.0);
-			n[2] = (in[4 * (y * width + x) + 2] * inv127 - 1.0);
+			n[0] = (in[4 * (y * width + x) + 0] * inv255 - 0.5) * 2.0;
+			n[1] = (in[4 * (y * width + x) + 1] * inv255 - 0.5) * 2.0;
+			n[2] = (in[4 * (y * width + x) + 2] * inv255 - 0.5) * 2.0;
 			a = in[4 * (y * width + x) + 3];
 
-			n2[0] = (in2[4 * (y * width + x) + 0] * inv127 - 1.0);
-			n2[1] = (in2[4 * (y * width + x) + 1] * inv127 - 1.0);
-			n2[2] = (in2[4 * (y * width + x) + 2] * inv127 - 1.0);
+			n2[0] = (in2[4 * (y * width + x) + 0] * inv255 - 0.5) * 2.0;
+			n2[1] = (in2[4 * (y * width + x) + 1] * inv255 - 0.5) * 2.0;
+			n2[2] = (in2[4 * (y * width + x) + 2] * inv255 - 0.5) * 2.0;
 			a2 = in2[4 * (y * width + x) + 3];
 
 			VectorAdd(n, n2, n);
