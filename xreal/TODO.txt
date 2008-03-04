@@ -1,7 +1,9 @@
 === XreaL 1.0 Features ===
 
 Q3A media replacements that need to be created:
-base/models/*
+base/models/mapobjects/otty/tech_jumppad.ase (similar to Quake4)
+base/models/mapobjects/otty/tech_accelerationpad.ase (similar to Quake4)
+base/models/mapobjects/otty/tech_teleporter.ase (similar to Quake4)
 base/models/flag/flagflap3.md3
 base/models/flag/flagpole.md3
 base/models/gibs/abdomen.md3
