@@ -74,6 +74,209 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 	return vbo;
 }
 
+
+
+/*
+============
+R_CreateStaticVBO2
+============
+*/
+VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * verts, int numTriangles, srfTriangle_t * triangles)
+{
+	VBO_t          *vbo;
+
+	int             i, j, k, l;
+
+	byte           *data;
+	int             dataSize;
+	int             dataOfs;
+
+	byte           *indexes;
+	int             indexesSize;
+	int             indexesOfs;
+
+	vec4_t          tmp;
+	int             index;
+
+	if(!numVertexes || !numTriangles)
+		return NULL;
+
+	if(strlen(name) >= MAX_QPATH)
+	{
+		ri.Error(ERR_DROP, "R_CreateVBO: \"%s\" is too long\n", name);
+	}
+
+	vbo = ri.Hunk_Alloc(sizeof(*vbo), h_low);
+	Com_AddToGrowList(&tr.vbos, vbo);
+
+	Q_strncpyz(vbo->name, name, sizeof(vbo->name));
+
+	vbo->ofsXYZ = 0;
+	vbo->ofsTexCoords = 0;
+	vbo->ofsBinormals = 0;
+	vbo->ofsTangents = 0;
+	vbo->ofsNormals = 0;
+	vbo->ofsColors = 0;
+
+	vbo->ofsIndexes = 0;
+
+	//ri.Printf(PRINT_DEVELOPER, "...calculating world mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
+
+	// create VBOs
+	dataSize = numVertexes * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
+	data = ri.Hunk_AllocateTempMemory(dataSize);
+	dataOfs = 0;
+	//vertexesNum = 0;
+
+	indexesSize = numTriangles * 3 * sizeof(int);
+	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+	indexesOfs = 0;
+	//indexesNum = 0;
+
+	// build triangle indices
+			
+	// set up triangle indices
+	if(numTriangles)
+	{
+		srfTriangle_t  *tri;
+
+		for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+		{
+				for(j = 0; j < 3; j++)
+				{
+					index = /*numVertexesNum +*/ tri->indexes[j];
+
+					memcpy(indexes + indexesOfs, &index, sizeof(int));
+					indexesOfs += sizeof(int);
+				}
+		}
+
+		//indexesNum = srf->numTriangles * 3;
+	}
+
+	if(numVertexes)
+	{
+		// set up xyz array
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = verts[i].xyz[j];
+			}
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+
+		// feed vertex texcoords
+		vbo->ofsTexCoords = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 2; j++)
+			{
+				tmp[j] = verts[i].st[j];
+			}
+			tmp[2] = 0;
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+
+		// feed vertex lightmap texcoords
+		vbo->ofsLightCoords = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 2; j++)
+			{
+				tmp[j] = verts[i].lightmap[j];
+			}
+			tmp[2] = 0;
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// feed vertex tangents
+		vbo->ofsTangents = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = verts[i].tangent[j];
+			}
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// feed vertex binormals
+		vbo->ofsBinormals = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = verts[i].binormal[j];
+			}
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+		
+		// feed vertex normals
+		vbo->ofsNormals = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				tmp[j] = verts[i].normal[j];
+			}
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+
+		// feed vertex colors
+		vbo->ofsColors = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			memcpy(data + dataOfs, verts[i].color, sizeof(color4ub_t));
+			dataOfs += sizeof(color4ub_t);
+		}
+	}
+
+	vbo->vertexesSize = dataSize;
+	vbo->indexesSize = indexesSize;
+
+	qglGenBuffersARB(1, &vbo->vertexesVBO);
+	qglGenBuffersARB(1, &vbo->indexesVBO);
+
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo->indexesVBO);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+	GL_CheckErrors();
+
+	// unbind once created
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+	ri.Hunk_FreeTempMemory(indexes);
+	ri.Hunk_FreeTempMemory(data);
+
+	return vbo;
+}
+
 /*
 ============
 R_BindVBO

@@ -57,7 +57,7 @@ surfaceType_t   entitySurface = SF_ENTITY;
 R_CompareVert
 ================
 */
-qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst)
+qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkST)
 {
 	int             i;
 
@@ -67,7 +67,8 @@ qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkst)
 		{
 			return qfalse;
 		}
-		if(checkst && ((v1->st[0] != v2->st[0]) || (v1->st[1] != v2->st[1])))
+		
+		if(checkST && ((v1->st[0] != v2->st[0]) || (v1->st[1] != v2->st[1])))
 		{
 			return qfalse;
 		}

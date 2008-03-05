@@ -2553,6 +2553,7 @@ VERTEX BUFFER OBJECTS
 ============================================================
 */
 VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize, byte * indexes, int indexesSize);
+VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * vertexes, int numTriangles, srfTriangle_t * triangles);
 
 void            R_BindVBO(VBO_t * vbo);
 void            R_BindNullVBO(void);
