@@ -255,7 +255,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE},
 	{&cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE},
 	{&cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE},
-	{&cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE},
+	{&cg_draw3dIcons, "cg_draw3dIcons", "0", CVAR_ARCHIVE},
 	{&cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE},
 	{&cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE},
 	{&cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE},
@@ -353,7 +353,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	
 	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
-	{&cg_particleCollision, "cg_particleCollision", "1", CVAR_ARCHIVE},
+	{&cg_particleCollision, "cg_particleCollision", "0", CVAR_ARCHIVE},
 
 	// these cvars are shared accross both games
 	{&pm_airControl, "pm_airControl", "0", 0},
