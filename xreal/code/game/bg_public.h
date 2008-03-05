@@ -35,8 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_MODEL			"sarge"
 #define	DEFAULT_HEADMODEL		"sarge"
 #else
-#define	DEFAULT_MODEL			"visor"
-#define	DEFAULT_HEADMODEL		"visor"
+#define	DEFAULT_MODEL			"harley"
+#define	DEFAULT_HEADMODEL		"harley"
 #endif
 
 #define	DEFAULT_GRAVITY				800	// FIXME: should be 313.92 = 9.81 * 32 SI gravity in Quake units
