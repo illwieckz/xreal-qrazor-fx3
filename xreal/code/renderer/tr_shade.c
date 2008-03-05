@@ -3070,7 +3070,7 @@ void Tess_StageIteratorGeneric()
 			{
 				//if(tess.surfaceShader->sort <= SS_OPAQUE)
 				{
-					if(r_precomputedLighting->integer)
+					if(r_precomputedLighting->integer || r_vertexLighting->integer)
 					{
 						if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 						{

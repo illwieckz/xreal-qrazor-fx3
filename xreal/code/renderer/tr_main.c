@@ -1895,7 +1895,7 @@ void R_AddLightInteractions()
 
 		if(light->isStatic)
 		{
-			if(r_noStaticLighting->integer || r_precomputedLighting->integer)
+			if(r_noStaticLighting->integer || r_precomputedLighting->integer || r_vertexLighting->integer)
 			{
 				light->cull = CULL_OUT;
 				continue;
