@@ -3,6 +3,8 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
+"message" "gwdm2 by gw <wrdgrg@yahoo.com>"
+"ambientColor" "0.16 0.15 0.21"
 // brush 0
 {
 patchDef2
