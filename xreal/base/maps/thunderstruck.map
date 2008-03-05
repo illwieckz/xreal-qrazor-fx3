@@ -6634,9 +6634,9 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_52896"
-"origin" "320 -256 -80"
+"origin" "304 -256 -80"
 "model" "REPLACE_models/mapobjects/hell/torches/torso.lwo"
-"rotation" "-1.34359e-007 -1 0 1 -1.34359e-007 0 0 0 1"
+"angle" "-90"
 }
 // entity 22
 {
@@ -7687,9 +7687,9 @@ patchDef2
 {
 "classname" "func_static"
 "name" "func_static_63"
-"origin" "-776 64 168"
+"origin" "-760 64 168"
 "model" "REPLACE_models/mapobjects/hell/skulls/skull3_4gate.lwo"
-"rotation" "4.03077e-007 1 0 -1 4.03077e-007 0 0 0 1"
+"angle" "90"
 }
 // entity 55
 {
@@ -7711,9 +7711,9 @@ patchDef2
 {
 "classname" "func_static"
 "name" "func_static_77"
-"origin" "-1024 -248 168"
+"origin" "-1024 -264 168"
 "model" "REPLACE_models/mapobjects/hell/skulls/skull3_4gate.lwo"
-"rotation" "1 -5.37436e-007 0 5.37436e-007 1 0 0 0 1"
+"angle" "-3.07928e-005"
 }
 // entity 58
 {
