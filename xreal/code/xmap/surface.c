@@ -1012,10 +1012,19 @@ void EmitPlanarSurf(drawSurface_t * ds)
 		outv = &drawVerts[numDrawVerts];
 		numDrawVerts++;
 		memcpy(outv, &ds->verts[j], sizeof(*outv));
-		outv->color[0] = 255;
-		outv->color[1] = 255;
-		outv->color[2] = 255;
-		outv->color[3] = 255;
+
+		if(debugSurfaces)
+		{
+			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->color);
+			outv->color[3] = 255;
+		}
+		else
+		{
+			outv->color[0] = 255;
+			outv->color[1] = 255;
+			outv->color[2] = 255;
+			outv->color[3] = 255;
+		}
 	}
 
 	// create the indexes
@@ -1070,10 +1079,19 @@ void EmitPatchSurf(drawSurface_t * ds)
 		outv = &drawVerts[numDrawVerts];
 		numDrawVerts++;
 		memcpy(outv, &ds->verts[j], sizeof(*outv));
-		outv->color[0] = 255;
-		outv->color[1] = 255;
-		outv->color[2] = 255;
-		outv->color[3] = 255;
+
+		if(debugSurfaces)
+		{
+			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->color);
+			outv->color[3] = 255;
+		}
+		else
+		{
+			outv->color[0] = 255;
+			outv->color[1] = 255;
+			outv->color[2] = 255;
+			outv->color[3] = 255;
+		}
 	}
 
 	for(j = 0; j < ds->numIndexes; j++)
@@ -1161,10 +1179,18 @@ void EmitModelSurf(drawSurface_t * ds)
 		numDrawVerts++;
 		memcpy(outv, &ds->verts[j], sizeof(*outv));
 
-		// Tr3B - don't override colors to allow vertex painting
-		//outv->color[0] = 0;
-		//outv->color[1] = 0;
-		//outv->color[2] = 0;
+		if(debugSurfaces)
+		{
+			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->color);
+			outv->color[3] = 255;
+		}
+		else
+		{
+			// Tr3B - don't override colors to allow vertex painting
+			//outv->color[0] = 0;
+			//outv->color[1] = 0;
+			//outv->color[2] = 0;
+		}
 	}
 
 	for(j = 0; j < ds->numIndexes; j++)

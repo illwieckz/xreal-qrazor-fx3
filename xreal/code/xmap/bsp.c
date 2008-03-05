@@ -44,6 +44,23 @@ qboolean        nosubdivide;
 qboolean        testExpand;
 qboolean        showseams;
 
+qboolean        debugSurfaces;
+const byte		debugColors[12][3] =
+{
+	{ 255, 0, 0 },
+	{ 192, 128, 128 },
+	{ 255, 255, 0 },
+	{ 192, 192, 128 },
+	{ 0, 255, 255 },
+	{ 128, 192, 192 },
+	{ 0, 0, 255 },
+	{ 128, 128, 192 },
+	{ 255, 0, 255 },
+	{ 192, 128, 192 },
+	{ 0, 255, 0 },
+	{ 128, 192, 128 }
+};
+
 char            outbase[32];
 
 
@@ -500,6 +517,11 @@ int BspMain(int argc, char **argv)
 		{
 			Sys_Printf("drawflag = true\n");
 			drawFlag = qtrue;
+		}
+		else if(!strcmp(argv[i], "-debugsurfaces"))
+		{
+			Sys_Printf("emitting debug surfaces\n");
+			debugSurfaces = qtrue;
 		}
 		else if(!strcmp(argv[i], "-nowater"))
 		{

@@ -17,6 +17,9 @@ build commands
 <build name="xmap: (single test) -map2bsp -draw">
 <command>[xmap] -map2bsp -v [connect] -draw "[MapFile]"</command>
 </build>
+<build name="xmap: (single test) -map2bsp -debugsurfaces">
+<command>[xmap] -map2bsp -v [connect] -debugsurfaces "[MapFile]"</command>
+</build>
 <build name="xmap: (single) -vis">
 <command>[xmap] -vis [connect] "[MapFile]"</command>
 </build>

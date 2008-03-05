@@ -1442,7 +1442,7 @@ qboolean ParseMapEntity(void)
 			}
 		}
 
-		if(!strcmp("1", ValueForKey(mapEnt, "noclipmodel")))
+		if(!strcmp("1", ValueForKey(mapEnt, "noclipmodel")) || !strcmp("0", ValueForKey(mapEnt, "solid")))
 		{
 			for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 			{

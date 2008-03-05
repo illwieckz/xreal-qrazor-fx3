@@ -223,7 +223,8 @@ extern qboolean fakemap;
 extern qboolean nofog;
 extern qboolean testExpand;
 extern qboolean showseams;
-
+extern qboolean debugSurfaces;
+const byte		debugColors[12][3];
 extern vec_t    microvolume;
 
 extern char     outbase[32];
