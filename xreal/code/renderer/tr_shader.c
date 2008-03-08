@@ -3377,6 +3377,13 @@ static qboolean ParseShader(char *_text)
 			Com_SkipRestOfLine(text);
 			continue;
 		}
+		// skip Quake4's extra material types
+		else if(!Q_stricmp(token, "materialType"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: materialType keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+			continue;
+		}
 		// sun parms
 		else if(!Q_stricmp(token, "xmap_sun"))
 		{
