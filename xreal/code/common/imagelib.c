@@ -1411,7 +1411,7 @@ PNG LOADING
 
 =========================================================
 */
-/*
+
 static void png_read_data(png_structp png, png_bytep data, png_size_t length)
 {
 	memcpy(data, png->io_ptr, length);
@@ -1448,6 +1448,7 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	png_bytep      *row_pointers;
 	byte           *out;
 	int             size;
+	byte            alphaByte = 255;
 
 	// load png
 //	size = ri.FS_ReadFile(name, (void **)&data);
@@ -1460,7 +1461,7 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 
 	if(!png)
 	{
-		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: png_create_write_struct() failed for (%s)\n", name);
+		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: png_create_write_struct() failed\n");
 		//free(data);
 		return;
 	}
@@ -1469,7 +1470,7 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	info = png_create_info_struct(png);
 	if(!info)
 	{
-		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: png_create_info_struct() failed for (%s)\n", name);
+		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: png_create_info_struct() failed\n");
 		//free(data);
 		png_destroy_read_struct(&png, (png_infopp) NULL, (png_infopp) NULL);
 		return;
@@ -1483,7 +1484,7 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	if(setjmp(png_jmpbuf(png)))
 	{
 		// if we get here, we had a problem reading the file
-		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: first exception handler called for (%s)\n", name);
+		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: first exception handler called\n");
 		//free(data);
 		png_destroy_read_struct(&png, (png_infopp) & info, (png_infopp) NULL);
 		return;
@@ -1535,14 +1536,14 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	// allocate the memory to hold the image
 	*width = w;
 	*height = h;
-	*pic = out = (byte *) ri.Malloc(w * h * 4);
+	*pic = out = (byte *) safe_malloc(w * h * 4);
 
-	row_pointers = (png_bytep *) ri.Hunk_AllocateTempMemory(sizeof(png_bytep) * h);
+	row_pointers = (png_bytep *) safe_malloc(sizeof(png_bytep) * h);
 
 	// set a new exception handler
 	if(setjmp(png_jmpbuf(png)))
 	{
-		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: second exception handler called for (%s)\n", name);
+		Sys_FPrintf(SYS_WRN, "LoadPNGBuffer: second exception handler called\n");
 		free(row_pointers);
 		//free(data);
 		png_destroy_read_struct(&png, (png_infopp) & info, (png_infopp) NULL);
@@ -1566,7 +1567,6 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	free(row_pointers);
 	//free(data);
 }
-*/
 
 /*
 =========================================================

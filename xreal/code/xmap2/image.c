@@ -95,7 +95,7 @@ PNGReadData()
 callback function for libpng to read from a memory buffer
 note: this function is a total hack, as it reads/writes the png struct directly!
 */
-
+#if 0
 typedef struct pngBuffer_s
 {
 	byte           *buffer;
@@ -231,7 +231,7 @@ static void LoadPNGBuffer(byte * buffer, int size, byte ** pixels, int *width, i
 	png_destroy_read_struct(&png, &info, &end);
 
 }
-
+#endif
 
 
 /*
@@ -399,7 +399,7 @@ image_t        *ImageLoad(const char *filename)
 		strcat(name, ".png");
 		size = vfsLoadFile((const char *)name, (void **)&buffer, 0);
 		if(size > 0)
-			LoadPNGBuffer(buffer, size, &image->pixels, &image->width, &image->height);
+			LoadPNGBuffer(buffer, &image->pixels, &image->width, &image->height);
 		else
 		{
 #if 0
