@@ -1326,8 +1326,8 @@ static void RB_RenderInteractionsStencilShadowed()
 					qglStencilFunc(GL_ALWAYS, 128, 255);
 					qglStencilMask(255);
 
-					//qglEnable(GL_POLYGON_OFFSET_FILL);
-					//qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
+					qglEnable(GL_POLYGON_OFFSET_FILL);
+					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 					// enable shadow volume extrusion shader
 					GL_Program(tr.shadowExtrudeShader.program);

@@ -94,10 +94,8 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
-- reduce vertex cache trashing
- - write D3DX style OptimizeFaces
- - write D3DX style OptimizeVertices
- - use those functions to upload optimized VBOs
+- add HDR tonemapping
+- add HDR lightmapping
 - add motion blur post process effect
 - add depth of field post process effect
 - add screen space ambient occlusion post process effect
@@ -107,10 +105,8 @@ code/renderer
 - add fog lights
 - replace alphaGen portal by a cool post process effect
 - ignore shadow pyramids that don't cast into the view
-- improve shadow caster volumes to kill more obselete shadows by melting neighboured surfaces with the same material
 - add stained shadow mapping
 - improve volumetric lighting
-- add HDR tonemapping
 - improve deferred shading
  - fix depth write of skybox
  - fix vertex painting support = depth peeling ?

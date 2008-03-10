@@ -81,7 +81,7 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 R_CreateStaticVBO2
 ============
 */
-VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * verts, int numTriangles, srfTriangle_t * triangles)
+VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * verts, int numTriangles, srfTriangle_t * triangles, unsigned int stateBits)
 {
 	VBO_t          *vbo;
 
@@ -170,83 +170,101 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 		}
 
 		// feed vertex texcoords
-		vbo->ofsTexCoords = dataOfs;
-		for(i = 0; i < numVertexes; i++)
+		if(stateBits & GLCS_TEXCOORD)
 		{
-			for(j = 0; j < 2; j++)
+			vbo->ofsTexCoords = dataOfs;
+			for(i = 0; i < numVertexes; i++)
 			{
-				tmp[j] = verts[i].st[j];
-			}
-			tmp[2] = 0;
-			tmp[3] = 1;
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = verts[i].st[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
 
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
 		}
 
 		// feed vertex lightmap texcoords
-		vbo->ofsLightCoords = dataOfs;
-		for(i = 0; i < numVertexes; i++)
+		if(stateBits & GLCS_LIGHTCOORD)
 		{
-			for(j = 0; j < 2; j++)
+			vbo->ofsLightCoords = dataOfs;
+			for(i = 0; i < numVertexes; i++)
 			{
-				tmp[j] = verts[i].lightmap[j];
-			}
-			tmp[2] = 0;
-			tmp[3] = 1;
+				for(j = 0; j < 2; j++)
+				{
+					tmp[j] = verts[i].lightmap[j];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
 
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
 		}
 		
 		// feed vertex tangents
-		vbo->ofsTangents = dataOfs;
-		for(i = 0; i < numVertexes; i++)
+		if(stateBits & GLCS_TANGENT)
 		{
-			for(j = 0; j < 3; j++)
+			vbo->ofsTangents = dataOfs;
+			for(i = 0; i < numVertexes; i++)
 			{
-				tmp[j] = verts[i].tangent[j];
-			}
-			tmp[3] = 1;
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = verts[i].tangent[j];
+				}
+				tmp[3] = 1;
 
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
 		}
 		
 		// feed vertex binormals
-		vbo->ofsBinormals = dataOfs;
-		for(i = 0; i < numVertexes; i++)
+		if(stateBits & GLCS_BINORMAL)
 		{
-			for(j = 0; j < 3; j++)
+			vbo->ofsBinormals = dataOfs;
+			for(i = 0; i < numVertexes; i++)
 			{
-				tmp[j] = verts[i].binormal[j];
-			}
-			tmp[3] = 1;
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = verts[i].binormal[j];
+				}
+				tmp[3] = 1;
 
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
 		}
 		
 		// feed vertex normals
-		vbo->ofsNormals = dataOfs;
-		for(i = 0; i < numVertexes; i++)
+		if(stateBits & GLCS_NORMAL)
 		{
-			for(j = 0; j < 3; j++)
+			vbo->ofsNormals = dataOfs;
+			for(i = 0; i < numVertexes; i++)
 			{
-				tmp[j] = verts[i].normal[j];
-			}
-			tmp[3] = 1;
+				for(j = 0; j < 3; j++)
+				{
+					tmp[j] = verts[i].normal[j];
+				}
+				tmp[3] = 1;
 
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
 		}
 
 		// feed vertex colors
-		vbo->ofsColors = dataOfs;
-		for(i = 0; i < numVertexes; i++)
+		if(stateBits & GLCS_COLOR)
 		{
-			memcpy(data + dataOfs, verts[i].color, sizeof(color4ub_t));
-			dataOfs += sizeof(color4ub_t);
+			vbo->ofsColors = dataOfs;
+			for(i = 0; i < numVertexes; i++)
+			{
+				memcpy(data + dataOfs, verts[i].color, sizeof(color4ub_t));
+				dataOfs += sizeof(color4ub_t);
+			}
 		}
 	}
 

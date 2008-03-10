@@ -56,6 +56,8 @@ typedef unsigned int glIndex_t;
 
 #define VOLUMETRIC_LIGHTING
 
+#define DEBUG_OPTIMIZEVERTICES 0
+
 // can't be increased without changing bit packing for drawsurfs
 
 typedef enum
@@ -1103,6 +1105,10 @@ typedef struct
 	vec3_t          binormal;
 	vec3_t          normal;
 	byte            color[4];
+
+#if DEBUG_OPTIMIZEVERTICES
+	unsigned int    id;
+#endif
 } srfVert_t;
 
 typedef struct
@@ -2060,6 +2066,7 @@ extern cvar_t  *r_vboShadows;
 extern cvar_t  *r_vboLighting;
 extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboWorld;
+extern cvar_t  *r_vboOptimizeVertices;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
@@ -2237,7 +2244,7 @@ enum
 	GLCS_NORMAL = BIT(5),
 	GLCS_COLOR = BIT(6),
 
-	GLCS_DEFAULT = GLCS_VERTEX
+	GLCS_DEFAULT = GLCS_VERTEX,
 };
 
 
@@ -2553,7 +2560,7 @@ VERTEX BUFFER OBJECTS
 ============================================================
 */
 VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize, byte * indexes, int indexesSize);
-VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * vertexes, int numTriangles, srfTriangle_t * triangles);
+VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * vertexes, int numTriangles, srfTriangle_t * triangles, unsigned int stateBits);
 
 void            R_BindVBO(VBO_t * vbo);
 void            R_BindNullVBO(void);

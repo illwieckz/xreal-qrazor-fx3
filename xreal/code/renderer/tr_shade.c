@@ -3347,8 +3347,11 @@ void Tess_StageIteratorShadowFill()
 	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
-	qglEnable(GL_POLYGON_OFFSET_FILL);
-	qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
+	if(tess.surfaceShader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
 
 	// lock XYZ
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
