@@ -3052,6 +3052,16 @@ static void Com_DetectAltivec(void)
 	}
 }
 
+static void Com_DetectSSE(void)
+{
+#if id386_sse
+	if(!(Sys_GetProcessorFeatures() & CF_SSE))
+	{
+		Com_Error(ERR_FATAL, "Binaries were compiled with SSE optimizations but your CPU doesn't support SSE");
+	}
+#endif
+}
+
 
 /*
 =================
@@ -3221,6 +3231,10 @@ void Com_Init(char *commandLine)
 #if idppc
 	Com_DetectAltivec();
 	Com_Printf("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
+#endif
+
+#if id386
+	Com_DetectSSE();
 #endif
 
 	Com_Printf("--- Common Initialization Complete ---\n");

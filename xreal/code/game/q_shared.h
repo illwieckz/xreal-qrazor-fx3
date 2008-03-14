@@ -159,7 +159,9 @@ typedef int     clipHandle_t;
 
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
-#ifdef __GNUC__
+#if defined(_MSC_VER)
+#define ALIGN(x) __declspec(align(x));
+#elif defined(__GNUC__)
 #define ALIGN(x) __attribute__((aligned(x)))
 #else
 #define ALIGN(x)
@@ -322,11 +324,18 @@ MATHLIB
 
 typedef float   vec_t;
 typedef vec_t   vec2_t[2];
+
+#if defined(SSEVEC3_T)
+typedef vec_t   vec3_t[4];// ALIGN(16);
+typedef vec3_t  vec4_t;
+#else
 typedef vec_t   vec3_t[3];
 typedef vec_t   vec4_t[4];
+#endif
+
 typedef vec_t   vec5_t[5];
 
-typedef vec_t   axis_t[3][3];
+typedef vec3_t  axis_t[3];
 typedef vec_t   matrix3x3_t[9];
 typedef vec_t   matrix_t[16];
 typedef vec_t   quat_t[4];		// | x y z w |
@@ -429,6 +438,7 @@ extern vec3_t   axisDefault[3];
 extern matrix_t matrixIdentity;
 extern quat_t   quatIdentity;
 
+
 #define	nanmask (255<<23)
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
@@ -455,7 +465,7 @@ static ID_INLINE float Q_rsqrt(float number)
 	float           x = 0.5f * number;
 
 #ifdef __GNUC__
-  asm("frsqrte %0,%1": "=f"(y):"f"(number));
+	asm("frsqrte %0, %1": "=f" (y) : "f" (number));
 #else
 	y = __frsqrte(number);
 #endif
@@ -479,14 +489,7 @@ static ID_INLINE float Q_rsqrt(float number)
 	:"a" (&number), "d"(&y):"memory"
 	);
 #elif id386_sse && defined __GNUC__
-	asm volatile
-	(
-	"rsqrtss       (%%eax),          %%xmm0\n"
-	"movss          %%xmm0,         (%%edx)\n"
-	:
-	: "a"(&number), "d"(&y)
-	: "memory"
-	);
+	asm volatile("rsqrtss %0, %1" : "=x" (y) : "x" (number));
 #elif id386_sse && defined _MSC_VER
 	__asm
 	{
@@ -515,7 +518,7 @@ static ID_INLINE float Q_fabs(float x)
 #if idppc && defined __GNUC__
 	float           abs_x;
 
- 	asm("fabs %0,%1": "=f"(abs_x):"f"(x));
+ 	asm("fabs %0, %1" : "=f" (abs_x) : "f" (x));
 	return abs_x;
 #else
 	int             tmp = *(int *)&x;
@@ -553,15 +556,8 @@ signed short    ClampShort(int i);
 int             DirToByte(vec3_t dir);
 void            ByteToDir(int b, vec3_t dir);
 
-#if	1
 
-#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
-#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
-#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
-#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
-#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
-#define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
-#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
+
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z))
 
@@ -574,16 +570,223 @@ void            ByteToDir(int b, vec3_t dir);
 #define VectorClear4(a)			((a)[0]=(a)[1]=(a)[2]=(a)[3]=0)
 #define VectorNegate4(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2],(b)[3]=-(a)[3])
 #define VectorSet4(v,x,y,z,w)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(w))
+
+
+
+#if 1
+#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
 #else
-
-#define DotProduct(x,y)			_DotProduct(x,y)
-#define VectorSubtract(a,b,c)	_VectorSubtract(a,b,c)
-#define VectorAdd(a,b,c)		_VectorAdd(a,b,c)
-#define VectorCopy(a,b)			_VectorCopy(a,b)
-#define	VectorScale(v, s, o)	_VectorScale(v,s,o)
-#define	VectorMA(v, s, b, o)	_VectorMA(v,s,b,o)
-
+static ID_INLINE void VectorClear(vec3_t v)
+{
+#if defined(SSEVEC3_T)
+//#error VectorClear
+	__m128 _tmp = _mm_setzero_ps();
+	_mm_storeu_ps(v, _tmp);
+#else
+	out[0] = 0;
+	out[1] = 0;
+	out[2] = 0;
 #endif
+}
+#endif
+
+
+
+#if 1
+#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
+#else
+static ID_INLINE void VectorCopy(const vec3_t in, vec3_t out)
+{
+#if id386_3dnow && defined __GNUC__ && 0
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// in[0]                                                        | in[1]
+						"movd           8(%%eax),       %%mm1\n"	// in[2]                                                        | -
+						"movq           %%mm0,          (%%edx)\n"
+						"movd           %%mm1,          8(%%edx)\n"::"a" (in), "d"(out):"memory");
+	femms();
+/*
+#elif id386_sse && defined __GNUC__
+//#error _VectorCopysse
+		asm volatile
+		(
+		"movups         (%%eax),        %%xmm0\n"
+		"movups         %%xmm0,         (%%edx)\n"
+	:
+	: "a"( in ), "d"( out )
+	: "memory"
+        );
+*/
+
+#elif defined(SSEVEC3_T)
+//#error VectorCopy
+	__m128 _tmp;
+
+	_tmp = _mm_loadu_ps(in);
+	_mm_storeu_ps(out, _tmp);
+#else
+	out[0] = in[0];
+	out[1] = in[1];
+	out[2] = in[2];
+#endif
+}
+#endif
+
+
+
+#if 0
+#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
+#else
+static ID_INLINE void VectorAdd(const vec3_t a, const vec3_t b, vec3_t out)
+{
+#if id386_3dnow && defined __GNUC__ && 0
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// a[0]                                                         | a[1]
+						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
+						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
+						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
+						"pfadd          %%mm2,          %%mm0\n"	// a[0]+b[0]                                            | a[1]+b[1]
+						"pfadd          %%mm3,          %%mm1\n"	// a[2]+b[2]                                            | -
+						"movq           %%mm0,          (%%ecx)\n"
+						"movd           %%mm1,          8(%%ecx)\n"::"a" (a), "d"(b), "c"(out):"memory");
+	femms();
+#elif defined(SSEVEC3_T)
+//#error VectorAdd
+	__m128 _a, _b, _out;
+
+	_a = _mm_loadu_ps(a);
+	_b = _mm_loadu_ps(b);
+	 
+	_out = _mm_add_ps(_a, _b);
+	 
+	_mm_storeu_ps(out, _out);
+	 
+#else
+	out[0] = a[0] + b[0];
+	out[1] = a[1] + b[1];
+	out[2] = a[2] + b[2];
+#endif
+}
+#endif
+
+
+
+#if 0
+#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
+#else
+static ID_INLINE void VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out)
+{
+#if id386_3dnow && defined __GNUC__ && 0
+	femms();
+	asm volatile    (			// lo                                                           | hi
+						"movq           (%%eax),        %%mm0\n"	// a[0]                                                         | a[1]
+						"movq           (%%edx),        %%mm2\n"	// b[0]                                                         | b[1]
+						"movd           8(%%eax),       %%mm1\n"	// a[2]                                                         | -
+						"movd           8(%%edx),       %%mm3\n"	// b[2]                                                         | -
+						"pfsub          %%mm2,          %%mm0\n"	// a[0]-b[0]                                            | a[1]-b[1]
+						"pfsub          %%mm3,          %%mm1\n"	// a[2]-b[2]                                            | -
+						"movq           %%mm0,          (%%ecx)\n"
+						"movd           %%mm1,          8(%%ecx)\n"::"a" (a), "d"(b), "c"(out):"memory");
+	femms();
+#elif defined(SSEVEC3_T)
+//#error VectorSubtract
+	__m128 _a, _b, _out;
+
+	_a = _mm_loadu_ps(a);
+	_b = _mm_loadu_ps(b);
+	 
+	_out = _mm_sub_ps(_a, _b);
+	 
+	_mm_storeu_ps(out, _out);
+#else
+	out[0] = a[0] - b[0];
+	out[1] = a[1] - b[1];
+	out[2] = a[2] - b[2];
+#endif
+}
+#endif
+
+
+
+#if 0
+#define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
+#else
+static ID_INLINE void VectorMA(const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc)
+{
+#if defined(SSEVEC3_T)
+//#error VectorMA
+	__m128 _a, _b, _s, _c;
+
+	_a = _mm_loadu_ps(veca);
+	_b = _mm_loadu_ps(vecb);
+	_s = _mm_set1_ps(scale);
+	 
+	_c = _mm_mul_ps(_s, _b);
+	_c = _mm_add_ps(_a, _c);
+	 
+	_mm_storeu_ps(vecc, _c);
+#else
+	vecc[0] = veca[0] + scale * vecb[0];
+	vecc[1] = veca[1] + scale * vecb[1];
+	vecc[2] = veca[2] + scale * vecb[2];
+#endif
+}
+#endif
+
+
+
+#if 1
+#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
+#else
+static ID_INLINE void VectorScale(const vec3_t in, vec_t scale, vec3_t out)
+{
+#if id386_3dnow && defined __GNUC__ && 0
+	vec_t           out;
+
+	femms();
+	asm volatile    (			// lo                                                                   | hi
+						"movq           (%%eax),        %%mm0\n"	// in[0]                                                                | in[1]
+						"movd           8(%%eax),       %%mm1\n"	// in[2]                                                                | -
+						"movd           (%%edx),        %%mm2\n"	// scale                                                                | -
+						"punpckhdq      %%mm2,          %%mm2\n"	// scale                                                                | scale
+						"pfmul          %%mm2,          %%mm0\n"	// in[0]*scale                                                  | in[1]*scale
+						"pfmul          %%mm2,          %%mm1\n"	// in[2]*scale                                                  | -
+						"movq           %%mm0,          (%%ecx)\n"
+						"movd           %%mm1,          8(%%ecx)\n"::"a" (in), "d"(&scale), "c"(out):"memory");
+	femms();
+	return out;
+#elif defined(SSEVEC3_T)
+//#error VectorScale
+	__m128 _in, _scale, _out;
+
+	_in = _mm_loadu_ps(in);
+	_scale = _mm_set1_ps(scale);
+	 
+	_out = _mm_mul_ps(_in, _scale);
+	 
+	_mm_storeu_ps(out, _out);
+#else
+	out[0] = in[0] * scale;
+	out[1] = in[1] * scale;
+	out[2] = in[2] * scale;
+#endif
+}
+#endif
+
+
+
+
+#if 1
+#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#else
+static ID_INLINE vec_t DotProduct(const vec3_t a, const vec3_t b)
+{
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+#endif
+
+
 
 static ID_INLINE void SnapVector(vec3_t v)
 {
@@ -620,11 +823,6 @@ void            SnapVectorTowards(vec3_t v, vec3_t to);
 
 // just in case you do't want to use the macros
 vec_t           _DotProduct(const vec3_t a, const vec3_t b);
-void            _VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out);
-void            _VectorAdd(const vec3_t a, const vec3_t b, vec3_t out);
-void            _VectorCopy(const vec3_t in, vec3_t out);
-void            _VectorScale(const vec3_t in, float scale, vec3_t out);
-void            _VectorMA(const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc);
 
 unsigned        ColorBytes3(float r, float g, float b);
 unsigned        ColorBytes4(float r, float g, float b, float a);
@@ -638,6 +836,7 @@ void            AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs);
 qboolean        BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 qboolean        BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius);
 qboolean        BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t origin);
+
 
 static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)
 {
@@ -824,7 +1023,7 @@ void            MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 
 //int   PlaneTypeForNormal (vec3_t normal);
 
-void            AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
+void            AxisMultiply(axis_t in1, axis_t in2, axis_t out);
 void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void            PerpendicularVector(vec3_t dst, const vec3_t src);
 

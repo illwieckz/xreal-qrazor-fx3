@@ -1034,7 +1034,11 @@ void MSG_WriteDeltaEntity(msg_t * msg, struct entityState_s *from, struct entity
 	// the "number" field is not part of the field list
 	// if this assert fails, someone added a field to the entityState_t
 	// struct without updating the message fields
+	
+	// Tr3B: FIXME commented assert for SSEVEC3_T
+#if !defined(SSEVEC3_T)
 	assert(numFields + 1 == sizeof(*from) / 4);
+#endif
 
 	// a NULL to is a delta remove message
 	if(to == NULL)

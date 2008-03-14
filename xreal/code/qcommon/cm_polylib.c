@@ -59,7 +59,7 @@ winding_t      *AllocWinding(int points)
 	if(c_active_windings > c_peak_windings)
 		c_peak_windings = c_active_windings;
 
-	s = sizeof(vec_t) * 3 * points + sizeof(int);
+	s = sizeof(vec3_t) * points + sizeof(int);
 	w = Z_Malloc(s);
 	Com_Memset(w, 0, s);
 	return w;

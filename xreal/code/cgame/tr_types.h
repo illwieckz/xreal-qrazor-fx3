@@ -115,11 +115,11 @@ typedef struct
 
 	vec3_t          axis[3];	// rotation vectors
 	qboolean        nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
-	float           origin[3];	// also used as MODEL_BEAM's "from"
+	vec3_t          origin;		// also used as MODEL_BEAM's "from"
 	int             frame;		// also used as MODEL_BEAM's diameter
 
 	// previous data for frame interpolation
-	float           oldorigin[3];	// also used as MODEL_BEAM's "to"
+	vec3_t          oldorigin;	// also used as MODEL_BEAM's "to"
 	int             oldframe;
 	float           backlerp;	// 0.0 = current, 1.0 = old
 
