@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9.00"
 	Name="mapq3"
 	ProjectGUID="{D6130A5F-12DC-487B-BB9E-4BFDA60FBADF}"
 	RootNamespace="mapq3"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -77,6 +78,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/mapq3.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/mapq3.lib"
 				TargetMachine="1"
 			/>
@@ -97,9 +100,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -168,9 +168,11 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				FixedBaseAddress="0"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/mapq3.lib"
 				TargetMachine="1"
-				FixedBaseAddress="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -189,9 +191,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

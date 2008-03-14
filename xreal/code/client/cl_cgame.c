@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-#include "../game/botlib.h"
-
-extern botlib_export_t *botlib_export;
-
 extern qboolean loadCamera(const char *name);
 extern void     startCamera(int time);
 extern qboolean getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
@@ -705,17 +701,6 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			return FloatAsInt(ceil(VMF(1)));
 		case CG_ACOS:
 			return FloatAsInt(Q_acos(VMF(1)));
-
-		case CG_PC_ADD_GLOBAL_DEFINE:
-			return botlib_export->PC_AddGlobalDefine(VMA(1));
-		case CG_PC_LOAD_SOURCE:
-			return botlib_export->PC_LoadSourceHandle(VMA(1));
-		case CG_PC_FREE_SOURCE:
-			return botlib_export->PC_FreeSourceHandle(args[1]);
-		case CG_PC_READ_TOKEN:
-			return botlib_export->PC_ReadTokenHandle(args[1], VMA(2));
-		case CG_PC_SOURCE_FILE_AND_LINE:
-			return botlib_export->PC_SourceFileAndLine(args[1], VMA(2), VMA(3));
 
 		case CG_S_STOPBACKGROUNDTRACK:
 			S_StopBackgroundTrack();

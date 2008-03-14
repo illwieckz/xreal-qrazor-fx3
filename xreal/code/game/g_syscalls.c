@@ -278,16 +278,6 @@ qboolean trap_GetEntityToken(char *buffer, int bufferSize)
 	return syscall(G_GET_ENTITY_TOKEN, buffer, bufferSize);
 }
 
-int trap_DebugPolygonCreate(int color, int numPoints, vec3_t * points)
-{
-	return syscall(G_DEBUG_POLYGON_CREATE, color, numPoints, points);
-}
-
-void trap_DebugPolygonDelete(int id)
-{
-	syscall(G_DEBUG_POLYGON_DELETE, id);
-}
-
 int trap_RealTime(qtime_t * qtime)
 {
 	return syscall(G_REAL_TIME, qtime);

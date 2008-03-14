@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "entityq3", "plugins\entity\entityq3.vcproj", "{49C5823A-5E50-4029-ACEE-1627EBB79E47}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GtkRadiant", "radiant\GtkRadiant.vcproj", "{8E70385C-223A-4DD1-9B99-28FF2331A2B5}"

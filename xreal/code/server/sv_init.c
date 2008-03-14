@@ -697,8 +697,6 @@ SV_Init
 Only called at main exe startup, not for each game
 ===============
 */
-void            SV_BotInitBotLib(void);
-
 void SV_Init(void)
 {
 	SV_AddOperatorCommands();
@@ -751,12 +749,6 @@ void SV_Init(void)
 	sv_killserver = Cvar_Get("sv_killserver", "0", 0);
 	sv_mapChecksum = Cvar_Get("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
-
-	// initialize bot cvars so they are listed and can be set before loading the botlib
-	SV_BotInitCvars();
-
-	// init the botlib here because we need the pre-compiler in the UI
-	SV_BotInitBotLib();
 }
 
 
