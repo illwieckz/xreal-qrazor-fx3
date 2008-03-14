@@ -60,7 +60,6 @@ unix_src = [
 'code/sys/con_tty.c'
 ]
 
-xreal_server_env.Append(CCFLAGS='-DBOTLIB')
 xreal_server_env.Append(CCFLAGS='-DDEDICATED')
 
 if env['curl'] == 1:

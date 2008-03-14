@@ -195,7 +195,6 @@ win_src = [
 ]
 
 
-xreal_env.Append(CCFLAGS='-DBOTLIB')
 xreal_env.Append(CCFLAGS='-Icode/ogg/include')
 xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 
