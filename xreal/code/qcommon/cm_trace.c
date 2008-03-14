@@ -424,13 +424,8 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 			continue;
 		}
 
-#ifdef BSPC
-		if(1)
-		{
-#else
 		if(!cm_noCurves->integer)
 		{
-#endif
 			if(surface->type == MST_PATCH && surface->sc && CM_PositionTestInSurfaceCollide(tw, surface->sc))
 			{
 				tw->trace.startsolid = tw->trace.allsolid = qtrue;
@@ -440,13 +435,8 @@ void CM_TestInLeaf(traceWork_t * tw, cLeaf_t * leaf)
 			}
 		}
 
-#ifdef BSPC
-		if(1)
-		{
-#else
 		if(cm.perPolyCollision || cm_forceTriangles->integer)
 		{
-#endif
 			if(surface->type == MST_TRIANGLE_SOUP && surface->sc && CM_PositionTestInSurfaceCollide(tw, surface->sc))
 			{
 				tw->trace.startsolid = tw->trace.allsolid = qtrue;
@@ -648,17 +638,12 @@ void CM_TracePointThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_
 	int             i, j, k;
 	float           offset;
 	float           d1, d2;
-
-#ifndef BSPC
 	static cvar_t  *cv;
-#endif							//BSPC
 
-#ifndef BSPC
 	if(!tw->isPoint)
 	{
 		return;
 	}
-#endif
 
 	// determine the trace's relationship to all planes
 	planes = sc->planes;
@@ -726,17 +711,17 @@ void CM_TracePointThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_
 		if(j == facet->numBorders)
 		{
 			// we hit this facet
-#ifndef BSPC
 			if(!cv)
 			{
 				cv = Cvar_Get("r_debugSurfaceUpdate", "1", 0);
 			}
+			
 			if(cv->integer)
 			{
 				debugSurfaceCollide = sc;
 				debugFacet = facet;
 			}
-#endif							//BSPC
+
 			planes = &sc->planes[facet->surfacePlane];
 
 			// calculate intersection with a slight pushoff
@@ -829,14 +814,11 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 	float           plane[4] = {0, 0, 0, 0};
 	float           bestplane[4] = {0, 0, 0, 0};
 	vec3_t          startp, endp;
-
-#ifndef BSPC
 	static cvar_t  *cv;
 
 	// Tr3B: added simple AABB test
 	if(!cm_noExtraAABBs->integer && !CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], sc->bounds[0], sc->bounds[1]))
 		return;
-#endif
 
 	if(tw->isPoint)
 	{
@@ -959,7 +941,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 				{
 					enterFrac = 0;
 				}
-#ifndef BSPC
+
 				if(!cv)
 				{
 					cv = Cvar_Get("r_debugSurfaceUpdate", "1", 0);
@@ -969,7 +951,6 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 					debugSurfaceCollide = sc;
 					debugFacet = facet;
 				}
-#endif							//BSPC
 
 				tw->trace.fraction = enterFrac;
 				VectorCopy(bestplane, tw->trace.plane.normal);
@@ -990,24 +971,14 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 
 	oldFrac = tw->trace.fraction;
 
-#ifdef BSPC
-	if(1)
-	{
-#else
 	if(!cm_noCurves->integer && surface->type == MST_PATCH && surface->sc)
 	{
-#endif
 		CM_TraceThroughSurfaceCollide(tw, surface->sc);
 		c_patch_traces++;
 	}
 
-#ifdef BSPC
-	if(0)
-	{
-#else
 	if((cm.perPolyCollision || cm_forceTriangles->integer) && surface->type == MST_TRIANGLE_SOUP && surface->sc)
 	{
-#endif
 		CM_TraceThroughSurfaceCollide(tw, surface->sc);
 		c_trisoup_traces++;
 	}

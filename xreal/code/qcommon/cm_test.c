@@ -282,11 +282,9 @@ int CM_PointContents(const vec3_t p, clipHandle_t model)
 		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
 		b = &cm.brushes[brushnum];
 
-#ifndef BSPC
 		// Tr3B: added simple AABB test
 		if(!cm_noExtraAABBs->integer && !CM_BoundsIntersectPoint(b->bounds[0], b->bounds[1], p))
 			continue;
-#endif
 
 		// see if the point is in the brush
 		for(i = 0; i < b->numsides; i++)
@@ -470,12 +468,10 @@ CM_AreasConnected
 */
 qboolean CM_AreasConnected(int area1, int area2)
 {
-#ifndef BSPC
 	if(cm_noAreas->integer)
 	{
 		return qtrue;
 	}
-#endif
 
 	if(area1 < 0 || area2 < 0)
 	{
@@ -517,12 +513,9 @@ int CM_WriteAreaBits(byte * buffer, int area)
 
 	bytes = (cm.numAreas + 7) >> 3;
 
-#ifndef BSPC
 	if(cm_noAreas->integer || area == -1)
-#else
-	if(area == -1)
-#endif
-	{							// for debugging, send everything
+	{
+		// for debugging, send everything
 		Com_Memset(buffer, 255, bytes);
 	}
 	else

@@ -1015,14 +1015,11 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 	}
 	FreeWinding(w);
 
-#ifndef BSPC
 	//add opposite plane
 	facet->borderPlanes[facet->numBorders] = facet->surfacePlane;
 	facet->borderNoAdjust[facet->numBorders] = 0;
 	facet->borderInward[facet->numBorders] = qtrue;
 	facet->numBorders++;
-#endif							//BSPC
-
 }
 
 typedef enum
