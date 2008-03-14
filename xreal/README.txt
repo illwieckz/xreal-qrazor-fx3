@@ -44,9 +44,9 @@ COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
 4. Download libcURL from http://curl.hoxt.com/download/libcurl-7.15.5-win32-msvc.zip
 	and extract it to C:\libcURL
 5. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
-6. Download http://xreal.varcache.org/STLport-5.0.2.7z and extract it to XreaL/code/.
+6. Download http://xreal.varcache.org/STLport-5.1.5.7z and extract it to XreaL/code/.
 	
-7. Add necessary include Directories in VS 2008 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+7. Add necessary include Directories in VC9 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\libSDL-1.2.13\include
 	C:\Program Files\OpenAL 1.1 SDK\include
@@ -63,7 +63,7 @@ COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
 	C:\GTK\include\gtkglext-1.0
 	C:\GTK\lib\gtkglext-1.0\include
 
-8. Add necessary lib Directories in VS 2008 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+8. Add necessary lib Directories in VC9 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\Program Files\Microsoft Platform SDK\lib
 	C:\libSDL-1.2.13\lib
@@ -71,7 +71,7 @@ COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
 	C:\libcURL
 	C:\GTK\lib
 
-9 Use the VC8 / Visual C++ 2008 solutions to compile what you need:
+9. Use the VC9 / Visual C++ 2008 solutions to compile what you need:
 	XreaL/code/xreal.sln
 	XreaL/code/gtkradiant/GtkRadiant.sln
 	XreaL/code/xmap/xmap.sln
@@ -101,16 +101,27 @@ NOTE: OUTDATED
 COMPILING ON GNU/LINUX
 ======================
 
-Make sure you have OpenAL headers and libraries and the SDL libraries and headers.
+You need the following dependencies in order to compile XreaL with all features:
+
+ * SDL >= 1.2
+ * OpenAL >= 0.0.8 (if compiled with scons openal=1)
+ * libcURL >= 7.15.5 (if compiled with scons curl=1)
+ * GTK+ >= 2.4.0 (if compiled with scons mapping=1, requires glib, atk, pango, iconv, etc)
+ * gtkglext >= 1.0.0 (if compiled with scons mapping=1)
+ * libxml2 >= 2.0.0 (if compiled with scons mapping=1)
+ * zlib >= 1.2.0 (if compiled with scons mapping=1)
 
 Compile XreaL for x86 processers:
 	>scons arch=linux-i386
 Compile XreaL for x86_64 processers:
 	>scons arch=linux-x86_64
 
+Type scons -h for more compile options.
+
+
 
 COMPILING ON MAC OS X
-================
+=====================
 
 Make sure you have libcURL and the SDL framework installed.
 
