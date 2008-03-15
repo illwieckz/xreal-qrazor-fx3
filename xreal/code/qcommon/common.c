@@ -2657,7 +2657,12 @@ A way to force a bus error for development reasons
 */
 static void Com_Crash_f(void)
 {
-	*(int *)0 = 0x12345678;
+	int time;
+	sysEvent_t      *ev = NULL;
+
+	time = ev->evTime;
+
+	//*(int *)0 = 0x12345678;
 }
 
 static void Com_PrintMatrix(const matrix_t m)
@@ -2935,10 +2940,6 @@ static void Com_GenerateCorePK3_f(void)
 	char            mediaName[MAX_TOKEN_CHARS];
 	char            propertyName[MAX_TOKEN_CHARS];
 	char            propertyValue[MAX_TOKEN_CHARS];
-	char            copyright[MAX_TOKEN_CHARS];
-	char            license[MAX_TOKEN_CHARS];
-	char            source[MAX_TOKEN_CHARS];
-	int             len;
 
 	// FIXME: this assumes fs_game is set to the default: "base"
 	system("svn proplist -R -v base/ > base/PROPERTIES.txt");
@@ -3170,7 +3171,7 @@ void Com_Init(char *commandLine)
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
-	if(com_developer && com_developer->integer)
+	//if(com_developer && com_developer->integer)
 	{
 		Cmd_AddCommand("error", Com_Error_f);
 		Cmd_AddCommand("crash", Com_Crash_f);

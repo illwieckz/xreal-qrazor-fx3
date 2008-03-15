@@ -550,7 +550,7 @@ static void IN_StartupJoystick(void)
 	if(!SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
 		Com_DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
-		if(SDL_Init(SDL_INIT_JOYSTICK) == -1)
+		if(SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) == -1)
 		{
 			Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
 			return;

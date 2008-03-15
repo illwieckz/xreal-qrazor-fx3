@@ -170,7 +170,7 @@ qboolean SNDDMA_Init(void)
 
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
-		if(SDL_Init(SDL_INIT_AUDIO) == -1)
+		if(SDL_Init(SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) == -1)
 		{
 			Com_Printf("FAILED (%s)\n", SDL_GetError());
 			return qfalse;
