@@ -527,7 +527,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			break;
 	}
 	
-	trap_Cvar_SetValue("r_vertexLighting", s_graphicsoptions.lighting.curvalue);
+	trap_Cvar_SetValue("r_precomputedLighting", s_graphicsoptions.lighting.curvalue);
 
 	if(s_graphicsoptions.geometry.curvalue == 2)
 	{
@@ -709,7 +709,7 @@ static void GraphicsOptions_SetMenuItems(void)
 		s_graphicsoptions.tq.curvalue = 3;
 	}
 
-	s_graphicsoptions.lighting.curvalue = trap_Cvar_VariableValue("r_vertexLighting") != 0;
+	s_graphicsoptions.lighting.curvalue = trap_Cvar_VariableValue("r_precomputedLighting") != 0;
 	switch ((int)trap_Cvar_VariableValue("r_texturebits"))
 	{
 		default:
@@ -832,9 +832,8 @@ void GraphicsOptions_MenuInit(void)
 
 	static const char *lighting_names[] =
 	{
-	   //"Lightmap",
-		"Real-Time",
-		"Vertex",
+	   	"Real-Time",
+		"Deluxe Light Mapping",
 		0
 	};
 
