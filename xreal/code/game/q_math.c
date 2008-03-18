@@ -926,14 +926,14 @@ int BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane)
 ==================
 */
 
-#if !(defined(_MSC_VER) && id386)
+#if !(defined(_MSC_VER) && id386) || defined(SSEVEC3_T)
 
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
 	float           dist1, dist2;
 	int             sides;
 
-// fast axial cases
+	// fast axial cases
 	if(p->type < 3)
 	{
 		if(p->dist <= emins[p->type])
@@ -943,7 +943,7 @@ int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 		return 3;
 	}
 
-// general case
+	// general case
 	switch (p->signbits)
 	{
 		case 0:
@@ -1640,6 +1640,14 @@ void MatrixCopy(const matrix_t in, matrix_t out)
 		out[ 2] = in[ 2];       out[ 6] = in[ 6];       out[10] = in[10];       out[14] = in[14];
 		out[ 3] = in[ 3];       out[ 7] = in[ 7];       out[11] = in[11];       out[15] = in[15];
 #endif
+}
+
+qboolean MatrixCompare(const matrix_t a, const matrix_t b)
+{
+	return (a[ 0] == b[ 0] && a[ 4] == b[ 4] && a[ 8] == b[ 8] && a[12] == b[12] &&
+            a[ 1] == b[ 1] && a[ 5] == b[ 5] && a[ 9] == b[ 9] && a[13] == b[13] &&
+		    a[ 2] == b[ 2] && a[ 6] == b[ 6] && a[10] == b[10] && a[14] == b[14] &&
+		    a[ 3] == b[ 3] && a[ 7] == b[ 7] && a[11] == b[11] && a[15] == b[15]);
 }
 
 void MatrixTransposeIntoXMM(const matrix_t m)

@@ -1030,6 +1030,7 @@ void            PerpendicularVector(vec3_t dst, const vec3_t src);
 void            MatrixIdentity(matrix_t m);
 void            MatrixClear(matrix_t m);
 void            MatrixCopy(const matrix_t in, matrix_t out);
+qboolean        MatrixCompare(const matrix_t a, const matrix_t b);
 void            MatrixTransposeIntoXMM(const matrix_t m);
 void            MatrixTranspose(const matrix_t in, matrix_t out);
 
