@@ -88,6 +88,12 @@ build commands
 <build name="xmap2: (single) -light -fast -super 2 -filter">
 <command>[xmap2] -v -light -fast -super 2 -filter "[MapFile]"</command>
 </build>
+<build name="xmap2: (single) -light -fast -super 2 -filter -gamma 1.3">
+<command>[xmap2] -v -light -fast -super 2 -filter -gamma 1.3 "[MapFile]"</command>
+</build>
+<build name="xmap2: (single) -light -fast -super 2 -filter -gamma 1.3 -samples 4">
+<command>[xmap2] -v -light -fast -super 2 -filter -gamma 1.3 -samples 4 "[MapFile]"</command>
+</build>
 <build name="xmap2: (single) -light -fast -super 2 -filter -bounce 8">
 <command>[xmap2] -v -light -fast -super 2 -filter -bounce 8 "[MapFile]"</command>
 </build>
