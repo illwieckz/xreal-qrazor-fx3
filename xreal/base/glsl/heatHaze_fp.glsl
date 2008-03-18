@@ -47,6 +47,11 @@ void	main()
 	st += N.xy * var_Deform;
 	st = clamp(st, 0.0, 1.0);
 	
+#if defined(ATI_flippedImageFix)
+	// BUGFIX: the ATI driver flips the image
+	st.t = 1.0 - st.t;
+#endif
+	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
