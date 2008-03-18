@@ -633,7 +633,52 @@ void PrintEntity(const entity_t * ent)
 
 }
 
+static qboolean HasUniqueEntityName(const entity_t * ent, const char *name)
+{
+	int				i;
+	entity_t       *ent2;
+	const char     *name2;
 
+	for(i = 0; i < numEntities; i++)
+	{
+		ent2 = &entities[i];
+
+		if(ent == ent2)
+			continue;
+
+		name2 = ValueForKey(ent2, "name");
+
+		if(!Q_stricmp(name, name2))
+		{
+			return qfalse;
+		}
+	}
+
+	return qtrue;
+}
+
+/*
+UniqueEntityName
+suggests a unique name for an entity
+*/
+const char     *UniqueEntityName(const entity_t * ent, const char *suggestion)
+{
+	int             i;
+	const char     *classname;
+	const char     *uniquename;
+
+	classname = ValueForKey(ent, "classname");
+
+	for(i = 0; i < 9999; i++)
+	{
+		uniquename = va("%s_%i", classname, i);
+
+		if(HasUniqueEntityName(ent, uniquename))
+			return uniquename;
+	}
+
+	return "";
+}
 
 /*
 SetKeyValue()
@@ -665,6 +710,47 @@ void SetKeyValue(entity_t * ent, const char *key, const char *value)
 }
 
 
+/*
+RemoveKey
+remove an epair from an entity
+*/
+
+void RemoveKey(entity_t * ent, const char *key)
+{
+	epair_t        *ep;
+	epair_t        *ep_prev;
+
+	for(ep_prev = ep = ent->epairs; ep; ep = ep->next)
+	{
+		if(!Q_stricmp(ep->key, key))
+		{
+			free(ep->key);
+			free(ep->value);
+
+			/* link scheme
+			ep->next = ent->epairs;
+			ent->epairs = ep;
+			*/
+
+			// unlink
+			if(ep->next == NULL)
+			{
+				// last element
+				ep_prev->next = NULL;
+			}
+			else
+			{
+				ep_prev->next = ep->next;
+			}
+
+			free(ep);
+			return;
+		}
+
+		ep_prev = ep;
+	}
+}
+
 
 /*
 ValueForKey()
@@ -690,8 +776,6 @@ const char     *ValueForKey(const entity_t * ent, const char *key)
 	/* if no match, return empty string */
 	return "";
 }
-
-
 
 /*
 IntForKey()

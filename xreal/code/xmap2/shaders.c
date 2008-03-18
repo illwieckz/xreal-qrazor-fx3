@@ -1933,10 +1933,14 @@ static void ParseShaderFile(const char *filename)
 		if(!si->hasPasses)
 		{
 			Sys_FPrintf(SYS_VRB, "shader '%s' has no passes\n", si->shader);
-			
+
 			ApplySurfaceParm("nomarks", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
-			ApplySurfaceParm("nodraw", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
 			ApplySurfaceParm("nolightmap", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
+
+			if(!(si->compileFlags & C_COLLISION))
+			{
+				ApplySurfaceParm("nodraw", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
+			}
 			
 			if(!si->forceOpaque)
 			{

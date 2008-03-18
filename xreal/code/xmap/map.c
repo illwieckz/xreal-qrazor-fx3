@@ -1309,12 +1309,10 @@ qboolean ParseMapEntity(void)
 		}
 	} while(1);
 
-	GetVectorForKey(mapEnt, "origin", mapEnt->origin);
-
-
 	classname = ValueForKey(mapEnt, "classname");
 	name = ValueForKey(mapEnt, "name");
 	model = ValueForKey(mapEnt, "model");
+	GetVectorForKey(mapEnt, "origin", mapEnt->origin);
 
 	if(convertType == CONVERT_QUAKE3)
 	{

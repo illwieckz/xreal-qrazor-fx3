@@ -84,7 +84,7 @@ content and surface flags
 #define Q_SURF_NONSOLID				0x4000		/* don't collide against curves with this set */
 #define Q_SURF_LIGHTFILTER			0x8000		/* act as a light filter during xmap -light */
 #define Q_SURF_ALPHASHADOW			0x10000		/* do per-pixel light shadow casting in xmap */
-#define Q_SURF_NODLIGHT				0x20000		/* don't dlight even if solid (solid lava, skies) */
+#define	Q_SURF_COLLISION			0x20000	    /* don't draw but use for per polygon collision detection */
 #define Q_SURF_DUST					0x40000		/* leave a dust trail when walking on this surface */
 
 /* ydnar flags */
@@ -110,7 +110,7 @@ game_t struct
 	qfalse,				/* flares */
 	"flareshader",		/* default flare shader */
 	qfalse,				/* wolf lighting model? */
-	128,				/* lightmap width/height */
+	512,				/* lightmap width/height */
 	1.0f,				/* lightmap gamma */
 	1.0f,				/* lightmap compensate */
 	"IBSP",				/* bsp file prefix */
@@ -177,7 +177,7 @@ game_t struct
 		{ "metalsteps",		0,							0,							Q_SURF_METALSTEPS,			0,							0,							0 },
 		{ "flesh",			0,							0,							Q_SURF_FLESH,				0,							0,							0 },
 		{ "nosteps",		0,							0,							Q_SURF_NOSTEPS,				0,							0,							0 },
-		{ "nodlight",		0,							0,							Q_SURF_NODLIGHT,			0,							0,							0 },
+		{ "collision",		0,							0,							Q_SURF_COLLISION,			0,							C_COLLISION,				0 },
 		{ "dust",			0,							0,							Q_SURF_DUST,				0,							0,							0 },
 		
 		

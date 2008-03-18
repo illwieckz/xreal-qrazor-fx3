@@ -164,6 +164,7 @@ constants
 #define C_ANTIPORTAL			0x00004000	/* like hint, but doesn't generate portals */
 #define C_SKIP					0x00008000	/* like hint, but skips this face (doesn't split bsp) */
 #define C_NOMARKS				0x00010000	/* no decals */
+#define C_COLLISION             0x00020000
 
 #define C_DETAIL				0x08000000	/* THIS MUST BE THE SAME AS IN RADIANT! */
 
@@ -1580,6 +1581,7 @@ picoModel_t    *FindModel(char *name, int frame);
 picoModel_t    *LoadModel(char *name, int frame);
 void            InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, shaderInfo_t * celShader, int eNum,
 							int castShadows, int recvShadows, int spawnFlags, float lightmapScale);
+void            AddTriangleModel(entity_t * e);
 void            AddTriangleModels(entity_t * e);
 
 
@@ -1785,7 +1787,9 @@ epair_t        *ParseEPair(void);
 void            ParseEntities(void);
 void            UnparseEntities(void);
 void            PrintEntity(const entity_t * ent);
+const char     *UniqueEntityName(const entity_t * ent, const char *suggestion);
 void            SetKeyValue(entity_t * ent, const char *key, const char *value);
+void            RemoveKey(entity_t * ent, const char *key);
 const char     *ValueForKey(const entity_t * ent, const char *key);
 int             IntForKey(const entity_t * ent, const char *key);
 vec_t           FloatForKey(const entity_t * ent, const char *key);
@@ -1878,7 +1882,7 @@ Q_EXTERN float				jitters[ MAX_JITTERS ];
 
 /* commandline arguments */
 Q_EXTERN qboolean			verbose;
-Q_EXTERN qboolean			verboseEntities Q_ASSIGN( qfalse );
+Q_EXTERN qboolean			verboseEntities Q_ASSIGN( qtrue );
 Q_EXTERN qboolean			force Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			infoMode Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			useCustomInfoParms Q_ASSIGN( qfalse );
@@ -2065,7 +2069,7 @@ Q_EXTERN qboolean			noSurfaces Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			patchShadows Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			cpmaHack Q_ASSIGN( qfalse );
 
-Q_EXTERN qboolean			deluxemap Q_ASSIGN( qfalse );
+Q_EXTERN qboolean			deluxemap Q_ASSIGN( qtrue );
 Q_EXTERN qboolean			debugDeluxemap Q_ASSIGN( qfalse );
 
 Q_EXTERN qboolean			fast Q_ASSIGN( qfalse );
@@ -2090,7 +2094,7 @@ Q_EXTERN qboolean			sunOnly Q_ASSIGN( qfalse );
 Q_EXTERN int				approximateTolerance Q_ASSIGN( 0 );
 Q_EXTERN qboolean			noCollapse Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			exportLightmaps Q_ASSIGN( qfalse );
-Q_EXTERN qboolean			externalLightmaps Q_ASSIGN( qfalse );
+Q_EXTERN qboolean			externalLightmaps Q_ASSIGN( qtrue );
 Q_EXTERN int				lmCustomSize Q_ASSIGN( LIGHTMAP_WIDTH );
 
 Q_EXTERN qboolean			dirty Q_ASSIGN( qfalse );

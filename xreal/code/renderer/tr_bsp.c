@@ -177,64 +177,161 @@ static void R_NormalizeLightingBytes(byte in[4], byte out[4])
 #endif
 }
 
+static int QDECL LightmapNameCompare(const void *a, const void *b)
+{
+	char           *s1, *s2;
+	int             c1, c2;
+
+	s1 = *(char **)a;
+	s2 = *(char **)b;
+
+	do
+	{
+		c1 = *s1++;
+		c2 = *s2++;
+
+		if(c1 >= 'a' && c1 <= 'z')
+		{
+			c1 -= ('a' - 'A');
+		}
+		if(c2 >= 'a' && c2 <= 'z')
+		{
+			c2 -= ('a' - 'A');
+		}
+
+		if(c1 == '\\' || c1 == ':')
+		{
+			c1 = '/';
+		}
+		if(c2 == '\\' || c2 == ':')
+		{
+			c2 = '/';
+		}
+
+		if(c1 < c2)
+		{
+			// strings not equal
+			return -1;
+		}
+		if(c1 > c2)
+		{
+			return 1;
+		}
+	} while(c1);
+
+	// strings are equal
+	return 0;
+}
+
 /*
 ===============
 R_LoadLightmaps
 ===============
 */
 #define	LIGHTMAP_SIZE	128
-static void R_LoadLightmaps(lump_t * l)
+static void R_LoadLightmaps(lump_t * l, const char *bspName)
 {
 	byte           *buf, *buf_p;
 	int             len;
 	static byte     image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int             i, j;
 
-	//ri.Printf(PRINT_ALL, "...loading lightmaps\n");
-
 	len = l->filelen;
 	if(!len)
 	{
-		// TODO load external lightmaps
+		char            mapName[MAX_QPATH];
+		char          **lightmapFiles;
+		int             numLightmaps;
 
-		/*
-		   char          **lightmapFiles;
-		   int             numLightmaps;
+		Q_strncpyz(mapName, bspName, sizeof(mapName));
+		Com_StripExtension(mapName, mapName, sizeof(mapName));
 
+		lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
 
-		   //lightmapFiles = ri.FS_ListFiles("materials", ".mtr", &numShaders);
+		qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
-		   if(!lightmapFiles || !numLightmaps)
-		   {
-		   ri.Printf(PRINT_WARNING, "WARNING: no shader files found\n");
-		   return;
-		   }
-
-		   if(numLightmaps > MAX_LIGHTMAPS)
-		   {
-		   numLightmaps = MAX_LIGHTMAPS;
-		   }
-		 */
-		return;
-	}
-	buf = fileBase + l->fileofs;
-
-	// we are about to upload textures
-	R_SyncRenderThread();
-
-	// create all the lightmaps
-	tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-
-	ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
-
-	for(i = 0; i < tr.numLightmaps; i++)
-	{
-		// expand the 24 bit on-disk to 32 bit
-		buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
-
-		if(tr.worldDeluxeMapping)
+		if(!lightmapFiles || !numLightmaps)
 		{
-			if(i % 2 == 0)
+			ri.Printf(PRINT_WARNING, "WARNING: no shader files found\n");
+			return;
+		}
+
+		if(numLightmaps > MAX_LIGHTMAPS)
+		{
+			ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+			numLightmaps = MAX_LIGHTMAPS;
+		}
+
+		tr.numLightmaps = numLightmaps;
+		ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
+
+		// we are about to upload textures
+		R_SyncRenderThread();
+
+		for(i = 0; i < numLightmaps; i++)
+		{
+			ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+			if(tr.worldDeluxeMapping)
+			{
+				if(i % 2 == 0)
+				{
+					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+				}
+				else
+				{
+					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+				}
+			}
+			else
+			{
+				tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+			}
+		}
+	}
+	else
+	{
+		buf = fileBase + l->fileofs;
+
+		// we are about to upload textures
+		R_SyncRenderThread();
+
+		// create all the lightmaps
+		tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
+
+		ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
+
+		for(i = 0; i < tr.numLightmaps; i++)
+		{
+			// expand the 24 bit on-disk to 32 bit
+			buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
+
+			if(tr.worldDeluxeMapping)
+			{
+				if(i % 2 == 0)
+				{
+					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+					{
+						R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
+						image[j * 4 + 3] = 255;
+					}
+					tr.lightmaps[i] =
+						R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT,
+									  WT_CLAMP);
+				}
+				else
+				{
+					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
+					{
+						R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
+						image[j * 4 + 3] = 255;
+					}
+					tr.lightmaps[i] =
+						R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT,
+									  WT_CLAMP);
+				}
+			}
+			else
 			{
 				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 				{
@@ -244,26 +341,6 @@ static void R_LoadLightmaps(lump_t * l)
 				tr.lightmaps[i] =
 					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
 			}
-			else
-			{
-				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-				{
-					R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
-					image[j * 4 + 3] = 255;
-				}
-				tr.lightmaps[i] =
-					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
-			}
-		}
-		else
-		{
-			for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
-			{
-				R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-				image[j * 4 + 3] = 255;
-			}
-			tr.lightmaps[i] =
-				R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
 		}
 	}
 
@@ -5039,7 +5116,9 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 	}
 
 	// remove duplicated vertices that don't matter
-	numLightVerts = OptimizeVertices(numLightVerts, lightVerts, numLightTriangles, lightTriangles, optimizedLightVerts, CompareShadowVolumeVert);
+	numLightVerts =
+		OptimizeVertices(numLightVerts, lightVerts, numLightTriangles, lightTriangles, optimizedLightVerts,
+						 CompareShadowVolumeVert);
 	if(c_redundantVertexes)
 	{
 		ri.Printf(PRINT_DEVELOPER, "...removed %i redundant vertices from staticShadowVolume %i ( %i verts %i tris )\n",
@@ -5048,7 +5127,7 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 
 	// use optimized light triangles to create new neighbor information for them
 	R_CalcSurfaceTriangleNeighbors(numLightTriangles, lightTriangles);
-	
+
 
 	// calculate zfail shadow volume using the triangles' neighbor information
 
@@ -5481,7 +5560,7 @@ void RE_LoadWorldMap(const char *name)
 	// load into heap
 	R_LoadEntities(&header->lumps[LUMP_ENTITIES]);
 	R_LoadShaders(&header->lumps[LUMP_SHADERS]);
-	R_LoadLightmaps(&header->lumps[LUMP_LIGHTMAPS]);
+	R_LoadLightmaps(&header->lumps[LUMP_LIGHTMAPS], name);
 	R_LoadPlanes(&header->lumps[LUMP_PLANES]);
 	R_LoadSurfaces(&header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES]);
 	R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);

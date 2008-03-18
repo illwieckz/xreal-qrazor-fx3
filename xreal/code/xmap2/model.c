@@ -526,6 +526,181 @@ void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, sha
 }
 
 
+/*
+AddTriangleModel()
+*/
+
+void AddTriangleModel(entity_t * e)
+{
+	int             num, frame, castShadows, recvShadows, spawnFlags;
+	const char     *targetName;
+	const char     *target, *model, *value;
+	char            shader[MAX_QPATH];
+	shaderInfo_t   *celShader;
+	float           temp, lightmapScale;
+	vec3_t          origin, scale, angles;
+	matrix_t        rotation, transform;
+	epair_t        *ep;
+	remap_t        *remap, *remap2;
+	char           *split;
+
+	/* note it */
+	Sys_FPrintf(SYS_VRB, "--- AddTriangleModel ---\n");
+
+	/* get current brush entity targetname */
+	if(e == entities)
+		targetName = "";
+	else
+	{
+		targetName = ValueForKey(e, "name");
+
+		/* misc_model entities target non-worldspawn brush model entities */
+		if(targetName[0] == '\0')
+			return;
+	}
+
+	/* get model name */
+	model = ValueForKey(e, "model");
+	if(model[0] == '\0')
+	{
+		Sys_Printf("WARNING: misc_model at %i %i %i without a model key\n", (int)origin[0], (int)origin[1], (int)origin[2]);
+		return;
+	}
+
+	/* get model frame */
+	frame = IntForKey(e, "_frame");
+
+	/* worldspawn (and func_groups) default to cast/recv shadows in worldspawn group */
+	if(e == entities)
+	{
+		castShadows = WORLDSPAWN_CAST_SHADOWS;
+		recvShadows = WORLDSPAWN_RECV_SHADOWS;
+	}
+
+	/* other entities don't cast any shadows, but recv worldspawn shadows */
+	else
+	{
+		castShadows = ENTITY_CAST_SHADOWS;
+		recvShadows = ENTITY_RECV_SHADOWS;
+	}
+
+	/* get explicit shadow flags */
+	GetEntityShadowFlags(NULL, e, &castShadows, &recvShadows);
+
+	/* get spawnflags */
+	spawnFlags = IntForKey(e, "spawnflags");
+
+	/* get origin */
+	/*
+	   GetVectorForKey(e2, "origin", origin);
+	   VectorSubtract(origin, e->origin, origin);    // offset by parent
+	 */
+
+	/* get "angle" (yaw) or "angles" (pitch yaw roll) */
+	/*
+	   MatrixIdentity(rotation);
+	   angles[0] = angles[1] = angles[2] = 0.0f;
+
+	   value = ValueForKey(e2, "angle");
+	   if(value[0] != '\0')
+	   {
+	   angles[1] = atof(value);
+	   MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+	   }
+
+	   value = ValueForKey(e2, "angles");
+	   if(value[0] != '\0')
+	   {
+	   sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
+	   MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+	   }
+
+	   value = ValueForKey(e2, "rotation");
+	   if(value[0] != '\0')
+	   {
+	   sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
+	   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
+	   }
+	 */
+
+	/* get scale */
+	scale[0] = scale[1] = scale[2] = 1.0f;
+	temp = FloatForKey(e, "modelscale");
+	if(temp != 0.0f)
+		scale[0] = scale[1] = scale[2] = temp;
+	value = ValueForKey(e, "modelscale_vec");
+	if(value[0] != '\0')
+		sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
+
+	MatrixMultiplyScale(rotation, scale[0], scale[1], scale[2]);
+
+	/* set transform matrix */
+	MatrixIdentity(transform);
+	//MatrixSetupTransformFromRotation(transform, rotation, origin);
+
+	/* get shader remappings */
+	remap = NULL;
+	for(ep = e->epairs; ep != NULL; ep = ep->next)
+	{
+		/* look for keys prefixed with "_remap" */
+		if(ep->key != NULL && ep->value != NULL &&
+		   ep->key[0] != '\0' && ep->value[0] != '\0' && !Q_strncasecmp(ep->key, "_remap", 6))
+		{
+			/* create new remapping */
+			remap2 = remap;
+			remap = safe_malloc(sizeof(*remap));
+			remap->next = remap2;
+			strcpy(remap->from, ep->value);
+
+			/* split the string */
+			split = strchr(remap->from, ';');
+			if(split == NULL)
+			{
+				Sys_Printf("WARNING: Shader _remap key found in misc_model without a ; character\n");
+				free(remap);
+				remap = remap2;
+				continue;
+			}
+
+			/* store the split */
+			*split = '\0';
+			strcpy(remap->to, (split + 1));
+
+			/* note it */
+			//% Sys_FPrintf( SYS_VRB, "Remapping %s to %s\n", remap->from, remap->to );
+		}
+	}
+
+	/* ydnar: cel shader support */
+	value = ValueForKey(e, "_celshader");
+	if(value[0] == '\0')
+		value = ValueForKey(&entities[0], "_celshader");
+	if(value[0] != '\0')
+	{
+		sprintf(shader, "textures/%s", value);
+		celShader = ShaderInfoForShader(shader);
+	}
+	else
+		celShader = NULL;
+
+	/* get lightmap scale */
+	lightmapScale = FloatForKey(e, "_lightmapscale");
+	if(lightmapScale <= 0.0f)
+		lightmapScale = 0.0f;
+
+	/* insert the model */
+	InsertModel((char *)model, frame, transform, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
+				lightmapScale);
+
+	/* free shader remappings */
+	while(remap != NULL)
+	{
+		remap2 = remap->next;
+		free(remap);
+		remap = remap2;
+	}
+}
+
 
 /*
 AddTriangleModels()
@@ -621,7 +796,7 @@ void AddTriangleModels(entity_t * e)
 		/* get "angle" (yaw) or "angles" (pitch yaw roll) */
 		MatrixIdentity(rotation);
 		angles[0] = angles[1] = angles[2] = 0.0f;
-		
+
 		value = ValueForKey(e2, "angle");
 		if(value[0] != '\0')
 		{
@@ -642,7 +817,7 @@ void AddTriangleModels(entity_t * e)
 			sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 				   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
 		}
-		
+
 		/* get scale */
 		scale[0] = scale[1] = scale[2] = 1.0f;
 		temp = FloatForKey(e2, "modelscale");
@@ -651,7 +826,7 @@ void AddTriangleModels(entity_t * e)
 		value = ValueForKey(e, "modelscale_vec");
 		if(value[0] != '\0')
 			sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
-			
+
 		MatrixMultiplyScale(rotation, scale[0], scale[1], scale[2]);
 
 		/* set transform matrix */

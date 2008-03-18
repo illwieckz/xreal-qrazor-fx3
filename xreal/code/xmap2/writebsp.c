@@ -555,21 +555,44 @@ sets up a new brush model
 void BeginModel(void)
 {
 	bspModel_t     *mod;
-	brush_t        *b;
-	entity_t       *e;
-	vec3_t          mins, maxs;
-	vec3_t          lgMins, lgMaxs;	/* ydnar: lightgrid mins/maxs */
-	parseMesh_t    *p;
-	int             i;
-
-
+	
 	/* test limits */
 	if(numBSPModels == MAX_MAP_MODELS)
 		Error("MAX_MAP_MODELS");
 
 	/* get model and entity */
 	mod = &bspModels[numBSPModels];
-	e = &entities[mapEntityNum];
+
+	/* set firsts */
+	mod->firstBSPSurface = numBSPDrawSurfaces;
+	mod->firstBSPBrush = numBSPBrushes;
+}
+
+
+
+
+/*
+EndModel()
+finish a model's processing
+*/
+
+void EndModel(entity_t * e, node_t * headnode)
+{
+	bspModel_t     *mod;
+	bspDrawSurface_t *ds;
+	brush_t        *b;
+	vec3_t          mins, maxs;
+	vec3_t          lgMins, lgMaxs;	/* ydnar: lightgrid mins/maxs */
+	parseMesh_t    *p;
+	const char     *model;
+	int             i, j;
+
+	/* note it */
+	Sys_FPrintf(SYS_VRB, "--- EndModel ---\n");
+
+	/* emit the bsp */
+	mod = &bspModels[numBSPModels];
+	EmitDrawNode_r(headnode);
 
 	/* ydnar: lightgrid mins/maxs */
 	ClearBounds(lgMins, lgMaxs);
@@ -599,6 +622,29 @@ void BeginModel(void)
 			AddPointToBounds(p->mesh.verts[i].xyz, mins, maxs);
 	}
 
+	/* Tr3B: bound triangle surfaces */
+	model = ValueForKey(e, "model");
+	if(!e->brushes && !e->patches && model[0] != '\0')
+	{
+		//Sys_FPrintf(SYS_VRB, "calculating bbox from draw surfaces...\n");
+
+		for(i = e->firstDrawSurf; i < numBSPDrawSurfaces; i++)
+		{
+			ds = &bspDrawSurfaces[i];
+
+			if(!ds->numVerts)
+			{
+				continue;		// leftover from a surface subdivision
+			}
+
+			// HACK: don't loop only through the vertices because they can contain bad data with .lwo models ...
+			for(j = 0; j < ds->numIndexes; j += 3)
+			{
+				AddPointToBounds(bspDrawVerts[ds->firstVert + bspDrawIndexes[j + ds->firstIndex]].xyz, mins, maxs);
+			}
+		}
+	}
+
 	/* ydnar: lightgrid mins/maxs */
 	if(lgMins[0] < 99999)
 	{
@@ -617,31 +663,6 @@ void BeginModel(void)
 	Sys_FPrintf(SYS_VRB, "BSP bounds: { %f %f %f } { %f %f %f }\n", mins[0], mins[1], mins[2], maxs[0], maxs[1], maxs[2]);
 	Sys_FPrintf(SYS_VRB, "Lightgrid bounds: { %f %f %f } { %f %f %f }\n", lgMins[0], lgMins[1], lgMins[2], lgMaxs[0], lgMaxs[1],
 				lgMaxs[2]);
-
-	/* set firsts */
-	mod->firstBSPSurface = numBSPDrawSurfaces;
-	mod->firstBSPBrush = numBSPBrushes;
-}
-
-
-
-
-/*
-EndModel()
-finish a model's processing
-*/
-
-void EndModel(entity_t * e, node_t * headnode)
-{
-	bspModel_t     *mod;
-
-
-	/* note it */
-	Sys_FPrintf(SYS_VRB, "--- EndModel ---\n");
-
-	/* emit the bsp */
-	mod = &bspModels[numBSPModels];
-	EmitDrawNode_r(headnode);
 
 	/* set surfaces and brushes */
 	mod->numBSPSurfaces = numBSPDrawSurfaces - mod->firstBSPSurface;

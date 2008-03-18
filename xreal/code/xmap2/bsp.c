@@ -54,32 +54,43 @@ sets the model numbers for brush entities
 static void SetCloneModelNumbers(void)
 {
 	int             i, j;
+	entity_t       *ent;
 	int             models;
 	char            modelValue[10];
 	const char     *value, *value2, *value3;
+	const char     *classname;
+	const char     *model;
 
 
 	/* start with 1 (worldspawn is model 0) */
 	models = 1;
 	for(i = 1; i < numEntities; i++)
 	{
+		ent = &entities[i];
+
+		classname = ValueForKey(ent, "classname");
+		model = ValueForKey(ent, "model");
+
 		/* only entities with brushes or patches get a model number */
-		if(entities[i].brushes == NULL && entities[i].patches == NULL)
-			continue;
+		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+		{
+			/* is this a clone? */
+			/*
+			value = ValueForKey(&entities[i], "_clone");
+			if(value[0] != '\0')
+				continue;
+			*/
 
-		/* is this a clone? */
-		value = ValueForKey(&entities[i], "_clone");
-		if(value[0] != '\0')
-			continue;
+			/* add the model key */
+			sprintf(modelValue, "*%d", models);
+			SetKeyValue(&entities[i], "model", modelValue);
 
-		/* add the model key */
-		sprintf(modelValue, "*%d", models);
-		SetKeyValue(&entities[i], "model", modelValue);
-
-		/* increment model count */
-		models++;
+			/* increment model count */
+			models++;
+		}
 	}
 
+#if 0
 	/* fix up clones */
 	for(i = 1; i < numEntities; i++)
 	{
@@ -126,6 +137,7 @@ static void SetCloneModelNumbers(void)
 			}
 		}
 	}
+#endif
 }
 
 
@@ -417,7 +429,6 @@ void ProcessSubModel(void)
 	brush_t        *b, *bc;
 	node_t         *node;
 
-
 	/* start a brush model */
 	BeginModel();
 	e = &entities[mapEntityNum];
@@ -438,8 +449,8 @@ void ProcessSubModel(void)
 	/* add the sides to the tree */
 	ClipSidesIntoTree(e, tree);
 
-	/* ydnar: create drawsurfs for triangle models */
-	AddTriangleModels(e);
+	/* Tr3B: create drawsurfs for triangle models in Doom3 style*/
+	AddTriangleModel(e);
 
 	/* create drawsurfs for surface models */
 	AddEntitySurfaceModels(e);
@@ -514,9 +525,6 @@ void ProcessModels(void)
 	{
 		/* get entity */
 		entity = &entities[mapEntityNum];
-		
-		//if(entity->brushes == NULL && entity->patches == NULL)
-		//	continue;
 		
 		classname = ValueForKey(entity, "classname");
 		model = ValueForKey(entity, "model");
@@ -846,11 +854,11 @@ int BSPMain(int argc, char **argv)
 	/* ydnar: decal setup */
 	ProcessDecals();
 
-	/* ydnar: cloned brush model entities */
-	SetCloneModelNumbers();
-
 	/* process world and submodels */
 	ProcessModels();
+
+	/* ydnar: cloned brush model entities */
+	SetCloneModelNumbers();
 
 	/* set light styles from targetted light entities */
 	//% Tr3B: SetLightStyles();
