@@ -1672,7 +1672,8 @@ static qboolean CompareWorldVert(const srfVert_t * v1, const srfVert_t * v2)
 
 	for(i = 0; i < 3; i++)
 	{
-		if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		//if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		if(v1->xyz[i] != v2->xyz[i])
 			return qfalse;
 	}
 
@@ -1682,10 +1683,13 @@ static qboolean CompareWorldVert(const srfVert_t * v1, const srfVert_t * v2)
 			return qfalse;
 	}
 
-	for(i = 0; i < 2; i++)
+	if(r_precomputedLighting->integer)
 	{
-		if(v1->lightmap[i] != v2->lightmap[i])
-			return qfalse;
+		for(i = 0; i < 2; i++)
+		{
+			if(v1->lightmap[i] != v2->lightmap[i])
+				return qfalse;
+		}
 	}
 
 	for(i = 0; i < 4; i++)
@@ -1703,7 +1707,8 @@ static qboolean CompareLightVert(const srfVert_t * v1, const srfVert_t * v2)
 
 	for(i = 0; i < 3; i++)
 	{
-		if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		//if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		if(v1->xyz[i] != v2->xyz[i])
 			return qfalse;
 	}
 
@@ -1728,7 +1733,8 @@ static qboolean CompareShadowVertAlphaTest(const srfVert_t * v1, const srfVert_t
 
 	for(i = 0; i < 3; i++)
 	{
-		if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		//if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		if(v1->xyz[i] != v2->xyz[i])
 			return qfalse;
 	}
 
@@ -1747,7 +1753,8 @@ static qboolean CompareShadowVert(const srfVert_t * v1, const srfVert_t * v2)
 
 	for(i = 0; i < 3; i++)
 	{
-		if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		//if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		if(v1->xyz[i] != v2->xyz[i])
 			return qfalse;
 	}
 
@@ -2180,7 +2187,7 @@ static void R_CreateVBOWorldSurfaces()
 		shader = surface->shader;
 		lightmapNum = surface->lightmapNum;
 
-		if(shader != oldShader || lightmapNum != oldLightmapNum)
+		if(shader != oldShader || (r_precomputedLighting->integer ? lightmapNum != oldLightmapNum : 0))
 		{
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;

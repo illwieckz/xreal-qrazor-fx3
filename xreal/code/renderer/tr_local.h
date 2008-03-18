@@ -1598,6 +1598,8 @@ typedef struct
 {
 	int             currenttextures[32];
 	int             currenttmu;
+	matrix_t        textureMatrix[32];
+
 	qboolean        finishCalled;
 	int             texEnv[2];
 	int             faceCulling;
@@ -1923,6 +1925,7 @@ extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_precomputedLighting;
 extern cvar_t  *r_vertexLighting;
 extern cvar_t  *r_heatHazeFix;
+extern cvar_t  *r_glslAlphaTest;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering
@@ -1972,6 +1975,7 @@ extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
+extern cvar_t  *r_forceSpecular;
 extern cvar_t  *r_specularExponent;
 extern cvar_t  *r_specularScale;
 extern cvar_t  *r_normalScale;
@@ -2077,6 +2081,7 @@ extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
+extern cvar_t  *r_rotoscope;
 
 //====================================================================
 
@@ -2144,6 +2149,7 @@ void            GL_Program(GLhandleARB program);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
+void            GL_LoadTextureMatrix(const matrix_t m);
 
 void            GL_CheckErrors_(const char *filename, int line);
 
@@ -2343,6 +2349,7 @@ typedef float   color4f_t[4];
 typedef struct stageVars
 {
 	color4f_t       color;
+	qboolean		texMatricesChanged[MAX_TEXTURE_BUNDLES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
 

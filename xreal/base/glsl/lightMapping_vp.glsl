@@ -29,7 +29,13 @@ varying vec2		var_TexLight;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
+#if 1
 	gl_Position = ftransform();
+#else
+	gl_Position.xy = attr_TexCoord1 * 2.0 - 1.0;
+	gl_Position.z = 0.0;
+	gl_Position.w = 1.0;
+#endif
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;

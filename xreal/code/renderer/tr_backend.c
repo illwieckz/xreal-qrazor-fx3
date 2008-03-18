@@ -178,6 +178,20 @@ void GL_BindMultitexture(image_t * image0, GLuint env0, image_t * image1, GLuint
 	}
 }
 
+void GL_LoadTextureMatrix(const matrix_t m)
+{
+	if(MatrixCompare(glState.textureMatrix[glState.currenttmu], m))
+	{
+		return;
+	}
+
+	MatrixCopy(m, glState.textureMatrix[glState.currenttmu]);
+
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(glState.textureMatrix[glState.currenttmu]);
+	qglMatrixMode(GL_MODELVIEW);
+}
+
 
 /*
 ** GL_Cull
@@ -759,7 +773,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 			}
 		}
 
-		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum )
+		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum)
 		{
 			// fast path, same as previous sort
 			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
@@ -769,7 +783,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if(shader != oldShader  || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
+		if(shader != oldShader || lightmapNum != oldLightmapNum || (entity != oldEntity && !shader->entityMergable))
 		{
 			if(oldShader != NULL)
 			{
@@ -940,16 +954,12 @@ static void Render_lightVolume(trRefLight_t * light)
 			// bind u_AttenuationMapXY
 			GL_SelectTexture(0);
 			BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-			qglMatrixMode(GL_TEXTURE);
-			qglLoadIdentity();
-			qglMatrixMode(GL_MODELVIEW);
+			GL_LoadTextureMatrix(matrixIdentity);
 
 			// bind u_AttenuationMapZ
 			GL_SelectTexture(1);
 			BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-			qglMatrixMode(GL_TEXTURE);
-			qglLoadIdentity();
-			qglMatrixMode(GL_MODELVIEW);
+			GL_LoadTextureMatrix(matrixIdentity);
 
 			// bind u_ShadowMap
 			if(r_shadows->integer >= 4)
@@ -2642,7 +2652,8 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
+										   backEnd.viewParms.unprojectionMatrix);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -2712,7 +2723,8 @@ void RB_RenderInteractionsDeferred()
 					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 										   light->attenuationMatrix2);
 					qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
+					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
+										   backEnd.viewParms.unprojectionMatrix);
 
 					// bind u_DiffuseMap
 					GL_SelectTexture(0);
@@ -3643,7 +3655,7 @@ void RB_RenderUniformFog(qboolean deferred)
 
 	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 		return;
-		
+
 	if(r_noFog->integer)
 		return;
 
@@ -3872,6 +3884,64 @@ void RB_RenderBloom(void)
 		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglEnd();
 	}
+
+	// go back to 3D
+	qglMatrixMode(GL_PROJECTION);
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+}
+
+void RB_RenderRotoscope(void)
+{
+	GLimp_LogComment("--- RB_RenderRotoscope ---\n");
+
+	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_rotoscope->integer || backEnd.viewParms.isPortal)
+		return;
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+
+	GL_State(GLS_DEPTHTEST_DISABLE);
+	GL_Cull(CT_TWO_SIDED);
+
+	// enable shader, set arrays
+	GL_Program(tr.rotoscopeShader.program);
+	GL_ClientState(tr.rotoscopeShader.attribs);
+	GL_SetVertexAttribs();
+
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+							 tr.currentRenderImage->uploadHeight);
+
+	// draw viewport
+	qglBegin(GL_QUADS);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglEnd();
+
+	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
+
+	// draw viewport
+	qglBegin(GL_QUADS);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglEnd();
 
 	// go back to 3D
 	qglMatrixMode(GL_PROJECTION);
@@ -5360,6 +5430,9 @@ static void RB_RenderView(void)
 
 		// render bloom post process effect
 		RB_RenderBloom();
+
+		// render rotoscope post process effect
+		RB_RenderRotoscope();
 
 #if 0
 		// add the sun flare

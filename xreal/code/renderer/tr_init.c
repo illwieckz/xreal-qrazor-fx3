@@ -77,6 +77,7 @@ cvar_t         *r_noStaticLighting;
 cvar_t         *r_precomputedLighting;
 cvar_t         *r_vertexLighting;
 cvar_t         *r_heatHazeFix;
+cvar_t         *r_glslAlphaTest;
 
 cvar_t         *r_ext_compressed_textures;
 cvar_t         *r_ext_compiled_vertex_array;
@@ -140,6 +141,7 @@ cvar_t         *r_swapInterval;
 cvar_t         *r_textureMode;
 cvar_t         *r_offsetFactor;
 cvar_t         *r_offsetUnits;
+cvar_t         *r_forceSpecular;
 cvar_t         *r_specularExponent;
 cvar_t         *r_specularScale;
 cvar_t         *r_normalScale;
@@ -220,6 +222,7 @@ cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
+cvar_t         *r_rotoscope;
 
 // GL_ARB_multitexture
 void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
@@ -1406,6 +1409,7 @@ void R_Register(void)
 	r_precomputedLighting = ri.Cvar_Get("r_precomputedLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_glslAlphaTest = ri.Cvar_Get("r_glslAlphaTest", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	AssertCvarRange(r_forceFog, 0.0f, 1.0f, qfalse);
@@ -1465,6 +1469,7 @@ void R_Register(void)
 
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "2", CVAR_ARCHIVE);
+	r_rotoscope = ri.Cvar_Get("r_rotoscope", "0", CVAR_ARCHIVE);
 
 	// temporary variables that can change at any time
 	r_showImages = ri.Cvar_Get("r_showImages", "0", CVAR_TEMP);
@@ -1504,6 +1509,7 @@ void R_Register(void)
 	r_clear = ri.Cvar_Get("r_clear", "1", CVAR_CHEAT);
 	r_offsetFactor = ri.Cvar_Get("r_offsetFactor", "-1", CVAR_CHEAT);
 	r_offsetUnits = ri.Cvar_Get("r_offsetUnits", "-2", CVAR_CHEAT);
+	r_forceSpecular = ri.Cvar_Get("r_forceSpecular", "0", CVAR_CHEAT);
 	r_specularExponent = ri.Cvar_Get("r_specularExponent", "16", CVAR_CHEAT);
 	r_specularScale = ri.Cvar_Get("r_specularScale", "1.4", CVAR_CHEAT | CVAR_LATCH);
 	r_normalScale = ri.Cvar_Get("r_normalScale", "1.1", CVAR_CHEAT | CVAR_LATCH);

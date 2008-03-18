@@ -34,7 +34,8 @@ void	main()
 	st00 *= r_NPOTScale;
 	
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
+	//vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
+	vec2 deform = u_BlurMagnitude * r_FBufScale;
 	
 	// fragment offsets
 	vec2 offset01 = vec2(-0.5, -0.5);
