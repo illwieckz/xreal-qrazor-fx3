@@ -138,6 +138,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		if(glConfig.hardwareType == GLHW_ATI)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI_flippedImageFix\n#define ATI\n#endif\n");
 		}
 
 		if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
