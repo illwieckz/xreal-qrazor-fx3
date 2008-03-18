@@ -32,7 +32,7 @@ void	main()
 	
 #if defined(ATI_flippedImageFix)
 	// BUGFIX: the ATI driver flips the image
-	st.t = 1.0 - st.t;
+	st00.t = 1.0 - st00.t;
 #endif
 	
 	// scale by the screen non-power-of-two-adjust
