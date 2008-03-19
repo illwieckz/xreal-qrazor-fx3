@@ -1925,6 +1925,7 @@ extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_precomputedLighting;
 extern cvar_t  *r_vertexLighting;
 extern cvar_t  *r_heatHazeFix;
+extern cvar_t  *r_atiFlippedImageFix;
 extern cvar_t  *r_glslAlphaTest;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering

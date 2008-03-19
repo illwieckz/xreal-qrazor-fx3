@@ -138,6 +138,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		if(glConfig.hardwareType == GLHW_ATI)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI 1\n#endif\n");
+		}
+
+		if(r_atiFlippedImageFix->integer)
+		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI_flippedImageFix\n#define ATI_flippedImageFix 1\n#endif\n");
 		}
 
