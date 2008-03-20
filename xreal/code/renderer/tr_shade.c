@@ -2116,9 +2116,9 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
 	if(shadowCompare)
 	{
-		qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
 		qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_ShadowTexelSize, shadowTexelSize);
 		qglUniform1fARB(tr.forwardLightingShader_DBS_omni.u_ShadowBlur, r_shadowBlur->value);
 	}
@@ -2223,9 +2223,9 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
 	qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
+	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
 	if(shadowCompare)
 	{
-		qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
 		qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE, light->attenuationMatrix);
 		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowTexelSize, shadowTexelSize);
 		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowBlur, r_shadowBlur->value);
