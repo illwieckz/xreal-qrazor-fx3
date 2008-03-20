@@ -1190,6 +1190,8 @@ static void ParseShaderFile(const char *filename)
 				GetToken(qfalse);
 				strcpy(si->lightImagePath, token);
 				DefaultExtension(si->lightImagePath, ".tga");
+
+				// Sys_FPrintf(SYS_VRB, "xmap_lightImage: %s\n", si->lightImagePath);
 			}
 
 			/* ydnar: skyparms <outer image> <cloud height> <inner image> */
