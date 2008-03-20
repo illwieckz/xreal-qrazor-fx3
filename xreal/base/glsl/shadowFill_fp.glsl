@@ -45,7 +45,7 @@ void	main()
 	
 #if defined(VSM_CLAMP)
 	// convert to [0,1] color space
-	color = vec4(distance, 0.0 , 0.0, distanceSquared) * 2.0 - 1.0;
+	color = vec4(distance, 0.0 , 0.0, distanceSquared) * 0.5 + 0.5;
 #else
 	color = vec4(distance, 0.0, 0.0, distanceSquared);
 #endif

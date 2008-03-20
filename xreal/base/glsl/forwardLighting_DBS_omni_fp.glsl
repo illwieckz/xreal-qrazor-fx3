@@ -120,13 +120,13 @@ void	main()
 		
 		#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
-		shadowMoments = 0.5 * (shadowMoments + 1.0);
+		shadowMoments = 2.0 * (shadowMoments - 0.5);
 		#endif
 	
 		float shadowDistance = shadowMoments.r;
 		float shadowDistanceSquared = shadowMoments.a;
 		
-		const float	SHADOW_BIAS = 0.001;
+		const float	SHADOW_BIAS = 0.01;
 		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
 	
 		// standard shadow map comparison

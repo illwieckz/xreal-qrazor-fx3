@@ -207,6 +207,7 @@ enum
 	IF_DEPTH24 = BIT(11),
 	IF_DEPTH32 = BIT(12),
 	IF_LIGHTMAP = BIT(13),
+	IF_RGBA16 = BIT(14),
 };
 
 typedef enum
@@ -2009,7 +2010,7 @@ extern cvar_t  *r_cullShadowPyramidTriangles;
 extern cvar_t  *r_debugShadowMaps;
 extern cvar_t  *r_noShadowFrustums;
 extern cvar_t  *r_noLightFrustums;
-extern cvar_t  *r_shadowMapLuminaceAlpha;
+extern cvar_t  *r_shadowMapLuminanceAlpha;
 extern cvar_t  *r_shadowMapLinearFilter;
 
 extern cvar_t  *r_intensity;
