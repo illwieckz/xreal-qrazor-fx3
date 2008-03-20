@@ -103,7 +103,7 @@ void	main()
 		
 		#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
-		shadowMoments = 0.5 * (shadowMoments + 1.0);
+		shadowMoments = 2.0 * (shadowMoments - 0.5);
 		#endif
 	
 		float shadowDistance = shadowMoments.r;

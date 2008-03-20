@@ -2012,6 +2012,7 @@ extern cvar_t  *r_noShadowFrustums;
 extern cvar_t  *r_noLightFrustums;
 extern cvar_t  *r_shadowMapLuminanceAlpha;
 extern cvar_t  *r_shadowMapLinearFilter;
+extern cvar_t  *r_lightBleedReduction;
 
 extern cvar_t  *r_intensity;
 

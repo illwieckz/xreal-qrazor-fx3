@@ -169,6 +169,11 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 						 va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
 			}
 
+			if(r_lightBleedReduction->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n", r_lightBleedReduction->value));
+			}
+
 			if(r_softShadows->integer == 1)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_2X2\n#define PCF_2X2 1\n#endif\n");

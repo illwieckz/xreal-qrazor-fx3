@@ -128,6 +128,7 @@ cvar_t         *r_noShadowFrustums;
 cvar_t         *r_noLightFrustums;
 cvar_t         *r_shadowMapLuminanceAlpha;
 cvar_t         *r_shadowMapLinearFilter;
+cvar_t         *r_lightBleedReduction;
 
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
@@ -1434,6 +1435,7 @@ void R_Register(void)
 	r_debugShadowMaps = ri.Cvar_Get("r_debugShadowMaps", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_shadowMapLuminanceAlpha = ri.Cvar_Get("r_shadowMapLuminanceAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_shadowMapLinearFilter = ri.Cvar_Get("r_shadowMapLinearFilter", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_lightBleedReduction = ri.Cvar_Get("r_lightBleedReduction", "0", CVAR_CHEAT | CVAR_LATCH);
 
 	// archived variables that can change at any time
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
