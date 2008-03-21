@@ -70,6 +70,15 @@ build commands
 <build name="xmap2: (single) BSP -meta">
 <command>[xmap2] -v -meta "[MapFile]"</command>
 </build>
+<build name="xmap2: (single) BSP -meta -debugsurfaces">
+<command>[xmap2] -v -meta -debugsurfaces "[MapFile]"</command>
+</build>
+<build name="xmap2: (single) BSP -debugsurfaces">
+<command>[xmap2] -v -debugsurfaces "[MapFile]"</command>
+</build>
+<build name="xmap2: (single) BSP -debugportals">
+<command>[xmap2] -v -debugportals "[MapFile]"</command>
+</build>
 <build name="xmap2: (single) -vis">
 <command>[xmap2] -vis "[MapFile]"</command>
 </build>
