@@ -1916,6 +1916,7 @@ Q_EXTERN qboolean			emitFlares Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			debugSurfaces Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			debugInset Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			debugPortals Q_ASSIGN( qfalse );
+Q_EXTERN qboolean			debugAreaPortals Q_ASSIGN( qfalse );
 
 Q_EXTERN double				normalEpsilon Q_ASSIGN( 0.00001 );
 Q_EXTERN double				distanceEpsilon Q_ASSIGN( 0.01 );

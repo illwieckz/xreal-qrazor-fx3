@@ -79,6 +79,9 @@ build commands
 <build name="xmap2: (single) BSP -debugportals">
 <command>[xmap2] -v -debugportals "[MapFile]"</command>
 </build>
+<build name="xmap2: (single) BSP -debugareaportals">
+<command>[xmap2] -v -debugareaportals "[MapFile]"</command>
+</build>
 <build name="xmap2: (single) -vis">
 <command>[xmap2] -vis "[MapFile]"</command>
 </build>

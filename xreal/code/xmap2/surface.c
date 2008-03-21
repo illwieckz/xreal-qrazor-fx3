@@ -2810,7 +2810,6 @@ static void MakeDebugPortalSurfs_r(node_t * node, shaderInfo_t * si)
 	mapDrawSurface_t *ds;
 	bspDrawVert_t  *dv;
 
-
 	/* recurse if decision node */
 	if(node->planenum != PLANENUM_LEAF)
 	{
@@ -2835,6 +2834,10 @@ static void MakeDebugPortalSurfs_r(node_t * node, shaderInfo_t * si)
 		{
 			/* is this portal passable? */
 			if(PortalPassable(p) == qfalse)
+				continue;
+
+			/* Tr3B: filter area portals */
+			if(debugAreaPortals && !(p->compileFlags & C_AREAPORTAL))
 				continue;
 
 			/* check max points */
@@ -2884,7 +2887,6 @@ generates drawsurfaces for passable portals in the bsp
 void MakeDebugPortalSurfs(tree_t * tree)
 {
 	shaderInfo_t   *si;
-
 
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "--- MakeDebugPortalSurfs ---\n");

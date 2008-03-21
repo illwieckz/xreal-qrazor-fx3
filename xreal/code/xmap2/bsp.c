@@ -344,7 +344,7 @@ void ProcessWorldModel(void)
 	MergeMetaTriangles();
 
 	/* ydnar: debug portals */
-	if(debugPortals)
+	if(debugPortals || debugAreaPortals)
 		MakeDebugPortalSurfs(tree);
 
 	/* ydnar: fog hull */
@@ -799,6 +799,11 @@ int BSPMain(int argc, char **argv)
 		{
 			Sys_Printf("Debug portal surfaces enabled\n");
 			debugPortals = qtrue;
+		}
+		else if(!strcmp(argv[i], "-debugareaportals"))
+		{
+			Sys_Printf("Debug area portal surfaces enabled\n");
+			debugAreaPortals = qtrue;
 		}
 		else if(!strcmp(argv[i], "-bsp"))
 			Sys_Printf("-bsp argument unnecessary\n");

@@ -333,8 +333,13 @@ void SetBrushContents(brush_t * b)
 		s = &b->sides[i];
 		if(s->shaderInfo == NULL)
 			continue;
+		
 		if(s->contentFlags != contentFlags || s->compileFlags != compileFlags)
 			mixed = qtrue;
+
+		/* Tr3B: Doom 3 visportals don't need to be on the first brush side */
+		contentFlags |= s->contentFlags;
+		compileFlags |= s->compileFlags;
 	}
 
 	/* ydnar: getting rid of this stupid warning */
