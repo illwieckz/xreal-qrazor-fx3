@@ -373,6 +373,8 @@ void R_InitFBOs(void)
 
 	tr.numFBOs = 0;
 
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
 
 	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)

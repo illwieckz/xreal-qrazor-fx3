@@ -50,22 +50,85 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "../sys/sys_local.h"
 #include "sdl_icon.h"
+#include "SDL_syswm.h"
 
 /* Just hack it for now. */
 #ifdef MACOS_X
 #include <OpenGL/OpenGL.h>
 typedef CGLContextObj QGLContext;
 
-#define GLimp_GetCurrentContext() CGLGetCurrentContext()
-#define GLimp_SetCurrentContext(ctx) CGLSetCurrentContext(ctx)
+static QGLContext opengl_context;
+
+static QGLContext GLimp_GetCurrentContext()
+{
+	return CGLGetCurrentContext();
+}
+
+static void GLimp_SetCurrentContext(qboolean enable)
+{
+	if(enable)
+	{
+		CGLSetCurrentContext(opengl_context);
+	}
+	else
+	{
+		CGLSetCurrentContext(NULL);
+	}
+}
+
+#elif WIN32
+
+typedef struct
+{
+	HDC     hDC;			// handle to device context
+	HGLRC   hGLRC;			// handle to GL rendering context
+} QGLContext_t;
+typedef QGLContext_t *QGLContext;
+
+static QGLContext opengl_context;
+
+static QGLContext GLimp_GetCurrentContext()
+{
+	static QGLContext_t ctx;
+
+	SDL_SysWMinfo info;
+	
+	SDL_VERSION(&info.version);
+	if(!SDL_GetWMInfo(&info))
+	{
+	  ri.Printf(PRINT_WARNING, "Failed to obtain HWND from SDL (InputRegistry)");
+	  return NULL;
+	}
+
+	ctx.hDC = GetDC(info.window);
+	ctx.hGLRC = info.hglrc;
+
+	return &ctx;
+}
+
+static void GLimp_SetCurrentContext(qboolean enable)
+{
+	if(enable)
+	{
+		if(!wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
+		{
+			//wglErrors++;
+		}
+	}
+	else
+	{
+		if(!wglMakeCurrent(opengl_context->hDC, NULL))
+		{
+			//wglErrors++;
+		}
+	}
+}
 #else
 typedef void   *QGLContext;
 
 #define GLimp_GetCurrentContext() (NULL)
 #define GLimp_SetCurrentContext(ctx)
 #endif
-
-static QGLContext opengl_context;
 
 typedef enum
 {
@@ -1191,7 +1254,7 @@ static int GLimp_RenderThreadWrapper(void *arg)
 
 	glimpRenderThread();
 
-	GLimp_SetCurrentContext(NULL);
+	GLimp_SetCurrentContext(qfalse);
 
 	Com_Printf("Render thread terminating\n");
 
@@ -1213,7 +1276,7 @@ qboolean GLimp_SpawnRenderThread(void (*function) (void))
 		warned = qtrue;
 	}
 
-#ifndef MACOS_X
+#if !defined(MACOS_X) && !defined(WIN32)
 	return qfalse;				/* better safe than sorry for now. */
 #endif
 
@@ -1283,7 +1346,7 @@ void           *GLimp_RendererSleep(void)
 {
 	void           *data = NULL;
 
-	GLimp_SetCurrentContext(NULL);
+	GLimp_SetCurrentContext(qfalse);
 
 	SDL_LockMutex(smpMutex);
 	{
@@ -1300,7 +1363,7 @@ void           *GLimp_RendererSleep(void)
 	}
 	SDL_UnlockMutex(smpMutex);
 
-	GLimp_SetCurrentContext(opengl_context);
+	GLimp_SetCurrentContext(qtrue);
 
 	return data;
 }
@@ -1319,7 +1382,7 @@ void GLimp_FrontEndSleep(void)
 	}
 	SDL_UnlockMutex(smpMutex);
 
-	GLimp_SetCurrentContext(opengl_context);
+	GLimp_SetCurrentContext(qtrue);
 }
 
 /*
@@ -1329,7 +1392,7 @@ GLimp_WakeRenderer
 */
 void GLimp_WakeRenderer(void *data)
 {
-	GLimp_SetCurrentContext(NULL);
+	GLimp_SetCurrentContext(qfalse);
 
 	SDL_LockMutex(smpMutex);
 	{

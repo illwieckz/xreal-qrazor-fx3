@@ -36,6 +36,9 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 		ri.Error(ERR_DROP, "R_CreateVBO: \"%s\" is too long\n", name);
 	}
 
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
+
 	vbo = ri.Hunk_Alloc(sizeof(*vbo), h_low);
 	Com_AddToGrowList(&tr.vbos, vbo);
 
@@ -105,6 +108,9 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 	{
 		ri.Error(ERR_DROP, "R_CreateVBO: \"%s\" is too long\n", name);
 	}
+
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
 
 	vbo = ri.Hunk_Alloc(sizeof(*vbo), h_low);
 	Com_AddToGrowList(&tr.vbos, vbo);
