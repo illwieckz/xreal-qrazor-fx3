@@ -126,6 +126,8 @@ static void GLimp_SetCurrentContext(qboolean enable)
 #else
 typedef void   *QGLContext;
 
+static QGLContext opengl_context;
+
 #define GLimp_GetCurrentContext() (NULL)
 #define GLimp_SetCurrentContext(ctx)
 #endif
