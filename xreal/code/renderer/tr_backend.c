@@ -5159,6 +5159,37 @@ static void RB_RenderDebugUtils()
 		qglPopMatrix();
 	}
 
+	if(r_showAreaPortals->integer)
+	{
+		int             i, j;
+		bspAreaPortal_t *ap;
+		
+		GL_Program(0);
+		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+
+		for(i = 0, ap = tr.world->areaPortals; i < tr.world->numAreaPortals; i++, ap++)
+		{
+			//if(ia->noDepthBoundsTest)
+			{
+				qglColor4fv(colorBlue);
+			}
+			//else
+			//{
+			//	qglColor4fv(colorGreen);
+			//}
+
+			qglBegin(GL_LINES);
+			for(j = 0; j < 4; j++)
+			{
+				qglVertex3fv(ap->points[j]);
+				qglVertex3fv(ap->points[(j + 1) % 4]);
+			}
+			qglEnd();
+		}
+	}
+
 	GL_CheckErrors();
 }
 

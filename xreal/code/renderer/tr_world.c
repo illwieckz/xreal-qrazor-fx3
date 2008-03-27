@@ -533,8 +533,8 @@ static void R_RecursiveWorldNode(bspNode_t * node, int planeBits)
 
 
 		// add the individual surfaces
-		mark = node->firstmarksurface;
-		c = node->nummarksurfaces;
+		mark = node->markSurfaces;
+		c = node->numMarkSurfaces;
 		while(c--)
 		{
 			// the surface may have already been added if it
@@ -602,8 +602,8 @@ static void R_RecursiveInteractionNode(bspNode_t * node, trRefLight_t * light, i
 		bspSurface_t   *surf, **mark;
 
 		// add the individual surfaces
-		mark = node->firstmarksurface;
-		c = node->nummarksurfaces;
+		mark = node->markSurfaces;
+		c = node->numMarkSurfaces;
 		while(c--)
 		{
 			// the surface may have already been added if it
@@ -900,16 +900,24 @@ void R_AddWorldSurfaces(void)
 	if(glConfig.vertexBufferObjectAvailable && r_vboWorld->integer)
 	{
 		// new brute force method: just render everthing with static VBOs
-		int             i;
+		int             i, j;
+		bspArea_t      *area;
 		srfVBOMesh_t   *srf;
 		shader_t       *shader;
 
-		for(i = 0; i < tr.world->numVBOSurfaces; i++)
+		for(i = 0, area = tr.world->areas; i < tr.world->numAreas; i++, area++)
 		{
-			srf = tr.world->vboSurfaces[i];
-			shader = srf->shader;
+			// check for door connection
+			if((tr.refdef.areamask[i >> 3] & (1 << (i & 7))))
+				continue;			// not visible
 
-			R_AddDrawSurf((void *)srf, shader, srf->lightmapNum);
+			for(j = 0; j < area->numVBOSurfaces; j++)
+			{
+				srf = area->vboSurfaces[j];
+				shader = srf->shader;
+
+				R_AddDrawSurf((void *)srf, shader, srf->lightmapNum);
+			}
 		}
 
 		// update visbounds and add surfaces that weren't cached with VBOs

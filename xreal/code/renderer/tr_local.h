@@ -1249,16 +1249,39 @@ typedef struct bspNode_s
 	int             cluster;
 	int             area;
 
-	bspSurface_t  **firstmarksurface;
-	int             nummarksurfaces;
+	int             numMarkSurfaces;
+	bspSurface_t  **markSurfaces;
 } bspNode_t;
 
 typedef struct
 {
+//	int             numNodes;
+//	bspNode_t     **nodes;
+
+	int             numMarkSurfaces;
+	bspSurface_t  **markSurfaces;
+
+	int             numVBOSurfaces;
+	srfVBOMesh_t  **vboSurfaces;
+} bspArea_t;
+
+typedef struct
+{
+	int             areas[2];
+
+	vec3_t          points[4];
+} bspAreaPortal_t;
+
+typedef struct
+{
 	vec3_t          bounds[2];	// for culling
+
 	bspSurface_t   *firstSurface;
-//  srfVBOMesh_t   *firstVBOSurface;    TODO
 	int             numSurfaces;
+
+	// TODO
+	//int             numVBOSurfaces;
+	//srfVBOMesh_t  **vboSurfaces;
 } bspModel_t;
 
 typedef struct
@@ -1280,13 +1303,19 @@ typedef struct
 	int             numDecisionNodes;
 	bspNode_t      *nodes;
 
+	int             numAreas;
+	bspArea_t      *areas;
+
+	int             numAreaPortals;
+	bspAreaPortal_t *areaPortals;
+
 	int             numWorldSurfaces;
 
-	int             numsurfaces;
+	int             numSurfaces;
 	bspSurface_t   *surfaces;
 
-	int             nummarksurfaces;
-	bspSurface_t  **marksurfaces;
+	int             numMarkSurfaces;
+	bspSurface_t  **markSurfaces;
 
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
@@ -1299,9 +1328,6 @@ typedef struct
 
 	int             numInteractions;
 	interactionCache_t **interactions;
-
-	int             numVBOSurfaces;
-	srfVBOMesh_t  **vboSurfaces;
 
 	int             numClusters;
 	int             clusterBytes;
@@ -2059,6 +2085,7 @@ extern cvar_t  *r_showOcclusionQueries;
 extern cvar_t  *r_showBatches;
 extern cvar_t  *r_showLightMaps;	// render lightmaps only
 extern cvar_t  *r_showDeluxeMaps;
+extern cvar_t  *r_showAreaPortals;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;

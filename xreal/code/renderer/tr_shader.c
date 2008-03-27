@@ -1471,7 +1471,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 {
 	char           *token;
 	int             colorMaskBits = 0;
-	int             depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
+	int             depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0, polyModeBits = 0;
 	qboolean        depthMaskExplicit = qfalse;
 	int             imageBits = 0;
 	filterType_t    filterType;
@@ -2308,6 +2308,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			depthMaskBits &= ~GLS_DEPTHMASK_TRUE;
 			depthMaskExplicit = qfalse;
 		}
+		// wireFrame
+		else if(!Q_stricmp(token, "wireFrame"))
+		{
+			polyModeBits |= GLS_POLYMODE_LINE;
+		}
 		// refractionIndex <arithmetic expression>
 		else if(!Q_stricmp(token, "refractionIndex"))
 		{
@@ -2423,7 +2428,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 	}
 
 	// compute state bits
-	stage->stateBits = colorMaskBits | depthMaskBits | blendSrcBits | blendDstBits | atestBits | depthFuncBits;
+	stage->stateBits = colorMaskBits | depthMaskBits | blendSrcBits | blendDstBits | atestBits | depthFuncBits | polyModeBits;
 
 	return qtrue;
 }

@@ -142,7 +142,6 @@ static void R_ChopPolyBehindPlane(int numInPoints, vec3_t inPoints[MAX_VERTS_ON_
 /*
 =================
 R_BoxSurfaces_r
-
 =================
 */
 void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t ** list, int listsize, int *listlength, vec3_t dir)
@@ -171,8 +170,8 @@ void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t *
 	}
 
 	// add the individual surfaces
-	mark = node->firstmarksurface;
-	c = node->nummarksurfaces;
+	mark = node->markSurfaces;
+	c = node->numMarkSurfaces;
 	while(c--)
 	{
 		//

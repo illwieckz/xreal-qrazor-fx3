@@ -88,7 +88,7 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 {
 	VBO_t          *vbo;
 
-	int             i, j, k, l;
+	int             i, j;
 
 	byte           *data;
 	int             dataSize;
