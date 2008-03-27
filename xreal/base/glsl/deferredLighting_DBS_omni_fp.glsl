@@ -73,6 +73,7 @@ void	main()
 	{
 		// position is outside of light volume
 		discard;
+		return;
 	}
 #endif
 
