@@ -686,3 +686,42 @@ textures/editor/aasobstacle
 	noshadows
 	aasobstacle
 }
+
+//==============================================================================
+// XMap2 debug materials
+//==============================================================================
+
+debugSurfaces
+{
+	{
+		stage diffuseMap
+		map _white
+		vertexColor
+	}
+}
+
+debugPortals
+{
+	twoSided
+	
+	{
+		stage colorMap
+		map _white
+		vertexColor
+		blend blend
+	}
+}
+
+debugAreaPortals
+{
+	twoSided
+	
+	{
+		stage colorMap
+		map _white
+		vertexColor
+		blend blend
+		//wireFrame
+		maskDepth
+	}
+}
