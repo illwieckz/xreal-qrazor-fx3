@@ -93,27 +93,89 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 	// Tr3B: logic based on BG_CanItemBeGrabbed
 
 	gitem_t        *item = itemEnt->item;
+#ifdef MISSIONPACK
+	int             upperBound;
+#endif
 
+	// raynorpat: improved the item weights a tad bit
 	switch (item->giType)
 	{
 		case IT_WEAPON:
 		{
-			// weapons are always picked up
-			return 0.9; // was 0.7
+			if(item->giTag == WP_MACHINEGUN)
+			{
+				return 7.0f;
+			}
+			else if(item->giTag == WP_SHOTGUN)
+			{
+				return 5.0f;
+			}
+			else if(item->giTag == WP_GRENADE_LAUNCHER)
+			{
+				return 4.0f;
+			}
+			else if(item->giTag == WP_ROCKET_LAUNCHER)
+			{
+				return 12.0f;
+			}
+			else if(item->giTag == WP_RAILGUN)
+			{
+				return 8.5f;
+			}
+			else if(item->giTag == WP_BFG)
+			{
+				return 3.0f;
+			}
+			else if(item->giTag == WP_LIGHTNING)
+			{
+				return 5.0f;
+			}
+			else if(item->giTag == WP_PLASMAGUN)
+			{
+				return 5.0f;
+			}
+			return 0.0f;
 		}
 
 		case IT_AMMO:
 		{
 			if(self->client->ps.ammo[item->giTag] >= 200)
 			{
-				return 0.0;		// can't hold any more
+				return 0.0f; // can't hold any more
+			}
+			else if(item->giTag == WP_MACHINEGUN)
+			{
+				return 5.0f;
+			}
+			else if(item->giTag == WP_SHOTGUN)
+			{
+				return 3.5f;
+			}
+			else if(item->giTag == WP_GRENADE_LAUNCHER)
+			{
+				return 3.0f;
 			}
 			else if(item->giTag == WP_ROCKET_LAUNCHER)
 			{
-				return 1.5;		
+				return 9.0f;		
 			}
-
-			return 0.3;
+			else if(item->giTag == WP_RAILGUN)
+			{
+				return 2.5f;
+			}
+			else if(item->giTag == WP_BFG)
+			{
+				return 4.5f;
+			}
+			else if(item->giTag == WP_LIGHTNING)
+			{
+				return 4.0f;
+			}
+			else if(item->giTag == WP_PLASMAGUN)
+			{
+				return 4.0f;
+			}
+			return 0.0f;
 		}
 
 		case IT_ARMOR:
@@ -121,7 +183,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 #ifdef MISSIONPACK
 			if(bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
 			{
-				return 0.0;
+				return 0.0f;
 			}
 
 			// we also clamp armor to the maxhealth for handicapping
@@ -136,15 +198,15 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 
 			if(ps->stats[STAT_ARMOR] >= upperBound)
 			{
-				return 0.0;
+				return 0.0f;
 			}
 #else
 			if(self->client->ps.stats[STAT_ARMOR] >= self->client->ps.stats[STAT_MAX_HEALTH] * 2)
 			{
-				return 0.0;
+				return 0.0f;
 			}
 #endif
-			return 0.6;
+			return 10.0f;
 		}
 
 		case IT_HEALTH:
@@ -158,33 +220,64 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			}
 			else
 #endif
-
 			if(item->quantity == 5 || item->quantity == 100)
 			{
 				if(self->client->ps.stats[STAT_HEALTH] >= self->client->ps.stats[STAT_MAX_HEALTH] * 2)
 				{
-					return 0.0;
+					return 0.0f;
 				}
 
-				return 1.0 - (float)self->health / (self->client->ps.stats[STAT_MAX_HEALTH] * 2);	// worse off, higher priority;
+				return 1.0f - (float)self->health / (self->client->ps.stats[STAT_MAX_HEALTH] * 2);	// worse off, higher priority;
 			}
 
 			if(self->client->ps.stats[STAT_HEALTH] >= self->client->ps.stats[STAT_MAX_HEALTH])
 			{
-				return 0.0;
+				return 0.0f;
 			}
 
-			return 1.0 - (float)self->health / 100.0f;	// worse off, higher priority
+			return 1.0f - (float)self->health / 100.0f;	// worse off, higher priority
 		}
 
 		case IT_POWERUP:
 		{
 			if(item->giTag == PW_QUAD)
 			{
-				return 1.3;
+				return 5.5f;
 			}
+			else if(item->giTag == PW_BATTLESUIT)
+			{
+				return 4.5f;
+			}
+			else if(item->giTag == PW_HASTE)
+			{
+				return 4.0f;
+			}
+			else if(item->giTag == PW_INVIS)
+			{
+				return 4.0f;
+			}
+			else if(item->giTag == PW_REGEN)
+			{
+				return 4.0f;
+			}
+			else if(item->giTag == PW_FLIGHT)
+			{
+				return 4.0f;
+			}
+			return 0.0f;
+		}
 
-			return 0.8;
+		case IT_HOLDABLE:
+		{
+			if(item->giTag == HI_TELEPORTER)
+			{
+				return 4.0f;
+			}
+			else if(item->giTag == HI_MEDKIT)
+			{
+				return 4.0f;
+			}
+			return 0.0f;
 		}
 
 		case IT_TEAM:
@@ -224,29 +317,27 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 					if(item->giTag == PW_BLUEFLAG ||
 					   (item->giTag == PW_REDFLAG && itemEnt->s.modelindex2) ||
 					   (item->giTag == PW_REDFLAG && self->client->ps.powerups[PW_BLUEFLAG]))
-						return 10.0;
+						return 40.0f;
 				}
 				else if(self->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 				{
 					if(item->giTag == PW_REDFLAG ||
 					   (item->giTag == PW_BLUEFLAG && itemEnt->s.modelindex2) ||
 					   (item->giTag == PW_BLUEFLAG && self->client->ps.powerups[PW_REDFLAG]))
-						return 10.0;
+						return 40.0f;
 				}
 			}
-
 #ifdef MISSIONPACK
 			if(g_gametype.integer == GT_HARVESTER)
 			{
 				return qtrue;
 			}
 #endif
-			return 0.0;
+			return 0.0f;
 		}
 
-
 		default:
-			return 0.0;
+			return 0.0f;
 	}
 }
 
