@@ -2099,7 +2099,7 @@ static void Tess_SurfaceVBOMesh(srfVBOMesh_t * srf, int numLightIndexes, int *li
 {
 	GLimp_LogComment("--- Tess_SurfaceVBOMesh ---\n");
 
-	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo)
+	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo || !srf->ibo)
 	{
 		return;
 	}
@@ -2107,6 +2107,7 @@ static void Tess_SurfaceVBOMesh(srfVBOMesh_t * srf, int numLightIndexes, int *li
 	Tess_EndBegin();
 
 	R_BindVBO(srf->vbo);
+	R_BindIBO(srf->ibo);
 
 	tess.numIndexes += srf->numIndexes;
 	tess.numVertexes += srf->numVerts;
@@ -2124,7 +2125,7 @@ static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * srf, int numLight
 {
 	GLimp_LogComment("--- Tess_SurfaceVBOShadowVolume ---\n");
 
-	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo)
+	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo || !srf->ibo)
 	{
 		return;
 	}
@@ -2132,6 +2133,7 @@ static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * srf, int numLight
 	Tess_EndBegin();
 
 	R_BindVBO(srf->vbo);
+	R_BindIBO(srf->ibo);
 
 	tess.numIndexes += srf->numIndexes;
 	tess.numVertexes += srf->numVerts;

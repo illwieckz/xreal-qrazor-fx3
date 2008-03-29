@@ -825,8 +825,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 					dataOfs += sizeof(color4ub_t);
 				}
 
-				vboSurf->vbo =
-					R_CreateStaticVBO(va("staticMD3Mesh %i", vboSurfaces.currentElements), data, dataSize, indexes, indexesSize);
+				vboSurf->vbo = R_CreateStaticVBO(va("staticMD3Mesh_vertices %i", vboSurfaces.currentElements), data, dataSize);
 				vboSurf->vbo->ofsXYZ = 0;
 				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 				vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -834,6 +833,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vboSurf->vbo->ofsBinormals = ofsBinormals;
 				vboSurf->vbo->ofsNormals = ofsNormals;
 				vboSurf->vbo->ofsColors = ofsColors;
+
+				vboSurf->ibo = R_CreateStaticVBO(va("staticMD3Mesh_indices %i", vboSurfaces.currentElements), indexes, indexesSize);
 
 				ri.Hunk_FreeTempMemory(indexes);
 				ri.Hunk_FreeTempMemory(data);

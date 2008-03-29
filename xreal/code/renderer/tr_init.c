@@ -1226,6 +1226,7 @@ void GL_SetDefaultState(void)
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		glState.currentVBO = NULL;
+		glState.currentIBO = NULL;
 	}
 
 	if(glConfig.framebufferObjectAvailable)

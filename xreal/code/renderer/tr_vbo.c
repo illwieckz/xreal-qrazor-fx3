@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 R_CreateStaticVBO
 ============
 */
-VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize, byte * indexes, int indexesSize)
+VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize)
 {
 	VBO_t          *vbo;
 
@@ -51,40 +51,26 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
 
-	vbo->ofsIndexes = 0;
-
 	vbo->vertexesSize = vertexesSize;
-	vbo->indexesSize = indexesSize;
 
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
-	qglGenBuffersARB(1, &vbo->indexesVBO);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, GL_STATIC_DRAW_ARB);
 
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
-
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
-	// unbind once created
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-
 	return vbo;
 }
-
-
 
 /*
 ============
 R_CreateStaticVBO2
 ============
 */
-VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * verts, int numTriangles, srfTriangle_t * triangles, unsigned int stateBits)
+VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits)
 {
 	VBO_t          *vbo;
 
@@ -94,14 +80,9 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 	int             dataSize;
 	int             dataOfs;
 
-	byte           *indexes;
-	int             indexesSize;
-	int             indexesOfs;
-
 	vec4_t          tmp;
-	int             index;
 
-	if(!numVertexes || !numTriangles)
+	if(!numVertexes)
 		return NULL;
 
 	if(strlen(name) >= MAX_QPATH)
@@ -124,44 +105,16 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
 
-	vbo->ofsIndexes = 0;
-
 	//ri.Printf(PRINT_DEVELOPER, "...calculating world mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
 
-	// create VBOs
+	// create VBO
 	dataSize = numVertexes * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
 	data = ri.Hunk_AllocateTempMemory(dataSize);
 	dataOfs = 0;
-	//vertexesNum = 0;
 
-	indexesSize = numTriangles * 3 * sizeof(int);
-	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
-	indexesOfs = 0;
-	//indexesNum = 0;
+	
 
-	// build triangle indices
-			
-	// set up triangle indices
-	if(numTriangles)
-	{
-		srfTriangle_t  *tri;
-
-		for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
-		{
-				for(j = 0; j < 3; j++)
-				{
-					index = /*numVertexesNum +*/ tri->indexes[j];
-
-					memcpy(indexes + indexesOfs, &index, sizeof(int));
-					indexesOfs += sizeof(int);
-				}
-		}
-
-		//indexesNum = srf->numTriangles * 3;
-	}
-
-	if(numVertexes)
-	{
+	
 		// set up xyz array
 		for(i = 0; i < numVertexes; i++)
 		{
@@ -272,33 +225,122 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 				dataOfs += sizeof(color4ub_t);
 			}
 		}
-	}
 
 	vbo->vertexesSize = dataSize;
-	vbo->indexesSize = indexesSize;
 
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
-	qglGenBuffersARB(1, &vbo->indexesVBO);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
 
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
-
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
-	// unbind once created
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-
-	ri.Hunk_FreeTempMemory(indexes);
 	ri.Hunk_FreeTempMemory(data);
 
 	return vbo;
+}
+
+
+/*
+============
+R_CreateStaticIBO
+============
+*/
+IBO_t          *R_CreateStaticIBO(const char *name, byte * indexes, int indexesSize)
+{
+	IBO_t          *ibo;
+
+	if(strlen(name) >= MAX_QPATH)
+	{
+		ri.Error(ERR_DROP, "R_CreateIBO: \"%s\" is too long\n", name);
+	}
+
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
+
+	ibo = ri.Hunk_Alloc(sizeof(*ibo), h_low);
+	Com_AddToGrowList(&tr.ibos, ibo);
+
+	Q_strncpyz(ibo->name, name, sizeof(ibo->name));
+
+	ibo->indexesSize = indexesSize;
+
+	qglGenBuffersARB(1, &ibo->indexesVBO);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+	GL_CheckErrors();
+
+	return ibo;
+}
+
+/*
+============
+R_CreateStaticIBO2
+============
+*/
+IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriangle_t * triangles)
+{
+	IBO_t          *ibo;
+
+	int             i, j;
+
+	byte           *indexes;
+	int             indexesSize;
+	int             indexesOfs;
+
+	srfTriangle_t  *tri;
+	int             index;
+
+	if(!numTriangles)
+		return NULL;
+
+	if(strlen(name) >= MAX_QPATH)
+	{
+		ri.Error(ERR_DROP, "R_CreateVBO: \"%s\" is too long\n", name);
+	}
+
+	// make sure the render thread is stopped
+	R_SyncRenderThread();
+
+	ibo = ri.Hunk_Alloc(sizeof(*ibo), h_low);
+	Com_AddToGrowList(&tr.ibos, ibo);
+
+	Q_strncpyz(ibo->name, name, sizeof(ibo->name));
+
+	indexesSize = numTriangles * 3 * sizeof(int);
+	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+	indexesOfs = 0;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			index = /*numVertexesNum +*/ tri->indexes[j];
+			memcpy(indexes + indexesOfs, &index, sizeof(int));
+			indexesOfs += sizeof(int);
+		}
+	}
+
+	ibo->indexesSize = indexesSize;
+
+	qglGenBuffersARB(1, &ibo->indexesVBO);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+	GL_CheckErrors();
+
+	ri.Hunk_FreeTempMemory(indexes);
+
+	return ibo;
 }
 
 /*
@@ -323,11 +365,9 @@ void R_BindVBO(VBO_t * vbo)
 	if(glState.currentVBO != vbo)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vbo->indexesVBO);
 
 		glState.currentVBO = vbo;
 
-		backEnd.pc.c_vboIndexBuffers++;
 		backEnd.pc.c_vboVertexBuffers++;
 	}
 }
@@ -339,16 +379,57 @@ R_BindNullVBO
 */
 void R_BindNullVBO(void)
 {
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment("--- R_BindNullVBO ---\n");
-	}
+	GLimp_LogComment("--- R_BindNullVBO ---\n");
 
 	if(glState.currentVBO)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		glState.currentVBO = NULL;
+	}
+}
+
+/*
+============
+R_BindIBO
+============
+*/
+void R_BindIBO(IBO_t * ibo)
+{
+	if(!ibo)
+	{
+		R_BindNullIBO();
+		return;
+	}
+
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get a call to va() every frame!
+		GLimp_LogComment(va("--- R_BindIBO( %s ) ---\n", ibo->name));
+	}
+
+	if(glState.currentIBO != ibo)
+	{
+		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
+
+		glState.currentIBO = ibo;
+
+		backEnd.pc.c_vboIndexBuffers++;
+	}
+}
+
+/*
+============
+R_BindNullIBO
+============
+*/
+void R_BindNullIBO(void)
+{
+	GLimp_LogComment("--- R_BindNullIBO ---\n");
+
+	if(glState.currentIBO)
+	{
+		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glState.currentIBO = NULL;
 	}
 }
 
@@ -363,8 +444,10 @@ void R_InitVBOs(void)
 		return;
 
 	Com_InitGrowList(&tr.vbos, 100);
+	Com_InitGrowList(&tr.ibos, 100);
 
 	R_BindNullVBO();
+	R_BindNullIBO();
 }
 
 /*
@@ -376,11 +459,13 @@ void R_ShutdownVBOs(void)
 {
 	int             i;
 	VBO_t          *vbo;
+	IBO_t          *ibo;
 
 	if(!glConfig.vertexBufferObjectAvailable)
 		return;
 
 	R_BindNullVBO();
+	R_BindNullIBO();
 
 	for(i = 0; i < tr.vbos.currentElements; i++)
 	{
@@ -390,14 +475,20 @@ void R_ShutdownVBOs(void)
 		{
 			qglDeleteBuffersARB(1, &vbo->vertexesVBO);
 		}
+	}
 
-		if(vbo->indexesVBO)
+	for(i = 0; i < tr.ibos.currentElements; i++)
+	{
+		ibo = (IBO_t *) Com_GrowListElement(&tr.ibos, i);
+
+		if(ibo->indexesVBO)
 		{
-			qglDeleteBuffersARB(1, &vbo->indexesVBO);
+			qglDeleteBuffersARB(1, &ibo->indexesVBO);
 		}
 	}
 
 	Com_DestroyGrowList(&tr.vbos);
+	Com_DestroyGrowList(&tr.ibos);
 }
 
 /*
@@ -409,6 +500,7 @@ void R_VBOList_f(void)
 {
 	int             i;
 	VBO_t          *vbo;
+	IBO_t          *ibo;
 	int             vertexesSize = 0;
 	int             indexesSize = 0;
 
@@ -425,17 +517,27 @@ void R_VBOList_f(void)
 	{
 		vbo = (VBO_t *) Com_GrowListElement(&tr.vbos, i);
 
-		ri.Printf(PRINT_ALL, "%d.%02d MB %d.%02d MB %s\n", vbo->vertexesSize / (1024 * 1024),
-				  (vbo->vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vbo->indexesSize / (1024 * 1024),
-				  (vbo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vbo->name);
+		ri.Printf(PRINT_ALL, "%d.%02d MB %s\n", vbo->vertexesSize / (1024 * 1024),
+				  (vbo->vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vbo->name);
 
 		vertexesSize += vbo->vertexesSize;
-		indexesSize += vbo->indexesSize;
+	}
+
+	for(i = 0; i < tr.ibos.currentElements; i++)
+	{
+		ibo = (IBO_t *) Com_GrowListElement(&tr.ibos, i);
+
+		ri.Printf(PRINT_ALL, "%d.%02d MB %s\n", ibo->indexesSize / (1024 * 1024),
+				  (ibo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), ibo->name);
+
+		indexesSize += ibo->indexesSize;
 	}
 
 	ri.Printf(PRINT_ALL, " %i total VBOs\n", tr.vbos.currentElements);
 	ri.Printf(PRINT_ALL, " %d.%02d MB total vertices memory\n", vertexesSize / (1024 * 1024),
 			  (vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+
+	ri.Printf(PRINT_ALL, " %i total IBOs\n", tr.ibos.currentElements);
 	ri.Printf(PRINT_ALL, " %d.%02d MB total triangle indices memory\n", indexesSize / (1024 * 1024),
 			  (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
 }

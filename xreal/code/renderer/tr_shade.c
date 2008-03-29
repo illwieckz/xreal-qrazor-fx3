@@ -1286,27 +1286,29 @@ DrawElements
 static void DrawElements()
 {
 	// move tess data through the GPU, finally
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
+	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO && glState.currentIBO)
 	{
 		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 
-		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(glState.currentVBO->ofsIndexes));
+		//qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(glState.currentIBO->ofsIndexes));
+		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(0));
+
+		// update performance counters
+		backEnd.pc.c_drawElements++;
 		backEnd.pc.c_indexes += tess.numIndexes;
+		backEnd.pc.c_vertexes += tess.numVertexes;
+
+		backEnd.pc.c_vboVertexes += tess.numVertexes;
+		backEnd.pc.c_vboIndexes += tess.numIndexes;
 	}
 	else
 	{
 		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, tess.indexes);
+
+		// update performance counters
+		backEnd.pc.c_drawElements++;
 		backEnd.pc.c_indexes += tess.numIndexes;
-	}
-
-	// update performance counters
-	backEnd.pc.c_drawElements++;
-	backEnd.pc.c_vertexes += tess.numVertexes;
-
-	if(glState.currentVBO)
-	{
-		backEnd.pc.c_vboVertexes += tess.numVertexes;
-		backEnd.pc.c_vboIndexes += tess.numIndexes;
+		backEnd.pc.c_vertexes += tess.numVertexes;
 	}
 }
 
@@ -3963,6 +3965,7 @@ void Tess_End()
 	if(glConfig.vertexBufferObjectAvailable)
 	{
 		R_BindNullVBO();
+		R_BindNullIBO();
 	}
 
 	// clear shader so we can tell we don't have any unclosed surfaces

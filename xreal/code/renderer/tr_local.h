@@ -274,7 +274,7 @@ typedef struct VBO_s
 	char            name[MAX_QPATH];
 
 	GLuint          vertexesVBO;
-	int             vertexesSize;
+	int             vertexesSize; // amount of memory data allocated for all vertices in bytes
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
 	GLuint          ofsLightCoords;
@@ -283,12 +283,17 @@ typedef struct VBO_s
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
 
-	GLuint          indexesVBO;
-	int             indexesSize;	// amount of memory data allocated for all triangles
-	GLuint          ofsIndexes;
-
 	int             attribs;
 } VBO_t;
+
+typedef struct IBO_s
+{
+	char            name[MAX_QPATH];
+
+	GLuint          indexesVBO;
+	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
+//	GLuint          ofsIndexes;
+} IBO_t;
 
 //===============================================================================
 
@@ -1197,6 +1202,7 @@ typedef struct srfVBOMesh_s
 
 	// static render data
 	VBO_t          *vbo;
+	IBO_t          *ibo;
 } srfVBOMesh_t;
 
 typedef struct srfVBOShadowVolume_s
@@ -1209,6 +1215,7 @@ typedef struct srfVBOShadowVolume_s
 
 	// static render data
 	VBO_t          *vbo;
+	IBO_t          *ibo;
 } srfVBOShadowVolume_t;
 
 
@@ -1635,6 +1642,7 @@ typedef struct
 	GLhandleARB     currentProgram;
 	FBO_t          *currentFBO;
 	VBO_t          *currentVBO;
+	IBO_t          *currentIBO;
 } glstate_t;
 
 
@@ -1871,6 +1879,7 @@ typedef struct
 	FBO_t          *fbos[MAX_FBOS];
 
 	growList_t      vbos;
+	growList_t      ibos;
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
@@ -2599,11 +2608,17 @@ VERTEX BUFFER OBJECTS
 
 ============================================================
 */
-VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize, byte * indexes, int indexesSize);
-VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * vertexes, int numTriangles, srfTriangle_t * triangles, unsigned int stateBits);
+VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize);
+VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * vertexes, unsigned int stateBits);
+
+IBO_t          *R_CreateStaticIBO(const char *name, byte * indexes, int indexesSize);
+IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriangle_t * triangles);
 
 void            R_BindVBO(VBO_t * vbo);
 void            R_BindNullVBO(void);
+
+void            R_BindIBO(IBO_t * ibo);
+void            R_BindNullIBO(void);
 
 void            R_InitVBOs(void);
 void            R_ShutdownVBOs(void);
