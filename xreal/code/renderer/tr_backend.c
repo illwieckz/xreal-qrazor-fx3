@@ -2394,8 +2394,14 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
+	int             startTime, endTime;
 
 	GLimp_LogComment("--- RB_RenderDrawSurfacesIntoGeometricBuffer ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		startTime = ri.Milliseconds();
+	}
 
 	// draw everything
 	oldEntity = NULL;
@@ -2503,6 +2509,12 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	R_BindNullFBO();
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_deferredGBufferTime = endTime - startTime;
+	}
 }
 
 void RB_RenderInteractionsDeferred()
@@ -2519,8 +2531,14 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
+	int             startTime, endTime;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		startTime = ri.Milliseconds();
+	}
 
 	R_BindFBO(tr.deferredRenderFBO);
 
@@ -2802,6 +2820,12 @@ void RB_RenderInteractionsDeferred()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_deferredLightingTime = endTime - startTime;
+	}
 }
 
 static void RB_RenderInteractionsDeferredShadowMapped()
@@ -2828,8 +2852,14 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
+	int             startTime, endTime;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		startTime = ri.Milliseconds();
+	}
 
 	oldLight = NULL;
 	oldEntity = NULL;
@@ -3643,6 +3673,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_deferredLightingTime = endTime - startTime;
+	}
 }
 
 void RB_RenderUniformFog(qboolean deferred)
@@ -4242,7 +4278,7 @@ void RB_RenderLightOcclusionQueries()
 			int             limit;
 			int             startTime, endTime;
 
-			if(r_speeds->integer)
+			if(r_speeds->integer == 7)
 			{
 				startTime = ri.Milliseconds();
 			}
@@ -4272,7 +4308,7 @@ void RB_RenderLightOcclusionQueries()
 
 			} while(avCount < limit);
 
-			if(r_speeds->integer)
+			if(r_speeds->integer == 7)
 			{
 				endTime = ri.Milliseconds();
 				backEnd.pc.c_occlusionQueriesResponseTime = endTime - startTime;
