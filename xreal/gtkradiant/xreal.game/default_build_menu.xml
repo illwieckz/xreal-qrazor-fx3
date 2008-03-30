@@ -94,6 +94,12 @@ build commands
 <build name="xmap2: (single test) -vis -fast">
 <command>[xmap2] -vis -fast "[MapFile]"</command>
 </build>
+<build name="xmap2: (single) -vis -merge">
+<command>[xmap2] -vis -merge "[MapFile]"</command>
+</build>
+<build name="xmap2: (single test) -vis -fast -merge">
+<command>[xmap2] -vis -fast -merge "[MapFile]"</command>
+</build>
 <build name="xmap2: (single test) -light -faster">
 <command>[xmap2] -v -light -faster "[MapFile]"</command>
 </build>
