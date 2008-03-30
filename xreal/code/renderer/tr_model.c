@@ -1552,10 +1552,10 @@ void R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs)
 
 	model = R_GetModelByHandle(handle);
 
-	if(model->bmodel)
+	if(model->bsp)
 	{
-		VectorCopy(model->bmodel->bounds[0], mins);
-		VectorCopy(model->bmodel->bounds[1], maxs);
+		VectorCopy(model->bsp->bounds[0], mins);
+		VectorCopy(model->bsp->bounds[1], maxs);
 		return;
 	}
 

@@ -360,6 +360,7 @@ void R_BindVBO(VBO_t * vbo)
 	if(glState.currentVBO != vbo)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vbo->ofsXYZ));
 
 		glState.currentVBO = vbo;
 
@@ -379,6 +380,7 @@ void R_BindNullVBO(void)
 	if(glState.currentVBO)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 		glState.currentVBO = NULL;
 	}
 }

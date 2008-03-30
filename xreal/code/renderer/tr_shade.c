@@ -1429,6 +1429,7 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
 
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -1437,6 +1438,7 @@ static void DrawTris()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{
@@ -2973,6 +2975,7 @@ void Tess_StageIteratorGeneric()
 	}
 
 	// lock XYZ
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -2981,6 +2984,7 @@ void Tess_StageIteratorGeneric()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{
@@ -3153,6 +3157,7 @@ void Tess_StageIteratorGBuffer()
 	}
 
 	// lock XYZ
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -3161,6 +3166,7 @@ void Tess_StageIteratorGBuffer()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{
@@ -3304,6 +3310,7 @@ void Tess_StageIteratorShadowFill()
 	}
 
 	// lock XYZ
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -3312,6 +3319,7 @@ void Tess_StageIteratorShadowFill()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{
@@ -3386,6 +3394,7 @@ void Tess_StageIteratorStencilShadowVolume()
 	GL_CheckErrors();
 
 	// lock XYZ
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -3394,6 +3403,7 @@ void Tess_StageIteratorStencilShadowVolume()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{
@@ -3663,6 +3673,7 @@ void Tess_StageIteratorStencilLighting()
 	}
 
 	// lock XYZ
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -3671,6 +3682,7 @@ void Tess_StageIteratorStencilLighting()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{
@@ -3811,6 +3823,7 @@ void Tess_StageIteratorLighting()
 	}
 
 	// lock XYZ
+	/*
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
@@ -3819,6 +3832,7 @@ void Tess_StageIteratorLighting()
 	{
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 	}
+	*/
 
 	if(qglLockArraysEXT)
 	{

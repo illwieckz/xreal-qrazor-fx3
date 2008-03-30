@@ -393,20 +393,20 @@ R_AddBrushModelSurfaces
 */
 void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 {
-	bspModel_t     *bModel;
+	bspModel_t     *bspModel;
 	model_t        *pModel;
 	int             i;
 	vec3_t          v;
 	vec3_t          transformed;
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
-	bModel = pModel->bmodel;
+	bspModel = pModel->bsp;
 
 	// copy local bounds
 	for(i = 0; i < 3; i++)
 	{
-		ent->localBounds[0][i] = bModel->bounds[0][i];
-		ent->localBounds[1][i] = bModel->bounds[1][i];
+		ent->localBounds[0][i] = bspModel->bounds[0][i];
+		ent->localBounds[1][i] = bspModel->bounds[1][i];
 	}
 
 	// setup world bounds for intersection tests
@@ -424,15 +424,30 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		AddPointToBounds(transformed, ent->worldBounds[0], ent->worldBounds[1]);
 	}
 
-	ent->cull = R_CullLocalBox(bModel->bounds);
+	ent->cull = R_CullLocalBox(bspModel->bounds);
 	if(ent->cull == CULL_OUT)
 	{
 		return;
 	}
 
-	for(i = 0; i < bModel->numSurfaces; i++)
+	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && bspModel->numVBOSurfaces)
 	{
-		R_AddBrushModelSurface(bModel->firstSurface + i);
+		int             i;
+		srfVBOMesh_t   *vboSurface;
+
+		for(i = 0; i < bspModel->numVBOSurfaces; i++)
+		{
+			vboSurface = bspModel->vboSurfaces[i];
+			
+			R_AddDrawSurf((void *)vboSurface, vboSurface->shader, vboSurface->lightmapNum);
+		}
+	}
+	else
+	{
+		for(i = 0; i < bspModel->numSurfaces; i++)
+		{
+			R_AddBrushModelSurface(bspModel->firstSurface + i);
+		}
 	}
 }
 

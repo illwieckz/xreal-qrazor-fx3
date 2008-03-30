@@ -3113,6 +3113,347 @@ static void R_CreateWorldVBO()
 
 /*
 ===============
+R_CreateSubModelVBOs
+===============
+*/
+static void R_CreateSubModelVBOs()
+{
+	int             i, j, k, l, m;
+
+	int             numVerts;
+	srfVert_t      *verts;
+
+	srfVert_t      *optimizedVerts;
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+	shader_t       *shader, *oldShader;
+	int             lightmapNum, oldLightmapNum;
+
+	int             numSurfaces;
+	bspSurface_t   *surface, *surface2;
+	bspSurface_t  **surfacesSorted;
+
+	bspModel_t     *model;
+
+	growList_t      vboSurfaces;
+	srfVBOMesh_t   *vboSurf;
+
+	if(!glConfig.vertexBufferObjectAvailable)
+		return;
+
+	for(m = 1, model = s_worldData.models; m < s_worldData.numModels; m++, model++)
+	{
+		// count number of static area surfaces
+		numSurfaces = 0;
+		for(k = 0; k < model->numSurfaces; k++)
+		{
+			surface = model->firstSurface + k;
+			shader = surface->shader;
+
+			if(shader->isSky)
+				continue;
+
+			if(shader->isPortal || shader->isMirror)
+				continue;
+
+			if(shader->numDeforms)
+				continue;
+
+			numSurfaces++;
+		}
+
+		if(!numSurfaces)
+			continue;
+
+		// build interaction caches list
+		surfacesSorted = ri.Hunk_AllocateTempMemory(numSurfaces * sizeof(surfacesSorted[0]));
+
+		numSurfaces = 0;
+		for(k = 0; k < model->numSurfaces; k++)
+		{
+			surface = model->firstSurface + k;
+			shader = surface->shader;
+
+			if(shader->isSky)
+				continue;
+
+			if(shader->isPortal || shader->isMirror)
+				continue;
+
+			if(shader->numDeforms)
+				continue;
+
+			surfacesSorted[numSurfaces] = surface;
+			numSurfaces++;
+		}
+
+		Com_InitGrowList(&vboSurfaces, 100);
+
+		// sort surfaces by shader
+		qsort(surfacesSorted, numSurfaces, sizeof(surfacesSorted), BSPSurfaceCompare);
+
+		// create a VBO for each shader
+		shader = oldShader = NULL;
+		lightmapNum = oldLightmapNum = -1;
+
+		for(k = 0; k < numSurfaces; k++)
+		{
+			surface = surfacesSorted[k];
+			shader = surface->shader;
+			lightmapNum = surface->lightmapNum;
+
+			if(shader != oldShader || (r_precomputedLighting->integer ? lightmapNum != oldLightmapNum : 0))
+			{
+				oldShader = shader;
+				oldLightmapNum = lightmapNum;
+
+				// count vertices and indices
+				numVerts = 0;
+				numTriangles = 0;
+
+				for(l = k; l < numSurfaces; l++)
+				{
+					surface2 = surfacesSorted[l];
+
+					if(surface2->shader != shader)
+						continue;
+
+					if(*surface2->data == SF_FACE)
+					{
+						srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface2->data;
+
+						if(face->numVerts)
+							numVerts += face->numVerts;
+
+						if(face->numTriangles)
+							numTriangles += face->numTriangles;
+					}
+					else if(*surface2->data == SF_GRID)
+					{
+						srfGridMesh_t  *grid = (srfGridMesh_t *) surface2->data;
+
+						if(grid->numVerts)
+							numVerts += grid->numVerts;
+
+						if(grid->numTriangles)
+							numTriangles += grid->numTriangles;
+					}
+					else if(*surface2->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *tri = (srfTriangles_t *) surface2->data;
+
+						if(tri->numVerts)
+							numVerts += tri->numVerts;
+
+						if(tri->numTriangles)
+							numTriangles += tri->numTriangles;
+					}
+				}
+
+				if(!numVerts || !numTriangles)
+					continue;
+
+				ri.Printf(PRINT_DEVELOPER, "...calculating entity mesh VBOs ( %s, %i verts %i tris )\n", shader->name, numVerts,
+						  numTriangles);
+
+				// create surface
+				vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+				Com_AddToGrowList(&vboSurfaces, vboSurf);
+
+				vboSurf->surfaceType = SF_VBO_MESH;
+				vboSurf->numIndexes = numTriangles * 3;
+				vboSurf->numVerts = numVerts;
+
+				vboSurf->shader = shader;
+				vboSurf->lightmapNum = lightmapNum;
+
+				// create arrays
+				verts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));
+				optimizedVerts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));
+				numVerts = 0;
+
+				triangles = ri.Hunk_AllocateTempMemory(numTriangles * sizeof(srfTriangle_t));
+				numTriangles = 0;
+
+				ClearBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
+
+				// build triangle indices
+				for(l = k; l < numSurfaces; l++)
+				{
+					surface2 = surfacesSorted[l];
+
+					if(surface2->shader != shader)
+						continue;
+
+					// set up triangle indices
+					if(*surface2->data == SF_FACE)
+					{
+						srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface2->data;
+
+						if(srf->numTriangles)
+						{
+							srfTriangle_t  *tri;
+
+							for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									triangles[numTriangles + i].indexes[j] = numVerts + tri->indexes[j];
+								}
+							}
+
+							numTriangles += srf->numTriangles;
+						}
+
+						if(srf->numVerts)
+							numVerts += srf->numVerts;
+					}
+					else if(*surface2->data == SF_GRID)
+					{
+						srfGridMesh_t  *srf = (srfGridMesh_t *) surface2->data;
+
+						if(srf->numTriangles)
+						{
+							srfTriangle_t  *tri;
+
+							for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									triangles[numTriangles + i].indexes[j] = numVerts + tri->indexes[j];
+								}
+							}
+
+							numTriangles += srf->numTriangles;
+						}
+
+						if(srf->numVerts)
+							numVerts += srf->numVerts;
+					}
+					else if(*surface2->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *srf = (srfTriangles_t *) surface2->data;
+
+						if(srf->numTriangles)
+						{
+							srfTriangle_t  *tri;
+
+							for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+							{
+								for(j = 0; j < 3; j++)
+								{
+									triangles[numTriangles + i].indexes[j] = numVerts + tri->indexes[j];
+								}
+							}
+
+							numTriangles += srf->numTriangles;
+						}
+
+						if(srf->numVerts)
+							numVerts += srf->numVerts;
+					}
+				}
+
+				// build vertices
+				numVerts = 0;
+				for(l = k; l < numSurfaces; l++)
+				{
+					surface2 = surfacesSorted[l];
+
+					if(surface2->shader != shader)
+						continue;
+
+					if(*surface2->data == SF_FACE)
+					{
+						srfSurfaceFace_t *cv = (srfSurfaceFace_t *) surface2->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								CopyVert(&cv->verts[i], &verts[numVerts + i]);
+
+								AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
+							}
+
+							numVerts += cv->numVerts;
+						}
+					}
+					else if(*surface2->data == SF_GRID)
+					{
+						srfGridMesh_t  *cv = (srfGridMesh_t *) surface2->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								CopyVert(&cv->verts[i], &verts[numVerts + i]);
+
+								AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
+							}
+
+							numVerts += cv->numVerts;
+						}
+					}
+					else if(*surface2->data == SF_TRIANGLES)
+					{
+						srfTriangles_t *cv = (srfTriangles_t *) surface2->data;
+
+						if(cv->numVerts)
+						{
+							for(i = 0; i < cv->numVerts; i++)
+							{
+								CopyVert(&cv->verts[i], &verts[numVerts + i]);
+
+								AddPointToBounds(cv->verts[i].xyz, vboSurf->bounds[0], vboSurf->bounds[1]);
+							}
+
+							numVerts += cv->numVerts;
+						}
+					}
+				}
+
+				numVerts = OptimizeVertices(numVerts, verts, numTriangles, triangles, optimizedVerts, CompareWorldVert);
+				if(c_redundantVertexes)
+				{
+					ri.Printf(PRINT_DEVELOPER,
+							  "...removed %i redundant vertices from staticEntityMesh %i ( %s, %i verts %i tris )\n",
+							  c_redundantVertexes, vboSurfaces.currentElements, shader->name, numVerts, numTriangles);
+				}
+
+				vboSurf->vbo = R_CreateStaticVBO2(va("staticEntityMesh_vertices %i", vboSurfaces.currentElements), numVerts, optimizedVerts,
+									   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
+									   | GLCS_COLOR);
+
+				vboSurf->ibo = R_CreateStaticIBO2(va("staticEntityMesh_indices %i", vboSurfaces.currentElements), numTriangles, triangles);
+
+				ri.Hunk_FreeTempMemory(triangles);
+				ri.Hunk_FreeTempMemory(optimizedVerts);
+				ri.Hunk_FreeTempMemory(verts);
+			}
+		}
+
+		ri.Hunk_FreeTempMemory(surfacesSorted);
+
+		// move VBO surfaces list to hunk
+		model->numVBOSurfaces = vboSurfaces.currentElements;
+		model->vboSurfaces = ri.Hunk_Alloc(model->numVBOSurfaces * sizeof(*model->vboSurfaces), h_low);
+
+		for(i = 0; i < model->numVBOSurfaces; i++)
+		{
+			model->vboSurfaces[i] = (srfVBOMesh_t *) Com_GrowListElement(&vboSurfaces, i);
+		}
+
+		Com_DestroyGrowList(&vboSurfaces);
+
+		ri.Printf(PRINT_ALL, "%i VBO surfaces created for BSP submodel %i\n", model->numVBOSurfaces, m);
+	}
+}
+
+/*
+===============
 R_LoadSurfaces
 ===============
 */
@@ -3211,7 +3552,8 @@ static void R_LoadSubmodels(lump_t * l)
 		ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
 	count = l->filelen / sizeof(*in);
 
-	s_worldData.bmodels = out = ri.Hunk_Alloc(count * sizeof(*out), h_low);
+	s_worldData.numModels = count;
+	s_worldData.models = out = ri.Hunk_Alloc(count * sizeof(*out), h_low);
 
 	for(i = 0; i < count; i++, in++, out++)
 	{
@@ -3221,8 +3563,8 @@ static void R_LoadSubmodels(lump_t * l)
 
 		assert(model != NULL);	// this should never happen
 
-		model->type = MOD_BRUSH;
-		model->bmodel = out;
+		model->type = MOD_BSP;
+		model->bsp = out;
 		Com_sprintf(model->name, sizeof(model->name), "*%d", i);
 
 		for(j = 0; j < 3; j++)
@@ -3466,8 +3808,8 @@ void R_LoadLightGrid(lump_t * l)
 	w->lightGridInverseSize[1] = 1.0f / w->lightGridSize[1];
 	w->lightGridInverseSize[2] = 1.0f / w->lightGridSize[2];
 
-	wMins = w->bmodels[0].bounds[0];
-	wMaxs = w->bmodels[0].bounds[1];
+	wMins = w->models[0].bounds[0];
+	wMaxs = w->models[0].bounds[1];
 
 	for(i = 0; i < 3; i++)
 	{
@@ -6192,6 +6534,7 @@ void RE_LoadWorldMap(const char *name)
 //	R_LoadAreaPortals(name);
 	R_CreateWorldVBO();
 	R_CreateClusters();
+	R_CreateSubModelVBOs();
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
 

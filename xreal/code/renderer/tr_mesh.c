@@ -265,7 +265,6 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 	// draw all surfaces
 	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && model->numVBOSurfaces)
 	{
-		// new brute force method: just render everthing with static VBOs
 		int             i;
 		srfVBOMesh_t   *vboSurface;
 		shader_t       *shader;

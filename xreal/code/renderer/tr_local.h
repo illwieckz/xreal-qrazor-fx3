@@ -1305,12 +1305,11 @@ typedef struct
 {
 	vec3_t          bounds[2];	// for culling
 
-	bspSurface_t   *firstSurface;
 	int             numSurfaces;
+	bspSurface_t   *firstSurface;
 
-	// TODO
-	//int             numVBOSurfaces;
-	//srfVBOMesh_t  **vboSurfaces;
+	int             numVBOSurfaces;
+	srfVBOMesh_t  **vboSurfaces;
 } bspModel_t;
 
 typedef struct
@@ -1323,7 +1322,8 @@ typedef struct
 	int             numShaders;
 	dshader_t      *shaders;
 
-	bspModel_t     *bmodels;
+	int             numModels;
+	bspModel_t     *models;
 
 	int             numplanes;
 	cplane_t       *planes;
@@ -1574,7 +1574,7 @@ typedef struct md5Animation_s
 typedef enum
 {
 	MOD_BAD,
-	MOD_BRUSH,
+	MOD_BSP,
 	MOD_MDX,
 	MOD_MD5,
 } modtype_t;
@@ -1586,7 +1586,7 @@ typedef struct model_s
 	int             index;		// model = tr.models[model->index]
 
 	int             dataSize;	// just for listing purposes
-	bspModel_t     *bmodel;		// only if type == MOD_BRUSH
+	bspModel_t     *bsp;		// only if type == MOD_BSP
 	mdxModel_t     *mdx[MD3_MAX_LODS];	// only if type == MOD_MD3
 	md5Model_t     *md5;		// only if type == MOD_MD5
 

@@ -34,7 +34,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 {
 	int             i;
 	bspSurface_t   *surf;
-	bspModel_t     *bModel = NULL;
+	bspModel_t     *bspModel = NULL;
 	model_t        *pModel = NULL;
 	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
@@ -54,12 +54,12 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		return;
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
-	bModel = pModel->bmodel;
+	bspModel = pModel->bsp;
 
 	// do a quick AABB cull
 	if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], ent->worldBounds[0], ent->worldBounds[1]))
 	{
-		tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
+		tr.pc.c_dlightSurfacesCulled += bspModel->numSurfaces;
 		return;
 	}
 
@@ -68,23 +68,45 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	{
 		if(R_CullLightWorldBounds(light, ent->worldBounds) == CULL_OUT)
 		{
-			tr.pc.c_dlightSurfacesCulled += bModel->numSurfaces;
+			tr.pc.c_dlightSurfacesCulled += bspModel->numSurfaces;
 			return;
 		}
 	}
 
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
-	// set the light bits in all the surfaces
-	for(i = 0; i < bModel->numSurfaces; i++)
+	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && bspModel->numVBOSurfaces)
 	{
-		surf = bModel->firstSurface + i;
+		srfVBOMesh_t   *vboSurface;
+		shader_t       *shader;
 
-		// FIXME: do more culling?
+		// static VBOs are fine for lighting and shadow mapping
+		for(i = 0; i < bspModel->numVBOSurfaces; i++)
+		{
+			vboSurface = bspModel->vboSurfaces[i];
+			shader = vboSurface->shader;
 
-		/*
+			// skip all surfaces that don't matter for lighting only pass
+			if(shader->isSky || (!shader->interactLight && shader->noShadows))
+				continue;
+
+			R_AddLightInteraction(light, (void *)vboSurface, shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+			tr.pc.c_dlightSurfaces++;
+		}
+	}
+	else
+	{
+
+		// set the light bits in all the surfaces
+		for(i = 0; i < bspModel->numSurfaces; i++)
+		{
+			surf = bspModel->firstSurface + i;
+
+			// FIXME: do more culling?
+
+			/*
 		   if(*surf->data == SF_FACE)
-		   {
+			   {
 		   ((srfSurfaceFace_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
 		   }
 		   else if(*surf->data == SF_GRID)
@@ -97,12 +119,13 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		   }
 		 */
 
-		// skip all surfaces that don't matter for lighting only pass
-		if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
-			continue;
+			// skip all surfaces that don't matter for lighting only pass
+			if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
+				continue;
 
-		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
-		tr.pc.c_dlightSurfaces++;
+			R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+			tr.pc.c_dlightSurfaces++;
+		}
 	}
 }
 
