@@ -834,7 +834,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vboSurf->vbo->ofsNormals = ofsNormals;
 				vboSurf->vbo->ofsColors = ofsColors;
 
-				vboSurf->ibo = R_CreateStaticVBO(va("staticMD3Mesh_indices %i", vboSurfaces.currentElements), indexes, indexesSize);
+				vboSurf->ibo = R_CreateStaticIBO(va("staticMD3Mesh_indices %i", vboSurfaces.currentElements), indexes, indexesSize);
 
 				ri.Hunk_FreeTempMemory(indexes);
 				ri.Hunk_FreeTempMemory(data);
