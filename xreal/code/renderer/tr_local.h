@@ -30,8 +30,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_public.h"
 #include "qgl.h"
 
+#if 1
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
+#else
+#define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
+typedef unsigned short glIndex_t;
+#endif
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -1151,6 +1156,10 @@ typedef struct srfGridMesh_s
 
 	int             numVerts;
 	srfVert_t      *verts;
+
+	// BSP VBO offsets
+	int             firstVert;
+	int             firstTriangle;
 } srfGridMesh_t;
 
 typedef struct
@@ -1167,6 +1176,10 @@ typedef struct
 
 	int             numVerts;
 	srfVert_t      *verts;
+
+	// BSP VBO offsets
+	int             firstVert;
+	int             firstTriangle;
 } srfSurfaceFace_t;
 
 
@@ -1184,6 +1197,10 @@ typedef struct
 
 	int             numVerts;
 	srfVert_t      *verts;
+
+	// BSP VBO offsets
+	int             firstVert;
+	int             firstTriangle;
 } srfTriangles_t;
 
 typedef struct srfVBOMesh_s
@@ -1262,9 +1279,13 @@ typedef struct bspNode_s
 
 typedef struct
 {
-//	int             numNodes;
-//	bspNode_t     **nodes;
+	int             numMarkSurfaces;
+	bspSurface_t  **markSurfaces;
+} bspCluster_t;
 
+/*
+typedef struct
+{
 	int             numMarkSurfaces;
 	bspSurface_t  **markSurfaces;
 
@@ -1278,6 +1299,7 @@ typedef struct
 
 	vec3_t          points[4];
 } bspAreaPortal_t;
+*/
 
 typedef struct
 {
@@ -1310,11 +1332,18 @@ typedef struct
 	int             numDecisionNodes;
 	bspNode_t      *nodes;
 
-	int             numAreas;
-	bspArea_t      *areas;
+	int             numVerts;
+	srfVert_t      *verts;
+	VBO_t          *vbo;
 
-	int             numAreaPortals;
-	bspAreaPortal_t *areaPortals;
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+//	int             numAreas;
+//	bspArea_t      *areas;
+
+//	int             numAreaPortals;
+//	bspAreaPortal_t *areaPortals;
 
 	int             numWorldSurfaces;
 
@@ -1337,10 +1366,13 @@ typedef struct
 	interactionCache_t **interactions;
 
 	int             numClusters;
+	bspCluster_t   *clusters;
 	int             clusterBytes;
 	const byte     *vis;		// may be passed in by CM_LoadMap to save space
-
 	byte           *novis;		// clusterBytes of 0xff
+
+	int             numClusterVBOSurfaces;
+	growList_t      clusterVBOSurfaces;	// updated every time when changing the view cluster
 
 	char           *entityString;
 	char           *entityParsePoint;

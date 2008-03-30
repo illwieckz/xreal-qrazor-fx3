@@ -5195,6 +5195,7 @@ static void RB_RenderDebugUtils()
 		qglPopMatrix();
 	}
 
+	/*
 	if(r_showAreaPortals->integer)
 	{
 		int             i, j;
@@ -5225,6 +5226,7 @@ static void RB_RenderDebugUtils()
 			qglEnd();
 		}
 	}
+	*/
 
 	GL_CheckErrors();
 }

@@ -105,126 +105,121 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
 
-	//ri.Printf(PRINT_DEVELOPER, "...calculating world mesh VBOs ( %s, %i verts %i tris )\n", shader->name, vertexesNum, indexesNum / 3);
-
 	// create VBO
 	dataSize = numVertexes * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
 	data = ri.Hunk_AllocateTempMemory(dataSize);
 	dataOfs = 0;
 
-	
+	// set up xyz array
+	for(i = 0; i < numVertexes; i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			tmp[j] = verts[i].xyz[j];
+		}
+		tmp[3] = 1;
 
-	
-		// set up xyz array
+		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+		dataOfs += sizeof(vec4_t);
+	}
+
+	// feed vertex texcoords
+	if(stateBits & GLCS_TEXCOORD)
+	{
+		vbo->ofsTexCoords = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 2; j++)
+			{
+				tmp[j] = verts[i].st[j];
+			}
+			tmp[2] = 0;
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+	}
+
+	// feed vertex lightmap texcoords
+	if(stateBits & GLCS_LIGHTCOORD)
+	{
+		vbo->ofsLightCoords = dataOfs;
+		for(i = 0; i < numVertexes; i++)
+		{
+			for(j = 0; j < 2; j++)
+			{
+				tmp[j] = verts[i].lightmap[j];
+			}
+			tmp[2] = 0;
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+	}
+
+	// feed vertex tangents
+	if(stateBits & GLCS_TANGENT)
+	{
+		vbo->ofsTangents = dataOfs;
 		for(i = 0; i < numVertexes; i++)
 		{
 			for(j = 0; j < 3; j++)
 			{
-				tmp[j] = verts[i].xyz[j];
+				tmp[j] = verts[i].tangent[j];
 			}
 			tmp[3] = 1;
 
 			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 			dataOfs += sizeof(vec4_t);
 		}
+	}
 
-		// feed vertex texcoords
-		if(stateBits & GLCS_TEXCOORD)
+	// feed vertex binormals
+	if(stateBits & GLCS_BINORMAL)
+	{
+		vbo->ofsBinormals = dataOfs;
+		for(i = 0; i < numVertexes; i++)
 		{
-			vbo->ofsTexCoords = dataOfs;
-			for(i = 0; i < numVertexes; i++)
+			for(j = 0; j < 3; j++)
 			{
-				for(j = 0; j < 2; j++)
-				{
-					tmp[j] = verts[i].st[j];
-				}
-				tmp[2] = 0;
-				tmp[3] = 1;
-
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
+				tmp[j] = verts[i].binormal[j];
 			}
-		}
+			tmp[3] = 1;
 
-		// feed vertex lightmap texcoords
-		if(stateBits & GLCS_LIGHTCOORD)
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
+		}
+	}
+
+	// feed vertex normals
+	if(stateBits & GLCS_NORMAL)
+	{
+		vbo->ofsNormals = dataOfs;
+		for(i = 0; i < numVertexes; i++)
 		{
-			vbo->ofsLightCoords = dataOfs;
-			for(i = 0; i < numVertexes; i++)
+			for(j = 0; j < 3; j++)
 			{
-				for(j = 0; j < 2; j++)
-				{
-					tmp[j] = verts[i].lightmap[j];
-				}
-				tmp[2] = 0;
-				tmp[3] = 1;
-
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
+				tmp[j] = verts[i].normal[j];
 			}
+			tmp[3] = 1;
+
+			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+			dataOfs += sizeof(vec4_t);
 		}
-		
-		// feed vertex tangents
-		if(stateBits & GLCS_TANGENT)
+	}
+
+	// feed vertex colors
+	if(stateBits & GLCS_COLOR)
+	{
+		vbo->ofsColors = dataOfs;
+		for(i = 0; i < numVertexes; i++)
 		{
-			vbo->ofsTangents = dataOfs;
-			for(i = 0; i < numVertexes; i++)
-			{
-				for(j = 0; j < 3; j++)
-				{
-					tmp[j] = verts[i].tangent[j];
-				}
-				tmp[3] = 1;
-
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
+			memcpy(data + dataOfs, verts[i].color, sizeof(color4ub_t));
+			dataOfs += sizeof(color4ub_t);
 		}
-		
-		// feed vertex binormals
-		if(stateBits & GLCS_BINORMAL)
-		{
-			vbo->ofsBinormals = dataOfs;
-			for(i = 0; i < numVertexes; i++)
-			{
-				for(j = 0; j < 3; j++)
-				{
-					tmp[j] = verts[i].binormal[j];
-				}
-				tmp[3] = 1;
-
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-		}
-		
-		// feed vertex normals
-		if(stateBits & GLCS_NORMAL)
-		{
-			vbo->ofsNormals = dataOfs;
-			for(i = 0; i < numVertexes; i++)
-			{
-				for(j = 0; j < 3; j++)
-				{
-					tmp[j] = verts[i].normal[j];
-				}
-				tmp[3] = 1;
-
-				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-				dataOfs += sizeof(vec4_t);
-			}
-		}
-
-		// feed vertex colors
-		if(stateBits & GLCS_COLOR)
-		{
-			vbo->ofsColors = dataOfs;
-			for(i = 0; i < numVertexes; i++)
-			{
-				memcpy(data + dataOfs, verts[i].color, sizeof(color4ub_t));
-				dataOfs += sizeof(color4ub_t);
-			}
-		}
+	}
 
 	vbo->vertexesSize = dataSize;
 
@@ -295,7 +290,7 @@ IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriang
 	int             indexesOfs;
 
 	srfTriangle_t  *tri;
-	int             index;
+	glIndex_t       index;
 
 	if(!numTriangles)
 		return NULL;
@@ -321,9 +316,9 @@ IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriang
 	{
 		for(j = 0; j < 3; j++)
 		{
-			index = /*numVertexesNum +*/ tri->indexes[j];
-			memcpy(indexes + indexesOfs, &index, sizeof(int));
-			indexesOfs += sizeof(int);
+			index = tri->indexes[j];
+			memcpy(indexes + indexesOfs, &index, sizeof(glIndex_t));
+			indexesOfs += sizeof(glIndex_t);
 		}
 	}
 
@@ -487,6 +482,25 @@ void R_ShutdownVBOs(void)
 		}
 	}
 
+	if(tr.world)
+	{
+		// FIXME: clean up this code
+		for(i = 0; i < tr.world->clusterVBOSurfaces.currentElements; i++)
+		{
+			srfVBOMesh_t *vboSurf;
+			
+			vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, i);
+			ibo = vboSurf->ibo;;
+
+			if(ibo->indexesVBO)
+			{
+				qglDeleteBuffersARB(1, &ibo->indexesVBO);
+			}
+		}
+
+		Com_DestroyGrowList(&tr.world->clusterVBOSurfaces);
+	}
+
 	Com_DestroyGrowList(&tr.vbos);
 	Com_DestroyGrowList(&tr.ibos);
 }
@@ -521,6 +535,23 @@ void R_VBOList_f(void)
 				  (vbo->vertexesSize % (1024 * 1024)) * 100 / (1024 * 1024), vbo->name);
 
 		vertexesSize += vbo->vertexesSize;
+	}
+
+	if(tr.world)
+	{
+		// FIXME: clean up this code
+		for(i = 0; i < tr.world->clusterVBOSurfaces.currentElements; i++)
+		{
+			srfVBOMesh_t *vboSurf;
+			
+			vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, i);
+			ibo = vboSurf->ibo;
+
+			ri.Printf(PRINT_ALL, "%d.%02d MB %s\n", ibo->indexesSize / (1024 * 1024),
+				  (ibo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), ibo->name);
+
+			indexesSize += ibo->indexesSize;
+		}
 	}
 
 	for(i = 0; i < tr.ibos.currentElements; i++)

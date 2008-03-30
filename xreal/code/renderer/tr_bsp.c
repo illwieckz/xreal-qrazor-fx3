@@ -2177,6 +2177,9 @@ static void OptimizeTriangles(int numVerts, srfVert_t * verts, int numTriangles,
 	}
 }
 
+
+
+/*
 static void R_LoadAreaPortals(const char *bspName)
 {
 	int             i, j, k;
@@ -2275,13 +2278,14 @@ static void R_LoadAreaPortals(const char *bspName)
 		}
 	}
 }
-
+*/
 
 /*
 =================
 R_CreateAreas
 =================
 */
+/*
 static void R_CreateAreas()
 {
 	int             i, j;
@@ -2377,12 +2381,14 @@ static void R_CreateAreas()
 
 	ri.Printf(PRINT_ALL, "%i world areas created\n", numAreas);
 }
+*/
 
 /*
 ===============
 R_CreateVBOWorldSurfaces
 ===============
 */
+/*
 static void R_CreateVBOWorldSurfaces()
 {
 	int             i, j, k, l, a;
@@ -2431,6 +2437,9 @@ static void R_CreateVBOWorldSurfaces()
 			numSurfaces++;
 		}
 
+		if(!numSurfaces)
+			continue;
+
 		// build interaction caches list
 		surfacesSorted = ri.Hunk_AllocateTempMemory(numSurfaces * sizeof(surfacesSorted[0]));
 
@@ -2452,9 +2461,6 @@ static void R_CreateVBOWorldSurfaces()
 			surfacesSorted[numSurfaces] = surface;
 			numSurfaces++;
 		}
-
-		if(!numSurfaces)
-			continue;
 
 		Com_InitGrowList(&vboSurfaces, 100);
 
@@ -2717,6 +2723,392 @@ static void R_CreateVBOWorldSurfaces()
 
 		ri.Printf(PRINT_ALL, "%i VBO surfaces created for area %i\n", area->numVBOSurfaces, a);
 	}
+}
+*/
+
+/*
+=================
+R_CreateClusters
+=================
+*/
+static void R_CreateClusters()
+{
+	int             i, j;
+	int             numClusters;
+	bspNode_t      *node, *parent;
+	bspCluster_t   *cluster;
+	growList_t      clusterSurfaces;
+	const byte     *vis;
+	int             c;
+	bspSurface_t   *surface, **mark;
+	int             surfaceNum;
+
+	ri.Printf(PRINT_ALL, "...creating BSP clusters\n");
+
+	if(s_worldData.vis)
+	{
+		// go through the leaves and count clusters
+		numClusters = 0;
+		for(i = 0, node = s_worldData.nodes; i < s_worldData.numnodes; i++, node++)
+		{
+			if(node->cluster >= numClusters)
+			{
+				numClusters = node->cluster;
+			}
+		}
+		numClusters++; 
+
+		s_worldData.numClusters = numClusters;
+		s_worldData.clusters = ri.Hunk_Alloc((numClusters + 1) * sizeof(*s_worldData.clusters), h_low); // + supercluster
+
+		// reset surfaces' viewCount
+		for(i = 0, surface = s_worldData.surfaces; i < s_worldData.numSurfaces; i++, surface++)
+		{
+			surface->viewCount = -1;
+		}
+
+		for(j = 0, node = s_worldData.nodes; j < s_worldData.numnodes; j++, node++)
+		{
+			node->visCount = -1;
+		}
+
+		for(i = 0; i < numClusters; i++)
+		{
+			cluster = &s_worldData.clusters[i];
+
+			// mark leaves in cluster
+			vis = s_worldData.vis + i * s_worldData.clusterBytes;
+
+			for(j = 0, node = s_worldData.nodes; j < s_worldData.numnodes; j++, node++)
+			{
+				if(node->cluster < 0 || node->cluster >= numClusters)
+				{
+					continue;
+				}
+
+				// check general pvs
+				if(!(vis[node->cluster >> 3] & (1 << (node->cluster & 7))))
+				{
+					continue;
+				}
+
+				parent = node;
+				do
+				{
+					if(parent->visCount == i)
+						break;
+					parent->visCount = i;
+					parent = parent->parent;
+				} while(parent);
+			}
+
+
+			// add cluster surfaces
+			Com_InitGrowList(&clusterSurfaces, 10000);
+
+			for(j = 0, node = s_worldData.nodes; j < s_worldData.numnodes; j++, node++)
+			{
+				if(node->contents == CONTENTS_NODE)
+					continue;
+
+				if(node->visCount != i)
+					continue;
+				
+				mark = node->markSurfaces;
+				c = node->numMarkSurfaces;
+				while(c--)
+				{
+					// the surface may have already been added if it
+					// spans multiple leafs
+					surface = *mark;
+
+					surfaceNum = surface - s_worldData.surfaces;
+
+					if((surface->viewCount != i) && (surfaceNum < s_worldData.numWorldSurfaces))
+					{
+						surface->viewCount = i;
+						Com_AddToGrowList(&clusterSurfaces, surface);
+					}
+
+					mark++;
+				}
+			}
+
+			// move cluster surfaces list to hunk
+			cluster->numMarkSurfaces = clusterSurfaces.currentElements;
+			cluster->markSurfaces = ri.Hunk_Alloc(cluster->numMarkSurfaces * sizeof(*cluster->markSurfaces), h_low);
+
+			for(j = 0; j < cluster->numMarkSurfaces; j++)
+			{
+				cluster->markSurfaces[j] = (bspSurface_t *) Com_GrowListElement(&clusterSurfaces, j);
+			}
+
+			Com_DestroyGrowList(&clusterSurfaces);
+
+			//ri.Printf(PRINT_ALL, "cluster %i contains %i bsp surfaces\n", i, cluster->numMarkSurfaces);
+		}
+	}
+	else
+	{
+		numClusters = 0;
+
+		s_worldData.numClusters = numClusters;
+		s_worldData.clusters = ri.Hunk_Alloc((numClusters + 1) * sizeof(*s_worldData.clusters), h_low); // + supercluster
+	}
+
+	// create a super cluster that will be always used when no view cluster can be found
+	Com_InitGrowList(&clusterSurfaces, 10000);
+
+	for(i = 0, surface = s_worldData.surfaces; i < s_worldData.numWorldSurfaces; i++, surface++)
+	{
+		Com_AddToGrowList(&clusterSurfaces, surface);
+	}
+
+	cluster = &s_worldData.clusters[numClusters];
+	cluster->numMarkSurfaces = clusterSurfaces.currentElements;
+	cluster->markSurfaces = ri.Hunk_Alloc(cluster->numMarkSurfaces * sizeof(*cluster->markSurfaces), h_low);
+
+	for(j = 0; j < cluster->numMarkSurfaces; j++)
+	{
+		cluster->markSurfaces[j] = (bspSurface_t *) Com_GrowListElement(&clusterSurfaces, j);
+	}
+
+	Com_DestroyGrowList(&clusterSurfaces);
+
+	Com_InitGrowList(&s_worldData.clusterVBOSurfaces, 100);
+
+	//ri.Printf(PRINT_ALL, "noVis cluster contains %i bsp surfaces\n", cluster->numMarkSurfaces);
+
+	ri.Printf(PRINT_ALL, "%i world clusters created\n", numClusters);
+}
+
+/*
+===============
+R_CreateWorldVBO
+===============
+*/
+static void R_CreateWorldVBO()
+{
+	int             i, j, k;
+
+	int             numVerts;
+	srfVert_t      *verts;
+
+//  srfVert_t      *optimizedVerts;
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+//  int             numSurfaces;
+	bspSurface_t   *surface;
+
+	if(!glConfig.vertexBufferObjectAvailable)
+		return;
+
+	numVerts = 0;
+	numTriangles = 0;
+	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
+	{
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface->data;
+
+			if(face->numVerts)
+				numVerts += face->numVerts;
+
+			if(face->numTriangles)
+				numTriangles += face->numTriangles;
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *grid = (srfGridMesh_t *) surface->data;
+
+			if(grid->numVerts)
+				numVerts += grid->numVerts;
+
+			if(grid->numTriangles)
+				numTriangles += grid->numTriangles;
+		}
+		else if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t *tri = (srfTriangles_t *) surface->data;
+
+			if(tri->numVerts)
+				numVerts += tri->numVerts;
+
+			if(tri->numTriangles)
+				numTriangles += tri->numTriangles;
+		}
+	}
+
+	if(!numVerts || !numTriangles)
+		return;
+
+	ri.Printf(PRINT_ALL, "...calculating world VBO ( %i verts %i tris )\n", numVerts, numTriangles);
+
+	// create arrays
+
+	s_worldData.numVerts = numVerts;
+	s_worldData.verts = verts = ri.Hunk_Alloc(numVerts * sizeof(srfVert_t), h_low);
+	//optimizedVerts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));    
+
+	s_worldData.numTriangles = numTriangles;
+	s_worldData.triangles = triangles = ri.Hunk_Alloc(numTriangles * sizeof(srfTriangle_t), h_low);
+
+	// set up triangle indices
+	numVerts = 0;
+	numTriangles = 0;
+	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
+	{
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
+
+			srf->firstTriangle = numTriangles;
+
+			if(srf->numTriangles)
+			{
+				srfTriangle_t  *tri;
+
+				for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						triangles[numTriangles + i].indexes[j] = numVerts + tri->indexes[j];
+					}
+				}
+
+				numTriangles += srf->numTriangles;
+			}
+
+			if(srf->numVerts)
+				numVerts += srf->numVerts;
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
+
+			srf->firstTriangle = numTriangles;
+
+			if(srf->numTriangles)
+			{
+				srfTriangle_t  *tri;
+
+				for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						triangles[numTriangles + i].indexes[j] = numVerts + tri->indexes[j];
+					}
+				}
+
+				numTriangles += srf->numTriangles;
+			}
+
+			if(srf->numVerts)
+				numVerts += srf->numVerts;
+		}
+		else if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t *srf = (srfTriangles_t *) surface->data;
+
+			srf->firstTriangle = numTriangles;
+
+			if(srf->numTriangles)
+			{
+				srfTriangle_t  *tri;
+
+				for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
+				{
+					for(j = 0; j < 3; j++)
+					{
+						triangles[numTriangles + i].indexes[j] = numVerts + tri->indexes[j];
+					}
+				}
+
+				numTriangles += srf->numTriangles;
+			}
+
+			if(srf->numVerts)
+				numVerts += srf->numVerts;
+		}
+	}
+
+	// build vertices
+	numVerts = 0;
+	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
+	{
+		if(*surface->data == SF_FACE)
+		{
+			srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
+
+			srf->firstVert = numVerts;
+
+			if(srf->numVerts)
+			{
+				for(i = 0; i < srf->numVerts; i++)
+				{
+					CopyVert(&srf->verts[i], &verts[numVerts + i]);
+				}
+
+				numVerts += srf->numVerts;
+			}
+		}
+		else if(*surface->data == SF_GRID)
+		{
+			srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
+
+			srf->firstVert = numVerts;
+
+			if(srf->numVerts)
+			{
+				for(i = 0; i < srf->numVerts; i++)
+				{
+					CopyVert(&srf->verts[i], &verts[numVerts + i]);
+				}
+
+				numVerts += srf->numVerts;
+			}
+		}
+		else if(*surface->data == SF_TRIANGLES)
+		{
+			srfTriangles_t *srf = (srfTriangles_t *) surface->data;
+
+			srf->firstVert = numVerts;
+
+			if(srf->numVerts)
+			{
+				for(i = 0; i < srf->numVerts; i++)
+				{
+					CopyVert(&srf->verts[i], &verts[numVerts + i]);
+				}
+
+				numVerts += srf->numVerts;
+			}
+		}
+	}
+
+#if 0
+	numVerts = OptimizeVertices(numVerts, verts, numTriangles, triangles, optimizedVerts, CompareWorldVert);
+	if(c_redundantVertexes)
+	{
+		ri.Printf(PRINT_DEVELOPER,
+				  "...removed %i redundant vertices from staticWorldMesh %i ( %s, %i verts %i tris )\n",
+				  c_redundantVertexes, vboSurfaces.currentElements, shader->name, numVerts, numTriangles);
+	}
+
+	s_worldData.vbo = R_CreateStaticVBO2(va("bspModelMesh_vertices %i", 0), numVerts, optimizedVerts,
+										 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
+										 GLCS_NORMAL | GLCS_COLOR);
+#else
+	s_worldData.vbo = R_CreateStaticVBO2(va("bspModelMesh_vertices %i", 0), numVerts, verts,
+										 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
+										 GLCS_NORMAL | GLCS_COLOR);
+#endif
+
+	//ri.Hunk_FreeTempMemory(triangles);
+	//ri.Hunk_FreeTempMemory(optimizedVerts);
+	//ri.Hunk_FreeTempMemory(verts);
 }
 
 /*
@@ -4731,7 +5123,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			}
 
 			vboSurf->vbo = R_CreateStaticVBO2(va("staticLightMesh_vertices %i", c_vboLightSurfaces), numVerts, optimizedVerts,
-								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR);
+											  GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL |
+											  GLCS_COLOR);
 
 			vboSurf->ibo = R_CreateStaticIBO2(va("staticLightMesh_indices %i", c_vboLightSurfaces), numTriangles, triangles);
 
@@ -5083,8 +5476,12 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 								  c_redundantVertexes, c_vboShadowSurfaces, shader->name, numVerts, numTriangles);
 					}
 
-					vboSurf->vbo = R_CreateStaticVBO2(va("staticShadowPyramidMesh_vertices %i", c_vboShadowSurfaces), numVerts, optimizedVerts, GLCS_VERTEX | GLCS_TEXCOORD);
-					vboSurf->ibo = R_CreateStaticIBO2(va("staticShadowPyramidMesh_indices %i", c_vboShadowSurfaces), numTriangles, triangles);
+					vboSurf->vbo =
+						R_CreateStaticVBO2(va("staticShadowPyramidMesh_vertices %i", c_vboShadowSurfaces), numVerts,
+										   optimizedVerts, GLCS_VERTEX | GLCS_TEXCOORD);
+					vboSurf->ibo =
+						R_CreateStaticIBO2(va("staticShadowPyramidMesh_indices %i", c_vboShadowSurfaces), numTriangles,
+										   triangles);
 				}
 				else
 				{
@@ -5096,8 +5493,12 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 								  c_redundantVertexes, c_vboShadowSurfaces, shader->name, numVerts, numTriangles);
 					}
 
-					vboSurf->vbo = R_CreateStaticVBO2(va("staticShadowPyramidMesh_vertices %i", c_vboShadowSurfaces), numVerts, optimizedVerts, GLCS_VERTEX);
-					vboSurf->ibo = R_CreateStaticIBO2(va("staticShadowPyramidMesh_indices %i", c_vboShadowSurfaces), numTriangles, triangles);
+					vboSurf->vbo =
+						R_CreateStaticVBO2(va("staticShadowPyramidMesh_vertices %i", c_vboShadowSurfaces), numVerts,
+										   optimizedVerts, GLCS_VERTEX);
+					vboSurf->ibo =
+						R_CreateStaticIBO2(va("staticShadowPyramidMesh_indices %i", c_vboShadowSurfaces), numTriangles,
+										   triangles);
 				}
 
 				ri.Hunk_FreeTempMemory(triangles);
@@ -5787,9 +6188,10 @@ void RE_LoadWorldMap(const char *name)
 	R_PrecacheInteractions();
 
 	// create static VBOS from the world
-	R_CreateAreas();
-	R_LoadAreaPortals(name);
-	R_CreateVBOWorldSurfaces();
+//	R_CreateAreas();
+//	R_LoadAreaPortals(name);
+	R_CreateWorldVBO();
+	R_CreateClusters();
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
 

@@ -165,7 +165,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 		return qfalse;
 	}
 
-	
+
 	d = DotProduct(tr.or.viewOrigin, sface->plane.normal);
 
 	// don't cull exactly on the plane, because there are levels of rounding
@@ -714,6 +714,324 @@ qboolean R_inPVS(const vec3_t p1, const vec3_t p2)
 }
 
 /*
+=================
+BSPSurfaceCompare
+compare function for qsort()
+=================
+*/
+static int BSPSurfaceCompare(const void *a, const void *b)
+{
+	bspSurface_t   *aa, *bb;
+
+	aa = *(bspSurface_t **) a;
+	bb = *(bspSurface_t **) b;
+
+	// shader first
+	if(aa->shader < bb->shader)
+		return -1;
+
+	else if(aa->shader > bb->shader)
+		return 1;
+
+	// by lightmap
+	if(aa->lightmapNum < bb->lightmapNum)
+		return -1;
+
+	else if(aa->lightmapNum > bb->lightmapNum)
+		return 1;
+
+	return 0;
+}
+
+/*
+===============
+R_UpdateClusterSurfaces()
+===============
+*/
+static void R_UpdateClusterSurfaces()
+{
+	int             i, k, l;
+
+	int             numVerts;
+	int             numTriangles;
+
+//	static glIndex_t indexes[MAX_MAP_DRAW_INDEXES];
+//	static byte     indexes[MAX_MAP_DRAW_INDEXES * sizeof(glIndex_t)];
+	glIndex_t      *indexes;
+	int             indexesSize;
+
+	shader_t       *shader, *oldShader;
+	int             lightmapNum, oldLightmapNum;
+
+	int             numSurfaces;
+	bspSurface_t   *surface, *surface2;
+	bspSurface_t  **surfacesSorted;
+
+	bspCluster_t   *cluster;
+
+	srfVBOMesh_t   *vboSurf;
+	IBO_t          *ibo;
+
+	if(!glConfig.vertexBufferObjectAvailable)
+		return;
+
+	if(tr.viewCluster < 0 || tr.viewCluster >= tr.world->numClusters)
+	{
+		// Tr3B: this is not a bug, the super claster is the last one in the array
+		cluster = &tr.world->clusters[tr.world->numClusters];
+	}
+	else
+	{
+		cluster = &tr.world->clusters[tr.viewCluster];
+	}
+
+	tr.world->numClusterVBOSurfaces = 0;
+
+	// count number of static cluster surfaces
+	numSurfaces = 0;
+	for(k = 0; k < cluster->numMarkSurfaces; k++)
+	{
+		surface = cluster->markSurfaces[k];
+		shader = surface->shader;
+
+		if(shader->isSky)
+			continue;
+
+		if(shader->isPortal || shader->isMirror)
+			continue;
+
+		if(shader->numDeforms)
+			continue;
+
+		numSurfaces++;
+	}
+
+	if(!numSurfaces)
+		return;
+
+	// build interaction caches list
+	surfacesSorted = ri.Hunk_AllocateTempMemory(numSurfaces * sizeof(surfacesSorted[0]));
+
+	numSurfaces = 0;
+	for(k = 0; k < cluster->numMarkSurfaces; k++)
+	{
+		surface = cluster->markSurfaces[k];
+		shader = surface->shader;
+
+		if(shader->isSky)
+			continue;
+
+		if(shader->isPortal || shader->isMirror)
+			continue;
+
+		if(shader->numDeforms)
+			continue;
+
+		surfacesSorted[numSurfaces] = surface;
+		numSurfaces++;
+	}
+
+	// sort surfaces by shader
+	qsort(surfacesSorted, numSurfaces, sizeof(surfacesSorted), BSPSurfaceCompare);
+
+	shader = oldShader = NULL;
+	lightmapNum = oldLightmapNum = -1;
+
+	for(k = 0; k < numSurfaces; k++)
+	{
+		surface = surfacesSorted[k];
+		shader = surface->shader;
+		lightmapNum = surface->lightmapNum;
+
+		if(shader != oldShader || (r_precomputedLighting->integer ? lightmapNum != oldLightmapNum : 0))
+		{
+			oldShader = shader;
+			oldLightmapNum = lightmapNum;
+
+			// count vertices and indices
+			numVerts = 0;
+			numTriangles = 0;
+
+			for(l = k; l < numSurfaces; l++)
+			{
+				surface2 = surfacesSorted[l];
+
+				if(surface2->shader != shader)
+					continue;
+
+				if(*surface2->data == SF_FACE)
+				{
+					srfSurfaceFace_t *face = (srfSurfaceFace_t *) surface2->data;
+
+					if(face->numVerts)
+						numVerts += face->numVerts;
+
+					if(face->numTriangles)
+						numTriangles += face->numTriangles;
+				}
+				else if(*surface2->data == SF_GRID)
+				{
+					srfGridMesh_t  *grid = (srfGridMesh_t *) surface2->data;
+
+					if(grid->numVerts)
+						numVerts += grid->numVerts;
+
+					if(grid->numTriangles)
+						numTriangles += grid->numTriangles;
+				}
+				else if(*surface2->data == SF_TRIANGLES)
+				{
+					srfTriangles_t *tri = (srfTriangles_t *) surface2->data;
+
+					if(tri->numVerts)
+						numVerts += tri->numVerts;
+
+					if(tri->numTriangles)
+						numTriangles += tri->numTriangles;
+				}
+			}
+
+			if(!numVerts || !numTriangles)
+				continue;
+
+			// build triangle indices
+			indexesSize = numTriangles * 3 * sizeof(glIndex_t);
+			indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+			
+			numTriangles = 0;
+			for(l = k; l < numSurfaces; l++)
+			{
+				surface2 = surfacesSorted[l];
+
+				if(surface2->shader != shader)
+					continue;
+
+				// set up triangle indices
+				if(*surface2->data == SF_FACE)
+				{
+					srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface2->data;
+
+					if(srf->numTriangles)
+					{
+						srfTriangle_t  *tri;
+
+						for(i = 0, tri = tr.world->triangles + srf->firstTriangle; i < srf->numTriangles; i++, tri++)
+						{
+							indexes[numTriangles * 3 + i * 3 + 0] = tri->indexes[0];
+							indexes[numTriangles * 3 + i * 3 + 1] = tri->indexes[1];
+							indexes[numTriangles * 3 + i * 3 + 2] = tri->indexes[2];
+						}
+
+						numTriangles += srf->numTriangles;
+					}
+				}
+				else if(*surface2->data == SF_GRID)
+				{
+					srfGridMesh_t  *srf = (srfGridMesh_t *) surface2->data;
+
+					if(srf->numTriangles)
+					{
+						srfTriangle_t  *tri;
+
+						for(i = 0, tri = tr.world->triangles + srf->firstTriangle; i < srf->numTriangles; i++, tri++)
+						{
+							indexes[numTriangles * 3 + i * 3 + 0] = tri->indexes[0];
+							indexes[numTriangles * 3 + i * 3 + 1] = tri->indexes[1];
+							indexes[numTriangles * 3 + i * 3 + 2] = tri->indexes[2];
+						}
+
+						numTriangles += srf->numTriangles;
+					}
+				}
+				else if(*surface2->data == SF_TRIANGLES)
+				{
+					srfTriangles_t *srf = (srfTriangles_t *) surface2->data;
+
+					if(srf->numTriangles)
+					{
+						srfTriangle_t  *tri;
+
+						for(i = 0, tri = tr.world->triangles + srf->firstTriangle; i < srf->numTriangles; i++, tri++)
+						{
+							indexes[numTriangles * 3 + i * 3 + 0] = tri->indexes[0];
+							indexes[numTriangles * 3 + i * 3 + 1] = tri->indexes[1];
+							indexes[numTriangles * 3 + i * 3 + 2] = tri->indexes[2];
+						}
+
+						numTriangles += srf->numTriangles;
+					}
+				}
+			}
+
+			if(tr.world->numClusterVBOSurfaces < tr.world->clusterVBOSurfaces.currentElements)
+			{
+				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, tr.world->numClusterVBOSurfaces);
+				ibo = vboSurf->ibo;
+
+				/*
+				if(ibo->indexesVBO)
+				{
+					qglDeleteBuffersARB(1, &ibo->indexesVBO);
+					ibo->indexesVBO = 0;
+				}
+				*/
+
+				//Com_Dealloc(ibo);
+				//Com_Dealloc(vboSurf);
+			}
+			else
+			{
+				vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+				vboSurf->surfaceType = SF_VBO_MESH;
+				
+				vboSurf->vbo = tr.world->vbo;
+				vboSurf->ibo = ibo = ri.Hunk_Alloc(sizeof(*ibo), h_low);
+
+				qglGenBuffersARB(1, &ibo->indexesVBO);
+
+				Com_AddToGrowList(&tr.world->clusterVBOSurfaces, vboSurf);
+			}
+
+			// update surface properties
+			vboSurf->numIndexes = numTriangles * 3;
+			vboSurf->numVerts = numVerts;
+
+			vboSurf->shader = shader;
+			vboSurf->lightmapNum = lightmapNum;
+
+			// FIXME: melt bounding boxes in bspCluster_t
+			//ClearBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
+			VectorClear(vboSurf->bounds[0]);
+			VectorClear(vboSurf->bounds[1]);			
+
+			// make sure the render thread is stopped
+			R_SyncRenderThread();
+
+			// update IBO
+			Q_strncpyz(ibo->name, va("staticWorldMesh_IBO %i", tr.world->numClusterVBOSurfaces), sizeof(ibo->name));
+			ibo->indexesSize = indexesSize;
+
+			R_BindIBO(ibo);
+			qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_DYNAMIC_DRAW_ARB);
+			R_BindNullIBO();
+
+			GL_CheckErrors();
+
+			ri.Hunk_FreeTempMemory(indexes);
+
+			tr.world->numClusterVBOSurfaces++;
+		}
+	}
+
+	ri.Hunk_FreeTempMemory(surfacesSorted);
+
+	if(r_showcluster->integer)
+	{
+		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i\n", tr.world->numClusterVBOSurfaces, cluster - tr.world->clusters);
+	}
+}
+
+/*
 ===============
 R_MarkLeaves
 
@@ -759,6 +1077,8 @@ static void R_MarkLeaves(void)
 
 	tr.visCount++;
 	tr.viewCluster = cluster;
+
+	R_UpdateClusterSurfaces();
 
 	if(r_novis->integer || tr.viewCluster == -1)
 	{
@@ -897,40 +1217,26 @@ void R_AddWorldSurfaces(void)
 	// clear out the visible min/max
 	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
-	if(glConfig.vertexBufferObjectAvailable && r_vboWorld->integer)
-	{
-		// new brute force method: just render everthing with static VBOs
-		int             i, j;
-		bspArea_t      *area;
-		srfVBOMesh_t   *srf;
-		shader_t       *shader;
-
-		for(i = 0, area = tr.world->areas; i < tr.world->numAreas; i++, area++)
-		{
-			// check for door connection
-			if((tr.refdef.areamask[i >> 3] & (1 << (i & 7))))
-				continue;			// not visible
-
-			for(j = 0; j < area->numVBOSurfaces; j++)
-			{
-				srf = area->vboSurfaces[j];
-				shader = srf->shader;
-
-				R_AddDrawSurf((void *)srf, shader, srf->lightmapNum);
-			}
-		}
-
-		// update visbounds and add surfaces that weren't cached with VBOs
-		R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
-	}
-	else
-	{
-		// perform frustum culling and add all the potentially visible surfaces
-		R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
-	}
+	// update visbounds and add surfaces that weren't cached with VBOs
+	R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL);
 
 	// dynamically compute far clip plane distance for sky
 	R_SetFarClip();
+
+	if(glConfig.vertexBufferObjectAvailable && r_vboWorld->integer)
+	{
+		int             j;
+		srfVBOMesh_t   *srf;
+		shader_t       *shader;
+
+		for(j = 0; j < tr.world->numClusterVBOSurfaces; j++)
+		{
+			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, j);
+			shader = srf->shader;
+
+			R_AddDrawSurf((void *)srf, shader, srf->lightmapNum);
+		}
+	}
 }
 
 /*
@@ -1000,7 +1306,8 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 				shadowSrf = iaVBO->vboShadowVolume;
 
-				R_AddLightInteraction(light, (void *)shadowSrf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_SHADOWONLY);
+				R_AddLightInteraction(light, (void *)shadowSrf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL,
+									  IA_SHADOWONLY);
 			}
 
 			for(iaVBO = light->firstInteractionVBO; iaVBO; iaVBO = iaVBO->next)
