@@ -308,6 +308,28 @@ int MapPlaneFromEquation(vec4_t plane)
 
 
 /*
+CompareBrushSides()
+compare function for qsort()
+*/
+
+static int CompareBrushSides(const void *a, const void *b)
+{
+	side_t         *sidea, *sideb;
+
+	sidea = (side_t *) a;
+	sideb = (side_t *) b;
+
+	/* move area portals to the front */
+	if((sidea->compileFlags & C_AREAPORTAL) && !(sideb->compileFlags & C_AREAPORTAL))
+		return -1;
+	else if(!(sidea->compileFlags & C_AREAPORTAL) && (sideb->compileFlags & C_AREAPORTAL))
+		return 1;
+
+	/* functionally equivalent */
+	return 0;
+}
+
+/*
 SetBrushContents()
 the content flags and compile flags on all sides of a brush should be the same
 */
@@ -319,6 +341,8 @@ void SetBrushContents(brush_t * b)
 	int             i;
 	qboolean        mixed;
 
+	/* Tr3B: sort brush sides because Doom 3 visportals don't need to be on the first brush side */
+	qsort(b->sides, b->numsides, sizeof(b->sides[0]), CompareBrushSides);
 
 	/* get initial compile flags from first side */
 	s = &b->sides[0];
@@ -336,10 +360,6 @@ void SetBrushContents(brush_t * b)
 		
 		if(s->contentFlags != contentFlags || s->compileFlags != compileFlags)
 			mixed = qtrue;
-
-		/* Tr3B: Doom 3 visportals don't need to be on the first brush side */
-		contentFlags |= s->contentFlags;
-		compileFlags |= s->compileFlags;
 	}
 
 	/* ydnar: getting rid of this stupid warning */

@@ -2485,7 +2485,7 @@ void EmitPatchSurface(mapDrawSurface_t * ds)
 	/* set it up */
 	out->surfaceType = MST_PATCH;
 	if(debugSurfaces)
-		out->shaderNum = EmitShader("debugsurfaces", NULL, NULL);
+		out->shaderNum = EmitShader("debugSurfaces", NULL, NULL);
 	else if(patchMeta)
 	{
 		/* patch meta requires that we have nodraw patches for collision */
@@ -2709,7 +2709,7 @@ static void EmitTriangleSurface(mapDrawSurface_t * ds)
 
 	/* set it up */
 	if(debugSurfaces)
-		out->shaderNum = EmitShader("debugsurfaces", NULL, NULL);
+		out->shaderNum = EmitShader("debugSurfaces", NULL, NULL);
 	else
 		out->shaderNum = EmitShader(ds->shaderInfo->shader, &ds->shaderInfo->contentFlags, &ds->shaderInfo->surfaceFlags);
 	out->patchWidth = ds->patchWidth;
@@ -2892,7 +2892,10 @@ void MakeDebugPortalSurfs(tree_t * tree)
 	Sys_FPrintf(SYS_VRB, "--- MakeDebugPortalSurfs ---\n");
 
 	/* get portal debug shader */
-	si = ShaderInfoForShader("debugportals");
+	if(debugAreaPortals)
+		si = ShaderInfoForShader("debugAreaPortals");
+	else
+		si = ShaderInfoForShader("debugPortals");
 
 	/* walk the tree */
 	MakeDebugPortalSurfs_r(tree->headnode, si);
