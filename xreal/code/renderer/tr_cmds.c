@@ -62,7 +62,7 @@ void R_PerformanceCounters(void)
 		   backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight));
 		 */
 
-		ri.Printf(PRINT_ALL, "%i draws VBO: %i arrays %i elements %i verts %i tris\n",
+		ri.Printf(PRINT_ALL, "%i draws %i vbos %i ibos %i verts %i tris\n",
 				  backEnd.pc.c_drawElements,
 				  backEnd.pc.c_vboVertexBuffers, backEnd.pc.c_vboIndexBuffers,
 				  backEnd.pc.c_vboVertexes, backEnd.pc.c_vboIndexes / 3);

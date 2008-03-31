@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../cgame/tr_types.h"
 
-#define	REF_API_VERSION		11
+#define	REF_API_VERSION		12
 
 //
 // these are the functions exported by the refresh module

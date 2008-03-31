@@ -589,58 +589,6 @@ void GL_ClientState(unsigned long stateBits)
 	glState.glClientStateBits = stateBits;
 }
 
-/*
-void GL_SetVertexAttribs()
-{
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		//if(glState.glClientStateBits & GLCS_VERTEX)
-		//  qglVertexPointer(3, GL_FLOAT, 16, BUFFER_OFFSET(tess.ofsXYZ));
-
-		if(glState.glClientStateBits & GLCS_TEXCOORD)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsTexCoords));
-
-		if(glState.glClientStateBits & GLCS_LIGHTCOORD)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(glState.currentVBO->ofsLightCoords));
-
-		if(glState.glClientStateBits & GLCS_TANGENT)
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsTangents));
-
-		if(glState.glClientStateBits & GLCS_BINORMAL)
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(glState.currentVBO->ofsBinormals));
-
-		if(glState.glClientStateBits & GLCS_NORMAL)
-			qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(glState.currentVBO->ofsNormals));
-
-		if(glState.glClientStateBits & GLCS_COLOR)
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(glState.currentVBO->ofsColors));
-	}
-	else
-	{
-		//if(glState.glClientStateBits & GLCS_VERTEX)
-		//  qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-
-		if(glState.glClientStateBits & GLCS_TEXCOORD)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
-
-		if(glState.glClientStateBits & GLCS_LIGHTCOORD)
-			qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
-
-		if(glState.glClientStateBits & GLCS_TANGENT)
-			qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
-
-		if(glState.glClientStateBits & GLCS_BINORMAL)
-			qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
-
-		if(glState.glClientStateBits & GLCS_NORMAL)
-			qglNormalPointer(GL_FLOAT, 16, tess.normals);
-
-		if(glState.glClientStateBits & GLCS_COLOR)
-			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
-	}
-}
-*/
-
 
 /*
 ================

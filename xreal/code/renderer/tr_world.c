@@ -430,7 +430,7 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		return;
 	}
 
-	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && bspModel->numVBOSurfaces)
+	if(r_vboModels->integer && bspModel->numVBOSurfaces)
 	{
 		int             i;
 		srfVBOMesh_t   *vboSurface;
@@ -786,9 +786,6 @@ static void R_UpdateClusterSurfaces()
 
 	srfVBOMesh_t   *vboSurf;
 	IBO_t          *ibo;
-
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
 
 	if(tr.viewCluster < 0 || tr.viewCluster >= tr.world->numClusters)
 	{
@@ -1238,7 +1235,7 @@ void R_AddWorldSurfaces(void)
 	// dynamically compute far clip plane distance for sky
 	R_SetFarClip();
 
-	if(glConfig.vertexBufferObjectAvailable && r_vboWorld->integer)
+	if(r_vboWorld->integer)
 	{
 		int             j;
 		srfVBOMesh_t   *srf;
@@ -1305,7 +1302,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 	tr.currentEntity = &tr.worldEntity;
 
-	if(glConfig.vertexBufferObjectAvailable && (r_vboShadows->integer || r_vboLighting->integer))
+	if(r_vboShadows->integer || r_vboLighting->integer)
 	{
 		interactionVBO_t *iaVBO;
 		srfVBOMesh_t   *srf;

@@ -263,7 +263,7 @@ void R_AddMDXSurfaces(trRefEntity_t * ent)
 	}
 
 	// draw all surfaces
-	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && model->numVBOSurfaces)
+	if(r_vboModels->integer && model->numVBOSurfaces)
 	{
 		int             i;
 		srfVBOMesh_t   *vboSurface;
@@ -408,7 +408,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	// generate interactions with all surfaces
-	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && model->numVBOSurfaces)
+	if(r_vboModels->integer && model->numVBOSurfaces)
 	{
 		// new brute force method: just render everthing with static VBOs
 		int             i;

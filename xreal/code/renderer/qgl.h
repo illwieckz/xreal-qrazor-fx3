@@ -485,10 +485,6 @@ extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programOb
 // GL_ARB_draw_buffers
 extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 
-// GL_EXT_compiled_vertex_array
-extern void     (APIENTRY * qglLockArraysEXT) (GLint, GLint);
-extern void     (APIENTRY * qglUnlockArraysEXT) (void);
-
 // GL_EXT_stencil_two_side
 extern void     (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
 

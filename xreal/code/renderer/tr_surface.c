@@ -56,9 +56,12 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
+	if(glState.currentVBO || glState.currentIBO)
 	{
 		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
 		return;
 	}
 
@@ -1005,6 +1008,14 @@ static void Tess_SurfaceBeam(void)
 	vec3_t          oldorigin, origin;
 
 	GLimp_LogComment("--- Tess_SurfaceBeam ---\n");
+
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
 
 	e = &backEnd.currentEntity->e;
 
@@ -2015,6 +2026,14 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType, int numLightIndexes, in
 		return;
 	}
 
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+
 	switch (backEnd.currentEntity->e.reType)
 	{
 		case RT_SPRITE:
@@ -2060,6 +2079,14 @@ static void Tess_SurfaceFlare(srfFlare_t * surf, int numLightIndexes, int *light
 		return;
 	}
 
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+
 	VectorMA(surf->origin, 2.0, surf->normal, origin);
 	VectorSubtract(origin, backEnd.viewParms.or.origin, dir);
 	VectorNormalize(dir);
@@ -2084,6 +2111,14 @@ static void Tess_SurfaceDisplayList(srfDisplayList_t * surf, int numLightIndexes
 		return;
 	}
 
+	if(glState.currentVBO || glState.currentIBO)
+	{
+		Tess_EndBegin();
+
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+
 	// all apropriate state must be set in Tess_Begin
 	// this isn't implemented yet...
 	qglCallList(surf->listNum);
@@ -2099,10 +2134,8 @@ static void Tess_SurfaceVBOMesh(srfVBOMesh_t * srf, int numLightIndexes, int *li
 {
 	GLimp_LogComment("--- Tess_SurfaceVBOMesh ---\n");
 
-	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo || !srf->ibo)
-	{
+	if(!srf->vbo || !srf->ibo)
 		return;
-	}
 
 	Tess_EndBegin();
 
@@ -2125,10 +2158,8 @@ static void Tess_SurfaceVBOShadowVolume(srfVBOShadowVolume_t * srf, int numLight
 {
 	GLimp_LogComment("--- Tess_SurfaceVBOShadowVolume ---\n");
 
-	if(!glConfig.vertexBufferObjectAvailable || !srf->vbo || !srf->ibo)
-	{
+	if(!srf->vbo || !srf->ibo)
 		return;
-	}
 
 	Tess_EndBegin();
 

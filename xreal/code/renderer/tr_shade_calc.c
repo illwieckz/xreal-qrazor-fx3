@@ -925,7 +925,7 @@ void Tess_DeformGeometry(void)
 	int             i;
 	deformStage_t  *ds;
 
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
+	if(glState.currentVBO)
 	{
 		// static VBOs are imcompatible with deformVertexes
 		return;

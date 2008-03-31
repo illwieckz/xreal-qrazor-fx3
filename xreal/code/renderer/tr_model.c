@@ -472,9 +472,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		surf++;
 	}
 
-#if 1
 	// build static VBO surfaces
-	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && forceStatic)
+	if(r_vboModels->integer && forceStatic)
 	{
 		int             vertexesNum;
 		byte           *data;
@@ -541,11 +540,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		// create a VBO for each shader
 		shader = oldShader = NULL;
 
-		// TODO
-
 		Com_InitGrowList(&vboSurfaces, 10);
 
-#if 1
 		for(k = 0; k < numSurfaces; k++)
 		{
 			surf = surfacesSorted[k];
@@ -825,7 +821,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 					dataOfs += sizeof(color4ub_t);
 				}
 
-				vboSurf->vbo = R_CreateStaticVBO(va("staticMD3Mesh_vertices %i", vboSurfaces.currentElements), data, dataSize);
+				vboSurf->vbo = R_CreateStaticVBO(va("staticMD3Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize);
 				vboSurf->vbo->ofsXYZ = 0;
 				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 				vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -834,7 +830,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vboSurf->vbo->ofsNormals = ofsNormals;
 				vboSurf->vbo->ofsColors = ofsColors;
 
-				vboSurf->ibo = R_CreateStaticIBO(va("staticMD3Mesh_indices %i", vboSurfaces.currentElements), indexes, indexesSize);
+				vboSurf->ibo = R_CreateStaticIBO(va("staticMD3Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize);
 
 				ri.Hunk_FreeTempMemory(indexes);
 				ri.Hunk_FreeTempMemory(data);
@@ -849,7 +845,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 			}
 		}
-#endif
+
 		ri.Hunk_FreeTempMemory(surfacesSorted);
 
 		// move VBO surfaces list to hunk
@@ -865,7 +861,6 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 
 		//ri.Printf(PRINT_ALL, "%i MD3 VBO surfaces created\n", mdxModel->numVBOSurfaces);
 	}
-#endif
 
 	return qtrue;
 }

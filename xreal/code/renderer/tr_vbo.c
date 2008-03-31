@@ -454,9 +454,6 @@ R_InitVBOs
 */
 void R_InitVBOs(void)
 {
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
-
 	Com_InitGrowList(&tr.vbos, 100);
 	Com_InitGrowList(&tr.ibos, 100);
 
@@ -474,9 +471,6 @@ void R_ShutdownVBOs(void)
 	int             i;
 	VBO_t          *vbo;
 	IBO_t          *ibo;
-
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
 
 	R_BindNullVBO();
 	R_BindNullIBO();
@@ -536,12 +530,6 @@ void R_VBOList_f(void)
 	IBO_t          *ibo;
 	int             vertexesSize = 0;
 	int             indexesSize = 0;
-
-	if(!glConfig.vertexBufferObjectAvailable)
-	{
-		ri.Printf(PRINT_ALL, "GL_ARB_vertex_buffer_object is not available.\n");
-		return;
-	}
 
 	ri.Printf(PRINT_ALL, " size          name\n");
 	ri.Printf(PRINT_ALL, "----------------------------------------------------------\n");

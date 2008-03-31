@@ -81,8 +81,6 @@ cvar_t         *r_atiFlippedImageFix;
 cvar_t         *r_glslAlphaTest;
 
 cvar_t         *r_ext_compressed_textures;
-cvar_t         *r_ext_compiled_vertex_array;
-cvar_t         *r_ext_vertex_buffer_object;
 cvar_t         *r_ext_occlusion_query;
 cvar_t         *r_ext_texture_non_power_of_two;
 cvar_t         *r_ext_draw_buffers;
@@ -1229,13 +1227,10 @@ void GL_SetDefaultState(void)
 	glState.currentProgram = 0;
 	qglUseProgramObjectARB(0);
 
-	if(glConfig.vertexBufferObjectAvailable)
-	{
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-		glState.currentVBO = NULL;
-		glState.currentIBO = NULL;
-	}
+	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	glState.currentVBO = NULL;
+	glState.currentIBO = NULL;
 
 	if(glConfig.framebufferObjectAvailable)
 	{
@@ -1381,8 +1376,6 @@ void R_Register(void)
 {
 	// latched and archived variables
 	r_ext_compressed_textures = ri.Cvar_Get("r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_compiled_vertex_array = ri.Cvar_Get("r_ext_compiled_vertex_array", "0", CVAR_CHEAT | CVAR_LATCH);
-	r_ext_vertex_buffer_object = ri.Cvar_Get("r_ext_vertex_buffer_object", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_CHEAT | CVAR_LATCH);

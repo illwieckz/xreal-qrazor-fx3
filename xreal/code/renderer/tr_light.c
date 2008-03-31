@@ -75,7 +75,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
-	if(glConfig.vertexBufferObjectAvailable && r_vboModels->integer && bspModel->numVBOSurfaces)
+	if(r_vboModels->integer && bspModel->numVBOSurfaces)
 	{
 		srfVBOMesh_t   *vboSurface;
 		shader_t       *shader;

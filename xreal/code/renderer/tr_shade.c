@@ -1286,7 +1286,7 @@ DrawElements
 static void DrawElements()
 {
 	// move tess data through the GPU, finally
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO && glState.currentIBO)
+	if(glState.currentVBO && glState.currentIBO)
 	{
 		//qglDrawRangeElementsEXT(GL_TRIANGLES, 0, tessmesh->vertexes.size(), mesh->indexes.size(), GL_UNSIGNED_INT, VBO_BUFFER_OFFSET(mesh->vbo_indexes_ofs));
 
@@ -1429,30 +1429,8 @@ static void DrawTris()
 	GL_ClientState(GLCS_VERTEX);
 	qglDepthRange(0, 0);
 
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
 	DrawElements();
 
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
 	qglDepthRange(0, 1);
 }
 
@@ -2446,7 +2424,7 @@ static void Render_screen(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.screenShader.program);
 
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
+	if(glState.currentVBO)
 	{
 		qglColor4fv(tess.svars.color);
 		GL_ClientState(GLCS_VERTEX);
@@ -2953,24 +2931,6 @@ void Tess_StageIteratorGeneric()
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
 	}
 
-	// lock XYZ
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
 	// call shader function
 	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
@@ -3086,20 +3046,6 @@ void Tess_StageIteratorGeneric()
 		}
 	}
 
-	/*
-	   if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_forceFog->value > 0)
-	   {
-	   Render_uniformFog();
-	   }
-	 */
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
 	// reset polygon offset
 	if(tess.surfaceShader->polygonOffset)
 	{
@@ -3133,24 +3079,6 @@ void Tess_StageIteratorGBuffer()
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
 	}
 
 	// call shader function
@@ -3249,13 +3177,6 @@ void Tess_StageIteratorGBuffer()
 		}
 	}
 
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
 	// reset polygon offset
 	qglDisable(GL_POLYGON_OFFSET_FILL);
 }
@@ -3286,24 +3207,6 @@ void Tess_StageIteratorShadowFill()
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
 	}
 
 	// call shader function
@@ -3347,13 +3250,6 @@ void Tess_StageIteratorShadowFill()
 		}
 	}
 
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
-
 	// reset polygon offset
 	qglDisable(GL_POLYGON_OFFSET_FILL);
 }
@@ -3371,24 +3267,6 @@ void Tess_StageIteratorStencilShadowVolume()
 	}
 
 	GL_CheckErrors();
-
-	// lock XYZ
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
 
 	if(r_showShadowVolumes->integer)
 	{
@@ -3590,13 +3468,6 @@ void Tess_StageIteratorStencilShadowVolume()
 			//  qglFrontFace(GL_CCW);
 		}
 	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
-	}
 }
 
 void Tess_StageIteratorStencilLighting()
@@ -3649,24 +3520,6 @@ void Tess_StageIteratorStencilLighting()
 	{
 		qglEnable(GL_POLYGON_OFFSET_FILL);
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-	}
-
-	// lock XYZ
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
 	}
 
 	// call shader function
@@ -3733,13 +3586,6 @@ void Tess_StageIteratorStencilLighting()
 					break;
 			}
 		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
 	}
 
 	// reset polygon offset
@@ -3801,24 +3647,6 @@ void Tess_StageIteratorLighting()
 		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
 	}
 
-	// lock XYZ
-	/*
-	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(glState.currentVBO->ofsXYZ));
-	}
-	else
-	{
-		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
-	}
-	*/
-
-	if(qglLockArraysEXT)
-	{
-		qglLockArraysEXT(0, tess.numVertexes);
-		GLimp_LogComment("glLockArraysEXT\n");
-	}
-
 	// call shader function
 	attenuationZStage = tess.lightShader->stages[0];
 
@@ -3883,13 +3711,6 @@ void Tess_StageIteratorLighting()
 					break;
 			}
 		}
-	}
-
-	// unlock arrays
-	if(qglUnlockArraysEXT)
-	{
-		qglUnlockArraysEXT();
-		GLimp_LogComment("glUnlockArraysEXT\n");
 	}
 
 	// reset polygon offset
@@ -3954,12 +3775,9 @@ void Tess_End()
 		}
 	}
 
-	// unbind VBO
-	if(glConfig.vertexBufferObjectAvailable)
-	{
-		R_BindNullVBO();
-		R_BindNullIBO();
-	}
+	// FIXME: remove the unbinds if possible
+	//R_BindNullVBO();
+	//R_BindNullIBO();
 
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;

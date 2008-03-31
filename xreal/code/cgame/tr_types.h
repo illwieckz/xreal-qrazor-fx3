@@ -262,8 +262,6 @@ typedef struct
 
 	int             maxCubeMapTextureSize;
 
-	qboolean        vertexBufferObjectAvailable;
-
 	qboolean        occlusionQueryAvailable;
 	int             occlusionQueryBits;
 

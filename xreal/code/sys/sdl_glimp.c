@@ -150,9 +150,6 @@ void            (APIENTRYP qglActiveTextureARB) (GLenum texture);
 void            (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
 void            (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 
-void            (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
-void            (APIENTRYP qglUnlockArraysEXT) (void);
-
 /*
 ===============
 GLimp_Shutdown
@@ -576,7 +573,6 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObjectAvailable = qfalse;
 	qglBindBufferARB = NULL;
 	qglDeleteBuffersARB = NULL;
 	qglGenBuffersARB = NULL;
@@ -590,30 +586,22 @@ static void GLimp_InitExtensions(void)
 	qglGetBufferPointervARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_buffer_object"))
 	{
-		if(r_ext_vertex_buffer_object->value)
-		{
-			qglBindBufferARB = (PFNGLBINDBUFFERARBPROC) SDL_GL_GetProcAddress("glBindBufferARB");
-			qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) SDL_GL_GetProcAddress("glDeleteBuffersARB");
-			qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC) SDL_GL_GetProcAddress("glGenBuffersARB");
-			qglIsBufferARB = (PFNGLISBUFFERARBPROC) SDL_GL_GetProcAddress("glIsBufferARB");
-			qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) SDL_GL_GetProcAddress("glBufferDataARB");
-			qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glBufferSubDataARB");
-			qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glGetBufferSubDataARB");
-			qglMapBufferARB = (PFNGLMAPBUFFERARBPROC) SDL_GL_GetProcAddress("glMapBufferARB");
-			qglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) SDL_GL_GetProcAddress("glUnmapBufferARB");
-			qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetBufferParameterivARB");
-			qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) SDL_GL_GetProcAddress("glGetBufferPointervARB");
-			glConfig.vertexBufferObjectAvailable = qtrue;
-			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n");
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_vertex_buffer_object\n");
-		}
+		qglBindBufferARB = (PFNGLBINDBUFFERARBPROC) SDL_GL_GetProcAddress("glBindBufferARB");
+		qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) SDL_GL_GetProcAddress("glDeleteBuffersARB");
+		qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC) SDL_GL_GetProcAddress("glGenBuffersARB");
+		qglIsBufferARB = (PFNGLISBUFFERARBPROC) SDL_GL_GetProcAddress("glIsBufferARB");
+		qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) SDL_GL_GetProcAddress("glBufferDataARB");
+		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glBufferSubDataARB");
+		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glGetBufferSubDataARB");
+		qglMapBufferARB = (PFNGLMAPBUFFERARBPROC) SDL_GL_GetProcAddress("glMapBufferARB");
+		qglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) SDL_GL_GetProcAddress("glUnmapBufferARB");
+		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetBufferParameterivARB");
+		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) SDL_GL_GetProcAddress("glGetBufferPointervARB");
+		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n");
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_buffer_object not found\n");
+		ri.Error(ERR_FATAL, "...GL_ARB_vertex_buffer_object not found\n");
 	}
 
 	// GL_ARB_occlusion_query
@@ -833,29 +821,6 @@ static void GLimp_InitExtensions(void)
 	else
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_float not found\n");
-	}
-
-	// GL_EXT_compiled_vertex_array
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_compiled_vertex_array"))
-	{
-		if(r_ext_compiled_vertex_array->value)
-		{
-			ri.Printf(PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n");
-			qglLockArraysEXT = (void (APIENTRY *) (int, int))SDL_GL_GetProcAddress("glLockArraysEXT");
-			qglUnlockArraysEXT = (void (APIENTRY *) (void))SDL_GL_GetProcAddress("glUnlockArraysEXT");
-			if(!qglLockArraysEXT || !qglUnlockArraysEXT)
-			{
-				ri.Error(ERR_FATAL, "bad getprocaddress");
-			}
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n");
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n");
 	}
 
 	// GL_S3_s3tc

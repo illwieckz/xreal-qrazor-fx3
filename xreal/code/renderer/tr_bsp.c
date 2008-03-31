@@ -2902,9 +2902,6 @@ static void R_CreateWorldVBO()
 //  int             numSurfaces;
 	bspSurface_t   *surface;
 
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
-
 	numVerts = 0;
 	numTriangles = 0;
 	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
@@ -3101,7 +3098,7 @@ static void R_CreateWorldVBO()
 										 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
 										 GLCS_NORMAL | GLCS_COLOR);
 #else
-	s_worldData.vbo = R_CreateStaticVBO2(va("bspModelMesh_vertices %i", 0), numVerts, verts,
+	s_worldData.vbo = R_CreateStaticVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
 										 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
 										 GLCS_NORMAL | GLCS_COLOR);
 #endif
@@ -3139,9 +3136,6 @@ static void R_CreateSubModelVBOs()
 
 	growList_t      vboSurfaces;
 	srfVBOMesh_t   *vboSurf;
-
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
 
 	for(m = 1, model = s_worldData.models; m < s_worldData.numModels; m++, model++)
 	{
@@ -3423,11 +3417,11 @@ static void R_CreateSubModelVBOs()
 							  c_redundantVertexes, vboSurfaces.currentElements, shader->name, numVerts, numTriangles);
 				}
 
-				vboSurf->vbo = R_CreateStaticVBO2(va("staticEntityMesh_vertices %i", vboSurfaces.currentElements), numVerts, optimizedVerts,
+				vboSurf->vbo = R_CreateStaticVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, optimizedVerts,
 									   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
 									   | GLCS_COLOR);
 
-				vboSurf->ibo = R_CreateStaticIBO2(va("staticEntityMesh_indices %i", vboSurfaces.currentElements), numTriangles, triangles);
+				vboSurf->ibo = R_CreateStaticIBO2(va("staticBspModel%i_IBO %i", vboSurfaces.currentElements), numTriangles, triangles);
 
 				ri.Hunk_FreeTempMemory(triangles);
 				ri.Hunk_FreeTempMemory(optimizedVerts);
@@ -5207,9 +5201,6 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 
 	srfVBOMesh_t   *vboSurf;
 
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
-
 	if(!r_vboLighting->integer)
 		return;
 
@@ -5518,9 +5509,6 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 	srfVBOMesh_t   *vboSurf;
 
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
-
 	if(!r_vboShadows->integer)
 		return;
 
@@ -5819,10 +5807,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					}
 
 					vboSurf->vbo =
-						R_CreateStaticVBO2(va("staticShadowPyramidMesh_vertices %i", c_vboShadowSurfaces), numVerts,
+						R_CreateStaticVBO2(va("staticShadowPyramidMesh_VBO %i", c_vboShadowSurfaces), numVerts,
 										   optimizedVerts, GLCS_VERTEX | GLCS_TEXCOORD);
 					vboSurf->ibo =
-						R_CreateStaticIBO2(va("staticShadowPyramidMesh_indices %i", c_vboShadowSurfaces), numTriangles,
+						R_CreateStaticIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles,
 										   triangles);
 				}
 				else
@@ -5836,10 +5824,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 					}
 
 					vboSurf->vbo =
-						R_CreateStaticVBO2(va("staticShadowPyramidMesh_vertices %i", c_vboShadowSurfaces), numVerts,
+						R_CreateStaticVBO2(va("staticShadowPyramidMesh_VBO %i", c_vboShadowSurfaces), numVerts,
 										   optimizedVerts, GLCS_VERTEX);
 					vboSurf->ibo =
-						R_CreateStaticIBO2(va("staticShadowPyramidMesh_indices %i", c_vboShadowSurfaces), numTriangles,
+						R_CreateStaticIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles,
 										   triangles);
 				}
 
@@ -5904,10 +5892,6 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 
 	if(r_shadows->integer != 3)
 		return;
-
-	if(!glConfig.vertexBufferObjectAvailable)
-		return;
-
 	if(!r_vboShadows->integer)
 		return;
 
@@ -6525,16 +6509,14 @@ void RE_LoadWorldMap(const char *name)
 	R_LoadVisibility(&header->lumps[LUMP_VISIBILITY]);
 	R_LoadLightGrid(&header->lumps[LUMP_LIGHTGRID]);
 
-	// we precache interactions between lights and surfaces
-	// to reduce the polygon count
-	R_PrecacheInteractions();
-
 	// create static VBOS from the world
-//	R_CreateAreas();
-//	R_LoadAreaPortals(name);
 	R_CreateWorldVBO();
 	R_CreateClusters();
 	R_CreateSubModelVBOs();
+
+	// we precache interactions between lights and surfaces
+	// to reduce the polygon count
+	R_PrecacheInteractions();
 
 	s_worldData.dataSize = (byte *) ri.Hunk_Alloc(0, h_low) - startMarker;
 
