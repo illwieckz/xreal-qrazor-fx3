@@ -2231,7 +2231,7 @@ void            GL_CheckErrors_(const char *filename, int line);
 
 void            GL_State(unsigned long stateVector);
 void            GL_ClientState(unsigned long stateBits);
-void            GL_SetVertexAttribs();
+//void            GL_SetVertexAttribs();
 void            GL_TexEnv(int env);
 void            GL_Cull(int cullType);
 

@@ -1215,6 +1215,13 @@ void GL_SetDefaultState(void)
 	qglEnableClientState(GL_VERTEX_ARRAY);
 	qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
 
+	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
+	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
+	qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
+	qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
+	qglNormalPointer(GL_FLOAT, 16, tess.normals);
+	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
+
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 	glState.glClientStateBits = GLCS_DEFAULT;

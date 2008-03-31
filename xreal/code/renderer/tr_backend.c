@@ -589,7 +589,7 @@ void GL_ClientState(unsigned long stateBits)
 	glState.glClientStateBits = stateBits;
 }
 
-
+/*
 void GL_SetVertexAttribs()
 {
 	if(glConfig.vertexBufferObjectAvailable && glState.currentVBO)
@@ -639,6 +639,7 @@ void GL_SetVertexAttribs()
 			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
 	}
 }
+*/
 
 
 /*
@@ -926,7 +927,6 @@ static void Render_lightVolume(trRefLight_t * light)
 			// enable shader, set arrays
 			GL_Program(tr.lightVolumeShader_omni.program);
 			//GL_ClientState(tr.lightVolumeShader_omni.attribs);
-			//GL_SetVertexAttribs();
 			GL_Cull(CT_BACK_SIDED);
 			GL_SelectTexture(0);
 			GL_Bind(tr.whiteImage);
@@ -2653,7 +2653,6 @@ void RB_RenderInteractionsDeferred()
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
 					GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
 
-					//GL_SetVertexAttribs();
 					GL_Cull(CT_TWO_SIDED);
 
 					// set uniforms
@@ -2725,7 +2724,6 @@ void RB_RenderInteractionsDeferred()
 					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
 					GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
 
-					//GL_SetVertexAttribs();
 					GL_Cull(CT_TWO_SIDED);
 
 					// set uniforms
@@ -3239,7 +3237,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
 						GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
 
-						//GL_SetVertexAttribs();
 						GL_Cull(CT_TWO_SIDED);
 
 						// set uniforms
@@ -3312,7 +3309,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
 						GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
 
-						//GL_SetVertexAttribs();
 						GL_Cull(CT_TWO_SIDED);
 
 						// set uniforms
@@ -3797,7 +3793,6 @@ void RB_RenderBloom(void)
 		// render contrast
 		GL_Program(tr.contrastShader.program);
 		GL_ClientState(tr.contrastShader.attribs);
-		GL_SetVertexAttribs();
 
 		GL_SelectTexture(0);
 		GL_Bind(tr.currentRenderImage);
@@ -3816,7 +3811,6 @@ void RB_RenderBloom(void)
 		// render bloom
 		GL_Program(tr.bloomShader.program);
 		GL_ClientState(tr.bloomShader.attribs);
-		GL_SetVertexAttribs();
 
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
@@ -3842,7 +3836,6 @@ void RB_RenderBloom(void)
 		// render contrast
 		GL_Program(tr.contrastShader.program);
 		GL_ClientState(tr.contrastShader.attribs);
-		GL_SetVertexAttribs();
 
 		GL_SelectTexture(0);
 		GL_Bind(tr.currentRenderImage);
@@ -3861,7 +3854,6 @@ void RB_RenderBloom(void)
 		// render blurX
 		GL_Program(tr.blurXShader.program);
 		GL_ClientState(tr.blurXShader.attribs);
-		GL_SetVertexAttribs();
 
 		qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
 
@@ -3881,7 +3873,6 @@ void RB_RenderBloom(void)
 		// render blurY
 		GL_Program(tr.blurYShader.program);
 		GL_ClientState(tr.blurYShader.attribs);
-		GL_SetVertexAttribs();
 
 		qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
 
@@ -3901,7 +3892,6 @@ void RB_RenderBloom(void)
 		// render bloom
 		GL_Program(tr.bloomShader.program);
 		GL_ClientState(tr.bloomShader.attribs);
-		GL_SetVertexAttribs();
 
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
@@ -3952,7 +3942,6 @@ void RB_RenderRotoscope(void)
 	// enable shader, set arrays
 	GL_Program(tr.rotoscopeShader.program);
 	GL_ClientState(tr.rotoscopeShader.attribs);
-	GL_SetVertexAttribs();
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
@@ -4008,7 +3997,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	qglColor4fv(colorWhite);
 	//GL_ClientState(tr.screenShader.attribs);
-	//GL_SetVertexAttribs();
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms

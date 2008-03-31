@@ -359,10 +359,18 @@ void R_BindVBO(VBO_t * vbo)
 
 	if(glState.currentVBO != vbo)
 	{
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vbo->ofsXYZ));
-
 		glState.currentVBO = vbo;
+
+		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
+		
+		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vbo->ofsXYZ));
+		
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsTexCoords));
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightCoords));
+		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsTangents));
+		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsBinormals));
+		qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(vbo->ofsNormals));
+		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(vbo->ofsColors));
 
 		backEnd.pc.c_vboVertexBuffers++;
 	}
@@ -380,7 +388,16 @@ void R_BindNullVBO(void)
 	if(glState.currentVBO)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
 		qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
+		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
+		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
+		qglNormalPointer(GL_FLOAT, 16, tess.normals);
+		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
+
 		glState.currentVBO = NULL;
 	}
 }

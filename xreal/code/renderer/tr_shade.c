@@ -1622,7 +1622,6 @@ static void Render_genericSingle(int stage)
 
 		qglColor4fv(tess.svars.color);
 	}
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, pStage->inverseVertexColor);
@@ -1651,7 +1650,6 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.vertexLightingShader_DBS_entity.program);
 	GL_ClientState(tr.vertexLightingShader_DBS_entity.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
@@ -1711,7 +1709,6 @@ static void Render_vertexLighting_DBS_world(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.vertexLightingShader_DBS_world.program);
 	GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
@@ -1765,7 +1762,6 @@ static void Render_lightMapping(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.lightMappingShader.program);
 	GL_ClientState(tr.lightMappingShader.attribs);
-	GL_SetVertexAttribs();
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -1795,7 +1791,6 @@ static void Render_deluxeMapping(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.deluxeMappingShader.program);
 	GL_ClientState(tr.deluxeMappingShader.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
@@ -1865,7 +1860,6 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	// enable shader, set arrays
 	GL_Program(tr.geometricFillShader_DBS.program);
 	GL_ClientState(tr.geometricFillShader_DBS.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	if(pStage->stateBits & GLS_ATEST_BITS)
@@ -1980,7 +1974,6 @@ static void Render_depthFill(int stage)
 
 		qglColor4fv(tess.svars.color);
 	}
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	if(r_glslAlphaTest->integer)
@@ -2032,7 +2025,6 @@ static void Render_shadowFill(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.shadowFillShader.program);
 	GL_ClientState(tr.shadowFillShader.attribs);
-	GL_SetVertexAttribs();
 
 	if(r_debugShadowMaps->integer)
 	{
@@ -2102,7 +2094,6 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 
 		qglColor4fv(colorWhite);
 	}
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
@@ -2209,7 +2200,6 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 
 		qglColor4fv(colorWhite);
 	}
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
@@ -2304,7 +2294,6 @@ static void Render_reflection_C(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.reflectionShader_C.program);
 	GL_ClientState(tr.reflectionShader_C.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2332,7 +2321,6 @@ static void Render_reflection_CB(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.reflectionShader_CB.program);
 	GL_ClientState(tr.reflectionShader_CB.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2365,7 +2353,6 @@ static void Render_refraction_C(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.refractionShader_C.program);
 	GL_ClientState(tr.refractionShader_C.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2399,7 +2386,6 @@ static void Render_dispersion_C(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.dispersionShader_C.program);
 	GL_ClientState(tr.dispersionShader_C.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2434,7 +2420,6 @@ static void Render_skybox(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.skyBoxShader.program);
 	GL_ClientState(tr.skyBoxShader.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -2470,8 +2455,6 @@ static void Render_screen(int stage)
 	{
 		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
 	}
-
-	GL_SetVertexAttribs();
 
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
@@ -2513,7 +2496,6 @@ static void Render_heatHaze(int stage)
 		// enable shader, set arrays
 		GL_Program(tr.depthTestShader.program);
 		GL_ClientState(tr.depthTestShader.attribs);
-		GL_SetVertexAttribs();
 
 		// set uniforms
 
@@ -2544,7 +2526,6 @@ static void Render_heatHaze(int stage)
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		qglColor4fv(colorWhite);
 		//GL_ClientState(tr.screenShader.attribs);
-		//GL_SetVertexAttribs();
 		GL_Cull(CT_TWO_SIDED);
 
 		// set uniforms
@@ -2586,7 +2567,6 @@ static void Render_heatHaze(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.heatHazeShader.program);
 	GL_ClientState(tr.heatHazeShader.attribs);
-	GL_SetVertexAttribs();
 
 	// set uniforms
 	if(pStage->stateBits & GLS_ATEST_BITS)
@@ -2645,7 +2625,6 @@ static void Render_liquid(int stage)
 	// enable shader, set arrays
 	GL_Program(tr.liquidShader.program);
 	GL_ClientState(tr.liquidShader.attribs);
-	GL_SetVertexAttribs();
 
 	qglColor4fv(tess.svars.color);
 
