@@ -67,7 +67,7 @@ qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkST)
 		{
 			return qfalse;
 		}
-		
+
 		if(checkST && ((v1->st[0] != v2->st[0]) || (v1->st[1] != v2->st[1])))
 		{
 			return qfalse;
@@ -865,7 +865,8 @@ Sets up the modelview matrix for a given viewParm
 void R_RotateForViewer(void)
 {
 	matrix_t        transformMatrix;
-//	matrix_t        viewMatrix;
+
+//  matrix_t        viewMatrix;
 
 	Com_Memset(&tr.or, 0, sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
@@ -1374,7 +1375,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 	}
 
 	Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, -1);
-	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+	rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 
 	// Tr3B: former assertion
 	if(tess.numVertexes >= 128)
@@ -1916,6 +1917,7 @@ void R_AddLightInteractions()
 		// calc local bounds for culling
 		if(light->isStatic)
 		{
+#if 1
 			// ignore if not in PVS
 			if(!r_noLightVisCull->integer)
 			{
@@ -1936,6 +1938,7 @@ void R_AddLightInteractions()
 					continue;
 				}
 			}
+#endif
 		}
 		else
 		{
@@ -2017,7 +2020,7 @@ void R_AddLightInteractions()
 		{
 			// add one fake interaction for this light
 			// because the renderer backend only loops through interactions
-			R_AddLightInteraction(light, NULL, NULL, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
+			R_AddLightInteraction(light, NULL, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
 		}
 		else
 		{

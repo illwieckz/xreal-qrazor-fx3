@@ -315,7 +315,7 @@ static void R_AddInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 
 	if(intersects)
 	{
-		R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+		R_AddLightInteraction(light, surf->data, surf->shader, cubeSideBits, iaType);
 
 		if(light->isStatic)
 			tr.pc.c_slightSurfaces++;
@@ -438,7 +438,7 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		for(i = 0; i < bspModel->numVBOSurfaces; i++)
 		{
 			vboSurface = bspModel->vboSurfaces[i];
-			
+
 			R_AddDrawSurf((void *)vboSurface, vboSurface->shader, vboSurface->lightmapNum);
 		}
 	}
@@ -770,8 +770,8 @@ static void R_UpdateClusterSurfaces()
 	int             numVerts;
 	int             numTriangles;
 
-//	static glIndex_t indexes[MAX_MAP_DRAW_INDEXES];
-//	static byte     indexes[MAX_MAP_DRAW_INDEXES * sizeof(glIndex_t)];
+//  static glIndex_t indexes[MAX_MAP_DRAW_INDEXES];
+//  static byte     indexes[MAX_MAP_DRAW_INDEXES * sizeof(glIndex_t)];
 	glIndex_t      *indexes;
 	int             indexesSize;
 
@@ -909,7 +909,7 @@ static void R_UpdateClusterSurfaces()
 			// build triangle indices
 			indexesSize = numTriangles * 3 * sizeof(glIndex_t);
 			indexes = ri.Hunk_AllocateTempMemory(indexesSize);
-			
+
 			numTriangles = 0;
 			for(l = k; l < numSurfaces; l++)
 			{
@@ -981,12 +981,12 @@ static void R_UpdateClusterSurfaces()
 				ibo = vboSurf->ibo;
 
 				/*
-				if(ibo->indexesVBO)
-				{
-					qglDeleteBuffersARB(1, &ibo->indexesVBO);
-					ibo->indexesVBO = 0;
-				}
-				*/
+				   if(ibo->indexesVBO)
+				   {
+				   qglDeleteBuffersARB(1, &ibo->indexesVBO);
+				   ibo->indexesVBO = 0;
+				   }
+				 */
 
 				//Com_Dealloc(ibo);
 				//Com_Dealloc(vboSurf);
@@ -995,7 +995,7 @@ static void R_UpdateClusterSurfaces()
 			{
 				vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
 				vboSurf->surfaceType = SF_VBO_MESH;
-				
+
 				vboSurf->vbo = tr.world->vbo;
 				vboSurf->ibo = ibo = ri.Hunk_Alloc(sizeof(*ibo), h_low);
 
@@ -1012,9 +1012,7 @@ static void R_UpdateClusterSurfaces()
 			vboSurf->lightmapNum = lightmapNum;
 
 			// FIXME: melt bounding boxes in bspCluster_t
-			//ClearBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
-			VectorClear(vboSurf->bounds[0]);
-			VectorClear(vboSurf->bounds[1]);			
+			ZeroBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
 
 			// make sure the render thread is stopped
 			R_SyncRenderThread();
@@ -1039,7 +1037,8 @@ static void R_UpdateClusterSurfaces()
 
 	if(r_showcluster->integer)
 	{
-		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i\n", tr.world->numClusterVBOSurfaces, cluster - tr.world->clusters);
+		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i\n", tr.world->numClusterVBOSurfaces,
+				  cluster - tr.world->clusters);
 	}
 }
 
@@ -1318,8 +1317,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 
 				shadowSrf = iaVBO->vboShadowVolume;
 
-				R_AddLightInteraction(light, (void *)shadowSrf, tr.defaultShader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL,
-									  IA_SHADOWONLY);
+				R_AddLightInteraction(light, (void *)shadowSrf, tr.defaultShader, CUBESIDE_CLIPALL, IA_SHADOWONLY);
 			}
 
 			for(iaVBO = light->firstInteractionVBO; iaVBO; iaVBO = iaVBO->next)
@@ -1330,7 +1328,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				srf = iaVBO->vboLightMesh;
 				shader = iaVBO->shader;
 
-				R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+				R_AddLightInteraction(light, (void *)srf, shader, CUBESIDE_CLIPALL, IA_LIGHTONLY);
 			}
 		}
 		else
@@ -1347,12 +1345,12 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				switch (light->l.rlType)
 				{
 					case RL_OMNI:
-						R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+						R_AddLightInteraction(light, (void *)srf, shader, CUBESIDE_CLIPALL, IA_LIGHTONLY);
 						break;
 
 					default:
 					case RL_PROJ:
-						R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, CUBESIDE_CLIPALL, IA_DEFAULT);
+						R_AddLightInteraction(light, (void *)srf, shader, CUBESIDE_CLIPALL, IA_DEFAULT);
 						break;
 				}
 			}
@@ -1366,7 +1364,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				srf = iaVBO->vboShadowMesh;
 				shader = iaVBO->shader;
 
-				R_AddLightInteraction(light, (void *)srf, shader, 0, NULL, 0, NULL, iaVBO->cubeSideBits, IA_SHADOWONLY);
+				R_AddLightInteraction(light, (void *)srf, shader, iaVBO->cubeSideBits, IA_SHADOWONLY);
 			}
 		}
 	}
@@ -1396,8 +1394,7 @@ void R_AddPrecachedWorldInteractions(trRefLight_t * light)
 				iaType = iaCache->type;
 			}
 
-			R_AddLightInteraction(light, surface->data, surface->shader, iaCache->numLightIndexes, iaCache->lightIndexes,
-								  iaCache->numShadowIndexes, iaCache->shadowIndexes, iaCache->cubeSideBits, iaType);
+			R_AddLightInteraction(light, surface->data, surface->shader, iaCache->cubeSideBits, iaType);
 		}
 	}
 }

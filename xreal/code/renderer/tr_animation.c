@@ -732,7 +732,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 		// don't add third_person objects if not viewing through a portal
 		if(!personalModel)
 		{
-			R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+			R_AddLightInteraction(light, (void *)surface, shader, cubeSideBits, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}

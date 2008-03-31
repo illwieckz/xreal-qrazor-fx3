@@ -465,7 +465,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 				// don't add third_person objects if not viewing through a portal
 				if(!personalModel)
 				{
-					R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, cubeSideBits, IA_SHADOWONLY);
+					R_AddLightInteraction(light, (void *)surface, shader, cubeSideBits, IA_SHADOWONLY);
 					tr.pc.c_dlightSurfaces++;
 				}
 			}
@@ -483,7 +483,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 				// don't add third_person objects if not viewing through a portal
 				if(!personalModel)
 				{
-					R_AddLightInteraction(light, (void *)vboSurface, shader, 0, NULL, 0, NULL, cubeSideBits, IA_LIGHTONLY);
+					R_AddLightInteraction(light, (void *)vboSurface, shader, cubeSideBits, IA_LIGHTONLY);
 					tr.pc.c_dlightSurfaces++;
 				}
 			}
@@ -505,7 +505,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 				// don't add third_person objects if not viewing through a portal
 				if(!personalModel)
 				{
-					R_AddLightInteraction(light, (void *)vboSurface, shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+					R_AddLightInteraction(light, (void *)vboSurface, shader, cubeSideBits, iaType);
 					tr.pc.c_dlightSurfaces++;
 				}
 			}
@@ -572,7 +572,7 @@ void R_AddMDXInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddLightInteraction(light, (void *)surface, shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+				R_AddLightInteraction(light, (void *)surface, shader, cubeSideBits, iaType);
 				tr.pc.c_dlightSurfaces++;
 			}
 		}

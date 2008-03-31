@@ -714,7 +714,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			c = (r + g + b) * inv255;
 
 			// expand the texel to its right
-			if(x == width -1)
+			if(x == width - 1)
 			{
 				r = in[4 * (y * width + x) + 0];
 				g = in[4 * (y * width + x) + 1];
@@ -730,7 +730,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			cx = (r + g + b) * inv255;
 
 			// expand the texel one up
-			if(y == height -1)
+			if(y == height - 1)
 			{
 				r = in[4 * (y * width + x) + 0];
 				g = in[4 * (y * width + x) + 1];
@@ -749,7 +749,7 @@ static void R_HeightMapToNormalMap(byte * in, int width, int height, float scale
 			dcy = scale * (c - cy);
 
 			// normalize the vector
-			VectorSet(n, dcx, dcy, 1.0); //scale);
+			VectorSet(n, dcx, dcy, 1.0);	//scale);
 			if(!VectorNormalize(n))
 				VectorSet(n, 0, 0, 1);
 
@@ -4444,11 +4444,11 @@ void R_CreateBuiltinImages(void)
 	out = data;
 	for(y = 0; y < 8; y++)
 	{
-		for (x = 0; x < 32; x++, out += 4)
+		for(x = 0; x < 32; x++, out += 4)
 		{
-			s = (((float)x + 0.5f) * (2.0f/32) - 1.0f);
+			s = (((float)x + 0.5f) * (2.0f / 32) - 1.0f);
 
-			s = Q_fabs(s) - (1.0f/32);
+			s = Q_fabs(s) - (1.0f / 32);
 
 			value = 1.0f - (s * 2.0f) + (s * s);
 
@@ -4461,7 +4461,9 @@ void R_CreateBuiltinImages(void)
 		}
 	}
 
-	tr.quadraticImage = R_CreateImage("_quadratic", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
+	tr.quadraticImage =
+		R_CreateImage("_quadratic", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP | IF_NOCOMPRESSION, FT_LINEAR,
+					  WT_CLAMP);
 
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();

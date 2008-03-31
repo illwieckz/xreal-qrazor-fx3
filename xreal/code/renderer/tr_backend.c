@@ -725,7 +725,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum)
 		{
 			// fast path, same as previous sort
-			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 			continue;
 		}
 
@@ -788,7 +788,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 		}
 
 		// add the triangles for this surface
-		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 	}
 
 	// draw the contents of the last shader batch
@@ -1029,7 +1029,7 @@ static void RB_RenderInteractions()
 		if(light == oldLight && entity == oldEntity && shader == oldShader)
 		{
 			// fast path, same as previous
-			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			rb_surfaceTable[*surface] (surface);
 			goto nextInteraction;
 		}
 
@@ -1118,7 +1118,7 @@ static void RB_RenderInteractions()
 		}
 
 		// add the triangles for this surface
-		rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+		rb_surfaceTable[*surface] (surface);
 
 	  nextInteraction:
 
@@ -1360,7 +1360,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				}
 
 				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+				rb_surfaceTable[*surface] (surface);
 				goto nextInteraction;
 			}
 			else
@@ -1404,7 +1404,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				}
 
 				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+				rb_surfaceTable[*surface] (surface);
 				goto nextInteraction;
 			}
 			else
@@ -1515,12 +1515,12 @@ static void RB_RenderInteractionsStencilShadowed()
 		if(drawShadows)
 		{
 			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface, 0, NULL, ia->numShadowIndexes, ia->shadowIndexes);
+			rb_surfaceTable[*surface] (surface);
 		}
 		else
 		{
 			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			rb_surfaceTable[*surface] (surface);
 		}
 
 	  nextInteraction:
@@ -2022,7 +2022,7 @@ static void RB_RenderInteractionsShadowMapped()
 						}
 
 						// fast path, same as previous
-						rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+						rb_surfaceTable[*surface] (surface);
 						goto nextInteraction;
 					}
 					else
@@ -2072,7 +2072,7 @@ static void RB_RenderInteractionsShadowMapped()
 				}
 
 				// fast path, same as previous
-				rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+				rb_surfaceTable[*surface] (surface);
 				goto nextInteraction;
 			}
 			else
@@ -2207,7 +2207,7 @@ static void RB_RenderInteractionsShadowMapped()
 				case RL_PROJ:
 				{
 					// add the triangles for this surface
-					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+					rb_surfaceTable[*surface] (surface);
 					break;
 				}
 
@@ -2218,7 +2218,7 @@ static void RB_RenderInteractionsShadowMapped()
 		else
 		{
 			// add the triangles for this surface
-			rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+			rb_surfaceTable[*surface] (surface);
 		}
 
 	  nextInteraction:
@@ -2375,7 +2375,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 		if(entity == oldEntity && shader == oldShader)
 		{
 			// fast path, same as previous sort
-			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 			continue;
 		}
 
@@ -2437,7 +2437,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 		}
 
 		// add the triangles for this surface
-		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface, 0, NULL, 0, NULL);
+		rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
 	}
 
 	// draw the contents of the last shader batch
@@ -3385,7 +3385,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 
 						// fast path, same as previous
-						rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+						rb_surfaceTable[*surface] (surface);
 						goto nextInteraction;
 					}
 					else
@@ -3491,7 +3491,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				case RL_PROJ:
 				{
 					// add the triangles for this surface
-					rb_surfaceTable[*surface] (surface, ia->numLightIndexes, ia->lightIndexes, 0, NULL);
+					rb_surfaceTable[*surface] (surface);
 					break;
 				}
 
@@ -3893,8 +3893,7 @@ void RB_RenderRotoscope(void)
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-							 tr.currentRenderImage->uploadHeight);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
 	// draw viewport
 	qglBegin(GL_QUADS);
@@ -5132,37 +5131,37 @@ static void RB_RenderDebugUtils()
 	}
 
 	/*
-	if(r_showAreaPortals->integer)
-	{
-		int             i, j;
-		bspAreaPortal_t *ap;
-		
-		GL_Program(0);
-		GL_State(GLS_DEPTHTEST_DISABLE);
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
+	   if(r_showAreaPortals->integer)
+	   {
+	   int             i, j;
+	   bspAreaPortal_t *ap;
 
-		for(i = 0, ap = tr.world->areaPortals; i < tr.world->numAreaPortals; i++, ap++)
-		{
-			//if(ia->noDepthBoundsTest)
-			{
-				qglColor4fv(colorBlue);
-			}
-			//else
-			//{
-			//	qglColor4fv(colorGreen);
-			//}
+	   GL_Program(0);
+	   GL_State(GLS_DEPTHTEST_DISABLE);
+	   GL_SelectTexture(0);
+	   GL_Bind(tr.whiteImage);
 
-			qglBegin(GL_LINES);
-			for(j = 0; j < 4; j++)
-			{
-				qglVertex3fv(ap->points[j]);
-				qglVertex3fv(ap->points[(j + 1) % 4]);
-			}
-			qglEnd();
-		}
-	}
-	*/
+	   for(i = 0, ap = tr.world->areaPortals; i < tr.world->numAreaPortals; i++, ap++)
+	   {
+	   //if(ia->noDepthBoundsTest)
+	   {
+	   qglColor4fv(colorBlue);
+	   }
+	   //else
+	   //{
+	   //   qglColor4fv(colorGreen);
+	   //}
+
+	   qglBegin(GL_LINES);
+	   for(j = 0; j < 4; j++)
+	   {
+	   qglVertex3fv(ap->points[j]);
+	   qglVertex3fv(ap->points[(j + 1) % 4]);
+	   }
+	   qglEnd();
+	   }
+	   }
+	 */
 
 	GL_CheckErrors();
 }

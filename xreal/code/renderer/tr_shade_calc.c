@@ -1160,5 +1160,3 @@ void RB_CalcTexMatrix(const textureBundle_t * bundle, matrix_t matrix)
 		}
 	}
 }
-
-

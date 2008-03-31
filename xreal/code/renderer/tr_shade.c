@@ -171,7 +171,9 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 			if(r_lightBleedReduction->value)
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n", r_lightBleedReduction->value));
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
+							r_lightBleedReduction->value));
 			}
 
 			if(r_softShadows->integer == 1)
@@ -214,7 +216,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 		if(r_precomputedLighting->integer)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
 		}
 
 		if(r_heatHazeFix->integer)
@@ -487,9 +490,8 @@ void GLSL_InitGPUShaders(void)
 
 	// directional light mapping aka deluxe mapping
 	GLSL_InitGPUShader(&tr.deluxeMappingShader,
-					 "deluxeMapping",
-					 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT |
-					 GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   "deluxeMapping",
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
 
 	tr.deluxeMappingShader.u_DiffuseMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseMap");
 	tr.deluxeMappingShader.u_NormalMap = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalMap");
@@ -1969,7 +1971,7 @@ static void Render_depthFill(int stage)
 
 	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
 	ClampColor(ambientColor);
-	
+
 	qglUniform3fARB(tr.depthFillShader.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
 
 	// bind u_ColorMap

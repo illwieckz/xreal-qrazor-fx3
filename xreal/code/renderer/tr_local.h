@@ -1002,15 +1002,6 @@ typedef struct interactionCache_s
 
 	struct bspSurface_s *surface;
 
-	int             numLightIndexes;
-	int            *lightIndexes;	// precached triangle indices facing light
-
-	int             numShadowIndexes;
-	int            *shadowIndexes;	// precached triangle indices of shadow edges
-
-	int             numShadowPlanes;
-	cplane_t       *shadowPlanes;	// shadow frustum to test against other interactions
-
 	byte            cubeSideBits;
 	qboolean        redundant;
 
@@ -1041,12 +1032,6 @@ typedef struct interaction_s
 	trRefEntity_t  *entity;
 	surfaceType_t  *surface;	// any of surface*_t
 	shader_t       *surfaceShader;
-
-	int             numLightIndexes;
-	int            *lightIndexes;	// precached triangle indices facing light
-
-	int             numShadowIndexes;
-	int            *shadowIndexes;	// precached triangle indices of shadow edges
 
 	byte            cubeSideBits;
 
@@ -1127,6 +1112,8 @@ typedef struct
 	int             indexes[3];
 	int             neighbors[3];
 	vec4_t          plane;
+	qboolean        facingLight;
+	qboolean        degenerated;
 } srfTriangle_t;
 
 typedef struct srfGridMesh_s
@@ -1236,8 +1223,7 @@ typedef struct srfVBOShadowVolume_s
 } srfVBOShadowVolume_t;
 
 
-extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *, int numLightIndexes, int *lightIndexes, int numShadowIndexes,
-														  int *shadowIndexes);
+extern void     (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *);
 
 /*
 ==============================================================================
@@ -1334,6 +1320,9 @@ typedef struct
 
 	int             numVerts;
 	srfVert_t      *verts;
+	int            *redundantLightVerts;		// util to optimize IBOs
+	int            *redundantShadowVerts;
+	int            *redundantShadowAlphaTestVerts;
 	VBO_t          *vbo;
 
 	int             numTriangles;
@@ -2537,9 +2526,7 @@ void            R_SetupLightView(trRefLight_t * light);
 void            R_SetupLightFrustum(trRefLight_t * light);
 void            R_SetupLightProjection(trRefLight_t * light);
 
-qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader,
-									  int numLightIndexes, int *lightIndexes,
-									  int numShadowIndexes, int *shadowIndexes, byte cubeSideBits, interactionType_t iaType);
+qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, byte cubeSideBits, interactionType_t iaType);
 
 void            R_SortInteractions(trRefLight_t * light);
 

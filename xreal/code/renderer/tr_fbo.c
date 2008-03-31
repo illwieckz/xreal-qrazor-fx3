@@ -139,12 +139,9 @@ void R_CreateFBOColorBuffer(FBO_t * fbo, int format, int index)
 	}
 
 #if 0
-	if(	format != GL_RGB &&
-		format != GL_RGBA &&
-		format != GL_RGB16F_ARB &&
-		format != GL_RGBA16F_ARB &&
-		format != GL_RGB32F_ARB &&
-		format != GL_RGBA32F_ARB)
+	if(format != GL_RGB &&
+	   format != GL_RGBA &&
+	   format != GL_RGB16F_ARB && format != GL_RGBA16F_ARB && format != GL_RGB32F_ARB && format != GL_RGBA32F_ARB)
 	{
 		ri.Printf(PRINT_WARNING, "R_CreateFBOColorBuffer: format %i is not color-renderable\n", format);
 		//return;
@@ -384,7 +381,7 @@ void R_InitFBOs(void)
 			GL_COLOR_ATTACHMENT1_EXT,
 			GL_COLOR_ATTACHMENT2_EXT,
 			GL_COLOR_ATTACHMENT3_EXT
-			//GL_DEPTH_ATTACHMENT_EXT
+				//GL_DEPTH_ATTACHMENT_EXT
 		};
 
 		if(glConfig.textureNPOTAvailable)
@@ -511,7 +508,8 @@ void R_InitFBOs(void)
 			}
 			else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
 			{
-				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], (r_shadowMapLuminanceAlpha->integer ? GL_LUMINANCE_ALPHA32F_ARB : GL_RGBA32F_ARB), 0);
+				R_CreateFBOColorBuffer(tr.shadowMapFBO[i],
+									   (r_shadowMapLuminanceAlpha->integer ? GL_LUMINANCE_ALPHA32F_ARB : GL_RGBA32F_ARB), 0);
 			}
 			else
 			{

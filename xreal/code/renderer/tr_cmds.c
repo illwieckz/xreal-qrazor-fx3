@@ -107,8 +107,7 @@ void R_PerformanceCounters(void)
 	{
 		ri.Printf(PRINT_ALL, "occlusion queries:%i avail:%i culled lights:%i time:%i\n",
 				  backEnd.pc.c_occlusionQueries, backEnd.pc.c_occlusionQueriesAvailable,
-				  backEnd.pc.c_occlusionQueriesLightsCulled,
-				  backEnd.pc.c_occlusionQueriesResponseTime);
+				  backEnd.pc.c_occlusionQueriesLightsCulled, backEnd.pc.c_occlusionQueriesResponseTime);
 	}
 	else if(r_speeds->integer == 8)
 	{
@@ -116,7 +115,8 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 9)
 	{
-		ri.Printf(PRINT_ALL, "deferred shading times: g-buffer:%i lighting:%i\n", backEnd.pc.c_deferredGBufferTime, backEnd.pc.c_deferredLightingTime);
+		ri.Printf(PRINT_ALL, "deferred shading times: g-buffer:%i lighting:%i\n", backEnd.pc.c_deferredGBufferTime,
+				  backEnd.pc.c_deferredLightingTime);
 	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));

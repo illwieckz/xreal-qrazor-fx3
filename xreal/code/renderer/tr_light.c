@@ -90,7 +90,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			if(shader->isSky || (!shader->interactLight && shader->noShadows))
 				continue;
 
-			R_AddLightInteraction(light, (void *)vboSurface, shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+			R_AddLightInteraction(light, (void *)vboSurface, shader, cubeSideBits, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}
@@ -105,25 +105,25 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			// FIXME: do more culling?
 
 			/*
-		   if(*surf->data == SF_FACE)
+			   if(*surf->data == SF_FACE)
 			   {
-		   ((srfSurfaceFace_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
-		   }
-		   else if(*surf->data == SF_GRID)
-		   {
-		   ((srfGridMesh_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
-		   }
-		   else if(*surf->data == SF_TRIANGLES)
-		   {
-		   ((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
-		   }
-		 */
+			   ((srfSurfaceFace_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
+			   }
+			   else if(*surf->data == SF_GRID)
+			   {
+			   ((srfGridMesh_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
+			   }
+			   else if(*surf->data == SF_TRIANGLES)
+			   {
+			   ((srfTriangles_t *) surf->data)->dlightBits[tr.smpFrame] = mask;
+			   }
+			 */
 
 			// skip all surfaces that don't matter for lighting only pass
 			if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
 				continue;
 
-			R_AddLightInteraction(light, surf->data, surf->shader, 0, NULL, 0, NULL, cubeSideBits, iaType);
+			R_AddLightInteraction(light, surf->data, surf->shader, cubeSideBits, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}
@@ -700,8 +700,7 @@ void R_SetupLightProjection(trRefLight_t * light)
 R_AddLightInteraction
 =================
 */
-qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, int numLightIndexes,
-							   int *lightIndexes, int numShadowIndexes, int *shadowIndexes, byte cubeSideBits,
+qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, byte cubeSideBits,
 							   interactionType_t iaType)
 {
 	int             iaIndex;
@@ -760,12 +759,6 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	ia->entity = tr.currentEntity;
 	ia->surface = surface;
 	ia->surfaceShader = surfaceShader;
-
-	ia->numLightIndexes = numLightIndexes;
-	ia->lightIndexes = lightIndexes;
-
-	ia->numShadowIndexes = numShadowIndexes;
-	ia->shadowIndexes = shadowIndexes;
 
 	ia->cubeSideBits = cubeSideBits;
 

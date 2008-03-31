@@ -1471,7 +1471,8 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 {
 	char           *token;
 	int             colorMaskBits = 0;
-	int             depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0, polyModeBits = 0;
+	int             depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits =
+		0, polyModeBits = 0;
 	qboolean        depthMaskExplicit = qfalse;
 	int             imageBits = 0;
 	filterType_t    filterType;

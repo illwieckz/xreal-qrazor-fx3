@@ -362,9 +362,9 @@ void R_BindVBO(VBO_t * vbo)
 		glState.currentVBO = vbo;
 
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-		
+
 		qglVertexPointer(4, GL_FLOAT, 0, BUFFER_OFFSET(vbo->ofsXYZ));
-		
+
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsTexCoords));
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsLightCoords));
 		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsTangents));
@@ -500,8 +500,8 @@ void R_ShutdownVBOs(void)
 		// FIXME: clean up this code
 		for(i = 0; i < tr.world->clusterVBOSurfaces.currentElements; i++)
 		{
-			srfVBOMesh_t *vboSurf;
-			
+			srfVBOMesh_t   *vboSurf;
+
 			vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, i);
 			ibo = vboSurf->ibo;;
 
@@ -549,13 +549,13 @@ void R_VBOList_f(void)
 		// FIXME: clean up this code
 		for(i = 0; i < tr.world->clusterVBOSurfaces.currentElements; i++)
 		{
-			srfVBOMesh_t *vboSurf;
-			
+			srfVBOMesh_t   *vboSurf;
+
 			vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, i);
 			ibo = vboSurf->ibo;
 
 			ri.Printf(PRINT_ALL, "%d.%02d MB %s\n", ibo->indexesSize / (1024 * 1024),
-				  (ibo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), ibo->name);
+					  (ibo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), ibo->name);
 
 			indexesSize += ibo->indexesSize;
 		}

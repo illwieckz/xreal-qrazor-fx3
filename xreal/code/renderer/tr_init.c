@@ -1565,9 +1565,9 @@ void R_Register(void)
 	r_noShadowFrustums = ri.Cvar_Get("r_noShadowFrustums", "0", CVAR_CHEAT);
 	r_noLightFrustums = ri.Cvar_Get("r_noLightFrustums", "0", CVAR_CHEAT);
 
-	r_maxPolys = ri.Cvar_Get("r_maxpolys", "20000", 0);				// 600 in vanilla Q3A
+	r_maxPolys = ri.Cvar_Get("r_maxpolys", "20000", 0);	// 600 in vanilla Q3A
 	AssertCvarRange(r_maxPolys, 600, 30000, qtrue);
-	
+
 	r_maxPolyVerts = ri.Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A
 	AssertCvarRange(r_maxPolyVerts, 3000, 200000, qtrue);
 
@@ -1662,16 +1662,21 @@ void R_Init(void)
 
 	R_Register();
 
-	ptr = ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer + sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
+	ptr =
+		ri.Hunk_Alloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer +
+					  sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 	backEndData[0] = (backEndData_t *) ptr;
 	backEndData[0]->polys = (srfPoly_t *) ((char *)ptr + sizeof(*backEndData[0]));
 	backEndData[0]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * r_maxPolys->integer);
 	if(r_smp->integer)
 	{
-		ptr = ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer + sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
+		ptr =
+			ri.Hunk_Alloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer +
+						  sizeof(polyVert_t) * r_maxPolyVerts->integer, h_low);
 		backEndData[1] = (backEndData_t *) ptr;
 		backEndData[1]->polys = (srfPoly_t *) ((char *)ptr + sizeof(*backEndData[1]));
-		backEndData[1]->polyVerts = (polyVert_t *) ((char *)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer);
+		backEndData[1]->polyVerts =
+			(polyVert_t *) ((char *)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * r_maxPolys->integer);
 	}
 	else
 	{
@@ -1745,7 +1750,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	if(tr.registered)
 	{
 		R_SyncRenderThread();
-		
+
 		R_ShutdownCommandBuffers();
 		R_ShutdownImages();
 		R_ShutdownVBOs();

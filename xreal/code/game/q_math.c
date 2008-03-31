@@ -1250,6 +1250,11 @@ float RadiusFromBounds(const vec3_t mins, const vec3_t maxs)
 	return VectorLength(corner);
 }
 
+void ZeroBounds(vec3_t mins, vec3_t maxs)
+{
+	mins[0] = mins[1] = mins[2] = 0;
+	maxs[0] = maxs[1] = maxs[2] = 0;
+}
 
 void ClearBounds(vec3_t mins, vec3_t maxs)
 {
