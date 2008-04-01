@@ -513,7 +513,7 @@ static void RadSubdivideDiffuseLight(int lightmapNum, bspDrawSurface_t * ds, raw
 			break;
 
 		case MST_TRIANGLE_SOUP:
-			numTriangleDiffuseLights;
+			numTriangleDiffuseLights++;
 			break;
 
 		case MST_PATCH:
