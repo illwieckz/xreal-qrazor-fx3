@@ -607,6 +607,7 @@ int BSPMain(int argc, char **argv)
 
 	/* set standard game flags */
 	maxSurfaceVerts = game->maxSurfaceVerts;
+	maxLMSurfaceVerts = game->maxLMSurfaceVerts;
 	maxSurfaceIndexes = game->maxSurfaceIndexes;
 	emitFlares = game->emitFlares;
 
