@@ -460,12 +460,14 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 	}
 
 	numVerts = LittleLong(ds->numVerts);
+	/*
 	if(numVerts > MAX_FACE_POINTS)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numVerts);
 		numVerts = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
+	*/
 	numTriangles = LittleLong(ds->numIndexes) / 3;
 
 	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
