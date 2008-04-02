@@ -309,3 +309,9 @@ brushDef3
 "name" "item_quad_1"
 "origin" "0 64 -168"
 }
+// entity 15
+{
+"classname" "misc_portal_surface"
+"name" "misc_portal_surface_1"
+"origin" "0 64 24"
+}
