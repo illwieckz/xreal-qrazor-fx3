@@ -2949,7 +2949,7 @@ static void R_CreateClusters()
 
 	//ri.Printf(PRINT_ALL, "noVis cluster contains %i bsp surfaces\n", cluster->numMarkSurfaces);
 
-	ri.Printf(PRINT_ALL, "%i world clusters created\n", numClusters);
+	ri.Printf(PRINT_ALL, "%i world clusters created\n", numClusters + 1);
 
 
 	// reset surfaces' viewCount
