@@ -34,10 +34,10 @@ This project's SourceForge.net Subversion repository can be checked out through 
 svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal XreaL
 
 
-COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
+COMPILING ON WIN32 WITH VISUAL C++ 2009 EXPRESS EDITION
 =======================================================
 
-1. Download and install the Visual C++ 2008 Express Edition.
+1. Download and install the Visual C++ 2009 Express Edition.
 2. Download libSDL from http://libsdl.org/release/SDL-devel-1.2.13-VC8.zip
 	and extract it to C:\libSDL-1.2.13.
 3. Download and install the OpenAL SDK from http://www.openal.org.
@@ -45,8 +45,10 @@ COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
 	and extract it to C:\libcURL
 5. Download and install Gtk+ 2.10.11 development environment from http://gladewin32.sourceforge.net/.
 6. Download http://xreal.varcache.org/STLport-5.1.5.7z and extract it to XreaL/code/.
-	
-7. Add necessary include Directories in VC9 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+7. Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h and copy it
+	to C:\Program Files\Microsoft SDKs\Windows\v6.0A\Include\gl.
+
+8. Add necessary include Directories in VC9 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
 	C:\libSDL-1.2.13\include
 	C:\Program Files\OpenAL 1.1 SDK\include
@@ -63,15 +65,14 @@ COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
 	C:\GTK\include\gtkglext-1.0
 	C:\GTK\lib\gtkglext-1.0\include
 
-8. Add necessary lib Directories in VC9 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
+9. Add necessary lib Directories in VC9 under Tools -> Options... -> Project and Solutions -> VC++ Directories:
 	example:
-	C:\Program Files\Microsoft Platform SDK\lib
 	C:\libSDL-1.2.13\lib
 	C:\Program Files\OpenAL 1.1 SDK\lib\Win32
 	C:\libcURL
 	C:\GTK\lib
 
-9. Use the VC9 / Visual C++ 2008 solutions to compile what you need:
+10. Use the VC9 solutions to compile what you need:
 	XreaL/code/xreal.sln
 	XreaL/code/gtkradiant/GtkRadiant.sln
 	XreaL/code/xmap/xmap.sln
@@ -122,6 +123,8 @@ Type scons -h for more compile options.
 
 COMPILING ON MAC OS X
 =====================
+
+NOTE: OUTDATED
 
 Make sure you have libcURL and the SDL framework installed.
 

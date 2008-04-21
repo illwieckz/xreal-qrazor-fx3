@@ -1290,7 +1290,6 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 		{
 			if(keys[K_ALT].down)
 			{
-				Key_ClearStates();
 				Cvar_SetValue("r_fullscreen", !Cvar_VariableIntegerValue("r_fullscreen"));
 				return;
 			}

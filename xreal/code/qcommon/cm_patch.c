@@ -1015,7 +1015,7 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 	}
 	FreeWinding(w);
 
-	//add opposite plane
+	// add opposite plane
 	facet->borderPlanes[facet->numBorders] = facet->surfacePlane;
 	facet->borderNoAdjust[facet->numBorders] = 0;
 	facet->borderInward[facet->numBorders] = qtrue;

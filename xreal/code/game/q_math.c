@@ -1759,7 +1759,7 @@ static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
 
 static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
 {
-  int ti, tj, idst, jdst;
+  int ti, tj, idst = 0, jdst = 0;
   
   for ( ti = 0; ti < 4; ti++ )
   {

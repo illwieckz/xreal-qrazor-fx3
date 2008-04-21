@@ -1141,6 +1141,13 @@ void GLimp_EndFrame(void)
 			else
 				fullscreen = qfalse;
 
+			if(r_fullscreen->integer && Cvar_VariableIntegerValue("in_nograb"))
+			{
+				ri.Printf(PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
+				ri.Cvar_Set("r_fullscreen", "0");
+				r_fullscreen->modified = qfalse;
+			}
+
 			// Is the state we want different from the current state?
 			if(!!r_fullscreen->integer != fullscreen)
 				sdlToggled = SDL_WM_ToggleFullScreen(s);

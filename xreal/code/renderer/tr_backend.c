@@ -2342,7 +2342,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
-	int             startTime, endTime;
+	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderDrawSurfacesIntoGeometricBuffer ---\n");
 
@@ -2479,7 +2479,7 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
-	int             startTime, endTime;
+	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
 
@@ -2798,7 +2798,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
-	int             startTime, endTime;
+	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
 
@@ -4211,7 +4211,7 @@ void RB_RenderLightOcclusionQueries()
 			int             i;
 			int             avCount;
 			int             limit;
-			int             startTime, endTime;
+			int             startTime = 0, endTime = 0;
 
 			if(r_speeds->integer == 7)
 			{

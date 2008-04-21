@@ -1238,11 +1238,9 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 			continue;
 		}
 
-#ifndef BSPC
 		// Tr3B: added simple AABB test
 		if(!cm_noExtraAABBs->integer && !CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], b->bounds[0], b->bounds[1]))
 			continue;
-#endif
 
 		CM_TraceThroughBrush(tw, b);
 		if(!tw->trace.fraction)
@@ -1659,16 +1657,6 @@ void CM_TraceThroughTree(traceWork_t * tw, int num, float p1f, float p2f, vec3_t
 		}
 		else
 		{
-#if 0							// bk010201 - DEAD
-			// an axial brush right behind a slanted bsp plane
-			// will poke through when expanded, so adjust
-			// by sqrt(3)
-			offset = fabs(tw->extents[0] * plane->normal[0]) +
-				fabs(tw->extents[1] * plane->normal[1]) + fabs(tw->extents[2] * plane->normal[2]);
-
-			offset *= 2;
-			offset = tw->maxOffset;
-#endif
 			// this is silly
 			offset = 2048;
 		}

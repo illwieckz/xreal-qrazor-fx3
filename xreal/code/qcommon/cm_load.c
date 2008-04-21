@@ -493,7 +493,7 @@ void CMod_LoadEntityString(lump_t * l)
 		Q_strncpyz(value, token, sizeof(value));
 
 
-		// check for deluxe mapping support
+		// check for per-poly collision support
 		if(!Q_stricmp(keyname, "perPolyCollision") && !Q_stricmp(value, "1"))
 		{
 			Com_Printf("map features per poly collision detection\n");
