@@ -316,13 +316,16 @@ void SV_Startup(void)
 	}
 	svs.initialized = qtrue;
 
-	// Don't respect sv_killserver unless a server is actually running
+	// don't respect sv_killserver unless a server is actually running
 	if(sv_killserver->integer)
 	{
 		Cvar_Set("sv_killserver", "0");
 	}
 
 	Cvar_Set("sv_running", "1");
+
+	// join the ipv6 multicast group now that a map is running so clients can scan for us on the local network.
+	NET_JoinMulticast6();
 }
 
 
@@ -805,6 +808,8 @@ void SV_Shutdown(char *finalmsg)
 	}
 
 	Com_Printf("----- Server Shutdown (%s) -----\n", finalmsg);
+
+	NET_LeaveMulticast6();
 
 	if(svs.clients && !com_errorEntered)
 	{

@@ -140,6 +140,7 @@ static char    *gamenames[] = {
 static char    *netnames[] = {
 	"???",
 	"UDP",
+	"UDP6",
 	NULL
 };
 

@@ -34,10 +34,10 @@ This project's SourceForge.net Subversion repository can be checked out through 
 svn co https://svn.sourceforge.net/svnroot/xreal/trunk/xreal XreaL
 
 
-COMPILING ON WIN32 WITH VISUAL C++ 2009 EXPRESS EDITION
+COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
 =======================================================
 
-1. Download and install the Visual C++ 2009 Express Edition.
+1. Download and install the Visual C++ 2008 Express Edition.
 2. Download libSDL from http://libsdl.org/release/SDL-devel-1.2.13-VC8.zip
 	and extract it to C:\libSDL-1.2.13.
 3. Download and install the OpenAL SDK from http://www.openal.org.

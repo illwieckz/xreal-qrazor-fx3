@@ -448,7 +448,7 @@ CMod_LoadEntityString
 */
 void CMod_LoadEntityString(lump_t * l)
 {
-	char           *p, *pOld, *token, *s;
+	char           *p, *token;
 	char            keyname[MAX_TOKEN_CHARS];
 	char            value[MAX_TOKEN_CHARS];
 

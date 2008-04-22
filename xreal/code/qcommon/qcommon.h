@@ -138,9 +138,13 @@ typedef enum
 	NA_BAD,						// an address lookup failed
 	NA_LOOPBACK,
 	NA_BROADCAST,
-	NA_IP
+	NA_IP,
+	NA_IP6,
+	NA_MULTICAST6,
+	NA_UNSPEC
 } netadrtype_t;
 
+#define NET_ADDRSTRMAXLEN 48    // maximum length of an IPv6 address string including trailing '\0'
 typedef enum
 {
 	NS_CLIENT,
@@ -152,6 +156,7 @@ typedef struct
 	netadrtype_t    type;
 
 	byte            ip[4];
+	byte			ip6[16];
 
 	unsigned short  port;
 } netadr_t;
@@ -170,13 +175,14 @@ qboolean        NET_CompareAdr(netadr_t a, netadr_t b);
 qboolean        NET_CompareBaseAdr(netadr_t a, netadr_t b);
 qboolean        NET_IsLocalAddress(netadr_t adr);
 const char     *NET_AdrToString(netadr_t a);
-qboolean        NET_StringToAdr(const char *s, netadr_t * a);
+const char	   *NET_AdrToStringwPort(netadr_t a);
+qboolean		NET_StringToAdr(const char *s, netadr_t *a, netadrtype_t family);
 qboolean        NET_GetLoopPacket(netsrc_t sock, netadr_t * net_from, msg_t * net_message);
+void			NET_JoinMulticast6(void);
+void			NET_LeaveMulticast6(void);
 void            NET_Sleep(int msec);
 
-
-#define	MAX_MSGLEN				16384	// max length of a message, which may
-											// be fragmented into multiple packets
+#define	MAX_MSGLEN				16384	// max length of a message, which may be fragmented into multiple packets
 
 #define MAX_DOWNLOAD_WINDOW			8	// max of eight download frames
 #define MAX_DOWNLOAD_BLKSIZE		2048	// 2048 byte block chunks
@@ -1073,7 +1079,7 @@ void            Sys_SetErrorText(const char *text);
 void            Sys_SendPacket(int length, const void *data, netadr_t to);
 qboolean        Sys_GetPacket(netadr_t * net_from, msg_t * net_message);
 
-qboolean        Sys_StringToAdr(const char *s, netadr_t * a);
+qboolean        Sys_StringToAdr(const char *s, netadr_t *a, netadrtype_t family);
 
 //Does NOT parse port numbers, only base addresses.
 

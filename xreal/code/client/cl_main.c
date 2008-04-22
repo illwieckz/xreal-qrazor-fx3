@@ -816,7 +816,7 @@ void CL_MapLoading(void)
 		Key_SetCatcher(0);
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
-		NET_StringToAdr(cls.servername, &clc.serverAddress);
+		NET_StringToAdr(cls.servername, &clc.serverAddress, NA_UNSPEC);
 		// we don't need a challenge on the localhost
 
 		CL_CheckForResend();
@@ -971,7 +971,7 @@ void CL_RequestMotd(void)
 		return;
 	}
 	Com_Printf("Resolving %s\n", MASTER_SERVER_NAME);
-	if(!NET_StringToAdr(MASTER_SERVER_NAME, &cls.updateServer))
+	if(!NET_StringToAdr(MASTER_SERVER_NAME, &cls.updateServer, NA_IP))
 	{
 		Com_Printf("Couldn't resolve address\n");
 		return;
@@ -1066,12 +1066,30 @@ CL_Connect_f
 void CL_Connect_f(void)
 {
 	char           *server;
-	char            serverString[22];
+	const char	   *serverString;
+	int				argc = Cmd_Argc();
+	netadrtype_t	family = NA_UNSPEC;
 
-	if(Cmd_Argc() != 2)
+	if(argc != 2 && argc != 3)
 	{
-		Com_Printf("usage: connect [server]\n");
+		Com_Printf("usage: connect [-4|-6] server\n");
 		return;
+	}
+
+	if(argc == 2)
+	{
+		server = Cmd_Argv(1);
+	}
+	else
+	{
+		if(!strcmp(Cmd_Argv(1), "-4"))
+			family = NA_IP;
+		else if(!strcmp(Cmd_Argv(1), "-6"))
+			family = NA_IP6;
+		else
+			Com_Printf("warning: only -4 or -6 as address type understood.\n");
+
+		server = Cmd_Argv(2);
 	}
 
 	Cvar_Set("ui_singlePlayerActive", "0");
@@ -1081,8 +1099,6 @@ void CL_Connect_f(void)
 
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
-
-	server = Cmd_Argv(1);
 
 	if(com_sv_running->integer && !strcmp(server, "localhost"))
 	{
@@ -1103,7 +1119,7 @@ void CL_Connect_f(void)
 
 	Q_strncpyz(cls.servername, server, sizeof(cls.servername));
 
-	if(!NET_StringToAdr(cls.servername, &clc.serverAddress))
+	if(!NET_StringToAdr(cls.servername, &clc.serverAddress, family))
 	{
 		Com_Printf("Bad server address\n");
 		cls.state = CA_DISCONNECTED;
@@ -1113,9 +1129,8 @@ void CL_Connect_f(void)
 	{
 		clc.serverAddress.port = BigShort(PORT_SERVER);
 	}
-	Com_sprintf(serverString, sizeof(serverString), "%i.%i.%i.%i:%i",
-				clc.serverAddress.ip[0], clc.serverAddress.ip[1],
-				clc.serverAddress.ip[2], clc.serverAddress.ip[3], BigShort(clc.serverAddress.port));
+	
+	serverString = NET_AdrToStringwPort(clc.serverAddress);
 
 	Com_Printf("%s resolved to %s\n", cls.servername, serverString);
 
@@ -1185,7 +1200,7 @@ void CL_Rcon_f(void)
 
 			return;
 		}
-		NET_StringToAdr(rconAddress->string, &to);
+		NET_StringToAdr(rconAddress->string, &to, NA_UNSPEC);
 		if(to.port == 0)
 		{
 			to.port = BigShort(PORT_SERVER);
@@ -1243,8 +1258,7 @@ doesn't know what graphics to reload
 */
 void CL_Vid_Restart_f(void)
 {
-
-	// Settings may have changed so stop recording now
+	// settings may have changed so stop recording now
 	if(CL_VideoRecording())
 	{
 		CL_CloseAVI();
@@ -1937,7 +1951,7 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 
 	c = Cmd_Argv(0);
 
-	Com_DPrintf("CL packet %s: %s\n", NET_AdrToString(from), c);
+	Com_DPrintf("CL packet %s: %s\n", NET_AdrToStringwPort(from), c);
 
 	// challenge from the server we are connecting to
 	if(!Q_stricmp(c, "challengeResponse"))
@@ -1978,7 +1992,7 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 		if(!NET_CompareBaseAdr(from, clc.serverAddress))
 		{
 			Com_Printf("connectResponse from a different address.  Ignored.\n");
-			Com_Printf("%s should have been %s\n", NET_AdrToString(from), NET_AdrToString(clc.serverAddress));
+			Com_Printf("%s should have been %s\n", NET_AdrToStringwPort(from), NET_AdrToStringwPort(clc.serverAddress));
 			return;
 		}
 		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"));
@@ -2069,7 +2083,7 @@ void CL_PacketEvent(netadr_t from, msg_t * msg)
 
 	if(msg->cursize < 4)
 	{
-		Com_Printf("%s: Runt packet\n", NET_AdrToString(from));
+		Com_Printf("%s: Runt packet\n", NET_AdrToStringwPort(from));
 		return;
 	}
 
@@ -2078,7 +2092,7 @@ void CL_PacketEvent(netadr_t from, msg_t * msg)
 	//
 	if(!NET_CompareAdr(from, clc.netchan.remoteAddress))
 	{
-		Com_DPrintf("%s:sequenced packet without connection\n", NET_AdrToString(from));
+		Com_DPrintf("%s:sequenced packet without connection\n", NET_AdrToStringwPort(from));
 		// FIXME: send a client disconnect?
 		return;
 	}
@@ -2855,7 +2869,6 @@ void CL_ServerInfoPacket(netadr_t from, msg_t * msg)
 {
 	int             i, type;
 	char            info[MAX_INFO_STRING];
-	char           *str;
 	char           *infoString;
 	int             prot;
 
@@ -2887,18 +2900,17 @@ void CL_ServerInfoPacket(netadr_t from, msg_t * msg)
 			{
 				case NA_BROADCAST:
 				case NA_IP:
-					str = "udp";
 					type = 1;
 					break;
-
+				case NA_IP6:
+					type = 2;
+					break;
 				default:
-					str = "???";
 					type = 0;
 					break;
 			}
 			Info_SetValueForKey(cl_pinglist[i].info, "nettype", va("%d", type));
 			CL_SetServerInfoByAddress(from, infoString, cl_pinglist[i].time);
-
 			return;
 		}
 	}
@@ -2951,7 +2963,7 @@ void CL_ServerInfoPacket(netadr_t from, msg_t * msg)
 		{
 			strncat(info, "\n", sizeof(info) - 1);
 		}
-		Com_Printf("%s: %s", NET_AdrToString(from), info);
+		Com_Printf("%s: %s", NET_AdrToStringwPort(from), info);
 	}
 }
 
@@ -3019,12 +3031,14 @@ int CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen)
 		}
 		return qfalse;
 	}
+
 	// get the address
-	if(!NET_StringToAdr(serverAddress, &to))
+	if(!NET_StringToAdr(serverAddress, &to, NA_UNSPEC))
 	{
 		return qfalse;
 	}
 	serverStatus = CL_GetServerStatus(to);
+
 	// if no server status string then reset the server status request for this address
 	if(!serverStatusString)
 	{
@@ -3221,6 +3235,8 @@ void CL_LocalServers_f(void)
 
 			to.type = NA_BROADCAST;
 			NET_SendPacket(NS_CLIENT, strlen(message), message, to);
+			to.type = NA_MULTICAST6;
+			NET_SendPacket(NS_CLIENT, strlen(message), message, to);
 		}
 	}
 }
@@ -3248,7 +3264,7 @@ void CL_GlobalServers_f(void)
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
 	Com_Printf("Requesting servers from the Primary Master Server..\n");
-	NET_StringToAdr(cl_master->string, &to);
+	NET_StringToAdr(cl_master->string, &to, NA_IP);
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
@@ -3291,7 +3307,7 @@ void CL_GetPing(int n, char *buf, int buflen, int *pingtime)
 		return;
 	}
 
-	str = NET_AdrToString(cl_pinglist[n].adr);
+	str = NET_AdrToStringwPort(cl_pinglist[n].adr);
 	Q_strncpyz(buf, str, buflen);
 
 	time = cl_pinglist[n].time;
@@ -3454,18 +3470,36 @@ void CL_Ping_f(void)
 	netadr_t        to;
 	ping_t         *pingptr;
 	char           *server;
+	int				argc;
+	netadrtype_t	family = NA_UNSPEC;
 
-	if(Cmd_Argc() != 2)
+	argc = Cmd_Argc();
+
+	if(argc != 2 && argc != 3)
 	{
-		Com_Printf("usage: ping [server]\n");
+		Com_Printf("usage: ping [-4|-6] server\n");
 		return;
+	}
+
+	if(argc == 2)
+	{
+		server = Cmd_Argv(1);
+	}
+	else
+	{
+		if(!strcmp(Cmd_Argv(1), "-4"))
+			family = NA_IP;
+		else if(!strcmp(Cmd_Argv(1), "-6"))
+			family = NA_IP6;
+		else
+			Com_Printf( "warning: only -4 or -6 as address type understood.\n");
+
+		server = Cmd_Argv(2);
 	}
 
 	Com_Memset(&to, 0, sizeof(netadr_t));
 
-	server = Cmd_Argv(1);
-
-	if(!NET_StringToAdr(server, &to))
+	if(!NET_StringToAdr(server, &to, family))
 	{
 		return;
 	}
@@ -3612,36 +3646,55 @@ CL_ServerStatus_f
 */
 void CL_ServerStatus_f(void)
 {
-	netadr_t        to;
+	netadr_t		to, *toptr = NULL;
 	char           *server;
 	serverStatus_t *serverStatus;
+	int				argc;
+	netadrtype_t	family = NA_UNSPEC;
 
-	Com_Memset(&to, 0, sizeof(netadr_t));
+	argc = Cmd_Argc();
 
-	if(Cmd_Argc() != 2)
+	if(argc != 2 && argc != 3)
 	{
 		if(cls.state != CA_ACTIVE || clc.demoplaying)
 		{
 			Com_Printf("Not connected to a server.\n");
-			Com_Printf("Usage: serverstatus [server]\n");
+			Com_Printf("usage: serverstatus [-4|-6] server\n");
 			return;
 		}
-		server = cls.servername;
+
+		toptr = &clc.serverAddress;
 	}
-	else
+
+	if(!toptr)
 	{
-		server = Cmd_Argv(1);
+		Com_Memset(&to, 0, sizeof(netadr_t));
+
+		if(argc == 2)
+		{
+			server = Cmd_Argv(1);
+		}
+		else
+		{
+			if(!strcmp(Cmd_Argv(1), "-4"))
+				family = NA_IP;
+			else if(!strcmp(Cmd_Argv(1), "-6"))
+				family = NA_IP6;
+			else
+				Com_Printf("warning: only -4 or -6 as address type understood.\n");
+
+			server = Cmd_Argv(2);
+		}
+
+		toptr = &to;
+		if(!NET_StringToAdr(server, &to, family))
+			return;
 	}
 
-	if(!NET_StringToAdr(server, &to))
-	{
-		return;
-	}
+	NET_OutOfBandPrint(NS_CLIENT, *toptr, "getstatus");
 
-	NET_OutOfBandPrint(NS_CLIENT, to, "getstatus");
-
-	serverStatus = CL_GetServerStatus(to);
-	serverStatus->address = to;
+	serverStatus = CL_GetServerStatus(*toptr);
+	serverStatus->address = *toptr;
 	serverStatus->print = qtrue;
 	serverStatus->pending = qtrue;
 }

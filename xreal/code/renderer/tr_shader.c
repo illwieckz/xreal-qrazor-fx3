@@ -5449,7 +5449,6 @@ static void ScanAndLoadShaderFiles(void)
 
 	Com_Memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
 	size = 0;
-	//
 	for(i = 0; i < numShaders; i++)
 	{
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);

@@ -26,12 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 #include <setjmp.h>
-#ifndef _WIN32
-#include <netinet/in.h>
-#include <sys/stat.h>			// umask
-#else
-#include <winsock.h>
-#endif
 
 int             demo_protocols[] = { PROTOCOL_VERSION, 0 };
 
