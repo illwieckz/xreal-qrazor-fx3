@@ -78,6 +78,17 @@ menuback
 //	}
 }
 
+menubackcredits
+{
+	nopicmip
+	nomipmaps
+
+	{
+		map menu/art/background.tga
+		rgbgen identity
+	}
+}
+
 menubacknologo
 {
 	nopicmip

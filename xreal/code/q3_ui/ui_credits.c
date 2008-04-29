@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Pat Raynor <raynorpat@gmail.com>
 
 This file is part of XreaL source code.
 
@@ -20,7 +21,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 /*
 =======================================================================
 
@@ -29,9 +30,9 @@ CREDITS
 =======================================================================
 */
 
-
 #include "ui_local.h"
 
+#define SCROLLSPEED	3.50
 
 typedef struct
 {
@@ -40,6 +41,71 @@ typedef struct
 
 static creditsmenu_t s_credits;
 
+int             starttime;		// game time at which credits are started
+float           mvolume;		// records the original music volume level
+
+qhandle_t       BackgroundShader;
+
+typedef struct
+{
+	char           *string;
+	int             style;
+	vec4_t         *colour;
+} cr_line;
+
+cr_line         credits[] = {
+	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, &colorRed},
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	//{ "Project Leader", UI_CENTER|UI_SMALLFONT, &colorLtGrey },
+	//{ "Robert 'Tr3B' Beckebans", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	//{ "", UI_CENTER|UI_SMALLFONT, &colorBlue },
+
+	{"Programming", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
+	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"Pat Raynor", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	{"Development Assistance", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
+	//{ "Mathias Heyer", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	{"Josef Soentgen", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	{"Art", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
+	{"XreaL Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"Quake II: Lost Marine Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"OpenArena Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"Tenebrae Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"Sapphire Scar Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	//{ "Paul 'JTR' Steffens, Lee David Ash,", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	//{ "James 'HarlequiN' Taylor,", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	//{ "Level Design", UI_CENTER|UI_SMALLFONT, &colorLtGrey },
+	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	//{ "'Dominic 'cha0s' Szablewski", UI_CENTER|UI_SMALLFONT, &colorWhite },
+	//{ "", UI_CENTER|UI_SMALLFONT, &colorBlue },
+
+	{"Special Thanks To:", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
+	{"iD Software", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"ioquake3 project", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	{"Contributors", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
+	{"For a list of contributors,", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	{"Websites:", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
+	{"www.sourceforge.net/projects/xreal", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+
+	{"XreaL(c) 2005-2008, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, &colorRed},
+
+	{NULL}
+};
 
 /*
 =================
@@ -49,110 +115,100 @@ UI_CreditMenu_Key
 static sfxHandle_t UI_CreditMenu_Key(int key)
 {
 	if(key & K_CHAR_FLAG)
-	{
 		return 0;
-	}
 
-	trap_Cmd_ExecuteText(EXEC_APPEND, "quit\n");
+	// pressing the escape key or clicking the mouse will exit
+	// we also reset the music volume to the user's original
+	// choice here,  by setting s_musicvolume to the stored var
+	trap_Cmd_ExecuteText(EXEC_APPEND, va("s_musicvolume %f; quit\n", mvolume));
 	return 0;
 }
 
-
 /*
-===============
-UI_CreditMenu_Draw
-===============
+=================
+ScrollingCredits_Draw
+
+Main drawing function
+=================
 */
-static void UI_CreditMenu_Draw(void)
+static void ScrollingCredits_Draw(void)
 {
-	int             y;
+	int             x = 320, y, n, ysize = 0, fadetime = 0;
+	vec4_t          fadecolour = { 0.00, 0.00, 0.00, 0.00 };
 
-	y = 12;
-	UI_DrawProportionalString(320, y, "Credits", UI_CENTER | UI_SMALLFONT, colorRed);
+	// ysize is used to determine the entire length of the credits in pixels. 
+	if(!ysize)
+	{
+		// loop through entire credits array
+		for(n = 0; n <= sizeof(credits) - 1; n++)
+		{
+			if(credits[n].style & UI_SMALLFONT)
+			{
+				// add small character height
+				ysize += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+			}
+			else if(credits[n].style & UI_BIGFONT)
+			{
+				// add big character size
+				ysize += PROP_HEIGHT;
+			}
+			else if(credits[n].style & UI_GIANTFONT)
+			{
+				// add giant character size.
+				ysize += PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE);
+			}
+		}
+	}
 
-	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Programming", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Robert Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Pat Raynor", UI_CENTER | UI_SMALLFONT, colorWhite);
+	// first, fill the background with the specified shader
+	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
 
-	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Art", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "XreaL Team", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "QuakeII: Lost Marine Team", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "OpenArena Team", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Tenebrae Team", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Sapphire Scar Team", UI_CENTER | UI_SMALLFONT, colorWhite);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Paul 'JTR' Steffens, Lee David Ash,", UI_CENTER | UI_SMALLFONT, colorWhite);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "James 'HarlequiN' Taylor,", UI_CENTER | UI_SMALLFONT, colorWhite);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite);
+	// draw the stuff by settting the initial y location
+	y = 480 - SCROLLSPEED * (float)(uis.realtime - starttime) / 100;
 
-	/*
-	   y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	   UI_DrawProportionalString(320, y, "Game Designer", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	   y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	   UI_DrawProportionalString(320, y, "Graeme Devine", UI_CENTER | UI_SMALLFONT, colorWhite);
-	 */
+	// loop through the entire credits sequence
+	for(n = 0; n <= sizeof(credits) - 1; n++)
+	{
+		// this NULL string marks the end of the credits struct
+		if(credits[n].string == NULL)
+		{
+			// credits sequence is completely off screen
+			if(y < -16)
+			{
+				// TODO: bring up XreaL plaque and fade-in and wait for keypress?
+				break;
+			}
+			break;
+		}
 
-	//y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Level Design", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "'Dominic 'cha0s' Szablewski", UI_CENTER | UI_SMALLFONT, colorWhite);
+		if(strlen(credits[n].string) == 1)	// spacer string, no need to draw
+			continue;
 
-	//y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Project Leader", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite);
+		if(y > -(PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE)))
+		{
+			// the line is within the visible range of the screen
+			UI_DrawProportionalString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
+		}
 
-	/*
-	   y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	   UI_DrawProportionalString(320, y, "Director of Business Development", UI_CENTER | UI_SMALLFONT, colorWhite);
-	   y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	   UI_DrawProportionalString(320, y, "-", UI_CENTER | UI_SMALLFONT, colorWhite);
+		// re-adjust y for next line
+		if(credits[n].style & UI_SMALLFONT)
+		{
+			y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+		}
+		else if(credits[n].style & UI_BIGFONT)
+		{
+			y += PROP_HEIGHT;
+		}
+		else if(credits[n].style & UI_GIANTFONT)
+		{
+			y += PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE);
+		}
 
-	   y += 1.42 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	   UI_DrawProportionalString( 320, y, "Biz Assist and id Mom", UI_CENTER|UI_SMALLFONT, colorWhite );
-	   y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	   UI_DrawProportionalString( 320, y, "Donna Jackson", UI_CENTER|UI_SMALLFONT, colorWhite );
-	 */
-
-	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Development Assistance", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	//y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//UI_DrawProportionalString(320, y, "Mathias Heyer", UI_CENTER | UI_SMALLFONT, colorWhite);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Josef Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite);
-
-	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "Contributors", UI_CENTER | UI_SMALLFONT, colorLtGrey);
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "For a list of contributors,", UI_CENTER | UI_SMALLFONT, colorWhite);
-
-	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString(320, y, "see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorWhite);
-
-	y += 2.0 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-//  UI_DrawString(320, y, "To order: 1-800-idgames     www.quake3arena.com     www.idsoftware.com", UI_CENTER | UI_SMALLFONT, colorRed);
-	UI_DrawString(320, y, "websites:   www.sourceforge.net/projects/xreal    xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT,
-				  colorBlue);
-	y += 1.35 * PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	//y += SMALLCHAR_HEIGHT;
-	//UI_DrawString(320, y, "Quake III Arena(c) 1999-2005, Id Software, Inc.", UI_CENTER | UI_SMALLFONT, colorRed);
-	y += SMALLCHAR_HEIGHT;
-	UI_DrawString(320, y, "XreaL(c) 2005-2007, XreaL Team and contributors", UI_CENTER | UI_SMALLFONT, colorRed);
+		// if y is off the screen, break out of loop
+		if(y > 480)
+			break;
+	}
 }
-
 
 /*
 ===============
@@ -163,8 +219,17 @@ void UI_CreditMenu(void)
 {
 	memset(&s_credits, 0, sizeof(s_credits));
 
-	s_credits.menu.draw = UI_CreditMenu_Draw;
+	s_credits.menu.draw = ScrollingCredits_Draw;
 	s_credits.menu.key = UI_CreditMenu_Key;
 	s_credits.menu.fullscreen = qtrue;
 	UI_PushMenu(&s_credits.menu);
+
+	starttime = uis.realtime; // record start time for credits to scroll properly
+	mvolume = trap_Cvar_VariableValue("s_musicvolume");
+	if(mvolume < 0.5)
+		trap_Cmd_ExecuteText(EXEC_APPEND, "s_musicvolume 0.5\n");
+	trap_Cmd_ExecuteText(EXEC_APPEND, "music music/credits\n");
+
+	// load the background shader
+	BackgroundShader = trap_R_RegisterShaderNoMip("menubackcredits");
 }
