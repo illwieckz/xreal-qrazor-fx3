@@ -57,9 +57,9 @@ cr_line         credits[] = {
 	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, &colorRed},
 	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
 
-	//{ "Project Leader", UI_CENTER|UI_SMALLFONT, &colorLtGrey },
-	//{ "Robert 'Tr3B' Beckebans", UI_CENTER|UI_SMALLFONT, &colorWhite },
-	//{ "", UI_CENTER|UI_SMALLFONT, &colorBlue },
+	{"Project Lead", UI_CENTER|UI_SMALLFONT, &colorLtGrey},
+	{"Robert 'Tr3B' Beckebans", UI_CENTER|UI_SMALLFONT, &colorWhite},
+	{"", UI_CENTER|UI_SMALLFONT, &colorBlue},
 
 	{"Programming", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
 	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, &colorWhite},
