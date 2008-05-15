@@ -2099,15 +2099,15 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 	corners[0][0] = origin[0] + maxs[0];
 	corners[0][1] = origin[1] + maxs[1];
 	corners[0][2] = origin[2] + maxs[2];
-	//
+
 	corners[1][0] = origin[0] + mins[0];
 	corners[1][1] = origin[1] + maxs[1];
 	corners[1][2] = origin[2] + maxs[2];
-	//
+
 	corners[2][0] = origin[0] + mins[0];
 	corners[2][1] = origin[1] + mins[1];
 	corners[2][2] = origin[2] + maxs[2];
-	//
+
 	corners[3][0] = origin[0] + maxs[0];
 	corners[3][1] = origin[1] + mins[1];
 	corners[3][2] = origin[2] + maxs[2];
