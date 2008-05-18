@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2006 Kirk Barnes
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 

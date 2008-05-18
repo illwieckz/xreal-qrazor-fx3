@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
