@@ -1,0 +1,153 @@
+
+/*
+ XreaL entity definition file for DarkRadiant
+*/
+
+entityDef info_notnull
+{
+	"editor_color"			"0 0.5 0"
+	"editor_mins"			"-8 -8 -8"
+	"editor_maxs"			"8 8 8"
+
+	"editor_usage"			"Used as a positional target for entities that can use directional pointing. A target_position can be used instead of this but was kept in Q3A for legacy purposes."
+	"editor_var notfree"	"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+	"editor_var notteam"    "when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+	"editor_var notsingle"	"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+entityDef info_player_deathmatch
+{
+	"editor_color"			"1 0 1"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_showangle"		"1"
+
+	"editor_usage"			"Potential spawning position for deathmatch games.  The first time a player enters the game, they will be at an 'initial' spot."
+	"editor_var target"		"targets to fire when someone spawns in."
+	"editor_var initial"	"this is an initial spawn spot"
+
+	"spawnclass"			"idPlayerStart"
+}
+
+entityDef info_player_start
+{
+	"editor_color"			"1 0 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_showangle"		"1"
+
+	"editor_usage"			"Potential spawning position for single player games."
+	"editor_var useEffect"	"show teleportation effect for useEffect seconds.. 0 is instant"
+	"editor_var skin"		"skin to use for player model"
+
+	"spawnclass"			"idPlayerStart"
+}
+
+entityDef info_player_teleport
+{
+	"editor_color"				"1 0 0"
+	"editor_mins"				"-16 -16 0"
+	"editor_maxs"				"16 16 64"
+	"editor_showangle"			"1"
+
+	"editor_usage"				"Spawning position player after cinematic.  When triggered, player will be moved to this location."
+	"editor_var push"			"How much of a push to give to the player when he is teleported."
+	"editor_var visualView"		"Camera to set player's view to when he is teleported."
+	"editor_var visualEffect"	"How long to show the view from the visualView."
+
+	"spawnclass"				"idPlayerStart"
+	
+	"push"						"300"
+	"visualEffect"				"0"
+	"visualView"				""
+}
+
+entityDef worldspawn
+{
+	"editor_color"			"0 0 0"
+	"editor_mins"			"?"
+	"editor_maxs"			"?"
+
+	"editor_usage"			"Every map should have exactly one worldspawn."
+	"editor_var music"		"music wav file."
+	"editor_var gravity"	"gravity value for the level."
+
+	"spawnclass"			"idWorldspawn"
+	"gravity"				"800"
+	"name"					"world"
+}
+
+
+entityDef light
+{
+	"editor_color"				".65 .65 1"
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_rotatable"			"1"
+
+	"editor_usage"				"Light source."
+	
+	"editor_material texture"	"light shader to use."
+	"editor_color color"		"light color"
+	"editor_var shaderParm3"	"shaderParm 3"
+	"editor_var shaderParm4"	"shaderParm 4"
+	"editor_var shaderParm5"	"shaderParm 5"
+	"editor_var shaderParm6"	"shaderParm 6"
+	"editor_var shaderParm7"	"shaderParm 7"
+
+	"spawnclass"				"idLight"  // this is required for DarkRadiant
+	"light_radius"              "300 300 300"
+	"levels"					"1"
+	"count"						"1"
+	"break"						"0"
+}
+
+entityDef target_speaker
+{
+	"editor_color"					"0 1 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_material"				"textures/common/speaker"
+	
+
+	"editor_usage"					""
+	
+	"editor_snd s_shader"			"the sound shader or wavefile."
+	"editor_var s_waitfortrigger"	"play on load or play when triggered."
+	"editor_var s_volume"			"override shader volume level."
+	"editor_var s_minDistance"		"override shader minDistance."
+	"editor_var s_maxDistance"		"override shader maxDistance."
+	"editor_var s_omni"				"force omnidirectional"
+	"editor_var s_looping"			"force looping"
+	"editor_var s_occlusion"		"force no portal occlusion"
+	"editor_var s_global"			"force no falloff at all"
+	"editor_var s_shakes"			"this entity can make the screen shake when the sound is loud."
+	"editor_var wait"				"when set > 0, seconds between triggerings.  time between sounds is wait + or - random"
+	"editor_var random"				"wait variance."
+	
+	"spawnclass"					"target_speaker"
+}
+
+entityDef info_location
+{
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+
+	"editor_usage"			"Place one of these in each door-separated area for naming the gameplay sections"
+	"editor_var name"		"location name for HUD.  Cannot be the same as any other entity in the game."
+	"editor_var location"	"use this when you have two locations with the same name."
+
+	"spawnclass"			"idLocationEntity"
+}
+
+entityDef info_locationSeparator
+{
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-16 -16 -16"
+	"editor_maxs"			"16 16 16"
+
+	"editor_usage"			"Touch a vis-portal with this to break location name flood filling without using a door"
+
+	"spawnclass"			"idLocationSeparatorEntity"
+}
