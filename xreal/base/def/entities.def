@@ -1,6 +1,85 @@
 
 /*
+===========================================================================================================
+-----------------------------------------------------------------------------------------------------------
+
  XreaL entity definition file for DarkRadiant
+ 
+ FIXME: Models in the editor do not have skins applied
+ FIXME2: Spawnflags?
+ 
+ NOTE: Some of these may be wrong but all of them show up in the editor entity selection window so may
+ need to fix them if they dont work when you try to use them. ~Encryption
+ 
+------------------------------------------------------------------------------------------------------------
+============================================================================================================
+*/
+
+
+
+/*
+============================================================================================================
+
+WorldSpawn Entity
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef worldspawn
+{
+	"editor_color"			"0 0 0"
+	"editor_mins"			"?"
+	"editor_maxs"			"?"
+
+	"editor_usage"			"Every map should have exactly one worldspawn."
+	"editor_var music"		"music wav file."
+	"editor_var gravity"	"gravity value for the level."
+
+	"spawnclass"			"idWorldspawn"
+	"gravity"				"800"
+	"name"					"world"
+}
+
+
+/*
+============================================================================================================
+
+Light Entity
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef light
+{
+	"editor_color"				".65 .65 1"
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_rotatable"			"1"
+
+	"editor_usage"				"Light source."
+	
+	"editor_material texture"	"light shader to use."
+	"editor_color color"		"light color"
+	"editor_var shaderParm3"	"shaderParm 3"
+	"editor_var shaderParm4"	"shaderParm 4"
+	"editor_var shaderParm5"	"shaderParm 5"
+	"editor_var shaderParm6"	"shaderParm 6"
+	"editor_var shaderParm7"	"shaderParm 7"
+
+	"spawnclass"				"idLight"  // this is required for DarkRadiant
+	"light_radius"				"300 300 300"
+	"levels"					"1"
+	"count"						"1"
+	"break"						"0"
+}
+
+
+/*
+============================================================================================================
+
+Info_ Entities
+____________________________________________________________________________________________________________
+============================================================================================================
 */
 
 entityDef info_notnull
@@ -14,6 +93,108 @@ entityDef info_notnull
 	"editor_var notteam"    "when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
 	"editor_var notsingle"	"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 }
+
+
+entityDef info_location
+{
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+
+	"editor_usage"			"Place one of these in each door-separated area for naming the gameplay sections"
+	"editor_var name"		"location name for HUD.  Cannot be the same as any other entity in the game."
+	"editor_var location"	"use this when you have two locations with the same name."
+
+	"spawnclass"			"idLocationEntity"
+}
+
+
+entityDef info_locationSeparator
+{
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-16 -16 -16"
+	"editor_maxs"			"16 16 16"
+
+	"editor_usage"			"Touch a vis-portal with this to break location name flood filling without using a door"
+
+	"spawnclass"			"idLocationSeparatorEntity"
+}
+
+
+entityDef info_camp  
+{  
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "range"                     "0"  //"Range"number of units that the bot can move away from camp entity while camping on it."
+    "weight"                    "0"  //"Weight"number that is compared against the weight assigned to all the other camp spots in the map to determine if a bot chooses to camp there. The value is normalized against all other weight values."
+}
+
+
+entityDef info_null    
+{
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "name"                      "0"  //"Name"must match the target key of entity that uses this for pointing."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+entityDef info_player_intermission
+{    
+	"editor_color"				"1 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idPlayerStart"
+	
+    "angles"                    "0"  //"Pitch Yaw Roll"alternate "pitch, yaw, roll" angles method of aiming intermission camera (default 0 0 0)."
+    "target"                    "0"  //"Target"point this to an info_notnull or target_position entity to set the camera's pointing angles."
+}
+
+
+entityDef info_spectator_start 
+{   
+	"editor_color"				"1 0 0" 	
+	"editor_mins"				"-16 -16 -24"
+	"editor_maxs"				"16 16 32"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idPlayerStart"
+	
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.""
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.""
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode).""
+}
+
+
+/*
+============================================================================================================
+
+Player Start Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
 
 entityDef info_player_deathmatch
 {
@@ -41,6 +222,8 @@ entityDef info_player_start
 	"editor_var skin"		"skin to use for player model"
 
 	"spawnclass"			"idPlayerStart"
+	
+    "editor_var target"			"0" 
 }
 
 entityDef info_player_teleport
@@ -62,45 +245,1796 @@ entityDef info_player_teleport
 	"visualView"				""
 }
 
-entityDef worldspawn
-{
-	"editor_color"			"0 0 0"
-	"editor_mins"			"?"
-	"editor_maxs"			"?"
 
-	"editor_usage"			"Every map should have exactly one worldspawn."
-	"editor_var music"		"music wav file."
-	"editor_var gravity"	"gravity value for the level."
+/*
+============================================================================================================
 
-	"spawnclass"			"idWorldspawn"
-	"gravity"				"800"
-	"name"					"world"
+Team Player Start Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef team_CTF_blueplayer
+{    
+	"editor_color"				"0 .2 1" 	
+	"editor_mins"				"-16 -16 -24"
+	"editor_maxs"				"16 16 32"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idPlayerStart"
+	
+    "target"					"0"
 }
 
 
-entityDef light
+entityDef team_CTF_bluespawn 
+{   
+	"editor_color"				"0 .2 1" 	
+	"editor_mins"				"-16 -16 -24"
+	"editor_maxs"				"16 16 32"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idPlayerStart"
+	
+    "target"                    "0"  //"Target"this can point at a target_give entity for respawn freebies."
+}
+
+
+entityDef team_CTF_redplayer 
+{   
+	"editor_color"				"1 .2 0" 	
+	"editor_mins"				"-16 -16 -24"
+	"editor_maxs"				"16 16 32"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idPlayerStart"
+	
+    "target" 					"0"
+}
+
+
+entityDef team_CTF_redspawn 
+{   
+	"editor_color"				"1 .2 0" 	
+	"editor_mins"				"-16 -16 -24"
+	"editor_maxs"				"16 16 32"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idPlayerStart"
+	
+    "target" 					"0"
+}
+
+
+/*
+============================================================================================================
+
+Team Base Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef team_redobelisk  
+{  
+	"editor_color"				"1 .2 0" 
+	"editor_mins"				"16 -16 0"
+	"editor_maxs"				"16 16 88"
+	"editor_showangle"			"1"
+	"model"                     "models/powerups/overload_base.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "angle" 					"0"
+    "gametype" 					"0"
+// key="SUSPENDED"                        "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef team_blueobelisk  
+{  
+	"editor_color"				"0 .2 1" 
+	"editor_mins"				"16 -16 0"
+	"editor_maxs"				"16 16 88"
+	"editor_showangle"			"1"
+	"model"                     "models/powerups/overload_base.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "angle" 					"0"
+    "gametype" 					"0"
+}
+
+
+entityDef team_neutralobelisk  
+{  
+	"editor_color"				"1 .2 1" 
+	"editor_mins"				"16 -16 0"
+	"editor_maxs"				"16 16 88"
+	"editor_showangle"			"1"
+	"model"                     "models/powerups/obelisk/obelisk.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "gametype" 					"0"
+}
+
+
+/*
+============================================================================================================
+
+Weapon Pickups
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef weapon_bfg 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons2/bfg/bfg.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random"					"0"
+    "count" 					"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot" 					"0"
+}
+
+
+entityDef weapon_gauntlet 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons/gauntlet/gauntlet.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "team"						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle"					"0"
+    "notbot"					"0"
+}
+
+
+entityDef weapon_grapplinghook 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons2/grapple/grapple.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "team"						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree"					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot" 					"0"
+}
+
+
+entityDef weapon_grenadelauncher 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons2/grenadel/grenadel.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count"						"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree"					"0"
+    "notteam"					"0"
+    "notsingle"					"0"
+    "notbot" 					"0"
+}
+
+
+entityDef weapon_lightning 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models\weapons\lightning\lightning.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot" 					"0"
+}
+
+
+entityDef weapon_machinegun
+{    
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models\weapons\machinegun\machinegun.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot" 					"0"
+}
+
+
+entityDef weapon_plasmagun 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons2/plasma/plasma.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot"					"0"
+}
+
+
+entityDef weapon_railgun 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons2/railgun/railgun.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count"						"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot"					"0"
+}
+
+
+entityDef weapon_rocketlauncher
+{    
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons/rocketl/_rocketl.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name"						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "notbot" 					"0"
+}
+
+
+entityDef weapon_shotgun 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                "models/weapons/shotgun/shotgun.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team" 						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle"					"0"
+    "notbot"					"0"
+}
+
+
+entityDef weapon_chaingun 
+{   
+	"editor_color"				"0 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                    "models/weapons/vulcan/vulcan.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"						"0"
+    "random"					"0"
+    "count" 					"0"
+    "team"						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notbot" 					"0"
+    "notfree" 					"0"
+    "notteam"  					"0"
+    "notsingle" 				"0"
+    "gametype" 					"0"
+}
+
+
+entityDef weapon_nailgun 
+{   
+	"editor_color"				"0 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons/nailgun/nailgun.md3"
+	
+	"editor_usage"				""
+		
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team"  					"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notbot" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+}
+
+
+entityDef weapon_prox_launcher
+{    
+	"editor_color"				"0 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/weapons/proxmine/proxmine.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"  					"0"
+    "random" 					"0"
+    "count" 					"0"
+    "team"						"0"
+    "target" 					"0"
+    "name" 						"0"
+    "notbot" 					"0"
+    "notfree"  					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "gametype" 					"0"
+}
+
+
+/*
+============================================================================================================
+
+Ammo Pickups
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef ammo_bfg
+{		
+	"editor_color"				".3 .3 1"  /*"model"                     "models/powerups/ammo/bfgam.md3"*/
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16"
+	
+	"editor_usage"				"1"
+	
+	"spawnclass"				"idItem"
+	
+    "wait"			            "0"  //"Time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"			        "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"		                "0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 15)."
+    "team"			            "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"		            "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"		                "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"		            "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"		            "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"	                "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"		            "0"  //"Invisible To 
+}
+
+
+entityDef ammo_bullets	
 {
-	"editor_color"				".65 .65 1"
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/machinegunam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"			            "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"			        "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"		                "0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 50)."
+    "team"			            "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"		            "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"		                "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"		            "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"		            "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"	                "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0"
+}
+
+
+entityDef ammo_cells 
+{  
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/plasmaam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"				        "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"				    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"			            "0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 30)."
+    "team"				        "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"			        "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"			            "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"			        "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"			        "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"		            "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"			        "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_grenades
+{   
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/grenadeam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"				        "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"				    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"			            "0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 5)."
+    "team"				        "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"			        "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"			            "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"			        "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"			        "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"		            "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"			        "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_lightning 
+{  
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/lightningam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"				        "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"				    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"			            "0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 60)."
+    "team"				        "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"			        "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"			            "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"			        "0"  //"Hidden For FFA"when set to 1, when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"			        "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"		            "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"			        "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_rockets 
+{ 
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/rocketam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"						"0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 5)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"					"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_shells
+{    
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16"
+	 "model"                     "models/powerups/ammo/shotgunam.md3"
+	 
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	 
+    "wait"						"0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 10)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"					"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_slugs
+{    
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/railgunam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"						"0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 10)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"					"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_nails 
+{   
+	"editor_color"				".3 .3 1" 
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16"
+	 "model"                     "models/powerups/ammo/nailgunam.md3"
+	 
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	 
+    "wait"						"0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 10)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"					"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"					"0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"					"0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+//// key="SUSPENDED"			"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_mines 
+{   
+	"editor_color"				".3 .3 1" 
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16"
+	 "model"                     "models/powerups/ammo/proxmineam.md3"
+	 
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	 
+    "wait"						"0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 10)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)." Any teamed item with the same value will be part of this team.
+    "target"					"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"					"0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"					"0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"				"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef ammo_belt 
+{   
+	"editor_color"				".3 .3 1" 
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo/chaingunam.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idItem"
+	
+    "wait"						"0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 40, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Ammo Given"sets the amount of ammo given to the player when picked up (default 10)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"					"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"					"0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"					"0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"				"0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+/*
+============================================================================================================
+
+Holdable Pickups
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef holdable_medkit 
+{   
+	"editor_color"				".7 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/holdable/medkit.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 60, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef holdable_teleporter
+{    
+	"editor_color"				".7 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/holdable/teleporter.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 60, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef holdable_kamikaze   
+{ 
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/kamikazi.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 60, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef holdable_invulnerability 
+{   
+	"editor_color"				".3 .3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/holdable/invulnerability.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 60, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+/*
+============================================================================================================
+
+Item Pickups
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef item_armor_body 
+{   
+	"editor_color"				".6 0 0" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/armor/armor_red.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 25, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+}
+
+
+entityDef item_armor_combat 
+{   
+	"editor_color"				"1 .75 .3" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/armor/armor_yel.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 25, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_armor_shard
+{    
+	"editor_color"				"0 .7 0" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/armor/shard.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 25, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_botroam  
+{  
+	"editor_color"				"1 0.5 0" 	
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
-	"editor_rotatable"			"1"
-
-	"editor_usage"				"Light source."
+	"editor_showangle"			"1"
 	
-	"editor_material texture"	"light shader to use."
-	"editor_color color"		"light color"
-	"editor_var shaderParm3"	"shaderParm 3"
-	"editor_var shaderParm4"	"shaderParm 4"
-	"editor_var shaderParm5"	"shaderParm 5"
-	"editor_var shaderParm6"	"shaderParm 6"
-	"editor_var shaderParm7"	"shaderParm 7"
-
-	"spawnclass"				"idLight"  // this is required for DarkRadiant
-	"light_radius"              "300 300 300"
-	"levels"					"1"
-	"count"						"1"
-	"break"						"0"
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "weight"                    "0"  //"Weight"non-zero floating point value, most often in the range 0 to 400. (Higher values are allowed but keep in mind that the bot should also be attracted to normal items.  Don't make the weight value too high."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"					"0" 
+// key="SUSPENDED" 
 }
+
+
+entityDef item_enviro 
+{   
+	"editor_color"				".5 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/instant/enviro.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 120, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0" 
+}
+
+
+entityDef item_flight 
+{   
+	"editor_color"				".5 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/instant/flight.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 120, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 60)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_haste  
+{  
+	"editor_color"				".5 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/instant/haste.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"						"0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 120, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"							"0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"						"0"  //"Name"a target_give entity can point to this for respawn freebies."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"					"0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notbot"					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_health 
+{   
+	"editor_color"				".8 .8 0" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/health/medium_cross.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"						"0"  //"Respawn Delay"time in seconds before item respawns after being picked up (default 35, -1 = never respawn)."
+    "random"					"0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"						"0"  //"Health Given"sets the amount of health points given to the player when item is picked up (default 25)."
+    "team"						"0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target" 					"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot"					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_health_large 
+{   
+	"editor_color"				"1 0 0" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/health/large_cross.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"						"0" 
+    "random"					"0" 
+    "count" 					"0" 
+    "team" 						"0" 
+    "target" 					"0" 
+    "notfree"					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot"					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_health_mega 
+{   
+	"editor_color"				"0 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/health/mega_cross.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0" 
+    "random"					"0" 
+    "count" 					"0" 
+    "team" 						"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot" 					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_health_small 
+{   
+	"editor_color"				"0 1 0" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/health/small_cross.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0" 
+    "random" 					"0" 
+    "count" 					"0" 
+    "team" 						"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot" 					"0" 
+// key="SUSPENDED"
+}
+
+
+entityDef item_invis 
+{   
+	"editor_color"				".5 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/instant/invis.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0" 
+    "random"					"0" 
+    "count"						"0" 
+    "team" 						"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot" 					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_quad 
+{   
+	"editor_color"				".4 .6 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/instant/quad.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait" 						"0" 
+    "random" 					"0" 
+    "count" 					"0" 
+    "team" 						"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot" 					"0" 
+// key="SUSPENDED" 
+}
+
+
+entityDef item_regen
+{    
+	"editor_color"				".5 0 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/instant/regen.md3"
+	
+	"spawnclass"				"idItem"
+	
+	"editor_usage"				""
+	
+    "wait" 						"0" 
+    "random"					"0" 
+    "count"						"0" 
+    "team" 						"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+    "notbot" 					"0" 
+// key="SUSPENDED" 
+}
+
+
+/*
+============================================================================================================
+
+Func_ Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef func_bobbing 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "speed"						"0"  //"Bob Cycle Time"amount of time in seconds for one complete oscillation cycle (default 4)."
+    "height"					"0"  //"Vertical Travel"sets the amount of travel of the oscillation movement (default 32)."
+    "phase"						"0"  //"Bob Cycle Phase"sets the start offset of the oscillation cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0)."
+    "noise"						"0"  //"Sound File"path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav - See Notes)."
+    "model"						"0"  //"Model File"path/name of model to include (eg: models/mapobjects/jets/jets01.md3)."
+    "origin"					"0"  //"World Origin"alternate method of setting XYZ origin of sound and .md3 model included with entity (See Notes)."
+    "light"						"0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"						"0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+// key="X_AXIS"					"0"  //"X Axis" bit="0"entity will bob along the X axis."
+// key="Y_AXIS"					"0"  //"Y Axis" bit="1"entity will bob along the Y axis."
+}
+
+
+entityDef func_button
+{    
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "movedir"                   "0"  //"Direction"determines the direction in which the button will move (up = -1, down = -2)."
+    "target"					"0"  //"Target"all entities with a matching targetname will be triggered."
+    "speed"						"0"  //"Move Speed"speed of button's displacement (default 40)."
+    "wait"						"0"  //"Return Delay"number of seconds button stays pressed (default 1, -1 = return immediately)."
+    "lip"						"0"  //"Lip"lip remaining at end of move (default 4 units)."
+    "health"					"0"  //"Activate On Damage"(default 0) if set to any non-zero value, the button must take damage (any amount) to activate."
+    "light"						"0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"						"0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "model"						"0"  //"Model File"path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3)."
+    "origin"					"0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
+    "notfree"					"0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"					"0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+entityDef func_door 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "movedir"                   "0"  //"Direction"determines the opening direction of door (up = -1, down = -2)."
+    "speed"						"0"  //"Move Speed"determines how fast the door moves (default 100)."
+    "wait"						"0"  //"Return Delay"number of seconds before door returns (default 2, -1 = return immediately)"
+    "lip"						"0"  //"Lip"lip remaining at end of move (default 8)"
+    "name"						"0"  //"Name"if set, a func_button or trigger is required to activate the door."
+    "health"					"0"  //"Activate On Damage"(default 0) if set to any non-zero value, the button must take damage (any amount) to activate."
+    "dmg"						"0"  //"Damage Inflicted"damage to inflict on player when he blocks operation of door (default 4). Door will reverse direction when blocked unless CRUSHER spawn// is set."
+    "team"						"0"  //"Team Name"assign the same team name to multiple doors that should operate together (see Notes)."
+    "light"						"0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"						"0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "model"						"0"  //"Model File"path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3)."
+    "origin"					"0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+// key="START_OPEN"             "0"  //"Start Open" bit="0"the door will spawn in the open state and operate in reverse."
+// key="CRUSHER"                "0"  //"Crusher" bit="2"door will not reverse direction when blocked and will keep damaging player until he dies or gets out of the way."
+}
+
+
+entityDef func_group 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "terrain"                   "0"  //"Is Terrain"this is an on/off //. When set to 1, the entity becomes a terrain entity. Note: unecessary when compiling with Q3Map2. See Q3Map2 keys."
+}
+
+
+entityDef func_pendulum 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "angle"                     "0"  //"Yaw Angle"angle offset of axis of rotation from default X axis (default 0)."
+    "speed"                     "0"  //"Max Swing Angle"angle of swing arc in either direction from initial position (default 30)."
+    "phase"                     "0"  //"Swing Phase"sets the start offset of the swinging cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0)."
+    "noise"                     "0"  //"Sound File"path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav)."
+    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/jets/jets01.md3)."
+    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of entity's rotation axis and .md3 model included with entity (default "0 0 0" - See Notes)."
+    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+entityDef func_plat  
+{  
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"			"idSpawnableEntity"
+	
+    "speed"                     "0"  //"Move Speed"determines how fast the plat moves (default 150)."
+    "lip"                       "0"  //"Lip"lip remaining at end of move (default 16). Has no effect if "height" is set."
+    "height"                    "0"  //"Vertical Travel"if set, this will determine the total amount of vertical travel of the plat."
+    "dmg"                       "0"  //"Damage Inflicted"damage to inflict on player when he blocks operation of plat (default 4). Plat will reverse direction when blocked."
+    "name"                      "0"  //"Name"if set, the trigger that points to this will raise the plat each time it fires. The plat raises and comes back down a second later if no player is on it."
+    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3)."
+    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+entityDef func_rotating 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "speed"                     "0"  //"Rotation Speed"determines how fast entity rotates (default 100)."
+    "noise"                     "0"  //"Sound File"path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav)."
+    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3)."
+    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of entity's rotation axis and .md3 model included with entity (default "0 0 0" - See Notes)."
+    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+// key="X_AXIS"                 "0"  //"X Axis" bit="2"entity will rotate along the X axis."
+// key="Y_AXIS"                 "0"  //"Y Axis" bit="3"entity will rotate along the Y axis."
+}
+
+
+entityDef func_static 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3)."
+    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
+    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "name"                      "0"  //"Name"NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+entityDef func_timer 
+{   
+	"editor_color"				"0 .5 .8" 
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "wait"                      "0"  //"Time Period"delay in seconds between each triggering of its targets (default 1)."
+    "random"                    "0"  //"Time Period Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "target"                    "0"  //"Target"this points to the entities to trigger."
+    "name"                      "0"  //"a func_button or trigger that points to this will toggle the timer on/off when activated."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+// key="START_ON"               "0"  //"Start On" bit="0"timer will start on in the game and continuously fire its targets."
+}
+
+
+entityDef func_train 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "speed"                     "0"  //"Move Speed"speed of displacement of train (default 100 or overridden by speed value of path)."
+    "target"                    "0"  //"Target"this points to the first path_corner of the path which is also the spawn location of the train's origin."
+    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3)."
+    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of the train's brush(es) and .md3 model included with entity (See Notes)."
+    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+entityDef func_mover  
+{  
+	"editor_color"				"0 .5 .8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idSpawnableEntity"
+	
+    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
+    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3)."
+    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+    "name"                      "0"  //"NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"					"0" 
+    "luaThink"                  "0"  //"Lua Think Function""
+}
+
+
+entityDef func_teleporter 
+{   
+	"editor_color"				"0 .5 0"
+ 	"editor_mins"				"-8 -8 -8"
+ 	"editor_maxs"				"8 8 8"
+ 	"editor_showangle"			"1"
+ 	
+ 	"editor_usage"				""
+ 	
+ 	"spawnclass"				"idSpawnableEntity"
+ 	
+    "name"                      "0"  //"Name"activating trigger points to this."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+}
+
+
+/*
+============================================================================================================
+
+Team Pickups
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef team_CTF_neutral
+{   
+	"editor_color"				"1 .2 1" 
+	"editor_mins"				"16 -16 -24"
+	"editor_maxs"				"16 16 -32"
+	"editor_showangle"			"1"
+	"model"                     "models/flags/n_flag.md3"
+	 
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	 
+    "angle" 					"0"
+    "gametype" 					"0"
+// key="SUSPENDED"
+}
+
+
+entityDef team_CTF_red
+{   
+	"editor_color"				"1 .2 0" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"editor_showangle"			"1"
+	"model"                     "models/flags/r_flag.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+}
+
+
+entityDef team_CTF_blue
+{    
+	"editor_color"				"0 .2 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"editor_showangle"			"1"
+	"model"                     "models/flags/b_flag.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+}
+
+
+entityDef item_scout
+{    
+	"editor_color"				"0.3 0.3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/scout.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
+// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
+}
+
+
+entityDef item_guard 
+{   
+	"editor_color"				"0.3 0.3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/guard.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
+// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
+}
+
+
+entityDef item_doubler  
+{  
+	"editor_color"				"0.3 0.3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/doubler.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
+// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
+}
+
+
+entityDef item_ammoregen
+{    
+	"editor_color"				"0.3 0.3 1" 	
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16" 
+	"model"                     "models/powerups/ammo.md3"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idItem"
+	
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
+    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
+    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
+    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
+    "name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
+    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
+    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
+    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
+    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
+// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
+// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
+}
+
+
+/*
+============================================================================================================
+
+Misc_ Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef misc_portal_camera 
+{   
+	"editor_color"				"1 .5 .25" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idCamera"
+	
+    "angles" 					"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "roll" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle"					"0" 
+// key="SLOWROTATE" 
+// key="FASTROTATE"
+}
+
+
+entityDef misc_portal_surface  
+{  
+	"editor_color"				"1 .5 .25" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "target" 					"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle"					"0" 
+}
+
+
+entityDef misc_teleporter_dest 
+{   
+	"editor_color"				"1 .5 .25" 	
+	"editor_mins"				"-32 -32 -24"
+	"editor_maxs"				"32 32 -16"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "angle" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+}
+
+
+/*
+============================================================================================================
+
+Path Entity
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef path_corner   
+{ 
+	"editor_color"				".5 .3 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "target" 					"0" 
+    "name" 						"0" 
+    "speed" 					"0" 
+    "wait" 						"0" 
+    "notfree" 					"0" 
+    "notteam"					"0" 
+    "notsingle" 				"0" 
+}
+
+
+/*
+============================================================================================================
+
+Shooter_ Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef shooter_grenade 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "angles" 					"0" 
+    "name" 						"0" 
+    "target" 					"0" 
+    "random" 					"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+}
+
+
+entityDef shooter_plasma   
+{ 
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "angles" 					"0" 
+    "name" 						"0" 
+    "target"					"0" 
+    "random" 					"0" 
+    "notfree"					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+}
+
+
+entityDef shooter_rocket 
+{   
+	"editor_color"				"1 0 .5" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idStaticEntity"
+	
+    "angles"					"0" 
+    "name" 						"0" 
+    "target" 					"0" 
+    "random" 					"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+}
+
+
+/*
+============================================================================================================
+
+Target_ Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
 
 entityDef target_speaker
 {
@@ -128,26 +2062,370 @@ entityDef target_speaker
 	"spawnclass"					"target_speaker"
 }
 
-entityDef info_location
-{
-	"editor_color"			"1 1 0"
-	"editor_mins"			"-4 -4 -4"
-	"editor_maxs"			"4 4 4"
 
-	"editor_usage"			"Place one of these in each door-separated area for naming the gameplay sections"
-	"editor_var name"		"location name for HUD.  Cannot be the same as any other entity in the game."
-	"editor_var location"	"use this when you have two locations with the same name."
-
-	"spawnclass"			"idLocationEntity"
+entityDef target_delay  
+{  
+	"editor_color"				"0 .7 .7" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name" 						"0" 
+    "target" 					"0" 
+    "wait" 						"0" 
+    "delay" 					"0" 
+    "random" 					"0" 
+    "notfree"					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
 }
 
-entityDef info_locationSeparator
-{
-	"editor_color"			"1 1 0"
-	"editor_mins"			"-16 -16 -16"
-	"editor_maxs"			"16 16 16"
 
-	"editor_usage"			"Touch a vis-portal with this to break location name flood filling without using a door"
-
-	"spawnclass"			"idLocationSeparatorEntity"
+entityDef target_give  
+{  
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "target"					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
 }
+
+
+entityDef target_kill 
+{   
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+}
+
+
+entityDef target_laser 
+{   
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "angles" 					"0" 
+    "target" 					"0" 
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0" 
+    "notsingle" 				"0" 
+//START_ON : 
+}
+
+//<list name="colorIndex"
+//  <item name="white" value="0"/>
+//  <item name="red" value="1"/>
+//  <item name="green" value="2"/>
+//  <item name="yellow" value="3"/>
+//  <item name="blue" value="4"/>
+//  <item name="cyan" value="5"/>
+//  <item name="magenta" value="6"/>
+//  <item name="white2" value="7"/>
+//</list>
+
+entityDef target_location 
+{   
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+//message :   
+    "count" 					"0" 
+    "notfree"					"0" 
+    "notteam"					"0" 
+    "notsingle" 				"0" 
+}
+
+
+entityDef target_position
+{	
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name" 						"0" 
+    "notfree" 					"0" 
+    "notteam" 					"0"	
+    "notsingle" 				"0"
+}
+
+
+entityDef target_print 
+{   
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "message" 					"0"
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+// key="REDTEAM" 				"0"
+// key="BLUETEAM" 				"0"
+// key="PRIVATE" 				"0"
+}
+
+
+entityDef target_push  
+{  
+	"editor_color"				".5 .5 .5" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "angles" 					"0"
+    "speed" 					"0"
+    "name" 						"0"
+    "target"					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+// key="BOUNCEPAD"
+}
+
+
+entityDef target_relay  
+{  
+	"editor_color"				"0 .7 .7" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name"						"0"
+    "target" 					"0"
+    "notfree" 					"0"
+    "notteam"					"0"
+    "notsingle" 				"0"
+// key="RED_ONLY" 
+// key="BLUE_ONLY"
+// key="RANDOM" 
+}
+
+
+entityDef target_remove_powerups 
+{   
+	"editor_color"				"0 .7 .7" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name" 						"0"
+    "notfree" 					"0"
+    "notteam"					"0"
+    "notsingle" 				"0"
+}
+
+
+entityDef target_score  
+{  
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name"						"0"
+    "count" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+}
+
+
+entityDef target_teleporter
+{    
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name" 						"0"
+    "target" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+}
+
+
+entityDef target_fx  
+{  
+	"editor_color"				"1 .5 .25" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTarget"
+	
+    "name" 						"0"
+    "luaThink" 					"0"
+    "wait" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+    "start_on" 					"0"
+}
+
+
+/*
+============================================================================================================
+
+Trigger_ Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef trigger_always 
+{   
+	"editor_color"				".5 .5 .5" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTrigger" 
+	
+    "target" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle"					"0"
+}
+
+
+entityDef trigger_hurt 
+{   
+	"editor_color"				".5 .5 .5"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTrigger"
+	
+    "dmg" 						"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+// key="START_OFF" 
+// key="SILENT" 
+// key="NO_PROTECTION" 
+// key="SLOW" 
+}
+
+
+entityDef trigger_multiple 
+{   
+	"editor_color"				".5 .5 .5"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTrigger"
+	
+    "target" 					"0"
+    "name" 						"0"
+    "wait" 						"0"
+    "random" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+}
+
+
+entityDef trigger_push 
+{   
+	"editor_color"				".5 .5 .5"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTrigger"
+	
+    "target" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+}
+
+
+entityDef trigger_teleport
+{    
+	"editor_color"				".5 .5 .5"
+	
+	"editor_usage"				""
+	
+	"spawnclass"				"idTrigger"
+	
+    "target" 					"0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle"					"0"
+}
+
+/*
+____________________________________________________________________________________________________________
+
+End XreaL entity definition file
+____________________________________________________________________________________________________________
+*/
+
