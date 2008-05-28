@@ -1594,16 +1594,21 @@ entityDef func_rotating
 entityDef func_static 
 {   
 	"editor_color"				"0 .5 .8"
+	"editor_mins"				"?"
+	"editor_maxs"				"?"
 	
-	"editor_usage"				""
+	"editor_usage"				"Static non-solid bspmodel. Can be used for conditional walls and models."
 	
-	"spawnclass"				"idSpawnableEntity"
+	"spawnclass"				"idStaticEntity"
 	
-    "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3)."
-    "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
-    "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
-    "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
-    "name"                      "0"  //"Name"NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes)."
+	"solid"						"1"
+	"noclipmodel"				"0"
+	
+//  "model"                     "0"  //"Model File"path/name of model to include (eg: models/mapobjects/bitch/fembotbig.md3)."
+//  "origin"                    "0"  //"World Origin"alternate method of setting XYZ origin of .md3 model included with entity (See Notes)."
+//  "light"                     "0"  //"Model Light Intensity"constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
+//  "color"                     "0"  //"Model Light Color"constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
+//  "name"                      "0"  //"Name"NOT SUPPORTED BY RENDERER - if set, a func_button or trigger can make entity disappear from the game (See Notes)."
     "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
     "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
     "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
