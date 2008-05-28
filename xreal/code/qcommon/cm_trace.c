@@ -273,13 +273,13 @@ static qboolean CM_PositionTestInSurfaceCollide(traceWork_t * tw, const cSurface
 	{
 		return qfalse;
 	}
-	
+
 	for(i = 0, facet = sc->facets; i < sc->numFacets; i++, facet++)
 	{
 		planes = &sc->planes[facet->surfacePlane];
 		VectorCopy(planes->plane, plane);
 		plane[3] = planes->plane[3];
-		
+
 		if(tw->sphere.use)
 		{
 			// adjust the plane distance apropriately for radius
@@ -311,7 +311,7 @@ static qboolean CM_PositionTestInSurfaceCollide(traceWork_t * tw, const cSurface
 		for(j = 0; j < facet->numBorders; j++)
 		{
 			planes = &sc->planes[facet->borderPlanes[j]];
-			
+
 			if(facet->borderInward[j])
 			{
 				VectorNegate(planes->plane, plane);
@@ -322,7 +322,7 @@ static qboolean CM_PositionTestInSurfaceCollide(traceWork_t * tw, const cSurface
 				VectorCopy(planes->plane, plane);
 				plane[3] = planes->plane[3];
 			}
-			
+
 			if(tw->sphere.use)
 			{
 				// adjust the plane distance apropriately for radius
@@ -352,16 +352,16 @@ static qboolean CM_PositionTestInSurfaceCollide(traceWork_t * tw, const cSurface
 				break;
 			}
 		}
-		
+
 		if(j < facet->numBorders)
 		{
 			continue;
 		}
-		
+
 		// inside this patch facet
 		return qtrue;
 	}
-	
+
 	return qfalse;
 }
 
@@ -630,8 +630,8 @@ CM_TracePointThroughSurfaceCollide
 */
 void CM_TracePointThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * sc)
 {
-	static qboolean        frontFacing[SHADER_MAX_TRIANGLES];
-	static float           intersection[SHADER_MAX_TRIANGLES];
+	static qboolean frontFacing[SHADER_MAX_TRIANGLES];
+	static float    intersection[SHADER_MAX_TRIANGLES];
 	float           intersect;
 	const cPlane_t *planes;
 	const cFacet_t *facet;
@@ -715,7 +715,7 @@ void CM_TracePointThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_
 			{
 				cv = Cvar_Get("r_debugSurfaceUpdate", "1", 0);
 			}
-			
+
 			if(cv->integer)
 			{
 				debugSurfaceCollide = sc;
@@ -776,7 +776,7 @@ int CM_CheckFacetPlane(float *plane, vec3_t start, vec3_t end, float *enterFrac,
 		{
 			f = 0;
 		}
-		
+
 		//always favor previous plane hits and thus also the surface plane hit
 		if(f > *enterFrac)
 		{
@@ -811,8 +811,8 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 	float           offset, enterFrac, leaveFrac, t;
 	cPlane_t       *planes;
 	cFacet_t       *facet;
-	float           plane[4] = {0, 0, 0, 0};
-	float           bestplane[4] = {0, 0, 0, 0};
+	float           plane[4] = { 0, 0, 0, 0 };
+	float           bestplane[4] = { 0, 0, 0, 0 };
 	vec3_t          startp, endp;
 	static cvar_t  *cv;
 
@@ -831,11 +831,11 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 		enterFrac = -1.0;
 		leaveFrac = 1.0;
 		hitnum = -1;
-		
+
 		planes = &sc->planes[facet->surfacePlane];
 		VectorCopy(planes->plane, plane);
 		plane[3] = planes->plane[3];
-		
+
 		if(tw->sphere.use)
 		{
 			// adjust the plane distance apropriately for radius
@@ -866,7 +866,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 		{
 			continue;
 		}
-		
+
 		if(hit)
 		{
 			VectorCopy4(plane, bestplane);
@@ -875,7 +875,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 		for(j = 0; j < facet->numBorders; j++)
 		{
 			planes = &sc->planes[facet->borderPlanes[j]];
-			
+
 			if(facet->borderInward[j])
 			{
 				VectorNegate(planes->plane, plane);
@@ -886,7 +886,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 				VectorCopy(planes->plane, plane);
 				plane[3] = planes->plane[3];
 			}
-			
+
 			if(tw->sphere.use)
 			{
 				// adjust the plane distance apropriately for radius
@@ -918,17 +918,17 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 			{
 				break;
 			}
-			
+
 			if(hit)
 			{
 				hitnum = j;
 				VectorCopy4(plane, bestplane);
 			}
 		}
-		
+
 		if(j < facet->numBorders)
 			continue;
-		
+
 		//never clip against the back side
 		if(hitnum == facet->numBorders - 1)
 			continue;
@@ -2146,9 +2146,10 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 	int             i, j, k, n;
 	int             curplanenum, planenum, curinward, inward;
 	float           plane[4];
-//	vec3_t          mins = { -15, -15, -28 }, maxs = {15, 15, 28};
-//	vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0};
-//	vec3_t          v1, v2;
+
+//  vec3_t          mins = { -15, -15, -28 }, maxs = {15, 15, 28};
+//  vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0};
+//  vec3_t          v1, v2;
 
 	if(!cv2)
 	{
@@ -2191,18 +2192,18 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 			}
 
 			/*
-			plane[3] += cv->value;
-			
-			for(n = 0; n < 3; n++)
-			{
-				if(plane[n] > 0)
-					v1[n] = maxs[n];
-				else
-					v1[n] = mins[n];
-			}
-			VectorNegate(plane, v2);
-			plane[3] += fabs(DotProduct(v1, v2));
-			*/
+			   plane[3] += cv->value;
+
+			   for(n = 0; n < 3; n++)
+			   {
+			   if(plane[n] > 0)
+			   v1[n] = maxs[n];
+			   else
+			   v1[n] = mins[n];
+			   }
+			   VectorNegate(plane, v2);
+			   plane[3] += fabs(DotProduct(v1, v2));
+			 */
 
 			w = BaseWindingForPlane(plane, plane[3]);
 			for(j = 0; j < facet->numBorders + 1 && w; j++)
@@ -2219,7 +2220,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 					curinward = qfalse;
 					//continue;
 				}
-				
+
 				//
 				if(curplanenum == planenum)
 					continue;
@@ -2230,25 +2231,25 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 					VectorInverse(plane);
 					plane[3] = -plane[3];
 				}
-				
+
 				/*
-				//          if ( !facet->borderNoAdjust[j] ) {
-				plane[3] -= cv->value;
-				//          }
-				for(n = 0; n < 3; n++)
-				{
-					if(plane[n] > 0)
-						v1[n] = maxs[n];
-					else
-						v1[n] = mins[n];
-				}
-				VectorNegate(plane, v2);
-				plane[3] -= fabs(DotProduct(v1, v2));
-				*/
+				   //          if ( !facet->borderNoAdjust[j] ) {
+				   plane[3] -= cv->value;
+				   //          }
+				   for(n = 0; n < 3; n++)
+				   {
+				   if(plane[n] > 0)
+				   v1[n] = maxs[n];
+				   else
+				   v1[n] = mins[n];
+				   }
+				   VectorNegate(plane, v2);
+				   plane[3] -= fabs(DotProduct(v1, v2));
+				 */
 
 				ChopWindingInPlace(&w, plane, plane[3], 0.1f);
 			}
-			
+
 			if(w)
 			{
 				if(facet == debugFacet)
@@ -2293,7 +2294,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 		v[0][0] = pc->bounds[1][0];
 		v[0][1] = pc->bounds[1][1];
 		v[0][2] = pc->bounds[1][2];
-	
+
 		v[1][0] = pc->bounds[1][0];
 		v[1][1] = pc->bounds[0][1];
 		v[1][2] = pc->bounds[1][2];
@@ -2310,4 +2311,3 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 	}
 #endif
 }
-

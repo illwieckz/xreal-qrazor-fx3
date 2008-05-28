@@ -1311,5 +1311,3 @@ cSurfaceCollide_t *CM_GeneratePatchCollide(int width, int height, vec3_t * point
 
 	return sc;
 }
-
-

@@ -455,7 +455,7 @@ void CMod_LoadEntityString(lump_t * l)
 	cm.entityString = Hunk_Alloc(l->filelen, h_high);
 	cm.numEntityChars = l->filelen;
 	Com_Memcpy(cm.entityString, cmod_base + l->fileofs, l->filelen);
-	
+
 	p = cm.entityString;
 
 	// only parse the world spawn
@@ -712,7 +712,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 	cm_noExtraAABBs = Cvar_Get("cm_noExtraAABBs", "0", CVAR_CHEAT);
 	cm_showCurves = Cvar_Get("cm_showCurves", "0", CVAR_CHEAT);
 	cm_showTriangles = Cvar_Get("cm_showTriangles", "0", CVAR_CHEAT);
-	
+
 	Com_DPrintf("CM_LoadMap( %s, %i )\n", name, clientload);
 
 	if(!strcmp(cm.name, name) && clientload)

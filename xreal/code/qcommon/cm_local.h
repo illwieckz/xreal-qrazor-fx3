@@ -86,7 +86,7 @@ typedef struct cPlane_s
 typedef struct
 {
 	int             surfacePlane;
-	
+
 	int             numBorders;
 	int             borderPlanes[MAX_FACET_BEVELS];
 	int             borderInward[MAX_FACET_BEVELS];

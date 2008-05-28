@@ -2411,7 +2411,7 @@ struct inflate_blocks_state
 		} trees;				/* if DTREE, decoding info for trees */
 		struct
 		{
-			inflate_codes_statef * codes;
+			inflate_codes_statef *codes;
 		} decode;				/* if CODES, current state */
 	} sub;						/* submode */
 	uInt            last;		/* true if this block is the last block */
@@ -2617,7 +2617,8 @@ int inflate_blocks(inflate_blocks_statef * s, z_streamp z, int r)
 				break;
 			case STORED:
 				if(n == 0)
-					LEAVE NEEDOUT t = s->sub.left;
+					LEAVE NEEDOUT   t = s->sub.left;
+
 				if(t > n)
 					t = n;
 				if(t > m)
@@ -2739,8 +2740,8 @@ int inflate_blocks(inflate_blocks_statef * s, z_streamp z, int r)
 					return inflate_flush(s, z, r);
 				r = Z_OK;
 				inflate_codes_free(s->sub.decode.codes, z);
-				LOAD Tracev(("inflate:       codes end, %lu total out\n",
-							 z->total_out + (q >= s->read ? q - s->read : (s->end - s->read) + (q - s->window))));
+				LOAD            Tracev(("inflate:       codes end, %lu total out\n",
+										z->total_out + (q >= s->read ? q - s->read : (s->end - s->read) + (q - s->window))));
 				if(!s->last)
 				{
 					s->mode = TYPE;
@@ -2749,13 +2750,12 @@ int inflate_blocks(inflate_blocks_statef * s, z_streamp z, int r)
 				s->mode = DRY;
 			case DRY:
 				FLUSH if(s->read != s->write)
-					LEAVE s->mode = DONE;
+					LEAVE           s->mode = DONE;
+
 			case DONE:
 				r = Z_STREAM_END;
-			LEAVE case BAD:
-				r = Z_DATA_ERROR;
-			LEAVE default:
-				r = Z_STREAM_ERROR;
+				LEAVE case      BAD:r = Z_DATA_ERROR;
+				LEAVE default:  r = Z_STREAM_ERROR;
 		LEAVE}
 }
 
@@ -3524,7 +3524,7 @@ static int inflate_fast(uInt bl, uInt bd, inflate_huft * tl, inflate_huft * td, 
 					else
 					{
 						z->msg = (char *)"invalid distance code";
-						UNGRAB UPDATE return Z_DATA_ERROR;
+						UNGRAB UPDATE   return Z_DATA_ERROR;
 					}
 				} while(1);
 				break;
@@ -3545,18 +3545,18 @@ static int inflate_fast(uInt bl, uInt bd, inflate_huft * tl, inflate_huft * td, 
 			else if(e & 32)
 			{
 				Tracevv(("inflate:         * end of block\n"));
-				UNGRAB UPDATE return Z_STREAM_END;
+				UNGRAB UPDATE   return Z_STREAM_END;
 			}
 			else
 			{
 				z->msg = (char *)"invalid literal/length code";
-				UNGRAB UPDATE return Z_DATA_ERROR;
+				UNGRAB UPDATE   return Z_DATA_ERROR;
 			}
 		} while(1);
 	} while(m >= 258 && n >= 10);
 
 	/* not enough input or output--restore pointers and return */
-	UNGRAB UPDATE return Z_OK;
+	UNGRAB UPDATE   return Z_OK;
 }
 
 /* infcodes.c -- process literals and length/distance pairs
@@ -3657,8 +3657,8 @@ int inflate_codes(inflate_blocks_statef * s, z_streamp z, int r)
 #ifndef SLOW
 				if(m >= 258 && n >= 10)
 				{
-					UPDATE r = inflate_fast(c->lbits, c->dbits, c->ltree, c->dtree, s, z);
-					LOAD if(r != Z_OK)
+					UPDATE          r = inflate_fast(c->lbits, c->dbits, c->ltree, c->dtree, s, z);
+					LOAD if         (r != Z_OK)
 					{
 						c->mode = r == Z_STREAM_END ? WASH : BADCODE;
 						break;
@@ -3702,8 +3702,9 @@ int inflate_codes(inflate_blocks_statef * s, z_streamp z, int r)
 				c->mode = BADCODE;	/* invalid code */
 				z->msg = (char *)"invalid literal/length code";
 				r = Z_DATA_ERROR;
-			LEAVE case LENEXT:	/* i: getting length extra (have base) */
-				j = c->sub.copy.get;
+				LEAVE case      LENEXT:	/* i: getting length extra (have base) */
+				                j = c->sub.copy.get;
+
 				NEEDBITS(j) c->len += (uInt) b & inflate_mask[j];
 				DUMPBITS(j) c->sub.code.need = c->dbits;
 				c->sub.code.tree = c->dtree;
@@ -3729,8 +3730,9 @@ int inflate_codes(inflate_blocks_statef * s, z_streamp z, int r)
 				c->mode = BADCODE;	/* invalid code */
 				z->msg = (char *)"invalid distance code";
 				r = Z_DATA_ERROR;
-			LEAVE case DISTEXT:	/* i: getting distance extra */
-				j = c->sub.copy.get;
+				LEAVE case      DISTEXT:	/* i: getting distance extra */
+				                j = c->sub.copy.get;
+
 				NEEDBITS(j) c->sub.copy.dist += (uInt) b & inflate_mask[j];
 				DUMPBITS(j) Tracevv(("inflate:         distance %u\n", c->sub.copy.dist));
 				c->mode = COPY;
@@ -3745,8 +3747,9 @@ int inflate_codes(inflate_blocks_statef * s, z_streamp z, int r)
 #endif
 				while(c->len)
 				{
-					NEEDOUT OUTBYTE(*f++) if(f == s->end)
+					NEEDOUT         OUTBYTE(*f++) if(f == s->end)
 						f = s->window;
+
 					c->len--;
 				}
 				c->mode = START;
@@ -3761,14 +3764,14 @@ int inflate_codes(inflate_blocks_statef * s, z_streamp z, int r)
 					n++;
 					p--;		/* can always return one */
 				}
-				FLUSH if(s->read != s->write)
-					LEAVE c->mode = END;
+				FLUSH if        (s->read != s->write)
+					LEAVE           c->mode = END;
+
 			case END:
 				r = Z_STREAM_END;
-			LEAVE case BADCODE:	/* x: got error */
-				r = Z_DATA_ERROR;
-			LEAVE default:
-				r = Z_STREAM_ERROR;
+				LEAVE case      BADCODE:	/* x: got error */
+				                r = Z_DATA_ERROR;
+				LEAVE default:  r = Z_STREAM_ERROR;
 		LEAVE}
 #ifdef NEED_DUMMY_RETURN
 	return Z_STREAM_ERROR;		/* Some dumb compilers complain without this */
@@ -3902,7 +3905,7 @@ struct internal_state
 	/* mode independent information */
 	int             nowrap;		/* flag for no wrapper */
 	uInt            wbits;		/* log2(window size)  (8..15, defaults to 15) */
-	                inflate_blocks_statef * blocks;	/* current inflate_blocks state */
+	inflate_blocks_statef *blocks;	/* current inflate_blocks state */
 
 };
 

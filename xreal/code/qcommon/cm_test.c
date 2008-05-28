@@ -568,6 +568,3 @@ qboolean CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec
 
 	return qtrue;
 }
-
-
-

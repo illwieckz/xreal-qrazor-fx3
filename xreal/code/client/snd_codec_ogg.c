@@ -206,7 +206,7 @@ long S_OGG_Callback_tell(void *datasource)
 	// snd_stream_t in the generic pointer
 	stream = (snd_stream_t *) datasource;
 
-	return (long) FS_FTell(stream->file);
+	return (long)FS_FTell(stream->file);
 }
 
 // the callback structure

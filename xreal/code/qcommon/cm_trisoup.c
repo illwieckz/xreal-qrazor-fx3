@@ -144,7 +144,7 @@ CM_AddPlaneToHash
 */
 static void CM_AddPlaneToHash(cPlane_t * p)
 {
-	long             hash;
+	long            hash;
 
 	hash = CM_GenerateHashValue(p->plane);
 
@@ -171,7 +171,7 @@ static void CM_SnapVector(vec3_t normal)
 			normal[i] = 1;
 			break;
 		}
-		
+
 		if(fabs(normal[i] - -1) < NORMAL_EPSILON)
 		{
 			VectorClear(normal);
@@ -189,7 +189,7 @@ CM_CreateNewFloatPlane
 static int CM_CreateNewFloatPlane(vec4_t plane)
 {
 #ifndef USE_HASHING
-	
+
 	// add a new plane
 	if(numPlanes == SHADER_MAX_TRIANGLES)
 	{
@@ -204,15 +204,15 @@ static int CM_CreateNewFloatPlane(vec4_t plane)
 	return numPlanes - 1;
 #else
 
-	cPlane_t        *p;//, temp;
+	cPlane_t       *p;			//, temp;
 
 	/*
-	if(VectorLength(normal) < 0.5)
-	{
-		Sys_Printf("FloatPlane: bad normal\n");
-		return -1;
-	}
-	*/
+	   if(VectorLength(normal) < 0.5)
+	   {
+	   Sys_Printf("FloatPlane: bad normal\n");
+	   return -1;
+	   }
+	 */
 
 	// create a new plane
 	if(numPlanes == SHADER_MAX_TRIANGLES)
@@ -220,7 +220,7 @@ static int CM_CreateNewFloatPlane(vec4_t plane)
 
 	p = &planes[numPlanes];
 	VectorCopy4(plane, p->plane);
-	
+
 	//p->type = PlaneTypeForNormal(p->normal);
 	p->signbits = CM_SignbitsForNormal(plane);
 
@@ -228,21 +228,21 @@ static int CM_CreateNewFloatPlane(vec4_t plane)
 
 	// allways put axial planes facing positive first
 	/*
-	if(p->type < 3)
-	{
-		if(p->normal[0] < 0 || p->normal[1] < 0 || p->normal[2] < 0)
-		{
-			// flip order
-			temp = *p;
-			*p = *(p + 1);
-			*(p + 1) = temp;
+	   if(p->type < 3)
+	   {
+	   if(p->normal[0] < 0 || p->normal[1] < 0 || p->normal[2] < 0)
+	   {
+	   // flip order
+	   temp = *p;
+	   *p = *(p + 1);
+	   *(p + 1) = temp;
 
-			AddPlaneToHash(p);
-			AddPlaneToHash(p + 1);
-			return numMapPlanes - 1;
-		}
-	}
-	*/
+	   AddPlaneToHash(p);
+	   AddPlaneToHash(p + 1);
+	   return numMapPlanes - 1;
+	   }
+	   }
+	 */
 
 	CM_AddPlaneToHash(p);
 	return numPlanes - 1;
@@ -280,7 +280,7 @@ static int CM_FindPlane2(float plane[4], int *flipped)
 	for(i = -1; i <= 1; i++)
 	{
 		h = (hash + i) & (PLANE_HASHES - 1);
-		
+
 		for(p = planeHashTable[h]; p; p = p->hashChain)
 		{
 			if(CM_PlaneEqual(p, plane, flipped))
@@ -344,7 +344,7 @@ static int CM_FindPlane(float *p1, float *p2, float *p3)
 #else
 	// use variable i as dummy
 	return CM_FindPlane2(plane, &i);
-#endif	
+#endif
 }
 
 /*
@@ -459,9 +459,9 @@ CM_GenerateBoundaryForPoints
 static int CM_GenerateBoundaryForPoints(const vec4_t triPlane, const vec3_t p1, const vec3_t p2)
 {
 	vec3_t          up;
-		
+
 	VectorMA(p1, 4, triPlane, up);
-	
+
 	return CM_FindPlane(p1, p2, up);
 }
 
@@ -560,7 +560,7 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 	}
 
 	VectorCopy4(planes[facet->surfacePlane].plane, plane);
-	
+
 	w = BaseWindingForPlane(plane, plane[3]);
 	for(j = 0; j < facet->numBorders && w; j++)
 	{
@@ -569,15 +569,15 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 			FreeWinding(w);
 			return qfalse;
 		}
-		
+
 		VectorCopy4(planes[facet->borderPlanes[j]].plane, plane);
-		
+
 		if(!facet->borderInward[j])
 		{
 			VectorSubtract(vec3_origin, plane, plane);
 			plane[3] = -plane[3];
 		}
-		
+
 		ChopWindingInPlace(&w, plane, plane[3], 0.1f);
 	}
 
@@ -596,12 +596,12 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 		{
 			return qfalse;		// we must be missing a plane
 		}
-		
+
 		if(bounds[0][j] >= MAX_WORLD_COORD)
 		{
 			return qfalse;
 		}
-		
+
 		if(bounds[1][j] <= MIN_WORLD_COORD)
 		{
 			return qfalse;
@@ -666,13 +666,13 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 			{
 				plane[3] = -mins[axis];
 			}
-			
+
 			// if it's the surface plane
 			if(CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped))
 			{
 				continue;
 			}
-			
+
 			// see if the plane is allready present
 			for(i = 0; i < facet->numBorders; i++)
 			{
@@ -684,7 +684,7 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 			{
 				if(facet->numBorders > MAX_FACET_BEVELS)
 					Com_Printf("ERROR: too many bevels\n");
-				
+
 				facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
 				facet->borderNoAdjust[facet->numBorders] = 0;
 				facet->borderInward[facet->numBorders] = flipped;
@@ -692,21 +692,21 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 			}
 		}
 	}
-	
+
 	//
 	// add the edge bevels
 	//
-	
+
 	// test the non-axial plane edges
 	for(j = 0; j < w->numpoints; j++)
 	{
 		k = (j + 1) % w->numpoints;
 		VectorSubtract(w->p[j], w->p[k], vec);
-		
+
 		//if it's a degenerate edge
 		if(VectorNormalize(vec) < 0.5)
 			continue;
-		
+
 		CM_SnapVector(vec);
 		for(k = 0; k < 3; k++)
 			if(vec[k] == -1 || vec[k] == 1)
@@ -743,7 +743,7 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 				{
 					continue;
 				}
-				
+
 				// see if the plane is allready present
 				for(i = 0; i < facet->numBorders; i++)
 				{
@@ -810,7 +810,7 @@ CM_GenerateFacetFor3Points
 */
 qboolean CM_GenerateFacetFor3Points(cFacet_t * facet, const vec3_t p1, const vec3_t p2, const vec3_t p3)
 {
-	vec4_t plane;
+	vec4_t          plane;
 
 	// if we can't generate a valid plane for the points, ignore the facet
 	//if(!PlaneFromPoints(f->surface, a, b, c, qtrue))
@@ -895,7 +895,7 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 	int             i;
 	float          *p1, *p2, *p3, *p4;
 	int             i1, i2, i3, i4, i5, i6;
-	
+
 	cFacet_t       *facet;
 	int             borders[4];
 	int             noAdjust[4];
@@ -914,7 +914,7 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 		p1 = triSoup->points[i][0];
 		p2 = triSoup->points[i][1];
 		p3 = triSoup->points[i][2];
-		
+
 		triSoup->trianglePlanes[i] = CM_FindPlane(p1, p2, p3);
 
 		//Com_Printf("trianglePlane[%i] = %i\n", i, trianglePlanes[i]);
@@ -934,7 +934,7 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 		p2 = triSoup->points[i][1];
 		p3 = triSoup->points[i][2];
 
-		facet->surfacePlane = triSoup->trianglePlanes[i]; //CM_FindPlane(p1, p2, p3);
+		facet->surfacePlane = triSoup->trianglePlanes[i];	//CM_FindPlane(p1, p2, p3);
 
 		// try and make a quad out of two triangles
 #if 0
@@ -943,12 +943,12 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 			i4 = triSoup->indexes[i * 3 + 3];
 			i5 = triSoup->indexes[i * 3 + 4];
 			i6 = triSoup->indexes[i * 3 + 5];
-			
+
 			if(i4 == i3 && i5 == i2)
 			{
-				p4 = triSoup->points[i][5];  // vertex at i6
-				
-				if(CM_GenerateFacetFor4Points(facet, p1, p2, p4, p3)) //test->facets[count], v1, v2, v4, v3))
+				p4 = triSoup->points[i][5];	// vertex at i6
+
+				if(CM_GenerateFacetFor4Points(facet, p1, p2, p4, p3))	//test->facets[count], v1, v2, v4, v3))
 				{
 					CM_SetBorderInward(facet, triSoup, i, 0);
 
@@ -957,7 +957,7 @@ static void CM_SurfaceCollideFromTriangleSoup(cTriangleSoup_t * triSoup, cSurfac
 						CM_AddFacetBevels(facet);
 						numFacets++;
 
-						i++;		// skip next tri
+						i++;	// skip next tri
 						continue;
 					}
 				}
@@ -1056,5 +1056,3 @@ cSurfaceCollide_t *CM_GenerateTriangleSoupCollide(int numVertexes, vec3_t * vert
 
 	return sc;
 }
-
-
