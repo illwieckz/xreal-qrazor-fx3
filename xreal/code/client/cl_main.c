@@ -1817,7 +1817,6 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 	int             numservers;
 	byte           *buffptr;
 	byte           *buffend;
-	netadrtype_t    family = NA_UNSPEC;
 
 	Com_Printf("CL_ServersResponsePacket\n");
 
@@ -1832,46 +1831,42 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 	numservers = 0;
 	buffptr = msg->data;
 	buffend = buffptr + msg->cursize;
-	while(buffptr + 1 < buffend)
+	// advance to initial token
+	do
 	{
-		// advance to initial token
-		do
-		{
-			if(*buffptr++ == '\\')
-			{
-				family = NA_IP;
-				break;
-			}
-			else if(*buffptr == '/')
-			{
-				family = NA_IP6;
-				break;
-			}
-
-			buffptr++;
-		}
-		while(buffptr < buffend);
+		if(*buffptr == '\\' || *buffptr == '/')
+			break;
 
 		buffptr++;
+	}
+	while(buffptr < buffend);
 
-		if(family == NA_IP)
+	while(buffptr + 1 < buffend)
+	{
+		if(*buffptr == '\\')
 		{
-			if(buffend - buffptr < sizeof(addresses[numservers].ip) + sizeof(addresses[numservers].port) + sizeof("\\EOT") - 1)
+			buffptr++;
+
+			if(buffend - buffptr < sizeof(addresses[numservers].ip) + sizeof(addresses[numservers].port) + 1)
 				break;
 
 			for(i = 0; i < sizeof(addresses[numservers].ip); i++)
 				addresses[numservers].ip[i] = *buffptr++;
+
+			addresses[numservers].type = NA_IP;
 		}
 		else
 		{
-			if(buffend - buffptr < sizeof(addresses[numservers].ip6) + sizeof(addresses[numservers].port) + sizeof("\\EOT") - 1)
+			buffptr++;
+
+			if(buffend - buffptr < sizeof(addresses[numservers].ip6) + sizeof(addresses[numservers].port) + 1)
 				break;
 
 			for(i = 0; i < sizeof(addresses[numservers].ip6); i++)
 				addresses[numservers].ip6[i] = *buffptr++;
-		}
 
-		addresses[numservers].type = family;
+			addresses[numservers].type = NA_IP6;
+		}
 
 		// parse out port
 		addresses[numservers].port = (*buffptr++) << 8;
@@ -1884,10 +1879,6 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 
 		numservers++;
 		if(numservers >= MAX_SERVERSPERPACKET)
-			break;
-
-		// parse out EOT
-		if(buffptr[1] == 'E' && buffptr[2] == 'O' && buffptr[3] == 'T')
 			break;
 	}
 
@@ -2333,7 +2324,7 @@ CL_RefPrintf
 DLL glue
 ================
 */
-void            QDECL CL_RefPrintf(int print_level, const char *fmt, ...)
+void QDECL CL_RefPrintf(int print_level, const char *fmt, ...)
 {
 	va_list         argptr;
 	char            msg[MAXPRINTMSG];
@@ -2756,7 +2747,7 @@ void CL_Init(void)
 
 	SCR_Init();
 
-	Cbuf_Execute();
+//  Cbuf_Execute();
 
 	Cvar_Set("cl_running", "1");
 

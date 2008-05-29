@@ -80,8 +80,8 @@ static void GLimp_SetCurrentContext(qboolean enable)
 
 typedef struct
 {
-	HDC     hDC;			// handle to device context
-	HGLRC   hGLRC;			// handle to GL rendering context
+	HDC             hDC;		// handle to device context
+	HGLRC           hGLRC;		// handle to GL rendering context
 } QGLContext_t;
 typedef QGLContext_t *QGLContext;
 
@@ -91,13 +91,13 @@ static QGLContext GLimp_GetCurrentContext()
 {
 	static QGLContext_t ctx;
 
-	SDL_SysWMinfo info;
-	
+	SDL_SysWMinfo   info;
+
 	SDL_VERSION(&info.version);
 	if(!SDL_GetWMInfo(&info))
 	{
-	  ri.Printf(PRINT_WARNING, "Failed to obtain HWND from SDL (InputRegistry)");
-	  return NULL;
+		ri.Printf(PRINT_WARNING, "Failed to obtain HWND from SDL (InputRegistry)");
+		return NULL;
 	}
 
 	ctx.hDC = GetDC(info.window);
@@ -223,7 +223,8 @@ static void GLimp_DetectAvailableModes(void)
 
 	for(numModes = 0; modes[numModes]; numModes++);
 
-	qsort(modes, numModes, sizeof(SDL_Rect *), GLimp_CompareModes);
+	if(numModes > 1)
+		qsort(modes + 1, numModes - 1, sizeof(SDL_Rect *), GLimp_CompareModes);
 
 	for(i = 0; i < numModes; i++)
 	{
@@ -527,11 +528,11 @@ static void GLimp_InitExtensions(void)
 		}
 	}
 	/*
-	else
-	{
-		ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
-	}
-	*/
+	   else
+	   {
+	   ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
+	   }
+	 */
 
 	// GL_ARB_depth_texture
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_depth_texture"))
@@ -1096,7 +1097,8 @@ void GLimp_Init(void)
 
 	if(Q_stristr(glConfig.renderer_string, "geforce"))
 	{
-		if(Q_stristr(glConfig.renderer_string, "8800") || Q_stristr(glConfig.renderer_string, "8600") || Q_stristr(glConfig.renderer_string, "8500") || Q_stristr(glConfig.renderer_string, "8400"))
+		if(Q_stristr(glConfig.renderer_string, "8800") || Q_stristr(glConfig.renderer_string, "8600") ||
+		   Q_stristr(glConfig.renderer_string, "8500") || Q_stristr(glConfig.renderer_string, "8400"))
 			glConfig.hardwareType = GLHW_G80;
 	}
 

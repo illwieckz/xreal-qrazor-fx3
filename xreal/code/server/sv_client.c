@@ -93,20 +93,83 @@ void SV_GetChallenge(netadr_t from)
 	NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
 }
 
-int MaskBits(unsigned int mask)
+/*
+==================
+SV_IsBanned
+
+Check whether a certain address is banned
+==================
+*/
+qboolean SV_IsBanned(netadr_t * from, qboolean isexception)
 {
-	int             i;
-	int             bits;
+	int             index, addrlen, curbyte, netmask, cmpmask;
+	serverBan_t    *curban;
+	byte           *addrfrom, *addrban;
+	qboolean        differed;
 
-	bits = 0;
+	if(from->type == NA_IP)
+		addrlen = sizeof(from->ip);
+	else if(from->type == NA_IP6)
+		addrlen = sizeof(from->ip6);
+	else
+		return qfalse;
 
-	for(i = 0; i < 32; i++)
+	if(!isexception)
 	{
-		if(mask & (1 << i))
-			bits++;
+		// If this is a query for a ban, first check whether the client is excepted
+		if(SV_IsBanned(from, qtrue))
+			return qfalse;
 	}
 
-	return bits;
+	for(index = 0; index < serverBansCount; index++)
+	{
+		curban = &serverBans[index];
+
+		if(curban->isexception == isexception && from->type == curban->ip.type)
+		{
+			if(from->type == NA_IP)
+			{
+				addrfrom = from->ip;
+				addrban = curban->ip.ip;
+			}
+			else
+			{
+				addrfrom = from->ip6;
+				addrban = curban->ip.ip6;
+			}
+
+			differed = qfalse;
+			curbyte = 0;
+
+			for(netmask = curban->subnet; netmask > 7; netmask -= 8)
+			{
+				if(addrfrom[curbyte] != addrban[curbyte])
+				{
+					differed = qtrue;
+					break;
+				}
+
+				curbyte++;
+			}
+
+			if(differed)
+				continue;
+
+			if(netmask)
+			{
+				cmpmask = (1 << netmask) - 1;
+				cmpmask <<= 8 - netmask;
+
+				if((addrfrom[curbyte] & cmpmask) == (addrban[curbyte] & cmpmask))
+					return qtrue;
+			}
+			else
+				return qtrue;
+
+		}
+	}
+
+	return qfalse;
 }
 
 /*
@@ -133,7 +196,14 @@ void SV_DirectConnect(netadr_t from)
 	int             count;
 	char           *ip;
 
-	Com_DPrintf("SVC_DirectConnect ()\n");
+	Com_DPrintf("SVC_DirectConnect()\n");
+
+	// check whether this client is banned
+	if(SV_IsBanned(&from, qfalse))
+	{
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
+		return;
+	}
 
 	Q_strncpyz(userinfo, Cmd_Argv(1), sizeof(userinfo));
 
@@ -723,12 +793,11 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 
 	if(!cl->download)
 	{
+		cl->download = 0;
+
 		// We open the file here
-
-		Com_Printf("clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName);
-
 		if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP) ||
-		   (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) <= 0)
+		   (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) < 0)
 		{
 			// cannot auto-download file
 			if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP))
@@ -764,6 +833,10 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 			MSG_WriteString(msg, errorMessage);
 
 			*cl->downloadName = 0;
+
+			if(cl->download)
+				FS_FCloseFile(cl->download);
+
 			return;
 		}
 

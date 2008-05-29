@@ -85,9 +85,7 @@ typedef struct
 	int             time;
 } server_t;
 
-
-
-
+//=============================================================================
 
 typedef struct
 {
@@ -181,7 +179,6 @@ typedef struct client_s
 
 //=============================================================================
 
-
 // MAX_CHALLENGES is made large to prevent a denial
 // of service attack that could cycle all of them
 // out before legitimate users connected
@@ -223,6 +220,19 @@ typedef struct
 	netadr_t        authorizeAddress;	// for rcon return messages
 } serverStatic_t;
 
+#define SERVER_MAXBANS  1024
+#define SERVER_BANFILE  "serverbans.dat"
+
+// structure for managing bans
+typedef struct
+{
+	netadr_t		ip;
+	// For a CIDR-Notation type suffix
+	int				subnet;
+
+	qboolean		isexception;
+} serverBan_t;
+
 //=============================================================================
 
 extern serverStatic_t svs;		// persistant server info across maps
@@ -258,6 +268,9 @@ extern cvar_t  *sv_pure;
 extern cvar_t  *sv_floodProtect;
 extern cvar_t  *sv_lanForceRate;
 
+extern serverBan_t serverBans[SERVER_MAXBANS];
+extern int		serverBansCount;
+
 //===========================================================
 
 //
@@ -274,9 +287,6 @@ void            SV_RemoveOperatorCommands(void);
 void            SV_MasterHeartbeat(void);
 void            SV_MasterShutdown(void);
 
-
-
-
 //
 // sv_init.c
 //
@@ -289,8 +299,6 @@ void            SV_GetUserinfo(int index, char *buffer, int bufferSize);
 
 void            SV_ChangeMaxClients(void);
 void            SV_SpawnServer(char *server, qboolean killBots);
-
-
 
 //
 // sv_client.c

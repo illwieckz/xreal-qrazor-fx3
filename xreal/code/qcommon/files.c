@@ -728,7 +728,8 @@ int FS_SV_FOpenFileRead(const char *filename, fileHandle_t * fp)
 	{
 		return FS_filelength(f);
 	}
-	return 0;
+
+	return -1;
 }
 
 
@@ -2964,7 +2965,6 @@ FS_Startup
 static void FS_Startup(const char *gameName)
 {
 	const char     *homePath;
-	cvar_t         *fs;
 
 	Com_Printf("----- FS_Startup -----\n");
 
@@ -3283,12 +3283,12 @@ const char     *FS_ReferencedPakNames(void)
 		// is the element a pak file?
 		if(search->pack)
 		{
-			if(*info)
-			{
-				Q_strcat(info, sizeof(info), " ");
-			}
 			if(search->pack->referenced || Q_stricmpn(search->pack->pakGamename, BASEGAME, strlen(BASEGAME)))
 			{
+				if(*info)
+				{
+					Q_strcat(info, sizeof(info), " ");
+				}
 				Q_strcat(info, sizeof(info), search->pack->pakGamename);
 				Q_strcat(info, sizeof(info), "/");
 				Q_strcat(info, sizeof(info), search->pack->pakBasename);

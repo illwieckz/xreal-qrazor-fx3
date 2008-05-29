@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
-
 /*
 ===============
 SV_SendConfigstring
@@ -755,6 +754,9 @@ void SV_Init(void)
 	sv_killserver = Cvar_Get("sv_killserver", "0", 0);
 	sv_mapChecksum = Cvar_Get("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
+
+	// load saved bans
+	Cbuf_AddText("rehashbans\n");
 }
 
 

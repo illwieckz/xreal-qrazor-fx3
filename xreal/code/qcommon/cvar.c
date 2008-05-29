@@ -66,7 +66,7 @@ static long generateHashValue(const char *fname)
 Cvar_ValidateString
 ============
 */
-static          qboolean Cvar_ValidateString(const char *s)
+static qboolean Cvar_ValidateString(const char *s)
 {
 	if(!s)
 	{

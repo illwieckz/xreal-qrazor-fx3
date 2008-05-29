@@ -54,6 +54,9 @@ cvar_t         *sv_pure;
 cvar_t         *sv_floodProtect;
 cvar_t         *sv_lanForceRate;	// dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 
+serverBan_t     serverBans[SERVER_MAXBANS];
+int             serverBansCount = 0;
+
 /*
 =============================================================================
 
@@ -179,7 +182,7 @@ the client game module: "cp", "print", "chat", etc
 A NULL client will broadcast to all clients
 =================
 */
-void            QDECL SV_SendServerCommand(client_t * cl, const char *fmt, ...)
+void QDECL SV_SendServerCommand(client_t * cl, const char *fmt, ...)
 {
 	va_list         argptr;
 	byte            message[MAX_MSGLEN];
