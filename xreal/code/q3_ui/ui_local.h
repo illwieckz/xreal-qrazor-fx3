@@ -547,6 +547,11 @@ typedef struct
 	float           yscale;
 	float           bias;
 	qboolean        firstdraw;
+
+	// Tr3B: new truetype fonts
+	fontInfo_t      textFont;
+//	fontInfo_t      smallFont;
+//	fontInfo_t      bigFont;
 } uiStatic_t;
 
 extern void     UI_Init(void);
@@ -564,6 +569,7 @@ extern void     UI_UpdateScreen(void);
 extern void     UI_SetColor(const float *rgba);
 extern void     UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
 extern void     UI_DrawBannerString(int x, int y, const char *str, int style, vec4_t color);
+
 extern float    UI_ProportionalSizeScale(int style);
 extern void     UI_DrawProportionalString(int x, int y, const char *str, int style, vec4_t color);
 extern void     UI_DrawProportionalString_AutoWrapped(int x, int ystart, int xmax, int ystep, const char *str, int style,
@@ -571,6 +577,12 @@ extern void     UI_DrawProportionalString_AutoWrapped(int x, int ystart, int xma
 extern int      UI_ProportionalStringWidth(const char *str);
 extern void     UI_DrawString(int x, int y, const char *str, int style, vec4_t color);
 extern void     UI_DrawChar(int x, int y, int ch, int style, vec4_t color);
+
+int				UI_Text_Width(const char *text, float scale, int limit);
+int				UI_Text_Height(const char *text, float scale, int limit);
+void			UI_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader);
+void			UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
+
 extern qboolean UI_CursorInRect(int x, int y, int width, int height);
 extern void     UI_AdjustFrom640(float *x, float *y, float *w, float *h);
 extern void     UI_DrawTextBox(int x, int y, int width, int lines);
@@ -646,6 +658,7 @@ void            trap_R_RenderScene(const refdef_t * fd);
 void            trap_R_SetColor(const float *rgba);
 void            trap_R_DrawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2,
 									  qhandle_t hShader);
+void            trap_R_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font);
 void            trap_UpdateScreen(void);
 int             trap_CM_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame, float frac,
 								const char *tagName);

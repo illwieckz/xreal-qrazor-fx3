@@ -58,7 +58,7 @@ cr_line         credits[] = {
 	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
 
 	{"Project Lead", UI_CENTER|UI_SMALLFONT, &colorLtGrey},
-	{"Robert 'Tr3B' Beckebans", UI_CENTER|UI_SMALLFONT, &colorWhite},
+	{"Robert Beckebans", UI_CENTER|UI_SMALLFONT, &colorWhite},
 	{"", UI_CENTER|UI_SMALLFONT, &colorBlue},
 
 	{"Programming", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
@@ -134,6 +134,7 @@ Main drawing function
 static void ScrollingCredits_Draw(void)
 {
 	int             x = 320, y, n, ysize = 0, fadetime = 0;
+	int             textWidth;
 	vec4_t          fadecolour = { 0.00, 0.00, 0.00, 0.00 };
 
 	// ysize is used to determine the entire length of the credits in pixels. 
@@ -188,6 +189,12 @@ static void ScrollingCredits_Draw(void)
 		{
 			// the line is within the visible range of the screen
 			UI_DrawProportionalString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
+			
+			//UI_DrawString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
+
+			// TODO: make this work
+			//textWidth = UI_Text_Width(credits[n].string, 1.0, 0);
+			//UI_Text_Paint(x, y /*(>w - textWidth) / 2*/, 1.0, *credits[n].colour, credits[n].string, 0, 0, credits[n].style);
 		}
 
 		// re-adjust y for next line
