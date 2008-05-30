@@ -3593,7 +3593,7 @@ int FS_FOpenFileByMode(const char *qpath, fileHandle_t * f, fsMode_t mode)
 			}
 			break;
 		default:
-			Com_Error(ERR_FATAL, "FSH_FOpenFile: bad mode");
+			Com_Error(ERR_FATAL, "FS_FOpenFileByMode: bad mode");
 			return -1;
 	}
 
