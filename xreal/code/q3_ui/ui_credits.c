@@ -145,7 +145,7 @@ cr_line         credits[] = {
 	{"William 'SPoG' Joseph", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Robin 'Wakey' Pengelstorfer", UI_CENTER | UI_SMALLFONT, colorWhite},
 //	{"Christian 'Lorax' Ballsieper", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"James 'HarlequiN' Taylor", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"James 'HarlequiN' Taylor", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Lee David Ash", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
@@ -285,7 +285,7 @@ void UI_CreditMenu(void)
 	mvolume = trap_Cvar_VariableValue("s_musicvolume");
 	if(mvolume < 0.5)
 		trap_Cmd_ExecuteText(EXEC_APPEND, "s_musicvolume 0.5\n");
-	trap_Cmd_ExecuteText(EXEC_APPEND, "music music/credits\n");
+	trap_Cmd_ExecuteText(EXEC_APPEND, "music music/credits.ogg\n");
 
 	// load the background shader
 	BackgroundShader = trap_R_RegisterShaderNoMip("menubackcredits");
