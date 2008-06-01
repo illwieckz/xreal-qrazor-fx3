@@ -218,25 +218,19 @@ void CL_StopRecord_f(void)
 
 /* 
 ================== 
-CL_DemoFilename
+CL_DemoFileName
 ================== 
 */
-void CL_DemoFilename(int number, char *fileName)
+static char    *CL_DemoFileName(void)
 {
-	int             a, b, c, d;
+	static char     s[MAX_OSPATH];
+	qtime_t         t;
 
-	if(number < 0 || number > 9999)
-		number = 9999;
+	Com_RealTime(&t);
+	Com_sprintf(s, sizeof(s), "demos/%d_%02d_%02d-%02d_%02d_%02d.dm_%d",
+				1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, PROTOCOL_VERSION);
 
-	a = number / 1000;
-	number -= a * 1000;
-	b = number / 100;
-	number -= b * 100;
-	c = number / 10;
-	number -= c * 10;
-	d = number;
-
-	Com_sprintf(fileName, MAX_OSPATH, "demo%i%i%i%i", a, b, c, d);
+	return s;
 }
 
 /*
@@ -295,17 +289,7 @@ void CL_Record_f(void)
 	}
 	else
 	{
-		int             number;
-
-		// scan for a free demo name
-		for(number = 0; number <= 9999; number++)
-		{
-			CL_DemoFilename(number, demoName);
-			Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
-
-			if(!FS_FileExists(name))
-				break;			// file doesn't exist
-		}
+		s = CL_DemoFileName();
 	}
 
 	// open the demo file
