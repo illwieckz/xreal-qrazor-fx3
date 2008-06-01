@@ -208,10 +208,8 @@ if env['arch'] == 'linux-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['dl', 'm'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	
-	if env['freetype'] == 1:
-		xreal_env.ParseConfig('freetype-config --cflags --libs')
-		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.ParseConfig('freetype-config --cflags --libs')
+	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')
@@ -225,10 +223,8 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['dl', 'm'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
-	
-	if env['freetype'] == 1:
-		xreal_env.ParseConfig('freetype-config --cflags --libs')
-		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	xreal_env.ParseConfig('freetype-config --cflags --libs')
+	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
 	
 	if env['smp'] == 1:
 		xreal_env.Append(CCFLAGS='-DSMP')

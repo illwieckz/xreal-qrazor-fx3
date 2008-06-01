@@ -16,7 +16,7 @@ The media is licensed under All Rights Reserved with a few exceptions.
 Each file has Subversion properties that tell you the license and who holds the copyright.
 
 To keep track of all artists and contributors, we use Subversion Properties for each file.
-If you are not familar with Subversion Properties then have a look at the
+If you are not familiar with Subversion Properties then have a look at the
 SVN Manual Chapter 7. Advanced topics - Properties.
 
 These properties are:

@@ -107,6 +107,7 @@ COMPILING ON GNU/LINUX
 You need the following dependencies in order to compile XreaL with all features:
 
  * SDL >= 1.2
+ * FreeType >= 2.3.5
  * OpenAL >= 0.0.8 (if compiled with scons openal=1)
  * libcURL >= 7.15.5 (if compiled with scons curl=1)
  * GTK+ >= 2.4.0 (if compiled with scons mapping=1, requires glib, atk, pango, iconv, etc)

@@ -135,8 +135,10 @@ static void ScrollingCredits_Draw(void)
 {
 	int             x = 320, y, n, ysize = 0, fadetime = 0;
 	int             textWidth;
+	float           textScale = 0.5f;
 	vec4_t          fadecolour = { 0.00, 0.00, 0.00, 0.00 };
 
+	/*
 	// ysize is used to determine the entire length of the credits in pixels. 
 	if(!ysize)
 	{
@@ -160,6 +162,7 @@ static void ScrollingCredits_Draw(void)
 			}
 		}
 	}
+	*/
 
 	// first, fill the background with the specified shader
 	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
@@ -188,13 +191,13 @@ static void ScrollingCredits_Draw(void)
 		if(y > -(PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE)))
 		{
 			// the line is within the visible range of the screen
-			UI_DrawProportionalString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
+			//UI_DrawProportionalString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
 			
 			//UI_DrawString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
 
 			// TODO: make this work
-			//textWidth = UI_Text_Width(credits[n].string, 1.0, 0);
-			//UI_Text_Paint(x, y /*(>w - textWidth) / 2*/, 1.0, *credits[n].colour, credits[n].string, 0, 0, credits[n].style);
+			textWidth = UI_Text_Width(credits[n].string, textScale, 0, &uis.textFont);
+			UI_Text_Paint(x  - (textWidth) / 2, y, textScale, *credits[n].colour, credits[n].string, 0, 0, credits[n].style, &uis.textFont);
 		}
 
 		// re-adjust y for next line

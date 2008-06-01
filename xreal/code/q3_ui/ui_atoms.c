@@ -821,17 +821,17 @@ void UI_DrawChar(int x, int y, int ch, int style, vec4_t color)
 }
 
 
-int UI_Text_Width(const char *text, float scale, int limit)
+int UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font)
 {
 	int             count, len;
 	float           out;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t    *glyph;
 	float           useScale;
 
 // FIXME: see ui_main.c, same problem
 //  const unsigned char *s = text;
 	const char     *s = text;
-	fontInfo_t     *font = &uis.textFont;
+//	fontInfo_t     *font = &uis.textFont;
 
 	/*
 	if(scale <= cg_smallFont.value)
@@ -870,20 +870,21 @@ int UI_Text_Width(const char *text, float scale, int limit)
 			}
 		}
 	}
+	
 	return out * useScale;
 }
 
-int UI_Text_Height(const char *text, float scale, int limit)
+int UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font)
 {
 	int             len, count;
 	float           max;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t    *glyph;
 	float           useScale;
 
 // TTimo: FIXME
 //  const unsigned char *s = text;
 	const char     *s = text;
-	fontInfo_t     *font = &uis.textFont;
+//	fontInfo_t     *font = &uis.textFont;
 
 	/*
 	if(scale <= cg_smallFont.value)
@@ -939,13 +940,13 @@ void UI_Text_PaintChar(float x, float y, float width, float height, float scale,
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
+void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, const fontInfo_t * font)
 {
 	int             len, count;
 	vec4_t          newColor;
 	glyphInfo_t    *glyph;
 	float           useScale;
-	fontInfo_t     *font = &uis.textFont;
+//	fontInfo_t     *font = &uis.textFont;
 
 	/*
 	if(scale <= cg_smallFont.value)
