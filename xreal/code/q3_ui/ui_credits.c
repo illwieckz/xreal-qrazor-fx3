@@ -57,49 +57,105 @@ cr_line         credits[] = {
 	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, colorRed},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Project Lead", UI_CENTER | UI_SMALLFONT, colorLtGrey},
-	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{" ", UI_CENTER | UI_SMALLFONT, colorBlue},
-
-	{"Programming", UI_CENTER | UI_SMALLFONT, colorLtGrey},
-	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Pat Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{" ", UI_CENTER | UI_SMALLFONT, colorBlue},
-
-	{"Development Assistance", UI_CENTER | UI_SMALLFONT, colorLtGrey},
-	//{ "Mathias Heyer", UI_CENTER|UI_SMALLFONT, colorWhite },
-	{"Josef Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Project Lead", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Art", UI_CENTER | UI_SMALLFONT, colorLtGrey},
-	{"XreaL Team", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Quake II: Lost Marine Team", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"OpenArena Team", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Tenebrae Team", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Sapphire Scar Team", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Programming", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+
+	{"Development Assistance", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Mathias 'skynet' Heyer", UI_CENTER|UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+
+	{"Art", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Stefan 'ReFlex' Lautner", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"Quake II: Lost Marine Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Thearrel 'Kiltron' McKinney", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Jim 'Revility' Kern", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"OpenArena Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"jzero - powerup models", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"leileilol", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Mancubus", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"Tenebrae Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Willi 'whammes' Hammes", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	//{"Sapphire Scar Team", UI_CENTER | UI_BIGFONT, colorWhite},
 	//{ "Paul 'JTR' Steffens, Lee David Ash,", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "James 'HarlequiN' Taylor,", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
-	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+	//{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	//{ "Level Design", UI_CENTER|UI_SMALLFONT, &colorLtGrey },
 	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "'Dominic 'cha0s' Szablewski", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "", UI_CENTER|UI_SMALLFONT, &colorBlue },
 
-	{"Special Thanks To:", UI_CENTER | UI_SMALLFONT, colorLtGrey},
-	{"iD Software", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"ioquake3 project", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"The Freesound Project", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"AdcBicycle", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Abyssmal", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Andrew Duke", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"aust_paul", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"b0bd0bbs", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"dobroide", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Erdie", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"HcTrancer", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"ignotus", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"JimPurbrick", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Jovica", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"kijjaz", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"loofa", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"man", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"nkuitse", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Oppusum", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"PoisedToGlitch", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"room", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"suonho", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"swelk", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"young_daddy", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"Others", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Yan 'Method' Ostretsov - www.methodonline.com", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Ken 'kat' Beyer - www.katsbits.com", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Mikael 'Ruohis' Ruohomaa", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Julian 'Plaque' Morris", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Yves 'evillair' Allaire - Quake4 eX texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Philip Klevestav - Quake4 pk01 texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Matt 'Lunaran' Breit - Quake4 Powerplant texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Lee David Ash", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"Special Thanks To:", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"id Software", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"IOQuake3 project", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Contributors", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"Contributors", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"For a list of contributors,", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Websites:", UI_CENTER | UI_SMALLFONT, colorLtGrey},
-	{"www.sourceforge.net/projects/xreal", UI_CENTER | UI_SMALLFONT, colorBlue},
-	{"xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"Websites:", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"www.sourceforge.net/projects/xreal", UI_CENTER | UI_BIGFONT, colorBlue},
+	{"xreal.sourceforge.net", UI_CENTER | UI_BIGFONT, colorBlue},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	{"XreaL(c) 2005-2008, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, colorRed},
@@ -177,6 +233,9 @@ static void ScrollingCredits_Draw(void)
 		//textHeight = UI_Text_Height(credits[n].string, textScale, 0, &uis.textFont);
 		//y += textHeight * 3;
 
+		y += SMALLCHAR_HEIGHT;
+
+		/*
 		if(credits[n].style & UI_SMALLFONT)
 		{
 			y += SMALLCHAR_HEIGHT;// * PROP_SMALL_SIZE_SCALE;
@@ -189,6 +248,7 @@ static void ScrollingCredits_Draw(void)
 		{
 			y += GIANTCHAR_HEIGHT;// * (1 / PROP_SMALL_SIZE_SCALE);
 		}
+		*/
 
 		// if y is off the screen, break out of loop
 		//if(y > 480)
