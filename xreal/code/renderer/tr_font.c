@@ -65,8 +65,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //    touch the font bitmaps.
 // 
 // Currently a define in the project turns on or off the FreeType code which is currently 
-// defined out. To pre-render new fonts you need enable the define ( BUILD_FREETYPE ) and 
-// uncheck the exclude from build check box in the FreeType2 area of the Renderer project. 
+// defined out. To pre-render new fonts you need enable the define ( BUILD_FREETYPE ). 
+
+//#define BUILD_FREETYPE
 
 #include "tr_local.h"
 #include "../qcommon/qcommon.h"
@@ -519,8 +520,6 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 		{
 			// ran out of room
 			// we need to create an image from the bitmap, set all the handles in the glyphs to this point
-			// 
-
 			scaledSize = 256 * 256;
 			newSize = scaledSize * 4;
 			imageBuff = Z_Malloc(newSize);
