@@ -831,18 +831,6 @@ int UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * f
 // FIXME: see ui_main.c, same problem
 //  const unsigned char *s = text;
 	const char     *s = text;
-//	fontInfo_t     *font = &uis.textFont;
-
-	/*
-	if(scale <= cg_smallFont.value)
-	{
-		font = &cgDC.Assets.smallFont;
-	}
-	else if(scale > cg_bigFont.value)
-	{
-		font = &cgDC.Assets.bigFont;
-	}
-	*/
 
 	useScale = scale * font->glyphScale;
 	out = 0;
@@ -884,18 +872,6 @@ int UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * 
 // TTimo: FIXME
 //  const unsigned char *s = text;
 	const char     *s = text;
-//	fontInfo_t     *font = &uis.textFont;
-
-	/*
-	if(scale <= cg_smallFont.value)
-	{
-		font = &cgDC.Assets.smallFont;
-	}
-	else if(scale > cg_bigFont.value)
-	{
-		font = &cgDC.Assets.bigFont;
-	}
-	*/
 
 	useScale = scale * font->glyphScale;
 	max = 0;
@@ -926,6 +902,7 @@ int UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * 
 			}
 		}
 	}
+
 	return max * useScale;
 }
 
@@ -937,6 +914,7 @@ void UI_Text_PaintChar(float x, float y, float width, float height, float scale,
 	w = width * scale;
 	h = height * scale;
 	UI_AdjustFrom640(&x, &y, &w, &h);
+
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
@@ -946,18 +924,6 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	vec4_t          newColor;
 	glyphInfo_t    *glyph;
 	float           useScale;
-//	fontInfo_t     *font = &uis.textFont;
-
-	/*
-	if(scale <= cg_smallFont.value)
-	{
-		font = &cgDC.Assets.smallFont;
-	}
-	else if(scale > cg_bigFont.value)
-	{
-		font = &cgDC.Assets.bigFont;
-	}
-	*/
 
 	useScale = scale * font->glyphScale;
 	if(text)
@@ -977,8 +943,10 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		while(s && *s && count < len)
 		{
 			glyph = &font->glyphs[(int)*s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
+			
 			if(Q_IsColorString(s))
 			{
 				memcpy(newColor, (float *)g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
@@ -1006,7 +974,9 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 				UI_Text_PaintChar(x, y - yadj,
 								  glyph->imageWidth,
 								  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+				
 				// CG_DrawPic(x, y - yadj, scale * cgDC.Assets.textFont.glyphs[text[i]].imageWidth, scale * cgDC.Assets.textFont.glyphs[text[i]].imageHeight, cgDC.Assets.textFont.glyphs[text[i]].glyph);
+				
 				x += (glyph->xSkip * useScale) + adjust;
 				s++;
 				count++;

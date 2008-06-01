@@ -1788,7 +1788,7 @@ void Menu_Cache(void)
 	uis.charsetProp1Glow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	uis.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 	
-	trap_R_RegisterFont("fonts/Turok.ttf", 16, &uis.textFont);
+	trap_R_RegisterFont("fonts/FreeSerifBold.ttf", 16, &uis.textFont);
 	
 	uis.cursor = trap_R_RegisterShaderNoMip("menuCursor");
 	uis.rb_on = trap_R_RegisterShaderNoMip("menu/art/switch_on");

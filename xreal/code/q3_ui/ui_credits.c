@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2008 Pat Raynor <raynorpat@gmail.com>
 
 This file is part of XreaL source code.
@@ -50,62 +50,63 @@ typedef struct
 {
 	char           *string;
 	int             style;
-	vec4_t         *colour;
+	vec_t          *color;
 } cr_line;
 
 cr_line         credits[] = {
-	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, &colorRed},
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, colorRed},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Project Lead", UI_CENTER|UI_SMALLFONT, &colorLtGrey},
-	{"Robert Beckebans", UI_CENTER|UI_SMALLFONT, &colorWhite},
-	{"", UI_CENTER|UI_SMALLFONT, &colorBlue},
+	{"Project Lead", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{" ", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Programming", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
-	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"Pat Raynor", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"Programming", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"Robert Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Pat Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{" ", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Development Assistance", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
-	//{ "Mathias Heyer", UI_CENTER|UI_SMALLFONT, &colorWhite },
-	{"Josef Soentgen", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"Development Assistance", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	//{ "Mathias Heyer", UI_CENTER|UI_SMALLFONT, colorWhite },
+	{"Josef Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Art", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
-	{"XreaL Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"Quake II: Lost Marine Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"OpenArena Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"Tenebrae Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"Sapphire Scar Team", UI_CENTER | UI_SMALLFONT, &colorWhite},
+	{"Art", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"XreaL Team", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Quake II: Lost Marine Team", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"OpenArena Team", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Tenebrae Team", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Sapphire Scar Team", UI_CENTER | UI_SMALLFONT, colorWhite},
 	//{ "Paul 'JTR' Steffens, Lee David Ash,", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "James 'HarlequiN' Taylor,", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	//{ "Level Design", UI_CENTER|UI_SMALLFONT, &colorLtGrey },
 	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "'Dominic 'cha0s' Szablewski", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "", UI_CENTER|UI_SMALLFONT, &colorBlue },
 
-	{"Special Thanks To:", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
-	{"iD Software", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"ioquake3 project", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"Special Thanks To:", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"iD Software", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"ioquake3 project", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Contributors", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
-	{"For a list of contributors,", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, &colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"Contributors", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"For a list of contributors,", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Websites:", UI_CENTER | UI_SMALLFONT, &colorLtGrey},
-	{"www.sourceforge.net/projects/xreal", UI_CENTER | UI_SMALLFONT, &colorBlue},
-	{"xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, &colorBlue},
-	{"", UI_CENTER | UI_SMALLFONT, &colorBlue},
+	{"Websites:", UI_CENTER | UI_SMALLFONT, colorLtGrey},
+	{"www.sourceforge.net/projects/xreal", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"XreaL(c) 2005-2008, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, &colorRed},
+	{"XreaL(c) 2005-2008, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, colorRed},
 
 	{NULL}
 };
+
 
 /*
 =================
@@ -134,35 +135,9 @@ Main drawing function
 static void ScrollingCredits_Draw(void)
 {
 	int             x = 320, y, n, ysize = 0, fadetime = 0;
-	int             textWidth;
-	float           textScale = 0.5f;
+	int             textWidth, textHeight;
+	float           textScale = 0.25f;
 	vec4_t          fadecolour = { 0.00, 0.00, 0.00, 0.00 };
-
-	/*
-	// ysize is used to determine the entire length of the credits in pixels. 
-	if(!ysize)
-	{
-		// loop through entire credits array
-		for(n = 0; n <= sizeof(credits) - 1; n++)
-		{
-			if(credits[n].style & UI_SMALLFONT)
-			{
-				// add small character height
-				ysize += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-			}
-			else if(credits[n].style & UI_BIGFONT)
-			{
-				// add big character size
-				ysize += PROP_HEIGHT;
-			}
-			else if(credits[n].style & UI_GIANTFONT)
-			{
-				// add giant character size.
-				ysize += PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE);
-			}
-		}
-	}
-	*/
 
 	// first, fill the background with the specified shader
 	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
@@ -176,47 +151,53 @@ static void ScrollingCredits_Draw(void)
 		// this NULL string marks the end of the credits struct
 		if(credits[n].string == NULL)
 		{
-			// credits sequence is completely off screen
-			if(y < -16)
-			{
-				// TODO: bring up XreaL plaque and fade-in and wait for keypress?
-				break;
-			}
+			/*
+			   // credits sequence is completely off screen
+			   if(y < -16)
+			   {
+			   // TODO: bring up XreaL plaque and fade-in and wait for keypress?
+			   break;
+			   }
+			 */
 			break;
 		}
 
-		if(strlen(credits[n].string) == 1)	// spacer string, no need to draw
-			continue;
+		if(credits[n].style & UI_GIANTFONT)
+			textScale = 0.4f;
+		else if(credits[n].style & UI_BIGFONT)
+			textScale = 0.3f;
+		else
+			textScale = 0.25f;
 
-		if(y > -(PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE)))
-		{
-			// the line is within the visible range of the screen
-			//UI_DrawProportionalString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
-			
-			//UI_DrawString(x, y, credits[n].string, credits[n].style, *credits[n].colour);
-
-			// TODO: make this work
-			textWidth = UI_Text_Width(credits[n].string, textScale, 0, &uis.textFont);
-			UI_Text_Paint(x  - (textWidth) / 2, y, textScale, *credits[n].colour, credits[n].string, 0, 0, credits[n].style, &uis.textFont);
-		}
+		textWidth = UI_Text_Width(credits[n].string, textScale, 0, &uis.textFont);
+		UI_Text_Paint(x - (textWidth) / 2, y, textScale, credits[n].color, credits[n].string, 0, 0, credits[n].style,
+					  &uis.textFont);
 
 		// re-adjust y for next line
+		//textHeight = UI_Text_Height(credits[n].string, textScale, 0, &uis.textFont);
+		//y += textHeight * 3;
+
 		if(credits[n].style & UI_SMALLFONT)
 		{
-			y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
+			y += SMALLCHAR_HEIGHT;// * PROP_SMALL_SIZE_SCALE;
 		}
 		else if(credits[n].style & UI_BIGFONT)
 		{
-			y += PROP_HEIGHT;
+			y += BIGCHAR_HEIGHT;
 		}
 		else if(credits[n].style & UI_GIANTFONT)
 		{
-			y += PROP_HEIGHT * (1 / PROP_SMALL_SIZE_SCALE);
+			y += GIANTCHAR_HEIGHT;// * (1 / PROP_SMALL_SIZE_SCALE);
 		}
 
 		// if y is off the screen, break out of loop
-		if(y > 480)
-			break;
+		//if(y > 480)
+	}
+
+	if(y < 0)
+	{
+		// repeat the credits
+		starttime = uis.realtime;
 	}
 }
 
@@ -234,7 +215,7 @@ void UI_CreditMenu(void)
 	s_credits.menu.fullscreen = qtrue;
 	UI_PushMenu(&s_credits.menu);
 
-	starttime = uis.realtime; // record start time for credits to scroll properly
+	starttime = uis.realtime;	// record start time for credits to scroll properly
 	mvolume = trap_Cvar_VariableValue("s_musicvolume");
 	if(mvolume < 0.5)
 		trap_Cmd_ExecuteText(EXEC_APPEND, "s_musicvolume 0.5\n");
