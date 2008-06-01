@@ -316,10 +316,6 @@ GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharA
 // GL_ARB_draw_buffers
 void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 
-// GL_EXT_compiled_vertex_array
-void            (APIENTRY * qglLockArraysEXT) (GLint, GLint);
-void            (APIENTRY * qglUnlockArraysEXT) (void);
-
 // GL_EXT_stencil_two_side
 void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
 
@@ -1342,8 +1338,7 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
 	ri.Printf(PRINT_ALL, "texture bits: %d\n", r_texturebits->integer);
-	ri.Printf(PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0]);
-	ri.Printf(PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0]);
+//	ri.Printf(PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0]);
 	ri.Printf(PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE]);
 
 	if(glConfig.hardwareType == GLHW_ATI)

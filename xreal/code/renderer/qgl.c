@@ -396,9 +396,6 @@ void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, G
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
 void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 
-void            (APIENTRY * qglLockArraysEXT) (int, int);
-void            (APIENTRY * qglUnlockArraysEXT) (void);
-
 void            (APIENTRY * qglPointParameterfEXT) (GLenum param, GLfloat value);
 void            (APIENTRY * qglPointParameterfvEXT) (GLenum param, const GLfloat * value);
 void            (APIENTRY * qglColorTableEXT) (int, int, int, int, int, const void *);
