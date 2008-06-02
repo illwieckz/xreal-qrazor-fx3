@@ -178,16 +178,15 @@ unix_src = [
 ]
 
 win_src = [
-'code/unix/linux_common.c',
-'code/win32/win_main.c',
-'code/win32/win_shared.c',
-'code/win32/win_glimp.c',
-'code/win32/win_gamma.c',
-'code/win32/win_input.c',
-'code/win32/win_net.c',
-'code/win32/win_snd.c',
-'code/win32/win_syscon.c',
-'code/win32/win_wndproc.c'
+'code/sys/sys_main.c',
+'code/sys/sys_win32.c',
+'code/sys/con_log.c',
+'code/sys/con_passive.c',
+'code/sys/con_win32.c',
+'code/sys/sdl_gamma.c',
+'code/sys/sdl_glimp.c',
+'code/sys/sdl_input.c',
+'code/sys/sdl_snd.c'
 ]
 
 
@@ -232,10 +231,11 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.InstallAs('#xreal.x86_64', 'xreal')
 
 elif env['arch'] == 'win32-mingw':
-	if env['freetype'] == 1:
-		xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
-		xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
-	
+	xreal_env.Append(CCFLAGS='-DC_ONLY')
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
+	xreal_env.ParseConfig('pkg-config freetype2 --cflags --libs')
+	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+
 	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
 	xreal_env.Program('xreal', [xreal_src, win_src])
 	xreal_env.Install('#', 'xreal.exe')
