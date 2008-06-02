@@ -228,14 +228,11 @@ static void CL_DemoFileName(char *buffer, int bufferSize)
 	char           *p;
 	char            mapName[MAX_QPATH];
 	char            serverName[MAX_OSPATH];
-	
+
 
 	Com_RealTime(&now);
-	//Com_sprintf(buffer, bufferSize, "demos/%d_%02d_%02d-%02d_%02d_%02d.dm_%d",
-	//			1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, PROTOCOL_VERSION);
-
 	nowString = va("%04d%02d%02d%02d%02d%02d",
-						   1900 + now.tm_year, 1 + now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
+				   1900 + now.tm_year, 1 + now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
 
 	Q_strncpyz(serverName, cls.servername, MAX_OSPATH);
 	// Replace the ":" in the address as it is not a valid
@@ -249,7 +246,7 @@ static void CL_DemoFileName(char *buffer, int bufferSize)
 	Q_strncpyz(mapName, Com_SkipPath(cl.mapname), sizeof(cl.mapname));
 	Com_StripExtension(mapName, mapName, sizeof(mapName));
 
-	Com_sprintf(buffer, bufferSize, "%s-%s-%s.dm_%d", nowString, serverName, mapName, PROTOCOL_VERSION);
+	Com_sprintf(buffer, bufferSize, "demos/%s-%s-%s.dm_%d", nowString, serverName, mapName, PROTOCOL_VERSION);
 }
 
 /*
@@ -1834,6 +1831,7 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 	numservers = 0;
 	buffptr = msg->data;
 	buffend = buffptr + msg->cursize;
+
 	// advance to initial token
 	do
 	{
@@ -1841,8 +1839,7 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 			break;
 
 		buffptr++;
-	}
-	while(buffptr < buffend);
+	} while(buffptr < buffend);
 
 	while(buffptr + 1 < buffend)
 	{
@@ -3298,13 +3295,13 @@ void CL_GlobalServers_f(void)
 
 	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
 
-	/*
-	   for(i = 3; i < count; i++)
-	   {
-	   Q_strcat(command, sizeof(command), " ");
-	   Q_strcat(command, sizeof(command), Cmd_Argv(i));
-	   }
-	 */
+	for(i = 3; i < count; i++)
+	{
+		Q_strcat(command, sizeof(command), " ");
+		Q_strcat(command, sizeof(command), Cmd_Argv(i));
+	}
+
+	Com_Printf("CL_GlobalServers_f: command = '%s'\n", command);
 
 	NET_OutOfBandPrint(NS_SERVER, to, command);
 }
