@@ -20,14 +20,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+// ui_syscalls.c -- this file is only included when building a dll
 #include "ui_local.h"
-
-// this file is only included when building a dll
-// syscalls.asm is included instead when building a qvm
-#ifdef Q3_VM
-#error "Do not use in VM build"
-#endif
 
 static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
 
@@ -230,7 +224,7 @@ void trap_S_StartLocalSound(sfxHandle_t sfx, int channelNum)
 
 sfxHandle_t trap_S_RegisterSound(const char *sample, qboolean compressed)
 {
-	return syscall(UI_S_REGISTERSOUND, sample, compressed);
+	return syscall(UI_S_REGISTERSOUND, sample);
 }
 
 void trap_Key_KeynumToStringBuf(int keynum, char *buf, int buflen)

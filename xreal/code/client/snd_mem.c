@@ -20,12 +20,9 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
 // snd_mem.c - sound caching and memory managment
-
 #include "snd_local.h"
 #include "snd_codec.h"
-
 
 #define DEF_COMSOUNDMEGS "8"
 
@@ -33,10 +30,6 @@ static sndBuffer *sndbuffers = NULL;
 static sndBuffer *freelist = NULL;
 static int      sndmem_avail = 0;
 static int      sndmem_inuse = 0;
-
-short          *sfxScratchBuffer = NULL;
-const sfx_t    *sfxScratchPointer = NULL;
-int             sfxScratchIndex = 0;
 
 void SND_free(sndBuffer * v)
 {
@@ -146,7 +139,7 @@ static void ResampleSfx(sfx_t * sfx, int inrate, int inwidth, byte * data, qbool
 
 /*
 ================
-ResampleSfx
+ResampleSfxRaw
 
 resample / decimate to the current source rate
 ================
@@ -223,43 +216,10 @@ qboolean S_LoadSound(sfx_t * sfx)
 	samples = Hunk_AllocateTempMemory(info.samples * sizeof(short) * 2);
 
 	sfx->lastTimeUsed = Com_Milliseconds();
+	sfx->soundLength = info.samples;
+	sfx->soundData = NULL;
 
-	// each of these compression schemes works just fine
-	// but the 16bit quality is much nicer and with a local
-	// install assured, we can rely upon the sound memory
-	// manager to do the right thing for us and page
-	// sound in as needed
-
-	if(sfx->soundCompressed == qtrue)
-	{
-		sfx->soundCompressionMethod = 1;
-		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw(samples, info.rate, info.width, info.samples, data + info.dataofs);
-		S_AdpcmEncodeSound(sfx, samples);
-#if 0
-	}
-	else if(info.samples > (SND_CHUNK_SIZE * 16) && info.width > 1)
-	{
-		sfx->soundCompressionMethod = 3;
-		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw(samples, info.rate, info.width, info.samples, (data + info.dataofs));
-		encodeMuLaw(sfx, samples);
-	}
-	else if(info.samples > (SND_CHUNK_SIZE * 6400) && info.width > 1)
-	{
-		sfx->soundCompressionMethod = 2;
-		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw(samples, info.rate, info.width, info.samples, (data + info.dataofs));
-		encodeWavelet(sfx, samples);
-#endif
-	}
-	else
-	{
-		sfx->soundCompressionMethod = 0;
-		sfx->soundLength = info.samples;
-		sfx->soundData = NULL;
-		ResampleSfx(sfx, info.rate, info.width, data + info.dataofs, qfalse);
-	}
+	ResampleSfx(sfx, info.rate, info.width, data + info.dataofs, qfalse);
 
 	Hunk_FreeTempMemory(samples);
 	Z_Free(data);

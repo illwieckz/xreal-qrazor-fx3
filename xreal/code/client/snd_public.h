@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
 void            S_Init(void);
 void            S_Shutdown(void);
 
@@ -58,10 +57,10 @@ void            S_DisableSounds(void);
 
 void            S_BeginRegistration(void);
 
-// RegisterSound will allways return a valid sample, even if it
+// RegisterSound will always return a valid sample, even if it
 // has to create a placeholder.  This prevents continuous filesystem
 // checks for missing files
-sfxHandle_t     S_RegisterSound(const char *sample, qboolean compressed);
+sfxHandle_t     S_RegisterSound(const char *sample);
 
 void            S_DisplayFreeMemory(void);
 

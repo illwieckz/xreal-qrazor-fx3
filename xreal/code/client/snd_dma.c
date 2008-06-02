@@ -20,9 +20,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
 // snd_dma.c - main control for any streaming sound output device
-
 #include "snd_local.h"
 #include "snd_codec.h"
 #include "client.h"
@@ -129,13 +127,8 @@ void S_Base_SoundList(void)
 	int             i;
 	sfx_t          *sfx;
 	int             size, total;
-	char            type[4][16];
 	char            mem[2][16];
 
-	strcpy(type[0], "16bit");
-	strcpy(type[1], "adpcm");
-	strcpy(type[2], "daub4");
-	strcpy(type[3], "mulaw");
 	strcpy(mem[0], "paged out");
 	strcpy(mem[1], "resident ");
 	total = 0;
@@ -143,7 +136,7 @@ void S_Base_SoundList(void)
 	{
 		size = sfx->soundLength;
 		total += size;
-		Com_Printf("%6i[%s] : %s[%s]\n", size, type[sfx->soundCompressionMethod], sfx->soundName, mem[sfx->inMemory]);
+		Com_Printf("%6i[16bit] : %s[%s]\n", size, sfx->soundName, mem[sfx->inMemory]);
 	}
 	Com_Printf("Total resident: %i\n", total);
 	S_DisplayFreeMemory();
@@ -336,11 +329,10 @@ S_RegisterSound
 Creates a default buzz sound if the file can't be loaded
 ==================
 */
-sfxHandle_t S_Base_RegisterSound(const char *name, qboolean compressed)
+sfxHandle_t S_Base_RegisterSound(const char *name)
 {
 	sfx_t          *sfx;
 
-	compressed = qfalse;
 	if(!s_soundStarted)
 	{
 		return 0;
@@ -364,7 +356,6 @@ sfxHandle_t S_Base_RegisterSound(const char *name, qboolean compressed)
 	}
 
 	sfx->inMemory = qfalse;
-	sfx->soundCompressed = compressed;
 
 	S_memoryLoad(sfx);
 
@@ -380,7 +371,6 @@ sfxHandle_t S_Base_RegisterSound(const char *name, qboolean compressed)
 /*
 =====================
 S_BeginRegistration
-
 =====================
 */
 void S_Base_BeginRegistration(void)
@@ -393,7 +383,7 @@ void S_Base_BeginRegistration(void)
 	Com_Memset(s_knownSfx, 0, sizeof(s_knownSfx));
 	Com_Memset(sfxHash, 0, sizeof(sfx_t *) * SFX_HASH_SIZE);
 
-	S_Base_RegisterSound("sound/feedback/hit.wav", qfalse);	// changed to a sound in baseq3
+	S_Base_RegisterSound("sound/feedback/hit.wav");	// changed to a sound in baseq3
 }
 
 void S_memoryLoad(sfx_t * sfx)
@@ -1527,13 +1517,11 @@ void S_UpdateBackgroundTrack(void)
 	}
 }
 
-
 /*
 ======================
 S_FreeOldestSound
 ======================
 */
-
 void S_FreeOldestSound(void)
 {
 	int             i, oldest, used;

@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // snd_local.h -- private sound definations
-
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "snd_public.h"
@@ -37,6 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
+#define	WAV_FORMAT_PCM			1
+
 #define	PAINTBUFFER_SIZE		4096	// this is in samples
 
 #define SND_CHUNK_SIZE			1024	// samples
@@ -49,18 +50,11 @@ typedef struct
   int right;
 } portable_samplepair_t;
 
-typedef struct adpcm_state
-{
-  short sample;			/* Previous output value */
-  char index;			/* Index into stepsize table */
-} adpcm_state_t;
-
 typedef struct sndBuffer_s
 {
   short sndChunk[SND_CHUNK_SIZE];
   struct sndBuffer_s *next;
   int size;
-  adpcm_state_t adpcm;
 } sndBuffer;
 
 typedef struct sfx_s
@@ -68,8 +62,6 @@ typedef struct sfx_s
   sndBuffer *soundData;
   qboolean defaultSound;	// couldn't be loaded, so use buzz
   qboolean inMemory;		// not in Memory
-  qboolean soundCompressed;	// not in Memory
-  int soundCompressionMethod;
   int soundLength;
   char soundName[MAX_QPATH];
   int lastTimeUsed;
@@ -121,20 +113,6 @@ typedef struct
   float oldDopplerScale;
 } channel_t;
 
-
-#define	WAV_FORMAT_PCM		1
-
-
-typedef struct
-{
-  int format;
-  int rate;
-  int width;
-  int channels;
-  int samples;
-  int dataofs;			// chunk starts this many bytes from file start
-} wavinfo_t;
-
 // Interface between Q3 sound "api" and the sound backend
 typedef struct
 {
@@ -159,7 +137,7 @@ typedef struct
   void (*Update) (void);
   void (*DisableSounds) (void);
   void (*BeginRegistration) (void);
-    sfxHandle_t (*RegisterSound) (const char *sample, qboolean compressed);
+    sfxHandle_t (*RegisterSound) (const char *sample);
   void (*ClearSoundBuffer) (void);
   void (*SoundInfo) (void);
   void (*SoundList) (void);
@@ -207,7 +185,11 @@ extern cvar_t *s_musicVolume;
 extern cvar_t *s_doppler;
 extern cvar_t *s_testsound;
 
+qboolean S_Base_Init (soundInterface_t * si);
+
 qboolean S_LoadSound (sfx_t * sfx);
+
+void S_FreeOldestSound (void);
 
 void SND_free (sndBuffer * v);
 sndBuffer *SND_malloc (void);
@@ -219,32 +201,6 @@ void S_memoryLoad (sfx_t * sfx);
 
 // spatializes a channel
 void S_Spatialize (channel_t * ch);
-
-// adpcm functions
-int S_AdpcmMemoryNeeded (const wavinfo_t * info);
-void S_AdpcmEncodeSound (sfx_t * sfx, short *samples);
-void S_AdpcmGetSamples (sndBuffer * chunk, short *to);
-
-// wavelet function
-
-#define SENTINEL_MULAW_ZERO_RUN 127
-#define SENTINEL_MULAW_FOUR_BIT_RUN 126
-
-void S_FreeOldestSound (void);
-
-#define	NXStream byte
-
-void encodeWavelet (sfx_t * sfx, short *packets);
-void decodeWavelet (sndBuffer * stream, short *packets);
-
-void encodeMuLaw (sfx_t * sfx, short *packets);
-extern short mulawToShort[256];
-
-extern short *sfxScratchBuffer;
-extern const sfx_t *sfxScratchPointer;
-extern int sfxScratchIndex;
-
-qboolean S_Base_Init (soundInterface_t * si);
 
 // OpenAL stuff
 typedef enum

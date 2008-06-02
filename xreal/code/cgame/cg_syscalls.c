@@ -20,13 +20,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
 // cg_syscalls.c -- this file is only included when building a dll
-// cg_syscalls.asm is included instead when building a qvm
-#ifdef Q3_VM
-#error "Do not use in VM build"
-#endif
-
 #include "cg_local.h"
 
 static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
@@ -261,7 +255,7 @@ void trap_S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3], int
 
 sfxHandle_t trap_S_RegisterSound(const char *sample, qboolean compressed)
 {
-	return syscall(CG_S_REGISTERSOUND, sample, compressed);
+	return syscall(CG_S_REGISTERSOUND, sample);
 }
 
 void trap_S_StartBackgroundTrack(const char *intro, const char *loop)

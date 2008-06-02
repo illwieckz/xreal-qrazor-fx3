@@ -291,11 +291,11 @@ void S_BeginRegistration(void)
 S_RegisterSound
 =================
 */
-sfxHandle_t S_RegisterSound(const char *sample, qboolean compressed)
+sfxHandle_t S_RegisterSound(const char *sample)
 {
 	if(si.RegisterSound)
 	{
-		return si.RegisterSound(sample, compressed);
+		return si.RegisterSound(sample);
 	}
 	else
 	{
@@ -371,7 +371,7 @@ void S_Play_f(void)
 		{
 			Q_strncpyz(name, Cmd_Argv(i), sizeof(name));
 		}
-		h = si.RegisterSound(name, qfalse);
+		h = si.RegisterSound(name);
 		if(h)
 		{
 			si.StartLocalSound(h, CHAN_LOCAL_SOUND);
