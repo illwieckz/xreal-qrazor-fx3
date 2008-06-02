@@ -221,16 +221,35 @@ void CL_StopRecord_f(void)
 CL_DemoFileName
 ================== 
 */
-static char    *CL_DemoFileName(void)
+static void CL_DemoFileName(char *buffer, int bufferSize)
 {
-	static char     s[MAX_OSPATH];
-	qtime_t         t;
+	qtime_t         now;
+	char           *nowString;
+	char           *p;
+	char            mapName[MAX_QPATH];
+	char            serverName[MAX_OSPATH];
+	
 
-	Com_RealTime(&t);
-	Com_sprintf(s, sizeof(s), "demos/%d_%02d_%02d-%02d_%02d_%02d.dm_%d",
-				1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, PROTOCOL_VERSION);
+	Com_RealTime(&now);
+	//Com_sprintf(buffer, bufferSize, "demos/%d_%02d_%02d-%02d_%02d_%02d.dm_%d",
+	//			1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, PROTOCOL_VERSION);
 
-	return s;
+	nowString = va("%04d%02d%02d%02d%02d%02d",
+						   1900 + now.tm_year, 1 + now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
+
+	Q_strncpyz(serverName, cls.servername, MAX_OSPATH);
+	// Replace the ":" in the address as it is not a valid
+	// file name character
+	p = strstr(serverName, ":");
+	if(p)
+	{
+		*p = '.';
+	}
+
+	Q_strncpyz(mapName, Com_SkipPath(cl.mapname), sizeof(cl.mapname));
+	Com_StripExtension(mapName, mapName, sizeof(mapName));
+
+	Com_sprintf(buffer, bufferSize, "%s-%s-%s.dm_%d", nowString, serverName, mapName, PROTOCOL_VERSION);
 }
 
 /*
@@ -242,7 +261,6 @@ record <demoname>
 Begins recording a demo from the current position
 ====================
 */
-static char     demoName[MAX_QPATH];	// compiler bug workaround
 void CL_Record_f(void)
 {
 	char            name[MAX_OSPATH];
@@ -253,6 +271,7 @@ void CL_Record_f(void)
 	entityState_t  *ent;
 	entityState_t   nullstate;
 	char           *s;
+	static char     demoName[MAX_QPATH];	// Tr3B: compiler bug workaround ?
 
 	if(Cmd_Argc() > 2)
 	{
@@ -289,7 +308,7 @@ void CL_Record_f(void)
 	}
 	else
 	{
-		s = CL_DemoFileName();
+		CL_DemoFileName(name, sizeof(name));
 	}
 
 	// open the demo file
