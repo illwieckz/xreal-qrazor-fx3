@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -688,13 +688,16 @@ static void ArenaServers_Insert(char *adrstr, char *info, int pingtime)
 	s = Info_ValueForKey(info, "game");
 	i = atoi(Info_ValueForKey(info, "gametype"));
 	if(i < 0)
+	{
 		i = 0;
+	}
 	else if(i > 11)
+	{
 		i = 12;
-
+	}
 	if(*s)
 	{
-		servernodeptr->gametype = i;
+		servernodeptr->gametype = i;	//-1;
 		Q_strncpyz(servernodeptr->gamename, s, sizeof(servernodeptr->gamename));
 	}
 	else
@@ -868,7 +871,9 @@ static void ArenaServers_DoRefresh(void)
 			if(g_servertype == UIAS_LOCAL)
 			{
 				if(!trap_LAN_GetServerCount(g_servertype))
+				{
 					return;
+				}
 			}
 
 			if(trap_LAN_GetServerCount(g_servertype) < 0)
@@ -949,6 +954,9 @@ static void ArenaServers_DoRefresh(void)
 	{
 		g_arenaservers.numqueriedservers = trap_LAN_GetServerCount(g_servertype);
 	}
+
+//  if (g_arenaservers.numqueriedservers > g_arenaservers.maxservers)
+//      g_arenaservers.numqueriedservers = g_arenaservers.maxservers;
 
 	// send ping requests in reasonable bursts
 	// iterate ping through all found servers
@@ -1559,6 +1567,7 @@ static void ArenaServers_MenuInit(void)
 	ArenaServers_LoadFavorites();
 
 	g_servertype = Com_Clamp(0, 3, ui_browserMaster.integer);
+	// hack to get rid of MPlayer stuff
 	value = g_servertype;
 	if(value >= 1)
 		value--;

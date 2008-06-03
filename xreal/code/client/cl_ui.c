@@ -45,7 +45,7 @@ static void GetClientState(uiClientState_t * state)
 LAN_LoadCachedServers
 ====================
 */
-void LAN_LoadCachedServers()
+void LAN_LoadCachedServers(void)
 {
 	int             size;
 	fileHandle_t    fileIn;
@@ -76,11 +76,10 @@ void LAN_LoadCachedServers()
 LAN_SaveServersToCache
 ====================
 */
-void LAN_SaveServersToCache()
+void LAN_SaveServersToCache(void)
 {
 	int             size;
 	fileHandle_t    fileOut = FS_SV_FOpenFileWrite("servercache.dat");
-
 	FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
 	FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
 	size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers);
@@ -109,6 +108,7 @@ static void LAN_ResetPings(int source)
 			servers = &cls.localServers[0];
 			count = MAX_OTHER_SERVERS;
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			servers = &cls.globalServers[0];
 			count = MAX_GLOBAL_SERVERS;
@@ -147,6 +147,7 @@ static int LAN_AddServer(int source, const char *name, const char *address)
 			count = &cls.numlocalservers;
 			servers = &cls.localServers[0];
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			max = MAX_GLOBAL_SERVERS;
 			count = &cls.numglobalservers;
@@ -190,13 +191,14 @@ static void LAN_RemoveServer(int source, const char *addr)
 	int            *count, i;
 	serverInfo_t   *servers = NULL;
 
-	count = 0;
+	count = NULL;
 	switch (source)
 	{
 		case AS_LOCAL:
 			count = &cls.numlocalservers;
 			servers = &cls.localServers[0];
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			count = &cls.numglobalservers;
 			servers = &cls.globalServers[0];
@@ -242,6 +244,7 @@ static int LAN_GetServerCount(int source)
 		case AS_LOCAL:
 			return cls.numlocalservers;
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			return cls.numglobalservers;
 			break;
@@ -268,6 +271,7 @@ static void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
 				return;
 			}
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			if(n >= 0 && n < MAX_GLOBAL_SERVERS)
 			{
@@ -305,6 +309,7 @@ static void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
 				server = &cls.localServers[n];
 			}
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			if(n >= 0 && n < MAX_GLOBAL_SERVERS)
 			{
@@ -360,6 +365,7 @@ static int LAN_GetServerPing(int source, int n)
 				server = &cls.localServers[n];
 			}
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			if(n >= 0 && n < MAX_GLOBAL_SERVERS)
 			{
@@ -395,6 +401,7 @@ static serverInfo_t *LAN_GetServerPtr(int source, int n)
 				return &cls.localServers[n];
 			}
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			if(n >= 0 && n < MAX_GLOBAL_SERVERS)
 			{
@@ -432,28 +439,7 @@ static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int 
 	switch (sortKey)
 	{
 		case SORT_HOST:
-		{
-			char            hostName1[80];
-			char            hostName2[80];
-			char           *p;
-			int             i;
-
-			for(p = server1->hostName, i = 0; *p != '\0'; p++)
-			{
-				if(Q_isalpha(*p))
-					hostName1[i++] = *p;
-			}
-			hostName1[i] = '\0';
-
-			for(p = server2->hostName, i = 0; *p != '\0'; p++)
-			{
-				if(Q_isalpha(*p))
-					hostName2[i++] = *p;
-			}
-			hostName2[i] = '\0';
-
-			res = Q_stricmp(hostName1, hostName2);
-		}
+			res = Q_stricmp(server1->hostName, server2->hostName);
 			break;
 
 		case SORT_MAP:
@@ -571,6 +557,7 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible)
 			case AS_LOCAL:
 				server = &cls.localServers[0];
 				break;
+			case AS_MPLAYER:
 			case AS_GLOBAL:
 				server = &cls.globalServers[0];
 				count = MAX_GLOBAL_SERVERS;
@@ -598,6 +585,7 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible)
 					cls.localServers[n].visible = visible;
 				}
 				break;
+			case AS_MPLAYER:
 			case AS_GLOBAL:
 				if(n >= 0 && n < MAX_GLOBAL_SERVERS)
 				{
@@ -630,6 +618,7 @@ static int LAN_ServerIsVisible(int source, int n)
 				return cls.localServers[n].visible;
 			}
 			break;
+		case AS_MPLAYER:
 		case AS_GLOBAL:
 			if(n >= 0 && n < MAX_GLOBAL_SERVERS)
 			{
@@ -837,7 +826,7 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 			if(args[1] == 0
 			   && (!strncmp(VMA(2), "snd_restart", 11) || !strncmp(VMA(2), "vid_restart", 11) || !strncmp(VMA(2), "quit", 5)))
 			{
-				Com_DPrintf(S_COLOR_YELLOW "turning EXEC_NOW '%.11s' into EXEC_INSERT\n", (const char *)VMA(2));
+				Com_Printf(S_COLOR_YELLOW "turning EXEC_NOW '%.11s' into EXEC_INSERT\n", (const char *)VMA(2));
 				args[1] = EXEC_INSERT;
 			}
 			Cbuf_ExecuteText(args[1], VMA(2));

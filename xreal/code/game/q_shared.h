@@ -1837,9 +1837,11 @@ typedef struct qtime_s
 
 
 // server browser sources
-#define AS_GLOBAL		0
-#define AS_LOCAL		1
-#define AS_FAVORITES	2
+// TTimo: AS_MPLAYER is no longer used
+#define AS_LOCAL		0
+#define AS_MPLAYER		1
+#define AS_GLOBAL		2
+#define AS_FAVORITES	3
 
 // cinematic states
 typedef enum
