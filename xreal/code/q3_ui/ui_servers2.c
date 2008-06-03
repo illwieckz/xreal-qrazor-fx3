@@ -1560,7 +1560,7 @@ static void ArenaServers_MenuInit(void)
 
 	g_servertype = Com_Clamp(0, 3, ui_browserMaster.integer);
 	value = g_servertype;
-	if(value >= 2)
+	if(value >= 1)
 		value--;
 	g_arenaservers.master.curvalue = value;
 
