@@ -50,7 +50,6 @@ static void ConvertSurface(FILE * f, bspModel_t * model, int modelNum, bspDrawSu
 	vec3_t          normal;
 	char            name[1024];
 
-
 	/* ignore patches for now */
 	if(ds->surfaceType != MST_PLANAR && ds->surfaceType != MST_TRIANGLE_SOUP)
 		return;
@@ -153,6 +152,37 @@ static void ConvertSurface(FILE * f, bspModel_t * model, int modelNum, bspDrawSu
 		b = bspDrawIndexes[i + ds->firstIndex + 2];
 		fprintf(f, "\t\t\t*MESH_TFACE\t%d\t%d\t%d\t%d\r\n", face, a, b, c);
 	}
+	fprintf(f, "\t\t}\r\n");
+
+	/* export extra lightmap coordinates */
+	
+	fprintf(f, "\t\t*MESH_MAPPINGCHANNEL\t2\r\n");
+
+	/* export vertex st */
+	fprintf(f, "\t\t\t*MESH_NUMTVERTEX\t%d\r\n", ds->numVerts);
+	fprintf(f, "\t\t\t*MESH_TVERTLIST\t{\r\n");
+	for(i = 0; i < ds->numVerts; i++)
+	{
+		v = i + ds->firstVert;
+		dv = &bspDrawVerts[v];
+		fprintf(f, "\t\t\t\t*MESH_TVERT\t%d\t%f\t%f\t%f\r\n", i, dv->lightmap[0][0], (1.0 - dv->lightmap[0][1]), 1.0f);
+	}
+	fprintf(f, "\t\t\t}\r\n");
+
+	/* export texture faces */
+	fprintf(f, "\t\t\t*MESH_NUMTVFACES\t%d\r\n", ds->numIndexes / 3);
+	fprintf(f, "\t\t\t*MESH_TFACELIST\t{\r\n");
+	for(i = 0; i < ds->numIndexes; i += 3)
+	{
+		face = (i / 3);
+		a = bspDrawIndexes[i + ds->firstIndex];
+		c = bspDrawIndexes[i + ds->firstIndex + 1];
+		b = bspDrawIndexes[i + ds->firstIndex + 2];
+		fprintf(f, "\t\t\t\t*MESH_TFACE\t%d\t%d\t%d\t%d\r\n", face, a, b, c);
+	}
+	fprintf(f, "\t\t\t}\r\n");
+
+	/* print extra lightmap coordinates footer */
 	fprintf(f, "\t\t}\r\n");
 
 	/* print mesh footer */
