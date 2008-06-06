@@ -711,6 +711,7 @@ void R_TakeScreenshot(char *name, ssFormat_t format)
 {
 	static char     fileName[MAX_OSPATH];	// bad things may happen if two screenshots per frame are taken.
 	screenshotCommand_t *cmd;
+	int             lastNumber;
 
 	cmd = R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
@@ -725,11 +726,28 @@ void R_TakeScreenshot(char *name, ssFormat_t format)
 	else
 	{
 		qtime_t         t;
-		int             ms = min(999, backEnd.refdef.time & 1023);
 
 		Com_RealTime(&t);
-		Com_sprintf(fileName, sizeof(fileName), "screenshots/xreal-%d_%02d_%02d-%02d_%02d_%02d-%03d.%s",
-					1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, ms, name);
+
+		// scan for a free filename
+		for(lastNumber = 0; lastNumber <= 999; lastNumber++)
+		{
+			Com_sprintf(fileName, sizeof(fileName), "screenshots/xreal-%04d%02d%02d-%02d%02d%02d-%03d.%s",
+					1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, lastNumber, name);
+
+			if(!ri.FS_FileExists(fileName))
+			{
+				break;			// file doesn't exist
+			}
+		}
+
+		if(lastNumber == 1000)
+		{
+			ri.Printf(PRINT_ALL, "ScreenShot: Couldn't create a file\n");
+			return;
+		}
+
+		lastNumber++;
 	}
 	ri.Printf(PRINT_ALL, "Wrote %s\n", fileName);
 
