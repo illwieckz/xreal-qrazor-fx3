@@ -590,6 +590,12 @@ void AddTriangleModel(entity_t * e)
 	/* get spawnflags */
 	spawnFlags = IntForKey(e, "spawnflags");
 
+	/* Tr3B: added clipModel option */
+	spawnFlags |= (IntForKey(e, "clipModel") > 0) ? 2 : 0;
+
+	/* Tr3B: added forceMeta option */
+	spawnFlags |= (IntForKey(e, "forceMeta") > 0) ? 4 : 0;
+
 	/* get origin */
 	/*
 	   GetVectorForKey(e2, "origin", origin);
@@ -788,6 +794,12 @@ void AddTriangleModels(entity_t * e)
 
 		/* get spawnflags */
 		spawnFlags = IntForKey(e2, "spawnflags");
+
+		/* Tr3B: added clipModel option */
+		spawnFlags |= (IntForKey(e, "clipModel") > 0) ? 2 : 0;
+
+		/* Tr3B: added forceMeta option */
+		spawnFlags |= (IntForKey(e2, "forceMeta") > 0) ? 4 : 0;
 
 		/* get origin */
 		GetVectorForKey(e2, "origin", origin);
