@@ -838,6 +838,7 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowCompare;
 	GLint           u_ShadowTexelSize;
 	GLint           u_ShadowBlur;
+	GLint           u_ShadowInverse;
 
 	GLint           u_RefractionIndex;
 

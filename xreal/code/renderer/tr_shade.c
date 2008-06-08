@@ -803,6 +803,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowTexelSize");
 	tr.forwardLightingShader_DBS_proj.u_ShadowBlur =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowBlur");
+	tr.forwardLightingShader_DBS_proj.u_ShadowInverse =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowInverse");
 	tr.forwardLightingShader_DBS_proj.u_ModelMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ModelMatrix");
 
@@ -2164,6 +2166,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	vec4_t          lightColor;
 	float           shadowTexelSize;
 	qboolean        shadowCompare;
+	qboolean        shadowInverse;
 
 	GLimp_LogComment("--- Render_fowardLighting_DBS_proj ---\n");
 
@@ -2187,6 +2190,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	VectorCopy(tess.svars.color, lightColor);
 
 	shadowCompare = r_shadows->integer >= 4 && !light->l.noShadows && light->shadowLOD >= 0;
+	shadowInverse = r_shadows->integer >= 4 && light->l.inverseShadows && light->shadowLOD >= 0;
 
 	if(shadowCompare)
 		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
@@ -2207,6 +2211,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowTexelSize, shadowTexelSize);
 		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowBlur, r_shadowBlur->value);
 	}
+	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_ShadowInverse, shadowInverse);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 
 	// bind u_DiffuseMap
@@ -3621,13 +3626,11 @@ void Tess_StageIteratorLighting()
 	Tess_DeformGeometry();
 
 	// set OpenGL state for lighting
-#if 0
-	if(!light->additive)
+	if(light->l.inverseShadows)
 	{
-		GL_State(GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL);
+		GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 	}
 	else
-#endif
 	{
 		if(tess.surfaceShader->sort > SS_OPAQUE)
 		{
