@@ -50,8 +50,16 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	}
 
 	// avoid drawing of certain objects
-	if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))
-		return;
+	if(light->l.inverseShadows)
+	{
+		if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID != ent->e.noShadowID)))
+			return;
+	}
+	else
+	{
+		if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))
+			return;
+	}
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bspModel = pModel->bsp;

@@ -2872,7 +2872,7 @@ Returns the Z component of the surface being shadowed
 ===============
 */
 #define	SHADOW_DISTANCE		128
-static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane)
+static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 {
 	vec3_t          end, mins = { -15, -15, 0 }, maxs =
 	{
@@ -2964,6 +2964,7 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane)
 		light.fovY = 35;
 		light.distance = Distance(light.origin, projectionEnd);
 
+		light.noShadowID = noShadowID;
 		light.inverseShadows = qtrue;
 
 		trap_R_AddRefLightToScene(&light);
@@ -3498,7 +3499,7 @@ void CG_Player(centity_t * cent)
 	CG_PlayerSprites(cent);
 
 	// add the shadow
-	shadow = CG_PlayerShadow(cent, &shadowPlane);
+	shadow = CG_PlayerShadow(cent, &shadowPlane, noShadowID);
 
 	// add a water splash if partially in and out of water
 	CG_PlayerSplash(cent);
