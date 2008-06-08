@@ -59,7 +59,7 @@ typedef unsigned short glIndex_t;
 
 #define	MAX_FBOS				64
 
-#define VOLUMETRIC_LIGHTING
+//#define VOLUMETRIC_LIGHTING
 
 #define DEBUG_OPTIMIZEVERTICES 0
 
@@ -838,7 +838,6 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowCompare;
 	GLint           u_ShadowTexelSize;
 	GLint           u_ShadowBlur;
-	GLint           u_ShadowInverse;
 
 	GLint           u_RefractionIndex;
 
@@ -1843,6 +1842,9 @@ typedef struct
 	// volumetric lighting
 	shaderProgram_t lightVolumeShader_omni;
 #endif
+
+	// UT3 style player shadowing
+	shaderProgram_t forwardShadowingShader_proj;
 
 	// environment mapping effects
 	shaderProgram_t reflectionShader_C;

@@ -34,7 +34,6 @@ uniform float		u_LightScale;
 uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
-uniform int         u_ShadowInverse;
 uniform mat4		u_ModelMatrix;
 
 varying vec4		var_Vertex;
@@ -206,7 +205,7 @@ void	main()
 	
 		// standard shadow map comparison
 		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
-			
+	
 		// variance shadow mapping
 		float E_x2 = shadowDistanceSquared;
 		float Ex_2 = shadowDistance * shadowDistance;
@@ -219,7 +218,7 @@ void	main()
 		float mD_2 = mD * mD;
 		float p = variance / (variance + mD_2);
 		p = smoothstep(0.0, 1.0, p);
-		
+	
 		#if defined(DEBUG_VSM)
 		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
 		gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
@@ -229,12 +228,6 @@ void	main()
 		#else
 		shadow = max(shadow, p);
 		#endif
-		
-		if(bool(u_ShadowInverse))
-		{
-			//shadow = clamp(shadow, 0.0, 1.0);
-			shadow = 1.0 - shadow;
-		}
 	}
 	
 	if(shadow <= 0.0)
