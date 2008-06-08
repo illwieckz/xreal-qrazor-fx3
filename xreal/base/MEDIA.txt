@@ -24,285 +24,37 @@ http://creativecommons.org/licenses/by/2.5/
 
 FILE                                                                  COPYRIGHT                                         LICENSE                                                               SOURCE
 ====================================================================================================================================================================================================
-base\textures\raynorpat\black.png                                     ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
-base\textures\tr3b_sky\plasma_noise2.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\tr3b_sky\basesky.jpg                                    ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\cloudstormy_d.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\orient_sun.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\tr3b_sky\clouds_d.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\thunders.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\baseskystormy.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
-base\textures\tr3b_sky\plasma_noise1.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\method\asphalt_moss.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim2.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim4.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\window_small.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim5.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\cap.png                                          ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal2_s.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_white_moss.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim5_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\plate_painted_moss.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim_white_moss.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor_local.png                            ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\plate_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_blue_local.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal2.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\beam_s.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal4.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor2_g.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal2_local.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim4_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\red_ivy.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_blue_s.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\dirt.png                                         ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_planks_s.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_moss.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\beam.png                                         ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_chipped.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor2_s.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_moss.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\plate_painted.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\asphalt_s.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\beam_local.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim2_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_planks.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_trim_s.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim4_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\window_small_s.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\dirt1.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\dirt3.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\cap_s.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_s.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\dirt4.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_blue_local.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\dirt7.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\brick_white.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\dirt8.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_planks_local.png                            ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\brick_white_moss.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\asphalt.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_trim.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_trim_moss.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor2_local.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim5_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\plate.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\asphalt_local.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim2_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal3_s.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_trim_local.png                          ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\wood_white.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\window_small_local.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim4_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\brick_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\sidewalk_local.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\cap_local.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal2_moss.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\meth_fog.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\brick.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\brick_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim2_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal3_local.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_white.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor_white.png                            ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_white_moss.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor_moss.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\brick_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\spanish_moss.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim_white.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\puddle.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\arena_two.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\trim5_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor2.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_floor_s.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\arena_zero.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\plate_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\arena_one.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\papers.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\method\metal_blue_s.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
-base\textures\reflex_layout\bridge.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\lift.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\wall.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\floor.png                                 ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\pad.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\stairs.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\pad2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_layout\ceiling.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\radiant\notex.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\radiant\shadernotex.png                                 ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\reflex_ugly\black.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_a.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_b.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_c.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_d.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\decal1.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\decal2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_local.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\reflex_ugly\mat_spec.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
-base\textures\tr3b_fog\deathfog.tga                                   ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\botclip.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nodrawnonsolid.png                               ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\weapclip.png                                     ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\full_clip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\ikclip.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\black.png                                        ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\missileclip.png                                  ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\lightgrid.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\white.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\qer_mirror.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\donotenter.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\visportal.png                                    ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\shadow.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\nodrawsolid.png                                  <add author>                                      All Rights Reserved                                                   
-base\textures\common\origin.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\clip.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nodraw.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\mirror1.png                                      ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\collision.png                                    ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\monster_clip.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\caulk.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\moveable_clip.png                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\nodrop.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\nolightmap.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\hint.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\trigger.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\clusterportal.png                                ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\terrain.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\slick.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\cushion.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\qer_portal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\metalclip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\antiportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\invisible.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\areaportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
-base\textures\common\clipplus.png                                     ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\common\ladder.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
-base\textures\phant_aztech\aztech_trim_003_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_001_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_005_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_003_g.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_003_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_007_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_001_s.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_001_h.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_snakes_001_d.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_007_h.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_003_h.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_lava_001_add.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_snakes_001_h.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_003_light_d.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_002_d.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_003_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_001_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_001_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_002_g.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_005_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_003_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_001_d.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_003_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_007_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_001_h.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_snakes_001_s.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_003_light_s.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_002_s.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_001_local.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_001_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_003_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_001_s.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_lava_002.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_lava_003.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_lava_004.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_003_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_005_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_001_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_swatch_rust_02_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_003_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_007_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_snakes_001_local.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_singlebrick_001_d.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_light_001_g.png             ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_singlebrick_001_h.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_003_light_local.png        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_002_local.png                 ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_light_001_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_001_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_002_d.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_light_001_g.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_003_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_swatch_rust_02_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_001_local.png              ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_singlebrick_001_s.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mosaicfloor_001_d.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_004_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_006_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_light_001_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_004_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_008_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_lava_001_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_002_s.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_004_h.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_001_d.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_spiral_001_d.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mosaicfloor_001_s.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_004_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_001_g.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_002_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_003_light_add.png          ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_006_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_002_d.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_004_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_008_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_002_h.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_singlebrick_001_local.png           ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tele.png                            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_001_s.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_spiral_001_s.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_light_001_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_002_local.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_tile_002_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_002_s.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mosaicfloor_001_local.png           ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_004_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_trim_006_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_darkbricks_004_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_lava_001_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_block_001_local.png                 ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_spiral_001_local.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_001_d.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_mettile_001_h.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_edgetrim_002_local.png              ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\phant_aztech\aztech_pad_glow.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
-base\textures\decals\explo_burn01.png                                 ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat01.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat02.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat03.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\blood_splat04.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
-base\textures\decals\blood_splat05.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
-base\textures\decals\blood_splat06.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
-base\textures\decals\glow2.png                                        ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\lavaburn.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\decals\particle_burn01.png                              ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
-base\textures\tr3b_water\watertest_local.png                          ( c ) 2005 inolen                                 All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_d.png                               <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall_disp.png                         <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall2_d.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_local.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick_disp.png                            <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\roots_d.png                               <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall2_local.png                       <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\stonewall_d.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick2_d.png                              <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\relief_local.png                          <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\roots_local.png                           <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\tile1_d.png                               <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall_d.png                            <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\stonewall_local.png                       <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\roots_disp.png                            <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\brick2_local.png                          <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\rockwall_local.png                        <add author>                                      All Rights Reserved                                                   
-base\textures\tr3b_parallax\tile1_local.png                           <add author>                                      All Rights Reserved                                                   
+base\models\players\xsarge\SargeHair_d.tga                            ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\sarge.blend                                ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeCigar_d.tga                           ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\sargeRigged2.blend                         ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\crouch_walk_backward.md5anim               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\sargeHighPoly.blend                        ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeCigar_d.xcf                           ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\run.md5anim                                ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\body.md5mesh                               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeBody_local.tga                        ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\taunt_1.md5anim                            ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\sarge.blend1                               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\icon_default.tga                           ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\idle.md5anim                               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeHead_local.tga                        ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\crouch_walk_forward.md5anim                ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\gauntlet_fire.md5anim                      ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\sarge_Rigged.blend1                        ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\walk.md5anim                               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeHair_local.tga                        ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeBody_d.tga                            ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\SargeHead_d.tga                            ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\gauntlet_aim.md5anim                       ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\soft_land.md5anim                          ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\body_default.skin                          ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\jump.md5anim                               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\fall.md5anim                               ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\walk_backwards.md5anim                     ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\sarge_Rigged2.blend1                       ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\machinegun_fire.md5anim                    ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
+base\models\players\xsarge\crouch.md5anim                             ( c ) 2008 Ross Forshaw                           GPLv2                                                                 
 base\models\projectiles\grenade\grenade_glow.png                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\projectiles\grenade\grenade_spec.png                      ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\models\projectiles\grenade\grenade.md3                           ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
@@ -650,6 +402,291 @@ base\models\weapons\machinegun\machinegun_add.png                     ( c ) 2005
 base\models\weapons\machinegun\machinegun_view_lower.md5anim          ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_local.png                   ( c ) 2005 Jim Kern                               All Rights Reserved                                                   
 base\models\weapons\machinegun\machinegun_flash.md3                   ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
+base\textures\raynorpat\black.png                                     ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported    
+base\textures\raynorpat\lights\xreal_dark.png                         <add author>                                      All Rights Reserved                                                   
+base\textures\raynorpat\lights\xreal_redglow.png                      <add author>                                      All Rights Reserved                                                   
+base\textures\raynorpat\lights\xreal_shadow.png                       <add author>                                      All Rights Reserved                                                   
+base\textures\raynorpat\lights\xreal_highlight.png                    <add author>                                      All Rights Reserved                                                   
+base\textures\raynorpat\lights\xreal_chrome.png                       <add author>                                      All Rights Reserved                                                   
+base\textures\raynorpat\lights\xreal_chrome2.png                      <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_sky\plasma_noise2.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\tr3b_sky\basesky.jpg                                    ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\cloudstormy_d.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\orient_sun.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\tr3b_sky\clouds_d.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\thunders.jpg                                   ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\baseskystormy.jpg                              ( c ) 2005 hi_volt                                All Rights Reserved                                                   http://www.doom3world.org/phpbb2/viewtopic.php ? t = 12378 
+base\textures\tr3b_sky\plasma_noise1.png                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\method\asphalt_moss.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim2.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim4.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\window_small.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim5.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\cap.png                                          ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal2_s.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_white_moss.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim5_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\plate_painted_moss.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim_white_moss.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor_local.png                            ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\plate_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_blue_local.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal2.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\beam_s.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal4.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor2_g.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal2_local.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim4_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\red_ivy.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_blue_s.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\dirt.png                                         ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_planks_s.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_moss.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\beam.png                                         ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_chipped.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor2_s.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_moss.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\plate_painted.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\asphalt_s.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\beam_local.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim2_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_planks.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_trim_s.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim4_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\window_small_s.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\dirt1.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\dirt3.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\cap_s.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_s.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\dirt4.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_blue_local.png                              ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\dirt7.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\brick_white.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\dirt8.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_planks_local.png                            ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\brick_white_moss.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\asphalt.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_trim.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_trim_moss.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor2_local.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim5_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\plate.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\asphalt_local.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim2_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal3_s.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_trim_local.png                          ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\wood_white.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\window_small_local.png                           ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim4_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\brick_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\sidewalk_local.png                               ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\cap_local.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal2_moss.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\meth_fog.png                                     ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\brick.png                                        ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\brick_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim2_moss.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal3_local.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_white.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor_white.png                            ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_white_moss.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor_moss.png                             ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\brick_local.png                                  ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\spanish_moss.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim_white.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\puddle.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\arena_two.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\trim5_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor2.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_floor_s.png                                ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\arena_zero.png                                   ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\plate_s.png                                      ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\arena_one.png                                    ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\papers.png                                       ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\method\metal_blue_s.png                                 ( c ) 2008 Yan Ostretsov                          All Rights Reserved                                                   
+base\textures\reflex_layout\bridge.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\lift.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\wall.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\floor.png                                 ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\pad.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\stairs.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\pad2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_layout\ceiling.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\radiant\notex.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\radiant\shadernotex.png                                 ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\reflex_ugly\black.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_a.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_b.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_c.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_d.png                                   ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\decal1.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\decal2.png                                  ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_local.png                               ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\reflex_ugly\mat_spec.png                                ( c ) 2006 Stefan Lautner                         All Rights Reserved                                                   
+base\textures\tr3b_fog\deathfog.tga                                   ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\botclip.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nodrawnonsolid.png                               ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\weapclip.png                                     ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\full_clip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\ikclip.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\black.png                                        ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\missileclip.png                                  ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\lightgrid.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\white.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\qer_mirror.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\donotenter.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\visportal.png                                    ( c ) 2007 Pat Raynor                             Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\shadow.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\nodrawsolid.png                                  <add author>                                      All Rights Reserved                                                   
+base\textures\common\origin.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\clip.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nodraw.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\mirror1.png                                      ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\collision.png                                    ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\monster_clip.png                                 ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\caulk.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\moveable_clip.png                                ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\nodrop.png                                       ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\nolightmap.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\hint.png                                         ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\trigger.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\clusterportal.png                                ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\terrain.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\slick.png                                        ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\cushion.png                                      ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\qer_portal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\metalclip.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\antiportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\invisible.png                                    ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\areaportal.png                                   ( c ) 2000 William Joseph                         Public Domain                                                         
+base\textures\common\clipplus.png                                     ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\common\ladder.png                                       ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
+base\textures\phant_aztech\aztech_trim_003_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_001_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_005_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_003_g.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_003_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_007_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_001_s.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_001_h.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_snakes_001_d.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_007_h.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_003_h.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_lava_001_add.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_snakes_001_h.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_003_light_d.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_002_d.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_003_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_001_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_001_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_002_g.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_005_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_003_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_001_d.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_003_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_007_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_001_h.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_snakes_001_s.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_003_light_s.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_002_s.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_001_local.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_001_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_003_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_001_s.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_lava_002.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_lava_003.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_lava_004.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_003_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_005_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_001_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_swatch_rust_02_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_003_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_007_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_snakes_001_local.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_singlebrick_001_d.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_light_001_g.png             ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_singlebrick_001_h.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_003_light_local.png        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_002_local.png                 ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_light_001_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_001_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_002_d.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_light_001_g.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_003_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_swatch_rust_02_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_001_local.png              ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_singlebrick_001_s.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mosaicfloor_001_d.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_004_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_006_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_light_001_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_004_d.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_008_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_lava_001_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_002_s.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_004_h.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_001_d.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_spiral_001_d.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mosaicfloor_001_s.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_004_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_001_g.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_002_d.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_003_light_add.png          ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_006_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_002_d.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_004_s.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_008_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_002_h.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_singlebrick_001_local.png           ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tele.png                            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_001_s.png                     ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_spiral_001_s.png                    ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_light_001_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_002_local.png               ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_tile_002_s.png                      ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_002_s.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mosaicfloor_001_local.png           ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_004_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_trim_006_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_darkbricks_004_local.png            ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_lava_001_local.png                  ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_block_001_local.png                 ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_spiral_001_local.png                ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_001_d.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_mettile_001_h.png                   ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_edgetrim_002_local.png              ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\phant_aztech\aztech_pad_glow.png                        ( c ) 2006 Tom Perryman                           All Rights Reserved                                                   
+base\textures\decals\explo_burn01.png                                 ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat01.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat02.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat03.png                                ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\blood_splat04.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
+base\textures\decals\blood_splat05.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
+base\textures\decals\blood_splat06.png                                ( c ) 2003 Willi Hammes                           All Rights Reserved                                                   
+base\textures\decals\glow2.png                                        ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\lavaburn.png                                     ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\decals\particle_burn01.png                              ( c ) 2004 Tenebrae Team                          All Rights Reserved                                                   
+base\textures\tr3b_water\watertest_local.png                          ( c ) 2005 inolen                                 All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall_disp.png                         <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall2_d.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_local.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick_disp.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\roots_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall2_local.png                       <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\stonewall_d.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick2_d.png                              <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\relief_local.png                          <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\roots_local.png                           <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\tile1_d.png                               <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall_d.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\stonewall_local.png                       <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\roots_disp.png                            <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\brick2_local.png                          <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\rockwall_local.png                        <add author>                                      All Rights Reserved                                                   
+base\textures\tr3b_parallax\tile1_local.png                           <add author>                                      All Rights Reserved                                                   
 base\gfx\2d\crosshairh.tga                                            ( c ) 1999 tbird                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test3.shtm 
 base\gfx\2d\crosshairi.tga                                            ( c ) 1999 lotek                                  All Rights Reserved                                                   http://www.bullseyecrosshairs.com/q3test4.shtm 
 base\gfx\2d\hud\sidebaritem_left.png                                  ( c ) 2006 Josef S ntgen                          Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
@@ -863,11 +900,20 @@ base\sound\weapons\machinegun\shot4.ogg                               ( c ) 2008
 base\sound\weapons\machinegun\par_shot_4.ogg                          ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
 base\sound\weapons\machinegun\shot5.ogg                               ( c ) 2008 Alone Team - MacBeth                   Creative Commons Attribution-Noncommercial 3.0 Unported               
 base\sound\weapons\machinegun\par_shot_5.ogg                          ( c ) 2006 Sapphire Scar Team                     Creative Commons Attribution 2.5                                      
-base\fonts\Turok_0_12.tga                                             <add author>                                      All Rights Reserved                                                   
-base\fonts\Turok.ttf                                                  ( c ) 2000 Neale Davidson                         All Rights Reserved.                                                  
-base\fonts\Turok_0_16.tga                                             <add author>                                      All Rights Reserved                                                   
-base\fonts\Turok_0_20.tga                                             <add author>                                      All Rights Reserved                                                   
 base\sprites\balloon4.png                                             ( c ) 2001 Maxell < maxell007@volny.cz >          All Rights Reserved                                                   
+base\fonts\Turok.ttf                                                  ( c ) 2000 Neale Davidson                         All Rights Reserved.                                                  
+base\fonts\FreeSans.ttf                                               ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSansOblique.ttf                                        ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSansBold.ttf                                           ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSansBoldOblique.ttf                                    ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeMono.ttf                                               ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSerif.ttf                                              ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeMonoOblique.ttf                                        ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSerifBold.ttf                                          ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeMonoBold.ttf                                           ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeMonoBoldOblique.ttf                                    ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSerifItalic.ttf                                        ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
+base\fonts\FreeSerifBoldItalic.ttf                                    ( c ) 2008 Steve White < stevan.white AT googlemail.com > GPL                                                                   http://savannah.gnu.org/projects/freefont/ 
 base\lights\skyline1.png                                              ( c ) 2007 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
 base\lights\flashlight1.png                                           ( c ) 2007 Michael Denno                          All Rights Reserved                                                   
 base\lights\round.png                                                 ( c ) 2006 Robert Beckebans                       Creative Commons Attribution-NonCommercial-ShareAlike 2.5             
@@ -888,17 +934,17 @@ base\cubemaps\hipshot\grimmnight_pz.png                               ( c ) 2005
 base\cubemaps\hipshot\grimmnight_nx.png                               ( c ) 2005 Jochum Skoglund                        All Rights Reserved                                                   
 base\cubemaps\hipshot\grimmnight_ny.png                               ( c ) 2005 Jochum Skoglund                        All Rights Reserved                                                   
 base\maps\test_parallax.map                                           <add author>                                      All Rights Reserved                                                   
-base\maps\test_video.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\thunderstruck.map                                           <add author>                                      All Rights Reserved                                                   
-base\maps\test_mirror.map                                             <add author>                                      All Rights Reserved                                                   
+base\maps\test_video.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\dk_q4dm6.map                                                <add author>                                      All Rights Reserved                                                   
-base\maps\test_fog.map                                                <add author>                                      All Rights Reserved                                                   
+base\maps\test_mirror.map                                             <add author>                                      All Rights Reserved                                                   
 base\maps\uglyrga.map                                                 ( c ) 2007 Stefan Lautner                         All Rights Reserved                                                   
+base\maps\test_fog.map                                                <add author>                                      All Rights Reserved                                                   
 base\maps\longest.map                                                 <add author>                                      All Rights Reserved                                                   
 base\maps\test_fx.map                                                 <add author>                                      All Rights Reserved                                                   
-base\maps\gwdm2.map                                                   ( c ) 2005 gw                                     All Rights Reserved                                                   
-base\maps\test_items.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\test_volumetricLight.map                                    <add author>                                      All Rights Reserved                                                   
+base\maps\test_items.map                                              <add author>                                      All Rights Reserved                                                   
+base\maps\gwdm2.map                                                   ( c ) 2005 gw                                     All Rights Reserved                                                   
 base\maps\test_water.map                                              <add author>                                      All Rights Reserved                                                   
 base\maps\soul.map                                                    <add author>                                      All Rights Reserved                                                   
 base\maps\test_telerockets.map                                        ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
@@ -909,6 +955,7 @@ base\maps\yan_test.map                                                ( c ) 2008
 base\maps\test_box.map                                                <add author>                                      All Rights Reserved                                                   
 base\maps\kat_q4dm3.map                                               ( c ) 2007 Ken Beyer                              All Rights Reserved                                                   
 base\maps\lost_world.map                                              ( c ) 2004 Kai Moosmann                           All Rights Reserved                                                   
+base\maps\redm11.map                                                  ( c ) 2008 Stefan Lautner                         All Rights Reserved                                                   
 base\maps\redm08.map                                                  ( c ) 2007 Stefan Lautner                         All Rights Reserved                                                   
 base\menu\medals\medal_accuracy.png                                   ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
 base\menu\medals\medal_victory.png                                    ( c ) 2007 Adrian Fuhrmann                        All Rights Reserved                                                   
