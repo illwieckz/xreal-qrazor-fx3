@@ -3271,7 +3271,7 @@ void CG_Player(centity_t * cent)
 	CG_PlayerSprites(cent);
 
 	// add the shadow
-	shadow = CG_PlayerShadow(cent, &shadowPlane);
+	shadow = CG_PlayerShadow(cent, &shadowPlane, noShadowID);
 
 	// generate a new unique noShadowID to avoid that the lights of the quad damage
 	// will cause bad player shadows
