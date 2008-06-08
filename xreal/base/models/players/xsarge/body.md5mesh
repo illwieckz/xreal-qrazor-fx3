@@ -52,7 +52,7 @@ joints {
 }
 
 mesh {
-	shader ""
+	shader "models/players/xsarge/SargeEye"
 
 	numverts 24
 	vert 0 ( 0.610099 0.219424 ) 0 1
@@ -140,7 +140,7 @@ mesh {
 }
 
 mesh {
-	shader "/home/ross/Projects/Blender/Blender projects/Sarge/sarge_Rigged2_SargeBody.tga"
+	shader "models/players/xsarge/SargeBody"
 
 	numverts 1368
 	vert 0 ( 0.467475 0.156177 ) 0 1
@@ -5040,7 +5040,7 @@ mesh {
 }
 
 mesh {
-	shader ""
+	shader "models/players/xsarge/SargeCigar"
 
 	numverts 18
 	vert 0 ( 0.120024 0.277183 ) 0 1
@@ -5100,7 +5100,7 @@ mesh {
 }
 
 mesh {
-	shader "/home/ross/Projects/Blender/Blender projects/Sarge/SargeHair_local.tga"
+	shader "models/players/xsarge/SargeHair"
 
 	numverts 90
 	vert 0 ( 0.923664 0.147086 ) 0 1
@@ -5416,7 +5416,7 @@ mesh {
 }
 
 mesh {
-	shader "//Sarge_Head_Cube.tga"
+	shader "models/players/xsarge/SargeHead"
 
 	numverts 266
 	vert 0 ( 0.386535 0.661334 ) 0 1
