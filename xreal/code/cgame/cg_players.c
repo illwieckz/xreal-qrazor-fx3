@@ -2905,6 +2905,71 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane)
 		return qfalse;
 	}
 
+	if((cg_shadows.integer == 4 || cg_shadows.integer == 5) && cg_precomputedLighting.integer)
+	{
+		refLight_t		light;
+		vec3_t          angles;
+		vec3_t          projectionEnd;
+
+		vec3_t          ambientLight;
+		vec3_t          lightDir;
+		vec3_t          lightDirInversed;
+		vec3_t          directedLight;
+
+		static vec3_t   mins = { -4, -4, -4 };
+		static vec3_t   maxs = { 4, 4, 4 };
+
+		trap_R_LightForPoint(cent->lerpOrigin, ambientLight, directedLight, lightDir);
+		VectorNegate(lightDir, lightDirInversed);
+
+		// add light
+		memset(&light, 0, sizeof(refLight_t));
+
+		light.rlType = RL_PROJ;
+
+
+		// find light origin
+		VectorMA(cent->lerpOrigin, SHADOW_DISTANCE, lightDir, light.origin);
+		trap_CM_BoxTrace(&trace, cent->lerpOrigin, light.origin, mins, maxs, 0, MASK_PLAYERSOLID);
+
+		// no shadow if too high
+		/*
+		if(trace.fraction == 1.0 || trace.startsolid || trace.allsolid)
+		{
+			return qfalse;
+		}
+		*/
+
+		VectorCopy(trace.endpos, light.origin);
+		//VectorMA(refdef.vieworg, -200, refdef.viewaxis[0], light.origin);
+		//light.origin[1] += 10;
+
+		// find projection end
+		VectorMA(light.origin, SHADOW_DISTANCE * 10, lightDirInversed, projectionEnd);
+		trap_CM_BoxTrace(&trace, light.origin, projectionEnd, mins, maxs, 0, MASK_PLAYERSOLID);
+#if 0
+		if(/* trace.fraction == 1.0 ||*/ trace.startsolid || trace.allsolid)
+		{
+			return qfalse;
+		}
+#endif	
+		vectoangles(lightDirInversed, angles);
+		QuatFromAngles(light.rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+
+		light.color[0] = 0.8f;
+		light.color[1] = 0.8f;
+		light.color[2] = 0.8f;
+
+		light.fovX = 35;
+		light.fovY = 35;
+		light.distance = Distance(light.origin, projectionEnd);
+
+		light.inverseShadows = qtrue;
+
+		trap_R_AddRefLightToScene(&light);
+		return qtrue;
+	}
+
 	*shadowPlane = trace.endpos[2] + 1;
 
 	if(cg_shadows.integer != 1)

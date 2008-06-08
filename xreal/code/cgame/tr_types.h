@@ -177,6 +177,9 @@ typedef struct
 
 	qboolean        noShadows;
 	int             noShadowID;	// don't cast shadows of all entities with this id
+
+	qboolean        inverseShadows;	// don't cast light and draw shadows by darken the scene
+									// this is useful for drawing player shadows with shadow mapping
 } refLight_t;
 
 
