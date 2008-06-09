@@ -25,7 +25,6 @@ uniform sampler2D	u_AttenuationMapZ;
 uniform sampler2D	u_ShadowMap;
 uniform vec3		u_LightOrigin;
 uniform float		u_LightRadius;
-uniform float		u_LightScale;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 uniform int         u_ShadowInverse;
@@ -33,6 +32,7 @@ uniform int         u_ShadowInverse;
 varying vec4		var_Vertex;
 varying vec4		var_TexAtten;
 varying vec4		var_TexShadow;
+varying vec4        var_Color;
 
 
 #if defined(VSM)
@@ -122,7 +122,7 @@ void	main()
 		shadow = max(shadow, p);
 		#endif
 		
-	//shadow = clamp(shadow, 0.0, 1.0);
+	shadow = clamp(shadow, 0.0, 1.0);
 	shadow = 1.0 - shadow;
 		
 	if(shadow <= 0.0)
@@ -135,11 +135,9 @@ void	main()
 	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(clamp(var_TexAtten.z, 0.0, 1.0), 0.0)).rgb;
 
 	// compute final color
-	vec4 color = vec4(0.6, 0.6, 0.6, 1.0);
-	//vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+	vec4 color = var_Color; //vec4(0.6, 0.6, 0.6, 1.0);
 	color.rgb *= attenuationXY;
 	color.rgb *= attenuationZ;
-	color.rgb *= u_LightScale;
 	color.rgb *= shadow;
 	
 	gl_FragColor = color;

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -27,6 +27,7 @@ uniform mat4		u_ModelMatrix;
 varying vec4		var_Vertex;
 varying vec4		var_TexAtten;
 varying vec4		var_TexShadow;
+varying vec4        var_Color;
 
 void	main()
 {
@@ -41,4 +42,7 @@ void	main()
 	
 	// calc shadow attenuation in light space
 	var_TexShadow = u_ShadowMatrix * gl_Vertex;
+	
+	// assign color
+	var_Color = gl_Color;
 }

@@ -866,8 +866,6 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightOrigin");
 	tr.forwardShadowingShader_proj.u_LightRadius =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightRadius");
-	tr.forwardShadowingShader_proj.u_LightScale =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightScale");
 	tr.forwardShadowingShader_proj.u_LightAttenuationMatrix =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightAttenuationMatrix");
 	tr.forwardShadowingShader_proj.u_ShadowMatrix =
@@ -2325,12 +2323,13 @@ static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
 	GL_Program(tr.forwardShadowingShader_proj.program);
 	GL_ClientState(tr.forwardShadowingShader_proj.attribs);
 
+	qglColor4fv(tess.svars.color);
+
 	// set uniforms
 	VectorCopy(light->origin, lightOrigin);
 
 	qglUniform3fARB(tr.forwardShadowingShader_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
 	qglUniform1fARB(tr.forwardShadowingShader_proj.u_LightRadius, light->sphereRadius);
-	qglUniform1fARB(tr.forwardShadowingShader_proj.u_LightScale, r_lightScale->value);
 	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
 	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE, light->attenuationMatrix);
 	qglUniform1fARB(tr.forwardShadowingShader_proj.u_ShadowTexelSize, shadowTexelSize);

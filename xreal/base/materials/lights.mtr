@@ -41,73 +41,6 @@ lights/stormy1
 
 }
 
-lights/square_strobe_slow
-{
-	{
-		forceHighQuality
-		map		lights/squarelight1.tga
-		red 		( blinktable5 [Parm4 + (time * 0.075 * (6 * Parm3)) ]) * Parm0
-		green 		( blinktable5 [Parm4 + (time * 0.075 * (6 * Parm3)) ]) * Parm1
-		blue 		( blinktable5 [Parm4 + (time * 0.075 * (6 * Parm3)) ]) * Parm2
-		zeroclamp
-	}
-}
-
-
-
-lights/baronflash
-{
-	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
-	{
-		stage attenuationMapXY
-		forceHighQuality		
-		map lights/baronflash.tga
-		zeroClamp
-		rotate	time * 3.7
-		colored
-		//rgb		flickerblink[ time * 1 ]
-	}
-}
-
-lights/desertambientlight
-{
-	ambientLight
-	lightFalloffImage	makeintensity(lights/squarelight1a.tga)
-	{
-		forceHighQuality
-		map lights/squarelight.tga
-		red 	( deserttable [Parm4 + (time * 0.1)]) * Parm0
-		green 	( deserttable [Parm4 + (time * 0.1)]) * Parm1
-		blue 	( deserttable [Parm4 + (time * 0.1)]) * Parm2	
-		zeroClamp
-	}
-}
-
-lights/desertlight2
-{
-	{
-		forceHighQuality
-		map	lights/desertlight.tga
-		colored
-		rotate	( time * parm3)
-		zeroClamp
-	}
-}
-
-lights/desertlight
-{
-	{
-		forceHighQuality
-		map	lights/desertlight.tga
-		red 	( deserttable [Parm4 + (time * 0.1) ]) * Parm0
-		green 	( deserttable [Parm4 + (time * 0.1) ]) * Parm1
-		blue 	( deserttable [Parm4 + (time * 0.1) ]) * Parm2	
-		rotate	( time * 0.25 )
-		zeroClamp
-	}
-}
-
-
 // an ambient light will do non-directional bump mapping, and won't have specular lighting
 // or shadows
 lights/ambientLight
@@ -122,7 +55,6 @@ lights/ambientLight
 	}
 }
 
-
 lights/ambientLight2
 {
 	ambientLight
@@ -132,40 +64,6 @@ lights/ambientLight2
 		map lights/squarelight.tga
 		colored
 		zeroClamp
-	}
-}
-
-
-lights/floorpgrate
-{
-	{
-		forceHighQuality
-		map	lights/floorpgrate.tga
-		colored
-		zeroClamp
-		
-	}
-}
-
-lights/killtest
-{
-	{
-		if ( parm6 == 1 )
-		forceHighQuality
-		map		lights/squarelight1.tga
-		red 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * (Parm0 * acceleratorfade [ time / 7 ] ) )
-		green 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * (Parm1 * acceleratorfade [ time / 7 ] ) )
-		blue 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * (Parm2 * acceleratorfade [ time / 7 ] ) )
-		zeroclamp
-	}
-	{
-		if ( parm6 == 0 )
-		forceHighQuality
-		map		lights/squarelight1.tga
-		red 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm0 )
-		green 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm1 )
-		blue 		( ( blasttable [Parm4 + (time / 6 * (Parm3)) ]) * Parm2 )
-		zeroclamp
 	}
 }
 
@@ -332,7 +230,7 @@ lights/round_flicker2
 		forceHighQuality
 		map		lights/round.tga
 		red 		( flashtable [Parm4 + (time * (.25 * Parm3)) ]) * Parm0
-		green 	( flashtable [Parm4 + (time * (.25 * Parm3)) ]) * Parm1
+		green 		( flashtable [Parm4 + (time * (.25 * Parm3)) ]) * Parm1
 		blue 		( flashtable [Parm4 + (time * (.25 * Parm3)) ]) * Parm2
 		zeroclamp
 	}
@@ -344,7 +242,7 @@ lights/round_flicker
 		forceHighQuality
 		map		lights/round.tga
 		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 	((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
+		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
 		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
 		zeroclamp
 	}
@@ -360,400 +258,8 @@ lights/squarelight
 	}
 }
 
-lights/malsrotatedLight
-{
-	{
-		forceHighQuality
-		map makeintensity (lights/squarelight1a.tga)
-		rotate	parm3
-		zeroClamp
-		colored
-	}
-}
-
-lights/globalFadeLight
-{	
-	// script can change the global parms to effect the color
-	// of every single light in the world that uses this shader
-	{
-		forceHighQuality
-		map lights/squarelight1.tga
-		red		parm0 * global0
-		green	parm1 * global0
-		blue	parm2 * global0
-		zeroClamp
-	}
-}
-
-lights/globalFadeLight2
-{	
-	// script can change the global parms to effect the color
-	// of every single light in the world that uses this shader
-	{
-		forceHighQuality
-		map lights/squarelight1.tga
-		red		parm0 * global1
-		green	parm1 * global1
-		blue	parm2 * global1
-		zeroClamp
-	}
-}
-
-
-lights/duffysquarelight
-{
-	{
-		forceHighQuality
-		map	lights/squarelight.tga
-		zeroClamp
-		red 	( 0.75 + ( 0.25 * sound ) ) * Parm0
-		green 	0
-		blue 	0
-
-	}
-}
-
-lights/xianspecial
-{	
-	
-	{ if  ( (time + parm4) * Parm3 < 1.0 )
-		forceHighQuality	
-		map	lights/squareishlight.tga
-		red		blinktable[ (time + parm4) * Parm3 ] * Parm0
-		green	blinktable[ (time + parm4) * Parm3 ] * Parm1
-		blue	blinktable[ (time + parm4) * Parm3 ] * Parm2
-		zeroClamp
-	}
-	{ if  ( (time + parm4) * Parm3 >= 1.0 )
-		forceHighQuality
-		map	lights/squareishlight.tga
-		red		xianjittertable[ (time + parm4) * Parm3 - 1.0] * Parm0
-		green	xianjittertable[ (time + parm4) * Parm3 - 1.0] * Parm1
-		blue	xianjittertable[ (time + parm4) * Parm3 - 1.0] * Parm2
-		zeroClamp
-	}
-}
-
-lights/xianspecial_stages
-{	
-	{ if ( parm7 == 0 )
-		forceHighQuality
-		map	lights/squareishlight.tga
-		red		xianjittertable_low[ (time + parm4) * Parm3 ] * Parm0
-		green	xianjittertable_low[ (time + parm4) * Parm3 ] * Parm1
-		blue	xianjittertable_low[ (time + parm4) * Parm3 ] * Parm2
-		zeroClamp
-	}
-
-	{ if ( parm7 == 1)
-		forceHighQuality
-		map	lights/squareishlight.tga
-		red		blinktable[ (time + parm4) * Parm3 ] * Parm0
-		green	blinktable[ (time + parm4) * Parm3 ] * Parm1
-		blue	blinktable[ (time + parm4) * Parm3 ] * Parm2
-		zeroClamp
-	}
-	{ if  ( (time + parm4) * Parm3 >= 1.0 )
-		forceHighQuality
-		map	lights/squareishlight.tga
-		red		xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm0
-		green	xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm1
-		blue	xianjittertable_hi[ (time + parm4) * Parm3 - 1.0] * Parm2
-		zeroClamp
-	}
-}
-
-lights/newalphagrate1_flicker
-{	
-	{
-		map	lights/newalphagrate1
-		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
-		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
-		zeroclamp
-	}
-}
-
-
-lights/newalphagrate3_flicker
-{	
-	{
-		map	lights/newalphagrate3
-		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
-		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
-		zeroclamp
-	}
-}
-
-lights/newalphagrate3b_flicker
-{	
-	{
-		map	lights/newalphagrate3b
-		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
-		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
-		zeroclamp
-	}
-}
-
-lights/newalphagrate4_flicker
-{	
-	{
-		map	lights/newalphagrate4
-		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
-		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
-		zeroclamp
-	}
-}
-
-lights/newalphagrate5_flicker
-{	
-	{
-		map	lights/newalphagrate5
-		red 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm0
-		green 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm1
-		blue 		((.25 * blinktable [Parm4 + (time * (15 * Parm3)) ]) +.75) * Parm2
-		zeroclamp
-	}
-}
-
-lights/lightgratelight2_snd
-{	
-	{
-		map	lights/lightgratelight2
-		red 		sound * Parm0
-		green 		sound * Parm1
-		blue 		sound * Parm2
-		zeroClamp
-	}
-}
-
-lights/triangle1_snd
-{	
-	{
-		map	lights/triangle1.tga
-		red 		sound * Parm0
-		green 		sound * Parm1
-		blue 		sound * Parm2
-		zeroClamp
-	}
-}
-
-
-
-//alarm strobe lights
-lights/alarm_strobe
-{
-	{
-		map		lights/squarelight1.tga
-		colored
-		//rgb		alarmstrobe[time]
-		red 		( alarmstrobe[Parm4 + (time * Parm3) ]) * Parm0
-		green 		( alarmstrobe[Parm4 + (time * Parm3) ]) * Parm1
-		blue 		( alarmstrobe[Parm4 + (time * Parm3) ]) * Parm2
-		zeroClamp
-	}
-}
-
-lights/fragchamber_fadeLight1
-{	
-	// script can change the global parms to effect the color
-	// of every single light in the world that uses this shader
-	{
-		map 		lights/squarelight1.tga
-		red		parm0 * global0
-		green		parm1 * global0
-		blue		parm2 * global0
-		zeroClamp
-	}
-}
-
-
-lights/squarelight_breakable_sound_off
-{
-	{ if( parm7 == 0 )
-		map lights/squarelight1.tga
-		red			parm0 * sound
-		green		parm1 * sound
-		blue		parm2 * sound
-		zeroClamp
-	}
-	{ if( parm7 != 0 )
-		map	lights/squarelight1.tga
-		red			0
-		green		0
-		blue		0
-		zeroClamp
-	}
-}
-
-
-
-lights/squarelight_flash
-{
-	{
-		map		lights/squarelight1.tga
-		colored
-		//CHANGE parm3 to 10 if doesn't work
-		red 		( alarmstrobe[Parm4 + (time * parm3) ]) * Parm0
-		green 	( alarmstrobe[Parm4 + (time * parm3) ]) * Parm1
-		blue 		( alarmstrobe[Parm4 + (time * parm3) ]) * Parm2
-		zeroClamp
-	}
-}
-
-//
-//
-//
-lights/square_trigger_flicker
-{
-	{
-	if ( parm7 == 0 )
-	map	lights/squarelight1.tga
-	zeroclamp
-	colored
-	}
-	{
-	if ( parm7 != 0 )
-	map lights/squarelight1.tga
-	red		( xFlickerLight [ Parm4 + time ] ) * Parm0
-	green	( xFlickerLight [ Parm4 + time ] ) * Parm1
-	blue	( xFlickerLight [ Parm4 + time ] ) * Parm2
-	zeroclamp
-	}
-}
-
-
-
-//builds then holds
-lights/square_builduplight_hold
-{
-	{
-		if ( ((time + parm4) * 0.2) < 1.0 )
-		map	lights/squarelight1.tga
-		red 	( builduplight [ (time + Parm4) * 0.2 ]) * Parm0
-		green	( builduplight [ (time + Parm4) * 0.2 ]) * Parm1
-		blue	( builduplight [ (time + Parm4) * 0.2 ]) * Parm2
-		zeroclamp
-	}
-	{
-		if ( ((time + parm4) * 0.2) >= 1.0 )
-		map	lights/squarelight1.tga
-		red 	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm0
-		green	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm1
-		blue	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm2
-		zeroclamp
-	}
-}
-
-//builds then holds_spot
-lights/spot_builduplight_hold
-{
-	{
-		if ( ((time + parm4) * 0.2) < 1.0 )
-		map	lights/spot01.tga
-		red 	( builduplight [ (time + Parm4) * 0.2 ]) * Parm0
-		green	( builduplight [ (time + Parm4) * 0.2 ]) * Parm1
-		blue	( builduplight [ (time + Parm4) * 0.2 ]) * Parm2
-		zeroclamp
-	}
-	{
-		if ( ((time + parm4) * 0.2) >= 1.0 )
-		map	lights/spot01.tga
-		red 	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm0
-		green	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm1
-		blue	( builduppulse2 [ (time + Parm4) * 0.2 - 1.0 ]) * Parm2
-		zeroclamp
-	}
-}
-
-//builds then goes out
-lights/square_builduplight
-{
-	{
-		map	lights/squarelight1.tga
-		red 	( builduplight [ (time + Parm4) * 0.1 ]) * Parm0
-		green	( builduplight [ (time + Parm4) * 0.1 ]) * Parm1
-		blue	( builduplight [ (time + Parm4) * 0.1 ]) * Parm2
-		zeroclamp
-	}
-}
-
-//builds then pulses
-lights/square_builduplight2
-{
-	{
-		if ( ((time + parm4) * 0.2) < 1.0 )
-		map	lights/squarelight1.tga
-		red 	( builduplight [ (time + Parm4) * 0.2 ]) * Parm0
-		green	( builduplight [ (time + Parm4) * 0.2 ]) * Parm1
-		blue	( builduplight [ (time + Parm4) * 0.2 ]) * Parm2
-		zeroclamp
-	}
-	{
-		if ( ((time + parm4) * 0.2) >= 1.0 )
-		map	lights/squarelight1.tga
-		red 	( builduppulse [ (time + Parm4) * 0.2 - 1.0 ]) * Parm0
-		green	( builduppulse [ (time + Parm4) * 0.2 - 1.0 ]) * Parm1
-		blue	( builduppulse [ (time + Parm4) * 0.2 - 1.0 ]) * Parm2
-		zeroclamp
-	}
-}
-
-lights/squarelight_breakable
-{
-	{ if ( parm7 == 0 )
-		map		lights/squarelight1.tga
-		red 		sound * Parm0
-		green 		sound * Parm1
-		blue 		sound * Parm2
-		zeroclamp
-	}
-	{ if ( parm7 != 0 )
-		map		lights/squarelight1.tga
-		red 		sound * Parm0
-		green 		sound * Parm1
-		blue 		sound * Parm2
-		zeroclamp
-	}
-
-
-}
-
-lights/squarelight_breakable_off
-{
-	{ if ( parm7 == 0 )
-		map	lights/squarelight1.tga
-		colored
-		zeroclamp
-	}
-	{ if ( parm7 != 0 )
-		map	lights/squarelight1.tga
-		zeroClamp
-		colored
-		red 	0
-		green 	0
-		blue 	0
-	}
-
-}
 
 table spark_neontable1 { { 1.3, 0, 0, 0, 0, 1.3, 0, 0, 0, 0, 1.3, 0, 0, 1.1, .075, 1.15, 1.22, 1.3, 1.3, 1.45, 1.52, .6, .67, .75, .82, .9, .95, 1, 0, 0, 0, .3, 0, 0, 0, 0, 0, 0, 0, .3, 0, 0, 0, 0, 0, 0, 0, 0, 1, .6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .3, 0, 0, 0, 0 } }
-
-lights/sparks_sound
-{
-	{
-		map	lights/duolight02grey.tga
-		colored
-		clamp
-
-		red 	( spark_neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm0 * sound * 2
-		green 	( spark_neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm1 * sound * 1.8
-		blue 	( spark_neontable1 [Parm4 + (time * (1 * Parm3)) ]) * Parm2 * sound * 1
-	}
-}
 
 //
 // Tr3B - new lights
@@ -893,6 +399,23 @@ lights/volumetricLight
 		forceHighQuality
 		map lights/squarelight1.tga
 		colored
+		zeroClamp
+	}
+}
+
+lights/shadowProjectedLight
+{
+	lightFalloffImage	makeintensity(lights/squarelight1b.png)
+	
+	{
+		stage attenuationMapXY
+		forceHighQuality
+		map lights/squarelight1.tga
+		colored
+		//red 	Parm0 * Parm3
+		//green 	Parm0 * Parm3
+		//blue 	Parm0 * Parm3
+		//alpha	1.0
 		zeroClamp
 	}
 }

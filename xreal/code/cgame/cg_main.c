@@ -984,6 +984,9 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
 
+	// globe mapping shaders
+	cgs.media.shadowProjectedLightShader = trap_R_RegisterShaderLightAttenuation("lights/shadowProjectedLight");
+
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
 	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");

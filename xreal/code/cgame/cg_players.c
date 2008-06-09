@@ -2905,6 +2905,9 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShad
 		return qfalse;
 	}
 
+	// fade the shadow out with height
+	alpha = 1.0 - trace.fraction;
+
 	if((cg_shadows.integer == 4 || cg_shadows.integer == 5) && cg_precomputedLighting.integer)
 	{
 		refLight_t		light;
@@ -2956,9 +2959,9 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShad
 		vectoangles(lightDirInversed, angles);
 		QuatFromAngles(light.rotation, angles[PITCH], angles[YAW], angles[ROLL]);
 
-		light.color[0] = 0.8f;
-		light.color[1] = 0.8f;
-		light.color[2] = 0.8f;
+		light.color[0] = 0.7f * alpha;
+		light.color[1] = 0.7f * alpha;
+		light.color[2] = 0.7f * alpha;
 
 		light.fovX = 35;
 		light.fovY = 35;
@@ -2977,9 +2980,6 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShad
 	{							// no mark for stencil or projection shadows
 		return qtrue;
 	}
-
-	// fade the shadow out with height
-	alpha = 1.0 - trace.fraction;
 
 	// bk0101022 - hack / FPE - bogus planes?
 	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 

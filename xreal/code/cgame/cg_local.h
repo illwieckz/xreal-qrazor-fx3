@@ -889,6 +889,9 @@ typedef struct
 	qhandle_t       bloodSpurt2Shader;
 	qhandle_t       bloodSpurt3Shader;
 
+	// globe mapping shaders
+	qhandle_t       shadowProjectedLightShader;
+
 #ifdef MISSIONPACK
 	qhandle_t       nailPuffShader;
 	qhandle_t       blueProxMine;
