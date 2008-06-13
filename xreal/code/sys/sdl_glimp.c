@@ -824,24 +824,41 @@ static void GLimp_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_ARB_texture_float not found\n");
 	}
 
-	// GL_S3_s3tc
-	if(Q_stristr(glConfig.extensions_string, "GL_S3_s3tc"))
+	// GL_ARB_texture_compression
+	glConfig.textureCompression = TC_NONE;
+	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_compression"))
 	{
-		if(r_ext_compressed_textures->integer == 1)
+		if(r_ext_texture_compression->integer == 1)
 		{
-			glConfig.textureCompression = TC_S3TC;
-			ri.Printf(PRINT_ALL, "...using GL_S3_s3tc\n");
+			glConfig.textureCompression = TC_ARB;
+			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_compression\n");
 		}
 		else
 		{
-			glConfig.textureCompression = TC_NONE;
-			ri.Printf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_texture_compression\n");
 		}
 	}
 	else
 	{
-		glConfig.textureCompression = TC_NONE;
-		ri.Printf(PRINT_ALL, "...GL_S3_s3tc not found\n");
+		ri.Printf(PRINT_ALL, "...GL_ARB_texture_compression not found\n");
+	}
+
+	// GL_EXT_texture_compression_s3tc
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
+	{
+		if(r_ext_texture_compression->integer == 2)
+		{
+			glConfig.textureCompression = TC_S3TC;
+			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
 	}
 
 	// GL_EXT_stencil_wrap

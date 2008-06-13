@@ -554,7 +554,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 		trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST");
 	}
 
-	trap_Cvar_SetValue("r_ext_compressed_textures", s_graphicsoptions.compression.curvalue);
+	trap_Cvar_SetValue("r_ext_texture_compression", s_graphicsoptions.compression.curvalue);
 	trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", s_graphicsoptions.anisotropicFilter.curvalue);
 
 	trap_Cvar_SetValue("cg_shadows", s_graphicsoptions.shadowType.curvalue);
@@ -768,7 +768,7 @@ static void GraphicsOptions_SetMenuItems(void)
 		s_graphicsoptions.colordepth.curvalue = 0;
 	}
 
-	s_graphicsoptions.compression.curvalue = trap_Cvar_VariableValue("r_ext_compressed_textures");
+	s_graphicsoptions.compression.curvalue = trap_Cvar_VariableValue("r_ext_texture_compression");
 
 	s_graphicsoptions.anisotropicFilter.curvalue = trap_Cvar_VariableValue("r_ext_texture_filter_anisotropic");
 	if(s_graphicsoptions.anisotropicFilter.curvalue < 0)
@@ -1060,8 +1060,8 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.filter.itemnames = filter_names;
 	y += BIGCHAR_HEIGHT + 2;
 
-	// references/modifies "r_ext_compressed_textures"
-	if(strstr(uis.glconfig.extensions_string, "GL_S3_s3tc"))
+	// references/modifies "r_ext_texture_compression"
+	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") || strstr(uis.glconfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 	{
 		s_graphicsoptions.compression.generic.type = MTYPE_SPINCONTROL;
 		s_graphicsoptions.compression.generic.name = "Texture Compression:";
@@ -1166,7 +1166,7 @@ void GraphicsOptions_MenuInit(void)
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.texturebits);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.filter);
 
-	if(strstr(uis.glconfig.extensions_string, "GL_S3_s3tc"))
+	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") || strstr(uis.glconfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 		Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.compression);
 
 	if(strstr(uis.glconfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))

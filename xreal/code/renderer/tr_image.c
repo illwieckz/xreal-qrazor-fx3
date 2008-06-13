@@ -260,7 +260,11 @@ void R_ImageList_f(void)
 				ri.Printf(PRINT_ALL, "RGB8");
 				break;
 
-			case GL_RGB4_S3TC:
+			case GL_COMPRESSED_RGBA_ARB:
+				ri.Printf(PRINT_ALL, "ARB ");
+				break;
+
+			case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
 				ri.Printf(PRINT_ALL, "S3TC ");
 				break;
 
@@ -1154,9 +1158,13 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		// select proper internal format
 		if(samples == 3)
 		{
-			if(glConfig.textureCompression == TC_S3TC)
+			if(glConfig.textureCompression == TC_ARB)
 			{
-				internalFormat = GL_RGB4_S3TC;
+				internalFormat = GL_COMPRESSED_RGBA_ARB;
+			}
+			else if(glConfig.textureCompression == TC_S3TC)
+			{
+				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 			}
 			else if(r_texturebits->integer == 16)
 			{
