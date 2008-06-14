@@ -55,22 +55,37 @@ typedef struct
 
 cr_line         credits[] = {
 	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, colorRed},
-	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Project Lead", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Programming", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
+	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
 //	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
+	{"IOQuake 3 - www.ioquake3.org", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Tim 'Timbo' Angus", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Vincent Cojot", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Ryan C. 'icculus' Gordon", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Aaron Gyes", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Ludwig Nussel", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Julian Priestley", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Sirroco Six", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Zachary J. Slater", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Tony J. White", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
 	{"Development Assistance", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Mathias 'skynet' Heyer", UI_CENTER|UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Art", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -80,6 +95,7 @@ cr_line         credits[] = {
 	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Stefan 'ReFlex' Lautner", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Quake II: Lost Marine Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
@@ -93,13 +109,8 @@ cr_line         credits[] = {
 	{"Mancubus", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Tenebrae Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
-	{"Willi 'whammes' Hammes", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
-
 	//{"Sapphire Scar Team", UI_CENTER | UI_BIGFONT, colorWhite},
 	//{ "Paul 'JTR' Steffens, Lee David Ash,", UI_CENTER|UI_SMALLFONT, &colorWhite },
-	//{ "James 'HarlequiN' Taylor,", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{ "Michael 'mic' Denno", UI_CENTER|UI_SMALLFONT, &colorWhite },
 	//{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
@@ -136,6 +147,8 @@ cr_line         credits[] = {
 	{"Yan 'Method' Ostretsov - www.methodonline.com", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Ken 'kat' Beyer - www.katsbits.com", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Robert 'BJA' Hodri - www.bja-design.de", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Willi 'whammes' Hammes - www.willihammes.com", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Lee David Ash - www.violationentertainment.com", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Mikael 'Ruohis' Ruohomaa", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Julian 'Plaque' Morris", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Yves 'evillair' Allaire - Quake4 eX texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -146,12 +159,11 @@ cr_line         credits[] = {
 	{"Robin 'Wakey' Pengelstorfer", UI_CENTER | UI_SMALLFONT, colorWhite},
 //	{"Christian 'Lorax' Ballsieper", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"James 'HarlequiN' Taylor", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Lee David Ash", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Special Thanks To:", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"id Software", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"IOQuake3 project", UI_CENTER | UI_SMALLFONT, colorWhite},
+//	{"IOQuake 3 project - www.ioquake3.org", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	{"Contributors", UI_CENTER | UI_BIGFONT, colorLtGrey},
