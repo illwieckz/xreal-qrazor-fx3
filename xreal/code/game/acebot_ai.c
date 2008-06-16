@@ -282,7 +282,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 {
 	int             i;
 	int             node;
-	float           weight, bestWeight = 0.0;
+	float           weight, bestWeight = 0.0f;
 	int             currentNode, goalNode;
 	gentity_t      *goalEnt;
 	gclient_t      *cl;
@@ -369,9 +369,9 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 		// player carrying the flag?
 		if(g_gametype.integer == GT_CTF && !OnSameTeam(self, player) &&
 		   (player->client->ps.powerups[PW_REDFLAG] || player->client->ps.powerups[PW_BLUEFLAG]))
-			weight = 2.0;
+			weight = 2.0f;
 		else
-			weight = 0.3;
+			weight = 0.3f;
 
 		weight *= random();		// Allow random variations
 		weight /= cost;			// Check against cost of getting there
@@ -385,7 +385,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	}
 
 	// if do not find a goal, go wandering....
-	if(bestWeight == 0.0 || goalNode == INVALID)
+	if(bestWeight == 0.0f || goalNode == INVALID)
 	{
 		self->bs.goalNode = INVALID;
 		self->bs.state = STATE_WANDER;
@@ -415,7 +415,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 void ACEAI_PickShortRangeGoal(gentity_t * self)
 {
 	gentity_t      *target;
-	float           weight, bestWeight = 0.0;
+	float           weight, bestWeight = 0.0f;
 	gentity_t      *best;
 	float			shortRange = 200;
 
