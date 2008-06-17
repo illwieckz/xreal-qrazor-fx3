@@ -292,6 +292,9 @@ static void R_AddInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 	}
 	surf->lightCount = tr.lightCount;
 
+	if(r_vboDynamicLighting->integer && !surf->shader->isSky && !surf->shader->isPortal && !surf->shader->isMirror && !surf->shader->numDeforms)
+		return;
+
 	//  skip all surfaces that don't matter for lighting only pass
 	if(surf->shader->isSky || (!surf->shader->interactLight && surf->shader->noShadows))
 		return;
@@ -787,6 +790,8 @@ static void R_UpdateClusterSurfaces()
 	srfVBOMesh_t   *vboSurf;
 	IBO_t          *ibo;
 
+	vec3_t          bounds[2];
+
 	if(tr.viewCluster < 0 || tr.viewCluster >= tr.world->numClusters)
 	{
 		// Tr3B: this is not a bug, the super claster is the last one in the array
@@ -906,6 +911,8 @@ static void R_UpdateClusterSurfaces()
 			if(!numVerts || !numTriangles)
 				continue;
 
+			ClearBounds(bounds[0], bounds[1]);
+
 			// build triangle indices
 			indexesSize = numTriangles * 3 * sizeof(glIndex_t);
 			indexes = ri.Hunk_AllocateTempMemory(indexesSize);
@@ -935,6 +942,7 @@ static void R_UpdateClusterSurfaces()
 						}
 
 						numTriangles += srf->numTriangles;
+						BoundsAdd(bounds[0], bounds[1], srf->bounds[0], srf->bounds[1]);
 					}
 				}
 				else if(*surface2->data == SF_GRID)
@@ -953,6 +961,7 @@ static void R_UpdateClusterSurfaces()
 						}
 
 						numTriangles += srf->numTriangles;
+						BoundsAdd(bounds[0], bounds[1], srf->meshBounds[0], srf->meshBounds[1]);
 					}
 				}
 				else if(*surface2->data == SF_TRIANGLES)
@@ -971,6 +980,7 @@ static void R_UpdateClusterSurfaces()
 						}
 
 						numTriangles += srf->numTriangles;
+						BoundsAdd(bounds[0], bounds[1], srf->bounds[0], srf->bounds[1]);
 					}
 				}
 			}
@@ -1011,8 +1021,8 @@ static void R_UpdateClusterSurfaces()
 			vboSurf->shader = shader;
 			vboSurf->lightmapNum = lightmapNum;
 
-			// FIXME: melt bounding boxes in bspCluster_t
-			ZeroBounds(vboSurf->bounds[0], vboSurf->bounds[1]);
+			VectorCopy(bounds[0], vboSurf->bounds[0]);
+			VectorCopy(bounds[1], vboSurf->bounds[1]);
 
 			// make sure the render thread is stopped
 			R_SyncRenderThread();
@@ -1274,6 +1284,62 @@ void R_AddWorldInteractions(trRefLight_t * light)
 	// perform frustum culling and add all the potentially visible surfaces
 	tr.lightCount++;
 	R_RecursiveInteractionNode(tr.world->nodes, light, FRUSTUM_CLIPALL);
+
+	if(r_vboDynamicLighting->integer)
+	{
+		int             j;
+		srfVBOMesh_t   *srf;
+		shader_t       *shader;
+		qboolean        intersects;
+		interactionType_t iaType = IA_DEFAULT;
+		byte            cubeSideBits = CUBESIDE_CLIPALL;
+
+		for(j = 0; j < tr.world->numClusterVBOSurfaces; j++)
+		{
+			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, j);
+			shader = srf->shader;
+
+			//  skip all surfaces that don't matter for lighting only pass
+			if(shader->isSky || (!shader->interactLight && shader->noShadows))
+				continue;
+
+			intersects = qtrue;
+
+			// do a quick AABB cull
+			if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], srf->bounds[0], srf->bounds[1]))
+				intersects = qfalse;
+
+			// FIXME? do a more expensive and precise light frustum cull
+			if(!r_noLightFrustums->integer)
+			{
+				if(R_CullLightWorldBounds(light, srf->bounds) == CULL_OUT)
+				{
+					intersects = qfalse;
+				}
+			}
+		
+			// FIXME?
+			if(r_cullShadowPyramidFaces->integer)
+			{
+				cubeSideBits = R_CalcLightCubeSideBits(light, srf->bounds);
+			}
+
+			if(intersects)
+			{
+				R_AddLightInteraction(light, (void *) srf, srf->shader, cubeSideBits, iaType);
+
+				if(light->isStatic)
+					tr.pc.c_slightSurfaces++;
+				else
+					tr.pc.c_dlightSurfaces++;
+			}
+			else
+			{
+				if(!light->isStatic)
+					tr.pc.c_dlightSurfacesCulled++;
+			}
+		}
+	}
 }
 
 /*

@@ -210,6 +210,7 @@ cvar_t         *r_vboCurves;
 cvar_t         *r_vboTriangles;
 cvar_t         *r_vboShadows;
 cvar_t         *r_vboLighting;
+cvar_t         *r_vboDynamicLighting;
 cvar_t         *r_vboModels;
 cvar_t         *r_vboWorld;
 cvar_t         *r_vboOptimizeVertices;
@@ -1277,6 +1278,7 @@ void R_Register(void)
 	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_CHEAT);
 	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
 	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);
+	r_vboDynamicLighting = ri.Cvar_Get("r_vboDynamicLighting", "0", CVAR_CHEAT);
 	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT);
 	r_vboWorld = ri.Cvar_Get("r_vboWorld", "1", CVAR_CHEAT);
 	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH);

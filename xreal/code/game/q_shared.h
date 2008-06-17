@@ -835,6 +835,7 @@ float           RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
 void            ZeroBounds(vec3_t mins, vec3_t maxs);
 void            ClearBounds(vec3_t mins, vec3_t maxs);
 void            AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs);
+void            BoundsAdd(vec3_t mins, vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 qboolean        BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 qboolean        BoundsIntersectSphere(const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius);
 qboolean        BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t origin);

@@ -2132,6 +2132,7 @@ extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;
 extern cvar_t  *r_vboShadows;
 extern cvar_t  *r_vboLighting;
+extern cvar_t  *r_vboDynamicLighting;
 extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboWorld;
 extern cvar_t  *r_vboOptimizeVertices;
