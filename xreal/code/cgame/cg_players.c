@@ -2933,7 +2933,7 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShad
 
 		// find light origin
 		VectorMA(cent->lerpOrigin, SHADOW_DISTANCE, lightDir, light.origin);
-		trap_CM_BoxTrace(&trace, cent->lerpOrigin, light.origin, mins, maxs, 0, MASK_PLAYERSOLID);
+		trap_CM_BoxTrace(&trace, cent->lerpOrigin, light.origin, mins, maxs, 0, MASK_SOLID);
 
 		// no shadow if too high
 		/*
@@ -2959,13 +2959,13 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShad
 		vectoangles(lightDirInversed, angles);
 		QuatFromAngles(light.rotation, angles[PITCH], angles[YAW], angles[ROLL]);
 
-		light.color[0] = 0.7f * alpha;
-		light.color[1] = 0.7f * alpha;
-		light.color[2] = 0.7f * alpha;
+		light.color[0] = 0.9f * alpha;
+		light.color[1] = 0.9f * alpha;
+		light.color[2] = 0.9f * alpha;
 
 		light.fovX = 35;
 		light.fovY = 35;
-		light.distance = Distance(light.origin, projectionEnd);
+		light.distance = Distance(light.origin, trace.endpos) + SHADOW_DISTANCE;
 
 		light.noShadowID = noShadowID;
 		light.inverseShadows = qtrue;

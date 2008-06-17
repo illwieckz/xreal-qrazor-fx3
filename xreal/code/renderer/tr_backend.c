@@ -1997,6 +1997,12 @@ static void RB_RenderInteractionsShadowMapped()
 				goto skipInteraction;
 			}
 
+			if(light->l.inverseShadows && (entity == &tr.worldEntity))
+			{
+				// this light only casts shadows by its player and their items
+				goto skipInteraction;
+			}
+
 			if(ia->type == IA_LIGHTONLY)
 			{
 				goto skipInteraction;
