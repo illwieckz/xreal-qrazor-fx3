@@ -921,8 +921,8 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 
 		// FIXME we don't have death animations with player models created for Quake 4
 		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "death1", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "death2", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "death3", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "death2", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "death3", qfalse, qfalse, qfalse);
 
 		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "taunt_1", qfalse, qfalse, qfalse);
 
