@@ -5058,7 +5058,7 @@ static int InteractionCacheCompare(const void *a, const void *b)
 	return 0;
 }
 
-static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTriangle_t * triangles, trRefLight_t * light)
+static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTriangle_t * triangles, shader_t * surfaceShader, trRefLight_t * light)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -5069,9 +5069,6 @@ static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTr
 	{
 		vec3_t          pos[3];
 		float           d;
-
-		// assume the triangle is ok and visible
-		tri->facingLight = qtrue;
 
 		VectorCopy(verts[tri->indexes[0]].xyz, pos[0]);
 		VectorCopy(verts[tri->indexes[1]].xyz, pos[1]);
@@ -5084,7 +5081,11 @@ static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTr
 			// check if light origin is behind triangle
 			d = DotProduct(tri->plane, light->origin) - tri->plane[3];
 
-			if(d <= 0 /* || shader->cullType == CT_BACK_SIDED */ )
+			if(surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && surfaceShader->cullType != CT_BACK_SIDED))
+			{
+				tri->facingLight = qtrue;
+			}
+			else
 			{
 				tri->facingLight = qfalse;
 			}
@@ -5217,7 +5218,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 					if(srf->numTriangles)
 						numTriangles +=
 							UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle,
-												 light);
+												 surface->shader, light);
 
 					if(srf->numVerts)
 						numVerts += srf->numVerts;
@@ -5229,7 +5230,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 					if(srf->numTriangles)
 						numTriangles +=
 							UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle,
-												 light);
+												 surface->shader, light);
 
 					if(srf->numVerts)
 						numVerts += srf->numVerts;
@@ -5241,7 +5242,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 					if(srf->numTriangles)
 						numTriangles +=
 							UpdateLightTriangles(s_worldData.verts, srf->numTriangles, s_worldData.triangles + srf->firstTriangle,
-												 light);
+												 surface->shader, light);
 
 					if(srf->numVerts)
 						numVerts += srf->numVerts;
@@ -5515,7 +5516,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 						if(srf->numTriangles)
 							numTriangles +=
 								UpdateLightTriangles(s_worldData.verts, srf->numTriangles,
-													 s_worldData.triangles + srf->firstTriangle, light);
+													 s_worldData.triangles + srf->firstTriangle, surface->shader, light);
 
 						if(srf->numVerts)
 							numVerts += srf->numVerts;
@@ -5527,7 +5528,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 						if(srf->numTriangles)
 							numTriangles +=
 								UpdateLightTriangles(s_worldData.verts, srf->numTriangles,
-													 s_worldData.triangles + srf->firstTriangle, light);
+													 s_worldData.triangles + srf->firstTriangle, surface->shader, light);
 
 						if(srf->numVerts)
 							numVerts += srf->numVerts;
@@ -5539,7 +5540,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 						if(srf->numTriangles)
 							numTriangles +=
 								UpdateLightTriangles(s_worldData.verts, srf->numTriangles,
-													 s_worldData.triangles + srf->firstTriangle, light);
+													 s_worldData.triangles + srf->firstTriangle, surface->shader, light);
 
 						if(srf->numVerts)
 							numVerts += srf->numVerts;
@@ -5762,7 +5763,7 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 			srfSurfaceFace_t *srf = (srfSurfaceFace_t *) surface->data;
 
 			if(srf->numTriangles)
-				numLightTriangles += UpdateLightTriangles(srf->verts, srf->numTriangles, srf->triangles, light);
+				numLightTriangles += UpdateLightTriangles(srf->verts, srf->numTriangles, srf->triangles, surface->shader, light);
 
 			if(srf->numVerts)
 				numLightVerts += srf->numVerts;
@@ -5772,7 +5773,7 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 			srfGridMesh_t  *srf = (srfGridMesh_t *) surface->data;
 
 			if(srf->numTriangles)
-				numLightTriangles += UpdateLightTriangles(srf->verts, srf->numTriangles, srf->triangles, light);
+				numLightTriangles += UpdateLightTriangles(srf->verts, srf->numTriangles, srf->triangles, surface->shader, light);
 
 			if(srf->numVerts)
 				numLightVerts += srf->numVerts;
@@ -5782,7 +5783,7 @@ static void R_CreateVBOShadowVolume(trRefLight_t * light)
 			srfTriangles_t *srf = (srfTriangles_t *) surface->data;
 
 			if(srf->numTriangles)
-				numLightTriangles += UpdateLightTriangles(srf->verts, srf->numTriangles, srf->triangles, light);
+				numLightTriangles += UpdateLightTriangles(srf->verts, srf->numTriangles, srf->triangles, surface->shader, light);
 
 			if(srf->numVerts)
 				numLightVerts += srf->numVerts;

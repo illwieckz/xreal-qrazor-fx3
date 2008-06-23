@@ -306,7 +306,8 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
 			d = DotProduct(tri->plane, lightOrigin) - tri->plane[3];
-			if(d > 0 && !tess.surfaceShader->cullType == CT_BACK_SIDED)
+			
+			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
 				sh.numFacing++;
@@ -512,7 +513,8 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf)
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
 			d = DotProduct(tri->plane, lightOrigin) - tri->plane[3];
-			if(d > 0 && !tess.surfaceShader->cullType == CT_BACK_SIDED)
+			
+			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
 				sh.numFacing++;
@@ -717,7 +719,8 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf)
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
 			d = DotProduct(tri->plane, lightOrigin) - tri->plane[3];
-			if(d > 0 && !tess.surfaceShader->cullType == CT_BACK_SIDED)
+			
+			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
 				sh.numFacing++;
@@ -1375,7 +1378,8 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf)
 			plane[3] = DotProduct(plane, v1);
 
 			d = DotProduct(plane, lightOrigin) - plane[3];
-			if(d > 0 && !tess.surfaceShader->cullType == CT_BACK_SIDED)
+			
+			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
 			}
@@ -1665,7 +1669,8 @@ static void Tess_SurfaceMD5(md5Surface_t * srf)
 			plane[3] = DotProduct(plane, v1);
 
 			d = DotProduct(plane, lightOrigin) - plane[3];
-			if(d > 0 && !tess.surfaceShader->cullType == CT_BACK_SIDED)
+			
+			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
 			}
