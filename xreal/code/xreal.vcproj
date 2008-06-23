@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -155,7 +155,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include"
+				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
 				StringPooling="true"
 				RuntimeLibrary="2"
