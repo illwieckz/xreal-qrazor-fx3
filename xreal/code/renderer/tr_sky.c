@@ -814,6 +814,12 @@ void Tess_StageIteratorSky(void)
 						 ("--- Tess_StageIteratorSky( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
 						  tess.numVertexes, tess.numIndexes / 3));
 	}
+	
+	// trebor: HACK why does this happen with cg_draw2D 0 ?
+	if(tess.stageIteratorFunc2 == NULL)
+	{
+		tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;	
+	}
 
 	if(tess.stageIteratorFunc2 == Tess_StageIteratorGBuffer)
 	{
