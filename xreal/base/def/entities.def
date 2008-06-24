@@ -188,23 +188,6 @@ entityDef info_player_intermission
 }
 
 
-entityDef info_spectator_start 
-{   
-	"editor_color"				"1 0 0" 	
-	"editor_mins"				"-16 -16 -24"
-	"editor_maxs"				"16 16 32"
-	"editor_showangle"			"1"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idPlayerStart"
-	
-    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.""
-    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.""
-    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode).""
-}
-
-
 /*
 ============================================================================================================
 
@@ -213,8 +196,39 @@ ________________________________________________________________________________
 ============================================================================================================
 */
 
+entityDef info_player_start
+{
+	"editor_color"			"1 0 0"
+	"editor_mins"			"-16 -16 0"
+	"editor_maxs"			"16 16 64"
+	"editor_showangle"		"1"
+
+	"editor_usage"			"Potential spawning position for single player games."
+	
+	"editor_var angle"		"Yaw Angle: direction in which player will look when spawning in the game. Does not apply to bots."
+	"editor_var target"		"this can point at a target_give entity for respawn freebies."
+	"editor_bool nobots"    "when set to 1, bots will never use this spawn point to respawn in the game."
+	"editor_bool nohumans"	"when set to 1, human players will never use this spawn point to respawn in the game."
+	"editor_bool notfree"	"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"	"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"	"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool initial"	"Initial Spawn Point: makes the spawnpoint the initial place for the player to spawn at the beginning of the game."
+
+	"spawnclass"			"idPlayerStart"
+	"angle"					"0"
+    "target"				""
+	"nobots"				"0"
+	"nohumans"				"0"
+	"notfree"				"0"
+	"notteam"				"0"
+	"notsingle"				"0"
+	"initial"               "0"
+}
+
 entityDef info_player_deathmatch
 {
+	"inherit"				"info_player_start"
+	
 	"editor_color"			"1 0 1"
 	"editor_mins"			"-16 -16 0"
 	"editor_maxs"			"16 16 64"
@@ -227,39 +241,20 @@ entityDef info_player_deathmatch
 	"spawnclass"			"idPlayerStart"
 }
 
-entityDef info_player_start
-{
-	"editor_color"			"1 0 0"
-	"editor_mins"			"-16 -16 0"
-	"editor_maxs"			"16 16 64"
-	"editor_showangle"		"1"
 
-	"editor_usage"			"Potential spawning position for single player games."
-	"editor_var useEffect"	"show teleportation effect for useEffect seconds.. 0 is instant"
-	"editor_var skin"		"skin to use for player model"
-
-	"spawnclass"			"idPlayerStart"
-	
-    "editor_var target"			"0" 
-}
 
 entityDef info_player_teleport
 {
+	"inherit"					"info_player_start"
+	
 	"editor_color"				"1 0 0"
 	"editor_mins"				"-16 -16 0"
 	"editor_maxs"				"16 16 64"
 	"editor_showangle"			"1"
 
-	"editor_usage"				"Spawning position player after cinematic.  When triggered, player will be moved to this location."
-	"editor_var push"			"How much of a push to give to the player when he is teleported."
-	"editor_var visualView"		"Camera to set player's view to when he is teleported."
-	"editor_var visualEffect"	"How long to show the view from the visualView."
-
-	"spawnclass"				"idPlayerStart"
+	"editor_usage"				"Teleport destination location point for trigger_teleporter entities."
 	
-	"push"						"300"
-	"visualEffect"				"0"
-	"visualView"				""
+	"spawnclass"				"idPlayerStart"
 }
 
 

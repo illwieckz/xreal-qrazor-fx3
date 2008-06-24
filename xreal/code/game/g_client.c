@@ -44,10 +44,17 @@ void SP_info_player_deathmatch(gentity_t * ent)
 	{
 		ent->flags |= FL_NO_BOTS;
 	}
+	
 	G_SpawnInt("nohumans", "0", &i);
 	if(i)
 	{
 		ent->flags |= FL_NO_HUMANS;
+	}
+
+	G_SpawnInt("initial", "0", &i);
+	if(i)
+	{
+		ent->spawnflags |= 1;
 	}
 }
 
@@ -476,6 +483,7 @@ void CopyToBodyQue(gentity_t * ent)
 
 	// change the animation to the last-frame only, so the sequence
 	// doesn't repeat anew for the body
+#if !defined(XPPM)
 	switch (body->s.legsAnim & ~ANIM_TOGGLEBIT)
 	{
 		case BOTH_DEATH1:
@@ -492,6 +500,7 @@ void CopyToBodyQue(gentity_t * ent)
 			body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD3;
 			break;
 	}
+#endif
 
 	body->r.svFlags = ent->r.svFlags;
 	VectorCopy(ent->r.mins, body->r.mins);
