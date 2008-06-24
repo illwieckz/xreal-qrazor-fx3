@@ -156,7 +156,7 @@
 				InlineFunctionExpansion="2"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;SIMD_SSE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
