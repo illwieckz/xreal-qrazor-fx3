@@ -168,6 +168,16 @@ typedef int     clipHandle_t;
 #define ALIGN(x)
 #endif
 
+// vsnprintf is ISO/IEC 9899:1999
+// abstracting this to make it portable
+#ifdef _WIN32
+#define Q_vsnprintf _vsnprintf
+#define Q_snprintf _snprintf
+#else
+#define Q_vsnprintf vsnprintf
+#define Q_snprintf snprintf
+#endif
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif

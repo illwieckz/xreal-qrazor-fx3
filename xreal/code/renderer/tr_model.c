@@ -1273,11 +1273,7 @@ void R_XMLError(void *ctx, const char *fmt, ...)
 	static char     msg[4096];
 
 	va_start(argptr, fmt);
-#ifdef _MSC_VER
-	vsprintf(msg, fmt, argptr);
-#else
-	vsnprintf(msg, sizeof(msg), fmt, argptr);
-#endif
+	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
 	va_end(argptr);
 
 	ri.Printf(PRINT_WARNING, "%s", msg);

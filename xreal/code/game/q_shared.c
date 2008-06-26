@@ -372,7 +372,7 @@ void Com_ParseError(char *format, ...)
 	static char     string[4096];
 
 	va_start(argptr, format);
-	vsprintf(string, format, argptr);
+	Q_vsnprintf(string, sizeof(string), format, argptr);
 	va_end(argptr);
 
 	Com_Printf(S_COLOR_RED "ERROR: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
@@ -384,7 +384,7 @@ void Com_ParseWarning(char *format, ...)
 	static char     string[4096];
 
 	va_start(argptr, format);
-	vsprintf(string, format, argptr);
+	Q_vsnprintf(string, sizeof(string), format, argptr);
 	va_end(argptr);
 
 	Com_Printf(S_COLOR_YELLOW "WARNING: '%s', line %d: '%s'\n", com_parsename, com_lines, string);
@@ -1250,7 +1250,7 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 	char            bigbuffer[32000];	// big, but small enough to fit in PPC stack
 
 	va_start(argptr, fmt);
-	len = vsprintf(bigbuffer, fmt, argptr);
+	len = Q_vsnprintf(bigbuffer, sizeof(bigbuffer), fmt, argptr);
 	va_end(argptr);
 	if(len >= sizeof(bigbuffer))
 	{
@@ -1276,7 +1276,6 @@ va
 
 does a varargs printf into a temp buffer, so I don't need to have
 varargs versions of all text functions.
-FIXME: make this buffer size safe someday
 ============
 */
 char           *QDECL va(char *format, ...)
@@ -1290,7 +1289,7 @@ char           *QDECL va(char *format, ...)
 	index++;
 
 	va_start(argptr, format);
-	vsprintf(buf, format, argptr);
+	Q_vsnprintf(buf, sizeof(buf), format, argptr);
 	va_end(argptr);
 
 	return buf;

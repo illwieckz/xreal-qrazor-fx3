@@ -77,7 +77,7 @@ cr_line         credits[] = {
 	{"Aaron Gyes", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Ludwig Nussel", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Julian Priestley", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Sirroco Six", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Scirocco Six", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Zachary J. Slater", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Tony J. White", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},

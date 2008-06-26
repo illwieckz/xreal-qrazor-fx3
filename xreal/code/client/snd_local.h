@@ -205,7 +205,7 @@ void S_Spatialize (channel_t * ch);
 // OpenAL stuff
 typedef enum
 {
-  SRCPRI_AMBIENT = 0,		// Ambient sound effects
+  SRCPRI_AMBIENT = 0,	// Ambient sound effects
   SRCPRI_ENTITY,		// Entity sound effects
   SRCPRI_ONESHOT,		// One-shot sounds
   SRCPRI_LOCAL,			// Local sounds
