@@ -1289,7 +1289,7 @@ char           *QDECL va(char *format, ...)
 	index++;
 
 	va_start(argptr, format);
-	Q_vsnprintf(buf, sizeof(buf), format, argptr);
+	Q_vsnprintf(buf, sizeof(*string), format, argptr);
 	va_end(argptr);
 
 	return buf;
