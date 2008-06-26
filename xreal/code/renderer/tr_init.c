@@ -1580,9 +1580,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	// shut down platform specific OpenGL stuff
 
 	// Tr3B: this should be always executed if we want to avoid some GLSL problems with SMP
-//#if !defined(SMP)
-	if(destroyWindow)
-//#endif
+	if(destroyWindow || glConfig.smpActive)
 	{
 		GLimp_Shutdown();
 	}
