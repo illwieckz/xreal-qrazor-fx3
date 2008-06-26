@@ -502,11 +502,11 @@ void gamemode_set(const char* gamemode)
 
 #include "os/dir.h"
 
-class LoadModule
+class CLoadModule
 {
   const char* m_path;
 public:
-  LoadModule(const char* path) : m_path(path)
+  CLoadModule(const char* path) : m_path(path)
   {
   }
   void operator()(const char* name) const
@@ -532,7 +532,7 @@ const char* const c_library_extension =
 
 void Radiant_loadModules(const char* path)
 {
-  Directory_forEach(path, MatchFileExtension<LoadModule>(c_library_extension, LoadModule(path)));
+  Directory_forEach(path, MatchFileExtension<CLoadModule>(c_library_extension, CLoadModule(path)));
 }
 
 void Radiant_loadModulesFromRoot(const char* directory)
@@ -2555,6 +2555,7 @@ GtkWidget* create_main_statusbar(GtkWidget *pStatusLabel[c_count_status])
     gtk_frame_set_shadow_type(frame, GTK_SHADOW_IN);
 
     GtkLabel* label = GTK_LABEL(gtk_label_new ("Label"));
+	gtk_label_set_ellipsize(label, PANGO_ELLIPSIZE_END);
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     gtk_misc_set_padding(GTK_MISC(label), 4, 2);
     gtk_widget_show(GTK_WIDGET(label));

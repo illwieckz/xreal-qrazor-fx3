@@ -431,8 +431,12 @@ public:
 
   void testSelect(Selector& selector, SelectionTest& test, SelectionIntersection& best)
   {
-    PointVertexArray_testSelect(&m_curveNURBS.m_renderCurve.m_vertices[0], m_curveNURBS.m_renderCurve.m_vertices.size(), test, best);
-    PointVertexArray_testSelect(&m_curveCatmullRom.m_renderCurve.m_vertices[0], m_curveCatmullRom.m_renderCurve.m_vertices.size(), test, best);
+    if(m_curveNURBS.m_renderCurve.m_vertices.size() > 0) {
+	  PointVertexArray_testSelect(&m_curveNURBS.m_renderCurve.m_vertices[0], m_curveNURBS.m_renderCurve.m_vertices.size(), test, best);
+	}
+	if(m_curveCatmullRom.m_renderCurve.m_vertices.size() > 0) {
+	  PointVertexArray_testSelect(&m_curveCatmullRom.m_renderCurve.m_vertices[0], m_curveCatmullRom.m_renderCurve.m_vertices.size(), test, best);
+	}
   }
 
   void translate(const Vector3& translation)

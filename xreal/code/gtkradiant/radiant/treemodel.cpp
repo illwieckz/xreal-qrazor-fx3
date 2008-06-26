@@ -908,20 +908,23 @@ static gint graph_tree_model_get_n_columns (GtkTreeModel* tree_model)
 
 static const gint c_stamp = 0xabcdef;
 
+//fix
+static GraphTreeNode::iterator tmpGraphTreeNodeIterator;
+
 inline GraphTreeNode::iterator graph_iterator_read_tree_iter(GtkTreeIter* iter)
 {
   ASSERT_MESSAGE(iter != 0,  "tree model error");
-  ASSERT_MESSAGE(iter->user_data != 0,  "tree model error");
+//  ASSERT_MESSAGE(iter->user_data != 0,  "tree model error");
   ASSERT_MESSAGE(iter->stamp == c_stamp,  "tree model error");
-  return *reinterpret_cast<GraphTreeNode::iterator*>(&iter->user_data);
+  return tmpGraphTreeNodeIterator;
 }
 
 inline void graph_iterator_write_tree_iter(GraphTreeNode::iterator i, GtkTreeIter* iter)
 {
   ASSERT_MESSAGE(iter != 0,  "tree model error");
   iter->stamp = c_stamp;
-  *reinterpret_cast<GraphTreeNode::iterator*>(&iter->user_data) = i;
-  ASSERT_MESSAGE(iter->user_data != 0,  "tree model error");
+  tmpGraphTreeNodeIterator = i;
+//  ASSERT_MESSAGE(iter->user_data != 0,  "tree model error");
 }
 
 static GType graph_tree_model_get_column_type (GtkTreeModel *tree_model, gint index)
