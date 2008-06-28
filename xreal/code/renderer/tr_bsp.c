@@ -4176,6 +4176,8 @@ void R_LoadEntities(lump_t * l)
 		light->l.fovY = 90;
 		light->l.distance = 300;
 
+		light->l.inverseShadows = qfalse;
+
 		light->isStatic = qtrue;
 		light->additive = qtrue;
 
@@ -5484,8 +5486,8 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 			//if(!(iaCache->cubeSideBits & (1 << cubeSide)))
 			//  continue;
 
-			//if(shader != oldShader)
-			if(alphaTest != oldAlphaTest)
+			if(shader != oldShader)
+			//if(alphaTest != oldAlphaTest)
 			{
 				oldShader = shader;
 				oldAlphaTest = alphaTest;
@@ -5500,11 +5502,11 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					surface = iaCache2->surface;
 
-					//if(surface->shader != shader)
-					//  continue;
+					if(surface->shader != shader)
+					  continue;
 
-					if(surface->shader->alphaTest != alphaTest)
-						continue;
+					//if(surface->shader->alphaTest != alphaTest)
+					//	continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -5571,11 +5573,11 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					surface = iaCache2->surface;
 
-					//if(surface->shader != shader)
-					//  continue;
+					if(surface->shader != shader)
+					  continue;
 
-					if(surface->shader->alphaTest != alphaTest)
-						continue;
+					//if(surface->shader->alphaTest != alphaTest)
+					//	continue;
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
