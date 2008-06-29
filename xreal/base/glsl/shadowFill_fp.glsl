@@ -38,6 +38,8 @@ void	main()
 		discard;
 	}
 	
+#if defined(VSM)
+	
 	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;
 
@@ -45,10 +47,18 @@ void	main()
 	
 #if defined(VSM_CLAMP)
 	// convert to [0,1] color space
-	color = vec4(distance, 0.0 , 0.0, distanceSquared) * 0.5 + 0.5;
+	gl_FragColor = vec4(distance, 0.0 , 0.0, distanceSquared) * 0.5 + 0.5;
 #else
-	color = vec4(distance, 0.0, 0.0, distanceSquared);
+	gl_FragColor = vec4(distance, 0.0, 0.0, distanceSquared);
 #endif
 
-	gl_FragColor = color;
+#elif defined(ESM)
+	
+	float distance = length(var_Vertex - u_LightOrigin) * r_ShadowMapDepthScale;// / u_LightRadius;
+	
+	gl_FragColor = vec4(distance, 0.0, 0.0, 0.0);
+	//gl_FragDepth = distance;
+#else
+	gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+#endif
 }

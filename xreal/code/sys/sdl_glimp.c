@@ -1115,8 +1115,9 @@ void GLimp_Init(void)
 	if(Q_stristr(glConfig.renderer_string, "geforce"))
 	{
 		if(Q_stristr(glConfig.renderer_string, "8800") || Q_stristr(glConfig.renderer_string, "8600") ||
-		   Q_stristr(glConfig.renderer_string, "8500") || Q_stristr(glConfig.renderer_string, "8400"))
-			glConfig.hardwareType = GLHW_G80;
+		   Q_stristr(glConfig.renderer_string, "8500") || Q_stristr(glConfig.renderer_string, "8400") ||
+		   Q_stristr(glConfig.renderer_string, "9600") || Q_stristr(glConfig.renderer_string, "9800"))
+			glConfig.hardwareType = GLHW_NV_DX10;
 	}
 
 	// initialize extensions

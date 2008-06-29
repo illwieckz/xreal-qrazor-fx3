@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -124,7 +124,7 @@ void	main()
 		discard;
 	}
 	
-#if defined(VSM)
+#if 0 //defined(VSM)
 	if(bool(u_ShadowCompare))
 	{
 		vec4 SP;	// shadow point in shadow space
@@ -228,6 +228,35 @@ void	main()
 		#else
 		shadow = max(shadow, p);
 		#endif
+	}
+	
+	if(shadow <= 0.0)
+	{
+		discard;
+	}
+	else
+#elif defined(ESM)
+	if(bool(u_ShadowCompare))
+	{
+		vec4 SP;	// shadow point in shadow space
+		SP.x = var_Vertex.w;
+		SP.y = var_Tangent.w;
+		SP.z = var_Binormal.w;
+		SP.w = var_Normal.w;
+		
+		// compute incident ray
+		vec3 I = var_Vertex.xyz - u_LightOrigin;
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = length(I) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
+		
+		// no filter
+		vec4 shadowMoments = texture2DProj(u_ShadowMap, SP.xyw);
+		
+		float shadowDistance = shadowMoments.r;
+		
+		// exponential shadow mapping
+		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
 	}
 	
 	if(shadow <= 0.0)

@@ -1713,9 +1713,18 @@ static void RB_RenderInteractionsShadowMapped()
 								// a call to va() every frame!
 								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
 							}
-
-							R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
+							/*
+							if(r_shadows->integer == 6)
+							{
+								R_AttachFBOTextureDepth(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
+												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum);
+							}
+							else
+							*/
+							{
+								R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
 												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
+							}
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);
@@ -1901,7 +1910,16 @@ static void RB_RenderInteractionsShadowMapped()
 
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
+							/*
+							if(r_shadows->integer == 6)
+							{
+								R_AttachFBOTextureDepth(tr.shadowMapFBOImage[light->shadowLOD]->texnum);
+							}
+							else
+							*/
+							{
+								R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
+							}
 							if(!r_ignoreGLErrors->integer)
 							{
 								R_CheckFBO(tr.shadowMapFBO[light->shadowLOD]);

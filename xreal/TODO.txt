@@ -94,13 +94,14 @@ code/game
  - allow more existing level entities to be script-controlled
 
 code/renderer
+- improve shadow mapping filtering methods
+- add screen space ambient occlusion post process effect
+- add motion blur post process effect
+- add depth of field post process effect
+- add HDR tonemapping
 - change the QGL interface to mimic OpenGL 2 ES
  - clean up renderer and GLSL shaders with the new interface
  -> this can kill fixed function pipeline updates and possible driver bottlenecks
-- add HDR tonemapping
-- add motion blur post process effect
-- add depth of field post process effect
-- add screen space ambient occlusion post process effect
 - use stencil test for heatHaze with forward shading
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares

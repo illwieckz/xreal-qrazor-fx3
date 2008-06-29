@@ -127,6 +127,8 @@ cvar_t         *r_noLightFrustums;
 cvar_t         *r_shadowMapLuminanceAlpha;
 cvar_t         *r_shadowMapLinearFilter;
 cvar_t         *r_lightBleedReduction;
+cvar_t         *r_overDarkeningFactor;
+cvar_t         *r_shadowMapDepthScale;
 
 cvar_t         *r_mode;
 cvar_t         *r_collapseStages;
@@ -1161,9 +1163,14 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, "HACK: ATI approximations\n");
 	}
 
-	if(glConfig.hardwareType == GLHW_G80)
+	if(glConfig.hardwareType == GLHW_ATI_DX10)
 	{
-		ri.Printf(PRINT_ALL, "Using G80 optimizations\n");
+		ri.Printf(PRINT_ALL, "Using ATI DirectX 10 hardware features\n");
+	}
+
+	if(glConfig.hardwareType == GLHW_NV_DX10)
+	{
+		ri.Printf(PRINT_ALL, "Using NVIDIA DirectX 10 hardware features\n");
 	}
 
 	if(glConfig.smpActive)
@@ -1249,6 +1256,8 @@ void R_Register(void)
 	r_shadowMapLuminanceAlpha = ri.Cvar_Get("r_shadowMapLuminanceAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_shadowMapLinearFilter = ri.Cvar_Get("r_shadowMapLinearFilter", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_lightBleedReduction = ri.Cvar_Get("r_lightBleedReduction", "0", CVAR_CHEAT | CVAR_LATCH);
+	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "1.67", CVAR_CHEAT | CVAR_LATCH);
+	r_shadowMapDepthScale = ri.Cvar_Get("r_shadowMapDepthScale", "1.41", CVAR_CHEAT | CVAR_LATCH);
 
 	// archived variables that can change at any time
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
@@ -1337,7 +1346,7 @@ void R_Register(void)
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	AssertCvarRange(r_shadows, 0, 5, qtrue);
+	AssertCvarRange(r_shadows, 0, 6, qtrue);
 
 	r_softShadows = ri.Cvar_Get("r_softShadows", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_softShadows, 0, 6, qtrue);

@@ -791,7 +791,7 @@ static void GraphicsOptions_SetMenuItems(void)
 		{
 			s_graphicsoptions.shadowType.curvalue = 3;
 		}
-		else if(uis.glconfig.hardwareType != GLHW_G80)
+		else if(uis.glconfig.hardwareType != GLHW_NV_DX10)
 		{
 			s_graphicsoptions.shadowType.curvalue = 4;
 		}
@@ -877,9 +877,10 @@ void GraphicsOptions_MenuInit(void)
 		"Off",
 		"Blob",
 		"Planar",
-		"Stencil Volume",
-		"Shadow Mapping 16 bit",
-		"Shadow Mapping 32 bit",
+		"Stencil Volumes",
+		"VSM 16 bit",
+		"VSM 32 bit",
+		"ESM 32 bit",
 		0
 	};
 

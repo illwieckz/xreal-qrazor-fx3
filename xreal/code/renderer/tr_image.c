@@ -4353,9 +4353,17 @@ static void R_CreateShadowMapFBOImage(void)
 		{
 			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
 		}
-		else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
+		else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 4)
 		{
-			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | (r_shadowMapLuminanceAlpha->integer ? IF_LA32F : IF_RGBA32F), (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA16F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
+		}
+		else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 5)
+		{
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
+		}
+		else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 6)
+		{
+			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_CLAMP);
 		}
 		else
 		{
@@ -4390,9 +4398,17 @@ static void R_CreateShadowCubeFBOImage(void)
 		{
 			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
+		else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 4)
 		{
-			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | (r_shadowMapLuminanceAlpha->integer ? IF_LA32F : IF_RGBA32F), (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA16F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
+		}
+		else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 5)
+		{
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
+		}
+		else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 6)
+		{
+			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
 		else
 		{

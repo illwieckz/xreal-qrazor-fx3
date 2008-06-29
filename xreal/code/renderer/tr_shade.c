@@ -85,7 +85,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", name);
 	}
 
-	ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
+	ri.Printf(PRINT_ALL, "...loading '%s'\n", filename);
 	size = ri.FS_ReadFile(filename, (void **)&buffer);
 	if(!buffer)
 	{
@@ -145,7 +145,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI_flippedImageFix\n#define ATI_flippedImageFix 1\n#endif\n");
 		}
 
-		if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
+		if(r_shadows->integer >= 4 && r_shadows->integer <= 5 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 
@@ -154,7 +154,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
 			}
 
-			if(glConfig.hardwareType == GLHW_G80 && r_shadows->integer == 5)
+			if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 5)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
 			}
@@ -174,6 +174,63 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 				Q_strcat(bufferExtra, sizeof(bufferExtra),
 						 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
 							r_lightBleedReduction->value));
+			}
+
+			if(r_softShadows->integer == 1)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_2X2\n#define PCF_2X2 1\n#endif\n");
+			}
+			else if(r_softShadows->integer == 2)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_3X3\n#define PCF_3X3 1\n#endif\n");
+			}
+			else if(r_softShadows->integer == 3)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_4X4\n#define PCF_4X4 1\n#endif\n");
+			}
+			else if(r_softShadows->integer == 4)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_5X5\n#define PCF_5X5 1\n#endif\n");
+			}
+			else if(r_softShadows->integer == 5)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_6X6\n#define PCF_6X6 1\n#endif\n");
+			}
+			else if(r_softShadows->integer == 6)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCSS\n#define PCSS 1\n#endif\n");
+			}
+		}
+
+		if(r_shadows->integer == 6 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
+
+			if(r_debugShadowMaps->integer)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef DEBUG_ESM\n#define DEBUG_ESM %i\n#endif\n", r_debugShadowMaps->integer));
+			}
+
+			if(r_lightBleedReduction->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
+							r_lightBleedReduction->value));
+			}
+
+			if(r_overDarkeningFactor->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_OverDarkeningFactor\n#define r_OverDarkeningFactor %f\n#endif\n",
+							r_overDarkeningFactor->value));
+			}
+
+			if(r_shadowMapDepthScale->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_ShadowMapDepthScale\n#define r_ShadowMapDepthScale %f\n#endif\n",
+							r_shadowMapDepthScale->value));
 			}
 
 			if(r_softShadows->integer == 1)

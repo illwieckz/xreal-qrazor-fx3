@@ -242,7 +242,8 @@ typedef enum
 {
 	GLHW_GENERIC,				// where everthing works the way it should
 	GLHW_ATI,					// where you don't have proper GLSL support
-	GLHW_G80,					// Geforce 8 class DX10 hardware
+	GLHW_ATI_DX10,				// ATI Radeon HD series DX10 hardware
+	GLHW_NV_DX10,				// Geforce 8/9 class DX10 hardware
 } glHardwareType_t;
 
 typedef struct

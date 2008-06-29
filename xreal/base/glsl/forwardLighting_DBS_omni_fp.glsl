@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -25,7 +25,7 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
-#if defined(VSM)
+#if defined(VSM) || defined(ESM)
 uniform samplerCube	u_ShadowMap;
 #endif
 uniform vec3		u_ViewOrigin;
@@ -45,6 +45,8 @@ varying vec3		var_TexAttenXYZ;
 varying mat3		var_TangentToWorldMatrix;
 //varying vec4		var_Color;
 
+
+#if defined(VSM) || defined(ESM)
 
 /*
 ================
@@ -68,7 +70,6 @@ void MakeNormalVectors(const vec3 forward, inout vec3 right, inout vec3 up)
 	up = cross(right, forward);	// GLSL cross product is the same as in Q3A
 }
 
-#if defined(VSM)
 vec4 PCF(vec3 I, float filterWidth, float samples)
 {
 	vec3 forward, right, up;
@@ -152,6 +153,40 @@ void	main()
 		#else
 		shadow = max(shadow, p);
 		#endif
+	}
+	
+	if(shadow <= 0.0)
+	{
+		discard;
+	}
+	else
+#elif defined(ESM)
+	if(bool(u_ShadowCompare))
+	{
+		// compute incident ray
+		vec3 I = var_Vertex - u_LightOrigin;
+	
+		#if defined(PCF_2X2)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
+		#elif defined(PCF_3X3)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 3.0);
+		#elif defined(PCF_4X4)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 4.0);
+		#elif defined(PCF_5X5)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 5.0);
+		#elif defined(PCF_6X6)
+		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 6.0);
+		#else
+		vec4 shadowMoments = textureCube(u_ShadowMap, I);
+		#endif
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = length(I) * r_ShadowMapDepthScale;// - SHADOW_BIAS;
+		
+		float shadowDistance = shadowMoments.r;
+		
+		// exponential shadow mapping
+		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
 	}
 	
 	if(shadow <= 0.0)
