@@ -183,7 +183,7 @@ void	main()
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = length(I) * r_ShadowMapDepthScale;// - SHADOW_BIAS;
 		
-		float shadowDistance = shadowMoments.r;
+		float shadowDistance = shadowMoments.a;
 		
 		// exponential shadow mapping
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);

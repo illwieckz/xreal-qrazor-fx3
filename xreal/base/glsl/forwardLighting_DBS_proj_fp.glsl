@@ -253,7 +253,7 @@ void	main()
 		// no filter
 		vec4 shadowMoments = texture2DProj(u_ShadowMap, SP.xyw);
 		
-		float shadowDistance = shadowMoments.r;
+		float shadowDistance = shadowMoments.a;
 		
 		// exponential shadow mapping
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);

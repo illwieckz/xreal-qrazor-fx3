@@ -56,8 +56,7 @@ void	main()
 	
 	float distance = length(var_Vertex - u_LightOrigin) * r_ShadowMapDepthScale;// / u_LightRadius;
 	
-	gl_FragColor = vec4(distance, 0.0, 0.0, 0.0);
-	//gl_FragDepth = distance;
+	gl_FragColor = vec4(0.0, 0.0, 0.0, distance);
 #else
 	gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
 #endif
