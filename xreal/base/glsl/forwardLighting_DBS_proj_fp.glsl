@@ -124,7 +124,7 @@ void	main()
 		discard;
 	}
 	
-#if 0 //defined(VSM)
+#if defined(VSM)
 	if(bool(u_ShadowCompare))
 	{
 		vec4 SP;	// shadow point in shadow space
