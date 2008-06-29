@@ -246,7 +246,6 @@ int CM_BoxBrushes(const vec3_t mins, const vec3_t maxs, cbrush_t ** list, int li
 /*
 ==================
 CM_PointContents
-
 ==================
 */
 int CM_PointContents(const vec3_t p, clipHandle_t model)
@@ -274,6 +273,13 @@ int CM_PointContents(const vec3_t p, clipHandle_t model)
 	{
 		leafnum = CM_PointLeafnum_r(p, 0);
 		leaf = &cm.leafs[leafnum];
+	}
+
+	if(leaf->area == -1)
+	{
+		// Tr3B: added this optimization
+		// p is in the void and we should return solid so particles can be removed from the void
+		return CONTENTS_SOLID;
 	}
 
 	contents = 0;

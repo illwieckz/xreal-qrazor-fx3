@@ -862,7 +862,7 @@ int CM_LeafCluster(int leafnum)
 {
 	if(leafnum < 0 || leafnum >= cm.numLeafs)
 	{
-		Com_Error(ERR_DROP, "CM_LeafCluster: bad number");
+		Com_Error(ERR_DROP, "CM_LeafCluster: bad leaf number %i", leafnum);
 	}
 	return cm.leafs[leafnum].cluster;
 }
@@ -871,7 +871,7 @@ int CM_LeafArea(int leafnum)
 {
 	if(leafnum < 0 || leafnum >= cm.numLeafs)
 	{
-		Com_Error(ERR_DROP, "CM_LeafArea: bad number");
+		Com_Error(ERR_DROP, "CM_LeafArea: bad leaf number %i", leafnum);
 	}
 	return cm.leafs[leafnum].area;
 }

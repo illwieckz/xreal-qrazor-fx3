@@ -1330,6 +1330,7 @@ extern vmCvar_t cg_noTaunt;
 extern vmCvar_t cg_noProjectileTrail;
 extern vmCvar_t cg_railType;
 extern vmCvar_t cg_trueLightning;
+extern vmCvar_t cg_particles;
 extern vmCvar_t cg_particleCollision;
 
 extern vmCvar_t pm_airControl;

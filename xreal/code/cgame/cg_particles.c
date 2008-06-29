@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 static cparticle_t *cg_activeParticles, *cg_freeParticles;
-static cparticle_t cg_particles[MAX_PARTICLES];
+static cparticle_t cg_allParticles[MAX_PARTICLES];
 
 
 static qboolean initparticles = qfalse;
@@ -50,17 +50,17 @@ void CG_InitParticles(void)
 {
 	int             i;
 
-	memset(cg_particles, 0, sizeof(cg_particles));
+	memset(cg_allParticles, 0, sizeof(cg_allParticles));
 
-	cg_freeParticles = &cg_particles[0];
+	cg_freeParticles = &cg_allParticles[0];
 	cg_activeParticles = NULL;
 
 	for(i = 0; i < MAX_PARTICLES; i++)
 	{
-		cg_particles[i].next = &cg_particles[i + 1];
-		cg_particles[i].type = P_NONE;
+		cg_allParticles[i].next = &cg_allParticles[i + 1];
+		cg_allParticles[i].type = P_NONE;
 	}
-	cg_particles[MAX_PARTICLES - 1].next = NULL;
+	cg_allParticles[MAX_PARTICLES - 1].next = NULL;
 
 	oldtime = cg.time;
 
@@ -76,7 +76,7 @@ cparticle_t    *CG_AllocParticle()
 {
 	cparticle_t    *p;
 
-	if(!cg_freeParticles)
+	if(!cg_particles.integer || !cg_freeParticles)
 		return NULL;
 
 	p = cg_freeParticles;
@@ -766,6 +766,9 @@ void CG_AddParticles(void)
 	if(!initparticles)
 		CG_InitParticles();
 
+	if(!cg_particles.integer)
+		return;
+
 	VectorCopy(cg.refdef.viewaxis[0], vforward);
 	VectorCopy(cg.refdef.viewaxis[1], vright);
 	VectorCopy(cg.refdef.viewaxis[2], vup);
@@ -943,25 +946,25 @@ void CG_AddParticles(void)
 					//VectorCopy(p->org, p->oldOrg);
 					VectorCopy(org, p->org);
 				}
-			}
+			}			
+		}
 
-			contents = trap_CM_PointContents(org, 0);
+		contents = trap_CM_PointContents(org, 0);
 
-			// Tr3B: kill all particles in solid
-			if(contents & MASK_SOLID)
+		// Tr3B: kill all particles in solid
+		if(contents & MASK_SOLID)
+		{
+			CG_FreeParticle(p);
+			continue;
+		}
+
+		// kill all air only particles in water or slime
+		if(p->flags & PF_AIRONLY)
+		{
+			if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
 			{
 				CG_FreeParticle(p);
 				continue;
-			}
-
-			// kill all air only particles in water or slime
-			if(p->flags & PF_AIRONLY)
-			{
-				if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
-				{
-					CG_FreeParticle(p);
-					continue;
-				}
 			}
 		}
 

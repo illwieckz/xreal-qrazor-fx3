@@ -190,6 +190,7 @@ vmCvar_t        cg_noProjectileTrail;
 vmCvar_t        cg_railType;
 vmCvar_t        cg_trueLightning;
 
+vmCvar_t        cg_particles;
 vmCvar_t        cg_particleCollision;
 
 // these cvars are shared accross both games
@@ -355,6 +356,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	
 	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+	{&cg_particles, "cg_particles", "1", CVAR_ARCHIVE},
 	{&cg_particleCollision, "cg_particleCollision", "0", CVAR_ARCHIVE},
 
 	// these cvars are shared accross both games
