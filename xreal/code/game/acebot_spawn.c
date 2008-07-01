@@ -599,7 +599,7 @@ void ACESP_SetupBotState(gentity_t * self)
 	self->classname = "acebot";
 	self->enemy = NULL;
 
-	self->bs.yawSpeed = 20;		// FIXME 100 is deadly fast
+	self->bs.turnSpeed = 35;		// FIXME 100 is deadly fast
 	self->bs.moveTarget = NULL;
 	self->bs.state = STATE_MOVE;
 

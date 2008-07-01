@@ -288,7 +288,7 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 	if(current_yaw != ideal_yaw)
 	{
 		move = ideal_yaw - current_yaw;
-		speed = ent->bs.yawSpeed;
+		speed = ent->bs.turnSpeed;
 		if(ideal_yaw > current_yaw)
 		{
 			if(move >= 180)
@@ -316,7 +316,7 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 	if(current_pitch != ideal_pitch)
 	{
 		move = ideal_pitch - current_pitch;
-		speed = ent->bs.yawSpeed;
+		speed = ent->bs.turnSpeed;
 		if(ideal_pitch > current_pitch)
 		{
 			if(move >= 180)
@@ -339,6 +339,8 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 		}
 		ent->bs.viewAngles[PITCH] = AngleMod(current_pitch + move);
 	}
+#else
+
 #endif
 }
 
@@ -669,6 +671,25 @@ void ACEMV_Wander(gentity_t * self)
 }
 
 
+qboolean ACEMV_CheckShot(gentity_t * self, vec3_t point)
+{
+	trace_t         tr;
+	vec3_t          start, forward, right, offset;
+
+	AngleVectors(self->bs.viewAngles, forward, right, NULL);
+
+	VectorSet(offset, 8, 8, self->client->ps.viewheight - 8);
+	G_ProjectSource(self->client->ps.origin, offset, forward, right, start);
+
+	// blocked, don't shoot
+	
+	trap_Trace(&tr, start, NULL, NULL, point, self->s.number, MASK_SOLID);
+	if(tr.fraction < 0.3)		//just enough to prevent self damage (by now)
+		return qfalse;
+
+	return qtrue;
+}
+
 
 // Attack movement routine
 //
@@ -680,6 +701,9 @@ void ACEMV_Attack(gentity_t * self)
 	vec3_t          target, forward, right, up;
 	float           distance;
 	vec3_t          angles;
+	vec3_t          oldAimVec;
+	float           aimTremble[2] = { 0.15, 0.15};
+	float           slowness = 0.35; //lower is slower
 
 	// randomly choose a movement direction
 	c = random();
@@ -702,10 +726,6 @@ void ACEMV_Attack(gentity_t * self)
 			self->client->pers.cmd.upmove += 90;
 	}
 
-	// don't attack too much
-	if(random() < 0.8)
-		self->client->pers.cmd.buttons = BUTTON_ATTACK;
-
 	// aim
 	if(self->enemy->client)
 		VectorCopy(self->enemy->client->ps.origin, target);
@@ -714,25 +734,34 @@ void ACEMV_Attack(gentity_t * self)
 
 	// modify attack angles based on accuracy (mess this up to make the bot's aim not so deadly)
 
+	// save the current angles
+	VectorCopy(self->bs.moveVector, oldAimVec);
+	VectorNormalize(oldAimVec);
+
 	VectorSubtract(target, self->client->ps.origin, forward);
 	distance = VectorNormalize(forward);
 
 	PerpendicularVector(up, forward);
 	CrossProduct(up, forward, right);
 
-	VectorMA(forward, crandom() * 0.3, up, forward);
-	VectorMA(forward, crandom() * 0.3, right, forward);
+	VectorMA(forward, crandom() * aimTremble[0], up, forward);
+	VectorMA(forward, crandom() * aimTremble[1], right, forward);
 	VectorNormalize(forward);
+	
+	//VectorLerp(oldAimVec, forward, slowness, forward);
+	//VectorMA(oldAimVec, slowness, forward, forward);
+	//VectorNormalize(forward);
+
 	VectorScale(forward, distance, self->bs.moveVector);
+	//ACEMV_ChangeBotAngle(self);
+	vectoangles(self->bs.moveVector, self->bs.viewAngles);
+	
 
-	//target[0] += crandom() * 70;
-	//target[1] += crandom() * 70;
-	//target[2] += crandom() * 50;
-
-	// set direction
-	//VectorSubtract(target, self->client->ps.origin, self->bs.moveVector);
-	vectoangles(self->bs.moveVector, angles);
-	VectorCopy(angles, self->bs.viewAngles);
+	// don't attack too much
+	if(random() < 0.8 && ACEMV_CheckShot(self, target))
+	{
+		self->client->pers.cmd.buttons = BUTTON_ATTACK;
+	}
 
 //  if(ace_debug.integer)
 //      trap_SendServerCommand(-1, va("print \"%s: attacking %s\n\"", self->client->pers.netname, self->enemy->client->pers.netname));

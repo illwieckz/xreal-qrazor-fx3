@@ -89,7 +89,7 @@ typedef struct
 
 	// for movement
 	vec3_t          viewAngles;
-	float           yawSpeed;
+	float           turnSpeed;
 
 	vec3_t          moveVector;
 	gentity_t      *moveTarget;
