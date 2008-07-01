@@ -93,7 +93,7 @@ float EstimatePenumbra(float vertexDistance, float blocker)
 }
 #endif
 
-#if defined(VSM)
+#if defined(VSM) || defined(ESM)
 vec4 PCF(vec4 SP, float filterWidth, float samples)
 {
 	// compute step size for iterating through the kernel
@@ -211,13 +211,16 @@ void	main()
 		float Ex_2 = shadowDistance * shadowDistance;
 	
 		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+		float variance = max(E_x2 - Ex_2, VSM_EPSILON);
 		//float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
 	
 		float mD = shadowDistance - vertexDistance;
 		float mD_2 = mD * mD;
 		float p = variance / (variance + mD_2);
-		p = smoothstep(0.0, 1.0, p);
+		
+		#if defined(r_LightBleedReduction)
+		p = smoothstep(r_LightBleedReduction, 1.0, p);
+		#endif
 	
 		#if defined(DEBUG_VSM)
 		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
@@ -248,15 +251,28 @@ void	main()
 		vec3 I = var_Vertex.xyz - u_LightOrigin;
 		
 		const float	SHADOW_BIAS = 0.001;
-		float vertexDistance = length(I) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
+		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
 		
+		#if defined(PCF_2X2)
+		vec4 shadowMoments = PCF(SP, u_ShadowTexelSize * u_ShadowBlur, 2.0);
+		#elif defined(PCF_3X3)
+		vec4 shadowMoments = PCF(SP, u_ShadowTexelSize * u_ShadowBlur, 3.0);
+		#elif defined(PCF_4X4)
+		vec4 shadowMoments = PCF(SP, u_ShadowTexelSize * u_ShadowBlur, 4.0);
+		#elif defined(PCF_5X5)
+		vec4 shadowMoments = PCF(SP, u_ShadowTexelSize * u_ShadowBlur, 5.0);
+		#elif defined(PCF_6X6)
+		vec4 shadowMoments = PCF(SP, u_ShadowTexelSize * u_ShadowBlur, 6.0);
+		#else
 		// no filter
 		vec4 shadowMoments = texture2DProj(u_ShadowMap, SP.xyw);
+		#endif
 		
 		float shadowDistance = shadowMoments.a;
 		
 		// exponential shadow mapping
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+		//shadow = smoothstep(0.0, 1.0, shadow);
 	}
 	
 	if(shadow <= 0.0)

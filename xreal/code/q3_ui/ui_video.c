@@ -280,6 +280,7 @@ typedef struct
 	menulist_s      shadowType;
 	menulist_s      shadowFilter;
 	menuslider_s    shadowBlur;
+	menulist_s      bloom;
 	menulist_s      vertexLighting;
 	menutext_s      driverinfo;
 
@@ -302,6 +303,7 @@ typedef struct
 	int             shadowType;
 	int             shadowFilter;
 	int             shadowBlur;
+	int             bloom;
 } InitialVideoOptions_s;
 
 static InitialVideoOptions_s s_ivo;
@@ -309,15 +311,111 @@ static graphicsoptions_t s_graphicsoptions;
 
 // *INDENT-OFF*
 static InitialVideoOptions_s s_ivo_templates[] = {
-	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1},
-	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1},
-	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1},
-	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1},
-	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1}
+	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1, 0},
+	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0},
+	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0},
+	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0},
+	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0}
 };
 // *INDENT-ON*
 
 #define NUM_IVO_TEMPLATES ( sizeof( s_ivo_templates ) / sizeof( s_ivo_templates[0] ) )
+
+/*
+static const char *builtinResolutions[] = {
+	"320x240",
+	"400x300",
+	"512x384",
+	"640x480",
+	"800x600",
+	"960x720",
+	"1024x768",
+	"1152x864",
+	"1280x1024",
+	"1600x1200",
+	"2048x1536",
+	"856x480 wide screen",
+	NULL
+};
+*/
+
+static const char *builtinResolutions[] = {
+	"Mode  0: 320x240",
+	"Mode  1: 400x300",
+	"Mode  2: 512x384",
+	"Mode  3: 640x480",
+	"Mode  4: 800x600",
+	"Mode  5: 960x720",
+	"Mode  6: 1024x768",
+	"Mode  7: 1152x864",
+	"Mode  9: 1280x720 (16:9)",
+	"Mode 10: 1280x768 (16:10)",
+	"Mode 11: 1280x800 (16:10)",
+	"Mode 12: 1280x1024",
+	"Mode 13: 1360x768 (16:9)",
+	"Mode 14: 1440x900 (16:10)",
+	"Mode 15: 1600x1050 (16:10)",
+	"Mode 16: 1600x1200",
+	"Mode 17: 1920x1080 (16:9)",
+	"Mode 18: 1920x1200 (16:10)",
+	"Mode 19: 2048x1536",
+	"Mode 20: 2560x1600 (16:10)",
+	NULL
+};
+
+static char     resbuf[MAX_STRING_CHARS];
+static const char *detectedResolutions[32];
+
+static const char **resolutions = builtinResolutions;
+static qboolean resolutionsDetected = qfalse;
+
+/*
+=================
+GraphicsOptions_FindBuiltinResolution
+=================
+*/
+static int GraphicsOptions_FindBuiltinResolution(int mode)
+{
+	int             i;
+
+	if(!resolutionsDetected)
+		return mode;
+
+	if(mode < 0)
+		return -1;
+
+	for(i = 0; builtinResolutions[i]; i++)
+	{
+		if(!strcmp(builtinResolutions[i], detectedResolutions[mode]))
+			return i;
+	}
+
+	return -1;
+}
+
+/*
+=================
+GraphicsOptions_FindDetectedResolution
+=================
+*/
+static int GraphicsOptions_FindDetectedResolution(int mode)
+{
+	int             i;
+
+	if(!resolutionsDetected)
+		return mode;
+
+	if(mode < 0)
+		return -1;
+
+	for(i = 0; detectedResolutions[i]; i++)
+	{
+		if(!strcmp(builtinResolutions[mode], detectedResolutions[i]))
+			return i;
+	}
+
+	return -1;
+}
 
 /*
 =================
@@ -339,6 +437,7 @@ static void GraphicsOptions_GetInitialVideo(void)
 	s_ivo.shadowType = s_graphicsoptions.shadowType.curvalue;
 	s_ivo.shadowFilter = s_graphicsoptions.shadowFilter.curvalue;
 	s_ivo.shadowBlur = s_graphicsoptions.shadowBlur.curvalue;
+	s_ivo.bloom = s_graphicsoptions.bloom.curvalue;
 }
 
 /*
@@ -354,7 +453,9 @@ static void GraphicsOptions_CheckConfig(void)
 	{
 		if(s_ivo_templates[i].colordepth != s_graphicsoptions.colordepth.curvalue)
 			continue;
-		if(s_ivo_templates[i].mode != s_graphicsoptions.mode.curvalue)
+		//if(s_ivo_templates[i].mode != s_graphicsoptions.mode.curvalue)
+		//	continue;
+		if(GraphicsOptions_FindDetectedResolution(s_ivo_templates[i].mode) != s_graphicsoptions.mode.curvalue)
 			continue;
 		if(s_ivo_templates[i].fullscreen != s_graphicsoptions.fs.curvalue)
 			continue;
@@ -378,10 +479,14 @@ static void GraphicsOptions_CheckConfig(void)
 			continue;
 		if(s_ivo_templates[i].shadowBlur != s_graphicsoptions.shadowBlur.curvalue)
 			continue;
+		if(s_ivo_templates[i].bloom != s_graphicsoptions.bloom.curvalue)
+			continue;
 		s_graphicsoptions.list.curvalue = i;
 		return;
 	}
-	s_graphicsoptions.list.curvalue = 4;
+
+	// return 'Custom' ivo template
+	s_graphicsoptions.list.curvalue = NUM_IVO_TEMPLATES - 1;
 }
 
 /*
@@ -480,6 +585,11 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
 
+	if(s_ivo.bloom != s_graphicsoptions.bloom.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
+	}
+
 	GraphicsOptions_CheckConfig();
 }
 
@@ -506,26 +616,38 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			break;
 	}
 	trap_Cvar_SetValue("r_picmip", 3 - s_graphicsoptions.tq.curvalue);
-	trap_Cvar_SetValue("r_mode", s_graphicsoptions.mode.curvalue);
-	trap_Cvar_SetValue("r_fullscreen", s_graphicsoptions.fs.curvalue);
-	switch (s_graphicsoptions.colordepth.curvalue)
+	
+	if(resolutionsDetected)
 	{
-		case 0:
-			trap_Cvar_SetValue("r_colorbits", 0);
-			trap_Cvar_SetValue("r_depthbits", 0);
-			trap_Cvar_SetValue("r_stencilbits", 8);
-			break;
-		case 1:
-			trap_Cvar_SetValue("r_colorbits", 16);
-			trap_Cvar_SetValue("r_depthbits", 16);
-			trap_Cvar_SetValue("r_stencilbits", 8);
-			break;
-		case 2:
-			trap_Cvar_SetValue("r_colorbits", 32);
-			trap_Cvar_SetValue("r_depthbits", 24);
-			trap_Cvar_SetValue("r_stencilbits", 8);
-			break;
+		// search for builtin mode that matches the detected mode
+		int             mode;
+
+		if(s_graphicsoptions.mode.curvalue == -1
+		   || s_graphicsoptions.mode.curvalue >= sizeof(detectedResolutions) / sizeof(detectedResolutions[0]))
+			s_graphicsoptions.mode.curvalue = 0;
+
+		mode = GraphicsOptions_FindBuiltinResolution(s_graphicsoptions.mode.curvalue);
+		if(mode == -1)
+		{
+			char            w[16], h[16];
+
+			Q_strncpyz(w, detectedResolutions[s_graphicsoptions.mode.curvalue], sizeof(w));
+			*strchr(w, 'x') = 0;
+			Q_strncpyz(h, strchr(detectedResolutions[s_graphicsoptions.mode.curvalue], 'x') + 1, sizeof(h));
+			trap_Cvar_Set("r_customwidth", w);
+			trap_Cvar_Set("r_customheight", h);
+		}
+
+		trap_Cvar_SetValue("r_mode", mode);
 	}
+	else
+		trap_Cvar_SetValue("r_mode", s_graphicsoptions.mode.curvalue);
+	
+	trap_Cvar_SetValue("r_fullscreen", s_graphicsoptions.fs.curvalue);
+	
+	trap_Cvar_SetValue("r_colorbits", 0);
+	trap_Cvar_SetValue("r_depthbits", 0);
+	trap_Cvar_SetValue("r_stencilbits", 8);
 	
 	trap_Cvar_SetValue("r_precomputedLighting", s_graphicsoptions.lighting.curvalue);
 
@@ -561,6 +683,8 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	trap_Cvar_SetValue("r_softShadows", s_graphicsoptions.shadowFilter.curvalue);
 	trap_Cvar_SetValue("r_shadowBlur", s_graphicsoptions.shadowBlur.curvalue);
 
+	trap_Cvar_SetValue("r_bloom", s_graphicsoptions.bloom.curvalue);
+
 	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
 }
 
@@ -586,7 +710,7 @@ static void GraphicsOptions_Event(void *ptr, int event)
 		case ID_LIST:
 			ivo = &s_ivo_templates[s_graphicsoptions.list.curvalue];
 
-			s_graphicsoptions.mode.curvalue = ivo->mode;
+			s_graphicsoptions.mode.curvalue = GraphicsOptions_FindDetectedResolution(ivo->mode);
 			s_graphicsoptions.tq.curvalue = ivo->tq;
 			s_graphicsoptions.lighting.curvalue = ivo->lighting;
 			s_graphicsoptions.colordepth.curvalue = ivo->colordepth;
@@ -599,6 +723,7 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.shadowType.curvalue = ivo->shadowType;
 			s_graphicsoptions.shadowFilter.curvalue = ivo->shadowFilter;
 			s_graphicsoptions.shadowBlur.curvalue = ivo->shadowBlur;
+			s_graphicsoptions.bloom.curvalue = ivo->bloom;
 			break;
 
 		case ID_DRIVERINFO:
@@ -693,10 +818,35 @@ GraphicsOptions_SetMenuItems
 */
 static void GraphicsOptions_SetMenuItems(void)
 {
-	s_graphicsoptions.mode.curvalue = trap_Cvar_VariableValue("r_mode");
+	s_graphicsoptions.mode.curvalue = GraphicsOptions_FindDetectedResolution(trap_Cvar_VariableValue("r_mode"));
+
 	if(s_graphicsoptions.mode.curvalue < 0)
 	{
-		s_graphicsoptions.mode.curvalue = 3;
+		if(resolutionsDetected)
+		{
+			int             i;
+			char            buf[MAX_STRING_CHARS];
+
+			trap_Cvar_VariableStringBuffer("r_customwidth", buf, sizeof(buf) - 2);
+			buf[strlen(buf) + 1] = 0;
+			buf[strlen(buf)] = 'x';
+			trap_Cvar_VariableStringBuffer("r_customheight", buf + strlen(buf), sizeof(buf) - strlen(buf));
+
+			for(i = 0; detectedResolutions[i]; ++i)
+			{
+				if(!strcmp(buf, detectedResolutions[i]))
+				{
+					s_graphicsoptions.mode.curvalue = i;
+					break;
+				}
+			}
+			if(s_graphicsoptions.mode.curvalue < 0)
+				s_graphicsoptions.mode.curvalue = 0;
+		}
+		else
+		{
+			s_graphicsoptions.mode.curvalue = 3;
+		}
 	}
 	s_graphicsoptions.fs.curvalue = trap_Cvar_VariableValue("r_fullscreen");
 	s_graphicsoptions.tq.curvalue = 3 - trap_Cvar_VariableValue("r_picmip");
@@ -799,6 +949,8 @@ static void GraphicsOptions_SetMenuItems(void)
 
 	s_graphicsoptions.shadowFilter.curvalue = trap_Cvar_VariableValue("r_softShadows");
 	s_graphicsoptions.shadowBlur.curvalue = trap_Cvar_VariableValue("r_shadowBlur");
+
+	s_graphicsoptions.bloom.curvalue = trap_Cvar_VariableValue("r_bloom");
 }
 
 /*
@@ -811,14 +963,14 @@ void GraphicsOptions_MenuInit(void)
 	static const char *s_driver_names[] = {
 		"Default",
 		"Voodoo",
-		0
+		NULL
 	};
 
 	static const char *tq_names[] = {
 		"Default",
 		"16 bit",
 		"32 bit",
-		0
+		NULL
 	};
 
 	static const char *s_graphics_options_names[] = {
@@ -827,50 +979,34 @@ void GraphicsOptions_MenuInit(void)
 		"Fast",
 		"Fastest",
 		"Custom",
-		0
+		NULL
 	};
 
 	static const char *lighting_names[] =
 	{
 	   	"Real-Time",
 		"Deluxe Light Mapping",
-		0
+		NULL
 	};
 
 	static const char *colordepth_names[] = {
 		"Default",
 		"16 bit",
 		"32 bit",
-		0
-	};
-
-	static const char *resolutions[] = {
-		"320x240",
-		"400x300",
-		"512x384",
-		"640x480",
-		"800x600",
-		"960x720",
-		"1024x768",
-		"1152x864",
-		"1280x1024",
-		"1600x1200",
-		"2048x1536",
-		"856x480 wide screen",
-		0
+		NULL
 	};
 
 	static const char *filter_names[] = {
 		"Bilinear",
 		"Trilinear",
-		0
+		NULL
 	};
 
 	static const char *quality_names[] = {
 		"Low",
 		"Medium",
 		"High",
-		0
+		NULL
 	};
 
 	static const char *shadowType_names[] = {
@@ -881,7 +1017,7 @@ void GraphicsOptions_MenuInit(void)
 		"VSM 16 bit",
 		"VSM 32 bit",
 		"ESM 32 bit",
-		0
+		NULL
 	};
 
 	static const char *shadowFilter_names[] = {
@@ -891,19 +1027,49 @@ void GraphicsOptions_MenuInit(void)
 		"PCF 4x4",
 		"PCF 5x5",
 		"PCF 6x6",
-		0
+		NULL
+	};
+
+	static const char *bloom_names[] = {
+		"Off",
+		"simple blur",
+		"strong blur",
+		NULL
 	};
 
 	static const char *enabled_names[] = {
 		"Off",
 		"On",
-		0
+		NULL
 	};
 
 	int             y;
 
 	// zero set all our globals
 	memset(&s_graphicsoptions, 0, sizeof(graphicsoptions_t));
+
+
+	Q_strncpyz(resbuf, UI_Cvar_VariableString("r_availableModes"), sizeof(resbuf));
+	if(*resbuf)
+	{
+		char           *s = resbuf;
+		unsigned int    i = 0;
+
+		while(s && i < sizeof(detectedResolutions) / sizeof(detectedResolutions[0]) - 1)
+		{
+			detectedResolutions[i++] = s;
+			s = strchr(s, ' ');
+			if(s)
+				*s++ = '\0';
+		}
+		detectedResolutions[i] = NULL;
+
+		if(i > 0)
+		{
+			resolutions = detectedResolutions;
+			resolutionsDetected = qtrue;
+		}
+	}
 
 	GraphicsOptions_Cache();
 
@@ -997,6 +1163,7 @@ void GraphicsOptions_MenuInit(void)
 	y += BIGCHAR_HEIGHT + 2;
 
 	// references "r_colorbits"
+	/*
 	s_graphicsoptions.colordepth.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.colordepth.generic.name = "Color Depth:";
 	s_graphicsoptions.colordepth.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -1004,6 +1171,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.colordepth.generic.y = y;
 	s_graphicsoptions.colordepth.itemnames = colordepth_names;
 	y += BIGCHAR_HEIGHT + 2;
+	*/
 
 	// references/modifies "r_fullscreen"
 	s_graphicsoptions.fs.generic.type = MTYPE_SPINCONTROL;
@@ -1114,6 +1282,15 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.shadowBlur.minvalue = 1;
 	s_graphicsoptions.shadowBlur.maxvalue = 10;
 	s_graphicsoptions.shadowBlur.generic.callback = GraphicsOptions_ShadowBlurEvent;
+	y += BIGCHAR_HEIGHT + 2;
+
+	// references/modifies "r_bloom"
+	s_graphicsoptions.bloom.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.bloom.generic.name = "Bloom:";
+	s_graphicsoptions.bloom.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_graphicsoptions.bloom.generic.x = 400;
+	s_graphicsoptions.bloom.generic.y = y;
+	s_graphicsoptions.bloom.itemnames = bloom_names;
 	y += 2 * BIGCHAR_HEIGHT;
 
 	s_graphicsoptions.driverinfo.generic.type = MTYPE_PTEXT;
@@ -1159,7 +1336,7 @@ void GraphicsOptions_MenuInit(void)
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.list);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.mode);
-	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.colordepth);
+//	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.colordepth);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.fs);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.lighting);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.geometry);
@@ -1176,6 +1353,8 @@ void GraphicsOptions_MenuInit(void)
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowType);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowFilter);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowBlur);
+
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.bloom);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.driverinfo);
 

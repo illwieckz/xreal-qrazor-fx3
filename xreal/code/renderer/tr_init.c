@@ -515,10 +515,18 @@ vidmode_t       r_vidModes[] = {
 	{"Mode  5: 960x720", 960, 720, 1},
 	{"Mode  6: 1024x768", 1024, 768, 1},
 	{"Mode  7: 1152x864", 1152, 864, 1},
-	{"Mode  8: 1280x1024", 1280, 1024, 1},
-	{"Mode  9: 1600x1200", 1600, 1200, 1},
-	{"Mode 10: 2048x1536", 2048, 1536, 1},
-	{"Mode 11: 856x480 (wide)", 856, 480, 1}
+	{"Mode  9: 1280x720 (16:9)", 1280, 720, 1},
+	{"Mode 10: 1280x768 (16:10)", 1280, 768, 1},
+	{"Mode 11: 1280x800 (16:10)", 1280, 800, 1},
+	{"Mode 12: 1280x1024", 1280, 1024, 1},
+	{"Mode 13: 1360x768 (16:9)", 1360, 768, 1},
+	{"Mode 14: 1440x900 (16:10)", 1440, 900, 1},
+	{"Mode 15: 1600x1050 (16:10)", 1600, 1050, 1},
+	{"Mode 16: 1600x1200", 1600, 1200, 1},
+	{"Mode 17: 1920x1080 (16:9)", 1920, 1080, 1},
+	{"Mode 18: 1920x1200 (16:10)", 1920, 1200, 1},
+	{"Mode 19: 2048x1536", 2048, 1536, 1},
+	{"Mode 20: 2560x1600 (16:10)", 2560, 1600, 1},
 };
 static int      s_numVidModes = (sizeof(r_vidModes) / sizeof(r_vidModes[0]));
 
@@ -1256,7 +1264,7 @@ void R_Register(void)
 	r_shadowMapLuminanceAlpha = ri.Cvar_Get("r_shadowMapLuminanceAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_shadowMapLinearFilter = ri.Cvar_Get("r_shadowMapLinearFilter", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_lightBleedReduction = ri.Cvar_Get("r_lightBleedReduction", "0", CVAR_CHEAT | CVAR_LATCH);
-	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "1.67", CVAR_CHEAT | CVAR_LATCH);
+	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "40.0", CVAR_CHEAT | CVAR_LATCH);
 	r_shadowMapDepthScale = ri.Cvar_Get("r_shadowMapDepthScale", "1.41", CVAR_CHEAT | CVAR_LATCH);
 
 	// archived variables that can change at any time

@@ -54,7 +54,7 @@ void	main()
 
 #elif defined(ESM)
 	
-	float distance = length(var_Vertex - u_LightOrigin) * r_ShadowMapDepthScale;// / u_LightRadius;
+	float distance = (length(var_Vertex - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;// ;
 	
 	gl_FragColor = vec4(0.0, 0.0, 0.0, distance);
 #else
