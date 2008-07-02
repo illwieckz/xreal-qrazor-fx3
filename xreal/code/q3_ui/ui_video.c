@@ -731,13 +731,14 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			break;
 
 		case 4: // very high
-			trap_Cvar_SetValue("r_shadowMapSizeUltra", 1024);
+			trap_Cvar_SetValue("r_shadowMapSizeUltra", 2048);
 			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 1024);
 			trap_Cvar_SetValue("r_shadowMapSizeHigh", 512);
 			trap_Cvar_SetValue("r_shadowMapSizeMedium", 256);
 			trap_Cvar_SetValue("r_shadowMapSizeLow", 128);
 			break;
 
+		/*
 		case 5: // ultra
 			trap_Cvar_SetValue("r_shadowMapSizeUltra", 2048);
 			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 2048);
@@ -745,6 +746,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			trap_Cvar_SetValue("r_shadowMapSizeMedium", 512);
 			trap_Cvar_SetValue("r_shadowMapSizeLow", 128);
 			break;
+		*/
 
 		case 0: // custom
 		default:
@@ -1106,7 +1108,7 @@ void GraphicsOptions_MenuInit(void)
 		"Medium",
 		"High",
 		"Very High",
-		"Ultra",
+//		"Ultra",
 		NULL
 	};
 
