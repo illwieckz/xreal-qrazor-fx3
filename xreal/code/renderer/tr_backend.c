@@ -2036,7 +2036,7 @@ static void RB_RenderInteractionsShadowMapped()
 				case RL_OMNI:
 				case RL_PROJ:
 				{
-					if(light == oldLight && entity == oldEntity && alphaTest == oldAlphaTest)
+					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
 					{
 						if(r_logFile->integer)
 						{
@@ -3737,6 +3737,8 @@ void RB_RenderUniformFog(qboolean deferred)
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
+
+	GL_CheckErrors();
 }
 
 void RB_RenderBloom(void)
@@ -3888,6 +3890,8 @@ void RB_RenderBloom(void)
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
+
+	GL_CheckErrors();
 }
 
 void RB_RenderRotoscope(void)
@@ -3944,6 +3948,8 @@ void RB_RenderRotoscope(void)
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
+
+	GL_CheckErrors();
 }
 
 void RB_RenderDeferredShadingResultToFrameBuffer()

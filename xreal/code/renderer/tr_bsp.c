@@ -2234,7 +2234,7 @@ static void BuildRedundantIndices(int numVerts, const srfVert_t * verts, int *re
 		{
 			for(j = i + 1; j < numVerts; j++)
 			{
-				if(redundantIndex[i] != -1)
+				if(redundantIndex[j] != -1)
 					continue;
 
 				if(CompareVert(&verts[i], &verts[j]))
@@ -5057,6 +5057,13 @@ static int InteractionCacheCompare(const void *a, const void *b)
 	else if(aa->surface->shader > bb->surface->shader)
 		return 1;
 
+	// then alphaTest
+	if(aa->surface->shader->alphaTest < bb->surface->shader->alphaTest)
+		return -1;
+
+	else if(aa->surface->shader->alphaTest > bb->surface->shader->alphaTest)
+		return 1;
+
 	return 0;
 }
 
@@ -5353,7 +5360,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			}
 
 			vboSurf->vbo = s_worldData.vbo;
-			vboSurf->ibo = R_CreateStaticIBO2(va("staticLightMesh_VBO %i", c_vboLightSurfaces), numTriangles, triangles);
+			vboSurf->ibo = R_CreateStaticIBO2(va("staticLightMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles);
 
 			ri.Hunk_FreeTempMemory(triangles);
 
@@ -5486,8 +5493,8 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 			//if(!(iaCache->cubeSideBits & (1 << cubeSide)))
 			//  continue;
 
-			if(shader != oldShader)
-			//if(alphaTest != oldAlphaTest)
+			//if(shader != oldShader)
+			if(alphaTest ? shader != oldShader : alphaTest != oldAlphaTest)
 			{
 				oldShader = shader;
 				oldAlphaTest = alphaTest;
@@ -5502,11 +5509,21 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					surface = iaCache2->surface;
 
+					#if 0
 					if(surface->shader != shader)
-					  continue;
-
-					//if(surface->shader->alphaTest != alphaTest)
-					//	continue;
+						break;
+					#else
+					if(alphaTest)
+					{
+						if(surface->shader != shader)
+							break;
+					}
+					else
+					{
+						if(surface->shader->alphaTest != alphaTest)
+							break;
+					}
+					#endif
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -5573,11 +5590,21 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					surface = iaCache2->surface;
 
+					#if 0
 					if(surface->shader != shader)
-					  continue;
-
-					//if(surface->shader->alphaTest != alphaTest)
-					//	continue;
+						break;
+					#else
+					if(alphaTest)
+					{
+						if(surface->shader != shader)
+							break;
+					}
+					else
+					{
+						if(surface->shader->alphaTest != alphaTest)
+							break;
+					}
+					#endif
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
