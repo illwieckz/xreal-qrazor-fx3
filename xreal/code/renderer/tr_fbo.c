@@ -506,15 +506,15 @@ void R_InitFBOs(void)
 			{
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_RGBA16, 0);
 			}
-			else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 4)
+			else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 4)
 			{
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA16F_ARB, 0);
 			}
-			else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 5)
+			else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 5)
 			{
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_LUMINANCE_ALPHA32F_ARB, 0);
 			}
-			else if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 6)
+			else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 6)
 			{
 				R_CreateFBOColorBuffer(tr.shadowMapFBO[i], GL_ALPHA32F_ARB, 0);
 			}

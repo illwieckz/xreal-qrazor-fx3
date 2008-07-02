@@ -941,7 +941,7 @@ static void GraphicsOptions_SetMenuItems(void)
 		{
 			s_graphicsoptions.shadowType.curvalue = 3;
 		}
-		else if(uis.glconfig.hardwareType != GLHW_NV_DX10)
+		else if(uis.glconfig.hardwareType != GLHW_NV_DX10 && uis.glconfig.hardwareType != GLHW_ATI_DX10)
 		{
 			s_graphicsoptions.shadowType.curvalue = 4;
 		}

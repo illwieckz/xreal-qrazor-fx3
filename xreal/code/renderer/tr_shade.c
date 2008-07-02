@@ -154,7 +154,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
 			}
 
-			if(glConfig.hardwareType == GLHW_NV_DX10 && r_shadows->integer == 5)
+			if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 5)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
 			}
