@@ -2056,6 +2056,7 @@ extern cvar_t  *r_shadows;		// controls shadows: 0 = none, 1 = blur, 2 = black p
 								// 4 = shadow mapping
 extern cvar_t  *r_softShadows;
 extern cvar_t  *r_shadowBlur;
+extern cvar_t  *r_shadowMapQuality;
 extern cvar_t  *r_shadowMapSizeUltra;
 extern cvar_t  *r_shadowMapSizeVery;
 extern cvar_t  *r_shadowMapSizeHigh;

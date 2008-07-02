@@ -280,6 +280,7 @@ typedef struct
 	menulist_s      shadowType;
 	menulist_s      shadowFilter;
 	menuslider_s    shadowBlur;
+	menulist_s		shadowQuality;
 	menulist_s      bloom;
 	menulist_s      vertexLighting;
 	menutext_s      driverinfo;
@@ -302,6 +303,7 @@ typedef struct
 	int             anisotropicFilter;
 	int             shadowType;
 	int             shadowFilter;
+	int				shadowQuality;
 	int             shadowBlur;
 	int             bloom;
 } InitialVideoOptions_s;
@@ -311,11 +313,11 @@ static graphicsoptions_t s_graphicsoptions;
 
 // *INDENT-OFF*
 static InitialVideoOptions_s s_ivo_templates[] = {
-	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1, 0},
-	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0},
-	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0},
-	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0},
-	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0}
+	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1, 1, 0},
+	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0},
+	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
+	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
+	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0}
 };
 // *INDENT-ON*
 
@@ -437,6 +439,7 @@ static void GraphicsOptions_GetInitialVideo(void)
 	s_ivo.shadowType = s_graphicsoptions.shadowType.curvalue;
 	s_ivo.shadowFilter = s_graphicsoptions.shadowFilter.curvalue;
 	s_ivo.shadowBlur = s_graphicsoptions.shadowBlur.curvalue;
+	s_ivo.shadowQuality = s_graphicsoptions.shadowQuality.curvalue;
 	s_ivo.bloom = s_graphicsoptions.bloom.curvalue;
 }
 
@@ -478,6 +481,8 @@ static void GraphicsOptions_CheckConfig(void)
 		if(s_ivo_templates[i].shadowFilter != s_graphicsoptions.shadowFilter.curvalue)
 			continue;
 		if(s_ivo_templates[i].shadowBlur != s_graphicsoptions.shadowBlur.curvalue)
+			continue;
+		if(s_ivo_templates[i].shadowQuality != s_graphicsoptions.shadowQuality.curvalue)
 			continue;
 		if(s_ivo_templates[i].bloom != s_graphicsoptions.bloom.curvalue)
 			continue;
@@ -584,6 +589,21 @@ static void GraphicsOptions_UpdateMenuItems(void)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
+	if(s_graphicsoptions.shadowType.curvalue <= 3)
+	{
+		s_graphicsoptions.shadowQuality.curvalue = 0;
+		s_graphicsoptions.shadowQuality.generic.flags |= QMF_GRAYED;
+	}
+	else
+	{
+		s_graphicsoptions.shadowQuality.generic.flags &= ~QMF_GRAYED;
+	}
+
+	if(s_ivo.shadowQuality != s_graphicsoptions.shadowQuality.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
+	}
 
 	if(s_ivo.bloom != s_graphicsoptions.bloom.curvalue)
 	{
@@ -682,6 +702,54 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	trap_Cvar_SetValue("cg_shadows", s_graphicsoptions.shadowType.curvalue);
 	trap_Cvar_SetValue("r_softShadows", s_graphicsoptions.shadowFilter.curvalue);
 	trap_Cvar_SetValue("r_shadowBlur", s_graphicsoptions.shadowBlur.curvalue);
+	
+	trap_Cvar_SetValue("r_shadowMapQuality", s_graphicsoptions.shadowQuality.curvalue);
+	switch (s_graphicsoptions.shadowQuality.curvalue)
+	{
+		case 1: // low
+			trap_Cvar_SetValue("r_shadowMapSizeUltra", 256);
+			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 128);
+			trap_Cvar_SetValue("r_shadowMapSizeHigh", 64);
+			trap_Cvar_SetValue("r_shadowMapSizeMedium", 32);
+			trap_Cvar_SetValue("r_shadowMapSizeLow", 16);
+			break;
+
+		case 2: // medium
+			trap_Cvar_SetValue("r_shadowMapSizeUltra", 512);
+			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 256);
+			trap_Cvar_SetValue("r_shadowMapSizeHigh", 128);
+			trap_Cvar_SetValue("r_shadowMapSizeMedium", 64);
+			trap_Cvar_SetValue("r_shadowMapSizeLow", 32);
+			break;
+
+		case 3: // high
+			trap_Cvar_SetValue("r_shadowMapSizeUltra", 1024);
+			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 512);
+			trap_Cvar_SetValue("r_shadowMapSizeHigh", 256);
+			trap_Cvar_SetValue("r_shadowMapSizeMedium", 128);
+			trap_Cvar_SetValue("r_shadowMapSizeLow", 64);
+			break;
+
+		case 4: // very high
+			trap_Cvar_SetValue("r_shadowMapSizeUltra", 1024);
+			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 1024);
+			trap_Cvar_SetValue("r_shadowMapSizeHigh", 512);
+			trap_Cvar_SetValue("r_shadowMapSizeMedium", 256);
+			trap_Cvar_SetValue("r_shadowMapSizeLow", 128);
+			break;
+
+		case 5: // ultra
+			trap_Cvar_SetValue("r_shadowMapSizeUltra", 2048);
+			trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 2048);
+			trap_Cvar_SetValue("r_shadowMapSizeHigh", 1024);
+			trap_Cvar_SetValue("r_shadowMapSizeMedium", 512);
+			trap_Cvar_SetValue("r_shadowMapSizeLow", 128);
+			break;
+
+		case 0: // custom
+		default:
+			break;
+	}
 
 	trap_Cvar_SetValue("r_bloom", s_graphicsoptions.bloom.curvalue);
 
@@ -723,6 +791,7 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.shadowType.curvalue = ivo->shadowType;
 			s_graphicsoptions.shadowFilter.curvalue = ivo->shadowFilter;
 			s_graphicsoptions.shadowBlur.curvalue = ivo->shadowBlur;
+			s_graphicsoptions.shadowQuality.curvalue = ivo->shadowQuality;
 			s_graphicsoptions.bloom.curvalue = ivo->bloom;
 			break;
 
@@ -949,6 +1018,7 @@ static void GraphicsOptions_SetMenuItems(void)
 
 	s_graphicsoptions.shadowFilter.curvalue = trap_Cvar_VariableValue("r_softShadows");
 	s_graphicsoptions.shadowBlur.curvalue = trap_Cvar_VariableValue("r_shadowBlur");
+	s_graphicsoptions.shadowQuality.curvalue = trap_Cvar_VariableValue("r_shadowMapQuality");
 
 	s_graphicsoptions.bloom.curvalue = trap_Cvar_VariableValue("r_bloom");
 }
@@ -1027,6 +1097,16 @@ void GraphicsOptions_MenuInit(void)
 		"PCF 4x4",
 		"PCF 5x5",
 		"PCF 6x6",
+		NULL
+	};
+
+	static const char *shadowQuality_names[] = {
+		"Custom",
+		"Low",
+		"Medium",
+		"High",
+		"Very High",
+		"Ultra",
 		NULL
 	};
 
@@ -1284,6 +1364,15 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.shadowBlur.generic.callback = GraphicsOptions_ShadowBlurEvent;
 	y += BIGCHAR_HEIGHT + 2;
 
+	// references/modifies "r_shadowMapQuality"
+	s_graphicsoptions.shadowQuality.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.shadowQuality.generic.name = "Shadow Map Quality:";
+	s_graphicsoptions.shadowQuality.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_graphicsoptions.shadowQuality.generic.x = 400;
+	s_graphicsoptions.shadowQuality.generic.y = y;
+	s_graphicsoptions.shadowQuality.itemnames = shadowQuality_names;
+	y += BIGCHAR_HEIGHT + 2;
+
 	// references/modifies "r_bloom"
 	s_graphicsoptions.bloom.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.bloom.generic.name = "Bloom:";
@@ -1353,6 +1442,7 @@ void GraphicsOptions_MenuInit(void)
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowType);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowFilter);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowBlur);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowQuality);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.bloom);
 

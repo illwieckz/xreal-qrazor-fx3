@@ -108,6 +108,7 @@ cvar_t         *r_uiFullScreen;
 cvar_t         *r_shadows;
 cvar_t         *r_softShadows;
 cvar_t         *r_shadowBlur;
+cvar_t         *r_shadowMapQuality;
 cvar_t         *r_shadowMapSizeUltra;
 cvar_t         *r_shadowMapSizeVeryHigh;
 cvar_t         *r_shadowMapSizeHigh;
@@ -1361,6 +1362,9 @@ void R_Register(void)
 
 	r_shadowBlur = ri.Cvar_Get("r_shadowBlur", "2", CVAR_ARCHIVE);
 
+	r_shadowMapQuality = ri.Cvar_Get("r_shadowMapQuality", "3", CVAR_ARCHIVE | CVAR_LATCH);
+	AssertCvarRange(r_shadowMapQuality, 0, 5, qtrue);
+
 	r_shadowMapSizeUltra = ri.Cvar_Get("r_shadowMapSizeUltra", "1024", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeUltra, 32, 2048, qtrue);
 
@@ -1375,6 +1379,7 @@ void R_Register(void)
 
 	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "64", CVAR_ARCHIVE | CVAR_LATCH);
 	AssertCvarRange(r_shadowMapSizeLow, 32, 2048, qtrue);
+	
 
 	shadowMapResolutions[0] = r_shadowMapSizeUltra->integer;
 	shadowMapResolutions[1] = r_shadowMapSizeVeryHigh->integer;
