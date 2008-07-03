@@ -69,26 +69,37 @@ ________________________________________________________________________________
 
 entityDef light
 {
-	"editor_color"				".65 .65 1"
-	"editor_mins"				"-8 -8 -8"
-	"editor_maxs"				"8 8 8"
-	"editor_rotatable"			"1"
+	"editor_color"					".65 .65 1"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_rotatable"				"1"
 
-	"editor_usage"				"Light source."
+	"editor_usage"					"Light source."
 	
-	"editor_material texture"	"light shader to use."
-	"editor_color color"		"light color"
-	"editor_var shaderParm3"	"shaderParm 3"
-	"editor_var shaderParm4"	"shaderParm 4"
-	"editor_var shaderParm5"	"shaderParm 5"
-	"editor_var shaderParm6"	"shaderParm 6"
-	"editor_var shaderParm7"	"shaderParm 7"
+	"editor_material texture"		"light shader to use."
+	"editor_color color"			"light color"
+	"editor_var shaderParm3"		"shaderParm 3"
+	"editor_var shaderParm4"		"shaderParm 4"
+	"editor_var shaderParm5"		"shaderParm 5"
+	"editor_var shaderParm6"		"shaderParm 6"
+	"editor_var shaderParm7"		"shaderParm 7"
+	"editor_var light_radius"		"Boxed Light Radius: overrides the default 300 300 300 box radius."
+	"editor_float light_distance"	"Spotlight Radius: overrides the default 300 unit radius of a spotlight."
+	"editor_float light_fovX"		"Spotlight FOV width angle: overrides the default 90 degrees."
+	"editor_float light_fovY"		"Spotlight FOV height angle: overrides the default 90 degrees."
+	"editor_bool noshadows"			"No Shadows, Set this key to 1 to disable shadow casting."
 
-	"spawnclass"				"idLight"  // this is required for DarkRadiant
-	"light_radius"				"300 300 300"
-	"levels"					"1"
-	"count"						"1"
-	"break"						"0"
+	"spawnclass"					"idLight"  // this is required for DarkRadiant
+	
+	"light_radius"					"300 300 300"
+	"light_distance"				"300"
+	"light_fovX"					"90"
+	"light_fovY"					"90"
+	"noshadows"						"0"
+	
+	"levels"						"1"
+	"count"							"1"
+	"break"							"0"
 }
 
 
@@ -100,16 +111,38 @@ ________________________________________________________________________________
 ============================================================================================================
 */
 
+entityDef info_null
+{
+	"editor_color"				"0 .5 0" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_showangle"			"1"
+	
+	"editor_usage"				"Used as a positional target for light entities to create a spotlight effect. A target_position can be used instead of this but was kept in Q3A for legacy purposes."
+	
+	"spawnclass"				"idStaticEntity"
+}
+
 entityDef info_notnull
 {
+	"inherit"				"info_null"
+
 	"editor_color"			"0 0.5 0"
 	"editor_mins"			"-8 -8 -8"
 	"editor_maxs"			"8 8 8"
 
 	"editor_usage"			"Used as a positional target for entities that can use directional pointing. A target_position can be used instead of this but was kept in Q3A for legacy purposes."
-	//"editor_var notfree"	"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
-	//"editor_var notteam"    "when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
-	//"editor_var notsingle"	"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	
+	"editor_bool notfree"	"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"	"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"	"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	"editor_bool initial"	"Initial Spawn Point: makes the spawnpoint the initial place for the player to spawn at the beginning of the game."
+
+	"spawnclass"			"idStaticEntity"
+	
+	"notfree"				"0"
+	"notteam"				"0"
+	"notsingle"				"0"
 }
 
 
@@ -139,6 +172,7 @@ entityDef info_locationSeparator
 }
 
 
+/*
 entityDef info_camp  
 {  
 	"editor_color"				"0 .5 0" 	
@@ -153,23 +187,7 @@ entityDef info_camp
     "range"                     "0"  //"Range"number of units that the bot can move away from camp entity while camping on it."
     "weight"                    "0"  //"Weight"number that is compared against the weight assigned to all the other camp spots in the map to determine if a bot chooses to camp there. The value is normalized against all other weight values."
 }
-
-
-entityDef info_null    
-{
-	"editor_color"				"0 .5 0" 	
-	"editor_mins"				"-8 -8 -8"
-	"editor_maxs"				"8 8 8"
-	"editor_showangle"			"1"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idStaticEntity"
-	
-    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
-    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
-    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-}
+*/
 
 
 entityDef info_player_intermission
@@ -177,14 +195,17 @@ entityDef info_player_intermission
 	"editor_color"				"1 0 1" 	
 	"editor_mins"				"-16 -16 -16"
 	"editor_maxs"				"16 16 16"
-	"editor_showangle"			"1"
+	"editor_rotatable"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Camera for intermission screen between matches. This also automatically generates the podium for bot arena matches (see Notes). Can be aimed by setting the 'angles' key or targeting an pointing to an aiming entity. Use only one per level."
 	
 	"spawnclass"				"idPlayerStart"
 	
-    "angles"                    "0"  //"Pitch Yaw Roll"alternate "pitch, yaw, roll" angles method of aiming intermission camera (default 0 0 0)."
-    "target"                    "0"  //"Target"point this to an info_notnull or target_position entity to set the camera's pointing angles."
+	"editor_var angles"			"alternate 'pitch, yaw, roll' angles method of aiming intermission camera (default 0 0 0)."
+	"editor_var target"			"point this to an info_notnull or target_position entity to set the camera's pointing angles."
+	
+    "angles"                    "0 0 0"
+    "target"                    ""
 }
 
 
@@ -3154,37 +3175,19 @@ Target this entity with a misc_model to have the model attached to the entity (s
 entityDef func_static 
 {   
 	"editor_color"				"0 .5 .8"
+	"editor_mins"				"?"
+	"editor_maxs"				"?"
 	
-	"editor_usage"				"Static non-solid bspmodel. Can be used for conditional walls and models.
-
--------- KEYS --------
-
-(*notfree*)	
-when set to 1, entity will not spawn in Free for all and Tournament modes.
-
-(*notteam*)	
-when set to 1, entity will not spawn in Teamplay and CTF modes.
-
-(*notsingle*)	
-when set to 1, entity will not spawn in Single Player mode (bot play mode).
-
--------- NOTES --------
-
-When using the model key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value. If a model is included with a targeted func_static, the brush(es) of the entity will be removed from the game but the .md3 model won't: it will automatically be moved to the (0 0 0) world origin so you should NOT include an .md3 model to a targeted func_static.
-
-Because the map has only a single bot navigation file, func_static's cannot be used to make significant changes in game play flow between differing game types.
-
-Target this entity with a misc_model to have the model attached to the entity (set the model's target key to the same value as this entity's name)."
+	"editor_usage"				"Same as misc_model in Q3A."
+	"editor_usage1"				"Static non-solid bspmodel. Can be used for conditional walls and models."
 	
-	"spawnclass"				"idSpawnableEntity"
+	"editor_bool forceMeta"		"if 1, XMap2 turns model triangles into planar surfaces so models can be lightmapped"
+	"editor_bool clipModel"		"if 1, XMap2 creates collision brushes for this model"
 	
-	"notfree"					"0"
-	"notteam"					"0"
-	"notsingle"					"0"
+	"spawnclass"				"idStaticEntity"
 	
-	"editor_bool forceMeta"		"0"
-	"editor_bool clipModel"		"0"
-	
+	"forceMeta"					"0"
+	"clipModel"					"0"
 }
 
 
