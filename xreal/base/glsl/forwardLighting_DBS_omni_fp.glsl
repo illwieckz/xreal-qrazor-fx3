@@ -192,6 +192,14 @@ void	main()
 		
 		// exponential shadow mapping
 		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+		
+		#if defined(DEBUG_ESM)
+		gl_FragColor.r = DEBUG_ESM & 1 ? shadowDistance : 0.0;
+		gl_FragColor.g = DEBUG_ESM & 2 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = DEBUG_ESM & 4 ? 1.0 - shadow : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
+		#endif
 	}
 	
 	if(shadow <= 0.0)

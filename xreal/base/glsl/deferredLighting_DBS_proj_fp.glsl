@@ -48,7 +48,7 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 		
-#if defined(GL_EXTX_framebuffer_mixed_formats)
+#if 0 //defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
 #else
@@ -57,7 +57,7 @@ void	main()
 	// gl_FragCoord.z with 32 bit precision
 	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
 	float depth = dot(texture2D(u_PositionMap, st), bitShifts);
-#elif 1
+#elif 0
 	// gl_FragCoord.z with 24 bit precision
 	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
 	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
@@ -141,6 +141,40 @@ void	main()
 		return;
 		#else
 		shadow = max(shadow, p);
+		#endif
+	}
+	
+	if(shadow <= 0.0)
+	{
+		discard;
+	}
+	else
+#elif defined(ESM)
+	if(bool(u_ShadowCompare))
+	{
+		// compute incident ray
+		vec3 I = P.xyz - u_LightOrigin;
+		
+		// no filter
+		vec4 texShadow = u_ShadowMatrix * vec4(P.xyz, 1.0);
+		vec4 shadowMoments = texture2DProj(u_ShadowMap, texShadow.xyw);
+		
+		const float	SHADOW_BIAS = 0.001;
+		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
+		
+		float shadowDistance = shadowMoments.a;
+		
+		// exponential shadow mapping
+		//shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+		//shadow = smoothstep(0.0, 1.0, shadow);
+		
+		#if defined(DEBUG_ESM)
+		gl_FragColor.r = DEBUG_ESM & 1 ? shadowDistance : 0.0;
+		gl_FragColor.g = DEBUG_ESM & 2 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = DEBUG_ESM & 4 ? shadow : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
 		#endif
 	}
 	

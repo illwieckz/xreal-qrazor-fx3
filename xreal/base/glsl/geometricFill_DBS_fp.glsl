@@ -220,6 +220,7 @@ void	main()
 	gl_FragData[1] = vec4(N, 0.0);
 	gl_FragData[2] = vec4(specular, 0.0);
 	
+/*
 #if defined(GL_EXTX_framebuffer_mixed_formats)
 	// transform vertex position into world space
 	gl_FragData[3] = (u_ModelMatrix * var_Vertex).xyzw;
@@ -237,7 +238,7 @@ void	main()
 	comp = fract(comp);
 	comp -= comp.xxyz * bitMsk;
 	gl_FragData[3] = comp;
-#elif 1
+#elif 0
 	// 24 bit precision
 	const vec3 bitSh = vec3(256 * 256,			256,		1);
 	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
@@ -251,6 +252,7 @@ void	main()
 	// DO NOTHING
 #endif // precision
 #endif // 
+*/
 
 #endif
 }

@@ -2530,9 +2530,9 @@ void RB_RenderInteractionsDeferred()
 
 
 	// update depth render image
-	//GL_SelectTexture(1);
-	//GL_Bind(tr.depthRenderImage);
-	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	GL_SelectTexture(1);
+	GL_Bind(tr.depthRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 
 	// loop trough all light interactions and render the light quad for each last interaction
 	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -2658,8 +2658,8 @@ void RB_RenderInteractionsDeferred()
 
 					// bind u_PositionMap
 					GL_SelectTexture(3);
-					GL_Bind(tr.deferredPositionFBOImage);
-					//GL_Bind(tr.depthRenderImage);
+					//GL_Bind(tr.deferredPositionFBOImage);
+					GL_Bind(tr.depthRenderImage);
 
 					// bind u_AttenuationMapXY
 					GL_SelectTexture(4);
@@ -2728,8 +2728,8 @@ void RB_RenderInteractionsDeferred()
 
 					// bind u_PositionMap
 					GL_SelectTexture(3);
-					GL_Bind(tr.deferredPositionFBOImage);
-					//GL_Bind(tr.depthRenderImage);
+					//GL_Bind(tr.deferredPositionFBOImage);
+					GL_Bind(tr.depthRenderImage);
 
 					// bind u_AttenuationMapXY
 					GL_SelectTexture(4);
@@ -2843,10 +2843,10 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// update depth render image
-	//R_BindFBO(tr.deferredRenderFBO);
-	//GL_SelectTexture(1);
-	//GL_Bind(tr.depthRenderImage);
-	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	R_BindFBO(tr.deferredRenderFBO);
+	GL_SelectTexture(1);
+	GL_Bind(tr.depthRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -3245,8 +3245,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// bind u_PositionMap
 						GL_SelectTexture(3);
-						GL_Bind(tr.deferredPositionFBOImage);
-						//GL_Bind(tr.depthRenderImage);
+						//GL_Bind(tr.deferredPositionFBOImage);
+						GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
 						GL_SelectTexture(4);
@@ -3319,8 +3319,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// bind u_PositionMap
 						GL_SelectTexture(3);
-						GL_Bind(tr.deferredPositionFBOImage);
-						//GL_Bind(tr.depthRenderImage);
+						//GL_Bind(tr.deferredPositionFBOImage);
+						GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
 						GL_SelectTexture(4);
@@ -3399,7 +3399,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				case RL_OMNI:
 				case RL_PROJ:
 				{
-					if(light == oldLight && entity == oldEntity && alphaTest == oldAlphaTest)
+					if(light == oldLight && entity == oldEntity && (alphaTest ? shader == oldShader : alphaTest == oldAlphaTest))
 					{
 						if(r_logFile->integer)
 						{
@@ -5338,7 +5338,7 @@ static void RB_RenderView(void)
 
 		// render global fog
 		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderUniformFog(qtrue);
+		RB_RenderUniformFog(qfalse);
 
 		// render debug information
 		R_BindFBO(tr.deferredRenderFBO);

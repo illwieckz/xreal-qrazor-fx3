@@ -272,6 +272,9 @@ typedef struct FBO_s
 	GLuint          stencilBuffer;
 	int             stencilFormat;
 
+	GLuint			packedDepthStencilBuffer;
+	int				packedDepthStencilFormat;
+
 	int             width;
 	int             height;
 } FBO_t;
@@ -2024,6 +2027,7 @@ extern cvar_t  *r_ext_stencil_two_side;
 extern cvar_t  *r_ext_separate_stencil;
 extern cvar_t  *r_ext_depth_bounds_test;
 extern cvar_t  *r_ext_framebuffer_object;
+extern cvar_t  *r_ext_packed_depth_stencil;
 extern cvar_t  *r_extx_framebuffer_mixed_formats;
 extern cvar_t  *r_ext_generate_mipmap;
 

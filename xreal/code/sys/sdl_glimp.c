@@ -1000,6 +1000,25 @@ static void GLimp_InitExtensions(void)
 		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 	}
 
+	// GL_EXT_packed_depth_stencil
+	glConfig.framebufferPackedDepthStencilAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_packed_depth_stencil"))
+	{
+		if(r_ext_packed_depth_stencil->integer)
+		{
+			glConfig.framebufferPackedDepthStencilAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_EXT_packed_depth_stencil\n");
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_packed_depth_stencil\n");
+		}
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_packed_depth_stencil not found\n");
+	}
+
 	// GL_EXTX_framebuffer_mixed_formats
 	glConfig.framebufferMixedFormatsAvailable = qfalse;
 	if(Q_stristr(glConfig.extensions_string, "GL_EXTX_framebuffer_mixed_formats"))

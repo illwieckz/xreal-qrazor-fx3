@@ -42,7 +42,7 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
-#if defined(r_deferredShading)
+#if 0 //defined(r_deferredShading)
 
 #if defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space

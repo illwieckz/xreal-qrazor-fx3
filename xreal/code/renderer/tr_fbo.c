@@ -230,6 +230,42 @@ void R_CreateFBOStencilBuffer(FBO_t * fbo, int format)
 }
 
 /*
+================
+R_CreateFBOPackedDepthStencilBuffer
+================
+*/
+void R_CreateFBOPackedDepthStencilBuffer(FBO_t * fbo, int format)
+{
+	qboolean        absent;
+
+	// Tr3B: FIXME should be GL_DEPTH_STENCIL_EXT
+	if(format != GL_DEPTH_STENCIL_NV)
+	{
+		ri.Printf(PRINT_WARNING, "R_CreateFBOPackedDepthStencilBuffer: format %i is not depth-stencil-renderable\n", format);
+		return;
+	}
+
+	fbo->packedDepthStencilFormat = format;
+
+	absent = fbo->packedDepthStencilBuffer == 0;
+	if(absent)
+		qglGenRenderbuffersEXT(1, &fbo->packedDepthStencilBuffer);
+
+	qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->packedDepthStencilBuffer);
+	qglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, fbo->packedDepthStencilFormat, fbo->width, fbo->height);
+	GL_CheckErrors();
+
+	if(absent)
+	{
+		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->packedDepthStencilBuffer);
+		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->packedDepthStencilBuffer);
+	}
+
+	GL_CheckErrors();
+}
+
+
+/*
 =================
 R_AttachFBOTexture1D
 =================
@@ -377,7 +413,9 @@ void R_InitFBOs(void)
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		// geometricRender FBO as G-Buffer for deferred shading
-		GLenum          drawbuffers[] = { GL_COLOR_ATTACHMENT0_EXT,
+		GLenum          drawbuffers[] =
+		{
+			GL_COLOR_ATTACHMENT0_EXT,
 			GL_COLOR_ATTACHMENT1_EXT,
 			GL_COLOR_ATTACHMENT2_EXT,
 			GL_COLOR_ATTACHMENT3_EXT
@@ -395,6 +433,7 @@ void R_InitFBOs(void)
 			height = NearestPowerOfTwo(glConfig.vidHeight);
 		}
 
+#if 0
 		if(glConfig.framebufferMixedFormatsAvailable)
 		{
 			// deferredRender FBO for the lighting pass
@@ -422,7 +461,6 @@ void R_InitFBOs(void)
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
 
-
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
 
@@ -443,6 +481,7 @@ void R_InitFBOs(void)
 			R_CheckFBO(tr.geometricRenderFBO);
 		}
 		else
+#endif
 		{
 			// deferredRender FBO for the lighting pass
 			tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
@@ -462,7 +501,7 @@ void R_InitFBOs(void)
 			R_BindFBO(tr.geometricRenderFBO);
 
 			// enable all attachments as draw buffers
-			qglDrawBuffersARB(4, drawbuffers);
+			qglDrawBuffersARB(3, drawbuffers);
 
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
@@ -470,12 +509,11 @@ void R_InitFBOs(void)
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
 
-
 			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
 
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 3);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredPositionFBOImage->texnum, 3);
+			//R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 3);
+			//R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredPositionFBOImage->texnum, 3);
 
 			// share depth buffer
 			tr.geometricRenderFBO->depthFormat = tr.deferredRenderFBO->depthFormat;
