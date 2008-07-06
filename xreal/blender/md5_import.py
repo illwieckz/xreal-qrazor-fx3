@@ -1,8 +1,8 @@
 ######################################################
 # MD5 Importer
-# By:  Bob Holcomb, Thomas "der_ton" Hutter
-# Date: 2006-02-20
-# Ver: 0.5
+# By:  Thomas "der_ton" Hutter, with some parts of mesh import code by Bob Holcomb
+# Date: 2008-05-31
+# Ver: 0.6
 ######################################################
 # This script imports a MD5mesh and MD5anim file
 # into blender for editing.
@@ -10,12 +10,14 @@
 
 # todo:
 # more options on anim import (startframe, keyframe-frequency, ...)
+# import vertex attributes from md5version 11 meshes
 
 # Version History:
 # 0.31 (2004-10-27): Bones that are oriented in the direction of a child are extended so that their end touches the origin of the child bone (IK rigging is easier this way)
 # 0.4  (2006-01-09): Updated to Blender2.40, added mesh parenting to armature
 # 0.5  (2006-02-20): Updated to Blender2.41, added animation import
-
+#      (2007-02-12): Minor improvements to the naming of imported meshes, armatures and images
+# 0.6  (2008-05-31): added MD5Version 11 support (Enemy Territory: Quake Wars)
 ######################################################
 # Importing modules
 ######################################################
@@ -63,6 +65,10 @@ def quaternion2matrix(q):
           [      2.0 * (xy - wz), 1.0 - 2.0 * (xx + zz),       2.0 * (yz + wx), 0.0],
           [      2.0 * (xz + wy),       2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy), 0.0],
           [0.0                  , 0.0                  , 0.0                  , 1.0]]
+def euler2matrix(e):
+	#euler is assumed to be a float[3], with YAW, PITCH, ROLL (in this order) in degrees
+	return matrix_multiply(matrix_multiply(matrix_rotate_z(e[0]/180*math.pi),matrix_rotate_y(e[1]/180*math.pi)),matrix_rotate_x(e[2]/180*math.pi))
+
 
 def matrix2quaternion(m):
   s = math.sqrt(abs(m[0][0] + m[1][1] + m[2][2] + m[3][3]))
@@ -363,20 +369,21 @@ class md5_mesh:
 ######################################################
 # IMPORT
 ######################################################
-
+md5_bones = []
 
 def load_md5(md5_filename):
-
+        global md5_bones
         file=open(md5_filename,"r")
         lines=file.readlines()
         file.close()
 
         md5_model=[]
-        md5_bones=[]
+        if (not md5_bones): md5_bones=[]
 
         num_lines=len(lines)
 
         mesh_counter=0
+        MD5Version=0
         for line_counter in range(0,num_lines):
             current_line=lines[line_counter]
             words=current_line.split()
@@ -385,7 +392,16 @@ def load_md5(md5_filename):
                 #print "found a bunch of bones"
                 num_bones=int(words[1])
                 print "num_bones: ", num_bones
+            elif words and words[0]=="MD5Version":
+                #print "found a bunch of bones"
+                MD5Version=int(words[1])
+                print "MD5Version: ", MD5Version
+            elif words and words[0]=="numbones": #md5 version 6
+                #print "found a bunch of bones"
+                num_bones=int(words[1])
+                print "num_bones: ", num_bones
             elif words and words[0]=="joints":
+                md5_bones=[]
                 for bone_counter in range(0,num_bones):
                     #make a new bone
                     md5_bones.append(md5_bone())
@@ -423,7 +439,51 @@ def load_md5(md5_filename):
 
 
 
-            elif words and words[0]=="numMeshes":
+            elif words and words[0]=="bone": #md5 version 6
+                #make a new bone
+                md5_bones.append(md5_bone())
+                bone_counter = int(words[1])
+                md5_bones[bone_counter].bone_index=len(md5_bones)-1
+                if (md5_bones[bone_counter].bone_index!=int(words[1])):
+                    print "Fatal Error:  Missing Bone: ", md5_bone[bone_counter].bone_index
+                    Exit()
+                while words[0]!="}":  #the symbol at the end of the bone structure
+                    line_counter+=1
+                    current_line=lines[line_counter]
+                    words=current_line.split()
+                    if words and words[0]=="name":
+                        #get rid of the quotes on either side
+                        temp_name=str(words[1])
+                        temp_name=temp_name[1:-1]
+                        md5_bones[bone_counter].name=temp_name
+                        #print "found a bone: ", md5_bones[bone_counter].name
+                    elif words and words[0]=="bindpos":
+                        md5_bones[bone_counter].bindpos[0]=float(words[1])
+                        md5_bones[bone_counter].bindpos[1]=float(words[2])
+                        md5_bones[bone_counter].bindpos[2]=float(words[3])
+                    elif words and words[0]=="bindmat":
+                        md5_bones[bone_counter].bindmat[0][0]=float(words[1])
+                        md5_bones[bone_counter].bindmat[0][1]=float(words[2])
+                        md5_bones[bone_counter].bindmat[0][2]=float(words[3])
+                        md5_bones[bone_counter].bindmat[1][0]=float(words[4])
+                        md5_bones[bone_counter].bindmat[1][1]=float(words[5])
+                        md5_bones[bone_counter].bindmat[1][2]=float(words[6])
+                        md5_bones[bone_counter].bindmat[2][0]=float(words[7])
+                        md5_bones[bone_counter].bindmat[2][1]=float(words[8])
+                        md5_bones[bone_counter].bindmat[2][2]=float(words[9])
+                    elif words and words[0]=="parent":
+                        #get rid of the quotes on either side
+                        temp_name=str(words[1])
+                        temp_name=temp_name[1:-1]
+                        md5_bones[bone_counter].parent=temp_name
+                        #put parent index code here
+                        for pbone in md5_bones:
+                            if pbone.name == temp_name:
+                                md5_bones[bone_counter].parent_index = pbone.bone_index
+                                break
+
+
+            elif words and (words[0]=="numMeshes" or words[0]=="nummeshes"):
                 num_meshes=int(words[1])
                 print "num_meshes: ", num_meshes
             elif words and words[0]=="mesh":
@@ -434,12 +494,20 @@ def load_md5(md5_filename):
                         line_counter+=1
                         current_line=lines[line_counter]
                         words=current_line.split()
+                        if words and words[0]=="flags": #MD5Version 11
+                            while words[0]!="}":  #the symbol at the end of the flags section
+                                line_counter+=1
+                                current_line=lines[line_counter]
+                                words=current_line.split()
+                            line_counter+=1
+                            current_line=lines[line_counter]
+                            words=current_line.split()
                         if words and words[0]=="shader":
                             #print "found a shader"
                             temp_name=str(words[1])
                             temp_name=temp_name[1:-1]
                             md5_model[mesh_counter].shader=temp_name
-                        if words and words[0]=="vert":
+                        if words and words[0]=="vert" and (MD5Version == 10 or MD5Version == 11):
 			    #print "found a vert"
                             md5_model[mesh_counter].verts.append(md5_vert())
                             vert_counter=len(md5_model[mesh_counter].verts)-1
@@ -449,6 +517,16 @@ def load_md5(md5_filename):
                             md5_model[mesh_counter].verts[vert_counter].uvco[1]=(1-float(words[4]))
                             md5_model[mesh_counter].verts[vert_counter].blend_index=int(words[6])
                             md5_model[mesh_counter].verts[vert_counter].blend_count=int(words[7])
+                        if words and words[0]=="vert" and MD5Version == 6:
+			    #print "found a vert"
+                            md5_model[mesh_counter].verts.append(md5_vert())
+                            vert_counter=len(md5_model[mesh_counter].verts)-1
+			    #load it with the raw data
+                            md5_model[mesh_counter].verts[vert_counter].vert_index=int(words[1])
+                            md5_model[mesh_counter].verts[vert_counter].uvco[0]=float(words[2])
+                            md5_model[mesh_counter].verts[vert_counter].uvco[1]=(1-float(words[3]))
+                            md5_model[mesh_counter].verts[vert_counter].blend_index=int(words[4])
+                            md5_model[mesh_counter].verts[vert_counter].blend_count=int(words[5])
                         if words and words[0]=="tri":
                             #print "found a tri"
                             md5_model[mesh_counter].tris.append(md5_tri())
@@ -458,7 +536,7 @@ def load_md5(md5_filename):
                             md5_model[mesh_counter].tris[tri_counter].vert_index[0]=int(words[2])
                             md5_model[mesh_counter].tris[tri_counter].vert_index[1]=int(words[3])
                             md5_model[mesh_counter].tris[tri_counter].vert_index[2]=int(words[4])
-                        if words and words[0]=="weight":
+                        if words and words[0]=="weight" and (MD5Version == 10 or MD5Version == 11):
                             #print "found a weight"
                             md5_model[mesh_counter].weights.append(md5_weight())
                             weight_counter=len(md5_model[mesh_counter].weights)-1
@@ -469,6 +547,17 @@ def load_md5(md5_filename):
                             md5_model[mesh_counter].weights[weight_counter].weights[0]=float(words[5])
                             md5_model[mesh_counter].weights[weight_counter].weights[1]=float(words[6])
                             md5_model[mesh_counter].weights[weight_counter].weights[2]=float(words[7])
+                        if words and words[0]=="weight" and MD5Version == 6:
+                            #print "found a weight"
+                            md5_model[mesh_counter].weights.append(md5_weight())
+                            weight_counter=len(md5_model[mesh_counter].weights)-1
+                            #load it with raw data
+                            md5_model[mesh_counter].weights[weight_counter].weight_index=int(words[1])
+                            md5_model[mesh_counter].weights[weight_counter].bone_index=int(words[2])
+                            md5_model[mesh_counter].weights[weight_counter].bias=float(words[3])
+                            md5_model[mesh_counter].weights[weight_counter].weights[0]=float(words[4])
+                            md5_model[mesh_counter].weights[weight_counter].weights[1]=float(words[5])
+                            md5_model[mesh_counter].weights[weight_counter].weights[2]=float(words[6])
                             #md5_model[mesh_counter].weights[weight_counter].dump()
                 #print "end of this mesh structure"
                 mesh_counter += 1
@@ -508,8 +597,8 @@ def load_md5(md5_filename):
         lindex = string.rfind(tempstring, "/")
         rindex = string.rfind(tempstring, ".")
         if lindex==-1: lindex=0
-        tempstring = string.rstrip(tempstring, ".md5mesh")
-        tempstring = tempstring[lindex+1:len(tempstring)]
+        tempstring = tempstring[lindex+1:rindex] #len(tempstring)]
+        #pth, tempstring = os.path.split(md5_filename)
         armObj = Object.New('Armature', tempstring)
         armData = Blender.Armature.Armature("MD5_ARM") 
         armData.drawAxes = True 
@@ -568,7 +657,7 @@ def load_md5(md5_filename):
                         if os.path.isfile(path):
                                 print "shader: ", path
                                 mesh_image=Blender.Image.Load(path)
-                                print "loaded :", mesh_image
+                                print "loaded: ", mesh_image
                         else:
                                 print "couldn't find image for: ", mesh.shader
                                 mesh_image=None
@@ -601,7 +690,6 @@ def load_md5(md5_filename):
                     translationtable = string.maketrans("\\", "/")
                     tempstring = string.translate(mesh.shader, translationtable)
                     lindex = string.rfind(tempstring, "/")
-                    tempstring = string.rstrip(tempstring, ".tga")
                     if lindex==-1: lindex=0
                     tempstring = tempstring[lindex+1:len(tempstring)]
                     mesh_obj=NMesh.PutRaw(blender_mesh, tempstring)
@@ -616,7 +704,6 @@ def load_md5(md5_filename):
                     translationtable = string.maketrans("\\", "/")
                     tempstring = string.translate(mesh.shader, translationtable)
                     lindex = string.rfind(tempstring, "/")
-                    tempstring = string.rstrip(tempstring, ".tga")
                     if lindex==-1: lindex=0
                     tempstring = tempstring[lindex+1:len(tempstring)]
                     mesh_obj.setName(tempstring)
@@ -667,7 +754,7 @@ class md5anim_bone:
         self.invrestmat = None
         self.posemat = None
 
-        
+
 class md5anim:
     num_bones = 0
     md5anim_bones = []
@@ -678,10 +765,10 @@ class md5anim:
     framedata = []
 
     def __init__(self):
-        num_bones = 0
-        md5anim_bones = []
-        baseframe = []
-        framedata = []
+        self.num_bones = 0
+        self.md5anim_bones = []
+        self.baseframe = []
+        self.framedata = []
         
     def load_md5anim(self, md5_filename):
         file=open(md5_filename,"r")
@@ -716,7 +803,7 @@ class md5anim:
                 for bone_counter in range(0,self.num_bones):
                     #make a new bone
                     self.md5anim_bones.append(md5anim_bone())
-		    #next line
+                    #next line
                     line_counter+=1
                     current_line=lines[line_counter]
                     words=current_line.split()
@@ -834,11 +921,411 @@ class md5anim:
           thepose.update()
       Blender.Set("curframe", 1)
       
+class md5animV6_channel:
+	joint = ""
+	attribute = ""
+	starttime = 0
+	endtime = 0
+	framerate = 24.000000
+
+	strings = 0
+	stringdata = []
+	
+	range = [0,0]
+	keys = 0
+	keydata = []
+	def __init__(self):
+		self.joint = ""
+		self.attribute = ""
+		self.starttime = 0
+		self.endtime = 0
+		self.framerate = 24.000000
+
+		self.strings = 0
+		self.stringdata = []
+		
+		self.range = [0,0]
+		self.keys = 0
+		self.keydata = []
+		
+class md5animV6:
+	numFrames = 0
+	numChannels = 0
+	channels = []
+	iscamera = 0
+	def __init__(self):
+		self.numFrames = 0
+		self.numChannels = 0
+		self.iscamera = 0
+		
+	def load_md5anim(self, md5_filename):
+		file=open(md5_filename,"r")
+		lines=file.readlines()
+		file.close()
+
+		num_lines=len(lines)
+
+		for line_counter in range(0,num_lines):
+			current_line=lines[line_counter]
+			words=current_line.split()
+
+			if words and words[0]=="numchannels":
+				self.numChannels=int(words[1])
+				print "numchannels: ", self.numChannels
+			elif words and words[0]=="channel":
+				self.channels.append(md5animV6_channel())
+				line_counter+=1
+				current_line=lines[line_counter]
+				words=current_line.split()
+				while not words or (words and not(words[0]=="channel" or words[0]=="}")):
+					if words and words[0]=="joint":
+						temp_name=str(words[1])
+						temp_name=temp_name[1:-1]
+						self.channels[len(self.channels)-1].joint=temp_name
+						if temp_name == "refcam": self.iscamera = 1
+					elif words and words[0]=="attribute":
+						temp_name=str(words[1])
+						temp_name=temp_name[1:-1]
+						self.channels[len(self.channels)-1].attribute=temp_name
+						if temp_name == "fov" or temp_name == "camera": self.iscamera = 1
+					elif words and words[0]=="starttime":
+						self.channels[len(self.channels)-1].starttime=float(words[1])
+					elif words and words[0]=="endtime":
+						self.channels[len(self.channels)-1].endtime=float(words[1])
+					elif words and words[0]=="framerate":
+						self.channels[len(self.channels)-1].framerate=float(words[1])
+					elif words and words[0]=="range":
+						self.channels[len(self.channels)-1].range=[int(words[1]), int(words[2])]
+					elif words and words[0]=="strings":
+						self.channels[len(self.channels)-1].strings=int(words[1])
+						line_counter+=1
+						current_line=lines[line_counter]
+						words=current_line.split()
+						while words and len(self.channels[len(self.channels)-1].stringdata)<self.channels[len(self.channels)-1].strings:
+							for number in words:
+								self.channels[len(self.channels)-1].stringdata.append(number[1:-1])
+							line_counter+=1
+							current_line=lines[line_counter]
+							words=current_line.split()
+					elif words and words[0]=="keys":
+						self.channels[len(self.channels)-1].keys=int(words[1])
+						line_counter+=1
+						current_line=lines[line_counter]
+						words=current_line.split()
+						while words and not(words[0]=="}"):
+							for number in words:
+								self.channels[len(self.channels)-1].keydata.append(float(number))
+							line_counter+=1
+							current_line=lines[line_counter]
+							words=current_line.split()
+						line_counter-=1
+					line_counter+=1
+					current_line=lines[line_counter]
+					words=current_line.split()
+				line_counter+=1
+				if line_counter<num_lines: current_line=lines[line_counter]
+				words=current_line.split()
+		if self.iscamera: print "this md5anim probably is a camera animation"
+		#print self.channels
+		
+	def apply_camera(self, camname):
+		self.numFrames = self.channels[0].range[1]+1
+		print "numFrames ", self.numFrames
+		print "creating new camera ", camname
+		c = Blender.Camera.New('persp')     # create new ortho camera data
+		c.scale = 6.0               # set scale value
+		cur = Blender.Scene.getCurrent()    # get current scene
+		ob = Blender.Object.New('Camera', camname)   # make camera object
+		ob.link(c)                  # link camera data with this object
+		cur.link(ob)                # link object into scene
+		cur.setCurrentCamera(ob)
+		#do we have a refcam?
+		refcamchannel = None
+		camjointname = None # name of the one camera joint, needed if there is no refcam
+		for ch in self.channels:
+			if ch.joint == "refcam":
+				refcamchannel = ch
+				break
+		if not refcamchannel:
+			for ch in self.channels:
+				if ch.attribute == "fov": # if a joint has a fov channel, we assume it is the camera
+					camjointname = ch.joint
+					break
+		for currntframe in range(0, self.numFrames):
+			print "importing frame ", currntframe," of", self.numFrames-1
+			Blender.Set("curframe", currntframe+1)
+			if refcamchannel:
+				#determine active camera for this frame
+				keyindex = currntframe - refcamchannel.range[0]
+				if keyindex < 0: keyindex = 0
+				if keyindex >= len(refcamchannel.keydata): keyindex = len(refcamchannel.keydata)-1 
+				camjointname = refcamchannel.stringdata[int(refcamchannel.keydata[keyindex])]
+			#gather pitch, yaw, roll, x,y,z and fov
+			foundbonechannels = 0
+			pitch,yaw,roll,lx,ly,lz,fov = 0,0,0,0,0,0,90
+			for ch in self.channels:
+				if ch.joint == camjointname:
+					foundbonechannels += 1
+					#determine keys-index
+					keyindex = currntframe - ch.range[0]
+					if keyindex < 0: keyindex = 0
+					if keyindex >= len(ch.keydata): keyindex = len(ch.keydata)-1 
+					value = ch.keydata[keyindex]
+					if ch.attribute == "pitch":
+						pitch = value
+					if ch.attribute == "yaw":
+						yaw = value
+					if ch.attribute == "roll":
+						roll = value
+					if ch.attribute == "x":
+						lx = value
+					if ch.attribute == "y":
+						ly = value
+					if ch.attribute == "z":
+						lz = value
+					if ch.attribute == "fov":
+						fov = value
+			if foundbonechannels < 6: #if there is no fov, the default of 90 will do
+				if currntframe == 0: print "warning: not all 7 channels for camera ", camjointname, " in animation. found channels: ", foundbonechannels
+				continue
+
+			m1 = euler2matrix([yaw,pitch,roll])
+			# this is because blender cams look down their negative z-axis and "up" is y
+			# doom3 cameras look down their x axis, "up" is z
+			lmat = [[-m1[1][0], -m1[1][1], -m1[1][2], 0.0], [m1[2][0], m1[2][1], m1[2][2], 0.0], [-m1[0][0], -m1[0][1], -m1[0][2], 0.0], [0,0,0,1]]
+			lmat[3][0] = lx*scale
+			lmat[3][1] = ly*scale
+			lmat[3][2] = lz*scale
+			lmat = Blender.Mathutils.Matrix(lmat[0], lmat[1], lmat[2], lmat[3])
+			ob.setMatrix(lmat)
+			#fov = math.atan(16/cams[0].getLens())*360/math.pi
+			c.setLens(16/math.tan(fov/360*math.pi))
+			ob.insertIpoKey(Blender.Object.LOCROT)
+			c.insertIpoKey(Blender.Camera.LENS)
+		Blender.Set("curframe", 1)
+		
+		
+	def apply(self, arm_obj, actionname):
+		action = Blender.Armature.NLA.NewAction(actionname)
+		action.setActive(arm_obj)
+		thepose = arm_obj.getPose()
+		self.numFrames = self.channels[0].range[1]+1
+		print "numFrames ", self.numFrames
+		for currntframe in range(0, self.numFrames):
+			print "importing frame ", currntframe," of", self.numFrames-1
+			Blender.Set("curframe", currntframe+1)
+			for bone in thepose.bones.values():
+				pitch,yaw,roll,lx,ly,lz = 0,0,0,0,0,0
+				foundbonechannels = 0
+				for ch in self.channels:
+					if ch.joint == bone.name:
+						foundbonechannels += 1
+						#determine keys-index
+						keyindex = currntframe - ch.range[0]
+						if keyindex < 0: keyindex = 0
+						if keyindex >= len(ch.keydata): keyindex = len(ch.keydata)-1 
+						value = ch.keydata[keyindex]
+						if ch.attribute == "pitch":
+							pitch = value
+						if ch.attribute == "yaw":
+							yaw = value
+						if ch.attribute == "roll":
+							roll = value
+						if ch.attribute == "x":
+							lx = value
+						if ch.attribute == "y":
+							ly = value
+						if ch.attribute == "z":
+							lz = value
+				if foundbonechannels < 6:
+					if currntframe == 0: print "warning: not all 6 channels for bone ", bone.name, " in animation. found channels: ", foundbonechannels
+					continue
+				#prepare lmat
+				lmat = euler2matrix([yaw,pitch,roll])
+				lmat[3][0] = lx*scale
+				lmat[3][1] = ly*scale
+				lmat[3][2] = lz*scale
+				lmat = Blender.Mathutils.Matrix(lmat[0], lmat[1], lmat[2], lmat[3])
+				#if md5b.parent_index>=0:
+				#  md5b.posemat = lmat*self.md5anim_bones[md5b.parent_index].posemat
+				#else:
+				#  md5b.posemat = lmat
+				invrestmat = Blender.Mathutils.Matrix(arm_obj.getData().bones[bone.name].matrix['ARMATURESPACE']).invert()
+				restmat = Blender.Mathutils.Matrix(arm_obj.getData().bones[bone.name].matrix['ARMATURESPACE'])
+				if arm_obj.getData().bones[bone.name].hasParent():
+					parentinvrestmat = Blender.Mathutils.Matrix(arm_obj.getData().bones[bone.name].parent.matrix['ARMATURESPACE']).invert()
+					#parentrestmat = Blender.Mathutils.Matrix(arm_obj.getData().bones[bone.name].parent.matrix['ARMATURESPACE'])
+					bone.localMatrix = Blender.Mathutils.Matrix(lmat) * (restmat * parentinvrestmat).invert()
+				else:
+					bone.localMatrix = lmat * invrestmat
+				thepose.update()
+				bone.insertKey(arm_obj, currntframe+1, [Blender.Object.Pose.ROT, Blender.Object.Pose.LOC])
+				thepose.update()
+		Blender.Set("curframe", 1)
+
+class md5animBMNA:
+	num_bones = 0
+	md5anim_bones = []
+	frameRate = 24
+	numFrames = 0
+	numAnimatedComponents = 0
+	baseframe = []
+	framedata = []
+
+	def __init__(self):
+		self.num_bones = 0
+		self.md5anim_bones = []
+		self.baseframe = []
+		self.framedata = []
+		self.numFrames = 0
+
+	def load_md5anim(self, md5_filename):
+		file=open(md5_filename,"rb")
+		BMNA, version = struct.unpack("<1L1L", file.read(8))
+		self.numFrames, self.frameRate, somearraysize, self.num_bones, self.numAnimatedComponents, numframes2 = struct.unpack("<1l1l1l1l1l1l", file.read(24))
+		print "Framerate, Number of Bones:", self.frameRate, self.num_bones
+		for i in range(0, numframes2):
+			bb1,bb2,bb3,bb4,bb5,bb6 = struct.unpack("<hhhhhh", file.read(12))
+		numbones2, = struct.unpack("<L", file.read(4))
+		for i in range(0, numbones2):
+			strlength, = struct.unpack("<L", file.read(4))
+			nb = md5anim_bone()
+			nb.name = str(file.read(strlength))
+			nb.parent_index, nb.flags, nb.frameDataIndex = struct.unpack("<hhh", file.read(6))
+			print nb.name, nb.parent_index, nb.flags, nb.frameDataIndex
+			self.md5anim_bones.append(nb)
+		numbones3, = struct.unpack("<L", file.read(4))
+		for bone_counter in range(0, numbones3): #basepose
+			bp1,bp2,bp3,bp4,bp5,bp6 = struct.unpack("<hhhhhh", file.read(12))
+			self.md5anim_bones[bone_counter].bindpos[0]=bp4/128.0
+			self.md5anim_bones[bone_counter].bindpos[1]=bp5/128.0
+			self.md5anim_bones[bone_counter].bindpos[2]=bp6/128.0
+			qx = bp1/32768.0
+			qy = bp2/32768.0
+			qz = bp3/32768.0
+			qw = 1 - qx*qx - qy*qy - qz*qz
+			if qw<0:
+				qw=0
+			else:
+				qw = -sqrt(qw)
+			self.md5anim_bones[bone_counter].bindquat = [qx,qy,qz,qw]
+		blocklength, = struct.unpack("<L", file.read(4))
+		if not (blocklength == self.numFrames * self.numAnimatedComponents):
+			print "framedata count error! framedata length is not numframes * numanimatedcomponents"
+		self.framedata = [[]]*self.numFrames
+		for framenumber in range(0, self.numFrames):
+			self.framedata[framenumber] = [[]]*self.numAnimatedComponents
+			for i in range(0, self.numAnimatedComponents):
+				val, = struct.unpack("<h", file.read(2))
+				#if i<2:
+				#	print framenumber, i, val
+				self.framedata[framenumber][i] = val #self.framedata[framenumber].append(val)
+			#print framenumber, self.framedata[framenumber][0],self.framedata[framenumber][1]
+		strlength, = struct.unpack("<L", file.read(4))
+		sourcemd5name = str(file.read(strlength))
+		print sourcemd5name
+		file.close()
+	def apply(self, arm_obj, actionname):
+		action = Blender.Armature.NLA.NewAction(actionname)
+		action.setActive(arm_obj)
+		thepose = arm_obj.getPose()
+		for b in self.md5anim_bones:
+			b.invrestmat = Blender.Mathutils.Matrix(arm_obj.getData().bones[b.name].matrix['ARMATURESPACE']).invert()
+			b.restmat = Blender.Mathutils.Matrix(arm_obj.getData().bones[b.name].matrix['ARMATURESPACE'])
+		for currntframe in range(1, self.numFrames+1):
+			print "importing frame ", currntframe," of", self.numFrames
+			Blender.Set("curframe", currntframe)
+			for md5b in self.md5anim_bones:
+				try:
+					thebone = thepose.bones[md5b.name]
+				except:
+					print "could not find bone ", md5b.name, " in armature"
+					continue
+				(qx,qy,qz,qw) = md5b.bindquat
+				lx,ly,lz = md5b.bindpos
+				frameDataIndex = md5b.frameDataIndex
+				if (md5b.flags & 1):
+					lx = self.framedata[currntframe-1][frameDataIndex]/128.0
+					frameDataIndex+=1
+				if (md5b.flags & 2):
+					ly = self.framedata[currntframe-1][frameDataIndex]/128.0
+					frameDataIndex+=1
+				if (md5b.flags & 4):
+					lz = self.framedata[currntframe-1][frameDataIndex]/128.0
+					frameDataIndex+=1
+				if (md5b.flags & 8):
+					qx = self.framedata[currntframe-1][frameDataIndex]/32768.0
+					frameDataIndex+=1
+				if (md5b.flags & 16):
+					qy = self.framedata[currntframe-1][frameDataIndex]/32768.0
+					frameDataIndex+=1
+				if (md5b.flags & 32):
+					qz = self.framedata[currntframe-1][frameDataIndex]/32768.0
+				qw = 1 - qx*qx - qy*qy - qz*qz
+				if qw<0:
+					qw=0
+				else:
+					qw = -sqrt(qw)
+				lmat = quaternion2matrix([qx,qy,qz,qw])
+				lmat[3][0] = lx*scale
+				lmat[3][1] = ly*scale
+				lmat[3][2] = lz*scale
+				lmat = Blender.Mathutils.Matrix(lmat[0], lmat[1], lmat[2], lmat[3])
+				#if md5b.parent_index>=0:
+				#  md5b.posemat = lmat*self.md5anim_bones[md5b.parent_index].posemat
+				#else:
+				#  md5b.posemat = lmat
+				if md5b.parent_index>=0:
+					thebone.localMatrix = Blender.Mathutils.Matrix(lmat) * (md5b.restmat * self.md5anim_bones[md5b.parent_index].invrestmat).invert()
+				else:
+					thebone.localMatrix = lmat * md5b.invrestmat
+				thepose.update()
+				thebone.insertKey(arm_obj, currntframe, [Blender.Object.Pose.ROT, Blender.Object.Pose.LOC])
+				thepose.update()
+		Blender.Set("curframe", 1)
+
 
 #armobj is either an armature object or None
 def load_md5anim(md5anim_filename, armobj):
-  theanim = md5anim()
+  MD5AnimVersion = 0
+  #check for binary versions
+  f = open(md5anim_filename, "rb")
+  id, = struct.unpack("4s", f.read(4))
+  if (id == "BMNA"):
+    MD5AnimVersion = "BMNA"
+  f.close()
+  #check for ascii versions
+  if not MD5AnimVersion:
+    f = open(md5anim_filename)
+    try:
+      for line in f:
+          if line.split()[0]=="MD5Version":
+              MD5AnimVersion = int(line.split()[1])
+              break
+    finally:
+          f.close()
+  print "MD5Animation Version ", MD5AnimVersion
+  if MD5AnimVersion == 6:
+    theanim = md5animV6()
+  elif MD5AnimVersion == 10:
+    theanim = md5anim()
+  elif MD5AnimVersion == "BMNA":
+    theanim = md5animBMNA()
   theanim.load_md5anim(md5anim_filename)
+  if MD5AnimVersion == 6 and theanim.iscamera:
+    pth, actionname = os.path.split(md5anim_filename)
+    theanim.apply_camera(actionname)
+    scn = Blender.Scene.GetCurrent()
+    context = scn.getRenderingContext()
+    context.endFrame(theanim.numFrames+1)
+    Blender.Window.WaitCursor(0)
+    name = "Want to try to import character animation?%t|Yes|No"  # if no %xN int is set, indices start from 1
+    menuresult = Blender.Draw.PupMenu(name)
+    Blender.Window.WaitCursor(1)
+    if menuresult==2:
+        return
+  # do not always return, because there are md5anim v6 files that contain camera AND character animation
+
   if (armobj):
     obj = armobj
   else:
@@ -848,15 +1335,16 @@ def load_md5anim(md5anim_filename, armobj):
       if type(data) is Blender.Types.ArmatureType:
         obj = armobj
         break
-  if obj:
-    print "applying animation to armature: ", obj.getName()
-    pth, actionname = os.path.split(md5anim_filename)
-    theanim.apply(obj, actionname)
-    scn = Blender.Scene.GetCurrent()
-    context = scn.getRenderingContext()
-    context.endFrame(theanim.numFrames+1)
-  else:
-    print "couldn't apply animation, no armature in the scene"    
+  if obj==None:
+    print "cannot apply character animation, no armature in the scene"
+    return
+
+  print "applying animation to armature: ", obj.getName()
+  pth, actionname = os.path.split(md5anim_filename)
+  theanim.apply(obj, actionname)
+  scn = Blender.Scene.GetCurrent()
+  context = scn.getRenderingContext()
+  context.endFrame(theanim.numFrames+1)
   return
 
 ######################################################
@@ -909,6 +1397,7 @@ def handle_button_event(evt):
   if evt == EVENT_IMPORT:
     scale = scale_slider.val
     bonesize = bonesize_slider.val
+    Blender.Window.WaitCursor(1)
     draw_busy_screen = 1
     Blender.Draw.Draw()
     if len(md5mesh_filename.val)>0:
@@ -923,10 +1412,9 @@ def handle_button_event(evt):
           if not (type(data) is Blender.Types.ArmatureType):
             armObj = None
         load_md5anim(md5anim_filename.val, armObj)
-          
-
     draw_busy_screen = 0
     Blender.Draw.Redraw(1)
+    Blender.Window.WaitCursor(0)
     return
   if evt == EVENT_QUIT:
     Blender.Draw.Exit()
