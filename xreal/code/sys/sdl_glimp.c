@@ -1133,6 +1133,10 @@ void GLimp_Init(void)
 		   Q_stristr(glConfig.renderer_string, "9600") || Q_stristr(glConfig.renderer_string, "9800"))
 			glConfig.hardwareType = GLHW_NV_DX10;
 	}
+	else if(Q_stristr(glConfig.renderer_string, "rv770"))
+	{
+		glConfig.hardwareType = GLHW_ATI_DX10;
+	}
 	else if(Q_stristr(glConfig.renderer_string, "radeon hd"))
 	{
 		glConfig.hardwareType = GLHW_ATI_DX10;
@@ -1141,7 +1145,7 @@ void GLimp_Init(void)
 	{
 		glConfig.hardwareType = GLHW_ATI;
 	}
-	
+
 
 	// initialize extensions
 	GLimp_InitExtensions();
