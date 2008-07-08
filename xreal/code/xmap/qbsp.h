@@ -44,6 +44,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef struct parseMesh_s
 {
 	struct parseMesh_s *next;
+
+	qboolean        patchDef3;
+	vec_t           info[7];
+
 	mesh_t          mesh;
 	shaderInfo_t   *shaderInfo;
 

@@ -103,7 +103,12 @@ static void WriteMapFile(char *filename)
 
 			fprintf(f, "// patch %i\n", j);
 			fprintf(f, "{\n");
-			fprintf(f, "patchDef2\n");
+			
+			if(pm->patchDef3)
+				fprintf(f, "patchDef3\n");
+			else
+				fprintf(f, "patchDef2\n");
+
 			fprintf(f, "{\n");
 
 			// write shader
@@ -111,7 +116,11 @@ static void WriteMapFile(char *filename)
 			fprintf(f, "\"%s\"\n", si->shader);
 
 			// write patch dimensions
-			fprintf(f, "( %i %i 0 0 0 )\n", pm->mesh.width, pm->mesh.height);
+			if(pm->patchDef3)
+				fprintf(f, "( %i %i %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3], (int)pm->info[4], (int)pm->info[5], (int)pm->info[6]);
+			else
+
+				fprintf(f, "( %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3], (int)pm->info[4]);
 
 			fprintf(f, "(\n");
 			for(k = 0; k < pm->mesh.width; k++)

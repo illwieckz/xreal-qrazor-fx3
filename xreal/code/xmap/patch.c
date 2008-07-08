@@ -112,7 +112,6 @@ void ParsePatch(qboolean patchDef3)
 	strcpy(mapIndexedShaders[numMapIndexedShaders], name);
 	numMapIndexedShaders++;
 
-
 	if(patchDef3)
 		Parse1DMatrix(7, info);
 	else
@@ -160,6 +159,24 @@ void ParsePatch(qboolean patchDef3)
 	// find default flags and values
 	pm = malloc(sizeof(*pm));
 	memset(pm, 0, sizeof(*pm));
+
+	pm->patchDef3 = patchDef3;
+
+	if(patchDef3)
+	{
+		for(j = 0; j < 7; j++)
+		{
+			pm->info[j] = info[j];
+		}
+	}
+	else
+	{
+		for(j = 0; j < 5; j++)
+		{
+			pm->info[j] = info[j];
+		}
+	}
+	
 
 	if(!Q_strncasecmp(name, "textures/", 9))
 		sprintf(shader, "%s", name);
