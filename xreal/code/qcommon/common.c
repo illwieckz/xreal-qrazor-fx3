@@ -3059,7 +3059,7 @@ static void Com_DetectAltivec(void)
 
 static void Com_DetectSSE(void)
 {
-#if id386_sse
+#if id386_sse && !defined(DEDICATED)
 	if(!(Sys_GetProcessorFeatures() & CF_SSE))
 	{
 		Com_Error(ERR_FATAL, "Binaries were compiled with SSE optimizations but your CPU doesn't support SSE");
