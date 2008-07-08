@@ -59,6 +59,7 @@ unix_src = [
 ]
 
 xreal_server_env.Append(CCFLAGS='-DDEDICATED')
+xreal_server_env.Append(CCFLAGS='-Icode/zlib')
 
 if env['curl'] == 1:
 	xreal_server_env.Append(CCFLAGS='-DUSE_CURL')

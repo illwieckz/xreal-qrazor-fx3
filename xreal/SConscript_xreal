@@ -192,6 +192,7 @@ win_src = [
 
 xreal_env.Append(CCFLAGS='-Icode/ogg/include')
 xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
+xreal_env.Append(CCFLAGS='-Icode/zlib')
 
 if env['curl'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')
