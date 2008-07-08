@@ -1,0 +1,22 @@
+textures/fabz0r/portal/round
+{
+
+{
+stage normalMap
+map		textures/fabz0r/portal/round_normal.png
+rotate time * 50
+}
+
+	{
+	    blend gl_dst_alpha, gl_one
+	    maskalpha
+       	    cubeMap		env/fabz0r/gen2
+		red	Parm0
+	        green    Parm1
+	        blue	Parm2
+        texgen		reflect
+
+	}
+
+
+}

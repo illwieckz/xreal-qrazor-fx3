@@ -96,6 +96,8 @@ cr_line         credits[] = {
 	{"Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Stefan 'ReFlex' Lautner", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Ross 'kit89' Forshaw", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Fabian 'Fabz0r' Rosten", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Quake II: Lost Marine Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
