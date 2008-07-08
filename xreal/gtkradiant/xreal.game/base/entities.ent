@@ -1625,21 +1625,20 @@ This is used to automatically give frag points to the player who activates this.
 =============================================================================
 -->
 
-<point name="target_speaker" color="0 .7 .7" box="-8 -8 -8 8 8 8">
+<point name="speaker" color="0 .7 .7" box="-8 -8 -8 8 8 8">
 Sound generating entity that plays .wav files. Normal non-looping sounds play each time the target_speaker is triggered. Looping sounds can be set to play by themselves (no activating trigger) or be toggled on/off by a trigger.
 -------- KEYS --------
-<sound key="noise" name="Sound File">path/name of .wav file to play (eg. sound/world/growl1.wav - see Notes).</sound>
+<sound key="s_shader" name="Sound File">path/name of .wav file to play (eg. sound/world/growl1.wav - see Notes).</sound>
+<boolean key="s_looping" name="Loop, Start On" bit="0">sound will loop and initially start on in level (will toggle on/off when triggered).</flag>
+<boolean key="s_waitfortrigger" name="Wait For Trigger, Start Off" bit="1">sound will loop and initially start off in level (will toggle on/off when triggered).</flag>
+<boolean key="s_global" name="No Distance Attenuation" bit="2">sound will play full volume throughout the level.</flag>
+<boolean key="s_activator" name="Audible Only To Activator" bit="3">sound will play only for the player that activated the target.</flag>
 <real key="wait" name="Repeat Time">delay in seconds between each time the sound is played ("random" key must be set - see Notes).</real>
 <real key="random" name="Repeat Time Variance">random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see Notes).</real>
 <targetname key="name" name="Name">the activating button or trigger points to this.</targetname>
 <boolean key="notfree" name="Hidden For FFA">when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
 <boolean key="notteam" name="Hidden For Teamplay">when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
 <boolean key="notsingle" name="Hidden For SP">when set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
--------- SPAWNFLAGS --------
-<flag key="LOOPED_ON" name="Loop, Start On" bit="0">sound will loop and initially start on in level (will toggle on/off when triggered).</flag>
-<flag key="LOOPED_OFF" name="Loop, Start Off" bit="1">sound will loop and initially start off in level (will toggle on/off when triggered).</flag>
-<flag key="GLOBAL" name="No Distance Attenuation" bit="2">sound will play full volume throughout the level.</flag>
-<flag key="ACTIVATOR" name="Audible Only To Activator" bit="3">sound will play only for the player that activated the target.</flag>
 -------- NOTES --------
 The path portion value of the "noise" key can be replaced by the implicit folder character "*" for triggered sounds that belong to a particular player model. For example, if you want to create a "bottomless pit" in which the player screams and dies when he falls into, you would place a trigger_multiple over the floor of the pit and target a target_speaker with it. Then, you would set the "noise" key to "*falling1.wav". The * character means the current player model's sound folder. So if your current player model is Visor, * = sound/player/visor, if your current player model is Sarge, * = sound/player/sarge, etc. This cool feature provides an excellent way to create "player-specific" triggered sounds in your levels.
 

@@ -3689,30 +3689,43 @@ ________________________________________________________________________________
 ============================================================================================================
 */
 
-entityDef target_speaker
+entityDef speaker
 {
-	"editor_color"					"0 1 0"
+	"editor_color"					"0 .7 .7"
 	"editor_mins"					"-8 -8 -8"
 	"editor_maxs"					"8 8 8"
 	"editor_material"				"textures/common/speaker"
 	
-
-	"editor_usage"					""
+	"editor_usage"					"Formerly target_speaker. Sound generating entity that plays .wav files. Normal non-looping sounds play each time the target_speaker is triggered. Looping sounds can be set to play by themselves (no activating trigger) or be toggled on/off by a trigger."
+	"editor_displayFolder"			"Sound"
 	
-	"editor_snd s_shader"			"the sound shader or wavefile."
-	"editor_var s_waitfortrigger"	"play on load or play when triggered."
-	"editor_var s_volume"			"override shader volume level."
-	"editor_var s_minDistance"		"override shader minDistance."
-	"editor_var s_maxDistance"		"override shader maxDistance."
-	"editor_var s_omni"				"force omnidirectional"
-	"editor_var s_looping"			"force looping"
-	"editor_var s_occlusion"		"force no portal occlusion"
-	"editor_var s_global"			"force no falloff at all"
-	"editor_var s_shakes"			"this entity can make the screen shake when the sound is loud."
+	"editor_snd s_shader"			"path/name of .wav or .ogg nfile to play (eg. sound/world/growl1.wav)."
+	"editor_bool s_looping"			"force looping"
+	"editor_bool s_waitfortrigger"	"play on load or play when triggered."
+	"editor_bool s_global"			"sound will play full volume throughout the level."
+	"editor_bool s_activator"		"sound will play only for the player that activated the target."
 	"editor_var wait"				"when set > 0, seconds between triggerings.  time between sounds is wait + or - random"
 	"editor_var random"				"wait variance."
+	"editor_bool notfree"			"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"			"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"			"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
-	"spawnclass"					"target_speaker"
+	"editor_var s_volume"			"UNSUPPORTED: override shader volume level."
+	"editor_var s_minDistance"		"UNSUPPORTED: override shader minDistance."
+	"editor_var s_maxDistance"		"UNSUPPORTED: override shader maxDistance."
+	"editor_var s_omni"				"UNSUPPORTED: force omnidirectional"
+	"editor_bool s_occlusion"		"UNSUPPORTED: force no portal occlusion"
+	
+	"spawnclass"					"idSound"
+	
+	"s_shader"						""
+	"s_looping"						"0"
+	"s_waitfortrigger"				"0"
+	"s_global"						"0"
+	
+	"notfree"						"0"
+	"notteam"						"0"
+	"notsingle"						"0"
 }
 
 

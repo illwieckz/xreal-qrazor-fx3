@@ -6155,20 +6155,20 @@ brushDef3
 {
 "s_mindistance" "500"
 "s_maxdistance" "1250"
-"spawnflags" "1"
-"noise" "sound/kat_q4dm3/wind_low.ogg"
+"s_looping" "1"
+"s_shader" "sound/kat_q4dm3/wind_low.ogg"
 "origin" "-80 -864 1040"
-"name" "target_speaker_2"
-"classname" "target_speaker"
+"name" "speaker_2"
+"classname" "speaker"
 }
 // entity 86
 {
 "s_global" "1"
-"spawnflags" "1"
-"noise" "sound/kat_q4dm3/wind_long1.ogg"
+"s_looping" "1"
+"s_shader" "sound/kat_q4dm3/wind_long1.ogg"
 "origin" "392 -80 768"
-"name" "target_speaker_1"
-"classname" "target_speaker"
+"name" "speaker_1"
+"classname" "speaker"
 }
 // entity 87
 {
@@ -6753,21 +6753,21 @@ brushDef3
 {
 "s_mindistance" "500"
 "s_maxdistance" "1250"
-"spawnflags" "1"
-"noise" "sound/kat_q4dm3/wind_low.ogg"
+"s_looping" "1"
+"s_shader" "sound/kat_q4dm3/wind_low.ogg"
 "origin" "-448 0 1040"
-"name" "target_speaker_3"
-"classname" "target_speaker"
+"name" "speaker_3"
+"classname" "speaker"
 }
 // entity 136
 {
 "s_mindistance" "500"
 "s_maxdistance" "1250"
-"spawnflags" "1"
-"noise" "sound/kat_q4dm3/wind_low.ogg"
+"s_looping" "1"
+"s_shader" "sound/kat_q4dm3/wind_low.ogg"
 "origin" "408 -80 1040"
-"name" "target_speaker_4"
-"classname" "target_speaker"
+"name" "speaker_4"
+"classname" "speaker"
 }
 // entity 137
 {

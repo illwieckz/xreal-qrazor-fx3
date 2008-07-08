@@ -67,6 +67,28 @@ qboolean G_SpawnInt(const char *key, const char *defaultString, int *out)
 	return present;
 }
 
+qboolean G_SpawnBoolean(const char *key, const char *defaultString, qboolean *out)
+{
+	char           *s;
+	qboolean        present;
+
+	present = G_SpawnString(key, defaultString, &s);
+
+	if(!Q_stricmp(s, "qfalse") || !Q_stricmp(s, "false") || !Q_stricmp(s, "0"))
+	{
+		*out = qfalse;
+	}
+	else if(!Q_stricmp(s, "qtrue") || !Q_stricmp(s, "true") || !Q_stricmp(s, "1"))
+	{
+		*out = qtrue;
+	}
+	else
+	{
+		*out = qfalse;
+	}
+	return present;
+}
+
 qboolean G_SpawnVector(const char *key, const char *defaultString, float *out)
 {
 	char           *s;
@@ -261,7 +283,6 @@ spawn_t         spawns[] = {
 	{"target_give", SP_target_give},
 	{"target_remove_powerups", SP_target_remove_powerups},
 	{"target_delay", SP_target_delay},
-	{"target_speaker", SP_target_speaker},
 	{"target_print", SP_target_print},
 	{"target_laser", SP_target_laser},
 	{"target_score", SP_target_score},
@@ -273,6 +294,9 @@ spawn_t         spawns[] = {
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
 	{"target_fx", SP_target_fx},
+	
+	{"target_speaker", SP_target_speaker},
+	{"speaker", SP_target_speaker},
 
 	{"light", SP_light},
 	{"path_corner", SP_path_corner},

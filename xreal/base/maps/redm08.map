@@ -5,6 +5,7 @@ Version 3
 "classname" "worldspawn"
 "music" "music/di.fm-progressive-shiodome-arena.ogg"
 "ambientColor" "0.51 0.54 0.62"
+"_lightmapscale" "0.25"
 // brush 0
 {
 patchDef2
@@ -6254,33 +6255,33 @@ brushDef3
 }
 // entity 101
 {
-"classname" "target_speaker"
-"name" "target_speaker_1"
+"classname" "speaker"
+"name" "speaker_1"
 "origin" "-32 -320 -240"
-"spawnflags" "1"
-"noise" "sound/world/ambient/lightrain.ogg"
+"s_looping" "1"
+"s_shader" "sound/world/ambient/lightrain.ogg"
 }
 // entity 102
 {
-"classname" "target_speaker"
-"name" "target_speaker_2"
+"classname" "speaker"
+"name" "speaker_2"
 "origin" "128 -160 -240"
-"spawnflags" "1"
-"noise" "sound/world/ambient/lightrain.ogg"
+"s_looping" "1"
+"s_shader" "sound/world/ambient/lightrain.ogg"
 }
 // entity 103
 {
-"classname" "target_speaker"
-"name" "target_speaker_3"
+"classname" "speaker"
+"name" "speaker_3"
 "origin" "288 -320 -240"
-"spawnflags" "1"
-"noise" "sound/world/ambient/lightrain.ogg"
+"s_looping" "1"
+"s_shader" "sound/world/ambient/lightrain.ogg"
 }
 // entity 104
 {
-"classname" "target_speaker"
-"name" "target_speaker_4"
+"classname" "speaker"
+"name" "speaker_4"
 "origin" "128 -480 -240"
-"spawnflags" "1"
-"noise" "sound/world/ambient/lightrain.ogg"
+"s_looping" "1"
+"s_shader" "sound/world/ambient/lightrain.ogg"
 }
