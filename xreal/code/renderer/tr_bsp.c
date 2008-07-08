@@ -3651,6 +3651,8 @@ static void R_LoadSubmodels(lump_t * l)
 		model = R_AllocModel();
 
 		assert(model != NULL);	// this should never happen
+		if(model == NULL)
+			ri.Error(ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
 
 		model->type = MOD_BSP;
 		model->bsp = out;

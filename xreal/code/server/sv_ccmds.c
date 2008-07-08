@@ -917,7 +917,7 @@ static void SV_ConSay_f(void)
 
 	strcat(text, p);
 
-	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
+	SV_SendServerCommand(NULL, "chat \"%s\"", text);
 }
 
 

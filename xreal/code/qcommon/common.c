@@ -328,10 +328,12 @@ do the apropriate things.
 */
 void Com_Quit_f(void)
 {
+	char *p = Cmd_Args();
+
 	// don't try to shutdown if we are in a recursive error
 	if(!com_errorEntered)
 	{
-		SV_Shutdown("Server quit");
+		SV_Shutdown(p[0] ? p : "Server quit");
 		CL_Shutdown();
 		Com_Shutdown();
 		FS_Shutdown(qtrue);
@@ -3132,7 +3134,7 @@ void Com_Init(char *commandLine)
 
 	// get dedicated here for proper hunk megs initialization
 #ifdef DEDICATED
-	com_dedicated = Cvar_Get("dedicated", "1", CVAR_LATCH);
+	com_dedicated = Cvar_Get("dedicated", "1", CVAR_INIT);
 #else
 	com_dedicated = Cvar_Get("dedicated", "0", CVAR_LATCH);
 #endif
