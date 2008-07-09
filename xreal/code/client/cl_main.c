@@ -2487,6 +2487,7 @@ void CL_InitRef(void)
 	ri.FS_FileExists = FS_FileExists;
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
+	ri.Cvar_CheckRange = Cvar_CheckRange;
 
 	// cinematic stuff
 

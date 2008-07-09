@@ -488,11 +488,13 @@ qboolean Com_AddStartupCommands(void)
 			continue;
 		}
 
-		// set commands won't override menu startup
-		if(Q_stricmpn(com_consoleLines[i], "set", 3))
+		// set commands already added with Com_StartupVariable
+		if(!Q_stricmpn(com_consoleLines[i], "set", 3))
 		{
-			added = qtrue;
+			continue;
 		}
+
+		added = qtrue;
 		Cbuf_AddText(com_consoleLines[i]);
 		Cbuf_AddText("\n");
 	}
@@ -3135,8 +3137,10 @@ void Com_Init(char *commandLine)
 	// get dedicated here for proper hunk megs initialization
 #ifdef DEDICATED
 	com_dedicated = Cvar_Get("dedicated", "1", CVAR_INIT);
+	Cvar_CheckRange(com_dedicated, 1, 2, qtrue);
 #else
 	com_dedicated = Cvar_Get("dedicated", "0", CVAR_LATCH);
+	Cvar_CheckRange(com_dedicated, 0, 2, qtrue);
 #endif
 	// allocate the stack based hunk allocator
 	Com_InitHunkMemory();

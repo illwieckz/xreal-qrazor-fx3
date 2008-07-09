@@ -1274,6 +1274,8 @@ int             Q_isprint(int c);
 int             Q_islower(int c);
 int             Q_isupper(int c);
 int             Q_isalpha(int c);
+qboolean		Q_isanumber(const char *s);
+qboolean		Q_isintegral(float f);
 
 // portable case insensitive compare
 int             Q_stricmp(const char *s1, const char *s2);
@@ -1394,6 +1396,10 @@ typedef struct cvar_s
 	int             modificationCount;	// incremented each time the cvar is changed
 	float           value;		// atof( string )
 	int             integer;	// atoi( string )
+	qboolean		validate;
+	qboolean		integral;
+	float			min;
+	float			max;
 	struct cvar_s  *next;
 	struct cvar_s  *hashNext;
 } cvar_t;

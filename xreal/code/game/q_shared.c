@@ -955,6 +955,23 @@ char           *Q_strrchr(const char *string, int c)
 	return sp;
 }
 
+qboolean Q_isanumber(const char *s)
+{
+	char		   *p;
+
+	if(*s == '\0')
+		return qfalse;
+
+	(float)strtod(s, &p);
+
+	return *p == '\0';
+}
+
+qboolean Q_isintegral(float f)
+{
+	return (int)f == f;
+}
+
 /*
 =============
 Q_strncpyz
@@ -994,8 +1011,6 @@ int Q_stricmpn(const char *s1, const char *s2, int n)
 	}
 	else if(s2 == NULL)
 		return 1;
-
-
 
 	do
 	{
