@@ -47,6 +47,11 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
+#if defined(ATI_flippedImageFix)
+	// BUGFIX: the ATI driver flips the image
+	st.t = 1.0 - st.t;
+#endif
+	
 #if 0 //defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
 	vec4 P = texture2D(u_PositionMap, st).xyzw;
