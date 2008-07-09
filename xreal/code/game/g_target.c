@@ -240,17 +240,27 @@ void SP_target_speaker(gentity_t * ent)
 	char            buffer[MAX_QPATH];
 	char           *s;
 
-	if(!G_SpawnString("s_shader", "NOSOUND", &s) && !G_SpawnString("noise", "NOSOUND", &s))
+	if(G_SpawnString("s_shader", "NOSOUND", &s))
+	{
+		G_SpawnBoolean("s_looping", "0", &ent->soundLooping);
+		G_SpawnBoolean("s_waitfortrigger", "0", &ent->soundWaitForTrigger);
+		G_SpawnBoolean("s_global", "0", &ent->soundGlobal);
+		G_SpawnBoolean("s_activator", "0", &ent->soundActivator);
+		G_SpawnFloat("wait", "0", &ent->wait);
+		G_SpawnFloat("random", "0", &ent->random);
+	}
+	else if(G_SpawnString("noise", "NOSOUND", &s))
+	{
+		// Q3A compatibility mode
+		ent->soundLooping = ent->spawnflags & 1 ? qtrue : qfalse;
+		ent->soundWaitForTrigger = ent->spawnflags & 2 ? qtrue : qfalse;
+		ent->soundGlobal = ent->spawnflags & 4 ? qtrue : qfalse;
+		ent->soundActivator = ent->spawnflags & 8 ? qtrue : qfalse;
+	}
+	else
 	{
 		G_Error("speaker without a noise key at %s", vtos(ent->s.origin));
 	}
-	G_SpawnBoolean("s_looping", "0", &ent->soundLooping);
-	G_SpawnBoolean("s_waitfortrigger", "0", &ent->soundWaitForTrigger);
-	G_SpawnBoolean("s_global", "0", &ent->soundGlobal);
-	G_SpawnBoolean("s_activator", "0", &ent->soundActivator);
-	G_SpawnFloat("wait", "0", &ent->wait);
-	G_SpawnFloat("random", "0", &ent->random);
-	
 
 	// force all client reletive sounds to be "activator" speakers that
 	// play on the entity that activates it
