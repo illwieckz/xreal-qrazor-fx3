@@ -1629,10 +1629,10 @@ This is used to automatically give frag points to the player who activates this.
 Sound generating entity that plays .wav files. Normal non-looping sounds play each time the target_speaker is triggered. Looping sounds can be set to play by themselves (no activating trigger) or be toggled on/off by a trigger.
 -------- KEYS --------
 <sound key="s_shader" name="Sound File">path/name of .wav file to play (eg. sound/world/growl1.wav - see Notes).</sound>
-<boolean key="s_looping" name="Loop, Start On" bit="0">sound will loop and initially start on in level (will toggle on/off when triggered).</flag>
-<boolean key="s_waitfortrigger" name="Wait For Trigger, Start Off" bit="1">sound will loop and initially start off in level (will toggle on/off when triggered).</flag>
-<boolean key="s_global" name="No Distance Attenuation" bit="2">sound will play full volume throughout the level.</flag>
-<boolean key="s_activator" name="Audible Only To Activator" bit="3">sound will play only for the player that activated the target.</flag>
+<boolean key="s_looping" name="Loop, Start On" bit="0">sound will loop and initially start on in level (will toggle on/off when triggered).</boolean>
+<boolean key="s_waitfortrigger" name="Wait For Trigger, Start Off" bit="1">sound will loop and initially start off in level (will toggle on/off when triggered).</boolean>
+<boolean key="s_global" name="No Distance Attenuation" bit="2">sound will play full volume throughout the level.</boolean>
+<boolean key="s_activator" name="Audible Only To Activator" bit="3">sound will play only for the player that activated the target.</boolean>
 <real key="wait" name="Repeat Time">delay in seconds between each time the sound is played ("random" key must be set - see Notes).</real>
 <real key="random" name="Repeat Time Variance">random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see Notes).</real>
 <targetname key="name" name="Name">the activating button or trigger points to this.</targetname>
