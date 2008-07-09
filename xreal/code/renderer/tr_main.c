@@ -361,12 +361,12 @@ void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, sr
 
 float R_CalcFov(float fovX, float width, float height)
 {
-	float           x;
-	float           fovY;
+	static float	x;
+	static float	fovY;
 
-	x = width / tan(fovX / 360 * M_PI);
+	x = width / tan(fovX / 360.0f * M_PI);
 	fovY = atan2(height, x);
-	fovY = fovY * 360 / M_PI;
+	fovY = fovY * 360.0f / M_PI;
 
 	return fovY;
 }
