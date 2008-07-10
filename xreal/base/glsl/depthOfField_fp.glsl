@@ -44,17 +44,17 @@ void	main()
 	// autofocus
 	focus = texture2D(u_PositionMap, vec2(0.5, 0.5) * r_NPOTScale).r;
 	
-	const int tap = 5;
-	const int taps = tap * 2 + 1;
+	const float tap = 5.0;
+	const float taps = tap * 2.0 + 1.0;
 	
 	float depth = texture2D(u_PositionMap, st).r;
 	float delta = (abs(depth - focus) * abs(depth - focus)) / float(tap);
 	delta *= radius;
 	//delta = clamp(radius * delta, -max, max);
 	
-	for(int i = -tap; i < tap; i++)
+	for(float i = -tap; i < tap; i++)
     {
-	    for(int j = -tap; j < tap; j++)
+	    for(float j = -tap; j < tap; j++)
 	    {
 			sum += texture2D(u_CurrentMap, st + vec2(i, j) * delta);
 		}

@@ -58,11 +58,11 @@ void	main()
 	float aoMultiplier = 1000.0;
 	float depthTolerance = 0.0001;
 	
-	int tap = 3;
-	const int taps = tap * 2 + 1;
-	for(int i = -tap; i < tap; i++)
+	float tap = 3.0;
+	const float taps = tap * 2.0 + 1.0;
+	for(float i = -tap; i < tap; i++)
     {
-	    for(int j = -tap; j < tap; j++)
+	    for(float j = -tap; j < tap; j++)
 	    {
 			d = ReadDepth(st + vec2(j, i) * r_FBufScale);
 			ao += min(aoCap, max(0.0, depth -d -depthTolerance) * aoMultiplier);
