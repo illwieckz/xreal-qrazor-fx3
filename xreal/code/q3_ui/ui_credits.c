@@ -57,11 +57,11 @@ cr_line         credits[] = {
 	{"XreaL", UI_CENTER | UI_GIANTFONT | UI_PULSE, colorRed},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Project Lead", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Project Lead", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Programming", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Programming", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
@@ -87,7 +87,7 @@ cr_line         credits[] = {
 	{"Mathias 'skynet' Heyer", UI_CENTER|UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Art", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Art", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
@@ -145,7 +145,7 @@ cr_line         credits[] = {
 	{"young_daddy", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Others", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Others", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"Yan 'Method' Ostretsov - www.methodonline.com", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Ken 'kat' Beyer - www.katsbits.com", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Robert 'BJA' Hodri - www.bja-design.de", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -163,17 +163,17 @@ cr_line         credits[] = {
 	{"James 'HarlequiN' Taylor", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Special Thanks To:", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Special Thanks To:", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"id Software", UI_CENTER | UI_SMALLFONT, colorWhite},
 //	{"IOQuake 3 project - www.ioquake3.org", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Contributors", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Contributors", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"For a list of contributors,", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"see the accompanying CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"Websites:", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Websites:", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"www.sourceforge.net/projects/xreal", UI_CENTER | UI_BIGFONT, colorBlue},
 	{"xreal.sourceforge.net", UI_CENTER | UI_BIGFONT, colorBlue},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
