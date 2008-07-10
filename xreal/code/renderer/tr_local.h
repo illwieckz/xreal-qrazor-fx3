@@ -854,6 +854,9 @@ typedef struct shaderProgram_s
 
 	GLint           u_FogDensity;
 	GLint           u_FogColor;
+	
+	GLint           u_SSAOJitter;
+	GLint           u_SSAORadius;
 
 	GLint           u_DepthScale;
 
@@ -864,7 +867,9 @@ typedef struct shaderProgram_s
 	GLint           u_ModelMatrix;
 	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
+	
 	GLint           u_UnprojectMatrix;
+	GLint           u_ProjectMatrix;
 } shaderProgram_t;
 
 
@@ -1868,6 +1873,7 @@ typedef struct
 	shaderProgram_t screenShader;
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
+	shaderProgram_t screenSpaceAmbientOcclusionShader;
 
 	// -----------------------------------------
 
@@ -2153,6 +2159,7 @@ extern cvar_t  *r_deferredShading;
 extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
+extern cvar_t  *r_screenSpaceAmbientOcclusion;
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_rotoscope;

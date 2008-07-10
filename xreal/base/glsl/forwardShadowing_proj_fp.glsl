@@ -35,7 +35,7 @@ varying vec4		var_TexShadow;
 varying vec4        var_Color;
 
 
-#if defined(VSM)
+#if defined(VSM) || defined(ESM)
 vec4 PCF(vec4 SP, float filterWidth, float samples)
 {
 	// compute step size for iterating through the kernel
@@ -68,63 +68,106 @@ void	main()
 	}
 
 #if defined(VSM)
-		// compute incident ray
-		vec3 I = var_Vertex.xyz - u_LightOrigin;
+	// compute incident ray
+	vec3 I = var_Vertex.xyz - u_LightOrigin;
 		
-		const float	SHADOW_BIAS = 0.001;
-		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
+	const float	SHADOW_BIAS = 0.001;
+	float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
 		
-		#if defined(PCF_2X2)
-		vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 2.0);
-		#elif defined(PCF_3X3)
-		vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 3.0);
-		#elif defined(PCF_4X4)
-		vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 4.0);
-		#elif defined(PCF_5X5)
-		vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 5.0);
-		#elif defined(PCF_6X6)
-		vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 6.0);
-		#else
-		vec4 shadowMoments = texture2DProj(u_ShadowMap, var_TexShadow.xyw);
-		#endif
+	#if defined(PCF_2X2)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 2.0);
+	#elif defined(PCF_3X3)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 3.0);
+	#elif defined(PCF_4X4)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 4.0);
+	#elif defined(PCF_5X5)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 5.0);
+	#elif defined(PCF_6X6)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 6.0);
+	#else
+	vec4 shadowMoments = texture2DProj(u_ShadowMap, var_TexShadow.xyw);
+	#endif
 	
-		#if defined(VSM_CLAMP)
-		// convert to [-1, 1] vector space
-		shadowMoments = 2.0 * (shadowMoments - 0.5);
-		#endif
+	#if defined(VSM_CLAMP)
+	// convert to [-1, 1] vector space
+	shadowMoments = 2.0 * (shadowMoments - 0.5);
+	#endif
 		
-		float shadowDistance = shadowMoments.r;
-		float shadowDistanceSquared = shadowMoments.a;
+	float shadowDistance = shadowMoments.r;
+	float shadowDistanceSquared = shadowMoments.a;
 	
-		// standard shadow map comparison
-		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+	// standard shadow map comparison
+	shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
 			
-		// variance shadow mapping
-		float E_x2 = shadowDistanceSquared;
-		float Ex_2 = shadowDistance * shadowDistance;
+	// variance shadow mapping
+	float E_x2 = shadowDistanceSquared;
+	float Ex_2 = shadowDistance * shadowDistance;
 	
-		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
-		//float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
+	// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
+	float variance = min(max(E_x2 - Ex_2, 0.0) + VSM_EPSILON, 1.0);
+	//float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
 	
-		float mD = shadowDistance - vertexDistance;
-		float mD_2 = mD * mD;
-		float p = variance / (variance + mD_2);
-		p = smoothstep(0.0, 1.0, p);
+	float mD = shadowDistance - vertexDistance;
+	float mD_2 = mD * mD;
+	float p = variance / (variance + mD_2);
+	p = smoothstep(0.0, 1.0, p);
 		
-		#if defined(DEBUG_VSM)
-		gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
-		gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
-		gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
-		gl_FragColor.a = 1.0;
-		return;
-		#else
-		shadow = max(shadow, p);
-		#endif
+	#if defined(DEBUG_VSM)
+	gl_FragColor.r = DEBUG_VSM & 1 ? variance : 0.0;
+	gl_FragColor.g = DEBUG_VSM & 2 ? mD_2 : 0.0;
+	gl_FragColor.b = DEBUG_VSM & 4 ? p : 0.0;
+	gl_FragColor.a = 1.0;
+	return;
+	#else
+	shadow = max(shadow, p);
+	#endif
 		
 	shadow = clamp(shadow, 0.0, 1.0);
 	shadow = 1.0 - shadow;
 		
+	if(shadow <= 0.0)
+	{
+		discard;
+	}
+#elif defined(ESM)
+	// compute incident ray
+	vec3 I = var_Vertex.xyz - u_LightOrigin;
+		
+	const float	SHADOW_BIAS = 0.001;
+	float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
+		
+	#if defined(PCF_2X2)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 2.0);
+	#elif defined(PCF_3X3)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 3.0);
+	#elif defined(PCF_4X4)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 4.0);
+	#elif defined(PCF_5X5)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 5.0);
+	#elif defined(PCF_6X6)
+	vec4 shadowMoments = PCF(var_TexShadow, u_ShadowTexelSize * u_ShadowBlur, 6.0);
+	#else
+	// no filter
+	vec4 shadowMoments = texture2DProj(u_ShadowMap, var_TexShadow.xyw);
+	#endif
+		
+	float shadowDistance = shadowMoments.a;
+	
+	// exponential shadow mapping
+	//shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+	shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
+	//shadow = smoothstep(0.0, 1.0, shadow);
+		
+	shadow = 1.0 - shadow;
+		
+	#if defined(DEBUG_ESM)
+	gl_FragColor.r = DEBUG_ESM & 1 ? shadowDistance : 0.0;
+	gl_FragColor.g = DEBUG_ESM & 2 ? -(shadowDistance - vertexDistance) : 0.0;
+	gl_FragColor.b = DEBUG_ESM & 4 ? shadow : 0.0;
+	gl_FragColor.a = 1.0;
+	return;
+	#endif
+	
 	if(shadow <= 0.0)
 	{
 		discard;

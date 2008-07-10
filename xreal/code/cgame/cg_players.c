@@ -2911,7 +2911,7 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShad
 	// fade the shadow out with height
 	alpha = 1.0 - trace.fraction;
 
-	if((cg_shadows.integer == 4 || cg_shadows.integer == 5) && cg_precomputedLighting.integer)
+	if((cg_shadows.integer >= 4 && cg_shadows.integer <= 6) && cg_precomputedLighting.integer)
 	{
 		refLight_t		light;
 		vec3_t          angles;

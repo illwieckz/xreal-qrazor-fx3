@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -24,71 +24,55 @@ uniform sampler2D	u_ColorMap;
 uniform sampler2D	u_ContrastMap;
 uniform float		u_BlurMagnitude;
 
+
+// We use the Normal-gauss distribution formula
+// f(x) being the formula, we used f(0.5)-f(-0.5); f(1.5)-f(0.5)...
+
+#if 0
+float gaussFact[3] = float[3](1.0, 2.0, 1.0);
+#elif 1
+float gaussFact[7] = float[7](1.0, 6.0, 15.0, 20.0, 15.0, 6.0, 1.0);
+float gaussSum = 4096.0; // = 64.0^2 = result of sumWeights;
+#else
+float gaussFact[11] = float[11](
+0.0222244, 0.0378346, 0.0755906, 0.1309775, 0.1756663,
+0.1974126,
+0.1756663, 0.1309775, 0.0755906, 0.0378346, 0.0222244
+);
+#endif
+
 void	main()
 {
-	vec2 st00 = gl_FragCoord.st;
+	vec2 st = gl_FragCoord.st;
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	st00 *= r_FBufScale;
+	st *= r_FBufScale;
 
 #if defined(ATI_flippedImageFix)
 	// BUGFIX: the ATI driver flips the image
-	st00.t = 1.0 - st00.t;
+	st.t = 1.0 - st.t;
 #endif
 	
 	// scale by the screen non-power-of-two-adjust
-	st00 *= r_NPOTScale;
-	
-	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	//vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
-	vec2 deform = u_BlurMagnitude * r_FBufScale;
-	
-	// fragment offsets for blur samples
-	vec2 offset01 = vec2( 0.0, -1.0);
-	vec2 offset02 = vec2(-1.0,  0.0);
-	vec2 offset03 = vec2( 1.0,  0.0);
-	vec2 offset04 = vec2( 0.0,  1.0);
-	vec2 offset05 = vec2(-2.0, -2.0);
-	vec2 offset06 = vec2( 2.0, -2.0);
-	vec2 offset07 = vec2(-2.0,  2.0);
-	vec2 offset08 = vec2( 2.0,  2.0);
-	
-	// calculate our offset texture coordinates
-	vec2 st01 = st00 + offset01 * deform;
-	vec2 st02 = st00 + offset02 * deform;
-	vec2 st03 = st00 + offset03 * deform;
-	vec2 st04 = st00 + offset04 * deform;
-	vec2 st05 = st00 + offset05 * deform;
-	vec2 st06 = st00 + offset06 * deform;
-	vec2 st07 = st00 + offset07 * deform;
-	vec2 st08 = st00 + offset08 * deform;
-	
-	// cap the coordinates to the edge of the texture
-	st01 = clamp(st01, 0.0, 1.0);// * r_NPOTScale;
-//	st02 = min(st02, u_NPOTScale);
-//	st03 = min(st03, u_NPOTScale);
-//	st04 = min(st04, u_NPOTScale);
-//	st05 = min(st05, u_NPOTScale);
-//	st06 = min(st06, u_NPOTScale);
-//	st07 = min(st07, u_NPOTScale);
-//	st08 = min(st08, u_NPOTScale);
-	
-	// base color
-	vec4 c00 = texture2D(u_ColorMap, st00);
+	st *= r_NPOTScale;
 
-	// sample the current render for each coordinate
-	vec4 c01 = texture2D(u_ContrastMap, st01);
-	vec4 c02 = texture2D(u_ContrastMap, st02);
-	vec4 c03 = texture2D(u_ContrastMap, st03);
-	vec4 c04 = texture2D(u_ContrastMap, st04);
-	vec4 c05 = texture2D(u_ContrastMap, st05);
-	vec4 c06 = texture2D(u_ContrastMap, st06);
-	vec4 c07 = texture2D(u_ContrastMap, st07);
-	vec4 c08 = texture2D(u_ContrastMap, st08);
+	// do a full gaussian blur
+	vec4 sumColors = vec4(0.0);
+	//float sumWeights = 0.0;
+
+	int tap = 3;
+	for(int i = -tap; i < tap; i++)
+    {
+	    for(int j = -tap; j < tap; j++)
+	    {
+			float weight = gaussFact[j + 3] * gaussFact[j + 3];
+			vec4 color = texture2D(u_ContrastMap, st + vec2(j, i) * u_BlurMagnitude * r_FBufScale) * weight;
+			
+			sumColors += color;
+			//sumWeights += weight;
+		}
+	}
 	
-	// add up the blurred samples and get the average
-	vec4 sum = c01 + c02 + c03 + c04 + c05 + c06 + c07 + c08;
-	sum *= 0.125;
-	
-	gl_FragColor = c00 + sum;
+	gl_FragColor = texture2D(u_ColorMap, st) + sumColors / gaussSum;
+	//gl_FragColor = sumColors / gaussSum;
 }

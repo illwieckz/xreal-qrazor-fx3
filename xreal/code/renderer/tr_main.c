@@ -909,8 +909,8 @@ void R_SetupProjection(void)
 	zNear = r_znear->value;
 	zFar = r_zfar->value;
 
-	if(r_shadows->integer == 3)
-		zFar = 0;
+//	if(r_shadows->integer == 3)
+//		zFar = 0;
 
 	yMax = zNear * tan(tr.refdef.fov_y * M_PI / 360.0f);
 	yMin = -yMax;
@@ -922,7 +922,7 @@ void R_SetupProjection(void)
 	height = yMax - yMin;
 	depth = zFar - zNear;
 
-	if(r_shadows->integer == 3)
+	if(zFar <= 0)
 	{
 		// Tr3B - far plane at infinity, see RobustShadowVolumes.pdf by Nvidia
 		proj[0] = 2 * zNear / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;

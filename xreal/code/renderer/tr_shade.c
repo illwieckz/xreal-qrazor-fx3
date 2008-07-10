@@ -297,6 +297,33 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_glslAlphaTest\n#define r_glslAlphaTest 1\n#endif\n");
 		}
 
+		if(r_screenSpaceAmbientOcclusion->integer)
+		{
+			int             i;
+			static vec3_t   jitter[32];
+			static qboolean jitterInit = qfalse;
+
+			if(!jitterInit)
+			{
+				for(i = 0; i < 32; i++)
+				{
+					float *jit = &jitter[i][0];
+	
+					float rad = crandom() * 1024.0f; // FIXME radius;
+					float a = crandom() * M_PI * 2;
+					float b = crandom() * M_PI * 2;
+		
+					jit[0] = rad * sin(a) * cos(b);
+					jit[1] = rad * sin(a) * sin(b);
+					jit[2] = rad * cos(a);
+				}
+
+				jitterInit = qtrue;
+			}
+
+			// TODO
+		}
+
 		/*
 		   if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		   {
@@ -1183,6 +1210,26 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.uniformFogShader.program);
 	GL_CheckErrors();
 
+	// screen space ambien occlusion post process effect
+	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", GLCS_VERTEX, qtrue);
+
+	tr.screenSpaceAmbientOcclusionShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
+	tr.screenSpaceAmbientOcclusionShader.u_PositionMap = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_PositionMap");
+	//tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ViewOrigin");
+	//tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAOJitter");
+	//tr.screenSpaceAmbientOcclusionShader.u_SSAORadius = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAORadius");
+	//tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_UnprojectMatrix");
+	//tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ProjectMatrix");
+
+	qglUseProgramObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
+	qglUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_CurrentMap, 0);
+	qglUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_PositionMap, 1);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.screenSpaceAmbientOcclusionShader.program);
+	GLSL_ShowProgramUniforms(tr.screenSpaceAmbientOcclusionShader.program);
+	GL_CheckErrors();
+
 	endTime = ri.Milliseconds();
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
@@ -1372,6 +1419,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.uniformFogShader.program);
 		tr.uniformFogShader.program = 0;
+	}
+
+	if(tr.screenSpaceAmbientOcclusionShader.program)
+	{
+		qglDeleteObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
+		tr.screenSpaceAmbientOcclusionShader.program = 0;
 	}
 
 	glState.currentProgram = 0;

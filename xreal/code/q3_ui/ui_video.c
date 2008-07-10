@@ -1114,8 +1114,7 @@ void GraphicsOptions_MenuInit(void)
 
 	static const char *bloom_names[] = {
 		"Off",
-		"simple blur",
-		"strong blur",
+		"On",
 		NULL
 	};
 

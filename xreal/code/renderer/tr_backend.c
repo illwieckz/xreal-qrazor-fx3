@@ -3649,6 +3649,108 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	}
 }
 
+void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
+{
+//	int				i;
+//	vec3_t          viewOrigin;
+//	static vec3_t   jitter[32];
+//	static qboolean jitterInit = qfalse;
+//	matrix_t        projectMatrix;
+
+	GLimp_LogComment("--- RB_RenderScreenSpaceAmbientOcclusion ---\n");
+
+	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+		return;
+
+	if(r_screenSpaceAmbientOcclusion->integer <= 0)
+		return;
+
+	// enable shader, set arrays
+	GL_Program(tr.screenSpaceAmbientOcclusionShader.program);
+
+	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
+	GL_Cull(CT_TWO_SIDED);
+
+	qglColor4fv(colorWhite);
+
+	// set uniforms
+	/*
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+
+	if(!jitterInit)
+	{
+		for(i = 0; i < 32; i++)
+		{
+			float *jit = &jitter[i][0];
+
+			float rad = crandom() * 1024.0f; // FIXME radius;
+			float a = crandom() * M_PI * 2;
+			float b = crandom() * M_PI * 2;
+			
+			jit[0] = rad * sin(a) * cos(b);
+			jit[1] = rad * sin(a) * sin(b);
+			jit[2] = rad * cos(a);
+		}
+
+		jitterInit = qtrue;
+	}
+
+	
+	MatrixCopy(backEnd.viewParms.projectionMatrix, projectMatrix);
+	MatrixInverse(projectMatrix);
+
+	qglUniform3fARB(tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniform3fvARB(tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter, 32, &jitter[0][0]);
+	qglUniform1fARB(tr.screenSpaceAmbientOcclusionShader.u_SSAORadius, r_screenSpaceAmbientOcclusionRadius->value);
+
+	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
+	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix, 1, GL_FALSE, projectMatrix);
+	*/
+
+	// capture current color buffer for u_CurrentMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+
+	// bind u_PositionMap
+	GL_SelectTexture(1);
+	if(deferred)
+	{
+		GL_Bind(tr.deferredPositionFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	}
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+	// draw viewport
+	qglBegin(GL_QUADS);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglEnd();
+
+	// go back to 3D
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+
+	GL_CheckErrors();
+}
+
 void RB_RenderUniformFog(qboolean deferred)
 {
 	vec3_t          viewOrigin;
@@ -3759,11 +3861,12 @@ void RB_RenderBloom(void)
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
 
-	if(r_bloom->integer == 1)
+	//if(r_bloom->integer == 1)
 	{
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
 
+		
 		// render contrast
 		GL_Program(tr.contrastShader.program);
 		GL_ClientState(tr.contrastShader.attribs);
@@ -3781,6 +3884,7 @@ void RB_RenderBloom(void)
 					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglEnd();
+		
 
 		// render bloom
 		GL_Program(tr.bloomShader.program);
@@ -3788,10 +3892,18 @@ void RB_RenderBloom(void)
 
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
+		/*
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+							 tr.currentRenderImage->uploadHeight);
+		*/
+		
 		GL_SelectTexture(1);
 		GL_Bind(tr.contrastRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
 							 tr.contrastRenderImage->uploadHeight);
+		
 
 		// draw viewport
 		qglBegin(GL_QUADS);
@@ -3802,6 +3914,7 @@ void RB_RenderBloom(void)
 		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglEnd();
 	}
+	/*
 	else if(r_bloom->integer == 2)
 	{
 		GL_State(GLS_DEPTHTEST_DISABLE);
@@ -3884,6 +3997,7 @@ void RB_RenderBloom(void)
 		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglEnd();
 	}
+	*/
 
 	// go back to 3D
 	qglMatrixMode(GL_PROJECTION);
@@ -5437,6 +5551,9 @@ static void RB_RenderView(void)
 		// draw everything that is opaque
 		RB_RenderDrawSurfaces(qtrue);
 
+		// render ambient occlusion process effect
+		RB_RenderScreenSpaceAmbientOcclusion(qfalse);
+
 		// try to cull lights using hardware occlusion queries
 		RB_RenderLightOcclusionQueries();
 
@@ -5459,7 +5576,7 @@ static void RB_RenderView(void)
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(qfalse);
 
-		// render global fog
+		// render global fog post process effect
 		RB_RenderUniformFog(qfalse);
 
 		// render bloom post process effect

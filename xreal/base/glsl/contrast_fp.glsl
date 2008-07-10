@@ -24,22 +24,22 @@ uniform sampler2D	u_ColorMap;
 
 void	main()
 {
-	vec2 st00 = gl_FragCoord.st;
+	vec2 st = gl_FragCoord.st;
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
-	st00 *= r_FBufScale;
+	st *= r_FBufScale;
 	
 #if defined(ATI_flippedImageFix)
 	// BUGFIX: the ATI driver flips the image
-	st00.t = 1.0 - st00.t;
+	st.t = 1.0 - st.t;
 #endif
 	
 	// scale by the screen non-power-of-two-adjust
-	st00 *= r_NPOTScale;
+	st *= r_NPOTScale;
 	
 	// calculate contrast color
 #if 0
-	vec4 color = texture2D(u_ColorMap, st00);
+	vec4 color = texture2D(u_ColorMap, st);
 	vec4 contrast = color * color;
 	contrast.x += contrast.y;
 	contrast.x += contrast.z;
@@ -47,27 +47,27 @@ void	main()
 	contrast *= 0.5;
 	gl_FragColor = contrast;
 #elif 1
-	// Perform a box filter for the downsample
-	vec3 color = texture2D(u_ColorMap, st00).rgb;
-	color += texture2D(u_ColorMap, st00 + 0.0025).rgb;
-	color += texture2D(u_ColorMap, st00 + 0.005).rgb;
-	color += texture2D(u_ColorMap, st00 + 0.0075).rgb;
+	// perform a box filter for the downsample
+	vec3 color = texture2D(u_ColorMap, st).rgb;
+	
+	//color += texture2D(u_ColorMap, st + 0.0025).rgb;
+	//color += texture2D(u_ColorMap, st + 0.005).rgb;
+	//color += texture2D(u_ColorMap, st + 0.0075).rgb;
+	//color *= 0.25;
 
-	color *= 0.25;
-
-	// Compute luminance
+	// compute luminance
 	float luminance = (color.r * 0.2125) + (color.g * 0.7154) + (color.b * 0.0721);
 
-	// Adjust contrast
+	// adjust contrast
 	luminance = pow(luminance, 1.32);
 
-	// Filter out dark pixels
+	// filter out dark pixels
 	luminance = max(luminance - 0.067, 0.0);
 
-	// Write the final color
+	// write the final color
 	gl_FragColor.rgb = color * luminance;
 #else
-	vec4 color = texture2D(u_ColorMap, st00);
+	vec4 color = texture2D(u_ColorMap, st);
 //	vec3 contrast = dot(color.rgb, vec3(0.11, 0.55, 0.33));
 //	vec3 contrast = dot(color.rgb, vec3(0.27, 0.67, 0.06));
 	vec3 contrast = dot(color.rgb, vec3(0.33, 0.55, 0.11));
