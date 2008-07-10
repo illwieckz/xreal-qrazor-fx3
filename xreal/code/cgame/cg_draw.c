@@ -2162,21 +2162,6 @@ static void CG_DrawReward(void)
 
 	trap_R_SetColor(color);
 
-	/*
-	   count = cg.rewardCount[0]/10;                // number of big rewards to draw
-
-	   if (count) {
-	   y = 4;
-	   x = 320 - count * ICON_SIZE;
-	   for ( i = 0 ; i < count ; i++ ) {
-	   CG_DrawPic( x, y, (ICON_SIZE*2)-4, (ICON_SIZE*2)-4, cg.rewardShader[0] );
-	   x += (ICON_SIZE*2);
-	   }
-	   }
-
-	   count = cg.rewardCount[0] - count*10;        // number of small rewards to draw
-	 */
-
 	if(cg.rewardCount[0] >= 10)
 	{
 		y = 56;
@@ -2280,20 +2265,21 @@ static void CG_DrawDisconnect(void)
 	int             cmdNum;
 	usercmd_t       cmd;
 	const char     *s;
-	int             w;			// bk010215 - FIXME char message[1024];
+	int             w;
 
 	// draw the phone jack if we are completely past our buffers
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
 	trap_GetUserCmd(cmdNum, &cmd);
 	if(cmd.serverTime <= cg.snap->ps.commandTime || cmd.serverTime > cg.time)
-	{							// special check for map_restart
+	{
+		// special check for map_restart
 		return;
 	}
 
 	// also add text in center of screen
 	s = "Connection Interrupted";
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 100, s, 1.0F);
+	w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
+	CG_Text_Paint(320 - w / 2, 100, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 
 	// blink the icon
 	if((cg.time >> 9) & 1)
@@ -2956,16 +2942,18 @@ static void CG_DrawAmmoWarning(void)
 		return;
 	}
 
+	w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
+
 	if(cg.lowAmmoWarning == 2)
 	{
 		s = "OUT OF AMMO";
+		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 	}
 	else
 	{
 		s = "LOW AMMO WARNING";
+		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorYellow, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 	}
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
 }
 
 #ifdef MISSIONPACK
@@ -3039,8 +3027,9 @@ static void CG_DrawWarmup(void)
 	if(sec < 0)
 	{
 		s = "Waiting for players";
-		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-		CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
+		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
+		CG_Text_Paint(320 - w / 2, 24, 0.5f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+
 		cg.warmupCount = 0;
 		return;
 	}
