@@ -44,28 +44,16 @@ char            systemChat[256];
 char            teamChat1[256];
 char            teamChat2[256];
 
-#ifdef MISSIONPACK
-
-int CG_Text_Width(const char *text, float scale, int limit)
+int CG_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font)
 {
 	int             count, len;
 	float           out;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t    *glyph;
 	float           useScale;
-
 // FIXME: see ui_main.c, same problem
 //  const unsigned char *s = text;
 	const char     *s = text;
-	fontInfo_t     *font = &cgDC.Assets.textFont;
 
-	if(scale <= cg_smallFont.value)
-	{
-		font = &cgDC.Assets.smallFont;
-	}
-	else if(scale > cg_bigFont.value)
-	{
-		font = &cgDC.Assets.bigFont;
-	}
 	useScale = scale * font->glyphScale;
 	out = 0;
 	if(text)
@@ -85,36 +73,27 @@ int CG_Text_Width(const char *text, float scale, int limit)
 			}
 			else
 			{
-				glyph = &font->glyphs[(int)*s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+				glyph = &font->glyphs[(int)*s];
 				out += glyph->xSkip;
 				s++;
 				count++;
 			}
 		}
 	}
+	
 	return out * useScale;
 }
 
-int CG_Text_Height(const char *text, float scale, int limit)
+int CG_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font)
 {
 	int             len, count;
 	float           max;
-	glyphInfo_t    *glyph;
+	const glyphInfo_t    *glyph;
 	float           useScale;
-
 // TTimo: FIXME
 //  const unsigned char *s = text;
 	const char     *s = text;
-	fontInfo_t     *font = &cgDC.Assets.textFont;
 
-	if(scale <= cg_smallFont.value)
-	{
-		font = &cgDC.Assets.smallFont;
-	}
-	else if(scale > cg_bigFont.value)
-	{
-		font = &cgDC.Assets.bigFont;
-	}
 	useScale = scale * font->glyphScale;
 	max = 0;
 	if(text)
@@ -134,7 +113,7 @@ int CG_Text_Height(const char *text, float scale, int limit)
 			}
 			else
 			{
-				glyph = &font->glyphs[(int)*s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+				glyph = &font->glyphs[(int)*s];
 				if(max < glyph->height)
 				{
 					max = glyph->height;
@@ -144,6 +123,7 @@ int CG_Text_Height(const char *text, float scale, int limit)
 			}
 		}
 	}
+
 	return max * useScale;
 }
 
@@ -155,25 +135,17 @@ void CG_Text_PaintChar(float x, float y, float width, float height, float scale,
 	w = width * scale;
 	h = height * scale;
 	CG_AdjustFrom640(&x, &y, &w, &h);
+
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
+void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, const fontInfo_t * font)
 {
 	int             len, count;
 	vec4_t          newColor;
 	glyphInfo_t    *glyph;
 	float           useScale;
-	fontInfo_t     *font = &cgDC.Assets.textFont;
 
-	if(scale <= cg_smallFont.value)
-	{
-		font = &cgDC.Assets.smallFont;
-	}
-	else if(scale > cg_bigFont.value)
-	{
-		font = &cgDC.Assets.bigFont;
-	}
 	useScale = scale * font->glyphScale;
 	if(text)
 	{
@@ -191,9 +163,8 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		count = 0;
 		while(s && *s && count < len)
 		{
-			glyph = &font->glyphs[(int)*s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
-			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
-			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
+			glyph = &font->glyphs[(int)*s];
+	
 			if(Q_IsColorString(s))
 			{
 				memcpy(newColor, (float *)g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
@@ -206,9 +177,9 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 			{
 				float           yadj = useScale * glyph->top;
 
-				if(style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+				if(style & UI_DROPSHADOW)// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
 				{
-					int             ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+					int             ofs = 1; //style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 
 					colorBlack[3] = newColor[3];
 					trap_R_SetColor(colorBlack);
@@ -221,7 +192,7 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 				CG_Text_PaintChar(x, y - yadj,
 								  glyph->imageWidth,
 								  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
-				// CG_DrawPic(x, y - yadj, scale * cgDC.Assets.textFont.glyphs[text[i]].imageWidth, scale * cgDC.Assets.textFont.glyphs[text[i]].imageHeight, cgDC.Assets.textFont.glyphs[text[i]].glyph);
+			
 				x += (glyph->xSkip * useScale) + adjust;
 				s++;
 				count++;
@@ -230,9 +201,6 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		trap_R_SetColor(NULL);
 	}
 }
-
-
-#endif
 
 /*
 ==============
@@ -304,7 +272,6 @@ static void CG_DrawField(int x, int y, int width, int value)
 /*
 ================
 CG_Draw3DModel
-
 ================
 */
 void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles)
@@ -368,7 +335,6 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle
 
 	trap_R_RenderScene(&refdef);
 }
-
 
 /*
 ================
@@ -594,7 +560,6 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 /*
 ================
 CG_DrawStatusBarHead
-
 ================
 */
 #ifndef MISSIONPACK
@@ -2156,28 +2121,6 @@ static void CG_DrawHoldableItem(void)
 }
 #endif							// MISSIONPACK
 
-#ifdef MISSIONPACK
-/*
-===================
-CG_DrawPersistantPowerup
-===================
-*/
-#if 0							// sos001208 - DEAD
-static void CG_DrawPersistantPowerup(void)
-{
-	int             value;
-
-	value = cg.snap->ps.stats[STAT_PERSISTANT_POWERUP];
-	if(value)
-	{
-		CG_RegisterItemVisuals(value);
-		CG_DrawPic(640 - ICON_SIZE, (SCREEN_HEIGHT - ICON_SIZE) / 2 - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
-	}
-}
-#endif
-#endif							// MISSIONPACK
-
-
 /*
 ===================
 CG_DrawReward
@@ -2554,11 +2497,7 @@ static void CG_DrawCenterString(void)
 {
 	char           *start;
 	int             l;
-	int             x, y, w;
-
-#ifdef MISSIONPACK
-	int             h;
-#endif
+	int             x, y, w, h;
 	float          *color;
 
 	if(!cg.centerPrintTime)
@@ -2592,22 +2531,12 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-#ifdef MISSIONPACK
-		w = CG_Text_Width(linebuffer, 0.5, 0);
-		h = CG_Text_Height(linebuffer, 0.5, 0);
+		w = CG_Text_Width(linebuffer, 0.5, 0, &cgs.media.bigFont);
+		h = CG_Text_Height(linebuffer, 0.5, 0, &cgs.media.bigFont);
 		x = (SCREEN_WIDTH - w) / 2;
-		CG_Text_Paint(x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		CG_Text_Paint(x, y + h, 0.5, color, linebuffer, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 		y += h + 6;
-#else
-		w = cg.centerPrintCharWidth * CG_DrawStrlen(linebuffer);
 
-		x = (SCREEN_WIDTH - w) / 2;
-
-		CG_DrawStringExt(x, y, linebuffer, color, qfalse, qtrue,
-						 cg.centerPrintCharWidth, (int)(cg.centerPrintCharWidth * 1.5), 0);
-
-		y += cg.centerPrintCharWidth * 1.5;
-#endif
 		while(*start && (*start != '\n'))
 		{
 			start++;
@@ -2777,14 +2706,11 @@ static void CG_DrawCrosshairNames(void)
 	}
 
 	name = cgs.clientinfo[cg.crosshairClientNum].name;
-#ifdef MISSIONPACK
+
 	color[3] *= 0.5f;
-	w = CG_Text_Width(name, 0.3f, 0);
-	CG_Text_Paint(320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
-#else
-	w = CG_DrawStrlen(name) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 170, name, color[3] * 0.5f);
-#endif
+	w = CG_Text_Width(name, 0.3f, 0, &cgs.media.smallFont);
+	CG_Text_Paint(320 - w / 2, 190, 0.3f, color, name, 0, 0, UI_DROPSHADOW, &cgs.media.smallFont);
+
 	trap_R_SetColor(NULL);
 }
 
@@ -2836,15 +2762,9 @@ static void CG_DrawVote(void)
 	{
 		sec = 0;
 	}
-#ifdef MISSIONPACK
+
 	s = va("VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo);
 	CG_DrawSmallString(0, 58, s, 1.0F);
-	s = "or press ESC then click Vote";
-	CG_DrawSmallString(0, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F);
-#else
-	s = va("VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo);
-	CG_DrawSmallString(0, 58, s, 1.0F);
-#endif
 }
 
 /*
@@ -2973,13 +2893,7 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission(void)
 {
-//  int key;
-#ifdef MISSIONPACK
-	//if (cg_singlePlayer.integer) {
-	//  CG_DrawCenterString();
-	//  return;
-	//}
-#else
+#ifndef MISSIONPACK
 	if(cgs.gametype == GT_SINGLE_PLAYER)
 	{
 		CG_DrawCenterString();
@@ -3022,8 +2936,6 @@ static qboolean CG_DrawFollow(void)
 	return qtrue;
 }
 
-
-
 /*
 =================
 CG_DrawAmmoWarning
@@ -3055,7 +2967,6 @@ static void CG_DrawAmmoWarning(void)
 	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 	CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
 }
-
 
 #ifdef MISSIONPACK
 /*
@@ -3103,7 +3014,6 @@ static void CG_DrawProxWarning(void)
 	CG_DrawBigStringColor(320 - w / 2, 64 + BIGCHAR_HEIGHT, s, (float *)g_color_table[ColorIndex(COLOR_RED)]);
 }
 #endif
-
 
 /*
 =================
@@ -3158,21 +3068,8 @@ static void CG_DrawWarmup(void)
 		if(ci1 && ci2)
 		{
 			s = va("%s vs %s", ci1->name, ci2->name);
-#ifdef MISSIONPACK
-			w = CG_Text_Width(s, 0.6f, 0);
-			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#else
-			w = CG_DrawStrlen(s);
-			if(w > 640 / GIANT_WIDTH)
-			{
-				cw = 640 / w;
-			}
-			else
-			{
-				cw = GIANT_WIDTH;
-			}
-			CG_DrawStringExt(320 - w * cw / 2, 20, s, colorWhite, qfalse, qtrue, cw, (int)(cw * 1.5f), 0);
-#endif
+			w = CG_Text_Width(s, 0.6f, 0, &cgs.media.bigFont);
+			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 		}
 	}
 	else
@@ -3207,21 +3104,8 @@ static void CG_DrawWarmup(void)
 		{
 			s = "";
 		}
-#ifdef MISSIONPACK
-		w = CG_Text_Width(s, 0.6f, 0);
-		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#else
-		w = CG_DrawStrlen(s);
-		if(w > 640 / GIANT_WIDTH)
-		{
-			cw = 640 / w;
-		}
-		else
-		{
-			cw = GIANT_WIDTH;
-		}
-		CG_DrawStringExt(320 - w * cw / 2, 25, s, colorWhite, qfalse, qtrue, cw, (int)(cw * 1.1f), 0);
-#endif
+		w = CG_Text_Width(s, 0.6f, 0, &cgs.media.bigFont);
+		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 	}
 
 	sec = (sec - cg.time) / 1000;
@@ -3270,16 +3154,12 @@ static void CG_DrawWarmup(void)
 			break;
 	}
 
-#ifdef MISSIONPACK
-	w = CG_Text_Width(s, scale, 0);
-	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-#else
-	w = CG_DrawStrlen(s);
-	CG_DrawStringExt(320 - w * cw / 2, 70, s, colorWhite, qfalse, qtrue, cw, (int)(cw * 1.5), 0);
-#endif
+	w = CG_Text_Width(s, scale, 0, &cgs.media.bigFont);
+	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 }
 
 //==================================================================================
+
 #ifdef MISSIONPACK
 /* 
 =================
@@ -3301,6 +3181,7 @@ void CG_DrawTimedMenus(void)
 	}
 }
 #endif
+
 /*
 =================
 CG_Draw2D
@@ -3314,6 +3195,7 @@ static void CG_Draw2D(void)
 		CG_CheckOrderPending();
 	}
 #endif
+
 	// if we are taking a levelshot for the menu, don't draw anything
 	if(cg.levelShot)
 	{
@@ -3371,9 +3253,8 @@ static void CG_Draw2D(void)
 
 #ifndef MISSIONPACK
 			CG_DrawHoldableItem();
-#else
-			//CG_DrawPersistantPowerup();
 #endif
+
 			CG_DrawReward();
 		}
 
@@ -3413,8 +3294,7 @@ static void CG_Draw2D(void)
 
 static void CG_DrawTourneyScoreboard(void)
 {
-#ifdef MISSIONPACK
-#else
+#ifndef MISSIONPACK
 	CG_DrawOldTourneyScoreboard();
 #endif
 }

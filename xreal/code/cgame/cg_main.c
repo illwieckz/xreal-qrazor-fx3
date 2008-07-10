@@ -183,8 +183,6 @@ vmCvar_t        cg_cameraOrbitDelay;
 vmCvar_t        cg_timescaleFadeEnd;
 vmCvar_t        cg_timescaleFadeSpeed;
 vmCvar_t        cg_timescale;
-vmCvar_t        cg_smallFont;
-vmCvar_t        cg_bigFont;
 vmCvar_t        cg_noTaunt;
 vmCvar_t        cg_noProjectileTrail;
 vmCvar_t        cg_railType;
@@ -350,9 +348,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 	{&cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
 	{&cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
-	
-	{&cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
-	{&cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	
 	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
@@ -1210,6 +1205,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 
 	CG_InitParticles();
+
+	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 20, &cgs.media.smallFont);
+	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 32, &cgs.media.bigFont);
 }
 
 

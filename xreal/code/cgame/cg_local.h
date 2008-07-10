@@ -36,9 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LUA
 #endif
 
-#ifdef MISSIONPACK
-#define CG_FONT_THRESHOLD 0.1
-#endif
+#define CG_FONT_THRESHOLD	0.1
 
 #define	POWERUP_BLINKS		5
 
@@ -966,6 +964,10 @@ typedef struct
 	qhandle_t       medalCapture;
 	qhandle_t       medalTelefrag;
 
+	// Tr3B: new truetype fonts
+	fontInfo_t      smallFont;
+	fontInfo_t      bigFont;
+
 	// sounds
 	sfxHandle_t     quadSound;
 	sfxHandle_t     tracerSound;
@@ -1324,12 +1326,11 @@ extern vmCvar_t cg_timescaleFadeEnd;
 extern vmCvar_t cg_timescaleFadeSpeed;
 extern vmCvar_t cg_timescale;
 extern vmCvar_t cg_cameraMode;
-extern vmCvar_t cg_smallFont;
-extern vmCvar_t cg_bigFont;
 extern vmCvar_t cg_noTaunt;
 extern vmCvar_t cg_noProjectileTrail;
 extern vmCvar_t cg_railType;
 extern vmCvar_t cg_trueLightning;
+
 extern vmCvar_t cg_particles;
 extern vmCvar_t cg_particleCollision;
 
@@ -1463,6 +1464,11 @@ extern char     systemChat[256];
 extern char     teamChat1[256];
 extern char     teamChat2[256];
 
+int				CG_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
+int				CG_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
+void			CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader);
+void			CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, const fontInfo_t * font);
+
 void            CG_AddLagometerFrameInfo(void);
 void            CG_AddLagometerSnapshotInfo(snapshot_t * snap);
 void            CG_CenterPrint(const char *str, int y, int charWidth);
@@ -1472,9 +1478,6 @@ void            CG_DrawFlagModel(float x, float y, float w, float h, int team, q
 void            CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team);
 void            CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags,
 							 int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
-void            CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
-int             CG_Text_Width(const char *text, float scale, int limit);
-int             CG_Text_Height(const char *text, float scale, int limit);
 void            CG_SelectPrevPlayer();
 void            CG_SelectNextPlayer();
 float           CG_GetValue(int ownerDraw);
@@ -1489,8 +1492,6 @@ const char     *CG_GetKillerText();
 void            CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles);
 void            CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel,
 									 qhandle_t skin, vec3_t origin, vec3_t angles);
-void            CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
-								  qhandle_t hShader);
 void            CG_CheckOrderPending();
 const char     *CG_GameTypeString();
 qboolean        CG_YourTeamHasFlag();
@@ -1622,7 +1623,6 @@ void            CG_ProcessSnapshots(void);
 
 //unlagged - early transitioning
 void            CG_TransitionEntity(centity_t * cent);
-
 //unlagged - early transitioning
 
 //
