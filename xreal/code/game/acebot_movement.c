@@ -68,7 +68,7 @@ qboolean ACEMV_CanMove(gentity_t * self, int direction)
 	trap_Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_PLAYERSOLID);
 
 //	if((tr.fraction > 0.3 && tr.fraction != 1) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
-	if((tr.fraction == 1.0) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
+	if((tr.fraction == 1.0) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_DONOTENTER)))
 	{
 		if(ace_debug.integer)
 			trap_SendServerCommand(-1, va("print \"%s:" S_COLOR_WHITE " move blocked\n\"", self->client->pers.netname));
