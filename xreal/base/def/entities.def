@@ -3183,11 +3183,13 @@ entityDef func_static
 	
 	"editor_bool forceMeta"		"if 1, XMap2 turns model triangles into planar surfaces so models can be lightmapped"
 	"editor_bool clipModel"		"if 1, XMap2 creates collision brushes for this model"
+	"editor_bool solid"			"if 0, XMap2 adds a "nonsolid" material parameter to it."
 	
 	"spawnclass"				"idStaticEntity"
 	
 	"forceMeta"					"0"
 	"clipModel"					"0"
+	"solid"						"1"
 }
 
 

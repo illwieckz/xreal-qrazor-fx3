@@ -341,6 +341,7 @@ textures/method/spanish_moss
 	noShadows
 	nonSolid
 	twoSided
+	alphashadow
 
 	{
 		blend diffuseMap
@@ -440,6 +441,7 @@ textures/method/dirt
 	DECAL_MACRO
 	noShadows
 //	noimpact
+	nonsolid
 	translucent
 	
 	{	
@@ -454,6 +456,7 @@ textures/method/dirt1
 	DECAL_MACRO
 	noShadows
 //	noimpact
+	nonsolid
 	translucent
 	
 	{	
@@ -468,6 +471,7 @@ textures/method/dirt3
 	DECAL_MACRO
 	noShadows
 //	noimpact
+	nonsolid
 	translucent
 	
 	{	
@@ -482,6 +486,7 @@ textures/method/dirt4
 	DECAL_MACRO
 	noShadows
 //	noimpact
+	nonsolid
 	translucent
 	
 	{	
@@ -496,6 +501,7 @@ textures/method/dirt7
 	DECAL_MACRO
 	noShadows
 //	noimpact
+	nonsolid
 	translucent
 	
 	{	
@@ -510,6 +516,7 @@ textures/method/dirt8
 	DECAL_MACRO
 	noShadows
 //	noimpact
+	nonsolid
 	translucent
 	
 	{	

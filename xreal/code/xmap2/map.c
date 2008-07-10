@@ -1803,26 +1803,39 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
 		#endif
 		
-		// NOTE: func_static entities should contain always detail brushes
+		// NOTE: func_static entities should always contain detail brushes
 		for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 		{
-			if(!(brush->contentFlags & C_DETAIL) || !brush->detail)
+			if(!(brush->compileFlags & C_DETAIL) || !brush->detail)
 			{
 				c_detail++;
 				c_structural--;
 				brush->detail = qtrue;
+				brush->compileFlags |= C_DETAIL;
 			}
 		}
 		
-		/*
-		if(!strcmp("1", ValueForKey(mapent, "noclipmodel")))
+#if 0
+		if(!strcmp("0", ValueForKey(mapEnt, "solid")))
 		{
+			side_t *s;
+
 			for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 			{
-				brush->contentFlags &= ~C_SOLID;
+				ApplySurfaceParm("nonsolid", &brush->contentFlags, NULL, &brush->compileFlags);
+				
+				/* set the content/compile flags for every side in the brush */
+				for(i = 0, s = &brush->sides[0]; i < brush->numsides; i++, s++)
+				{
+					s = &brush->sides[i];
+					if(s->shaderInfo == NULL)
+						continue;
+
+					ApplySurfaceParm("nonsolid", &s->contentFlags, &s->surfaceFlags, &s->compileFlags);
+				}
 			}
 		}
-		*/
+#endif
 		
 		MoveBrushesToWorld(mapEnt);
 		MovePatchesToWorld(mapEnt);
