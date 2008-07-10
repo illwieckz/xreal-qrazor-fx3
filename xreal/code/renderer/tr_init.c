@@ -227,6 +227,7 @@ cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_screenSpaceAmbientOcclusion;
+cvar_t         *r_depthOfField;
 cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
 cvar_t         *r_rotoscope;
@@ -1228,6 +1229,8 @@ void R_Register(void)
 	r_screenSpaceAmbientOcclusion = ri.Cvar_Get("r_screenSpaceAmbientOcclusion", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_screenSpaceAmbientOcclusion, 0, 2, qtrue);
 
+	r_depthOfField = ri.Cvar_Get("r_depthOfField", "0", CVAR_ARCHIVE | CVAR_LATCH);
+
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
 
@@ -1253,7 +1256,6 @@ void R_Register(void)
 	r_lodbias = ri.Cvar_Get("r_lodbias", "0", CVAR_ARCHIVE);
 	r_flares = ri.Cvar_Get("r_flares", "0", CVAR_ARCHIVE);
 	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_CHEAT);
-	r_zfar = ri.Cvar_Get("r_zfar", "4096", CVAR_CHEAT);
 	r_zfar = ri.Cvar_Get("r_zfar", "0", CVAR_CHEAT);
 	r_ignoreGLErrors = ri.Cvar_Get("r_ignoreGLErrors", "1", CVAR_ARCHIVE);
 	r_fastsky = ri.Cvar_Get("r_fastsky", "0", CVAR_ARCHIVE);

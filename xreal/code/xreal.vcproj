@@ -154,7 +154,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				WholeProgramOptimization="false"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;SIMD_SSE"
 				StringPooling="true"
@@ -2199,6 +2199,14 @@
 			</File>
 			<File
 				RelativePath="..\base\glsl\depthFill_vp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\depthOfField_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\depthOfField_vp.glsl"
 				>
 			</File>
 			<File

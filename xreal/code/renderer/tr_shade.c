@@ -1230,6 +1230,21 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.screenSpaceAmbientOcclusionShader.program);
 	GL_CheckErrors();
 
+	// depth of field post process effect
+	GLSL_InitGPUShader(&tr.depthOfFieldShader, "depthOfField", GLCS_VERTEX, qtrue);
+
+	tr.depthOfFieldShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_CurrentMap");
+	tr.depthOfFieldShader.u_PositionMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_PositionMap");
+
+	qglUseProgramObjectARB(tr.depthOfFieldShader.program);
+	qglUniform1iARB(tr.depthOfFieldShader.u_CurrentMap, 0);
+	qglUniform1iARB(tr.depthOfFieldShader.u_PositionMap, 1);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.depthOfFieldShader.program);
+	GLSL_ShowProgramUniforms(tr.depthOfFieldShader.program);
+	GL_CheckErrors();
+
 	endTime = ri.Milliseconds();
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
@@ -1425,6 +1440,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
 		tr.screenSpaceAmbientOcclusionShader.program = 0;
+	}
+
+	if(tr.depthOfFieldShader.program)
+	{
+		qglDeleteObjectARB(tr.depthOfFieldShader.program);
+		tr.depthOfFieldShader.program = 0;
 	}
 
 	glState.currentProgram = 0;

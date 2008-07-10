@@ -1874,6 +1874,7 @@ typedef struct
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
+	shaderProgram_t depthOfFieldShader;
 
 	// -----------------------------------------
 
@@ -2160,6 +2161,7 @@ extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_screenSpaceAmbientOcclusion;
+extern cvar_t  *r_depthOfField;
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_rotoscope;

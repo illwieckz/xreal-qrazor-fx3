@@ -3662,7 +3662,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 		return;
 
-	if(r_screenSpaceAmbientOcclusion->integer <= 0)
+	if(!r_screenSpaceAmbientOcclusion->integer)
 		return;
 
 	// enable shader, set arrays
@@ -3706,6 +3706,70 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
 	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix, 1, GL_FALSE, projectMatrix);
 	*/
+
+	// capture current color buffer for u_CurrentMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.currentRenderImage);
+	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+
+	// bind u_PositionMap
+	GL_SelectTexture(1);
+	if(deferred)
+	{
+		GL_Bind(tr.deferredPositionFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	}
+
+	// set 2D virtual screen size
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+
+	// draw viewport
+	qglBegin(GL_QUADS);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglEnd();
+
+	// go back to 3D
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+
+	GL_CheckErrors();
+}
+
+void RB_RenderDepthOfField(qboolean deferred)
+{
+	GLimp_LogComment("--- RB_RenderDepthOfField ---\n");
+
+	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+		return;
+
+	if(!r_depthOfField->integer)
+		return;
+
+	// enable shader, set arrays
+	GL_Program(tr.depthOfFieldShader.program);
+
+	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
+	GL_Cull(CT_TWO_SIDED);
+
+	qglColor4fv(colorWhite);
+
+	// set uniforms
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
@@ -5578,6 +5642,9 @@ static void RB_RenderView(void)
 
 		// render global fog post process effect
 		RB_RenderUniformFog(qfalse);
+
+		// render depth of field post process effect
+		RB_RenderDepthOfField(qfalse);
 
 		// render bloom post process effect
 		RB_RenderBloom();
