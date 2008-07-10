@@ -1206,8 +1206,8 @@ static void CG_RegisterGraphics(void)
 
 	CG_InitParticles();
 
-	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 20, &cgs.media.smallFont);
-	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 32, &cgs.media.bigFont);
+	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 12, &cgs.media.smallFont);
+	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 20, &cgs.media.bigFont);
 }
 
 
