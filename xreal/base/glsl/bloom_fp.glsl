@@ -65,8 +65,8 @@ void	main()
     {
 	    for(int j = -tap; j < tap; j++)
 	    {
-			float weight = gaussFact[j + 3] * gaussFact[j + 3];
-			vec4 color = texture2D(u_ContrastMap, st + vec2(j, i) * u_BlurMagnitude * r_FBufScale) * weight;
+			float weight = gaussFact[i + 3] * gaussFact[j + 3];
+			vec4 color = texture2D(u_ContrastMap, st + vec2(i, j) * u_BlurMagnitude * r_FBufScale) * weight;
 			
 			sumColors += color;
 			//sumWeights += weight;
