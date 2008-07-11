@@ -59,7 +59,7 @@ void	main()
 	float depthTolerance = 0.0001;
 	
 	float tap = 3.0;
-	const float taps = tap * 2.0 + 1.0;
+	float taps = tap * 2.0 + 1.0;
 	for(float i = -tap; i < tap; i++)
     {
 	    for(float j = -tap; j < tap; j++)
