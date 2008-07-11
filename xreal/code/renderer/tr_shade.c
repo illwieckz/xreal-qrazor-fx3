@@ -135,7 +135,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 
 		// HACK: add ATI's GLSL quirks      
-		if(glConfig.hardwareType == GLHW_ATI)
+		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI 1\n#endif\n");
 		}
@@ -1060,7 +1060,7 @@ void GLSL_InitGPUShaders(void)
 	// heatHaze post process effect
 	GLSL_InitGPUShader(&tr.heatHazeShader, "heatHaze", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
-	if(glConfig.hardwareType == GLHW_ATI)
+	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
 	{
 		tr.heatHazeShader.u_ProjectionMatrixTranspose =
 			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ProjectionMatrixTranspose");
@@ -2785,7 +2785,7 @@ static void Render_heatHaze(int stage)
 	qglUniform1fARB(tr.heatHazeShader.u_AlphaTest, alphaTest);
 	qglUniform1fARB(tr.heatHazeShader.u_DeformMagnitude, deformMagnitude);
 
-	if(glConfig.hardwareType == GLHW_ATI)
+	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
 	{
 		matrix_t        projectionMatrixTranspose;
 
