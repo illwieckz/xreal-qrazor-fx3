@@ -107,6 +107,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
 
+		Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 120\n");
+
 		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
