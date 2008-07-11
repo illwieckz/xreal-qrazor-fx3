@@ -3924,12 +3924,11 @@ void RB_RenderBloom(void)
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 
-
-	//if(r_bloom->integer == 1)
+	// FIXME
+	if(glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
-
 		
 		// render contrast
 		GL_Program(tr.contrastShader.program);
