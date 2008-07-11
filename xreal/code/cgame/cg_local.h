@@ -1143,9 +1143,11 @@ typedef struct
 {
 	gameState_t     gameState;	// gamestate from server
 	glConfig_t      glconfig;	// rendering configuration
-	float           screenXScale;	// derived from glconfig
-	float           screenYScale;
+	float           screenScale;	// derived from glconfig
 	float           screenXBias;
+	float           screenYBias;
+	float           screenXScale;
+	float           screenYScale;
 
 	int             serverCommandSequence;	// reliable command stream counter
 	int             processedSnapshotNum;	// the number of snapshots cgame has requested

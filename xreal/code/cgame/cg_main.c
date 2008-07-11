@@ -2152,13 +2152,32 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.weaponSelect = WP_MACHINEGUN;
 
-	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for
-	cgs.flagStatus = -1;		// old servers
+	cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for old servers
+	cgs.flagStatus = -1;
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig(&cgs.glconfig);
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+	cgs.screenScale = cgs.glconfig.vidHeight * (1.0f / 480.0f);
+ 	if(cgs.glconfig.vidWidth * 480 > cgs.glconfig.vidHeight * 640)
+	{
+ 		// wide screen
+		cgs.screenXBias = 0.5f * (cgs.glconfig.vidWidth - (cgs.glconfig.vidHeight * (640.0f / 480.0f)));
+		cgs.screenYBias = 0;
+	}
+	else if(cgs.glconfig.vidWidth * 480 < cgs.glconfig.vidHeight * 640)
+	{
+		// narrow screen
+		cgs.screenXBias = 0;
+		cgs.screenYBias = 0.5f * (cgs.glconfig.vidHeight - (cgs.glconfig.vidWidth * (480.0f / 640.0f)));
+		cgs.screenScale = cgs.glconfig.vidWidth * (1.0f / 640.0f);
+	}
+	else
+	{
+ 		// no wide screen
+		cgs.screenXBias = cgs.screenYBias = 0;
+ 	}
 
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);

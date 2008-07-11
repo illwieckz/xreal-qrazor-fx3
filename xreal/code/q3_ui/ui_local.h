@@ -543,9 +543,9 @@ typedef struct
 	qhandle_t       cursor;
 	qhandle_t       rb_on;
 	qhandle_t       rb_off;
-	float           xscale;
-	float           yscale;
-	float           bias;
+	float			scale;
+	float			xbias;
+	float			ybias;
 	qboolean        firstdraw;
 
 	// Tr3B: new truetype fonts

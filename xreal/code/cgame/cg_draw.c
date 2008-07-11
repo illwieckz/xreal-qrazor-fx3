@@ -1386,10 +1386,9 @@ static float CG_DrawTimer(float y)
 CG_DrawTeamOverlay
 =================
 */
-
 static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 {
-	int             x, w, h, xx;
+	float           x, w, h, xx;
 	int             i, j, len;
 	const char     *p;
 	vec4_t          hcolor;
@@ -1468,6 +1467,8 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 		ret_y = y;
 	}
 
+	CG_AdjustFrom640(&x, &y, &w, &h);
+
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
 	{
 		hcolor[0] = 1.0f;
@@ -1508,8 +1509,6 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 				if(len > lwidth)
 					len = lwidth;
 
-//              xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth + 
-//                  ((lwidth/2 - len/2) * TINYCHAR_WIDTH);
 				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth;
 				CG_DrawStringExt(xx, y,
 								 p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXLOCATION_WIDTH);
@@ -1571,7 +1570,6 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	}
 
 	return ret_y;
-//#endif
 }
 
 
@@ -2310,10 +2308,8 @@ static void CG_DrawLagometer(void)
 	int             color;
 	float           vscale;
 
-//unlagged - misc
-	if(!cg_lagometer.integer /* || cgs.localServer */ )
+	if(!cg_lagometer.integer || cgs.localServer )
 	{
-//unlagged - misc
 		CG_DrawDisconnect();
 		return;
 	}

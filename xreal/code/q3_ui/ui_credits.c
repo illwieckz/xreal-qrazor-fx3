@@ -211,7 +211,7 @@ Main drawing function
 static void ScrollingCredits_Draw(void)
 {
 	int             x = 320, y, n, ysize = 0, fadetime = 0;
-	int             textWidth, textHeight;
+	int             textWidth;
 	float           textScale = 0.25f;
 	vec4_t          fadecolour = { 0.00, 0.00, 0.00, 0.00 };
 

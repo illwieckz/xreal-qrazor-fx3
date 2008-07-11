@@ -44,6 +44,7 @@ typedef struct
 	int             totallines;	// total lines in console scrollback
 
 	float           xadjust;	// for wide aspect screens
+	float			yadjust;	// for narrow aspect screens
 
 	float           displayFrac;	// aproaches finalFrac at scr_conspeed
 	float           finalFrac;	// 0.0 to 1.0 lines of console to display
@@ -519,9 +520,11 @@ void Con_DrawInput(void)
 
 	re.SetColor(con.color);
 
-	SCR_DrawSmallChar(con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']');
-
-	Field_Draw(&g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
+	if(y >= con.yadjust)
+	{
+		SCR_DrawSmallChar(con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']');
+		Field_Draw(&g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
+	}
 }
 
 
@@ -621,8 +624,6 @@ void Con_DrawSolidConsole(float frac)
 	short          *text;
 	int             row;
 	int             lines;
-
-//  qhandle_t       conShader;
 	int             currentColor;
 	vec4_t          color;
 	int             t, d;
@@ -639,14 +640,14 @@ void Con_DrawSolidConsole(float frac)
 		lines = cls.glconfig.vidHeight;
 
 	// on wide screens, we will center the text
-	con.xadjust = 0;
-	SCR_AdjustFrom640(&con.xadjust, NULL, NULL, NULL);
+	con.yadjust = 0;
+	SCR_AdjustFrom640(&con.xadjust, &con.yadjust, NULL, NULL);
 
 	// draw the background
 	y = frac * SCREEN_HEIGHT - 2;
-	if(y < 1)
+	if(y < con.yadjust)
 	{
-		y = 0;
+		y = con.yadjust;
 	}
 	else
 	{
@@ -659,18 +660,16 @@ void Con_DrawSolidConsole(float frac)
 	color[3] = 1;
 	SCR_FillRect(0, y, SCREEN_WIDTH, 2, color);
 
-
 	// draw the version number
-
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
 	i = strlen(Q3_VERSION);
 
 	for(x = 0; x < i; x++)
-	{
-
-		SCR_DrawSmallChar(cls.glconfig.vidWidth - (i - x) * SMALLCHAR_WIDTH,
-						  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2)), Q3_VERSION[x]);
+	{		
+		y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2);
+		if(y >= con.yadjust)
+			SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (i - x) * SMALLCHAR_WIDTH, y, Q3_VERSION[x]);
 	}
 
 	// draw the date
@@ -686,14 +685,15 @@ void Con_DrawSolidConsole(float frac)
 		{
 			if(con_showClock->integer)
 			{
-				SCR_DrawSmallChar(cls.glconfig.vidWidth - (d - x) * SMALLCHAR_WIDTH,
-								  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - (SMALLCHAR_HEIGHT * 2)), displayDate[x]);
+				y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - (SMALLCHAR_HEIGHT * 2);
+				if(y >= con.yadjust)
+					SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (d - x) * SMALLCHAR_WIDTH, y, displayDate[x]);
 			}
 			else
 			{
-
-				SCR_DrawSmallChar(cls.glconfig.vidWidth - (d - x) * SMALLCHAR_WIDTH,
-								  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT), displayDate[x]);
+				y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT;
+				if(y >= con.yadjust)
+					SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (d - x) * SMALLCHAR_WIDTH, y, displayDate[x]);
 			}
 		}
 	}
@@ -720,8 +720,9 @@ void Con_DrawSolidConsole(float frac)
 		t = strlen(displayTime);
 		for(x = 0; x < t; x++)
 		{
-			SCR_DrawSmallChar(cls.glconfig.vidWidth - (t - x) * SMALLCHAR_WIDTH,
-							  (lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT), displayTime[x]);
+			y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT;
+			if(y >= con.yadjust)
+				SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (t - x) * SMALLCHAR_WIDTH, y, displayTime[x]);
 		}
 	}
 
@@ -736,10 +737,14 @@ void Con_DrawSolidConsole(float frac)
 	{
 		// draw arrows to show the buffer is backscrolled
 		re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
-		for(x = 0; x < con.linewidth; x += 4)
-			SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, '^');
-		y -= SMALLCHAR_HEIGHT;
-		rows--;
+
+		if(y >= con.yadjust)
+		{
+			for(x = 0; x < con.linewidth; x += 4)
+				SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, '^');
+			y -= SMALLCHAR_HEIGHT;
+			rows--;
+		}
 	}
 
 	row = con.display;
@@ -754,8 +759,9 @@ void Con_DrawSolidConsole(float frac)
 
 	for(i = 0; i < rows; i++, y -= SMALLCHAR_HEIGHT, row--)
 	{
-		if(row < 0)
+		if(row < con.yadjust)
 			break;
+
 		if(con.current - row >= con.totallines)
 		{
 			// past scrollback wrap point

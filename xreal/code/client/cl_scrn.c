@@ -31,6 +31,7 @@ cvar_t         *cl_debuggraph;
 cvar_t         *cl_graphheight;
 cvar_t         *cl_graphscale;
 cvar_t         *cl_graphshift;
+cvar_t		   *cl_keepVidAspect;
 
 /*
 ================
@@ -62,25 +63,35 @@ void SCR_AdjustFrom640(float *x, float *y, float *w, float *h)
 {
 	float           xscale;
 	float           yscale;
+	float			xbias = 0.0f;
+	float			ybias = 0.0f;
 
-#if 0
 	// adjust for wide screens
-	if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640)
+	xscale = cls.glconfig.vidWidth / 640.0f;
+	yscale = cls.glconfig.vidHeight / 480.0f;
+
+	if(cl_keepVidAspect->integer)
 	{
-		*x += 0.5 * (cls.glconfig.vidWidth - (cls.glconfig.vidHeight * 640 / 480));
+		if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640)
+		{
+			xbias = 0.5f * (cls.glconfig.vidWidth - (cls.glconfig.vidHeight * 640.0f / 480.0f));
+			xscale = yscale;
+		}
+		else if(cls.glconfig.vidWidth * 480 < cls.glconfig.vidHeight * 640)
+		{
+			ybias = 0.5f * (cls.glconfig.vidHeight - (cls.glconfig.vidWidth * 480.0f / 640.0f));
+			yscale = xscale;
+ 		}
 	}
-#endif
 
 	// scale for screen sizes
-	xscale = cls.glconfig.vidWidth / 640.0;
-	yscale = cls.glconfig.vidHeight / 480.0;
 	if(x)
 	{
-		*x *= xscale;
+		*x = xbias + *x * xscale;
 	}
 	if(y)
 	{
-		*y *= yscale;
+		*y = ybias + *y * yscale;
 	}
 	if(w)
 	{
@@ -450,6 +461,7 @@ void SCR_Init(void)
 	cl_graphheight = Cvar_Get("graphheight", "32", CVAR_CHEAT);
 	cl_graphscale = Cvar_Get("graphscale", "1", CVAR_CHEAT);
 	cl_graphshift = Cvar_Get("graphshift", "0", CVAR_CHEAT);
+	cl_keepVidAspect = Cvar_Get("cl_keepVidAspect", "0", CVAR_ARCHIVE);
 
 	scr_initialized = qtrue;
 }
@@ -468,11 +480,11 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 {
 	re.BeginFrame(stereoFrame);
 
-	// wide aspect ratio screens need to have the sides cleared
-	// unless they are displaying game renderings
+	// non 4:3 screens need the borders cleared
+	// unless they are displaying game renderings or cinematics
 	if(cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC)
 	{
-		if(cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640)
+		if(cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640)
 		{
 			re.SetColor(g_color_table[0]);
 			re.DrawStretchPic(0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader);

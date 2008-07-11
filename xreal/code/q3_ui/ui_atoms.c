@@ -362,8 +362,8 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 	// draw the colored text
 	trap_R_SetColor(color);
 
-	ax = x * uis.xscale + uis.bias;
-	ay = y * uis.yscale;
+	ax = x * uis.scale + uis.xbias;
+	ay = y * uis.scale + uis.ybias;
 
 	s = str;
 	while(*s)
@@ -371,7 +371,7 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 		ch = *s & 127;
 		if(ch == ' ')
 		{
-			ax += ((float)PROP2_SPACE_WIDTH + (float)PROP2_GAP_WIDTH) * uis.xscale;
+			ax += ((float)PROP2_SPACE_WIDTH + (float)PROP2_GAP_WIDTH) * uis.scale;
 		}
 		else if(ch >= 'A' && ch <= 'Z')
 		{
@@ -380,11 +380,11 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 			frow = (float)propMap2[ch][1] / 256.0f;
 			fwidth = (float)propMap2[ch][2] / 256.0f;
 			fheight = (float)PROP2_HEIGHT / 256.0f;
-			aw = (float)propMap2[ch][2] * uis.xscale;
-			ah = (float)PROP2_HEIGHT *uis.yscale;
+			aw = (float)propMap2[ch][2] * uis.scale;
+			ah = (float)PROP2_HEIGHT * uis.scale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, uis.charsetProp2);
-			ax += (aw + (float)PROP2_GAP_WIDTH * uis.xscale);
+			ax += (aw + (float)PROP2_GAP_WIDTH * uis.scale);
 		}
 		s++;
 	}
@@ -484,8 +484,8 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 	// draw the colored text
 	trap_R_SetColor(color);
 
-	ax = x * uis.xscale + uis.bias;
-	ay = y * uis.yscale;
+	ax = x * uis.scale + uis.xbias;
+	ay = y * uis.scale + uis.ybias;
 
 	s = str;
 	while(*s)
@@ -493,7 +493,7 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 		ch = *s & 127;
 		if(ch == ' ')
 		{
-			aw = (float)PROP_SPACE_WIDTH *uis.xscale * sizeScale;
+			aw = (float)PROP_SPACE_WIDTH * uis.scale * sizeScale;
 		}
 		else if(propMap1[ch][2] != -1)
 		{
@@ -502,13 +502,13 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 			fwidth = (float)propMap1[ch][2] / 256.0f;
 			fheight = (float)PROP_HEIGHT / 256.0f;
 
-			aw = (float)propMap1[ch][2] * uis.xscale * sizeScale;
-			ah = (float)PROP_HEIGHT *uis.yscale * sizeScale;
+			aw = (float)propMap1[ch][2] * uis.scale * sizeScale;
+			ah = (float)PROP_HEIGHT * uis.scale * sizeScale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, charset);
 		}
 
-		ax += (aw + (float)PROP_GAP_WIDTH * uis.xscale * sizeScale);
+		ax += (aw + (float)PROP_GAP_WIDTH * uis.scale * sizeScale);
 		s++;
 	}
 
@@ -684,16 +684,18 @@ static void UI_DrawString2(int x, int y, const char *str, vec4_t color, int char
 	float           fcol;
 
 	if(y < -charh)
+	{
 		// offscreen
 		return;
+	}
 
 	// draw the colored text
 	trap_R_SetColor(color);
 
-	ax = x * uis.xscale + uis.bias;
-	ay = y * uis.yscale;
-	aw = charw * uis.xscale;
-	ah = charh * uis.yscale;
+	ax = x * uis.scale + uis.xbias;
+	ay = y * uis.scale + uis.ybias;
+	aw = charw * uis.scale;
+	ah = charh * uis.scale;
 
 	s = str;
 	while(*s)
@@ -1264,19 +1266,25 @@ void UI_Init(void)
 	trap_GetGlconfig(&uis.glconfig);
 
 	// for 640x480 virtualized screen
-	uis.xscale = uis.glconfig.vidWidth * (1.0 / 640.0);
-	uis.yscale = uis.glconfig.vidHeight * (1.0 / 480.0);
-	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
+	uis.scale = uis.glconfig.vidHeight * (1.0f / 480.0f);
+ 	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
 	{
-		// wide screen
-		uis.bias = 0.5 * (uis.glconfig.vidWidth - (uis.glconfig.vidHeight * (640.0 / 480.0)));
-		uis.xscale = uis.yscale;
+ 		// wide screen
+		uis.xbias = 0.5f * (uis.glconfig.vidWidth - (uis.glconfig.vidHeight * (640.0f / 480.0f)));
+		uis.ybias = 0;
+	}
+	else if(uis.glconfig.vidWidth * 480 < uis.glconfig.vidHeight * 640)
+	{
+		// narrow screen
+		uis.xbias = 0;
+		uis.ybias = 0.5f * (uis.glconfig.vidHeight - (uis.glconfig.vidWidth * (480.0f / 640.0f)));
+		uis.scale = uis.glconfig.vidWidth * (1.0f / 640.0f);
 	}
 	else
 	{
-		// no wide screen
-		uis.bias = 0;
-	}
+ 		// no wide screen
+		uis.xbias = uis.ybias = 0;
+ 	}
 
 	// initialize the menu system
 	Menu_Cache();
@@ -1294,11 +1302,11 @@ Adjusted for resolution and screen aspect ratio
 */
 void UI_AdjustFrom640(float *x, float *y, float *w, float *h)
 {
-	// expect valid pointers
-	*x = *x * uis.xscale + uis.bias;
-	*y *= uis.yscale;
-	*w *= uis.xscale;
-	*h *= uis.yscale;
+	// scale for screen sizes
+	*x = *x * uis.scale + uis.xbias;
+	*y = *y * uis.scale + uis.ybias;
+	*w *= uis.scale;
+	*h *= uis.scale;
 }
 
 void UI_DrawNamedPic(float x, float y, float width, float height, const char *picname)
