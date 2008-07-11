@@ -30,7 +30,9 @@ varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
-varying mat3		var_TangentToWorldMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 
 void	main()
 {
@@ -50,10 +52,8 @@ void	main()
 	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
 	
 	// construct tangent-space-to-world-space 3x3 matrix
-	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	vec3 binormal = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	vec3 normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-	
-	var_TangentToWorldMatrix = mat3(tangent, binormal, normal);
+	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 }
 

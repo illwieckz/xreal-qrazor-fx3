@@ -33,7 +33,9 @@ varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
-varying mat3		var_TangentToWorldMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 //varying vec4		var_Color;	// Tr3B - maximum vars reached
 
 void	main()
@@ -57,11 +59,9 @@ void	main()
 	var_TexAttenXYZ = (u_LightAttenuationMatrix * gl_Vertex).xyz;
 	
 	// construct tangent-space-to-world-space 3x3 matrix
-	vec3 tangent = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	vec3 binormal = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	vec3 normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-	
-	var_TangentToWorldMatrix = mat3(tangent, binormal, normal);
+	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 	
 	// assign color
 	if(bool(u_InverseVertexColor))

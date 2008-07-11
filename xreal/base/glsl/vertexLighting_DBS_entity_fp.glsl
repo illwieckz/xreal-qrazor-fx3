@@ -33,15 +33,32 @@ varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
-varying mat3		var_OS2TSMatrix;
+varying vec3		var_Tangent;
+varying vec3		var_Binormal;
+varying vec3		var_Normal;
 
 void	main()
 {
+	// construct object-space-to-tangent-space 3x3 matrix
+	mat3 OS2TSMatrix;
+	if(gl_FrontFacing)
+	{
+		OS2TSMatrix = mat3( -var_Tangent.x, -var_Binormal.x, -var_Normal.x,
+							-var_Tangent.y, -var_Binormal.y, -var_Normal.y,
+							-var_Tangent.z, -var_Binormal.z, -var_Normal.z	);
+	}
+	else
+	{
+		OS2TSMatrix = mat3(	var_Tangent.x, var_Binormal.x, var_Normal.x,
+							var_Tangent.y, var_Binormal.y, var_Normal.y,
+							var_Tangent.z, var_Binormal.z, var_Normal.z	);
+	}
+
 	// compute view direction in tangent space
-	vec3 V = normalize(var_OS2TSMatrix * (u_ViewOrigin - var_Vertex));
+	vec3 V = normalize(OS2TSMatrix * (u_ViewOrigin - var_Vertex));
 
 	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * u_LightDir);
+	vec3 L = normalize(OS2TSMatrix * u_LightDir);
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
@@ -52,6 +69,10 @@ void	main()
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
+	
+	// invert tangent space for twosided surfaces
+	if(!gl_FrontFacing)
+		N = -N;
 	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);

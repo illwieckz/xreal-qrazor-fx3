@@ -307,7 +307,12 @@ void	main()
 		normalize(N);
 		#endif
 	
-		mat3 tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
+		// invert tangent space for twosided surfaces
+		mat3 tangentToWorldMatrix;
+		if(gl_FrontFacing)
+			tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+		else
+			tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 
 		// transform normal into world space
 		N = tangentToWorldMatrix * N;

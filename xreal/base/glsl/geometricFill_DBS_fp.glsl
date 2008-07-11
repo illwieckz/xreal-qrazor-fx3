@@ -33,7 +33,9 @@ varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
-varying mat3		var_TangentToWorldMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 
 
 float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
@@ -91,7 +93,7 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
-#if defined(PARALLAX)
+#if 0 //defined(PARALLAX)
 
 	// construct tangent-world-space-to-tangent-space 3x3 matrix
 #if defined(ATI)
@@ -208,10 +210,17 @@ void	main()
 	normalize(N);
 	#endif
 	
-	// transform normal into world space
-	N = var_TangentToWorldMatrix * N;
+	// invert tangent space for twosided surfaces
+	mat3 tangentToWorldMatrix;
+	if(gl_FrontFacing)
+		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+	else
+		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
-	N = normalize(N);
+	// transform normal into world space
+	N = tangentToWorldMatrix * N;
+	
+	//N = normalize(N);
 	
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;

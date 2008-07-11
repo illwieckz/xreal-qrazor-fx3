@@ -30,15 +30,32 @@ varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_LightDir;
 varying vec4		var_Color;
-varying mat3		var_OS2TSMatrix;
+varying vec3		var_Tangent;
+varying vec3		var_Binormal;
+varying vec3		var_Normal;
 
 void	main()
 {
+	// construct object-space-to-tangent-space 3x3 matrix
+	mat3 OS2TSMatrix;
+	if(gl_FrontFacing)
+	{
+		OS2TSMatrix = mat3( -var_Tangent.x, -var_Binormal.x, -var_Normal.x,
+							-var_Tangent.y, -var_Binormal.y, -var_Normal.y,
+							-var_Tangent.z, -var_Binormal.z, -var_Normal.z	);
+	}
+	else
+	{
+		OS2TSMatrix = mat3(	var_Tangent.x, var_Binormal.x, var_Normal.x,
+							var_Tangent.y, var_Binormal.y, var_Normal.y,
+							var_Tangent.z, var_Binormal.z, var_Normal.z	);
+	}
+	
 	// compute view direction in tangent space
-	vec3 V = normalize(var_OS2TSMatrix * (u_ViewOrigin - var_Vertex));
+	vec3 V = normalize(OS2TSMatrix * (u_ViewOrigin - var_Vertex));
 
 	// compute light direction in tangent space
-	vec3 L = normalize(var_OS2TSMatrix * var_LightDir);
+	vec3 L = normalize(OS2TSMatrix * var_LightDir);
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);

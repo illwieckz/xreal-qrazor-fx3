@@ -42,7 +42,9 @@ varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_TexAttenXYZ;
-varying mat3		var_TangentToWorldMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 //varying vec4		var_Color;
 
 
@@ -224,9 +226,16 @@ void	main()
 		N.z *= r_NormalScale;
 		normalize(N);
 		#endif
+		
+		// invert tangent space for twosided surfaces
+		mat3 tangentToWorldMatrix;
+		if(gl_FrontFacing)
+			tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+		else
+			tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
 		// transform normal into world space
-		N = var_TangentToWorldMatrix * N;
+		N = tangentToWorldMatrix * N;
 	
 		// compute the diffuse term
 		vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
