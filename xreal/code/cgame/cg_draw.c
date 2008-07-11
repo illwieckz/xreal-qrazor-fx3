@@ -2938,16 +2938,16 @@ static void CG_DrawAmmoWarning(void)
 		return;
 	}
 
-	w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
-
 	if(cg.lowAmmoWarning == 2)
 	{
 		s = "OUT OF AMMO";
+		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
 		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 	}
 	else
 	{
 		s = "LOW AMMO WARNING";
+		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
 		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorYellow, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
 	}
 }
