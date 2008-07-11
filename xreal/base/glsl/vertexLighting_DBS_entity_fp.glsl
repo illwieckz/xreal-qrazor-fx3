@@ -70,10 +70,6 @@ void	main()
 	normalize(N);
 	#endif
 	
-	// invert tangent space for twosided surfaces
-	if(!gl_FrontFacing)
-		N = -N;
-	
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	
