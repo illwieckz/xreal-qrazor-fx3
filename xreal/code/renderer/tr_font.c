@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -52,25 +52,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // rendered three sizes in Team Arena, 12, 16, and 20. 
 //
 // To generate new font data you need to go through the following steps.
-// 1. delete the fontImage_x_xx.tga files and fontImage_xx.dat files from the fonts path.
+// 1. delete the fontImage_x_xx.png files and fontImage_xx.dat files from the fonts path.
 // 2. in a ui script, specificy a font, smallFont, and bigFont keyword with font name and 
 //    point size. the original TrueType fonts must exist in fonts at this point.
 // 3. run the game, you should see things normally.
-// 4. Exit the game and there will be three dat files and at least three tga files. The 
-//    tga's are in 256x256 pages so if it takes three images to render a 24 point font you 
+// 4. Exit the game and there will be three dat files and at least three PNG files. The 
+//    PNG's are in 256x256 pages so if it takes three images to render a 24 point font you 
 //    will end up with fontImage_0_24.tga through fontImage_2_24.tga
 // 5. In future runs of the game, the system looks for these images and data files when a
 //    specific point sized font is rendered and loads them for use. 
 // 6. Because of the original beta nature of the FreeType code you will probably want to hand
 //    touch the font bitmaps.
-// 
-// Currently a define in the project turns on or off the FreeType code which is currently 
-// defined out. To pre-render new fonts you need enable the define ( BUILD_FREETYPE ). 
 
-//#define BUILD_FREETYPE
+
 
 #include "tr_local.h"
 #include "../qcommon/qcommon.h"
+
+#include "../png/png.h"
 
 #ifdef BUILD_FREETYPE
 //#include <freetype/fterrors.h>
@@ -196,16 +195,125 @@ static void WriteTGA(char *filename, byte * data, int width, int height)
 	Z_Free(buffer);
 }
 
+/*
+=========================================================
+
+PNG SAVING
+
+=========================================================
+*/
+static int      png_compressed_size;
+
+static void png_write_data(png_structp png, png_bytep data, png_size_t length)
+{
+	memcpy(png->io_ptr, data, length);
+
+	// raynorpat: msvc is gay
+#if _MSC_VER
+	(byte *) png->io_ptr += length;
+#else
+	png->io_ptr += length;
+#endif
+
+	png_compressed_size += length;
+}
+
+static void png_flush_data(png_structp png)
+{
+}
+
+void WritePNG(const char *name, const byte * pic, int width, int height)
+{
+	png_structp     png;
+	png_infop       info;
+	int             i;
+	int             row_stride;
+	byte           *buffer;
+	const byte     *row;
+	png_bytep      *row_pointers;
+
+	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	if(!png)
+		return;
+
+	// Allocate/initialize the image information data
+	info = png_create_info_struct(png);
+	if(!info)
+	{
+		png_destroy_write_struct(&png, (png_infopp) NULL);
+		return;
+	}
+
+	png_compressed_size = 0;
+	buffer = ri.Hunk_AllocateTempMemory(width * height * 3);
+
+	// set error handling
+	if(setjmp(png_jmpbuf(png)))
+	{
+		ri.Hunk_FreeTempMemory(buffer);
+		png_destroy_write_struct(&png, &info);
+		return;
+	}
+
+	png_set_write_fn(png, buffer, png_write_data, png_flush_data);
+	png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+				 PNG_FILTER_TYPE_DEFAULT);
+
+	// write the file header information
+	png_write_info(png, info);
+
+	row_pointers = ri.Hunk_AllocateTempMemory(height * sizeof(png_bytep));
+
+	if(setjmp(png_jmpbuf(png)))
+	{
+		ri.Hunk_FreeTempMemory(row_pointers);
+		ri.Hunk_FreeTempMemory(buffer);
+		png_destroy_write_struct(&png, &info);
+		return;
+	}
+
+	row_stride = width * 4;
+	row = pic + (height - 1) * row_stride;
+
+#if 0
+	for(i = 0; i < height; i++)
+	{
+		row_pointers[i] = row;
+		row -= row_stride;
+	}
+#else
+	for(i = height -1; i >= 0; i--)
+	{
+		row_pointers[i] = row;
+		row -= row_stride;
+	}
+#endif
+
+	png_write_image(png, row_pointers);
+	png_write_end(png, info);
+
+	// clean up after the write, and free any memory allocated
+	png_destroy_write_struct(&png, &info);
+
+	ri.Hunk_FreeTempMemory(row_pointers);
+
+	ri.FS_WriteFile(name, buffer, png_compressed_size);
+
+	ri.Hunk_FreeTempMemory(buffer);
+}
+
 static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, int *yOut,
 										  int *maxHeight, FT_Face face, const unsigned char c, qboolean calcHeight)
 {
 	int             i;
 	static glyphInfo_t glyph;
 	unsigned char  *src, *dst;
-	float           scaled_width, scaled_height;
+	float           scaledWidth, scaledHeight;
 	FT_Bitmap      *bitmap = NULL;
 
 	Com_Memset(&glyph, 0, sizeof(glyphInfo_t));
+	
 	// make sure everything is here
 	if(face != NULL)
 	{
@@ -241,14 +349,17 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 	  	;
 */
 
-		scaled_width = glyph.pitch;
-		scaled_height = glyph.height;
+		scaledWidth = glyph.pitch;
+		scaledHeight = glyph.height;
 
 		// we need to make sure we fit
-		if(*xOut + scaled_width + 1 >= 255)
+		if(*xOut + scaledWidth + 1 >= 255)
 		{
-			if(*yOut + *maxHeight + 1 >= 255)
+			if(*yOut + (*maxHeight + 1) * 2 >= 255)
+			//if(*yOut + scaledHeight + 1 >= 255)
 			{
+				//ri.Printf(PRINT_WARNING, "RE_ConstructGlyphInfo: character %c does not fit width and height\n", c);
+
 				*yOut = -1;
 				*xOut = -1;
 				Z_Free(bitmap->buffer);
@@ -257,19 +368,22 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 			}
 			else
 			{
+				//ri.Printf(PRINT_WARNING, "RE_ConstructGlyphInfo: character %c does not fit width\n", c);
+
 				*xOut = 0;
 				*yOut += *maxHeight + 1;
 			}
 		}
 		else if(*yOut + *maxHeight + 1 >= 255)
 		{
+			//ri.Printf(PRINT_WARNING, "RE_ConstructGlyphInfo: character %c does not fit height\n", c);
+
 			*yOut = -1;
 			*xOut = -1;
 			Z_Free(bitmap->buffer);
 			Z_Free(bitmap);
 			return &glyph;
 		}
-
 
 		src = bitmap->buffer;
 		dst = imageOut + (*yOut * 256) + *xOut;
@@ -321,14 +435,14 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 		// we now have an 8 bit per pixel grey scale bitmap 
 		// that is width wide and pf->ftSize->metrics.y_ppem tall
 
-		glyph.imageHeight = scaled_height;
-		glyph.imageWidth = scaled_width;
+		glyph.imageHeight = scaledHeight;
+		glyph.imageWidth = scaledWidth;
 		glyph.s = (float)*xOut / 256;
 		glyph.t = (float)*yOut / 256;
-		glyph.s2 = glyph.s + (float)scaled_width / 256;
-		glyph.t2 = glyph.t + (float)scaled_height / 256;
+		glyph.s2 = glyph.s + (float)scaledWidth / 256;
+		glyph.t2 = glyph.t + (float)scaledHeight / 256;
 
-		*xOut += scaled_width + 1;
+		*xOut += scaledWidth + 1;
 	}
 
 	Z_Free(bitmap->buffer);
@@ -397,6 +511,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	{
 		pointSize = 12;
 	}
+	
 	// we also need to adjust the scale based on point size relative to 48 points as the ui scaling is based on a 48 point font
 	glyphScale *= 48.0f / pointSize;
 
@@ -498,12 +613,13 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	}
 	Com_Memset(out, 0, 1024 * 1024);
 
+	// calculate max height
 	maxHeight = 0;
-
 	for(i = GLYPH_START; i < GLYPH_END; i++)
 	{
 		glyph = RE_ConstructGlyphInfo(out, &xOut, &yOut, &maxHeight, face, (unsigned char)i, qtrue);
 	}
+	//ri.Printf(PRINT_WARNING, "RE_RegisterFont: max glyph height for font %s is %i\n", strippedName, maxHeight);
 
 	xOut = 0;
 	yOut = 0;
@@ -513,11 +629,15 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 
 	while(i <= GLYPH_END)
 	{
-
 		glyph = RE_ConstructGlyphInfo(out, &xOut, &yOut, &maxHeight, face, (unsigned char)i, qfalse);
 
 		if(xOut == -1 || yOut == -1 || i == GLYPH_END)
 		{
+			if(xOut == -1 || yOut == -1)
+			{
+				//ri.Printf(PRINT_WARNING, "RE_RegisterFont: character %c does not fit image number %i\n", (unsigned char) i, imageNumber);
+			}
+
 			// ran out of room
 			// we need to create an image from the bitmap, set all the handles in the glyphs to this point
 			scaledSize = 256 * 256;
@@ -548,25 +668,46 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 				imageBuff[left++] = ((float)out[k] * max);
 			}
 
+#if 0
 			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.tga", strippedName, imageNumber++, pointSize);
 			if(!ri.FS_FileExists(fileName))
 			{
 				WriteTGA(fileName, imageBuff, 256, 256);
 			}
-
-			image = R_CreateImage(fileName, imageBuff, 256, 256, qfalse, qfalse, WT_CLAMP);
-			h = RE_RegisterShaderFromImage(fileName, image, qfalse);
-			for(j = lastStart; j < i; j++)
+#elif 1
+			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.png", strippedName, imageNumber++, pointSize);
+			if(!ri.FS_FileExists(fileName))
 			{
-				font->glyphs[j].glyph = h;
-				Q_strncpyz(font->glyphs[j].shaderName, fileName, sizeof(font->glyphs[j].shaderName));
+				WritePNG(fileName, imageBuff, 256, 256);
 			}
-			lastStart = i;
+#endif
+
+			image = R_CreateImage(fileName, imageBuff, 256, 256, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+			h = RE_RegisterShaderFromImage(fileName, image, qfalse);
+			
 			Com_Memset(out, 0, 1024 * 1024);
 			xOut = 0;
 			yOut = 0;
 			Z_Free(imageBuff);
-			i++;
+
+			if(i == GLYPH_END)
+			{
+				for(j = lastStart; j <= GLYPH_END; j++)
+				{
+					font->glyphs[j].glyph = h;
+					Q_strncpyz(font->glyphs[j].shaderName, fileName, sizeof(font->glyphs[j].shaderName));
+				}
+				break;
+			}
+			else
+			{
+				for(j = lastStart; j < i; j++)
+				{
+					font->glyphs[j].glyph = h;
+					Q_strncpyz(font->glyphs[j].shaderName, fileName, sizeof(font->glyphs[j].shaderName));
+				}
+				lastStart = i;
+			}
 		}
 		else
 		{
