@@ -965,8 +965,8 @@ typedef struct
 	qhandle_t       medalTelefrag;
 
 	// Tr3B: new truetype fonts
-	fontInfo_t      smallFont;
-	fontInfo_t      bigFont;
+	fontInfo_t      freeSansBoldFont;
+	fontInfo_t      freeSerifBoldFont;
 
 	// sounds
 	sfxHandle_t     quadSound;

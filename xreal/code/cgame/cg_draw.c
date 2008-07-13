@@ -2276,8 +2276,8 @@ static void CG_DrawDisconnect(void)
 
 	// also add text in center of screen
 	s = "Connection Interrupted";
-	w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
-	CG_Text_Paint(320 - w / 2, 100, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+	w = CG_Text_Width(s, 0.5f, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(320 - w / 2, 100, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 
 	// blink the icon
 	if((cg.time >> 9) & 1)
@@ -2513,10 +2513,10 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-		w = CG_Text_Width(linebuffer, 0.5, 0, &cgs.media.bigFont);
-		h = CG_Text_Height(linebuffer, 0.5, 0, &cgs.media.bigFont);
+		w = CG_Text_Width(linebuffer, 0.5, 0, &cgs.media.freeSansBoldFont);
+		h = CG_Text_Height(linebuffer, 0.5, 0, &cgs.media.freeSansBoldFont);
 		x = (SCREEN_WIDTH - w) / 2;
-		CG_Text_Paint(x, y + h, 0.5, color, linebuffer, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+		CG_Text_Paint(x, y + h, 0.5, color, linebuffer, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 		y += h + 6;
 
 		while(*start && (*start != '\n'))
@@ -2690,8 +2690,8 @@ static void CG_DrawCrosshairNames(void)
 	name = cgs.clientinfo[cg.crosshairClientNum].name;
 
 	color[3] *= 0.5f;
-	w = CG_Text_Width(name, 0.3f, 0, &cgs.media.smallFont);
-	CG_Text_Paint(320 - w / 2, 190, 0.3f, color, name, 0, 0, UI_DROPSHADOW, &cgs.media.smallFont);
+	w = CG_Text_Width(name, 0.3f, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(320 - w / 2, 190, 0.3f, color, name, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 
 	trap_R_SetColor(NULL);
 }
@@ -2941,14 +2941,14 @@ static void CG_DrawAmmoWarning(void)
 	if(cg.lowAmmoWarning == 2)
 	{
 		s = "OUT OF AMMO";
-		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
-		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 	}
 	else
 	{
 		s = "LOW AMMO WARNING";
-		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
-		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorYellow, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(320 - w / 2, 64, 0.5f, colorYellow, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 	}
 }
 
@@ -3023,8 +3023,8 @@ static void CG_DrawWarmup(void)
 	if(sec < 0)
 	{
 		s = "Waiting for players";
-		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.bigFont);
-		CG_Text_Paint(320 - w / 2, 24, 0.5f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(320 - w / 2, 24, 0.5f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 
 		cg.warmupCount = 0;
 		return;
@@ -3053,8 +3053,8 @@ static void CG_DrawWarmup(void)
 		if(ci1 && ci2)
 		{
 			s = va("%s vs %s", ci1->name, ci2->name);
-			w = CG_Text_Width(s, 0.6f, 0, &cgs.media.bigFont);
-			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+			w = CG_Text_Width(s, 0.6f, 0, &cgs.media.freeSansBoldFont);
+			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 		}
 	}
 	else
@@ -3089,8 +3089,8 @@ static void CG_DrawWarmup(void)
 		{
 			s = "";
 		}
-		w = CG_Text_Width(s, 0.6f, 0, &cgs.media.bigFont);
-		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+		w = CG_Text_Width(s, 0.6f, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 	}
 
 	sec = (sec - cg.time) / 1000;
@@ -3139,8 +3139,8 @@ static void CG_DrawWarmup(void)
 			break;
 	}
 
-	w = CG_Text_Width(s, scale, 0, &cgs.media.bigFont);
-	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.bigFont);
+	w = CG_Text_Width(s, scale, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 }
 
 //==================================================================================

@@ -549,7 +549,7 @@ typedef struct
 	qboolean        firstdraw;
 
 	// Tr3B: new truetype fonts
-	fontInfo_t      textFont;
+	fontInfo_t      freeSerifBoldFont;
 //	fontInfo_t      smallFont;
 //	fontInfo_t      bigFont;
 } uiStatic_t;

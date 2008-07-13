@@ -245,12 +245,12 @@ static void ScrollingCredits_Draw(void)
 		else
 			textScale = 0.25f;
 
-		textWidth = UI_Text_Width(credits[n].string, textScale, 0, &uis.textFont);
+		textWidth = UI_Text_Width(credits[n].string, textScale, 0, &uis.freeSerifBoldFont);
 		UI_Text_Paint(x - (textWidth) / 2, y, textScale, credits[n].color, credits[n].string, 0, 0, credits[n].style,
-					  &uis.textFont);
+					  &uis.freeSerifBoldFont);
 
 		// re-adjust y for next line
-		//textHeight = UI_Text_Height(credits[n].string, textScale, 0, &uis.textFont);
+		//textHeight = UI_Text_Height(credits[n].string, textScale, 0, &uis.freeSerifBoldFont);
 		//y += textHeight * 3;
 
 		y += SMALLCHAR_HEIGHT;
