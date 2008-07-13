@@ -146,7 +146,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 	// now it must be a SF_FACE
 	sface = (srfSurfaceFace_t *) surface;
 
-	if(shader->isPortal || shader->isMirror)
+	if(shader->isPortal)
 	{
 		if(R_CullLocalBox(sface->bounds) == CULL_OUT)
 		{
@@ -292,7 +292,7 @@ static void R_AddInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 	}
 	surf->lightCount = tr.lightCount;
 
-	if(r_vboDynamicLighting->integer && !surf->shader->isSky && !surf->shader->isPortal && !surf->shader->isMirror && !surf->shader->numDeforms)
+	if(r_vboDynamicLighting->integer && !surf->shader->isSky && !surf->shader->isPortal && !surf->shader->numDeforms)
 		return;
 
 	//  skip all surfaces that don't matter for lighting only pass
@@ -347,7 +347,7 @@ static void R_AddWorldSurface(bspSurface_t * surf)
 
 	shader = surf->shader;
 
-	if(r_vboWorld->integer && !shader->isSky && !shader->isPortal && !shader->isMirror && !shader->numDeforms)
+	if(r_vboWorld->integer && !shader->isSky && !shader->isPortal && !shader->numDeforms)
 		return;
 
 	// try to cull before lighting or adding
@@ -814,7 +814,7 @@ static void R_UpdateClusterSurfaces()
 		if(shader->isSky)
 			continue;
 
-		if(shader->isPortal || shader->isMirror)
+		if(shader->isPortal)
 			continue;
 
 		if(shader->numDeforms)
@@ -838,7 +838,7 @@ static void R_UpdateClusterSurfaces()
 		if(shader->isSky)
 			continue;
 
-		if(shader->isPortal || shader->isMirror)
+		if(shader->isPortal)
 			continue;
 
 		if(shader->numDeforms)

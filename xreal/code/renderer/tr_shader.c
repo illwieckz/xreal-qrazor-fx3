@@ -1909,6 +1909,10 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->type = ST_SCREENMAP;
 			}
+			else if(!Q_stricmp(token, "portalMap"))
+			{
+				stage->type = ST_PORTALMAP;
+			}
 			else if(!Q_stricmp(token, "heathazeMap"))
 			{
 				stage->type = ST_HEATHAZEMAP;
@@ -3605,15 +3609,25 @@ static qboolean ParseShader(char *_text)
 		// portal
 		else if(!Q_stricmp(token, "portal"))
 		{
-			//shader.sort = SS_PORTAL;
+			shader.sort = SS_PORTAL;
 			shader.isPortal = qtrue;
+
+			token = Com_ParseExt(text, qfalse);
+			if(token[0])
+			{
+				shader.portalRange = atof(token);
+			}
+			else
+			{
+				shader.portalRange = 256;
+			}
 			continue;
 		}
-		// mirror
+		// portal or mirror
 		else if(!Q_stricmp(token, "mirror"))
 		{
-			//shader.sort = SS_PORTAL;
-			shader.isMirror = qtrue;
+			shader.sort = SS_PORTAL;
+			shader.isPortal = qtrue;
 			continue;
 		}
 		// skyparms <cloudheight> <outerbox> <innerbox>
@@ -3888,6 +3902,7 @@ static void CollapseStages(void)
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
 			stages[j].type == ST_SCREENMAP ||
+			stages[j].type == ST_PORTALMAP ||
 			stages[j].type == ST_HEATHAZEMAP ||
 			stages[j].type == ST_LIQUIDMAP ||
 			stages[j].type == ST_ATTENUATIONMAP_XY ||

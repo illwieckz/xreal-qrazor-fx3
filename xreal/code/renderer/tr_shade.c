@@ -1159,7 +1159,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// screen post process effect
-	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX | GLCS_COLOR, qtrue);
+	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX, qtrue);
 
 	tr.screenShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenShader.program, "u_CurrentMap");
 
@@ -1169,6 +1169,20 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.screenShader.program);
 	GLSL_ShowProgramUniforms(tr.screenShader.program);
+	GL_CheckErrors();
+
+	// portal process effect
+	GLSL_InitGPUShader(&tr.portalShader, "portal", GLCS_VERTEX, qtrue);
+
+	tr.portalShader.u_CurrentMap = qglGetUniformLocationARB(tr.portalShader.program, "u_CurrentMap");
+	tr.portalShader.u_PortalRange = qglGetUniformLocationARB(tr.portalShader.program, "u_PortalRange");
+
+	qglUseProgramObjectARB(tr.portalShader.program);
+	qglUniform1iARB(tr.portalShader.u_CurrentMap, 0);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.portalShader.program);
+	GLSL_ShowProgramUniforms(tr.portalShader.program);
 	GL_CheckErrors();
 
 	// liquid post process effect
@@ -1424,6 +1438,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.screenShader.program);
 		tr.screenShader.program = 0;
+	}
+
+	if(tr.portalShader.program)
+	{
+		qglDeleteObjectARB(tr.portalShader.program);
+		tr.portalShader.program = 0;
 	}
 
 	if(tr.liquidShader.program)
@@ -2649,16 +2669,50 @@ static void Render_screen(int stage)
 
 	// enable shader, set arrays
 	GL_Program(tr.screenShader.program);
-
-	if(glState.currentVBO)
+	
+	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		qglColor4fv(tess.svars.color);
-		GL_ClientState(GLCS_VERTEX);
+		GL_ClientState(tr.screenShader.attribs | GLCS_COLOR);
 	}
 	else
 	{
-		GL_ClientState(GLCS_VERTEX | GLCS_COLOR);
+		GL_ClientState(tr.screenShader.attribs);
+
+		qglColor4fv(tess.svars.color);
 	}
+
+	// bind u_CurrentMap
+	GL_SelectTexture(0);
+	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
+
+	DrawElements();
+
+	GL_CheckErrors();
+}
+
+static void Render_portal(int stage)
+{
+	shaderStage_t  *pStage = tess.surfaceStages[stage];
+
+	GLimp_LogComment("--- Render_portal ---\n");
+
+	GL_State(pStage->stateBits);
+
+	// enable shader, set arrays
+	GL_Program(tr.portalShader.program);
+	
+	if(pStage->vertexColor || pStage->inverseVertexColor)
+	{
+		GL_ClientState(tr.portalShader.attribs | GLCS_COLOR);
+	}
+	else
+	{
+		GL_ClientState(tr.portalShader.attribs);
+
+		qglColor4fv(tess.svars.color);
+	}
+
+	qglUniform1fARB(tr.portalShader.u_PortalRange, tess.surfaceShader->portalRange);
 
 	// bind u_CurrentMap
 	GL_SelectTexture(0);
@@ -3255,6 +3309,12 @@ void Tess_StageIteratorGeneric()
 				break;
 			}
 
+			case ST_PORTALMAP:
+			{
+				Render_portal(stage);
+				break;
+			}
+
 			case ST_HEATHAZEMAP:
 			{
 				Render_heatHaze(stage);
@@ -3395,6 +3455,13 @@ void Tess_StageIteratorGBuffer()
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_screen(stage);
+				break;
+			}
+
+			case ST_PORTALMAP:
+			{
+				R_BindFBO(tr.deferredRenderFBO);
+				Render_portal(stage);
 				break;
 			}
 

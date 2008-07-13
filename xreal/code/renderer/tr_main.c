@@ -1445,7 +1445,7 @@ static qboolean SurfIsOffscreen(const drawSurf_t * drawSurf, vec4_t clipDest[128
 
 	// mirrors can early out at this point, since we don't do a fade over distance
 	// with them (although we could)
-	if(shader->isMirror || IsMirror(drawSurf))
+	if(IsMirror(drawSurf))
 	{
 		return qfalse;
 	}
@@ -1648,7 +1648,7 @@ static void R_SortDrawSurfs()
 		   }
 		 */
 
-		if(!shader->isPortal && !shader->isMirror)
+		if(!shader->isPortal)
 		{
 			continue;
 		}

@@ -62,34 +62,18 @@ textures/common/clusterportal
 
 // subviews are for perfect mirrors or portals
 // without any extra surface drawing
-textures/common/mirror
-{
-	discrete		// never merge with other surfaces
-	qer_editorimage textures/common/qer_mirror.tga
-	
-	//polygonOffset
-	solid
-	mirror
-	nolightmap
-	
-	{
-		stage screenMap
-		map _portalRender
-		//depthWrite
-	}
-}
-
 textures/common/mirror1
 {
 	qer_editorimage textures/common/qer_mirror.tga
 	
-	nolightmap
 	mirror
+	nolightmap
 	
 	{
 		stage screenMap
 		map _portalRender
 		depthWrite
+		color 1, 1, 1, 1
 	}
 }
 
@@ -104,26 +88,60 @@ textures/common/mirror2
 		stage screenMap
 		map _portalRender
 		depthWrite
-	}
-	{
-		stage	heathazemap
-		map		textures/liquids/liquid12_n.tga
-		scroll		0 , time * -0.2
-		deformMagnitude	1
+		color 0.8, 0.8, 0.8, 1
 	}
 }
 
-textures/common/portal
+textures/common/mirror3
 {
-	qer_editorimage textures/common/qer_portal.tga
+	qer_editorimage textures/common/qer_mirror.tga
 	
 	nolightmap
-	portal
+	mirror
 	
 	{
 		stage screenMap
 		map _portalRender
 		depthWrite
+		color 0.8, 0.8, 0.8, 1
+	}
+	{
+		stage	heathazemap
+		map		textures/tr3b_water/watertest_local.tga
+		scroll	0 , time * -0.9
+		scale	0.5, 0.5
+		deformMagnitude	0.5
+	}
+}
+
+textures/common/portal1
+{
+	qer_editorimage textures/common/qer_portal.tga
+	
+	nolightmap
+	portal 512 // portal distance for fading, default is 256
+	tessSize 16
+	
+	{
+		stage portalMap
+		map _portalRender
+		depthWrite
+		color 1, 1, 1, 1
+	}
+}
+
+textures/common/portalNoDistanceFade
+{
+	qer_editorimage textures/common/qer_portal.tga
+	
+	nolightmap
+	portal 99999
+	
+	{
+		stage screenMap
+		map _portalRender
+		depthWrite
+		color 1, 1, 1, 1
 	}
 }
 

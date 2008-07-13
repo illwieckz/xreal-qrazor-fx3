@@ -600,6 +600,7 @@ typedef enum
 	ST_DISPERSIONMAP,
 	ST_SKYBOXMAP,
 	ST_SCREENMAP,				// 2d offscreen or portal rendering
+	ST_PORTALMAP,
 	ST_HEATHAZEMAP,				// heatHaze post process effect
 	ST_LIQUIDMAP,
 
@@ -740,7 +741,6 @@ typedef struct shader_s
 
 	float           portalRange;	// distance to fog out at
 	qboolean        isPortal;
-	qboolean        isMirror;
 
 	collapseType_t  collapseType;
 	int             collapseTextureEnv;	// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
@@ -859,6 +859,8 @@ typedef struct shaderProgram_s
 	GLint           u_SSAORadius;
 
 	GLint           u_DepthScale;
+
+	GLint           u_PortalRange;
 
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
@@ -1871,6 +1873,7 @@ typedef struct
 	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
 	shaderProgram_t screenShader;
+	shaderProgram_t portalShader;
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
 	shaderProgram_t screenSpaceAmbientOcclusionShader;

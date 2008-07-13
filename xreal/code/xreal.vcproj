@@ -2298,6 +2298,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\glsl\portal_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\portal_vp.glsl"
+				>
+			</File>
+			<File
 				RelativePath="..\base\glsl\reflection_C_fp.glsl"
 				>
 			</File>

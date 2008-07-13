@@ -3242,7 +3242,7 @@ static void R_CreateSubModelVBOs()
 			if(shader->isSky)
 				continue;
 
-			if(shader->isPortal || shader->isMirror)
+			if(shader->isPortal)
 				continue;
 
 			if(shader->numDeforms)
@@ -3266,7 +3266,7 @@ static void R_CreateSubModelVBOs()
 			if(shader->isSky)
 				continue;
 
-			if(shader->isPortal || shader->isMirror)
+			if(shader->isPortal)
 				continue;
 
 			if(shader->numDeforms)
