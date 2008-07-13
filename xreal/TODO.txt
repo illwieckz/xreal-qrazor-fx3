@@ -95,9 +95,6 @@ code/game
 
 code/renderer
 - improve shadow mapping filtering methods
-- add screen space ambient occlusion post process effect
-- add motion blur post process effect
-- add depth of field post process effect
 - add HDR tonemapping
 - change the QGL interface to mimic OpenGL 2 ES
  - clean up renderer and GLSL shaders with the new interface
@@ -106,13 +103,12 @@ code/renderer
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
 - add fog lights
-- replace alphaGen portal by a cool post process effect
 - ignore shadow pyramids that don't cast into the view
-- add stained shadow mapping
 - improve volumetric lighting
 - improve deferred shading
  - fix depth write of skybox
  - fix vertex painting support = depth peeling ?
+- add stained shadow mapping ?
 - add dynamic LOD support for md3 and md5 models ?
 - check for shader model 3 hardware ?
 - fix stencil shadow flickering bug ?
