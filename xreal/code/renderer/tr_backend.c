@@ -215,24 +215,28 @@ void GL_Cull(int cullType)
 
 		if(cullType == CT_BACK_SIDED)
 		{
+			qglCullFace(GL_BACK);
+
 			if(backEnd.viewParms.isMirror)
 			{
-				qglCullFace(GL_FRONT);
+				qglFrontFace(GL_CW);
 			}
 			else
 			{
-				qglCullFace(GL_BACK);
+				qglFrontFace(GL_CCW);
 			}
 		}
 		else
 		{
+			qglCullFace(GL_FRONT);
+
 			if(backEnd.viewParms.isMirror)
 			{
-				qglCullFace(GL_BACK);
+				qglFrontFace(GL_CW);
 			}
 			else
 			{
-				qglCullFace(GL_FRONT);
+				qglFrontFace(GL_CCW);
 			}
 		}
 	}
