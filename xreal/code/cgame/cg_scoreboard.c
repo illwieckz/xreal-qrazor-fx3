@@ -336,17 +336,18 @@ qboolean CG_DrawOldScoreboard(void)
 		CG_LoadDeferredPlayers();
 	}
 
-	// plop the current date and time at the bottom
+	// put the current date and time at the bottom along with version info
 	trap_RealTime(&tm);
-	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_YELLOW "XreaL http://xreal.sourceforge.net", (1 + (tm.tm_hour + 11) % 12),	// 12 hour format
+	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_YELLOW "XreaL v" PRODUCT_VERSION " " S_COLOR_BLUE
+				" http://xreal.sourceforge.net", (1 + (tm.tm_hour + 11) % 12), // 12 hour format
 				(tm.tm_min > 9 ? "" : "0"),	// minute padding
-				tm.tm_min, (tm.tm_sec > 9 ? "" : "0"),	// second padding
+				tm.tm_min, (tm.tm_sec > 9 ? "" : "0"), // second padding
 				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
 
-	w = CG_DrawStrlen(st) * SMALLCHAR_WIDTH;
-	x = (SCREEN_WIDTH - w) / 2;
-	y = 463;
-	CG_DrawStringExt(x, y, st, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 200);
+	w = CG_Text_Width(st, 0.3f, 0, &cgs.media.freeSansBoldFont);
+	x = 320 - w / 2;
+	y = 475;
+	CG_Text_Paint(x, y, 0.3f, colorWhite, st, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 
 	return qtrue;
 }
