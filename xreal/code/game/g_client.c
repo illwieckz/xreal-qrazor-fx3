@@ -694,7 +694,7 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 	char           *p;
 	int             spaces;
 
-	//save room for trailing null byte
+	// save room for trailing null byte
 	outSize--;
 
 	len = 0;
@@ -718,30 +718,28 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 		}
 
 		// check colors
-		if(ch == Q_COLOR_ESCAPE)
+		if(ch == Q_COLOR_ESCAPE && *in && *in != Q_COLOR_ESCAPE)
 		{
-			// solo trailing carat is not a color prefix
-			if(!*in)
-			{
-				break;
-			}
-
-			// don't allow black in a name, period
-			if(ColorIndex(*in) == 0)
-			{
-				in++;
-				continue;
-			}
-
-			// make sure room in dest for both chars
-			if(len > outSize - 2)
+			// make sure there is room for both chars
+			if((len += 2) > outSize)
 			{
 				break;
 			}
 
 			*out++ = ch;
-			*out++ = *in++;
-			len += 2;
+
+			// don't allow black in a name, period
+			if(ColorIndex(*in) == 0)
+			{
+				*out++ = COLOR_WHITE;
+				in++;
+				continue;
+			}
+			else
+			{
+				*out++ = *in++;
+ 			}
+
 			continue;
 		}
 
@@ -754,6 +752,12 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 			{
 				continue;
 			}
+
+			if(++len > outSize)
+			{
+				break;
+			}
+
 			*out++ = ch;
 			len++;
 			continue;
@@ -763,19 +767,18 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 			spaces = 0;
 		}
 
-		if(len > outSize - 1)
+		if(++len > outSize)
 		{
 			break;
 		}
 
 		*out++ = ch;
 		colorlessLen++;
-		len++;
 	}
 	*out = 0;
 
 	// don't allow empty names
-	if(*p == 0 || colorlessLen == 0)
+	if(colorlessLen == 0)
 	{
 		Q_strncpyz(p, "UnnamedPlayer", outSize);
 	}
