@@ -359,6 +359,9 @@ void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, sr
 	}
 }
 
+/*
+Tr3B: this function breaks the VC9 compiler for some unknown reason ...
+
 float R_CalcFov(float fovX, float width, float height)
 {
 	static float	x;
@@ -370,6 +373,7 @@ float R_CalcFov(float fovX, float width, float height)
 
 	return fovY;
 }
+*/
 
 /*
 =================
@@ -1896,7 +1900,7 @@ void R_AddLightInteractions()
 
 		if(light->isStatic)
 		{
-			if(r_noStaticLighting->integer || r_precomputedLighting->integer || r_vertexLighting->integer)
+			if(r_noStaticLighting->integer || ((r_precomputedLighting->integer || r_vertexLighting->integer) && !light->noRadiosity))
 			{
 				light->cull = CULL_OUT;
 				continue;

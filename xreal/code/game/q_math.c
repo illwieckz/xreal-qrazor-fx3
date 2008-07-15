@@ -851,6 +851,9 @@ float AngleBetweenVectors(const vec3_t a, const vec3_t b)
 	alen = VectorLength(a);
 	blen = VectorLength(b);
 
+	if(!alen || !blen)
+		return 0;
+
 	// complete dot product of two vectors a, b is |a| * |b| * cos(angle)
 	// this results in:
 	//

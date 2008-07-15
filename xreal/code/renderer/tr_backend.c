@@ -683,7 +683,7 @@ static void RB_SetGL2D(void)
 
 
 
-static void RB_RenderDrawSurfaces(qboolean opaque)
+static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
@@ -743,7 +743,11 @@ static void RB_RenderDrawSurfaces(qboolean opaque)
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, lightmapNum);
+			if(depthFill)
+				Tess_Begin(Tess_StageIteratorDepthFill, shader, NULL, qtrue, qfalse, lightmapNum);
+			else
+				Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, lightmapNum);
+
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
 		}
@@ -1814,8 +1818,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY =
-								R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							fovY = 90; //R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							zNear = 1.0;
 							zFar = light->sphereRadius;
@@ -3002,8 +3005,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY =
-								R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							fovY = 90; //R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							zNear = 1.0;
 							zFar = light->sphereRadius;
@@ -5493,6 +5495,9 @@ static void RB_RenderView(void)
 		GL_CheckErrors();
 
 		// draw everything that is opaque
+		//R_BindFBO(tr.deferredRenderFBO);
+		//RB_RenderDrawSurfaces(qtrue, qtrue);
+
 		RB_RenderDrawSurfacesIntoGeometricBuffer();
 
 		// try to cull lights using hardware occlusion queries
@@ -5515,7 +5520,7 @@ static void RB_RenderView(void)
 
 		// draw everything that is translucent
 		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderDrawSurfaces(qfalse);
+		RB_RenderDrawSurfaces(qfalse, qfalse);
 
 		// render global fog
 		R_BindFBO(tr.deferredRenderFBO);
@@ -5615,8 +5620,11 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
+		// draw everything that is opaque into black so we can benefit from early-z rejections later
+		RB_RenderDrawSurfaces(qtrue, qtrue);
+
 		// draw everything that is opaque
-		RB_RenderDrawSurfaces(qtrue);
+		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		// render ambient occlusion process effect
 		RB_RenderScreenSpaceAmbientOcclusion(qfalse);
@@ -5641,7 +5649,7 @@ static void RB_RenderView(void)
 		}
 
 		// draw everything that is translucent
-		RB_RenderDrawSurfaces(qfalse);
+		RB_RenderDrawSurfaces(qfalse, qfalse);
 
 		// render global fog post process effect
 		RB_RenderUniformFog(qfalse);

@@ -245,6 +245,10 @@ void CreateEntityLights(void)
 		else
 			continue;
 
+		/* Tr3B: allow realtime only lights to be skipped */
+		if(IntForKey(e, "noradiosity"))
+			continue;
+
 		/* lights with target names (and therefore styles) are only parsed from BSP */
 		target = ValueForKey(e, "name");
 		if(target[0] != '\0' && i >= numBSPEntities)
@@ -343,11 +347,9 @@ void CreateEntityLights(void)
 			light->style = LS_NORMAL;
 
 		/* set light intensity */
-		#if 1
 		GetVectorForKey(e, "light_radius", light->radius);
 		intensity = VectorLength(light->radius);
 		if(!intensity)
-		#endif
 			intensity = FloatForKey(e, "_light");
 		if(intensity == 0.0f)
 			intensity = FloatForKey(e, "light");

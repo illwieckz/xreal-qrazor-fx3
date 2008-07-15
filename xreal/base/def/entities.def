@@ -88,6 +88,7 @@ entityDef light
 	"editor_float light_fovX"		"Spotlight FOV width angle: overrides the default 90 degrees."
 	"editor_float light_fovY"		"Spotlight FOV height angle: overrides the default 90 degrees."
 	"editor_bool noshadows"			"No Shadows, Set this key to 1 to disable shadow casting."
+	"editor_bool noradiosity"		"No Radiosity, Set this key to 1 to disable XMap2 radiosity creation."
 
 	"spawnclass"					"idLight"  // this is required for DarkRadiant
 	
@@ -96,10 +97,7 @@ entityDef light
 	"light_fovX"					"90"
 	"light_fovY"					"90"
 	"noshadows"						"0"
-	
-	"levels"						"1"
-	"count"							"1"
-	"break"							"0"
+	"noradiosity"					"0"
 }
 
 

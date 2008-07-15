@@ -1289,7 +1289,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 			
 		// OpenGL projection matrix
 		fovX = 90;
-		fovY = R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+		fovY = 90; //R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 						
 		zNear = 1.0;
 		zFar = light->sphereRadius;

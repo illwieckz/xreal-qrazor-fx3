@@ -112,12 +112,13 @@ typedef struct trRefLight_s
 	refLight_t      l;
 
 	// local
-	qboolean        isStatic;	// loaded from the BSP entities lump
-	qboolean        additive;	// texture detail is lost tho when the lightmap is dark
-	vec3_t          origin;		// l.origin + rotated l.center
-	vec3_t          transformed;	// origin in local coordinate system
+	qboolean        isStatic;			// loaded from the BSP entities lump
+	qboolean        noRadiosity;		// this is a pure realtime light that was not considered by XMap2
+	qboolean        additive;			// texture detail is lost tho when the lightmap is dark
+	vec3_t          origin;				// l.origin + rotated l.center
+	vec3_t          transformed;		// origin in local coordinate system
 	matrix_t        transformMatrix;	// light to world
-	matrix_t        viewMatrix;	// object to light
+	matrix_t        viewMatrix;			// object to light
 	matrix_t        projectionMatrix;	// light frustum
 
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
@@ -2489,6 +2490,7 @@ void            Tess_ComputeColor(shaderStage_t * pStage);
 
 void            Tess_StageIteratorGeneric();
 void            Tess_StageIteratorGBuffer();
+void            Tess_StageIteratorDepthFill();
 void            Tess_StageIteratorShadowFill();
 void            Tess_StageIteratorStencilShadowVolume();
 void            Tess_StageIteratorStencilLighting();

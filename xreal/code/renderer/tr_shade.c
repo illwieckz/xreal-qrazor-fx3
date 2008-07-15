@@ -3392,7 +3392,7 @@ void Tess_StageIteratorGBuffer()
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_genericSingle(stage);
 
-#if 1
+#if 0
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 				{
 					R_BindFBO(tr.geometricRenderFBO);
@@ -3406,7 +3406,7 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-#if 1
+#if 0
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_depthFill(stage);
 #endif
@@ -3462,6 +3462,79 @@ void Tess_StageIteratorGBuffer()
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_portal(stage);
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+
+	// reset polygon offset
+	qglDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+void Tess_StageIteratorDepthFill()
+{
+	int             stage;
+
+	// log this call
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment(va
+						 ("--- Tess_StageIteratorShadowFill( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
+						  tess.numVertexes, tess.numIndexes / 3));
+	}
+
+	GL_CheckErrors();
+
+	Tess_DeformGeometry();
+
+	// set face culling appropriately   
+	GL_Cull(tess.surfaceShader->cullType);
+
+	// set polygon offset if necessary
+	if(tess.surfaceShader->polygonOffset)
+	{
+		qglEnable(GL_POLYGON_OFFSET_FILL);
+		qglPolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
+	}
+
+	// call shader function
+	for(stage = 0; stage < MAX_SHADER_STAGES; stage++)
+	{
+		shaderStage_t  *pStage = tess.surfaceStages[stage];
+
+		if(!pStage)
+		{
+			break;
+		}
+
+		if(!RB_EvalExpression(&pStage->ifExp, 1.0))
+		{
+			continue;
+		}
+
+		Tess_ComputeTexMatrices(pStage);
+
+		switch (pStage->type)
+		{
+			case ST_COLORMAP:
+			{
+				if(tess.surfaceShader->sort <= SS_OPAQUE)
+				{
+					Render_depthFill(stage);
+				}
+				break;
+			}
+
+			case ST_DIFFUSEMAP:
+			case ST_COLLAPSE_lighting_DB:
+			case ST_COLLAPSE_lighting_DBS:
+			{
+				Render_depthFill(stage);
 				break;
 			}
 

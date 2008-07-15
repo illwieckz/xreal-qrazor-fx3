@@ -1272,6 +1272,7 @@ Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2
 <real key="light_fovX" name="Spotlight FOV width angle">overrides the default 90 degrees.</real>
 <real key="light_fovY" name="Spotlight FOV height angle">overrides the default 90 degrees.</real>
 <boolean key="noshadows" name="No Shadows">Set this key to 1 to disable shadow casting.</boolean>
+<boolean key="noradiosity" name="No Radiosity">Set this key to 1 to disable XMap2 radiosity creation.</boolean>
 -------- SPAWNFLAGS --------
 <flag key="LINEAR" name="Linear Falloff" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
 <flag key="NOANGLE" name="No Angle Attenuation" bit="1">Ignore angle attenuation.</flag>

@@ -4181,6 +4181,7 @@ void R_LoadEntities(lump_t * l)
 		light->l.inverseShadows = qfalse;
 
 		light->isStatic = qtrue;
+		light->noRadiosity = qfalse;
 		light->additive = qtrue;
 
 		light->shadowLOD = 0;
@@ -4310,9 +4311,14 @@ void R_LoadEntities(lump_t * l)
 				QuatFromMatrix(light->l.rotation, rotation);
 			}
 			// check if this light does not cast any shadows
-			else if(!Q_stricmp(keyname, "noShadows") && !Q_stricmp(value, "1"))
+			else if(!Q_stricmp(keyname, "noshadows") && !Q_stricmp(value, "1"))
 			{
 				light->l.noShadows = qtrue;
+			}
+			// check if this light does not contribute to the global lightmapping
+			else if(!Q_stricmp(keyname, "noradiosity") && !Q_stricmp(value, "1"))
+			{
+				light->noRadiosity = qtrue;
 			}
 		}
 
@@ -6199,8 +6205,8 @@ void R_PrecacheInteractions()
 	int             numLeafs;
 	int             startTime, endTime;
 
-	if(r_precomputedLighting->integer)
-		return;
+	//if(r_precomputedLighting->integer)
+	//	return;
 
 	startTime = ri.Milliseconds();
 
@@ -6223,6 +6229,9 @@ void R_PrecacheInteractions()
 	for(i = 0; i < s_worldData.numLights; i++)
 	{
 		light = &s_worldData.lights[i];
+
+		if((r_precomputedLighting->integer || r_vertexLighting->integer) && !light->noRadiosity)
+			continue;
 
 #if 0
 		ri.Printf(PRINT_ALL, "light %i: origin(%i %i %i) radius(%i %i %i) color(%f %f %f)\n",
