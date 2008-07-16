@@ -3392,7 +3392,7 @@ void Tess_StageIteratorGBuffer()
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_genericSingle(stage);
 
-#if 0
+#if 1
 				if(tess.surfaceShader->sort <= SS_OPAQUE && !(pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)))
 				{
 					R_BindFBO(tr.geometricRenderFBO);
@@ -3406,7 +3406,7 @@ void Tess_StageIteratorGBuffer()
 			case ST_COLLAPSE_lighting_DB:
 			case ST_COLLAPSE_lighting_DBS:
 			{
-#if 0
+#if 1
 				R_BindFBO(tr.deferredRenderFBO);
 				Render_depthFill(stage);
 #endif

@@ -5621,7 +5621,7 @@ static void RB_RenderView(void)
 		GL_CheckErrors();
 
 		// draw everything that is opaque into black so we can benefit from early-z rejections later
-		RB_RenderDrawSurfaces(qtrue, qtrue);
+		//RB_RenderDrawSurfaces(qtrue, qtrue);
 
 		// draw everything that is opaque
 		RB_RenderDrawSurfaces(qtrue, qfalse);
