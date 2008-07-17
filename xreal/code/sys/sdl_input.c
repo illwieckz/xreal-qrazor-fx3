@@ -804,7 +804,6 @@ static void IN_ProcessEvents(void)
 	SDL_Event       e;
 	const char     *p = NULL;
 	int             key = 0;
-	int             mx = 0, my = 0;
 
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 		return;
@@ -844,10 +843,7 @@ static void IN_ProcessEvents(void)
 
 			case SDL_MOUSEMOTION:
 				if(mouseActive)
-				{
-					mx += e.motion.xrel;
-					my += e.motion.yrel;
-				}
+					Com_QueueEvent(0, SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, NULL);
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -904,9 +900,6 @@ static void IN_ProcessEvents(void)
 				break;
 		}
 	}
-
-	if(mx || my)
-		Com_QueueEvent(0, SE_MOUSE, mx, my, 0, NULL);
 }
 
 /*
