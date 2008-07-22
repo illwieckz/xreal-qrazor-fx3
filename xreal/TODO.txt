@@ -87,7 +87,20 @@ code/game/acebot
 
 code/game
 - change BFG to Quake2 BFG
-- add more extensive Lua scripting support
+- add alternate weapon fire modes
+ - suggestions ?
+- add Prey style wall-walking
+ - add directional gravity
+ - change player boxes to be cylinders and let them rotate
+- add unreal tournament style awards
+ - double kill/frag
+ - multi kill
+ - mega kill
+ - ultra kill
+ - monster kill
+ - rocket scientist ?
+ 
+- add more extensive Lua scripting support ?
  - improve game class
  - improve entity class
  - improve vector class
@@ -99,14 +112,13 @@ code/renderer
 - change the QGL interface to mimic OpenGL 2 ES
  - clean up renderer and GLSL shaders with the new interface
  -> this can kill fixed function pipeline updates and possible driver bottlenecks
-- use stencil test for heatHaze with forward shading
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
 - add fog lights
 - ignore shadow pyramids that don't cast into the view
-- improve volumetric lighting
-- improve deferred shading
- - fix depth write of skybox
+- use stencil test for heatHaze with forward shading ?
+- improve volumetric lighting ?
+- improve deferred shading ?
  - fix vertex painting support = depth peeling ?
 - add stained shadow mapping ?
 - add dynamic LOD support for md3 and md5 models ?
@@ -114,8 +126,8 @@ code/renderer
 - fix stencil shadow flickering bug ?
 - support decals on static and dynamic abitrary triangle surfaces ?
 
-code/xmap
-- add small lights below powerup items ?
+code/xmap2
+- add HDR option that saves HDR lightmaps
 
 
 
