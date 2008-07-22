@@ -1883,6 +1883,45 @@ void R_AddEntityInteractions(trRefLight_t * light)
 }
 
 /*
+=====================
+R_AddPolygonInteractions
+=====================
+*/
+void R_AddPolygonInteractions(trRefLight_t * light)
+{
+	int             i, j;
+	shader_t       *shader;
+	srfPoly_t      *poly;
+	vec3_t          worldBounds[2];
+
+	if(light->l.inverseShadows)
+		return;
+
+	tr.currentEntity = &tr.worldEntity;
+
+	for(i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys; i++, poly++)
+	{
+		shader = R_GetShaderByHandle(poly->hShader);
+
+		if(!shader->interactLight)
+			continue;
+
+		// calc AABB of the triangle
+		ClearBounds(worldBounds[0], worldBounds[1]);
+		for(j = 0; j < poly->numVerts; j++)
+		{
+			AddPointToBounds(poly->verts[j].xyz, worldBounds[0], worldBounds[1]);
+		}
+
+		// do a quick AABB cull
+		if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], worldBounds[0], worldBounds[1]))
+			continue;
+
+		R_AddLightInteraction(light, (void *)poly, shader, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+	}
+}
+
+/*
 =============
 R_AddLightInteractions
 =============
@@ -2038,6 +2077,9 @@ void R_AddLightInteractions()
 			}
 
 			R_AddEntityInteractions(light);
+
+			// Tr3B: fun but slow
+			//R_AddPolygonInteractions(light);
 		}
 
 		if(light->numInteractions && light->numInteractions != light->numShadowOnlyInteractions)

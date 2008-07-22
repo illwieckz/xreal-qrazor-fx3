@@ -233,6 +233,66 @@ static void Tess_SurfaceSprite(void)
 	Tess_AddQuadStamp(backEnd.currentEntity->e.origin, left, up, backEnd.currentEntity->e.shaderRGBA);
 }
 
+/*
+==============
+VectorArrayNormalize
+
+The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
+This means that we don't have to worry about zero length or enormously long vectors.
+==============
+*/
+static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
+{
+//    assert(count);
+
+#if idppc
+	{
+		register float  half = 0.5;
+		register float  one = 1.0;
+		float          *components = (float *)normals;
+
+		// Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
+		// runs *much* faster than calling sqrt().  We'll use a single Newton-Raphson
+		// refinement step to get a little more precision.  This seems to yeild results
+		// that are correct to 3 decimal places and usually correct to at least 4 (sometimes 5).
+		// (That is, for the given input range of about 0.6 to 2.0).
+		do
+		{
+			float           x, y, z;
+			float           B, y0, y1;
+
+			x = components[0];
+			y = components[1];
+			z = components[2];
+			components += 4;
+			B = x * x + y * y + z * z;
+
+#ifdef __GNUC__
+		  asm("frsqrte %0,%1": "=f"(y0):"f"(B));
+#else
+			y0 = __frsqrte(B);
+#endif
+			y1 = y0 + half * y0 * (one - B * y0 * y0);
+
+			x = x * y1;
+			y = y * y1;
+			components[-4] = x;
+			z = z * y1;
+			components[-3] = y;
+			components[-2] = z;
+		} while(count--);
+	}
+#else							// No assembly version for this architecture, or C_ONLY defined
+	// given the input, it's safe to call VectorNormalizeFast
+	while(count--)
+	{
+		VectorNormalizeFast(normals[0]);
+		normals++;
+	}
+#endif
+
+}
+
 
 /*
 =============
@@ -241,8 +301,9 @@ Tess_SurfacePolychain
 */
 static void Tess_SurfacePolychain(srfPoly_t * p)
 {
-	int             i;
-	int             numv;
+	int             i, j;
+	int             numVertexes;
+	int             numIndexes;
 
 	GLimp_LogComment("--- Tess_SurfacePolychain ---\n");
 
@@ -254,30 +315,83 @@ static void Tess_SurfacePolychain(srfPoly_t * p)
 	Tess_CheckOverflow(p->numVerts, 3 * (p->numVerts - 2));
 
 	// fan triangles into the tess array
-	numv = tess.numVertexes;
+	numVertexes = 0;
 	for(i = 0; i < p->numVerts; i++)
 	{
-		VectorCopy(p->verts[i].xyz, tess.xyz[numv]);
-		tess.xyz[numv][3] = 1;
-		tess.texCoords[numv][0] = p->verts[i].st[0];
-		tess.texCoords[numv][1] = p->verts[i].st[1];
-		tess.texCoords[numv][2] = 0;
-		tess.texCoords[numv][3] = 1;
-		*(int *)&tess.colors[numv] = *(int *)p->verts[i].modulate;
+		VectorCopy(p->verts[i].xyz, tess.xyz[tess.numVertexes + i]);
+		tess.xyz[tess.numVertexes + i][3] = 1;
+		
+		tess.texCoords[tess.numVertexes + i][0] = p->verts[i].st[0];
+		tess.texCoords[tess.numVertexes + i][1] = p->verts[i].st[1];
+		tess.texCoords[tess.numVertexes + i][2] = 0;
+		tess.texCoords[tess.numVertexes + i][3] = 1;
+		
+		*(int *)&tess.colors[tess.numVertexes + i] = *(int *)p->verts[i].modulate;
 
-		numv++;
+		numVertexes++;
 	}
 
 	// generate fan indexes into the tess array
+	numIndexes = 0;
 	for(i = 0; i < p->numVerts - 2; i++)
 	{
-		tess.indexes[tess.numIndexes + 0] = tess.numVertexes;
-		tess.indexes[tess.numIndexes + 1] = tess.numVertexes + i + 1;
-		tess.indexes[tess.numIndexes + 2] = tess.numVertexes + i + 2;
-		tess.numIndexes += 3;
+		tess.indexes[tess.numIndexes + i * 3 + 0] = tess.numVertexes;
+		tess.indexes[tess.numIndexes + i * 3 + 1] = tess.numVertexes + i + 1;
+		tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + i + 2;
+		numIndexes += 3;
 	}
 
-	tess.numVertexes = numv;
+#if 0
+	// calc tangent spaces
+	if(tess.surfaceShader->interactLight && !tess.skipTangentSpaces)
+	{
+		int             i;
+		float          *v;
+		const float    *v0, *v1, *v2;
+		const float    *t0, *t1, *t2;
+		vec3_t          tangent;
+		vec3_t          binormal;
+		vec3_t          normal;
+		int            *indices;
+
+		for(i = 0; i < numVertexes; i++)
+		{
+			VectorClear(tess.tangents[tess.numVertexes + i]);
+			VectorClear(tess.binormals[tess.numVertexes + i]);
+			VectorClear(tess.normals[tess.numVertexes + i]);
+		}
+
+		for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
+		{
+			v0 = tess.xyz[indices[0]];
+			v1 = tess.xyz[indices[1]];
+			v2 = tess.xyz[indices[2]];
+
+			t0 = tess.texCoords[indices[0]];
+			t1 = tess.texCoords[indices[1]];
+			t2 = tess.texCoords[indices[2]];
+
+			R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+
+			for(j = 0; j < 3; j++)
+			{
+				v = tess.tangents[indices[j]];
+				VectorAdd(v, tangent, v);
+				v = tess.binormals[indices[j]];
+				VectorAdd(v, binormal, v);
+				v = tess.normals[indices[j]];
+				VectorAdd(v, normal, v);
+			}
+		}
+
+		VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
+		VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
+		VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
+	}
+#endif
+
+	tess.numIndexes += numIndexes;
+	tess.numVertexes += numVertexes;
 }
 
 /*
@@ -1208,65 +1322,7 @@ static void Tess_SurfaceLightningBolt(void)
 	}
 }
 
-/*
-==============
-VectorArrayNormalize
 
-The inputs to this routing seem to always be close to length = 1.0 (about 0.6 to 2.0)
-This means that we don't have to worry about zero length or enormously long vectors.
-==============
-*/
-static void VectorArrayNormalize(vec4_t * normals, unsigned int count)
-{
-//    assert(count);
-
-#if idppc
-	{
-		register float  half = 0.5;
-		register float  one = 1.0;
-		float          *components = (float *)normals;
-
-		// Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
-		// runs *much* faster than calling sqrt().  We'll use a single Newton-Raphson
-		// refinement step to get a little more precision.  This seems to yeild results
-		// that are correct to 3 decimal places and usually correct to at least 4 (sometimes 5).
-		// (That is, for the given input range of about 0.6 to 2.0).
-		do
-		{
-			float           x, y, z;
-			float           B, y0, y1;
-
-			x = components[0];
-			y = components[1];
-			z = components[2];
-			components += 4;
-			B = x * x + y * y + z * z;
-
-#ifdef __GNUC__
-		  asm("frsqrte %0,%1": "=f"(y0):"f"(B));
-#else
-			y0 = __frsqrte(B);
-#endif
-			y1 = y0 + half * y0 * (one - B * y0 * y0);
-
-			x = x * y1;
-			y = y * y1;
-			components[-4] = x;
-			z = z * y1;
-			components[-3] = y;
-			components[-2] = z;
-		} while(count--);
-	}
-#else							// No assembly version for this architecture, or C_ONLY defined
-	// given the input, it's safe to call VectorNormalizeFast
-	while(count--)
-	{
-		VectorNormalizeFast(normals[0]);
-		normals++;
-	}
-#endif
-
-}
 
 
 
