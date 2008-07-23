@@ -1411,6 +1411,8 @@ void            CG_TestModel_f(void);
 void            CG_TestGun_f(void);
 void            CG_TestModelNextFrame_f(void);
 void            CG_TestModelPrevFrame_f(void);
+void            CG_TestModelIncreaseLerp_f(void);
+void            CG_TestModelDecreaseLerp_f(void);
 void            CG_TestModelNextSkin_f(void);
 void            CG_TestModelPrevSkin_f(void);
 void            CG_TestAnimation_f(void);

@@ -532,8 +532,11 @@ static consoleCommand_t commands[] = {
 	{"testParticles", CG_TestParticles_f},
 	{"nextframe", CG_TestModelNextFrame_f},
 	{"prevframe", CG_TestModelPrevFrame_f},
+	{"inclerp", CG_TestModelIncreaseLerp_f},
+	{"declerp", CG_TestModelDecreaseLerp_f},
 	{"nextskin", CG_TestModelNextSkin_f},
 	{"prevskin", CG_TestModelPrevSkin_f},
+	
 	{"viewpos", CG_Viewpos_f},
 	{"+scores", CG_ScoresDown_f},
 	{"-scores", CG_ScoresUp_f},

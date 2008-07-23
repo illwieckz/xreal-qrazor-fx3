@@ -72,6 +72,7 @@ void CG_TestModel_f(void)
 	memset(&cg.testModelEntity, 0, sizeof(cg.testModelEntity));
 	if(trap_Argc() < 2)
 	{
+		CG_Printf("usage: testModel <modelname> [lerp]\n");
 		return;
 	}
 
@@ -80,7 +81,7 @@ void CG_TestModel_f(void)
 
 	if(trap_Argc() == 3)
 	{
-		cg.testModelEntity.backlerp = atof(CG_Argv(2));
+		cg.testModelEntity.backlerp = 1.0f - atof(CG_Argv(2));
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
 	}
@@ -122,6 +123,12 @@ CG_TestAnimation_f
 */
 void CG_TestAnimation_f(void)
 {
+	if(trap_Argc() < 2)
+	{
+		CG_Printf("usage: testAnimation <animationname>\n");
+		return;
+	}
+
 	Q_strncpyz(cg.testAnimationName, CG_Argv(1), MAX_QPATH);
 	cg.testAnimation = trap_R_RegisterAnimation(cg.testAnimationName);
 
@@ -149,6 +156,12 @@ CG_TestBlend_f
 */
 void CG_TestBlend_f(void)
 {
+	if(trap_Argc() < 2)
+	{
+		CG_Printf("usage: testBlend <animationname> [lerp factor 0.0 - 1.0]\n");
+		return;
+	}
+
 	if(!cg.testAnimation)
 	{
 		CG_Printf("Use testAnimation first to set a valid animation\n");
@@ -162,6 +175,11 @@ void CG_TestBlend_f(void)
 	{
 		CG_Printf("Can't register animation2 for blending\n");
 		return;
+	}
+
+	if(trap_Argc() == 3)
+	{
+		cg.testModelEntity.backlerp = 1.0f - atof(CG_Argv(2));
 	}
 
 	// modify bones and set proper local bounds for culling
@@ -182,7 +200,7 @@ void CG_TestBlend_f(void)
 	}
 
 	// lerp between first and second animation
-	if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
+	if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 1.0 - cg.testModelEntity.backlerp))
 	{
 		CG_Printf("Can't blend animation2\n");
 		return;
@@ -253,6 +271,80 @@ void CG_TestModelPrevFrame_f(void)
 		}
 
 		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 0.5))
+		{
+			CG_Printf("Can't blend animation2\n");
+		}
+	}
+}
+
+void CG_TestModelIncreaseLerp_f(void)
+{
+	cg.testModelEntity.backlerp -= 0.1f;
+	if(cg.testModelEntity.backlerp < 0)
+	{
+		cg.testModelEntity.backlerp = 0;
+	}
+	CG_Printf("lerp %f\n", 1.0f - cg.testModelEntity.backlerp);
+
+	if(cg.testAnimation)
+	{
+		if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
+								 cg.testAnimation,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
+		{
+			CG_Printf("Can't build animation\n");
+		}
+	}
+
+	if(cg.testAnimation2)
+	{
+		if(!trap_R_BuildSkeleton(&cg.testAnimation2Skeleton,
+								 cg.testAnimation2,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
+		{
+			CG_Printf("Can't build animation2\n");
+		}
+
+		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 1.0 - cg.testModelEntity.backlerp))
+		{
+			CG_Printf("Can't blend animation2\n");
+		}
+	}
+}
+
+void CG_TestModelDecreaseLerp_f(void)
+{
+	cg.testModelEntity.backlerp += 0.1f;
+	if(cg.testModelEntity.backlerp > 1.0)
+	{
+		cg.testModelEntity.backlerp = 1;
+	}
+	CG_Printf("lerp %f\n", 1.0f - cg.testModelEntity.backlerp);
+
+	if(cg.testAnimation)
+	{
+		if(!trap_R_BuildSkeleton(&cg.testModelEntity.skeleton,
+								 cg.testAnimation,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
+		{
+			CG_Printf("Can't build animation\n");
+		}
+	}
+
+	if(cg.testAnimation2)
+	{
+		if(!trap_R_BuildSkeleton(&cg.testAnimation2Skeleton,
+								 cg.testAnimation2,
+								 cg.testModelEntity.oldframe,
+								 cg.testModelEntity.frame, 1.0 - cg.testModelEntity.backlerp, qfalse))
+		{
+			CG_Printf("Can't build animation2\n");
+		}
+
+		if(!trap_R_BlendSkeleton(&cg.testModelEntity.skeleton, &cg.testAnimation2Skeleton, 1.0 - cg.testModelEntity.backlerp))
 		{
 			CG_Printf("Can't blend animation2\n");
 		}

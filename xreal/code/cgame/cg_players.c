@@ -1739,7 +1739,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	// oldFrame and calculate a new frame
 	if(cg.time >= lf->frameTime || animChanged)
 	{
-#ifdef XPPM
+#if defined(XPPM)
 		if(animChanged)
 		{
 			lf->oldFrame = 0;
@@ -1848,7 +1848,7 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 #if 1
 	if(animChanged && lf->oldSkeleton.type == SK_RELATIVE)
 	{
-		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->oldSkeleton, 1.0 - lf->backlerp))
+		if(!trap_R_BlendSkeleton(&lf->oldSkeleton, &lf->skeleton, 1.0 - lf->backlerp))
 		{
 			CG_Printf("Can't blend lf->oldSkeleton\n");
 		}
@@ -3261,6 +3261,11 @@ void CG_Player(centity_t * cent)
 
 	memset(&body, 0, sizeof(body));
 
+	// generate a new unique noShadowID to avoid that the lights of the quad damage
+	// will cause bad player shadows
+	noShadowID = CG_UniqueNoShadowID();
+	body.noShadowID = noShadowID;
+
 	AxisClear(body.axis);
 
 	// get the rotation information
@@ -3275,11 +3280,6 @@ void CG_Player(centity_t * cent)
 
 	// add the shadow
 	shadow = CG_PlayerShadow(cent, &shadowPlane, noShadowID);
-
-	// generate a new unique noShadowID to avoid that the lights of the quad damage
-	// will cause bad player shadows
-	noShadowID = CG_UniqueNoShadowID();
-	body.noShadowID = noShadowID;
 
 	// add a water splash if partially in and out of water
 	CG_PlayerSplash(cent);
