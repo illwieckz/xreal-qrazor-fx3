@@ -3167,6 +3167,131 @@ void CG_DrawTimedMenus(void)
 }
 #endif
 
+//************** otty debug  ***************//
+
+
+/*
+=================
+CG_DrawDebug
+=================
+*/
+
+static int debugModel( int x, int y){
+	y += 12;
+	
+	CG_Text_Paint(x, y, 0.2, colorRed, "Model:", 0, 0, 0, &cgs.media.freeSansBoldFont);
+	y += 10;
+
+	CG_Text_Paint(x+10, y, 0.15, colorYellow, va("current anim: %i", debug_anim_current), 0, 0, 0, &cgs.media.freeSansBoldFont);
+	y += 8;
+	CG_Text_Paint(x+10, y, 0.15, colorYellow, va("old anim: %i", debug_anim_old), 0, 0, 0, &cgs.media.freeSansBoldFont);
+	y += 8;
+	CG_Text_Paint(x+10, y, 0.15, colorYellow, va("anim blend : %f", debug_anim_blend), 0, 0, 0, &cgs.media.freeSansBoldFont);
+	y += 8;
+
+		
+	return y;
+
+
+}
+
+int lowPeak = 999;
+int highPeak = 0;
+
+static int debugSystem( int x, int y){
+	char           *s;
+	int             w;
+	int             mins, seconds, tens;
+	int             msec;
+	static int      previousTimes[FPS_FRAMES];
+	static int      index;
+	int             i, total;
+	int             fps;
+	static int      previous;
+	int             t, frameTime;
+
+	t = trap_Milliseconds();
+	frameTime = t - previous;
+	previous = t;
+	previousTimes[index % FPS_FRAMES] = frameTime;
+	index++;
+
+
+	CG_Text_Paint(x, y, 0.2, colorRed, "System:", 0, 0, 0, &cgs.media.freeSansBoldFont);
+	y += 10;
+
+
+	if(index > FPS_FRAMES)
+	{
+		// average multiple frames together to smooth changes out a bit
+		total = 0;
+		for(i = 0; i < FPS_FRAMES; i++)
+		{
+			total += previousTimes[i];
+		}
+		if(!total)
+		{
+			total = 1;
+		}
+
+		fps = 1000 * FPS_FRAMES / total;
+
+
+		if( fps < lowPeak)
+			lowPeak =  fps;
+		else if( fps > highPeak)
+			highPeak =  fps;
+
+		s = va("Average FPS: %i ", fps);
+		CG_Text_Paint(x+10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		y += 8;
+
+		s = va("HighPeak : %i ", highPeak);
+		CG_Text_Paint(x+10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		y += 8;
+
+		s = va("LowPeak : %i ", lowPeak);
+		CG_Text_Paint(x+10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		y += 8;
+
+	}
+
+
+	msec = cg.time - cgs.levelStartTime;
+
+	seconds = msec / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+	tens = seconds / 10;
+	seconds -= tens * 10;
+
+
+	s = va("Time : %i:%i%i", mins, tens, seconds);
+	CG_Text_Paint(x+10, y, 0.15, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+	return y;
+}
+
+//==================================================================================
+
+static void CG_DrawDebug(void){
+	char           *s;
+	int x = 5;
+	int y = 140;
+
+	vec4_t  colorDebug = { 0.2f, 0.2f, 0.2f, 0.66f };	
+
+	CG_FillRect(x, y, 200, 180, colorDebug);
+	x +=10;
+	y +=10;
+
+
+	y = debugSystem (x, y);
+	y = debugModel (x, y);
+
+}
+
+
 /*
 =================
 CG_Draw2D
@@ -3174,6 +3299,12 @@ CG_Draw2D
 */
 static void CG_Draw2D(void)
 {
+
+	if(cg_debugHUD.integer == 1){
+		CG_DrawDebug ();
+		return;
+	}
+
 #ifdef MISSIONPACK
 	if(cgs.orderPending && cg.time > cgs.orderTime)
 	{

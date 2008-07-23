@@ -126,6 +126,7 @@ typedef struct
 	int             oldFrame;
 	int             oldFrameTime;	// time when ->oldFrame was exactly on
 
+
 	refSkeleton_t   skeleton;
 	int             frame;
 	int             frameTime;	// time when ->frame will be exactly on
@@ -142,8 +143,21 @@ typedef struct
 	int             animationTime;	// time when the first frame of the animation will be exact
 	float           animationScale;
 
+	//added for smooth blending between animations on change
+
+	int             old_animationNumber;	// may include ANIM_TOGGLEBIT
+	animation_t    *old_animation;
+	float		blendlerp;
+	float 		blendtime;
+
 	int             weaponNumber;
 } lerpFrame_t;
+
+// debugging values:
+
+int 	debug_anim_current ;
+int 	debug_anim_old ;
+float   debug_anim_blend;
 
 
 typedef struct
@@ -1271,7 +1285,9 @@ extern vmCvar_t cg_drawSideBar;
 extern vmCvar_t cg_drawPickupItem;
 extern vmCvar_t cg_drawWeaponSelect;
 extern vmCvar_t cg_draw2D;
+extern vmCvar_t cg_debugHUD;
 extern vmCvar_t cg_animSpeed;
+extern vmCvar_t cg_animBlend;
 extern vmCvar_t cg_debugPlayerAnim;
 extern vmCvar_t cg_debugWeaponAnim;
 extern vmCvar_t cg_debugPosition;
@@ -1739,6 +1755,32 @@ void            CG_ParticleTeleportEffect(const vec3_t origin);
 int             CG_NewParticleArea(int num);
 void            CG_TestParticles_f(void);
 
+void 		CG_SwingAngles(float destination, float swingTolerance, float clampTolerance,
+						   float speed, float *angle, qboolean * swinging);
+void 		CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles);
+
+void 		CG_PlayerSprites(centity_t * cent);
+void 		CG_PlayerSplash(centity_t * cent);
+void 		CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID);
+qboolean 	CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID);
+qboolean 	CG_FindClientHeadFile(char *filename, int length, clientInfo_t * ci, const char *teamName,
+									  const char *headModelName, const char *headSkinName, const char *base, const char *ext);
+qboolean 	CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
+									   const char *skinName, const char *base, const char *ext);
+
+#ifdef XPPM
+
+//
+// cg_xppm.c
+//
+
+
+qboolean 	CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName,
+						const char *headModelName, const char *headSkinName, const char *teamName);
+void 		CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to);
+void            CG_XPPM_Player(centity_t * cent);
+
+#endif
 
 //===============================================
 

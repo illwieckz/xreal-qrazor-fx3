@@ -118,12 +118,14 @@ vmCvar_t        cg_crosshairX;
 vmCvar_t        cg_crosshairY;
 vmCvar_t        cg_crosshairHealth;
 vmCvar_t        cg_draw2D;
+vmCvar_t        cg_debugHUD;
 vmCvar_t        cg_drawStatus;
 vmCvar_t        cg_drawStatusLines;
 vmCvar_t        cg_drawSideBar;
 vmCvar_t        cg_drawPickupItem;
 vmCvar_t        cg_drawWeaponSelect;
 vmCvar_t        cg_animSpeed;
+vmCvar_t        cg_animBlend;
 vmCvar_t        cg_debugPlayerAnim;
 vmCvar_t        cg_debugWeaponAnim;
 vmCvar_t        cg_debugPosition;
@@ -248,6 +250,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_precomputedLighting, "r_precomputedLighting", "0", 0},
 	{&cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE},
 	{&cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE},
+	{&cg_debugHUD, "cg_debugHUD", "0", CVAR_ARCHIVE},
 	{&cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE},
 	{&cg_drawStatusLines, "cg_drawStatusLines", "1", CVAR_ARCHIVE},
 	{&cg_drawSideBar, "cg_drawSideBar", "0", CVAR_ARCHIVE},
@@ -283,6 +286,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE},
 	{&cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT},
 	{&cg_animSpeed, "cg_animspeed", "1", CVAR_CHEAT},
+	{&cg_animBlend, "cg_animblend", "5.0", CVAR_ARCHIVE},
 	{&cg_debugPlayerAnim, "cg_debugPlayerAnim", "0", CVAR_CHEAT},
 	{&cg_debugWeaponAnim, "cg_debugWeaponAnim", "0", CVAR_CHEAT},
 	{&cg_debugPosition, "cg_debugposition", "0", CVAR_CHEAT},
@@ -297,7 +301,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT},
 	{&cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT},
 	{&cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT},
-	{&cg_thirdPerson, "cg_thirdPerson", "0", 0},
+	{&cg_thirdPerson, "cg_thirdPerson", "1", 0},
 	{&cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE},
 	{&cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE},
 	{&cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE},

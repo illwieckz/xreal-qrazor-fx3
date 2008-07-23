@@ -1100,7 +1100,7 @@ static int CG_MapTorsoToWeaponFrame(clientInfo_t * ci, int frame)
 
 /*
 ===============
-CG_SetLerpFrameAnimation
+CG_SetWeaponLerpFrameAnimation
 
 may include ANIM_TOGGLEBIT
 ===============
