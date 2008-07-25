@@ -988,8 +988,14 @@ static void RB_RenderInteractions()
 	surfaceType_t  *surface;
 	vec3_t          tmp;
 	matrix_t        modelToLight;
+	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractions ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		startTime = ri.Milliseconds();
+	}
 
 	// draw everything
 	oldLight = NULL;
@@ -1186,6 +1192,13 @@ static void RB_RenderInteractions()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		qglFinish();
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_forwardLightingTime = endTime - startTime;
+	}
 }
 
 
@@ -1207,6 +1220,7 @@ static void RB_RenderInteractionsStencilShadowed()
 	vec3_t          tmp;
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
+	int             startTime = 0, endTime = 0;
 
 	if(glConfig.stencilBits < 4)
 	{
@@ -1215,6 +1229,11 @@ static void RB_RenderInteractionsStencilShadowed()
 	}
 
 	GLimp_LogComment("--- RB_RenderInteractionsStencilShadowed ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		startTime = ri.Milliseconds();
+	}
 
 	// draw everything
 	oldLight = NULL;
@@ -1616,6 +1635,13 @@ static void RB_RenderInteractionsStencilShadowed()
 	 */
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		qglFinish();
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_forwardLightingTime = endTime - startTime;
+	}
 }
 
 /*
@@ -1638,6 +1664,7 @@ static void RB_RenderInteractionsShadowMapped()
 	matrix_t        modelToLight;
 	qboolean        drawShadows;
 	int             cubeSide;
+	int             startTime = 0, endTime = 0;
 
 	if(!glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
 	{
@@ -1646,6 +1673,11 @@ static void RB_RenderInteractionsShadowMapped()
 	}
 
 	GLimp_LogComment("--- RB_RenderInteractionsShadowMapped ---\n");
+
+	if(r_speeds->integer == 9)
+	{
+		startTime = ri.Milliseconds();
+	}
 
 	// draw everything
 	oldLight = NULL;
@@ -1722,16 +1754,16 @@ static void RB_RenderInteractionsShadowMapped()
 								GLimp_LogComment(va("----- Rendering shadowCube side: %i -----\n", cubeSide));
 							}
 							/*
-							if(r_shadows->integer == 6)
-							{
-								R_AttachFBOTextureDepth(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
-												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum);
-							}
-							else
-							*/
+							   if(r_shadows->integer == 6)
+							   {
+							   R_AttachFBOTextureDepth(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
+							   tr.shadowCubeFBOImage[light->shadowLOD]->texnum);
+							   }
+							   else
+							 */
 							{
 								R_AttachFBOTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubeSide,
-												 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
+													 tr.shadowCubeFBOImage[light->shadowLOD]->texnum, 0);
 							}
 							if(!r_ignoreGLErrors->integer)
 							{
@@ -1818,7 +1850,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY = 90; //R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							fovY = 90;	//R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							zNear = 1.0;
 							zFar = light->sphereRadius;
@@ -1918,12 +1950,12 @@ static void RB_RenderInteractionsShadowMapped()
 							GLimp_LogComment("--- Rendering projective shadowMap ---\n");
 
 							/*
-							if(r_shadows->integer == 6)
-							{
-								R_AttachFBOTextureDepth(tr.shadowMapFBOImage[light->shadowLOD]->texnum);
-							}
-							else
-							*/
+							   if(r_shadows->integer == 6)
+							   {
+							   R_AttachFBOTextureDepth(tr.shadowMapFBOImage[light->shadowLOD]->texnum);
+							   }
+							   else
+							 */
 							{
 								R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.shadowMapFBOImage[light->shadowLOD]->texnum, 0);
 							}
@@ -2364,12 +2396,20 @@ static void RB_RenderInteractionsShadowMapped()
 	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	GL_CheckErrors();
+
+	if(r_speeds->integer == 9)
+	{
+		qglFinish();
+		endTime = ri.Milliseconds();
+		backEnd.pc.c_forwardLightingTime = endTime - startTime;
+	}
 }
 
 static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 {
 	trRefEntity_t  *entity, *oldEntity;
 	shader_t       *shader, *oldShader;
+	int             lightmapNum, oldLightmapNum;
 	qboolean        depthRange, oldDepthRange;
 	int             i;
 	drawSurf_t     *drawSurf;
@@ -2385,6 +2425,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	// draw everything
 	oldEntity = NULL;
 	oldShader = NULL;
+	oldLightmapNum = -1;
 	oldDepthRange = qfalse;
 	depthRange = qfalse;
 	backEnd.currentLight = NULL;
@@ -2396,6 +2437,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 		// update locals
 		entity = drawSurf->entity;
 		shader = tr.sortedShaders[drawSurf->shaderNum];
+		lightmapNum = drawSurf->lightmapNum;
 
 		// skip all translucent surfaces that don't matter for this pass
 		if(shader->sort > SS_OPAQUE)
@@ -2403,7 +2445,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 			break;
 		}
 
-		if(entity == oldEntity && shader == oldShader)
+		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum)
 		{
 			// fast path, same as previous sort
 			rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
@@ -2420,8 +2462,9 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 				Tess_End();
 			}
 
-			Tess_Begin(Tess_StageIteratorGBuffer, shader, NULL, qfalse, qfalse, -1);
+			Tess_Begin(Tess_StageIteratorGBuffer, shader, NULL, qfalse, qfalse, lightmapNum);
 			oldShader = shader;
+			oldLightmapNum = lightmapNum;
 		}
 
 		// change the modelview matrix if needed
@@ -2491,6 +2534,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		endTime = ri.Milliseconds();
 		backEnd.pc.c_deferredGBufferTime = endTime - startTime;
 	}
@@ -2597,167 +2641,163 @@ void RB_RenderInteractionsDeferred()
 	  skipInteraction:
 		if(!ia->next)
 		{
-			// last interaction of current light
-			lightShader = light->shader;
-			attenuationZStage = lightShader->stages[0];
-
-			for(j = 1; j < MAX_SHADER_STAGES; j++)
+			if(glConfig.occlusionQueryBits && ia->occlusionQuerySamples)
 			{
-				attenuationXYStage = lightShader->stages[j];
+				// last interaction of current light
+				lightShader = light->shader;
+				attenuationZStage = lightShader->stages[0];
 
-				if(!attenuationXYStage)
+				for(j = 1; j < MAX_SHADER_STAGES; j++)
 				{
-					break;
-				}
+					attenuationXYStage = lightShader->stages[j];
 
-				if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
-				{
-					continue;
-				}
+					if(!attenuationXYStage)
+					{
+						break;
+					}
 
-				if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
-				{
-					continue;
-				}
+					if(attenuationXYStage->type != ST_ATTENUATIONMAP_XY)
+					{
+						continue;
+					}
 
-				Tess_ComputeColor(attenuationXYStage);
-				R_ComputeFinalAttenuation(attenuationXYStage, light);
+					if(!RB_EvalExpression(&attenuationXYStage->ifExp, 1.0))
+					{
+						continue;
+					}
 
-				if(light->l.rlType == RL_OMNI)
-				{
-					// enable shader, set arrays
-					GL_Program(tr.deferredLightingShader_DBS_omni.program);
+					Tess_ComputeColor(attenuationXYStage);
+					R_ComputeFinalAttenuation(attenuationXYStage, light);
 
-					// set OpenGL state for additive lighting
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-					GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
+					if(light->l.rlType == RL_OMNI)
+					{
+						// enable shader, set arrays
+						GL_Program(tr.deferredLightingShader_DBS_omni.program);
 
-					GL_Cull(CT_TWO_SIDED);
+						// set OpenGL state for additive lighting
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
+						GL_ClientState(tr.deferredLightingShader_DBS_omni.attribs);
 
-					// set uniforms
-					VectorCopy(light->origin, lightOrigin);
-					VectorCopy(tess.svars.color, lightColor);
+						GL_Cull(CT_TWO_SIDED);
+
+						// set uniforms
+						VectorCopy(light->origin, lightOrigin);
+						VectorCopy(tess.svars.color, lightColor);
 
 
-					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-									lightOrigin[2]);
-					qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
-					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
-					qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
-										   light->attenuationMatrix2);
-					qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
-										   backEnd.viewParms.unprojectionMatrix);
+						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
+										viewOrigin[2]);
+						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightOrigin, lightOrigin[0], lightOrigin[1],
+										lightOrigin[2]);
+						qglUniform3fARB(tr.deferredLightingShader_DBS_omni.u_LightColor, lightColor[0], lightColor[1],
+										lightColor[2]);
+						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightRadius, light->sphereRadius);
+						qglUniform1fARB(tr.deferredLightingShader_DBS_omni.u_LightScale, r_lightScale->value);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
+											   light->attenuationMatrix2);
+						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
+											   backEnd.viewParms.unprojectionMatrix);
 
-					// bind u_DiffuseMap
-					GL_SelectTexture(0);
-					GL_Bind(tr.deferredDiffuseFBOImage);
+						// bind u_DiffuseMap
+						GL_SelectTexture(0);
+						GL_Bind(tr.deferredDiffuseFBOImage);
 
-					// bind u_NormalMap
-					GL_SelectTexture(1);
-					GL_Bind(tr.deferredNormalFBOImage);
+						// bind u_NormalMap
+						GL_SelectTexture(1);
+						GL_Bind(tr.deferredNormalFBOImage);
 
-					// bind u_SpecularMap
-					GL_SelectTexture(2);
-					GL_Bind(tr.deferredSpecularFBOImage);
+						// bind u_SpecularMap
+						GL_SelectTexture(2);
+						GL_Bind(tr.deferredSpecularFBOImage);
 
-					// bind u_PositionMap
-					GL_SelectTexture(3);
-					//GL_Bind(tr.deferredPositionFBOImage);
-					GL_Bind(tr.depthRenderImage);
+						// bind u_PositionMap
+						GL_SelectTexture(3);
+						//GL_Bind(tr.deferredPositionFBOImage);
+						GL_Bind(tr.depthRenderImage);
 
-					// bind u_AttenuationMapXY
-					GL_SelectTexture(4);
-					BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+						// bind u_AttenuationMapXY
+						GL_SelectTexture(4);
+						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 
-					// bind u_AttenuationMapZ
-					GL_SelectTexture(5);
-					BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+						// bind u_AttenuationMapZ
+						GL_SelectTexture(5);
+						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
-					// draw lighting
-#if 0
-					qglBegin(GL_QUADS);
-					qglVertex2f(ia->scissorX, ia->scissorY);
-					qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-					qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-					qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
-					qglEnd();
-#else
-					qglBegin(GL_QUADS);
-					qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-					qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-					qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-								backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-					qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-					qglEnd();
-#endif
-				}
-				else if(light->l.rlType == RL_PROJ)
-				{
-					// enable shader, set arrays
-					GL_Program(tr.deferredLightingShader_DBS_proj.program);
+						// draw lighting
+						qglBegin(GL_QUADS);
+						qglVertex2f(ia->scissorX, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+						qglEnd();
+					}
+					else if(light->l.rlType == RL_PROJ)
+					{
+						// enable shader, set arrays
+						GL_Program(tr.deferredLightingShader_DBS_proj.program);
 
-					// set OpenGL state for additive lighting
-					GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-					GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
+						// set OpenGL state for additive lighting
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
+						GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
 
-					GL_Cull(CT_TWO_SIDED);
+						GL_Cull(CT_TWO_SIDED);
 
-					// set uniforms
-					VectorCopy(light->origin, lightOrigin);
-					VectorCopy(tess.svars.color, lightColor);
+						// set uniforms
+						VectorCopy(light->origin, lightOrigin);
+						VectorCopy(tess.svars.color, lightColor);
 
-					qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-					qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-									lightOrigin[2]);
-					qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1], lightColor[2]);
-					qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
-					qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
-										   light->attenuationMatrix2);
-					qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-					qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
-										   backEnd.viewParms.unprojectionMatrix);
+						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
+										viewOrigin[2]);
+						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
+										lightOrigin[2]);
+						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
+										lightColor[2]);
+						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
+						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
+											   light->attenuationMatrix2);
+						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
+											   backEnd.viewParms.unprojectionMatrix);
 
-					// bind u_DiffuseMap
-					GL_SelectTexture(0);
-					GL_Bind(tr.deferredDiffuseFBOImage);
+						// bind u_DiffuseMap
+						GL_SelectTexture(0);
+						GL_Bind(tr.deferredDiffuseFBOImage);
 
-					// bind u_NormalMap
-					GL_SelectTexture(1);
-					GL_Bind(tr.deferredNormalFBOImage);
+						// bind u_NormalMap
+						GL_SelectTexture(1);
+						GL_Bind(tr.deferredNormalFBOImage);
 
-					// bind u_SpecularMap
-					GL_SelectTexture(2);
-					GL_Bind(tr.deferredSpecularFBOImage);
+						// bind u_SpecularMap
+						GL_SelectTexture(2);
+						GL_Bind(tr.deferredSpecularFBOImage);
 
-					// bind u_PositionMap
-					GL_SelectTexture(3);
-					//GL_Bind(tr.deferredPositionFBOImage);
-					GL_Bind(tr.depthRenderImage);
+						// bind u_PositionMap
+						GL_SelectTexture(3);
+						//GL_Bind(tr.deferredPositionFBOImage);
+						GL_Bind(tr.depthRenderImage);
 
-					// bind u_AttenuationMapXY
-					GL_SelectTexture(4);
-					BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+						// bind u_AttenuationMapXY
+						GL_SelectTexture(4);
+						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
 
-					// bind u_AttenuationMapZ
-					GL_SelectTexture(5);
-					BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+						// bind u_AttenuationMapZ
+						GL_SelectTexture(5);
+						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
 
-					// draw lighting
-					qglBegin(GL_QUADS);
-					qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-					qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-					qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-								backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-					qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-					qglEnd();
-				}
-				else
-				{
-					// TODO
+						// draw lighting
+						qglBegin(GL_QUADS);
+						qglVertex2f(ia->scissorX, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+						qglEnd();
+					}
+					else
+					{
+						// TODO
+					}
 				}
 			}
 
@@ -2800,6 +2840,7 @@ void RB_RenderInteractionsDeferred()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		endTime = ri.Milliseconds();
 		backEnd.pc.c_deferredLightingTime = endTime - startTime;
 	}
@@ -3005,7 +3046,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// OpenGL projection matrix
 							fovX = 90;
-							fovY = 90; //R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
+							fovY = 90;	//R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
 
 							zNear = 1.0;
 							zFar = light->sphereRadius;
@@ -3271,11 +3312,10 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// draw lighting
 						qglBegin(GL_QUADS);
-						qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-						qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-						qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-									backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-						qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+						qglVertex2f(ia->scissorX, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
 						qglEnd();
 					}
 					else if(light->l.rlType == RL_PROJ)
@@ -3345,11 +3385,10 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// draw lighting
 						qglBegin(GL_QUADS);
-						qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-						qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-						qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-									backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-						qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+						qglVertex2f(ia->scissorX, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
 						qglEnd();
 					}
 					else
@@ -3650,6 +3689,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 	if(r_speeds->integer == 9)
 	{
+		qglFinish();
 		endTime = ri.Milliseconds();
 		backEnd.pc.c_deferredLightingTime = endTime - startTime;
 	}
@@ -3657,11 +3697,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 {
-//	int				i;
-//	vec3_t          viewOrigin;
-//	static vec3_t   jitter[32];
-//	static qboolean jitterInit = qfalse;
-//	matrix_t        projectMatrix;
+//  int             i;
+//  vec3_t          viewOrigin;
+//  static vec3_t   jitter[32];
+//  static qboolean jitterInit = qfalse;
+//  matrix_t        projectMatrix;
 
 	GLimp_LogComment("--- RB_RenderScreenSpaceAmbientOcclusion ---\n");
 
@@ -3681,37 +3721,37 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 
 	// set uniforms
 	/*
-	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+	   VectorCopy(backEnd.viewParms.or.origin, viewOrigin); // in world space
 
-	if(!jitterInit)
-	{
-		for(i = 0; i < 32; i++)
-		{
-			float *jit = &jitter[i][0];
+	   if(!jitterInit)
+	   {
+	   for(i = 0; i < 32; i++)
+	   {
+	   float *jit = &jitter[i][0];
 
-			float rad = crandom() * 1024.0f; // FIXME radius;
-			float a = crandom() * M_PI * 2;
-			float b = crandom() * M_PI * 2;
-			
-			jit[0] = rad * sin(a) * cos(b);
-			jit[1] = rad * sin(a) * sin(b);
-			jit[2] = rad * cos(a);
-		}
+	   float rad = crandom() * 1024.0f; // FIXME radius;
+	   float a = crandom() * M_PI * 2;
+	   float b = crandom() * M_PI * 2;
 
-		jitterInit = qtrue;
-	}
+	   jit[0] = rad * sin(a) * cos(b);
+	   jit[1] = rad * sin(a) * sin(b);
+	   jit[2] = rad * cos(a);
+	   }
 
-	
-	MatrixCopy(backEnd.viewParms.projectionMatrix, projectMatrix);
-	MatrixInverse(projectMatrix);
+	   jitterInit = qtrue;
+	   }
 
-	qglUniform3fARB(tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
-	qglUniform3fvARB(tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter, 32, &jitter[0][0]);
-	qglUniform1fARB(tr.screenSpaceAmbientOcclusionShader.u_SSAORadius, r_screenSpaceAmbientOcclusionRadius->value);
 
-	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
-	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix, 1, GL_FALSE, projectMatrix);
-	*/
+	   MatrixCopy(backEnd.viewParms.projectionMatrix, projectMatrix);
+	   MatrixInverse(projectMatrix);
+
+	   qglUniform3fARB(tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	   qglUniform3fvARB(tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter, 32, &jitter[0][0]);
+	   qglUniform1fARB(tr.screenSpaceAmbientOcclusionShader.u_SSAORadius, r_screenSpaceAmbientOcclusionRadius->value);
+
+	   qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
+	   qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix, 1, GL_FALSE, projectMatrix);
+	 */
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
@@ -3935,7 +3975,7 @@ void RB_RenderBloom(void)
 	{
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
-		
+
 		// render contrast
 		GL_Program(tr.contrastShader.program);
 		GL_ClientState(tr.contrastShader.attribs);
@@ -3953,7 +3993,7 @@ void RB_RenderBloom(void)
 					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 		qglEnd();
-		
+
 
 		// render bloom
 		GL_Program(tr.bloomShader.program);
@@ -3962,17 +4002,17 @@ void RB_RenderBloom(void)
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
 		/*
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-							 tr.currentRenderImage->uploadHeight);
-		*/
-		
+		   GL_SelectTexture(0);
+		   GL_Bind(tr.currentRenderImage);
+		   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+		   tr.currentRenderImage->uploadHeight);
+		 */
+
 		GL_SelectTexture(1);
 		GL_Bind(tr.contrastRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
 							 tr.contrastRenderImage->uploadHeight);
-		
+
 
 		// draw viewport
 		qglBegin(GL_QUADS);
@@ -3984,89 +4024,89 @@ void RB_RenderBloom(void)
 		qglEnd();
 	}
 	/*
-	else if(r_bloom->integer == 2)
-	{
-		GL_State(GLS_DEPTHTEST_DISABLE);
-		GL_Cull(CT_TWO_SIDED);
+	   else if(r_bloom->integer == 2)
+	   {
+	   GL_State(GLS_DEPTHTEST_DISABLE);
+	   GL_Cull(CT_TWO_SIDED);
 
-		// render contrast
-		GL_Program(tr.contrastShader.program);
-		GL_ClientState(tr.contrastShader.attribs);
+	   // render contrast
+	   GL_Program(tr.contrastShader.program);
+	   GL_ClientState(tr.contrastShader.attribs);
 
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-							 tr.currentRenderImage->uploadHeight);
+	   GL_SelectTexture(0);
+	   GL_Bind(tr.currentRenderImage);
+	   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+	   tr.currentRenderImage->uploadHeight);
 
-		// draw viewport
-		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglEnd();
+	   // draw viewport
+	   qglBegin(GL_QUADS);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+	   backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglEnd();
 
-		// render blurX
-		GL_Program(tr.blurXShader.program);
-		GL_ClientState(tr.blurXShader.attribs);
+	   // render blurX
+	   GL_Program(tr.blurXShader.program);
+	   GL_ClientState(tr.blurXShader.attribs);
 
-		qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
+	   qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
 
-		GL_Bind(tr.contrastRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
-							 tr.contrastRenderImage->uploadHeight);
+	   GL_Bind(tr.contrastRenderImage);
+	   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
+	   tr.contrastRenderImage->uploadHeight);
 
-		// draw viewport
-		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglEnd();
+	   // draw viewport
+	   qglBegin(GL_QUADS);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+	   backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglEnd();
 
-		// render blurY
-		GL_Program(tr.blurYShader.program);
-		GL_ClientState(tr.blurYShader.attribs);
+	   // render blurY
+	   GL_Program(tr.blurYShader.program);
+	   GL_ClientState(tr.blurYShader.attribs);
 
-		qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
+	   qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
 
-		GL_Bind(tr.contrastRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
-							 tr.contrastRenderImage->uploadHeight);
+	   GL_Bind(tr.contrastRenderImage);
+	   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
+	   tr.contrastRenderImage->uploadHeight);
 
-		// draw viewport
-		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglEnd();
+	   // draw viewport
+	   qglBegin(GL_QUADS);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+	   backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglEnd();
 
-		// render bloom
-		GL_Program(tr.bloomShader.program);
-		GL_ClientState(tr.bloomShader.attribs);
+	   // render bloom
+	   GL_Program(tr.bloomShader.program);
+	   GL_ClientState(tr.bloomShader.attribs);
 
-		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
+	   qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderImage);
+	   GL_SelectTexture(0);
+	   GL_Bind(tr.currentRenderImage);
 
-		GL_SelectTexture(1);
-		GL_Bind(tr.contrastRenderImage);
+	   GL_SelectTexture(1);
+	   GL_Bind(tr.contrastRenderImage);
 
-		// draw viewport
-		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglEnd();
-	}
-	*/
+	   // draw viewport
+	   qglBegin(GL_QUADS);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
+	   qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+	   backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	   qglEnd();
+	   }
+	 */
 
 	// go back to 3D
 	qglMatrixMode(GL_PROJECTION);
@@ -5536,6 +5576,7 @@ static void RB_RenderView(void)
 	else
 	{
 		int             clearBits = 0;
+		int             startTime = 0, endTime = 0;
 
 		// sync with gl if needed
 		if(r_finish->integer == 1 && !glState.finishCalled)
@@ -5620,6 +5661,11 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
+		if(r_speeds->integer == 9)
+		{
+			startTime = ri.Milliseconds();
+		}
+
 		// draw everything that is opaque into black so we can benefit from early-z rejections later
 		//RB_RenderDrawSurfaces(qtrue, qtrue);
 
@@ -5628,6 +5674,13 @@ static void RB_RenderView(void)
 
 		// render ambient occlusion process effect
 		RB_RenderScreenSpaceAmbientOcclusion(qfalse);
+
+		if(r_speeds->integer == 9)
+		{
+			qglFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_forwardAmbientTime = endTime - startTime;
+		}
 
 		// try to cull lights using hardware occlusion queries
 		RB_RenderLightOcclusionQueries();

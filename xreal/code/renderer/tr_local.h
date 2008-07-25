@@ -1705,6 +1705,9 @@ typedef struct
 	int             c_occlusionQueriesInteractionsCulled;
 	int             c_occlusionQueriesResponseTime;
 
+	int             c_forwardAmbientTime;
+	int             c_forwardLightingTime;
+
 	int             c_deferredGBufferTime;
 	int             c_deferredLightingTime;
 
@@ -1858,6 +1861,7 @@ typedef struct
 
 	// UT3 style player shadowing
 	shaderProgram_t forwardShadowingShader_proj;
+	// TODO shaderProgram_t deferredShadowingShader_proj;
 
 	// environment mapping effects
 	shaderProgram_t reflectionShader_C;

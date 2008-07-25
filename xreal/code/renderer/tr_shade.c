@@ -2046,8 +2046,22 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	}
 
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
-	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
-	ClampColor(ambientColor);
+
+	if(r_precomputedLighting->integer)
+	{
+		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
+		ClampColor(ambientColor);
+	}
+	else if(r_forceAmbient->integer)
+	{
+		ambientColor[0] = r_forceAmbient->value;
+		ambientColor[1] = r_forceAmbient->value;
+		ambientColor[2] = r_forceAmbient->value;
+	}
+	else
+	{
+		VectorClear(ambientColor);
+	}
 
 	qglUniform1fARB(tr.geometricFillShader_DBS.u_AlphaTest, alphaTest);
 	qglUniform3fARB(tr.geometricFillShader_DBS.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
@@ -2163,8 +2177,21 @@ static void Render_depthFill(int stage)
 		qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
 	}
 
-	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
-	ClampColor(ambientColor);
+	if(r_precomputedLighting->integer)
+	{
+		VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
+		ClampColor(ambientColor);
+	}
+	else if(r_forceAmbient->integer)
+	{
+		ambientColor[0] = r_forceAmbient->value;
+		ambientColor[1] = r_forceAmbient->value;
+		ambientColor[2] = r_forceAmbient->value;
+	}
+	else
+	{
+		VectorClear(ambientColor);
+	}
 
 	qglUniform3fARB(tr.depthFillShader.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
 
@@ -3408,7 +3435,32 @@ void Tess_StageIteratorGBuffer()
 			{
 #if 1
 				R_BindFBO(tr.deferredRenderFBO);
-				Render_depthFill(stage);
+				if(r_precomputedLighting->integer || r_vertexLighting->integer)
+				{
+					if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
+					{
+						if(tr.worldDeluxeMapping)
+						{
+							Render_deluxeMapping(stage);
+						}
+						else
+						{
+							Render_lightMapping(stage);
+						}
+					}
+					else if(backEnd.currentEntity != &tr.worldEntity)
+					{
+						Render_vertexLighting_DBS_entity(stage);
+					}
+					else
+					{
+						Render_vertexLighting_DBS_world(stage);
+					}
+				}
+				else
+				{
+					Render_depthFill(stage);
+				}
 #endif
 
 				R_BindFBO(tr.geometricRenderFBO);
