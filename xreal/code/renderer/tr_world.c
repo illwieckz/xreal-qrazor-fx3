@@ -1248,14 +1248,29 @@ void R_AddWorldSurfaces(void)
 
 	if(r_vboWorld->integer)
 	{
-		int             j;
+		int             j, i;
 		srfVBOMesh_t   *srf;
 		shader_t       *shader;
+		cplane_t       *frust;
+		int             r;
 
 		for(j = 0; j < tr.world->numClusterVBOSurfaces; j++)
 		{
 			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, j);
 			shader = srf->shader;
+
+			for(i = 0; i < FRUSTUM_PLANES; i++)
+			{
+				frust = &tr.viewParms.frustum[i];
+
+				r = BoxOnPlaneSide(srf->bounds[0], srf->bounds[1], frust);
+
+				if(r == 2)
+				{
+					// completely outside frustum
+					continue;
+				}
+			}
 
 			R_AddDrawSurf((void *)srf, shader, srf->lightmapNum);
 		}
