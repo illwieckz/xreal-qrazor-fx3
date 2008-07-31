@@ -147,7 +147,8 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI_flippedImageFix\n#define ATI_flippedImageFix 1\n#endif\n");
 		}
 
-		if(r_shadows->integer >= 4 && r_shadows->integer <= 5 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
+		if(r_shadows->integer >= 4 && r_shadows->integer <= 5 && glConfig.textureFloatAvailable &&
+		   glConfig.framebufferObjectAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
 
@@ -309,12 +310,12 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			{
 				for(i = 0; i < 32; i++)
 				{
-					float *jit = &jitter[i][0];
-	
-					float rad = crandom() * 1024.0f; // FIXME radius;
-					float a = crandom() * M_PI * 2;
-					float b = crandom() * M_PI * 2;
-		
+					float          *jit = &jitter[i][0];
+
+					float           rad = crandom() * 1024.0f;	// FIXME radius;
+					float           a = crandom() * M_PI * 2;
+					float           b = crandom() * M_PI * 2;
+
 					jit[0] = rad * sin(a) * cos(b);
 					jit[1] = rad * sin(a) * sin(b);
 					jit[2] = rad * cos(a);
@@ -939,15 +940,13 @@ void GLSL_InitGPUShaders(void)
 #endif
 
 	// UT3 style player shadowing
-	GLSL_InitGPUShader(&tr.forwardShadowingShader_proj, "forwardShadowing_proj",
-					   GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.forwardShadowingShader_proj, "forwardShadowing_proj", GLCS_VERTEX, qtrue);
 
 	tr.forwardShadowingShader_proj.u_AttenuationMapXY =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_AttenuationMapXY");
 	tr.forwardShadowingShader_proj.u_AttenuationMapZ =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_AttenuationMapZ");
-	tr.forwardShadowingShader_proj.u_ShadowMap =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowMap");
+	tr.forwardShadowingShader_proj.u_ShadowMap = qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowMap");
 	tr.forwardShadowingShader_proj.u_LightOrigin =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightOrigin");
 	tr.forwardShadowingShader_proj.u_LightRadius =
@@ -971,6 +970,44 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.forwardShadowingShader_proj.program);
 	GLSL_ShowProgramUniforms(tr.forwardShadowingShader_proj.program);
+	GL_CheckErrors();
+
+	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", GLCS_VERTEX, qtrue);
+
+	tr.deferredShadowingShader_proj.u_PositionMap =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_PositionMap");
+	tr.deferredShadowingShader_proj.u_AttenuationMapXY =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_AttenuationMapXY");
+	tr.deferredShadowingShader_proj.u_AttenuationMapZ =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_AttenuationMapZ");
+	tr.deferredShadowingShader_proj.u_ShadowMap =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowMap");
+	tr.deferredShadowingShader_proj.u_LightOrigin =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightOrigin");
+	tr.deferredShadowingShader_proj.u_LightColor =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightColor");
+	tr.deferredShadowingShader_proj.u_LightRadius =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightRadius");
+	tr.deferredShadowingShader_proj.u_LightAttenuationMatrix =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightAttenuationMatrix");
+	tr.deferredShadowingShader_proj.u_LightFrustum =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightFrustum");
+	tr.deferredShadowingShader_proj.u_ShadowMatrix =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowMatrix");
+	tr.deferredShadowingShader_proj.u_ShadowCompare =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowCompare");
+	tr.deferredShadowingShader_proj.u_UnprojectMatrix =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_UnprojectMatrix");
+
+	qglUseProgramObjectARB(tr.deferredShadowingShader_proj.program);
+	qglUniform1iARB(tr.deferredShadowingShader_proj.u_PositionMap, 0);
+	qglUniform1iARB(tr.deferredShadowingShader_proj.u_AttenuationMapXY, 1);
+	qglUniform1iARB(tr.deferredShadowingShader_proj.u_AttenuationMapZ, 2);
+	qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowMap, 3);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.deferredShadowingShader_proj.program);
+	GLSL_ShowProgramUniforms(tr.deferredShadowingShader_proj.program);
 	GL_CheckErrors();
 
 	// cubemap reflection for abitrary polygons
@@ -1229,8 +1266,10 @@ void GLSL_InitGPUShaders(void)
 	// screen space ambien occlusion post process effect
 	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", GLCS_VERTEX, qtrue);
 
-	tr.screenSpaceAmbientOcclusionShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
-	tr.screenSpaceAmbientOcclusionShader.u_PositionMap = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_PositionMap");
+	tr.screenSpaceAmbientOcclusionShader.u_CurrentMap =
+		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
+	tr.screenSpaceAmbientOcclusionShader.u_PositionMap =
+		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_PositionMap");
 	//tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ViewOrigin");
 	//tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAOJitter");
 	//tr.screenSpaceAmbientOcclusionShader.u_SSAORadius = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAORadius");
@@ -1366,6 +1405,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.forwardShadowingShader_proj.program);
 		tr.forwardShadowingShader_proj.program = 0;
+	}
+
+	if(tr.deferredShadowingShader_proj.program)
+	{
+		qglDeleteObjectARB(tr.deferredShadowingShader_proj.program);
+		tr.deferredShadowingShader_proj.program = 0;
 	}
 
 	if(tr.reflectionShader_C.program)
@@ -2696,7 +2741,7 @@ static void Render_screen(int stage)
 
 	// enable shader, set arrays
 	GL_Program(tr.screenShader.program);
-	
+
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
 		GL_ClientState(tr.screenShader.attribs | GLCS_COLOR);
@@ -2727,7 +2772,7 @@ static void Render_portal(int stage)
 
 	// enable shader, set arrays
 	GL_Program(tr.portalShader.program);
-	
+
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
 		GL_ClientState(tr.portalShader.attribs | GLCS_COLOR);

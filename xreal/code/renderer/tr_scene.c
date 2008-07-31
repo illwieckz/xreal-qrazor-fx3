@@ -233,6 +233,11 @@ void RE_AddRefLightToScene(const refLight_t * l)
 
 	light->isStatic = qfalse;
 	light->additive = qtrue;
+
+	if(!r_dynamicLightsCastShadows->integer && !light->l.inverseShadows)
+	{
+		light->l.noShadows = qtrue;
+	}
 }
 
 /*
@@ -326,7 +331,7 @@ static void RE_AddDynamicLightToScene(const vec3_t org, float intensity, float r
 	light->l.color[1] = g;
 	light->l.color[2] = b;
 
-	light->l.noShadows = qfalse;
+	light->l.noShadows = r_dynamicLightsCastShadows->integer ? qfalse : qtrue;
 	light->l.inverseShadows = qfalse;
 
 	light->isStatic = qfalse;

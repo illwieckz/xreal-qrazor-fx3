@@ -2186,6 +2186,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\glsl\deferredShadowing_proj_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\deferredShadowing_proj_vp.glsl"
+				>
+			</File>
+			<File
 				RelativePath="..\base\glsl\deluxeMapping_fp.glsl"
 				>
 			</File>

@@ -74,6 +74,7 @@ cvar_t         *r_noLightVisCull;
 cvar_t         *r_noInteractionSort;
 cvar_t         *r_noDynamicLighting;
 cvar_t         *r_noStaticLighting;
+cvar_t         *r_dynamicLightsCastShadows;
 cvar_t         *r_precomputedLighting;
 cvar_t         *r_vertexLighting;
 cvar_t         *r_heatHazeFix;
@@ -1216,6 +1217,7 @@ void R_Register(void)
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_deferredShading = ri.Cvar_Get("r_deferredShading", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxMapping = ri.Cvar_Get("r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_dynamicLightsCastShadows = ri.Cvar_Get("r_dynamicLightsCastShadows", "1", CVAR_ARCHIVE);
 	r_precomputedLighting = ri.Cvar_Get("r_precomputedLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "1", CVAR_ARCHIVE | CVAR_LATCH);

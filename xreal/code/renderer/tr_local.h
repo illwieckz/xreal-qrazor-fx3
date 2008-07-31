@@ -1861,7 +1861,7 @@ typedef struct
 
 	// UT3 style player shadowing
 	shaderProgram_t forwardShadowingShader_proj;
-	// TODO shaderProgram_t deferredShadowingShader_proj;
+	shaderProgram_t deferredShadowingShader_proj;
 
 	// environment mapping effects
 	shaderProgram_t reflectionShader_C;
@@ -2005,6 +2005,7 @@ extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
 extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
 extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
+extern cvar_t  *r_dynamicLightsCastShadows;
 extern cvar_t  *r_precomputedLighting;
 extern cvar_t  *r_vertexLighting;
 extern cvar_t  *r_heatHazeFix;

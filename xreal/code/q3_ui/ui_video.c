@@ -283,6 +283,7 @@ typedef struct
 	menulist_s      shadowFilter;
 	menuslider_s    shadowBlur;
 	menulist_s		shadowQuality;
+	menulist_s      dynamicLightsCastShadows;
 	menulist_s      bloom;
 	menulist_s      vertexLighting;
 	menutext_s      driverinfo;
@@ -305,8 +306,9 @@ typedef struct
 	int             anisotropicFilter;
 	int             shadowType;
 	int             shadowFilter;
-	int				shadowQuality;
 	int             shadowBlur;
+	int				shadowQuality;
+	int				dynamicLightsCastShadows;
 	int             bloom;
 } InitialVideoOptions_s;
 
@@ -315,11 +317,11 @@ static graphicsoptions_t s_graphicsoptions;
 
 // *INDENT-OFF*
 static InitialVideoOptions_s s_ivo_templates[] = {
-	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1, 1, 0},
-	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0},
-	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
-	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0},
-	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0}
+	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1, 1, 1, 0},
+	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0},
+	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0},
+	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0},
+	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0}
 };
 // *INDENT-ON*
 
@@ -498,6 +500,7 @@ static void GraphicsOptions_GetInitialVideo(void)
 	s_ivo.shadowFilter = s_graphicsoptions.shadowFilter.curvalue;
 	s_ivo.shadowBlur = s_graphicsoptions.shadowBlur.curvalue;
 	s_ivo.shadowQuality = s_graphicsoptions.shadowQuality.curvalue;
+	s_ivo.dynamicLightsCastShadows = s_graphicsoptions.dynamicLightsCastShadows.curvalue;
 	s_ivo.bloom = s_graphicsoptions.bloom.curvalue;
 }
 
@@ -570,6 +573,8 @@ static void GraphicsOptions_CheckConfig(void)
 		if(s_ivo_templates[i].shadowBlur != s_graphicsoptions.shadowBlur.curvalue)
 			continue;
 		if(s_ivo_templates[i].shadowQuality != s_graphicsoptions.shadowQuality.curvalue)
+			continue;
+		if(s_ivo_templates[i].dynamicLightsCastShadows != s_graphicsoptions.dynamicLightsCastShadows.curvalue)
 			continue;
 		if(s_ivo_templates[i].bloom != s_graphicsoptions.bloom.curvalue)
 			continue;
@@ -688,6 +693,21 @@ static void GraphicsOptions_UpdateMenuItems(void)
 	}
 
 	if(s_ivo.shadowQuality != s_graphicsoptions.shadowQuality.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
+	}
+
+	if(s_graphicsoptions.shadowType.curvalue <= 2)
+	{
+		s_graphicsoptions.dynamicLightsCastShadows.curvalue = 0;
+		s_graphicsoptions.dynamicLightsCastShadows.generic.flags |= QMF_GRAYED;
+	}
+	else
+	{
+		s_graphicsoptions.dynamicLightsCastShadows.generic.flags &= ~QMF_GRAYED;
+	}
+
+	if(s_ivo.dynamicLightsCastShadows != s_graphicsoptions.dynamicLightsCastShadows.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
@@ -840,6 +860,8 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			break;
 	}
 
+	trap_Cvar_SetValue("r_dynamicLightsCastShadows", s_graphicsoptions.dynamicLightsCastShadows.curvalue);
+
 	trap_Cvar_SetValue("r_bloom", s_graphicsoptions.bloom.curvalue);
 
 	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
@@ -887,6 +909,7 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.shadowFilter.curvalue = ivo->shadowFilter;
 			s_graphicsoptions.shadowBlur.curvalue = ivo->shadowBlur;
 			s_graphicsoptions.shadowQuality.curvalue = ivo->shadowQuality;
+			s_graphicsoptions.dynamicLightsCastShadows.curvalue = ivo->dynamicLightsCastShadows;
 			s_graphicsoptions.bloom.curvalue = ivo->bloom;
 			break;
 
@@ -1115,6 +1138,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	s_graphicsoptions.shadowFilter.curvalue = trap_Cvar_VariableValue("r_softShadows");
 	s_graphicsoptions.shadowBlur.curvalue = trap_Cvar_VariableValue("r_shadowBlur");
 	s_graphicsoptions.shadowQuality.curvalue = trap_Cvar_VariableValue("r_shadowMapQuality");
+	s_graphicsoptions.dynamicLightsCastShadows.curvalue = trap_Cvar_VariableValue("r_dynamicLightsCastShadows");
 
 	s_graphicsoptions.bloom.curvalue = trap_Cvar_VariableValue("r_bloom");
 }
@@ -1458,6 +1482,15 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.shadowQuality.itemnames = shadowQuality_names;
 	y += BIGCHAR_HEIGHT + 2;
 
+	// references/modifies "r_dynamicLightsCastShadows"
+	s_graphicsoptions.dynamicLightsCastShadows.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.dynamicLightsCastShadows.generic.name = "Dynamic Light Shadows:";
+	s_graphicsoptions.dynamicLightsCastShadows.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_graphicsoptions.dynamicLightsCastShadows.generic.x = 400;
+	s_graphicsoptions.dynamicLightsCastShadows.generic.y = y;
+	s_graphicsoptions.dynamicLightsCastShadows.itemnames = enabled_names;
+	y += BIGCHAR_HEIGHT + 2;
+
 	// references/modifies "r_bloom"
 	s_graphicsoptions.bloom.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.bloom.generic.name = "Bloom:";
@@ -1529,6 +1562,7 @@ void GraphicsOptions_MenuInit(void)
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowFilter);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowBlur);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowQuality);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.dynamicLightsCastShadows);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.bloom);
 

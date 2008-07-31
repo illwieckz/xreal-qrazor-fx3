@@ -3320,76 +3320,135 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					}
 					else if(light->l.rlType == RL_PROJ)
 					{
-						// enable shader, set arrays
-						GL_Program(tr.deferredLightingShader_DBS_proj.program);
-
-						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
-						GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
-
-						GL_Cull(CT_TWO_SIDED);
-
-						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
-						VectorCopy(tess.svars.color, lightColor);
-						shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
-
-						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
-										viewOrigin[2]);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
-										lightOrigin[2]);
-						qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
-										lightColor[2]);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
-						qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix2);
-						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
-											   light->attenuationMatrix);
-						qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
-											   backEnd.viewParms.unprojectionMatrix);
-
-						// bind u_DiffuseMap
-						GL_SelectTexture(0);
-						GL_Bind(tr.deferredDiffuseFBOImage);
-
-						// bind u_NormalMap
-						GL_SelectTexture(1);
-						GL_Bind(tr.deferredNormalFBOImage);
-
-						// bind u_SpecularMap
-						GL_SelectTexture(2);
-						GL_Bind(tr.deferredSpecularFBOImage);
-
-						// bind u_PositionMap
-						GL_SelectTexture(3);
-						//GL_Bind(tr.deferredPositionFBOImage);
-						GL_Bind(tr.depthRenderImage);
-
-						// bind u_AttenuationMapXY
-						GL_SelectTexture(4);
-						BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-						// bind u_AttenuationMapZ
-						GL_SelectTexture(5);
-						BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-						// bind u_ShadowMap
-						if(shadowCompare)
+						if(light->l.inverseShadows)
 						{
-							GL_SelectTexture(6);
-							GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
-						}
+							GL_Program(tr.deferredShadowingShader_proj.program);
 
-						// draw lighting
-						qglBegin(GL_QUADS);
-						qglVertex2f(ia->scissorX, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
-						qglEnd();
+							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
+
+							GL_ClientState(tr.deferredShadowingShader_proj.attribs);
+
+							GL_Cull(CT_TWO_SIDED);
+
+							// set uniforms
+							VectorCopy(light->origin, lightOrigin);
+							VectorCopy(tess.svars.color, lightColor);
+							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
+
+							qglUniform3fARB(tr.deferredShadowingShader_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
+											lightOrigin[2]);
+							qglUniform3fARB(tr.deferredShadowingShader_proj.u_LightColor, lightColor[0], lightColor[1],
+											lightColor[2]);
+							qglUniform1fARB(tr.deferredShadowingShader_proj.u_LightRadius, light->sphereRadius);
+							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
+												   light->attenuationMatrix2);
+							qglUniform4fvARB(tr.deferredShadowingShader_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE,
+												   light->attenuationMatrix);
+							qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowCompare, shadowCompare);
+							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
+												   backEnd.viewParms.unprojectionMatrix);
+
+							// bind u_PositionMap
+							GL_SelectTexture(0);
+							//GL_Bind(tr.deferredPositionFBOImage);
+							GL_Bind(tr.depthRenderImage);
+
+							// bind u_AttenuationMapXY
+							GL_SelectTexture(1);
+							BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+							// bind u_AttenuationMapZ
+							GL_SelectTexture(2);
+							BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+							// bind u_ShadowMap
+							if(shadowCompare)
+							{
+								GL_SelectTexture(3);
+								GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+							}
+
+							// draw lighting
+							qglBegin(GL_QUADS);
+							qglVertex2f(ia->scissorX, ia->scissorY);
+							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+							qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+							qglEnd();
+						}
+						else
+						{
+							GL_Program(tr.deferredLightingShader_DBS_proj.program);
+
+							// set OpenGL state for additive lighting
+							GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
+							GL_ClientState(tr.deferredLightingShader_DBS_proj.attribs);
+
+							GL_Cull(CT_TWO_SIDED);
+
+							// set uniforms
+							VectorCopy(light->origin, lightOrigin);
+							VectorCopy(tess.svars.color, lightColor);
+							shadowCompare = !light->l.noShadows && light->shadowLOD >= 0;
+
+							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_ViewOrigin, viewOrigin[0], viewOrigin[1],
+											viewOrigin[2]);
+							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1],
+											lightOrigin[2]);
+							qglUniform3fARB(tr.deferredLightingShader_DBS_proj.u_LightColor, lightColor[0], lightColor[1],
+											lightColor[2]);
+							qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightRadius, light->sphereRadius);
+							qglUniform1fARB(tr.deferredLightingShader_DBS_proj.u_LightScale, r_lightScale->value);
+							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
+												   light->attenuationMatrix2);
+							qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
+												   light->attenuationMatrix);
+							qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
+							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
+												   backEnd.viewParms.unprojectionMatrix);
+
+							// bind u_DiffuseMap
+							GL_SelectTexture(0);
+							GL_Bind(tr.deferredDiffuseFBOImage);
+
+							// bind u_NormalMap
+							GL_SelectTexture(1);
+							GL_Bind(tr.deferredNormalFBOImage);
+
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+
+							// bind u_PositionMap
+							GL_SelectTexture(3);
+							//GL_Bind(tr.deferredPositionFBOImage);
+							GL_Bind(tr.depthRenderImage);
+
+							// bind u_AttenuationMapXY
+							GL_SelectTexture(4);
+							BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
+
+							// bind u_AttenuationMapZ
+							GL_SelectTexture(5);
+							BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
+
+							// bind u_ShadowMap
+							if(shadowCompare)
+							{
+								GL_SelectTexture(6);
+								GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
+							}
+
+							// draw lighting
+							qglBegin(GL_QUADS);
+							qglVertex2f(ia->scissorX, ia->scissorY);
+							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+							qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+							qglEnd();
+						}
 					}
 					else
 					{
@@ -3426,6 +3485,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 			if(shader->noShadows || light->l.noShadows || light->shadowLOD < 0)
 			{
+				goto skipInteraction;
+			}
+
+			if(light->l.inverseShadows && (entity == &tr.worldEntity))
+			{
+				// this light only casts shadows by its player and their items
 				goto skipInteraction;
 			}
 
