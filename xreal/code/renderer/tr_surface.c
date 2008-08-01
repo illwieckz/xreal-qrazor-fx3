@@ -320,12 +320,12 @@ static void Tess_SurfacePolychain(srfPoly_t * p)
 	{
 		VectorCopy(p->verts[i].xyz, tess.xyz[tess.numVertexes + i]);
 		tess.xyz[tess.numVertexes + i][3] = 1;
-		
+
 		tess.texCoords[tess.numVertexes + i][0] = p->verts[i].st[0];
 		tess.texCoords[tess.numVertexes + i][1] = p->verts[i].st[1];
 		tess.texCoords[tess.numVertexes + i][2] = 0;
 		tess.texCoords[tess.numVertexes + i][3] = 1;
-		
+
 		*(int *)&tess.colors[tess.numVertexes + i] = *(int *)p->verts[i].modulate;
 
 		numVertexes++;
@@ -420,7 +420,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
 			d = DotProduct(tri->plane, lightOrigin) - tri->plane[3];
-			
+
 			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
@@ -627,7 +627,7 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf)
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
 			d = DotProduct(tri->plane, lightOrigin) - tri->plane[3];
-			
+
 			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
@@ -833,7 +833,7 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf)
 		for(i = 0, tri = srf->triangles; i < srf->numTriangles; i++, tri++)
 		{
 			d = DotProduct(tri->plane, lightOrigin) - tri->plane[3];
-			
+
 			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
@@ -1434,7 +1434,7 @@ static void Tess_SurfaceMDX(mdxSurface_t * srf)
 			plane[3] = DotProduct(plane, v1);
 
 			d = DotProduct(plane, lightOrigin) - plane[3];
-			
+
 			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
@@ -1634,9 +1634,9 @@ static void Tess_SurfaceMD5(md5Surface_t * srf)
 	md5Vertex_t    *v;
 	md5Bone_t      *bone;
 	srfTriangle_t  *tri;
-	vec3_t          offsetVec;
 	vec3_t          lightOrigin;
 	float          *xyzw, *xyzw2;
+	static matrix_t boneMatrices[MAX_BONES];
 
 	GLimp_LogComment("--- Tess_SurfaceMD5 ---\n");
 
@@ -1655,53 +1655,61 @@ static void Tess_SurfaceMD5(md5Surface_t * srf)
 
 		VectorCopy(backEnd.currentLight->transformed, lightOrigin);
 
-		// deform the vertexes by the lerped bones and extrude to infinity
+
+		// convert bones back to matrices
+		for(i = 0; i < model->numBones; i++)
+		{
+			matrix_t        m, m2;
+
+			if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
+			{
+				MatrixSetupScale(m,
+								 backEnd.currentEntity->e.skeleton.scale[0],
+								 backEnd.currentEntity->e.skeleton.scale[1], backEnd.currentEntity->e.skeleton.scale[2]);
+
+				MatrixSetupTransformFromQuat(m2, backEnd.currentEntity->e.skeleton.bones[i].rotation,
+												 backEnd.currentEntity->e.skeleton.bones[i].origin);
+				MatrixMultiply(m2, m, boneMatrices[i]);
+			}
+			else
+			{
+				MatrixSetupTransformFromQuat(boneMatrices[i], model->bones[i].rotation, model->bones[i].origin);
+			}
+		}
+
+		// deform the vertices by the lerped bones and extrude to infinity
 		numVertexes = srf->numVerts;
 		xyzw = tess.xyz[tess.numVertexes];
 		xyzw2 = tess.xyz[tess.numVertexes + srf->numVerts];
 		for(j = 0, v = srf->verts; j < numVertexes; j++, v++, xyzw += 4, xyzw2 += 4)
 		{
 			vec3_t          tmpVert;
+			vec3_t          tmpPosition;
 			md5Weight_t    *w;
 
-			VectorClear(tmpVert);
+			VectorClear(tmpPosition);
 
 			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
 			{
 				bone = &model->bones[w->boneIndex];
 
-				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
-				{
-					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
-
-					offsetVec[0] *= backEnd.currentEntity->e.skeleton.scale[0];
-					offsetVec[1] *= backEnd.currentEntity->e.skeleton.scale[1];
-					offsetVec[2] *= backEnd.currentEntity->e.skeleton.scale[2];
-
-					VectorAdd(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].origin, offsetVec, offsetVec);
-				}
-				else
-				{
-					QuatTransformVector(bone->rotation, w->offset, offsetVec);
-					VectorAdd(bone->origin, offsetVec, offsetVec);
-				}
-
-				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
+				MatrixTransformPoint(boneMatrices[w->boneIndex], w->offset, tmpVert);
+				VectorMA(tmpPosition, w->boneWeight, tmpVert, tmpPosition);
 			}
 
-			xyzw[0] = tmpVert[0];
-			xyzw[1] = tmpVert[1];
-			xyzw[2] = tmpVert[2];
+			xyzw[0] = tmpPosition[0];
+			xyzw[1] = tmpPosition[1];
+			xyzw[2] = tmpPosition[2];
 			xyzw[3] = 1;
 
 #if 1
-			xyzw2[0] = tmpVert[0];
-			xyzw2[1] = tmpVert[1];
-			xyzw2[2] = tmpVert[2];
+			xyzw2[0] = tmpPosition[0];
+			xyzw2[1] = tmpPosition[1];
+			xyzw2[2] = tmpPosition[2];
 #else
-			xyzw2[0] = tmpVert[0] - lightOrigin[0];
-			xyzw2[1] = tmpVert[1] - lightOrigin[1];
-			xyzw2[2] = tmpVert[2] - lightOrigin[2];
+			xyzw2[0] = tmpPosition[0] - lightOrigin[0];
+			xyzw2[1] = tmpPosition[1] - lightOrigin[1];
+			xyzw2[2] = tmpPosition[2] - lightOrigin[2];
 #endif
 			xyzw2[3] = 0;
 		}
@@ -1725,7 +1733,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf)
 			plane[3] = DotProduct(plane, v1);
 
 			d = DotProduct(plane, lightOrigin) - plane[3];
-			
+
 			if(tess.surfaceShader->cullType == CT_TWO_SIDED || (d > 0 && tess.surfaceShader->cullType != CT_BACK_SIDED))
 			{
 				sh.facing[i] = qtrue;
@@ -1824,104 +1832,148 @@ static void Tess_SurfaceMD5(md5Surface_t * srf)
 			tess.indexes[tess.numIndexes + i * 3 + 2] = tess.numVertexes + tri->indexes[2];
 		}
 
-		// deform the vertexes by the lerped bones
-		numVertexes = srf->numVerts;
-		for(j = 0, v = srf->verts; j < numVertexes; j++, v++)
+		if(tess.skipTangentSpaces)
 		{
 			vec3_t          tmpVert;
+			vec3_t          tmpPosition;
 			md5Weight_t    *w;
 
-			VectorClear(tmpVert);
-
-			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+			// convert bones back to matrices
+			for(i = 0; i < model->numBones; i++)
 			{
-				bone = &model->bones[w->boneIndex];
+				matrix_t        m, m2;
 
 				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
 				{
-					QuatTransformVector(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].rotation, w->offset, offsetVec);
+					MatrixSetupScale(m,
+									 backEnd.currentEntity->e.skeleton.scale[0],
+									 backEnd.currentEntity->e.skeleton.scale[1], backEnd.currentEntity->e.skeleton.scale[2]);
 
-					offsetVec[0] *= backEnd.currentEntity->e.skeleton.scale[0];
-					offsetVec[1] *= backEnd.currentEntity->e.skeleton.scale[1];
-					offsetVec[2] *= backEnd.currentEntity->e.skeleton.scale[2];
-
-					VectorAdd(backEnd.currentEntity->e.skeleton.bones[w->boneIndex].origin, offsetVec, offsetVec);
+					MatrixSetupTransformFromQuat(m2, backEnd.currentEntity->e.skeleton.bones[i].rotation,
+												 backEnd.currentEntity->e.skeleton.bones[i].origin);
+					MatrixMultiply(m2, m, boneMatrices[i]);
 				}
 				else
 				{
-					QuatTransformVector(bone->rotation, w->offset, offsetVec);
-					VectorAdd(bone->origin, offsetVec, offsetVec);
+					MatrixSetupTransformFromQuat(boneMatrices[i], model->bones[i].rotation, model->bones[i].origin);
 				}
-
-				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
 			}
 
-			tess.xyz[tess.numVertexes + j][0] = tmpVert[0];
-			tess.xyz[tess.numVertexes + j][1] = tmpVert[1];
-			tess.xyz[tess.numVertexes + j][2] = tmpVert[2];
-			tess.xyz[tess.numVertexes + j][3] = 1;
-
-			tess.texCoords[tess.numVertexes + j][0] = v->texCoords[0];
-			tess.texCoords[tess.numVertexes + j][1] = v->texCoords[1];
-			tess.texCoords[tess.numVertexes + j][2] = 0;
-			tess.texCoords[tess.numVertexes + j][3] = 1;
-
-			/*
-			   if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-			   {
-			   tess.colors[tess.numVertexes + j][0] = backEnd.currentEntity->ambientLight[0] * 255;
-			   tess.colors[tess.numVertexes + j][1] = backEnd.currentEntity->ambientLight[1] * 255;
-			   tess.colors[tess.numVertexes + j][2] = backEnd.currentEntity->ambientLight[2] * 255;
-			   tess.colors[tess.numVertexes + j][3] = 255;
-			   }
-			 */
-		}
-
-		// calc tangent spaces
-		if(!tess.skipTangentSpaces)
-		{
-			int             i;
-			float          *v;
-			const float    *v0, *v1, *v2;
-			const float    *t0, *t1, *t2;
-			vec3_t          tangent;
-			vec3_t          binormal;
-			vec3_t          normal;
-			int            *indices;
-
-			for(i = 0; i < numVertexes; i++)
+			// deform the vertices by the lerped bones
+			numVertexes = srf->numVerts;
+			for(j = 0, v = srf->verts; j < numVertexes; j++, v++)
 			{
-				VectorClear(tess.tangents[tess.numVertexes + i]);
-				VectorClear(tess.binormals[tess.numVertexes + i]);
-				VectorClear(tess.normals[tess.numVertexes + i]);
-			}
+				VectorClear(tmpPosition);
 
-			for(i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3)
-			{
-				v0 = tess.xyz[indices[0]];
-				v1 = tess.xyz[indices[1]];
-				v2 = tess.xyz[indices[2]];
-
-				t0 = tess.texCoords[indices[0]];
-				t1 = tess.texCoords[indices[1]];
-				t2 = tess.texCoords[indices[2]];
-
-				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
-
-				for(j = 0; j < 3; j++)
+				for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
 				{
-					v = tess.tangents[indices[j]];
-					VectorAdd(v, tangent, v);
-					v = tess.binormals[indices[j]];
-					VectorAdd(v, binormal, v);
-					v = tess.normals[indices[j]];
-					VectorAdd(v, normal, v);
+					bone = &model->bones[w->boneIndex];
+
+					MatrixTransformPoint(boneMatrices[w->boneIndex], w->offset, tmpVert);
+					VectorMA(tmpPosition, w->boneWeight, tmpVert, tmpPosition);
+				}
+
+				tess.xyz[tess.numVertexes + j][0] = tmpPosition[0];
+				tess.xyz[tess.numVertexes + j][1] = tmpPosition[1];
+				tess.xyz[tess.numVertexes + j][2] = tmpPosition[2];
+				tess.xyz[tess.numVertexes + j][3] = 1;
+
+				tess.texCoords[tess.numVertexes + j][0] = v->texCoords[0];
+				tess.texCoords[tess.numVertexes + j][1] = v->texCoords[1];
+				tess.texCoords[tess.numVertexes + j][2] = 0;
+				tess.texCoords[tess.numVertexes + j][3] = 1;
+			}
+		}
+		else
+		{
+			vec3_t          tmpVert;
+			vec3_t          tmpPosition;
+			vec3_t          tmpNormal;
+			vec3_t          tmpTangent;
+			vec3_t          tmpBinormal;
+			md5Weight_t    *w;
+
+			// convert bones back to matrices
+			for(i = 0; i < model->numBones; i++)
+			{
+				matrix_t        m, m2;	//, m3;
+
+				if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
+				{
+					MatrixSetupScale(m,
+									 backEnd.currentEntity->e.skeleton.scale[0],
+									 backEnd.currentEntity->e.skeleton.scale[1], backEnd.currentEntity->e.skeleton.scale[2]);
+
+					MatrixSetupTransformFromQuat(m2, backEnd.currentEntity->e.skeleton.bones[i].rotation,
+												 backEnd.currentEntity->e.skeleton.bones[i].origin);
+					MatrixMultiply(m2, m, boneMatrices[i]);
+
+					MatrixMultiply2(boneMatrices[i], model->bones[i].inverseTransform);
+				}
+				else
+				{
+					MatrixIdentity(boneMatrices[i]);
 				}
 			}
 
-			VectorArrayNormalize((vec4_t *) tess.tangents[tess.numVertexes], numVertexes);
-			VectorArrayNormalize((vec4_t *) tess.binormals[tess.numVertexes], numVertexes);
-			VectorArrayNormalize((vec4_t *) tess.normals[tess.numVertexes], numVertexes);
+			// deform the vertices by the lerped bones
+			numVertexes = srf->numVerts;
+			for(j = 0, v = srf->verts; j < numVertexes; j++, v++)
+			{
+				VectorClear(tmpPosition);
+				VectorClear(tmpTangent);
+				VectorClear(tmpBinormal);
+				VectorClear(tmpNormal);
+
+				for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+				{
+					//MatrixTransformPoint(boneMatrices[w->boneIndex], w->offset, tmpVert);
+					MatrixTransformPoint(boneMatrices[w->boneIndex], v->position, tmpVert);
+					VectorMA(tmpPosition, w->boneWeight, tmpVert, tmpPosition);
+
+					MatrixTransformNormal(boneMatrices[w->boneIndex], v->tangent, tmpVert);
+					VectorMA(tmpTangent, w->boneWeight, tmpVert, tmpTangent);
+
+					MatrixTransformNormal(boneMatrices[w->boneIndex], v->binormal, tmpVert);
+					VectorMA(tmpBinormal, w->boneWeight, tmpVert, tmpBinormal);
+
+					MatrixTransformNormal(boneMatrices[w->boneIndex], v->normal, tmpVert);
+					VectorMA(tmpNormal, w->boneWeight, tmpVert, tmpNormal);
+				}
+
+				//VectorNormalize(tmpTangent);
+				//VectorNormalize(tmpBinormal);
+				//VectorNormalize(tmpNormal);
+
+				//VectorCopy(v->tangent, tmpTangent);
+				//VectorCopy(v->binormal, tmpBinormal);
+				//VectorCopy(v->normal, tmpNormal);
+
+				tess.xyz[tess.numVertexes + j][0] = tmpPosition[0];
+				tess.xyz[tess.numVertexes + j][1] = tmpPosition[1];
+				tess.xyz[tess.numVertexes + j][2] = tmpPosition[2];
+				tess.xyz[tess.numVertexes + j][3] = 1;
+
+				tess.texCoords[tess.numVertexes + j][0] = v->texCoords[0];
+				tess.texCoords[tess.numVertexes + j][1] = v->texCoords[1];
+				tess.texCoords[tess.numVertexes + j][2] = 0;
+				tess.texCoords[tess.numVertexes + j][3] = 1;
+
+				tess.tangents[tess.numVertexes + j][0] = tmpTangent[0];
+				tess.tangents[tess.numVertexes + j][1] = tmpTangent[1];
+				tess.tangents[tess.numVertexes + j][2] = tmpTangent[2];
+				tess.tangents[tess.numVertexes + j][3] = 1;
+
+				tess.binormals[tess.numVertexes + j][0] = tmpBinormal[0];
+				tess.binormals[tess.numVertexes + j][1] = tmpBinormal[1];
+				tess.binormals[tess.numVertexes + j][2] = tmpBinormal[2];
+				tess.binormals[tess.numVertexes + j][3] = 1;
+
+				tess.normals[tess.numVertexes + j][0] = tmpNormal[0];
+				tess.normals[tess.numVertexes + j][1] = tmpNormal[1];
+				tess.normals[tess.numVertexes + j][2] = tmpNormal[2];
+				tess.normals[tess.numVertexes + j][3] = 1;
+			}
 		}
 
 		tess.numIndexes += numIndexes;

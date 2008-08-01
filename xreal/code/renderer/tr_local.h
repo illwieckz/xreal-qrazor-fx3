@@ -1460,12 +1460,17 @@ typedef struct
 {
 	int             boneIndex;	// these are indexes into the boneReferences,
 	float           boneWeight;	// not the global per-frame bone list
-	float           offset[3];
+	vec3_t          offset;
 } md5Weight_t;
 
 typedef struct
 {
-	float           texCoords[2];
+	vec3_t			position;
+	vec2_t          texCoords;
+	vec3_t			tangent;
+	vec3_t			binormal;
+	vec3_t			normal;
+
 	int             firstWeight;
 	int             numWeights;
 	md5Weight_t   **weights;
@@ -1505,6 +1510,7 @@ typedef struct
 	int             parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;
+	matrix_t        inverseTransform; // full inverse for tangent space transformation
 } md5Bone_t;
 
 typedef struct md5Model_s
@@ -1514,6 +1520,8 @@ typedef struct md5Model_s
 
 	int             numSurfaces;
 	md5Surface_t   *surfaces;
+
+	vec3_t          bounds[2];
 } md5Model_t;
 
 

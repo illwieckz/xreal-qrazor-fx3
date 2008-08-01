@@ -887,6 +887,13 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	quat_t          boneQuat;
 	matrix_t        boneMat;
 
+//	static vec3_t   xyzs[SHADER_MAX_VERTEXES];
+//	static vec2_t   texcoords[SHADER_MAX_VERTEXES];
+//	static vec3_t   tangents[SHADER_MAX_VERTEXES];
+//	static vec3_t   binormals[SHADER_MAX_VERTEXES];
+//	static vec3_t   normals[SHADER_MAX_VERTEXES];
+//	static int      indexes2[SHADER_MAX_INDEXES];
+
 	buf_p = (char *)buffer;
 
 	// skip MD5Version indent string
@@ -1017,6 +1024,9 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 		VectorCopy(boneOrigin, bone->origin);
 		QuatCopy(boneQuat, bone->rotation);
+
+		MatrixSetupTransformFromQuat(bone->inverseTransform, boneQuat, boneOrigin);
+		MatrixInverse(bone->inverseTransform);
 
 		// skip )
 		token = Com_ParseExt(&buf_p, qfalse);
@@ -1256,6 +1266,104 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			{
 				v->weights[k] = surf->weights + (v->firstWeight + k);
 			}
+		}
+	}
+
+	// loading is done, now calculate the bounding box
+	ClearBounds(md5->bounds[0], md5->bounds[1]);
+	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
+	{
+		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+		{
+			vec3_t          tmpVert;
+			md5Weight_t    *w;
+
+			VectorClear(tmpVert);
+
+			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
+			{
+				vec3_t          offsetVec;
+
+				bone = &md5->bones[w->boneIndex];
+
+				QuatTransformVector(bone->rotation, w->offset, offsetVec);
+				VectorAdd(bone->origin, offsetVec, offsetVec);
+
+				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
+			}
+
+			VectorCopy(tmpVert, v->position);
+			AddPointToBounds(tmpVert, md5->bounds[0], md5->bounds[1]);
+		}
+
+		// calc tangent spaces
+		{
+			const float    *v0, *v1, *v2;
+			const float    *t0, *t1, *t2;
+			vec3_t          tangent;
+			vec3_t          binormal;
+			vec3_t          normal;
+
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				VectorClear(v->tangent);
+				VectorClear(v->binormal);
+				VectorClear(v->normal);
+			}
+
+			for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+			{
+				v0 = surf->verts[tri->indexes[0]].position;
+				v1 = surf->verts[tri->indexes[1]].position;
+				v2 = surf->verts[tri->indexes[2]].position;
+
+				t0 = surf->verts[tri->indexes[0]].texCoords;
+				t1 = surf->verts[tri->indexes[1]].texCoords;
+				t2 = surf->verts[tri->indexes[2]].texCoords;
+
+				R_CalcTangentSpace(tangent, binormal, normal, v0, v1, v2, t0, t1, t2);
+
+				for(k = 0; k < 3; k++)
+				{
+					const float *v;
+
+					v = surf->verts[tri->indexes[k]].tangent;
+					VectorAdd(v, tangent, v);
+
+					v = surf->verts[tri->indexes[k]].binormal;
+					VectorAdd(v, binormal, v);
+
+					v = surf->verts[tri->indexes[k]].normal;
+					VectorAdd(v, normal, v);
+				}
+			}
+
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				VectorNormalize(v->tangent);
+				VectorNormalize(v->binormal);
+				VectorNormalize(v->normal);
+			}
+
+#if 1
+			// do another extra smoothing for normals to avoid flat shading
+			for(j = 0; j < surf->numVerts; j++)
+			{
+				for(k = 0; k < surf->numVerts; k++)
+				{
+					if(j == k)
+						continue;
+
+					if(VectorCompare(surf->verts[j].position, surf->verts[k].position))
+					{
+						VectorAdd(surf->verts[j].normal, surf->verts[k].normal, surf->verts[j].normal);
+					}
+				}
+
+				VectorNormalize(surf->verts[j].normal);
+			}
+#endif
+
 		}
 	}
 
@@ -1547,20 +1655,24 @@ void R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs)
 	{
 		VectorCopy(model->bsp->bounds[0], mins);
 		VectorCopy(model->bsp->bounds[1], maxs);
-		return;
 	}
+	else if(model->mdx[0])
+	{
+		header = model->mdx[0];
 
-	if(!model->mdx[0])
+		frame = header->frames;
+
+		VectorCopy(frame->bounds[0], mins);
+		VectorCopy(frame->bounds[1], maxs);
+	}
+	else if(model->md5)
+	{
+		VectorCopy(model->md5->bounds[0], mins);
+		VectorCopy(model->md5->bounds[1], maxs);
+	}
+	else
 	{
 		VectorClear(mins);
 		VectorClear(maxs);
-		return;
 	}
-
-	header = model->mdx[0];
-
-	frame = header->frames;
-
-	VectorCopy(frame->bounds[0], mins);
-	VectorCopy(frame->bounds[1], maxs);
 }

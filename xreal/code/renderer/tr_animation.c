@@ -477,21 +477,24 @@ R_CullMD5
 static void R_CullMD5(trRefEntity_t * ent)
 {
 	int             i;
+	md5Model_t     *model;
 
 	if(ent->e.skeleton.type == SK_INVALID)
 	{
-		// we have a bad configuration
-		ClearBounds(ent->localBounds[0], ent->localBounds[1]);
-		tr.pc.c_box_cull_md5_in++;
-		ent->cull = CULL_IN;
-		return;
-	}
+		// no properly set skeleton so use the bounding box by the model instead by the animations
+		model = tr.currentModel->md5;
 
-	// copy a bounding box in the current coordinate system provided by skeleton
-	for(i = 0; i < 3; i++)
+		VectorCopy(model->bounds[0], ent->localBounds[0]);
+		VectorCopy(model->bounds[1], ent->localBounds[1]);
+	}
+	else
 	{
-		ent->localBounds[0][i] = ent->e.skeleton.bounds[0][i];
-		ent->localBounds[1][i] = ent->e.skeleton.bounds[1][i];
+		// copy a bounding box in the current coordinate system provided by skeleton
+		for(i = 0; i < 3; i++)
+		{
+			ent->localBounds[0][i] = ent->e.skeleton.bounds[0][i];
+			ent->localBounds[1][i] = ent->e.skeleton.bounds[1][i];
+		}
 	}
 
 	switch (R_CullLocalBox(ent->localBounds))
