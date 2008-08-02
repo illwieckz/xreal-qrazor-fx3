@@ -271,6 +271,10 @@ typedef struct
 
 	char            shadingLanguageVersion[MAX_STRING_CHARS];
 
+	int				maxVertexUniforms;
+	int				maxVaryingFloats;
+	int				maxVertexAttribs;
+
 	qboolean        textureNPOTAvailable;
 
 	qboolean        drawBuffersAvailable;
