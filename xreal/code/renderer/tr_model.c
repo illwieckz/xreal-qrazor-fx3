@@ -887,12 +887,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 	quat_t          boneQuat;
 	matrix_t        boneMat;
 
-//	static vec3_t   xyzs[SHADER_MAX_VERTEXES];
-//	static vec2_t   texcoords[SHADER_MAX_VERTEXES];
-//	static vec3_t   tangents[SHADER_MAX_VERTEXES];
-//	static vec3_t   binormals[SHADER_MAX_VERTEXES];
-//	static vec3_t   normals[SHADER_MAX_VERTEXES];
-//	static int      indexes2[SHADER_MAX_INDEXES];
+	growList_t      vboSurfaces;
 
 	buf_p = (char *)buffer;
 
@@ -944,9 +939,9 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has no bones\n", modName);
 		return qfalse;
 	}
-	if(md5->numBones > MD5_MAX_BONES)
+	if(md5->numBones > MAX_BONES)
 	{
-		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has more than %i bones (%i)\n", modName, MD5_MAX_BONES, md5->numBones);
+		ri.Printf(PRINT_WARNING, "R_LoadMD5: '%s' has more than %i bones (%i)\n", modName, MAX_BONES, md5->numBones);
 		return qfalse;
 	}
 	//ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has %i bones\n", modName, md5->numBones);
@@ -1159,6 +1154,12 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 			token = Com_ParseExt(&buf_p, qfalse);
 			v->numWeights = atoi(token);
+
+			if(v->numWeights > MAX_WEIGHTS)
+			{
+				ri.Error(ERR_DROP, "R_LoadMD5: vertex %i requires more than %i weights on surface (%i) in model '%s'",
+					 j, MAX_WEIGHTS, i, modName);
+			}
 		}
 
 		// parse numTris <number>
@@ -1269,8 +1270,10 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		}
 	}
 
-	// loading is done, now calculate the bounding box
+	// loading is done, now calculate the bounding box, tangent spaces and VBOs
 	ClearBounds(md5->bounds[0], md5->bounds[1]);
+	Com_InitGrowList(&vboSurfaces, 10);
+
 	for(i = 0, surf = md5->surfaces; i < md5->numSurfaces; i++, surf++)
 	{
 		for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
@@ -1325,7 +1328,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 				for(k = 0; k < 3; k++)
 				{
-					const float *v;
+					float *v;
 
 					v = surf->verts[tri->indexes[k]].tangent;
 					VectorAdd(v, tangent, v);
@@ -1365,7 +1368,211 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 #endif
 
 		}
+
+		if(!surf->numTriangles || !surf->numVerts)
+			continue;
+
+		//if(r_vboVertexSkinning->integer)
+		{
+			int             vertexesNum;
+			byte           *data;
+			int             dataSize;
+			int             dataOfs;
+
+			GLuint          ofsTexCoords;
+			GLuint          ofsTangents;
+			GLuint          ofsBinormals;
+			GLuint          ofsNormals;
+			GLuint          ofsColors;
+			GLuint			ofsBoneIndexes;
+			GLuint			ofsBoneWeights;
+	
+			int             indexesNum;
+			byte           *indexes;
+			int             indexesSize;
+			int             indexesOfs;
+
+			srfTriangle_t  *tri;
+
+			vec4_t          tmp;
+			int             index;
+
+			srfVBOMD5Mesh_t *vboSurf;
+
+			color4ub_t      tmpColor = { 255, 255, 255, 255 };
+
+			vertexesNum = surf->numVerts;
+			indexesNum = surf->numTriangles * 3;
+
+			// create surface
+			vboSurf = ri.Hunk_Alloc(sizeof(*vboSurf), h_low);
+			Com_AddToGrowList(&vboSurfaces, vboSurf);
+
+			vboSurf->surfaceType = SF_VBO_MD5MESH;
+			vboSurf->md5Model = md5;
+			vboSurf->shader = R_GetShaderByHandle(surf->shaderIndex);
+			vboSurf->numIndexes = indexesNum;
+			vboSurf->numVerts = vertexesNum;
+
+			dataSize = vertexesNum * (sizeof(vec4_t) * 7 + sizeof(color4ub_t));
+			data = ri.Hunk_AllocateTempMemory(dataSize);
+			dataOfs = 0;
+
+			indexesSize = indexesNum * sizeof(int);
+			indexes = ri.Hunk_AllocateTempMemory(indexesSize);
+			indexesOfs = 0;
+
+			for(j = 0, tri = surf->triangles; j < surf->numTriangles; j++, tri++)
+			{
+				for(k = 0; k < 3; k++)
+				{
+					index = tri->indexes[k];
+
+					memcpy(indexes + indexesOfs, &index, sizeof(int));
+					indexesOfs += sizeof(int);
+				}
+			}
+
+			// feed vertex XYZ
+			for(j = 0; j < vertexesNum; j++)
+			{
+				for(k = 0; k < 3; k++)
+				{
+					tmp[k] = surf->verts[j].position[k];
+				}
+				tmp[3] = 1;
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+			
+			// feed vertex texcoords
+			ofsTexCoords = dataOfs;
+			for(j = 0; j < vertexesNum; j++)
+			{
+				for(k = 0; k < 2; k++)
+				{
+					tmp[k] = surf->verts[j].texCoords[k];
+				}
+				tmp[2] = 0;
+				tmp[3] = 1;
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+				
+			// feed vertex tangents
+			ofsTangents = dataOfs;
+			for(j = 0; j < vertexesNum; j++)
+			{
+				for(k = 0; k < 3; k++)
+				{
+					tmp[k] = surf->verts[j].tangent[k];
+				}
+				tmp[3] = 1;
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+
+			// feed vertex binormals
+			ofsBinormals = dataOfs;
+			for(j = 0; j < vertexesNum; j++)
+			{
+				for(k = 0; k < 3; k++)
+				{
+					tmp[k] = surf->verts[j].binormal[k];
+				}
+				tmp[3] = 1;
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+
+			// feed vertex normals
+			ofsNormals = dataOfs;
+			for(j = 0; j < vertexesNum; j++)
+			{
+				for(k = 0; k < 3; k++)
+				{
+					tmp[k] = surf->verts[j].normal[k];
+				}
+				tmp[3] = 1;
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+
+			// feed vertex colors
+			ofsColors = dataOfs;
+			for(j = 0; j < vertexesNum; j++)
+			{
+				memcpy(data + dataOfs, tmpColor, sizeof(color4ub_t));
+				dataOfs += sizeof(color4ub_t);
+			}
+
+			// feed bone indices
+			ofsBoneIndexes = dataOfs;
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				for(k = 0; k < 4; k++)
+				{
+					if(k < v->numWeights)
+						index = v->weights[k]->boneIndex;
+					else
+						index = 0;
+
+					memcpy(data + dataOfs, &index, sizeof(int));
+					dataOfs += sizeof(int);
+				}
+			}
+
+			// feed bone weights
+			ofsBoneWeights = dataOfs;
+			for(j = 0, v = surf->verts; j < surf->numVerts; j++, v++)
+			{
+				for(k = 0; k < 4; k++)
+				{
+					if(k < v->numWeights)
+						tmp[k] = v->weights[k]->boneWeight;
+					else
+						tmp[k] = 0;
+				}
+				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
+			}
+				
+			vboSurf->vbo = R_CreateStaticVBO(va("staticMD5Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize);
+			vboSurf->vbo->ofsXYZ = 0;
+			vboSurf->vbo->ofsTexCoords = ofsTexCoords;
+			vboSurf->vbo->ofsLightCoords = ofsTexCoords;
+			vboSurf->vbo->ofsTangents = ofsTangents;
+			vboSurf->vbo->ofsBinormals = ofsBinormals;
+			vboSurf->vbo->ofsNormals = ofsNormals;
+			vboSurf->vbo->ofsColors = ofsColors;
+			vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
+			vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
+
+			vboSurf->ibo = R_CreateStaticIBO(va("staticMD5Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize);
+
+			ri.Hunk_FreeTempMemory(indexes);
+			ri.Hunk_FreeTempMemory(data);
+
+			// megs
+			/*
+			   ri.Printf(PRINT_ALL, "md5 mesh data VBO size: %d.%02d MB\n", dataSize / (1024 * 1024),
+			   (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
+			   ri.Printf(PRINT_ALL, "md5 mesh tris VBO size: %d.%02d MB\n", indexesSize / (1024 * 1024),
+			   (indexesSize % (1024 * 1024)) * 100 / (1024 * 1024));
+			 */
+		}
 	}
+
+	// move VBO surfaces list to hunk
+	md5->numVBOSurfaces = vboSurfaces.currentElements;
+	md5->vboSurfaces = ri.Hunk_Alloc(md5->numVBOSurfaces * sizeof(*md5->vboSurfaces), h_low);
+
+	for(i = 0; i < md5->numVBOSurfaces; i++)
+	{
+		md5->vboSurfaces[i] = (srfVBOMD5Mesh_t *) Com_GrowListElement(&vboSurfaces, i);
+	}
+
+	Com_DestroyGrowList(&vboSurfaces);
 
 	return qtrue;
 }

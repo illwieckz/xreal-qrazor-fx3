@@ -2158,6 +2158,61 @@ static void Tess_SurfaceVBOMesh(srfVBOMesh_t * srf)
 
 /*
 ==============
+Tess_SurfaceVBOMD5Mesh
+==============
+*/
+static void Tess_SurfaceVBOMD5Mesh(srfVBOMD5Mesh_t * srf)
+{
+	int				i;
+	md5Model_t     *model;
+	md5Bone_t      *bone;
+
+	GLimp_LogComment("--- Tess_SurfaceVBOMD5Mesh ---\n");
+
+	if(!srf->vbo || !srf->ibo)
+		return;
+
+	Tess_EndBegin();
+
+	R_BindVBO(srf->vbo);
+	R_BindIBO(srf->ibo);
+
+	tess.numIndexes += srf->numIndexes;
+	tess.numVertexes += srf->numVerts;
+	
+	model = srf->md5Model;
+
+	if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
+	{
+		tess.vboVertexSkinning = qtrue;
+
+		// convert bones back to matrices
+		for(i = 0; i < model->numBones; i++)
+		{
+			matrix_t        m, m2;	//, m3;
+
+			MatrixSetupScale(m,
+							 backEnd.currentEntity->e.skeleton.scale[0],
+							 backEnd.currentEntity->e.skeleton.scale[1], backEnd.currentEntity->e.skeleton.scale[2]);
+
+			MatrixSetupTransformFromQuat(m2, backEnd.currentEntity->e.skeleton.bones[i].rotation,
+										 backEnd.currentEntity->e.skeleton.bones[i].origin);
+			MatrixMultiply(m2, m, tess.boneMatrices[i]);
+			
+
+			MatrixMultiply2(tess.boneMatrices[i], model->bones[i].inverseTransform);
+		}
+	}
+	else
+	{
+		tess.vboVertexSkinning = qfalse;
+	}
+
+	Tess_End();
+}
+
+/*
+==============
 Tess_SurfaceVBOShadowVolume
 ==============
 */
@@ -2197,6 +2252,7 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *) =
 		(void (*)(void *))Tess_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *))Tess_SurfaceEntity,	// SF_ENTITY
 		(void (*)(void *))Tess_SurfaceDisplayList,	// SF_DISPLAY_LIST
-		(void (*)(void *))Tess_SurfaceVBOMesh,	// SF_VBO_LIGHT_MESH
+		(void (*)(void *))Tess_SurfaceVBOMesh,	// SF_VBO_MESH
+		(void (*)(void *))Tess_SurfaceVBOMD5Mesh,	// SF_VBO_MD5MESH
 		(void (*)(void *))Tess_SurfaceVBOShadowVolume	// SF_VBO_SHADOW_VOLUME
 };

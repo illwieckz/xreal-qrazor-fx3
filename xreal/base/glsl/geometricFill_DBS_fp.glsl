@@ -29,7 +29,7 @@ uniform vec3        u_AmbientColor;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
 
-varying vec4		var_Vertex;
+varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -114,11 +114,8 @@ void	main()
 	mat3 worldToTangentMatrix = transpose(var_TangentToWorldMatrix);
 #endif
 
-	// transform vertex position into world space
-	vec3 P = (u_ModelMatrix * var_Vertex).xyz;
-	
 	// compute view direction in tangent space
-	vec3 V = worldToTangentMatrix * (u_ViewOrigin - P);
+	vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Vertex.xyz);
 	V = normalize(V);
 	
 	// ray intersect in view direction
@@ -149,7 +146,7 @@ void	main()
 	N = N * 0.5 + 0.5;
 	
 	// transform vertex position into world space
-	P = (u_ModelMatrix * var_Vertex).xyz;
+	//vec3 P = var_Vertex.xyz;
 
 	// transform parallax offset world space
 	//P += (u_ModelMatrix * vec4(texOffset, 0, 1)).xyz;
@@ -159,8 +156,7 @@ void	main()
 	gl_FragData[2] = vec4(specular, 0.0);
 	
 #if defined(GL_EXTX_framebuffer_mixed_formats)
-	// transform vertex position into world space
-	gl_FragData[3] = (u_ModelMatrix * var_Vertex).xyzw;
+	gl_FragData[3] = var_Vertex;
 #else
 	// compute depth instead of world vertex position in a [0..1] range
 	depth = gl_FragCoord.z;

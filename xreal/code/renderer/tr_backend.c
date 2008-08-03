@@ -497,7 +497,12 @@ void GL_State(unsigned long stateBits)
 
 void GL_ClientState(unsigned long stateBits)
 {
-	unsigned long   diff = stateBits ^ glState.glClientStateBits;
+	unsigned long   diff;
+		
+	if(r_vboVertexSkinning->integer && tess.vboVertexSkinning)
+		stateBits |= (GLCS_BONE_INDEXES | GLCS_BONE_WEIGHTS);
+	
+	diff = stateBits ^ glState.glClientStateBits;
 
 	if(!diff)
 	{
@@ -587,6 +592,30 @@ void GL_ClientState(unsigned long stateBits)
 		else
 		{
 			qglDisableClientState(GL_COLOR_ARRAY);
+		}
+	}
+
+	if(diff & GLCS_BONE_INDEXES)
+	{
+		if(stateBits & GLCS_BONE_INDEXES)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_BONE_INDEXES);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_BONE_INDEXES);
+		}
+	}
+
+	if(diff & GLCS_BONE_WEIGHTS)
+	{
+		if(stateBits & GLCS_BONE_WEIGHTS)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_BONE_WEIGHTS);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_BONE_WEIGHTS);
 		}
 	}
 

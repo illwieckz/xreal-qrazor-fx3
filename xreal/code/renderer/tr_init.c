@@ -219,6 +219,7 @@ cvar_t         *r_vboDynamicLighting;
 cvar_t         *r_vboModels;
 cvar_t         *r_vboWorld;
 cvar_t         *r_vboOptimizeVertices;
+cvar_t         *r_vboVertexSkinning;
 
 cvar_t         *r_precacheLightIndexes;
 cvar_t         *r_precacheShadowIndexes;
@@ -1020,6 +1021,8 @@ void GL_SetDefaultState(void)
 	qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
 	qglNormalPointer(GL_FLOAT, 16, tess.normals);
 	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
+	qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
+	qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
 
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
@@ -1289,6 +1292,7 @@ void R_Register(void)
 	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT);
 	r_vboWorld = ri.Cvar_Get("r_vboWorld", "1", CVAR_CHEAT);
 	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH);
+	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 

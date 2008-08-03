@@ -293,6 +293,8 @@ typedef struct VBO_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
+	GLuint			ofsBoneIndexes;
+	GLuint			ofsBoneWeights;
 
 	int             attribs;
 } VBO_t;
@@ -797,6 +799,8 @@ enum
 //  ATTR_INDEX_TEXCOORD3 = 11,
 	ATTR_INDEX_TANGENT = 12,
 	ATTR_INDEX_BINORMAL = 13,
+	ATTR_INDEX_BONE_INDEXES = 10,
+	ATTR_INDEX_BONE_WEIGHTS = 11,
 //  ATTR_INDEX_NORMAL       = 2,
 //  ATTR_INDEX_COLOR        = 3
 };
@@ -873,6 +877,9 @@ typedef struct shaderProgram_s
 	
 	GLint           u_UnprojectMatrix;
 	GLint           u_ProjectMatrix;
+
+	GLint			u_VertexSkinning;
+	GLint			u_BoneMatrix;
 } shaderProgram_t;
 
 
@@ -986,6 +993,7 @@ typedef enum
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
 	SF_VBO_MESH,
+	SF_VBO_MD5MESH,
 	SF_VBO_SHADOW_VOLUME,
 
 	SF_NUM_SURFACE_TYPES,
@@ -1222,6 +1230,22 @@ typedef struct srfVBOMesh_s
 	IBO_t          *ibo;
 } srfVBOMesh_t;
 
+typedef struct srfVBOMD5Mesh_s
+{
+	surfaceType_t   surfaceType;
+
+	struct md5Model_s *md5Model;
+	struct shader_s *shader;	// FIXME move this to somewhere else
+
+	// backEnd stats
+	int             numIndexes;
+	int             numVerts;
+
+	// static render data
+	VBO_t          *vbo;
+	IBO_t          *ibo;
+} srfVBOMD5Mesh_t;
+
 typedef struct srfVBOShadowVolume_s
 {
 	surfaceType_t   surfaceType;
@@ -1454,7 +1478,6 @@ MD5 MODELS - in memory representation
 */
 #define MD5_IDENTSTRING     "MD5Version"
 #define MD5_VERSION			10
-#define	MD5_MAX_BONES		128
 
 typedef struct
 {
@@ -1520,6 +1543,9 @@ typedef struct md5Model_s
 
 	int             numSurfaces;
 	md5Surface_t   *surfaces;
+
+	int             numVBOSurfaces;
+	srfVBOMD5Mesh_t  **vboSurfaces;
 
 	vec3_t          bounds[2];
 } md5Model_t;
@@ -2169,6 +2195,7 @@ extern cvar_t  *r_vboDynamicLighting;
 extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboWorld;
 extern cvar_t  *r_vboOptimizeVertices;
+extern cvar_t  *r_vboVertexSkinning;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
@@ -2350,6 +2377,9 @@ enum
 	GLCS_NORMAL = BIT(5),
 	GLCS_COLOR = BIT(6),
 
+	GLCS_BONE_INDEXES = BIT(7),
+	GLCS_BONE_WEIGHTS = BIT(8),
+
 	GLCS_DEFAULT = GLCS_VERTEX,
 };
 
@@ -2463,6 +2493,8 @@ typedef struct shaderCommands_s
 	vec4_t          texCoords[SHADER_MAX_VERTEXES];
 	vec4_t          lightCoords[SHADER_MAX_VERTEXES];
 	color4ub_t      colors[SHADER_MAX_VERTEXES];
+	vec4_t          boneIndexes[SHADER_MAX_VERTEXES];
+	vec4_t          boneWeights[SHADER_MAX_VERTEXES];
 
 	stageVars_t     svars;
 
@@ -2475,6 +2507,9 @@ typedef struct shaderCommands_s
 
 	int             numIndexes;
 	int             numVertexes;
+
+	qboolean		vboVertexSkinning;
+	matrix_t        boneMatrices[MAX_BONES];
 
 	// info extracted from current shader or backend mode
 	void            (*stageIteratorFunc) ();

@@ -50,6 +50,8 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 	vbo->ofsTangents = 0;
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
+	vbo->ofsBoneIndexes = 0;
+	vbo->ofsBoneWeights = 0;
 
 	vbo->vertexesSize = vertexesSize;
 
@@ -104,6 +106,8 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 	vbo->ofsTangents = 0;
 	vbo->ofsNormals = 0;
 	vbo->ofsColors = 0;
+	vbo->ofsBoneIndexes = 0;
+	vbo->ofsBoneWeights = 0;
 
 	// create VBO
 	dataSize = numVertexes * (sizeof(vec4_t) * 6 + sizeof(color4ub_t));
@@ -371,6 +375,8 @@ void R_BindVBO(VBO_t * vbo)
 		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(vbo->ofsBinormals));
 		qglNormalPointer(GL_FLOAT, 16, BUFFER_OFFSET(vbo->ofsNormals));
 		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, BUFFER_OFFSET(vbo->ofsColors));
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneIndexes));
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(vbo->ofsBoneWeights));
 
 		backEnd.pc.c_vboVertexBuffers++;
 	}
@@ -397,6 +403,8 @@ void R_BindNullVBO(void)
 		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
 		qglNormalPointer(GL_FLOAT, 16, tess.normals);
 		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
 
 		glState.currentVBO = NULL;
 	}

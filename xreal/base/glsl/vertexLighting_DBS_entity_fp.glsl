@@ -37,6 +37,7 @@ varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
 
+
 void	main()
 {
 	// construct object-space-to-tangent-space 3x3 matrix

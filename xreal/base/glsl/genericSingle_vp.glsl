@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,6 +21,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 attribute vec4		attr_TexCoord0;
+#if defined(r_VertexSkinning)
+attribute vec4		attr_BoneIndexes;
+attribute vec4		attr_BoneWeights;
+uniform int			u_VertexSkinning;
+uniform mat4		u_BoneMatrix[128];
+#endif
 
 uniform int			u_InverseVertexColor;
 
@@ -29,8 +35,32 @@ varying vec4		var_Color;
 
 void	main()
 {
+#if defined(r_VertexSkinning)
+	if(bool(u_VertexSkinning))
+	{
+		vec4 vertex = vec4(0.0);
+		
+		for(int i = 0; i < 4; i++)
+		{
+			int boneIndex = int(attr_BoneIndexes[i]);
+			float boneWeight = attr_BoneWeights[i];
+			mat4  boneMatrix = u_BoneMatrix[boneIndex];
+			
+			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+		}
+
+		// transform vertex position into homogenous clip-space
+		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+	}
+	else
+	{
+		// transform vertex position into homogenous clip-space
+		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	}
+#else
 	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+#endif
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
