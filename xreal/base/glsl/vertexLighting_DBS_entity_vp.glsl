@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -65,11 +65,15 @@ void	main()
 		// transform vertex position into homogenous clip-space
 		gl_Position = gl_ModelViewProjectionMatrix * vertex;
 		
+		// assign position in object space
+		var_Vertex = vertex.xyz;
+		
 		var_Tangent = normalize(tangent);
 		var_Binormal = normalize(binormal);
 		var_Normal = normalize(normal);
 	}
 	else
+#endif
 	{
 		// transform vertex position into homogenous clip-space
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -81,17 +85,6 @@ void	main()
 		var_Binormal = attr_Binormal;
 		var_Normal = gl_Normal;
 	}
-#else
-	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	
-	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
-	
-	var_Tangent = attr_Tangent;
-	var_Binormal = attr_Binormal;
-	var_Normal = gl_Normal;
-#endif
 
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;

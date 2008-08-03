@@ -535,26 +535,6 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	// don't add third_person objects if not in a portal
 	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
 
-	/*
-	   if(ent->e.renderfx & RF_WRAP_FRAMES)
-	   {
-	   ent->e.frame %= header->numFrames;
-	   ent->e.oldframe %= header->numFrames;
-	   }
-
-	   // Validate the frames so there is no chance of a crash.
-	   // This will write directly into the entity structure, so
-	   // when the surfaces are rendered, they don't need to be
-	   // range checked again.
-	   if((ent->e.frame >= header->numFrames) || (ent->e.frame < 0) || (ent->e.oldframe >= header->numFrames) || (ent->e.oldframe < 0))
-	   {
-	   ri.Printf(PRINT_DEVELOPER, "R_AddMDSSurfaces: no such frame %d to %d for '%s'\n",
-	   ent->e.oldframe, ent->e.frame, tr.currentModel->name);
-	   ent->e.frame = 0;
-	   ent->e.oldframe = 0;
-	   }
-	 */
-
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum
 	R_CullMD5(ent);
@@ -581,7 +561,46 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 		for(i = 0; i < model->numVBOSurfaces; i++)
 		{
 			vboSurface = model->vboSurfaces[i];
-			shader = vboSurface->shader;
+			
+			if(ent->e.customShader)
+			{
+				shader = R_GetShaderByHandle(ent->e.customShader);
+			}
+			/*
+			   else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+			   {
+			   skin_t         *skin;
+			   int             j;
+
+			   skin = R_GetSkinByHandle(ent->e.customSkin);
+
+			   // match the surface name to something in the skin file
+			   shader = tr.defaultShader;
+			   for(j = 0; j < skin->numSurfaces; j++)
+			   {
+			   // the names have both been lowercased
+			   if(!strcmp(skin->surfaces[j]->name, surface->name))
+			   {
+			   shader = skin->surfaces[j]->shader;
+			   break;
+			   }
+			   }
+			   if(shader == tr.defaultShader)
+			   {
+			   ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
+			   skin->name);
+			   }
+			   else if(shader->defaultShader)
+			   {
+			   ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
+			   skin->name);
+			   }
+			   }
+			 */
+			else
+			{
+				shader = vboSurface->shader;
+			}
 
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
@@ -720,7 +739,46 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 		for(i = 0; i < model->numVBOSurfaces; i++)
 		{
 			vboSurface = model->vboSurfaces[i];
-			shader = vboSurface->shader;
+
+			if(ent->e.customShader)
+			{
+				shader = R_GetShaderByHandle(ent->e.customShader);
+			}
+			/*
+			   else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+			   {
+			   skin_t         *skin;
+			   int             j;
+
+			   skin = R_GetSkinByHandle(ent->e.customSkin);
+
+			   // match the surface name to something in the skin file
+			   shader = tr.defaultShader;
+			   for(j = 0; j < skin->numSurfaces; j++)
+			   {
+			   // the names have both been lowercased
+			   if(!strcmp(skin->surfaces[j]->name, surface->name))
+			   {
+			   shader = skin->surfaces[j]->shader;
+			   break;
+			   }
+			   }
+			   if(shader == tr.defaultShader)
+			   {
+			   ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
+			   skin->name);
+			   }
+			   else if(shader->defaultShader)
+			   {
+			   ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
+			   skin->name);
+			   }
+			   }
+			 */
+			else
+			{
+				shader = vboSurface->shader;
+			}
 
 			// skip all surfaces that don't matter for lighting only pass
 			if(shader->isSky || (!shader->interactLight && shader->noShadows))

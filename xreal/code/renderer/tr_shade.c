@@ -945,6 +945,13 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowBlur");
 	tr.forwardLightingShader_DBS_proj.u_ModelMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ModelMatrix");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.forwardLightingShader_DBS_proj.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_VertexSkinning");
+		tr.forwardLightingShader_DBS_proj.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.forwardLightingShader_DBS_proj.program);
 	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_DiffuseMap, 0);
@@ -1014,6 +1021,13 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowBlur");
 	tr.forwardShadowingShader_proj.u_ModelMatrix =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ModelMatrix");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.forwardShadowingShader_proj.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_VertexSkinning");
+		tr.forwardShadowingShader_proj.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.forwardShadowingShader_proj.program);
 	qglUniform1iARB(tr.forwardShadowingShader_proj.u_AttenuationMapXY, 0);
@@ -1069,6 +1083,13 @@ void GLSL_InitGPUShaders(void)
 	tr.reflectionShader_C.u_ColorMap = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ColorMap");
 	tr.reflectionShader_C.u_ViewOrigin = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ViewOrigin");
 	tr.reflectionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ModelMatrix");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.reflectionShader_C.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_VertexSkinning");
+		tr.reflectionShader_C.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.reflectionShader_C.program);
 	qglUniform1iARB(tr.reflectionShader_C.u_ColorMap, 0);
@@ -1086,6 +1107,13 @@ void GLSL_InitGPUShaders(void)
 	tr.reflectionShader_CB.u_NormalMap = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_NormalMap");
 	tr.reflectionShader_CB.u_ViewOrigin = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ViewOrigin");
 	tr.reflectionShader_CB.u_ModelMatrix = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ModelMatrix");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.reflectionShader_CB.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_VertexSkinning");
+		tr.reflectionShader_CB.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.reflectionShader_CB.program);
 	qglUniform1iARB(tr.reflectionShader_CB.u_ColorMap, 0);
@@ -1106,6 +1134,13 @@ void GLSL_InitGPUShaders(void)
 	tr.refractionShader_C.u_FresnelScale = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelScale");
 	tr.refractionShader_C.u_FresnelBias = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_FresnelBias");
 	tr.refractionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ModelMatrix");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.refractionShader_C.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_VertexSkinning");
+		tr.refractionShader_C.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.refractionShader_C.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.refractionShader_C.program);
 	qglUniform1iARB(tr.refractionShader_C.u_ColorMap, 0);
@@ -1125,6 +1160,13 @@ void GLSL_InitGPUShaders(void)
 	tr.dispersionShader_C.u_FresnelScale = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelScale");
 	tr.dispersionShader_C.u_FresnelBias = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_FresnelBias");
 	tr.dispersionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ModelMatrix");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.dispersionShader_C.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_VertexSkinning");
+		tr.dispersionShader_C.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.dispersionShader_C.program);
 	qglUniform1iARB(tr.dispersionShader_C.u_ColorMap, 0);
@@ -1165,6 +1207,13 @@ void GLSL_InitGPUShaders(void)
 		tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
 	}
 	tr.heatHazeShader.u_AlphaTest = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_AlphaTest");
+	if(r_vboVertexSkinning->integer)
+	{
+		tr.heatHazeShader.u_VertexSkinning =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_VertexSkinning");
+		tr.heatHazeShader.u_BoneMatrix =
+			qglGetUniformLocationARB(tr.heatHazeShader.program, "u_BoneMatrix");
+	}
 
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
 	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
@@ -2584,6 +2633,13 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		qglUniform1fARB(tr.forwardLightingShader_DBS_proj.u_ShadowBlur, r_shadowBlur->value);
 	}
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2670,6 +2726,13 @@ static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
 	qglUniform1fARB(tr.forwardShadowingShader_proj.u_ShadowTexelSize, shadowTexelSize);
 	qglUniform1fARB(tr.forwardShadowingShader_proj.u_ShadowBlur, r_shadowBlur->value);
 	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.forwardShadowingShader_proj.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
 
 	// bind u_AttenuationMapXY
 	GL_SelectTexture(0);
@@ -2705,6 +2768,13 @@ static void Render_reflection_C(int stage)
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.reflectionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.reflectionShader_C.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2732,6 +2802,13 @@ static void Render_reflection_CB(int stage)
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	qglUniform3fARB(tr.reflectionShader_CB.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.reflectionShader_CB.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2768,6 +2845,13 @@ static void Render_refraction_C(int stage)
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
 	qglUniform1fARB(tr.refractionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
 	qglUniformMatrix4fvARB(tr.refractionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.refractionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.refractionShader_C.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2804,6 +2888,13 @@ static void Render_dispersion_C(int stage)
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
 	qglUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
 	qglUniformMatrix4fvARB(tr.dispersionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.dispersionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.dispersionShader_C.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -3029,6 +3120,14 @@ static void Render_heatHaze(int stage)
 
 		MatrixTranspose(backEnd.viewParms.projectionMatrix, projectionMatrixTranspose);
 		qglUniformMatrix4fvARB(tr.heatHazeShader.u_ProjectionMatrixTranspose, 1, GL_FALSE, projectionMatrixTranspose);
+	}
+
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.heatHazeShader.u_VertexSkinning, tess.vboVertexSkinning);
+
+		if(tess.vboVertexSkinning)
+			qglUniformMatrix4fvARB(tr.heatHazeShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
 	// bind u_NormalMap

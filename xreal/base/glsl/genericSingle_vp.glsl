@@ -53,14 +53,11 @@ void	main()
 		gl_Position = gl_ModelViewProjectionMatrix * vertex;
 	}
 	else
+#endif
 	{
 		// transform vertex position into homogenous clip-space
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	}
-#else
-	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-#endif
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;

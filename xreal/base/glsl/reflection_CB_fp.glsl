@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -27,7 +27,9 @@ uniform mat4		u_ModelMatrix;
 
 varying vec3		var_Vertex;
 varying vec2		var_TexNormal;
-varying mat3		var_TS2OSMatrix;
+varying vec4		var_Tangent;
+varying vec4		var_Binormal;
+varying vec4		var_Normal;
 
 void	main()
 {
@@ -38,13 +40,21 @@ void	main()
 	I = normalize(var_Vertex - u_ViewOrigin);
 	
 	// compute normal in tangent space from normalmap
-	N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
-	
-	// transform normal into object space
-	N = var_TS2OSMatrix * N;
+	N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+	#if defined(r_NormalScale)
+	N.z *= r_NormalScale;
+	normalize(N);
+	#endif
+		
+	// invert tangent space for twosided surfaces
+	mat3 tangentToWorldMatrix;
+	if(gl_FrontFacing)
+		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+	else
+		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
 	// transform normal into world space
-	N = normalize((u_ModelMatrix * vec4(N, 0.0)).xyz);
+	N = tangentToWorldMatrix * N;
 	
 	// compute reflection ray
 	R = reflect(I, N);

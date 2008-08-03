@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -57,6 +57,7 @@ void	main()
 		var_Vertex = (u_ModelMatrix * vertex).xyz;
 	}
 	else
+#endif
 	{
 		// transform vertex position into homogenous clip-space
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -64,13 +65,6 @@ void	main()
 		// transform position into world space
 		var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
 	}
-#else
-	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	
-	// transform position into world space
-	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
-#endif
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;

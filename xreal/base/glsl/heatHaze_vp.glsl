@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
 
 This file is part of XreaL source code.
@@ -21,10 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// ATI bugfix, set by renderer at compile time
-//#define ATI
-
 attribute vec4		attr_TexCoord0;
+#if defined(r_VertexSkinning)
+attribute vec4		attr_BoneIndexes;
+attribute vec4		attr_BoneWeights;
+uniform int			u_VertexSkinning;
+uniform mat4		u_BoneMatrix[128];
+#endif
 
 #if defined(ATI)
 uniform mat4		u_ProjectionMatrixTranspose;
@@ -37,25 +40,50 @@ varying float		var_Deform;
 
 void	main()
 {
-        vec4            deformVec;
-        float           d1, d2;
+	vec4            deformVec;
+    float           d1, d2;	
 
-	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+#if defined(r_VertexSkinning)
+	if(bool(u_VertexSkinning))
+	{
+		vec4 vertex = vec4(0.0);
+		
+		for(int i = 0; i < 4; i++)
+		{
+			int boneIndex = int(attr_BoneIndexes[i]);
+			float boneWeight = attr_BoneWeights[i];
+			mat4  boneMatrix = u_BoneMatrix[boneIndex];
+			
+			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+		}
+
+		// transform vertex position into homogenous clip-space
+		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		
+		// take the deform magnitude and scale it by the projection distance
+		deformVec = vec4(1, 0, 0, 1);
+		deformVec.z = dot(gl_ModelViewMatrixTranspose[2], vertex);
+	}
+	else
+#endif
+	{
+		// transform vertex position into homogenous clip-space
+		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		
+		// take the deform magnitude and scale it by the projection distance
+		deformVec = vec4(1, 0, 0, 1);
+		deformVec.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
+	}
 	
 	// transform normalmap texcoords
 	var_TexNormal = (gl_TextureMatrix[0] * attr_TexCoord0).st;
-	
-	// take the deform magnitude and scale it by the projection distance
-	deformVec = vec4(1, 0, 0, 1);
-	deformVec.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
 
 #if defined(ATI)
 	d1 = dot(u_ProjectionMatrixTranspose[0],  deformVec);
-        d2 = dot(u_ProjectionMatrixTranspose[3],  deformVec);
+    d2 = dot(u_ProjectionMatrixTranspose[3],  deformVec);
 #else
 	d1 = dot(gl_ProjectionMatrixTranspose[0],  deformVec);
-        d2 = dot(gl_ProjectionMatrixTranspose[3],  deformVec);
+    d2 = dot(gl_ProjectionMatrixTranspose[3],  deformVec);
 #endif
 	
 	// clamp the distance so the the deformations don't get too wacky near the view

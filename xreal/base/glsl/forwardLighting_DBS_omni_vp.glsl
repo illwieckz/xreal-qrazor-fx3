@@ -81,6 +81,7 @@ void	main()
 		var_TexAttenXYZ = (u_LightAttenuationMatrix * vertex).xyz;
 	}
 	else
+#endif
 	{
 		// transform vertex position into homogenous clip-space
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -95,20 +96,6 @@ void	main()
 		// calc light xy,z attenuation in light space
 		var_TexAttenXYZ = (u_LightAttenuationMatrix * gl_Vertex).xyz;
 	}
-#else
-	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-		
-	// transform position into world space
-	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
-	
-	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-		
-	// calc light xy,z attenuation in light space
-	var_TexAttenXYZ = (u_LightAttenuationMatrix * gl_Vertex).xyz;
-#endif
 		
 	// transform diffusemap texcoords
 	var_TexDiffuse.xy = (gl_TextureMatrix[0] * attr_TexCoord0).st;

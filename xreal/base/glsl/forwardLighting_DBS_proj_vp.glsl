@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -23,6 +23,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
+#if defined(r_VertexSkinning)
+attribute vec4		attr_BoneIndexes;
+attribute vec4		attr_BoneWeights;
+uniform int			u_VertexSkinning;
+uniform mat4		u_BoneMatrix[128];
+#endif
 
 uniform int			u_InverseVertexColor;
 uniform mat4		u_LightAttenuationMatrix;
@@ -40,11 +46,74 @@ varying vec4		var_Normal;
 
 void	main()
 {
-	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+#if defined(r_VertexSkinning)
+	if(bool(u_VertexSkinning))
+	{
+		vec4 vertex = vec4(0.0);
+		vec3 tangent = vec3(0.0);
+		vec3 binormal = vec3(0.0);
+		vec3 normal = vec3(0.0);
+
+		for(int i = 0; i < 4; i++)
+		{
+			int boneIndex = int(attr_BoneIndexes[i]);
+			float boneWeight = attr_BoneWeights[i];
+			mat4  boneMatrix = u_BoneMatrix[boneIndex];
+			
+			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+		
+			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
+			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
+			normal += (boneMatrix * vec4(gl_Normal, 0.0)).xyz * boneWeight;
+		}
+
+		// transform vertex position into homogenous clip-space
+		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		
+		// transform position into world space
+		var_Vertex = u_ModelMatrix * vertex;
+		
+		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
+		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
+		
+		// calc light attenuation in light space
+		var_TexAtten = u_LightAttenuationMatrix * vertex;
 	
-	// transform position into world space
-	var_Vertex.xyz = (u_ModelMatrix * gl_Vertex).xyz;
+		// calc shadow attenuation in light space
+		vec4 texShadow = u_ShadowMatrix * vertex;
+	
+		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
+		var_Vertex.w = texShadow.s;
+		var_Tangent.w = texShadow.t;
+		var_Binormal.w = texShadow.p;
+		var_Normal.w = texShadow.q;
+	}
+	else
+#endif
+	{
+		// transform vertex position into homogenous clip-space
+		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		
+		// transform position into world space
+		var_Vertex = u_ModelMatrix * gl_Vertex;
+	
+		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+		var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
+		
+		// calc light attenuation in light space
+		var_TexAtten = u_LightAttenuationMatrix * gl_Vertex;
+	
+		// calc shadow attenuation in light space
+		vec4 texShadow = u_ShadowMatrix * gl_Vertex;
+	
+		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
+		var_Vertex.w = texShadow.s;
+		var_Tangent.w = texShadow.t;
+		var_Binormal.w = texShadow.p;
+		var_Normal.w = texShadow.q;
+	}
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse.st = (gl_TextureMatrix[0] * attr_TexCoord0).st;
@@ -53,24 +122,7 @@ void	main()
 	var_TexNormal.st = (gl_TextureMatrix[1] * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
-	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
-	
-	// calc light attenuation in light space
-	var_TexAtten = u_LightAttenuationMatrix * gl_Vertex;
-	
-	// construct tangent-space-to-world-space 3x3 matrix
-	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-	
-	// calc shadow attenuation in light space
-	vec4 texShadow = u_ShadowMatrix * gl_Vertex;
-	
-	// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
-	var_Vertex.w = texShadow.s;
-	var_Tangent.w = texShadow.t;
-	var_Binormal.w = texShadow.p;
-	var_Normal.w = texShadow.q;
+	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;	
 	
 	// assign color
 	if(bool(u_InverseVertexColor))
