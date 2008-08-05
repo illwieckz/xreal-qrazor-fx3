@@ -518,21 +518,21 @@ static srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 
 	if(r_stitchCurves->integer)
 	{
-		grid = /*ri.Hunk_Alloc */ ri.Malloc(size);
+		grid = /*ri.Hunk_Alloc */ Com_Allocate(size);
 		Com_Memset(grid, 0, size);
 
-		grid->widthLodError = /*ri.Hunk_Alloc */ ri.Malloc(width * 4);
+		grid->widthLodError = /*ri.Hunk_Alloc */ Com_Allocate(width * 4);
 		Com_Memcpy(grid->widthLodError, errorTable[0], width * 4);
 
-		grid->heightLodError = /*ri.Hunk_Alloc */ ri.Malloc(height * 4);
+		grid->heightLodError = /*ri.Hunk_Alloc */ Com_Allocate(height * 4);
 		Com_Memcpy(grid->heightLodError, errorTable[1], height * 4);
 
 		grid->numTriangles = numTriangles;
-		grid->triangles = ri.Malloc(grid->numTriangles * sizeof(srfTriangle_t));
+		grid->triangles = Com_Allocate(grid->numTriangles * sizeof(srfTriangle_t));
 		Com_Memcpy(grid->triangles, triangles, numTriangles * sizeof(srfTriangle_t));
 
 		grid->numVerts = (width * height);
-		grid->verts = ri.Malloc(grid->numVerts * sizeof(srfVert_t));
+		grid->verts = Com_Allocate(grid->numVerts * sizeof(srfVert_t));
 	}
 	else
 	{
@@ -586,11 +586,11 @@ R_FreeSurfaceGridMesh
 */
 void R_FreeSurfaceGridMesh(srfGridMesh_t * grid)
 {
-	ri.Free(grid->widthLodError);
-	ri.Free(grid->heightLodError);
-	ri.Free(grid->triangles);
-	ri.Free(grid->verts);
-	ri.Free(grid);
+	Com_Dealloc(grid->widthLodError);
+	Com_Dealloc(grid->heightLodError);
+	Com_Dealloc(grid->triangles);
+	Com_Dealloc(grid->verts);
+	Com_Dealloc(grid);
 }
 
 /*
