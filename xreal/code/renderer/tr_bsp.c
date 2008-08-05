@@ -2984,6 +2984,10 @@ static void R_CreateWorldVBO()
 //  int             numSurfaces;
 	bspSurface_t   *surface;
 
+	int             startTime, endTime;
+
+	startTime = ri.Milliseconds();
+
 	numVerts = 0;
 	numTriangles = 0;
 	for(k = 0, surface = &s_worldData.surfaces[0]; k < s_worldData.numWorldSurfaces; k++, surface++)
@@ -3185,7 +3189,11 @@ static void R_CreateWorldVBO()
 										 GLCS_NORMAL | GLCS_COLOR);
 #endif
 
+	endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "world VBO calculation time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 
+
+	startTime = ri.Milliseconds();
 
 	s_worldData.redundantLightVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
 	BuildRedundantIndices(numVerts, verts, s_worldData.redundantLightVerts, CompareLightVert);
@@ -3195,6 +3203,9 @@ static void R_CreateWorldVBO()
 
 	s_worldData.redundantShadowAlphaTestVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
 	BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowAlphaTestVerts, CompareShadowVertAlphaTest);
+
+	endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, "redundant world vertices calculation time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
 
 	//ri.Hunk_FreeTempMemory(triangles);
 	//ri.Hunk_FreeTempMemory(optimizedVerts);
