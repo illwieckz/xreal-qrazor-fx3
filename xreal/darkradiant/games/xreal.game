@@ -133,7 +133,9 @@
 		<defaultCurveEntity value="func_static" />
 		<curveNurbsKey value="curve_Nurbs" />
 		<curveCatmullRomKey value="curve_CatmullRomSpline" />
+		<bindKey value="bind" />
 		<playerHeight value="64" />
+		<nameKey value="name" />
 	</defaults>
 	<entityChooser>
 		<displayFolderKey value="editor_displayFolder" />
@@ -264,6 +266,7 @@
 			<property name="type" classes="SR" />
 			<property name="state" classes="SR" />
 			<property name="radius" classes="S" />
+			<property name="radius_final" classes="S" />
 			<property name="duration" classes="S" />
 			<property name="timer_type" classes="S" />
 			<property name="timer_reload" classes="S" />
