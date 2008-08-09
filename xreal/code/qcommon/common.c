@@ -76,7 +76,9 @@ cvar_t         *sv_packetdelay;
 cvar_t         *com_cameraMode;
 cvar_t         *com_ansiColor;
 cvar_t         *com_unfocused;
+cvar_t         *com_maxfpsUnfocused;
 cvar_t         *com_minimized;
+cvar_t         *com_maxfpsMinimized;
 
 // com_speeds times
 int             time_game;
@@ -3121,10 +3123,10 @@ void Com_Init(char *commandLine)
 
 	Cbuf_AddText("exec default.cfg\n");
 
-	// skip the xreal.cfg if "safe" is on the command line
+	// skip the q3config.cfg if "safe" is on the command line
 	if(!Com_SafeMode())
 	{
-		Cbuf_AddText("exec xreal.cfg\n");
+		Cbuf_AddText("exec " Q3CONFIG_CFG "\n");
 	}
 
 	Cbuf_AddText("exec autoexec.cfg\n");
@@ -3177,7 +3179,9 @@ void Com_Init(char *commandLine)
 	com_ansiColor = Cvar_Get("com_ansiColor", "0", CVAR_ARCHIVE);
 
 	com_unfocused = Cvar_Get("com_unfocused", "0", CVAR_ROM);
+	com_maxfpsUnfocused = Cvar_Get("com_maxfpsUnfocused", "0", CVAR_ARCHIVE);
 	com_minimized = Cvar_Get("com_minimized", "0", CVAR_ROM);
+	com_maxfpsMinimized = Cvar_Get("com_maxfpsMinimized", "0", CVAR_ARCHIVE);
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
@@ -3432,24 +3436,49 @@ void Com_Frame(void)
 	}
 
 	// we may want to spin here if things are going too fast
-	if(!com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer)
+	if(!com_dedicated->integer && !com_timedemo->integer)
 	{
-		minMsec = 1000 / com_maxfps->integer;
+		if(com_minimized->integer && com_maxfpsMinimized->integer > 0)
+		{
+			minMsec = 1000 / com_maxfpsMinimized->integer;
+		}
+		else if(com_unfocused->integer && com_maxfpsUnfocused->integer > 0)
+		{
+			minMsec = 1000 / com_maxfpsUnfocused->integer;
+		}
+		else if(com_maxfps->integer > 0)
+		{
+			minMsec = 1000 / com_maxfps->integer;
+		}
+		else
+		{
+			minMsec = 1;
+		}
 	}
 	else
 	{
 		minMsec = 1;
 	}
+
+	msec = minMsec;
 	do
 	{
+		int             timeRemaining = minMsec - msec;
+
+		// The existing Sys_Sleep implementations aren't really
+		// precise enough to be of use beyond 100fps
+		// FIXME: implement a more precise sleep (RDTSC or something)
+		if(timeRemaining >= 10)
+			Sys_Sleep(timeRemaining);
+
 		com_frameTime = Com_EventLoop();
 		if(lastTime > com_frameTime)
 		{
 			lastTime = com_frameTime;	// possible on first frame
 		}
 		msec = com_frameTime - lastTime;
-	}
-	while(msec < minMsec);
+	} while(msec < minMsec);
+	
 	Cbuf_Execute();
 
 	if(com_altivec->modified)
@@ -3536,9 +3565,8 @@ void Com_Frame(void)
 		sv -= time_game;
 		cl -= time_frontend + time_backend;
 
-		Com_Printf
-			("frame:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
-			 com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend);
+		Com_Printf("frame:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
+				   com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend);
 	}
 
 	//

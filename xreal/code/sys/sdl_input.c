@@ -454,7 +454,15 @@ IN_DeactivateMouse
 */
 static void IN_DeactivateMouse(void)
 {
-	if(!mouseAvailable || !SDL_WasInit(SDL_INIT_VIDEO))
+	if(!SDL_WasInit(SDL_INIT_VIDEO))
+		return;
+
+	// Always show the cursor when the mouse is disabled,
+	// but not when fullscreen
+	if(!r_fullscreen->integer)
+		SDL_ShowCursor(1);
+
+	if(!mouseAvailable)
 		return;
 
 #ifdef MACOS_X_ACCELERATION_HACK
@@ -481,8 +489,7 @@ static void IN_DeactivateMouse(void)
 	if(mouseActive)
 	{
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_WarpMouse(glConfig.vidWidth >> 1, glConfig.vidHeight >> 1);
-		SDL_ShowCursor(1);
+		SDL_WarpMouse(glConfig.vidWidth / 2, glConfig.vidHeight / 2);
 
 		mouseActive = qfalse;
 	}
@@ -531,10 +538,10 @@ struct
 
 /*
 ===============
-IN_StartupJoystick
+IN_InitJoystick
 ===============
 */
-static void IN_StartupJoystick(void)
+static void IN_InitJoystick(void)
 {
 	int             i = 0;
 	int             total = 0;
@@ -587,8 +594,22 @@ static void IN_StartupJoystick(void)
 	Com_DPrintf("Balls: %d\n", SDL_JoystickNumBalls(stick));
 
 	SDL_JoystickEventState(SDL_QUERY);
+}
 
-	return;
+/*
+===============
+IN_ShutdownJoystick
+===============
+*/
+static void IN_ShutdownJoystick(void)
+{
+	if(stick)
+	{
+		SDL_JoystickClose(stick);
+		stick = NULL;
+	}
+
+	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
 /*
@@ -882,16 +903,6 @@ static void IN_ProcessEvents(void)
 			}
 				break;
 
-			case SDL_ACTIVEEVENT:
-				if(e.active.state == SDL_APPINPUTFOCUS)
-				{
-					if(e.active.gain)
-						IN_ActivateMouse();
-					else
-						IN_DeactivateMouse();
-				}
-				break;
-
 			case SDL_QUIT:
 				Sys_Quit();
 				break;
@@ -953,11 +964,17 @@ void IN_Init(void)
 	keyRepeatEnabled = qtrue;
 
 	if(in_mouse->value)
+	{
 		mouseAvailable = qtrue;
+		IN_ActivateMouse();
+	}
 	else
+	{
+		IN_DeactivateMouse();
 		mouseAvailable = qfalse;
+	}
 
-	IN_StartupJoystick();
+	IN_InitJoystick();
 	Com_DPrintf("------------------------------------\n");
 }
 
@@ -969,14 +986,18 @@ IN_Shutdown
 void IN_Shutdown(void)
 {
 	IN_DeactivateMouse();
-
 	mouseAvailable = qfalse;
 
-	if(stick)
-	{
-		SDL_JoystickClose(stick);
-		stick = NULL;
-	}
+	IN_ShutdownJoystick();
+}
 
-	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+/*
+===============
+IN_Restart
+===============
+*/
+void IN_Restart(void)
+{
+	IN_ShutdownJoystick();
+	IN_Init();
 }

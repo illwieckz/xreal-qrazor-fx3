@@ -572,6 +572,12 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
+#ifdef DEDICATED
+#	define Q3CONFIG_CFG "xreal_server.cfg"
+#else
+#	define Q3CONFIG_CFG "xreal.cfg"
+#endif
+
 qboolean        FS_Initialized(void);
 
 void            FS_InitFilesystem(void);
@@ -826,7 +832,9 @@ extern cvar_t  *com_journal;
 extern cvar_t  *com_cameraMode;
 extern cvar_t  *com_ansiColor;
 extern cvar_t  *com_unfocused;
+extern cvar_t  *com_maxfpsUnfocused;
 extern cvar_t  *com_minimized;
+extern cvar_t  *com_maxfpsMinimized;
 extern cvar_t  *com_altivec;
 
 // both client and server must agree to pause
