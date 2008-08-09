@@ -63,6 +63,7 @@ xreal_server_env.Append(CCFLAGS='-DDEDICATED')
 xreal_server_env.Append(CCFLAGS='-Icode/zlib')
 xreal_server_env.Append(CCFLAGS='-DSTANDALONE')
 xreal_server_env.Append(CCFLAGS='-DUSE_VOIP')
+xreal_server_env.Append(CCFLAGS='-Icode/speex/include')
 
 if env['curl'] == 1:
 	xreal_server_env.Append(CCFLAGS='-DUSE_CURL')
