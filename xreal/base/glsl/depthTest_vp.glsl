@@ -27,7 +27,7 @@ varying vec2		var_Tex;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;

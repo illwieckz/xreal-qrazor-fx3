@@ -29,7 +29,7 @@ void	main()
 	if(gl_Vertex.w == 1.0)
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = ftransform();
+		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	}
 	else
 	{

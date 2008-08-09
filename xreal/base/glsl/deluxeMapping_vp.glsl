@@ -35,7 +35,7 @@ varying mat3		var_OS2TSMatrix;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// assign position in object space
 	var_Vertex = gl_Vertex.xyz;

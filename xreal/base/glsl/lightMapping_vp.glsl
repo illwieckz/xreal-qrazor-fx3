@@ -30,7 +30,7 @@ void	main()
 {
 	// transform vertex position into homogenous clip-space
 #if 1
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 #else
 	gl_Position.xy = attr_TexCoord1 * 2.0 - 1.0;
 	gl_Position.z = 0.0;

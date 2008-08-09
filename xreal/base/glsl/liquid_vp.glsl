@@ -33,7 +33,7 @@ varying vec4		var_Color;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// transform position into world space
 	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
