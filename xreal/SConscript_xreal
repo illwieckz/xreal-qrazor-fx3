@@ -165,7 +165,49 @@ xreal_src = [
 'code/vorbis/lib/sharedbook.c',
 'code/vorbis/lib/lookup.c',
 'code/vorbis/lib/bitrate.c',
-'code/vorbis/lib/vorbisfile.c'
+'code/vorbis/lib/vorbisfile.c',
+'code/speex/bits.c',
+'code/speex/buffer.c',
+'code/speex/cb_search.c',
+'code/speex/exc_10_16_table.c',
+'code/speex/exc_10_32_table.c',
+'code/speex/exc_20_32_table.c',
+'code/speex/exc_5_256_table.c',
+'code/speex/exc_5_64_table.c',
+'code/speex/exc_8_128_table.c',
+'code/speex/fftwrap.c',
+'code/speex/filterbank.c',
+'code/speex/filters.c',
+'code/speex/gain_table.c',
+'code/speex/gain_table_lbr.c',
+'code/speex/hexc_10_32_table.c',
+'code/speex/hexc_table.c',
+'code/speex/high_lsp_tables.c',
+'code/speex/jitter.c',
+'code/speex/kiss_fft.c',
+'code/speex/kiss_fftr.c',
+'code/speex/lsp_tables_nb.c',
+'code/speex/ltp.c',
+'code/speex/mdf.c',
+'code/speex/modes.c',
+'code/speex/modes_wb.c',
+'code/speex/nb_celp.c',
+'code/speex/preprocess.c',
+'code/speex/quant_lsp.c',
+'code/speex/resample.c',
+'code/speex/sb_celp.c',
+'code/speex/smallft.c',
+'code/speex/speex.c',
+'code/speex/lpc.c',
+'code/speex/lsp.c',
+'code/speex/speex_callbacks.c',
+'code/speex/speex_header.c',
+'code/speex/speex_lpc.c',
+'code/speex/speex_lsp.c',
+'code/speex/stereo.c',
+'code/speex/vbr.c',
+'code/speex/vq.c',
+'code/speex/window'
 ]
 
 unix_src = [
@@ -197,14 +239,16 @@ xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 xreal_env.Append(CCFLAGS='-Icode/zlib')
 xreal_env.Append(CCFLAGS='-DSTANDALONE')
 xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
+xreal_env.Append(CCFLAGS='-DUSE_VOIP')
+xreal_env.Append(CCFLAGS='-DHAVE_CONFIG')
 
 if env['curl'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')
 	xreal_env.Append(LIBS=['curl'])
 
-if env['openal'] == 1:
-	xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
-	xreal_env.Append(LIBS=['openal'])
+#if env['openal'] == 1:
+xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
+xreal_env.Append(LIBS=['openal'])	
 
 if env['arch'] == 'linux-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
