@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+
 void            S_Init(void);
 void            S_Shutdown(void);
 
@@ -33,7 +33,7 @@ void            S_StopBackgroundTrack(void);
 
 // cinematics and voice-over-network will send raw samples
 // 1.0 volume will be direct output of source samples
-void            S_RawSamples(int samples, int rate, int width, int channels, const byte * data, float volume);
+void            S_RawSamples(int stream, int samples, int rate, int width, int channels, const byte * data, float volume);
 
 // stop all sounds and the background track
 void            S_StopAllSounds(void);
@@ -57,7 +57,7 @@ void            S_DisableSounds(void);
 
 void            S_BeginRegistration(void);
 
-// RegisterSound will always return a valid sample, even if it
+// RegisterSound will allways return a valid sample, even if it
 // has to create a placeholder.  This prevents continuous filesystem
 // checks for missing files
 sfxHandle_t     S_RegisterSound(const char *sample);
@@ -69,3 +69,12 @@ void            S_ClearSoundBuffer(void);
 void            SNDDMA_Activate(void);
 
 void            S_UpdateBackgroundTrack(void);
+
+
+#ifdef USE_VOIP
+void            S_StartCapture(void);
+int             S_AvailableCaptureSamples(void);
+void            S_Capture(int samples, byte * data);
+void            S_StopCapture(void);
+void            S_MasterGain(float gain);
+#endif

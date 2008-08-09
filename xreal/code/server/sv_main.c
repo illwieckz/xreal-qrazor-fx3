@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -22,6 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "server.h"
+
+#ifdef USE_VOIP
+cvar_t         *sv_voip;
+#endif
 
 serverStatic_t  svs;			// persistant server info
 server_t        sv;				// local server
@@ -53,6 +57,7 @@ cvar_t         *sv_gametype;
 cvar_t         *sv_pure;
 cvar_t         *sv_floodProtect;
 cvar_t         *sv_lanForceRate;	// dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
+cvar_t         *sv_strictAuth;
 
 serverBan_t     serverBans[SERVER_MAXBANS];
 int             serverBansCount = 0;
@@ -294,6 +299,7 @@ void SV_MasterHeartbeat(void)
 			Com_Printf("%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i]));
 		}
 
+
 		Com_Printf("Sending heartbeat to %s\n", sv_master[i]->string);
 		// this command should be changed if the server info / status format
 		// ever incompatably changes
@@ -439,6 +445,13 @@ void SVC_Info(netadr_t from)
 	Info_SetValueForKey(infostring, "gametype", va("%i", sv_gametype->integer));
 	Info_SetValueForKey(infostring, "pure", va("%i", sv_pure->integer));
 
+#ifdef USE_VOIP
+	if(sv_voip->integer)
+	{
+		Info_SetValueForKey(infostring, "voip", va("%i", sv_voip->integer));
+	}
+#endif
+
 	if(sv_minPing->integer)
 	{
 		Info_SetValueForKey(infostring, "minPing", va("%i", sv_minPing->integer));
@@ -540,6 +553,7 @@ void SVC_RemoteCommand(netadr_t from, msg_t * msg)
 		Q_strcat(remaining, sizeof(remaining), cmd_aux);
 
 		Cmd_ExecuteString(remaining);
+
 	}
 
 	Com_EndRedirect();
@@ -589,6 +603,12 @@ void SV_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	else if(!Q_stricmp(c, "connect"))
 	{
 		SV_DirectConnect(from);
+#ifndef STANDALONE
+	}
+	else if(!Q_stricmp(c, "ipAuthorize"))
+	{
+		SV_AuthorizeIpPacket(from);
+#endif
 	}
 	else if(!Q_stricmp(c, "rcon"))
 	{

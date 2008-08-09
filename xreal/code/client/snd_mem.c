@@ -26,16 +26,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DEF_COMSOUNDMEGS "8"
 
-static sndBuffer *sndbuffers = NULL;
+/*
+===============================================================================
+
+memory management
+
+===============================================================================
+*/
+
+static sndBuffer *buffer = NULL;
 static sndBuffer *freelist = NULL;
-static int      sndmem_avail = 0;
-static int      sndmem_inuse = 0;
+static int      inUse = 0;
+static int      totalInUse = 0;
+
+short          *sfxScratchBuffer = NULL;
+sfx_t          *sfxScratchPointer = NULL;
+int             sfxScratchIndex = 0;
 
 void SND_free(sndBuffer * v)
 {
 	*(sndBuffer **) v = freelist;
 	freelist = (sndBuffer *) v;
-	sndmem_avail += sizeof(sndBuffer);
+	inUse += sizeof(sndBuffer);
 }
 
 sndBuffer      *SND_malloc(void)
@@ -47,8 +59,8 @@ sndBuffer      *SND_malloc(void)
 		S_FreeOldestSound();
 	}
 
-	sndmem_avail -= sizeof(sndBuffer);
-	sndmem_inuse += sizeof(sndBuffer);
+	inUse -= sizeof(sndBuffer);
+	totalInUse += sizeof(sndBuffer);
 
 	v = freelist;
 	freelist = *(sndBuffer **) freelist;
@@ -59,15 +71,20 @@ sndBuffer      *SND_malloc(void)
 void SND_setup(void)
 {
 	sndBuffer      *p, *q;
+	cvar_t         *cv;
+	int             scs;
 
-	// a sndBuffer is actually 2K+, so this isn't even REMOTELY close to actual megs
-	const cvar_t   *cv = Cvar_Get("com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE);
-	int             scs = cv->integer * 1024;
+	cv = Cvar_Get("com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE);
 
-	sndbuffers = (sndBuffer *) Hunk_Alloc(scs * sizeof(sndBuffer), h_high);
-	sndmem_avail = scs * sizeof(sndBuffer);
+	scs = (cv->integer * 1536);
 
-	p = sndbuffers;
+	buffer = malloc(scs * sizeof(sndBuffer));
+	// allocate the stack based hunk allocator
+	sfxScratchBuffer = malloc(SND_CHUNK_SIZE * sizeof(short) * 4);	//Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
+	sfxScratchPointer = NULL;
+
+	inUse = scs * sizeof(sndBuffer);
+	p = buffer;;
 	q = p + scs;
 	while(--q > p)
 		*(sndBuffer **) q = q - 1;
@@ -215,9 +232,7 @@ qboolean S_LoadSound(sfx_t * sfx)
 
 	samples = Hunk_AllocateTempMemory(info.samples * sizeof(short) * 2);
 
-	sfx->lastTimeUsed = Com_Milliseconds();
-	sfx->soundLength = info.samples;
-	sfx->soundData = NULL;
+	sfx->lastTimeUsed = Com_Milliseconds() + 1;
 
 	ResampleSfx(sfx, info.rate, info.width, data + info.dataofs, qfalse);
 
@@ -229,5 +244,5 @@ qboolean S_LoadSound(sfx_t * sfx)
 
 void S_DisplayFreeMemory(void)
 {
-	Com_Printf("%d bytes sound buffer memory in use, %d free \n", sndmem_inuse, sndmem_avail);
+	Com_Printf("%d bytes free sound buffer memory, %d total used\n", inUse, totalInUse);
 }

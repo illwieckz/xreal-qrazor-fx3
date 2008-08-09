@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -315,7 +315,7 @@ void SV_Startup(void)
 	}
 	svs.initialized = qtrue;
 
-	// don't respect sv_killserver unless a server is actually running
+	// Don't respect sv_killserver unless a server is actually running
 	if(sv_killserver->integer)
 	{
 		Cvar_Set("sv_killserver", "0");
@@ -323,7 +323,7 @@ void SV_Startup(void)
 
 	Cvar_Set("sv_running", "1");
 
-	// join the ipv6 multicast group now that a map is running so clients can scan for us on the local network.
+	// Join the ipv6 multicast group now that a map is running so clients can scan for us on the local network.
 	NET_JoinMulticast6();
 }
 
@@ -728,6 +728,10 @@ void SV_Init(void)
 	Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM);
 	sv_serverid = Cvar_Get("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM);
 	sv_pure = Cvar_Get("sv_pure", "0", CVAR_SYSTEMINFO | CVAR_INIT | CVAR_ROM);
+#ifdef USE_VOIP
+	sv_voip = Cvar_Get("sv_voip", "1", CVAR_SYSTEMINFO | CVAR_LATCH);
+	Cvar_CheckRange(sv_voip, 0, 1, qtrue);
+#endif
 	Cvar_Get("sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM);
 	Cvar_Get("sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM);
 	Cvar_Get("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM);
@@ -754,8 +758,9 @@ void SV_Init(void)
 	sv_killserver = Cvar_Get("sv_killserver", "0", 0);
 	sv_mapChecksum = Cvar_Get("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
+	sv_strictAuth = Cvar_Get("sv_strictAuth", "1", CVAR_ARCHIVE);
 
-	// load saved bans
+	// Load saved bans
 	Cbuf_AddText("rehashbans\n");
 }
 

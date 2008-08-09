@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -1377,7 +1376,7 @@ static void SV_RankError(const char *fmt, ...)
 	char            text[1024];
 
 	va_start(arg_ptr, fmt);
-	vsprintf(text, fmt, arg_ptr);
+	Q_vsnprintf(text, sizeof(text), fmt, arg_ptr);
 	va_end(arg_ptr);
 
 	Com_DPrintf("****************************************\n");

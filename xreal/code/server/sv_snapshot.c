@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -742,6 +741,10 @@ void SV_SendClientSnapshot(client_t * client)
 
 	// Add any download data if the client is downloading
 	SV_WriteDownloadToClient(client, &msg);
+
+#ifdef USE_VOIP
+	SV_WriteVoipToClient(client, &msg);
+#endif
 
 	// check for overflow
 	if(msg.overflowed)

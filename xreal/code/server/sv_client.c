@@ -88,10 +88,167 @@ void SV_GetChallenge(netadr_t from)
 		i = oldest;
 	}
 
-	// send the challengeResponse immediately
-	challenge->pingTime = svs.time;
-	NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+#ifdef STANDALONE
+	if(Cvar_VariableIntegerValue("com_standalone"))
+	{
+		challenge->pingTime = svs.time;
+		NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+	}
+#else
+	// if they are on a lan address, send the challengeResponse immediately
+	if(Sys_IsLANAddress(from))
+	{
+		challenge->pingTime = svs.time;
+		NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+		return;
+	}
+
+	// Drop the authorize stuff if this client is coming in via v6 as the auth server does not support ipv6.
+	if(challenge->adr.type == NA_IP)
+	{
+		// look up the authorize server's IP
+		if(!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD)
+		{
+			Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+			if(!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP))
+			{
+				Com_Printf("Couldn't resolve address\n");
+				return;
+			}
+			svs.authorizeAddress.port = BigShort(PORT_AUTHORIZE);
+			Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+					   svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
+					   svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3], BigShort(svs.authorizeAddress.port));
+		}
+
+		// if they have been challenging for a long time and we
+		// haven't heard anything from the authorize server, go ahead and
+		// let them in, assuming the id server is down
+		if(svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT)
+		{
+			Com_DPrintf("authorize server timed out\n");
+
+			challenge->pingTime = svs.time;
+			NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %i", challenge->challenge);
+			return;
+		}
+
+		// otherwise send their ip to the authorize server
+		if(svs.authorizeAddress.type != NA_BAD)
+		{
+			cvar_t         *fs;
+			char            game[1024];
+
+			Com_DPrintf("sending getIpAuthorize for %s\n", NET_AdrToString(from));
+
+			strcpy(game, BASEGAME);
+			fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
+			if(fs && fs->string[0] != 0)
+			{
+				strcpy(game, fs->string);
+			}
+
+			// the 0 is for backwards compatibility with obsolete sv_allowanonymous flags
+			// getIpAuthorize <challenge> <IP> <game> 0 <auth-flag>
+			NET_OutOfBandPrint(NS_SERVER, svs.authorizeAddress,
+							   "getIpAuthorize %i %i.%i.%i.%i %s 0 %s", svs.challenges[i].challenge,
+							   from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, sv_strictAuth->string);
+		}
+	}
+	else
+	{
+		challenge->pingTime = svs.time;
+
+		NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %i", challenge->challenge);
+	}
+#endif
 }
+
+#ifndef STANDALONE
+/*
+====================
+SV_AuthorizeIpPacket
+
+A packet has been returned from the authorize server.
+If we have a challenge adr for that ip, send the
+challengeResponse to it
+====================
+*/
+void SV_AuthorizeIpPacket(netadr_t from)
+{
+	int             challenge;
+	int             i;
+	char           *s;
+	char           *r;
+
+	if(!NET_CompareBaseAdr(from, svs.authorizeAddress))
+	{
+		Com_Printf("SV_AuthorizeIpPacket: not from authorize server\n");
+		return;
+	}
+
+	challenge = atoi(Cmd_Argv(1));
+
+	for(i = 0; i < MAX_CHALLENGES; i++)
+	{
+		if(svs.challenges[i].challenge == challenge)
+		{
+			break;
+		}
+	}
+	if(i == MAX_CHALLENGES)
+	{
+		Com_Printf("SV_AuthorizeIpPacket: challenge not found\n");
+		return;
+	}
+
+	// send a packet back to the original client
+	svs.challenges[i].pingTime = svs.time;
+	s = Cmd_Argv(2);
+	r = Cmd_Argv(3);			// reason
+
+	if(!Q_stricmp(s, "demo"))
+	{
+		// they are a demo client trying to connect to a real server
+		NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "print\nServer is not a demo server\n");
+		// clear the challenge record so it won't timeout and let them through
+		Com_Memset(&svs.challenges[i], 0, sizeof(svs.challenges[i]));
+		return;
+	}
+	if(!Q_stricmp(s, "accept"))
+	{
+		NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "challengeResponse %i", svs.challenges[i].challenge);
+		return;
+	}
+	if(!Q_stricmp(s, "unknown"))
+	{
+		if(!r)
+		{
+			NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "print\nAwaiting CD key authorization\n");
+		}
+		else
+		{
+			NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "print\n%s\n", r);
+		}
+		// clear the challenge record so it won't timeout and let them through
+		Com_Memset(&svs.challenges[i], 0, sizeof(svs.challenges[i]));
+		return;
+	}
+
+	// authorization failed
+	if(!r)
+	{
+		NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "print\nSomeone is using this CD Key\n");
+	}
+	else
+	{
+		NET_OutOfBandPrint(NS_SERVER, svs.challenges[i].adr, "print\n%s\n", r);
+	}
+
+	// clear the challenge record so it won't timeout and let them through
+	Com_Memset(&svs.challenges[i], 0, sizeof(svs.challenges[i]));
+}
+#endif
 
 /*
 ==================
@@ -100,6 +257,7 @@ SV_IsBanned
 Check whether a certain address is banned
 ==================
 */
+
 qboolean SV_IsBanned(netadr_t * from, qboolean isexception)
 {
 	int             index, addrlen, curbyte, netmask, cmpmask;
@@ -179,6 +337,7 @@ SV_DirectConnect
 A "connect" OOB command has been received
 ==================
 */
+
 void SV_DirectConnect(netadr_t from)
 {
 	char            userinfo[MAX_INFO_STRING];
@@ -196,9 +355,9 @@ void SV_DirectConnect(netadr_t from)
 	int             count;
 	char           *ip;
 
-	Com_DPrintf("SVC_DirectConnect()\n");
+	Com_DPrintf("SVC_DirectConnect ()\n");
 
-	// check whether this client is banned
+	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
 	{
 		NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
@@ -969,6 +1128,60 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 	}
 }
 
+#ifdef USE_VOIP
+/*
+==================
+SV_WriteVoipToClient
+
+Check to see if there is any VoIP queued for a client, and send if there is.
+==================
+*/
+void SV_WriteVoipToClient(client_t * cl, msg_t * msg)
+{
+	voipServerPacket_t *packet = &cl->voipPacket[0];
+	int             totalbytes = 0;
+	int             i;
+
+	if(*cl->downloadName)
+	{
+		cl->queuedVoipPackets = 0;
+		return;					// no VoIP allowed if download is going, to save bandwidth.
+	}
+
+	// Write as many VoIP packets as we reasonably can...
+	for(i = 0; i < cl->queuedVoipPackets; i++, packet++)
+	{
+		totalbytes += packet->len;
+		if(totalbytes > MAX_DOWNLOAD_BLKSIZE)
+			break;
+
+		// You have to start with a svc_EOF, so legacy clients drop the
+		//  rest of this packet. Otherwise, those without VoIP support will
+		//  see the svc_voip command, then panic and disconnect.
+		// Generally we don't send VoIP packets to legacy clients, but this
+		//  serves as both a safety measure and a means to keep demo files
+		//  compatible.
+		MSG_WriteByte(msg, svc_EOF);
+		MSG_WriteByte(msg, svc_extension);
+		MSG_WriteByte(msg, svc_voip);
+		MSG_WriteShort(msg, packet->sender);
+		MSG_WriteByte(msg, (byte) packet->generation);
+		MSG_WriteLong(msg, packet->sequence);
+		MSG_WriteByte(msg, packet->frames);
+		MSG_WriteShort(msg, packet->len);
+		MSG_WriteData(msg, packet->data, packet->len);
+	}
+
+	// !!! FIXME: I hate this queue system.
+	cl->queuedVoipPackets -= i;
+	if(cl->queuedVoipPackets > 0)
+	{
+		memmove(&cl->voipPacket[0], &cl->voipPacket[i], sizeof(voipServerPacket_t) * i);
+	}
+}
+#endif
+
+
 /*
 =================
 SV_Disconnect_f
@@ -1279,6 +1492,13 @@ void SV_UserinfoChanged(client_t * cl)
 		cl->snapshotMsec = 50;
 	}
 
+#ifdef USE_VOIP
+	// in the future, (val) will be a protocol version string, so only
+	//  accept explicitly 1, not generally non-zero.
+	val = Info_ValueForKey(cl->userinfo, "cl_voip");
+	cl->hasVoip = (atoi(val) == 1) ? qtrue : qfalse;
+#endif
+
 	// TTimo
 	// maintain the IP information
 	// the banning code relies on this being consistently present
@@ -1315,6 +1535,50 @@ static void SV_UpdateUserinfo_f(client_t * cl)
 	VM_Call(gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients);
 }
 
+
+#ifdef USE_VOIP
+static void SV_UpdateVoipIgnore(client_t * cl, const char *idstr, qboolean ignore)
+{
+	if((*idstr >= '0') && (*idstr <= '9'))
+	{
+		const int       id = atoi(idstr);
+
+		if((id >= 0) && (id < MAX_CLIENTS))
+		{
+			cl->ignoreVoipFromClient[id] = ignore;
+		}
+	}
+}
+
+/*
+==================
+SV_UpdateUserinfo_f
+==================
+*/
+static void SV_Voip_f(client_t * cl)
+{
+	const char     *cmd = Cmd_Argv(1);
+
+	if(strcmp(cmd, "ignore") == 0)
+	{
+		SV_UpdateVoipIgnore(cl, Cmd_Argv(2), qtrue);
+	}
+	else if(strcmp(cmd, "unignore") == 0)
+	{
+		SV_UpdateVoipIgnore(cl, Cmd_Argv(2), qfalse);
+	}
+	else if(strcmp(cmd, "muteall") == 0)
+	{
+		cl->muteAllVoip = qtrue;
+	}
+	else if(strcmp(cmd, "unmuteall") == 0)
+	{
+		cl->muteAllVoip = qfalse;
+	}
+}
+#endif
+
+
 typedef struct
 {
 	char           *name;
@@ -1330,6 +1594,10 @@ static ucmd_t   ucmds[] = {
 	{"nextdl", SV_NextDownload_f},
 	{"stopdl", SV_StopDownload_f},
 	{"donedl", SV_DoneDownload_f},
+
+#ifdef USE_VOIP
+	{"voip", SV_Voip_f},
+#endif
 
 	{NULL, NULL}
 };
@@ -1572,6 +1840,123 @@ static void SV_UserMove(client_t * cl, msg_t * msg, qboolean delta)
 }
 
 
+#ifdef USE_VOIP
+static qboolean SV_ShouldIgnoreVoipSender(const client_t * cl)
+{
+	if(!sv_voip->integer)
+		return qtrue;			// VoIP disabled on this server.
+	else if(!cl->hasVoip)		// client doesn't have VoIP support?!
+		return qtrue;
+
+	// !!! FIXME: implement player blacklist.
+
+	return qfalse;				// don't ignore.
+}
+
+static void SV_UserVoip(client_t * cl, msg_t * msg)
+{
+	const int       sender = (int)(cl - svs.clients);
+	const int       generation = MSG_ReadByte(msg);
+	const int       sequence = MSG_ReadLong(msg);
+	const int       frames = MSG_ReadByte(msg);
+	const int       recip1 = MSG_ReadLong(msg);
+	const int       recip2 = MSG_ReadLong(msg);
+	const int       recip3 = MSG_ReadLong(msg);
+	const int       packetsize = MSG_ReadShort(msg);
+	byte            encoded[sizeof(cl->voipPacket[0].data)];
+	client_t       *client = NULL;
+	voipServerPacket_t *packet = NULL;
+	int             i;
+
+	if(generation < 0)
+		return;					// short/invalid packet, bail.
+	else if(sequence < 0)
+		return;					// short/invalid packet, bail.
+	else if(frames < 0)
+		return;					// short/invalid packet, bail.
+	else if(recip1 < 0)
+		return;					// short/invalid packet, bail.
+	else if(recip2 < 0)
+		return;					// short/invalid packet, bail.
+	else if(recip3 < 0)
+		return;					// short/invalid packet, bail.
+	else if(packetsize < 0)
+		return;					// short/invalid packet, bail.
+
+	if(packetsize > sizeof(encoded))
+	{							// overlarge packet?
+		int             bytesleft = packetsize;
+
+		while(bytesleft)
+		{
+			int             br = bytesleft;
+
+			if(br > sizeof(encoded))
+				br = sizeof(encoded);
+			MSG_ReadData(msg, encoded, br);
+			bytesleft -= br;
+		}
+		return;					// overlarge packet, bail.
+	}
+
+	MSG_ReadData(msg, encoded, packetsize);
+
+	if(SV_ShouldIgnoreVoipSender(cl))
+		return;					// Blacklisted, disabled, etc.
+
+	// !!! FIXME: see if we read past end of msg...
+
+	// !!! FIXME: reject if not speex narrowband codec.
+	// !!! FIXME: decide if this is bogus data?
+
+	// (the three recip* values are 31 bits each (ignores sign bit so we can
+	//  get a -1 error from MSG_ReadLong() ... ), allowing for 93 clients.)
+	assert(sv_maxclients->integer < 93);
+
+	// decide who needs this VoIP packet sent to them...
+	for(i = 0, client = svs.clients; i < sv_maxclients->integer; i++, client++)
+	{
+		if(client->state != CS_ACTIVE)
+			continue;			// not in the game yet, don't send to this guy.
+		else if(i == sender)
+			continue;			// don't send voice packet back to original author.
+		else if(!client->hasVoip)
+			continue;			// no VoIP support, or support disabled.
+		else if(client->muteAllVoip)
+			continue;			// client is ignoring everyone.
+		else if(client->ignoreVoipFromClient[sender])
+			continue;			// client is ignoring this talker.
+		else if(*cl->downloadName)	// !!! FIXME: possible to DoS?
+			continue;			// no VoIP allowed if downloading, to save bandwidth.
+		else if(((i >= 0) && (i < 31)) && ((recip1 & (1 << (i - 0))) == 0))
+			continue;			// not addressed to this player.
+		else if(((i >= 31) && (i < 62)) && ((recip2 & (1 << (i - 31))) == 0))
+			continue;			// not addressed to this player.
+		else if(((i >= 62) && (i < 93)) && ((recip3 & (1 << (i - 62))) == 0))
+			continue;			// not addressed to this player.
+
+		// Transmit this packet to the client.
+		// !!! FIXME: I don't like this queueing system.
+		if(client->queuedVoipPackets >= (sizeof(client->voipPacket) / sizeof(client->voipPacket[0])))
+		{
+			Com_Printf("Too many VoIP packets queued for client #%d\n", i);
+			continue;			// no room for another packet right now.
+		}
+
+		packet = &client->voipPacket[client->queuedVoipPackets];
+		packet->sender = sender;
+		packet->frames = frames;
+		packet->len = packetsize;
+		packet->generation = generation;
+		packet->sequence = sequence;
+		memcpy(packet->data, encoded, packetsize);
+		client->queuedVoipPackets++;
+	}
+}
+#endif
+
+
+
 /*
 ===========================================================================
 
@@ -1664,10 +2049,26 @@ void SV_ExecuteClientMessage(client_t * cl, msg_t * msg)
 	do
 	{
 		c = MSG_ReadByte(msg);
+
+		// See if this is an extension command after the EOF, which means we
+		//  got data that a legacy server should ignore.
+		if((c == clc_EOF) && (MSG_LookaheadByte(msg) == clc_extension))
+		{
+			MSG_ReadByte(msg);	// throw the clc_extension byte away.
+			c = MSG_ReadByte(msg);	// something legacy servers can't do!
+			// sometimes you get a clc_extension at end of stream...dangling
+			//  bits in the huffman decoder giving a bogus value?
+			if(c == -1)
+			{
+				c = clc_EOF;
+			}
+		}
+
 		if(c == clc_EOF)
 		{
 			break;
 		}
+
 		if(c != clc_clientCommand)
 		{
 			break;
@@ -1690,6 +2091,12 @@ void SV_ExecuteClientMessage(client_t * cl, msg_t * msg)
 	else if(c == clc_moveNoDelta)
 	{
 		SV_UserMove(cl, msg, qfalse);
+	}
+	else if(c == clc_voip)
+	{
+#ifdef USE_VOIP
+		SV_UserVoip(cl, msg);
+#endif
 	}
 	else if(c != clc_EOF)
 	{

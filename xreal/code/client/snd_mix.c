@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 static int      snd_vol;
 
-// bk001119 - these not static, required by unix/snd_mixa.s
 int            *snd_p;
 int             snd_linear_count;
 short          *snd_out;
@@ -147,6 +146,7 @@ void S_TransferStereo16(unsigned long *pbuf, int endtime)
 /*
 ===================
 S_TransferPaintBuffer
+
 ===================
 */
 void S_TransferPaintBuffer(int endtime)
@@ -220,6 +220,7 @@ void S_TransferPaintBuffer(int endtime)
 		}
 	}
 }
+
 
 /*
 ===============================================================================
@@ -311,10 +312,8 @@ static void S_PaintChannelFrom16_altivec(channel_t * ch, const sfx_t * sc, int c
 				vector short    s0, s1, sampleData0, sampleData1;
 				vector signed int merge0, merge1;
 				vector signed int d0, d1, d2, d3;
-				vector unsigned char samplePermute0 = VECCONST_UINT8(0, 1, 4, 5, 0, 1, 4, 5, 2, 3, 6, 7, 2, 3, 6,
-																	 7);
-				vector unsigned char samplePermute1 = VECCONST_UINT8(8, 9, 12, 13, 8, 9, 12, 13, 10, 11, 14, 15,
-																	 10, 11, 14, 15);
+				vector unsigned char samplePermute0 = VECCONST_UINT8(0, 1, 4, 5, 0, 1, 4, 5, 2, 3, 6, 7, 2, 3, 6, 7);
+				vector unsigned char samplePermute1 = VECCONST_UINT8(8, 9, 12, 13, 8, 9, 12, 13, 10, 11, 14, 15, 10, 11, 14, 15);
 				vector unsigned char loadPermute0, loadPermute1;
 
 				// Rather than permute the vectors after we load them to do the sample
@@ -469,6 +468,9 @@ static void S_PaintChannelFrom16_scalar(channel_t * ch, const sfx_t * sc, int co
 		ooff = sampleOffset;
 		samples = chunk->sndChunk;
 
+
+
+
 		for(i = 0; i < count; i++)
 		{
 
@@ -519,13 +521,15 @@ void S_PaintChannels(int endtime)
 {
 	int             i;
 	int             end;
+	int             stream;
 	channel_t      *ch;
-	const sfx_t    *sc;
+	sfx_t          *sc;
 	int             ltime, count;
 	int             sampleOffset;
 
 	snd_vol = s_volume->value * 255;
 
+//Com_Printf ("%i to %i\n", s_paintedtime, endtime);
 	while(s_paintedtime < endtime)
 	{
 		// if paintbuffer is smaller than DMA buffer
@@ -536,28 +540,23 @@ void S_PaintChannels(int endtime)
 			end = s_paintedtime + PAINTBUFFER_SIZE;
 		}
 
-		// clear the paint buffer to either music or zeros
-		if(s_rawend < s_paintedtime)
+		// clear the paint buffer and mix any raw samples...
+		Com_Memset(paintbuffer, 0, sizeof(paintbuffer));
+		for(stream = 0; stream < MAX_RAW_STREAMS; stream++)
 		{
-			Com_Memset(paintbuffer, 0, (end - s_paintedtime) * sizeof(portable_samplepair_t));
-		}
-		else
-		{
-			// copy from the streaming sound source
-			int             s;
-			int             stop;
-
-			stop = (end < s_rawend) ? end : s_rawend;
-
-			for(i = s_paintedtime; i < stop; i++)
+			if(s_rawend[stream] >= s_paintedtime)
 			{
-				s = i & (MAX_RAW_SAMPLES - 1);
-				paintbuffer[i - s_paintedtime] = s_rawsamples[s];
-			}
+				// copy from the streaming sound source
+				const portable_samplepair_t *rawsamples = s_rawsamples[stream];
+				const int       stop = (end < s_rawend[stream]) ? end : s_rawend[stream];
 
-			for(; i < end; i++)
-			{
-				paintbuffer[i - s_paintedtime].left = paintbuffer[i - s_paintedtime].right = 0;
+				for(i = s_paintedtime; i < stop; i++)
+				{
+					const int       s = i & (MAX_RAW_SAMPLES - 1);
+
+					paintbuffer[i - s_paintedtime].left += rawsamples[s].left;
+					paintbuffer[i - s_paintedtime].right += rawsamples[s].right;
+				}
 			}
 		}
 
@@ -620,8 +619,7 @@ void S_PaintChannels(int endtime)
 					S_PaintChannelFrom16(ch, sc, count, sampleOffset, ltime - s_paintedtime);
 					ltime += count;
 				}
-			}
-			while(ltime < end);
+			} while(ltime < end);
 		}
 
 		// transfer out according to DMA format

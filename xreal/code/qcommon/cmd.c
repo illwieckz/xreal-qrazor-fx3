@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -155,11 +154,13 @@ void Cbuf_ExecuteText(int exec_when, const char *text)
 		case EXEC_NOW:
 			if(text && strlen(text) > 0)
 			{
+				Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
 				Cmd_ExecuteString(text);
 			}
 			else
 			{
 				Cbuf_Execute();
+				Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", cmd_text.data);
 			}
 			break;
 		case EXEC_INSERT:
@@ -590,6 +591,7 @@ static void Cmd_TokenizeString2(const char *text_in, qboolean ignoreQuotes)
 			return;				// all tokens parsed
 		}
 	}
+
 }
 
 /*

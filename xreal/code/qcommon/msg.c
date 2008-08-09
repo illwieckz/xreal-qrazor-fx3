@@ -479,6 +479,19 @@ int MSG_ReadByte(msg_t * msg)
 	return c;
 }
 
+int MSG_LookaheadByte(msg_t * msg)
+{
+	const int       bloc = Huff_getBloc();
+	const int       readcount = msg->readcount;
+	const int       bit = msg->bit;
+	int             c = MSG_ReadByte(msg);
+
+	Huff_setBloc(bloc);
+	msg->readcount = readcount;
+	msg->bit = bit;
+	return c;
+}
+
 int MSG_ReadShort(msg_t * msg)
 {
 	int             c;
@@ -2060,5 +2073,40 @@ void MSG_initHuffman(void)
 		}
 	}
 }
+
+/*
+void MSG_NUinitHuffman() {
+	byte	*data;
+	int		size, i, ch;
+	int		array[256];
+
+	msgInit = qtrue;
+
+	Huff_Init(&msgHuff);
+	// load it in
+	size = FS_ReadFile( "netchan/netchan.bin", (void **)&data );
+
+	for(i=0;i<256;i++) {
+		array[i] = 0;
+	}
+	for(i=0;i<size;i++) {
+		ch = data[i];
+		Huff_addRef(&msgHuff.compressor,	ch);			// Do update
+		Huff_addRef(&msgHuff.decompressor,	ch);			// Do update
+		array[ch]++;
+	}
+	Com_Printf("msg_hData {\n");
+	for(i=0;i<256;i++) {
+		if (array[i] == 0) {
+			Huff_addRef(&msgHuff.compressor,	i);			// Do update
+			Huff_addRef(&msgHuff.decompressor,	i);			// Do update
+		}
+		Com_Printf("%d,			// %d\n", array[i], i);
+	}
+	Com_Printf("};\n");
+	FS_FreeFile( data );
+	Cbuf_AddText( "condump dump.txt\n" );
+}
+*/
 
 //===========================================================================

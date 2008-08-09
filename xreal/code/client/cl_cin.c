@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern glConfig_t glConfig;
 extern int      s_paintedtime;
-extern int      s_rawend;
+extern int      s_rawend[MAX_RAW_STREAMS];
 
 
 static void     RoQ_init(void);
@@ -1264,7 +1264,7 @@ static void RoQInterrupt(void)
 				ssize =
 					RllDecodeMonoToStereo(framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0,
 										  (unsigned short)cinTable[currentHandle].roq_flags);
-				S_RawSamples(ssize, 22050, 2, 1, (byte *) sbuf, 1.0f);
+				S_RawSamples(0, ssize, 22050, 2, 1, (byte *) sbuf, 1.0f);
 			}
 			break;
 		case ZA_SOUND_STEREO:
@@ -1273,12 +1273,12 @@ static void RoQInterrupt(void)
 				if(cinTable[currentHandle].numQuads == -1)
 				{
 					S_Update();
-					s_rawend = s_soundtime;
+					s_rawend[0] = s_soundtime;
 				}
 				ssize =
 					RllDecodeStereoToStereo(framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0,
 											(unsigned short)cinTable[currentHandle].roq_flags);
-				S_RawSamples(ssize, 22050, 2, 2, (byte *) sbuf, 1.0f);
+				S_RawSamples(0, ssize, 22050, 2, 2, (byte *) sbuf, 1.0f);
 			}
 			break;
 		case ROQ_QUAD_INFO:
@@ -1660,7 +1660,7 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
 
 		Con_Close();
 
-		s_rawend = s_soundtime;
+		s_rawend[0] = s_soundtime;
 
 		return currentHandle;
 	}

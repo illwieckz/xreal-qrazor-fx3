@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -33,6 +33,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 										// GAME BOTH REFERENCE !!!
 
 #define	MAX_ENT_CLUSTERS	16
+
+#ifdef USE_VOIP
+typedef struct voipServerPacket_s
+{
+	int             generation;
+	int             sequence;
+	int             frames;
+	int             len;
+	int             sender;
+	byte            data[1024];
+} voipServerPacket_t;
+#endif
 
 typedef struct svEntity_s
 {
@@ -85,7 +97,9 @@ typedef struct
 	int             time;
 } server_t;
 
-//=============================================================================
+
+
+
 
 typedef struct
 {
@@ -173,11 +187,20 @@ typedef struct client_s
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
 
+#ifdef USE_VOIP
+	qboolean        hasVoip;
+	qboolean        muteAllVoip;
+	qboolean        ignoreVoipFromClient[MAX_CLIENTS];
+	voipServerPacket_t voipPacket[64];	// !!! FIXME: WAY too much memory!
+	int             queuedVoipPackets;
+#endif
+
 	int             oldServerTime;
 	qboolean        csUpdated[MAX_CONFIGSTRINGS + 1];
 } client_t;
 
 //=============================================================================
+
 
 // MAX_CHALLENGES is made large to prevent a denial
 // of service attack that could cycle all of them
@@ -220,17 +243,16 @@ typedef struct
 	netadr_t        authorizeAddress;	// for rcon return messages
 } serverStatic_t;
 
-#define SERVER_MAXBANS  1024
-#define SERVER_BANFILE  "serverbans.dat"
-
-// structure for managing bans
+#define SERVER_MAXBANS	1024
+#define SERVER_BANFILE	"serverbans.dat"
+// Structure for managing bans
 typedef struct
 {
-	netadr_t		ip;
+	netadr_t        ip;
 	// For a CIDR-Notation type suffix
-	int				subnet;
+	int             subnet;
 
-	qboolean		isexception;
+	qboolean        isexception;
 } serverBan_t;
 
 //=============================================================================
@@ -267,9 +289,15 @@ extern cvar_t  *sv_gametype;
 extern cvar_t  *sv_pure;
 extern cvar_t  *sv_floodProtect;
 extern cvar_t  *sv_lanForceRate;
+extern cvar_t  *sv_strictAuth;
 
 extern serverBan_t serverBans[SERVER_MAXBANS];
-extern int		serverBansCount;
+extern int      serverBansCount;
+
+#ifdef USE_VOIP
+extern cvar_t  *sv_voip;
+#endif
+
 
 //===========================================================
 
@@ -287,6 +315,9 @@ void            SV_RemoveOperatorCommands(void);
 void            SV_MasterHeartbeat(void);
 void            SV_MasterShutdown(void);
 
+
+
+
 //
 // sv_init.c
 //
@@ -300,6 +331,8 @@ void            SV_GetUserinfo(int index, char *buffer, int bufferSize);
 void            SV_ChangeMaxClients(void);
 void            SV_SpawnServer(char *server, qboolean killBots);
 
+
+
 //
 // sv_client.c
 //
@@ -307,7 +340,9 @@ void            SV_GetChallenge(netadr_t from);
 
 void            SV_DirectConnect(netadr_t from);
 
+#ifndef STANDALONE
 void            SV_AuthorizeIpPacket(netadr_t from);
+#endif
 
 void            SV_ExecuteClientMessage(client_t * cl, msg_t * msg);
 void            SV_UserinfoChanged(client_t * cl);
@@ -319,6 +354,11 @@ void            SV_ExecuteClientCommand(client_t * cl, const char *s, qboolean c
 void            SV_ClientThink(client_t * cl, usercmd_t * cmd);
 
 void            SV_WriteDownloadToClient(client_t * cl, msg_t * msg);
+
+#ifdef USE_VOIP
+void            SV_WriteVoipToClient(client_t * cl, msg_t * msg);
+#endif
+
 
 //
 // sv_ccmds.c

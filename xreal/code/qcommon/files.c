@@ -214,6 +214,7 @@ static int      fs_loadCount;	// total files read
 static int      fs_loadStack;	// total files in memory
 static int      fs_packFiles;	// total number of files in packs
 
+static int      fs_fakeChkSum;
 static int      fs_checksumFeed;
 
 typedef union qfile_gus
@@ -1238,6 +1239,15 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 			if(!fsh[*file].handleFiles.file.o)
 			{
 				continue;
+			}
+
+			if(Q_stricmp(filename + l - 4, ".cfg")	// for config files
+			   && Q_stricmp(filename + l - 5, ".menu")	// menu files
+			   && Q_stricmp(filename + l - 5, ".game")	// menu files
+			   && Q_stricmp(filename + l - strlen(demoExt), demoExt)	// menu files
+			   && Q_stricmp(filename + l - 4, ".dat"))
+			{					// for journal files
+				fs_fakeChkSum = random();
 			}
 
 			Q_strncpyz(fsh[*file].name, filename, sizeof(fsh[*file].name));
@@ -2924,6 +2934,11 @@ void FS_Shutdown(qboolean closemfp)
 #endif
 }
 
+#ifndef STANDALONE
+void            Com_AppendCDKey(const char *filename);
+void            Com_ReadCDKey(const char *filename);
+#endif
+
 /*
 ================
 FS_ReorderPurePaks
@@ -3034,6 +3049,20 @@ static void FS_Startup(const char *gameName)
 			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
 		}
 	}
+
+#ifndef STANDALONE
+	if(!Cvar_VariableIntegerValue("com_standalone"))
+	{
+		cvar_t         *fs;
+
+		Com_ReadCDKey(BASEGAME);
+		fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
+		if(fs && fs->string[0] != 0)
+		{
+			Com_AppendCDKey(fs->string);
+		}
+	}
+#endif
 
 	// add our commands
 	Cmd_AddCommand("path", FS_Path_f);
@@ -3257,6 +3286,11 @@ const char     *FS_ReferencedPakPureChecksums(void)
 				checksum ^= search->pack->pure_checksum;
 				numPaks++;
 			}
+		}
+		if(fs_fakeChkSum != 0)
+		{
+			// only added if a non-pure file is referenced
+			Q_strcat(info, sizeof(info), va("%i ", fs_fakeChkSum));
 		}
 	}
 	// last checksum is the encoded number of referenced pk3s
@@ -3534,7 +3568,7 @@ void FS_Restart(int checksumFeed)
 		// skip the xreal.cfg if "safe" is on the command line
 		if(!Com_SafeMode())
 		{
-			Cbuf_AddText("exec xreal.cfg\n");
+			Cbuf_AddText("exec " Q3CONFIG_CFG "\n");
 		}
 	}
 

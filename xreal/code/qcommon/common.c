@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 #include <setjmp.h>
+#ifndef _WIN32
+#include <netinet/in.h>
+#include <sys/stat.h>			// umask
+#else
+#include <winsock.h>
+#endif
 
 int             demo_protocols[] = { PROTOCOL_VERSION, 0 };
 
@@ -79,6 +85,7 @@ cvar_t         *com_unfocused;
 cvar_t         *com_maxfpsUnfocused;
 cvar_t         *com_minimized;
 cvar_t         *com_maxfpsMinimized;
+cvar_t         *com_standalone;
 
 // com_speeds times
 int             time_game;
@@ -330,9 +337,9 @@ do the apropriate things.
 */
 void Com_Quit_f(void)
 {
-	char *p = Cmd_Args();
-
 	// don't try to shutdown if we are in a recursive error
+	char           *p = Cmd_Args();
+
 	if(!com_errorEntered)
 	{
 		SV_Shutdown(p[0] ? p : "Server quit");
@@ -408,7 +415,7 @@ void Com_ParseCommandLine(char *commandLine)
 Com_SafeMode
 
 Check for "safe" on the command line, which will
-skip loading of config.cfg
+skip loading of q3config.cfg
 ===================
 */
 qboolean Com_SafeMode(void)
@@ -434,9 +441,9 @@ Com_StartupVariable
 
 Searches for command line parameters that are set commands.
 If match is not NULL, only that cvar will be looked for.
-That is necessary because basedir need to be set before the
-filesystem is started, but all other sets shoulds be after
-execing the config and default.
+That is necessary because cddir and basedir need to be set
+before the filesystem is started, but all other sets should
+be after execing the config and default.
 ===============
 */
 void Com_StartupVariable(const char *match)
@@ -994,8 +1001,7 @@ void Z_FreeTags(int tag)
 			continue;
 		}
 		zone->rover = zone->rover->next;
-	}
-	while(zone->rover != &zone->blocklist);
+	} while(zone->rover != &zone->blocklist);
 }
 
 
@@ -1049,8 +1055,8 @@ void           *Z_TagMalloc(int size, int tag)
 			Z_LogHeap();
 #endif
 			// scaned all the way around the list
-			Com_Error(ERR_FATAL,
-					  "Z_Malloc: failed on allocation of %i bytes from the %s zone", size, zone == smallzone ? "small" : "main");
+			Com_Error(ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes from the %s zone",
+					  size, zone == smallzone ? "small" : "main");
 			return NULL;
 		}
 		if(rover->tag)
@@ -1061,8 +1067,7 @@ void           *Z_TagMalloc(int size, int tag)
 		{
 			rover = rover->next;
 		}
-	}
-	while(base->tag || base->size < size);
+	} while(base->tag || base->size < size);
 
 	//
 	// found a block big enough
@@ -1207,9 +1212,8 @@ void Z_LogZoneHeap(memzone_t * zone, char *name)
 				}
 			}
 			dump[j] = '\0';
-			Com_sprintf(buf, sizeof(buf),
-						"size = %8d: %s, line: %d (%s) [%s]\r\n",
-						block->d.allocSize, block->d.file, block->d.line, block->d.label, dump);
+			Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file,
+						block->d.line, block->d.label, dump);
 			FS_Write(buf, strlen(buf), logfile);
 			allocSize += block->d.allocSize;
 #endif
@@ -2594,8 +2598,7 @@ int Com_Milliseconds(void)
 		{
 			Com_PushEvent(&ev);
 		}
-	}
-	while(ev.evType != SE_NONE);
+	} while(ev.evType != SE_NONE);
 
 	return ev.evTime;
 }
@@ -2671,6 +2674,142 @@ static void Com_Crash_f(void)
 
 	//*(int *)0 = 0x12345678;
 }
+
+#ifndef STANDALONE
+
+// TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
+//   not sure it's necessary to have different defaults for regular and dedicated, but I don't want to risk it
+//   https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
+#ifndef DEDICATED
+char            cl_cdkey[34] = "                                ";
+#else
+char            cl_cdkey[34] = "123456789";
+#endif
+
+/*
+=================
+Com_ReadCDKey
+=================
+*/
+qboolean        CL_CDKeyValidate(const char *key, const char *checksum);
+void Com_ReadCDKey(const char *filename)
+{
+	fileHandle_t    f;
+	char            buffer[33];
+	char            fbuffer[MAX_OSPATH];
+
+	sprintf(fbuffer, "%s/q3key", filename);
+
+	FS_SV_FOpenFileRead(fbuffer, &f);
+	if(!f)
+	{
+		Q_strncpyz(cl_cdkey, "                ", 17);
+		return;
+	}
+
+	Com_Memset(buffer, 0, sizeof(buffer));
+
+	FS_Read(buffer, 16, f);
+	FS_FCloseFile(f);
+
+	if(CL_CDKeyValidate(buffer, NULL))
+	{
+		Q_strncpyz(cl_cdkey, buffer, 17);
+	}
+	else
+	{
+		Q_strncpyz(cl_cdkey, "                ", 17);
+	}
+}
+
+/*
+=================
+Com_AppendCDKey
+=================
+*/
+void Com_AppendCDKey(const char *filename)
+{
+	fileHandle_t    f;
+	char            buffer[33];
+	char            fbuffer[MAX_OSPATH];
+
+	sprintf(fbuffer, "%s/q3key", filename);
+
+	FS_SV_FOpenFileRead(fbuffer, &f);
+	if(!f)
+	{
+		Q_strncpyz(&cl_cdkey[16], "                ", 17);
+		return;
+	}
+
+	Com_Memset(buffer, 0, sizeof(buffer));
+
+	FS_Read(buffer, 16, f);
+	FS_FCloseFile(f);
+
+	if(CL_CDKeyValidate(buffer, NULL))
+	{
+		strcat(&cl_cdkey[16], buffer);
+	}
+	else
+	{
+		Q_strncpyz(&cl_cdkey[16], "                ", 17);
+	}
+}
+
+#ifndef DEDICATED
+/*
+=================
+Com_WriteCDKey
+=================
+*/
+static void Com_WriteCDKey(const char *filename, const char *ikey)
+{
+	fileHandle_t    f;
+	char            fbuffer[MAX_OSPATH];
+	char            key[17];
+
+#ifndef _WIN32
+	mode_t          savedumask;
+#endif
+
+
+	sprintf(fbuffer, "%s/q3key", filename);
+
+
+	Q_strncpyz(key, ikey, 17);
+
+	if(!CL_CDKeyValidate(key, NULL))
+	{
+		return;
+	}
+
+#ifndef _WIN32
+	savedumask = umask(0077);
+#endif
+	f = FS_SV_FOpenFileWrite(fbuffer);
+	if(!f)
+	{
+		Com_Printf("Couldn't write CD key to %s.\n", fbuffer);
+		goto out;
+	}
+
+	FS_Write(key, 16, f);
+
+	FS_Printf(f, "\n// generated by quake, do not modify\r\n");
+	FS_Printf(f, "// Do not give this file to ANYONE.\r\n");
+	FS_Printf(f, "// id Software and Activision will NOT ask you to send this file to them.\r\n");
+
+	FS_FCloseFile(f);
+  out:
+#ifndef _WIN32
+	umask(savedumask);
+#endif
+	return;
+}
+#endif
+
+#endif							// STANDALONE
 
 static void Com_PrintMatrix(const matrix_t m)
 {
@@ -3182,6 +3321,7 @@ void Com_Init(char *commandLine)
 	com_maxfpsUnfocused = Cvar_Get("com_maxfpsUnfocused", "0", CVAR_ARCHIVE);
 	com_minimized = Cvar_Get("com_minimized", "0", CVAR_ROM);
 	com_maxfpsMinimized = Cvar_Get("com_maxfpsMinimized", "0", CVAR_ARCHIVE);
+	com_standalone = Cvar_Get("com_standalone", "0", CVAR_INIT);
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
@@ -3284,6 +3424,9 @@ Writes key bindings and archived cvars to config file if modified
 */
 void Com_WriteConfiguration(void)
 {
+#ifndef DEDICATED
+	cvar_t         *fs;
+#endif
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
 	if(!com_fullyInitialized)
@@ -3297,7 +3440,25 @@ void Com_WriteConfiguration(void)
 	}
 	cvar_modifiedFlags &= ~CVAR_ARCHIVE;
 
-	Com_WriteConfigToFile("xreal.cfg");
+	Com_WriteConfigToFile(Q3CONFIG_CFG);
+
+	// not needed for dedicated
+#ifndef DEDICATED
+	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
+#ifndef STANDALONE
+	if(!Cvar_VariableIntegerValue("com_standalone"))
+	{
+		if(UI_usesUniqueCDKey() && fs && fs->string[0] != 0)
+		{
+			Com_WriteCDKey(fs->string, &cl_cdkey[16]);
+		}
+		else
+		{
+			Com_WriteCDKey(BASEGAME, cl_cdkey);
+		}
+	}
+#endif
+#endif
 }
 
 
@@ -3478,7 +3639,6 @@ void Com_Frame(void)
 		}
 		msec = com_frameTime - lastTime;
 	} while(msec < minMsec);
-	
 	Cbuf_Execute();
 
 	if(com_altivec->modified)

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -172,7 +172,6 @@ static void SV_Map_f(void)
 	qboolean        killBots, cheat;
 	char            expanded[MAX_QPATH];
 	char            mapname[MAX_QPATH];
-	int             i;
 
 	map = Cmd_Argv(1);
 	if(!map)
@@ -221,7 +220,7 @@ static void SV_Map_f(void)
 		}
 	}
 
-	// save the map name here cause on a map restart we reload the xreal.cfg
+	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
@@ -240,11 +239,6 @@ static void SV_Map_f(void)
 	{
 		Cvar_Set("sv_cheats", "0");
 	}
-
-	// This forces the local master server IP address cache
-	// to be updated on sending the next heartbeat
-	for(i = 0; i < MAX_MASTER_SERVERS; i++)
-		sv_master[i]->modified = qtrue;
 }
 
 /*
@@ -457,14 +451,18 @@ static void SV_Kick_f(void)
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
+#ifndef STANDALONE
+// these functions require the auth server which of course is not available anymore for stand-alone games.
+
 /*
 ==================
-SV_KickNum_f
+SV_Ban_f
 
-Kick a user off of the server  FIXME: move to game
+Ban a user from being able to play on this server through the auth
+server
 ==================
 */
-static void SV_KickNum_f(void)
+static void SV_Ban_f(void)
 {
 	client_t       *cl;
 
@@ -477,7 +475,70 @@ static void SV_KickNum_f(void)
 
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf("Usage: kicknum <client number>\n");
+		Com_Printf("Usage: banUser <player name>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByHandle();
+
+	if(!cl)
+	{
+		return;
+	}
+
+	if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
+	{
+		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		return;
+	}
+
+	// look up the authorize server's IP
+	if(!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD)
+	{
+		Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+		if(!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP))
+		{
+			Com_Printf("Couldn't resolve address\n");
+			return;
+		}
+		svs.authorizeAddress.port = BigShort(PORT_AUTHORIZE);
+		Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+				   svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
+				   svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3], BigShort(svs.authorizeAddress.port));
+	}
+
+	// otherwise send their ip to the authorize server
+	if(svs.authorizeAddress.type != NA_BAD)
+	{
+		NET_OutOfBandPrint(NS_SERVER, svs.authorizeAddress,
+						   "banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1],
+						   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3]);
+		Com_Printf("%s was banned from coming back\n", cl->name);
+	}
+}
+
+/*
+==================
+SV_BanNum_f
+
+Ban a user from being able to play on this server through the auth
+server
+==================
+*/
+static void SV_BanNum_f(void)
+{
+	client_t       *cl;
+
+	// make sure server is running
+	if(!com_sv_running->integer)
+	{
+		Com_Printf("Server is not running.\n");
+		return;
+	}
+
+	if(Cmd_Argc() != 2)
+	{
+		Com_Printf("Usage: banClient <client number>\n");
 		return;
 	}
 
@@ -492,9 +553,31 @@ static void SV_KickNum_f(void)
 		return;
 	}
 
-	SV_DropClient(cl, "was kicked");
-	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	// look up the authorize server's IP
+	if(!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD)
+	{
+		Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+		if(!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP))
+		{
+			Com_Printf("Couldn't resolve address\n");
+			return;
+		}
+		svs.authorizeAddress.port = BigShort(PORT_AUTHORIZE);
+		Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+				   svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
+				   svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3], BigShort(svs.authorizeAddress.port));
+	}
+
+	// otherwise send their ip to the authorize server
+	if(svs.authorizeAddress.type != NA_BAD)
+	{
+		NET_OutOfBandPrint(NS_SERVER, svs.authorizeAddress,
+						   "banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1],
+						   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3]);
+		Com_Printf("%s was banned from coming back\n", cl->name);
+	}
 }
+#endif
 
 /*
 ==================
@@ -583,6 +666,7 @@ SV_BanAddr_f
 Ban a user from being able to play on this server based on his ip address.
 ==================
 */
+
 static void SV_AddBanToList(qboolean isexception)
 {
 	char           *banstring, *suffix;
@@ -818,6 +902,45 @@ static void SV_ExceptDel_f(void)
 }
 
 /*
+==================
+SV_KickNum_f
+
+Kick a user off of the server  FIXME: move to game
+==================
+*/
+static void SV_KickNum_f(void)
+{
+	client_t       *cl;
+
+	// make sure server is running
+	if(!com_sv_running->integer)
+	{
+		Com_Printf("Server is not running.\n");
+		return;
+	}
+
+	if(Cmd_Argc() != 2)
+	{
+		Com_Printf("Usage: kicknum <client number>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+	if(!cl)
+	{
+		return;
+	}
+	if(cl->netchan.remoteAddress.type == NA_LOOPBACK)
+	{
+		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		return;
+	}
+
+	SV_DropClient(cl, "was kicked");
+	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+}
+
+/*
 ================
 SV_Status_f
 ================
@@ -1027,6 +1150,13 @@ void SV_AddOperatorCommands(void)
 
 	Cmd_AddCommand("heartbeat", SV_Heartbeat_f);
 	Cmd_AddCommand("kick", SV_Kick_f);
+#ifndef STANDALONE
+	if(!Cvar_VariableIntegerValue("com_standalone"))
+	{
+		Cmd_AddCommand("banUser", SV_Ban_f);
+		Cmd_AddCommand("banClient", SV_BanNum_f);
+	}
+#endif
 	Cmd_AddCommand("clientkick", SV_KickNum_f);
 	Cmd_AddCommand("status", SV_Status_f);
 	Cmd_AddCommand("serverinfo", SV_Serverinfo_f);

@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -236,8 +235,8 @@ void Netchan_TransmitNextFragment(netchan_t * chan)
 
 	if(showpackets->integer)
 	{
-		Com_Printf("%s send %4i : s=%i fragment=%i,%i\n",
-				   netsrcString[chan->sock], send.cursize, chan->outgoingSequence, chan->unsentFragmentStart, fragmentLength);
+		Com_Printf("%s send %4i : s=%i fragment=%i,%i\n", netsrcString[chan->sock], send.cursize, chan->outgoingSequence,
+				   chan->unsentFragmentStart, fragmentLength);
 	}
 
 	chan->unsentFragmentStart += fragmentLength;
@@ -305,8 +304,8 @@ void Netchan_Transmit(netchan_t * chan, int length, const byte * data)
 
 	if(showpackets->integer)
 	{
-		Com_Printf("%s send %4i : s=%i ack=%i\n", netsrcString[chan->sock],
-				   send.cursize, chan->outgoingSequence - 1, chan->incomingSequence);
+		Com_Printf("%s send %4i : s=%i ack=%i\n", netsrcString[chan->sock], send.cursize, chan->outgoingSequence - 1,
+				   chan->incomingSequence);
 	}
 }
 
@@ -369,8 +368,8 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 	{
 		if(fragmented)
 		{
-			Com_Printf("%s recv %4i : s=%i fragment=%i,%i\n",
-					   netsrcString[chan->sock], msg->cursize, sequence, fragmentStart, fragmentLength);
+			Com_Printf("%s recv %4i : s=%i fragment=%i,%i\n", netsrcString[chan->sock], msg->cursize, sequence, fragmentStart,
+					   fragmentLength);
 		}
 		else
 		{
@@ -385,8 +384,8 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 	{
 		if(showdrop->integer || showpackets->integer)
 		{
-			Com_Printf("%s:Out of order packet %i at %i\n",
-					   NET_AdrToString(chan->remoteAddress), sequence, chan->incomingSequence);
+			Com_Printf("%s:Out of order packet %i at %i\n", NET_AdrToString(chan->remoteAddress), sequence,
+					   chan->incomingSequence);
 		}
 		return qfalse;
 	}
@@ -434,8 +433,8 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 		}
 
 		// copy the fragment to the fragment buffer
-		if(fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize
-		   || chan->fragmentLength + fragmentLength > sizeof(chan->fragmentBuffer))
+		if(fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize ||
+		   chan->fragmentLength + fragmentLength > sizeof(chan->fragmentBuffer))
 		{
 			if(showdrop->integer || showpackets->integer)
 			{
@@ -486,7 +485,9 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 	return qtrue;
 }
 
+
 //==============================================================================
+
 
 /*
 =============================================================================
@@ -728,7 +729,7 @@ int NET_StringToAdr(const char *s, netadr_t * a, netadrtype_t family)
 	{
 		Com_Memset(a, 0, sizeof(*a));
 		a->type = NA_LOOPBACK;
-		// as NA_LOOPBACK doesn't require ports report port was given.
+// as NA_LOOPBACK doesn't require ports report port was given.
 		return 1;
 	}
 
@@ -736,7 +737,7 @@ int NET_StringToAdr(const char *s, netadr_t * a, netadrtype_t family)
 
 	if(*base == '[' || Q_CountChar(base, ':') > 1)
 	{
-		// this is an ipv6 address, handle it specially.
+		// This is an ipv6 address, handle it specially.
 		search = strchr(base, ']');
 		if(search)
 		{
@@ -756,6 +757,7 @@ int NET_StringToAdr(const char *s, netadr_t * a, netadrtype_t family)
 	{
 		// look for a port number
 		port = strchr(base, ':');
+
 		if(port)
 		{
 			*port = '\0';
@@ -765,7 +767,6 @@ int NET_StringToAdr(const char *s, netadr_t * a, netadrtype_t family)
 		search = base;
 	}
 
-	// inet_addr returns this if out of range
 	if(!Sys_StringToAdr(search, a, family))
 	{
 		a->type = NA_BAD;

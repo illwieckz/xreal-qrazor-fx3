@@ -25,6 +25,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include <limits.h>
 
+#ifdef USE_MUMBLE
+#include "libmumblelink.h"
+#endif
+
+#ifdef USE_MUMBLE
+cvar_t         *cl_useMumble;
+cvar_t         *cl_mumbleScale;
+#endif
+
+#ifdef USE_VOIP
+cvar_t         *cl_voipUseVAD;
+cvar_t         *cl_voipVADThreshold;
+cvar_t         *cl_voipSend;
+cvar_t         *cl_voipSendTarget;
+cvar_t         *cl_voipGainDuringCapture;
+cvar_t         *cl_voipCaptureMult;
+cvar_t         *cl_voipShowMeter;
+cvar_t         *cl_voip;
+#endif
+
 cvar_t         *cl_nodelta;
 cvar_t         *cl_debugMove;
 
@@ -78,6 +98,8 @@ cvar_t         *cl_trn;
 
 cvar_t         *cl_lanForcePackets;
 
+cvar_t         *cl_guidServerUniq;
+
 clientActive_t  cl;
 clientConnection_t clc;
 clientStatic_t  cls;
@@ -101,11 +123,346 @@ typedef struct serverStatus_s
 serverStatus_t  cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 int             serverStatusCount;
 
+#if defined __USEA3D && defined __A3D_GEOM
+void            hA3Dg_ExportRenderGeom(refexport_t * incoming_re);
+#endif
+
 extern void     SV_BotFrame(int time);
 void            CL_CheckForResend(void);
 void            CL_ShowIP_f(void);
 void            CL_ServerStatus_f(void);
 void            CL_ServerStatusResponse(netadr_t from, msg_t * msg);
+
+/*
+===============
+CL_CDDialog
+
+Called by Com_Error when a cd is needed
+===============
+*/
+void CL_CDDialog(void)
+{
+	cls.cddialog = qtrue;		// start it next frame
+}
+
+#ifdef USE_MUMBLE
+static void CL_UpdateMumble(void)
+{
+	vec3_t          pos, forward, up;
+	float           scale = cl_mumbleScale->value;
+	float           tmp;
+
+	if(!cl_useMumble->integer)
+		return;
+
+	// !!! FIXME: not sure if this is even close to correct.
+	AngleVectors(cl.snap.ps.viewangles, forward, NULL, up);
+
+	pos[0] = cl.snap.ps.origin[0] * scale;
+	pos[1] = cl.snap.ps.origin[2] * scale;
+	pos[2] = cl.snap.ps.origin[1] * scale;
+
+	tmp = forward[1];
+	forward[1] = forward[2];
+	forward[2] = tmp;
+
+	tmp = up[1];
+	up[1] = up[2];
+	up[2] = tmp;
+
+	if(cl_useMumble->integer > 1)
+	{
+		fprintf(stderr, "%f %f %f, %f %f %f, %f %f %f\n",
+				pos[0], pos[1], pos[2], forward[0], forward[1], forward[2], up[0], up[1], up[2]);
+	}
+
+	mumble_update_coordinates(pos, forward, up);
+}
+#endif
+
+
+#ifdef USE_VOIP
+static void CL_UpdateVoipIgnore(const char *idstr, qboolean ignore)
+{
+	if((*idstr >= '0') && (*idstr <= '9'))
+	{
+		const int       id = atoi(idstr);
+
+		if((id >= 0) && (id < MAX_CLIENTS))
+		{
+			clc.voipIgnore[id] = ignore;
+			CL_AddReliableCommand(va("voip %s %d", ignore ? "ignore" : "unignore", id));
+			Com_Printf("VoIP: %s ignoring player #%d\n", ignore ? "Now" : "No longer", id);
+		}
+	}
+}
+
+static void CL_UpdateVoipGain(const char *idstr, float gain)
+{
+	if((*idstr >= '0') && (*idstr <= '9'))
+	{
+		const int       id = atoi(idstr);
+
+		if(gain < 0.0f)
+			gain = 0.0f;
+		if((id >= 0) && (id < MAX_CLIENTS))
+		{
+			clc.voipGain[id] = gain;
+			Com_Printf("VoIP: player #%d gain now set to %f\n", id, gain);
+		}
+	}
+}
+
+void CL_Voip_f(void)
+{
+	const char     *cmd = Cmd_Argv(1);
+	const char     *reason = NULL;
+
+	if(cls.state != CA_ACTIVE)
+		reason = "Not connected to a server";
+	else if(!clc.speexInitialized)
+		reason = "Speex not initialized";
+	else if(!cl_connectedToVoipServer)
+		reason = "Server doesn't support VoIP";
+	else if(Cvar_VariableValue("g_gametype") == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive"))
+		reason = "running in single-player mode";
+
+	if(reason != NULL)
+	{
+		Com_Printf("VoIP: command ignored: %s\n", reason);
+		return;
+	}
+
+	if(strcmp(cmd, "ignore") == 0)
+	{
+		CL_UpdateVoipIgnore(Cmd_Argv(2), qtrue);
+	}
+	else if(strcmp(cmd, "unignore") == 0)
+	{
+		CL_UpdateVoipIgnore(Cmd_Argv(2), qfalse);
+	}
+	else if(strcmp(cmd, "gain") == 0)
+	{
+		CL_UpdateVoipGain(Cmd_Argv(2), atof(Cmd_Argv(3)));
+	}
+	else if(strcmp(cmd, "muteall") == 0)
+	{
+		Com_Printf("VoIP: muting incoming voice\n");
+		CL_AddReliableCommand("voip muteall");
+		clc.voipMuteAll = qtrue;
+	}
+	else if(strcmp(cmd, "unmuteall") == 0)
+	{
+		Com_Printf("VoIP: unmuting incoming voice\n");
+		CL_AddReliableCommand("voip unmuteall");
+		clc.voipMuteAll = qfalse;
+	}
+}
+
+
+static void CL_VoipNewGeneration(void)
+{
+	// don't have a zero generation so new clients won't match, and don't
+	//  wrap to negative so MSG_ReadLong() doesn't "fail."
+	clc.voipOutgoingGeneration++;
+	if(clc.voipOutgoingGeneration <= 0)
+		clc.voipOutgoingGeneration = 1;
+	clc.voipPower = 0.0f;
+	clc.voipOutgoingSequence = 0;
+}
+
+/*
+===============
+CL_CaptureVoip
+
+Record more audio from the hardware if required and encode it into Speex
+ data for later transmission.
+===============
+*/
+static void CL_CaptureVoip(void)
+{
+	const float     audioMult = cl_voipCaptureMult->value;
+	const qboolean  useVad = (cl_voipUseVAD->integer != 0);
+	qboolean        initialFrame = qfalse;
+	qboolean        finalFrame = qfalse;
+
+#if USE_MUMBLE
+	// if we're using Mumble, don't try to handle VoIP transmission ourselves.
+	if(cl_useMumble->integer)
+		return;
+#endif
+
+	if(!clc.speexInitialized)
+		return;					// just in case this gets called at a bad time.
+
+	if(clc.voipOutgoingDataSize > 0)
+		return;					// packet is pending transmission, don't record more yet.
+
+	if(cl_voipUseVAD->modified)
+	{
+		Cvar_Set("cl_voipSend", (useVad) ? "1" : "0");
+		cl_voipUseVAD->modified = qfalse;
+	}
+
+	if((useVad) && (!cl_voipSend->integer))
+		Cvar_Set("cl_voipSend", "1");	// lots of things reset this.
+
+	if(cl_voipSend->modified)
+	{
+		qboolean        dontCapture = qfalse;
+
+		if(cls.state != CA_ACTIVE)
+			dontCapture = qtrue;	// not connected to a server.
+		else if(!cl_connectedToVoipServer)
+			dontCapture = qtrue;	// server doesn't support VoIP.
+		else if(Cvar_VariableValue("g_gametype") == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive"))
+			dontCapture = qtrue;	// single player game.
+		else if(clc.demoplaying)
+			dontCapture = qtrue;	// playing back a demo.
+		else if(cl_voip->integer == 0)
+			dontCapture = qtrue;	// client has VoIP support disabled.
+		else if(audioMult == 0.0f)
+			dontCapture = qtrue;	// basically silenced incoming audio.
+
+		cl_voipSend->modified = qfalse;
+
+		if(dontCapture)
+		{
+			cl_voipSend->integer = 0;
+			return;
+		}
+
+		if(cl_voipSend->integer)
+		{
+			initialFrame = qtrue;
+		}
+		else
+		{
+			finalFrame = qtrue;
+		}
+	}
+
+	// try to get more audio data from the sound card...
+
+	if(initialFrame)
+	{
+		float           gain = cl_voipGainDuringCapture->value;
+
+		if(gain < 0.0f)
+			gain = 0.0f;
+		else if(gain >= 1.0f)
+			gain = 1.0f;
+		S_MasterGain(cl_voipGainDuringCapture->value);
+		S_StartCapture();
+		CL_VoipNewGeneration();
+	}
+
+	if((cl_voipSend->integer) || (finalFrame))
+	{							// user wants to capture audio?
+		int             samples = S_AvailableCaptureSamples();
+		const int       mult = (finalFrame) ? 1 : 12;	// 12 == 240ms of audio.
+
+		// enough data buffered in audio hardware to process yet?
+		if(samples >= (clc.speexFrameSize * mult))
+		{
+			// audio capture is always MONO16 (and that's what speex wants!).
+			//  2048 will cover 12 uncompressed frames in narrowband mode.
+			static int16_t  sampbuffer[2048];
+			float           voipPower = 0.0f;
+			int             speexFrames = 0;
+			int             wpos = 0;
+			int             pos = 0;
+
+			if(samples > (clc.speexFrameSize * 12))
+				samples = (clc.speexFrameSize * 12);
+
+			// !!! FIXME: maybe separate recording from encoding, so voipPower
+			// !!! FIXME:  updates faster than 4Hz?
+
+			samples -= samples % clc.speexFrameSize;
+			S_Capture(samples, (byte *) sampbuffer);	// grab from audio card.
+
+			// this will probably generate multiple speex packets each time.
+			while(samples > 0)
+			{
+				int16_t        *sampptr = &sampbuffer[pos];
+				int             i, bytes;
+
+				// preprocess samples to remove noise...
+				speex_preprocess_run(clc.speexPreprocessor, sampptr);
+
+				// check the "power" of this packet...
+				for(i = 0; i < clc.speexFrameSize; i++)
+				{
+					const float     flsamp = (float)sampptr[i];
+					const float     s = fabs(flsamp);
+
+					voipPower += s * s;
+					sampptr[i] = (int16_t) ((flsamp) * audioMult);
+				}
+
+				// encode raw audio samples into Speex data...
+				speex_bits_reset(&clc.speexEncoderBits);
+				speex_encode_int(clc.speexEncoder, sampptr, &clc.speexEncoderBits);
+				bytes = speex_bits_write(&clc.speexEncoderBits,
+										 (char *)&clc.voipOutgoingData[wpos + 1], sizeof(clc.voipOutgoingData) - (wpos + 1));
+				assert((bytes > 0) && (bytes < 256));
+				clc.voipOutgoingData[wpos] = (byte) bytes;
+				wpos += bytes + 1;
+
+				// look at the data for the next packet...
+				pos += clc.speexFrameSize;
+				samples -= clc.speexFrameSize;
+				speexFrames++;
+			}
+
+			clc.voipPower = (voipPower / (32768.0f * 32768.0f * ((float)(clc.speexFrameSize * speexFrames)))) * 100.0f;
+
+			if((useVad) && (clc.voipPower < cl_voipVADThreshold->value))
+			{
+				CL_VoipNewGeneration();	// no "talk" for at least 1/4 second.
+			}
+			else
+			{
+				clc.voipOutgoingDataSize = wpos;
+				clc.voipOutgoingDataFrames = speexFrames;
+
+				Com_DPrintf("VoIP: Send %d frames, %d bytes, %f power\n", speexFrames, wpos, clc.voipPower);
+
+#if 0
+				static FILE    *encio = NULL;
+
+				if(encio == NULL)
+					encio = fopen("voip-outgoing-encoded.bin", "wb");
+				if(encio != NULL)
+				{
+					fwrite(clc.voipOutgoingData, wpos, 1, encio);
+					fflush(encio);
+				}
+				static FILE    *decio = NULL;
+
+				if(decio == NULL)
+					decio = fopen("voip-outgoing-decoded.bin", "wb");
+				if(decio != NULL)
+				{
+					fwrite(sampbuffer, speexFrames * clc.speexFrameSize * 2, 1, decio);
+					fflush(decio);
+				}
+#endif
+			}
+		}
+	}
+
+	// User requested we stop recording, and we've now processed the last of
+	//  any previously-buffered data. Pause the capture device, etc.
+	if(finalFrame)
+	{
+		S_StopCapture();
+		S_MasterGain(1.0f);
+		clc.voipPower = 0.0f;	// force this value so it doesn't linger.
+	}
+}
+#endif
 
 /*
 =======================================================================
@@ -173,6 +530,7 @@ CL_WriteDemoMessage
 Dumps the current net message, prefixed by the length
 ====================
 */
+
 void CL_WriteDemoMessage(msg_t * msg, int headerBytes)
 {
 	int             len, swlen;
@@ -613,9 +971,8 @@ void CL_PlayDemo_f(void)
 
 	// check for an extension .dm_?? (?? is protocol)
 	ext_test = arg + strlen(arg) - 6;
-	if((strlen(arg) > 6) && (ext_test[0] == '.')
-	   && ((ext_test[1] == 'd') || (ext_test[1] == 'D'))
-	   && ((ext_test[2] == 'm') || (ext_test[2] == 'M')) && (ext_test[3] == '_'))
+	if((strlen(arg) > 6) && (ext_test[0] == '.') && ((ext_test[1] == 'd') || (ext_test[1] == 'D')) &&
+	   ((ext_test[2] == 'm') || (ext_test[2] == 'M')) && (ext_test[3] == '_'))
 	{
 		protocol = atoi(ext_test + 4);
 		i = 0;
@@ -717,8 +1074,8 @@ CL_ShutdownAll
 */
 void CL_ShutdownAll(void)
 {
-#if USE_CURL
-	// shutdown the curl library
+
+#ifdef USE_CURL
 	CL_cURL_Shutdown();
 #endif
 	// clear sounds
@@ -841,6 +1198,28 @@ void CL_ClearState(void)
 }
 
 /*
+====================
+CL_UpdateGUID
+
+update cl_guid using QKEY_FILE and optional prefix
+====================
+*/
+static void CL_UpdateGUID(const char *prefix, int prefix_len)
+{
+	fileHandle_t    f;
+	int             len;
+
+	len = FS_SV_FOpenFileRead(QKEY_FILE, &f);
+	FS_FCloseFile(f);
+
+	if(len != QKEY_SIZE)
+		Cvar_Set("cl_guid", "");
+	else
+		Cvar_Set("cl_guid", Com_MD5File(QKEY_FILE, QKEY_SIZE, prefix, prefix_len));
+}
+
+
+/*
 =====================
 CL_Disconnect
 
@@ -872,6 +1251,42 @@ void CL_Disconnect(qboolean showMainMenu)
 	}
 	*clc.downloadTempName = *clc.downloadName = 0;
 	Cvar_Set("cl_downloadName", "");
+
+#ifdef USE_MUMBLE
+	if(cl_useMumble->integer && mumble_islinked())
+	{
+		Com_Printf("Mumble: Unlinking from Mumble application\n");
+		mumble_unlink();
+	}
+#endif
+
+#ifdef USE_VOIP
+	if(cl_voipSend->integer)
+	{
+		int             tmp = cl_voipUseVAD->integer;
+
+		cl_voipUseVAD->integer = 0;	// disable this for a moment.
+		clc.voipOutgoingDataSize = 0;	// dump any pending VoIP transmission.
+		Cvar_Set("cl_voipSend", "0");
+		CL_CaptureVoip();		// clean up any state...
+		cl_voipUseVAD->integer = tmp;
+	}
+
+	if(clc.speexInitialized)
+	{
+		int             i;
+
+		speex_bits_destroy(&clc.speexEncoderBits);
+		speex_encoder_destroy(clc.speexEncoder);
+		speex_preprocess_state_destroy(clc.speexPreprocessor);
+		for(i = 0; i < MAX_CLIENTS; i++)
+		{
+			speex_bits_destroy(&clc.speexDecoderBits[i]);
+			speex_decoder_destroy(clc.speexDecoder[i]);
+		}
+	}
+	Cmd_RemoveCommand("voip");
+#endif
 
 	if(clc.demofile)
 	{
@@ -910,14 +1325,19 @@ void CL_Disconnect(qboolean showMainMenu)
 	// not connected to a pure server anymore
 	cl_connectedToPureServer = qfalse;
 
+#ifdef USE_VOIP
+	// not connected to voip server anymore.
+	cl_connectedToVoipServer = qfalse;
+#endif
+
 	// Stop recording any video
 	if(CL_VideoRecording())
 	{
 		// Finish rendering current frame
 		SCR_UpdateScreen();
-
 		CL_CloseAVI();
 	}
+	CL_UpdateGUID(NULL, 0);
 }
 
 
@@ -995,9 +1415,96 @@ void CL_RequestMotd(void)
 	Info_SetValueForKey(info, "renderer", cls.glconfig.renderer_string);
 	Info_SetValueForKey(info, "version", com_version->string);
 
-	NET_OutOfBandPrint(NS_CLIENT, cls.updateServer, "getmotd%s", info);
+	NET_OutOfBandPrint(NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info);
 }
 
+/*
+===================
+CL_RequestAuthorization
+
+Authorization server protocol
+-----------------------------
+
+All commands are text in Q3 out of band packets (leading 0xff 0xff 0xff 0xff).
+
+Whenever the client tries to get a challenge from the server it wants to
+connect to, it also blindly fires off a packet to the authorize server:
+
+getKeyAuthorize <challenge> <cdkey>
+
+cdkey may be "demo"
+
+
+#OLD The authorize server returns a:
+#OLD 
+#OLD keyAthorize <challenge> <accept | deny>
+#OLD 
+#OLD A client will be accepted if the cdkey is valid and it has not been used by any other IP
+#OLD address in the last 15 minutes.
+
+
+The server sends a:
+
+getIpAuthorize <challenge> <ip>
+
+The authorize server returns a:
+
+ipAuthorize <challenge> <accept | deny | demo | unknown >
+
+A client will be accepted if a valid cdkey was sent by that ip (only) in the last 15 minutes.
+If no response is received from the authorize server after two tries, the client will be let
+in anyway.
+===================
+*/
+#ifndef STANDALONE
+void CL_RequestAuthorization(void)
+{
+	char            nums[64];
+	int             i, j, l;
+	cvar_t         *fs;
+
+	if(!cls.authorizeServer.port)
+	{
+		Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);
+		if(!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.authorizeServer, NA_IP))
+		{
+			Com_Printf("Couldn't resolve address\n");
+			return;
+		}
+
+		cls.authorizeServer.port = BigShort(PORT_AUTHORIZE);
+		Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+				   cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
+				   cls.authorizeServer.ip[2], cls.authorizeServer.ip[3], BigShort(cls.authorizeServer.port));
+	}
+	if(cls.authorizeServer.type == NA_BAD)
+	{
+		return;
+	}
+
+	// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
+	j = 0;
+	l = strlen(cl_cdkey);
+	if(l > 32)
+	{
+		l = 32;
+	}
+	for(i = 0; i < l; i++)
+	{
+		if((cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9')
+		   || (cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z') || (cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z'))
+		{
+			nums[j] = cl_cdkey[i];
+			j++;
+		}
+	}
+	nums[j] = 0;
+
+	fs = Cvar_Get("cl_anonymous", "0", CVAR_INIT | CVAR_SYSTEMINFO);
+
+	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getKeyAuthorize %i %s", fs->integer, nums);
+}
+#endif
 /*
 ======================================================================
 
@@ -1025,6 +1532,49 @@ void CL_ForwardToServer_f(void)
 		CL_AddReliableCommand(Cmd_Args());
 	}
 }
+
+/*
+==================
+CL_Setenv_f
+
+Mostly for controlling voodoo environment variables
+==================
+*/
+void CL_Setenv_f(void)
+{
+	int             argc = Cmd_Argc();
+
+	if(argc > 2)
+	{
+		char            buffer[1024];
+		int             i;
+
+		strcpy(buffer, Cmd_Argv(1));
+		strcat(buffer, "=");
+
+		for(i = 2; i < argc; i++)
+		{
+			strcat(buffer, Cmd_Argv(i));
+			strcat(buffer, " ");
+		}
+
+		putenv(buffer);
+	}
+	else if(argc == 2)
+	{
+		char           *env = getenv(Cmd_Argv(1));
+
+		if(env)
+		{
+			Com_Printf("%s=%s\n", Cmd_Argv(1), env);
+		}
+		else
+		{
+			Com_Printf("%s undefined\n", Cmd_Argv(1));
+		}
+	}
+}
+
 
 /*
 ==================
@@ -1079,9 +1629,7 @@ void CL_Connect_f(void)
 	}
 
 	if(argc == 2)
-	{
 		server = Cmd_Argv(1);
-	}
 	else
 	{
 		if(!strcmp(Cmd_Argv(1), "-4"))
@@ -1131,6 +1679,11 @@ void CL_Connect_f(void)
 	serverString = NET_AdrToStringwPort(clc.serverAddress);
 
 	Com_Printf("%s resolved to %s\n", cls.servername, serverString);
+
+	if(cl_guidServerUniq->integer)
+		CL_UpdateGUID(serverString, strlen(serverString));
+	else
+		CL_UpdateGUID(NULL, 0);
 
 	// if we aren't playing on a lan, we need to authenticate
 	// with the cd key
@@ -1245,7 +1798,8 @@ doesn't know what graphics to reload
 */
 void CL_Vid_Restart_f(void)
 {
-	// settings may have changed so stop recording now
+
+	// Settings may have changed so stop recording now
 	if(CL_VideoRecording())
 	{
 		CL_CloseAVI();
@@ -1256,22 +1810,16 @@ void CL_Vid_Restart_f(void)
 
 	// don't let them loop during the restart
 	S_StopAllSounds();
-
 	// shutdown the UI
 	CL_ShutdownUI();
-
 	// shutdown the CGame
 	CL_ShutdownCGame();
-
 	// shutdown the renderer and clear the renderer interface
 	CL_ShutdownRef();
-
 	// client is no longer pure untill new checksums are sent
 	CL_ResetPureClientAtServer();
-
 	// clear pak references
 	FS_ClearPakReferences(FS_UI_REF | FS_CGAME_REF);
-
 	// reinitialize the filesystem if the game directory or checksum has changed
 	FS_ConditionalRestart(clc.checksumFeed);
 
@@ -1305,9 +1853,7 @@ void CL_Vid_Restart_f(void)
 	if(cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC)
 	{
 		cls.cgameStarted = qtrue;
-
 		CL_InitCGame();
-
 		// send pure checksums
 		CL_SendPureChecksums();
 	}
@@ -1405,8 +1951,9 @@ Called when all downloading has been completed
 */
 void CL_DownloadsComplete(void)
 {
-#if USE_CURL
-	// if we downloaded with curl
+
+#ifdef USE_CURL
+	// if we downloaded with cURL
 	if(clc.cURLUsed)
 	{
 		clc.cURLUsed = qfalse;
@@ -1484,6 +2031,7 @@ game directory.
 */
 void CL_BeginDownload(const char *localName, const char *remoteName)
 {
+
 	Com_DPrintf("***** CL_BeginDownload *****\n"
 				"Localname: %s\n" "Remotename: %s\n" "****************************\n", localName, remoteName);
 
@@ -1539,8 +2087,7 @@ void CL_NextDownload(void)
 			*s++ = 0;
 		else
 			s = localName + strlen(localName);	// point at the nul byte
-
-#if USE_CURL
+#ifdef USE_CURL
 		if(!(cl_allowDownload->integer & DLF_NO_REDIRECT))
 		{
 			if(clc.sv_allowDownload & DLF_NO_REDIRECT)
@@ -1569,8 +2116,6 @@ void CL_NextDownload(void)
 					   "configuration (cl_allowDownload is %d)\n", cl_allowDownload->integer);
 		}
 #endif							/* USE_CURL */
-
-		// if curl is disabled, try udp downloads
 		if(!useCURL)
 		{
 			if((cl_allowDownload->integer & DLF_NO_UDP))
@@ -1615,14 +2160,14 @@ void CL_InitDownloads(void)
 		{
 			// NOTE TTimo I would rather have that printed as a modal message box
 			//   but at this point while joining the game we don't know wether we will successfully join or not
-			Com_Printf
-				("\nWARNING: You are missing some files referenced by the server:\n%s"
-				 "You might not be able to join the game\n"
-				 "Go to the setting menu to turn on autodownload, or get the file elsewhere\n\n", missingfiles);
+			Com_Printf("\nWARNING: You are missing some files referenced by the server:\n%s"
+					   "You might not be able to join the game\n"
+					   "Go to the setting menu to turn on autodownload, or get the file elsewhere\n\n", missingfiles);
 		}
 	}
 	else if(FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), qtrue))
 	{
+
 		Com_Printf("Need paks: %s\n", clc.downloadList);
 
 		if(*clc.downloadList)
@@ -1675,7 +2220,12 @@ void CL_CheckForResend(void)
 	switch (cls.state)
 	{
 		case CA_CONNECTING:
-			// requesting a challenge
+			// requesting a challenge .. IPv6 users always get in as authorize server supports no ipv6.
+#ifndef STANDALONE
+			if(!Cvar_VariableIntegerValue("com_standalone") && clc.serverAddress.type == NA_IP &&
+			   !Sys_IsLANAddress(clc.serverAddress))
+				CL_RequestAuthorization();
+#endif
 			NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
 			break;
 
@@ -1937,7 +2487,7 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	{
 		if(cls.state != CA_CONNECTING)
 		{
-			Com_Printf("Unwanted challenge response received.  Ignored.\n");
+			Com_DPrintf("Unwanted challenge response received.  Ignored.\n");
 		}
 		else
 		{
@@ -2006,6 +2556,13 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 	if(!Q_stricmp(c, "echo"))
 	{
 		NET_OutOfBandPrint(NS_CLIENT, from, "%s", Cmd_Argv(1));
+		return;
+	}
+
+	// cd check
+	if(!Q_stricmp(c, "keyAuthorize"))
+	{
+		// we don't use these now, so dump them on the floor
 		return;
 	}
 
@@ -2113,12 +2670,11 @@ void CL_CheckTimeout(void)
 	//
 	// check timeout
 	//
-	if((!CL_CheckPaused() || !sv_paused->integer) && cls.state >= CA_CONNECTED
-	   && cls.state != CA_CINEMATIC && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
+	if((!CL_CheckPaused() || !sv_paused->integer)
+	   && cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
 	{
 		if(++cl.timeoutcount > 5)
-		{
-			// timeoutcount saves debugger
+		{						// timeoutcount saves debugger
 			Com_Printf("\nServer connection timed out.\n");
 			CL_Disconnect(qtrue);
 			return;
@@ -2133,7 +2689,6 @@ void CL_CheckTimeout(void)
 /*
 ==================
 CL_CheckPaused
-
 Check whether client has been paused.
 ==================
 */
@@ -2188,7 +2743,7 @@ void CL_Frame(int msec)
 		return;
 	}
 
-#if USE_CURL
+#ifdef USE_CURL
 	if(clc.downloadCURLM)
 	{
 		CL_cURL_PerformDownload();
@@ -2209,6 +2764,15 @@ void CL_Frame(int msec)
 	}
 #endif
 
+#ifndef STANDALONE
+	if(cls.cddialog)
+	{
+		// bring up the cd error dialog if needed
+		cls.cddialog = qfalse;
+		VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD);
+	}
+	else 
+#endif
 	if(cls.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer && uivm)
 	{
 		// if disconnected, bring up the menu
@@ -2303,6 +2867,14 @@ void CL_Frame(int msec)
 
 	// update audio
 	S_Update();
+
+#ifdef USE_VOIP
+	CL_CaptureVoip();
+#endif
+
+#ifdef USE_MUMBLE
+	CL_UpdateMumble();
+#endif
 
 	// advance local effects for next frame
 	SCR_RunCinematic();
@@ -2501,6 +3073,10 @@ void CL_InitRef(void)
 
 	ret = GetRefAPI(REF_API_VERSION, &ri);
 
+#if defined __USEA3D && defined __A3D_GEOM
+	hA3Dg_ExportRenderGeom(ret);
+#endif
+
 	Com_Printf("-------------------------------\n");
 
 	if(!ret)
@@ -2608,6 +3184,49 @@ void CL_StopVideo_f(void)
 }
 
 /*
+===============
+CL_GenerateQKey
+
+test to see if a valid QKEY_FILE exists.  If one does not, try to generate
+it by filling it with 2048 bytes of random data.
+===============
+*/
+static void CL_GenerateQKey(void)
+{
+	int             len = 0;
+	unsigned char   buff[QKEY_SIZE];
+	fileHandle_t    f;
+
+	len = FS_SV_FOpenFileRead(QKEY_FILE, &f);
+	FS_FCloseFile(f);
+	if(len == QKEY_SIZE)
+	{
+		Com_Printf("QKEY found.\n");
+		return;
+	}
+	else
+	{
+		if(len > 0)
+		{
+			Com_Printf("QKEY file size != %d, regenerating\n", QKEY_SIZE);
+		}
+
+		Com_Printf("QKEY building random string\n");
+		Com_RandomBytes(buff, sizeof(buff));
+
+		f = FS_SV_FOpenFileWrite(QKEY_FILE);
+		if(!f)
+		{
+			Com_Printf("QKEY could not open %s for write\n", QKEY_FILE);
+			return;
+		}
+		FS_Write(buff, sizeof(buff), f);
+		FS_FCloseFile(f);
+		Com_Printf("QKEY generated\n");
+	}
+}
+
+/*
 ====================
 CL_Init
 ====================
@@ -2674,6 +3293,9 @@ void CL_Init(void)
 	cl_showMouseRate = Cvar_Get("cl_showmouserate", "0", 0);
 
 	cl_allowDownload = Cvar_Get("cl_allowDownload", "1", CVAR_ARCHIVE);
+#ifdef USE_CURL
+	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
+#endif
 
 	cl_conXOffset = Cvar_Get("cl_conXOffset", "0", 0);
 #ifdef MACOS_X
@@ -2706,6 +3328,8 @@ void CL_Init(void)
 
 	cl_lanForcePackets = Cvar_Get("cl_lanForcePackets", "1", CVAR_ARCHIVE);
 
+	cl_guidServerUniq = Cvar_Get("cl_guidServerUniq", "1", CVAR_ARCHIVE);
+
 	// userinfo
 	Cvar_Get("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("rate", "15000", CVAR_USERINFO | CVAR_ARCHIVE);
@@ -2724,9 +3348,43 @@ void CL_Init(void)
 	Cvar_Get("password", "", CVAR_USERINFO);
 	Cvar_Get("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE);
 
+#ifdef USE_MUMBLE
+	cl_useMumble = Cvar_Get("cl_useMumble", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	cl_mumbleScale = Cvar_Get("cl_mumbleScale", "0.0254", CVAR_ARCHIVE);
+#endif
+
+#ifdef USE_VOIP
+	cl_voipSend = Cvar_Get("cl_voipSend", "0", 0);
+	cl_voipSendTarget = Cvar_Get("cl_voipSendTarget", "all", 0);
+	cl_voipGainDuringCapture = Cvar_Get("cl_voipGainDuringCapture", "0.2", CVAR_ARCHIVE);
+	cl_voipCaptureMult = Cvar_Get("cl_voipCaptureMult", "2.0", CVAR_ARCHIVE);
+	cl_voipUseVAD = Cvar_Get("cl_voipUseVAD", "0", CVAR_ARCHIVE);
+	cl_voipVADThreshold = Cvar_Get("cl_voipVADThreshold", "0.25", CVAR_ARCHIVE);
+	cl_voipShowMeter = Cvar_Get("cl_voipShowMeter", "1", CVAR_ARCHIVE);
+
+	// This is a protocol version number.
+	cl_voip = Cvar_Get("cl_voip", "1", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_LATCH);
+	Cvar_CheckRange(cl_voip, 0, 1, qtrue);
+
+	// If your data rate is too low, you'll get Connection Interrupted warnings
+	//  when VoIP packets arrive, even if you have a broadband connection.
+	//  This might work on rates lower than 25000, but for safety's sake, we'll
+	//  just demand it. Who doesn't have at least a DSL line now, anyhow? If
+	//  you don't, you don't need VoIP.  :)
+	if((cl_voip->integer) && (Cvar_VariableIntegerValue("rate") < 25000))
+	{
+		Com_Printf("Your network rate is too slow for VoIP.\n");
+		Com_Printf("Set 'Data Rate' to 'LAN/Cable/xDSL' in 'Setup/System/Network' and restart.\n");
+		Com_Printf("Until then, VoIP is disabled.\n");
+		Cvar_Set("cl_voip", "0");
+	}
+#endif
+
 
 	// cgame might not be initialized before menu is used
 	Cvar_Get("cg_viewsize", "100", CVAR_ARCHIVE);
+	// Make sure cg_stereoSeparation is zero as that variable is deprecated and should not be used anymore.
+	Cvar_Get("cg_stereoSeparation", "0", CVAR_ROM);
 
 	//
 	// register our commands
@@ -2746,6 +3404,7 @@ void CL_Init(void)
 	Cmd_AddCommand("localservers", CL_LocalServers_f);
 	Cmd_AddCommand("globalservers", CL_GlobalServers_f);
 	Cmd_AddCommand("rcon", CL_Rcon_f);
+	Cmd_AddCommand("setenv", CL_Setenv_f);
 	Cmd_AddCommand("ping", CL_Ping_f);
 	Cmd_AddCommand("serverstatus", CL_ServerStatus_f);
 	Cmd_AddCommand("showip", CL_ShowIP_f);
@@ -2758,9 +3417,13 @@ void CL_Init(void)
 
 	SCR_Init();
 
-//  Cbuf_Execute();
+//  Cbuf_Execute ();
 
 	Cvar_Set("cl_running", "1");
+
+	CL_GenerateQKey();
+	Cvar_Get("cl_guid", "", CVAR_USERINFO | CVAR_ROM);
+	CL_UpdateGUID(NULL, 0);
 
 	Com_Printf("----- Client Initialization Complete -----\n");
 }
@@ -2784,7 +3447,7 @@ void CL_Shutdown(void)
 
 	if(recursive)
 	{
-		printf("recursive shutdown\n");
+		Com_Printf("WARNING: Recursive shutdown\n");
 		return;
 	}
 	recursive = qtrue;
@@ -2810,6 +3473,7 @@ void CL_Shutdown(void)
 	Cmd_RemoveCommand("localservers");
 	Cmd_RemoveCommand("globalservers");
 	Cmd_RemoveCommand("rcon");
+	Cmd_RemoveCommand("setenv");
 	Cmd_RemoveCommand("ping");
 	Cmd_RemoveCommand("serverstatus");
 	Cmd_RemoveCommand("showip");
@@ -2929,6 +3593,7 @@ void CL_ServerInfoPacket(netadr_t from, msg_t * msg)
 			}
 			Info_SetValueForKey(cl_pinglist[i].info, "nettype", va("%d", type));
 			CL_SetServerInfoByAddress(from, infoString, cl_pinglist[i].time);
+
 			return;
 		}
 	}
@@ -3049,14 +3714,12 @@ int CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen)
 		}
 		return qfalse;
 	}
-
 	// get the address
 	if(!NET_StringToAdr(serverAddress, &to, NA_UNSPEC))
 	{
 		return qfalse;
 	}
 	serverStatus = CL_GetServerStatus(to);
-
 	// if no server status string then reset the server status request for this address
 	if(!serverStatusString)
 	{
@@ -3287,6 +3950,7 @@ void CL_GlobalServers_f(void)
 
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
+
 	i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
 
 	if(!i)
@@ -3295,9 +3959,7 @@ void CL_GlobalServers_f(void)
 		return;
 	}
 	else if(i == 2)
-	{
 		to.port = BigShort(PORT_MASTER);
-	}
 
 	Com_Printf("Requesting servers from master %s...\n", masteraddress);
 
@@ -3314,7 +3976,7 @@ void CL_GlobalServers_f(void)
 
 	Com_Printf("CL_GlobalServers_f: command = '%s'\n", command);
 
-	NET_OutOfBandPrint(NS_SERVER, to, command);
+	NET_OutOfBandPrint(NS_SERVER, to, "%s", command);
 }
 
 
@@ -3512,9 +4174,7 @@ void CL_Ping_f(void)
 	}
 
 	if(argc == 2)
-	{
 		server = Cmd_Argv(1);
-	}
 	else
 	{
 		if(!strcmp(Cmd_Argv(1), "-4"))
@@ -3703,9 +4363,7 @@ void CL_ServerStatus_f(void)
 		Com_Memset(&to, 0, sizeof(netadr_t));
 
 		if(argc == 2)
-		{
 			server = Cmd_Argv(1);
-		}
 		else
 		{
 			if(!strcmp(Cmd_Argv(1), "-4"))
@@ -3719,7 +4377,7 @@ void CL_ServerStatus_f(void)
 		}
 
 		toptr = &to;
-		if(!NET_StringToAdr(server, &to, family))
+		if(!NET_StringToAdr(server, toptr, family))
 			return;
 	}
 
@@ -3740,3 +4398,77 @@ void CL_ShowIP_f(void)
 {
 	Sys_ShowIP();
 }
+
+#ifndef STANDALONE
+/*
+=================
+bool CL_CDKeyValidate
+=================
+*/
+qboolean CL_CDKeyValidate(const char *key, const char *checksum)
+{
+	char            ch;
+	byte            sum;
+	char            chs[3];
+	int             i, len;
+
+	len = strlen(key);
+	if(len != CDKEY_LEN)
+	{
+		return qfalse;
+	}
+
+	if(checksum && strlen(checksum) != CDCHKSUM_LEN)
+	{
+		return qfalse;
+	}
+
+	sum = 0;
+	// for loop gets rid of conditional assignment warning
+	for(i = 0; i < len; i++)
+	{
+		ch = *key++;
+		if(ch >= 'a' && ch <= 'z')
+		{
+			ch -= 32;
+		}
+		switch (ch)
+		{
+			case '2':
+			case '3':
+			case '7':
+			case 'A':
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'G':
+			case 'H':
+			case 'J':
+			case 'L':
+			case 'P':
+			case 'R':
+			case 'S':
+			case 'T':
+			case 'W':
+				sum += ch;
+				continue;
+			default:
+				return qfalse;
+		}
+	}
+
+	sprintf(chs, "%02x", sum);
+
+	if(checksum && !Q_stricmp(chs, checksum))
+	{
+		return qtrue;
+	}
+
+	if(!checksum)
+	{
+		return qtrue;
+	}
+
+	return qfalse;
+}
+#endif

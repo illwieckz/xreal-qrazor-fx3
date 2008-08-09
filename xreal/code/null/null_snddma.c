@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -48,7 +47,6 @@ void SNDDMA_Submit(void)
 {
 }
 
-// bk001119 - added boolean flag, match client/snd_public.h
 sfxHandle_t     S_RegisterSound(const char *sample)
 {
 	return 0;

@@ -331,9 +331,7 @@ static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int s
 
 	// workaround for buggy MacOSX getaddrinfo implementation that doesn't handle AF_UNSPEC in hints correctly.
 	if(family == AF_UNSPEC)
-	{
 		hintsp = NULL;
-	}
 	else
 	{
 		hintsp = &hints;
@@ -575,8 +573,8 @@ qboolean Sys_GetPacket(netadr_t * net_from, msg_t * net_message)
 
 			if(usingSocks && memcmp(&from, &socksRelayAddr, fromlen) == 0)
 			{
-				if(ret < 10 || net_message->data[0] != 0
-				   || net_message->data[1] != 0 || net_message->data[2] != 0 || net_message->data[3] != 1)
+				if(ret < 10 || net_message->data[0] != 0 || net_message->data[1] != 0 || net_message->data[2] != 0 ||
+				   net_message->data[3] != 1)
 				{
 					return qfalse;
 				}
@@ -947,9 +945,7 @@ int NET_IP6Socket(char *net_interface, int port, struct sockaddr_in6 *bindto, in
 			Com_Printf("Opening IP6 socket: %s:%i\n", net_interface, port);
 	}
 	else
-	{
 		Com_Printf("Opening IP6 socket: [::]:%i\n", port);
-	}
 
 	if((newsocket = socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
 	{
@@ -1030,9 +1026,8 @@ void NET_SetMulticast6(void)
 	if(!*net_mcast6addr->string ||
 	   !Sys_StringToSockaddr(net_mcast6addr->string, (struct sockaddr *)&addr, sizeof(addr), AF_INET6))
 	{
-		Com_Printf
-			("WARNING: NET_JoinMulticast6: Incorrect multicast address given, "
-			 "please set cvar %s to a sane value.\n", net_mcast6addr->name);
+		Com_Printf("WARNING: NET_JoinMulticast6: Incorrect multicast address given, "
+				   "please set cvar %s to a sane value.\n", net_mcast6addr->name);
 
 		Cvar_SetValue(net_enabled->name, net_enabled->integer | NET_DISABLEMCAST);
 

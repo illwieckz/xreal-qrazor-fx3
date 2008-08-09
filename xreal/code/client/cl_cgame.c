@@ -325,7 +325,7 @@ qboolean CL_GetServerCommand(int serverCommandNumber)
 		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=552
 		// allow server to indicate why they were disconnected
 		if(argc >= 2)
-			Com_Error(ERR_SERVERDISCONNECT, va("Server Disconnected - %s", Cmd_Argv(1)));
+			Com_Error(ERR_SERVERDISCONNECT, "Server disconnected - %s", Cmd_Argv(1));
 		else
 			Com_Error(ERR_SERVERDISCONNECT, "Server disconnected\n");
 	}
@@ -974,6 +974,52 @@ void CL_FirstSnapshot(void)
 		Cbuf_AddText(cl_activeAction->string);
 		Cvar_Set("activeAction", "");
 	}
+
+#ifdef USE_MUMBLE
+	if((cl_useMumble->integer) && !mumble_islinked())
+	{
+		int             ret = mumble_link(CLIENT_WINDOW_TITLE);
+
+		Com_Printf("Mumble: Linking to Mumble application %s\n", ret == 0 ? "ok" : "failed");
+	}
+#endif
+
+#ifdef USE_VOIP
+	if(!clc.speexInitialized)
+	{
+		int             i;
+
+		speex_bits_init(&clc.speexEncoderBits);
+		speex_bits_reset(&clc.speexEncoderBits);
+
+		clc.speexEncoder = speex_encoder_init(&speex_nb_mode);
+
+		speex_encoder_ctl(clc.speexEncoder, SPEEX_GET_FRAME_SIZE, &clc.speexFrameSize);
+		speex_encoder_ctl(clc.speexEncoder, SPEEX_GET_SAMPLING_RATE, &clc.speexSampleRate);
+
+		clc.speexPreprocessor = speex_preprocess_state_init(clc.speexFrameSize, clc.speexSampleRate);
+
+		i = 1;
+		speex_preprocess_ctl(clc.speexPreprocessor, SPEEX_PREPROCESS_SET_DENOISE, &i);
+
+		i = 1;
+		speex_preprocess_ctl(clc.speexPreprocessor, SPEEX_PREPROCESS_SET_AGC, &i);
+
+		for(i = 0; i < MAX_CLIENTS; i++)
+		{
+			speex_bits_init(&clc.speexDecoderBits[i]);
+			speex_bits_reset(&clc.speexDecoderBits[i]);
+			clc.speexDecoder[i] = speex_decoder_init(&speex_nb_mode);
+			clc.voipIgnore[i] = qfalse;
+			clc.voipGain[i] = 1.0f;
+		}
+		clc.speexInitialized = qtrue;
+		clc.voipMuteAll = qfalse;
+		Cmd_AddCommand("voip", CL_Voip_f);
+		Cvar_Set("cl_voipSendTarget", "all");
+		clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0x7FFFFFFF;
+	}
+#endif
 }
 
 /*

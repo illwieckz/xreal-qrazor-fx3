@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+// OGG support is enabled by this define
+#ifdef USE_CODEC_VORBIS
+
 // includes for the Q3 sound system
 #include "client.h"
 #include "snd_codec.h"
@@ -124,7 +127,7 @@ int S_OGG_Callback_seek(void *datasource, ogg_int64_t offset, int whence)
 			retVal = FS_Seek(stream->file, (long)offset, FS_SEEK_SET);
 
 			// something has gone wrong, so we return here
-			if(!(retVal == 0))
+			if(retVal < 0)
 			{
 				return retVal;
 			}
@@ -140,7 +143,7 @@ int S_OGG_Callback_seek(void *datasource, ogg_int64_t offset, int whence)
 			retVal = FS_Seek(stream->file, (long)offset, FS_SEEK_CUR);
 
 			// something has gone wrong, so we return here
-			if(!(retVal == 0))
+			if(retVal < 0)
 			{
 				return retVal;
 			}
@@ -159,7 +162,7 @@ int S_OGG_Callback_seek(void *datasource, ogg_int64_t offset, int whence)
 			retVal = FS_Seek(stream->file, (long)stream->length + (long)offset, FS_SEEK_SET);
 
 			// something has gone wrong, so we return here
-			if(!(retVal == 0))
+			if(retVal < 0)
 			{
 				return retVal;
 			}
@@ -468,3 +471,5 @@ void           *S_OGG_CodecLoad(const char *filename, snd_info_t * info)
 
 	return buffer;
 }
+
+#endif							// USE_CODEC_VORBIS

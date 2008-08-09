@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -95,7 +95,7 @@ char           *MSG_ReadBigString(msg_t * sb);
 char           *MSG_ReadStringLine(msg_t * sb);
 float           MSG_ReadAngle16(msg_t * sb);
 void            MSG_ReadData(msg_t * sb, void *buffer, int size);
-
+int             MSG_LookaheadByte(msg_t * msg);
 
 void            MSG_WriteDeltaUsercmd(msg_t * msg, struct usercmd_s *from, struct usercmd_s *to);
 void            MSG_ReadDeltaUsercmd(msg_t * msg, struct usercmd_s *from, struct usercmd_s *to);
@@ -144,13 +144,13 @@ typedef enum
 	NA_UNSPEC
 } netadrtype_t;
 
-#define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
 typedef enum
 {
 	NS_CLIENT,
 	NS_SERVER
 } netsrc_t;
 
+#define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
 typedef struct
 {
 	netadrtype_t    type;
@@ -167,8 +167,8 @@ void            NET_Restart(void);
 void            NET_Config(qboolean enableNetworking);
 void            NET_FlushPacketQueue(void);
 void            NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to);
-void QDECL      NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr,
-								   const char *format, ...) __attribute__ ((format(printf, 3, 4)));
+void QDECL      NET_OutOfBandPrint(netsrc_t net_socket, netadr_t adr, const char *format, ...)
+	__attribute__ ((format(printf, 3, 4)));
 void QDECL      NET_OutOfBandData(netsrc_t sock, netadr_t adr, byte * format, int len);
 
 qboolean        NET_CompareAdr(netadr_t a, netadr_t b);
@@ -182,7 +182,9 @@ void            NET_JoinMulticast6(void);
 void            NET_LeaveMulticast6(void);
 void            NET_Sleep(int msec);
 
-#define	MAX_MSGLEN				16384	// max length of a message, which may be fragmented into multiple packets
+
+#define	MAX_MSGLEN				16384	// max length of a message, which may
+											// be fragmented into multiple packets
 
 #define MAX_DOWNLOAD_WINDOW			8	// max of eight download frames
 #define MAX_DOWNLOAD_BLKSIZE		2048	// 2048 byte block chunks
@@ -245,6 +247,15 @@ extern int      demo_protocols[];
 #define MASTER_SERVER_NAME		"master.varcache.org"
 #endif
 
+#ifndef STANDALONE
+#ifndef AUTHORIZE_SERVER_NAME
+#define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
+#endif
+#ifndef PORT_AUTHORIZE
+#define	PORT_AUTHORIZE		27952
+#endif
+#endif
+
 #define	PORT_MASTER			27950
 #define	PORT_SERVER			27960
 
@@ -267,7 +278,12 @@ enum svc_ops_e
 	svc_serverCommand,			// [string] to be executed by client game module
 	svc_download,				// [short] size [size bytes]
 	svc_snapshot,
-	svc_EOF
+	svc_EOF,
+
+	// svc_extension follows a svc_EOF, followed by another svc_* ...
+	//  this keeps legacy clients compatible.
+	svc_extension,
+	svc_voip,					// not wrapped in USE_VOIP, so this value is reserved.
 };
 
 
@@ -281,7 +297,12 @@ enum clc_ops_e
 	clc_move,					// [[usercmd_t]
 	clc_moveNoDelta,			// [[usercmd_t]
 	clc_clientCommand,			// [string] message
-	clc_EOF
+	clc_EOF,
+
+	// clc_extension follows a clc_EOF, followed by another clc_* ...
+	//  this keeps legacy servers compatible.
+	clc_extension,
+	clc_voip,					// not wrapped in USE_VOIP, so this value is reserved.
 };
 
 /*
@@ -538,8 +559,7 @@ char           *Cvar_InfoString_Big(int bit);
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void            Cvar_InfoStringBuffer(int bit, char *buff, int buffsize);
-
-void			Cvar_CheckRange(cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral);
+void            Cvar_CheckRange(cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral);
 
 void            Cvar_Restart_f(void);
 
@@ -753,6 +773,10 @@ MISC
 ==============================================================
 */
 
+// centralizing the declarations for cl_cdkey
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
+extern char     cl_cdkey[34];
+
 // returned by Sys_GetProcessorFeatures
 typedef enum
 {
@@ -768,6 +792,7 @@ typedef enum
 
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define	MAXPRINTMSG	4096
+
 
 typedef enum
 {
@@ -806,6 +831,7 @@ void            Com_Quit_f(void);
 
 int             Com_Milliseconds(void);	// will be journaled properly
 unsigned        Com_BlockChecksum(const void *buffer, int length);
+char           *Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
 int             Com_HashKey(char *string, int maxlen);
 int             Com_Filter(char *filter, char *name, int casesensitive);
 int             Com_FilterPath(char *filter, char *name, int casesensitive);
@@ -974,6 +1000,10 @@ void            CL_ForwardCommandToServer(const char *string);
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
+void            CL_CDDialog(void);
+
+// bring up the "need a cd to play" dialog
+
 void            CL_ShutdownAll(void);
 
 // shutdown all the client stuff
@@ -1038,8 +1068,8 @@ typedef enum
 void            Sys_Init(void);
 
 // general development dll loading for virtual machine testing
-void           *QDECL Sys_LoadDll(const char *name, char *fqpath,
-								  intptr_t(QDECL ** entryPoint) (int, ...), intptr_t(QDECL * systemcalls) (intptr_t, ...));
+void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t(QDECL ** entryPoint) (int, ...),
+								  intptr_t(QDECL * systemcalls) (intptr_t, ...));
 void            Sys_UnloadDll(void *dllHandle);
 
 void            Sys_UnloadGame(void);
@@ -1156,6 +1186,11 @@ void            Huff_offsetReceive(node_t * node, int *ch, byte * fin, int *offs
 void            Huff_offsetTransmit(huff_t * huff, int ch, byte * fout, int *offset);
 void            Huff_putBit(int bit, byte * fout, int *offset);
 int             Huff_getBit(byte * fout, int *offset);
+
+// don't use if you don't know what you're doing.
+int             Huff_getBloc(void);
+void            Huff_setBloc(int _bloc);
+
 
 extern huffman_t clientHuffTables;
 

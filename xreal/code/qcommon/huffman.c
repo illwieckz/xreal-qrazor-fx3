@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -40,6 +39,16 @@ void Huff_putBit(int bit, byte * fout, int *offset)
 	fout[(bloc >> 3)] |= bit << (bloc & 7);
 	bloc++;
 	*offset = bloc;
+}
+
+int Huff_getBloc(void)
+{
+	return bloc;
+}
+
+void Huff_setBloc(int _bloc)
+{
+	bloc = _bloc;
 }
 
 int Huff_getBit(byte * fin, int *offset)

@@ -29,6 +29,7 @@ xreal_src = [
 'code/qcommon/files.c',
 'code/qcommon/huffman.c',
 'code/qcommon/md4.c',
+'code/qcommon/md5.c',
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
 'code/qcommon/net_ip.c',
@@ -41,6 +42,7 @@ xreal_src = [
 'code/client/snd_mem.c',
 'code/client/snd_mix.c',
 'code/client/snd_openal.c',
+'code/client/qal.c',
 'code/server/sv_bot.c',
 'code/server/sv_ccmds.c',
 'code/server/sv_client.c',
@@ -193,6 +195,8 @@ win_src = [
 xreal_env.Append(CCFLAGS='-Icode/ogg/include')
 xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 xreal_env.Append(CCFLAGS='-Icode/zlib')
+xreal_env.Append(CCFLAGS='-DSTANDALONE')
+xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
 
 if env['curl'] == 1:
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')

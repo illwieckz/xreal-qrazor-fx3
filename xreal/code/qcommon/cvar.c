@@ -89,110 +89,6 @@ static qboolean Cvar_ValidateString(const char *s)
 
 /*
 ============
-Cvar_Validate
-============
-*/
-static const char *Cvar_Validate(cvar_t *var, const char *value, qboolean warn)
-{
-	static char			s[MAX_CVAR_VALUE_STRING];
-	float				valuef;
-	qboolean			changed = qfalse;
-
-	if(!var->validate)
-		return value;
-
-	if(!value)
-		return value;
-
-	if(Q_isanumber(value))
-	{
-		valuef = atof(value);
-
-		if(var->integral)
-		{
-			if(!Q_isintegral(valuef))
-			{
-				if(warn)
-					Com_Printf("WARNING: cvar '%s' must be integral", var->name);
-
-				valuef = (int)valuef;
-				changed = qtrue;
-			}
-		}
-	}
-	else
-	{
-		if(warn)
-			Com_Printf("WARNING: cvar '%s' must be numeric", var->name);
-
-		valuef = atof( var->resetString );
-		changed = qtrue;
-	}
-
-	if(valuef < var->min)
-	{
-		if(warn)
-		{
-			if(changed)
-				Com_Printf(" and is");
-			else
-				Com_Printf("WARNING: cvar '%s'", var->name);
-
-			if( Q_isintegral( var->min ) )
-				Com_Printf(" out of range (min %d)", (int)var->min);
-			else
-				Com_Printf(" out of range (min %f)", var->min);
-		}
-
-		valuef = var->min;
-		changed = qtrue;
-	}
-	else if(valuef > var->max)
-	{
-		if(warn)
-		{
-			if(changed)
-				Com_Printf(" and is");
-			else
-				Com_Printf("WARNING: cvar '%s'", var->name);
-
-			if( Q_isintegral( var->max ) )
-				Com_Printf(" out of range (max %d)", (int)var->max);
-			else
-				Com_Printf(" out of range (max %f)", var->max);
-		}
-
-		valuef = var->max;
-		changed = qtrue;
-	}
-
-	if(changed)
-	{
-		if(Q_isintegral(valuef))
-		{
-			Com_sprintf(s, sizeof(s), "%d", (int)valuef);
-
-			if(warn)
-				Com_Printf(", setting to %d\n", (int)valuef);
-		}
-		else
-		{
-			Com_sprintf(s, sizeof(s), "%f", valuef);
-
-			if(warn)
-				Com_Printf(", setting to %f\n", valuef);
-		}
-
-		return s;
-	}
-	else
-	{
-		return value;
-	}
-}
-
-/*
-============
 Cvar_FindVar
 ============
 */
@@ -312,6 +208,108 @@ void Cvar_CommandCompletion(void (*callback) (const char *s))
 	}
 }
 
+/*
+============
+Cvar_Validate
+============
+*/
+static const char *Cvar_Validate(cvar_t * var, const char *value, qboolean warn)
+{
+	static char     s[MAX_CVAR_VALUE_STRING];
+	float           valuef;
+	qboolean        changed = qfalse;
+
+	if(!var->validate)
+		return value;
+
+	if(!value)
+		return value;
+
+	if(Q_isanumber(value))
+	{
+		valuef = atof(value);
+
+		if(var->integral)
+		{
+			if(!Q_isintegral(valuef))
+			{
+				if(warn)
+					Com_Printf("WARNING: cvar '%s' must be integral", var->name);
+
+				valuef = (int)valuef;
+				changed = qtrue;
+			}
+		}
+	}
+	else
+	{
+		if(warn)
+			Com_Printf("WARNING: cvar '%s' must be numeric", var->name);
+
+		valuef = atof(var->resetString);
+		changed = qtrue;
+	}
+
+	if(valuef < var->min)
+	{
+		if(warn)
+		{
+			if(changed)
+				Com_Printf(" and is");
+			else
+				Com_Printf("WARNING: cvar '%s'", var->name);
+
+			if(Q_isintegral(var->min))
+				Com_Printf(" out of range (min %d)", (int)var->min);
+			else
+				Com_Printf(" out of range (min %f)", var->min);
+		}
+
+		valuef = var->min;
+		changed = qtrue;
+	}
+	else if(valuef > var->max)
+	{
+		if(warn)
+		{
+			if(changed)
+				Com_Printf(" and is");
+			else
+				Com_Printf("WARNING: cvar '%s'", var->name);
+
+			if(Q_isintegral(var->max))
+				Com_Printf(" out of range (max %d)", (int)var->max);
+			else
+				Com_Printf(" out of range (max %f)", var->max);
+		}
+
+		valuef = var->max;
+		changed = qtrue;
+	}
+
+	if(changed)
+	{
+		if(Q_isintegral(valuef))
+		{
+			Com_sprintf(s, sizeof(s), "%d", (int)valuef);
+
+			if(warn)
+				Com_Printf(", setting to %d\n", (int)valuef);
+		}
+		else
+		{
+			Com_sprintf(s, sizeof(s), "%f", valuef);
+
+			if(warn)
+				Com_Printf(", setting to %f\n", valuef);
+		}
+
+		return s;
+	}
+	else
+		return value;
+}
+
 
 /*
 ============
@@ -362,6 +360,7 @@ cvar_t         *Cvar_Get(const char *var_name, const char *var_value, int flags)
 			{
 				// this variable was set by the user,
 				// so force it to value given by the engine.
+
 				if(var->latchedString)
 					Z_Free(var->latchedString);
 
@@ -862,6 +861,10 @@ void Cvar_WriteVariables(fileHandle_t f)
 
 	for(var = cvar_vars; var; var = var->next)
 	{
+		if(Q_stricmp(var->name, "cl_cdkey") == 0)
+		{
+			continue;
+		}
 		if(var->flags & CVAR_ARCHIVE)
 		{
 			// write the latched value, even if it hasn't taken effect yet
@@ -1104,7 +1107,7 @@ void Cvar_InfoStringBuffer(int bit, char *buff, int buffsize)
 Cvar_CheckRange
 =====================
 */
-void Cvar_CheckRange(cvar_t *var, float min, float max, qboolean integral)
+void Cvar_CheckRange(cvar_t * var, float min, float max, qboolean integral)
 {
 	var->validate = qtrue;
 	var->min = min;

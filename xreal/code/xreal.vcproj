@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;USE_CODEC_VORBIS"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/xreal.pch"
@@ -154,9 +154,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				WholeProgramOptimization="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".\ogg\include;.\vorbis\include;.\freetype\include;.\zlib"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;SIMD_SSE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;USE_CURL;USE_OPENAL;BUILD_FREETYPE;FT2_BUILD_LIBRARY;STANDALONE;SIMD_SSE;USE_CODEC_VORBIS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -773,6 +773,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\qcommon\md5.c"
+				>
+			</File>
+			<File
 				RelativePath="qcommon\msg.c"
 				>
 				<FileConfiguration
@@ -867,6 +871,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\client\qal.c"
+				>
 			</File>
 			<File
 				RelativePath=".\renderer\qgl.c"
@@ -1374,6 +1382,10 @@
 			</File>
 			<File
 				RelativePath="game\q_shared.h"
+				>
+			</File>
+			<File
+				RelativePath=".\client\qal.h"
 				>
 			</File>
 			<File

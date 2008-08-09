@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -505,7 +505,7 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 			return FloatAsInt(sqrt(VMF(1)));
 
 		case TRAP_MATRIXMULTIPLY:
-			AxisMultiply(VMA(1), VMA(2), VMA(3));
+			MatrixMultiply(VMA(1), VMA(2), VMA(3));
 			return 0;
 
 		case TRAP_ANGLEVECTORS:
