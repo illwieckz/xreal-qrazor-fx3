@@ -3321,7 +3321,7 @@ void Com_Init(char *commandLine)
 	com_maxfpsUnfocused = Cvar_Get("com_maxfpsUnfocused", "0", CVAR_ARCHIVE);
 	com_minimized = Cvar_Get("com_minimized", "0", CVAR_ROM);
 	com_maxfpsMinimized = Cvar_Get("com_maxfpsMinimized", "0", CVAR_ARCHIVE);
-	com_standalone = Cvar_Get("com_standalone", "0", CVAR_INIT);
+	com_standalone = Cvar_Get("com_standalone", "1", CVAR_INIT);
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
