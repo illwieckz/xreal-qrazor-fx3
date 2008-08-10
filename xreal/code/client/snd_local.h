@@ -69,8 +69,6 @@ typedef struct sfx_s
 	sndBuffer      *soundData;
 	qboolean        defaultSound;	// couldn't be loaded, so use buzz
 	qboolean        inMemory;	// not in Memory
-	qboolean        soundCompressed;	// not in Memory
-	int             soundCompressionMethod;
 	int             soundLength;
 	char            soundName[MAX_QPATH];
 	int             lastTimeUsed;
@@ -222,7 +220,7 @@ sndBuffer      *SND_malloc(void);
 void            SND_setup(void);
 
 void            S_PaintChannels(int endtime);
-
+void			S_FreeOldestSound(void);
 void            S_memoryLoad(sfx_t * sfx);
 
 // spatializes a channel

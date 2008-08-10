@@ -234,6 +234,8 @@ qboolean S_LoadSound(sfx_t * sfx)
 
 	sfx->lastTimeUsed = Com_Milliseconds() + 1;
 
+	sfx->soundLength = info.samples;
+	sfx->soundData = NULL;
 	ResampleSfx(sfx, info.rate, info.width, data + info.dataofs, qfalse);
 
 	Hunk_FreeTempMemory(samples);
