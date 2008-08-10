@@ -240,7 +240,8 @@ xreal_env.Append(CCFLAGS='-Icode/zlib')
 xreal_env.Append(CCFLAGS='-DSTANDALONE')
 xreal_env.Append(CCFLAGS='-DUSE_CODEC_VORBIS')
 xreal_env.Append(CCFLAGS='-DUSE_VOIP')
-xreal_env.Append(CCFLAGS='-DHAVE_CONFIG')
+xreal_env.Append(CCFLAGS='-DFLOATING_POINT')
+xreal_env.Append(CCFLAGS='-DUSE_ALLOCA')
 xreal_env.Append(CCFLAGS='-Icode/speex/include')
 
 if env['curl'] == 1:
