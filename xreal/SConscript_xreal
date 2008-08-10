@@ -202,10 +202,10 @@ xreal_src = [
 'code/speex/speex_header.c',
 'code/speex/speex_lpc.c',
 'code/speex/speex_lsp.c',
+'code/speex/speex_window',
 'code/speex/stereo.c',
 'code/speex/vbr.c',
-'code/speex/vq.c',
-'code/speex/window'
+'code/speex/vq.c'
 ]
 
 unix_src = [
