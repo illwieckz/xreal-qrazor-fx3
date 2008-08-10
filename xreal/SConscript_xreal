@@ -198,8 +198,6 @@ xreal_src = [
 'code/speex/sb_celp.c',
 'code/speex/smallft.c',
 'code/speex/speex.c',
-'code/speex/lpc.c',
-'code/speex/lsp.c',
 'code/speex/speex_callbacks.c',
 'code/speex/speex_header.c',
 'code/speex/speex_lpc.c',
