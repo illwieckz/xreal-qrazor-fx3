@@ -1570,6 +1570,7 @@ void BasePortalVis(int portalnum)
 	{
 		if(j == portalnum)
 			continue;
+		
 		if(tp->removed)
 			continue;
 
@@ -1592,26 +1593,29 @@ void BasePortalVis(int portalnum)
 				continue;
 		}
 
-
+#if 1
 		w = tp->winding;
 		for(k = 0; k < w->numpoints; k++)
 		{
 			d = DotProduct(w->points[k], p->plane.normal) - p->plane.dist;
-			if(d > ON_EPSILON)
+			if(d > ON_EPSILON) //distanceEpsilon)
 				break;
 		}
 		if(k == w->numpoints)
 			continue;			// no points on front
+#endif
 
+#if 1
 		w = p->winding;
 		for(k = 0; k < w->numpoints; k++)
 		{
 			d = DotProduct(w->points[k], tp->plane.normal) - tp->plane.dist;
-			if(d < -ON_EPSILON)
+			if(d < -ON_EPSILON) //distanceEpsilon)
 				break;
 		}
 		if(k == w->numpoints)
 			continue;			// no points on front
+#endif
 
 		p->portalfront[j >> 3] |= (1 << (j & 7));
 	}
@@ -1692,16 +1696,101 @@ BetterPortalVis
 */
 void BetterPortalVis(int portalnum)
 {
-	vportal_t      *p;
+	int             j, k;
+	vportal_t      *tp, *p;
+	float           d;
+	fixedWinding_t *w;
+	vec3_t          dir;
 
 	p = portals + portalnum;
 
 	if(p->removed)
 		return;
 
+	for(j = 0, tp = portals; j < numportals * 2; j++, tp++)
+	{
+		if(j == portalnum)
+			continue;
+		if(tp->removed)
+			continue;
+
+		/* ydnar: this is old farplane vis code from mre */
+		/*
+		   if (farplanedist >= 0)
+		   {
+		   vec3_t dir;
+		   VectorSubtract(p->origin, tp->origin, dir);
+		   if (VectorLength(dir) > farplanedist - p->radius - tp->radius)
+		   continue;
+		   }
+		 */
+
+		/* ydnar: this is known-to-be-working farplane code */
+		if(farPlaneDist > 0.0f)
+		{
+			VectorSubtract(p->origin, tp->origin, dir);
+			if(VectorLength(dir) - p->radius - tp->radius > farPlaneDist)
+				continue;
+		}
+
+
+		w = tp->winding;
+		for(k = 0; k < w->numpoints; k++)
+		{
+			d = DotProduct(w->points[k], p->plane.normal) - p->plane.dist;
+			if(d > ON_EPSILON)
+				break;
+		}
+		if(k == w->numpoints)
+			continue;			// no points on front
+
+		w = p->winding;
+		for(k = 0; k < w->numpoints; k++)
+		{
+			d = DotProduct(w->points[k], tp->plane.normal) - tp->plane.dist;
+			if(d < -ON_EPSILON)
+				break;
+		}
+		if(k == w->numpoints)
+			continue;			// no points on front
+
+		p->portalfront[j >> 3] |= (1 << (j & 7));
+	}
+
+	SimpleFlood(p, p->leaf);
+
 	RecursiveLeafBitFlow(p->leaf, p->portalflood, p->portalvis);
 
 	// build leaf vis information
 	p->nummightsee = CountBits(p->portalvis, numportals * 2);
 	c_vis += p->nummightsee;
+}
+
+
+/*
+==============
+AllocPortalVis
+==============
+*/
+void AllocPortalVis(int portalnum)
+{
+	int             j, k;
+	vportal_t      *tp, *p;
+	float           d;
+	fixedWinding_t *w;
+	vec3_t          dir;
+
+	p = portals + portalnum;
+
+	if(p->removed)
+		return;
+
+	p->portalfront = safe_malloc(portalbytes);
+	memset(p->portalfront, 0, portalbytes);
+
+	p->portalflood = safe_malloc(portalbytes);
+	memset(p->portalflood, 0, portalbytes);
+
+	p->portalvis = safe_malloc(portalbytes);
+	memset(p->portalvis, 0, portalbytes);
 }

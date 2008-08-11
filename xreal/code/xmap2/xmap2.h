@@ -1669,6 +1669,7 @@ void            BasePortalVis(int portalnum);
 void            BetterPortalVis(int portalnum);
 void            PortalFlow(int portalnum);
 void            PassagePortalFlow(int portalnum);
+void			AllocPortalVis(int portalnum);
 
 
 

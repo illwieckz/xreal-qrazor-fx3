@@ -334,9 +334,12 @@ void CalcVis(void)
 
 
 	Sys_Printf("\n--- BasePortalVis (%d) ---\n", numportals * 2);
+#if 1
 	RunThreadsOnIndividual(numportals * 2, qtrue, BasePortalVis);
-
-//  RunThreadsOnIndividual (numportals*2, qtrue, BetterPortalVis);
+#else
+	RunThreadsOnIndividual(numportals * 2, qtrue, AllocPortalVis);
+	RunThreadsOnIndividual(numportals * 2, qtrue, BetterPortalVis);
+#endif
 
 	SortPortals();
 
