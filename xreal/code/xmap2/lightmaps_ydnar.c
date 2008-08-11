@@ -2030,21 +2030,20 @@ static void FindOutLightmaps(rawLightmap_t * lm)
 		if(ok == qfalse)
 		{
 			/* allocate two new output lightmaps */
-			numOutLightmaps += 2;
+			numOutLightmaps += 1;
 			olm = safe_malloc(numOutLightmaps * sizeof(outLightmap_t));
-			if(outLightmaps != NULL && numOutLightmaps > 2)
+			if(outLightmaps != NULL && numOutLightmaps > 1)
 			{
-				memcpy(olm, outLightmaps, (numOutLightmaps - 2) * sizeof(outLightmap_t));
+				memcpy(olm, outLightmaps, (numOutLightmaps - 1) * sizeof(outLightmap_t));
 				free(outLightmaps);
 			}
 			outLightmaps = olm;
 
 			/* initialize both out lightmaps */
-			SetupOutLightmap(lm, &outLightmaps[numOutLightmaps - 2]);
 			SetupOutLightmap(lm, &outLightmaps[numOutLightmaps - 1]);
 
 			/* set out lightmap */
-			i = numOutLightmaps - 2;
+			i = numOutLightmaps - 1;
 			olm = &outLightmaps[i];
 
 			/* set stamp xy origin to the first surface lightmap */
