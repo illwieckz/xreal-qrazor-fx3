@@ -239,6 +239,8 @@ typedef struct
 		// little-endian "IBSP"
 
 #define BSP_VERSION			46
+#define BSP_VERSION_Q3		46
+#define BSP_VERSION_ET		47
 
 
 // there shouldn't be any problem with increasing these values at the
@@ -396,7 +398,8 @@ typedef enum
 	MST_PLANAR,
 	MST_PATCH,
 	MST_TRIANGLE_SOUP,
-	MST_FLARE
+	MST_FLARE,
+	MST_FOLIAGE
 } mapSurfaceType_t;
 
 typedef struct

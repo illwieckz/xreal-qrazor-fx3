@@ -3581,7 +3581,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 	drawVert_t     *dv;
 	int            *indexes;
 	int             count;
-	int             numFaces, numMeshes, numTriSurfs, numFlares;
+	int             numFaces, numMeshes, numTriSurfs, numFlares, numFoliage;
 	int             i;
 
 	ri.Printf(PRINT_ALL, "...loading surfaces\n");
@@ -3629,12 +3629,17 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 				ParseFlare(in, dv, out, indexes);
 				numFlares++;
 				break;
+			case MST_FOLIAGE:
+				// Tr3B: TODO ParseFoliage
+				ParseTriSurf(in, dv, out, indexes);
+				numFoliage++;
+				break;
 			default:
 				ri.Error(ERR_DROP, "Bad surfaceType");
 		}
 	}
 
-	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", numFaces, numMeshes, numTriSurfs, numFlares);
+	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares %i foliage\n", numFaces, numMeshes, numTriSurfs, numFlares, numFoliage);
 
 	if(r_stitchCurves->integer)
 	{
@@ -6427,7 +6432,7 @@ void RE_LoadWorldMap(const char *name)
 	fileBase = (byte *) header;
 
 	i = LittleLong(header->version);
-	if(i != BSP_VERSION)
+	if(i != BSP_VERSION && i != BSP_VERSION_ET)
 	{
 		ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", name, i, BSP_VERSION);
 	}
