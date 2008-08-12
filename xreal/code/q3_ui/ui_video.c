@@ -272,13 +272,13 @@ typedef struct
 	menulist_s      mode;
 	menuslider_s    tq;
 	menulist_s      fs;
-	menulist_s      lighting;
 	menulist_s      texturebits;
-	menulist_s      colordepth;
+//	menulist_s      colordepth;
 	menulist_s      geometry;
 	menulist_s      filter;
 	menulist_s      compression;
 	menuslider_s    anisotropicFilter;
+	menulist_s      deferredShading;
 	menulist_s      shadowType;
 	menulist_s      shadowFilter;
 	menuslider_s    shadowBlur;
@@ -297,13 +297,13 @@ typedef struct
 	int             mode;
 	qboolean        fullscreen;
 	int             tq;
-	int             lighting;
-	int             colordepth;
+//	int             colordepth;
 	int             texturebits;
 	int             geometry;
 	int             filter;
 	int             compression;
 	int             anisotropicFilter;
+	int             deferredShading;
 	int             shadowType;
 	int             shadowFilter;
 	int             shadowBlur;
@@ -317,11 +317,11 @@ static graphicsoptions_t s_graphicsoptions;
 
 // *INDENT-OFF*
 static InitialVideoOptions_s s_ivo_templates[] = {
-	{ 4, qtrue, 2, 0, 2, 2, 1, 1, 0, 0, 1, 1, 1, 1, 0},
-	{ 3, qtrue, 2, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0},
-	{ 2, qtrue, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0},
-	{ 2, qtrue, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0},
-	{ 3, qtrue, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0}
+	{ 4, qtrue, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
+	{ 3, qtrue, 2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
+	{ 2, qtrue, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
+	{ 2, qtrue, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
+	{ 3, qtrue, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0}
 };
 // *INDENT-ON*
 
@@ -486,15 +486,15 @@ GraphicsOptions_GetInitialVideo
 */
 static void GraphicsOptions_GetInitialVideo(void)
 {
-	s_ivo.colordepth = s_graphicsoptions.colordepth.curvalue;
+//	s_ivo.colordepth = s_graphicsoptions.colordepth.curvalue;
 	s_ivo.mode = s_graphicsoptions.mode.curvalue;
 	s_ivo.fullscreen = s_graphicsoptions.fs.curvalue;
 	s_ivo.tq = s_graphicsoptions.tq.curvalue;
-	s_ivo.lighting = s_graphicsoptions.lighting.curvalue;
 	s_ivo.geometry = s_graphicsoptions.geometry.curvalue;
 	s_ivo.filter = s_graphicsoptions.filter.curvalue;
 	s_ivo.texturebits = s_graphicsoptions.texturebits.curvalue;
 	s_ivo.compression = s_graphicsoptions.compression.curvalue;
+	s_ivo.deferredShading = s_graphicsoptions.deferredShading.curvalue;
 	s_ivo.anisotropicFilter = s_graphicsoptions.anisotropicFilter.curvalue;
 	s_ivo.shadowType = s_graphicsoptions.shadowType.curvalue;
 	s_ivo.shadowFilter = s_graphicsoptions.shadowFilter.curvalue;
@@ -544,8 +544,8 @@ static void GraphicsOptions_CheckConfig(void)
 
 	for(i = 0; i < NUM_IVO_TEMPLATES; i++)
 	{
-		if(s_ivo_templates[i].colordepth != s_graphicsoptions.colordepth.curvalue)
-			continue;
+//		if(s_ivo_templates[i].colordepth != s_graphicsoptions.colordepth.curvalue)
+//			continue;
 		//if(s_ivo_templates[i].mode != s_graphicsoptions.mode.curvalue)
 		//	continue;
 		if(GraphicsOptions_FindDetectedResolution(s_ivo_templates[i].mode) != s_graphicsoptions.mode.curvalue)
@@ -553,8 +553,6 @@ static void GraphicsOptions_CheckConfig(void)
 		if(s_ivo_templates[i].fullscreen != s_graphicsoptions.fs.curvalue)
 			continue;
 		if(s_ivo_templates[i].tq != s_graphicsoptions.tq.curvalue)
-			continue;
-		if(s_ivo_templates[i].lighting != s_graphicsoptions.lighting.curvalue)
 			continue;
 		if(s_ivo_templates[i].geometry != s_graphicsoptions.geometry.curvalue)
 			continue;
@@ -565,6 +563,8 @@ static void GraphicsOptions_CheckConfig(void)
 		if(s_ivo_templates[i].compression != s_graphicsoptions.compression.curvalue)
 			continue;
 		if(s_ivo_templates[i].anisotropicFilter != s_graphicsoptions.anisotropicFilter.curvalue)
+			continue;
+		if(s_ivo_templates[i].deferredShading != s_graphicsoptions.deferredShading.curvalue)
 			continue;
 		if(s_ivo_templates[i].shadowType != s_graphicsoptions.shadowType.curvalue)
 			continue;
@@ -595,6 +595,7 @@ static void GraphicsOptions_UpdateMenuItems(void)
 {
 	s_graphicsoptions.fs.generic.flags &= ~QMF_GRAYED;
 
+	/*
 	if(s_graphicsoptions.fs.curvalue == 0)
 	{
 		s_graphicsoptions.colordepth.curvalue = 0;
@@ -604,6 +605,7 @@ static void GraphicsOptions_UpdateMenuItems(void)
 	{
 		s_graphicsoptions.colordepth.generic.flags &= ~QMF_GRAYED;
 	}
+	*/
 
 	s_graphicsoptions.apply.generic.flags |= QMF_HIDDEN | QMF_INACTIVE;
 
@@ -611,42 +613,54 @@ static void GraphicsOptions_UpdateMenuItems(void)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
 	if(s_ivo.fullscreen != s_graphicsoptions.fs.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
 	if(s_ivo.tq != s_graphicsoptions.tq.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
-	if(s_ivo.lighting != s_graphicsoptions.lighting.curvalue)
-	{
-		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
-	}
+	
+	/*
 	if(s_ivo.colordepth != s_graphicsoptions.colordepth.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	*/
+	
 	if(s_ivo.texturebits != s_graphicsoptions.texturebits.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
 	if(s_ivo.geometry != s_graphicsoptions.geometry.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
 	if(s_ivo.filter != s_graphicsoptions.filter.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
 	if(s_ivo.compression != s_graphicsoptions.compression.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
 	if(s_ivo.anisotropicFilter != s_graphicsoptions.anisotropicFilter.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
 	}
+	
+	if(s_ivo.deferredShading != s_graphicsoptions.deferredShading.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
+	}
+	
 	if(s_ivo.shadowType != s_graphicsoptions.shadowType.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN | QMF_INACTIVE);
@@ -776,7 +790,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	trap_Cvar_SetValue("r_depthbits", 0);
 	trap_Cvar_SetValue("r_stencilbits", 8);
 	
-	trap_Cvar_SetValue("r_precomputedLighting", s_graphicsoptions.lighting.curvalue);
+	trap_Cvar_SetValue("r_deferredShading", s_graphicsoptions.deferredShading.curvalue);
 
 	if(s_graphicsoptions.geometry.curvalue == 2)
 	{
@@ -897,14 +911,14 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.mode.curvalue = GraphicsOptions_FindDetectedResolution(ivo->mode);
 			s_graphicsoptions.ratio.curvalue = resToRatio[s_graphicsoptions.mode.curvalue];
 			s_graphicsoptions.tq.curvalue = ivo->tq;
-			s_graphicsoptions.lighting.curvalue = ivo->lighting;
-			s_graphicsoptions.colordepth.curvalue = ivo->colordepth;
+			//s_graphicsoptions.colordepth.curvalue = ivo->colordepth;
 			s_graphicsoptions.texturebits.curvalue = ivo->texturebits;
 			s_graphicsoptions.geometry.curvalue = ivo->geometry;
 			s_graphicsoptions.filter.curvalue = ivo->filter;
 			s_graphicsoptions.fs.curvalue = ivo->fullscreen;
 			s_graphicsoptions.compression.curvalue = ivo->compression;
 			s_graphicsoptions.anisotropicFilter.curvalue = ivo->anisotropicFilter;
+			s_graphicsoptions.deferredShading.curvalue = ivo->deferredShading;
 			s_graphicsoptions.shadowType.curvalue = ivo->shadowType;
 			s_graphicsoptions.shadowFilter.curvalue = ivo->shadowFilter;
 			s_graphicsoptions.shadowBlur.curvalue = ivo->shadowBlur;
@@ -1047,7 +1061,7 @@ static void GraphicsOptions_SetMenuItems(void)
 		s_graphicsoptions.tq.curvalue = 3;
 	}
 
-	s_graphicsoptions.lighting.curvalue = trap_Cvar_VariableValue("r_precomputedLighting") != 0;
+	s_graphicsoptions.deferredShading.curvalue = trap_Cvar_VariableValue("r_deferredShading") != 0;
 	switch ((int)trap_Cvar_VariableValue("r_texturebits"))
 	{
 		default:
@@ -1087,6 +1101,7 @@ static void GraphicsOptions_SetMenuItems(void)
 		s_graphicsoptions.geometry.curvalue = 2;
 	}
 
+	/*
 	switch ((int)trap_Cvar_VariableValue("r_colorbits"))
 	{
 		default:
@@ -1100,11 +1115,11 @@ static void GraphicsOptions_SetMenuItems(void)
 			s_graphicsoptions.colordepth.curvalue = 2;
 			break;
 	}
-
 	if(s_graphicsoptions.fs.curvalue == 0)
 	{
 		s_graphicsoptions.colordepth.curvalue = 0;
 	}
+	*/
 
 	s_graphicsoptions.compression.curvalue = trap_Cvar_VariableValue("r_ext_texture_compression");
 
@@ -1371,15 +1386,6 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.fs.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
 
-	// references/modifies "r_vertexLight"
-	s_graphicsoptions.lighting.generic.type = MTYPE_SPINCONTROL;
-	s_graphicsoptions.lighting.generic.name = "World Lighting:";
-	s_graphicsoptions.lighting.generic.flags = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	s_graphicsoptions.lighting.generic.x = 400;
-	s_graphicsoptions.lighting.generic.y = y;
-	s_graphicsoptions.lighting.itemnames = lighting_names;
-	y += BIGCHAR_HEIGHT + 2;
-
 	// references/modifies "r_lodBias" & "subdivisions"
 	s_graphicsoptions.geometry.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.geometry.generic.name = "Geometric Detail:";
@@ -1443,6 +1449,15 @@ void GraphicsOptions_MenuInit(void)
 		s_graphicsoptions.anisotropicFilter.generic.callback = GraphicsOptions_AnisotropicFilterEvent;
 		y += BIGCHAR_HEIGHT + 2;
 	}
+
+	// references/modifies "r_deferredShading"
+	s_graphicsoptions.deferredShading.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.deferredShading.generic.name = "Deferred Shading:";
+	s_graphicsoptions.deferredShading.generic.flags = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_graphicsoptions.deferredShading.generic.x = 400;
+	s_graphicsoptions.deferredShading.generic.y = y;
+	s_graphicsoptions.deferredShading.itemnames = enabled_names;
+	y += BIGCHAR_HEIGHT + 2;
 
 	// references/modifies "r_shadows"
 	s_graphicsoptions.shadowType.generic.type = MTYPE_SPINCONTROL;
@@ -1546,7 +1561,6 @@ void GraphicsOptions_MenuInit(void)
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.mode);
 //	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.colordepth);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.fs);
-	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.lighting);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.geometry);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.tq);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.texturebits);
@@ -1557,6 +1571,8 @@ void GraphicsOptions_MenuInit(void)
 
 	if(strstr(uis.glconfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
 		Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.anisotropicFilter);
+
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.deferredShading);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowType);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowFilter);
