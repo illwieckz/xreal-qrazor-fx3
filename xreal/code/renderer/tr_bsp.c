@@ -2984,6 +2984,8 @@ static void R_CreateWorldVBO()
 //  int             numSurfaces;
 	bspSurface_t   *surface;
 
+	trRefLight_t   *light;
+
 	int             startTime, endTime;
 
 	startTime = ri.Milliseconds();
@@ -3195,14 +3197,29 @@ static void R_CreateWorldVBO()
 
 	startTime = ri.Milliseconds();
 
-	s_worldData.redundantLightVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
-	BuildRedundantIndices(numVerts, verts, s_worldData.redundantLightVerts, CompareLightVert);
+	// Tr3B: FIXME move this to somewhere else?
+	s_worldData.redundantVertsCalculationNeeded = 0;
+	for(i = 0; i < s_worldData.numLights; i++)
+	{
+		light = &s_worldData.lights[i];
 
-	s_worldData.redundantShadowVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
-	BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowVerts, CompareShadowVert);
+		if((r_precomputedLighting->integer || r_vertexLighting->integer) && !light->noRadiosity)
+			continue;
 
-	s_worldData.redundantShadowAlphaTestVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
-	BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowAlphaTestVerts, CompareShadowVertAlphaTest);
+		s_worldData.redundantVertsCalculationNeeded++;
+	}
+
+	if(s_worldData.redundantVertsCalculationNeeded)
+	{
+		s_worldData.redundantLightVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
+		BuildRedundantIndices(numVerts, verts, s_worldData.redundantLightVerts, CompareLightVert);
+	
+		s_worldData.redundantShadowVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
+		BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowVerts, CompareShadowVert);
+
+		s_worldData.redundantShadowAlphaTestVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
+		BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowAlphaTestVerts, CompareShadowVertAlphaTest);
+	}
 
 	endTime = ri.Milliseconds();
 	ri.Printf(PRINT_ALL, "redundant world vertices calculation time = %5.2f seconds\n", (endTime - startTime) / 1000.0);

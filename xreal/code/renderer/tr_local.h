@@ -1357,6 +1357,7 @@ typedef struct
 
 	int             numVerts;
 	srfVert_t      *verts;
+	int				redundantVertsCalculationNeeded;
 	int            *redundantLightVerts;		// util to optimize IBOs
 	int            *redundantShadowVerts;
 	int            *redundantShadowAlphaTestVerts;
