@@ -110,7 +110,7 @@ game_t struct
 	qfalse,				/* flares */
 	"flareshader",		/* default flare shader */
 	qfalse,				/* wolf lighting model? */
-	512,				/* lightmap width/height */
+	1024,				/* lightmap width/height */
 	1.0f,				/* lightmap gamma */
 	1.0f,				/* lightmap compensate */
 	"IBSP",				/* bsp file prefix */
@@ -177,7 +177,7 @@ game_t struct
 		{ "metalsteps",		0,							0,							Q_SURF_METALSTEPS,			0,							0,							0 },
 		{ "flesh",			0,							0,							Q_SURF_FLESH,				0,							0,							0 },
 		{ "nosteps",		0,							0,							Q_SURF_NOSTEPS,				0,							0,							0 },
-		{ "collision",		0,							0,							Q_SURF_COLLISION,			0,							C_COLLISION,				0 },
+		{ "collision",		0,							0,							Q_SURF_COLLISION,			0,							C_SOLID | C_COLLISION,		0 },
 		{ "dust",			0,							0,							Q_SURF_DUST,				0,							0,							0 },
 		
 		

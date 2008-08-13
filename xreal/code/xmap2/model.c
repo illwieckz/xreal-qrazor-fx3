@@ -405,7 +405,7 @@ void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, sha
 
 
 			/* temp hack */
-			if(!si->clipModel && ((si->compileFlags & C_TRANSLUCENT) || !(si->compileFlags & C_SOLID)))
+			if(!si->clipModel && (((si->compileFlags & C_TRANSLUCENT) && !(si->compileFlags & C_COLLISION)) || !(si->compileFlags & C_SOLID)))
 				continue;
 
 			/* overflow check */
@@ -796,7 +796,7 @@ void AddTriangleModels(entity_t * e)
 		spawnFlags = IntForKey(e2, "spawnflags");
 
 		/* Tr3B: added clipModel option */
-		spawnFlags |= (IntForKey(e, "clipModel") > 0) ? 2 : 0;
+		spawnFlags |= (IntForKey(e2, "clipModel") > 0) ? 2 : 0;
 
 		/* Tr3B: added forceMeta option */
 		spawnFlags |= (IntForKey(e2, "forceMeta") > 0) ? 4 : 0;

@@ -246,7 +246,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 		if(!lightmapFiles || !numLightmaps)
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: no shader files found\n");
+			ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
 			return;
 		}
 
@@ -617,6 +617,9 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
 	width = LittleLong(ds->patchWidth);
 	height = LittleLong(ds->patchHeight);
+
+	if(width < 0 || width > MAX_PATCH_SIZE || height < 0 || height > MAX_PATCH_SIZE)
+		ri.Error(ERR_DROP, "ParseMesh: bad size");
 
 	verts += LittleLong(ds->firstVert);
 	numPoints = width * height;
@@ -3581,7 +3584,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 	drawVert_t     *dv;
 	int            *indexes;
 	int             count;
-	int             numFaces, numMeshes, numTriSurfs, numFlares, numFoliage;
+	int             numFaces, numMeshes, numTriSurfs, numFlares, numFoliages;
 	int             i;
 
 	ri.Printf(PRINT_ALL, "...loading surfaces\n");
@@ -3590,6 +3593,7 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 	numMeshes = 0;
 	numTriSurfs = 0;
 	numFlares = 0;
+	numFoliages = 0;
 
 	in = (void *)(fileBase + surfs->fileofs);
 	if(surfs->filelen % sizeof(*in))
@@ -3632,14 +3636,14 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 			case MST_FOLIAGE:
 				// Tr3B: TODO ParseFoliage
 				ParseTriSurf(in, dv, out, indexes);
-				numFoliage++;
+				numFoliages++;
 				break;
 			default:
 				ri.Error(ERR_DROP, "Bad surfaceType");
 		}
 	}
 
-	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares %i foliage\n", numFaces, numMeshes, numTriSurfs, numFlares, numFoliage);
+	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares %i foliages\n", numFaces, numMeshes, numTriSurfs, numFlares, numFoliages);
 
 	if(r_stitchCurves->integer)
 	{
@@ -3832,6 +3836,8 @@ static void R_LoadShaders(lump_t * l)
 
 	for(i = 0; i < count; i++)
 	{
+		ri.Printf(PRINT_DEVELOPER, "shader: '%s'\n", out[i].shader);
+
 		out[i].surfaceFlags = LittleLong(out[i].surfaceFlags);
 		out[i].contentFlags = LittleLong(out[i].contentFlags);
 	}

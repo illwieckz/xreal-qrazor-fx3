@@ -545,7 +545,8 @@ void CMod_LoadVisibility(lump_t * l)
 CMod_LoadSurfaces
 =================
 */
-#define	MAX_PATCH_VERTS		1024
+#define	MAX_PATCH_SIZE		64
+#define	MAX_PATCH_VERTS		(MAX_PATCH_SIZE * MAX_PATCH_SIZE)
 void CMod_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexesLump)
 {
 	drawVert_t     *dv, *dv_p;

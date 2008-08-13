@@ -177,7 +177,7 @@ constants
 
 
 /* bsp */
-#define	MAX_PATCH_SIZE			32
+#define	MAX_PATCH_SIZE			64		/* Tr3B: was 32 in Q3A */
 #define	MAX_BRUSH_SIDES			1024
 #define MAX_BUILD_SIDES			300
 
