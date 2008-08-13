@@ -474,7 +474,7 @@ static void R_RecursiveWorldNode(bspNode_t * node, int planeBits)
 	do
 	{
 		// if the node wasn't marked as potentially visible, exit
-		if(node->visCount != tr.visCount)
+		if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
 		{
 			return;
 		}
@@ -575,7 +575,7 @@ static void R_RecursiveInteractionNode(bspNode_t * node, trRefLight_t * light, i
 	int             r;
 
 	// if the node wasn't marked as potentially visible, exit
-	if(node->visCount != tr.visCount)
+	if(node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
 	{
 		return;
 	}
@@ -792,17 +792,17 @@ static void R_UpdateClusterSurfaces()
 
 	vec3_t          bounds[2];
 
-	if(tr.viewCluster < 0 || tr.viewCluster >= tr.world->numClusters)
+	if(tr.visClusters[tr.visIndex] < 0 || tr.visClusters[tr.visIndex] >= tr.world->numClusters)
 	{
 		// Tr3B: this is not a bug, the super claster is the last one in the array
 		cluster = &tr.world->clusters[tr.world->numClusters];
 	}
 	else
 	{
-		cluster = &tr.world->clusters[tr.viewCluster];
+		cluster = &tr.world->clusters[tr.visClusters[tr.visIndex]];
 	}
 
-	tr.world->numClusterVBOSurfaces = 0;
+	tr.world->numClusterVBOSurfaces[tr.visIndex] = 0;
 
 	// count number of static cluster surfaces
 	numSurfaces = 0;
@@ -985,9 +985,9 @@ static void R_UpdateClusterSurfaces()
 				}
 			}
 
-			if(tr.world->numClusterVBOSurfaces < tr.world->clusterVBOSurfaces.currentElements)
+			if(tr.world->numClusterVBOSurfaces[tr.visIndex] < tr.world->clusterVBOSurfaces[tr.visIndex].currentElements)
 			{
-				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, tr.world->numClusterVBOSurfaces);
+				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[tr.visIndex], tr.world->numClusterVBOSurfaces[tr.visIndex]);
 				ibo = vboSurf->ibo;
 
 				/*
@@ -1011,7 +1011,7 @@ static void R_UpdateClusterSurfaces()
 
 				qglGenBuffersARB(1, &ibo->indexesVBO);
 
-				Com_AddToGrowList(&tr.world->clusterVBOSurfaces, vboSurf);
+				Com_AddToGrowList(&tr.world->clusterVBOSurfaces[tr.visIndex], vboSurf);
 			}
 
 			// update surface properties
@@ -1028,7 +1028,7 @@ static void R_UpdateClusterSurfaces()
 			R_SyncRenderThread();
 
 			// update IBO
-			Q_strncpyz(ibo->name, va("staticWorldMesh_IBO %i", tr.world->numClusterVBOSurfaces), sizeof(ibo->name));
+			Q_strncpyz(ibo->name, va("staticWorldMesh_IBO_visIndex%i_surface%i", tr.visIndex, tr.world->numClusterVBOSurfaces[tr.visIndex]), sizeof(ibo->name));
 			ibo->indexesSize = indexesSize;
 
 			R_BindIBO(ibo);
@@ -1039,7 +1039,7 @@ static void R_UpdateClusterSurfaces()
 
 			ri.Hunk_FreeTempMemory(indexes);
 
-			tr.world->numClusterVBOSurfaces++;
+			tr.world->numClusterVBOSurfaces[tr.visIndex]++;
 		}
 	}
 
@@ -1047,8 +1047,8 @@ static void R_UpdateClusterSurfaces()
 
 	if(r_showcluster->integer)
 	{
-		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i\n", tr.world->numClusterVBOSurfaces,
-				  cluster - tr.world->clusters);
+		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i and vis index %i\n", tr.world->numClusterVBOSurfaces[tr.visIndex],
+				  cluster - tr.world->clusters, tr.visIndex);
 	}
 }
 
@@ -1081,8 +1081,16 @@ static void R_MarkLeaves(void)
 	// if the cluster is the same and the area visibility matrix
 	// hasn't changed, we don't need to mark everything again
 
+	for(i = 0; i < MAX_VISCOUNTS; i++)
+	{
+		if(tr.visClusters[i] == cluster)
+		{
+			tr.visIndex = i;
+			break;
+		}
+	}
 	// if r_showcluster was just turned on, remark everything
-	if(tr.viewCluster == cluster && !tr.refdef.areamaskModified && !r_showcluster->modified)
+	if(i != MAX_VISCOUNTS && !tr.refdef.areamaskModified && !r_showcluster->modified)
 	{
 		return;
 	}
@@ -1096,24 +1104,25 @@ static void R_MarkLeaves(void)
 		}
 	}
 
-	tr.visCount++;
-	tr.viewCluster = cluster;
+	tr.visIndex = (tr.visIndex + 1) % MAX_VISCOUNTS;
+	tr.visCounts[tr.visIndex]++;
+	tr.visClusters[tr.visIndex] = cluster;
 
 	R_UpdateClusterSurfaces();
 
-	if(r_novis->integer || tr.viewCluster == -1)
+	if(r_novis->integer || tr.visClusters[tr.visIndex] == -1)
 	{
 		for(i = 0; i < tr.world->numnodes; i++)
 		{
 			if(tr.world->nodes[i].contents != CONTENTS_SOLID)
 			{
-				tr.world->nodes[i].visCount = tr.visCount;
+				tr.world->nodes[i].visCounts[tr.visIndex] = tr.visCounts[tr.visIndex];
 			}
 		}
 		return;
 	}
 
-	vis = R_ClusterPVS(tr.viewCluster);
+	vis = R_ClusterPVS(tr.visClusters[tr.visIndex]);
 
 	for(i = 0, leaf = tr.world->nodes; i < tr.world->numnodes; i++, leaf++)
 	{
@@ -1140,9 +1149,9 @@ static void R_MarkLeaves(void)
 		parent = leaf;
 		do
 		{
-			if(parent->visCount == tr.visCount)
+			if(parent->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
 				break;
-			parent->visCount = tr.visCount;
+			parent->visCounts[tr.visIndex] = tr.visCounts[tr.visIndex];
 			parent = parent->parent;
 		} while(parent);
 	}
@@ -1254,9 +1263,9 @@ void R_AddWorldSurfaces(void)
 		cplane_t       *frust;
 		int             r;
 
-		for(j = 0; j < tr.world->numClusterVBOSurfaces; j++)
+		for(j = 0; j < tr.world->numClusterVBOSurfaces[tr.visIndex]; j++)
 		{
-			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, j);
+			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[tr.visIndex], j);
 			shader = srf->shader;
 
 			for(i = 0; i < FRUSTUM_PLANES; i++)
@@ -1309,9 +1318,9 @@ void R_AddWorldInteractions(trRefLight_t * light)
 		interactionType_t iaType = IA_DEFAULT;
 		byte            cubeSideBits = CUBESIDE_CLIPALL;
 
-		for(j = 0; j < tr.world->numClusterVBOSurfaces; j++)
+		for(j = 0; j < tr.world->numClusterVBOSurfaces[tr.visIndex]; j++)
 		{
-			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, j);
+			srf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[tr.visIndex], j);
 			shader = srf->shader;
 
 			//  skip all surfaces that don't matter for lighting only pass

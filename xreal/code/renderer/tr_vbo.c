@@ -476,7 +476,7 @@ R_ShutdownVBOs
 */
 void R_ShutdownVBOs(void)
 {
-	int             i;
+	int             i, j;
 	VBO_t          *vbo;
 	IBO_t          *ibo;
 
@@ -505,21 +505,24 @@ void R_ShutdownVBOs(void)
 
 	if(tr.world)
 	{
-		// FIXME: clean up this code
-		for(i = 0; i < tr.world->clusterVBOSurfaces.currentElements; i++)
+		for(j = 0; j < MAX_VISCOUNTS; j++)
 		{
-			srfVBOMesh_t   *vboSurf;
-
-			vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, i);
-			ibo = vboSurf->ibo;;
-
-			if(ibo->indexesVBO)
+			// FIXME: clean up this code
+			for(i = 0; i < tr.world->clusterVBOSurfaces[j].currentElements; i++)
 			{
-				qglDeleteBuffersARB(1, &ibo->indexesVBO);
+				srfVBOMesh_t   *vboSurf;
+
+				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[j], i);
+				ibo = vboSurf->ibo;
+
+				if(ibo->indexesVBO)
+				{
+					qglDeleteBuffersARB(1, &ibo->indexesVBO);
+				}
 			}
 		}
 
-		Com_DestroyGrowList(&tr.world->clusterVBOSurfaces);
+		Com_DestroyGrowList(&tr.world->clusterVBOSurfaces[j]);
 	}
 
 	Com_DestroyGrowList(&tr.vbos);
@@ -533,7 +536,7 @@ R_VBOList_f
 */
 void R_VBOList_f(void)
 {
-	int             i;
+	int             i, j;
 	VBO_t          *vbo;
 	IBO_t          *ibo;
 	int             vertexesSize = 0;
@@ -554,18 +557,21 @@ void R_VBOList_f(void)
 
 	if(tr.world)
 	{
-		// FIXME: clean up this code
-		for(i = 0; i < tr.world->clusterVBOSurfaces.currentElements; i++)
+		for(j = 0; j < MAX_VISCOUNTS; j++)
 		{
-			srfVBOMesh_t   *vboSurf;
+			// FIXME: clean up this code
+			for(i = 0; i < tr.world->clusterVBOSurfaces[j].currentElements; i++)
+			{
+				srfVBOMesh_t   *vboSurf;
 
-			vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces, i);
-			ibo = vboSurf->ibo;
+				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[j], i);
+				ibo = vboSurf->ibo;
 
-			ri.Printf(PRINT_ALL, "%d.%02d MB %s\n", ibo->indexesSize / (1024 * 1024),
-					  (ibo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), ibo->name);
+				ri.Printf(PRINT_ALL, "%d.%02d MB %s\n", ibo->indexesSize / (1024 * 1024),
+						  (ibo->indexesSize % (1024 * 1024)) * 100 / (1024 * 1024), ibo->name);
 
-			indexesSize += ibo->indexesSize;
+				indexesSize += ibo->indexesSize;
+			}
 		}
 	}
 

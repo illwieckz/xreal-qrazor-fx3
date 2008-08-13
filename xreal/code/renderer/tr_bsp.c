@@ -2842,7 +2842,7 @@ static void R_CreateClusters()
 
 		for(j = 0, node = s_worldData.nodes; j < s_worldData.numnodes; j++, node++)
 		{
-			node->visCount = -1;
+			node->visCounts[0] = -1;
 		}
 
 		for(i = 0; i < numClusters; i++)
@@ -2868,9 +2868,9 @@ static void R_CreateClusters()
 				parent = node;
 				do
 				{
-					if(parent->visCount == i)
+					if(parent->visCounts[0] == i)
 						break;
-					parent->visCount = i;
+					parent->visCounts[0] = i;
 					parent = parent->parent;
 				} while(parent);
 			}
@@ -2884,7 +2884,7 @@ static void R_CreateClusters()
 				if(node->contents == CONTENTS_NODE)
 					continue;
 
-				if(node->visCount != i)
+				if(node->visCounts[0] != i)
 					continue;
 
 				mark = node->markSurfaces;
@@ -2948,7 +2948,10 @@ static void R_CreateClusters()
 
 	Com_DestroyGrowList(&clusterSurfaces);
 
-	Com_InitGrowList(&s_worldData.clusterVBOSurfaces, 100);
+	for(i = 0; i < MAX_VISCOUNTS; i++)
+	{
+		Com_InitGrowList(&s_worldData.clusterVBOSurfaces[i], 100);
+	}
 
 	//ri.Printf(PRINT_ALL, "noVis cluster contains %i bsp surfaces\n", cluster->numMarkSurfaces);
 
@@ -2963,7 +2966,7 @@ static void R_CreateClusters()
 
 	for(j = 0, node = s_worldData.nodes; j < s_worldData.numnodes; j++, node++)
 	{
-		node->visCount = -1;
+		node->visCounts[0] = -1;
 	}
 }
 

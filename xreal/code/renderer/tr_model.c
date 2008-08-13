@@ -1656,7 +1656,9 @@ void RE_BeginRegistration(glConfig_t * glconfigOut)
 
 	R_SyncRenderThread();
 
-	tr.viewCluster = -1;		// force markleafs to regenerate
+	tr.visIndex = 0;
+	memset(tr.visClusters, -1, sizeof(tr.visClusters));		// force markleafs to regenerate
+	
 	R_ClearFlares();
 	RE_ClearScene();
 

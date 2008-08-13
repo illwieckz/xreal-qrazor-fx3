@@ -59,6 +59,8 @@ typedef unsigned short glIndex_t;
 
 #define	MAX_FBOS				64
 
+#define MAX_VISCOUNTS			5
+
 //#define VOLUMETRIC_LIGHTING
 
 #define DEBUG_OPTIMIZEVERTICES 0
@@ -158,7 +160,7 @@ typedef struct trRefLight_s
 	int             numLightOnlyInteractions;
 	qboolean        noSort;		// don't sort interactions by material
 
-	int             visCount;	// node needs to be traversed if current
+	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	struct bspNode_s **leafs;
 	int             numLeafs;
 } trRefLight_t;
@@ -1283,7 +1285,7 @@ typedef struct bspNode_s
 {
 	// common with leaf and node
 	int             contents;	// -1 for nodes, to differentiate from leafs
-	int             visCount;	// node needs to be traversed if current
+	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
 	struct bspNode_s *parent;
@@ -1398,8 +1400,8 @@ typedef struct
 	const byte     *vis;		// may be passed in by CM_LoadMap to save space
 	byte           *novis;		// clusterBytes of 0xff
 
-	int             numClusterVBOSurfaces;
-	growList_t      clusterVBOSurfaces;	// updated every time when changing the view cluster
+	int             numClusterVBOSurfaces[MAX_VISCOUNTS];
+	growList_t      clusterVBOSurfaces[MAX_VISCOUNTS];	// updated every time when changing the view cluster
 
 	char           *entityString;
 	char           *entityParsePoint;
@@ -1781,7 +1783,10 @@ typedef struct
 {
 	qboolean        registered;	// cleared at shutdown, set at beginRegistration
 
-	int             visCount;	// incremented every time a new vis cluster is entered
+	int				visIndex;
+	int             visClusters[MAX_VISCOUNTS];
+	int             visCounts[MAX_VISCOUNTS];	// incremented every time a new vis cluster is entered
+
 	int             frameCount;	// incremented every frame
 	int             sceneCount;	// incremented every scene
 	int             viewCount;	// incremented every view (twice a scene if portaled)
@@ -1929,8 +1934,6 @@ typedef struct
 	orientationr_t  or;			// for current entity
 
 	trRefdef_t      refdef;
-
-	int             viewCluster;
 
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;

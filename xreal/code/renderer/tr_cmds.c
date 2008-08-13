@@ -83,7 +83,7 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 3)
 	{
-		ri.Printf(PRINT_ALL, "viewcluster: %i\n", tr.viewCluster);
+		ri.Printf(PRINT_ALL, "viewcluster: %i\n", tr.visClusters[tr.visIndex]);
 	}
 	else if(r_speeds->integer == 4)
 	{

@@ -1968,13 +1968,13 @@ void R_AddLightInteractions()
 				{
 					leaf = *leafs;
 
-					if(leaf->visCount == tr.visCount)
+					if(leaf->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
 					{
-						light->visCount = tr.visCount;
+						light->visCounts[tr.visIndex] = tr.visCounts[tr.visIndex];
 					}
 				}
 
-				if(light->visCount != tr.visCount)
+				if(light->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex])
 				{
 					tr.pc.c_pvs_cull_light_out++;
 					light->cull = CULL_OUT;
