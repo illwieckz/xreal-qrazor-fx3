@@ -295,11 +295,6 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showDeluxeMaps\n#define r_showDeluxeMaps 1\n#endif\n");
 		}
 
-		if(r_glslAlphaTest->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_glslAlphaTest\n#define r_glslAlphaTest 1\n#endif\n");
-		}
-
 		if(r_screenSpaceAmbientOcclusion->integer)
 		{
 			int             i;
@@ -767,10 +762,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
-	if(r_glslAlphaTest->integer)
-	{
-		tr.depthFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AlphaTest");
-	}
+	tr.depthFillShader.u_AlphaTest = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AlphaTest");
 	tr.depthFillShader.u_AmbientColor = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AmbientColor");
 	if(r_vboVertexSkinning->integer)
 	{
@@ -2319,14 +2311,7 @@ static void Render_depthFill(int stage)
 
 	// remove alpha test
 	stateBits = pStage->stateBits;
-	if(r_glslAlphaTest->integer)
-	{
-		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
-	}
-	else
-	{
-		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
-	}
+	stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_ATEST_BITS);
 
 	GL_State(stateBits);
 
@@ -2354,18 +2339,15 @@ static void Render_depthFill(int stage)
 			qglUniformMatrix4fvARB(tr.depthFillShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
-	if(r_glslAlphaTest->integer)
+	if(pStage->stateBits & GLS_ATEST_BITS)
 	{
-		if(pStage->stateBits & GLS_ATEST_BITS)
-		{
-			alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
-		}
-		else
-		{
-			alphaTest = -1.0;
-		}
-		qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
 	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	qglUniform1fARB(tr.depthFillShader.u_AlphaTest, alphaTest);
 
 	if(r_precomputedLighting->integer)
 	{

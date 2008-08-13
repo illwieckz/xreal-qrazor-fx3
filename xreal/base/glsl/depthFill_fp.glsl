@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,9 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
-#if defined(r_glslAlphaTest)
 uniform float		u_AlphaTest;
-#endif
 
 varying vec2		var_Tex;
 varying vec4		var_Color;
@@ -32,12 +30,10 @@ void	main()
 {
 	vec4 color = texture2D(u_ColorMap, var_Tex);
 	
-#if defined(r_glslAlphaTest)
 	if(color.a <= u_AlphaTest)
 	{
 		discard;
 	}
-#endif
 
 	color *= var_Color;
 	gl_FragColor = color;
