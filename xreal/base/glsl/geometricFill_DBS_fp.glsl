@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -19,6 +19,8 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
+#extension GL_ARB_draw_buffers : enable
 
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
