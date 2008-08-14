@@ -520,9 +520,9 @@ void R_ShutdownVBOs(void)
 					qglDeleteBuffersARB(1, &ibo->indexesVBO);
 				}
 			}
-		}
 
-		Com_DestroyGrowList(&tr.world->clusterVBOSurfaces[j]);
+			Com_DestroyGrowList(&tr.world->clusterVBOSurfaces[j]);
+		}
 	}
 
 	Com_DestroyGrowList(&tr.vbos);
