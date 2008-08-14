@@ -1851,6 +1851,20 @@ static qboolean CompareShadowVolumeVert(const srfVert_t * v1, const srfVert_t * 
 	return qtrue;
 }
 
+static qboolean CompareWorldSmoothVert(const srfVert_t * v1, const srfVert_t * v2)
+{
+	int             i;
+
+	for(i = 0; i < 3; i++)
+	{
+		if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
+		//if(v1->xyz[i] != v2->xyz[i])
+			return qfalse;
+	}
+
+	return qtrue;
+}
+
 /*
 remove duplicated / redundant vertices from a batch of vertices
 return the new number of vertices
@@ -3176,6 +3190,26 @@ static void R_CreateWorldVBO()
 
 				numVerts += srf->numVerts;
 			}
+		}
+	}
+
+	if(r_vboSmoothNormals->integer)
+	{
+		// do another extra smoothing for normals to avoid flat shading
+		for(i = 0; i < numVerts; i++)
+		{
+			for(j = 0; j < numVerts; j++)
+			{
+				if(i == j)
+					continue;
+
+				if(CompareWorldSmoothVert(&verts[i], &verts[j]))
+				{
+					VectorAdd(verts[i].normal, verts[j].normal, verts[i].normal);
+				}
+			}
+	
+			VectorNormalize(verts[i].normal);
 		}
 	}
 

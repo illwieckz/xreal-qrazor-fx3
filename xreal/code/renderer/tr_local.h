@@ -2199,6 +2199,7 @@ extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboWorld;
 extern cvar_t  *r_vboOptimizeVertices;
 extern cvar_t  *r_vboVertexSkinning;
+extern cvar_t  *r_vboSmoothNormals;
 
 extern cvar_t  *r_precacheLightIndexes;
 extern cvar_t  *r_precacheShadowIndexes;
