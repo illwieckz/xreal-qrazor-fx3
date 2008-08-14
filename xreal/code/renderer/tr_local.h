@@ -2261,6 +2261,7 @@ void            R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t norm
 									const vec3_t v0, const vec3_t v1, const vec3_t v2,
 									const vec2_t t0, const vec2_t t1, const vec2_t t2);
 
+qboolean		R_CalcTangentVectors(srfVert_t *dv[3]);
 
 void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
 void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);

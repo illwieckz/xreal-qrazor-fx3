@@ -461,13 +461,13 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 
 	numVerts = LittleLong(ds->numVerts);
 	/*
-	if(numVerts > MAX_FACE_POINTS)
-	{
-		ri.Printf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numVerts);
-		numVerts = MAX_FACE_POINTS;
-		surf->shader = tr.defaultShader;
-	}
-	*/
+	   if(numVerts > MAX_FACE_POINTS)
+	   {
+	   ri.Printf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numVerts);
+	   numVerts = MAX_FACE_POINTS;
+	   surf->shader = tr.defaultShader;
+	   }
+	 */
 	numTriangles = LittleLong(ds->numIndexes) / 3;
 
 	cv = ri.Hunk_Alloc(sizeof(*cv), h_low);
@@ -531,6 +531,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 	surf->data = (surfaceType_t *) cv;
 
 	// Tr3B - calc tangent spaces
+#if 0
 	{
 		float          *v;
 		const float    *v0, *v1, *v2;
@@ -576,6 +577,20 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 			VectorNormalize(cv->verts[i].normal);
 		}
 	}
+#else
+	{
+		srfVert_t      *dv[3];
+
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+		{
+			dv[0] = &cv->verts[tri->indexes[0]];
+			dv[1] = &cv->verts[tri->indexes[1]];
+			dv[2] = &cv->verts[tri->indexes[2]];
+
+			R_CalcTangentVectors(dv);
+		}
+	}
+#endif
 }
 
 
@@ -751,6 +766,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 	R_CalcSurfaceTrianglePlanes(numTriangles, cv->triangles, cv->verts);
 
 	// Tr3B - calc tangent spaces
+#if 0
 	{
 		float          *v;
 		const float    *v0, *v1, *v2;
@@ -813,6 +829,20 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 			VectorNormalize(cv->verts[i].normal);
 		}
 	}
+#else
+	{
+		srfVert_t      *dv[3];
+
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+		{
+			dv[0] = &cv->verts[tri->indexes[0]];
+			dv[1] = &cv->verts[tri->indexes[1]];
+			dv[2] = &cv->verts[tri->indexes[2]];
+
+			R_CalcTangentVectors(dv);
+		}
+	}
+#endif
 }
 
 /*
@@ -1851,14 +1881,13 @@ static qboolean CompareShadowVolumeVert(const srfVert_t * v1, const srfVert_t * 
 	return qtrue;
 }
 
-static qboolean CompareWorldSmoothVert(const srfVert_t * v1, const srfVert_t * v2)
+static qboolean CompareWorldVertSmoothNormal(const srfVert_t * v1, const srfVert_t * v2)
 {
 	int             i;
 
 	for(i = 0; i < 3; i++)
 	{
 		if(fabs(v1->xyz[i] - v2->xyz[i]) > EQUAL_EPSILON)
-		//if(v1->xyz[i] != v2->xyz[i])
 			return qfalse;
 	}
 
@@ -2985,6 +3014,189 @@ static void R_CreateClusters()
 }
 
 /*
+SmoothNormals()
+smooths together coincident vertex normals across the bsp
+*/
+#if 0
+#define MAX_SAMPLES				256
+#define THETA_EPSILON			0.000001
+#define EQUAL_NORMAL_EPSILON	0.01
+
+void SmoothNormals(const char *name, srfVert_t * verts, int numTotalVerts)
+{
+	int             i, j, k, f, cs, numVerts, numVotes, fOld, startTime, endTime;
+	float           shadeAngle, defaultShadeAngle, maxShadeAngle, dot, testAngle;
+
+//  shaderInfo_t   *si;
+	float          *shadeAngles;
+	byte           *smoothed;
+	vec3_t          average, diff;
+	int             indexes[MAX_SAMPLES];
+	vec3_t          votes[MAX_SAMPLES];
+
+	srfVert_t      *yDrawVerts;
+
+	ri.Printf(PRINT_ALL, "smoothing normals for mesh '%s'\n", name);
+
+	yDrawVerts = Com_Allocate(numTotalVerts * sizeof(srfVert_t));
+	memcpy(yDrawVerts, verts, numTotalVerts * sizeof(srfVert_t));
+
+	// allocate shade angle table
+	shadeAngles = Com_Allocate(numTotalVerts * sizeof(float));
+	memset(shadeAngles, 0, numTotalVerts * sizeof(float));
+
+	// allocate smoothed table
+	cs = (numTotalVerts / 8) + 1;
+	smoothed = Com_Allocate(cs);
+	memset(smoothed, 0, cs);
+
+	// set default shade angle
+	defaultShadeAngle = DEG2RAD(179);
+	maxShadeAngle = defaultShadeAngle;
+
+	// run through every surface and flag verts belonging to non-lightmapped surfaces
+	//   and set per-vertex smoothing angle
+	/*
+	   for(i = 0; i < numBSPDrawSurfaces; i++)
+	   {
+	   // get drawsurf
+	   ds = &bspDrawSurfaces[i];
+
+	   // get shader for shade angle
+	   si = surfaceInfos[i].si;
+	   if(si->shadeAngleDegrees)
+	   shadeAngle = DEG2RAD(si->shadeAngleDegrees);
+	   else
+	   shadeAngle = defaultShadeAngle;
+	   if(shadeAngle > maxShadeAngle)
+	   maxShadeAngle = shadeAngle;
+
+	   // flag its verts
+	   for(j = 0; j < ds->numVerts; j++)
+	   {
+	   f = ds->firstVert + j;
+	   shadeAngles[f] = shadeAngle;
+	   if(ds->surfaceType == MST_TRIANGLE_SOUP)
+	   smoothed[f >> 3] |= (1 << (f & 7));
+	   }
+	   }
+
+	   // bail if no surfaces have a shade angle
+	   if(maxShadeAngle == 0)
+	   {
+	   Com_Dealloc(shadeAngles);
+	   Com_Dealloc(smoothed);
+	   return;
+	   }
+	 */
+
+	// init pacifier
+	fOld = -1;
+	startTime = ri.Milliseconds();
+
+	// go through the list of vertexes
+	for(i = 0; i < numTotalVerts; i++)
+	{
+		// print pacifier
+		f = 10 * i / numTotalVerts;
+		if(f != fOld)
+		{
+			fOld = f;
+			ri.Printf(PRINT_ALL, "%i...", f);
+		}
+
+		// already smoothed?
+		if(smoothed[i >> 3] & (1 << (i & 7)))
+			continue;
+
+		// clear
+		VectorClear(average);
+		numVerts = 0;
+		numVotes = 0;
+
+		// build a table of coincident vertexes
+		for(j = i; j < numTotalVerts && numVerts < MAX_SAMPLES; j++)
+		{
+			// already smoothed?
+			if(smoothed[j >> 3] & (1 << (j & 7)))
+				continue;
+
+			// test vertexes
+			if(CompareWorldVertSmoothNormal(&yDrawVerts[i], &yDrawVerts[j]) == qfalse)
+				continue;
+
+			// use smallest shade angle
+			//shadeAngle = (shadeAngles[i] < shadeAngles[j] ? shadeAngles[i] : shadeAngles[j]);
+			shadeAngle = maxShadeAngle;
+
+			// check shade angle
+			dot = DotProduct(verts[i].normal, verts[j].normal);
+			if(dot > 1.0)
+				dot = 1.0;
+			else if(dot < -1.0)
+				dot = -1.0;
+			testAngle = acos(dot) + THETA_EPSILON;
+			if(testAngle >= shadeAngle)
+			{
+				//Sys_Printf( "F(%3.3f >= %3.3f) ", RAD2DEG( testAngle ), RAD2DEG( shadeAngle ) );
+				continue;
+			}
+			//Sys_Printf( "P(%3.3f < %3.3f) ", RAD2DEG( testAngle ), RAD2DEG( shadeAngle ) );
+
+			// add to the list
+			indexes[numVerts++] = j;
+
+			// flag vertex
+			smoothed[j >> 3] |= (1 << (j & 7));
+
+			// see if this normal has already been voted
+			for(k = 0; k < numVotes; k++)
+			{
+				VectorSubtract(verts[j].normal, votes[k], diff);
+				if(fabs(diff[0]) < EQUAL_NORMAL_EPSILON &&
+				   fabs(diff[1]) < EQUAL_NORMAL_EPSILON && fabs(diff[2]) < EQUAL_NORMAL_EPSILON)
+					break;
+			}
+
+			// add a new vote?
+			if(k == numVotes && numVotes < MAX_SAMPLES)
+			{
+				VectorAdd(average, verts[j].normal, average);
+				VectorCopy(verts[j].normal, votes[numVotes]);
+				numVotes++;
+			}
+		}
+
+		// don't average for less than 2 verts
+		if(numVerts < 2)
+			continue;
+
+		// average normal
+		if(VectorNormalize(average) > 0)
+		{
+			// smooth
+			for(j = 0; j < numVerts; j++)
+				VectorCopy(average, yDrawVerts[indexes[j]].normal);
+		}
+	}
+
+	// copy yDrawVerts normals back
+	for(i = 0; i < numTotalVerts; i++)
+	{
+		VectorCopy(yDrawVerts[i].normal, verts[i].normal);
+	}
+
+	// free the tables
+	Com_Dealloc(yDrawVerts);
+	Com_Dealloc(shadeAngles);
+	Com_Dealloc(smoothed);
+
+	endTime = ri.Milliseconds();
+	ri.Printf(PRINT_ALL, " (%5.2f seconds)\n", (endTime - startTime) / 1000.0);
+}
+#endif
+
+/*
 ===============
 R_CreateWorldVBO
 ===============
@@ -3193,26 +3405,6 @@ static void R_CreateWorldVBO()
 		}
 	}
 
-	if(r_vboSmoothNormals->integer)
-	{
-		// do another extra smoothing for normals to avoid flat shading
-		for(i = 0; i < numVerts; i++)
-		{
-			for(j = 0; j < numVerts; j++)
-			{
-				if(i == j)
-					continue;
-
-				if(CompareWorldSmoothVert(&verts[i], &verts[j]))
-				{
-					VectorAdd(verts[i].normal, verts[j].normal, verts[i].normal);
-				}
-			}
-	
-			VectorNormalize(verts[i].normal);
-		}
-	}
-
 #if 0
 	numVerts = OptimizeVertices(numVerts, verts, numTriangles, triangles, optimizedVerts, CompareWorldVert);
 	if(c_redundantVertexes)
@@ -3253,7 +3445,7 @@ static void R_CreateWorldVBO()
 	{
 		s_worldData.redundantLightVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
 		BuildRedundantIndices(numVerts, verts, s_worldData.redundantLightVerts, CompareLightVert);
-	
+
 		s_worldData.redundantShadowVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
 		BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowVerts, CompareShadowVert);
 
@@ -3680,7 +3872,8 @@ static void R_LoadSurfaces(lump_t * surfs, lump_t * verts, lump_t * indexLump)
 		}
 	}
 
-	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares %i foliages\n", numFaces, numMeshes, numTriSurfs, numFlares, numFoliages);
+	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares %i foliages\n", numFaces, numMeshes, numTriSurfs,
+			  numFlares, numFoliages);
 
 	if(r_stitchCurves->integer)
 	{
@@ -5151,7 +5344,8 @@ static int InteractionCacheCompare(const void *a, const void *b)
 	return 0;
 }
 
-static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTriangle_t * triangles, shader_t * surfaceShader, trRefLight_t * light)
+static int UpdateLightTriangles(const srfVert_t * verts, int numTriangles, srfTriangle_t * triangles, shader_t * surfaceShader,
+								trRefLight_t * light)
 {
 	int             i;
 	srfTriangle_t  *tri;
@@ -5440,7 +5634,7 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			if(c_redundantVertexes)
 			{
 				ri.Printf(PRINT_DEVELOPER, "...removed %i redundant vertices from staticLightMesh %i ( %s, %i verts %i tris )\n",
-					c_redundantVertexes, c_vboLightSurfaces, shader->name, numVerts, numTriangles);
+						  c_redundantVertexes, c_vboLightSurfaces, shader->name, numVerts, numTriangles);
 			}
 
 			vboSurf->vbo = s_worldData.vbo;
@@ -5593,10 +5787,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					surface = iaCache2->surface;
 
-					#if 0
+#if 0
 					if(surface->shader != shader)
 						break;
-					#else
+#else
 					if(alphaTest)
 					{
 						if(surface->shader != shader)
@@ -5607,7 +5801,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 						if(surface->shader->alphaTest != alphaTest)
 							break;
 					}
-					#endif
+#endif
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -5674,10 +5868,10 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					surface = iaCache2->surface;
 
-					#if 0
+#if 0
 					if(surface->shader != shader)
 						break;
-					#else
+#else
 					if(alphaTest)
 					{
 						if(surface->shader != shader)
@@ -5688,7 +5882,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 						if(surface->shader->alphaTest != alphaTest)
 							break;
 					}
-					#endif
+#endif
 
 					if(!(iaCache2->cubeSideBits & (1 << cubeSide)))
 						continue;
@@ -6282,7 +6476,7 @@ void R_PrecacheInteractions()
 	int             startTime, endTime;
 
 	//if(r_precomputedLighting->integer)
-	//	return;
+	//  return;
 
 	startTime = ri.Milliseconds();
 
