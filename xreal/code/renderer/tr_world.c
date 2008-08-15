@@ -1045,11 +1045,13 @@ static void R_UpdateClusterSurfaces()
 
 	ri.Hunk_FreeTempMemory(surfacesSorted);
 
+#if 0
 	if(r_showcluster->integer)
 	{
 		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i and vis index %i\n", tr.world->numClusterVBOSurfaces[tr.visIndex],
 				  cluster - tr.world->clusters, tr.visIndex);
 	}
+#endif
 }
 
 /*
@@ -1085,28 +1087,33 @@ static void R_MarkLeaves(void)
 	{
 		if(tr.visClusters[i] == cluster)
 		{
-			tr.visIndex = i;
+			//tr.visIndex = i;
 			break;
 		}
 	}
 	// if r_showcluster was just turned on, remark everything
 	if(i != MAX_VISCOUNTS && !tr.refdef.areamaskModified && !r_showcluster->modified)
 	{
+		if(tr.visClusters[i] != tr.visClusters[tr.visIndex] && r_showcluster->integer)
+		{
+			ri.Printf(PRINT_ALL, "found cluster:%i  area:%i  index:%i\n", cluster, leaf->area, i);
+		}
+		tr.visIndex = i;
 		return;
 	}
+
+	tr.visIndex = (tr.visIndex + 1) % MAX_VISCOUNTS;
+	tr.visCounts[tr.visIndex]++;
+	tr.visClusters[tr.visIndex] = cluster;
 
 	if(r_showcluster->modified || r_showcluster->integer)
 	{
 		r_showcluster->modified = qfalse;
 		if(r_showcluster->integer)
 		{
-			ri.Printf(PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area);
+			ri.Printf(PRINT_ALL, "update cluster:%i  area:%i  index:%i\n", cluster, leaf->area, tr.visIndex);
 		}
 	}
-
-	tr.visIndex = (tr.visIndex + 1) % MAX_VISCOUNTS;
-	tr.visCounts[tr.visIndex]++;
-	tr.visClusters[tr.visIndex] = cluster;
 
 	R_UpdateClusterSurfaces();
 
