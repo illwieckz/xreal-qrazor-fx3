@@ -272,6 +272,7 @@ skipspace:
 	// check for a number
 	else if((*script->script_p >= '0' && *script->script_p <= '9')									||
 			(*script->script_p == '-' && script->script_p[1] >= '0' && script->script_p[1] <= '9')	||
+			(*script->script_p == '+' && script->script_p[1] >= '0' && script->script_p[1] <= '9')	||
 			(*script->script_p == '.' && script->script_p[1] >= '0' && script->script_p[1] <= '9')	||
 			(*script->script_p == '-' && script->script_p[1] == '.' && script->script_p[2] >= '0' && script->script_p[2] <= '9')
 	)

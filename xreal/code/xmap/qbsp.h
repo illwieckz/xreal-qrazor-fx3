@@ -297,6 +297,7 @@ extern bspBrush_t *buildBrush;
 
 
 void            LoadMapFile(char *filename);
+int				MapPlaneFromPoints(vec3_t p0, vec3_t p1, vec3_t p2);
 int             FindFloatPlane(vec3_t normal, vec_t dist);
 int             PlaneTypeForNormal(vec3_t normal);
 bspBrush_t     *FinishBrush(void);

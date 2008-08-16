@@ -413,6 +413,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\convert_t3dtomap.c"
+				>
+			</File>
+			<File
 				RelativePath=".\facebsp.c"
 				>
 			</File>

@@ -10,6 +10,7 @@ xmap_src = [
 'code/xmap/bsp.c',
 'code/xmap/convert_ase.c',
 'code/xmap/convert_map.c',
+'code/xmap/convert_t3dtomap.c',
 'code/xmap/facebsp.c',
 'code/xmap/fog.c',
 'code/xmap/glfile.c',

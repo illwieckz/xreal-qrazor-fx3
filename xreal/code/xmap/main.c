@@ -31,6 +31,7 @@ main
 
 void            Bspinfo(int count, char **fileNames);
 int             ConvertMapToMap(int argc, char **argv);
+int             ConvertT3DToMap(int argc, char **argv);
 int             ConvertBspToASE(int argc, char **argv);
 int             BspMain(int argc, char **argv);
 int             VisMain(int argc, char **argv);
@@ -63,6 +64,11 @@ int main(int argc, char **argv)
 		ConvertMapToMap(argc - 1, argv + 1);
 		return 0;
 	}
+	if(!strcmp(argv[1], "-t3d2map"))
+	{
+		ConvertT3DToMap(argc - 1, argv + 1);
+		return 0;
+	}
 	if(!strcmp(argv[1], "-map2bsp"))
 	{
 		BspMain(argc - 1, argv + 1);
@@ -91,6 +97,7 @@ int main(int argc, char **argv)
 		  "   bspinfo        = print BSP information\n"
 		  "   bsp2ase        = convert BSP to the 3D Studio Max ASCII format\n"
 		  "   map2map        = convert from any map format to the XreaL map format\n"
+		  "   t3d2map        = convert an Unreal Engine 3.0 .t3d to the XreaL map format\n"
 		  "   map2bsp        = compile MAP to BSP\n"
 		  "   vis            = compute visibility\n"
 		  "   light          = compute lighting\n" "   vlight         = compute volume lighting\n");

@@ -84,6 +84,8 @@ char*           va(char *format, ...);
 char           *strlower(char *in);
 int             Q_strncasecmp(const char *s1, const char *s2, int n);
 int             Q_stricmp(const char *s1, const char *s2);
+void            Q_strncpyz(char *dest, const char *src, int destsize);
+void            Q_strcat(char *dest, int destsize, const char *src);
 void            Q_getwd(char *out);
 
 int             Q_filelength(FILE * f);
