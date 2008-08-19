@@ -315,11 +315,11 @@ abstracted bsp file
 #define	MAX_MAP_PORTALS			0x20000
 #define	MAX_MAP_LIGHTING		0x800000
 #define	MAX_MAP_LIGHTGRID		0x100000	//% 0x800000 /* ydnar: set to points, not bytes */
-#define	MAX_MAP_VISIBILITY		0x400000	//% 0x200000 /* Tr3B */
+#define	MAX_MAP_VISIBILITY		0x800000	//% 0x200000 /* Tr3B */
 
 #define	MAX_MAP_DRAW_SURFS		0x20000
-#define	MAX_MAP_DRAW_VERTS		0x80000
-#define	MAX_MAP_DRAW_INDEXES	0x80000
+#define	MAX_MAP_DRAW_VERTS		0x200000	//% 0x80000 /* Tr3B */
+#define	MAX_MAP_DRAW_INDEXES	0x200000	//% 0x80000 /* Tr3B */
 
 
 /* key / value pair sizes in the entities lump */
