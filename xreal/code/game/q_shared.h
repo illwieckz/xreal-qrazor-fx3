@@ -1557,7 +1557,11 @@ typedef enum
 #define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
 
-#define	MAX_MODELS			256	// these are sent over the net as 8 bits
+// Tr3B: if you increase GMODELNUM_BITS then:
+//	increase MAX_CONFIGSTRINGS to 2048 and double MAX_MSGLEN
+#define	GMODELNUM_BITS		8	// don't need to send any more
+#define	MAX_MODELS			(1 << GMODELNUM_BITS) // references entityState_t::modelindex
+
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
 #define MAX_EFFECTS			256
 
