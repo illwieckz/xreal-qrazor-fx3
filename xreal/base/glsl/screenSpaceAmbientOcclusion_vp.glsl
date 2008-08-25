@@ -20,8 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+uniform mat4		u_ModelViewProjectionMatrix;
+
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 }

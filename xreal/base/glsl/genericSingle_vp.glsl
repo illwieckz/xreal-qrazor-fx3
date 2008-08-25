@@ -29,6 +29,9 @@ uniform mat4		u_BoneMatrix[128];
 #endif
 
 uniform int			u_InverseVertexColor;
+//uniform mat4		u_ModelViewMatrix;
+//uniform mat4		u_ProjectionMatrix;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec2		var_Tex;
 varying vec4		var_Color;
@@ -50,13 +53,15 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
 	}
 	else
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+		//gl_Position = u_ProjectionMatrix * u_ModelViewMatrix * gl_Vertex;
+		//gl_Position = u_ProjectionMatrix * gl_Vertex;
 	}
 	
 	// transform texcoords

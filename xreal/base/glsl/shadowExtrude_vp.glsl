@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform vec3		u_LightOrigin;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec4		var_Color;
 
@@ -29,13 +30,13 @@ void	main()
 	if(gl_Vertex.w == 1.0)
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	}
 	else
 	{
 		// project vertex position to infinity
 		vec4 vertex = vec4((gl_Vertex.xyz - u_LightOrigin), 0.0);
-		gl_Position	= gl_ModelViewProjectionMatrix * vertex;
+		gl_Position	= u_ModelViewProjectionMatrix * vertex;
 	}
 	
 	// assign color

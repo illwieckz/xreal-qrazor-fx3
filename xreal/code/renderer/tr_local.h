@@ -811,6 +811,7 @@ enum
 // GLSL vertex and one GLSL fragment shader
 typedef struct shaderProgram_s
 {
+	char            name[MAX_QPATH];
 
 	GLhandleARB     program;
 	int             attribs;	// vertex array attributes
@@ -872,10 +873,13 @@ typedef struct shaderProgram_s
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
 
-	GLint           u_ProjectionMatrixTranspose;
 	GLint           u_ModelMatrix;
 	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
+	GLint			u_ModelViewMatrixTranspose;
+	GLint			u_ProjectionMatrix;
+	GLint           u_ProjectionMatrixTranspose;
+	GLint			u_ModelViewProjectionMatrix;
 	
 	GLint           u_UnprojectMatrix;
 	GLint           u_ProjectMatrix;
@@ -1698,6 +1702,8 @@ typedef struct
 #define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
 
 
+#define MAX_GLSTACK			5
+
 // the renderer front end should never modify glstate_t
 typedef struct
 {
@@ -1705,12 +1711,19 @@ typedef struct
 	int             currenttmu;
 	matrix_t        textureMatrix[32];
 
+	int				stackIndex;
+//	matrix_t        modelMatrix[MAX_GLSTACK];
+//	matrix_t        viewMatrix[MAX_GLSTACK];
+	matrix_t        modelViewMatrix[MAX_GLSTACK];
+	matrix_t        projectionMatrix[MAX_GLSTACK];
+	matrix_t        modelViewProjectionMatrix[MAX_GLSTACK];
+
 	qboolean        finishCalled;
 	int             texEnv[2];
 	int             faceCulling;
 	unsigned long   glStateBits;
 	unsigned long   glClientStateBits;
-	GLhandleARB     currentProgram;
+	shaderProgram_t *currentProgram;
 	FBO_t          *currentFBO;
 	VBO_t          *currentVBO;
 	IBO_t          *currentIBO;
@@ -2276,12 +2289,18 @@ void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const
 ** GL wrapper/helper functions
 */
 void            GL_Bind(image_t * image);
+void            BindAnimatedImage(textureBundle_t * bundle);
 void            GL_TextureFilter(image_t * image, filterType_t filterType);
-void            GL_Program(GLhandleARB program);
+void			GL_Program(shaderProgram_t * program);
+void			GL_BindNullProgram(void);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
 void            GL_LoadTextureMatrix(const matrix_t m);
+void            GL_LoadModelViewMatrix(const matrix_t m);
+void			GL_LoadProjectionMatrix(const matrix_t m);
+void			GL_PushMatrix();
+void			GL_PopMatrix();
 
 void            GL_CheckErrors_(const char *filename, int line);
 

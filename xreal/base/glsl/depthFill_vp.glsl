@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -29,6 +29,7 @@ uniform mat4		u_BoneMatrix[128];
 #endif
 
 uniform vec3        u_AmbientColor;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec2		var_Tex;
 varying vec4		var_Color;
@@ -50,13 +51,13 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
 	}
 	else
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	}
 	
 	// transform texcoords

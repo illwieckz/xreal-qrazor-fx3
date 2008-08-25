@@ -60,6 +60,18 @@ void GL_Bind(image_t * image)
 	}
 }
 
+void BindAnimatedImage(textureBundle_t * bundle)
+{
+	if(bundle->isVideoMap)
+	{
+		ri.CIN_RunCinematic(bundle->videoMapHandle);
+		ri.CIN_UploadCinematic(bundle->videoMapHandle);
+		return;
+	}
+
+	GL_Bind(bundle->image[0]);
+}
+
 void GL_TextureFilter(image_t * image, filterType_t filterType)
 {
 	if(!image)
@@ -107,18 +119,41 @@ void GL_TextureFilter(image_t * image, filterType_t filterType)
 	}
 }
 
-void GL_Program(GLhandleARB program)
+void GL_Program(shaderProgram_t * program)
 {
+	if(!program)
+	{
+		GL_BindNullProgram();
+		return;
+	}
+
+	if(r_logFile->integer)
+	{
+		// don't just call LogComment, or we will get a call to va() every frame!
+		GLimp_LogComment(va("--- GL_BindProgram( %s ) ---\n", program->name));
+	}
+
 	if(glState.currentProgram != program)
 	{
+		qglUseProgramObjectARB(program->program);
 		glState.currentProgram = program;
-		qglUseProgramObjectARB(program);
 	}
 }
 
-/*
-** GL_SelectTexture
-*/
+void GL_BindNullProgram(void)
+{
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment("--- GL_BindNullProgram ---\n");
+	}
+
+	if(glState.currentProgram)
+	{
+		qglUseProgramObjectARB(0);
+		glState.currentProgram = NULL;
+	}
+}
+
 void GL_SelectTexture(int unit)
 {
 	if(glState.currenttmu == unit)
@@ -145,10 +180,7 @@ void GL_SelectTexture(int unit)
 	glState.currenttmu = unit;
 }
 
-
 /*
-** GL_BindMultitexture
-*/
 void GL_BindMultitexture(image_t * image0, GLuint env0, image_t * image1, GLuint env1)
 {
 	int             texnum0, texnum1;
@@ -177,6 +209,7 @@ void GL_BindMultitexture(image_t * image0, GLuint env0, image_t * image1, GLuint
 		qglBindTexture(GL_TEXTURE_2D, texnum0);
 	}
 }
+*/
 
 void GL_LoadTextureMatrix(const matrix_t m)
 {
@@ -192,10 +225,55 @@ void GL_LoadTextureMatrix(const matrix_t m)
 	qglMatrixMode(GL_MODELVIEW);
 }
 
+void GL_LoadModelViewMatrix(const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(glState.modelViewMatrix[glState.stackIndex], m))
+	{
+		return;
+	}
+#endif
 
-/*
-** GL_Cull
-*/
+
+	MatrixCopy(m, glState.modelViewMatrix[glState.stackIndex]);
+	MatrixMultiply(glState.projectionMatrix[glState.stackIndex], glState.modelViewMatrix[glState.stackIndex], glState.modelViewProjectionMatrix[glState.stackIndex]);
+}
+
+void GL_LoadProjectionMatrix(const matrix_t m)
+{
+#if 1
+	if(MatrixCompare(glState.projectionMatrix[glState.stackIndex], m))
+	{
+		return;
+	}
+#endif
+
+	MatrixCopy(m, glState.projectionMatrix[glState.stackIndex]);
+	MatrixMultiply(glState.projectionMatrix[glState.stackIndex], glState.modelViewMatrix[glState.stackIndex], glState.modelViewProjectionMatrix[glState.stackIndex]);
+}
+
+void GL_PushMatrix()
+{
+	glState.stackIndex++;
+
+	if(glState.stackIndex >= MAX_GLSTACK)
+	{
+		glState.stackIndex = MAX_GLSTACK -1;
+		ri.Error(ERR_DROP, "GL_PushMatrix: stack overflow = %i", glState.stackIndex);
+	}
+}
+
+void GL_PopMatrix()
+{
+	glState.stackIndex--;
+
+	if(glState.stackIndex < 0)
+	{
+		glState.stackIndex = 0;
+		ri.Error(ERR_DROP, "GL_PushMatrix: stack underflow");
+	}
+}
+
 void GL_Cull(int cullType)
 {
 	if(glState.faceCulling == cullType)
@@ -242,9 +320,7 @@ void GL_Cull(int cullType)
 	}
 }
 
-/*
-** GL_TexEnv
-*/
+
 void GL_TexEnv(int env)
 {
 	if(env == glState.texEnv[glState.currenttmu])
@@ -276,10 +352,10 @@ void GL_TexEnv(int env)
 }
 
 /*
-** GL_State
-**
-** This routine is responsible for setting the most commonly changed state
-** in Q3.
+GL_State
+
+This routine is responsible for setting the most commonly changed state
+in Q3.
 */
 void GL_State(unsigned long stateBits)
 {
@@ -649,21 +725,7 @@ static void RB_Hyperspace(void)
 
 static void SetViewportAndScissor(void)
 {
-#if 0
-	matrix_t        projectionMatrix;
-
-	// convert from our coordinate system (looking down X)
-	// to OpenGL's coordinate system (looking down -Z)
-	MatrixMultiply(backEnd.viewParms.projectionMatrix, quakeToOpenGLMatrix, projectionMatrix);
-
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadMatrixf(projectionMatrix);
-	qglMatrixMode(GL_MODELVIEW);
-#else
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
-	qglMatrixMode(GL_MODELVIEW);
-#endif
+	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
 	// set the window clipping
 	qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
@@ -681,6 +743,8 @@ RB_SetGL2D
 */
 static void RB_SetGL2D(void)
 {
+	matrix_t		proj;
+
 	GLimp_LogComment("--- RB_SetGL2D ---\n");
 
 	// disable offscreen rendering
@@ -694,11 +758,10 @@ static void RB_SetGL2D(void)
 	// set 2D virtual screen size
 	qglViewport(0, 0, glConfig.vidWidth, glConfig.vidHeight);
 	qglScissor(0, 0, glConfig.vidWidth, glConfig.vidHeight);
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
-	qglOrtho(0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
-	qglMatrixMode(GL_MODELVIEW);
-	qglLoadIdentity();
+
+	MatrixSetupOrthogonalProjection(proj, 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
+	GL_LoadProjectionMatrix(proj);
+	GL_LoadModelViewMatrix(matrixIdentity);
 
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 
@@ -805,7 +868,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 				backEnd.or = backEnd.viewParms.world;
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -835,7 +898,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
@@ -854,7 +917,7 @@ static void Render_lightVolume(trRefLight_t * light)
 
 	// rotate into light space
 	R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-	qglLoadMatrixf(backEnd.or.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 	switch (light->l.rlType)
 	{
@@ -935,6 +998,7 @@ static void Render_lightVolume(trRefLight_t * light)
 			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
 			qglUniform1iARB(tr.lightVolumeShader_omni.u_ShadowCompare, !light->l.noShadows);
 			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+			qglUniformMatrix4fvARB(tr.lightVolumeShader_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			// bind u_AttenuationMapXY
 			GL_SelectTexture(0);
@@ -1103,7 +1167,7 @@ static void RB_RenderInteractions()
 				backEnd.or = backEnd.viewParms.world;
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -1210,7 +1274,7 @@ static void RB_RenderInteractions()
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
@@ -1344,7 +1408,7 @@ static void RB_RenderInteractionsStencilShadowed()
 					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 					// enable shadow volume extrusion shader
-					GL_Program(tr.shadowExtrudeShader.program);
+					GL_Program(&tr.shadowExtrudeShader);
 					GL_ClientState(tr.shadowExtrudeShader.attribs);
 				}
 			}
@@ -1380,7 +1444,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				//qglDisable(GL_POLYGON_OFFSET_FILL);
 
 				// disable shadow volume extrusion shader
-				GL_Program(0);
+				GL_Program(NULL);
 			}
 		}
 
@@ -1504,7 +1568,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				backEnd.or = backEnd.viewParms.world;
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -1640,7 +1704,7 @@ static void RB_RenderInteractionsStencilShadowed()
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
@@ -1741,7 +1805,7 @@ static void RB_RenderInteractionsShadowMapped()
 			if(drawShadows)
 			{
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
-				GL_Program(0);
+				GL_Program(NULL);
 				GL_State(GLS_DEFAULT);
 				GL_ClientState(GLCS_VERTEX);
 
@@ -1928,9 +1992,7 @@ static void RB_RenderInteractionsShadowMapped()
 							proj[11] = -1;
 							proj[15] = 0;
 
-							qglMatrixMode(GL_PROJECTION);
-							qglLoadMatrixf(light->projectionMatrix);
-							qglMatrixMode(GL_MODELVIEW);
+							GL_LoadProjectionMatrix(light->projectionMatrix);
 							break;
 						}
 
@@ -1999,9 +2061,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-							qglMatrixMode(GL_PROJECTION);
-							qglLoadMatrixf(light->projectionMatrix);
-							qglMatrixMode(GL_MODELVIEW);
+							GL_LoadProjectionMatrix(light->projectionMatrix);
 							break;
 						}
 
@@ -2038,11 +2098,8 @@ static void RB_RenderInteractionsShadowMapped()
 						   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 				// restore camera matrices
-				qglMatrixMode(GL_PROJECTION);
-				qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
-				qglMatrixMode(GL_MODELVIEW);
-
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 				// reset light view and projection matrices
 				switch (light->l.rlType)
@@ -2234,7 +2291,7 @@ static void RB_RenderInteractionsShadowMapped()
 				}
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -2411,7 +2468,7 @@ static void RB_RenderInteractionsShadowMapped()
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
@@ -2520,7 +2577,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 				backEnd.or = backEnd.viewParms.world;
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -2550,7 +2607,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
@@ -2583,6 +2640,7 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
+	matrix_t		ortho;
 	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
@@ -2598,6 +2656,7 @@ void RB_RenderInteractionsDeferred()
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
 
 	// set 2D virtual screen size
+	/*
 	qglMatrixMode(GL_MODELVIEW);
 	qglPushMatrix();
 	qglLoadIdentity();
@@ -2607,7 +2666,14 @@ void RB_RenderInteractionsDeferred()
 	qglOrtho(backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	*/
 
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
 
 	// update depth render image
 	GL_SelectTexture(1);
@@ -2701,7 +2767,7 @@ void RB_RenderInteractionsDeferred()
 					if(light->l.rlType == RL_OMNI)
 					{
 						// enable shader, set arrays
-						GL_Program(tr.deferredLightingShader_DBS_omni.program);
+						GL_Program(&tr.deferredLightingShader_DBS_omni);
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -2725,6 +2791,7 @@ void RB_RenderInteractionsDeferred()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
@@ -2764,7 +2831,7 @@ void RB_RenderInteractionsDeferred()
 					else if(light->l.rlType == RL_PROJ)
 					{
 						// enable shader, set arrays
-						GL_Program(tr.deferredLightingShader_DBS_proj.program);
+						GL_Program(&tr.deferredLightingShader_DBS_proj);
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -2787,6 +2854,7 @@ void RB_RenderInteractionsDeferred()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
@@ -2852,14 +2920,18 @@ void RB_RenderInteractionsDeferred()
 		oldLight = light;
 	}
 
+	/*
 	qglMatrixMode(GL_PROJECTION);
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
+	*/
+
+	GL_PopMatrix();
 
 	// go back to the world modelview matrix
 	backEnd.or = backEnd.viewParms.world;
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 	// reset scissor
 	qglScissor(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
@@ -2946,7 +3018,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			if(drawShadows)
 			{
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
-				GL_Program(0);
+				GL_Program(NULL);
 				GL_State(GLS_DEFAULT);
 				GL_ClientState(GLCS_VERTEX);
 
@@ -3124,9 +3196,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							proj[11] = -1;
 							proj[15] = 0;
 
-							qglMatrixMode(GL_PROJECTION);
-							qglLoadMatrixf(light->projectionMatrix);
-							qglMatrixMode(GL_MODELVIEW);
+							GL_LoadProjectionMatrix(light->projectionMatrix);
 							break;
 						}
 
@@ -3146,9 +3216,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-							qglMatrixMode(GL_PROJECTION);
-							qglLoadMatrixf(light->projectionMatrix);
-							qglMatrixMode(GL_MODELVIEW);
+							GL_LoadProjectionMatrix(light->projectionMatrix);
 							break;
 						}
 
@@ -3189,11 +3257,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				qglScissor(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight);
 
 				// restore camera matrices
-				qglMatrixMode(GL_PROJECTION);
-				qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
-				qglMatrixMode(GL_MODELVIEW);
-
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+				GL_LoadProjectionMatrix(backEnd.or.modelViewMatrix);
 
 				switch (light->l.rlType)
 				{
@@ -3279,7 +3344,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					if(light->l.rlType == RL_OMNI)
 					{
 						// enable shader, set arrays
-						GL_Program(tr.deferredLightingShader_DBS_omni.program);
+						GL_Program(&tr.deferredLightingShader_DBS_omni);
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -3304,6 +3369,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
@@ -3351,7 +3417,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					{
 						if(light->l.inverseShadows)
 						{
-							GL_Program(tr.deferredShadowingShader_proj.program);
+							GL_Program(&tr.deferredShadowingShader_proj);
 
 							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 
@@ -3375,6 +3441,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE,
 												   light->attenuationMatrix);
 							qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowCompare, shadowCompare);
+							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
@@ -3408,7 +3475,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 						else
 						{
-							GL_Program(tr.deferredLightingShader_DBS_proj.program);
+							GL_Program(&tr.deferredLightingShader_DBS_proj);
 
 							// set OpenGL state for additive lighting
 							GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -3435,6 +3502,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
 												   light->attenuationMatrix);
 							qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
+							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
@@ -3629,7 +3697,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				}
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
@@ -3766,7 +3834,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	if(depthRange)
 	{
 		qglDepthRange(0, 1);
@@ -3796,6 +3864,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 //  static vec3_t   jitter[32];
 //  static qboolean jitterInit = qfalse;
 //  matrix_t        projectMatrix;
+	matrix_t		ortho;
 
 	GLimp_LogComment("--- RB_RenderScreenSpaceAmbientOcclusion ---\n");
 
@@ -3806,7 +3875,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 		return;
 
 	// enable shader, set arrays
-	GL_Program(tr.screenSpaceAmbientOcclusionShader.program);
+	GL_Program(&tr.screenSpaceAmbientOcclusionShader);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
@@ -3865,14 +3934,14 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	}
 
 	// set 2D virtual screen size
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	qglBegin(GL_QUADS);
@@ -3884,15 +3953,15 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	qglEnd();
 
 	// go back to 3D
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 
 	GL_CheckErrors();
 }
 
 void RB_RenderDepthOfField(qboolean deferred)
 {
+	matrix_t		ortho;
+
 	GLimp_LogComment("--- RB_RenderDepthOfField ---\n");
 
 	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
@@ -3902,7 +3971,7 @@ void RB_RenderDepthOfField(qboolean deferred)
 		return;
 
 	// enable shader, set arrays
-	GL_Program(tr.depthOfFieldShader.program);
+	GL_Program(&tr.depthOfFieldShader);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
@@ -3929,14 +3998,14 @@ void RB_RenderDepthOfField(qboolean deferred)
 	}
 
 	// set 2D virtual screen size
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	qglUniformMatrix4fvARB(tr.depthOfFieldShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	qglBegin(GL_QUADS);
@@ -3948,9 +4017,7 @@ void RB_RenderDepthOfField(qboolean deferred)
 	qglEnd();
 
 	// go back to 3D
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 
 	GL_CheckErrors();
 }
@@ -3960,6 +4027,7 @@ void RB_RenderUniformFog(qboolean deferred)
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
+	matrix_t		ortho;
 
 	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
 
@@ -3976,7 +4044,7 @@ void RB_RenderUniformFog(qboolean deferred)
 		return;
 
 	// enable shader, set arrays
-	GL_Program(tr.uniformFogShader.program);
+	GL_Program(&tr.uniformFogShader);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
@@ -4021,14 +4089,14 @@ void RB_RenderUniformFog(qboolean deferred)
 
 
 	// set 2D virtual screen size
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	qglUniformMatrix4fvARB(tr.uniformFogShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	qglBegin(GL_QUADS);
@@ -4040,29 +4108,27 @@ void RB_RenderUniformFog(qboolean deferred)
 	qglEnd();
 
 	// go back to 3D
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 
 	GL_CheckErrors();
 }
 
 void RB_RenderBloom(void)
 {
+	matrix_t		ortho;
+
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
 	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer || backEnd.viewParms.isPortal)
 		return;
 
 	// set 2D virtual screen size
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
 
 	// FIXME
 	if(glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
@@ -4071,8 +4137,10 @@ void RB_RenderBloom(void)
 		GL_Cull(CT_TWO_SIDED);
 
 		// render contrast
-		GL_Program(tr.contrastShader.program);
+		GL_Program(&tr.contrastShader);
 		GL_ClientState(tr.contrastShader.attribs);
+
+		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		GL_SelectTexture(0);
 		GL_Bind(tr.currentRenderImage);
@@ -4090,9 +4158,10 @@ void RB_RenderBloom(void)
 
 
 		// render bloom
-		GL_Program(tr.bloomShader.program);
+		GL_Program(&tr.bloomShader);
 		GL_ClientState(tr.bloomShader.attribs);
 
+		qglUniformMatrix4fvARB(tr.bloomShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
 		/*
@@ -4203,38 +4272,37 @@ void RB_RenderBloom(void)
 	 */
 
 	// go back to 3D
-	qglMatrixMode(GL_PROJECTION);
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 
 	GL_CheckErrors();
 }
 
 void RB_RenderRotoscope(void)
 {
+	matrix_t		ortho;
+
 	GLimp_LogComment("--- RB_RenderRotoscope ---\n");
 
 	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_rotoscope->integer || backEnd.viewParms.isPortal)
 		return;
 
 	// set 2D virtual screen size
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);
 	GL_Cull(CT_TWO_SIDED);
 
 	// enable shader, set arrays
-	GL_Program(tr.rotoscopeShader.program);
+	GL_Program(&tr.rotoscopeShader);
 	GL_ClientState(tr.rotoscopeShader.attribs);
+
+	qglUniformMatrix4fvARB(tr.rotoscopeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
@@ -4249,34 +4317,22 @@ void RB_RenderRotoscope(void)
 	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 	qglEnd();
 
-	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	// draw viewport
-	qglBegin(GL_QUADS);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglEnd();
-
 	// go back to 3D
-	qglMatrixMode(GL_PROJECTION);
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 
 	GL_CheckErrors();
 }
 
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
+	matrix_t		ortho;
+
 	GLimp_LogComment("--- RB_RenderDeferredShadingResultToFrameBuffer ---\n");
 
 	R_BindNullFBO();
 
 	// enable shader, set arrays
-	GL_Program(tr.screenShader.program);
+	GL_Program(&tr.screenShader);
 
 	/*
 	   if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
@@ -4295,7 +4351,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	// set uniforms
 
-	// bind colorMap
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 
 	if(r_showDeferredDiffuse->integer)
@@ -4322,14 +4378,14 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 
 	// set 2D virtual screen size
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	qglBegin(GL_QUADS);
 	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
@@ -4339,9 +4395,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
 	qglEnd();
 
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 }
 
 void RB_RenderLightOcclusionQueries()
@@ -4362,10 +4416,24 @@ void RB_RenderLightOcclusionQueries()
 
 		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
 
-		GL_Program(0);
+		GL_Program(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
+		//GL_ClientState(GLCS_VERTEX);
+		//GL_SelectTexture(0);
+		//qglDisable(GL_TEXTURE_2D);
+
+		// set uniforms
+		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		if(r_vboVertexSkinning->integer)
+		{
+			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		}
+
+		// bind u_ColorMap
 		GL_SelectTexture(0);
-		qglDisable(GL_TEXTURE_2D);
+		GL_Bind(tr.whiteImage);
+		//GL_LoadTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
 
 		// don't write to the color buffer or depth buffer
 		if(r_showOcclusionQueries->integer)
@@ -4394,7 +4462,8 @@ void RB_RenderLightOcclusionQueries()
 					ocCount++;
 
 					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-					qglLoadMatrixf(backEnd.or.modelViewMatrix);
+					GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+					qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 					// begin the occlusion query
 					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
@@ -4533,7 +4602,7 @@ void RB_RenderLightOcclusionQueries()
 
 		// go back to the world modelview matrix
 		backEnd.or = backEnd.viewParms.world;
-		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 		if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 		{
@@ -4599,7 +4668,6 @@ void RB_RenderLightOcclusionQueries()
 
 		// reenable writes to depth and color buffers
 		GL_State(GLS_DEPTHMASK_TRUE);
-		qglEnable(GL_TEXTURE_2D);
 
 		// loop trough all light interactions and fetch results for each last interaction
 		// then copy result to all other interactions that belong to the same light
@@ -4690,195 +4758,15 @@ void RB_RenderLightOcclusionQueries()
 			oldLight = light;
 		}
 	}
-#if 0
-	// Tr3B - try to cull light interactions manually with stencil overdraw test
-	else
-	{
-		interaction_t  *ia;
-		int             iaCount;
-		int             iaFirst = 0;
-		trRefLight_t   *light, *oldLight;
-		int             i;
-		long            sum = 0;
-		unsigned char  *stencilReadback;
-		qboolean        calcSum;
-
-		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
-
-		GL_Program(0);
-		GL_Cull(CT_TWO_SIDED);
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
-
-		stencilReadback = ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight);
-
-		// don't write to the color buffer or depth buffer
-		if(r_showOcclusionQueries->integer)
-		{
-			GL_Cull(CT_BACK_SIDED);
-			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-			//GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
-		}
-		else
-		{
-			GL_State(GLS_COLORMASK_BITS | GLS_STENCILTEST_ENABLE);
-		}
-
-		oldLight = NULL;
-		calcSum = qtrue;
-
-		// loop trough all light interactions and render the light OBB for each last interaction
-		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
-		{
-			backEnd.currentLight = light = ia->light;
-
-			if(light != oldLight)
-			{
-				iaFirst = iaCount;
-			}
-
-			if(!calcSum)
-			{
-				ia->occlusionQuerySamples = sum;
-			}
-
-			if(!ia->next)
-			{
-				// last interaction of current light
-				if(calcSum)
-				{
-					if(R_CullLightPoint(light, backEnd.viewParms.or.origin) == CULL_OUT)
-					{
-						// clear stencil buffer
-						qglClear(GL_STENCIL_BUFFER_BIT);
-
-						// set the reference stencil value
-						//qglClearStencil(0U);
-						qglStencilMask(~0);
-						qglStencilFunc(GL_ALWAYS, 0, ~0);
-						qglStencilOp(GL_KEEP, GL_INCR, GL_INCR);
-
-						R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-						qglLoadMatrixf(backEnd.or.modelViewMatrix);
-
-						// draw the volume
-						qglBegin(GL_QUADS);
-
-						qglColor4fv(colorRed);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-
-						qglColor4fv(colorGreen);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-
-						qglColor4fv(colorBlue);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-
-						qglColor4fv(colorYellow);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-
-						qglColor4fv(colorMagenta);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-
-						qglColor4fv(colorCyan);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-						qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-						qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-
-						qglEnd();
-
-						backEnd.pc.c_occlusionQueries++;
-						backEnd.pc.c_occlusionQueriesAvailable++;
-
-#if 1
-						qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE,
-									  stencilReadback);
-
-						for(i = 0, sum = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++)
-						{
-							sum += stencilReadback[i];
-						}
-#else
-						// only consider the 2D light scissor of current light
-						qglReadPixels(ia->scissorX, ia->scissorY, ia->scissorWidth, ia->scissorHeight, GL_STENCIL_INDEX,
-									  GL_UNSIGNED_BYTE, stencilReadback);
-
-						for(i = 0, sum = 0; i < ia->scissorWidth * ia->scissorHeight; i++)
-						{
-							sum += stencilReadback[i];
-						}
-#endif
-
-						if(!sum)
-						{
-							backEnd.pc.c_occlusionQueriesCulled++;
-						}
-					}
-					else
-					{
-						sum = 1;
-					}
-
-					// jump back to first interaction of this light copy sum to all interactions
-					ia = &backEnd.viewParms.interactions[iaFirst];
-					iaCount = iaFirst;
-					calcSum = qfalse;
-				}
-				else
-				{
-					if(iaCount < (backEnd.viewParms.numInteractions - 1))
-					{
-						// jump to next interaction and continue
-						ia++;
-						iaCount++;
-						calcSum = qtrue;
-					}
-					else
-					{
-						// increase last time to leave for loop
-						iaCount++;
-					}
-				}
-			}
-			else
-			{
-				// just continue
-				ia = ia->next;
-				iaCount++;
-			}
-
-			oldLight = light;
-		}
-
-		// go back to the world modelview matrix
-		backEnd.or = backEnd.viewParms.world;
-		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
-
-		// reenable writes to depth and color buffers
-		GL_State(GLS_DEPTHMASK_TRUE);
-
-		ri.Hunk_FreeTempMemory(stencilReadback);
-	}
-#endif
 
 	GL_CheckErrors();
 }
 
+/*
+some debug utilities for displaying entity AABBs and so on
+FIXME rewrite this to use the genericSingle GLSL shader
+this fixed function pipeline stuff is broken
+*/
 static void RB_RenderDebugUtils()
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
@@ -4892,7 +4780,7 @@ static void RB_RenderDebugUtils()
 		vec3_t          tmp;
 		vec4_t          lightColor;
 
-		GL_Program(0);
+		GL_Program(NULL);
 		GL_State(0);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -4941,7 +4829,7 @@ static void RB_RenderDebugUtils()
 
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
-				qglLoadMatrixf(backEnd.or.modelViewMatrix);
+				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
 				VectorMA(vec3_origin, 16, forward, forward);
@@ -5074,7 +4962,7 @@ static void RB_RenderDebugUtils()
 
 		// go back to the world modelview matrix
 		backEnd.or = backEnd.viewParms.world;
-		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 
 	if(r_showLightInteractions->integer)
@@ -5088,7 +4976,7 @@ static void RB_RenderDebugUtils()
 		surfaceType_t  *surface;
 		vec4_t          lightColor;
 
-		GL_Program(0);
+		GL_Program(NULL);
 		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -5109,7 +4997,7 @@ static void RB_RenderDebugUtils()
 				backEnd.or = backEnd.viewParms.world;
 			}
 
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			if(r_shadows->integer >= 4 && light->l.rlType == RL_OMNI)
 			{
@@ -5224,7 +5112,7 @@ static void RB_RenderDebugUtils()
 
 		// go back to the world modelview matrix
 		backEnd.or = backEnd.viewParms.world;
-		qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 
 	if(r_showEntityTransforms->integer)
@@ -5232,7 +5120,7 @@ static void RB_RenderDebugUtils()
 		trRefEntity_t  *ent;
 		int             i;
 
-		GL_Program(0);
+		GL_Program(NULL);
 		GL_State(0);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -5245,14 +5133,14 @@ static void RB_RenderDebugUtils()
 
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			R_DebugAxis(vec3_origin, matrixIdentity);
 			R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorMagenta);
 
 			// go back to the world modelview matrix
 			backEnd.or = backEnd.viewParms.world;
-			qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
@@ -5267,7 +5155,7 @@ static void RB_RenderDebugUtils()
 		vec3_t          diff, tmp, tmp2, tmp3;
 		vec_t           length;
 
-		GL_Program(0);
+		GL_Program(NULL);
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -5283,7 +5171,7 @@ static void RB_RenderDebugUtils()
 
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
-			qglLoadMatrixf(backEnd.or.modelViewMatrix);
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 			qglBegin(GL_LINES);
 			for(j = 0; j < ent->e.skeleton.numBones; j++)
@@ -5382,7 +5270,7 @@ static void RB_RenderDebugUtils()
 		interaction_t  *ia;
 		int             iaCount;
 
-		GL_Program(0);
+		GL_Program(NULL);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
@@ -5617,7 +5505,7 @@ static void RB_RenderView(void)
 			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
 			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
-			qglLoadMatrixf(quakeToOpenGLMatrix);
+			GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
 			qglClipPlane(GL_CLIP_PLANE0, plane2);
 			qglEnable(GL_CLIP_PLANE0);
 		}
@@ -5744,7 +5632,7 @@ static void RB_RenderView(void)
 			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
 			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
-			qglLoadMatrixf(quakeToOpenGLMatrix);
+			GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
 			qglClipPlane(GL_CLIP_PLANE0, plane2);
 			qglEnable(GL_CLIP_PLANE0);
 		}

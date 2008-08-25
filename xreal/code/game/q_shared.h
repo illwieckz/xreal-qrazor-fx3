@@ -1078,6 +1078,8 @@ void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
+void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+void			MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 
 static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)
 {

@@ -23,13 +23,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 varying vec3		var_Vertex;
 varying vec4		var_Color;
 
+uniform mat4		u_ModelViewMatrix;
+uniform mat4		u_ModelViewProjectionMatrix;
+
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// transform vertex position into camera space
-	var_Vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	var_Vertex = (u_ModelViewMatrix * gl_Vertex).xyz;
 	
 	// assign color
 	var_Color = gl_Color;

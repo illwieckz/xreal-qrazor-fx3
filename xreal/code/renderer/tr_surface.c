@@ -2000,6 +2000,7 @@ static void Tess_SurfaceAxis(void)
 {
 	GLimp_LogComment("--- Tess_SurfaceAxis ---\n");
 
+	/*
 	GL_Program(0);
 	GL_SelectTexture(0);
 	GL_Bind(tr.whiteImage);
@@ -2017,6 +2018,7 @@ static void Tess_SurfaceAxis(void)
 	qglVertex3f(0, 0, 16);
 	qglEnd();
 	qglLineWidth(1);
+	*/
 }
 
 //===========================================================================

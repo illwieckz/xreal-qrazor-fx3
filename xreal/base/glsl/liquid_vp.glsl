@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -25,6 +25,7 @@ attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
 uniform mat4		u_ModelMatrix;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Vertex;
 varying vec3		var_Normal;
@@ -33,7 +34,7 @@ varying vec4		var_Color;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// transform position into world space
 	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;

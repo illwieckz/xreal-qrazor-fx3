@@ -31,6 +31,7 @@ uniform mat4		u_BoneMatrix[128];
 #endif
 
 uniform mat4		u_ModelMatrix;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
@@ -64,7 +65,7 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// transform position into world space
 		var_Vertex = u_ModelMatrix * vertex;
@@ -74,9 +75,10 @@ void	main()
 		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 	}
 	else
+#endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 		
 		// transform position into world space
 		var_Vertex = u_ModelMatrix * gl_Vertex;
@@ -85,17 +87,6 @@ void	main()
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
 		var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
 	}
-#else
-	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-		
-	// transform position into world space
-	var_Vertex = u_ModelMatrix * gl_Vertex;
-	
-	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
-#endif
 
 	// transform diffusemap texcoords
 	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;

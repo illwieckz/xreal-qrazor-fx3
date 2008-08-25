@@ -33,6 +33,7 @@ uniform mat4		u_BoneMatrix[128];
 uniform int			u_InverseVertexColor;
 uniform mat4		u_LightAttenuationMatrix;
 uniform mat4		u_ModelMatrix;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Vertex;
 varying vec4		var_TexDiffuse;
@@ -68,7 +69,7 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// transform position into world space
 		var_Vertex = (u_ModelMatrix * vertex).xyz;
@@ -84,7 +85,7 @@ void	main()
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 		
 		// transform position into world space
 		var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;

@@ -29,9 +29,9 @@ uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[128];
 #endif
 
-#if defined(ATI)
 uniform mat4		u_ProjectionMatrixTranspose;
-#endif
+uniform mat4		u_ModelViewMatrixTranspose;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 uniform float		u_DeformMagnitude;
 
@@ -58,33 +58,28 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// take the deform magnitude and scale it by the projection distance
 		deformVec = vec4(1, 0, 0, 1);
-		deformVec.z = dot(gl_ModelViewMatrixTranspose[2], vertex);
+		deformVec.z = dot(u_ModelViewMatrixTranspose[2], vertex);
 	}
 	else
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 		
 		// take the deform magnitude and scale it by the projection distance
 		deformVec = vec4(1, 0, 0, 1);
-		deformVec.z = dot(gl_ModelViewMatrixTranspose[2], gl_Vertex);
+		deformVec.z = dot(u_ModelViewMatrixTranspose[2], gl_Vertex);
 	}
 	
 	// transform normalmap texcoords
 	var_TexNormal = (gl_TextureMatrix[0] * attr_TexCoord0).st;
 
-#if defined(ATI)
 	d1 = dot(u_ProjectionMatrixTranspose[0],  deformVec);
     d2 = dot(u_ProjectionMatrixTranspose[3],  deformVec);
-#else
-	d1 = dot(gl_ProjectionMatrixTranspose[0],  deformVec);
-    d2 = dot(gl_ProjectionMatrixTranspose[3],  deformVec);
-#endif
 	
 	// clamp the distance so the the deformations don't get too wacky near the view
 	var_Deform = min(d1 * (1.0 / max(d2, 1.0)), 0.02) * u_DeformMagnitude;

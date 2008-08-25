@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -22,12 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform mat4		u_ModelViewProjectionMatrix;
+
 varying vec2		var_Tex;
 
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// transform texcoords
 	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;

@@ -466,7 +466,7 @@ void RB_RenderFlares(void)
 	// on the rendering of these flares (i.e. RF_ renderer flags).
 	backEnd.currentEntity = &tr.worldEntity;
 	backEnd.or = backEnd.viewParms.world;
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 	if(tr.world != NULL)		// thx Thilo
 	{

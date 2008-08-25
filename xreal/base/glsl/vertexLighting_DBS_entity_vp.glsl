@@ -30,6 +30,8 @@ uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[128];
 #endif
 
+uniform mat4		u_ModelViewProjectionMatrix;
+
 varying vec3		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
@@ -63,7 +65,7 @@ void	main()
 		}
 
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * vertex;
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// assign position in object space
 		var_Vertex = vertex.xyz;
@@ -76,7 +78,7 @@ void	main()
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	
 		// assign position in object space
 		var_Vertex = gl_Vertex.xyz;

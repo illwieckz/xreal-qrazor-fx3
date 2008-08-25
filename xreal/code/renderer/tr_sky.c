@@ -699,7 +699,7 @@ void RB_DrawSun(void)
 	{
 		return;
 	}
-	qglLoadMatrixf(backEnd.viewParms.world.modelViewMatrix);
+	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 
 	dist = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)

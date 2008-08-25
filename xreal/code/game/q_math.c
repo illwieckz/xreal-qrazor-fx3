@@ -2398,6 +2398,31 @@ void MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out)
 #endif
 }
 
+
+/*
+replacement for glFrustum
+see glspec30.pdf chapter 2.12 Coordinate Transformations
+*/
+void MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+{
+	m[0] = (2 * near) / (right - left);	m[4] = 0;							m[8] = (right + left) / (right - left);		m[12] = 0;
+	m[1] = 0;							m[5] = (2 * near) / (top - bottom);	m[9] = (top + bottom) / (top - bottom);		m[13] = 0;
+	m[2] = 0;							m[6] = 0;							m[10] = -(far + near) / (far - near);		m[14] = (-2 * far * near) / (far - near);
+	m[3] = 0;							m[7] = 0;							m[11] = -1;									m[15] = 0;
+}
+
+/*
+replacement for glOrtho
+see glspec30.pdf chapter 2.12 Coordinate Transformations
+*/
+void MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far)
+{
+	m[0] = 2 / (right - left);	m[4] = 0;					m[8] = 0;					m[12] = -(right + left) / (right - left);
+	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = -(top + bottom) / (top - bottom);
+	m[2] = 0;					m[6] = 0;					m[10] = -2 / (far - near);	m[14] = -(far + near) / (far - near);
+	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
+}
+
 // *INDENT-ON*
 
 

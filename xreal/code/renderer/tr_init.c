@@ -1063,6 +1063,14 @@ void GL_SetDefaultState(void)
 	qglEnable(GL_SCISSOR_TEST);
 	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_BLEND);
+
+	glState.stackIndex = 0;
+	for(i = 0; i < MAX_GLSTACK; i++)
+	{
+		MatrixIdentity(glState.modelViewMatrix[i]);
+		MatrixIdentity(glState.projectionMatrix[i]);
+		MatrixIdentity(glState.modelViewProjectionMatrix[i]);
+	}
 }
 
 

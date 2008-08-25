@@ -24,6 +24,8 @@ attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
+uniform mat4		u_ModelViewProjectionMatrix;
+
 varying vec3		var_Vertex;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
@@ -36,7 +38,7 @@ varying vec3		var_Normal;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// assign position in object space
 	var_Vertex = gl_Vertex.xyz;
