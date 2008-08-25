@@ -446,6 +446,7 @@ void RB_RenderFlares(void)
 	flare_t        *f;
 	flare_t       **prev;
 	qboolean        draw;
+	matrix_t		ortho;
 
 	if(!r_flares->integer)
 		return;
@@ -523,16 +524,13 @@ void RB_RenderFlares(void)
 
 	GL_CheckErrors();
 
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+		backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+		backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglMatrixMode(GL_MODELVIEW);
 
 	for(f = r_activeFlares; f; f = f->next)
 	{
@@ -540,11 +538,7 @@ void RB_RenderFlares(void)
 			RB_RenderFlare(f);
 	}
 
-	qglMatrixMode(GL_PROJECTION);
-
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
+	GL_PopMatrix();
 
 	GL_CheckErrors();
 }

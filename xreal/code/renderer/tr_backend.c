@@ -2656,18 +2656,6 @@ void RB_RenderInteractionsDeferred()
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);
 
 	// set 2D virtual screen size
-	/*
-	qglMatrixMode(GL_MODELVIEW);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix();
-	qglLoadIdentity();
-	qglOrtho(backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
-	*/
-
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
 			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
@@ -2920,13 +2908,6 @@ void RB_RenderInteractionsDeferred()
 		oldLight = light;
 	}
 
-	/*
-	qglMatrixMode(GL_PROJECTION);
-	qglPopMatrix();
-	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix();
-	*/
-
 	GL_PopMatrix();
 
 	// go back to the world modelview matrix
@@ -2971,6 +2952,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
+	matrix_t		ortho;
 	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
@@ -3258,7 +3240,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 				// restore camera matrices
 				GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-				GL_LoadProjectionMatrix(backEnd.or.modelViewMatrix);
+				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
 				switch (light->l.rlType)
 				{
@@ -3304,16 +3286,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				}
 
 				// set 2D virtual screen size
-				qglMatrixMode(GL_MODELVIEW);
-				qglPushMatrix();
-				qglLoadIdentity();
-				qglMatrixMode(GL_PROJECTION);
-				qglPushMatrix();
-				qglLoadIdentity();
-				qglOrtho(backEnd.viewParms.viewportX,
-						 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-						 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999,
-						 99999);
+				GL_PushMatrix();
+				MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+					backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+					backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+				GL_LoadProjectionMatrix(ortho);
+				GL_LoadModelViewMatrix(matrixIdentity);
 
 				// last interaction of current light
 				lightShader = light->shader;
@@ -3553,10 +3531,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					}
 
 					// end of lighting
-					qglMatrixMode(GL_PROJECTION);
-					qglPopMatrix();
-					qglMatrixMode(GL_MODELVIEW);
-					qglPopMatrix();
+					GL_PopMatrix();
 
 					R_BindNullFBO();
 				}
@@ -5269,22 +5244,33 @@ static void RB_RenderDebugUtils()
 	{
 		interaction_t  *ia;
 		int             iaCount;
+		matrix_t		ortho;
 
-		GL_Program(NULL);
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
+		GL_Program(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
 
+		// set uniforms
+		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		if(r_vboVertexSkinning->integer)
+		{
+			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		}
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.whiteImage);
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
+
 		// set 2D virtual screen size
-		qglPushMatrix();
-		qglLoadIdentity();
-		qglMatrixMode(GL_PROJECTION);
-		qglPushMatrix();
-		qglLoadIdentity();
-		qglOrtho(backEnd.viewParms.viewportX,
-				 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+		GL_PushMatrix();
+		MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+		GL_LoadProjectionMatrix(ortho);
+		GL_LoadModelViewMatrix(matrixIdentity);
+		
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
@@ -5360,9 +5346,7 @@ static void RB_RenderDebugUtils()
 			}
 		}
 
-		qglPopMatrix();
-		qglMatrixMode(GL_MODELVIEW);
-		qglPopMatrix();
+		GL_PopMatrix();
 	}
 
 	/*

@@ -237,8 +237,6 @@ void            (APIENTRY * qglNormal3iv) (const GLint * v);
 void            (APIENTRY * qglNormal3s) (GLshort nx, GLshort ny, GLshort nz);
 void            (APIENTRY * qglNormal3sv) (const GLshort * v);
 void            (APIENTRY * qglNormalPointer) (GLenum type, GLsizei stride, const GLvoid * pointer);
-void            (APIENTRY * qglOrtho) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
-									   GLdouble zFar);
 void            (APIENTRY * qglPassThrough) (GLfloat token);
 void            (APIENTRY * qglPixelMapfv) (GLenum map, GLsizei mapsize, const GLfloat * values);
 void            (APIENTRY * qglPixelMapuiv) (GLenum map, GLsizei mapsize, const GLuint * values);
@@ -602,8 +600,6 @@ static void     (APIENTRY * dllNormal3iv) (const GLint * v);
 static void     (APIENTRY * dllNormal3s) (GLshort nx, GLshort ny, GLshort nz);
 static void     (APIENTRY * dllNormal3sv) (const GLshort * v);
 static void     (APIENTRY * dllNormalPointer) (GLenum type, GLsizei stride, const GLvoid * pointer);
-static void     (APIENTRY * dllOrtho) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
-									   GLdouble zFar);
 static void     (APIENTRY * dllPassThrough) (GLfloat token);
 static void     (APIENTRY * dllPixelMapfv) (GLenum map, GLsizei mapsize, const GLfloat * values);
 static void     (APIENTRY * dllPixelMapuiv) (GLenum map, GLsizei mapsize, const GLuint * values);
@@ -2036,11 +2032,6 @@ static void APIENTRY logNormalPointer(GLenum type, GLsizei stride, const void *p
 	SIG("glNormalPointer");
 	dllNormalPointer(type, stride, pointer);
 }
-static void APIENTRY logOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar)
-{
-	SIG("glOrtho");
-	dllOrtho(left, right, bottom, top, zNear, zFar);
-}
 
 static void APIENTRY logPassThrough(GLfloat token)
 {
@@ -3024,7 +3015,6 @@ void QGL_Shutdown(void)
 	qglNormal3s                  = NULL;
 	qglNormal3sv                 = NULL;
 	qglNormalPointer             = NULL;
-	qglOrtho                     = NULL;
 	qglPassThrough               = NULL;
 	qglPixelMapfv                = NULL;
 	qglPixelMapuiv               = NULL;
@@ -3396,7 +3386,6 @@ int QGL_Init()
 	qglNormal3s                  = 	dllNormal3s                  = GPA( "glNormal3s" );
 	qglNormal3sv                 = 	dllNormal3sv                 = GPA( "glNormal3sv" );
 	qglNormalPointer             = 	dllNormalPointer             = GPA( "glNormalPointer" );
-	qglOrtho                     = 	dllOrtho                     = GPA( "glOrtho" );
 	qglPassThrough               = 	dllPassThrough               = GPA( "glPassThrough" );
 	qglPixelMapfv                = 	dllPixelMapfv                = GPA( "glPixelMapfv" );
 	qglPixelMapuiv               = 	dllPixelMapuiv               = GPA( "glPixelMapuiv" );
@@ -3789,7 +3778,6 @@ void QGL_EnableLogging(int enable)
 		qglNormal3s                  = 	logNormal3s                  ;
 		qglNormal3sv                 = 	logNormal3sv                 ;
 		qglNormalPointer             = 	logNormalPointer             ;
-		qglOrtho                     = 	logOrtho                     ;
 		qglPassThrough               = 	logPassThrough               ;
 		qglPixelMapfv                = 	logPixelMapfv                ;
 		qglPixelMapuiv               = 	logPixelMapuiv               ;
@@ -4134,7 +4122,6 @@ void QGL_EnableLogging(int enable)
 		qglNormal3s                  = 	dllNormal3s                  ;
 		qglNormal3sv                 = 	dllNormal3sv                 ;
 		qglNormalPointer             = 	dllNormalPointer             ;
-		qglOrtho                     = 	dllOrtho                     ;
 		qglPassThrough               = 	dllPassThrough               ;
 		qglPixelMapfv                = 	dllPixelMapfv                ;
 		qglPixelMapuiv               = 	dllPixelMapuiv               ;
