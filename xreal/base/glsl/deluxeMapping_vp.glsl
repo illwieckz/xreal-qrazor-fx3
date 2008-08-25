@@ -25,6 +25,9 @@ attribute vec4		attr_TexCoord1;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 
+uniform mat4		u_DiffuseTextureMatrix;
+uniform mat4		u_NormalTextureMatrix;
+uniform mat4		u_SpecularTextureMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Vertex;
@@ -43,16 +46,16 @@ void	main()
 	var_Vertex = gl_Vertex.xyz;
 	
 	// transform diffusemap texcoords
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
 	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[1] * attr_TexCoord0).st;
+	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texcoords
-	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;
+	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
 	
 	// transform lightmap texcoords
-	var_TexLight = (gl_TextureMatrix[3] * attr_TexCoord1).st;
+	var_TexLight = attr_TexCoord1.st;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
 	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,

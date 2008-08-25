@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 attribute vec4		attr_TexCoord0;
 attribute vec4		attr_TexCoord1;
 
+uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec2		var_TexDiffuse;
@@ -40,8 +41,8 @@ void	main()
 #endif
 	
 	// transform diffusemap texcoords
-	var_TexDiffuse = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
 	// transform lightmap texcoords
-	var_TexLight = (gl_TextureMatrix[1] * attr_TexCoord1).st;
+	var_TexLight = attr_TexCoord1.st;
 }

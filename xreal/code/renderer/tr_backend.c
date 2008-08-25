@@ -211,6 +211,7 @@ void GL_BindMultitexture(image_t * image0, GLuint env0, image_t * image1, GLuint
 }
 */
 
+/*
 void GL_LoadTextureMatrix(const matrix_t m)
 {
 	if(MatrixCompare(glState.textureMatrix[glState.currenttmu], m))
@@ -224,6 +225,7 @@ void GL_LoadTextureMatrix(const matrix_t m)
 	qglLoadMatrixf(glState.textureMatrix[glState.currenttmu]);
 	qglMatrixMode(GL_MODELVIEW);
 }
+*/
 
 void GL_LoadModelViewMatrix(const matrix_t m)
 {
@@ -1003,12 +1005,10 @@ static void Render_lightVolume(trRefLight_t * light)
 			// bind u_AttenuationMapXY
 			GL_SelectTexture(0);
 			BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-			GL_LoadTextureMatrix(matrixIdentity);
 
 			// bind u_AttenuationMapZ
 			GL_SelectTexture(1);
 			BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-			GL_LoadTextureMatrix(matrixIdentity);
 
 			// bind u_ShadowMap
 			if(r_shadows->integer >= 4)
@@ -4433,7 +4433,7 @@ void RB_RenderLightOcclusionQueries()
 		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
-		//GL_LoadTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
 
 		// don't write to the color buffer or depth buffer
 		if(r_showOcclusionQueries->integer)

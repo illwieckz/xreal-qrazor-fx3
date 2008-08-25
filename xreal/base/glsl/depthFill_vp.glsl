@@ -28,6 +28,7 @@ uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[128];
 #endif
 
+uniform mat4		u_ColorTextureMatrix;
 uniform vec3        u_AmbientColor;
 uniform mat4		u_ModelViewProjectionMatrix;
 
@@ -61,7 +62,7 @@ void	main()
 	}
 	
 	// transform texcoords
-	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_Tex = (u_ColorTextureMatrix * attr_TexCoord0).st;
 	
 #if defined(r_precomputedLighting)
 	// assign color

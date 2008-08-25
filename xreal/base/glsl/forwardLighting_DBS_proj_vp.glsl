@@ -30,6 +30,9 @@ uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[128];
 #endif
 
+uniform mat4		u_DiffuseTextureMatrix;
+uniform mat4		u_NormalTextureMatrix;
+uniform mat4		u_SpecularTextureMatrix;
 uniform int			u_InverseVertexColor;
 uniform mat4		u_LightAttenuationMatrix;
 uniform mat4		u_ShadowMatrix;
@@ -117,13 +120,13 @@ void	main()
 	}
 	
 	// transform diffusemap texcoords
-	var_TexDiffuse.st = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexDiffuse.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
 	// transform normalmap texcoords
-	var_TexNormal.st = (gl_TextureMatrix[1] * attr_TexCoord0).st;
+	var_TexNormal.st = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
-	var_TexSpecular = (gl_TextureMatrix[2] * attr_TexCoord0).st;	
+	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
 	
 	// assign color
 	if(bool(u_InverseVertexColor))

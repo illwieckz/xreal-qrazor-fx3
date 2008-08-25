@@ -831,6 +831,12 @@ typedef struct shaderProgram_s
 	GLint           u_AttenuationMapZ;
 	GLint           u_ShadowMap;
 
+	GLint           u_ColorTextureMatrix;
+	GLint           u_DiffuseTextureMatrix;
+	GLint           u_NormalTextureMatrix;
+	GLint           u_SpecularTextureMatrix;
+	GLint           u_LightTextureMatrix;
+
 	GLint           u_AlphaTest;
 
 	GLint           u_ViewOrigin;
@@ -1709,7 +1715,7 @@ typedef struct
 {
 	int             currenttextures[32];
 	int             currenttmu;
-	matrix_t        textureMatrix[32];
+//	matrix_t        textureMatrix[32];
 
 	int				stackIndex;
 //	matrix_t        modelMatrix[MAX_GLSTACK];
@@ -2296,7 +2302,6 @@ void			GL_BindNullProgram(void);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
-void            GL_LoadTextureMatrix(const matrix_t m);
 void            GL_LoadModelViewMatrix(const matrix_t m);
 void			GL_LoadProjectionMatrix(const matrix_t m);
 void			GL_PushMatrix();

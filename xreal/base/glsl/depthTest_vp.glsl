@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec4		attr_TexCoord0;
 
+uniform mat4		u_ColorTextureMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec2		var_Tex;
@@ -32,5 +33,5 @@ void	main()
 	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
 	
 	// transform texcoords
-	var_Tex = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_Tex = (u_ColorTextureMatrix * attr_TexCoord0).st;
 }

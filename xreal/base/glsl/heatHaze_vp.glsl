@@ -29,6 +29,7 @@ uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[128];
 #endif
 
+uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_ProjectionMatrixTranspose;
 uniform mat4		u_ModelViewMatrixTranspose;
 uniform mat4		u_ModelViewProjectionMatrix;
@@ -76,7 +77,7 @@ void	main()
 	}
 	
 	// transform normalmap texcoords
-	var_TexNormal = (gl_TextureMatrix[0] * attr_TexCoord0).st;
+	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
 
 	d1 = dot(u_ProjectionMatrixTranspose[0],  deformVec);
     d2 = dot(u_ProjectionMatrixTranspose[3],  deformVec);
