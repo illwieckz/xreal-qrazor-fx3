@@ -507,6 +507,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
 	tr.genericSingleShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorTextureMatrix");
+	tr.genericSingleShader.u_AlphaTest = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_AlphaTest");
 	tr.genericSingleShader.u_InverseVertexColor = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_InverseVertexColor");
 	/*
 	tr.genericSingleShader.u_ModelViewMatrix =
@@ -546,6 +547,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_NormalTextureMatrix");
 	tr.vertexLightingShader_DBS_entity.u_SpecularTextureMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_SpecularTextureMatrix");
+	tr.vertexLightingShader_DBS_entity.u_AlphaTest =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_AlphaTest");
 	tr.vertexLightingShader_DBS_entity.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ViewOrigin");
 	tr.vertexLightingShader_DBS_entity.u_AmbientColor =
@@ -591,6 +594,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_NormalTextureMatrix");
 	tr.vertexLightingShader_DBS_world.u_SpecularTextureMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_SpecularTextureMatrix");
+	tr.vertexLightingShader_DBS_world.u_AlphaTest =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_AlphaTest");
 	tr.vertexLightingShader_DBS_world.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ViewOrigin");
 	tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix =
@@ -616,6 +621,7 @@ void GLSL_InitGPUShaders(void)
 	tr.lightMappingShader.u_DiffuseMap = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DiffuseMap");
 	tr.lightMappingShader.u_LightMap = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_LightMap");
 	tr.lightMappingShader.u_DiffuseTextureMatrix = qglGetUniformLocationARB(tr.lightMappingShader.program, "u_DiffuseTextureMatrix");
+	tr.lightMappingShader.u_AlphaTest =	qglGetUniformLocationARB(tr.lightMappingShader.program, "u_AlphaTest");
 
 	qglUseProgramObjectARB(tr.lightMappingShader.program);
 	qglUniform1iARB(tr.lightMappingShader.u_DiffuseMap, 0);
@@ -639,6 +645,7 @@ void GLSL_InitGPUShaders(void)
 	tr.deluxeMappingShader.u_DiffuseTextureMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DiffuseTextureMatrix");
 	tr.deluxeMappingShader.u_NormalTextureMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_NormalTextureMatrix");
 	tr.deluxeMappingShader.u_SpecularTextureMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularTextureMatrix");
+	tr.deluxeMappingShader.u_AlphaTest = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_AlphaTest");
 	tr.deluxeMappingShader.u_ViewOrigin = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ViewOrigin");
 	tr.deluxeMappingShader.u_ModelViewProjectionMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
 
@@ -1847,6 +1854,7 @@ static void DrawTris()
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
+	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -1933,6 +1941,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 
 static void Render_genericSingle(int stage)
 {
+	float			alphaTest;
 	shaderStage_t  *pStage;
 
 	GLimp_LogComment("--- Render_genericSingle ---\n");
@@ -1965,6 +1974,16 @@ static void Render_genericSingle(int stage)
 			qglUniformMatrix4fvARB(tr.genericSingleShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, alphaTest);
+
 	// bind u_ColorMap
 	GL_SelectTexture(0);
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
@@ -1981,6 +2000,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	vec3_t          ambientColor;
 	vec3_t          lightDir;
 	vec4_t          directedLight;
+	float			alphaTest;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2010,6 +2030,16 @@ static void Render_vertexLighting_DBS_entity(int stage)
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	qglUniform1fARB(tr.vertexLightingShader_DBS_entity.u_AlphaTest, alphaTest);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2048,6 +2078,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 static void Render_vertexLighting_DBS_world(int stage)
 {
 	vec3_t          viewOrigin;
+	float			alphaTest;
 
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
@@ -2062,6 +2093,16 @@ static void Render_vertexLighting_DBS_world(int stage)
 
 	qglUniform3fARB(tr.vertexLightingShader_DBS_world.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	qglUniform1fARB(tr.vertexLightingShader_DBS_world.u_AlphaTest, alphaTest);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2100,6 +2141,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 static void Render_lightMapping(int stage)
 {
 	shaderStage_t  *pStage;
+	float			alphaTest;
 
 	GLimp_LogComment("--- Render_lightMapping ---\n");
 
@@ -2112,6 +2154,16 @@ static void Render_lightMapping(int stage)
 	GL_ClientState(tr.lightMappingShader.attribs);
 
 	qglUniformMatrix4fvARB(tr.lightMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	qglUniform1fARB(tr.lightMappingShader.u_AlphaTest, alphaTest);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2130,6 +2182,7 @@ static void Render_lightMapping(int stage)
 static void Render_deluxeMapping(int stage)
 {
 	vec3_t          viewOrigin;
+	float			alphaTest;
 	shaderStage_t  *pStage;
 
 	GLimp_LogComment("--- Render_deluxeMapping ---\n");
@@ -2147,6 +2200,16 @@ static void Render_deluxeMapping(int stage)
 
 	qglUniform3fARB(tr.deluxeMappingShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniformMatrix4fvARB(tr.deluxeMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	if(pStage->stateBits & GLS_ATEST_BITS)
+	{
+		alphaTest = RB_EvalExpression(&pStage->alphaTestExp, 0.5);
+	}
+	else
+	{
+		alphaTest = -1.0;
+	}
+	qglUniform1fARB(tr.deluxeMappingShader.u_AlphaTest, alphaTest);
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);

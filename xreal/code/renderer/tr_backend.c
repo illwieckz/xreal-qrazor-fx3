@@ -526,7 +526,8 @@ void GL_State(unsigned long stateBits)
 		}
 	}
 
-	// alpha test
+	// alpha test - deprecated in OpenGL 3.0
+	/*
 	if(diff & GLS_ATEST_BITS)
 	{
 		switch (stateBits & GLS_ATEST_BITS)
@@ -556,6 +557,7 @@ void GL_State(unsigned long stateBits)
 				break;
 		}
 	}
+	*/
 
 	// stenciltest
 	if(diff & GLS_STENCILTEST_ENABLE)
@@ -4398,6 +4400,7 @@ void RB_RenderLightOcclusionQueries()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
+		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -5262,6 +5265,7 @@ static void RB_RenderDebugUtils()
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
+		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);

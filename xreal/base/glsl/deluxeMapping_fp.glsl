@@ -25,6 +25,7 @@ uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_LightMap;
 uniform sampler2D	u_DeluxeMap;
+uniform float		u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 
 varying vec3		var_Vertex;
@@ -36,11 +37,20 @@ varying mat3		var_OS2TSMatrix;
 
 void	main()
 {
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	if(diffuse.a <= u_AlphaTest)
+	{
+		discard;
+		return;
+	}
+
 #if defined(r_showLightMaps)
 	gl_FragColor = texture2D(u_LightMap, var_TexLight);
 #elif defined(r_showDeluxeMaps)
 	gl_FragColor = texture2D(u_DeluxeMap, var_TexLight);
 #else
+
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
 	N = normalize(N);
@@ -57,8 +67,6 @@ void	main()
 	// compute light color from object space lightmap
 	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
 	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	diffuse.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term

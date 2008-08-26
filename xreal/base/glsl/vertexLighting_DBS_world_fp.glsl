@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform float		u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 
 varying vec3		var_Vertex;
@@ -36,6 +37,14 @@ varying vec3		var_Normal;
 
 void	main()
 {
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
+	if(diffuse.a <= u_AlphaTest)
+	{
+		discard;
+		return;
+	}
+
 	// construct object-space-to-tangent-space 3x3 matrix
 	mat3 OS2TSMatrix;
 	if(gl_FrontFacing)
@@ -67,15 +76,15 @@ void	main()
 	normalize(N);
 	#endif
 	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
-	diffuse.rgb *= var_Color.rgb * clamp(dot(N, L), 0.0, 1.0);
+	// compute the light term
+	vec3 light = var_Color.rgb * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
 	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * var_Color.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute final color
 	vec4 color = diffuse;
+	color.rgb *= light;
 	color.rgb += specular;
 	
 	gl_FragColor = color;

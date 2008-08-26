@@ -864,6 +864,7 @@ void Tess_StageIteratorSky(void)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
+		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 
 		MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 		MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);

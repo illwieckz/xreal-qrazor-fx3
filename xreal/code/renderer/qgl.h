@@ -44,8 +44,6 @@ void            QGL_EnableLogging(int enable);
 
 // dlopening systems use a function pointer for each call so we can load minidrivers
 
-extern void     (APIENTRY * qglAlphaFunc) (GLenum func, GLclampf ref);
-extern          GLboolean(APIENTRY * qglAreTexturesResident) (GLsizei n, const GLuint * textures, GLboolean * residences);
 extern void     (APIENTRY * qglArrayElement) (GLint i);
 extern void     (APIENTRY * qglBegin) (GLenum mode);
 extern void     (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);

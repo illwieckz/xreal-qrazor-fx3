@@ -22,20 +22,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_LightMap;
+uniform float		u_AlphaTest;
 
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexLight;
 
 void	main()
 {
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	if(diffuse.a <= u_AlphaTest)
+	{
+		discard;
+		return;
+	}
+
 #if defined(r_showLightMaps)
 	gl_FragColor = texture2D(u_LightMap, var_TexLight);
 #else
 	// compute light color from object space lightmap
 	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
 	
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
+	
 	diffuse.rgb *= lightColor.rgb;
 	
 	gl_FragColor = diffuse;

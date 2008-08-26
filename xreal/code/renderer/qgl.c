@@ -37,9 +37,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qgl.h"
 #include "tr_local.h"
 
-void            (APIENTRY * qglAlphaFunc) (GLenum func, GLclampf ref);
-
-GLboolean(APIENTRY * qglAreTexturesResident) (GLsizei n, const GLuint * textures, GLboolean * residences);
 void            (APIENTRY * qglArrayElement) (GLint i);
 void            (APIENTRY * qglBegin) (GLenum mode);
 void            (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
@@ -328,15 +325,8 @@ void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, G
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
 void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 
-void            (APIENTRY * qglPointParameterfEXT) (GLenum param, GLfloat value);
-void            (APIENTRY * qglPointParameterfvEXT) (GLenum param, const GLfloat * value);
-void            (APIENTRY * qglColorTableEXT) (int, int, int, int, int, const void *);
-void            (APIENTRY * qglSelectTextureSGIS) (GLenum);
-void            (APIENTRY * qglMTexCoord2fSGIS) (GLenum, GLfloat, GLfloat);
 
-static void     (APIENTRY * dllAlphaFunc) (GLenum func, GLclampf ref);
 
-GLboolean(APIENTRY * dllAreTexturesResident) (GLsizei n, const GLuint * textures, GLboolean * residences);
 static void     (APIENTRY * dllArrayElement) (GLint i);
 static void     (APIENTRY * dllBegin) (GLenum mode);
 static void     (APIENTRY * dllBindTexture) (GLenum target, GLuint texture);
@@ -744,18 +734,6 @@ static const char *TypeToString(GLenum t)
 		default:
 			return "!!! UNKNOWN !!!";
 	}
-}
-
-static void APIENTRY logAlphaFunc(GLenum func, GLclampf ref)
-{
-	fprintf(log_fp, "glAlphaFunc( 0x%x, %f )\n", func, ref);
-	dllAlphaFunc(func, ref);
-}
-
-static GLboolean APIENTRY logAreTexturesResident(GLsizei n, const GLuint * textures, GLboolean * residences)
-{
-	fprintf(log_fp, "glAreTexturesResident\n");
-	return dllAreTexturesResident(n, textures, residences);
 }
 
 static void APIENTRY logArrayElement(GLint i)
@@ -2341,8 +2319,6 @@ void QGL_Shutdown(void)
 {
 	ri.Printf(PRINT_ALL, "...shutting down QGL\n");
 
-	qglAlphaFunc                 = NULL;
-	qglAreTexturesResident       = NULL;
 	qglArrayElement              = NULL;
 	qglBegin                     = NULL;
 	qglBindTexture               = NULL;
@@ -2648,8 +2624,6 @@ int QGL_Init()
 	if(GLimp_sdl_init_video() == qfalse)
 		return qfalse;
 
-	qglAlphaFunc                 = dllAlphaFunc = GPA( "glAlphaFunc" );
-	qglAreTexturesResident       = dllAreTexturesResident = GPA( "glAreTexturesResident" );
 	qglArrayElement              = dllArrayElement = GPA( "glArrayElement" );
 	qglBegin                     = dllBegin = GPA( "glBegin" );
 	qglBindTexture               = dllBindTexture = GPA( "glBindTexture" );
@@ -2972,8 +2946,6 @@ void QGL_EnableLogging(int enable)
 			fprintf(log_fp, "%s\n", asctime(newtime));
 		}
 
-		qglAlphaFunc                 = logAlphaFunc;
-		qglAreTexturesResident       = logAreTexturesResident;
 		qglArrayElement              = logArrayElement;
 		qglBegin                     = logBegin;
 		qglBindTexture               = logBindTexture;
@@ -3250,8 +3222,6 @@ void QGL_EnableLogging(int enable)
 			fclose(log_fp);
 			log_fp = NULL;
 		}
-		qglAlphaFunc                 = dllAlphaFunc;
-		qglAreTexturesResident       = dllAreTexturesResident;
 		qglArrayElement              = dllArrayElement;
 		qglBegin                     = dllBegin;
 		qglBindTexture               = dllBindTexture;
