@@ -290,7 +290,7 @@ CLOUD VERTEX GENERATION
 **
 ** Parms: s, t range from -1 to 1
 */
-static void MakeSkyVec(float s, float t, int axis, float outSt[2], vec3_t outXYZ)
+static void MakeSkyVec(float s, float t, int axis, vec4_t outSt, vec4_t outXYZ)
 {
 	// 1 = s, 2 = t, 3 = 2048
 	static int      st_to_vec[6][3] = {
@@ -325,6 +325,7 @@ static void MakeSkyVec(float s, float t, int axis, float outSt[2], vec3_t outXYZ
 			outXYZ[j] = b[k - 1];
 		}
 	}
+	outXYZ[3] = 1;
 
 	// avoid bilerp seam
 	s = (s + 1) * 0.5;
@@ -354,12 +355,14 @@ static void MakeSkyVec(float s, float t, int axis, float outSt[2], vec3_t outXYZ
 	{
 		outSt[0] = s;
 		outSt[1] = t;
+		outSt[2] = 0;
+		outSt[3] = 1;
 	}
 }
 
 static int      sky_texorder[6] = { 0, 2, 1, 3, 4, 5 };
-static vec3_t   s_skyPoints[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1];
-static float    s_skyTexCoords[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][2];
+static vec4_t   s_skyPoints[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1];
+static float    s_skyTexCoords[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][4];
 
 static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs[2])
 {
@@ -374,11 +377,11 @@ static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs
 
 		for(s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++)
 		{
-			qglTexCoord2fv(s_skyTexCoords[t][s]);
-			qglVertex3fv(s_skyPoints[t][s]);
+			qglVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t][s]);
+			qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t][s]);
 
-			qglTexCoord2fv(s_skyTexCoords[t + 1][s]);
-			qglVertex3fv(s_skyPoints[t + 1][s]);
+			qglVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t + 1][s]);
+			qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t + 1][s]);
 		}
 
 		qglEnd();
@@ -633,7 +636,7 @@ void R_InitSkyTexCoords(float heightCloud)
 	float           radiusWorld = 4096;
 	float           p;
 	float           sRad, tRad;
-	vec3_t          skyVec;
+	vec4_t          skyVec;
 	vec3_t          v;
 
 	// init zfar so MakeSkyVec works even though
@@ -849,7 +852,7 @@ void Tess_StageIteratorSky(void)
 		matrix_t		transformMatrix;
 		matrix_t		modelViewMatrix;
 
-		qglColor3f(tr.identityLight, tr.identityLight, tr.identityLight);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 		GL_PushMatrix();
 		

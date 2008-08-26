@@ -54,37 +54,6 @@ void            (APIENTRY * qglClearDepth) (GLclampd depth);
 void            (APIENTRY * qglClearIndex) (GLfloat c);
 void            (APIENTRY * qglClearStencil) (GLint s);
 void            (APIENTRY * qglClipPlane) (GLenum plane, const GLdouble * equation);
-void            (APIENTRY * qglColor3b) (GLbyte red, GLbyte green, GLbyte blue);
-void            (APIENTRY * qglColor3bv) (const GLbyte * v);
-void            (APIENTRY * qglColor3d) (GLdouble red, GLdouble green, GLdouble blue);
-void            (APIENTRY * qglColor3dv) (const GLdouble * v);
-void            (APIENTRY * qglColor3f) (GLfloat red, GLfloat green, GLfloat blue);
-void            (APIENTRY * qglColor3fv) (const GLfloat * v);
-void            (APIENTRY * qglColor3i) (GLint red, GLint green, GLint blue);
-void            (APIENTRY * qglColor3iv) (const GLint * v);
-void            (APIENTRY * qglColor3s) (GLshort red, GLshort green, GLshort blue);
-void            (APIENTRY * qglColor3sv) (const GLshort * v);
-void            (APIENTRY * qglColor3ub) (GLubyte red, GLubyte green, GLubyte blue);
-void            (APIENTRY * qglColor3ubv) (const GLubyte * v);
-void            (APIENTRY * qglColor3ui) (GLuint red, GLuint green, GLuint blue);
-void            (APIENTRY * qglColor3uiv) (const GLuint * v);
-void            (APIENTRY * qglColor3us) (GLushort red, GLushort green, GLushort blue);
-void            (APIENTRY * qglColor3usv) (const GLushort * v);
-void            (APIENTRY * qglColor4b) (GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha);
-void            (APIENTRY * qglColor4bv) (const GLbyte * v);
-void            (APIENTRY * qglColor4d) (GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha);
-void            (APIENTRY * qglColor4dv) (const GLdouble * v);
-void            (APIENTRY * qglColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-void            (APIENTRY * qglColor4i) (GLint red, GLint green, GLint blue, GLint alpha);
-void            (APIENTRY * qglColor4iv) (const GLint * v);
-void            (APIENTRY * qglColor4s) (GLshort red, GLshort green, GLshort blue, GLshort alpha);
-void            (APIENTRY * qglColor4sv) (const GLshort * v);
-void            (APIENTRY * qglColor4ub) (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
-void            (APIENTRY * qglColor4ubv) (const GLubyte * v);
-void            (APIENTRY * qglColor4ui) (GLuint red, GLuint green, GLuint blue, GLuint alpha);
-void            (APIENTRY * qglColor4uiv) (const GLuint * v);
-void            (APIENTRY * qglColor4us) (GLushort red, GLushort green, GLushort blue, GLushort alpha);
-void            (APIENTRY * qglColor4usv) (const GLushort * v);
 void            (APIENTRY * qglColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 void            (APIENTRY * qglColorMaterial) (GLenum face, GLenum mode);
 void            (APIENTRY * qglCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
@@ -353,30 +322,6 @@ void            (APIENTRY * qglTexSubImage2D) (GLenum target, GLint level, GLint
 											   GLsizei height, GLenum format, GLenum type, const GLvoid * pixels);
 void            (APIENTRY * qglTranslated) (GLdouble x, GLdouble y, GLdouble z);
 void            (APIENTRY * qglTranslatef) (GLfloat x, GLfloat y, GLfloat z);
-void            (APIENTRY * qglVertex2d) (GLdouble x, GLdouble y);
-void            (APIENTRY * qglVertex2dv) (const GLdouble * v);
-void            (APIENTRY * qglVertex2f) (GLfloat x, GLfloat y);
-void            (APIENTRY * qglVertex2fv) (const GLfloat * v);
-void            (APIENTRY * qglVertex2i) (GLint x, GLint y);
-void            (APIENTRY * qglVertex2iv) (const GLint * v);
-void            (APIENTRY * qglVertex2s) (GLshort x, GLshort y);
-void            (APIENTRY * qglVertex2sv) (const GLshort * v);
-void            (APIENTRY * qglVertex3d) (GLdouble x, GLdouble y, GLdouble z);
-void            (APIENTRY * qglVertex3dv) (const GLdouble * v);
-void            (APIENTRY * qglVertex3f) (GLfloat x, GLfloat y, GLfloat z);
-void            (APIENTRY * qglVertex3fv) (const GLfloat * v);
-void            (APIENTRY * qglVertex3i) (GLint x, GLint y, GLint z);
-void            (APIENTRY * qglVertex3iv) (const GLint * v);
-void            (APIENTRY * qglVertex3s) (GLshort x, GLshort y, GLshort z);
-void            (APIENTRY * qglVertex3sv) (const GLshort * v);
-void            (APIENTRY * qglVertex4d) (GLdouble x, GLdouble y, GLdouble z, GLdouble w);
-void            (APIENTRY * qglVertex4dv) (const GLdouble * v);
-void            (APIENTRY * qglVertex4f) (GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-void            (APIENTRY * qglVertex4fv) (const GLfloat * v);
-void            (APIENTRY * qglVertex4i) (GLint x, GLint y, GLint z, GLint w);
-void            (APIENTRY * qglVertex4iv) (const GLint * v);
-void            (APIENTRY * qglVertex4s) (GLshort x, GLshort y, GLshort z, GLshort w);
-void            (APIENTRY * qglVertex4sv) (const GLshort * v);
 void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
 void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
@@ -406,37 +351,6 @@ static void     (APIENTRY * dllClearDepth) (GLclampd depth);
 static void     (APIENTRY * dllClearIndex) (GLfloat c);
 static void     (APIENTRY * dllClearStencil) (GLint s);
 static void     (APIENTRY * dllClipPlane) (GLenum plane, const GLdouble * equation);
-static void     (APIENTRY * dllColor3b) (GLbyte red, GLbyte green, GLbyte blue);
-static void     (APIENTRY * dllColor3bv) (const GLbyte * v);
-static void     (APIENTRY * dllColor3d) (GLdouble red, GLdouble green, GLdouble blue);
-static void     (APIENTRY * dllColor3dv) (const GLdouble * v);
-static void     (APIENTRY * dllColor3f) (GLfloat red, GLfloat green, GLfloat blue);
-static void     (APIENTRY * dllColor3fv) (const GLfloat * v);
-static void     (APIENTRY * dllColor3i) (GLint red, GLint green, GLint blue);
-static void     (APIENTRY * dllColor3iv) (const GLint * v);
-static void     (APIENTRY * dllColor3s) (GLshort red, GLshort green, GLshort blue);
-static void     (APIENTRY * dllColor3sv) (const GLshort * v);
-static void     (APIENTRY * dllColor3ub) (GLubyte red, GLubyte green, GLubyte blue);
-static void     (APIENTRY * dllColor3ubv) (const GLubyte * v);
-static void     (APIENTRY * dllColor3ui) (GLuint red, GLuint green, GLuint blue);
-static void     (APIENTRY * dllColor3uiv) (const GLuint * v);
-static void     (APIENTRY * dllColor3us) (GLushort red, GLushort green, GLushort blue);
-static void     (APIENTRY * dllColor3usv) (const GLushort * v);
-static void     (APIENTRY * dllColor4b) (GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha);
-static void     (APIENTRY * dllColor4bv) (const GLbyte * v);
-static void     (APIENTRY * dllColor4d) (GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha);
-static void     (APIENTRY * dllColor4dv) (const GLdouble * v);
-static void     (APIENTRY * dllColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-static void     (APIENTRY * dllColor4i) (GLint red, GLint green, GLint blue, GLint alpha);
-static void     (APIENTRY * dllColor4iv) (const GLint * v);
-static void     (APIENTRY * dllColor4s) (GLshort red, GLshort green, GLshort blue, GLshort alpha);
-static void     (APIENTRY * dllColor4sv) (const GLshort * v);
-static void     (APIENTRY * dllColor4ub) (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
-static void     (APIENTRY * dllColor4ubv) (const GLubyte * v);
-static void     (APIENTRY * dllColor4ui) (GLuint red, GLuint green, GLuint blue, GLuint alpha);
-static void     (APIENTRY * dllColor4uiv) (const GLuint * v);
-static void     (APIENTRY * dllColor4us) (GLushort red, GLushort green, GLushort blue, GLushort alpha);
-static void     (APIENTRY * dllColor4usv) (const GLushort * v);
 static void     (APIENTRY * dllColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 static void     (APIENTRY * dllColorMaterial) (GLenum face, GLenum mode);
 static void     (APIENTRY * dllCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
@@ -705,30 +619,6 @@ static void     (APIENTRY * dllTexSubImage2D) (GLenum target, GLint level, GLint
 											   GLsizei height, GLenum format, GLenum type, const GLvoid * pixels);
 static void     (APIENTRY * dllTranslated) (GLdouble x, GLdouble y, GLdouble z);
 static void     (APIENTRY * dllTranslatef) (GLfloat x, GLfloat y, GLfloat z);
-static void     (APIENTRY * dllVertex2d) (GLdouble x, GLdouble y);
-static void     (APIENTRY * dllVertex2dv) (const GLdouble * v);
-static void     (APIENTRY * dllVertex2f) (GLfloat x, GLfloat y);
-static void     (APIENTRY * dllVertex2fv) (const GLfloat * v);
-static void     (APIENTRY * dllVertex2i) (GLint x, GLint y);
-static void     (APIENTRY * dllVertex2iv) (const GLint * v);
-static void     (APIENTRY * dllVertex2s) (GLshort x, GLshort y);
-static void     (APIENTRY * dllVertex2sv) (const GLshort * v);
-static void     (APIENTRY * dllVertex3d) (GLdouble x, GLdouble y, GLdouble z);
-static void     (APIENTRY * dllVertex3dv) (const GLdouble * v);
-static void     (APIENTRY * dllVertex3f) (GLfloat x, GLfloat y, GLfloat z);
-static void     (APIENTRY * dllVertex3fv) (const GLfloat * v);
-static void     (APIENTRY * dllVertex3i) (GLint x, GLint y, GLint z);
-static void     (APIENTRY * dllVertex3iv) (const GLint * v);
-static void     (APIENTRY * dllVertex3s) (GLshort x, GLshort y, GLshort z);
-static void     (APIENTRY * dllVertex3sv) (const GLshort * v);
-static void     (APIENTRY * dllVertex4d) (GLdouble x, GLdouble y, GLdouble z, GLdouble w);
-static void     (APIENTRY * dllVertex4dv) (const GLdouble * v);
-static void     (APIENTRY * dllVertex4f) (GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-static void     (APIENTRY * dllVertex4fv) (const GLfloat * v);
-static void     (APIENTRY * dllVertex4i) (GLint x, GLint y, GLint z, GLint w);
-static void     (APIENTRY * dllVertex4iv) (const GLint * v);
-static void     (APIENTRY * dllVertex4s) (GLshort x, GLshort y, GLshort z, GLshort w);
-static void     (APIENTRY * dllVertex4sv) (const GLshort * v);
 static void     (APIENTRY * dllViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
 static FILE    *log_fp = NULL;
@@ -992,182 +882,11 @@ static void APIENTRY logClipPlane(GLenum plane, const GLdouble * equation)
 	dllClipPlane(plane, equation);
 }
 
-static void APIENTRY logColor3b(GLbyte red, GLbyte green, GLbyte blue)
-{
-	fprintf(log_fp, "glColor3b\n");
-	dllColor3b(red, green, blue);
-}
 
-static void APIENTRY logColor3bv(const GLbyte * v)
-{
-	fprintf(log_fp, "glColor3bv\n");
-	dllColor3bv(v);
-}
-
-static void APIENTRY logColor3d(GLdouble red, GLdouble green, GLdouble blue)
-{
-	fprintf(log_fp, "glColor3d\n");
-	dllColor3d(red, green, blue);
-}
-
-static void APIENTRY logColor3dv(const GLdouble * v)
-{
-	fprintf(log_fp, "glColor3dv\n");
-	dllColor3dv(v);
-}
-
-static void APIENTRY logColor3f(GLfloat red, GLfloat green, GLfloat blue)
-{
-	fprintf(log_fp, "glColor3f\n");
-	dllColor3f(red, green, blue);
-}
-
-static void APIENTRY logColor3fv(const GLfloat * v)
-{
-	fprintf(log_fp, "glColor3fv\n");
-	dllColor3fv(v);
-}
-
-static void APIENTRY logColor3i(GLint red, GLint green, GLint blue)
-{
-	fprintf(log_fp, "glColor3i\n");
-	dllColor3i(red, green, blue);
-}
-
-static void APIENTRY logColor3iv(const GLint * v)
-{
-	fprintf(log_fp, "glColor3iv\n");
-	dllColor3iv(v);
-}
-
-static void APIENTRY logColor3s(GLshort red, GLshort green, GLshort blue)
-{
-	fprintf(log_fp, "glColor3s\n");
-	dllColor3s(red, green, blue);
-}
-
-static void APIENTRY logColor3sv(const GLshort * v)
-{
-	fprintf(log_fp, "glColor3sv\n");
-	dllColor3sv(v);
-}
-
-static void APIENTRY logColor3ub(GLubyte red, GLubyte green, GLubyte blue)
-{
-	fprintf(log_fp, "glColor3ub\n");
-	dllColor3ub(red, green, blue);
-}
-
-static void APIENTRY logColor3ubv(const GLubyte * v)
-{
-	fprintf(log_fp, "glColor3ubv\n");
-	dllColor3ubv(v);
-}
 
 #define SIG( x ) fprintf( log_fp, x "\n" )
 
-static void APIENTRY logColor3ui(GLuint red, GLuint green, GLuint blue)
-{
-	SIG("glColor3ui");
-	dllColor3ui(red, green, blue);
-}
 
-static void APIENTRY logColor3uiv(const GLuint * v)
-{
-	SIG("glColor3uiv");
-	dllColor3uiv(v);
-}
-
-static void APIENTRY logColor3us(GLushort red, GLushort green, GLushort blue)
-{
-	SIG("glColor3us");
-	dllColor3us(red, green, blue);
-}
-
-static void APIENTRY logColor3usv(const GLushort * v)
-{
-	SIG("glColor3usv");
-	dllColor3usv(v);
-}
-
-static void APIENTRY logColor4b(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha)
-{
-	SIG("glColor4b");
-	dllColor4b(red, green, blue, alpha);
-}
-
-static void APIENTRY logColor4bv(const GLbyte * v)
-{
-	SIG("glColor4bv");
-	dllColor4bv(v);
-}
-
-static void APIENTRY logColor4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha)
-{
-	SIG("glColor4d");
-	dllColor4d(red, green, blue, alpha);
-}
-static void APIENTRY logColor4dv(const GLdouble * v)
-{
-	SIG("glColor4dv");
-	dllColor4dv(v);
-}
-static void APIENTRY logColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-	fprintf(log_fp, "glColor4f( %f,%f,%f,%f )\n", red, green, blue, alpha);
-	dllColor4f(red, green, blue, alpha);
-}
-
-static void APIENTRY logColor4i(GLint red, GLint green, GLint blue, GLint alpha)
-{
-	SIG("glColor4i");
-	dllColor4i(red, green, blue, alpha);
-}
-static void APIENTRY logColor4iv(const GLint * v)
-{
-	SIG("glColor4iv");
-	dllColor4iv(v);
-}
-static void APIENTRY logColor4s(GLshort red, GLshort green, GLshort blue, GLshort alpha)
-{
-	SIG("glColor4s");
-	dllColor4s(red, green, blue, alpha);
-}
-static void APIENTRY logColor4sv(const GLshort * v)
-{
-	SIG("glColor4sv");
-	dllColor4sv(v);
-}
-static void APIENTRY logColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
-{
-	SIG("glColor4b");
-	dllColor4b(red, green, blue, alpha);
-}
-static void APIENTRY logColor4ubv(const GLubyte * v)
-{
-	SIG("glColor4ubv");
-	dllColor4ubv(v);
-}
-static void APIENTRY logColor4ui(GLuint red, GLuint green, GLuint blue, GLuint alpha)
-{
-	SIG("glColor4ui");
-	dllColor4ui(red, green, blue, alpha);
-}
-static void APIENTRY logColor4uiv(const GLuint * v)
-{
-	SIG("glColor4uiv");
-	dllColor4uiv(v);
-}
-static void APIENTRY logColor4us(GLushort red, GLushort green, GLushort blue, GLushort alpha)
-{
-	SIG("glColor4us");
-	dllColor4us(red, green, blue, alpha);
-}
-static void APIENTRY logColor4usv(const GLushort * v)
-{
-	SIG("glColor4usv");
-	dllColor4usv(v);
-}
 static void APIENTRY logColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
 	SIG("glColorMask");
@@ -2605,128 +2324,6 @@ static void APIENTRY logTranslatef(GLfloat x, GLfloat y, GLfloat z)
 	dllTranslatef(x, y, z);
 }
 
-static void APIENTRY logVertex2d(GLdouble x, GLdouble y)
-{
-	SIG("glVertex2d");
-	dllVertex2d(x, y);
-}
-
-static void APIENTRY logVertex2dv(const GLdouble * v)
-{
-	SIG("glVertex2dv");
-	dllVertex2dv(v);
-}
-static void APIENTRY logVertex2f(GLfloat x, GLfloat y)
-{
-	SIG("glVertex2f");
-	dllVertex2f(x, y);
-}
-static void APIENTRY logVertex2fv(const GLfloat * v)
-{
-	SIG("glVertex2fv");
-	dllVertex2fv(v);
-}
-static void APIENTRY logVertex2i(GLint x, GLint y)
-{
-	SIG("glVertex2i");
-	dllVertex2i(x, y);
-}
-static void APIENTRY logVertex2iv(const GLint * v)
-{
-	SIG("glVertex2iv");
-	dllVertex2iv(v);
-}
-static void APIENTRY logVertex2s(GLshort x, GLshort y)
-{
-	SIG("glVertex2s");
-	dllVertex2s(x, y);
-}
-static void APIENTRY logVertex2sv(const GLshort * v)
-{
-	SIG("glVertex2sv");
-	dllVertex2sv(v);
-}
-static void APIENTRY logVertex3d(GLdouble x, GLdouble y, GLdouble z)
-{
-	SIG("glVertex3d");
-	dllVertex3d(x, y, z);
-}
-static void APIENTRY logVertex3dv(const GLdouble * v)
-{
-	SIG("glVertex3dv");
-	dllVertex3dv(v);
-}
-static void APIENTRY logVertex3f(GLfloat x, GLfloat y, GLfloat z)
-{
-	SIG("glVertex3f");
-	dllVertex3f(x, y, z);
-}
-static void APIENTRY logVertex3fv(const GLfloat * v)
-{
-	SIG("glVertex3fv");
-	dllVertex3fv(v);
-}
-static void APIENTRY logVertex3i(GLint x, GLint y, GLint z)
-{
-	SIG("glVertex3i");
-	dllVertex3i(x, y, z);
-}
-static void APIENTRY logVertex3iv(const GLint * v)
-{
-	SIG("glVertex3iv");
-	dllVertex3iv(v);
-}
-static void APIENTRY logVertex3s(GLshort x, GLshort y, GLshort z)
-{
-	SIG("glVertex3s");
-	dllVertex3s(x, y, z);
-}
-static void APIENTRY logVertex3sv(const GLshort * v)
-{
-	SIG("glVertex3sv");
-	dllVertex3sv(v);
-}
-static void APIENTRY logVertex4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w)
-{
-	SIG("glVertex4d");
-	dllVertex4d(x, y, z, w);
-}
-static void APIENTRY logVertex4dv(const GLdouble * v)
-{
-	SIG("glVertex4dv");
-	dllVertex4dv(v);
-}
-static void APIENTRY logVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
-{
-	SIG("glVertex4f");
-	dllVertex4f(x, y, z, w);
-}
-static void APIENTRY logVertex4fv(const GLfloat * v)
-{
-	SIG("glVertex4fv");
-	dllVertex4fv(v);
-}
-static void APIENTRY logVertex4i(GLint x, GLint y, GLint z, GLint w)
-{
-	SIG("glVertex4i");
-	dllVertex4i(x, y, z, w);
-}
-static void APIENTRY logVertex4iv(const GLint * v)
-{
-	SIG("glVertex4iv");
-	dllVertex4iv(v);
-}
-static void APIENTRY logVertex4s(GLshort x, GLshort y, GLshort z, GLshort w)
-{
-	SIG("glVertex4s");
-	dllVertex4s(x, y, z, w);
-}
-static void APIENTRY logVertex4sv(const GLshort * v)
-{
-	SIG("glVertex4sv");
-	dllVertex4sv(v);
-}
-
 static void APIENTRY logViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	fprintf(log_fp, "glViewport( %d, %d, %d, %d )\n", x, y, width, height);
@@ -2759,37 +2356,6 @@ void QGL_Shutdown(void)
 	qglClearIndex                = NULL;
 	qglClearStencil              = NULL;
 	qglClipPlane                 = NULL;
-	qglColor3b                   = NULL;
-	qglColor3bv                  = NULL;
-	qglColor3d                   = NULL;
-	qglColor3dv                  = NULL;
-	qglColor3f                   = NULL;
-	qglColor3fv                  = NULL;
-	qglColor3i                   = NULL;
-	qglColor3iv                  = NULL;
-	qglColor3s                   = NULL;
-	qglColor3sv                  = NULL;
-	qglColor3ub                  = NULL;
-	qglColor3ubv                 = NULL;
-	qglColor3ui                  = NULL;
-	qglColor3uiv                 = NULL;
-	qglColor3us                  = NULL;
-	qglColor3usv                 = NULL;
-	qglColor4b                   = NULL;
-	qglColor4bv                  = NULL;
-	qglColor4d                   = NULL;
-	qglColor4dv                  = NULL;
-	qglColor4f                   = NULL;
-	qglColor4i                   = NULL;
-	qglColor4iv                  = NULL;
-	qglColor4s                   = NULL;
-	qglColor4sv                  = NULL;
-	qglColor4ub                  = NULL;
-	qglColor4ubv                 = NULL;
-	qglColor4ui                  = NULL;
-	qglColor4uiv                 = NULL;
-	qglColor4us                  = NULL;
-	qglColor4usv                 = NULL;
 	qglColorMask                 = NULL;
 	qglColorMaterial             = NULL;
 	qglCopyPixels                = NULL;
@@ -3043,30 +2609,6 @@ void QGL_Shutdown(void)
 	qglTexSubImage2D             = NULL;
 	qglTranslated                = NULL;
 	qglTranslatef                = NULL;
-	qglVertex2d                  = NULL;
-	qglVertex2dv                 = NULL;
-	qglVertex2f                  = NULL;
-	qglVertex2fv                 = NULL;
-	qglVertex2i                  = NULL;
-	qglVertex2iv                 = NULL;
-	qglVertex2s                  = NULL;
-	qglVertex2sv                 = NULL;
-	qglVertex3d                  = NULL;
-	qglVertex3dv                 = NULL;
-	qglVertex3f                  = NULL;
-	qglVertex3fv                 = NULL;
-	qglVertex3i                  = NULL;
-	qglVertex3iv                 = NULL;
-	qglVertex3s                  = NULL;
-	qglVertex3sv                 = NULL;
-	qglVertex4d                  = NULL;
-	qglVertex4dv                 = NULL;
-	qglVertex4f                  = NULL;
-	qglVertex4fv                 = NULL;
-	qglVertex4i                  = NULL;
-	qglVertex4iv                 = NULL;
-	qglVertex4s                  = NULL;
-	qglVertex4sv                 = NULL;
 	qglViewport                  = NULL;
 }
 // *INDENT-ON*
@@ -3121,37 +2663,6 @@ int QGL_Init()
 	qglClearIndex                = dllClearIndex = GPA( "glClearIndex" );
 	qglClearStencil              = dllClearStencil = GPA( "glClearStencil" );
 	qglClipPlane                 = dllClipPlane = GPA( "glClipPlane" );
-	qglColor3b                   = dllColor3b = GPA( "glColor3b" );
-	qglColor3bv                  = dllColor3bv = GPA( "glColor3bv" );
-	qglColor3d                   = dllColor3d = GPA( "glColor3d" );
-	qglColor3dv                  = dllColor3dv = GPA( "glColor3dv" );
-	qglColor3f                   = dllColor3f = GPA( "glColor3f" );
-	qglColor3fv                  = dllColor3fv = GPA( "glColor3fv" );
-	qglColor3i                   = dllColor3i = GPA( "glColor3i" );
-	qglColor3iv                  = dllColor3iv = GPA( "glColor3iv" );
-	qglColor3s                   = dllColor3s = GPA( "glColor3s" );
-	qglColor3sv                  = dllColor3sv = GPA( "glColor3sv" );
-	qglColor3ub                  = dllColor3ub = GPA( "glColor3ub" );
-	qglColor3ubv                 = dllColor3ubv = GPA( "glColor3ubv" );
-	qglColor3ui                  = dllColor3ui = GPA( "glColor3ui" );
-	qglColor3uiv                 = dllColor3uiv = GPA( "glColor3uiv" );
-	qglColor3us                  = dllColor3us = GPA( "glColor3us" );
-	qglColor3usv                 = dllColor3usv = GPA( "glColor3usv" );
-	qglColor4b                   = dllColor4b = GPA( "glColor4b" );
-	qglColor4bv                  = dllColor4bv = GPA( "glColor4bv" );
-	qglColor4d                   = dllColor4d = GPA( "glColor4d" );
-	qglColor4dv                  = dllColor4dv = GPA( "glColor4dv" );
-	qglColor4f                   = dllColor4f = GPA( "glColor4f" );
-	qglColor4i                   = dllColor4i = GPA( "glColor4i" );
-	qglColor4iv                  = dllColor4iv = GPA( "glColor4iv" );
-	qglColor4s                   = dllColor4s = GPA( "glColor4s" );
-	qglColor4sv                  = dllColor4sv = GPA( "glColor4sv" );
-	qglColor4ub                  = dllColor4ub = GPA( "glColor4ub" );
-	qglColor4ubv                 = dllColor4ubv = GPA( "glColor4ubv" );
-	qglColor4ui                  = dllColor4ui = GPA( "glColor4ui" );
-	qglColor4uiv                 = dllColor4uiv = GPA( "glColor4uiv" );
-	qglColor4us                  = dllColor4us = GPA( "glColor4us" );
-	qglColor4usv                 = dllColor4usv = GPA( "glColor4usv" );
 	qglColorMask                 = dllColorMask = GPA( "glColorMask" );
 	qglColorMaterial             = dllColorMaterial = GPA( "glColorMaterial" );
 	qglCopyPixels                = dllCopyPixels = GPA( "glCopyPixels" );
@@ -3403,30 +2914,6 @@ int QGL_Init()
 	qglTexSubImage2D             = 	dllTexSubImage2D             = GPA( "glTexSubImage2D" );
 	qglTranslated                = 	dllTranslated                = GPA( "glTranslated" );
 	qglTranslatef                = 	dllTranslatef                = GPA( "glTranslatef" );
-	qglVertex2d                  = 	dllVertex2d                  = GPA( "glVertex2d" );
-	qglVertex2dv                 = 	dllVertex2dv                 = GPA( "glVertex2dv" );
-	qglVertex2f                  = 	dllVertex2f                  = GPA( "glVertex2f" );
-	qglVertex2fv                 = 	dllVertex2fv                 = GPA( "glVertex2fv" );
-	qglVertex2i                  = 	dllVertex2i                  = GPA( "glVertex2i" );
-	qglVertex2iv                 = 	dllVertex2iv                 = GPA( "glVertex2iv" );
-	qglVertex2s                  = 	dllVertex2s                  = GPA( "glVertex2s" );
-	qglVertex2sv                 = 	dllVertex2sv                 = GPA( "glVertex2sv" );
-	qglVertex3d                  = 	dllVertex3d                  = GPA( "glVertex3d" );
-	qglVertex3dv                 = 	dllVertex3dv                 = GPA( "glVertex3dv" );
-	qglVertex3f                  = 	dllVertex3f                  = GPA( "glVertex3f" );
-	qglVertex3fv                 = 	dllVertex3fv                 = GPA( "glVertex3fv" );
-	qglVertex3i                  = 	dllVertex3i                  = GPA( "glVertex3i" );
-	qglVertex3iv                 = 	dllVertex3iv                 = GPA( "glVertex3iv" );
-	qglVertex3s                  = 	dllVertex3s                  = GPA( "glVertex3s" );
-	qglVertex3sv                 = 	dllVertex3sv                 = GPA( "glVertex3sv" );
-	qglVertex4d                  = 	dllVertex4d                  = GPA( "glVertex4d" );
-	qglVertex4dv                 = 	dllVertex4dv                 = GPA( "glVertex4dv" );
-	qglVertex4f                  = 	dllVertex4f                  = GPA( "glVertex4f" );
-	qglVertex4fv                 = 	dllVertex4fv                 = GPA( "glVertex4fv" );
-	qglVertex4i                  = 	dllVertex4i                  = GPA( "glVertex4i" );
-	qglVertex4iv                 = 	dllVertex4iv                 = GPA( "glVertex4iv" );
-	qglVertex4s                  = 	dllVertex4s                  = GPA( "glVertex4s" );
-	qglVertex4sv                 = 	dllVertex4sv                 = GPA( "glVertex4sv" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
 	
 	// check logging
@@ -3500,37 +2987,6 @@ void QGL_EnableLogging(int enable)
 		qglClearIndex                = logClearIndex;
 		qglClearStencil              = logClearStencil;
 		qglClipPlane                 = logClipPlane;
-		qglColor3b                   = logColor3b;
-		qglColor3bv                  = logColor3bv;
-		qglColor3d                   = logColor3d;
-		qglColor3dv                  = logColor3dv;
-		qglColor3f                   = logColor3f;
-		qglColor3fv                  = logColor3fv;
-		qglColor3i                   = logColor3i;
-		qglColor3iv                  = logColor3iv;
-		qglColor3s                   = logColor3s;
-		qglColor3sv                  = logColor3sv;
-		qglColor3ub                  = logColor3ub;
-		qglColor3ubv                 = logColor3ubv;
-		qglColor3ui                  = logColor3ui;
-		qglColor3uiv                 = logColor3uiv;
-		qglColor3us                  = logColor3us;
-		qglColor3usv                 = logColor3usv;
-		qglColor4b                   = logColor4b;
-		qglColor4bv                  = logColor4bv;
-		qglColor4d                   = logColor4d;
-		qglColor4dv                  = logColor4dv;
-		qglColor4f                   = logColor4f;
-		qglColor4i                   = logColor4i;
-		qglColor4iv                  = logColor4iv;
-		qglColor4s                   = logColor4s;
-		qglColor4sv                  = logColor4sv;
-		qglColor4ub                  = logColor4ub;
-		qglColor4ubv                 = logColor4ubv;
-		qglColor4ui                  = logColor4ui;
-		qglColor4uiv                 = logColor4uiv;
-		qglColor4us                  = logColor4us;
-		qglColor4usv                 = logColor4usv;
 		qglColorMask                 = logColorMask;
 		qglColorMaterial             = logColorMaterial;
 		qglCopyPixels                = logCopyPixels;
@@ -3784,30 +3240,6 @@ void QGL_EnableLogging(int enable)
 		qglTexSubImage2D             = 	logTexSubImage2D             ;
 		qglTranslated                = 	logTranslated                ;
 		qglTranslatef                = 	logTranslatef                ;
-		qglVertex2d                  = 	logVertex2d                  ;
-		qglVertex2dv                 = 	logVertex2dv                 ;
-		qglVertex2f                  = 	logVertex2f                  ;
-		qglVertex2fv                 = 	logVertex2fv                 ;
-		qglVertex2i                  = 	logVertex2i                  ;
-		qglVertex2iv                 = 	logVertex2iv                 ;
-		qglVertex2s                  = 	logVertex2s                  ;
-		qglVertex2sv                 = 	logVertex2sv                 ;
-		qglVertex3d                  = 	logVertex3d                  ;
-		qglVertex3dv                 = 	logVertex3dv                 ;
-		qglVertex3f                  = 	logVertex3f                  ;
-		qglVertex3fv                 = 	logVertex3fv                 ;
-		qglVertex3i                  = 	logVertex3i                  ;
-		qglVertex3iv                 = 	logVertex3iv                 ;
-		qglVertex3s                  = 	logVertex3s                  ;
-		qglVertex3sv                 = 	logVertex3sv                 ;
-		qglVertex4d                  = 	logVertex4d                  ;
-		qglVertex4dv                 = 	logVertex4dv                 ;
-		qglVertex4f                  = 	logVertex4f                  ;
-		qglVertex4fv                 = 	logVertex4fv                 ;
-		qglVertex4i                  = 	logVertex4i                  ;
-		qglVertex4iv                 = 	logVertex4iv                 ;
-		qglVertex4s                  = 	logVertex4s                  ;
-		qglVertex4sv                 = 	logVertex4sv                 ;
 		qglViewport                  = 	logViewport                  ;
 	}
 	else
@@ -3833,37 +3265,6 @@ void QGL_EnableLogging(int enable)
 		qglClearIndex                = dllClearIndex;
 		qglClearStencil              = dllClearStencil;
 		qglClipPlane                 = dllClipPlane;
-		qglColor3b                   = dllColor3b;
-		qglColor3bv                  = dllColor3bv;
-		qglColor3d                   = dllColor3d;
-		qglColor3dv                  = dllColor3dv;
-		qglColor3f                   = dllColor3f;
-		qglColor3fv                  = dllColor3fv;
-		qglColor3i                   = dllColor3i;
-		qglColor3iv                  = dllColor3iv;
-		qglColor3s                   = dllColor3s;
-		qglColor3sv                  = dllColor3sv;
-		qglColor3ub                  = dllColor3ub;
-		qglColor3ubv                 = dllColor3ubv;
-		qglColor3ui                  = dllColor3ui;
-		qglColor3uiv                 = dllColor3uiv;
-		qglColor3us                  = dllColor3us;
-		qglColor3usv                 = dllColor3usv;
-		qglColor4b                   = dllColor4b;
-		qglColor4bv                  = dllColor4bv;
-		qglColor4d                   = dllColor4d;
-		qglColor4dv                  = dllColor4dv;
-		qglColor4f                   = dllColor4f;
-		qglColor4i                   = dllColor4i;
-		qglColor4iv                  = dllColor4iv;
-		qglColor4s                   = dllColor4s;
-		qglColor4sv                  = dllColor4sv;
-		qglColor4ub                  = dllColor4ub;
-		qglColor4ubv                 = dllColor4ubv;
-		qglColor4ui                  = dllColor4ui;
-		qglColor4uiv                 = dllColor4uiv;
-		qglColor4us                  = dllColor4us;
-		qglColor4usv                 = dllColor4usv;
 		qglColorMask                 = dllColorMask;
 		qglColorMaterial             = dllColorMaterial;
 		qglCopyPixels                = dllCopyPixels;
@@ -4117,30 +3518,6 @@ void QGL_EnableLogging(int enable)
 		qglTexSubImage2D             = 	dllTexSubImage2D             ;
 		qglTranslated                = 	dllTranslated                ;
 		qglTranslatef                = 	dllTranslatef                ;
-		qglVertex2d                  = 	dllVertex2d                  ;
-		qglVertex2dv                 = 	dllVertex2dv                 ;
-		qglVertex2f                  = 	dllVertex2f                  ;
-		qglVertex2fv                 = 	dllVertex2fv                 ;
-		qglVertex2i                  = 	dllVertex2i                  ;
-		qglVertex2iv                 = 	dllVertex2iv                 ;
-		qglVertex2s                  = 	dllVertex2s                  ;
-		qglVertex2sv                 = 	dllVertex2sv                 ;
-		qglVertex3d                  = 	dllVertex3d                  ;
-		qglVertex3dv                 = 	dllVertex3dv                 ;
-		qglVertex3f                  = 	dllVertex3f                  ;
-		qglVertex3fv                 = 	dllVertex3fv                 ;
-		qglVertex3i                  = 	dllVertex3i                  ;
-		qglVertex3iv                 = 	dllVertex3iv                 ;
-		qglVertex3s                  = 	dllVertex3s                  ;
-		qglVertex3sv                 = 	dllVertex3sv                 ;
-		qglVertex4d                  = 	dllVertex4d                  ;
-		qglVertex4dv                 = 	dllVertex4dv                 ;
-		qglVertex4f                  = 	dllVertex4f                  ;
-		qglVertex4fv                 = 	dllVertex4fv                 ;
-		qglVertex4i                  = 	dllVertex4i                  ;
-		qglVertex4iv                 = 	dllVertex4iv                 ;
-		qglVertex4s                  = 	dllVertex4s                  ;
-		qglVertex4sv                 = 	dllVertex4sv                 ;
 		qglViewport                  = 	dllViewport                  ;
 	}
 }

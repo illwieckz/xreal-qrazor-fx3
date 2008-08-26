@@ -2187,8 +2187,6 @@ extern cvar_t  *r_maxPolyVerts;
 
 extern cvar_t  *r_showTris;		// enables wireframe rendering of the world
 extern cvar_t  *r_showSky;		// forces sky in front of all surfaces
-extern cvar_t  *r_showNormals;	// draws wireframe normals
-extern cvar_t  *r_showTangentSpaces;	// draws wireframe tangents, binormals and normals
 extern cvar_t  *r_showShadowVolumes;
 extern cvar_t  *r_showShadowLod;
 extern cvar_t  *r_showSkeleton;

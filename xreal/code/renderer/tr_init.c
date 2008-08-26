@@ -187,8 +187,6 @@ cvar_t         *r_maxPolyVerts;
 
 cvar_t         *r_showTris;
 cvar_t         *r_showSky;
-cvar_t         *r_showNormals;
-cvar_t         *r_showTangentSpaces;
 cvar_t         *r_showShadowVolumes;
 cvar_t         *r_showShadowLod;
 cvar_t         *r_showSkeleton;
@@ -990,7 +988,7 @@ void GL_SetDefaultState(void)
 	qglFrontFace(GL_CCW);
 	qglCullFace(GL_FRONT);
 
-	qglColor4f(1, 1, 1, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 
 	// initialize downstream texture units if we're running
 	// in a multitexture environment
@@ -1409,8 +1407,6 @@ void R_Register(void)
 
 	r_showTris = ri.Cvar_Get("r_showTris", "0", CVAR_CHEAT);
 	r_showSky = ri.Cvar_Get("r_showSky", "0", CVAR_CHEAT);
-	r_showNormals = ri.Cvar_Get("r_showNormals", "0", CVAR_CHEAT);
-	r_showTangentSpaces = ri.Cvar_Get("r_showTangentSpaces", "0", CVAR_CHEAT);
 	r_showShadowVolumes = ri.Cvar_Get("r_showShadowVolumes", "0", CVAR_CHEAT);
 	r_showShadowLod = ri.Cvar_Get("r_showShadowLod", "0", CVAR_CHEAT);
 	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);

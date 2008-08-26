@@ -1826,13 +1826,12 @@ static void DrawTris()
 	}
 	else if(glState.currentVBO)
 	{
-		qglColor3f(0, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0, 0, 1, 1);
 	}
 	else
 	{
-		qglColor3f(1, 1, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 	}
-
 	
 	GL_Program(&tr.genericSingleShader);
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
@@ -1862,82 +1861,8 @@ static void DrawTris()
 }
 
 
-/*
-================
-DrawTangentSpaces
-
-Draws vertex tangent spaces for debugging
-================
-*/
-static void DrawTangentSpaces()
-{
-	int             i;
-	vec3_t          temp;
-
-	GLimp_LogComment("--- DrawTangentSpaces ---\n");
-
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	qglDepthRange(0, 0);		// never occluded
-	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
-
-	qglBegin(GL_LINES);
-	for(i = 0; i < tess.numVertexes; i++)
-	{
-		qglColor3f(1, 0, 0);
-		qglVertex3fv(tess.xyz[i]);
-		VectorMA(tess.xyz[i], 2, tess.tangents[i], temp);
-		qglVertex3fv(temp);
-
-		qglColor3f(0, 1, 0);
-		qglVertex3fv(tess.xyz[i]);
-		VectorMA(tess.xyz[i], 2, tess.binormals[i], temp);
-		qglVertex3fv(temp);
-
-		qglColor3f(0, 0, 1);
-		qglVertex3fv(tess.xyz[i]);
-		VectorMA(tess.xyz[i], 2, tess.normals[i], temp);
-		qglVertex3fv(temp);
-	}
-	qglEnd();
-
-	qglDepthRange(0, 1);
-}
 
 
-/*
-================
-DrawNormals
-
-Draws vertex normals for debugging
-================
-*/
-static void DrawNormals()
-{
-	int             i;
-	vec3_t          temp;
-
-	GLimp_LogComment("--- DrawNormals ---\n");
-
-	GL_Program(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
-	qglColor3f(1, 1, 1);
-	qglDepthRange(0, 0);		// never occluded
-	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
-
-	qglBegin(GL_LINES);
-	for(i = 0; i < tess.numVertexes; i++)
-	{
-		qglVertex3fv(tess.xyz[i]);
-		VectorMA(tess.xyz[i], 2, tess.normals[i], temp);
-		qglVertex3fv(temp);
-	}
-	qglEnd();
-
-	qglDepthRange(0, 1);
-}
 
 /*
 ==============
@@ -3156,11 +3081,10 @@ static void Render_heatHaze(int stage)
 		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 		qglEnd();
 
 		GL_PopMatrix();
@@ -4045,20 +3969,20 @@ void Tess_StageIteratorStencilShadowVolume()
 #if 1
 		GL_Cull(CT_FRONT_SIDED);
 		//qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
-		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 		DrawElements();
 #endif
 
 #if 1
 		GL_Cull(CT_BACK_SIDED);
-		qglColor4f(0.0f, 1.0f, 0.0f, 0.05f);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0.0f, 1.0f, 0.0f, 0.05f);
 		DrawElements();
 #endif
 
 #if 1
 		GL_State(GLS_DEPTHFUNC_LESS | GLS_POLYMODE_LINE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		GL_Cull(CT_TWO_SIDED);
-		qglColor4f(0.0f, 0.0f, 1.0f, 0.05f);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0.0f, 0.0f, 1.0f, 0.05f);
 		DrawElements();
 #endif
 	}
@@ -4536,16 +4460,6 @@ void Tess_End()
 		   (r_showLightBatches->integer && (tess.stageIteratorFunc == Tess_StageIteratorLighting)))
 		{
 			DrawTris();
-		}
-
-		if(r_showNormals->integer)
-		{
-			DrawNormals();
-		}
-
-		if(r_showTangentSpaces->integer)
-		{
-			DrawTangentSpaces();
 		}
 	}
 

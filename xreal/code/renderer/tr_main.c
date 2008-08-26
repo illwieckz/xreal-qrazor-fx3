@@ -1199,7 +1199,6 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	trRefEntity_t  *e;
 	float           d;
 	vec3_t          transformed;
-	shader_t       *shader;
 
 	// create plane axis for the portal we are seeing
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
@@ -1538,7 +1537,7 @@ static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 		return qfalse;
 	}
 
-	if(r_noportals->integer || (r_fastsky->integer == 1))
+	if(r_noportals->integer)
 	{
 		return qfalse;
 	}
@@ -2163,6 +2162,7 @@ void R_AddLightInteractions()
 
 void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 {
+#if 0
 	vec3_t          forward, left, up;
 
 	MatrixToVectorsFLU(transformMatrix, forward, left, up);
@@ -2188,11 +2188,13 @@ void R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix)
 
 	qglEnd();
 	qglLineWidth(1);
+#endif
 }
 
 // Tr3B - from botlib
 void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color)
 {
+#if 0
 	vec3_t          corners[8];
 	int             i;
 
@@ -2236,6 +2238,7 @@ void R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t max
 		qglVertex3fv(corners[4 + i]);
 	}
 	qglEnd();
+#endif
 }
 
 /*
@@ -2245,6 +2248,7 @@ R_DebugPolygon
 */
 void R_DebugPolygon(int color, int numPoints, float *points)
 {
+#if 0
 	int             i;
 
 	GL_Program(0);
@@ -2271,6 +2275,7 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 	}
 	qglEnd();
 	qglDepthRange(0, 1);
+#endif
 }
 
 /*

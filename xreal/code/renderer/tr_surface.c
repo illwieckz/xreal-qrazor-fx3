@@ -1032,6 +1032,13 @@ Tess_SurfaceBeam
 */
 static void Tess_SurfaceBeam(void)
 {
+#if 1
+
+	GLimp_LogComment("--- Tess_SurfaceBeam ---\n");
+
+	// TODO rewrite without glBegin/glEnd
+
+#else
 #define NUM_BEAM_SEGS 6
 	refEntity_t    *e;
 	int             i;
@@ -1093,6 +1100,7 @@ static void Tess_SurfaceBeam(void)
 		qglVertex3fv(end_points[i % NUM_BEAM_SEGS]);
 	}
 	qglEnd();
+#endif
 }
 
 //================================================================================

@@ -229,7 +229,7 @@ void GL_LoadTextureMatrix(const matrix_t m)
 
 void GL_LoadModelViewMatrix(const matrix_t m)
 {
-#if 1
+#if 0
 	if(MatrixCompare(glState.modelViewMatrix[glState.stackIndex], m))
 	{
 		return;
@@ -243,7 +243,7 @@ void GL_LoadModelViewMatrix(const matrix_t m)
 
 void GL_LoadProjectionMatrix(const matrix_t m)
 {
-#if 1
+#if 0
 	if(MatrixCompare(glState.projectionMatrix[glState.stackIndex], m))
 	{
 		return;
@@ -2810,10 +2810,10 @@ void RB_RenderInteractionsDeferred()
 
 						// draw lighting
 						qglBegin(GL_QUADS);
-						qglVertex2f(ia->scissorX, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 						qglEnd();
 					}
 					else if(light->l.rlType == RL_PROJ)
@@ -2873,10 +2873,10 @@ void RB_RenderInteractionsDeferred()
 
 						// draw lighting
 						qglBegin(GL_QUADS);
-						qglVertex2f(ia->scissorX, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 						qglEnd();
 					}
 					else
@@ -3385,10 +3385,10 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// draw lighting
 						qglBegin(GL_QUADS);
-						qglVertex2f(ia->scissorX, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-						qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-						qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+						qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 						qglEnd();
 					}
 					else if(light->l.rlType == RL_PROJ)
@@ -3445,10 +3445,10 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// draw lighting
 							qglBegin(GL_QUADS);
-							qglVertex2f(ia->scissorX, ia->scissorY);
-							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-							qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 							qglEnd();
 						}
 						else
@@ -3518,10 +3518,10 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// draw lighting
 							qglBegin(GL_QUADS);
-							qglVertex2f(ia->scissorX, ia->scissorY);
-							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-							qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-							qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 							qglEnd();
 						}
 					}
@@ -3920,11 +3920,11 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 
 	// draw viewport
 	qglBegin(GL_QUADS);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 	qglEnd();
 
 	// go back to 3D
@@ -3984,11 +3984,10 @@ void RB_RenderDepthOfField(qboolean deferred)
 
 	// draw viewport
 	qglBegin(GL_QUADS);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 	qglEnd();
 
 	// go back to 3D
@@ -4075,11 +4074,10 @@ void RB_RenderUniformFog(qboolean deferred)
 
 	// draw viewport
 	qglBegin(GL_QUADS);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 	qglEnd();
 
 	// go back to 3D
@@ -4124,11 +4122,10 @@ void RB_RenderBloom(void)
 
 		// draw viewport
 		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 		qglEnd();
 
 
@@ -4154,11 +4151,10 @@ void RB_RenderBloom(void)
 
 		// draw viewport
 		qglBegin(GL_QUADS);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-		qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-		qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 		qglEnd();
 	}
 	/*
@@ -4285,11 +4281,10 @@ void RB_RenderRotoscope(void)
 
 	// draw viewport
 	qglBegin(GL_QUADS);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 	qglEnd();
 
 	// go back to 3D
@@ -4363,11 +4358,10 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	qglBegin(GL_QUADS);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY);
-	qglVertex2f(backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-				backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
-	qglVertex2f(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
 	qglEnd();
 
 	GL_PopMatrix();
@@ -4389,7 +4383,7 @@ void RB_RenderLightOcclusionQueries()
 		qboolean        queryObjects;
 		GLint           available;
 
-		qglColor4f(1.0f, 0.0f, 0.0f, 0.05f);
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
 		GL_Program(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
@@ -4450,40 +4444,40 @@ void RB_RenderLightOcclusionQueries()
 							qglBegin(GL_QUADS);
 
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
 
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
 
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
 
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorYellow);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
 
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorMagenta);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
 
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorCyan);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
-							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
-							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
 
 							qglEnd();
 							break;
@@ -4493,7 +4487,7 @@ void RB_RenderLightOcclusionQueries()
 						{
 							float           xMin, xMax, yMin, yMax;
 							float           zNear, zFar;
-							vec3_t          corners[4];
+							vec4_t          corners[4];
 
 							zNear = 1.0;
 							zFar = light->l.distance;
@@ -4507,18 +4501,22 @@ void RB_RenderLightOcclusionQueries()
 							corners[0][0] = zFar;
 							corners[0][1] = xMin * zFar;
 							corners[0][2] = yMin * zFar;
+							corners[0][3] = 1;
 
 							corners[1][0] = zFar;
 							corners[1][1] = xMax * zFar;
 							corners[1][2] = yMin * zFar;
+							corners[1][3] = 1;
 
 							corners[2][0] = zFar;
 							corners[2][1] = xMax * zFar;
 							corners[2][2] = yMax * zFar;
+							corners[2][3] = 1;
 
 							corners[3][0] = zFar;
 							corners[3][1] = xMin * zFar;
 							corners[3][2] = yMax * zFar;
+							corners[3][3] = 1;
 
 							// draw side planes
 							qglBegin(GL_TRIANGLES);
@@ -4526,9 +4524,9 @@ void RB_RenderLightOcclusionQueries()
 							{
 								qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
 
-								qglVertex3fv(vec3_origin);
-								qglVertex3fv(corners[j]);
-								qglVertex3fv(corners[(j + 1) % 4]);
+								qglVertexAttrib4fARB(ATTR_INDEX_POSITION, 0, 0, 0, 1);
+								qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, corners[j]);
+								qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, corners[(j + 1) % 4]);
 							}
 							qglEnd();
 
@@ -4537,7 +4535,7 @@ void RB_RenderLightOcclusionQueries()
 							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
 							for(j = 0; j < 4; j++)
 							{
-								qglVertex3fv(corners[j]);
+								qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, corners[j]);
 							}
 							qglEnd();
 							break;
@@ -4746,13 +4744,14 @@ static void RB_RenderDebugUtils()
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
 
+#if 0
 	if(r_showLightTransforms->integer || r_showShadowLod->integer)
 	{
 		interaction_t  *ia;
 		int             iaCount, j;
 		trRefLight_t   *light;
 		vec3_t          forward, left, up;
-		vec3_t          tmp;
+		vec4_t          tmp;
 		vec4_t          lightColor;
 
 		GL_Program(NULL);
@@ -4939,7 +4938,9 @@ static void RB_RenderDebugUtils()
 		backEnd.or = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
+#endif
 
+#if 0
 	if(r_showLightInteractions->integer)
 	{
 		int             i;
@@ -5089,7 +5090,9 @@ static void RB_RenderDebugUtils()
 		backEnd.or = backEnd.viewParms.world;
 		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
+#endif
 
+#if 0
 	if(r_showEntityTransforms->integer)
 	{
 		trRefEntity_t  *ent;
@@ -5120,7 +5123,9 @@ static void RB_RenderDebugUtils()
 			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
 	}
+#endif
 
+#if 0
 	if(r_showSkeleton->integer)
 	{
 		int             i, j, k, parentIndex;
@@ -5239,6 +5244,7 @@ static void RB_RenderDebugUtils()
 			qglEnd();
 		}
 	}
+#endif
 
 	if(r_showLightScissors->integer)
 	{
@@ -5286,10 +5292,10 @@ static void RB_RenderDebugUtils()
 				}
 
 				qglBegin(GL_QUADS);
-				qglVertex2f(ia->scissorX, ia->scissorY);
-				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 				qglEnd();
 			}
 			else if(r_shadows->integer == 3 && qglDepthBoundsEXT)
@@ -5304,23 +5310,23 @@ static void RB_RenderDebugUtils()
 				}
 
 				qglBegin(GL_QUADS);
-				qglVertex2f(ia->scissorX, ia->scissorY);
-				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 				qglEnd();
 			}
 			else
 			{
 				qglBegin(GL_QUADS);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
-				qglVertex2f(ia->scissorX, ia->scissorY);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY, 0, 1);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
-				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
-				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
-				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
+				qglVertexAttrib4fARB(ATTR_INDEX_POSITION, ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 				qglEnd();
 			}
 
@@ -5797,17 +5803,17 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 
 	RB_SetGL2D();
 
-	qglColor3f(tr.identityLight, tr.identityLight, tr.identityLight);
+	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 	qglBegin(GL_QUADS);
-	qglTexCoord2f(0.5f / cols, 0.5f / rows);
-	qglVertex2f(x, y);
-	qglTexCoord2f((cols - 0.5f) / cols, 0.5f / rows);
-	qglVertex2f(x + w, y);
-	qglTexCoord2f((cols - 0.5f) / cols, (rows - 0.5f) / rows);
-	qglVertex2f(x + w, y + h);
-	qglTexCoord2f(0.5f / cols, (rows - 0.5f) / rows);
-	qglVertex2f(x, y + h);
+	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0.5f / cols, 0.5f / rows, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, (cols - 0.5f) / cols, 0.5f / rows, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, (cols - 0.5f) / cols, (rows - 0.5f) / rows, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y + h, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0.5f / cols, (rows - 0.5f) / rows, 0, 1);
+	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y + h, 0, 1);
 	qglEnd();
 
 	GL_CheckErrors();
@@ -6078,14 +6084,14 @@ void RB_ShowImages(void)
 
 		GL_Bind(image);
 		qglBegin(GL_QUADS);
-		qglTexCoord2f(0, 0);
-		qglVertex2f(x, y);
-		qglTexCoord2f(1, 0);
-		qglVertex2f(x + w, y);
-		qglTexCoord2f(1, 1);
-		qglVertex2f(x + w, y + h);
-		qglTexCoord2f(0, 1);
-		qglVertex2f(x, y + h);
+		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0, 0, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 1, 0, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 1, 1, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y + h, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0, 1, 0, 1);
+		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y + h, 0, 1);
 		qglEnd();
 	}
 
