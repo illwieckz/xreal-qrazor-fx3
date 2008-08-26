@@ -252,12 +252,10 @@ void            (APIENTRY * qglPolygonOffset) (GLfloat factor, GLfloat units);
 void            (APIENTRY * qglPolygonStipple) (const GLubyte * mask);
 void            (APIENTRY * qglPopAttrib) (void);
 void            (APIENTRY * qglPopClientAttrib) (void);
-void            (APIENTRY * qglPopMatrix) (void);
 void            (APIENTRY * qglPopName) (void);
 void            (APIENTRY * qglPrioritizeTextures) (GLsizei n, const GLuint * textures, const GLclampf * priorities);
 void            (APIENTRY * qglPushAttrib) (GLbitfield mask);
 void            (APIENTRY * qglPushClientAttrib) (GLbitfield mask);
-void            (APIENTRY * qglPushMatrix) (void);
 void            (APIENTRY * qglPushName) (GLuint name);
 void            (APIENTRY * qglRasterPos2d) (GLdouble x, GLdouble y);
 void            (APIENTRY * qglRasterPos2dv) (const GLdouble * v);
@@ -615,12 +613,10 @@ static void     (APIENTRY * dllPolygonOffset) (GLfloat factor, GLfloat units);
 static void     (APIENTRY * dllPolygonStipple) (const GLubyte * mask);
 static void     (APIENTRY * dllPopAttrib) (void);
 static void     (APIENTRY * dllPopClientAttrib) (void);
-static void     (APIENTRY * dllPopMatrix) (void);
 static void     (APIENTRY * dllPopName) (void);
 static void     (APIENTRY * dllPrioritizeTextures) (GLsizei n, const GLuint * textures, const GLclampf * priorities);
 static void     (APIENTRY * dllPushAttrib) (GLbitfield mask);
 static void     (APIENTRY * dllPushClientAttrib) (GLbitfield mask);
-static void     (APIENTRY * dllPushMatrix) (void);
 static void     (APIENTRY * dllPushName) (GLuint name);
 static void     (APIENTRY * dllRasterPos2d) (GLdouble x, GLdouble y);
 static void     (APIENTRY * dllRasterPos2dv) (const GLdouble * v);
@@ -2118,12 +2114,6 @@ static void APIENTRY logPopClientAttrib(void)
 	dllPopClientAttrib();
 }
 
-static void APIENTRY logPopMatrix(void)
-{
-	SIG("glPopMatrix");
-	dllPopMatrix();
-}
-
 static void APIENTRY logPopName(void)
 {
 	SIG("glPopName");
@@ -2146,12 +2136,6 @@ static void APIENTRY logPushClientAttrib(GLbitfield mask)
 {
 	SIG("glPushClientAttrib");
 	dllPushClientAttrib(mask);
-}
-
-static void APIENTRY logPushMatrix(void)
-{
-	SIG("glPushMatrix");
-	dllPushMatrix();
 }
 
 static void APIENTRY logPushName(GLuint name)
@@ -3030,12 +3014,10 @@ void QGL_Shutdown(void)
 	qglPolygonStipple            = NULL;
 	qglPopAttrib                 = NULL;
 	qglPopClientAttrib           = NULL;
-	qglPopMatrix                 = NULL;
 	qglPopName                   = NULL;
 	qglPrioritizeTextures        = NULL;
 	qglPushAttrib                = NULL;
 	qglPushClientAttrib          = NULL;
-	qglPushMatrix                = NULL;
 	qglPushName                  = NULL;
 	qglRasterPos2d               = NULL;
 	qglRasterPos2dv              = NULL;
@@ -3401,12 +3383,10 @@ int QGL_Init()
 	qglPolygonStipple            = 	dllPolygonStipple            = GPA( "glPolygonStipple" );
 	qglPopAttrib                 = 	dllPopAttrib                 = GPA( "glPopAttrib" );
 	qglPopClientAttrib           = 	dllPopClientAttrib           = GPA( "glPopClientAttrib" );
-	qglPopMatrix                 = 	dllPopMatrix                 = GPA( "glPopMatrix" );
 	qglPopName                   = 	dllPopName                   = GPA( "glPopName" );
 	qglPrioritizeTextures        = 	dllPrioritizeTextures        = GPA( "glPrioritizeTextures" );
 	qglPushAttrib                = 	dllPushAttrib                = GPA( "glPushAttrib" );
 	qglPushClientAttrib          = 	dllPushClientAttrib          = GPA( "glPushClientAttrib" );
-	qglPushMatrix                = 	dllPushMatrix                = GPA( "glPushMatrix" );
 	qglPushName                  = 	dllPushName                  = GPA( "glPushName" );
 	qglRasterPos2d               = 	dllRasterPos2d               = GPA( "glRasterPos2d" );
 	qglRasterPos2dv              = 	dllRasterPos2dv              = GPA( "glRasterPos2dv" );
@@ -3793,12 +3773,10 @@ void QGL_EnableLogging(int enable)
 		qglPolygonStipple            = 	logPolygonStipple            ;
 		qglPopAttrib                 = 	logPopAttrib                 ;
 		qglPopClientAttrib           = 	logPopClientAttrib           ;
-		qglPopMatrix                 = 	logPopMatrix                 ;
 		qglPopName                   = 	logPopName                   ;
 		qglPrioritizeTextures        = 	logPrioritizeTextures        ;
 		qglPushAttrib                = 	logPushAttrib                ;
 		qglPushClientAttrib          = 	logPushClientAttrib          ;
-		qglPushMatrix                = 	logPushMatrix                ;
 		qglPushName                  = 	logPushName                  ;
 		qglRasterPos2d               = 	logRasterPos2d               ;
 		qglRasterPos2dv              = 	logRasterPos2dv              ;
@@ -4137,12 +4115,10 @@ void QGL_EnableLogging(int enable)
 		qglPolygonStipple            = 	dllPolygonStipple            ;
 		qglPopAttrib                 = 	dllPopAttrib                 ;
 		qglPopClientAttrib           = 	dllPopClientAttrib           ;
-		qglPopMatrix                 = 	dllPopMatrix                 ;
 		qglPopName                   = 	dllPopName                   ;
 		qglPrioritizeTextures        = 	dllPrioritizeTextures        ;
 		qglPushAttrib                = 	dllPushAttrib                ;
 		qglPushClientAttrib          = 	dllPushClientAttrib          ;
-		qglPushMatrix                = 	dllPushMatrix                ;
 		qglPushName                  = 	dllPushName                  ;
 		qglRasterPos2d               = 	dllRasterPos2d               ;
 		qglRasterPos2dv              = 	dllRasterPos2dv              ;
