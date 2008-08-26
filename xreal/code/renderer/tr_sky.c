@@ -693,6 +693,8 @@ void RB_DrawSun(void)
 	float           dist;
 	vec3_t          origin, vec1, vec2;
 	vec3_t          temp;
+	matrix_t		transformMatrix;
+	matrix_t		modelViewMatrix;
 
 	if(!backEnd.skyRenderedThisView)
 	{
@@ -702,8 +704,26 @@ void RB_DrawSun(void)
 	{
 		return;
 	}
-	GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
-	qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+
+	GL_PushMatrix();
+		
+	GL_Program(&tr.genericSingleShader);
+	
+	// set uniforms
+	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+	}
+	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+
+	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+	MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
+
+	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+	GL_LoadModelViewMatrix(modelViewMatrix);
+
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	dist = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
 	size = dist * 0.4;
@@ -787,6 +807,8 @@ void RB_DrawSun(void)
 
 	// back to normal depth range
 	qglDepthRange(0.0, 1.0);
+
+	GL_PopMatrix();
 }
 
 

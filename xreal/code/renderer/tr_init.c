@@ -1004,7 +1004,6 @@ void GL_SetDefaultState(void)
 		}
 	}
 
-	qglShadeModel(GL_SMOOTH);
 	qglDepthFunc(GL_LEQUAL);
 
 	// the vertex array is always enabled, but the color and texture
