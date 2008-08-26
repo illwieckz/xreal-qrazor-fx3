@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qgl.h"
 #include "tr_local.h"
 
-void            (APIENTRY * qglAccum) (GLenum op, GLfloat value);
 void            (APIENTRY * qglAlphaFunc) (GLenum func, GLclampf ref);
 
 GLboolean(APIENTRY * qglAreTexturesResident) (GLsizei n, const GLuint * textures, GLboolean * residences);
@@ -50,7 +49,6 @@ void            (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 void            (APIENTRY * qglCallList) (GLuint list);
 void            (APIENTRY * qglCallLists) (GLsizei n, GLenum type, const GLvoid * lists);
 void            (APIENTRY * qglClear) (GLbitfield mask);
-void            (APIENTRY * qglClearAccum) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 void            (APIENTRY * qglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 void            (APIENTRY * qglClearDepth) (GLclampd depth);
 void            (APIENTRY * qglClearIndex) (GLfloat c);
@@ -398,7 +396,6 @@ void            (APIENTRY * qglColorTableEXT) (int, int, int, int, int, const vo
 void            (APIENTRY * qglSelectTextureSGIS) (GLenum);
 void            (APIENTRY * qglMTexCoord2fSGIS) (GLenum, GLfloat, GLfloat);
 
-static void     (APIENTRY * dllAccum) (GLenum op, GLfloat value);
 static void     (APIENTRY * dllAlphaFunc) (GLenum func, GLclampf ref);
 
 GLboolean(APIENTRY * dllAreTexturesResident) (GLsizei n, const GLuint * textures, GLboolean * residences);
@@ -411,7 +408,6 @@ static void     (APIENTRY * dllBlendFunc) (GLenum sfactor, GLenum dfactor);
 static void     (APIENTRY * dllCallList) (GLuint list);
 static void     (APIENTRY * dllCallLists) (GLsizei n, GLenum type, const GLvoid * lists);
 static void     (APIENTRY * dllClear) (GLbitfield mask);
-static void     (APIENTRY * dllClearAccum) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 static void     (APIENTRY * dllClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 static void     (APIENTRY * dllClearDepth) (GLclampd depth);
 static void     (APIENTRY * dllClearIndex) (GLfloat c);
@@ -874,12 +870,6 @@ static const char *TypeToString(GLenum t)
 	}
 }
 
-static void APIENTRY logAccum(GLenum op, GLfloat value)
-{
-	fprintf(log_fp, "glAccum\n");
-	dllAccum(op, value);
-}
-
 static void APIENTRY logAlphaFunc(GLenum func, GLclampf ref)
 {
 	fprintf(log_fp, "glAlphaFunc( 0x%x, %f )\n", func, ref);
@@ -984,12 +974,6 @@ static void APIENTRY logClear(GLbitfield mask)
 
 	fprintf(log_fp, ")\n");
 	dllClear(mask);
-}
-
-static void APIENTRY logClearAccum(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-	fprintf(log_fp, "glClearAccum\n");
-	dllClearAccum(red, green, blue, alpha);
 }
 
 static void APIENTRY logClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
@@ -2810,7 +2794,6 @@ void QGL_Shutdown(void)
 {
 	ri.Printf(PRINT_ALL, "...shutting down QGL\n");
 
-	qglAccum                     = NULL;
 	qglAlphaFunc                 = NULL;
 	qglAreTexturesResident       = NULL;
 	qglArrayElement              = NULL;
@@ -2821,7 +2804,6 @@ void QGL_Shutdown(void)
 	qglCallList                  = NULL;
 	qglCallLists                 = NULL;
 	qglClear                     = NULL;
-	qglClearAccum                = NULL;
 	qglClearColor                = NULL;
 	qglClearDepth                = NULL;
 	qglClearIndex                = NULL;
@@ -3181,7 +3163,6 @@ int QGL_Init()
 	if(GLimp_sdl_init_video() == qfalse)
 		return qfalse;
 
-	qglAccum                     = dllAccum = GPA( "glAccum" );
 	qglAlphaFunc                 = dllAlphaFunc = GPA( "glAlphaFunc" );
 	qglAreTexturesResident       = dllAreTexturesResident = GPA( "glAreTexturesResident" );
 	qglArrayElement              = dllArrayElement = GPA( "glArrayElement" );
@@ -3192,7 +3173,6 @@ int QGL_Init()
 	qglCallList                  = dllCallList = GPA( "glCallList" );
 	qglCallLists                 = dllCallLists = GPA( "glCallLists" );
 	qglClear                     = dllClear = GPA( "glClear" );
-	qglClearAccum                = dllClearAccum = GPA( "glClearAccum" );
 	qglClearColor                = dllClearColor = GPA( "glClearColor" );
 	qglClearDepth                = dllClearDepth = GPA( "glClearDepth" );
 	qglClearIndex                = dllClearIndex = GPA( "glClearIndex" );
@@ -3569,7 +3549,6 @@ void QGL_EnableLogging(int enable)
 			fprintf(log_fp, "%s\n", asctime(newtime));
 		}
 
-		qglAccum                     = logAccum;
 		qglAlphaFunc                 = logAlphaFunc;
 		qglAreTexturesResident       = logAreTexturesResident;
 		qglArrayElement              = logArrayElement;
@@ -3580,7 +3559,6 @@ void QGL_EnableLogging(int enable)
 		qglCallList                  = logCallList;
 		qglCallLists                 = logCallLists;
 		qglClear                     = logClear;
-		qglClearAccum                = logClearAccum;
 		qglClearColor                = logClearColor;
 		qglClearDepth                = logClearDepth;
 		qglClearIndex                = logClearIndex;
@@ -3911,7 +3889,6 @@ void QGL_EnableLogging(int enable)
 			fclose(log_fp);
 			log_fp = NULL;
 		}
-		qglAccum                     = dllAccum;
 		qglAlphaFunc                 = dllAlphaFunc;
 		qglAreTexturesResident       = dllAreTexturesResident;
 		qglArrayElement              = dllArrayElement;
@@ -3922,7 +3899,6 @@ void QGL_EnableLogging(int enable)
 		qglCallList                  = dllCallList;
 		qglCallLists                 = dllCallLists;
 		qglClear                     = dllClear;
-		qglClearAccum                = dllClearAccum;
 		qglClearColor                = dllClearColor;
 		qglClearDepth                = dllClearDepth;
 		qglClearIndex                = dllClearIndex;

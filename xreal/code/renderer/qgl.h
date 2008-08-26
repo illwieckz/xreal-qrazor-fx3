@@ -44,7 +44,6 @@ void            QGL_EnableLogging(int enable);
 
 // dlopening systems use a function pointer for each call so we can load minidrivers
 
-extern void     (APIENTRY * qglAccum) (GLenum op, GLfloat value);
 extern void     (APIENTRY * qglAlphaFunc) (GLenum func, GLclampf ref);
 extern          GLboolean(APIENTRY * qglAreTexturesResident) (GLsizei n, const GLuint * textures, GLboolean * residences);
 extern void     (APIENTRY * qglArrayElement) (GLint i);
@@ -56,7 +55,6 @@ extern void     (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 extern void     (APIENTRY * qglCallList) (GLuint list);
 extern void     (APIENTRY * qglCallLists) (GLsizei n, GLenum type, const GLvoid * lists);
 extern void     (APIENTRY * qglClear) (GLbitfield mask);
-extern void     (APIENTRY * qglClearAccum) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 extern void     (APIENTRY * qglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 extern void     (APIENTRY * qglClearDepth) (GLclampd depth);
 extern void     (APIENTRY * qglClearIndex) (GLfloat c);
