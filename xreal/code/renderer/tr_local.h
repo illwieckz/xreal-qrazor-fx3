@@ -1718,7 +1718,6 @@ typedef struct
 	matrix_t        modelViewProjectionMatrix[MAX_GLSTACK];
 
 	qboolean        finishCalled;
-	int             texEnv[2];
 	int             faceCulling;
 	unsigned long   glStateBits;
 	unsigned long   glClientStateBits;
@@ -2305,7 +2304,6 @@ void            GL_CheckErrors_(const char *filename, int line);
 void            GL_State(unsigned long stateVector);
 void            GL_ClientState(unsigned long stateBits);
 //void            GL_SetVertexAttribs();
-void            GL_TexEnv(int env);
 void            GL_Cull(int cullType);
 
 // *INDENT-OFF*

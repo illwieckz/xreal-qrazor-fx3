@@ -998,7 +998,6 @@ void GL_SetDefaultState(void)
 		{
 			GL_SelectTexture(i);
 			GL_TextureMode(r_textureMode->string);
-			GL_TexEnv(GL_MODULATE);
 
 			if(i != 0)
 				qglDisable(GL_TEXTURE_2D);
