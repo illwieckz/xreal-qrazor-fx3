@@ -2137,29 +2137,6 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 }
 
 
-
-static void Tess_SurfaceDisplayList(srfDisplayList_t * surf)
-{
-	GLimp_LogComment("--- Tess_SurfaceDisplayist ---\n");
-
-	if(tess.shadowVolume)
-	{
-		return;
-	}
-
-	if(glState.currentVBO || glState.currentIBO)
-	{
-		Tess_EndBegin();
-
-		R_BindNullVBO();
-		R_BindNullIBO();
-	}
-
-	// all apropriate state must be set in Tess_Begin
-	// this isn't implemented yet...
-	qglCallList(surf->listNum);
-}
-
 /*
 ==============
 Tess_SurfaceVBOMesh
@@ -2278,7 +2255,6 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *) =
 		(void (*)(void *))Tess_SurfaceMD5,	// SF_MD5,
 		(void (*)(void *))Tess_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *))Tess_SurfaceEntity,	// SF_ENTITY
-		(void (*)(void *))Tess_SurfaceDisplayList,	// SF_DISPLAY_LIST
 		(void (*)(void *))Tess_SurfaceVBOMesh,	// SF_VBO_MESH
 		(void (*)(void *))Tess_SurfaceVBOMD5Mesh,	// SF_VBO_MD5MESH
 		(void (*)(void *))Tess_SurfaceVBOShadowVolume	// SF_VBO_SHADOW_VOLUME

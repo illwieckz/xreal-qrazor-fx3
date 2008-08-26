@@ -47,11 +47,7 @@ void            QGL_EnableLogging(int enable);
 extern void     (APIENTRY * qglArrayElement) (GLint i);
 extern void     (APIENTRY * qglBegin) (GLenum mode);
 extern void     (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
-extern void     (APIENTRY * qglBitmap) (GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove,
-										const GLubyte * bitmap);
 extern void     (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
-extern void     (APIENTRY * qglCallList) (GLuint list);
-extern void     (APIENTRY * qglCallLists) (GLsizei n, GLenum type, const GLvoid * lists);
 extern void     (APIENTRY * qglClear) (GLbitfield mask);
 extern void     (APIENTRY * qglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 extern void     (APIENTRY * qglClearDepth) (GLclampd depth);
@@ -69,7 +65,6 @@ extern void     (APIENTRY * qglCopyTexSubImage1D) (GLenum target, GLint level, G
 extern void     (APIENTRY * qglCopyTexSubImage2D) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y,
 												   GLsizei width, GLsizei height);
 extern void     (APIENTRY * qglCullFace) (GLenum mode);
-extern void     (APIENTRY * qglDeleteLists) (GLuint list, GLsizei range);
 extern void     (APIENTRY * qglDeleteTextures) (GLsizei n, const GLuint * textures);
 extern void     (APIENTRY * qglDepthFunc) (GLenum func);
 extern void     (APIENTRY * qglDepthMask) (GLboolean flag);
@@ -107,7 +102,6 @@ extern void     (APIENTRY * qglFogiv) (GLenum pname, const GLint * params);
 extern void     (APIENTRY * qglFrontFace) (GLenum mode);
 extern void     (APIENTRY * qglFrustum) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
 										 GLdouble zFar);
-extern          GLuint(APIENTRY * qglGenLists) (GLsizei range);
 extern void     (APIENTRY * qglGenTextures) (GLsizei n, GLuint * textures);
 extern void     (APIENTRY * qglGetBooleanv) (GLenum pname, GLboolean * params);
 extern void     (APIENTRY * qglGetClipPlane) (GLenum plane, GLdouble * equation);
@@ -154,7 +148,6 @@ extern void     (APIENTRY * qglIndexubv) (const GLubyte * c);
 extern void     (APIENTRY * qglInitNames) (void);
 extern void     (APIENTRY * qglInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
 extern          GLboolean(APIENTRY * qglIsEnabled) (GLenum cap);
-extern          GLboolean(APIENTRY * qglIsList) (GLuint list);
 extern          GLboolean(APIENTRY * qglIsTexture) (GLuint texture);
 extern void     (APIENTRY * qglLightModelf) (GLenum pname, GLfloat param);
 extern void     (APIENTRY * qglLightModelfv) (GLenum pname, const GLfloat * params);
@@ -166,7 +159,6 @@ extern void     (APIENTRY * qglLighti) (GLenum light, GLenum pname, GLint param)
 extern void     (APIENTRY * qglLightiv) (GLenum light, GLenum pname, const GLint * params);
 extern void     (APIENTRY * qglLineStipple) (GLint factor, GLushort pattern);
 extern void     (APIENTRY * qglLineWidth) (GLfloat width);
-extern void     (APIENTRY * qglListBase) (GLuint base);
 extern void     (APIENTRY * qglLoadIdentity) (void);
 extern void     (APIENTRY * qglLoadMatrixd) (const GLdouble * m);
 extern void     (APIENTRY * qglLoadMatrixf) (const GLfloat * m);

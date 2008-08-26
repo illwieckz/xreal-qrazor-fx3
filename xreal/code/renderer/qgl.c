@@ -40,11 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void            (APIENTRY * qglArrayElement) (GLint i);
 void            (APIENTRY * qglBegin) (GLenum mode);
 void            (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
-void            (APIENTRY * qglBitmap) (GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove,
-										const GLubyte * bitmap);
 void            (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
-void            (APIENTRY * qglCallList) (GLuint list);
-void            (APIENTRY * qglCallLists) (GLsizei n, GLenum type, const GLvoid * lists);
 void            (APIENTRY * qglClear) (GLbitfield mask);
 void            (APIENTRY * qglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 void            (APIENTRY * qglClearDepth) (GLclampd depth);
@@ -62,7 +58,6 @@ void            (APIENTRY * qglCopyTexSubImage1D) (GLenum target, GLint level, G
 void            (APIENTRY * qglCopyTexSubImage2D) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y,
 												   GLsizei width, GLsizei height);
 void            (APIENTRY * qglCullFace) (GLenum mode);
-void            (APIENTRY * qglDeleteLists) (GLuint list, GLsizei range);
 void            (APIENTRY * qglDeleteTextures) (GLsizei n, const GLuint * textures);
 void            (APIENTRY * qglDepthFunc) (GLenum func);
 void            (APIENTRY * qglDepthMask) (GLboolean flag);
@@ -100,7 +95,6 @@ void            (APIENTRY * qglFogiv) (GLenum pname, const GLint * params);
 void            (APIENTRY * qglFrontFace) (GLenum mode);
 void            (APIENTRY * qglFrustum) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
 										 GLdouble zFar);
-GLuint(APIENTRY * qglGenLists) (GLsizei range);
 void            (APIENTRY * qglGenTextures) (GLsizei n, GLuint * textures);
 void            (APIENTRY * qglGetBooleanv) (GLenum pname, GLboolean * params);
 void            (APIENTRY * qglGetClipPlane) (GLenum plane, GLdouble * equation);
@@ -149,7 +143,6 @@ void            (APIENTRY * qglInitNames) (void);
 void            (APIENTRY * qglInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
 
 GLboolean(APIENTRY * qglIsEnabled) (GLenum cap);
-GLboolean(APIENTRY * qglIsList) (GLuint list);
 GLboolean(APIENTRY * qglIsTexture) (GLuint texture);
 void            (APIENTRY * qglLightModelf) (GLenum pname, GLfloat param);
 void            (APIENTRY * qglLightModelfv) (GLenum pname, const GLfloat * params);
@@ -161,7 +154,6 @@ void            (APIENTRY * qglLighti) (GLenum light, GLenum pname, GLint param)
 void            (APIENTRY * qglLightiv) (GLenum light, GLenum pname, const GLint * params);
 void            (APIENTRY * qglLineStipple) (GLint factor, GLushort pattern);
 void            (APIENTRY * qglLineWidth) (GLfloat width);
-void            (APIENTRY * qglListBase) (GLuint base);
 void            (APIENTRY * qglLoadIdentity) (void);
 void            (APIENTRY * qglLoadMatrixd) (const GLdouble * m);
 void            (APIENTRY * qglLoadMatrixf) (const GLfloat * m);
@@ -330,11 +322,7 @@ void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 static void     (APIENTRY * dllArrayElement) (GLint i);
 static void     (APIENTRY * dllBegin) (GLenum mode);
 static void     (APIENTRY * dllBindTexture) (GLenum target, GLuint texture);
-static void     (APIENTRY * dllBitmap) (GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove,
-										const GLubyte * bitmap);
 static void     (APIENTRY * dllBlendFunc) (GLenum sfactor, GLenum dfactor);
-static void     (APIENTRY * dllCallList) (GLuint list);
-static void     (APIENTRY * dllCallLists) (GLsizei n, GLenum type, const GLvoid * lists);
 static void     (APIENTRY * dllClear) (GLbitfield mask);
 static void     (APIENTRY * dllClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 static void     (APIENTRY * dllClearDepth) (GLclampd depth);
@@ -352,7 +340,6 @@ static void     (APIENTRY * dllCopyTexSubImage1D) (GLenum target, GLint level, G
 static void     (APIENTRY * dllCopyTexSubImage2D) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y,
 												   GLsizei width, GLsizei height);
 static void     (APIENTRY * dllCullFace) (GLenum mode);
-static void     (APIENTRY * dllDeleteLists) (GLuint list, GLsizei range);
 static void     (APIENTRY * dllDeleteTextures) (GLsizei n, const GLuint * textures);
 static void     (APIENTRY * dllDepthFunc) (GLenum func);
 static void     (APIENTRY * dllDepthMask) (GLboolean flag);
@@ -390,7 +377,6 @@ static void     (APIENTRY * dllFogiv) (GLenum pname, const GLint * params);
 static void     (APIENTRY * dllFrontFace) (GLenum mode);
 static void     (APIENTRY * dllFrustum) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
 										 GLdouble zFar);
-GLuint(APIENTRY * dllGenLists) (GLsizei range);
 static void     (APIENTRY * dllGenTextures) (GLsizei n, GLuint * textures);
 static void     (APIENTRY * dllGetBooleanv) (GLenum pname, GLboolean * params);
 static void     (APIENTRY * dllGetClipPlane) (GLenum plane, GLdouble * equation);
@@ -439,7 +425,6 @@ static void     (APIENTRY * dllInitNames) (void);
 static void     (APIENTRY * dllInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
 
 GLboolean(APIENTRY * dllIsEnabled) (GLenum cap);
-GLboolean(APIENTRY * dllIsList) (GLuint list);
 GLboolean(APIENTRY * dllIsTexture) (GLuint texture);
 static void     (APIENTRY * dllLightModelf) (GLenum pname, GLfloat param);
 static void     (APIENTRY * dllLightModelfv) (GLenum pname, const GLfloat * params);
@@ -754,13 +739,6 @@ static void APIENTRY logBindTexture(GLenum target, GLuint texture)
 	dllBindTexture(target, texture);
 }
 
-static void APIENTRY logBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove,
-							   const GLubyte * bitmap)
-{
-	fprintf(log_fp, "glBitmap\n");
-	dllBitmap(width, height, xorig, yorig, xmove, ymove, bitmap);
-}
-
 static void BlendToName(char *n, GLenum f)
 {
 	switch (f)
@@ -799,18 +777,6 @@ static void APIENTRY logBlendFunc(GLenum sfactor, GLenum dfactor)
 
 	fprintf(log_fp, "glBlendFunc( %s, %s )\n", sf, df);
 	dllBlendFunc(sfactor, dfactor);
-}
-
-static void APIENTRY logCallList(GLuint list)
-{
-	fprintf(log_fp, "glCallList( %u )\n", list);
-	dllCallList(list);
-}
-
-static void APIENTRY logCallLists(GLsizei n, GLenum type, const void *lists)
-{
-	fprintf(log_fp, "glCallLists\n");
-	dllCallLists(n, type, lists);
 }
 
 static void APIENTRY logClear(GLbitfield mask)
@@ -913,12 +879,6 @@ static void APIENTRY logCullFace(GLenum mode)
 {
 	fprintf(log_fp, "glCullFace( %s )\n", (mode == GL_FRONT) ? "GL_FRONT" : "GL_BACK");
 	dllCullFace(mode);
-}
-
-static void APIENTRY logDeleteLists(GLuint list, GLsizei range)
-{
-	SIG("glDeleteLists");
-	dllDeleteLists(list, range);
 }
 
 static void APIENTRY logDeleteTextures(GLsizei n, const GLuint * textures)
@@ -1128,12 +1088,6 @@ static void APIENTRY logFrustum(GLdouble left, GLdouble right, GLdouble bottom, 
 {
 	SIG("glFrustum");
 	dllFrustum(left, right, bottom, top, zNear, zFar);
-}
-
-static GLuint APIENTRY logGenLists(GLsizei range)
-{
-	SIG("glGenLists");
-	return dllGenLists(range);
 }
 
 static void APIENTRY logGenTextures(GLsizei n, GLuint * textures)
@@ -1410,11 +1364,7 @@ static GLboolean APIENTRY logIsEnabled(GLenum cap)
 	SIG("glIsEnabled");
 	return dllIsEnabled(cap);
 }
-static GLboolean APIENTRY logIsList(GLuint list)
-{
-	SIG("glIsList");
-	return dllIsList(list);
-}
+
 static GLboolean APIENTRY logIsTexture(GLuint texture)
 {
 	SIG("glIsTexture");
@@ -1480,12 +1430,6 @@ static void APIENTRY logLineWidth(GLfloat width)
 {
 	SIG("glLineWidth");
 	dllLineWidth(width);
-}
-
-static void APIENTRY logListBase(GLuint base)
-{
-	SIG("glListBase");
-	dllListBase(base);
 }
 
 static void APIENTRY logLoadIdentity(void)
@@ -2322,10 +2266,7 @@ void QGL_Shutdown(void)
 	qglArrayElement              = NULL;
 	qglBegin                     = NULL;
 	qglBindTexture               = NULL;
-	qglBitmap                    = NULL;
 	qglBlendFunc                 = NULL;
-	qglCallList                  = NULL;
-	qglCallLists                 = NULL;
 	qglClear                     = NULL;
 	qglClearColor                = NULL;
 	qglClearDepth                = NULL;
@@ -2340,7 +2281,6 @@ void QGL_Shutdown(void)
 	qglCopyTexSubImage1D         = NULL;
 	qglCopyTexSubImage2D         = NULL;
 	qglCullFace                  = NULL;
-	qglDeleteLists               = NULL;
 	qglDeleteTextures            = NULL;
 	qglDepthFunc                 = NULL;
 	qglDepthMask                 = NULL;
@@ -2377,7 +2317,6 @@ void QGL_Shutdown(void)
 	qglFogiv                     = NULL;
 	qglFrontFace                 = NULL;
 	qglFrustum                   = NULL;
-	qglGenLists                  = NULL;
 	qglGenTextures               = NULL;
 	qglGetBooleanv               = NULL;
 	qglGetClipPlane              = NULL;
@@ -2424,7 +2363,6 @@ void QGL_Shutdown(void)
 	qglInitNames                 = NULL;
 	qglInterleavedArrays         = NULL;
 	qglIsEnabled                 = NULL;
-	qglIsList                    = NULL;
 	qglIsTexture                 = NULL;
 	qglLightModelf               = NULL;
 	qglLightModelfv              = NULL;
@@ -2436,7 +2374,6 @@ void QGL_Shutdown(void)
 	qglLightiv                   = NULL;
 	qglLineStipple               = NULL;
 	qglLineWidth                 = NULL;
-	qglListBase                  = NULL;
 	qglLoadIdentity              = NULL;
 	qglLoadMatrixd               = NULL;
 	qglLoadMatrixf               = NULL;
@@ -2627,10 +2564,7 @@ int QGL_Init()
 	qglArrayElement              = dllArrayElement = GPA( "glArrayElement" );
 	qglBegin                     = dllBegin = GPA( "glBegin" );
 	qglBindTexture               = dllBindTexture = GPA( "glBindTexture" );
-	qglBitmap                    = dllBitmap = GPA( "glBitmap" );
 	qglBlendFunc                 = dllBlendFunc = GPA( "glBlendFunc" );
-	qglCallList                  = dllCallList = GPA( "glCallList" );
-	qglCallLists                 = dllCallLists = GPA( "glCallLists" );
 	qglClear                     = dllClear = GPA( "glClear" );
 	qglClearColor                = dllClearColor = GPA( "glClearColor" );
 	qglClearDepth                = dllClearDepth = GPA( "glClearDepth" );
@@ -2645,7 +2579,6 @@ int QGL_Init()
 	qglCopyTexSubImage1D         = dllCopyTexSubImage1D = GPA( "glCopyTexSubImage1D" );
 	qglCopyTexSubImage2D         = dllCopyTexSubImage2D = GPA( "glCopyTexSubImage2D" );
 	qglCullFace                  = dllCullFace = GPA( "glCullFace" );
-	qglDeleteLists               = dllDeleteLists = GPA( "glDeleteLists" );
 	qglDeleteTextures            = dllDeleteTextures = GPA( "glDeleteTextures" );
 	qglDepthFunc                 = dllDepthFunc = GPA( "glDepthFunc" );
 	qglDepthMask                 = dllDepthMask = GPA( "glDepthMask" );
@@ -2682,7 +2615,6 @@ int QGL_Init()
 	qglFogiv                     = 	dllFogiv                     = GPA( "glFogiv" );
 	qglFrontFace                 = 	dllFrontFace                 = GPA( "glFrontFace" );
 	qglFrustum                   = 	dllFrustum                   = GPA( "glFrustum" );
-	qglGenLists                  = 	dllGenLists                  = GPA( "glGenLists" );
 	qglGenTextures               = 	dllGenTextures               = GPA( "glGenTextures" );
 	qglGetBooleanv               = 	dllGetBooleanv               = GPA( "glGetBooleanv" );
 	qglGetClipPlane              = 	dllGetClipPlane              = GPA( "glGetClipPlane" );
@@ -2727,7 +2659,6 @@ int QGL_Init()
 	qglInitNames                 = 	dllInitNames                 = GPA( "glInitNames" );
 	qglInterleavedArrays         = 	dllInterleavedArrays         = GPA( "glInterleavedArrays" );
 	qglIsEnabled                 = 	dllIsEnabled                 = GPA( "glIsEnabled" );
-	qglIsList                    = 	dllIsList                    = GPA( "glIsList" );
 	qglIsTexture                 = 	dllIsTexture                 = GPA( "glIsTexture" );
 	qglLightModelf               = 	dllLightModelf               = GPA( "glLightModelf" );
 	qglLightModelfv              = 	dllLightModelfv              = GPA( "glLightModelfv" );
@@ -2739,7 +2670,6 @@ int QGL_Init()
 	qglLightiv                   = 	dllLightiv                   = GPA( "glLightiv" );
 	qglLineStipple               = 	dllLineStipple               = GPA( "glLineStipple" );
 	qglLineWidth                 = 	dllLineWidth                 = GPA( "glLineWidth" );
-	qglListBase                  = 	dllListBase                  = GPA( "glListBase" );
 	qglLoadIdentity              = 	dllLoadIdentity              = GPA( "glLoadIdentity" );
 	qglLoadMatrixd               = 	dllLoadMatrixd               = GPA( "glLoadMatrixd" );
 	qglLoadMatrixf               = 	dllLoadMatrixf               = GPA( "glLoadMatrixf" );
@@ -2949,10 +2879,7 @@ void QGL_EnableLogging(int enable)
 		qglArrayElement              = logArrayElement;
 		qglBegin                     = logBegin;
 		qglBindTexture               = logBindTexture;
-		qglBitmap                    = logBitmap;
 		qglBlendFunc                 = logBlendFunc;
-		qglCallList                  = logCallList;
-		qglCallLists                 = logCallLists;
 		qglClear                     = logClear;
 		qglClearColor                = logClearColor;
 		qglClearDepth                = logClearDepth;
@@ -2967,7 +2894,6 @@ void QGL_EnableLogging(int enable)
 		qglCopyTexSubImage1D         = logCopyTexSubImage1D;
 		qglCopyTexSubImage2D         = logCopyTexSubImage2D;
 		qglCullFace                  = logCullFace;
-		qglDeleteLists               = logDeleteLists ;
 		qglDeleteTextures            = logDeleteTextures ;
 		qglDepthFunc                 = logDepthFunc ;
 		qglDepthMask                 = logDepthMask ;
@@ -3004,7 +2930,6 @@ void QGL_EnableLogging(int enable)
 		qglFogiv                     = 	logFogiv                     ;
 		qglFrontFace                 = 	logFrontFace                 ;
 		qglFrustum                   = 	logFrustum                   ;
-		qglGenLists                  = 	logGenLists                  ;
 		qglGenTextures               = 	logGenTextures               ;
 		qglGetBooleanv               = 	logGetBooleanv               ;
 		qglGetClipPlane              = 	logGetClipPlane              ;
@@ -3051,7 +2976,6 @@ void QGL_EnableLogging(int enable)
 		qglInitNames                 = 	logInitNames                 ;
 		qglInterleavedArrays         = 	logInterleavedArrays         ;
 		qglIsEnabled                 = 	logIsEnabled                 ;
-		qglIsList                    = 	logIsList                    ;
 		qglIsTexture                 = 	logIsTexture                 ;
 		qglLightModelf               = 	logLightModelf               ;
 		qglLightModelfv              = 	logLightModelfv              ;
@@ -3063,7 +2987,6 @@ void QGL_EnableLogging(int enable)
 		qglLightiv                   = 	logLightiv                   ;
 		qglLineStipple               = 	logLineStipple               ;
 		qglLineWidth                 = 	logLineWidth                 ;
-		qglListBase                  = 	logListBase                  ;
 		qglLoadIdentity              = 	logLoadIdentity              ;
 		qglLoadMatrixd               = 	logLoadMatrixd               ;
 		qglLoadMatrixf               = 	logLoadMatrixf               ;
@@ -3225,10 +3148,7 @@ void QGL_EnableLogging(int enable)
 		qglArrayElement              = dllArrayElement;
 		qglBegin                     = dllBegin;
 		qglBindTexture               = dllBindTexture;
-		qglBitmap                    = dllBitmap;
 		qglBlendFunc                 = dllBlendFunc;
-		qglCallList                  = dllCallList;
-		qglCallLists                 = dllCallLists;
 		qglClear                     = dllClear;
 		qglClearColor                = dllClearColor;
 		qglClearDepth                = dllClearDepth;
@@ -3243,7 +3163,6 @@ void QGL_EnableLogging(int enable)
 		qglCopyTexSubImage1D         = dllCopyTexSubImage1D;
 		qglCopyTexSubImage2D         = dllCopyTexSubImage2D;
 		qglCullFace                  = dllCullFace;
-		qglDeleteLists               = dllDeleteLists ;
 		qglDeleteTextures            = dllDeleteTextures ;
 		qglDepthFunc                 = dllDepthFunc ;
 		qglDepthMask                 = dllDepthMask ;
@@ -3280,7 +3199,6 @@ void QGL_EnableLogging(int enable)
 		qglFogiv                     = 	dllFogiv                     ;
 		qglFrontFace                 = 	dllFrontFace                 ;
 		qglFrustum                   = 	dllFrustum                   ;
-		qglGenLists                  = 	dllGenLists                  ;
 		qglGenTextures               = 	dllGenTextures               ;
 		qglGetBooleanv               = 	dllGetBooleanv               ;
 		qglGetClipPlane              = 	dllGetClipPlane              ;
@@ -3327,7 +3245,6 @@ void QGL_EnableLogging(int enable)
 		qglInitNames                 = 	dllInitNames                 ;
 		qglInterleavedArrays         = 	dllInterleavedArrays         ;
 		qglIsEnabled                 = 	dllIsEnabled                 ;
-		qglIsList                    = 	dllIsList                    ;
 		qglIsTexture                 = 	dllIsTexture                 ;
 		qglLightModelf               = 	dllLightModelf               ;
 		qglLightModelfv              = 	dllLightModelfv              ;
@@ -3339,7 +3256,6 @@ void QGL_EnableLogging(int enable)
 		qglLightiv                   = 	dllLightiv                   ;
 		qglLineStipple               = 	dllLineStipple               ;
 		qglLineWidth                 = 	dllLineWidth                 ;
-		qglListBase                  = 	dllListBase                  ;
 		qglLoadIdentity              = 	dllLoadIdentity              ;
 		qglLoadMatrixd               = 	dllLoadMatrixd               ;
 		qglLoadMatrixf               = 	dllLoadMatrixf               ;
