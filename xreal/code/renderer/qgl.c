@@ -44,7 +44,6 @@ void            (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 void            (APIENTRY * qglClear) (GLbitfield mask);
 void            (APIENTRY * qglClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 void            (APIENTRY * qglClearDepth) (GLclampd depth);
-void            (APIENTRY * qglClearIndex) (GLfloat c);
 void            (APIENTRY * qglClearStencil) (GLint s);
 void            (APIENTRY * qglClipPlane) (GLenum plane, const GLdouble * equation);
 void            (APIENTRY * qglColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
@@ -127,18 +126,6 @@ void            (APIENTRY * qglGetTexLevelParameteriv) (GLenum target, GLint lev
 void            (APIENTRY * qglGetTexParameterfv) (GLenum target, GLenum pname, GLfloat * params);
 void            (APIENTRY * qglGetTexParameteriv) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglHint) (GLenum target, GLenum mode);
-void            (APIENTRY * qglIndexMask) (GLuint mask);
-void            (APIENTRY * qglIndexPointer) (GLenum type, GLsizei stride, const GLvoid * pointer);
-void            (APIENTRY * qglIndexd) (GLdouble c);
-void            (APIENTRY * qglIndexdv) (const GLdouble * c);
-void            (APIENTRY * qglIndexf) (GLfloat c);
-void            (APIENTRY * qglIndexfv) (const GLfloat * c);
-void            (APIENTRY * qglIndexi) (GLint c);
-void            (APIENTRY * qglIndexiv) (const GLint * c);
-void            (APIENTRY * qglIndexs) (GLshort c);
-void            (APIENTRY * qglIndexsv) (const GLshort * c);
-void            (APIENTRY * qglIndexub) (GLubyte c);
-void            (APIENTRY * qglIndexubv) (const GLubyte * c);
 void            (APIENTRY * qglInitNames) (void);
 void            (APIENTRY * qglInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
 
@@ -326,7 +313,6 @@ static void     (APIENTRY * dllBlendFunc) (GLenum sfactor, GLenum dfactor);
 static void     (APIENTRY * dllClear) (GLbitfield mask);
 static void     (APIENTRY * dllClearColor) (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 static void     (APIENTRY * dllClearDepth) (GLclampd depth);
-static void     (APIENTRY * dllClearIndex) (GLfloat c);
 static void     (APIENTRY * dllClearStencil) (GLint s);
 static void     (APIENTRY * dllClipPlane) (GLenum plane, const GLdouble * equation);
 static void     (APIENTRY * dllColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
@@ -409,21 +395,8 @@ static void     (APIENTRY * dllGetTexLevelParameteriv) (GLenum target, GLint lev
 static void     (APIENTRY * dllGetTexParameterfv) (GLenum target, GLenum pname, GLfloat * params);
 static void     (APIENTRY * dllGetTexParameteriv) (GLenum target, GLenum pname, GLint * params);
 static void     (APIENTRY * dllHint) (GLenum target, GLenum mode);
-static void     (APIENTRY * dllIndexMask) (GLuint mask);
-static void     (APIENTRY * dllIndexPointer) (GLenum type, GLsizei stride, const GLvoid * pointer);
-static void     (APIENTRY * dllIndexd) (GLdouble c);
-static void     (APIENTRY * dllIndexdv) (const GLdouble * c);
-static void     (APIENTRY * dllIndexf) (GLfloat c);
-static void     (APIENTRY * dllIndexfv) (const GLfloat * c);
-static void     (APIENTRY * dllIndexi) (GLint c);
-static void     (APIENTRY * dllIndexiv) (const GLint * c);
-static void     (APIENTRY * dllIndexs) (GLshort c);
-static void     (APIENTRY * dllIndexsv) (const GLshort * c);
-static void     (APIENTRY * dllIndexub) (GLubyte c);
-static void     (APIENTRY * dllIndexubv) (const GLubyte * c);
 static void     (APIENTRY * dllInitNames) (void);
 static void     (APIENTRY * dllInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
-
 GLboolean(APIENTRY * dllIsEnabled) (GLenum cap);
 GLboolean(APIENTRY * dllIsTexture) (GLuint texture);
 static void     (APIENTRY * dllLightModelf) (GLenum pname, GLfloat param);
@@ -806,12 +779,6 @@ static void APIENTRY logClearDepth(GLclampd depth)
 {
 	fprintf(log_fp, "glClearDepth( %f )\n", (float)depth);
 	dllClearDepth(depth);
-}
-
-static void APIENTRY logClearIndex(GLfloat c)
-{
-	fprintf(log_fp, "glClearIndex\n");
-	dllClearIndex(c);
 }
 
 static void APIENTRY logClearStencil(GLint s)
@@ -1273,78 +1240,6 @@ static void APIENTRY logHint(GLenum target, GLenum mode)
 {
 	fprintf(log_fp, "glHint( 0x%x, 0x%x )\n", target, mode);
 	dllHint(target, mode);
-}
-
-static void APIENTRY logIndexMask(GLuint mask)
-{
-	SIG("glIndexMask");
-	dllIndexMask(mask);
-}
-
-static void APIENTRY logIndexPointer(GLenum type, GLsizei stride, const void *pointer)
-{
-	SIG("glIndexPointer");
-	dllIndexPointer(type, stride, pointer);
-}
-
-static void APIENTRY logIndexd(GLdouble c)
-{
-	SIG("glIndexd");
-	dllIndexd(c);
-}
-
-static void APIENTRY logIndexdv(const GLdouble * c)
-{
-	SIG("glIndexdv");
-	dllIndexdv(c);
-}
-
-static void APIENTRY logIndexf(GLfloat c)
-{
-	SIG("glIndexf");
-	dllIndexf(c);
-}
-
-static void APIENTRY logIndexfv(const GLfloat * c)
-{
-	SIG("glIndexfv");
-	dllIndexfv(c);
-}
-
-static void APIENTRY logIndexi(GLint c)
-{
-	SIG("glIndexi");
-	dllIndexi(c);
-}
-
-static void APIENTRY logIndexiv(const GLint * c)
-{
-	SIG("glIndexiv");
-	dllIndexiv(c);
-}
-
-static void APIENTRY logIndexs(GLshort c)
-{
-	SIG("glIndexs");
-	dllIndexs(c);
-}
-
-static void APIENTRY logIndexsv(const GLshort * c)
-{
-	SIG("glIndexsv");
-	dllIndexsv(c);
-}
-
-static void APIENTRY logIndexub(GLubyte c)
-{
-	SIG("glIndexub");
-	dllIndexub(c);
-}
-
-static void APIENTRY logIndexubv(const GLubyte * c)
-{
-	SIG("glIndexubv");
-	dllIndexubv(c);
 }
 
 static void APIENTRY logInitNames(void)
@@ -2270,7 +2165,6 @@ void QGL_Shutdown(void)
 	qglClear                     = NULL;
 	qglClearColor                = NULL;
 	qglClearDepth                = NULL;
-	qglClearIndex                = NULL;
 	qglClearStencil              = NULL;
 	qglClipPlane                 = NULL;
 	qglColorMask                 = NULL;
@@ -2348,18 +2242,6 @@ void QGL_Shutdown(void)
 	qglGetTexParameterfv         = NULL;
 	qglGetTexParameteriv         = NULL;
 	qglHint                      = NULL;
-	qglIndexMask                 = NULL;
-	qglIndexPointer              = NULL;
-	qglIndexd                    = NULL;
-	qglIndexdv                   = NULL;
-	qglIndexf                    = NULL;
-	qglIndexfv                   = NULL;
-	qglIndexi                    = NULL;
-	qglIndexiv                   = NULL;
-	qglIndexs                    = NULL;
-	qglIndexsv                   = NULL;
-	qglIndexub                   = NULL;
-	qglIndexubv                  = NULL;
 	qglInitNames                 = NULL;
 	qglInterleavedArrays         = NULL;
 	qglIsEnabled                 = NULL;
@@ -2568,7 +2450,6 @@ int QGL_Init()
 	qglClear                     = dllClear = GPA( "glClear" );
 	qglClearColor                = dllClearColor = GPA( "glClearColor" );
 	qglClearDepth                = dllClearDepth = GPA( "glClearDepth" );
-	qglClearIndex                = dllClearIndex = GPA( "glClearIndex" );
 	qglClearStencil              = dllClearStencil = GPA( "glClearStencil" );
 	qglClipPlane                 = dllClipPlane = GPA( "glClipPlane" );
 	qglColorMask                 = dllColorMask = GPA( "glColorMask" );
@@ -2644,18 +2525,6 @@ int QGL_Init()
 	qglGetTexParameterfv         = 	dllGetTexParameterfv         = GPA( "glGetTexParameterfv" );
 	qglGetTexParameteriv         = 	dllGetTexParameteriv         = GPA( "glGetTexParameteriv" );
 	qglHint                      = 	dllHint                      = GPA( "glHint" );
-	qglIndexMask                 = 	dllIndexMask                 = GPA( "glIndexMask" );
-	qglIndexPointer              = 	dllIndexPointer              = GPA( "glIndexPointer" );
-	qglIndexd                    = 	dllIndexd                    = GPA( "glIndexd" );
-	qglIndexdv                   = 	dllIndexdv                   = GPA( "glIndexdv" );
-	qglIndexf                    = 	dllIndexf                    = GPA( "glIndexf" );
-	qglIndexfv                   = 	dllIndexfv                   = GPA( "glIndexfv" );
-	qglIndexi                    = 	dllIndexi                    = GPA( "glIndexi" );
-	qglIndexiv                   = 	dllIndexiv                   = GPA( "glIndexiv" );
-	qglIndexs                    = 	dllIndexs                    = GPA( "glIndexs" );
-	qglIndexsv                   = 	dllIndexsv                   = GPA( "glIndexsv" );
-	qglIndexub                   = 	dllIndexub                   = GPA( "glIndexub" );
-	qglIndexubv                  = 	dllIndexubv                  = GPA( "glIndexubv" );
 	qglInitNames                 = 	dllInitNames                 = GPA( "glInitNames" );
 	qglInterleavedArrays         = 	dllInterleavedArrays         = GPA( "glInterleavedArrays" );
 	qglIsEnabled                 = 	dllIsEnabled                 = GPA( "glIsEnabled" );
@@ -2883,7 +2752,6 @@ void QGL_EnableLogging(int enable)
 		qglClear                     = logClear;
 		qglClearColor                = logClearColor;
 		qglClearDepth                = logClearDepth;
-		qglClearIndex                = logClearIndex;
 		qglClearStencil              = logClearStencil;
 		qglClipPlane                 = logClipPlane;
 		qglColorMask                 = logColorMask;
@@ -2961,18 +2829,6 @@ void QGL_EnableLogging(int enable)
 		qglGetTexParameterfv         = 	logGetTexParameterfv         ;
 		qglGetTexParameteriv         = 	logGetTexParameteriv         ;
 		qglHint                      = 	logHint                      ;
-		qglIndexMask                 = 	logIndexMask                 ;
-		qglIndexPointer              = 	logIndexPointer              ;
-		qglIndexd                    = 	logIndexd                    ;
-		qglIndexdv                   = 	logIndexdv                   ;
-		qglIndexf                    = 	logIndexf                    ;
-		qglIndexfv                   = 	logIndexfv                   ;
-		qglIndexi                    = 	logIndexi                    ;
-		qglIndexiv                   = 	logIndexiv                   ;
-		qglIndexs                    = 	logIndexs                    ;
-		qglIndexsv                   = 	logIndexsv                   ;
-		qglIndexub                   = 	logIndexub                   ;
-		qglIndexubv                  = 	logIndexubv                  ;
 		qglInitNames                 = 	logInitNames                 ;
 		qglInterleavedArrays         = 	logInterleavedArrays         ;
 		qglIsEnabled                 = 	logIsEnabled                 ;
@@ -3152,7 +3008,6 @@ void QGL_EnableLogging(int enable)
 		qglClear                     = dllClear;
 		qglClearColor                = dllClearColor;
 		qglClearDepth                = dllClearDepth;
-		qglClearIndex                = dllClearIndex;
 		qglClearStencil              = dllClearStencil;
 		qglClipPlane                 = dllClipPlane;
 		qglColorMask                 = dllColorMask;
@@ -3230,18 +3085,6 @@ void QGL_EnableLogging(int enable)
 		qglGetTexParameterfv         = 	dllGetTexParameterfv         ;
 		qglGetTexParameteriv         = 	dllGetTexParameteriv         ;
 		qglHint                      = 	dllHint                      ;
-		qglIndexMask                 = 	dllIndexMask                 ;
-		qglIndexPointer              = 	dllIndexPointer              ;
-		qglIndexd                    = 	dllIndexd                    ;
-		qglIndexdv                   = 	dllIndexdv                   ;
-		qglIndexf                    = 	dllIndexf                    ;
-		qglIndexfv                   = 	dllIndexfv                   ;
-		qglIndexi                    = 	dllIndexi                    ;
-		qglIndexiv                   = 	dllIndexiv                   ;
-		qglIndexs                    = 	dllIndexs                    ;
-		qglIndexsv                   = 	dllIndexsv                   ;
-		qglIndexub                   = 	dllIndexub                   ;
-		qglIndexubv                  = 	dllIndexubv                  ;
 		qglInitNames                 = 	dllInitNames                 ;
 		qglInterleavedArrays         = 	dllInterleavedArrays         ;
 		qglIsEnabled                 = 	dllIsEnabled                 ;
