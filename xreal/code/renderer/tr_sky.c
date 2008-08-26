@@ -846,18 +846,33 @@ void Tess_StageIteratorSky(void)
 	// draw the outer skybox
 	if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
 	{
+		matrix_t		transformMatrix;
+		matrix_t		modelViewMatrix;
+
 		qglColor3f(tr.identityLight, tr.identityLight, tr.identityLight);
 
-		qglPushMatrix();
+		GL_PushMatrix();
+		
+		GL_Program(&tr.genericSingleShader);
+	
+		// set uniforms
+		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		if(r_vboVertexSkinning->integer)
+		{
+			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		}
 
-		GL_State(0);
-		GL_Program(0);
+		MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+		MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
 
-		qglTranslatef(backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+		GL_LoadModelViewMatrix(modelViewMatrix);
+
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		DrawSkyBox(tess.surfaceShader);
 
-		qglPopMatrix();
+		GL_PopMatrix();
 	}
 
 	// generate the vertexes for all the clouds, which will be drawn
