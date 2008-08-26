@@ -164,12 +164,10 @@ void GL_SelectTexture(int unit)
 	if(unit >= 0 && unit <= 7)
 	{
 		qglActiveTextureARB(GL_TEXTURE0_ARB + unit);
-		qglClientActiveTextureARB(GL_TEXTURE0_ARB + unit);
 
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("glActiveTextureARB( GL_TEXTURE%i_ARB )\n", unit));
-			GLimp_LogComment(va("glClientActiveTextureARB( GL_TEXTURE%i_ARB )\n", unit));
 		}
 	}
 	else

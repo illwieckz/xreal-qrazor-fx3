@@ -65,61 +65,18 @@ void            (APIENTRY * qglDrawBuffer) (GLenum mode);
 void            (APIENTRY * qglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
 void            (APIENTRY * qglEnable) (GLenum cap);
 void            (APIENTRY * qglEnd) (void);
-void            (APIENTRY * qglEvalCoord1d) (GLdouble u);
-void            (APIENTRY * qglEvalCoord1dv) (const GLdouble * u);
-void            (APIENTRY * qglEvalCoord1f) (GLfloat u);
-void            (APIENTRY * qglEvalCoord1fv) (const GLfloat * u);
-void            (APIENTRY * qglEvalCoord2d) (GLdouble u, GLdouble v);
-void            (APIENTRY * qglEvalCoord2dv) (const GLdouble * u);
-void            (APIENTRY * qglEvalCoord2f) (GLfloat u, GLfloat v);
-void            (APIENTRY * qglEvalCoord2fv) (const GLfloat * u);
-void            (APIENTRY * qglEvalMesh1) (GLenum mode, GLint i1, GLint i2);
-void            (APIENTRY * qglEvalMesh2) (GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2);
-void            (APIENTRY * qglEvalPoint1) (GLint i);
-void            (APIENTRY * qglEvalPoint2) (GLint i, GLint j);
-void            (APIENTRY * qglFeedbackBuffer) (GLsizei size, GLenum type, GLfloat * buffer);
 void            (APIENTRY * qglFinish) (void);
 void            (APIENTRY * qglFlush) (void);
-void            (APIENTRY * qglFogf) (GLenum pname, GLfloat param);
-void            (APIENTRY * qglFogfv) (GLenum pname, const GLfloat * params);
-void            (APIENTRY * qglFogi) (GLenum pname, GLint param);
-void            (APIENTRY * qglFogiv) (GLenum pname, const GLint * params);
 void            (APIENTRY * qglFrontFace) (GLenum mode);
-void            (APIENTRY * qglFrustum) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
-										 GLdouble zFar);
 void            (APIENTRY * qglGenTextures) (GLsizei n, GLuint * textures);
 void            (APIENTRY * qglGetBooleanv) (GLenum pname, GLboolean * params);
-void            (APIENTRY * qglGetClipPlane) (GLenum plane, GLdouble * equation);
-void            (APIENTRY * qglGetDoublev) (GLenum pname, GLdouble * params);
 GLenum(APIENTRY * qglGetError) (void);
 void            (APIENTRY * qglGetFloatv) (GLenum pname, GLfloat * params);
 void            (APIENTRY * qglGetIntegerv) (GLenum pname, GLint * params);
-void            (APIENTRY * qglGetLightfv) (GLenum light, GLenum pname, GLfloat * params);
-void            (APIENTRY * qglGetLightiv) (GLenum light, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetMapdv) (GLenum target, GLenum query, GLdouble * v);
-void            (APIENTRY * qglGetMapfv) (GLenum target, GLenum query, GLfloat * v);
-void            (APIENTRY * qglGetMapiv) (GLenum target, GLenum query, GLint * v);
-void            (APIENTRY * qglGetMaterialfv) (GLenum face, GLenum pname, GLfloat * params);
-void            (APIENTRY * qglGetMaterialiv) (GLenum face, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetPixelMapfv) (GLenum map, GLfloat * values);
-void            (APIENTRY * qglGetPixelMapuiv) (GLenum map, GLuint * values);
-void            (APIENTRY * qglGetPixelMapusv) (GLenum map, GLushort * values);
-void            (APIENTRY * qglGetPointerv) (GLenum pname, GLvoid * *params);
-void            (APIENTRY * qglGetPolygonStipple) (GLubyte * mask);
 const GLubyte  *(APIENTRY * qglGetString) (GLenum name);
-void            (APIENTRY * qglGetTexEnvfv) (GLenum target, GLenum pname, GLfloat * params);
-void            (APIENTRY * qglGetTexEnviv) (GLenum target, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetTexGendv) (GLenum coord, GLenum pname, GLdouble * params);
-void            (APIENTRY * qglGetTexGenfv) (GLenum coord, GLenum pname, GLfloat * params);
-void            (APIENTRY * qglGetTexGeniv) (GLenum coord, GLenum pname, GLint * params);
-void            (APIENTRY * qglGetTexImage) (GLenum target, GLint level, GLenum format, GLenum type, GLvoid * pixels);
-void            (APIENTRY * qglGetTexLevelParameterfv) (GLenum target, GLint level, GLenum pname, GLfloat * params);
-void            (APIENTRY * qglGetTexLevelParameteriv) (GLenum target, GLint level, GLenum pname, GLint * params);
 void            (APIENTRY * qglGetTexParameterfv) (GLenum target, GLenum pname, GLfloat * params);
 void            (APIENTRY * qglGetTexParameteriv) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglHint) (GLenum target, GLenum mode);
-void            (APIENTRY * qglInitNames) (void);
-void            (APIENTRY * qglInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
 GLboolean(APIENTRY * qglIsEnabled) (GLenum cap);
 GLboolean(APIENTRY * qglIsTexture) (GLuint texture);
 void            (APIENTRY * qglLineWidth) (GLfloat width);
@@ -196,9 +153,6 @@ void            (APIENTRY * qglTranslated) (GLdouble x, GLdouble y, GLdouble z);
 void            (APIENTRY * qglTranslatef) (GLfloat x, GLfloat y, GLfloat z);
 void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
-void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
-void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
-void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 
 
 
@@ -230,28 +184,9 @@ static void     (APIENTRY * dllDrawBuffer) (GLenum mode);
 static void     (APIENTRY * dllDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
 static void     (APIENTRY * dllEnable) (GLenum cap);
 static void     (APIENTRY * dllEnd) (void);
-static void     (APIENTRY * dllEvalCoord1d) (GLdouble u);
-static void     (APIENTRY * dllEvalCoord1dv) (const GLdouble * u);
-static void     (APIENTRY * dllEvalCoord1f) (GLfloat u);
-static void     (APIENTRY * dllEvalCoord1fv) (const GLfloat * u);
-static void     (APIENTRY * dllEvalCoord2d) (GLdouble u, GLdouble v);
-static void     (APIENTRY * dllEvalCoord2dv) (const GLdouble * u);
-static void     (APIENTRY * dllEvalCoord2f) (GLfloat u, GLfloat v);
-static void     (APIENTRY * dllEvalCoord2fv) (const GLfloat * u);
-static void     (APIENTRY * dllEvalMesh1) (GLenum mode, GLint i1, GLint i2);
-static void     (APIENTRY * dllEvalMesh2) (GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2);
-static void     (APIENTRY * dllEvalPoint1) (GLint i);
-static void     (APIENTRY * dllEvalPoint2) (GLint i, GLint j);
-static void     (APIENTRY * dllFeedbackBuffer) (GLsizei size, GLenum type, GLfloat * buffer);
 static void     (APIENTRY * dllFinish) (void);
 static void     (APIENTRY * dllFlush) (void);
-static void     (APIENTRY * dllFogf) (GLenum pname, GLfloat param);
-static void     (APIENTRY * dllFogfv) (GLenum pname, const GLfloat * params);
-static void     (APIENTRY * dllFogi) (GLenum pname, GLint param);
-static void     (APIENTRY * dllFogiv) (GLenum pname, const GLint * params);
 static void     (APIENTRY * dllFrontFace) (GLenum mode);
-static void     (APIENTRY * dllFrustum) (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear,
-										 GLdouble zFar);
 static void     (APIENTRY * dllGenTextures) (GLsizei n, GLuint * textures);
 static void     (APIENTRY * dllGetBooleanv) (GLenum pname, GLboolean * params);
 static void     (APIENTRY * dllGetClipPlane) (GLenum plane, GLdouble * equation);
@@ -735,77 +670,6 @@ static void APIENTRY logEnd(void)
 	dllEnd();
 }
 
-static void APIENTRY logEvalCoord1d(GLdouble u)
-{
-	SIG("glEvalCoord1d");
-	dllEvalCoord1d(u);
-}
-
-static void APIENTRY logEvalCoord1dv(const GLdouble * u)
-{
-	SIG("glEvalCoord1dv");
-	dllEvalCoord1dv(u);
-}
-
-static void APIENTRY logEvalCoord1f(GLfloat u)
-{
-	SIG("glEvalCoord1f");
-	dllEvalCoord1f(u);
-}
-
-static void APIENTRY logEvalCoord1fv(const GLfloat * u)
-{
-	SIG("glEvalCoord1fv");
-	dllEvalCoord1fv(u);
-}
-static void APIENTRY logEvalCoord2d(GLdouble u, GLdouble v)
-{
-	SIG("glEvalCoord2d");
-	dllEvalCoord2d(u, v);
-}
-static void APIENTRY logEvalCoord2dv(const GLdouble * u)
-{
-	SIG("glEvalCoord2dv");
-	dllEvalCoord2dv(u);
-}
-static void APIENTRY logEvalCoord2f(GLfloat u, GLfloat v)
-{
-	SIG("glEvalCoord2f");
-	dllEvalCoord2f(u, v);
-}
-static void APIENTRY logEvalCoord2fv(const GLfloat * u)
-{
-	SIG("glEvalCoord2fv");
-	dllEvalCoord2fv(u);
-}
-
-static void APIENTRY logEvalMesh1(GLenum mode, GLint i1, GLint i2)
-{
-	SIG("glEvalMesh1");
-	dllEvalMesh1(mode, i1, i2);
-}
-static void APIENTRY logEvalMesh2(GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2)
-{
-	SIG("glEvalMesh2");
-	dllEvalMesh2(mode, i1, i2, j1, j2);
-}
-static void APIENTRY logEvalPoint1(GLint i)
-{
-	SIG("glEvalPoint1");
-	dllEvalPoint1(i);
-}
-static void APIENTRY logEvalPoint2(GLint i, GLint j)
-{
-	SIG("glEvalPoint2");
-	dllEvalPoint2(i, j);
-}
-
-static void APIENTRY logFeedbackBuffer(GLsizei size, GLenum type, GLfloat * buffer)
-{
-	SIG("glFeedbackBuffer");
-	dllFeedbackBuffer(size, type, buffer);
-}
-
 static void APIENTRY logFinish(void)
 {
 	SIG("glFinish");
@@ -818,40 +682,10 @@ static void APIENTRY logFlush(void)
 	dllFlush();
 }
 
-static void APIENTRY logFogf(GLenum pname, GLfloat param)
-{
-	SIG("glFogf");
-	dllFogf(pname, param);
-}
-
-static void APIENTRY logFogfv(GLenum pname, const GLfloat * params)
-{
-	SIG("glFogfv");
-	dllFogfv(pname, params);
-}
-
-static void APIENTRY logFogi(GLenum pname, GLint param)
-{
-	SIG("glFogi");
-	dllFogi(pname, param);
-}
-
-static void APIENTRY logFogiv(GLenum pname, const GLint * params)
-{
-	SIG("glFogiv");
-	dllFogiv(pname, params);
-}
-
 static void APIENTRY logFrontFace(GLenum mode)
 {
 	SIG("glFrontFace");
 	dllFrontFace(mode);
-}
-
-static void APIENTRY logFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar)
-{
-	SIG("glFrustum");
-	dllFrustum(left, right, bottom, top, zNear, zFar);
 }
 
 static void APIENTRY logGenTextures(GLsizei n, GLuint * textures)
@@ -1468,60 +1302,18 @@ void QGL_Shutdown(void)
 	qglDrawElements              = NULL;
 	qglEnable                    = NULL;
 	qglEnd                       = NULL;
-	qglEvalCoord1d               = NULL;
-	qglEvalCoord1dv              = NULL;
-	qglEvalCoord1f               = NULL;
-	qglEvalCoord1fv              = NULL;
-	qglEvalCoord2d               = NULL;
-	qglEvalCoord2dv              = NULL;
-	qglEvalCoord2f               = NULL;
-	qglEvalCoord2fv              = NULL;
-	qglEvalMesh1                 = NULL;
-	qglEvalMesh2                 = NULL;
-	qglEvalPoint1                = NULL;
-	qglEvalPoint2                = NULL;
-	qglFeedbackBuffer            = NULL;
 	qglFinish                    = NULL;
 	qglFlush                     = NULL;
-	qglFogf                      = NULL;
-	qglFogfv                     = NULL;
-	qglFogi                      = NULL;
-	qglFogiv                     = NULL;
 	qglFrontFace                 = NULL;
-	qglFrustum                   = NULL;
 	qglGenTextures               = NULL;
 	qglGetBooleanv               = NULL;
-	qglGetClipPlane              = NULL;
-	qglGetDoublev                = NULL;
 	qglGetError                  = NULL;
 	qglGetFloatv                 = NULL;
 	qglGetIntegerv               = NULL;
-	qglGetLightfv                = NULL;
-	qglGetLightiv                = NULL;
-	qglGetMapdv                  = NULL;
-	qglGetMapfv                  = NULL;
-	qglGetMapiv                  = NULL;
-	qglGetMaterialfv             = NULL;
-	qglGetMaterialiv             = NULL;
-	qglGetPixelMapfv             = NULL;
-	qglGetPixelMapuiv            = NULL;
-	qglGetPixelMapusv            = NULL;
-	qglGetPointerv               = NULL;
-	qglGetPolygonStipple         = NULL;
 	qglGetString                 = NULL;
-	qglGetTexEnvfv               = NULL;
-	qglGetTexEnviv               = NULL;
-	qglGetTexGendv               = NULL;
-	qglGetTexGenfv               = NULL;
-	qglGetTexGeniv               = NULL;
-	qglGetTexImage               = NULL;
-	qglGetTexLevelParameterfv    = NULL;
-	qglGetTexLevelParameteriv    = NULL;
 	qglGetTexParameterfv         = NULL;
 	qglGetTexParameteriv         = NULL;
 	qglHint                      = NULL;
-	qglInitNames                 = NULL;
-	qglInterleavedArrays         = NULL;
 	qglIsEnabled                 = NULL;
 	qglIsTexture                 = NULL;
 	qglLineWidth                 = NULL;
@@ -1654,58 +1446,18 @@ int QGL_Init()
 	qglDrawElements              = dllDrawElements = GPA( "glDrawElements" );
 	qglEnable                    = 	dllEnable                    = GPA( "glEnable" );
 	qglEnd                       = 	dllEnd                       = GPA( "glEnd" );
-	qglEvalCoord1d				 = 	dllEvalCoord1d				 = GPA( "glEvalCoord1d" );
-	qglEvalCoord1dv              = 	dllEvalCoord1dv              = GPA( "glEvalCoord1dv" );
-	qglEvalCoord1f               = 	dllEvalCoord1f               = GPA( "glEvalCoord1f" );
-	qglEvalCoord1fv              = 	dllEvalCoord1fv              = GPA( "glEvalCoord1fv" );
-	qglEvalCoord2d               = 	dllEvalCoord2d               = GPA( "glEvalCoord2d" );
-	qglEvalCoord2dv              = 	dllEvalCoord2dv              = GPA( "glEvalCoord2dv" );
-	qglEvalCoord2f               = 	dllEvalCoord2f               = GPA( "glEvalCoord2f" );
-	qglEvalCoord2fv              = 	dllEvalCoord2fv              = GPA( "glEvalCoord2fv" );
-	qglEvalMesh1                 = 	dllEvalMesh1                 = GPA( "glEvalMesh1" );
-	qglEvalMesh2                 = 	dllEvalMesh2                 = GPA( "glEvalMesh2" );
-	qglEvalPoint1                = 	dllEvalPoint1                = GPA( "glEvalPoint1" );
-	qglEvalPoint2                = 	dllEvalPoint2                = GPA( "glEvalPoint2" );
-	qglFeedbackBuffer            = 	dllFeedbackBuffer            = GPA( "glFeedbackBuffer" );
 	qglFinish                    = 	dllFinish                    = GPA( "glFinish" );
 	qglFlush                     = 	dllFlush                     = GPA( "glFlush" );
-	qglFogf                      = 	dllFogf                      = GPA( "glFogf" );
-	qglFogfv                     = 	dllFogfv                     = GPA( "glFogfv" );
-	qglFogi                      = 	dllFogi                      = GPA( "glFogi" );
-	qglFogiv                     = 	dllFogiv                     = GPA( "glFogiv" );
 	qglFrontFace                 = 	dllFrontFace                 = GPA( "glFrontFace" );
-	qglFrustum                   = 	dllFrustum                   = GPA( "glFrustum" );
 	qglGenTextures               = 	dllGenTextures               = GPA( "glGenTextures" );
 	qglGetBooleanv               = 	dllGetBooleanv               = GPA( "glGetBooleanv" );
-	qglGetClipPlane              = 	dllGetClipPlane              = GPA( "glGetClipPlane" );
-	qglGetDoublev                = 	dllGetDoublev                = GPA( "glGetDoublev" );
 	qglGetError                  = 	dllGetError                  = GPA( "glGetError" );
 	qglGetFloatv                 = 	dllGetFloatv                 = GPA( "glGetFloatv" );
 	qglGetIntegerv               = 	dllGetIntegerv               = GPA( "glGetIntegerv" );
-	qglGetLightfv                = 	dllGetLightfv                = GPA( "glGetLightfv" );
-	qglGetLightiv                = 	dllGetLightiv                = GPA( "glGetLightiv" );
-	qglGetMapdv                  = 	dllGetMapdv                  = GPA( "glGetMapdv" );
-	qglGetMapfv                  = 	dllGetMapfv                  = GPA( "glGetMapfv" );
-	qglGetMapiv                  = 	dllGetMapiv                  = GPA( "glGetMapiv" );
-	qglGetMaterialfv             = 	dllGetMaterialfv             = GPA( "glGetMaterialfv" );
-	qglGetMaterialiv             = 	dllGetMaterialiv             = GPA( "glGetMaterialiv" );
-	qglGetPixelMapfv             = 	dllGetPixelMapfv             = GPA( "glGetPixelMapfv" );
-	qglGetPixelMapuiv            = 	dllGetPixelMapuiv            = GPA( "glGetPixelMapuiv" );
-	qglGetPixelMapusv            = 	dllGetPixelMapusv            = GPA( "glGetPixelMapusv" );
-	qglGetPointerv               = 	dllGetPointerv               = GPA( "glGetPointerv" );
-	qglGetPolygonStipple         = 	dllGetPolygonStipple         = GPA( "glGetPolygonStipple" );
 	qglGetString                 = 	dllGetString                 = GPA( "glGetString" );
-	qglGetTexEnvfv               = 	dllGetTexEnvfv               = GPA( "glGetTexEnvfv" );
-	qglGetTexEnviv               = 	dllGetTexEnviv               = GPA( "glGetTexEnviv" );
-	qglGetTexGendv               = 	dllGetTexGendv               = GPA( "glGetTexGendv" );
-	qglGetTexGenfv               = 	dllGetTexGenfv               = GPA( "glGetTexGenfv" );
-	qglGetTexGeniv               = 	dllGetTexGeniv               = GPA( "glGetTexGeniv" );
-	qglGetTexImage               = 	dllGetTexImage               = GPA( "glGetTexImage" );
 	qglGetTexParameterfv         = 	dllGetTexParameterfv         = GPA( "glGetTexParameterfv" );
 	qglGetTexParameteriv         = 	dllGetTexParameteriv         = GPA( "glGetTexParameteriv" );
 	qglHint                      = 	dllHint                      = GPA( "glHint" );
-	qglInitNames                 = 	dllInitNames                 = GPA( "glInitNames" );
-	qglInterleavedArrays         = 	dllInterleavedArrays         = GPA( "glInterleavedArrays" );
 	qglIsEnabled                 = 	dllIsEnabled                 = GPA( "glIsEnabled" );
 	qglIsTexture                 = 	dllIsTexture                 = GPA( "glIsTexture" );
 	qglLineWidth                 = 	dllLineWidth                 = GPA( "glLineWidth" );
@@ -1857,60 +1609,18 @@ void QGL_EnableLogging(int enable)
 		qglDrawElements              = logDrawElements;
 		qglEnable                    = logEnable;
 		qglEnd                       = logEnd;
-		qglEvalCoord1d				 = 	logEvalCoord1d				 ;
-		qglEvalCoord1dv              = 	logEvalCoord1dv              ;
-		qglEvalCoord1f               = 	logEvalCoord1f               ;
-		qglEvalCoord1fv              = 	logEvalCoord1fv              ;
-		qglEvalCoord2d               = 	logEvalCoord2d               ;
-		qglEvalCoord2dv              = 	logEvalCoord2dv              ;
-		qglEvalCoord2f               = 	logEvalCoord2f               ;
-		qglEvalCoord2fv              = 	logEvalCoord2fv              ;
-		qglEvalMesh1                 = 	logEvalMesh1                 ;
-		qglEvalMesh2                 = 	logEvalMesh2                 ;
-		qglEvalPoint1                = 	logEvalPoint1                ;
-		qglEvalPoint2                = 	logEvalPoint2                ;
-		qglFeedbackBuffer            = 	logFeedbackBuffer            ;
-		qglFinish                    = 	logFinish                    ;
-		qglFlush                     = 	logFlush                     ;
-		qglFogf                      = 	logFogf                      ;
-		qglFogfv                     = 	logFogfv                     ;
-		qglFogi                      = 	logFogi                      ;
-		qglFogiv                     = 	logFogiv                     ;
-		qglFrontFace                 = 	logFrontFace                 ;
-		qglFrustum                   = 	logFrustum                   ;
+		qglFinish                    = logFinish;
+		qglFlush                     = logFlush;
+		qglFrontFace                 = logFrontFace;
 		qglGenTextures               = 	logGenTextures               ;
 		qglGetBooleanv               = 	logGetBooleanv               ;
-		qglGetClipPlane              = 	logGetClipPlane              ;
-		qglGetDoublev                = 	logGetDoublev                ;
 		qglGetError                  = 	logGetError                  ;
 		qglGetFloatv                 = 	logGetFloatv                 ;
 		qglGetIntegerv               = 	logGetIntegerv               ;
-		qglGetLightfv                = 	logGetLightfv                ;
-		qglGetLightiv                = 	logGetLightiv                ;
-		qglGetMapdv                  = 	logGetMapdv                  ;
-		qglGetMapfv                  = 	logGetMapfv                  ;
-		qglGetMapiv                  = 	logGetMapiv                  ;
-		qglGetMaterialfv             = 	logGetMaterialfv             ;
-		qglGetMaterialiv             = 	logGetMaterialiv             ;
-		qglGetPixelMapfv             = 	logGetPixelMapfv             ;
-		qglGetPixelMapuiv            = 	logGetPixelMapuiv            ;
-		qglGetPixelMapusv            = 	logGetPixelMapusv            ;
-		qglGetPointerv               = 	logGetPointerv               ;
-		qglGetPolygonStipple         = 	logGetPolygonStipple         ;
 		qglGetString                 = 	logGetString                 ;
-		qglGetTexEnvfv               = 	logGetTexEnvfv               ;
-		qglGetTexEnviv               = 	logGetTexEnviv               ;
-		qglGetTexGendv               = 	logGetTexGendv               ;
-		qglGetTexGenfv               = 	logGetTexGenfv               ;
-		qglGetTexGeniv               = 	logGetTexGeniv               ;
-		qglGetTexImage               = 	logGetTexImage               ;
-		qglGetTexLevelParameterfv    = 	logGetTexLevelParameterfv    ;
-		qglGetTexLevelParameteriv    = 	logGetTexLevelParameteriv    ;
 		qglGetTexParameterfv         = 	logGetTexParameterfv         ;
 		qglGetTexParameteriv         = 	logGetTexParameteriv         ;
 		qglHint                      = 	logHint                      ;
-		qglInitNames                 = 	logInitNames                 ;
-		qglInterleavedArrays         = 	logInterleavedArrays         ;
 		qglIsEnabled                 = 	logIsEnabled                 ;
 		qglIsTexture                 = 	logIsTexture                 ;
 		qglLineWidth                 = 	logLineWidth                 ;
@@ -2014,60 +1724,18 @@ void QGL_EnableLogging(int enable)
 		qglDrawElements              = dllDrawElements;
 		qglEnable                    = dllEnable;
 		qglEnd                       = dllEnd;
-		qglEvalCoord1d				 = 	dllEvalCoord1d				 ;
-		qglEvalCoord1dv              = 	dllEvalCoord1dv              ;
-		qglEvalCoord1f               = 	dllEvalCoord1f               ;
-		qglEvalCoord1fv              = 	dllEvalCoord1fv              ;
-		qglEvalCoord2d               = 	dllEvalCoord2d               ;
-		qglEvalCoord2dv              = 	dllEvalCoord2dv              ;
-		qglEvalCoord2f               = 	dllEvalCoord2f               ;
-		qglEvalCoord2fv              = 	dllEvalCoord2fv              ;
-		qglEvalMesh1                 = 	dllEvalMesh1                 ;
-		qglEvalMesh2                 = 	dllEvalMesh2                 ;
-		qglEvalPoint1                = 	dllEvalPoint1                ;
-		qglEvalPoint2                = 	dllEvalPoint2                ;
-		qglFeedbackBuffer            = 	dllFeedbackBuffer            ;
-		qglFinish                    = 	dllFinish                    ;
-		qglFlush                     = 	dllFlush                     ;
-		qglFogf                      = 	dllFogf                      ;
-		qglFogfv                     = 	dllFogfv                     ;
-		qglFogi                      = 	dllFogi                      ;
-		qglFogiv                     = 	dllFogiv                     ;
-		qglFrontFace                 = 	dllFrontFace                 ;
-		qglFrustum                   = 	dllFrustum                   ;
+		qglFinish                    = dllFinish;
+		qglFlush                     = dllFlush;
+		qglFrontFace                 = dllFrontFace;
 		qglGenTextures               = 	dllGenTextures               ;
 		qglGetBooleanv               = 	dllGetBooleanv               ;
-		qglGetClipPlane              = 	dllGetClipPlane              ;
-		qglGetDoublev                = 	dllGetDoublev                ;
 		qglGetError                  = 	dllGetError                  ;
 		qglGetFloatv                 = 	dllGetFloatv                 ;
 		qglGetIntegerv               = 	dllGetIntegerv               ;
-		qglGetLightfv                = 	dllGetLightfv                ;
-		qglGetLightiv                = 	dllGetLightiv                ;
-		qglGetMapdv                  = 	dllGetMapdv                  ;
-		qglGetMapfv                  = 	dllGetMapfv                  ;
-		qglGetMapiv                  = 	dllGetMapiv                  ;
-		qglGetMaterialfv             = 	dllGetMaterialfv             ;
-		qglGetMaterialiv             = 	dllGetMaterialiv             ;
-		qglGetPixelMapfv             = 	dllGetPixelMapfv             ;
-		qglGetPixelMapuiv            = 	dllGetPixelMapuiv            ;
-		qglGetPixelMapusv            = 	dllGetPixelMapusv            ;
-		qglGetPointerv               = 	dllGetPointerv               ;
-		qglGetPolygonStipple         = 	dllGetPolygonStipple         ;
 		qglGetString                 = 	dllGetString                 ;
-		qglGetTexEnvfv               = 	dllGetTexEnvfv               ;
-		qglGetTexEnviv               = 	dllGetTexEnviv               ;
-		qglGetTexGendv               = 	dllGetTexGendv               ;
-		qglGetTexGenfv               = 	dllGetTexGenfv               ;
-		qglGetTexGeniv               = 	dllGetTexGeniv               ;
-		qglGetTexImage               = 	dllGetTexImage               ;
-		qglGetTexLevelParameterfv    = 	dllGetTexLevelParameterfv    ;
-		qglGetTexLevelParameteriv    = 	dllGetTexLevelParameteriv    ;
 		qglGetTexParameterfv         = 	dllGetTexParameterfv         ;
 		qglGetTexParameteriv         = 	dllGetTexParameteriv         ;
 		qglHint                      = 	dllHint                      ;
-		qglInitNames                 = 	dllInitNames                 ;
-		qglInterleavedArrays         = 	dllInterleavedArrays         ;
 		qglIsEnabled                 = 	dllIsEnabled                 ;
 		qglIsTexture                 = 	dllIsTexture                 ;
 		qglLineWidth                 = 	dllLineWidth                 ;

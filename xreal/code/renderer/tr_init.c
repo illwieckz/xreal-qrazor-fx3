@@ -233,9 +233,7 @@ cvar_t         *r_bloomBlur;
 cvar_t         *r_rotoscope;
 
 // GL_ARB_multitexture
-void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
-void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 
 // GL_ARB_vertex_program
 void			(APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);

@@ -147,9 +147,7 @@ static SDL_Surface *screen = NULL;
 cvar_t         *r_allowSoftwareGL;	// Don't abort out if a hardware visual can't be obtained
 cvar_t         *r_sdlDriver;
 
-void            (APIENTRYP qglActiveTextureARB) (GLenum texture);
-void            (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
-void            (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
+
 
 /*
 ===============
@@ -507,15 +505,10 @@ static void GLimp_InitExtensions(void)
 	ri.Printf(PRINT_ALL, "Initializing OpenGL extensions\n");
 
 	// GL_ARB_multitexture
-	qglMultiTexCoord2fARB = NULL;
 	qglActiveTextureARB = NULL;
-	qglClientActiveTextureARB = NULL;
 	//if(Q_stristr(glConfig.extensions_string, "GL_ARB_multitexture"))
 	{
-		qglMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 		qglActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glActiveTextureARB");
-		qglClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glClientActiveTextureARB");
-
 		if(qglActiveTextureARB)
 		{
 			qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.maxTextureUnits);
@@ -526,9 +519,7 @@ static void GLimp_InitExtensions(void)
 			}
 			else
 			{
-				qglMultiTexCoord2fARB = NULL;
 				qglActiveTextureARB = NULL;
-				qglClientActiveTextureARB = NULL;
 				ri.Error(ERR_FATAL, "...not using GL_ARB_multitexture, < 2 texture units\n");
 			}
 		}
