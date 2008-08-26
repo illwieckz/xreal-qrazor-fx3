@@ -47,7 +47,6 @@ void            (APIENTRY * qglClearDepth) (GLclampd depth);
 void            (APIENTRY * qglClearStencil) (GLint s);
 void            (APIENTRY * qglClipPlane) (GLenum plane, const GLdouble * equation);
 void            (APIENTRY * qglColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-void            (APIENTRY * qglColorMaterial) (GLenum face, GLenum mode);
 void            (APIENTRY * qglCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
 void            (APIENTRY * qglCopyTexImage1D) (GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y,
 												GLsizei width, GLint border);
@@ -98,7 +97,6 @@ void            (APIENTRY * qglGenTextures) (GLsizei n, GLuint * textures);
 void            (APIENTRY * qglGetBooleanv) (GLenum pname, GLboolean * params);
 void            (APIENTRY * qglGetClipPlane) (GLenum plane, GLdouble * equation);
 void            (APIENTRY * qglGetDoublev) (GLenum pname, GLdouble * params);
-
 GLenum(APIENTRY * qglGetError) (void);
 void            (APIENTRY * qglGetFloatv) (GLenum pname, GLfloat * params);
 void            (APIENTRY * qglGetIntegerv) (GLenum pname, GLint * params);
@@ -128,18 +126,8 @@ void            (APIENTRY * qglGetTexParameteriv) (GLenum target, GLenum pname, 
 void            (APIENTRY * qglHint) (GLenum target, GLenum mode);
 void            (APIENTRY * qglInitNames) (void);
 void            (APIENTRY * qglInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
-
 GLboolean(APIENTRY * qglIsEnabled) (GLenum cap);
 GLboolean(APIENTRY * qglIsTexture) (GLuint texture);
-void            (APIENTRY * qglLightModelf) (GLenum pname, GLfloat param);
-void            (APIENTRY * qglLightModelfv) (GLenum pname, const GLfloat * params);
-void            (APIENTRY * qglLightModeli) (GLenum pname, GLint param);
-void            (APIENTRY * qglLightModeliv) (GLenum pname, const GLint * params);
-void            (APIENTRY * qglLightf) (GLenum light, GLenum pname, GLfloat param);
-void            (APIENTRY * qglLightfv) (GLenum light, GLenum pname, const GLfloat * params);
-void            (APIENTRY * qglLighti) (GLenum light, GLenum pname, GLint param);
-void            (APIENTRY * qglLightiv) (GLenum light, GLenum pname, const GLint * params);
-void            (APIENTRY * qglLineStipple) (GLint factor, GLushort pattern);
 void            (APIENTRY * qglLineWidth) (GLfloat width);
 void            (APIENTRY * qglLoadIdentity) (void);
 void            (APIENTRY * qglLoadMatrixd) (const GLdouble * m);
@@ -316,7 +304,6 @@ static void     (APIENTRY * dllClearDepth) (GLclampd depth);
 static void     (APIENTRY * dllClearStencil) (GLint s);
 static void     (APIENTRY * dllClipPlane) (GLenum plane, const GLdouble * equation);
 static void     (APIENTRY * dllColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-static void     (APIENTRY * dllColorMaterial) (GLenum face, GLenum mode);
 static void     (APIENTRY * dllCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
 static void     (APIENTRY * dllCopyTexImage1D) (GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y,
 												GLsizei width, GLint border);
@@ -399,15 +386,6 @@ static void     (APIENTRY * dllInitNames) (void);
 static void     (APIENTRY * dllInterleavedArrays) (GLenum format, GLsizei stride, const GLvoid * pointer);
 GLboolean(APIENTRY * dllIsEnabled) (GLenum cap);
 GLboolean(APIENTRY * dllIsTexture) (GLuint texture);
-static void     (APIENTRY * dllLightModelf) (GLenum pname, GLfloat param);
-static void     (APIENTRY * dllLightModelfv) (GLenum pname, const GLfloat * params);
-static void     (APIENTRY * dllLightModeli) (GLenum pname, GLint param);
-static void     (APIENTRY * dllLightModeliv) (GLenum pname, const GLint * params);
-static void     (APIENTRY * dllLightf) (GLenum light, GLenum pname, GLfloat param);
-static void     (APIENTRY * dllLightfv) (GLenum light, GLenum pname, const GLfloat * params);
-static void     (APIENTRY * dllLighti) (GLenum light, GLenum pname, GLint param);
-static void     (APIENTRY * dllLightiv) (GLenum light, GLenum pname, const GLint * params);
-static void     (APIENTRY * dllLineStipple) (GLint factor, GLushort pattern);
 static void     (APIENTRY * dllLineWidth) (GLfloat width);
 static void     (APIENTRY * dllListBase) (GLuint base);
 static void     (APIENTRY * dllLoadIdentity) (void);
@@ -802,11 +780,6 @@ static void APIENTRY logColorMask(GLboolean red, GLboolean green, GLboolean blue
 {
 	SIG("glColorMask");
 	dllColorMask(red, green, blue, alpha);
-}
-static void APIENTRY logColorMaterial(GLenum face, GLenum mode)
-{
-	SIG("glColorMaterial");
-	dllColorMaterial(face, mode);
 }
 
 static void APIENTRY logCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type)
@@ -1264,61 +1237,6 @@ static GLboolean APIENTRY logIsTexture(GLuint texture)
 {
 	SIG("glIsTexture");
 	return dllIsTexture(texture);
-}
-
-static void APIENTRY logLightModelf(GLenum pname, GLfloat param)
-{
-	SIG("glLightModelf");
-	dllLightModelf(pname, param);
-}
-
-static void APIENTRY logLightModelfv(GLenum pname, const GLfloat * params)
-{
-	SIG("glLightModelfv");
-	dllLightModelfv(pname, params);
-}
-
-static void APIENTRY logLightModeli(GLenum pname, GLint param)
-{
-	SIG("glLightModeli");
-	dllLightModeli(pname, param);
-
-}
-
-static void APIENTRY logLightModeliv(GLenum pname, const GLint * params)
-{
-	SIG("glLightModeliv");
-	dllLightModeliv(pname, params);
-}
-
-static void APIENTRY logLightf(GLenum light, GLenum pname, GLfloat param)
-{
-	SIG("glLightf");
-	dllLightf(light, pname, param);
-}
-
-static void APIENTRY logLightfv(GLenum light, GLenum pname, const GLfloat * params)
-{
-	SIG("glLightfv");
-	dllLightfv(light, pname, params);
-}
-
-static void APIENTRY logLighti(GLenum light, GLenum pname, GLint param)
-{
-	SIG("glLighti");
-	dllLighti(light, pname, param);
-}
-
-static void APIENTRY logLightiv(GLenum light, GLenum pname, const GLint * params)
-{
-	SIG("glLightiv");
-	dllLightiv(light, pname, params);
-}
-
-static void APIENTRY logLineStipple(GLint factor, GLushort pattern)
-{
-	SIG("glLineStipple");
-	dllLineStipple(factor, pattern);
 }
 
 static void APIENTRY logLineWidth(GLfloat width)
@@ -2168,7 +2086,6 @@ void QGL_Shutdown(void)
 	qglClearStencil              = NULL;
 	qglClipPlane                 = NULL;
 	qglColorMask                 = NULL;
-	qglColorMaterial             = NULL;
 	qglCopyPixels                = NULL;
 	qglCopyTexImage1D            = NULL;
 	qglCopyTexImage2D            = NULL;
@@ -2246,15 +2163,6 @@ void QGL_Shutdown(void)
 	qglInterleavedArrays         = NULL;
 	qglIsEnabled                 = NULL;
 	qglIsTexture                 = NULL;
-	qglLightModelf               = NULL;
-	qglLightModelfv              = NULL;
-	qglLightModeli               = NULL;
-	qglLightModeliv              = NULL;
-	qglLightf                    = NULL;
-	qglLightfv                   = NULL;
-	qglLighti                    = NULL;
-	qglLightiv                   = NULL;
-	qglLineStipple               = NULL;
 	qglLineWidth                 = NULL;
 	qglLoadIdentity              = NULL;
 	qglLoadMatrixd               = NULL;
@@ -2453,7 +2361,6 @@ int QGL_Init()
 	qglClearStencil              = dllClearStencil = GPA( "glClearStencil" );
 	qglClipPlane                 = dllClipPlane = GPA( "glClipPlane" );
 	qglColorMask                 = dllColorMask = GPA( "glColorMask" );
-	qglColorMaterial             = dllColorMaterial = GPA( "glColorMaterial" );
 	qglCopyPixels                = dllCopyPixels = GPA( "glCopyPixels" );
 	qglCopyTexImage1D            = dllCopyTexImage1D = GPA( "glCopyTexImage1D" );
 	qglCopyTexImage2D            = dllCopyTexImage2D = GPA( "glCopyTexImage2D" );
@@ -2529,15 +2436,6 @@ int QGL_Init()
 	qglInterleavedArrays         = 	dllInterleavedArrays         = GPA( "glInterleavedArrays" );
 	qglIsEnabled                 = 	dllIsEnabled                 = GPA( "glIsEnabled" );
 	qglIsTexture                 = 	dllIsTexture                 = GPA( "glIsTexture" );
-	qglLightModelf               = 	dllLightModelf               = GPA( "glLightModelf" );
-	qglLightModelfv              = 	dllLightModelfv              = GPA( "glLightModelfv" );
-	qglLightModeli               = 	dllLightModeli               = GPA( "glLightModeli" );
-	qglLightModeliv              = 	dllLightModeliv              = GPA( "glLightModeliv" );
-	qglLightf                    = 	dllLightf                    = GPA( "glLightf" );
-	qglLightfv                   = 	dllLightfv                   = GPA( "glLightfv" );
-	qglLighti                    = 	dllLighti                    = GPA( "glLighti" );
-	qglLightiv                   = 	dllLightiv                   = GPA( "glLightiv" );
-	qglLineStipple               = 	dllLineStipple               = GPA( "glLineStipple" );
 	qglLineWidth                 = 	dllLineWidth                 = GPA( "glLineWidth" );
 	qglLoadIdentity              = 	dllLoadIdentity              = GPA( "glLoadIdentity" );
 	qglLoadMatrixd               = 	dllLoadMatrixd               = GPA( "glLoadMatrixd" );
@@ -2755,7 +2653,6 @@ void QGL_EnableLogging(int enable)
 		qglClearStencil              = logClearStencil;
 		qglClipPlane                 = logClipPlane;
 		qglColorMask                 = logColorMask;
-		qglColorMaterial             = logColorMaterial;
 		qglCopyPixels                = logCopyPixels;
 		qglCopyTexImage1D            = logCopyTexImage1D;
 		qglCopyTexImage2D            = logCopyTexImage2D;
@@ -2833,15 +2730,6 @@ void QGL_EnableLogging(int enable)
 		qglInterleavedArrays         = 	logInterleavedArrays         ;
 		qglIsEnabled                 = 	logIsEnabled                 ;
 		qglIsTexture                 = 	logIsTexture                 ;
-		qglLightModelf               = 	logLightModelf               ;
-		qglLightModelfv              = 	logLightModelfv              ;
-		qglLightModeli               = 	logLightModeli               ;
-		qglLightModeliv              = 	logLightModeliv              ;
-		qglLightf                    = 	logLightf                    ;
-		qglLightfv                   = 	logLightfv                   ;
-		qglLighti                    = 	logLighti                    ;
-		qglLightiv                   = 	logLightiv                   ;
-		qglLineStipple               = 	logLineStipple               ;
 		qglLineWidth                 = 	logLineWidth                 ;
 		qglLoadIdentity              = 	logLoadIdentity              ;
 		qglLoadMatrixd               = 	logLoadMatrixd               ;
@@ -3011,7 +2899,6 @@ void QGL_EnableLogging(int enable)
 		qglClearStencil              = dllClearStencil;
 		qglClipPlane                 = dllClipPlane;
 		qglColorMask                 = dllColorMask;
-		qglColorMaterial             = dllColorMaterial;
 		qglCopyPixels                = dllCopyPixels;
 		qglCopyTexImage1D            = dllCopyTexImage1D;
 		qglCopyTexImage2D            = dllCopyTexImage2D;
@@ -3089,15 +2976,6 @@ void QGL_EnableLogging(int enable)
 		qglInterleavedArrays         = 	dllInterleavedArrays         ;
 		qglIsEnabled                 = 	dllIsEnabled                 ;
 		qglIsTexture                 = 	dllIsTexture                 ;
-		qglLightModelf               = 	dllLightModelf               ;
-		qglLightModelfv              = 	dllLightModelfv              ;
-		qglLightModeli               = 	dllLightModeli               ;
-		qglLightModeliv              = 	dllLightModeliv              ;
-		qglLightf                    = 	dllLightf                    ;
-		qglLightfv                   = 	dllLightfv                   ;
-		qglLighti                    = 	dllLighti                    ;
-		qglLightiv                   = 	dllLightiv                   ;
-		qglLineStipple               = 	dllLineStipple               ;
 		qglLineWidth                 = 	dllLineWidth                 ;
 		qglLoadIdentity              = 	dllLoadIdentity              ;
 		qglLoadMatrixd               = 	dllLoadMatrixd               ;
