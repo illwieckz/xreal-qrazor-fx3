@@ -613,7 +613,6 @@ void DeformText(const char *text)
 	vec3_t          origin, width, height;
 	int             len;
 	int             ch;
-	byte            color[4];
 	float           bottom, top;
 	vec3_t          mid;
 
@@ -655,8 +654,6 @@ void DeformText(const char *text)
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
-	color[0] = color[1] = color[2] = color[3] = 255;
-
 	// draw each character
 	for(i = 0; i < len; i++)
 	{
@@ -675,7 +672,7 @@ void DeformText(const char *text)
 			fcol = col * 0.0625f;
 			size = 0.0625f;
 
-			Tess_AddQuadStampExt(origin, width, height, color, fcol, frow, fcol + size, frow + size);
+			Tess_AddQuadStampExt(origin, width, height, colorWhite, fcol, frow, fcol + size, frow + size);
 		}
 		VectorMA(origin, -2, width, origin);
 	}

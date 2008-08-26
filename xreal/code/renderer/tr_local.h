@@ -795,16 +795,17 @@ typedef struct shaderState_s
 
 enum
 {
+	ATTR_INDEX_POSITION = 0,
 	ATTR_INDEX_TEXCOORD0 = 8,
 	ATTR_INDEX_TEXCOORD1 = 9,
 //	ATTR_INDEX_TEXCOORD2 = 10,
 //  ATTR_INDEX_TEXCOORD3 = 11,
 	ATTR_INDEX_TANGENT = 12,
 	ATTR_INDEX_BINORMAL = 13,
+	ATTR_INDEX_NORMAL = 14,
+	ATTR_INDEX_COLOR = 15,
 	ATTR_INDEX_BONE_INDEXES = 10,
 	ATTR_INDEX_BONE_WEIGHTS = 11,
-//  ATTR_INDEX_NORMAL       = 2,
-//  ATTR_INDEX_COLOR        = 3
 };
 
 // Tr3B - shaderProgram_t represents a pair of one
@@ -1785,7 +1786,7 @@ typedef struct
 	qboolean        skyRenderedThisView;	// flag for drawing sun
 
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
-	byte            color2D[4];
+	vec4_t          color2D;
 	qboolean        vertexes2D;	// shader needs to be finished
 	trRefEntity_t   entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
@@ -2521,7 +2522,7 @@ typedef struct shaderCommands_s
 	vec4_t          normals[SHADER_MAX_VERTEXES];
 	vec4_t          texCoords[SHADER_MAX_VERTEXES];
 	vec4_t          lightCoords[SHADER_MAX_VERTEXES];
-	color4ub_t      colors[SHADER_MAX_VERTEXES];
+	vec4_t          colors[SHADER_MAX_VERTEXES];
 	vec4_t          boneIndexes[SHADER_MAX_VERTEXES];
 	vec4_t          boneWeights[SHADER_MAX_VERTEXES];
 
@@ -2574,8 +2575,8 @@ void            Tess_StageIteratorStencilLighting();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
 
-void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, byte * color);
-void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, byte * color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, color4f_t color);
+void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, color4f_t color, float s1, float t1, float s2, float t2);
 
 void            RB_ShowImages(void);
 

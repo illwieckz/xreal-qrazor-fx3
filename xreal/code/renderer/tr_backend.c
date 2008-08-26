@@ -592,11 +592,11 @@ void GL_ClientState(unsigned long stateBits)
 	   {
 	   if(stateBits & GLCS_VERTEX)
 	   {
-	   qglEnableClientState(GL_VERTEX_ARRAY);
+	  qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 	   }
 	   else
 	   {
-	   qglDisableClientState(GL_VERTEX_ARRAY);
+	   qglDisableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 	   }
 	   }
 	 */
@@ -653,11 +653,11 @@ void GL_ClientState(unsigned long stateBits)
 	{
 		if(stateBits & GLCS_NORMAL)
 		{
-			qglEnableClientState(GL_NORMAL_ARRAY);
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
 		}
 		else
 		{
-			qglDisableClientState(GL_NORMAL_ARRAY);
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
 		}
 	}
 
@@ -665,11 +665,11 @@ void GL_ClientState(unsigned long stateBits)
 	{
 		if(stateBits & GLCS_COLOR)
 		{
-			qglEnableClientState(GL_COLOR_ARRAY);
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 		}
 		else
 		{
-			qglDisableClientState(GL_COLOR_ARRAY);
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 		}
 	}
 
@@ -1020,37 +1020,37 @@ static void Render_lightVolume(trRefLight_t * light)
 			// draw the volume
 			qglBegin(GL_QUADS);
 
-			qglColor4fv(colorRed);
+			qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-			qglColor4fv(colorGreen);
+			qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, (colorGreen);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-			qglColor4fv(colorBlue);
+			qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-			qglColor4fv(colorYellow);
+			qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorYellow);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-			qglColor4fv(colorMagenta);
+			qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorMagenta);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-			qglColor4fv(colorCyan);
+			qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorCyan);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 			qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 			qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
@@ -3855,7 +3855,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
 
-	qglColor4fv(colorWhite);
+	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 	// set uniforms
 	/*
@@ -3951,7 +3951,7 @@ void RB_RenderDepthOfField(qboolean deferred)
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
 
-	qglColor4fv(colorWhite);
+	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 	// set uniforms
 
@@ -4024,7 +4024,7 @@ void RB_RenderUniformFog(qboolean deferred)
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
 
-	qglColor4fv(colorWhite);
+	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
@@ -4320,7 +4320,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	}
 
-	qglColor4fv(colorWhite);
+	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 	//GL_ClientState(tr.screenShader.attribs);
 	GL_Cull(CT_TWO_SIDED);
 
@@ -4449,37 +4449,37 @@ void RB_RenderLightOcclusionQueries()
 						{
 							qglBegin(GL_QUADS);
 
-							qglColor4fv(colorRed);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-							qglColor4fv(colorGreen);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-							qglColor4fv(colorBlue);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 
-							qglColor4fv(colorYellow);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorYellow);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-							qglColor4fv(colorMagenta);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorMagenta);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2]);
 
-							qglColor4fv(colorCyan);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorCyan);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2]);
 							qglVertex3f(light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2]);
 							qglVertex3f(light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2]);
@@ -4524,7 +4524,7 @@ void RB_RenderLightOcclusionQueries()
 							qglBegin(GL_TRIANGLES);
 							for(j = 0; j < 4; j++)
 							{
-								qglColor4fv(g_color_table[j]);
+								qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
 
 								qglVertex3fv(vec3_origin);
 								qglVertex3fv(corners[j]);
@@ -4534,7 +4534,7 @@ void RB_RenderLightOcclusionQueries()
 
 							// draw far plane
 							qglBegin(GL_QUADS);
-							qglColor4fv(g_color_table[j]);
+							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
 							for(j = 0; j < 4; j++)
 							{
 								qglVertex3fv(corners[j]);
@@ -4815,20 +4815,20 @@ static void RB_RenderDebugUtils()
 				qglBegin(GL_LINES);
 
 				// draw orientation
-				qglColor4fv(colorRed);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(forward);
 
-				qglColor4fv(colorGreen);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(left);
 
-				qglColor4fv(colorBlue);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 				qglVertex3fv(vec3_origin);
 				qglVertex3fv(up);
 
 				// draw special vectors
-				qglColor4fv(colorYellow);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorYellow);
 				qglVertex3fv(vec3_origin);
 				VectorSubtract(light->origin, backEnd.or.origin, tmp);
 				light->transformed[0] = DotProduct(tmp, backEnd.or.axis[0]);
@@ -4845,7 +4845,7 @@ static void RB_RenderDebugUtils()
 						// draw corners
 						qglBegin(GL_LINES);
 
-						qglColor4fv(lightColor);
+						qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, lightColor);
 						for(j = 0; j < 8; j++)
 						{
 							qglVertex3fv(vec3_origin);
@@ -4897,7 +4897,7 @@ static void RB_RenderDebugUtils()
 						// draw pyramid
 						qglBegin(GL_LINES);
 
-						qglColor4fv(lightColor);
+						qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, lightColor);
 						for(j = 0; j < 4; j++)
 						{
 							qglVertex3fv(corners[j]);
@@ -5188,26 +5188,26 @@ static void RB_RenderDebugUtils()
 				VectorMA(offset, 1, up, up);
 
 				// draw orientation
-				qglColor4fv(colorRed);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 				//qglVertex3fv(origin);
 				//qglVertex3fv(forward);
 				qglVertex3fv(offset);
 				qglVertex3fv(forward);
 
-				qglColor4fv(colorGreen);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 				//qglVertex3fv(origin);
 				//qglVertex3fv(left);
 				qglVertex3fv(offset);
 				qglVertex3fv(right);
 
-				qglColor4fv(colorBlue);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 				//qglVertex3fv(origin);
 				//qglVertex3fv(up);
 				qglVertex3fv(offset);
 				qglVertex3fv(up);
 
 				// draw bone
-				qglColor4fv(g_color_table[j % 8]);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j % 8]);
 
 				// simple inner line
 				//qglVertex3fv(origin);
@@ -5278,11 +5278,11 @@ static void RB_RenderDebugUtils()
 			{
 				if(!ia->occlusionQuerySamples)
 				{
-					qglColor4fv(colorRed);
+					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 				}
 				else
 				{
-					qglColor4fv(colorGreen);
+					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 				}
 
 				qglBegin(GL_QUADS);
@@ -5296,11 +5296,11 @@ static void RB_RenderDebugUtils()
 			{
 				if(ia->noDepthBoundsTest)
 				{
-					qglColor4fv(colorBlue);
+					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 				}
 				else
 				{
-					qglColor4fv(colorGreen);
+					qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 				}
 
 				qglBegin(GL_QUADS);
@@ -5313,13 +5313,13 @@ static void RB_RenderDebugUtils()
 			else
 			{
 				qglBegin(GL_QUADS);
-				qglColor4fv(colorRed);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 				qglVertex2f(ia->scissorX, ia->scissorY);
-				qglColor4fv(colorGreen);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY);
-				qglColor4fv(colorBlue);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 				qglVertex2f(ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1);
-				qglColor4fv(colorWhite);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 				qglVertex2f(ia->scissorX, ia->scissorY + ia->scissorHeight - 1);
 				qglEnd();
 			}
@@ -5364,11 +5364,11 @@ static void RB_RenderDebugUtils()
 	   {
 	   //if(ia->noDepthBoundsTest)
 	   {
-	   qglColor4fv(colorBlue);
+	   qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
 	   }
 	   //else
 	   //{
-	   //   qglColor4fv(colorGreen);
+	   //   qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 	   //}
 
 	   qglBegin(GL_LINES);
@@ -5859,10 +5859,10 @@ const void     *RB_SetColor(const void *data)
 
 	cmd = (const setColorCommand_t *)data;
 
-	backEnd.color2D[0] = cmd->color[0] * 255;
-	backEnd.color2D[1] = cmd->color[1] * 255;
-	backEnd.color2D[2] = cmd->color[2] * 255;
-	backEnd.color2D[3] = cmd->color[3] * 255;
+	backEnd.color2D[0] = cmd->color[0];
+	backEnd.color2D[1] = cmd->color[1];
+	backEnd.color2D[2] = cmd->color[2];
+	backEnd.color2D[3] = cmd->color[3];
 
 	return (const void *)(cmd + 1);
 }
@@ -5874,6 +5874,7 @@ RB_StretchPic
 */
 const void     *RB_StretchPic(const void *data)
 {
+	int				i;
 	const stretchPicCommand_t *cmd;
 	shader_t       *shader;
 	int             numVerts, numIndexes;
@@ -5912,9 +5913,14 @@ const void     *RB_StretchPic(const void *data)
 	tess.indexes[numIndexes + 4] = numVerts + 0;
 	tess.indexes[numIndexes + 5] = numVerts + 1;
 
-	*(int *)tess.colors[numVerts] =
-		*(int *)tess.colors[numVerts + 1] =
-		*(int *)tess.colors[numVerts + 2] = *(int *)tess.colors[numVerts + 3] = *(int *)backEnd.color2D;
+
+	for(i = 0; i < 4; i++)
+	{
+		tess.colors[numVerts + i][0] = backEnd.color2D[0];
+		tess.colors[numVerts + i][1] = backEnd.color2D[1];
+		tess.colors[numVerts + i][2] = backEnd.color2D[2];
+		tess.colors[numVerts + i][3] = backEnd.color2D[3];
+	}
 
 	tess.xyz[numVerts][0] = cmd->x;
 	tess.xyz[numVerts][1] = cmd->y;

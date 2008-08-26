@@ -20,7 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
+attribute vec4		attr_Color;
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
@@ -50,7 +52,7 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+			vertex += (boneMatrix * attr_Position) * boneWeight;
 		}
 
 		// transform vertex position into homogenous clip-space
@@ -60,9 +62,9 @@ void	main()
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
-		//gl_Position = u_ProjectionMatrix * u_ModelViewMatrix * gl_Vertex;
-		//gl_Position = u_ProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+		//gl_Position = u_ProjectionMatrix * u_ModelViewMatrix * attr_Position;
+		//gl_Position = u_ProjectionMatrix * attr_Position;
 	}
 	
 	// transform texcoords
@@ -71,13 +73,13 @@ void	main()
 	// assign color
 	if(bool(u_InverseVertexColor))
 	{
-		var_Color.r = 1.0 - gl_Color.r;
-		var_Color.g = 1.0 - gl_Color.g;
-		var_Color.b = 1.0 - gl_Color.b;
-		var_Color.a = 1.0 - gl_Color.a;
+		var_Color.r = 1.0 - attr_Color.r;
+		var_Color.g = 1.0 - attr_Color.g;
+		var_Color.b = 1.0 - attr_Color.b;
+		var_Color.a = 1.0 - attr_Color.a;
 	}
 	else
 	{
-		var_Color = gl_Color;
+		var_Color = attr_Color;
 	}
 }

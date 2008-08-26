@@ -20,9 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
+attribute vec3		attr_Normal;
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
@@ -56,11 +58,11 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+			vertex += (boneMatrix * attr_Position) * boneWeight;
 		
 			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
 			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
-			normal += (boneMatrix * vec4(gl_Normal, 0.0)).xyz * boneWeight;
+			normal += (boneMatrix * vec4(attr_Normal, 0.0)).xyz * boneWeight;
 		}
 
 		// transform vertex position into homogenous clip-space
@@ -77,14 +79,14 @@ void	main()
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
 		// transform position into world space
-		var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
+		var_Vertex = (u_ModelMatrix * attr_Position).xyz;
 	
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-		var_Normal.xyz = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
+		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 	}
 	
 	// transform normalmap texcoords

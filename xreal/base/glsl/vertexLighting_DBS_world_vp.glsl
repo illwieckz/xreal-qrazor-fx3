@@ -20,9 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
+attribute vec3		attr_Normal;
+attribute vec4		attr_Color;
 
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
@@ -41,10 +44,10 @@ varying vec3		var_Normal;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
+	var_Vertex = attr_Position.xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
@@ -58,12 +61,12 @@ void	main()
 	// assign vertex to light vector in object space
 	//var_light = attr_Light;
 	// FIXME
-	var_LightDir = gl_Normal;
+	var_LightDir = attr_Normal;
 	
 	// assign color
-	var_Color = gl_Color;
+	var_Color = attr_Color;
 	
 	var_Tangent = attr_Tangent;
 	var_Binormal = attr_Binormal;
-	var_Normal = gl_Normal;
+	var_Normal = attr_Normal;
 }

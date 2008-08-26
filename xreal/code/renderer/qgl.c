@@ -75,7 +75,6 @@ void            (APIENTRY * qglColor4bv) (const GLbyte * v);
 void            (APIENTRY * qglColor4d) (GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha);
 void            (APIENTRY * qglColor4dv) (const GLdouble * v);
 void            (APIENTRY * qglColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-void            (APIENTRY * qglColor4fv) (const GLfloat * v);
 void            (APIENTRY * qglColor4i) (GLint red, GLint green, GLint blue, GLint alpha);
 void            (APIENTRY * qglColor4iv) (const GLint * v);
 void            (APIENTRY * qglColor4s) (GLshort red, GLshort green, GLshort blue, GLshort alpha);
@@ -88,7 +87,6 @@ void            (APIENTRY * qglColor4us) (GLushort red, GLushort green, GLushort
 void            (APIENTRY * qglColor4usv) (const GLushort * v);
 void            (APIENTRY * qglColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 void            (APIENTRY * qglColorMaterial) (GLenum face, GLenum mode);
-void            (APIENTRY * qglColorPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
 void            (APIENTRY * qglCopyTexImage1D) (GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y,
 												GLsizei width, GLint border);
@@ -104,7 +102,6 @@ void            (APIENTRY * qglDepthFunc) (GLenum func);
 void            (APIENTRY * qglDepthMask) (GLboolean flag);
 void            (APIENTRY * qglDepthRange) (GLclampd zNear, GLclampd zFar);
 void            (APIENTRY * qglDisable) (GLenum cap);
-void            (APIENTRY * qglDisableClientState) (GLenum array);
 void            (APIENTRY * qglDrawArrays) (GLenum mode, GLint first, GLsizei count);
 void            (APIENTRY * qglDrawBuffer) (GLenum mode);
 void            (APIENTRY * qglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
@@ -113,7 +110,6 @@ void            (APIENTRY * qglEdgeFlag) (GLboolean flag);
 void            (APIENTRY * qglEdgeFlagPointer) (GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglEdgeFlagv) (const GLboolean * flag);
 void            (APIENTRY * qglEnable) (GLenum cap);
-void            (APIENTRY * qglEnableClientState) (GLenum array);
 void            (APIENTRY * qglEnd) (void);
 void            (APIENTRY * qglEndList) (void);
 void            (APIENTRY * qglEvalCoord1d) (GLdouble u);
@@ -234,7 +230,6 @@ void            (APIENTRY * qglNormal3i) (GLint nx, GLint ny, GLint nz);
 void            (APIENTRY * qglNormal3iv) (const GLint * v);
 void            (APIENTRY * qglNormal3s) (GLshort nx, GLshort ny, GLshort nz);
 void            (APIENTRY * qglNormal3sv) (const GLshort * v);
-void            (APIENTRY * qglNormalPointer) (GLenum type, GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglPassThrough) (GLfloat token);
 void            (APIENTRY * qglPixelMapfv) (GLenum map, GLsizei mapsize, const GLfloat * values);
 void            (APIENTRY * qglPixelMapuiv) (GLenum map, GLsizei mapsize, const GLuint * values);
@@ -334,7 +329,6 @@ void            (APIENTRY * qglTexCoord4i) (GLint s, GLint t, GLint r, GLint q);
 void            (APIENTRY * qglTexCoord4iv) (const GLint * v);
 void            (APIENTRY * qglTexCoord4s) (GLshort s, GLshort t, GLshort r, GLshort q);
 void            (APIENTRY * qglTexCoord4sv) (const GLshort * v);
-void            (APIENTRY * qglTexCoordPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglTexEnvf) (GLenum target, GLenum pname, GLfloat param);
 void            (APIENTRY * qglTexEnvfv) (GLenum target, GLenum pname, const GLfloat * params);
 void            (APIENTRY * qglTexEnvi) (GLenum target, GLenum pname, GLint param);
@@ -383,7 +377,6 @@ void            (APIENTRY * qglVertex4i) (GLint x, GLint y, GLint z, GLint w);
 void            (APIENTRY * qglVertex4iv) (const GLint * v);
 void            (APIENTRY * qglVertex4s) (GLshort x, GLshort y, GLshort z, GLshort w);
 void            (APIENTRY * qglVertex4sv) (const GLshort * v);
-void            (APIENTRY * qglVertexPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
 void            (APIENTRY * qglMultiTexCoord2fARB) (GLenum texture, GLfloat s, GLfloat t);
@@ -434,7 +427,6 @@ static void     (APIENTRY * dllColor4bv) (const GLbyte * v);
 static void     (APIENTRY * dllColor4d) (GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha);
 static void     (APIENTRY * dllColor4dv) (const GLdouble * v);
 static void     (APIENTRY * dllColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-static void     (APIENTRY * dllColor4fv) (const GLfloat * v);
 static void     (APIENTRY * dllColor4i) (GLint red, GLint green, GLint blue, GLint alpha);
 static void     (APIENTRY * dllColor4iv) (const GLint * v);
 static void     (APIENTRY * dllColor4s) (GLshort red, GLshort green, GLshort blue, GLshort alpha);
@@ -447,7 +439,6 @@ static void     (APIENTRY * dllColor4us) (GLushort red, GLushort green, GLushort
 static void     (APIENTRY * dllColor4usv) (const GLushort * v);
 static void     (APIENTRY * dllColorMask) (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 static void     (APIENTRY * dllColorMaterial) (GLenum face, GLenum mode);
-static void     (APIENTRY * dllColorPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 static void     (APIENTRY * dllCopyPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
 static void     (APIENTRY * dllCopyTexImage1D) (GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y,
 												GLsizei width, GLint border);
@@ -463,7 +454,6 @@ static void     (APIENTRY * dllDepthFunc) (GLenum func);
 static void     (APIENTRY * dllDepthMask) (GLboolean flag);
 static void     (APIENTRY * dllDepthRange) (GLclampd zNear, GLclampd zFar);
 static void     (APIENTRY * dllDisable) (GLenum cap);
-static void     (APIENTRY * dllDisableClientState) (GLenum array);
 static void     (APIENTRY * dllDrawArrays) (GLenum mode, GLint first, GLsizei count);
 static void     (APIENTRY * dllDrawBuffer) (GLenum mode);
 static void     (APIENTRY * dllDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
@@ -472,7 +462,6 @@ static void     (APIENTRY * dllEdgeFlag) (GLboolean flag);
 static void     (APIENTRY * dllEdgeFlagPointer) (GLsizei stride, const GLvoid * pointer);
 static void     (APIENTRY * dllEdgeFlagv) (const GLboolean * flag);
 static void     (APIENTRY * dllEnable) (GLenum cap);
-static void     (APIENTRY * dllEnableClientState) (GLenum array);
 static void     (APIENTRY * dllEnd) (void);
 static void     (APIENTRY * dllEndList) (void);
 static void     (APIENTRY * dllEvalCoord1d) (GLdouble u);
@@ -593,7 +582,6 @@ static void     (APIENTRY * dllNormal3i) (GLint nx, GLint ny, GLint nz);
 static void     (APIENTRY * dllNormal3iv) (const GLint * v);
 static void     (APIENTRY * dllNormal3s) (GLshort nx, GLshort ny, GLshort nz);
 static void     (APIENTRY * dllNormal3sv) (const GLshort * v);
-static void     (APIENTRY * dllNormalPointer) (GLenum type, GLsizei stride, const GLvoid * pointer);
 static void     (APIENTRY * dllPassThrough) (GLfloat token);
 static void     (APIENTRY * dllPixelMapfv) (GLenum map, GLsizei mapsize, const GLfloat * values);
 static void     (APIENTRY * dllPixelMapuiv) (GLenum map, GLsizei mapsize, const GLuint * values);
@@ -693,7 +681,6 @@ static void     (APIENTRY * dllTexCoord4i) (GLint s, GLint t, GLint r, GLint q);
 static void     (APIENTRY * dllTexCoord4iv) (const GLint * v);
 static void     (APIENTRY * dllTexCoord4s) (GLshort s, GLshort t, GLshort r, GLshort q);
 static void     (APIENTRY * dllTexCoord4sv) (const GLshort * v);
-static void     (APIENTRY * dllTexCoordPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 static void     (APIENTRY * dllTexEnvf) (GLenum target, GLenum pname, GLfloat param);
 static void     (APIENTRY * dllTexEnvfv) (GLenum target, GLenum pname, const GLfloat * params);
 static void     (APIENTRY * dllTexEnvi) (GLenum target, GLenum pname, GLint param);
@@ -742,7 +729,6 @@ static void     (APIENTRY * dllVertex4i) (GLint x, GLint y, GLint z, GLint w);
 static void     (APIENTRY * dllVertex4iv) (const GLint * v);
 static void     (APIENTRY * dllVertex4s) (GLshort x, GLshort y, GLshort z, GLshort w);
 static void     (APIENTRY * dllVertex4sv) (const GLshort * v);
-static void     (APIENTRY * dllVertexPointer) (GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
 static void     (APIENTRY * dllViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
 static FILE    *log_fp = NULL;
@@ -1131,11 +1117,7 @@ static void APIENTRY logColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloa
 	fprintf(log_fp, "glColor4f( %f,%f,%f,%f )\n", red, green, blue, alpha);
 	dllColor4f(red, green, blue, alpha);
 }
-static void APIENTRY logColor4fv(const GLfloat * v)
-{
-	fprintf(log_fp, "glColor4fv( %f,%f,%f,%f )\n", v[0], v[1], v[2], v[3]);
-	dllColor4fv(v);
-}
+
 static void APIENTRY logColor4i(GLint red, GLint green, GLint blue, GLint alpha)
 {
 	SIG("glColor4i");
@@ -1195,12 +1177,6 @@ static void APIENTRY logColorMaterial(GLenum face, GLenum mode)
 {
 	SIG("glColorMaterial");
 	dllColorMaterial(face, mode);
-}
-
-static void APIENTRY logColorPointer(GLint size, GLenum type, GLsizei stride, const void *pointer)
-{
-	fprintf(log_fp, "glColorPointer( %d, %s, %d, MEM )\n", size, TypeToString(type), stride);
-	dllColorPointer(size, type, stride, pointer);
 }
 
 static void APIENTRY logCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type)
@@ -1278,12 +1254,6 @@ static void APIENTRY logDisable(GLenum cap)
 	dllDisable(cap);
 }
 
-static void APIENTRY logDisableClientState(GLenum array)
-{
-	fprintf(log_fp, "glDisableClientState( %s )\n", CapToString(array));
-	dllDisableClientState(array);
-}
-
 static void APIENTRY logDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
 	SIG("glDrawArrays");
@@ -1330,12 +1300,6 @@ static void APIENTRY logEnable(GLenum cap)
 {
 	fprintf(log_fp, "glEnable( %s )\n", CapToString(cap));
 	dllEnable(cap);
-}
-
-static void APIENTRY logEnableClientState(GLenum array)
-{
-	fprintf(log_fp, "glEnableClientState( %s )\n", CapToString(array));
-	dllEnableClientState(array);
 }
 
 static void APIENTRY logEnd(void)
@@ -2007,11 +1971,6 @@ static void APIENTRY logNormal3sv(const GLshort * v)
 	SIG("glNormal3sv");
 	dllNormal3sv(v);
 }
-static void APIENTRY logNormalPointer(GLenum type, GLsizei stride, const void *pointer)
-{
-	SIG("glNormalPointer");
-	dllNormalPointer(type, stride, pointer);
-}
 
 static void APIENTRY logPassThrough(GLfloat token)
 {
@@ -2532,11 +2491,6 @@ static void APIENTRY logTexCoord4sv(const GLshort * v)
 	SIG("glTexCoord4sv");
 	dllTexCoord4sv(v);
 }
-static void APIENTRY logTexCoordPointer(GLint size, GLenum type, GLsizei stride, const void *pointer)
-{
-	fprintf(log_fp, "glTexCoordPointer( %d, %s, %d, MEM )\n", size, TypeToString(type), stride);
-	dllTexCoordPointer(size, type, stride, pointer);
-}
 
 static void APIENTRY logTexEnvf(GLenum target, GLenum pname, GLfloat param)
 {
@@ -2772,11 +2726,7 @@ static void APIENTRY logVertex4sv(const GLshort * v)
 	SIG("glVertex4sv");
 	dllVertex4sv(v);
 }
-static void APIENTRY logVertexPointer(GLint size, GLenum type, GLsizei stride, const void *pointer)
-{
-	fprintf(log_fp, "glVertexPointer( %d, %s, %d, MEM )\n", size, TypeToString(type), stride);
-	dllVertexPointer(size, type, stride, pointer);
-}
+
 static void APIENTRY logViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	fprintf(log_fp, "glViewport( %d, %d, %d, %d )\n", x, y, width, height);
@@ -2830,7 +2780,6 @@ void QGL_Shutdown(void)
 	qglColor4d                   = NULL;
 	qglColor4dv                  = NULL;
 	qglColor4f                   = NULL;
-	qglColor4fv                  = NULL;
 	qglColor4i                   = NULL;
 	qglColor4iv                  = NULL;
 	qglColor4s                   = NULL;
@@ -2843,7 +2792,6 @@ void QGL_Shutdown(void)
 	qglColor4usv                 = NULL;
 	qglColorMask                 = NULL;
 	qglColorMaterial             = NULL;
-	qglColorPointer              = NULL;
 	qglCopyPixels                = NULL;
 	qglCopyTexImage1D            = NULL;
 	qglCopyTexImage2D            = NULL;
@@ -2856,7 +2804,6 @@ void QGL_Shutdown(void)
 	qglDepthMask                 = NULL;
 	qglDepthRange                = NULL;
 	qglDisable                   = NULL;
-	qglDisableClientState        = NULL;
 	qglDrawArrays                = NULL;
 	qglDrawBuffer                = NULL;
 	qglDrawElements              = NULL;
@@ -2865,7 +2812,6 @@ void QGL_Shutdown(void)
 	qglEdgeFlagPointer           = NULL;
 	qglEdgeFlagv                 = NULL;
 	qglEnable                    = NULL;
-	qglEnableClientState         = NULL;
 	qglEnd                       = NULL;
 	qglEndList                   = NULL;
 	qglEvalCoord1d               = NULL;
@@ -2980,7 +2926,6 @@ void QGL_Shutdown(void)
 	qglNormal3iv                 = NULL;
 	qglNormal3s                  = NULL;
 	qglNormal3sv                 = NULL;
-	qglNormalPointer             = NULL;
 	qglPassThrough               = NULL;
 	qglPixelMapfv                = NULL;
 	qglPixelMapuiv               = NULL;
@@ -3078,7 +3023,6 @@ void QGL_Shutdown(void)
 	qglTexCoord4iv               = NULL;
 	qglTexCoord4s                = NULL;
 	qglTexCoord4sv               = NULL;
-	qglTexCoordPointer           = NULL;
 	qglTexEnvf                   = NULL;
 	qglTexEnvfv                  = NULL;
 	qglTexEnvi                   = NULL;
@@ -3123,7 +3067,6 @@ void QGL_Shutdown(void)
 	qglVertex4iv                 = NULL;
 	qglVertex4s                  = NULL;
 	qglVertex4sv                 = NULL;
-	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
 }
 // *INDENT-ON*
@@ -3199,7 +3142,6 @@ int QGL_Init()
 	qglColor4d                   = dllColor4d = GPA( "glColor4d" );
 	qglColor4dv                  = dllColor4dv = GPA( "glColor4dv" );
 	qglColor4f                   = dllColor4f = GPA( "glColor4f" );
-	qglColor4fv                  = dllColor4fv = GPA( "glColor4fv" );
 	qglColor4i                   = dllColor4i = GPA( "glColor4i" );
 	qglColor4iv                  = dllColor4iv = GPA( "glColor4iv" );
 	qglColor4s                   = dllColor4s = GPA( "glColor4s" );
@@ -3212,7 +3154,6 @@ int QGL_Init()
 	qglColor4usv                 = dllColor4usv = GPA( "glColor4usv" );
 	qglColorMask                 = dllColorMask = GPA( "glColorMask" );
 	qglColorMaterial             = dllColorMaterial = GPA( "glColorMaterial" );
-	qglColorPointer              = dllColorPointer = GPA( "glColorPointer" );
 	qglCopyPixels                = dllCopyPixels = GPA( "glCopyPixels" );
 	qglCopyTexImage1D            = dllCopyTexImage1D = GPA( "glCopyTexImage1D" );
 	qglCopyTexImage2D            = dllCopyTexImage2D = GPA( "glCopyTexImage2D" );
@@ -3225,7 +3166,6 @@ int QGL_Init()
 	qglDepthMask                 = dllDepthMask = GPA( "glDepthMask" );
 	qglDepthRange                = dllDepthRange = GPA( "glDepthRange" );
 	qglDisable                   = dllDisable = GPA( "glDisable" );
-	qglDisableClientState        = dllDisableClientState = GPA( "glDisableClientState" );
 	qglDrawArrays                = dllDrawArrays = GPA( "glDrawArrays" );
 	qglDrawBuffer                = dllDrawBuffer = GPA( "glDrawBuffer" );
 	qglDrawElements              = dllDrawElements = GPA( "glDrawElements" );
@@ -3234,7 +3174,6 @@ int QGL_Init()
 	qglEdgeFlagPointer           = dllEdgeFlagPointer = GPA( "glEdgeFlagPointer" );
 	qglEdgeFlagv                 = dllEdgeFlagv = GPA( "glEdgeFlagv" );
 	qglEnable                    = 	dllEnable                    = GPA( "glEnable" );
-	qglEnableClientState         = 	dllEnableClientState         = GPA( "glEnableClientState" );
 	qglEnd                       = 	dllEnd                       = GPA( "glEnd" );
 	qglEndList                   = 	dllEndList                   = GPA( "glEndList" );
 	qglEvalCoord1d				 = 	dllEvalCoord1d				 = GPA( "glEvalCoord1d" );
@@ -3347,7 +3286,6 @@ int QGL_Init()
 	qglNormal3iv                 = 	dllNormal3iv                 = GPA( "glNormal3iv" );
 	qglNormal3s                  = 	dllNormal3s                  = GPA( "glNormal3s" );
 	qglNormal3sv                 = 	dllNormal3sv                 = GPA( "glNormal3sv" );
-	qglNormalPointer             = 	dllNormalPointer             = GPA( "glNormalPointer" );
 	qglPassThrough               = 	dllPassThrough               = GPA( "glPassThrough" );
 	qglPixelMapfv                = 	dllPixelMapfv                = GPA( "glPixelMapfv" );
 	qglPixelMapuiv               = 	dllPixelMapuiv               = GPA( "glPixelMapuiv" );
@@ -3445,7 +3383,6 @@ int QGL_Init()
 	qglTexCoord4iv               = 	dllTexCoord4iv               = GPA( "glTexCoord4iv" );
 	qglTexCoord4s                = 	dllTexCoord4s                = GPA( "glTexCoord4s" );
 	qglTexCoord4sv               = 	dllTexCoord4sv               = GPA( "glTexCoord4sv" );
-	qglTexCoordPointer           = 	dllTexCoordPointer           = GPA( "glTexCoordPointer" );
 	qglTexEnvf                   = 	dllTexEnvf                   = GPA( "glTexEnvf" );
 	qglTexEnvfv                  = 	dllTexEnvfv                  = GPA( "glTexEnvfv" );
 	qglTexEnvi                   = 	dllTexEnvi                   = GPA( "glTexEnvi" );
@@ -3490,7 +3427,6 @@ int QGL_Init()
 	qglVertex4iv                 = 	dllVertex4iv                 = GPA( "glVertex4iv" );
 	qglVertex4s                  = 	dllVertex4s                  = GPA( "glVertex4s" );
 	qglVertex4sv                 = 	dllVertex4sv                 = GPA( "glVertex4sv" );
-	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
 	
 	// check logging
@@ -3585,7 +3521,6 @@ void QGL_EnableLogging(int enable)
 		qglColor4d                   = logColor4d;
 		qglColor4dv                  = logColor4dv;
 		qglColor4f                   = logColor4f;
-		qglColor4fv                  = logColor4fv;
 		qglColor4i                   = logColor4i;
 		qglColor4iv                  = logColor4iv;
 		qglColor4s                   = logColor4s;
@@ -3598,7 +3533,6 @@ void QGL_EnableLogging(int enable)
 		qglColor4usv                 = logColor4usv;
 		qglColorMask                 = logColorMask;
 		qglColorMaterial             = logColorMaterial;
-		qglColorPointer              = logColorPointer;
 		qglCopyPixels                = logCopyPixels;
 		qglCopyTexImage1D            = logCopyTexImage1D;
 		qglCopyTexImage2D            = logCopyTexImage2D;
@@ -3611,7 +3545,6 @@ void QGL_EnableLogging(int enable)
 		qglDepthMask                 = logDepthMask ;
 		qglDepthRange                = logDepthRange ;
 		qglDisable                   = logDisable ;
-		qglDisableClientState        = logDisableClientState ;
 		qglDrawArrays                = logDrawArrays ;
 		qglDrawBuffer                = logDrawBuffer ;
 		qglDrawElements              = logDrawElements ;
@@ -3620,7 +3553,6 @@ void QGL_EnableLogging(int enable)
 		qglEdgeFlagPointer           = logEdgeFlagPointer ;
 		qglEdgeFlagv                 = logEdgeFlagv ;
 		qglEnable                    = 	logEnable                    ;
-		qglEnableClientState         = 	logEnableClientState         ;
 		qglEnd                       = 	logEnd                       ;
 		qglEndList                   = 	logEndList                   ;
 		qglEvalCoord1d				 = 	logEvalCoord1d				 ;
@@ -3735,7 +3667,6 @@ void QGL_EnableLogging(int enable)
 		qglNormal3iv                 = 	logNormal3iv                 ;
 		qglNormal3s                  = 	logNormal3s                  ;
 		qglNormal3sv                 = 	logNormal3sv                 ;
-		qglNormalPointer             = 	logNormalPointer             ;
 		qglPassThrough               = 	logPassThrough               ;
 		qglPixelMapfv                = 	logPixelMapfv                ;
 		qglPixelMapuiv               = 	logPixelMapuiv               ;
@@ -3833,7 +3764,6 @@ void QGL_EnableLogging(int enable)
 		qglTexCoord4iv               = 	logTexCoord4iv               ;
 		qglTexCoord4s                = 	logTexCoord4s                ;
 		qglTexCoord4sv               = 	logTexCoord4sv               ;
-		qglTexCoordPointer           = 	logTexCoordPointer           ;
 		qglTexEnvf                   = 	logTexEnvf                   ;
 		qglTexEnvfv                  = 	logTexEnvfv                  ;
 		qglTexEnvi                   = 	logTexEnvi                   ;
@@ -3878,7 +3808,6 @@ void QGL_EnableLogging(int enable)
 		qglVertex4iv                 = 	logVertex4iv                 ;
 		qglVertex4s                  = 	logVertex4s                  ;
 		qglVertex4sv                 = 	logVertex4sv                 ;
-		qglVertexPointer             = 	logVertexPointer             ;
 		qglViewport                  = 	logViewport                  ;
 	}
 	else
@@ -3925,7 +3854,6 @@ void QGL_EnableLogging(int enable)
 		qglColor4d                   = dllColor4d;
 		qglColor4dv                  = dllColor4dv;
 		qglColor4f                   = dllColor4f;
-		qglColor4fv                  = dllColor4fv;
 		qglColor4i                   = dllColor4i;
 		qglColor4iv                  = dllColor4iv;
 		qglColor4s                   = dllColor4s;
@@ -3938,7 +3866,6 @@ void QGL_EnableLogging(int enable)
 		qglColor4usv                 = dllColor4usv;
 		qglColorMask                 = dllColorMask;
 		qglColorMaterial             = dllColorMaterial;
-		qglColorPointer              = dllColorPointer;
 		qglCopyPixels                = dllCopyPixels;
 		qglCopyTexImage1D            = dllCopyTexImage1D;
 		qglCopyTexImage2D            = dllCopyTexImage2D;
@@ -3951,7 +3878,6 @@ void QGL_EnableLogging(int enable)
 		qglDepthMask                 = dllDepthMask ;
 		qglDepthRange                = dllDepthRange ;
 		qglDisable                   = dllDisable ;
-		qglDisableClientState        = dllDisableClientState ;
 		qglDrawArrays                = dllDrawArrays ;
 		qglDrawBuffer                = dllDrawBuffer ;
 		qglDrawElements              = dllDrawElements ;
@@ -3960,7 +3886,6 @@ void QGL_EnableLogging(int enable)
 		qglEdgeFlagPointer           = dllEdgeFlagPointer ;
 		qglEdgeFlagv                 = dllEdgeFlagv ;
 		qglEnable                    = 	dllEnable                    ;
-		qglEnableClientState         = 	dllEnableClientState         ;
 		qglEnd                       = 	dllEnd                       ;
 		qglEndList                   = 	dllEndList                   ;
 		qglEvalCoord1d				 = 	dllEvalCoord1d				 ;
@@ -4075,7 +4000,6 @@ void QGL_EnableLogging(int enable)
 		qglNormal3iv                 = 	dllNormal3iv                 ;
 		qglNormal3s                  = 	dllNormal3s                  ;
 		qglNormal3sv                 = 	dllNormal3sv                 ;
-		qglNormalPointer             = 	dllNormalPointer             ;
 		qglPassThrough               = 	dllPassThrough               ;
 		qglPixelMapfv                = 	dllPixelMapfv                ;
 		qglPixelMapuiv               = 	dllPixelMapuiv               ;
@@ -4173,7 +4097,6 @@ void QGL_EnableLogging(int enable)
 		qglTexCoord4iv               = 	dllTexCoord4iv               ;
 		qglTexCoord4s                = 	dllTexCoord4s                ;
 		qglTexCoord4sv               = 	dllTexCoord4sv               ;
-		qglTexCoordPointer           = 	dllTexCoordPointer           ;
 		qglTexEnvf                   = 	dllTexEnvf                   ;
 		qglTexEnvfv                  = 	dllTexEnvfv                  ;
 		qglTexEnvi                   = 	dllTexEnvi                   ;
@@ -4218,7 +4141,6 @@ void QGL_EnableLogging(int enable)
 		qglVertex4iv                 = 	dllVertex4iv                 ;
 		qglVertex4s                  = 	dllVertex4s                  ;
 		qglVertex4sv                 = 	dllVertex4sv                 ;
-		qglVertexPointer             = 	dllVertexPointer             ;
 		qglViewport                  = 	dllViewport                  ;
 	}
 }

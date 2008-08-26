@@ -562,11 +562,15 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_program
+	qglVertexAttrib4fARB = NULL;
+	qglVertexAttrib4fvARB = NULL;
 	qglVertexAttribPointerARB = NULL;
 	qglEnableVertexAttribArrayARB = NULL;
 	qglDisableVertexAttribArrayARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_program"))
 	{
+		qglVertexAttrib4fARB = (PFNGLVERTEXATTRIB4FARBPROC) SDL_GL_GetProcAddress("glVertexAttrib4fARB");
+		qglVertexAttrib4fvARB = (PFNGLVERTEXATTRIB4FVARBPROC) SDL_GL_GetProcAddress("glVertexAttrib4fvARB");
 		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) SDL_GL_GetProcAddress("glVertexAttribPointerARB");
 		qglEnableVertexAttribArrayARB =
 			(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");

@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
+attribute vec4		attr_Color;
+
 uniform vec3		u_LightOrigin;
 uniform mat4		u_ModelViewProjectionMatrix;
 
@@ -27,18 +30,18 @@ varying vec4		var_Color;
 
 void	main()
 {
-	if(gl_Vertex.w == 1.0)
+	if(attr_Position.w == 1.0)
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	}
 	else
 	{
 		// project vertex position to infinity
-		vec4 vertex = vec4((gl_Vertex.xyz - u_LightOrigin), 0.0);
+		vec4 vertex = vec4((attr_Position.xyz - u_LightOrigin), 0.0);
 		gl_Position	= u_ModelViewProjectionMatrix * vertex;
 	}
 	
 	// assign color
-	var_Color = gl_Color;
+	var_Color = attr_Color;
 }

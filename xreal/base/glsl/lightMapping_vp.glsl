@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 attribute vec4		attr_TexCoord1;
 
@@ -33,7 +34,7 @@ void	main()
 {
 	// transform vertex position into homogenous clip-space
 #if 1
-	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 #else
 	gl_Position.xy = attr_TexCoord1 * 2.0 - 1.0;
 	gl_Position.z = 0.0;

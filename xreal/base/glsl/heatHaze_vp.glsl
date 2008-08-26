@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
@@ -55,7 +56,7 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+			vertex += (boneMatrix * attr_Position) * boneWeight;
 		}
 
 		// transform vertex position into homogenous clip-space
@@ -69,11 +70,11 @@ void	main()
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
 		// take the deform magnitude and scale it by the projection distance
 		deformVec = vec4(1, 0, 0, 1);
-		deformVec.z = dot(u_ModelViewMatrixTranspose[2], gl_Vertex);
+		deformVec.z = dot(u_ModelViewMatrixTranspose[2], attr_Position);
 	}
 	
 	// transform normalmap texcoords

@@ -240,6 +240,8 @@ void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
 void            (APIENTRY * qglClientActiveTextureARB) (GLenum texture);
 
 // GL_ARB_vertex_program
+void			(APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
+void			(APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
 void            (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
 														GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
@@ -1012,15 +1014,15 @@ void GL_SetDefaultState(void)
 
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
-	qglEnableClientState(GL_VERTEX_ARRAY);
-	qglVertexPointer(4, GL_FLOAT, 0, tess.xyz);
+	qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 
+	qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, tess.xyz);
 	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
 	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
 	qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
 	qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
-	qglNormalPointer(GL_FLOAT, 16, tess.normals);
-	qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.colors);
+	qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, tess.normals);
+	qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
 	qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
 	qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
 

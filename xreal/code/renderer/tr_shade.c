@@ -455,8 +455,8 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(fragmentShader)
 		GLSL_LoadGPUShader(program->program, name, GL_FRAGMENT_SHADER_ARB);
 
-//  if( attribs & ATTRVERTEX )
-//      qglBindAttribLocationARB( program->program, ATTR_INDEX_VERTEX, "attr_Vertex");
+	if(attribs & GLCS_VERTEX)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_POSITION, "attr_Position");
 
 	if(attribs & GLCS_TEXCOORD)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
@@ -476,11 +476,11 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(attribs & GLCS_BINORMAL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BINORMAL, "attr_Binormal");
 
-//  if( attribs & GLCS_NORMAL )
-//      qglBindAttribLocationARB( program->program, ATTR_INDEX_NORMAL, "attr_Normal");
+	if(attribs & GLCS_NORMAL)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_NORMAL, "attr_Normal");
 
-//  if( attribs & GLCS_COLOR )
-//      qglBindAttribLocationARB( program->program, ATTR_INDEX_COLOR, "attr_Color");
+	if(attribs & GLCS_COLOR)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_COLOR, "attr_Color");
 
 	if(r_vboVertexSkinning->integer)
 	{
@@ -503,7 +503,7 @@ void GLSL_InitGPUShaders(void)
 	startTime = ri.Milliseconds();
 
 	// single texture rendering
-	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.genericSingleShader, "genericSingle", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR, qtrue);
 
 	tr.genericSingleShader.u_ColorMap = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorMap");
 	tr.genericSingleShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ColorTextureMatrix");
@@ -803,7 +803,7 @@ void GLSL_InitGPUShaders(void)
 	}
 
 	// black depth fill rendering with textures
-	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
+	GLSL_InitGPUShader(&tr.depthFillShader, "depthFill", GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR, qtrue);
 
 	tr.depthFillShader.u_ColorMap = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorMap");
 	tr.depthFillShader.u_ColorTextureMatrix = qglGetUniformLocationARB(tr.depthFillShader.program, "u_ColorTextureMatrix");
@@ -882,7 +882,7 @@ void GLSL_InitGPUShaders(void)
 	// omni-directional specular bump mapping ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_omni,
 					   "forwardLighting_DBS_omni",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.forwardLightingShader_DBS_omni.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_DiffuseMap");
@@ -955,7 +955,7 @@ void GLSL_InitGPUShaders(void)
 
 	// projective lighting ( Doom3 style )
 	GLSL_InitGPUShader(&tr.forwardLightingShader_DBS_proj, "forwardLighting_DBS_proj",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.forwardLightingShader_DBS_proj.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_DiffuseMap");
@@ -1060,7 +1060,7 @@ void GLSL_InitGPUShaders(void)
 #endif
 
 	// UT3 style player shadowing
-	GLSL_InitGPUShader(&tr.forwardShadowingShader_proj, "forwardShadowing_proj", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.forwardShadowingShader_proj, "forwardShadowing_proj", GLCS_VERTEX | GLCS_COLOR, qtrue);
 
 	tr.forwardShadowingShader_proj.u_AttenuationMapXY =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_AttenuationMapXY");
@@ -1374,7 +1374,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// screen post process effect
-	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.screenShader, "screen", GLCS_VERTEX | GLCS_COLOR, qtrue);
 
 	tr.screenShader.u_CurrentMap = qglGetUniformLocationARB(tr.screenShader.program, "u_CurrentMap");
 	tr.screenShader.u_ModelViewProjectionMatrix = qglGetUniformLocationARB(tr.screenShader.program, "u_ModelViewProjectionMatrix");
@@ -1388,7 +1388,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 	// portal process effect
-	GLSL_InitGPUShader(&tr.portalShader, "portal", GLCS_VERTEX, qtrue);
+	GLSL_InitGPUShader(&tr.portalShader, "portal", GLCS_VERTEX | GLCS_COLOR, qtrue);
 
 	tr.portalShader.u_CurrentMap = qglGetUniformLocationARB(tr.portalShader.program, "u_CurrentMap");
 	tr.portalShader.u_PortalRange = qglGetUniformLocationARB(tr.portalShader.program, "u_PortalRange");
@@ -1405,7 +1405,7 @@ void GLSL_InitGPUShaders(void)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
 
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
@@ -1822,7 +1822,7 @@ static void DrawTris()
 
 	if(r_showBatches->integer || r_showLightBatches->integer)
 	{
-		qglColor4fv(g_color_table[backEnd.pc.c_batches % 8]);
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[backEnd.pc.c_batches % 8]);
 	}
 	else if(glState.currentVBO)
 	{
@@ -2019,13 +2019,12 @@ static void Render_genericSingle(int stage)
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.genericSingleShader.attribs | GLCS_COLOR);
+		GL_ClientState(tr.genericSingleShader.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.genericSingleShader.attribs);
-
-		qglColor4fv(tess.svars.color);
+		GL_ClientState(tr.genericSingleShader.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
 	// set uniforms
@@ -2408,13 +2407,12 @@ static void Render_depthFill(int stage)
 
 	if(r_precomputedLighting->integer)
 	{
-		GL_ClientState(tr.depthFillShader.attribs | GLCS_COLOR);
+		GL_ClientState(tr.depthFillShader.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.depthFillShader.attribs);
-
-		qglColor4fv(tess.svars.color);
+		GL_ClientState(tr.depthFillShader.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
 	// set uniforms
@@ -2486,7 +2484,7 @@ static void Render_shadowFill(int stage)
 
 	// enable shader, set arrays
 	GL_Program(&tr.shadowFillShader);
-	GL_ClientState(tr.shadowFillShader.attribs);
+	GL_ClientState(tr.shadowFillShader.attribs & ~(GLCS_COLOR));
 
 	if(r_debugShadowMaps->integer)
 	{
@@ -2494,7 +2492,7 @@ static void Render_shadowFill(int stage)
 
 		VectorCopy4(g_color_table[backEnd.pc.c_batches % 8], shadowMapColor);
 
-		qglColor4fv(shadowMapColor);
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, shadowMapColor);
 	}
 
 	// set uniforms
@@ -2556,13 +2554,12 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs | GLCS_COLOR);
+		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs);
-
-		qglColor4fv(colorWhite);
+		GL_ClientState(tr.forwardLightingShader_DBS_omni.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 	}
 
 	// set uniforms
@@ -2670,13 +2667,12 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs | GLCS_COLOR);
+		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs);
-
-		qglColor4fv(colorWhite);
+		GL_ClientState(tr.forwardLightingShader_DBS_proj.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 	}
 
 	// set uniforms
@@ -2788,7 +2784,7 @@ static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
 	GL_Program(&tr.forwardShadowingShader_proj);
 	GL_ClientState(tr.forwardShadowingShader_proj.attribs);
 
-	qglColor4fv(tess.svars.color);
+	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 
 	// set uniforms
 	VectorCopy(light->origin, lightOrigin);
@@ -3025,13 +3021,12 @@ static void Render_screen(int stage)
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.screenShader.attribs | GLCS_COLOR);
+		GL_ClientState(tr.screenShader.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.screenShader.attribs);
-
-		qglColor4fv(tess.svars.color);
+		GL_ClientState(tr.screenShader.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
 	qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3058,13 +3053,12 @@ static void Render_portal(int stage)
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
-		GL_ClientState(tr.portalShader.attribs | GLCS_COLOR);
+		GL_ClientState(tr.portalShader.attribs);
 	}
 	else
 	{
-		GL_ClientState(tr.portalShader.attribs);
-
-		qglColor4fv(tess.svars.color);
+		GL_ClientState(tr.portalShader.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
 	qglUniform1fARB(tr.portalShader.u_PortalRange, tess.surfaceShader->portalRange);
@@ -3141,7 +3135,7 @@ static void Render_heatHaze(int stage)
 		// enable shader, set arrays
 		GL_Program(&tr.screenShader);
 		GL_State(GLS_DEPTHTEST_DISABLE);
-		qglColor4fv(colorWhite);
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 		//GL_ClientState(tr.screenShader.attribs);
 		GL_Cull(CT_TWO_SIDED);
 
@@ -3243,9 +3237,16 @@ static void Render_liquid(int stage)
 
 	// enable shader, set arrays
 	GL_Program(&tr.liquidShader);
-	GL_ClientState(tr.liquidShader.attribs);
 
-	qglColor4fv(tess.svars.color);
+	if(pStage->vertexColor || pStage->inverseVertexColor)
+	{
+		GL_ClientState(tr.liquidShader.attribs);
+	}
+	else
+	{
+		GL_ClientState(tr.liquidShader.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
+	}
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space

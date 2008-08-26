@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
+attribute vec4		attr_Color;
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
@@ -50,7 +52,7 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * gl_Vertex) * boneWeight;
+			vertex += (boneMatrix * attr_Position) * boneWeight;
 		}
 
 		// transform vertex position into homogenous clip-space
@@ -63,18 +65,18 @@ void	main()
 #endif
 	{
 		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
 		// transform position into world space
-		var_Vertex.xyz = (u_ModelMatrix * gl_Vertex).xyz;
+		var_Vertex.xyz = (u_ModelMatrix * attr_Position).xyz;
 	}
 	
 	// calc light attenuation in light space
-	var_TexAtten = u_LightAttenuationMatrix * gl_Vertex;
+	var_TexAtten = u_LightAttenuationMatrix * attr_Position;
 	
 	// calc shadow attenuation in light space
-	var_TexShadow = u_ShadowMatrix * gl_Vertex;
+	var_TexShadow = u_ShadowMatrix * attr_Position;
 	
 	// assign color
-	var_Color = gl_Color;
+	var_Color = attr_Color;
 }

@@ -20,10 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 attribute vec4		attr_TexCoord1;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
+attribute vec3		attr_Normal;
 
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
@@ -40,10 +42,10 @@ varying mat3		var_OS2TSMatrix;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// assign position in object space
-	var_Vertex = gl_Vertex.xyz;
+	var_Vertex = attr_Position.xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
@@ -58,7 +60,7 @@ void	main()
 	var_TexLight = attr_TexCoord1.st;
 	
 	// construct object-space-to-tangent-space 3x3 matrix
-	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, gl_Normal.x,
-							attr_Tangent.y, attr_Binormal.y, gl_Normal.y,
-							attr_Tangent.z, attr_Binormal.z, gl_Normal.z	);
+	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, attr_Normal.x,
+							attr_Tangent.y, attr_Binormal.y, attr_Normal.y,
+							attr_Tangent.z, attr_Binormal.z, attr_Normal.z	);
 }

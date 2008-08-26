@@ -20,9 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
+attribute vec3		attr_Normal;
+attribute vec4		attr_Color;
 
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
@@ -34,15 +37,15 @@ varying vec4		var_Color;
 void	main()
 {
 	// transform vertex position into homogenous clip-space
-	gl_Position = u_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// transform position into world space
-	var_Vertex = (u_ModelMatrix * gl_Vertex).xyz;
+	var_Vertex = (u_ModelMatrix * attr_Position).xyz;
 	
 	// transform normal into world space
-	var_Normal = (u_ModelMatrix * vec4(gl_Normal, 0.0)).xyz;
+	var_Normal = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 	
 	// assign color
-	var_Color = gl_Color;
+	var_Color = attr_Color;
 }
 
