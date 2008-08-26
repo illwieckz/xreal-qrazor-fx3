@@ -119,7 +119,7 @@ void GL_TextureFilter(image_t * image, filterType_t filterType)
 	}
 }
 
-void GL_Program(shaderProgram_t * program)
+void GL_BindProgram(shaderProgram_t * program)
 {
 	if(!program)
 	{
@@ -177,53 +177,6 @@ void GL_SelectTexture(int unit)
 
 	glState.currenttmu = unit;
 }
-
-/*
-void GL_BindMultitexture(image_t * image0, GLuint env0, image_t * image1, GLuint env1)
-{
-	int             texnum0, texnum1;
-
-	texnum0 = image0->texnum;
-	texnum1 = image1->texnum;
-
-	if(r_nobind->integer && tr.defaultImage)
-	{
-		// performance evaluation option
-		texnum0 = texnum1 = tr.defaultImage->texnum;
-	}
-
-	if(glState.currenttextures[1] != texnum1)
-	{
-		GL_SelectTexture(1);
-		image1->frameUsed = tr.frameCount;
-		glState.currenttextures[1] = texnum1;
-		qglBindTexture(GL_TEXTURE_2D, texnum1);
-	}
-	if(glState.currenttextures[0] != texnum0)
-	{
-		GL_SelectTexture(0);
-		image0->frameUsed = tr.frameCount;
-		glState.currenttextures[0] = texnum0;
-		qglBindTexture(GL_TEXTURE_2D, texnum0);
-	}
-}
-*/
-
-/*
-void GL_LoadTextureMatrix(const matrix_t m)
-{
-	if(MatrixCompare(glState.textureMatrix[glState.currenttmu], m))
-	{
-		return;
-	}
-
-	MatrixCopy(m, glState.textureMatrix[glState.currenttmu]);
-
-	qglMatrixMode(GL_TEXTURE);
-	qglLoadMatrixf(glState.textureMatrix[glState.currenttmu]);
-	qglMatrixMode(GL_MODELVIEW);
-}
-*/
 
 void GL_LoadModelViewMatrix(const matrix_t m)
 {
@@ -945,7 +898,7 @@ static void Render_lightVolume(trRefLight_t * light)
 			GLimp_LogComment("--- Render_lightVolume_omni ---\n");
 
 			// enable shader, set arrays
-			GL_Program(tr.lightVolumeShader_omni.program);
+			GL_BindProgram(tr.lightVolumeShader_omni.program);
 			//GL_ClientState(tr.lightVolumeShader_omni.attribs);
 			GL_Cull(CT_BACK_SIDED);
 			GL_SelectTexture(0);
@@ -1378,7 +1331,7 @@ static void RB_RenderInteractionsStencilShadowed()
 					qglPolygonOffset(r_shadowOffsetFactor->value, r_shadowOffsetUnits->value);
 
 					// enable shadow volume extrusion shader
-					GL_Program(&tr.shadowExtrudeShader);
+					GL_BindProgram(&tr.shadowExtrudeShader);
 					GL_ClientState(tr.shadowExtrudeShader.attribs);
 				}
 			}
@@ -1414,7 +1367,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				//qglDisable(GL_POLYGON_OFFSET_FILL);
 
 				// disable shadow volume extrusion shader
-				GL_Program(NULL);
+				GL_BindProgram(NULL);
 			}
 		}
 
@@ -1540,6 +1493,11 @@ static void RB_RenderInteractionsStencilShadowed()
 
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
 
+			if(drawShadows && !light->l.noShadows)
+			{
+				qglUniformMatrix4fvARB(tr.shadowExtrudeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+			}
+
 			// change depthrange if needed
 			if(oldDepthRange != depthRange)
 			{
@@ -1571,7 +1529,7 @@ static void RB_RenderInteractionsStencilShadowed()
 				VectorCopy(light->origin, light->transformed);
 			}
 
-			if(drawShadows)
+			if(drawShadows && !light->l.noShadows)
 			{
 				// set uniform parameter u_LightOrigin for GLSL shader
 				qglUniform3fARB(tr.shadowExtrudeShader.u_LightOrigin, light->transformed[0], light->transformed[1],
@@ -1775,7 +1733,7 @@ static void RB_RenderInteractionsShadowMapped()
 			if(drawShadows)
 			{
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
-				GL_Program(NULL);
+				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
 				GL_ClientState(GLCS_VERTEX);
 
@@ -2725,7 +2683,7 @@ void RB_RenderInteractionsDeferred()
 					if(light->l.rlType == RL_OMNI)
 					{
 						// enable shader, set arrays
-						GL_Program(&tr.deferredLightingShader_DBS_omni);
+						GL_BindProgram(&tr.deferredLightingShader_DBS_omni);
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -2789,7 +2747,7 @@ void RB_RenderInteractionsDeferred()
 					else if(light->l.rlType == RL_PROJ)
 					{
 						// enable shader, set arrays
-						GL_Program(&tr.deferredLightingShader_DBS_proj);
+						GL_BindProgram(&tr.deferredLightingShader_DBS_proj);
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -2970,7 +2928,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			if(drawShadows)
 			{
 				// HACK: bring OpenGL into a safe state or strange FBO update problems will occur
-				GL_Program(NULL);
+				GL_BindProgram(NULL);
 				GL_State(GLS_DEFAULT);
 				GL_ClientState(GLCS_VERTEX);
 
@@ -3292,7 +3250,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					if(light->l.rlType == RL_OMNI)
 					{
 						// enable shader, set arrays
-						GL_Program(&tr.deferredLightingShader_DBS_omni);
+						GL_BindProgram(&tr.deferredLightingShader_DBS_omni);
 
 						// set OpenGL state for additive lighting
 						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -3365,7 +3323,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 					{
 						if(light->l.inverseShadows)
 						{
-							GL_Program(&tr.deferredShadowingShader_proj);
+							GL_BindProgram(&tr.deferredShadowingShader_proj);
 
 							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 
@@ -3423,7 +3381,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 						else
 						{
-							GL_Program(&tr.deferredLightingShader_DBS_proj);
+							GL_BindProgram(&tr.deferredLightingShader_DBS_proj);
 
 							// set OpenGL state for additive lighting
 							GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE);
@@ -3820,7 +3778,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 		return;
 
 	// enable shader, set arrays
-	GL_Program(&tr.screenSpaceAmbientOcclusionShader);
+	GL_BindProgram(&tr.screenSpaceAmbientOcclusionShader);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
@@ -3916,7 +3874,7 @@ void RB_RenderDepthOfField(qboolean deferred)
 		return;
 
 	// enable shader, set arrays
-	GL_Program(&tr.depthOfFieldShader);
+	GL_BindProgram(&tr.depthOfFieldShader);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
@@ -3988,7 +3946,7 @@ void RB_RenderUniformFog(qboolean deferred)
 		return;
 
 	// enable shader, set arrays
-	GL_Program(&tr.uniformFogShader);
+	GL_BindProgram(&tr.uniformFogShader);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);
@@ -4080,7 +4038,7 @@ void RB_RenderBloom(void)
 		GL_Cull(CT_TWO_SIDED);
 
 		// render contrast
-		GL_Program(&tr.contrastShader);
+		GL_BindProgram(&tr.contrastShader);
 		GL_ClientState(tr.contrastShader.attribs);
 
 		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -4100,7 +4058,7 @@ void RB_RenderBloom(void)
 
 
 		// render bloom
-		GL_Program(&tr.bloomShader);
+		GL_BindProgram(&tr.bloomShader);
 		GL_ClientState(tr.bloomShader.attribs);
 
 		qglUniformMatrix4fvARB(tr.bloomShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -4134,7 +4092,7 @@ void RB_RenderBloom(void)
 	   GL_Cull(CT_TWO_SIDED);
 
 	   // render contrast
-	   GL_Program(tr.contrastShader.program);
+	   GL_BindProgram(tr.contrastShader.program);
 	   GL_ClientState(tr.contrastShader.attribs);
 
 	   GL_SelectTexture(0);
@@ -4152,7 +4110,7 @@ void RB_RenderBloom(void)
 	   qglEnd();
 
 	   // render blurX
-	   GL_Program(tr.blurXShader.program);
+	   GL_BindProgram(tr.blurXShader.program);
 	   GL_ClientState(tr.blurXShader.attribs);
 
 	   qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -4171,7 +4129,7 @@ void RB_RenderBloom(void)
 	   qglEnd();
 
 	   // render blurY
-	   GL_Program(tr.blurYShader.program);
+	   GL_BindProgram(tr.blurYShader.program);
 	   GL_ClientState(tr.blurYShader.attribs);
 
 	   qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -4190,7 +4148,7 @@ void RB_RenderBloom(void)
 	   qglEnd();
 
 	   // render bloom
-	   GL_Program(tr.bloomShader.program);
+	   GL_BindProgram(tr.bloomShader.program);
 	   GL_ClientState(tr.bloomShader.attribs);
 
 	   qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
@@ -4239,7 +4197,7 @@ void RB_RenderRotoscope(void)
 	GL_Cull(CT_TWO_SIDED);
 
 	// enable shader, set arrays
-	GL_Program(&tr.rotoscopeShader);
+	GL_BindProgram(&tr.rotoscopeShader);
 	GL_ClientState(tr.rotoscopeShader.attribs);
 
 	qglUniformMatrix4fvARB(tr.rotoscopeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -4272,7 +4230,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	R_BindNullFBO();
 
 	// enable shader, set arrays
-	GL_Program(&tr.screenShader);
+	GL_BindProgram(&tr.screenShader);
 
 	/*
 	   if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
@@ -4355,7 +4313,7 @@ void RB_RenderLightOcclusionQueries()
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
-		GL_Program(&tr.genericSingleShader);
+		GL_BindProgram(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
 		//GL_ClientState(GLCS_VERTEX);
 		//GL_SelectTexture(0);
@@ -4725,7 +4683,7 @@ static void RB_RenderDebugUtils()
 		vec4_t          tmp;
 		vec4_t          lightColor;
 
-		GL_Program(NULL);
+		GL_BindProgram(NULL);
 		GL_State(0);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -4923,7 +4881,7 @@ static void RB_RenderDebugUtils()
 		surfaceType_t  *surface;
 		vec4_t          lightColor;
 
-		GL_Program(NULL);
+		GL_BindProgram(NULL);
 		GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -5069,7 +5027,7 @@ static void RB_RenderDebugUtils()
 		trRefEntity_t  *ent;
 		int             i;
 
-		GL_Program(NULL);
+		GL_BindProgram(NULL);
 		GL_State(0);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -5106,7 +5064,7 @@ static void RB_RenderDebugUtils()
 		vec3_t          diff, tmp, tmp2, tmp3;
 		vec_t           length;
 
-		GL_Program(NULL);
+		GL_BindProgram(NULL);
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
@@ -5223,7 +5181,7 @@ static void RB_RenderDebugUtils()
 		int             iaCount;
 		matrix_t		ortho;
 
-		GL_Program(&tr.genericSingleShader);
+		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
 
@@ -5333,7 +5291,7 @@ static void RB_RenderDebugUtils()
 	   int             i, j;
 	   bspAreaPortal_t *ap;
 
-	   GL_Program(0);
+	   GL_BindProgram(0);
 	   GL_State(GLS_DEPTHTEST_DISABLE);
 	   GL_SelectTexture(0);
 	   GL_Bind(tr.whiteImage);

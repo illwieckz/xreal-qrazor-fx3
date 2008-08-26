@@ -2287,7 +2287,7 @@ void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const
 void            GL_Bind(image_t * image);
 void            BindAnimatedImage(textureBundle_t * bundle);
 void            GL_TextureFilter(image_t * image, filterType_t filterType);
-void			GL_Program(shaderProgram_t * program);
+void			GL_BindProgram(shaderProgram_t * program);
 void			GL_BindNullProgram(void);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
@@ -2303,7 +2303,6 @@ void            GL_CheckErrors_(const char *filename, int line);
 
 void            GL_State(unsigned long stateVector);
 void            GL_ClientState(unsigned long stateBits);
-//void            GL_SetVertexAttribs();
 void            GL_Cull(int cullType);
 
 // *INDENT-OFF*

@@ -22,10 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // qgl.h
-/*
-** QGL.H
-*/
-
 #ifndef __QGL_H__
 #define __QGL_H__
 
@@ -35,15 +31,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	include <SDL_opengl.h>
 #endif
 
-//===========================================================================
 
 int				QGL_Init();
 void            QGL_Shutdown(void);
 void            QGL_EnableLogging(int enable);
 
+/*
+	This interface is similar to OpenGL 2.0 ES.
+*/
 
-// dlopening systems use a function pointer for each call so we can load minidrivers
-
+// OpenGL 1.x core API
 extern void     (APIENTRY * qglBegin) (GLenum mode);
 extern void     (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
 extern void     (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
@@ -109,10 +106,6 @@ extern void     (APIENTRY * qglTexSubImage2D) (GLenum target, GLint level, GLint
 											   GLsizei height, GLenum format, GLenum type, const GLvoid * pixels);
 extern void     (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
-
-//===========================================================================
-
-// extensions will be function pointers on all platforms
 
 // GL_ARB_multitexture
 extern void     (APIENTRY * qglActiveTextureARB) (GLenum texture);

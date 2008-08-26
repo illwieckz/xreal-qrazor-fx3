@@ -1840,7 +1840,7 @@ static void DrawTris()
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 	}
 	
-	GL_Program(&tr.genericSingleShader);
+	GL_BindProgram(&tr.genericSingleShader);
 	GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 	GL_ClientState(GLCS_VERTEX);
 
@@ -1949,7 +1949,7 @@ static void Render_genericSingle(int stage)
 	pStage = tess.surfaceStages[stage];
 
 	GL_State(pStage->stateBits);
-	GL_Program(&tr.genericSingleShader);
+	GL_BindProgram(&tr.genericSingleShader);
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
@@ -2007,7 +2007,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.vertexLightingShader_DBS_entity);
+	GL_BindProgram(&tr.vertexLightingShader_DBS_entity);
 	GL_ClientState(tr.vertexLightingShader_DBS_entity.attribs);
 
 	// set uniforms
@@ -2085,7 +2085,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.vertexLightingShader_DBS_world);
+	GL_BindProgram(&tr.vertexLightingShader_DBS_world);
 	GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
 
 	// set uniforms
@@ -2150,7 +2150,7 @@ static void Render_lightMapping(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.lightMappingShader);
+	GL_BindProgram(&tr.lightMappingShader);
 	GL_ClientState(tr.lightMappingShader.attribs);
 
 	qglUniformMatrix4fvARB(tr.lightMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -2192,7 +2192,7 @@ static void Render_deluxeMapping(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.deluxeMappingShader);
+	GL_BindProgram(&tr.deluxeMappingShader);
 	GL_ClientState(tr.deluxeMappingShader.attribs);
 
 	// set uniforms
@@ -2272,7 +2272,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	GL_State(stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.geometricFillShader_DBS);
+	GL_BindProgram(&tr.geometricFillShader_DBS);
 	GL_ClientState(tr.geometricFillShader_DBS.attribs);
 
 	// set uniforms
@@ -2390,7 +2390,7 @@ static void Render_depthFill(int stage)
 	GL_State(stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.depthFillShader);
+	GL_BindProgram(&tr.depthFillShader);
 	GL_ClientState(tr.depthFillShader.attribs);
 
 	if(r_precomputedLighting->integer)
@@ -2471,7 +2471,7 @@ static void Render_shadowFill(int stage)
 	GL_State(stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.shadowFillShader);
+	GL_BindProgram(&tr.shadowFillShader);
 	GL_ClientState(tr.shadowFillShader.attribs & ~(GLCS_COLOR));
 
 	if(r_debugShadowMaps->integer)
@@ -2538,7 +2538,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	GLimp_LogComment("--- Render_forwardLighting_DBS_omni ---\n");
 
 	// enable shader, set arrays
-	GL_Program(&tr.forwardLightingShader_DBS_omni);
+	GL_BindProgram(&tr.forwardLightingShader_DBS_omni);
 
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
@@ -2651,7 +2651,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	GLimp_LogComment("--- Render_fowardLighting_DBS_proj ---\n");
 
 	// enable shader, set arrays
-	GL_Program(&tr.forwardLightingShader_DBS_proj);
+	GL_BindProgram(&tr.forwardLightingShader_DBS_proj);
 
 	if(diffuseStage->vertexColor || diffuseStage->inverseVertexColor)
 	{
@@ -2769,7 +2769,7 @@ static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
 		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
 
 	// enable shader, set arrays
-	GL_Program(&tr.forwardShadowingShader_proj);
+	GL_BindProgram(&tr.forwardShadowingShader_proj);
 	GL_ClientState(tr.forwardShadowingShader_proj.attribs);
 
 	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
@@ -2820,7 +2820,7 @@ static void Render_reflection_C(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.reflectionShader_C);
+	GL_BindProgram(&tr.reflectionShader_C);
 	GL_ClientState(tr.reflectionShader_C.attribs);
 
 	// set uniforms
@@ -2855,7 +2855,7 @@ static void Render_reflection_CB(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.reflectionShader_CB);
+	GL_BindProgram(&tr.reflectionShader_CB);
 	GL_ClientState(tr.reflectionShader_CB.attribs);
 
 	// set uniforms
@@ -2895,7 +2895,7 @@ static void Render_refraction_C(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.refractionShader_C);
+	GL_BindProgram(&tr.refractionShader_C);
 	GL_ClientState(tr.refractionShader_C.attribs);
 
 	// set uniforms
@@ -2936,7 +2936,7 @@ static void Render_dispersion_C(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.dispersionShader_C);
+	GL_BindProgram(&tr.dispersionShader_C);
 	GL_ClientState(tr.dispersionShader_C.attribs);
 
 	// set uniforms
@@ -2978,7 +2978,7 @@ static void Render_skybox(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.skyBoxShader);
+	GL_BindProgram(&tr.skyBoxShader);
 	GL_ClientState(tr.skyBoxShader.attribs);
 
 	// set uniforms
@@ -3005,7 +3005,7 @@ static void Render_screen(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.screenShader);
+	GL_BindProgram(&tr.screenShader);
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
@@ -3037,7 +3037,7 @@ static void Render_portal(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.portalShader);
+	GL_BindProgram(&tr.portalShader);
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{
@@ -3092,7 +3092,7 @@ static void Render_heatHaze(int stage)
 		GL_State(stateBits);
 
 		// enable shader, set arrays
-		GL_Program(&tr.depthTestShader);
+		GL_BindProgram(&tr.depthTestShader);
 		GL_ClientState(tr.depthTestShader.attribs);
 
 		// set uniforms
@@ -3121,7 +3121,7 @@ static void Render_heatHaze(int stage)
 		//
 
 		// enable shader, set arrays
-		GL_Program(&tr.screenShader);
+		GL_BindProgram(&tr.screenShader);
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
 		//GL_ClientState(tr.screenShader.attribs);
@@ -3161,7 +3161,7 @@ static void Render_heatHaze(int stage)
 	GL_State(stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.heatHazeShader);
+	GL_BindProgram(&tr.heatHazeShader);
 	GL_ClientState(tr.heatHazeShader.attribs);
 
 	// set uniforms
@@ -3223,7 +3223,7 @@ static void Render_liquid(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_Program(&tr.liquidShader);
+	GL_BindProgram(&tr.liquidShader);
 
 	if(pStage->vertexColor || pStage->inverseVertexColor)
 	{

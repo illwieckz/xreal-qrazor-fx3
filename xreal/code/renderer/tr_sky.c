@@ -707,7 +707,7 @@ void RB_DrawSun(void)
 
 	GL_PushMatrix();
 		
-	GL_Program(&tr.genericSingleShader);
+	GL_BindProgram(&tr.genericSingleShader);
 	
 	// set uniforms
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
@@ -878,7 +878,7 @@ void Tess_StageIteratorSky(void)
 
 		GL_PushMatrix();
 		
-		GL_Program(&tr.genericSingleShader);
+		GL_BindProgram(&tr.genericSingleShader);
 	
 		// set uniforms
 		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);

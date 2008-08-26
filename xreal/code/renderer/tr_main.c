@@ -2251,7 +2251,7 @@ void R_DebugPolygon(int color, int numPoints, float *points)
 #if 0
 	int             i;
 
-	GL_Program(0);
+	GL_BindProgram(0);
 	GL_ClientState(GLCS_DEFAULT);
 	GL_State(GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
@@ -2292,7 +2292,7 @@ static void R_DebugGraphics(void)
 		// the render thread can't make callbacks to the main thread
 		R_SyncRenderThread();
 
-		GL_Program(0);
+		GL_BindProgram(0);
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
 		GL_Cull(CT_FRONT_SIDED);
