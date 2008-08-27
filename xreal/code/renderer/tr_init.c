@@ -1010,6 +1010,15 @@ void GL_SetDefaultState(void)
 	// arrays are enabled and disabled around the compiled vertex array call
 	qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 
+	/*
+	OpenGL 3.0 spec: E.1. PROFILES AND DEPRECATED FEATURES OF OPENGL 3.0 405
+	Calling VertexAttribPointer when no buffer object or no
+	vertex array object is bound will generate an INVALID OPERATION error,
+	as will calling any array drawing command when no vertex array object is
+	bound.
+	*/
+
+	/*
 	qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, tess.xyz);
 	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
 	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
@@ -1019,6 +1028,7 @@ void GL_SetDefaultState(void)
 	qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
 	qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
 	qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
+	*/
 
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;

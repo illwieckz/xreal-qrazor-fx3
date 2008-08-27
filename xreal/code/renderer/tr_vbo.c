@@ -399,6 +399,7 @@ void R_BindNullVBO(void)
 	{
 		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
+		/*
 		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, tess.xyz);
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
 		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
@@ -408,6 +409,7 @@ void R_BindNullVBO(void)
 		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
 		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
 		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
+		*/
 
 		glState.currentVBO = NULL;
 	}
@@ -465,11 +467,45 @@ R_InitVBOs
 */
 void R_InitVBOs(void)
 {
+	int				dataSize;	
+	byte		   *data;
+
 	Com_InitGrowList(&tr.vbos, 100);
 	Com_InitGrowList(&tr.ibos, 100);
 
+	dataSize = sizeof(vec4_t) * SHADER_MAX_VERTEXES * 9;
+	data = Com_Allocate(dataSize);
+	memset(data, 0, dataSize);
+
+	tess.vbo = R_CreateStaticVBO("tessVertexArray_VBO", data, dataSize);
+	R_BindVBO(tess.vbo);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_DYNAMIC_DRAW_ARB);
+	tess.vbo->ofsXYZ = 0;
+	tess.vbo->ofsTexCoords = tess.vbo->ofsXYZ + sizeof(tess.xyz);
+	tess.vbo->ofsLightCoords = tess.vbo->ofsTexCoords + sizeof(tess.texCoords);
+	tess.vbo->ofsTangents = tess.vbo->ofsLightCoords + sizeof(tess.lightCoords);
+	tess.vbo->ofsBinormals = tess.vbo->ofsTangents + sizeof(tess.tangents);
+	tess.vbo->ofsNormals = tess.vbo->ofsBinormals + sizeof(tess.binormals);
+	tess.vbo->ofsColors = tess.vbo->ofsNormals + sizeof(tess.normals);
+	tess.vbo->ofsBoneIndexes = tess.vbo->ofsColors + sizeof(tess.colors);
+	tess.vbo->ofsBoneWeights = tess.vbo->ofsBoneIndexes + sizeof(tess.boneIndexes);
+
+	Com_Dealloc(data);
+
+	dataSize = sizeof(tess.indexes);
+	data = Com_Allocate(dataSize);
+	memset(data, 0, dataSize);
+
+	tess.ibo = R_CreateStaticIBO("tessVertexArray_IBO", data, dataSize);
+	R_BindIBO(tess.ibo);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, data, GL_DYNAMIC_DRAW_ARB);
+
+	Com_Dealloc(data);
+
 	R_BindNullVBO();
 	R_BindNullIBO();
+
+	GL_CheckErrors();
 }
 
 /*

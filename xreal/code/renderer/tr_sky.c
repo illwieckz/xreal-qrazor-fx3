@@ -364,6 +364,7 @@ static int      sky_texorder[6] = { 0, 2, 1, 3, 4, 5 };
 static vec4_t   s_skyPoints[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1];
 static float    s_skyTexCoords[SKY_SUBDIVISIONS + 1][SKY_SUBDIVISIONS + 1][4];
 
+/*
 static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs[2])
 {
 	int             s, t;
@@ -387,7 +388,9 @@ static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs
 		qglEnd();
 	}
 }
+*/
 
+/*
 static void DrawSkyBox(shader_t * shader)
 {
 	int             i;
@@ -448,8 +451,8 @@ static void DrawSkyBox(shader_t * shader)
 
 		DrawSkySide(shader->sky.outerbox[sky_texorder[i]], sky_mins_subd, sky_maxs_subd);
 	}
-
 }
+*/
 
 static void FillCloudySkySide(const int mins[2], const int maxs[2], qboolean addIndexes)
 {
@@ -623,6 +626,8 @@ static void BuildCloudData()
 			FillCloudBox(tess.surfaceShader, i);
 		}
 	}
+
+	Tess_ArraysToVBOs();
 }
 
 /*
@@ -869,6 +874,7 @@ void Tess_StageIteratorSky(void)
 	}
 
 	// draw the outer skybox
+	/*
 	if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
 	{
 		matrix_t		transformMatrix;
@@ -900,6 +906,7 @@ void Tess_StageIteratorSky(void)
 
 		GL_PopMatrix();
 	}
+	*/
 
 	// generate the vertexes for all the clouds, which will be drawn
 	// by the generic shader routine

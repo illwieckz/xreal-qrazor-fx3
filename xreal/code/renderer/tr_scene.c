@@ -471,6 +471,12 @@ void RE_RenderScene(const refdef_t * fd)
 	parms.viewportY = glConfig.vidHeight - (tr.refdef.y + tr.refdef.height);
 	parms.viewportWidth = tr.refdef.width;
 	parms.viewportHeight = tr.refdef.height;
+
+	VectorSet4(parms.viewportVerts[0], parms.viewportX, parms.viewportY, 0, 1);
+	VectorSet4(parms.viewportVerts[1], parms.viewportX + parms.viewportWidth, parms.viewportY, 0, 1);
+	VectorSet4(parms.viewportVerts[2], parms.viewportX + parms.viewportWidth, parms.viewportY + parms.viewportHeight, 0, 1);
+	VectorSet4(parms.viewportVerts[3], parms.viewportX, parms.viewportY + parms.viewportHeight, 0, 1);
+
 	parms.isPortal = qfalse;
 
 	parms.fovX = tr.refdef.fov_x;

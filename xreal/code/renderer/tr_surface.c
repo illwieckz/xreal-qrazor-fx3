@@ -2169,7 +2169,6 @@ static void Tess_SurfaceVBOMD5Mesh(srfVBOMD5Mesh_t * srf)
 {
 	int				i;
 	md5Model_t     *model;
-	md5Bone_t      *bone;
 
 	GLimp_LogComment("--- Tess_SurfaceVBOMD5Mesh ---\n");
 

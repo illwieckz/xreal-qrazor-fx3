@@ -965,6 +965,7 @@ typedef struct
 
 	cplane_t        portalPlane;	// clip anything behind this if mirroring
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
+	vec4_t			viewportVerts[4];	// for immediate 2D quad rendering
 
 	float           fovX, fovY;
 	matrix_t        projectionMatrix;
@@ -2502,16 +2503,20 @@ typedef struct stageVars
 
 typedef struct shaderCommands_s
 {
-	glIndex_t       indexes[SHADER_MAX_INDEXES];
+	vec4_t          texCoords[SHADER_MAX_VERTEXES];
+	vec4_t          lightCoords[SHADER_MAX_VERTEXES];
 	vec4_t          xyz[SHADER_MAX_VERTEXES];
 	vec4_t          tangents[SHADER_MAX_VERTEXES];
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
-	vec4_t          texCoords[SHADER_MAX_VERTEXES];
-	vec4_t          lightCoords[SHADER_MAX_VERTEXES];
 	vec4_t          colors[SHADER_MAX_VERTEXES];
 	vec4_t          boneIndexes[SHADER_MAX_VERTEXES];
 	vec4_t          boneWeights[SHADER_MAX_VERTEXES];
+
+	glIndex_t       indexes[SHADER_MAX_INDEXES];
+
+	VBO_t          *vbo;
+	IBO_t          *ibo;
 
 	stageVars_t     svars;
 
@@ -2549,6 +2554,10 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 							int lightmapNum);
 // *INDENT-ON*
 void            Tess_End(void);
+void			Tess_DrawElements();
+void			Tess_ArraysToVBOs();
+void            Tess_InstantQuad(vec4_t quadVerts[4]);
+
 void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_ComputeColor(shaderStage_t * pStage);

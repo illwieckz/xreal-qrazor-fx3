@@ -1714,10 +1714,10 @@ void GLSL_ShutdownGPUShaders(void)
 
 /*
 ==================
-DrawElements
+Tess_DrawElements
 ==================
 */
-static void DrawElements()
+void Tess_DrawElements()
 {
 	// move tess data through the GPU, finally
 	if(glState.currentVBO && glState.currentIBO)
@@ -1831,6 +1831,10 @@ static void DrawTris()
 	{
 		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[backEnd.pc.c_batches % 8]);
 	}
+	else if(glState.currentVBO == tess.vbo)
+	{
+		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 0, 0, 1);
+	}
 	else if(glState.currentVBO)
 	{
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0, 0, 1, 1);
@@ -1863,7 +1867,7 @@ static void DrawTris()
 
 	qglDepthRange(0, 0);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	qglDepthRange(0, 1);
 }
@@ -1989,7 +1993,7 @@ static void Render_genericSingle(int stage)
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_COLORMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2070,7 +2074,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	}
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_SpecularTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_SPECULARMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2133,7 +2137,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 	}
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_SpecularTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_SPECULARMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2174,7 +2178,7 @@ static void Render_lightMapping(int stage)
 	GL_SelectTexture(1);
 	BindLightMap();
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2248,7 +2252,7 @@ static void Render_deluxeMapping(int stage)
 	GL_SelectTexture(4);
 	BindDeluxeMap();
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2366,7 +2370,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	}
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_SpecularTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_SPECULARMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2447,7 +2451,7 @@ static void Render_depthFill(int stage)
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
 	qglUniformMatrix4fvARB(tr.depthFillShader.u_ColorTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2520,7 +2524,7 @@ static void Render_shadowFill(int stage)
 		GL_Bind(tr.whiteImage);
 	}
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2633,7 +2637,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 		GL_Bind(tr.shadowCubeFBOImage[light->shadowLOD]);
 	}
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2747,7 +2751,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 	}
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2805,7 +2809,7 @@ static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
 	GL_SelectTexture(2);
 	GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2840,7 +2844,7 @@ static void Render_reflection_C(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2880,7 +2884,7 @@ static void Render_reflection_CB(int stage)
 	GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_NormalTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_NORMALMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2919,7 +2923,7 @@ static void Render_refraction_C(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2963,7 +2967,7 @@ static void Render_dispersion_C(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -2991,7 +2995,7 @@ static void Render_skybox(int stage)
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -3023,7 +3027,7 @@ static void Render_screen(int stage)
 	GL_SelectTexture(0);
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -3057,7 +3061,7 @@ static void Render_portal(int stage)
 	GL_SelectTexture(0);
 	BindAnimatedImage(&pStage->bundle[TB_COLORMAP]);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -3107,7 +3111,7 @@ static void Render_heatHaze(int stage)
 		GL_SelectTexture(1);
 		GL_Bind(tr.currentRenderImage);
 
-		DrawElements();
+		Tess_DrawElements();
 
 		// capture current color buffer for u_ContrastMap 
 		GL_SelectTexture(0);
@@ -3143,12 +3147,7 @@ static void Render_heatHaze(int stage)
 
 		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-		qglBegin(GL_QUADS);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, 0, 1);
-		qglEnd();
+		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
 		GL_PopMatrix();
 	}
@@ -3208,7 +3207,7 @@ static void Render_heatHaze(int stage)
 		GL_Bind(tr.contrastRenderImage);
 	}
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -3255,7 +3254,7 @@ static void Render_liquid(int stage)
 	GL_SelectTexture(1);
 	GL_Bind(tr.portalRenderImage);
 
-	DrawElements();
+	Tess_DrawElements();
 
 	GL_CheckErrors();
 }
@@ -4033,20 +4032,20 @@ void Tess_StageIteratorStencilShadowVolume()
 		GL_Cull(CT_FRONT_SIDED);
 		//qglColor4f(1.0f, 1.0f, 0.7f, 0.05f);
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
-		DrawElements();
+		Tess_DrawElements();
 #endif
 
 #if 1
 		GL_Cull(CT_BACK_SIDED);
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0.0f, 1.0f, 0.0f, 0.05f);
-		DrawElements();
+		Tess_DrawElements();
 #endif
 
 #if 1
 		GL_State(GLS_DEPTHFUNC_LESS | GLS_POLYMODE_LINE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		GL_Cull(CT_TWO_SIDED);
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 0.0f, 0.0f, 1.0f, 0.05f);
-		DrawElements();
+		Tess_DrawElements();
 #endif
 	}
 	else
@@ -4066,7 +4065,7 @@ void Tess_StageIteratorStencilShadowVolume()
 				qglStencilOpSeparateATI(GL_BACK, GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 				qglStencilOpSeparateATI(GL_FRONT, GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 
-				DrawElements();
+				Tess_DrawElements();
 			}
 			else if(qglActiveStencilFaceEXT)
 			{
@@ -4095,7 +4094,7 @@ void Tess_StageIteratorStencilShadowVolume()
 					qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 				}
 
-				DrawElements();
+				Tess_DrawElements();
 
 				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 			}
@@ -4114,7 +4113,7 @@ void Tess_StageIteratorStencilShadowVolume()
 					qglStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
 				}
 
-				DrawElements();
+				Tess_DrawElements();
 
 				// draw only the back faces of the shadow volume
 				GL_Cull(CT_BACK_SIDED);
@@ -4129,7 +4128,7 @@ void Tess_StageIteratorStencilShadowVolume()
 					qglStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
 				}
 
-				DrawElements();
+				Tess_DrawElements();
 			}
 
 			//if(backEnd.viewParms.isMirror)
@@ -4153,7 +4152,7 @@ void Tess_StageIteratorStencilShadowVolume()
 				qglStencilOpSeparateATI(GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
 				qglStencilOpSeparateATI(GL_BACK, GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
-				DrawElements();
+				Tess_DrawElements();
 			}
 			else if(qglActiveStencilFaceEXT)
 			{
@@ -4182,7 +4181,7 @@ void Tess_StageIteratorStencilShadowVolume()
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
 				}
 
-				DrawElements();
+				Tess_DrawElements();
 
 				qglDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 			}
@@ -4201,7 +4200,7 @@ void Tess_StageIteratorStencilShadowVolume()
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 				}
 
-				DrawElements();
+				Tess_DrawElements();
 
 				// draw only the front faces of the shadow volume
 				GL_Cull(CT_FRONT_SIDED);
@@ -4216,7 +4215,7 @@ void Tess_StageIteratorStencilShadowVolume()
 					qglStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
 				}
 
-				DrawElements();
+				Tess_DrawElements();
 			}
 
 			//if(backEnd.viewParms.isMirror)
@@ -4481,6 +4480,104 @@ void Tess_StageIteratorLighting()
 	}
 }
 
+void Tess_ArraysToVBOs()
+{
+	// bind default VBO to replace the client side vertex array
+
+	// update the default VBO
+	R_BindVBO(tess.vbo);
+
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
+	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
+
+//	GL_CheckErrors();
+		
+	// update the default IBO
+	R_BindIBO(tess.ibo);
+	qglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
+
+//	GL_CheckErrors();
+}
+
+void Tess_InstantQuad(vec4_t quadVerts[4])
+{
+	// FIXME: use quad stamp
+	//Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse, -1);
+
+	tess.numVertexes = 0;
+	tess.numIndexes = 0;
+	
+	VectorCopy4(quadVerts[0], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	VectorCopy4(quadVerts[1], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 1;
+	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	VectorCopy4(quadVerts[2], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 1;
+	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	VectorCopy4(quadVerts[3], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	tess.indexes[tess.numIndexes++] = 0;
+	tess.indexes[tess.numIndexes++] = 1;
+	tess.indexes[tess.numIndexes++] = 2;
+	tess.indexes[tess.numIndexes++] = 0;
+	tess.indexes[tess.numIndexes++] = 2;
+	tess.indexes[tess.numIndexes++] = 3;
+
+	Tess_ArraysToVBOs();
+
+	Tess_DrawElements();
+
+	tess.numVertexes = 0;
+	tess.numIndexes = 0;
+
+	//R_BindNullVBO();
+	//R_BindNullIBO();
+
+	GL_CheckErrors();
+}
+
 /*
 =================
 Tess_End
@@ -4513,6 +4610,15 @@ void Tess_End()
 	// update performance counter
 	backEnd.pc.c_batches++;
 
+	GL_CheckErrors();
+
+#if 1
+	if(!glState.currentVBO && !glState.currentIBO)
+	{
+		Tess_ArraysToVBOs();
+	}
+#endif
+
 	// call off to shader specific tess end function
 	tess.stageIteratorFunc();
 
@@ -4532,5 +4638,15 @@ void Tess_End()
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
+#if 1
+	if(glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
+	{
+		R_BindNullVBO();
+		R_BindNullIBO();
+	}
+#endif
+
 	GLimp_LogComment("--- Tess_End ---\n");
+
+	GL_CheckErrors();
 }
