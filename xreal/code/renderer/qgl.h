@@ -37,7 +37,7 @@ void            QGL_Shutdown(void);
 void            QGL_EnableLogging(int enable);
 
 /*
-	This interface is similar to OpenGL 2.0 ES.
+	This interface is similar to OpenGL ES 2.0.
 */
 
 // OpenGL 1.x core API
@@ -124,8 +124,6 @@ extern          GLboolean(APIENTRY * qglIsBufferARB) (GLuint buffer);
 extern void     (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
 extern void     (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 extern void     (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
-extern GLvoid  *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
-extern          GLboolean(APIENTRY * qglUnmapBufferARB) (GLenum target);
 extern void     (APIENTRY * qglGetBufferParameterivARB) (GLenum target, GLenum pname, GLint * params);
 extern void     (APIENTRY * qglGetBufferPointervARB) (GLenum target, GLenum pname, GLvoid * *params);
 

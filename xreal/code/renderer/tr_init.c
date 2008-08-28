@@ -252,7 +252,6 @@ GLboolean(APIENTRY * qglIsBufferARB) (GLuint buffer);
 void            (APIENTRY * qglBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid * data, GLenum usage);
 void            (APIENTRY * qglBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid * data);
 void            (APIENTRY * qglGetBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid * data);
-GLvoid         *(APIENTRY * qglMapBufferARB) (GLenum target, GLenum access);
 
 // GL_ARB_occlusion_query
 void            (APIENTRY * qglGenQueriesARB) (GLsizei n, GLuint * ids);

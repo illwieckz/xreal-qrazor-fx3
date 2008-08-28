@@ -582,8 +582,6 @@ static void GLimp_InitExtensions(void)
 	qglBufferDataARB = NULL;
 	qglBufferSubDataARB = NULL;
 	qglGetBufferSubDataARB = NULL;
-	qglMapBufferARB = NULL;
-	qglUnmapBufferARB = NULL;
 	qglGetBufferParameterivARB = NULL;
 	qglGetBufferPointervARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_vertex_buffer_object"))
@@ -595,8 +593,6 @@ static void GLimp_InitExtensions(void)
 		qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) SDL_GL_GetProcAddress("glBufferDataARB");
 		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glBufferSubDataARB");
 		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glGetBufferSubDataARB");
-		qglMapBufferARB = (PFNGLMAPBUFFERARBPROC) SDL_GL_GetProcAddress("glMapBufferARB");
-		qglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) SDL_GL_GetProcAddress("glUnmapBufferARB");
 		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetBufferParameterivARB");
 		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) SDL_GL_GetProcAddress("glGetBufferPointervARB");
 		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n");
