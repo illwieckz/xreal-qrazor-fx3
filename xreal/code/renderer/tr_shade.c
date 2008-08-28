@@ -3147,6 +3147,7 @@ static void Render_heatHaze(int stage)
 
 		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 
+		// FIXME this messes up the tess.* vertex data
 		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
 		GL_PopMatrix();

@@ -340,6 +340,7 @@ void Tess_UpdateVBOs()
 	{
 		R_BindIBO(tess.ibo);
 
+#if 0
 		//if(glState.currentIBO != tess.ibo)
 		{
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.ibo->indexesVBO);
@@ -347,6 +348,7 @@ void Tess_UpdateVBOs()
 			glState.currentIBO = tess.ibo;
 			backEnd.pc.c_vboIndexBuffers++;
 		}
+#endif
 
 		qglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
 	}
