@@ -180,7 +180,7 @@ void GL_SelectTexture(int unit)
 
 void GL_LoadModelViewMatrix(const matrix_t m)
 {
-#if 0
+#if 1
 	if(MatrixCompare(glState.modelViewMatrix[glState.stackIndex], m))
 	{
 		return;
@@ -194,7 +194,7 @@ void GL_LoadModelViewMatrix(const matrix_t m)
 
 void GL_LoadProjectionMatrix(const matrix_t m)
 {
-#if 0
+#if 1
 	if(MatrixCompare(glState.projectionMatrix[glState.stackIndex], m))
 	{
 		return;
@@ -4246,18 +4246,20 @@ void RB_RenderLightOcclusionQueries()
 		GLint           ocSamples = 0;
 		qboolean        queryObjects;
 		GLint           available;
+		vec4_t			quadVerts[4];
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_Cull(CT_TWO_SIDED);
-		//GL_ClientState(GLCS_VERTEX);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 		//GL_SelectTexture(0);
 		//qglDisable(GL_TEXTURE_2D);
 
+		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+
 		// set uniforms
 		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
 		if(r_vboVertexSkinning->integer)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
@@ -4306,45 +4308,50 @@ void RB_RenderLightOcclusionQueries()
 					{
 						case RL_OMNI:
 						{
-							qglBegin(GL_QUADS);
+							tess.numIndexes = 0;
+							tess.numVertexes = 0;
 
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorRed);
+							
+							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorGreen);
 
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorBlue);
 
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorYellow);
 
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorYellow);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorMagenta);
 
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorMagenta);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							Tess_AddQuadStamp2(quadVerts, colorCyan);
 
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorCyan);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							qglVertexAttrib4fARB(ATTR_INDEX_POSITION, light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							Tess_UpdateVBOs();
+							Tess_DrawElements();
 
-							qglEnd();
+							tess.numIndexes = 0;
+							tess.numVertexes = 0;
 							break;
 						}
 
@@ -4383,26 +4390,41 @@ void RB_RenderLightOcclusionQueries()
 							corners[3][2] = yMax * zFar;
 							corners[3][3] = 1;
 
+							tess.numIndexes = 0;
+							tess.numVertexes = 0;
+
 							// draw side planes
-							qglBegin(GL_TRIANGLES);
 							for(j = 0; j < 4; j++)
 							{
 								qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
 
-								qglVertexAttrib4fARB(ATTR_INDEX_POSITION, 0, 0, 0, 1);
-								qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, corners[j]);
-								qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, corners[(j + 1) % 4]);
+								VectorSet4(tess.xyz[tess.numVertexes], 0, 0, 0, 1);
+								VectorCopy4(g_color_table[j], tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+
+								VectorCopy(corners[j], tess.xyz[tess.numVertexes]);
+								tess.xyz[tess.numVertexes][3] = 1;
+								VectorCopy4(g_color_table[j], tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
+
+								VectorCopy(corners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
+								tess.xyz[tess.numVertexes][3] = 1;
+								VectorCopy4(g_color_table[j], tess.colors[tess.numVertexes]);
+								tess.indexes[tess.numIndexes++] = tess.numVertexes;
+								tess.numVertexes++;
 							}
-							qglEnd();
+
 
 							// draw far plane
-							qglBegin(GL_QUADS);
-							qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
-							for(j = 0; j < 4; j++)
-							{
-								qglVertexAttrib4fvARB(ATTR_INDEX_POSITION, corners[j]);
-							}
-							qglEnd();
+							Tess_AddQuadStamp2(corners, g_color_table[j]);
+
+							Tess_UpdateVBOs();
+							Tess_DrawElements();
+
+							tess.numIndexes = 0;
+							tess.numVertexes = 0;
 							break;
 						}
 
@@ -5218,39 +5240,6 @@ static void RB_RenderDebugUtils()
 		GL_PopMatrix();
 	}
 
-	/*
-	   if(r_showAreaPortals->integer)
-	   {
-	   int             i, j;
-	   bspAreaPortal_t *ap;
-
-	   GL_BindProgram(0);
-	   GL_State(GLS_DEPTHTEST_DISABLE);
-	   GL_SelectTexture(0);
-	   GL_Bind(tr.whiteImage);
-
-	   for(i = 0, ap = tr.world->areaPortals; i < tr.world->numAreaPortals; i++, ap++)
-	   {
-	   //if(ia->noDepthBoundsTest)
-	   {
-	   qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
-	   }
-	   //else
-	   //{
-	   //   qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
-	   //}
-
-	   qglBegin(GL_LINES);
-	   for(j = 0; j < 4; j++)
-	   {
-	   qglVertex3fv(ap->points[j]);
-	   qglVertex3fv(ap->points[(j + 1) % 4]);
-	   }
-	   qglEnd();
-	   }
-	   }
-	 */
-
 	GL_CheckErrors();
 }
 
@@ -5631,9 +5620,27 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 		ri.Error(ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
 	}
 
+
+	RB_SetGL2D();
+
+	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
+
+	GL_BindProgram(&tr.genericSingleShader);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);// | GLCS_COLOR);
+	
+	// set uniforms
+	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	if(r_vboVertexSkinning->integer)
+	{
+		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+	}
+	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	// bind u_ColorMap
 	GL_SelectTexture(0);
 	GL_Bind(tr.scratchImage[client]);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
 	if(cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height)
@@ -5664,10 +5671,6 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 		end = ri.Milliseconds();
 		ri.Printf(PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start);
 	}
-
-	RB_SetGL2D();
-
-	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 	/*
 	qglBegin(GL_QUADS);
@@ -5748,15 +5751,12 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	tess.indexes[tess.numIndexes++] = 2;
 	tess.indexes[tess.numIndexes++] = 3;
 
-	Tess_ArraysToVBOs();
+	Tess_UpdateVBOs();
 
 	Tess_DrawElements();
 
 	tess.numVertexes = 0;
 	tess.numIndexes = 0;
-
-	//R_BindNullVBO();
-	//R_BindNullIBO();
 
 	GL_CheckErrors();
 }

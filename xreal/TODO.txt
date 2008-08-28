@@ -109,9 +109,6 @@ code/game
 code/renderer
 - improve shadow mapping filtering methods
 - add HDR tonemapping
-- change the QGL interface to mimic OpenGL 2 ES
- - clean up renderer and GLSL shaders with the new interface
- -> this can kill fixed function pipeline updates and possible driver bottlenecks
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
 - add fog lights

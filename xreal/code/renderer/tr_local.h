@@ -2492,11 +2492,10 @@ TESSELATOR/SHADER DECLARATIONS
 */
 
 typedef byte    color4ub_t[4];
-typedef float   color4f_t[4];
 
 typedef struct stageVars
 {
-	color4f_t       color;
+	vec4_t          color;
 	qboolean		texMatricesChanged[MAX_TEXTURE_BUNDLES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
@@ -2555,9 +2554,6 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 // *INDENT-ON*
 void            Tess_End(void);
 void			Tess_DrawElements();
-void			Tess_ArraysToVBOs();
-void            Tess_InstantQuad(vec4_t quadVerts[4]);
-
 void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_ComputeColor(shaderStage_t * pStage);
@@ -2571,8 +2567,13 @@ void            Tess_StageIteratorStencilLighting();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
 
-void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, color4f_t color);
-void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, color4f_t color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, vec4_t color);
+void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, vec4_t color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStamp2(vec4_t quadVerts[4], vec4_t color);
+
+void            Tess_InstantQuad(vec4_t quadVerts[4]);
+void			Tess_UpdateVBOs();
 
 void            RB_ShowImages(void);
 

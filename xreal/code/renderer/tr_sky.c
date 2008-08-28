@@ -627,7 +627,7 @@ static void BuildCloudData()
 		}
 	}
 
-	Tess_ArraysToVBOs();
+	Tess_UpdateVBOs();
 }
 
 /*

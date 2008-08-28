@@ -4480,103 +4480,7 @@ void Tess_StageIteratorLighting()
 	}
 }
 
-void Tess_ArraysToVBOs()
-{
-	// bind default VBO to replace the client side vertex array
 
-	// update the default VBO
-	R_BindVBO(tess.vbo);
-
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
-	qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
-
-//	GL_CheckErrors();
-		
-	// update the default IBO
-	R_BindIBO(tess.ibo);
-	qglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
-
-//	GL_CheckErrors();
-}
-
-void Tess_InstantQuad(vec4_t quadVerts[4])
-{
-	// FIXME: use quad stamp
-	//Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse, -1);
-
-	tess.numVertexes = 0;
-	tess.numIndexes = 0;
-	
-	VectorCopy4(quadVerts[0], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0] = 0;
-	tess.texCoords[tess.numVertexes][1] = 0;
-	tess.texCoords[tess.numVertexes][2] = 0;
-	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
-	tess.numVertexes++;
-
-	VectorCopy4(quadVerts[1], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0] = 1;
-	tess.texCoords[tess.numVertexes][1] = 0;
-	tess.texCoords[tess.numVertexes][2] = 0;
-	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
-	tess.numVertexes++;
-
-	VectorCopy4(quadVerts[2], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0] = 1;
-	tess.texCoords[tess.numVertexes][1] = 1;
-	tess.texCoords[tess.numVertexes][2] = 0;
-	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
-	tess.numVertexes++;
-
-	VectorCopy4(quadVerts[3], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0] = 0;
-	tess.texCoords[tess.numVertexes][1] = 1;
-	tess.texCoords[tess.numVertexes][2] = 0;
-	tess.texCoords[tess.numVertexes][3] = 1;
-	tess.colors[tess.numVertexes][0] = 1;
-	tess.colors[tess.numVertexes][1] = 1;
-	tess.colors[tess.numVertexes][2] = 1;
-	tess.colors[tess.numVertexes][3] = 1;
-	tess.numVertexes++;
-
-	tess.indexes[tess.numIndexes++] = 0;
-	tess.indexes[tess.numIndexes++] = 1;
-	tess.indexes[tess.numIndexes++] = 2;
-	tess.indexes[tess.numIndexes++] = 0;
-	tess.indexes[tess.numIndexes++] = 2;
-	tess.indexes[tess.numIndexes++] = 3;
-
-	Tess_ArraysToVBOs();
-
-	Tess_DrawElements();
-
-	tess.numVertexes = 0;
-	tess.numIndexes = 0;
-
-	//R_BindNullVBO();
-	//R_BindNullIBO();
-
-	GL_CheckErrors();
-}
 
 /*
 =================
@@ -4587,7 +4491,7 @@ Render tesselated data
 */
 void Tess_End()
 {
-	if(tess.numIndexes == 0)
+	if(tess.numIndexes == 0 || tess.numVertexes == 0)
 	{
 		return;
 	}
@@ -4612,12 +4516,10 @@ void Tess_End()
 
 	GL_CheckErrors();
 
-#if 1
-	if(!glState.currentVBO && !glState.currentIBO)
+	if(!glState.currentVBO || !glState.currentIBO || glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
 	{
-		Tess_ArraysToVBOs();
+		Tess_UpdateVBOs();
 	}
-#endif
 
 	// call off to shader specific tess end function
 	tess.stageIteratorFunc();
@@ -4638,13 +4540,8 @@ void Tess_End()
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
-#if 1
-	if(glState.currentVBO == tess.vbo || glState.currentIBO == tess.ibo)
-	{
-		R_BindNullVBO();
-		R_BindNullIBO();
-	}
-#endif
+	R_BindNullVBO();
+	R_BindNullIBO();
 
 	GLimp_LogComment("--- Tess_End ---\n");
 

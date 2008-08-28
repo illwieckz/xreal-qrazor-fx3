@@ -509,7 +509,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 		growList_t      vboSurfaces;
 		srfVBOMesh_t   *vboSurf;
 
-		color4f_t       tmpColor = { 1, 1, 1, 1 };
+		vec4_t          tmpColor = { 1, 1, 1, 1 };
 
 
 		//ri.Printf(PRINT_ALL, "...trying to calculate VBOs for model '%s'\n", modName);
@@ -581,7 +581,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vboSurf->numIndexes = indexesNum;
 				vboSurf->numVerts = vertexesNum;
 
-				dataSize = vertexesNum * (sizeof(vec4_t) * 6 + sizeof(color4f_t));
+				dataSize = vertexesNum * (sizeof(vec4_t) * 7);
 				data = ri.Hunk_AllocateTempMemory(dataSize);
 				dataOfs = 0;
 				vertexesNum = 0;
@@ -817,8 +817,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				ofsColors = dataOfs;
 				for(i = 0; i < vertexesNum; i++)
 				{
-					memcpy(data + dataOfs, tmpColor, sizeof(color4f_t));
-					dataOfs += sizeof(color4f_t);
+					memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+					dataOfs += sizeof(vec4_t);
 				}
 
 				vboSurf->vbo = R_CreateStaticVBO(va("staticMD3Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize);
@@ -1399,7 +1399,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 			srfVBOMD5Mesh_t *vboSurf;
 
-			color4f_t      tmpColor = { 1, 1, 1, 1 };
+			vec4_t           tmpColor = { 1, 1, 1, 1 };
 
 			vertexesNum = surf->numVerts;
 			indexesNum = surf->numTriangles * 3;
@@ -1414,7 +1414,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			vboSurf->numIndexes = indexesNum;
 			vboSurf->numVerts = vertexesNum;
 
-			dataSize = vertexesNum * (sizeof(vec4_t) * 7 + sizeof(color4f_t));
+			dataSize = vertexesNum * (sizeof(vec4_t) * 8);
 			data = ri.Hunk_AllocateTempMemory(dataSize);
 			dataOfs = 0;
 
@@ -1502,8 +1502,8 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			ofsColors = dataOfs;
 			for(j = 0; j < vertexesNum; j++)
 			{
-				memcpy(data + dataOfs, tmpColor, sizeof(color4f_t));
-				dataOfs += sizeof(color4f_t);
+				memcpy(data + dataOfs, tmpColor, sizeof(vec4_t));
+				dataOfs += sizeof(vec4_t);
 			}
 
 			// feed bone indices

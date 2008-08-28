@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qgl.h"
 #include "tr_local.h"
 
-void            (APIENTRY * qglBegin) (GLenum mode);
 void            (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
 void            (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 void            (APIENTRY * qglClear) (GLbitfield mask);
@@ -64,7 +63,6 @@ void            (APIENTRY * qglDrawArrays) (GLenum mode, GLint first, GLsizei co
 void            (APIENTRY * qglDrawBuffer) (GLenum mode);
 void            (APIENTRY * qglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
 void            (APIENTRY * qglEnable) (GLenum cap);
-void            (APIENTRY * qglEnd) (void);
 void            (APIENTRY * qglFinish) (void);
 void            (APIENTRY * qglFlush) (void);
 void            (APIENTRY * qglFrontFace) (GLenum mode);
@@ -107,7 +105,6 @@ void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsiz
 
 
 
-static void     (APIENTRY * dllBegin) (GLenum mode);
 static void     (APIENTRY * dllBindTexture) (GLenum target, GLuint texture);
 static void     (APIENTRY * dllBlendFunc) (GLenum sfactor, GLenum dfactor);
 static void     (APIENTRY * dllClear) (GLbitfield mask);
@@ -134,7 +131,6 @@ static void     (APIENTRY * dllDrawArrays) (GLenum mode, GLint first, GLsizei co
 static void     (APIENTRY * dllDrawBuffer) (GLenum mode);
 static void     (APIENTRY * dllDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
 static void     (APIENTRY * dllEnable) (GLenum cap);
-static void     (APIENTRY * dllEnd) (void);
 static void     (APIENTRY * dllFinish) (void);
 static void     (APIENTRY * dllFlush) (void);
 static void     (APIENTRY * dllFrontFace) (GLenum mode);
@@ -296,12 +292,6 @@ static const char *TypeToString(GLenum t)
 		default:
 			return "!!! UNKNOWN !!!";
 	}
-}
-
-static void APIENTRY logBegin(GLenum mode)
-{
-	fprintf(log_fp, "glBegin( %s )\n", PrimToString(mode));
-	dllBegin(mode);
 }
 
 static void APIENTRY logBindTexture(GLenum target, GLuint texture)
@@ -493,12 +483,6 @@ static void APIENTRY logEnable(GLenum cap)
 {
 	fprintf(log_fp, "glEnable( %s )\n", CapToString(cap));
 	dllEnable(cap);
-}
-
-static void APIENTRY logEnd(void)
-{
-	SIG("glEnd");
-	dllEnd();
 }
 
 static void APIENTRY logFinish(void)
@@ -701,7 +685,6 @@ void QGL_Shutdown(void)
 {
 	ri.Printf(PRINT_ALL, "...shutting down QGL\n");
 
-	qglBegin                     = NULL;
 	qglBindTexture               = NULL;
 	qglBlendFunc                 = NULL;
 	qglClear                     = NULL;
@@ -725,7 +708,6 @@ void QGL_Shutdown(void)
 	qglDrawBuffer                = NULL;
 	qglDrawElements              = NULL;
 	qglEnable                    = NULL;
-	qglEnd                       = NULL;
 	qglFinish                    = NULL;
 	qglFlush                     = NULL;
 	qglFrontFace                 = NULL;
@@ -795,7 +777,6 @@ int QGL_Init()
 	if(GLimp_sdl_init_video() == qfalse)
 		return qfalse;
 
-	qglBegin                     = dllBegin = GPA( "glBegin" );
 	qglBindTexture               = dllBindTexture = GPA( "glBindTexture" );
 	qglBlendFunc                 = dllBlendFunc = GPA( "glBlendFunc" );
 	qglClear                     = dllClear = GPA( "glClear" );
@@ -819,7 +800,6 @@ int QGL_Init()
 	qglDrawBuffer                = dllDrawBuffer = GPA( "glDrawBuffer" );
 	qglDrawElements              = dllDrawElements = GPA( "glDrawElements" );
 	qglEnable                    = dllEnable                    = GPA( "glEnable" );
-	qglEnd                       = dllEnd                       = GPA( "glEnd" );
 	qglFinish                    = dllFinish                    = GPA( "glFinish" );
 	qglFlush                     = dllFlush                     = GPA( "glFlush" );
 	qglFrontFace                 = dllFrontFace                 = GPA( "glFrontFace" );
@@ -908,7 +888,6 @@ void QGL_EnableLogging(int enable)
 			fprintf(log_fp, "%s\n", asctime(newtime));
 		}
 
-		qglBegin                     = logBegin;
 		qglBindTexture               = logBindTexture;
 		qglBlendFunc                 = logBlendFunc;
 		qglClear                     = logClear;
@@ -932,7 +911,6 @@ void QGL_EnableLogging(int enable)
 		qglDrawBuffer                = logDrawBuffer;
 		qglDrawElements              = logDrawElements;
 		qglEnable                    = logEnable;
-		qglEnd                       = logEnd;
 		qglFinish                    = logFinish;
 		qglFlush                     = logFlush;
 		qglFrontFace                 = logFrontFace;
@@ -973,7 +951,6 @@ void QGL_EnableLogging(int enable)
 			fclose(log_fp);
 			log_fp = NULL;
 		}
-		qglBegin                     = dllBegin;
 		qglBindTexture               = dllBindTexture;
 		qglBlendFunc                 = dllBlendFunc;
 		qglClear                     = dllClear;
@@ -997,7 +974,6 @@ void QGL_EnableLogging(int enable)
 		qglDrawBuffer                = dllDrawBuffer;
 		qglDrawElements              = dllDrawElements;
 		qglEnable                    = dllEnable;
-		qglEnd                       = dllEnd;
 		qglFinish                    = dllFinish;
 		qglFlush                     = dllFlush;
 		qglFrontFace                 = dllFrontFace;

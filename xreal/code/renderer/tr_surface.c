@@ -57,12 +57,12 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
-	if(glState.currentVBO || glState.currentIBO)
+	if((glState.currentVBO != NULL && glState.currentVBO != tess.vbo) || (glState.currentIBO != NULL && glState.currentIBO != tess.ibo))
 	{
 		Tess_EndBegin();
 
-		R_BindNullVBO();
-		R_BindNullIBO();
+		R_BindVBO(tess.vbo);
+		R_BindIBO(tess.ibo);
 		return;
 	}
 
@@ -101,7 +101,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 Tess_AddQuadStampExt
 ==============
 */
-void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, color4f_t color, float s1, float t1, float s2, float t2)
+void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, vec4_t color, float s1, float t1, float s2, float t2)
 {
 	int				i;
 	vec3_t          normal;
@@ -188,10 +188,247 @@ void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, color4f_t color
 Tess_AddQuadStamp
 ==============
 */
-void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, color4f_t color)
+void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, vec4_t color)
 {
 	Tess_AddQuadStampExt(origin, left, up, color, 0, 0, 1, 1);
 }
+
+/*
+==============
+Tess_AddQuadStampExt2
+==============
+*/
+void Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s1, float t1, float s2, float t2)
+{
+	int				i;
+	vec3_t          normal;
+	int             ndx;
+
+	GLimp_LogComment("--- Tess_AddQuadStampExt2 ---\n");
+
+//	Tess_CheckOverflow(4, 6);
+
+	ndx = tess.numVertexes;
+
+	// triangle indexes for a simple quad
+	tess.indexes[tess.numIndexes] = ndx;
+	tess.indexes[tess.numIndexes + 1] = ndx + 1;
+	tess.indexes[tess.numIndexes + 2] = ndx + 3;
+
+	tess.indexes[tess.numIndexes + 3] = ndx + 3;
+	tess.indexes[tess.numIndexes + 4] = ndx + 1;
+	tess.indexes[tess.numIndexes + 5] = ndx + 2;
+
+	VectorCopy4(quadVerts[0], tess.xyz[ndx + 0]);
+	VectorCopy4(quadVerts[1], tess.xyz[ndx + 1]);
+	VectorCopy4(quadVerts[2], tess.xyz[ndx + 2]);
+	VectorCopy4(quadVerts[3], tess.xyz[ndx + 3]);
+
+	// constant normal all the way around
+	VectorNegate(backEnd.viewParms.or.axis[0], normal);
+
+	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] = normal[0];
+	tess.normals[ndx][1] = tess.normals[ndx + 1][1] = tess.normals[ndx + 2][1] = tess.normals[ndx + 3][1] = normal[1];
+	tess.normals[ndx][2] = tess.normals[ndx + 1][2] = tess.normals[ndx + 2][2] = tess.normals[ndx + 3][2] = normal[2];
+
+	// standard square texture coordinates
+	tess.texCoords[ndx][0] = s1;
+	tess.texCoords[ndx][1] = t1;
+	tess.texCoords[ndx][2] = 0;
+	tess.texCoords[ndx][3] = 1;
+
+	tess.texCoords[ndx + 1][0] = s2;
+	tess.texCoords[ndx + 1][1] = t1;
+	tess.texCoords[ndx + 1][2] = 0;
+	tess.texCoords[ndx + 1][3] = 1;
+
+	tess.texCoords[ndx + 2][0] = s2;
+	tess.texCoords[ndx + 2][1] = t2;
+	tess.texCoords[ndx + 2][2] = 0;
+	tess.texCoords[ndx + 2][3] = 1;
+
+	tess.texCoords[ndx + 3][0] = s1;
+	tess.texCoords[ndx + 3][1] = t2;
+	tess.texCoords[ndx + 3][2] = 0;
+	tess.texCoords[ndx + 3][3] = 1;
+
+	// constant color all the way around
+	// should this be identity and let the shader specify from entity?
+
+	for(i = 0; i < 4; i++)
+	{
+		VectorCopy4(color, tess.colors[ndx + i]);
+	}
+
+	tess.numVertexes += 4;
+	tess.numIndexes += 6;
+}
+
+
+/*
+==============
+Tess_AddQuadStamp2
+==============
+*/
+void Tess_AddQuadStamp2(vec4_t quadVerts[4], vec4_t color)
+{
+	Tess_AddQuadStampExt2(quadVerts, color, 0, 0, 1, 1);
+}
+
+
+/*
+==============
+Tess_UpdateVBOs
+==============
+*/
+void Tess_UpdateVBOs()
+{
+	GLimp_LogComment("--- Tess_UpdateVBOs ---\n");
+
+	// bind default VBO to replace the client side vertex array
+
+	GL_CheckErrors();
+
+	// update the default VBO
+	if(tess.numVertexes > 0 && tess.numVertexes <= SHADER_MAX_VERTEXES)
+	{
+		R_BindVBO(tess.vbo);
+
+		GL_CheckErrors();
+
+#if 0
+		//if(glState.currentVBO != tess.vbo)
+		{
+			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, tess.vbo->vertexesVBO);
+
+			glState.currentVBO = tess.vbo;
+			backEnd.pc.c_vboVertexBuffers++;
+		}
+
+		//R_BindVBO(tess.vbo);
+#endif
+
+#if 0
+		qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsXYZ));
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsTexCoords));
+		qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsLightCoords));
+		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsTangents));
+		qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsBinormals));
+		qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, BUFFER_OFFSET(tess.vbo->ofsNormals));
+		qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsColors));
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneIndexes));
+		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
+#endif
+
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTangents, tess.numVertexes * sizeof(vec4_t), tess.tangents);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
+
+
+	}
+
+	GL_CheckErrors();
+		
+	// update the default IBO
+	if(tess.numIndexes > 0 && tess.numIndexes <= SHADER_MAX_INDEXES)
+	{
+		R_BindIBO(tess.ibo);
+
+		//if(glState.currentIBO != tess.ibo)
+		{
+			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.ibo->indexesVBO);
+			
+			glState.currentIBO = tess.ibo;
+			backEnd.pc.c_vboIndexBuffers++;
+		}
+
+		qglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, tess.numIndexes * sizeof(glIndex_t), tess.indexes);
+	}
+
+	GL_CheckErrors();
+}
+
+
+/*
+==============
+Tess_InstantQuad
+==============
+*/
+void Tess_InstantQuad(vec4_t quadVerts[4])
+{
+	GLimp_LogComment("--- Tess_InstantQuad ---\n");
+
+	tess.numVertexes = 0;
+	tess.numIndexes = 0;
+	
+	VectorCopy4(quadVerts[0], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	VectorCopy4(quadVerts[1], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 1;
+	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	VectorCopy4(quadVerts[2], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 1;
+	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	VectorCopy4(quadVerts[3], tess.xyz[tess.numVertexes]);
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.texCoords[tess.numVertexes][2] = 0;
+	tess.texCoords[tess.numVertexes][3] = 1;
+	tess.colors[tess.numVertexes][0] = 1;
+	tess.colors[tess.numVertexes][1] = 1;
+	tess.colors[tess.numVertexes][2] = 1;
+	tess.colors[tess.numVertexes][3] = 1;
+	tess.numVertexes++;
+
+	tess.indexes[tess.numIndexes++] = 0;
+	tess.indexes[tess.numIndexes++] = 1;
+	tess.indexes[tess.numIndexes++] = 2;
+	tess.indexes[tess.numIndexes++] = 0;
+	tess.indexes[tess.numIndexes++] = 2;
+	tess.indexes[tess.numIndexes++] = 3;
+
+	Tess_UpdateVBOs();
+
+	Tess_DrawElements();
+
+	tess.numVertexes = 0;
+	tess.numIndexes = 0;
+
+	GL_CheckErrors();
+}
+
+
 
 /*
 ==============
@@ -202,7 +439,7 @@ static void Tess_SurfaceSprite(void)
 {
 	vec3_t          left, up;
 	float           radius;
-	color4f_t		color;
+	vec4_t		color;
 
 	GLimp_LogComment("--- Tess_SurfaceSprite ---\n");
 
@@ -1049,12 +1286,12 @@ static void Tess_SurfaceBeam(void)
 
 	GLimp_LogComment("--- Tess_SurfaceBeam ---\n");
 
-	if(glState.currentVBO || glState.currentIBO)
+	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
 
-		R_BindNullVBO();
-		R_BindNullIBO();
+		R_BindVBO(tess.vbo);
+		R_BindIBO(tess.ibo);
 	}
 
 	e = &backEnd.currentEntity->e;
@@ -2064,12 +2301,12 @@ static void Tess_SurfaceEntity(surfaceType_t * surfType)
 		return;
 	}
 
-	if(glState.currentVBO || glState.currentIBO)
+	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
 
-		R_BindNullVBO();
-		R_BindNullIBO();
+		R_BindVBO(tess.vbo);
+		R_BindIBO(tess.ibo);
 	}
 
 	switch (backEnd.currentEntity->e.reType)
@@ -2116,12 +2353,12 @@ static void Tess_SurfaceFlare(srfFlare_t * surf)
 		return;
 	}
 
-	if(glState.currentVBO || glState.currentIBO)
+	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		Tess_EndBegin();
 
-		R_BindNullVBO();
-		R_BindNullIBO();
+		R_BindVBO(tess.vbo);
+		R_BindIBO(tess.ibo);
 	}
 
 	VectorMA(surf->origin, 2.0, surf->normal, origin);

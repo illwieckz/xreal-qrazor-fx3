@@ -41,7 +41,6 @@ void            QGL_EnableLogging(int enable);
 */
 
 // OpenGL 1.x core API
-extern void     (APIENTRY * qglBegin) (GLenum mode);
 extern void     (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
 extern void     (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 extern void     (APIENTRY * qglClear) (GLbitfield mask);
@@ -68,7 +67,6 @@ extern void     (APIENTRY * qglDrawArrays) (GLenum mode, GLint first, GLsizei co
 extern void     (APIENTRY * qglDrawBuffer) (GLenum mode);
 extern void     (APIENTRY * qglDrawElements) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices);
 extern void     (APIENTRY * qglEnable) (GLenum cap);
-extern void     (APIENTRY * qglEnd) (void);
 extern void     (APIENTRY * qglFinish) (void);
 extern void     (APIENTRY * qglFlush) (void);
 extern void     (APIENTRY * qglFrontFace) (GLenum mode);
