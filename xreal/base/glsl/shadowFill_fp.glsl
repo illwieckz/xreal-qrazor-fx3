@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-attribute vec4		attr_Position;
-
 uniform sampler2D	u_ColorMap;
 uniform float		u_AlphaTest;
 uniform vec3		u_LightOrigin;
