@@ -231,12 +231,8 @@ typedef enum
 
 typedef enum
 {
-	GLDRV_ICD,					// driver is integrated with window system
-	// WARNING: there are tests that check for
-	// > GLDRV_ICD for minidriverness, so this
-	// should always be the lowest value in this
-	// enum set
-	GLDRV_STANDALONE,			// driver is a non-3Dfx standalone driver
+	GLDRV_DEFAULT,				// old OpenGL system
+	GLDRV_OPENGL3,				// new driver system
 } glDriverType_t;
 
 typedef enum

@@ -49,22 +49,33 @@ static char    *GLSL_PrintInfoLog(GLhandleARB object)
 	return msg;
 }
 
-char           *GLSL_PrintShaderSource(GLhandleARB object)
+static void GLSL_PrintShaderSource(GLhandleARB object)
 {
-	static char     msg[4096];
+	//static char     msg[4096];
+	char           *msg;
+	static char		msgPart[1024];
 	int             maxLength = 0;
+	int				i;
 
 	qglGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
 
+	/*
 	if(maxLength >= (int)sizeof(msg))
 	{
 		ri.Error(ERR_DROP, "RB_PrintShaderSource: max length >= sizeof(msg)");
 		return NULL;
 	}
+	*/
+
+	msg = Com_Allocate(maxLength);
 
 	qglGetShaderSourceARB(object, maxLength, &maxLength, msg);
 
-	return msg;
+	for(i = 0; i < maxLength; i += 1024)
+	{
+		Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
+		ri.Printf(PRINT_ALL, "%s\n", msgPart);
+	}
 }
 
 static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum shaderType)
@@ -107,7 +118,28 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
 
-		Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 120\n");
+		// HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
+		if(glConfig.driverType == GLDRV_OPENGL3)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 130\n");
+
+			if(shaderType == GL_VERTEX_SHADER_ARB)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define attribute in\n");
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define varying out\n");
+			}
+			else
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define varying in\n");
+
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "out vec4 out_Color;\n");
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define gl_FragColor out_Color\n");
+			}
+		}
+		else
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 120\n");
+		}
 
 		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
@@ -369,13 +401,14 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 	qglGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 	if(!compiled)
 	{
+		GLSL_PrintShaderSource(shader);
 		ri.Error(ERR_DROP, "Couldn't compile %s", GLSL_PrintInfoLog(shader));
 		ri.FS_FreeFile(buffer);
 		return;
 	}
 
 	ri.Printf(PRINT_DEVELOPER, "GLSL compile log:\n%s\n", GLSL_PrintInfoLog(shader));
-//  ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
+	//ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
 
 	// attach shader to program
 	qglAttachObjectARB(program, shader);

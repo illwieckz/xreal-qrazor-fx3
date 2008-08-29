@@ -40,7 +40,7 @@ void            QGL_EnableLogging(int enable);
 	This interface is similar to OpenGL ES 2.0.
 */
 
-// OpenGL 1.x core API
+// OpenGL 2.x core API
 extern void     (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
 extern void     (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 extern void     (APIENTRY * qglClear) (GLbitfield mask);
@@ -187,6 +187,21 @@ extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programOb
 
 // GL_ARB_draw_buffers
 extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
+
+#if defined(WIN32)
+// WGL_ARB_create_context
+#ifndef WGL_ARB_create_context
+#define WGL_CONTEXT_DEBUG_BIT_ARB      0x0001
+#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x0002
+#define WGL_CONTEXT_MAJOR_VERSION_ARB  0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB  0x2092
+#define WGL_CONTEXT_LAYER_PLANE_ARB    0x2093
+#define WGL_CONTEXT_FLAGS_ARB          0x2094
+#define ERROR_INVALID_VERSION_ARB      0x2095
+#endif
+
+extern HGLRC	(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
+#endif
 
 // GL_EXT_stencil_two_side
 extern void     (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);

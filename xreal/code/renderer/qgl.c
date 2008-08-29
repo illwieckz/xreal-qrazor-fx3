@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qgl.h"
 #include "tr_local.h"
 
+
+// OpenGL 2.x core API
 void            (APIENTRY * qglBindTexture) (GLenum target, GLuint texture);
 void            (APIENTRY * qglBlendFunc) (GLenum sfactor, GLenum dfactor);
 void            (APIENTRY * qglClear) (GLbitfield mask);
@@ -103,6 +105,10 @@ void            (APIENTRY * qglTexSubImage2D) (GLenum target, GLint level, GLint
 void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsizei height);
 
 
+#if defined(WIN32)
+// WGL_ARB_create_context
+HGLRC			(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
+#endif
 
 
 static void     (APIENTRY * dllBindTexture) (GLenum target, GLuint texture);

@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -183,7 +183,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib"
+				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib"
 				OutputFile="$(OutDir)/xreal.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -2787,10 +2787,6 @@
 			</File>
 			<File
 				RelativePath="..\base\glsl\shadowFill_fp.glsl"
-				>
-			</File>
-			<File
-				RelativePath="..\base\glsl\shadowFill_namespace_fp.glsl"
 				>
 			</File>
 			<File
