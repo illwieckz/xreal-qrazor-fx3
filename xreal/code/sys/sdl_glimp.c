@@ -427,6 +427,32 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 		break;
 	}
 
+#if defined(WIN32)
+	// try to initialize an OpenGL 3.0 context
+	qwglCreateContextAttribsARB = SDL_GL_GetProcAddress("wglCreateContextAttribsARB");
+	if(qwglCreateContextAttribsARB)
+	{
+		int             attribs[3];
+
+		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
+
+		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
+		attribs[1] = 3;
+		attribs[2] = 0; //terminate first pair
+
+		opengl_context->hGLRC = qwglCreateContextAttribsARB(opengl_context->hDC, opengl_context->hGLRC, attribs);
+		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
+		{
+			ri.Printf(PRINT_ALL, " done\n");
+			glConfig.driverType = GLDRV_OPENGL3;
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, " failed\n");
+		}
+	}
+#endif
+
 	QGL_Init();
 
 	GLimp_DetectAvailableModes();
@@ -1120,32 +1146,6 @@ void GLimp_Init(void)
 	glConfig.driverType = GLDRV_DEFAULT;
 	glConfig.hardwareType = GLHW_GENERIC;
 	glConfig.deviceSupportsGamma = !!(SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0);
-
-#if defined(WIN32)
-	// try to initialize an OpenGL 3.0 context
-	qwglCreateContextAttribsARB = SDL_GL_GetProcAddress("wglCreateContextAttribsARB");
-	if(qwglCreateContextAttribsARB)
-	{
-		int             attribs[3];
-
-		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
-
-		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
-		attribs[1] = 3;
-		attribs[2] = 0; //terminate first pair
-
-		opengl_context->hGLRC = qwglCreateContextAttribsARB(opengl_context->hDC, opengl_context->hGLRC, attribs);
-		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
-		{
-			ri.Printf(PRINT_ALL, " done\n");
-			glConfig.driverType = GLDRV_OPENGL3;
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, " failed\n");
-		}
-	}
-#endif
 
 	// get our config strings
 	Q_strncpyz(glConfig.vendor_string, (char *)qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));
