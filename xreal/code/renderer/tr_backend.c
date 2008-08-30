@@ -832,6 +832,7 @@ static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 	GL_CheckErrors();
 }
 
+// *INDENT-OFF*
 #ifdef VOLUMETRIC_LIGHTING
 static void Render_lightVolume(trRefLight_t * light)
 {
@@ -986,7 +987,7 @@ static void Render_lightVolume(trRefLight_t * light)
 	}
 }
 #endif
-
+#endif
 
 /*
 =================

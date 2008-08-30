@@ -85,11 +85,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 //Ignore __attribute__ on non-gcc platforms
+// *INDENT-OFF*
 #ifndef __GNUC__
 #ifndef __attribute__
 #define __attribute__(x)
 #endif
 #endif
+// *INDENT-ON*
 
 /**********************************************************************
   VM Considerations
