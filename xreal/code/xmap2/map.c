@@ -197,7 +197,7 @@ FindFloatPlane()
 ydnar: changed to allow a number of test points to be supplied that
 must be within an epsilon distance of the plane
 */
-
+// *INDENT-OFF*
 int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 #ifdef USE_HASHING
 {
@@ -258,7 +258,7 @@ int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 }
 
 #endif
-
+// *INDENT-ON*
 
 
 /*
