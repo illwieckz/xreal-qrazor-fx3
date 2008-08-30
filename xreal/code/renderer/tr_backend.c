@@ -987,7 +987,7 @@ static void Render_lightVolume(trRefLight_t * light)
 	}
 }
 #endif
-#endif
+// *INDENT-ON*
 
 /*
 =================
