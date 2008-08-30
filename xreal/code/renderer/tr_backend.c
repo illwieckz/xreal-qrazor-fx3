@@ -4396,29 +4396,26 @@ void RB_RenderLightOcclusionQueries()
 							// draw side planes
 							for(j = 0; j < 4; j++)
 							{
-								qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j]);
-
 								VectorSet4(tess.xyz[tess.numVertexes], 0, 0, 0, 1);
-								VectorCopy4(g_color_table[j], tess.colors[tess.numVertexes]);
+								VectorCopy4(g_color_table[j + 1], tess.colors[tess.numVertexes]);
 								tess.indexes[tess.numIndexes++] = tess.numVertexes;
 								tess.numVertexes++;
 
 								VectorCopy(corners[j], tess.xyz[tess.numVertexes]);
 								tess.xyz[tess.numVertexes][3] = 1;
-								VectorCopy4(g_color_table[j], tess.colors[tess.numVertexes]);
+								VectorCopy4(g_color_table[j + 1], tess.colors[tess.numVertexes]);
 								tess.indexes[tess.numIndexes++] = tess.numVertexes;
 								tess.numVertexes++;
 
 								VectorCopy(corners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
 								tess.xyz[tess.numVertexes][3] = 1;
-								VectorCopy4(g_color_table[j], tess.colors[tess.numVertexes]);
+								VectorCopy4(g_color_table[j + 1], tess.colors[tess.numVertexes]);
 								tess.indexes[tess.numIndexes++] = tess.numVertexes;
 								tess.numVertexes++;
 							}
 
-
 							// draw far plane
-							Tess_AddQuadStamp2(corners, g_color_table[j]);
+							Tess_AddQuadStamp2(corners, g_color_table[j + 1]);
 
 							Tess_UpdateVBOs();
 							Tess_DrawElements();
