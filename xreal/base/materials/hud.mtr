@@ -62,6 +62,15 @@ hud/hud_top_ffa_middle
 		rgbGen vertex
 	}
 }
+hud/hud_top_ffa_middle_overlay
+{
+	nopicmip
+	{
+		clampmap gfx/2d/hud/hud_top_ffa_middle_overlay.png
+		blend blend
+		rgbGen vertex
+	}
+}
 
 hud/hud_top_team_middle
 {
