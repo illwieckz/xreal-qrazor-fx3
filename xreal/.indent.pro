@@ -1,3 +1,36 @@
--bad -bap -bl -bli0 -bls -cbi0 -cdw -ci4 -cli4 -cp33 -di16 
--hnl -i4 -l130 -lc80 -lp -nbbb -nbbo -nbc -nbfda -nce -ncs 
--npsl -npcs -nsaf -nsai -nsaw -nsob -pi4 -nprs -sbi0 -ts4 -ut
+--blank-lines-after-declarations
+--blank-lines-after-procedures
+--braces-after-if-line
+--brace-indent0
+--braces-after-struct-decl-line
+--break-after-boolean-operator
+--case-brace-indentation0
+--case-indentation4
+--comment-line-length80
+--continuation-indentation4
+--continue-at-parentheses
+--cuddle-do-while
+--declaration-indentation16
+--dont-break-function-decl-args
+--dont-break-procedure-type
+--dont-cuddle-else
+--else-endif-column33
+--honour-newlines
+--indent-level4
+--leave-optional-blank-lines
+--line-length130
+--no-blank-lines-before-block-comments
+--no-blank-lines-after-commas
+--no-blank-lines-after-commas
+--no-space-after-casts
+--no-space-after-function-call-names
+--no-space-after-for
+--no-space-after-if
+--no-space-after-while
+--no-space-after-parentheses
+--dont-space-special-semicolon
+--paren-indentation4
+--struct-brace-indentation0
+--tab-size4
+--use-tabs
+
