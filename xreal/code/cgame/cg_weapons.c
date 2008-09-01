@@ -2073,6 +2073,213 @@ WEAPON SELECTION
 
 /*
 ===================
+CG_DrawWeaponSelectNew
+===================
+*/
+
+#define HUD_ICONSIZE 28
+#define HUD_ICONSIZESEL 8
+
+#define HUD_ICONSPACE 4
+#define HUD_X (320 - ( HUD_ICONSIZE / 2 ))
+
+#define HUD_FADE_DIST 160
+
+void CG_DrawWeaponSelectNew(void)
+{
+	int             i,n;
+	int             bits;
+	int             count;
+	int             x, y, w;
+	char           *name;
+	float          *color;
+	vec4_t          fadecolor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float		dist;
+
+
+	color = CG_FadeColor(cg.weaponSelectTime, WEAPON_SELECT_TIME*2);
+	
+	
+	if(!color)
+	{
+		cg.bar_offset = 0;
+
+
+		return;
+	}
+
+	cg.bar_offset = color[3] * color[3] ;
+
+	trap_R_SetColor(color);
+
+
+	// showing weapon select clears pickup item display, but not the blend blob
+	cg.itemPickupTime = 0;
+
+	// count the number of weapons owned
+	bits = cg.snap->ps.stats[STAT_WEAPONS];
+	count = 0;
+	for(i = 1; i < 16; i++)
+	{
+		if(bits & (1 << i))
+		{
+			count++;
+		}
+	}
+	cg.bar_count = count;
+
+	y = 440;
+
+	if(count <= 0)
+		return;
+
+	//draw current selection:
+	CG_DrawPic(HUD_X - HUD_ICONSIZESEL/2, y - HUD_ICONSIZESEL/2, HUD_ICONSIZE + HUD_ICONSIZESEL, HUD_ICONSIZE + HUD_ICONSIZESEL, cg_weapons[cg.weaponSelect].weaponIcon);
+	//CG_DrawPic(x - HUD_ICONSPACE/2, y - HUD_ICONSPACE/2, HUD_ICONSIZE + HUD_ICONSPACE, HUD_ICONSIZE + HUD_ICONSPACE, cgs.media.weaponSelectShader);
+
+	int diff = 1;
+	int weap = 0;
+
+	for(i = 0 ; i < 16; i++)
+	{
+		weap = cg.weaponSelect + i;
+
+		if(!(bits & (1 << weap)))
+		{
+			continue;
+		}
+
+		CG_RegisterWeapon(weap);
+
+		
+		if(weap == cg.weaponSelect){
+			continue;
+
+		}
+		
+
+		x = HUD_X + (HUD_ICONSIZE + HUD_ICONSPACE) * ( diff ++ );
+
+		dist = abs(x - HUD_X );
+		if(dist > HUD_FADE_DIST)
+			dist = HUD_FADE_DIST;
+	
+		fadecolor[3] = 1.0f - ( dist / HUD_FADE_DIST ) ;
+
+		trap_R_SetColor(fadecolor);
+		CG_DrawPic(x, y, HUD_ICONSIZE, HUD_ICONSIZE, cg_weapons[weap].weaponIcon);
+
+		trap_R_SetColor(color);
+
+
+
+
+		x = HUD_X + (HUD_ICONSIZE + HUD_ICONSPACE) * ( diff - count - 1 );
+
+		dist = abs(x - HUD_X );
+		if(dist > HUD_FADE_DIST)
+			dist = HUD_FADE_DIST;
+	
+		fadecolor[3] = 1.0f - ( dist / HUD_FADE_DIST ) ;
+
+		trap_R_SetColor(fadecolor);
+		CG_DrawPic(x, y, HUD_ICONSIZE, HUD_ICONSIZE, cg_weapons[weap].weaponIcon);
+
+		trap_R_SetColor(color);
+
+	}
+
+	diff = -1;
+	weap = 0;
+
+	for(i = 0 ; i < 16; i++)
+	{
+		weap = cg.weaponSelect - i ;
+
+		if(!(bits & (1 << weap)))
+		{
+			continue;
+		}
+
+		CG_RegisterWeapon(weap);
+
+		if(weap == cg.weaponSelect){
+			continue;
+
+		}
+
+		x = HUD_X + (HUD_ICONSIZE + HUD_ICONSPACE) * ( diff -- );
+
+		dist = abs(x - HUD_X );
+		if(dist > HUD_FADE_DIST)
+			dist = HUD_FADE_DIST;
+	
+		fadecolor[3] = 1.0f - ( dist / HUD_FADE_DIST ) ;
+
+		trap_R_SetColor(fadecolor);
+		CG_DrawPic(x, y, HUD_ICONSIZE, HUD_ICONSIZE, cg_weapons[weap].weaponIcon);
+
+		trap_R_SetColor(color);
+
+		x = HUD_X + (HUD_ICONSIZE + HUD_ICONSPACE) * ( diff + count + 1 );
+
+		dist = abs(x - HUD_X );
+		if(dist > HUD_FADE_DIST)
+			dist = HUD_FADE_DIST;
+	
+		fadecolor[3] = 1.0f - ( dist / HUD_FADE_DIST ) ;
+
+		trap_R_SetColor(fadecolor);
+		CG_DrawPic(x, y, HUD_ICONSIZE, HUD_ICONSIZE, cg_weapons[weap].weaponIcon);
+
+		trap_R_SetColor(color);
+
+	}
+
+/*
+	diff = 0;
+
+	for(i = cg.weaponSelect ; i > 0; i--)
+	{
+		if(!(bits & (1 << i)))
+		{
+			continue;
+		}
+
+		CG_RegisterWeapon(i);
+
+		
+		if(i == cg.weaponSelect){
+			continue;
+
+		}
+		diff --;
+
+		x = HUD_X + (HUD_ICONSIZE + HUD_ICONSPACE) * ( diff );
+		if(x > HUD_X)
+			CG_DrawPic(x, y, HUD_ICONSIZE, HUD_ICONSIZE, cg_weapons[i].weaponIcon);
+	
+	}
+*/
+
+	// draw the selected name
+/*	if(cg_weapons[cg.weaponSelect].item)
+	{
+		name = cg_weapons[cg.weaponSelect].item->pickup_name;
+		if(name)
+		{
+			w = CG_DrawStrlen(name) * BIGCHAR_WIDTH;
+			x = (SCREEN_WIDTH - w) / 2;
+			CG_DrawBigStringColor(x, y - 22, name, color);
+		}
+	}
+*/
+	trap_R_SetColor(NULL);
+}
+
+
+/*
+===================
 CG_DrawWeaponSelect
 ===================
 */
@@ -2088,9 +2295,15 @@ void CG_DrawWeaponSelect(void)
 	if(!cg_drawWeaponSelect.integer)
 		return;
 
+
 	// don't display if dead
 	if(cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
 	{
+		return;
+	}
+
+	if(cg_drawStatus.integer == 3){
+		CG_DrawWeaponSelectNew();
 		return;
 	}
 
@@ -2199,6 +2412,14 @@ void CG_NextWeapon_f(void)
 		return;
 	}
 
+	if(cg.scoreBoardShowing)
+	{
+		cg.scoreboard_offset++;
+
+		return;
+
+	}
+
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
@@ -2209,10 +2430,10 @@ void CG_NextWeapon_f(void)
 		{
 			cg.weaponSelect = 0;
 		}
-		if(cg.weaponSelect == WP_GAUNTLET)
-		{
-			continue;			// never cycle to gauntlet
-		}
+		//if(cg.weaponSelect == WP_GAUNTLET)
+		//{
+		//	continue;			// never cycle to gauntlet
+		//}
 		if(CG_WeaponSelectable(cg.weaponSelect))
 		{
 			break;
@@ -2222,6 +2443,7 @@ void CG_NextWeapon_f(void)
 	{
 		cg.weaponSelect = original;
 	}
+
 }
 
 /*
@@ -2243,6 +2465,12 @@ void CG_PrevWeapon_f(void)
 		return;
 	}
 
+	if(cg.scoreBoardShowing)
+	{
+		cg.scoreboard_offset--;
+		return;
+
+	}
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
@@ -2253,10 +2481,10 @@ void CG_PrevWeapon_f(void)
 		{
 			cg.weaponSelect = 15;
 		}
-		if(cg.weaponSelect == WP_GAUNTLET)
-		{
-			continue;			// never cycle to gauntlet
-		}
+		//if(cg.weaponSelect == WP_GAUNTLET)
+		//{
+		//	continue;			// never cycle to gauntlet
+		//}
 		if(CG_WeaponSelectable(cg.weaponSelect))
 		{
 			break;
@@ -2266,6 +2494,8 @@ void CG_PrevWeapon_f(void)
 	{
 		cg.weaponSelect = original;
 	}
+
+	
 }
 
 /*

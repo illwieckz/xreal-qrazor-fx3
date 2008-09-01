@@ -70,8 +70,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define STAT_MINUS			10	// num frame for '-' stats digit
 
 #define	ICON_SIZE			32
-#define	CHAR_WIDTH			24
-#define	CHAR_HEIGHT			24
+#define	CHAR_WIDTH			20
+#define	CHAR_HEIGHT			20
+#define CHAR_SPACE			16
+
 #define	TEXT_ICON_SPACE		4
 
 #define	TEAMCHAT_WIDTH		80
@@ -793,6 +795,12 @@ typedef struct
 	playerState_t   savedPmoveStates[NUM_SAVED_STATES];
 	int             stateHead, stateTail;
 //unlagged - optimized prediction
+
+	// hud variables
+
+	float		bar_offset; // offset calculation for middle bar
+	int 		bar_count; //number of items displayed in the bar
+	int		scoreboard_offset; // scoreboard scrolling
 } cg_t;
 
 
@@ -881,7 +889,15 @@ typedef struct
 	qhandle_t       selectShader;
 	qhandle_t       viewBloodShader;
 	qhandle_t       tracerShader;
+
 	qhandle_t       crosshairShader[NUM_CROSSHAIRS];
+
+	//new combination crosshair stuff
+	qhandle_t       crosshairDot[NUM_CROSSHAIRS];
+	qhandle_t       crosshairCircle[NUM_CROSSHAIRS];
+	qhandle_t       crosshairCross[NUM_CROSSHAIRS];
+
+
 	qhandle_t       lagometerShader;
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
@@ -981,6 +997,8 @@ typedef struct
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSansBoldFont;
 	fontInfo_t      freeSerifBoldFont;
+	//otty: digitla font for HUD
+	fontInfo_t      lcdFont;
 
 	// sounds
 	sfxHandle_t     quadSound;
@@ -1279,6 +1297,13 @@ extern vmCvar_t cg_crosshairX;
 extern vmCvar_t cg_crosshairY;
 extern vmCvar_t cg_crosshairSize;
 extern vmCvar_t cg_crosshairHealth;
+
+extern vmCvar_t cg_crosshairDot;
+extern vmCvar_t cg_crosshairCircle;
+extern vmCvar_t cg_crosshairCross;
+extern vmCvar_t cg_crosshairPulse;
+
+
 extern vmCvar_t cg_drawStatus;
 extern vmCvar_t cg_drawStatusLines;
 extern vmCvar_t cg_drawSideBar;
@@ -1656,6 +1681,7 @@ void            CG_DrawInformation(void);
 //
 qboolean        CG_DrawOldScoreboard(void);
 void            CG_DrawOldTourneyScoreboard(void);
+qboolean        CG_DrawScoreboardNew(void);
 
 //
 // cg_consolecmds.c

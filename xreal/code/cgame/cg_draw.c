@@ -210,7 +210,7 @@ Draws large numbers for status bar and powerups
 ==============
 */
 #ifndef MISSIONPACK
-static void CG_DrawField(int x, int y, int width, int value)
+static void CG_DrawField(int x, int y, int width, int value, float size)
 {
 	char            num[16], *ptr;
 	int             l;
@@ -251,7 +251,7 @@ static void CG_DrawField(int x, int y, int width, int value)
 	l = strlen(num);
 	if(l > width)
 		l = width;
-	x += 2 + CHAR_WIDTH * (width - l);
+	x += 2 + (CHAR_WIDTH*size * (width - l))/2;
 
 	ptr = num;
 	while(*ptr && l)
@@ -261,8 +261,8 @@ static void CG_DrawField(int x, int y, int width, int value)
 		else
 			frame = *ptr - '0';
 
-		CG_DrawPic(x, y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[frame]);
-		x += CHAR_WIDTH;
+		CG_DrawPic(x, y, CHAR_WIDTH*size, CHAR_HEIGHT*size, cgs.media.numberShaders[frame]);
+		x += CHAR_SPACE*size;
 		ptr++;
 		l--;
 	}
@@ -773,7 +773,7 @@ static void CG_DrawStatusBarQ3(void)
 			}
 			trap_R_SetColor(colors[color]);
 
-			CG_DrawField(0, 445, 3, value);
+			CG_DrawField(0, 445, 3, value, 1.0f);
 			trap_R_SetColor(NULL);
 
 			// if we didn't draw a 3D icon, draw a 2D icon for ammo
@@ -809,7 +809,7 @@ static void CG_DrawStatusBarQ3(void)
 	}
 
 	// stretch the health up when taking damage
-	CG_DrawField(185, 445, 3, value);
+	CG_DrawField(185, 445, 3, value, 1.0f);
 	CG_ColorForHealth(hcolor);
 	trap_R_SetColor(hcolor);
 
@@ -818,7 +818,7 @@ static void CG_DrawStatusBarQ3(void)
 	if(value > 0)
 	{
 		trap_R_SetColor(colors[0]);
-		CG_DrawField(370, 445, 3, value);
+		CG_DrawField(370, 445, 3, value, 1.0f);
 		trap_R_SetColor(NULL);
 
 		// if we didn't draw a 3D icon, draw a 2D icon for armor
@@ -939,7 +939,7 @@ static void CG_DrawStatusBarXreaL(void)
 			}
 
 			trap_R_SetColor(colors[color]);
-			CG_DrawField(520, 480 - CHAR_HEIGHT - 7, 3, value);
+			CG_DrawField(520, 480 - CHAR_HEIGHT - 7, 3, value, 1.0f);
 			trap_R_SetColor(NULL);
 
 			// if we didn't draw a 2D icon, draw a 3D icon for ammo
@@ -982,7 +982,7 @@ static void CG_DrawStatusBarXreaL(void)
 		color = 1;				// red
 
 	trap_R_SetColor(colors[color]);
-	CG_DrawField(ICON_SIZE + 5, 480 - CHAR_HEIGHT - 7, 3, value);
+	CG_DrawField(ICON_SIZE + 5, 480 - CHAR_HEIGHT - 7, 3, value, 1.0f);
 	trap_R_SetColor(NULL);
 
 	CG_DrawStatusBarHead(10);
@@ -1005,7 +1005,7 @@ static void CG_DrawStatusBarXreaL(void)
 		CG_DrawPic(10, 480 - 79, 108, 36, cgs.media.sideBarItemLShader);
 		trap_R_SetColor(NULL);
 
-		CG_DrawField(ICON_SIZE + 5, 480 - 72, 3, value);
+		CG_DrawField(ICON_SIZE + 5, 480 - 72, 3, value, 1.0f);
 
 		// if we didn't draw a 2D icon, draw a 3D icon for armor
 		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
@@ -1033,6 +1033,442 @@ static void CG_DrawStatusBarXreaL(void)
 	}
 }
 
+
+/* new hud
+
+TODO: divide into sections ( lower, upper etc )
+
+*/
+
+#define HUD_B_Y 425
+#define HUD_B_MIDDLE_OFFSET_Y 5
+#define HUD_BAR_EXTSIZE 6
+#define HUD_B_BORDEROFFSET 5
+
+//fontsizes
+
+#define HUD_TIMERSIZE 0.15f
+#define HUD_SCORELIMITSIZETEAM 0.25f
+#define HUD_SCORESIZETEAM 0.33f
+
+#define HUD_SCORESIZE 0.4f
+#define HUD_STATSIZE 0.5f
+
+void CG_DrawStatusBarNew ( void ){
+	int             value;
+	playerState_t  *ps;
+	int		offset;
+	int		offset2;
+	centity_t      *cent;
+	int 		score;
+
+	char           *s;
+	int             w,h;
+	int             mins, seconds, tens;
+	int             msec;
+
+
+	float 		hflash = 0;
+	float 		arflash = 0;
+	float 		amflash = 0;
+
+	float 		fontsize ;
+
+	int 		pickup = cg.time - cg.itemPickupTime;
+
+	vec4_t          color  = { 1.0f, 1.0f, 1.0f, 0.80f };
+
+	vec4_t          basecolor;
+	vec4_t          fadecolor;
+
+	vec4_t          healthcolor = { 1.0f, 1.0f, 1.0f, 0.80f };
+	vec4_t          armorcolor = { 1.0f, 1.0f, 1.0f, 0.80f };
+	vec4_t          ammocolor = { 1.0f, 1.0f, 1.0f, 0.80f };
+
+	vec4_t          scorecolor = { 1.0f, 1.0f, 1.0f, 0.80f };
+
+	ps = &cg.snap->ps;
+	cent = &cg_entities[cg.snap->ps.clientNum];
+
+	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
+		VectorSet4(basecolor, 0.5f, 0.5f, 0.9f, 0.80f );
+	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
+		VectorSet4(basecolor, 0.95f, 0.35f, 0.35f, 0.80f );
+	else
+		VectorSet4(basecolor, 1.0f, 1.0f, 1.0f, 0.80f );
+
+
+	//top stats bar
+
+
+
+
+	if(cgs.gametype >= GT_TEAM)
+	{
+		//background middle - score limit
+
+		if(cgs.gametype >= GT_CTF)
+			score = cgs.capturelimit;
+		else
+			score = cgs.fraglimit;
+
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(320 - 40, 0, 80, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_middle"));
+		trap_R_SetColor(NULL);
+
+		VectorCopy4(color, scorecolor);
+
+		//tdm/ctf frag/capturelimit
+		s = va("%i", score);		
+		fontsize = HUD_SCORELIMITSIZETEAM;
+		if(score > 99)
+			fontsize *= 1.0f;
+		else if(score > 9)
+			fontsize *= 1.25f;
+		else 
+			fontsize *= 1.5f;
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+		CG_Text_Paint(320 - w/2 , 24+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+
+		//background left - red team
+
+		VectorSet4(color, 0.95f, 0.35f, 0.35f, 0.8f );
+
+		score = cgs.scores1;
+
+		if(cgs.gametype >= GT_CTF)
+		{
+			trap_R_SetColor(color);
+			CG_DrawPic(320 - 10 - 100, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ctf_left"));
+			trap_R_SetColor(NULL);
+		}
+		else
+		{
+			trap_R_SetColor(color);
+			CG_DrawPic(320 - 10 - 100, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_left"));
+			trap_R_SetColor(NULL);
+		}
+
+		trap_R_SetColor(color);
+		CG_DrawPic(320 - 10 - 100, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_left_overlay"));
+		trap_R_SetColor(NULL);
+
+
+		VectorSet4(scorecolor,1.0f, 1.0f, 1.0f, 0.80f );
+		//digits
+		s = va("%i", score);
+		fontsize = HUD_SCORESIZETEAM;
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+		CG_Text_Paint(255 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+		//background right - blue team
+		VectorSet4(color, 0.5f, 0.5f, 0.9f, 0.80f );
+		score = cgs.scores2;
+
+		if(cgs.gametype >= GT_CTF)
+		{
+			trap_R_SetColor(color);
+			CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ctf_right"));
+			trap_R_SetColor(NULL);
+		}
+		else
+		{
+			trap_R_SetColor(color);
+			CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_right"));
+			trap_R_SetColor(NULL);
+		}
+
+		VectorSet4(scorecolor,1.0f, 1.0f, 1.0f, 0.80f );
+		//digits
+		s = va("%i", score);
+		fontsize = HUD_SCORESIZETEAM;
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+		CG_Text_Paint(385 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+		trap_R_SetColor(color);
+		CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_right_overlay"));
+		trap_R_SetColor(NULL);
+
+			
+
+
+
+
+	}else{ // FFA
+	
+		//background middle - your score
+		score = cg.snap->ps.persistant[PERS_SCORE];
+
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(320 - 25, 0, 50, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle"));
+		trap_R_SetColor(NULL);
+
+		//blink your score if on first or second place
+		VectorCopy4(basecolor, scorecolor);
+		if(score == cgs.scores1)
+			scorecolor[0] = scorecolor[1] = 0.66f + 0.33f*sin(cg.time / 100.0f);
+		else if(score == cgs.scores2)
+			scorecolor[1] = scorecolor[2] = 0.66f + 0.33f*sin(cg.time / 100.0f);
+
+		//digits
+
+		s = va("%i", score);
+		fontsize = HUD_SCORESIZE;
+		if(score > 99)
+			fontsize *= 0.5f;
+		else if(score > 9)
+			fontsize *= 0.75;
+		else 
+			fontsize *= 1.5f;
+
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+		CG_Text_Paint(320 - w/2 , 21+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+		//background left - fraglimit
+		score = cgs.fraglimit;
+
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(320 - 25 - 66, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left"));
+		trap_R_SetColor(NULL);
+
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(320 - 25 - 66, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left_overlay"));
+		trap_R_SetColor(NULL);
+
+		//blink fraglimit if close enough
+		VectorCopy4(basecolor, scorecolor);
+
+		if(score > 0 && score - cgs.scores1 < 5)
+			scorecolor[2] = scorecolor[1] = sin(cg.time / 200.0f);
+
+		//digits
+
+		s = va("%i", score);
+		fontsize = HUD_SCORESIZE*0.8f;
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+		CG_Text_Paint(275 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+
+		//background right - first place score if self not first, or second place score if on first place
+
+		if(cgs.scores1 == cg.snap->ps.persistant[PERS_SCORE]) //on first place, so draw second
+			score = cgs.scores2;
+		else // not on first place, so draw first 
+			score = cgs.scores1;
+
+		if( score == SCORE_NOT_PRESENT )
+			score = 0;
+
+
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(320 + 25, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right"));
+		trap_R_SetColor(NULL);
+	
+		VectorCopy4(basecolor, scorecolor);
+		//digits
+
+		s = va("%i", score);
+		fontsize = HUD_SCORESIZE*0.8f;
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+		CG_Text_Paint(365 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(320 + 25, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right_overlay"));
+		trap_R_SetColor(NULL);
+	
+	}
+
+	//draw countdown
+
+	if(cgs.timelimit > 0){
+
+		msec = ( ( cgs.timelimit * 60 * 1000 ) - cg.time - cgs.levelStartTime);
+	
+		if(msec > 0){
+			seconds = msec / 1000;
+			mins = seconds / 60;
+			seconds -= mins * 60;
+			tens = seconds / 10;
+			seconds -= tens * 10;
+		
+			s = va("%i:%i%i", mins, tens, seconds);
+			w = CG_Text_Width(s,HUD_TIMERSIZE, 0, &cgs.media.lcdFont);
+			h = CG_Text_Height(s, HUD_TIMERSIZE, 0, &cgs.media.lcdFont);
+			CG_Text_Paint(320 - w/2 , 5 + h/2, HUD_TIMERSIZE, colorWhite, s, 0, 0, 0, &cgs.media.lcdFont);
+
+		}
+	}
+
+
+
+	//left - health
+	trap_R_SetColor(basecolor);
+	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_left"));
+	trap_R_SetColor(NULL);
+
+	value = ps->stats[STAT_HEALTH];
+
+	if(value <= 5)
+	{
+		healthcolor[1] = healthcolor[2] = sin(cg.time / 25.0f);
+	}else if(value <= 25)
+	{
+		healthcolor[1] = healthcolor[2] = sin(cg.time / 50.0f);
+	}else if(value <= 50)
+	{
+		healthcolor[1] = healthcolor[2] = sin(cg.time / 100.0f);	
+	}
+
+
+	healthcolor[3] = 1.0f;
+
+	s = va("%i", value);
+	fontsize = HUD_STATSIZE;
+	w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+	h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+	CG_Text_Paint(80 - w/2 , 453+h/2, fontsize, healthcolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+	trap_R_SetColor(colorWhite);
+		CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 150, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_left_overlay"));
+	trap_R_SetColor(NULL);
+
+
+
+	if(pickup > 0 && pickup < 300 ){
+
+		if(bg_itemlist[cg.itemPickup].giType == IT_HEALTH){ // flash health
+
+			hflash = pickup / 10;
+
+		}
+
+		if(bg_itemlist[cg.itemPickup].giType == IT_ARMOR){ // armor health
+
+			arflash = pickup / 10;
+
+		}
+
+
+		if(bg_itemlist[cg.itemPickup].giType == IT_AMMO){ // ammo health
+
+			amflash = pickup / 10;
+
+		}
+
+	}else{
+
+		pickup = 0;
+	
+	}
+
+
+	VectorCopy4(basecolor, color);
+	color[3] = 0.75f + 0.25f*sin(cg.time/400.0f);
+
+	trap_R_SetColor(color);
+		CG_DrawPic(17-hflash/2, 435-hflash/2, 30+hflash, 30+hflash, trap_R_RegisterShaderNoMip("hud/hud_icon_health"));
+	trap_R_SetColor(NULL);
+
+	//middle, ammo, ammo types, weaponselection
+
+	offset = cg.bar_count * HUD_BAR_EXTSIZE * cg.bar_offset;
+	offset2 = 25 * cg.bar_offset;
+
+	trap_R_SetColor(basecolor);
+	CG_DrawPic(201 - offset , HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_end"));
+	CG_DrawPic(201 - offset + 34, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y,(276 + offset2) - ( 201 - offset + 34 )  , 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_middle"));
+	CG_DrawPic(276 + offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_right"));
+
+	CG_DrawPic(345 - offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_left"));
+	CG_DrawPic(345 - offset2 + 19, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, ( 405 + offset ) - ( 345 - offset2 + 19 ) , 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_middle"));
+	CG_DrawPic(405 + offset , HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_end"));
+	trap_R_SetColor(NULL);
+
+	VectorCopy4(basecolor, fadecolor);
+
+	fadecolor[3] *= 1.0f-cg.bar_offset;
+	trap_R_SetColor(fadecolor);
+	CG_DrawPic(295, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 50, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_middle"));
+	trap_R_SetColor(NULL);
+
+
+	//ammo - TODO
+	ammocolor[3] = fadecolor[3];
+
+	value = ps->ammo[cent->currentState.weapon];
+
+	s = va("%i", value);
+	fontsize = HUD_STATSIZE;
+	w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+	h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+	CG_Text_Paint(254 - w/2 , 453+h/2, fontsize, ammocolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+	trap_R_SetColor(NULL);
+
+	trap_R_SetColor(fadecolor);
+	CG_DrawPic(201, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 238, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_overlay"));
+	trap_R_SetColor(NULL);
+
+	//right, armor
+
+	value = ps->stats[STAT_ARMOR];
+
+	if(value <= 0)
+		return;
+
+	trap_R_SetColor(basecolor);
+	CG_DrawPic(515 - HUD_B_BORDEROFFSET , HUD_B_Y, 125, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_right"));
+	trap_R_SetColor(NULL);
+
+
+	armorcolor[3] = 1.0f;
+
+	s = va("%i", value);
+	fontsize = HUD_STATSIZE;
+	w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
+	h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
+	CG_Text_Paint(560 - w/2 , 453+h/2, fontsize, armorcolor, s, 0, 0, 0, &cgs.media.lcdFont);
+
+
+
+	trap_R_SetColor(colorWhite);
+		CG_DrawPic(490  - HUD_B_BORDEROFFSET, HUD_B_Y, 150, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_right_overlay"));
+	trap_R_SetColor(NULL);
+
+	VectorCopy4(basecolor, color);
+	color[3] = 0.75f + 0.25f*sin(cg.time/300.0f);
+
+	trap_R_SetColor(color);
+	CG_DrawPic(610 - 17 -arflash/2, 435-arflash/2 , 30+arflash, 30+arflash, trap_R_RegisterShaderNoMip("hud/hud_icon_armor"));
+
+
+
+
+
+	trap_R_SetColor(NULL);
+
+}
+
 /*
 ================
 CG_DrawStatusBar
@@ -1044,7 +1480,9 @@ static void CG_DrawStatusBar(void)
 		CG_DrawStatusBarXreaL();
 	else if(cg_drawStatus.integer == 2)
 		CG_DrawStatusBarQ3();
-	else
+	else  if(cg_drawStatus.integer == 3)
+		CG_DrawStatusBarNew();
+	else 
 		return;
 }
 
@@ -1321,6 +1759,9 @@ static float CG_DrawFPS(float y)
 	static int      previous;
 	int             t, frameTime;
 
+	vec4_t          basecolor;
+	
+
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
 	t = trap_Milliseconds();
@@ -1329,6 +1770,8 @@ static float CG_DrawFPS(float y)
 
 	previousTimes[index % FPS_FRAMES] = frameTime;
 	index++;
+
+
 	if(index > FPS_FRAMES)
 	{
 		// average multiple frames together to smooth changes out a bit
@@ -1344,12 +1787,33 @@ static float CG_DrawFPS(float y)
 		fps = 1000 * FPS_FRAMES / total;
 
 		s = va("%ifps", fps);
+
 		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
-		CG_DrawBigString(635 - w, y + 2, s, 1.0F);
+		if(cg_drawStatus.integer == 3){
+			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+				VectorSet4(basecolor, 0.5f, 0.5f, 0.9f, 0.80f );
+			else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+				VectorSet4(basecolor, 0.95f, 0.35f, 0.35f, 0.80f );
+			else
+				VectorSet4(basecolor, 1.0f, 1.0f, 1.0f, 0.80f );
+
+			trap_R_SetColor(basecolor);
+			CG_DrawPic(560, 0, 80, 30, trap_R_RegisterShaderNoMip("hud/hud_fps"));
+			trap_R_SetColor(NULL);
+
+			CG_DrawStringExt(630 - w/2, 10, s, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT-4, 0);
+
+
+
+		}else{
+
+			CG_DrawBigString(635 - w, y + 2, s, 1.0F);
+
+		}
 	}
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + BIGCHAR_HEIGHT + 8;
 }
 
 /*
@@ -1634,6 +2098,9 @@ static float CG_DrawScores(float y)
 	float           y1;
 	gitem_t        *item;
 
+	if(cg_drawStatus.integer == 3)
+		return;
+
 	s1 = cgs.scores1;
 	s2 = cgs.scores2;
 
@@ -1892,7 +2359,7 @@ static float CG_DrawPowerups(float y)
 			y -= ICON_SIZE;
 
 			trap_R_SetColor(colors[color]);
-			CG_DrawField(x, y, 2, sortedTime[i] / 1000);
+			CG_DrawField(x, y, 2, sortedTime[i] / 1000, 1.0f);
 
 			t = ps->powerups[sorted[i]];
 			if(t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME)
@@ -2543,6 +3010,94 @@ CROSSHAIR
 ================================================================================
 */
 
+void CG_DrawCrosshairNew (void){
+	qhandle_t       dot;
+	qhandle_t       circle;
+	qhandle_t       cross;
+
+	float           w, h;
+	float           x, y;
+	float           f;
+
+
+	if(cg_crosshairDot.integer <= 0) // no dot
+	{
+		dot = NULL;
+	}else{
+
+		dot = cgs.media.crosshairDot[cg_crosshairDot.integer-1];
+
+	}
+
+	if(cg_crosshairCircle.integer <= 0) // no circle
+	{
+		circle = NULL;
+	}else{
+
+		circle = cgs.media.crosshairCircle[cg_crosshairCircle.integer-1];
+
+	}
+
+	if(cg_crosshairCross.integer <= 0) // no cross
+	{
+		cross = NULL;
+	}else{
+
+		cross = cgs.media.crosshairCross[cg_crosshairCross.integer-1];
+
+	}
+
+	w = h = cg_crosshairSize.value;
+
+	if(cg_crosshairPulse.integer == 1) // pulse the size of the crosshair when picking up items
+	{
+		
+		f = cg.time - cg.itemPickupBlendTime;
+
+		if(f > 0 && f < ITEM_BLOB_TIME)
+		{
+			f /= ITEM_BLOB_TIME;
+			w *= (1 + f);
+			h *= (1 + f);
+		}
+
+	}
+
+	x = cg_crosshairX.integer;
+	y = cg_crosshairY.integer;
+
+	CG_AdjustFrom640(&x, &y, &w, &h);
+
+	// set color based on health
+	if(cg_crosshairHealth.integer)
+	{
+		vec4_t          hcolor;
+
+		CG_ColorForHealth(hcolor);
+		trap_R_SetColor(hcolor);
+	}
+	else
+	{
+		trap_R_SetColor(NULL);
+	}
+
+
+	if(dot)
+		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
+						  y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, dot);
+	if(circle)
+		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
+						  y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, circle);
+	if(cross)
+		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
+						  y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, cross);
+
+
+
+	trap_R_SetColor(NULL);
+
+}
+
 
 /*
 =================
@@ -2572,6 +3127,11 @@ static void CG_DrawCrosshair(void)
 		return;
 	}
 
+	if(cg_drawStatus.integer == 3){
+		CG_DrawCrosshairNew ();
+		return;
+	
+	}
 	// set color based on health
 	if(cg_crosshairHealth.integer)
 	{
@@ -2689,6 +3249,19 @@ static void CG_DrawCrosshairNames(void)
 
 	name = cgs.clientinfo[cg.crosshairClientNum].name;
 
+	if(cg_drawStatus.integer == 3){
+
+		//think this is a better place
+
+		color[3] *= 0.85f;
+		w = CG_Text_Width(name, 0.2f, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(320 - w / 2, 265, 0.2f, color, name, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+
+		trap_R_SetColor(NULL);
+		return;
+	}
+
 	color[3] *= 0.5f;
 	w = CG_Text_Width(name, 0.3f, 0, &cgs.media.freeSansBoldFont);
 	CG_Text_Paint(320 - w / 2, 190, 0.3f, color, name, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
@@ -2791,6 +3364,7 @@ static void CG_DrawTeamVote(void)
 
 static qboolean CG_DrawScoreboard(void)
 {
+
 #ifdef MISSIONPACK
 	static qboolean firstTime = qtrue;
 	float           fade, *fadeColor;
@@ -2864,6 +3438,9 @@ static qboolean CG_DrawScoreboard(void)
 
 	return qtrue;
 #else
+	if(cg_drawStatus.integer == 3)
+		return CG_DrawScoreboardNew();
+
 	return CG_DrawOldScoreboard();
 #endif
 }
