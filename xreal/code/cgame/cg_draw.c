@@ -1127,9 +1127,9 @@ void CG_DrawStatusBarNew ( void ){
 			fontsize *= 1.25f;
 		else 
 			fontsize *= 1.5f;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-		CG_Text_Paint(320 - w/2 , 24+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+		CG_Text_Paint(320 - w/2 , 24+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 
@@ -1162,9 +1162,9 @@ void CG_DrawStatusBarNew ( void ){
 		//digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZETEAM;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-		CG_Text_Paint(255 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+		CG_Text_Paint(255 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 
@@ -1189,9 +1189,9 @@ void CG_DrawStatusBarNew ( void ){
 		//digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZETEAM;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-		CG_Text_Paint(385 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+		CG_Text_Paint(385 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 		trap_R_SetColor(color);
 		CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_right_overlay"));
@@ -1229,9 +1229,9 @@ void CG_DrawStatusBarNew ( void ){
 		else 
 			fontsize *= 1.5f;
 
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-		CG_Text_Paint(320 - w/2 , 21+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+		CG_Text_Paint(320 - w/2 , 21+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 
@@ -1256,9 +1256,9 @@ void CG_DrawStatusBarNew ( void ){
 
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE*0.8f;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-		CG_Text_Paint(275 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+		CG_Text_Paint(275 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 
@@ -1283,9 +1283,9 @@ void CG_DrawStatusBarNew ( void ){
 
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE*0.8f;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-		CG_Text_Paint(365 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.lcdFont);
+		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+		CG_Text_Paint(365 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 		trap_R_SetColor(basecolor);
@@ -1308,9 +1308,9 @@ void CG_DrawStatusBarNew ( void ){
 			seconds -= tens * 10;
 		
 			s = va("%i:%i%i", mins, tens, seconds);
-			w = CG_Text_Width(s,HUD_TIMERSIZE, 0, &cgs.media.lcdFont);
-			h = CG_Text_Height(s, HUD_TIMERSIZE, 0, &cgs.media.lcdFont);
-			CG_Text_Paint(320 - w/2 , 5 + h/2, HUD_TIMERSIZE, colorWhite, s, 0, 0, 0, &cgs.media.lcdFont);
+			w = CG_Text_Width(s,HUD_TIMERSIZE, 0, &cgs.media.hudMonoFont);
+			h = CG_Text_Height(s, HUD_TIMERSIZE, 0, &cgs.media.hudMonoFont);
+			CG_Text_Paint(320 - w/2 , 5 + h/2, HUD_TIMERSIZE, colorWhite, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 		}
 	}
@@ -1340,9 +1340,9 @@ void CG_DrawStatusBarNew ( void ){
 
 	s = va("%i", value);
 	fontsize = HUD_STATSIZE;
-	w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-	h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-	CG_Text_Paint(80 - w/2 , 453+h/2, fontsize, healthcolor, s, 0, 0, 0, &cgs.media.lcdFont);
+	w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+	h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+	CG_Text_Paint(80 - w/2 , 453+h/2, fontsize, healthcolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 
@@ -1417,9 +1417,9 @@ void CG_DrawStatusBarNew ( void ){
 
 	s = va("%i", value);
 	fontsize = HUD_STATSIZE;
-	w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-	h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-	CG_Text_Paint(254 - w/2 , 453+h/2, fontsize, ammocolor, s, 0, 0, 0, &cgs.media.lcdFont);
+	w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+	h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+	CG_Text_Paint(254 - w/2 , 453+h/2, fontsize, ammocolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 
@@ -1445,9 +1445,9 @@ void CG_DrawStatusBarNew ( void ){
 
 	s = va("%i", value);
 	fontsize = HUD_STATSIZE;
-	w = CG_Text_Width(s, fontsize, 0, &cgs.media.lcdFont);
-	h = CG_Text_Height(s, fontsize, 0, &cgs.media.lcdFont);
-	CG_Text_Paint(560 - w/2 , 453+h/2, fontsize, armorcolor, s, 0, 0, 0, &cgs.media.lcdFont);
+	w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
+	h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
+	CG_Text_Paint(560 - w/2 , 453+h/2, fontsize, armorcolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
 
 

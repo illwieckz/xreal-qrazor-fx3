@@ -998,7 +998,7 @@ typedef struct
 	fontInfo_t      freeSansBoldFont;
 	fontInfo_t      freeSerifBoldFont;
 	//otty: digitla font for HUD
-	fontInfo_t      lcdFont;
+	fontInfo_t      hudMonoFont;
 
 	// sounds
 	sfxHandle_t     quadSound;
