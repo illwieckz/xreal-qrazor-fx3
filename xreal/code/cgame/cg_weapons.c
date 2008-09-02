@@ -2095,6 +2095,8 @@ void CG_DrawWeaponSelectNew(void)
 	float          *color;
 	vec4_t          fadecolor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float		dist;
+	int diff = 1;
+	int weap = 0;
 
 
 	color = CG_FadeColor(cg.weaponSelectTime, WEAPON_SELECT_TIME*2);
@@ -2136,9 +2138,6 @@ void CG_DrawWeaponSelectNew(void)
 	//draw current selection:
 	CG_DrawPic(HUD_X - HUD_ICONSIZESEL/2, y - HUD_ICONSIZESEL/2, HUD_ICONSIZE + HUD_ICONSIZESEL, HUD_ICONSIZE + HUD_ICONSIZESEL, cg_weapons[cg.weaponSelect].weaponIcon);
 	//CG_DrawPic(x - HUD_ICONSPACE/2, y - HUD_ICONSPACE/2, HUD_ICONSIZE + HUD_ICONSPACE, HUD_ICONSIZE + HUD_ICONSPACE, cgs.media.weaponSelectShader);
-
-	int diff = 1;
-	int weap = 0;
 
 	for(i = 0 ; i < 16; i++)
 	{
