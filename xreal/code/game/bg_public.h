@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define XPPM 1
 
 #if defined(XPPM)
-#define	DEFAULT_MODEL			"xsarge"
-#define	DEFAULT_HEADMODEL		"xsarge"
+#define	DEFAULT_MODEL			"shina"
+#define	DEFAULT_HEADMODEL		"shina"
 #else
 #define	DEFAULT_MODEL			"harley"
 #define	DEFAULT_HEADMODEL		"harley"

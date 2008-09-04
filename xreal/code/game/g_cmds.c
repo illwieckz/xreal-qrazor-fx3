@@ -673,11 +673,11 @@ void SetTeam(gentity_t * ent, char *s)
 	//
 
 	// if the player was dead leave the body
-	if(client->ps.stats[STAT_HEALTH] <= 0)
+/*	if(client->ps.stats[STAT_HEALTH] <= 0)
 	{
 		CopyToBodyQue(ent);
 	}
-
+*/
 	// he starts at 'base'
 	client->pers.teamState.state = TEAM_BEGIN;
 	if(oldTeam != TEAM_SPECTATOR)

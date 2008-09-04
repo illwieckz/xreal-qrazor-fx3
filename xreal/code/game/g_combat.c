@@ -269,6 +269,10 @@ void LookAtKiller(gentity_t * self, gentity_t * inflictor, gentity_t * attacker)
 GibEntity
 ==================
 */
+/*
+
+otty: dont gib at all
+
 void GibEntity(gentity_t * self, int killer)
 {
 #ifdef MISSIONPACK
@@ -299,7 +303,7 @@ void GibEntity(gentity_t * self, int killer)
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 }
-
+*/
 /*
 ==================
 body_die
@@ -311,13 +315,13 @@ void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int
 	{
 		return;
 	}
-	if(!g_blood.integer)
-	{
+//	if(!g_blood.integer)
+//	{
 		self->health = GIB_HEALTH + 1;
 		return;
-	}
+//	}
 
-	GibEntity(self, 0);
+//	(self, 0);
 }
 
 
@@ -750,21 +754,21 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
 	// never gib in a nodrop
-	if((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)
+/*	if((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)
 	{
 		// gib death
 		GibEntity(self, killer);
 	}
 	else
-	{
-		// normal death
+*/	{
+/*		// normal death
 		static int      i;
 
 		switch (i)
 		{
-			case 0:
+			case 0:*/
 				anim = BOTH_DEATH1;
-				break;
+				/*break;
 			case 1:
 				anim = BOTH_DEATH2;
 				break;
@@ -773,18 +777,21 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				anim = BOTH_DEATH3;
 				break;
 		}
-
+*/
 		// for the no-blood option, we need to prevent the health
 		// from going to gib level
-		if(self->health <= GIB_HEALTH)
+/*		if(self->health <= GIB_HEALTH)
 		{
 			self->health = GIB_HEALTH + 1;
 		}
-
+*/
 		self->client->ps.legsAnim = ((self->client->ps.legsAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 		self->client->ps.torsoAnim = ((self->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 
-		G_AddEvent(self, EV_DEATH1 + i, killer);
+//		G_AddEvent(self, EV_DEATH1 + i, killer);
+		G_AddEvent(self, EV_DEATH1 , killer);
+
+
 
 		// the body can still be gibbed
 		self->die = body_die;

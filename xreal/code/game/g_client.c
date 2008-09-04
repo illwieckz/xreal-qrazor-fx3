@@ -414,10 +414,13 @@ CopyToBodyQue
 
 A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
+
+otty: remove this
 =============
 */
 void CopyToBodyQue(gentity_t * ent)
 {
+/*
 #ifdef MISSIONPACK
 	gentity_t      *e;
 	int             i;
@@ -518,18 +521,19 @@ void CopyToBodyQue(gentity_t * ent)
 	body->die = body_die;
 
 	// don't take more damage if already gibbed
-	if(ent->health <= GIB_HEALTH)
-	{
+//	if(ent->health <= GIB_HEALTH)
+//	{
 		body->takedamage = qfalse;
-	}
-	else
-	{
-		body->takedamage = qtrue;
-	}
+//	}
+//	else
+//	{
+//		body->takedamage = qtrue;
+//	}
 
 
 	VectorCopy(body->s.pos.trBase, body->r.currentOrigin);
 	trap_LinkEntity(body);
+*/
 }
 
 //======================================================================
@@ -566,7 +570,7 @@ void respawn(gentity_t * ent)
 {
 	gentity_t      *tent;
 
-	CopyToBodyQue(ent);
+//	CopyToBodyQue(ent);
 	ClientSpawn(ent);
 
 	// add a teleportation effect
