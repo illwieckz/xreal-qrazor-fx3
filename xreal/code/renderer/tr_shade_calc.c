@@ -103,6 +103,7 @@ static float GetOpValue(const expOperation_t * op)
 			else if(backEnd.currentEntity)
 			{
 				value = backEnd.currentEntity->e.shaderRGBA[0] * inv255;
+
 			}
 			else
 			{
