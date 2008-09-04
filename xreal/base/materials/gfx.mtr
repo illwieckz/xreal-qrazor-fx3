@@ -925,8 +925,11 @@ sprites/friend
 	nomipmaps
 	nopicmip
 	{
-		map gfx/misc/friend.png
-		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		map sprites/friend.png
+		centerScale 1.1 - (0.3 *  (  (   (sinTable[time * .7] + 1.0) / 2.0 ) )), 1.1 - (0.3 *  (  (   (sinTable[time * .7] + 1.0) / 2.0 ) ))
+
+		blend blend
+		alpha 0.6 + 0.3 * ( 1.0 -  (   (sinTable[time * .5] + 1.0) / 2.0 ) )
 	}
 }
 

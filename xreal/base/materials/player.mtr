@@ -1,0 +1,55 @@
+
+player/unlink_effect
+{
+
+	{
+		if(parm3 < 0.5)
+		stage	heathazemap
+		map		gfx/effect/Reptile_Skin_normal.png
+		scroll	0, 0
+		scale	0.1, 0.1
+		deformMagnitude	10 * parm3 * 2
+		
+	}	
+	{
+		if(parm3 >= 0.5)
+		stage	heathazemap
+		map		gfx/effect/Reptile_Skin_normal.png
+		scroll	0, 0
+		scale	0.1, 0.1
+		deformMagnitude	10 * (   1.0 - ( (parm3 - 0.5) * 2 ) )
+	}
+
+	{
+		if(parm3 < 0.5)
+		map _black
+		blend blend
+		alpha   parm3 * 2 * parm3 * 2 
+	}
+	{
+		if(parm3 < 0.5)
+		map gfx/effect/grid01.png
+		blend blend	
+		scale 3, 3
+		alpha   parm3 * 2
+	}
+
+	
+	{
+		if(parm3 >= 0.5)
+		map _black
+		blend blend
+		alpha   1.0 - ( ( (parm3 - 0.5) * 2 ) * 4 )
+	}
+
+	{
+		if(parm3 >= 0.5)
+		map gfx/effect/grid01.png
+		blend blend	
+		scale 3*(  1.0 - ( ( (parm3 - 0.5) * 2 ) *3 )),  3*( 1.0 -( ( (parm3 - 0.5) * 2 ) * 3 ))
+		alpha   (1.0 - ( ( (parm3 - 0.5) * 2 ) ))*0.5
+	}
+
+} 
+
+

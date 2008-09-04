@@ -288,6 +288,8 @@ hud/hud_bar_middle_right_left
 hud/hud_bar_middle_middle
 {
 	nopicmip
+
+
 	{
 		clampmap gfx/2d/hud/hud_bar_middle_middle.png
 		blend blend
