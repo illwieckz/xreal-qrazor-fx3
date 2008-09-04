@@ -854,7 +854,7 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 
 			if(!CG_RegisterClientModelname(ci, DEFAULT_MODEL, ci->skinName, DEFAULT_HEADMODEL, ci->skinName, teamname))
 			{
-				CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName);
+				//CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName);
 			}
 		}
 		else
@@ -2698,6 +2698,8 @@ Adds a piece with modifications or duplications for powerups
 */
 void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int team)
 {
+
+
 	if(state->powerups & (1 << PW_INVIS))
 	{
 		ent->customShader = cgs.media.invisShader;
@@ -2739,6 +2741,8 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 			trap_R_AddRefEntityToScene(ent);
 		}
 	}
+
+
 }
 
 /*

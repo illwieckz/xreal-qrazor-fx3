@@ -177,6 +177,12 @@ typedef struct
 	float           barrelAngle;
 	int             barrelTime;
 	qboolean        barrelSpinning;
+
+
+	//death effect
+	int		deathTime;
+	float		deathScale;
+
 } playerEntity_t;
 
 //=================================================
@@ -217,6 +223,7 @@ typedef struct centity_s
 	// exact interpolated position of entity on this frame
 	vec3_t          lerpOrigin;
 	vec3_t          lerpAngles;
+		
 } centity_t;
 
 
@@ -997,7 +1004,7 @@ typedef struct
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSansBoldFont;
 	fontInfo_t      freeSerifBoldFont;
-	//otty: digitla font for HUD
+	//otty: new font for HUD and some display messages 
 	fontInfo_t      hudMonoFont;
 
 	// sounds
@@ -1508,6 +1515,8 @@ extern int      drawTeamOverlayModificationCount;
 extern char     systemChat[256];
 extern char     teamChat1[256];
 extern char     teamChat2[256];
+
+void CG_DrawHudString( int x, int y, char *s, float size, int style, vec4_t color );
 
 int				CG_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
 int				CG_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);

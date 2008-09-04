@@ -212,7 +212,6 @@ Draw the normal in-game scoreboard
 
 void CG_DrawScoreboardTitlebarNew ( vec4_t color, qboolean team ){
 
-	int            w;
 	const char     *s;
 
 
@@ -237,9 +236,8 @@ void CG_DrawScoreboardTitlebarNew ( vec4_t color, qboolean team ){
 		}
 
 
-		w = CG_Text_Width(s, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(320 - w / 2, 100, 0.4f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
-	
+		CG_DrawHudString( 320, 93, s, 0.4f, UI_CENTER, colorWhite );
+
 	}
 	else
 	{
@@ -259,8 +257,7 @@ void CG_DrawScoreboardTitlebarNew ( vec4_t color, qboolean team ){
 			s = va("%s place with %i", CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1), cg.snap->ps.persistant[PERS_SCORE]);
 		}
 
-		w = CG_Text_Width(s, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(320 - w / 2, 100, 0.4f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_DrawHudString( 320, 93, s, 0.4f, UI_CENTER, colorWhite );
 
 	 }
 
@@ -285,26 +282,26 @@ void CG_DrawScoreboardHeadlineNew ( int pos[]){
 	else
 		s = va("Player (%i/%i)", cg.numScores, cgs.maxclients);
 
-	CG_Text_Paint(pos[0] , 138, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_DrawHudString( pos[0], 138, s, 0.2f, UI_LEFT, colorWhite );
 
 	s = va("Clan");
-	CG_Text_Paint(pos[1] , 138, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_DrawHudString( pos[1], 138, s, 0.2f, UI_LEFT, colorWhite );
 
 	s = va("Score");
-	CG_Text_Paint(pos[2] , 138, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_DrawHudString( pos[2], 138, s, 0.2f, UI_LEFT, colorWhite );
 
 	s = va("Time");
-	CG_Text_Paint(pos[3] , 138, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_DrawHudString( pos[3], 138, s, 0.2f, UI_LEFT, colorWhite );
 
 	s = va("Ping");
-	CG_Text_Paint(pos[4] , 138, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+	CG_DrawHudString( pos[4], 138, s, 0.2f, UI_LEFT, colorWhite );
 
 }
 
 		//buttom line:
 void CG_DrawScoreboardUnderlineNew( void ){
 
-	int 		w;
+
 	const char     *s;
 	const char     *ts;
 	int             mins, seconds, tens;
@@ -337,35 +334,35 @@ void CG_DrawScoreboardUnderlineNew( void ){
 
 		//current players 
 		s = va("Players: %i/%i", cg.numScores, cgs.maxclients);
-		w = CG_Text_Width(s, 0.2f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(294 - w , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+		CG_DrawHudString( 294, 408, s, 0.2f, UI_RIGHT, colorWhite );
 		
 		//time left
 		if(cgs.timelimit > 0)
 		{
-			w = CG_Text_Width(ts, 0.2f, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(344 , 408, 0.2f, colorWhite, ts, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+			CG_DrawHudString( 344, 408, ts, 0.2f, UI_LEFT, colorWhite );
 		}
 
 		if(cgs.gametype == GT_CTF)
 		{
 			s = va("CTF on %s", mapname);
-			CG_Text_Paint(SCOREBOARD_RED + 15 , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
-	
+
+			CG_DrawHudString( SCOREBOARD_RED + 15, 408, s, 0.2f, UI_LEFT, colorWhite );
+
 			s = va("Capturelimit: %i", cgs.capturelimit);
-			w = CG_Text_Width(s, 0.2f, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(576 - w , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+			CG_DrawHudString( 576 , 408, s, 0.2f, UI_RIGHT, colorWhite );
 		
 		}
 		else
 		{
 			s = va("TDM on %s", mapname);
-			CG_Text_Paint(SCOREBOARD_RED + 15 , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
-	
+
+			CG_DrawHudString( SCOREBOARD_RED + 15 , 408, s, 0.2f, UI_LEFT, colorWhite );
 			s = va("Fraglimit: %i", cgs.fraglimit);
-			w = CG_Text_Width(s, 0.2f, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(576 - w , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
-	
+
+			CG_DrawHudString( 576  , 408, s, 0.2f, UI_RIGHT, colorWhite );	
+
 		}
 
 	}
@@ -374,16 +371,15 @@ void CG_DrawScoreboardUnderlineNew( void ){
 		//time left
 		if(cgs.timelimit > 0)
 		{
-			w = CG_Text_Width(ts, 0.2f, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(320 - w/2 , 408, 0.2f, colorWhite, ts, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+			CG_DrawHudString( 320 , 408, ts, 0.2f, UI_CENTER, colorWhite );	
 		}
 
 		s = va("FFA on %s", mapname);
-		CG_Text_Paint(SCOREBOARD_FFA + 15 , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
-	
+		CG_DrawHudString( SCOREBOARD_FFA + 15 , 408, s, 0.2f, UI_LEFT, colorWhite );	
+
 		s = va("Fraglimit: %i", cgs.fraglimit);
-		w = CG_Text_Width(s, 0.2f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(475 - w , 408, 0.2f, colorWhite, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_DrawHudString( 640 - SCOREBOARD_FFA - 15 , 408, s, 0.2f, UI_RIGHT, colorWhite );	
 
 	}
 
@@ -427,8 +423,8 @@ void CG_DrawScoreboardStatNew (clientInfo_t *ci, score_t *score, int count ,int 
 	{
 		//draw "connecting" instead of stats
 		s = va("connecting...");
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(pos[0] + 10 , 160 + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+		CG_DrawHudString( pos[0] + 10 , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
 
 	}
 	else
@@ -441,13 +437,15 @@ void CG_DrawScoreboardStatNew (clientInfo_t *ci, score_t *score, int count ,int 
 			s = va("%i. ", count + cg.scoreboard_offset);
 
 		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(pos[0] , 160 + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+		CG_DrawHudString( pos[0]  , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
 
 		//name 
 		s = va("%s", ci->name);
 		w1 = w + 3;
 		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(pos[0] + w1, 160  + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+		CG_DrawHudString( pos[0] + w1 , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
 
 	
 		//ready ?
@@ -457,7 +455,8 @@ void CG_DrawScoreboardStatNew (clientInfo_t *ci, score_t *score, int count ,int 
 			s = " (ready)";
 			w1 += w;
 			w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(pos[0] + w1 , 160 + num* height, fontsize, colorYellow, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+			CG_DrawHudString( pos[0] + w1 , 160 + num* height, s, fontsize, UI_LEFT, colorYellow );	
+
 		
 		}
 
@@ -465,28 +464,25 @@ void CG_DrawScoreboardStatNew (clientInfo_t *ci, score_t *score, int count ,int 
 		{
 			//TODO clantag
 			s = va(" ");
-			w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(pos[1] , 160 + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
-		
+			CG_DrawHudString( pos[1]  , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
+
 			// Score
 			s = va("%i", score->score);
-			w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(pos[2] , 160 + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+			CG_DrawHudString( pos[2]  , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
+
 		
 			// Time
 			s = va("%i", score->time);
-			w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(pos[3] , 160 + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+			CG_DrawHudString( pos[3]  , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
+
 
 		}
 
 		// Ping
 		s = va("%i", score->ping);
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(pos[4] , 160 + num* height, fontsize, fontcolor, s, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_DrawHudString( pos[4]  , 160 + num* height, s, fontsize, UI_LEFT, fontcolor );	
 
 		}
-
 
 }
 
@@ -527,16 +523,16 @@ qboolean CG_DrawScoreboardNew(void)
 		return qfalse;
 
 
+	
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorSet4(basecolor, 0.5f, 0.5f, 0.9f, 0.80f );
+		VectorSet4(basecolor, 0.35f, 0.35f, 0.95f, 0.80f );
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
 		VectorSet4(basecolor, 0.95f, 0.35f, 0.35f, 0.80f );
 	else
 		VectorSet4(basecolor, 1.0f, 1.0f, 1.0f, 0.80f );
-
 	
-	VectorSet4(bluecolor, 0.5f, 0.5f, 0.9f, 0.80f );
-	VectorSet4(redcolor, 0.95f, 0.35f, 0.35f, 0.80f );
+	VectorSet4(bluecolor, 0.35f, 0.35f, 0.95f, 0.80f );
+	VectorSet4(redcolor,0.95f, 0.35f, 0.35f, 0.80f );
 
 	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
 	{
@@ -693,11 +689,8 @@ qboolean CG_DrawScoreboardNew(void)
 				tm.tm_min, (tm.tm_sec > 9 ? "" : "0"), // second padding
 				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
 
-	w = CG_Text_Width(st, 0.2f, 0, &cgs.media.freeSansBoldFont);
-	x = 320 - w / 2;
-	y = 470;
-	CG_Text_Paint(x, y, 0.2f, colorWhite, st, 0, 0, 0, &cgs.media.freeSansBoldFont);
 
+	CG_DrawHudString( 320, 470, st, 0.2f, UI_CENTER, colorWhite );
 
 	return qtrue;
 }

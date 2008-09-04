@@ -857,6 +857,8 @@ static void CG_DrawStatusBarQ3(void)
 CG_DrawStatusBarXreaL
 ================
 */
+
+
 static void CG_DrawStatusBarXreaL(void)
 {
 	int             color;
@@ -1054,6 +1056,34 @@ TODO: divide into sections ( lower, upper etc )
 #define HUD_SCORESIZE 0.4f
 #define HUD_STATSIZE 0.5f
 
+
+void CG_DrawHudString( int x, int y, char *s, float size, int style, vec4_t color ){
+
+	int             w,h;
+
+	w = CG_Text_Width(s, size, 0, &cgs.media.hudMonoFont);
+	h = CG_Text_Height(s, size, 0, &cgs.media.hudMonoFont);
+
+	switch (style )
+	{
+		case UI_CENTER:
+			CG_Text_Paint(x - w/2 , y+h/2, size, color, s, 0, 0, 0, &cgs.media.hudMonoFont);
+			break;
+
+		case UI_RIGHT:
+			CG_Text_Paint(x - w , y+h/2, size, color, s, 0, 0, 0, &cgs.media.hudMonoFont);
+			break;
+
+		case UI_LEFT:
+		default:
+			CG_Text_Paint(x , y+h/2, size, color, s, 0, 0, 0, &cgs.media.hudMonoFont);
+			break;
+	}
+
+
+}
+
+
 void CG_DrawStatusBarNew ( void ){
 	int             value;
 	playerState_t  *ps;
@@ -1091,7 +1121,7 @@ void CG_DrawStatusBarNew ( void ){
 	cent = &cg_entities[cg.snap->ps.clientNum];
 
 	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorSet4(basecolor, 0.5f, 0.5f, 0.9f, 0.80f );
+		VectorSet4(basecolor, 0.35f, 0.35f, 0.95f, 0.80f );
 	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
 		VectorSet4(basecolor, 0.95f, 0.35f, 0.35f, 0.80f );
 	else
@@ -1127,11 +1157,10 @@ void CG_DrawStatusBarNew ( void ){
 			fontsize *= 1.25f;
 		else 
 			fontsize *= 1.5f;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-		CG_Text_Paint(320 - w/2 , 24+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
 
+		CG_DrawHudString( 320, 24, s, fontsize, UI_CENTER, scorecolor );
 
+		
 		trap_R_SetColor(basecolor);
 		CG_DrawPic(320 - 40, 0, 80, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay"));
 		trap_R_SetColor(NULL);
@@ -1162,9 +1191,7 @@ void CG_DrawStatusBarNew ( void ){
 		//digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZETEAM;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-		CG_Text_Paint(255 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+		CG_DrawHudString( 255, 15, s, fontsize, UI_CENTER, scorecolor );
 
 
 		trap_R_SetColor(color);
@@ -1192,9 +1219,7 @@ void CG_DrawStatusBarNew ( void ){
 		//digits
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZETEAM;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-		CG_Text_Paint(385 - w/2 , 15+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+		CG_DrawHudString( 385, 15, s, fontsize, UI_CENTER, scorecolor );
 
 		trap_R_SetColor(color);
 		CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_right_overlay"));
@@ -1232,9 +1257,7 @@ void CG_DrawStatusBarNew ( void ){
 		else 
 			fontsize *= 1.5f;
 
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-		CG_Text_Paint(320 - w/2 , 21+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+		CG_DrawHudString( 320, 21, s, fontsize, UI_CENTER, scorecolor );
 
 		trap_R_SetColor(basecolor);
 		CG_DrawPic(320 - 25, 0, 50, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle_overlay"));
@@ -1260,9 +1283,8 @@ void CG_DrawStatusBarNew ( void ){
 
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE*0.8f;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-		CG_Text_Paint(270 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+
+		CG_DrawHudString( 270, 19, s, fontsize, UI_CENTER, scorecolor );
 
 
 		trap_R_SetColor(basecolor);
@@ -1289,9 +1311,8 @@ void CG_DrawStatusBarNew ( void ){
 
 		s = va("%i", score);
 		fontsize = HUD_SCORESIZE*0.8f;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-		h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-		CG_Text_Paint(370 - w/2 , 19+h/2, fontsize, scorecolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+
+		CG_DrawHudString( 370, 19, s, fontsize, UI_CENTER, scorecolor );
 
 
 		trap_R_SetColor(basecolor);
@@ -1314,9 +1335,8 @@ void CG_DrawStatusBarNew ( void ){
 			seconds -= tens * 10;
 		
 			s = va("%i:%i%i", mins, tens, seconds);
-			w = CG_Text_Width(s,HUD_TIMERSIZE, 0, &cgs.media.hudMonoFont);
-			h = CG_Text_Height(s, HUD_TIMERSIZE, 0, &cgs.media.hudMonoFont);
-			CG_Text_Paint(320 - w/2 , 5 + h/2, HUD_TIMERSIZE, colorWhite, s, 0, 0, 0, &cgs.media.hudMonoFont);
+
+			CG_DrawHudString( 320, 5, s, 0.2f, UI_CENTER, scorecolor );
 
 		}
 	}
@@ -1346,10 +1366,7 @@ void CG_DrawStatusBarNew ( void ){
 
 	s = va("%i", value);
 	fontsize = HUD_STATSIZE;
-	w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-	h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-	CG_Text_Paint(80 - w/2 , 453+h/2, fontsize, healthcolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
-
+	CG_DrawHudString( 80, 453, s, fontsize, UI_CENTER, healthcolor );
 
 
 	trap_R_SetColor(colorWhite);
@@ -1394,6 +1411,13 @@ void CG_DrawStatusBarNew ( void ){
 	trap_R_SetColor(NULL);
 
 	//middle, ammo, ammo types, weaponselection
+	VectorCopy4(basecolor, fadecolor);
+
+	fadecolor[3] *= 1.0f-cg.bar_offset;
+	trap_R_SetColor(fadecolor);
+	CG_DrawPic(295, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 50, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_middle"));
+	trap_R_SetColor(NULL);
+
 
 	offset = cg.bar_count * HUD_BAR_EXTSIZE * cg.bar_offset;
 	offset2 = 25 * cg.bar_offset;
@@ -1408,12 +1432,7 @@ void CG_DrawStatusBarNew ( void ){
 	CG_DrawPic(405 + offset , HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_end"));
 	trap_R_SetColor(NULL);
 
-	VectorCopy4(basecolor, fadecolor);
 
-	fadecolor[3] *= 1.0f-cg.bar_offset;
-	trap_R_SetColor(fadecolor);
-	CG_DrawPic(295, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 50, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_middle"));
-	trap_R_SetColor(NULL);
 
 
 	//ammo - TODO
@@ -1423,9 +1442,7 @@ void CG_DrawStatusBarNew ( void ){
 
 	s = va("%i", value);
 	fontsize = HUD_STATSIZE;
-	w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-	h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-	CG_Text_Paint(254 - w/2 , 453+h/2, fontsize, ammocolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+	CG_DrawHudString( 254, 453, s, fontsize, UI_CENTER, ammocolor );
 
 
 
@@ -1450,9 +1467,7 @@ void CG_DrawStatusBarNew ( void ){
 
 	s = va("%i", value);
 	fontsize = HUD_STATSIZE;
-	w = CG_Text_Width(s, fontsize, 0, &cgs.media.hudMonoFont);
-	h = CG_Text_Height(s, fontsize, 0, &cgs.media.hudMonoFont);
-	CG_Text_Paint(560 - w/2 , 453+h/2, fontsize, armorcolor, s, 0, 0, 0, &cgs.media.hudMonoFont);
+	CG_DrawHudString( 560, 453, s, fontsize, UI_CENTER, armorcolor );
 
 
 
@@ -1465,8 +1480,6 @@ void CG_DrawStatusBarNew ( void ){
 
 	trap_R_SetColor(color);
 	CG_DrawPic(610 - 17 -arflash/2, 435-arflash/2 , 30+arflash, 30+arflash, trap_R_RegisterShaderNoMip("hud/hud_icon_armor"));
-
-
 
 
 
@@ -1797,7 +1810,8 @@ static float CG_DrawFPS(float y)
 
 		if(cg_drawStatus.integer == 3){
 
-			CG_DrawStringExt(630 - w/2, 10, s, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT-4, 0);
+
+			CG_DrawHudString( 635, 10, s, 0.25f, UI_RIGHT, colorWhite );
 
 
 
@@ -2941,7 +2955,7 @@ static void CG_DrawCenterString(void)
 {
 	char           *start;
 	int             l;
-	int             x, y, w, h;
+	int            y, h;
 	float          *color;
 
 	if(!cg.centerPrintTime)
@@ -2977,11 +2991,14 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-		w = CG_Text_Width(linebuffer, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		h = CG_Text_Height(linebuffer, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		x = (SCREEN_WIDTH - w) / 2;
-		CG_Text_Paint(x, y + h, 0.4f, color, linebuffer, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+
+		h = CG_Text_Height(linebuffer, 0.4f, 0, &cgs.media.hudMonoFont);
+
+		CG_DrawHudString( 320, y+h, linebuffer, 0.4f, UI_CENTER, color );
 		y += h + 6;
+
+		
+
 
 		while(*start && (*start != '\n'))
 		{
@@ -3274,16 +3291,22 @@ static void CG_DrawCrosshairNames(void)
 CG_DrawSpectator
 =================
 */
+
+
 static void CG_DrawSpectator(void)
 {
-	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
+
+	CG_DrawHudString( 320, 440, "SPECTATOR", 0.45f, UI_CENTER, colorWhite );
+
+	
 	if(cgs.gametype == GT_TOURNAMENT)
 	{
-		CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
+		CG_DrawHudString( 320, 460, "waiting to play", 0.25f, UI_CENTER, colorWhite );
+
 	}
 	else if(cgs.gametype >= GT_TEAM)
 	{
-		CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
+		CG_DrawHudString( 320, 460, "press ESC and use the JOIN menu to play", 0.25f, UI_CENTER, colorWhite );
 	}
 }
 
@@ -3467,27 +3490,18 @@ CG_DrawFollow
 */
 static qboolean CG_DrawFollow(void)
 {
-	float           x;
-	vec4_t          color;
 	const char     *name;
 
 	if(!(cg.snap->ps.pm_flags & PMF_FOLLOW))
 	{
 		return qfalse;
 	}
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
 
-
-	CG_DrawBigString(320 - 9 * 8, 24, "following", 1.0F);
+	CG_DrawHudString( 320, 24, "following", 0.35f, UI_CENTER, colorWhite );
 
 	name = cgs.clientinfo[cg.snap->ps.clientNum].name;
 
-	x = 0.5 * (640 - GIANT_WIDTH * CG_DrawStrlen(name));
-
-	CG_DrawStringExt(x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0);
+	CG_DrawHudString( 320, 40, name, 0.45f, UI_CENTER, colorWhite );
 
 	return qtrue;
 }
@@ -3499,8 +3513,6 @@ CG_DrawAmmoWarning
 */
 static void CG_DrawAmmoWarning(void)
 {
-	const char     *s;
-	int             w;
 
 	if(cg_drawAmmoWarning.integer == 0)
 	{
@@ -3514,15 +3526,12 @@ static void CG_DrawAmmoWarning(void)
 
 	if(cg.lowAmmoWarning == 2)
 	{
-		s = "out of ammo";
-		w = CG_Text_Width(s, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(320 - w / 2, 64, 0.4f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+		CG_DrawHudString( 320, 400, "out of ammo", 0.4f, UI_CENTER, colorRed );
 	}
 	else
 	{
-		s = "low ammo warning !";
-		w = CG_Text_Width(s, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(320 - w / 2, 64, 0.4f, colorYellow, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+
+		CG_DrawHudString( 320, 400, "ammo low", 0.4f, UI_CENTER, colorYellow );
 	}
 }
 
@@ -3597,9 +3606,7 @@ static void CG_DrawWarmup(void)
 	if(sec < 0)
 	{
 		s = "Waiting for players";
-		w = CG_Text_Width(s, 0.4f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(320 - w / 2, 24, 0.4f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
-
+		CG_DrawHudString( 320, 24, s,0.4f, UI_CENTER, colorWhite );
 		cg.warmupCount = 0;
 		return;
 	}
@@ -3627,8 +3634,8 @@ static void CG_DrawWarmup(void)
 		if(ci1 && ci2)
 		{
 			s = va("%s vs %s", ci1->name, ci2->name);
-			w = CG_Text_Width(s, 0.6f, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+
+			CG_DrawHudString( 320, 60, s,0.4f, UI_CENTER, colorWhite );
 		}
 	}
 	else
@@ -3663,8 +3670,7 @@ static void CG_DrawWarmup(void)
 		{
 			s = "";
 		}
-		w = CG_Text_Width(s, 0.5f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(320 - w / 2, 90, 0.5f, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+		CG_DrawHudString( 320, 90, s,0.4f, UI_CENTER, colorWhite );
 	}
 
 	sec = (sec - cg.time) / 1000;
@@ -3697,24 +3703,24 @@ static void CG_DrawWarmup(void)
 	{
 		case 0:
 			cw = 28;
-			scale = 0.54f;
+			scale = 0.34f;
 			break;
 		case 1:
 			cw = 24;
-			scale = 0.51f;
+			scale = 0.31f;
 			break;
 		case 2:
 			cw = 20;
-			scale = 0.48f;
+			scale = 0.28f;
 			break;
 		default:
 			cw = 16;
-			scale = 0.45f;
+			scale = 0.25f;
 			break;
 	}
 
-	w = CG_Text_Width(s, scale, 0, &cgs.media.freeSansBoldFont);
-	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+
+	CG_DrawHudString( 320, 125, s,scale, UI_CENTER, colorWhite );
 }
 
 //==================================================================================

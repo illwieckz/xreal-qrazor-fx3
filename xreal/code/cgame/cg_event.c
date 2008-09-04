@@ -1273,8 +1273,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_DEATHx");
 			trap_S_StartSound(NULL, es->number, CHAN_VOICE,
 							  CG_CustomSound(es->number, va("*death%i.wav", event - EV_DEATH1 + 1)));
-			break;
 
+			break;
 
 		case EV_OBITUARY:
 			DEBUGNAME("EV_OBITUARY");

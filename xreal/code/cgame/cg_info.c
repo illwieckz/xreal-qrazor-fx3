@@ -48,7 +48,7 @@ static void CG_DrawProgressBar(void)
 
 	w = 400 - SMALLCHAR_WIDTH;
 	x = (SCREEN_WIDTH - w) / 2;
-	y = 462;
+	y = 463-9;
 	rectColor[0] = 0.0f;
 	rectColor[1] = 0.0f;
 	rectColor[2] = 0.0f;
@@ -156,21 +156,13 @@ void CG_DrawInformation(void)
 	// screen to write into
 	if(cg.infoScreenText[0])
 	{
-		Com_sprintf(st, sizeof(st), "Loading... %s", cg.infoScreenText);
-		w = CG_DrawStrlen(st) * SMALLCHAR_WIDTH;
-		x = (SCREEN_WIDTH - w) / 2;
-		y = 463;
-
-		CG_DrawStringExt(x, y, st, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 200);
+		s = va( "Loading... %s", cg.infoScreenText);
+		CG_DrawHudString( 320, 463, s, 0.3f, UI_CENTER, colorWhite );
 	}
 	else
 	{
-		Com_sprintf(st, sizeof(st), "Awaiting snapshot...");
-		w = CG_DrawStrlen(st) * SMALLCHAR_WIDTH;
-		x = (SCREEN_WIDTH - w) / 2;
-		y = 463;
-
-		CG_DrawStringExt(x, y, st, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 200);
+		s = va(  "Awaiting snapshot...");
+		CG_DrawHudString( 320, 463, s,0.3f, UI_CENTER, colorWhite );
 	}
 
 	// draw info string information
@@ -183,14 +175,17 @@ void CG_DrawInformation(void)
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
-		UI_DrawProportionalString(320, y, buf, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		s = va( "%s", buf);
+		CG_DrawHudString( 320, y, s, 0.3f, UI_CENTER, colorWhite );
 		y += PROP_HEIGHT;
 
 		// pure server
 		s = Info_ValueForKey(sysInfo, "sv_pure");
 		if(s[0] == '1')
 		{
-			UI_DrawProportionalString(320, y, "Pure Server", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+
+			CG_DrawHudString( 320, y, "Pure Server", 0.3f, UI_CENTER, colorWhite );
+
 			y += PROP_HEIGHT;
 		}
 
@@ -198,7 +193,7 @@ void CG_DrawInformation(void)
 		s = CG_ConfigString(CS_MOTD);
 		if(s[0])
 		{
-			UI_DrawProportionalString(320, y, s, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+			CG_DrawHudString( 320, y, s, 0.3f, UI_CENTER, colorWhite );
 			y += PROP_HEIGHT;
 		}
 
@@ -210,7 +205,7 @@ void CG_DrawInformation(void)
 	s = CG_ConfigString(CS_MESSAGE);
 	if(s[0])
 	{
-		UI_DrawProportionalString(320, y, s, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		CG_DrawHudString( 320, y, s, 0.3f, UI_CENTER, colorWhite );
 		y += PROP_HEIGHT;
 	}
 
@@ -218,7 +213,7 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		UI_DrawProportionalString(320, y, "CHEATS ARE ENABLED", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorRed);
+		CG_DrawHudString( 320, y, "CHEATS ARE ENABLED", 0.3f, UI_CENTER, colorRed );
 		y += PROP_HEIGHT;
 	}
 
@@ -255,13 +250,14 @@ void CG_DrawInformation(void)
 			s = "Unknown Gametype";
 			break;
 	}
-	UI_DrawProportionalString(320, y, s, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+	CG_DrawHudString( 320, y, s, 0.3f, UI_CENTER, colorWhite );
 	y += PROP_HEIGHT / PROP_SMALL_SIZE_SCALE;
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if(value)
 	{
-		UI_DrawProportionalString(320, y, va("timelimit %i", value), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+		
+	CG_DrawHudString( 320, y, va("timelimit %i", value), 0.3f, UI_CENTER, colorWhite );
 		y += PROP_HEIGHT;
 	}
 
@@ -270,7 +266,8 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "fraglimit"));
 		if(value)
 		{
-			UI_DrawProportionalString(320, y, va("fraglimit %i", value), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+	CG_DrawHudString( 320, y, va("fraglimit %i", value), 0.3f, UI_CENTER, colorWhite );
+
 			y += PROP_HEIGHT;
 		}
 	}
@@ -279,8 +276,9 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "capturelimit"));
 		if(value)
 		{
-			UI_DrawProportionalString(320, y, va("capturelimit %i", value), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, colorWhite);
+			CG_DrawHudString( 320, y, va("capturelimit %i", value), 0.3f, UI_CENTER, colorWhite );
 			y += PROP_HEIGHT;
 		}
 	}
 }
+

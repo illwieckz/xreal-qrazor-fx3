@@ -222,6 +222,7 @@ void CG_Respawn(void)
 
 	// select the weapon the server says we are using
 	cg.weaponSelect = cg.snap->ps.weapon;
+
 }
 
 extern char    *eventnames[];

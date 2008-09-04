@@ -42,7 +42,6 @@ static qboolean CG_ParseCharacterFile(const char *filename, clientInfo_t * ci)
 	int             len;
 	int             i;
 	char           *token;
-	float           fps;
 	int             skip;
 	char            text[20000];
 	fileHandle_t    f;
@@ -89,7 +88,7 @@ static qboolean CG_ParseCharacterFile(const char *filename, clientInfo_t * ci)
 		{
 			break;
 		}
-		
+
 		if(!Q_stricmp(token, "footsteps"))
 		{
 			token = Com_Parse(&text_p);
@@ -207,7 +206,7 @@ static qboolean CG_ParseCharacterFile(const char *filename, clientInfo_t * ci)
 
 		Com_Printf("unknown token '%s' is %s\n", token, filename);
 	}
-	
+
 	return qtrue;
 }
 
@@ -258,44 +257,51 @@ CG_XPPM_RegisterClientModel
 ==========================
 */
 qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName,
-										   const char *headModelName, const char *headSkinName, const char *teamName)
+									 const char *headModelName, const char *headSkinName, const char *teamName)
 {
 	int             i;
 	char            filename[MAX_QPATH * 2];
 	const char     *headName;
-	char            newTeamName[MAX_QPATH * 2];
 
-	if(headModelName[0] == '\0'){
+	if(headModelName[0] == '\0')
+	{
 		headName = modelName;
-	}else{
+	}
+	else
+	{
 		headName = headModelName;
 	}
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
 	ci->bodyModel = trap_R_RegisterModel(filename, qfalse);
 
-	if(!ci->bodyModel){
+	if(!ci->bodyModel)
+	{
 		Com_Printf("Failed to load body mesh file  %s\n", filename);
 		return qfalse;
 	}
 
 
-	if(ci->bodyModel){
+	if(ci->bodyModel)
+	{
 		// load the animations
 		Com_sprintf(filename, sizeof(filename), "models/players/%s/character.cfg", modelName);
-		if(!CG_ParseCharacterFile(filename, ci)){
+		if(!CG_ParseCharacterFile(filename, ci))
+		{
 			Com_Printf("Failed to load character file %s\n", filename);
 			return qfalse;
 		}
 
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse)){
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse))
+		{
 			Com_Printf("Failed to load idle animation file %s\n", filename);
 			return qfalse;
 		}
 
 		// make LEGS_IDLE the default animation
-		for(i = 0; i < MAX_ANIMATIONS; i++){
+		for(i = 0; i < MAX_ANIMATIONS; i++)
+		{
 			if(i == LEGS_IDLE)
 				continue;
 
@@ -303,51 +309,57 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 		}
 
 		// FIXME we don't have death animations with player models created for Quake 4
-		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "death1", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "death2", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "death3", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "die", qfalse, qfalse, qfalse);
+		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "die", qfalse, qfalse, qfalse);
+		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "die", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "taunt_1", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "idle", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "machinegun_fire", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "gauntlet_fire", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "attack", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "idle", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2, "gauntlet_aim", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2, "idle", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_walk_forward", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_forward", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_forward", qtrue, qtrue, qtrue);
+
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue);
+
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse, qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run", qtrue, qtrue, qtrue);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run_backwards", qtrue, qtrue, qtrue);
 
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue);
 
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "soft_land", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "land", qfalse, qfalse, qfalse);
 
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qfalse, qfalse);	// FIXME ?
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "fall", qfalse, qfalse, qfalse);
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "land", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse);
 
 		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_walk_forward", qtrue, qtrue, qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue);
 
 
-		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin")){
+		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
+		{
 			ci->bodySkin = trap_R_RegisterSkin(filename);
 		}
-		if(!ci->bodySkin){
+		if(!ci->bodySkin)
+		{
 			Com_Printf("Body skin load failure: %s\n", filename);
 			return qfalse;
 		}
 	}
 
-	if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin")){
+	if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin"))
+	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
 	}
-	else if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "tga")){
+	else if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "tga"))
+	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
 	}
 
@@ -382,7 +394,7 @@ void CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to)
 
 	Q_strncpyz(to->torsoControlBoneName, from->torsoControlBoneName, sizeof(to->torsoControlBoneName));
 	Q_strncpyz(to->neckControlBoneName, from->neckControlBoneName, sizeof(to->neckControlBoneName));
-	
+
 	VectorCopy(from->modelScale, to->modelScale);
 
 	to->bodyModel = from->bodyModel;
@@ -497,7 +509,7 @@ static void CG_XPPM_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t tor
 
 
 	// lean towards the direction of travel
-	VectorCopy(cent->currentState.pos.trDelta, velocity);
+/*	VectorCopy(cent->currentState.pos.trDelta, velocity);
 	speed = VectorNormalize(velocity);
 	if(speed)
 	{
@@ -513,7 +525,7 @@ static void CG_XPPM_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t tor
 		side = speed * DotProduct(velocity, axis[0]);
 		legsAngles[PITCH] += side;
 	}
-
+*/
 	//
 	clientNum = cent->currentState.clientNum;
 	if(clientNum >= 0 && clientNum < MAX_CLIENTS)
@@ -546,9 +558,8 @@ may include ANIM_TOGGLEBIT
 static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation)
 {
 	animation_t    *anim;
-
 	//save old animation
-	
+
 	lf->old_animationNumber = lf->animationNumber;
 	lf->old_animation = lf->animation;
 
@@ -570,24 +581,31 @@ static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, i
 		CG_Printf("player anim: %i\n", newAnimation);
 	}
 
-	
+
 	debug_anim_current = lf->animationNumber;
 	debug_anim_old = lf->old_animationNumber;
 
-	if(lf->old_animationNumber <= 0){ // skip initial / invalid blending
+	if(lf->old_animationNumber <= 0)
+	{							// skip initial / invalid blending
 		lf->blendlerp = 0.0f;
 		return;
 	}
 
 	//TODO: blend through two blendings!
-	lf->blendlerp = 1.0f;
 
-	memcpy( &lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
-	
+	if((lf->blendlerp <= 0.0f) ) 
+		lf->blendlerp = 1.0f;
+	else
+		lf->blendlerp = 1.0f - lf->blendlerp; // use old blending for smooth blending between two blended animations
+
+	memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+
 	//Com_Printf("new: %i old %i\n", newAnimation,lf->old_animationNumber);
-		
-	if(!trap_R_BuildSkeleton(&lf->oldSkeleton,lf->old_animation->handle, lf->oldFrame, lf->frame, 1.0f, lf->old_animation->clearOrigin)){
-		CG_Printf("Can't build blending skeleton\n");
+
+	if(!trap_R_BuildSkeleton
+	   (&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
+	{
+		CG_Printf("Can't blend skeleton\n");
 		return;
 	}
 
@@ -597,21 +615,24 @@ static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, i
 //TODO: choose propper values and use blending speed from character.cfg
 // blending is slow for testing issues
 
-static void CG_XPPM_BlendLerpFrame(lerpFrame_t * lf){
+static void CG_XPPM_BlendLerpFrame(lerpFrame_t * lf)
+{
 
-	if(cg_animBlend.value <= 0.0f){
+	if(cg_animBlend.value <= 0.0f)
+	{
 		lf->blendlerp = 0.0f;
 		return;
 	}
 
-	if(( lf->blendlerp > 0.0f ) && (cg.time > lf->blendtime)){
+	if((lf->blendlerp > 0.0f) && (cg.time > lf->blendtime))
+	{
 
-#if 0 
+#if 0
 		//linear blending
-			lf->blendlerp -=0.025f;
+		lf->blendlerp -= 0.025f;
 #else
 		//exp blending
-		lf->blendlerp -=lf->blendlerp / cg_animBlend.value;
+		lf->blendlerp -= lf->blendlerp / cg_animBlend.value;
 #endif
 		if(lf->blendlerp <= 0.0f)
 			lf->blendlerp = 0.0f;
@@ -658,6 +679,7 @@ static void CG_XPPM_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAni
 		}
 
 		animChanged = qtrue;
+
 
 	}
 	else
@@ -768,17 +790,19 @@ static void CG_XPPM_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAni
 	{
 		lf->backlerp = 1.0 - (float)(cg.time - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
 	}
-	
+
 	//blend old and current animation
 	CG_XPPM_BlendLerpFrame(lf);
 
-	if(!trap_R_BuildSkeleton(&lf->skeleton, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
+	if(!trap_R_BuildSkeleton
+	   (&lf->skeleton, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, lf->animation->clearOrigin))
 	{
 		CG_Printf("Can't build lf->skeleton\n");
 	}
 
 	// lerp between old and new animation if possible
-	if(lf->blendlerp > 0.0f){
+	if(lf->blendlerp > 0.0f)
+	{
 		if(!trap_R_BlendSkeleton(&lf->skeleton, &lf->oldSkeleton, lf->blendlerp))
 		{
 			CG_Printf("Can't blend\n");
@@ -828,7 +852,28 @@ static void CG_XPPM_PlayerAnimation(centity_t * cent)
 		CG_XPPM_RunLerpFrame(ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale);
 	}
 
+	//FIXME: is this the only way to check in cgame if a player has been killed recently ?
+	if(cent->currentState.torsoAnim != cent->pe.torso.animationNumber )
+	{
+		if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) == BOTH_DEATH1)
+		{
+			//start the death effect
+			Com_Printf("Starting death anim for this player!\n");
+			cent->pe.deathTime = cg.time;
+			cent->pe.deathScale = 0.0f;
+
+		}
+	}	
+
 	CG_XPPM_RunLerpFrame(ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale);
+	
+	//FIXME: reset death effect variables somewhere else
+	if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != BOTH_DEATH1)
+	{
+		cent->pe.deathTime = 0;
+		cent->pe.deathScale = 0.0f;
+	}
+
 }
 
 
@@ -841,7 +886,11 @@ CG_XPPM_Player
 ===============
 */
 
-void CG_XPPM_Player(centity_t * cent){
+//has to be in sync with clientRespawnTime
+#define DEATHANIM_TIME 1650
+
+void CG_XPPM_Player(centity_t * cent)
+{
 	clientInfo_t   *ci;
 	refEntity_t     body;
 	int             clientNum;
@@ -854,7 +903,6 @@ void CG_XPPM_Player(centity_t * cent){
 	vec3_t          torsoAngles;
 	vec3_t          headAngles;
 
-	quat_t          legsQuat;
 	quat_t          torsoQuat;
 	quat_t          headQuat;
 
@@ -898,6 +946,7 @@ void CG_XPPM_Player(centity_t * cent){
 		}
 	}
 
+
 	memset(&body, 0, sizeof(body));
 
 	// generate a new unique noShadowID to avoid that the lights of the quad damage
@@ -913,6 +962,9 @@ void CG_XPPM_Player(centity_t * cent){
 
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_XPPM_PlayerAnimation(cent);
+
+	if(cent->pe.deathScale >= 1.0f)
+		return;
 
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites(cent);
@@ -1039,8 +1091,23 @@ void CG_XPPM_Player(centity_t * cent){
 	// transform relative bones to absolute ones required for vertex skinning and tag attachments
 	CG_TransformSkeleton(&body.skeleton, ci->modelScale);
 
+	body.shaderRGBA[3] = 255 * cent->pe.deathScale;
+
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
+
+
+	// WIP: death effect
+
+	if(cent->pe.deathTime > 0){
+		int time = (DEATHANIM_TIME - (cg.time - cent->pe.deathTime )) ;
+
+		cent->pe.deathScale = 1.0f - ( 1.0f / DEATHANIM_TIME * time ) ;
+
+		body.customShader = trap_R_RegisterShaderNoMip("player/unlink_effect");
+		trap_R_AddRefEntityToScene(&body);
+	}
+
 
 	// TODO add TA kamikaze model and other stuff
 

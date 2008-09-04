@@ -946,6 +946,8 @@ static void CG_RegisterGraphics(void)
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
 	trap_R_ClearScene();
 
+
+
 	CG_LoadingString(cgs.mapname);
 
 	trap_R_LoadWorldMap(cgs.mapname);
@@ -1234,10 +1236,6 @@ static void CG_RegisterGraphics(void)
 
 	CG_InitParticles();
 
-	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 48, &cgs.media.freeSansBoldFont);
-	trap_R_RegisterFont("fonts/FreeSerifBold.ttf", 48, &cgs.media.freeSerifBoldFont);
-
-	trap_R_RegisterFont("fonts/SVBasicManual.ttf", 48, &cgs.media.hudMonoFont);
 
 
 }
@@ -2174,6 +2172,12 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.media.charsetProp1Glow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	cgs.media.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 
+	//otty: register fonts here, otherwise CG_LoadingString wont work
+	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 48, &cgs.media.freeSansBoldFont);
+	trap_R_RegisterFont("fonts/FreeSerifBold.ttf", 48, &cgs.media.freeSerifBoldFont);
+	trap_R_RegisterFont("fonts/SVBasicManual.ttf", 48, &cgs.media.hudMonoFont);
+
+
 	CG_RegisterCvars();
 
 	CG_InitConsoleCommands();
@@ -2214,6 +2218,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);
 
+
 	// check version
 	s = CG_ConfigString(CS_GAME_VERSION);
 	if(strcmp(s, GAME_VERSION))
@@ -2223,6 +2228,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	s = CG_ConfigString(CS_LEVEL_START_TIME);
 	cgs.levelStartTime = atoi(s);
+
+
 
 	CG_ParseServerinfo();
 
