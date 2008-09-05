@@ -3290,7 +3290,7 @@ static void CG_DrawSpectator(void)
 {
 
 	CG_DrawHudString(320, 440, "SPECTATOR", 0.45f, UI_CENTER, colorWhite);
-	
+
 	if(cgs.gametype == GT_TOURNAMENT)
 	{
 		CG_DrawHudString(320, 460, "waiting to play", 0.25f, UI_CENTER, colorWhite);

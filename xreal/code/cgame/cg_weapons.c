@@ -2488,7 +2488,7 @@ void CG_PrevWeapon_f(void)
 			break;
 		}
 	}
-	
+
 	if(i == 16)
 	{
 		cg.weaponSelect = original;
