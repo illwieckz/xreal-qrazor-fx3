@@ -381,7 +381,7 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 			fwidth = (float)propMap2[ch][2] / 256.0f;
 			fheight = (float)PROP2_HEIGHT / 256.0f;
 			aw = (float)propMap2[ch][2] * uis.scale;
-			ah = (float)PROP2_HEIGHT * uis.scale;
+			ah = (float)PROP2_HEIGHT *uis.scale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, uis.charsetProp2);
 			ax += (aw + (float)PROP2_GAP_WIDTH * uis.scale);
@@ -493,7 +493,7 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 		ch = *s & 127;
 		if(ch == ' ')
 		{
-			aw = (float)PROP_SPACE_WIDTH * uis.scale * sizeScale;
+			aw = (float)PROP_SPACE_WIDTH *uis.scale * sizeScale;
 		}
 		else if(propMap1[ch][2] != -1)
 		{
@@ -503,7 +503,7 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 			fheight = (float)PROP_HEIGHT / 256.0f;
 
 			aw = (float)propMap1[ch][2] * uis.scale * sizeScale;
-			ah = (float)PROP_HEIGHT * uis.scale * sizeScale;
+			ah = (float)PROP_HEIGHT *uis.scale * sizeScale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, charset);
 		}
@@ -827,7 +827,7 @@ int UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * f
 {
 	int             count, len;
 	float           out;
-	const glyphInfo_t    *glyph;
+	const glyphInfo_t *glyph;
 	float           useScale;
 
 // FIXME: see ui_main.c, same problem
@@ -860,7 +860,7 @@ int UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * f
 			}
 		}
 	}
-	
+
 	return out * useScale;
 }
 
@@ -868,7 +868,7 @@ int UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * 
 {
 	int             len, count;
 	float           max;
-	const glyphInfo_t    *glyph;
+	const glyphInfo_t *glyph;
 	float           useScale;
 
 // TTimo: FIXME
@@ -920,7 +920,8 @@ void UI_Text_PaintChar(float x, float y, float width, float height, float scale,
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, const fontInfo_t * font)
+void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
+				   const fontInfo_t * font)
 {
 	int             len, count;
 	vec4_t          newColor;
@@ -945,10 +946,10 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		while(s && *s && count < len)
 		{
 			glyph = &font->glyphs[(int)*s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
-			
+
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
-			
+
 			if(Q_IsColorString(s))
 			{
 				memcpy(newColor, (float *)g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
@@ -961,9 +962,9 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 			{
 				float           yadj = useScale * glyph->top;
 
-				if(style & UI_DROPSHADOW)// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+				if(style & UI_DROPSHADOW)	// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
 				{
-					int             ofs = 1; //style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+					int             ofs = 1;	//style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 
 					colorBlack[3] = newColor[3];
 					trap_R_SetColor(colorBlack);
@@ -976,9 +977,9 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 				UI_Text_PaintChar(x, y - yadj,
 								  glyph->imageWidth,
 								  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
-				
+
 				// CG_DrawPic(x, y - yadj, scale * cgDC.Assets.textFont.glyphs[text[i]].imageWidth, scale * cgDC.Assets.textFont.glyphs[text[i]].imageHeight, cgDC.Assets.textFont.glyphs[text[i]].glyph);
-				
+
 				x += (glyph->xSkip * useScale) + adjust;
 				s++;
 				count++;
@@ -1267,9 +1268,9 @@ void UI_Init(void)
 
 	// for 640x480 virtualized screen
 	uis.scale = uis.glconfig.vidHeight * (1.0f / 480.0f);
- 	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
+	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
 	{
- 		// wide screen
+		// wide screen
 		uis.xbias = 0.5f * (uis.glconfig.vidWidth - (uis.glconfig.vidHeight * (640.0f / 480.0f)));
 		uis.ybias = 0;
 	}
@@ -1282,9 +1283,9 @@ void UI_Init(void)
 	}
 	else
 	{
- 		// no wide screen
+		// no wide screen
 		uis.xbias = uis.ybias = 0;
- 	}
+	}
 
 	// initialize the menu system
 	Menu_Cache();

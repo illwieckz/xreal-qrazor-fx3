@@ -1100,7 +1100,8 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			internalFormat = GL_DEPTH_COMPONENT32_ARB;
 		}
 	}
-	else if(glConfig.textureFloatAvailable && (image->bits & (IF_RGBA16F | IF_RGBA32F | IF_RGBA16 | IF_LA16F | IF_LA32F | IF_ALPHA16F | IF_ALPHA32F)))
+	else if(glConfig.textureFloatAvailable &&
+			(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_RGBA16 | IF_LA16F | IF_LA32F | IF_ALPHA16F | IF_ALPHA32F)))
 	{
 		if(image->bits & IF_RGBA16F)
 		{

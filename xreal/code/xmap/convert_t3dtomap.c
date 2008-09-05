@@ -99,7 +99,7 @@ static void WriteMapFile(char *filename)
 
 			fprintf(f, "// patch %i\n", j);
 			fprintf(f, "{\n");
-			
+
 			if(pm->patchDef3)
 				fprintf(f, "patchDef3\n");
 			else
@@ -113,10 +113,12 @@ static void WriteMapFile(char *filename)
 
 			// write patch dimensions
 			if(pm->patchDef3)
-				fprintf(f, "( %i %i %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3], (int)pm->info[4], (int)pm->info[5], (int)pm->info[6]);
+				fprintf(f, "( %i %i %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3],
+						(int)pm->info[4], (int)pm->info[5], (int)pm->info[6]);
 			else
 
-				fprintf(f, "( %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3], (int)pm->info[4]);
+				fprintf(f, "( %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3],
+						(int)pm->info[4]);
 
 			fprintf(f, "(\n");
 			for(k = 0; k < pm->mesh.width; k++)
@@ -144,11 +146,11 @@ static void WriteMapFile(char *filename)
 
 static qboolean ParseKeyValue(const char *token)
 {
-	char  key[MAXTOKEN];
-	char  value[MAXTOKEN];
+	char            key[MAXTOKEN];
+	char            value[MAXTOKEN];
 
 	//if(!GetToken(qtrue))
-	//	Error("ParseKeyValue: EOF without closing brace");
+	//  Error("ParseKeyValue: EOF without closing brace");
 
 	Q_strncpyz(key, token, sizeof(key));
 
@@ -176,36 +178,36 @@ static qboolean ParseKeyValue(const char *token)
 
 static qboolean ParseLocation()
 {
-	char value[MAXTOKEN];
+	char            value[MAXTOKEN];
 
 	//  Location=(X=-2176.000000,Y=-1280.000000,Z=0.000000)
 
-	GetToken(qfalse);	// =
-	GetToken(qfalse);	// (
-	GetToken(qfalse);	// X
-	GetToken(qfalse);	// =
+	GetToken(qfalse);			// =
+	GetToken(qfalse);			// (
+	GetToken(qfalse);			// X
+	GetToken(qfalse);			// =
 
 	GetToken(qfalse);
 	Q_strncpyz(value, token, sizeof(value));
-	
 
-	GetToken(qfalse);	// ,
-	GetToken(qfalse);	// Y
-	GetToken(qfalse);	// =
 
-	GetToken(qfalse);
-	Q_strcat(value, sizeof(value), " ");
-	Q_strcat(value, sizeof(value), token);
-
-	GetToken(qfalse);	// ,
-	GetToken(qfalse);	// Z
-	GetToken(qfalse);	// =
+	GetToken(qfalse);			// ,
+	GetToken(qfalse);			// Y
+	GetToken(qfalse);			// =
 
 	GetToken(qfalse);
 	Q_strcat(value, sizeof(value), " ");
 	Q_strcat(value, sizeof(value), token);
 
-	GetToken(qfalse);	// )
+	GetToken(qfalse);			// ,
+	GetToken(qfalse);			// Z
+	GetToken(qfalse);			// =
+
+	GetToken(qfalse);
+	Q_strcat(value, sizeof(value), " ");
+	Q_strcat(value, sizeof(value), token);
+
+	GetToken(qfalse);			// )
 
 	//Sys_Printf("location: %f %f %f\n", mapEnt->origin[0], mapEnt->origin[1], mapEnt->origin[2]);
 	SetKeyValue(mapEnt, "origin", value);
@@ -213,7 +215,7 @@ static qboolean ParseLocation()
 	return qtrue;
 }
 
-	
+
 
 static qboolean ParseObjectClass()
 {
@@ -223,7 +225,7 @@ static qboolean ParseObjectClass()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseObjectClass: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -243,7 +245,7 @@ static qboolean ParseActorClassWorldInfo()
 {
 	Sys_Printf("ParseActorClassWorldInfo()\n");
 
-	if((numEntities -1) != 0)
+	if((numEntities - 1) != 0)
 		Error("numEntities != 0 with Class=WorldInfo");
 
 	SetKeyValue(mapEnt, "classname", "worldspawn");
@@ -252,7 +254,7 @@ static qboolean ParseActorClassWorldInfo()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseActorClassWorldInfo: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -287,13 +289,13 @@ static qboolean ParseActorClassWorldInfo()
 
 static qboolean ParsePolygon()
 {
-	int				i;
+	int             i;
 	side_t         *side;
-	vec3_t			origin;
-	vec3_t			normal;
-	float			dist;
+	vec3_t          origin;
+	vec3_t          normal;
+	float           dist;
 	vec3_t          planepts[4];
-	int				planeptsNum;
+	int             planeptsNum;
 
 	Sys_Printf("ParsePolygon()\n");
 
@@ -304,23 +306,23 @@ static qboolean ParsePolygon()
 	planeptsNum = 0;
 
 	/*
-	Begin Polygon Flags=3584 Link=2
-		Origin   +02048.000000,+02048.000000,-01012.000000
-        Normal   +00001.000000,+00000.000000,+00000.000000
-        TextureU +00000.000000,-00001.000000,+00000.000000
-        TextureV +00000.000000,+00000.000000,-00001.000000
-        Vertex   +06272.000000,+06144.000000,-02960.000000
-        Vertex   +06272.000000,+06144.000000,+03184.000000
-        Vertex   +06272.000000,-06144.000000,+03184.000000
-        Vertex   +06272.000000,-06144.000000,-02960.000000
-    End Polygon
-	*/
+	   Begin Polygon Flags=3584 Link=2
+	   Origin   +02048.000000,+02048.000000,-01012.000000
+	   Normal   +00001.000000,+00000.000000,+00000.000000
+	   TextureU +00000.000000,-00001.000000,+00000.000000
+	   TextureV +00000.000000,+00000.000000,-00001.000000
+	   Vertex   +06272.000000,+06144.000000,-02960.000000
+	   Vertex   +06272.000000,+06144.000000,+03184.000000
+	   Vertex   +06272.000000,-06144.000000,+03184.000000
+	   Vertex   +06272.000000,-06144.000000,-02960.000000
+	   End Polygon
+	 */
 
 	do
 	{
 		if(!GetToken(qtrue))
 			Error("ParsePolygon: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -425,7 +427,7 @@ static qboolean ParsePolyList()
 	{
 		if(!GetToken(qtrue))
 			Error("ParsePolyList: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -466,7 +468,7 @@ static qboolean ParseBrush()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseBrush: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -538,7 +540,7 @@ static qboolean ParseActorClassBrush()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseActorClassBrush: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -573,7 +575,7 @@ static qboolean ParseActorClassBrush()
 			{
 				Error("ParseActorClassBrush: = not found, found %s", token);
 			}
-			
+
 			GetToken(qfalse);
 			//Sys_Printf("ParseActorClassBrush: Name=%s\n", token);
 			SetKeyValue(mapEnt, "name", token);
@@ -598,7 +600,7 @@ static qboolean ParseActorClassPointLight()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseActorClassPointLight: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -612,18 +614,18 @@ static qboolean ParseActorClassPointLight()
 
 		if(!Q_stricmp(token, "SphereRadius"))
 		{
-			float radius;
+			float           radius;
 
 			GetToken(qfalse);
 			if(strcmp(token, "="))
 			{
 				Error("ParseActorClassPointLight: = not found, found %s", token);
 			}
-			
+
 			GetToken(qfalse);
 			radius = atof(token);
 			Sys_Printf("ParseActorClassPointLight: SphereRadius=%f\n", radius);
-			
+
 			SetKeyValue(mapEnt, "light_radius", va("%f %f %f", radius / 2.0, radius / 2.0, radius / 2.0));
 		}
 		else if(!strcmp(token, "Location"))
@@ -645,7 +647,7 @@ static qboolean ParseActorClassPlayerStart()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseActorClassPlayerStart: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -680,7 +682,7 @@ qboolean ParseActor(void)
 	const char     *name;
 	const char     *name2;
 	const char     *model;
-	char			lastToken[MAXTOKEN];
+	char            lastToken[MAXTOKEN];
 
 	if(numEntities == MAX_MAP_ENTITIES)
 		Error("numEntities == MAX_MAP_ENTITIES");
@@ -700,7 +702,7 @@ qboolean ParseActor(void)
 	{
 		if(!GetToken(qtrue))
 			Error("ParseActor: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -711,15 +713,15 @@ qboolean ParseActor(void)
 		}
 
 		//Sys_Printf("ParseActor: token '%s'\n", token);
-		
-		if(!strcmp(token, "Class"))// && !strcmp(lastToken, "Actor"))
+
+		if(!strcmp(token, "Class"))	// && !strcmp(lastToken, "Actor"))
 		{
 			GetToken(qfalse);
 			if(strcmp(token, "="))
 			{
 				Error("ParseActor: = not found, found %s", token);
 			}
-			
+
 			GetToken(qfalse);
 			if(!Q_stricmp(token, "WorldInfo"))
 			{
@@ -758,21 +760,21 @@ qboolean ParseActor(void)
 		{
 			ParseKeyValue(token);
 		}
-		
+
 
 		strncpy(lastToken, token, sizeof(token));
-			
-			//entitySourceBrushes++;
-		
+
+		//entitySourceBrushes++;
+
 		/*
-		else
-		{
-			// parse a key / value pair
-			e = ParseEpair();
-			e->next = mapEnt->epairs;
-			mapEnt->epairs = e;
-		}
-		*/
+		   else
+		   {
+		   // parse a key / value pair
+		   e = ParseEpair();
+		   e->next = mapEnt->epairs;
+		   mapEnt->epairs = e;
+		   }
+		 */
 	} while(1);
 
 	classname = ValueForKey(mapEnt, "classname");
@@ -815,7 +817,7 @@ qboolean ParseActor(void)
 		}
 	}
 
-	
+
 #if 0
 	// HACK: check if "model" key has no value
 	if(HasKey(mapEnt, "model") && !model[0])
@@ -948,7 +950,7 @@ qboolean ParseLevel()
 	{
 		if(!GetToken(qtrue))
 			Error("ParseLevel: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -978,7 +980,7 @@ qboolean ParseLevel()
 			{
 				Error("LoadT3DFile: = not found, found %s", token);
 			}
-			
+
 			GetToken(qfalse);
 			Sys_Printf("ParseLevel: NAME=%s\n", token);
 		}
@@ -1001,8 +1003,8 @@ void LoadT3DFile(char *filename)
 
 	numEntities = 0;
 	numMapDrawSurfs = 0;
-//	c_detail = 0;
-//	c_mergedFuncStatics = 0;
+//  c_detail = 0;
+//  c_mergedFuncStatics = 0;
 
 	g_bBrushPrimit = BPRIMIT_UNDEFINED;
 
@@ -1027,7 +1029,7 @@ void LoadT3DFile(char *filename)
 	{
 		if(!GetToken(qtrue))
 			Error("ParseActor: EOF without closing brace");
-		
+
 		if(!strcmp(token, "End"))
 		{
 			if(!GetToken(qfalse))
@@ -1050,7 +1052,7 @@ void LoadT3DFile(char *filename)
 					break;
 			}
 		}
-		
+
 	} while(1);
 
 	ClearBounds(mapMins, mapMaxs);
@@ -1061,14 +1063,14 @@ void LoadT3DFile(char *filename)
 	}
 
 	Sys_FPrintf(SYS_VRB, "%5i total world brushes\n", CountBrushList(entities[0].brushes));
-//	Sys_FPrintf(SYS_VRB, "%5i detail brushes\n", c_detail);
-//	Sys_FPrintf(SYS_VRB, "%5i patches\n", numMapPatches);
-//	Sys_FPrintf(SYS_VRB, "%5i boxbevels\n", c_boxbevels);
-//	Sys_FPrintf(SYS_VRB, "%5i edgebevels\n", c_edgebevels);
-//	Sys_FPrintf(SYS_VRB, "%5i merged func_static entities\n", c_mergedFuncStatics);
+//  Sys_FPrintf(SYS_VRB, "%5i detail brushes\n", c_detail);
+//  Sys_FPrintf(SYS_VRB, "%5i patches\n", numMapPatches);
+//  Sys_FPrintf(SYS_VRB, "%5i boxbevels\n", c_boxbevels);
+//  Sys_FPrintf(SYS_VRB, "%5i edgebevels\n", c_edgebevels);
+//  Sys_FPrintf(SYS_VRB, "%5i merged func_static entities\n", c_mergedFuncStatics);
 	Sys_FPrintf(SYS_VRB, "%5i entities\n", numEntities);
-//	Sys_FPrintf(SYS_VRB, "%5i planes\n", numMapPlanes);
-//	Sys_FPrintf(SYS_VRB, "%5i areaportals\n", c_areaportals);
+//  Sys_FPrintf(SYS_VRB, "%5i planes\n", numMapPlanes);
+//  Sys_FPrintf(SYS_VRB, "%5i areaportals\n", c_areaportals);
 	Sys_FPrintf(SYS_VRB, "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", mapMins[0], mapMins[1], mapMins[2],
 				mapMaxs[0], mapMaxs[1], mapMaxs[2]);
 }
@@ -1109,12 +1111,11 @@ int ConvertT3DToMap(int argc, char **argv)
 	if(i != argc - 1)
 	{
 		Error("usage: xmap -t3d2map [-<switch> [-<switch> ...]] <mapname.map>\n"
-			  "\n" "Switches:\n"
-			  "   v              = verbose output\n");
-			  //"   quake1       = convert from QuakeWorld to XreaL\n"
-			  //"   quake2       = convert from Quake2 to XreaL\n"
-			  //"   quake3         = convert from Quake3 to XreaL\n"
-			  //"   quake4         = convert from Quake4 to XreaL\n");
+			  "\n" "Switches:\n" "   v              = verbose output\n");
+		//"   quake1       = convert from QuakeWorld to XreaL\n"
+		//"   quake2       = convert from Quake2 to XreaL\n"
+		//"   quake3         = convert from Quake3 to XreaL\n"
+		//"   quake4         = convert from Quake4 to XreaL\n");
 	}
 
 	start = I_FloatTime();

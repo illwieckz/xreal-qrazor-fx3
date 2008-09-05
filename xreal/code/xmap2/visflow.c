@@ -1570,7 +1570,7 @@ void BasePortalVis(int portalnum)
 	{
 		if(j == portalnum)
 			continue;
-		
+
 		if(tp->removed)
 			continue;
 
@@ -1598,7 +1598,7 @@ void BasePortalVis(int portalnum)
 		for(k = 0; k < w->numpoints; k++)
 		{
 			d = DotProduct(w->points[k], p->plane.normal) - p->plane.dist;
-			if(d > ON_EPSILON) //distanceEpsilon)
+			if(d > ON_EPSILON)	//distanceEpsilon)
 				break;
 		}
 		if(k == w->numpoints)
@@ -1610,7 +1610,7 @@ void BasePortalVis(int portalnum)
 		for(k = 0; k < w->numpoints; k++)
 		{
 			d = DotProduct(w->points[k], tp->plane.normal) - tp->plane.dist;
-			if(d < -ON_EPSILON) //distanceEpsilon)
+			if(d < -ON_EPSILON)	//distanceEpsilon)
 				break;
 		}
 		if(k == w->numpoints)

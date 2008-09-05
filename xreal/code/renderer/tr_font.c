@@ -283,7 +283,7 @@ void WritePNG(const char *name, const byte * pic, int width, int height)
 		row -= row_stride;
 	}
 #else
-	for(i = height -1; i >= 0; i--)
+	for(i = height - 1; i >= 0; i--)
 	{
 		row_pointers[i] = row;
 		row -= row_stride;
@@ -313,7 +313,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 	FT_Bitmap      *bitmap = NULL;
 
 	Com_Memset(&glyph, 0, sizeof(glyphInfo_t));
-	
+
 	// make sure everything is here
 	if(face != NULL)
 	{
@@ -356,7 +356,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 		if(*xOut + scaledWidth + 1 >= 255)
 		{
 			if(*yOut + (*maxHeight + 1) * 2 >= 255)
-			//if(*yOut + scaledHeight + 1 >= 255)
+				//if(*yOut + scaledHeight + 1 >= 255)
 			{
 				//ri.Printf(PRINT_WARNING, "RE_ConstructGlyphInfo: character %c does not fit width and height\n", c);
 
@@ -511,7 +511,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	{
 		pointSize = 12;
 	}
-	
+
 	// we also need to adjust the scale based on point size relative to 48 points as the ui scaling is based on a 48 point font
 	glyphScale *= 48.0f / pointSize;
 
@@ -684,7 +684,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 
 			image = R_CreateImage(fileName, imageBuff, 256, 256, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 			h = RE_RegisterShaderFromImage(fileName, image, qfalse);
-			
+
 			Com_Memset(out, 0, 1024 * 1024);
 			xOut = 0;
 			yOut = 0;

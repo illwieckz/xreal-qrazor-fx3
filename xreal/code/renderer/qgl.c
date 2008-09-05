@@ -70,6 +70,7 @@ void            (APIENTRY * qglFlush) (void);
 void            (APIENTRY * qglFrontFace) (GLenum mode);
 void            (APIENTRY * qglGenTextures) (GLsizei n, GLuint * textures);
 void            (APIENTRY * qglGetBooleanv) (GLenum pname, GLboolean * params);
+
 GLenum(APIENTRY * qglGetError) (void);
 void            (APIENTRY * qglGetFloatv) (GLenum pname, GLfloat * params);
 void            (APIENTRY * qglGetIntegerv) (GLenum pname, GLint * params);
@@ -77,6 +78,7 @@ const GLubyte  *(APIENTRY * qglGetString) (GLenum name);
 void            (APIENTRY * qglGetTexParameterfv) (GLenum target, GLenum pname, GLfloat * params);
 void            (APIENTRY * qglGetTexParameteriv) (GLenum target, GLenum pname, GLint * params);
 void            (APIENTRY * qglHint) (GLenum target, GLenum mode);
+
 GLboolean(APIENTRY * qglIsEnabled) (GLenum cap);
 GLboolean(APIENTRY * qglIsTexture) (GLuint texture);
 void            (APIENTRY * qglLineWidth) (GLfloat width);
@@ -107,7 +109,7 @@ void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsiz
 
 #if defined(WIN32)
 // WGL_ARB_create_context
-HGLRC			(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
+HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
 #endif
 
 
@@ -143,15 +145,17 @@ static void     (APIENTRY * dllFrontFace) (GLenum mode);
 static void     (APIENTRY * dllGenTextures) (GLsizei n, GLuint * textures);
 static void     (APIENTRY * dllGetBooleanv) (GLenum pname, GLboolean * params);
 static void     (APIENTRY * dllGetDoublev) (GLenum pname, GLdouble * params);
-GLenum			(APIENTRY * dllGetError) (void);
+
+GLenum(APIENTRY * dllGetError) (void);
 static void     (APIENTRY * dllGetFloatv) (GLenum pname, GLfloat * params);
 static void     (APIENTRY * dllGetIntegerv) (GLenum pname, GLint * params);
 const GLubyte  *(APIENTRY * dllGetString) (GLenum name);
 static void     (APIENTRY * dllGetTexParameterfv) (GLenum target, GLenum pname, GLfloat * params);
 static void     (APIENTRY * dllGetTexParameteriv) (GLenum target, GLenum pname, GLint * params);
 static void     (APIENTRY * dllHint) (GLenum target, GLenum mode);
-GLboolean		(APIENTRY * dllIsEnabled) (GLenum cap);
-GLboolean		(APIENTRY * dllIsTexture) (GLuint texture);
+
+GLboolean(APIENTRY * dllIsEnabled) (GLenum cap);
+GLboolean(APIENTRY * dllIsTexture) (GLuint texture);
 static void     (APIENTRY * dllLineWidth) (GLfloat width);
 static void     (APIENTRY * dllPolygonMode) (GLenum face, GLenum mode);
 static void     (APIENTRY * dllPolygonOffset) (GLfloat factor, GLfloat units);

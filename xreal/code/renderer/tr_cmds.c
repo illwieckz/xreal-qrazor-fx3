@@ -117,10 +117,10 @@ void R_PerformanceCounters(void)
 	{
 		if(r_deferredShading->integer)
 			ri.Printf(PRINT_ALL, "deferred shading times: g-buffer:%i lighting:%i\n", backEnd.pc.c_deferredGBufferTime,
-			backEnd.pc.c_deferredLightingTime);
+					  backEnd.pc.c_deferredLightingTime);
 		else
 			ri.Printf(PRINT_ALL, "forward shading times: ambient:%i lighting:%i\n", backEnd.pc.c_forwardAmbientTime,
-			backEnd.pc.c_forwardLightingTime);
+					  backEnd.pc.c_forwardLightingTime);
 	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));

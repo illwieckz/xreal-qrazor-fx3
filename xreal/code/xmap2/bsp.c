@@ -72,14 +72,15 @@ static void SetCloneModelNumbers(void)
 		model = ValueForKey(ent, "model");
 
 		/* only entities with brushes or patches get a model number */
-		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+		if(ent->brushes || ent->patches ||
+		   (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			/* is this a clone? */
 			/*
-			value = ValueForKey(&entities[i], "_clone");
-			if(value[0] != '\0')
-				continue;
-			*/
+			   value = ValueForKey(&entities[i], "_clone");
+			   if(value[0] != '\0')
+			   continue;
+			 */
 
 			/* add the model key */
 			sprintf(modelValue, "*%d", models);
@@ -449,7 +450,7 @@ void ProcessSubModel(void)
 	/* add the sides to the tree */
 	ClipSidesIntoTree(e, tree);
 
-	/* Tr3B: create drawsurfs for triangle models in Doom3 style*/
+	/* Tr3B: create drawsurfs for triangle models in Doom3 style */
 	AddTriangleModel(e);
 
 	/* create drawsurfs for surface models */
@@ -525,15 +526,16 @@ void ProcessModels(void)
 	{
 		/* get entity */
 		entity = &entities[mapEntityNum];
-		
+
 		classname = ValueForKey(entity, "classname");
 		model = ValueForKey(entity, "model");
-		
-		if(entity->brushes || entity->patches || (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+
+		if(entity->brushes || entity->patches ||
+		   (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			/* process the model */
 			Sys_FPrintf(SYS_VRB, "############### model %i ###############\n", numBSPModels);
-			
+
 			if(mapEntityNum == 0)
 				ProcessWorldModel();
 			else

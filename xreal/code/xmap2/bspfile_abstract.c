@@ -635,7 +635,7 @@ void PrintEntity(const entity_t * ent)
 
 static qboolean HasUniqueEntityName(const entity_t * ent, const char *name)
 {
-	int				i;
+	int             i;
 	entity_t       *ent2;
 	const char     *name2;
 
@@ -728,9 +728,9 @@ void RemoveKey(entity_t * ent, const char *key)
 			free(ep->value);
 
 			/* link scheme
-			ep->next = ent->epairs;
-			ent->epairs = ep;
-			*/
+			   ep->next = ent->epairs;
+			   ent->epairs = ep;
+			 */
 
 			// unlink
 			if(ep->next == NULL)

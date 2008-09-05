@@ -1015,7 +1015,7 @@ qboolean RemoveDuplicateBrushPlanes(bspBrush_t * b)
 		if(sides[i].planenum == -1)
 		{
 			xml_Select("degenerate plane", b->entitynum, b->brushnum, qfalse);
-			
+
 			// remove it
 			for(k = i + 1; k < b->numsides; k++)
 			{
@@ -1032,7 +1032,7 @@ qboolean RemoveDuplicateBrushPlanes(bspBrush_t * b)
 			if(sides[i].planenum == sides[j].planenum)
 			{
 				xml_Select("duplicated plane", b->entitynum, b->brushnum, qfalse);
-				
+
 				// remove the second duplicate
 				for(k = i + 1; k < b->numsides; k++)
 				{

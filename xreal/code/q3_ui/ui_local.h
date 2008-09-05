@@ -543,15 +543,15 @@ typedef struct
 	qhandle_t       cursor;
 	qhandle_t       rb_on;
 	qhandle_t       rb_off;
-	float			scale;
-	float			xbias;
-	float			ybias;
+	float           scale;
+	float           xbias;
+	float           ybias;
 	qboolean        firstdraw;
 
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSerifBoldFont;
-//	fontInfo_t      smallFont;
-//	fontInfo_t      bigFont;
+//  fontInfo_t      smallFont;
+//  fontInfo_t      bigFont;
 } uiStatic_t;
 
 extern void     UI_Init(void);
@@ -578,10 +578,12 @@ extern int      UI_ProportionalStringWidth(const char *str);
 extern void     UI_DrawString(int x, int y, const char *str, int style, vec4_t color);
 extern void     UI_DrawChar(int x, int y, int ch, int style, vec4_t color);
 
-int				UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
-int				UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
-void			UI_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader);
-void			UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, const fontInfo_t * font);
+int             UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
+int             UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
+void            UI_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
+								  qhandle_t hShader);
+void            UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
+							  const fontInfo_t * font);
 
 extern qboolean UI_CursorInRect(int x, int y, int width, int height);
 extern void     UI_AdjustFrom640(float *x, float *y, float *w, float *h);

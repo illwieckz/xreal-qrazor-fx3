@@ -45,20 +45,19 @@ qboolean        testExpand;
 qboolean        showseams;
 
 qboolean        debugSurfaces;
-const byte		debugColors[12][3] =
-{
-	{ 255, 0, 0 },
-	{ 192, 128, 128 },
-	{ 255, 255, 0 },
-	{ 192, 192, 128 },
-	{ 0, 255, 255 },
-	{ 128, 192, 192 },
-	{ 0, 0, 255 },
-	{ 128, 128, 192 },
-	{ 255, 0, 255 },
-	{ 192, 128, 192 },
-	{ 0, 255, 0 },
-	{ 128, 192, 128 }
+const byte      debugColors[12][3] = {
+	{255, 0, 0},
+	{192, 128, 128},
+	{255, 255, 0},
+	{192, 192, 128},
+	{0, 255, 255},
+	{128, 192, 192},
+	{0, 0, 255},
+	{128, 128, 192},
+	{255, 0, 255},
+	{192, 128, 192},
+	{0, 255, 0},
+	{128, 192, 128}
 };
 
 char            outbase[32];
@@ -208,7 +207,7 @@ void ProcessWorldModel(void)
 		Sys_FPrintf(SYS_NOXML, "**********************\n");
 		Sys_FPrintf(SYS_NOXML, "******* leaked *******\n");
 		Sys_FPrintf(SYS_NOXML, "**********************\n");
-		
+
 		polyline = LeakFile(tree);
 		leaknode = xmlNewNode(NULL, "message");
 		xmlNodeSetContent(leaknode, "MAP LEAKED\n");
@@ -217,7 +216,7 @@ void ProcessWorldModel(void)
 		level[1] = 0;
 		xmlSetProp(leaknode, "level", (char *)&level);
 		xml_SendNode(leaknode);
-		
+
 		if(leaktest)
 		{
 			Sys_Printf("--- MAP LEAKED, ABORTING LEAKTEST ---\n");

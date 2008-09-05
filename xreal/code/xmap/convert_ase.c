@@ -32,7 +32,7 @@ converts a bsp drawsurface to an ase chunk
 static void ConvertSurface(FILE * f, dmodel_t * model, int modelNum, dsurface_t * ds, int surfaceNum, vec3_t origin)
 {
 	int             i, v, face, a, b, c;
-	drawVert_t  *dv;
+	drawVert_t     *dv;
 	vec3_t          normal;
 	char            name[1024];
 
@@ -217,7 +217,7 @@ static void ConvertShader(FILE * f, dshader_t * shader, int shaderNum)
 		strcpy(filename, si->shader);
 	else
 		sprintf(filename, "%s.tga", si->shader);
-	
+
 #if 0
 	for(c = filename; *c != '\0'; c++)
 		if(*c == '/')
@@ -249,11 +249,11 @@ static void ConvertShader(FILE * f, dshader_t * shader, int shaderNum)
 
 int WriteASEFile(char *filename)
 {
-	int             i,j, s, modelNum;
+	int             i, j, s, modelNum;
 	FILE           *f;
-	dshader_t    *shader;
-	dmodel_t     *dm;
-	drawSurface_t *ds;
+	dshader_t      *shader;
+	dmodel_t       *dm;
+	drawSurface_t  *ds;
 	entity_t       *e;
 	vec3_t          origin;
 	const char     *key;
@@ -319,7 +319,7 @@ int WriteASEFile(char *filename)
 		{
 			s = j + dm->firstSurface;
 			ds = &drawSurfaces[s];
-		
+
 			ConvertSurface(f, dm, modelNum, ds, s, origin);
 		}
 	}
@@ -371,10 +371,10 @@ int ConvertBspToASE(int argc, char **argv)
 	{
 		Error("usage: xmap -bsp2ase [-<switch> [-<switch> ...]] <mapname.bsp>\n"
 			  "\n" "Switches:\n" "   v              = verbose output\n");
-			  //"   quake1       = convert from QuakeWorld to XreaL\n"
-			  //"   quake2       = convert from Quake2 to XreaL\n"
-			  //"   quake3         = convert from Quake3 to XreaL\n"
-			  //"   quake4         = convert from Quake4 to XreaL\n");
+		//"   quake1       = convert from QuakeWorld to XreaL\n"
+		//"   quake2       = convert from Quake2 to XreaL\n"
+		//"   quake3         = convert from Quake3 to XreaL\n"
+		//"   quake4         = convert from Quake4 to XreaL\n");
 	}
 
 	start = I_FloatTime();

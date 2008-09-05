@@ -3049,12 +3049,12 @@ void StoreSurfaceLightmaps(void)
 
 			/* create custom shader */
 			/*
-			Tr3B: commented
-			if(info->si->styleMarker == 2)
-				csi = CustomShader(info->si, "xmap_styleMarker2", styleStages);
-			else
-				csi = CustomShader(info->si, "xmap_styleMarker", styleStages);
-			*/
+			   Tr3B: commented
+			   if(info->si->styleMarker == 2)
+			   csi = CustomShader(info->si, "xmap_styleMarker2", styleStages);
+			   else
+			   csi = CustomShader(info->si, "xmap_styleMarker", styleStages);
+			 */
 
 			/* emit remap command */
 			//% EmitVertexRemapShader( csi->shader, info->si->shader );
@@ -3111,5 +3111,5 @@ void StoreSurfaceLightmaps(void)
 	Sys_Printf("%9d unique lightmap/shader combinations\n", numLightmapShaders);
 
 	/* write map shader file */
-	//%	WriteMapShaderFile();
+	//% WriteMapShaderFile();
 }

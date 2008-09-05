@@ -438,7 +438,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 
 		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
 		attribs[1] = 3;
-		attribs[2] = 0; //terminate first pair
+		attribs[2] = 0;			//terminate first pair
 
 		opengl_context->hGLRC = qwglCreateContextAttribsARB(opengl_context->hDC, opengl_context->hGLRC, attribs);
 		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
@@ -483,7 +483,7 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen)
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
 		char            driverName[64];
-		
+
 		ri.Printf(PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO )... ");
 		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{

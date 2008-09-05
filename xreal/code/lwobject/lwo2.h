@@ -17,7 +17,7 @@ Ernie Wright  17 Sep 00
 
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4305)	// truncate from double to float
-#pragma warning(disable : 4996) // deprecated functions
+#pragma warning(disable : 4996)	// deprecated functions
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 

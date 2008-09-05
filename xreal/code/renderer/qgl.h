@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 
-int				QGL_Init();
+int             QGL_Init();
 void            QGL_Shutdown(void);
 void            QGL_EnableLogging(int enable);
 
@@ -109,8 +109,8 @@ extern void     (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsiz
 extern void     (APIENTRY * qglActiveTextureARB) (GLenum texture);
 
 // GL_ARB_vertex_program
-extern void		(APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
-extern void		(APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
+extern void     (APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
+extern void     (APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
 extern void     (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
 														GLsizei stride, const GLvoid * pointer);
 extern void     (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
@@ -200,7 +200,7 @@ extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 #define ERROR_INVALID_VERSION_ARB      0x2095
 #endif
 
-extern HGLRC	(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
+extern          HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
 #endif
 
 // GL_EXT_stencil_two_side

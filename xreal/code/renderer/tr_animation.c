@@ -619,7 +619,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 		for(i = 0; i < model->numVBOSurfaces; i++)
 		{
 			vboSurface = model->vboSurfaces[i];
-			
+
 			if(ent->e.customShader)
 			{
 				shader = R_GetShaderByHandle(ent->e.customShader);
@@ -666,7 +666,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 				R_AddDrawSurf((void *)vboSurface, shader, -1);
 			}
 		}
-	}	
+	}
 }
 
 /*

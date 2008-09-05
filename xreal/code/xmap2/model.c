@@ -405,7 +405,8 @@ void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, sha
 
 
 			/* temp hack */
-			if(!si->clipModel && (((si->compileFlags & C_TRANSLUCENT) && !(si->compileFlags & C_COLLISION)) || !(si->compileFlags & C_SOLID)))
+			if(!si->clipModel &&
+			   (((si->compileFlags & C_TRANSLUCENT) && !(si->compileFlags & C_COLLISION)) || !(si->compileFlags & C_SOLID)))
 				continue;
 
 			/* overflow check */

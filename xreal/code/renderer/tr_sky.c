@@ -698,8 +698,8 @@ void RB_DrawSun(void)
 	float           dist;
 	vec3_t          origin, vec1, vec2;
 	vec3_t          temp;
-	matrix_t		transformMatrix;
-	matrix_t		modelViewMatrix;
+	matrix_t        transformMatrix;
+	matrix_t        modelViewMatrix;
 
 	if(!backEnd.skyRenderedThisView)
 	{
@@ -711,9 +711,9 @@ void RB_DrawSun(void)
 	}
 
 	GL_PushMatrix();
-		
+
 	GL_BindProgram(&tr.genericSingleShader);
-	
+
 	// set uniforms
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
 	if(r_vboVertexSkinning->integer)
@@ -722,13 +722,15 @@ void RB_DrawSun(void)
 	}
 	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 
-	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1],
+						   backEnd.viewParms.or.origin[2]);
 	MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
 
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	GL_LoadModelViewMatrix(modelViewMatrix);
 
-	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	dist = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
 	size = dist * 0.4;
@@ -844,11 +846,11 @@ void Tess_StageIteratorSky(void)
 						 ("--- Tess_StageIteratorSky( %s, %i vertices, %i triangles ) ---\n", tess.surfaceShader->name,
 						  tess.numVertexes, tess.numIndexes / 3));
 	}
-	
+
 	// trebor: HACK why does this happen with cg_draw2D 0 ?
 	if(tess.stageIteratorFunc2 == NULL)
 	{
-		tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;	
+		tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;
 	}
 
 	if(tess.stageIteratorFunc2 == Tess_StageIteratorGBuffer)
@@ -875,38 +877,38 @@ void Tess_StageIteratorSky(void)
 
 	// draw the outer skybox
 	/*
-	if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
-	{
-		matrix_t		transformMatrix;
-		matrix_t		modelViewMatrix;
+	   if(tess.surfaceShader->sky.outerbox[0] && tess.surfaceShader->sky.outerbox[0] != tr.defaultImage)
+	   {
+	   matrix_t     transformMatrix;
+	   matrix_t     modelViewMatrix;
 
-		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
-		GL_PushMatrix();
-		
-		GL_BindProgram(&tr.genericSingleShader);
-	
-		// set uniforms
-		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-		if(r_vboVertexSkinning->integer)
-		{
-			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
-		}
-		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+	   GL_PushMatrix();
 
-		MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
-		MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
+	   GL_BindProgram(&tr.genericSingleShader);
 
-		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
-		GL_LoadModelViewMatrix(modelViewMatrix);
+	   // set uniforms
+	   qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+	   if(r_vboVertexSkinning->integer)
+	   {
+	   qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+	   }
+	   qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 
-		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	   MatrixSetupTranslation(transformMatrix, backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+	   MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
 
-		DrawSkyBox(tess.surfaceShader);
+	   GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+	   GL_LoadModelViewMatrix(modelViewMatrix);
 
-		GL_PopMatrix();
-	}
-	*/
+	   qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	   DrawSkyBox(tess.surfaceShader);
+
+	   GL_PopMatrix();
+	   }
+	 */
 
 	// generate the vertexes for all the clouds, which will be drawn
 	// by the generic shader routine

@@ -28,7 +28,7 @@ void lwFreeEnvelope(lwEnvelope * env)
 		if(env->name)
 			free(env->name);
 		lwListFree(env->key, free);
-		lwListFree(env->cfilter, (void*)lwFreePlugin);
+		lwListFree(env->cfilter, (void *)lwFreePlugin);
 		free(env);
 	}
 }

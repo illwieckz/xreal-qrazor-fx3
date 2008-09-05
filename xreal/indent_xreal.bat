@@ -12,7 +12,6 @@ indent code/common/imagelib.h
 indent code/common/qfiles.h
 indent code/common/netlib.h
 indent code/common/bspfile.h
-indent code/common/unzip.h
 indent code/common/trilib.h
 indent code/common/scriplib.h
 indent code/common/vfs.h
@@ -44,21 +43,9 @@ indent code/qcommon/cm_polylib.h
 indent code/qcommon/cm_local.h
 indent code/qcommon/qcommon.h
 indent code/qcommon/qfiles.h
-indent code/qcommon/unzip.h
 indent code/q3_ui/ui_local.h
 indent code/q3_ui/keycodes.h
-indent code/xmap2/game_jk2.h
-indent code/xmap2/game_xreal.h
-indent code/xmap2/game_ja.h
-indent code/xmap2/game_wolf.h
-indent code/xmap2/game_tenebrae.h
-indent code/xmap2/game_etut.h
-indent code/xmap2/game_t.h
-indent code/xmap2/game_wolfet.h
-indent code/xmap2/game_quake3.h
 indent code/xmap2/xmap2.h
-indent code/xmap2/game_sof2.h
-indent code/xmap2/game_ef.h
 indent code/cgame/cg_local.h
 indent code/cgame/cg_public.h
 indent code/cgame/tr_types.h
@@ -96,7 +83,6 @@ indent code/common/aselib.c
 indent code/common/mathlib.c
 indent code/common/scriplib.c
 indent code/common/inout.c
-indent code/common/unzip.c
 indent code/sys/sdl_snd.c
 indent code/sys/sys_unix.c
 indent code/sys/con_tty.c
@@ -217,7 +203,6 @@ indent code/qcommon/cm_polylib.c
 indent code/qcommon/md4.c
 indent code/qcommon/huffman.c
 indent code/qcommon/msg.c
-indent code/qcommon/unzip.c
 indent code/q3_ui/ui_cinematics.c
 indent code/q3_ui/ui_sppostgame.c
 indent code/q3_ui/ui_playermodel.c

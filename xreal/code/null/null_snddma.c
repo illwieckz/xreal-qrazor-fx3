@@ -47,7 +47,7 @@ void SNDDMA_Submit(void)
 {
 }
 
-sfxHandle_t     S_RegisterSound(const char *sample)
+sfxHandle_t S_RegisterSound(const char *sample)
 {
 	return 0;
 }

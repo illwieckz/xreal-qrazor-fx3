@@ -135,7 +135,7 @@ LoadShaderImage
 ===============
 */
 
-static byte           *LoadImageFile(char *filename)
+static byte    *LoadImageFile(char *filename)
 {
 	byte           *buffer = NULL;
 	int             nLen = 0;
@@ -151,7 +151,7 @@ static byte           *LoadImageFile(char *filename)
 		filename[nLen - 3] = 'j';
 		filename[nLen - 2] = 'p';
 		filename[nLen - 1] = 'g';
-		
+
 		if(FileExists(filename))
 		{
 			LoadFileBlock(filename, (void **)&buffer);

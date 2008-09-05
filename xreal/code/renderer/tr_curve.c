@@ -254,7 +254,7 @@ static void MakeMeshNormals(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE]
 }
 
 static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles,
-							  srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
+								   srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
 	int             i, j;
 	srfVert_t      *dv[3];
@@ -910,7 +910,7 @@ srfGridMesh_t  *R_GridInsertColumn(srfGridMesh_t * grid, int column, int row, ve
 
 	// put all the aproximating points on the curve
 	//PutPointsOnCurve( ctrl, width, height );
-	
+
 	// calculate triangles
 	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
 
@@ -980,7 +980,7 @@ srfGridMesh_t  *R_GridInsertRow(srfGridMesh_t * grid, int row, int column, vec3_
 	}
 	// put all the aproximating points on the curve
 	//PutPointsOnCurve( ctrl, width, height );
-	
+
 	// calculate triangles
 	numTriangles = MakeMeshTriangles(width, height, ctrl, triangles);
 

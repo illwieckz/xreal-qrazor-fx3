@@ -1215,7 +1215,7 @@ int VisMain(int argc, char **argv)
 //  CalcPHS();
 
 	// delete the portal file
-//	remove(portalfile);
+//  remove(portalfile);
 
 	// write the bsp file
 	Sys_Printf("writing %s\n", name);

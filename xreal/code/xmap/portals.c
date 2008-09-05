@@ -501,7 +501,8 @@ void MakeTreePortals_r(node_t * node)
 			//Sys_Printf("WARNING: node with unbounded volume\n");
 			if(node->portals && node->portals->winding)
 			{
-				xml_Winding("WARNING: Node With Unbounded Volume", node->portals->winding->p, node->portals->winding->numpoints, qfalse);
+				xml_Winding("WARNING: Node With Unbounded Volume", node->portals->winding->p, node->portals->winding->numpoints,
+							qfalse);
 			}
 			break;
 		}
@@ -642,7 +643,7 @@ qboolean FloodEntities(tree_t * tree)
 		r = PlaceOccupant(headnode, origin, &entities[i]);
 		if(r)
 			inside = qtrue;
-		
+
 		if((!r || tree->outside_node.occupied) && !tripped)
 		{
 			xml_Select("Entity leaked", i, 0, qfalse);

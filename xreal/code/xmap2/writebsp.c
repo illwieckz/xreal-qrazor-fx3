@@ -263,11 +263,12 @@ void SetModelNumbers(void)
 	for(i = 1; i < numEntities; i++)
 	{
 		ent = &entities[i];
-		
+
 		classname = ValueForKey(ent, "classname");
 		model = ValueForKey(ent, "model");
-		
-		if(ent->brushes || ent->patches || (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+
+		if(ent->brushes || ent->patches ||
+		   (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			sprintf(value, "*%i", models);
 			models++;
@@ -555,7 +556,7 @@ sets up a new brush model
 void BeginModel(void)
 {
 	bspModel_t     *mod;
-	
+
 	/* test limits */
 	if(numBSPModels == MAX_MAP_MODELS)
 		Error("MAX_MAP_MODELS");

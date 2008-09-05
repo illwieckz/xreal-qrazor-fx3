@@ -176,7 +176,7 @@ void ParsePatch(qboolean patchDef3)
 			pm->info[j] = info[j];
 		}
 	}
-	
+
 
 	if(!Q_strncasecmp(name, "textures/", 9))
 		sprintf(shader, "%s", name);

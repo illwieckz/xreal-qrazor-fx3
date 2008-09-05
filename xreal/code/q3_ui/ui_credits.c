@@ -67,7 +67,7 @@ cr_line         credits[] = {
 	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
-//	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+//  {"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	{"IOQuake 3 - www.ioquake3.org", UI_CENTER | UI_BIGFONT, colorLtGrey},
@@ -85,10 +85,10 @@ cr_line         credits[] = {
 	{"Unlagged - www.ra.is/unlagged/", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Neil 'haste' Toronto", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
-	
+
 	{"Development Assistance", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Mathias 'skynet' Heyer", UI_CENTER|UI_SMALLFONT, colorWhite},
+	{"Mathias 'skynet' Heyer", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Art", UI_CENTER | UI_BIGFONT, colorMdGrey},
@@ -163,13 +163,13 @@ cr_line         credits[] = {
 	{"Tom 'phantazm11' Perryman - Quake4 aztech texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"William 'SPoG' Joseph", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Robin 'Wakey' Pengelstorfer", UI_CENTER | UI_SMALLFONT, colorWhite},
-//	{"Christian 'Lorax' Ballsieper", UI_CENTER | UI_SMALLFONT, colorWhite},
+//  {"Christian 'Lorax' Ballsieper", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"James 'HarlequiN' Taylor", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Special Thanks To:", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"id Software", UI_CENTER | UI_SMALLFONT, colorWhite},
-//	{"IOQuake 3 project - www.ioquake3.org", UI_CENTER | UI_SMALLFONT, colorWhite},
+//  {"IOQuake 3 project - www.ioquake3.org", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	{"Contributors", UI_CENTER | UI_BIGFONT, colorMdGrey},
@@ -260,19 +260,19 @@ static void ScrollingCredits_Draw(void)
 		y += SMALLCHAR_HEIGHT;
 
 		/*
-		if(credits[n].style & UI_SMALLFONT)
-		{
-			y += SMALLCHAR_HEIGHT;// * PROP_SMALL_SIZE_SCALE;
-		}
-		else if(credits[n].style & UI_BIGFONT)
-		{
-			y += BIGCHAR_HEIGHT;
-		}
-		else if(credits[n].style & UI_GIANTFONT)
-		{
-			y += GIANTCHAR_HEIGHT;// * (1 / PROP_SMALL_SIZE_SCALE);
-		}
-		*/
+		   if(credits[n].style & UI_SMALLFONT)
+		   {
+		   y += SMALLCHAR_HEIGHT;// * PROP_SMALL_SIZE_SCALE;
+		   }
+		   else if(credits[n].style & UI_BIGFONT)
+		   {
+		   y += BIGCHAR_HEIGHT;
+		   }
+		   else if(credits[n].style & UI_GIANTFONT)
+		   {
+		   y += GIANTCHAR_HEIGHT;// * (1 / PROP_SMALL_SIZE_SCALE);
+		   }
+		 */
 
 		// if y is off the screen, break out of loop
 		//if(y > 480)

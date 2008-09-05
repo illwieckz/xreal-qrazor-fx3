@@ -61,8 +61,8 @@ typedef struct
 	menutext_s      setupcontrols;
 	menutext_s      setupsystem;
 	menutext_s      game;
-//	menutext_s      load;
-//	menutext_s      save;
+//  menutext_s      load;
+//  menutext_s      save;
 	menutext_s      defaults;
 	menubitmap_s    back;
 } setupMenuInfo_t;
@@ -131,13 +131,13 @@ static void UI_SetupMenu_Event(void *ptr, int event)
 			UI_PreferencesMenu();
 			break;
 
-//		case ID_LOAD:
-//			UI_LoadConfigMenu();
-//			break;
+//      case ID_LOAD:
+//          UI_LoadConfigMenu();
+//          break;
 
-//		case ID_SAVE:
-//			UI_SaveConfigMenu();
-//			break;
+//      case ID_SAVE:
+//          UI_SaveConfigMenu();
+//          break;
 
 		case ID_DEFAULTS:
 			UI_ConfirmMenu("SET TO DEFAULTS?", Setup_ResetDefaults_Draw, Setup_ResetDefaults_Action);
@@ -286,8 +286,8 @@ static void UI_SetupMenu_Init(void)
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupcontrols);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupsystem);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.game);
-//	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.load);
-//	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.save);
+//  Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.load);
+//  Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.save);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.defaults);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.back);
 }

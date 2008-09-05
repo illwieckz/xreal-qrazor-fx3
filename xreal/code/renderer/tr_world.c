@@ -987,7 +987,9 @@ static void R_UpdateClusterSurfaces()
 
 			if(tr.world->numClusterVBOSurfaces[tr.visIndex] < tr.world->clusterVBOSurfaces[tr.visIndex].currentElements)
 			{
-				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[tr.visIndex], tr.world->numClusterVBOSurfaces[tr.visIndex]);
+				vboSurf =
+					(srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[tr.visIndex],
+														 tr.world->numClusterVBOSurfaces[tr.visIndex]);
 				ibo = vboSurf->ibo;
 
 				/*
@@ -1028,7 +1030,9 @@ static void R_UpdateClusterSurfaces()
 			R_SyncRenderThread();
 
 			// update IBO
-			Q_strncpyz(ibo->name, va("staticWorldMesh_IBO_visIndex%i_surface%i", tr.visIndex, tr.world->numClusterVBOSurfaces[tr.visIndex]), sizeof(ibo->name));
+			Q_strncpyz(ibo->name,
+					   va("staticWorldMesh_IBO_visIndex%i_surface%i", tr.visIndex, tr.world->numClusterVBOSurfaces[tr.visIndex]),
+					   sizeof(ibo->name));
 			ibo->indexesSize = indexesSize;
 
 			R_BindIBO(ibo);
@@ -1048,8 +1052,8 @@ static void R_UpdateClusterSurfaces()
 #if 0
 	if(r_showcluster->integer)
 	{
-		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i and vis index %i\n", tr.world->numClusterVBOSurfaces[tr.visIndex],
-				  cluster - tr.world->clusters, tr.visIndex);
+		ri.Printf(PRINT_ALL, "%i VBO surfaces created for cluster %i and vis index %i\n",
+				  tr.world->numClusterVBOSurfaces[tr.visIndex], cluster - tr.world->clusters, tr.visIndex);
 	}
 #endif
 }
@@ -1348,7 +1352,7 @@ void R_AddWorldInteractions(trRefLight_t * light)
 					intersects = qfalse;
 				}
 			}
-		
+
 			// FIXME?
 			if(r_cullShadowPyramidFaces->integer)
 			{
@@ -1357,7 +1361,7 @@ void R_AddWorldInteractions(trRefLight_t * light)
 
 			if(intersects)
 			{
-				R_AddLightInteraction(light, (void *) srf, srf->shader, cubeSideBits, iaType);
+				R_AddLightInteraction(light, (void *)srf, srf->shader, cubeSideBits, iaType);
 
 				if(light->isStatic)
 					tr.pc.c_slightSurfaces++;

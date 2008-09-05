@@ -257,8 +257,10 @@ void R_CreateFBOPackedDepthStencilBuffer(FBO_t * fbo, int format)
 
 	if(absent)
 	{
-		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->packedDepthStencilBuffer);
-		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->packedDepthStencilBuffer);
+		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
+									  fbo->packedDepthStencilBuffer);
+		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
+									  fbo->packedDepthStencilBuffer);
 	}
 
 	GL_CheckErrors();
@@ -413,8 +415,7 @@ void R_InitFBOs(void)
 	   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		// geometricRender FBO as G-Buffer for deferred shading
-		GLenum          drawbuffers[] =
-		{
+		GLenum          drawbuffers[] = {
 			GL_COLOR_ATTACHMENT0_EXT,
 			GL_COLOR_ATTACHMENT1_EXT,
 			GL_COLOR_ATTACHMENT2_EXT,

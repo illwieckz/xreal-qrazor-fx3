@@ -115,7 +115,7 @@ constants
 ------------------------------------------------------------------------------- */
 
 /* general */
-//#define MAX_QPATH				64
+//#define MAX_QPATH             64
 
 #define MAX_IMAGES				512
 #define DEFAULT_IMAGE			"*default"
@@ -177,7 +177,7 @@ constants
 
 
 /* bsp */
-#define	MAX_PATCH_SIZE			64		/* Tr3B: was 32 in Q3A */
+#define	MAX_PATCH_SIZE			64	/* Tr3B: was 32 in Q3A */
 #define	MAX_BRUSH_SIDES			1024
 #define MAX_BUILD_SIDES			300
 
@@ -701,7 +701,7 @@ typedef struct shaderInfo_s
 	qb_t            hasPasses;	/* false if the shader doesn't define any rendering passes */
 	qb_t            globalTexture;	/* don't normalize texture repeats */
 	qb_t            twoSided;	/* cull none */
-	qb_t            forceOpaque; /* Tr3B: don't make this translucent if shader has no passes */
+	qb_t            forceOpaque;	/* Tr3B: don't make this translucent if shader has no passes */
 	qb_t            autosprite;	/* autosprite shaders will become point lights instead of area lights */
 	qb_t            polygonOffset;	/* ydnar: don't face cull this or against this */
 	qb_t            patchShadows;	/* have patches casting shadows when using -light for this surface */
@@ -1530,6 +1530,7 @@ void            WritePortalFile(tree_t * tree);
 
 /* writebsp.c */
 void            SetModelNumbers(void);
+
 //% void        SetLightStyles(void);
 
 int             EmitShader(const char *shader, int *contentFlags, int *surfaceFlags);
@@ -1669,7 +1670,7 @@ void            BasePortalVis(int portalnum);
 void            BetterPortalVis(int portalnum);
 void            PortalFlow(int portalnum);
 void            PassagePortalFlow(int portalnum);
-void			AllocPortalVis(int portalnum);
+void            AllocPortalVis(int portalnum);
 
 
 

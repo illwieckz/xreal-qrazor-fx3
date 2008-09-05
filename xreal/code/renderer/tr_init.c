@@ -236,8 +236,8 @@ cvar_t         *r_rotoscope;
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
 
 // GL_ARB_vertex_program
-void			(APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
-void			(APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
+void            (APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
+void            (APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
 void            (APIENTRY * qglVertexAttribPointerARB) (GLuint index, GLint size, GLenum type, GLboolean normalized,
 														GLsizei stride, const GLvoid * pointer);
 void            (APIENTRY * qglEnableVertexAttribArrayARB) (GLuint index);
@@ -722,7 +722,7 @@ void R_TakeScreenshot(char *name, ssFormat_t format)
 		for(lastNumber = 0; lastNumber <= 999; lastNumber++)
 		{
 			Com_sprintf(fileName, sizeof(fileName), "screenshots/xreal-%04d%02d%02d-%02d%02d%02d-%03d.%s",
-					1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, lastNumber, name);
+						1900 + t.tm_year, 1 + t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, lastNumber, name);
 
 			if(!ri.FS_FileExists(fileName))
 			{
@@ -1010,24 +1010,24 @@ void GL_SetDefaultState(void)
 	qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 
 	/*
-	OpenGL 3.0 spec: E.1. PROFILES AND DEPRECATED FEATURES OF OPENGL 3.0 405
-	Calling VertexAttribPointer when no buffer object or no
-	vertex array object is bound will generate an INVALID OPERATION error,
-	as will calling any array drawing command when no vertex array object is
-	bound.
-	*/
+	   OpenGL 3.0 spec: E.1. PROFILES AND DEPRECATED FEATURES OF OPENGL 3.0 405
+	   Calling VertexAttribPointer when no buffer object or no
+	   vertex array object is bound will generate an INVALID OPERATION error,
+	   as will calling any array drawing command when no vertex array object is
+	   bound.
+	 */
 
 	/*
-	qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, tess.xyz);
-	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
-	qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
-	qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
-	qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
-	qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, tess.normals);
-	qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
-	qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
-	qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
-	*/
+	   qglVertexAttribPointerARB(ATTR_INDEX_POSITION, 4, GL_FLOAT, 0, 0, tess.xyz);
+	   qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD0, 4, GL_FLOAT, 0, 0, tess.texCoords);
+	   qglVertexAttribPointerARB(ATTR_INDEX_TEXCOORD1, 4, GL_FLOAT, 0, 0, tess.lightCoords);
+	   qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, 16, tess.tangents);
+	   qglVertexAttribPointerARB(ATTR_INDEX_BINORMAL, 3, GL_FLOAT, 0, 16, tess.binormals);
+	   qglVertexAttribPointerARB(ATTR_INDEX_NORMAL, 3, GL_FLOAT, 0, 16, tess.normals);
+	   qglVertexAttribPointerARB(ATTR_INDEX_COLOR, 4, GL_FLOAT, 0, 0, tess.colors);
+	   qglVertexAttribPointerARB(ATTR_INDEX_BONE_INDEXES, 4, GL_INT, 0, 0, tess.boneIndexes);
+	   qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, tess.boneWeights);
+	 */
 
 	// make sure our GL state vector is set correctly
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
@@ -1119,7 +1119,7 @@ void GfxInfo_f(void)
 	if(glConfig.occlusionQueryAvailable)
 	{
 		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
-	}	
+	}
 
 	if(glConfig.drawBuffersAvailable)
 	{
@@ -1385,7 +1385,7 @@ void R_Register(void)
 
 	r_shadowMapSizeLow = ri.Cvar_Get("r_shadowMapSizeLow", "64", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_shadowMapSizeLow, 32, 2048, qtrue);
-	
+
 
 	shadowMapResolutions[0] = r_shadowMapSizeUltra->integer;
 	shadowMapResolutions[1] = r_shadowMapSizeVeryHigh->integer;

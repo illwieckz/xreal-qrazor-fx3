@@ -57,7 +57,8 @@ Tess_CheckOverflow
 */
 void Tess_CheckOverflow(int verts, int indexes)
 {
-	if((glState.currentVBO != NULL && glState.currentVBO != tess.vbo) || (glState.currentIBO != NULL && glState.currentIBO != tess.ibo))
+	if((glState.currentVBO != NULL && glState.currentVBO != tess.vbo) ||
+	   (glState.currentIBO != NULL && glState.currentIBO != tess.ibo))
 	{
 		Tess_EndBegin();
 
@@ -103,7 +104,7 @@ Tess_AddQuadStampExt
 */
 void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, vec4_t color, float s1, float t1, float s2, float t2)
 {
-	int				i;
+	int             i;
 	vec3_t          normal;
 	int             ndx;
 
@@ -200,13 +201,13 @@ Tess_AddQuadStampExt2
 */
 void Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s1, float t1, float s2, float t2)
 {
-	int				i;
+	int             i;
 	vec3_t          normal;
 	int             ndx;
 
 	GLimp_LogComment("--- Tess_AddQuadStampExt2 ---\n");
 
-//	Tess_CheckOverflow(4, 6);
+//  Tess_CheckOverflow(4, 6);
 
 	ndx = tess.numVertexes;
 
@@ -334,7 +335,7 @@ void Tess_UpdateVBOs()
 	}
 
 	GL_CheckErrors();
-		
+
 	// update the default IBO
 	if(tess.numIndexes > 0 && tess.numIndexes <= SHADER_MAX_INDEXES)
 	{
@@ -344,7 +345,7 @@ void Tess_UpdateVBOs()
 		//if(glState.currentIBO != tess.ibo)
 		{
 			qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, tess.ibo->indexesVBO);
-			
+
 			glState.currentIBO = tess.ibo;
 			backEnd.pc.c_vboIndexBuffers++;
 		}
@@ -368,7 +369,7 @@ void Tess_InstantQuad(vec4_t quadVerts[4])
 
 	tess.numVertexes = 0;
 	tess.numIndexes = 0;
-	
+
 	VectorCopy4(quadVerts[0], tess.xyz[tess.numVertexes]);
 	tess.texCoords[tess.numVertexes][0] = 0;
 	tess.texCoords[tess.numVertexes][1] = 0;
@@ -441,7 +442,7 @@ static void Tess_SurfaceSprite(void)
 {
 	vec3_t          left, up;
 	float           radius;
-	vec4_t		color;
+	vec4_t          color;
 
 	GLimp_LogComment("--- Tess_SurfaceSprite ---\n");
 
@@ -1932,7 +1933,7 @@ static void Tess_SurfaceMD5(md5Surface_t * srf)
 								 backEnd.currentEntity->e.skeleton.scale[1], backEnd.currentEntity->e.skeleton.scale[2]);
 
 				MatrixSetupTransformFromQuat(m2, backEnd.currentEntity->e.skeleton.bones[i].rotation,
-												 backEnd.currentEntity->e.skeleton.bones[i].origin);
+											 backEnd.currentEntity->e.skeleton.bones[i].origin);
 				MatrixMultiply(m2, m, boneMatrices[i]);
 			}
 			else
@@ -2265,24 +2266,24 @@ static void Tess_SurfaceAxis(void)
 	GLimp_LogComment("--- Tess_SurfaceAxis ---\n");
 
 	/*
-	GL_BindProgram(0);
-	GL_SelectTexture(0);
-	GL_Bind(tr.whiteImage);
+	   GL_BindProgram(0);
+	   GL_SelectTexture(0);
+	   GL_Bind(tr.whiteImage);
 
-	qglLineWidth(3);
-	qglBegin(GL_LINES);
-	qglColor3f(1, 0, 0);
-	qglVertex3f(0, 0, 0);
-	qglVertex3f(16, 0, 0);
-	qglColor3f(0, 1, 0);
-	qglVertex3f(0, 0, 0);
-	qglVertex3f(0, 16, 0);
-	qglColor3f(0, 0, 1);
-	qglVertex3f(0, 0, 0);
-	qglVertex3f(0, 0, 16);
-	qglEnd();
-	qglLineWidth(1);
-	*/
+	   qglLineWidth(3);
+	   qglBegin(GL_LINES);
+	   qglColor3f(1, 0, 0);
+	   qglVertex3f(0, 0, 0);
+	   qglVertex3f(16, 0, 0);
+	   qglColor3f(0, 1, 0);
+	   qglVertex3f(0, 0, 0);
+	   qglVertex3f(0, 16, 0);
+	   qglColor3f(0, 0, 1);
+	   qglVertex3f(0, 0, 0);
+	   qglVertex3f(0, 0, 16);
+	   qglEnd();
+	   qglLineWidth(1);
+	 */
 }
 
 //===========================================================================
@@ -2406,7 +2407,7 @@ Tess_SurfaceVBOMD5Mesh
 */
 static void Tess_SurfaceVBOMD5Mesh(srfVBOMD5Mesh_t * srf)
 {
-	int				i;
+	int             i;
 	md5Model_t     *model;
 
 	GLimp_LogComment("--- Tess_SurfaceVBOMD5Mesh ---\n");
@@ -2421,7 +2422,7 @@ static void Tess_SurfaceVBOMD5Mesh(srfVBOMD5Mesh_t * srf)
 
 	tess.numIndexes += srf->numIndexes;
 	tess.numVertexes += srf->numVerts;
-	
+
 	model = srf->md5Model;
 
 	if(backEnd.currentEntity->e.skeleton.type == SK_ABSOLUTE)
@@ -2440,7 +2441,7 @@ static void Tess_SurfaceVBOMD5Mesh(srfVBOMD5Mesh_t * srf)
 			MatrixSetupTransformFromQuat(m2, backEnd.currentEntity->e.skeleton.bones[i].rotation,
 										 backEnd.currentEntity->e.skeleton.bones[i].origin);
 			MatrixMultiply(m2, m, tess.boneMatrices[i]);
-			
+
 
 			MatrixMultiply2(tess.boneMatrices[i], model->bones[i].inverseTransform);
 		}

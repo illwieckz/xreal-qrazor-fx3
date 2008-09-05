@@ -51,7 +51,7 @@ int             c_edgebevels;
 int             c_areaportals;
 int             c_detail;
 int             c_structural;
-int				c_mergedFuncStatics;
+int             c_mergedFuncStatics;
 
 
 /*
@@ -357,7 +357,7 @@ void SetBrushContents(brush_t * b)
 		s = &b->sides[i];
 		if(s->shaderInfo == NULL)
 			continue;
-		
+
 		if(s->contentFlags != contentFlags || s->compileFlags != compileFlags)
 			mixed = qtrue;
 	}
@@ -974,7 +974,7 @@ static void ParseRawBrush(qboolean onlyLights)
 			sprintf(shader, "%s", name);
 		else
 			sprintf(shader, "textures/%s", name);
-		
+
 		if(onlyLights)
 			si = &shaderInfo[0];
 		else
@@ -1508,7 +1508,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	/* eof check */
 	if(!GetToken(qtrue))
 		return qfalse;
-		
+
 	/* Tr3B: Version check for newer .map formats */
 	if(!strcmp(token, "Version"))
 	{
@@ -1537,8 +1537,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	{
 		Sys_Printf("WARNING: ParseEntity: { not found, found %s - last entity was at: <%4.2f, %4.2f, %4.2f>...\n"
 				   "Continuing to process map, but resulting BSP may be invalid.\n",
-				   token, entities[numEntities].origin[0], entities[numEntities].origin[1],
-				   entities[numEntities].origin[2]);
+				   token, entities[numEntities].origin[0], entities[numEntities].origin[1], entities[numEntities].origin[2]);
 		return qfalse;
 	}
 
@@ -1764,13 +1763,13 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		patch->lightmapScale = lightmapScale;
 		patch->celShader = celShader;
 	}
-	
+
 	/* Tr3B: convert Doom3's func_static entities with custom models into misc_models */
 	if(!Q_stricmp("func_static", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
-		SetKeyValue(mapEnt, "classname", "misc_model");	
+		SetKeyValue(mapEnt, "classname", "misc_model");
 	}
-	
+
 #if 0
 	// HACK: we should support Doom3 style doors in engine code but get rid of them for now
 	if(!Q_stricmp("func_door", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
@@ -1779,7 +1778,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		return qtrue;
 	}
 #endif
-	
+
 #if 0
 	// HACK:
 	if(!Q_stricmp("func_rotating", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
@@ -1788,21 +1787,21 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		return qtrue;
 	}
 #endif
-	
+
 #if 1
 	// HACK: determine if this is a func_static that can be merged into worldspawn
 	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
 	{
 		brush_t        *brush;
 		vec3_t          originNeg;
-		
-		#if 1
+
+#if 1
 		VectorNegate(mapEnt->origin, originNeg);
 		AdjustBrushesForOrigin(mapEnt, originNeg);
-		#else
+#else
 		AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
-		#endif
-		
+#endif
+
 		// NOTE: func_static entities should always contain detail brushes
 		for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 		{
@@ -1814,16 +1813,16 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 				brush->compileFlags |= C_DETAIL;
 			}
 		}
-		
+
 #if 0
 		if(!strcmp("0", ValueForKey(mapEnt, "solid")))
 		{
-			side_t *s;
+			side_t         *s;
 
 			for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
 			{
 				ApplySurfaceParm("nonsolid", &brush->contentFlags, NULL, &brush->compileFlags);
-				
+
 				/* set the content/compile flags for every side in the brush */
 				for(i = 0, s = &brush->sides[0]; i < brush->numsides; i++, s++)
 				{
@@ -1836,19 +1835,19 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 			}
 		}
 #endif
-		
+
 		MoveBrushesToWorld(mapEnt);
 		MovePatchesToWorld(mapEnt);
-		
+
 		c_mergedFuncStatics++;
 		numEntities--;
 		return qtrue;
 	}
 #endif
-	
+
 	/* get entity origin and adjust brushes */
 	if(mapEnt->origin[0] || mapEnt->origin[1] || mapEnt->origin[2])
-	{		
+	{
 		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))
 		{
 			AdjustBrushesForOrigin(mapEnt, vec3_origin);

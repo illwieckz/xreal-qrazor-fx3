@@ -261,7 +261,7 @@ static int ArenaServers_MaxPing(void)
 ArenaServers_Compare
 =================
 */
-static int      QDECL ArenaServers_Compare(const void *arg1, const void *arg2)
+static int QDECL ArenaServers_Compare(const void *arg1, const void *arg2)
 {
 	float           f1;
 	float           f2;
@@ -1303,7 +1303,7 @@ static void ArenaServers_MenuDraw(void)
 ArenaServers_MenuKey
 =================
 */
-static          sfxHandle_t ArenaServers_MenuKey(int key)
+static sfxHandle_t ArenaServers_MenuKey(int key)
 {
 	if(key == K_SPACE && g_arenaservers.refreshservers)
 	{

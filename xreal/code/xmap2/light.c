@@ -2260,7 +2260,7 @@ int LightMain(int argc, char **argv)
 	value = ValueForKey(&entities[0], "_keepLights");
 	if(value[0] != '1')
 		LoadMapFile(mapSource, qtrue);
-		
+
 	/* Tr3B: tell the .bsp wether we have deluxe mapping support or not */
 	if(deluxemap)
 		SetKeyValue(&entities[0], "deluxeMapping", "1");

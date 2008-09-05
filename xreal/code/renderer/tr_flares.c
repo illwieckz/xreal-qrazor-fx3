@@ -441,7 +441,7 @@ void RB_RenderFlares(void)
 	flare_t        *f;
 	flare_t       **prev;
 	qboolean        draw;
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	if(!r_flares->integer)
 		return;
@@ -521,8 +521,9 @@ void RB_RenderFlares(void)
 
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-		backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-		backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 

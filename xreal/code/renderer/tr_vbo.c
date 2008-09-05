@@ -467,8 +467,8 @@ R_InitVBOs
 */
 void R_InitVBOs(void)
 {
-	int				dataSize;	
-	byte		   *data;
+	int             dataSize;
+	byte           *data;
 
 	Com_InitGrowList(&tr.vbos, 100);
 	Com_InitGrowList(&tr.ibos, 100);

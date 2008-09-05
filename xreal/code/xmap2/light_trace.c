@@ -1191,7 +1191,7 @@ static void PopulateTraceNodes(void)
 		/* get "angle" (yaw) or "angles" (pitch yaw roll) */
 		MatrixIdentity(rotation);
 		angles[0] = angles[1] = angles[2] = 0.0f;
-		
+
 		value = ValueForKey(e, "angle");
 		if(value[0] != '\0')
 		{
@@ -1212,7 +1212,7 @@ static void PopulateTraceNodes(void)
 			sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 				   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
 		}
-		
+
 		/* get scale */
 		scale[0] = scale[1] = scale[2] = 1.0f;
 		temp = FloatForKey(e, "modelscale");
@@ -1221,13 +1221,13 @@ static void PopulateTraceNodes(void)
 		value = ValueForKey(e, "modelscale_vec");
 		if(value[0] != '\0')
 			sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
-			
+
 		MatrixMultiplyScale(rotation, scale[0], scale[1], scale[2]);
 
 		/* set transform matrix */
 		MatrixIdentity(transform);
 		MatrixSetupTransformFromRotation(transform, rotation, origin);
-		
+
 		//% m4x4_pivoted_transform_by_vec3(transform, origin, angles, eXYZ, scale, vec3_origin);
 
 		/* get model */

@@ -1158,7 +1158,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			if(v->numWeights > MAX_WEIGHTS)
 			{
 				ri.Error(ERR_DROP, "R_LoadMD5: vertex %i requires more than %i weights on surface (%i) in model '%s'",
-					 j, MAX_WEIGHTS, i, modName);
+						 j, MAX_WEIGHTS, i, modName);
 			}
 		}
 
@@ -1328,7 +1328,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 				for(k = 0; k < 3; k++)
 				{
-					float *v;
+					float          *v;
 
 					v = surf->verts[tri->indexes[k]].tangent;
 					VectorAdd(v, tangent, v);
@@ -1384,9 +1384,9 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			GLuint          ofsBinormals;
 			GLuint          ofsNormals;
 			GLuint          ofsColors;
-			GLuint			ofsBoneIndexes;
-			GLuint			ofsBoneWeights;
-	
+			GLuint          ofsBoneIndexes;
+			GLuint          ofsBoneWeights;
+
 			int             indexesNum;
 			byte           *indexes;
 			int             indexesSize;
@@ -1399,7 +1399,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 
 			srfVBOMD5Mesh_t *vboSurf;
 
-			vec4_t           tmpColor = { 1, 1, 1, 1 };
+			vec4_t          tmpColor = { 1, 1, 1, 1 };
 
 			vertexesNum = surf->numVerts;
 			indexesNum = surf->numTriangles * 3;
@@ -1444,7 +1444,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-			
+
 			// feed vertex texcoords
 			ofsTexCoords = dataOfs;
 			for(j = 0; j < vertexesNum; j++)
@@ -1458,7 +1458,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-				
+
 			// feed vertex tangents
 			ofsTangents = dataOfs;
 			for(j = 0; j < vertexesNum; j++)
@@ -1536,7 +1536,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 				memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
 				dataOfs += sizeof(vec4_t);
 			}
-				
+
 			vboSurf->vbo = R_CreateStaticVBO(va("staticMD5Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize);
 			vboSurf->vbo->ofsXYZ = 0;
 			vboSurf->vbo->ofsTexCoords = ofsTexCoords;
@@ -1657,8 +1657,8 @@ void RE_BeginRegistration(glConfig_t * glconfigOut)
 	R_SyncRenderThread();
 
 	tr.visIndex = 0;
-	memset(tr.visClusters, -2, sizeof(tr.visClusters));		// force markleafs to regenerate
-	
+	memset(tr.visClusters, -2, sizeof(tr.visClusters));	// force markleafs to regenerate
+
 	R_ClearFlares();
 	RE_ClearScene();
 

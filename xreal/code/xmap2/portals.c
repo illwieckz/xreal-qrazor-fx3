@@ -668,7 +668,7 @@ qboolean FloodEntities(tree_t * tree)
 		GetVectorForKey(e, "origin", origin);
 		if(VectorCompare(origin, vec3_origin))
 			continue;
-			
+
 		// Tr3B - some entities may have this epair
 		if(!strcmp("1", ValueForKey(&entities[i], "noflood")))
 			continue;
@@ -698,7 +698,7 @@ qboolean FloodEntities(tree_t * tree)
 				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
 					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
 			}
-			
+
 			/* get scale */
 			VectorSet(scale, 64.0f, 64.0f, 64.0f);
 			value = ValueForKey(e, "_scale");
@@ -710,14 +710,14 @@ qboolean FloodEntities(tree_t * tree)
 					scale[1] = scale[0];
 					scale[2] = scale[0];
 				}
-				
+
 				MatrixMultiplyScale(rotation, scale[0], scale[1], scale[2]);
 			}
 
 			/* set transform matrix */
 			MatrixIdentity(skyboxTransform);
 			MatrixSetupTransformFromRotation(skyboxTransform, rotation, origin);
-			
+
 			//% m4x4_pivoted_transform_by_vec3(skyboxTransform, offset, angles, eXYZ, scale, origin);
 		}
 		else

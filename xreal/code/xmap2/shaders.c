@@ -939,7 +939,7 @@ static void ParseShaderFile(const char *filename)
 			GetToken(qtrue);
 
 			Sys_FPrintf(SYS_VRB, "shader '%s' is guided\n", token);
-			
+
 			//si = AllocShaderInfo();
 			//strcpy(si->shader, token);
 
@@ -1055,7 +1055,7 @@ static void ParseShaderFile(const char *filename)
 				if(!Q_stricmp(token, "none") || !Q_stricmp(token, "disable") || !Q_stricmp(token, "twosided"))
 					si->twoSided = qtrue;
 			}
-			
+
 			/* Tr3B: forceOpaque will override translucent */
 			if(!Q_stricmp(token, "forceOpaque"))
 			{
@@ -1214,7 +1214,7 @@ static void ParseShaderFile(const char *filename)
 				GetToken(qfalse);
 				GetToken(qfalse);
 			}
-			
+
 			/* Tr3B: check if this shader has shortcut passes */
 			if(!Q_stricmp(token, "diffusemap") || !Q_stricmp(token, "bumpmap") || !Q_stricmp(token, "specularmap"))
 			{
@@ -1903,7 +1903,7 @@ static void ParseShaderFile(const char *filename)
 						;		//%    Sys_Printf( "WARNING: Unknown xmap_* directive \"%s\"\n", token );
 				}
 			}
-			
+
 			/* -----------------------------------------------------------------
 			   surfaceparm * directives
 			   ----------------------------------------------------------------- */
@@ -1931,7 +1931,7 @@ static void ParseShaderFile(const char *filename)
 				GetToken(qfalse);
 			}
 		}
-		
+
 		if(!si->hasPasses)
 		{
 			Sys_FPrintf(SYS_VRB, "shader '%s' has no passes\n", si->shader);
@@ -1943,7 +1943,7 @@ static void ParseShaderFile(const char *filename)
 			{
 				ApplySurfaceParm("nodraw", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
 			}
-			
+
 			if(!si->forceOpaque)
 			{
 				ApplySurfaceParm("translucent", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);

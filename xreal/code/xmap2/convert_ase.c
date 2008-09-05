@@ -155,7 +155,7 @@ static void ConvertSurface(FILE * f, bspModel_t * model, int modelNum, bspDrawSu
 	fprintf(f, "\t\t}\r\n");
 
 	/* export extra lightmap coordinates */
-	
+
 	fprintf(f, "\t\t*MESH_MAPPINGCHANNEL\t2\r\n");
 
 	/* export vertex st */
@@ -357,7 +357,7 @@ exports a bsp light to an ase chunk
 static void ConvertLight(FILE * f, entity_t * e, int lightNum)
 {
 	const char     *value;
-	char			name[1024];
+	char            name[1024];
 	vec3_t          origin, color;
 
 	/* get light origin */

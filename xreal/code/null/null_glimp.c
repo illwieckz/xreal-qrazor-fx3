@@ -22,14 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderer/tr_local.h"
 
 
-qboolean        (*qwglSwapIntervalEXT) (int interval);
-void            (*qglMultiTexCoord2fARB) (GLenum texture, float s, float t);
+qboolean(*qwglSwapIntervalEXT) (int interval);
 void            (*qglActiveTextureARB) (GLenum texture);
-void            (*qglClientActiveTextureARB) (GLenum texture);
-
-
-void            (*qglLockArraysEXT) (int, int);
-void            (*qglUnlockArraysEXT) (void);
 
 
 void GLimp_EndFrame(void)

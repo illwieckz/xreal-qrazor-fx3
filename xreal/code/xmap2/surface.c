@@ -3116,11 +3116,11 @@ int AddSurfaceModelsToTriangle_r(mapDrawSurface_t * ds, surfaceModel_t * model, 
 			{
 				/* set angles */
 				VectorSet(angles, 0.0f, 0.0f, angle);
-				MatrixFromAngles(temp, angles[PITCH], angles[YAW], angles[ROLL]);				
+				MatrixFromAngles(temp, angles[PITCH], angles[YAW], angles[ROLL]);
 
 				/* set matrix */
 				MatrixSetupTransformFromRotation(transform, temp, origin);
-				
+
 				//% m4x4_pivoted_transform_by_vec3(transform, origin, angles, eXYZ, scale, vec3_origin);
 			}
 

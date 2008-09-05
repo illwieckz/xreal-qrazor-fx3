@@ -114,13 +114,13 @@ typedef struct trRefLight_s
 	refLight_t      l;
 
 	// local
-	qboolean        isStatic;			// loaded from the BSP entities lump
-	qboolean        noRadiosity;		// this is a pure realtime light that was not considered by XMap2
-	qboolean        additive;			// texture detail is lost tho when the lightmap is dark
-	vec3_t          origin;				// l.origin + rotated l.center
-	vec3_t          transformed;		// origin in local coordinate system
+	qboolean        isStatic;	// loaded from the BSP entities lump
+	qboolean        noRadiosity;	// this is a pure realtime light that was not considered by XMap2
+	qboolean        additive;	// texture detail is lost tho when the lightmap is dark
+	vec3_t          origin;		// l.origin + rotated l.center
+	vec3_t          transformed;	// origin in local coordinate system
 	matrix_t        transformMatrix;	// light to world
-	matrix_t        viewMatrix;			// object to light
+	matrix_t        viewMatrix;	// object to light
 	matrix_t        projectionMatrix;	// light frustum
 
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
@@ -275,8 +275,8 @@ typedef struct FBO_s
 	GLuint          stencilBuffer;
 	int             stencilFormat;
 
-	GLuint			packedDepthStencilBuffer;
-	int				packedDepthStencilFormat;
+	GLuint          packedDepthStencilBuffer;
+	int             packedDepthStencilFormat;
 
 	int             width;
 	int             height;
@@ -287,7 +287,7 @@ typedef struct VBO_s
 	char            name[MAX_QPATH];
 
 	GLuint          vertexesVBO;
-	int             vertexesSize; // amount of memory data allocated for all vertices in bytes
+	int             vertexesSize;	// amount of memory data allocated for all vertices in bytes
 	GLuint          ofsXYZ;
 	GLuint          ofsTexCoords;
 	GLuint          ofsLightCoords;
@@ -295,8 +295,8 @@ typedef struct VBO_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
-	GLuint			ofsBoneIndexes;
-	GLuint			ofsBoneWeights;
+	GLuint          ofsBoneIndexes;
+	GLuint          ofsBoneWeights;
 
 	int             attribs;
 } VBO_t;
@@ -307,7 +307,7 @@ typedef struct IBO_s
 
 	GLuint          indexesVBO;
 	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
-//	GLuint          ofsIndexes;
+//  GLuint          ofsIndexes;
 } IBO_t;
 
 //===============================================================================
@@ -798,7 +798,7 @@ enum
 	ATTR_INDEX_POSITION = 0,
 	ATTR_INDEX_TEXCOORD0 = 8,
 	ATTR_INDEX_TEXCOORD1 = 9,
-//	ATTR_INDEX_TEXCOORD2 = 10,
+//  ATTR_INDEX_TEXCOORD2 = 10,
 //  ATTR_INDEX_TEXCOORD3 = 11,
 	ATTR_INDEX_TANGENT = 12,
 	ATTR_INDEX_BINORMAL = 13,
@@ -869,7 +869,7 @@ typedef struct shaderProgram_s
 
 	GLint           u_FogDensity;
 	GLint           u_FogColor;
-	
+
 	GLint           u_SSAOJitter;
 	GLint           u_SSAORadius;
 
@@ -883,16 +883,16 @@ typedef struct shaderProgram_s
 	GLint           u_ModelMatrix;
 	GLint           u_ViewMatrix;
 	GLint           u_ModelViewMatrix;
-	GLint			u_ModelViewMatrixTranspose;
-	GLint			u_ProjectionMatrix;
+	GLint           u_ModelViewMatrixTranspose;
+	GLint           u_ProjectionMatrix;
 	GLint           u_ProjectionMatrixTranspose;
-	GLint			u_ModelViewProjectionMatrix;
-	
+	GLint           u_ModelViewProjectionMatrix;
+
 	GLint           u_UnprojectMatrix;
 	GLint           u_ProjectMatrix;
 
-	GLint			u_VertexSkinning;
-	GLint			u_BoneMatrix;
+	GLint           u_VertexSkinning;
+	GLint           u_BoneMatrix;
 } shaderProgram_t;
 
 
@@ -965,7 +965,7 @@ typedef struct
 
 	cplane_t        portalPlane;	// clip anything behind this if mirroring
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
-	vec4_t			viewportVerts[4];	// for immediate 2D quad rendering
+	vec4_t          viewportVerts[4];	// for immediate 2D quad rendering
 
 	float           fovX, fovY;
 	matrix_t        projectionMatrix;
@@ -1222,7 +1222,7 @@ typedef struct srfVBOMesh_s
 	surfaceType_t   surfaceType;
 
 	struct shader_s *shader;	// FIXME move this to somewhere else
-	int				lightmapNum;// FIXME get rid of this by merging all lightmaps at level load
+	int             lightmapNum;	// FIXME get rid of this by merging all lightmaps at level load
 
 	// culling information
 	vec3_t          bounds[2];
@@ -1363,8 +1363,8 @@ typedef struct
 
 	int             numVerts;
 	srfVert_t      *verts;
-	int				redundantVertsCalculationNeeded;
-	int            *redundantLightVerts;		// util to optimize IBOs
+	int             redundantVertsCalculationNeeded;
+	int            *redundantLightVerts;	// util to optimize IBOs
 	int            *redundantShadowVerts;
 	int            *redundantShadowAlphaTestVerts;
 	VBO_t          *vbo;
@@ -1372,11 +1372,11 @@ typedef struct
 	int             numTriangles;
 	srfTriangle_t  *triangles;
 
-//	int             numAreas;
-//	bspArea_t      *areas;
+//  int             numAreas;
+//  bspArea_t      *areas;
 
-//	int             numAreaPortals;
-//	bspAreaPortal_t *areaPortals;
+//  int             numAreaPortals;
+//  bspAreaPortal_t *areaPortals;
 
 	int             numWorldSurfaces;
 
@@ -1495,11 +1495,11 @@ typedef struct
 
 typedef struct
 {
-	vec3_t			position;
+	vec3_t          position;
 	vec2_t          texCoords;
-	vec3_t			tangent;
-	vec3_t			binormal;
-	vec3_t			normal;
+	vec3_t          tangent;
+	vec3_t          binormal;
+	vec3_t          normal;
 
 	int             firstWeight;
 	int             numWeights;
@@ -1540,7 +1540,7 @@ typedef struct
 	int             parentIndex;	// parent index (-1 if root)
 	vec3_t          origin;
 	quat_t          rotation;
-	matrix_t        inverseTransform; // full inverse for tangent space transformation
+	matrix_t        inverseTransform;	// full inverse for tangent space transformation
 } md5Bone_t;
 
 typedef struct md5Model_s
@@ -1552,7 +1552,7 @@ typedef struct md5Model_s
 	md5Surface_t   *surfaces;
 
 	int             numVBOSurfaces;
-	srfVBOMD5Mesh_t  **vboSurfaces;
+	srfVBOMD5Mesh_t **vboSurfaces;
 
 	vec3_t          bounds[2];
 } md5Model_t;
@@ -1709,11 +1709,11 @@ typedef struct
 {
 	int             currenttextures[32];
 	int             currenttmu;
-//	matrix_t        textureMatrix[32];
+//  matrix_t        textureMatrix[32];
 
-	int				stackIndex;
-//	matrix_t        modelMatrix[MAX_GLSTACK];
-//	matrix_t        viewMatrix[MAX_GLSTACK];
+	int             stackIndex;
+//  matrix_t        modelMatrix[MAX_GLSTACK];
+//  matrix_t        viewMatrix[MAX_GLSTACK];
 	matrix_t        modelViewMatrix[MAX_GLSTACK];
 	matrix_t        projectionMatrix[MAX_GLSTACK];
 	matrix_t        modelViewProjectionMatrix[MAX_GLSTACK];
@@ -1795,7 +1795,7 @@ typedef struct
 {
 	qboolean        registered;	// cleared at shutdown, set at beginRegistration
 
-	int				visIndex;
+	int             visIndex;
 	int             visClusters[MAX_VISCOUNTS];
 	int             visCounts[MAX_VISCOUNTS];	// incremented every time a new vis cluster is entered
 
@@ -1950,8 +1950,8 @@ typedef struct
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;
 
-	vec3_t			fogColor;
-	float			fogDensity;
+	vec3_t          fogColor;
+	float           fogDensity;
 
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
@@ -2006,7 +2006,7 @@ extern trGlobals_t tr;
 extern glConfig_t glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
-extern float     displayAspect;	// FIXME
+extern float    displayAspect;	// FIXME
 
 
 //
@@ -2271,7 +2271,7 @@ void            R_CalcTangentSpace2(vec3_t tangent, vec3_t binormal, vec3_t norm
 									const vec3_t v0, const vec3_t v1, const vec3_t v2,
 									const vec2_t t0, const vec2_t t1, const vec2_t t2);
 
-qboolean		R_CalcTangentVectors(srfVert_t *dv[3]);
+qboolean        R_CalcTangentVectors(srfVert_t * dv[3]);
 
 void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
 void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
@@ -2288,15 +2288,15 @@ void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const
 void            GL_Bind(image_t * image);
 void            BindAnimatedImage(textureBundle_t * bundle);
 void            GL_TextureFilter(image_t * image, filterType_t filterType);
-void			GL_BindProgram(shaderProgram_t * program);
-void			GL_BindNullProgram(void);
+void            GL_BindProgram(shaderProgram_t * program);
+void            GL_BindNullProgram(void);
 void            GL_SetDefaultState(void);
 void            GL_SelectTexture(int unit);
 void            GL_TextureMode(const char *string);
 void            GL_LoadModelViewMatrix(const matrix_t m);
-void			GL_LoadProjectionMatrix(const matrix_t m);
-void			GL_PushMatrix();
-void			GL_PopMatrix();
+void            GL_LoadProjectionMatrix(const matrix_t m);
+void            GL_PushMatrix();
+void            GL_PopMatrix();
 
 void            GL_CheckErrors_(const char *filename, int line);
 
@@ -2496,7 +2496,7 @@ typedef byte    color4ub_t[4];
 typedef struct stageVars
 {
 	vec4_t          color;
-	qboolean		texMatricesChanged[MAX_TEXTURE_BUNDLES];
+	qboolean        texMatricesChanged[MAX_TEXTURE_BUNDLES];
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
 
@@ -2529,7 +2529,7 @@ typedef struct shaderCommands_s
 	int             numIndexes;
 	int             numVertexes;
 
-	qboolean		vboVertexSkinning;
+	qboolean        vboVertexSkinning;
 	matrix_t        boneMatrices[MAX_BONES];
 
 	// info extracted from current shader or backend mode
@@ -2553,7 +2553,7 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 							int lightmapNum);
 // *INDENT-ON*
 void            Tess_End(void);
-void			Tess_DrawElements();
+void            Tess_DrawElements();
 void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_ComputeColor(shaderStage_t * pStage);
@@ -2573,7 +2573,7 @@ void            Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s
 void            Tess_AddQuadStamp2(vec4_t quadVerts[4], vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
-void			Tess_UpdateVBOs();
+void            Tess_UpdateVBOs();
 
 void            RB_ShowImages(void);
 
@@ -2628,7 +2628,8 @@ void            R_SetupLightView(trRefLight_t * light);
 void            R_SetupLightFrustum(trRefLight_t * light);
 void            R_SetupLightProjection(trRefLight_t * light);
 
-qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, byte cubeSideBits, interactionType_t iaType);
+qboolean        R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, shader_t * surfaceShader, byte cubeSideBits,
+									  interactionType_t iaType);
 
 void            R_SortInteractions(trRefLight_t * light);
 

@@ -238,7 +238,7 @@ void ParsePatch(qboolean onlyLights, qboolean patchDef3)
 		Parse1DMatrix(7, info);
 	else
 		Parse1DMatrix(5, info);
-	
+
 	m.width = info[0];
 	m.height = info[1];
 	m.verts = verts = safe_malloc(m.width * m.height * sizeof(m.verts[0]));
@@ -357,7 +357,7 @@ void ParsePatch(qboolean onlyLights, qboolean patchDef3)
 		sprintf(shader, "%s", texture);
 	else
 		sprintf(shader, "textures/%s", texture);
-	
+
 	pm->shaderInfo = ShaderInfoForShader(shader);
 
 	/* set mesh */

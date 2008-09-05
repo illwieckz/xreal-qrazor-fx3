@@ -397,7 +397,7 @@ void            SV_BotFreeClient(int clientNum);
 
 int             SV_BotGetSnapshotEntity(int client, int ent);
 int             SV_BotGetConsoleMessage(int client, char *buf, int size);
-void			SV_BotClientCommand(int client, char *command);
+void            SV_BotClientCommand(int client, char *command);
 
 //============================================================
 //

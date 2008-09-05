@@ -189,7 +189,8 @@ void GL_LoadModelViewMatrix(const matrix_t m)
 
 
 	MatrixCopy(m, glState.modelViewMatrix[glState.stackIndex]);
-	MatrixMultiply(glState.projectionMatrix[glState.stackIndex], glState.modelViewMatrix[glState.stackIndex], glState.modelViewProjectionMatrix[glState.stackIndex]);
+	MatrixMultiply(glState.projectionMatrix[glState.stackIndex], glState.modelViewMatrix[glState.stackIndex],
+				   glState.modelViewProjectionMatrix[glState.stackIndex]);
 }
 
 void GL_LoadProjectionMatrix(const matrix_t m)
@@ -202,7 +203,8 @@ void GL_LoadProjectionMatrix(const matrix_t m)
 #endif
 
 	MatrixCopy(m, glState.projectionMatrix[glState.stackIndex]);
-	MatrixMultiply(glState.projectionMatrix[glState.stackIndex], glState.modelViewMatrix[glState.stackIndex], glState.modelViewProjectionMatrix[glState.stackIndex]);
+	MatrixMultiply(glState.projectionMatrix[glState.stackIndex], glState.modelViewMatrix[glState.stackIndex],
+				   glState.modelViewProjectionMatrix[glState.stackIndex]);
 }
 
 void GL_PushMatrix()
@@ -211,7 +213,7 @@ void GL_PushMatrix()
 
 	if(glState.stackIndex >= MAX_GLSTACK)
 	{
-		glState.stackIndex = MAX_GLSTACK -1;
+		glState.stackIndex = MAX_GLSTACK - 1;
 		ri.Error(ERR_DROP, "GL_PushMatrix: stack overflow = %i", glState.stackIndex);
 	}
 }
@@ -449,36 +451,36 @@ void GL_State(unsigned long stateBits)
 
 	// alpha test - deprecated in OpenGL 3.0
 	/*
-	if(diff & GLS_ATEST_BITS)
-	{
-		switch (stateBits & GLS_ATEST_BITS)
-		{
-			case 0:
-				qglDisable(GL_ALPHA_TEST);
-				break;
-			case GLS_ATEST_GT_0:
-				qglEnable(GL_ALPHA_TEST);
-				qglAlphaFunc(GL_GREATER, 0.0f);
-				break;
-			case GLS_ATEST_LT_80:
-				qglEnable(GL_ALPHA_TEST);
-				qglAlphaFunc(GL_LESS, 0.5f);
-				break;
-			case GLS_ATEST_GE_80:
-				qglEnable(GL_ALPHA_TEST);
-				qglAlphaFunc(GL_GEQUAL, 0.5f);
-				break;
-			case GLS_ATEST_GT_CUSTOM:
-				// FIXME
-				qglEnable(GL_ALPHA_TEST);
-				qglAlphaFunc(GL_GREATER, 0.5f);
-				break;
-			default:
-				assert(0);
-				break;
-		}
-	}
-	*/
+	   if(diff & GLS_ATEST_BITS)
+	   {
+	   switch (stateBits & GLS_ATEST_BITS)
+	   {
+	   case 0:
+	   qglDisable(GL_ALPHA_TEST);
+	   break;
+	   case GLS_ATEST_GT_0:
+	   qglEnable(GL_ALPHA_TEST);
+	   qglAlphaFunc(GL_GREATER, 0.0f);
+	   break;
+	   case GLS_ATEST_LT_80:
+	   qglEnable(GL_ALPHA_TEST);
+	   qglAlphaFunc(GL_LESS, 0.5f);
+	   break;
+	   case GLS_ATEST_GE_80:
+	   qglEnable(GL_ALPHA_TEST);
+	   qglAlphaFunc(GL_GEQUAL, 0.5f);
+	   break;
+	   case GLS_ATEST_GT_CUSTOM:
+	   // FIXME
+	   qglEnable(GL_ALPHA_TEST);
+	   qglAlphaFunc(GL_GREATER, 0.5f);
+	   break;
+	   default:
+	   assert(0);
+	   break;
+	   }
+	   }
+	 */
 
 	// stenciltest
 	if(diff & GLS_STENCILTEST_ENABLE)
@@ -499,10 +501,10 @@ void GL_State(unsigned long stateBits)
 void GL_ClientState(unsigned long stateBits)
 {
 	unsigned long   diff;
-		
+
 	if(r_vboVertexSkinning->integer && tess.vboVertexSkinning)
 		stateBits |= (GLCS_BONE_INDEXES | GLCS_BONE_WEIGHTS);
-	
+
 	diff = stateBits ^ glState.glClientStateBits;
 
 	if(!diff)
@@ -515,7 +517,7 @@ void GL_ClientState(unsigned long stateBits)
 	   {
 	   if(stateBits & GLCS_VERTEX)
 	   {
-	  qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
+	   qglEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 	   }
 	   else
 	   {
@@ -668,7 +670,7 @@ RB_SetGL2D
 */
 static void RB_SetGL2D(void)
 {
-	matrix_t		proj;
+	matrix_t        proj;
 
 	GLimp_LogComment("--- RB_SetGL2D ---\n");
 
@@ -1496,7 +1498,8 @@ static void RB_RenderInteractionsStencilShadowed()
 
 			if(drawShadows && !light->l.noShadows)
 			{
-				qglUniformMatrix4fvARB(tr.shadowExtrudeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+				qglUniformMatrix4fvARB(tr.shadowExtrudeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+									   glState.modelViewProjectionMatrix[glState.stackIndex]);
 			}
 
 			// change depthrange if needed
@@ -2569,8 +2572,8 @@ void RB_RenderInteractionsDeferred()
 	vec4_t          lightColor;
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
-	matrix_t		ortho;
-	vec4_t			quadVerts[4];
+	matrix_t        ortho;
+	vec4_t          quadVerts[4];
 	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferred ---\n");
@@ -2588,8 +2591,9 @@ void RB_RenderInteractionsDeferred()
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
@@ -2709,7 +2713,8 @@ void RB_RenderInteractionsDeferred()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
@@ -2771,7 +2776,8 @@ void RB_RenderInteractionsDeferred()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_LightAttenuationMatrix, 1, GL_FALSE,
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_proj.u_LightFrustum, 6, &lightFrustum[0][0]);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
@@ -2880,8 +2886,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	vec4_t          lightFrustum[6];
 	cplane_t       *frust;
 	qboolean        shadowCompare;
-	matrix_t		ortho;
-	vec4_t			quadVerts[4];
+	matrix_t        ortho;
+	vec4_t          quadVerts[4];
 	int             startTime = 0, endTime = 0;
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredShadowMapped ---\n");
@@ -3217,8 +3223,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				// set 2D virtual screen size
 				GL_PushMatrix();
 				MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-					backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-					backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+												backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+												backEnd.viewParms.viewportY,
+												backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 				GL_LoadProjectionMatrix(ortho);
 				GL_LoadModelViewMatrix(matrixIdentity);
 
@@ -3276,7 +3283,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 											   light->attenuationMatrix2);
 						qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowCompare, shadowCompare);
-						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
@@ -3347,7 +3355,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE,
 												   light->attenuationMatrix);
 							qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowCompare, shadowCompare);
-							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+												   glState.modelViewProjectionMatrix[glState.stackIndex]);
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
@@ -3374,7 +3383,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							// draw lighting
 							VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
 							VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-							VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0,
+									   1);
 							VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 							Tess_InstantQuad(quadVerts);
 						}
@@ -3407,7 +3417,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ShadowMatrix, 1, GL_FALSE,
 												   light->attenuationMatrix);
 							qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowCompare, shadowCompare);
-							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+												   glState.modelViewProjectionMatrix[glState.stackIndex]);
 							qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
@@ -3446,7 +3457,8 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							// draw lighting
 							VectorSet4(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
 							VectorSet4(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-							VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
+							VectorSet4(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0,
+									   1);
 							VectorSet4(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 							Tess_InstantQuad(quadVerts);
 						}
@@ -3765,7 +3777,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 //  static vec3_t   jitter[32];
 //  static qboolean jitterInit = qfalse;
 //  matrix_t        projectMatrix;
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderScreenSpaceAmbientOcclusion ---\n");
 
@@ -3837,12 +3849,14 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.screenSpaceAmbientOcclusionShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -3855,7 +3869,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 
 void RB_RenderDepthOfField(qboolean deferred)
 {
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderDepthOfField ---\n");
 
@@ -3895,12 +3909,14 @@ void RB_RenderDepthOfField(qboolean deferred)
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.depthOfFieldShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.depthOfFieldShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -3916,7 +3932,7 @@ void RB_RenderUniformFog(qboolean deferred)
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderUniformFog ---\n");
 
@@ -3981,12 +3997,14 @@ void RB_RenderUniformFog(qboolean deferred)
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.uniformFogShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.uniformFogShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// draw viewport
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -3999,7 +4017,7 @@ void RB_RenderUniformFog(qboolean deferred)
 
 void RB_RenderBloom(void)
 {
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
@@ -4009,8 +4027,9 @@ void RB_RenderBloom(void)
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
@@ -4024,7 +4043,8 @@ void RB_RenderBloom(void)
 		GL_BindProgram(&tr.contrastShader);
 		GL_ClientState(tr.contrastShader.attribs);
 
-		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+							   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		GL_SelectTexture(0);
 		GL_Bind(tr.currentRenderImage);
@@ -4038,7 +4058,8 @@ void RB_RenderBloom(void)
 		GL_BindProgram(&tr.bloomShader);
 		GL_ClientState(tr.bloomShader.attribs);
 
-		qglUniformMatrix4fvARB(tr.bloomShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		qglUniformMatrix4fvARB(tr.bloomShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+							   glState.modelViewProjectionMatrix[glState.stackIndex]);
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
 
 		/*
@@ -4086,7 +4107,7 @@ void RB_RenderBloom(void)
 	   tr.contrastRenderImage->uploadHeight);
 
 	   // draw viewport
-		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+	   Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
 	   // render blurY
 	   GL_BindProgram(tr.blurYShader.program);
@@ -4126,7 +4147,7 @@ void RB_RenderBloom(void)
 
 void RB_RenderRotoscope(void)
 {
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderRotoscope ---\n");
 
@@ -4136,8 +4157,9 @@ void RB_RenderRotoscope(void)
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
@@ -4148,7 +4170,8 @@ void RB_RenderRotoscope(void)
 	GL_BindProgram(&tr.rotoscopeShader);
 	GL_ClientState(tr.rotoscopeShader.attribs);
 
-	qglUniformMatrix4fvARB(tr.rotoscopeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.rotoscopeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 	qglUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
 
 	GL_SelectTexture(0);
@@ -4166,7 +4189,7 @@ void RB_RenderRotoscope(void)
 
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
-	matrix_t		ortho;
+	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderDeferredShadingResultToFrameBuffer ---\n");
 
@@ -4221,12 +4244,14 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	// set 2D virtual screen size
 	GL_PushMatrix();
 	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
@@ -4248,7 +4273,7 @@ void RB_RenderLightOcclusionQueries()
 		GLint           ocSamples = 0;
 		qboolean        queryObjects;
 		GLint           available;
-		vec4_t			quadVerts[4];
+		vec4_t          quadVerts[4];
 
 		qglVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
@@ -4301,7 +4326,8 @@ void RB_RenderLightOcclusionQueries()
 
 					R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 					GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
-					qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+					qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+										   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 					// begin the occlusion query
 					qglBeginQueryARB(GL_SAMPLES_PASSED, tr.occlusionQueryObjects[ocCount]);
@@ -4313,40 +4339,64 @@ void RB_RenderLightOcclusionQueries()
 							tess.numIndexes = 0;
 							tess.numVertexes = 0;
 
-							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2],
+									   1);
 							Tess_AddQuadStamp2(quadVerts, colorRed);
-							
-							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+
+							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2],
+									   1);
 							Tess_AddQuadStamp2(quadVerts, colorGreen);
 
-							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2],
+									   1);
 							Tess_AddQuadStamp2(quadVerts, colorBlue);
 
-							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2],
+									   1);
 							Tess_AddQuadStamp2(quadVerts, colorYellow);
 
-							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[1], light->localBounds[0][0], light->localBounds[0][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[2], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[3], light->localBounds[1][0], light->localBounds[0][1], light->localBounds[0][2],
+									   1);
 							Tess_AddQuadStamp2(quadVerts, colorMagenta);
 
-							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2], 1);
-							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2], 1);
-							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2], 1);
+							VectorSet4(quadVerts[0], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[0][2],
+									   1);
+							VectorSet4(quadVerts[1], light->localBounds[1][0], light->localBounds[1][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[2], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[1][2],
+									   1);
+							VectorSet4(quadVerts[3], light->localBounds[0][0], light->localBounds[1][1], light->localBounds[0][2],
+									   1);
 							Tess_AddQuadStamp2(quadVerts, colorCyan);
 
 							Tess_UpdateVBOs();
@@ -5136,8 +5186,8 @@ static void RB_RenderDebugUtils()
 	{
 		interaction_t  *ia;
 		int             iaCount;
-		matrix_t		ortho;
-		vec4_t			quadVerts[4];
+		matrix_t        ortho;
+		vec4_t          quadVerts[4];
 
 		GL_BindProgram(&tr.genericSingleShader);
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
@@ -5160,12 +5210,14 @@ static void RB_RenderDebugUtils()
 		// set 2D virtual screen size
 		GL_PushMatrix();
 		MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-			 backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-			 backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
+										backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+										backEnd.viewParms.viewportY,
+										backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight, -99999, 99999);
 		GL_LoadProjectionMatrix(ortho);
 		GL_LoadModelViewMatrix(matrixIdentity);
-		
-		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+							   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
@@ -5625,8 +5677,8 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	qglVertexAttrib4fARB(ATTR_INDEX_COLOR, tr.identityLight, tr.identityLight, tr.identityLight, 1);
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);// | GLCS_COLOR);
-	
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD);	// | GLCS_COLOR);
+
 	// set uniforms
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
 	if(r_vboVertexSkinning->integer)
@@ -5634,7 +5686,8 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 	}
 	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
-	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -5672,21 +5725,21 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 	}
 
 	/*
-	qglBegin(GL_QUADS);
-	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0.5f / cols, 0.5f / rows, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, (cols - 0.5f) / cols, 0.5f / rows, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, (cols - 0.5f) / cols, (rows - 0.5f) / rows, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y + h, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0.5f / cols, (rows - 0.5f) / rows, 0, 1);
-	qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y + h, 0, 1);
-	qglEnd();
-	*/
+	   qglBegin(GL_QUADS);
+	   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0.5f / cols, 0.5f / rows, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, (cols - 0.5f) / cols, 0.5f / rows, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, (cols - 0.5f) / cols, (rows - 0.5f) / rows, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y + h, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0.5f / cols, (rows - 0.5f) / rows, 0, 1);
+	   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y + h, 0, 1);
+	   qglEnd();
+	 */
 
 	tess.numVertexes = 0;
 	tess.numIndexes = 0;
-	
+
 	tess.xyz[tess.numVertexes][0] = x;
 	tess.xyz[tess.numVertexes][1] = y;
 	tess.xyz[tess.numVertexes][2] = 0;
@@ -5821,7 +5874,7 @@ RB_StretchPic
 */
 const void     *RB_StretchPic(const void *data)
 {
-	int				i;
+	int             i;
 	const stretchPicCommand_t *cmd;
 	shader_t       *shader;
 	int             numVerts, numIndexes;
@@ -5982,7 +6035,7 @@ void RB_ShowImages(void)
 	int             i;
 	image_t        *image;
 	float           x, y, w, h;
-	vec4_t			quadVerts[4];
+	vec4_t          quadVerts[4];
 	int             start, end;
 
 	GLimp_LogComment("--- RB_ShowImages ---\n");
@@ -5997,7 +6050,7 @@ void RB_ShowImages(void)
 	qglFinish();
 
 	GL_BindProgram(&tr.genericSingleShader);
-	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD |  GLCS_COLOR);
+	GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
@@ -6008,7 +6061,7 @@ void RB_ShowImages(void)
 	}
 	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
-	
+
 	GL_SelectTexture(0);
 
 	start = ri.Milliseconds();
@@ -6047,17 +6100,17 @@ void RB_ShowImages(void)
 		Tess_InstantQuad(quadVerts);
 
 		/*
-		qglBegin(GL_QUADS);
-		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0, 0, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 1, 0, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 1, 1, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y + h, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0, 1, 0, 1);
-		qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y + h, 0, 1);
-		qglEnd();
-		*/
+		   qglBegin(GL_QUADS);
+		   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0, 0, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 1, 0, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 1, 1, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x + w, y + h, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_TEXCOORD0, 0, 1, 0, 1);
+		   qglVertexAttrib4fARB(ATTR_INDEX_POSITION, x, y + h, 0, 1);
+		   qglEnd();
+		 */
 	}
 
 	qglFinish();

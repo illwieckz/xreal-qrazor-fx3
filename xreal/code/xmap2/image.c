@@ -439,15 +439,15 @@ image_t        *ImageLoad(const char *filename)
 									 image->height);
 						}
 					}
-#endif // dds debug
+#endif							// dds debug
 				}
-#endif // ignore dds
+#endif							// ignore dds
 			}
-#endif // ignore jpg dds
+#endif							// ignore jpg dds
 		}
-#endif // ignore png jpg dds
+#endif							// ignore png jpg dds
 	}
-#endif // ignore all images
+#endif							// ignore all images
 
 	/* free file buffer */
 	free(buffer);
