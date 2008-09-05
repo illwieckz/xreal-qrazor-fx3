@@ -1,7 +1,6 @@
 
 player/unlink_effect
 {
-
 	{
 		if(parm3 < 0.5)
 		stage	heathazemap
@@ -49,7 +48,6 @@ player/unlink_effect
 		scale 3*(  1.0 - ( ( (parm3 - 0.5) * 2 ) *3 )),  3*( 1.0 -( ( (parm3 - 0.5) * 2 ) * 3 ))
 		alpha   (1.0 - ( ( (parm3 - 0.5) * 2 ) ))*0.5
 	}
-
 } 
 
 

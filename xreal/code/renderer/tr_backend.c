@@ -3934,6 +3934,7 @@ void RB_RenderUniformFog(qboolean deferred)
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.uniformFogShader);
+	GL_ClientState(tr.uniformFogShader.attribs);
 
 	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	GL_Cull(CT_TWO_SIDED);

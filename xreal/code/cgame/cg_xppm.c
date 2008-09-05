@@ -1092,19 +1092,20 @@ void CG_XPPM_Player(centity_t * cent)
 
 	body.shaderRGBA[3] = 255 * cent->pe.deathScale;
 
-	// add body to renderer
-	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
-
-
 	// WIP: death effect
-
-	if(cent->pe.deathTime > 0){
+	if(cent->pe.deathTime > 0)
+	{
 		int time = (DEATHANIM_TIME - (cg.time - cent->pe.deathTime )) ;
 
 		cent->pe.deathScale = 1.0f - ( 1.0f / DEATHANIM_TIME * time ) ;
 
 		body.customShader = trap_R_RegisterShaderNoMip("player/unlink_effect");
 		trap_R_AddRefEntityToScene(&body);
+	}
+	else
+	{
+		// add body to renderer
+		CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
 	}
 
 

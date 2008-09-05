@@ -2172,7 +2172,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.media.charsetProp1Glow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	cgs.media.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 
-	//otty: register fonts here, otherwise CG_LoadingString wont work
+	// otty: register fonts here, otherwise CG_LoadingString wont work
 	trap_R_RegisterFont("fonts/FreeSansBold.ttf", 48, &cgs.media.freeSansBoldFont);
 	trap_R_RegisterFont("fonts/FreeSerifBold.ttf", 48, &cgs.media.freeSerifBoldFont);
 	trap_R_RegisterFont("fonts/SVBasicManual.ttf", 48, &cgs.media.hudMonoFont);

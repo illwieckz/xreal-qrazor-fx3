@@ -1060,27 +1060,26 @@ TODO: divide into sections ( lower, upper etc )
 void CG_DrawHudString( int x, int y, char *s, float size, int style, vec4_t color ){
 
 	int             w,h;
+	const fontInfo_t * font = &cgs.media.freeSerifBoldFont;
 
-	w = CG_Text_Width(s, size, 0, &cgs.media.hudMonoFont);
-	h = CG_Text_Height(s, size, 0, &cgs.media.hudMonoFont);
+	w = CG_Text_Width(s, size, 0, font);
+	h = CG_Text_Height(s, size, 0, font);
 
 	switch (style )
 	{
 		case UI_CENTER:
-			CG_Text_Paint(x - w/2 , y+h/2, size, color, s, 0, 0, 0, &cgs.media.hudMonoFont);
+			CG_Text_Paint(x - w/2 , y+h/2, size, color, s, 0, 0, 0, font);
 			break;
 
 		case UI_RIGHT:
-			CG_Text_Paint(x - w , y+h/2, size, color, s, 0, 0, 0, &cgs.media.hudMonoFont);
+			CG_Text_Paint(x - w , y+h/2, size, color, s, 0, 0, 0, font);
 			break;
 
 		case UI_LEFT:
 		default:
-			CG_Text_Paint(x , y+h/2, size, color, s, 0, 0, 0, &cgs.media.hudMonoFont);
+			CG_Text_Paint(x , y+h/2, size, color, s, 0, 0, 0, font);
 			break;
 	}
-
-
 }
 
 
@@ -2955,7 +2954,7 @@ static void CG_DrawCenterString(void)
 {
 	char           *start;
 	int             l;
-	int            y, h;
+	int             x, y, w, h;
 	float          *color;
 
 	if(!cg.centerPrintTime)
@@ -2992,13 +2991,11 @@ static void CG_DrawCenterString(void)
 		linebuffer[l] = 0;
 
 
-		h = CG_Text_Height(linebuffer, 0.4f, 0, &cgs.media.hudMonoFont);
-
-		CG_DrawHudString( 320, y+h, linebuffer, 0.4f, UI_CENTER, color );
+		w = CG_Text_Width(linebuffer, 0.4f, 0, &cgs.media.freeSansBoldFont);
+		h = CG_Text_Height(linebuffer, 0.4f, 0, &cgs.media.freeSansBoldFont);
+		x = (SCREEN_WIDTH - w) / 2;
+		CG_Text_Paint(x, y + h, 0.4f, color, linebuffer, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 		y += h + 6;
-
-		
-
 
 		while(*start && (*start != '\n'))
 		{
