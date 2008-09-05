@@ -1091,7 +1091,10 @@ void CG_XPPM_Player(centity_t * cent)
 	// transform relative bones to absolute ones required for vertex skinning and tag attachments
 	CG_TransformSkeleton(&body.skeleton, ci->modelScale);
 
-	body.shaderRGBA[3] = 255 * cent->pe.deathScale;
+	body.shaderTime = -cent->pe.deathScale;
+
+	// add body to renderer
+	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
 
 	// WIP: death effect
 	if(cent->pe.deathTime > 0)
@@ -1103,12 +1106,6 @@ void CG_XPPM_Player(centity_t * cent)
 		body.customShader = trap_R_RegisterShaderNoMip("player/unlink_effect");
 		trap_R_AddRefEntityToScene(&body);
 	}
-	else
-	{
-		// add body to renderer
-		CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
-	}
-
 
 	// TODO add TA kamikaze model and other stuff
 
