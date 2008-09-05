@@ -77,7 +77,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#pragma warning(disable:  4505)   // unreferenced local function has been removed
 #pragma warning(disable : 4514)
 #pragma warning(disable : 4702)	// unreachable code
-#pragma warning(disable : 4706) // assignment within conditional expression
+#pragma warning(disable : 4706)	// assignment within conditional expression
 #pragma warning(disable : 4711)	// selected for automatic inline expansion
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
 #pragma warning(disable : 4996)	// deprecated functions
@@ -339,7 +339,7 @@ typedef float   vec_t;
 typedef vec_t   vec2_t[2];
 
 #if defined(SSEVEC3_T)
-typedef vec_t   vec3_t[4];// ALIGN(16);
+typedef vec_t   vec3_t[4];		// ALIGN(16);
 typedef vec3_t  vec4_t;
 #else
 typedef vec_t   vec3_t[3];
@@ -593,7 +593,8 @@ static ID_INLINE void VectorClear(vec3_t v)
 {
 #if defined(SSEVEC3_T)
 //#error VectorClear
-	__m128 _tmp = _mm_setzero_ps();
+	__m128          _tmp = _mm_setzero_ps();
+
 	_mm_storeu_ps(v, _tmp);
 #else
 	out[0] = 0;
@@ -633,7 +634,7 @@ static ID_INLINE void VectorCopy(const vec3_t in, vec3_t out)
 
 #elif defined(SSEVEC3_T)
 //#error VectorCopy
-	__m128 _tmp;
+	__m128          _tmp;
 
 	_tmp = _mm_loadu_ps(in);
 	_mm_storeu_ps(out, _tmp);
@@ -666,15 +667,15 @@ static ID_INLINE void VectorAdd(const vec3_t a, const vec3_t b, vec3_t out)
 	femms();
 #elif defined(SSEVEC3_T)
 //#error VectorAdd
-	__m128 _a, _b, _out;
+	__m128          _a, _b, _out;
 
 	_a = _mm_loadu_ps(a);
 	_b = _mm_loadu_ps(b);
-	 
+
 	_out = _mm_add_ps(_a, _b);
-	 
+
 	_mm_storeu_ps(out, _out);
-	 
+
 #else
 	out[0] = a[0] + b[0];
 	out[1] = a[1] + b[1];
@@ -704,13 +705,13 @@ static ID_INLINE void VectorSubtract(const vec3_t a, const vec3_t b, vec3_t out)
 	femms();
 #elif defined(SSEVEC3_T)
 //#error VectorSubtract
-	__m128 _a, _b, _out;
+	__m128          _a, _b, _out;
 
 	_a = _mm_loadu_ps(a);
 	_b = _mm_loadu_ps(b);
-	 
+
 	_out = _mm_sub_ps(_a, _b);
-	 
+
 	_mm_storeu_ps(out, _out);
 #else
 	out[0] = a[0] - b[0];
@@ -729,15 +730,15 @@ static ID_INLINE void VectorMA(const vec3_t veca, float scale, const vec3_t vecb
 {
 #if defined(SSEVEC3_T)
 //#error VectorMA
-	__m128 _a, _b, _s, _c;
+	__m128          _a, _b, _s, _c;
 
 	_a = _mm_loadu_ps(veca);
 	_b = _mm_loadu_ps(vecb);
 	_s = _mm_set1_ps(scale);
-	 
+
 	_c = _mm_mul_ps(_s, _b);
 	_c = _mm_add_ps(_a, _c);
-	 
+
 	_mm_storeu_ps(vecc, _c);
 #else
 	vecc[0] = veca[0] + scale * vecb[0];
@@ -771,13 +772,13 @@ static ID_INLINE void VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 	return out;
 #elif defined(SSEVEC3_T)
 //#error VectorScale
-	__m128 _in, _scale, _out;
+	__m128          _in, _scale, _out;
 
 	_in = _mm_loadu_ps(in);
 	_scale = _mm_set1_ps(scale);
-	 
+
 	_out = _mm_mul_ps(_in, _scale);
-	 
+
 	_mm_storeu_ps(out, _out);
 #else
 	out[0] = in[0] * scale;
@@ -1080,8 +1081,10 @@ void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
-void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
-void			MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
+void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
+												 vec_t far);
+void            MatrixSetupOrthogonalProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
+												vec_t far);
 
 static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)
 {
@@ -1278,8 +1281,8 @@ int             Q_isprint(int c);
 int             Q_islower(int c);
 int             Q_isupper(int c);
 int             Q_isalpha(int c);
-qboolean		Q_isanumber(const char *s);
-qboolean		Q_isintegral(float f);
+qboolean        Q_isanumber(const char *s);
+qboolean        Q_isintegral(float f);
 
 // portable case insensitive compare
 int             Q_stricmp(const char *s1, const char *s2);
@@ -1302,7 +1305,7 @@ int             Q_PrintStrlen(const char *string);
 char           *Q_CleanStr(char *string);
 
 // Count the number of char tocount encountered in string
-int				Q_CountChar(const char *string, char tocount);
+int             Q_CountChar(const char *string, char tocount);
 
 //=============================================
 
@@ -1400,10 +1403,10 @@ typedef struct cvar_s
 	int             modificationCount;	// incremented each time the cvar is changed
 	float           value;		// atof( string )
 	int             integer;	// atoi( string )
-	qboolean		validate;
-	qboolean		integral;
-	float			min;
-	float			max;
+	qboolean        validate;
+	qboolean        integral;
+	float           min;
+	float           max;
 	struct cvar_s  *next;
 	struct cvar_s  *hashNext;
 } cvar_t;
@@ -1437,24 +1440,24 @@ COLLISION DETECTION
 // 0-2 are axial planes
 typedef enum
 {
-	PLANE_X			 = 0,
-	PLANE_Y			 = 1,
-	PLANE_Z			 = 2,
-	PLANE_NON_AXIAL	 = 3
+	PLANE_X = 0,
+	PLANE_Y = 1,
+	PLANE_Z = 2,
+	PLANE_NON_AXIAL = 3
 } planeType_t;
 
 //#define PlaneTypeForNormal(x) (x[0] == 1.0 ? PLANE_X : (x[1] == 1.0 ? PLANE_Y : (x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL) ) )
-static ID_INLINE int	PlaneTypeForNormal(vec3_t normal)
+static ID_INLINE int PlaneTypeForNormal(vec3_t normal)
 {
 	if(normal[0] == 1.0)
 		return PLANE_X;
 
 	if(normal[1] == 1.0)
 		return PLANE_Y;
-	
+
 	if(normal[2] == 1.0)
 		return PLANE_Z;
-	
+
 	return PLANE_NON_AXIAL;
 }
 
@@ -1562,9 +1565,9 @@ typedef enum
 
 
 // Tr3B: if you increase GMODELNUM_BITS then:
-//	increase MAX_CONFIGSTRINGS to 2048 and double MAX_MSGLEN
+//  increase MAX_CONFIGSTRINGS to 2048 and double MAX_MSGLEN
 #define	GMODELNUM_BITS		8	// don't need to send any more
-#define	MAX_MODELS			(1 << GMODELNUM_BITS) // references entityState_t::modelindex
+#define	MAX_MODELS			(1 << GMODELNUM_BITS)	// references entityState_t::modelindex
 
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
 #define MAX_EFFECTS			256

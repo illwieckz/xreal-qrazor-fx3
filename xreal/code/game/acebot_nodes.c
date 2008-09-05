@@ -378,7 +378,7 @@ void ACEND_PathMap(gentity_t * self)
 	   }
 	 */
 
-	
+
 	if(closestNode != INVALID)
 	{
 		// add automatically some links between nodes
@@ -613,7 +613,8 @@ int ACEND_AddNode(gentity_t * self, int type)
 	if(ace_debug.integer)
 	{
 		G_Printf("node %d added for entity %s type: %s pos: %f %f %f\n", numNodes, entityName,
-			ACEND_NodeTypeToString(nodes[numNodes].type), nodes[numNodes].origin[0], nodes[numNodes].origin[1], nodes[numNodes].origin[2]);
+				 ACEND_NodeTypeToString(nodes[numNodes].type), nodes[numNodes].origin[0], nodes[numNodes].origin[1],
+				 nodes[numNodes].origin[2]);
 
 		ACEND_ShowNode(numNodes);
 	}

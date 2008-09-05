@@ -67,7 +67,7 @@ qboolean G_SpawnInt(const char *key, const char *defaultString, int *out)
 	return present;
 }
 
-qboolean G_SpawnBoolean(const char *key, const char *defaultString, qboolean *out)
+qboolean G_SpawnBoolean(const char *key, const char *defaultString, qboolean * out)
 {
 	char           *s;
 	qboolean        present;
@@ -294,7 +294,7 @@ spawn_t         spawns[] = {
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
 	{"target_fx", SP_target_fx},
-	
+
 	{"target_speaker", SP_target_speaker},
 	{"speaker", SP_target_speaker},
 

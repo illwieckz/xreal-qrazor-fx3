@@ -761,5 +761,3 @@ void G_SetOrigin(gentity_t * ent, vec3_t origin)
 
 	VectorCopy(origin, ent->r.currentOrigin);
 }
-
-

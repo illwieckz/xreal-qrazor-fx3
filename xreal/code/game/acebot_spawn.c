@@ -171,7 +171,7 @@ static void ACESP_LoadArenas(void)
 }
 
 
-static const char     *ACESP_GetArenaInfoByMap(const char *map)
+static const char *ACESP_GetArenaInfoByMap(const char *map)
 {
 	int             n;
 
@@ -298,13 +298,13 @@ static void ACESP_LoadBots(void)
 		strcat(filename, dirptr);
 		ACESP_LoadBotsFromFile(filename);
 	}
-	
+
 	trap_Printf(va("%i bots parsed\n", g_numBots));
 }
 
 
 
-static char           *ACESP_GetBotInfoByNumber(int num)
+static char    *ACESP_GetBotInfoByNumber(int num)
 {
 	if(num < 0 || num >= g_numBots)
 	{
@@ -315,7 +315,7 @@ static char           *ACESP_GetBotInfoByNumber(int num)
 }
 
 
-static char           *ACESP_GetBotInfoByName(const char *name)
+static char    *ACESP_GetBotInfoByName(const char *name)
 {
 	int             n;
 	char           *value;
@@ -393,6 +393,7 @@ void ACESP_SpawnBot(char *name, float skill, char *team)
 {
 	int             clientNum;
 	char           *botinfo;
+
 //  gentity_t      *bot;
 	char           *key;
 	char           *s;
@@ -599,7 +600,7 @@ void ACESP_SetupBotState(gentity_t * self)
 	self->classname = "acebot";
 	self->enemy = NULL;
 
-	self->bs.turnSpeed = 35;		// FIXME 100 is deadly fast
+	self->bs.turnSpeed = 35;	// FIXME 100 is deadly fast
 	self->bs.moveTarget = NULL;
 	self->bs.state = STATE_MOVE;
 
@@ -612,34 +613,34 @@ void ACESP_SetupBotState(gentity_t * self)
 	self->bs.suicide_timeout = level.time + 15000;
 
 	/*
-	// is the bot part of a team when gameplay has changed?
-	team = Info_ValueForKey(userinfo, "team");
-	if(!team || !*team)
-	{
-		if(g_gametype.integer >= GT_TEAM)
-		{
-			if(PickTeam(clientNum) == TEAM_RED)
-			{
-				team = "red";
-			}
-			else
-			{
-				team = "blue";
-			}
-		}
-		else
-		{
-			team = "red";
-		}
-		//Info_SetValueForKey(userinfo, "team", team);
+	   // is the bot part of a team when gameplay has changed?
+	   team = Info_ValueForKey(userinfo, "team");
+	   if(!team || !*team)
+	   {
+	   if(g_gametype.integer >= GT_TEAM)
+	   {
+	   if(PickTeam(clientNum) == TEAM_RED)
+	   {
+	   team = "red";
+	   }
+	   else
+	   {
+	   team = "blue";
+	   }
+	   }
+	   else
+	   {
+	   team = "red";
+	   }
+	   //Info_SetValueForKey(userinfo, "team", team);
 
-		// need to send this or bots will be spectators
-		trap_BotClientCommand(self - g_entities, va("team %s", team));
-	}
-	*/
+	   // need to send this or bots will be spectators
+	   trap_BotClientCommand(self - g_entities, va("team %s", team));
+	   }
+	 */
 
 	//if(g_gametype.integer >= GT_TEAM)
-	//	trap_BotClientCommand(self - g_entities, va("team %s", Info_ValueForKey(userinfo, "team")));
+	//  trap_BotClientCommand(self - g_entities, va("team %s", Info_ValueForKey(userinfo, "team")));
 }
 
 

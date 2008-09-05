@@ -1688,7 +1688,8 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 	{
 		s->eType = ET_INVISIBLE;
 	}
-*/	else
+*/
+	else
 	{
 		s->eType = ET_PLAYER;
 	}
@@ -1781,7 +1782,8 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 	{
 		s->eType = ET_INVISIBLE;
 	}
-*/	else
+*/
+	else
 	{
 		s->eType = ET_PLAYER;
 	}

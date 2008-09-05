@@ -494,7 +494,8 @@ qboolean ConsoleCommand(void)
 	char            cmd[MAX_TOKEN_CHARS];
 	char            arg1[MAX_TOKEN_CHARS];
 	char            arg2[MAX_TOKEN_CHARS];
-//	char            arg3[MAX_TOKEN_CHARS];
+
+//  char            arg3[MAX_TOKEN_CHARS];
 
 	trap_Argv(0, cmd, sizeof(cmd));
 
@@ -575,7 +576,7 @@ qboolean ConsoleCommand(void)
 
 		// name
 		trap_Argv(1, name, sizeof(name));
-		
+
 		// skill
 		trap_Argv(2, string, sizeof(string));
 		if(!string[0])

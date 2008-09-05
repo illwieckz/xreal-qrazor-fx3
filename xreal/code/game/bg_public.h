@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_GRAVITY				800	// FIXME: should be 313.92 = 9.81 * 32 SI gravity in Quake units
 #define DEFAULT_GRAVITY_STRING		"800"
 
-#if 0 //def XPPM
+#if 0							//def XPPM
 #define	GIB_HEALTH			0
 #else
 #define	GIB_HEALTH			-40

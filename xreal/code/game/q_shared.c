@@ -957,7 +957,7 @@ char           *Q_strrchr(const char *string, int c)
 
 qboolean Q_isanumber(const char *s)
 {
-	char		   *p;
+	char           *p;
 
 	if(*s == '\0')
 		return qfalse;
@@ -1246,7 +1246,7 @@ char           *Q_CleanStr(char *string)
 
 int Q_CountChar(const char *string, char tocount)
 {
-	int				count;
+	int             count;
 
 	for(count = 0; *string; string++)
 	{

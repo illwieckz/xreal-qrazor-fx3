@@ -219,10 +219,10 @@ struct gentity_s
 	int             waterlevel;
 
 	int             soundIndex;
-	qboolean		soundLooping;
-	qboolean		soundWaitForTrigger;
-	qboolean		soundGlobal;
-	qboolean		soundActivator;
+	qboolean        soundLooping;
+	qboolean        soundWaitForTrigger;
+	qboolean        soundGlobal;
+	qboolean        soundActivator;
 
 	// timing variables
 	float           wait;
@@ -569,7 +569,7 @@ qboolean        G_SpawnString(const char *key, const char *defaultString, char *
 // spawn string returns a temporary reference, you must CopyString() if you want to keep it
 qboolean        G_SpawnFloat(const char *key, const char *defaultString, float *out);
 qboolean        G_SpawnInt(const char *key, const char *defaultString, int *out);
-qboolean        G_SpawnBoolean(const char *key, const char *defaultString, qboolean *out);
+qboolean        G_SpawnBoolean(const char *key, const char *defaultString, qboolean * out);
 qboolean        G_SpawnVector(const char *key, const char *defaultString, float *out);
 void            G_SpawnEntitiesFromString(void);
 char           *G_NewString(const char *string);

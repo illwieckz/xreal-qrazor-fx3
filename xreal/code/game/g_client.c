@@ -44,7 +44,7 @@ void SP_info_player_deathmatch(gentity_t * ent)
 	{
 		ent->flags |= FL_NO_BOTS;
 	}
-	
+
 	G_SpawnInt("nohumans", "0", &i);
 	if(i)
 	{
@@ -570,7 +570,7 @@ void respawn(gentity_t * ent)
 {
 	gentity_t      *tent;
 
-//	CopyToBodyQue(ent);
+//  CopyToBodyQue(ent);
 	ClientSpawn(ent);
 
 	// add a teleportation effect
@@ -742,7 +742,7 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 			else
 			{
 				*out++ = *in++;
- 			}
+			}
 
 			continue;
 		}

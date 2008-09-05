@@ -93,6 +93,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 	// Tr3B: logic based on BG_CanItemBeGrabbed
 
 	gitem_t        *item = itemEnt->item;
+
 #ifdef MISSIONPACK
 	int             upperBound;
 #endif
@@ -141,7 +142,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 		{
 			if(self->client->ps.ammo[item->giTag] >= 200)
 			{
-				return 0.0f; // can't hold any more
+				return 0.0f;	// can't hold any more
 			}
 			else if(item->giTag == WP_MACHINEGUN)
 			{
@@ -157,7 +158,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			}
 			else if(item->giTag == WP_ROCKET_LAUNCHER)
 			{
-				return 9.0f;		
+				return 9.0f;
 			}
 			else if(item->giTag == WP_RAILGUN)
 			{
@@ -458,16 +459,16 @@ void ACEIT_BuildItemNodeTable(qboolean rebuild)
 
 					SnapVector(v);
 
-					if(/*ent->node != INVALID ||*/ VectorCompare(v, nodes[i].origin))
+					if( /*ent->node != INVALID || */ VectorCompare(v, nodes[i].origin))
 					{
 						/*
-						if(!VectorCompare(v, nodes[i].origin))
-						{
-							// update node origin
-							VectorCopy(v, nodes[i].origin);
-						}
-						else
-						*/
+						   if(!VectorCompare(v, nodes[i].origin))
+						   {
+						   // update node origin
+						   VectorCopy(v, nodes[i].origin);
+						   }
+						   else
+						 */
 						{
 							// found a match now link to facts
 							ent->node = i;

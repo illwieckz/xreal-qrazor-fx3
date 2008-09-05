@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #else
 #define id386_3dnow  0
 #endif
-#if defined(SIMD_SSE) //|| 1 //|| defined(__SSE__)//defined(_MSC_VER)
+#if defined(SIMD_SSE)			//|| 1 //|| defined(__SSE__)//defined(_MSC_VER)
 #define id386_sse  1
 #include <xmmintrin.h>
 //#define SSEVEC3_T

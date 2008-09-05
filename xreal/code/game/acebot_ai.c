@@ -100,7 +100,7 @@ void ACEAI_Think(gentity_t * self)
 	{
 		if(ace_debug.integer)
 			trap_SendServerCommand(-1, va("print \"%s: I am a spectator, choosing a team...\n\"", self->client->pers.netname));
-		
+
 		team = Info_ValueForKey(userinfo, "team");
 		if(!team || !*team)
 		{
@@ -417,7 +417,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 	gentity_t      *target;
 	float           weight, bestWeight = 0.0f;
 	gentity_t      *best;
-	float			shortRange = 200;
+	float           shortRange = 200;
 
 	if(!ace_pickShortRangeGoal.integer)
 		return;
@@ -430,7 +430,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 	while(target)
 	{
 		if(target->classname == NULL)
-			return; //goto nextTarget;
+			return;				//goto nextTarget;
 
 		if(target == self)
 			goto nextTarget;
@@ -532,21 +532,21 @@ qboolean ACEAI_FindEnemy(gentity_t * self)
 		// don't attack team mates
 		if(OnSameTeam(self, player))
 			continue;
-		
+
 		enemyRange = Distance(self->client->ps.origin, player->client->ps.origin);
 
 		if(ACEAI_InFront(self, player) && ACEAI_Visible(self, player) &&
 		   trap_InPVS(self->client->ps.origin, player->client->ps.origin) && enemyRange < bestRange)
 		{
 			/*
-			if(ace_debug.integer && self->enemy != player)
-			{
-				if(self->enemy == NULL)
-					trap_SendServerCommand(-1, va("print \"%s: found enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
-				else
-					trap_SendServerCommand(-1, va("print \"%s: found better enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
-			}
-			*/
+			   if(ace_debug.integer && self->enemy != player)
+			   {
+			   if(self->enemy == NULL)
+			   trap_SendServerCommand(-1, va("print \"%s: found enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
+			   else
+			   trap_SendServerCommand(-1, va("print \"%s: found better enemy %s\n\"", self->client->pers.netname, player->client->pers.netname));
+			   }
+			 */
 
 			self->enemy = player;
 			bestRange = enemyRange;

@@ -67,7 +67,7 @@ qboolean ACEMV_CanMove(gentity_t * self, int direction)
 
 	trap_Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_PLAYERSOLID);
 
-//	if((tr.fraction > 0.3 && tr.fraction != 1) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
+//  if((tr.fraction > 0.3 && tr.fraction != 1) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	if((tr.fraction == 1.0) || (tr.contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_DONOTENTER)))
 	{
 		if(ace_debug.integer)
@@ -399,7 +399,7 @@ void ACEMV_Move(gentity_t * self)
 		self->bs.wander_timeout = level.time + 1000;
 
 		// center view
-		//self->bs.viewAngles[PITCH] = 0;	//-self->client->ps.delta_angles[PITCH];
+		//self->bs.viewAngles[PITCH] = 0;   //-self->client->ps.delta_angles[PITCH];
 		return;
 	}
 
@@ -643,7 +643,7 @@ void ACEMV_Wander(gentity_t * self)
 	if(VectorLength(self->client->ps.velocity) < 37)
 	{
 		//if(random() > 0.1 && ACEMV_SpecialMove(self))
-		//	return; //removed this because when wandering, the last thing you want is bots jumping
+		//  return; //removed this because when wandering, the last thing you want is bots jumping
 		//over things and going off ledges.  It's better for them to just bounce around the map.
 
 		self->bs.viewAngles[YAW] += random() * 180 - 90;
@@ -682,7 +682,7 @@ qboolean ACEMV_CheckShot(gentity_t * self, vec3_t point)
 	G_ProjectSource(self->client->ps.origin, offset, forward, right, start);
 
 	// blocked, don't shoot
-	
+
 	trap_Trace(&tr, start, NULL, NULL, point, self->s.number, MASK_SOLID);
 	if(tr.fraction < 0.3)		//just enough to prevent self damage (by now)
 		return qfalse;
@@ -702,8 +702,8 @@ void ACEMV_Attack(gentity_t * self)
 	float           distance;
 	vec3_t          angles;
 	vec3_t          oldAimVec;
-	float           aimTremble[2] = { 0.15, 0.15};
-	float           slowness = 0.35; //lower is slower
+	float           aimTremble[2] = { 0.15, 0.15 };
+	float           slowness = 0.35;	//lower is slower
 
 	// randomly choose a movement direction
 	c = random();
@@ -747,7 +747,7 @@ void ACEMV_Attack(gentity_t * self)
 	VectorMA(forward, crandom() * aimTremble[0], up, forward);
 	VectorMA(forward, crandom() * aimTremble[1], right, forward);
 	VectorNormalize(forward);
-	
+
 	//VectorLerp(oldAimVec, forward, slowness, forward);
 	//VectorMA(oldAimVec, slowness, forward, forward);
 	//VectorNormalize(forward);
@@ -755,7 +755,7 @@ void ACEMV_Attack(gentity_t * self)
 	VectorScale(forward, distance, self->bs.moveVector);
 	//ACEMV_ChangeBotAngle(self);
 	vectoangles(self->bs.moveVector, self->bs.viewAngles);
-	
+
 
 	// don't attack too much
 	if(random() < 0.8 && ACEMV_CheckShot(self, target))
