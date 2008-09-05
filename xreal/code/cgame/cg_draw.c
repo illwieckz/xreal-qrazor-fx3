@@ -205,6 +205,28 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	}
 }
 
+void CG_Text_PaintAligned(int x, int y, char *s, float scale, int style, vec4_t color, const fontInfo_t * font)
+{
+	int             w, h;
+
+	w = CG_Text_Width(s, scale, 0, font);
+	h = CG_Text_Height(s, scale, 0, font);
+
+	if(style & UI_CENTER)
+	{
+		CG_Text_Paint(x - w / 2, y + h / 2, scale, color, s, 0, 0, style, font);
+	}
+	else if(style & UI_RIGHT)
+	{
+		CG_Text_Paint(x - w, y + h / 2, scale, color, s, 0, 0, style, font);
+	}
+	else
+	{
+		// UI_LEFT
+		CG_Text_Paint(x, y + h / 2, scale, color, s, 0, 0, style, font);
+	}
+}
+
 /*
 ==============
 CG_DrawField
@@ -1775,9 +1797,7 @@ static float CG_DrawFPS(float y)
 	int             fps;
 	static int      previous;
 	int             t, frameTime;
-
 	vec4_t          basecolor;
-
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -1787,7 +1807,6 @@ static float CG_DrawFPS(float y)
 
 	previousTimes[index % FPS_FRAMES] = frameTime;
 	index++;
-
 
 	if(index > FPS_FRAMES)
 	{
@@ -1807,14 +1826,7 @@ static float CG_DrawFPS(float y)
 
 		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
-		if(cg_drawStatus.integer == 3)
-		{
-			CG_DrawHudString(635, 10, s, 0.25f, UI_RIGHT, colorWhite);
-		}
-		else
-		{
-			CG_DrawBigString(635 - w, y + 2, s, 1.0F);
-		}
+		CG_Text_PaintAligned(635, 10, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
 	return y + BIGCHAR_HEIGHT + 8;
@@ -2986,11 +2998,10 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-
 		w = CG_Text_Width(linebuffer, 0.4f, 0, &cgs.media.freeSansBoldFont);
 		h = CG_Text_Height(linebuffer, 0.4f, 0, &cgs.media.freeSansBoldFont);
 		x = (SCREEN_WIDTH - w) / 2;
-		CG_Text_Paint(x, y + h, 0.4f, color, linebuffer, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint(x, y + h, 0.4f, color, linebuffer, 0, 0, UI_CENTER | UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 		y += h + 6;
 
 		while(*start && (*start != '\n'))
@@ -3284,20 +3295,19 @@ static void CG_DrawCrosshairNames(void)
 CG_DrawSpectator
 =================
 */
-
-
 static void CG_DrawSpectator(void)
 {
-
-	CG_DrawHudString(320, 440, "SPECTATOR", 0.45f, UI_CENTER, colorWhite);
+	CG_Text_PaintAligned(320, 440, "SPECTATOR", 0.45f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	if(cgs.gametype == GT_TOURNAMENT)
 	{
-		CG_DrawHudString(320, 460, "waiting to play", 0.25f, UI_CENTER, colorWhite);
+		CG_Text_PaintAligned(320, 460, "waiting to play", 0.25f, UI_CENTER | UI_DROPSHADOW, colorWhite,
+							 &cgs.media.freeSansBoldFont);
 	}
 	else if(cgs.gametype >= GT_TEAM)
 	{
-		CG_DrawHudString(320, 460, "press ESC and use the JOIN menu to play", 0.25f, UI_CENTER, colorWhite);
+		CG_Text_PaintAligned(320, 460, "press ESC and use the JOIN menu to play", 0.25f, UI_CENTER | UI_DROPSHADOW, colorWhite,
+							 &cgs.media.freeSansBoldFont);
 	}
 }
 
@@ -3488,7 +3498,7 @@ static qboolean CG_DrawFollow(void)
 		return qfalse;
 	}
 
-	CG_DrawHudString(320, 24, "following", 0.35f, UI_CENTER, colorWhite);
+	CG_Text_PaintAligned(320, 24, "following", 0.35f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	name = cgs.clientinfo[cg.snap->ps.clientNum].name;
 
@@ -3517,12 +3527,12 @@ static void CG_DrawAmmoWarning(void)
 
 	if(cg.lowAmmoWarning == 2)
 	{
-		CG_DrawHudString(320, 400, "out of ammo", 0.4f, UI_CENTER, colorRed);
+		CG_Text_PaintAligned(320, 400, "out of ammo", 0.4f, UI_CENTER | UI_DROPSHADOW, colorRed, &cgs.media.freeSansBoldFont);
 	}
 	else
 	{
 
-		CG_DrawHudString(320, 400, "ammo low", 0.4f, UI_CENTER, colorYellow);
+		CG_Text_PaintAligned(320, 400, "ammo low", 0.4f, UI_CENTER | UI_DROPSHADOW, colorYellow, &cgs.media.freeSansBoldFont);
 	}
 }
 
@@ -3626,7 +3636,7 @@ static void CG_DrawWarmup(void)
 		{
 			s = va("%s vs %s", ci1->name, ci2->name);
 
-			CG_DrawHudString(320, 60, s, 0.4f, UI_CENTER, colorWhite);
+			CG_Text_PaintAligned(320, 60, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 	}
 	else
@@ -3661,7 +3671,7 @@ static void CG_DrawWarmup(void)
 		{
 			s = "";
 		}
-		CG_DrawHudString(320, 90, s, 0.4f, UI_CENTER, colorWhite);
+		CG_Text_PaintAligned(320, 90, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
 	sec = (sec - cg.time) / 1000;
@@ -3710,8 +3720,7 @@ static void CG_DrawWarmup(void)
 			break;
 	}
 
-
-	CG_DrawHudString(320, 125, s, scale, UI_CENTER, colorWhite);
+	CG_Text_PaintAligned(320, 125, s, scale, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 }
 
 //==================================================================================
