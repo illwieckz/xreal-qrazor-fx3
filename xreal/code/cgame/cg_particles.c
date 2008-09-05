@@ -946,7 +946,7 @@ void CG_AddParticles(void)
 					//VectorCopy(p->org, p->oldOrg);
 					VectorCopy(org, p->org);
 				}
-			}			
+			}
 		}
 
 		contents = trap_CM_PointContents(org, 0);
@@ -2383,7 +2383,7 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 		p->flags = PF_AIRONLY;
 
 		p->time = cg.time;
-		
+
 
 #if 0
 		p->endTime = cg.time + 20000;

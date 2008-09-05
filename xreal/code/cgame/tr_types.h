@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAX_REF_LIGHTS		1024
 #define	MAX_REF_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
 #define MAX_BONES      	 	120
-#define MAX_WEIGHTS			4		// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
+#define MAX_WEIGHTS			4	// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
 
 // renderfx flags
 #define	RF_MINLIGHT			1	// allways have some light (viewmodel, some items)
@@ -180,7 +180,7 @@ typedef struct
 	int             noShadowID;	// don't cast shadows of all entities with this id
 
 	qboolean        inverseShadows;	// don't cast light and draw shadows by darken the scene
-									// this is useful for drawing player shadows with shadow mapping
+	// this is useful for drawing player shadows with shadow mapping
 } refLight_t;
 
 
@@ -268,9 +268,9 @@ typedef struct
 
 	char            shadingLanguageVersion[MAX_STRING_CHARS];
 
-	int				maxVertexUniforms;
-	int				maxVaryingFloats;
-	int				maxVertexAttribs;
+	int             maxVertexUniforms;
+	int             maxVaryingFloats;
+	int             maxVertexAttribs;
 
 	qboolean        textureNPOTAvailable;
 

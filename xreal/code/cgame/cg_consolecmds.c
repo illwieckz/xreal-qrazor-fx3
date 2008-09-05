@@ -536,7 +536,7 @@ static consoleCommand_t commands[] = {
 	{"declerp", CG_TestModelDecreaseLerp_f},
 	{"nextskin", CG_TestModelNextSkin_f},
 	{"prevskin", CG_TestModelPrevSkin_f},
-	
+
 	{"viewpos", CG_Viewpos_f},
 	{"+scores", CG_ScoresDown_f},
 	{"-scores", CG_ScoresUp_f},
@@ -663,12 +663,12 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("teamvote");
 	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
-	
+
 	// useful for development
 	trap_AddCommand("restartLuaGameVM");
 	trap_AddCommand("entitylist");
-	
+
 	// for ACEBot
 	trap_AddCommand("savenodes");
-	
+
 }

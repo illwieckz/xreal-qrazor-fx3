@@ -121,7 +121,7 @@ vmCvar_t        cg_crosshairHealth;
 vmCvar_t        cg_crosshairDot;
 vmCvar_t        cg_crosshairCircle;
 vmCvar_t        cg_crosshairCross;
-vmCvar_t 	cg_crosshairPulse;
+vmCvar_t        cg_crosshairPulse;
 
 vmCvar_t        cg_draw2D;
 vmCvar_t        cg_debugHUD;
@@ -180,6 +180,7 @@ vmCvar_t        cg_noVoiceChats;
 vmCvar_t        cg_noVoiceText;
 vmCvar_t        cg_hudFiles;
 vmCvar_t        cg_scorePlum;
+
 //unlagged - smooth clients #2
 // this is done server-side now
 //vmCvar_t  cg_smoothClients;
@@ -283,7 +284,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_crosshairDot, "cg_crosshairDot", "0", CVAR_ARCHIVE},
 	{&cg_crosshairCircle, "cg_crosshairCircle", "0", CVAR_ARCHIVE},
 	{&cg_crosshairCross, "cg_crosshairCross", "3", CVAR_ARCHIVE},
-	{&cg_crosshairPulse, "cg_crosshairPulse", "1", CVAR_ARCHIVE}, // pulse crosshair when picking up items
+	{&cg_crosshairPulse, "cg_crosshairPulse", "1", CVAR_ARCHIVE},	// pulse crosshair when picking up items
 
 	{&cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE},
 	{&cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE},
@@ -367,7 +368,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 	{&cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
 	{&cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
-	
+
 	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 	{&cg_particles, "cg_particles", "1", CVAR_ARCHIVE},
@@ -378,7 +379,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", 0},
 	{&pm_fixedPmove, "pm_fixedPmove", "0", 0},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0},
-	
+
 	{&cg_gravity, "g_gravity", "0", 0},	// communicated by systeminfo
 
 //unlagged - client options
@@ -396,7 +397,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT},
 //unlagged - client options
 
-	
+
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
@@ -993,9 +994,9 @@ static void CG_RegisterGraphics(void)
 	{
 		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/2d/crosshair%c", 'a' + i));
 
-		cgs.media.crosshairDot[i] = trap_R_RegisterShader(va("hud/crosshairs/dot%i", i+1));
-		cgs.media.crosshairCircle[i] = trap_R_RegisterShader(va("hud/crosshairs/circle%i", i+1));
-		cgs.media.crosshairCross[i] = trap_R_RegisterShader(va("hud/crosshairs/cross%i", i+1));
+		cgs.media.crosshairDot[i] = trap_R_RegisterShader(va("hud/crosshairs/dot%i", i + 1));
+		cgs.media.crosshairCircle[i] = trap_R_RegisterShader(va("hud/crosshairs/circle%i", i + 1));
+		cgs.media.crosshairCross[i] = trap_R_RegisterShader(va("hud/crosshairs/cross%i", i + 1));
 
 	}
 
@@ -1293,7 +1294,7 @@ static void CG_RegisterClients(void)
 		{
 			continue;
 		}
-		
+
 		CG_NewClientInfo(i);
 	}
 
@@ -2188,7 +2189,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.weaponSelect = WP_MACHINEGUN;
 
-	cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for old servers
+	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for old servers
 	cgs.flagStatus = -1;
 
 	// get the rendering configuration from the client system
@@ -2196,9 +2197,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 	cgs.screenScale = cgs.glconfig.vidHeight * (1.0f / 480.0f);
- 	if(cgs.glconfig.vidWidth * 480 > cgs.glconfig.vidHeight * 640)
+	if(cgs.glconfig.vidWidth * 480 > cgs.glconfig.vidHeight * 640)
 	{
- 		// wide screen
+		// wide screen
 		cgs.screenXBias = 0.5f * (cgs.glconfig.vidWidth - (cgs.glconfig.vidHeight * (640.0f / 480.0f)));
 		cgs.screenYBias = 0;
 	}
@@ -2211,9 +2212,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	}
 	else
 	{
- 		// no wide screen
+		// no wide screen
 		cgs.screenXBias = cgs.screenYBias = 0;
- 	}
+	}
 
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);

@@ -674,7 +674,7 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 			fwidth = (float)propMap2[ch][2] / 256.0f;
 			fheight = (float)PROP2_HEIGHT / 256.0f;
 			aw = (float)propMap2[ch][2] * cgs.screenScale;
-			ah = (float)PROP2_HEIGHT * cgs.screenScale;
+			ah = (float)PROP2_HEIGHT *cgs.screenScale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, cgs.media.charsetProp2);
 			ax += (aw + (float)PROP2_GAP_WIDTH * cgs.screenScale);
@@ -786,7 +786,7 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 		ch = *s & 127;
 		if(ch == ' ')
 		{
-			aw = (float)PROP_SPACE_WIDTH * cgs.screenScale * sizeScale;
+			aw = (float)PROP_SPACE_WIDTH *cgs.screenScale * sizeScale;
 		}
 		else if(propMap1[ch][2] != -1)
 		{
@@ -795,7 +795,7 @@ static void UI_DrawProportionalString2(int x, int y, const char *str, vec4_t col
 			fwidth = (float)propMap1[ch][2] / 256.0f;
 			fheight = (float)PROP_HEIGHT / 256.0f;
 			aw = (float)propMap1[ch][2] * cgs.screenScale * sizeScale;
-			ah = (float)PROP_HEIGHT * cgs.screenScale * sizeScale;
+			ah = (float)PROP_HEIGHT *cgs.screenScale * sizeScale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, charset);
 		}

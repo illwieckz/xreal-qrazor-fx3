@@ -558,6 +558,7 @@ may include ANIM_TOGGLEBIT
 static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation)
 {
 	animation_t    *anim;
+
 	//save old animation
 
 	lf->old_animationNumber = lf->animationNumber;
@@ -593,10 +594,10 @@ static void CG_XPPM_SetLerpFrameAnimation(clientInfo_t * ci, lerpFrame_t * lf, i
 
 	//TODO: blend through two blendings!
 
-	if((lf->blendlerp <= 0.0f) ) 
+	if((lf->blendlerp <= 0.0f))
 		lf->blendlerp = 1.0f;
 	else
-		lf->blendlerp = 1.0f - lf->blendlerp; // use old blending for smooth blending between two blended animations
+		lf->blendlerp = 1.0f - lf->blendlerp;	// use old blending for smooth blending between two blended animations
 
 	memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
 
@@ -852,8 +853,8 @@ static void CG_XPPM_PlayerAnimation(centity_t * cent)
 		CG_XPPM_RunLerpFrame(ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale);
 	}
 
-	//FIXME: is this the only way to check in cgame if a player has been killed recently ?
-	if(cent->currentState.torsoAnim != cent->pe.torso.animationNumber )
+	// FIXME: is this the only way to check in cgame if a player has been killed recently ?
+	if(cent->currentState.torsoAnim != cent->pe.torso.animationNumber)
 	{
 		if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) == BOTH_DEATH1)
 		{
@@ -862,11 +863,11 @@ static void CG_XPPM_PlayerAnimation(centity_t * cent)
 			cent->pe.deathScale = 0.0f;
 
 		}
-	}	
+	}
 
 	CG_XPPM_RunLerpFrame(ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale);
-	
-	//FIXME: reset death effect variables somewhere else
+
+	// FIXME: reset death effect variables somewhere else
 	if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != BOTH_DEATH1)
 	{
 		cent->pe.deathTime = 0;
@@ -1095,9 +1096,9 @@ void CG_XPPM_Player(centity_t * cent)
 	// WIP: death effect
 	if(cent->pe.deathTime > 0)
 	{
-		int time = (DEATHANIM_TIME - (cg.time - cent->pe.deathTime )) ;
+		int             time = (DEATHANIM_TIME - (cg.time - cent->pe.deathTime));
 
-		cent->pe.deathScale = 1.0f - ( 1.0f / DEATHANIM_TIME * time ) ;
+		cent->pe.deathScale = 1.0f - (1.0f / DEATHANIM_TIME * time);
 
 		body.customShader = trap_R_RegisterShaderNoMip("player/unlink_effect");
 		trap_R_AddRefEntityToScene(&body);

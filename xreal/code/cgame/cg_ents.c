@@ -759,7 +759,7 @@ void CG_Beam(centity_t * cent)
 #if 0
 	refEntity_t     ent;
 	entityState_t  *s1;
-	
+
 	//CG_Printf("CG_Beam()\n");
 
 	s1 = &cent->currentState;
@@ -769,7 +769,7 @@ void CG_Beam(centity_t * cent)
 	VectorCopy(s1->pos.trBase, ent.origin);
 	VectorCopy(s1->origin2, ent.oldorigin);
 	AxisClear(ent.axis);
-	
+
 	ent.reType = RT_BEAM;
 	ent.customShader = cgs.media.lightningShader;
 
@@ -780,7 +780,7 @@ void CG_Beam(centity_t * cent)
 #else
 	refEntity_t     beam;
 	entityState_t  *s1;
-	
+
 	//CG_Printf("CG_Beam()\n");
 
 	s1 = &cent->currentState;
@@ -843,12 +843,13 @@ static void CG_AI_Node(centity_t * cent)
 	float           c, len;
 	int             i, node, digits[10], numdigits, negative;
 	int             numberSize = 8;
-	
+
 	entityState_t  *s1;
+
 	s1 = &cent->currentState;
 
 	memset(&ent, 0, sizeof(ent));
-	
+
 #if 0
 
 	// set frame
@@ -864,10 +865,10 @@ static void CG_AI_Node(centity_t * cent)
 #else
 	// draw node number as sprite
 	// code based on CG_AddScorePlum
-	
+
 	ent.reType = RT_SPRITE;
 	ent.radius = 5;
-	
+
 	ent.shaderRGBA[0] = 0xff;
 	ent.shaderRGBA[1] = 0xff;
 	ent.shaderRGBA[2] = 0xff;
@@ -892,14 +893,14 @@ static void CG_AI_Node(centity_t * cent)
 	}
 
 	node = s1->otherEntityNum;
-	
+
 	negative = qfalse;
 	if(node < 0)
 	{
 		negative = qtrue;
 		node = -node;
 	}
-	
+
 	for(numdigits = 0; !(numdigits && !node); numdigits++)
 	{
 		digits[numdigits] = node % 10;
@@ -937,7 +938,7 @@ static void CG_AI_Link(centity_t * cent)
 
 	VectorCopy(s1->pos.trBase, beam.origin);
 	VectorCopy(s1->origin2, beam.oldorigin);
-	
+
 	//beam.reType = RT_BEAM;
 	beam.reType = RT_LIGHTNING;
 	beam.customShader = cgs.media.lightningShader;

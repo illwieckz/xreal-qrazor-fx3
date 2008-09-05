@@ -616,9 +616,11 @@ void CG_PredictPlayerState(void)
 	qboolean        moved;
 	usercmd_t       oldestCmd;
 	usercmd_t       latestCmd;
+
 //unlagged - optimized prediction
 	int             stateIndex = 0, predictCmd = 0;
 	int             numPredicted = 0, numPlayedBack = 0;	// debug code
+
 //unlagged - optimized prediction
 
 	cg.hyperspace = qfalse;		// will be set if touching a trigger_teleport

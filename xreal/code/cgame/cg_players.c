@@ -366,7 +366,7 @@ CG_FindClientModelFile
 ==========================
 */
 qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
-									   const char *skinName, const char *base, const char *ext)
+								const char *skinName, const char *base, const char *ext)
 {
 	char           *team, *charactersFolder;
 	int             i;
@@ -472,7 +472,7 @@ CG_FindClientHeadFile
 ==========================
 */
 qboolean CG_FindClientHeadFile(char *filename, int length, clientInfo_t * ci, const char *teamName,
-									  const char *headModelName, const char *headSkinName, const char *base, const char *ext)
+							   const char *headModelName, const char *headSkinName, const char *base, const char *ext)
 {
 	char           *team, *headsFolder;
 	int             i;
@@ -652,7 +652,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	char            newTeamName[MAX_QPATH * 2];
 
 #ifdef XPPM
-	return CG_XPPM_RegisterClientModel( ci, modelName, skinName,headModelName, headSkinName,teamName);
+	return CG_XPPM_RegisterClientModel(ci, modelName, skinName, headModelName, headSkinName, teamName);
 #endif
 
 	if(headModelName[0] == '\0')
@@ -668,16 +668,18 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
 	ci->legsModel = trap_R_RegisterModel(filename, qfalse);
 
-	if(!ci->legsModel){
+	if(!ci->legsModel)
+	{
 		Com_Printf("Failed to load model file %s\n", filename);
 		return qfalse;
 	}
-	
+
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
 	ci->torsoModel = trap_R_RegisterModel(filename, qfalse);
 
-	if(!ci->torsoModel){
+	if(!ci->torsoModel)
+	{
 		Com_Printf("Failed to load model file %s\n", filename);
 		return qfalse;
 	}
@@ -712,7 +714,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		if(teamName && *teamName)
 		{
 			Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName, headName,
-						   headSkinName);
+					   headSkinName);
 
 			if(ci->team == TEAM_BLUE)
 			{
@@ -725,8 +727,9 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 
 			if(!CG_RegisterClientSkin(ci, newTeamName, modelName, skinName, headName, headSkinName))
 			{
-				Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName,   headSkinName);
-			return qfalse;
+				Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName,
+						   headSkinName);
+				return qfalse;
 			}
 		}
 		else
@@ -743,7 +746,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		Com_Printf("Failed to load animation file %s\n", filename);
 		return qfalse;
 	}
-	
+
 	if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin"))
 	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
@@ -921,10 +924,11 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 CG_CopyClientInfoModel
 ======================
 */
-static void CG_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to){
+static void CG_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to)
+{
 
 #ifdef XPPM
-	CG_XPPM_CopyClientInfoModel( from, to);
+	CG_XPPM_CopyClientInfoModel(from, to);
 #else
 
 	VectorCopy(from->headOffset, to->headOffset);
@@ -950,7 +954,7 @@ static void CG_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to){
 	memcpy(to->sounds, from->sounds, sizeof(to->sounds));
 #endif
 
-	
+
 }
 
 /*
@@ -1071,7 +1075,7 @@ static void CG_SetDeferredClientInfo(clientInfo_t * ci)
 
 	// we should never get here...
 	CG_Printf("CG_SetDeferredClientInfo: no valid clients!\n");
-	
+
 	CG_LoadClientInfo(ci);
 }
 
@@ -1407,10 +1411,10 @@ static void CG_RunLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimatio
 	if(cg.time >= lf->frameTime)
 	{
 
-		
+
 		lf->oldFrame = lf->frame;
 		lf->oldFrameTime = lf->frameTime;
-		
+
 
 		// get the next frame based on the animation
 		anim = lf->animation;
@@ -1579,8 +1583,7 @@ PLAYER ANGLES
 CG_SwingAngles
 ==================
 */
-void CG_SwingAngles(float destination, float swingTolerance, float clampTolerance,
-						   float speed, float *angle, qboolean * swinging)
+void CG_SwingAngles(float destination, float swingTolerance, float clampTolerance, float speed, float *angle, qboolean * swinging)
 {
 	float           swing;
 	float           move;
@@ -1657,7 +1660,7 @@ void CG_SwingAngles(float destination, float swingTolerance, float clampToleranc
 CG_AddPainTwitch
 =================
 */
- void CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles)
+void CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles)
 {
 	int             t;
 	float           f;
@@ -2510,7 +2513,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 
 	if((cg_shadows.integer >= 4 && cg_shadows.integer <= 6) && cg_precomputedLighting.integer)
 	{
-		refLight_t		light;
+		refLight_t      light;
 		vec3_t          angles;
 		vec3_t          projectionEnd;
 
@@ -2537,11 +2540,11 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 
 		// no shadow if too high
 		/*
-		if(trace.fraction == 1.0 || trace.startsolid || trace.allsolid)
-		{
-			return qfalse;
-		}
-		*/
+		   if(trace.fraction == 1.0 || trace.startsolid || trace.allsolid)
+		   {
+		   return qfalse;
+		   }
+		 */
 
 		VectorCopy(trace.endpos, light.origin);
 		//VectorMA(refdef.vieworg, -200, refdef.viewaxis[0], light.origin);
@@ -2551,11 +2554,11 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 		VectorMA(light.origin, SHADOW_DISTANCE * 10, lightDirInversed, projectionEnd);
 		trap_CM_BoxTrace(&trace, light.origin, projectionEnd, mins, maxs, 0, MASK_PLAYERSOLID);
 #if 0
-		if(/* trace.fraction == 1.0 ||*/ trace.startsolid || trace.allsolid)
+		if( /* trace.fraction == 1.0 || */ trace.startsolid || trace.allsolid)
 		{
 			return qfalse;
 		}
-#endif	
+#endif
 		vectoangles(lightDirInversed, angles);
 		QuatFromAngles(light.rotation, angles[PITCH], angles[YAW], angles[ROLL]);
 
@@ -2801,7 +2804,8 @@ int CG_LightVerts(vec3_t normal, int numVerts, polyVert_t * verts)
 CG_Player
 ===============
 */
-void CG_Player(centity_t * cent){
+void CG_Player(centity_t * cent)
+{
 	clientInfo_t   *ci;
 	refEntity_t     legs;
 	refEntity_t     torso;

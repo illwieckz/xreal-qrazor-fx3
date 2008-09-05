@@ -149,17 +149,17 @@ typedef struct
 
 	int             old_animationNumber;	// may include ANIM_TOGGLEBIT
 	animation_t    *old_animation;
-	float		blendlerp;
-	float 		blendtime;
+	float           blendlerp;
+	float           blendtime;
 
 	int             weaponNumber;
 } lerpFrame_t;
 
 // debugging values:
 
-int 	debug_anim_current ;
-int 	debug_anim_old ;
-float   debug_anim_blend;
+int             debug_anim_current;
+int             debug_anim_old;
+float           debug_anim_blend;
 
 
 typedef struct
@@ -178,10 +178,9 @@ typedef struct
 	int             barrelTime;
 	qboolean        barrelSpinning;
 
-
-	//death effect
-	int		deathTime;
-	float		deathScale;
+	// death effect
+	int             deathTime;
+	float           deathScale;
 
 } playerEntity_t;
 
@@ -223,7 +222,7 @@ typedef struct centity_s
 	// exact interpolated position of entity on this frame
 	vec3_t          lerpOrigin;
 	vec3_t          lerpAngles;
-		
+
 } centity_t;
 
 
@@ -795,7 +794,7 @@ typedef struct
 	refLight_t      testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testFlashLight;
-	
+
 //unlagged - optimized prediction
 	int             lastPredictedCommand;
 	int             lastServerTime;
@@ -805,9 +804,9 @@ typedef struct
 
 	// hud variables
 
-	float		bar_offset; // offset calculation for middle bar
-	int 		bar_count; //number of items displayed in the bar
-	int		scoreboard_offset; // scoreboard scrolling
+	float           bar_offset;	// offset calculation for middle bar
+	int             bar_count;	//number of items displayed in the bar
+	int             scoreboard_offset;	// scoreboard scrolling
 } cg_t;
 
 
@@ -1366,6 +1365,7 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
+
 //unlagged - smooth clients #2
 // this is done server-side now
 //extern    vmCvar_t        cg_smoothClients;
@@ -1516,12 +1516,14 @@ extern char     systemChat[256];
 extern char     teamChat1[256];
 extern char     teamChat2[256];
 
-void CG_DrawHudString( int x, int y, char *s, float size, int style, vec4_t color );
+void            CG_DrawHudString(int x, int y, char *s, float size, int style, vec4_t color);
 
-int				CG_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
-int				CG_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
-void			CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader);
-void			CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, const fontInfo_t * font);
+int             CG_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
+int             CG_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
+void            CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
+								  qhandle_t hShader);
+void            CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
+							  const fontInfo_t * font);
 
 void            CG_AddLagometerFrameInfo(void);
 void            CG_AddLagometerSnapshotInfo(snapshot_t * snap);
@@ -1677,6 +1679,7 @@ void            CG_ProcessSnapshots(void);
 
 //unlagged - early transitioning
 void            CG_TransitionEntity(centity_t * cent);
+
 //unlagged - early transitioning
 
 //
@@ -1790,17 +1793,17 @@ void            CG_ParticleTeleportEffect(const vec3_t origin);
 int             CG_NewParticleArea(int num);
 void            CG_TestParticles_f(void);
 
-void 		CG_SwingAngles(float destination, float swingTolerance, float clampTolerance,
-						   float speed, float *angle, qboolean * swinging);
-void 		CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles);
+void            CG_SwingAngles(float destination, float swingTolerance, float clampTolerance,
+							   float speed, float *angle, qboolean * swinging);
+void            CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles);
 
-void 		CG_PlayerSprites(centity_t * cent);
-void 		CG_PlayerSplash(centity_t * cent);
-void 		CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID);
-qboolean 	CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID);
-qboolean 	CG_FindClientHeadFile(char *filename, int length, clientInfo_t * ci, const char *teamName,
+void            CG_PlayerSprites(centity_t * cent);
+void            CG_PlayerSplash(centity_t * cent);
+void            CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID);
+qboolean        CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID);
+qboolean        CG_FindClientHeadFile(char *filename, int length, clientInfo_t * ci, const char *teamName,
 									  const char *headModelName, const char *headSkinName, const char *base, const char *ext);
-qboolean 	CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
+qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
 									   const char *skinName, const char *base, const char *ext);
 
 #ifdef XPPM
@@ -1810,9 +1813,9 @@ qboolean 	CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, 
 //
 
 
-qboolean 	CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName,
-						const char *headModelName, const char *headSkinName, const char *teamName);
-void 		CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to);
+qboolean        CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName,
+											const char *headModelName, const char *headSkinName, const char *teamName);
+void            CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to);
 void            CG_XPPM_Player(centity_t * cent);
 
 #endif
