@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __NETLIB__
 
 #ifdef _MSC_VER
-#pragma warning(disable : 4996) // deprecated functions
+#pragma warning(disable : 4996)	// deprecated functions
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 
@@ -128,4 +128,4 @@ int             NMSG_ReadLong(netmessage_t * msg);
 float           NMSG_ReadFloat(netmessage_t * msg);
 char           *NMSG_ReadString(netmessage_t * msg);
 
-#endif // __NETLIB__
+#endif							// __NETLIB__

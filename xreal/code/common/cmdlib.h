@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4305)	// truncate from double to float
-#pragma warning(disable : 4996) // deprecated functions
+#pragma warning(disable : 4996)	// deprecated functions
 #define _CRT_SECURE_NO_DEPRECATE
 #pragma check_stack(off)
 #endif
@@ -80,7 +80,7 @@ void           *safe_malloc_info(size_t size, char *info);
 extern int      myargc;
 extern char   **myargv;
 
-char*           va(char *format, ...);
+char           *va(char *format, ...);
 char           *strlower(char *in);
 int             Q_strncasecmp(const char *s1, const char *s2, int n);
 int             Q_stricmp(const char *s1, const char *s2);

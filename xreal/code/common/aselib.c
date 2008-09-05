@@ -40,7 +40,7 @@ typedef struct
 	float           x, y, z;
 	float           nx, ny, nz;
 	float           s, t;
-	float			r, g, b;
+	float           r, g, b;
 } aseVertex_t;
 
 typedef struct
@@ -172,7 +172,7 @@ qboolean ASE_Load(const char *filename, qboolean verbose, qboolean grabAnims)
 	fclose(fp);
 
 	ASE_Process();
-	
+
 	return qtrue;
 }
 
@@ -476,36 +476,36 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 
 		buf1 = buffer;
 		buf2 = gamedir;
-		
-		/*
-		// need to compare win32 volumes to potential unix junk
-		if((gamedir[1] == ':' && (buffer[0] == '/' && buffer[1] == '/')) ||
-		   (buffer[1] == ':' && (gamedir[0] == '/' && gamedir[1] == '/')))
-		{
-			int             count;
 
-			if(buffer[1] == ':')
-			{
-				buf1 = buffer + 2;
-				buf2 = gamedir + 2;
-			}
-			else
-			{
-				buf1 = gamedir + 2;
-				buf2 = buffer + 2;
-			}
-			count = 0;
-			while(*buf2 && count < 2)
-			{
-				if(*buf2 == '/')
-				{
-					count++;
-				}
-				buf2++;
-			}
-		}
-		*/
-		
+		/*
+		   // need to compare win32 volumes to potential unix junk
+		   if((gamedir[1] == ':' && (buffer[0] == '/' && buffer[1] == '/')) ||
+		   (buffer[1] == ':' && (gamedir[0] == '/' && gamedir[1] == '/')))
+		   {
+		   int             count;
+
+		   if(buffer[1] == ':')
+		   {
+		   buf1 = buffer + 2;
+		   buf2 = gamedir + 2;
+		   }
+		   else
+		   {
+		   buf1 = gamedir + 2;
+		   buf2 = buffer + 2;
+		   }
+		   count = 0;
+		   while(*buf2 && count < 2)
+		   {
+		   if(*buf2 == '/')
+		   {
+		   count++;
+		   }
+		   buf2++;
+		   }
+		   }
+		 */
+
 		strcpy(buff1, buf1);
 		strlwr(buff1);
 		strcpy(buff2, buf2);
@@ -514,7 +514,7 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 		//Sys_Printf("buff0: '%s'\n", buffer);
 		//Sys_Printf("buff1: '%s'\n", buff1);
 		//Sys_Printf("buff2: '%s'\n", buff2);
-		
+
 		// Tr3B - Doom3 materials are messed up usually
 		if(strstr(buff1, "base/"))
 		{
@@ -534,7 +534,7 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 		else
 		{
 			sprintf(ase.materials[ase.numMaterials].name, "(not converted: '%s')", buffer);
-			
+
 			Sys_Printf("buff1: '%s'\n", buff1);
 			Sys_Printf("buff2: '%s'\n", buff2);
 			Sys_Printf("WARNING: illegal material name '%s'\n", buffer);
@@ -548,14 +548,14 @@ static void ASE_KeyMAP_DIFFUSE(const char *token)
 static void ASE_KeyMATERIAL(const char *token)
 {
 	/*
-	if(!strcmp(token, "*MATERIAL_NAME"))
-	{
-		ASE_GetToken(qfalse);
-		VERBOSE(("..material name: %s\n", s_token));
-		ASE_KeyMATERIAL_NAME();
-	}
-	else
-	*/
+	   if(!strcmp(token, "*MATERIAL_NAME"))
+	   {
+	   ASE_GetToken(qfalse);
+	   VERBOSE(("..material name: %s\n", s_token));
+	   ASE_KeyMATERIAL_NAME();
+	   }
+	   else
+	 */
 	if(!strcmp(token, "*MAP_DIFFUSE"))
 	{
 		ASE_ParseBracedBlock(ASE_KeyMAP_DIFFUSE);
@@ -596,13 +596,13 @@ static void ASE_KeyMESH_VERTEX_LIST(const char *token)
 		// NOTE: Tr3B - the old way is incompatible with models made for Doom3
 		// old: +y -x +z
 		// new: +x +y +z
-		
+
 		ASE_GetToken(qfalse);
-//		pMesh->vertexes[pMesh->currentVertex].y = atof(s_token);
+//      pMesh->vertexes[pMesh->currentVertex].y = atof(s_token);
 		pMesh->vertexes[pMesh->currentVertex].x = atof(s_token);
 
 		ASE_GetToken(qfalse);
-//		pMesh->vertexes[pMesh->currentVertex].x =-atof(s_token);
+//      pMesh->vertexes[pMesh->currentVertex].x =-atof(s_token);
 		pMesh->vertexes[pMesh->currentVertex].y = atof(s_token);
 
 		ASE_GetToken(qfalse);

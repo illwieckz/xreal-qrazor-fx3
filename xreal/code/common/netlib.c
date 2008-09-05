@@ -1759,4 +1759,4 @@ int WINS_SetSocketPort(struct sockaddr_s *addr, int port)
 	return 0;
 }								//end of the function WINS_SetSocketPort
 
-#endif // UNIX
+#endif							// UNIX

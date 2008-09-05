@@ -37,8 +37,8 @@ typedef struct
 } script_t;
 
 #define	MAX_INCLUDES	8
-static script_t        scriptstack[MAX_INCLUDES];
-static script_t       *script;
+static script_t scriptstack[MAX_INCLUDES];
+static script_t *script;
 
 char            token[MAXTOKEN];
 qboolean        endofscript;
@@ -54,10 +54,10 @@ void AddScriptToStack(const char *filename, int index)
 	int             size;
 
 	script++;
-	
+
 	if(script == &scriptstack[MAX_INCLUDES])
 		Error("script file exceeded MAX_INCLUDES");
-	
+
 	strcpy(script->filename, ExpandPath(filename));
 
 	size = vfsLoadFile(script->filename, (void **)&script->buffer, index);
@@ -73,7 +73,7 @@ void AddScriptToStack(const char *filename, int index)
 	}
 
 	script->line = 1;
-	
+
 	script->script_p = script->buffer;
 	script->end_p = script->buffer + size;
 }
@@ -103,10 +103,10 @@ void ParseFromMemory(char *buffer, int size)
 {
 	script = scriptstack;
 	script++;
-	
+
 	if(script == &scriptstack[MAX_INCLUDES])
 		Error("script file exceeded MAX_INCLUDES");
-	
+
 	strcpy(script->filename, "memory buffer");
 
 	script->buffer = buffer;
@@ -458,6 +458,7 @@ void SkipRestOfLine()
 {
 	char           *p;
 	int             c;
+
 	p = script->script_p;
 	while((c = *p++) != 0)
 	{

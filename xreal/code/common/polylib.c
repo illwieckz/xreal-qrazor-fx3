@@ -419,7 +419,7 @@ void ClipWindingEpsilon(winding_t * in, vec3_t normal, vec_t dist, vec_t epsilon
 	if(f->numpoints > maxpts || b->numpoints > maxpts)
 		Error("ClipWinding: points exceeded estimate");
 
-    if(f->numpoints > MAX_POINTS_ON_WINDING || b->numpoints > MAX_POINTS_ON_WINDING)
+	if(f->numpoints > MAX_POINTS_ON_WINDING || b->numpoints > MAX_POINTS_ON_WINDING)
 		Error("ClipWinding: MAX_POINTS_ON_WINDING");
 }
 

@@ -572,7 +572,7 @@ varargs versions of all text functions.
 FIXME: make this buffer size safe someday
 ============
 */
-char* va(char *format, ...)
+char           *va(char *format, ...)
 {
 	va_list         argptr;
 	static char     string[2][32000];	// in case va is called by nested functions
