@@ -153,7 +153,7 @@ typedef struct
 	void            (*Update) (void);
 	void            (*DisableSounds) (void);
 	void            (*BeginRegistration) (void);
-    sfxHandle_t     (*RegisterSound) (const char *sample);
+	                sfxHandle_t(*RegisterSound) (const char *sample);
 	void            (*ClearSoundBuffer) (void);
 	void            (*SoundInfo) (void);
 	void            (*SoundList) (void);
@@ -220,7 +220,7 @@ sndBuffer      *SND_malloc(void);
 void            SND_setup(void);
 
 void            S_PaintChannels(int endtime);
-void			S_FreeOldestSound(void);
+void            S_FreeOldestSound(void);
 void            S_memoryLoad(sfx_t * sfx);
 
 // spatializes a channel

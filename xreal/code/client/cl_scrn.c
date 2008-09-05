@@ -31,7 +31,7 @@ cvar_t         *cl_debuggraph;
 cvar_t         *cl_graphheight;
 cvar_t         *cl_graphscale;
 cvar_t         *cl_graphshift;
-cvar_t		   *cl_keepVidAspect;
+cvar_t         *cl_keepVidAspect;
 
 /*
 ================
@@ -63,8 +63,8 @@ void SCR_AdjustFrom640(float *x, float *y, float *w, float *h)
 {
 	float           xscale;
 	float           yscale;
-	float			xbias = 0.0f;
-	float			ybias = 0.0f;
+	float           xbias = 0.0f;
+	float           ybias = 0.0f;
 
 	// adjust for wide screens
 	xscale = cls.glconfig.vidWidth / 640.0f;
@@ -81,7 +81,7 @@ void SCR_AdjustFrom640(float *x, float *y, float *w, float *h)
 		{
 			ybias = 0.5f * (cls.glconfig.vidHeight - (cls.glconfig.vidWidth * 480.0f / 640.0f));
 			yscale = xscale;
- 		}
+		}
 	}
 
 	// scale for screen sizes

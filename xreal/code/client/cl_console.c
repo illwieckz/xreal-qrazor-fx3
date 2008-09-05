@@ -44,7 +44,7 @@ typedef struct
 	int             totallines;	// total lines in console scrollback
 
 	float           xadjust;	// for wide aspect screens
-	float			yadjust;	// for narrow aspect screens
+	float           yadjust;	// for narrow aspect screens
 
 	float           displayFrac;	// aproaches finalFrac at scr_conspeed
 	float           finalFrac;	// 0.0 to 1.0 lines of console to display
@@ -666,7 +666,7 @@ void Con_DrawSolidConsole(float frac)
 	i = strlen(Q3_VERSION);
 
 	for(x = 0; x < i; x++)
-	{		
+	{
 		y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2);
 		if(y >= con.yadjust)
 			SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (i - x) * SMALLCHAR_WIDTH, y, Q3_VERSION[x]);

@@ -1135,6 +1135,7 @@ void CL_WritePacket(void)
 			else
 			{
 				const char     *ptr = target;
+
 				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
 
 				do
