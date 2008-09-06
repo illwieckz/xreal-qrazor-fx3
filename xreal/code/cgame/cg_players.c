@@ -857,7 +857,7 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 
 			if(!CG_RegisterClientModelname(ci, DEFAULT_MODEL, ci->skinName, DEFAULT_HEADMODEL, ci->skinName, teamname))
 			{
-				//CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName);
+				CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName);
 			}
 		}
 		else

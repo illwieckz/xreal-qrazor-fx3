@@ -561,35 +561,29 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 			{
 				shader = R_GetShaderByHandle(ent->e.customShader);
 			}
-			/*
-			   else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
-			   {
-			   skin_t         *skin;
-			   int             j;
+			else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+			{
+				skin_t         *skin;
 
-			   skin = R_GetSkinByHandle(ent->e.customSkin);
+				skin = R_GetSkinByHandle(ent->e.customSkin);
 
-			   // match the surface name to something in the skin file
-			   shader = tr.defaultShader;
-			   for(j = 0; j < skin->numSurfaces; j++)
-			   {
-			   // the names have both been lowercased
-			   if(!strcmp(skin->surfaces[j]->name, surface->name))
-			   {
-			   shader = skin->surfaces[j]->shader;
-			   break;
-			   }
-			   }
-			   if(shader == tr.defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name, skin->name);
-			   }
-			   else if(shader->defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
-			   }
-			   }
-			 */
+				// match the surface name to something in the skin file
+				shader = tr.defaultShader;
+
+				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
+				if(i >= 0 && i < MD3_MAX_SURFACES)
+				{
+					shader = skin->surfaces[i]->shader;
+				}
+				if(shader == tr.defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name);
+				}
+				else if(shader->defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+				}
+			}
 			else
 			{
 				shader = R_GetShaderByHandle(surface->shaderIndex);
@@ -624,37 +618,29 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 			{
 				shader = R_GetShaderByHandle(ent->e.customShader);
 			}
-			/*
-			   else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
-			   {
-			   skin_t         *skin;
-			   int             j;
+			else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+			{
+				skin_t         *skin;
 
-			   skin = R_GetSkinByHandle(ent->e.customSkin);
+				skin = R_GetSkinByHandle(ent->e.customSkin);
 
-			   // match the surface name to something in the skin file
-			   shader = tr.defaultShader;
-			   for(j = 0; j < skin->numSurfaces; j++)
-			   {
-			   // the names have both been lowercased
-			   if(!strcmp(skin->surfaces[j]->name, surface->name))
-			   {
-			   shader = skin->surfaces[j]->shader;
-			   break;
-			   }
-			   }
-			   if(shader == tr.defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
-			   skin->name);
-			   }
-			   else if(shader->defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
-			   skin->name);
-			   }
-			   }
-			 */
+				// match the surface name to something in the skin file
+				shader = tr.defaultShader;
+
+				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
+				if(i >= 0 && i < MD3_MAX_SURFACES)
+				{
+					shader = skin->surfaces[i]->shader;
+				}
+				if(shader == tr.defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name);
+				}
+				else if(shader->defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+				}
+			}
 			else
 			{
 				shader = vboSurface->shader;
@@ -739,37 +725,29 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 			{
 				shader = R_GetShaderByHandle(ent->e.customShader);
 			}
-			/*
-			   else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
-			   {
-			   skin_t         *skin;
-			   int             j;
+			else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+			{
+				skin_t         *skin;
 
-			   skin = R_GetSkinByHandle(ent->e.customSkin);
+				skin = R_GetSkinByHandle(ent->e.customSkin);
 
-			   // match the surface name to something in the skin file
-			   shader = tr.defaultShader;
-			   for(j = 0; j < skin->numSurfaces; j++)
-			   {
-			   // the names have both been lowercased
-			   if(!strcmp(skin->surfaces[j]->name, surface->name))
-			   {
-			   shader = skin->surfaces[j]->shader;
-			   break;
-			   }
-			   }
-			   if(shader == tr.defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
-			   skin->name);
-			   }
-			   else if(shader->defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
-			   skin->name);
-			   }
-			   }
-			 */
+				// match the surface name to something in the skin file
+				shader = tr.defaultShader;
+
+				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
+				if(i >= 0 && i < MD3_MAX_SURFACES)
+				{
+					shader = skin->surfaces[i]->shader;
+				}
+				if(shader == tr.defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name);
+				}
+				else if(shader->defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+				}
+			}
 			else
 			{
 				shader = R_GetShaderByHandle(surface->shaderIndex);
@@ -803,37 +781,29 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 			{
 				shader = R_GetShaderByHandle(ent->e.customShader);
 			}
-			/*
-			   else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
-			   {
-			   skin_t         *skin;
-			   int             j;
+			else if(ent->e.customSkin > 0 && ent->e.customSkin < tr.numSkins)
+			{
+				skin_t         *skin;
 
-			   skin = R_GetSkinByHandle(ent->e.customSkin);
+				skin = R_GetSkinByHandle(ent->e.customSkin);
 
-			   // match the surface name to something in the skin file
-			   shader = tr.defaultShader;
-			   for(j = 0; j < skin->numSurfaces; j++)
-			   {
-			   // the names have both been lowercased
-			   if(!strcmp(skin->surfaces[j]->name, surface->name))
-			   {
-			   shader = skin->surfaces[j]->shader;
-			   break;
-			   }
-			   }
-			   if(shader == tr.defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", surface->name,
-			   skin->name);
-			   }
-			   else if(shader->defaultShader)
-			   {
-			   ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name,
-			   skin->name);
-			   }
-			   }
-			 */
+				// match the surface name to something in the skin file
+				shader = tr.defaultShader;
+
+				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
+				if(i >= 0 && i < MD3_MAX_SURFACES)
+				{
+					shader = skin->surfaces[i]->shader;
+				}
+				if(shader == tr.defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name);
+				}
+				else if(shader->defaultShader)
+				{
+					ri.Printf(PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name);
+				}
+			}
 			else
 			{
 				shader = vboSurface->shader;
