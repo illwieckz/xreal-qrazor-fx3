@@ -11,7 +11,30 @@ models/players/shina/cloth
 	specularMap models/players/shina/cloth_s.png
 
 }
+models/players/shina/cloth_red
+{
+	{ 
+		if(parm4 <= 0.5)
+		stage diffuseMap
+		map models/players/shina/cloth_red.png
+	}
 
+	bumpMap models/players/shina/cloth_n.png
+	specularMap models/players/shina/cloth_s.png
+
+}
+models/players/shina/cloth_blue
+{
+	{ 
+		if(parm4 <= 0.5)
+		stage diffuseMap
+		map models/players/shina/cloth_blue.png
+	}
+
+	bumpMap models/players/shina/cloth_n.png
+	specularMap models/players/shina/cloth_s.png
+
+}
 models/players/shina/cloth_head
 {
 	{
@@ -23,6 +46,27 @@ models/players/shina/cloth_head
 	specularMap models/players/shina/cloth_head_s.png
 }
 
+models/players/shina/cloth_head_red
+{
+	{
+		if(parm4 <= 0.5)
+		stage diffuseMap
+		map models/players/shina/cloth_head_red.png
+	}
+	bumpMap models/players/shina/cloth_head_n.png
+	specularMap models/players/shina/cloth_head_s.png
+}
+
+models/players/shina/cloth_head_blue
+{
+	{
+		if(parm4 <= 0.5)
+		stage diffuseMap
+		map models/players/shina/cloth_head_blue.png
+	}
+	bumpMap models/players/shina/cloth_head_n.png
+	specularMap models/players/shina/cloth_head_s.png
+}
 models/players/shina/cloth_middle
 {
 	{
@@ -34,7 +78,29 @@ models/players/shina/cloth_middle
 	bumpMap models/players/shina/cloth_middle_n.png
 	specularMap models/players/shina/cloth_middle_s.png
 }
+models/players/shina/cloth_middle_red
+{
+	{
+		if(parm4 <= 0.5)
+		stage diffuseMap
+		map models/players/shina/cloth_middle_red.png
+	}
 
+	bumpMap models/players/shina/cloth_middle_n.png
+	specularMap models/players/shina/cloth_middle_s.png
+}
+
+models/players/shina/cloth_middle_blue
+{
+	{
+		if(parm4 <= 0.5)
+		stage diffuseMap
+		map models/players/shina/cloth_middle_blue.png
+	}
+
+	bumpMap models/players/shina/cloth_middle_n.png
+	specularMap models/players/shina/cloth_middle_s.png
+}
 
 models/players/shina/cloth_lower
 {
@@ -65,6 +131,17 @@ models/players/shina/accessecoires
 		stage diffuseMap
 		map models/players/shina/accessecoires.png
 	}
+
+	{
+		if(parm4 <= 0.5)
+		map models/players/shina/accessecoires_glow.png
+
+		blend blend
+		alpha 0.6 + 0.3 * ( 1.0 -  (   (sinTable[time * .8] + 1.0) / 2.0 ) )
+	}
+
+	specularMap models/players/shina/accessecoires_s.png
+
 }
 
 models/players/shina/skin
@@ -74,6 +151,8 @@ models/players/shina/skin
 		stage diffuseMap
 		map models/players/shina/skin.png
 	}
+
+
 	bumpMap models/players/shina/skin_n.png
 	specularMap models/players/shina/skin_s.png
 }
