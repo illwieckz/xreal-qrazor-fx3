@@ -1516,15 +1516,15 @@ extern char     systemChat[256];
 extern char     teamChat1[256];
 extern char     teamChat2[256];
 
-void            CG_DrawHudString(int x, int y, char *s, float size, int style, vec4_t color);
+void            CG_DrawHudString(int x, int y, char *s, float size, int style, const vec4_t color);
 
 int             CG_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
 int             CG_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
 void            CG_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
 								  qhandle_t hShader);
-void            CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
-							  const fontInfo_t * font);
-void            CG_Text_PaintAligned(int x, int y, char *s, float scale, int style, vec4_t color, const fontInfo_t * font);
+void            CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit,
+							  int style, const fontInfo_t * font);
+void            CG_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font);
 
 void            CG_AddLagometerFrameInfo(void);
 void            CG_AddLagometerSnapshotInfo(snapshot_t * snap);

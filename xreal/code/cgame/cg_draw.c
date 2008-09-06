@@ -141,7 +141,7 @@ void CG_Text_PaintChar(float x, float y, float width, float height, float scale,
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
+void CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style,
 				   const fontInfo_t * font)
 {
 	int             len, count;
@@ -205,7 +205,7 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	}
 }
 
-void CG_Text_PaintAligned(int x, int y, char *s, float scale, int style, vec4_t color, const fontInfo_t * font)
+void CG_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
 {
 	int             w, h;
 
@@ -1082,7 +1082,7 @@ TODO: divide into sections ( lower, upper etc )
 #define HUD_STATSIZE 0.5f
 
 
-void CG_DrawHudString(int x, int y, char *s, float size, int style, vec4_t color)
+void CG_DrawHudString(int x, int y, char *s, float size, int style, const vec4_t color)
 {
 
 	int             w, h;
@@ -2115,7 +2115,7 @@ static float CG_DrawScores(float y)
 	gitem_t        *item;
 
 	if(cg_drawStatus.integer == 3)
-		return;
+		return y;
 
 	s1 = cgs.scores1;
 	s2 = cgs.scores2;

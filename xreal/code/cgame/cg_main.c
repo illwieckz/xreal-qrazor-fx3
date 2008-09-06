@@ -258,7 +258,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE},
 	{&cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE},
 	{&cg_debugHUD, "cg_debugHUD", "0", CVAR_ARCHIVE},
-	{&cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE},
+	{&cg_drawStatus, "cg_drawStatus", "3", CVAR_CHEAT},
 	{&cg_drawStatusLines, "cg_drawStatusLines", "1", CVAR_ARCHIVE},
 	{&cg_drawSideBar, "cg_drawSideBar", "0", CVAR_ARCHIVE},
 	{&cg_drawPickupItem, "cg_drawPickupItem", "0", CVAR_ARCHIVE},
@@ -272,15 +272,15 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE},
 	{&cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE},
 
-	//generic crosshair stuff
+	// generic crosshair stuff
 	{&cg_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE},
 	{&cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE},
-	//old crosshair stuff
+	// old crosshair stuff
 	{&cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE},
 	{&cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE},
 	{&cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE},
 	{&cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE},
-	//new combination crosshair stuff, enable with cg_drawStatus 3
+	// new combination crosshair stuff, enable with cg_drawStatus 3
 	{&cg_crosshairDot, "cg_crosshairDot", "0", CVAR_ARCHIVE},
 	{&cg_crosshairCircle, "cg_crosshairCircle", "0", CVAR_ARCHIVE},
 	{&cg_crosshairCross, "cg_crosshairCross", "3", CVAR_ARCHIVE},
