@@ -346,7 +346,7 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
 		{
 			Com_Printf("loading skin %s\n", filename);
-	
+
 			ci->bodySkin = trap_R_RegisterSkin(filename);
 		}
 		if(!ci->bodySkin)
