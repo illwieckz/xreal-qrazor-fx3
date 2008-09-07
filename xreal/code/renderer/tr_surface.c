@@ -2296,7 +2296,52 @@ Draws x/y/z lines from the origin for orientation debugging
 */
 static void Tess_SurfaceAxis(void)
 {
+	int             k;
+	vec4_t          verts[3];
+	vec3_t          forward, right, up;
+
 	GLimp_LogComment("--- Tess_SurfaceAxis ---\n");
+
+#if 0
+	Tess_CheckOverflow(9, 9);
+
+	MatrixToVectorsFRU(backEnd.or.transformMatrix, forward, right, up);
+
+	VectorClear(verts[0]);
+	VectorScale(forward, 1, verts[1]);
+	VectorScale(up, 0.2, verts[2]);
+	for(k = 0; k < 3; k++)
+	{
+		verts[k][3] = 1;
+		VectorCopy4(verts[k], tess.xyz[tess.numVertexes]);
+		VectorCopy4(colorRed, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+	}
+
+	VectorScale(right, 1, verts[1]);
+	VectorScale(up, 0.2, verts[2]);
+	for(k = 0; k < 3; k++)
+	{
+		verts[k][3] = 1;
+		VectorCopy4(verts[k], tess.xyz[tess.numVertexes]);
+		VectorCopy4(colorGreen, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+	}
+
+	VectorScale(up, 1, verts[1]);
+	VectorScale(forward, 0.2, verts[2]);
+	for(k = 0; k < 3; k++)
+	{
+		verts[k][3] = 1;
+		VectorCopy4(verts[k], tess.xyz[tess.numVertexes]);
+		VectorCopy4(colorBlue, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+	}
+#endif
+
 
 	/*
 	   GL_BindProgram(0);

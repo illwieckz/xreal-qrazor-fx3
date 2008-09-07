@@ -5911,7 +5911,7 @@ static void RB_RenderDebugUtils()
 				}
 #else
 				{
-					QuatToVectorsFRU(ent->e.skeleton.bones[i].rotation, forward, right, up);
+					QuatToVectorsFRU(ent->e.skeleton.bones[j].rotation, forward, right, up);
 				}
 #endif
 
@@ -5920,14 +5920,55 @@ static void RB_RenderDebugUtils()
 				//PerpendicularVector(right, forward);
 				//CrossProduct(forward, right, up);
 
-				VectorMA(offset, 1, forward, forward);
-				VectorMA(offset, 1, right, right);
-				VectorMA(offset, 1, up, up);
+				//VectorMA(offset, 1, forward, forward);
+				//VectorMA(offset, 1, right, right);
+				//VectorMA(offset, 1, up, up);
 
 				// draw orientation
 				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 				//qglVertex3fv(offset);
 				//qglVertex3fv(forward);
+
+#if 0
+				VectorCopy(offset, tetraVerts[0]);
+				VectorMA(offset, 1, forward, tetraVerts[1]);
+				VectorMA(offset, 0.2, up, tetraVerts[2]);
+				for(k = 0; k < 3; k++)
+				{
+					tetraVerts[k][3] = 1;
+					VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
+					VectorCopy4(colorRed, tess.colors[tess.numVertexes]);
+					tess.indexes[tess.numIndexes++] = tess.numVertexes;
+					tess.numVertexes++;
+				}
+
+
+				VectorCopy(offset, tetraVerts[0]);
+				VectorMA(offset, 1, right, tetraVerts[1]);
+				VectorMA(offset, 0.2, up, tetraVerts[2]);
+				for(k = 0; k < 3; k++)
+				{
+					tetraVerts[k][3] = 1;
+					VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
+					VectorCopy4(colorGreen, tess.colors[tess.numVertexes]);
+					tess.indexes[tess.numIndexes++] = tess.numVertexes;
+					tess.numVertexes++;
+				}
+
+				VectorCopy(offset, tetraVerts[0]);
+				VectorMA(offset, 1, up, tetraVerts[1]);
+				VectorMA(offset, 0.2, forward, tetraVerts[2]);
+				for(k = 0; k < 3; k++)
+				{
+					tetraVerts[k][3] = 1;
+					VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
+					VectorCopy4(colorBlue, tess.colors[tess.numVertexes]);
+					tess.indexes[tess.numIndexes++] = tess.numVertexes;
+					tess.numVertexes++;
+				}
+#endif
+
+				//Tess_AddTetrahedron(tetraVerts, colorRed);
 
 				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
 				//qglVertex3fv(offset);
@@ -5938,12 +5979,12 @@ static void RB_RenderDebugUtils()
 				//qglVertex3fv(up);
 
 				// draw bone volume
-				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j % 8]);
-
+#if 1
 				VectorSubtract(offset, origin, diff);
 				if((length = VectorNormalize(diff)))
 				{
 					PerpendicularVector(tmp, diff);
+					//VectorCopy(up, tmp);
 
 					VectorScale(tmp, length * 0.1, tmp2);
 					VectorMA(tmp2, length * 0.2, diff, tmp2);
@@ -5954,18 +5995,35 @@ static void RB_RenderDebugUtils()
 						VectorAdd(tmp3, origin, tmp3);
 						VectorCopy(tmp3, tetraVerts[k]);
 						tetraVerts[k][3] = 1;
-
-						//qglVertex3fv(origin);
-						//qglVertex3fv(tmp3);
-
-						//qglVertex3fv(offset);
-						//qglVertex3fv(tmp3);
 					}
+
+					VectorCopy(origin, tetraVerts[3]);
+					tetraVerts[3][3] = 1;
+					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+
 					VectorCopy(offset, tetraVerts[3]);
+					tetraVerts[3][3] = 1;
+					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+				}
+#else
+				VectorSubtract(offset, origin, diff);
+				if((length = VectorNormalize(diff)))
+				{
+					//VectorMA(origin, 1, forward, forward);
+					//VectorMA(origin, length * 0.1, right, tetraVerts[0]);
+					VectorCopy(origin, tetraVerts[0]);
+					VectorMA(origin, -length * 0.1, right, tetraVerts[1]);
+					VectorMA(origin, length * 0.1, up, tetraVerts[2]);
+					VectorCopy(offset, tetraVerts[3]);
+
+					tetraVerts[0][3] = 1;
+					tetraVerts[1][3] = 1;
+					tetraVerts[2][3] = 1;
 					tetraVerts[3][3] = 1;
 
 					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
 				}
+#endif
 			}
 
 			Tess_UpdateVBOs();

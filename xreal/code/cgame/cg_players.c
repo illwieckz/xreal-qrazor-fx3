@@ -1282,6 +1282,7 @@ void CG_NewClientInfo(int clientNum)
 		{
 			// keep whatever they had if it won't violate team skins
 			CG_SetDeferredClientInfo(&newInfo);
+
 			// if we are low on memory, leave them with this model
 			if(forceDefer)
 			{
