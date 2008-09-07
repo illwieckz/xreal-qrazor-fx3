@@ -1003,8 +1003,8 @@ typedef struct
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSansBoldFont;
 	fontInfo_t      freeSerifBoldFont;
-	//otty: new font for HUD and some display messages 
-	fontInfo_t      hudMonoFont;
+	//otty: new font for HUD  
+	fontInfo_t      hudNumberFont;
 
 	// sounds
 	sfxHandle_t     quadSound;

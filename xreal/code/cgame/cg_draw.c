@@ -1084,28 +1084,7 @@ TODO: divide into sections ( lower, upper etc )
 
 void CG_DrawHudString(int x, int y, char *s, float size, int style, const vec4_t color)
 {
-
-	int             w, h;
-	const fontInfo_t *font = &cgs.media.freeSerifBoldFont;
-
-	w = CG_Text_Width(s, size, 0, font);
-	h = CG_Text_Height(s, size, 0, font);
-
-	switch (style)
-	{
-		case UI_CENTER:
-			CG_Text_Paint(x - w / 2, y + h / 2, size, color, s, 0, 0, 0, font);
-			break;
-
-		case UI_RIGHT:
-			CG_Text_Paint(x - w, y + h / 2, size, color, s, 0, 0, 0, font);
-			break;
-
-		case UI_LEFT:
-		default:
-			CG_Text_Paint(x, y + h / 2, size, color, s, 0, 0, 0, font);
-			break;
-	}
+	CG_Text_PaintAligned(x, y, s, size, style | UI_DROPSHADOW, color, &cgs.media.hudNumberFont);
 }
 
 
