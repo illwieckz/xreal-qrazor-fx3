@@ -572,7 +572,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 				shader = tr.defaultShader;
 
 				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
-				if(i >= 0 && i < MD3_MAX_SURFACES)
+				if(i >= 0 && i < skin->numSurfaces && skin->surfaces[i])
 				{
 					shader = skin->surfaces[i]->shader;
 				}
@@ -629,7 +629,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 				shader = tr.defaultShader;
 
 				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
-				if(i >= 0 && i < MD3_MAX_SURFACES)
+				if(i >= 0 && i < skin->numSurfaces && skin->surfaces[i])
 				{
 					shader = skin->surfaces[i]->shader;
 				}
@@ -737,7 +737,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 				shader = tr.defaultShader;
 
 				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
-				if(i >= 0 && i < MD3_MAX_SURFACES)
+				if(i >= 0 && i < skin->numSurfaces && skin->surfaces[i])
 				{
 					shader = skin->surfaces[i]->shader;
 				}
@@ -793,7 +793,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 				shader = tr.defaultShader;
 
 				// FIXME: replace MD3_MAX_SURFACES for skin_t::surfaces
-				if(i >= 0 && i < MD3_MAX_SURFACES)
+				if(i >= 0 && i < skin->numSurfaces && skin->surfaces[i])
 				{
 					shader = skin->surfaces[i]->shader;
 				}
