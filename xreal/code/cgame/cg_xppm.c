@@ -339,7 +339,7 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "land", qfalse, qfalse, qfalse);
 
 
-		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "jump");
+		CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "step", qfalse, qfalse, qfalse);
 
 
 
@@ -1073,7 +1073,7 @@ void CG_XPPM_Player(centity_t * cent)
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
-		QuatFromAngles(torsoQuat, torsoAngles[ROLL], -torsoAngles[PITCH], torsoAngles[YAW]);
+		QuatFromAngles(torsoQuat, torsoAngles[YAW], torsoAngles[ROLL], -torsoAngles[PITCH]);
 		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, torsoQuat);
 	}
 #endif
@@ -1085,7 +1085,7 @@ void CG_XPPM_Player(centity_t * cent)
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
-		QuatFromAngles(headQuat, headAngles[ROLL], headAngles[PITCH], headAngles[YAW]);
+		QuatFromAngles(headQuat,headAngles[YAW], headAngles[ROLL], -headAngles[PITCH]);
 		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, headQuat);
 	}
 #endif
