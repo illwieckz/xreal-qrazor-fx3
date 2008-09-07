@@ -1105,7 +1105,7 @@ void CG_XPPM_Player(centity_t * cent)
 
 		cent->pe.deathScale = 1.0f - (1.0f / DEATHANIM_TIME * time);
 
-		body.customShader = trap_R_RegisterShaderNoMip("player/unlink_effect");
+		body.customShader = cgs.media.unlinkEffect ;
 		trap_R_AddRefEntityToScene(&body);
 	}
 

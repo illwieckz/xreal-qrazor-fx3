@@ -1144,7 +1144,7 @@ void CG_DrawStatusBarNew(void)
 			score = cgs.fraglimit;
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 40, 0, 80, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_middle"));
+		CG_DrawPic(320 - 40, 0, 80, 40, cgs.media.hud_top_team_middle);
 		trap_R_SetColor(NULL);
 
 		VectorCopy4(color, scorecolor);
@@ -1163,7 +1163,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 40, 0, 80, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay"));
+		CG_DrawPic(320 - 40, 0, 80, 40, cgs.media.hud_top_team_overlay);
 		trap_R_SetColor(NULL);
 
 
@@ -1176,13 +1176,13 @@ void CG_DrawStatusBarNew(void)
 		if(cgs.gametype >= GT_CTF)
 		{
 			trap_R_SetColor(color);
-			CG_DrawPic(320 - 10 - 100, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ctf_left"));
+			CG_DrawPic(320 - 10 - 100, 3, 100, 40, cgs.media.hud_top_ctf_left);
 			trap_R_SetColor(NULL);
 		}
 		else
 		{
 			trap_R_SetColor(color);
-			CG_DrawPic(320 - 10 - 100, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_left"));
+			CG_DrawPic(320 - 10 - 100, 3, 100, 40, cgs.media.hud_top_team_left);
 			trap_R_SetColor(NULL);
 		}
 
@@ -1194,7 +1194,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		trap_R_SetColor(color);
-		CG_DrawPic(320 - 10 - 100, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_left_overlay"));
+		CG_DrawPic(320 - 10 - 100, 3, 100, 40, cgs.media.hud_top_team_left_overlay);
 		trap_R_SetColor(NULL);
 
 		//background right - blue team
@@ -1204,13 +1204,13 @@ void CG_DrawStatusBarNew(void)
 		if(cgs.gametype >= GT_CTF)
 		{
 			trap_R_SetColor(color);
-			CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ctf_right"));
+			CG_DrawPic(320 + 10, 3, 100, 40, cgs.media.hud_top_ctf_right);
 			trap_R_SetColor(NULL);
 		}
 		else
 		{
 			trap_R_SetColor(color);
-			CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_right"));
+			CG_DrawPic(320 + 10, 3, 100, 40, cgs.media.hud_top_team_right);
 			trap_R_SetColor(NULL);
 		}
 
@@ -1221,7 +1221,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawHudString(385, 15, s, fontsize, UI_CENTER, scorecolor);
 
 		trap_R_SetColor(color);
-		CG_DrawPic(320 + 10, 3, 100, 40, trap_R_RegisterShaderNoMip("hud/hud_top_team_right_overlay"));
+		CG_DrawPic(320 + 10, 3, 100, 40, cgs.media.hud_top_team_right_overlay);
 		trap_R_SetColor(NULL);
 
 	}
@@ -1233,7 +1233,7 @@ void CG_DrawStatusBarNew(void)
 		score = cg.snap->ps.persistant[PERS_SCORE];
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 25, 0, 50, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle"));
+		CG_DrawPic(320 - 25, 0, 50, 40, cgs.media.hud_top_ffa_middle);
 		trap_R_SetColor(NULL);
 
 		//blink your score if on first or second place
@@ -1257,7 +1257,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawHudString(320, 21, s, fontsize, UI_CENTER, scorecolor);
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 25, 0, 50, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle_overlay"));
+		CG_DrawPic(320 - 25, 0, 50, 40, cgs.media.hud_top_ffa_middle_overlay);
 		trap_R_SetColor(NULL);
 
 
@@ -1265,7 +1265,7 @@ void CG_DrawStatusBarNew(void)
 		score = cgs.fraglimit;
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 25 - 66, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left"));
+		CG_DrawPic(320 - 25 - 66, 0, 66, 40, cgs.media.hud_top_ffa_left);
 		trap_R_SetColor(NULL);
 
 
@@ -1285,7 +1285,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 25 - 66, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left_overlay"));
+		CG_DrawPic(320 - 25 - 66, 0, 66, 40, cgs.media.hud_top_ffa_left_overlay);
 		trap_R_SetColor(NULL);
 
 		//background right - first place score if self not first, or second place score if on first place
@@ -1300,7 +1300,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 + 25, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right"));
+		CG_DrawPic(320 + 25, 0, 66, 40, cgs.media.hud_top_ffa_right);
 		trap_R_SetColor(NULL);
 
 		VectorCopy4(basecolor, scorecolor);
@@ -1313,7 +1313,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 + 25, 0, 66, 40, trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right_overlay"));
+		CG_DrawPic(320 + 25, 0, 66, 40, cgs.media.hud_top_ffa_right_overlay);
 		trap_R_SetColor(NULL);
 
 	}
@@ -1342,7 +1342,7 @@ void CG_DrawStatusBarNew(void)
 
 	//left - health
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_left"));
+	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_left);
 	trap_R_SetColor(NULL);
 
 	value = ps->stats[STAT_HEALTH];
@@ -1369,7 +1369,7 @@ void CG_DrawStatusBarNew(void)
 
 
 	trap_R_SetColor(colorWhite);
-	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_left_overlay"));
+	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_left_overlay);
 	trap_R_SetColor(NULL);
 
 
@@ -1409,7 +1409,7 @@ void CG_DrawStatusBarNew(void)
 	color[3] = 0.75f + 0.25f * sin(cg.time / 400.0f);
 
 	trap_R_SetColor(color);
-	CG_DrawPic(17 - hflash / 2, 435 - hflash / 2, 30 + hflash, 30 + hflash, trap_R_RegisterShaderNoMip("hud/hud_icon_health"));
+	CG_DrawPic(17 - hflash / 2, 435 - hflash / 2, 30 + hflash, 30 + hflash, cgs.media.hud_icon_health);
 	trap_R_SetColor(NULL);
 
 	//middle, ammo, ammo types, weaponselection
@@ -1417,7 +1417,7 @@ void CG_DrawStatusBarNew(void)
 
 	fadecolor[3] *= 1.0f - cg.bar_offset;
 	trap_R_SetColor(fadecolor);
-	CG_DrawPic(295, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 50, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_middle"));
+	CG_DrawPic(295, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 50, 50, cgs.media.hud_bar_middle_middle);
 	trap_R_SetColor(NULL);
 
 
@@ -1425,17 +1425,17 @@ void CG_DrawStatusBarNew(void)
 	offset2 = 25 * cg.bar_offset;
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(201 - offset, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_end"));
+	CG_DrawPic(201 - offset, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, cgs.media.hud_bar_middle_left_end);
 	CG_DrawPic(201 - offset + 34, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, (276 + offset2) - (201 - offset + 34), 50,
-			   trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_middle"));
+			   cgs.media.hud_bar_middle_left_middle);
 	CG_DrawPic(276 + offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50,
-			   trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_right"));
+			   cgs.media.hud_bar_middle_left_right);
 
 	CG_DrawPic(345 - offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50,
-			   trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_left"));
+			   cgs.media.hud_bar_middle_right_left);
 	CG_DrawPic(345 - offset2 + 19, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, (405 + offset) - (345 - offset2 + 19), 50,
-			   trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_middle"));
-	CG_DrawPic(405 + offset, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_end"));
+			   cgs.media.hud_bar_middle_right_middle);
+	CG_DrawPic(405 + offset, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, cgs.media.hud_bar_middle_right_end);
 	trap_R_SetColor(NULL);
 
 
@@ -1451,7 +1451,7 @@ void CG_DrawStatusBarNew(void)
 	trap_R_SetColor(NULL);
 
 	trap_R_SetColor(fadecolor);
-	CG_DrawPic(201, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 238, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_middle_overlay"));
+	CG_DrawPic(201, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 238, 50, cgs.media.hud_bar_middle_overlay);
 	trap_R_SetColor(NULL);
 
 	//right, armor
@@ -1462,7 +1462,7 @@ void CG_DrawStatusBarNew(void)
 		return;
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(510 - HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_right"));
+	CG_DrawPic(510 - HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_right);
 	trap_R_SetColor(NULL);
 
 	armorcolor[3] = 1.0f;
@@ -1473,7 +1473,7 @@ void CG_DrawStatusBarNew(void)
 
 
 	trap_R_SetColor(colorWhite);
-	CG_DrawPic(510 - HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, trap_R_RegisterShaderNoMip("hud/hud_bar_right_overlay"));
+	CG_DrawPic(510 - HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_right_overlay);
 	trap_R_SetColor(NULL);
 
 	VectorCopy4(basecolor, color);
@@ -1481,7 +1481,7 @@ void CG_DrawStatusBarNew(void)
 
 	trap_R_SetColor(color);
 	CG_DrawPic(610 - 17 - arflash / 2, 435 - arflash / 2, 30 + arflash, 30 + arflash,
-			   trap_R_RegisterShaderNoMip("hud/hud_icon_armor"));
+			   cgs.media.hud_icon_armor);
 
 
 	trap_R_SetColor(NULL);

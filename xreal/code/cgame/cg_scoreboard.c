@@ -215,7 +215,7 @@ void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
 	const char     *s;
 
 	trap_R_SetColor(color);
-	CG_DrawPic(150, 73, 340, 40, trap_R_RegisterShaderNoMip("hud/scoreboard_title"));
+	CG_DrawPic(150, 73, 340, 40, cgs.media.hud_scoreboard_title);
 	trap_R_SetColor(NULL);
 
 
@@ -259,7 +259,7 @@ void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
 	}
 
 	trap_R_SetColor(color);
-	CG_DrawPic(150, 73, 340, 40, trap_R_RegisterShaderNoMip("hud/scoreboard_title_overlay"));
+	CG_DrawPic(150, 73, 340, 40, cgs.media.hud_scoreboard_title_overlay);
 	trap_R_SetColor(NULL);
 }
 
@@ -606,14 +606,14 @@ qboolean CG_DrawScoreboardNew(void)
 
 		//red
 		trap_R_SetColor(redcolor);
-		CG_DrawPic(SCOREBOARD_RED, 120, 260, 300, trap_R_RegisterShaderNoMip("hud/scoreboard"));
+		CG_DrawPic(SCOREBOARD_RED, 120, 260, 300, cgs.media.hud_scoreboard);
 		trap_R_SetColor(NULL);
 
 		CG_DrawScoreboardHeadlineNew(headline_red);
 
 		//blue
 		trap_R_SetColor(bluecolor);
-		CG_DrawPic(SCOREBOARD_BLUE, 120, 260, 300, trap_R_RegisterShaderNoMip("hud/scoreboard"));
+		CG_DrawPic(SCOREBOARD_BLUE, 120, 260, 300, cgs.media.hud_scoreboard);
 		trap_R_SetColor(NULL);
 
 		CG_DrawScoreboardHeadlineNew(headline_blue);
@@ -651,7 +651,7 @@ qboolean CG_DrawScoreboardNew(void)
 
 		// scoreboard
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(SCOREBOARD_FFA, 120, 340, 300, trap_R_RegisterShaderNoMip("hud/scoreboard"));
+		CG_DrawPic(SCOREBOARD_FFA, 120, 340, 300, cgs.media.hud_scoreboard);
 		trap_R_SetColor(NULL);
 
 		// top line:

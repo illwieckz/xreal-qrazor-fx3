@@ -898,6 +898,43 @@ typedef struct
 
 	qhandle_t       crosshairShader[NUM_CROSSHAIRS];
 
+
+	//new hud shader
+	qhandle_t hud_top_team_middle ;
+	qhandle_t hud_top_team_overlay ;
+	qhandle_t hud_top_team_left ;
+	qhandle_t hud_top_team_left_overlay ;
+	qhandle_t hud_top_ctf_left ;
+	qhandle_t hud_top_ctf_right ;
+	qhandle_t hud_top_team_right ;
+	qhandle_t hud_top_team_right_overlay ;
+	qhandle_t hud_top_ffa_middle ;
+	qhandle_t hud_top_ffa_middle_overlay ;
+	qhandle_t hud_top_ffa_left ;
+	qhandle_t hud_top_ffa_left_overlay ;
+	qhandle_t hud_top_ffa_right ;
+	qhandle_t hud_top_ffa_right_overlay ;
+
+	qhandle_t hud_bar_left ;
+	qhandle_t hud_bar_left_overlay ;
+	qhandle_t hud_bar_middle_middle ;
+	qhandle_t hud_bar_middle_left_end  ;
+	qhandle_t hud_bar_middle_left_middle  ;
+	qhandle_t hud_bar_middle_left_right  ;
+	qhandle_t hud_bar_middle_right_left  ;
+	qhandle_t hud_bar_middle_right_middle ;
+	qhandle_t hud_bar_middle_right_end ;
+	qhandle_t hud_bar_middle_overlay ;
+	qhandle_t hud_bar_right ;
+	qhandle_t hud_bar_right_overlay  ;
+
+	qhandle_t hud_icon_health ;
+	qhandle_t hud_icon_armor ;
+
+	qhandle_t hud_scoreboard_title;
+	qhandle_t hud_scoreboard_title_overlay;
+	qhandle_t hud_scoreboard ;
+
 	//new combination crosshair stuff
 	qhandle_t       crosshairDot[NUM_CROSSHAIRS];
 	qhandle_t       crosshairCircle[NUM_CROSSHAIRS];
@@ -956,6 +993,9 @@ typedef struct
 	qhandle_t       hastePuffShader;
 	qhandle_t       redKamikazeShader;
 	qhandle_t       blueKamikazeShader;
+
+	//effect shaders
+	qhandle_t	unlinkEffect;
 
 	// weapon effect models
 	qhandle_t       dishFlashModel;

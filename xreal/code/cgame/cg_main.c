@@ -961,6 +961,47 @@ static void CG_RegisterGraphics(void)
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
 	}
 
+
+	//otty: register HUD media
+
+	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
+	cgs.media.hud_top_team_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_overlay");
+	cgs.media.hud_top_team_left = trap_R_RegisterShaderNoMip("hud/hud_top_team_left");
+	cgs.media.hud_top_team_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_left_overlay");
+	cgs.media.hud_top_ctf_left = trap_R_RegisterShaderNoMip("hud/hud_top_ctf_left");
+	cgs.media.hud_top_ctf_right = trap_R_RegisterShaderNoMip("hud/hud_top_ctf_right");
+	cgs.media.hud_top_team_right = trap_R_RegisterShaderNoMip("hud/hud_top_team_right");
+	cgs.media.hud_top_team_right_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_right_overlay");
+	cgs.media.hud_top_ffa_middle = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle");
+	cgs.media.hud_top_ffa_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle_overlay");
+	cgs.media.hud_top_ffa_left = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left");
+	cgs.media.hud_top_ffa_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left_overlay");
+	cgs.media.hud_top_ffa_right = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right");
+	cgs.media.hud_top_ffa_right_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right_overlay");
+
+	cgs.media.hud_bar_left = trap_R_RegisterShaderNoMip("hud/hud_bar_left");
+	cgs.media.hud_bar_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_bar_left_overlay");
+	cgs.media.hud_bar_middle_middle = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_middle");
+	cgs.media.hud_bar_middle_left_end = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_end");
+	cgs.media.hud_bar_middle_left_middle = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_middle");
+	cgs.media.hud_bar_middle_left_right = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_right");
+	cgs.media.hud_bar_middle_right_left = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_left");
+	cgs.media.hud_bar_middle_right_middle = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_middle");
+	cgs.media.hud_bar_middle_right_end = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_end");
+	cgs.media.hud_bar_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_overlay");
+	cgs.media.hud_bar_right = trap_R_RegisterShaderNoMip("hud/hud_bar_right");
+	cgs.media.hud_bar_right_overlay = trap_R_RegisterShaderNoMip("hud/hud_bar_right_overlay");
+
+	cgs.media.hud_icon_health = trap_R_RegisterShaderNoMip("hud/hud_icon_health");
+	cgs.media.hud_icon_armor = trap_R_RegisterShaderNoMip("hud/hud_icon_armor");
+
+	cgs.media.hud_scoreboard_title = trap_R_RegisterShaderNoMip("hud/scoreboard_title");
+	cgs.media.hud_scoreboard_title_overlay = trap_R_RegisterShaderNoMip("hud/scoreboard_title_overlay");
+	cgs.media.hud_scoreboard = trap_R_RegisterShaderNoMip("hud/scoreboard");
+
+
+
+
 	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
 
 	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
@@ -1023,6 +1064,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility");
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
+
+	//effects
+	cgs.media.unlinkEffect = trap_R_RegisterShader("player/unlink_effect");
 
 #ifdef MISSIONPACK
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer)
