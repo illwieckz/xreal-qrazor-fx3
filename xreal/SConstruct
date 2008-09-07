@@ -17,7 +17,7 @@ opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symetric multiproces
 opts.Add(BoolOption('mapping', 'Set to 1 to compile GtkRadiant, XMap and BSPC mapping tools', 0))
 opts.Add(BoolOption('xmass', 'Set to 1 to compile XMass', 0))
 #opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
-opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
+#opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
 opts.Add(BoolOption('curl', 'Set to 1 to compile engine with http-download redirection support', 1))
 #opts.Add(BoolOption('openal', 'Set to 1 to compile engine with OpenAL support', 0))
 opts.Add(BoolOption('dedicated', 'Set to 1 to only compile the dedicated server', 0))

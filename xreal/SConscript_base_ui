@@ -59,9 +59,6 @@ dll_src = [
 
 ui_env = env.Copy()
 
-if env['xppm'] == 1:
-	ui_env.Append(CCFLAGS='-DXPPM')
-
 if env['arch'] == 'linux-i386':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#base/uii386.so', 'libui.so')
