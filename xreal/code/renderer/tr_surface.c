@@ -277,6 +277,39 @@ void Tess_AddQuadStamp2(vec4_t quadVerts[4], vec4_t color)
 }
 
 
+void Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t color)
+{
+	int             k;
+
+	// ground triangle
+	for(k = 0; k < 3; k++)
+	{
+		VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
+		VectorCopy4(color, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+	}
+
+	// side triangles
+	for(k = 0; k < 3; k++)
+	{
+		VectorCopy4(tetraVerts[3], tess.xyz[tess.numVertexes]);	// offset
+		VectorCopy4(color, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+
+		VectorCopy4(tetraVerts[k], tess.xyz[tess.numVertexes]);
+		VectorCopy4(color, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+
+		VectorCopy4(tetraVerts[(k + 1) % 3], tess.xyz[tess.numVertexes]);
+		VectorCopy4(color, tess.colors[tess.numVertexes]);
+		tess.indexes[tess.numIndexes++] = tess.numVertexes;
+		tess.numVertexes++;
+	}
+}
+
 /*
 ==============
 Tess_UpdateVBOs

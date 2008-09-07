@@ -5838,7 +5838,7 @@ static void RB_RenderDebugUtils()
 	}
 #endif
 
-#if 0
+#if 1
 	if(r_showSkeleton->integer)
 	{
 		int             i, j, k, parentIndex;
@@ -5847,11 +5847,25 @@ static void RB_RenderDebugUtils()
 		vec3_t          forward, right, up;
 		vec3_t          diff, tmp, tmp2, tmp3;
 		vec_t           length;
+		vec4_t          tetraVerts[4];
 
-		GL_BindProgram(NULL);
-		GL_State(GLS_DEPTHTEST_DISABLE);
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_Cull(CT_TWO_SIDED);
+
+		// set uniforms
+		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		}
+		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+
+		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
 
 		ent = backEnd.refdef.entities;
 		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)
@@ -5865,8 +5879,13 @@ static void RB_RenderDebugUtils()
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+								   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-			qglBegin(GL_LINES);
+
+			tess.numVertexes = 0;
+			tess.numIndexes = 0;
+
 			for(j = 0; j < ent->e.skeleton.numBones; j++)
 			{
 				parentIndex = ent->e.skeleton.bones[j].parentIndex;
@@ -5906,32 +5925,21 @@ static void RB_RenderDebugUtils()
 				VectorMA(offset, 1, up, up);
 
 				// draw orientation
-				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
-				//qglVertex3fv(origin);
-				//qglVertex3fv(forward);
-				qglVertex3fv(offset);
-				qglVertex3fv(forward);
-
-				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
-				//qglVertex3fv(origin);
-				//qglVertex3fv(left);
-				qglVertex3fv(offset);
-				qglVertex3fv(right);
-
-				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
-				//qglVertex3fv(origin);
-				//qglVertex3fv(up);
-				qglVertex3fv(offset);
-				qglVertex3fv(up);
-
-				// draw bone
-				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j % 8]);
-
-				// simple inner line
-				//qglVertex3fv(origin);
+				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorRed);
 				//qglVertex3fv(offset);
+				//qglVertex3fv(forward);
+
+				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorGreen);
+				//qglVertex3fv(offset);
+				//qglVertex3fv(right);
+
+				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorBlue);
+				//qglVertex3fv(offset);
+				//qglVertex3fv(up);
 
 				// draw bone volume
+				//qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, g_color_table[j % 8]);
+
 				VectorSubtract(offset, origin, diff);
 				if((length = VectorNormalize(diff)))
 				{
@@ -5940,21 +5948,32 @@ static void RB_RenderDebugUtils()
 					VectorScale(tmp, length * 0.1, tmp2);
 					VectorMA(tmp2, length * 0.2, diff, tmp2);
 
-					for(k = 0; k < 360; k += 120)
+					for(k = 0; k < 3; k++)
 					{
-						RotatePointAroundVector(tmp3, diff, tmp2, k);
-
+						RotatePointAroundVector(tmp3, diff, tmp2, k * 120);
 						VectorAdd(tmp3, origin, tmp3);
+						VectorCopy(tmp3, tetraVerts[k]);
+						tetraVerts[k][3] = 1;
 
-						qglVertex3fv(origin);
-						qglVertex3fv(tmp3);
+						//qglVertex3fv(origin);
+						//qglVertex3fv(tmp3);
 
-						qglVertex3fv(offset);
-						qglVertex3fv(tmp3);
+						//qglVertex3fv(offset);
+						//qglVertex3fv(tmp3);
 					}
+					VectorCopy(offset, tetraVerts[3]);
+					tetraVerts[3][3] = 1;
+
+					Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
 				}
 			}
-			qglEnd();
+
+			Tess_UpdateVBOs();
+
+			Tess_DrawElements();
+
+			tess.numVertexes = 0;
+			tess.numIndexes = 0;
 		}
 	}
 #endif
