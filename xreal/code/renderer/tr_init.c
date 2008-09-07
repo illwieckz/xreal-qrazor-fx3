@@ -1181,6 +1181,11 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, "Using NVIDIA DirectX 10 hardware features\n");
 	}
 
+	if(glConfig.vboVertexSkinningAvailable)
+	{
+		ri.Printf(PRINT_ALL, "Using GPU vertex skinning\n");
+	}
+
 	if(glConfig.smpActive)
 	{
 		ri.Printf(PRINT_ALL, "Using dual processor acceleration\n");
@@ -1304,7 +1309,7 @@ void R_Register(void)
 	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT);
 	r_vboWorld = ri.Cvar_Get("r_vboWorld", "1", CVAR_CHEAT);
 	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);

@@ -1372,7 +1372,6 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 		if(!surf->numTriangles || !surf->numVerts)
 			continue;
 
-		//if(r_vboVertexSkinning->integer)
 		{
 			int             vertexesNum;
 			byte           *data;

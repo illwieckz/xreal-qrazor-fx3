@@ -354,7 +354,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			// TODO
 		}
 
-		if(r_vboVertexSkinning->integer)	// && glConfig.maxVertexUniforms >= 2048)
+		if(glConfig.vboVertexSkinningAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_VertexSkinning\n#define r_VertexSkinning 1\n#endif\n");
 		}
@@ -515,7 +515,7 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(attribs & GLCS_COLOR)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_COLOR, "attr_Color");
 
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
@@ -552,7 +552,7 @@ void GLSL_InitGPUShaders(void)
 	 */
 	tr.genericSingleShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.genericSingleShader.u_VertexSkinning = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_VertexSkinning");
 		tr.genericSingleShader.u_BoneMatrix = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_BoneMatrix");
@@ -595,7 +595,7 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_LightColor");
 	tr.vertexLightingShader_DBS_entity.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.vertexLightingShader_DBS_entity.u_VertexSkinning =
 			qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_VertexSkinning");
@@ -728,7 +728,7 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ModelViewMatrix");
 		tr.geometricFillShader_DBS.u_ModelViewProjectionMatrix =
 			qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ModelViewProjectionMatrix");
-		if(r_vboVertexSkinning->integer)
+		if(glConfig.vboVertexSkinningAvailable)
 		{
 			tr.geometricFillShader_DBS.u_VertexSkinning =
 				qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_VertexSkinning");
@@ -862,7 +862,7 @@ void GLSL_InitGPUShaders(void)
 	tr.depthFillShader.u_AmbientColor = qglGetUniformLocationARB(tr.depthFillShader.program, "u_AmbientColor");
 	tr.depthFillShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.depthFillShader.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.depthFillShader.u_VertexSkinning = qglGetUniformLocationARB(tr.depthFillShader.program, "u_VertexSkinning");
 		tr.depthFillShader.u_BoneMatrix = qglGetUniformLocationARB(tr.depthFillShader.program, "u_BoneMatrix");
@@ -916,7 +916,7 @@ void GLSL_InitGPUShaders(void)
 	tr.shadowFillShader.u_ModelMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelMatrix");
 	tr.shadowFillShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.shadowFillShader.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.shadowFillShader.u_VertexSkinning = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_VertexSkinning");
 		tr.shadowFillShader.u_BoneMatrix = qglGetUniformLocationARB(tr.shadowFillShader.program, "u_BoneMatrix");
@@ -980,7 +980,7 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ModelMatrix");
 	tr.forwardLightingShader_DBS_omni.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.forwardLightingShader_DBS_omni.u_VertexSkinning =
 			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_VertexSkinning");
@@ -1055,7 +1055,7 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ModelMatrix");
 	tr.forwardLightingShader_DBS_proj.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.forwardLightingShader_DBS_proj.u_VertexSkinning =
 			qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_VertexSkinning");
@@ -1135,7 +1135,7 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ModelMatrix");
 	tr.forwardShadowingShader_proj.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.forwardShadowingShader_proj.u_VertexSkinning =
 			qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_VertexSkinning");
@@ -1201,7 +1201,7 @@ void GLSL_InitGPUShaders(void)
 	tr.reflectionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ModelMatrix");
 	tr.reflectionShader_C.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.reflectionShader_C.u_VertexSkinning = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_VertexSkinning");
 		tr.reflectionShader_C.u_BoneMatrix = qglGetUniformLocationARB(tr.reflectionShader_C.program, "u_BoneMatrix");
@@ -1227,7 +1227,7 @@ void GLSL_InitGPUShaders(void)
 	tr.reflectionShader_CB.u_ModelMatrix = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ModelMatrix");
 	tr.reflectionShader_CB.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.reflectionShader_CB.u_VertexSkinning = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_VertexSkinning");
 		tr.reflectionShader_CB.u_BoneMatrix = qglGetUniformLocationARB(tr.reflectionShader_CB.program, "u_BoneMatrix");
@@ -1254,7 +1254,7 @@ void GLSL_InitGPUShaders(void)
 	tr.refractionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ModelMatrix");
 	tr.refractionShader_C.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.refractionShader_C.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.refractionShader_C.u_VertexSkinning = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_VertexSkinning");
 		tr.refractionShader_C.u_BoneMatrix = qglGetUniformLocationARB(tr.refractionShader_C.program, "u_BoneMatrix");
@@ -1280,7 +1280,7 @@ void GLSL_InitGPUShaders(void)
 	tr.dispersionShader_C.u_ModelMatrix = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ModelMatrix");
 	tr.dispersionShader_C.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_ModelViewProjectionMatrix");
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.dispersionShader_C.u_VertexSkinning = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_VertexSkinning");
 		tr.dispersionShader_C.u_BoneMatrix = qglGetUniformLocationARB(tr.dispersionShader_C.program, "u_BoneMatrix");
@@ -1331,7 +1331,7 @@ void GLSL_InitGPUShaders(void)
 	tr.heatHazeShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ModelViewProjectionMatrix");
 
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		tr.heatHazeShader.u_VertexSkinning = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_VertexSkinning");
 		tr.heatHazeShader.u_BoneMatrix = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_BoneMatrix");
@@ -1903,7 +1903,7 @@ static void DrawTris()
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2023,7 +2023,7 @@ static void Render_genericSingle(int stage)
 	//qglUniformMatrix4fvARB(tr.genericSingleShader.u_ProjectionMatrix, 1, GL_FALSE, glState.projectionMatrix[glState.stackIndex]);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2081,7 +2081,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2379,7 +2379,7 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 						   glState.modelViewMatrix[glState.stackIndex]);
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.geometricFillShader_DBS.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2475,7 +2475,7 @@ static void Render_depthFill(int stage)
 	}
 
 	// set uniforms
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.depthFillShader.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2572,7 +2572,7 @@ static void Render_shadowFill(int stage)
 	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.shadowFillShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.shadowFillShader.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2651,7 +2651,7 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2769,7 +2769,7 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2867,7 +2867,7 @@ static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
 	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.forwardShadowingShader_proj.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2911,7 +2911,7 @@ static void Render_reflection_C(int stage)
 	qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.reflectionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2947,7 +2947,7 @@ static void Render_reflection_CB(int stage)
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.reflectionShader_CB.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.reflectionShader_CB.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -2992,7 +2992,7 @@ static void Render_refraction_C(int stage)
 	qglUniformMatrix4fvARB(tr.refractionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.refractionShader_C.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.refractionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -3037,7 +3037,7 @@ static void Render_dispersion_C(int stage)
 	qglUniformMatrix4fvARB(tr.dispersionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.dispersionShader_C.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.dispersionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
 
@@ -3273,7 +3273,7 @@ static void Render_heatHaze(int stage)
 	qglUniformMatrix4fvARB(tr.heatHazeShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.heatHazeShader.u_VertexSkinning, tess.vboVertexSkinning);
 

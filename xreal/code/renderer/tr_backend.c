@@ -502,7 +502,7 @@ void GL_ClientState(unsigned long stateBits)
 {
 	unsigned long   diff;
 
-	if(r_vboVertexSkinning->integer && tess.vboVertexSkinning)
+	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 		stateBits |= (GLCS_BONE_INDEXES | GLCS_BONE_WEIGHTS);
 
 	diff = stateBits ^ glState.glClientStateBits;
@@ -4287,7 +4287,7 @@ void RB_RenderLightOcclusionQueries()
 
 		// set uniforms
 		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-		if(r_vboVertexSkinning->integer)
+		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
@@ -5196,7 +5196,7 @@ static void RB_RenderDebugUtils()
 
 		// set uniforms
 		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-		if(r_vboVertexSkinning->integer)
+		if(glConfig.vboVertexSkinningAvailable)
 		{
 			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 		}
@@ -5681,7 +5681,7 @@ void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * 
 
 	// set uniforms
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 	}
@@ -6055,7 +6055,7 @@ void RB_ShowImages(void)
 
 	// set uniforms
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
-	if(r_vboVertexSkinning->integer)
+	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
 	}

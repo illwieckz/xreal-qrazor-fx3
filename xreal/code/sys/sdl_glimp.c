@@ -759,6 +759,12 @@ static void GLimp_InitExtensions(void)
 		qglGetIntegerv(GL_MAX_VARYING_FLOATS_ARB, &glConfig.maxVaryingFloats);
 		qglGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs);
 
+		// Tr3B: should be put this check somewhere else?
+		if(r_vboVertexSkinning->integer && glConfig.maxVertexUniforms >= 2048)
+			glConfig.vboVertexSkinningAvailable = qtrue;
+		else
+			glConfig.vboVertexSkinningAvailable = qfalse;
+
 		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
 		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");
 		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glGetAttribLocationARB");

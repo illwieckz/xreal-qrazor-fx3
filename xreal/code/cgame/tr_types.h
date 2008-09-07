@@ -271,6 +271,7 @@ typedef struct
 	int             maxVertexUniforms;
 	int             maxVaryingFloats;
 	int             maxVertexAttribs;
+	qboolean        vboVertexSkinningAvailable;
 
 	qboolean        textureNPOTAvailable;
 
