@@ -1164,9 +1164,14 @@ void GLimp_Init(void)
 
 	if(Q_stristr(glConfig.renderer_string, "geforce"))
 	{
-		if(Q_stristr(glConfig.renderer_string, "8800") || Q_stristr(glConfig.renderer_string, "8600") ||
-		   Q_stristr(glConfig.renderer_string, "8500") || Q_stristr(glConfig.renderer_string, "8400") ||
-		   Q_stristr(glConfig.renderer_string, "9600") || Q_stristr(glConfig.renderer_string, "9800"))
+		if(Q_stristr(glConfig.renderer_string, "8400") ||
+		   Q_stristr(glConfig.renderer_string, "8500") ||
+		   Q_stristr(glConfig.renderer_string, "8600") ||
+		   Q_stristr(glConfig.renderer_string, "8800") ||
+		   Q_stristr(glConfig.renderer_string, "9500") ||
+		   Q_stristr(glConfig.renderer_string, "9600") ||
+		   Q_stristr(glConfig.renderer_string, "9800") ||
+		   Q_stristr(glConfig.renderer_string, "gtx 260") || Q_stristr(glConfig.renderer_string, "gtx 280"))
 			glConfig.hardwareType = GLHW_NV_DX10;
 	}
 	else if(Q_stristr(glConfig.renderer_string, "rv770"))
