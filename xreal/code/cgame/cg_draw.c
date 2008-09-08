@@ -1163,7 +1163,7 @@ void CG_DrawStatusBarNew(void)
 
 
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(320 - 40, 0, 80, 40, cgs.media.hud_top_team_overlay);
+		CG_DrawPic(320 - 40, 0, 80, 40, cgs.media.hud_top_team_middle_overlay);
 		trap_R_SetColor(NULL);
 
 
@@ -1428,11 +1428,9 @@ void CG_DrawStatusBarNew(void)
 	CG_DrawPic(201 - offset, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, cgs.media.hud_bar_middle_left_end);
 	CG_DrawPic(201 - offset + 34, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, (276 + offset2) - (201 - offset + 34), 50,
 			   cgs.media.hud_bar_middle_left_middle);
-	CG_DrawPic(276 + offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50,
-			   cgs.media.hud_bar_middle_left_right);
+	CG_DrawPic(276 + offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50, cgs.media.hud_bar_middle_left_right);
 
-	CG_DrawPic(345 - offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50,
-			   cgs.media.hud_bar_middle_right_left);
+	CG_DrawPic(345 - offset2, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 19, 50, cgs.media.hud_bar_middle_right_left);
 	CG_DrawPic(345 - offset2 + 19, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, (405 + offset) - (345 - offset2 + 19), 50,
 			   cgs.media.hud_bar_middle_right_middle);
 	CG_DrawPic(405 + offset, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 34, 50, cgs.media.hud_bar_middle_right_end);
@@ -1480,8 +1478,7 @@ void CG_DrawStatusBarNew(void)
 	color[3] = 0.75f + 0.25f * sin(cg.time / 300.0f);
 
 	trap_R_SetColor(color);
-	CG_DrawPic(610 - 17 - arflash / 2, 435 - arflash / 2, 30 + arflash, 30 + arflash,
-			   cgs.media.hud_icon_armor);
+	CG_DrawPic(610 - 17 - arflash / 2, 435 - arflash / 2, 30 + arflash, 30 + arflash, cgs.media.hud_icon_armor);
 
 
 	trap_R_SetColor(NULL);

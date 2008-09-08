@@ -1085,7 +1085,7 @@ void CG_XPPM_Player(centity_t * cent)
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
 	{
 		// HACK: convert angles to bone system
-		QuatFromAngles(headQuat,headAngles[YAW], headAngles[ROLL], -headAngles[PITCH]);
+		QuatFromAngles(headQuat, headAngles[YAW], headAngles[ROLL], -headAngles[PITCH]);
 		QuatMultiply0(body.skeleton.bones[boneIndex].rotation, headQuat);
 	}
 #endif
@@ -1105,7 +1105,7 @@ void CG_XPPM_Player(centity_t * cent)
 
 		cent->pe.deathScale = 1.0f - (1.0f / DEATHANIM_TIME * time);
 
-		body.customShader = cgs.media.unlinkEffect ;
+		body.customShader = cgs.media.unlinkEffect;
 		trap_R_AddRefEntityToScene(&body);
 	}
 
