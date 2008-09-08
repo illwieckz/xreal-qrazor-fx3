@@ -1540,7 +1540,7 @@ static void RB_RenderInteractionsStencilShadowed()
 								light->transformed[2]);
 			}
 
-			// build the attenuation matrix using the entity transform          
+			// build the attenuation matrix using the entity transform
 			MatrixMultiply(light->viewMatrix, backEnd.or.transformMatrix, modelToLight);
 
 			switch (light->l.rlType)
@@ -3506,7 +3506,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				goto skipInteraction;
 			}
 
-			if(light->l.inverseShadows)	// && (entity == &tr.worldEntity))
+			if(light->l.inverseShadows && (entity == &tr.worldEntity))
 			{
 				// this light only casts shadows by its player and their items
 				goto skipInteraction;

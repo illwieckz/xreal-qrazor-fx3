@@ -101,6 +101,8 @@ void CG_PositionRotatedEntityOnBone(refEntity_t * entity, const refEntity_t * pa
 
 	// lerp the tag
 	boneIndex = trap_R_BoneIndex(parentModel, tagName);
+	if(boneIndex == -1)
+		return;
 
 	VectorCopy(parent->skeleton.bones[boneIndex].origin, lerped.origin);
 	QuatToAxis(parent->skeleton.bones[boneIndex].rotation, lerped.axis);
@@ -568,7 +570,7 @@ static void CG_Missile(centity_t * cent)
 
 	// add dynamic light
 	if ( weapon->missileLight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight, 
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight,
 			weapon->missileLightColor[col][0], weapon->missileLightColor[col][1], weapon->missileLightColor[col][2] );
 	}
 */
@@ -1420,7 +1422,7 @@ void CG_AddPacketEntities(void)
 	}
 	else
 	{
-		cg.frameInterpolation = 0;	// actually, it should never be used, because 
+		cg.frameInterpolation = 0;	// actually, it should never be used, because
 		// no entities should be marked as interpolating
 	}
 

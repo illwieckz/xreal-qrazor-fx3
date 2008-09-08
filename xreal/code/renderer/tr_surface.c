@@ -363,8 +363,6 @@ void Tess_UpdateVBOs()
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
-
-
 	}
 
 	GL_CheckErrors();

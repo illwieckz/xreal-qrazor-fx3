@@ -1620,7 +1620,7 @@ static void CG_AddWeaponWithPowerups(refEntity_t * gun, int powerups)
 =============
 CG_AddPlayerWeapon
 
-Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
+Used for both the view weapon (ps is valid) and the world model other character models (ps is NULL)
 The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
@@ -1634,6 +1634,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	weapon_t        weaponNum;
 	weaponInfo_t   *weapon;
 	centity_t      *nonPredictedCent;
+	int             boneIndex;
 
 	weaponNum = cent->currentState.weapon;
 
@@ -1701,16 +1702,29 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			case WP_MACHINEGUN:
 			default:
 			{
-				// HACK: this is bone specific
-				vec3_t          angles;
+				boneIndex = trap_R_BoneIndex(parent->hModel, "tag_weapon");
+				if(boneIndex >= 0 && boneIndex < cent->pe.torso.skeleton.numBones)
+				{
+					AxisClear(gun.axis);
+					CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "tag_weapon");
+					break;
+				}
 
-				angles[PITCH] = -90;
-				angles[YAW] = 0;
-				angles[ROLL] = -90;
+				boneIndex = trap_R_BoneIndex(parent->hModel, "MG_ATTACHER");
+				if(boneIndex >= 0 && boneIndex < cent->pe.torso.skeleton.numBones)
+				{
+					// HACK: this is bone specific
+					vec3_t          angles;
 
-				AnglesToAxis(angles, gun.axis);
+					angles[PITCH] = -90;
+					angles[YAW] = 0;
+					angles[ROLL] = -90;
 
-				CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "MG_ATTACHER");
+					AnglesToAxis(angles, gun.axis);
+
+					CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "MG_ATTACHER");
+					break;
+				}
 				break;
 			}
 		}
@@ -2245,7 +2259,7 @@ void CG_DrawWeaponSelectNew(void)
 
 		CG_RegisterWeapon(i);
 
-		
+
 		if(i == cg.weaponSelect){
 			continue;
 
@@ -2255,7 +2269,7 @@ void CG_DrawWeaponSelectNew(void)
 		x = HUD_X + (HUD_ICONSIZE + HUD_ICONSPACE) * ( diff );
 		if(x > HUD_X)
 			CG_DrawPic(x, y, HUD_ICONSIZE, HUD_ICONSIZE, cg_weapons[i].weaponIcon);
-	
+
 	}
 */
 

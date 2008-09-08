@@ -1617,14 +1617,14 @@ static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char
 		return qfalse;
 	}
 	node = xmlDocGetRootElement(doc);
-	
+
 	if(node == NULL)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadDAE: '%s' empty document\n", modName);
 		xmlFreeDoc(doc);
 		return qfalse;
 	}
-	
+
 	if(xmlStrcmp(node->name, (const xmlChar *) "COLLADA"))
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadDAE: '%s' document of the wrong type, root node != COLLADA", modName);
@@ -1637,7 +1637,7 @@ static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char
 	xmlFreeDoc(doc);
 
 	ri.Printf(PRINT_ALL, "...finished DAE '%s'\n", modName);
-	
+
 	return qfalse;
 }
 */
@@ -1826,7 +1826,7 @@ int RE_BoneIndex(qhandle_t hModel, const char *boneName)
 	model = R_GetModelByHandle(hModel);
 	if(!model->md5)
 	{
-		return 0;
+		return -1;
 	}
 	else
 	{
@@ -1841,7 +1841,7 @@ int RE_BoneIndex(qhandle_t hModel, const char *boneName)
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 

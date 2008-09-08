@@ -1770,6 +1770,11 @@ Tess_DrawElements
 */
 void Tess_DrawElements()
 {
+	if(tess.numIndexes == 0 || tess.numVertexes == 0)
+	{
+		return;
+	}
+
 	// move tess data through the GPU, finally
 	if(glState.currentVBO && glState.currentIBO)
 	{
