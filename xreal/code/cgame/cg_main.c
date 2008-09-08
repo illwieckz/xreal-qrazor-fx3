@@ -965,7 +965,7 @@ static void CG_RegisterGraphics(void)
 	//otty: register HUD media
 
 	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
-	cgs.media.hud_top_team_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
+	cgs.media.hud_top_team_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
 	cgs.media.hud_top_team_left = trap_R_RegisterShaderNoMip("hud/hud_top_team_left");
 	cgs.media.hud_top_team_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_left_overlay");
 	cgs.media.hud_top_ctf_left = trap_R_RegisterShaderNoMip("hud/hud_top_ctf_left");
