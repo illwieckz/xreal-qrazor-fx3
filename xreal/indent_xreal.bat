@@ -45,6 +45,8 @@ indent code/qcommon/qcommon.h
 indent code/qcommon/qfiles.h
 indent code/q3_ui/ui_local.h
 indent code/q3_ui/keycodes.h
+indent code/q3_ui/menudef.h
+indent code/q3_ui/ui_public.h
 indent code/xmap2/xmap2.h
 indent code/cgame/cg_local.h
 indent code/cgame/cg_public.h
@@ -61,11 +63,6 @@ indent code/client/cl_curl.h
 indent code/client/snd_local.h
 indent code/client/keys.h
 indent code/client/qal.h
-indent code/ui/menudef.h
-indent code/ui/ui_public.h
-indent code/ui/ui_local.h
-indent code/ui/keycodes.h
-indent code/ui/ui_shared.h
 indent code/xmass/common.h
 indent code/xmass/servers.h
 indent code/xmass/messages.h

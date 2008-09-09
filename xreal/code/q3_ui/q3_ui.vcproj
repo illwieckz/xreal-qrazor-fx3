@@ -1265,6 +1265,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\menudef.h"
+				>
+			</File>
+			<File
 				RelativePath="..\game\q_shared.h"
 				>
 			</File>
