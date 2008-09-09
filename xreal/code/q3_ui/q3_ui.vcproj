@@ -1160,7 +1160,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ui\ui_syscalls.c"
+				RelativePath="ui_syscalls.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"

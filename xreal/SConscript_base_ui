@@ -54,7 +54,7 @@ ui_src = [
 ]
 
 dll_src = [
-'code/ui/ui_syscalls.c'
+'code/q3_ui/ui_syscalls.c'
 ]
 
 ui_env = env.Copy()

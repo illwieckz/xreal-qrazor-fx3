@@ -247,6 +247,7 @@ indent code/q3_ui/ui_main.c
 indent code/q3_ui/ui_preferences.c
 indent code/q3_ui/ui_gameinfo.c
 indent code/q3_ui/ui_ingame.c
+indent code/q3_ui/ui_syscalls.c
 indent code/xmap2/fog.c
 indent code/xmap2/light.c
 indent code/xmap2/prtfile.c
@@ -362,13 +363,6 @@ indent code/client/cl_cin.c
 indent code/client/cl_input.c
 indent code/client/cl_keys.c
 indent code/client/snd_dma.c
-indent code/ui/ui_syscalls.c
-indent code/ui/ui_util.c
-indent code/ui/ui_shared.c
-indent code/ui/ui_players.c
-indent code/ui/ui_atoms.c
-indent code/ui/ui_main.c
-indent code/ui/ui_gameinfo.c
 indent code/xmass/servers.c
 indent code/xmass/messages.c
 indent code/xmass/master.c
