@@ -906,9 +906,27 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 		case UI_R_REGISTERMODEL:
 			return re.RegisterModel(VMA(1), args[2]);
 
+		//xppm stuff
+		case UI_R_REGISTERANIMATION:
+			return re.RegisterAnimation(VMA(1));
+		case UI_R_MODELBOUNDS:
+			re.ModelBounds(args[1], VMA(2), VMA(3));
+			return 0;
+		case UI_R_BUILDSKELETON:
+			return re.BuildSkeleton(VMA(1), args[2], args[3], args[4], VMF(5), args[6]);
+		case UI_R_BLENDSKELETON:
+			return re.BlendSkeleton(VMA(1), VMA(2), VMF(3));
+		case UI_R_BONEINDEX:
+			return re.BoneIndex(args[1], VMA(2));
+		case UI_R_ANIMNUMFRAMES:
+			return re.AnimNumFrames(args[1]);
+		case UI_R_ANIMFRAMERATE:
+			return re.AnimFrameRate(args[1]);
+
+
+
 		case UI_R_REGISTERSKIN:
 			return re.RegisterSkin(VMA(1));
-
 		case UI_R_REGISTERSHADERNOMIP:
 			return re.RegisterShaderNoMip(VMA(1));
 
@@ -938,10 +956,6 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 
 		case UI_R_DRAWSTRETCHPIC:
 			re.DrawStretchPic(VMF(1), VMF(2), VMF(3), VMF(4), VMF(5), VMF(6), VMF(7), VMF(8), args[9]);
-			return 0;
-
-		case UI_R_MODELBOUNDS:
-			re.ModelBounds(args[1], VMA(2), VMA(3));
 			return 0;
 
 		case UI_UPDATESCREEN:
