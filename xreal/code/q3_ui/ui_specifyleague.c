@@ -281,7 +281,7 @@ void SpecifyLeague_MenuInit(void)
 	s_specifyleague.back.height = 64;
 	s_specifyleague.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_specifyleague.back.generic.caption.text = "back";
-	s_specifyleague.back.generic.caption.style = UI_CENTER;
+	s_specifyleague.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_specifyleague.back.generic.caption.fontsize = 0.6f;
 	s_specifyleague.back.generic.caption.font = &uis.buttonFont;
 	s_specifyleague.back.generic.caption.color = text_color_normal;

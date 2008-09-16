@@ -297,7 +297,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_back.height = 64;
 	skillMenuInfo.item_back.focuspic = UI_ART_BUTTON_FOCUS;
 	skillMenuInfo.item_back.generic.caption.text = "back";
-	skillMenuInfo.item_back.generic.caption.style = UI_CENTER;
+	skillMenuInfo.item_back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	skillMenuInfo.item_back.generic.caption.fontsize = 0.6f;
 	skillMenuInfo.item_back.generic.caption.font = &uis.buttonFont;
 	skillMenuInfo.item_back.generic.caption.color = text_color_normal;
@@ -321,7 +321,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_fight.height = 64;
 	skillMenuInfo.item_fight.focuspic = UI_ART_BUTTON_FOCUS;
 	skillMenuInfo.item_fight.generic.caption.text = "replay";
-	skillMenuInfo.item_fight.generic.caption.style = UI_CENTER;
+	skillMenuInfo.item_fight.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	skillMenuInfo.item_fight.generic.caption.fontsize = 0.6f;
 	skillMenuInfo.item_fight.generic.caption.font = &uis.buttonFont;
 	skillMenuInfo.item_fight.generic.caption.color = text_color_normal;

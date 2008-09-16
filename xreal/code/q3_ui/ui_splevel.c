@@ -937,7 +937,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_back.height = 64;
 	levelMenuInfo.item_back.focuspic = UI_ART_BUTTON_FOCUS;
 	levelMenuInfo.item_back.generic.caption.text = "back";
-	levelMenuInfo.item_back.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	levelMenuInfo.item_back.generic.caption.fontsize = 0.6f;
 	levelMenuInfo.item_back.generic.caption.font = &uis.buttonFont;
 	levelMenuInfo.item_back.generic.caption.color = text_color_normal;
@@ -954,7 +954,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_reset.height = 64;
 	levelMenuInfo.item_reset.focuspic = UI_ART_BUTTON_FOCUS;
 	levelMenuInfo.item_reset.generic.caption.text = "reset";
-	levelMenuInfo.item_reset.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_reset.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	levelMenuInfo.item_reset.generic.caption.fontsize = 0.6f;
 	levelMenuInfo.item_reset.generic.caption.font = &uis.buttonFont;
 	levelMenuInfo.item_reset.generic.caption.color = text_color_normal;
@@ -971,7 +971,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_custom.height = 64;
 	levelMenuInfo.item_custom.focuspic = UI_ART_BUTTON_FOCUS;
 	levelMenuInfo.item_custom.generic.caption.text = "custom";
-	levelMenuInfo.item_custom.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_custom.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	levelMenuInfo.item_custom.generic.caption.fontsize = 0.6f;
 	levelMenuInfo.item_custom.generic.caption.font = &uis.buttonFont;
 	levelMenuInfo.item_custom.generic.caption.color = text_color_normal;
@@ -988,7 +988,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_next.height = 64;
 	levelMenuInfo.item_next.focuspic = UI_ART_BUTTON_FOCUS;
 	levelMenuInfo.item_next.generic.caption.text = "fight";
-	levelMenuInfo.item_next.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_next.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	levelMenuInfo.item_next.generic.caption.fontsize = 0.6f;
 	levelMenuInfo.item_next.generic.caption.font = &uis.buttonFont;
 	levelMenuInfo.item_next.generic.caption.color = text_color_normal;

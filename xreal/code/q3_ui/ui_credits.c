@@ -32,7 +32,7 @@ CREDITS
 
 #include "ui_local.h"
 
-#define SCROLLSPEED	3.0
+#define SCROLLSPEED	3.5
 
 typedef struct
 {
@@ -252,7 +252,7 @@ static void ScrollingCredits_Draw(void)
 		else
 			textScale = 0.25f;
 
-		UI_Text_Paint(x , y, textScale, credits[n].color, credits[n].string, 0, 0, credits[n].style,
+		UI_Text_Paint(x , y, textScale, credits[n].color, credits[n].string, 0, 0, credits[n].style | UI_DROPSHADOW,
 					  &uis.freeSansBoldFont);
 
 		// re-adjust y for next line

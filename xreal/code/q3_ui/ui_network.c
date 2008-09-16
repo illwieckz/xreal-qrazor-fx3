@@ -222,7 +222,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.graphics.height = 64;
 	networkOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.graphics.generic.caption.text = "graphics";
-	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.graphics.generic.caption.color = text_color_normal;
@@ -240,7 +240,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.sound.height = 64;
 	networkOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.sound.generic.caption.text = "sound";
-	networkOptionsInfo.sound.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.sound.generic.caption.color = text_color_normal;
@@ -257,7 +257,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.height = 64;
 	networkOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.network.generic.caption.text = "network";
-	networkOptionsInfo.network.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.network.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.network.generic.caption.color = text_color_normal;
@@ -307,7 +307,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.back.height = 64;
 	networkOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.back.generic.caption.text = "back";
-	networkOptionsInfo.back.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.back.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.back.generic.caption.color = text_color_normal;

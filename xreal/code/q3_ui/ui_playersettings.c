@@ -406,7 +406,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.banner.color = color_white;
 	s_playersettings.banner.style = UI_CENTER;
 
-	s_playersettings.framel.generic.type = MTYPE_BITMAP;
+/*	s_playersettings.framel.generic.type = MTYPE_BITMAP;
 	s_playersettings.framel.generic.name = ART_FRAMEL;
 	s_playersettings.framel.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
 	s_playersettings.framel.generic.x = 0;
@@ -421,7 +421,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.framer.generic.y = 76;
 	s_playersettings.framer.width = 256;
 	s_playersettings.framer.height = 334;
-
+*/
 	y = 144;
 	s_playersettings.name.generic.type = MTYPE_FIELD;
 	s_playersettings.name.generic.flags = QMF_NODEFAULTINIT;
@@ -484,7 +484,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.model.height = 64;
 	s_playersettings.model.focuspic = UI_ART_BUTTON_FOCUS;
 	s_playersettings.model.generic.caption.text = "model";
-	s_playersettings.model.generic.caption.style = UI_CENTER;
+	s_playersettings.model.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_playersettings.model.generic.caption.fontsize = 0.6f;
 	s_playersettings.model.generic.caption.font = &uis.buttonFont;
 	s_playersettings.model.generic.caption.color = text_color_normal;
@@ -509,7 +509,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.back.height = 64;
 	s_playersettings.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_playersettings.back.generic.caption.text = "back";
-	s_playersettings.back.generic.caption.style = UI_CENTER;
+	s_playersettings.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_playersettings.back.generic.caption.fontsize = 0.6f;
 	s_playersettings.back.generic.caption.font = &uis.buttonFont;
 	s_playersettings.back.generic.caption.color = text_color_normal;
@@ -524,8 +524,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.item_null.height = 480;
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.banner);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.framel);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.framer);
+	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.framel);
+	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.framer);
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.name);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.handicap);

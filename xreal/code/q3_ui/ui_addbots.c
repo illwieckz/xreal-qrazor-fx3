@@ -374,7 +374,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.go.height = 64;
 	addBotsMenuInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
 	addBotsMenuInfo.go.generic.caption.text = "fight";
-	addBotsMenuInfo.go.generic.caption.style = UI_CENTER;
+	addBotsMenuInfo.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	addBotsMenuInfo.go.generic.caption.fontsize = 0.6f;
 	addBotsMenuInfo.go.generic.caption.font = &uis.buttonFont;
 	addBotsMenuInfo.go.generic.caption.color = text_color_normal;
@@ -391,7 +391,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.back.height = 64;
 	addBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	addBotsMenuInfo.back.generic.caption.text = "back";
-	addBotsMenuInfo.back.generic.caption.style = UI_CENTER;
+	addBotsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	addBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	addBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	addBotsMenuInfo.back.generic.caption.color = text_color_normal;

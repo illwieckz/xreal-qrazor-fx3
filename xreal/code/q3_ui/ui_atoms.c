@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uiStatic_t      uis;
 qboolean        m_entersound;	// after a frame, so caching won't disrupt the sound
 
-vec4_t          color_cursor = { 1.0f, 0.5f, 0.0f, 0.075f };	// cursorlines color
+vec4_t          color_cursorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// cursorlines color
 
 void QDECL Com_Error(int level, const char *error, ...)
 {
@@ -1534,6 +1534,9 @@ UI_Refresh
 =================
 */
 
+int nextLine = 0;
+int lineY = 0;
+int lineX = 0;
 
 void UI_Refresh(int realtime)
 {
@@ -1575,19 +1578,36 @@ void UI_Refresh(int realtime)
 		}
 	}
 
-	// draw cursor
+	
 	UI_SetColor(NULL);
 
 	
-
-	UI_DrawRect(0, uis.cursory, 640, 1, color_cursor);
-	UI_DrawRect(uis.cursorx, 0, 1, 480, color_cursor);
+// draw cursor lines
+	UI_DrawRect(0, uis.cursory-1, 640, 3, color_cursorLines);
+	UI_DrawRect(uis.cursorx-1, 0, 3, 480, color_cursorLines);
 
 	UI_SetColor(NULL);
 
-
+// draw cursor
 	UI_DrawHandlePic(uis.cursorx - 24, uis.cursory - 24, 46, 46, uis.cursor);
 
+
+//draw moving scanlines
+	
+	if(uis.realtime > nextLine) {
+		lineX += 4;
+		lineY += 4;
+
+		if(lineX >=640)
+			lineX = 0;
+		if(lineY >=480)
+			lineY = 0;
+
+		nextLine = uis.realtime + 10;
+	}
+
+	UI_DrawRect(0, lineY, 640, 1, color_cursorLines);
+	UI_DrawRect(lineX, 0, 1, 480, color_cursorLines);
 
 #ifndef NDEBUG
 	if(uis.debug)

@@ -134,7 +134,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.banner.color = color_white;
 	s_configs.banner.style = UI_CENTER;
 
-	s_configs.framel.generic.type = MTYPE_BITMAP;
+/*	s_configs.framel.generic.type = MTYPE_BITMAP;
 	s_configs.framel.generic.name = ART_FRAMEL;
 	s_configs.framel.generic.flags = QMF_INACTIVE;
 	s_configs.framel.generic.x = 0;
@@ -149,7 +149,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.framer.generic.y = 76;
 	s_configs.framer.width = 256;
 	s_configs.framer.height = 334;
-
+*/
 	s_configs.arrows.generic.type = MTYPE_BITMAP;
 	s_configs.arrows.generic.name = ART_ARROWS;
 	s_configs.arrows.generic.flags = QMF_INACTIVE;
@@ -189,7 +189,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.back.height = 64;
 	s_configs.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_configs.back.generic.caption.text = "back";
-	s_configs.back.generic.caption.style = UI_CENTER;
+	s_configs.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_configs.back.generic.caption.fontsize = 0.6f;
 	s_configs.back.generic.caption.font = &uis.buttonFont;
 	s_configs.back.generic.caption.color = text_color_normal;
@@ -207,7 +207,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.go.height = 64;
 	s_configs.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_configs.go.generic.caption.text = "fight";
-	s_configs.go.generic.caption.style = UI_CENTER;
+	s_configs.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_configs.go.generic.caption.fontsize = 0.6f;
 	s_configs.go.generic.caption.font = &uis.buttonFont;
 	s_configs.go.generic.caption.color = text_color_normal;
@@ -253,8 +253,8 @@ static void LoadConfig_MenuInit(void)
 	}
 
 	Menu_AddItem(&s_configs.menu, &s_configs.banner);
-	Menu_AddItem(&s_configs.menu, &s_configs.framel);
-	Menu_AddItem(&s_configs.menu, &s_configs.framer);
+	//Menu_AddItem(&s_configs.menu, &s_configs.framel);
+	//Menu_AddItem(&s_configs.menu, &s_configs.framer);
 	Menu_AddItem(&s_configs.menu, &s_configs.list);
 	Menu_AddItem(&s_configs.menu, &s_configs.arrows);
 	Menu_AddItem(&s_configs.menu, &s_configs.left);

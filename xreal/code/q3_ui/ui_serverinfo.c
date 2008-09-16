@@ -249,7 +249,7 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.back.height = 64;
 	s_serverinfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_serverinfo.back.generic.caption.text = "back";
-	s_serverinfo.back.generic.caption.style = UI_CENTER;
+	s_serverinfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serverinfo.back.generic.caption.fontsize = 0.6f;
 	s_serverinfo.back.generic.caption.font = &uis.buttonFont;
 	s_serverinfo.back.generic.caption.color = text_color_normal;

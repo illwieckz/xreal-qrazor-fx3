@@ -52,10 +52,12 @@ vec4_t          color_dim = { 0.00f, 0.00f, 0.00f, 0.25f };
 
 // current color scheme
 vec4_t          pulse_color = { 1.00f, 1.00f, 1.00f, 1.00f };
+
 vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.75f };	// light gray
-vec4_t          text_color_normal = { 0.85f, 0.85f, 0.85f, 0.75f };	// light white
-vec4_t          text_color_highlight = { 1.00f, 1.00f, 1.00f, 0.75f };	// bright white
-vec4_t          listbar_color = { 1.00f, 0.43f, 0.00f, 0.30f };	// transluscent orange
+vec4_t          text_color_normal = { 1.00f, 1.00f, 1.00f, 0.75f };	// light white
+vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright white
+
+vec4_t          listbar_color = { 0.43f, 0.43f, 0.63f, 0.30f };	// transluscent 
 vec4_t          text_color_status = { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white 
 
 // action widget
@@ -1379,7 +1381,10 @@ void ScrollList_Draw(menulist_s * l)
 				style |= UI_CENTER;
 			}
 
-			UI_DrawString(x, y, l->itemnames[i], style, color);
+			//UI_DrawString(x, y, l->itemnames[i], style, color);
+
+			UI_Text_Paint(x , y+8, 0.25f, color,  l->itemnames[i], 0, 0, style  | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+
 
 			y += SMALLCHAR_HEIGHT;
 		}

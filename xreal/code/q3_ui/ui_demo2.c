@@ -151,7 +151,7 @@ static void Demos_MenuInit(void)
 	s_demos.banner.color = color_white;
 	s_demos.banner.style = UI_CENTER;
 
-	s_demos.framel.generic.type = MTYPE_BITMAP;
+/*	s_demos.framel.generic.type = MTYPE_BITMAP;
 	s_demos.framel.generic.name = ART_FRAMEL;
 	s_demos.framel.generic.flags = QMF_INACTIVE;
 	s_demos.framel.generic.x = 0;
@@ -166,7 +166,7 @@ static void Demos_MenuInit(void)
 	s_demos.framer.generic.y = 76;
 	s_demos.framer.width = 256;
 	s_demos.framer.height = 334;
-
+*/
 	s_demos.arrows.generic.type = MTYPE_BITMAP;
 	s_demos.arrows.generic.name = ART_ARROWS;
 	s_demos.arrows.generic.flags = QMF_INACTIVE;
@@ -206,7 +206,7 @@ static void Demos_MenuInit(void)
 	s_demos.back.height = 64;
 	s_demos.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_demos.back.generic.caption.text = "back";
-	s_demos.back.generic.caption.style = UI_CENTER;
+	s_demos.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_demos.back.generic.caption.fontsize = 0.6f;
 	s_demos.back.generic.caption.font = &uis.buttonFont;
 	s_demos.back.generic.caption.color = text_color_normal;
@@ -224,7 +224,7 @@ static void Demos_MenuInit(void)
 	s_demos.go.height = 64;
 	s_demos.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_demos.go.generic.caption.text = "go";
-	s_demos.go.generic.caption.style = UI_CENTER;
+	s_demos.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_demos.go.generic.caption.fontsize = 0.6f;
 	s_demos.go.generic.caption.font = &uis.buttonFont;
 	s_demos.go.generic.caption.color = text_color_normal;
@@ -271,8 +271,8 @@ static void Demos_MenuInit(void)
 	}
 
 	Menu_AddItem(&s_demos.menu, &s_demos.banner);
-	Menu_AddItem(&s_demos.menu, &s_demos.framel);
-	Menu_AddItem(&s_demos.menu, &s_demos.framer);
+//	Menu_AddItem(&s_demos.menu, &s_demos.framel);
+//	Menu_AddItem(&s_demos.menu, &s_demos.framer);
 	Menu_AddItem(&s_demos.menu, &s_demos.list);
 	Menu_AddItem(&s_demos.menu, &s_demos.arrows);
 	Menu_AddItem(&s_demos.menu, &s_demos.left);

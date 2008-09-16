@@ -666,7 +666,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.back.height = 64;
 	s_playermodel.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_playermodel.back.generic.caption.text = "back";
-	s_playermodel.back.generic.caption.style = UI_CENTER;
+	s_playermodel.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_playermodel.back.generic.caption.fontsize = 0.6f;
 	s_playermodel.back.generic.caption.font = &uis.buttonFont;
 	s_playermodel.back.generic.caption.color = text_color_normal;

@@ -361,7 +361,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.back.height = 64;
 	s_preferences.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_preferences.back.generic.caption.text = "back";
-	s_preferences.back.generic.caption.style = UI_CENTER;
+	s_preferences.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_preferences.back.generic.caption.fontsize = 0.6f;
 	s_preferences.back.generic.caption.font = &uis.buttonFont;
 	s_preferences.back.generic.caption.color = text_color_normal;

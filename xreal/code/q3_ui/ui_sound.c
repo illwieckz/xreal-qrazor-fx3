@@ -179,7 +179,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.graphics.height = 64;
 	soundOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.graphics.generic.caption.text = "graphics";
-	soundOptionsInfo.graphics.generic.caption.style = UI_CENTER;
+	soundOptionsInfo.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.graphics.generic.caption.color = text_color_normal;
@@ -197,7 +197,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sound.height = 64;
 	soundOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.sound.generic.caption.text = "sound";
-	soundOptionsInfo.sound.generic.caption.style = UI_CENTER;
+	soundOptionsInfo.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.sound.generic.caption.color = text_color_normal;
@@ -214,7 +214,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.network.height = 64;
 	soundOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.network.generic.caption.text = "network";
-	soundOptionsInfo.network.generic.caption.style = UI_CENTER;
+	soundOptionsInfo.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.network.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.network.generic.caption.color = text_color_normal;
@@ -273,7 +273,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.back.height = 64;
 	soundOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.back.generic.caption.text = "back";
-	soundOptionsInfo.back.generic.caption.style = UI_CENTER;
+	soundOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.back.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.back.generic.caption.color = text_color_normal;

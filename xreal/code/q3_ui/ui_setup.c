@@ -96,7 +96,7 @@ static void Setup_ResetDefaults_Draw(void)
 	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",							  UI_CENTER | UI_SMALLFONT, color_yellow);
 
 
-	UI_Text_Paint_AutoWrapped(320, 356, 0.4f, 400, "WARNING: This will reset *ALL* options to their default values.",  UI_CENTER | UI_DROPSHADOW, color_yellow, &uis.freeSansFont);
+	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This will reset *ALL* options to their default values.",  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
 
 
 
@@ -281,7 +281,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.back.height = 64;
 	setupMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	setupMenuInfo.back.generic.caption.text = "back";
-	setupMenuInfo.back.generic.caption.style = UI_CENTER;
+	setupMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	setupMenuInfo.back.generic.caption.fontsize = 0.6f;
 	setupMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	setupMenuInfo.back.generic.caption.color = text_color_normal;

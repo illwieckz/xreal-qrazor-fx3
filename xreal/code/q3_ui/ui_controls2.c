@@ -1320,7 +1320,7 @@ static void Controls_MenuInit(void)
 	s_controls.looking.height = 64;
 	s_controls.looking.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.looking.generic.caption.text = "LOOK";
-	s_controls.looking.generic.caption.style = UI_CENTER;
+	s_controls.looking.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.looking.generic.caption.fontsize = 0.6f;
 	s_controls.looking.generic.caption.font = &uis.buttonFont;
 	s_controls.looking.generic.caption.color = text_color_normal;
@@ -1338,7 +1338,7 @@ static void Controls_MenuInit(void)
 	s_controls.movement.height = 64;
 	s_controls.movement.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.movement.generic.caption.text = "MOVE";
-	s_controls.movement.generic.caption.style = UI_CENTER;
+	s_controls.movement.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.movement.generic.caption.fontsize = 0.6f;
 	s_controls.movement.generic.caption.font = &uis.buttonFont;
 	s_controls.movement.generic.caption.color = text_color_normal;
@@ -1358,7 +1358,7 @@ static void Controls_MenuInit(void)
 	s_controls.weapons.height = 64;
 	s_controls.weapons.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.weapons.generic.caption.text = "SHOOT";
-	s_controls.weapons.generic.caption.style = UI_CENTER;
+	s_controls.weapons.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.weapons.generic.caption.fontsize = 0.6f;
 	s_controls.weapons.generic.caption.font = &uis.buttonFont;
 	s_controls.weapons.generic.caption.color = text_color_normal;
@@ -1376,7 +1376,7 @@ static void Controls_MenuInit(void)
 	s_controls.misc.height = 64;
 	s_controls.misc.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.misc.generic.caption.text = "misc";
-	s_controls.misc.generic.caption.style = UI_CENTER;
+	s_controls.misc.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.misc.generic.caption.fontsize = 0.6f;
 	s_controls.misc.generic.caption.font = &uis.buttonFont;
 	s_controls.misc.generic.caption.color = text_color_normal;
@@ -1394,7 +1394,7 @@ static void Controls_MenuInit(void)
 	s_controls.back.height = 64;
 	s_controls.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.back.generic.caption.text = "back";
-	s_controls.back.generic.caption.style = UI_CENTER;
+	s_controls.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.back.generic.caption.fontsize = 0.6f;
 	s_controls.back.generic.caption.font = &uis.buttonFont;
 	s_controls.back.generic.caption.color = text_color_normal;

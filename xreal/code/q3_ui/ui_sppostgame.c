@@ -490,7 +490,7 @@ static void UI_SPPostgameMenu_Init(void)
 	postgameMenuInfo.item_menu.height = 64;
 	postgameMenuInfo.item_menu.focuspic = UI_ART_BUTTON_FOCUS;
 	postgameMenuInfo.item_menu.generic.caption.text = "menu";
-	postgameMenuInfo.item_menu.generic.caption.style = UI_CENTER;
+	postgameMenuInfo.item_menu.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	postgameMenuInfo.item_menu.generic.caption.fontsize = 0.6f;
 	postgameMenuInfo.item_menu.generic.caption.font = &uis.buttonFont;
 	postgameMenuInfo.item_menu.generic.caption.color = text_color_normal;
@@ -507,7 +507,7 @@ static void UI_SPPostgameMenu_Init(void)
 	postgameMenuInfo.item_again.height = 64;
 	postgameMenuInfo.item_again.focuspic = UI_ART_BUTTON_FOCUS;
 	postgameMenuInfo.item_again.generic.caption.text = "replay";
-	postgameMenuInfo.item_again.generic.caption.style = UI_CENTER;
+	postgameMenuInfo.item_again.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	postgameMenuInfo.item_again.generic.caption.fontsize = 0.6f;
 	postgameMenuInfo.item_again.generic.caption.font = &uis.buttonFont;
 	postgameMenuInfo.item_again.generic.caption.color = text_color_normal;
@@ -524,7 +524,7 @@ static void UI_SPPostgameMenu_Init(void)
 	postgameMenuInfo.item_next.height = 64;
 	postgameMenuInfo.item_next.focuspic = UI_ART_BUTTON_FOCUS;
 	postgameMenuInfo.item_next.generic.caption.text = "replay";
-	postgameMenuInfo.item_next.generic.caption.style = UI_CENTER;
+	postgameMenuInfo.item_next.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	postgameMenuInfo.item_next.generic.caption.fontsize = 0.6f;
 	postgameMenuInfo.item_next.generic.caption.font = &uis.buttonFont;
 	postgameMenuInfo.item_next.generic.caption.color = text_color_normal;

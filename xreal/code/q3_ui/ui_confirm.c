@@ -33,7 +33,7 @@ CONFIRMATION MENU
 #include "ui_local.h"
 
 
-#define ART_CONFIRM_FRAME	"menu/art/cut_frame"
+//#define ART_CONFIRM_FRAME	"menu/art/cut_frame"
 
 #define ID_CONFIRM_NO		10
 #define ID_CONFIRM_YES		11
@@ -43,10 +43,10 @@ typedef struct
 {
 	menuframework_s menu;
 
-	menutext_s      no;
-	menutext_s      yes;
+	menubitmap_s      no;
+	menubitmap_s      yes;
 
-	int             slashX;
+	//int             slashX;
 	const char     *question;
 	void            (*draw) (void);
 	void            (*action) (qboolean result);
@@ -131,12 +131,14 @@ static void MessageMenu_Draw(void)
 {
 	int             i, y;
 
-	UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
+//	UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
 
 	y = 188;
 	for(i = 0; s_confirm.lines[i]; i++)
 	{
-		UI_DrawProportionalString(320, y, s_confirm.lines[i], s_confirm.style, color_red);
+		//UI_DrawProportionalString(320, y, s_confirm.lines[i], s_confirm.style, color_red);
+		UI_Text_Paint(320, y+8, 0.55f, color_red, s_confirm.lines[i], 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.freeSansFont);
+
 		y += 18;
 	}
 
@@ -155,9 +157,10 @@ ConfirmMenu_Draw
 */
 static void ConfirmMenu_Draw(void)
 {
-	UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
-	UI_DrawProportionalString(320, 204, s_confirm.question, s_confirm.style, color_red);
-	UI_DrawProportionalString(s_confirm.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
+	//UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
+	//UI_DrawProportionalString(320, 204, s_confirm.question, s_confirm.style, color_red);
+	UI_Text_Paint(320, 204, 0.55f, color_red, s_confirm.question, 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.freeSansFont);
+	//UI_DrawProportionalString(s_confirm.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
 
 	Menu_Draw(&s_confirm.menu);
 
@@ -175,7 +178,7 @@ ConfirmMenu_Cache
 */
 void ConfirmMenu_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_CONFIRM_FRAME);
+	//trap_R_RegisterShaderNoMip(ART_CONFIRM_FRAME);
 }
 
 
@@ -187,22 +190,22 @@ UI_ConfirmMenu_Stlye
 void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), void (*action) (qboolean result))
 {
 	uiClientState_t cstate;
-	int             n1, n2, n3;
-	int             l1, l2, l3;
+//	int             n1, n2, n3;
+//	int             l1, l2, l3;
 
 	// zero set all our globals
 	memset(&s_confirm, 0, sizeof(s_confirm));
 
 	ConfirmMenu_Cache();
 
-	n1 = UI_ProportionalStringWidth("YES/NO");
+/*	n1 = UI_ProportionalStringWidth("YES/NO");
 	n2 = UI_ProportionalStringWidth("YES") + PROP_GAP_WIDTH;
 	n3 = UI_ProportionalStringWidth("/") + PROP_GAP_WIDTH;
 	l1 = 320 - (n1 / 2);
 	l2 = l1 + n2;
 	l3 = l2 + n3;
 	s_confirm.slashX = l2;
-
+*/
 	s_confirm.question = question;
 	s_confirm.draw = draw;
 	s_confirm.action = action;
@@ -221,12 +224,12 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	{
 		s_confirm.menu.fullscreen = qtrue;
 	}
-
+/*
 	s_confirm.yes.generic.type = MTYPE_PTEXT;
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
-	s_confirm.yes.generic.x = l1-10;
+	s_confirm.yes.generic.x = l1-20;
 	s_confirm.yes.generic.y = 264;
 	s_confirm.yes.string = "YES";
 	s_confirm.yes.color = color_red;
@@ -236,11 +239,50 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.no.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_confirm.no.generic.callback = ConfirmMenu_Event;
 	s_confirm.no.generic.id = ID_CONFIRM_NO;
-	s_confirm.no.generic.x = l3+10;
+	s_confirm.no.generic.x = l3+20;
 	s_confirm.no.generic.y = 264;
 	s_confirm.no.string = "NO";
 	s_confirm.no.color = color_red;
 	s_confirm.no.style = UI_LEFT;
+*/
+
+
+	s_confirm.yes.generic.type = MTYPE_BITMAP;
+	s_confirm.yes.generic.name = UI_ART_BUTTON;
+	s_confirm.yes.generic.flags =  QMF_PULSEIFFOCUS;
+	s_confirm.yes.generic.callback = ConfirmMenu_Event;
+	s_confirm.yes.generic.id = ID_CONFIRM_YES;
+	s_confirm.yes.generic.x = 320-128;
+	s_confirm.yes.generic.y = 244;
+	s_confirm.yes.width = 128;
+	s_confirm.yes.height = 64;
+	s_confirm.yes.focuspic = UI_ART_BUTTON_FOCUS;
+	s_confirm.yes.generic.caption.text = "YES";
+	s_confirm.yes.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_confirm.yes.generic.caption.fontsize = 0.6f;
+	s_confirm.yes.generic.caption.font = &uis.buttonFont;
+	s_confirm.yes.generic.caption.color = text_color_normal;
+	s_confirm.yes.generic.caption.focuscolor = text_color_highlight;
+
+
+	s_confirm.no.generic.type = MTYPE_BITMAP;
+	s_confirm.no.generic.name = UI_ART_BUTTON;
+	s_confirm.no.generic.flags =  QMF_PULSEIFFOCUS;
+	s_confirm.no.generic.callback = ConfirmMenu_Event;
+	s_confirm.no.generic.id = ID_CONFIRM_NO;
+	s_confirm.no.generic.x = 320;
+	s_confirm.no.generic.y = 244;
+	s_confirm.no.width = 128;
+	s_confirm.no.height = 64;
+	s_confirm.no.focuspic = UI_ART_BUTTON_FOCUS;
+	s_confirm.no.generic.caption.text = "NO";
+	s_confirm.no.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_confirm.no.generic.caption.fontsize = 0.6f;
+	s_confirm.no.generic.caption.font = &uis.buttonFont;
+	s_confirm.no.generic.caption.color = text_color_normal;
+	s_confirm.no.generic.caption.focuscolor = text_color_highlight;
+
+
 
 	Menu_AddItem(&s_confirm.menu, &s_confirm.yes);
 	Menu_AddItem(&s_confirm.menu, &s_confirm.no);
@@ -296,7 +338,7 @@ void UI_Message(const char **lines)
 		s_confirm.menu.fullscreen = qtrue;
 	}
 
-	s_confirm.yes.generic.type = MTYPE_PTEXT;
+/*	s_confirm.yes.generic.type = MTYPE_PTEXT;
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
@@ -305,6 +347,25 @@ void UI_Message(const char **lines)
 	s_confirm.yes.string = "OK";
 	s_confirm.yes.color = color_red;
 	s_confirm.yes.style = UI_LEFT;
+
+*/
+	s_confirm.yes.generic.type = MTYPE_BITMAP;
+	s_confirm.yes.generic.name = UI_ART_BUTTON;
+	s_confirm.yes.generic.flags =  QMF_PULSEIFFOCUS;
+	s_confirm.yes.generic.callback = ConfirmMenu_Event;
+	s_confirm.yes.generic.id = ID_CONFIRM_YES;
+	s_confirm.yes.generic.x = 320-64;
+	s_confirm.yes.generic.y = 260;
+	s_confirm.yes.width = 128;
+	s_confirm.yes.height = 64;
+	s_confirm.yes.focuspic = UI_ART_BUTTON_FOCUS;
+	s_confirm.yes.generic.caption.text = "OK";
+	s_confirm.yes.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_confirm.yes.generic.caption.fontsize = 0.6f;
+	s_confirm.yes.generic.caption.font = &uis.buttonFont;
+	s_confirm.yes.generic.caption.color = text_color_normal;
+	s_confirm.yes.generic.caption.focuscolor = text_color_highlight;
+
 
 	Menu_AddItem(&s_confirm.menu, &s_confirm.yes);
 

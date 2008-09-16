@@ -1495,7 +1495,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.back.height = 64;
 	g_arenaservers.back.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.back.generic.caption.text = "back";
-	g_arenaservers.back.generic.caption.style = UI_CENTER;
+	g_arenaservers.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	g_arenaservers.back.generic.caption.fontsize = 0.6f;
 	g_arenaservers.back.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.back.generic.caption.color = text_color_normal;
@@ -1512,7 +1512,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.specify.height = 64;
 	g_arenaservers.specify.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.specify.generic.caption.text = "specify";
-	g_arenaservers.specify.generic.caption.style = UI_CENTER;
+	g_arenaservers.specify.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	g_arenaservers.specify.generic.caption.fontsize = 0.6f;
 	g_arenaservers.specify.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.specify.generic.caption.color = text_color_normal;
@@ -1529,7 +1529,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.refresh.height = 64;
 	g_arenaservers.refresh.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.refresh.generic.caption.text = "refresh";
-	g_arenaservers.refresh.generic.caption.style = UI_CENTER;
+	g_arenaservers.refresh.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	g_arenaservers.refresh.generic.caption.fontsize = 0.6f;
 	g_arenaservers.refresh.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.refresh.generic.caption.color = text_color_normal;
@@ -1546,7 +1546,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.create.height = 64;
 	g_arenaservers.create.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.create.generic.caption.text = "host";
-	g_arenaservers.create.generic.caption.style = UI_CENTER;
+	g_arenaservers.create.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	g_arenaservers.create.generic.caption.fontsize = 0.6f;
 	g_arenaservers.create.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.create.generic.caption.color = text_color_normal;
@@ -1563,7 +1563,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.go.height = 64;
 	g_arenaservers.go.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.go.generic.caption.text = "connect";
-	g_arenaservers.go.generic.caption.style = UI_CENTER;
+	g_arenaservers.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	g_arenaservers.go.generic.caption.fontsize = 0.6f;
 	g_arenaservers.go.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.go.generic.caption.color = text_color_normal;

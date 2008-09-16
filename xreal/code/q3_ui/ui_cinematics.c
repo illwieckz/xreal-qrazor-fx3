@@ -137,7 +137,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.banner.color = color_white;
 	cinematicsMenuInfo.banner.style = UI_CENTER;
 
-	cinematicsMenuInfo.framel.generic.type = MTYPE_BITMAP;
+/*	cinematicsMenuInfo.framel.generic.type = MTYPE_BITMAP;
 	cinematicsMenuInfo.framel.generic.name = ART_FRAMEL;
 	cinematicsMenuInfo.framel.generic.flags = QMF_INACTIVE;
 	cinematicsMenuInfo.framel.generic.x = 0;
@@ -152,7 +152,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.framer.generic.y = 76;
 	cinematicsMenuInfo.framer.width = 256;
 	cinematicsMenuInfo.framer.height = 334;
-
+*/
 	y = 100;
 	cinematicsMenuInfo.cin_idlogo.generic.type = MTYPE_PTEXT;
 	cinematicsMenuInfo.cin_idlogo.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -306,15 +306,15 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.back.height = 64;
 	cinematicsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	cinematicsMenuInfo.back.generic.caption.text = "back";
-	cinematicsMenuInfo.back.generic.caption.style = UI_CENTER;
+	cinematicsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	cinematicsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	cinematicsMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	cinematicsMenuInfo.back.generic.caption.color = text_color_normal;
 	cinematicsMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.banner);
-	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framel);
-	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framer);
+//	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framel);
+//	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framer);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.cin_idlogo);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.cin_intro);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.cin_tier1);

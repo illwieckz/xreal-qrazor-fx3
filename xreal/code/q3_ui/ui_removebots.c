@@ -335,7 +335,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.back.height = 64;
 	removeBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	removeBotsMenuInfo.back.generic.caption.text = "back";
-	removeBotsMenuInfo.back.generic.caption.style = UI_CENTER;
+	removeBotsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	removeBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	removeBotsMenuInfo.back.generic.caption.color = text_color_normal;

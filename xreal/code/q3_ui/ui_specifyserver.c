@@ -160,7 +160,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.go.height = 64;
 	s_specifyserver.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_specifyserver.go.generic.caption.text = "specify";
-	s_specifyserver.go.generic.caption.style = UI_CENTER;
+	s_specifyserver.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_specifyserver.go.generic.caption.fontsize = 0.6f;
 	s_specifyserver.go.generic.caption.font = &uis.buttonFont;
 	s_specifyserver.go.generic.caption.color = text_color_normal;
@@ -177,7 +177,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.back.height = 64;
 	s_specifyserver.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_specifyserver.back.generic.caption.text = "back";
-	s_specifyserver.back.generic.caption.style = UI_CENTER;
+	s_specifyserver.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_specifyserver.back.generic.caption.fontsize = 0.6f;
 	s_specifyserver.back.generic.caption.font = &uis.buttonFont;
 	s_specifyserver.back.generic.caption.color = text_color_normal;

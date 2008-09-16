@@ -534,7 +534,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.back.height = 64;
 	s_startserver.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_startserver.back.generic.caption.text = "back";
-	s_startserver.back.generic.caption.style = UI_CENTER;
+	s_startserver.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_startserver.back.generic.caption.fontsize = 0.6f;
 	s_startserver.back.generic.caption.font = &uis.buttonFont;
 	s_startserver.back.generic.caption.color = text_color_normal;
@@ -552,7 +552,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.next.height = 64;
 	s_startserver.next.focuspic = UI_ART_BUTTON_FOCUS;
 	s_startserver.next.generic.caption.text = "next";
-	s_startserver.next.generic.caption.style = UI_CENTER;
+	s_startserver.next.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_startserver.next.generic.caption.fontsize = 0.6f;
 	s_startserver.next.generic.caption.font = &uis.buttonFont;
 	s_startserver.next.generic.caption.color = text_color_normal;
@@ -1525,7 +1525,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.back.height = 64;
 	s_serveroptions.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_serveroptions.back.generic.caption.text = "back";
-	s_serveroptions.back.generic.caption.style = UI_CENTER;
+	s_serveroptions.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serveroptions.back.generic.caption.fontsize = 0.6f;
 	s_serveroptions.back.generic.caption.font = &uis.buttonFont;
 	s_serveroptions.back.generic.caption.color = text_color_normal;
@@ -1554,7 +1554,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.go.height = 64;
 	s_serveroptions.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_serveroptions.go.generic.caption.text = "fight";
-	s_serveroptions.go.generic.caption.style = UI_CENTER;
+	s_serveroptions.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serveroptions.go.generic.caption.fontsize = 0.6f;
 	s_serveroptions.go.generic.caption.font = &uis.buttonFont;
 	s_serveroptions.go.generic.caption.color = text_color_normal;
@@ -2115,7 +2115,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.back.height = 64;
 	botSelectInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	botSelectInfo.back.generic.caption.text = "back";
-	botSelectInfo.back.generic.caption.style = UI_CENTER;
+	botSelectInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	botSelectInfo.back.generic.caption.fontsize = 0.6f;
 	botSelectInfo.back.generic.caption.font = &uis.buttonFont;
 	botSelectInfo.back.generic.caption.color = text_color_normal;
@@ -2131,7 +2131,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.go.height = 64;
 	botSelectInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
 	botSelectInfo.go.generic.caption.text = "add";
-	botSelectInfo.go.generic.caption.style = UI_CENTER;
+	botSelectInfo.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	botSelectInfo.go.generic.caption.fontsize = 0.6f;
 	botSelectInfo.go.generic.caption.font = &uis.buttonFont;
 	botSelectInfo.go.generic.caption.color = text_color_normal;
