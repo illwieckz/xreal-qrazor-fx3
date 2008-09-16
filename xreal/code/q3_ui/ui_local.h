@@ -168,7 +168,7 @@ typedef struct
 	const char     *text;
 	unsigned	style;
 	float		fontsize;
-	qhandle_t	*font;
+	fontInfo_t	*font;
 	float          *color;
 	float          *focuscolor;
 
