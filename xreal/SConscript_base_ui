@@ -48,6 +48,7 @@ ui_src = [
 'code/q3_ui/ui_team.c',
 'code/q3_ui/ui_teamorders.c',
 'code/q3_ui/ui_video.c',
+'code/q3_ui/ui_xppm.c',
 'code/game/bg_misc.c',
 'code/game/q_math.c',
 'code/game/q_shared.c'
