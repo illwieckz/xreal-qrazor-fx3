@@ -47,12 +47,13 @@ ui/cursor
 	{
 		blend blend
 		clampmap gfx/2d/ui/cursor_overlay.png
-		tcmod rotate 99
+		tcmod rotate 340
 	}
 	{
 		blend blend
 		clampmap gfx/2d/ui/cursor_overlay.png
-		tcmod rotate -99
+		tcmod rotate 340
+		rotate 180
 	}
 
 }
@@ -100,15 +101,20 @@ menuback
 		map gfx/2d/ui/menuback2.png
 		blend blend
 		alpha 0.46 + 0.3 * ( 1.0 -  (   (sinTable[time * .1] + 1.0) / 2.0 ) )
-		scroll time * 0.003, 0
+		scroll time * 0.014, 0
 	}
 	{
 		map gfx/2d/ui/menuback2.png
 		blend blend
 		alpha 0.34 + 0.3 * ( 1.0 -  (   (sinTable[time * .2] + 1.0) / 2.0 ) )
-		scroll time * -0.002, 0
+		scroll time * -0.02, 0
 	}
-
+	{
+		map gfx/2d/ui/menuback4.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time * 2.2] + 1.0) / 2.0 ) )
+		scroll time * -2.2, 0
+	}
 	{
 		map gfx/2d/ui/menuback.png
 		blend blend
@@ -126,14 +132,29 @@ menuback
 		blend blend
 		alpha 0.2 + 0.3 * ( 1.0 -  (   (sinTable[time * .3] + 1.0) / 2.0 ) )
 		centerScale 0.5 , 0.5
-		scroll time * 0.007, 0
+		scroll time * 0.024, 0
+	}
+	{
+		map gfx/2d/ui/menuback4.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time ] + 1.0) / 2.0 ) )
+		scroll time * 5.8, 0
+		centerScale 1.0 + (cosTable[time]) , 1
+	}
+	{
+		map gfx/2d/ui/menuback4.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time] + 1.0) / 2.0 ) )
+		scroll time * 5.8, 0
+		centerScale 1.0 + (cosTable[time]) , 1
+		rotate 180
 	}
 	{
 		map gfx/2d/ui/menuback.png
 		blend blend
 		alpha 0.1 + 0.3 * ( 1.0 -  (   (sinTable[time * .1] + 1.0) / 2.0 ) )
 		centerScale 0.5 , 0.5
-		scroll time * -0.009, 0
+		scroll time * -0.04, 0
 	}
 	{
 		map gfx/2d/ui/menuback3.png
