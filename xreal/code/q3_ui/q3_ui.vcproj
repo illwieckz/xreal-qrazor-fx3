@@ -1255,6 +1255,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\ui_xppm.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
