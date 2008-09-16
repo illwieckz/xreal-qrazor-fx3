@@ -35,8 +35,6 @@ GAME OPTIONS MENU
 
 #define ART_FRAMEL				"menu/art/frame2_l"
 #define ART_FRAMER				"menu/art/frame1_r"
-#define ART_BACK0				"menu/art/back_0"
-#define ART_BACK1				"menu/art/back_1"
 
 #define PREFERENCES_X_POS		360
 
@@ -238,7 +236,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.banner.color = color_white;
 	s_preferences.banner.style = UI_CENTER;
 
-	s_preferences.framel.generic.type = MTYPE_BITMAP;
+/*	s_preferences.framel.generic.type = MTYPE_BITMAP;
 	s_preferences.framel.generic.name = ART_FRAMEL;
 	s_preferences.framel.generic.flags = QMF_INACTIVE;
 	s_preferences.framel.generic.x = 0;
@@ -253,7 +251,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.framer.generic.y = 76;
 	s_preferences.framer.width = 256;
 	s_preferences.framer.height = 334;
-
+*/
 	y = 144;
 	s_preferences.crosshair.generic.type = MTYPE_TEXT;
 	s_preferences.crosshair.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT | QMF_NODEFAULTINIT | QMF_OWNERDRAW;
@@ -353,7 +351,7 @@ static void Preferences_MenuInit(void)
 
 	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.back.generic.type = MTYPE_BITMAP;
-	s_preferences.back.generic.name = ART_BACK0;
+	s_preferences.back.generic.name = UI_ART_BUTTON;
 	s_preferences.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_preferences.back.generic.callback = Preferences_Event;
 	s_preferences.back.generic.id = ID_BACK;
@@ -361,13 +359,19 @@ static void Preferences_MenuInit(void)
 	s_preferences.back.generic.y = 480 - 64;
 	s_preferences.back.width = 128;
 	s_preferences.back.height = 64;
-	s_preferences.back.focuspic = ART_BACK1;
+	s_preferences.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_preferences.back.generic.caption.text = "back";
+	s_preferences.back.generic.caption.style = UI_CENTER;
+	s_preferences.back.generic.caption.fontsize = 0.6f;
+	s_preferences.back.generic.caption.font = &uis.buttonFont;
+	s_preferences.back.generic.caption.color = text_color_normal;
+	s_preferences.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.banner);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.framel);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.framer);
+//	Menu_AddItem(&s_preferences.menu, &s_preferences.framel);
+//	Menu_AddItem(&s_preferences.menu, &s_preferences.framer);
 
-	Menu_AddItem(&s_preferences.menu, &s_preferences.crosshair);
+//	Menu_AddItem(&s_preferences.menu, &s_preferences.crosshair);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.simpleitems);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.wallmarks);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.brass);
@@ -393,14 +397,14 @@ void Preferences_Cache(void)
 {
 	int             n;
 
-	trap_R_RegisterShaderNoMip(ART_FRAMEL);
-	trap_R_RegisterShaderNoMip(ART_FRAMER);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	for(n = 0; n < NUM_CROSSHAIRS; n++)
+	//trap_R_RegisterShaderNoMip(ART_FRAMEL);
+	//trap_R_RegisterShaderNoMip(ART_FRAMER);
+
+/*	for(n = 0; n < NUM_CROSSHAIRS; n++)
 	{
 		s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + n));
 	}
+*/
 }
 
 

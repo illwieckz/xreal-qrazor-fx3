@@ -480,7 +480,7 @@ static void UI_SPPostgameMenu_Init(void)
 	UI_SPPostgameMenu_Cache();
 
 	postgameMenuInfo.item_menu.generic.type = MTYPE_BITMAP;
-	postgameMenuInfo.item_menu.generic.name = ART_MENU0;
+	postgameMenuInfo.item_menu.generic.name = UI_ART_BUTTON;
 	postgameMenuInfo.item_menu.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_INACTIVE;
 	postgameMenuInfo.item_menu.generic.x = 0;
 	postgameMenuInfo.item_menu.generic.y = 480 - 64;
@@ -488,10 +488,16 @@ static void UI_SPPostgameMenu_Init(void)
 	postgameMenuInfo.item_menu.generic.id = ID_MENU;
 	postgameMenuInfo.item_menu.width = 128;
 	postgameMenuInfo.item_menu.height = 64;
-	postgameMenuInfo.item_menu.focuspic = ART_MENU1;
+	postgameMenuInfo.item_menu.focuspic = UI_ART_BUTTON_FOCUS;
+	postgameMenuInfo.item_menu.generic.caption.text = "menu";
+	postgameMenuInfo.item_menu.generic.caption.style = UI_CENTER;
+	postgameMenuInfo.item_menu.generic.caption.fontsize = 0.6f;
+	postgameMenuInfo.item_menu.generic.caption.font = &uis.buttonFont;
+	postgameMenuInfo.item_menu.generic.caption.color = text_color_normal;
+	postgameMenuInfo.item_menu.generic.caption.focuscolor = text_color_highlight;
 
 	postgameMenuInfo.item_again.generic.type = MTYPE_BITMAP;
-	postgameMenuInfo.item_again.generic.name = ART_REPLAY0;
+	postgameMenuInfo.item_again.generic.name = UI_ART_BUTTON;
 	postgameMenuInfo.item_again.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS | QMF_INACTIVE;
 	postgameMenuInfo.item_again.generic.x = 320;
 	postgameMenuInfo.item_again.generic.y = 480 - 64;
@@ -499,10 +505,16 @@ static void UI_SPPostgameMenu_Init(void)
 	postgameMenuInfo.item_again.generic.id = ID_AGAIN;
 	postgameMenuInfo.item_again.width = 128;
 	postgameMenuInfo.item_again.height = 64;
-	postgameMenuInfo.item_again.focuspic = ART_REPLAY1;
+	postgameMenuInfo.item_again.focuspic = UI_ART_BUTTON_FOCUS;
+	postgameMenuInfo.item_again.generic.caption.text = "replay";
+	postgameMenuInfo.item_again.generic.caption.style = UI_CENTER;
+	postgameMenuInfo.item_again.generic.caption.fontsize = 0.6f;
+	postgameMenuInfo.item_again.generic.caption.font = &uis.buttonFont;
+	postgameMenuInfo.item_again.generic.caption.color = text_color_normal;
+	postgameMenuInfo.item_again.generic.caption.focuscolor = text_color_highlight;
 
 	postgameMenuInfo.item_next.generic.type = MTYPE_BITMAP;
-	postgameMenuInfo.item_next.generic.name = ART_NEXT0;
+	postgameMenuInfo.item_next.generic.name = UI_ART_BUTTON;
 	postgameMenuInfo.item_next.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_INACTIVE;
 	postgameMenuInfo.item_next.generic.x = 640;
 	postgameMenuInfo.item_next.generic.y = 480 - 64;
@@ -510,7 +522,13 @@ static void UI_SPPostgameMenu_Init(void)
 	postgameMenuInfo.item_next.generic.id = ID_NEXT;
 	postgameMenuInfo.item_next.width = 128;
 	postgameMenuInfo.item_next.height = 64;
-	postgameMenuInfo.item_next.focuspic = ART_NEXT1;
+	postgameMenuInfo.item_next.focuspic = UI_ART_BUTTON_FOCUS;
+	postgameMenuInfo.item_next.generic.caption.text = "replay";
+	postgameMenuInfo.item_next.generic.caption.style = UI_CENTER;
+	postgameMenuInfo.item_next.generic.caption.fontsize = 0.6f;
+	postgameMenuInfo.item_next.generic.caption.font = &uis.buttonFont;
+	postgameMenuInfo.item_next.generic.caption.color = text_color_normal;
+	postgameMenuInfo.item_next.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&postgameMenuInfo.menu, (void *)&postgameMenuInfo.item_menu);
 	Menu_AddItem(&postgameMenuInfo.menu, (void *)&postgameMenuInfo.item_again);

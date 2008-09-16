@@ -34,8 +34,6 @@ TEAM ORDERS MENU
 
 
 #define ART_FRAME		"menu/art/addbotframe"
-#define ART_BACK0		"menu/art/back_0"
-#define ART_BACK1		"menu/art/back_1"
 
 #define ID_LIST_BOTS		10
 #define ID_LIST_CTF_ORDERS	11
@@ -409,14 +407,20 @@ static void UI_TeamOrdersMenu_Init(void)
 	teamOrdersMenuInfo.list.generic.y = 120;
 
 	teamOrdersMenuInfo.back.generic.type = MTYPE_BITMAP;
-	teamOrdersMenuInfo.back.generic.name = ART_BACK0;
+	teamOrdersMenuInfo.back.generic.name = UI_ART_BUTTON;
 	teamOrdersMenuInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	teamOrdersMenuInfo.back.generic.callback = UI_TeamOrdersMenu_BackEvent;
 	teamOrdersMenuInfo.back.generic.x = 0;
 	teamOrdersMenuInfo.back.generic.y = 480 - 64;
 	teamOrdersMenuInfo.back.width = 128;
 	teamOrdersMenuInfo.back.height = 64;
-	teamOrdersMenuInfo.back.focuspic = ART_BACK1;
+	teamOrdersMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	teamOrdersMenuInfo.back.generic.caption.text = "back";
+	teamOrdersMenuInfo.back.generic.caption.style = UI_CENTER;
+	teamOrdersMenuInfo.back.generic.caption.fontsize = 0.6f;
+	teamOrdersMenuInfo.back.generic.caption.font = &uis.buttonFont;
+	teamOrdersMenuInfo.back.generic.caption.color = text_color_normal;
+	teamOrdersMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&teamOrdersMenuInfo.menu, &teamOrdersMenuInfo.banner);
 	Menu_AddItem(&teamOrdersMenuInfo.menu, &teamOrdersMenuInfo.frame);
@@ -438,8 +442,7 @@ UI_TeamOrdersMenu_Cache
 void UI_TeamOrdersMenu_Cache(void)
 {
 	trap_R_RegisterShaderNoMip(ART_FRAME);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
+
 }
 
 

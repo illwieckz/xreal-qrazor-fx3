@@ -226,7 +226,7 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
-	s_confirm.yes.generic.x = l1;
+	s_confirm.yes.generic.x = l1-10;
 	s_confirm.yes.generic.y = 264;
 	s_confirm.yes.string = "YES";
 	s_confirm.yes.color = color_red;
@@ -236,7 +236,7 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.no.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_confirm.no.generic.callback = ConfirmMenu_Event;
 	s_confirm.no.generic.id = ID_CONFIRM_NO;
-	s_confirm.no.generic.x = l3;
+	s_confirm.no.generic.x = l3+10;
 	s_confirm.no.generic.y = 264;
 	s_confirm.no.string = "NO";
 	s_confirm.no.color = color_red;

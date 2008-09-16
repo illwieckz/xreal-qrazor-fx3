@@ -44,8 +44,6 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define MAX_LEAGUELENGTH		28
 #define MAX_LISTBOXWIDTH		68
 
-#define ART_BACK0				"menu/art/back_0"
-#define ART_BACK1				"menu/art/back_1"
 #define ART_CREATE0				"menu/art/create_0"
 #define ART_CREATE1				"menu/art/create_1"
 #define ART_SPECIFY0			"menu/art/specify_0"
@@ -1355,7 +1353,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	g_arenaservers.banner.generic.x = 320;
 	g_arenaservers.banner.generic.y = 16;
-	g_arenaservers.banner.string = "ARENA SERVERS";
+	g_arenaservers.banner.string = "MULTIPLAYER";
 	g_arenaservers.banner.style = UI_CENTER;
 	g_arenaservers.banner.color = color_white;
 
@@ -1487,7 +1485,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.remove.focuspic = ART_REMOVE1;
 
 	g_arenaservers.back.generic.type = MTYPE_BITMAP;
-	g_arenaservers.back.generic.name = ART_BACK0;
+	g_arenaservers.back.generic.name = UI_ART_BUTTON;
 	g_arenaservers.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.back.generic.callback = ArenaServers_Event;
 	g_arenaservers.back.generic.id = ID_BACK;
@@ -1495,10 +1493,16 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.back.generic.y = 480 - 64;
 	g_arenaservers.back.width = 128;
 	g_arenaservers.back.height = 64;
-	g_arenaservers.back.focuspic = ART_BACK1;
+	g_arenaservers.back.focuspic = UI_ART_BUTTON_FOCUS;
+	g_arenaservers.back.generic.caption.text = "back";
+	g_arenaservers.back.generic.caption.style = UI_CENTER;
+	g_arenaservers.back.generic.caption.fontsize = 0.6f;
+	g_arenaservers.back.generic.caption.font = &uis.buttonFont;
+	g_arenaservers.back.generic.caption.color = text_color_normal;
+	g_arenaservers.back.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.specify.generic.type = MTYPE_BITMAP;
-	g_arenaservers.specify.generic.name = ART_SPECIFY0;
+	g_arenaservers.specify.generic.name = UI_ART_BUTTON;
 	g_arenaservers.specify.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.specify.generic.callback = ArenaServers_Event;
 	g_arenaservers.specify.generic.id = ID_SPECIFY;
@@ -1506,10 +1510,16 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.specify.generic.y = 480 - 64;
 	g_arenaservers.specify.width = 128;
 	g_arenaservers.specify.height = 64;
-	g_arenaservers.specify.focuspic = ART_SPECIFY1;
+	g_arenaservers.specify.focuspic = UI_ART_BUTTON_FOCUS;
+	g_arenaservers.specify.generic.caption.text = "specify";
+	g_arenaservers.specify.generic.caption.style = UI_CENTER;
+	g_arenaservers.specify.generic.caption.fontsize = 0.6f;
+	g_arenaservers.specify.generic.caption.font = &uis.buttonFont;
+	g_arenaservers.specify.generic.caption.color = text_color_normal;
+	g_arenaservers.specify.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.refresh.generic.type = MTYPE_BITMAP;
-	g_arenaservers.refresh.generic.name = ART_REFRESH0;
+	g_arenaservers.refresh.generic.name = UI_ART_BUTTON;
 	g_arenaservers.refresh.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.refresh.generic.callback = ArenaServers_Event;
 	g_arenaservers.refresh.generic.id = ID_REFRESH;
@@ -1517,10 +1527,16 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.refresh.generic.y = 480 - 64;
 	g_arenaservers.refresh.width = 128;
 	g_arenaservers.refresh.height = 64;
-	g_arenaservers.refresh.focuspic = ART_REFRESH1;
+	g_arenaservers.refresh.focuspic = UI_ART_BUTTON_FOCUS;
+	g_arenaservers.refresh.generic.caption.text = "refresh";
+	g_arenaservers.refresh.generic.caption.style = UI_CENTER;
+	g_arenaservers.refresh.generic.caption.fontsize = 0.6f;
+	g_arenaservers.refresh.generic.caption.font = &uis.buttonFont;
+	g_arenaservers.refresh.generic.caption.color = text_color_normal;
+	g_arenaservers.refresh.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.create.generic.type = MTYPE_BITMAP;
-	g_arenaservers.create.generic.name = ART_CREATE0;
+	g_arenaservers.create.generic.name = UI_ART_BUTTON;
 	g_arenaservers.create.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.create.generic.callback = ArenaServers_Event;
 	g_arenaservers.create.generic.id = ID_CREATE;
@@ -1528,10 +1544,16 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.create.generic.y = 480 - 64;
 	g_arenaservers.create.width = 128;
 	g_arenaservers.create.height = 64;
-	g_arenaservers.create.focuspic = ART_CREATE1;
+	g_arenaservers.create.focuspic = UI_ART_BUTTON_FOCUS;
+	g_arenaservers.create.generic.caption.text = "host";
+	g_arenaservers.create.generic.caption.style = UI_CENTER;
+	g_arenaservers.create.generic.caption.fontsize = 0.6f;
+	g_arenaservers.create.generic.caption.font = &uis.buttonFont;
+	g_arenaservers.create.generic.caption.color = text_color_normal;
+	g_arenaservers.create.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.go.generic.type = MTYPE_BITMAP;
-	g_arenaservers.go.generic.name = ART_CONNECT0;
+	g_arenaservers.go.generic.name = UI_ART_BUTTON;
 	g_arenaservers.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.go.generic.callback = ArenaServers_Event;
 	g_arenaservers.go.generic.id = ID_CONNECT;
@@ -1539,7 +1561,13 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.go.generic.y = 480 - 64;
 	g_arenaservers.go.width = 128;
 	g_arenaservers.go.height = 64;
-	g_arenaservers.go.focuspic = ART_CONNECT1;
+	g_arenaservers.go.focuspic = UI_ART_BUTTON_FOCUS;
+	g_arenaservers.go.generic.caption.text = "connect";
+	g_arenaservers.go.generic.caption.style = UI_CENTER;
+	g_arenaservers.go.generic.caption.fontsize = 0.6f;
+	g_arenaservers.go.generic.caption.font = &uis.buttonFont;
+	g_arenaservers.go.generic.caption.color = text_color_normal;
+	g_arenaservers.go.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&g_arenaservers.menu, (void *)&g_arenaservers.banner);
 
@@ -1599,8 +1627,7 @@ ArenaServers_Cache
 */
 void ArenaServers_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
+
 	trap_R_RegisterShaderNoMip(ART_CREATE0);
 	trap_R_RegisterShaderNoMip(ART_CREATE1);
 	trap_R_RegisterShaderNoMip(ART_SPECIFY0);

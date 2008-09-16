@@ -140,6 +140,12 @@ extern vmCvar_t ui_server16;
 #define QM_LOSTFOCUS			2
 #define QM_ACTIVATED			3
 
+//media
+
+#define UI_ART_BUTTON "ui/button"
+#define UI_ART_BUTTON_FOCUS "ui/button_focus"
+
+
 typedef struct _tag_menuframework
 {
 	int             cursor;
@@ -156,6 +162,19 @@ typedef struct _tag_menuframework
 	qboolean        showlogo;
 } menuframework_s;
 
+//added by otty to lable pictures ( used for buttons, will save a lot of filespace )
+typedef struct
+{
+	const char     *text;
+	unsigned	style;
+	float		fontsize;
+	qhandle_t	*font;
+	float          *color;
+	float          *focuscolor;
+
+
+} menucaption_s;
+
 typedef struct
 {
 	int             type;
@@ -169,6 +188,8 @@ typedef struct
 	menuframework_s *parent;
 	int             menuPosition;
 	unsigned        flags;
+
+	menucaption_s	caption;
 
 	void            (*callback) (void *self, int event);
 	void            (*statusbar) (void *self);
@@ -475,6 +496,24 @@ typedef struct
 
 	animation_t     animations[MAX_ANIMATIONS];
 
+#ifdef XPPM
+	// XPPM support for the UI
+	char            firstTorsoBoneName[MAX_QPATH];
+	char            lastTorsoBoneName[MAX_QPATH];
+
+	char            torsoControlBoneName[MAX_QPATH];
+	char            neckControlBoneName[MAX_QPATH];
+
+	vec3_t          modelScale;
+
+	qhandle_t       bodyModel;
+	qhandle_t       bodySkin;
+
+	gender_t        gender;		// from model
+
+#endif
+
+
 	qhandle_t       weaponModel;
 	qhandle_t       barrelModel;
 	qhandle_t       flashModel;
@@ -515,6 +554,14 @@ void            UI_PlayerInfo_SetInfo(playerInfo_t * pi, int legsAnim, int torso
 									  weapon_t weaponNum, qboolean chat);
 qboolean        UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName);
 
+#ifdef XPPM
+	// XPPM support for the UI
+void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time);
+qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName);
+
+#endif
+
+
 //
 // ui_atoms.c
 //
@@ -537,8 +584,8 @@ typedef struct
 	qhandle_t       charsetProp1Glow;
 	qhandle_t       charsetProp2;
 	qhandle_t       cursor;
-	qhandle_t       rb_on;
-	qhandle_t       rb_off;
+	//qhandle_t       rb_on;
+	//qhandle_t       rb_off;
 	float           scale;
 	float           xbias;
 	float           ybias;
@@ -546,8 +593,18 @@ typedef struct
 
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSerifBoldFont;
-//  fontInfo_t      smallFont;
-//  fontInfo_t      bigFont;
+	fontInfo_t	freeSansBoldFont;
+	fontInfo_t      freeSerifFont;
+	fontInfo_t	freeSansFont;
+
+	fontInfo_t      buttonFont;
+	fontInfo_t      BTextFont;
+	fontInfo_t      PTextFont;
+	fontInfo_t      TextFont;
+
+//	fontInfo_t      smallFont;
+//	fontInfo_t      bigFont;
+
 } uiStatic_t;
 
 extern void     UI_Init(void);
@@ -580,6 +637,8 @@ void            UI_Text_PaintChar(float x, float y, float width, float height, f
 								  qhandle_t hShader);
 void            UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
 							  const fontInfo_t * font);
+void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax, const char *str, int style, vec4_t color, const fontInfo_t * font);
+
 
 extern qboolean UI_CursorInRect(int x, int y, int width, int height);
 extern void     UI_AdjustFrom640(float *x, float *y, float *w, float *h);
@@ -646,6 +705,9 @@ void            trap_FS_FCloseFile(fileHandle_t f);
 int             trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
 int             trap_FS_Seek(fileHandle_t f, long offset, int origin);	// fsOrigin_t
 qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);
+qhandle_t       trap_R_RegisterAnimation(const char *name);
+int 		trap_R_AnimNumFrames(qhandle_t hAnim);
+int 		trap_R_AnimFrameRate(qhandle_t hAnim);
 qhandle_t       trap_R_RegisterSkin(const char *name);
 qhandle_t       trap_R_RegisterShaderNoMip(const char *name);
 void            trap_R_ClearScene(void);

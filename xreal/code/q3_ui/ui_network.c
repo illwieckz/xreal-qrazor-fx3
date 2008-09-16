@@ -31,10 +31,8 @@ NETWORK OPTIONS MENU
 
 #include "ui_local.h"
 
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
 
 #define ID_GRAPHICS			10
 #define ID_DISPLAY			11
@@ -57,13 +55,13 @@ typedef struct
 	menuframework_s menu;
 
 	menutext_s      banner;
-	menubitmap_s    framel;
-	menubitmap_s    framer;
+	//menubitmap_s    framel;
+	//menubitmap_s    framer;
 
-	menutext_s      graphics;
-	menutext_s      display;
-	menutext_s      sound;
-	menutext_s      network;
+	menubitmap_s      graphics;
+	//menubitmap_s      display;
+	menubitmap_s      sound;
+	menubitmap_s      network;
 
 	menulist_s      rate;
 	menuslider_s    packetdup;
@@ -153,7 +151,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.banner.color = color_white;
 	networkOptionsInfo.banner.style = UI_CENTER;
 
-	networkOptionsInfo.framel.generic.type = MTYPE_BITMAP;
+/*	networkOptionsInfo.framel.generic.type = MTYPE_BITMAP;
 	networkOptionsInfo.framel.generic.name = ART_FRAMEL;
 	networkOptionsInfo.framel.generic.flags = QMF_INACTIVE;
 	networkOptionsInfo.framel.generic.x = 0;
@@ -168,8 +166,10 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.framer.generic.y = 76;
 	networkOptionsInfo.framer.width = 256;
 	networkOptionsInfo.framer.height = 334;
+*/
 
-	networkOptionsInfo.graphics.generic.type = MTYPE_PTEXT;
+
+/*	networkOptionsInfo.graphics.generic.type = MTYPE_PTEXT;
 	networkOptionsInfo.graphics.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	networkOptionsInfo.graphics.generic.id = ID_GRAPHICS;
 	networkOptionsInfo.graphics.generic.callback = UI_NetworkOptionsMenu_Event;
@@ -209,13 +209,68 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.style = UI_RIGHT;
 	networkOptionsInfo.network.color = color_red;
 
+*/
+
+	networkOptionsInfo.graphics.generic.type = MTYPE_BITMAP;
+	networkOptionsInfo.graphics.generic.name = UI_ART_BUTTON;
+	networkOptionsInfo.graphics.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
+	networkOptionsInfo.graphics.generic.callback = UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.graphics.generic.id = ID_GRAPHICS;
+	networkOptionsInfo.graphics.generic.x = 128;
+	networkOptionsInfo.graphics.generic.y = 480 - 64;
+	networkOptionsInfo.graphics.width = 128;
+	networkOptionsInfo.graphics.height = 64;
+	networkOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
+	networkOptionsInfo.graphics.generic.caption.text = "graphics";
+	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
+	networkOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
+	networkOptionsInfo.graphics.generic.caption.color = text_color_normal;
+	networkOptionsInfo.graphics.generic.caption.focuscolor = text_color_highlight;
+
+
+	networkOptionsInfo.sound.generic.type = MTYPE_BITMAP;
+	networkOptionsInfo.sound.generic.name = UI_ART_BUTTON;
+	networkOptionsInfo.sound.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
+	networkOptionsInfo.sound.generic.callback = UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.sound.generic.id = ID_SOUND;
+	networkOptionsInfo.sound.generic.x = 256;
+	networkOptionsInfo.sound.generic.y = 480 - 64;
+	networkOptionsInfo.sound.width = 128;
+	networkOptionsInfo.sound.height = 64;
+	networkOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
+	networkOptionsInfo.sound.generic.caption.text = "sound";
+	networkOptionsInfo.sound.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.sound.generic.caption.fontsize = 0.6f;
+	networkOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
+	networkOptionsInfo.sound.generic.caption.color = text_color_normal;
+	networkOptionsInfo.sound.generic.caption.focuscolor = text_color_highlight;
+
+	networkOptionsInfo.network.generic.type = MTYPE_BITMAP;
+	networkOptionsInfo.network.generic.name = UI_ART_BUTTON;
+	networkOptionsInfo.network.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
+	networkOptionsInfo.network.generic.callback = UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.network.generic.id = ID_NETWORK;
+	networkOptionsInfo.network.generic.x = 384;
+	networkOptionsInfo.network.generic.y = 480 - 64;
+	networkOptionsInfo.network.width = 128;
+	networkOptionsInfo.network.height = 64;
+	networkOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
+	networkOptionsInfo.network.generic.caption.text = "network";
+	networkOptionsInfo.network.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.network.generic.caption.fontsize = 0.6f;
+	networkOptionsInfo.network.generic.caption.font = &uis.buttonFont;
+	networkOptionsInfo.network.generic.caption.color = text_color_normal;
+	networkOptionsInfo.network.generic.caption.focuscolor = text_color_highlight;
+
+
 	y = 240 - 1.5 * (BIGCHAR_HEIGHT + 2);
 	networkOptionsInfo.rate.generic.type = MTYPE_SPINCONTROL;
 	networkOptionsInfo.rate.generic.name = "Data Rate:";
 	networkOptionsInfo.rate.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	networkOptionsInfo.rate.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.rate.generic.id = ID_RATE;
-	networkOptionsInfo.rate.generic.x = 400;
+	networkOptionsInfo.rate.generic.x = 320;
 	networkOptionsInfo.rate.generic.y = y;
 	networkOptionsInfo.rate.itemnames = rate_items;
 
@@ -225,7 +280,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.packetdup.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	networkOptionsInfo.packetdup.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.packetdup.generic.id = ID_PACKETDUP;
-	networkOptionsInfo.packetdup.generic.x = 400;
+	networkOptionsInfo.packetdup.generic.x = 320;
 	networkOptionsInfo.packetdup.generic.y = y;
 	networkOptionsInfo.packetdup.minvalue = 0;
 	networkOptionsInfo.packetdup.maxvalue = 5;
@@ -236,13 +291,13 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.maxpackets.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	networkOptionsInfo.maxpackets.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.maxpackets.generic.id = ID_MAXPACKETS;
-	networkOptionsInfo.maxpackets.generic.x = 400;
+	networkOptionsInfo.maxpackets.generic.x = 320;
 	networkOptionsInfo.maxpackets.generic.y = y;
 	networkOptionsInfo.maxpackets.minvalue = 1;
 	networkOptionsInfo.maxpackets.maxvalue = 125;
 
 	networkOptionsInfo.back.generic.type = MTYPE_BITMAP;
-	networkOptionsInfo.back.generic.name = ART_BACK0;
+	networkOptionsInfo.back.generic.name = UI_ART_BUTTON;
 	networkOptionsInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	networkOptionsInfo.back.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.back.generic.id = ID_BACK;
@@ -250,13 +305,19 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.back.generic.y = 480 - 64;
 	networkOptionsInfo.back.width = 128;
 	networkOptionsInfo.back.height = 64;
-	networkOptionsInfo.back.focuspic = ART_BACK1;
+	networkOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	networkOptionsInfo.back.generic.caption.text = "back";
+	networkOptionsInfo.back.generic.caption.style = UI_CENTER;
+	networkOptionsInfo.back.generic.caption.fontsize = 0.6f;
+	networkOptionsInfo.back.generic.caption.font = &uis.buttonFont;
+	networkOptionsInfo.back.generic.caption.color = text_color_normal;
+	networkOptionsInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.banner);
-	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.framel);
-	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.framer);
+	//Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.framel);
+	//Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.framer);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.graphics);
-	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.display);
+	//Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.display);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.sound);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.network);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.rate);
@@ -283,10 +344,9 @@ UI_NetworkOptionsMenu_Cache
 */
 void UI_NetworkOptionsMenu_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_FRAMEL);
-	trap_R_RegisterShaderNoMip(ART_FRAMER);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
+	//trap_R_RegisterShaderNoMip(ART_FRAMEL);
+	//trap_R_RegisterShaderNoMip(ART_FRAMER);
+
 }
 
 /*

@@ -33,12 +33,10 @@ SETUP MENU
 #include "ui_local.h"
 
 
-#define SETUP_MENU_VERTICAL_SPACING		34
+#define SETUP_MENU_VERTICAL_SPACING		42
 
-#define ART_BACK0		"menu/art/back_0"
-#define ART_BACK1		"menu/art/back_1"
-#define ART_FRAMEL		"menu/art/frame2_l"
-#define ART_FRAMER		"menu/art/frame1_r"
+//#define ART_FRAMEL		"menu/art/frame2_l"
+//#define ART_FRAMER		"menu/art/frame1_r"
 
 #define ID_CUSTOMIZEPLAYER		10
 #define ID_CUSTOMIZECONTROLS	11
@@ -94,10 +92,14 @@ Setup_ResetDefaults_Draw
 */
 static void Setup_ResetDefaults_Draw(void)
 {
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",
-							  UI_CENTER | UI_SMALLFONT, color_yellow);
+	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER | UI_SMALLFONT,							  color_yellow);
+	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",							  UI_CENTER | UI_SMALLFONT, color_yellow);
+
+
+	UI_Text_Paint_AutoWrapped(320, 356, 0.4f, 400, "WARNING: This will reset *ALL* options to their default values.",  UI_CENTER | UI_DROPSHADOW, color_yellow, &uis.freeSansFont);
+
+
+
 }
 
 
@@ -171,7 +173,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.banner.string = "SETUP";
 	setupMenuInfo.banner.color = color_white;
 	setupMenuInfo.banner.style = UI_CENTER;
-
+/*
 	setupMenuInfo.framel.generic.type = MTYPE_BITMAP;
 	setupMenuInfo.framel.generic.name = ART_FRAMEL;
 	setupMenuInfo.framel.generic.flags = QMF_INACTIVE;
@@ -187,8 +189,8 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.framer.generic.y = 76;
 	setupMenuInfo.framer.width = 256;
 	setupMenuInfo.framer.height = 334;
-
-	y = 100;
+*/
+	y = 134;
 	setupMenuInfo.setupplayer.generic.type = MTYPE_PTEXT;
 	setupMenuInfo.setupplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	setupMenuInfo.setupplayer.generic.x = 320;
@@ -196,7 +198,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupplayer.generic.id = ID_CUSTOMIZEPLAYER;
 	setupMenuInfo.setupplayer.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.setupplayer.string = "PLAYER";
-	setupMenuInfo.setupplayer.color = color_red;
+	setupMenuInfo.setupplayer.color = colorWhite;
 	setupMenuInfo.setupplayer.style = UI_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
@@ -207,7 +209,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupcontrols.generic.id = ID_CUSTOMIZECONTROLS;
 	setupMenuInfo.setupcontrols.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.setupcontrols.string = "CONTROLS";
-	setupMenuInfo.setupcontrols.color = color_red;
+	setupMenuInfo.setupcontrols.color = colorWhite;
 	setupMenuInfo.setupcontrols.style = UI_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
@@ -218,7 +220,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupsystem.generic.id = ID_SYSTEMCONFIG;
 	setupMenuInfo.setupsystem.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.setupsystem.string = "SYSTEM";
-	setupMenuInfo.setupsystem.color = color_red;
+	setupMenuInfo.setupsystem.color = colorWhite;
 	setupMenuInfo.setupsystem.style = UI_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
@@ -229,7 +231,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.game.generic.id = ID_GAME;
 	setupMenuInfo.game.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.game.string = "GAME OPTIONS";
-	setupMenuInfo.game.color = color_red;
+	setupMenuInfo.game.color = colorWhite;
 	setupMenuInfo.game.style = UI_CENTER;
 
 #if 0
@@ -241,7 +243,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.load.generic.id = ID_LOAD;
 	setupMenuInfo.load.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.load.string = "LOAD CONFIG";
-	setupMenuInfo.load.color = color_red;
+	setupMenuInfo.load.color = colorWhite;
 	setupMenuInfo.load.style = UI_CENTER;
 
 
@@ -253,7 +255,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.save.generic.id = ID_SAVE;
 	setupMenuInfo.save.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.save.string = "SAVE CONFIG";
-	setupMenuInfo.save.color = color_red;
+	setupMenuInfo.save.color = colorWhite;
 	setupMenuInfo.save.style = UI_CENTER;
 #endif
 
@@ -265,11 +267,11 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.defaults.generic.id = ID_DEFAULTS;
 	setupMenuInfo.defaults.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.defaults.string = "DEFAULTS";
-	setupMenuInfo.defaults.color = color_red;
+	setupMenuInfo.defaults.color = colorWhite;
 	setupMenuInfo.defaults.style = UI_CENTER;
 
 	setupMenuInfo.back.generic.type = MTYPE_BITMAP;
-	setupMenuInfo.back.generic.name = ART_BACK0;
+	setupMenuInfo.back.generic.name = UI_ART_BUTTON;
 	setupMenuInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	setupMenuInfo.back.generic.id = ID_BACK;
 	setupMenuInfo.back.generic.callback = UI_SetupMenu_Event;
@@ -277,11 +279,17 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.back.generic.y = 480 - 64;
 	setupMenuInfo.back.width = 128;
 	setupMenuInfo.back.height = 64;
-	setupMenuInfo.back.focuspic = ART_BACK1;
+	setupMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	setupMenuInfo.back.generic.caption.text = "back";
+	setupMenuInfo.back.generic.caption.style = UI_CENTER;
+	setupMenuInfo.back.generic.caption.fontsize = 0.6f;
+	setupMenuInfo.back.generic.caption.font = &uis.buttonFont;
+	setupMenuInfo.back.generic.caption.color = text_color_normal;
+	setupMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.banner);
-	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framel);
-	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framer);
+//	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framel);
+//	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framer);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupplayer);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupcontrols);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupsystem);
@@ -300,10 +308,8 @@ UI_SetupMenu_Cache
 */
 void UI_SetupMenu_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_FRAMEL);
-	trap_R_RegisterShaderNoMip(ART_FRAMER);
+//	trap_R_RegisterShaderNoMip(ART_FRAMEL);
+//	trap_R_RegisterShaderNoMip(ART_FRAMER);
 }
 
 

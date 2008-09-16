@@ -271,7 +271,7 @@ void SpecifyLeague_MenuInit(void)
 	s_specifyleague.down.focuspic = SPECIFYLEAGUE_DOWN;
 
 	s_specifyleague.back.generic.type = MTYPE_BITMAP;
-	s_specifyleague.back.generic.name = SPECIFYLEAGUE_BACK0;
+	s_specifyleague.back.generic.name = UI_ART_BUTTON;
 	s_specifyleague.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_specifyleague.back.generic.callback = SpecifyLeague_Event;
 	s_specifyleague.back.generic.id = ID_SPECIFYLEAGUEBACK;
@@ -279,7 +279,13 @@ void SpecifyLeague_MenuInit(void)
 	s_specifyleague.back.generic.y = 480 - 64;
 	s_specifyleague.back.width = 128;
 	s_specifyleague.back.height = 64;
-	s_specifyleague.back.focuspic = SPECIFYLEAGUE_BACK1;
+	s_specifyleague.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_specifyleague.back.generic.caption.text = "back";
+	s_specifyleague.back.generic.caption.style = UI_CENTER;
+	s_specifyleague.back.generic.caption.fontsize = 0.6f;
+	s_specifyleague.back.generic.caption.font = &uis.buttonFont;
+	s_specifyleague.back.generic.caption.color = text_color_normal;
+	s_specifyleague.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_specifyleague.menu, &s_specifyleague.banner);
 	Menu_AddItem(&s_specifyleague.menu, &s_specifyleague.framel);

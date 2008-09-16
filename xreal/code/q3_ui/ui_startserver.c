@@ -524,7 +524,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.mapname.color = text_color_normal;
 
 	s_startserver.back.generic.type = MTYPE_BITMAP;
-	s_startserver.back.generic.name = GAMESERVER_BACK0;
+	s_startserver.back.generic.name = UI_ART_BUTTON;
 	s_startserver.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_startserver.back.generic.callback = StartServer_MenuEvent;
 	s_startserver.back.generic.id = ID_STARTSERVERBACK;
@@ -532,10 +532,17 @@ static void StartServer_MenuInit(void)
 	s_startserver.back.generic.y = 480 - 64;
 	s_startserver.back.width = 128;
 	s_startserver.back.height = 64;
-	s_startserver.back.focuspic = GAMESERVER_BACK1;
+	s_startserver.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_startserver.back.generic.caption.text = "back";
+	s_startserver.back.generic.caption.style = UI_CENTER;
+	s_startserver.back.generic.caption.fontsize = 0.6f;
+	s_startserver.back.generic.caption.font = &uis.buttonFont;
+	s_startserver.back.generic.caption.color = text_color_normal;
+	s_startserver.back.generic.caption.focuscolor = text_color_highlight;
+
 
 	s_startserver.next.generic.type = MTYPE_BITMAP;
-	s_startserver.next.generic.name = GAMESERVER_NEXT0;
+	s_startserver.next.generic.name = UI_ART_BUTTON;
 	s_startserver.next.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_startserver.next.generic.callback = StartServer_MenuEvent;
 	s_startserver.next.generic.id = ID_STARTSERVERNEXT;
@@ -543,7 +550,14 @@ static void StartServer_MenuInit(void)
 	s_startserver.next.generic.y = 480 - 64;
 	s_startserver.next.width = 128;
 	s_startserver.next.height = 64;
-	s_startserver.next.focuspic = GAMESERVER_NEXT1;
+	s_startserver.next.focuspic = UI_ART_BUTTON_FOCUS;
+	s_startserver.next.generic.caption.text = "next";
+	s_startserver.next.generic.caption.style = UI_CENTER;
+	s_startserver.next.generic.caption.fontsize = 0.6f;
+	s_startserver.next.generic.caption.font = &uis.buttonFont;
+	s_startserver.next.generic.caption.color = text_color_normal;
+	s_startserver.next.generic.caption.focuscolor = text_color_highlight;
+
 
 	s_startserver.item_null.generic.type = MTYPE_BITMAP;
 	s_startserver.item_null.generic.flags = QMF_LEFT_JUSTIFY | QMF_MOUSEONLY | QMF_SILENT;
@@ -1501,7 +1515,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	}
 
 	s_serveroptions.back.generic.type = MTYPE_BITMAP;
-	s_serveroptions.back.generic.name = GAMESERVER_BACK0;
+	s_serveroptions.back.generic.name = UI_ART_BUTTON;
 	s_serveroptions.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_serveroptions.back.generic.callback = ServerOptions_Event;
 	s_serveroptions.back.generic.id = ID_BACK;
@@ -1509,7 +1523,13 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.back.generic.y = 480 - 64;
 	s_serveroptions.back.width = 128;
 	s_serveroptions.back.height = 64;
-	s_serveroptions.back.focuspic = GAMESERVER_BACK1;
+	s_serveroptions.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_serveroptions.back.generic.caption.text = "back";
+	s_serveroptions.back.generic.caption.style = UI_CENTER;
+	s_serveroptions.back.generic.caption.fontsize = 0.6f;
+	s_serveroptions.back.generic.caption.font = &uis.buttonFont;
+	s_serveroptions.back.generic.caption.color = text_color_normal;
+	s_serveroptions.back.generic.caption.focuscolor = text_color_highlight;
 
 	s_serveroptions.next.generic.type = MTYPE_BITMAP;
 	s_serveroptions.next.generic.name = GAMESERVER_NEXT0;
@@ -1524,7 +1544,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.next.focuspic = GAMESERVER_NEXT1;
 
 	s_serveroptions.go.generic.type = MTYPE_BITMAP;
-	s_serveroptions.go.generic.name = GAMESERVER_FIGHT0;
+	s_serveroptions.go.generic.name = UI_ART_BUTTON;
 	s_serveroptions.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_serveroptions.go.generic.callback = ServerOptions_Event;
 	s_serveroptions.go.generic.id = ID_GO;
@@ -1532,7 +1552,13 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.go.generic.y = 480 - 64;
 	s_serveroptions.go.width = 128;
 	s_serveroptions.go.height = 64;
-	s_serveroptions.go.focuspic = GAMESERVER_FIGHT1;
+	s_serveroptions.go.focuspic = UI_ART_BUTTON_FOCUS;
+	s_serveroptions.go.generic.caption.text = "fight";
+	s_serveroptions.go.generic.caption.style = UI_CENTER;
+	s_serveroptions.go.generic.caption.fontsize = 0.6f;
+	s_serveroptions.go.generic.caption.font = &uis.buttonFont;
+	s_serveroptions.go.generic.caption.color = text_color_normal;
+	s_serveroptions.go.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_serveroptions.menu, &s_serveroptions.banner);
 
@@ -2080,24 +2106,36 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.right.focuspic = BOTSELECT_ARROWSR;
 
 	botSelectInfo.back.generic.type = MTYPE_BITMAP;
-	botSelectInfo.back.generic.name = BOTSELECT_BACK0;
+	botSelectInfo.back.generic.name = UI_ART_BUTTON;
 	botSelectInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	botSelectInfo.back.generic.callback = UI_BotSelectMenu_BackEvent;
 	botSelectInfo.back.generic.x = 0;
 	botSelectInfo.back.generic.y = 480 - 64;
 	botSelectInfo.back.width = 128;
 	botSelectInfo.back.height = 64;
-	botSelectInfo.back.focuspic = BOTSELECT_BACK1;
+	botSelectInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	botSelectInfo.back.generic.caption.text = "back";
+	botSelectInfo.back.generic.caption.style = UI_CENTER;
+	botSelectInfo.back.generic.caption.fontsize = 0.6f;
+	botSelectInfo.back.generic.caption.font = &uis.buttonFont;
+	botSelectInfo.back.generic.caption.color = text_color_normal;
+	botSelectInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	botSelectInfo.go.generic.type = MTYPE_BITMAP;
-	botSelectInfo.go.generic.name = BOTSELECT_ACCEPT0;
+	botSelectInfo.go.generic.name = UI_ART_BUTTON;
 	botSelectInfo.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	botSelectInfo.go.generic.callback = UI_BotSelectMenu_SelectEvent;
 	botSelectInfo.go.generic.x = 640;
 	botSelectInfo.go.generic.y = 480 - 64;
 	botSelectInfo.go.width = 128;
 	botSelectInfo.go.height = 64;
-	botSelectInfo.go.focuspic = BOTSELECT_ACCEPT1;
+	botSelectInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
+	botSelectInfo.go.generic.caption.text = "add";
+	botSelectInfo.go.generic.caption.style = UI_CENTER;
+	botSelectInfo.go.generic.caption.fontsize = 0.6f;
+	botSelectInfo.go.generic.caption.font = &uis.buttonFont;
+	botSelectInfo.go.generic.caption.color = text_color_normal;
+	botSelectInfo.go.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&botSelectInfo.menu, &botSelectInfo.banner);
 	for(i = 0; i < MAX_MODELSPERPAGE; i++)

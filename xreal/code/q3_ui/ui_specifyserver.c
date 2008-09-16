@@ -158,10 +158,16 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.go.generic.y = 480 - 64;
 	s_specifyserver.go.width = 128;
 	s_specifyserver.go.height = 64;
-	s_specifyserver.go.focuspic = SPECIFYSERVER_FIGHT1;
+	s_specifyserver.go.focuspic = UI_ART_BUTTON_FOCUS;
+	s_specifyserver.go.generic.caption.text = "specify";
+	s_specifyserver.go.generic.caption.style = UI_CENTER;
+	s_specifyserver.go.generic.caption.fontsize = 0.6f;
+	s_specifyserver.go.generic.caption.font = &uis.buttonFont;
+	s_specifyserver.go.generic.caption.color = text_color_normal;
+	s_specifyserver.go.generic.caption.focuscolor = text_color_highlight;
 
 	s_specifyserver.back.generic.type = MTYPE_BITMAP;
-	s_specifyserver.back.generic.name = SPECIFYSERVER_BACK0;
+	s_specifyserver.back.generic.name = UI_ART_BUTTON;
 	s_specifyserver.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_specifyserver.back.generic.callback = SpecifyServer_Event;
 	s_specifyserver.back.generic.id = ID_SPECIFYSERVERBACK;
@@ -169,7 +175,13 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.back.generic.y = 480 - 64;
 	s_specifyserver.back.width = 128;
 	s_specifyserver.back.height = 64;
-	s_specifyserver.back.focuspic = SPECIFYSERVER_BACK1;
+	s_specifyserver.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_specifyserver.back.generic.caption.text = "back";
+	s_specifyserver.back.generic.caption.style = UI_CENTER;
+	s_specifyserver.back.generic.caption.fontsize = 0.6f;
+	s_specifyserver.back.generic.caption.font = &uis.buttonFont;
+	s_specifyserver.back.generic.caption.color = text_color_normal;
+	s_specifyserver.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_specifyserver.menu, &s_specifyserver.banner);
 	Menu_AddItem(&s_specifyserver.menu, &s_specifyserver.framel);

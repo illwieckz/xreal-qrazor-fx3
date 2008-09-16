@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "ui_local.h"
 
-#define MODEL_BACK0			"menu/art/back_0"
-#define MODEL_BACK1			"menu/art/back_1"
 #define MODEL_SELECT		"menu/art/opponents_select"
 #define MODEL_SELECTED		"menu/art/opponents_selected"
 #define MODEL_FRAMEL		"menu/art/frame2_l"
@@ -37,8 +35,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LOW_MEMORY			(5 * 1024 * 1024)
 
 static char    *playermodel_artlist[] = {
-	MODEL_BACK0,
-	MODEL_BACK1,
 	MODEL_SELECT,
 	MODEL_SELECTED,
 	MODEL_FRAMEL,
@@ -660,7 +656,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.right.focuspic = MODEL_ARROWSR;
 
 	s_playermodel.back.generic.type = MTYPE_BITMAP;
-	s_playermodel.back.generic.name = MODEL_BACK0;
+	s_playermodel.back.generic.name = UI_ART_BUTTON;
 	s_playermodel.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_playermodel.back.generic.callback = PlayerModel_MenuEvent;
 	s_playermodel.back.generic.id = ID_BACK;
@@ -668,7 +664,14 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.back.generic.y = 480 - 64;
 	s_playermodel.back.width = 128;
 	s_playermodel.back.height = 64;
-	s_playermodel.back.focuspic = MODEL_BACK1;
+	s_playermodel.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_playermodel.back.generic.caption.text = "back";
+	s_playermodel.back.generic.caption.style = UI_CENTER;
+	s_playermodel.back.generic.caption.fontsize = 0.6f;
+	s_playermodel.back.generic.caption.font = &uis.buttonFont;
+	s_playermodel.back.generic.caption.color = text_color_normal;
+	s_playermodel.back.generic.caption.focuscolor = text_color_highlight;
+
 
 	Menu_AddItem(&s_playermodel.menu, &s_playermodel.banner);
 	Menu_AddItem(&s_playermodel.menu, &s_playermodel.framel);

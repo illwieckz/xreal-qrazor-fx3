@@ -287,7 +287,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_nightmare.style = UI_CENTER;
 
 	skillMenuInfo.item_back.generic.type = MTYPE_BITMAP;
-	skillMenuInfo.item_back.generic.name = ART_BACK;
+	skillMenuInfo.item_back.generic.name = UI_ART_BUTTON;
 	skillMenuInfo.item_back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	skillMenuInfo.item_back.generic.x = 0;
 	skillMenuInfo.item_back.generic.y = 480 - 64;
@@ -295,7 +295,13 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_back.generic.id = ID_BACK;
 	skillMenuInfo.item_back.width = 128;
 	skillMenuInfo.item_back.height = 64;
-	skillMenuInfo.item_back.focuspic = ART_BACK_FOCUS;
+	skillMenuInfo.item_back.focuspic = UI_ART_BUTTON_FOCUS;
+	skillMenuInfo.item_back.generic.caption.text = "back";
+	skillMenuInfo.item_back.generic.caption.style = UI_CENTER;
+	skillMenuInfo.item_back.generic.caption.fontsize = 0.6f;
+	skillMenuInfo.item_back.generic.caption.font = &uis.buttonFont;
+	skillMenuInfo.item_back.generic.caption.color = text_color_normal;
+	skillMenuInfo.item_back.generic.caption.focuscolor = text_color_highlight;
 
 	skillMenuInfo.art_skillPic.generic.type = MTYPE_BITMAP;
 	skillMenuInfo.art_skillPic.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
@@ -305,7 +311,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.art_skillPic.height = 96;
 
 	skillMenuInfo.item_fight.generic.type = MTYPE_BITMAP;
-	skillMenuInfo.item_fight.generic.name = ART_FIGHT;
+	skillMenuInfo.item_fight.generic.name = UI_ART_BUTTON;
 	skillMenuInfo.item_fight.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	skillMenuInfo.item_fight.generic.callback = UI_SPSkillMenu_FightEvent;
 	skillMenuInfo.item_fight.generic.id = ID_FIGHT;
@@ -313,7 +319,13 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_fight.generic.y = 480 - 64;
 	skillMenuInfo.item_fight.width = 128;
 	skillMenuInfo.item_fight.height = 64;
-	skillMenuInfo.item_fight.focuspic = ART_FIGHT_FOCUS;
+	skillMenuInfo.item_fight.focuspic = UI_ART_BUTTON_FOCUS;
+	skillMenuInfo.item_fight.generic.caption.text = "replay";
+	skillMenuInfo.item_fight.generic.caption.style = UI_CENTER;
+	skillMenuInfo.item_fight.generic.caption.fontsize = 0.6f;
+	skillMenuInfo.item_fight.generic.caption.font = &uis.buttonFont;
+	skillMenuInfo.item_fight.generic.caption.color = text_color_normal;
+	skillMenuInfo.item_fight.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_frame);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_banner);

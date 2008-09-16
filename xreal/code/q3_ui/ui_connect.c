@@ -205,6 +205,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 	char           *s;
 	uiClientState_t cstate;
 	char            info[MAX_INFO_VALUE];
+	int 		w;
 
 	Menu_Cache();
 
@@ -221,23 +222,29 @@ void UI_DrawConnectScreen(qboolean overlay)
 	info[0] = '\0';
 	if(trap_GetConfigString(CS_SERVERINFO, info, sizeof(info)))
 	{
-		UI_DrawProportionalString(320, 16, va("Loading %s", Info_ValueForKey(info, "mapname")),
-								  UI_BIGFONT | UI_CENTER | UI_DROPSHADOW, color_white);
+
+		s = va("Loading %s", Info_ValueForKey(info, "mapname"));
+		w = UI_Text_Width(s, 0.5f, 0, &uis.freeSerifBoldFont);
+		UI_Text_Paint(320 - w / 2, 24, 0.5f, menu_text_color, s, 0, 0, UI_CENTER,  &uis.freeSerifBoldFont);
+
 	}
 
-	UI_DrawProportionalString(320, 64, va("Connecting to %s", cstate.servername), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
-							  menu_text_color);
+	s = va("Connecting to %s", cstate.servername);
+	w = UI_Text_Width(s, 0.3f, 0, &uis.freeSerifBoldFont);
+	UI_Text_Paint(320 - w / 2, 64, 0.3f, menu_text_color, s, 0, 0, UI_CENTER,  &uis.freeSerifBoldFont);
+
 
 	// display global MOTD at bottom
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,
-							  Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
-							  menu_text_color);
+	//UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,							  Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,							  menu_text_color);
 
 	// print any server info (server full, bad version, etc)
 	if(cstate.connState < CA_CONNECTED)
 	{
 		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
 											  menu_text_color);
+
+
+
 	}
 
 	if(lastConnState > cstate.connState)
@@ -275,8 +282,9 @@ void UI_DrawConnectScreen(qboolean overlay)
 			return;
 	}
 
-	UI_DrawProportionalString(320, 128, s, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, color_white);
 
+	w = UI_Text_Width(s, 0.3f, 0, &uis.freeSerifBoldFont);
+	UI_Text_Paint(320 - w / 2, 463, 0.3f, color_white, s, 0, 0, UI_CENTER,  &uis.freeSerifBoldFont);
 	// password required / connection rejected information goes here
 }
 

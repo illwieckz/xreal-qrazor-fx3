@@ -33,10 +33,6 @@ DEMOS MENU
 #include "ui_local.h"
 
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-#define ART_GO0				"menu/art/play_0"
-#define ART_GO1				"menu/art/play_1"
 #define ART_FRAMEL			"menu/art/frame2_l"
 #define ART_FRAMER			"menu/art/frame1_r"
 #define ART_ARROWS			"menu/art/arrows_horz_0"
@@ -200,7 +196,7 @@ static void Demos_MenuInit(void)
 	s_demos.right.focuspic = ART_ARROWRIGHT;
 
 	s_demos.back.generic.type = MTYPE_BITMAP;
-	s_demos.back.generic.name = ART_BACK0;
+	s_demos.back.generic.name = UI_ART_BUTTON;
 	s_demos.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_demos.back.generic.id = ID_BACK;
 	s_demos.back.generic.callback = Demos_MenuEvent;
@@ -208,10 +204,17 @@ static void Demos_MenuInit(void)
 	s_demos.back.generic.y = 480 - 64;
 	s_demos.back.width = 128;
 	s_demos.back.height = 64;
-	s_demos.back.focuspic = ART_BACK1;
+	s_demos.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_demos.back.generic.caption.text = "back";
+	s_demos.back.generic.caption.style = UI_CENTER;
+	s_demos.back.generic.caption.fontsize = 0.6f;
+	s_demos.back.generic.caption.font = &uis.buttonFont;
+	s_demos.back.generic.caption.color = text_color_normal;
+	s_demos.back.generic.caption.focuscolor = text_color_highlight;
+
 
 	s_demos.go.generic.type = MTYPE_BITMAP;
-	s_demos.go.generic.name = ART_GO0;
+	s_demos.go.generic.name = UI_ART_BUTTON;
 	s_demos.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_demos.go.generic.id = ID_GO;
 	s_demos.go.generic.callback = Demos_MenuEvent;
@@ -219,7 +222,13 @@ static void Demos_MenuInit(void)
 	s_demos.go.generic.y = 480 - 64;
 	s_demos.go.width = 128;
 	s_demos.go.height = 64;
-	s_demos.go.focuspic = ART_GO1;
+	s_demos.go.focuspic = UI_ART_BUTTON_FOCUS;
+	s_demos.go.generic.caption.text = "go";
+	s_demos.go.generic.caption.style = UI_CENTER;
+	s_demos.go.generic.caption.fontsize = 0.6f;
+	s_demos.go.generic.caption.font = &uis.buttonFont;
+	s_demos.go.generic.caption.color = text_color_normal;
+	s_demos.go.generic.caption.focuscolor = text_color_highlight;
 
 	s_demos.list.generic.type = MTYPE_SCROLLLIST;
 	s_demos.list.generic.flags = QMF_PULSEIFFOCUS;
@@ -279,10 +288,6 @@ Demos_Cache
 */
 void Demos_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_GO0);
-	trap_R_RegisterShaderNoMip(ART_GO1);
 	trap_R_RegisterShaderNoMip(ART_FRAMEL);
 	trap_R_RegisterShaderNoMip(ART_FRAMER);
 	trap_R_RegisterShaderNoMip(ART_ARROWS);

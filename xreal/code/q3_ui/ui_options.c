@@ -33,8 +33,6 @@ SYSTEM CONFIGURATION MENU
 
 #define ART_FRAMEL			"menu/art/frame2_l"
 #define ART_FRAMER			"menu/art/frame1_r"
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
 
 #define ID_GRAPHICS			10
 #define ID_DISPLAY			11
@@ -108,8 +106,6 @@ void SystemConfig_Cache(void)
 {
 	trap_R_RegisterShaderNoMip(ART_FRAMEL);
 	trap_R_RegisterShaderNoMip(ART_FRAMER);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
 }
 
 /*
@@ -206,7 +202,7 @@ void Options_MenuInit(void)
 	s_options.network.style = UI_CENTER;
 
 	s_options.back.generic.type = MTYPE_BITMAP;
-	s_options.back.generic.name = ART_BACK0;
+	s_options.back.generic.name = UI_ART_BUTTON;
 	s_options.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_options.back.generic.callback = Options_Event;
 	s_options.back.generic.id = ID_BACK;
@@ -214,7 +210,13 @@ void Options_MenuInit(void)
 	s_options.back.generic.y = 480 - 64;
 	s_options.back.width = 128;
 	s_options.back.height = 64;
-	s_options.back.focuspic = ART_BACK1;
+	s_options.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_options.back.generic.caption.text = "back";
+	s_options.back.generic.caption.style = UI_CENTER;
+	s_options.back.generic.caption.fontsize = 0.6f;
+	s_options.back.generic.caption.font = &uis.buttonFont;
+	s_options.back.generic.caption.color = text_color_normal;
+	s_options.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_options.menu, (void *)&s_options.banner);
 	Menu_AddItem(&s_options.menu, (void *)&s_options.framel);

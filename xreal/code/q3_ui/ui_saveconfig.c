@@ -32,8 +32,6 @@ SAVE CONFIG MENU
 #include "ui_local.h"
 
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
 #define ART_SAVE0			"menu/art/save_0"
 #define ART_SAVE1			"menu/art/save_1"
 #define ART_BACKGROUND		"menu/art/cut_frame"
@@ -169,7 +167,7 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.savename.generic.bottom = 155 + 72 + SMALLCHAR_HEIGHT + 2;
 
 	saveConfig.back.generic.type = MTYPE_BITMAP;
-	saveConfig.back.generic.name = ART_BACK0;
+	saveConfig.back.generic.name = UI_ART_BUTTON;
 	saveConfig.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	saveConfig.back.generic.id = ID_BACK;
 	saveConfig.back.generic.callback = UI_SaveConfigMenu_BackEvent;
@@ -177,10 +175,16 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.back.generic.y = 480 - 64;
 	saveConfig.back.width = 128;
 	saveConfig.back.height = 64;
-	saveConfig.back.focuspic = ART_BACK1;
+	saveConfig.back.focuspic = UI_ART_BUTTON_FOCUS;
+	saveConfig.back.generic.caption.text = "back";
+	saveConfig.back.generic.caption.style = UI_CENTER;
+	saveConfig.back.generic.caption.fontsize = 0.6f;
+	saveConfig.back.generic.caption.font = &uis.buttonFont;
+	saveConfig.back.generic.caption.color = text_color_normal;
+	saveConfig.back.generic.caption.focuscolor = text_color_highlight;
 
 	saveConfig.save.generic.type = MTYPE_BITMAP;
-	saveConfig.save.generic.name = ART_SAVE0;
+	saveConfig.save.generic.name = UI_ART_BUTTON;
 	saveConfig.save.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	saveConfig.save.generic.id = ID_SAVE;
 	saveConfig.save.generic.callback = UI_SaveConfigMenu_SaveEvent;
@@ -188,7 +192,13 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.save.generic.y = 480 - 64;
 	saveConfig.save.width = 128;
 	saveConfig.save.height = 64;
-	saveConfig.save.focuspic = ART_SAVE1;
+	saveConfig.save.focuspic = UI_ART_BUTTON_FOCUS;
+	saveConfig.save.generic.caption.text = "save";
+	saveConfig.save.generic.caption.style = UI_CENTER;
+	saveConfig.save.generic.caption.fontsize = 0.6f;
+	saveConfig.save.generic.caption.font = &uis.buttonFont;
+	saveConfig.save.generic.caption.color = text_color_normal;
+	saveConfig.save.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&saveConfig.menu, &saveConfig.banner);
 	Menu_AddItem(&saveConfig.menu, &saveConfig.background);
@@ -205,8 +215,6 @@ UI_SaveConfigMenu_Cache
 */
 void UI_SaveConfigMenu_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
 	trap_R_RegisterShaderNoMip(ART_SAVE0);
 	trap_R_RegisterShaderNoMip(ART_SAVE1);
 	trap_R_RegisterShaderNoMip(ART_BACKGROUND);

@@ -239,7 +239,7 @@ void UI_ServerInfoMenu(void)
 	}
 
 	s_serverinfo.back.generic.type = MTYPE_BITMAP;
-	s_serverinfo.back.generic.name = SERVERINFO_BACK0;
+	s_serverinfo.back.generic.name = UI_ART_BUTTON;
 	s_serverinfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_serverinfo.back.generic.callback = ServerInfo_Event;
 	s_serverinfo.back.generic.id = ID_BACK;
@@ -247,7 +247,13 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.back.generic.y = 480 - 64;
 	s_serverinfo.back.width = 128;
 	s_serverinfo.back.height = 64;
-	s_serverinfo.back.focuspic = SERVERINFO_BACK1;
+	s_serverinfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_serverinfo.back.generic.caption.text = "back";
+	s_serverinfo.back.generic.caption.style = UI_CENTER;
+	s_serverinfo.back.generic.caption.fontsize = 0.6f;
+	s_serverinfo.back.generic.caption.font = &uis.buttonFont;
+	s_serverinfo.back.generic.caption.color = text_color_normal;
+	s_serverinfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	trap_GetConfigString(CS_SERVERINFO, s_serverinfo.info, MAX_INFO_STRING);
 

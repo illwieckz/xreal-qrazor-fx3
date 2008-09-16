@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ART_FRAMER			"menu/art/frame1_r"
 #define ART_MODEL0			"menu/art/model_0"
 #define ART_MODEL1			"menu/art/model_1"
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
 #define ART_FX_BASE			"menu/art/fx_base"
 #define ART_FX_BLUE			"menu/art/fx_blue"
 #define ART_FX_CYAN			"menu/art/fx_cyan"
@@ -476,7 +474,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.color2.numitems = 7;
 
 	s_playersettings.model.generic.type = MTYPE_BITMAP;
-	s_playersettings.model.generic.name = ART_MODEL0;
+	s_playersettings.model.generic.name = UI_ART_BUTTON;
 	s_playersettings.model.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_playersettings.model.generic.id = ID_MODEL;
 	s_playersettings.model.generic.callback = PlayerSettings_MenuEvent;
@@ -484,7 +482,13 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.model.generic.y = 480 - 64;
 	s_playersettings.model.width = 128;
 	s_playersettings.model.height = 64;
-	s_playersettings.model.focuspic = ART_MODEL1;
+	s_playersettings.model.focuspic = UI_ART_BUTTON_FOCUS;
+	s_playersettings.model.generic.caption.text = "model";
+	s_playersettings.model.generic.caption.style = UI_CENTER;
+	s_playersettings.model.generic.caption.fontsize = 0.6f;
+	s_playersettings.model.generic.caption.font = &uis.buttonFont;
+	s_playersettings.model.generic.caption.color = text_color_normal;
+	s_playersettings.model.generic.caption.focuscolor = text_color_highlight;
 
 	s_playersettings.player.generic.type = MTYPE_BITMAP;
 	s_playersettings.player.generic.flags = QMF_INACTIVE;
@@ -495,7 +499,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.player.height = 56 * 10;
 
 	s_playersettings.back.generic.type = MTYPE_BITMAP;
-	s_playersettings.back.generic.name = ART_BACK0;
+	s_playersettings.back.generic.name = UI_ART_BUTTON;
 	s_playersettings.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_playersettings.back.generic.id = ID_BACK;
 	s_playersettings.back.generic.callback = PlayerSettings_MenuEvent;
@@ -503,7 +507,14 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.back.generic.y = 480 - 64;
 	s_playersettings.back.width = 128;
 	s_playersettings.back.height = 64;
-	s_playersettings.back.focuspic = ART_BACK1;
+	s_playersettings.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_playersettings.back.generic.caption.text = "back";
+	s_playersettings.back.generic.caption.style = UI_CENTER;
+	s_playersettings.back.generic.caption.fontsize = 0.6f;
+	s_playersettings.back.generic.caption.font = &uis.buttonFont;
+	s_playersettings.back.generic.caption.color = text_color_normal;
+	s_playersettings.back.generic.caption.focuscolor = text_color_highlight;
+
 
 	s_playersettings.item_null.generic.type = MTYPE_BITMAP;
 	s_playersettings.item_null.generic.flags = QMF_LEFT_JUSTIFY | QMF_MOUSEONLY | QMF_SILENT;
@@ -541,8 +552,6 @@ void PlayerSettings_Cache(void)
 	trap_R_RegisterShaderNoMip(ART_FRAMER);
 	trap_R_RegisterShaderNoMip(ART_MODEL0);
 	trap_R_RegisterShaderNoMip(ART_MODEL1);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
 
 	s_playersettings.fxBasePic = trap_R_RegisterShaderNoMip(ART_FX_BASE);
 	s_playersettings.fxPic[0] = trap_R_RegisterShaderNoMip(ART_FX_RED);

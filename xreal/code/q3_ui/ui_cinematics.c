@@ -24,8 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ui_local.h"
 
 
-#define ART_BACK0		"menu/art/back_0"
-#define ART_BACK1		"menu/art/back_1"
 #define ART_FRAMEL		"menu/art/frame2_l"
 #define ART_FRAMER		"menu/art/frame1_r"
 
@@ -298,7 +296,7 @@ static void UI_CinematicsMenu_Init(void)
 	}
 
 	cinematicsMenuInfo.back.generic.type = MTYPE_BITMAP;
-	cinematicsMenuInfo.back.generic.name = ART_BACK0;
+	cinematicsMenuInfo.back.generic.name = UI_ART_BUTTON;
 	cinematicsMenuInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	cinematicsMenuInfo.back.generic.id = ID_BACK;
 	cinematicsMenuInfo.back.generic.callback = UI_CinematicsMenu_BackEvent;
@@ -306,7 +304,13 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.back.generic.y = 480 - 64;
 	cinematicsMenuInfo.back.width = 128;
 	cinematicsMenuInfo.back.height = 64;
-	cinematicsMenuInfo.back.focuspic = ART_BACK1;
+	cinematicsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	cinematicsMenuInfo.back.generic.caption.text = "back";
+	cinematicsMenuInfo.back.generic.caption.style = UI_CENTER;
+	cinematicsMenuInfo.back.generic.caption.fontsize = 0.6f;
+	cinematicsMenuInfo.back.generic.caption.font = &uis.buttonFont;
+	cinematicsMenuInfo.back.generic.caption.color = text_color_normal;
+	cinematicsMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.banner);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framel);
@@ -332,8 +336,6 @@ UI_CinematicsMenu_Cache
 */
 void UI_CinematicsMenu_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
 	trap_R_RegisterShaderNoMip(ART_FRAMEL);
 	trap_R_RegisterShaderNoMip(ART_FRAMER);
 }

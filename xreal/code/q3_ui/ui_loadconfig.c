@@ -32,8 +32,6 @@ LOAD CONFIG MENU
 #include "ui_local.h"
 
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
 #define ART_FIGHT0			"menu/art/load_0"
 #define ART_FIGHT1			"menu/art/load_1"
 #define ART_FRAMEL			"menu/art/frame2_l"
@@ -181,7 +179,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.right.focuspic = ART_ARROWRIGHT;
 
 	s_configs.back.generic.type = MTYPE_BITMAP;
-	s_configs.back.generic.name = ART_BACK0;
+	s_configs.back.generic.name = UI_ART_BUTTON;
 	s_configs.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_configs.back.generic.id = ID_BACK;
 	s_configs.back.generic.callback = LoadConfig_MenuEvent;
@@ -189,10 +187,17 @@ static void LoadConfig_MenuInit(void)
 	s_configs.back.generic.y = 480 - 64;
 	s_configs.back.width = 128;
 	s_configs.back.height = 64;
-	s_configs.back.focuspic = ART_BACK1;
+	s_configs.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_configs.back.generic.caption.text = "back";
+	s_configs.back.generic.caption.style = UI_CENTER;
+	s_configs.back.generic.caption.fontsize = 0.6f;
+	s_configs.back.generic.caption.font = &uis.buttonFont;
+	s_configs.back.generic.caption.color = text_color_normal;
+	s_configs.back.generic.caption.focuscolor = text_color_highlight;
+
 
 	s_configs.go.generic.type = MTYPE_BITMAP;
-	s_configs.go.generic.name = ART_FIGHT0;
+	s_configs.go.generic.name = UI_ART_BUTTON;
 	s_configs.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_configs.go.generic.id = ID_GO;
 	s_configs.go.generic.callback = LoadConfig_MenuEvent;
@@ -200,7 +205,13 @@ static void LoadConfig_MenuInit(void)
 	s_configs.go.generic.y = 480 - 64;
 	s_configs.go.width = 128;
 	s_configs.go.height = 64;
-	s_configs.go.focuspic = ART_FIGHT1;
+	s_configs.go.focuspic = UI_ART_BUTTON_FOCUS;
+	s_configs.go.generic.caption.text = "fight";
+	s_configs.go.generic.caption.style = UI_CENTER;
+	s_configs.go.generic.caption.fontsize = 0.6f;
+	s_configs.go.generic.caption.font = &uis.buttonFont;
+	s_configs.go.generic.caption.color = text_color_normal;
+	s_configs.go.generic.caption.focuscolor = text_color_highlight;
 
 	// scan for configs
 	s_configs.list.generic.type = MTYPE_SCROLLLIST;
@@ -259,8 +270,6 @@ UI_LoadConfig_Cache
 */
 void UI_LoadConfig_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
 	trap_R_RegisterShaderNoMip(ART_FIGHT0);
 	trap_R_RegisterShaderNoMip(ART_FIGHT1);
 	trap_R_RegisterShaderNoMip(ART_FRAMEL);

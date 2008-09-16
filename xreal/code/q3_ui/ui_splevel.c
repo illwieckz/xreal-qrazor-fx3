@@ -32,6 +32,8 @@ SINGLE PLAYER LEVEL SELECT MENU
 #include "ui_local.h"
 
 
+
+
 #define ART_LEVELFRAME_FOCUS		"menu/art/maps_select"
 #define ART_LEVELFRAME_SELECTED		"menu/art/maps_selected"
 #define ART_ARROW					"menu/art/narrow_0"
@@ -42,14 +44,6 @@ SINGLE PLAYER LEVEL SELECT MENU
 #define ART_MAP_COMPLETE3			"menu/art/level_complete3"
 #define ART_MAP_COMPLETE4			"menu/art/level_complete4"
 #define ART_MAP_COMPLETE5			"menu/art/level_complete5"
-#define ART_BACK0					"menu/art/back_0"
-#define ART_BACK1					"menu/art/back_1"
-#define ART_FIGHT0					"menu/art/fight_0"
-#define ART_FIGHT1					"menu/art/fight_1"
-#define ART_RESET0					"menu/art/reset_0"
-#define ART_RESET1					"menu/art/reset_1"
-#define ART_CUSTOM0					"menu/art/skirmish_0"
-#define ART_CUSTOM1					"menu/art/skirmish_1"
 
 #define ID_LEFTARROW		10
 #define ID_PICTURE0			11
@@ -759,6 +753,9 @@ void UI_SPLevelMenu_Cache(void)
 {
 	int             n;
 
+	
+	trap_R_RegisterShaderNoMip(UI_ART_BUTTON);
+
 	trap_R_RegisterShaderNoMip(ART_LEVELFRAME_FOCUS);
 	trap_R_RegisterShaderNoMip(ART_LEVELFRAME_SELECTED);
 	trap_R_RegisterShaderNoMip(ART_ARROW);
@@ -769,14 +766,7 @@ void UI_SPLevelMenu_Cache(void)
 	trap_R_RegisterShaderNoMip(ART_MAP_COMPLETE3);
 	trap_R_RegisterShaderNoMip(ART_MAP_COMPLETE4);
 	trap_R_RegisterShaderNoMip(ART_MAP_COMPLETE5);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_FIGHT0);
-	trap_R_RegisterShaderNoMip(ART_FIGHT1);
-	trap_R_RegisterShaderNoMip(ART_RESET0);
-	trap_R_RegisterShaderNoMip(ART_RESET1);
-	trap_R_RegisterShaderNoMip(ART_CUSTOM0);
-	trap_R_RegisterShaderNoMip(ART_CUSTOM1);
+
 
 	for(n = 0; n < 6; n++)
 	{
@@ -824,8 +814,8 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_banner.generic.type = MTYPE_BTEXT;
 	levelMenuInfo.item_banner.generic.x = 320;
 	levelMenuInfo.item_banner.generic.y = 16;
-	levelMenuInfo.item_banner.string = "CHOOSE LEVEL";
-	levelMenuInfo.item_banner.color = color_red;
+	levelMenuInfo.item_banner.string = "SINGLEPLAYER";
+	levelMenuInfo.item_banner.color = color_white;
 	levelMenuInfo.item_banner.style = UI_CENTER;
 
 	levelMenuInfo.item_leftarrow.generic.type = MTYPE_BITMAP;
@@ -937,7 +927,7 @@ static void UI_SPLevelMenu_Init(void)
 	}
 
 	levelMenuInfo.item_back.generic.type = MTYPE_BITMAP;
-	levelMenuInfo.item_back.generic.name = ART_BACK0;
+	levelMenuInfo.item_back.generic.name = UI_ART_BUTTON;
 	levelMenuInfo.item_back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	levelMenuInfo.item_back.generic.x = 0;
 	levelMenuInfo.item_back.generic.y = 480 - 64;
@@ -945,10 +935,16 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_back.generic.id = ID_BACK;
 	levelMenuInfo.item_back.width = 128;
 	levelMenuInfo.item_back.height = 64;
-	levelMenuInfo.item_back.focuspic = ART_BACK1;
+	levelMenuInfo.item_back.focuspic = UI_ART_BUTTON_FOCUS;
+	levelMenuInfo.item_back.generic.caption.text = "back";
+	levelMenuInfo.item_back.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_back.generic.caption.fontsize = 0.6f;
+	levelMenuInfo.item_back.generic.caption.font = &uis.buttonFont;
+	levelMenuInfo.item_back.generic.caption.color = text_color_normal;
+	levelMenuInfo.item_back.generic.caption.focuscolor = text_color_highlight;
 
 	levelMenuInfo.item_reset.generic.type = MTYPE_BITMAP;
-	levelMenuInfo.item_reset.generic.name = ART_RESET0;
+	levelMenuInfo.item_reset.generic.name = UI_ART_BUTTON;
 	levelMenuInfo.item_reset.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	levelMenuInfo.item_reset.generic.x = 170;
 	levelMenuInfo.item_reset.generic.y = 480 - 64;
@@ -956,10 +952,16 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_reset.generic.id = ID_RESET;
 	levelMenuInfo.item_reset.width = 128;
 	levelMenuInfo.item_reset.height = 64;
-	levelMenuInfo.item_reset.focuspic = ART_RESET1;
+	levelMenuInfo.item_reset.focuspic = UI_ART_BUTTON_FOCUS;
+	levelMenuInfo.item_reset.generic.caption.text = "reset";
+	levelMenuInfo.item_reset.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_reset.generic.caption.fontsize = 0.6f;
+	levelMenuInfo.item_reset.generic.caption.font = &uis.buttonFont;
+	levelMenuInfo.item_reset.generic.caption.color = text_color_normal;
+	levelMenuInfo.item_reset.generic.caption.focuscolor = text_color_highlight;
 
 	levelMenuInfo.item_custom.generic.type = MTYPE_BITMAP;
-	levelMenuInfo.item_custom.generic.name = ART_CUSTOM0;
+	levelMenuInfo.item_custom.generic.name = UI_ART_BUTTON;
 	levelMenuInfo.item_custom.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	levelMenuInfo.item_custom.generic.x = 342;
 	levelMenuInfo.item_custom.generic.y = 480 - 64;
@@ -967,10 +969,16 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_custom.generic.id = ID_CUSTOM;
 	levelMenuInfo.item_custom.width = 128;
 	levelMenuInfo.item_custom.height = 64;
-	levelMenuInfo.item_custom.focuspic = ART_CUSTOM1;
+	levelMenuInfo.item_custom.focuspic = UI_ART_BUTTON_FOCUS;
+	levelMenuInfo.item_custom.generic.caption.text = "custom";
+	levelMenuInfo.item_custom.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_custom.generic.caption.fontsize = 0.6f;
+	levelMenuInfo.item_custom.generic.caption.font = &uis.buttonFont;
+	levelMenuInfo.item_custom.generic.caption.color = text_color_normal;
+	levelMenuInfo.item_custom.generic.caption.focuscolor = text_color_highlight;
 
 	levelMenuInfo.item_next.generic.type = MTYPE_BITMAP;
-	levelMenuInfo.item_next.generic.name = ART_FIGHT0;
+	levelMenuInfo.item_next.generic.name = UI_ART_BUTTON;
 	levelMenuInfo.item_next.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	levelMenuInfo.item_next.generic.x = 640;
 	levelMenuInfo.item_next.generic.y = 480 - 64;
@@ -978,7 +986,13 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_next.generic.id = ID_NEXT;
 	levelMenuInfo.item_next.width = 128;
 	levelMenuInfo.item_next.height = 64;
-	levelMenuInfo.item_next.focuspic = ART_FIGHT1;
+	levelMenuInfo.item_next.focuspic = UI_ART_BUTTON_FOCUS;
+	levelMenuInfo.item_next.generic.caption.text = "fight";
+	levelMenuInfo.item_next.generic.caption.style = UI_CENTER;
+	levelMenuInfo.item_next.generic.caption.fontsize = 0.6f;
+	levelMenuInfo.item_next.generic.caption.font = &uis.buttonFont;
+	levelMenuInfo.item_next.generic.caption.color = text_color_normal;
+	levelMenuInfo.item_next.generic.caption.focuscolor = text_color_highlight;
 
 	levelMenuInfo.item_null.generic.type = MTYPE_BITMAP;
 	levelMenuInfo.item_null.generic.flags = QMF_LEFT_JUSTIFY | QMF_MOUSEONLY | QMF_SILENT;

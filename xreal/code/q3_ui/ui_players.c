@@ -800,6 +800,16 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 	float           len;
 	float           xx;
 
+
+#ifdef XPPM
+
+	UI_XPPM_Player( x,  y,  w,  h,  pi, time);
+
+	return;
+
+#endif
+
+
 	if(!pi->legsModel || !pi->torsoModel || !pi->headModel || !pi->animations[0].numFrames)
 	{
 		return;
@@ -1188,6 +1198,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	char            filename[MAX_QPATH];
 	char           *slash;
 
+
 	pi->torsoModel = 0;
 	pi->headModel = 0;
 
@@ -1210,6 +1221,12 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 		// truncate modelName
 		*slash = 0;
 	}
+
+#ifdef XPPM
+	UI_XPPM_RegisterModel ( pi, modelName, skinName);
+	return;
+
+#endif
 
 	// load cmodels before models so filecache works
 

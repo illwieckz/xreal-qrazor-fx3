@@ -33,10 +33,6 @@ ADD BOTS MENU
 #include "ui_local.h"
 
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-#define ART_FIGHT0			"menu/art/accept_0"
-#define ART_FIGHT1			"menu/art/accept_1"
 #define ART_BACKGROUND		"menu/art/addbotframe"
 #define ART_ARROWS			"menu/art/arrows_vert_0"
 #define ART_ARROWUP			"menu/art/arrows_vert_top"
@@ -368,7 +364,7 @@ static void UI_AddBotsMenu_Init(void)
 	}
 
 	addBotsMenuInfo.go.generic.type = MTYPE_BITMAP;
-	addBotsMenuInfo.go.generic.name = ART_FIGHT0;
+	addBotsMenuInfo.go.generic.name = UI_ART_BUTTON;
 	addBotsMenuInfo.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	addBotsMenuInfo.go.generic.id = ID_GO;
 	addBotsMenuInfo.go.generic.callback = UI_AddBotsMenu_FightEvent;
@@ -376,10 +372,16 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.go.generic.y = 256 + 128 - 64;
 	addBotsMenuInfo.go.width = 128;
 	addBotsMenuInfo.go.height = 64;
-	addBotsMenuInfo.go.focuspic = ART_FIGHT1;
+	addBotsMenuInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
+	addBotsMenuInfo.go.generic.caption.text = "fight";
+	addBotsMenuInfo.go.generic.caption.style = UI_CENTER;
+	addBotsMenuInfo.go.generic.caption.fontsize = 0.6f;
+	addBotsMenuInfo.go.generic.caption.font = &uis.buttonFont;
+	addBotsMenuInfo.go.generic.caption.color = text_color_normal;
+	addBotsMenuInfo.go.generic.caption.focuscolor = text_color_highlight;
 
 	addBotsMenuInfo.back.generic.type = MTYPE_BITMAP;
-	addBotsMenuInfo.back.generic.name = ART_BACK0;
+	addBotsMenuInfo.back.generic.name = UI_ART_BUTTON;
 	addBotsMenuInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	addBotsMenuInfo.back.generic.id = ID_BACK;
 	addBotsMenuInfo.back.generic.callback = UI_AddBotsMenu_BackEvent;
@@ -387,7 +389,13 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.back.generic.y = 256 + 128 - 64;
 	addBotsMenuInfo.back.width = 128;
 	addBotsMenuInfo.back.height = 64;
-	addBotsMenuInfo.back.focuspic = ART_BACK1;
+	addBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	addBotsMenuInfo.back.generic.caption.text = "back";
+	addBotsMenuInfo.back.generic.caption.style = UI_CENTER;
+	addBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
+	addBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;
+	addBotsMenuInfo.back.generic.caption.color = text_color_normal;
+	addBotsMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	addBotsMenuInfo.baseBotNum = 0;
 	addBotsMenuInfo.selectedBotNum = 0;
@@ -418,10 +426,6 @@ UI_AddBots_Cache
 */
 void UI_AddBots_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_FIGHT0);
-	trap_R_RegisterShaderNoMip(ART_FIGHT1);
 	trap_R_RegisterShaderNoMip(ART_BACKGROUND);
 	trap_R_RegisterShaderNoMip(ART_ARROWS);
 	trap_R_RegisterShaderNoMip(ART_ARROWUP);

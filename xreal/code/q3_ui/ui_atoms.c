@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uiStatic_t      uis;
 qboolean        m_entersound;	// after a frame, so caching won't disrupt the sound
 
+vec4_t          color_cursor = { 1.0f, 0.5f, 0.0f, 0.075f };	// cursorlines color
+
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
@@ -919,6 +921,7 @@ void UI_Text_PaintChar(float x, float y, float width, float height, float scale,
 
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
+//otty: Fixed bugs ( styles were ignored by new ttf font code ) 
 
 void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
 				   const fontInfo_t * font)
@@ -927,6 +930,50 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	vec4_t          newColor;
 	glyphInfo_t    *glyph;
 	float           useScale;
+	vec4_t 		drawColor;
+	
+	int	textWidth = UI_Text_Width(text, scale, 0, font);
+	int	textHeight = UI_Text_Height(text, scale, 0, font);
+
+
+	if((style & UI_BLINK) && ((uis.realtime / BLINK_DIVISOR) & 1))
+		return;
+
+	y += textHeight / 2; 
+
+	switch (style & UI_FORMATMASK)
+	{
+		case UI_CENTER:
+			x -= textWidth / 2;
+			break;
+
+		case UI_RIGHT:
+			x -= textWidth;
+			break;
+
+		case UI_LEFT:
+		default:
+			break;
+	}
+
+	drawColor[0] = color[0];
+	drawColor[1] = color[1];
+	drawColor[2] = color[2];
+	drawColor[3] = color[3];
+
+
+	if(style & UI_INVERSE)
+	{
+		drawColor[0] = color[0] * 0.8;
+		drawColor[1] = color[1] * 0.8;
+		drawColor[2] = color[2] * 0.8;
+		drawColor[3] = color[3];
+	}
+
+	if(style & UI_PULSE)
+	{	
+		drawColor[3] = 0.7 + 0.3 * sin(uis.realtime / PULSE_DIVISOR);
+	}
 
 	useScale = scale * font->glyphScale;
 	if(text)
@@ -935,8 +982,8 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 //      const unsigned char *s = text;
 		const char     *s = text;
 
-		trap_R_SetColor(color);
-		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
+		trap_R_SetColor(drawColor);
+		memcpy(&newColor[0], &drawColor[0], sizeof(vec4_t));
 		len = strlen(text);
 		if(limit > 0 && len > limit)
 		{
@@ -953,7 +1000,7 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 			if(Q_IsColorString(s))
 			{
 				memcpy(newColor, (float *)g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
-				newColor[3] = color[3];
+				newColor[3] = drawColor[3];
 				trap_R_SetColor(newColor);
 				s += 2;
 				continue;
@@ -988,6 +1035,85 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		trap_R_SetColor(NULL);
 	}
 }
+
+//added by otty to replace UI_DrawProportionalString_AutoWrapped
+
+void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax,  const char *str, int style, vec4_t color, const fontInfo_t * font)
+{
+	int             width;
+	char           *s1, *s2, *s3;
+	char            c_bcp;
+	char            buf[1024];
+	int		ystep;
+
+	//float           sizeScale;
+
+	if(!str || str[0] == '\0')
+		return;
+
+	//sizeScale = UI_ProportionalSizeScale(style);
+
+	ystep = UI_Text_Height(str, scale, 0, font) + 8;
+
+	Q_strncpyz(buf, str, sizeof(buf));
+	s1 = s2 = s3 = buf;
+
+	while(1)
+	{
+		do
+		{
+			s3++;
+		} while(*s3 != ' ' && *s3 != '\0');
+		c_bcp = *s3;
+		*s3 = '\0';
+		//width = UI_ProportionalStringWidth(s1) * sizeScale;
+		width  = UI_Text_Width(s1, scale, 0, font);
+		*s3 = c_bcp;
+		if(width > xmax)
+		{
+			if(s1 == s2)
+			{
+				// fuck, don't have a clean cut, we'll overflow
+				s2 = s3;
+			}
+			*s2 = '\0';
+			//UI_DrawProportionalString(x, y, s1, style, color);
+			UI_Text_Paint( x, y , scale, color, s1 , 0, 0, style , font);
+
+			y += ystep;
+			if(c_bcp == '\0')
+			{
+				// that was the last word
+				// we could start a new loop, but that wouldn't be much use
+				// even if the word is too long, we would overflow it (see above)
+				// so just print it now if needed
+				s2++;
+				if(*s2 != '\0')	// if we are printing an overflowing line we have s2 == s3
+					//UI_DrawProportionalString(x, y, s2, style, color);
+					UI_Text_Paint( x, y , scale, color, s2 , 0, 0, style , font);
+
+				break;
+			}
+			s2++;
+			s1 = s2;
+			s3 = s2;
+		}
+		else
+		{
+			s2 = s3;
+			if(c_bcp == '\0')	// we reached the end
+			{
+				//UI_DrawProportionalString(x, y, s1, style, color);
+				UI_Text_Paint( x, y , scale, color, s1 , 0, 0, style , font);
+
+
+
+				break;
+			}
+		}
+	}
+}
+
 
 qboolean UI_IsFullscreen(void)
 {
@@ -1407,8 +1533,11 @@ void UI_UpdateScreen(void)
 UI_Refresh
 =================
 */
+
+
 void UI_Refresh(int realtime)
 {
+
 	uis.frametime = realtime - uis.realtime;
 	uis.realtime = realtime;
 
@@ -1423,15 +1552,15 @@ void UI_Refresh(int realtime)
 	{
 		if(uis.activemenu->fullscreen)
 		{
-			// draw the background
-			if(uis.activemenu->showlogo)
-			{
+//			// draw the background
+//			if(uis.activemenu->showlogo)
+//			{
 				UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
-			}
-			else
-			{
-				UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
-			}
+//			}
+//			else
+//			{
+//				UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
+//			}
 		}
 
 		if(uis.activemenu->draw)
@@ -1448,7 +1577,17 @@ void UI_Refresh(int realtime)
 
 	// draw cursor
 	UI_SetColor(NULL);
-	UI_DrawHandlePic(uis.cursorx - 16, uis.cursory - 16, 32, 32, uis.cursor);
+
+	
+
+	UI_DrawRect(0, uis.cursory, 640, 1, color_cursor);
+	UI_DrawRect(uis.cursorx, 0, 1, 480, color_cursor);
+
+	UI_SetColor(NULL);
+
+
+	UI_DrawHandlePic(uis.cursorx - 24, uis.cursory - 24, 46, 46, uis.cursor);
+
 
 #ifndef NDEBUG
 	if(uis.debug)

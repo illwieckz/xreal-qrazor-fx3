@@ -32,8 +32,6 @@ CONTROLS MENU
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
 #define ART_FRAMEL			"menu/art/frame2_l"
 #define ART_FRAMER			"menu/art/frame1_r"
 
@@ -156,14 +154,14 @@ typedef struct
 	menuframework_s menu;
 
 	menutext_s      banner;
-	menubitmap_s    framel;
-	menubitmap_s    framer;
+	//menubitmap_s    framel;
+	//menubitmap_s    framer;
 	menubitmap_s    player;
 
-	menutext_s      movement;
-	menutext_s      looking;
-	menutext_s      weapons;
-	menutext_s      misc;
+	menubitmap_s      movement;
+	menubitmap_s      looking;
+	menubitmap_s      weapons;
+	menubitmap_s      misc;
 
 	menuaction_s    walkforward;
 	menuaction_s    backpedal;
@@ -704,42 +702,79 @@ static void Controls_DrawKeyBinding(void *self)
 
 	if(c)
 	{
+		
+		//UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,					a->generic.bottom - a->generic.top + 1, listbar_color);
+
+		//draw hightlight
 		UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,
 					a->generic.bottom - a->generic.top + 1, listbar_color);
+		UI_FillRect(a->generic.left, a->generic.bottom , a->generic.right - a->generic.left + 1,
+					1, listbar_color);
+		UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,
+					1, listbar_color);
 
-		UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT, text_color_highlight);
-		UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT | UI_PULSE, text_color_highlight);
+
+
+		//UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT, text_color_highlight);
+		//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT | UI_PULSE, text_color_highlight);
+
+
+		UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, text_color_highlight,  g_bindings[a->generic.id].label, 0, 0, UI_RIGHT | UI_DROPSHADOW | UI_PULSE,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, text_color_highlight, name, 0, 0, UI_LEFT | UI_DROPSHADOW | UI_PULSE,  &uis.freeSansFont);
+
 
 		if(s_controls.waitingforkey)
 		{
-			UI_DrawChar(x, y, '=', UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
-			UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Waiting for new key ... ESCAPE to cancel",
-						  UI_SMALLFONT | UI_CENTER | UI_PULSE, colorWhite);
+			//UI_DrawChar(x, y, '=', UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
+			UI_Text_Paint(x , y+9, 0.25f, text_color_highlight,  "=", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+
+			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Waiting for new key ... ESCAPE to cancel",						  UI_SMALLFONT | UI_CENTER | UI_PULSE, colorWhite);
+
+			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80 , 0.25f, colorWhite,  "Waiting for new key ... ESCAPE to cancel", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+
+
 		}
 		else
 		{
-			UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
-			UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, "Press ENTER or CLICK to change", UI_SMALLFONT | UI_CENTER,
-						  colorWhite);
-			UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, "Press BACKSPACE to clear", UI_SMALLFONT | UI_CENTER,
-						  colorWhite);
+			//UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
+			UI_Text_Paint(x , y+9, 0.25f, text_color_highlight,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+
+
+			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, "Press ENTER or CLICK to change", UI_SMALLFONT | UI_CENTER,  colorWhite);
+
+			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78 , 0.25f, colorWhite,  "Press ENTER or CLICK to change", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+
+
+			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, "Press BACKSPACE to clear", UI_SMALLFONT | UI_CENTER,  colorWhite);
+
+			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82 , 0.25f, colorWhite,  "Press BACKSPACE to clear", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+
 		}
 	}
 	else
 	{
 		if(a->generic.flags & QMF_GRAYED)
 		{
-			UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT, text_color_disabled);
-			UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, text_color_disabled);
+			//UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT, text_color_disabled);
+			//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, text_color_disabled);
+
+			UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, text_color_disabled,  g_bindings[a->generic.id].label, 0, 0, UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+			UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, text_color_disabled, name, 0, 0, UI_LEFT | UI_DROPSHADOW ,  &uis.freeSansFont);
+
 		}
 		else
 		{
-			UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT,
-						  controls_binding_color);
-			UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, controls_binding_color);
+			//UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT,						  controls_binding_color);
+			//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, controls_binding_color);
+
+			UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, text_color_normal,  g_bindings[a->generic.id].label, 0, 0, UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+			UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, text_color_normal, name, 0, 0, UI_LEFT | UI_DROPSHADOW ,  &uis.freeSansFont);
+
+
 		}
 	}
 }
+
 
 /*
 =================
@@ -748,8 +783,11 @@ Controls_StatusBar
 */
 static void Controls_StatusBar(void *self)
 {
-	UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Use Arrow Keys or CLICK to change", UI_SMALLFONT | UI_CENTER,
-				  colorWhite);
+	//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Use Arrow Keys or CLICK to change", UI_SMALLFONT | UI_CENTER,	  colorWhite);
+
+	UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80 , 0.25f, colorWhite,  "Use Arrow Keys or CLICK to change", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+
+
 }
 
 
@@ -1246,7 +1284,7 @@ static void Controls_MenuInit(void)
 	s_controls.banner.color = color_white;
 	s_controls.banner.style = UI_CENTER;
 
-	s_controls.framel.generic.type = MTYPE_BITMAP;
+/*	s_controls.framel.generic.type = MTYPE_BITMAP;
 	s_controls.framel.generic.name = ART_FRAMEL;
 	s_controls.framel.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
 	s_controls.framel.generic.x = 0;
@@ -1261,49 +1299,92 @@ static void Controls_MenuInit(void)
 	s_controls.framer.generic.y = 76;
 	s_controls.framer.width = 256;
 	s_controls.framer.height = 334;
+*/
 
-	s_controls.looking.generic.type = MTYPE_PTEXT;
-	s_controls.looking.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_controls.looking.generic.id = ID_LOOKING;
+
+
+
+
+
+
+
+
+	s_controls.looking.generic.type = MTYPE_BITMAP;
+	s_controls.looking.generic.name = UI_ART_BUTTON;
+	s_controls.looking.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.looking.generic.callback = Controls_MenuEvent;
-	s_controls.looking.generic.x = 152;
-	s_controls.looking.generic.y = 240 - 2 * PROP_HEIGHT;
-	s_controls.looking.string = "LOOK";
-	s_controls.looking.style = UI_RIGHT;
-	s_controls.looking.color = color_red;
+	s_controls.looking.generic.id = ID_LOOKING;
+	s_controls.looking.generic.x = 128;
+	s_controls.looking.generic.y = 480 - 64;
+	s_controls.looking.width = 128;
+	s_controls.looking.height = 64;
+	s_controls.looking.focuspic = UI_ART_BUTTON_FOCUS;
+	s_controls.looking.generic.caption.text = "LOOK";
+	s_controls.looking.generic.caption.style = UI_CENTER;
+	s_controls.looking.generic.caption.fontsize = 0.6f;
+	s_controls.looking.generic.caption.font = &uis.buttonFont;
+	s_controls.looking.generic.caption.color = text_color_normal;
+	s_controls.looking.generic.caption.focuscolor = text_color_highlight;
 
-	s_controls.movement.generic.type = MTYPE_PTEXT;
-	s_controls.movement.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_controls.movement.generic.id = ID_MOVEMENT;
+
+	s_controls.movement.generic.type = MTYPE_BITMAP;
+	s_controls.movement.generic.name = UI_ART_BUTTON;
+	s_controls.movement.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.movement.generic.callback = Controls_MenuEvent;
-	s_controls.movement.generic.x = 152;
-	s_controls.movement.generic.y = 240 - PROP_HEIGHT;
-	s_controls.movement.string = "MOVE";
-	s_controls.movement.style = UI_RIGHT;
-	s_controls.movement.color = color_red;
+	s_controls.movement.generic.id = ID_MOVEMENT;
+	s_controls.movement.generic.x = 256;
+	s_controls.movement.generic.y = 480 - 64;
+	s_controls.movement.width = 128;
+	s_controls.movement.height = 64;
+	s_controls.movement.focuspic = UI_ART_BUTTON_FOCUS;
+	s_controls.movement.generic.caption.text = "MOVE";
+	s_controls.movement.generic.caption.style = UI_CENTER;
+	s_controls.movement.generic.caption.fontsize = 0.6f;
+	s_controls.movement.generic.caption.font = &uis.buttonFont;
+	s_controls.movement.generic.caption.color = text_color_normal;
+	s_controls.movement.generic.caption.focuscolor = text_color_highlight;
 
-	s_controls.weapons.generic.type = MTYPE_PTEXT;
-	s_controls.weapons.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_controls.weapons.generic.id = ID_WEAPONS;
+
+
+
+	s_controls.weapons.generic.type = MTYPE_BITMAP;
+	s_controls.weapons.generic.name = UI_ART_BUTTON;
+	s_controls.weapons.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.weapons.generic.callback = Controls_MenuEvent;
-	s_controls.weapons.generic.x = 152;
-	s_controls.weapons.generic.y = 240;
-	s_controls.weapons.string = "SHOOT";
-	s_controls.weapons.style = UI_RIGHT;
-	s_controls.weapons.color = color_red;
+	s_controls.weapons.generic.id = ID_WEAPONS;
+	s_controls.weapons.generic.x = 384;
+	s_controls.weapons.generic.y = 480 - 64;
+	s_controls.weapons.width = 128;
+	s_controls.weapons.height = 64;
+	s_controls.weapons.focuspic = UI_ART_BUTTON_FOCUS;
+	s_controls.weapons.generic.caption.text = "SHOOT";
+	s_controls.weapons.generic.caption.style = UI_CENTER;
+	s_controls.weapons.generic.caption.fontsize = 0.6f;
+	s_controls.weapons.generic.caption.font = &uis.buttonFont;
+	s_controls.weapons.generic.caption.color = text_color_normal;
+	s_controls.weapons.generic.caption.focuscolor = text_color_highlight;
 
-	s_controls.misc.generic.type = MTYPE_PTEXT;
+
+	s_controls.misc.generic.type = MTYPE_BITMAP;
+	s_controls.misc.generic.name = UI_ART_BUTTON;
 	s_controls.misc.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_controls.misc.generic.id = ID_MISC;
 	s_controls.misc.generic.callback = Controls_MenuEvent;
-	s_controls.misc.generic.x = 152;
-	s_controls.misc.generic.y = 240 + PROP_HEIGHT;
-	s_controls.misc.string = "MISC";
-	s_controls.misc.style = UI_RIGHT;
-	s_controls.misc.color = color_red;
+	s_controls.misc.generic.id = ID_MISC;
+	s_controls.misc.generic.x = 640;
+	s_controls.misc.generic.y = 480 - 64;
+	s_controls.misc.width = 128;
+	s_controls.misc.height = 64;
+	s_controls.misc.focuspic = UI_ART_BUTTON_FOCUS;
+	s_controls.misc.generic.caption.text = "misc";
+	s_controls.misc.generic.caption.style = UI_CENTER;
+	s_controls.misc.generic.caption.fontsize = 0.6f;
+	s_controls.misc.generic.caption.font = &uis.buttonFont;
+	s_controls.misc.generic.caption.color = text_color_normal;
+	s_controls.misc.generic.caption.focuscolor = text_color_highlight;
+
 
 	s_controls.back.generic.type = MTYPE_BITMAP;
-	s_controls.back.generic.name = ART_BACK0;
+	s_controls.back.generic.name = UI_ART_BUTTON;
 	s_controls.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.back.generic.x = 0;
 	s_controls.back.generic.y = 480 - 64;
@@ -1311,7 +1392,13 @@ static void Controls_MenuInit(void)
 	s_controls.back.generic.callback = Controls_MenuEvent;
 	s_controls.back.width = 128;
 	s_controls.back.height = 64;
-	s_controls.back.focuspic = ART_BACK1;
+	s_controls.back.focuspic = UI_ART_BUTTON_FOCUS;
+	s_controls.back.generic.caption.text = "back";
+	s_controls.back.generic.caption.style = UI_CENTER;
+	s_controls.back.generic.caption.fontsize = 0.6f;
+	s_controls.back.generic.caption.font = &uis.buttonFont;
+	s_controls.back.generic.caption.color = text_color_normal;
+	s_controls.back.generic.caption.focuscolor = text_color_highlight;
 
 	s_controls.player.generic.type = MTYPE_BITMAP;
 	s_controls.player.generic.flags = QMF_INACTIVE;
@@ -1602,10 +1689,12 @@ static void Controls_MenuInit(void)
 	s_controls.name.color = text_color_normal;
 
 	Menu_AddItem(&s_controls.menu, &s_controls.banner);
-	Menu_AddItem(&s_controls.menu, &s_controls.framel);
-	Menu_AddItem(&s_controls.menu, &s_controls.framer);
-	Menu_AddItem(&s_controls.menu, &s_controls.player);
-	Menu_AddItem(&s_controls.menu, &s_controls.name);
+//	Menu_AddItem(&s_controls.menu, &s_controls.framel);
+//	Menu_AddItem(&s_controls.menu, &s_controls.framer);
+
+//otty: do we need model preview here ?
+//	Menu_AddItem(&s_controls.menu, &s_controls.player);
+//	Menu_AddItem(&s_controls.menu, &s_controls.name);
 
 	Menu_AddItem(&s_controls.menu, &s_controls.looking);
 	Menu_AddItem(&s_controls.menu, &s_controls.movement);
@@ -1669,11 +1758,13 @@ static void Controls_MenuInit(void)
 	// initialize the current config
 	Controls_GetConfig();
 
+
+//otty: do we need model preview here ?
 	// intialize the model
-	Controls_InitModel();
+//	Controls_InitModel();
 
 	// intialize the weapons
-	Controls_InitWeapons();
+//	Controls_InitWeapons();
 
 	// initial default section
 	s_controls.section = C_LOOKING;
@@ -1690,10 +1781,8 @@ Controls_Cache
 */
 void Controls_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_FRAMEL);
-	trap_R_RegisterShaderNoMip(ART_FRAMER);
+	//trap_R_RegisterShaderNoMip(ART_FRAMEL);
+	//trap_R_RegisterShaderNoMip(ART_FRAMER);
 }
 
 

@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 DISPLAY OPTIONS MENU
 
+otty: display options are merged with the video options now.
+
 =======================================================================
 */
 
@@ -34,8 +36,6 @@ DISPLAY OPTIONS MENU
 
 #define ART_FRAMEL			"menu/art/frame2_l"
 #define ART_FRAMER			"menu/art/frame1_r"
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
 
 #define ID_GRAPHICS			10
 #define ID_DISPLAY			11
@@ -221,7 +221,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.screensize.maxvalue = 10;
 
 	displayOptionsInfo.back.generic.type = MTYPE_BITMAP;
-	displayOptionsInfo.back.generic.name = ART_BACK0;
+	displayOptionsInfo.back.generic.name = UI_ART_BUTTON;
 	displayOptionsInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	displayOptionsInfo.back.generic.callback = UI_DisplayOptionsMenu_Event;
 	displayOptionsInfo.back.generic.id = ID_BACK;
@@ -229,7 +229,14 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.back.generic.y = 480 - 64;
 	displayOptionsInfo.back.width = 128;
 	displayOptionsInfo.back.height = 64;
-	displayOptionsInfo.back.focuspic = ART_BACK1;
+	displayOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
+	displayOptionsInfo.back.generic.caption.text = "back";
+	displayOptionsInfo.back.generic.caption.style = UI_CENTER;
+	displayOptionsInfo.back.generic.caption.fontsize = 0.6f;
+	displayOptionsInfo.back.generic.caption.font = &uis.buttonFont;
+	displayOptionsInfo.back.generic.caption.color = text_color_normal;
+	displayOptionsInfo.back.generic.caption.focuscolor = text_color_highlight;
+
 
 	Menu_AddItem(&displayOptionsInfo.menu, (void *)&displayOptionsInfo.banner);
 	Menu_AddItem(&displayOptionsInfo.menu, (void *)&displayOptionsInfo.framel);
@@ -256,8 +263,7 @@ void UI_DisplayOptionsMenu_Cache(void)
 {
 	trap_R_RegisterShaderNoMip(ART_FRAMEL);
 	trap_R_RegisterShaderNoMip(ART_FRAMER);
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
+
 }
 
 
