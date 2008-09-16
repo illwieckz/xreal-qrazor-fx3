@@ -1,0 +1,145 @@
+
+ui/slider
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/slider.png
+		blend blend
+	}
+}
+
+
+ui/sliderbutt_0
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/sliderbutt_0.png
+		blend blend
+	}
+}
+
+ui/sliderbutt_1
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/sliderbutt_1.png
+		blend blend
+	}
+}
+
+
+ui/cursor
+{
+	nopicmip
+	nomipmaps
+
+	{
+		blend blend
+		map gfx/2d/ui/cursor.png
+	}
+
+	{
+		blend blend
+		clampmap gfx/2d/ui/cursor_overlay.png
+		tcmod rotate 99
+	}
+	{
+		blend blend
+		clampmap gfx/2d/ui/cursor_overlay.png
+		tcmod rotate -99
+	}
+
+}
+
+ui/button
+{
+	nopicmip
+	nomipmaps
+
+	{
+		map gfx/2d/ui/button.png
+		blend blend
+	}
+}
+ui/button_focus
+{
+	nopicmip
+	nomipmaps
+
+	{
+		map gfx/2d/ui/button_focus.png
+		blend blend
+	}
+}
+
+menubackcredits
+{
+	nopicmip
+	nomipmaps
+
+	{
+		map menu/art/background.tga
+		rgbgen identity
+	}
+}
+
+menuback
+{
+
+	{
+		map _black
+	}
+
+	{
+		map gfx/2d/ui/menuback2.png
+		blend blend
+		alpha 0.46 + 0.3 * ( 1.0 -  (   (sinTable[time * .1] + 1.0) / 2.0 ) )
+		scroll time * 0.003, 0
+	}
+	{
+		map gfx/2d/ui/menuback2.png
+		blend blend
+		alpha 0.34 + 0.3 * ( 1.0 -  (   (sinTable[time * .2] + 1.0) / 2.0 ) )
+		scroll time * -0.002, 0
+	}
+
+	{
+		map gfx/2d/ui/menuback.png
+		blend blend
+		alpha 0.4 + 0.3 * ( 1.0 -  (   (sinTable[time * .5] + 1.0) / 2.0 ) )
+
+	}
+	{
+		map gfx/2d/ui/menuback.png
+		blend blend
+		alpha 0.4 + 0.3 * (  (   (sinTable[time * .5] + 1.0) / 2.0 ) )
+		rotate 180
+	}
+	{
+		map gfx/2d/ui/menuback.png
+		blend blend
+		alpha 0.2 + 0.3 * ( 1.0 -  (   (sinTable[time * .3] + 1.0) / 2.0 ) )
+		centerScale 0.5 , 0.5
+		scroll time * 0.007, 0
+	}
+	{
+		map gfx/2d/ui/menuback.png
+		blend blend
+		alpha 0.1 + 0.3 * ( 1.0 -  (   (sinTable[time * .1] + 1.0) / 2.0 ) )
+		centerScale 0.5 , 0.5
+		scroll time * -0.009, 0
+	}
+	{
+		map gfx/2d/ui/menuback3.png
+		blend blend
+	}
+
+}
+
+

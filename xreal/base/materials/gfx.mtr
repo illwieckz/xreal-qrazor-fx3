@@ -54,62 +54,7 @@ console
 //	}
 }
 
-menuback
-{
-	nopicmip
-	nomipmaps
 
-	{
-		map menu/art/background.tga
-		rgbgen identity
-	}
-	/*
-	{
-		blend add
-		map menu/art/background.tga
-		rgb 0.5 + (storm3Table[ time * 0.1] * 0.5)
-	}
-	*/
-//	{
-//		map textures/sfx/specular.tga
-		//blendfunc add
-//		tcMod turb 0 .8 0 .2
-//		tcmod scroll -0.1  -0.2
-//	}
-}
-
-menubackcredits
-{
-	nopicmip
-	nomipmaps
-
-	{
-		map menu/art/background.tga
-		rgbgen identity
-	}
-}
-
-menubacknologo
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map _black
-	}
-}
-
-menuCursor
-{
-	nopicmip
-	nomipmaps
-
-	{
-		blend blend
-		//animMap 9 menu/art/cursor_01.tga menu/art/cursor_02.tga menu/art/cursor_03.tga menu/art/cursor_04.tga menu/art/cursor_05.tga menu/art/cursor_06.tga menu/art/cursor_07.tga menu/art/cursor_08.tga menu/art/cursor_09.tga
-		map menu/art/3_cursor2.tga
-	}
-}
 
 menuBanner
 {
@@ -140,60 +85,7 @@ menuBanner
 	*/
 }
 
-menu/art/slider2
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map menu/art/slider2.png
-		blend add
-	}
-}
 
-menu/art/sliderbutt_0
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map menu/art/sliderbutt_0.png
-		blend add
-	}
-}
-
-menu/art/sliderbutt_1
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map menu/art/sliderbutt_1.png
-		blend add
-	}
-}
-
-menu/art/switch_on
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map menu/art/switch_on.png
-		blend add
-	}
-}
-
-menu/art/switch_off
-{
-	nopicmip
-	nomipmaps
-	
-	{
-		map menu/art/switch_off.png
-		blend add
-	}
-}
 
 levelShotDetail
 // used to break up the blur on levelshots
