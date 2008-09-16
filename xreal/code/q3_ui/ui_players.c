@@ -1223,8 +1223,8 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 #ifdef XPPM
-	UI_XPPM_RegisterModel ( pi, modelName, skinName);
-	return;
+	return UI_XPPM_RegisterModel ( pi, modelName, skinName);
+
 
 #endif
 
