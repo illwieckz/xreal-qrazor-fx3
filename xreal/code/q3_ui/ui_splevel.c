@@ -34,8 +34,8 @@ SINGLE PLAYER LEVEL SELECT MENU
 
 
 
-#define ART_LEVELFRAME_FOCUS		"menu/art/maps_select"
-#define ART_LEVELFRAME_SELECTED		"menu/art/maps_selected"
+#define ART_LEVELFRAME_FOCUS		"ui/maps_select"
+#define ART_LEVELFRAME_SELECTED		"ui/maps_selected"
 #define ART_ARROW					"menu/art/narrow_0"
 #define ART_ARROW_FOCUS				"menu/art/narrow_1"
 #define ART_MAP_UNKNOWN				"menu/art/unknownmap"
@@ -608,9 +608,9 @@ static void UI_SPLevelMenu_MenuDraw(void)
 	}
 
 	// draw player name
-	trap_Cvar_VariableStringBuffer("name", string, 32);
-	Q_CleanStr(string);
-	UI_DrawProportionalString(320, PLAYER_Y, string, UI_CENTER | UI_SMALLFONT, color_orange);
+	//trap_Cvar_VariableStringBuffer("name", string, 32);
+	//Q_CleanStr(string);
+	//UI_DrawProportionalString(320, PLAYER_Y, string, UI_CENTER | UI_SMALLFONT, color_orange);
 
 	// check for model changes
 	trap_Cvar_VariableStringBuffer("model", buf, sizeof(buf));
@@ -660,22 +660,28 @@ static void UI_SPLevelMenu_MenuDraw(void)
 				Com_sprintf(string, sizeof(string), "%i", level);
 			}
 
-			UI_DrawString(x + 24, y + 48, string, UI_CENTER, color_yellow);
+			//UI_DrawString(x + 24, y + 48, string, UI_CENTER, color_yellow);
 		}
 	}
 
-	UI_DrawProportionalString(18, 38, va("Tier %i", selectedArenaSet + 1), UI_LEFT | UI_SMALLFONT, color_orange);
+	//UI_DrawProportionalString(18, 38, va("Tier %i", selectedArenaSet + 1), UI_LEFT | UI_SMALLFONT, color_orange);
+	UI_Text_Paint( 18, 38 + 8  , 0.35f , text_color_normal, va("Tier %i", selectedArenaSet + 1), 0, 0, UI_LEFT | UI_DROPSHADOW,  &uis.TextBoldFont);
 
 	for(n = 0; n < levelMenuInfo.numMaps; n++)
 	{
 		x = levelMenuInfo.item_maps[n].generic.x;
 		y = levelMenuInfo.item_maps[n].generic.y;
-		UI_FillRect(x, y + 96, 128, 18, color_black);
+		//UI_FillRect(x, y + 96, 128, 18, color_black);
+
+		UI_DrawNamedPic(x, y + 96-7 , 128 , 40 , UI_ART_BUTTON);
+
 	}
 
 	if(selectedArenaSet > currentSet)
 	{
-		UI_DrawProportionalString(320, 216, "ACCESS DENIED", UI_CENTER | UI_BIGFONT, color_red);
+		//UI_DrawProportionalString(320, 216, "ACCESS DENIED", UI_CENTER | UI_BIGFONT, color_red);
+		UI_Text_Paint( 320, 216 + 8  , 0.45f , text_color_normal, "ACCESS DENIED", 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.TextBoldFont);
+
 		return;
 	}
 
@@ -687,7 +693,8 @@ static void UI_SPLevelMenu_MenuDraw(void)
 		x = levelMenuInfo.item_maps[n].generic.x;
 		y = levelMenuInfo.item_maps[n].generic.y;
 
-		UI_DrawString(x + 64, y + 96, levelMenuInfo.levelNames[n], UI_CENTER | UI_SMALLFONT, color_orange);
+		//UI_DrawString(x + 64, y + 96, levelMenuInfo.levelNames[n], UI_CENTER | UI_SMALLFONT, color_orange);
+		UI_Text_Paint( x + 64, y + 96 + 14  , 0.25f , text_color_normal, levelMenuInfo.levelNames[n], 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.TextBoldFont);
 
 		if(levelMenuInfo.levelScores[n] == 1)
 		{
@@ -700,29 +707,34 @@ static void UI_SPLevelMenu_MenuDraw(void)
 			{
 				trap_R_SetColor(color);
 			}
-			UI_DrawHandlePic(x - 1, y - 1, 130, 130 - 14, levelMenuInfo.levelSelectedPic);
+			UI_DrawHandlePic(x , y , 128, 96, levelMenuInfo.levelSelectedPic);
 			trap_R_SetColor(NULL);
 		}
 		else if(Menu_ItemAtCursor(&levelMenuInfo.menu) == &levelMenuInfo.item_maps[n])
 		{
 			trap_R_SetColor(color);
-			UI_DrawHandlePic(x - 31, y - 30, 256, 256 - 27, levelMenuInfo.levelFocusPic);
+			UI_DrawHandlePic(x , y , 128, 96, levelMenuInfo.levelFocusPic);
 			trap_R_SetColor(NULL);
 		}
 	}
 
 	// show map name and long name of selected level
 	y = 192;
-	Q_strncpyz(buf, Info_ValueForKey(levelMenuInfo.selectedArenaInfo, "map"), 20);
-	Q_strupr(buf);
-	Com_sprintf(string, sizeof(string), "%s: %s", buf, Info_ValueForKey(levelMenuInfo.selectedArenaInfo, "longname"));
-	UI_DrawProportionalString(320, y, string, UI_CENTER | UI_SMALLFONT, color_orange);
+	y +=32;
+
+	//Q_strncpyz(buf, Info_ValueForKey(levelMenuInfo.selectedArenaInfo, "map"), 20);
+	//Q_strupr(buf);
+	//Com_sprintf(string, sizeof(string), "%s: %s", buf, Info_ValueForKey(levelMenuInfo.selectedArenaInfo, "longname"));
+	//UI_DrawProportionalString(320, y, string, UI_CENTER | UI_SMALLFONT, color_orange);
+
+	UI_Text_Paint( 320, y + 8 , 0.35f , text_color_normal, Info_ValueForKey(levelMenuInfo.selectedArenaInfo, "longname"), 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.TextBoldFont);
+
 
 //  fraglimit = atoi( Info_ValueForKey( levelMenuInfo.selectedArenaInfo, "fraglimit" ) );
 //  UI_DrawString( 18, 212, va("Frags %i", fraglimit) , UI_LEFT|UI_SMALLFONT, color_orange );
 
 	// draw bot opponents
-	y += 24;
+	y += 32;
 	pad = (7 - levelMenuInfo.numBots) * (64 + 26) / 2;
 	for(n = 0; n < levelMenuInfo.numBots; n++)
 	{
@@ -734,9 +746,12 @@ static void UI_SPLevelMenu_MenuDraw(void)
 		else
 		{
 			UI_FillRect(x, y, 64, 64, color_black);
-			UI_DrawProportionalString(x + 22, y + 18, "?", UI_BIGFONT, color_orange);
+			//UI_DrawProportionalString(x + 32, y + 32, "?", UI_BIGFONT, color_orange);
+			UI_Text_Paint( x + 32, y + 24 + 8 , 0.5f , text_color_normal, "?" , 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.TextFont);
+
 		}
-		UI_DrawString(x, y + 64, levelMenuInfo.botNames[n], UI_SMALLFONT | UI_LEFT, color_orange);
+		//UI_DrawString(x, y + 64, levelMenuInfo.botNames[n], UI_SMALLFONT | UI_LEFT, color_orange);
+		UI_Text_Paint( x + 32, y + 64 + 8 , 0.25f , text_color_normal, levelMenuInfo.botNames[n] , 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.TextFont);
 	}
 }
 
@@ -1011,7 +1026,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_maps[3].generic.bottom += 18;
 	Menu_AddItem(&levelMenuInfo.menu, &levelMenuInfo.item_rightarrow);
 
-	Menu_AddItem(&levelMenuInfo.menu, &levelMenuInfo.item_player);
+	//Menu_AddItem(&levelMenuInfo.menu, &levelMenuInfo.item_player);
 
 	for(n = 0; n < count; n++)
 	{

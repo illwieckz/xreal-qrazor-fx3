@@ -68,6 +68,7 @@ cr_line         credits[] = {
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
 //  {"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
 	{"IOQuake 3 - www.ioquake3.org", UI_CENTER | UI_BIGFONT, colorLtGrey},
