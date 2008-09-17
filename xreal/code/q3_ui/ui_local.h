@@ -310,6 +310,9 @@ extern vec4_t   listbar_color;
 extern vec4_t   text_color_disabled;
 extern vec4_t   text_color_normal;
 extern vec4_t   text_color_highlight;
+extern vec4_t   color_cursorLines;
+
+
 
 extern char    *ui_medalNames[];
 extern char    *ui_medalPicNames[];
@@ -601,6 +604,7 @@ typedef struct
 	fontInfo_t      BTextFont;
 	fontInfo_t      PTextFont;
 	fontInfo_t      TextFont;
+	fontInfo_t      TextBoldFont;
 
 //	fontInfo_t      smallFont;
 //	fontInfo_t      bigFont;

@@ -188,7 +188,7 @@ void SpecifyLeague_MenuInit(void)
 	s_specifyleague.banner.generic.y = 16;
 	s_specifyleague.banner.string = "CHOOSE LEAGUE";
 	s_specifyleague.banner.color = color_white;
-	s_specifyleague.banner.style = UI_CENTER;
+	s_specifyleague.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	s_specifyleague.framel.generic.type = MTYPE_BITMAP;
 	s_specifyleague.framel.generic.name = SPECIFYLEAGUE_FRAMEL;

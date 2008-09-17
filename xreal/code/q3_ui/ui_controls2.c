@@ -1282,7 +1282,7 @@ static void Controls_MenuInit(void)
 	s_controls.banner.generic.y = 16;
 	s_controls.banner.string = "CONTROLS";
 	s_controls.banner.color = color_white;
-	s_controls.banner.style = UI_CENTER;
+	s_controls.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 /*	s_controls.framel.generic.type = MTYPE_BITMAP;
 	s_controls.framel.generic.name = ART_FRAMEL;

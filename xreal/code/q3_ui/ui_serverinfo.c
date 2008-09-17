@@ -206,7 +206,7 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.banner.generic.y = 16;
 	s_serverinfo.banner.string = "SERVER INFO";
 	s_serverinfo.banner.color = color_white;
-	s_serverinfo.banner.style = UI_CENTER;
+	s_serverinfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	s_serverinfo.framel.generic.type = MTYPE_BITMAP;
 	s_serverinfo.framel.generic.name = SERVERINFO_FRAMEL;

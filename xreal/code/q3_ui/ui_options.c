@@ -139,7 +139,7 @@ void Options_MenuInit(void)
 	s_options.banner.generic.y = 16;
 	s_options.banner.string = "SYSTEM SETUP";
 	s_options.banner.color = color_white;
-	s_options.banner.style = UI_CENTER;
+	s_options.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	s_options.framel.generic.type = MTYPE_BITMAP;
 	s_options.framel.generic.name = ART_FRAMEL;

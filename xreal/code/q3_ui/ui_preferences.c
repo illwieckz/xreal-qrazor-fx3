@@ -234,7 +234,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.banner.generic.y = 16;
 	s_preferences.banner.string = "GAME OPTIONS";
 	s_preferences.banner.color = color_white;
-	s_preferences.banner.style = UI_CENTER;
+	s_preferences.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 /*	s_preferences.framel.generic.type = MTYPE_BITMAP;
 	s_preferences.framel.generic.name = ART_FRAMEL;

@@ -172,7 +172,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.banner.generic.y = 16;
 	setupMenuInfo.banner.string = "SETUP";
 	setupMenuInfo.banner.color = color_white;
-	setupMenuInfo.banner.style = UI_CENTER;
+	setupMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 /*
 	setupMenuInfo.framel.generic.type = MTYPE_BITMAP;
 	setupMenuInfo.framel.generic.name = ART_FRAMEL;
@@ -199,7 +199,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupplayer.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.setupplayer.string = "PLAYER";
 	setupMenuInfo.setupplayer.color = colorWhite;
-	setupMenuInfo.setupplayer.style = UI_CENTER;
+	setupMenuInfo.setupplayer.style = UI_CENTER | UI_DROPSHADOW;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.setupcontrols.generic.type = MTYPE_PTEXT;
@@ -210,7 +210,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupcontrols.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.setupcontrols.string = "CONTROLS";
 	setupMenuInfo.setupcontrols.color = colorWhite;
-	setupMenuInfo.setupcontrols.style = UI_CENTER;
+	setupMenuInfo.setupcontrols.style = UI_CENTER | UI_DROPSHADOW;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.setupsystem.generic.type = MTYPE_PTEXT;
@@ -221,7 +221,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupsystem.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.setupsystem.string = "SYSTEM";
 	setupMenuInfo.setupsystem.color = colorWhite;
-	setupMenuInfo.setupsystem.style = UI_CENTER;
+	setupMenuInfo.setupsystem.style = UI_CENTER | UI_DROPSHADOW;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.game.generic.type = MTYPE_PTEXT;
@@ -232,7 +232,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.game.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.game.string = "GAME OPTIONS";
 	setupMenuInfo.game.color = colorWhite;
-	setupMenuInfo.game.style = UI_CENTER;
+	setupMenuInfo.game.style = UI_CENTER | UI_DROPSHADOW;
 
 #if 0
 	y += SETUP_MENU_VERTICAL_SPACING;

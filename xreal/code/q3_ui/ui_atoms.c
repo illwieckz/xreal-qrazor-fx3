@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uiStatic_t      uis;
 qboolean        m_entersound;	// after a frame, so caching won't disrupt the sound
 
-vec4_t          color_cursorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// cursorlines color
 
 void QDECL Com_Error(int level, const char *error, ...)
 {
@@ -1558,6 +1557,7 @@ void UI_Refresh(int realtime)
 //			// draw the background
 //			if(uis.activemenu->showlogo)
 //			{
+//FIXME: non 4:3 resolutions are causeing black bars
 				UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
 //			}
 //			else
@@ -1608,6 +1608,10 @@ void UI_Refresh(int realtime)
 
 	UI_DrawRect(0, lineY, 640, 1, color_cursorLines);
 	UI_DrawRect(lineX, 0, 1, 480, color_cursorLines);
+
+//draw border around screen
+	UI_DrawRect(0, 0, 640, 480, color_cursorLines);
+
 
 #ifndef NDEBUG
 	if(uis.debug)

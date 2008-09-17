@@ -39,11 +39,11 @@ START SERVER MENU *****
 #define GAMESERVER_NEXT1		"menu/art/next_1"
 #define GAMESERVER_FRAMEL		"menu/art/frame2_l"
 #define GAMESERVER_FRAMER		"menu/art/frame1_r"
-#define GAMESERVER_SELECT		"menu/art/maps_select"
-#define GAMESERVER_SELECTED		"menu/art/maps_selected"
+#define GAMESERVER_SELECT		"ui/maps_select"
+#define GAMESERVER_SELECTED		"ui/maps_selected"
 #define GAMESERVER_FIGHT0		"menu/art/fight_0"
 #define GAMESERVER_FIGHT1		"menu/art/fight_1"
-#define GAMESERVER_UNKNOWNMAP	"menu/art/unknownmap"
+#define GAMESERVER_UNKNOWNMAP		"menu/art/unknownmap"
 #define GAMESERVER_ARROWS		"menu/art/gs_arrows_0"
 #define GAMESERVER_ARROWSL		"menu/art/gs_arrows_l"
 #define GAMESERVER_ARROWSR		"menu/art/gs_arrows_r"
@@ -353,6 +353,9 @@ static void StartServer_LevelshotDraw(void *self)
 	int             w;
 	int             h;
 	int             n;
+	qboolean	focus;
+	int		style;
+	float          *color;
 
 	b = (menubitmap_s *) self;
 
@@ -360,6 +363,8 @@ static void StartServer_LevelshotDraw(void *self)
 	{
 		return;
 	}
+
+	focus = (b->generic.flags & QMF_HIGHLIGHT);
 
 	if(b->generic.name && !b->shader)
 	{
@@ -384,20 +389,35 @@ static void StartServer_LevelshotDraw(void *self)
 		UI_DrawHandlePic(x, y, w, h, b->shader);
 	}
 
+	if(focus)
+	{
+		color = text_color_highlight;
+		style = UI_CENTER | UI_DROPSHADOW | UI_PULSE;
+	}
+	else
+	{
+		color = text_color_highlight;
+		style = UI_CENTER | UI_DROPSHADOW;
+	}
+
 	x = b->generic.x;
 	y = b->generic.y + b->height;
-	UI_FillRect(x, y, b->width, 28, colorBlack);
+
+	UI_DrawNamedPic(x , y-7 , b->width , 28+8 , UI_ART_BUTTON);
 
 	x += b->width / 2;
 	y += 4;
 	n = s_startserver.page * MAX_MAPSPERPAGE + b->generic.id - ID_PICTURES;
-	UI_DrawString(x, y, s_startserver.maplist[n], UI_CENTER | UI_SMALLFONT, color_orange);
+	
+//	UI_DrawString(x, y, s_startserver.maplist[n], UI_CENTER | UI_SMALLFONT, color_orange);
+	UI_Text_Paint( x  ,  y + 8  , 0.25f , color, s_startserver.maplist[n], 0, 0, style,  &uis.freeSansBoldFont);
+
 
 	x = b->generic.x;
 	y = b->generic.y;
 	w = b->width;
-	h = b->height + 28;
-	if(b->generic.flags & QMF_HIGHLIGHT)
+	h = b->height ;
+	if(focus)
 	{
 		UI_DrawHandlePic(x, y, w, h, b->focusshader);
 	}
@@ -429,9 +449,9 @@ static void StartServer_MenuInit(void)
 	s_startserver.banner.generic.y = 16;
 	s_startserver.banner.string = "GAME SERVER";
 	s_startserver.banner.color = color_white;
-	s_startserver.banner.style = UI_CENTER;
+	s_startserver.banner.style = UI_CENTER | UI_DROPSHADOW;
 
-	s_startserver.framel.generic.type = MTYPE_BITMAP;
+/*	s_startserver.framel.generic.type = MTYPE_BITMAP;
 	s_startserver.framel.generic.name = GAMESERVER_FRAMEL;
 	s_startserver.framel.generic.flags = QMF_INACTIVE;
 	s_startserver.framel.generic.x = 0;
@@ -446,7 +466,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.framer.generic.y = 76;
 	s_startserver.framer.width = 256;
 	s_startserver.framer.height = 334;
-
+*/
 	s_startserver.gametype.generic.type = MTYPE_SPINCONTROL;
 	s_startserver.gametype.generic.name = "Game Type:";
 	s_startserver.gametype.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -471,20 +491,22 @@ static void StartServer_MenuInit(void)
 		s_startserver.mappics[i].focuspic = GAMESERVER_SELECTED;
 		s_startserver.mappics[i].errorpic = GAMESERVER_UNKNOWNMAP;
 		s_startserver.mappics[i].generic.ownerdraw = StartServer_LevelshotDraw;
+		s_startserver.mappics[i].focuscolor = text_color_highlight;
 
 		s_startserver.mapbuttons[i].generic.type = MTYPE_BITMAP;
 		s_startserver.mapbuttons[i].generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_NODEFAULTINIT;
 		s_startserver.mapbuttons[i].generic.id = ID_PICTURES + i;
 		s_startserver.mapbuttons[i].generic.callback = StartServer_MapEvent;
-		s_startserver.mapbuttons[i].generic.x = x - 30;
-		s_startserver.mapbuttons[i].generic.y = y - 32;
-		s_startserver.mapbuttons[i].width = 256;
-		s_startserver.mapbuttons[i].height = 248;
+		s_startserver.mapbuttons[i].generic.x = x ;
+		s_startserver.mapbuttons[i].generic.y = y ;
+		s_startserver.mapbuttons[i].width = 128;
+		s_startserver.mapbuttons[i].height = 96;
 		s_startserver.mapbuttons[i].generic.left = x;
 		s_startserver.mapbuttons[i].generic.top = y;
 		s_startserver.mapbuttons[i].generic.right = x + 128;
 		s_startserver.mapbuttons[i].generic.bottom = y + 128;
 		s_startserver.mapbuttons[i].focuspic = GAMESERVER_SELECT;
+		s_startserver.mapbuttons[i].focuscolor = text_color_highlight;
 	}
 
 	s_startserver.arrows.generic.type = MTYPE_BITMAP;
@@ -567,8 +589,8 @@ static void StartServer_MenuInit(void)
 	s_startserver.item_null.height = 480;
 
 	Menu_AddItem(&s_startserver.menu, &s_startserver.banner);
-	Menu_AddItem(&s_startserver.menu, &s_startserver.framel);
-	Menu_AddItem(&s_startserver.menu, &s_startserver.framer);
+//	Menu_AddItem(&s_startserver.menu, &s_startserver.framel);
+//	Menu_AddItem(&s_startserver.menu, &s_startserver.framer);
 
 	Menu_AddItem(&s_startserver.menu, &s_startserver.gametype);
 	for(i = 0; i < MAX_MAPSPERPAGE; i++)
@@ -582,7 +604,7 @@ static void StartServer_MenuInit(void)
 	Menu_AddItem(&s_startserver.menu, &s_startserver.nextpage);
 	Menu_AddItem(&s_startserver.menu, &s_startserver.back);
 	Menu_AddItem(&s_startserver.menu, &s_startserver.next);
-	Menu_AddItem(&s_startserver.menu, &s_startserver.mapname);
+//	Menu_AddItem(&s_startserver.menu, &s_startserver.mapname);
 	Menu_AddItem(&s_startserver.menu, &s_startserver.item_null);
 
 	StartServer_GametypeEvent(NULL, QM_ACTIVATED);
@@ -1113,15 +1135,129 @@ static void ServerOptions_LevelshotDraw(void *self)
 
 	x = b->generic.x;
 	y = b->generic.y + b->height;
-	UI_FillRect(x, y, b->width, 40, colorBlack);
+//	UI_FillRect(x, y, b->width, 40, colorBlack);
+	UI_DrawNamedPic(x , y-7 , b->width , 60 , UI_ART_BUTTON);
+
+	x += b->width / 2;
+	y += 8;
+	//UI_DrawString(x, y, s_serveroptions.mapnamebuffer, UI_CENTER | UI_SMALLFONT, color_orange);
+	UI_Text_Paint( x  ,  y + 8  , 0.3f , text_color_highlight, s_serveroptions.mapnamebuffer, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+
+	y += SMALLCHAR_HEIGHT;
+	//UI_DrawString(x, y, gametype_items[gametype_remap2[s_serveroptions.gametype]], UI_CENTER | UI_SMALLFONT, color_orange);
+	UI_Text_Paint( x  ,  y + 8  , 0.2f , text_color_normal, gametype_items[gametype_remap2[s_serveroptions.gametype]], 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+
+}
+
+
+
+
+
+
+/*
+
+
+
+
+static void StartServer_LevelshotDraw(void *self)
+{
+	menubitmap_s   *b;
+	int             x;
+	int             y;
+	int             w;
+	int             h;
+	int             n;
+	qboolean	focus;
+	int		style;
+	float          *color;
+
+	b = (menubitmap_s *) self;
+
+	if(!b->generic.name)
+	{
+		return;
+	}
+
+	focus = (b->generic.flags & QMF_HIGHLIGHT);
+
+	if(b->generic.name && !b->shader)
+	{
+		b->shader = trap_R_RegisterShaderNoMip(b->generic.name);
+		if(!b->shader && b->errorpic)
+		{
+			b->shader = trap_R_RegisterShaderNoMip(b->errorpic);
+		}
+	}
+
+	if(b->focuspic && !b->focusshader)
+	{
+		b->focusshader = trap_R_RegisterShaderNoMip(b->focuspic);
+	}
+
+	x = b->generic.x;
+	y = b->generic.y;
+	w = b->width;
+	h = b->height;
+	if(b->shader)
+	{
+		UI_DrawHandlePic(x, y, w, h, b->shader);
+	}
+
+	if(focus)
+	{
+		color = text_color_highlight;
+		style = UI_CENTER | UI_DROPSHADOW | UI_PULSE;
+	}
+	else
+	{
+		color = text_color_highlight;
+		style = UI_CENTER | UI_DROPSHADOW;
+	}
+
+	x = b->generic.x;
+	y = b->generic.y + b->height;
+
+	UI_DrawNamedPic(x , y-7 , b->width , 28+8 , UI_ART_BUTTON);
 
 	x += b->width / 2;
 	y += 4;
-	UI_DrawString(x, y, s_serveroptions.mapnamebuffer, UI_CENTER | UI_SMALLFONT, color_orange);
+	n = s_startserver.page * MAX_MAPSPERPAGE + b->generic.id - ID_PICTURES;
+	
+//	UI_DrawString(x, y, s_startserver.maplist[n], UI_CENTER | UI_SMALLFONT, color_orange);
+	UI_Text_Paint( x  ,  y + 8  , 0.25f , color, s_startserver.maplist[n], 0, 0, style,  &uis.freeSansBoldFont);
 
-	y += SMALLCHAR_HEIGHT;
-	UI_DrawString(x, y, gametype_items[gametype_remap2[s_serveroptions.gametype]], UI_CENTER | UI_SMALLFONT, color_orange);
+
+	x = b->generic.x;
+	y = b->generic.y;
+	w = b->width;
+	h = b->height ;
+	if(focus)
+	{
+		UI_DrawHandlePic(x, y, w, h, b->focusshader);
+	}
 }
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 static void ServerOptions_InitBotNames(void)
@@ -1331,14 +1467,30 @@ static void PlayerName_Draw(void *item)
 
 	if(focus)
 	{
-		// draw cursor
+		
+		//UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,s->generic.bottom - s->generic.top + 1, listbar_color);
+
+		//draw hightlight
 		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
 					s->generic.bottom - s->generic.top + 1, listbar_color);
-		UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, color);
+		UI_FillRect(s->generic.left, s->generic.bottom , s->generic.right - s->generic.left + 1,
+					1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
+					1, listbar_color);
+
+
+	//	UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, color);
+		UI_Text_Paint(x , y+9, 0.25f, color,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+
 	}
 
-	UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, style | UI_RIGHT, color);
-	UI_DrawString(x + SMALLCHAR_WIDTH, y, s->string, style | UI_LEFT, color);
+	//UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, style | UI_RIGHT, color);
+	//UI_DrawString(x + SMALLCHAR_WIDTH, y, s->string, style | UI_LEFT, color);
+
+	UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, color,  s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+	UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, color, s->string, 0, 0, style | UI_LEFT | UI_DROPSHADOW,  &uis.freeSansFont);
+
+
 }
 
 
@@ -1368,7 +1520,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.banner.generic.y = 16;
 	s_serveroptions.banner.string = "GAME SERVER";
 	s_serveroptions.banner.color = color_white;
-	s_serveroptions.banner.style = UI_CENTER;
+	s_serveroptions.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	s_serveroptions.mappic.generic.type = MTYPE_BITMAP;
 	s_serveroptions.mappic.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
@@ -1381,10 +1533,10 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 
 	s_serveroptions.picframe.generic.type = MTYPE_BITMAP;
 	s_serveroptions.picframe.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE | QMF_HIGHLIGHT;
-	s_serveroptions.picframe.generic.x = 352 - 38;
-	s_serveroptions.picframe.generic.y = 80 - 40;
-	s_serveroptions.picframe.width = 320;
-	s_serveroptions.picframe.height = 320;
+	s_serveroptions.picframe.generic.x = 352;
+	s_serveroptions.picframe.generic.y = 80;
+	s_serveroptions.picframe.width = 160;
+	s_serveroptions.picframe.height = 120;
 	s_serveroptions.picframe.focuspic = GAMESERVER_SELECT;
 
 	y = 272;
@@ -1477,8 +1629,8 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.player0.generic.flags = QMF_SMALLFONT;
 	s_serveroptions.player0.generic.x = 32 + SMALLCHAR_WIDTH;
 	s_serveroptions.player0.generic.y = y;
-	s_serveroptions.player0.color = color_orange;
-	s_serveroptions.player0.style = UI_LEFT | UI_SMALLFONT;
+	s_serveroptions.player0.color = text_color_normal;
+	s_serveroptions.player0.style = UI_LEFT | UI_DROPSHADOW;
 
 	for(n = 0; n < PLAYER_SLOTS; n++)
 	{
@@ -1497,8 +1649,8 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 		s_serveroptions.playerName[n].generic.callback = ServerOptions_PlayerNameEvent;
 		s_serveroptions.playerName[n].generic.id = n;
 		s_serveroptions.playerName[n].generic.ownerdraw = PlayerName_Draw;
-		s_serveroptions.playerName[n].color = color_orange;
-		s_serveroptions.playerName[n].style = UI_SMALLFONT;
+		s_serveroptions.playerName[n].color = text_color_normal;
+		s_serveroptions.playerName[n].style = UI_DROPSHADOW | UI_BOLD;
 		s_serveroptions.playerName[n].string = s_serveroptions.playerNameBuffers[n];
 		s_serveroptions.playerName[n].generic.top = s_serveroptions.playerName[n].generic.y;
 		s_serveroptions.playerName[n].generic.bottom = s_serveroptions.playerName[n].generic.y + SMALLCHAR_HEIGHT;
@@ -2033,7 +2185,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.banner.generic.y = 16;
 	botSelectInfo.banner.string = "SELECT BOT";
 	botSelectInfo.banner.color = color_white;
-	botSelectInfo.banner.style = UI_CENTER;
+	botSelectInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	y = 80;
 	for(i = 0, k = 0; i < PLAYERGRID_ROWS; i++)
@@ -2049,7 +2201,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 			botSelectInfo.pics[k].width = 64;
 			botSelectInfo.pics[k].height = 64;
 			botSelectInfo.pics[k].focuspic = BOTSELECT_SELECTED;
-			botSelectInfo.pics[k].focuscolor = colorRed;
+			botSelectInfo.pics[k].focuscolor = text_color_highlight;
 
 			botSelectInfo.picbuttons[k].generic.type = MTYPE_BITMAP;
 			botSelectInfo.picbuttons[k].generic.flags = QMF_LEFT_JUSTIFY | QMF_NODEFAULTINIT | QMF_PULSEIFFOCUS;
@@ -2064,14 +2216,14 @@ static void UI_BotSelectMenu_Init(char *bot)
 			botSelectInfo.picbuttons[k].width = 128;
 			botSelectInfo.picbuttons[k].height = 128;
 			botSelectInfo.picbuttons[k].focuspic = BOTSELECT_SELECT;
-			botSelectInfo.picbuttons[k].focuscolor = colorRed;
+			botSelectInfo.picbuttons[k].focuscolor = text_color_highlight;
 
 			botSelectInfo.picnames[k].generic.type = MTYPE_TEXT;
 			botSelectInfo.picnames[k].generic.flags = QMF_SMALLFONT;
 			botSelectInfo.picnames[k].generic.x = x + 32;
 			botSelectInfo.picnames[k].generic.y = y + 64;
 			botSelectInfo.picnames[k].string = botSelectInfo.botnames[k];
-			botSelectInfo.picnames[k].color = color_orange;
+			botSelectInfo.picnames[k].color = text_color_normal;
 			botSelectInfo.picnames[k].style = UI_CENTER | UI_SMALLFONT;
 
 			x += (64 + 6);

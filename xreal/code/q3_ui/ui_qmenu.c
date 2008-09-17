@@ -60,6 +60,8 @@ vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright
 vec4_t          listbar_color = { 0.43f, 0.43f, 0.63f, 0.30f };	// transluscent 
 vec4_t          text_color_status = { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white 
 
+vec4_t          color_cursorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// cursorlines color
+
 // action widget
 static void     Action_Init(menuaction_s * a);
 static void     Action_Draw(menuaction_s * a);
@@ -138,11 +140,19 @@ static void Text_Draw(menutext_s * t)
 
 	//UI_DrawString(x, y, buff, t->style, color);
 
-	UI_Text_Paint( x  ,  y + 8  , 0.25f , color, buff, 0, 0, t->style,  &uis.TextFont);
+	switch (t->style & UI_FORMATMASK)
+	{
+		case UI_BOLD:
+			UI_Text_Paint( x  ,  y + 8  , 0.25f , color, buff, 0, 0, t->style,  &uis.TextBoldFont);
+			break;
 
+		
+		default:
+			UI_Text_Paint( x  ,  y + 8  , 0.25f , color, buff, 0, 0, t->style,  &uis.TextFont);
+			break;
+	}
 
 }
-
 /*
 =================
 BText_Init
@@ -174,7 +184,7 @@ static void BText_Draw(menutext_s * t)
 
 	//UI_DrawBannerString(x, y, t->string, t->style, color);
 
-	UI_Text_Paint( x  ,  y + 16 , 0.7f , color, t->string, 0, 0, UI_CENTER,  &uis.BTextFont);
+	UI_Text_Paint( x  ,  y + 16 , 0.7f , color, t->string, 0, 0, t->style,  &uis.BTextFont);
 
 
 }
@@ -1887,7 +1897,8 @@ void Menu_Cache(void)
 	trap_R_RegisterFont("fonts/xscale.ttf", 48, &uis.buttonFont);
 	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.BTextFont);
 	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.PTextFont);
-	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.TextFont);
+	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.TextFont);
+	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.TextBoldFont);
 
 	uis.cursor = trap_R_RegisterShaderNoMip("ui/cursor");
 

@@ -262,7 +262,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.banner.generic.y = 16;
 	removeBotsMenuInfo.banner.string = "REMOVE BOTS";
 	removeBotsMenuInfo.banner.color = color_white;
-	removeBotsMenuInfo.banner.style = UI_CENTER;
+	removeBotsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	removeBotsMenuInfo.background.generic.type = MTYPE_BITMAP;
 	removeBotsMenuInfo.background.generic.name = ART_BACKGROUND;

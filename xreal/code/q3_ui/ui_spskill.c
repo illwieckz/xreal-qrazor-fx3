@@ -234,7 +234,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.art_banner.generic.y = 16;
 	skillMenuInfo.art_banner.string = "DIFFICULTY";
 	skillMenuInfo.art_banner.color = color_white;
-	skillMenuInfo.art_banner.style = UI_CENTER;
+	skillMenuInfo.art_banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	skillMenuInfo.item_baby.generic.type = MTYPE_PTEXT;
 	skillMenuInfo.item_baby.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;

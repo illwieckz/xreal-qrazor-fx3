@@ -1354,7 +1354,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.banner.generic.x = 320;
 	g_arenaservers.banner.generic.y = 16;
 	g_arenaservers.banner.string = "MULTIPLAYER";
-	g_arenaservers.banner.style = UI_CENTER;
+	g_arenaservers.banner.style = UI_CENTER | UI_DROPSHADOW;
 	g_arenaservers.banner.color = color_white;
 
 	y = 80;

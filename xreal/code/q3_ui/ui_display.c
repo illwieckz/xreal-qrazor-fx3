@@ -136,7 +136,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.banner.generic.y = 16;
 	displayOptionsInfo.banner.string = "SYSTEM SETUP";
 	displayOptionsInfo.banner.color = color_white;
-	displayOptionsInfo.banner.style = UI_CENTER;
+	displayOptionsInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	displayOptionsInfo.framel.generic.type = MTYPE_BITMAP;
 	displayOptionsInfo.framel.generic.name = ART_FRAMEL;

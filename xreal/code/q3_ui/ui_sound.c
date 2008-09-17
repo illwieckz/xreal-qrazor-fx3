@@ -166,7 +166,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.banner.generic.y = 16;
 	soundOptionsInfo.banner.string = "SYSTEM SETUP";
 	soundOptionsInfo.banner.color = color_white;
-	soundOptionsInfo.banner.style = UI_CENTER;
+	soundOptionsInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	soundOptionsInfo.graphics.generic.type = MTYPE_BITMAP;
 	soundOptionsInfo.graphics.generic.name = UI_ART_BUTTON;

@@ -149,7 +149,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.banner.generic.y = 16;
 	networkOptionsInfo.banner.string = "SYSTEM SETUP";
 	networkOptionsInfo.banner.color = color_white;
-	networkOptionsInfo.banner.style = UI_CENTER;
+	networkOptionsInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 /*	networkOptionsInfo.framel.generic.type = MTYPE_BITMAP;
 	networkOptionsInfo.framel.generic.name = ART_FRAMEL;

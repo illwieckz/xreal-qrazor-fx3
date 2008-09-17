@@ -816,7 +816,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_banner.generic.y = 16;
 	levelMenuInfo.item_banner.string = "SINGLEPLAYER";
 	levelMenuInfo.item_banner.color = color_white;
-	levelMenuInfo.item_banner.style = UI_CENTER;
+	levelMenuInfo.item_banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	levelMenuInfo.item_leftarrow.generic.type = MTYPE_BITMAP;
 	levelMenuInfo.item_leftarrow.generic.name = ART_ARROW;

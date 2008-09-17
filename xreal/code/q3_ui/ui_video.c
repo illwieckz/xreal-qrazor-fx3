@@ -164,7 +164,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.banner.generic.y = 16;
 	s_driverinfo.banner.string = "DRIVER INFO";
 	s_driverinfo.banner.color = color_white;
-	s_driverinfo.banner.style = UI_CENTER;
+	s_driverinfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	s_driverinfo.framel.generic.type = MTYPE_BITMAP;
 	s_driverinfo.framel.generic.name = DRIVERINFO_FRAMEL;
@@ -1288,7 +1288,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.banner.generic.y = 16;
 	s_graphicsoptions.banner.string = "SYSTEM SETUP";
 	s_graphicsoptions.banner.color = color_white;
-	s_graphicsoptions.banner.style = UI_CENTER;
+	s_graphicsoptions.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 /*	s_graphicsoptions.framel.generic.type = MTYPE_BITMAP;
 	s_graphicsoptions.framel.generic.name = GRAPHICSOPTIONS_FRAMEL;

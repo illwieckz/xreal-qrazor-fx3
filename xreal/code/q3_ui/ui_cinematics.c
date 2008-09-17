@@ -135,7 +135,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.banner.generic.y = 16;
 	cinematicsMenuInfo.banner.string = "CINEMATICS";
 	cinematicsMenuInfo.banner.color = color_white;
-	cinematicsMenuInfo.banner.style = UI_CENTER;
+	cinematicsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 /*	cinematicsMenuInfo.framel.generic.type = MTYPE_BITMAP;
 	cinematicsMenuInfo.framel.generic.name = ART_FRAMEL;
