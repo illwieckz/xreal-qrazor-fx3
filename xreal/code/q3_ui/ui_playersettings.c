@@ -44,19 +44,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_NAMELENGTH	20
 
+#define PLAYERSETTINGS_VERTICAL_SPACING 160
+
 typedef struct
 {
 	menuframework_s menu;
 
 	menutext_s      banner;
-	menubitmap_s    framel;
-	menubitmap_s    framer;
+	//menubitmap_s    framel;
+	//menubitmap_s    framer;
 	menubitmap_s    player;
 
 	menufield_s     name;
+	menufield_s     clan;
 	menulist_s      handicap;
-	menulist_s      color1;
-	menulist_s      color2;
+	//menulist_s      color1;
+	//menulist_s      color2;
 
 	menubitmap_s    back;
 	menubitmap_s    model;
@@ -98,110 +101,6 @@ static const char *handicap_items[] = {
 	0
 };
 
-/*
-=================
-PlayerSettings_DrawName
-=================
-*/
-static void PlayerSettings_DrawName(void *self)
-{
-	menufield_s    *f;
-	qboolean        focus;
-	int             style;
-	char           *txt;
-	char            c;
-	float          *color;
-	int             n;
-	int             basex, x, y;
-	char            name[32];
-
-	f = (menufield_s *) self;
-	basex = f->generic.x;
-	y = f->generic.y;
-	focus = (f->generic.parent->cursor == f->generic.menuPosition);
-
-	style = UI_LEFT | UI_SMALLFONT;
-	color = text_color_normal;
-	if(focus)
-	{
-		style |= UI_PULSE;
-		color = text_color_highlight;
-	}
-
-	UI_DrawProportionalString(basex, y, "Name", style, color);
-
-	// draw the actual name
-	basex += 64;
-	y += PROP_HEIGHT;
-	txt = f->field.buffer;
-	color = (float *)g_color_table[ColorIndex(COLOR_WHITE)];
-	x = basex;
-	while((c = *txt) != 0)
-	{
-		if(!focus && Q_IsColorString(txt))
-		{
-			n = ColorIndex(*(txt + 1));
-			if(n == 0)
-				n = 7;
-			color = (float *)g_color_table[n];
-			txt += 2;
-			continue;
-		}
-		UI_DrawChar(x, y, c, style, color);
-		txt++;
-		x += SMALLCHAR_WIDTH;
-	}
-
-	// draw cursor if we have focus
-	if(focus)
-	{
-		if(trap_Key_GetOverstrikeMode())
-		{
-			c = 11;
-		}
-		else
-		{
-			c = 10;
-		}
-
-		style &= ~UI_PULSE;
-		style |= UI_BLINK;
-
-		UI_DrawChar(basex + f->field.cursor * SMALLCHAR_WIDTH, y, c, style, color_white);
-	}
-
-	// draw at bottom also using proportional font
-	Q_strncpyz(name, f->field.buffer, sizeof(name));
-	Q_CleanStr(name);
-	UI_DrawProportionalString(320, 440, name, UI_CENTER | UI_BIGFONT, text_color_normal);
-}
-
-/*
-=================
-PlayerSettings_DrawHandicap
-=================
-*/
-static void PlayerSettings_DrawHandicap(void *self)
-{
-	menulist_s     *item;
-	qboolean        focus;
-	int             style;
-	float          *color;
-
-	item = (menulist_s *) self;
-	focus = (item->generic.parent->cursor == item->generic.menuPosition);
-
-	style = UI_LEFT | UI_SMALLFONT;
-	color = text_color_normal;
-	if(focus)
-	{
-		style |= UI_PULSE;
-		color = text_color_highlight;
-	}
-
-	UI_DrawProportionalString(item->generic.x, item->generic.y, "Handicap", style, color);
-	UI_DrawProportionalString(item->generic.x + 64, item->generic.y + PROP_HEIGHT, handicap_items[item->curvalue], style, color);
-}
 
 /*
 =================
@@ -286,15 +185,17 @@ static void PlayerSettings_SaveChanges(void)
 {
 	// name
 	trap_Cvar_Set("name", s_playersettings.name.field.buffer);
+	// clan
+	trap_Cvar_Set("clan", s_playersettings.clan.field.buffer);
 
 	// handicap
 	trap_Cvar_SetValue("handicap", 100 - s_playersettings.handicap.curvalue * 5);
 
 	// effects color
-	trap_Cvar_SetValue("color1", uitogamecode[s_playersettings.color1.curvalue]);
+//	trap_Cvar_SetValue("color1", uitogamecode[s_playersettings.color1.curvalue]);
 
 	// secondary effects color
-	trap_Cvar_SetValue("color2", uitogamecode[s_playersettings.color2.curvalue]);
+//	trap_Cvar_SetValue("color2", uitogamecode[s_playersettings.color2.curvalue]);
 }
 
 /*
@@ -325,7 +226,10 @@ static void PlayerSettings_SetMenuItems(void)
 	// name
 	Q_strncpyz(s_playersettings.name.field.buffer, UI_Cvar_VariableString("name"), sizeof(s_playersettings.name.field.buffer));
 
-	// effects color
+	// clan
+	Q_strncpyz(s_playersettings.clan.field.buffer, UI_Cvar_VariableString("clan"), sizeof(s_playersettings.clan.field.buffer));
+
+/*	// effects color
 	c = trap_Cvar_VariableValue("color1") - 1;
 	if(c < 0 || c > 6)
 		c = 6;
@@ -336,7 +240,7 @@ static void PlayerSettings_SetMenuItems(void)
 	if(c < 0 || c > 6)
 		c = 6;
 	s_playersettings.color2.curvalue = gamecodetoui[c];
-
+*/
 	// model/skin
 	memset(&s_playersettings.playerinfo, 0, sizeof(playerInfo_t));
 
@@ -424,30 +328,34 @@ static void PlayerSettings_MenuInit(void)
 */
 	y = 144;
 	s_playersettings.name.generic.type = MTYPE_FIELD;
-	s_playersettings.name.generic.flags = QMF_NODEFAULTINIT;
-	s_playersettings.name.generic.ownerdraw = PlayerSettings_DrawName;
+	s_playersettings.name.generic.name = "Name:";
+	s_playersettings.name.generic.flags = QMF_PULSEIFFOCUS;
 	s_playersettings.name.field.widthInChars = MAX_NAMELENGTH;
 	s_playersettings.name.field.maxchars = MAX_NAMELENGTH;
-	s_playersettings.name.generic.x = 192;
+	s_playersettings.name.generic.x = PLAYERSETTINGS_VERTICAL_SPACING;
 	s_playersettings.name.generic.y = y;
-	s_playersettings.name.generic.left = 192 - 8;
-	s_playersettings.name.generic.top = y - 8;
-	s_playersettings.name.generic.right = 192 + 200;
-	s_playersettings.name.generic.bottom = y + 2 * PROP_HEIGHT;
+	y += BIGCHAR_HEIGHT + 2;
 
-	y += 3 * PROP_HEIGHT;
+	s_playersettings.clan.generic.type = MTYPE_FIELD;
+	s_playersettings.clan.generic.name = "Clan:";
+	s_playersettings.clan.generic.flags = QMF_PULSEIFFOCUS;
+	s_playersettings.clan.field.widthInChars = MAX_NAMELENGTH;
+	s_playersettings.clan.field.maxchars = MAX_NAMELENGTH;
+	s_playersettings.clan.generic.x = PLAYERSETTINGS_VERTICAL_SPACING;
+	s_playersettings.clan.generic.y = y;
+	y += BIGCHAR_HEIGHT + 2;
+
 	s_playersettings.handicap.generic.type = MTYPE_SPINCONTROL;
-	s_playersettings.handicap.generic.flags = QMF_NODEFAULTINIT;
+	s_playersettings.handicap.generic.name = "Handycap:";
+	s_playersettings.handicap.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	s_playersettings.handicap.generic.id = ID_HANDICAP;
-	s_playersettings.handicap.generic.ownerdraw = PlayerSettings_DrawHandicap;
-	s_playersettings.handicap.generic.x = 192;
+	s_playersettings.handicap.itemnames = handicap_items;
+	s_playersettings.handicap.generic.callback = PlayerSettings_MenuEvent;
+	s_playersettings.handicap.generic.x = PLAYERSETTINGS_VERTICAL_SPACING;
 	s_playersettings.handicap.generic.y = y;
-	s_playersettings.handicap.generic.left = 192 - 8;
-	s_playersettings.handicap.generic.top = y - 8;
-	s_playersettings.handicap.generic.right = 192 + 200;
-	s_playersettings.handicap.generic.bottom = y + 2 * PROP_HEIGHT;
 	s_playersettings.handicap.numitems = 20;
 
+/*
 	y += 3 * PROP_HEIGHT;
 	s_playersettings.color1.generic.type = MTYPE_SPINCONTROL;
 	s_playersettings.color1.generic.flags = QMF_NODEFAULTINIT;
@@ -472,7 +380,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.color2.generic.right = 192 + 200;
 	s_playersettings.color2.generic.bottom = y + 2 * PROP_HEIGHT;
 	s_playersettings.color2.numitems = 7;
-
+*/
 	s_playersettings.model.generic.type = MTYPE_BITMAP;
 	s_playersettings.model.generic.name = UI_ART_BUTTON;
 	s_playersettings.model.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -528,9 +436,10 @@ static void PlayerSettings_MenuInit(void)
 	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.framer);
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.name);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.clan);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.handicap);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.color1);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.color2);
+	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.color1);
+	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.color2);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.model);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.back);
 

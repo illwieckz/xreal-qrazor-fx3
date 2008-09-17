@@ -377,6 +377,8 @@ void MenuField_Draw(menufield_s * f)
 	int             style;
 	qboolean        focus;
 	float          *color;
+	int 		offset;
+	int 		width;
 
 	x = f->generic.x;
 	y = f->generic.y;
@@ -427,17 +429,24 @@ void MenuField_Draw(menufield_s * f)
 
 		//UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | style, color);
 		UI_Text_Paint(x , y+9, 0.25f, color,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+		
+	//TODO: draw the underline cursor. 
+	//	width = ( UI_Text_Width("_", 0.25f, 0, &uis.freeSerifBoldFont)) + 1;
+	//	offset = width + f->field.cursor * width;
+	//	UI_Text_Paint(x + offset, y+9, 0.25f, color,  "_", 0, 0,  UI_BLINK | UI_RIGHT,  &uis.freeSansBoldFont);
+
+
 
 	}
 
 	if(f->generic.name)
 	{
 		//UI_DrawString(x - w, y, f->generic.name, style | UI_RIGHT, color);
-		UI_Text_Paint(x - w, y+8, 0.25f, color,  f->generic.name, 0, 0,  style | UI_RIGHT,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x - w, y+8, 0.25f, color,  f->generic.name, 0, 0,  style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
 
 	}
 
-	MField_Draw(&f->field, x + w, y, style, color);
+	MField_Draw(&f->field, x + w, y, style | UI_DROPSHADOW, color);
 }
 
 /*
