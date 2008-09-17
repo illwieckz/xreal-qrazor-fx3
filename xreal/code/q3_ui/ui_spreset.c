@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 RESET MENU
 
+FIXME: otty: this is never called, remove ?
+
 =======================================================================
 */
 
@@ -117,14 +119,8 @@ static void Reset_MenuDraw(void)
 	UI_DrawProportionalString(s_reset.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
 	Menu_Draw(&s_reset.menu);
 
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This resets all of the",
-							  UI_CENTER | UI_SMALLFONT, color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "single player game variables.", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 2, "Do this only if you want to", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 3, "start over from the beginning.", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
+	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This resets all of the single player game variables. Do this only if you want to start over from the beginning.",  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
+
 }
 
 

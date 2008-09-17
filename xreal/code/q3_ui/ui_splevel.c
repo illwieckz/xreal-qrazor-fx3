@@ -380,14 +380,11 @@ UI_SPLevelMenu_ResetEvent
 */
 static void UI_SPLevelMenu_ResetDraw(void)
 {
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This resets all of the",
-							  UI_CENTER | UI_SMALLFONT, color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "single player game variables.", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 2, "Do this only if you want to", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 3, "start over from the beginning.", UI_CENTER | UI_SMALLFONT,
-							  color_yellow);
+
+	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This resets all of the single player game variables. Do this only if you want to start over from the beginning.",  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
+
+
+	
 }
 
 static void UI_SPLevelMenu_ResetAction(qboolean result)

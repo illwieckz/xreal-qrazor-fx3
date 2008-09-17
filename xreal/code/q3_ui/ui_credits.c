@@ -32,7 +32,7 @@ CREDITS
 
 #include "ui_local.h"
 
-#define SCROLLSPEED	3.5
+#define SCROLLSPEED	4
 
 typedef struct
 {
@@ -54,7 +54,7 @@ typedef struct
 } cr_line;
 
 cr_line         credits[] = {
-	{"XreaL", UI_CENTER | UI_GIANTFONT , colorRed},
+	{"XreaL", UI_CENTER | UI_GIANTFONT , colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Project Lead", UI_CENTER | UI_BIGFONT, colorMdGrey},
@@ -64,7 +64,7 @@ cr_line         credits[] = {
 	{"Programming", UI_CENTER | UI_BIGFONT, colorMdGrey},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	//{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
 //  {"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -91,14 +91,14 @@ cr_line         credits[] = {
 	{"Mathias 'skynet' Heyer", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Art", UI_CENTER | UI_BIGFONT, colorMdGrey},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	//{"Art", UI_CENTER | UI_BIGFONT, colorMdGrey},
+	//{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Lead Design", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"XreaL Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
+	{"Design", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Michael 'mic' Denno", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -107,6 +107,7 @@ cr_line         credits[] = {
 	{"Ross 'kit89' Forshaw", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Fabian 'Fabz0r' Rosten", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+
 
 	{"Quake II: Lost Marine Team", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Thearrel 'Kiltron' McKinney", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -220,7 +221,8 @@ static void ScrollingCredits_Draw(void)
 {
 	int             x = 320, y, n, ysize = 0, fadetime = 0;
 	float           textScale = 0.25f;
-	vec4_t          fadecolour = { 0.00, 0.00, 0.00, 0.00 };
+	vec4_t          color;
+	float 		textZoom;
 
 	// first, fill the background with the specified shader
 //	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
@@ -246,20 +248,42 @@ static void ScrollingCredits_Draw(void)
 		}
 
 		if(credits[n].style & UI_GIANTFONT)
-			textScale = 0.4f;
+			textScale = 0.5f;
 		else if(credits[n].style & UI_BIGFONT)
-			textScale = 0.3f;
+			textScale = 0.35f;
 		else
-			textScale = 0.25f;
+			textScale = 0.2f;
 
-		UI_Text_Paint(x , y, textScale, credits[n].color, credits[n].string, 0, 0, credits[n].style | UI_DROPSHADOW,
-					  &uis.freeSansBoldFont);
+		VectorSet4(color, credits[n].color[0], credits[n].color[1], credits[n].color[2], 0.0f);
 
-		// re-adjust y for next line
-		//textHeight = UI_Text_Height(credits[n].string, textScale, 0, &uis.freeSerifBoldFont);
-		//y += textHeight * 3;
+		if(y <= 0 || y >=480)
+		{
+			color[3] = 0;
+		} 
+		else
+		{
 
-		y += SMALLCHAR_HEIGHT;
+			color[3] = sin(M_PI / 480.0f  * y) ;
+
+		}
+
+		textZoom = color[3] * 4 * textScale;
+
+		if(textZoom > textScale)
+			textZoom = textScale;
+
+		textScale = textZoom;
+
+		if(credits[n].style & UI_GIANTFONT)
+			UI_DrawRect(0, y-color[3]*20 + (sin(uis.realtime / 100.0f) * 10 * ( 1.0f - color[3])), 640, 3+color[3]*40, color_cursorLines);
+		else if(credits[n].style & UI_BIGFONT)
+			UI_DrawRect(0, y-color[3]*10 + (sin(uis.realtime / 100.0f) * 10 * ( 1.0f - color[3])), 640, 1+color[3]*20, color_cursorLines);
+
+
+
+		UI_Text_Paint(x , y, textScale, color, credits[n].string, 0, 0, credits[n].style | UI_DROPSHADOW,	  &uis.freeSansBoldFont);
+
+		y += SMALLCHAR_HEIGHT+4;
 
 		/*
 		   if(credits[n].style & UI_SMALLFONT)
