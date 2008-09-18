@@ -587,6 +587,15 @@ typedef struct particle_s
 #define NUM_SAVED_STATES (CMD_BACKUP + 2)
 //unlagged - optimized prediction
 
+
+#define NUM_PROGRESS 40
+
+typedef struct {
+ 	char     	info[100];
+	qboolean	strong;
+} progressInfo_t;
+
+
 typedef struct
 {
 	int             clientFrame;	// incremented each frame
@@ -666,7 +675,8 @@ typedef struct
 	float           zoomSensitivity;
 
 	// information screen text during loading
-	char            infoScreenText[MAX_STRING_CHARS];
+	progressInfo_t 	progressInfo[NUM_PROGRESS];
+	int 		progress;
 
 	// scoreboard
 	int             scoresRequestTime;
@@ -1043,6 +1053,9 @@ typedef struct
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSansBoldFont;
 	fontInfo_t      freeSerifBoldFont;
+	fontInfo_t      freeSerifFont;
+	fontInfo_t      freeSansFont;
+
 	//otty: new font for HUD  
 	fontInfo_t      hudNumberFont;
 
@@ -1445,6 +1458,11 @@ extern vmCvar_t cg_recordSPDemoName;
 extern vmCvar_t cg_obeliskRespawnDelay;
 #endif
 
+//TeamColors
+extern	vec4_t    redTeamColor;
+extern	vec4_t    blueTeamColor;
+extern	vec4_t    baseTeamColor;
+
 //unlagged - client options
 extern vmCvar_t cg_delag;
 extern vmCvar_t cg_debugDelag;
@@ -1457,6 +1475,7 @@ extern vmCvar_t cl_timeNudge;
 extern vmCvar_t cg_latentSnaps;
 extern vmCvar_t cg_latentCmds;
 extern vmCvar_t cg_plOut;
+
 
 //unlagged - client options
 
@@ -1726,7 +1745,7 @@ void            CG_TransitionEntity(centity_t * cent);
 //
 // cg_info.c
 //
-void            CG_LoadingString(const char *s);
+void 		CG_LoadingString(const char *s, qboolean strong);
 void            CG_DrawInformation(void);
 
 //

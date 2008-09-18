@@ -24,95 +24,103 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_info.c -- display information while data is being loading
 #include "cg_local.h"
 
+vec4_t          colorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// lines color
+vec4_t          colorText = { 0.9f, 0.9f, 1.0f, 0.75f };	// text color
+vec4_t          colorProgress = { 0.7f, 0.7f, 1.0f, 0.2f };	// progress color
+
+vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.75f };	// light gray
+vec4_t          text_color_normal = { 0.9f, 0.9f, 1.0f, 0.5f };	// light blue/gray
+vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright white
+
+vec4_t          text_color_warning = { 0.90f, 0.10f, 0.10f, 0.75f };	// bright white
+
+qhandle_t       load0 = NULL;
+qhandle_t       load1 = NULL;
+
+qhandle_t       levelshot = NULL;
+qhandle_t       menuback = NULL;
+qhandle_t       detail = NULL;
+
+
 /*
 ======================
 CG_LoadingString
 ======================
 */
-void CG_LoadingString(const char *s)
+void CG_LoadingString(const char *s, qboolean strong)
 {
-	Q_strncpyz(cg.infoScreenText, s, sizeof(cg.infoScreenText));
+
+	Q_strncpyz(cg.progressInfo[cg.progress].info, s, sizeof(cg.progressInfo[cg.progress].info));
+	cg.progressInfo[cg.progress].strong = strong;
+	cg.progress++;
+	
+	if(cg.progress > NUM_PROGRESS)
+		cg.progress = NUM_PROGRESS;
 
 	trap_UpdateScreen();
 }
 
 /*
 ======================
-CG_DrawProgressBar
+CG_DrawProgress
 ======================
 */
-static void CG_DrawProgressBar(void)
+static void CG_DrawProgress(void)
 {
-	int             x, y, w, status = 0;
+	int             x,y;
 	float           rectColor[4];
+	const char     *s = NULL;
+	int 		i;
+	vec4_t 		color;
 
-	w = 400 - SMALLCHAR_WIDTH;
-	x = (SCREEN_WIDTH - w) / 2;
-	y = 463 - 9;
-	rectColor[0] = 0.0f;
-	rectColor[1] = 0.0f;
-	rectColor[2] = 0.0f;
-	rectColor[3] = 0.4f;
+	if(cg.progress == 0 ){
+		CG_Text_PaintAligned(230, 228, "Precaching ... ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
 
-	CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor);	// semi black progress bar
-
-	rectColor[0] = 0.7f;
-	rectColor[1] = 0.0f;
-	rectColor[2] = 0.0f;
-	rectColor[3] = 0.4f;
-
-	if(cg.infoScreenText[0])
-	{
-		if(Q_strncmp(cg.infoScreenText, "sounds", sizeof(cg.infoScreenText)) == 0)
-			status = 0;
-		else if(Q_strncmp(cg.infoScreenText, "collision map", sizeof(cg.infoScreenText)) == 0)
-			status = 1;
-		else if(Q_strncmp(cg.infoScreenText, "graphics", sizeof(cg.infoScreenText)) == 0)
-			status = 2;
-		else if(Q_strncmp(cg.infoScreenText, "game media", sizeof(cg.infoScreenText)) == 0)
-			status = 3;
-		else if(Q_strncmp(cg.infoScreenText, "effects", sizeof(cg.infoScreenText)) == 0)
-			status = 4;
-		else if(Q_strncmp(cg.infoScreenText, "clients", sizeof(cg.infoScreenText)) == 0)
-			status = 5;
 	}
 	else
 	{
-		status = 6;				// we are awaiting the snapshot
+		CG_Text_PaintAligned(230, 228, "Loading ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(230, 228, va(" %i %% ...", (int)(100 / NUM_PROGRESS * cg.progress)), 0.3f,UI_LEFT  | UI_DROPSHADOW , colorText, &cgs.media.freeSansBoldFont);
 	}
 
-	// draw the red progress bar
-	switch (status)
+	x = 0;
+	y = 450;
+
+	for(i = 0;  i < NUM_PROGRESS; i ++)
 	{
-		default:
-		case 0:
-			CG_FillRect(0, y, SCREEN_WIDTH - 500, 18, rectColor);
-			break;
-
-		case 1:
-			CG_FillRect(0, y, SCREEN_WIDTH - 425, 18, rectColor);
-			break;
-
-		case 2:
-			CG_FillRect(0, y, SCREEN_WIDTH - 325, 18, rectColor);
-			break;
-
-		case 3:
-			CG_FillRect(0, y, SCREEN_WIDTH - 235, 18, rectColor);
-			break;
-
-		case 4:
-			CG_FillRect(0, y, SCREEN_WIDTH - 150, 18, rectColor);
-			break;
-
-		case 5:
-			CG_FillRect(0, y, SCREEN_WIDTH - 75, 18, rectColor);
-			break;
-
-		case 6:
-			CG_FillRect(0, y, SCREEN_WIDTH, 18, rectColor);
-			break;
+		CG_DrawPic(x + i*16 , y, 16, 16, load0);
 	}
+
+	CG_DrawRect(0, 440-cg.progress*12, 640, 1, 1, colorLines);
+
+	x = 0;
+	for(i = 0;  i < cg.progress; i ++)
+	{
+		VectorCopy4( colorProgress, color);
+
+		if(cg.progressInfo[i].strong)
+			color[3] *= 2;
+	
+		CG_Text_PaintAligned(20, 440-i*12, cg.progressInfo[i].info, 0.2f, 0, color, &cgs.media.freeSansBoldFont);
+
+		CG_DrawPic(x + i*16 , y, 16, 16, load1);
+
+		if( i == cg.progress -1)
+		{
+
+			CG_DrawRect(x + i*16 + 8, 0,   1, 480, 1, colorLines);
+			CG_DrawRect(0       , y-4, 640,   1, 1, colorLines);
+
+			CG_Text_PaintAligned(x + i*16 + 8, y-8, cg.progressInfo[i].info, 0.2f, UI_RIGHT , colorProgress, &cgs.media.freeSansBoldFont);
+
+		}
+	}
+
+
+#if 0
+	//find out how many cg.progress we made...
+	Com_Printf("Progress: %i\n", cg.progress);
+#endif
 }
 
 /*
@@ -129,93 +137,109 @@ void CG_DrawInformation(void)
 	const char     *sysInfo;
 	int             x, y, w;
 	int             value;
-	qhandle_t       levelshot;
-	qhandle_t       detail;
+
 	char            buf[1024];
 	char            st[1024];
+
+	int 		y_offset;
 
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
 
 	s = Info_ValueForKey(info, "mapname");
-	levelshot = trap_R_RegisterShaderNoMip(va("levelshots/%s.tga", s));
+
+	if(!levelshot)
+		levelshot = trap_R_RegisterShaderNoMip(va("levelshots/%s.tga", s));
 	if(!levelshot)
 		levelshot = trap_R_RegisterShaderNoMip("menu/art/unknownmap");
 
+	if(!load0)
+		load0 = trap_R_RegisterShaderNoMip("ui/load0");
+	if(!load1)
+		load1 = trap_R_RegisterShaderNoMip("ui/load1");
+
+
+	if(!menuback)
+		menuback = trap_R_RegisterShaderNoMip("menuback");
+
+	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menuback);
+
+	//lines
+	CG_DrawRect(0, 218, 640, 20, 1, colorLines);
+	CG_DrawRect(440, 0, 20, 480, 1, colorLines);
+
+	CG_DrawRect(16, 0, 1, 480, 1, colorLines);
+
+
+
+
+	//mapshot
 	trap_R_SetColor(NULL);
-	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot);
+	CG_DrawPic(320, 140, 240, 160, levelshot);
 
 	// blend a detail texture over it
-	detail = trap_R_RegisterShader("levelShotDetail");
-	trap_R_DrawStretchPic(0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail);
+	if(!detail)
+		detail = trap_R_RegisterShader("ui/maps_select");
+	CG_DrawPic(320, 140, 240, 160, detail);
 
-	// draw the progress bar
-	CG_DrawProgressBar();
+	// draw the cg.progress
+	CG_DrawProgress();
 
-	// the first 150 rows are reserved for the client connection
-	// screen to write into
-	if(cg.infoScreenText[0])
+
+	// server-specific message of the day
+	s = CG_ConfigString(CS_MOTD);
+	if(s[0])
 	{
-		s = va("Loading... %s", cg.infoScreenText);
-		CG_Text_PaintAligned(320, 463, s, 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-	}
-	else
-	{
-		s = va("Awaiting snapshot...");
-		CG_Text_PaintAligned(320, 463, s, 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(320, 110, s, 0.2f, UI_CENTER | UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
 	}
 
 	// draw info string information
-	y = 180 - 32;
+	y = 320;
+	y_offset = 14;
+	x = 340;
 
 	// don't print server lines if playing a local game
 	trap_Cvar_VariableStringBuffer("sv_running", buf, sizeof(buf));
-	if(!atoi(buf))
+	//if(!atoi(buf))
 	{
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
 		s = va("%s", buf);
-		CG_Text_PaintAligned(320, y, s, 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-		y += PROP_HEIGHT;
+		CG_Text_PaintAligned(x, y, s, 0.2f, 0, text_color_normal, &cgs.media.freeSansBoldFont);
+		y += y_offset;
 
 		// pure server
 		s = Info_ValueForKey(sysInfo, "sv_pure");
 		if(s[0] == '1')
 		{
-
-			CG_Text_PaintAligned(320, y, "Pure Server", 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-			y += PROP_HEIGHT;
+			CG_Text_PaintAligned(x, y, "Pure Server", 0.2f, 0, text_color_normal, &cgs.media.freeSansBoldFont);
+			y += y_offset;
 		}
 
-		// server-specific message of the day
-		s = CG_ConfigString(CS_MOTD);
-		if(s[0])
-		{
-			CG_Text_PaintAligned(320, y, s, 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-			y += PROP_HEIGHT;
-		}
 
-		// some extra space after hostname and motd
-		y += 10;
+
 	}
 
 	// map-specific message (long map name)
 	s = CG_ConfigString(CS_MESSAGE);
 	if(s[0])
 	{
-		CG_Text_PaintAligned(320, y, s, 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-		y += PROP_HEIGHT;
+		CG_Text_PaintAligned(x, y, s, 0.2f, 0, text_color_normal, &cgs.media.freeSansBoldFont);
+		y += y_offset;
 	}
 
 	// cheats warning
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		CG_Text_PaintAligned(320, y, "CHEATS ARE ENABLED", 0.3f, UI_CENTER | UI_DROPSHADOW, colorRed,
+		CG_Text_PaintAligned(x, y, "Cheats are enabled", 0.2f, 0, text_color_normal,
 							 &cgs.media.freeSansBoldFont);
-		y += PROP_HEIGHT;
+
+		CG_Text_PaintAligned(x-10, y+1, ">", 0.2f, 0, text_color_warning,  &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x+110, y+1, "<", 0.2f, 0, text_color_warning,  &cgs.media.freeSansBoldFont);
+
+		y += y_offset;
 	}
 
 	// game type
@@ -251,16 +275,16 @@ void CG_DrawInformation(void)
 			s = "Unknown Gametype";
 			break;
 	}
-	CG_Text_PaintAligned(320, y, s, 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-	y += PROP_HEIGHT / PROP_SMALL_SIZE_SCALE;
+	CG_Text_PaintAligned(x, y, s, 0.2f, 0, text_color_normal, &cgs.media.freeSansBoldFont);
+	y += y_offset;
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if(value)
 	{
 
-		CG_Text_PaintAligned(320, y, va("timelimit %i", value), 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite,
+		CG_Text_PaintAligned(x, y, va("Timelimit %i", value), 0.2f, 0, text_color_normal,
 							 &cgs.media.freeSansBoldFont);
-		y += PROP_HEIGHT;
+		y += y_offset;
 	}
 
 	if(cgs.gametype < GT_CTF)
@@ -268,10 +292,10 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "fraglimit"));
 		if(value)
 		{
-			CG_Text_PaintAligned(320, y, va("fraglimit %i", value), 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite,
+			CG_Text_PaintAligned(x, y, va("Fraglimit %i", value), 0.2f, 0, text_color_normal,
 								 &cgs.media.freeSansBoldFont);
 
-			y += PROP_HEIGHT;
+			y += y_offset;
 		}
 	}
 	else if(cgs.gametype >= GT_CTF)
@@ -279,9 +303,12 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "capturelimit"));
 		if(value)
 		{
-			CG_Text_PaintAligned(320, y, va("capturelimit %i", value), 0.3f, UI_CENTER | UI_DROPSHADOW, colorWhite,
+			CG_Text_PaintAligned(x, y, va("Capturelimit %i", value), 0.2f, 0, text_color_normal,
 								 &cgs.media.freeSansBoldFont);
-			y += PROP_HEIGHT;
+			y += y_offset;
 		}
 	}
+
 }
+
+

@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+vec4_t    redTeamColor = { 0.9f, 0.0f, 0.2f, 0.80f };
+vec4_t    blueTeamColor = { 0.2f, 0.0f, 0.9f, 0.80f };
+vec4_t    baseTeamColor = { 1.0f, 1.0f, 1.0f, 0.80f};
+
+
 #ifdef MISSIONPACK
 #include "../ui/ui_shared.h"
 
@@ -1119,18 +1124,18 @@ void CG_DrawStatusBarNew(void)
 	vec4_t          healthcolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 	vec4_t          armorcolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 	vec4_t          ammocolor = { 1.0f, 1.0f, 1.0f, 0.80f };
-
 	vec4_t          scorecolor = { 1.0f, 1.0f, 1.0f, 0.80f };
 
 	ps = &cg.snap->ps;
 	cent = &cg_entities[cg.snap->ps.clientNum];
 
+
 	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorSet4(basecolor, 0.35f, 0.35f, 0.95f, 0.80f);
+		VectorCopy4( blueTeamColor, basecolor);
 	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
-		VectorSet4(basecolor, 0.95f, 0.35f, 0.35f, 0.80f);
+		VectorCopy4( redTeamColor, basecolor);
 	else
-		VectorSet4(basecolor, 1.0f, 1.0f, 1.0f, 0.80f);
+		VectorCopy4( baseTeamColor, basecolor);
 
 
 	// top stats bar
@@ -1169,7 +1174,7 @@ void CG_DrawStatusBarNew(void)
 
 		//background left - red team
 
-		VectorSet4(color, 0.95f, 0.35f, 0.35f, 0.8f);
+		VectorCopy4( redTeamColor, color);
 
 		score = cgs.scores1;
 
@@ -1198,7 +1203,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 		//background right - blue team
-		VectorSet4(color, 0.5f, 0.5f, 0.9f, 0.80f);
+		VectorCopy4( blueTeamColor, color);
 		score = cgs.scores2;
 
 		if(cgs.gametype >= GT_CTF)

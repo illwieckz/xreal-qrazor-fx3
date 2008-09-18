@@ -683,6 +683,7 @@ static void CG_RegisterSounds(void)
 #ifdef MISSIONPACK
 	CG_LoadVoiceChats();
 #endif
+	CG_LoadingString("feedback", qfalse);
 
 	cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/feedback/1_minute.ogg", qtrue);
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound("sound/feedback/5_minute.ogg", qtrue);
@@ -698,6 +699,7 @@ static void CG_RegisterSounds(void)
 #ifdef MISSIONPACK
 	cgs.media.countPrepareTeamSound = trap_S_RegisterSound("sound/feedback/prepare_team.wav", qtrue);
 #endif
+	CG_LoadingString("team sounds", qfalse);
 
 	if(cgs.gametype >= GT_TEAM || cg_buildScript.integer)
 	{
@@ -754,6 +756,7 @@ static void CG_RegisterSounds(void)
 		cgs.media.enemyTookTheFlagSound = trap_S_RegisterSound("sound/teamplay/voc_enemy_1flag.ogg", qtrue);
 #endif
 	}
+	CG_LoadingString("weapon sounds", qfalse);
 
 	cgs.media.tracerSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_2.ogg", qfalse);
 	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.ogg", qfalse);
@@ -781,6 +784,8 @@ static void CG_RegisterSounds(void)
 	cgs.media.scoutSound = trap_S_RegisterSound("sound/items/cl_scout.wav", qfalse);
 #endif
 
+	CG_LoadingString("ambient sounds", qfalse);
+
 	cgs.media.teleInSound = trap_S_RegisterSound("sound/player/telein.ogg", qfalse);
 	cgs.media.teleOutSound = trap_S_RegisterSound("sound/player/teleout.ogg", qfalse);
 	cgs.media.respawnSound = trap_S_RegisterSound("sound/items/respawn.ogg", qfalse);
@@ -794,6 +799,8 @@ static void CG_RegisterSounds(void)
 	cgs.media.hitSoundHighArmor = trap_S_RegisterSound("sound/feedback/hithi.wav", qfalse);
 	cgs.media.hitSoundLowArmor = trap_S_RegisterSound("sound/feedback/hitlo.wav", qfalse);
 #endif
+
+	CG_LoadingString("medal sounds", qfalse);
 
 	cgs.media.impressiveSound = trap_S_RegisterSound("sound/feedback/impressive.ogg", qtrue);
 	cgs.media.excellentSound = trap_S_RegisterSound("sound/feedback/excellent.ogg", qtrue);
@@ -818,6 +825,8 @@ static void CG_RegisterSounds(void)
 	cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/water_under.ogg", qfalse);
 
 	cgs.media.jumpPadSound = trap_S_RegisterSound("sound/world/jumppad.wav", qfalse);
+
+	CG_LoadingString("footsteps", qfalse);
 
 	for(i = 0; i < 4; i++)
 	{
@@ -847,6 +856,8 @@ static void CG_RegisterSounds(void)
 	// raynorpat: used to be a standard strcpy, but can be exploited via
 	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
+
+	CG_LoadingString("item sounds", qfalse);
 
 	for(i = 1; i < bg_numItems; i++)
 	{
@@ -906,6 +917,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.wstbimpdSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpd.wav", qfalse);
 	cgs.media.wstbactvSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbactv.wav", qfalse);
 #endif
+	CG_LoadingString("misc sounds", qfalse);
 
 	cgs.media.regenSound = trap_S_RegisterSound("sound/items/regen.wav", qfalse);
 	cgs.media.protectSound = trap_S_RegisterSound("sound/items/protect3.wav", qfalse);
@@ -947,14 +959,13 @@ static void CG_RegisterGraphics(void)
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
 	trap_R_ClearScene();
 
-
-
-	CG_LoadingString(cgs.mapname);
+	CG_LoadingString(cgs.mapname, qfalse);
 
 	trap_R_LoadWorldMap(cgs.mapname);
 
+	CG_LoadingString("precaching", qfalse);
+
 	// precache status bar pics
-	CG_LoadingString("game media");
 
 	for(i = 0; i < 11; i++)
 	{
@@ -963,6 +974,8 @@ static void CG_RegisterGraphics(void)
 
 
 	//otty: register HUD media
+
+	CG_LoadingString("interface", qfalse);
 
 	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
 	cgs.media.hud_top_team_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
@@ -995,21 +1008,24 @@ static void CG_RegisterGraphics(void)
 	cgs.media.hud_icon_health = trap_R_RegisterShaderNoMip("hud/hud_icon_health");
 	cgs.media.hud_icon_armor = trap_R_RegisterShaderNoMip("hud/hud_icon_armor");
 
+	CG_LoadingString("rankings", qfalse);
+
 	cgs.media.hud_scoreboard_title = trap_R_RegisterShaderNoMip("hud/scoreboard_title");
 	cgs.media.hud_scoreboard_title_overlay = trap_R_RegisterShaderNoMip("hud/scoreboard_title_overlay");
 	cgs.media.hud_scoreboard = trap_R_RegisterShaderNoMip("hud/scoreboard");
+	cgs.media.scoreboardName = trap_R_RegisterShaderNoMip("menu/tab/name.tga");
+	cgs.media.scoreboardPing = trap_R_RegisterShaderNoMip("menu/tab/ping.tga");
+	cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip("menu/tab/score.tga");
+	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip("menu/tab/time.tga");
 
 
+	CG_LoadingString("effects", qfalse);
 
 
 	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
 
 	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
 
-	cgs.media.scoreboardName = trap_R_RegisterShaderNoMip("menu/tab/name.tga");
-	cgs.media.scoreboardPing = trap_R_RegisterShaderNoMip("menu/tab/ping.tga");
-	cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip("menu/tab/score.tga");
-	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip("menu/tab/time.tga");
 
 	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader("shotgunSmokePuff");
@@ -1031,6 +1047,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.selectShader = trap_R_RegisterShader("gfx/2d/select");
 	cgs.media.weaponSelectShader = trap_R_RegisterShader("gfx/2d/weapon_select");
 
+	CG_LoadingString("visuals", qfalse);
+
 	for(i = 0; i < NUM_CROSSHAIRS; i++)
 	{
 		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/2d/crosshair%c", 'a' + i));
@@ -1044,6 +1062,7 @@ static void CG_RegisterGraphics(void)
 
 
 
+	CG_LoadingString("notifications", qfalse);
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
@@ -1055,6 +1074,8 @@ static void CG_RegisterGraphics(void)
 
 	// globe mapping shaders
 	cgs.media.shadowProjectedLightShader = trap_R_RegisterShaderLightAttenuation("lights/shadowProjectedLight");
+
+	CG_LoadingString("powerups", qfalse);
 
 	// powerup shaders
 	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
@@ -1080,6 +1101,8 @@ static void CG_RegisterGraphics(void)
 		cgs.media.redCubeIcon = trap_R_RegisterShader("icons/skull_red");
 		cgs.media.blueCubeIcon = trap_R_RegisterShader("icons/skull_blue");
 	}
+
+	CG_LoadingString("icons", qfalse);
 
 #ifdef MISSIONPACK
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer)
@@ -1140,6 +1163,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff");
 #endif
 
+	CG_LoadingString("teams", qfalse);
+
 	if(cgs.gametype >= GT_TEAM || cg_buildScript.integer)
 	{
 		cgs.media.friendShader = trap_R_RegisterShader("sprites/friend");
@@ -1149,6 +1174,8 @@ static void CG_RegisterGraphics(void)
 		cgs.media.blueKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikblu");
 #endif
 	}
+
+	CG_LoadingString("model icons", qfalse);
 
 	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3", qtrue);
 	cgs.media.armorIcon = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
@@ -1192,6 +1219,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/selectedhealth.tga");
 #endif
 
+	CG_LoadingString("awards", qfalse);
+
 	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3", qtrue);
 	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
 	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
@@ -1209,11 +1238,15 @@ static void CG_RegisterGraphics(void)
 	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
+	CG_LoadingString("items", qfalse);
+
 	for(i = 1; i < bg_numItems; i++)
 	{
 		if(items[i] == '1' || cg_buildScript.integer)
 			CG_RegisterItemVisuals(i);
 	}
+
+	CG_LoadingString("marks", qfalse);
 
 	// wall marks
 	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");
@@ -1242,6 +1275,8 @@ static void CG_RegisterGraphics(void)
 			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
 		}
 	}
+
+	CG_LoadingString("models", qfalse);
 
 	// register all the server specified models
 	for(i = 1; i < MAX_MODELS; i++)
@@ -1278,6 +1313,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
 	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
 	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
+
+	CG_LoadingString("particles", qfalse);
 
 	CG_InitParticles();
 
@@ -1339,8 +1376,11 @@ static void CG_RegisterClients(void)
 			continue;
 		}
 
+		CG_LoadingString(va("precaching %i", i), qfalse);
+
 		CG_NewClientInfo(i);
 	}
+
 
 	CG_BuildSpectatorString();
 }
@@ -2207,6 +2247,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.clientNum = clientNum;
 
+	cg.progress = 0;
+
 	cgs.processedSnapshotNum = serverMessageNum;
 	cgs.serverCommandSequence = serverCommandSequence;
 
@@ -2219,6 +2261,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	// otty: register fonts here, otherwise CG_LoadingString wont work
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &cgs.media.freeSansBoldFont);
+	trap_R_RegisterFont("fonts/Vera.ttf", 48, &cgs.media.freeSansFont);
+	trap_R_RegisterFont("fonts/VeraSe.ttf", 48, &cgs.media.freeSerifFont);
 	trap_R_RegisterFont("fonts/VeraSeBd.ttf", 48, &cgs.media.freeSerifBoldFont);
 
 	//otty: font for HUD Numbers
@@ -2281,7 +2325,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_ParseServerinfo();
 
 	// load the new map
-	CG_LoadingString("collision map");
+	CG_LoadingString("...", qfalse);
 
 	trap_CM_LoadMap(cgs.mapname);
 
@@ -2291,15 +2335,15 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.loading = qtrue;			// force players to load instead of defer
 
-	CG_LoadingString("sounds");
+	CG_LoadingString("sounds", qtrue);
 
 	CG_RegisterSounds();
 
-	CG_LoadingString("graphics");
+	CG_LoadingString("graphics", qtrue);
 
 	CG_RegisterGraphics();
 
-	CG_LoadingString("clients");
+	CG_LoadingString("clients", qtrue);
 
 	CG_RegisterClients();		// if low on memory, some clients will be deferred
 
@@ -2310,19 +2354,25 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.loading = qfalse;		// future players will be deferred
 
+	CG_LoadingString("entities", qtrue);
+
 	CG_InitLocalEntities();
+
+	CG_LoadingString("polys", qtrue);
 
 	CG_InitMarkPolys();
 
-	// remove the last loading update
-	cg.infoScreenText[0] = 0;
 
 	// Make sure we have update values (scores)
 	CG_SetConfigValues();
 
+	CG_LoadingString("music", qtrue);
+
 	CG_StartMusic();
 
-	CG_LoadingString("");
+	CG_LoadingString("", qfalse);
+
+	// remove the last loading update
 
 #ifdef MISSIONPACK
 	CG_InitTeamChat();
@@ -2331,6 +2381,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds(qtrue);
+
+	cg.progress = 0;
+
 }
 
 /*

@@ -497,8 +497,6 @@ qboolean CG_DrawScoreboardNew(void)
 	qtime_t         tm;
 	char            st[1024];
 	vec4_t          basecolor;
-	vec4_t          redcolor;
-	vec4_t          bluecolor;
 	vec4_t          bgcolor;
 	int             i;
 	score_t        *score;
@@ -524,17 +522,13 @@ qboolean CG_DrawScoreboardNew(void)
 	if(cg.warmup && !cg.showScores)
 		return qfalse;
 
-
-
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorSet4(basecolor, 0.35f, 0.35f, 0.95f, 0.80f);
+		VectorCopy4( blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorSet4(basecolor, 0.95f, 0.35f, 0.35f, 0.80f);
+		VectorCopy4( redTeamColor, basecolor);
 	else
-		VectorSet4(basecolor, 1.0f, 1.0f, 1.0f, 0.80f);
+		VectorCopy4( baseTeamColor, basecolor);
 
-	VectorSet4(bluecolor, 0.35f, 0.35f, 0.95f, 0.80f);
-	VectorSet4(redcolor, 0.95f, 0.35f, 0.35f, 0.80f);
 
 	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
 	{
@@ -605,14 +599,14 @@ qboolean CG_DrawScoreboardNew(void)
 		CG_DrawScoreboardTitlebarNew(basecolor, qtrue);
 
 		//red
-		trap_R_SetColor(redcolor);
+		trap_R_SetColor(redTeamColor);
 		CG_DrawPic(SCOREBOARD_RED, 120, 260, 300, cgs.media.hud_scoreboard);
 		trap_R_SetColor(NULL);
 
 		CG_DrawScoreboardHeadlineNew(headline_red);
 
 		//blue
-		trap_R_SetColor(bluecolor);
+		trap_R_SetColor(blueTeamColor);
 		CG_DrawPic(SCOREBOARD_BLUE, 120, 260, 300, cgs.media.hud_scoreboard);
 		trap_R_SetColor(NULL);
 
