@@ -145,22 +145,27 @@ int trap_FS_Seek(fileHandle_t f, long offset, int origin)
 {
 	return syscall(UI_FS_SEEK, f, offset, origin);
 }
+
 qhandle_t trap_R_RegisterModel(const char *name, qboolean forceStatic)
 {
 	return syscall(UI_R_REGISTERMODEL, name, forceStatic);
 }
+
 qhandle_t trap_R_RegisterAnimation(const char *name)
 {
 	return syscall(UI_R_REGISTERANIMATION, name);
 }
+
 int trap_R_AnimNumFrames(qhandle_t hAnim)
 {
 	return syscall(UI_R_ANIMNUMFRAMES, hAnim);
 }
+
 int trap_R_AnimFrameRate(qhandle_t hAnim)
 {
 	return syscall(UI_R_ANIMFRAMERATE, hAnim);
 }
+
 qhandle_t trap_R_RegisterSkin(const char *name)
 {
 	return syscall(UI_R_REGISTERSKIN, name);

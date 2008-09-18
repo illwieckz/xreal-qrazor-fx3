@@ -271,10 +271,10 @@ typedef struct
 	menubitmap_s    framel;
 	menubitmap_s    framer;
 
-	menubitmap_s      graphics;
-//	menutext_s      display;
-	menubitmap_s      sound;
-	menubitmap_s      network;
+	menubitmap_s    graphics;
+//  menutext_s      display;
+	menubitmap_s    sound;
+	menubitmap_s    network;
 
 	menulist_s      list;
 	menulist_s      ratio;
@@ -1610,11 +1610,11 @@ otty: do we need this ?
 
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.banner);
-//	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.framel);
-//	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.framer);
+//  Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.framel);
+//  Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.framer);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.graphics);
-//	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.display);
+//  Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.display);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.sound);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.network);
 
