@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 int             g_console_field_width = 78;
 
 
-#define	NUM_CON_TIMES 4
+#define	NUM_CON_TIMES 5
 
 #define		CON_TEXTSIZE	32768
 typedef struct
@@ -331,8 +331,8 @@ void Con_Init(void)
 {
 	int             i;
 
-	con_notifytime = Cvar_Get("con_notifytime", "3", 0);
-	con_conspeed = Cvar_Get("con_speed", "3", 0);
+	con_notifytime = Cvar_Get("con_notifytime", "4", CVAR_ARCHIVE);
+	con_conspeed = Cvar_Get("con_speed", "3", CVAR_ARCHIVE);
 	con_conshadow = Cvar_Get("con_shadow", "1", CVAR_ARCHIVE);
 	con_clock12hr = Cvar_Get("con_clock12hr", "0", CVAR_ARCHIVE);
 	con_clockSeconds = Cvar_Get("con_clockSeconds", "1", CVAR_ARCHIVE);
@@ -561,11 +561,15 @@ void Con_DrawNotify(void)
 	int             time;
 	int             skip;
 	int             currentColor;
+	vec4_t 		color;
+	float 		alpha;
+	int		offset;
+
 
 	currentColor = 7;
 	re.SetColor(g_color_table[currentColor]);
 
-	v = 0;
+	v = 10;
 	for(i = con.current - NUM_CON_TIMES + 1; i <= con.current; i++)
 	{
 		if(i < 0)
@@ -576,6 +580,9 @@ void Con_DrawNotify(void)
 		time = cls.realtime - time;
 		if(time > con_notifytime->value * 1000)
 			continue;
+		
+		alpha = 1.0f - ( 1.0f / (con_notifytime->value * 1000) * time);	
+
 		text = con.text + (i % con.totallines) * con.linewidth;
 
 		if(cl.snap.ps.pm_type != PM_INTERMISSION && Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME))
@@ -594,10 +601,24 @@ void Con_DrawNotify(void)
 				currentColor = (text[x] >> 8) & 7;
 				re.SetColor(g_color_table[currentColor]);
 			}
-			SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH, v, text[x] & 0xff);
+
+
+			//SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH, v, text[x] & 0xff);
+
+			VectorCopy4( g_color_table[currentColor], color);
+
+			color[3] = alpha;
+
+			//offset = 8 - (alpha * 8); otty: good idea, but looks strange
+			offset =0;
+
+			SCR_Text_PaintSingleChar(cl_conXOffset->integer + con.xadjust + (x + 1) * 5, v-offset, 0.15f, color, text[x] & 0xff, 0, 0, UI_DROPSHADOW, &cls.consoleFont);
+
+
+
 		}
 
-		v += SMALLCHAR_HEIGHT;
+		v += 8;
 	}
 
 	re.SetColor(NULL);
