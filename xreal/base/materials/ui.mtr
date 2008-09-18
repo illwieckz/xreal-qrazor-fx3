@@ -1,3 +1,97 @@
+
+ui/load0
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/load0.png
+		blend blend
+	}
+}
+
+ui/load1
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/load1.png
+		blend blend
+	}
+}
+
+ui/arrows_vert_top
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/arrows_single.png
+		rotate 270
+		blend blend
+	}
+}
+ui/arrows_vert_bot
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/arrows_single.png
+		rotate 90
+		blend blend
+	}
+}
+ui/arrows_vert_0
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/arrows_double.png
+		rotate 90
+		blend blend
+	}
+}
+
+
+
+
+
+ui/arrows_horz_right
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/arrows_single.png
+		rotate 180
+		blend blend
+	}
+}
+ui/arrows_horz_left
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/arrows_single.png
+		blend blend
+	}
+}
+ui/arrows_horz_0
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/arrows_double.png
+		blend blend
+	}
+}
+
+
 ui/maps_select
 {
 	nopicmip
