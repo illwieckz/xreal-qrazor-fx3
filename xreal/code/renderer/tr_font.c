@@ -85,6 +85,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 FT_Library      ftLibrary = NULL;
 #endif
 
+#define FONT_SIZE 512
+
 #define MAX_FONTS 16
 static int      registeredFontCount = 0;
 static fontInfo_t registeredFont[MAX_FONTS];
@@ -353,9 +355,9 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 		scaledHeight = glyph.height;
 
 		// we need to make sure we fit
-		if(*xOut + scaledWidth + 1 >= 255)
+		if(*xOut + scaledWidth + 1 >= (FONT_SIZE - 1))
 		{
-			if(*yOut + (*maxHeight + 1) * 2 >= 255)
+			if(*yOut + (*maxHeight + 1) * 2 >= (FONT_SIZE - 1))
 				//if(*yOut + scaledHeight + 1 >= 255)
 			{
 				//ri.Printf(PRINT_WARNING, "RE_ConstructGlyphInfo: character %c does not fit width and height\n", c);
@@ -374,7 +376,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 				*yOut += *maxHeight + 1;
 			}
 		}
-		else if(*yOut + *maxHeight + 1 >= 255)
+		else if(*yOut + *maxHeight + 1 >= (FONT_SIZE - 1))
 		{
 			//ri.Printf(PRINT_WARNING, "RE_ConstructGlyphInfo: character %c does not fit height\n", c);
 
@@ -386,7 +388,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 		}
 
 		src = bitmap->buffer;
-		dst = imageOut + (*yOut * 256) + *xOut;
+		dst = imageOut + (*yOut * FONT_SIZE) + *xOut;
 
 		if(bitmap->pixel_mode == ft_pixel_mode_mono)
 		{
@@ -418,7 +420,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 				}
 
 				src += glyph.pitch;
-				dst += 256;
+				dst += FONT_SIZE;
 
 			}
 		}
@@ -428,7 +430,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 			{
 				Com_Memcpy(dst, src, glyph.pitch);
 				src += glyph.pitch;
-				dst += 256;
+				dst += FONT_SIZE;
 			}
 		}
 
@@ -437,10 +439,10 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 
 		glyph.imageHeight = scaledHeight;
 		glyph.imageWidth = scaledWidth;
-		glyph.s = (float)*xOut / 256;
-		glyph.t = (float)*yOut / 256;
-		glyph.s2 = glyph.s + (float)scaledWidth / 256;
-		glyph.t2 = glyph.t + (float)scaledHeight / 256;
+		glyph.s = (float)*xOut / FONT_SIZE;
+		glyph.t = (float)*yOut / FONT_SIZE;
+		glyph.s2 = glyph.s + (float)scaledWidth / FONT_SIZE;
+		glyph.t2 = glyph.t + (float)scaledHeight / FONT_SIZE;
 
 		*xOut += scaledWidth + 1;
 	}
@@ -640,7 +642,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 
 			// ran out of room
 			// we need to create an image from the bitmap, set all the handles in the glyphs to this point
-			scaledSize = 256 * 256;
+			scaledSize = FONT_SIZE * FONT_SIZE;
 			newSize = scaledSize * 4;
 			imageBuff = Z_Malloc(newSize);
 			left = 0;
@@ -672,17 +674,17 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.tga", strippedName, imageNumber++, pointSize);
 			if(!ri.FS_FileExists(fileName))
 			{
-				WriteTGA(fileName, imageBuff, 256, 256);
+				WriteTGA(fileName, imageBuff, FONT_SIZE, FONT_SIZE);
 			}
 #elif 1
 			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.png", strippedName, imageNumber++, pointSize);
 			if(!ri.FS_FileExists(fileName))
 			{
-				WritePNG(fileName, imageBuff, 256, 256);
+				WritePNG(fileName, imageBuff, FONT_SIZE, FONT_SIZE);
 			}
 #endif
 
-			image = R_CreateImage(fileName, imageBuff, 256, 256, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+			image = R_CreateImage(fileName, imageBuff, FONT_SIZE, FONT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 			h = RE_RegisterShaderFromImage(fileName, image, qfalse);
 
 			Com_Memset(out, 0, 1024 * 1024);
