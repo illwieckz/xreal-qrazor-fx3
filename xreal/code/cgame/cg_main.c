@@ -2370,19 +2370,20 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_StartMusic();
 
-	CG_LoadingString("", qfalse);
+	//CG_LoadingString("", qfalse);
 
 	// remove the last loading update
+	cg.progress = 0;
 
 #ifdef MISSIONPACK
 	CG_InitTeamChat();
 #endif
 
+
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds(qtrue);
 
-	cg.progress = 0;
 
 }
 
