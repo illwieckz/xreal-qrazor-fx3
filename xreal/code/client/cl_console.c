@@ -60,6 +60,7 @@ extern console_t con;
 
 console_t       con;
 
+cvar_t         *con_conshadow;
 cvar_t         *con_conspeed;
 cvar_t         *con_notifytime;
 cvar_t         *con_showDate;
@@ -331,7 +332,8 @@ void Con_Init(void)
 	int             i;
 
 	con_notifytime = Cvar_Get("con_notifytime", "3", 0);
-	con_conspeed = Cvar_Get("scr_conspeed", "1.5", 0);
+	con_conspeed = Cvar_Get("con_speed", "3", 0);
+	con_conshadow = Cvar_Get("con_shadow", "1", CVAR_ARCHIVE);
 	con_clock12hr = Cvar_Get("con_clock12hr", "0", CVAR_ARCHIVE);
 	con_clockSeconds = Cvar_Get("con_clockSeconds", "1", CVAR_ARCHIVE);
 	con_showClock = Cvar_Get("con_showClock", "1", CVAR_ARCHIVE);
@@ -510,17 +512,24 @@ Draw the editline after a ] prompt
 void Con_DrawInput(vec4_t color)
 {
 	int             y;
+	int 		style;
 
 	if(cls.state != CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_CONSOLE))
 	{
 		return;
 	}
 
+	if(con_conshadow->value > 0)
+		style =  UI_DROPSHADOW;
+	else
+		style =  0;
+
+
 	//y = con.vislines - (SMALLCHAR_HEIGHT * 2);
 
 	//re.SetColor(con.color);
 
-	SCR_Text_Paint(20, 234, 0.15f, color, "]", 0, 0, UI_DROPSHADOW | UI_PULSE, &cls.consoleFont);
+	SCR_Text_Paint(20, 234, 0.15f, color, "]", 0, 0, style | UI_PULSE, &cls.consoleFont);
 
 	Field_Draw(&g_consoleField, 26, 234, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
 
@@ -626,6 +635,12 @@ Con_DrawSolidConsole
 Draws the console with the solid background
 ================
 */
+
+int             nextLine = 0;
+int             lineY = 10;
+int             lineX = 10;
+int		vel = 3;
+
 void Con_DrawSolidConsole(float frac)
 {
 	int             i, x, y;
@@ -645,6 +660,7 @@ void Con_DrawSolidConsole(float frac)
 	qtime_t         dt;
 	float           alpha;
 	int             chr;
+	int 		style;
 
 	lines = cls.glconfig.vidHeight * frac;
 	if(lines <= 0)
@@ -652,6 +668,12 @@ void Con_DrawSolidConsole(float frac)
 
 	if(lines > cls.glconfig.vidHeight)
 		lines = cls.glconfig.vidHeight;
+
+
+	if(con_conshadow->value > 0)
+		style =  UI_DROPSHADOW;
+	else
+		style =  0;
 
 	// on wide screens, we will center the text
 	con.yadjust = 0;
@@ -669,16 +691,53 @@ void Con_DrawSolidConsole(float frac)
 	color[2] = 0.30f;
 	color[3] = alpha * 0.85f;
 
-
 	re.SetColor(color);
 	SCR_FillRect(10, 10, 620, 230, color);
 	re.SetColor(NULL);
 
+	if(cls.realtime > nextLine)
+	{
+		lineY += vel;
 
-	color[0] = 0.6f;
-	color[1] = 0.6f;
-	color[2] = 0.8f;
-	color[3] *= 0.5f;
+		if(lineY >= 240 || lineY <= 10){
+			if(vel == 3)
+				vel = -3;
+			else
+				vel = 3;
+		}
+
+		lineX += 4;
+
+		if(lineX >= 620)
+			lineX = 10;
+
+		nextLine = cls.realtime + 10;
+	}
+
+	color[0] = 0.7f;
+	color[1] = 0.7f;
+	color[2] = 0.9f;
+	color[3] *= 0.1f;
+
+	SCR_FillRect(lineX, 10, 1, 230, color);
+
+	SCR_FillRect(10, lineY, 620, 1, color);
+
+	SCR_Text_PaintAligned(460, lineY, va("%i%i", lineY, (cls.realtime - nextLine)), 0.175f, UI_RIGHT , color, &cls.consoleFont);
+
+	i = lineY + 40*sin(cls.realtime / 600.0f);
+
+	if(i > 240)
+		i = 240;
+	if(lineY < 10)
+		i = 10;
+
+	SCR_FillRect(10,i , 620, 1, color);
+
+	color[0] = 0.7f;
+	color[1] = 0.7f;
+	color[2] = 0.9f;
+	color[3] = alpha * 0.75f;
 
 	SCR_FillRect(10, 10, 620, 1, color);	//top
 	SCR_FillRect(10, 240, 620, 1, color);	//buttom
@@ -695,19 +754,18 @@ void Con_DrawSolidConsole(float frac)
 	VectorSet4(fontColorHighlight, 1.0f, 1.0f, 1.0f, alpha * 1.5f);
 
 	//version string
-	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
+	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
 
 
 	// draw the date
 	if(con_showDate->integer)
 	{
 
-
 		Com_RealTime(&dt);
 		displayDate[0] = '\0';
 		Q_strcat(displayDate, sizeof(displayDate), va("%02d/%02d/%04d", dt.tm_mday, dt.tm_mon + 1, 1900 + dt.tm_year));
 
-		SCR_Text_PaintAligned(626, 220, displayDate, 0.175f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
+		SCR_Text_PaintAligned(626, 220, displayDate, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
 
 	}
 
@@ -731,7 +789,7 @@ void Con_DrawSolidConsole(float frac)
 		}
 
 
-		SCR_Text_PaintAligned(626, 210, displayTime, 0.175f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
+		SCR_Text_PaintAligned(626, 210, displayTime, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
 
 	}
 
@@ -756,7 +814,7 @@ void Con_DrawSolidConsole(float frac)
 		{
 			for(x = 0; x < con.linewidth - 12; x += 3)
 				SCR_Text_PaintSingleChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH + 15, y, 0.15f, fontColorHighlight, '^', 0, 0,
-										 UI_DROPSHADOW, &cls.consoleBoldFont);
+										 style, &cls.consoleBoldFont);
 
 			y -= SMALLCHAR_HEIGHT;
 			rows--;
@@ -803,8 +861,7 @@ void Con_DrawSolidConsole(float frac)
 			VectorCopy4(g_color_table[currentColor], color);
 			color[3] = alpha * 1.5f;
 
-			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5, y, 0.15f, color, text[x] & 0xff, 0, 0, UI_DROPSHADOW,
-									 &cls.consoleFont);
+			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5, y, 0.15f, color, text[x] & 0xff, 0, 0, style, &cls.consoleFont);
 
 
 		}
@@ -885,6 +942,7 @@ void Con_RunConsole(void)
 		if(con.finalFrac < con.displayFrac)
 			con.displayFrac = con.finalFrac;
 	}
+
 
 }
 

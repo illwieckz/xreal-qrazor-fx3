@@ -2260,10 +2260,10 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.media.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 
 	// otty: register fonts here, otherwise CG_LoadingString wont work
-	trap_R_RegisterFont("fonts/VeraBd.ttf", 32, &cgs.media.freeSansBoldFont);
-	trap_R_RegisterFont("fonts/Vera.ttf", 32, &cgs.media.freeSansFont);
-	trap_R_RegisterFont("fonts/VeraSe.ttf", 32, &cgs.media.freeSerifFont);
-	trap_R_RegisterFont("fonts/VeraSeBd.ttf", 32, &cgs.media.freeSerifBoldFont);
+	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &cgs.media.freeSansBoldFont);
+	trap_R_RegisterFont("fonts/Vera.ttf", 48, &cgs.media.freeSansFont);
+	trap_R_RegisterFont("fonts/VeraSe.ttf", 48, &cgs.media.freeSerifFont);
+	trap_R_RegisterFont("fonts/VeraSeBd.ttf", 48, &cgs.media.freeSerifBoldFont);
 
 	//otty: font for HUD Numbers
 	trap_R_RegisterFont("fonts/REPUB5__.ttf", 48, &cgs.media.hudNumberFont);

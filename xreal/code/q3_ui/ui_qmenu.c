@@ -1899,9 +1899,9 @@ void Menu_Cache(void)
 	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.freeSansFont);
 
 	//old q3ui font replacements TODO: different fonts here ?
-	trap_R_RegisterFont("fonts/xscale.ttf", 72, &uis.buttonFont);
-	trap_R_RegisterFont("fonts/GOODTIME.ttf", 72, &uis.BTextFont);
-	trap_R_RegisterFont("fonts/GOODTIME.ttf", 72, &uis.PTextFont);
+	trap_R_RegisterFont("fonts/xscale.ttf", 48, &uis.buttonFont);
+	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.BTextFont);
+	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.PTextFont);
 	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.TextFont);
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.TextBoldFont);
 

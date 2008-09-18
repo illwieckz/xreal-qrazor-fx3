@@ -492,6 +492,8 @@ extern kbutton_t in_mlook, in_klook;
 extern kbutton_t in_strafe;
 extern kbutton_t in_speed;
 
+extern cvar_t         *con_conshadow;
+
 #ifdef USE_VOIP
 extern kbutton_t in_voiprecord;
 #endif

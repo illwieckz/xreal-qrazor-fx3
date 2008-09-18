@@ -2949,8 +2949,8 @@ void CL_InitRenderer(void)
 	cls.whiteShader = re.RegisterShader("white");
 
 	//fonts
-	re.RegisterFont("fonts/VeraMono.ttf", 32, &cls.consoleFont);
-	re.RegisterFont("fonts/VeraMoBd.ttf", 32, &cls.consoleBoldFont);
+	re.RegisterFont("fonts/VeraMono.ttf", 24, &cls.consoleFont);
+	re.RegisterFont("fonts/VeraMoBd.ttf", 24, &cls.consoleBoldFont);
 
 	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
 	g_consoleField.widthInChars = g_console_field_width;
