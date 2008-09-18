@@ -137,7 +137,7 @@ static void MessageMenu_Draw(void)
 	for(i = 0; s_confirm.lines[i]; i++)
 	{
 		//UI_DrawProportionalString(320, y, s_confirm.lines[i], s_confirm.style, color_red);
-		UI_Text_Paint(320, y+8, 0.55f, text_color_highlight, s_confirm.lines[i], 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.freeSansFont);
+		UI_Text_Paint(320, y+8, 0.55f, text_color_highlight, s_confirm.lines[i], 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.BTextFont);
 
 		y += 18;
 	}
@@ -159,7 +159,7 @@ static void ConfirmMenu_Draw(void)
 {
 	//UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
 	//UI_DrawProportionalString(320, 204, s_confirm.question, s_confirm.style, color_red);
-	UI_Text_Paint(320, 204, 0.55f, text_color_highlight, s_confirm.question, 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.freeSansFont);
+	UI_Text_Paint(320, 204, 0.55f, text_color_highlight, s_confirm.question, 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.BTextFont);
 	//UI_DrawProportionalString(s_confirm.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
 
 	Menu_Draw(&s_confirm.menu);

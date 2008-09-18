@@ -240,14 +240,14 @@ void UI_DrawConnectScreen(qboolean overlay)
 		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,											  menu_text_color);
 
 		s = va("%s", cstate.messageString);
-		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansFont);
+		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
 
 
 	}
 	else
 	{
 		s = va("Connecting to %s", cstate.servername);
-		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansFont);
+		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
 
 
 	}

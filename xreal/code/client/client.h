@@ -350,7 +350,12 @@ typedef struct
 	glConfig_t      glconfig;
 	qhandle_t       charSetShader;
 	qhandle_t       whiteShader;
-	qhandle_t       consoleShader;
+
+	//fonts
+
+	fontInfo_t	consoleFont;
+	fontInfo_t	consoleBoldFont;
+
 } clientStatic_t;
 
 extern clientStatic_t cls;
@@ -573,6 +578,13 @@ void            SCR_DrawSmallStringExt(int x, int y, const char *string, float *
 									   qboolean noColorEscape);
 void            SCR_DrawSmallChar(int x, int y, int ch);
 
+
+int             SCR_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font);
+int             SCR_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font);
+void 		SCR_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float 		s2, float t2,  qhandle_t hShader);
+void 		SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int 		limit, int style,   const fontInfo_t * font);
+void 		SCR_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const 			fontInfo_t * font);
+void 		SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit, int style,  const fontInfo_t * font);
 
 //
 // cl_cin.c

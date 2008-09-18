@@ -331,7 +331,7 @@ void Con_Init(void)
 	int             i;
 
 	con_notifytime = Cvar_Get("con_notifytime", "3", 0);
-	con_conspeed = Cvar_Get("scr_conspeed", "3", 0);
+	con_conspeed = Cvar_Get("scr_conspeed", "1.5", 0);
 	con_clock12hr = Cvar_Get("con_clock12hr", "0", CVAR_ARCHIVE);
 	con_clockSeconds = Cvar_Get("con_clockSeconds", "1", CVAR_ARCHIVE);
 	con_showClock = Cvar_Get("con_showClock", "1", CVAR_ARCHIVE);
@@ -507,7 +507,7 @@ Con_DrawInput
 Draw the editline after a ] prompt
 ================
 */
-void Con_DrawInput(void)
+void Con_DrawInput( vec4_t color)
 {
 	int             y;
 
@@ -516,15 +516,24 @@ void Con_DrawInput(void)
 		return;
 	}
 
-	y = con.vislines - (SMALLCHAR_HEIGHT * 2);
+	//y = con.vislines - (SMALLCHAR_HEIGHT * 2);
 
-	re.SetColor(con.color);
+	//re.SetColor(con.color);
 
-	if(y >= con.yadjust)
+	SCR_Text_Paint(20, 234, 0.15f, color, "]", 0, 0, UI_DROPSHADOW | UI_PULSE,  &cls.consoleFont);
+
+	Field_Draw(&g_consoleField, 26, 234, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
+
+/*	if(y >= con.yadjust)
 	{
-		SCR_DrawSmallChar(con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']');
+		//SCR_DrawSmallChar(con.xadjust + 1 * SMALLCHAR_WIDTH, y, '>');
+
+
+
 		Field_Draw(&g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
 	}
+
+*/
 }
 
 
@@ -622,15 +631,20 @@ void Con_DrawSolidConsole(float frac)
 	int             i, x, y;
 	int             rows;
 	short          *text;
+	char		buf[1024];
 	int             row;
 	int             lines;
 	int             currentColor;
 	vec4_t          color;
+	vec4_t          fontColor;
+	vec4_t          fontColorHighlight;
 	int             t, d;
 	char            displayTime[12];
 	char            displayDate[15];
 	qtime_t         tm;
 	qtime_t         dt;
+	float 		alpha;
+	int	chr;
 
 	lines = cls.glconfig.vidHeight * frac;
 	if(lines <= 0)
@@ -644,61 +658,59 @@ void Con_DrawSolidConsole(float frac)
 	SCR_AdjustFrom640(&con.xadjust, &con.yadjust, NULL, NULL);
 
 	// draw the background
-	y = frac * SCREEN_HEIGHT - 2;
-	if(y < con.yadjust)
-	{
-		y = con.yadjust;
-	}
-	else
-	{
-		SCR_DrawPic(0, 0, SCREEN_WIDTH, y, cls.consoleShader);
-	}
+	//y = frac * SCREEN_HEIGHT - 2;
 
-	color[0] = 1;
-	color[1] = 0;
-	color[2] = 0;
-	color[3] = 1;
-	SCR_FillRect(0, y, SCREEN_WIDTH, 2, color);
+	y = 240;
+
+	alpha = frac;
+
+	color[0] = 0.05f;
+	color[1] = 0.25f;
+	color[2] = 0.30f;
+	color[3] = alpha*0.85f;
+
+
+	re.SetColor(color);
+	SCR_FillRect(10, 10, 620, 230, color);
+	re.SetColor(NULL);
+
+
+	color[0] = 0.6f;
+	color[1] = 0.6f;
+	color[2] = 0.8f;
+	color[3] *=0.5f;
+
+	SCR_FillRect(10, 10, 620, 1, color); //top
+	SCR_FillRect(10, 240, 620, 1, color);//buttom
+
+	SCR_FillRect(10, 10, 1, 230, color); //left
+	SCR_FillRect(630, 10, 1, 230, color);//right
 
 	// draw the version number
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
 	i = strlen(Q3_VERSION);
 
-	for(x = 0; x < i; x++)
-	{
-		y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2);
-		if(y >= con.yadjust)
-			SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (i - x) * SMALLCHAR_WIDTH, y, Q3_VERSION[x]);
-	}
+	VectorSet4(fontColor, 1.0f,1.0f,1.0f, alpha);
+	VectorSet4(fontColorHighlight, 1.0f,1.0f,1.0f, alpha*1.5f);
+
+	//version string
+	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
+
 
 	// draw the date
 	if(con_showDate->integer)
 	{
-		re.SetColor(g_color_table[ColorIndex(COLOR_GREEN)]);
+
 
 		Com_RealTime(&dt);
 		displayDate[0] = '\0';
 		Q_strcat(displayDate, sizeof(displayDate), va("%02d/%02d/%04d", dt.tm_mday, dt.tm_mon + 1, 1900 + dt.tm_year));
-		d = strlen(displayDate);
-		for(x = 0; x < d; x++)
-		{
-			if(con_showClock->integer)
-			{
-				y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - (SMALLCHAR_HEIGHT * 2);
-				if(y >= con.yadjust)
-					SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (d - x) * SMALLCHAR_WIDTH, y, displayDate[x]);
-			}
-			else
-			{
-				y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT;
-				if(y >= con.yadjust)
-					SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (d - x) * SMALLCHAR_WIDTH, y, displayDate[x]);
-			}
-		}
+
+		SCR_Text_PaintAligned(626, 220, displayDate, 0.175f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
+
 	}
 
-	// draw the current time
 	if(con_showClock->integer)
 	{
 		Com_RealTime(&tm);
@@ -717,31 +729,34 @@ void Con_DrawSolidConsole(float frac)
 			if(con_clockSeconds->integer)
 				Q_strcat(displayTime, sizeof(displayTime), va(":%02d", tm.tm_sec));
 		}
-		t = strlen(displayTime);
-		for(x = 0; x < t; x++)
-		{
-			y = lines - (SMALLCHAR_HEIGHT + SMALLCHAR_HEIGHT / 2) - SMALLCHAR_HEIGHT;
-			if(y >= con.yadjust)
-				SCR_DrawSmallChar(cls.glconfig.vidWidth - con.xadjust - (t - x) * SMALLCHAR_WIDTH, y, displayTime[x]);
-		}
+
+
+		SCR_Text_PaintAligned(626, 210, displayTime, 0.175f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
+
 	}
+
+
+
 
 	// draw the text
 	con.vislines = lines;
 	rows = (lines - SMALLCHAR_WIDTH) / SMALLCHAR_WIDTH;	// rows of text to draw
 
-	y = lines - (SMALLCHAR_HEIGHT * 3);
+	rows = 26;
+
+	y = 222;
 
 	// draw from the bottom up
 	if(con.display != con.current)
 	{
 		// draw arrows to show the buffer is backscrolled
-		re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
+		//re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
 		if(y >= con.yadjust)
 		{
-			for(x = 0; x < con.linewidth; x += 4)
-				SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, '^');
+			for(x = 0; x < con.linewidth - 12 ; x += 3)
+				SCR_Text_PaintSingleChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH +15, y, 0.15f, fontColorHighlight, '^', 0, 0, UI_DROPSHADOW,  &cls.consoleBoldFont);
+
 			y -= SMALLCHAR_HEIGHT;
 			rows--;
 		}
@@ -757,7 +772,7 @@ void Con_DrawSolidConsole(float frac)
 	currentColor = 7;
 	re.SetColor(g_color_table[currentColor]);
 
-	for(i = 0; i < rows; i++, y -= SMALLCHAR_HEIGHT, row--)
+	for(i = 0; i < rows; i++, y -= 8, row--)
 	{
 		if(row < con.yadjust)
 			break;
@@ -769,7 +784,7 @@ void Con_DrawSolidConsole(float frac)
 		}
 
 		text = con.text + (row % con.totallines) * con.linewidth;
-
+		
 		for(x = 0; x < con.linewidth; x++)
 		{
 			if((text[x] & 0xff) == ' ')
@@ -782,12 +797,21 @@ void Con_DrawSolidConsole(float frac)
 				currentColor = (text[x] >> 8);
 				re.SetColor(g_color_table[currentColor]);
 			}
-			SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, text[x] & 0xff);
+			//SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, text[x] & 0xff);
+
+			VectorCopy4(g_color_table[currentColor],color);
+			color[3] = alpha*1.5f;
+
+			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5,  y, 0.15f, color, text[x] & 0xff, 0, 0, UI_DROPSHADOW,  &cls.consoleFont);
+
+
 		}
+
+
 	}
 
 	// draw the input prompt, user text, and cursor if desired
-	Con_DrawInput();
+	Con_DrawInput(color);
 
 	re.SetColor(NULL);
 }

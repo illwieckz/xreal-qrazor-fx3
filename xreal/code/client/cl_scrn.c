@@ -207,6 +207,271 @@ void SCR_DrawSmallChar(int x, int y, int ch)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+int SCR_Text_Width(const char *text, float scale, int limit, const fontInfo_t * font)
+{
+	int             count, len;
+	float           out;
+	const glyphInfo_t *glyph;
+	float           useScale;
+
+// FIXME: see ui_main.c, same problem
+//  const unsigned char *s = text;
+	const char     *s = text;
+
+	useScale = scale * font->glyphScale;
+	out = 0;
+	if(text)
+	{
+		len = strlen(text);
+		if(limit > 0 && len > limit)
+		{
+			len = limit;
+		}
+		count = 0;
+		while(s && *s && count < len)
+		{
+			if(Q_IsColorString(s))
+			{
+				s += 2;
+				continue;
+			}
+			else
+			{
+				glyph = &font->glyphs[(int)*s];
+				out += glyph->xSkip;
+				s++;
+				count++;
+			}
+		}
+	}
+
+	return out * useScale;
+}
+
+int SCR_Text_Height(const char *text, float scale, int limit, const fontInfo_t * font)
+{
+	int             len, count;
+	float           max;
+	const glyphInfo_t *glyph;
+	float           useScale;
+
+// TTimo: FIXME
+//  const unsigned char *s = text;
+	const char     *s = text;
+
+	useScale = scale * font->glyphScale;
+	max = 0;
+	if(text)
+	{
+		len = strlen(text);
+		if(limit > 0 && len > limit)
+		{
+			len = limit;
+		}
+		count = 0;
+		while(s && *s && count < len)
+		{
+			if(Q_IsColorString(s))
+			{
+				s += 2;
+				continue;
+			}
+			else
+			{
+				glyph = &font->glyphs[(int)*s];
+				if(max < glyph->height)
+				{
+					max = glyph->height;
+				}
+				s++;
+				count++;
+			}
+		}
+	}
+
+	return max * useScale;
+}
+
+
+
+void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit, int style,  const fontInfo_t * font)
+{
+	int             len, count;
+	vec4_t          newColor;
+	glyphInfo_t    *glyph;
+	float           useScale;
+	float           yadj;
+
+
+	ch &= 255;
+
+	if(ch == ' ')
+	{
+		return;
+	}
+
+
+	useScale = scale * font->glyphScale;
+
+	glyph = &font->glyphs[ch];
+ 	yadj = useScale * glyph->top;
+
+	if(style & UI_DROPSHADOW)	// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+	{
+		int             ofs = 1;	//style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+
+		colorBlack[3] = color[3];
+		re.SetColor(colorBlack);
+		SCR_Text_PaintChar(x + ofs, y - yadj + ofs, glyph->imageWidth, glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+		colorBlack[3] = 1.0;
+
+
+	}
+
+	re.SetColor(color);
+
+	SCR_Text_PaintChar(x, y - yadj,	  glyph->imageWidth,  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+
+
+	re.SetColor(NULL);
+
+}
+
+
+
+
+void SCR_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
+					   qhandle_t hShader)
+{
+	float           w, h;
+
+	w = width * scale;
+	h = height * scale;
+	SCR_AdjustFrom640(&x, &y, &w, &h);
+
+	re.DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
+}
+
+void SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style,   const fontInfo_t * font)
+{
+	int             len, count;
+	vec4_t          newColor;
+	glyphInfo_t    *glyph;
+	float           useScale;
+
+	useScale = scale * font->glyphScale;
+	if(text)
+	{
+// TTimo: FIXME
+//      const unsigned char *s = text;
+		const char     *s = text;
+
+		re.SetColor(color);
+		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
+		len = strlen(text);
+		if(limit > 0 && len > limit)
+		{
+			len = limit;
+		}
+		count = 0;
+		while(s && *s && count < len)
+		{
+			glyph = &font->glyphs[(int)*s];
+
+			if(Q_IsColorString(s))
+			{
+				memcpy(newColor, (float *)g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
+				newColor[3] = color[3];
+				re.SetColor(newColor);
+				s += 2;
+				continue;
+			}
+			else
+			{
+				float           yadj = useScale * glyph->top;
+
+				if(style & UI_DROPSHADOW)	// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+				{
+					int             ofs = 1;	//style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+
+					colorBlack[3] = newColor[3];
+					re.SetColor(colorBlack);
+					SCR_Text_PaintChar(x + ofs, y - yadj + ofs,
+									  glyph->imageWidth,
+									  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+					colorBlack[3] = 1.0;
+					re.SetColor(newColor);
+				}
+				SCR_Text_PaintChar(x, y - yadj,
+								  glyph->imageWidth,
+								  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+
+				x += (glyph->xSkip * useScale) + adjust;
+				s++;
+				count++;
+			}
+		}
+		re.SetColor(NULL);
+	}
+}
+
+
+void SCR_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
+{
+	int             w, h;
+
+	w = SCR_Text_Width(s, scale, 0, font);
+	h = SCR_Text_Height(s, scale, 0, font);
+
+	if(style & UI_CENTER)
+	{
+		SCR_Text_Paint(x - w / 2, y + h / 2, scale, color, s, 0, 0, style, font);
+	}
+	else if(style & UI_RIGHT)
+	{
+		SCR_Text_Paint(x - w, y + h / 2, scale, color, s, 0, 0, style, font);
+	}
+	else
+	{
+		// UI_LEFT
+		SCR_Text_Paint(x, y + h / 2, scale, color, s, 0, 0, style, font);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 ==================
 SCR_DrawBigString[Color]

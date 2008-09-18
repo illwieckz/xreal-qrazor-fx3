@@ -1888,15 +1888,16 @@ void Menu_Cache(void)
 	uis.charsetProp1Glow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	uis.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 
+	//otty: pointsize is a performance killer. 
 	trap_R_RegisterFont("fonts/VeraSeBd.ttf", 48, &uis.freeSerifBoldFont);
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.freeSansBoldFont);
 	trap_R_RegisterFont("fonts/VeraSe.ttf", 48, &uis.freeSerifFont);
 	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.freeSansFont);
 
 	//old q3ui font replacements TODO: different fonts here ?
-	trap_R_RegisterFont("fonts/xscale.ttf", 48, &uis.buttonFont);
-	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.BTextFont);
-	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.PTextFont);
+	trap_R_RegisterFont("fonts/xscale.ttf", 72, &uis.buttonFont);
+	trap_R_RegisterFont("fonts/GOODTIME.ttf", 72, &uis.BTextFont);
+	trap_R_RegisterFont("fonts/GOODTIME.ttf", 72, &uis.PTextFont);
 	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.TextFont);
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.TextBoldFont);
 

@@ -376,12 +376,18 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 		float           color[4];
 
 		color[0] = color[1] = color[2] = color[3] = 1.0;
-		SCR_DrawSmallStringExt(x, y, str, color, qfalse, noColorEscape);
+		//SCR_DrawSmallStringExt(x, y, str, color, qfalse, noColorEscape);
+		SCR_Text_Paint(x, y, 0.15f, color, str, 0, 0, UI_DROPSHADOW ,  &cls.consoleFont);
+
 	}
 	else
 	{
+		float           color[4];
+
+		color[0] = color[1] = color[2] = color[3] = 1.0;
 		// draw big string with drop shadow
-		SCR_DrawBigString(x, y, str, 1.0, noColorEscape);
+		//SCR_DrawBigString(x, y, str, 1.0, noColorEscape);
+		SCR_Text_Paint(x, y, 0.25f, color, str, 0, 0, UI_DROPSHADOW ,  &cls.consoleFont);
 	}
 
 	// draw the cursor
