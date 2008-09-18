@@ -55,7 +55,7 @@ typedef struct
 } cr_line;
 
 cr_line         credits[] = {
-	{"XreaL", UI_CENTER | UI_GIANTFONT , colorWhite},
+	{"XreaL", UI_CENTER | UI_GIANTFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Project Lead", UI_CENTER | UI_BIGFONT, colorMdGrey},
@@ -224,10 +224,10 @@ static void ScrollingCredits_Draw(void)
 	int             x = 320, y, n, ysize = 0, fadetime = 0;
 	float           textScale = 0.25f;
 	vec4_t          color;
-	float 		textZoom;
+	float           textZoom;
 
 	// first, fill the background with the specified shader
-//	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
+//  UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
 
 	// draw the stuff by setting the initial y location
 	y = 480 - SCROLLSPEED * (float)(uis.realtime - starttime) / 100;
@@ -260,14 +260,14 @@ static void ScrollingCredits_Draw(void)
 
 		VectorSet4(color, credits[n].color[0], credits[n].color[1], credits[n].color[2], 0.0f);
 
-		if(y <= 0 || y >=480)
+		if(y <= 0 || y >= 480)
 		{
 			color[3] = 0;
-		} 
+		}
 		else
 		{
 
-			color[3] = sin(M_PI / 480.0f  * y) ;
+			color[3] = sin(M_PI / 480.0f * y);
 
 		}
 
@@ -279,15 +279,17 @@ static void ScrollingCredits_Draw(void)
 		textScale = textZoom;
 
 		if(credits[n].style & UI_GIANTFONT)
-			UI_DrawRect(0, y-color[3]*20 + (sin(uis.realtime / 100.0f) * 10 * ( 1.0f - color[3])), 640, 3+color[3]*40, color_cursorLines);
+			UI_DrawRect(0, y - color[3] * 20 + (sin(uis.realtime / 100.0f) * 10 * (1.0f - color[3])), 640, 3 + color[3] * 40,
+						color_cursorLines);
 		else if(credits[n].style & UI_BIGFONT)
-			UI_DrawRect(0, y-color[3]*10 + (sin(uis.realtime / 100.0f) * 10 * ( 1.0f - color[3])), 640, 1+color[3]*20, color_cursorLines);
+			UI_DrawRect(0, y - color[3] * 10 + (sin(uis.realtime / 100.0f) * 10 * (1.0f - color[3])), 640, 1 + color[3] * 20,
+						color_cursorLines);
 
 
 
-		UI_Text_Paint(x , y, textScale, color, credits[n].string, 0, 0, credits[n].style | UI_DROPSHADOW,	  &uis.freeSansBoldFont);
+		UI_Text_Paint(x, y, textScale, color, credits[n].string, 0, 0, credits[n].style | UI_DROPSHADOW, &uis.freeSansBoldFont);
 
-		y += SMALLCHAR_HEIGHT+4;
+		y += SMALLCHAR_HEIGHT + 4;
 
 		/*
 		   if(credits[n].style & UI_SMALLFONT)
@@ -336,5 +338,5 @@ void UI_CreditMenu(void)
 	trap_Cmd_ExecuteText(EXEC_APPEND, "music music/credits.ogg\n");
 
 	// load the background shader
-//	BackgroundShader = trap_R_RegisterShaderNoMip("menubackcredits");
+//  BackgroundShader = trap_R_RegisterShaderNoMip("menubackcredits");
 }

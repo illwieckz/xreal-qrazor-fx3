@@ -31,8 +31,8 @@ NETWORK OPTIONS MENU
 
 #include "ui_local.h"
 
-//#define ART_FRAMEL			"menu/art/frame2_l"
-//#define ART_FRAMER			"menu/art/frame1_r"
+//#define ART_FRAMEL            "menu/art/frame2_l"
+//#define ART_FRAMER            "menu/art/frame1_r"
 
 #define ID_GRAPHICS			10
 #define ID_DISPLAY			11
@@ -58,10 +58,10 @@ typedef struct
 	//menubitmap_s    framel;
 	//menubitmap_s    framer;
 
-	menubitmap_s      graphics;
+	menubitmap_s    graphics;
 	//menubitmap_s      display;
-	menubitmap_s      sound;
-	menubitmap_s      network;
+	menubitmap_s    sound;
+	menubitmap_s    network;
 
 	menulist_s      rate;
 	menuslider_s    packetdup;

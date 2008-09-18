@@ -803,7 +803,7 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 
 #ifdef XPPM
 
-	UI_XPPM_Player( x,  y,  w,  h,  pi, time);
+	UI_XPPM_Player(x, y, w, h, pi, time);
 
 	return;
 
@@ -1223,7 +1223,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 #ifdef XPPM
-	return UI_XPPM_RegisterModel ( pi, modelName, skinName);
+	return UI_XPPM_RegisterModel(pi, modelName, skinName);
 
 
 #endif

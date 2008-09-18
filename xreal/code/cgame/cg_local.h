@@ -590,9 +590,10 @@ typedef struct particle_s
 
 #define NUM_PROGRESS 40
 
-typedef struct {
- 	char     	info[100];
-	qboolean	strong;
+typedef struct
+{
+	char            info[100];
+	qboolean        strong;
 } progressInfo_t;
 
 
@@ -675,8 +676,8 @@ typedef struct
 	float           zoomSensitivity;
 
 	// information screen text during loading
-	progressInfo_t 	progressInfo[NUM_PROGRESS];
-	int 		progress;
+	progressInfo_t  progressInfo[NUM_PROGRESS];
+	int             progress;
 
 	// scoreboard
 	int             scoresRequestTime;
@@ -1459,9 +1460,9 @@ extern vmCvar_t cg_obeliskRespawnDelay;
 #endif
 
 //TeamColors
-extern	vec4_t    redTeamColor;
-extern	vec4_t    blueTeamColor;
-extern	vec4_t    baseTeamColor;
+extern vec4_t   redTeamColor;
+extern vec4_t   blueTeamColor;
+extern vec4_t   baseTeamColor;
 
 //unlagged - client options
 extern vmCvar_t cg_delag;
@@ -1745,7 +1746,7 @@ void            CG_TransitionEntity(centity_t * cent);
 //
 // cg_info.c
 //
-void 		CG_LoadingString(const char *s, qboolean strong);
+void            CG_LoadingString(const char *s, qboolean strong);
 void            CG_DrawInformation(void);
 
 //

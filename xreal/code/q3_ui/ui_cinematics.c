@@ -313,8 +313,8 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.banner);
-//	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framel);
-//	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framer);
+//  Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framel);
+//  Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.framer);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.cin_idlogo);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.cin_intro);
 	Menu_AddItem(&cinematicsMenuInfo.menu, &cinematicsMenuInfo.cin_tier1);

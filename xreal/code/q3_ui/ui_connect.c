@@ -205,7 +205,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 	char           *s;
 	uiClientState_t cstate;
 	char            info[MAX_INFO_VALUE];
-	int 		w;
+	int             w;
 
 	Menu_Cache();
 
@@ -225,29 +225,30 @@ void UI_DrawConnectScreen(qboolean overlay)
 	{
 
 		s = va("Loading %s", Info_ValueForKey(info, "mapname"));
-		UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
+		UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
 
 	}
 
 
 
 	// display global MOTD at bottom
-	//UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,							  Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,							  menu_text_color);
+	//UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,                             Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,                            menu_text_color);
 
 	// print any server info (server full, bad version, etc)
 	if(cstate.connState < CA_CONNECTED)
 	{
-		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,											  menu_text_color);
+		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
+											  menu_text_color);
 
 		s = va("%s", cstate.messageString);
-		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
+		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
 
 
 	}
 	else
 	{
 		s = va("Connecting to %s", cstate.servername);
-		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
+		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
 
 
 	}
@@ -288,7 +289,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 	}
 
 
-	UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
+	UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
 
 
 }

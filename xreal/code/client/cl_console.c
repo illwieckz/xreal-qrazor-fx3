@@ -507,7 +507,7 @@ Con_DrawInput
 Draw the editline after a ] prompt
 ================
 */
-void Con_DrawInput( vec4_t color)
+void Con_DrawInput(vec4_t color)
 {
 	int             y;
 
@@ -520,7 +520,7 @@ void Con_DrawInput( vec4_t color)
 
 	//re.SetColor(con.color);
 
-	SCR_Text_Paint(20, 234, 0.15f, color, "]", 0, 0, UI_DROPSHADOW | UI_PULSE,  &cls.consoleFont);
+	SCR_Text_Paint(20, 234, 0.15f, color, "]", 0, 0, UI_DROPSHADOW | UI_PULSE, &cls.consoleFont);
 
 	Field_Draw(&g_consoleField, 26, 234, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
 
@@ -631,7 +631,7 @@ void Con_DrawSolidConsole(float frac)
 	int             i, x, y;
 	int             rows;
 	short          *text;
-	char		buf[1024];
+	char            buf[1024];
 	int             row;
 	int             lines;
 	int             currentColor;
@@ -643,8 +643,8 @@ void Con_DrawSolidConsole(float frac)
 	char            displayDate[15];
 	qtime_t         tm;
 	qtime_t         dt;
-	float 		alpha;
-	int	chr;
+	float           alpha;
+	int             chr;
 
 	lines = cls.glconfig.vidHeight * frac;
 	if(lines <= 0)
@@ -667,7 +667,7 @@ void Con_DrawSolidConsole(float frac)
 	color[0] = 0.05f;
 	color[1] = 0.25f;
 	color[2] = 0.30f;
-	color[3] = alpha*0.85f;
+	color[3] = alpha * 0.85f;
 
 
 	re.SetColor(color);
@@ -678,21 +678,21 @@ void Con_DrawSolidConsole(float frac)
 	color[0] = 0.6f;
 	color[1] = 0.6f;
 	color[2] = 0.8f;
-	color[3] *=0.5f;
+	color[3] *= 0.5f;
 
-	SCR_FillRect(10, 10, 620, 1, color); //top
-	SCR_FillRect(10, 240, 620, 1, color);//buttom
+	SCR_FillRect(10, 10, 620, 1, color);	//top
+	SCR_FillRect(10, 240, 620, 1, color);	//buttom
 
-	SCR_FillRect(10, 10, 1, 230, color); //left
-	SCR_FillRect(630, 10, 1, 230, color);//right
+	SCR_FillRect(10, 10, 1, 230, color);	//left
+	SCR_FillRect(630, 10, 1, 230, color);	//right
 
 	// draw the version number
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
 	i = strlen(Q3_VERSION);
 
-	VectorSet4(fontColor, 1.0f,1.0f,1.0f, alpha);
-	VectorSet4(fontColorHighlight, 1.0f,1.0f,1.0f, alpha*1.5f);
+	VectorSet4(fontColor, 1.0f, 1.0f, 1.0f, alpha);
+	VectorSet4(fontColorHighlight, 1.0f, 1.0f, 1.0f, alpha * 1.5f);
 
 	//version string
 	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | UI_DROPSHADOW, fontColorHighlight, &cls.consoleFont);
@@ -754,8 +754,9 @@ void Con_DrawSolidConsole(float frac)
 
 		if(y >= con.yadjust)
 		{
-			for(x = 0; x < con.linewidth - 12 ; x += 3)
-				SCR_Text_PaintSingleChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH +15, y, 0.15f, fontColorHighlight, '^', 0, 0, UI_DROPSHADOW,  &cls.consoleBoldFont);
+			for(x = 0; x < con.linewidth - 12; x += 3)
+				SCR_Text_PaintSingleChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH + 15, y, 0.15f, fontColorHighlight, '^', 0, 0,
+										 UI_DROPSHADOW, &cls.consoleBoldFont);
 
 			y -= SMALLCHAR_HEIGHT;
 			rows--;
@@ -784,7 +785,7 @@ void Con_DrawSolidConsole(float frac)
 		}
 
 		text = con.text + (row % con.totallines) * con.linewidth;
-		
+
 		for(x = 0; x < con.linewidth; x++)
 		{
 			if((text[x] & 0xff) == ' ')
@@ -799,10 +800,11 @@ void Con_DrawSolidConsole(float frac)
 			}
 			//SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, text[x] & 0xff);
 
-			VectorCopy4(g_color_table[currentColor],color);
-			color[3] = alpha*1.5f;
+			VectorCopy4(g_color_table[currentColor], color);
+			color[3] = alpha * 1.5f;
 
-			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5,  y, 0.15f, color, text[x] & 0xff, 0, 0, UI_DROPSHADOW,  &cls.consoleFont);
+			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5, y, 0.15f, color, text[x] & 0xff, 0, 0, UI_DROPSHADOW,
+									 &cls.consoleFont);
 
 
 		}

@@ -325,7 +325,7 @@ static void UI_SPSkillMenu_Init(void)
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_medium);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_hard);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_nightmare);
-//	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_skillPic);
+//  Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_skillPic);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_back);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_fight);
 

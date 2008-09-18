@@ -33,7 +33,7 @@ CONFIRMATION MENU
 #include "ui_local.h"
 
 
-//#define ART_CONFIRM_FRAME	"menu/art/cut_frame"
+//#define ART_CONFIRM_FRAME "menu/art/cut_frame"
 
 #define ID_CONFIRM_NO		10
 #define ID_CONFIRM_YES		11
@@ -43,8 +43,8 @@ typedef struct
 {
 	menuframework_s menu;
 
-	menubitmap_s      no;
-	menubitmap_s      yes;
+	menubitmap_s    no;
+	menubitmap_s    yes;
 
 	//int             slashX;
 	const char     *question;
@@ -131,13 +131,14 @@ static void MessageMenu_Draw(void)
 {
 	int             i, y;
 
-//	UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
+//  UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
 
 	y = 188;
 	for(i = 0; s_confirm.lines[i]; i++)
 	{
 		//UI_DrawProportionalString(320, y, s_confirm.lines[i], s_confirm.style, color_red);
-		UI_Text_Paint(320, y+8, 0.55f, text_color_highlight, s_confirm.lines[i], 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.BTextFont);
+		UI_Text_Paint(320, y + 8, 0.55f, text_color_highlight, s_confirm.lines[i], 0, 0, s_confirm.style | UI_DROPSHADOW,
+					  &uis.BTextFont);
 
 		y += 18;
 	}
@@ -159,7 +160,8 @@ static void ConfirmMenu_Draw(void)
 {
 	//UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
 	//UI_DrawProportionalString(320, 204, s_confirm.question, s_confirm.style, color_red);
-	UI_Text_Paint(320, 204, 0.55f, text_color_highlight, s_confirm.question, 0, 0, s_confirm.style | UI_DROPSHADOW,  &uis.BTextFont);
+	UI_Text_Paint(320, 204, 0.55f, text_color_highlight, s_confirm.question, 0, 0, s_confirm.style | UI_DROPSHADOW,
+				  &uis.BTextFont);
 	//UI_DrawProportionalString(s_confirm.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
 
 	Menu_Draw(&s_confirm.menu);
@@ -190,8 +192,9 @@ UI_ConfirmMenu_Stlye
 void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), void (*action) (qboolean result))
 {
 	uiClientState_t cstate;
-//	int             n1, n2, n3;
-//	int             l1, l2, l3;
+
+//  int             n1, n2, n3;
+//  int             l1, l2, l3;
 
 	// zero set all our globals
 	memset(&s_confirm, 0, sizeof(s_confirm));
@@ -222,8 +225,8 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	}
 	else
 	{
-*/		s_confirm.menu.fullscreen = qtrue;
-//	}
+*/ s_confirm.menu.fullscreen = qtrue;
+//  }
 /*
 	s_confirm.yes.generic.type = MTYPE_PTEXT;
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -249,10 +252,10 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 
 	s_confirm.yes.generic.type = MTYPE_BITMAP;
 	s_confirm.yes.generic.name = UI_ART_BUTTON;
-	s_confirm.yes.generic.flags =  QMF_PULSEIFFOCUS;
+	s_confirm.yes.generic.flags = QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
-	s_confirm.yes.generic.x = 320-128;
+	s_confirm.yes.generic.x = 320 - 128;
 	s_confirm.yes.generic.y = 244;
 	s_confirm.yes.width = 128;
 	s_confirm.yes.height = 64;
@@ -267,7 +270,7 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 
 	s_confirm.no.generic.type = MTYPE_BITMAP;
 	s_confirm.no.generic.name = UI_ART_BUTTON;
-	s_confirm.no.generic.flags =  QMF_PULSEIFFOCUS;
+	s_confirm.no.generic.flags = QMF_PULSEIFFOCUS;
 	s_confirm.no.generic.callback = ConfirmMenu_Event;
 	s_confirm.no.generic.id = ID_CONFIRM_NO;
 	s_confirm.no.generic.x = 320;
@@ -335,8 +338,8 @@ void UI_Message(const char **lines)
 	}
 	else
 	{
-*/		s_confirm.menu.fullscreen = qtrue;
-//	}
+*/ s_confirm.menu.fullscreen = qtrue;
+//  }
 
 /*	s_confirm.yes.generic.type = MTYPE_PTEXT;
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -351,10 +354,10 @@ void UI_Message(const char **lines)
 */
 	s_confirm.yes.generic.type = MTYPE_BITMAP;
 	s_confirm.yes.generic.name = UI_ART_BUTTON;
-	s_confirm.yes.generic.flags =  QMF_PULSEIFFOCUS;
+	s_confirm.yes.generic.flags = QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
-	s_confirm.yes.generic.x = 320-64;
+	s_confirm.yes.generic.x = 320 - 64;
 	s_confirm.yes.generic.y = 260;
 	s_confirm.yes.width = 128;
 	s_confirm.yes.height = 64;

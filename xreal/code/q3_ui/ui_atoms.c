@@ -920,6 +920,7 @@ void UI_Text_PaintChar(float x, float y, float width, float height, float scale,
 
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
+
 //otty: Fixed bugs ( styles were ignored by new ttf font code ) 
 
 void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
@@ -929,16 +930,16 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	vec4_t          newColor;
 	glyphInfo_t    *glyph;
 	float           useScale;
-	vec4_t 		drawColor;
-	
-	int	textWidth = UI_Text_Width(text, scale, 0, font);
-	int	textHeight = UI_Text_Height(text, scale, 0, font);
+	vec4_t          drawColor;
+
+	int             textWidth = UI_Text_Width(text, scale, 0, font);
+	int             textHeight = UI_Text_Height(text, scale, 0, font);
 
 
 	if((style & UI_BLINK) && ((uis.realtime / BLINK_DIVISOR) & 1))
 		return;
 
-	y += textHeight / 2; 
+	y += textHeight / 2;
 
 	switch (style & UI_FORMATMASK)
 	{
@@ -970,7 +971,7 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	}
 
 	if(style & UI_PULSE)
-	{	
+	{
 		drawColor[3] = 0.7 + 0.3 * sin(uis.realtime / PULSE_DIVISOR);
 	}
 
@@ -1037,13 +1038,14 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 
 //added by otty to replace UI_DrawProportionalString_AutoWrapped
 
-void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax,  const char *str, int style, vec4_t color, const fontInfo_t * font)
+void UI_Text_Paint_AutoWrapped(int x, int y, float scale, int xmax, const char *str, int style, vec4_t color,
+							   const fontInfo_t * font)
 {
 	int             width;
 	char           *s1, *s2, *s3;
 	char            c_bcp;
 	char            buf[1024];
-	int		ystep;
+	int             ystep;
 
 	//float           sizeScale;
 
@@ -1066,7 +1068,7 @@ void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax,  const char
 		c_bcp = *s3;
 		*s3 = '\0';
 		//width = UI_ProportionalStringWidth(s1) * sizeScale;
-		width  = UI_Text_Width(s1, scale, 0, font);
+		width = UI_Text_Width(s1, scale, 0, font);
 		*s3 = c_bcp;
 		if(width > xmax)
 		{
@@ -1077,7 +1079,7 @@ void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax,  const char
 			}
 			*s2 = '\0';
 			//UI_DrawProportionalString(x, y, s1, style, color);
-			UI_Text_Paint( x, y , scale, color, s1 , 0, 0, style , font);
+			UI_Text_Paint(x, y, scale, color, s1, 0, 0, style, font);
 
 			y += ystep;
 			if(c_bcp == '\0')
@@ -1089,7 +1091,7 @@ void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax,  const char
 				s2++;
 				if(*s2 != '\0')	// if we are printing an overflowing line we have s2 == s3
 					//UI_DrawProportionalString(x, y, s2, style, color);
-					UI_Text_Paint( x, y , scale, color, s2 , 0, 0, style , font);
+					UI_Text_Paint(x, y, scale, color, s2, 0, 0, style, font);
 
 				break;
 			}
@@ -1103,7 +1105,7 @@ void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax,  const char
 			if(c_bcp == '\0')	// we reached the end
 			{
 				//UI_DrawProportionalString(x, y, s1, style, color);
-				UI_Text_Paint( x, y , scale, color, s1 , 0, 0, style , font);
+				UI_Text_Paint(x, y, scale, color, s1, 0, 0, style, font);
 
 
 
@@ -1533,9 +1535,9 @@ UI_Refresh
 =================
 */
 
-int nextLine = 0;
-int lineY = 0;
-int lineX = 0;
+int             nextLine = 0;
+int             lineY = 0;
+int             lineX = 0;
 
 void UI_Refresh(int realtime)
 {
@@ -1554,16 +1556,16 @@ void UI_Refresh(int realtime)
 	{
 		if(uis.activemenu->fullscreen)
 		{
-//			// draw the background
-//			if(uis.activemenu->showlogo)
-//			{
+//          // draw the background
+//          if(uis.activemenu->showlogo)
+//          {
 //FIXME: non 4:3 resolutions are causeing black bars
-				UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
-//			}
-//			else
-//			{
-//				UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
-//			}
+			UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
+//          }
+//          else
+//          {
+//              UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
+//          }
 		}
 
 		if(uis.activemenu->draw)
@@ -1578,19 +1580,19 @@ void UI_Refresh(int realtime)
 		}
 	}
 
-	
+
 	UI_SetColor(NULL);
 
-	
+
 // draw cursor lines
-	UI_DrawRect(0, uis.cursory-1, 640, 3, color_cursorLines);
-	UI_DrawRect(uis.cursorx-1, 0, 3, 480, color_cursorLines);
+	UI_DrawRect(0, uis.cursory - 1, 640, 3, color_cursorLines);
+	UI_DrawRect(uis.cursorx - 1, 0, 3, 480, color_cursorLines);
 
-	UI_Text_Paint(10 , uis.cursory, 0.15f, color_cursorLines,  va("%i", lineX  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
-	UI_Text_Paint(uis.cursorx , 10, 0.15f, color_cursorLines,  va("%i", lineY  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+	UI_Text_Paint(10, uis.cursory, 0.15f, color_cursorLines, va("%i", lineX), 0, 0, UI_CENTER, &uis.freeSansFont);
+	UI_Text_Paint(uis.cursorx, 10, 0.15f, color_cursorLines, va("%i", lineY), 0, 0, UI_CENTER, &uis.freeSansFont);
 
-	UI_Text_Paint(630 , uis.cursory, 0.15f, color_cursorLines,  va("%i", uis.cursorx  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
-	UI_Text_Paint(uis.cursorx , 470, 0.15f, color_cursorLines,  va("%i", uis.cursory  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+	UI_Text_Paint(630, uis.cursory, 0.15f, color_cursorLines, va("%i", uis.cursorx), 0, 0, UI_CENTER, &uis.freeSansFont);
+	UI_Text_Paint(uis.cursorx, 470, 0.15f, color_cursorLines, va("%i", uis.cursory), 0, 0, UI_CENTER, &uis.freeSansFont);
 
 	UI_SetColor(NULL);
 
@@ -1599,24 +1601,25 @@ void UI_Refresh(int realtime)
 
 
 //draw moving scanlines
-	
-	if(uis.realtime > nextLine) {
+
+	if(uis.realtime > nextLine)
+	{
 		lineX += 4;
 
-		if(lineX >=640)
+		if(lineX >= 640)
 			lineX = 0;
 
 
 		nextLine = uis.realtime + 10;
 	}
 
-	lineY = 240 + 200*sin(uis.realtime / 400.0f);
+	lineY = 240 + 200 * sin(uis.realtime / 400.0f);
 
 	UI_DrawRect(0, lineY, 640, 1, color_cursorLines);
 	UI_DrawRect(lineX, 0, 1, 480, color_cursorLines);
 
-	UI_Text_Paint(10 , lineY, 0.15f, color_cursorLines,  va("%i%i", lineX , lineY ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
-	UI_Text_Paint(lineX , 10, 0.15f, color_cursorLines,  va("%i%i", lineY , lineX ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+	UI_Text_Paint(10, lineY, 0.15f, color_cursorLines, va("%i%i", lineX, lineY), 0, 0, UI_CENTER, &uis.freeSansFont);
+	UI_Text_Paint(lineX, 10, 0.15f, color_cursorLines, va("%i%i", lineY, lineX), 0, 0, UI_CENTER, &uis.freeSansFont);
 
 
 //draw border around screen

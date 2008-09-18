@@ -227,7 +227,7 @@ static void Main_MenuDraw(void)
 	if(strlen(s_errorMessage.errorMessage))
 	{
 		UI_Text_Paint_AutoWrapped(320, 192, 0.4f, 600, va("Error: %s", s_errorMessage.errorMessage),
-											  UI_CENTER | UI_DROPSHADOW, color_red, &uis.freeSansFont);
+								  UI_CENTER | UI_DROPSHADOW, color_red, &uis.freeSansFont);
 
 	}
 	else
@@ -239,7 +239,8 @@ static void Main_MenuDraw(void)
 	//UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
 	//UI_DrawString(320, 450, "XreaL(c) 2005-2008, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
 
-	UI_Text_Paint( 320, 470 , 0.25f , color, "XreaL(c) 2005-2008, XreaL Team - http://xreal.sourceforge.net", 0, 0, UI_CENTER | UI_DROPSHADOW ,  &uis.freeSansFont);
+	UI_Text_Paint(320, 470, 0.25f, color, "XreaL(c) 2005-2008, XreaL Team - http://xreal.sourceforge.net", 0, 0,
+				  UI_CENTER | UI_DROPSHADOW, &uis.freeSansFont);
 
 
 
@@ -421,7 +422,7 @@ void UI_MainMenu(void)
 	//Menu_AddItem(&s_main.menu, &s_main.cinematics);
 	//if(teamArena)
 	//{
-	//	Menu_AddItem(&s_main.menu, &s_main.teamArena);
+	//  Menu_AddItem(&s_main.menu, &s_main.teamArena);
 	//}
 	Menu_AddItem(&s_main.menu, &s_main.mods);
 	Menu_AddItem(&s_main.menu, &s_main.exit);

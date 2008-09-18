@@ -53,7 +53,7 @@ void CG_LoadingString(const char *s, qboolean strong)
 	Q_strncpyz(cg.progressInfo[cg.progress].info, s, sizeof(cg.progressInfo[cg.progress].info));
 	cg.progressInfo[cg.progress].strong = strong;
 	cg.progress++;
-	
+
 	if(cg.progress > NUM_PROGRESS)
 		cg.progress = NUM_PROGRESS;
 
@@ -73,60 +73,63 @@ CG_DrawProgress
 */
 static void CG_DrawProgress(void)
 {
-	int             x,y;
+	int             x, y;
 	float           rectColor[4];
 	const char     *s = NULL;
-	int 		i;
-	vec4_t 		color;
-	int 		style = 0;
+	int             i;
+	vec4_t          color;
+	int             style = 0;
 
-	if(cg.progress == 0 ){
+	if(cg.progress == 0)
+	{
 		CG_Text_PaintAligned(230, 228, "Precaching ... ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
 
 	}
 	else
 	{
 		CG_Text_PaintAligned(230, 228, "Loading ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
-		CG_Text_PaintAligned(230, 228, va(" %i %% ...", (int)(100 / NUM_PROGRESS * cg.progress)), 0.3f,UI_LEFT  | UI_DROPSHADOW , colorText, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(230, 228, va(" %i %% ...", (int)(100 / NUM_PROGRESS * cg.progress)), 0.3f, UI_LEFT | UI_DROPSHADOW,
+							 colorText, &cgs.media.freeSansBoldFont);
 	}
 
 	x = 0;
 	y = 450;
 
-	for(i = 0;  i < NUM_PROGRESS; i ++)
+	for(i = 0; i < NUM_PROGRESS; i++)
 	{
-		CG_DrawPic(x + i*16 , y, 16, 16, load0);
+		CG_DrawPic(x + i * 16, y, 16, 16, load0);
 	}
 
-	CG_DrawRect(0, 440-cg.progress*12, 640, 1, 1, colorLines);
+	CG_DrawRect(0, 440 - cg.progress * 12, 640, 1, 1, colorLines);
 
 	x = 0;
-	for(i = 0;  i < cg.progress; i ++)
+	for(i = 0; i < cg.progress; i++)
 	{
-		VectorCopy4( colorProgress, color);
+		VectorCopy4(colorProgress, color);
 
-		if( i == cg.progress -1)
+		if(i == cg.progress - 1)
 		{
 			style = UI_DROPSHADOW;
-			VectorCopy4( text_color_highlight, color);
+			VectorCopy4(text_color_highlight, color);
 		}
 		else if(cg.progressInfo[i].strong)
 		{
 			style = 0;
 			color[3] *= 2;
 		}
-		
-		CG_Text_PaintAligned(20, 440-i*12, cg.progressInfo[i].info, 0.2f, style, color, &cgs.media.freeSansBoldFont);
 
-		CG_DrawPic(x + i*16 , y, 16, 16, load1);
+		CG_Text_PaintAligned(20, 440 - i * 12, cg.progressInfo[i].info, 0.2f, style, color, &cgs.media.freeSansBoldFont);
 
-		if( i == cg.progress -1)
+		CG_DrawPic(x + i * 16, y, 16, 16, load1);
+
+		if(i == cg.progress - 1)
 		{
 
-			CG_DrawRect(x + i*16 + 8, 0,   1, 480, 1, colorLines);
-			CG_DrawRect(0       , y-4, 640,   1, 1, colorLines);
+			CG_DrawRect(x + i * 16 + 8, 0, 1, 480, 1, colorLines);
+			CG_DrawRect(0, y - 4, 640, 1, 1, colorLines);
 
-			CG_Text_PaintAligned(x + i*16 + 8, y-8, cg.progressInfo[i].info, 0.2f, UI_RIGHT | UI_DROPSHADOW, text_color_highlight, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(x + i * 16 + 8, y - 8, cg.progressInfo[i].info, 0.2f, UI_RIGHT | UI_DROPSHADOW,
+								 text_color_highlight, &cgs.media.freeSansBoldFont);
 
 		}
 	}
@@ -152,7 +155,7 @@ void CG_DrawInformation(void)
 	char            buf[1024];
 	char            st[1024];
 
-	int 		y_offset;
+	int             y_offset;
 
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
@@ -244,11 +247,10 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		CG_Text_PaintAligned(x, y, "Cheats are enabled", 0.2f, UI_DROPSHADOW, text_color_normal,
-							 &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x, y, "Cheats are enabled", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
 
-		CG_Text_PaintAligned(x-10, y+1, ">", 0.2f, 0, text_color_warning,  &cgs.media.freeSansBoldFont);
-		CG_Text_PaintAligned(x+110, y+1, "<", 0.2f, 0, text_color_warning,  &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x - 10, y + 1, ">", 0.2f, 0, text_color_warning, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x + 110, y + 1, "<", 0.2f, 0, text_color_warning, &cgs.media.freeSansBoldFont);
 
 		y += y_offset;
 	}
@@ -321,5 +323,3 @@ void CG_DrawInformation(void)
 	}
 
 }
-
-

@@ -146,8 +146,10 @@ static void ServerInfo_MenuDraw(void)
 		//UI_DrawString(SCREEN_WIDTH * 0.50 + 8, y, value, UI_LEFT | UI_SMALLFONT, text_color_normal);
 
 
-		UI_Text_Paint(SCREEN_WIDTH * 0.50 - 8, y+8, 0.25f, text_color_normal,  key, 0, 0, UI_DROPSHADOW | UI_RIGHT,  &uis.freeSansBoldFont);
-		UI_Text_Paint(SCREEN_WIDTH * 0.50 + 8, y+8, 0.25f, text_color_normal, value, 0, 0, UI_DROPSHADOW | UI_LEFT,  &uis.freeSansFont);
+		UI_Text_Paint(SCREEN_WIDTH * 0.50 - 8, y + 8, 0.25f, text_color_normal, key, 0, 0, UI_DROPSHADOW | UI_RIGHT,
+					  &uis.freeSansBoldFont);
+		UI_Text_Paint(SCREEN_WIDTH * 0.50 + 8, y + 8, 0.25f, text_color_normal, value, 0, 0, UI_DROPSHADOW | UI_LEFT,
+					  &uis.freeSansFont);
 
 
 		y += SMALLCHAR_HEIGHT;

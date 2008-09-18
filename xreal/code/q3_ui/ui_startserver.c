@@ -356,8 +356,8 @@ static void StartServer_LevelshotDraw(void *self)
 	int             w;
 	int             h;
 	int             n;
-	qboolean	focus;
-	int		style;
+	qboolean        focus;
+	int             style;
 	float          *color;
 
 	b = (menubitmap_s *) self;
@@ -406,20 +406,20 @@ static void StartServer_LevelshotDraw(void *self)
 	x = b->generic.x;
 	y = b->generic.y + b->height;
 
-	UI_DrawNamedPic(x , y-7 , b->width , 28+8 , UI_ART_BUTTON);
+	UI_DrawNamedPic(x, y - 7, b->width, 28 + 8, UI_ART_BUTTON);
 
 	x += b->width / 2;
 	y += 4;
 	n = s_startserver.page * MAX_MAPSPERPAGE + b->generic.id - ID_PICTURES;
-	
-//	UI_DrawString(x, y, s_startserver.maplist[n], UI_CENTER | UI_SMALLFONT, color_orange);
-	UI_Text_Paint( x  ,  y + 8  , 0.25f , color, s_startserver.maplist[n], 0, 0, style,  &uis.freeSansBoldFont);
+
+//  UI_DrawString(x, y, s_startserver.maplist[n], UI_CENTER | UI_SMALLFONT, color_orange);
+	UI_Text_Paint(x, y + 8, 0.25f, color, s_startserver.maplist[n], 0, 0, style, &uis.freeSansBoldFont);
 
 
 	x = b->generic.x;
 	y = b->generic.y;
 	w = b->width;
-	h = b->height ;
+	h = b->height;
 	if(focus)
 	{
 		UI_DrawHandlePic(x, y, w, h, b->focusshader);
@@ -500,8 +500,8 @@ static void StartServer_MenuInit(void)
 		s_startserver.mapbuttons[i].generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_NODEFAULTINIT;
 		s_startserver.mapbuttons[i].generic.id = ID_PICTURES + i;
 		s_startserver.mapbuttons[i].generic.callback = StartServer_MapEvent;
-		s_startserver.mapbuttons[i].generic.x = x ;
-		s_startserver.mapbuttons[i].generic.y = y ;
+		s_startserver.mapbuttons[i].generic.x = x;
+		s_startserver.mapbuttons[i].generic.y = y;
 		s_startserver.mapbuttons[i].width = 128;
 		s_startserver.mapbuttons[i].height = 96;
 		s_startserver.mapbuttons[i].generic.left = x;
@@ -594,8 +594,8 @@ static void StartServer_MenuInit(void)
 	s_startserver.item_null.height = 480;
 
 	Menu_AddItem(&s_startserver.menu, &s_startserver.banner);
-//	Menu_AddItem(&s_startserver.menu, &s_startserver.framel);
-//	Menu_AddItem(&s_startserver.menu, &s_startserver.framer);
+//  Menu_AddItem(&s_startserver.menu, &s_startserver.framel);
+//  Menu_AddItem(&s_startserver.menu, &s_startserver.framer);
 
 	Menu_AddItem(&s_startserver.menu, &s_startserver.gametype);
 	for(i = 0; i < MAX_MAPSPERPAGE; i++)
@@ -609,7 +609,7 @@ static void StartServer_MenuInit(void)
 	Menu_AddItem(&s_startserver.menu, &s_startserver.nextpage);
 	Menu_AddItem(&s_startserver.menu, &s_startserver.back);
 	Menu_AddItem(&s_startserver.menu, &s_startserver.next);
-//	Menu_AddItem(&s_startserver.menu, &s_startserver.mapname);
+//  Menu_AddItem(&s_startserver.menu, &s_startserver.mapname);
 	Menu_AddItem(&s_startserver.menu, &s_startserver.item_null);
 
 	StartServer_GametypeEvent(NULL, QM_ACTIVATED);
@@ -1140,17 +1140,19 @@ static void ServerOptions_LevelshotDraw(void *self)
 
 	x = b->generic.x;
 	y = b->generic.y + b->height;
-//	UI_FillRect(x, y, b->width, 40, colorBlack);
-	UI_DrawNamedPic(x , y-7 , b->width , 60 , UI_ART_BUTTON);
+//  UI_FillRect(x, y, b->width, 40, colorBlack);
+	UI_DrawNamedPic(x, y - 7, b->width, 60, UI_ART_BUTTON);
 
 	x += b->width / 2;
 	y += 8;
 	//UI_DrawString(x, y, s_serveroptions.mapnamebuffer, UI_CENTER | UI_SMALLFONT, color_orange);
-	UI_Text_Paint( x  ,  y + 8  , 0.3f , text_color_highlight, s_serveroptions.mapnamebuffer, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+	UI_Text_Paint(x, y + 8, 0.3f, text_color_highlight, s_serveroptions.mapnamebuffer, 0, 0, UI_CENTER | UI_DROPSHADOW,
+				  &uis.freeSansBoldFont);
 
 	y += SMALLCHAR_HEIGHT;
 	//UI_DrawString(x, y, gametype_items[gametype_remap2[s_serveroptions.gametype]], UI_CENTER | UI_SMALLFONT, color_orange);
-	UI_Text_Paint( x  ,  y + 8  , 0.2f , text_color_normal, gametype_items[gametype_remap2[s_serveroptions.gametype]], 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+	UI_Text_Paint(x, y + 8, 0.2f, text_color_normal, gametype_items[gametype_remap2[s_serveroptions.gametype]], 0, 0,
+				  UI_CENTER | UI_DROPSHADOW, &uis.freeSansBoldFont);
 
 }
 
@@ -1472,28 +1474,27 @@ static void PlayerName_Draw(void *item)
 
 	if(focus)
 	{
-		
+
 		//UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,s->generic.bottom - s->generic.top + 1, listbar_color);
 
 		//draw hightlight
 		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
 					s->generic.bottom - s->generic.top + 1, listbar_color);
-		UI_FillRect(s->generic.left, s->generic.bottom , s->generic.right - s->generic.left + 1,
-					1, listbar_color);
-		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
-					1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.bottom, s->generic.right - s->generic.left + 1, 1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1, 1, listbar_color);
 
 
-	//	UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, color);
-		UI_Text_Paint(x , y+9, 0.25f, color,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+		//  UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, color);
+		UI_Text_Paint(x, y + 9, 0.25f, color, ">", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
 	}
 
 	//UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, style | UI_RIGHT, color);
 	//UI_DrawString(x + SMALLCHAR_WIDTH, y, s->string, style | UI_LEFT, color);
 
-	UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, color,  s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
-	UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, color, s->string, 0, 0, style | UI_LEFT | UI_DROPSHADOW,  &uis.freeSansFont);
+	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+				  &uis.freeSansBoldFont);
+	UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->string, 0, 0, style | UI_LEFT | UI_DROPSHADOW, &uis.freeSansFont);
 
 
 }

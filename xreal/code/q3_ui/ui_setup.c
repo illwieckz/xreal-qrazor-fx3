@@ -35,8 +35,8 @@ SETUP MENU
 
 #define SETUP_MENU_VERTICAL_SPACING		42
 
-//#define ART_FRAMEL		"menu/art/frame2_l"
-//#define ART_FRAMER		"menu/art/frame1_r"
+//#define ART_FRAMEL        "menu/art/frame2_l"
+//#define ART_FRAMER        "menu/art/frame1_r"
 
 #define ID_CUSTOMIZEPLAYER		10
 #define ID_CUSTOMIZECONTROLS	11
@@ -92,11 +92,12 @@ Setup_ResetDefaults_Draw
 */
 static void Setup_ResetDefaults_Draw(void)
 {
-	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER | UI_SMALLFONT,							  color_yellow);
-	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",							  UI_CENTER | UI_SMALLFONT, color_yellow);
+	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER | UI_SMALLFONT,                              color_yellow);
+	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",                              UI_CENTER | UI_SMALLFONT, color_yellow);
 
 
-	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This will reset *ALL* options to their default values.",  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
+	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This will reset *ALL* options to their default values.",
+							  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
 
 
 
@@ -288,8 +289,8 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.banner);
-//	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framel);
-//	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framer);
+//  Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framel);
+//  Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.framer);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupplayer);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupcontrols);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupsystem);
@@ -308,8 +309,8 @@ UI_SetupMenu_Cache
 */
 void UI_SetupMenu_Cache(void)
 {
-//	trap_R_RegisterShaderNoMip(ART_FRAMEL);
-//	trap_R_RegisterShaderNoMip(ART_FRAMER);
+//  trap_R_RegisterShaderNoMip(ART_FRAMEL);
+//  trap_R_RegisterShaderNoMip(ART_FRAMER);
 }
 
 

@@ -307,7 +307,8 @@ int SCR_Text_Height(const char *text, float scale, int limit, const fontInfo_t *
 
 
 
-void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit, int style,  const fontInfo_t * font)
+void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit, int style,
+							  const fontInfo_t * font)
 {
 	int             len, count;
 	vec4_t          newColor;
@@ -327,7 +328,7 @@ void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color,
 	useScale = scale * font->glyphScale;
 
 	glyph = &font->glyphs[ch];
- 	yadj = useScale * glyph->top;
+	yadj = useScale * glyph->top;
 
 	if(style & UI_DROPSHADOW)	// || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
 	{
@@ -335,7 +336,8 @@ void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color,
 
 		colorBlack[3] = color[3];
 		re.SetColor(colorBlack);
-		SCR_Text_PaintChar(x + ofs, y - yadj + ofs, glyph->imageWidth, glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+		SCR_Text_PaintChar(x + ofs, y - yadj + ofs, glyph->imageWidth, glyph->imageHeight, useScale, glyph->s, glyph->t,
+						   glyph->s2, glyph->t2, glyph->glyph);
 		colorBlack[3] = 1.0;
 
 
@@ -343,7 +345,8 @@ void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color,
 
 	re.SetColor(color);
 
-	SCR_Text_PaintChar(x, y - yadj,	  glyph->imageWidth,  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+	SCR_Text_PaintChar(x, y - yadj, glyph->imageWidth, glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2,
+					   glyph->glyph);
 
 
 	re.SetColor(NULL);
@@ -354,7 +357,7 @@ void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color,
 
 
 void SCR_Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
-					   qhandle_t hShader)
+						qhandle_t hShader)
 {
 	float           w, h;
 
@@ -365,7 +368,8 @@ void SCR_Text_PaintChar(float x, float y, float width, float height, float scale
 	re.DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
 
-void SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style,   const fontInfo_t * font)
+void SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style,
+					const fontInfo_t * font)
 {
 	int             len, count;
 	vec4_t          newColor;
@@ -410,14 +414,14 @@ void SCR_Text_Paint(float x, float y, float scale, const vec4_t color, const cha
 					colorBlack[3] = newColor[3];
 					re.SetColor(colorBlack);
 					SCR_Text_PaintChar(x + ofs, y - yadj + ofs,
-									  glyph->imageWidth,
-									  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+									   glyph->imageWidth,
+									   glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 					colorBlack[3] = 1.0;
 					re.SetColor(newColor);
 				}
 				SCR_Text_PaintChar(x, y - yadj,
-								  glyph->imageWidth,
-								  glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+								   glyph->imageWidth,
+								   glyph->imageHeight, useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 
 				x += (glyph->xSkip * useScale) + adjust;
 				s++;

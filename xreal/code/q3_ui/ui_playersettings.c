@@ -192,10 +192,10 @@ static void PlayerSettings_SaveChanges(void)
 	trap_Cvar_SetValue("handicap", 100 - s_playersettings.handicap.curvalue * 5);
 
 	// effects color
-//	trap_Cvar_SetValue("color1", uitogamecode[s_playersettings.color1.curvalue]);
+//  trap_Cvar_SetValue("color1", uitogamecode[s_playersettings.color1.curvalue]);
 
 	// secondary effects color
-//	trap_Cvar_SetValue("color2", uitogamecode[s_playersettings.color2.curvalue]);
+//  trap_Cvar_SetValue("color2", uitogamecode[s_playersettings.color2.curvalue]);
 }
 
 /*

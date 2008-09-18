@@ -58,10 +58,10 @@ typedef struct
 	//menubitmap_s    framel;
 	//menubitmap_s    framer;
 
-	menubitmap_s      graphics;
+	menubitmap_s    graphics;
 	//menutext_s      display;
-	menubitmap_s      sound;
-	menubitmap_s      network;
+	menubitmap_s    sound;
+	menubitmap_s    network;
 
 	menuslider_s    sfxvolume;
 	menuslider_s    musicvolume;
@@ -310,6 +310,7 @@ void UI_SoundOptionsMenu_Cache(void)
 	//trap_R_RegisterShaderNoMip(ART_FRAMER);
 
 }
+
 /*
 ===============
 UI_SoundOptionsMenu

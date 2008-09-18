@@ -75,7 +75,7 @@ void MField_Draw(mfield_t * edit, int x, int y, int style, vec4_t color)
 	str[drawLen] = 0;
 
 	//UI_DrawString(x, y, str, style, color);
-	UI_Text_Paint(x, y+8, 0.25f, color,  str, 0, 0,  style ,  &uis.freeSansFont);
+	UI_Text_Paint(x, y + 8, 0.25f, color, str, 0, 0, style, &uis.freeSansFont);
 
 	// draw the cursor
 	if(!(style & UI_PULSE))
@@ -377,8 +377,8 @@ void MenuField_Draw(menufield_s * f)
 	int             style;
 	qboolean        focus;
 	float          *color;
-	int 		offset;
-	int 		width;
+	int             offset;
+	int             width;
 
 	x = f->generic.x;
 	y = f->generic.y;
@@ -418,22 +418,20 @@ void MenuField_Draw(menufield_s * f)
 		//draw hightlight
 		UI_FillRect(f->generic.left, f->generic.top, f->generic.right - f->generic.left + 1,
 					f->generic.bottom - f->generic.top + 1, listbar_color);
-		UI_FillRect(f->generic.left, f->generic.bottom , f->generic.right - f->generic.left + 1,
-					1, listbar_color);
-		UI_FillRect(f->generic.left, f->generic.top, f->generic.right - f->generic.left + 1,
-					1, listbar_color);
+		UI_FillRect(f->generic.left, f->generic.bottom, f->generic.right - f->generic.left + 1, 1, listbar_color);
+		UI_FillRect(f->generic.left, f->generic.top, f->generic.right - f->generic.left + 1, 1, listbar_color);
 
 
 		// draw cursor
-	//	UI_FillRect(f->generic.left, f->generic.top, f->generic.right - f->generic.left + 1,					f->generic.bottom - f->generic.top + 1, listbar_color);
+		//  UI_FillRect(f->generic.left, f->generic.top, f->generic.right - f->generic.left + 1,                    f->generic.bottom - f->generic.top + 1, listbar_color);
 
 		//UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | style, color);
-		UI_Text_Paint(x , y+9, 0.25f, color,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
-		
-	//TODO: draw the underline cursor. 
-	//	width = ( UI_Text_Width("_", 0.25f, 0, &uis.freeSerifBoldFont)) + 1;
-	//	offset = width + f->field.cursor * width;
-	//	UI_Text_Paint(x + offset, y+9, 0.25f, color,  "_", 0, 0,  UI_BLINK | UI_RIGHT,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x, y + 9, 0.25f, color, ">", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
+
+		//TODO: draw the underline cursor. 
+		//  width = ( UI_Text_Width("_", 0.25f, 0, &uis.freeSerifBoldFont)) + 1;
+		//  offset = width + f->field.cursor * width;
+		//  UI_Text_Paint(x + offset, y+9, 0.25f, color,  "_", 0, 0,  UI_BLINK | UI_RIGHT,  &uis.freeSansBoldFont);
 
 
 
@@ -442,7 +440,7 @@ void MenuField_Draw(menufield_s * f)
 	if(f->generic.name)
 	{
 		//UI_DrawString(x - w, y, f->generic.name, style | UI_RIGHT, color);
-		UI_Text_Paint(x - w, y+8, 0.25f, color,  f->generic.name, 0, 0,  style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x - w, y + 8, 0.25f, color, f->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW, &uis.freeSansBoldFont);
 
 	}
 

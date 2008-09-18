@@ -158,10 +158,10 @@ typedef struct
 	//menubitmap_s    framer;
 	menubitmap_s    player;
 
-	menubitmap_s      movement;
-	menubitmap_s      looking;
-	menubitmap_s      weapons;
-	menubitmap_s      misc;
+	menubitmap_s    movement;
+	menubitmap_s    looking;
+	menubitmap_s    weapons;
+	menubitmap_s    misc;
 
 	menuaction_s    walkforward;
 	menuaction_s    backpedal;
@@ -702,16 +702,14 @@ static void Controls_DrawKeyBinding(void *self)
 
 	if(c)
 	{
-		
-		//UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,					a->generic.bottom - a->generic.top + 1, listbar_color);
+
+		//UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,                  a->generic.bottom - a->generic.top + 1, listbar_color);
 
 		//draw hightlight
 		UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,
 					a->generic.bottom - a->generic.top + 1, listbar_color);
-		UI_FillRect(a->generic.left, a->generic.bottom , a->generic.right - a->generic.left + 1,
-					1, listbar_color);
-		UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1,
-					1, listbar_color);
+		UI_FillRect(a->generic.left, a->generic.bottom, a->generic.right - a->generic.left + 1, 1, listbar_color);
+		UI_FillRect(a->generic.left, a->generic.top, a->generic.right - a->generic.left + 1, 1, listbar_color);
 
 
 
@@ -719,35 +717,40 @@ static void Controls_DrawKeyBinding(void *self)
 		//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT | UI_PULSE, text_color_highlight);
 
 
-		UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, text_color_highlight,  g_bindings[a->generic.id].label, 0, 0, UI_RIGHT | UI_DROPSHADOW | UI_PULSE,  &uis.freeSansBoldFont);
-		UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, text_color_highlight, name, 0, 0, UI_LEFT | UI_DROPSHADOW | UI_PULSE,  &uis.freeSansFont);
+		UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_highlight, g_bindings[a->generic.id].label, 0, 0,
+					  UI_RIGHT | UI_DROPSHADOW | UI_PULSE, &uis.freeSansBoldFont);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_highlight, name, 0, 0, UI_LEFT | UI_DROPSHADOW | UI_PULSE,
+					  &uis.freeSansFont);
 
 
 		if(s_controls.waitingforkey)
 		{
 			//UI_DrawChar(x, y, '=', UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
-			UI_Text_Paint(x , y+9, 0.25f, text_color_highlight,  "=", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+			UI_Text_Paint(x, y + 9, 0.25f, text_color_highlight, "=", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
-			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Waiting for new key ... ESCAPE to cancel",						  UI_SMALLFONT | UI_CENTER | UI_PULSE, colorWhite);
+			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Waiting for new key ... ESCAPE to cancel",                        UI_SMALLFONT | UI_CENTER | UI_PULSE, colorWhite);
 
-			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80 , 0.25f, colorWhite,  "Waiting for new key ... ESCAPE to cancel", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, 0.25f, colorWhite,
+						  "Waiting for new key ... ESCAPE to cancel", 0, 0, UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
 		}
 		else
 		{
 			//UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
-			UI_Text_Paint(x , y+9, 0.25f, text_color_highlight,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+			UI_Text_Paint(x, y + 9, 0.25f, text_color_highlight, ">", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
 
 			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, "Press ENTER or CLICK to change", UI_SMALLFONT | UI_CENTER,  colorWhite);
 
-			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78 , 0.25f, colorWhite,  "Press ENTER or CLICK to change", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, 0.25f, colorWhite, "Press ENTER or CLICK to change", 0, 0,
+						  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
 			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, "Press BACKSPACE to clear", UI_SMALLFONT | UI_CENTER,  colorWhite);
 
-			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82 , 0.25f, colorWhite,  "Press BACKSPACE to clear", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, 0.25f, colorWhite, "Press BACKSPACE to clear", 0, 0,
+						  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 		}
 	}
@@ -758,17 +761,21 @@ static void Controls_DrawKeyBinding(void *self)
 			//UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT, text_color_disabled);
 			//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, text_color_disabled);
 
-			UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, text_color_disabled,  g_bindings[a->generic.id].label, 0, 0, UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
-			UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, text_color_disabled, name, 0, 0, UI_LEFT | UI_DROPSHADOW ,  &uis.freeSansFont);
+			UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_disabled, g_bindings[a->generic.id].label, 0, 0,
+						  UI_RIGHT | UI_DROPSHADOW, &uis.freeSansBoldFont);
+			UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_disabled, name, 0, 0, UI_LEFT | UI_DROPSHADOW,
+						  &uis.freeSansFont);
 
 		}
 		else
 		{
-			//UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT,						  controls_binding_color);
+			//UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT | UI_SMALLFONT,                         controls_binding_color);
 			//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, controls_binding_color);
 
-			UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, text_color_normal,  g_bindings[a->generic.id].label, 0, 0, UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
-			UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, text_color_normal, name, 0, 0, UI_LEFT | UI_DROPSHADOW ,  &uis.freeSansFont);
+			UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_normal, g_bindings[a->generic.id].label, 0, 0,
+						  UI_RIGHT | UI_DROPSHADOW, &uis.freeSansBoldFont);
+			UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_normal, name, 0, 0, UI_LEFT | UI_DROPSHADOW,
+						  &uis.freeSansFont);
 
 
 		}
@@ -783,9 +790,10 @@ Controls_StatusBar
 */
 static void Controls_StatusBar(void *self)
 {
-	//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Use Arrow Keys or CLICK to change", UI_SMALLFONT | UI_CENTER,	  colorWhite);
+	//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Use Arrow Keys or CLICK to change", UI_SMALLFONT | UI_CENTER,     colorWhite);
 
-	UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80 , 0.25f, colorWhite,  "Use Arrow Keys or CLICK to change", 0, 0,  UI_CENTER | UI_PULSE,  &uis.freeSansBoldFont);
+	UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, 0.25f, colorWhite, "Use Arrow Keys or CLICK to change", 0, 0,
+				  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
 }
@@ -1689,12 +1697,12 @@ static void Controls_MenuInit(void)
 	s_controls.name.color = text_color_normal;
 
 	Menu_AddItem(&s_controls.menu, &s_controls.banner);
-//	Menu_AddItem(&s_controls.menu, &s_controls.framel);
-//	Menu_AddItem(&s_controls.menu, &s_controls.framer);
+//  Menu_AddItem(&s_controls.menu, &s_controls.framel);
+//  Menu_AddItem(&s_controls.menu, &s_controls.framer);
 
 //otty: do we need model preview here ?
-//	Menu_AddItem(&s_controls.menu, &s_controls.player);
-//	Menu_AddItem(&s_controls.menu, &s_controls.name);
+//  Menu_AddItem(&s_controls.menu, &s_controls.player);
+//  Menu_AddItem(&s_controls.menu, &s_controls.name);
 
 	Menu_AddItem(&s_controls.menu, &s_controls.looking);
 	Menu_AddItem(&s_controls.menu, &s_controls.movement);
@@ -1761,10 +1769,10 @@ static void Controls_MenuInit(void)
 
 //otty: do we need model preview here ?
 	// intialize the model
-//	Controls_InitModel();
+//  Controls_InitModel();
 
 	// intialize the weapons
-//	Controls_InitWeapons();
+//  Controls_InitWeapons();
 
 	// initial default section
 	s_controls.section = C_LOOKING;

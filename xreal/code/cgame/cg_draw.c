@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-vec4_t    redTeamColor = { 0.9f, 0.0f, 0.2f, 0.80f };
-vec4_t    blueTeamColor = { 0.2f, 0.0f, 0.9f, 0.80f };
-vec4_t    baseTeamColor = { 1.0f, 1.0f, 1.0f, 0.80f};
+vec4_t          redTeamColor = { 0.9f, 0.0f, 0.2f, 0.80f };
+vec4_t          blueTeamColor = { 0.2f, 0.0f, 0.9f, 0.80f };
+vec4_t          baseTeamColor = { 1.0f, 1.0f, 1.0f, 0.80f };
 
 
 #ifdef MISSIONPACK
@@ -1131,11 +1131,11 @@ void CG_DrawStatusBarNew(void)
 
 
 	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4( blueTeamColor, basecolor);
+		VectorCopy4(blueTeamColor, basecolor);
 	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4( redTeamColor, basecolor);
+		VectorCopy4(redTeamColor, basecolor);
 	else
-		VectorCopy4( baseTeamColor, basecolor);
+		VectorCopy4(baseTeamColor, basecolor);
 
 
 	// top stats bar
@@ -1174,7 +1174,7 @@ void CG_DrawStatusBarNew(void)
 
 		//background left - red team
 
-		VectorCopy4( redTeamColor, color);
+		VectorCopy4(redTeamColor, color);
 
 		score = cgs.scores1;
 
@@ -1203,7 +1203,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 		//background right - blue team
-		VectorCopy4( blueTeamColor, color);
+		VectorCopy4(blueTeamColor, color);
 		score = cgs.scores2;
 
 		if(cgs.gametype >= GT_CTF)

@@ -906,7 +906,7 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 		case UI_R_REGISTERMODEL:
 			return re.RegisterModel(VMA(1), args[2]);
 
-		//xppm stuff
+			//xppm stuff
 		case UI_R_REGISTERANIMATION:
 			return re.RegisterAnimation(VMA(1));
 		case UI_R_MODELBOUNDS:

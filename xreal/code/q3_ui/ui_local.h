@@ -166,9 +166,9 @@ typedef struct _tag_menuframework
 typedef struct
 {
 	const char     *text;
-	unsigned	style;
-	float		fontsize;
-	fontInfo_t	*font;
+	unsigned        style;
+	float           fontsize;
+	fontInfo_t     *font;
 	float          *color;
 	float          *focuscolor;
 
@@ -189,7 +189,7 @@ typedef struct
 	int             menuPosition;
 	unsigned        flags;
 
-	menucaption_s	caption;
+	menucaption_s   caption;
 
 	void            (*callback) (void *self, int event);
 	void            (*statusbar) (void *self);
@@ -559,8 +559,8 @@ qboolean        UI_RegisterClientModelname(playerInfo_t * pi, const char *modelS
 
 #ifdef XPPM
 	// XPPM support for the UI
-void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time);
-qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName);
+void            UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time);
+qboolean        UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName);
 
 #endif
 
@@ -596,9 +596,9 @@ typedef struct
 
 	// Tr3B: new truetype fonts
 	fontInfo_t      freeSerifBoldFont;
-	fontInfo_t	freeSansBoldFont;
+	fontInfo_t      freeSansBoldFont;
 	fontInfo_t      freeSerifFont;
-	fontInfo_t	freeSansFont;
+	fontInfo_t      freeSansFont;
 
 	fontInfo_t      buttonFont;
 	fontInfo_t      BTextFont;
@@ -606,8 +606,8 @@ typedef struct
 	fontInfo_t      TextFont;
 	fontInfo_t      TextBoldFont;
 
-//	fontInfo_t      smallFont;
-//	fontInfo_t      bigFont;
+//  fontInfo_t      smallFont;
+//  fontInfo_t      bigFont;
 
 } uiStatic_t;
 
@@ -641,7 +641,8 @@ void            UI_Text_PaintChar(float x, float y, float width, float height, f
 								  qhandle_t hShader);
 void            UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style,
 							  const fontInfo_t * font);
-void UI_Text_Paint_AutoWrapped(int x, int y,  float scale, int xmax, const char *str, int style, vec4_t color, const fontInfo_t * font);
+void            UI_Text_Paint_AutoWrapped(int x, int y, float scale, int xmax, const char *str, int style, vec4_t color,
+										  const fontInfo_t * font);
 
 
 extern qboolean UI_CursorInRect(int x, int y, int width, int height);
@@ -710,8 +711,8 @@ int             trap_FS_GetFileList(const char *path, const char *extension, cha
 int             trap_FS_Seek(fileHandle_t f, long offset, int origin);	// fsOrigin_t
 qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);
 qhandle_t       trap_R_RegisterAnimation(const char *name);
-int 		trap_R_AnimNumFrames(qhandle_t hAnim);
-int 		trap_R_AnimFrameRate(qhandle_t hAnim);
+int             trap_R_AnimNumFrames(qhandle_t hAnim);
+int             trap_R_AnimFrameRate(qhandle_t hAnim);
 qhandle_t       trap_R_RegisterSkin(const char *name);
 qhandle_t       trap_R_RegisterShaderNoMip(const char *name);
 void            trap_R_ClearScene(void);

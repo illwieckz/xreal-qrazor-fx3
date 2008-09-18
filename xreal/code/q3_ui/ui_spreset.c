@@ -119,7 +119,9 @@ static void Reset_MenuDraw(void)
 	UI_DrawProportionalString(s_reset.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
 	Menu_Draw(&s_reset.menu);
 
-	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This resets all of the single player game variables. Do this only if you want to start over from the beginning.",  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
+	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400,
+							  "WARNING: This resets all of the single player game variables. Do this only if you want to start over from the beginning.",
+							  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
 
 }
 
@@ -173,8 +175,8 @@ void UI_ResetMenu(void)
 	else
 	{
 		// game not running
-*/		s_reset.menu.fullscreen = qtrue;
-//	}
+*/ s_reset.menu.fullscreen = qtrue;
+//  }
 
 	s_reset.yes.generic.type = MTYPE_PTEXT;
 	s_reset.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;

@@ -368,10 +368,10 @@ static void Preferences_MenuInit(void)
 	s_preferences.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.banner);
-//	Menu_AddItem(&s_preferences.menu, &s_preferences.framel);
-//	Menu_AddItem(&s_preferences.menu, &s_preferences.framer);
+//  Menu_AddItem(&s_preferences.menu, &s_preferences.framel);
+//  Menu_AddItem(&s_preferences.menu, &s_preferences.framer);
 
-//	Menu_AddItem(&s_preferences.menu, &s_preferences.crosshair);
+//  Menu_AddItem(&s_preferences.menu, &s_preferences.crosshair);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.simpleitems);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.wallmarks);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.brass);

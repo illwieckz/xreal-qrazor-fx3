@@ -60,7 +60,7 @@ typedef struct
 	menubitmap_s    up;
 	menubitmap_s    down;
 	menutext_s      bots[7];
-	menutext_s     banner;
+	menutext_s      banner;
 	menulist_s      skill;
 	menulist_s      team;
 	menubitmap_s    go;

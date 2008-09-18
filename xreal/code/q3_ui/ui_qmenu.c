@@ -143,16 +143,17 @@ static void Text_Draw(menutext_s * t)
 	switch (t->style & UI_FORMATMASK)
 	{
 		case UI_BOLD:
-			UI_Text_Paint( x  ,  y + 8  , 0.25f , color, buff, 0, 0, t->style,  &uis.TextBoldFont);
+			UI_Text_Paint(x, y + 8, 0.25f, color, buff, 0, 0, t->style, &uis.TextBoldFont);
 			break;
 
-		
+
 		default:
-			UI_Text_Paint( x  ,  y + 8  , 0.25f , color, buff, 0, 0, t->style,  &uis.TextFont);
+			UI_Text_Paint(x, y + 8, 0.25f, color, buff, 0, 0, t->style, &uis.TextFont);
 			break;
 	}
 
 }
+
 /*
 =================
 BText_Init
@@ -184,7 +185,7 @@ static void BText_Draw(menutext_s * t)
 
 	//UI_DrawBannerString(x, y, t->string, t->style, color);
 
-	UI_Text_Paint( x  ,  y + 16 , 0.7f , color, t->string, 0, 0, t->style,  &uis.BTextFont);
+	UI_Text_Paint(x, y + 16, 0.7f, color, t->string, 0, 0, t->style, &uis.BTextFont);
 
 
 }
@@ -260,7 +261,7 @@ static void PText_Draw(menutext_s * t)
 
 	//UI_DrawProportionalString(x, y, t->string, style, color);
 
-	UI_Text_Paint( x  ,  y + 16  , 0.55f , color, t->string, 0, 0, style,  &uis.PTextFont);
+	UI_Text_Paint(x, y + 16, 0.55f, color, t->string, 0, 0, style, &uis.PTextFont);
 
 
 }
@@ -396,23 +397,28 @@ void Bitmap_Draw(menubitmap_s * b)
 		}
 	}
 
-	if(b->generic.caption.text ){
-		if(b->generic.flags & QMF_GRAYED) 
+	if(b->generic.caption.text)
+	{
+		if(b->generic.flags & QMF_GRAYED)
 		{
 			color = text_color_disabled;
 
-		}else if (Menu_ItemAtCursor(b->generic.parent) == b)
+		}
+		else if(Menu_ItemAtCursor(b->generic.parent) == b)
 		{
 
 			color = b->generic.caption.focuscolor;
 			if(b->generic.flags & QMF_PULSEIFFOCUS)
 				color[3] = 0.7 + 0.3 * sin(uis.realtime / PULSE_DIVISOR);
 
-		}else{
+		}
+		else
+		{
 			color = b->generic.caption.color;
 		}
 
-		UI_Text_Paint( x + w / 2 ,  y + h / 2 , b->generic.caption.fontsize, color, b->generic.caption.text, 0, 0, b->generic.caption.style,  b->generic.caption.font);
+		UI_Text_Paint(x + w / 2, y + h / 2, b->generic.caption.fontsize, color, b->generic.caption.text, 0, 0,
+					  b->generic.caption.style, b->generic.caption.font);
 
 	}
 
@@ -580,30 +586,29 @@ static void RadioButton_Draw(menuradiobutton_s * rb)
 		//draw hightlight
 		UI_FillRect(rb->generic.left, rb->generic.top, rb->generic.right - rb->generic.left + 1,
 					rb->generic.bottom - rb->generic.top + 1, listbar_color);
-		UI_FillRect(rb->generic.left, rb->generic.bottom , rb->generic.right - rb->generic.left + 1,
-					1, listbar_color);
-		UI_FillRect(rb->generic.left, rb->generic.top, rb->generic.right - rb->generic.left + 1,
-					1, listbar_color);
+		UI_FillRect(rb->generic.left, rb->generic.bottom, rb->generic.right - rb->generic.left + 1, 1, listbar_color);
+		UI_FillRect(rb->generic.left, rb->generic.top, rb->generic.right - rb->generic.left + 1, 1, listbar_color);
 		//draw cursor
 		//UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, color);
-		UI_Text_Paint(x , y+9, 0.25f, color,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x, y + 9, 0.25f, color, ">", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
 	}
 
 	if(rb->generic.name)
 		//UI_DrawString(x - SMALLCHAR_WIDTH, y, rb->generic.name, UI_RIGHT | UI_SMALLFONT, color);
-		UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, color,  rb->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, rb->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+					  &uis.freeSansBoldFont);
 	if(!rb->curvalue)
 	{
-//		UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_off);
-		UI_Text_Paint(x + SMALLCHAR_WIDTH , y+8, 0.25f, color, "Off", 0, 0, style | UI_DROPSHADOW,  &uis.freeSansFont);
+//      UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_off);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, "Off", 0, 0, style | UI_DROPSHADOW, &uis.freeSansFont);
 
 		//UI_DrawString(x + SMALLCHAR_WIDTH + 16, y, "off", style, color);
 	}
 	else
 	{
-	//	UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_on);
-		UI_Text_Paint(x + SMALLCHAR_WIDTH , y+8, 0.25f, color, "On", 0, 0, style | UI_DROPSHADOW,  &uis.freeSansFont);
+		//  UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_on);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, "On", 0, 0, style | UI_DROPSHADOW, &uis.freeSansFont);
 
 		//UI_DrawString(x + SMALLCHAR_WIDTH + 16, y, "on", style, color);
 	}
@@ -729,10 +734,8 @@ static void Slider_Draw(menuslider_s * s)
 		//draw hightlight
 		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
 					s->generic.bottom - s->generic.top + 1, listbar_color);
-		UI_FillRect(s->generic.left, s->generic.bottom , s->generic.right - s->generic.left + 1,
-					1, listbar_color);
-		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
-					1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.bottom, s->generic.right - s->generic.left + 1, 1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1, 1, listbar_color);
 
 	}
 	else
@@ -743,7 +746,8 @@ static void Slider_Draw(menuslider_s * s)
 
 	// draw label
 	//UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, UI_RIGHT | style, color);
-	UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, color,  s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+				  &uis.freeSansBoldFont);
 
 	// draw slider
 	UI_SetColor(color);
@@ -974,23 +978,23 @@ static void SpinControl_Draw(menulist_s * s)
 		//draw hightlight
 		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
 					s->generic.bottom - s->generic.top + 1, listbar_color);
-		UI_FillRect(s->generic.left, s->generic.bottom , s->generic.right - s->generic.left + 1,
-					1, listbar_color);
-		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
-					1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.bottom, s->generic.right - s->generic.left + 1, 1, listbar_color);
+		UI_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1, 1, listbar_color);
 
 
 		// draw cursor
 		//UI_DrawChar(x, y, 13, UI_CENTER | UI_BLINK | UI_SMALLFONT, color);
-		UI_Text_Paint(x , y+9, 0.25f, color,  ">", 0, 0,  UI_CENTER | UI_BLINK,  &uis.freeSansBoldFont);
+		UI_Text_Paint(x, y + 9, 0.25f, color, ">", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
 	}
 
 	//UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, style | UI_RIGHT, color);
 	//UI_DrawString(x + SMALLCHAR_WIDTH, y, s->itemnames[s->curvalue], style | UI_LEFT, color);
 
-	UI_Text_Paint(x - SMALLCHAR_WIDTH, y+8, 0.25f, color,  s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,  &uis.freeSansBoldFont);
-	UI_Text_Paint(x + SMALLCHAR_WIDTH, y+8, 0.25f, color, s->itemnames[s->curvalue], 0, 0, style | UI_LEFT | UI_DROPSHADOW,  &uis.freeSansFont);
+	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+				  &uis.freeSansBoldFont);
+	UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->itemnames[s->curvalue], 0, 0, style | UI_LEFT | UI_DROPSHADOW,
+				  &uis.freeSansFont);
 
 
 }
@@ -1393,7 +1397,7 @@ void ScrollList_Draw(menulist_s * l)
 
 			//UI_DrawString(x, y, l->itemnames[i], style, color);
 
-			UI_Text_Paint(x , y+8, 0.25f, color,  l->itemnames[i], 0, 0, style  | UI_DROPSHADOW,  &uis.freeSansBoldFont);
+			UI_Text_Paint(x, y + 8, 0.25f, color, l->itemnames[i], 0, 0, style | UI_DROPSHADOW, &uis.freeSansBoldFont);
 
 
 			y += SMALLCHAR_HEIGHT;

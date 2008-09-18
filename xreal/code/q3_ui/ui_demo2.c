@@ -270,8 +270,8 @@ static void Demos_MenuInit(void)
 	}
 
 	Menu_AddItem(&s_demos.menu, &s_demos.banner);
-//	Menu_AddItem(&s_demos.menu, &s_demos.framel);
-//	Menu_AddItem(&s_demos.menu, &s_demos.framer);
+//  Menu_AddItem(&s_demos.menu, &s_demos.framel);
+//  Menu_AddItem(&s_demos.menu, &s_demos.framer);
 	Menu_AddItem(&s_demos.menu, &s_demos.list);
 	Menu_AddItem(&s_demos.menu, &s_demos.arrows);
 	Menu_AddItem(&s_demos.menu, &s_demos.left);

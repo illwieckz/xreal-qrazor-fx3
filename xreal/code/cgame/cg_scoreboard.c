@@ -523,11 +523,11 @@ qboolean CG_DrawScoreboardNew(void)
 		return qfalse;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4( blueTeamColor, basecolor);
+		VectorCopy4(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4( redTeamColor, basecolor);
+		VectorCopy4(redTeamColor, basecolor);
 	else
-		VectorCopy4( baseTeamColor, basecolor);
+		VectorCopy4(baseTeamColor, basecolor);
 
 
 	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION)

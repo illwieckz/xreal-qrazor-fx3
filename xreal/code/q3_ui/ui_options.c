@@ -131,8 +131,8 @@ void Options_MenuInit(void)
 	}
 	else
 	{
-	*/	s_options.menu.fullscreen = qtrue;
-//	}
+	*/ s_options.menu.fullscreen = qtrue;
+//  }
 
 	s_options.banner.generic.type = MTYPE_BTEXT;
 	s_options.banner.generic.flags = QMF_CENTER_JUSTIFY;

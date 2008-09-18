@@ -33,7 +33,7 @@ INGAME MENU
 #include "ui_local.h"
 
 
-//#define INGAME_FRAME					"menu/art/addbotframe"
+//#define INGAME_FRAME                  "menu/art/addbotframe"
 //#define INGAME_FRAME                  "menu/art/cut_frame"
 #define INGAME_MENU_VERTICAL_SPACING	42
 
@@ -70,7 +70,7 @@ typedef struct
 
 static ingamemenu_t s_ingame;
 
-			
+
 /*
 =================
 InGame_LeaveAction
@@ -296,7 +296,7 @@ void InGame_MenuInit(void)
 	s_ingame.restart.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_ingame.restart.generic.callback = InGame_Event;
 	s_ingame.restart.generic.id = ID_RESTART;
-	s_ingame.restart.generic.x = 320-32;
+	s_ingame.restart.generic.x = 320 - 32;
 	s_ingame.restart.generic.y = 480 - 64;
 	s_ingame.restart.width = 128;
 	s_ingame.restart.height = 64;
@@ -318,7 +318,7 @@ void InGame_MenuInit(void)
 	s_ingame.quit.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_ingame.quit.generic.callback = InGame_Event;
 	s_ingame.quit.generic.id = ID_QUIT;
-	s_ingame.quit.generic.x = 320+32;
+	s_ingame.quit.generic.x = 320 + 32;
 	s_ingame.quit.generic.y = 480 - 64;
 	s_ingame.quit.width = 128;
 	s_ingame.quit.height = 64;
