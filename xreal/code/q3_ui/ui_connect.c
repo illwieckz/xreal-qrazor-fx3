@@ -216,6 +216,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 		UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
 	}
 
+
 	// see what information we should display
 	trap_GetClientState(&cstate);
 
@@ -224,14 +225,10 @@ void UI_DrawConnectScreen(qboolean overlay)
 	{
 
 		s = va("Loading %s", Info_ValueForKey(info, "mapname"));
-		w = UI_Text_Width(s, 0.5f, 0, &uis.freeSerifBoldFont);
-		UI_Text_Paint(320 - w / 2, 24, 0.5f, menu_text_color, s, 0, 0, UI_CENTER,  &uis.freeSerifBoldFont);
+		UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
 
 	}
 
-	s = va("Connecting to %s", cstate.servername);
-	w = UI_Text_Width(s, 0.3f, 0, &uis.freeSerifBoldFont);
-	UI_Text_Paint(320 - w / 2, 64, 0.3f, menu_text_color, s, 0, 0, UI_CENTER,  &uis.freeSerifBoldFont);
 
 
 	// display global MOTD at bottom
@@ -240,9 +237,17 @@ void UI_DrawConnectScreen(qboolean overlay)
 	// print any server info (server full, bad version, etc)
 	if(cstate.connState < CA_CONNECTED)
 	{
-		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
-											  menu_text_color);
+		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,											  menu_text_color);
 
+		s = va("%s", cstate.messageString);
+		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansFont);
+
+
+	}
+	else
+	{
+		s = va("Connecting to %s", cstate.servername);
+		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.freeSansFont);
 
 
 	}
@@ -283,9 +288,9 @@ void UI_DrawConnectScreen(qboolean overlay)
 	}
 
 
-	w = UI_Text_Width(s, 0.3f, 0, &uis.freeSerifBoldFont);
-	UI_Text_Paint(320 - w / 2, 463, 0.3f, color_white, s, 0, 0, UI_CENTER,  &uis.freeSerifBoldFont);
-	// password required / connection rejected information goes here
+	UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW,  &uis.BTextFont);
+
+
 }
 
 

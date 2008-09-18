@@ -216,14 +216,14 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.menu.wrapAround = qtrue;
 
 	trap_GetClientState(&cstate);
-	if(cstate.connState >= CA_CONNECTED)
+/*	if(cstate.connState >= CA_CONNECTED)
 	{
 		s_confirm.menu.fullscreen = qfalse;
 	}
 	else
 	{
-		s_confirm.menu.fullscreen = qtrue;
-	}
+*/		s_confirm.menu.fullscreen = qtrue;
+//	}
 /*
 	s_confirm.yes.generic.type = MTYPE_PTEXT;
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -329,14 +329,14 @@ void UI_Message(const char **lines)
 	s_confirm.menu.wrapAround = qtrue;
 
 	trap_GetClientState(&cstate);
-	if(cstate.connState >= CA_CONNECTED)
+/*	if(cstate.connState >= CA_CONNECTED)
 	{
 		s_confirm.menu.fullscreen = qfalse;
 	}
 	else
 	{
-		s_confirm.menu.fullscreen = qtrue;
-	}
+*/		s_confirm.menu.fullscreen = qtrue;
+//	}
 
 /*	s_confirm.yes.generic.type = MTYPE_PTEXT;
 	s_confirm.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;

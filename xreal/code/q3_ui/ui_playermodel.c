@@ -28,9 +28,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MODEL_FRAMEL		"menu/art/frame2_l"
 #define MODEL_FRAMER		"menu/art/frame1_r"
 #define MODEL_PORTS			"menu/art/player_models_ports"
-#define MODEL_ARROWS		"menu/art/gs_arrows_0"
-#define MODEL_ARROWSL		"menu/art/gs_arrows_l"
-#define MODEL_ARROWSR		"menu/art/gs_arrows_r"
+
+#define MODEL_ARROWS			"ui/arrows_horz_0"
+#define MODEL_ARROWSL			"ui/arrows_horz_left"
+#define MODEL_ARROWSR			"ui/arrows_horz_right"
+
 
 #define LOW_MEMORY			(5 * 1024 * 1024)
 

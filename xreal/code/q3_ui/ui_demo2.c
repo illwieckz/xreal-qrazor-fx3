@@ -33,11 +33,9 @@ DEMOS MENU
 #include "ui_local.h"
 
 
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
-#define ART_ARROWS			"menu/art/arrows_horz_0"
-#define ART_ARROWLEFT		"menu/art/arrows_horz_left"
-#define ART_ARROWRIGHT		"menu/art/arrows_horz_right"
+#define ART_ARROWS			"ui/arrows_horz_0"
+#define ART_ARROWLEFT			"ui/arrows_horz_left"
+#define ART_ARROWRIGHT			"ui/arrows_horz_right"
 
 #define MAX_DEMOS			128
 #define NAMEBUFSIZE			( MAX_DEMOS * 16 )
@@ -231,13 +229,14 @@ static void Demos_MenuInit(void)
 	s_demos.go.generic.caption.focuscolor = text_color_highlight;
 
 	s_demos.list.generic.type = MTYPE_SCROLLLIST;
-	s_demos.list.generic.flags = QMF_PULSEIFFOCUS;
+	s_demos.list.generic.flags = QMF_PULSEIFFOCUS | QMF_CENTER_JUSTIFY;
 	s_demos.list.generic.callback = Demos_MenuEvent;
 	s_demos.list.generic.id = ID_LIST;
-	s_demos.list.generic.x = 118;
+	s_demos.list.generic.x = 320;
 	s_demos.list.generic.y = 130;
-	s_demos.list.width = 16;
+	s_demos.list.width = 48;
 	s_demos.list.height = 14;
+
 	Com_sprintf(extension, sizeof(extension), "dm_%d", (int)trap_Cvar_VariableValue("protocol"));
 	s_demos.list.numitems = trap_FS_GetFileList("demos", extension, s_demos.names, NAMEBUFSIZE);
 	s_demos.list.itemnames = (const char **)s_demos.demolist;
@@ -288,8 +287,6 @@ Demos_Cache
 */
 void Demos_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_FRAMEL);
-	trap_R_RegisterShaderNoMip(ART_FRAMER);
 	trap_R_RegisterShaderNoMip(ART_ARROWS);
 	trap_R_RegisterShaderNoMip(ART_ARROWLEFT);
 	trap_R_RegisterShaderNoMip(ART_ARROWRIGHT);

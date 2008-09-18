@@ -299,7 +299,7 @@ void Rankings_MenuInit(void)
 	Rankings_Cache();
 
 	s_rankings.menu.wrapAround = qtrue;
-	s_rankings.menu.fullscreen = qfalse;
+	s_rankings.menu.fullscreen = qtrue;
 
 	s_rankings.frame.generic.type = MTYPE_BITMAP;
 	s_rankings.frame.generic.flags = QMF_INACTIVE;

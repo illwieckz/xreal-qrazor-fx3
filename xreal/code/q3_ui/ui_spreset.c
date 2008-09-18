@@ -165,7 +165,7 @@ void UI_ResetMenu(void)
 
 	trap_GetClientState(&cstate);
 
-	if(cstate.connState >= CA_CONNECTED)
+/*	if(cstate.connState >= CA_CONNECTED)
 	{
 		// float on top of running game
 		s_reset.menu.fullscreen = qfalse;
@@ -173,8 +173,8 @@ void UI_ResetMenu(void)
 	else
 	{
 		// game not running
-		s_reset.menu.fullscreen = qtrue;
-	}
+*/		s_reset.menu.fullscreen = qtrue;
+//	}
 
 	s_reset.yes.generic.type = MTYPE_PTEXT;
 	s_reset.yes.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;

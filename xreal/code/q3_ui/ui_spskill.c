@@ -116,13 +116,13 @@ static void UI_SPSkillMenu_SkillEvent(void *ptr, int notification)
 	if(notification != QM_ACTIVATED)
 		return;
 
-	SetSkillColor((int)trap_Cvar_VariableValue("g_spSkill"), color_red);
+	SetSkillColor((int)trap_Cvar_VariableValue("g_spSkill"), text_color_normal);
 
 	id = ((menucommon_s *) ptr)->id;
 	skill = id - ID_BABY + 1;
 	trap_Cvar_SetValue("g_spSkill", skill);
 
-	SetSkillColor(skill, color_white);
+	SetSkillColor(skill, color_red);
 	skillMenuInfo.art_skillPic.shader = skillMenuInfo.skillpics[skill - 1];
 
 	if(id == ID_NIGHTMARE)
@@ -220,14 +220,6 @@ static void UI_SPSkillMenu_Init(void)
 
 	UI_SPSkillMenu_Cache();
 
-	skillMenuInfo.art_frame.generic.type = MTYPE_BITMAP;
-	skillMenuInfo.art_frame.generic.name = ART_FRAME;
-	skillMenuInfo.art_frame.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	skillMenuInfo.art_frame.generic.x = 142;
-	skillMenuInfo.art_frame.generic.y = 118;
-	skillMenuInfo.art_frame.width = 359;
-	skillMenuInfo.art_frame.height = 256;
-
 	skillMenuInfo.art_banner.generic.type = MTYPE_BTEXT;
 	skillMenuInfo.art_banner.generic.flags = QMF_CENTER_JUSTIFY;
 	skillMenuInfo.art_banner.generic.x = 320;
@@ -243,7 +235,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_baby.generic.callback = UI_SPSkillMenu_SkillEvent;
 	skillMenuInfo.item_baby.generic.id = ID_BABY;
 	skillMenuInfo.item_baby.string = "I Can Win";
-	skillMenuInfo.item_baby.color = color_red;
+	skillMenuInfo.item_baby.color = text_color_normal;
 	skillMenuInfo.item_baby.style = UI_CENTER;
 
 	skillMenuInfo.item_easy.generic.type = MTYPE_PTEXT;
@@ -253,7 +245,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_easy.generic.callback = UI_SPSkillMenu_SkillEvent;
 	skillMenuInfo.item_easy.generic.id = ID_EASY;
 	skillMenuInfo.item_easy.string = "Bring It On";
-	skillMenuInfo.item_easy.color = color_red;
+	skillMenuInfo.item_easy.color = text_color_normal;
 	skillMenuInfo.item_easy.style = UI_CENTER;
 
 	skillMenuInfo.item_medium.generic.type = MTYPE_PTEXT;
@@ -263,7 +255,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_medium.generic.callback = UI_SPSkillMenu_SkillEvent;
 	skillMenuInfo.item_medium.generic.id = ID_MEDIUM;
 	skillMenuInfo.item_medium.string = "Hurt Me Plenty";
-	skillMenuInfo.item_medium.color = color_red;
+	skillMenuInfo.item_medium.color = text_color_normal;
 	skillMenuInfo.item_medium.style = UI_CENTER;
 
 	skillMenuInfo.item_hard.generic.type = MTYPE_PTEXT;
@@ -273,7 +265,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_hard.generic.callback = UI_SPSkillMenu_SkillEvent;
 	skillMenuInfo.item_hard.generic.id = ID_HARD;
 	skillMenuInfo.item_hard.string = "Hardcore";
-	skillMenuInfo.item_hard.color = color_red;
+	skillMenuInfo.item_hard.color = text_color_normal;
 	skillMenuInfo.item_hard.style = UI_CENTER;
 
 	skillMenuInfo.item_nightmare.generic.type = MTYPE_PTEXT;
@@ -283,7 +275,7 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_nightmare.generic.callback = UI_SPSkillMenu_SkillEvent;
 	skillMenuInfo.item_nightmare.generic.id = ID_NIGHTMARE;
 	skillMenuInfo.item_nightmare.string = "NIGHTMARE!";
-	skillMenuInfo.item_nightmare.color = color_red;
+	skillMenuInfo.item_nightmare.color = text_color_normal;
 	skillMenuInfo.item_nightmare.style = UI_CENTER;
 
 	skillMenuInfo.item_back.generic.type = MTYPE_BITMAP;
@@ -320,21 +312,20 @@ static void UI_SPSkillMenu_Init(void)
 	skillMenuInfo.item_fight.width = 128;
 	skillMenuInfo.item_fight.height = 64;
 	skillMenuInfo.item_fight.focuspic = UI_ART_BUTTON_FOCUS;
-	skillMenuInfo.item_fight.generic.caption.text = "replay";
+	skillMenuInfo.item_fight.generic.caption.text = "fight";
 	skillMenuInfo.item_fight.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	skillMenuInfo.item_fight.generic.caption.fontsize = 0.6f;
 	skillMenuInfo.item_fight.generic.caption.font = &uis.buttonFont;
 	skillMenuInfo.item_fight.generic.caption.color = text_color_normal;
 	skillMenuInfo.item_fight.generic.caption.focuscolor = text_color_highlight;
 
-	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_frame);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_banner);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_baby);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_easy);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_medium);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_hard);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_nightmare);
-	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_skillPic);
+//	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.art_skillPic);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_back);
 	Menu_AddItem(&skillMenuInfo.menu, (void *)&skillMenuInfo.item_fight);
 

@@ -142,8 +142,13 @@ static void ServerInfo_MenuDraw(void)
 
 		Q_strcat(key, MAX_INFO_KEY, ":");
 
-		UI_DrawString(SCREEN_WIDTH * 0.50 - 8, y, key, UI_RIGHT | UI_SMALLFONT, color_red);
-		UI_DrawString(SCREEN_WIDTH * 0.50 + 8, y, value, UI_LEFT | UI_SMALLFONT, text_color_normal);
+		//UI_DrawString(SCREEN_WIDTH * 0.50 - 8, y, key, UI_RIGHT | UI_SMALLFONT, color_red);
+		//UI_DrawString(SCREEN_WIDTH * 0.50 + 8, y, value, UI_LEFT | UI_SMALLFONT, text_color_normal);
+
+
+		UI_Text_Paint(SCREEN_WIDTH * 0.50 - 8, y+8, 0.25f, text_color_normal,  key, 0, 0, UI_DROPSHADOW | UI_RIGHT,  &uis.freeSansBoldFont);
+		UI_Text_Paint(SCREEN_WIDTH * 0.50 + 8, y+8, 0.25f, text_color_normal, value, 0, 0, UI_DROPSHADOW | UI_LEFT,  &uis.freeSansFont);
+
 
 		y += SMALLCHAR_HEIGHT;
 		i++;
@@ -208,22 +213,6 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.banner.color = color_white;
 	s_serverinfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
-	s_serverinfo.framel.generic.type = MTYPE_BITMAP;
-	s_serverinfo.framel.generic.name = SERVERINFO_FRAMEL;
-	s_serverinfo.framel.generic.flags = QMF_INACTIVE;
-	s_serverinfo.framel.generic.x = 0;
-	s_serverinfo.framel.generic.y = 78;
-	s_serverinfo.framel.width = 256;
-	s_serverinfo.framel.height = 329;
-
-	s_serverinfo.framer.generic.type = MTYPE_BITMAP;
-	s_serverinfo.framer.generic.name = SERVERINFO_FRAMER;
-	s_serverinfo.framer.generic.flags = QMF_INACTIVE;
-	s_serverinfo.framer.generic.x = 376;
-	s_serverinfo.framer.generic.y = 76;
-	s_serverinfo.framer.width = 256;
-	s_serverinfo.framer.height = 334;
-
 	s_serverinfo.add.generic.type = MTYPE_PTEXT;
 	s_serverinfo.add.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_serverinfo.add.generic.callback = ServerInfo_Event;
@@ -273,8 +262,8 @@ void UI_ServerInfoMenu(void)
 		s_serverinfo.numlines = 16;
 
 	Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.banner);
-	Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.framel);
-	Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.framer);
+	//Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.framel);
+	//Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.framer);
 	Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.add);
 	Menu_AddItem(&s_serverinfo.menu, (void *)&s_serverinfo.back);
 

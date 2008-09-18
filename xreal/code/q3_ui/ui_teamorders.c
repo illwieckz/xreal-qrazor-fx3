@@ -379,7 +379,7 @@ static void UI_TeamOrdersMenu_Init(void)
 	UI_TeamOrdersMenu_Cache();
 
 	memset(&teamOrdersMenuInfo, 0, sizeof(teamOrdersMenuInfo));
-	teamOrdersMenuInfo.menu.fullscreen = qfalse;
+	teamOrdersMenuInfo.menu.fullscreen = qtrue;
 	teamOrdersMenuInfo.menu.key = UI_TeamOrdersMenu_Key;
 
 	UI_TeamOrdersMenu_BuildBotList();

@@ -107,7 +107,7 @@ void Login_MenuInit(void)
 	Login_Cache();
 
 	s_login.menu.wrapAround = qtrue;
-	s_login.menu.fullscreen = qfalse;
+	s_login.menu.fullscreen = qtrue;
 
 	s_login.frame.generic.type = MTYPE_BITMAP;
 	s_login.frame.generic.flags = QMF_INACTIVE;

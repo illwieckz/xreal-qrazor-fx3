@@ -1586,6 +1586,12 @@ void UI_Refresh(int realtime)
 	UI_DrawRect(0, uis.cursory-1, 640, 3, color_cursorLines);
 	UI_DrawRect(uis.cursorx-1, 0, 3, 480, color_cursorLines);
 
+	UI_Text_Paint(10 , uis.cursory, 0.15f, color_cursorLines,  va("%i", lineX  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+	UI_Text_Paint(uis.cursorx , 10, 0.15f, color_cursorLines,  va("%i", lineY  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+
+	UI_Text_Paint(630 , uis.cursory, 0.15f, color_cursorLines,  va("%i", uis.cursorx  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+	UI_Text_Paint(uis.cursorx , 470, 0.15f, color_cursorLines,  va("%i", uis.cursory  ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+
 	UI_SetColor(NULL);
 
 // draw cursor
@@ -1596,18 +1602,22 @@ void UI_Refresh(int realtime)
 	
 	if(uis.realtime > nextLine) {
 		lineX += 4;
-		lineY += 4;
 
 		if(lineX >=640)
 			lineX = 0;
-		if(lineY >=480)
-			lineY = 0;
+
 
 		nextLine = uis.realtime + 10;
 	}
 
+	lineY = 240 + 200*sin(uis.realtime / 400.0f);
+
 	UI_DrawRect(0, lineY, 640, 1, color_cursorLines);
 	UI_DrawRect(lineX, 0, 1, 480, color_cursorLines);
+
+	UI_Text_Paint(10 , lineY, 0.15f, color_cursorLines,  va("%i%i", lineX , lineY ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+	UI_Text_Paint(lineX , 10, 0.15f, color_cursorLines,  va("%i%i", lineY , lineX ), 0, 0,  UI_CENTER,  &uis.freeSansFont);
+
 
 //draw border around screen
 	UI_DrawRect(0, 0, 640, 480, color_cursorLines);

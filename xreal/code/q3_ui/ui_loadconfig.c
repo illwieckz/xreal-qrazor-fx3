@@ -36,9 +36,10 @@ LOAD CONFIG MENU
 #define ART_FIGHT1			"menu/art/load_1"
 #define ART_FRAMEL			"menu/art/frame2_l"
 #define ART_FRAMER			"menu/art/frame1_r"
-#define ART_ARROWS			"menu/art/arrows_horz_0"
-#define ART_ARROWLEFT		"menu/art/arrows_horz_left"
-#define ART_ARROWRIGHT		"menu/art/arrows_horz_right"
+
+#define ART_ARROWS			"ui/arrows_horz_0"
+#define ART_ARROWLEFT			"ui/arrows_horz_left"
+#define ART_ARROWRIGHT			"ui/arrows_horz_right"
 
 #define MAX_CONFIGS			128
 #define NAMEBUFSIZE			( MAX_CONFIGS * 16 )

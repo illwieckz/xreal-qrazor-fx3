@@ -33,12 +33,11 @@ REMOVE BOTS MENU
 #include "ui_local.h"
 
 
-#define ART_BACKGROUND		"menu/art/addbotframe"
-#define ART_DELETE0			"menu/art/delete_0"
-#define ART_DELETE1			"menu/art/delete_1"
-#define ART_ARROWS			"menu/art/arrows_vert_0"
-#define ART_ARROWUP			"menu/art/arrows_vert_top"
-#define ART_ARROWDOWN		"menu/art/arrows_vert_bot"
+
+#define ART_ARROWS		"ui/arrows_vert_0"
+#define ART_ARROWUP		"ui/arrows_vert_top"
+#define ART_ARROWDOWN		"ui/arrows_vert_bot"
+
 
 #define ID_UP				10
 #define ID_DOWN				11
@@ -59,13 +58,10 @@ typedef struct
 
 	menutext_s      banner;
 	menubitmap_s    background;
-
 	menubitmap_s    arrows;
 	menubitmap_s    up;
 	menubitmap_s    down;
-
 	menutext_s      bots[7];
-
 	menubitmap_s    delete;
 	menubitmap_s    back;
 
@@ -130,9 +126,9 @@ static void UI_RemoveBotsMenu_BotEvent(void *ptr, int event)
 		return;
 	}
 
-	removeBotsMenuInfo.bots[removeBotsMenuInfo.selectedBotNum].color = color_orange;
+	removeBotsMenuInfo.bots[removeBotsMenuInfo.selectedBotNum].color = text_color_normal;
 	removeBotsMenuInfo.selectedBotNum = ((menucommon_s *) ptr)->id - ID_BOTNAME0;
-	removeBotsMenuInfo.bots[removeBotsMenuInfo.selectedBotNum].color = color_white;
+	removeBotsMenuInfo.bots[removeBotsMenuInfo.selectedBotNum].color = text_color_highlight;
 }
 
 
@@ -230,9 +226,8 @@ UI_RemoveBots_Cache
 */
 void UI_RemoveBots_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACKGROUND);
-	trap_R_RegisterShaderNoMip(ART_DELETE0);
-	trap_R_RegisterShaderNoMip(ART_DELETE1);
+
+
 }
 
 
@@ -248,7 +243,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	int             y;
 
 	memset(&removeBotsMenuInfo, 0, sizeof(removeBotsMenuInfo));
-	removeBotsMenuInfo.menu.fullscreen = qfalse;
+	removeBotsMenuInfo.menu.fullscreen = qtrue;
 	removeBotsMenuInfo.menu.wrapAround = qtrue;
 
 	UI_RemoveBots_Cache();
@@ -264,13 +259,6 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.banner.color = color_white;
 	removeBotsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
-	removeBotsMenuInfo.background.generic.type = MTYPE_BITMAP;
-	removeBotsMenuInfo.background.generic.name = ART_BACKGROUND;
-	removeBotsMenuInfo.background.generic.flags = QMF_INACTIVE;
-	removeBotsMenuInfo.background.generic.x = 320 - 233;
-	removeBotsMenuInfo.background.generic.y = 240 - 166;
-	removeBotsMenuInfo.background.width = 466;
-	removeBotsMenuInfo.background.height = 332;
 
 	removeBotsMenuInfo.arrows.generic.type = MTYPE_BITMAP;
 	removeBotsMenuInfo.arrows.generic.name = ART_ARROWS;
@@ -314,23 +302,29 @@ static void UI_RemoveBotsMenu_Init(void)
 	}
 
 	removeBotsMenuInfo.delete.generic.type = MTYPE_BITMAP;
-	removeBotsMenuInfo.delete.generic.name = ART_DELETE0;
-	removeBotsMenuInfo.delete.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
+	removeBotsMenuInfo.delete.generic.name = UI_ART_BUTTON;
+	removeBotsMenuInfo.delete.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	removeBotsMenuInfo.delete.generic.id = ID_DELETE;
 	removeBotsMenuInfo.delete.generic.callback = UI_RemoveBotsMenu_DeleteEvent;
-	removeBotsMenuInfo.delete.generic.x = 320 + 128 - 128;
-	removeBotsMenuInfo.delete.generic.y = 256 + 128 - 64;
+	removeBotsMenuInfo.delete.generic.x = 640;
+	removeBotsMenuInfo.delete.generic.y = 480 - 64;
 	removeBotsMenuInfo.delete.width = 128;
 	removeBotsMenuInfo.delete.height = 64;
-	removeBotsMenuInfo.delete.focuspic = ART_DELETE1;
+	removeBotsMenuInfo.delete.focuspic = UI_ART_BUTTON_FOCUS;
+	removeBotsMenuInfo.delete.generic.caption.text = "remove";
+	removeBotsMenuInfo.delete.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	removeBotsMenuInfo.delete.generic.caption.fontsize = 0.6f;
+	removeBotsMenuInfo.delete.generic.caption.font = &uis.buttonFont;
+	removeBotsMenuInfo.delete.generic.caption.color = text_color_normal;
+	removeBotsMenuInfo.delete.generic.caption.focuscolor = text_color_highlight;
 
 	removeBotsMenuInfo.back.generic.type = MTYPE_BITMAP;
 	removeBotsMenuInfo.back.generic.name = UI_ART_BUTTON;
 	removeBotsMenuInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	removeBotsMenuInfo.back.generic.id = ID_BACK;
 	removeBotsMenuInfo.back.generic.callback = UI_RemoveBotsMenu_BackEvent;
-	removeBotsMenuInfo.back.generic.x = 320 - 128;
-	removeBotsMenuInfo.back.generic.y = 256 + 128 - 64;
+	removeBotsMenuInfo.back.generic.x = 0;
+	removeBotsMenuInfo.back.generic.y = 480 - 64;
 	removeBotsMenuInfo.back.width = 128;
 	removeBotsMenuInfo.back.height = 64;
 	removeBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -341,7 +335,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.back.generic.caption.color = text_color_normal;
 	removeBotsMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
-	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.background);
+
 	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.banner);
 	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.arrows);
 	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.up);

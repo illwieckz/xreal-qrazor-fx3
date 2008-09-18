@@ -999,7 +999,7 @@ static void UI_SPLevelMenu_Init(void)
 	levelMenuInfo.item_next.width = 128;
 	levelMenuInfo.item_next.height = 64;
 	levelMenuInfo.item_next.focuspic = UI_ART_BUTTON_FOCUS;
-	levelMenuInfo.item_next.generic.caption.text = "fight";
+	levelMenuInfo.item_next.generic.caption.text = "go";
 	levelMenuInfo.item_next.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	levelMenuInfo.item_next.generic.caption.fontsize = 0.6f;
 	levelMenuInfo.item_next.generic.caption.font = &uis.buttonFont;

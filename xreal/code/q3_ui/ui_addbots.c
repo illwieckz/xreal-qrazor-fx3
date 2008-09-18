@@ -33,10 +33,9 @@ ADD BOTS MENU
 #include "ui_local.h"
 
 
-#define ART_BACKGROUND		"menu/art/addbotframe"
-#define ART_ARROWS			"menu/art/arrows_vert_0"
-#define ART_ARROWUP			"menu/art/arrows_vert_top"
-#define ART_ARROWDOWN		"menu/art/arrows_vert_bot"
+#define ART_ARROWS		"ui/arrows_vert_0"
+#define ART_ARROWUP		"ui/arrows_vert_top"
+#define ART_ARROWDOWN		"ui/arrows_vert_bot"
 
 #define ID_BACK				10
 #define ID_GO				11
@@ -61,6 +60,7 @@ typedef struct
 	menubitmap_s    up;
 	menubitmap_s    down;
 	menutext_s      bots[7];
+	menutext_s     banner;
 	menulist_s      skill;
 	menulist_s      team;
 	menubitmap_s    go;
@@ -115,9 +115,9 @@ static void UI_AddBotsMenu_BotEvent(void *ptr, int event)
 		return;
 	}
 
-	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = color_orange;
+	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = text_color_normal;
 	addBotsMenuInfo.selectedBotNum = ((menucommon_s *) ptr)->id - ID_BOTNAME0;
-	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = color_white;
+	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = text_color_highlight;
 }
 
 
@@ -240,8 +240,8 @@ UI_AddBotsMenu_Draw
 */
 static void UI_AddBotsMenu_Draw(void)
 {
-	UI_DrawBannerString(320, 16, "ADD BOTS", UI_CENTER, color_white);
-	UI_DrawNamedPic(320 - 233, 240 - 166, 466, 332, ART_BACKGROUND);
+	//UI_DrawBannerString(320, 16, "ADD BOTS", UI_CENTER, color_white);
+	//UI_DrawNamedPic(320 - 233, 240 - 166, 466, 332, ART_BACKGROUND);
 
 	// standard menu drawing
 	Menu_Draw(&addBotsMenuInfo.menu);
@@ -286,7 +286,7 @@ static void UI_AddBotsMenu_Init(void)
 
 	memset(&addBotsMenuInfo, 0, sizeof(addBotsMenuInfo));
 	addBotsMenuInfo.menu.draw = UI_AddBotsMenu_Draw;
-	addBotsMenuInfo.menu.fullscreen = qfalse;
+	addBotsMenuInfo.menu.fullscreen = qtrue;
 	addBotsMenuInfo.menu.wrapAround = qtrue;
 	addBotsMenuInfo.delay = 1000;
 
@@ -294,6 +294,13 @@ static void UI_AddBotsMenu_Init(void)
 
 	addBotsMenuInfo.numBots = UI_GetNumBots();
 	count = addBotsMenuInfo.numBots < 7 ? addBotsMenuInfo.numBots : 7;
+
+	addBotsMenuInfo.banner.generic.type = MTYPE_BTEXT;
+	addBotsMenuInfo.banner.generic.x = 320;
+	addBotsMenuInfo.banner.generic.y = 16;
+	addBotsMenuInfo.banner.string = "ADD BOTS";
+	addBotsMenuInfo.banner.color = color_white;
+	addBotsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 	addBotsMenuInfo.arrows.generic.type = MTYPE_BITMAP;
 	addBotsMenuInfo.arrows.generic.name = ART_ARROWS;
@@ -332,11 +339,11 @@ static void UI_AddBotsMenu_Init(void)
 		addBotsMenuInfo.bots[n].generic.y = y;
 		addBotsMenuInfo.bots[n].generic.callback = UI_AddBotsMenu_BotEvent;
 		addBotsMenuInfo.bots[n].string = addBotsMenuInfo.botnames[n];
-		addBotsMenuInfo.bots[n].color = color_orange;
-		addBotsMenuInfo.bots[n].style = UI_LEFT | UI_SMALLFONT;
+		addBotsMenuInfo.bots[n].color = text_color_normal;
+		addBotsMenuInfo.bots[n].style = UI_LEFT | UI_DROPSHADOW;
 	}
 
-	y += 12;
+	y += 32;
 	addBotsMenuInfo.skill.generic.type = MTYPE_SPINCONTROL;
 	addBotsMenuInfo.skill.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	addBotsMenuInfo.skill.generic.x = 320;
@@ -365,15 +372,15 @@ static void UI_AddBotsMenu_Init(void)
 
 	addBotsMenuInfo.go.generic.type = MTYPE_BITMAP;
 	addBotsMenuInfo.go.generic.name = UI_ART_BUTTON;
-	addBotsMenuInfo.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
+	addBotsMenuInfo.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	addBotsMenuInfo.go.generic.id = ID_GO;
 	addBotsMenuInfo.go.generic.callback = UI_AddBotsMenu_FightEvent;
-	addBotsMenuInfo.go.generic.x = 320 + 128 - 128;
-	addBotsMenuInfo.go.generic.y = 256 + 128 - 64;
+	addBotsMenuInfo.go.generic.x = 640;
+	addBotsMenuInfo.go.generic.y = 480 - 64;
 	addBotsMenuInfo.go.width = 128;
 	addBotsMenuInfo.go.height = 64;
 	addBotsMenuInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
-	addBotsMenuInfo.go.generic.caption.text = "fight";
+	addBotsMenuInfo.go.generic.caption.text = "add";
 	addBotsMenuInfo.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	addBotsMenuInfo.go.generic.caption.fontsize = 0.6f;
 	addBotsMenuInfo.go.generic.caption.font = &uis.buttonFont;
@@ -385,8 +392,8 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	addBotsMenuInfo.back.generic.id = ID_BACK;
 	addBotsMenuInfo.back.generic.callback = UI_AddBotsMenu_BackEvent;
-	addBotsMenuInfo.back.generic.x = 320 - 128;
-	addBotsMenuInfo.back.generic.y = 256 + 128 - 64;
+	addBotsMenuInfo.back.generic.x = 0;
+	addBotsMenuInfo.back.generic.y = 480 - 64;
 	addBotsMenuInfo.back.width = 128;
 	addBotsMenuInfo.back.height = 64;
 	addBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -405,6 +412,7 @@ static void UI_AddBotsMenu_Init(void)
 	UI_AddBotsMenu_SetBotNames();
 
 	Menu_AddItem(&addBotsMenuInfo.menu, &addBotsMenuInfo.arrows);
+	Menu_AddItem(&addBotsMenuInfo.menu, &addBotsMenuInfo.banner);
 
 	Menu_AddItem(&addBotsMenuInfo.menu, &addBotsMenuInfo.up);
 	Menu_AddItem(&addBotsMenuInfo.menu, &addBotsMenuInfo.down);
@@ -426,7 +434,7 @@ UI_AddBots_Cache
 */
 void UI_AddBots_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACKGROUND);
+
 	trap_R_RegisterShaderNoMip(ART_ARROWS);
 	trap_R_RegisterShaderNoMip(ART_ARROWUP);
 	trap_R_RegisterShaderNoMip(ART_ARROWDOWN);

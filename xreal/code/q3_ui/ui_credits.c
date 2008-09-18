@@ -32,7 +32,7 @@ CREDITS
 
 #include "ui_local.h"
 
-#define SCROLLSPEED	4
+#define SCROLLSPEED	3
 
 typedef struct
 {
@@ -51,6 +51,7 @@ typedef struct
 	char           *string;
 	int             style;
 	vec_t          *color;
+
 } cr_line;
 
 cr_line         credits[] = {
@@ -231,9 +232,11 @@ static void ScrollingCredits_Draw(void)
 	// draw the stuff by setting the initial y location
 	y = 480 - SCROLLSPEED * (float)(uis.realtime - starttime) / 100;
 
+
 	// loop through the entire credits sequence
 	for(n = 0; n <= sizeof(credits) - 1; n++)
 	{
+
 		// this NULL string marks the end of the credits struct
 		if(credits[n].string == NULL)
 		{

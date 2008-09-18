@@ -44,9 +44,12 @@ START SERVER MENU *****
 #define GAMESERVER_FIGHT0		"menu/art/fight_0"
 #define GAMESERVER_FIGHT1		"menu/art/fight_1"
 #define GAMESERVER_UNKNOWNMAP		"menu/art/unknownmap"
-#define GAMESERVER_ARROWS		"menu/art/gs_arrows_0"
-#define GAMESERVER_ARROWSL		"menu/art/gs_arrows_l"
-#define GAMESERVER_ARROWSR		"menu/art/gs_arrows_r"
+
+
+#define GAMESERVER_ARROWS			"ui/arrows_horz_0"
+#define GAMESERVER_ARROWSL			"ui/arrows_horz_left"
+#define GAMESERVER_ARROWSR			"ui/arrows_horz_right"
+
 
 #define MAX_MAPROWS		2
 #define MAX_MAPCOLS		2
@@ -515,7 +518,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.arrows.generic.x = 260;
 	s_startserver.arrows.generic.y = 400;
 	s_startserver.arrows.width = 128;
-	s_startserver.arrows.height = 32;
+	s_startserver.arrows.height = 48;
 
 	s_startserver.prevpage.generic.type = MTYPE_BITMAP;
 	s_startserver.prevpage.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -524,18 +527,20 @@ static void StartServer_MenuInit(void)
 	s_startserver.prevpage.generic.x = 260;
 	s_startserver.prevpage.generic.y = 400;
 	s_startserver.prevpage.width = 64;
-	s_startserver.prevpage.height = 32;
+	s_startserver.prevpage.height = 48;
 	s_startserver.prevpage.focuspic = GAMESERVER_ARROWSL;
 
 	s_startserver.nextpage.generic.type = MTYPE_BITMAP;
 	s_startserver.nextpage.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_startserver.nextpage.generic.callback = StartServer_MenuEvent;
 	s_startserver.nextpage.generic.id = ID_NEXTPAGE;
-	s_startserver.nextpage.generic.x = 321;
+	s_startserver.nextpage.generic.x = 324;
 	s_startserver.nextpage.generic.y = 400;
 	s_startserver.nextpage.width = 64;
-	s_startserver.nextpage.height = 32;
+	s_startserver.nextpage.height = 48;
 	s_startserver.nextpage.focuspic = GAMESERVER_ARROWSR;
+
+
 
 	s_startserver.mapname.generic.type = MTYPE_PTEXT;
 	s_startserver.mapname.generic.flags = QMF_CENTER_JUSTIFY | QMF_INACTIVE;
@@ -1806,9 +1811,12 @@ BOT SELECT MENU *****
 #define BOTSELECT_ACCEPT1		"menu/art/accept_1"
 #define BOTSELECT_SELECT		"menu/art/opponents_select"
 #define BOTSELECT_SELECTED		"menu/art/opponents_selected"
-#define BOTSELECT_ARROWS		"menu/art/gs_arrows_0"
-#define BOTSELECT_ARROWSL		"menu/art/gs_arrows_l"
-#define BOTSELECT_ARROWSR		"menu/art/gs_arrows_r"
+
+
+#define BOTSELECT_ARROWS			"ui/arrows_horz_0"
+#define BOTSELECT_ARROWSL			"ui/arrows_horz_left"
+#define BOTSELECT_ARROWSR			"ui/arrows_horz_right"
+
 
 #define PLAYERGRID_COLS			4
 #define PLAYERGRID_ROWS			4
@@ -2235,26 +2243,26 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.arrows.generic.name = BOTSELECT_ARROWS;
 	botSelectInfo.arrows.generic.flags = QMF_INACTIVE;
 	botSelectInfo.arrows.generic.x = 260;
-	botSelectInfo.arrows.generic.y = 440;
+	botSelectInfo.arrows.generic.y = 400;
 	botSelectInfo.arrows.width = 128;
-	botSelectInfo.arrows.height = 32;
+	botSelectInfo.arrows.height = 48;
 
 	botSelectInfo.left.generic.type = MTYPE_BITMAP;
 	botSelectInfo.left.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	botSelectInfo.left.generic.callback = UI_BotSelectMenu_LeftEvent;
 	botSelectInfo.left.generic.x = 260;
-	botSelectInfo.left.generic.y = 440;
+	botSelectInfo.left.generic.y = 400;
 	botSelectInfo.left.width = 64;
-	botSelectInfo.left.height = 32;
+	botSelectInfo.left.height = 48;
 	botSelectInfo.left.focuspic = BOTSELECT_ARROWSL;
 
 	botSelectInfo.right.generic.type = MTYPE_BITMAP;
 	botSelectInfo.right.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	botSelectInfo.right.generic.callback = UI_BotSelectMenu_RightEvent;
-	botSelectInfo.right.generic.x = 321;
-	botSelectInfo.right.generic.y = 440;
+	botSelectInfo.right.generic.x = 324;
+	botSelectInfo.right.generic.y = 400;
 	botSelectInfo.right.width = 64;
-	botSelectInfo.right.height = 32;
+	botSelectInfo.right.height = 48;
 	botSelectInfo.right.focuspic = BOTSELECT_ARROWSR;
 
 	botSelectInfo.back.generic.type = MTYPE_BITMAP;

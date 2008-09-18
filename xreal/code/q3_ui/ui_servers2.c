@@ -44,20 +44,11 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define MAX_LEAGUELENGTH		28
 #define MAX_LISTBOXWIDTH		68
 
-#define ART_CREATE0				"menu/art/create_0"
-#define ART_CREATE1				"menu/art/create_1"
-#define ART_SPECIFY0			"menu/art/specify_0"
-#define ART_SPECIFY1			"menu/art/specify_1"
-#define ART_REFRESH0			"menu/art/refresh_0"
-#define ART_REFRESH1			"menu/art/refresh_1"
-#define ART_CONNECT0			"menu/art/fight_0"
-#define ART_CONNECT1			"menu/art/fight_1"
-#define ART_ARROWS0				"menu/art/arrows_vert_0"
-#define ART_ARROWS_UP			"menu/art/arrows_vert_top"
-#define ART_ARROWS_DOWN			"menu/art/arrows_vert_bot"
+#define ART_ARROWS0			"ui/arrows_vert_0"
+#define ART_ARROWS_UP			"ui/arrows_vert_top"
+#define ART_ARROWS_DOWN			"ui/arrows_vert_bot"
+
 #define ART_UNKNOWNMAP			"menu/art/unknownmap"
-#define ART_REMOVE0				"menu/art/delete_0"
-#define ART_REMOVE1				"menu/art/delete_1"
 
 #define ID_MASTER			10
 #define ID_GAMETYPE			11
@@ -1474,15 +1465,22 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.statusbar.color = text_color_normal;
 
 	g_arenaservers.remove.generic.type = MTYPE_BITMAP;
-	g_arenaservers.remove.generic.name = ART_REMOVE0;
+	g_arenaservers.remove.generic.name = UI_ART_BUTTON;
 	g_arenaservers.remove.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.remove.generic.callback = ArenaServers_Event;
 	g_arenaservers.remove.generic.id = ID_REMOVE;
 	g_arenaservers.remove.generic.x = 450;
 	g_arenaservers.remove.generic.y = 86;
-	g_arenaservers.remove.width = 96;
-	g_arenaservers.remove.height = 48;
-	g_arenaservers.remove.focuspic = ART_REMOVE1;
+	g_arenaservers.remove.width = 128;
+	g_arenaservers.remove.height = 64;
+	g_arenaservers.remove.focuspic = UI_ART_BUTTON_FOCUS;
+	g_arenaservers.remove.generic.caption.text = "remove";
+	g_arenaservers.remove.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.remove.generic.caption.fontsize = 0.6f;
+	g_arenaservers.remove.generic.caption.font = &uis.buttonFont;
+	g_arenaservers.remove.generic.caption.color = text_color_normal;
+	g_arenaservers.remove.generic.caption.focuscolor = text_color_highlight;
+
 
 	g_arenaservers.back.generic.type = MTYPE_BITMAP;
 	g_arenaservers.back.generic.name = UI_ART_BUTTON;
@@ -1628,14 +1626,6 @@ ArenaServers_Cache
 void ArenaServers_Cache(void)
 {
 
-	trap_R_RegisterShaderNoMip(ART_CREATE0);
-	trap_R_RegisterShaderNoMip(ART_CREATE1);
-	trap_R_RegisterShaderNoMip(ART_SPECIFY0);
-	trap_R_RegisterShaderNoMip(ART_SPECIFY1);
-	trap_R_RegisterShaderNoMip(ART_REFRESH0);
-	trap_R_RegisterShaderNoMip(ART_REFRESH1);
-	trap_R_RegisterShaderNoMip(ART_CONNECT0);
-	trap_R_RegisterShaderNoMip(ART_CONNECT1);
 	trap_R_RegisterShaderNoMip(ART_ARROWS0);
 	trap_R_RegisterShaderNoMip(ART_ARROWS_UP);
 	trap_R_RegisterShaderNoMip(ART_ARROWS_DOWN);

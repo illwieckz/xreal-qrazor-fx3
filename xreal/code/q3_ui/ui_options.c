@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 SYSTEM CONFIGURATION MENU
 
+otty: never used, so get rid of it ?
 =======================================================================
 */
 
@@ -124,14 +125,14 @@ void Options_MenuInit(void)
 	s_options.menu.wrapAround = qtrue;
 
 	trap_GetClientState(&cstate);
-	if(cstate.connState >= CA_CONNECTED)
+/*	if(cstate.connState >= CA_CONNECTED)
 	{
 		s_options.menu.fullscreen = qfalse;
 	}
 	else
 	{
-		s_options.menu.fullscreen = qtrue;
-	}
+	*/	s_options.menu.fullscreen = qtrue;
+//	}
 
 	s_options.banner.generic.type = MTYPE_BTEXT;
 	s_options.banner.generic.flags = QMF_CENTER_JUSTIFY;
