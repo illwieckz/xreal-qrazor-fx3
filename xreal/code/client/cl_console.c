@@ -512,7 +512,7 @@ Draw the editline after a ] prompt
 void Con_DrawInput(vec4_t color)
 {
 	int             y;
-	int 		style;
+	int             style;
 
 	if(cls.state != CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_CONSOLE))
 	{
@@ -520,9 +520,9 @@ void Con_DrawInput(vec4_t color)
 	}
 
 	if(con_conshadow->value > 0)
-		style =  UI_DROPSHADOW;
+		style = UI_DROPSHADOW;
 	else
-		style =  0;
+		style = 0;
 
 
 	//y = con.vislines - (SMALLCHAR_HEIGHT * 2);
@@ -561,9 +561,9 @@ void Con_DrawNotify(void)
 	int             time;
 	int             skip;
 	int             currentColor;
-	vec4_t 		color;
-	float 		alpha;
-	int		offset;
+	vec4_t          color;
+	float           alpha;
+	int             offset;
 
 
 	currentColor = 7;
@@ -580,8 +580,8 @@ void Con_DrawNotify(void)
 		time = cls.realtime - time;
 		if(time > con_notifytime->value * 1000)
 			continue;
-		
-		alpha = 1.0f - ( 1.0f / (con_notifytime->value * 1000) * time);	
+
+		alpha = 1.0f - (1.0f / (con_notifytime->value * 1000) * time);
 
 		text = con.text + (i % con.totallines) * con.linewidth;
 
@@ -605,14 +605,15 @@ void Con_DrawNotify(void)
 
 			//SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH, v, text[x] & 0xff);
 
-			VectorCopy4( g_color_table[currentColor], color);
+			VectorCopy4(g_color_table[currentColor], color);
 
 			color[3] = alpha;
 
 			//offset = 8 - (alpha * 8); otty: good idea, but looks strange
-			offset =0;
+			offset = 0;
 
-			SCR_Text_PaintSingleChar(cl_conXOffset->integer + con.xadjust + (x + 1) * 5, v-offset, 0.15f, color, text[x] & 0xff, 0, 0, UI_DROPSHADOW, &cls.consoleFont);
+			SCR_Text_PaintSingleChar(cl_conXOffset->integer + con.xadjust + (x + 1) * 5, v - offset, 0.15f, color, text[x] & 0xff,
+									 0, 0, UI_DROPSHADOW, &cls.consoleFont);
 
 
 
@@ -660,7 +661,7 @@ Draws the console with the solid background
 int             nextLine = 0;
 int             lineY = 10;
 int             lineX = 10;
-int		vel = 3;
+int             vel = 3;
 
 void Con_DrawSolidConsole(float frac)
 {
@@ -681,7 +682,7 @@ void Con_DrawSolidConsole(float frac)
 	qtime_t         dt;
 	float           alpha;
 	int             chr;
-	int 		style;
+	int             style;
 
 	lines = cls.glconfig.vidHeight * frac;
 	if(lines <= 0)
@@ -692,9 +693,9 @@ void Con_DrawSolidConsole(float frac)
 
 
 	if(con_conshadow->value > 0)
-		style =  UI_DROPSHADOW;
+		style = UI_DROPSHADOW;
 	else
-		style =  0;
+		style = 0;
 
 	// on wide screens, we will center the text
 	con.yadjust = 0;
@@ -720,7 +721,8 @@ void Con_DrawSolidConsole(float frac)
 	{
 		lineY += vel;
 
-		if(lineY >= 240 || lineY <= 10){
+		if(lineY >= 240 || lineY <= 10)
+		{
 			if(vel == 3)
 				vel = -3;
 			else
@@ -744,16 +746,16 @@ void Con_DrawSolidConsole(float frac)
 
 	SCR_FillRect(10, lineY, 620, 1, color);
 
-	SCR_Text_PaintAligned(460, lineY, va("%i%i", lineY, (cls.realtime - nextLine)), 0.175f, UI_RIGHT , color, &cls.consoleFont);
+	SCR_Text_PaintAligned(460, lineY, va("%i%i", lineY, (cls.realtime - nextLine)), 0.175f, UI_RIGHT, color, &cls.consoleFont);
 
-	i = lineY + 40*sin(cls.realtime / 600.0f);
+	i = lineY + 40 * sin(cls.realtime / 600.0f);
 
 	if(i > 240)
 		i = 240;
 	if(lineY < 10)
 		i = 10;
 
-	SCR_FillRect(10,i , 620, 1, color);
+	SCR_FillRect(10, i, 620, 1, color);
 
 	color[0] = 0.7f;
 	color[1] = 0.7f;
@@ -882,7 +884,8 @@ void Con_DrawSolidConsole(float frac)
 			VectorCopy4(g_color_table[currentColor], color);
 			color[3] = alpha * 1.5f;
 
-			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5, y, 0.15f, color, text[x] & 0xff, 0, 0, style, &cls.consoleFont);
+			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5, y, 0.15f, color, text[x] & 0xff, 0, 0, style,
+									 &cls.consoleFont);
 
 
 		}

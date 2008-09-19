@@ -321,12 +321,12 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 	int             i;
 	vec4_t          color;
 
-	int 		style;
+	int             style;
 
 	if(con_conshadow->value > 0)
-		style =  UI_DROPSHADOW;
+		style = UI_DROPSHADOW;
 	else
-		style =  0;
+		style = 0;
 
 	drawLen = edit->widthInChars - 1;	// - 1 so there is always a space for the cursor
 	len = strlen(edit->buffer);
@@ -410,7 +410,7 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 		{
 			//cursorChar = 11;
 
-			SCR_Text_Paint(x + (edit->cursor - prestep ) * 4.5, y, 0.15f, color, "*", 0, 0, style, &cls.consoleFont);
+			SCR_Text_Paint(x + (edit->cursor - prestep) * 4.5, y, 0.15f, color, "*", 0, 0, style, &cls.consoleFont);
 
 
 		}
@@ -418,7 +418,7 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 		{
 			//cursorChar = 10;
 
-			SCR_Text_Paint(x + (edit->cursor - prestep ) * 4.5, y, 0.15f, color, "_", 0, 0, style, &cls.consoleFont);
+			SCR_Text_Paint(x + (edit->cursor - prestep) * 4.5, y, 0.15f, color, "_", 0, 0, style, &cls.consoleFont);
 		}
 
 /*		i = drawLen - strlen(str);
