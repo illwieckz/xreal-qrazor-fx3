@@ -118,6 +118,12 @@ vmCvar_t        cg_crosshairX;
 vmCvar_t        cg_crosshairY;
 vmCvar_t        cg_crosshairHealth;
 
+vmCvar_t 	cg_hudRed;
+vmCvar_t 	cg_hudGreen;
+vmCvar_t 	cg_hudBlue;
+vmCvar_t 	cg_hudAlpha;
+
+
 vmCvar_t        cg_crosshairDot;
 vmCvar_t        cg_crosshairCircle;
 vmCvar_t        cg_crosshairCross;
@@ -272,10 +278,20 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE},
 	{&cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE},
 
+	//hud stuff
+
+	{&cg_hudRed, "cg_hudRed", "0.6", CVAR_ARCHIVE},
+	{&cg_hudGreen, "cg_hudGreen", "0.9", CVAR_ARCHIVE},
+	{&cg_hudBlue, "cg_hudBlue", "1.0", CVAR_ARCHIVE},
+	{&cg_hudAlpha, "cg_hudAlpha", "1.0", CVAR_ARCHIVE},
+
 	// generic crosshair stuff
 	{&cg_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE},
-	{&cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE},
+
+	{&cg_drawCrosshairNames, "cg_crosshairNames", "1", CVAR_ARCHIVE},
 	// old crosshair stuff
+
+
 	{&cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE},
 	{&cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE},
 	{&cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE},

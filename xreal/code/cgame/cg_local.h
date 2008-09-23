@@ -1349,6 +1349,15 @@ extern vmCvar_t cg_draw3dIcons;
 extern vmCvar_t cg_drawIcons;
 extern vmCvar_t cg_drawAmmoWarning;
 extern vmCvar_t cg_drawCrosshair;
+
+
+extern vmCvar_t cg_hudRed;
+extern vmCvar_t cg_hudGreen;
+extern vmCvar_t cg_hudBlue;
+extern vmCvar_t cg_hudAlpha;
+
+
+
 extern vmCvar_t cg_drawCrosshairNames;
 extern vmCvar_t cg_drawRewards;
 extern vmCvar_t cg_drawTeamOverlay;

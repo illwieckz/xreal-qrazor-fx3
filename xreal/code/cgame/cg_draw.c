@@ -1117,6 +1117,7 @@ void CG_DrawStatusBarNew(void)
 	int             pickup = cg.time - cg.itemPickupTime;
 
 	vec4_t          color = { 1.0f, 1.0f, 1.0f, 0.80f };
+	vec4_t          colorOverlay = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	vec4_t          basecolor;
 	vec4_t          fadecolor;
@@ -1137,6 +1138,7 @@ void CG_DrawStatusBarNew(void)
 	else
 		VectorCopy4(baseTeamColor, basecolor);
 
+	colorOverlay[3] = basecolor[3];
 
 	// top stats bar
 	if(cgs.gametype >= GT_TEAM)
@@ -1153,6 +1155,7 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 		VectorCopy4(color, scorecolor);
+		scorecolor[3] = 0.8f;
 
 		//tdm/ctf frag/capturelimit
 		s = va("%i", score);
@@ -1167,7 +1170,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawHudString(320, 24, s, fontsize, UI_CENTER, scorecolor);
 
 
-		trap_R_SetColor(basecolor);
+		trap_R_SetColor(colorOverlay);
 		CG_DrawPic(320 - 40, 0, 80, 40, cgs.media.hud_top_team_middle_overlay);
 		trap_R_SetColor(NULL);
 
@@ -1198,7 +1201,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawHudString(255, 15, s, fontsize, UI_CENTER, scorecolor);
 
 
-		trap_R_SetColor(color);
+		trap_R_SetColor(colorOverlay);
 		CG_DrawPic(320 - 10 - 100, 3, 100, 40, cgs.media.hud_top_team_left_overlay);
 		trap_R_SetColor(NULL);
 
@@ -1225,7 +1228,7 @@ void CG_DrawStatusBarNew(void)
 		fontsize = HUD_SCORESIZETEAM;
 		CG_DrawHudString(385, 15, s, fontsize, UI_CENTER, scorecolor);
 
-		trap_R_SetColor(color);
+		trap_R_SetColor(colorOverlay);
 		CG_DrawPic(320 + 10, 3, 100, 40, cgs.media.hud_top_team_right_overlay);
 		trap_R_SetColor(NULL);
 
@@ -1242,7 +1245,10 @@ void CG_DrawStatusBarNew(void)
 		trap_R_SetColor(NULL);
 
 		//blink your score if on first or second place
-		VectorCopy4(basecolor, scorecolor);
+		VectorCopy4(colorWhite, scorecolor);
+
+		scorecolor[3] = 0.8f;
+
 		if(score == cgs.scores1)
 			scorecolor[0] = scorecolor[1] = 0.66f + 0.33f * sin(cg.time / 100.0f);
 		else if(score == cgs.scores2)
@@ -1261,7 +1267,7 @@ void CG_DrawStatusBarNew(void)
 
 		CG_DrawHudString(320, 21, s, fontsize, UI_CENTER, scorecolor);
 
-		trap_R_SetColor(basecolor);
+		trap_R_SetColor(colorOverlay);
 		CG_DrawPic(320 - 25, 0, 50, 40, cgs.media.hud_top_ffa_middle_overlay);
 		trap_R_SetColor(NULL);
 
@@ -1276,7 +1282,8 @@ void CG_DrawStatusBarNew(void)
 
 
 		//blink fraglimit if close enough
-		VectorCopy4(basecolor, scorecolor);
+		VectorCopy4(colorWhite, scorecolor);
+		scorecolor[3] = 0.8f;
 
 		if(score > 0 && score - cgs.scores1 < 5)
 			scorecolor[2] = scorecolor[1] = sin(cg.time / 200.0f);
@@ -1289,7 +1296,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawHudString(270, 19, s, fontsize, UI_CENTER, scorecolor);
 
 
-		trap_R_SetColor(basecolor);
+		trap_R_SetColor(colorOverlay);
 		CG_DrawPic(320 - 25 - 66, 0, 66, 40, cgs.media.hud_top_ffa_left_overlay);
 		trap_R_SetColor(NULL);
 
@@ -1308,7 +1315,8 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawPic(320 + 25, 0, 66, 40, cgs.media.hud_top_ffa_right);
 		trap_R_SetColor(NULL);
 
-		VectorCopy4(basecolor, scorecolor);
+		VectorCopy4(colorWhite, scorecolor);
+		scorecolor[3] = 0.8f;
 		//digits
 
 		s = va("%i", score);
@@ -1317,7 +1325,7 @@ void CG_DrawStatusBarNew(void)
 		CG_DrawHudString(370, 19, s, fontsize, UI_CENTER, scorecolor);
 
 
-		trap_R_SetColor(basecolor);
+		trap_R_SetColor(colorOverlay);
 		CG_DrawPic(320 + 25, 0, 66, 40, cgs.media.hud_top_ffa_right_overlay);
 		trap_R_SetColor(NULL);
 
@@ -1373,7 +1381,7 @@ void CG_DrawStatusBarNew(void)
 	CG_DrawHudString(80, 453, s, fontsize, UI_CENTER, healthcolor);
 
 
-	trap_R_SetColor(colorWhite);
+	trap_R_SetColor(colorOverlay);
 	CG_DrawPic(HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_left_overlay);
 	trap_R_SetColor(NULL);
 
@@ -1419,8 +1427,11 @@ void CG_DrawStatusBarNew(void)
 
 	//middle, ammo, ammo types, weaponselection
 	VectorCopy4(basecolor, fadecolor);
+	fadecolor[3] = 0.8f;
 
 	fadecolor[3] *= 1.0f - cg.bar_offset;
+	fadecolor[3] *= basecolor[3];
+
 	trap_R_SetColor(fadecolor);
 	CG_DrawPic(295, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 50, 50, cgs.media.hud_bar_middle_middle);
 	trap_R_SetColor(NULL);
@@ -1453,7 +1464,7 @@ void CG_DrawStatusBarNew(void)
 
 	trap_R_SetColor(NULL);
 
-	trap_R_SetColor(fadecolor);
+	trap_R_SetColor(colorOverlay);
 	CG_DrawPic(201, HUD_B_Y + HUD_B_MIDDLE_OFFSET_Y, 238, 50, cgs.media.hud_bar_middle_overlay);
 	trap_R_SetColor(NULL);
 
@@ -1475,7 +1486,7 @@ void CG_DrawStatusBarNew(void)
 	CG_DrawHudString(560, 453, s, fontsize, UI_CENTER, armorcolor);
 
 
-	trap_R_SetColor(colorWhite);
+	trap_R_SetColor(colorOverlay);
 	CG_DrawPic(510 - HUD_B_BORDEROFFSET, HUD_B_Y, 130, 50, cgs.media.hud_bar_right_overlay);
 	trap_R_SetColor(NULL);
 
@@ -3887,6 +3898,12 @@ static void CG_Draw2D(void)
 	{
 		return;
 	}
+
+	VectorSet4(baseTeamColor, cg_hudRed.value, cg_hudGreen.value, cg_hudBlue.value, cg_hudAlpha.value);
+
+ 	redTeamColor[3] = cg_hudAlpha.value;
+ 	blueTeamColor[3] = cg_hudAlpha.value;
+
 
 	if(cg.snap->ps.pm_type == PM_INTERMISSION)
 	{
