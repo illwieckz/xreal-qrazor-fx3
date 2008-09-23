@@ -196,7 +196,7 @@ static cvarTable_t cvarTable[] = {
 
 	{&ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE},
 	{&ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE},
-	{&ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE},
+	{&ui_drawCrosshairNames, "cg_crosshairNames", "1", CVAR_ARCHIVE},
 	{&ui_marks, "cg_marks", "1", CVAR_ARCHIVE},
 
 	{&ui_server1, "server1", "", CVAR_ARCHIVE},

@@ -219,6 +219,10 @@ typedef struct
 	float           maxvalue;
 	float           curvalue;
 
+	qboolean	integer;
+
+	int		step;
+
 	float           range;
 } menuslider_s;
 

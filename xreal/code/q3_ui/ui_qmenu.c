@@ -140,18 +140,11 @@ static void Text_Draw(menutext_s * t)
 
 	//UI_DrawString(x, y, buff, t->style, color);
 
-	switch (t->style & UI_FORMATMASK)
-	{
-		case UI_BOLD:
+	if (t->style & UI_BOLD)
 			UI_Text_Paint(x, y + 8, 0.25f, color, buff, 0, 0, t->style, &uis.TextBoldFont);
-			break;
-
-
-		default:
+	else		
 			UI_Text_Paint(x, y + 8, 0.25f, color, buff, 0, 0, t->style, &uis.TextFont);
-			break;
-	}
-
+			
 }
 
 /*
@@ -638,6 +631,8 @@ static void Slider_Init(menuslider_s * s)
 	s->generic.right = s->generic.x + (SLIDER_RANGE + 2 + 1) * SMALLCHAR_WIDTH;
 	s->generic.top = s->generic.y;
 	s->generic.bottom = s->generic.y + SMALLCHAR_HEIGHT;
+
+
 }
 
 /*
@@ -650,13 +645,32 @@ static sfxHandle_t Slider_Key(menuslider_s * s, int key)
 	sfxHandle_t     sound;
 	int             x;
 	int             oldvalue;
+	int		step;
+
+
+	step = s->step;
+	if(step < 1)
+		step = 1;
 
 	switch (key)
 	{
 		case K_MOUSE1:
-			x = uis.cursorx - s->generic.x - 2 * SMALLCHAR_WIDTH;
 			oldvalue = s->curvalue;
-			s->curvalue = (x / (float)(SLIDER_RANGE * SMALLCHAR_WIDTH)) * (s->maxvalue - s->minvalue) + s->minvalue;
+
+			if(s->integer)
+			{
+				if(s->curvalue == s->maxvalue)
+					s->curvalue = s->minvalue;
+				else 
+					s->curvalue+=step;
+
+		}
+			else
+			{
+				x = uis.cursorx - s->generic.x - 2 * SMALLCHAR_WIDTH;
+				s->curvalue = (x / (float)(SLIDER_RANGE * SMALLCHAR_WIDTH)) * (s->maxvalue - s->minvalue) + s->minvalue;
+
+			}
 
 			if(s->curvalue < s->minvalue)
 				s->curvalue = s->minvalue;
@@ -672,7 +686,8 @@ static sfxHandle_t Slider_Key(menuslider_s * s, int key)
 		case K_LEFTARROW:
 			if(s->curvalue > s->minvalue)
 			{
-				s->curvalue--;
+
+				s->curvalue-=step;
 				sound = menu_move_sound;
 			}
 			else
@@ -683,7 +698,7 @@ static sfxHandle_t Slider_Key(menuslider_s * s, int key)
 		case K_RIGHTARROW:
 			if(s->curvalue < s->maxvalue)
 			{
-				s->curvalue++;
+				s->curvalue+=step;
 				sound = menu_move_sound;
 			}
 			else
