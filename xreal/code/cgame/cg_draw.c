@@ -1430,6 +1430,8 @@ void CG_DrawStatusBarNew(void)
 	fadecolor[3] = 0.8f;
 
 	fadecolor[3] *= 1.0f - cg.bar_offset;
+	ammocolor[3] = fadecolor[3];
+
 	fadecolor[3] *= basecolor[3];
 
 	trap_R_SetColor(fadecolor);
@@ -1454,7 +1456,6 @@ void CG_DrawStatusBarNew(void)
 
 
 	//ammo - TODO
-	ammocolor[3] = fadecolor[3];
 
 	value = ps->ammo[cent->currentState.weapon];
 
