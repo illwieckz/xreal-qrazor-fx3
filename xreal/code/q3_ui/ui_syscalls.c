@@ -165,7 +165,10 @@ int trap_R_AnimFrameRate(qhandle_t hAnim)
 {
 	return syscall(UI_R_ANIMFRAMERATE, hAnim);
 }
-
+int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin)
+{
+	return syscall(UI_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac), clearOrigin);
+}
 qhandle_t trap_R_RegisterSkin(const char *name)
 {
 	return syscall(UI_R_REGISTERSKIN, name);

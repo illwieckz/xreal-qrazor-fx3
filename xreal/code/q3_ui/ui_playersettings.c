@@ -226,6 +226,7 @@ static void PlayerSettings_DrawPlayer(void *self)
 	}
 
 	b = (menubitmap_s *) self;
+
 	UI_DrawPlayer(b->generic.x, b->generic.y, b->width, b->height, &s_playersettings.playerinfo, uis.realtime / 2);
 
 //draw the crosshair
@@ -708,10 +709,10 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.player.generic.type = MTYPE_BITMAP;
 	s_playersettings.player.generic.flags = QMF_INACTIVE;
 	s_playersettings.player.generic.ownerdraw = PlayerSettings_DrawPlayer;
-	s_playersettings.player.generic.x = 400;
-	s_playersettings.player.generic.y = -40;
-	s_playersettings.player.width = 32 * 10;
-	s_playersettings.player.height = 56 * 10;
+	s_playersettings.player.generic.x = 100;
+	s_playersettings.player.generic.y = 100;
+	s_playersettings.player.width = 320;
+	s_playersettings.player.height = 360;
 
 	s_playersettings.back.generic.type = MTYPE_BITMAP;
 	s_playersettings.back.generic.name = UI_ART_BUTTON;

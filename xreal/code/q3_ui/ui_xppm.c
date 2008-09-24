@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // ui_xppm.c -- handle md5 model stuff ( instead of ui_players.c )
 #include "ui_local.h"
 
+static int      dp_realtime;
+
 #ifdef XPPM
 
 /*
@@ -207,6 +209,9 @@ static qboolean UI_XPPM_RegisterPlayerAnimation(playerInfo_t * pi, const char *m
 qbooleanUI_XPPM_RegisterModel
 ==========================
 */
+
+qhandle_t       anim;
+
 qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName)
 {
 	int             i;
@@ -235,8 +240,9 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 			return qfalse;
 		}
 
+		anim = UI_XPPM_RegisterPlayerAnimation(pi, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse);
 
-		if(!UI_XPPM_RegisterPlayerAnimation(pi, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse))
+		if(!anim)
 		{
 			Com_Printf("Failed to load idle animation file %s\n", filename);
 			return qfalse;
@@ -303,12 +309,177 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 	return qtrue;
 }
 
+static void UI_PlayerFloatSprite(playerInfo_t * pi, vec3_t origin, qhandle_t shader)
+{
+	refEntity_t     ent;
 
+	memset(&ent, 0, sizeof(ent));
+	VectorCopy(origin, ent.origin);
+	ent.origin[2] += 24;
+	ent.reType = RT_SPRITE;
+	ent.customShader = shader;
+	ent.radius = 10;
+	ent.renderfx = 0;
+	trap_R_AddRefEntityToScene(&ent);
+
+
+}
+
+
+void UI_XPPM_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
+{
+	int             i;
+	refBone_t      *bone;
+
+	switch (skel->type)
+	{
+		case SK_INVALID:
+		case SK_ABSOLUTE:
+			return;
+
+		default:
+			break;
+	}
+
+	// calculate absolute transforms
+	for(i = 0, bone = &skel->bones[0]; i < skel->numBones; i++, bone++)
+	{
+		if(bone->parentIndex >= 0)
+		{
+			vec3_t          rotated;
+			quat_t          quat;
+
+			refBone_t      *parent;
+
+			parent = &skel->bones[bone->parentIndex];
+
+			QuatTransformVector(parent->rotation, bone->origin, rotated);
+
+			if(scale)
+			{
+				rotated[0] *= scale[0];
+				rotated[1] *= scale[1];
+				rotated[2] *= scale[2];
+			}
+
+			VectorAdd(parent->origin, rotated, bone->origin);
+
+			QuatMultiply1(parent->rotation, bone->rotation, quat);
+			QuatCopy(quat, bone->rotation);
+		}
+	}
+
+	skel->type = SK_ABSOLUTE;
+
+	if(scale)
+	{
+		VectorCopy(scale, skel->scale);
+	}
+	else
+	{
+		VectorSet(skel->scale, 1, 1, 1);
+	}
+}
 
 void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time)
 {
+	refEntity_t     body;
+	refdef_t        refdef;
+
+	vec3_t          origin;
+	int             renderfx;
+
+	vec3_t          mins = { -16, -16, -24 };
+	vec3_t          maxs = { 16, 16, 32 };
+	float           len;
+	float           xx;
+	
+	if(!pi->bodyModel)
+		return;
+
+	if(!pi->bodySkin)
+		return;
+
+	dp_realtime = time;
+
+	//UI_AdjustFrom640(&x, &y, &w, &h);
+
+	UI_DrawRect(x, y, w, h, colorYellow);
+
+	memset(&refdef, 0, sizeof(refdef));
+	memset(&body, 0, sizeof(body));
+
+	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
+
+	AxisClear(refdef.viewaxis);
+
+	refdef.x = x;
+	refdef.y = y;
+	refdef.width = w;
+	refdef.height = h;
+
+	refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
+	xx = refdef.width / tan(refdef.fov_x / 360 * M_PI);
+	refdef.fov_y = atan2(refdef.height, xx);
+	refdef.fov_y *= (360 / M_PI);
+
+	// calculate distance so the player nearly fills the box
+	len = 0.7 * (maxs[2] - mins[2]);
+	origin[0] = len / tan(DEG2RAD(refdef.fov_x) * 0.5) + 10;
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+
+	refdef.time = dp_realtime;
+
+	trap_R_ClearScene();
 
 
+	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+
+
+	// add the body
+	body.hModel = pi->bodyModel;
+	body.customSkin = pi->bodySkin;
+	body.shaderTime = 1.0f;
+//	body.renderfx = renderfx;
+
+	body.backlerp = 1.0f;
+	body.frame = 1;
+	body.oldframe = 0;
+
+	// modify bones and set proper local bounds for culling
+	if(!trap_R_BuildSkeleton(&body.skeleton, anim,	 body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
+	{
+		Com_Printf("Can't build animation\n");
+		return;
+	}
+
+	if(body.skeleton.type == SK_RELATIVE)
+	{
+		// transform relative bones to absolute ones required for vertex skinning
+		UI_XPPM_TransformSkeleton(&body.skeleton, NULL);
+	}
+
+	trap_R_AddRefEntityToScene(&body);
+
+	UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+
+
+	//
+	// add an accent light
+	//
+	origin[0] -= 100;			// + = behind, - = in front
+	origin[1] += 100;			// + = left, - = right
+	origin[2] += 100;			// + = above, - = below
+	trap_R_AddLightToScene(origin, 500, 1.0, 1.0, 1.0);
+
+	origin[0] -= 100;
+	origin[1] -= 100;
+	origin[2] -= 100;
+	trap_R_AddLightToScene(origin, 500, 1.0, 0.0, 0.0);
+
+
+	trap_R_RenderScene(&refdef);
 }
 
 
