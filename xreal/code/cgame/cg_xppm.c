@@ -360,19 +360,17 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
 	}
-	else if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "tga"))
+	else if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "png"))
 	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
 	}
-
-/* do we need this ?
 
 	if(!ci->modelIcon)
 	{
 		Com_Printf("Failed to load icon file %s\n", filename);
 		return qfalse;
 	}
-*/
+
 	return qtrue;
 }
 
