@@ -382,7 +382,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 			ent->ambientLight[1] = r_forceAmbient->value;
 			ent->ambientLight[2] = r_forceAmbient->value;
 		}
-		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
+		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * (150.0f / 255.0f);
 		VectorCopy(tr.sunDirection, ent->lightDir);
 	}
 

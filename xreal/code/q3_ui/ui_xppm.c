@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static int      dp_realtime;
 
+#define SWINGSPEED				0.3f
+
 #ifdef XPPM
 
 /*
@@ -321,8 +323,6 @@ static void UI_PlayerFloatSprite(playerInfo_t * pi, vec3_t origin, qhandle_t sha
 	ent.radius = 10;
 	ent.renderfx = 0;
 	trap_R_AddRefEntityToScene(&ent);
-
-
 }
 
 
@@ -381,10 +381,189 @@ void UI_XPPM_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 	}
 }
 
+
+static void UI_XPPM_SwingAngles(float destination, float swingTolerance, float clampTolerance,
+						   float speed, float *angle, qboolean * swinging)
+{
+	float           swing;
+	float           move;
+	float           scale;
+
+	if(!*swinging)
+	{
+		// see if a swing should be started
+		swing = AngleSubtract(*angle, destination);
+		if(swing > swingTolerance || swing < -swingTolerance)
+		{
+			*swinging = qtrue;
+		}
+	}
+
+	if(!*swinging)
+	{
+		return;
+	}
+
+	// modify the speed depending on the delta
+	// so it doesn't seem so linear
+	swing = AngleSubtract(destination, *angle);
+	scale = fabs(swing);
+	if(scale < swingTolerance * 0.5)
+	{
+		scale = 0.5;
+	}
+	else if(scale < swingTolerance)
+	{
+		scale = 1.0;
+	}
+	else
+	{
+		scale = 2.0;
+	}
+
+	// swing towards the destination angle
+	if(swing >= 0)
+	{
+		move = uis.frametime * scale * speed;
+		if(move >= swing)
+		{
+			move = swing;
+			*swinging = qfalse;
+		}
+		*angle = AngleMod(*angle + move);
+	}
+	else if(swing < 0)
+	{
+		move = uis.frametime * scale * -speed;
+		if(move <= swing)
+		{
+			move = swing;
+			*swinging = qfalse;
+		}
+		*angle = AngleMod(*angle + move);
+	}
+
+	// clamp to no more than tolerance
+	swing = AngleSubtract(destination, *angle);
+	if(swing > clampTolerance)
+	{
+		*angle = AngleMod(destination - (clampTolerance - 1));
+	}
+	else if(swing < -clampTolerance)
+	{
+		*angle = AngleMod(destination + (clampTolerance - 1));
+	}
+}
+
+static float UI_XPPM_MovedirAdjustment(playerInfo_t * pi)
+{
+	vec3_t          relativeAngles;
+	vec3_t          moveVector;
+
+	VectorSubtract(pi->viewAngles, pi->moveAngles, relativeAngles);
+	AngleVectors(relativeAngles, moveVector, NULL, NULL);
+	if(Q_fabs(moveVector[0]) < 0.01)
+	{
+		moveVector[0] = 0.0;
+	}
+	if(Q_fabs(moveVector[1]) < 0.01)
+	{
+		moveVector[1] = 0.0;
+	}
+
+	if(moveVector[1] == 0 && moveVector[0] > 0)
+	{
+		return 0;
+	}
+	if(moveVector[1] < 0 && moveVector[0] > 0)
+	{
+		return 22;
+	}
+	if(moveVector[1] < 0 && moveVector[0] == 0)
+	{
+		return 45;
+	}
+	if(moveVector[1] < 0 && moveVector[0] < 0)
+	{
+		return -22;
+	}
+	if(moveVector[1] == 0 && moveVector[0] < 0)
+	{
+		return 0;
+	}
+	if(moveVector[1] > 0 && moveVector[0] < 0)
+	{
+		return 22;
+	}
+	if(moveVector[1] > 0 && moveVector[0] == 0)
+	{
+		return -45;
+	}
+
+	return -22;
+}
+
+static void UI_XPPM_PlayerAngles(playerInfo_t * pi, vec3_t legsAngles, vec3_t torsoAngles, vec3_t headAngles)
+{
+	float           dest;
+	float           adjust;
+
+	VectorCopy(pi->viewAngles, headAngles);
+	headAngles[YAW] = AngleMod(headAngles[YAW]);
+	VectorClear(legsAngles);
+	VectorClear(torsoAngles);
+
+	// --------- yaw -------------
+
+	// allow yaw to drift a bit
+	if((pi->legsAnim & ~ANIM_TOGGLEBIT) != LEGS_IDLE || (pi->torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_STAND)
+	{
+		// if not standing still, always point all in the same direction
+		pi->torso.yawing = qtrue;	// always center
+		pi->torso.pitching = qtrue;	// always center
+		pi->legs.yawing = qtrue;	// always center
+	}
+
+	// adjust legs for movement dir
+	adjust = UI_XPPM_MovedirAdjustment(pi);
+	legsAngles[YAW] = headAngles[YAW] + adjust;
+	torsoAngles[YAW] = headAngles[YAW] + 0.25 * adjust;
+
+
+	// torso
+	UI_XPPM_SwingAngles(torsoAngles[YAW], 25, 90, SWINGSPEED, &pi->torso.yawAngle, &pi->torso.yawing);
+	UI_XPPM_SwingAngles(legsAngles[YAW], 40, 90, SWINGSPEED, &pi->legs.yawAngle, &pi->legs.yawing);
+
+	torsoAngles[YAW] = pi->torso.yawAngle;
+	legsAngles[YAW] = pi->legs.yawAngle;
+
+	// --------- pitch -------------
+
+	// only show a fraction of the pitch angle in the torso
+	if(headAngles[PITCH] > 180)
+	{
+		dest = (-360 + headAngles[PITCH]) * 0.75;
+	}
+	else
+	{
+		dest = headAngles[PITCH] * 0.75;
+	}
+	UI_XPPM_SwingAngles(dest, 15, 30, 0.1f, &pi->torso.pitchAngle, &pi->torso.pitching);
+	torsoAngles[PITCH] = pi->torso.pitchAngle;
+
+	// pull the angles back out of the hierarchial chain
+	AnglesSubtract(headAngles, torsoAngles, headAngles);
+	AnglesSubtract(torsoAngles, legsAngles, torsoAngles);
+}
+
 void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time)
 {
 	refEntity_t     body;
 	refdef_t        refdef;
+
+	vec3_t          legsAngles;
+	vec3_t          torsoAngles;
+	vec3_t          headAngles;
 
 	vec3_t          origin;
 	int             renderfx;
@@ -402,9 +581,9 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	dp_realtime = time;
 
-	//UI_AdjustFrom640(&x, &y, &w, &h);
-
 	UI_DrawRect(x, y, w, h, colorYellow);
+
+	UI_AdjustFrom640(&x, &y, &w, &h);
 
 	memset(&refdef, 0, sizeof(refdef));
 	memset(&body, 0, sizeof(body));
@@ -428,27 +607,43 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	origin[0] = len / tan(DEG2RAD(refdef.fov_x) * 0.5) + 10;
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[2] -= len;
 
 	refdef.time = dp_realtime;
 
 	trap_R_ClearScene();
 
+	// get the rotation information
+#if 0
+	UI_XPPM_PlayerAngles(pi, legsAngles, torsoAngles, headAngles);
+#else
+	// Quake 2 style
+	legsAngles[YAW] = AngleNormalize360((float)(uis.realtime / 5.0)); //180 - 30;
+	legsAngles[PITCH] = 0;
+	legsAngles[ROLL] = 0;
+#endif
+
+	AnglesToAxis(legsAngles, body.axis);
 
 	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
 
-
 	// add the body
+	VectorCopy(origin, body.origin);
+	VectorCopy(body.origin, body.oldorigin);
+
 	body.hModel = pi->bodyModel;
 	body.customSkin = pi->bodySkin;
 	body.shaderTime = 1.0f;
-//	body.renderfx = renderfx;
+
+	body.renderfx = renderfx;
+	//VectorCopy(origin, body.lightingOrigin);
 
 	body.backlerp = 1.0f;
 	body.frame = 1;
 	body.oldframe = 0;
 
 	// modify bones and set proper local bounds for culling
-	if(!trap_R_BuildSkeleton(&body.skeleton, anim,	 body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
+	if(!trap_R_BuildSkeleton(&body.skeleton, anim, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
 	{
 		Com_Printf("Can't build animation\n");
 		return;
@@ -462,22 +657,22 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	trap_R_AddRefEntityToScene(&body);
 
-	UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+	//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
 
 
-	//
-	// add an accent light
-	//
+#if 1
 	origin[0] -= 100;			// + = behind, - = in front
 	origin[1] += 100;			// + = left, - = right
 	origin[2] += 100;			// + = above, - = below
 	trap_R_AddLightToScene(origin, 500, 1.0, 1.0, 1.0);
+#endif
 
+#if 1
 	origin[0] -= 100;
 	origin[1] -= 100;
 	origin[2] -= 100;
 	trap_R_AddLightToScene(origin, 500, 1.0, 0.0, 0.0);
-
+#endif
 
 	trap_R_RenderScene(&refdef);
 }

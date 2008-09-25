@@ -593,9 +593,13 @@ typedef struct
 	qhandle_t       cursor;
 	//qhandle_t       rb_on;
 	//qhandle_t       rb_off;
-	float           scale;
-	float           xbias;
-	float           ybias;
+	
+	// derived from glconfig
+	float           screenScale;
+	float           screenXBias;
+	float           screenYBias;
+	float           screenXScale;
+	float           screenYScale;
 	qboolean        firstdraw;
 
 	// Tr3B: new truetype fonts
@@ -717,6 +721,8 @@ qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);
 qhandle_t       trap_R_RegisterAnimation(const char *name);
 int             trap_R_AnimNumFrames(qhandle_t hAnim);
 int             trap_R_AnimFrameRate(qhandle_t hAnim);
+int             trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
+									 qboolean clearOrigin);
 qhandle_t       trap_R_RegisterSkin(const char *name);
 qhandle_t       trap_R_RegisterShaderNoMip(const char *name);
 void            trap_R_ClearScene(void);

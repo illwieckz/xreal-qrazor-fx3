@@ -211,13 +211,13 @@ static void PlayerSettings_DrawPlayer(void *self)
 	int x, y, value, size;
 	vec4_t	color;
 
-//draw the model
+	// draw the model
 	trap_Cvar_VariableStringBuffer("model", buf, sizeof(buf));
 	if(strcmp(buf, s_playersettings.playerModel) != 0)
 	{
 		UI_PlayerInfo_SetModel(&s_playersettings.playerinfo, buf);
 		strcpy(s_playersettings.playerModel, buf);
-
+	
 		viewangles[YAW] = 180 - 30;
 		viewangles[PITCH] = 0;
 		viewangles[ROLL] = 0;
@@ -229,7 +229,7 @@ static void PlayerSettings_DrawPlayer(void *self)
 
 	UI_DrawPlayer(b->generic.x, b->generic.y, b->width, b->height, &s_playersettings.playerinfo, uis.realtime / 2);
 
-//draw the crosshair
+	// draw the crosshair
 	x = 420;
 	y = 230;
 	size = (int)s_playersettings.crosshairSize.curvalue;
@@ -253,9 +253,7 @@ static void PlayerSettings_DrawPlayer(void *self)
 
 	}
 
-
-
-//TODO: draw hud color preview
+	// TODO: draw hud color preview
 	color[0] = s_playersettings.hudRed.curvalue / 10.0f;
 	color[1] = s_playersettings.hudGreen.curvalue / 10.0f;
 	color[2] = s_playersettings.hudBlue.curvalue / 10.0f;
@@ -267,8 +265,6 @@ static void PlayerSettings_DrawPlayer(void *self)
 	trap_R_SetColor(color);
 	UI_DrawHandlePic(x-18, y-18, 36, 36, trap_R_RegisterShaderNoMip("hud/hud_icon_health"));
 	trap_R_SetColor(NULL);
-
-
 }
 
 /*
@@ -709,10 +705,10 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.player.generic.type = MTYPE_BITMAP;
 	s_playersettings.player.generic.flags = QMF_INACTIVE;
 	s_playersettings.player.generic.ownerdraw = PlayerSettings_DrawPlayer;
-	s_playersettings.player.generic.x = 100;
-	s_playersettings.player.generic.y = 100;
-	s_playersettings.player.width = 320;
-	s_playersettings.player.height = 360;
+	s_playersettings.player.generic.x = 20;
+	s_playersettings.player.generic.y = 70;
+	s_playersettings.player.width = 32 * 7;
+	s_playersettings.player.height = 56 * 7;
 
 	s_playersettings.back.generic.type = MTYPE_BITMAP;
 	s_playersettings.back.generic.name = UI_ART_BUTTON;

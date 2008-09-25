@@ -802,14 +802,9 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 
 
 #ifdef XPPM
-
-
 	UI_XPPM_Player(x, y, w, h, pi, time);
-
 	return;
-
 #endif
-
 
 	if(!pi->legsModel || !pi->torsoModel || !pi->headModel || !pi->animations[0].numFrames)
 	{
