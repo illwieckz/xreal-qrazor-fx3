@@ -33,26 +33,7 @@ white
 	}
 }
 
-console
-{
-	nopicmip
-	nomipmaps
-    
-	{
-		//map gfx/misc/console04.tga
-		map _black
-		//blendFunc GL_ONE GL_ZERO
-		//scroll time * 5.1 , time * 0.2
-		//scale .8 , 1
-	}
-//	{
-//		map gfx/misc/console01.tga
-//		blendFunc add
-//		tcMod turb 0 .1 0 .1
-//		tcMod scale 1 0.5
-//		//scroll time * 0.2, time * .1
-//	}
-}
+
 
 
 

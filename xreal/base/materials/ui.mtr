@@ -1,3 +1,23 @@
+ui/opp_select
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/maps_select.png
+		blend blend
+	}
+}
+ui/opp_selected
+{
+	nopicmip
+	nomipmaps
+	
+	{
+		map gfx/2d/ui/maps_selected.png
+		blend blend
+	}
+}
 
 ui/load0
 {
