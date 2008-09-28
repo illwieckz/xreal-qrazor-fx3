@@ -705,10 +705,10 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.player.generic.type = MTYPE_BITMAP;
 	s_playersettings.player.generic.flags = QMF_INACTIVE;
 	s_playersettings.player.generic.ownerdraw = PlayerSettings_DrawPlayer;
-	s_playersettings.player.generic.x = 20;
-	s_playersettings.player.generic.y = 70;
-	s_playersettings.player.width = 32 * 7;
-	s_playersettings.player.height = 56 * 7;
+	s_playersettings.player.generic.x = 40;
+	s_playersettings.player.generic.y = 130;
+	s_playersettings.player.width = 30 * 9;
+	s_playersettings.player.height = 50 * 7;
 
 	s_playersettings.back.generic.type = MTYPE_BITMAP;
 	s_playersettings.back.generic.name = UI_ART_BUTTON;
@@ -734,6 +734,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.item_null.generic.y = 0;
 	s_playersettings.item_null.width = 640;
 	s_playersettings.item_null.height = 480;
+
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.player);
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.banner);
 	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.framel);
@@ -770,7 +772,6 @@ static void PlayerSettings_MenuInit(void)
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.model);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.back);
 
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.player);
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.item_null);
 

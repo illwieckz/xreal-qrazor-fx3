@@ -315,6 +315,7 @@ extern vec4_t   text_color_disabled;
 extern vec4_t   text_color_normal;
 extern vec4_t   text_color_highlight;
 extern vec4_t   color_cursorLines;
+extern vec4_t   text_color_dim;
 
 
 
@@ -613,6 +614,9 @@ typedef struct
 	fontInfo_t      PTextFont;
 	fontInfo_t      TextFont;
 	fontInfo_t      TextBoldFont;
+
+	//single podium the playermodel is standing on in the menu
+	qhandle_t       podiumModel;
 
 //  fontInfo_t      smallFont;
 //  fontInfo_t      bigFont;

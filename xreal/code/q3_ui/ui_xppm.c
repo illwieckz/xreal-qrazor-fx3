@@ -157,7 +157,6 @@ static qboolean UI_XPPMParseCharacterFile(const char *filename, playerInfo_t * p
 	return qtrue;
 }
 
-
 static qboolean UI_XPPM_RegisterPlayerAnimation(playerInfo_t * pi, const char *modelName, int anim, const char *animName,
 										   qboolean loop, qboolean reversed, qboolean clearOrigin)
 {
@@ -212,8 +211,6 @@ qbooleanUI_XPPM_RegisterModel
 ==========================
 */
 
-qhandle_t       anim;
-
 qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName)
 {
 	int             i;
@@ -242,9 +239,7 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 			return qfalse;
 		}
 
-		anim = UI_XPPM_RegisterPlayerAnimation(pi, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse);
-
-		if(!anim)
+		if(!UI_XPPM_RegisterPlayerAnimation(pi, modelName, LEGS_IDLE, "idle", qtrue, qfalse, qfalse))
 		{
 			Com_Printf("Failed to load idle animation file %s\n", filename);
 			return qfalse;
@@ -556,14 +551,19 @@ static void UI_XPPM_PlayerAngles(playerInfo_t * pi, vec3_t legsAngles, vec3_t to
 	AnglesSubtract(torsoAngles, legsAngles, torsoAngles);
 }
 
+
+
 void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time)
 {
 	refEntity_t     body;
+	refEntity_t     podium;
 	refdef_t        refdef;
 
 	vec3_t          legsAngles;
 	vec3_t          torsoAngles;
 	vec3_t          headAngles;
+
+	vec3_t          podiumAngles;
 
 	vec3_t          origin;
 	int             renderfx;
@@ -581,12 +581,13 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	dp_realtime = time;
 
-	UI_DrawRect(x, y, w, h, colorYellow);
+	//UI_DrawRect(x, y, w, h, colorYellow);
 
 	UI_AdjustFrom640(&x, &y, &w, &h);
 
 	memset(&refdef, 0, sizeof(refdef));
 	memset(&body, 0, sizeof(body));
+	memset(&podium, 0, sizeof(podium));
 
 	refdef.rdflags = RDF_NOWORLDMODEL | RDF_NOSHADOWS;
 
@@ -597,7 +598,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	refdef.width = w;
 	refdef.height = h;
 
-	refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
+	refdef.fov_x = (int)((float)refdef.width / 640.0f * 60.0f);
 	xx = refdef.width / tan(refdef.fov_x / 360 * M_PI);
 	refdef.fov_y = atan2(refdef.height, xx);
 	refdef.fov_y *= (360 / M_PI);
@@ -607,7 +608,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	origin[0] = len / tan(DEG2RAD(refdef.fov_x) * 0.5) + 10;
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
-	origin[2] -= len;
+	origin[2] -= len - 20;
 
 	refdef.time = dp_realtime;
 
@@ -618,14 +619,14 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	UI_XPPM_PlayerAngles(pi, legsAngles, torsoAngles, headAngles);
 #else
 	// Quake 2 style
-	legsAngles[YAW] = AngleNormalize360((float)(uis.realtime / 5.0)); //180 - 30;
+	legsAngles[YAW] = AngleNormalize360((float)(uis.realtime / 30.0)); //180 - 30;
 	legsAngles[PITCH] = 0;
 	legsAngles[ROLL] = 0;
 #endif
 
 	AnglesToAxis(legsAngles, body.axis);
 
-	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW ;
 
 	// add the body
 	VectorCopy(origin, body.origin);
@@ -636,14 +637,14 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	body.shaderTime = 1.0f;
 
 	body.renderfx = renderfx;
-	//VectorCopy(origin, body.lightingOrigin);
+	VectorCopy(origin, body.lightingOrigin);
 
 	body.backlerp = 1.0f;
 	body.frame = 1;
 	body.oldframe = 0;
 
 	// modify bones and set proper local bounds for culling
-	if(!trap_R_BuildSkeleton(&body.skeleton, anim, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
+	if(!trap_R_BuildSkeleton(&body.skeleton, pi->animations[LEGS_IDLE].handle, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
 	{
 		Com_Printf("Can't build animation\n");
 		return;
@@ -655,24 +656,53 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 		UI_XPPM_TransformSkeleton(&body.skeleton, NULL);
 	}
 
-	trap_R_AddRefEntityToScene(&body);
 
 	//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+	trap_R_AddRefEntityToScene(&body);
+
+
+	VectorCopy(legsAngles, podiumAngles);
+	AnglesToAxis(podiumAngles, podium.axis);
+
+	// add the podium
+
+	VectorCopy(origin, podium.origin);
+	podium.origin[2] += 1;	
+
+	VectorCopy(podium.origin, podium.oldorigin);
+
+	podium.hModel = uis.podiumModel;
+	
+	//podium.customSkin = pi->bodySkin;
+	//podium.shaderTime = 1.0f;
+
+	podium.renderfx = renderfx;
+	VectorCopy(origin, podium.lightingOrigin);
+
+	podium.backlerp = 1.0f;
+	podium.frame = 1;
+	podium.oldframe = 0;
+
+	//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
+	trap_R_AddRefEntityToScene(&podium);
+
 
 
 #if 1
-	origin[0] -= 100;			// + = behind, - = in front
-	origin[1] += 100;			// + = left, - = right
-	origin[2] += 100;			// + = above, - = below
-	trap_R_AddLightToScene(origin, 500, 1.0, 1.0, 1.0);
+	origin[0] -= 150;			// + = behind, - = in front
+	origin[1] += 150;			// + = left, - = right
+	origin[2] += 150;			// + = above, - = below
+	trap_R_AddLightToScene(origin, 300, 1.0, 1.0, 1.0);
 #endif
 
 #if 1
-	origin[0] -= 100;
-	origin[1] -= 100;
-	origin[2] -= 100;
-	trap_R_AddLightToScene(origin, 500, 1.0, 0.0, 0.0);
+	origin[0] -= 150;
+	origin[1] -= 150;
+	origin[2] -= 150;
+	trap_R_AddLightToScene(origin, 400, 1.0, 1.0, 1.0);
 #endif
+
+
 
 	trap_R_RenderScene(&refdef);
 }

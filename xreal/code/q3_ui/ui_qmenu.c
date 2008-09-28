@@ -61,6 +61,7 @@ vec4_t          listbar_color = { 0.43f, 0.43f, 0.63f, 0.30f };	// transluscent
 vec4_t          text_color_status = { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white 
 
 vec4_t          color_cursorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// cursorlines color
+vec4_t          text_color_dim = { 0.6f, 0.6f, 0.8f, 0.85f };	// cursorlines color
 
 // action widget
 static void     Action_Init(menuaction_s * a);
@@ -1895,6 +1896,14 @@ sfxHandle_t Menu_DefaultKey(menuframework_s * m, int key)
 	return sound;
 }
 
+
+
+
+
+
+
+
+
 /*
 =================
 Menu_Cache
@@ -1919,6 +1928,10 @@ void Menu_Cache(void)
 	trap_R_RegisterFont("fonts/GOODTIME.ttf", 48, &uis.PTextFont);
 	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.TextFont);
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.TextBoldFont);
+
+
+//single podium the playermodel is standing on in the menu
+	uis.podiumModel = trap_R_RegisterModel("models/ppodium.md5mesh", qtrue);
 
 	uis.cursor = trap_R_RegisterShaderNoMip("ui/cursor");
 
