@@ -626,7 +626,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	AnglesToAxis(legsAngles, body.axis);
 
-	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW ;
+	renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
 
 	// add the body
 	VectorCopy(origin, body.origin);
@@ -638,6 +638,9 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	body.renderfx = renderfx;
 	VectorCopy(origin, body.lightingOrigin);
+	body.lightingOrigin[0] -= 150;			// + = behind, - = in front
+	body.lightingOrigin[1] += 150;			// + = left, - = right
+	body.lightingOrigin[2] += 3000;			// + = above, - = below
 
 	body.backlerp = 1.0f;
 	body.frame = 1;
@@ -665,7 +668,6 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	AnglesToAxis(podiumAngles, podium.axis);
 
 	// add the podium
-
 	VectorCopy(origin, podium.origin);
 	podium.origin[2] += 1;	
 
@@ -678,6 +680,9 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	podium.renderfx = renderfx;
 	VectorCopy(origin, podium.lightingOrigin);
+	podium.lightingOrigin[0] -= 150;			// + = behind, - = in front
+	podium.lightingOrigin[1] += 150;			// + = left, - = right
+	podium.lightingOrigin[2] += 3000;			// + = above, - = below
 
 	podium.backlerp = 1.0f;
 	podium.frame = 1;
@@ -685,7 +690,6 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
 	trap_R_AddRefEntityToScene(&podium);
-
 
 
 #if 1
@@ -701,8 +705,6 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	origin[2] -= 150;
 	trap_R_AddLightToScene(origin, 400, 1.0, 1.0, 1.0);
 #endif
-
-
 
 	trap_R_RenderScene(&refdef);
 }
