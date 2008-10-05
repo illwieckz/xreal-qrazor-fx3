@@ -394,7 +394,6 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 		else
 		{
 			VectorCopy(tr.sunDirection, ent->lightDir);
-			VectorSet(ent->lightDir, 0, 0, -1);
 		}
 	}
 
