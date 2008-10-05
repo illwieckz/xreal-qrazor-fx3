@@ -821,7 +821,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 					dataOfs += sizeof(vec4_t);
 				}
 
-				vboSurf->vbo = R_CreateStaticVBO(va("staticMD3Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize);
+				vboSurf->vbo = R_CreateVBO(va("staticMD3Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
 				vboSurf->vbo->ofsXYZ = 0;
 				vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 				vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -830,7 +830,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vboSurf->vbo->ofsNormals = ofsNormals;
 				vboSurf->vbo->ofsColors = ofsColors;
 
-				vboSurf->ibo = R_CreateStaticIBO(va("staticMD3Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize);
+				vboSurf->ibo = R_CreateIBO(va("staticMD3Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
 
 				ri.Hunk_FreeTempMemory(indexes);
 				ri.Hunk_FreeTempMemory(data);
@@ -1536,7 +1536,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 				dataOfs += sizeof(vec4_t);
 			}
 
-			vboSurf->vbo = R_CreateStaticVBO(va("staticMD5Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize);
+			vboSurf->vbo = R_CreateVBO(va("staticMD5Mesh_VBO %i", vboSurfaces.currentElements), data, dataSize, GL_STATIC_DRAW_ARB);
 			vboSurf->vbo->ofsXYZ = 0;
 			vboSurf->vbo->ofsTexCoords = ofsTexCoords;
 			vboSurf->vbo->ofsLightCoords = ofsTexCoords;
@@ -1547,7 +1547,7 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
 			vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
 
-			vboSurf->ibo = R_CreateStaticIBO(va("staticMD5Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize);
+			vboSurf->ibo = R_CreateIBO(va("staticMD5Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize, GL_STATIC_DRAW_ARB);
 
 			ri.Hunk_FreeTempMemory(indexes);
 			ri.Hunk_FreeTempMemory(data);

@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ============
-R_CreateStaticVBO
+R_CreateVBO
 ============
 */
-VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexesSize)
+VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, int usage)
 {
 	VBO_t          *vbo;
 
@@ -58,7 +58,7 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, GL_STATIC_DRAW_ARB);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, usage);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
@@ -69,10 +69,10 @@ VBO_t          *R_CreateStaticVBO(const char *name, byte * vertexes, int vertexe
 
 /*
 ============
-R_CreateStaticVBO2
+R_CreateVBO2
 ============
 */
-VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits)
+VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits, int usage)
 {
 	VBO_t          *vbo;
 
@@ -89,7 +89,7 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 
 	if(strlen(name) >= MAX_QPATH)
 	{
-		ri.Error(ERR_DROP, "R_CreateVBO: \"%s\" is too long\n", name);
+		ri.Error(ERR_DROP, "R_CreateVBO2: \"%s\" is too long\n", name);
 	}
 
 	// make sure the render thread is stopped
@@ -235,7 +235,7 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 	qglGenBuffersARB(1, &vbo->vertexesVBO);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_STATIC_DRAW_ARB);
+	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, usage);
 
 	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
@@ -249,10 +249,10 @@ VBO_t          *R_CreateStaticVBO2(const char *name, int numVertexes, srfVert_t 
 
 /*
 ============
-R_CreateStaticIBO
+R_CreateIBO
 ============
 */
-IBO_t          *R_CreateStaticIBO(const char *name, byte * indexes, int indexesSize)
+IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, int usage)
 {
 	IBO_t          *ibo;
 
@@ -274,7 +274,7 @@ IBO_t          *R_CreateStaticIBO(const char *name, byte * indexes, int indexesS
 	qglGenBuffersARB(1, &ibo->indexesVBO);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, usage);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
@@ -285,10 +285,10 @@ IBO_t          *R_CreateStaticIBO(const char *name, byte * indexes, int indexesS
 
 /*
 ============
-R_CreateStaticIBO2
+R_CreateIBO2
 ============
 */
-IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriangle_t * triangles)
+IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, int usage)
 {
 	IBO_t          *ibo;
 
@@ -306,7 +306,7 @@ IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriang
 
 	if(strlen(name) >= MAX_QPATH)
 	{
-		ri.Error(ERR_DROP, "R_CreateVBO: \"%s\" is too long\n", name);
+		ri.Error(ERR_DROP, "R_CreateIBO2: \"%s\" is too long\n", name);
 	}
 
 	// make sure the render thread is stopped
@@ -336,7 +336,7 @@ IBO_t          *R_CreateStaticIBO2(const char *name, int numTriangles, srfTriang
 	qglGenBuffersARB(1, &ibo->indexesVBO);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, GL_STATIC_DRAW_ARB);
+	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, usage);
 
 	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
@@ -477,9 +477,7 @@ void R_InitVBOs(void)
 	data = Com_Allocate(dataSize);
 	memset(data, 0, dataSize);
 
-	tess.vbo = R_CreateStaticVBO("tessVertexArray_VBO", data, dataSize);
-	R_BindVBO(tess.vbo);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, GL_DYNAMIC_DRAW_ARB);
+	tess.vbo = R_CreateVBO("tessVertexArray_VBO", data, dataSize, GL_DYNAMIC_DRAW_ARB);
 	tess.vbo->ofsXYZ = 0;
 	tess.vbo->ofsTexCoords = tess.vbo->ofsXYZ + sizeof(tess.xyz);
 	tess.vbo->ofsLightCoords = tess.vbo->ofsTexCoords + sizeof(tess.texCoords);
@@ -496,9 +494,7 @@ void R_InitVBOs(void)
 	data = Com_Allocate(dataSize);
 	memset(data, 0, dataSize);
 
-	tess.ibo = R_CreateStaticIBO("tessVertexArray_IBO", data, dataSize);
-	R_BindIBO(tess.ibo);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dataSize, data, GL_DYNAMIC_DRAW_ARB);
+	tess.ibo = R_CreateIBO("tessVertexArray_IBO", data, dataSize, GL_DYNAMIC_DRAW_ARB);
 
 	Com_Dealloc(data);
 
