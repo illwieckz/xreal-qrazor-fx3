@@ -565,7 +565,6 @@ void Con_DrawNotify(void)
 	float           alpha;
 	int             offset;
 
-
 	currentColor = 7;
 	re.SetColor(g_color_table[currentColor]);
 
@@ -614,9 +613,6 @@ void Con_DrawNotify(void)
 
 			SCR_Text_PaintSingleChar(cl_conXOffset->integer + con.xadjust + (x + 1) * 5, v - offset, 0.15f, color, text[x] & 0xff,
 									 0, 0, UI_DROPSHADOW, &cls.consoleFont);
-
-
-
 		}
 
 		v += 8;
@@ -632,18 +628,21 @@ void Con_DrawNotify(void)
 	// draw the chat line
 	if(Key_GetCatcher() & KEYCATCH_MESSAGE)
 	{
+		const char *s;
+
 		if(chat_team)
 		{
-			SCR_DrawBigString(8, v, "say_team:", 1.0f, qfalse);
-			skip = 10;
+			s = "say_team:";
 		}
 		else
 		{
-			SCR_DrawBigString(8, v, "say:", 1.0f, qfalse);
-			skip = 5;
+			s = "say:";
 		}
 
-		Field_BigDraw(&chatField, skip * BIGCHAR_WIDTH, v, SCREEN_WIDTH - (skip + 1) * BIGCHAR_WIDTH, qtrue, qtrue);
+		SCR_Text_PaintAligned(8, v, s, 0.25f, UI_LEFT, colorWhite, &cls.consoleFont);
+		skip = SCR_Text_Width(s, 0.25f, 0, &cls.consoleFont) + 7;
+
+		Field_BigDraw(&chatField, skip, v + SCR_Text_Height(s, 0.25f, 0, &cls.consoleFont) / 2, SCREEN_WIDTH - (skip + 1), qtrue, qtrue);
 
 		v += BIGCHAR_HEIGHT;
 	}
@@ -776,9 +775,8 @@ void Con_DrawSolidConsole(float frac)
 	VectorSet4(fontColor, 1.0f, 1.0f, 1.0f, alpha);
 	VectorSet4(fontColorHighlight, 1.0f, 1.0f, 1.0f, alpha * 1.5f);
 
-	//version string
+	// version string
 	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
-
 
 	// draw the date
 	if(con_showDate->integer)
@@ -789,7 +787,6 @@ void Con_DrawSolidConsole(float frac)
 		Q_strcat(displayDate, sizeof(displayDate), va("%02d/%02d/%04d", dt.tm_mday, dt.tm_mon + 1, 1900 + dt.tm_year));
 
 		SCR_Text_PaintAligned(626, 220, displayDate, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
-
 	}
 
 	if(con_showClock->integer)
@@ -813,7 +810,6 @@ void Con_DrawSolidConsole(float frac)
 
 
 		SCR_Text_PaintAligned(626, 210, displayTime, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
-
 	}
 
 

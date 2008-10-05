@@ -320,7 +320,6 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 	char            str[MAX_STRING_CHARS];
 	int             i;
 	vec4_t          color;
-
 	int             style;
 
 	if(con_conshadow->value > 0)
@@ -381,15 +380,12 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 	// draw it
 	if(size == SMALLCHAR_WIDTH)
 	{
-
 		color[0] = color[1] = color[2] = color[3] = 1.0;
 		//SCR_DrawSmallStringExt(x, y, str, color, qfalse, noColorEscape);
 		SCR_Text_Paint(x, y, 0.15f, color, str, 0, 0, style, &cls.consoleFont);
-
 	}
 	else
 	{
-
 		color[0] = color[1] = color[2] = color[3] = 1.0;
 		// draw big string with drop shadow
 		//SCR_DrawBigString(x, y, str, 1.0, noColorEscape);
@@ -403,8 +399,6 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 		{
 			return;				// off blink
 		}
-
-
 
 		if(key_overstrikeMode)
 		{
