@@ -2457,8 +2457,7 @@ static int CG_DrawPickupItem(int y)
 			CG_RegisterItemVisuals(value);
 			trap_R_SetColor(fadeColor);
 			CG_DrawPic(8, y, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
-			CG_DrawBigString(ICON_SIZE + 16, y + (ICON_SIZE / 2 - BIGCHAR_HEIGHT / 2), bg_itemlist[value].pickup_name,
-							 fadeColor[0]);
+			CG_Text_PaintAligned(ICON_SIZE + 16, y + (ICON_SIZE / 2), bg_itemlist[value].pickup_name, 0.4f, UI_LEFT | UI_DROPSHADOW, fadeColor, &cgs.media.freeSansBoldFont);
 			trap_R_SetColor(NULL);
 		}
 	}
