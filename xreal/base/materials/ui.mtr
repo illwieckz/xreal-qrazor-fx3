@@ -199,6 +199,7 @@ ui/button
 	{
 		map gfx/2d/ui/button.png
 		blend blend
+		rgbGen vertex
 	}
 }
 ui/button_focus
@@ -209,6 +210,7 @@ ui/button_focus
 	{
 		map gfx/2d/ui/button_focus.png
 		blend blend
+		rgbGen vertex
 	}
 }
 
