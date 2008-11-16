@@ -887,6 +887,12 @@ static void CG_OffsetFirstPersonView(void)
 
 void CG_ZoomDown_f(void)
 {
+
+	if(cg.osd.input){
+		CG_OSDInput();
+		return;
+	}
+	
 	if(cg.zoomed)
 	{
 		return;

@@ -1024,6 +1024,10 @@ static void CG_RegisterGraphics(void)
 	cgs.media.hud_icon_health = trap_R_RegisterShaderNoMip("hud/hud_icon_health");
 	cgs.media.hud_icon_armor = trap_R_RegisterShaderNoMip("hud/hud_icon_armor");
 
+	cgs.media.osd_button = trap_R_RegisterShaderNoMip("ui/button");
+	cgs.media.osd_button_focus = trap_R_RegisterShaderNoMip("ui/button_focus");
+
+
 	CG_LoadingString("rankings", qfalse);
 
 	cgs.media.hud_scoreboard_title = trap_R_RegisterShaderNoMip("hud/scoreboard_title");
@@ -2367,6 +2371,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_AssetCache();
 	CG_LoadHudMenu();			// load new hud stuff
 #endif
+	CG_LoadingString("osd", qtrue);
+
+	CG_RegisterOSD(); 
 
 	cg.loading = qfalse;		// future players will be deferred
 

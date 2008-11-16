@@ -58,7 +58,7 @@ void CG_LoadingString(const char *s, qboolean strong)
 		cg.progress = NUM_PROGRESS;
 
 
-#if 1
+#if 0
 	//find out how many cg.progress we made...
 	Com_Printf("Progress: %i\n", cg.progress);
 #endif

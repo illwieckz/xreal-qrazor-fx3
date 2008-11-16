@@ -597,6 +597,58 @@ typedef struct
 } progressInfo_t;
 
 
+
+#define MAX_OSD_GROUPS 8
+#define MAX_OSD_GROUP_ENTRYS 8
+
+
+
+typedef struct {
+
+		int id;
+		
+		char caption[64];
+		char parm[32];
+
+		void (*func)(char *s);
+
+		float	angle;
+		float 	scale;
+		vec3_t	dir;
+		vec3_t endpos;
+		
+} osd_entry_t;
+
+typedef struct {
+
+	char name[32];
+	osd_entry_t entrys[MAX_OSD_GROUP_ENTRYS];
+	int	numEntrys;
+
+	float 	alpha, wish_alpha;
+
+	vec3_t start;
+	float radius;
+	
+
+} osd_group_t;
+
+
+osd_group_t		osdGroups[MAX_OSD_GROUPS];
+int						numOSDGroups;
+
+
+typedef struct osd_s {
+	
+	qboolean input;
+
+	osd_entry_t *curEntry;
+	osd_group_t *curGroup;
+
+	float 	offset;
+} osd_t;
+
+
 typedef struct
 {
 	int             clientFrame;	// incremented each frame
@@ -818,6 +870,11 @@ typedef struct
 	float           bar_offset;	// offset calculation for middle bar
 	int             bar_count;	//number of items displayed in the bar
 	int             scoreboard_offset;	// scoreboard scrolling
+
+	//osd
+
+	osd_t osd;
+	
 } cg_t;
 
 
@@ -946,6 +1003,9 @@ typedef struct
 	qhandle_t       hud_scoreboard_title_overlay;
 	qhandle_t       hud_scoreboard;
 
+	qhandle_t       osd_button;
+	qhandle_t       osd_button_focus;
+	
 	//new combination crosshair stuff
 	qhandle_t       crosshairDot[NUM_CROSSHAIRS];
 	qhandle_t       crosshairCircle[NUM_CROSSHAIRS];
@@ -1875,6 +1935,19 @@ qboolean        CG_FindClientHeadFile(char *filename, int length, clientInfo_t *
 									  const char *headModelName, const char *headSkinName, const char *base, const char *ext);
 qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
 									   const char *skinName, const char *base, const char *ext);
+
+
+//
+// cg_osd.c
+//
+
+void 					CG_RegisterOSD ( void ) ;
+void 					CG_OSDUp_f(void);
+void 					CG_OSDDown_f(void);
+void						CG_DrawOSD ( void );
+void 					CG_OSDNext_f(void);
+void 					CG_OSDPrev_f(void);
+void 					CG_OSDInput(void);
 
 #ifdef XPPM
 

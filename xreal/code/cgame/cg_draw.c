@@ -3916,6 +3916,9 @@ static void CG_Draw2D(void)
 		return;
 	}
 */
+
+	CG_DrawOSD ();
+
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
 		CG_DrawSpectator();

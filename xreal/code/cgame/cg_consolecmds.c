@@ -552,6 +552,11 @@ static consoleCommand_t commands[] = {
 	{"vtell_target", CG_VoiceTellTarget_f},
 	{"vtell_attacker", CG_VoiceTellAttacker_f},
 	{"tcmd", CG_TargetCommand_f},
+
+	{"+osd", CG_OSDUp_f},
+	{"-osd", CG_OSDDown_f},
+
+
 #ifdef MISSIONPACK
 	{"loadhud", CG_LoadHud_f},
 	{"nextTeamMember", CG_NextTeamMember_f},
