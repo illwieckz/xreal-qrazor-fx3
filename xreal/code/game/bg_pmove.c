@@ -1904,7 +1904,7 @@ static void PM_Weapon(void)
 	}
 
 	// check for fire
-	if(!(pm->cmd.buttons & BUTTON_ATTACK))
+	if(!(pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_ATTACK2)))
 	{
 		pm->ps->weaponTime = 0;
 		pm->ps->weaponstate = WEAPON_READY;
@@ -1950,7 +1950,10 @@ static void PM_Weapon(void)
 	}
 
 	// fire weapon
-	PM_AddEvent(EV_FIRE_WEAPON);
+	if(pm->cmd.buttons & BUTTON_ATTACK2)
+		PM_AddEvent(EV_FIRE_WEAPON2);
+	else
+		PM_AddEvent(EV_FIRE_WEAPON);
 
 	switch (pm->ps->weapon)
 	{
@@ -2228,7 +2231,7 @@ void PmoveSingle(pmove_t * pmove)
 	}
 
 	// clear the respawned flag if attack and use are cleared
-	if(pm->ps->stats[STAT_HEALTH] > 0 && !(pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)))
+	if(pm->ps->stats[STAT_HEALTH] > 0 && !(pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_ATTACK2 | BUTTON_USE_HOLDABLE)))
 	{
 		pm->ps->pm_flags &= ~PMF_RESPAWNED;
 	}

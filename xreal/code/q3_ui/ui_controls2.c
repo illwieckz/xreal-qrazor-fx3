@@ -104,23 +104,24 @@ typedef struct
 #define ID_WEAPON8		24
 #define ID_WEAPON9		25
 #define ID_ATTACK		26
-#define ID_WEAPPREV		27
-#define ID_WEAPNEXT		28
-#define ID_GESTURE		29
-#define ID_CHAT			30
-#define ID_CHAT2		31
-#define ID_CHAT3		32
-#define ID_CHAT4		33
+#define ID_ATTACK2		27
+#define ID_WEAPPREV		28
+#define ID_WEAPNEXT		29
+#define ID_GESTURE		30
+#define ID_CHAT			31
+#define ID_CHAT2		32
+#define ID_CHAT3		33
+#define ID_CHAT4		34
 
 // all others
-#define ID_FREELOOK		34
-#define ID_INVERTMOUSE	35
-#define ID_ALWAYSRUN	36
-#define ID_AUTOSWITCH	37
-#define ID_MOUSESPEED	38
-#define ID_JOYENABLE	39
-#define ID_JOYTHRESHOLD	40
-#define ID_SMOOTHMOUSE	41
+#define ID_FREELOOK		35
+#define ID_INVERTMOUSE	36
+#define ID_ALWAYSRUN	37
+#define ID_AUTOSWITCH	38
+#define ID_MOUSESPEED	39
+#define ID_JOYENABLE	40
+#define ID_JOYTHRESHOLD	41
+#define ID_SMOOTHMOUSE	42
 
 #define ANIM_IDLE		0
 #define ANIM_RUN		1
@@ -183,6 +184,7 @@ typedef struct
 	menuaction_s    plasma;
 	menuaction_s    bfg;
 	menuaction_s    attack;
+	menuaction_s    attack2;
 	menuaction_s    prevweapon;
 	menuaction_s    nextweapon;
 	menuaction_s    lookup;
@@ -254,7 +256,8 @@ static bind_t g_bindings[] =
 	{"weapon 7",		"railgun",			ID_WEAPON7,		ANIM_WEAPON7,	'7',			-1,		-1, -1},
 	{"weapon 8",		"plasma gun",		ID_WEAPON8,		ANIM_WEAPON8,	'8',			-1,		-1, -1},
 	{"weapon 9",		"BFG",				ID_WEAPON9,		ANIM_WEAPON9,	'9',			-1,		-1, -1},
-	{"+attack", 		"attack",			ID_ATTACK,		ANIM_ATTACK,	K_CTRL,			-1,		-1, -1},
+	{"+attack", 		"primary attack",	ID_ATTACK,		ANIM_ATTACK,	K_MOUSE1,		-1,		-1, -1},
+	{"+attack2", 		"secondary attack",	ID_ATTACK2,		ANIM_ATTACK,	K_MOUSE2,		-1,		-1, -1},
 	{"weapprev",		"prev weapon",		ID_WEAPPREV,	ANIM_IDLE,		'[',			-1,		-1, -1},
 	{"weapnext", 		"next weapon",		ID_WEAPNEXT,	ANIM_IDLE,		']',			-1,		-1, -1},
 	{"+button3", 		"gesture",			ID_GESTURE,		ANIM_GESTURE,	K_MOUSE3,		-1,		-1, -1},
@@ -295,7 +298,8 @@ static menucommon_s *g_movement_controls[] =
 };
 
 static menucommon_s *g_weapons_controls[] = {
-	(menucommon_s *)&s_controls.attack,           
+	(menucommon_s *)&s_controls.attack,
+	(menucommon_s *)&s_controls.attack2,
 	(menucommon_s *)&s_controls.nextweapon,
 	(menucommon_s *)&s_controls.prevweapon,
 	(menucommon_s *)&s_controls.autoswitch,    
@@ -1536,6 +1540,12 @@ static void Controls_MenuInit(void)
 	s_controls.attack.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.attack.generic.id = ID_ATTACK;
 
+	s_controls.attack2.generic.type = MTYPE_ACTION;
+	s_controls.attack2.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.attack2.generic.callback = Controls_ActionEvent;
+	s_controls.attack2.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.attack2.generic.id = ID_ATTACK2;
+
 	s_controls.prevweapon.generic.type = MTYPE_ACTION;
 	s_controls.prevweapon.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
 	s_controls.prevweapon.generic.callback = Controls_ActionEvent;
@@ -1734,6 +1744,7 @@ static void Controls_MenuInit(void)
 	Menu_AddItem(&s_controls.menu, &s_controls.sidestep);
 
 	Menu_AddItem(&s_controls.menu, &s_controls.attack);
+	Menu_AddItem(&s_controls.menu, &s_controls.attack2);
 	Menu_AddItem(&s_controls.menu, &s_controls.nextweapon);
 	Menu_AddItem(&s_controls.menu, &s_controls.prevweapon);
 	Menu_AddItem(&s_controls.menu, &s_controls.autoswitch);
