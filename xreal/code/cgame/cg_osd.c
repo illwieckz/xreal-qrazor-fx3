@@ -357,6 +357,9 @@ void CG_DrawOSD ( void ){
 	
 			if(cg.osd.curEntry == entry)
 			{
+				color[1]=0.0f;
+				color[2]=0.0f;
+				
 				trap_R_SetColor(color);
 							CG_DrawPic(entry->endpos[0]-w/2, entry->endpos[1]-h/2, w, h, cgs.media.osd_button_focus);
 				trap_R_SetColor(NULL);
