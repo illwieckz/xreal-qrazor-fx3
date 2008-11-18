@@ -308,6 +308,7 @@ indent code/cgame/cg_predict.c
 indent code/cgame/cg_playerstate.c
 indent code/cgame/cg_lua.c
 indent code/cgame/cg_scoreboard.c
+indent code/cgame/cg_osd.c
 indent code/xmap/lightmaps.c
 indent code/xmap/fog.c
 indent code/xmap/light.c
