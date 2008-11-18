@@ -628,7 +628,7 @@ void Con_DrawNotify(void)
 	// draw the chat line
 	if(Key_GetCatcher() & KEYCATCH_MESSAGE)
 	{
-		const char *s;
+		const char     *s;
 
 		if(chat_team)
 		{
@@ -642,7 +642,8 @@ void Con_DrawNotify(void)
 		SCR_Text_PaintAligned(8, v, s, 0.25f, UI_LEFT, colorWhite, &cls.consoleFont);
 		skip = SCR_Text_Width(s, 0.25f, 0, &cls.consoleFont) + 7;
 
-		Field_BigDraw(&chatField, skip, v + SCR_Text_Height(s, 0.25f, 0, &cls.consoleFont) / 2, SCREEN_WIDTH - (skip + 1), qtrue, qtrue);
+		Field_BigDraw(&chatField, skip, v + SCR_Text_Height(s, 0.25f, 0, &cls.consoleFont) / 2, SCREEN_WIDTH - (skip + 1), qtrue,
+					  qtrue);
 
 		v += BIGCHAR_HEIGHT;
 	}

@@ -2424,11 +2424,12 @@ void CG_NextWeapon_f(void)
 		return;
 	}
 
-	if(cg.osd.input){
+	if(cg.osd.input)
+	{
 		CG_OSDNext_f();
 		return;
 	}
-	
+
 	if(cg.scoreBoardShowing)
 	{
 		cg.scoreboard_offset++;
@@ -2481,12 +2482,13 @@ void CG_PrevWeapon_f(void)
 	{
 		return;
 	}
-	
-	if(cg.osd.input){
+
+	if(cg.osd.input)
+	{
 		CG_OSDPrev_f();
 		return;
 	}
-	
+
 	if(cg.scoreBoardShowing)
 	{
 		cg.scoreboard_offset--;

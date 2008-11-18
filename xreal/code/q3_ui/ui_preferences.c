@@ -362,12 +362,12 @@ static void Preferences_MenuInit(void)
 //  Menu_AddItem(&s_preferences.menu, &s_preferences.framel);
 //  Menu_AddItem(&s_preferences.menu, &s_preferences.framer);
 
- 
+
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.simpleitems);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.wallmarks);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.brass);
-//	Menu_AddItem(&s_preferences.menu, &s_preferences.identifytarget);
+//  Menu_AddItem(&s_preferences.menu, &s_preferences.identifytarget);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.highqualitysky);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.synceveryframe);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.forcemodel);

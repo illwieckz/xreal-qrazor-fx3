@@ -385,7 +385,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 
 
 		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * (150.0f / 255.0f);
-		
+
 		if(ent->e.renderfx & RF_LIGHTING_ORIGIN)
 		{
 			VectorSubtract(ent->e.lightingOrigin, ent->e.origin, ent->lightDir);

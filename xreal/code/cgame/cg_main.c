@@ -118,10 +118,10 @@ vmCvar_t        cg_crosshairX;
 vmCvar_t        cg_crosshairY;
 vmCvar_t        cg_crosshairHealth;
 
-vmCvar_t 	cg_hudRed;
-vmCvar_t 	cg_hudGreen;
-vmCvar_t 	cg_hudBlue;
-vmCvar_t 	cg_hudAlpha;
+vmCvar_t        cg_hudRed;
+vmCvar_t        cg_hudGreen;
+vmCvar_t        cg_hudBlue;
+vmCvar_t        cg_hudAlpha;
 
 
 vmCvar_t        cg_crosshairDot;
@@ -2373,7 +2373,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 #endif
 	CG_LoadingString("osd", qtrue);
 
-	CG_RegisterOSD(); 
+	CG_RegisterOSD();
 
 	cg.loading = qfalse;		// future players will be deferred
 

@@ -2457,7 +2457,8 @@ static int CG_DrawPickupItem(int y)
 			CG_RegisterItemVisuals(value);
 			trap_R_SetColor(fadeColor);
 			CG_DrawPic(8, y, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
-			CG_Text_PaintAligned(ICON_SIZE + 16, y + (ICON_SIZE / 2), bg_itemlist[value].pickup_name, 0.4f, UI_LEFT | UI_DROPSHADOW, fadeColor, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(ICON_SIZE + 16, y + (ICON_SIZE / 2), bg_itemlist[value].pickup_name, 0.4f,
+								 UI_LEFT | UI_DROPSHADOW, fadeColor, &cgs.media.freeSansBoldFont);
 			trap_R_SetColor(NULL);
 		}
 	}
@@ -3901,8 +3902,8 @@ static void CG_Draw2D(void)
 
 	VectorSet4(baseTeamColor, cg_hudRed.value, cg_hudGreen.value, cg_hudBlue.value, cg_hudAlpha.value);
 
- 	redTeamColor[3] = cg_hudAlpha.value;
- 	blueTeamColor[3] = cg_hudAlpha.value;
+	redTeamColor[3] = cg_hudAlpha.value;
+	blueTeamColor[3] = cg_hudAlpha.value;
 
 
 	if(cg.snap->ps.pm_type == PM_INTERMISSION)
@@ -3917,7 +3918,7 @@ static void CG_Draw2D(void)
 	}
 */
 
-	CG_DrawOSD ();
+	CG_DrawOSD();
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{

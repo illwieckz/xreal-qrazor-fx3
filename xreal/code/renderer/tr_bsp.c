@@ -3415,12 +3415,12 @@ static void R_CreateWorldVBO()
 	}
 
 	s_worldData.vbo = R_CreateVBO2(va("bspModelMesh_vertices %i", 0), numVerts, optimizedVerts,
-										 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-										 GLCS_NORMAL | GLCS_COLOR);
+								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
+								   GLCS_NORMAL | GLCS_COLOR);
 #else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
-										 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-										 GLCS_NORMAL | GLCS_COLOR, GL_STATIC_DRAW_ARB);
+								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
+								   GLCS_NORMAL | GLCS_COLOR, GL_STATIC_DRAW_ARB);
 #endif
 
 	endTime = ri.Milliseconds();
@@ -3772,11 +3772,12 @@ static void R_CreateSubModelVBOs()
 
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, optimizedVerts,
-									   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
-									   | GLCS_COLOR, GL_STATIC_DRAW_ARB);
+								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
+								 | GLCS_COLOR, GL_STATIC_DRAW_ARB);
 
 				vboSurf->ibo =
-					R_CreateIBO2(va("staticBspModel%i_IBO %i", vboSurfaces.currentElements), numTriangles, triangles, GL_STATIC_DRAW_ARB);
+					R_CreateIBO2(va("staticBspModel%i_IBO %i", vboSurfaces.currentElements), numTriangles, triangles,
+								 GL_STATIC_DRAW_ARB);
 
 				ri.Hunk_FreeTempMemory(triangles);
 				ri.Hunk_FreeTempMemory(optimizedVerts);
@@ -5638,7 +5639,8 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			}
 
 			vboSurf->vbo = s_worldData.vbo;
-			vboSurf->ibo = R_CreateIBO2(va("staticLightMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles, GL_STATIC_DRAW_ARB);
+			vboSurf->ibo =
+				R_CreateIBO2(va("staticLightMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles, GL_STATIC_DRAW_ARB);
 
 			ri.Hunk_FreeTempMemory(triangles);
 
@@ -5953,7 +5955,8 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					vboSurf->vbo = s_worldData.vbo;
 					vboSurf->ibo =
-						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles, GL_STATIC_DRAW_ARB);
+						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles,
+									 GL_STATIC_DRAW_ARB);
 				}
 				else
 				{
@@ -5968,7 +5971,8 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 					vboSurf->vbo = s_worldData.vbo;
 					vboSurf->ibo =
-						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles, GL_STATIC_DRAW_ARB);
+						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles,
+									 GL_STATIC_DRAW_ARB);
 				}
 
 				ri.Hunk_FreeTempMemory(triangles);

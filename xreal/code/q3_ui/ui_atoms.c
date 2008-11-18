@@ -1445,7 +1445,7 @@ void UI_AdjustFrom640(float *x, float *y, float *w, float *h)
 	*w *= uis.screenXScale;
 	*h *= uis.screenYScale;
 #endif
-	
+
 }
 
 void UI_DrawNamedPic(float x, float y, float width, float height, const char *picname)

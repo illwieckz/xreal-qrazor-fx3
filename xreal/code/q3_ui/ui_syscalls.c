@@ -169,6 +169,7 @@ int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, i
 {
 	return syscall(UI_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac), clearOrigin);
 }
+
 qhandle_t trap_R_RegisterSkin(const char *name)
 {
 	return syscall(UI_R_REGISTERSKIN, name);

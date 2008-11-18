@@ -603,49 +603,52 @@ typedef struct
 
 
 
-typedef struct {
+typedef struct
+{
 
-		int id;
-		
-		char caption[64];
-		char parm[32];
+	int             id;
 
-		void (*func)(char *s);
+	char            caption[64];
+	char            parm[32];
 
-		float	angle;
-		float 	scale;
-		vec3_t	dir;
-		vec3_t endpos;
-		
+	void            (*func) (char *s);
+
+	float           angle;
+	float           scale;
+	vec3_t          dir;
+	vec3_t          endpos;
+
 } osd_entry_t;
 
-typedef struct {
+typedef struct
+{
 
-	char name[32];
-	osd_entry_t entrys[MAX_OSD_GROUP_ENTRYS];
-	int	numEntrys;
+	char            name[32];
+	osd_entry_t     entrys[MAX_OSD_GROUP_ENTRYS];
+	int             numEntrys;
 
-	float 	alpha, wish_alpha;
+	float           alpha, wish_alpha;
 
-	vec3_t start;
-	float radius;
-	
+	vec3_t          start;
+	float           radius;
+
 
 } osd_group_t;
 
 
-osd_group_t		osdGroups[MAX_OSD_GROUPS];
-int						numOSDGroups;
+osd_group_t     osdGroups[MAX_OSD_GROUPS];
+int             numOSDGroups;
 
 
-typedef struct osd_s {
-	
-	qboolean input;
+typedef struct osd_s
+{
 
-	osd_entry_t *curEntry;
-	osd_group_t *curGroup;
+	qboolean        input;
 
-	float 	offset;
+	osd_entry_t    *curEntry;
+	osd_group_t    *curGroup;
+
+	float           offset;
 } osd_t;
 
 
@@ -873,8 +876,8 @@ typedef struct
 
 	//osd
 
-	osd_t osd;
-	
+	osd_t           osd;
+
 } cg_t;
 
 
@@ -1005,7 +1008,7 @@ typedef struct
 
 	qhandle_t       osd_button;
 	qhandle_t       osd_button_focus;
-	
+
 	//new combination crosshair stuff
 	qhandle_t       crosshairDot[NUM_CROSSHAIRS];
 	qhandle_t       crosshairCircle[NUM_CROSSHAIRS];
@@ -1941,13 +1944,13 @@ qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t 
 // cg_osd.c
 //
 
-void 					CG_RegisterOSD ( void ) ;
-void 					CG_OSDUp_f(void);
-void 					CG_OSDDown_f(void);
-void						CG_DrawOSD ( void );
-void 					CG_OSDNext_f(void);
-void 					CG_OSDPrev_f(void);
-void 					CG_OSDInput(void);
+void            CG_RegisterOSD(void);
+void            CG_OSDUp_f(void);
+void            CG_OSDDown_f(void);
+void            CG_DrawOSD(void);
+void            CG_OSDNext_f(void);
+void            CG_OSDPrev_f(void);
+void            CG_OSDInput(void);
 
 #ifdef XPPM
 

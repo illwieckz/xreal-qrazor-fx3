@@ -219,9 +219,9 @@ typedef struct
 	float           maxvalue;
 	float           curvalue;
 
-	qboolean	integer;
+	qboolean        integer;
 
-	int		step;
+	int             step;
 
 	float           range;
 } menuslider_s;
@@ -594,7 +594,7 @@ typedef struct
 	qhandle_t       cursor;
 	//qhandle_t       rb_on;
 	//qhandle_t       rb_off;
-	
+
 	// derived from glconfig
 	float           screenScale;
 	float           screenXBias;

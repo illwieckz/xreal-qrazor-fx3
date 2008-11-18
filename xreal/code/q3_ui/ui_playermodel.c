@@ -587,12 +587,12 @@ static void PlayerModel_MenuInit(void)
 			s_playermodel.picbuttons[k].generic.flags = QMF_LEFT_JUSTIFY | QMF_NODEFAULTINIT | QMF_PULSEIFFOCUS;
 			s_playermodel.picbuttons[k].generic.id = ID_PLAYERPIC0 + k;
 			s_playermodel.picbuttons[k].generic.callback = PlayerModel_PicEvent;
-			s_playermodel.picbuttons[k].generic.x = x ;
-			s_playermodel.picbuttons[k].generic.y = y ;
+			s_playermodel.picbuttons[k].generic.x = x;
+			s_playermodel.picbuttons[k].generic.y = y;
 			s_playermodel.picbuttons[k].generic.left = x;
 			s_playermodel.picbuttons[k].generic.top = y;
-			s_playermodel.picbuttons[k].generic.right = x +64;
-			s_playermodel.picbuttons[k].generic.bottom = y +64;
+			s_playermodel.picbuttons[k].generic.right = x + 64;
+			s_playermodel.picbuttons[k].generic.bottom = y + 64;
 			s_playermodel.picbuttons[k].width = 64;
 			s_playermodel.picbuttons[k].height = 64;
 			s_playermodel.picbuttons[k].focuspic = MODEL_SELECT;
@@ -627,7 +627,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.skinname.generic.type = MTYPE_TEXT;
 	s_playermodel.skinname.generic.flags = QMF_CENTER_JUSTIFY | QMF_INACTIVE;
 	s_playermodel.skinname.generic.x = 280;
-	s_playermodel.skinname.generic.y =  y;
+	s_playermodel.skinname.generic.y = y;
 	s_playermodel.skinname.string = skinname;
 	s_playermodel.skinname.style = UI_DROPSHADOW;
 	s_playermodel.skinname.color = text_color_dim;
@@ -652,8 +652,8 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.arrows.generic.type = MTYPE_BITMAP;
 	s_playermodel.arrows.generic.name = MODEL_ARROWS;
 	s_playermodel.arrows.generic.flags = QMF_INACTIVE;
-	s_playermodel.arrows.generic.x = 125-64;
-	s_playermodel.arrows.generic.y = 340+41;
+	s_playermodel.arrows.generic.x = 125 - 64;
+	s_playermodel.arrows.generic.y = 340 + 41;
 	s_playermodel.arrows.width = 128;
 	s_playermodel.arrows.height = 32;
 
@@ -661,8 +661,8 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.left.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_playermodel.left.generic.callback = PlayerModel_MenuEvent;
 	s_playermodel.left.generic.id = ID_PREVPAGE;
-	s_playermodel.left.generic.x = 125-64;
-	s_playermodel.left.generic.y = 340+41;
+	s_playermodel.left.generic.x = 125 - 64;
+	s_playermodel.left.generic.y = 340 + 41;
 	s_playermodel.left.width = 64;
 	s_playermodel.left.height = 32;
 	s_playermodel.left.focuspic = MODEL_ARROWSL;
@@ -671,8 +671,8 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.right.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_playermodel.right.generic.callback = PlayerModel_MenuEvent;
 	s_playermodel.right.generic.id = ID_NEXTPAGE;
-	s_playermodel.right.generic.x = 125 + 61 -64;
-	s_playermodel.right.generic.y = 340+41;
+	s_playermodel.right.generic.x = 125 + 61 - 64;
+	s_playermodel.right.generic.y = 340 + 41;
 	s_playermodel.right.width = 64;
 	s_playermodel.right.height = 32;
 	s_playermodel.right.focuspic = MODEL_ARROWSR;
@@ -698,10 +698,10 @@ static void PlayerModel_MenuInit(void)
 	Menu_AddItem(&s_playermodel.menu, &s_playermodel.banner);
 	//Menu_AddItem(&s_playermodel.menu, &s_playermodel.framel);
 	//Menu_AddItem(&s_playermodel.menu, &s_playermodel.framer);
-//	Menu_AddItem(&s_playermodel.menu, &s_playermodel.ports);
-//	Menu_AddItem(&s_playermodel.menu, &s_playermodel.playername);
-//	Menu_AddItem(&s_playermodel.menu, &s_playermodel.modelname);
-//	Menu_AddItem(&s_playermodel.menu, &s_playermodel.skinname);
+//  Menu_AddItem(&s_playermodel.menu, &s_playermodel.ports);
+//  Menu_AddItem(&s_playermodel.menu, &s_playermodel.playername);
+//  Menu_AddItem(&s_playermodel.menu, &s_playermodel.modelname);
+//  Menu_AddItem(&s_playermodel.menu, &s_playermodel.skinname);
 
 	for(i = 0; i < MAX_MODELSPERPAGE; i++)
 	{
@@ -716,7 +716,7 @@ static void PlayerModel_MenuInit(void)
 		Menu_AddItem(&s_playermodel.menu, &s_playermodel.arrows);
 		Menu_AddItem(&s_playermodel.menu, &s_playermodel.left);
 		Menu_AddItem(&s_playermodel.menu, &s_playermodel.right);
-	
+
 	}
 	Menu_AddItem(&s_playermodel.menu, &s_playermodel.back);
 

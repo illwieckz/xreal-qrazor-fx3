@@ -30,16 +30,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void CG_OSDUp_f(void)
 {
-	int group;
-
+	int             group;
 
 	group = 0;
 	cg.osd.curGroup = &osdGroups[group];
 	cg.osd.curEntry = &cg.osd.curGroup->entrys[0];
 	cg.osd.curGroup->wish_alpha = 1.0f;
-	
 	cg.osd.input = qtrue;
-	
 
 }
 void CG_OSDDown_f(void)
@@ -52,81 +49,82 @@ void CG_OSDDown_f(void)
 
 void CG_OSDNext_f(void)
 {
+	int             n;
 
-	int n;
-
-	if(cg.osd.curEntry->id >= cg.osd.curGroup->numEntrys-1)
+	if(cg.osd.curEntry->id >= cg.osd.curGroup->numEntrys - 1)
 		n = 0;
 	else
 		n = cg.osd.curEntry->id + 1;
-		
+
 	cg.osd.curEntry = &cg.osd.curGroup->entrys[n];
-
-
 }
 void CG_OSDPrev_f(void)
 {
 
-	int n;
+	int             n;
 
 	if(cg.osd.curEntry->id <= 0)
-		n = cg.osd.curGroup->numEntrys-1;
+		n = cg.osd.curGroup->numEntrys - 1;
 	else
 		n = cg.osd.curEntry->id - 1;
-		
+
 	cg.osd.curEntry = &cg.osd.curGroup->entrys[n];
-
-
 }
 
-osd_group_t *OSD_FindGroup(const char *name){
-	int	i;
+osd_group_t    *OSD_FindGroup(const char *name)
+{
+	int             i;
 
-	for(i = 0; i < numOSDGroups; i++){
-	
+	for(i = 0; i < numOSDGroups; i++)
+	{
 		if(Q_stricmp(osdGroups[i].name, name) == 0)
 			return &osdGroups[i];
-
 	}
-	
+
 	return NULL;
 }
 
 //run a consolecommand
-void CG_OSDCommand ( const char *parm){
-		cg.osd.input = qfalse; // disable input
-		
-		trap_SendClientCommand(va("%s \n ",parm));
+void CG_OSDCommand(const char *parm)
+{
+	cg.osd.input = qfalse;		// disable input
+
+	trap_SendClientCommand(va("%s \n ", parm));
 }
+
 //activate osd group
-void CG_OSDActivate( const char *parm){
+void CG_OSDActivate(const char *parm)
+{
 
-		cg.osd.curGroup->wish_alpha = 0.0f;
-		cg.osd.curGroup = OSD_FindGroup(parm);
-		cg.osd.curGroup->wish_alpha = 1.0f;
-		cg.osd.curEntry = &cg.osd.curGroup->entrys[0];
+	cg.osd.curGroup->wish_alpha = 0.0f;
+	cg.osd.curGroup = OSD_FindGroup(parm);
+	cg.osd.curGroup->wish_alpha = 1.0f;
+	cg.osd.curEntry = &cg.osd.curGroup->entrys[0];
 
 }
 
 
 
-void CG_OSDAddEntry( const char *groupName, const char *caption, void (*func),const char*parm){
-	osd_group_t  *group;
-	osd_entry_t	*entry;
-	int n, num;
+void CG_OSDAddEntry(const char *groupName, const char *caption, void (*func), const char *parm)
+{
+	osd_group_t    *group;
+	osd_entry_t    *entry;
+	int             n, num;
+
 	group = OSD_FindGroup(groupName);
 
 	if(!group)
-			return;
+		return;
 
-	
-	if(group->numEntrys >= MAX_OSD_GROUP_ENTRYS){
+
+	if(group->numEntrys >= MAX_OSD_GROUP_ENTRYS)
+	{
 		Com_Printf("Can't add %s, MAX_OSD_GROUP_ENTRYS reached!\n", caption);
 		return;
 	}
-			
+
 	entry = &group->entrys[group->numEntrys];
-	
+
 	strcpy(entry->caption, caption);
 	strcpy(entry->parm, parm);
 	entry->func = func;
@@ -135,43 +133,43 @@ void CG_OSDAddEntry( const char *groupName, const char *caption, void (*func),co
 	//recalculate group
 	group->numEntrys++;
 
-	group->radius = (float)OSD_RADIUS_BASE + (float)OSD_RADIUS * (float)( group->numEntrys / (float)MAX_OSD_GROUP_ENTRYS );
+	group->radius = (float)OSD_RADIUS_BASE + (float)OSD_RADIUS *(float)(group->numEntrys / (float)MAX_OSD_GROUP_ENTRYS);
 
-
-	for(n = 0; n < group->numEntrys; n++){
+	for(n = 0; n < group->numEntrys; n++)
+	{
 		entry = &group->entrys[n];
 		num = 360 / group->numEntrys;
-		entry->angle = num*n+90;
+		entry->angle = num * n + 90;
 
-		VectorSet(entry->dir, 0,entry->angle,0);
-		AngleVectors(entry->dir, entry->dir, NULL,NULL);
-			
+		VectorSet(entry->dir, 0, entry->angle, 0);
+		AngleVectors(entry->dir, entry->dir, NULL, NULL);
+
 		VectorScale(entry->dir, group->radius, entry->dir);
 		VectorAdd(entry->dir, group->start, entry->endpos);
-			
 	}
 }
 
 
-void CG_OSDAddGroup( const char *name){
-	osd_group_t *group;
-	int i;
-		
-	if(numOSDGroups  > MAX_OSD_GROUPS)
+void CG_OSDAddGroup(const char *name)
+{
+	osd_group_t    *group;
+	int             i;
+
+	if(numOSDGroups > MAX_OSD_GROUPS)
 	{
 		Com_Printf("CG_OSD: max groups reached\n");
 		return;
 	}
-		
+
 	group = &osdGroups[numOSDGroups];
-	
+
 	strcpy(group->name, name);
-	
+
 	group->numEntrys = 0;
 	group->alpha = 0.0f;
 	group->wish_alpha = 0.0f;
 
-	VectorSet(group->start, 320,240,0); // center of screen
+	VectorSet(group->start, 320, 240, 0);	// center of screen
 
 	group->radius = 0;
 
@@ -179,77 +177,77 @@ void CG_OSDAddGroup( const char *name){
 		memset(&group->entrys[i], 0, sizeof(osd_entry_t));
 
 	numOSDGroups++;
-		
 }
 
-void CG_OSD_offset ( void ) {
-	osd_group_t *group;
-	osd_entry_t *entry;
-	
-	vec3_t dir;
-	vec3_t start;
-	vec3_t dest;
+void CG_OSD_offset(void)
+{
+	osd_group_t    *group;
+	osd_entry_t    *entry;
 
-	float step;
-	int i, n;
-	float offset;
+	vec3_t          dir;
+	vec3_t          start;
+	vec3_t          dest;
+
+	float           step;
+	int             i, n;
+	float           offset;
 
 	if(cg.osd.curEntry)
-		step = (abs(cg.osd.curEntry->angle -180)) / 15.0f;
+		step = (abs(cg.osd.curEntry->angle - 180)) / 15.0f;
 
-	for ( i = 0; i < numOSDGroups; i++){
+	for(i = 0; i < numOSDGroups; i++)
+	{
 		group = &osdGroups[i];
 
-		if(group->numEntrys <=0)
+		if(group->numEntrys <= 0)
 			continue;
-			
+
 		//calculate endpos for each entry
 
-		for (n = 0; n < group->numEntrys; n++){
-			entry = &group->entrys[n];			
-			
-				if(cg.osd.curEntry){
+		for(n = 0; n < group->numEntrys; n++)
+		{
+			entry = &group->entrys[n];
 
-					if(cg.osd.curEntry->angle < 180)
-						entry->angle+=step;
-					else if(cg.osd.curEntry->angle > 180)
-						entry->angle-=step;
+			if(cg.osd.curEntry)
+			{
+				if(cg.osd.curEntry->angle < 180)
+					entry->angle += step;
+				else if(cg.osd.curEntry->angle > 180)
+					entry->angle -= step;
+			}
 
-				}
 
+			if(entry->angle < 0)
+				entry->angle += 360;
+			if(entry->angle > 360)
+				entry->angle -= 360;
 
-			if(entry->angle <0)
-					entry->angle+=360;
-			if(entry->angle >360)
-					entry->angle-=360;
+			//  entry->scale = tan(  (abs( entry->angle-180 ) ) / 360.0f) * 2.0f;
 
-		
-		//	entry->scale = tan(  (abs( entry->angle-180 ) ) / 360.0f) * 2.0f;
-				
-			VectorSet(entry->dir, 0,entry->angle-90,0);
-			AngleVectors(entry->dir, entry->dir, NULL,NULL);
-			
-			VectorScale(entry->dir, group->radius,entry->dir);
+			VectorSet(entry->dir, 0, entry->angle - 90, 0);
+			AngleVectors(entry->dir, entry->dir, NULL, NULL);
+
+			VectorScale(entry->dir, group->radius, entry->dir);
 			VectorAdd(entry->dir, group->start, entry->endpos);
 
-	/*		float x;
+			/*      float x;
 
-			x = entry->endpos[0];
-			x = abs(x - group->start[0]);
+			   x = entry->endpos[0];
+			   x = abs(x - group->start[0]);
 
-			x = x / 640;
+			   x = x / 640;
 
-			entry->endpos[1] *=x;
-			entry->endpos[1] += 240;
-			*/
+			   entry->endpos[1] *=x;
+			   entry->endpos[1] += 240;
+			 */
 		}
-		
 	}
 }
 
-void CG_RegisterOSD ( void ) {
-	osd_group_t *group;
-	osd_entry_t *entry;
+void CG_RegisterOSD(void)
+{
+	osd_group_t    *group;
+	osd_entry_t    *entry;
 
 	Com_Printf("----- registering OSD -----\n");
 
@@ -257,34 +255,33 @@ void CG_RegisterOSD ( void ) {
 	numOSDGroups = 0;
 
 	cg.osd.offset = 0.0f;
-	
+
 	cg.osd.input = qfalse;
 	cg.osd.curGroup = NULL;
 	cg.osd.curEntry = NULL;
-	
+
 	CG_OSDAddGroup("main");
-		CG_OSDAddEntry("main", "Chat", CG_OSDActivate, "chat");
-		CG_OSDAddEntry("main", "Team Chat", CG_OSDActivate, "teamchat");
-			
+	CG_OSDAddEntry("main", "Chat", CG_OSDActivate, "chat");
+	CG_OSDAddEntry("main", "Team Chat", CG_OSDActivate, "teamchat");
+
 	CG_OSDAddGroup("chat");
-		CG_OSDAddEntry("chat", "hello @ all", CG_OSDCommand, "say hello");
-		CG_OSDAddEntry("chat", "gl hf", CG_OSDCommand, "say gl hf");
-		CG_OSDAddEntry("chat", "gg", CG_OSDCommand, "say gg");
-		CG_OSDAddEntry("chat", "lol", CG_OSDCommand, "say lol");
-		CG_OSDAddEntry("chat", "rofl", CG_OSDCommand, "say rofl");
+	CG_OSDAddEntry("chat", "hello @ all", CG_OSDCommand, "say hello");
+	CG_OSDAddEntry("chat", "gl hf", CG_OSDCommand, "say gl hf");
+	CG_OSDAddEntry("chat", "gg", CG_OSDCommand, "say gg");
+	CG_OSDAddEntry("chat", "lol", CG_OSDCommand, "say lol");
+	CG_OSDAddEntry("chat", "rofl", CG_OSDCommand, "say rofl");
 
 	CG_OSDAddGroup("teamchat");
-		CG_OSDAddEntry("teamchat", "follow me!", CG_OSDCommand, "teamsay follow me!");
-		CG_OSDAddEntry("teamchat", "im taking the lead!", CG_OSDCommand, "teamsay im taking the lead");
-		CG_OSDAddEntry("teamchat", "go go go!", CG_OSDCommand, "teamsay go go go");
+	CG_OSDAddEntry("teamchat", "follow me!", CG_OSDCommand, "teamsay follow me!");
+	CG_OSDAddEntry("teamchat", "im taking the lead!", CG_OSDCommand, "teamsay im taking the lead");
+	CG_OSDAddEntry("teamchat", "go go go!", CG_OSDCommand, "teamsay go go go");
 
 
 	CG_OSD_offset();
-
-
 }
 
-void 	CG_OSDInput(void){
+void CG_OSDInput(void)
+{
 
 	if(!cg.osd.input)
 		return;
@@ -297,89 +294,89 @@ void 	CG_OSDInput(void){
 
 	if(cg.osd.curEntry->func)
 		cg.osd.curEntry->func(cg.osd.curEntry->parm);
-		
-		
+
+
 }
 
 
-void CG_DrawOSD ( void ){
-	osd_group_t *group;
-	osd_entry_t *entry;
-	
-	int i, n;
-	char     *s;
-	float step;
-	int w = 140;
-	int h = 60;
+void CG_DrawOSD(void)
+{
+	osd_group_t    *group;
+	osd_entry_t    *entry;
 
-	vec4_t color;
-	vec4_t fontcolor;
+	int             i, n;
+	char           *s;
+	float           step;
+	int             w = 140;
+	int             h = 60;
 
-	step =  8.0f;
+	vec4_t          color;
+	vec4_t          fontcolor;
 
-	if(!cg.osd.curGroup) 
+	step = 8.0f;
+
+	if(!cg.osd.curGroup)
 		return;
 
 	CG_OSD_offset();
 
 	// run through groups:
-	for(i = 0;i < numOSDGroups; i++){
+	for(i = 0; i < numOSDGroups; i++)
+	{
 		group = &osdGroups[i];
 
 		if(!cg.osd.input)
 			group->wish_alpha = 0.0f;
-				
+
 
 		if(group->wish_alpha > group->alpha)
-			group->alpha += (group->wish_alpha - group->alpha)/step;
+			group->alpha += (group->wish_alpha - group->alpha) / step;
 		else if(group->wish_alpha < group->alpha)
-			group->alpha -= (group->alpha-group->wish_alpha )/(step*0.75f);
+			group->alpha -= (group->alpha - group->wish_alpha) / (step * 0.75f);
 
 
 
-		for (n = 0; n < group->numEntrys; n++){
+		for(n = 0; n < group->numEntrys; n++)
+		{
 			entry = &group->entrys[n];
 
-			VectorSet4(color, 1.0f, 1.0f,1.0f,group->alpha);
-			VectorSet4(fontcolor, 1.0f, 1.0f,1.0f,group->alpha);
+			VectorSet4(color, 1.0f, 1.0f, 1.0f, group->alpha);
+			VectorSet4(fontcolor, 1.0f, 1.0f, 1.0f, group->alpha);
 
-				
-			color[3]*= ( 1.0f- entry->scale);
-			fontcolor[3]*= ( 1.0f- entry->scale);
-			
+
+			color[3] *= (1.0f - entry->scale);
+			fontcolor[3] *= (1.0f - entry->scale);
+
 			trap_R_SetColor(color);
-						CG_DrawPic(entry->endpos[0]-w/2, entry->endpos[1]-h/2, w, h, cgs.media.osd_button);
+			CG_DrawPic(entry->endpos[0] - w / 2, entry->endpos[1] - h / 2, w, h, cgs.media.osd_button);
 			trap_R_SetColor(NULL);
 
-	
+
 			if(cg.osd.curEntry == entry)
 			{
-				color[1]=0.0f;
-				color[2]=0.0f;
-				
+				color[1] = 0.0f;
+				color[2] = 0.0f;
+
 				trap_R_SetColor(color);
-							CG_DrawPic(entry->endpos[0]-w/2, entry->endpos[1]-h/2, w, h, cgs.media.osd_button_focus);
+				CG_DrawPic(entry->endpos[0] - w / 2, entry->endpos[1] - h / 2, w, h, cgs.media.osd_button_focus);
 				trap_R_SetColor(NULL);
 			}
-		
+
 			s = va("%s", entry->caption, entry->angle);
 
-			CG_Text_PaintAligned(entry->endpos[0], entry->endpos[1], s, 0.3f, UI_CENTER | UI_DROPSHADOW, fontcolor, &cgs.media.freeSansBoldFont);
-	
+			CG_Text_PaintAligned(entry->endpos[0], entry->endpos[1], s, 0.3f, UI_CENTER | UI_DROPSHADOW, fontcolor,
+								 &cgs.media.freeSansBoldFont);
 		}
-
 	}
 
 	return;
-	
+
 	if(cg.osd.offset > 0.0f)
-		cg.osd.offset -= cg.osd.offset/2.0f;
+		cg.osd.offset -= cg.osd.offset / 2.0f;
 	if(cg.osd.offset < 0.0f)
 		cg.osd.offset = 0.0f;
 
 	if(!cg.osd.input)
 		return;
-		
-
 
 }
