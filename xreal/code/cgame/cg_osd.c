@@ -309,23 +309,20 @@ void CG_DrawOSD ( void ){
 	int i, n;
 	char     *s;
 	float step;
+	int w = 140;
+	int h = 60;
 
 	vec4_t color;
 	vec4_t fontcolor;
 
 	step =  8.0f;
 
-	int w = 140;
-	int h = 60;
-	
 	if(!cg.osd.curGroup) 
 		return;
 
 	CG_OSD_offset();
-	
 
-
-	//run through groups:
+	// run through groups:
 	for(i = 0;i < numOSDGroups; i++){
 		group = &osdGroups[i];
 

@@ -544,6 +544,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\cg_osd.c"
+				>
+			</File>
+			<File
 				RelativePath="cg_particles.c"
 				>
 				<FileConfiguration
