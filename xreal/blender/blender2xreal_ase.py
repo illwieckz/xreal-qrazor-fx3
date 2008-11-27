@@ -302,7 +302,7 @@ def mat_map(file, idnt, mat_name):
       for current_MTex in current_LI:
          tex = current_MTex[0].tex
          if tex.type == Texture.Types.IMAGE:
-            map_image(file, idnt, current_MTex, subNo, tex, mapTable[subNo])
+            map_image(file, idnt, current_MTex, subNo, tex, mapTable[subNo], mat_name)
 
 
 def map_getTex(MTex, map_subNo, map_amount, texes):
@@ -313,11 +313,12 @@ def map_getTex(MTex, map_subNo, map_amount, texes):
    texes[map_subNo].append(container)
 
          
-def map_image(file, idnt, MTexCon, subNo, tex, mapType):
+def map_image(file, idnt, MTexCon, subNo, tex, mapType,mat_name):
 
    img = tex.getImage()
    #path = sys.expandpath(img.getFilename()).replace('/', '\\')
-   path = img.filename #or img.getFilename()
+   #path = img.filename #or img.getFilename()
+   path = ("textures/%s" % mat_name)
    tex_class = 'Bitmap'
    tex_mapType = 'Screen'
    tex_filter = 'Pyramidal'
