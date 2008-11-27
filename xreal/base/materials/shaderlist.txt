@@ -1,3 +1,4 @@
+blend2xmap
 bja_mapobject
 common
 #common_lights
