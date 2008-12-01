@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_cgame.c -- cgame library for Lua
 
+#ifdef LUA
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -87,3 +88,5 @@ int luaopen_cgame(lua_State * L)
 
 	return 1;
 }
+
+#endif

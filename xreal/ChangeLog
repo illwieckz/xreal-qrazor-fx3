@@ -1,6 +1,5 @@
 2008-11-07  Full Name  <Email Address>
+--------------------------------------
 
-	
-
-
-
+2008-12-01  Pat Raynor <raynorpat@gmail.com>
+Mac OS X / Xcode 3.1.1 port of XreaL (needs SDL framework and a *lot* of polish, lacks lua, ogg vorbis, and speex support)

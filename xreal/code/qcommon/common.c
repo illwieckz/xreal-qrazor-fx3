@@ -3177,6 +3177,8 @@ static void Com_GenerateCorePK3_f(void)
 	}
 
 	FS_FreeFile(buf);
+
+	Com_Printf("finished creating pak '%s' ...\n", pakName);
 }
 
 static void Com_DetectAltivec(void)

@@ -136,16 +136,17 @@ Type scons -h for more compile options.
 COMPILING ON MAC OS X
 =====================
 
-NOTE: OUTDATED
-
-Make sure you have libcURL and the SDL framework installed.
-
-Download http://oss.sgi.com/projects/ogl-sample/ABI/glext.h
-	and copy it to XreaL/code/renderer
+Make sure you have the SDL framework installed into /Library/Frameworks along with Xcode 3.0 as 
+Xcode 3.1.1 was used to create the XreaL project on OS X Leopard.
 
 Use the included XCode project to compile XreaL and friends for both PPC & Intel Macs.
 The XCode project is located here:
-	>code/unix/MacSupport/XreaL.xcodeprj
+	>code/sys/macosx/XreaL.xcodeprj
+
+NOTE: Running XreaL on Tiger will not give you the benefits of the latest OpenGL drivers (2.1)
+on Leopard. Plus it hasn't been tested on Tiger anyway ;-)
+ANOTHER NOTE: Speex, libcurl http downloading, and Lua scripting support have been temporaily
+disabled to get this beast to compile. Expect a lot of polish in the coming weeks...
 
 
 USING HTTP/FTP DOWNLOAD SUPPORT (SERVER)
@@ -172,7 +173,7 @@ flags:
 Server operators who are concerned about potential "leeching" from their
 HTTP servers from other XreaL servers can make use of the HTTP_REFERER
 that XreaL sets which is "XreaL://{SERVER_IP}:{SERVER_PORT}".  For,
-example, Apache's mod_rewrite can restrict access based on HTTP_REFERER. 
+example, Apache's mod_rewrite can restrict access based on HTTP_REFERER.
 
 
 USING HTTP/FTP DOWNLOAD SUPPORT (CLIENT)

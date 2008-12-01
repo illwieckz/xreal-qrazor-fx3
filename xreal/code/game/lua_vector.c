@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_vector.c -- vector library for Lua
 
+#ifdef LUA
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -408,3 +409,5 @@ vec_t          *lua_getvector(lua_State * L, int argNum)
 	luaL_argcheck(L, ud != NULL, argNum, "`vector' expected");
 	return (vec_t *) ud;
 }
+
+#endif

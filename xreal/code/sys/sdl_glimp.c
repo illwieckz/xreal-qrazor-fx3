@@ -144,10 +144,7 @@ typedef enum
 
 static SDL_Surface *screen = NULL;
 
-cvar_t         *r_allowSoftwareGL;	// Don't abort out if a hardware visual can't be obtained
 cvar_t         *r_sdlDriver;
-
-
 
 /*
 ===============
@@ -373,17 +370,6 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, tdepthbits);
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, tstencilbits);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-#if 0
-		// If not allowing software GL, demand accelerated
-		if(!r_allowSoftwareGL->integer)
-		{
-			if(SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1) < 0)
-			{
-				ri.Printf(PRINT_ALL, "Unable to guarantee accelerated " "visual with libSDL < 1.2.10\n");
-			}
-		}
-#endif
 
 		if(SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, r_swapInterval->integer) < 0)
 			ri.Printf(PRINT_ALL, "r_swapInterval requires libSDL >= 1.2.10\n");
@@ -1127,7 +1113,6 @@ void GLimp_Init(void)
 {
 	qboolean        success = qtrue;
 
-	r_allowSoftwareGL = ri.Cvar_Get("r_allowSoftwareGL", "0", CVAR_LATCH);
 	r_sdlDriver = ri.Cvar_Get("r_sdlDriver", "", CVAR_ROM);
 
 	Sys_GLimpInit();

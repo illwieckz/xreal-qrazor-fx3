@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // A user mod should never modify this file
 
 #define PRODUCT_NAME            "XreaL"
-#define PRODUCT_VERSION         "0.8.1"
+#define PRODUCT_VERSION         "0.8.2"
 
 #ifdef SVN_VERSION
 # define Q3_VERSION PRODUCT_NAME " " SVN_VERSION
@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CLIENT_WINDOW_TITLE     "XreaL"
 #define CLIENT_WINDOW_MIN_TITLE "xreal"
 // 1.32 released 7-10-2002
+
+#define STANDALONE
 
 #define BASEGAME		"base"
 
@@ -55,7 +57,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_TEAMNAME 32
 
 #ifdef _MSC_VER
-
 #pragma warning(disable : 4018)	// signed/unsigned mismatch
 #pragma warning(disable : 4032)
 #pragma warning(disable : 4051)

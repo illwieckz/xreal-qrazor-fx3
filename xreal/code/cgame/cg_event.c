@@ -1338,7 +1338,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 		case EV_EFFECT:
 			DEBUGNAME("EV_EFFECT");
-
+#ifdef LUA
 			// Tr3B: run scriptable effects like "TestParticleSpawn" in "effects/particleTests.lua"
 			AngleVectors(cent->lerpAngles, dir, NULL, NULL);
 
@@ -1347,6 +1347,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			{
 				CG_RunLuaFunction(s, "vv", position, dir);
 			}
+#endif			
 			break;
 
 		case EV_DEBUG_LINE:
