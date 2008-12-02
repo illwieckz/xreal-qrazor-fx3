@@ -4,7 +4,7 @@ Robert "Tr3B" Beckebans - lead programming
 Adrian "otty" Fuhrmann - user interface
 Josef "cnuke" Söntgen - cgame stuff
 Björn "bj0ern" Paschen - Win32 specific fixes
-Pat "raynorpat" Raynor - bugfixes, PNG support, misc other stuff
+Pat "raynorpat" Raynor - bugfixes, PNG support, OS X port, misc other stuff
 Iain "Jock" Mckay - x86_64 support
 Tim "Timbo" Angus - .avi video recording support
 Manfred "Defcon-x" Nerurkar - misc renderer enhancements
