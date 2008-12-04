@@ -40,7 +40,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CLIENT_WINDOW_MIN_TITLE "xreal"
 // 1.32 released 7-10-2002
 
+#if !defined(STANDALONE)
 #define STANDALONE
+#endif
 
 #define BASEGAME		"base"
 
