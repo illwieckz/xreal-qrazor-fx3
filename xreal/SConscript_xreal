@@ -242,9 +242,12 @@ xreal_env.Append(CCFLAGS='-DFLOATING_POINT')
 xreal_env.Append(CCFLAGS='-DUSE_ALLOCA')
 xreal_env.Append(CCFLAGS='-Icode/speex/include')
 
-if env['curl'] == 1:
+if env['curl'] == 'compile':
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')
 	xreal_env.Append(LIBS=['curl'])
+elif env['curl'] == 'dlopen':
+	xreal_env.Append(CCFLAGS='-DUSE_CURL_DLOPEN')
+	
 
 #if env['openal'] == 1:
 xreal_env.Append(CCFLAGS='-DUSE_OPENAL')
