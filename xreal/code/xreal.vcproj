@@ -827,7 +827,7 @@
 				>
 			</File>
 			<File
-				RelativePath="game\q_math.c"
+				RelativePath="qcommon\q_math.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -850,7 +850,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="game\q_shared.c"
+				RelativePath="qcommon\q_shared.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1441,7 +1441,7 @@
 				>
 			</File>
 			<File
-				RelativePath="cgame\tr_types.h"
+				RelativePath=".\renderer\tr_types.h"
 				>
 			</File>
 			<File

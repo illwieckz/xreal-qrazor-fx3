@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _QCOMMON_H_
 #define _QCOMMON_H_
 
-#include "../game/q_shared.h"
-#include "../qcommon/cm_public.h"
+#include "q_shared.h"
+#include "cm_public.h"
 
 //Ignore __attribute__ on non-gcc platforms
 #ifndef __GNUC__
