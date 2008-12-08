@@ -4,42 +4,42 @@ Import('env')
 
 # the file with vmMain function MUST be the first one of the list
 cgame_src = [
-'code/cgame/cg_main.c',
-'code/game/bg_misc.c',
-'code/game/bg_pmove.c',
-'code/game/bg_slidemove.c',
-'code/game/q_math.c',
-'code/game/q_shared.c',
-'code/cgame/cg_consolecmds.c',
-'code/cgame/cg_draw.c',
-'code/cgame/cg_drawtools.c',
-'code/cgame/cg_effects.c',
-'code/cgame/cg_ents.c',
-'code/cgame/cg_event.c',
-'code/cgame/cg_info.c',
-'code/cgame/cg_localents.c',
-'code/cgame/cg_marks.c',
-'code/cgame/cg_particles.c',
-'code/cgame/cg_xppm.c',
-'code/cgame/cg_osd.c',
-'code/cgame/cg_players.c',
-'code/cgame/cg_playerstate.c',
-'code/cgame/cg_predict.c',
-'code/cgame/cg_scoreboard.c',
-'code/cgame/cg_servercmds.c',
-'code/cgame/cg_snapshot.c',
-'code/cgame/cg_view.c',
-'code/cgame/cg_unlagged.c',
-'code/cgame/cg_weapons.c'
+'base/code/cgame/cg_main.c',
+'base/code/game/bg_misc.c',
+'base/code/game/bg_pmove.c',
+'base/code/game/bg_slidemove.c',
+'code/qcommon/q_math.c',
+'code/qcommon/q_shared.c',
+'base/code/cgame/cg_consolecmds.c',
+'base/code/cgame/cg_draw.c',
+'base/code/cgame/cg_drawtools.c',
+'base/code/cgame/cg_effects.c',
+'base/code/cgame/cg_ents.c',
+'base/code/cgame/cg_event.c',
+'base/code/cgame/cg_info.c',
+'base/code/cgame/cg_localents.c',
+'base/code/cgame/cg_marks.c',
+'base/code/cgame/cg_particles.c',
+'base/code/cgame/cg_xppm.c',
+'base/code/cgame/cg_osd.c',
+'base/code/cgame/cg_players.c',
+'base/code/cgame/cg_playerstate.c',
+'base/code/cgame/cg_predict.c',
+'base/code/cgame/cg_scoreboard.c',
+'base/code/cgame/cg_servercmds.c',
+'base/code/cgame/cg_snapshot.c',
+'base/code/cgame/cg_view.c',
+'base/code/cgame/cg_unlagged.c',
+'base/code/cgame/cg_weapons.c'
 ]
 
 ta_src = [
-'code/cgame/cg_newdraw.c',
+'base/code/cgame/cg_newdraw.c',
 'code/ui/ui_shared.c'
 ]
 
 dll_src = [
-'code/cgame/cg_syscalls.c'
+'base/code/cgame/cg_syscalls.c'
 ]
 
 lua_src = [
@@ -70,12 +70,12 @@ lua_src = [
 'code/lua-5.1/src/ltablib.c',
 'code/lua-5.1/src/lstrlib.c',
 'code/lua-5.1/src/loadlib.c',
-'code/cgame/cg_lua.c',
-#'code/cgame/lua_localEntity.c',
-'code/cgame/lua_particle.c',
-'code/cgame/lua_cgame.c',
-'code/game/lua_qmath.c',
-'code/game/lua_vector.c'
+'base/code/cgame/cg_lua.c',
+#'base/code/cgame/lua_localEntity.c',
+'base/code/cgame/lua_particle.c',
+'base/code/cgame/lua_cgame.c',
+'base/code/game/lua_qmath.c',
+'base/code/game/lua_vector.c'
 ]
 
 cgame_env = env.Copy()

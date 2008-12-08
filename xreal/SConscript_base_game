@@ -4,42 +4,42 @@ Import('env')
 
 # the file with vmMain function MUST be the first one of the list
 game_src = [
-'code/game/g_main.c',
-'code/game/acebot_ai.c',
-'code/game/acebot_cmds.c',
-'code/game/acebot_items.c',
-'code/game/acebot_movement.c',
-'code/game/acebot_nodes.c',
-'code/game/acebot_spawn.c',
-'code/game/bg_misc.c',
-'code/game/bg_pmove.c',
-'code/game/bg_slidemove.c',
-'code/game/g_active.c',
-'code/game/g_arenas.c',
-'code/game/g_bot.c',
-'code/game/g_client.c',
-'code/game/g_cmds.c',
-'code/game/g_combat.c',
-'code/game/g_items.c',
-'code/game/g_mem.c',
-'code/game/g_misc.c',
-'code/game/g_missile.c',
-'code/game/g_mover.c',
-'code/game/g_session.c',
-'code/game/g_spawn.c',
-'code/game/g_svcmds.c',
-'code/game/g_target.c',
-'code/game/g_team.c',
-'code/game/g_trigger.c',
-'code/game/g_unlagged.c',
-'code/game/g_utils.c',
-'code/game/g_weapon.c',
-'code/game/q_math.c',
-'code/game/q_shared.c'
+'base/code/game/g_main.c',
+'base/code/game/acebot_ai.c',
+'base/code/game/acebot_cmds.c',
+'base/code/game/acebot_items.c',
+'base/code/game/acebot_movement.c',
+'base/code/game/acebot_nodes.c',
+'base/code/game/acebot_spawn.c',
+'base/code/game/bg_misc.c',
+'base/code/game/bg_pmove.c',
+'base/code/game/bg_slidemove.c',
+'base/code/game/g_active.c',
+'base/code/game/g_arenas.c',
+'base/code/game/g_bot.c',
+'base/code/game/g_client.c',
+'base/code/game/g_cmds.c',
+'base/code/game/g_combat.c',
+'base/code/game/g_items.c',
+'base/code/game/g_mem.c',
+'base/code/game/g_misc.c',
+'base/code/game/g_missile.c',
+'base/code/game/g_mover.c',
+'base/code/game/g_session.c',
+'base/code/game/g_spawn.c',
+'base/code/game/g_svcmds.c',
+'base/code/game/g_target.c',
+'base/code/game/g_team.c',
+'base/code/game/g_trigger.c',
+'base/code/game/g_unlagged.c',
+'base/code/game/g_utils.c',
+'base/code/game/g_weapon.c',
+'code/qcommon/q_math.c',
+'code/qcommon/q_shared.c'
 ]
 
 dll_src = [
-'code/game/g_syscalls.c',
+'base/code/game/g_syscalls.c',
 ]
 
 lua_src = [
@@ -70,11 +70,11 @@ lua_src = [
 'code/lua-5.1/src/ltablib.c',
 'code/lua-5.1/src/lstrlib.c',
 'code/lua-5.1/src/loadlib.c',
-'code/game/g_lua.c',
-'code/game/lua_entity.c',
-'code/game/lua_game.c',
-'code/game/lua_qmath.c',
-'code/game/lua_vector.c'
+'base/code/game/g_lua.c',
+'base/code/game/lua_entity.c',
+'base/code/game/lua_game.c',
+'base/code/game/lua_qmath.c',
+'base/code/game/lua_vector.c'
 ]
 
 game_env = env.Copy()

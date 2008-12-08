@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "sys_local.h"
 
@@ -284,7 +284,7 @@ void CON_Init(void)
 	   characters  EOF,  EOL,  EOL2, ERASE, KILL, REPRINT,
 	   STATUS, and WERASE, and buffers by lines.
 	   ISIG: when any of the characters  INTR,  QUIT,  SUSP,  or
-	   DSUSP are received, generate the corresponding sig­
+	   DSUSP are received, generate the corresponding sigï¿½
 	   nal
 	 */
 	tc.c_lflag &= ~(ECHO | ICANON);
