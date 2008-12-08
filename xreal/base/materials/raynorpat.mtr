@@ -55,6 +55,30 @@ textures/raynorpat/effects/firewall
 	}
 }
 
+textures/raynorpat/effects/lava
+{
+      qer_editorimage textures/raynorpat/effects/lava_01
+	xmap_globaltexture
+	xmap_surfacelight 6667
+
+	surfaceparm trans
+	surfaceparm noimpact
+	surfaceparm lava
+	surfaceparm nolightmap
+
+	tesssize 128
+	cull disable
+	deformVertexes wave 100 sin 3 2 .1 0.1
+
+      diffusemap textures/raynorpat/effects/lava_01
+	{
+		blend add		
+		map textures/raynorpat/effects/lava_02
+            scroll time * 0.01 , time * 0.02
+	}
+}
+
+
 //
 // Blocks
 //
