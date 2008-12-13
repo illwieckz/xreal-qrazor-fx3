@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="DarkRadiant"
+	Name="XreaLRadiant"
 	ProjectGUID="{8E70385C-223A-4DD1-9B99-28FF2331A2B5}"
 	RootNamespace="GtkRadiant"
 	Keyword="Win32Proj"
