@@ -139,7 +139,7 @@ void ApplicationContextImpl::initialise(int argc, char* argv[]) {
 		}
 
 		std::string home = appData;
-		home += "\\DarkRadiant\\";
+		home += "\\XreaLRadiant\\";
 		os::makeDirectory(home);
 		_homePath = home;
 	}

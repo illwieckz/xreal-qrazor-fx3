@@ -15,7 +15,7 @@ namespace ui {
 
 	namespace {
 		const std::string RKEY_SHOW_BUILD_TIME = "user/showBuildTime";
-		const std::string CMDLISTDLG_WINDOW_TITLE = "About DarkRadiant";
+		const std::string CMDLISTDLG_WINDOW_TITLE = "About XreaLRadiant";
 	}
 
 AboutDialog::AboutDialog() :
@@ -45,14 +45,14 @@ void AboutDialog::populateWindow() {
 	std::string buildDate = (showBuildTime) ? date + " " + time : date;
 	
 	GtkWidget* title = gtkutil::LeftAlignedLabel(
-		std::string("<b><span size=\"large\">DarkRadiant ") + RADIANT_VERSION + "</span></b>\n" +
+		std::string("<b><span size=\"large\">XreaLRadiant ") + RADIANT_VERSION + "</span></b>\n" +
 		 "Build date: " + buildDate + "\n\n"
-		"<b>The Dark Mod</b> (www.thedarkmod.com)\n\n"
+		"<b>XreaL</b> (xreal.sourceforge.net)\n\n"
 		"This product contains software technology\n"
 		"from id Software, Inc. ('id Technology').\n"
 		"id Technology 2000 id Software,Inc.\n\n"
-		"DarkRadiant is based on the GPL version\n"
-		"of GtkRadiant (www.qeradiant.com)\n"
+		"XreaLRadiant is based on the GPL version\n"
+		"of DarkRadiant (www.thedarkmod.com)\n"
 	);
 	GtkWidget* alignment = gtk_alignment_new(0.0f, 0.0f, 1.0f, 0.0f);
 	gtk_container_add(GTK_CONTAINER(alignment), title);
@@ -108,7 +108,7 @@ void AboutDialog::populateWindow() {
 	// DarkRadiant modules
 	// OpenGL extensions
 	gtk_box_pack_start(GTK_BOX(dialogVBox), gtkutil::LeftAlignedLabel(
-		"<b>DarkRadiant Modules</b>"), FALSE, FALSE, 0);
+		"<b>XreaLRadiant Modules</b>"), FALSE, FALSE, 0);
 		
 	GtkWidget* moduleTextView = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(moduleTextView), FALSE);

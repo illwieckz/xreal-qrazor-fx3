@@ -5,7 +5,7 @@
 #include "settings/PreferenceSystem.h"
 #include "modulesystem/ModuleRegistry.h"
 
-#define PID_FILENAME "darkradiant.pid"
+#define PID_FILENAME "xrealradiant.pid"
 
 namespace applog {
 
@@ -31,7 +31,7 @@ public:
 
 			if (remove(_filename.c_str()) == -1) {
 				std::string msg = "WARNING: Could not delete " + _filename;
-				gtk_MessageBox(NULL, msg.c_str(), "DarkRadiant", eMB_OK, eMB_ICONERROR);
+				gtk_MessageBox(NULL, msg.c_str(), "XreaLRadiant", eMB_OK, eMB_ICONERROR);
 			}
 
 			std::string msg("Radiant failed to start properly the last time it was run.\n");
@@ -55,7 +55,7 @@ public:
 	~PIDFile() {
 		if (remove(_filename.c_str()) == -1) {
 			std::string msg = "WARNING: Could not delete " + _filename;
-			gtk_MessageBox(NULL, msg.c_str(), "DarkRadiant", eMB_OK, eMB_ICONERROR );
+			gtk_MessageBox(NULL, msg.c_str(), "XreaLRadiant", eMB_OK, eMB_ICONERROR );
 		}
 	}
 };

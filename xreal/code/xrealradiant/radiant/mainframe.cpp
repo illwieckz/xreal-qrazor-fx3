@@ -1535,7 +1535,7 @@ void Layout_registerPreferencesPage() {
 	icons.push_back("layout_regular_left.png"); descriptions.push_back("Regular Left");
 	
 	page->appendRadioIcons("", RKEY_WINDOW_LAYOUT, icons, descriptions);
-	page->appendLabel("<b>Note</b>: You will have to restart DarkRadiant for the changes to take effect.");
+	page->appendLabel("<b>Note</b>: You will have to restart XreaLRadiant for the changes to take effect.");
 
 	// Add another page for Multi-Monitor stuff
 	page = GlobalPreferenceSystem().getPage("Interface/Multi Monitor");
