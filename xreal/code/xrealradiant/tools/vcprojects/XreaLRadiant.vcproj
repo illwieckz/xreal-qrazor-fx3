@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)\..\..\install"
+			OutputDirectory="$(SolutionDir)\..\..\..\..\xrealradiant"
 			IntermediateDirectory="$(SolutionDir)\..\..\build\$(ProjectName)\$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -120,7 +120,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)\..\..\install"
+			OutputDirectory="$(SolutionDir)\..\..\..\..\xrealradiant"
 			IntermediateDirectory="$(SolutionDir)\..\..\build\$(ProjectName)\$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -220,7 +220,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)\..\..\install"
+			OutputDirectory="$(SolutionDir)\..\..\..\..\xrealradiant"
 			IntermediateDirectory="$(SolutionDir)\..\..\build\$(ProjectName)\$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -318,7 +318,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)\..\..\install"
+			OutputDirectory="$(SolutionDir)\..\..\..\..\xrealradiant"
 			IntermediateDirectory="$(SolutionDir)\..\..\build\$(ProjectName)\$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
