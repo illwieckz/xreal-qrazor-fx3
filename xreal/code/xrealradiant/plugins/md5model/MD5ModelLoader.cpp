@@ -27,7 +27,7 @@ scene::INodePtr MD5ModelLoader::loadModel(const std::string& modelName) {
 	std::string path = rootPath(modelName);
 	std::string name = os::getRelativePath(modelName, path);
 
-	/* greebo: Path is empty for models in PK4 files, don't give up on this
+	/* greebo: Path is empty for models in PK3 files, don't give up on this
 
 	if (path.empty()) {
 		// Empty path => empty model

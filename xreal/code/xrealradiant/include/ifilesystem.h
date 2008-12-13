@@ -50,7 +50,7 @@ const std::string MODULE_VIRTUALFILESYSTEM("VirtualFileSystem");
  * Main interface for the virtual filesystem. 
  * 
  * The virtual filesystem provides a unified view of the contents of Doom 3's 
- * base and mod subdirectories, including the contents of PK4 files. Assets can
+ * base and mod subdirectories, including the contents of PK3 files. Assets can
  * be retrieved using a single unique path, without needing to know whereabouts
  * in the physical filesystem the asset is located.
  * 

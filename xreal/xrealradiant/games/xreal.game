@@ -2,19 +2,19 @@
 <game
   type="doom3"
   index="99"
-  name="Doom 3"
-  enginepath_win32="C:/games/doom3/"
-  enginepath_linux="/usr/local/games/doom3/"
-  enginepath_macos="/usr/local/games/doom3/"
-  engine_win32="Doom3.exe"
-  engine_linux="Doom3"
-  engine_macos="Doom3.app"
-  prefix=".doom3"
+  name="XreaL"
+  enginepath_win32="C:/Program Files/XreaL/"
+  enginepath_linux="/usr/local/games/xreal/"
+  enginepath_macos="/usr/local/games/xreal/"
+  engine_win32="xreal.exe"
+  engine_linux="xreal"
+  engine_macos="xreal.app"
+  prefix=".xreal"
   basegame="base"
-  basegamename="Doom 3"
-  unknowngamename="Custom Doom 3 modification"
-  archivetypes="pk4"
-  modeltypes="lwo ase md5mesh"
+  basegamename="XreaL"
+  unknowngamename="Custom XreaL modification"
+  archivetypes="pk3"
+  modeltypes="lwo ase md5mesh md3"
   maptypes="mapdoom3"
   shaders="doom3"
   entityclass="doom3"
@@ -28,6 +28,7 @@
 	<filetypes>
 		<texture>
 			<extension>tga</extension>
+			<extension>png</extension>
 			<extension>jpg</extension>
 			<extension>dds</extension>
 		</texture>

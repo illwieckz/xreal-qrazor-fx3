@@ -110,7 +110,7 @@ void Doom3FileSystem::initDirectory(const std::string& inputPath) {
 	globalOutputStream() << "[vfs] searched directory: " << path.c_str() << "\n";
 	
 	// Get the ArchiveLoader and try to load each file
-	ArchiveLoader& archiveModule = GlobalArchive("PK4");  
+	ArchiveLoader& archiveModule = GlobalArchive("PK3");  
 	
 	// add the entries to the vfs
 	for (SortedFilenames::iterator i = filenameList.begin(); i != filenameList.end(); ++i) {
@@ -285,7 +285,7 @@ const StringSet& Doom3FileSystem::getDependencies() const {
 	static StringSet _dependencies;
 
 	if (_dependencies.empty()) {
-		_dependencies.insert("ArchivePK4");
+		_dependencies.insert("ArchivePK3");
 		_dependencies.insert(MODULE_GAMEMANAGER);
 	}
 

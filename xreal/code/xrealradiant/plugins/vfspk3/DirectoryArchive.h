@@ -8,7 +8,7 @@
  *         filesystem on the user's hard drive. 
  * 
  * A real folder is treated like any other "archive" and gets
- * added to the list of PK4 archives, using this class.
+ * added to the list of PK3 archives, using this class.
  */
 class DirectoryArchive : 
 	public Archive

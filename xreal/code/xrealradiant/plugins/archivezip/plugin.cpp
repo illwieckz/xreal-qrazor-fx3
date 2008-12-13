@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZipArchive.h"
 
-class ArchivePK4API :
+class ArchivePK3API :
 	public ArchiveLoader
 {
 public:
@@ -39,13 +39,13 @@ public:
 	}
 		
 	virtual const std::string& getExtension() {
-		static std::string _ext("PK4");
+		static std::string _ext("PK3");
 		return _ext;
 	}
   
 	// RegisterableModule implementation
 	virtual const std::string& getName() const {
-		static std::string _name("ArchivePK4");
+		static std::string _name("ArchivePK3");
 		return _name;
 	}
 
@@ -55,13 +55,13 @@ public:
 	}
 
 	virtual void initialiseModule(const ApplicationContext& ctx) {
-		globalOutputStream() << "ArchivePK4::initialiseModule called\n";
+		globalOutputStream() << "ArchivePK3::initialiseModule called\n";
 	}
 };
-typedef boost::shared_ptr<ArchivePK4API> ArchivePK4APIPtr;
+typedef boost::shared_ptr<ArchivePK3API> ArchivePK3APIPtr;
 
 extern "C" void DARKRADIANT_DLLEXPORT RegisterModule(IModuleRegistry& registry) {
-	registry.registerModule(ArchivePK4APIPtr(new ArchivePK4API));
+	registry.registerModule(ArchivePK3APIPtr(new ArchivePK3API));
 	
 	// Initialise the streams using the given application context
 	module::initialiseStreams(registry.getApplicationContext());
