@@ -182,7 +182,7 @@ int main (int argc, char* argv[]) {
 	module::ModuleRegistry::Instance().initialiseContext(argc, argv);
 
 	// The settings path is set, start logging now
-	applog::LogFile::create("darkradiant.log");
+	applog::LogFile::create("xrealradiant.log");
 	
 	// Initialise GTK
 	gtk_disable_setlocale();
@@ -204,7 +204,7 @@ int main (int argc, char* argv[]) {
 	
 		// Invoke the ModuleLoad routine to load the DLLs from modules/ and plugins/
 #if defined(POSIX) && defined(PKGLIBDIR)
-        // Load modules from compiled-in path (e.g. /usr/lib/darkradiant)
+        // Load modules from compiled-in path (e.g. /usr/lib/xrealradiant)
         module::Loader::loadModules(PKGLIBDIR);
 #else
         // Load modules from application-relative path

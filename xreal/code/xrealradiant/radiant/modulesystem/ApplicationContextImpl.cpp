@@ -111,7 +111,7 @@ void ApplicationContextImpl::initialise(int argc, char* argv[]) {
 	initArgs(argc, argv);
 
     // Initialise the home directory path
-    std::string home = os::standardPathWithSlash(g_get_home_dir()) + ".darkradiant/";
+    std::string home = os::standardPathWithSlash(g_get_home_dir()) + ".xrealradiant/";
     os::makeDirectory(home);
     _homePath = home;
 
