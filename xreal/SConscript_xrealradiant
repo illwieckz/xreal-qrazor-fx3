@@ -541,7 +541,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	filters_env.Append(LIBS=['boost_regex'])
 	filters_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	filters_env.Append(LIBS=['xmlutil'])
-	filters_env.SharedLibrary('filters', [filters_src, xmlutil_src])
+	filters_env.SharedLibrary('filters', filters_src)
 	filters_env.InstallAs('#xrealradiant/modules/filters.so', 'libfilters.so')
 	
 	grid_env = module_env.Clone()
