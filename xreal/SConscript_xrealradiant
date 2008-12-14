@@ -451,6 +451,7 @@ xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 xrealradiant_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
 xrealradiant_env.Append(LIBS=['GLEW'])
 xrealradiant_env.Append(LIBS=['boost_filesystem'])
+xrealradiant_env.Append(LIBPATH=['.'])
 
 module_env = env.Clone()
 #module_env.Append(CXXFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
@@ -458,19 +459,41 @@ module_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 module_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
 
 if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
+
+	module_env.Append(CCFLAGS='-DPOSIX')
+	module_env.Append(LIBPATH=['.'])
+	
+	scenegraphutil_env = module_env.Clone()
+	scenegraphutil_env.StaticLibrary('scenegraphutil', scenegraph_src)
+	
+	gtkutil_env = module_env.Clone()
+	gtkutil_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
+	gtkutil_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
+	gtkutil_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	gtkutil_env.StaticLibrary('gtkutil', gtkutil_src)
+	
+	xmlutil_env = module_env.Clone()
+	xmlutil_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	xmlutil_env.StaticLibrary('xmlutil', xmlutil_src)
+	
+	math_env = module_env.Clone()
+	math_env.StaticLibrary('math', math_src)
+	
+	
+
 	xrealradiant_env.Append(CCFLAGS='-DPOSIX')
 	xrealradiant_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	xrealradiant_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	xrealradiant_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	
+	xrealradiant_env.Append(LIBS=['scenegraphutil', 'gtkutil', 'xmlutil', 'math'])
+	
 	if env['arch'] == 'linux-i386':
-		xrealradiant_env.Program('xrealradiant', [xrealradiant_src, scenegraph_src, gtkutil_src, xmlutil_src, math_src])
+		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
 		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.x86', 'xrealradiant')
 	elif env['arch'] == 'linux-x86_64':
-		xrealradiant_env.Program('xrealradiant', [xrealradiant_src, scenegraph_src, gtkutil_src, xmlutil_src, math_src])
+		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
 		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.x86_64', 'xrealradiant')
-		
-	module_env.Append(CCFLAGS='-DPOSIX')
 	
 	archivezip_env = module_env.Clone()
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
@@ -478,32 +501,36 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	
 	eclassmgr_env = module_env.Clone()
 	eclassmgr_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	eclassmgr_env.SharedLibrary('eclassmgr', [eclassmgr_src, math_src])
+	eclassmgr_env.Append(LIBS=['math'])
+	eclassmgr_env.SharedLibrary('eclassmgr', eclassmgr_src)
 	eclassmgr_env.InstallAs('#xrealradiant/modules/eclassmgr.so', 'libeclassmgr.so')
 	
 	eclasstree_env = module_env.Clone()
 	eclasstree_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	eclasstree_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	eclasstree_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	eclasstree_env.SharedLibrary('eclasstree', [eclasstree_src, gtkutil_src])
+	eclasstree_env.SharedLibrary('eclasstree', eclasstree_src)
 	eclasstree_env.InstallAs('#xrealradiant/plugins/eclasstree.so', 'libeclasstree.so')
 	
 	entity_env = module_env.Clone()
 	entity_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	entity_env.SharedLibrary('entity', [entity_src, scenegraph_src, math_src])
+	entity_env.Append(LIBS=['scenegraphutil', 'math'])
+	entity_env.SharedLibrary('entity', entity_src)
 	entity_env.InstallAs('#xrealradiant/modules/entity.so', 'libentity.so')
 	
 	entitylist_env = module_env.Clone()
 	entitylist_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	entitylist_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	entitylist_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	entitylist_env.SharedLibrary('entitylist', [entitylist_src, gtkutil_src, xmlutil_src])
+	entitylist_env.Append(LIBS=['gtkutil', 'xmlutil'])
+	entitylist_env.SharedLibrary('entitylist', entitylist_src)
 	entitylist_env.InstallAs('#xrealradiant/modules/entitylist.so', 'libentitylist.so')
 	
 	eventmanager_env = module_env.Clone()
 	eventmanager_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	eventmanager_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	eventmanager_env.SharedLibrary('eventmanager', [eventmanager_src, xmlutil_src])
+	eventmanager_env.Append(LIBS=['xmlutil'])
+	eventmanager_env.SharedLibrary('eventmanager', eventmanager_src)
 	eventmanager_env.InstallAs('#xrealradiant/modules/eventmanager.so', 'libeventmanager.so')
 	
 	filetypes_env = module_env.Clone()
@@ -513,6 +540,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	filters_env = module_env.Clone()
 	filters_env.Append(LIBS=['boost_regex'])
 	filters_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	filters_env.Append(LIBS=['xmlutil'])
 	filters_env.SharedLibrary('filters', [filters_src, xmlutil_src])
 	filters_env.InstallAs('#xrealradiant/modules/filters.so', 'libfilters.so')
 	
@@ -532,16 +560,18 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	mapdoom3_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	mapdoom3_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	mapdoom3_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	mapdoom3_env.SharedLibrary('mapdoom3', [mapdoom3_src, gtkutil_src, xmlutil_src])
+	mapdoom3_env.Append(LIBS=['gtkutil', 'xmlutil'])
+	mapdoom3_env.SharedLibrary('mapdoom3', mapdoom3_src)
 	mapdoom3_env.InstallAs('#xrealradiant/modules/mapdoom3.so', 'libmapdoom3.so')
 	
 	md5model_env = module_env.Clone()
-	md5model_env.Append(LIBS=['GLEW'])
-	md5model_env.SharedLibrary('md5model', [md5model_src, scenegraph_src, math_src])
+	md5model_env.Append(LIBS=['GLEW', 'scenegraphutil', 'math'])
+	md5model_env.SharedLibrary('md5model', md5model_src)
 	md5model_env.InstallAs('#xrealradiant/modules/md5model.so', 'libmd5model.so')
 	
 	model_env = module_env.Clone()
-	model_env.SharedLibrary('model', [model_src, scenegraph_src, math_src])
+	model_env.Append(LIBS=['scenegraphutil', 'math'])
+	model_env.SharedLibrary('model', model_src)
 	model_env.InstallAs('#xrealradiant/modules/model.so', 'libmodel.so')
 	
 	particles_env = module_env.Clone()
@@ -549,12 +579,14 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	particles_env.InstallAs('#xrealradiant/modules/particles.so', 'libparticles.so')
 	
 	scenegraph_env = module_env.Clone()
-	scenegraph_env.SharedLibrary('scenegraph', [scenegraph_src, 'code/xrealradiant/plugins/scenegraph/SceneGraph.cpp'])
+	scenegraph_env.Append(LIBS=['scenegraphutil'])
+	scenegraph_env.SharedLibrary('scenegraph', ['code/xrealradiant/plugins/scenegraph/SceneGraph.cpp'])
 	scenegraph_env.InstallAs('#xrealradiant/modules/scenegraph.so', 'libscenegraph.so')
 	
 	shaders_env = module_env.Clone()
 	shaders_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	shaders_env.SharedLibrary('shaders', [shaders_src, xmlutil_src])
+	shaders_env.Append(LIBS=['xmlutil'])
+	shaders_env.SharedLibrary('shaders', shaders_src)
 	shaders_env.InstallAs('#xrealradiant/modules/shaders.so', 'libshaders.so')
 	
 	skins_env = module_env.Clone()
@@ -566,14 +598,16 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	sound_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	sound_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	sound_env.ParseConfig('pkg-config ogg vorbis vorbisfile --cflags --libs')
-	sound_env.SharedLibrary('sound', [sound_src, gtkutil_src])
+	sound_env.Append(LIBS=['scenegraphutil', 'gtkutil'])
+	sound_env.SharedLibrary('sound', sound_src)
 	sound_env.InstallAs('#xrealradiant/modules/sound.so', 'libsound.so')
 	
 	uimanager_env = module_env.Clone()
 	uimanager_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	uimanager_env.ParseConfig('pkg-config gtkglext-1.0 --cflags --libs')
 	uimanager_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	uimanager_env.SharedLibrary('uimanager', [uimanager_src, gtkutil_src, xmlutil_src])
+	uimanager_env.Append(LIBS=['gtkutil', 'xmlutil'])
+	uimanager_env.SharedLibrary('uimanager', uimanager_src)
 	uimanager_env.InstallAs('#xrealradiant/modules/uimanager.so', 'libuimanager.so')
 	
 	undo_env = module_env.Clone()
@@ -589,7 +623,8 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	xmlregistry_env = module_env.Clone()
 	xmlregistry_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	xmlregistry_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
-	xmlregistry_env.SharedLibrary('xmlregistry', [xmlregistry_src, xmlutil_src])
+	xmlregistry_env.Append(LIBS=['xmlutil'])
+	xmlregistry_env.SharedLibrary('xmlregistry', xmlregistry_src)
 	xmlregistry_env.InstallAs('#xrealradiant/modules/xmlregistry.so', 'libxmlregistry.so')
 	
 	
