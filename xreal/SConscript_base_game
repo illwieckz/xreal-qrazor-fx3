@@ -77,7 +77,7 @@ lua_src = [
 'base/code/game/lua_vector.c'
 ]
 
-game_env = env.Copy()
+game_env = env.Clone()
 game_env.Append(CCFLAGS='-DQAGAME')
 game_env.Append(CCFLAGS='-DLUA')
 game_env.Append(CCFLAGS='-Icode/lua-5.1/src')

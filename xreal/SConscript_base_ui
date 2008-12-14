@@ -58,7 +58,7 @@ dll_src = [
 'base/code/ui/ui_syscalls.c'
 ]
 
-ui_env = env.Copy()
+ui_env = env.Clone()
 
 if env['arch'] == 'linux-i386':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])

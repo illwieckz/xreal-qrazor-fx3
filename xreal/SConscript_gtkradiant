@@ -305,12 +305,12 @@ brushexport_src = [
 ]
 
 
-gtkradiant_env = env.Copy()
+gtkradiant_env = env.Clone()
 gtkradiant_env.Append(CCFLAGS='-W -Wall -Wcast-align -Wcast-qual -Wno-unused-parameter -Wno-non-virtual-dtor -Wreorder -fno-exceptions -fno-rtti')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 gtkradiant_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
 
-module_env = env.Copy()
+module_env = env.Clone()
 module_env.Append(CXXFLAGS='-Wno-non-virtual-dtor -fno-exceptions -fno-rtti')
 module_env.Append(CCFLAGS='-Icode/gtkradiant/include')
 module_env.Append(CCFLAGS='-Icode/gtkradiant/libs')
@@ -332,47 +332,47 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 		
 	module_env.Append(CCFLAGS='-DPOSIX')
 	
-	archivezip_env = module_env.Copy()
+	archivezip_env = module_env.Clone()
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
 	archivezip_env.InstallAs('#gtkradiant/modules/archivezip.so', 'libarchivezip.so')
 	
-	entity_env = module_env.Copy()
+	entity_env = module_env.Clone()
 	entity_env.SharedLibrary('entity', entity_src)
 	entity_env.InstallAs('#gtkradiant/modules/entityq3.so', 'libentity.so')
 	
-	image_env = module_env.Copy()
+	image_env = module_env.Clone()
 	image_env.SharedLibrary('image', image_src)
 	image_env.InstallAs('#gtkradiant/modules/imageq3.so', 'libimage.so')
 	
-	imagejpeg_env = module_env.Copy()
+	imagejpeg_env = module_env.Clone()
 	imagejpeg_env.Append(CCFLAGS='-DRADIANT')
 	imagejpeg_env.SharedLibrary('imagejpeg', imagejpeg_src)
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.so', 'libimagejpeg.so')
 	
-	imagepng_env = module_env.Copy()
+	imagepng_env = module_env.Clone()
 	imagepng_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 	imagepng_env.SharedLibrary('imagepng', imagepng_src)
 	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.so', 'libimagepng.so')
 	
-	mapq3_env = module_env.Copy()
+	mapq3_env = module_env.Clone()
 	mapq3_env.SharedLibrary('mapq3', mapq3_src)
 	mapq3_env.InstallAs('#gtkradiant/modules/mapq3.so', 'libmapq3.so')
 	
-	model_env = module_env.Copy()
+	model_env = module_env.Clone()
 	model_env.SharedLibrary('model', model_src)
 	model_env.InstallAs('#gtkradiant/modules/modelpico.so', 'libmodel.so')
 	
-	shaders_env = module_env.Copy()
+	shaders_env = module_env.Clone()
 	shaders_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	shaders_env.SharedLibrary('shaders', shaders_src)
 	shaders_env.InstallAs('#gtkradiant/modules/shadersq3.so', 'libshaders.so')
 	
-	vfsq3_env = module_env.Copy()
+	vfsq3_env = module_env.Clone()
 	vfsq3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	vfsq3_env.SharedLibrary('vfsq3', vfsq3_src)
 	vfsq3_env.InstallAs('#gtkradiant/modules/vfsq3.so', 'libvfsq3.so')
 	
-	brushexport_env = module_env.Copy()
+	brushexport_env = module_env.Clone()
 	brushexport_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	brushexport_env.ParseConfig('pkg-config gtk+-2.0 --cflags --libs')
 	brushexport_env.SharedLibrary('brushexport', brushexport_src)
@@ -390,42 +390,42 @@ if env['arch'] == 'win32-mingw':
 	gtkradiant_env.Program('gtkradiant', [gtkradiant_src, gtkutil_src, profile_src, cmdlib_src, l_net_src, xml_src])
 	gtkradiant_env.Install('#gtkradiant', 'gtkradiant.exe')
 	
-	archivezip_env = module_env.Copy()
+	archivezip_env = module_env.Clone()
 	archivezip_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	archivezip_env.SharedLibrary('archivezip', archivezip_src, LIBS=['z'])
 	archivezip_env.InstallAs('#gtkradiant/modules/archivezip.dll', 'archivezip.dll')
 	
-	entity_env = module_env.Copy()
+	entity_env = module_env.Clone()
 	entity_env.SharedLibrary('entity', entity_src)
 	entity_env.InstallAs('#gtkradiant/modules/entity.dll', 'entity.dll')
 	
-	image_env = module_env.Copy()
+	image_env = module_env.Clone()
 	image_env.SharedLibrary('image', image_src)
 	image_env.InstallAs('#gtkradiant/modules/image.dll', 'image.dll')
 	
-	imagejpeg_env = module_env.Copy()
+	imagejpeg_env = module_env.Clone()
 	imagejpeg_env.Append(CCFLAGS='-DRADIANT')
 	imagejpeg_env.SharedLibrary('imagejpeg', imagejpeg_src)
 	imagejpeg_env.InstallAs('#gtkradiant/modules/imagejpeg.dll', 'imagejpeg.dll')
 	
-	imagepng_env = module_env.Copy()
+	imagepng_env = module_env.Clone()
 	imagepng_env.SharedLibrary('imagepng', imagepng_src)
 	imagepng_env.InstallAs('#gtkradiant/modules/imagepng.dll', 'imagepng.dll')
 	
-	mapq3_env = module_env.Copy()
+	mapq3_env = module_env.Clone()
 	mapq3_env.SharedLibrary('mapq3', mapq3_src)
 	mapq3_env.InstallAs('#gtkradiant/modules/mapq3.dll', 'mapq3.dll')
 	
-	model_env = module_env.Copy()
+	model_env = module_env.Clone()
 	model_env.SharedLibrary('model', model_src)
 	model_env.InstallAs('#gtkradiant/modules/model.dll', 'model.dll')
 	
-	shaders_env = module_env.Copy()
+	shaders_env = module_env.Clone()
 	shaders_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	shaders_env.SharedLibrary('shaders', shaders_src)
 	shaders_env.InstallAs('#gtkradiant/modules/shaders.dll', 'shaders.dll')
 	
-	vfspk3_env = module_env.Copy()
+	vfspk3_env = module_env.Clone()
 	vfspk3_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
 	vfspk3_env.SharedLibrary('vfspk3', vfspk3_src)
 	vfspk3_env.InstallAs('#gtkradiant/modules/vfspk3.dll', 'vfspk3.dll')

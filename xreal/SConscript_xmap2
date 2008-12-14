@@ -140,7 +140,7 @@ xmap2_src = [
 'code/zlib/ioapi.c'
 ]
 
-xmap2_env = env.Copy()
+xmap2_env = env.Clone()
 xmap2_env.Append(CCFLAGS='-DXMAP')
 xmap2_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
 xmap2_env.Append(CCFLAGS='-Icode/common/')

@@ -2,7 +2,7 @@ import os, string, sys
 
 Import('env')
 
-xreal_server_env = env.Copy()
+xreal_server_env = env.Clone()
 
 xreal_server_src = [
 'code/null/null_client.c',

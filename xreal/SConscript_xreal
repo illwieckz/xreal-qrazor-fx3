@@ -2,7 +2,7 @@ import os, string, sys
 
 Import('env')
 
-xreal_env = env.Copy()
+xreal_env = env.Clone()
 
 xreal_src = [
 'code/client/cl_avi.c',

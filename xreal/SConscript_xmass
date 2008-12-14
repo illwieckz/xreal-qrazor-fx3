@@ -8,7 +8,7 @@ xmass_src = [
 'code/xmass/servers.c'
 ]
 
-xmass_env = env.Copy()
+xmass_env = env.Clone()
 
 if env['arch'] == 'linux-i386':
 	xmass_env.Append(LIBS=['m'])
