@@ -32,6 +32,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "imagelib.h"
 #include "DDSImage.h"
 
+struct MipMapInfo {
+	std::size_t size;
+	std::size_t width;
+	std::size_t height;
+	std::size_t offset;
+};
+
 DDSImagePtr LoadDDSFromStream(InputStream& stream)
 {
 	int width(0), height(0);
@@ -49,15 +56,9 @@ DDSImagePtr LoadDDSFromStream(InputStream& stream)
 	// Get the number of mipmaps from the file
 	std::size_t mipMapCount = (header.flags & DDSD_MIPMAPCOUNT) ? header.mipMapCount : 1;
 
-	struct MipMapInfo {
-		std::size_t size;
-		std::size_t width;
-		std::size_t height;
-		std::size_t offset;
-	};
 	std::vector<MipMapInfo> mipMapInfo;
 	mipMapInfo.resize(mipMapCount);
-	
+
 	// Calculate the total memory requirements (greebo: DXT1 has 8 bytes per block)
 	std::size_t blockBytes = (pixelFormat == DDS_PF_DXT1) ? 8 : 16;
 
@@ -83,7 +84,7 @@ DDSImagePtr LoadDDSFromStream(InputStream& stream)
 		width = (width+1) >> 1;
 		height = (height+1) >> 1;
 	}
-	
+
 	// Allocate a new DDS image with that size
 	DDSImagePtr image(new DDSImage(size));
 
