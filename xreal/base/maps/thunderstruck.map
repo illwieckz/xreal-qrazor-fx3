@@ -6220,30 +6220,6 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 1 -192 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/botclip" 0 0 0
-( 0 1 0 -192 ) ( ( 0.03125 0 62.75 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-( 1 0 0 1088 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-( 0 0 -1 -0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/botclip" 0 0 0
-( 0 -1 0 -192 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-( -1 0 0 -1152 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-}
-}
-// brush 512
-{
-brushDef3
-{
-( 0 0 1 -192 ) ( ( 0 0.03125 28 ) ( -0.03125 0 34 ) ) "textures/common/botclip" 0 0 0
-( 1 0 0 832 ) ( ( 0.03125 0 28.75 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-( 0 -1 0 128 ) ( ( 0.03125 0 28 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-( 0 0 -1 -0 ) ( ( 0 -0.03125 28 ) ( 0.03125 0 30 ) ) "textures/common/botclip" 0 0 0
-( -1 0 0 -1088 ) ( ( 0.03125 0 34 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-( 0 1 0 -192 ) ( ( 0.03125 0 36 ) ( 0 0.03125 0.75 ) ) "textures/common/botclip" 0 0 0
-}
-}
-// brush 513
-{
-brushDef3
-{
 ( 0 1 0 320 ) ( ( 0.0078125 0 0.125 ) ( 0 0.0078125 0 ) ) "textures/tr3b_concrete/Old_Concrete_Wall_01" 0 0 0
 ( 0.9486833215 -0.3162277639 0 -161.9086237599 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 0 ) ) "textures/pk01/pk01_pan_floor02a" 0 0 0
 ( -0 0 1 64 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/pk01/pk01_pan_floor02a" 0 0 0
@@ -6252,7 +6228,7 @@ brushDef3
 ( -1 0 0 0 ) ( ( 0.0078125 0 255.5 ) ( 0 0.0078125 0 ) ) "textures/pk01/pk01_pan_floor02a" 0 0 0
 }
 }
-// brush 514
+// brush 512
 {
 brushDef3
 {
