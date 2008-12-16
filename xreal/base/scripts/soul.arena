@@ -1,7 +1,0 @@
-{
-	map "soul"
-	longname "Soul Keep by Pat Raynor"
-	bots "Visor"
-	fraglimit 15
-	type  "ffa tourney team"
-}

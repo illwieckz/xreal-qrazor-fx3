@@ -3,7 +3,8 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
-"message" "The Longest Yard-ish"
+"message" "xdm2: The Longest Yard Redux by Pat 'raynorpat' Raynor"
+"music" "music/paradox2_10.ogg"
 // brush 0
 {
 brushDef3
@@ -4347,6 +4348,7 @@ brushDef3
 "light_distance" "2700"
 "texture" "lights/ambientLight"
 "rotation" "0 0.554594 -0.832121 0 0.832121 0.554594 1 0 0"
+"noradiosity" "1"
 }
 // entity 145
 {
@@ -4409,6 +4411,7 @@ brushDef3
 "light_distance" "750"
 "rotation" "0 -0.00170956 -0.999999 -1 0 0 0 0.999999 -0.00170956"
 "texture" "lights/ambientLight"
+"noradiosity" "1"
 }
 // entity 152
 {
@@ -4421,6 +4424,7 @@ brushDef3
 "light_distance" "750"
 "rotation" "0 0.644379 -0.764707 -1 0 0 0 0.764707 0.644379"
 "texture" "lights/ambientLight"
+"noradiosity" "1"
 }
 // entity 153
 {
@@ -4433,6 +4437,7 @@ brushDef3
 "light_distance" "700"
 "rotation" "0 -0.671431 -0.741067 -1 0 0 0 0.741067 -0.671431"
 "texture" "lights/ambientLight"
+"noradiosity" "1"
 }
 // entity 154
 {
@@ -4445,6 +4450,7 @@ brushDef3
 "light_distance" "750"
 "rotation" "0 -0.00170956 -0.999999 -1 0 0 0 0.999999 -0.00170956"
 "texture" "lights/ambientLight"
+"noradiosity" "1"
 }
 // entity 155
 {
@@ -4457,6 +4463,7 @@ brushDef3
 "light_distance" "1500"
 "rotation" "0 0.645601 -0.763675 -1 0 0 0 0.763675 0.645601"
 "texture" "lights/ambientLight"
+"noradiosity" "1"
 }
 // entity 156
 {

@@ -1,0 +1,63 @@
+{
+	map "xdm1"
+	longname "Horizontally Vertical by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	fraglimit 10
+	type  "ffa team"
+}
+
+{
+	map "xdm2"
+	longname "The Longest Yard Redux by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	fraglimit 10
+	type  "ffa team"
+}
+
+{
+	map "xdm3"
+	longname "Critical Mass by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	fraglimit 15
+	type  "ffa team"
+}
+
+{
+	map "xdm4"
+	longname "The Dark Zone Redux by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	fraglimit 15
+	type  "ffa team"
+}
+
+{
+	map "xdm5"
+	longname "Claustrophobic Anxiety by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	fraglimit 20
+	type  "ffa tourney team"
+}
+
+{
+	map "xtourney1"
+	longname "Soul Keep by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	fraglimit 20
+	type  "ffa tourney team"
+}
+
+{
+	map "xctf1"
+	longname "2 Forts by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	capturelimit 8
+	type  "ctf"
+}
+
+{
+	map "xctf2"
+	longname "Facing Towers by Pat 'raynorpat' Raynor"
+	bots "Visor"
+	capturelimit 8
+	type  "ctf"
+}

@@ -48,12 +48,3 @@
 	fraglimit 10
 	type  "single ffa tourney team"
 }
-
-{
-	map  "longest"
-	longname "The Longest Yard-ish by Pat Raynor"
-	bots  "Harley"
-	fraglimit 10
-	type  "single ffa tourney team"
-}
-
