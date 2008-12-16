@@ -15,23 +15,21 @@ namespace sound
 
 // Constructor
 SoundManager::SoundManager() :
-	_emptyShader("")
+	_emptySound("")
 {}
 
 // Enumerate shaders
-void SoundManager::forEachShader(SoundShaderVisitor visitor) const {
-	for (ShaderMap::const_iterator i = _shaders.begin();
-		 i != _shaders.end();
-		 ++i)
+void SoundManager::forEachSoundFile(SoundFileVisitor visitor) const {
+	for (SoundFileMap::const_iterator i = _soundFiles.begin(); i != _soundFiles.end(); ++i)
 	{
-		visitor(*(i->second));	
+		visitor(*(i->second));
 	}
 }
 
 bool SoundManager::playSound(const std::string& fileName) {
 	// Make a copy of the filename
-	std::string name = fileName; 
-	
+	std::string name = fileName;
+
 	// Try to open the file as it is
 	ArchiveFilePtr file = GlobalFileSystem().openFile(name);
 	std::cout << "Trying: " << name << "\n";
@@ -41,13 +39,13 @@ bool SoundManager::playSound(const std::string& fileName) {
 		_soundPlayer.play(*file);
 		return true;
 	}
-	
+
 	std::string root = name;
 	// File not found, try to strip the extension
 	if (name.rfind(".") != std::string::npos) {
 		root = name.substr(0, name.rfind("."));
 	}
-	
+
 	// Try to open the .ogg variant
 	name = root + ".ogg";
 	std::cout << "Trying: " << name << "\n";
@@ -57,7 +55,7 @@ bool SoundManager::playSound(const std::string& fileName) {
 		_soundPlayer.play(*file);
 		return true;
 	}
-	
+
 	// Try to open the file with .wav extension
 	name = root + ".wav";
 	std::cout << "Trying: " << name << "\n";
@@ -67,7 +65,7 @@ bool SoundManager::playSound(const std::string& fileName) {
 		_soundPlayer.play(*file);
 		return true;
 	}
-	
+
 	// File not found
 	return false;
 }
@@ -77,33 +75,40 @@ void SoundManager::stopSound() {
 }
 
 // Accept a string of shaders to parse
+/*
 void SoundManager::parseShadersFrom(std::istream& contents) {
-	
+
 	// Construct a DefTokeniser to tokenise the string into sound shader decls
 	parser::BasicDefTokeniser<std::istream> tok(contents);
 	while (tok.hasMoreTokens())
 		parseSoundShader(tok);
 }
+*/
 
-const ISoundShader& SoundManager::getSoundShader(const std::string& shaderName) {
-	ShaderMap::const_iterator found = _shaders.find(shaderName);
-	
+const ISoundFile& SoundManager::getSoundFile(const std::string& fileName) {
+	SoundFileMap::const_iterator found = _soundFiles.find(fileName);
+
 	// If the name was found, return it, otherwise return an empty shader object
-	return (found != _shaders.end()) ? *found->second : _emptyShader;    
+	return (found != _soundFiles.end()) ? *found->second : _emptySound;
+}
+
+void SoundManager::addSoundFile(const std::string& fileName) {
+	_soundFiles[fileName] = SoundFilePtr(new SoundFile(fileName));
 }
 
 // Parse a single sound shader from a token stream
+/*
 void SoundManager::parseSoundShader(parser::DefTokeniser& tok) {
-	
+
 	// Get the shader name
 	std::string name = tok.nextToken();
-	
+
 	// Create a new shader with this name
 	_shaders[name] = ShaderPtr(new SoundShader(name));
-	
+
 	// A definition block must start here
 	tok.assertNextToken("{");
-	
+
 	std::string nextToken = tok.nextToken();
 	float min = 0;
 	float max = 0;
@@ -128,6 +133,7 @@ void SoundManager::parseSoundShader(parser::DefTokeniser& tok) {
 	SoundRadii soundRadii(min, max, true);
 	_shaders[name]->setSoundRadii(soundRadii);
 }
+*/
 
 const std::string& SoundManager::getName() const {
 	static std::string _name(MODULE_SOUNDMANAGER);
@@ -149,8 +155,8 @@ void SoundManager::initialiseModule(const ApplicationContext& ctx) {
 	// Pass a SoundFileLoader to the filesystem
 	SoundFileLoader loader(*this);
 	GlobalFileSystem().forEachFile(
-		SOUND_FOLDER,			// directory 
-		"sndshd", 				// required extension
+		SOUND_FOLDER,			// directory
+		"*", 				// required extension
 		makeCallback1(loader),	// loader callback
 		99						// max depth
 	);

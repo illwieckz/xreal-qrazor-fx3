@@ -20,15 +20,16 @@ class SoundChooser
 	GtkWidget* _widget;
 
 	// Tree store for shaders, and the tree selection
+	GtkWidget* _treeView;
 	GtkTreeStore* _treeStore;
 	GtkTreeSelection* _treeSelection;
-	
+
 	// The preview widget group
 	SoundShaderPreview _preview;
-	
+
 	// Last selected shader
-	std::string _selectedShader;
-	
+	std::string _selectedSound;
+
 private:
 
 	// Widget construction
@@ -40,12 +41,12 @@ private:
 	static void _onOK(GtkWidget*, SoundChooser*);
 	static void _onCancel(GtkWidget*, SoundChooser*);
 	static void _onSelectionChange(GtkTreeSelection*, SoundChooser*);
-	
+
 public:
-	
+
 	/**
 	 * Constructor creates widgets.
-	 * 
+	 *
 	 * @parent
 	 * The parent window.
 	 */
@@ -54,8 +55,8 @@ public:
 	/**
 	 * Display the dialog and return the selection.
 	 */
-	std::string chooseSound();	
-	
+	std::string chooseSound();
+
 };
 
 }

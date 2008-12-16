@@ -1,7 +1,7 @@
 #ifndef SOUNDMANAGER_H_
 #define SOUNDMANAGER_H_
 
-#include "SoundShader.h"
+#include "SoundFile.h"
 #include "SoundPlayer.h"
 
 #include "isound.h"
@@ -14,51 +14,43 @@ namespace sound {
 /**
  * SoundManager implementing class.
  */
-class SoundManager : 
+class SoundManager :
 	public ISoundManager
 {
-	// Map of named sound shaders
-	typedef std::map<std::string, ShaderPtr> ShaderMap;
-	ShaderMap _shaders;
+	typedef std::map<std::string, SoundFilePtr> SoundFileMap;
+	SoundFileMap _soundFiles;
 	
-	SoundShader _emptyShader;
-	
-	// Parse a single sound shader from the given token stream
-	void parseSoundShader(parser::DefTokeniser& tok);
-	
+	SoundFile _emptySound;
+
 	// The helper class for playing the sounds
 	SoundPlayer _soundPlayer;
-	
+
 public:
 	/**
 	 * Main constructor.
 	 */
 	SoundManager();
-	
+
 	/**
 	 * Enumerate sound shaders.
 	 */
-	void forEachShader(SoundShaderVisitor visitor) const;
-	
-	/** greebo: Returns the soundshader with the name <shaderName>   
+	void forEachSoundFile(SoundFileVisitor visitor) const;
+
+	/** greebo: Returns the soundfile with the name <shaderName>
 	 */
-	const ISoundShader& getSoundShader(const std::string& shaderName); 
-	
+	const ISoundFile& getSoundFile(const std::string& shaderName);
+
 	/** greebo: Plays the sound file. Tries to resolve the filename's
 	 * 			extension by appending .ogg or .wav and such.
 	 */
 	virtual bool playSound(const std::string& fileName);
-	
+
 	/** greebo: Stops the playback immediately.
 	 */
 	virtual void stopSound();
-	
-	/**
-	 * Parse the contents of the given string as a .sndshd file, adding all
-	 * contained shaders to the shader map.
-	 */
-	void parseShadersFrom(std::istream& contents);
-	
+
+	void addSoundFile(const std::string& fileName);
+
 	// RegisterableModule implementation
 	virtual const std::string& getName() const;
 	virtual const StringSet& getDependencies() const;

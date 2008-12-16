@@ -62,16 +62,16 @@ class Speaker :
 	Callback m_evaluateTransform;
 public:
 	// Constructor
-	Speaker(IEntityClassPtr eclass, 
-		entity::SpeakerNode& node, 
-				  const Callback& transformChanged, 
+	Speaker(IEntityClassPtr eclass,
+		entity::SpeakerNode& node,
+				  const Callback& transformChanged,
 				  const Callback& boundsChanged,
 				  const Callback& evaluateTransform);
-	
+
 	// Copy constructor
-	Speaker(const Speaker& other, 
-				  SpeakerNode& node, 
-				  const Callback& transformChanged, 
+	Speaker(const Speaker& other,
+				  SpeakerNode& node,
+				  const Callback& transformChanged,
 				  const Callback& boundsChanged,
 				  const Callback& evaluateTransform);
 
@@ -99,9 +99,9 @@ public:
 
 	void translate(const Vector3& translation);
 	void rotate(const Quaternion& rotation);
-	
+
 	void snapto(float snap);
-	
+
 	void revertTransform();
 	void freezeTransform();
 	void transformChanged();
@@ -116,12 +116,12 @@ public:
 
 	void updateTransform();
 	typedef MemberCaller<Speaker, &Speaker::updateTransform> UpdateTransformCaller;
-	
+
 	void originChanged();
 	typedef MemberCaller<Speaker, &Speaker::originChanged> OriginChangedCaller;
 
-	void sShaderChanged(const std::string& value);
-	typedef MemberCaller1<Speaker, const std::string&, &Speaker::sShaderChanged> sShaderChangedCaller;
+	void sSoundChanged(const std::string& value);
+	typedef MemberCaller1<Speaker, const std::string&, &Speaker::sSoundChanged> sSoundChangedCaller;
 
 	void sMinChanged(const std::string& value);
 	typedef MemberCaller1<Speaker, const std::string&, &Speaker::sMinChanged> sMinChangedCaller;

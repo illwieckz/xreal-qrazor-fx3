@@ -6,9 +6,9 @@
 #include <boost/function.hpp>
 
 // A list of sound files associated to a shader
-typedef std::vector<std::string> SoundFileList;
+//typedef std::vector<std::string> SoundFileList;
 
-// The min and max radii of a sound shader
+// The min and max radii of a sound speaker
 class SoundRadii {
 	float minRad, maxRad;
 	public:
@@ -36,10 +36,11 @@ class SoundRadii {
 	inline float getMax () const { return maxRad; }
 };
 
+
 /**
  * Representation of a single sound or sound shader.
  */
-struct ISoundShader {
+struct ISoundFile {
 
 	/**
 	 * Get the name of the shader.
@@ -49,18 +50,18 @@ struct ISoundShader {
 	/**
 	 * Get the min and max radii of the shader.
 	 */
-	virtual SoundRadii getRadii() const = 0;
-	
-	/** greebo: Get the list of sound files associated to 
+	//virtual SoundRadii getRadii() const = 0;
+
+	/** greebo: Get the list of sound files associated to
 	 * 			this shader.
 	 */
-	virtual SoundFileList getSoundFileList() const = 0;
+	//virtual SoundFileList getSoundFileList() const = 0;
 };
 
 /**
  * Sound shader visitor function typedef.
  */
-typedef boost::function< void (const ISoundShader&) > SoundShaderVisitor;
+typedef boost::function< void (const ISoundFile&) > SoundFileVisitor;
 
 const std::string MODULE_SOUNDMANAGER("SoundManager");
 
@@ -70,24 +71,24 @@ const std::string MODULE_SOUNDMANAGER("SoundManager");
 class ISoundManager :
 	public RegisterableModule
 {
-public:	
+public:
 	/**
 	 * Enumerate each of the sound shaders.
 	 */
-	virtual void forEachShader(SoundShaderVisitor visitor) const = 0;
-	
+	virtual void forEachSoundFile(SoundFileVisitor visitor) const = 0;
+
 	/** greebo: Tries to lookup the SoundShader with the given name,
 	 * 			returns a soundshader with an empty name, if the lookup failed.
 	 */
-	virtual const ISoundShader& getSoundShader(const std::string& shaderName) = 0;
-	
+	virtual const ISoundFile& getSoundFile(const std::string& fileName) = 0;
+
 	/** greebo: Plays the given sound file (defined by its VFS path).
-	 * 
-	 * @returns: TRUE, if the sound file was found at the given VFS path, 
+	 *
+	 * @returns: TRUE, if the sound file was found at the given VFS path,
 	 * 			 FALSE otherwise
 	 */
-	virtual bool playSound(const std::string& fileName) = 0; 
-	
+	virtual bool playSound(const std::string& fileName) = 0;
+
 	/** greebo: Stops the currently played sound.
 	 */
 	virtual void stopSound() = 0;
@@ -101,7 +102,7 @@ inline ISoundManager& GlobalSoundManager() {
 			module::GlobalModuleRegistry().getModule(MODULE_SOUNDMANAGER)
 		)
 	);
-	return _soundManager;	
+	return _soundManager;
 }
 
 #endif /*ISOUND_H_*/

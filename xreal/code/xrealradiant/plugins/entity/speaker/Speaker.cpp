@@ -9,9 +9,9 @@
 
 namespace entity {
 
-Speaker::Speaker(IEntityClassPtr eclass, 
-		SpeakerNode& node, 
-		const Callback& transformChanged, 
+Speaker::Speaker(IEntityClassPtr eclass,
+		SpeakerNode& node,
+		const Callback& transformChanged,
 		const Callback& boundsChanged,
 		const Callback& evaluateTransform) :
 	m_entity(node._entity),
@@ -34,9 +34,9 @@ Speaker::Speaker(IEntityClassPtr eclass,
 	construct();
 }
 
-Speaker::Speaker(const Speaker& other, 
-		SpeakerNode& node, 
-		const Callback& transformChanged, 
+Speaker::Speaker(const Speaker& other,
+		SpeakerNode& node,
+		const Callback& transformChanged,
 		const Callback& boundsChanged,
 		const Callback& evaluateTransform) :
 	m_entity(node._entity),
@@ -110,7 +110,7 @@ VolumeIntersectionValue Speaker::intersectVolume(
 	return volume.TestAABB(localAABB(), localToWorld);
 }
 
-void Speaker::renderSolid(Renderer& renderer, 
+void Speaker::renderSolid(Renderer& renderer,
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
 	renderer.SetState(m_entity.getEntityClass()->getFillShader(), Renderer::eFullMaterials);
@@ -119,20 +119,20 @@ void Speaker::renderSolid(Renderer& renderer,
 		renderer.addRenderable(m_speakerRadii, localToWorld);
 }
 
-void Speaker::renderWireframe(Renderer& renderer, 
+void Speaker::renderWireframe(Renderer& renderer,
 	const VolumeTest& volume, const Matrix4& localToWorld) const
 {
 	renderer.SetState(m_entity.getEntityClass()->getWireShader(), Renderer::eWireframeOnly);
 	renderer.addRenderable(m_aabb_wire, localToWorld);
 	if (SpeakerSettings().showAllSpeakerRadii())
 		renderer.addRenderable(m_speakerRadii, localToWorld);
-	
+
 	if (isNameVisible()) {
 		renderer.addRenderable(m_renderName, localToWorld);
 	}
 }
 
-void Speaker::testSelect(Selector& selector, 
+void Speaker::testSelect(Selector& selector,
 	SelectionTest& test, const Matrix4& localToWorld)
 {
 	test.BeginMesh(localToWorld);
@@ -178,7 +178,7 @@ void Speaker::transformChanged() {
 void Speaker::construct() {
 	m_aabb_local = m_entity.getEntityClass()->getBounds();
 	m_aabb_border = m_aabb_local;
-	
+
 	m_ray.origin = m_aabb_local.getOrigin();
 	m_ray.direction[0] = 1;
 	m_ray.direction[1] = 0;
@@ -187,7 +187,7 @@ void Speaker::construct() {
 	m_keyObservers.insert("name", NamedEntity::IdentifierChangedCaller(m_named));
 	m_keyObservers.insert("angle", AngleKey::AngleChangedCaller(m_angleKey));
 	m_keyObservers.insert("origin", OriginKey::OriginChangedCaller(m_originKey));
-	m_keyObservers.insert("s_shader", Speaker::sShaderChangedCaller(*this));
+	m_keyObservers.insert("s_sound", Speaker::sSoundChangedCaller(*this));
 	m_keyObservers.insert("s_mindistance", Speaker::sMinChangedCaller(*this));
 	m_keyObservers.insert("s_maxdistance", Speaker::sMaxChangedCaller(*this));
 }
@@ -216,18 +216,25 @@ void Speaker::angleChanged() {
 	updateTransform();
 }
 
-void Speaker::sShaderChanged(const std::string& value) {
+void Speaker::sSoundChanged(const std::string& value) {
+
+	// Tr3B: FIXME
+	/*
 	if (value.empty()) {
 		m_stdVal.setMin(0);
 		m_stdVal.setMax(0);
 	}
+
 	else {
-		m_stdVal = GlobalSoundManager().getSoundShader(value).getRadii();
+		m_stdVal = GlobalSoundManager().getSoundFile(value).getRadii();
 	}
 	if (!m_minIsSet) m_speakerRadii.m_radii.setMin(m_stdVal.getMin());
 	if (!m_maxIsSet) m_speakerRadii.m_radii.setMax(m_stdVal.getMax());
+	*/
 
-	updateAABB();
+	//m_stdVal.setMin(0);
+	//m_stdVal.setMax(0);
+	//updateAABB();
 }
 
 void Speaker::sMinChanged(const std::string& value) {
@@ -235,7 +242,7 @@ void Speaker::sMinChanged(const std::string& value) {
 	if (m_minIsSet)
 		// we need to parse in metres
 		m_speakerRadii.m_radii.setMin(strToFloat(value), true);
-	else 
+	else
 		m_speakerRadii.m_radii.setMin(m_stdVal.getMin());
 
 	updateAABB();
@@ -246,7 +253,7 @@ void Speaker::sMaxChanged(const std::string& value) {
 	if (m_maxIsSet)
 		// we need to parse in metres
 		m_speakerRadii.m_radii.setMax(strToFloat(value), true);
-	else 
+	else
 		m_speakerRadii.m_radii.setMax(m_stdVal.getMax());
 
 	updateAABB();
