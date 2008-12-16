@@ -3718,7 +3718,7 @@ entityDef speaker
 	
 	"spawnclass"					"idSound"
 	
-	"s_shader"						""
+	"s_sound"						"sound/feedback/hit.wav"
 	"s_looping"						"0"
 	"s_waitfortrigger"				"0"
 	"s_global"						"0"
