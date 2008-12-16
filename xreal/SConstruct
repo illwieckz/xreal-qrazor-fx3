@@ -43,14 +43,9 @@ print 'compiling for architecture ', env['arch']
 
 # HACK: see http://www.physics.uq.edu.au/people/foster/amd64_porting.html
 if env['arch'] == 'linux-x86_64':
-	picLibBuilder = Builder(action = Action('$ARCOM'),
-                            emitter = '$LIBEMITTER',
-                            prefix = '$LIBPREFIX',
-                            suffix = '$LIBSUFFIX',
-                            src_suffix = '$OBJSUFFIX',
-                            src_builder = 'SharedObject')
-    env['BUILDERS']['StaticLibrary'] = picLibBuilder
-    env['BUILDERS']['Library'] = picLibBuilder
+	picLibBuilder = Builder(action = Action('$ARCOM'), emitter = '$LIBEMITTER', prefix = '$LIBPREFIX', suffix = '$LIBSUFFIX', src_suffix = '$OBJSUFFIX', src_builder = 'SharedObject')
+	env['BUILDERS']['StaticLibrary'] = picLibBuilder
+	env['BUILDERS']['Library'] = picLibBuilder
 
 
 env.Append(CCFLAGS = '-pipe -fsigned-char')
