@@ -22,12 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // cg_lua.c
 
+#include "cg_local.h"
+
 #ifdef LUA
 
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "cg_local.h"
 
 #define MAX_LUAFILE 32768
 

@@ -19,15 +19,15 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
 // g_lua.c
+
+#include "g_local.h"
 
 #ifdef LUA
 
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "g_local.h"
 
 #define MAX_LUAFILE 32768
 

@@ -21,12 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // lua_entity.c -- entity library for Lua
 
+#include "g_local.h"
+
 #ifdef LUA
 
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "g_local.h"
 
 static int entity_Target(lua_State * L)
 {
