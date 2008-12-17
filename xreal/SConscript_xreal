@@ -282,6 +282,21 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.Program('xreal', [xreal_src, unix_src])		
 	xreal_env.InstallAs('#xreal.x86_64', 'xreal')
 
+elif env['arch'] == 'freebsd-i386':
+        xreal_env.Append(CFLAGS='-D__FREEBSD__')
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
+	xreal_env.Append(LIBS=['m'])
+	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+	xreal_env.ParseConfig('freetype-config --cflags --libs')
+	xreal_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+
+	if env['smp'] == 1:
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
+	
+	xreal_env.Program('xreal', [xreal_src, unix_src])	
+	xreal_env.InstallAs('#xreal.x86', 'xreal')
+
 elif env['arch'] == 'win32-mingw':
 	xreal_env.Append(CCFLAGS='-DC_ONLY')
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
@@ -291,3 +306,4 @@ elif env['arch'] == 'win32-mingw':
 	xreal_env.Append(LIBS=['m', 'gdi32', 'ole32', 'wsock32', 'winmm'])
 	xreal_env.Program('xreal', [xreal_src, win_src])
 	xreal_env.Install('#', 'xreal.exe')
+

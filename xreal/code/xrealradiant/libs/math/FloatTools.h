@@ -23,9 +23,12 @@
 
 #elif defined(__FreeBSD__)
 
+/* 
+ * should not be needed anymore in 7.x
+ *
 inline int lrint(double f) {
   return static_cast<int>(f + 0.5);
-}
+}*/
 
 #elif defined(__GNUC__)
 

@@ -163,6 +163,14 @@ elif env['arch'] == 'linux-x86_64':
 	xmap2_env.Program('xmap2', xmap2_src)
 	xmap2_env.InstallAs('#xmap2.x86_64', 'xmap2')
 
+if env['arch'] == 'freebsd-i386':
+	xmap2_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	xmap2_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	xmap2_env.ParseConfig('sdl-config --cflags --libs')
+	xmap2_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
+	xmap2_env.Program('xmap2', xmap2_src)
+	xmap2_env.InstallAs('#xmap2.x86', 'xmap2')
+	
 elif env['arch'] == 'win32-mingw':
 	xmap2_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
 	xmap2_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')

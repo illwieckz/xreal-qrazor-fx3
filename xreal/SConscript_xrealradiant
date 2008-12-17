@@ -458,7 +458,11 @@ module_env = env.Clone()
 module_env.Append(CCFLAGS='-Icode/xrealradiant/include')
 module_env.Append(CCFLAGS='-Icode/xrealradiant/libs')
 
-if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
+if env['arch'] == 'freebsd-i386':
+        module_env.Append(CCFLAGS='-I/usr/local/include')
+        module_env.Append(LIBPATH=['/usr/local/lib'])
+
+if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64' or env['arch'] == 'freebsd-i386' :
 
 	module_env.Append(CCFLAGS='-DPOSIX')
 	module_env.Append(LIBPATH=['.'])
@@ -488,7 +492,7 @@ if env['arch'] == 'linux-i386' or env['arch'] == 'linux-x86_64':
 	
 	xrealradiant_env.Append(LIBS=['scenegraphutil', 'gtkutil', 'xmlutil', 'math'])
 	
-	if env['arch'] == 'linux-i386':
+	if env['arch'] == 'linux-i386' or env['arch'] == 'freebsd-i386':
 		xrealradiant_env.Program('xrealradiant', xrealradiant_src)
 		xrealradiant_env.InstallAs('#xrealradiant/xrealradiant.x86', 'xrealradiant')
 	elif env['arch'] == 'linux-x86_64':
