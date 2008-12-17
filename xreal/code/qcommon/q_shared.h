@@ -493,7 +493,7 @@ static ID_INLINE float Q_rsqrt(float number)
 	asm volatile
 	(
 												// lo                                   | hi
-	"femms                               \n" 
+	"femms                               \n"
 	"movd           (%%eax),        %%mm0\n"	// in                                   |       -
 	"pfrsqrt        %%mm0,          %%mm1\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
 	"movq           %%mm1,          %%mm2\n"	// 1/sqrt(in)                           | 1/sqrt(in)    (approx)
@@ -1225,6 +1225,7 @@ int             Com_Compress(char *data_p);
 void            Com_ParseError(char *format, ...);
 void            Com_ParseWarning(char *format, ...);
 
+
 #define MAX_TOKENLENGTH		1024
 
 #ifndef TT_STRING
@@ -1244,6 +1245,7 @@ typedef struct pc_token_s
 	float           floatvalue;
 	char            string[MAX_TOKENLENGTH];
 } pc_token_t;
+
 
 // data is an in/out parm, returns a parsed out token
 
@@ -1476,6 +1478,18 @@ typedef struct cplane_s
 	byte            pad[2];
 } cplane_t;
 
+/*
+typedef enum
+{
+	TT_NONE,
+
+	TT_AABB,
+	TT_CAPSULE,
+	TT_BISPHERE,
+
+	TT_NUM_TRACE_TYPES
+} traceType_t;
+*/
 
 // a trace is returned when a box is swept through the world
 typedef struct
@@ -1575,6 +1589,9 @@ typedef enum
 
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
 #define MAX_EFFECTS			256
+
+#define	MAX_GAME_SHADERS				64 // needed by Tremulous
+#define	MAX_GAME_PARTICLE_SYSTEMS		64 // needed by Tremulous
 
 
 #define	MAX_CONFIGSTRINGS	1024
@@ -1725,7 +1742,7 @@ typedef struct usercmd_s
 	int             serverTime;
 	int             angles[3];
 	int             buttons;
-	byte            weapon;		// weapon 
+	byte            weapon;		// weapon
 	signed char     forwardmove, rightmove, upmove;
 } usercmd_t;
 
@@ -1742,6 +1759,7 @@ typedef enum
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
 	TR_GRAVITY,
+	TR_BUOYANCY,
 	TR_ACCELERATION
 } trType_t;
 
@@ -1811,7 +1829,7 @@ typedef enum
 {
 	CA_UNINITIALIZED,
 	CA_DISCONNECTED,			// not talking to a server
-	CA_AUTHORIZING,				// not used any more, was checking cd key 
+	CA_AUTHORIZING,				// not used any more, was checking cd key
 	CA_CONNECTING,				// sending request packets to the server
 	CA_CHALLENGING,				// sending challenge packets to the server
 	CA_CONNECTED,				// netchan_t established, getting gamestate
@@ -1821,7 +1839,7 @@ typedef enum
 	CA_CINEMATIC				// playing a cinematic or a static pic, not connected to a server
 } connstate_t;
 
-// font support 
+// font support
 
 #define GLYPH_START 0
 #define GLYPH_END 255
@@ -1900,6 +1918,15 @@ typedef enum _flag_status
 	FLAG_DROPPED
 } flagStatus_t;
 
+typedef enum
+{
+	DS_NONE,
+
+	DS_PLAYBACK,
+	DS_RECORDING,
+
+	DS_NUM_DEMO_STATES
+} demoState_t;
 
 
 #define	MAX_GLOBAL_SERVERS				4096

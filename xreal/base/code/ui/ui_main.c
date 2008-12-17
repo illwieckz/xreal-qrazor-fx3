@@ -82,8 +82,6 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 		case UI_DRAW_CONNECT_SCREEN:
 			UI_DrawConnectScreen(arg0);
 			return 0;
-		case UI_HASUNIQUECDKEY:	// mod authors need to observe this
-			return qtrue;		// bk010117 - change this to qfalse for mods!
 	}
 
 	return -1;

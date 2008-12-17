@@ -33,6 +33,7 @@ xreal_src = [
 'code/qcommon/msg.c',
 'code/qcommon/net_chan.c',
 'code/qcommon/net_ip.c',
+'code/qcommon/parse.c',
 'code/qcommon/vm.c',
 'code/qcommon/q_math.c',
 'code/qcommon/q_shared.c',

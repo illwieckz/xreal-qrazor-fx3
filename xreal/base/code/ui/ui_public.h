@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __UI_PUBLIC_H__
 #define __UI_PUBLIC_H__
 
-#define UI_API_VERSION	7
+#define UI_API_VERSION	8
 
 typedef struct
 {
@@ -58,7 +58,6 @@ typedef enum
 	UI_FS_GETFILELIST,
 
 	UI_R_REGISTERMODEL,
-//xppm stuff
 	UI_R_REGISTERANIMATION,
 	UI_R_RESETSKELETON,
 	UI_R_BUILDSKELETON,
@@ -103,6 +102,13 @@ typedef enum
 	UI_MEMORY_REMAINING,
 	UI_R_REGISTERFONT,
 	UI_R_MODELBOUNDS,
+
+	UI_PARSE_ADD_GLOBAL_DEFINE,
+	UI_PARSE_LOAD_SOURCE,
+	UI_PARSE_FREE_SOURCE,
+	UI_PARSE_READ_TOKEN,
+	UI_PARSE_SOURCE_FILE_AND_LINE,
+
 	UI_S_STOPBACKGROUNDTRACK,
 	UI_S_STARTBACKGROUNDTRACK,
 	UI_REAL_TIME,
@@ -150,11 +156,14 @@ typedef enum
 	UIMENU_POSTGAME
 } uiMenuCommand_t;
 
-#define SORT_HOST			0
-#define SORT_MAP			1
-#define SORT_CLIENTS		2
-#define SORT_GAME			3
-#define SORT_PING			4
+typedef enum
+{
+	SORT_HOST,
+	SORT_MAP,
+	SORT_CLIENTS,
+	SORT_GAME,
+	SORT_PING
+} serverSortField_t;
 
 typedef enum
 {
@@ -184,9 +193,8 @@ typedef enum
 	UI_CONSOLE_COMMAND,
 //  qboolean UI_ConsoleCommand( int realTime );
 
-	UI_DRAW_CONNECT_SCREEN,
+	UI_DRAW_CONNECT_SCREEN
 //  void    UI_DrawConnectScreen( qboolean overlay );
-	UI_HASUNIQUECDKEY
 // if !overlay, the background will be drawn, otherwise it will be
 // overlayed over whatever the cgame has drawn.
 // a GetClientState syscall will be made to get the current strings
