@@ -21,6 +21,7 @@ opts.Add(BoolOption('xmass', 'Set to 1 to compile XMass', 0))
 opts.Add(EnumOption('curl', 'Choose http-download redirection support for the engine', 'dlopen', allowed_values=('none', 'compile', 'dlopen')))
 #opts.Add(BoolOption('openal', 'Set to 1 to compile engine with OpenAL support', 0))
 opts.Add(BoolOption('dedicated', 'Set to 1 to only compile the dedicated server', 0))
+opts.Add(BoolOption('tremulous', 'Set to 1 to compile the Tremulous game', 0))
 
 #
 # initialize compiler environment base
@@ -107,4 +108,6 @@ if env['xmass'] == 1:
 	SConscript('SConscript_xmass', build_dir='build/xmass', duplicate=0)
 
 
+if env['tremulous'] == 1:
+	SConscript('SConscript_tremulous_ui', build_dir='build/tremulous/ui', duplicate=0)
 
