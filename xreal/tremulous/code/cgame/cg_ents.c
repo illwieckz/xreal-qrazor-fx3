@@ -138,7 +138,7 @@ void CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qh
 		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
 
 	// had to cast away the const to avoid compiler problems...
-	MatrixMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
+	AxisMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
 	entity->backlerp = parent->backlerp;
 }
 
@@ -167,8 +167,8 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
 
 	// had to cast away the const to avoid compiler problems...
-	MatrixMultiply(entity->axis, lerped.axis, tempAxis);
-	MatrixMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+	AxisMultiply(entity->axis, lerped.axis, tempAxis);
+	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
 }
 
 

@@ -253,6 +253,8 @@ void Con_ClearNotify(void)
 	{
 		con.times[i] = 0;
 	}
+
+	CL_GameConsoleText();
 }
 
 

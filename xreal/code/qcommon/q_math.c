@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
 Copyright (C) 2001-2006 William Joseph
 Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
@@ -52,7 +53,7 @@ vec4_t          colorLtGrey     = {0.75, 0.75, 0.75, 1};
 vec4_t          colorMdGrey     = {0.5, 0.5, 0.5, 1};
 vec4_t          colorDkGrey     = {0.25, 0.25, 0.25, 1};
 
-const vec4_t g_color_table[MAX_CCODES] = 
+const vec4_t g_color_table[MAX_CCODES] =
 {
 	{0.00000f, 0.00000f, 0.00000f, 1.00000f},	// 0 standard colors
 	{1.00000f, 0.00000f, 0.00000f, 1.00000f},	// 1 |
@@ -69,139 +70,139 @@ const vec4_t g_color_table[MAX_CCODES] =
 	{1.00000f, 0.13239f, 0.00000f, 1.00000f},	// A |
 	{1.00000f, 0.26795f, 0.00000f, 1.00000f},	// b |
 	{1.00000f, 0.37829f, 0.00000f, 1.00000f},	// B v
-	{1.00000f, 0.50000f, 0.00000f, 1.00000f},	// c 
-	{1.00000f, 0.60633f, 0.00000f, 1.00000f},	// C 
-	{1.00000f, 0.73205f, 0.00000f, 1.00000f},	// d 
-	{1.00000f, 0.84990f, 0.00000f, 1.00000f},	// D 
-	{1.00000f, 1.00000f, 0.00000f, 1.00000f},	// e 
-	{0.86761f, 1.00000f, 0.00000f, 1.00000f},	// E 
-	{0.73205f, 1.00000f, 0.00000f, 1.00000f},	// f 
-	{0.62171f, 1.00000f, 0.00000f, 1.00000f},	// F 
-	{0.50000f, 1.00000f, 0.00000f, 1.00000f},	// g 
-	{0.39367f, 1.00000f, 0.00000f, 1.00000f},	// G 
-	{0.26795f, 1.00000f, 0.00000f, 1.00000f},	// h 
-	{0.15010f, 1.00000f, 0.00000f, 1.00000f},	// H 
-	{0.00000f, 1.00000f, 0.00000f, 1.00000f},	// i 
-	{0.00000f, 1.00000f, 0.13239f, 1.00000f},	// I 
-	{0.00000f, 1.00000f, 0.26795f, 1.00000f},	// j 
-	{0.00000f, 1.00000f, 0.37829f, 1.00000f},	// J 
-	{0.00000f, 1.00000f, 0.50000f, 1.00000f},	// k 
-	{0.00000f, 1.00000f, 0.60633f, 1.00000f},	// K 
-	{0.00000f, 1.00000f, 0.73205f, 1.00000f},	// l 
-	{0.00000f, 1.00000f, 0.84990f, 1.00000f},	// L 
-	{0.00000f, 1.00000f, 1.00000f, 1.00000f},	// m 
-	{0.00000f, 0.86761f, 1.00000f, 1.00000f},	// M 
-	{0.00000f, 0.73205f, 1.00000f, 1.00000f},	// n 
-	{0.00000f, 0.62171f, 1.00000f, 1.00000f},	// N 
-	{0.00000f, 0.50000f, 1.00000f, 1.00000f},	// o 
-	{0.00000f, 0.39367f, 1.00000f, 1.00000f},	// O 
-	{0.00000f, 0.26795f, 1.00000f, 1.00000f},	// p 
-	{0.00000f, 0.15010f, 1.00000f, 1.00000f},	// P 
-	{0.00000f, 0.00000f, 1.00000f, 1.00000f},	// q 
-	{0.13239f, 0.00000f, 1.00000f, 1.00000f},	// Q 
-	{0.26795f, 0.00000f, 1.00000f, 1.00000f},	// r 
-	{0.37829f, 0.00000f, 1.00000f, 1.00000f},	// R 
-	{0.50000f, 0.00000f, 1.00000f, 1.00000f},	// s 
-	{0.60633f, 0.00000f, 1.00000f, 1.00000f},	// S 
-	{0.73205f, 0.00000f, 1.00000f, 1.00000f},	// t 
-	{0.84990f, 0.00000f, 1.00000f, 1.00000f},	// T 
-	{1.00000f, 0.00000f, 1.00000f, 1.00000f},	// u 
-	{1.00000f, 0.00000f, 0.86761f, 1.00000f},	// U 
-	{1.00000f, 0.00000f, 0.73205f, 1.00000f},	// v 
-	{1.00000f, 0.00000f, 0.62171f, 1.00000f},	// V 
+	{1.00000f, 0.50000f, 0.00000f, 1.00000f},	// c
+	{1.00000f, 0.60633f, 0.00000f, 1.00000f},	// C
+	{1.00000f, 0.73205f, 0.00000f, 1.00000f},	// d
+	{1.00000f, 0.84990f, 0.00000f, 1.00000f},	// D
+	{1.00000f, 1.00000f, 0.00000f, 1.00000f},	// e
+	{0.86761f, 1.00000f, 0.00000f, 1.00000f},	// E
+	{0.73205f, 1.00000f, 0.00000f, 1.00000f},	// f
+	{0.62171f, 1.00000f, 0.00000f, 1.00000f},	// F
+	{0.50000f, 1.00000f, 0.00000f, 1.00000f},	// g
+	{0.39367f, 1.00000f, 0.00000f, 1.00000f},	// G
+	{0.26795f, 1.00000f, 0.00000f, 1.00000f},	// h
+	{0.15010f, 1.00000f, 0.00000f, 1.00000f},	// H
+	{0.00000f, 1.00000f, 0.00000f, 1.00000f},	// i
+	{0.00000f, 1.00000f, 0.13239f, 1.00000f},	// I
+	{0.00000f, 1.00000f, 0.26795f, 1.00000f},	// j
+	{0.00000f, 1.00000f, 0.37829f, 1.00000f},	// J
+	{0.00000f, 1.00000f, 0.50000f, 1.00000f},	// k
+	{0.00000f, 1.00000f, 0.60633f, 1.00000f},	// K
+	{0.00000f, 1.00000f, 0.73205f, 1.00000f},	// l
+	{0.00000f, 1.00000f, 0.84990f, 1.00000f},	// L
+	{0.00000f, 1.00000f, 1.00000f, 1.00000f},	// m
+	{0.00000f, 0.86761f, 1.00000f, 1.00000f},	// M
+	{0.00000f, 0.73205f, 1.00000f, 1.00000f},	// n
+	{0.00000f, 0.62171f, 1.00000f, 1.00000f},	// N
+	{0.00000f, 0.50000f, 1.00000f, 1.00000f},	// o
+	{0.00000f, 0.39367f, 1.00000f, 1.00000f},	// O
+	{0.00000f, 0.26795f, 1.00000f, 1.00000f},	// p
+	{0.00000f, 0.15010f, 1.00000f, 1.00000f},	// P
+	{0.00000f, 0.00000f, 1.00000f, 1.00000f},	// q
+	{0.13239f, 0.00000f, 1.00000f, 1.00000f},	// Q
+	{0.26795f, 0.00000f, 1.00000f, 1.00000f},	// r
+	{0.37829f, 0.00000f, 1.00000f, 1.00000f},	// R
+	{0.50000f, 0.00000f, 1.00000f, 1.00000f},	// s
+	{0.60633f, 0.00000f, 1.00000f, 1.00000f},	// S
+	{0.73205f, 0.00000f, 1.00000f, 1.00000f},	// t
+	{0.84990f, 0.00000f, 1.00000f, 1.00000f},	// T
+	{1.00000f, 0.00000f, 1.00000f, 1.00000f},	// u
+	{1.00000f, 0.00000f, 0.86761f, 1.00000f},	// U
+	{1.00000f, 0.00000f, 0.73205f, 1.00000f},	// v
+	{1.00000f, 0.00000f, 0.62171f, 1.00000f},	// V
 	{1.00000f, 0.00000f, 0.50000f, 1.00000f},	// w ^
 	{1.00000f, 0.00000f, 0.39367f, 1.00000f},	// W |
 	{1.00000f, 0.00000f, 0.26795f, 1.00000f},	// x |
 	{1.00000f, 0.00000f, 0.15010f, 1.00000f},	// X Rainbow
 
-	{0.75000f, 0.75000f, 0.75000f, 1.00000f},	// y Grey 
+	{0.75000f, 0.75000f, 0.75000f, 1.00000f},	// y Grey
 	{0.50000f, 0.50000f, 0.50000f, 1.00000f},	// Y |
 	{0.25000f, 0.25000f, 0.25000f, 1.00000f},	// z Grey
-	{1.00000f, 0.50000f, 1.00000f, 1.00000f},	// Z 
+	{1.00000f, 0.50000f, 1.00000f, 1.00000f},	// Z
 };
 
 vec3_t  bytedirs[NUMVERTEXNORMALS] =
 {
-	{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f}, 
-	{-0.295242f, 0.000000f, 0.955423f}, {-0.309017f, 0.500000f, 0.809017f}, 
-	{-0.162460f, 0.262866f, 0.951056f}, {0.000000f, 0.000000f, 1.000000f}, 
-	{0.000000f, 0.850651f, 0.525731f}, {-0.147621f, 0.716567f, 0.681718f}, 
-	{0.147621f, 0.716567f, 0.681718f}, {0.000000f, 0.525731f, 0.850651f}, 
-	{0.309017f, 0.500000f, 0.809017f}, {0.525731f, 0.000000f, 0.850651f}, 
-	{0.295242f, 0.000000f, 0.955423f}, {0.442863f, 0.238856f, 0.864188f}, 
-	{0.162460f, 0.262866f, 0.951056f}, {-0.681718f, 0.147621f, 0.716567f}, 
-	{-0.809017f, 0.309017f, 0.500000f},{-0.587785f, 0.425325f, 0.688191f}, 
-	{-0.850651f, 0.525731f, 0.000000f},{-0.864188f, 0.442863f, 0.238856f}, 
-	{-0.716567f, 0.681718f, 0.147621f},{-0.688191f, 0.587785f, 0.425325f}, 
-	{-0.500000f, 0.809017f, 0.309017f}, {-0.238856f, 0.864188f, 0.442863f}, 
-	{-0.425325f, 0.688191f, 0.587785f}, {-0.716567f, 0.681718f, -0.147621f}, 
-	{-0.500000f, 0.809017f, -0.309017f}, {-0.525731f, 0.850651f, 0.000000f}, 
-	{0.000000f, 0.850651f, -0.525731f}, {-0.238856f, 0.864188f, -0.442863f}, 
-	{0.000000f, 0.955423f, -0.295242f}, {-0.262866f, 0.951056f, -0.162460f}, 
-	{0.000000f, 1.000000f, 0.000000f}, {0.000000f, 0.955423f, 0.295242f}, 
-	{-0.262866f, 0.951056f, 0.162460f}, {0.238856f, 0.864188f, 0.442863f}, 
-	{0.262866f, 0.951056f, 0.162460f}, {0.500000f, 0.809017f, 0.309017f}, 
-	{0.238856f, 0.864188f, -0.442863f},{0.262866f, 0.951056f, -0.162460f}, 
-	{0.500000f, 0.809017f, -0.309017f},{0.850651f, 0.525731f, 0.000000f}, 
-	{0.716567f, 0.681718f, 0.147621f}, {0.716567f, 0.681718f, -0.147621f}, 
-	{0.525731f, 0.850651f, 0.000000f}, {0.425325f, 0.688191f, 0.587785f}, 
-	{0.864188f, 0.442863f, 0.238856f}, {0.688191f, 0.587785f, 0.425325f}, 
-	{0.809017f, 0.309017f, 0.500000f}, {0.681718f, 0.147621f, 0.716567f}, 
-	{0.587785f, 0.425325f, 0.688191f}, {0.955423f, 0.295242f, 0.000000f}, 
-	{1.000000f, 0.000000f, 0.000000f}, {0.951056f, 0.162460f, 0.262866f}, 
-	{0.850651f, -0.525731f, 0.000000f},{0.955423f, -0.295242f, 0.000000f}, 
-	{0.864188f, -0.442863f, 0.238856f}, {0.951056f, -0.162460f, 0.262866f}, 
-	{0.809017f, -0.309017f, 0.500000f}, {0.681718f, -0.147621f, 0.716567f}, 
-	{0.850651f, 0.000000f, 0.525731f}, {0.864188f, 0.442863f, -0.238856f}, 
-	{0.809017f, 0.309017f, -0.500000f}, {0.951056f, 0.162460f, -0.262866f}, 
-	{0.525731f, 0.000000f, -0.850651f}, {0.681718f, 0.147621f, -0.716567f}, 
-	{0.681718f, -0.147621f, -0.716567f},{0.850651f, 0.000000f, -0.525731f}, 
-	{0.809017f, -0.309017f, -0.500000f}, {0.864188f, -0.442863f, -0.238856f}, 
-	{0.951056f, -0.162460f, -0.262866f}, {0.147621f, 0.716567f, -0.681718f}, 
-	{0.309017f, 0.500000f, -0.809017f}, {0.425325f, 0.688191f, -0.587785f}, 
-	{0.442863f, 0.238856f, -0.864188f}, {0.587785f, 0.425325f, -0.688191f}, 
-	{0.688191f, 0.587785f, -0.425325f}, {-0.147621f, 0.716567f, -0.681718f}, 
-	{-0.309017f, 0.500000f, -0.809017f}, {0.000000f, 0.525731f, -0.850651f}, 
-	{-0.525731f, 0.000000f, -0.850651f}, {-0.442863f, 0.238856f, -0.864188f}, 
-	{-0.295242f, 0.000000f, -0.955423f}, {-0.162460f, 0.262866f, -0.951056f}, 
-	{0.000000f, 0.000000f, -1.000000f}, {0.295242f, 0.000000f, -0.955423f}, 
-	{0.162460f, 0.262866f, -0.951056f}, {-0.442863f, -0.238856f, -0.864188f}, 
-	{-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f}, 
-	{0.000000f, -0.850651f, -0.525731f}, {-0.147621f, -0.716567f, -0.681718f}, 
-	{0.147621f, -0.716567f, -0.681718f}, {0.000000f, -0.525731f, -0.850651f}, 
-	{0.309017f, -0.500000f, -0.809017f}, {0.442863f, -0.238856f, -0.864188f}, 
-	{0.162460f, -0.262866f, -0.951056f}, {0.238856f, -0.864188f, -0.442863f}, 
-	{0.500000f, -0.809017f, -0.309017f}, {0.425325f, -0.688191f, -0.587785f}, 
-	{0.716567f, -0.681718f, -0.147621f}, {0.688191f, -0.587785f, -0.425325f}, 
-	{0.587785f, -0.425325f, -0.688191f}, {0.000000f, -0.955423f, -0.295242f}, 
-	{0.000000f, -1.000000f, 0.000000f}, {0.262866f, -0.951056f, -0.162460f}, 
-	{0.000000f, -0.850651f, 0.525731f}, {0.000000f, -0.955423f, 0.295242f}, 
-	{0.238856f, -0.864188f, 0.442863f}, {0.262866f, -0.951056f, 0.162460f}, 
-	{0.500000f, -0.809017f, 0.309017f}, {0.716567f, -0.681718f, 0.147621f}, 
-	{0.525731f, -0.850651f, 0.000000f}, {-0.238856f, -0.864188f, -0.442863f}, 
-	{-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f}, 
-	{-0.850651f, -0.525731f, 0.000000f}, {-0.716567f, -0.681718f, -0.147621f}, 
-	{-0.716567f, -0.681718f, 0.147621f}, {-0.525731f, -0.850651f, 0.000000f}, 
-	{-0.500000f, -0.809017f, 0.309017f}, {-0.238856f, -0.864188f, 0.442863f}, 
-	{-0.262866f, -0.951056f, 0.162460f}, {-0.864188f, -0.442863f, 0.238856f}, 
-	{-0.809017f, -0.309017f, 0.500000f}, {-0.688191f, -0.587785f, 0.425325f}, 
-	{-0.681718f, -0.147621f, 0.716567f}, {-0.442863f, -0.238856f, 0.864188f}, 
-	{-0.587785f, -0.425325f, 0.688191f}, {-0.309017f, -0.500000f, 0.809017f}, 
-	{-0.147621f, -0.716567f, 0.681718f}, {-0.425325f, -0.688191f, 0.587785f}, 
-	{-0.162460f, -0.262866f, 0.951056f}, {0.442863f, -0.238856f, 0.864188f}, 
-	{0.162460f, -0.262866f, 0.951056f}, {0.309017f, -0.500000f, 0.809017f}, 
-	{0.147621f, -0.716567f, 0.681718f}, {0.000000f, -0.525731f, 0.850651f}, 
-	{0.425325f, -0.688191f, 0.587785f}, {0.587785f, -0.425325f, 0.688191f}, 
-	{0.688191f, -0.587785f, 0.425325f}, {-0.955423f, 0.295242f, 0.000000f}, 
-	{-0.951056f, 0.162460f, 0.262866f}, {-1.000000f, 0.000000f, 0.000000f}, 
-	{-0.850651f, 0.000000f, 0.525731f}, {-0.955423f, -0.295242f, 0.000000f}, 
-	{-0.951056f, -0.162460f, 0.262866f}, {-0.864188f, 0.442863f, -0.238856f}, 
-	{-0.951056f, 0.162460f, -0.262866f}, {-0.809017f, 0.309017f, -0.500000f}, 
-	{-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f}, 
-	{-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f}, 
-	{-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f}, 
-	{-0.688191f, 0.587785f, -0.425325f}, {-0.587785f, 0.425325f, -0.688191f}, 
-	{-0.425325f, 0.688191f, -0.587785f}, {-0.425325f, -0.688191f, -0.587785f}, 
+	{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f},
+	{-0.295242f, 0.000000f, 0.955423f}, {-0.309017f, 0.500000f, 0.809017f},
+	{-0.162460f, 0.262866f, 0.951056f}, {0.000000f, 0.000000f, 1.000000f},
+	{0.000000f, 0.850651f, 0.525731f}, {-0.147621f, 0.716567f, 0.681718f},
+	{0.147621f, 0.716567f, 0.681718f}, {0.000000f, 0.525731f, 0.850651f},
+	{0.309017f, 0.500000f, 0.809017f}, {0.525731f, 0.000000f, 0.850651f},
+	{0.295242f, 0.000000f, 0.955423f}, {0.442863f, 0.238856f, 0.864188f},
+	{0.162460f, 0.262866f, 0.951056f}, {-0.681718f, 0.147621f, 0.716567f},
+	{-0.809017f, 0.309017f, 0.500000f},{-0.587785f, 0.425325f, 0.688191f},
+	{-0.850651f, 0.525731f, 0.000000f},{-0.864188f, 0.442863f, 0.238856f},
+	{-0.716567f, 0.681718f, 0.147621f},{-0.688191f, 0.587785f, 0.425325f},
+	{-0.500000f, 0.809017f, 0.309017f}, {-0.238856f, 0.864188f, 0.442863f},
+	{-0.425325f, 0.688191f, 0.587785f}, {-0.716567f, 0.681718f, -0.147621f},
+	{-0.500000f, 0.809017f, -0.309017f}, {-0.525731f, 0.850651f, 0.000000f},
+	{0.000000f, 0.850651f, -0.525731f}, {-0.238856f, 0.864188f, -0.442863f},
+	{0.000000f, 0.955423f, -0.295242f}, {-0.262866f, 0.951056f, -0.162460f},
+	{0.000000f, 1.000000f, 0.000000f}, {0.000000f, 0.955423f, 0.295242f},
+	{-0.262866f, 0.951056f, 0.162460f}, {0.238856f, 0.864188f, 0.442863f},
+	{0.262866f, 0.951056f, 0.162460f}, {0.500000f, 0.809017f, 0.309017f},
+	{0.238856f, 0.864188f, -0.442863f},{0.262866f, 0.951056f, -0.162460f},
+	{0.500000f, 0.809017f, -0.309017f},{0.850651f, 0.525731f, 0.000000f},
+	{0.716567f, 0.681718f, 0.147621f}, {0.716567f, 0.681718f, -0.147621f},
+	{0.525731f, 0.850651f, 0.000000f}, {0.425325f, 0.688191f, 0.587785f},
+	{0.864188f, 0.442863f, 0.238856f}, {0.688191f, 0.587785f, 0.425325f},
+	{0.809017f, 0.309017f, 0.500000f}, {0.681718f, 0.147621f, 0.716567f},
+	{0.587785f, 0.425325f, 0.688191f}, {0.955423f, 0.295242f, 0.000000f},
+	{1.000000f, 0.000000f, 0.000000f}, {0.951056f, 0.162460f, 0.262866f},
+	{0.850651f, -0.525731f, 0.000000f},{0.955423f, -0.295242f, 0.000000f},
+	{0.864188f, -0.442863f, 0.238856f}, {0.951056f, -0.162460f, 0.262866f},
+	{0.809017f, -0.309017f, 0.500000f}, {0.681718f, -0.147621f, 0.716567f},
+	{0.850651f, 0.000000f, 0.525731f}, {0.864188f, 0.442863f, -0.238856f},
+	{0.809017f, 0.309017f, -0.500000f}, {0.951056f, 0.162460f, -0.262866f},
+	{0.525731f, 0.000000f, -0.850651f}, {0.681718f, 0.147621f, -0.716567f},
+	{0.681718f, -0.147621f, -0.716567f},{0.850651f, 0.000000f, -0.525731f},
+	{0.809017f, -0.309017f, -0.500000f}, {0.864188f, -0.442863f, -0.238856f},
+	{0.951056f, -0.162460f, -0.262866f}, {0.147621f, 0.716567f, -0.681718f},
+	{0.309017f, 0.500000f, -0.809017f}, {0.425325f, 0.688191f, -0.587785f},
+	{0.442863f, 0.238856f, -0.864188f}, {0.587785f, 0.425325f, -0.688191f},
+	{0.688191f, 0.587785f, -0.425325f}, {-0.147621f, 0.716567f, -0.681718f},
+	{-0.309017f, 0.500000f, -0.809017f}, {0.000000f, 0.525731f, -0.850651f},
+	{-0.525731f, 0.000000f, -0.850651f}, {-0.442863f, 0.238856f, -0.864188f},
+	{-0.295242f, 0.000000f, -0.955423f}, {-0.162460f, 0.262866f, -0.951056f},
+	{0.000000f, 0.000000f, -1.000000f}, {0.295242f, 0.000000f, -0.955423f},
+	{0.162460f, 0.262866f, -0.951056f}, {-0.442863f, -0.238856f, -0.864188f},
+	{-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f},
+	{0.000000f, -0.850651f, -0.525731f}, {-0.147621f, -0.716567f, -0.681718f},
+	{0.147621f, -0.716567f, -0.681718f}, {0.000000f, -0.525731f, -0.850651f},
+	{0.309017f, -0.500000f, -0.809017f}, {0.442863f, -0.238856f, -0.864188f},
+	{0.162460f, -0.262866f, -0.951056f}, {0.238856f, -0.864188f, -0.442863f},
+	{0.500000f, -0.809017f, -0.309017f}, {0.425325f, -0.688191f, -0.587785f},
+	{0.716567f, -0.681718f, -0.147621f}, {0.688191f, -0.587785f, -0.425325f},
+	{0.587785f, -0.425325f, -0.688191f}, {0.000000f, -0.955423f, -0.295242f},
+	{0.000000f, -1.000000f, 0.000000f}, {0.262866f, -0.951056f, -0.162460f},
+	{0.000000f, -0.850651f, 0.525731f}, {0.000000f, -0.955423f, 0.295242f},
+	{0.238856f, -0.864188f, 0.442863f}, {0.262866f, -0.951056f, 0.162460f},
+	{0.500000f, -0.809017f, 0.309017f}, {0.716567f, -0.681718f, 0.147621f},
+	{0.525731f, -0.850651f, 0.000000f}, {-0.238856f, -0.864188f, -0.442863f},
+	{-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f},
+	{-0.850651f, -0.525731f, 0.000000f}, {-0.716567f, -0.681718f, -0.147621f},
+	{-0.716567f, -0.681718f, 0.147621f}, {-0.525731f, -0.850651f, 0.000000f},
+	{-0.500000f, -0.809017f, 0.309017f}, {-0.238856f, -0.864188f, 0.442863f},
+	{-0.262866f, -0.951056f, 0.162460f}, {-0.864188f, -0.442863f, 0.238856f},
+	{-0.809017f, -0.309017f, 0.500000f}, {-0.688191f, -0.587785f, 0.425325f},
+	{-0.681718f, -0.147621f, 0.716567f}, {-0.442863f, -0.238856f, 0.864188f},
+	{-0.587785f, -0.425325f, 0.688191f}, {-0.309017f, -0.500000f, 0.809017f},
+	{-0.147621f, -0.716567f, 0.681718f}, {-0.425325f, -0.688191f, 0.587785f},
+	{-0.162460f, -0.262866f, 0.951056f}, {0.442863f, -0.238856f, 0.864188f},
+	{0.162460f, -0.262866f, 0.951056f}, {0.309017f, -0.500000f, 0.809017f},
+	{0.147621f, -0.716567f, 0.681718f}, {0.000000f, -0.525731f, 0.850651f},
+	{0.425325f, -0.688191f, 0.587785f}, {0.587785f, -0.425325f, 0.688191f},
+	{0.688191f, -0.587785f, 0.425325f}, {-0.955423f, 0.295242f, 0.000000f},
+	{-0.951056f, 0.162460f, 0.262866f}, {-1.000000f, 0.000000f, 0.000000f},
+	{-0.850651f, 0.000000f, 0.525731f}, {-0.955423f, -0.295242f, 0.000000f},
+	{-0.951056f, -0.162460f, 0.262866f}, {-0.864188f, 0.442863f, -0.238856f},
+	{-0.951056f, 0.162460f, -0.262866f}, {-0.809017f, 0.309017f, -0.500000f},
+	{-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f},
+	{-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f},
+	{-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f},
+	{-0.688191f, 0.587785f, -0.425325f}, {-0.587785f, 0.425325f, -0.688191f},
+	{-0.425325f, 0.688191f, -0.587785f}, {-0.425325f, -0.688191f, -0.587785f},
 	{-0.587785f, -0.425325f, -0.688191f}, {-0.688191f, -0.587785f, -0.425325f}
 };
 // *INDENT-ON*
@@ -522,7 +523,7 @@ RotateAroundDirection
 void RotateAroundDirection(vec3_t axis[3], float yaw)
 {
 
-	// create an arbitrary axis[1] 
+	// create an arbitrary axis[1]
 	PerpendicularVector(axis[1], axis[0]);
 
 	// rotate it around axis[0] by yaw
@@ -637,6 +638,68 @@ void vectoangles(const vec3_t value1, vec3_t angles)
 	angles[ROLL] = 0;
 }
 
+/*
+=================
+AxisToAngles
+
+Takes an axis (forward + right + up)
+and returns angles -- including a roll
+=================
+*/
+void AxisToAngles(vec3_t axis[3], vec3_t angles)
+{
+	float           length1;
+	float           yaw, pitch, roll = 0.0f;
+
+	if(axis[0][1] == 0 && axis[0][0] == 0)
+	{
+		yaw = 0;
+		if(axis[0][2] > 0)
+		{
+			pitch = 90;
+		}
+		else
+		{
+			pitch = 270;
+		}
+	}
+	else
+	{
+		if(axis[0][0])
+		{
+			yaw = (atan2(axis[0][1], axis[0][0]) * 180 / M_PI);
+		}
+		else if(axis[0][1] > 0)
+		{
+			yaw = 90;
+		}
+		else
+		{
+			yaw = 270;
+		}
+		if(yaw < 0)
+		{
+			yaw += 360;
+		}
+
+		length1 = sqrt(axis[0][0] * axis[0][0] + axis[0][1] * axis[0][1]);
+		pitch = (atan2(axis[0][2], length1) * 180 / M_PI);
+		if(pitch < 0)
+		{
+			pitch += 360;
+		}
+
+		roll = (atan2(axis[1][2], axis[2][2]) * 180 / M_PI);
+		if(roll < 0)
+		{
+			roll += 360;
+		}
+	}
+
+	angles[PITCH] = -pitch;
+	angles[YAW] = yaw;
+	angles[ROLL] = roll;
+}
 
 /*
 =================
@@ -1006,11 +1069,11 @@ __declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplan
 	__asm {
 
 		push ebx
-			
+
 		cmp bops_initialized, 1
 		je  initialized
 		mov bops_initialized, 1
-		
+
 		mov Ljmptab[0*4], offset Lcase0
 		mov Ljmptab[1*4], offset Lcase1
 		mov Ljmptab[2*4], offset Lcase2
@@ -1019,7 +1082,7 @@ __declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplan
 		mov Ljmptab[5*4], offset Lcase5
 		mov Ljmptab[6*4], offset Lcase6
 		mov Ljmptab[7*4], offset Lcase7
-			
+
 initialized:
 
 		mov edx,dword ptr[4+12+esp]
@@ -1365,7 +1428,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -1513,6 +1576,18 @@ void AxisMultiply(axis_t in1, axis_t in2, axis_t out)
 	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
 }
 
+/*
+================
+VectorAxisMultiply
+================
+*/
+void VectorAxisMultiply(const vec3_t p, vec3_t m[3], vec3_t out)
+{
+	out[0] = m[0][0] * p[0] + m[1][0] * p[1] + m[2][0] * p[2];
+	out[1] = m[0][1] * p[0] + m[1][1] * p[1] + m[2][1] * p[2];
+	out[2] = m[0][2] * p[0] + m[1][2] * p[1] + m[2][2] * p[2];
+}
+
 
 void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 {
@@ -1609,6 +1684,226 @@ void PerpendicularVector(vec3_t dst, const vec3_t src)
 	}
 }
 
+/*
+=================
+pointToLineDistance
+
+Distance from a point to some line
+=================
+*/
+float pointToLineDistance(const vec3_t p0, const vec3_t p1, const vec3_t p2)
+{
+	vec3_t          v, w, y;
+	float           c1, c2;
+
+	VectorSubtract(p2, p1, v);
+	VectorSubtract(p1, p0, w);
+
+	CrossProduct(w, v, y);
+	c1 = VectorLength(y);
+	c2 = VectorLength(v);
+
+	if(c2 == 0.0f)
+		return 0.0f;
+	else
+		return c1 / c2;
+}
+
+/*
+=================
+GetPerpendicularViewVector
+
+Used to find an "up" vector for drawing a sprite so that it always faces the view as best as possible
+=================
+*/
+void GetPerpendicularViewVector(const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up)
+{
+	vec3_t          v1, v2;
+
+	VectorSubtract(point, p1, v1);
+	VectorNormalize(v1);
+
+	VectorSubtract(point, p2, v2);
+	VectorNormalize(v2);
+
+	CrossProduct(v1, v2, up);
+	VectorNormalize(up);
+}
+
+/*
+================
+ProjectPointOntoVector
+================
+*/
+void ProjectPointOntoVector(vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj)
+{
+	vec3_t          pVec, vec;
+
+	VectorSubtract(point, vStart, pVec);
+	VectorSubtract(vEnd, vStart, vec);
+	VectorNormalize(vec);
+	// project onto the directional vector for this segment
+	VectorMA(vStart, DotProduct(pVec, vec), vec, vProj);
+}
+
+/*
+================
+VectorMaxComponent
+
+Return the biggest component of some vector
+================
+*/
+float VectorMaxComponent(vec3_t v)
+{
+	float           biggest = v[0];
+
+	if(v[1] > biggest)
+		biggest = v[1];
+
+	if(v[2] > biggest)
+		biggest = v[2];
+
+	return biggest;
+}
+
+/*
+================
+VectorMinComponent
+
+Return the smallest component of some vector
+================
+*/
+float VectorMinComponent(vec3_t v)
+{
+	float           smallest = v[0];
+
+	if(v[1] < smallest)
+		smallest = v[1];
+
+	if(v[2] < smallest)
+		smallest = v[2];
+
+	return smallest;
+}
+
+
+#define LINE_DISTANCE_EPSILON 1e-05f
+
+/*
+================
+DistanceBetweenLineSegmentsSquared
+
+Return the smallest distance between two line segments, squared
+================
+*/
+vec_t DistanceBetweenLineSegmentsSquared(const vec3_t sP0, const vec3_t sP1,
+										 const vec3_t tP0, const vec3_t tP1, float *s, float *t)
+{
+	vec3_t          sMag, tMag, diff;
+	float           a, b, c, d, e;
+	float           D;
+	float           sN, sD;
+	float           tN, tD;
+	vec3_t          separation;
+
+	VectorSubtract(sP1, sP0, sMag);
+	VectorSubtract(tP1, tP0, tMag);
+	VectorSubtract(sP0, tP0, diff);
+	a = DotProduct(sMag, sMag);
+	b = DotProduct(sMag, tMag);
+	c = DotProduct(tMag, tMag);
+	d = DotProduct(sMag, diff);
+	e = DotProduct(tMag, diff);
+	sD = tD = D = a * c - b * b;
+
+	if(D < LINE_DISTANCE_EPSILON)
+	{
+		// the lines are almost parallel
+		sN = 0.0;				// force using point P0 on segment S1
+		sD = 1.0;				// to prevent possible division by 0.0 later
+		tN = e;
+		tD = c;
+	}
+	else
+	{
+		// get the closest points on the infinite lines
+		sN = (b * e - c * d);
+		tN = (a * e - b * d);
+
+		if(sN < 0.0)
+		{
+			// sN < 0 => the s=0 edge is visible
+			sN = 0.0;
+			tN = e;
+			tD = c;
+		}
+		else if(sN > sD)
+		{
+			// sN > sD => the s=1 edge is visible
+			sN = sD;
+			tN = e + b;
+			tD = c;
+		}
+	}
+
+	if(tN < 0.0)
+	{
+		// tN < 0 => the t=0 edge is visible
+		tN = 0.0;
+
+		// recompute sN for this edge
+		if(-d < 0.0)
+			sN = 0.0;
+		else if(-d > a)
+			sN = sD;
+		else
+		{
+			sN = -d;
+			sD = a;
+		}
+	}
+	else if(tN > tD)
+	{
+		// tN > tD => the t=1 edge is visible
+		tN = tD;
+
+		// recompute sN for this edge
+		if((-d + b) < 0.0)
+			sN = 0;
+		else if((-d + b) > a)
+			sN = sD;
+		else
+		{
+			sN = (-d + b);
+			sD = a;
+		}
+	}
+
+	// finally do the division to get *s and *t
+	*s = (fabs(sN) < LINE_DISTANCE_EPSILON ? 0.0 : sN / sD);
+	*t = (fabs(tN) < LINE_DISTANCE_EPSILON ? 0.0 : tN / tD);
+
+	// get the difference of the two closest points
+	VectorScale(sMag, *s, sMag);
+	VectorScale(tMag, *t, tMag);
+	VectorAdd(diff, sMag, separation);
+	VectorSubtract(separation, tMag, separation);
+
+	return VectorLengthSquared(separation);
+}
+
+/*
+================
+DistanceBetweenLineSegments
+
+Return the smallest distance between two line segments
+================
+*/
+vec_t DistanceBetweenLineSegments(const vec3_t sP0, const vec3_t sP1, const vec3_t tP0, const vec3_t tP1, float *s, float *t)
+{
+	return (vec_t) sqrt(DistanceBetweenLineSegmentsSquared(sP0, sP1, tP0, tP1, s, t));
+}
+
 // *INDENT-OFF*
 void MatrixIdentity(matrix_t m)
 {
@@ -1695,29 +1990,29 @@ void MatrixTransposeIntoXMM(const matrix_t m)
         // load transpose into XMM registers
         "movlps         (%%eax),        %%xmm4\n"               // m[0][0]                      | m[0][1]               | -                     | -
         "movhps         16(%%eax),      %%xmm4\n"               // m[0][0]                      | m[0][1]               | m[1][0]               | m[1][1]
-        
+
         "movlps         32(%%eax),      %%xmm3\n"               // m[2][0]                      | m[2][1]               | -                     | -
         "movhps         48(%%eax),      %%xmm3\n"               // m[2][0]                      | m[2][1]               | m[3][0]               | m[3][1]
-        
+
         "movups         %%xmm4,         %%xmm5\n"               // m[0][0]                      | m[0][1]               | m[1][0]               | m[1][1]
-        
+
         // 0x88 = 10 00 | 10 00 <-> 00 10 | 00 10          xmm4[00]                       xmm4[10]                xmm3[00]                xmm3[10]
         "shufps         $0x88, %%xmm3,  %%xmm4\n"       // m[0][0]                      | m[1][0]               | m[2][0]               | m[3][0]
-        
+
         // 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11          xmm5[01]                       xmm5[11]                xmm3[01]                xmm3[11]
         "shufps         $0xDD, %%xmm3,  %%xmm5\n"       // m[0][1]                      | m[1][1]               | m[2][1]               | m[3][1]
-        
+
         "movlps         8(%%eax),       %%xmm6\n"               // m[0][2]                      | m[0][3]               | -                     | -
         "movhps         24(%%eax),      %%xmm6\n"               // m[0][2]                      | m[0][3]               | m[1][2]               | m[1][3]
-        
+
         "movlps         40(%%eax),      %%xmm3\n"               // m[2][2]                      | m[2][3]               | -                     | -
         "movhps         56(%%eax),      %%xmm3\n"               // m[2][2]                      | m[2][3]               | m[3][2]               | m[3][3]
-        
+
         "movups         %%xmm6,         %%xmm7\n"               // m[0][2]                      | m[0][3]               | m[1][2]               | m[1][3]
-        
+
         // 0x88 = 10 00 | 10 00 <-> 00 10 | 00 10          xmm6[00]                       xmm6[10]                xmm3[00]                xmm3[10]
         "shufps         $0x88, %%xmm3,  %%xmm6\n"       // m[0][2]                      | m[1][2]               | m[2][2]               | m[3][2]
-        
+
         // 0xDD = 11 01 | 11 01 <-> 01 11 | 01 11          xmm7[01]                       xmm7[11]                xmm3[01]                xmm3[11]
         "shufps         $0xDD, %%xmm3,  %%xmm7\n"       // m[0][3]                      | m[1][3]               | m[2][3]               | m[3][3]
 	:
@@ -1732,7 +2027,7 @@ void MatrixTranspose(const matrix_t in, matrix_t out)
 #if id386_sse && defined __GNUC__ && 0
         // transpose the matrix into the xmm4-7
         MatrixTransposeIntoXMM(in);
-        
+
         asm volatile
 				(
 				"movups         %%xmm4,         (%%eax)\n"
@@ -1756,32 +2051,32 @@ void MatrixTranspose(const matrix_t in, matrix_t out)
 static float m3_det( matrix3x3_t mat )
 {
   float det;
-  
+
   det = mat[0] * ( mat[4]*mat[8] - mat[7]*mat[5] )
     - mat[1] * ( mat[3]*mat[8] - mat[6]*mat[5] )
     + mat[2] * ( mat[3]*mat[7] - mat[6]*mat[4] );
-  
+
   return( det );
 }
 
 static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
 {
   float det = m3_det( ma );
- 
+
   if (det == 0 )
   {
     return 1;
   }
 
-  
+
   mr[0] =    ma[4]*ma[8] - ma[5]*ma[7]   / det;
   mr[1] = -( ma[1]*ma[8] - ma[7]*ma[2] ) / det;
   mr[2] =    ma[1]*ma[5] - ma[4]*ma[2]   / det;
-  
+
   mr[3] = -( ma[3]*ma[8] - ma[5]*ma[6] ) / det;
   mr[4] =    ma[0]*ma[8] - ma[6]*ma[2]   / det;
   mr[5] = -( ma[0]*ma[5] - ma[3]*ma[2] ) / det;
-  
+
   mr[6] =    ma[3]*ma[7] - ma[6]*ma[4]   / det;
   mr[7] = -( ma[0]*ma[7] - ma[6]*ma[1] ) / det;
   mr[8] =    ma[0]*ma[4] - ma[1]*ma[3]   / det;
@@ -1792,7 +2087,7 @@ static int m3_inverse( matrix3x3_t mr, matrix3x3_t ma )
 static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
 {
   int ti, tj, idst = 0, jdst = 0;
-  
+
   for ( ti = 0; ti < 4; ti++ )
   {
     if ( ti < i )
@@ -1800,7 +2095,7 @@ static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
     else
       if ( ti > i )
         idst = ti-1;
-      
+
       for ( tj = 0; tj < 4; tj++ )
       {
         if ( tj < j )
@@ -1808,7 +2103,7 @@ static void m4_submat( matrix_t mr, matrix3x3_t mb, int i, int j )
         else
           if ( tj > j )
             jdst = tj-1;
-          
+
           if ( ti != i && tj != j )
             mb[idst*3 + jdst] = mr[ti*4 + tj ];
       }
@@ -1820,15 +2115,15 @@ static float m4_det( matrix_t mr )
   float  det, result = 0, i = 1;
   matrix3x3_t msub3;
   int     n;
-  
+
   for ( n = 0; n < 4; n++, i *= -1 )
   {
     m4_submat( mr, msub3, 0, n );
-    
+
     det     = m3_det( msub3 );
     result += mr[n] * det * i;
   }
-  
+
   return result;
 }
 
@@ -1838,32 +2133,32 @@ qboolean MatrixInverse(matrix_t matrix)
   matrix3x3_t mtemp;
   int     i, j, sign;
   matrix_t m4x4_temp;
-  
+
 #if 0
   if ( fabs( mdet ) < 0.0000000001 )
     return qtrue;
 #endif
 
   MatrixCopy(matrix, m4x4_temp);
-  
+
   for ( i = 0; i < 4; i++ )
     for ( j = 0; j < 4; j++ )
     {
       sign = 1 - ( (i +j) % 2 ) * 2;
-      
+
       m4_submat( m4x4_temp, mtemp, i, j );
-      
+
 	  // FIXME: try using * inverse det and see if speed/accuracy are good enough
-      matrix[i+j*4] = ( m3_det( mtemp ) * sign ) / mdet; 
+      matrix[i+j*4] = ( m3_det( mtemp ) * sign ) / mdet;
     }
-    
+
   return qfalse;
 }
 
 void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
-	
+
 	m[ 0] = 1;      m[ 4] = 0;              m[ 8] = 0;              m[12] = 0;
 	m[ 1] = 0;      m[ 5] = cos(a);         m[ 9] =-sin(a);         m[13] = 0;
 	m[ 2] = 0;      m[ 6] = sin(a);         m[10] = cos(a);         m[14] = 0;
@@ -1873,7 +2168,7 @@ void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
-	
+
 	m[ 0] = cos(a);         m[ 4] = 0;      m[ 8] = sin(a);         m[12] = 0;
 	m[ 1] = 0;              m[ 5] = 1;      m[ 9] = 0;              m[13] = 0;
 	m[ 2] =-sin(a);         m[ 6] = 0;      m[10] = cos(a);         m[14] = 0;
@@ -1883,7 +2178,7 @@ void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 void MatrixSetupZRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
-	
+
 	m[ 0] = cos(a);         m[ 4] =-sin(a);         m[ 8] = 0;      m[12] = 0;
 	m[ 1] = sin(a);         m[ 5] = cos(a);         m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;              m[ 6] = 0;              m[10] = 1;      m[14] = 0;
@@ -1933,36 +2228,36 @@ void MatrixMultiply(const matrix_t a, const matrix_t b, matrix_t out)
 
 		_t1 = _mm_load1_ps(&b[i * 4 + 1]);
 		_t1 = _mm_mul_ps(_t5, _t1);
-		
+
 		_t2 = _mm_load1_ps(&b[i * 4 + 2]);
 		_t2 = _mm_mul_ps(_t6, _t2);
-		
+
 		_t3 = _mm_load1_ps(&b[i * 4 + 3]);
 		_t3 = _mm_mul_ps(_t7, _t3);
-	
+
 		_t1 = _mm_add_ps(_t0, _t1);
 		_t2 = _mm_add_ps(_t1, _t2);
 		_t3 = _mm_add_ps(_t2, _t3);
 
 		_mm_storeu_ps(&out[i * 4], _t3);
 	}
-	
+
 #else
         out[ 0] = b[ 0]*a[ 0] + b[ 1]*a[ 4] + b[ 2]*a[ 8] + b[ 3]*a[12];
         out[ 1] = b[ 0]*a[ 1] + b[ 1]*a[ 5] + b[ 2]*a[ 9] + b[ 3]*a[13];
 		out[ 2] = b[ 0]*a[ 2] + b[ 1]*a[ 6] + b[ 2]*a[10] + b[ 3]*a[14];
 		out[ 3] = b[ 0]*a[ 3] + b[ 1]*a[ 7] + b[ 2]*a[11] + b[ 3]*a[15];
-        
+
 		out[ 4] = b[ 4]*a[ 0] + b[ 5]*a[ 4] + b[ 6]*a[ 8] + b[ 7]*a[12];
 		out[ 5] = b[ 4]*a[ 1] + b[ 5]*a[ 5] + b[ 6]*a[ 9] + b[ 7]*a[13];
 		out[ 6] = b[ 4]*a[ 2] + b[ 5]*a[ 6] + b[ 6]*a[10] + b[ 7]*a[14];
 		out[ 7] = b[ 4]*a[ 3] + b[ 5]*a[ 7] + b[ 6]*a[11] + b[ 7]*a[15];
-        
+
 		out[ 8] = b[ 8]*a[ 0] + b[ 9]*a[ 4] + b[10]*a[ 8] + b[11]*a[12];
 		out[ 9] = b[ 8]*a[ 1] + b[ 9]*a[ 5] + b[10]*a[ 9] + b[11]*a[13];
 		out[10] = b[ 8]*a[ 2] + b[ 9]*a[ 6] + b[10]*a[10] + b[11]*a[14];
 		out[11] = b[ 8]*a[ 3] + b[ 9]*a[ 7] + b[10]*a[11] + b[11]*a[15];
-        
+
 		out[12] = b[12]*a[ 0] + b[13]*a[ 4] + b[14]*a[ 8] + b[15]*a[12];
 		out[13] = b[12]*a[ 1] + b[13]*a[ 5] + b[14]*a[ 9] + b[15]*a[13];
 		out[14] = b[12]*a[ 2] + b[13]*a[ 6] + b[14]*a[10] + b[15]*a[14];
@@ -2076,7 +2371,7 @@ void MatrixToAngles(const matrix_t m, vec3_t angles)
 #else
 	double          a;
 	double          ca;
-	
+
 	a = asin(-m[2]);
 	ca = cos(a);
 
@@ -2110,7 +2405,7 @@ void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 
 	sr = sin(DEG2RAD(roll));
 	cr = cos(DEG2RAD(roll));
-	
+
 	m[ 0] = cp*cy;  m[ 4] = (sr*sp*cy+cr*-sy);      m[ 8] = (cr*sp*cy+-sr*-sy);     m[12] = 0;
 	m[ 1] = cp*sy;  m[ 5] = (sr*sp*sy+cr*cy);       m[ 9] = (cr*sp*sy+-sr*cy);      m[13] = 0;
 	m[ 2] = -sp;    m[ 6] = sr*cp;                  m[10] = cr*cp;                  m[14] = 0;
@@ -2134,32 +2429,32 @@ void MatrixFromVectorsFRU(matrix_t m, const vec3_t forward, const vec3_t right, 
 }
 
 void MatrixFromQuat(matrix_t m, const quat_t q)
-{	
+{
 #if 1
 	/*
 	From Quaternion to Matrix and Back
 	February 27th 2005
 	J.M.P. van Waveren
-	
+
 	http://www.intel.com/cd/ids/developer/asmo-na/eng/293748.htm
 	*/
 	float			x2, y2, z2, w2;
 	float			yy2, xy2;
 	float			xz2, yz2, zz2;
 	float			wz2, wy2, wx2, xx2;
-	
+
 	x2 = q[0] + q[0];
 	y2 = q[1] + q[1];
 	z2 = q[2] + q[2];
 	w2 = q[3] + q[3];
-	
+
 	yy2 = q[1] * y2;
 	xy2 = q[0] * y2;
-	
+
 	xz2 = q[0] * z2;
 	yz2 = q[1] * z2;
 	zz2 = q[2] * z2;
-	
+
 	wz2 = q[3] * z2;
 	wy2 = q[3] * y2;
 	wx2 = q[3] * x2;
@@ -2168,15 +2463,15 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 	m[ 0] = - yy2 - zz2 + 1.0f;
 	m[ 1] =   xy2 + wz2;
 	m[ 2] =   xz2 - wy2;
-	
+
 	m[ 4] =   xy2 - wz2;
 	m[ 5] = - xx2 - zz2 + 1.0f;
 	m[ 6] =   yz2 + wx2;
-	
+
 	m[ 8] =   xz2 + wy2;
 	m[ 9] =   yz2 - wx2;
 	m[10] = - xx2 - yy2 + 1.0f;
-	
+
 	m[ 3] = m[ 7] = m[11] = m[12] = m[13] = m[14] = 0;
     m[15] = 1;
 
@@ -2184,11 +2479,11 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
 	/*
 	http://www.gamedev.net/reference/articles/article1691.asp#Q54
 	Q54. How do I convert a quaternion to a rotation matrix?
-	
+
 	Assuming that a quaternion has been created in the form:
 
     Q = |X Y Z W|
-    
+
     Then the quaternion can then be converted into a 4x4 rotation
     matrix using the following expression (Warning: you might have to
     transpose this matrix if you (do not) follow the OpenGL order!):
@@ -2203,7 +2498,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
          ? 2XZ - 2YW         2YZ + 2XW         1 - (2X  + 2Y ) ?
          ?                                                     ?
 	*/
-	
+
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
 
 	float			xx, xy, xz, xw, yy, yz, yw, zz, zw;
@@ -2217,7 +2512,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
     yw = q[1] * q[3];
     zz = q[2] * q[2];
     zw = q[2] * q[3];
-    
+
     m[ 0] = 1 - 2 * ( yy + zz );
     m[ 1] =     2 * ( xy + zw );
     m[ 2] =     2 * ( xz - yw );
@@ -2227,7 +2522,7 @@ void MatrixFromQuat(matrix_t m, const quat_t q)
     m[ 8] =     2 * ( xz + yw );
     m[ 9] =     2 * ( yz - xw );
     m[10] = 1 - 2 * ( xx + yy );
-   
+
     m[ 3] = m[ 7] = m[11] = m[12] = m[13] = m[14] = 0;
     m[15] = 1;
 #endif
@@ -2261,14 +2556,14 @@ void MatrixToVectorsFLU(const matrix_t m, vec3_t forward, vec3_t left, vec3_t up
 		forward[1] = m[ 1];     // cp*sy;
 		forward[2] = m[ 2];     //-sp;
 	}
-     
+
     if(left)
-    {   
+    {
 		left[0] = m[ 4];        // sr*sp*cy+cr*-sy;
 		left[1] = m[ 5];        // sr*sp*sy+cr*cy;
 		left[2] = m[ 6];        // sr*cp;
     }
-	
+
 	if(up)
 	{
 		up[0] = m[ 8];  // cr*sp*cy+-sr*-sy;
@@ -2285,9 +2580,9 @@ void MatrixToVectorsFRU(const matrix_t m, vec3_t forward, vec3_t right, vec3_t u
 		forward[1] = m[ 1];
 		forward[2] = m[ 2];
 	}
-	
+
 	if(right)
-	{   
+	{
 		right[0] =-m[ 4];
 		right[1] =-m[ 5];
 		right[2] =-m[ 6];
@@ -2320,9 +2615,9 @@ void MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot, const vec3
 void MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t origin)
 {
 	matrix_t        rot;
-	
+
 	MatrixFromQuat(rot, quat);
-	
+
 	m[ 0] = rot[ 0];     m[ 4] = rot[ 4];        m[ 8] = rot[ 8];  m[12] = origin[0];
 	m[ 1] = rot[ 1];     m[ 5] = rot[ 5];        m[ 9] = rot[ 9];  m[13] = origin[1];
 	m[ 2] = rot[ 2];     m[ 6] = rot[ 6];        m[10] = rot[10];  m[14] = origin[2];
@@ -2331,7 +2626,7 @@ void MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t or
 
 void MatrixAffineInverse(const matrix_t in, matrix_t out)
 {
-#if 0 
+#if 0
 		MatrixCopy(in, out);
 		MatrixInverse(out);
 #else
@@ -2340,7 +2635,7 @@ void MatrixAffineInverse(const matrix_t in, matrix_t out)
         out[ 1] = in[ 4];       out[ 5] = in[ 5];       out[ 9] = in[ 6];
 		out[ 2] = in[ 8];       out[ 6] = in[ 9];       out[10] = in[10];
 		out[ 3] = 0;            out[ 7] = 0;            out[11] = 0;            out[15] = 1;
-        
+
 		out[12] = -( in[12] * out[ 0] + in[13] * out[ 4] + in[14] * out[ 8] );
 		out[13] = -( in[12] * out[ 1] + in[13] * out[ 5] + in[14] * out[ 9] );
 		out[14] = -( in[12] * out[ 2] + in[13] * out[ 6] + in[14] * out[10] );

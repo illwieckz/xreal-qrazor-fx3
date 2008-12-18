@@ -1,30 +1,27 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2006 Tim Angus
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
-This file is part of Tremulous.
+This file is part of XreaL source code.
 
-Tremulous is free software; you can redistribute it
+XreaL source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Tremulous is distributed in the hope that it will be
+XreaL source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
+along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+// ui_syscalls.c -- this file is only included when building a dll
 #include "ui_local.h"
-
-// this file is only included when building a dll
-// syscalls.asm is included instead when building a qvm
 
 static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
 
@@ -151,7 +148,26 @@ int trap_FS_Seek(fileHandle_t f, long offset, int origin)
 
 qhandle_t trap_R_RegisterModel(const char *name)
 {
-	return syscall(UI_R_REGISTERMODEL, name);
+	return syscall(UI_R_REGISTERMODEL, name, qfalse);
+}
+
+qhandle_t trap_R_RegisterAnimation(const char *name)
+{
+	return syscall(UI_R_REGISTERANIMATION, name);
+}
+
+int trap_R_AnimNumFrames(qhandle_t hAnim)
+{
+	return syscall(UI_R_ANIMNUMFRAMES, hAnim);
+}
+
+int trap_R_AnimFrameRate(qhandle_t hAnim)
+{
+	return syscall(UI_R_ANIMFRAMERATE, hAnim);
+}
+int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin)
+{
+	return syscall(UI_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac), clearOrigin);
 }
 
 qhandle_t trap_R_RegisterSkin(const char *name)
@@ -325,12 +341,12 @@ int trap_LAN_ServerStatus(const char *serverAddress, char *serverStatus, int max
 	return syscall(UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen);
 }
 
-void trap_LAN_SaveCachedServers(void)
+void trap_LAN_SaveCachedServers()
 {
 	syscall(UI_LAN_SAVECACHEDSERVERS);
 }
 
-void trap_LAN_LoadCachedServers(void)
+void trap_LAN_LoadCachedServers()
 {
 	syscall(UI_LAN_LOADCACHEDSERVERS);
 }
@@ -392,27 +408,27 @@ int trap_MemoryRemaining(void)
 
 int trap_PC_AddGlobalDefine(char *define)
 {
-	return syscall(UI_PARSE_ADD_GLOBAL_DEFINE, define);
+	return syscall(UI_PC_ADD_GLOBAL_DEFINE, define);
 }
 
 int trap_PC_LoadSource(const char *filename)
 {
-	return syscall(UI_PARSE_LOAD_SOURCE, filename);
+	return syscall(UI_PC_LOAD_SOURCE, filename);
 }
 
 int trap_PC_FreeSource(int handle)
 {
-	return syscall(UI_PARSE_FREE_SOURCE, handle);
+	return syscall(UI_PC_FREE_SOURCE, handle);
 }
 
 int trap_PC_ReadToken(int handle, pc_token_t * pc_token)
 {
-	return syscall(UI_PARSE_READ_TOKEN, handle, pc_token);
+	return syscall(UI_PC_READ_TOKEN, handle, pc_token);
 }
 
 int trap_PC_SourceFileAndLine(int handle, char *filename, int *line)
 {
-	return syscall(UI_PARSE_SOURCE_FILE_AND_LINE, handle, filename, line);
+	return syscall(UI_PC_SOURCE_FILE_AND_LINE, handle, filename, line);
 }
 
 void trap_S_StopBackgroundTrack(void)

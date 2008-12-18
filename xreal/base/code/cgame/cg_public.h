@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -72,7 +72,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	7
+#define	CGAME_IMPORT_API_VERSION	8
 
 typedef enum
 {
@@ -142,6 +142,11 @@ typedef enum
 	CG_KEY_GETCATCHER,
 	CG_KEY_SETCATCHER,
 	CG_KEY_GETKEY,
+	CG_PC_ADD_GLOBAL_DEFINE,
+	CG_PC_LOAD_SOURCE,
+	CG_PC_FREE_SOURCE,
+	CG_PC_READ_TOKEN,
+	CG_PC_SOURCE_FILE_AND_LINE,
 	CG_S_STOPBACKGROUNDTRACK,
 	CG_REAL_TIME,
 	CG_REMOVECOMMAND,
@@ -173,6 +178,17 @@ typedef enum
 	CG_R_BONEINDEX,
 	CG_R_ANIMNUMFRAMES,
 	CG_R_ANIMFRAMERATE,
+
+	CG_CM_BISPHERETRACE,
+	CG_CM_TRANSFORMEDBISPHERETRACE,
+	
+	CG_GETDEMOSTATE,
+	CG_GETDEMOPOS,
+	CG_GETDEMONAME,
+
+	CG_KEY_KEYNUMTOSTRINGBUF,
+	CG_KEY_GETBINDINGBUF,
+	CG_KEY_SETBINDING,
 
 	CG_MEMSET,
 	CG_MEMCPY,
@@ -235,8 +251,14 @@ typedef enum
 
 	CG_MOUSE_EVENT,
 //  void    (*CG_MouseEvent)( int dx, int dy );
-	CG_EVENT_HANDLING
+
+	CG_EVENT_HANDLING,
 //  void (*CG_EventHandling)(int type);
+
+	CG_CONSOLE_TEXT
+//	void (*CG_ConsoleText)( void );
+	// pass text that has been printed to the console to cgame
+	// use Cmd_Argc() / Cmd_Argv() to read it
 } cgameExport_t;
 
 //----------------------------------------------

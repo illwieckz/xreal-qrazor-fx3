@@ -187,13 +187,13 @@ static qboolean CG_ParseBuildableAnimationFile(const char *filename, buildable_t
 	for(i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++)
 	{
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!*token)
 			break;
 
 		animations[i].firstFrame = atoi(token);
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!*token)
 			break;
 
@@ -208,13 +208,13 @@ static qboolean CG_ParseBuildableAnimationFile(const char *filename, buildable_t
 			animations[i].reversed = qtrue;
 		}
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!*token)
 			break;
 
 		animations[i].loopFrames = atoi(token);
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!*token)
 			break;
 
@@ -277,13 +277,13 @@ static qboolean CG_ParseBuildableSoundFile(const char *filename, buildable_t bui
 	for(i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++)
 	{
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!*token)
 			break;
 
 		sounds[i].enabled = atoi(token);
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!*token)
 			break;
 

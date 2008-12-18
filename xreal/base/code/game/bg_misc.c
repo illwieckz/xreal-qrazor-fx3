@@ -1390,6 +1390,13 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 			result[2] -= 0.5 * tr->trAcceleration * deltaTime * deltaTime;
 			break;
+
+		case TR_BUOYANCY:
+			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
+			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+			result[2] += 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;	// FIXME: local gravity...
+			break;
+	
 		case TR_ACCELERATION:
 			// Tr3B: see http://code3arena.planetquake.gamespy.com/tutorials/tutorial38.shtml
 

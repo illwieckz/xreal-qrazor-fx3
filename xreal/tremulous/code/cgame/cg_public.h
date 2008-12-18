@@ -1,35 +1,38 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2006 Tim Angus
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
-This file is part of Tremulous.
+This file is part of XreaL source code.
 
-Tremulous is free software; you can redistribute it
+XreaL source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Tremulous is distributed in the hope that it will be
+XreaL source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
+along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 
-#define CMD_BACKUP      64
-#define CMD_MASK      (CMD_BACKUP - 1)
+//
+
+
+#define	CMD_BACKUP			64
+#define	CMD_MASK			(CMD_BACKUP - 1)
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
 // needs to be larger than PACKET_BACKUP
 
 
-#define MAX_ENTITIES_IN_SNAPSHOT  256
+#define	MAX_ENTITIES_IN_SNAPSHOT	512	// was 256 in vanilla Q3A
 
 // snapshots are a view of the server at a given time
 
@@ -62,6 +65,7 @@ enum
 	CGAME_EVENT_EDITHUD
 };
 
+
 /*
 ==================================================================
 
@@ -70,7 +74,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define CGAME_IMPORT_API_VERSION  4
+#define	CGAME_IMPORT_API_VERSION	8
 
 typedef enum
 {
@@ -88,6 +92,8 @@ typedef enum
 	CG_FS_READ,
 	CG_FS_WRITE,
 	CG_FS_FCLOSEFILE,
+	CG_FS_SEEK,
+	CG_FS_GETFILELIST,
 	CG_SENDCONSOLECOMMAND,
 	CG_ADDCOMMAND,
 	CG_SENDCLIENTCOMMAND,
@@ -145,7 +151,6 @@ typedef enum
 	CG_PC_SOURCE_FILE_AND_LINE,
 	CG_S_STOPBACKGROUNDTRACK,
 	CG_REAL_TIME,
-	CG_SNAPVECTOR,
 	CG_REMOVECOMMAND,
 	CG_R_LIGHTFORPOINT,
 	CG_CIN_PLAYCINEMATIC,
@@ -164,11 +169,21 @@ typedef enum
 	CG_GET_ENTITY_TOKEN,
 	CG_R_ADDPOLYSTOSCENE,
 	CG_R_INPVS,
-	CG_FS_SEEK,
-	CG_FS_GETFILELIST,
-	CG_LITERAL_ARGS,
+
+	// Tr3B - XreaL extensions
+	CG_R_REGISTERANIMATION,
+	CG_R_REGISTERSHADERLIGHTATTENUATION,
+	CG_R_ADDREFLIGHTSTOSCENE,
+	CG_R_RESETSKELETON,
+	CG_R_BUILDSKELETON,
+	CG_R_BLENDSKELETON,
+	CG_R_BONEINDEX,
+	CG_R_ANIMNUMFRAMES,
+	CG_R_ANIMFRAMERATE,
+
 	CG_CM_BISPHERETRACE,
 	CG_CM_TRANSFORMEDBISPHERETRACE,
+	
 	CG_GETDEMOSTATE,
 	CG_GETDEMOPOS,
 	CG_GETDEMONAME,
@@ -177,7 +192,7 @@ typedef enum
 	CG_KEY_GETBINDINGBUF,
 	CG_KEY_SETBINDING,
 
-	CG_MEMSET = 200,
+	CG_MEMSET,
 	CG_MEMCPY,
 	CG_STRNCPY,
 	CG_SIN,
@@ -186,7 +201,6 @@ typedef enum
 	CG_SQRT,
 	CG_FLOOR,
 	CG_CEIL,
-
 	CG_TESTPRINTINT,
 	CG_TESTPRINTFLOAT,
 	CG_ACOS
@@ -204,7 +218,7 @@ functions exported to the main executable
 typedef enum
 {
 	CG_INIT,
-	// void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
+//  void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 	// called when the level loads or when the renderer is restarted
 	// all media should be registered at this time
 	// cgame will display loading status by calling SCR_Update, which
@@ -213,39 +227,40 @@ typedef enum
 	// demos, tourney restarts, or vid_restarts
 
 	CG_SHUTDOWN,
-	// void (*CG_Shutdown)( void );
+//  void (*CG_Shutdown)( void );
 	// oportunity to flush and close any open files
 
 	CG_CONSOLE_COMMAND,
-	// qboolean (*CG_ConsoleCommand)( void );
+//  qboolean (*CG_ConsoleCommand)( void );
 	// a console command has been issued locally that is not recognized by the
 	// main game system.
 	// use Cmd_Argc() / Cmd_Argv() to read the command, return qfalse if the
 	// command is not known to the game
 
 	CG_DRAW_ACTIVE_FRAME,
-	// void (*CG_DrawActiveFrame)( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
+//  void (*CG_DrawActiveFrame)( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
 	// Generates and draws a game scene and status information at the given time.
 	// If demoPlayback is set, local movement prediction will not be enabled
 
 	CG_CROSSHAIR_PLAYER,
-	// int (*CG_CrosshairPlayer)( void );
+//  int (*CG_CrosshairPlayer)( void );
 
 	CG_LAST_ATTACKER,
-	// int (*CG_LastAttacker)( void );
+//  int (*CG_LastAttacker)( void );
 
 	CG_KEY_EVENT,
-	// void  (*CG_KeyEvent)( int key, qboolean down );
+//  void    (*CG_KeyEvent)( int key, qboolean down );
 
 	CG_MOUSE_EVENT,
-	// void  (*CG_MouseEvent)( int dx, int dy );
+//  void    (*CG_MouseEvent)( int dx, int dy );
+
 	CG_EVENT_HANDLING,
-	// void (*CG_EventHandling)(int type);
+//  void (*CG_EventHandling)(int type);
 
 	CG_CONSOLE_TEXT
-		// void (*CG_ConsoleText)( void );
-		// pass text that has been printed to the console to cgame
-		// use Cmd_Argc() / Cmd_Argv() to read it
+//	void (*CG_ConsoleText)( void );
+	// pass text that has been printed to the console to cgame
+	// use Cmd_Argc() / Cmd_Argv() to read it
 } cgameExport_t;
 
 //----------------------------------------------

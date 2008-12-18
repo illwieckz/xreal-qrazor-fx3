@@ -206,6 +206,19 @@ void trap_CM_TransformedCapsuleTrace(trace_t * results, const vec3_t start, cons
 	syscall(CG_CM_TRANSFORMEDCAPSULETRACE, results, start, end, mins, maxs, model, brushmask, origin, angles);
 }
 
+void trap_CM_BiSphereTrace(trace_t * results, const vec3_t start,
+						   const vec3_t end, float startRad, float endRad, clipHandle_t model, int mask)
+{
+	syscall(CG_CM_BISPHERETRACE, results, start, end, PASSFLOAT(startRad), PASSFLOAT(endRad), model, mask);
+}
+
+void trap_CM_TransformedBiSphereTrace(trace_t * results, const vec3_t start,
+									  const vec3_t end, float startRad, float endRad,
+									  clipHandle_t model, int mask, const vec3_t origin)
+{
+	syscall(CG_CM_TRANSFORMEDBISPHERETRACE, results, start, end, PASSFLOAT(startRad), PASSFLOAT(endRad), model, mask, origin);
+}
+
 int trap_CM_MarkFragments(int numPoints, const vec3_t * points,
 						  const vec3_t projection,
 						  int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t * fragmentBuffer)
@@ -474,6 +487,31 @@ int trap_Key_GetKey(const char *binding)
 	return syscall(CG_KEY_GETKEY, binding);
 }
 
+int trap_PC_AddGlobalDefine(char *define)
+{
+	return syscall(CG_PC_ADD_GLOBAL_DEFINE, define);
+}
+
+int trap_PC_LoadSource(const char *filename)
+{
+	return syscall(CG_PC_LOAD_SOURCE, filename);
+}
+
+int trap_PC_FreeSource(int handle)
+{
+	return syscall(CG_PC_FREE_SOURCE, handle);
+}
+
+int trap_PC_ReadToken(int handle, pc_token_t * pc_token)
+{
+	return syscall(CG_PC_READ_TOKEN, handle, pc_token);
+}
+
+int trap_PC_SourceFileAndLine(int handle, char *filename, int *line)
+{
+	return syscall(CG_PC_SOURCE_FILE_AND_LINE, handle, filename, line);
+}
+
 void trap_S_StopBackgroundTrack(void)
 {
 	syscall(CG_S_STOPBACKGROUNDTRACK);
@@ -518,19 +556,15 @@ void trap_CIN_SetExtents(int handle, int x, int y, int w, int h)
 	syscall(CG_CIN_SETEXTENTS, handle, x, y, w, h);
 }
 
-/*
-qboolean trap_loadCamera( const char *name ) {
-	return syscall( CG_LOADCAMERA, name );
+int trap_GetDemoState(void)
+{
+	return syscall(CG_GETDEMOSTATE);
 }
 
-void trap_startCamera(int time) {
-	syscall(CG_STARTCAMERA, time);
+int trap_GetDemoPos(void)
+{
+	return syscall(CG_GETDEMOPOS);
 }
-
-qboolean trap_getCameraInfo( int time, vec3_t *origin, vec3_t *angles) {
-	return syscall( CG_GETCAMERAINFO, time, origin, angles );
-}
-*/
 
 qboolean trap_GetEntityToken(char *buffer, int bufferSize)
 {
@@ -540,4 +574,24 @@ qboolean trap_GetEntityToken(char *buffer, int bufferSize)
 qboolean trap_R_inPVS(const vec3_t p1, const vec3_t p2)
 {
 	return syscall(CG_R_INPVS, p1, p2);
+}
+
+void trap_GetDemoName(char *buffer, int size)
+{
+	syscall(CG_GETDEMONAME, buffer, size);
+}
+
+void trap_Key_KeynumToStringBuf(int keynum, char *buf, int buflen)
+{
+	syscall(CG_KEY_KEYNUMTOSTRINGBUF, keynum, buf, buflen);
+}
+
+void trap_Key_GetBindingBuf(int keynum, char *buf, int buflen)
+{
+	syscall(CG_KEY_GETBINDINGBUF, keynum, buf, buflen);
+}
+
+void trap_Key_SetBinding(int keynum, const char *binding)
+{
+	syscall(CG_KEY_SETBINDING, keynum, binding);
 }

@@ -84,13 +84,13 @@ tryagain:
 
   if ( weaponNum == WP_MACHINEGUN ) {
     strcpy( path, item->world_model[0] );
-    COM_StripExtension( path, path );
+    Com_StripExtension( path, path );
     strcat( path, "_barrel.md3" );
     pi->barrelModel = trap_R_RegisterModel( path );
   }
 
   strcpy( path, item->world_model[0] );
-  COM_StripExtension( path, path );
+  Com_StripExtension( path, path );
   strcat( path, "_flash.md3" );
   pi->flashModel = trap_R_RegisterModel( path );
 
@@ -318,7 +318,7 @@ static void UI_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	}
 
 	// cast away const because of compiler problems
-	MatrixMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
+	AxisMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
 	entity->backlerp = parent->backlerp;
 }
 
@@ -346,8 +346,8 @@ static void UI_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_
 	}
 
 	// cast away const because of compiler problems
-	MatrixMultiply(entity->axis, ((refEntity_t *) parent)->axis, tempAxis);
-	MatrixMultiply(lerped.axis, tempAxis, entity->axis);
+	AxisMultiply(entity->axis, ((refEntity_t *) parent)->axis, tempAxis);
+	AxisMultiply(lerped.axis, tempAxis, entity->axis);
 }
 
 
@@ -1179,7 +1179,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 	text[len] = 0;
 	trap_FS_FCloseFile(f);
 
-	COM_Compress(text);
+	Com_Compress(text);
 
 	// parse the text
 	text_p = text;
@@ -1189,14 +1189,14 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 	while(1)
 	{
 		prev = text_p;			// so we can unget
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!token)
 		{
 			break;
 		}
 		if(!Q_stricmp(token, "footsteps"))
 		{
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 			{
 				break;
@@ -1207,7 +1207,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 		{
 			for(i = 0; i < 3; i++)
 			{
-				token = COM_Parse(&text_p);
+				token = Com_Parse(&text_p);
 				if(!token)
 				{
 					break;
@@ -1217,7 +1217,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 		}
 		else if(!Q_stricmp(token, "sex"))
 		{
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 			{
 				break;
@@ -1239,7 +1239,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 	for(i = 0; i < MAX_PLAYER_ANIMATIONS; i++)
 	{
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!token)
 		{
 			break;
@@ -1255,21 +1255,21 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 			animations[i].firstFrame -= skip;
 		}
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!token)
 		{
 			break;
 		}
 		animations[i].numFrames = atoi(token);
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!token)
 		{
 			break;
 		}
 		animations[i].loopFrames = atoi(token);
 
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 		if(!token)
 		{
 			break;

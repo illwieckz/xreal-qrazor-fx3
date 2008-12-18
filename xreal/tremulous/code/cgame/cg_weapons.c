@@ -94,7 +94,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 	// read optional parameters
 	while(1)
 	{
-		token = COM_Parse(text_p);
+		token = Com_Parse(text_p);
 
 		if(!token)
 			break;
@@ -104,7 +104,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 
 		if(!Q_stricmp(token, "missileModel"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -119,7 +119,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			int             size = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -128,7 +128,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 			if(size < 0)
 				size = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -151,25 +151,25 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			wim->missileAnimates = qtrue;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
 			wim->missileAnimStartFrame = atoi(token);
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
 			wim->missileAnimNumFrames = atoi(token);
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
 			wim->missileAnimFrameRate = atoi(token);
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -179,7 +179,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		}
 		else if(!Q_stricmp(token, "missileParticleSystem"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -192,7 +192,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		}
 		else if(!Q_stricmp(token, "missileTrailSystem"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -205,7 +205,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		}
 		else if(!Q_stricmp(token, "muzzleParticleSystem"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -218,7 +218,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		}
 		else if(!Q_stricmp(token, "impactParticleSystem"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -233,7 +233,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			int             size = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -242,7 +242,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 			if(size < 0)
 				size = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -258,7 +258,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			int             index = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -269,7 +269,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 			else if(index > 3)
 				index = 3;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -281,7 +281,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			int             index = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -292,7 +292,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 			else if(index > 3)
 				index = 3;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -310,7 +310,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			for(i = 0; i < 3; i++)
 			{
-				token = COM_Parse(text_p);
+				token = Com_Parse(text_p);
 				if(!token)
 					break;
 
@@ -329,7 +329,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			for(i = 0; i < 3; i++)
 			{
-				token = COM_Parse(text_p);
+				token = Com_Parse(text_p);
 				if(!token)
 					break;
 
@@ -342,7 +342,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			int             size = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -357,7 +357,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		}
 		else if(!Q_stricmp(token, "firingSound"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -367,7 +367,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		}
 		else if(!Q_stricmp(token, "missileSound"))
 		{
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -379,7 +379,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 		{
 			int             index = 0;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -390,7 +390,7 @@ static qboolean CG_ParseWeaponModeSection(weaponInfoMode_t * wim, char **text_p)
 			else if(index > 3)
 				index = 3;
 
-			token = COM_Parse(text_p);
+			token = Com_Parse(text_p);
 			if(!token)
 				break;
 
@@ -448,7 +448,7 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 	// read optional parameters
 	while(1)
 	{
-		token = COM_Parse(&text_p);
+		token = Com_Parse(&text_p);
 
 		if(!token)
 			break;
@@ -493,7 +493,7 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 		{
 			char            path[MAX_QPATH];
 
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -503,17 +503,17 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 				CG_Printf(S_COLOR_RED "ERROR: weapon model not found %s\n", token);
 
 			strcpy(path, token);
-			COM_StripExtension(path, path);
+			Com_StripExtension(path, path);
 			strcat(path, "_flash.md3");
 			wi->flashModel = trap_R_RegisterModel(path);
 
 			strcpy(path, token);
-			COM_StripExtension(path, path);
+			Com_StripExtension(path, path);
 			strcat(path, "_barrel.md3");
 			wi->barrelModel = trap_R_RegisterModel(path);
 
 			strcpy(path, token);
-			COM_StripExtension(path, path);
+			Com_StripExtension(path, path);
 			strcat(path, "_hand.md3");
 			wi->handsModel = trap_R_RegisterModel(path);
 
@@ -524,7 +524,7 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 		}
 		else if(!Q_stricmp(token, "idleSound"))
 		{
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -534,7 +534,7 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 		}
 		else if(!Q_stricmp(token, "icon"))
 		{
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -549,7 +549,7 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 		{
 			int             size = 0;
 
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -558,7 +558,7 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 			if(size < 0)
 				size = 0;
 
-			token = COM_Parse(&text_p);
+			token = Com_Parse(&text_p);
 			if(!token)
 				break;
 

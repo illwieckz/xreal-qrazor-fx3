@@ -464,7 +464,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 
 	while(1)
 	{
-		token = COM_Parse(&buf);
+		token = Com_Parse(&buf);
 
 		if(!token[0])
 			break;
@@ -491,7 +491,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 
 		while(1)
 		{
-			token = COM_ParseExt(&buf, qtrue);
+			token = Com_ParseExt(&buf, qtrue);
 
 			if(!token[0])
 			{
@@ -505,7 +505,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "minHeight"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -514,7 +514,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "maxHeight"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "100");
@@ -523,7 +523,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "minAngle"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -532,7 +532,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "maxAngle"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "360");
@@ -541,7 +541,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "modifier"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "1.0");
@@ -574,7 +574,7 @@ void G_ParseDmgScript(char *buf, int class)
 
 	while(1)
 	{
-		token = COM_Parse(&buf);
+		token = Com_Parse(&buf);
 
 		if(!token[0])
 			break;
@@ -601,7 +601,7 @@ void G_ParseDmgScript(char *buf, int class)
 
 		while(1)
 		{
-			token = COM_ParseExt(&buf, qtrue);
+			token = Com_ParseExt(&buf, qtrue);
 
 			if(!token[0])
 			{
@@ -615,7 +615,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "minHeight"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -624,7 +624,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "maxHeight"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "100");
@@ -633,7 +633,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "minAngle"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -642,7 +642,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "maxAngle"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "360");
@@ -651,7 +651,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "modifier"))
 			{
-				token = COM_ParseExt(&buf, qfalse);
+				token = Com_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "1.0");

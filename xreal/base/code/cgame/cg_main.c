@@ -53,21 +53,28 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 		case CG_INIT:
 			CG_Init(arg0, arg1, arg2);
 			return 0;
+
 		case CG_SHUTDOWN:
 			CG_Shutdown();
 			return 0;
+
 		case CG_CONSOLE_COMMAND:
 			return CG_ConsoleCommand();
+
 		case CG_DRAW_ACTIVE_FRAME:
 			CG_DrawActiveFrame(arg0, arg1, arg2);
 			return 0;
+
 		case CG_CROSSHAIR_PLAYER:
 			return CG_CrosshairPlayer();
+
 		case CG_LAST_ATTACKER:
 			return CG_LastAttacker();
+
 		case CG_KEY_EVENT:
 			CG_KeyEvent(arg0, arg1);
 			return 0;
+
 		case CG_MOUSE_EVENT:
 #ifdef MISSIONPACK
 			cgDC.cursorx = cgs.cursorX;
@@ -75,9 +82,15 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 #endif
 			CG_MouseEvent(arg0, arg1);
 			return 0;
+
 		case CG_EVENT_HANDLING:
 			CG_EventHandling(arg0);
 			return 0;
+
+		case CG_CONSOLE_TEXT:
+			//CG_AddNotifyText(); // only used by Tremulous
+			return 0;
+
 		default:
 			CG_Error("vmMain: unknown command %i", command);
 			break;
@@ -444,7 +457,7 @@ void CG_RegisterCvars(void)
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_HEADMODEL, CVAR_USERINFO | CVAR_ARCHIVE);
 }
 
-/*																																			
+/*
 ===================
 CG_ForceModelChange
 ===================
@@ -1344,7 +1357,7 @@ static void CG_RegisterGraphics(void)
 
 
 
-/*																																			
+/*
 =======================
 CG_BuildSpectatorString
 =======================
@@ -1370,7 +1383,7 @@ void CG_BuildSpectatorString()
 }
 
 
-/*																																			
+/*
 ===================
 CG_RegisterClients
 ===================

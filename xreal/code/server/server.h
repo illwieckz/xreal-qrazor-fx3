@@ -444,7 +444,7 @@ int             SV_PointContents(const vec3_t p, int passEntityNum);
 
 
 void            SV_Trace(trace_t * results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum,
-						 int contentmask, int capsule);
+						 int contentmask, traceType_t type);
 // mins and maxs are relative
 
 // if the entire move stays in a solid volume, trace.allsolid will be set,
@@ -457,7 +457,7 @@ void            SV_Trace(trace_t * results, const vec3_t start, vec3_t mins, vec
 
 
 void            SV_ClipToEntity(trace_t * trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-								int entityNum, int contentmask, int capsule);
+								int entityNum, int contentmask, traceType_t type);
 // clip to a specific entity
 
 //

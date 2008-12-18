@@ -48,6 +48,36 @@ void CL_GetGlconfig(glConfig_t * glconfig)
 	*glconfig = cls.glconfig;
 }
 
+/*
+====================
+Key_KeynumToStringBuf
+====================
+*/
+static void Key_KeynumToStringBuf(int keynum, char *buf, int buflen)
+{
+	Q_strncpyz(buf, Key_KeynumToString(keynum), buflen);
+}
+
+/*
+====================
+Key_GetBindingBuf
+====================
+*/
+static void Key_GetBindingBuf(int keynum, char *buf, int buflen)
+{
+	char           *value;
+
+	value = Key_GetBinding(keynum);
+	if(value)
+	{
+		Q_strncpyz(buf, value, buflen);
+	}
+	else
+	{
+		*buf = 0;
+	}
+}
+
 
 /*
 ====================
@@ -536,18 +566,22 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 		case CG_CM_TRANSFORMEDPOINTCONTENTS:
 			return CM_TransformedPointContents(VMA(1), args[2], VMA(3), VMA(4));
 		case CG_CM_BOXTRACE:
-			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule */ qfalse);
+			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_AABB);
 			return 0;
 		case CG_CM_CAPSULETRACE:
-			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule */ qtrue);
+			CM_BoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_CAPSULE);
 			return 0;
 		case CG_CM_TRANSFORMEDBOXTRACE:
-			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9),	/*int capsule */
-								   qfalse);
+			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), TT_AABB);
 			return 0;
 		case CG_CM_TRANSFORMEDCAPSULETRACE:
-			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9),	/*int capsule */
-								   qtrue);
+			CM_TransformedBoxTrace(VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], VMA(8), VMA(9), TT_CAPSULE);
+			return 0;
+		case CG_CM_BISPHERETRACE:
+			CM_BiSphereTrace(VMA(1), VMA(2), VMA(3), VMF(4), VMF(5), args[6], args[7]);
+			return 0;
+		case CG_CM_TRANSFORMEDBISPHERETRACE:
+			CM_TransformedBiSphereTrace(VMA(1), VMA(2), VMA(3), VMF(4), VMF(5), args[6], args[7], VMA(8));
 			return 0;
 		case CG_CM_MARKFRAGMENTS:
 			return re.MarkFragments(args[1], VMA(2), VMA(3), args[4], VMA(5), args[6], VMA(7));
@@ -678,6 +712,34 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			return Key_GetKey(VMA(1));
 
 
+		case CG_GETDEMOSTATE:
+			return CL_DemoState();
+		case CG_GETDEMOPOS:
+			return CL_DemoPos();
+		case CG_GETDEMONAME:
+			CL_DemoName(VMA(1), args[2]);
+			return 0;
+
+		case CG_KEY_KEYNUMTOSTRINGBUF:
+			Key_KeynumToStringBuf(args[1], VMA(2), args[3]);
+			return 0;
+		case CG_KEY_GETBINDINGBUF:
+			Key_GetBindingBuf(args[1], VMA(2), args[3]);
+			return 0;
+		case CG_KEY_SETBINDING:
+			Key_SetBinding(args[1], VMA(2));
+			return 0;
+
+		case CG_PC_ADD_GLOBAL_DEFINE:
+			return Parse_AddGlobalDefine(VMA(1));
+		case CG_PC_LOAD_SOURCE:
+			return Parse_LoadSourceHandle(VMA(1));
+		case CG_PC_FREE_SOURCE:
+			return Parse_FreeSourceHandle(args[1]);
+		case CG_PC_READ_TOKEN:
+			return Parse_ReadTokenHandle(args[1], VMA(2));
+		case CG_PC_SOURCE_FILE_AND_LINE:
+			return Parse_SourceFileAndLine(args[1], VMA(2), VMA(3));
 
 		case CG_MEMSET:
 			Com_Memset(VMA(1), args[2], args[3]);
@@ -836,6 +898,20 @@ qboolean CL_GameCommand(void)
 	return VM_Call(cgvm, CG_CONSOLE_COMMAND);
 }
 
+/*
+====================
+CL_GameConsoleText
+====================
+*/
+void CL_GameConsoleText(void)
+{
+	if(!cgvm)
+	{
+		return;
+	}
+
+	VM_Call(cgvm, CG_CONSOLE_TEXT);
+}
 
 
 /*
@@ -1082,7 +1158,7 @@ void CL_SetCGameTime(void)
 	else
 	{
 		// cl_timeNudge is a user adjustable cvar that allows more
-		// or less latency to be added in the interest of better 
+		// or less latency to be added in the interest of better
 		// smoothness or better responsiveness.
 		int             tn;
 

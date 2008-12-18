@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
 Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
@@ -868,6 +869,21 @@ static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)
 	return 1;
 }
 
+static ID_INLINE int VectorCompareEpsilon(const vec3_t v1, const vec3_t v2, float epsilon)
+{
+	vec3_t          d;
+
+	VectorSubtract(v1, v2, d);
+	d[0] = fabs(d[0]);
+	d[1] = fabs(d[1]);
+	d[2] = fabs(d[2]);
+
+	if(d[0] > epsilon || d[1] > epsilon || d[2] > epsilon)
+		return 0;
+
+	return 1;
+}
+
 // *INDENT-OFF*
 static ID_INLINE vec_t VectorLength(const vec3_t v)
 {
@@ -1015,6 +1031,7 @@ float           Q_crandom(int *seed);
 
 void            vectoangles(const vec3_t value1, vec3_t angles);
 void            AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
+void            AxisToAngles(vec3_t axis[3], vec3_t angles);
 
 void            AxisClear(vec3_t axis[3]);
 void            AxisCopy(vec3_t in[3], vec3_t out[3]);
@@ -1045,8 +1062,23 @@ void            MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 //int   PlaneTypeForNormal (vec3_t normal);
 
 void            AxisMultiply(axis_t in1, axis_t in2, axis_t out);
+void            VectorAxisMultiply(const vec3_t p, vec3_t m[3], vec3_t out);
+
 void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void            PerpendicularVector(vec3_t dst, const vec3_t src);
+
+void            GetPerpendicularViewVector(const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up);
+void            ProjectPointOntoVector(vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj);
+float           VectorDistance(vec3_t v1, vec3_t v2);
+
+float           pointToLineDistance(const vec3_t point, const vec3_t p1, const vec3_t p2);
+float           VectorMinComponent(vec3_t v);
+float           VectorMaxComponent(vec3_t v);
+
+vec_t           DistanceBetweenLineSegmentsSquared(const vec3_t sP0, const vec3_t sP1,
+												   const vec3_t tP0, const vec3_t tP1, float *s, float *t);
+vec_t           DistanceBetweenLineSegments(const vec3_t sP0, const vec3_t sP1,
+											const vec3_t tP0, const vec3_t tP1, float *s, float *t);
 
 void            MatrixIdentity(matrix_t m);
 void            MatrixClear(matrix_t m);
@@ -1480,7 +1512,7 @@ typedef struct cplane_s
 	byte            pad[2];
 } cplane_t;
 
-/*
+
 typedef enum
 {
 	TT_NONE,
@@ -1491,7 +1523,6 @@ typedef enum
 
 	TT_NUM_TRACE_TYPES
 } traceType_t;
-*/
 
 // a trace is returned when a box is swept through the world
 typedef struct
@@ -1504,6 +1535,7 @@ typedef struct
 	int             surfaceFlags;	// surface hit
 	int             contents;	// contents on other side of surface hit
 	int             entityNum;	// entity the contacted sirface is a part of
+	float           lateralFraction;	// fraction of collision tangetially to the trace direction
 } trace_t;
 
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
