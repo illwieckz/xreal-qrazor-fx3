@@ -827,6 +827,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\qcommon\parse.c"
+				>
+			</File>
+			<File
 				RelativePath="qcommon\q_math.c"
 				>
 				<FileConfiguration
