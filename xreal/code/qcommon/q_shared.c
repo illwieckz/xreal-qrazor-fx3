@@ -900,6 +900,45 @@ int ColorIndex(char ccode)
 }
 
 /*
+===================
+Com_HexStrToInt
+===================
+*/
+int Com_HexStrToInt(const char *str)
+{
+	if(!str || !str[0])
+		return -1;
+
+	// check for hex code
+	if(str[0] == '0' && str[1] == 'x')
+	{
+		int             i, n = 0;
+
+		for(i = 2; i < strlen(str); i++)
+		{
+			char            digit;
+
+			n *= 16;
+
+			digit = tolower(str[i]);
+
+			if(digit >= '0' && digit <= '9')
+				digit -= '0';
+			else if(digit >= 'a' && digit <= 'f')
+				digit = digit - 'a' + 10;
+			else
+				return -1;
+
+			n += digit;
+		}
+
+		return n;
+	}
+
+	return -1;
+}
+
+/*
 ============================================================================
 
 					LIBRARY REPLACEMENT FUNCTIONS
@@ -1496,7 +1535,8 @@ void Info_RemoveKey(char *s, const char *key)
 
 		if(!strcmp(key, pkey))
 		{
-			strcpy(start, s);	// remove this part
+			memmove(start, s, strlen(s) + 1);	// remove this part
+
 			return;
 		}
 

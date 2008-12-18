@@ -275,6 +275,7 @@ static void NetadrToSockadr(netadr_t * a, struct sockaddr *s)
 		((struct sockaddr_in6 *)s)->sin6_family = AF_INET6;
 		((struct sockaddr_in6 *)s)->sin6_addr = *((struct in6_addr *)&a->ip6);
 		((struct sockaddr_in6 *)s)->sin6_port = a->port;
+		((struct sockaddr_in6 *)s)->sin6_scope_id = a->scope_id;
 	}
 	else if(a->type == NA_MULTICAST6)
 	{
@@ -298,6 +299,7 @@ static void SockadrToNetadr(struct sockaddr *s, netadr_t * a)
 		a->type = NA_IP6;
 		memcpy(a->ip6, &((struct sockaddr_in6 *)s)->sin6_addr, sizeof(a->ip6));
 		a->port = ((struct sockaddr_in6 *)s)->sin6_port;
+		a->scope_id = ((struct sockaddr_in6 *)s)->sin6_scope_id;
 	}
 }
 
@@ -389,8 +391,15 @@ static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int s
 Sys_SockaddrToString
 =============
 */
-static void Sys_SockaddrToString(char *dest, int destlen, struct sockaddr *input, int inputlen)
+static void Sys_SockaddrToString(char *dest, int destlen, struct sockaddr *input)
 {
+	socklen_t       inputlen;
+
+	if(input->sa_family == AF_INET6)
+		inputlen = sizeof(struct sockaddr_in6);
+	else
+		inputlen = sizeof(struct sockaddr_in);
+
 	getnameinfo(input, inputlen, dest, destlen, NULL, 0, NI_NUMERICHOST);
 }
 
@@ -450,7 +459,7 @@ qboolean NET_CompareBaseAdr(netadr_t a, netadr_t b)
 
 	if(a.type == NA_IP6)
 	{
-		if(!memcmp(a.ip6, b.ip6, sizeof(a.ip6)))
+		if(!memcmp(a.ip6, b.ip6, sizeof(a.ip6)) && a.scope_id == b.scope_id)
 			return qtrue;
 
 		return qfalse;
@@ -478,7 +487,7 @@ const char     *NET_AdrToString(netadr_t a)
 
 		memset(&sadr, 0, sizeof(sadr));
 		NetadrToSockadr(&a, (struct sockaddr *)&sadr);
-		Sys_SockaddrToString(s, sizeof(s), (struct sockaddr *)&sadr, sizeof(sadr));
+		Sys_SockaddrToString(s, sizeof(s), (struct sockaddr *)&sadr);
 	}
 
 	return s;
@@ -791,6 +800,8 @@ qboolean Sys_IsLANAddress(netadr_t adr)
 			}
 			else
 			{
+				// TODO? should we check the scope_id here?
+
 				compareip = (byte *) & ((struct sockaddr_in6 *)&localIP[index].addr)->sin6_addr;
 				comparemask = (byte *) & ((struct sockaddr_in6 *)&localIP[index].netmask)->sin6_addr;
 				compareadr = adr.ip6;
@@ -829,7 +840,7 @@ void Sys_ShowIP(void)
 
 	for(i = 0; i < numIP; i++)
 	{
-		Sys_SockaddrToString(addrbuf, sizeof(addrbuf), (struct sockaddr *)&localIP[i].addr, sizeof((*localIP).addr));
+		Sys_SockaddrToString(addrbuf, sizeof(addrbuf), (struct sockaddr *)&localIP[i].addr);
 
 		if(localIP[i].type == NA_IP)
 			Com_Printf("IP: %s\n", addrbuf);
@@ -851,7 +862,7 @@ int NET_IPSocket(char *net_interface, int port, int *err)
 {
 	SOCKET          newsocket;
 	struct sockaddr_in address;
-	qboolean        _true = qtrue;
+	u_long          _true = 1;
 	int             i = 1;
 
 	*err = 0;
@@ -872,7 +883,7 @@ int NET_IPSocket(char *net_interface, int port, int *err)
 		return newsocket;
 	}
 	// make it non-blocking
-	if(ioctlsocket(newsocket, FIONBIO, (u_long *) & _true) == SOCKET_ERROR)
+	if(ioctlsocket(newsocket, FIONBIO, &_true) == SOCKET_ERROR)
 	{
 		Com_Printf("WARNING: NET_IPSocket: ioctl FIONBIO: %s\n", NET_ErrorString());
 		*err = socketError;
@@ -932,7 +943,7 @@ int NET_IP6Socket(char *net_interface, int port, struct sockaddr_in6 *bindto, in
 {
 	SOCKET          newsocket;
 	struct sockaddr_in6 address;
-	qboolean        _true = qtrue;
+	u_long          _true = 1;
 
 	*err = 0;
 
@@ -955,7 +966,7 @@ int NET_IP6Socket(char *net_interface, int port, struct sockaddr_in6 *bindto, in
 	}
 
 	// make it non-blocking
-	if(ioctlsocket(newsocket, FIONBIO, (u_long *) & _true) == SOCKET_ERROR)
+	if(ioctlsocket(newsocket, FIONBIO, &_true) == SOCKET_ERROR)
 	{
 		Com_Printf("WARNING: NET_IP6Socket: ioctl FIONBIO: %s\n", NET_ErrorString());
 		*err = socketError;

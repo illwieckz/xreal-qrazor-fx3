@@ -44,7 +44,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define STANDALONE
 #endif
 
-#define BASEGAME		"base"
+#define BASEGAME				"base"
+#define GAMENAME_FOR_MASTER		"XreaL"	// must NOT contain whitespaces
 
 /*
 #if !defined(DEBUG) && defined(_DEBUG)
@@ -1257,6 +1258,7 @@ void            Com_SkipRestOfLine(char **data);
 void            Com_Parse1DMatrix(char **buf_p, int x, float *m);
 void            Com_Parse2DMatrix(char **buf_p, int y, int x, float *m);
 void            Com_Parse3DMatrix(char **buf_p, int z, int y, int x, float *m);
+int             Com_HexStrToInt(const char *str);
 
 void QDECL      Com_sprintf(char *dest, int size, const char *fmt, ...);
 

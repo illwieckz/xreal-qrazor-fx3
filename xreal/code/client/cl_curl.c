@@ -215,7 +215,7 @@ static int CL_cURL_CallbackProgress(void *dummy, double dltotal, double dlnow, d
 	return 0;
 }
 
-static int CL_cURL_CallbackWrite(void *buffer, size_t size, size_t nmemb, void *stream)
+static size_t CL_cURL_CallbackWrite(void *buffer, size_t size, size_t nmemb, void *stream)
 {
 	FS_Write(buffer, size * nmemb, ((fileHandle_t *) stream)[0]);
 	return size * nmemb;

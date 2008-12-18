@@ -252,6 +252,7 @@ void SV_MasterHeartbeat(void)
 {
 	static netadr_t adr[MAX_MASTER_SERVERS];
 	int             i;
+	int             res;
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if(!com_dedicated || com_dedicated->integer != 2)
@@ -283,7 +284,8 @@ void SV_MasterHeartbeat(void)
 			sv_master[i]->modified = qfalse;
 
 			Com_Printf("Resolving %s\n", sv_master[i]->string);
-			if(!NET_StringToAdr(sv_master[i]->string, &adr[i], NA_UNSPEC))
+			res = NET_StringToAdr(sv_master[i]->string, &adr[i], NA_UNSPEC);
+			if(!res)
 			{
 				// if the address failed to resolve, clear it
 				// so we don't take repeated dns hits
@@ -292,8 +294,9 @@ void SV_MasterHeartbeat(void)
 				sv_master[i]->modified = qfalse;
 				continue;
 			}
-			if(!strchr(sv_master[i]->string, ':'))
+			if(res == 2)
 			{
+				// if no port was specified, use the default master port
 				adr[i].port = BigShort(PORT_MASTER);
 			}
 			Com_Printf("%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i]));
@@ -444,6 +447,7 @@ void SVC_Info(netadr_t from)
 	Info_SetValueForKey(infostring, "sv_maxclients", va("%i", sv_maxclients->integer - sv_privateClients->integer));
 	Info_SetValueForKey(infostring, "gametype", va("%i", sv_gametype->integer));
 	Info_SetValueForKey(infostring, "pure", va("%i", sv_pure->integer));
+	Info_SetValueForKey(infostring, "gamename", GAMENAME_FOR_MASTER);
 
 #ifdef USE_VOIP
 	if(sv_voip->integer)

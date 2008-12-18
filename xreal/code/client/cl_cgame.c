@@ -460,10 +460,10 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 	switch (args[0])
 	{
 		case CG_PRINT:
-			Com_Printf("%s", VMA(1));
+			Com_Printf("%s", (const char *)VMA(1));
 			return 0;
 		case CG_ERROR:
-			Com_Error(ERR_DROP, "%s", VMA(1));
+			Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
 			return 0;
 		case CG_MILLISECONDS:
 			return Sys_Milliseconds();
@@ -686,7 +686,8 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			Com_Memcpy(VMA(1), VMA(2), args[3]);
 			return 0;
 		case CG_STRNCPY:
-			return (int)strncpy(VMA(1), VMA(2), args[3]);
+			strncpy(VMA(1), VMA(2), args[3]);
+			return args[1];
 		case CG_SIN:
 			return FloatAsInt(sin(VMF(1)));
 		case CG_COS:
@@ -747,8 +748,8 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			return re.inPVS(VMA(1), VMA(2));
 
 		default:
-			assert(0);			// bk010102
-			Com_Error(ERR_DROP, "Bad cgame system trap: %i", args[0]);
+			assert(0);
+			Com_Error(ERR_DROP, "Bad cgame system trap: %ld", (long int)args[0]);
 	}
 	return 0;
 }

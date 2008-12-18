@@ -100,6 +100,8 @@ cvar_t         *cl_lanForcePackets;
 
 cvar_t         *cl_guidServerUniq;
 
+cvar_t         *cl_consoleKeys;
+
 clientActive_t  cl;
 clientConnection_t clc;
 clientStatic_t  cls;
@@ -941,6 +943,22 @@ static void CL_WalkDemoExt(char *arg, char *name, int *demofile)
 
 /*
 ====================
+CL_CompleteDemoName
+====================
+*/
+static void CL_CompleteDemoName(char *args, int argNum)
+{
+	if(argNum == 2)
+	{
+		char            demoExt[16];
+
+		Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", PROTOCOL_VERSION);
+		Field_CompleteFilename("demos", demoExt, qtrue);
+	}
+}
+
+/*
+====================
 CL_PlayDemo_f
 
 demo <demoname>
@@ -1707,6 +1725,23 @@ void CL_Connect_f(void)
 #define MAX_RCON_MESSAGE 1024
 
 /*
+==================
+CL_CompleteRcon
+==================
+*/
+static void CL_CompleteRcon(char *args, int argNum)
+{
+	if(argNum == 2)
+	{
+		// Skip "rcon "
+		char           *p = Com_SkipTokens(args, 1, " ");
+
+		if(p > args)
+			Field_CompleteCommand(p, qtrue, qtrue);
+	}
+}
+
+/*
 =====================
 CL_Rcon_f
 
@@ -2358,7 +2393,7 @@ void CL_InitServerInfo(serverInfo_t * server, netadr_t * address)
 CL_ServersResponsePacket
 ===================
 */
-void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
+void CL_ServersResponsePacket(const netadr_t * from, msg_t * msg, qboolean extended)
 {
 	int             i, count, total;
 	netadr_t        addresses[MAX_SERVERSPERPACKET];
@@ -2383,7 +2418,7 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 	// advance to initial token
 	do
 	{
-		if(*buffptr == '\\' || *buffptr == '/')
+		if(*buffptr == '\\' || (extended && *buffptr == '/'))
 			break;
 
 		buffptr++;
@@ -2391,6 +2426,7 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 
 	while(buffptr + 1 < buffend)
 	{
+		// IPv4 address
 		if(*buffptr == '\\')
 		{
 			buffptr++;
@@ -2403,7 +2439,8 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 
 			addresses[numservers].type = NA_IP;
 		}
-		else
+		// IPv6 address, if it's an extended response
+		else if(extended && *buffptr == '/')
 		{
 			buffptr++;
 
@@ -2414,7 +2451,11 @@ void CL_ServersResponsePacket(netadr_t from, msg_t * msg)
 				addresses[numservers].ip6[i] = *buffptr++;
 
 			addresses[numservers].type = NA_IP6;
+			addresses[numservers].scope_id = from->scope_id;
 		}
+		else
+			// syntax error!
+			break;
 
 		// parse out port
 		addresses[numservers].port = (*buffptr++) << 8;
@@ -2582,10 +2623,17 @@ void CL_ConnectionlessPacket(netadr_t from, msg_t * msg)
 		return;
 	}
 
-	// echo request from server
+	// list of servers sent back by a master server (classic)
 	if(!Q_strncmp(c, "getserversResponse", 18))
 	{
-		CL_ServersResponsePacket(from, msg);
+		CL_ServersResponsePacket(&from, msg, qfalse);
+		return;
+	}
+
+	// list of servers sent back by a master server (extended)
+	if(!Q_strncmp(c, "getserversExtResponse", 21))
+	{
+		CL_ServersResponsePacket(&from, msg, qtrue);
 		return;
 	}
 
@@ -3334,6 +3382,9 @@ void CL_Init(void)
 
 	cl_guidServerUniq = Cvar_Get("cl_guidServerUniq", "1", CVAR_ARCHIVE);
 
+	// ~ and `, as keys and characters
+	cl_consoleKeys = Cvar_Get("cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
+
 	// userinfo
 	Cvar_Get("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);
@@ -3401,6 +3452,7 @@ void CL_Init(void)
 	Cmd_AddCommand("disconnect", CL_Disconnect_f);
 	Cmd_AddCommand("record", CL_Record_f);
 	Cmd_AddCommand("demo", CL_PlayDemo_f);
+	Cmd_SetCommandCompletionFunc("demo", CL_CompleteDemoName);
 	Cmd_AddCommand("cinematic", CL_PlayCinematic_f);
 	Cmd_AddCommand("stoprecord", CL_StopRecord_f);
 	Cmd_AddCommand("connect", CL_Connect_f);
@@ -3408,6 +3460,7 @@ void CL_Init(void)
 	Cmd_AddCommand("localservers", CL_LocalServers_f);
 	Cmd_AddCommand("globalservers", CL_GlobalServers_f);
 	Cmd_AddCommand("rcon", CL_Rcon_f);
+	Cmd_SetCommandCompletionFunc("rcon", CL_CompleteRcon);
 	Cmd_AddCommand("setenv", CL_Setenv_f);
 	Cmd_AddCommand("ping", CL_Ping_f);
 	Cmd_AddCommand("serverstatus", CL_ServerStatus_f);
@@ -3936,6 +3989,7 @@ void CL_GlobalServers_f(void)
 	netadr_t        to;
 	int             count, i, masterNum;
 	char            command[1024], *masteraddress;
+	char           *cmdname;
 
 	if((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > 4)
 	{
@@ -3970,7 +4024,17 @@ void CL_GlobalServers_f(void)
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
-	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
+	// Use the extended query for IPv6 masters
+	if(to.type == NA_IP6 || to.type == NA_MULTICAST6)
+	{
+		cmdname = "getserversExt " GAMENAME_FOR_MASTER;
+
+		// TODO: test if we only have an IPv6 connection. If it's the case,
+		//       request IPv6 servers only by appending " ipv6" to the command
+	}
+	else
+		cmdname = "getservers";
+	Com_sprintf(command, sizeof(command), "%s %s", cmdname, Cmd_Argv(2));
 
 	for(i = 3; i < count; i++)
 	{

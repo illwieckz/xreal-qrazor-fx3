@@ -909,39 +909,14 @@ int Key_StringToKeynum(char *str)
 	}
 
 	// check for hex code
-	if(str[0] == '0' && str[1] == 'x' && strlen(str) == 4)
+	if(strlen(str) == 4)
 	{
-		int             n1, n2;
+		int             n = Com_HexStrToInt(str);
 
-		n1 = str[2];
-		if(n1 >= '0' && n1 <= '9')
+		if(n >= 0)
 		{
-			n1 -= '0';
+			return n;
 		}
-		else if(n1 >= 'a' && n1 <= 'f')
-		{
-			n1 = n1 - 'a' + 10;
-		}
-		else
-		{
-			n1 = 0;
-		}
-
-		n2 = str[3];
-		if(n2 >= '0' && n2 <= '9')
-		{
-			n2 -= '0';
-		}
-		else if(n2 >= 'a' && n2 <= 'f')
-		{
-			n2 = n2 - 'a' + 10;
-		}
-		else
-		{
-			n2 = 0;
-		}
-
-		return n1 * 16 + n2;
 	}
 
 	// scan for a text match
@@ -1217,6 +1192,50 @@ void Key_KeynameCompletion(void (*callback) (const char *s))
 }
 
 /*
+====================
+Key_CompleteUnbind
+====================
+*/
+static void Key_CompleteUnbind(char *args, int argNum)
+{
+	if(argNum == 2)
+	{
+		// Skip "unbind "
+		char           *p = Com_SkipTokens(args, 1, " ");
+
+		if(p > args)
+			Field_CompleteKeyname();
+	}
+}
+
+/*
+====================
+Key_CompleteBind
+====================
+*/
+static void Key_CompleteBind(char *args, int argNum)
+{
+	char           *p;
+
+	if(argNum == 2)
+	{
+		// Skip "bind "
+		p = Com_SkipTokens(args, 1, " ");
+
+		if(p > args)
+			Field_CompleteKeyname();
+	}
+	else if(argNum >= 3)
+	{
+		// Skip "bind <key> "
+		p = Com_SkipTokens(args, 2, " ");
+
+		if(p > args)
+			Field_CompleteCommand(p, qtrue, qtrue);
+	}
+}
+
+/*
 ===================
 CL_InitKeyCommands
 ===================
@@ -1225,7 +1244,9 @@ void CL_InitKeyCommands(void)
 {
 	// register our functions
 	Cmd_AddCommand("bind", Key_Bind_f);
+	Cmd_SetCommandCompletionFunc("bind", Key_CompleteBind);
 	Cmd_AddCommand("unbind", Key_Unbind_f);
+	Cmd_SetCommandCompletionFunc("unbind", Key_CompleteUnbind);
 	Cmd_AddCommand("unbindall", Key_Unbindall_f);
 	Cmd_AddCommand("bindlist", Key_Bindlist_f);
 }
@@ -1331,7 +1352,7 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 	}
 
 	// console key is hardcoded, so the user can never unbind it
-	if(key == '`' || key == '~' || (key == K_ESCAPE && keys[K_SHIFT].down))
+	if(key == K_CONSOLE || (key == K_ESCAPE && keys[K_SHIFT].down))
 	{
 		if(!down)
 		{
@@ -1514,12 +1535,6 @@ Normal keyboard characters, already shifted / capslocked / etc
 */
 void CL_CharEvent(int key)
 {
-	// the console key should never be used as a char
-	if(key == '`' || key == '~')
-	{
-		return;
-	}
-
 	// delete is not a printable character and is
 	// otherwise handled by Field_KeyDownEvent
 	if(key == 127)

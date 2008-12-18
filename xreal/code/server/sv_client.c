@@ -421,9 +421,7 @@ void SV_DirectConnect(netadr_t from)
 			if(NET_CompareAdr(from, svs.challenges[i].adr))
 			{
 				if(challenge == svs.challenges[i].challenge)
-				{
-					break;		// good
-				}
+					break;
 			}
 		}
 		if(i == MAX_CHALLENGES)
