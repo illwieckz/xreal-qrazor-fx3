@@ -55,7 +55,6 @@ G_TestEntityPosition
 gentity_t      *G_TestEntityPosition(gentity_t * ent)
 {
 	trace_t         tr;
-
 	int             mask;
 
 	if(ent->clipmask)
@@ -128,9 +127,7 @@ Returns qfalse if the move is blocked
 qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, vec3_t amove)
 {
 	vec3_t          matrix[3], transpose[3];
-
 	vec3_t          org, org2, move2;
-
 	gentity_t      *block;
 
 	// EF_MOVER_STOP will just stop when contacting another entity
@@ -235,17 +232,11 @@ If qfalse is returned, *obstacle will be the blocking entity
 qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t ** obstacle)
 {
 	int             i, e;
-
 	gentity_t      *check;
-
 	vec3_t          mins, maxs;
-
 	pushed_t       *p;
-
 	int             entityList[MAX_GENTITIES];
-
 	int             listedEntities;
-
 	vec3_t          totalMins, totalMaxs;
 
 	*obstacle = NULL;
@@ -371,9 +362,7 @@ G_MoverTeam
 void G_MoverTeam(gentity_t * ent)
 {
 	vec3_t          move, amove;
-
 	gentity_t      *part, *obstacle;
-
 	vec3_t          origin, angles;
 
 	obstacle = NULL;
@@ -476,7 +465,6 @@ SetMoverState
 void SetMoverState(gentity_t * ent, moverState_t moverState, int time)
 {
 	vec3_t          delta;
-
 	float           f;
 
 	ent->moverState = moverState;
@@ -638,13 +626,9 @@ Think_CloseModelDoor
 void Think_CloseModelDoor(gentity_t * ent)
 {
 	int             entityList[MAX_GENTITIES];
-
 	int             numEntities, i;
-
 	gentity_t      *clipBrush = ent->clipBrush;
-
 	gentity_t      *check;
-
 	qboolean        canClose = qtrue;
 
 	numEntities = trap_EntitiesInBox(clipBrush->r.absmin, clipBrush->r.absmax, entityList, MAX_GENTITIES);
@@ -809,7 +793,6 @@ Use_BinaryMover
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	int             total;
-
 	int             partial;
 
 	// if this is a non-client-usable door return
@@ -966,15 +949,10 @@ so the movement delta can be calculated
 void InitMover(gentity_t * ent)
 {
 	vec3_t          move;
-
 	float           distance;
-
 	float           light;
-
 	vec3_t          color;
-
 	qboolean        lightSet, colorSet;
-
 	char           *sound;
 
 	// if the "model2" key is set, use a seperate model
@@ -1051,15 +1029,10 @@ so the movement delta can be calculated
 void InitRotator(gentity_t * ent)
 {
 	vec3_t          move;
-
 	float           angle;
-
 	float           light;
-
 	vec3_t          color;
-
 	qboolean        lightSet, colorSet;
-
 	char           *sound;
 
 	// if the "model2" key is set, use a seperate model
@@ -1173,7 +1146,6 @@ Touch_DoorTriggerSpectator
 static void Touch_DoorTriggerSpectator(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
 	int             i, axis;
-
 	vec3_t          origin, dir, angles;
 
 	axis = ent->count;
@@ -1214,11 +1186,8 @@ triggers doors can be skipped by spectators
 static void manualDoorTriggerSpectator(gentity_t * door, gentity_t * player)
 {
 	gentity_t      *other;
-
 	gentity_t       triggerHull;
-
 	int             best, i;
-
 	vec3_t          mins, maxs;
 
 	//don't skip a door that is already open
@@ -1266,11 +1235,8 @@ Trip to skip the closest door targetted by trigger
 void manualTriggerSpectator(gentity_t * trigger, gentity_t * player)
 {
 	gentity_t      *t = NULL;
-
 	gentity_t      *targets[MAX_GENTITIES];
-
 	int             i = 0, j;
-
 	float           minDistance = (float)INFINITE;
 
 	//restrict this hack to trigger_multiple only for now
@@ -1356,9 +1322,7 @@ a trigger that encloses all of them
 void Think_SpawnNewDoorTrigger(gentity_t * ent)
 {
 	gentity_t      *other;
-
 	vec3_t          mins, maxs;
-
 	int             i, best;
 
 	//TA: disable shootable doors
@@ -1428,13 +1392,9 @@ NOMONSTER monsters will not trigger this door
 void SP_func_door(gentity_t * ent)
 {
 	vec3_t          abs_movedir;
-
 	float           distance;
-
 	vec3_t          size;
-
 	float           lip;
-
 	char           *s;
 
 	G_SpawnString("sound2to1", "sound/movers/doors/dr1_strt.wav", &s);
@@ -1644,15 +1604,10 @@ NOMONSTER monsters will not trigger this door
 void SP_func_door_model(gentity_t * ent)
 {
 	char           *s;
-
 	float           light;
-
 	vec3_t          color;
-
 	qboolean        lightSet, colorSet;
-
 	char           *sound;
-
 	gentity_t      *clipBrush;
 
 	G_SpawnString("sound2to1", "sound/movers/doors/dr1_strt.wav", &s);
@@ -1827,7 +1782,6 @@ not just sit on top of it.
 void SpawnPlatTrigger(gentity_t * ent)
 {
 	gentity_t      *trigger;
-
 	vec3_t          tmin, tmax;
 
 	// the middle trigger will be a thin trigger just
@@ -1879,7 +1833,6 @@ Plats are always drawn in the extended position so they will light correctly.
 void SP_func_plat(gentity_t * ent)
 {
 	float           lip, height;
-
 	char           *s;
 
 	G_SpawnString("sound2to1", "sound/movers/plats/pt1_strt.wav", &s);
@@ -1968,13 +1921,9 @@ When a button is touched, it moves some distance in the direction of it's angle,
 void SP_func_button(gentity_t * ent)
 {
 	vec3_t          abs_movedir;
-
 	float           distance;
-
 	vec3_t          size;
-
 	float           lip;
-
 	char           *s;
 
 	G_SpawnString("sound1to2", "sound/movers/switches/button1.wav", &s);
@@ -2053,11 +2002,8 @@ Reached_Train
 void Reached_Train(gentity_t * ent)
 {
 	gentity_t      *next;
-
 	float           speed;
-
 	vec3_t          move;
-
 	float           length;
 
 	// copy the apropriate values
@@ -2265,7 +2211,6 @@ void Blocked_Train(gentity_t * self, gentity_t * other)
 			if(other->s.eType == ET_BUILDABLE && other->spawned)
 			{
 				vec3_t          dir;
-
 				gentity_t      *tent;
 
 				if(other->biteam == BIT_ALIENS)
@@ -2433,7 +2378,6 @@ Normally bobs on the Z axis
 void SP_func_bobbing(gentity_t * ent)
 {
 	float           height;
-
 	float           phase;
 
 	G_SpawnFloat("speed", "4", &ent->speed);
@@ -2483,11 +2427,8 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 void SP_func_pendulum(gentity_t * ent)
 {
 	float           freq;
-
 	float           length;
-
 	float           phase;
-
 	float           speed;
 
 	G_SpawnFloat("speed", "30", &speed);

@@ -23,17 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // bg_misc.c -- both games misc functions, all completely stateless
 
-#include "../../../code/qcommon/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "bg_public.h"
 
 int             trap_FS_FOpenFile(const char *qpath, fileHandle_t * f, fsMode_t mode);
-
 void            trap_FS_Read(void *buffer, int len, fileHandle_t f);
-
 void            trap_FS_Write(const void *buffer, int len, fileHandle_t f);
-
 void            trap_FS_FCloseFile(fileHandle_t f);
-
 void            trap_FS_Seek(fileHandle_t f, long offset, fsOrigin_t origin);	// fsOrigin_t
 
 buildableAttributes_t bg_buildableList[] = {
@@ -1311,17 +1307,11 @@ Parses a configuration file describing a builable
 static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOverrides_t * bao)
 {
 	char           *text_p;
-
 	int             i;
-
 	int             len;
-
 	char           *token;
-
 	char            text[20000];
-
 	fileHandle_t    f;
-
 	float           scale;
 
 
@@ -1346,7 +1336,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 	// read optional parameters
 	while(1)
 	{
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 
 		if(!token)
 			break;
@@ -1358,7 +1348,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 		{
 			int             index = 0;
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -1369,7 +1359,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 			else if(index > 3)
 				index = 3;
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -1379,7 +1369,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 		}
 		else if(!Q_stricmp(token, "modelScale"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -1396,7 +1386,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -1409,7 +1399,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -1422,7 +1412,7 @@ static qboolean BG_ParseBuildableFile(const char *filename, buildableAttributeOv
 		{
 			float           offset;
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -1451,7 +1441,6 @@ Set any overrides specfied by file
 void BG_InitBuildableOverrides(void)
 {
 	int             i;
-
 	buildableAttributeOverrides_t *bao;
 
 	for(i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++)
@@ -2822,17 +2811,11 @@ Parses a configuration file describing a class
 static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_t * cao)
 {
 	char           *text_p;
-
 	int             i;
-
 	int             len;
-
 	char           *token;
-
 	char            text[20000];
-
 	fileHandle_t    f;
-
 	float           scale = 0.0f;
 
 
@@ -2857,7 +2840,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 	// read optional parameters
 	while(1)
 	{
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 
 		if(!token)
 			break;
@@ -2867,7 +2850,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 
 		if(!Q_stricmp(token, "model"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -2877,7 +2860,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		}
 		else if(!Q_stricmp(token, "skin"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -2887,7 +2870,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		}
 		else if(!Q_stricmp(token, "hud"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -2897,7 +2880,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		}
 		else if(!Q_stricmp(token, "modelScale"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -2912,7 +2895,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		}
 		else if(!Q_stricmp(token, "shadowScale"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -2929,7 +2912,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -2942,7 +2925,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -2955,7 +2938,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -2968,7 +2951,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -2981,7 +2964,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		{
 			for(i = 0; i <= 2; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -2994,7 +2977,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		{
 			float           offset;
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -3006,7 +2989,7 @@ static qboolean BG_ParseClassFile(const char *filename, classAttributeOverrides_
 		}
 		else if(!Q_stricmp(token, "name"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -3033,7 +3016,6 @@ Set any overrides specfied by file
 void BG_InitClassOverrides(void)
 {
 	int             i;
-
 	classAttributeOverrides_t *cao;
 
 	for(i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++)
@@ -4412,7 +4394,6 @@ BG_EvaluateTrajectory
 void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 {
 	float           deltaTime;
-
 	float           phase;
 
 	switch (tr->trType)
@@ -4472,7 +4453,6 @@ For determining velocity at a given time
 void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result)
 {
 	float           deltaTime;
-
 	float           phase;
 
 	switch (tr->trType)
@@ -4876,7 +4856,6 @@ Extract the ammo quantity from the array
 void BG_UnpackAmmoArray(int weapon, int psAmmo[], int psAmmo2[], int *ammo, int *clips)
 {
 	int             ammoarray[32];
-
 	int             i;
 
 	for(i = 0; i <= 15; i++)
@@ -4921,7 +4900,6 @@ Check if a weapon has full ammo
 qboolean BG_WeaponIsFull(weapon_t weapon, int stats[], int psAmmo[], int psAmmo2[])
 {
 	int             maxAmmo, maxClips;
-
 	int             ammo, clips;
 
 	BG_FindAmmoForWeapon(weapon, &maxAmmo, &maxClips);
@@ -5085,7 +5063,6 @@ qboolean BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], q
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
 	vec3_t          localNormal, xNormal;
-
 	float           rotAngle;
 
 	//the grapplePoint being a surfNormal rotation Normal hack... see above :)
@@ -5137,9 +5114,7 @@ void BG_PositionBuildableRelativeToPlayer(const playerState_t * ps,
 										  vec3_t outOrigin, vec3_t outAngles, trace_t * tr)
 {
 	vec3_t          forward, entityOrigin, targetOrigin;
-
 	vec3_t          angles, playerOrigin, playerNormal;
-
 	float           buildDist;
 
 	if(ps->stats[STAT_STATE] & SS_WALLCLIMBING)
@@ -5186,7 +5161,6 @@ Returns the kills value of some human player
 int BG_GetValueOfHuman(playerState_t * ps)
 {
 	int             i, worth = 0;
-
 	float           portion;
 
 	for(i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
@@ -5257,11 +5231,8 @@ BG_ParseCSVEquipmentList
 void BG_ParseCSVEquipmentList(const char *string, weapon_t * weapons, int weaponsSize, upgrade_t * upgrades, int upgradesSize)
 {
 	char            buffer[MAX_STRING_CHARS];
-
 	int             i = 0, j = 0;
-
 	char           *p, *q;
-
 	qboolean        EOS = qfalse;
 
 	Q_strncpyz(buffer, string, MAX_STRING_CHARS);
@@ -5323,11 +5294,8 @@ BG_ParseCSVClassList
 void BG_ParseCSVClassList(const char *string, pClass_t * classes, int classesSize)
 {
 	char            buffer[MAX_STRING_CHARS];
-
 	int             i = 0;
-
 	char           *p, *q;
-
 	qboolean        EOS = qfalse;
 
 	Q_strncpyz(buffer, string, MAX_STRING_CHARS);
@@ -5376,11 +5344,8 @@ BG_ParseCSVBuildableList
 void BG_ParseCSVBuildableList(const char *string, buildable_t * buildables, int buildablesSize)
 {
 	char            buffer[MAX_STRING_CHARS];
-
 	int             i = 0;
-
 	char           *p, *q;
-
 	qboolean        EOS = qfalse;
 
 	Q_strncpyz(buffer, string, MAX_STRING_CHARS);
@@ -5429,9 +5394,7 @@ BG_UpgradeClassAvailable
 qboolean BG_UpgradeClassAvailable(playerState_t * ps)
 {
 	int             i;
-
 	char            buffer[MAX_STRING_CHARS];
-
 	stage_t         currentStage;
 
 	trap_Cvar_VariableStringBuffer("g_alienStage", buffer, MAX_STRING_CHARS);

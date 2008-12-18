@@ -34,11 +34,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 int             ui_numBots;
-
 static char    *ui_botInfos[MAX_BOTS];
 
 static int      ui_numArenas;
-
 static char    *ui_arenaInfos[MAX_ARENAS];
 
 /*
@@ -49,18 +47,15 @@ UI_ParseInfos
 int UI_ParseInfos(char *buf, int max, char *infos[])
 {
 	char           *token;
-
 	int             count;
-
 	char            key[MAX_TOKEN_CHARS];
-
 	char            info[MAX_INFO_STRING];
 
 	count = 0;
 
 	while(1)
 	{
-		token = Com_Parse(&buf);
+		token = COM_Parse(&buf);
 		if(!token[0])
 		{
 			break;
@@ -80,7 +75,7 @@ int UI_ParseInfos(char *buf, int max, char *infos[])
 		info[0] = '\0';
 		while(1)
 		{
-			token = Com_ParseExt(&buf, qtrue);
+			token = COM_ParseExt(&buf, qtrue);
 			if(!token[0])
 			{
 				Com_Printf("Unexpected end of info file\n");
@@ -92,7 +87,7 @@ int UI_ParseInfos(char *buf, int max, char *infos[])
 			}
 			Q_strncpyz(key, token, sizeof(key));
 
-			token = Com_ParseExt(&buf, qfalse);
+			token = COM_ParseExt(&buf, qfalse);
 			if(!token[0])
 			{
 				strcpy(token, "<NULL>");
@@ -118,9 +113,7 @@ UI_LoadArenasFromFile
 static void UI_LoadArenasFromFile(char *filename)
 {
 	int             len;
-
 	fileHandle_t    f;
-
 	char            buf[MAX_ARENAS_TEXT];
 
 	len = trap_FS_FOpenFile(filename, &f, FS_READ);
@@ -151,7 +144,6 @@ UI_MapNameCompare
 static int UI_MapNameCompare(const void *a, const void *b)
 {
 	mapInfo        *A = (mapInfo *) a;
-
 	mapInfo        *B = (mapInfo *) b;
 
 	return Q_stricmp(A->mapName, B->mapName);
@@ -165,17 +157,11 @@ UI_LoadArenas
 void UI_LoadArenas(void)
 {
 	int             numdirs;
-
 	char            filename[128];
-
 	char            dirlist[1024];
-
 	char           *dirptr;
-
 	int             i, n;
-
 	int             dirlen;
-
 	char           *type;
 
 	ui_numArenas = 0;
@@ -232,9 +218,7 @@ UI_LoadBotsFromFile
 static void UI_LoadBotsFromFile(char *filename)
 {
 	int             len;
-
 	fileHandle_t    f;
-
 	char            buf[MAX_BOTS_TEXT];
 
 	len = trap_FS_FOpenFile(filename, &f, FS_READ);
@@ -254,7 +238,7 @@ static void UI_LoadBotsFromFile(char *filename)
 	buf[len] = 0;
 	trap_FS_FCloseFile(f);
 
-	Com_Compress(buf);
+	COM_Compress(buf);
 
 	ui_numBots += UI_ParseInfos(buf, MAX_BOTS - ui_numBots, &ui_botInfos[ui_numBots]);
 }
@@ -267,17 +251,11 @@ UI_LoadBots
 void UI_LoadBots(void)
 {
 	vmCvar_t        botsFile;
-
 	int             numdirs;
-
 	char            filename[128];
-
 	char            dirlist[1024];
-
 	char           *dirptr;
-
 	int             i;
-
 	int             dirlen;
 
 	ui_numBots = 0;
@@ -330,7 +308,6 @@ UI_GetBotInfoByName
 char           *UI_GetBotInfoByName(const char *name)
 {
 	int             n;
-
 	char           *value;
 
 	for(n = 0; n < ui_numBots; n++)

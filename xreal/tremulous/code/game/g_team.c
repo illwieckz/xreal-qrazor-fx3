@@ -27,9 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void QDECL PrintMsg(gentity_t * ent, const char *fmt, ...)
 {
 	char            msg[1024];
-
 	va_list         argptr;
-
 	char           *p;
 
 	va_start(argptr, fmt);
@@ -73,9 +71,7 @@ Report a location for the player. Uses placed nearby target_location entities
 gentity_t      *Team_GetLocation(gentity_t * ent)
 {
 	gentity_t      *eloc, *best;
-
 	float           bestlen, len;
-
 	vec3_t          origin;
 
 	best = NULL;
@@ -156,19 +152,12 @@ Format:
 void TeamplayInfoMessage(gentity_t * ent)
 {
 	char            entry[1024];
-
 	char            string[8192];
-
 	int             stringlength;
-
 	int             i, j;
-
 	gentity_t      *player;
-
 	int             cnt;
-
 	int             h, a = 0;
-
 	int             clients[TEAM_MAXOVERLAY];
 
 	if(!ent->client->pers.teamInfo)
@@ -224,7 +213,6 @@ void TeamplayInfoMessage(gentity_t * ent)
 void CheckTeamStatus(void)
 {
 	int             i;
-
 	gentity_t      *loc, *ent;
 
 	if(level.time - level.lastTeamLocationTime > TEAM_LOCATION_UPDATE_TIME)

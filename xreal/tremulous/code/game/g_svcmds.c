@@ -72,7 +72,6 @@ typedef struct ipFilter_s
 #define MAX_IPFILTERS 1024
 
 static ipFilter_t ipFilters[MAX_IPFILTERS];
-
 static int      numIPFilters;
 
 /*
@@ -83,11 +82,8 @@ StringToFilter
 static qboolean StringToFilter(char *s, ipFilter_t * f)
 {
 	char            num[128];
-
 	int             i, j;
-
 	byte            b[4];
-
 	byte            m[4];
 
 	for(i = 0; i < 4; i++)
@@ -144,13 +140,9 @@ UpdateIPBans
 static void UpdateIPBans(void)
 {
 	byte            b[4];
-
 	byte            m[4];
-
 	int             i, j;
-
 	char            iplist_final[MAX_CVAR_VALUE_STRING];
-
 	char            ip[64];
 
 	*iplist_final = 0;
@@ -194,11 +186,8 @@ G_FilterPacket
 qboolean G_FilterPacket(char *from)
 {
 	int             i;
-
 	unsigned        in;
-
 	byte            m[4];
-
 	char           *p;
 
 	i = 0;
@@ -265,7 +254,6 @@ G_ProcessIPBans
 void G_ProcessIPBans(void)
 {
 	char           *s, *t;
-
 	char            str[MAX_CVAR_VALUE_STRING];
 
 	Q_strncpyz(str, g_banIPs.string, sizeof(str));
@@ -316,9 +304,7 @@ Svcmd_RemoveIP_f
 void Svcmd_RemoveIP_f(void)
 {
 	ipFilter_t      f;
-
 	int             i;
-
 	char            str[MAX_TOKEN_CHARS];
 
 	if(trap_Argc() < 2)
@@ -355,7 +341,6 @@ Svcmd_EntityList_f
 void Svcmd_EntityList_f(void)
 {
 	int             e;
-
 	gentity_t      *check;
 
 	check = g_entities + 1;
@@ -423,9 +408,7 @@ void Svcmd_EntityList_f(void)
 gclient_t      *ClientForString(const char *s)
 {
 	gclient_t      *cl;
-
 	int             i;
-
 	int             idnum;
 
 	// numeric values are just slot numbers
@@ -476,7 +459,6 @@ forceteam <player> <team>
 void Svcmd_ForceTeam_f(void)
 {
 	gclient_t      *cl;
-
 	char            str[MAX_TOKEN_CHARS];
 
 	// find the player
@@ -562,7 +544,6 @@ qboolean ConsoleCommand(void)
 	if(Q_stricmp(cmd, "alienWin") == 0)
 	{
 		int             i;
-
 		gentity_t      *e;
 
 		for(i = 1, e = g_entities + i; i < level.num_entities; i++, e++)
@@ -577,7 +558,6 @@ qboolean ConsoleCommand(void)
 	if(Q_stricmp(cmd, "humanWin") == 0)
 	{
 		int             i;
-
 		gentity_t      *e;
 
 		for(i = 1, e = g_entities + i; i < level.num_entities; i++, e++)

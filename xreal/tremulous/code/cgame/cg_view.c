@@ -267,20 +267,14 @@ CG_OffsetThirdPersonView
 static void CG_OffsetThirdPersonView(void)
 {
 	vec3_t          forward, right, up;
-
 	vec3_t          view;
-
 	vec3_t          focusAngles;
-
 	trace_t         trace;
 	static vec3_t   mins = { -8, -8, -8 };
 	static vec3_t   maxs = { 8, 8, 8 };
 	vec3_t          focusPoint;
-
 	float           focusDist;
-
 	float           forwardScale, sideScale;
-
 	vec3_t          surfNormal;
 
 	if(cg.predictedPlayerState.stats[STAT_STATE] & SS_WALLCLIMBING)
@@ -361,11 +355,8 @@ static void CG_OffsetThirdPersonView(void)
 static void CG_StepOffset(void)
 {
 	float           steptime;
-
 	int             timeDelta;
-
 	vec3_t          normal;
-
 	playerState_t  *ps = &cg.predictedPlayerState;
 
 	if(ps->stats[STAT_STATE] & SS_WALLCLIMBING)
@@ -408,27 +399,16 @@ CG_OffsetFirstPersonView
 static void CG_OffsetFirstPersonView(void)
 {
 	float          *origin;
-
 	float          *angles;
-
 	float           bob;
-
 	float           ratio;
-
 	float           delta;
-
 	float           speed;
-
 	float           f;
-
 	vec3_t          predictedVelocity;
-
 	int             timeDelta;
-
 	float           bob2;
-
 	vec3_t          normal, baseOrigin;
-
 	playerState_t  *ps = &cg.predictedPlayerState;
 
 	if(ps->stats[STAT_STATE] & SS_WALLCLIMBING)
@@ -554,7 +534,6 @@ static void CG_OffsetFirstPersonView(void)
 		if(cg.predictedPlayerState.stats[STAT_MISC] > 0)
 		{
 			float           fraction1, fraction2;
-
 			vec3_t          forward;
 
 			AngleVectors(angles, forward, NULL, NULL);
@@ -578,13 +557,9 @@ static void CG_OffsetFirstPersonView(void)
 	if(cg.predictedPlayerState.pm_type == PM_GRABBED)
 	{
 		vec3_t          forward, right, up;
-
 		usercmd_t       cmd;
-
 		int             cmdNum;
-
 		float           fFraction, rFraction, uFraction;
-
 		float           fFraction2, rFraction2, uFraction2;
 
 		cmdNum = trap_GetCurrentCmdNumber();
@@ -632,7 +607,6 @@ static void CG_OffsetFirstPersonView(void)
 	if(cg.predictedPlayerState.stats[STAT_STATE] & SS_POISONCLOUDED && !(cg.snap->ps.pm_flags & PMF_FOLLOW))
 	{
 		float           fraction = sin(((float)cg.time / 1000.0f) * M_PI * 2 * PCLOUD_ROLL_FREQUENCY);
-
 		float           pitchFraction = sin(((float)cg.time / 1000.0f) * M_PI * 5 * PCLOUD_ROLL_FREQUENCY);
 
 		fraction *= 1.0f - ((cg.time - cg.poisonedTime) / (float)LEVEL1_PCLOUD_TIME);
@@ -750,21 +724,13 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 static int CG_CalcFov(void)
 {
 	float           x;
-
 	float           phase;
-
 	float           v;
-
 	int             contents;
-
 	float           fov_x, fov_y;
-
 	float           zoomFov;
-
 	float           f;
-
 	int             inwater;
-
 	int             attribFov;
 
 	if(cg.predictedPlayerState.pm_type == PM_INTERMISSION || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR))
@@ -883,9 +849,7 @@ the surface player is looking at
 static void CG_DrawSurfNormal(void)
 {
 	trace_t         tr;
-
 	vec3_t          end, temp;
-
 	polyVert_t      normal[4];
 	vec4_t          color = { 0.0f, 255.0f, 0.0f, 128.0f };
 
@@ -958,13 +922,9 @@ static void CG_smoothWWTransitions(playerState_t * ps, const vec3_t in, vec3_t o
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
 	int             i;
-
 	float           stLocal, sFraction, rotAngle;
-
 	float           smoothTime, timeMod;
-
 	qboolean        performed = qfalse;
-
 	vec3_t          inAxis[3], lastAxis[3], outAxis[3];
 
 	if(cg.snap->ps.pm_flags & PMF_FOLLOW)
@@ -1058,11 +1018,8 @@ CG_smoothWJTransitions
 static void CG_smoothWJTransitions(playerState_t * ps, const vec3_t in, vec3_t out)
 {
 	int             i;
-
 	float           stLocal, sFraction;
-
 	qboolean        performed = qfalse;
-
 	vec3_t          inAxis[3], outAxis[3];
 
 	if(cg.snap->ps.pm_flags & PMF_FOLLOW)
@@ -1153,7 +1110,6 @@ static int CG_CalcViewValues(void)
 	if(cg_errorDecay.value > 0)
 	{
 		int             t;
-
 		float           f;
 
 		t = cg.time - cg.predictedErrorTime;

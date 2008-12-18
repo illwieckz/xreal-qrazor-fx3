@@ -42,7 +42,6 @@ char           *cg_buildableSoundNames[MAX_BUILDABLE_ANIMATIONS] = {
 };
 
 static sfxHandle_t defaultAlienSounds[MAX_BUILDABLE_ANIMATIONS];
-
 static sfxHandle_t defaultHumanSounds[MAX_BUILDABLE_ANIMATIONS];
 
 /*
@@ -104,15 +103,10 @@ CG_Creep
 static void CG_Creep(centity_t * cent)
 {
 	int             msec;
-
 	float           size, frac;
-
 	trace_t         tr;
-
 	vec3_t          temp, origin;
-
 	int             scaleUpTime = BG_FindBuildTimeForBuildable(cent->currentState.modelindex);
-
 	int             time;
 
 	time = cent->currentState.time;
@@ -161,19 +155,12 @@ models/buildables/hivemind/animation.cfg, etc
 static qboolean CG_ParseBuildableAnimationFile(const char *filename, buildable_t buildable)
 {
 	char           *text_p;
-
 	int             len;
-
 	int             i;
-
 	char           *token;
-
 	float           fps;
-
 	char            text[20000];
-
 	fileHandle_t    f;
-
 	animation_t    *animations;
 
 	animations = cg_buildables[buildable].animations;
@@ -200,13 +187,13 @@ static qboolean CG_ParseBuildableAnimationFile(const char *filename, buildable_t
 	for(i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++)
 	{
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!*token)
 			break;
 
 		animations[i].firstFrame = atoi(token);
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!*token)
 			break;
 
@@ -221,13 +208,13 @@ static qboolean CG_ParseBuildableAnimationFile(const char *filename, buildable_t
 			animations[i].reversed = qtrue;
 		}
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!*token)
 			break;
 
 		animations[i].loopFrames = atoi(token);
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!*token)
 			break;
 
@@ -259,17 +246,11 @@ sound/buildables/hivemind/sound.cfg, etc
 static qboolean CG_ParseBuildableSoundFile(const char *filename, buildable_t buildable)
 {
 	char           *text_p;
-
 	int             len;
-
 	int             i;
-
 	char           *token;
-
 	char            text[20000];
-
 	fileHandle_t    f;
-
 	sound_t        *sounds;
 
 	sounds = cg_buildables[buildable].sounds;
@@ -296,13 +277,13 @@ static qboolean CG_ParseBuildableSoundFile(const char *filename, buildable_t bui
 	for(i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++)
 	{
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!*token)
 			break;
 
 		sounds[i].enabled = atoi(token);
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!*token)
 			break;
 
@@ -329,17 +310,11 @@ Initialises the animation db
 void CG_InitBuildables(void)
 {
 	char            filename[MAX_QPATH];
-
 	char            soundfile[MAX_QPATH];
-
 	char           *buildableName;
-
 	char           *modelFile;
-
 	int             i;
-
 	int             j;
-
 	fileHandle_t    f;
 
 	memset(cg_buildables, 0, sizeof(cg_buildables));
@@ -452,13 +427,9 @@ cg.time should be between oldFrameTime and frameTime after exit
 static void CG_RunBuildableLerpFrame(centity_t * cent)
 {
 	int             f, numFrames;
-
 	buildable_t     buildable = cent->currentState.modelindex;
-
 	lerpFrame_t    *lf = &cent->lerpFrame;
-
 	animation_t    *anim;
-
 	buildableAnimNumber_t newAnimation = cent->buildableAnim & ~(ANIM_TOGGLEBIT | ANIM_FORCEBIT);
 
 	// debugging tool to get no animations
@@ -623,7 +594,6 @@ static void CG_PositionAndOrientateBuildable(const vec3_t angles, const vec3_t i
 											 const vec3_t mins, const vec3_t maxs, vec3_t outAxis[3], vec3_t outOrigin)
 {
 	vec3_t          forward, start, end;
-
 	trace_t         tr;
 
 	AngleVectors(angles, forward, NULL, NULL);
@@ -663,15 +633,10 @@ CG_GhostBuildable
 void CG_GhostBuildable(buildable_t buildable)
 {
 	refEntity_t     ent;
-
 	playerState_t  *ps;
-
 	vec3_t          angles, entity_origin;
-
 	vec3_t          mins, maxs;
-
 	trace_t         tr;
-
 	float           scale;
 
 	ps = &cg.predictedPlayerState;
@@ -724,11 +689,8 @@ CG_BuildableParticleEffects
 static void CG_BuildableParticleEffects(centity_t * cent)
 {
 	entityState_t  *es = &cent->currentState;
-
 	buildableTeam_t team = BG_FindTeamForBuildable(es->modelindex);
-
 	int             health = es->generic1 & ~(B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT);
-
 	float           healthFrac = (float)health / B_HEALTH_SCALE;
 
 	if(!(es->generic1 & B_SPAWNED_TOGGLEBIT))
@@ -779,17 +741,11 @@ CG_BuildableHealthBar
 static void CG_BuildableHealthBar(centity_t * cent)
 {
 	vec3_t          origin, origin2, down, right, back, downLength, rightLength;
-
 	float           rimWidth = HEALTH_BAR_HEIGHT / 15.0f;
-
 	float           doneWidth, leftWidth, progress;
-
 	int             health;
-
 	qhandle_t       shader;
-
 	entityState_t  *es;
-
 	vec3_t          mins, maxs;
 
 	es = &cent->currentState;
@@ -864,21 +820,14 @@ CG_Buildable
 void CG_Buildable(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *es = &cent->currentState;
-
 	vec3_t          angles;
-
 	vec3_t          surfNormal, xNormal, mins, maxs;
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	float           rotAngle;
-
 	buildableTeam_t team = BG_FindTeamForBuildable(es->modelindex);
-
 	float           scale;
-
 	int             health;
-
 	float           healthScale;
 
 	//must be before EF_NODRAW check
@@ -959,7 +908,6 @@ void CG_Buildable(centity_t * cent)
 	if(cg_buildables[es->modelindex].models[1])
 	{
 		refEntity_t     turretBarrel;
-
 		vec3_t          flatAxis[3];
 
 		memset(&turretBarrel, 0, sizeof(turretBarrel));
@@ -998,9 +946,7 @@ void CG_Buildable(centity_t * cent)
 	if(cg_buildables[es->modelindex].models[2])
 	{
 		refEntity_t     turretTop;
-
 		vec3_t          flatAxis[3];
-
 		vec3_t          swivelAngles;
 
 		memset(&turretTop, 0, sizeof(turretTop));

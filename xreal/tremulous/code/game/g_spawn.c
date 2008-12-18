@@ -49,7 +49,6 @@ qboolean G_SpawnString(const char *key, const char *defaultString, char **out)
 qboolean G_SpawnFloat(const char *key, const char *defaultString, float *out)
 {
 	char           *s;
-
 	qboolean        present;
 
 	present = G_SpawnString(key, defaultString, &s);
@@ -60,7 +59,6 @@ qboolean G_SpawnFloat(const char *key, const char *defaultString, float *out)
 qboolean G_SpawnInt(const char *key, const char *defaultString, int *out)
 {
 	char           *s;
-
 	qboolean        present;
 
 	present = G_SpawnString(key, defaultString, &s);
@@ -71,7 +69,6 @@ qboolean G_SpawnInt(const char *key, const char *defaultString, int *out)
 qboolean G_SpawnVector(const char *key, const char *defaultString, float *out)
 {
 	char           *s;
-
 	qboolean        present;
 
 	present = G_SpawnString(key, defaultString, &s);
@@ -82,7 +79,6 @@ qboolean G_SpawnVector(const char *key, const char *defaultString, float *out)
 qboolean G_SpawnVector4(const char *key, const char *defaultString, float *out)
 {
 	char           *s;
-
 	qboolean        present;
 
 	present = G_SpawnString(key, defaultString, &s);
@@ -159,129 +155,77 @@ typedef struct
 } spawn_t;
 
 void            SP_info_player_start(gentity_t * ent);
-
 void            SP_info_player_deathmatch(gentity_t * ent);
-
 void            SP_info_player_intermission(gentity_t * ent);
 
 //TA: extra bits
 void            SP_info_alien_intermission(gentity_t * ent);
-
 void            SP_info_human_intermission(gentity_t * ent);
 
 void            SP_info_firstplace(gentity_t * ent);
-
 void            SP_info_secondplace(gentity_t * ent);
-
 void            SP_info_thirdplace(gentity_t * ent);
-
 void            SP_info_podium(gentity_t * ent);
 
 void            SP_func_plat(gentity_t * ent);
-
 void            SP_func_static(gentity_t * ent);
-
 void            SP_func_rotating(gentity_t * ent);
-
 void            SP_func_bobbing(gentity_t * ent);
-
 void            SP_func_pendulum(gentity_t * ent);
-
 void            SP_func_button(gentity_t * ent);
-
 void            SP_func_door(gentity_t * ent);
-
 void            SP_func_door_rotating(gentity_t * ent);	//TA
-
 void            SP_func_door_model(gentity_t * ent);	//TA
-
 void            SP_func_train(gentity_t * ent);
-
 void            SP_func_timer(gentity_t * self);
 
 void            SP_trigger_always(gentity_t * ent);
-
 void            SP_trigger_multiple(gentity_t * ent);
-
 void            SP_trigger_push(gentity_t * ent);
-
 void            SP_trigger_teleport(gentity_t * ent);
-
 void            SP_trigger_hurt(gentity_t * ent);
-
 void            SP_trigger_stage(gentity_t * ent);
-
 void            SP_trigger_win(gentity_t * ent);
-
 void            SP_trigger_buildable(gentity_t * ent);
-
 void            SP_trigger_class(gentity_t * ent);
-
 void            SP_trigger_equipment(gentity_t * ent);
-
 void            SP_trigger_gravity(gentity_t * ent);
-
 void            SP_trigger_heal(gentity_t * ent);
-
 void            SP_trigger_ammo(gentity_t * ent);
 
 void            SP_target_delay(gentity_t * ent);
-
 void            SP_target_speaker(gentity_t * ent);
-
 void            SP_target_print(gentity_t * ent);
-
 void            SP_target_character(gentity_t * ent);
-
 void            SP_target_score(gentity_t * ent);
-
 void            SP_target_teleporter(gentity_t * ent);
-
 void            SP_target_relay(gentity_t * ent);
-
 void            SP_target_kill(gentity_t * ent);
-
 void            SP_target_position(gentity_t * ent);
-
 void            SP_target_location(gentity_t * ent);
-
 void            SP_target_push(gentity_t * ent);
-
 void            SP_target_rumble(gentity_t * ent);
-
 void            SP_target_alien_win(gentity_t * ent);
-
 void            SP_target_human_win(gentity_t * ent);
 
 void            SP_light(gentity_t * self);
-
 void            SP_info_null(gentity_t * self);
-
 void            SP_info_notnull(gentity_t * self);
-
 void            SP_info_camp(gentity_t * self);
-
 void            SP_path_corner(gentity_t * self);
 
 void            SP_misc_teleporter_dest(gentity_t * self);
-
 void            SP_misc_model(gentity_t * ent);
-
 void            SP_misc_portal_camera(gentity_t * ent);
-
 void            SP_misc_portal_surface(gentity_t * ent);
 
 void            SP_shooter_rocket(gentity_t * ent);
-
 void            SP_shooter_plasma(gentity_t * ent);
-
 void            SP_shooter_grenade(gentity_t * ent);
 
 //TA:
 void            SP_misc_particle_system(gentity_t * ent);
-
 void            SP_misc_anim_model(gentity_t * ent);
-
 void            SP_misc_light_flare(gentity_t * ent);
 
 spawn_t         spawns[] = {
@@ -372,7 +316,6 @@ returning qfalse if not found
 qboolean G_CallSpawn(gentity_t * ent)
 {
 	spawn_t        *s;
-
 	buildable_t     buildable;
 
 	if(!ent->classname)
@@ -420,7 +363,6 @@ so message texts can be multi-line
 char           *G_NewString(const char *string)
 {
 	char           *newb, *new_p;
-
 	int             i, l;
 
 	l = strlen(string) + 1;
@@ -461,13 +403,9 @@ in a gentity
 void G_ParseField(const char *key, const char *value, gentity_t * ent)
 {
 	field_t        *f;
-
 	byte           *b;
-
 	float           v;
-
 	vec3_t          vec;
-
 	vec4_t          vec4;
 
 	for(f = fields; f->name; f++)
@@ -539,7 +477,6 @@ level.spawnVars[], then call the class specfic spawn function
 void G_SpawnGEntityFromSpawnVars(void)
 {
 	int             i;
-
 	gentity_t      *ent;
 
 	// get the next free entity
@@ -575,7 +512,6 @@ G_AddSpawnVarToken
 char           *G_AddSpawnVarToken(const char *string)
 {
 	int             l;
-
 	char           *dest;
 
 	l = strlen(string);
@@ -603,7 +539,6 @@ This does not actually spawn an entity.
 qboolean G_ParseSpawnVars(void)
 {
 	char            keyname[MAX_TOKEN_CHARS];
-
 	char            com_token[MAX_TOKEN_CHARS];
 
 	level.numSpawnVars = 0;

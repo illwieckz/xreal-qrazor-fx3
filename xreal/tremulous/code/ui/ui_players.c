@@ -43,9 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 static int      dp_realtime;
-
 static float    jumpHeight;
-
 sfxHandle_t     weaponChangeSound;
 
 
@@ -86,13 +84,13 @@ tryagain:
 
   if ( weaponNum == WP_MACHINEGUN ) {
     strcpy( path, item->world_model[0] );
-    Com_StripExtension( path, path );
+    COM_StripExtension( path, path );
     strcat( path, "_barrel.md3" );
     pi->barrelModel = trap_R_RegisterModel( path );
   }
 
   strcpy( path, item->world_model[0] );
-  Com_StripExtension( path, path );
+  COM_StripExtension( path, path );
   strcat( path, "_flash.md3" );
   pi->flashModel = trap_R_RegisterModel( path );
 
@@ -307,7 +305,6 @@ UI_PositionEntityOnTag
 static void UI_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, clipHandle_t parentModel, char *tagName)
 {
 	int             i;
-
 	orientation_t   lerped;
 
 	// lerp the tag
@@ -321,7 +318,7 @@ static void UI_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	}
 
 	// cast away const because of compiler problems
-	AxisMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
+	MatrixMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
 	entity->backlerp = parent->backlerp;
 }
 
@@ -335,9 +332,7 @@ static void UI_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_
 										  clipHandle_t parentModel, char *tagName)
 {
 	int             i;
-
 	orientation_t   lerped;
-
 	vec3_t          tempAxis[3];
 
 	// lerp the tag
@@ -351,8 +346,8 @@ static void UI_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_
 	}
 
 	// cast away const because of compiler problems
-	AxisMultiply(entity->axis, ((refEntity_t *) parent)->axis, tempAxis);
-	AxisMultiply(lerped.axis, tempAxis, entity->axis);
+	MatrixMultiply(entity->axis, ((refEntity_t *) parent)->axis, tempAxis);
+	MatrixMultiply(lerped.axis, tempAxis, entity->axis);
 }
 
 
@@ -388,7 +383,6 @@ UI_RunLerpFrame
 static void UI_RunLerpFrame(playerInfo_t * ci, lerpFrame_t * lf, int newAnimation)
 {
 	int             f;
-
 	animation_t    *anim;
 
 	// see if the animation sequence is switching
@@ -514,9 +508,7 @@ static void UI_SwingAngles(float destination, float swingTolerance, float clampT
 						   float speed, float *angle, qboolean * swinging)
 {
 	float           swing;
-
 	float           move;
-
 	float           scale;
 
 	if(!*swinging)
@@ -594,7 +586,6 @@ UI_MovedirAdjustment
 static float UI_MovedirAdjustment(playerInfo_t * pi)
 {
 	vec3_t          relativeAngles;
-
 	vec3_t          moveVector;
 
 	VectorSubtract(pi->viewAngles, pi->moveAngles, relativeAngles);
@@ -649,9 +640,7 @@ UI_PlayerAngles
 static void UI_PlayerAngles(playerInfo_t * pi, vec3_t legs[3], vec3_t torso[3], vec3_t head[3])
 {
 	vec3_t          legsAngles, torsoAngles, headAngles;
-
 	float           dest;
-
 	float           adjust;
 
 	VectorCopy(pi->viewAngles, headAngles);
@@ -734,11 +723,8 @@ UI_MachinegunSpinAngle
 float UI_MachinegunSpinAngle(playerInfo_t * pi)
 {
 	int             delta;
-
 	float           angle;
-
 	float           speed;
-
 	int             torsoAnim;
 
 	delta = dp_realtime - pi->barrelTime;
@@ -781,26 +767,17 @@ UI_DrawPlayer
 void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int time)
 {
 	refdef_t        refdef;
-
 	refEntity_t     legs;
-
 	refEntity_t     torso;
-
 	refEntity_t     head;
-
 	refEntity_t     gun;
-
 	refEntity_t     barrel;
-
 	refEntity_t     flash;
-
 	vec3_t          origin;
-
 	int             renderfx;
 	vec3_t          mins = { -16, -16, -24 };
 	vec3_t          maxs = { 16, 16, 32 };
 	float           len;
-
 	float           xx;
 
 	if(!pi->legsModel || !pi->torsoModel || !pi->headModel || !pi->animations[0].numFrames)
@@ -1037,7 +1014,6 @@ static qboolean UI_FindClientHeadFile(char *filename, int length, const char *te
 									  const char *headSkinName, const char *base, const char *ext)
 {
 	char           *team, *headsFolder;
-
 	int             i;
 
 	team = "default";
@@ -1177,19 +1153,12 @@ UI_ParseAnimationFile
 static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animations)
 {
 	char           *text_p, *prev;
-
 	int             len;
-
 	int             i;
-
 	char           *token;
-
 	float           fps;
-
 	int             skip;
-
 	char            text[20000];
-
 	fileHandle_t    f;
 
 	memset(animations, 0, sizeof(animation_t) * MAX_PLAYER_ANIMATIONS);
@@ -1210,7 +1179,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 	text[len] = 0;
 	trap_FS_FCloseFile(f);
 
-	Com_Compress(text);
+	COM_Compress(text);
 
 	// parse the text
 	text_p = text;
@@ -1220,14 +1189,14 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 	while(1)
 	{
 		prev = text_p;			// so we can unget
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!token)
 		{
 			break;
 		}
 		if(!Q_stricmp(token, "footsteps"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 			{
 				break;
@@ -1238,7 +1207,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 		{
 			for(i = 0; i < 3; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 				{
 					break;
@@ -1248,7 +1217,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 		}
 		else if(!Q_stricmp(token, "sex"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 			{
 				break;
@@ -1270,7 +1239,7 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 	for(i = 0; i < MAX_PLAYER_ANIMATIONS; i++)
 	{
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!token)
 		{
 			break;
@@ -1286,21 +1255,21 @@ static qboolean UI_ParseAnimationFile(const char *filename, animation_t * animat
 			animations[i].firstFrame -= skip;
 		}
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!token)
 		{
 			break;
 		}
 		animations[i].numFrames = atoi(token);
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!token)
 		{
 			break;
 		}
 		animations[i].loopFrames = atoi(token);
 
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 		if(!token)
 		{
 			break;
@@ -1332,15 +1301,10 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 									const char *teamName)
 {
 	char            modelName[MAX_QPATH];
-
 	char            skinName[MAX_QPATH];
-
 	char            headModelName[MAX_QPATH];
-
 	char            headSkinName[MAX_QPATH];
-
 	char            filename[MAX_QPATH];
-
 	char           *slash;
 
 	pi->torsoModel = 0;
@@ -1482,7 +1446,6 @@ void UI_PlayerInfo_SetInfo(playerInfo_t * pi, int legsAnim, int torsoAnim, vec3_
 						   weapon_t weaponNumber, qboolean chat)
 {
 	int             currentAnim;
-
 	weapon_t        weaponNum;
 
 	pi->chat = chat;

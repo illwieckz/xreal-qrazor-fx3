@@ -33,7 +33,6 @@ displayContextDef_t cgDC;
 int             forceModelModificationCount = -1;
 
 void            CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum);
-
 void            CG_Shutdown(void);
 
 /*
@@ -98,263 +97,142 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3,
 
 
 cg_t            cg;
-
 cgs_t           cgs;
-
 centity_t       cg_entities[MAX_GENTITIES];
 
 //TA: weapons limit expanded:
 //weaponInfo_t    cg_weapons[MAX_WEAPONS];
 weaponInfo_t    cg_weapons[32];
-
 upgradeInfo_t   cg_upgrades[32];
 
 buildableInfo_t cg_buildables[BA_NUM_BUILDABLES];
 
 vmCvar_t        cg_teslaTrailTime;
-
 vmCvar_t        cg_railTrailTime;
-
 vmCvar_t        cg_centertime;
-
 vmCvar_t        cg_runpitch;
-
 vmCvar_t        cg_runroll;
-
 vmCvar_t        cg_bobup;
-
 vmCvar_t        cg_bobpitch;
-
 vmCvar_t        cg_bobroll;
-
 vmCvar_t        cg_swingSpeed;
-
 vmCvar_t        cg_shadows;
-
 vmCvar_t        cg_gibs;
-
 vmCvar_t        cg_drawTimer;
-
 vmCvar_t        cg_drawFPS;
-
 vmCvar_t        cg_drawDemoState;
-
 vmCvar_t        cg_drawSnapshot;
-
 vmCvar_t        cg_draw3dIcons;
-
 vmCvar_t        cg_drawIcons;
-
 vmCvar_t        cg_drawAmmoWarning;
-
 vmCvar_t        cg_drawCrosshair;
-
 vmCvar_t        cg_drawCrosshairNames;
-
 vmCvar_t        cg_drawRewards;
-
 vmCvar_t        cg_crosshairX;
-
 vmCvar_t        cg_crosshairY;
-
 vmCvar_t        cg_draw2D;
-
 vmCvar_t        cg_drawStatus;
-
 vmCvar_t        cg_animSpeed;
-
 vmCvar_t        cg_debugAnim;
-
 vmCvar_t        cg_debugPosition;
-
 vmCvar_t        cg_debugEvents;
-
 vmCvar_t        cg_errorDecay;
-
 vmCvar_t        cg_nopredict;
-
 vmCvar_t        cg_debugMove;
-
 vmCvar_t        cg_noPlayerAnims;
-
 vmCvar_t        cg_showmiss;
-
 vmCvar_t        cg_footsteps;
-
 vmCvar_t        cg_addMarks;
-
 vmCvar_t        cg_brassTime;
-
 vmCvar_t        cg_viewsize;
-
 vmCvar_t        cg_drawGun;
-
 vmCvar_t        cg_gun_frame;
-
 vmCvar_t        cg_gun_x;
-
 vmCvar_t        cg_gun_y;
-
 vmCvar_t        cg_gun_z;
-
 vmCvar_t        cg_tracerChance;
-
 vmCvar_t        cg_tracerWidth;
-
 vmCvar_t        cg_tracerLength;
-
 vmCvar_t        cg_autoswitch;
-
 vmCvar_t        cg_ignore;
-
 vmCvar_t        cg_simpleItems;
-
 vmCvar_t        cg_fov;
-
 vmCvar_t        cg_zoomFov;
-
 vmCvar_t        cg_thirdPerson;
-
 vmCvar_t        cg_thirdPersonRange;
-
 vmCvar_t        cg_thirdPersonAngle;
-
 vmCvar_t        cg_stereoSeparation;
-
 vmCvar_t        cg_lagometer;
-
 vmCvar_t        cg_drawAttacker;
-
 vmCvar_t        cg_synchronousClients;
-
 vmCvar_t        cg_teamChatTime;
-
 vmCvar_t        cg_teamChatHeight;
-
 vmCvar_t        cg_stats;
-
 vmCvar_t        cg_buildScript;
-
 vmCvar_t        cg_forceModel;
-
 vmCvar_t        cg_paused;
-
 vmCvar_t        cg_blood;
-
 vmCvar_t        cg_predictItems;
-
 vmCvar_t        cg_deferPlayers;
-
 vmCvar_t        cg_drawTeamOverlay;
-
 vmCvar_t        cg_teamOverlayUserinfo;
-
 vmCvar_t        cg_drawFriend;
-
 vmCvar_t        cg_teamChatsOnly;
-
 vmCvar_t        cg_noVoiceChats;
-
 vmCvar_t        cg_noVoiceText;
-
 vmCvar_t        cg_hudFiles;
-
 vmCvar_t        cg_scorePlum;
-
 vmCvar_t        cg_smoothClients;
-
 vmCvar_t        pmove_fixed;
 
 //vmCvar_t  cg_pmove_fixed;
 vmCvar_t        pmove_msec;
-
 vmCvar_t        cg_pmove_msec;
-
 vmCvar_t        cg_cameraMode;
-
 vmCvar_t        cg_cameraOrbit;
-
 vmCvar_t        cg_cameraOrbitDelay;
-
 vmCvar_t        cg_timescaleFadeEnd;
-
 vmCvar_t        cg_timescaleFadeSpeed;
-
 vmCvar_t        cg_timescale;
-
 vmCvar_t        cg_smallFont;
-
 vmCvar_t        cg_bigFont;
-
 vmCvar_t        cg_noTaunt;
-
 vmCvar_t        cg_noProjectileTrail;
-
 vmCvar_t        cg_oldRail;
-
 vmCvar_t        cg_oldRocket;
-
 vmCvar_t        cg_oldPlasma;
-
 vmCvar_t        cg_trueLightning;
-
 vmCvar_t        cg_creepRes;
-
 vmCvar_t        cg_drawSurfNormal;
-
 vmCvar_t        cg_drawBBOX;
-
 vmCvar_t        cg_debugAlloc;
-
 vmCvar_t        cg_wwSmoothTime;
-
 vmCvar_t        cg_wwFollow;
-
 vmCvar_t        cg_wwToggle;
-
 vmCvar_t        cg_depthSortParticles;
-
 vmCvar_t        cg_consoleLatency;
-
 vmCvar_t        cg_lightFlare;
-
 vmCvar_t        cg_debugParticles;
-
 vmCvar_t        cg_debugTrails;
-
 vmCvar_t        cg_debugPVS;
-
 vmCvar_t        cg_disableWarningDialogs;
-
 vmCvar_t        cg_disableScannerPlane;
-
 vmCvar_t        cg_tutorial;
 
 vmCvar_t        cg_painBlendUpRate;
-
 vmCvar_t        cg_painBlendDownRate;
-
 vmCvar_t        cg_painBlendMax;
-
 vmCvar_t        cg_painBlendScale;
-
 vmCvar_t        cg_painBlendZoom;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t        ui_currentClass;
-
 vmCvar_t        ui_carriage;
-
 vmCvar_t        ui_stages;
-
 vmCvar_t        ui_dialog;
-
 vmCvar_t        ui_loading;
-
 vmCvar_t        ui_voteActive;
-
 vmCvar_t        ui_alienTeamVoteActive;
-
 vmCvar_t        ui_humanTeamVoteActive;
 
 vmCvar_t        cg_debugRandom;
@@ -511,9 +389,7 @@ CG_RegisterCvars
 void CG_RegisterCvars(void)
 {
 	int             i;
-
 	cvarTable_t    *cv;
-
 	char            var[MAX_TOKEN_CHARS];
 
 	for(i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++)
@@ -567,7 +443,6 @@ CG_UpdateCvars
 void CG_UpdateCvars(void)
 {
 	int             i;
-
 	cvarTable_t    *cv;
 
 	for(i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++)
@@ -657,7 +532,6 @@ void CG_AddNotifyText(void)
 void QDECL CG_Printf(const char *msg, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, msg);
@@ -670,7 +544,6 @@ void QDECL CG_Printf(const char *msg, ...)
 void QDECL CG_Error(const char *msg, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, msg);
@@ -683,7 +556,6 @@ void QDECL CG_Error(const char *msg, ...)
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, error);
@@ -696,7 +568,6 @@ void QDECL Com_Error(int level, const char *error, ...)
 void QDECL Com_Printf(const char *msg, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, msg);
@@ -757,9 +628,7 @@ called during a precache command
 static void CG_RegisterSounds(void)
 {
 	int             i;
-
 	char            name[MAX_QPATH];
-
 	const char     *soundName;
 
 	cgs.media.alienStageTransition = trap_S_RegisterSound("sound/announcements/overmindevolved.wav", qtrue);
@@ -858,7 +727,6 @@ This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics(void)
 {
 	int             i;
-
 	static char    *sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
@@ -952,9 +820,7 @@ static void CG_RegisterGraphics(void)
 	for(i = 1; i < cgs.numInlineModels; i++)
 	{
 		char            name[10];
-
 		vec3_t          mins, maxs;
-
 		int             j;
 
 		Com_sprintf(name, sizeof(name), "*%i", i);
@@ -1113,13 +979,12 @@ CG_StartMusic
 void CG_StartMusic(void)
 {
 	char           *s;
-
 	char            parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
 	s = (char *)CG_ConfigString(CS_MUSIC);
-	Q_strncpyz(parm1, Com_Parse(&s), sizeof(parm1));
-	Q_strncpyz(parm2, Com_Parse(&s), sizeof(parm2));
+	Q_strncpyz(parm1, COM_Parse(&s), sizeof(parm1));
+	Q_strncpyz(parm2, COM_Parse(&s), sizeof(parm2));
 
 	trap_S_StartBackgroundTrack(parm1, parm2);
 }
@@ -1152,9 +1017,7 @@ int CG_PlayerCount(void)
 char           *CG_GetMenuBuffer(const char *filename)
 {
 	int             len;
-
 	fileHandle_t    f;
-
 	static char     buf[MAX_MENUFILE];
 
 	len = trap_FS_FOpenFile(filename, &f, FS_READ);
@@ -1182,7 +1045,6 @@ char           *CG_GetMenuBuffer(const char *filename)
 qboolean CG_Asset_Parse(int handle)
 {
 	pc_token_t      token;
-
 	const char     *tempStr;
 
 	if(!trap_PC_ReadToken(handle, &token))
@@ -1350,7 +1212,6 @@ qboolean CG_Asset_Parse(int handle)
 void CG_ParseMenu(const char *menuFile)
 {
 	pc_token_t      token;
-
 	int             handle;
 
 	handle = trap_PC_LoadSource(menuFile);
@@ -1402,14 +1263,14 @@ qboolean CG_Load_Menu(char **p)
 {
 	char           *token;
 
-	token = Com_ParseExt(p, qtrue);
+	token = COM_ParseExt(p, qtrue);
 
 	if(token[0] != '{')
 		return qfalse;
 
 	while(1)
 	{
-		token = Com_ParseExt(p, qtrue);
+		token = COM_ParseExt(p, qtrue);
 
 		if(Q_stricmp(token, "}") == 0)
 			return qtrue;
@@ -1427,13 +1288,9 @@ qboolean CG_Load_Menu(char **p)
 void CG_LoadMenus(const char *menuFile)
 {
 	char           *token;
-
 	char           *p;
-
 	int             len, start;
-
 	fileHandle_t    f;
-
 	static char     buf[MAX_MENUDEFFILE];
 
 	start = trap_Milliseconds();
@@ -1460,7 +1317,7 @@ void CG_LoadMenus(const char *menuFile)
 	buf[len] = 0;
 	trap_FS_FCloseFile(f);
 
-	Com_Compress(buf);
+	COM_Compress(buf);
 
 	Menu_Reset();
 
@@ -1468,7 +1325,7 @@ void CG_LoadMenus(const char *menuFile)
 
 	while(1)
 	{
-		token = Com_ParseExt(&p, qtrue);
+		token = COM_ParseExt(&p, qtrue);
 
 		if(!token || token[0] == 0 || token[0] == '}')
 			break;
@@ -1524,11 +1381,8 @@ static int CG_FeederCount(float feederID)
 void CG_SetScoreSelection(void *p)
 {
 	menuDef_t      *menu = (menuDef_t *) p;
-
 	playerState_t  *ps = &cg.snap->ps;
-
 	int             i, alien, human;
-
 	int             feeder;
 
 	alien = human = 0;
@@ -1587,13 +1441,9 @@ static clientInfo_t *CG_InfoFromScoreIndex(int index, int team, int *scoreIndex)
 static const char *CG_FeederItemText(float feederID, int index, int column, qhandle_t * handle)
 {
 	int             scoreIndex = 0;
-
 	clientInfo_t   *info = NULL;
-
 	int             team = -1;
-
 	score_t        *sp = NULL;
-
 	qboolean        showIcons = qfalse;
 
 	*handle = -1;
@@ -1684,7 +1534,6 @@ static qhandle_t CG_FeederItemImage(float feederID, int index)
 static void CG_FeederSelection(float feederID, int index)
 {
 	int             i, count;
-
 	int             team = (feederID == FEEDER_ALIENTEAM_LIST) ? PTE_ALIENS : PTE_HUMANS;
 
 	count = 0;
@@ -1763,7 +1612,6 @@ CG_LoadHudMenu
 void CG_LoadHudMenu(void)
 {
 	char            buff[1024];
-
 	const char     *hudSet;
 
 	cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;

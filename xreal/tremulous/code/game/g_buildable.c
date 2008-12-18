@@ -64,13 +64,9 @@ Check if a spawn at a specified point is valid
 gentity_t      *G_CheckSpawnPoint(int spawnNum, vec3_t origin, vec3_t normal, buildable_t spawn, vec3_t spawnOrigin)
 {
 	float           displacement;
-
 	vec3_t          mins, maxs;
-
 	vec3_t          cmins, cmaxs;
-
 	vec3_t          localOrigin;
-
 	trace_t         tr;
 
 	BG_FindBBoxForBuildable(spawn, mins, maxs);
@@ -138,7 +134,6 @@ Return number of entities that depend on this one
 static int G_NumberOfDependants(gentity_t * self)
 {
 	int             i, n = 0;
-
 	gentity_t      *ent;
 
 	for(i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++)
@@ -165,17 +160,11 @@ attempt to find power for self, return qtrue if successful
 static qboolean findPower(gentity_t * self)
 {
 	int             i;
-
 	gentity_t      *ent;
-
 	gentity_t      *closestPower = NULL;
-
 	int             distance = 0;
-
 	int             minDistance = 10000;
-
 	vec3_t          temp_v;
-
 	qboolean        foundPower = qfalse;
 
 	if(self->biteam != BIT_HUMANS)
@@ -256,17 +245,11 @@ attempt to find a controlling DCC for self, return qtrue if successful
 static qboolean findDCC(gentity_t * self)
 {
 	int             i;
-
 	gentity_t      *ent;
-
 	gentity_t      *closestDCC = NULL;
-
 	int             distance = 0;
-
 	int             minDistance = 10000;
-
 	vec3_t          temp_v;
-
 	qboolean        foundDCC = qfalse;
 
 	if(self->biteam != BIT_HUMANS)
@@ -337,7 +320,6 @@ Attempt to find an overmind for self
 static qboolean findOvermind(gentity_t * self)
 {
 	int             i;
-
 	gentity_t      *ent;
 
 	if(self->biteam != BIT_ALIENS)
@@ -396,15 +378,10 @@ attempt to find creep for self, return qtrue if successful
 static qboolean findCreep(gentity_t * self)
 {
 	int             i;
-
 	gentity_t      *ent;
-
 	gentity_t      *closestSpawn = NULL;
-
 	int             distance = 0;
-
 	int             minDistance = 10000;
-
 	vec3_t          temp_v;
 
 	//don't check for creep if flying through the air
@@ -473,17 +450,11 @@ Set any nearby humans' SS_CREEPSLOWED flag
 static void creepSlow(gentity_t * self)
 {
 	int             entityList[MAX_GENTITIES];
-
 	vec3_t          range;
-
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *enemy;
-
 	buildable_t     buildable = self->s.modelindex;
-
 	float           creepSize = (float)BG_FindCreepSizeForBuildable(buildable);
 
 	VectorSet(range, creepSize, creepSize, creepSize);
@@ -737,9 +708,7 @@ void AOvermind_Think(gentity_t * self)
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE };
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *enemy;
 
 	VectorAdd(self->s.origin, range, maxs);
@@ -947,9 +916,7 @@ void AAcidTube_Think(gentity_t * self)
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { ACIDTUBE_RANGE, ACIDTUBE_RANGE, ACIDTUBE_RANGE };
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *enemy;
 
 	VectorAdd(self->s.origin, range, maxs);
@@ -1009,11 +976,8 @@ void AHive_Think(gentity_t * self)
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { ACIDTUBE_RANGE, ACIDTUBE_RANGE, ACIDTUBE_RANGE };
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *enemy;
-
 	vec3_t          dirToTarget;
 
 	self->nextthink = level.time + BG_FindNextThinkForBuildable(self->s.modelindex);
@@ -1086,11 +1050,8 @@ Is this hovel entrance blocked?
 qboolean AHovel_Blocked(gentity_t * hovel, gentity_t * player, qboolean provideExit)
 {
 	vec3_t          forward, normal, origin, start, end, angles, hovelMaxs;
-
 	vec3_t          mins, maxs;
-
 	float           displacement;
-
 	trace_t         tr;
 
 	BG_FindBBoxForBuildable(BA_A_HOVEL, NULL, hovelMaxs);
@@ -1261,9 +1222,7 @@ void AHovel_Die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if(self->active)
 	{
 		gentity_t      *builder = self->builder;
-
 		vec3_t          newOrigin;
-
 		vec3_t          newAngles;
 
 		VectorCopy(self->s.angles, newAngles);
@@ -1348,15 +1307,10 @@ Used by ATrapper_Think to fire at enemy
 void ATrapper_FireOnEnemy(gentity_t * self, int firespeed, float range)
 {
 	gentity_t      *enemy = self->enemy;
-
 	vec3_t          dirToTarget;
-
 	vec3_t          halfAcceleration, thirdJerk;
-
 	float           distanceToTarget = BG_FindRangeForBuildable(self->s.modelindex);
-
 	int             lowMsec = 0;
-
 	int             highMsec = (int)((((distanceToTarget * LOCKBLOB_SPEED) +
 									   (distanceToTarget * BG_FindSpeedForClass(enemy->client->ps.stats[STAT_PCLASS]))) /
 									  (LOCKBLOB_SPEED * LOCKBLOB_SPEED)) * 1000.0f);
@@ -1369,9 +1323,7 @@ void ATrapper_FireOnEnemy(gentity_t * self, int firespeed, float range)
 	while(highMsec - lowMsec > TRAPPER_ACCURACY)
 	{
 		int             partitionMsec = (highMsec + lowMsec) / 2;
-
 		float           time = (float)partitionMsec / 1000.0f;
-
 		float           projectileDistance = LOCKBLOB_SPEED * time;
 
 		VectorMA(enemy->s.pos.trBase, time, enemy->s.pos.trDelta, dirToTarget);
@@ -1407,7 +1359,6 @@ Used by ATrapper_Think to check enemies for validity
 qboolean ATrapper_CheckTarget(gentity_t * self, gentity_t * target, int range)
 {
 	vec3_t          distance;
-
 	trace_t         trace;
 
 	if(!target)					// Do we have a target?
@@ -1480,7 +1431,6 @@ think function for Alien Defense
 void ATrapper_Think(gentity_t * self)
 {
 	int             range = BG_FindRangeForBuildable(self->s.modelindex);
-
 	int             firespeed = BG_FindFireSpeedForBuildable(self->s.modelindex);
 
 	creepSlow(self);
@@ -1526,9 +1476,7 @@ Think for human power repeater
 void HRepeater_Think(gentity_t * self)
 {
 	int             i;
-
 	qboolean        reactor = qfalse;
-
 	gentity_t      *ent;
 
 	if(self->spawned)
@@ -1594,9 +1542,7 @@ void HReactor_Think(gentity_t * self)
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { REACTOR_ATTACK_RANGE, REACTOR_ATTACK_RANGE, REACTOR_ATTACK_RANGE };
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *enemy, *tent;
 
 	VectorAdd(self->s.origin, range, maxs);
@@ -1719,13 +1665,9 @@ think function for Human Medistation
 void HMedistat_Think(gentity_t * self)
 {
 	int             entityList[MAX_GENTITIES];
-
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *player;
-
 	qboolean        occupied = qfalse;
 
 	self->nextthink = level.time + BG_FindNextThinkForBuildable(self->s.modelindex);
@@ -1837,7 +1779,6 @@ qboolean HMGTurret_TrackEnemy(gentity_t * self)
 	vec3_t          dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	float           temp, rotAngle;
-
 	float           accuracyTolerance, angularSpeed;
 
 	if(self->lev1Grabbed)
@@ -1918,7 +1859,6 @@ Used by HMGTurret_Think to check enemies for validity
 qboolean HMGTurret_CheckTarget(gentity_t * self, gentity_t * target, qboolean ignorePainted)
 {
 	trace_t         trace;
-
 	gentity_t      *traceEnt;
 
 	if(!target)
@@ -1964,13 +1904,9 @@ Used by HMGTurret_Think to locate enemy gentities
 void HMGTurret_FindEnemy(gentity_t * self)
 {
 	int             entityList[MAX_GENTITIES];
-
 	vec3_t          range;
-
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *target;
 
 	VectorSet(range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE);
@@ -2096,15 +2032,10 @@ Think function for Tesla Generator
 void HTeslaGen_Think(gentity_t * self)
 {
 	int             entityList[MAX_GENTITIES];
-
 	vec3_t          range;
-
 	vec3_t          mins, maxs;
-
 	vec3_t          dir;
-
 	int             i, num;
-
 	gentity_t      *enemy;
 
 	self->nextthink = level.time + BG_FindNextThinkForBuildable(self->s.modelindex);
@@ -2319,15 +2250,10 @@ Find all trigger entities that a buildable touches.
 void G_BuildableTouchTriggers(gentity_t * ent)
 {
 	int             i, num;
-
 	int             touch[MAX_GENTITIES];
-
 	gentity_t      *hit;
-
 	trace_t         trace;
-
 	vec3_t          mins, maxs;
-
 	vec3_t          bmins, bmaxs;
 	static vec3_t   range = { 10, 10, 10 };
 
@@ -2383,9 +2309,7 @@ General think function for buildables
 void G_BuildableThink(gentity_t * ent, int msec)
 {
 	int             bHealth = BG_FindHealthForBuildable(ent->s.modelindex);
-
 	int             bRegen = BG_FindRegenRateForBuildable(ent->s.modelindex);
-
 	int             bTime = BG_FindBuildTimeForBuildable(ent->s.modelindex);
 
 	//pack health, power and dcc
@@ -2454,13 +2378,9 @@ Check whether a point is within some range of a type of buildable
 qboolean G_BuildableRange(vec3_t origin, float r, buildable_t buildable)
 {
 	int             entityList[MAX_GENTITIES];
-
 	vec3_t          range;
-
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *ent;
 
 	VectorSet(range, r, r, r);
@@ -2496,25 +2416,15 @@ Checks to see if an item fits in a specific area
 itemBuildError_t G_itemFits(gentity_t * ent, buildable_t buildable, int distance, vec3_t origin)
 {
 	vec3_t          angles;
-
 	vec3_t          entity_origin, normal;
-
 	vec3_t          mins, maxs;
-
 	trace_t         tr1, tr2, tr3;
-
 	int             i;
-
 	itemBuildError_t reason = IBE_NONE;
-
 	gentity_t      *tempent;
-
 	float           minNormal;
-
 	qboolean        invert;
-
 	int             contents;
-
 	playerState_t  *ps = &ent->client->ps;
 
 	BG_FindBBoxForBuildable(buildable, mins, maxs);
@@ -2709,7 +2619,6 @@ Spawns a buildable
 gentity_t      *G_buildItem(gentity_t * builder, buildable_t buildable, vec3_t origin, vec3_t angles)
 {
 	gentity_t      *built;
-
 	vec3_t          normal;
 
 	//spawn the buildable
@@ -2906,7 +2815,6 @@ G_ValidateBuild
 qboolean G_ValidateBuild(gentity_t * ent, buildable_t buildable)
 {
 	float           dist;
-
 	vec3_t          origin;
 
 	dist = BG_FindBuildDistForClass(ent->client->ps.stats[STAT_PCLASS]);
@@ -3015,11 +2923,8 @@ free fall from their spawn points
 void FinishSpawningBuildable(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          dest;
-
 	gentity_t      *built;
-
 	buildable_t     buildable = ent->s.modelindex;
 
 	built = G_buildItem(ent, buildable, ent->s.pos.trBase, ent->s.angles);

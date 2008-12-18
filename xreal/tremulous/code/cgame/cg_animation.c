@@ -34,7 +34,6 @@ cg.time should be between oldFrameTime and frameTime after exit
 void CG_RunLerpFrame(lerpFrame_t * lf)
 {
 	int             f, numFrames;
-
 	animation_t    *anim;
 
 	// debugging tool to get no animations

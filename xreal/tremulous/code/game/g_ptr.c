@@ -76,7 +76,6 @@ Generates a new connection
 connectionRecord_t *G_GenerateNewConnection(gclient_t * client)
 {
 	int             code = 0;
-
 	int             i;
 
 	// this should be really random

@@ -37,9 +37,7 @@ Read a PTR code from disk
 int CG_ReadPTRCode(void)
 {
 	int             len;
-
 	char            text[16];
-
 	fileHandle_t    f;
 
 	// load the file
@@ -68,7 +66,6 @@ Write a PTR code to disk
 void CG_WritePTRCode(int code)
 {
 	char            text[16];
-
 	fileHandle_t    f;
 
 	Com_sprintf(text, 16, "%d", code);

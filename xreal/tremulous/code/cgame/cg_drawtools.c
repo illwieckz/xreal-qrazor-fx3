@@ -36,7 +36,6 @@ Draw a quad in 3 space - basically CG_DrawPic in 3 space
 void CG_DrawPlane(vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader)
 {
 	polyVert_t      verts[4];
-
 	vec3_t          temp;
 
 	VectorCopy(origin, verts[0].xyz);
@@ -186,7 +185,6 @@ Coordinates are 640*480 virtual values
 void CG_DrawFadePic(float x, float y, float width, float height, vec4_t fcolor, vec4_t tcolor, float amount, qhandle_t hShader)
 {
 	vec4_t          finalcolor;
-
 	float           inverse;
 
 	inverse = 100 - amount;
@@ -213,7 +211,6 @@ Returns character count, skiping color escape codes
 int CG_DrawStrlen(const char *str)
 {
 	const char     *s = str;
-
 	int             count = 0;
 
 	while(*s)
@@ -261,7 +258,6 @@ Clear around a sized down screen
 void CG_TileClear(void)
 {
 	int             top, bottom, left, right;
-
 	int             w, h;
 
 	w = cgs.glconfig.vidWidth;
@@ -298,7 +294,6 @@ CG_FadeColor
 float          *CG_FadeColor(int startMsec, int totalMsec)
 {
 	static vec4_t   color;
-
 	int             t;
 
 	if(startMsec == 0)

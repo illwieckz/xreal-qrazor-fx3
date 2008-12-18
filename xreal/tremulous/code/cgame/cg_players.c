@@ -52,7 +52,6 @@ CG_CustomSound
 sfxHandle_t CG_CustomSound(int clientNum, const char *soundName)
 {
 	clientInfo_t   *ci;
-
 	int             i;
 
 	if(soundName[0] != '*')
@@ -94,21 +93,13 @@ models/players/visor/animation.cfg, etc
 static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 {
 	char           *text_p, *prev;
-
 	int             len;
-
 	int             i;
-
 	char           *token;
-
 	float           fps;
-
 	int             skip;
-
 	char            text[20000];
-
 	fileHandle_t    f;
-
 	animation_t    *animations;
 
 	animations = ci->animations;
@@ -144,14 +135,14 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 	while(1)
 	{
 		prev = text_p;			// so we can unget
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 
 		if(!token)
 			break;
 
 		if(!Q_stricmp(token, "footsteps"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!token)
 				break;
 
@@ -172,7 +163,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 		{
 			for(i = 0; i < 3; i++)
 			{
-				token = Com_Parse(&text_p);
+				token = COM_Parse(&text_p);
 				if(!token)
 					break;
 
@@ -183,7 +174,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 		}
 		else if(!Q_stricmp(token, "sex"))
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!token)
 				break;
@@ -228,7 +219,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 		// read information for each frame
 		for(i = 0; i < MAX_PLAYER_ANIMATIONS; i++)
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!*token)
 			{
@@ -256,7 +247,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 			if(i >= LEGS_WALKCR && i < TORSO_GETFLAG)
 				animations[i].firstFrame -= skip;
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!*token)
 				break;
 
@@ -271,14 +262,14 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 				animations[i].reversed = qtrue;
 			}
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!*token)
 				break;
 
 			animations[i].loopFrames = atoi(token);
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!*token)
 				break;
@@ -329,14 +320,14 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 		// read information for each frame
 		for(i = 0; i < MAX_NONSEG_PLAYER_ANIMATIONS; i++)
 		{
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!*token)
 				break;
 
 			animations[i].firstFrame = atoi(token);
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 			if(!*token)
 				break;
 
@@ -351,14 +342,14 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 				animations[i].reversed = qtrue;
 			}
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!*token)
 				break;
 
 			animations[i].loopFrames = atoi(token);
 
-			token = Com_Parse(&text_p);
+			token = COM_Parse(&text_p);
 
 			if(!*token)
 				break;
@@ -544,11 +535,8 @@ Load it now, taking the disk hits
 static void CG_LoadClientInfo(clientInfo_t * ci)
 {
 	const char     *dir, *fallback;
-
 	int             i;
-
 	const char     *s;
-
 	int             clientNum;
 
 	if(!CG_RegisterClientModelname(ci, ci->modelName, ci->skinName))
@@ -662,11 +650,8 @@ CG_GetCorpseNum
 static int CG_GetCorpseNum(pClass_t class)
 {
 	int             i;
-
 	clientInfo_t   *match;
-
 	char           *modelName;
-
 	char           *skinName;
 
 	modelName = BG_FindModelNameForClass(class);
@@ -699,7 +684,6 @@ CG_ScanForExistingClientInfo
 static qboolean CG_ScanForExistingClientInfo(clientInfo_t * ci)
 {
 	int             i;
-
 	clientInfo_t   *match;
 
 	for(i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++)
@@ -731,7 +715,6 @@ CG_PrecacheClientInfo
 void CG_PrecacheClientInfo(pClass_t class, char *model, char *skin)
 {
 	clientInfo_t   *ci;
-
 	clientInfo_t    newInfo;
 
 	ci = &cgs.corpseinfo[class];
@@ -771,13 +754,9 @@ CG_NewClientInfo
 void CG_NewClientInfo(int clientNum)
 {
 	clientInfo_t   *ci;
-
 	clientInfo_t    newInfo;
-
 	const char     *configstring;
-
 	const char     *v;
-
 	char           *slash;
 
 	ci = &cgs.clientinfo[clientNum];
@@ -933,7 +912,6 @@ cg.time should be between oldFrameTime and frameTime after exit
 static void CG_RunPlayerLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation, float speedScale)
 {
 	int             f, numFrames;
-
 	animation_t    *anim;
 
 	// debugging tool to get no animations
@@ -1042,9 +1020,7 @@ static void CG_PlayerAnimation(centity_t * cent, int *legsOld, int *legs, float 
 							   int *torsoOld, int *torso, float *torsoBackLerp)
 {
 	clientInfo_t   *ci;
-
 	int             clientNum;
-
 	float           speedScale = 1.0f;
 
 	clientNum = cent->currentState.clientNum;
@@ -1083,9 +1059,7 @@ CG_PlayerNonSegAnimation
 static void CG_PlayerNonSegAnimation(centity_t * cent, int *nonSegOld, int *nonSeg, float *nonSegBackLerp)
 {
 	clientInfo_t   *ci;
-
 	int             clientNum;
-
 	float           speedScale = 1.0f;
 
 	clientNum = cent->currentState.clientNum;
@@ -1126,9 +1100,7 @@ static void CG_SwingAngles(float destination, float swingTolerance, float clampT
 						   float speed, float *angle, qboolean * swinging)
 {
 	float           swing;
-
 	float           move;
-
 	float           scale;
 
 	if(!*swinging)
@@ -1195,7 +1167,6 @@ CG_AddPainTwitch
 static void CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles)
 {
 	int             t;
-
 	float           f;
 
 	t = cg.time - cent->pe.painTime;
@@ -1229,15 +1200,11 @@ Handles seperate torso motion
 static void CG_PlayerAngles(centity_t * cent, vec3_t srcAngles, vec3_t legs[3], vec3_t torso[3], vec3_t head[3])
 {
 	vec3_t          legsAngles, torsoAngles, headAngles;
-
 	float           dest;
 	static int      movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
 	vec3_t          velocity;
-
 	float           speed;
-
 	int             dir, clientNum;
-
 	clientInfo_t   *ci;
 
 	VectorCopy(srcAngles, headAngles);
@@ -1320,7 +1287,6 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t srcAngles, vec3_t legs[3], 
 	if(speed)
 	{
 		vec3_t          axis[3];
-
 		float           side;
 
 		speed *= 0.05f;
@@ -1371,14 +1337,11 @@ Smooth the angles of transitioning wall walkers
 static void CG_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
 {
 	entityState_t  *es = &cent->currentState;
-
 	int             i;
-
 	vec3_t          surfNormal, rotAxis, temp;
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
 	float           stLocal, sFraction, rotAngle;
-
 	vec3_t          inAxis[3], lastAxis[3], outAxis[3];
 
 	//set surfNormal
@@ -1464,15 +1427,10 @@ Resolve angles for non-segmented models
 static void CG_PlayerNonSegAngles(centity_t * cent, vec3_t srcAngles, vec3_t nonSegAxis[3])
 {
 	vec3_t          localAngles;
-
 	vec3_t          velocity;
-
 	float           speed;
-
 	int             dir;
-
 	entityState_t  *es = &cent->currentState;
-
 	vec3_t          surfNormal;
 	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
 
@@ -1545,7 +1503,6 @@ static void CG_PlayerNonSegAngles(centity_t * cent, vec3_t srcAngles, vec3_t non
 	if(speed)
 	{
 		vec3_t          axis[3];
-
 		float           side;
 
 		//much less than with the regular model system
@@ -1577,13 +1534,9 @@ CG_PlayerUpgrade
 static void CG_PlayerUpgrades(centity_t * cent, refEntity_t * torso)
 {
 	int             held, active;
-
 	refEntity_t     jetpack;
-
 	refEntity_t     battpack;
-
 	refEntity_t     flash;
-
 	entityState_t  *es = &cent->currentState;
 
 	held = es->modelindex;
@@ -1703,7 +1656,6 @@ static void CG_PlayerUpgrades(centity_t * cent, refEntity_t * torso)
 	{
 		vec3_t          temp, origin, up = { 0.0f, 0.0f, 1.0f };
 		trace_t         tr;
-
 		float           size;
 
 		VectorCopy(es->pos.trBase, temp);
@@ -1730,7 +1682,6 @@ Float a sprite over the player's head
 static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 {
 	int             rf;
-
 	refEntity_t     ent;
 
 	if(cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
@@ -1790,11 +1741,8 @@ Returns the Z component of the surface being shadowed
 static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, pClass_t class)
 {
 	vec3_t          end, mins, maxs;
-
 	trace_t         trace;
-
 	float           alpha;
-
 	entityState_t  *es = &cent->currentState;
 	vec3_t          surfNormal = { 0.0f, 0.0f, 1.0f };
 
@@ -1859,11 +1807,8 @@ Draw a mark at the water surface
 static void CG_PlayerSplash(centity_t * cent, pClass_t class)
 {
 	vec3_t          start, end;
-
 	vec3_t          mins, maxs;
-
 	trace_t         trace;
-
 	int             contents;
 
 	if(!cg_shadows.integer)
@@ -1909,13 +1854,9 @@ CG_LightVerts
 int CG_LightVerts(vec3_t normal, int numVerts, polyVert_t * verts)
 {
 	int             i, j;
-
 	float           incoming;
-
 	vec3_t          ambientLight;
-
 	vec3_t          lightDir;
-
 	vec3_t          directedLight;
 
 	trap_R_LightForPoint(verts[0].xyz, ambientLight, directedLight, lightDir);
@@ -1968,15 +1909,10 @@ CG_LightFromDirection
 int CG_LightFromDirection(vec3_t point, vec3_t direction)
 {
 	int             j;
-
 	float           incoming;
-
 	vec3_t          ambientLight;
-
 	vec3_t          lightDir;
-
 	vec3_t          directedLight;
-
 	vec3_t          result;
 
 	trap_R_LightForPoint(point, ambientLight, directedLight, lightDir);
@@ -2024,11 +1960,8 @@ CG_AmbientLight
 int CG_AmbientLight(vec3_t point)
 {
 	vec3_t          ambientLight;
-
 	vec3_t          lightDir;
-
 	vec3_t          directedLight;
-
 	vec3_t          result;
 
 	trap_R_LightForPoint(point, ambientLight, directedLight, lightDir);
@@ -2053,29 +1986,17 @@ void CG_Player(centity_t * cent)
 	//TA: NOTE: legs is used for nonsegmented models
 	//          this helps reduce code to be changed
 	refEntity_t     legs;
-
 	refEntity_t     torso;
-
 	refEntity_t     head;
-
 	int             clientNum;
-
 	int             renderfx;
-
 	qboolean        shadow = qfalse;
-
 	float           shadowPlane;
-
 	entityState_t  *es = &cent->currentState;
-
 	pClass_t        class = (es->powerups >> 8) & 0xFF;
-
 	float           scale;
-
 	vec3_t          tempAxis[3], tempAxis2[3];
-
 	vec3_t          angles;
-
 	int             held = es->modelindex;
 	vec3_t          surfNormal = { 0.0f, 0.0f, 1.0f };
 
@@ -2199,7 +2120,6 @@ void CG_Player(centity_t * cent)
 	if(es->eFlags & EF_WALLCLIMB && !(es->eFlags & EF_DEAD) && !(cg.intermissionStarted))
 	{
 		vec3_t          start, end, mins, maxs;
-
 		trace_t         tr;
 
 		if(es->eFlags & EF_WALLCLIMBCEILING)
@@ -2326,25 +2246,15 @@ CG_Corpse
 void CG_Corpse(centity_t * cent)
 {
 	clientInfo_t   *ci;
-
 	refEntity_t     legs;
-
 	refEntity_t     torso;
-
 	refEntity_t     head;
-
 	entityState_t  *es = &cent->currentState;
-
 	int             corpseNum;
-
 	int             renderfx;
-
 	qboolean        shadow = qfalse;
-
 	float           shadowPlane;
-
 	vec3_t          origin, liveZ, deadZ;
-
 	float           scale;
 
 	corpseNum = CG_GetCorpseNum(es->clientNum);
@@ -2574,9 +2484,7 @@ This is the spurt of blood when a character gets hit
 void CG_Bleed(vec3_t origin, vec3_t normal, int entityNum)
 {
 	pTeam_t         team = cgs.clientinfo[entityNum].team;
-
 	qhandle_t       bleedPS;
-
 	particleSystem_t *ps;
 
 	if(!cg_blood.integer)
@@ -2611,7 +2519,6 @@ Is the local client at the highest class possible?
 qboolean CG_AtHighestClass(void)
 {
 	int             i;
-
 	qboolean        superiorClasses = qfalse;
 
 	for(i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++)

@@ -37,19 +37,12 @@ CG_DamageFeedback
 void CG_DamageFeedback(int yawByte, int pitchByte, int damage)
 {
 	float           left, front, up;
-
 	float           kick;
-
 	int             health;
-
 	float           scale;
-
 	vec3_t          dir;
-
 	vec3_t          angles;
-
 	float           dist;
-
 	float           yaw, pitch;
 
 	// show the attacking player's head and name in corner
@@ -170,9 +163,7 @@ CG_CheckPlayerstateEvents
 void CG_CheckPlayerstateEvents(playerState_t * ps, playerState_t * ops)
 {
 	int             i;
-
 	int             event;
-
 	centity_t      *cent;
 
 	if(ps->externalEvent && ps->externalEvent != ops->externalEvent)
@@ -216,9 +207,7 @@ CG_CheckChangedPredictableEvents
 void CG_CheckChangedPredictableEvents(playerState_t * ps)
 {
 	int             i;
-
 	int             event;
-
 	centity_t      *cent;
 
 	cent = &cg.predictedPlayerEntity;

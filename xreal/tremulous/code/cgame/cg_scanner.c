@@ -37,7 +37,6 @@ Update this client's perception of entity positions
 void CG_UpdateEntityPositions(void)
 {
 	centity_t      *cent = NULL;
-
 	int             i;
 
 	if(cg.predictedPlayerState.stats[STAT_PTEAM] == PTE_HUMANS)
@@ -118,7 +117,6 @@ static void CG_DrawBlips(rectDef_t * rect, vec3_t origin, vec4_t colour)
 	vec3_t          drawOrigin;
 	vec3_t          up = { 0, 0, 1 };
 	float           alphaMod = 1.0f;
-
 	float           timeFractionSinceRefresh = 1.0f -
 		((float)(cg.time - entityPositions.lastUpdateTime) / (float)HUMAN_SCANNER_UPDATE_PERIOD);
 	vec4_t          localColour;
@@ -168,16 +166,12 @@ Draw dot marking the direction to an enemy
 static void CG_DrawDir(rectDef_t * rect, vec3_t origin, vec4_t colour)
 {
 	vec3_t          drawOrigin;
-
 	vec3_t          noZOrigin;
-
 	vec3_t          normal, antinormal, normalDiff;
-
 	vec3_t          view, noZview;
 	vec3_t          up = { 0.0f, 0.0f, 1.0f };
 	vec3_t          top = { 0.0f, -1.0f, 0.0f };
 	float           angle;
-
 	playerState_t  *ps = &cg.snap->ps;
 
 	if(ps->stats[STAT_STATE] & SS_WALLCLIMBING)
@@ -224,9 +218,7 @@ CG_AlienSense
 void CG_AlienSense(rectDef_t * rect)
 {
 	int             i;
-
 	vec3_t          origin;
-
 	vec3_t          relOrigin;
 	vec4_t          buildable = { 1.0f, 0.0f, 0.0f, 0.7f };
 	vec4_t          client = { 0.0f, 0.0f, 1.0f, 0.7f };
@@ -262,13 +254,9 @@ CG_Scanner
 void CG_Scanner(rectDef_t * rect, qhandle_t shader, vec4_t color)
 {
 	int             i;
-
 	vec3_t          origin;
-
 	vec3_t          relOrigin;
-
 	vec4_t          hIabove;
-
 	vec4_t          hIbelow;
 	vec4_t          aIabove = { 1.0f, 0.0f, 0.0f, 0.75f };
 	vec4_t          aIbelow = { 1.0f, 0.0f, 0.0f, 0.5f };

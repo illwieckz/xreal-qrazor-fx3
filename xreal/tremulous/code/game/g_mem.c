@@ -35,9 +35,7 @@ struct freememnode
 };
 
 static char     memoryPool[POOLSIZE];
-
 static struct freememnode *freehead;
-
 static int      freemem;
 
 void           *G_Alloc(int size)
@@ -46,11 +44,8 @@ void           *G_Alloc(int size)
 	// Does two passes, attempts to fill same-sized free slot first.
 
 	struct freememnode *fmn, *prev, *next, *smallest;
-
 	int             allocsize, smallestsize;
-
 	char           *endptr;
-
 	int            *ptr;
 
 	allocsize = (size + sizeof(int) + ROUNDBITS) & ~ROUNDBITS;	// Round to 32-byte boundary
@@ -120,9 +115,7 @@ void G_Free(void *ptr)
 	// Release allocated memory, add it to the free list.
 
 	struct freememnode *fmn;
-
 	char           *freeend;
-
 	int            *freeptr;
 
 	freeptr = ptr;

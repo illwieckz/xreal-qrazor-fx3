@@ -24,11 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 damageRegion_t  g_damageRegions[PCL_NUM_CLASSES][MAX_LOCDAMAGE_REGIONS];
-
 int             g_numDamageRegions[PCL_NUM_CLASSES];
 
 armourRegion_t  g_armourRegions[UP_NUM_UPGRADES][MAX_ARMOUR_REGIONS];
-
 int             g_numArmourRegions[UP_NUM_UPGRADES];
 
 /*
@@ -133,17 +131,11 @@ player_die
 void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath)
 {
 	gentity_t      *ent;
-
 	int             anim;
-
 	int             killer;
-
 	int             i, j;
-
 	char           *killerName, *obit;
-
 	float           totalDamage = 0.0f;
-
 	gentity_t      *player;
 
 
@@ -280,9 +272,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		{
 			//horribly complex nasty alien land
 			float           humanValue = BG_GetValueOfHuman(&self->client->ps);
-
 			int             frags;
-
 			int             unclaimedFrags = (int)humanValue;
 
 			for(i = 0; i < MAX_CLIENTS; i++)
@@ -329,7 +319,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				for(i = 0; i < unclaimedFrags; i++)
 				{
 					int             maximum = 0;
-
 					int             topClient = 0;
 
 					for(j = 0; j < MAX_CLIENTS; j++)
@@ -469,14 +458,13 @@ G_ParseArmourScript
 void G_ParseArmourScript(char *buf, int upgrade)
 {
 	char           *token;
-
 	int             count;
 
 	count = 0;
 
 	while(1)
 	{
-		token = Com_Parse(&buf);
+		token = COM_Parse(&buf);
 
 		if(!token[0])
 			break;
@@ -503,7 +491,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 
 		while(1)
 		{
-			token = Com_ParseExt(&buf, qtrue);
+			token = COM_ParseExt(&buf, qtrue);
 
 			if(!token[0])
 			{
@@ -517,7 +505,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "minHeight"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -526,7 +514,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "maxHeight"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "100");
@@ -535,7 +523,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "minAngle"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -544,7 +532,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "maxAngle"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "360");
@@ -553,7 +541,7 @@ void G_ParseArmourScript(char *buf, int upgrade)
 			}
 			else if(!strcmp(token, "modifier"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "1.0");
@@ -580,14 +568,13 @@ G_ParseDmgScript
 void G_ParseDmgScript(char *buf, int class)
 {
 	char           *token;
-
 	int             count;
 
 	count = 0;
 
 	while(1)
 	{
-		token = Com_Parse(&buf);
+		token = COM_Parse(&buf);
 
 		if(!token[0])
 			break;
@@ -614,7 +601,7 @@ void G_ParseDmgScript(char *buf, int class)
 
 		while(1)
 		{
-			token = Com_ParseExt(&buf, qtrue);
+			token = COM_ParseExt(&buf, qtrue);
 
 			if(!token[0])
 			{
@@ -628,7 +615,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "minHeight"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -637,7 +624,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "maxHeight"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "100");
@@ -646,7 +633,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "minAngle"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "0");
@@ -655,7 +642,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "maxAngle"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "360");
@@ -664,7 +651,7 @@ void G_ParseDmgScript(char *buf, int class)
 			}
 			else if(!strcmp(token, "modifier"))
 			{
-				token = Com_ParseExt(&buf, qfalse);
+				token = COM_ParseExt(&buf, qfalse);
 
 				if(!token[0])
 					strcpy(token, "1.0");
@@ -691,17 +678,12 @@ G_CalcDamageModifier
 static float G_CalcDamageModifier(vec3_t point, gentity_t * targ, gentity_t * attacker, int class, int dflags)
 {
 	vec3_t          bulletPath;
-
 	vec3_t          bulletAngle;
-
 	vec3_t          pMINUSfloor, floor, normal;
 
 	float           clientHeight, hitRelative, hitRatio;
-
 	int             bulletRotation, clientRotation, hitRotation;
-
 	float           modifier = 1.0f;
-
 	int             i, j;
 
 	if(point == NULL)
@@ -742,7 +724,6 @@ static float G_CalcDamageModifier(vec3_t point, gentity_t * targ, gentity_t * at
 		for(i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
 		{
 			float           totalModifier = 0.0f;
-
 			float           averageModifier = 1.0f;
 
 			//average all of this upgrade's armour regions together
@@ -826,15 +807,10 @@ G_InitDamageLocations
 void G_InitDamageLocations(void)
 {
 	char           *modelName;
-
 	char            filename[MAX_QPATH];
-
 	int             i;
-
 	int             len;
-
 	fileHandle_t    fileHandle;
-
 	char            buffer[MAX_LOCDAMAGE_TEXT];
 
 	for(i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++)
@@ -928,13 +904,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			  vec3_t dir, vec3_t point, int damage, int dflags, int mod)
 {
 	gclient_t      *client;
-
 	int             take;
-
 	int             save;
-
 	int             asave = 0;
-
 	int             knockback;
 
 	if(!targ->takedamage)
@@ -1001,7 +973,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if(knockback && targ->client)
 	{
 		vec3_t          kvel;
-
 		float           mass;
 
 		mass = 200;
@@ -1154,9 +1125,7 @@ explosions and melee attacks.
 qboolean CanDamage(gentity_t * targ, vec3_t origin)
 {
 	vec3_t          dest;
-
 	trace_t         tr;
-
 	vec3_t          midpoint;
 
 	// use the midpoint of the bounds instead of the origin, because
@@ -1213,21 +1182,13 @@ qboolean G_SelectiveRadiusDamage(vec3_t origin, gentity_t * attacker, float dama
 								 float radius, gentity_t * ignore, int mod, int team)
 {
 	float           points, dist;
-
 	gentity_t      *ent;
-
 	int             entityList[MAX_GENTITIES];
-
 	int             numListedEntities;
-
 	vec3_t          mins, maxs;
-
 	vec3_t          v;
-
 	vec3_t          dir;
-
 	int             i, e;
-
 	qboolean        hitClient = qfalse;
 
 	if(radius < 1)
@@ -1290,21 +1251,13 @@ G_RadiusDamage
 qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float radius, gentity_t * ignore, int mod)
 {
 	float           points, dist;
-
 	gentity_t      *ent;
-
 	int             entityList[MAX_GENTITIES];
-
 	int             numListedEntities;
-
 	vec3_t          mins, maxs;
-
 	vec3_t          v;
-
 	vec3_t          dir;
-
 	int             i, e;
-
 	qboolean        hitClient = qfalse;
 
 	if(radius < 1)

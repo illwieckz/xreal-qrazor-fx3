@@ -147,7 +147,6 @@ void Use_Target_Speaker(gentity_t * ent, gentity_t * other, gentity_t * activato
 void SP_target_speaker(gentity_t * ent)
 {
 	char            buffer[MAX_QPATH];
-
 	char           *s;
 
 	G_SpawnFloat("wait", "0", &ent->wait);
@@ -284,7 +283,6 @@ void SP_target_position(gentity_t * self)
 static void target_location_linkup(gentity_t * ent)
 {
 	int             i;
-
 	int             n;
 
 	if(level.locationLinked)
@@ -336,7 +334,6 @@ target_rumble_think
 void target_rumble_think(gentity_t * self)
 {
 	int             i;
-
 	gentity_t      *ent;
 
 	if(self->last_move_time < level.time)

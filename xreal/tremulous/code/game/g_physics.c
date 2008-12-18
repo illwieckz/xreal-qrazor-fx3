@@ -32,13 +32,9 @@ G_Bounce
 static void G_Bounce(gentity_t * ent, trace_t * trace)
 {
 	vec3_t          velocity;
-
 	float           dot;
-
 	int             hitTime;
-
 	float           minNormal;
-
 	qboolean        invert = qfalse;
 
 	// reflect the velocity on the trace plane
@@ -89,11 +85,8 @@ G_Physics
 void G_Physics(gentity_t * ent, int msec)
 {
 	vec3_t          origin;
-
 	trace_t         tr;
-
 	int             contents;
-
 	int             mask;
 
 	// if groundentity has been set to -1, it may have been pushed off an edge

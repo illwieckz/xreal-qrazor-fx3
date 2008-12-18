@@ -142,11 +142,8 @@ SpotWouldTelefrag
 qboolean SpotWouldTelefrag(gentity_t * spot)
 {
 	int             i, num;
-
 	int             touch[MAX_GENTITIES];
-
 	gentity_t      *hit;
-
 	vec3_t          mins, maxs;
 
 	VectorAdd(spot->s.origin, playerMins, mins);
@@ -175,11 +172,8 @@ Find the spot that we DON'T want to use
 gentity_t      *SelectNearestDeathmatchSpawnPoint(vec3_t from)
 {
 	gentity_t      *spot;
-
 	vec3_t          delta;
-
 	float           dist, nearestDist;
-
 	gentity_t      *nearestSpot;
 
 	nearestDist = 999999;
@@ -213,11 +207,8 @@ go to a random point that doesn't telefrag
 gentity_t      *SelectRandomDeathmatchSpawnPoint(void)
 {
 	gentity_t      *spot;
-
 	int             count;
-
 	int             selection;
-
 	gentity_t      *spots[MAX_SPAWN_POINTS];
 
 	count = 0;
@@ -250,15 +241,10 @@ Chooses a player start, deathmatch start, etc
 gentity_t      *SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles)
 {
 	gentity_t      *spot;
-
 	vec3_t          delta;
-
 	float           dist;
-
 	float           list_dist[64];
-
 	gentity_t      *list_spot[64];
-
 	int             numSpots, rnd, i, j;
 
 	numSpots = 0;
@@ -338,9 +324,7 @@ go to a random point that doesn't telefrag
 gentity_t      *SelectAlienSpawnPoint(vec3_t preference)
 {
 	gentity_t      *spot;
-
 	int             count;
-
 	gentity_t      *spots[MAX_SPAWN_POINTS];
 
 	if(level.numAlienSpawns <= 0)
@@ -387,9 +371,7 @@ go to a random point that doesn't telefrag
 gentity_t      *SelectHumanSpawnPoint(vec3_t preference)
 {
 	gentity_t      *spot;
-
 	int             count;
-
 	gentity_t      *spots[MAX_SPAWN_POINTS];
 
 	if(level.numHumanSpawns <= 0)
@@ -637,13 +619,9 @@ just like the existing corpse to leave behind.
 void SpawnCorpse(gentity_t * ent)
 {
 	gentity_t      *body;
-
 	int             contents;
-
 	vec3_t          origin, dest;
-
 	trace_t         tr;
-
 	float           vDiff;
 
 	VectorCopy(ent->r.currentOrigin, origin);
@@ -791,7 +769,6 @@ Returns number of players on a team
 team_t TeamCount(int ignoreClientNum, int team)
 {
 	int             i;
-
 	int             count = 0;
 
 	for(i = 0; i < level.maxclients; i++)
@@ -818,11 +795,8 @@ ClientCheckName
 static void ClientCleanName(const char *in, char *out, int outSize)
 {
 	int             len, colorlessLen;
-
 	char            ch;
-
 	char           *p;
-
 	int             spaces;
 
 	//save room for trailing null byte
@@ -904,13 +878,9 @@ Reads an animation.cfg to check for nonsegmentation
 static qboolean G_NonSegModel(const char *filename)
 {
 	char           *text_p;
-
 	int             len;
-
 	char           *token;
-
 	char            text[20000];
-
 	fileHandle_t    f;
 
 	// load the file
@@ -940,7 +910,7 @@ static qboolean G_NonSegModel(const char *filename)
 	// read optional parameters
 	while(1)
 	{
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 
 		//EOF
 		if(!token[0])
@@ -967,31 +937,18 @@ if desired.
 void ClientUserinfoChanged(int clientNum)
 {
 	gentity_t      *ent;
-
 	int             teamTask, teamLeader, health;
-
 	char           *s;
-
 	char            model[MAX_QPATH];
-
 	char            buffer[MAX_QPATH];
-
 	char            filename[MAX_QPATH];
-
 	char            oldname[MAX_STRING_CHARS];
-
 	gclient_t      *client;
-
 	char            c1[MAX_INFO_STRING];
-
 	char            c2[MAX_INFO_STRING];
-
 	char            redTeam[MAX_INFO_STRING];
-
 	char            blueTeam[MAX_INFO_STRING];
-
 	char            userinfo[MAX_INFO_STRING];
-
 	team_t          team;
 
 	ent = g_entities + clientNum;
@@ -1158,11 +1115,8 @@ restarts.
 char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
 	char           *value;
-
 	gclient_t      *client;
-
 	char            userinfo[MAX_INFO_STRING];
-
 	gentity_t      *ent;
 
 	ent = &g_entities[clientNum];
@@ -1223,9 +1177,7 @@ and on transition between teams, but doesn't happen on respawns
 void ClientBegin(int clientNum)
 {
 	gentity_t      *ent;
-
 	gclient_t      *client;
-
 	int             flags;
 
 	ent = g_entities + clientNum;
@@ -1282,33 +1234,20 @@ Initializes all non-persistant parts of playerState
 void ClientSpawn(gentity_t * ent, gentity_t * spawn, vec3_t origin, vec3_t angles)
 {
 	int             index;
-
 	vec3_t          spawn_origin, spawn_angles;
-
 	gclient_t      *client;
-
 	int             i;
-
 	clientPersistant_t saved;
-
 	clientSession_t savedSess;
-
 	int             persistant[MAX_PERSISTANT];
-
 	gentity_t      *spawnPoint = NULL;
-
 	int             flags;
-
 	int             savedPing;
-
 	int             teamLocal;
-
 	int             eventSequence;
-
 	char            userinfo[MAX_INFO_STRING];
 	vec3_t          up = { 0.0f, 0.0f, 1.0f };
 	int             maxAmmo, maxClips;
-
 	weapon_t        weapon;
 
 
@@ -1607,9 +1546,7 @@ server system housekeeping.
 void ClientDisconnect(int clientNum)
 {
 	gentity_t      *ent;
-
 	gentity_t      *tent;
-
 	int             i;
 
 	ent = g_entities + clientNum;

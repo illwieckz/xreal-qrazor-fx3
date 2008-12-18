@@ -140,9 +140,7 @@ void SP_misc_model(gentity_t * ent)
 void locateCamera(gentity_t * ent)
 {
 	vec3_t          dir;
-
 	gentity_t      *target;
-
 	gentity_t      *owner;
 
 	owner = G_PickTarget(ent->target);
@@ -353,9 +351,7 @@ Finds an empty spot radius units from origin
 static void findEmptySpot(vec3_t origin, float radius, vec3_t spot)
 {
 	int             i, j, k;
-
 	vec3_t          delta, test, total;
-
 	trace_t         tr;
 
 	VectorClear(total);

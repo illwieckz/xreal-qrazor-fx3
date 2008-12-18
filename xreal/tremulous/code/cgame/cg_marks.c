@@ -36,11 +36,8 @@ MARK POLYS
 
 
 markPoly_t      cg_activeMarkPolys;	// double linked list
-
 markPoly_t     *cg_freeMarkPolys;	// single linked list
-
 markPoly_t      cg_markPolys[MAX_MARK_POLYS];
-
 static int      markTotal;
 
 /*
@@ -94,7 +91,6 @@ Will allways succeed, even if it requires freeing an old active mark
 markPoly_t     *CG_AllocMark(void)
 {
 	markPoly_t     *le;
-
 	int             time;
 
 	if(!cg_freeMarkPolys)
@@ -141,21 +137,13 @@ void CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 				   qboolean alphaFade, float radius, qboolean temporary)
 {
 	vec3_t          axis[3];
-
 	float           texCoordScale;
-
 	vec3_t          originalPoints[4];
-
 	byte            colors[4];
-
 	int             i, j;
-
 	int             numFragments;
-
 	markFragment_t  markFragments[MAX_MARK_FRAGMENTS], *mf;
-
 	vec3_t          markPoints[MAX_MARK_POINTS];
-
 	vec3_t          projection;
 
 	if(!cg_addMarks.integer)
@@ -198,9 +186,7 @@ void CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	for(i = 0, mf = markFragments; i < numFragments; i++, mf++)
 	{
 		polyVert_t     *v;
-
 		polyVert_t      verts[MAX_VERTS_ON_POLY];
-
 		markPoly_t     *mark;
 
 		// we have an upper limit on the complexity of polygons
@@ -254,11 +240,8 @@ CG_AddMarks
 void CG_AddMarks(void)
 {
 	int             j;
-
 	markPoly_t     *mp, *next;
-
 	int             t;
-
 	int             fade;
 
 	if(!cg_addMarks.integer)

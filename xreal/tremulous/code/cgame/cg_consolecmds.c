@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void CG_TargetCommand_f(void)
 {
 	int             targetNum;
-
 	char            test[4];
 
 	targetNum = CG_CrosshairPlayer();
@@ -135,9 +134,7 @@ static void CG_ScoresUp_f(void)
 static void CG_TellTarget_f(void)
 {
 	int             clientNum;
-
 	char            command[128];
-
 	char            message[128];
 
 	clientNum = CG_CrosshairPlayer();
@@ -152,9 +149,7 @@ static void CG_TellTarget_f(void)
 static void CG_TellAttacker_f(void)
 {
 	int             clientNum;
-
 	char            command[128];
-
 	char            message[128];
 
 	clientNum = CG_LastAttacker();
@@ -210,9 +205,7 @@ Cmd_Argc() / Cmd_Argv()
 qboolean CG_ConsoleCommand(void)
 {
 	const char     *cmd;
-
 	const char     *arg1;
-
 	int             i;
 
 	cmd = CG_Argv(0);

@@ -46,31 +46,18 @@ Returns qtrue if the velocity was clipped in some way
 qboolean PM_SlideMove(qboolean gravity)
 {
 	int             bumpcount, numbumps;
-
 	vec3_t          dir;
-
 	float           d;
-
 	int             numplanes;
-
 	vec3_t          planes[MAX_CLIP_PLANES];
-
 	vec3_t          primal_velocity;
-
 	vec3_t          clipVelocity;
-
 	int             i, j, k;
-
 	trace_t         trace;
-
 	vec3_t          end;
-
 	float           time_left;
-
 	float           into;
-
 	vec3_t          endVelocity;
-
 	vec3_t          endClipVelocity;
 
 	numbumps = 4;
@@ -251,7 +238,6 @@ PM_StepEvent
 void PM_StepEvent(vec3_t from, vec3_t to, vec3_t normal)
 {
 	float           size;
-
 	vec3_t          delta, dNormal;
 
 	VectorSubtract(from, to, delta);
@@ -303,19 +289,12 @@ PM_StepSlideMove
 qboolean PM_StepSlideMove(qboolean gravity, qboolean predictive)
 {
 	vec3_t          start_o, start_v;
-
 	vec3_t          down_o, down_v;
-
 	trace_t         trace;
-
 	vec3_t          normal;
-
 	vec3_t          step_v, step_vNormal;
-
 	vec3_t          up, down;
-
 	float           stepSize;
-
 	qboolean        stepped = qfalse;
 
 	if(pm->ps->stats[STAT_STATE] & SS_WALLCLIMBING)
@@ -417,9 +396,7 @@ PM_PredictStepMove
 qboolean PM_PredictStepMove(void)
 {
 	vec3_t          velocity, origin;
-
 	float           impactSpeed;
-
 	qboolean        stepped = qfalse;
 
 	VectorCopy(pm->ps->velocity, velocity);

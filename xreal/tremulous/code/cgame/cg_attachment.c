@@ -111,7 +111,6 @@ Return the attachment direction
 qboolean CG_AttachmentDir(attachment_t * a, vec3_t v)
 {
 	vec3_t          forward;
-
 	centity_t      *cent;
 
 	if(!a)

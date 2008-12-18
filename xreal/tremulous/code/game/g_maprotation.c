@@ -41,7 +41,7 @@ static qboolean G_ParseMapCommandSection(mapRotationEntry_t * mre, char **text_p
 	// read optional parameters
 	while(1)
 	{
-		token = Com_Parse(text_p);
+		token = COM_Parse(text_p);
 
 		if(!token)
 			break;
@@ -55,13 +55,13 @@ static qboolean G_ParseMapCommandSection(mapRotationEntry_t * mre, char **text_p
 		Q_strncpyz(mre->postCmds[mre->numCmds], token, sizeof(mre->postCmds[0]));
 		Q_strcat(mre->postCmds[mre->numCmds], sizeof(mre->postCmds[0]), " ");
 
-		token = Com_ParseExt(text_p, qfalse);
+		token = COM_ParseExt(text_p, qfalse);
 
 		while(token && token[0] != 0)
 		{
 			Q_strcat(mre->postCmds[mre->numCmds], sizeof(mre->postCmds[0]), token);
 			Q_strcat(mre->postCmds[mre->numCmds], sizeof(mre->postCmds[0]), " ");
-			token = Com_ParseExt(text_p, qfalse);
+			token = COM_ParseExt(text_p, qfalse);
 		}
 
 		if(mre->numCmds == MAX_MAP_COMMANDS)
@@ -86,17 +86,14 @@ Parse a map rotation section
 static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 {
 	char           *token;
-
 	qboolean        mnSet = qfalse;
-
 	mapRotationEntry_t *mre = NULL;
-
 	mapRotationCondition_t *mrc;
 
 	// read optional parameters
 	while(1)
 	{
-		token = Com_Parse(text_p);
+		token = COM_Parse(text_p);
 
 		if(!token)
 			break;
@@ -123,7 +120,7 @@ static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 		}
 		else if(!Q_stricmp(token, "goto"))
 		{
-			token = Com_Parse(text_p);
+			token = COM_Parse(text_p);
 
 			if(!token)
 				break;
@@ -144,7 +141,7 @@ static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 		}
 		else if(!Q_stricmp(token, "if"))
 		{
-			token = Com_Parse(text_p);
+			token = COM_Parse(text_p);
 
 			if(!token)
 				break;
@@ -155,7 +152,7 @@ static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 			{
 				mrc->lhs = MCV_NUMCLIENTS;
 
-				token = Com_Parse(text_p);
+				token = COM_Parse(text_p);
 
 				if(!token)
 					break;
@@ -172,7 +169,7 @@ static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 					return qfalse;
 				}
 
-				token = Com_Parse(text_p);
+				token = COM_Parse(text_p);
 
 				if(!token)
 					break;
@@ -183,7 +180,7 @@ static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 			{
 				mrc->lhs = MCV_LASTWIN;
 
-				token = Com_Parse(text_p);
+				token = COM_Parse(text_p);
 
 				if(!token)
 					break;
@@ -206,7 +203,7 @@ static qboolean G_ParseMapRotation(mapRotation_t * mr, char **text_p)
 				return qfalse;
 			}
 
-			token = Com_Parse(text_p);
+			token = COM_Parse(text_p);
 
 			if(!token)
 				break;
@@ -254,19 +251,12 @@ Load the map rotations from a map rotation file
 static qboolean G_ParseMapRotationFile(const char *fileName)
 {
 	char           *text_p;
-
 	int             i;
-
 	int             len;
-
 	char           *token;
-
 	char            text[20000];
-
 	char            mrName[MAX_QPATH];
-
 	qboolean        mrNameSet = qfalse;
-
 	fileHandle_t    f;
 
 	// load the file
@@ -290,7 +280,7 @@ static qboolean G_ParseMapRotationFile(const char *fileName)
 	// read optional parameters
 	while(1)
 	{
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 
 		if(!token)
 			break;
@@ -406,11 +396,8 @@ Fill a static array with the current map of each rotation
 static int     *G_GetCurrentMapArray(void)
 {
 	static int      currentMap[MAX_MAP_ROTATIONS];
-
 	int             i = 0;
-
 	char            text[MAX_MAP_ROTATIONS * 2];
-
 	char           *text_p, *token;
 
 	Q_strncpyz(text, g_currentMap.string, sizeof(text));
@@ -419,7 +406,7 @@ static int     *G_GetCurrentMapArray(void)
 
 	while(1)
 	{
-		token = Com_Parse(&text_p);
+		token = COM_Parse(&text_p);
 
 		if(!token)
 			break;
@@ -444,7 +431,6 @@ static void G_SetCurrentMap(int currentMap, int rotation)
 {
 	char            text[MAX_MAP_ROTATIONS * 2] = { 0 };
 	int            *p = G_GetCurrentMapArray();
-
 	int             i;
 
 	p[rotation] = currentMap;
@@ -480,9 +466,7 @@ Send commands to the server to actually change the map
 static void G_IssueMapChange(int rotation)
 {
 	int             i;
-
 	int             map = G_GetCurrentMap(rotation);
-
 	char            cmd[MAX_TOKEN_CHARS];
 
 	trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", mapRotations.rotations[rotation].maps[map].name));
@@ -586,15 +570,10 @@ Increment the current map rotation
 qboolean G_AdvanceMapRotation(void)
 {
 	mapRotation_t  *mr;
-
 	mapRotationEntry_t *mre;
-
 	mapRotationCondition_t *mrc;
-
 	int             currentRotation, currentMap, nextMap;
-
 	int             i, n;
-
 	mapConditionType_t mct;
 
 	if((currentRotation = g_currentMapRotation.integer) == NOT_ROTATING)
@@ -704,7 +683,6 @@ Load and intialise the map rotations
 void G_InitMapRotations(void)
 {
 	const char     *fileName = "maprotation.cfg";
-
 	fileHandle_t    f;
 
 	//load the file if it exists

@@ -47,11 +47,8 @@ CG_ModelDoor
 void CG_ModelDoor(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *es;
-
 	animation_t     anim;
-
 	lerpFrame_t    *lf = &cent->lerpFrame;
 
 	es = &cent->currentState;
@@ -138,11 +135,8 @@ CG_animMapObj
 void CG_AnimMapObj(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *es;
-
 	float           scale;
-
 	animation_t     anim;
 
 	es = &cent->currentState;

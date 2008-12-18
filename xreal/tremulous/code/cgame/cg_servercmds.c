@@ -80,7 +80,6 @@ CG_ParseTeamInfo
 static void CG_ParseTeamInfo(void)
 {
 	int             i;
-
 	int             client;
 
 	numSortedTeamPlayers = atoi(CG_Argv(1));
@@ -111,7 +110,6 @@ and whenever the server updates any serverinfo flagged cvars
 void CG_ParseServerinfo(void)
 {
 	const char     *info;
-
 	char           *mapname;
 
 	info = CG_ConfigString(CS_SERVERINFO);
@@ -131,7 +129,6 @@ CG_ParseWarmup
 static void CG_ParseWarmup(void)
 {
 	const char     *info;
-
 	int             warmup;
 
 	info = CG_ConfigString(CS_WARMUP);
@@ -179,13 +176,9 @@ CG_ShaderStateChanged
 void CG_ShaderStateChanged(void)
 {
 	char            originalShader[MAX_QPATH];
-
 	char            newShader[MAX_QPATH];
-
 	char            timeOffset[16];
-
 	const char     *o;
-
 	char           *n, *t;
 
 	o = CG_ConfigString(CS_SHADERSTATE);
@@ -262,7 +255,6 @@ CG_ConfigStringModified
 static void CG_ConfigStringModified(void)
 {
 	const char     *str;
-
 	int             num;
 
 	num = atoi(CG_Argv(1));
@@ -291,7 +283,6 @@ static void CG_ConfigStringModified(void)
 	else if(num == CS_STAGES)
 	{
 		stage_t         oldAlienStage = cgs.alienStage;
-
 		stage_t         oldHumanStage = cgs.humanStage;
 
 		sscanf(str, "%d %d %d %d %d %d",
@@ -403,11 +394,8 @@ CG_AddToTeamChat
 static void CG_AddToTeamChat(const char *str)
 {
 	int             len;
-
 	char           *p, *ls;
-
 	int             lastcolor;
-
 	int             chatHeight;
 
 	if(cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
@@ -552,7 +540,6 @@ Set some cvars used by the UI
 static void CG_SetUIVars(void)
 {
 	int             i;
-
 	char            carriageCvar[MAX_TOKEN_CHARS];
 
 	*carriageCvar = 0;
@@ -959,7 +946,6 @@ Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand(void)
 {
 	const char     *cmd;
-
 	char            text[MAX_SAY_TEXT];
 
 	cmd = CG_Argv(0);

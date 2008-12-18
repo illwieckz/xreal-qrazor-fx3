@@ -34,25 +34,15 @@ CG_Obituary
 static void CG_Obituary(entityState_t * ent)
 {
 	int             mod;
-
 	int             target, attacker;
-
 	char           *message;
-
 	char           *message2;
-
 	const char     *targetInfo;
-
 	const char     *attackerInfo;
-
 	char            targetName[32];
-
 	char            attackerName[32];
-
 	char            className[64];
-
 	gender_t        gender;
-
 	clientInfo_t   *ci;
 
 	target = ent->otherEntityNum;
@@ -379,17 +369,11 @@ also called by CG_CheckPlayerstateEvents
 void CG_EntityEvent(centity_t * cent, vec3_t position)
 {
 	entityState_t  *es;
-
 	int             event;
-
 	vec3_t          dir;
-
 	const char     *s;
-
 	int             clientNum;
-
 	clientInfo_t   *ci;
-
 	int             steptime;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
@@ -529,9 +513,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_STEP");
 			{
 				float           oldStep;
-
 				int             delta;
-
 				int             step;
 
 				if(clientNum != cg.predictedPlayerState.clientNum)
@@ -748,7 +730,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			cent->currentState.weapon = WP_TESLAGEN;
 			{
 				centity_t      *source = &cg_entities[es->generic1];
-
 				centity_t      *target = &cg_entities[es->clientNum];
 				vec3_t          sourceOffset = { 0.0f, 0.0f, 28.0f };
 
@@ -973,7 +954,6 @@ CG_CheckEvents
 void CG_CheckEvents(centity_t * cent)
 {
 	entity_event_t  event;
-
 	entity_event_t  oldEvent = EV_NONE;
 
 	// check for event-only entities

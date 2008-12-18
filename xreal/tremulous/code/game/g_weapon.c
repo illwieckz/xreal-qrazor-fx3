@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 static vec3_t   forward, right, up;
-
 static vec3_t   muzzle;
 
 /*
@@ -75,9 +74,7 @@ G_GiveClientMaxAmmo
 void G_GiveClientMaxAmmo(gentity_t * ent, qboolean buyingEnergyAmmo)
 {
 	int             i;
-
 	int             maxAmmo, maxClips;
-
 	qboolean        weaponType, restoredAmmo = qfalse;
 
 	for(i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++)
@@ -119,7 +116,6 @@ G_BounceProjectile
 void G_BounceProjectile(vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout)
 {
 	vec3_t          v, newv;
-
 	float           dot;
 
 	VectorSubtract(impact, start, v);
@@ -161,13 +157,9 @@ meleeAttack
 void meleeAttack(gentity_t * ent, float range, float width, int damage, meansOfDeath_t mod)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
-
 	vec3_t          mins, maxs;
 
 	VectorSet(mins, -width, -width, -width);
@@ -211,15 +203,10 @@ MACHINEGUN
 void bulletFire(gentity_t * ent, float spread, int damage, int mod)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	float           r;
-
 	float           u;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
 
 	r = random() * M_PI * 2.0f;
@@ -269,15 +256,10 @@ SHOTGUN
 void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent)
 {
 	int             i;
-
 	float           r, u;
-
 	vec3_t          end;
-
 	vec3_t          forward, right, up;
-
 	trace_t         tr;
-
 	gentity_t      *traceEnt;
 
 	// derive the right and up vectors from the forward vector, because
@@ -333,11 +315,8 @@ MASS DRIVER
 void massDriverFire(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
 
 	VectorMA(muzzle, 8192 * 16, forward, end);
@@ -488,11 +467,8 @@ lasGunFire
 void lasGunFire(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
 
 	VectorMA(muzzle, 8192 * 16, forward, end);
@@ -538,11 +514,8 @@ PAIN SAW
 void painSawFire(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
 
 	// set aiming directions
@@ -621,9 +594,7 @@ TESLA GENERATOR
 void teslaFire(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *traceEnt, *tent;
 
 	VectorMA(muzzle, TESLAGEN_RANGE, forward, end);
@@ -681,11 +652,8 @@ cancelBuildFire
 void cancelBuildFire(gentity_t * ent)
 {
 	vec3_t          forward, end;
-
 	trace_t         tr;
-
 	gentity_t      *traceEnt;
-
 	int             bHealth;
 
 	if(ent->client->ps.stats[STAT_BUILDABLE] != BA_NONE)
@@ -798,15 +766,10 @@ CheckVenomAttack
 qboolean CheckVenomAttack(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
-
 	vec3_t          mins, maxs;
-
 	int             damage = LEVEL0_BITE_DMG;
 
 	VectorSet(mins, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH);
@@ -881,9 +844,7 @@ CheckGrabAttack
 void CheckGrabAttack(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end, dir;
-
 	gentity_t      *traceEnt;
 
 	// set aiming directions
@@ -946,11 +907,8 @@ void poisonCloud(gentity_t * ent)
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { LEVEL1_PCLOUD_RANGE, LEVEL1_PCLOUD_RANGE, LEVEL1_PCLOUD_RANGE };
 	vec3_t          mins, maxs;
-
 	int             i, num;
-
 	gentity_t      *humanPlayer;
-
 	trace_t         tr;
 
 	VectorAdd(ent->client->ps.origin, range, maxs);
@@ -1009,11 +967,8 @@ static gentity_t *G_FindNewZapTarget(gentity_t * ent)
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { LEVEL2_AREAZAP_RANGE, LEVEL2_AREAZAP_RANGE, LEVEL2_AREAZAP_RANGE };
 	vec3_t          mins, maxs;
-
 	int             i, j, k, num;
-
 	gentity_t      *enemy;
-
 	trace_t         tr;
 
 	VectorScale(range, 1.0f / M_ROOT3, range);
@@ -1073,7 +1028,6 @@ G_UpdateZapEffect
 static void G_UpdateZapEffect(zap_t * zap)
 {
 	int             j;
-
 	gentity_t      *effect = zap->effectChannel;
 
 	effect->s.eType = ET_LEV2_ZAP_CHAIN;
@@ -1114,7 +1068,6 @@ G_CreateNewZap
 static void G_CreateNewZap(gentity_t * creator, gentity_t * target)
 {
 	int             i, j;
-
 	zap_t          *zap;
 
 	for(i = 0; i < MAX_ZAPS; i++)
@@ -1157,9 +1110,7 @@ G_UpdateZaps
 void G_UpdateZaps(int msec)
 {
 	int             i, j;
-
 	zap_t          *zap;
-
 	int             damage;
 
 	for(i = 0; i < MAX_ZAPS; i++)
@@ -1172,7 +1123,6 @@ void G_UpdateZaps(int msec)
 			for(j = 0; j < zap->numTargets; j++)
 			{
 				gentity_t      *source;
-
 				gentity_t      *target = zap->targets[j];
 
 				if(j == 0)
@@ -1196,13 +1146,9 @@ void G_UpdateZaps(int msec)
 				for(j = 0; j < zap->numTargets; j++)
 				{
 					gentity_t      *source;
-
 					gentity_t      *target = zap->targets[j];
-
 					float           r = 1.0f / zap->numTargets;
-
 					float           damageFraction = 2 * r - 2 * j * r * r - r * r;
-
 					vec3_t          forward;
 
 					if(j == 0)
@@ -1243,11 +1189,8 @@ areaZapFire
 void areaZapFire(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *traceEnt;
-
 	vec3_t          mins, maxs;
 
 	VectorSet(mins, -LEVEL2_AREAZAP_WIDTH, -LEVEL2_AREAZAP_WIDTH, -LEVEL2_AREAZAP_WIDTH);
@@ -1292,15 +1235,10 @@ CheckPounceAttack
 qboolean CheckPounceAttack(gentity_t * ent)
 {
 	trace_t         tr;
-
 	vec3_t          end;
-
 	gentity_t      *tent;
-
 	gentity_t      *traceEnt;
-
 	int             damage;
-
 	vec3_t          mins, maxs;
 
 	VectorSet(mins, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH);
@@ -1385,9 +1323,7 @@ ChargeAttack
 void ChargeAttack(gentity_t * ent, gentity_t * victim)
 {
 	gentity_t      *tent;
-
 	int             damage;
-
 	vec3_t          forward, normal;
 
 	if(level.time < victim->chargeRepeat)

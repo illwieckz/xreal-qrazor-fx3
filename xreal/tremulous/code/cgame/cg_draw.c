@@ -30,36 +30,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // used for scoreboard
 extern displayContextDef_t cgDC;
-
 menuDef_t      *menuScoreboard = NULL;
 
 int             drawTeamOverlayModificationCount = -1;
 
 int             sortedTeamPlayers[TEAM_MAXOVERLAY];
-
 int             numSortedTeamPlayers;
-
 char            systemChat[256];
-
 char            teamChat1[256];
-
 char            teamChat2[256];
 
 //TA UI
 int CG_Text_Width(const char *text, float scale, int limit)
 {
 	int             count, len;
-
 	float           out;
-
 	glyphInfo_t    *glyph;
-
 	float           useScale;
 
 // FIXME: see ui_main.c, same problem
 //  const unsigned char *s = text;
 	const char     *s = text;
-
 	fontInfo_t     *font = &cgDC.Assets.textFont;
 
 	if(scale <= cg_smallFont.value)
@@ -102,17 +93,13 @@ int CG_Text_Width(const char *text, float scale, int limit)
 int CG_Text_Height(const char *text, float scale, int limit)
 {
 	int             len, count;
-
 	float           max;
-
 	glyphInfo_t    *glyph;
-
 	float           useScale;
 
 // TTimo: FIXME
 //  const unsigned char *s = text;
 	const char     *s = text;
-
 	fontInfo_t     *font = &cgDC.Assets.textFont;
 
 	if(scale <= cg_smallFont.value)
@@ -168,13 +155,9 @@ void CG_Text_PaintChar(float x, float y, float width, float height, float scale,
 void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
 {
 	int             len, count;
-
 	vec4_t          newColor;
-
 	glyphInfo_t    *glyph;
-
 	float           useScale;
-
 	fontInfo_t     *font = &cgDC.Assets.textFont;
 
 	if(scale <= cg_smallFont.value)
@@ -292,11 +275,8 @@ Draws large numbers for status bar and powerups
 static void CG_DrawFieldPadded(int x, int y, int width, int cw, int ch, int value)
 {
 	char            num[16], *ptr;
-
 	int             l, orgL;
-
 	int             frame;
-
 	int             charWidth, charHeight;
 
 	if(!(charWidth = cw))
@@ -375,11 +355,8 @@ Draws large numbers for status bar and powerups
 static void CG_DrawField(int x, int y, int width, int cw, int ch, int value)
 {
 	char            num[16], *ptr;
-
 	int             l;
-
 	int             frame;
-
 	int             charWidth, charHeight;
 
 	if(!(charWidth = cw))
@@ -441,11 +418,8 @@ static void CG_DrawField(int x, int y, int width, int cw, int ch, int value)
 static void CG_DrawProgressBar(rectDef_t * rect, vec4_t color, float scale, int align, int textStyle, int special, float progress)
 {
 	float           rimWidth = rect->h / 20.0f;
-
 	float           doneWidth, leftWidth;
-
 	float           tx, ty, tw, th;
-
 	char            textBuffer[8];
 
 	if(rimWidth < 0.6f)
@@ -541,9 +515,7 @@ void CG_SetPrintString(int type, const char *p)
 static void CG_DrawPlayerCreditsValue(rectDef_t * rect, vec4_t color, qboolean padding)
 {
 	int             value;
-
 	playerState_t  *ps;
-
 	centity_t      *cent;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -579,7 +551,6 @@ static void CG_DrawPlayerCreditsValue(rectDef_t * rect, vec4_t color, qboolean p
 static void CG_DrawPlayerBankValue(rectDef_t * rect, vec4_t color, qboolean padding)
 {
 	int             value;
-
 	playerState_t  *ps;
 
 	ps = &cg.snap->ps;
@@ -614,11 +585,8 @@ CG_DrawPlayerStamina1
 static void CG_DrawPlayerStamina1(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	float           stamina = ps->stats[STAT_STAMINA];
-
 	float           maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
-
 	float           progress;
 
 	stamina -= (2 * (int)maxStaminaBy3);
@@ -644,11 +612,8 @@ CG_DrawPlayerStamina2
 static void CG_DrawPlayerStamina2(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	float           stamina = ps->stats[STAT_STAMINA];
-
 	float           maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
-
 	float           progress;
 
 	stamina -= (int)maxStaminaBy3;
@@ -674,11 +639,8 @@ CG_DrawPlayerStamina3
 static void CG_DrawPlayerStamina3(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	float           stamina = ps->stats[STAT_STAMINA];
-
 	float           maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
-
 	float           progress;
 
 	progress = stamina / maxStaminaBy3;
@@ -703,9 +665,7 @@ CG_DrawPlayerStamina4
 static void CG_DrawPlayerStamina4(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	float           stamina = ps->stats[STAT_STAMINA];
-
 	float           progress;
 
 	stamina += (float)MAX_STAMINA;
@@ -731,7 +691,6 @@ CG_DrawPlayerStaminaBolt
 static void CG_DrawPlayerStaminaBolt(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	float           stamina = ps->stats[STAT_STAMINA];
 
 	if(stamina < 0)
@@ -752,13 +711,9 @@ CG_DrawPlayerClipsRing
 static void CG_DrawPlayerClipsRing(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	centity_t      *cent;
-
 	float           buildTime = ps->stats[STAT_MISC];
-
 	float           progress;
-
 	float           maxDelay;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -803,13 +758,9 @@ CG_DrawPlayerBuildTimerRing
 static void CG_DrawPlayerBuildTimerRing(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	centity_t      *cent;
-
 	float           buildTime = ps->stats[STAT_MISC];
-
 	float           progress;
-
 	float           maxDelay;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -836,7 +787,6 @@ CG_DrawPlayerBoosted
 static void CG_DrawPlayerBoosted(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	qboolean        boosted = ps->stats[STAT_STATE] & SS_BOOSTED;
 
 	if(boosted)
@@ -857,9 +807,7 @@ CG_DrawPlayerBoosterBolt
 static void CG_DrawPlayerBoosterBolt(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	qboolean        boosted = ps->stats[STAT_STATE] & SS_BOOSTED;
-
 	vec4_t          localColor;
 
 	Vector4Copy(color, localColor);
@@ -888,17 +836,11 @@ CG_DrawPlayerPoisonBarbs
 static void CG_DrawPlayerPoisonBarbs(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	int             x = rect->x;
-
 	int             y = rect->y;
-
 	int             width = rect->w;
-
 	int             height = rect->h;
-
 	qboolean        vertical;
-
 	int             iconsize, numBarbs, i;
 
 	BG_UnpackAmmoArray(ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL);
@@ -938,7 +880,6 @@ CG_DrawPlayerWallclimbing
 static void CG_DrawPlayerWallclimbing(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	qboolean        ww = ps->stats[STAT_STATE] & SS_WALLCLIMBING;
 
 	if(ww)
@@ -954,9 +895,7 @@ static void CG_DrawPlayerWallclimbing(rectDef_t * rect, vec4_t color, qhandle_t 
 static void CG_DrawPlayerStamina(rectDef_t * rect, vec4_t color, float scale, int align, int textStyle, int special)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	int             stamina = ps->stats[STAT_STAMINA];
-
 	float           progress = ((float)stamina + (float)MAX_STAMINA) / ((float)MAX_STAMINA * 2.0f);
 
 	CG_DrawProgressBar(rect, color, scale, align, textStyle, special, progress);
@@ -965,9 +904,7 @@ static void CG_DrawPlayerStamina(rectDef_t * rect, vec4_t color, float scale, in
 static void CG_DrawPlayerAmmoValue(rectDef_t * rect, vec4_t color)
 {
 	int             value;
-
 	centity_t      *cent;
-
 	playerState_t  *ps;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -1039,9 +976,7 @@ CG_DrawUsableBuildable
 static void CG_DrawUsableBuildable(rectDef_t * rect, qhandle_t shader, vec4_t color)
 {
 	vec3_t          view, point;
-
 	trace_t         trace;
-
 	entityState_t  *es;
 
 	AngleVectors(cg.refdefViewAngles, view, NULL, NULL);
@@ -1070,11 +1005,8 @@ static void CG_DrawUsableBuildable(rectDef_t * rect, qhandle_t shader, vec4_t co
 static void CG_DrawPlayerBuildTimer(rectDef_t * rect, vec4_t color)
 {
 	float           progress;
-
 	int             index;
-
 	centity_t      *cent;
-
 	playerState_t  *ps;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -1134,9 +1066,7 @@ static void CG_DrawPlayerBuildTimer(rectDef_t * rect, vec4_t color)
 static void CG_DrawPlayerClipsValue(rectDef_t * rect, vec4_t color)
 {
 	int             value;
-
 	centity_t      *cent;
-
 	playerState_t  *ps;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -1169,7 +1099,6 @@ static void CG_DrawPlayerClipsValue(rectDef_t * rect, vec4_t color)
 static void CG_DrawPlayerHealthValue(rectDef_t * rect, vec4_t color)
 {
 	playerState_t  *ps;
-
 	int             value;
 
 	ps = &cg.snap->ps;
@@ -1184,7 +1113,6 @@ static void CG_DrawPlayerHealthValue(rectDef_t * rect, vec4_t color)
 static void CG_DrawPlayerHealthBar(rectDef_t * rect, vec4_t color, float scale, int align, int textStyle, int special)
 {
 	playerState_t  *ps;
-
 	float           total;
 
 	ps = &cg.snap->ps;
@@ -1201,7 +1129,6 @@ CG_DrawPlayerHealthCross
 static void CG_DrawPlayerHealthCross(rectDef_t * rect, vec4_t color, qhandle_t shader)
 {
 	playerState_t  *ps = &cg.snap->ps;
-
 	int             health = ps->stats[STAT_HEALTH];
 
 	if(health < 10)
@@ -1286,11 +1213,8 @@ static void CG_DrawOverallProgress(rectDef_t * rect, vec4_t color, float scale, 
 static void CG_DrawLevelShot(rectDef_t * rect)
 {
 	const char     *s;
-
 	const char     *info;
-
 	qhandle_t       levelshot;
-
 	qhandle_t       detail;
 
 	info = CG_ConfigString(CS_SERVERINFO);
@@ -1312,11 +1236,8 @@ static void CG_DrawLoadingString(rectDef_t * rect, float text_x, float text_y, v
 								 float scale, int align, int textStyle, const char *s)
 {
 	float           tw, th, tx;
-
 	int             pos, i;
-
 	char            buffer[1024];
-
 	char           *end;
 
 	if(!s[0])
@@ -1390,7 +1311,6 @@ static void CG_DrawMOTD(rectDef_t * rect, float text_x, float text_y, vec4_t col
 static void CG_DrawHostname(rectDef_t * rect, float text_x, float text_y, vec4_t color, float scale, int align, int textStyle)
 {
 	char            buffer[1024];
-
 	const char     *info;
 
 	info = CG_ConfigString(CS_SERVERINFO);
@@ -1465,7 +1385,6 @@ void CG_DrawLoadingScreen(void)
 float CG_GetValue(int ownerDraw)
 {
 	centity_t      *cent;
-
 	playerState_t  *ps;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -1546,9 +1465,7 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale,
 								vec4_t color, const char *text, float adjust, int limit)
 {
 	int             len, count;
-
 	vec4_t          newColor;
-
 	glyphInfo_t    *glyph;
 
 	if(text)
@@ -1556,11 +1473,8 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale,
 // TTimo: FIXME
 //    const unsigned char *s = text; // bk001206 - unsigned
 		const char     *s = text;
-
 		float           max = *maxX;
-
 		float           useScale;
-
 		fontInfo_t     *font = &cgDC.Assets.textFont;
 
 		if(scale <= cg_smallFont.value)
@@ -1705,7 +1619,6 @@ CG_DrawStageReport
 static void CG_DrawStageReport(rectDef_t * rect, float text_x, float text_y, vec4_t color, float scale, int align, int textStyle)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             tx, w, kills;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !cg.intermissionStarted)
@@ -1774,19 +1687,12 @@ static void CG_DrawFPS(rectDef_t * rect, float text_x, float text_y,
 					   float scale, vec4_t color, int align, int textStyle, qboolean scalableText)
 {
 	char           *s;
-
 	int             tx, w, totalWidth, strLength;
-
 	static int      previousTimes[FPS_FRAMES];
-
 	static int      index;
-
 	int             i, total;
-
 	int             fps;
-
 	static int      previous;
-
 	int             t, frameTime;
 
 	if(!cg_drawFPS.integer)
@@ -1870,7 +1776,6 @@ CG_DrawTimerMins
 static void CG_DrawTimerMins(rectDef_t * rect, vec4_t color)
 {
 	int             mins, seconds;
-
 	int             msec;
 
 	if(!cg_drawTimer.integer)
@@ -1896,7 +1801,6 @@ CG_DrawTimerSecs
 static void CG_DrawTimerSecs(rectDef_t * rect, vec4_t color)
 {
 	int             mins, seconds;
-
 	int             msec;
 
 	if(!cg_drawTimer.integer)
@@ -1922,11 +1826,8 @@ CG_DrawTimer
 static void CG_DrawTimer(rectDef_t * rect, float text_x, float text_y, float scale, vec4_t color, int align, int textStyle)
 {
 	char           *s;
-
 	int             i, tx, w, totalWidth, strLength;
-
 	int             mins, seconds, tens;
-
 	int             msec;
 
 	if(!cg_drawTimer.integer)
@@ -1982,7 +1883,6 @@ CG_DrawSnapshot
 static void CG_DrawSnapshot(rectDef_t * rect, float text_x, float text_y, float scale, vec4_t color, int align, int textStyle)
 {
 	char           *s;
-
 	int             w, tx;
 
 	if(!cg_drawSnapshot.integer)
@@ -2085,13 +1985,9 @@ Should we draw something differnet for long lag vs no packets?
 static void CG_DrawDisconnect(void)
 {
 	float           x, y;
-
 	int             cmdNum;
-
 	usercmd_t       cmd;
-
 	const char     *s;
-
 	int             w;
 	vec4_t          color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -2131,15 +2027,10 @@ CG_DrawLagometer
 static void CG_DrawLagometer(rectDef_t * rect, float text_x, float text_y, float scale, vec4_t textColor)
 {
 	int             a, x, y, i;
-
 	float           v;
-
 	float           ax, ay, aw, ah, mid, range;
-
 	int             color;
-
 	vec4_t          adjustedColor;
-
 	float           vscale;
 	vec4_t          white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -2268,11 +2159,8 @@ static void CG_DrawLagometer(rectDef_t * rect, float text_x, float text_y, float
 	else
 	{
 		static int      previousPings[PING_FRAMES];
-
 		static int      index;
-
 		int             i, ping = 0;
-
 		char           *s;
 
 		previousPings[index++] = cg.snap->ping;
@@ -2362,7 +2250,6 @@ CG_DrawConsole
 static void CG_DrawConsole(rectDef_t * rect, float text_x, float text_y, vec4_t color, float scale, int align, int textStyle)
 {
 	static menuDef_t dummyParent;
-
 	static itemDef_t textItem;
 
 	CG_DrawTextBlock(rect, text_x, text_y, color, scale, align, textStyle, cg.consoleText, &dummyParent, &textItem);
@@ -2376,7 +2263,6 @@ CG_DrawTutorial
 static void CG_DrawTutorial(rectDef_t * rect, float text_x, float text_y, vec4_t color, float scale, int align, int textStyle)
 {
 	static menuDef_t dummyParent;
-
 	static itemDef_t textItem;
 
 	if(!cg_tutorial.integer)
@@ -2393,9 +2279,7 @@ CG_DrawWeaponIcon
 void CG_DrawWeaponIcon(rectDef_t * rect, vec4_t color)
 {
 	int             ammo, clips, maxAmmo;
-
 	centity_t      *cent;
-
 	playerState_t  *ps;
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -2457,11 +2341,8 @@ CG_DrawCrosshair
 static void CG_DrawCrosshair(void)
 {
 	float           w, h;
-
 	qhandle_t       hShader;
-
 	float           x, y;
-
 	weaponInfo_t   *wi;
 
 	if(!cg_drawCrosshair.integer)
@@ -2501,11 +2382,8 @@ CG_ScanForCrosshairEntity
 static void CG_ScanForCrosshairEntity(void)
 {
 	trace_t         trace;
-
 	vec3_t          start, end;
-
 	int             content;
-
 	pTeam_t         team;
 
 	VectorCopy(cg.refdef.vieworg, start);
@@ -2544,9 +2422,7 @@ CG_DrawCrosshairNames
 static void CG_DrawCrosshairNames(rectDef_t * rect, float scale, int textStyle)
 {
 	float          *color;
-
 	char           *name;
-
 	float           w, x;
 
 	if(!cg_drawCrosshair.integer)
@@ -2984,13 +2860,9 @@ CG_DrawCenterString
 static void CG_DrawCenterString(void)
 {
 	char           *start;
-
 	int             l;
-
 	int             x, y, w;
-
 	int             h;
-
 	float          *color;
 
 	if(!cg.centerPrintTime)
@@ -3054,7 +2926,6 @@ CG_DrawVote
 static void CG_DrawVote(void)
 {
 	char           *s;
-
 	int             sec;
 	vec4_t          white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -3085,7 +2956,6 @@ CG_DrawTeamVote
 static void CG_DrawTeamVote(void)
 {
 	char           *s;
-
 	int             sec, cs_offset;
 	vec4_t          white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -3121,7 +2991,6 @@ static void CG_DrawTeamVote(void)
 static qboolean CG_DrawScoreboard(void)
 {
 	static qboolean firstTime = qtrue;
-
 	float           fade, *fadeColor;
 
 	if(menuScoreboard)
@@ -3189,9 +3058,7 @@ CG_DrawFollow
 static qboolean CG_DrawFollow(void)
 {
 	float           w;
-
 	vec4_t          color;
-
 	char            buffer[MAX_STRING_CHARS];
 
 	if(!(cg.snap->ps.pm_flags & PMF_FOLLOW))
@@ -3219,9 +3086,7 @@ CG_DrawQueue
 static qboolean CG_DrawQueue(void)
 {
 	float           w;
-
 	vec4_t          color;
-
 	char            buffer[MAX_STRING_CHARS];
 
 	if(!(cg.snap->ps.pm_flags & PMF_QUEUED))
@@ -3270,9 +3135,7 @@ CG_Draw2D
 static void CG_Draw2D(void)
 {
 	vec4_t          color;
-
 	float           w;
-
 	menuDef_t      *menu = NULL, *defaultMenu;
 
 	color[0] = color[1] = color[2] = color[3] = 1.0f;
@@ -3360,15 +3223,10 @@ CG_PainBlend
 static void CG_PainBlend(void)
 {
 	vec4_t          color;
-
 	int             damage;
-
 	float           damageAsFracOfMax;
-
 	qhandle_t       shader = cgs.media.viewBloodShader;
-
 	float           x, y, w, h;
-
 	float           s1, t1, s2, t2;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
@@ -3493,7 +3351,6 @@ Perform all drawing needed to completely fill the screen
 void CG_DrawActive(stereoFrame_t stereoView)
 {
 	float           separation;
-
 	vec3_t          baseOrg;
 
 	// optionally draw the info screen instead

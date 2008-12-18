@@ -34,9 +34,7 @@ G_BounceMissile
 void G_BounceMissile(gentity_t * ent, trace_t * trace)
 {
 	vec3_t          velocity;
-
 	float           dot;
-
 	int             hitTime;
 
 	// reflect the velocity on the trace plane
@@ -72,7 +70,6 @@ Explode a missile without an impact
 void G_ExplodeMissile(gentity_t * ent)
 {
 	vec3_t          dir;
-
 	vec3_t          origin;
 
 	BG_EvaluateTrajectory(&ent->s.pos, level.time, origin);
@@ -109,9 +106,7 @@ G_MissileImpact
 void G_MissileImpact(gentity_t * ent, trace_t * trace)
 {
 	gentity_t      *other, *attacker;
-
 	qboolean        returnAfterDamage = qfalse;
-
 	vec3_t          dir;
 
 	other = &g_entities[trace->entityNum];
@@ -246,9 +241,7 @@ G_RunMissile
 void G_RunMissile(gentity_t * ent)
 {
 	vec3_t          origin;
-
 	trace_t         tr;
-
 	int             passent;
 
 	// get current position
@@ -307,7 +300,6 @@ fire_flamer
 gentity_t      *fire_flamer(gentity_t * self, vec3_t start, vec3_t dir)
 {
 	gentity_t      *bolt;
-
 	vec3_t          pvel;
 
 	VectorNormalize(dir);
@@ -441,7 +433,6 @@ fire_luciferCannon
 gentity_t      *fire_luciferCannon(gentity_t * self, vec3_t start, vec3_t dir, int damage, int radius)
 {
 	gentity_t      *bolt;
-
 	int             localDamage = (int)(ceil(((float)damage / (float)LCANNON_TOTAL_CHARGE) * (float)LCANNON_DAMAGE));
 
 	VectorNormalize(dir);
@@ -537,7 +528,6 @@ Adjust the trajectory to point towards the hive
 void AHive_ReturnToHive(gentity_t * self)
 {
 	vec3_t          dir;
-
 	trace_t         tr;
 
 	if(!self->parent)
@@ -588,7 +578,6 @@ Adjust the trajectory to point towards the target
 void AHive_SearchAndDestroy(gentity_t * self)
 {
 	vec3_t          dir;
-
 	trace_t         tr;
 
 	trap_Trace(&tr, self->r.currentOrigin, self->r.mins, self->r.maxs,

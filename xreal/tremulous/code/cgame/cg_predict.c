@@ -32,11 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static pmove_t  cg_pmove;
 
 static int      cg_numSolidEntities;
-
 static centity_t *cg_solidEntities[MAX_ENTITIES_IN_SNAPSHOT];
-
 static int      cg_numTriggerEntities;
-
 static centity_t *cg_triggerEntities[MAX_ENTITIES_IN_SNAPSHOT];
 
 /*
@@ -51,11 +48,8 @@ efficient collision detection
 void CG_BuildSolidList(void)
 {
 	int             i;
-
 	centity_t      *cent;
-
 	snapshot_t     *snap;
-
 	entityState_t  *ent;
 
 	cg_numSolidEntities = 0;
@@ -98,17 +92,11 @@ static void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
 								  int mask, trace_t * tr, traceType_t collisionType)
 {
 	int             i, j, x, zd, zu;
-
 	trace_t         trace;
-
 	entityState_t  *ent;
-
 	clipHandle_t    cmodel;
-
 	vec3_t          bmins, bmaxs;
-
 	vec3_t          origin, angles;
-
 	centity_t      *cent;
 
 	//SUPAR HACK
@@ -238,7 +226,6 @@ void CG_BiSphereTrace(trace_t * result, const vec3_t start, const vec3_t end,
 					  const float startRadius, const float endRadius, int skipNumber, int mask)
 {
 	trace_t         t;
-
 	vec3_t          mins, maxs;
 
 	mins[0] = startRadius;
@@ -260,13 +247,9 @@ CG_PointContents
 int CG_PointContents(const vec3_t point, int passEntityNum)
 {
 	int             i;
-
 	entityState_t  *ent;
-
 	centity_t      *cent;
-
 	clipHandle_t    cmodel;
-
 	int             contents;
 
 	contents = trap_CM_PointContents(point, 0);
@@ -306,11 +289,8 @@ cg.snap->player_state and cg.nextFrame->player_state
 static void CG_InterpolatePlayerState(qboolean grabAngles)
 {
 	float           f;
-
 	int             i;
-
 	playerState_t  *out;
-
 	snapshot_t     *prev, *next;
 
 	out = &cg.predictedPlayerState;
@@ -323,7 +303,6 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
 	if(grabAngles)
 	{
 		usercmd_t       cmd;
-
 		int             cmdNum;
 
 		cmdNum = trap_GetCurrentCmdNumber();
@@ -369,15 +348,10 @@ Predict push triggers and items
 static void CG_TouchTriggerPrediction(void)
 {
 	int             i;
-
 	trace_t         trace;
-
 	entityState_t  *ent;
-
 	clipHandle_t    cmodel;
-
 	centity_t      *cent;
-
 	qboolean        spectator;
 
 	// dead clients don't activate triggers
@@ -450,13 +424,9 @@ to ease the jerk.
 void CG_PredictPlayerState(void)
 {
 	int             cmdNum, current, i;
-
 	playerState_t   oldPlayerState;
-
 	qboolean        moved;
-
 	usercmd_t       oldestCmd;
-
 	usercmd_t       latestCmd;
 
 	cg.hyperspace = qfalse;		// will be set if touching a trigger_teleport
@@ -573,7 +543,6 @@ void CG_PredictPlayerState(void)
 		if(cg.predictedPlayerState.commandTime == oldPlayerState.commandTime)
 		{
 			vec3_t          delta;
-
 			float           len;
 
 			if(cg.thisFrameTeleport)
@@ -610,7 +579,6 @@ void CG_PredictPlayerState(void)
 					if(cg_errorDecay.integer)
 					{
 						int             t;
-
 						float           f;
 
 						t = cg.time - cg.predictedErrorTime;

@@ -36,9 +36,7 @@ global pain sound events for all clients.
 void P_DamageFeedback(gentity_t * player)
 {
 	gclient_t      *client;
-
 	float           count;
-
 	vec3_t          angles;
 
 	client = player->client;
@@ -196,9 +194,7 @@ ClientImpacts
 void ClientImpacts(gentity_t * ent, pmove_t * pm)
 {
 	int             i, j;
-
 	trace_t         trace;
-
 	gentity_t      *other;
 
 	memset(&trace, 0, sizeof(trace));
@@ -241,15 +237,10 @@ Spectators will only interact with teleporters.
 void G_TouchTriggers(gentity_t * ent)
 {
 	int             i, num;
-
 	int             touch[MAX_GENTITIES];
-
 	gentity_t      *hit;
-
 	trace_t         trace;
-
 	vec3_t          mins, maxs;
-
 	vec3_t          pmins, pmaxs;
 	static vec3_t   range = { 10, 10, 10 };
 
@@ -327,7 +318,6 @@ SpectatorThink
 void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 {
 	pmove_t         pm;
-
 	gclient_t      *client;
 
 	client = ent->client;
@@ -461,9 +451,7 @@ Actions that happen once a second
 void ClientTimerActions(gentity_t * ent, int msec)
 {
 	gclient_t      *client;
-
 	usercmd_t      *ucmd;
-
 	int             aForward, aRight;
 
 	ucmd = &ent->client->pers.cmd;
@@ -627,7 +615,6 @@ void ClientTimerActions(gentity_t * ent, int msec)
 				if((client->ps.stats[STAT_BUILDABLE] & ~SB_VALID_TOGGLEBIT) > BA_NONE)
 				{
 					int             dist = BG_FindBuildDistForClass(ent->client->ps.stats[STAT_PCLASS]);
-
 					vec3_t          dummy;
 
 					if(G_itemFits(ent, client->ps.stats[STAT_BUILDABLE] & ~SB_VALID_TOGGLEBIT, dist, dummy) == IBE_NONE)
@@ -696,9 +683,7 @@ void ClientTimerActions(gentity_t * ent, int msec)
 		if(client->ps.stats[STAT_STATE] & SS_POISONED)
 		{
 			int             i;
-
 			int             seconds = ((level.time - client->lastPoisonTime) / 1000) + 1;
-
 			int             damage = ALIEN_POISON_DMG, damage2 = 0;
 
 			for(i = 0; i < seconds; i++)
@@ -720,11 +705,8 @@ void ClientTimerActions(gentity_t * ent, int msec)
 			int             entityList[MAX_GENTITIES];
 			vec3_t          range = { LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE };
 			vec3_t          mins, maxs;
-
 			int             i, num;
-
 			gentity_t      *boostEntity;
-
 			float           modifier = 1.0f;
 
 			VectorAdd(client->ps.origin, range, maxs);
@@ -809,19 +791,12 @@ but any server game effects are handled here
 void ClientEvents(gentity_t * ent, int oldEventSequence)
 {
 	int             i;
-
 	int             event;
-
 	gclient_t      *client;
-
 	int             damage;
-
 	vec3_t          dir;
-
 	vec3_t          point, mins;
-
 	float           fallDistance;
-
 	pClass_t        class;
 
 	client = ent->client;
@@ -918,9 +893,7 @@ SendPendingPredictableEvents
 void SendPendingPredictableEvents(playerState_t * ps)
 {
 	gentity_t      *t;
-
 	int             event, seq;
-
 	int             extEvent, number;
 
 	// if there are still events pending
@@ -963,13 +936,9 @@ once for each server frame, which makes for smooth demo recording.
 void ClientThink_real(gentity_t * ent)
 {
 	gclient_t      *client;
-
 	pmove_t         pm;
-
 	int             oldEventSequence;
-
 	int             msec;
-
 	usercmd_t      *ucmd;
 
 	client = ent->client;
@@ -1249,9 +1218,7 @@ void ClientThink_real(gentity_t * ent)
 	if((client->buttons & BUTTON_GETFLAG) && !(client->oldbuttons & BUTTON_GETFLAG) && client->ps.stats[STAT_HEALTH] > 0)
 	{
 		trace_t         trace;
-
 		vec3_t          view, point;
-
 		gentity_t      *traceEnt;
 
 		if(client->ps.stats[STAT_STATE] & SS_HOVELING)
@@ -1285,7 +1252,6 @@ void ClientThink_real(gentity_t * ent)
 			int             entityList[MAX_GENTITIES];
 			vec3_t          range = { USE_OBJECT_RANGE, USE_OBJECT_RANGE, USE_OBJECT_RANGE };
 			vec3_t          mins, maxs;
-
 			int             i, num;
 
 			//TA: look for object infront of player
@@ -1432,7 +1398,6 @@ SpectatorClientEndFrame
 void SpectatorClientEndFrame(gentity_t * ent)
 {
 	gclient_t      *cl;
-
 	int             clientNum, flags;
 
 	// if we are doing a chase cam or a remote view, grab the latest info

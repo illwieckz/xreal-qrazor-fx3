@@ -29,32 +29,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_local.h"
 
 pmove_t        *pm;
-
 pml_t           pml;
 
 // movement parameters
 float           pm_stopspeed = 100.0f;
-
 float           pm_duckScale = 0.25f;
-
 float           pm_swimScale = 0.50f;
-
 float           pm_wadeScale = 0.70f;
 
 float           pm_accelerate = 10.0f;
-
 float           pm_airaccelerate = 1.0f;
-
 float           pm_wateraccelerate = 4.0f;
-
 float           pm_flyaccelerate = 4.0f;
 
 float           pm_friction = 6.0f;
-
 float           pm_waterfriction = 1.0f;
-
 float           pm_flightfriction = 6.0f;
-
 float           pm_spectatorfriction = 5.0f;
 
 int             c_pmove = 0;
@@ -203,9 +193,7 @@ Slide off of the impacting surface
 void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
 	float           backoff;
-
 	float           change;
-
 	int             i;
 
 	backoff = DotProduct(in, normal);
@@ -238,11 +226,8 @@ Handles both ground friction and water friction
 static void PM_Friction(void)
 {
 	vec3_t          vec;
-
 	float          *vel;
-
 	float           speed, newspeed, control;
-
 	float           drop;
 
 	vel = pm->ps->velocity;
@@ -316,7 +301,6 @@ static void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 #if 1
 	// q2 style
 	int             i;
-
 	float           addspeed, accelspeed, currentspeed;
 
 	currentspeed = DotProduct(pm->ps->velocity, wishdir);
@@ -333,11 +317,8 @@ static void PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 #else
 	// proper way (avoids strafe jump maxspeed bug), but feels bad
 	vec3_t          wishVelocity;
-
 	vec3_t          pushDir;
-
 	float           pushLen;
-
 	float           canPush;
 
 	VectorScale(wishdir, wishspeed, wishVelocity);
@@ -366,11 +347,8 @@ without getting a sqrt(2) distortion in speed.
 static float PM_CmdScale(usercmd_t * cmd)
 {
 	int             max;
-
 	float           total;
-
 	float           scale;
-
 	float           modifier = 1.0f;
 
 	if(pm->ps->stats[STAT_PTEAM] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL)
@@ -580,9 +558,7 @@ static qboolean PM_CheckWallJump(void)
 	vec3_t          dir, forward, right;
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	float           normalFraction = 1.5f;
-
 	float           cmdFraction = 1.0f;
-
 	float           upFraction = 1.5f;
 
 	if(pm->ps->pm_flags & PMF_RESPAWNED)
@@ -764,9 +740,7 @@ PM_CheckWaterJump
 static qboolean PM_CheckWaterJump(void)
 {
 	vec3_t          spot;
-
 	int             cont;
-
 	vec3_t          flatforward;
 
 	if(pm->ps->pm_time)
@@ -838,15 +812,10 @@ PM_WaterMove
 static void PM_WaterMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           wishspeed;
-
 	vec3_t          wishdir;
-
 	float           scale;
-
 	float           vel;
 
 	if(PM_CheckWaterJump())
@@ -927,13 +896,9 @@ Only with the jetpack
 static void PM_JetPackMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           wishspeed;
-
 	vec3_t          wishdir;
-
 	float           scale;
 
 	//normal slowdown
@@ -976,13 +941,9 @@ Only with the flight powerup
 static void PM_FlyMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           wishspeed;
-
 	vec3_t          wishdir;
-
 	float           scale;
 
 	// normal slowdown
@@ -1024,17 +985,11 @@ PM_AirMove
 static void PM_AirMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           fmove, smove;
-
 	vec3_t          wishdir;
-
 	float           wishspeed;
-
 	float           scale;
-
 	usercmd_t       cmd;
 
 	PM_Friction();
@@ -1084,21 +1039,13 @@ PM_ClimbMove
 static void PM_ClimbMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           fmove, smove;
-
 	vec3_t          wishdir;
-
 	float           wishspeed;
-
 	float           scale;
-
 	usercmd_t       cmd;
-
 	float           accelerate;
-
 	float           vel;
 
 	if(pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)
@@ -1204,21 +1151,13 @@ PM_WalkMove
 static void PM_WalkMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           fmove, smove;
-
 	vec3_t          wishdir;
-
 	float           wishspeed;
-
 	float           scale;
-
 	usercmd_t       cmd;
-
 	float           accelerate;
-
 	float           vel;
 
 	if(pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)
@@ -1343,15 +1282,10 @@ Basically a rip of PM_WaterMove with a few changes
 static void PM_LadderMove(void)
 {
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           wishspeed;
-
 	vec3_t          wishdir;
-
 	float           scale;
-
 	float           vel;
 
 	PM_Friction();
@@ -1397,7 +1331,6 @@ Check to see if the player is on a ladder or not
 static void PM_CheckLadder(void)
 {
 	vec3_t          forward, end;
-
 	trace_t         trace;
 
 	//test if class can use ladders
@@ -1456,17 +1389,11 @@ PM_NoclipMove
 static void PM_NoclipMove(void)
 {
 	float           speed, drop, friction, control, newspeed;
-
 	int             i;
-
 	vec3_t          wishvel;
-
 	float           fmove, smove;
-
 	vec3_t          wishdir;
-
 	float           wishspeed;
-
 	float           scale;
 
 	pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
@@ -1554,13 +1481,9 @@ Check for hard landings that generate sound events
 static void PM_CrashLand(void)
 {
 	float           delta;
-
 	float           dist;
-
 	float           vel, acc;
-
 	float           t;
-
 	float           a, b, c, den;
 
 	// decide which landing animation to use
@@ -1660,7 +1583,6 @@ PM_CorrectAllSolid
 static int PM_CorrectAllSolid(trace_t * trace)
 {
 	int             i, j, k;
-
 	vec3_t          point;
 
 	if(pm->debugLevel)
@@ -1711,7 +1633,6 @@ The ground trace didn't hit a surface, so we are in freefall
 static void PM_GroundTraceMissed(void)
 {
 	trace_t         trace;
-
 	vec3_t          point;
 
 	if(pm->ps->groundEntityNum != ENTITYNUM_NONE)
@@ -1772,24 +1693,17 @@ static void PM_GroundClimbTrace(void)
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
 	vec3_t          toAngles, surfAngles;
-
 	trace_t         trace;
-
 	int             i;
 
 	//used for delta correction
 	vec3_t          traceCROSSsurf, traceCROSSref, surfCROSSref;
-
 	float           traceDOTsurf, traceDOTref, surfDOTref, rTtDOTrTsTt;
-
 	float           traceANGsurf, traceANGref, surfANGref;
 	vec3_t          horizontal = { 1.0f, 0.0f, 0.0f };	//arbituary vector perpendicular to refNormal
 	vec3_t          refTOtrace, refTOsurfTOtrace, tempVec;
-
 	int             rTtANGrTsTt;
-
 	float           ldDOTtCs, d;
-
 	vec3_t          abc;
 
 	//TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
@@ -2072,7 +1986,6 @@ PM_GroundTrace
 static void PM_GroundTrace(void)
 {
 	vec3_t          point;
-
 	vec3_t          movedir;
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	trace_t         trace;
@@ -2301,11 +2214,8 @@ PM_SetWaterLevel  FIXME: avoid this twice?  certainly if not moving
 static void PM_SetWaterLevel(void)
 {
 	vec3_t          point;
-
 	int             cont;
-
 	int             sample1;
-
 	int             sample2;
 
 	//
@@ -2353,9 +2263,7 @@ Sets mins, maxs, and pm->ps->viewheight
 static void PM_CheckDuck(void)
 {
 	trace_t         trace;
-
 	vec3_t          PCmins, PCmaxs, PCcmaxs;
-
 	int             PCvh, PCcvh;
 
 	BG_FindBBoxForClass(pm->ps->stats[STAT_PCLASS], PCmins, PCmaxs, PCcmaxs, NULL, NULL);
@@ -2425,9 +2333,7 @@ PM_Footsteps
 static void PM_Footsteps(void)
 {
 	float           bobmove;
-
 	int             old;
-
 	qboolean        footstep;
 
 	//
@@ -2752,13 +2658,9 @@ Generates weapon events and modifes the weapon counter
 static void PM_Weapon(void)
 {
 	int             addTime = 200;	//default addTime - should never be used
-
 	int             ammo, clips, maxClips;
-
 	qboolean        attack1 = qfalse;
-
 	qboolean        attack2 = qfalse;
-
 	qboolean        attack3 = qfalse;
 
 	// don't allow attack until all buttons are up
@@ -3222,11 +3124,8 @@ are being updated instead of a full move
 void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd)
 {
 	short           temp[3];
-
 	int             i;
-
 	vec3_t          axis[3], rotaxis[3];
-
 	vec3_t          tempang;
 
 	if(ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION)

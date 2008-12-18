@@ -71,7 +71,6 @@ Draws a bounding box
 void CG_DrawBoundingBox(vec3_t origin, vec3_t mins, vec3_t maxs)
 {
 	vec3_t          ppp, mpp, mmp, pmp;
-
 	vec3_t          mmm, pmm, ppm, mpm;
 
 	ppp[0] = origin[0] + maxs[0];
@@ -128,7 +127,6 @@ tag location
 void CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
 {
 	int             i;
-
 	orientation_t   lerped;
 
 	// lerp the tag
@@ -140,7 +138,7 @@ void CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qh
 		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
 
 	// had to cast away the const to avoid compiler problems...
-	AxisMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
+	MatrixMultiply(lerped.axis, ((refEntity_t *) parent)->axis, entity->axis);
 	entity->backlerp = parent->backlerp;
 }
 
@@ -156,9 +154,7 @@ tag location
 void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName)
 {
 	int             i;
-
 	orientation_t   lerped;
-
 	vec3_t          tempAxis[3];
 
 //AxisClear( entity->axis );
@@ -171,8 +167,8 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
 
 	// had to cast away the const to avoid compiler problems...
-	AxisMultiply(entity->axis, lerped.axis, tempAxis);
-	AxisMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+	MatrixMultiply(entity->axis, lerped.axis, tempAxis);
+	MatrixMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
 }
 
 
@@ -197,7 +193,6 @@ void CG_SetEntitySoundPosition(centity_t * cent)
 	if(cent->currentState.solid == SOLID_BMODEL)
 	{
 		vec3_t          origin;
-
 		float          *v;
 
 		v = cgs.inlineModelMidpoints[cent->currentState.modelindex];
@@ -240,7 +235,6 @@ static void CG_EntityEffects(centity_t * cent)
 	if(cent->currentState.constantLight)
 	{
 		int             cl;
-
 		int             i, r, g, b;
 
 		cl = cent->currentState.constantLight;
@@ -278,7 +272,6 @@ CG_General
 static void CG_General(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *s1;
 
 	s1 = &cent->currentState;
@@ -346,15 +339,10 @@ CG_LaunchMissile
 static void CG_LaunchMissile(centity_t * cent)
 {
 	entityState_t  *es;
-
 	const weaponInfo_t *wi;
-
 	particleSystem_t *ps;
-
 	trailSystem_t  *ts;
-
 	weapon_t        weapon;
-
 	weaponMode_t    weaponMode;
 
 	es = &cent->currentState;
@@ -397,15 +385,10 @@ CG_Missile
 static void CG_Missile(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *es;
-
 	const weaponInfo_t *wi;
-
 	weapon_t        weapon;
-
 	weaponMode_t    weaponMode;
-
 	const weaponInfoMode_t *wim;
 
 	es = &cent->currentState;
@@ -502,7 +485,6 @@ CG_Mover
 static void CG_Mover(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *s1;
 
 	s1 = &cent->currentState;
@@ -547,7 +529,6 @@ Also called as an event
 void CG_Beam(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *s1;
 
 	s1 = &cent->currentState;
@@ -574,7 +555,6 @@ CG_Portal
 static void CG_Portal(centity_t * cent)
 {
 	refEntity_t     ent;
-
 	entityState_t  *s1;
 
 	s1 = &cent->currentState;
@@ -619,21 +599,13 @@ CG_LightFlare
 static void CG_LightFlare(centity_t * cent)
 {
 	refEntity_t     flare;
-
 	entityState_t  *es;
-
 	vec3_t          forward, delta;
-
 	float           len;
-
 	trace_t         tr;
-
 	float           maxAngle;
-
 	vec3_t          mins, maxs, start, end;
-
 	float           srcRadius, srLocal, ratio = 1.0f;
-
 	int             entityNum;
 
 	es = &cent->currentState;
@@ -800,9 +772,7 @@ CG_Lev2ZapChain
 static void CG_Lev2ZapChain(centity_t * cent)
 {
 	int             i;
-
 	entityState_t  *es;
-
 	centity_t      *source = NULL, *target = NULL;
 
 	es = &cent->currentState;
@@ -859,9 +829,7 @@ Also called by client movement prediction code
 void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out)
 {
 	centity_t      *cent;
-
 	vec3_t          oldOrigin, origin, deltaOrigin;
-
 	vec3_t          oldAngles, angles, deltaAngles;
 
 	if(moverNum <= 0 || moverNum >= ENTITYNUM_MAX_NORMAL)
@@ -901,7 +869,6 @@ CG_InterpolateEntityPosition
 static void CG_InterpolateEntityPosition(centity_t * cent)
 {
 	vec3_t          current, next;
-
 	float           f;
 
 	// it would be an internal error to find an entity that interpolates without
@@ -1021,7 +988,6 @@ CG_CEntityPVSLeave
 static void CG_CEntityPVSLeave(centity_t * cent)
 {
 	int             i;
-
 	entityState_t  *es = &cent->currentState;
 
 	if(cg_debugPVS.integer)
@@ -1136,9 +1102,7 @@ CG_AddPacketEntities
 void CG_AddPacketEntities(void)
 {
 	int             num;
-
 	centity_t      *cent;
-
 	playerState_t  *ps;
 
 	// set cg.frameInterpolation
@@ -1218,9 +1182,7 @@ void CG_AddPacketEntities(void)
 		for(num = 0; num < cg.snap->numEntities; num++)
 		{
 			float           x, zd, zu;
-
 			vec3_t          mins, maxs;
-
 			entityState_t  *es;
 
 			cent = &cg_entities[cg.snap->entities[num].number];

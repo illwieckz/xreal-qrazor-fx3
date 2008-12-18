@@ -33,7 +33,6 @@ qboolean        m_entersound;	// after a frame, so caching won't disrupt the sou
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, error);
@@ -46,7 +45,6 @@ void QDECL Com_Error(int level, const char *error, ...)
 void QDECL Com_Printf(const char *msg, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, msg);
@@ -144,9 +142,7 @@ void UI_SetBestScores(postGameInfo_t * newInfo, qboolean postGame)
 void UI_LoadBestScores(const char *map, int game)
 {
 	char            fileName[MAX_QPATH];
-
 	fileHandle_t    f;
-
 	postGameInfo_t  newInfo;
 
 	memset(&newInfo, 0, sizeof(postGameInfo_t));
@@ -154,7 +150,6 @@ void UI_LoadBestScores(const char *map, int game)
 	if(trap_FS_FOpenFile(fileName, &f, FS_READ) >= 0)
 	{
 		int             size = 0;
-
 		trap_FS_Read(&size, sizeof(int), f);
 		if(size == sizeof(postGameInfo_t))
 		{
@@ -181,13 +176,9 @@ UI_ClearScores
 void UI_ClearScores(void)
 {
 	char            gameList[4096];
-
 	char           *gameFile;
-
 	int             i, len, count, size;
-
 	fileHandle_t    f;
-
 	postGameInfo_t  newInfo;
 
 	count = trap_FS_GetFileList("games", "game", gameList, sizeof(gameList));
@@ -230,19 +221,12 @@ UI_CalcPostGameStats
 static void UI_CalcPostGameStats(void)
 {
 	char            map[MAX_QPATH];
-
 	char            fileName[MAX_QPATH];
-
 	char            info[MAX_INFO_STRING];
-
 	fileHandle_t    f;
-
 	int             size, game, time, adjustedTime;
-
 	postGameInfo_t  oldInfo;
-
 	postGameInfo_t  newInfo;
-
 	qboolean        newHigh = qfalse;
 
 	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
@@ -351,7 +335,6 @@ UI_ConsoleCommand
 qboolean UI_ConsoleCommand(int realTime)
 {
 	char           *cmd;
-
 	char           *arg1;
 
 	uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
@@ -384,7 +367,6 @@ qboolean UI_ConsoleCommand(int realTime)
 		if(trap_Argc() == 4)
 		{
 			char            shader1[MAX_QPATH];
-
 			char            shader2[MAX_QPATH];
 
 			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
@@ -484,11 +466,8 @@ void UI_DrawNamedPic(float x, float y, float width, float height, const char *pi
 void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
 {
 	float           s0;
-
 	float           s1;
-
 	float           t0;
-
 	float           t1;
 
 	if(w < 0)

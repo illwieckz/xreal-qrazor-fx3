@@ -56,7 +56,6 @@ int trap_Milliseconds(void)
 {
 	return syscall(G_MILLISECONDS);
 }
-
 int trap_Argc(void)
 {
 	return syscall(G_ARGC);
@@ -231,7 +230,6 @@ qboolean trap_EntityContactCapsule(const vec3_t mins, const vec3_t maxs, const g
 {
 	return syscall(G_ENTITY_CONTACTCAPSULE, mins, maxs, ent);
 }
-
 int trap_BotAllocateClient(void)
 {
 	return syscall(G_BOT_ALLOCATE_CLIENT);

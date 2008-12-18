@@ -59,7 +59,6 @@ CG_GetBindings
 static void CG_GetBindings(void)
 {
 	int             i, j, numKeys;
-
 	char            buffer[MAX_STRING_CHARS];
 
 	for(i = 0; i < numBindings; i++)
@@ -93,9 +92,7 @@ CG_KeyNameForCommand
 static const char *CG_KeyNameForCommand(const char *command)
 {
 	int             i, j;
-
 	static char     buffer[MAX_STRING_CHARS];
-
 	int             firstKeyLength;
 
 	buffer[0] = '\0';
@@ -144,9 +141,7 @@ CG_BuildableInRange
 static qboolean CG_BuildableInRange(playerState_t * ps)
 {
 	vec3_t          view, point;
-
 	trace_t         trace;
-
 	entityState_t  *es;
 
 	AngleVectors(cg.refdefViewAngles, view, NULL, NULL);
@@ -316,9 +311,7 @@ CG_HumanText
 static void CG_HumanText(char *text, playerState_t * ps)
 {
 	char           *name;
-
 	int             ammo, clips;
-
 	upgrade_t       upgrade = UP_NONE;
 
 	if(cg.weaponSelect <= 32)
@@ -462,7 +455,6 @@ Returns context help for the current class/weapon
 const char     *CG_TutorialText(void)
 {
 	playerState_t  *ps;
-
 	static char     text[MAX_TUTORIAL_TEXT];
 
 	CG_GetBindings();

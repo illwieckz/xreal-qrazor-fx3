@@ -86,9 +86,7 @@ FIXME: Also called by map_restart?
 void CG_SetInitialSnapshot(snapshot_t * snap)
 {
 	int             i;
-
 	centity_t      *cent;
-
 	entityState_t  *state;
 
 	cg.snap = snap;
@@ -132,9 +130,7 @@ The transition point from snap to nextSnap has passed
 static void CG_TransitionSnapshot(void)
 {
 	centity_t      *cent;
-
 	snapshot_t     *oldFrame;
-
 	int             i;
 
 	if(!cg.snap)
@@ -205,9 +201,7 @@ A new snapshot has just been read in from the client system.
 static void CG_SetNextSnap(snapshot_t * snap)
 {
 	int             num;
-
 	entityState_t  *es;
-
 	centity_t      *cent;
 
 	cg.nextSnap = snap;
@@ -265,7 +259,6 @@ valid snapshot.
 static snapshot_t *CG_ReadNextSnapshot(void)
 {
 	qboolean        r;
-
 	snapshot_t     *dest;
 
 	if(cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000)
@@ -337,7 +330,6 @@ of an interpolating one)
 void CG_ProcessSnapshots(void)
 {
 	snapshot_t     *snap;
-
 	int             n;
 
 	// see what the latest snapshot the client system has is

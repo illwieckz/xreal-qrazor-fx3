@@ -35,7 +35,6 @@ typedef struct
 #define MAX_SHADER_REMAPS 128
 
 int             remapCount = 0;
-
 shaderRemap_t   remappedShaders[MAX_SHADER_REMAPS];
 
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset)
@@ -65,9 +64,7 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset)
 const char     *BuildShaderStateConfig(void)
 {
 	static char     buff[MAX_STRING_CHARS * 4];
-
 	char            out[(MAX_QPATH * 2) + 5];
-
 	int             i;
 
 	memset(buff, 0, MAX_STRING_CHARS);
@@ -99,7 +96,6 @@ G_FindConfigstringIndex
 int G_FindConfigstringIndex(char *name, int start, int max, qboolean create)
 {
 	int             i;
-
 	char            s[MAX_STRING_CHARS];
 
 	if(!name || !name[0])
@@ -223,9 +219,7 @@ Selects a random entity from among the targets
 gentity_t      *G_PickTarget(char *targetname)
 {
 	gentity_t      *ent = NULL;
-
 	int             num_choices = 0;
-
 	gentity_t      *choice[MAXCHOICES];
 
 	if(!targetname)
@@ -317,9 +311,7 @@ for making temporary vectors for function calls
 float          *tv(float x, float y, float z)
 {
 	static int      index;
-
 	static vec3_t   vecs[8];
-
 	float          *v;
 
 	// use an array so that multiple tempvectors won't collide
@@ -346,9 +338,7 @@ for printing vectors
 char           *vtos(const vec3_t v)
 {
 	static int      index;
-
 	static char     str[8][32];
-
 	char           *s;
 
 	// use an array so that multiple vtos won't collide
@@ -440,7 +430,6 @@ angles and bad trails.
 gentity_t      *G_Spawn(void)
 {
 	int             i, force;
-
 	gentity_t      *e;
 
 	e = NULL;					// shut up warning
@@ -498,7 +487,6 @@ G_EntitiesFree
 qboolean G_EntitiesFree(void)
 {
 	int             i;
-
 	gentity_t      *e;
 
 	e = &g_entities[MAX_CLIENTS];
@@ -548,7 +536,6 @@ must be taken if the origin is right on a surface (snap towards start vector fir
 gentity_t      *G_TempEntity(vec3_t origin, int event)
 {
 	gentity_t      *e;
-
 	vec3_t          snapped;
 
 	e = G_Spawn();
@@ -589,11 +576,8 @@ of ent.  Ent should be unlinked before calling this!
 void G_KillBox(gentity_t * ent)
 {
 	int             i, num;
-
 	int             touch[MAX_GENTITIES];
-
 	gentity_t      *hit;
-
 	vec3_t          mins, maxs;
 
 	VectorAdd(ent->client->ps.origin, ent->r.mins, mins);
@@ -846,7 +830,6 @@ void G_ProcessCommandQueues(void)
 	for(i = 0; i < MAX_CLIENTS; i++)
 	{
 		gclient_t      *cl = &level.clients[i];
-
 		commandQueue_t *cq = &queuedCommands[i];
 
 		if(!G_ClientIsLagging(cl) && G_ReadyToDequeue(cq))
@@ -867,7 +850,6 @@ G_InitCommandQueue
 void G_InitCommandQueue(int clientNum)
 {
 	int             i;
-
 	commandQueue_t *cq = &queuedCommands[clientNum];
 
 	if(clientNum >= 0 && clientNum < MAX_CLIENTS)
@@ -952,7 +934,6 @@ void G_SetOrigin(gentity_t * ent, vec3_t origin)
 gentity_t      *G_FindRadius(gentity_t * from, vec3_t org, float rad)
 {
 	vec3_t          eorg;
-
 	int             j;
 
 	if(!from)
@@ -1006,9 +987,7 @@ Test a list of entities for the closest to a particular point
 gentity_t      *G_ClosestEnt(vec3_t origin, gentity_t ** entities, int numEntities)
 {
 	int             i;
-
 	float           nd, d = 1000000.0f;
-
 	gentity_t      *closestEnt = NULL;
 
 	for(i = 0; i < numEntities; i++)

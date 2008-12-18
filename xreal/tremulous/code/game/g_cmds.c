@@ -63,11 +63,8 @@ Returns -1 if invalid
 int G_ClientNumberFromString(gentity_t * to, char *s)
 {
 	gclient_t      *cl;
-
 	int             idnum;
-
 	char            s2[MAX_STRING_CHARS];
-
 	char            n2[MAX_STRING_CHARS];
 
 	// numeric values are just slot numbers
@@ -119,19 +116,12 @@ ScoreboardMessage
 void ScoreboardMessage(gentity_t * ent)
 {
 	char            entry[1024];
-
 	char            string[1400];
-
 	int             stringlength;
-
 	int             i, j;
-
 	gclient_t      *cl;
-
 	int             numSorted;
-
 	weapon_t        weapon = WP_NONE;
-
 	upgrade_t       upgrade = UP_NONE;
 
 	// send the latest information on all clients
@@ -236,11 +226,8 @@ ConcatArgs
 char           *ConcatArgs(int start)
 {
 	int             i, c, tlen;
-
 	static char     line[MAX_STRING_CHARS];
-
 	int             len;
-
 	char            arg[MAX_STRING_CHARS];
 
 	len = 0;
@@ -280,7 +267,6 @@ Give items to a client
 void Cmd_Give_f(gentity_t * ent)
 {
 	char           *name;
-
 	qboolean        give_all;
 
 	if(!CheatsOk(ent))
@@ -499,7 +485,6 @@ Cmd_Team_f
 void Cmd_Team_f(gentity_t * ent)
 {
 	pTeam_t         team;
-
 	char            s[MAX_TOKEN_CHARS];
 
 	trap_Argv(1, s, sizeof(s));
@@ -587,16 +572,12 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 {
 	int             j;
-
 	gentity_t      *other;
-
 	int             color;
-
 	char            name[64];
 
 	// don't let text be too long for malicious reasons
 	char            text[MAX_SAY_TEXT];
-
 	char            location[64];
 
 	switch (mode)
@@ -681,11 +662,8 @@ Cmd_Tell_f
 static void Cmd_Tell_f(gentity_t * ent)
 {
 	int             targetNum;
-
 	gentity_t      *target;
-
 	char           *p;
-
 	char            arg[MAX_TOKEN_CHARS];
 
 	if(trap_Argc() < 2)
@@ -729,9 +707,7 @@ Cmd_CallVote_f
 void Cmd_CallVote_f(gentity_t * ent)
 {
 	int             i;
-
 	char            arg1[MAX_STRING_TOKENS];
-
 	char            arg2[MAX_STRING_TOKENS];
 
 	if(!g_allowVote.integer)
@@ -911,9 +887,7 @@ Cmd_CallTeamVote_f
 void Cmd_CallTeamVote_f(gentity_t * ent)
 {
 	int             i, team, cs_offset;
-
 	char            arg1[MAX_STRING_TOKENS];
-
 	char            arg2[MAX_STRING_TOKENS];
 
 	team = ent->client->ps.stats[STAT_PTEAM];
@@ -1033,7 +1007,6 @@ Cmd_TeamVote_f
 void Cmd_TeamVote_f(gentity_t * ent)
 {
 	int             team, cs_offset;
-
 	char            msg[64];
 
 	team = ent->client->ps.stats[STAT_PTEAM];
@@ -1092,9 +1065,7 @@ Cmd_SetViewpos_f
 void Cmd_SetViewpos_f(gentity_t * ent)
 {
 	vec3_t          origin, angles;
-
 	char            buffer[MAX_TOKEN_CHARS];
-
 	int             i;
 
 	if(!g_cheats.integer)
@@ -1134,33 +1105,22 @@ Cmd_Class_f
 void Cmd_Class_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             clientNum;
-
 	int             i;
-
 	trace_t         tr, tr2;
-
 	vec3_t          infestOrigin;
-
 	int             allowedClasses[PCL_NUM_CLASSES];
-
 	int             numClasses = 0;
-
 	pClass_t        currentClass = ent->client->ps.stats[STAT_PCLASS];
 
 	int             numLevels;
-
 	vec3_t          fromMins, fromMaxs, toMins, toMaxs;
-
 	vec3_t          temp;
 
 	int             entityList[MAX_GENTITIES];
 	vec3_t          range = { AS_OVER_RT3, AS_OVER_RT3, AS_OVER_RT3 };
 	vec3_t          mins, maxs;
-
 	int             num;
-
 	gentity_t      *other;
 
 	if(ent->client->ps.stats[STAT_HEALTH] <= 0)
@@ -1366,9 +1326,7 @@ Cmd_Destroy_f
 void Cmd_Destroy_f(gentity_t * ent, qboolean deconstruct)
 {
 	vec3_t          forward, end;
-
 	trace_t         tr;
-
 	gentity_t      *traceEnt;
 
 	if(ent->client->ps.stats[STAT_STATE] & SS_HOVELING)
@@ -1414,7 +1372,6 @@ Activate an item
 void Cmd_ActivateItem_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             upgrade, weapon;
 
 	trap_Argv(1, s, sizeof(s));
@@ -1446,7 +1403,6 @@ Deactivate an item
 void Cmd_DeActivateItem_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             upgrade;
 
 	trap_Argv(1, s, sizeof(s));
@@ -1473,7 +1429,6 @@ Cmd_ToggleItem_f
 void Cmd_ToggleItem_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             upgrade, weapon, i;
 
 	trap_Argv(1, s, sizeof(s));
@@ -1530,13 +1485,9 @@ Cmd_Buy_f
 void Cmd_Buy_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             i;
-
 	int             weapon, upgrade, numItems = 0;
-
 	int             maxAmmo, maxClips;
-
 	qboolean        buyingEnergyAmmo = qfalse;
 
 	for(i = UP_NONE; i < UP_NUM_UPGRADES; i++)
@@ -1730,9 +1681,7 @@ Cmd_Sell_f
 void Cmd_Sell_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	int             i;
-
 	int             weapon, upgrade;
 
 	trap_Argv(1, s, sizeof(s));
@@ -1878,13 +1827,9 @@ Cmd_Build_f
 void Cmd_Build_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS];
-
 	buildable_t     buildable;
-
 	float           dist;
-
 	vec3_t          origin;
-
 	pTeam_t         team;
 
 	trap_Argv(1, s, sizeof(s));
@@ -2023,9 +1968,7 @@ This was a really nice, elegant function. Then I fucked it up.
 qboolean G_FollowNewClient(gentity_t * ent, int dir)
 {
 	int             clientnum = ent->client->sess.spectatorClient;
-
 	int             original = clientnum;
-
 	qboolean        selectAny = qfalse;
 
 	if(dir > 1)
@@ -2089,7 +2032,6 @@ Cmd_Follow_f
 void Cmd_Follow_f(gentity_t * ent, qboolean toggle)
 {
 	int             i;
-
 	char            arg[MAX_TOKEN_CHARS];
 
 	if(trap_Argc() != 2 || toggle)
@@ -2195,7 +2137,6 @@ void Cmd_PTRCRestore_f(gentity_t * ent)
 {
 	char            s[MAX_TOKEN_CHARS] = { 0 };
 	int             code;
-
 	connectionRecord_t *connection;
 
 	trap_Argv(1, s, sizeof(s));
@@ -2262,7 +2203,6 @@ ClientCommand
 void ClientCommand(int clientNum)
 {
 	gentity_t      *ent;
-
 	char            cmd[MAX_TOKEN_CHARS];
 
 	ent = g_entities + clientNum;

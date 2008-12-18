@@ -403,125 +403,71 @@ typedef struct
 } displayContextDef_t;
 
 const char     *String_Alloc(const char *p);
-
 void            String_Init(void);
-
 void            String_Report(void);
-
 void            Init_Display(displayContextDef_t * dc);
-
 void            Display_ExpandMacros(char *buff);
-
 void            Menu_Init(menuDef_t * menu);
-
 void            Item_Init(itemDef_t * item);
-
 void            Menu_PostParse(menuDef_t * menu);
-
 menuDef_t      *Menu_GetFocused(void);
-
 void            Menu_HandleKey(menuDef_t * menu, int key, qboolean down);
-
 void            Menu_HandleMouseMove(menuDef_t * menu, float x, float y);
-
 void            Menu_ScrollFeeder(menuDef_t * menu, int feeder, qboolean down);
-
 qboolean        Float_Parse(char **p, float *f);
-
 qboolean        Color_Parse(char **p, vec4_t * c);
-
 qboolean        Int_Parse(char **p, int *i);
-
 qboolean        Rect_Parse(char **p, rectDef_t * r);
-
 qboolean        String_Parse(char **p, const char **out);
-
 qboolean        Script_Parse(char **p, const char **out);
-
 qboolean        PC_Float_Parse(int handle, float *f);
-
 qboolean        PC_Color_Parse(int handle, vec4_t * c);
-
 qboolean        PC_Int_Parse(int handle, int *i);
-
 qboolean        PC_Rect_Parse(int handle, rectDef_t * r);
-
 qboolean        PC_String_Parse(int handle, const char **out);
-
 qboolean        PC_Script_Parse(int handle, const char **out);
-
 int             Menu_Count(void);
-
 void            Menu_New(int handle);
-
 void            Menu_PaintAll(void);
-
 menuDef_t      *Menus_ActivateByName(const char *p);
-
 void            Menu_Reset(void);
-
 qboolean        Menus_AnyFullScreenVisible(void);
-
 void            Menus_Activate(menuDef_t * menu);
 
 displayContextDef_t *Display_GetContext(void);
-
 void           *Display_CaptureItem(int x, int y);
-
 qboolean        Display_MouseMove(void *p, int x, int y);
-
 int             Display_CursorType(int x, int y);
-
 qboolean        Display_KeyBindPending(void);
-
 void            Menus_OpenByName(const char *p);
-
 menuDef_t      *Menus_FindByName(const char *p);
-
 void            Menus_ShowByName(const char *p);
-
 void            Menus_CloseByName(const char *p);
-
 void            Display_HandleKey(int key, qboolean down, int x, int y);
-
 void            LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-
 void            Menus_CloseAll(void);
-
 void            Menu_Paint(menuDef_t * menu, qboolean forcePaint);
-
 void            Menu_SetFeederSelection(menuDef_t * menu, int feeder, int index, const char *name);
-
 void            Display_CacheAll(void);
 
 void           *UI_Alloc(int size);
-
 void            UI_InitMemory(void);
-
 qboolean        UI_OutOfMemory(void);
 
 void            Controls_GetConfig(void);
-
 void            Controls_SetConfig(qboolean restart);
-
 void            Controls_SetDefaults(void);
 
 //for cg_draw.c
 void            Item_Text_AutoWrapped_Paint(itemDef_t * item);
 
 int             trap_PC_AddGlobalDefine(char *define);
-
 int             trap_PC_LoadSource(const char *filename);
-
 int             trap_PC_FreeSource(int handle);
-
 int             trap_PC_ReadToken(int handle, pc_token_t * pc_token);
-
 int             trap_PC_SourceFileAndLine(int handle, char *filename, int *line);
 
 void            BindingFromName(const char *cvar);
-
 extern char     g_nameBind1[32];
-
 extern char     g_nameBind2[32];
 #endif

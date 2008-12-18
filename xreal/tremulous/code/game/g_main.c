@@ -37,132 +37,73 @@ typedef struct
 } cvarTable_t;
 
 gentity_t       g_entities[MAX_GENTITIES];
-
 gclient_t       g_clients[MAX_CLIENTS];
 
 vmCvar_t        g_fraglimit;
-
 vmCvar_t        g_timelimit;
-
 vmCvar_t        g_suddenDeathTime;
-
 vmCvar_t        g_capturelimit;
-
 vmCvar_t        g_friendlyFire;
-
 vmCvar_t        g_password;
-
 vmCvar_t        g_needpass;
-
 vmCvar_t        g_maxclients;
-
 vmCvar_t        g_maxGameClients;
-
 vmCvar_t        g_dedicated;
-
 vmCvar_t        g_speed;
-
 vmCvar_t        g_gravity;
-
 vmCvar_t        g_cheats;
-
 vmCvar_t        g_knockback;
-
 vmCvar_t        g_quadfactor;
-
 vmCvar_t        g_forcerespawn;
-
 vmCvar_t        g_inactivity;
-
 vmCvar_t        g_debugMove;
-
 vmCvar_t        g_debugDamage;
-
 vmCvar_t        g_debugAlloc;
-
 vmCvar_t        g_weaponRespawn;
-
 vmCvar_t        g_weaponTeamRespawn;
-
 vmCvar_t        g_motd;
-
 vmCvar_t        g_synchronousClients;
-
 vmCvar_t        g_warmup;
-
 vmCvar_t        g_doWarmup;
-
 vmCvar_t        g_restarted;
-
 vmCvar_t        g_logFile;
-
 vmCvar_t        g_logFileSync;
-
 vmCvar_t        g_blood;
-
 vmCvar_t        g_podiumDist;
-
 vmCvar_t        g_podiumDrop;
-
 vmCvar_t        g_allowVote;
-
 vmCvar_t        g_teamAutoJoin;
-
 vmCvar_t        g_teamForceBalance;
-
 vmCvar_t        g_banIPs;
-
 vmCvar_t        g_filterBan;
-
 vmCvar_t        g_smoothClients;
-
 vmCvar_t        pmove_fixed;
-
 vmCvar_t        pmove_msec;
-
 vmCvar_t        g_rankings;
-
 vmCvar_t        g_listEntity;
-
 vmCvar_t        g_minCommandPeriod;
 
 //TA
 vmCvar_t        g_humanBuildPoints;
-
 vmCvar_t        g_alienBuildPoints;
-
 vmCvar_t        g_humanStage;
-
 vmCvar_t        g_humanKills;
-
 vmCvar_t        g_humanMaxStage;
-
 vmCvar_t        g_humanStage2Threshold;
-
 vmCvar_t        g_humanStage3Threshold;
-
 vmCvar_t        g_alienStage;
-
 vmCvar_t        g_alienKills;
-
 vmCvar_t        g_alienMaxStage;
-
 vmCvar_t        g_alienStage2Threshold;
-
 vmCvar_t        g_alienStage3Threshold;
 
 vmCvar_t        g_disabledEquipment;
-
 vmCvar_t        g_disabledClasses;
-
 vmCvar_t        g_disabledBuildables;
 
 vmCvar_t        g_debugMapRotation;
-
 vmCvar_t        g_currentMapRotation;
-
 vmCvar_t        g_currentMap;
-
 vmCvar_t        g_initialMapRotation;
 
 static cvarTable_t gameCvarTable[] = {
@@ -259,15 +200,11 @@ static int      gameCvarTableSize = sizeof(gameCvarTable) / sizeof(gameCvarTable
 
 
 void            G_InitGame(int levelTime, int randomSeed, int restart);
-
 void            G_RunFrame(int levelTime);
-
 void            G_ShutdownGame(int restart);
-
 void            CheckExitRules(void);
 
 void            G_CountSpawns(void);
-
 void            G_CalculateBuildPoints(void);
 
 /*
@@ -329,7 +266,6 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4,
 void QDECL G_Printf(const char *fmt, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, fmt);
@@ -342,7 +278,6 @@ void QDECL G_Printf(const char *fmt, ...)
 void QDECL G_Error(const char *fmt, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, fmt);
@@ -366,9 +301,7 @@ All but the last will have the teamchain field set to the next one
 void G_FindTeams(void)
 {
 	gentity_t      *e, *e2;
-
 	int             i, j;
-
 	int             c, c2;
 
 	c = 0;
@@ -434,9 +367,7 @@ G_RegisterCvars
 void G_RegisterCvars(void)
 {
 	int             i;
-
 	cvarTable_t    *cv;
-
 	qboolean        remapped = qfalse;
 
 	for(i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++)
@@ -465,9 +396,7 @@ G_UpdateCvars
 void G_UpdateCvars(void)
 {
 	int             i;
-
 	cvarTable_t    *cv;
-
 	qboolean        remapped = qfalse;
 
 	for(i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++)
@@ -633,7 +562,6 @@ void G_ShutdownGame(int restart)
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, error);
@@ -646,7 +574,6 @@ void QDECL Com_Error(int level, const char *error, ...)
 void QDECL Com_Printf(const char *msg, ...)
 {
 	va_list         argptr;
-
 	char            text[1024];
 
 	va_start(argptr, msg);
@@ -856,7 +783,6 @@ Print the contents of a spawn queue
 void G_PrintSpawnQueue(spawnQueue_t * sq)
 {
 	int             i = sq->front;
-
 	int             length = G_GetSpawnQueueLength(sq);
 
 	G_Printf("l:%d f:%d b:%d    :", length, sq->front, sq->back);
@@ -887,13 +813,9 @@ Spawn queued clients
 void G_SpawnClients(pTeam_t team)
 {
 	int             clientNum;
-
 	gentity_t      *ent, *spawn;
-
 	vec3_t          spawn_origin, spawn_angles;
-
 	spawnQueue_t   *sq = NULL;
-
 	int             numSpawns = 0;
 
 	if(team == PTE_ALIENS)
@@ -938,7 +860,6 @@ Counts the number of spawns for each team
 void G_CountSpawns(void)
 {
 	int             i;
-
 	gentity_t      *ent;
 
 	level.numAlienSpawns = 0;
@@ -973,11 +894,8 @@ Recalculate the quantity of building points available to the teams
 void G_CalculateBuildPoints(void)
 {
 	int             i;
-
 	buildable_t     buildable;
-
 	gentity_t      *ent;
-
 	int             localHTP = g_humanBuildPoints.integer, localATP = g_alienBuildPoints.integer;
 
 	if(g_suddenDeathTime.integer && !level.warmupTime && (level.time - level.startTime >= g_suddenDeathTime.integer * 60000))
@@ -1049,9 +967,7 @@ void G_CalculateBuildPoints(void)
 	//may as well pump the stages here too
 	{
 		float           alienPlayerCountMod = level.averageNumAlienClients / PLAYER_COUNT_MOD;
-
 		float           humanPlayerCountMod = level.averageNumHumanClients / PLAYER_COUNT_MOD;
-
 		int             alienNextStageThreshold, humanNextStageThreshold;
 
 		if(alienPlayerCountMod < 0.1f)
@@ -1089,7 +1005,6 @@ G_CalculateStages
 void G_CalculateStages(void)
 {
 	float           alienPlayerCountMod = level.averageNumAlienClients / PLAYER_COUNT_MOD;
-
 	float           humanPlayerCountMod = level.averageNumHumanClients / PLAYER_COUNT_MOD;
 
 	if(alienPlayerCountMod < 0.1f)
@@ -1181,13 +1096,9 @@ and team change.
 void CalculateRanks(void)
 {
 	int             i;
-
 	int             rank;
-
 	int             score;
-
 	int             newScore;
-
 	gclient_t      *cl;
 
 	level.follow1 = -1;
@@ -1376,7 +1287,6 @@ This is also used for spectator spawns
 void FindIntermissionPoint(void)
 {
 	gentity_t      *ent, *target;
-
 	vec3_t          dir;
 
 	// find the intermission spot
@@ -1413,7 +1323,6 @@ BeginIntermission
 void BeginIntermission(void)
 {
 	int             i;
-
 	gentity_t      *client;
 
 	if(level.intermissiontime)
@@ -1454,7 +1363,6 @@ or moved to a new level based on the "nextmap" cvar
 void ExitLevel(void)
 {
 	int             i;
-
 	gclient_t      *cl;
 
 	if(G_MapRotationActive())
@@ -1498,9 +1406,7 @@ Print to the logfile with a time stamp if it is open
 void QDECL G_LogPrintf(const char *fmt, ...)
 {
 	va_list         argptr;
-
 	char            string[1024];
-
 	int             min, tens, sec;
 
 	sec = level.time / 1000;
@@ -1533,15 +1439,10 @@ G_SendGameStat
 void G_SendGameStat(pTeam_t team)
 {
 	char            map[MAX_STRING_CHARS];
-
 	char            teamChar;
-
 	char            data[BIG_INFO_STRING];
-
 	char            entry[MAX_STRING_CHARS];
-
 	int             i, dataLength, entryLength;
-
 	gclient_t      *cl;
 
 	trap_Cvar_VariableStringBuffer("mapname", map, sizeof(map));
@@ -1629,9 +1530,7 @@ Append information about this game to the log file
 void LogExit(const char *string)
 {
 	int             i, numSorted;
-
 	gclient_t      *cl;
-
 	gentity_t      *ent;
 
 	G_LogPrintf("Exit: %s\n", string);
@@ -1695,11 +1594,8 @@ wait 10 seconds before going on.
 void CheckIntermissionExit(void)
 {
 	int             ready, notReady, numPlayers;
-
 	int             i;
-
 	gclient_t      *cl;
-
 	int             readyMask;
 
 	//if no clients are connected, just exit
@@ -2028,7 +1924,6 @@ Calculates the acceleration for an entity
 void G_EvaluateAcceleration(gentity_t * ent, int msec)
 {
 	vec3_t          deltaVelocity;
-
 	vec3_t          deltaAccel;
 
 	VectorSubtract(ent->s.pos.trDelta, ent->oldVelocity, deltaVelocity);
@@ -2051,11 +1946,8 @@ Advances the non-player objects in the world
 void G_RunFrame(int levelTime)
 {
 	int             i;
-
 	gentity_t      *ent;
-
 	int             msec;
-
 	int             start, end;
 
 	// if we are waiting for the level to restart, do nothing

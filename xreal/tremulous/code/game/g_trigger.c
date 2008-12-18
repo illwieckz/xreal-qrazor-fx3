@@ -167,11 +167,8 @@ Calculate origin2 so the target apogee will be hit
 void AimAtTarget(gentity_t * self)
 {
 	gentity_t      *ent;
-
 	vec3_t          origin;
-
 	float           height, gravity, time, forward;
-
 	float           dist;
 
 	VectorAdd(self->r.absmin, self->r.absmax, origin);
@@ -492,7 +489,6 @@ Called when stages change
 void G_Checktrigger_stages(pTeam_t team, stage_t stage)
 {
 	int             i;
-
 	gentity_t      *ent;
 
 	for(i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++)
