@@ -4919,7 +4919,7 @@ static void UI_RunMenuScript(char **args)
 			int             stat;
 
 			if(Int_Parse(args, &stat))
-				trap_SetPbClStatus(stat);
+				; //trap_SetPbClStatus(stat);
 		}
 		else
 		{
