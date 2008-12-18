@@ -794,6 +794,7 @@ static int Parse_ReadNumber(script_t * script, token_t * token)
 	int             len = 0, i;
 	int             octal, dot;
 	char            c;
+
 //  unsigned long int intvalue = 0;
 //  double floatvalue = 0;
 
@@ -2021,6 +2022,7 @@ static int Parse_EvaluateTokens(source_t * source, token_t * tokens, signed long
 	double          questmarkfloatvalue = 0;
 	int             gotquestmarkvalue = qfalse;
 	int             lastoperatortype = 0;
+
 	//
 	operator_t      operator_heap[MAX_OPERATORS];
 	int             numoperators = 0;
@@ -3461,6 +3463,7 @@ static int Parse_ReadToken(source_t * source, token_t * token)
 		if(token->type == TT_STRING)
 		{
 			token_t         newtoken;
+
 			if(Parse_ReadToken(source, &newtoken))
 			{
 				if(newtoken.type == TT_STRING)

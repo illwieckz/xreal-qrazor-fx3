@@ -1590,8 +1590,8 @@ typedef enum
 #define	MAX_SOUNDS			256	// so they cannot be blindly increased
 #define MAX_EFFECTS			256
 
-#define	MAX_GAME_SHADERS				64 // needed by Tremulous
-#define	MAX_GAME_PARTICLE_SYSTEMS		64 // needed by Tremulous
+#define	MAX_GAME_SHADERS				64	// needed by Tremulous
+#define	MAX_GAME_PARTICLE_SYSTEMS		64	// needed by Tremulous
 
 
 #define	MAX_CONFIGSTRINGS	1024
