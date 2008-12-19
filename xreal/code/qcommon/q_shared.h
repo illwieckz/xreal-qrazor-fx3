@@ -367,6 +367,14 @@ typedef int     fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
+#ifndef M_SQRT2
+#define M_SQRT2 1.414213562f
+#endif
+
+#ifndef M_ROOT3
+#define M_ROOT3 1.732050808f
+#endif
+
 // angle indexes
 #define	PITCH				0	// up / down
 #define	YAW					1	// left / right
@@ -1758,15 +1766,15 @@ typedef struct playerState_s
 										// won't generate footsteps
 #define BUTTON_ATTACK2		32	// +/-button5
 
-#if defined(MISSIONPACK)
-#define BUTTON_AFFIRMATIVE	32
+//#if defined(MISSIONPACK)
+//#define BUTTON_AFFIRMATIVE	32
 #define	BUTTON_NEGATIVE		64
 
 #define BUTTON_GETFLAG		128
 #define BUTTON_GUARDBASE	256
 #define BUTTON_PATROL		512
 #define BUTTON_FOLLOWME		1024
-#endif
+//#endif
 
 #define	BUTTON_ANY			2048	// any key whatsoever
 
