@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_local.h -- local definitions for game module
 
-#include "../qcommon/q_shared.h"
+#include "../../../code/qcommon/q_shared.h"
 #include "bg_public.h"
 #include "g_public.h"
 
@@ -831,7 +831,6 @@ typedef struct zap_s
 void            G_ForceWeaponChange(gentity_t * ent, weapon_t weapon);
 void            G_GiveClientMaxAmmo(gentity_t * ent, qboolean buyingEnergyAmmo);
 void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint);
-void            SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean        CheckVenomAttack(gentity_t * ent);
 void            CheckGrabAttack(gentity_t * ent);
 qboolean        CheckPounceAttack(gentity_t * ent);
@@ -1105,8 +1104,8 @@ void            trap_Cvar_Set(const char *var_name, const char *value);
 int             trap_Cvar_VariableIntegerValue(const char *var_name);
 float           trap_Cvar_VariableValue(const char *var_name);
 void            trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
-void            trap_LocateGameData(gentity_t * gEnts, int numGEntities, int sizeofGEntity_t,
-									playerState_t * gameClients, int sizeofGameClient);
+void            trap_LocateGameData(gentity_t * gEnts, int numGEntities, int sizeofGEntity_t, playerState_t * gameClients,
+									int sizeofGameClient);
 void            trap_DropClient(int clientNum, const char *reason);
 void            trap_SendServerCommand(int clientNum, const char *text);
 void            trap_SetConfigstring(int num, const char *string);
@@ -1115,8 +1114,8 @@ void            trap_GetUserinfo(int num, char *buffer, int bufferSize);
 void            trap_SetUserinfo(int num, const char *buffer);
 void            trap_GetServerinfo(char *buffer, int bufferSize);
 void            trap_SetBrushModel(gentity_t * ent, const char *name);
-void            trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
-						   const vec3_t end, int passEntityNum, int contentmask);
+void            trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						   int passEntityNum, int contentmask);
 int             trap_PointContents(const vec3_t point, int passEntityNum);
 qboolean        trap_InPVS(const vec3_t p1, const vec3_t p2);
 qboolean        trap_InPVSIgnorePortals(const vec3_t p1, const vec3_t p2);
@@ -1126,13 +1125,13 @@ void            trap_LinkEntity(gentity_t * ent);
 void            trap_UnlinkEntity(gentity_t * ent);
 int             trap_EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount);
 qboolean        trap_EntityContact(const vec3_t mins, const vec3_t maxs, const gentity_t * ent);
-int             trap_BotAllocateClient(void);
-void            trap_BotFreeClient(int clientNum);
+int             trap_BotAllocateClient(void);	// NO BOTLIB
+void            trap_BotFreeClient(int clientNum);	// NO BOTLIB
+int             trap_BotGetSnapshotEntity(int clientNum, int sequence);	// NO BOTLIB
+int             trap_BotGetServerCommand(int clientNum, char *message, int size);	// NO BOTLIB
+void            trap_BotUserCommand(int client, usercmd_t * ucmd);	// NO BOTLIB
+void            trap_BotClientCommand(int clientNum, char *command);	// NO BOTLIB
 void            trap_GetUsercmd(int clientNum, usercmd_t * cmd);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
-int             trap_DebugPolygonCreate(int color, int numPoints, vec3_t * points);
-void            trap_DebugPolygonDelete(int id);
-
-void            trap_SnapVector(float *v);
-void            trap_SendGameStat(const char *data);
+//void            trap_SendGameStat(const char *data);

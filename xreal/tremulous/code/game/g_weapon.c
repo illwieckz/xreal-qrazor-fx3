@@ -127,29 +127,6 @@ void G_BounceProjectile(vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout)
 }
 
 /*
-======================
-SnapVectorTowards
-
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating
-into a wall.
-======================
-*/
-void SnapVectorTowards(vec3_t v, vec3_t to)
-{
-	int             i;
-
-	for(i = 0; i < 3; i++)
-	{
-		if(to[i] <= v[i])
-			v[i] = (int)v[i];
-		else
-			v[i] = (int)v[i] + 1;
-	}
-}
-
-/*
 ===============
 meleeAttack
 ===============

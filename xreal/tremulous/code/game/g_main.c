@@ -1436,6 +1436,7 @@ void QDECL G_LogPrintf(const char *fmt, ...)
 G_SendGameStat
 =================
 */
+/*
 void G_SendGameStat(pTeam_t team)
 {
 	char            map[MAX_STRING_CHARS];
@@ -1519,6 +1520,7 @@ void G_SendGameStat(pTeam_t team)
 
 	trap_SendGameStat(data);
 }
+*/
 
 /*
 ================
@@ -1577,7 +1579,7 @@ void LogExit(const char *string)
 		}
 	}
 
-	G_SendGameStat(level.lastWin);
+	//G_SendGameStat(level.lastWin);
 }
 
 

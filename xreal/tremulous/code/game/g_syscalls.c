@@ -1,30 +1,33 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2006 Tim Angus
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
-This file is part of Tremulous.
+This file is part of XreaL source code.
 
-Tremulous is free software; you can redistribute it
+XreaL source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Tremulous is distributed in the hope that it will be
+XreaL source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
+along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
+//
 #include "g_local.h"
 
 // this file is only included when building a dll
 // g_syscalls.asm is included instead when building a qvm
+#ifdef Q3_VM
+#error "Do not use in VM build"
+#endif
 
 static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
 
@@ -89,6 +92,11 @@ void trap_FS_FCloseFile(fileHandle_t f)
 int trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize)
 {
 	return syscall(G_FS_GETFILELIST, path, extension, listbuf, bufsize);
+}
+
+int trap_FS_Seek(fileHandle_t f, long offset, int origin)
+{
+	return syscall(G_FS_SEEK, f, offset, origin);
 }
 
 void trap_SendConsoleCommand(int exec_when, const char *text)
@@ -167,8 +175,8 @@ void trap_SetBrushModel(gentity_t * ent, const char *name)
 	syscall(G_SET_BRUSH_MODEL, ent, name);
 }
 
-void trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins,
-				const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask)
+void trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum,
+				int contentmask)
 {
 	syscall(G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask);
 }
@@ -215,7 +223,6 @@ void trap_UnlinkEntity(gentity_t * ent)
 	syscall(G_UNLINKENTITY, ent);
 }
 
-
 int trap_EntitiesInBox(const vec3_t mins, const vec3_t maxs, int *list, int maxcount)
 {
 	return syscall(G_ENTITIES_IN_BOX, mins, maxs, list, maxcount);
@@ -230,6 +237,7 @@ qboolean trap_EntityContactCapsule(const vec3_t mins, const vec3_t maxs, const g
 {
 	return syscall(G_ENTITY_CONTACTCAPSULE, mins, maxs, ent);
 }
+
 int trap_BotAllocateClient(void)
 {
 	return syscall(G_BOT_ALLOCATE_CLIENT);
@@ -238,6 +246,26 @@ int trap_BotAllocateClient(void)
 void trap_BotFreeClient(int clientNum)
 {
 	syscall(G_BOT_FREE_CLIENT, clientNum);
+}
+
+int trap_BotGetSnapshotEntity(int clientNum, int sequence)
+{
+	return syscall(BOTLIB_GET_SNAPSHOT_ENTITY, clientNum, sequence);
+}
+
+int trap_BotGetServerCommand(int clientNum, char *message, int size)
+{
+	return syscall(BOTLIB_GET_CONSOLE_MESSAGE, clientNum, message, size);
+}
+
+void trap_BotUserCommand(int clientNum, usercmd_t * ucmd)
+{
+	syscall(BOTLIB_USER_COMMAND, clientNum, ucmd);
+}
+
+void trap_BotClientCommand(int clientNum, char *command)
+{
+	syscall(BOTLIB_CLIENT_COMMAND, clientNum, command);
 }
 
 void trap_GetUsercmd(int clientNum, usercmd_t * cmd)
@@ -250,29 +278,15 @@ qboolean trap_GetEntityToken(char *buffer, int bufferSize)
 	return syscall(G_GET_ENTITY_TOKEN, buffer, bufferSize);
 }
 
-int trap_DebugPolygonCreate(int color, int numPoints, vec3_t * points)
-{
-	return syscall(G_DEBUG_POLYGON_CREATE, color, numPoints, points);
-}
-
-void trap_DebugPolygonDelete(int id)
-{
-	syscall(G_DEBUG_POLYGON_DELETE, id);
-}
-
 int trap_RealTime(qtime_t * qtime)
 {
 	return syscall(G_REAL_TIME, qtime);
 }
 
-void trap_SnapVector(float *v)
-{
-	syscall(G_SNAPVECTOR, v);
-	return;
-}
-
+/*
 void trap_SendGameStat(const char *data)
 {
 	syscall(G_SEND_GAMESTAT, data);
 	return;
 }
+*/

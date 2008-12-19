@@ -109,5 +109,6 @@ if env['xmass'] == 1:
 
 
 if env['tremulous'] == 1:
+	SConscript('SConscript_tremulous_game', build_dir='build/tremulous/game', duplicate=0)
 	SConscript('SConscript_tremulous_ui', build_dir='build/tremulous/ui', duplicate=0)
 
