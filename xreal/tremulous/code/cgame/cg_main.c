@@ -509,10 +509,10 @@ CG_AddNotifyText
 */
 void CG_AddNotifyText(void)
 {
-#if 0
+#if 1
 	char            buffer[BIG_INFO_STRING];
 
-	trap_LiteralArgs(buffer, BIG_INFO_STRING);
+	trap_Args(buffer, BIG_INFO_STRING);
 
 	if(!buffer[0])
 	{
@@ -1735,7 +1735,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_InitConsoleCommands();
 
 	//TA: moved up for LoadHudMenu
-	//String_Init();
+	String_Init();
 
 	//TA: TA UI
 	CG_AssetCache();
