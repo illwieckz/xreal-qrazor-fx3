@@ -1,30 +1,26 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2006 Tim Angus
+Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
-This file is part of Tremulous.
+This file is part of XreaL source code.
 
-Tremulous is free software; you can redistribute it
+XreaL source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Tremulous is distributed in the hope that it will be
+XreaL source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
+along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
 // cg_syscalls.c -- this file is only included when building a dll
-// cg_syscalls.asm is included instead when building a qvm
-
-
 #include "cg_local.h"
 
 static          intptr_t(QDECL * syscall) (intptr_t arg, ...) = (intptr_t(QDECL *) (intptr_t,...)) - 1;
@@ -94,10 +90,12 @@ void trap_Args(char *buffer, int bufferLength)
 	syscall(CG_ARGS, buffer, bufferLength);
 }
 
+/*
 void trap_LiteralArgs(char *buffer, int bufferLength)
 {
 	syscall(CG_LITERAL_ARGS, buffer, bufferLength);
 }
+*/
 
 int trap_FS_FOpenFile(const char *qpath, fileHandle_t * f, fsMode_t mode)
 {
@@ -119,9 +117,9 @@ void trap_FS_FCloseFile(fileHandle_t f)
 	syscall(CG_FS_FCLOSEFILE, f);
 }
 
-void trap_FS_Seek(fileHandle_t f, long offset, fsOrigin_t origin)
+int trap_FS_Seek(fileHandle_t f, long offset, int origin)
 {
-	syscall(CG_FS_SEEK, f, offset, origin);
+	return syscall(CG_FS_SEEK, f, offset, origin);
 }
 
 int trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize)
@@ -277,7 +275,7 @@ void trap_S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3], int
 
 sfxHandle_t trap_S_RegisterSound(const char *sample, qboolean compressed)
 {
-	return syscall(CG_S_REGISTERSOUND, sample, compressed);
+	return syscall(CG_S_REGISTERSOUND, sample);
 }
 
 void trap_S_StartBackgroundTrack(const char *intro, const char *loop)
@@ -292,7 +290,12 @@ void trap_R_LoadWorldMap(const char *mapname)
 
 qhandle_t trap_R_RegisterModel(const char *name)
 {
-	return syscall(CG_R_REGISTERMODEL, name);
+	return syscall(CG_R_REGISTERMODEL, name, qfalse);
+}
+
+qhandle_t trap_R_RegisterAnimation(const char *name)
+{
+	return syscall(CG_R_REGISTERANIMATION, name);
 }
 
 qhandle_t trap_R_RegisterSkin(const char *name)
@@ -310,6 +313,11 @@ qhandle_t trap_R_RegisterShaderNoMip(const char *name)
 	return syscall(CG_R_REGISTERSHADERNOMIP, name);
 }
 
+qhandle_t trap_R_RegisterShaderLightAttenuation(const char *name)
+{
+	return syscall(CG_R_REGISTERSHADERLIGHTATTENUATION, name);
+}
+
 void trap_R_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 {
 	syscall(CG_R_REGISTERFONT, fontName, pointSize, font);
@@ -320,9 +328,14 @@ void trap_R_ClearScene(void)
 	syscall(CG_R_CLEARSCENE);
 }
 
-void trap_R_AddRefEntityToScene(const refEntity_t * re)
+void trap_R_AddRefEntityToScene(const refEntity_t * ent)
 {
-	syscall(CG_R_ADDREFENTITYTOSCENE, re);
+	syscall(CG_R_ADDREFENTITYTOSCENE, ent);
+}
+
+void trap_R_AddRefLightToScene(const refLight_t * light)
+{
+	syscall(CG_R_ADDREFLIGHTSTOSCENE, light);
 }
 
 void trap_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts)
@@ -345,11 +358,6 @@ void trap_R_AddLightToScene(const vec3_t org, float intensity, float r, float g,
 	syscall(CG_R_ADDLIGHTTOSCENE, org, PASSFLOAT(intensity), PASSFLOAT(r), PASSFLOAT(g), PASSFLOAT(b));
 }
 
-void trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b)
-{
-	syscall(CG_R_ADDADDITIVELIGHTTOSCENE, org, PASSFLOAT(intensity), PASSFLOAT(r), PASSFLOAT(g), PASSFLOAT(b));
-}
-
 void trap_R_RenderScene(const refdef_t * fd)
 {
 	syscall(CG_R_RENDERSCENE, fd);
@@ -362,8 +370,8 @@ void trap_R_SetColor(const float *rgba)
 
 void trap_R_DrawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader)
 {
-	syscall(CG_R_DRAWSTRETCHPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h),
-			PASSFLOAT(s1), PASSFLOAT(t1), PASSFLOAT(s2), PASSFLOAT(t2), hShader);
+	syscall(CG_R_DRAWSTRETCHPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1),
+			PASSFLOAT(s2), PASSFLOAT(t2), hShader);
 }
 
 void trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs)
@@ -376,12 +384,37 @@ int trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int en
 	return syscall(CG_R_LERPTAG, tag, mod, startFrame, endFrame, PASSFLOAT(frac), tagName);
 }
 
+int trap_R_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac, qboolean clearOrigin)
+{
+	return syscall(CG_R_BUILDSKELETON, skel, anim, startFrame, endFrame, PASSFLOAT(frac), clearOrigin);
+}
+
+int trap_R_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac)
+{
+	return syscall(CG_R_BLENDSKELETON, skel, blend, PASSFLOAT(frac));
+}
+
+int trap_R_BoneIndex(qhandle_t hModel, const char *boneName)
+{
+	return syscall(CG_R_BONEINDEX, hModel, boneName);
+}
+
+int trap_R_AnimNumFrames(qhandle_t hAnim)
+{
+	return syscall(CG_R_ANIMNUMFRAMES, hAnim);
+}
+
+int trap_R_AnimFrameRate(qhandle_t hAnim)
+{
+	return syscall(CG_R_ANIMFRAMERATE, hAnim);
+}
+
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset)
 {
 	syscall(CG_R_REMAP_SHADER, oldShader, newShader, timeOffset);
 }
 
-void trap_GetGlconfig(glconfig_t * glconfig)
+void trap_GetGlconfig(glConfig_t * glconfig)
 {
 	syscall(CG_GETGLCONFIG, glconfig);
 }
@@ -533,6 +566,16 @@ int trap_GetDemoState(void)
 int trap_GetDemoPos(void)
 {
 	return syscall(CG_GETDEMOPOS);
+}
+
+qboolean trap_GetEntityToken(char *buffer, int bufferSize)
+{
+	return syscall(CG_GET_ENTITY_TOKEN, buffer, bufferSize);
+}
+
+qboolean trap_R_inPVS(const vec3_t p1, const vec3_t p2)
+{
+	return syscall(CG_R_INPVS, p1, p2);
 }
 
 void trap_GetDemoName(char *buffer, int size)

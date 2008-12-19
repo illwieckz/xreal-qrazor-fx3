@@ -41,22 +41,22 @@ static void CG_DrawBoxFace(vec3_t a, vec3_t b, vec3_t c, vec3_t d)
 	VectorCopy(d, verts[0].xyz);
 	verts[0].st[0] = 1;
 	verts[0].st[1] = 1;
-	Vector4Copy(color, verts[0].modulate);
+	VectorCopy4(color, verts[0].modulate);
 
 	VectorCopy(c, verts[1].xyz);
 	verts[1].st[0] = 1;
 	verts[1].st[1] = 0;
-	Vector4Copy(color, verts[1].modulate);
+	VectorCopy4(color, verts[1].modulate);
 
 	VectorCopy(b, verts[2].xyz);
 	verts[2].st[0] = 0;
 	verts[2].st[1] = 0;
-	Vector4Copy(color, verts[2].modulate);
+	VectorCopy4(color, verts[2].modulate);
 
 	VectorCopy(a, verts[3].xyz);
 	verts[3].st[0] = 0;
 	verts[3].st[1] = 1;
-	Vector4Copy(color, verts[3].modulate);
+	VectorCopy4(color, verts[3].modulate);
 
 	trap_R_AddPolyToScene(cgs.media.outlineShader, 4, verts);
 }

@@ -509,6 +509,7 @@ CG_AddNotifyText
 */
 void CG_AddNotifyText(void)
 {
+#if 0
 	char            buffer[BIG_INFO_STRING];
 
 	trap_LiteralArgs(buffer, BIG_INFO_STRING);
@@ -527,6 +528,7 @@ void CG_AddNotifyText(void)
 	cg.consoleLines[cg.numConsoleLines].time = cg.time;
 	cg.consoleLines[cg.numConsoleLines].length = strlen(buffer);
 	cg.numConsoleLines++;
+#endif
 }
 
 void QDECL CG_Printf(const char *msg, ...)
@@ -1733,7 +1735,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_InitConsoleCommands();
 
 	//TA: moved up for LoadHudMenu
-	String_Init();
+	//String_Init();
 
 	//TA: TA UI
 	CG_AssetCache();

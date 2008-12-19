@@ -503,17 +503,17 @@ static qboolean CG_ParseWeaponFile(const char *filename, weaponInfo_t * wi)
 				CG_Printf(S_COLOR_RED "ERROR: weapon model not found %s\n", token);
 
 			strcpy(path, token);
-			Com_StripExtension(path, path);
+			Com_StripExtension(path, path, sizeof(path));
 			strcat(path, "_flash.md3");
 			wi->flashModel = trap_R_RegisterModel(path);
 
 			strcpy(path, token);
-			Com_StripExtension(path, path);
+			Com_StripExtension(path, path, sizeof(path));
 			strcat(path, "_barrel.md3");
 			wi->barrelModel = trap_R_RegisterModel(path);
 
 			strcpy(path, token);
-			Com_StripExtension(path, path);
+			Com_StripExtension(path, path, sizeof(path));
 			strcat(path, "_hand.md3");
 			wi->handsModel = trap_R_RegisterModel(path);
 

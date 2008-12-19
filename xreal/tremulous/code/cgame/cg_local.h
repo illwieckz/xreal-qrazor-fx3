@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
-#include "../qcommon/q_shared.h"
-#include "../renderer/tr_types.h"
+#include "../../../code/qcommon/q_shared.h"
+#include "../../../code/renderer/tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 #include "../ui/ui_shared.h"
@@ -1269,7 +1269,7 @@ typedef struct
 typedef struct
 {
 	gameState_t     gameState;	// gamestate from server
-	glconfig_t      glconfig;	// rendering configuration
+	glConfig_t      glconfig;	// rendering configuration
 	float           screenXScale;	// derived from glconfig
 	float           screenYScale;
 	float           screenXBias;
@@ -1849,7 +1849,7 @@ void            trap_Cvar_VariableStringBuffer(const char *var_name, char *buffe
 int             trap_Argc(void);
 void            trap_Argv(int n, char *buffer, int bufferLength);
 void            trap_Args(char *buffer, int bufferLength);
-void            trap_LiteralArgs(char *buffer, int bufferLength);
+//void            trap_LiteralArgs(char *buffer, int bufferLength);
 
 // filesystem access
 // returns length of file
@@ -1857,7 +1857,7 @@ int             trap_FS_FOpenFile(const char *qpath, fileHandle_t * f, fsMode_t 
 void            trap_FS_Read(void *buffer, int len, fileHandle_t f);
 void            trap_FS_Write(const void *buffer, int len, fileHandle_t f);
 void            trap_FS_FCloseFile(fileHandle_t f);
-void            trap_FS_Seek(fileHandle_t f, long offset, fsOrigin_t origin);	// fsOrigin_t
+int             trap_FS_Seek(fileHandle_t f, long offset, int origin);	// fsOrigin_t
 int             trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
 
 // add commands to the local console as if they were typed in
@@ -1929,21 +1929,23 @@ void            trap_R_LoadWorldMap(const char *mapname);
 // all media should be registered during level startup to prevent
 // hitches during gameplay
 qhandle_t       trap_R_RegisterModel(const char *name);	// returns rgb axis if not found
+qhandle_t       trap_R_RegisterAnimation(const char *name);
 qhandle_t       trap_R_RegisterSkin(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShader(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShaderNoMip(const char *name);	// returns all white if not found
+qhandle_t       trap_R_RegisterShaderLightAttenuation(const char *name);
 
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
 // Nothing is drawn until R_RenderScene is called.
 void            trap_R_ClearScene(void);
-void            trap_R_AddRefEntityToScene(const refEntity_t * re);
+void            trap_R_AddRefEntityToScene(const refEntity_t * ent);
+void            trap_R_AddRefLightToScene(const refLight_t * light);
 
 // polys are intended for simple wall marks, not really for doing
 // significant construction
 void            trap_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts);
 void            trap_R_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys);
 void            trap_R_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
-void            trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b);
 int             trap_R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 void            trap_R_RenderScene(const refdef_t * fd);
 void            trap_R_SetColor(const float *rgba);	// NULL = 1,1,1,1
@@ -1957,7 +1959,7 @@ void            trap_R_RemapShader(const char *oldShader, const char *newShader,
 // The glconfig_t will not change during the life of a cgame.
 // If it needs to change, the entire cgame will be restarted, because
 // all the qhandle_t are then invalid.
-void            trap_GetGlconfig(glconfig_t * glconfig);
+void            trap_GetGlconfig(glConfig_t * glconfig);
 
 // the gamestate should be grabbed at startup, and whenever a
 // configstring changes

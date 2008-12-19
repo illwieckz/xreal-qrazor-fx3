@@ -810,7 +810,7 @@ static void CG_DrawPlayerBoosterBolt(rectDef_t * rect, vec4_t color, qhandle_t s
 	qboolean        boosted = ps->stats[STAT_STATE] & SS_BOOSTED;
 	vec4_t          localColor;
 
-	Vector4Copy(color, localColor);
+	VectorCopy4(color, localColor);
 
 	if(boosted)
 	{
@@ -2043,7 +2043,7 @@ static void CG_DrawLagometer(rectDef_t * rect, float text_x, float text_y, float
 	if(cg.demoPlayback)
 		return;
 
-	Vector4Copy(textColor, adjustedColor);
+	VectorCopy4(textColor, adjustedColor);
 	adjustedColor[3] = 0.25f;
 
 	trap_R_SetColor(adjustedColor);
@@ -2175,7 +2175,7 @@ static void CG_DrawLagometer(rectDef_t * rect, float text_x, float text_y, float
 		ax = rect->x + (rect->w / 2.0f) - (CG_Text_Width(s, scale, 0) / 2.0f) + text_x;
 		ay = rect->y + (rect->h / 2.0f) + (CG_Text_Height(s, scale, 0) / 2.0f) + text_y;
 
-		Vector4Copy(textColor, adjustedColor);
+		VectorCopy4(textColor, adjustedColor);
 		adjustedColor[3] = 0.5f;
 		CG_Text_Paint(ax, ay, scale, adjustedColor, s, 0, 0, ITEM_TEXTSTYLE_NORMAL);
 	}

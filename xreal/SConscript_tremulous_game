@@ -38,8 +38,6 @@ dll_src = [
 
 game_env = env.Clone()
 game_env.Append(CCFLAGS='-DQAGAME')
-game_env.Append(CCFLAGS='-DLUA')
-game_env.Append(CCFLAGS='-Icode/lua-5.1/src')
 
 if env['arch'] == 'linux-i386':
 	game_env.SharedLibrary('game', [game_src, dll_src], LIBS=['m'])
