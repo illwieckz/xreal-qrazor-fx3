@@ -76,25 +76,18 @@ textures/tremor/dirt_phong
 	xmap_tcMod rotate 33
 	
 	{
+		stage diffuseMap
 		map textures/tremor/dirt.tga
-		rgbGen identity
 	}
-	{
-		map $lightmap
-		blendFunc GL_DST_COLOR GL_ZERO
-		rgbGen identity
-	}
-
 }
 
-// Shader by id 
 textures/tremor/proto_lightred_nonsolid
 {
 	xmap_lightimage textures/base_light/proto_lightred.tga
 	surfaceparm nomarks
-	surfaceparm nonsolid //edit by Godmil
+	surfaceparm nonsolid
 	xmap_surfacelight 300
-//	light 1
+	
 	{
 		map $lightmap
 		rgbGen identity
@@ -111,55 +104,47 @@ textures/tremor/proto_lightred_nonsolid
 	
 }
 
-// by Veda, adapted by Godmil using a shader by Evillair 
 textures/tremor/light_flicker
 {
 	qer_editorimage textures/tremor/light_128x512.tga
 	
 	xmap_surfacelight 1500
-	xmap_lightStyle 1
+//	xmap_lightStyle 1
+	
 	{
-		map $lightmap 
-		rgbGen identity
-		tcGen lightmap 
-	}
-	{
+		stage diffuseMap
 		map textures/tremor/light_128x512.tga
-		blendfunc GL_DST_COLOR GL_ZERO 
-		rgbGen identity
 	}
 	{ 
 		map textures/tremor/tremorlightblend.tga 
 		rgbGen wave sawtooth 0 1 0 0.5 
-		blendfunc GL_ONE GL_ONE 
+		blend add
 	} 
 }
 
-// by Evillair
 textures/tremor/e6basicstrip_blue_s_nolight
 {
 	qer_editorimage textures/tremor/e6basicstrip_blue.tga
+	
 	//xmap_surfacelight ?
-	surfaceparm nomarks
-	surfaceparm nolightmap
+	
+	nomarks
+	nolightmap
 	
 	{
 		map textures/tremor/e6basicstrip_blue.tga
 	}
 }
 
-//by Godmil & jex
 textures/tremor/e8_base1c_nonsolid
 {
 	qer_editorimage textures/tremor/e8_base1c.jpg
-	surfaceparm nonsolid
+	
+	nonsolid
+	
 	{
+		stage diffuseMap
 		map textures/tremor/e8_base1c.jpg
-	}
-	{
-		map $lightmap
-		blendfunc filter
-		tcGen lightmap
 	}
 }
 
@@ -185,7 +170,6 @@ textures/tremor/darkglass3
 }
 */
 
-//By Evillair, edit by Jex, and godmil
 textures/tremor/e6bsegrtflr256_nonsolid
 {
 	qer_editorimage textures/tremor/e6bsegrtflr256.tga
@@ -230,30 +214,38 @@ textures/tremor/tremorspark1
 
 textures/tremor/proto_zzztblu3
 {
-  surfaceparm nolightmap
-  surfaceparm nonsolid
-  cull twosided
+	qer_editorImage textures/tremor/proto_zzztblu3.tga
+	qer_trans 0.5
+
+  	nolightmap
+  	nonsolid
+  	twoSided
+  	
   {
     map textures/tremor/proto_zzztblu3.tga
     tcGen environment
     tcMod turb 0 0.25 0 0.5
     tcmod scroll 1 1
-    blendfunc GL_ONE GL_ONE
+    blend add
   }
 }
 
 textures/tremor/beam_red
 {
-  surfaceparm trans
-  surfaceparm nomarks
-  surfaceparm nonsolid
-  surfaceparm nolightmap
-  qer_trans .5
-  cull none
+	qer_editorImage textures/tremor/beam_red.jpg
+	qer_trans 0.5
+
+  translucent
+  nomarks
+  nonsolid
+  nolightmap
+  
+  twoSided
+  
   {
     map textures/tremor/beam_red.jpg
     tcMod Scroll .3 0
-    blendFunc add
+    blend add
   }
 }
 
@@ -363,7 +355,7 @@ textures/tremor/grate3
 	
 	{
 		stage diffuseMap
-		textures/tremor/grate3.tga
+		map textures/tremor/grate3.tga
 		//alphaTest 0.5
 	}
 	bumpMap		 heightmap(textures/tremor/grate3.png, 1.0)

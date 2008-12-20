@@ -1,3 +1,4 @@
+/*
 textures/titan/asteroid_skybox
 {
       qer_editorimage textures/titan/Asteroid
@@ -10,7 +11,7 @@ textures/titan/asteroid_skybox
       
       skyparms env/Asteroid - -
 }
-
+*/
 
 textures/titan/basic_1_b
 {
@@ -207,6 +208,7 @@ textures/titan/grates_c
 
 textures/titan/light_128x256
 {
+	//xmap_lightImage textures/titan/light_128x256.tga
 	xmap_surfacelight 1500
 	
 	diffuseMap textures/titan/light_128x256.tga
@@ -214,6 +216,7 @@ textures/titan/light_128x256
 
 textures/titan/light_128x512
 {
+	//xmap_lightImage textures/titan/light_128x512.tga
 	xmap_surfacelight 1500
 	
 	diffuseMap textures/titan/light_128x512.tga
