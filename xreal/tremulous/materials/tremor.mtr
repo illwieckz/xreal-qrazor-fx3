@@ -24,12 +24,7 @@ textures/tremor/purple_1.tga
 	}
 }
 
-textures/titan/light_128x512
-{
-	xmap_surfacelight 1500
-	
-	diffuseMap textures/titan/light_128x512.tga
-}
+
 
 textures/tremor/ship_flame
 {

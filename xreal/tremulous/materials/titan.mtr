@@ -1,25 +1,3 @@
-textures/titan/grates_alpha
-{
-	metalsteps		
-	twoSided
-
-	// A GRATE OR GRILL THAT CAN BE SEEN FROM BOTH SIDES
-	{
-		map textures/titan/grates_alpha.tga
-		tcMod scale 2 2
-		blendFunc GL_ONE GL_ZERO
-		alphaFunc GE128
-		depthWrite
-		rgbGen identity
-	}
-	{
-		map $lightmap
-		rgbGen identity
-		blendFunc GL_DST_COLOR GL_ZERO
-		depthFunc equal
-	}
-}
-
 textures/titan/asteroid_skybox
 {
       qer_editorimage textures/titan/Asteroid
@@ -34,6 +12,33 @@ textures/titan/asteroid_skybox
 }
 
 
+textures/titan/basic_1_b
+{
+	 qer_editorImage	 textures/titan/basic_1_b.png
+
+	 diffuseMap		 textures/titan/basic_1_b.png
+	 bumpMap		 heightmap(textures/titan/basic_1_b.png, 1.0)
+	 specularMap	 textures/titan/basic_1_b.png
+}
+
+textures/titan/basic_2_b
+{
+	 qer_editorImage	 textures/titan/basic_2_b.png
+
+	 diffuseMap		 textures/titan/basic_2_b.png
+	 bumpMap		 heightmap(textures/titan/basic_2_b.png, 1.0)
+	 specularMap	 textures/titan/basic_2_b.png
+}
+
+textures/titan/basic_3_b
+{
+	 qer_editorImage	 textures/titan/basic_3_b.png
+
+	 diffuseMap		 textures/titan/basic_3_b.png
+	 bumpMap		 heightmap(textures/titan/basic_3_b.png, 1.0)
+	 specularMap	 textures/titan/basic_3_b.png
+}
+
 textures/titan/basic_4_b
 {
 	 qer_editorImage	 textures/titan/basic_4_b.png
@@ -42,3 +47,284 @@ textures/titan/basic_4_b
 	 bumpMap		 heightmap(textures/titan/basic_4_b.png, 1.0)
 	 specularMap	 textures/titan/basic_4_b.png
 }
+
+textures/titan/basic_5_b
+{
+	 qer_editorImage	 textures/titan/basic_5_b.png
+
+	 diffuseMap		 textures/titan/basic_5_b.png
+	 bumpMap		 heightmap(textures/titan/basic_5_b.png, 1.0)
+	 specularMap	 textures/titan/basic_5_b.png
+}
+
+textures/titan/basic_6_b
+{
+	 qer_editorImage	 textures/titan/basic_6_b.png
+
+	 diffuseMap		 textures/titan/basic_6_b.png
+	 bumpMap		 heightmap(textures/titan/basic_6_b.png, 1.0)
+	 specularMap	 textures/titan/basic_6_b.png
+}
+
+textures/titan/basic_7_b
+{
+	 qer_editorImage	 textures/titan/basic_7_b.png
+
+	 diffuseMap		 textures/titan/basic_7_b.png
+	 bumpMap		 heightmap(textures/titan/basic_7_b.png, 1.0)
+	 specularMap	 textures/titan/basic_7_b.png
+}
+
+textures/titan/basic_8_b
+{
+	 qer_editorImage	 textures/titan/basic_8_b.png
+
+	 diffuseMap		 textures/titan/basic_8_b.png
+	 bumpMap		 heightmap(textures/titan/basic_8_b.png, 1.0)
+	 specularMap	 textures/titan/basic_8_b.png
+}
+
+textures/titan/basic_9_b
+{
+	 qer_editorImage	 textures/titan/basic_9_b.png
+
+	 diffuseMap		 textures/titan/basic_9_b.png
+	 bumpMap		 heightmap(textures/titan/basic_9_b.png, 1.0)
+	 specularMap	 textures/titan/basic_9_b.png
+}
+
+textures/titan/basic_panel_b
+{
+	 qer_editorImage	 textures/titan/basic_panel_b.png
+
+	 diffuseMap		 textures/titan/basic_panel_b.png
+	 bumpMap		 heightmap(textures/titan/basic_panel_b.png, 1.0)
+	 specularMap	 textures/titan/basic_panel_b.png
+}
+
+textures/titan/crate
+{
+	 qer_editorImage	 textures/titan/crate.png
+
+	 diffuseMap		 textures/titan/crate.png
+	 bumpMap		 heightmap(textures/titan/crate.png, 1.0)
+	 specularMap	 textures/titan/crate.png
+}
+
+textures/titan/crate_1
+{
+	 qer_editorImage	 textures/titan/crate_1.png
+
+	 diffuseMap		 textures/titan/crate_1.png
+	 bumpMap		 heightmap(textures/titan/crate_1.png, 1.0)
+	 specularMap	 textures/titan/crate_1.png
+}
+
+textures/titan/crate_2
+{
+	 qer_editorImage	 textures/titan/crate_2.png
+
+	 diffuseMap		 textures/titan/crate_2.png
+	 bumpMap		 heightmap(textures/titan/crate_2.png, 1.0)
+	 specularMap	 textures/titan/crate_2.png
+}
+
+textures/titan/crate_3
+{
+	 qer_editorImage	 textures/titan/crate_3.png
+
+	 diffuseMap		 textures/titan/crate_3.png
+	 bumpMap		 heightmap(textures/titan/crate_3.png, 1.0)
+	 specularMap	 textures/titan/crate_3.png
+}
+
+textures/titan/dark_metal
+{
+	 qer_editorImage	 textures/titan/dark_metal.png
+
+	 diffuseMap		 textures/titan/dark_metal.png
+	 bumpMap		 heightmap(textures/titan/dark_metal.png, 1.0)
+	 specularMap	 textures/titan/dark_metal.png
+}
+
+textures/titan/dark_metal_2
+{
+	 qer_editorImage	 textures/titan/dark_metal_2.png
+
+	 diffuseMap		 textures/titan/dark_metal_2.png
+	 bumpMap		 heightmap(textures/titan/dark_metal_2.png, 1.0)
+	 specularMap	 textures/titan/dark_metal_2.png
+}
+
+textures/titan/grate
+{
+	 qer_editorImage	 textures/titan/grate.png
+
+	 diffuseMap		 textures/titan/grate.png
+	 bumpMap		 heightmap(textures/titan/grate.png, 1.0)
+	 specularMap	 textures/titan/grate.png
+}
+
+textures/titan/grate_b
+{
+	 qer_editorImage	 textures/titan/grate_b.png
+
+	 diffuseMap		 textures/titan/grate_b.png
+	 bumpMap		 heightmap(textures/titan/grate_b.png, 1.0)
+	 specularMap	 textures/titan/grate_b.png
+}
+
+textures/titan/grate_edge
+{
+	 qer_editorImage	 textures/titan/grate_edge.png
+
+	 diffuseMap		 textures/titan/grate_edge.png
+	 bumpMap		 heightmap(textures/titan/grate_edge.png, 1.0)
+	 specularMap	 textures/titan/grate_edge.png
+}
+
+textures/titan/grate_alpha
+{
+	qer_editorImage	 textures/titan/grate_alpha.png
+
+	{
+		stage diffuseMap
+		map textures/titan/grate_alpha.png
+		alphaTest 0.5
+	}
+	bumpMap		 heightmap(textures/titan/grate_alpha.png, 1.0)
+	specularMap	 textures/titan/grate_alpha.png
+}
+
+textures/titan/grates_c
+{
+	 qer_editorImage	 textures/titan/grates_c.png
+
+	 diffuseMap		 textures/titan/grates_c.png
+	 bumpMap		 heightmap(textures/titan/grates_c.png, 1.0)
+	 specularMap	 textures/titan/grates_c.png
+}
+
+textures/titan/light_128x256
+{
+	xmap_surfacelight 1500
+	
+	diffuseMap textures/titan/light_128x256.tga
+}
+
+textures/titan/light_128x512
+{
+	xmap_surfacelight 1500
+	
+	diffuseMap textures/titan/light_128x512.tga
+}
+
+textures/titan/multipanels
+{
+	 qer_editorImage	 textures/titan/multipanels.png
+
+	 diffuseMap		 textures/titan/multipanels.png
+	 bumpMap		 heightmap(textures/titan/multipanels.png, 1.0)
+	 specularMap	 textures/titan/multipanels.png
+}
+
+textures/titan/multipanels2
+{
+	 qer_editorImage	 textures/titan/multipanels2.png
+
+	 diffuseMap		 textures/titan/multipanels2.png
+	 bumpMap		 heightmap(textures/titan/multipanels2.png, 1.0)
+	 specularMap	 textures/titan/multipanels2.png
+}
+
+textures/titan/multipanels_3
+{
+	 qer_editorImage	 textures/titan/multipanels_3.png
+
+	 diffuseMap		 textures/titan/multipanels_3.png
+	 bumpMap		 heightmap(textures/titan/multipanels_3.png, 1.0)
+	 specularMap	 textures/titan/multipanels_3.png
+}
+
+textures/titan/purple_dent
+{
+	 qer_editorImage	 textures/titan/purple_dent.png
+
+	 diffuseMap		 textures/titan/purple_dent.png
+	 bumpMap		 heightmap(textures/titan/purple_dent.png, 1.0)
+	 specularMap	 textures/titan/purple_dent.png
+}
+
+textures/titan/pipes_e
+{
+	 qer_editorImage	 textures/titan/pipes_e.png
+
+	 diffuseMap		 textures/titan/pipes_e.png
+	 bumpMap		 heightmap(textures/titan/pipes_e.png, 1.0)
+	 specularMap	 textures/titan/pipes_e.png
+}
+
+textures/titan/orange_dent
+{
+	 qer_editorImage	 textures/titan/orange_dent.png
+
+	 diffuseMap		 textures/titan/orange_dent.png
+	 bumpMap		 heightmap(textures/titan/orange_dent.png, 1.0)
+	 specularMap	 textures/titan/orange_dent.png
+}
+
+textures/titan/runner_1
+{
+	 qer_editorImage	 textures/titan/runner_1.png
+
+	 diffuseMap		 textures/titan/runner_1.png
+	 bumpMap		 heightmap(textures/titan/runner_1.png, 1.0)
+	 specularMap	 textures/titan/runner_1.png
+}
+
+textures/titan/runner_2
+{
+	 qer_editorImage	 textures/titan/runner_2.png
+
+	 diffuseMap		 textures/titan/runner_2.png
+	 bumpMap		 heightmap(textures/titan/runner_2.png, 1.0)
+	 specularMap	 textures/titan/runner_2.png
+}
+
+textures/titan/support_1
+{
+	 qer_editorImage	 textures/titan/support_1.png
+
+	 diffuseMap		 textures/titan/support_1.png
+	 bumpMap		 heightmap(textures/titan/support_1.png, 1.0)
+	 specularMap	 textures/titan/support_1.png
+}
+
+textures/titan/support_2
+{
+	 qer_editorImage	 textures/titan/support_2.png
+
+	 diffuseMap		 textures/titan/support_2.png
+	 bumpMap		 heightmap(textures/titan/support_2.png, 1.0)
+	 specularMap	 textures/titan/support_2.png
+}
+
+textures/titan/support_3
+{
+	 qer_editorImage	 textures/titan/support_3.png
+
+	 diffuseMap		 textures/titan/support_3.png
+	 bumpMap		 heightmap(textures/titan/support_3.png, 1.0)
+	 specularMap	 textures/titan/support_3.png
+}
+
+textures/titan/support_4
+{
+	 qer_editorImage	 textures/titan/support_4.png
+
+	 diffuseMap		 textures/titan/support_4.png
+	 bumpMap		 heightmap(textures/titan/support_4.png, 1.0)
+	 specularMap	 textures/titan/support_4.png
+}
+
+
