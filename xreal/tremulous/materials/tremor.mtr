@@ -45,33 +45,7 @@ textures/tremor/ship_flame
 	}
 }
 
-textures/tremor/grate_3_shade
-{
-	metalsteps
-	cull none
-	
-	{
-		stage diffuseMap
-		textures/tremor/grate_3_shade.tga
-		alphaTest 0.5
-	}
-	
-	/*
-	{
-		map textures/tremor/grate_3_shade.tga
-		blendFunc GL_ONE GL_ZERO
-		alphaFunc LT128
-		depthWrite
-		rgbGen identity
-	}
-	{
-		map $lightmap
-		rgbGen identity
-		blendFunc GL_DST_COLOR GL_ZERO
-		depthFunc equal
-	}
-	*/
-}
+
 
 textures/tremor/red_color
 {
@@ -83,12 +57,6 @@ textures/tremor/red_color
 		map textures/tremor/red_color.tga
 		blend add
 		rgbGen wave square 0 1 0 1
-	}
-	{
-		map $lightmap 
-		blendfunc filter
-		rgbGen identity
-		tcGen lightmap 
 	}
 }
 
@@ -104,12 +72,14 @@ textures/tremor/shinymetal
 textures/tremor/dirt_phong
 {
 	qer_editorimage textures/tremor/dirt.tga
+	
 	xmap_forceMeta
 	xmap_nonplanar
 	xmap_shadeAngle 179
 	xmap_lightmapAxis z
 //	xmap_tcGen ivector ( 512 0 0 ) ( 0 512 0 )
 	xmap_tcMod rotate 33
+	
 	{
 		map textures/tremor/dirt.tga
 		rgbGen identity
@@ -150,6 +120,7 @@ textures/tremor/proto_lightred_nonsolid
 textures/tremor/light_flicker
 {
 	qer_editorimage textures/tremor/light_128x512.tga
+	
 	xmap_surfacelight 1500
 	xmap_lightStyle 1
 	{
@@ -199,59 +170,58 @@ textures/tremor/e8_base1c_nonsolid
 
 //Created by Louie "KnightBK" Doulias for Black Knights Productions, Prisoners of War Q3 Mod.  
 //Please check out our mod site at http://www.og-world.com/bkp/
+/*
 textures/tremor/darkglass3
 {
 	qer_trans .5	
 	surfaceparm trans
 	cull disable
-		{
+	{
 		map textures/tremor/trem2ref.tga
 		tcgen environment
 		blendfunc gl_one gl_one
 		rgbGen identity
-		}
-		{
+	}
+	{
 		map $lightmap
 		blendFunc gl_dst_color gl_zero
 		rgbgen identity
-		}
+	}
 }
+*/
 
 //By Evillair, edit by Jex, and godmil
 textures/tremor/e6bsegrtflr256_nonsolid
 {
 	qer_editorimage textures/tremor/e6bsegrtflr256.tga
-	surfaceparm trans
-	surfaceparm nomarks
-	surfaceparm metalsteps
-	surfaceparm nonsolid
-	cull none
+	
+	trans
+	nomarks
+	metalsteps
+	nonsolid
+	twosided
 
 	{
+		stage diffuseMap
 		map textures/tremor/e6bsegrtflr256.tga
-		depthwrite
-		alphafunc GE128
-	}
-	{
-		map $lightmap
-		blendfunc filter
-		tcGen lightmap
-		depthfunc equal
+		alphaTest 0.5
 	}
 }
 
 //Created by Louie "KnightBK" Doulias for Black Knights Productions, Prisoners of War Q3 Mod.  
 //Please check out our mod site at http://www.og-world.com/bkp/
+/*
 textures/tremor/plainglass3
 {
 	surfaceparm nolightmap
-	cull twosided
+	twosided
 	{
 		map textures/tremor/plainglass.tga
 		tcGen environment
 		blendfunc GL_ONE GL_ONE
                 }
 }
+*/
 
 //Shader created by Timbo
 //Comment added to ensure continuation of meticulously anal crediting policy
@@ -259,7 +229,7 @@ textures/tremor/tremorspark1
 {
   {
     map textures/tremor/tremorspark1.tga
-    blendFunc blend
+    blend blend
   }
 }
 
@@ -359,13 +329,15 @@ textures/tremor/flat_dk
 
 textures/tremor/grate_1
 {
+	qer_editorImage	 textures/tremor/grate_1.png
+
 	metalsteps
 	twoSided
 	
 	{
 		stage diffuseMap
 		textures/tremor/grate_1.tga
-		alphaTest 0.5
+		//alphaTest 0.5
 	}
 	bumpMap		 heightmap(textures/tremor/grate_1.png, 1.0)
 	specularMap	 textures/tremor/grate_1.png
@@ -373,13 +345,15 @@ textures/tremor/grate_1
 
 textures/tremor/grate2
 {
+	qer_editorImage	 textures/tremor/grate2.png
+
 	metalsteps
 	twoSided
 	
 	{
 		stage diffuseMap
 		textures/tremor/grate2.tga
-		alphaTest 0.5
+		//alphaTest 0.5
 	}
 	bumpMap		 heightmap(textures/tremor/grate2.png, 1.0)
 	specularMap	 textures/tremor/grate2.png
@@ -387,13 +361,15 @@ textures/tremor/grate2
 
 textures/tremor/grate3
 {
+	qer_editorImage	 textures/tremor/grate3.png
+
 	metalsteps
 	twoSided
 	
 	{
 		stage diffuseMap
 		textures/tremor/grate3.tga
-		alphaTest 0.5
+		//alphaTest 0.5
 	}
 	bumpMap		 heightmap(textures/tremor/grate3.png, 1.0)
 	specularMap	 textures/tremor/grate3.png
@@ -401,13 +377,15 @@ textures/tremor/grate3
 
 textures/tremor/grate3_shade
 {
+	qer_editorImage	 textures/tremor/grate3_shade.png
+
 	metalsteps
 	twoSided
 	
 	{
 		stage diffuseMap
 		textures/tremor/grate3_shade.tga
-		alphaTest 0.5
+		//alphaTest 0.5
 	}
 	bumpMap		 heightmap(textures/tremor/grate3_shade.png, 1.0)
 	specularMap	 textures/tremor/grate3_shade.png
