@@ -13,9 +13,9 @@
     shadowY  5          // y amount for shadow offset
     shadowColor 0.1 0.1 0.1 0.25      // shadow color
 
-    font "fonts/font" 26        // font
-    smallFont "fonts/smallfont" 20      // font
-    bigFont "fonts/bigfont" 34      // font
+    font "fonts/Vera" 26        // font
+    smallFont "fonts/Vera" 20      // font
+    bigFont "fonts/Vera" 34      // font
   }
 
   menuDef

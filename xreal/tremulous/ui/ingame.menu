@@ -2,9 +2,9 @@
 {
   assetGlobalDef
   {
-    font "fonts/FreeMono" 26        // font
-    smallFont "fonts/FreeMono" 20        // font
-    bigFont "fonts/FreeMono" 34        // font
+    font "fonts/Vera" 26        // font
+    smallFont "fonts/Vera" 20        // font
+    bigFont "fonts/Vera" 34        // font
     cursor "ui/assets/3_cursor3"      // cursor 
     gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
     itemFocusSound "sound/misc/menu2.wav"   // sound for item getting focus (via keyboard or mouse )
