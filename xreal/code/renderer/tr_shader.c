@@ -1330,7 +1330,7 @@ static qboolean ParseTexMod(char **text, shaderStage_t * stage)
 		if(token[0] == 0)
 			break;
 
-		ri.Printf(PRINT_WARNING, "WARNING: obselete tcMod parameter '%s' in shader '%s'\n", token, shader.name);
+		ri.Printf(PRINT_WARNING, "WARNING: obsolete tcMod parameter '%s' in shader '%s'\n", token, shader.name);
 	}
 
 	return qtrue;
@@ -1987,7 +1987,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "lightingDiffuse"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obselete rgbGen lighting keyword not supported in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: obsolete rgbGen lighting keyword not supported in shader '%s'\n", shader.name);
 				stage->type = ST_DIFFUSEMAP;
 				stage->rgbGen = CGEN_IDENTITY_LIGHTING;
 			}
@@ -2076,16 +2076,16 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "vertex"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obselete alphaGen vertex keyword not supported in shader '%s'\n", shader.name);
+				ri.Printf(PRINT_WARNING, "WARNING: obsolete alphaGen vertex keyword not supported in shader '%s'\n", shader.name);
 			}
 			else if(!Q_stricmp(token, "lightingSpecular"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obselete alphaGen lightingSpecular keyword not supported in shader '%s'\n",
+				ri.Printf(PRINT_WARNING, "WARNING: obsolete alphaGen lightingSpecular keyword not supported in shader '%s'\n",
 						  shader.name);
 			}
 			else if(!Q_stricmp(token, "oneMinusVertex"))
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: obselete alphaGen oneMinusVertex keyword not supported in shader '%s'\n",
+				ri.Printf(PRINT_WARNING, "WARNING: obsolete alphaGen oneMinusVertex keyword not supported in shader '%s'\n",
 						  shader.name);
 			}
 			else if(!Q_stricmp(token, "portal"))
@@ -3754,7 +3754,7 @@ static qboolean ParseShader(char *_text)
 		// lightMap <image>
 		else if(!Q_stricmp(token, "lightMap"))
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: obselete lightMap keyword not supported in shader '%s'\n", shader.name);
+			ri.Printf(PRINT_WARNING, "WARNING: obsolete lightMap keyword not supported in shader '%s'\n", shader.name);
 			Com_SkipRestOfLine(text);
 			continue;
 		}
