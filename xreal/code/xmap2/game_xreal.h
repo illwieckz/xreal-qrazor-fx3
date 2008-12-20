@@ -47,6 +47,10 @@ content and surface flags
 #define Q_CONT_WATER				32
 #define Q_CONT_FOG					64
 
+#define TREM_CONT_NOALIENBUILD      0x1000
+#define TREM_CONT_NOHUMANBUILD      0x2000
+#define TREM_CONT_NOBUILD           0x4000
+
 #define Q_CONT_AREAPORTAL			0x8000
 
 #define Q_CONT_PLAYERCLIP			0x10000
@@ -87,6 +91,10 @@ content and surface flags
 #define	Q_SURF_COLLISION			0x20000	    /* don't draw but use for per polygon collision detection */
 #define Q_SURF_DUST					0x40000		/* leave a dust trail when walking on this surface */
 
+#define TREM_SURF_NOALIENBUILDSURFACE  0x80000
+#define TREM_SURF_NOHUMANBUILDSURFACE  0x100000
+#define TREM_SURF_NOBUILDSURFACE       0x200000
+
 /* ydnar flags */
 #define Q_SURF_VERTEXLIT			(Q_SURF_POINTLIGHT | Q_SURF_NOLIGHTMAP)
 
@@ -121,17 +129,17 @@ game_t struct
 
 	{
 		/* name				contentFlags				contentFlagsClear			surfaceFlags				surfaceFlagsClear			compileFlags				compileFlagsClear */
-		
+
 		/* default */
 		{ "default",		Q_CONT_SOLID,				-1,							0,							-1,							C_SOLID,					-1 },
-		
-		
+
+
 		/* ydnar */
 		{ "lightgrid",		0,							0,							0,							0,							C_LIGHTGRID,				0 },
 		{ "antiportal",		0,							0,							0,							0,							C_ANTIPORTAL,				0 },
 		{ "skip",			0,							0,							0,							0,							C_SKIP,						0 },
-		
-		
+
+
 		/* compiler */
 		{ "origin",			Q_CONT_ORIGIN,				Q_CONT_SOLID,				0,							0,							C_ORIGIN | C_TRANSLUCENT,	C_SOLID },
 		{ "areaportal",		Q_CONT_AREAPORTAL,			Q_CONT_SOLID,				0,							0,							C_AREAPORTAL | C_TRANSLUCENT,	C_SOLID },
@@ -141,35 +149,35 @@ game_t struct
 		{ "structural",		Q_CONT_STRUCTURAL,			0,							0,							0,							C_STRUCTURAL,				0 },
 		{ "hint",			0,							0,							Q_SURF_HINT,				0,							C_HINT,						0 },
 		{ "nodraw",			0,							0,							Q_SURF_NODRAW,				0,							C_NODRAW,					0 },
-		
+
 		{ "alphashadow",	0,							0,							Q_SURF_ALPHASHADOW,			0,							C_ALPHASHADOW | C_TRANSLUCENT,	0 },
 		{ "lightfilter",	0,							0,							Q_SURF_LIGHTFILTER,			0,							C_LIGHTFILTER | C_TRANSLUCENT,	0 },
 		{ "nolightmap",		0,							0,							Q_SURF_VERTEXLIT,			0,							C_VERTEXLIT,				0 },
 		{ "pointlight",		0,							0,							Q_SURF_VERTEXLIT,			0,							C_VERTEXLIT,				0 },
-		
-		
+
+
 		/* game */
 		{ "nonsolid",		0,							Q_CONT_SOLID,				Q_SURF_NONSOLID,			0,							0,							C_SOLID },
-		
+
 		{ "trigger",		Q_CONT_TRIGGER,				Q_CONT_SOLID,				0,							0,							C_TRANSLUCENT,				C_SOLID },
-		
+
 		{ "water",			Q_CONT_WATER,				Q_CONT_SOLID,				0,							0,							C_LIQUID | C_TRANSLUCENT,	C_SOLID },
 		{ "slime",			Q_CONT_SLIME,				Q_CONT_SOLID,				0,							0,							C_LIQUID | C_TRANSLUCENT,	C_SOLID },
 		{ "lava",			Q_CONT_LAVA,				Q_CONT_SOLID,				0,							0,							C_LIQUID,					C_SOLID },
-		
+
 		{ "playerclip",		Q_CONT_PLAYERCLIP,			Q_CONT_SOLID,				0,							0,							C_DETAIL | C_TRANSLUCENT,	C_SOLID },
 		{ "monsterclip",	Q_CONT_MONSTERCLIP,			Q_CONT_SOLID,				0,							0,							C_DETAIL | C_TRANSLUCENT,	C_SOLID },
 		{ "nodrop",			Q_CONT_NODROP,				Q_CONT_SOLID,				0,							0,							C_TRANSLUCENT,				C_SOLID },
-		
+
 		{ "clusterportal",	Q_CONT_CLUSTERPORTAL,		Q_CONT_SOLID,				0,							0,							C_TRANSLUCENT,				C_SOLID },
 		{ "donotenter",		Q_CONT_DONOTENTER,			Q_CONT_SOLID,				0,							0,							C_TRANSLUCENT,				C_SOLID },
 		{ "botclip",		Q_CONT_BOTCLIP,				Q_CONT_SOLID,				0,							0,							C_TRANSLUCENT,				C_SOLID },
-		
+
 		{ "fog",			Q_CONT_FOG,					Q_CONT_SOLID,				0,							0,							C_FOG,						C_SOLID },
 		{ "sky",			0,							0,							Q_SURF_SKY,					0,							C_SKY,						0 },
-		
+
 		{ "slick",			0,							0,							Q_SURF_SLICK,				0,							0,							0 },
-		
+
 		{ "noimpact",		0,							0,							Q_SURF_NOIMPACT,			0,							0,							0 },
 		{ "nomarks",		0,							0,							Q_SURF_NOMARKS,				0,							C_NOMARKS,					0 },
 		{ "ladder",			0,							0,							Q_SURF_LADDER,				0,							0,							0 },
@@ -179,8 +187,18 @@ game_t struct
 		{ "nosteps",		0,							0,							Q_SURF_NOSTEPS,				0,							0,							0 },
 		{ "collision",		0,							0,							Q_SURF_COLLISION,			0,							C_SOLID | C_COLLISION,		0 },
 		{ "dust",			0,							0,							Q_SURF_DUST,				0,							0,							0 },
-		
-		
+
+
+		/* tremulous */
+		{"noalienbuild",	TREM_CONT_NOALIENBUILD,		0,							0,							0,							0,							0 },
+		{"nohumanbuild",	TREM_CONT_NOHUMANBUILD,		0,							0,							0,							0,							0 },
+		{"nobuild",			TREM_CONT_NOBUILD,			0,							0,							0,							0,							0 },
+
+		{"noalienbuildsurface",	0,						0,							TREM_SURF_NOALIENBUILDSURFACE,0,						0,							0 },
+		{"nohumanbuildsurface",	0,						0,							TREM_SURF_NOHUMANBUILDSURFACE,0,						0,							0 },
+		{"nobuildsurface",		0,						0,							TREM_SURF_NOBUILDSURFACE,0,								0,							0 },
+
+
 		/* null */
 		{ NULL, 0, 0, 0, 0, 0, 0 }
 	}
