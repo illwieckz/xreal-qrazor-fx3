@@ -23,37 +23,40 @@ textures/tremor/purple_1.tga
 		tcMod rotate 15
 	}
 }
+
 textures/titan/light_128x512
 {
-	q3map_surfacelight 1500
-	{
-		map $lightmap 
-		rgbGen identity
-		tcGen lightmap 
-	}
-	{
-		map textures/titan/light_128x512.tga
-		blendfunc filter
-		rgbGen identity
-	}
+	xmap_surfacelight 1500
+	
+	diffuseMap textures/titan/light_128x512.tga
 }
+
 textures/tremor/ship_flame
 {
 	{
 		map textures/tremor/ship_flame.tga
-		blendfunc add
+		blend add
 	}
 	{
 		map textures/tremor/ship_flame2.tga
-		blendfunc add
+		blend add
 		rgbGen wave sawtooth 0 1 0 1 
 		tcMod scroll 5 0
 	}
 }
+
 textures/tremor/grate_3_shade
 {
-	surfaceparm	metalsteps		
+	metalsteps
 	cull none
+	
+	{
+		stage diffuseMap
+		textures/tremor/grate_3_shade.tga
+		alphaTest 0.5
+	}
+	
+	/*
 	{
 		map textures/tremor/grate_3_shade.tga
 		blendFunc GL_ONE GL_ZERO
@@ -67,24 +70,28 @@ textures/tremor/grate_3_shade
 		blendFunc GL_DST_COLOR GL_ZERO
 		depthFunc equal
 	}
+	*/
 }
+
 textures/tremor/red_color
 {
-		surfaceparm trans
-		cull disable
-		qer_trans 0.5
+	trans
+	cull disable
+	qer_trans 0.5
+	
 	{
 		map textures/tremor/red_color.tga
-		blendfunc add
+		blend add
 		rgbGen wave square 0 1 0 1
-}
-{
+	}
+	{
 		map $lightmap 
 		blendfunc filter
 		rgbGen identity
 		tcGen lightmap 
 	}
 }
+
 textures/tremor/shinymetal
 {
 	{
@@ -97,12 +104,12 @@ textures/tremor/shinymetal
 textures/tremor/dirt_phong
 {
 	qer_editorimage textures/tremor/dirt.tga
-	q3map_forceMeta
-	q3map_nonplanar
-	q3map_shadeAngle 179
-	q3map_lightmapAxis z
-//	q3map_tcGen ivector ( 512 0 0 ) ( 0 512 0 )
-	q3map_tcMod rotate 33
+	xmap_forceMeta
+	xmap_nonplanar
+	xmap_shadeAngle 179
+	xmap_lightmapAxis z
+//	xmap_tcGen ivector ( 512 0 0 ) ( 0 512 0 )
+	xmap_tcMod rotate 33
 	{
 		map textures/tremor/dirt.tga
 		rgbGen identity
@@ -118,10 +125,10 @@ textures/tremor/dirt_phong
 // Shader by id 
 textures/tremor/proto_lightred_nonsolid
 {
-	q3map_lightimage textures/base_light/proto_lightred.tga
+	xmap_lightimage textures/base_light/proto_lightred.tga
 	surfaceparm nomarks
 	surfaceparm nonsolid //edit by Godmil
-	q3map_surfacelight 300
+	xmap_surfacelight 300
 //	light 1
 	{
 		map $lightmap
@@ -143,8 +150,8 @@ textures/tremor/proto_lightred_nonsolid
 textures/tremor/light_flicker
 {
 	qer_editorimage textures/tremor/light_128x512.tga
-	q3map_surfacelight 1500
-	q3map_lightStyle 1
+	xmap_surfacelight 1500
+	xmap_lightStyle 1
 	{
 		map $lightmap 
 		rgbGen identity
@@ -166,7 +173,7 @@ textures/tremor/light_flicker
 textures/tremor/e6basicstrip_blue_s_nolight
 {
 	qer_editorimage textures/tremor/e6basicstrip_blue.tga
-	//q3map_surfacelight ?
+	//xmap_surfacelight ?
 	surfaceparm nomarks
 	surfaceparm nolightmap
 	
@@ -283,4 +290,278 @@ textures/tremor/beam_red
     tcMod Scroll .3 0
     blendFunc add
   }
+}
+
+
+// XreaL materials
+textures/tremor/door_256
+{
+	 qer_editorImage	 textures/tremor/door_256.png
+
+	 diffuseMap		 textures/tremor/door_256.png
+	 bumpMap		 heightmap(textures/tremor/door_256.png, 1.0)
+	 specularMap	 textures/tremor/door_256.png
+}
+
+
+textures/tremor/door_edge
+{
+	 qer_editorImage	 textures/tremor/door_edge.png
+
+	 diffuseMap		 textures/tremor/door_edge.png
+	 bumpMap		 heightmap(textures/tremor/door_edge.png, 1.0)
+	 specularMap	 textures/tremor/door_edge.png
+}
+
+
+textures/tremor/e6q3support
+{
+	 qer_editorImage	 textures/tremor/e6q3support.png
+
+	 diffuseMap		 textures/tremor/e6q3support.png
+	 bumpMap		 heightmap(textures/tremor/e6q3support.png, 1.0)
+	 specularMap	 textures/tremor/e6q3support.png
+}
+
+textures/tremor/e6wallsupprt
+{
+	 qer_editorImage	 textures/tremor/e6wallsupprt.png
+
+	 diffuseMap		 textures/tremor/e6wallsupprt.png
+	 bumpMap		 heightmap(textures/tremor/e6wallsupprt.png, 1.0)
+	 specularMap	 textures/tremor/e6wallsupprt.png
+}
+
+textures/tremor/e8_base1b
+{
+	 qer_editorImage	 textures/tremor/e8_base1b.png
+
+	 diffuseMap		 textures/tremor/e8_base1b.png
+}
+
+textures/tremor/e8_base1c
+{
+	 qer_editorImage	 textures/tremor/e8_base1c.png
+
+	 diffuseMap		 textures/tremor/e8_base1c.png
+	 bumpMap		 heightmap(textures/tremor/e8_base1c.png, 1.0)
+	 specularMap	 textures/tremor/e8_base1c.png
+}
+
+textures/tremor/flat_dk
+{
+	 qer_editorImage	 textures/tremor/flat_dk.png
+
+	 diffuseMap		 textures/tremor/flat_dk.png
+	 bumpMap		 heightmap(textures/tremor/flat_dk.png, 1.0)
+	 specularMap	 textures/tremor/flat_dk.png
+}
+
+textures/tremor/grate_1
+{
+	metalsteps
+	twoSided
+	
+	{
+		stage diffuseMap
+		textures/tremor/grate_1.tga
+		alphaTest 0.5
+	}
+	bumpMap		 heightmap(textures/tremor/grate_1.png, 1.0)
+	specularMap	 textures/tremor/grate_1.png
+}
+
+textures/tremor/grate2
+{
+	metalsteps
+	twoSided
+	
+	{
+		stage diffuseMap
+		textures/tremor/grate2.tga
+		alphaTest 0.5
+	}
+	bumpMap		 heightmap(textures/tremor/grate2.png, 1.0)
+	specularMap	 textures/tremor/grate2.png
+}
+
+textures/tremor/grate3
+{
+	metalsteps
+	twoSided
+	
+	{
+		stage diffuseMap
+		textures/tremor/grate3.tga
+		alphaTest 0.5
+	}
+	bumpMap		 heightmap(textures/tremor/grate3.png, 1.0)
+	specularMap	 textures/tremor/grate3.png
+}
+
+textures/tremor/grate3_shade
+{
+	metalsteps
+	twoSided
+	
+	{
+		stage diffuseMap
+		textures/tremor/grate3_shade.tga
+		alphaTest 0.5
+	}
+	bumpMap		 heightmap(textures/tremor/grate3_shade.png, 1.0)
+	specularMap	 textures/tremor/grate3_shade.png
+}
+
+textures/tremor/hex_1
+{
+	 qer_editorImage	 textures/tremor/hex_1.png
+
+	 diffuseMap		 textures/tremor/hex_1.png
+	 bumpMap		 heightmap(textures/tremor/hex_1.png, 1.0)
+	 specularMap	 textures/tremor/hex_1.png
+}
+
+textures/tremor/locker
+{
+	 qer_editorImage	 textures/tremor/locker.png
+
+	 diffuseMap		 textures/tremor/locker.png
+	 bumpMap		 heightmap(textures/tremor/locker.png, 1.0)
+	 specularMap	 textures/tremor/locker.png
+}
+
+textures/tremor/metal_panels
+{
+	 qer_editorImage	 textures/tremor/metal_panels.png
+
+	 diffuseMap		 textures/tremor/metal_panels.png
+	 bumpMap		 heightmap(textures/tremor/metal_panels.png, 1.0)
+	 specularMap	 textures/tremor/metal_panels.png
+}
+
+textures/tremor/mtlsupport_wrn
+{
+	 qer_editorImage	 textures/tremor/mtlsupport_wrn.png
+
+	 diffuseMap		 textures/tremor/mtlsupport_wrn.png
+	 bumpMap		 heightmap(textures/tremor/mtlsupport_wrn.png, 1.0)
+	 specularMap	 textures/tremor/mtlsupport_wrn.png
+}
+
+textures/tremor/oval_panel_1
+{
+	 qer_editorImage	 textures/tremor/oval_panel_1.png
+
+	 diffuseMap		 textures/tremor/oval_panel_1.png
+	 bumpMap		 heightmap(textures/tremor/oval_panel_1.png, 1.0)
+	 specularMap	 textures/tremor/oval_panel_1.png
+}
+
+textures/tremor/runner_2
+{
+	 qer_editorImage	 textures/tremor/runner_2.png
+
+	 diffuseMap		 textures/tremor/runner_2.png
+	 bumpMap		 heightmap(textures/tremor/runner_2.png, 1.0)
+	 specularMap	 textures/tremor/runner_2.png
+}
+
+textures/tremor/runner_128
+{
+	 qer_editorImage	 textures/tremor/runner_128.png
+
+	 diffuseMap		 textures/tremor/runner_128.png
+	 bumpMap		 heightmap(textures/tremor/runner_128.png, 1.0)
+	 specularMap	 textures/tremor/runner_128.png
+}
+
+textures/tremor/ship_tex
+{
+	 qer_editorImage	 textures/tremor/ship_tex.png
+
+	 diffuseMap		 textures/tremor/ship_tex.png
+	 bumpMap		 heightmap(textures/tremor/ship_tex.png, 1.0)
+	 specularMap	 textures/tremor/ship_tex.png
+}
+
+textures/tremor/spine_1
+{
+	 qer_editorImage	 textures/tremor/spine_1.png
+
+	 diffuseMap		 textures/tremor/spine_1.png
+	 bumpMap		 heightmap(textures/tremor/spine_1.png, 1.0)
+	 specularMap	 textures/tremor/spine_1.png
+}
+
+textures/tremor/vented_1
+{
+	 qer_editorImage	 textures/tremor/vented_1.png
+
+	 diffuseMap		 textures/tremor/vented_1.png
+	 bumpMap		 heightmap(textures/tremor/vented_1.png, 1.0)
+	 specularMap	 textures/tremor/vented_1.png
+}
+
+textures/tremor/vented_2
+{
+	 qer_editorImage	 textures/tremor/vented_2.png
+
+	 diffuseMap		 textures/tremor/vented_2.png
+	 bumpMap		 heightmap(textures/tremor/vented_2.png, 1.0)
+	 specularMap	 textures/tremor/vented_2.png
+}
+
+textures/tremor/vented_3
+{
+	 qer_editorImage	 textures/tremor/vented_3.png
+
+	 diffuseMap		 textures/tremor/vented_3.png
+	 bumpMap		 heightmap(textures/tremor/vented_3.png, 1.0)
+	 specularMap	 textures/tremor/vented_3.png
+}
+
+textures/tremor/vented_4
+{
+	 qer_editorImage	 textures/tremor/vented_4.png
+
+	 diffuseMap		 textures/tremor/vented_4.png
+	 bumpMap		 heightmap(textures/tremor/vented_4.png, 1.0)
+	 specularMap	 textures/tremor/vented_4.png
+}
+
+textures/tremor/vented_5
+{
+	 qer_editorImage	 textures/tremor/vented_5.png
+
+	 diffuseMap		 textures/tremor/vented_5.png
+	 bumpMap		 heightmap(textures/tremor/vented_5.png, 1.0)
+	 specularMap	 textures/tremor/vented_5.png
+}
+
+textures/tremor/vented_6
+{
+	 qer_editorImage	 textures/tremor/vented_6.png
+
+	 diffuseMap		 textures/tremor/vented_6.png
+	 bumpMap		 heightmap(textures/tremor/vented_6.png, 1.0)
+	 specularMap	 textures/tremor/vented_6.png
+}
+
+textures/tremor/vented_7
+{
+	 qer_editorImage	 textures/tremor/vented_7.png
+
+	 diffuseMap		 textures/tremor/vented_7.png
+	 bumpMap		 heightmap(textures/tremor/vented_7.png, 1.0)
+	 specularMap	 textures/tremor/vented_7.png
+}
+
+textures/tremor/tech_256_1
+{
+	 qer_editorImage	 textures/tremor/tech_256_1.png
+
+	 diffuseMap		 textures/tremor/tech_256_1.png
+	 bumpMap		 heightmap(textures/tremor/tech_256_1.png, 1.0)
+	 specularMap	 textures/tremor/tech_256_1.png
 }
