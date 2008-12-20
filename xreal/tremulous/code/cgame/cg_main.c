@@ -397,8 +397,8 @@ void CG_RegisterCvars(void)
 		trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
 	}
 
-	//repress standard Q3 console
-	trap_Cvar_Set("con_notifytime", "-2");
+	// repress standard Q3 console
+	//trap_Cvar_Set("con_notifytime", "-2");
 
 	// see if we are also running the server on this machine
 	trap_Cvar_VariableStringBuffer("sv_running", var, sizeof(var));
@@ -509,7 +509,7 @@ CG_AddNotifyText
 */
 void CG_AddNotifyText(void)
 {
-#if 1
+#if 0
 	char            buffer[BIG_INFO_STRING];
 
 	trap_Args(buffer, BIG_INFO_STRING);
