@@ -6,19 +6,19 @@ models/weapons/hive/missilePS
     {
       shader 20 models/weapons/hive/sprite1.tga models/weapons/hive/sprite2.tga
 
-      displacement 0 0 0 ~4.0
+      displacement 0 0 0 "~4.0"
 
       parentVelocityFraction  0.5
       velocityType      static
       velocityDir       linear
       velocityMagnitude 100
-      velocity          0 0 1 ~180
+      velocity          0 0 1 "~180"
 
       accelerationType      cent
       accelerationDir       point
       accelerationMagnitude 2000
 
-      rotation 0 -20.0~40.0 -20.0~40.0
+      rotation 0 "-20.0~40.0" "-20.0~40.0"
       radius 0 2.0 2.0
       alpha  0 1.0 0.0
       bounce 0.5
@@ -28,7 +28,7 @@ models/weapons/hive/missilePS
 
     count infinite
     delay 0
-    period 100 - ~0%
+    period 100 - "~0%"
   }
 }
 
@@ -40,12 +40,12 @@ models/weapons/rifle/impactPS
     {
       shader sync gfx/rifle/verysmallrock
 
-      displacement 0 0 0 ~4.0
+      displacement 0 0 0 "~4.0"
 
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 100
-      velocity          0 0 0 ~20
+      velocity          0 0 0 "~20"
 
       accelerationType      static
       accelerationDir       linear
@@ -54,15 +54,15 @@ models/weapons/rifle/impactPS
 
       radius 0 1.0 1.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.0
 
       lifeTime 350
     }
 
-    count 0~2
-    delay ~100
-    period 0 - ~0%
+    count "0~2"
+    delay "~100"
+    period 0 - "~0%"
   }
 
   ejector
@@ -71,7 +71,7 @@ models/weapons/rifle/impactPS
     {
       shader sync gfx/sprites/smoke
 
-      displacement 0 0 0 ~1.0
+      displacement 0 0 0 "~1.0"
       normalDisplacement 3.0
 
       velocityType      normal
@@ -86,7 +86,7 @@ models/weapons/rifle/impactPS
 
       radius 0 4.0 6.0
       alpha  0 0.5 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.0
 
       lifeTime 250
@@ -94,7 +94,7 @@ models/weapons/rifle/impactPS
 
     count 1
     delay 0
-    period 0 - ~0%
+    period 0 -"~0%"
   }
 
   ejector
@@ -108,7 +108,7 @@ models/weapons/rifle/impactPS
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 200
-      velocity          0 0 0 ~160
+      velocity          0 0 0 "~160"
 
       accelerationType      static
       accelerationDir       linear
@@ -117,15 +117,15 @@ models/weapons/rifle/impactPS
 
       radius 0 3.0 0.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.0
 
       lifeTime 200
     }
 
-    count 0~1
+    count "0~1"
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -137,7 +137,7 @@ models/weapons/rifle/muzzlePS
     {
       shader sync gfx/sprites/smoke
 
-      displacement 0 0 0 ~0.0
+      displacement 0 0 0 "~0.0"
 
       parentVelocityFraction 0.9
 
@@ -153,7 +153,7 @@ models/weapons/rifle/muzzlePS
 
       radius 0 2.0 4.0
       alpha  0 0.4 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.0
 
       lifeTime 200
@@ -161,7 +161,7 @@ models/weapons/rifle/muzzlePS
 
     count 1
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 
   ejector
@@ -170,14 +170,14 @@ models/weapons/rifle/muzzlePS
     {
       model models/weapons/shells/rifle-shell.md3
 
-      displacement -5 -3 0 ~0.0
+      displacement -5 -3 0 "~0.0"
 
       parentVelocityFraction 0.85
 
       velocityType      static_transform
       velocityDir       linear
       velocityMagnitude 200
-      velocity          0 -1 3 ~10
+      velocity          0 -1 3 "~10"
 
       accelerationType      static
       accelerationDir       linear
@@ -192,7 +192,7 @@ models/weapons/rifle/muzzlePS
 
     count 1
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -204,7 +204,7 @@ models/weapons/shotgun/muzzlePS
     {
       shader sync gfx/sprites/smoke
 
-      displacement 0 0 0 ~0.0
+      displacement 0 0 0 "~0.0"
 
       parentVelocityFraction 0.9
 
@@ -220,7 +220,7 @@ models/weapons/shotgun/muzzlePS
 
       radius 0 2.0 4.0
       alpha  0 0.4 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.0
 
       lifeTime 200
@@ -228,7 +228,7 @@ models/weapons/shotgun/muzzlePS
 
     count 1
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 
   ejector
@@ -237,14 +237,14 @@ models/weapons/shotgun/muzzlePS
     {
       model models/weapons/shells/shotgun-shell.md3
 
-      displacement -5 -3 0 ~0.0
+      displacement -5 -3 0 "~0.0"
 
       parentVelocityFraction 0.85
 
       velocityType      static_transform
       velocityDir       linear
       velocityMagnitude 200
-      velocity          0 -1 3 ~10
+      velocity          0 -1 3 "~10"
 
       accelerationType      static
       accelerationDir       linear
@@ -259,7 +259,7 @@ models/weapons/shotgun/muzzlePS
 
     count 1
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -271,14 +271,14 @@ models/weapons/chaingun/muzzlePS
     {
       model models/weapons/shells/rifle-shell.md3
 
-      displacement -5 -3 0 ~0.0
+      displacement -5 -3 0 "~0.0"
 
       parentVelocityFraction 0.85
 
       velocityType      static_transform
       velocityDir       linear
       velocityMagnitude 200
-      velocity          0 -1 3 ~10
+      velocity          0 -1 3 "~10"
 
       accelerationType      static
       accelerationDir       linear
@@ -293,7 +293,7 @@ models/weapons/chaingun/muzzlePS
 
     count 1
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -304,23 +304,23 @@ models/weapons/flamer/muzzlePS
     particle
     {
       shader sync flame3 flame4 flame5 flame6 flame7 flame8 flame9 flame10 flame11 flame12 flame13 flame14 flame15 flame16 flame17 flame18 flame19 flame20 flame21 flame22 flame23 flame24 flame25
-      displacement 0 0 0 ~0.0
+      displacement 0 0 0 "~0.0"
 
       parentVelocityFraction 0.65
 
       velocityType      cent
       velocityDir       linear
       velocityMagnitude 200
-      velocity          0 0 0 ~0
+      velocity          0 0 0 "~0"
 
       accelerationType      static
       accelerationDir       linear
       accelerationMagnitude 50
-      acceleration          0 0 1 ~0
+      acceleration          0 0 1 "~0"
 
       radius 0 4.0 40.0
       alpha  0 1.0 1.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.1
 
       lifeTime 1000
@@ -328,7 +328,7 @@ models/weapons/flamer/muzzlePS
 
     count infinite
     delay 0
-    period 15 - ~0%
+    period 15 - "~0%"
   }
 }
 
@@ -340,18 +340,18 @@ models/weapons/level1upg/muzzlePS
     {
       shader sync gfx/sprites/poisoncloud
 
-      displacement 0 0 0 ~0.0
+      displacement 0 0 0 "~0.0"
 
       parentVelocityFraction 1.0
 
       velocityType      cent
       velocityDir       linear
       velocityMagnitude 80
-      velocity          0 0 0 ~50
+      velocity          0 0 0 "~50"
 
       radius 0 10.0 25.0
       alpha  0 0.5 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 1.0
 
       lifeTime 800
@@ -359,7 +359,7 @@ models/weapons/level1upg/muzzlePS
 
     count 20
     delay 0
-    period 40 - ~0%
+    period 40 - "~0%"
   }
 }
 
@@ -371,7 +371,7 @@ models/weapons/blaster/missilePS
     {
       shader sync gfx/blaster/orange_particle
 
-      displacement 0 0 0 ~2.0
+      displacement 0 0 0 "~2.0"
 
       parentVelocityFraction 0.5
 
@@ -384,7 +384,7 @@ models/weapons/blaster/missilePS
 
     count infinite
     delay 0
-    period 10 - ~0%
+    period 10 - "~0%"
   }
 }
 
@@ -407,7 +407,7 @@ models/weapons/prifle/missilePS
 
     count infinite
     delay 0
-    period 10 - ~0%
+    period 10 - "~0%"
   }
 }
 
@@ -419,23 +419,23 @@ models/weapons/mdriver/impactPS
     {
       shader sync gfx/mdriver/green_particle
 
-      displacement 0 0 0 ~2.0
+      displacement 0 0 0 "~2.0"
 
       normalDisplacement 10.0
 
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 400
-      velocity          0 0 0 ~80
+      velocity          0 0 0 "~80"
 
       accelerationType      normal
       accelerationDir       linear
       accelerationMagnitude 200
-      acceleration          0 0 1 ~360
+      acceleration          0 0 1 "~360"
 
       radius 0 6.0 4.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.5
 
       lifeTime 1000
@@ -443,7 +443,7 @@ models/weapons/mdriver/impactPS
 
     count 10
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -455,13 +455,13 @@ models/weapons/lcannon/missilePS
     {
       shader sync gfx/blaster/orange_particle
 
-      displacement 0 0 0 ~3.0
+      displacement 0 0 0 "~3.0"
 
       parentVelocityFraction  1.0
       velocityType      static
       velocityDir       linear
       velocityMagnitude 120
-      velocity          0 0 1 ~360
+      velocity          0 0 1 "~360"
 
       radius 0 1.0 5.0
       alpha  0 1.0 0.0
@@ -472,7 +472,7 @@ models/weapons/lcannon/missilePS
 
     count infinite
     delay 0
-    period 50 - ~0%
+    period 50 - "~0%"
   }
 }
 
@@ -484,14 +484,14 @@ models/weapons/lcannon/impactPS
     {
       shader sync gfx/blaster/orange_particle
 
-      displacement 0 0 0 ~2.0
+      displacement 0 0 0 "~2.0"
 
       normalDisplacement 10.0
 
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 200
-      velocity          0 0 0 ~160
+      velocity          0 0 0 "~160"
 
       accelerationType      static
       accelerationDir       linear
@@ -500,15 +500,15 @@ models/weapons/lcannon/impactPS
 
       radius 0 1.0 5.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.8
 
-      lifeTime 2000~1000
+      lifeTime "2000~1000"
     }
 
     count 30
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 
   ejector
@@ -517,14 +517,14 @@ models/weapons/lcannon/impactPS
     {
       shader sync gfx/lcannon/primary
 
-      displacement 0 0 0 ~10.0
+      displacement 0 0 0 "~10.0"
 
       normalDisplacement 15.0
 
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 100
-      velocity          0 0 0 ~160
+      velocity          0 0 0 "~160"
 
       accelerationType      static
       accelerationDir       linear
@@ -533,15 +533,15 @@ models/weapons/lcannon/impactPS
 
       radius 0 25.0 0.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 1.0
 
-      lifeTime 1000~1000
+      lifeTime "1000~1000"
     }
 
     count 6
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -553,14 +553,14 @@ models/weapons/lcannon/secondaryImpactPS
     {
       shader sync gfx/blaster/orange_particle
 
-      displacement 0 0 0 ~2.0
+      displacement 0 0 0 "~2.0"
 
       normalDisplacement 10.0
 
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 150
-      velocity          0 0 0 ~160
+      velocity          0 0 0 "~160"
 
       accelerationType      static
       accelerationDir       linear
@@ -569,15 +569,15 @@ models/weapons/lcannon/secondaryImpactPS
 
       radius 0 1.0 5.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.8
 
-      lifeTime 2000~1000
+      lifeTime "2000~1000"
     }
 
     count 10
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -589,21 +589,21 @@ models/weapons/psaw/impactPS
     {
       shader sync gfx/psaw/blue_particle
 
-      displacement 0 0 0 ~2.0
+      displacement 0 0 0 "~2.0"
 
       velocityType      static
       velocityDir       linear
       velocityMagnitude 100
-      velocity          0 0 -1 ~25
+      velocity          0 0 -1 "~25"
 
       accelerationType      static
       accelerationDir       linear
       accelerationMagnitude 800
-      acceleration          0 0 -1 ~10
+      acceleration          0 0 -1 "~10"
 
-      radius 0 1.0~2.0 3.0~2.0
+      radius 0 "1.0~2.0" "3.0~2.0"
       alpha  0 1.0 1.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.5
 
       lifeTime 1000
@@ -611,7 +611,7 @@ models/weapons/psaw/impactPS
 
     count 3
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -623,22 +623,22 @@ models/weapons/lasgun/impactPS
     {
       shader sync gfx/lasgun/purple_particle
 
-      displacement 0 0 0 ~2.0
+      displacement 0 0 0 "~2.0"
       normalDisplacement  7.0
 
       velocityType      normal
       velocityDir       linear
       velocityMagnitude 100
-      velocity          0 0 0 ~90
+      velocity          0 0 0 "~90"
 
       accelerationType      static
       accelerationDir       linear
       accelerationMagnitude 600
-      acceleration          0 0 -1 ~10
+      acceleration          0 0 -1 "~10"
 
-      radius 0 3.0~2.0 0.0
+      radius 0 "3.0~2.0" 0.0
       alpha  0 1.0 1.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.5
 
       lifeTime 500
@@ -646,7 +646,7 @@ models/weapons/lasgun/impactPS
 
     count 3
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
 
@@ -658,16 +658,16 @@ models/weapons/grenade/impactTrailPS
     {
       shader sync flame3 flame4 flame5 flame6 flame7 flame8 flame9 flame10 flame11 flame12 flame13 flame14 flame15 flame16 flame17 flame18 flame19 flame20 flame21 flame22 flame23 flame24 flame25
 
-      displacement 0 0 0 ~0
+      displacement 0 0 0 "~0"
 
       velocityType      static
       velocityDir       linear
       velocityMagnitude 30
-      velocity          0 0 -1 ~0
+      velocity          0 0 -1 "~0"
 
       radius 0 30.0 10.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0
 
       lifeTime 500
@@ -687,12 +687,12 @@ models/weapons/grenade/impactPS
     {
       shader sync flame3 flame4 flame5 flame6 flame7 flame8 flame9 flame10 flame11 flame12 flame13 flame14 flame15 flame16 flame17 flame18 flame19 flame20 flame21 flame22 flame23 flame24 flame25
 
-      displacement 0 0 11 ~0
+      displacement 0 0 11 "~0"
 
       velocityType      static
       velocityDir       linear
-      velocityMagnitude 200~75%
-      velocity          0 0 1 ~10
+      velocityMagnitude "200~75%"
+      velocity          0 0 1 "~10"
 
       accelerationType      static
       accelerationDir       linear
@@ -701,7 +701,7 @@ models/weapons/grenade/impactPS
 
       radius 0 10.0 40.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0
 
       lifeTime 500
@@ -711,7 +711,7 @@ models/weapons/grenade/impactPS
 
     count 5
     delay 0
-    period 10 - ~0%
+    period 10 - "~0%"
   }
 
   ejector
@@ -720,16 +720,16 @@ models/weapons/grenade/impactPS
     {
       shader sync gfx/grenade/flare_01
 
-      displacement 0 0 8 ~0
+      displacement 0 0 8 "~0"
 
       velocityType      static
       velocityDir       linear
-      velocityMagnitude 10~50%
-      velocity          0 0 1 ~60
+      velocityMagnitude "10~50%"
+      velocity          0 0 1 "~60"
 
       radius 0 100.0 200.0
       alpha  250 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0.0
 
       lifeTime 300
@@ -737,7 +737,7 @@ models/weapons/grenade/impactPS
 
     count 1
     delay 0
-    period 10 - ~0%
+    period 10 - "~0%"
   }
 
   ejector
@@ -746,12 +746,12 @@ models/weapons/grenade/impactPS
     {
       shader sync gfx/sprites/spark
 
-      displacement 0 0 8 ~0
+      displacement 0 0 8 "~0"
 
       velocityType      static
       velocityDir       linear
-      velocityMagnitude 700~3%
-      velocity          0 0 1 ~180
+      velocityMagnitude "700~3%"
+      velocity          0 0 1 "~180"
 
       accelerationType      static
       accelerationDir       linear
@@ -760,7 +760,7 @@ models/weapons/grenade/impactPS
 
       radius 0 10.0 2.0
       alpha  0 1.0 0.0
-      rotation 0 ~360 -
+      rotation 0 "~360" -
       bounce 0
 
       lifeTime 300
@@ -768,6 +768,6 @@ models/weapons/grenade/impactPS
 
     count 150
     delay 0
-    period 0 - ~0%
+    period 0 - "~0%"
   }
 }
