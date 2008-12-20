@@ -31,3 +31,13 @@ textures/titan/asteroid_skybox
       
       skyparms env/Asteroid - -
 }
+
+
+textures/titan/basic_4_b
+{
+	 qer_editorImage	 textures/titan/basic_4_b.png
+
+	 diffuseMap		 textures/titan/basic_4_b.png
+	 bumpMap		 heightmap(textures/titan/basic_4_b.png, 1.0)
+	 specularMap	 textures/titan/basic_4_b.png
+}

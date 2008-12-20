@@ -5,6 +5,7 @@ textures/common-trem/nobuild
 	
 	nodraw
 	nolightmap
+	noshadows
 	nonsolid
 	trans
 	nomarks
@@ -18,6 +19,7 @@ textures/common-trem/noalienbuild
 	
 	nodraw
 	nolightmap
+	noshadows
 	nonsolid
 	trans
 	nomarks
@@ -31,6 +33,7 @@ textures/common-trem/nohumanbuild
 	
 	nodraw
 	nolightmap
+	noshadows
 	nonsolid
 	trans
 	nomarks
