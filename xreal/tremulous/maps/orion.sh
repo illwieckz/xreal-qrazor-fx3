@@ -5,7 +5,7 @@ MAP='orion.map'
 
 case $1 in
 	-bsp)
-		$COMPILER -fs_basepath ../.. -fs_game "tremulous" -game "xreal" -v -leaktest $MAP
+		$COMPILER -fs_basepath ../.. -fs_game "tremulous" -game "xreal" -v -meta -leaktest $MAP
 		;;
 
 	-fastvis)

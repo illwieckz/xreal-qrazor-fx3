@@ -152,6 +152,7 @@ textures/orion/sky
 {
       qer_editorimage textures/titan/plasma_galaxy
       
+      forceOpaque
       noimpact
       nolightmap
       sky
