@@ -1,0 +1,702 @@
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Shaders for "Orion" - by xenom[GER]                                        -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/locations
+{
+  qer_editorimage textures/orion/locations.tga
+
+  twoSided
+  trans
+  nolightmap
+  nonsolid
+
+  {
+    map textures/orion/locations.tga
+    alphaTest 0.5
+    depthwrite
+  }
+  {
+    map textures/orion/locations.tga
+    rgbgen wave sin .2 .2 .2 .2
+    tcMod stretch square 1 0.001 0 1.2
+    tcMod turb 0 .001 .2 1.1
+    blend add
+  }
+  {
+    map textures/orion/locations.tga
+    rgbgen wave sin .3 .3 .3 .3
+    tcMod stretch square 1 0.001 0 1.2
+    tcMod turb 0 .001 .2 1.1
+    blend add
+  }
+}
+
+// Data Shader
+textures/orion/data
+{
+  qer_editorimage textures/orion/data.tga
+
+  twosided
+  nolightmap
+
+//  xmap_surfacelight 75
+
+  {
+  	stage diffuseMap
+    map textures/orion/data.tga
+  }
+  {
+    map textures/orion/fade.tga
+//  blend add
+    blend add
+    rgbgen wave sin .3 .3 .3 .3
+    tcMod scroll 0 1
+  }
+}
+
+// The ship flame
+textures/orion/ship_flame
+{
+	qer_editorimage textures/orion/orion_flame.tga
+
+	{
+		map textures/orion/orion_flame.tga
+		blend add
+	}
+	{
+		map textures/orion/orion_noise.tga
+		blend add
+		rgbGen wave sawtooth 0 1 0 1 
+		tcMod scroll 5 0
+	}
+}
+
+// steam
+textures/orion/steam
+{
+	entityMergable
+	twosided
+	{
+		map textures/orion/steam_base.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		rgbGen		const ( 1 0.65 0.65 )
+		alphaGen	vertex
+	}
+}
+
+// water
+textures/orion/water
+{
+	qer_editorimage textures/orion/water.tga
+	qer_trans .4
+	xmap_globaltexture
+	entityMergable
+	nobuild
+	trans
+	water
+	nonsolid
+
+	cull disable
+	tesssize 32
+	deformVertexes wave 32 sin 0.8 0.4 1 .4
+	{
+		map textures/orion/water.tga
+		rgbGen const ( 0.3 0.3 0.2 )
+		alphaGen const 0.20
+		blend blend
+		tcMod scroll .03 .001
+	}
+}
+
+
+// Trimlights
+textures/orion/trimlight_blue
+{
+	qer_editorimage textures/orion/trimlight_blue.tga
+	
+	xmap_lightimage textures/orion/trimlight_blue.blend.tga
+	xmap_surfacelight 8000
+
+	{
+		stage diffusemap
+		map textures/orion/trimlight_blue.tga
+		blend filter
+	}
+	{
+		map textures/orion/trimlight_blue.blend.tga
+		blend add
+	}
+}
+
+textures/orion/trimlight_red
+{
+	qer_editorimage textures/orion/trimlight_red.tga
+	
+	xmap_lightimage textures/orion/trimlight_red.blend.tga
+	xmap_surfacelight 8000
+
+	{
+		stage diffusemap
+		map textures/orion/trimlight_red.tga
+		blend filter
+	}
+	{
+		map textures/orion/trimlight_red.blend.tga
+		blend add
+	}
+}
+
+textures/orion/sky
+{
+      qer_editorimage textures/titan/plasma_galaxy
+      
+      noimpact
+      nolightmap
+      sky
+      
+      xmap_surfacelight 15
+      
+      skyparms env/plasma_galaxy - -
+}
+
+
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Lights - Copied from nexus6, modded by xenom[GER]                          -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/light_red
+{
+	qer_editorimage textures/orion/light_red.tga
+	
+	nomarks
+	
+	xmap_surfacelight 8000
+	xmap_lightRGB 1 .5 .5
+	
+	{
+		stage diffusemap
+		map textures/orion/light_red.tga
+	}
+	{
+		map textures/orion/light_red.blend.tga
+		blend add
+	}
+}
+
+textures/orion/light_orange
+{
+	qer_editorimage textures/orion/light_orange.tga
+	
+	nomarks
+	
+	xmap_surfacelight 8000
+	xmap_lightRGB 1 .75 .25
+	
+	{
+		stage diffusemap
+		map textures/orion/light_orange.tga
+	}
+	{
+		map textures/orion/light_orange.blend.tga
+		blend add
+	}
+}
+
+textures/orion/light_yellow
+{
+	qer_editorimage textures/orion/light_yellow.tga
+	
+	nomarks
+	
+	xmap_surfacelight 8000
+	xmap_lightRGB 1 .75 .25
+	
+	{
+		stage diffusemap
+		map textures/orion/light_yellow.tga
+	}
+	{
+		map textures/orion/light_yellow.blend.tga
+		blend add
+	}
+}
+
+textures/orion/light_green
+{
+	qer_editorimage textures/orion/light_green.tga
+	
+	nomarks
+	
+	xmap_surfacelight 8000
+	xmap_lightRGB .5 .75 .5
+	
+	{
+		stage diffusemap
+		map textures/orion/light_green.tga
+	}
+	{
+		map textures/orion/light_green.blend.tga
+		blend add
+	}
+}
+
+textures/orion/light_blue
+{
+	qer_editorimage textures/orion/light_blue.tga
+	
+	nomarks
+	
+	xmap_surfacelight 8000
+	xmap_lightRGB .5 .75 1
+	
+	{
+		stage diffusemap
+		map textures/orion/light_blue.tga
+	}
+	{
+		map textures/orion/light_blue.blend.tga
+		blend add
+	}
+}
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Scrolling text messages                                                    -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/msg_status
+{
+  qer_editorimage textures/orion/msg_status.tga
+
+  twosided
+  nolightmap
+
+  {
+//  map textures/orion/msg_status.tga
+    animmap 1 textures/orion/msg_status.tga textures/orion/msg_status.tga textures/orion/msg_status.tga textures/orion/msg_status.tga textures/orion/msg_status.tga textures/orion/msg_statusb.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+textures/orion/msg_warning1
+{
+  qer_editorimage textures/orion/msg_warning1.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/msg_warning1.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+textures/orion/msg_shields
+{
+  qer_editorimage textures/orion/msg_shields.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/msg_shields.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+textures/orion/msg_warning2
+{
+  qer_editorimage textures/orion/msg_warning2.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/msg_warning2.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+textures/orion/msg_welcome
+{
+  qer_editorimage textures/orion/msg_welcome.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/msg_welcome.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+textures/orion/msg_orionii
+{
+  qer_editorimage textures/orion/msg_orionii.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/msg_orionii.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+textures/orion/msg_sysreport
+{
+  qer_editorimage textures/orion/msg_sysreport.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/msg_sysreport.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Satellite panel                                                            -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/sat
+{
+  qer_editorimage textures/orion/sat.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/sat.tga
+    blend add
+    tcMod scroll 0 .05
+  }
+}
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Minimap                                                                    -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/minimap
+{
+  qer_editorimage textures/orion/minimap.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/minimap.tga
+    blend add
+  }
+}
+
+
+
+// ======================================================================
+// Vine (By DASPRiD)
+// ======================================================================
+textures/orion/vine06
+{
+	qer_editorimage textures/orion/vine06.tga
+	qer_alphafunc greater 0.5
+	qer_trans 0.99
+	
+	xmap_backShader textures/orion/vine06_back
+	xmap_vertexScale 2
+	
+	alphashadow
+	trans
+	nonsolid
+	nomarks
+	
+	{
+		stage diffusemap
+		map textures/orion/vine06.tga
+		alphaTest 0.5
+	}	
+}
+
+textures/orion/vine06_back
+{
+	trans
+	nonsolid
+	nomarks
+	
+	{
+		map textures/orion/vine06.tga
+		rgbGen const ( 0.2 0.2 0.2 )
+		alphaTest 0.5
+	}	
+}
+
+
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Easter egg                                                                 -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/trembru_s_nonsolid
+{
+	qer_editorimage textures/orion/trembru.tga
+	
+	nomarks
+	nonsolid
+	
+	xmap_surfacelight 1500
+	
+	{
+		stage diffusemap
+		map textures/orion/trembru.tga
+	}
+	{
+		map textures/orion/trembru.tga
+		blend add
+	}
+}
+
+textures/orion/scrolling
+{
+  qer_editorimage textures/orion/scrolling.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/scrolling.tga
+    tcMod scroll 0 1
+  }
+}
+
+textures/orion/secret1
+{
+  qer_editorimage textures/orion/secret1.tga
+
+  twosided
+  nolightmap
+
+  {
+    map textures/orion/secret1.tga
+    blend add
+  }
+}
+
+
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Copied from other maps                                                     -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/e6bsegrtflr256_s
+{
+	qer_editorimage textures/orion/e6bsegrtflr256.tga
+	
+	alphashadow
+	trans
+	nomarks
+	metalsteps
+	twosided
+	nopicmip
+	
+	{
+		stage diffusemap
+		map textures/orion/e6bsegrtflr256.tga
+		alphaTest 0.5
+	}
+}
+
+textures/orion/e8xgirder_s
+{
+	alphashadow
+	metalsteps
+	nomarks
+	playerclip
+   	nonsolid
+	trans
+	twosided
+	nopicmip
+	
+	qer_editorimage textures/orion/e8xgirder.tga
+	
+	{
+		map textures/orion/e8xgirder.tga
+		depthWrite
+		alphaTest 0.5
+	}
+}
+
+textures/orion/glass_02_s
+{
+	qer_editorimage textures/orion/scratchglass.jpg
+	
+	nomarks
+	trans
+	
+	
+	{
+		stage diffusemap
+		map _white
+	}
+	{
+		map textures/orion/scratchglass.jpg
+		blend add
+		rgbGen const ( 0.1 0.1 0.1 )
+	}
+}
+
+textures/orion/proto_fence
+{
+	qer_editorimage textures/orion/objects_fence.tga
+	noimpact
+	playerclip
+	trans		
+	nomarks
+	nonsolid
+	twosided
+    nopicmip
+	
+	{
+		stage diffusemap
+		map textures/orion/objects_fence.tga
+		tcMod scale 3 3
+		alphaTest 0.5
+	}
+}
+
+textures/orion/trembru_s
+{
+	qer_editorimage textures/orion/trembru.jpg
+	
+	nomarks
+	xmap_surfacelight 1500
+	
+	{
+		stage diffusemap
+		map textures/orion/trembru.jpg
+	}
+	{
+		map textures/orion/trembru.jpg
+		blend add
+	}
+}
+
+
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Common                                                                     -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/clip
+{
+	qer_editorimage textures/orion/clip.tga
+	qer_trans 0.40
+	
+	nodraw
+	nolightmap
+	nonsolid
+	trans
+	nomarks
+	noimpact
+	playerclip
+}
+
+textures/orion/full_clip
+{
+	qer_editorimage textures/orion/full_clip.tga
+	qer_trans 0.40
+	
+	nodraw
+	playerclip
+}
+
+textures/orion/ladder
+{
+	qer_editorimage textures/orion/ladder.tga
+	qer_trans .40
+	
+	ladder
+	nodraw
+	nolightmap
+	nonsolid
+	trans
+	nomarks
+	noimpact
+	playerclip
+}
+
+textures/orion/nodraw
+{
+	qer_editorimage textures/orion/nodraw.tga
+
+	nodraw
+	nolightmap
+	nonsolid
+	trans
+	nomarks
+}
+
+textures/orion/origin
+{
+	qer_editorimage textures/orion/origin.tga
+	qer_nocarve
+	
+	nodraw
+	nolightmap
+	nonsolid
+	trans
+	origin
+}
+
+textures/orion/trigger
+{
+	qer_trans 0.50
+	qer_nocarve
+	nodraw
+}
+
+textures/orion/weapclip
+{
+	qer_editorimage textures/orion/weapclip.tga
+	qer_trans 0.40
+	
+	nodraw
+    nolightmap
+	trans
+	nomarks
+}
+
+
+
+
+
+//------------------------------------------------------------------------------
+//-                                                                            -
+//- Common-Trem                                                                -
+//-                                                                            -
+//------------------------------------------------------------------------------
+textures/orion/nobuild
+{
+	qer_trans 0.5
+	nodraw
+	nolightmap
+	nonsolid
+	trans
+	nomarks
+	nobuild
+}
