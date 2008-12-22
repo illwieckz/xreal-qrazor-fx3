@@ -22,12 +22,112 @@
 
 ========================================================================= */
 
+
+/*
+Find:
+generic_shader_heightmap\(\s*"(\S+)"\s*,\s*"([0-9])"\s*\)
+
+Replace With:
+{
+	qer_editorimage textures/$1_d
+
+	bumpmap addnormals ( textures/$1_local, heightmap ( textures/$1_h, $2 ) )
+	diffusemap	textures/$1_d
+	specularmap	textures/$1_s
+}
+
+
+Find:
+generic_glow\(\s*"(\S+)"\s*,\s*"([0-9])"\s*\)
+
+Replace With:
+{
+	qer_editorimage textures/$1_d
+
+	bumpmap		heightmap ( textures/$1_h, $2 )
+	diffusemap	textures/$1_d
+	specularmap	textures/$1_s
+	{
+		blend	add
+		map		textures/$2
+		red		parm0
+		green	parm1
+		blue	parm2
+	}
+}
+
+Find:
+generic_nonormal_height\(\s*"(\S+)"\s*,\s*"([0-9])"\s*\)
+
+Replace With:
+{
+	qer_editorimage textures/$1_d
+
+	bumpmap		heightmap ( textures/$1_h, $2 ) )
+	diffusemap	textures/$1_d
+	specularmap	textures/$1_s
+}
+
+
+Find:
+generic_full_noheight\(\s*"(\S+)"\s*\)
+
+Replace With:
+{
+	qer_editorimage textures/$1_d
+
+	bumpmap		textures/$1_local
+	diffusemap	textures/$1_d
+	specularmap	textures/$1_s
+}
+
+*/
+
 // 128 panels
-guide	textures/power/panel128_1	generic_shader_heightmap( "power/panel128_1", "1" )
-guide	textures/power/panel128_2	generic_shader_heightmap( "power/panel128_2", "1" )
-guide	textures/power/panel128_3	generic_shader_heightmap( "power/panel128_3", "1" )
-guide	textures/power/panel128_3b	generic_shader_heightmap( "power/panel128_3b", "1" )
-guide	textures/power/panel128_4	generic_shader_heightmap( "power/panel128_4", "4" )
+textures/power/panel128_1	
+{
+	qer_editorimage textures/power/panel128_1_d
+
+	bumpmap addnormals ( textures/power/panel128_1_local, heightmap ( textures/power/panel128_1_h, 1 ) )
+	diffusemap	textures/power/panel128_1_d
+	specularmap	textures/power/panel128_1_s
+}
+
+textures/power/panel128_2	
+{
+	qer_editorimage textures/power/panel128_2_d
+
+	bumpmap addnormals ( textures/power/panel128_2_local, heightmap ( textures/power/panel128_2_h, 1 ) )
+	diffusemap	textures/power/panel128_2_d
+	specularmap	textures/power/panel128_2_s
+}
+
+textures/power/panel128_3	
+{
+	qer_editorimage textures/power/panel128_3_d
+
+	bumpmap addnormals ( textures/power/panel128_3_local, heightmap ( textures/power/panel128_3_h, 1 ) )
+	diffusemap	textures/power/panel128_3_d
+	specularmap	textures/power/panel128_3_s
+}
+
+textures/power/panel128_3b	
+{
+	qer_editorimage textures/power/panel128_3b_d
+
+	bumpmap addnormals ( textures/power/panel128_3b_local, heightmap ( textures/power/panel128_3b_h, 1 ) )
+	diffusemap	textures/power/panel128_3b_d
+	specularmap	textures/power/panel128_3b_s
+}
+
+textures/power/panel128_4	
+{
+	qer_editorimage textures/power/panel128_4_d
+
+	bumpmap addnormals ( textures/power/panel128_4_local, heightmap ( textures/power/panel128_4_h, 4 ) )
+	diffusemap	textures/power/panel128_4_d
+	specularmap	textures/power/panel128_4_s
+}
 
 textures/power/panel128_4_colorable
 {
@@ -83,7 +183,14 @@ textures/power/panel128_4_blue
 	}
 }
 
-guide	textures/power/panel128_5	generic_shader_heightmap( "power/panel128_5", "4" )
+textures/power/panel128_5	
+{
+	qer_editorimage textures/power/panel128_5_d
+
+	bumpmap addnormals ( textures/power/panel128_5_local, heightmap ( textures/power/panel128_5_h, 4 ) )
+	diffusemap	textures/power/panel128_5_d
+	specularmap	textures/power/panel128_5_s
+}
 
 textures/power/panel128_5_colorable
 {
@@ -141,47 +248,289 @@ textures/power/panel128_5_blue
 	}
 }
 
-guide	textures/power/panel128_6a	generic_shader_heightmap( "power/panel128_6a", "1" )
-guide	textures/power/panel128_6b	generic_shader_heightmap( "power/panel128_6b", "1" )
-guide	textures/power/panel128tri_1	generic_shader_heightmap( "power/panel128tri_1", "1" )
+textures/power/panel128_6a	
+{
+	qer_editorimage textures/power/panel128_6a_d
+
+	bumpmap addnormals ( textures/power/panel128_6a_local, heightmap ( textures/power/panel128_6a_h, 1 ) )
+	diffusemap	textures/power/panel128_6a_d
+	specularmap	textures/power/panel128_6a_s
+}
+
+textures/power/panel128_6b	
+{
+	qer_editorimage textures/power/panel128_6b_d
+
+	bumpmap addnormals ( textures/power/panel128_6b_local, heightmap ( textures/power/panel128_6b_h, 1 ) )
+	diffusemap	textures/power/panel128_6b_d
+	specularmap	textures/power/panel128_6b_s
+}
+
+textures/power/panel128tri_1	
+{
+	qer_editorimage textures/power/panel128tri_1_d
+
+	bumpmap addnormals ( textures/power/panel128tri_1_local, heightmap ( textures/power/panel128tri_1_h, 1 ) )
+	diffusemap	textures/power/panel128tri_1_d
+	specularmap	textures/power/panel128tri_1_s
+}
 
 
 // 64 panels
-guide	textures/power/panel64_0	generic_shader_heightmap( "power/panel64_0", "1" )
-guide	textures/power/panel64_1	generic_shader_heightmap( "power/panel64_1", "1" )
-guide	textures/power/panel64_2	generic_shader_heightmap( "power/panel64_2", "1" )
-guide	textures/power/panel64_2a	generic_shader_heightmap( "power/panel64_2a", "1" )
-guide	textures/power/panel64_2b	generic_shader_heightmap( "power/panel64_2b", "1" )
-guide	textures/power/panel64_3	generic_shader_heightmap( "power/panel64_3", "1" )
-guide	textures/power/panel64_3b	generic_shader_heightmap( "power/panel64_3b", "1" )
-guide	textures/power/panel64_4	generic_shader_heightmap( "power/panel64_4", "1" )
-guide	textures/power/panel64_5	generic_shader_heightmap( "power/panel64_5", "1" )
-guide	textures/power/panel64_5a	generic_shader_heightmap( "power/panel64_5a", "1" )
-guide	textures/power/panel64_5b	generic_shader_heightmap( "power/panel64_5b", "1" )
-guide	textures/power/panel64_6	generic_shader_heightmap( "power/panel64_6", "1" )
-guide	textures/power/panel64_6b	generic_shader_heightmap( "power/panel64_6b", "1" )
-guide	textures/power/panel64_7	generic_shader_heightmap( "power/panel64_7", "1" )
-guide	textures/power/panel64_7b	generic_shader_heightmap( "power/panel64_7b", "1" )
-guide	textures/power/panel64_7c	generic_shader_heightmap( "power/panel64_7c", "1" )
-guide	textures/power/panel64_7d	generic_shader_heightmap( "power/panel64_7d", "1" )
-//guide	textures/power/panel64_7e	generic_shader_heightmap( "power/panel64_7e", "1" )
-guide	textures/power/panel64tri_1	generic_shader_heightmap( "power/panel64tri_1", "1" )
+textures/power/panel64_0	
+{
+	qer_editorimage textures/power/panel64_0_d
+
+	bumpmap addnormals ( textures/power/panel64_0_local, heightmap ( textures/power/panel64_0_h, 1 ) )
+	diffusemap	textures/power/panel64_0_d
+	specularmap	textures/power/panel64_0_s
+}
+
+textures/power/panel64_1	
+{
+	qer_editorimage textures/power/panel64_1_d
+
+	bumpmap addnormals ( textures/power/panel64_1_local, heightmap ( textures/power/panel64_1_h, 1 ) )
+	diffusemap	textures/power/panel64_1_d
+	specularmap	textures/power/panel64_1_s
+}
+
+textures/power/panel64_2	
+{
+	qer_editorimage textures/power/panel64_2_d
+
+	bumpmap addnormals ( textures/power/panel64_2_local, heightmap ( textures/power/panel64_2_h, 1 ) )
+	diffusemap	textures/power/panel64_2_d
+	specularmap	textures/power/panel64_2_s
+}
+
+textures/power/panel64_2a	
+{
+	qer_editorimage textures/power/panel64_2a_d
+
+	bumpmap addnormals ( textures/power/panel64_2a_local, heightmap ( textures/power/panel64_2a_h, 1 ) )
+	diffusemap	textures/power/panel64_2a_d
+	specularmap	textures/power/panel64_2a_s
+}
+
+textures/power/panel64_2b	
+{
+	qer_editorimage textures/power/panel64_2b_d
+
+	bumpmap addnormals ( textures/power/panel64_2b_local, heightmap ( textures/power/panel64_2b_h, 1 ) )
+	diffusemap	textures/power/panel64_2b_d
+	specularmap	textures/power/panel64_2b_s
+}
+
+textures/power/panel64_3	
+{
+	qer_editorimage textures/power/panel64_3_d
+
+	bumpmap addnormals ( textures/power/panel64_3_local, heightmap ( textures/power/panel64_3_h, 1 ) )
+	diffusemap	textures/power/panel64_3_d
+	specularmap	textures/power/panel64_3_s
+}
+
+textures/power/panel64_3b	
+{
+	qer_editorimage textures/power/panel64_3b_d
+
+	bumpmap addnormals ( textures/power/panel64_3b_local, heightmap ( textures/power/panel64_3b_h, 1 ) )
+	diffusemap	textures/power/panel64_3b_d
+	specularmap	textures/power/panel64_3b_s
+}
+
+textures/power/panel64_4	
+{
+	qer_editorimage textures/power/panel64_4_d
+
+	bumpmap addnormals ( textures/power/panel64_4_local, heightmap ( textures/power/panel64_4_h, 1 ) )
+	diffusemap	textures/power/panel64_4_d
+	specularmap	textures/power/panel64_4_s
+}
+
+textures/power/panel64_5	
+{
+	qer_editorimage textures/power/panel64_5_d
+
+	bumpmap addnormals ( textures/power/panel64_5_local, heightmap ( textures/power/panel64_5_h, 1 ) )
+	diffusemap	textures/power/panel64_5_d
+	specularmap	textures/power/panel64_5_s
+}
+
+textures/power/panel64_5a	
+{
+	qer_editorimage textures/power/panel64_5a_d
+
+	bumpmap addnormals ( textures/power/panel64_5a_local, heightmap ( textures/power/panel64_5a_h, 1 ) )
+	diffusemap	textures/power/panel64_5a_d
+	specularmap	textures/power/panel64_5a_s
+}
+
+textures/power/panel64_5b	
+{
+	qer_editorimage textures/power/panel64_5b_d
+
+	bumpmap addnormals ( textures/power/panel64_5b_local, heightmap ( textures/power/panel64_5b_h, 1 ) )
+	diffusemap	textures/power/panel64_5b_d
+	specularmap	textures/power/panel64_5b_s
+}
+
+textures/power/panel64_6	
+{
+	qer_editorimage textures/power/panel64_6_d
+
+	bumpmap addnormals ( textures/power/panel64_6_local, heightmap ( textures/power/panel64_6_h, 1 ) )
+	diffusemap	textures/power/panel64_6_d
+	specularmap	textures/power/panel64_6_s
+}
+
+textures/power/panel64_6b	
+{
+	qer_editorimage textures/power/panel64_6b_d
+
+	bumpmap addnormals ( textures/power/panel64_6b_local, heightmap ( textures/power/panel64_6b_h, 1 ) )
+	diffusemap	textures/power/panel64_6b_d
+	specularmap	textures/power/panel64_6b_s
+}
+
+textures/power/panel64_7	
+{
+	qer_editorimage textures/power/panel64_7_d
+
+	bumpmap addnormals ( textures/power/panel64_7_local, heightmap ( textures/power/panel64_7_h, 1 ) )
+	diffusemap	textures/power/panel64_7_d
+	specularmap	textures/power/panel64_7_s
+}
+
+textures/power/panel64_7b	
+{
+	qer_editorimage textures/power/panel64_7b_d
+
+	bumpmap addnormals ( textures/power/panel64_7b_local, heightmap ( textures/power/panel64_7b_h, 1 ) )
+	diffusemap	textures/power/panel64_7b_d
+	specularmap	textures/power/panel64_7b_s
+}
+
+textures/power/panel64_7c	
+{
+	qer_editorimage textures/power/panel64_7c_d
+
+	bumpmap addnormals ( textures/power/panel64_7c_local, heightmap ( textures/power/panel64_7c_h, 1 ) )
+	diffusemap	textures/power/panel64_7c_d
+	specularmap	textures/power/panel64_7c_s
+}
+
+textures/power/panel64_7d	
+{
+	qer_editorimage textures/power/panel64_7d_d
+
+	bumpmap addnormals ( textures/power/panel64_7d_local, heightmap ( textures/power/panel64_7d_h, 1 ) )
+	diffusemap	textures/power/panel64_7d_d
+	specularmap	textures/power/panel64_7d_s
+}
+
+//textures/power/panel64_7e	
+{
+	qer_editorimage textures/power/panel64_7e_d
+
+	bumpmap addnormals ( textures/power/panel64_7e_local, heightmap ( textures/power/panel64_7e_h, 1 ) )
+	diffusemap	textures/power/panel64_7e_d
+	specularmap	textures/power/panel64_7e_s
+}
+
+textures/power/panel64tri_1	
+{
+	qer_editorimage textures/power/panel64tri_1_d
+
+	bumpmap addnormals ( textures/power/panel64tri_1_local, heightmap ( textures/power/panel64tri_1_h, 1 ) )
+	diffusemap	textures/power/panel64tri_1_d
+	specularmap	textures/power/panel64tri_1_s
+}
 
 // Floors
-guide	textures/power/hexflr1		generic_shader_heightmap( "power/hexflr1", "1" )
-guide	textures/power/hexflr2		generic_shader_heightmap( "power/hexflr2", "1" )
-guide	textures/power/grate1		generic_shader_heightmap( "power/grate1", "1" )
+textures/power/hexflr1		
+{
+	qer_editorimage textures/power/hexflr1_d
+
+	bumpmap addnormals ( textures/power/hexflr1_local, heightmap ( textures/power/hexflr1_h, 1 ) )
+	diffusemap	textures/power/hexflr1_d
+	specularmap	textures/power/hexflr1_s
+}
+
+textures/power/hexflr2		
+{
+	qer_editorimage textures/power/hexflr2_d
+
+	bumpmap addnormals ( textures/power/hexflr2_local, heightmap ( textures/power/hexflr2_h, 1 ) )
+	diffusemap	textures/power/hexflr2_d
+	specularmap	textures/power/hexflr2_s
+}
+
+textures/power/grate1		
+{
+	qer_editorimage textures/power/grate1_d
+
+	bumpmap addnormals ( textures/power/grate1_local, heightmap ( textures/power/grate1_h, 1 ) )
+	diffusemap	textures/power/grate1_d
+	specularmap	textures/power/grate1_s
+}
 
 // Filly Inny stuff
-guide	textures/power/glue1		generic_nonormal_height( "power/glue1", "1" )
-guide	textures/power/glue2		generic_nonormal_height( "power/glue2", "1" )
+textures/power/glue1		
+{
+	qer_editorimage textures/power/glue1_d
 
-guide	textures/power/green1		generic_shader_heightmap( "power/green1", "1" )
+	bumpmap		heightmap ( textures/power/glue1_h, 1 ) )
+	diffusemap	textures/power/glue1_d
+	specularmap	textures/power/glue1_s
+}
+
+textures/power/glue2		
+{
+	qer_editorimage textures/power/glue2_d
+
+	bumpmap		heightmap ( textures/power/glue2_h, 1 ) )
+	diffusemap	textures/power/glue2_d
+	specularmap	textures/power/glue2_s
+}
+
+textures/power/green1		
+{
+	qer_editorimage textures/power/green1_d
+
+	bumpmap addnormals ( textures/power/green1_local, heightmap ( textures/power/green1_h, 1 ) )
+	diffusemap	textures/power/green1_d
+	specularmap	textures/power/green1_s
+}
 
 // Technobits
-guide	textures/power/bigmet1		generic_shader_heightmap( "power/bigmet1", "1" )
-guide	textures/power/bigmet2		generic_shader_heightmap( "power/bigmet2", "1" )
-guide	textures/power/mech1		generic_shader_heightmap( "power/mech1", "4" )
+textures/power/bigmet1		
+{
+	qer_editorimage textures/power/bigmet1_d
+
+	bumpmap addnormals ( textures/power/bigmet1_local, heightmap ( textures/power/bigmet1_h, 1 ) )
+	diffusemap	textures/power/bigmet1_d
+	specularmap	textures/power/bigmet1_s
+}
+
+textures/power/bigmet2		
+{
+	qer_editorimage textures/power/bigmet2_d
+
+	bumpmap addnormals ( textures/power/bigmet2_local, heightmap ( textures/power/bigmet2_h, 1 ) )
+	diffusemap	textures/power/bigmet2_d
+	specularmap	textures/power/bigmet2_s
+}
+
+textures/power/mech1		
+{
+	qer_editorimage textures/power/mech1_d
+
+	bumpmap addnormals ( textures/power/mech1_local, heightmap ( textures/power/mech1_h, 4 ) )
+	diffusemap	textures/power/mech1_d
+	specularmap	textures/power/mech1_s
+}
 
 textures/power/mech1_colorable
 {
@@ -239,26 +588,162 @@ textures/power/mech1_blue
 	}
 }
 
-guide	textures/power/wires1		generic_shader_heightmap( "power/wires1", "1" )
-guide	textures/power/pwpip1		generic_shader_heightmap( "power/pwpip1", "1" )
+textures/power/wires1		
+{
+	qer_editorimage textures/power/wires1_d
+
+	bumpmap addnormals ( textures/power/wires1_local, heightmap ( textures/power/wires1_h, 1 ) )
+	diffusemap	textures/power/wires1_d
+	specularmap	textures/power/wires1_s
+}
+
+textures/power/pwpip1		
+{
+	qer_editorimage textures/power/pwpip1_d
+
+	bumpmap addnormals ( textures/power/pwpip1_local, heightmap ( textures/power/pwpip1_h, 1 ) )
+	diffusemap	textures/power/pwpip1_d
+	specularmap	textures/power/pwpip1_s
+}
 
 // Concentrated awesome
-guide	textures/power/qcomp1		generic_shader_heightmap( "power/qcomp1", "1" )
-guide	textures/power/qcomp1glow	generic_glow("power/qcomp1g", "power/qcomp1g_glow")
-guide	textures/power/qcomp2		generic_shader_heightmap( "power/qcomp2", "1" )
-guide	textures/power/qcomp3		generic_shader_heightmap( "power/qcomp3", "1" )
-guide	textures/power/qcomp4		generic_shader_heightmap( "power/qcomp4", "1" )
-guide	textures/power/qcomp4glow	generic_glow("power/qcomp4", "power/qcomp4_glow")
-guide	textures/power/qcomp5		generic_shader_heightmap( "power/qcomp5", "1" )
-guide	textures/power/qcomp5glow	generic_glow("power/qcomp5", "power/qcomp5_glow")
-guide	textures/power/qcomp5glow2	generic_glow("power/qcomp5", "power/qcomp5_glow2")
+textures/power/qcomp1		
+{
+	qer_editorimage textures/power/qcomp1_d
+
+	bumpmap addnormals ( textures/power/qcomp1_local, heightmap ( textures/power/qcomp1_h, 1 ) )
+	diffusemap	textures/power/qcomp1_d
+	specularmap	textures/power/qcomp1_s
+}
+
+textures/power/qcomp1glow	
+{
+	qer_editorimage textures/power/qcomp1g_d
+
+	bumpmap addnormals ( textures/power/qcomp1g_local, heightmap ( textures/power/qcomp1g_h, 1 ) )
+	diffusemap	textures/power/qcomp1g_d
+	specularmap	textures/power/qcomp1g_s
+	{
+		blend	add
+		map		textures/power/qcomp1g_glow
+		red		parm0
+		green	parm1
+		blue	parm2
+	}
+}
+
+textures/power/qcomp2		
+{
+	qer_editorimage textures/power/qcomp2_d
+
+	bumpmap addnormals ( textures/power/qcomp2_local, heightmap ( textures/power/qcomp2_h, 1 ) )
+	diffusemap	textures/power/qcomp2_d
+	specularmap	textures/power/qcomp2_s
+}
+
+textures/power/qcomp3		
+{
+	qer_editorimage textures/power/qcomp3_d
+
+	bumpmap addnormals ( textures/power/qcomp3_local, heightmap ( textures/power/qcomp3_h, 1 ) )
+	diffusemap	textures/power/qcomp3_d
+	specularmap	textures/power/qcomp3_s
+}
+
+textures/power/qcomp4		
+{
+	qer_editorimage textures/power/qcomp4_d
+
+	bumpmap addnormals ( textures/power/qcomp4_local, heightmap ( textures/power/qcomp4_h, 1 ) )
+	diffusemap	textures/power/qcomp4_d
+	specularmap	textures/power/qcomp4_s
+}
+
+textures/power/qcomp4glow	
+{
+	qer_editorimage textures/power/qcomp4_d
+
+	bumpmap addnormals ( textures/power/qcomp4_local, heightmap ( textures/power/qcomp4_h, 1 ) )
+	diffusemap	textures/power/qcomp4_d
+	specularmap	textures/power/qcomp4_s
+	{
+		blend	add
+		map		textures/power/qcomp4_glow
+		red		parm0
+		green	parm1
+		blue	parm2
+	}
+}
+
+textures/power/qcomp5		
+{
+	qer_editorimage textures/power/qcomp5_d
+
+	bumpmap addnormals ( textures/power/qcomp5_local, heightmap ( textures/power/qcomp5_h, 1 ) )
+	diffusemap	textures/power/qcomp5_d
+	specularmap	textures/power/qcomp5_s
+}
+
+textures/power/qcomp5glow	
+{
+	qer_editorimage textures/power/qcomp5_d
+
+	bumpmap addnormals ( textures/power/qcomp5_local, heightmap ( textures/power/qcomp5_h, 1 ) )
+	diffusemap	textures/power/qcomp5_d
+	specularmap	textures/power/qcomp5_s
+	{
+		blend	add
+		map		textures/power/qcomp5_glow
+		red		parm0
+		green	parm1
+		blue	parm2
+	}
+}
+
+textures/power/qcomp5glow2	
+{
+	qer_editorimage textures/power/qcomp5_d
+
+	bumpmap addnormals ( textures/power/qcomp5_local, heightmap ( textures/power/qcomp5_h, 1 ) )
+	diffusemap	textures/power/qcomp5_d
+	specularmap	textures/power/qcomp5_s
+	{
+		blend	add
+		map		textures/power/qcomp5_glow2
+		red		parm0
+		green	parm1
+		blue	parm2
+	}
+}
 
 // twim (it's twue!)
-guide	textures/power/support1		generic_shader_heightmap( "power/support1", "1" )
+textures/power/support1		
+{
+	qer_editorimage textures/power/support1_d
+
+	bumpmap addnormals ( textures/power/support1_local, heightmap ( textures/power/support1_h, 1 ) )
+	diffusemap	textures/power/support1_d
+	specularmap	textures/power/support1_s
+}
 
 // crates so scampie can avoid thinking too hard about design
-guide	textures/power/box1a		generic_shader_heightmap( "power/box1a", "2" )
-guide	textures/power/box1b		generic_shader_heightmap( "power/box1b", "2" )
+textures/power/box1a		
+{
+	qer_editorimage textures/power/box1a_d
+
+	bumpmap addnormals ( textures/power/box1a_local, heightmap ( textures/power/box1a_h, 2 ) )
+	diffusemap	textures/power/box1a_d
+	specularmap	textures/power/box1a_s
+}
+
+textures/power/box1b		
+{
+	qer_editorimage textures/power/box1b_d
+
+	bumpmap addnormals ( textures/power/box1b_local, heightmap ( textures/power/box1b_h, 2 ) )
+	diffusemap	textures/power/box1b_d
+	specularmap	textures/power/box1b_s
+}
 
 // lights
 textures/power/light_r1
@@ -429,7 +914,14 @@ textures/power/light_jail
 }
 
 // rawk
-guide textures/power/rock1	generic_full_noheight( "power/rock1" )
+textures/power/rock1	
+{
+	qer_editorimage textures/power/rock1_d
+
+	bumpmap		textures/power/rock1_local
+	diffusemap	textures/power/rock1_d
+	specularmap	textures/power/rock1_s
+}
 
 // decals
 textures/power/decals/bigtext1
@@ -586,7 +1078,7 @@ textures/power/decals/cord2
 
 textures/power/models/pad
 {
-	noselfShadow
+//	noselfShadow
 	noshadows
 	nonsolid
 	renderbump  -size 1024 1024 -aa 2 -trace .06 -mergehigh textures/power/models/pad_local.tga models/mapobjects/power/pad_hi.lwo
@@ -714,6 +1206,7 @@ textures/power/fx/slime
 		scroll -0.04 * time + 0.5, 0.2
 	}
 }
+
 /*
 textures/power/biggunsky
 {
