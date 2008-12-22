@@ -470,10 +470,11 @@ void CL_ShutdownCGame(void)
 
 static int FloatAsInt(float f)
 {
-	floatint_t      fi;
+	int             temp;
 
-	fi.f = f;
-	return fi.i;
+	*(float *)&temp = f;
+
+	return temp;
 }
 
 /*
@@ -706,6 +707,15 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			return 0;
 		case CG_KEY_GETKEY:
 			return Key_GetKey(VMA(1));
+
+
+		case CG_GETDEMOSTATE:
+			return CL_DemoState();
+		case CG_GETDEMOPOS:
+			return CL_DemoPos();
+		case CG_GETDEMONAME:
+			CL_DemoName(VMA(1), args[2]);
+			return 0;
 
 		case CG_KEY_KEYNUMTOSTRINGBUF:
 			Key_KeynumToStringBuf(args[1], VMA(2), args[3]);
@@ -1126,13 +1136,6 @@ void CL_SetCGameTime(void)
 	if(!cl.snap.valid)
 	{
 		Com_Error(ERR_DROP, "CL_SetCGameTime: !cl.snap.valid");
-	}
-
-	// allow pause in single player
-	if(sv_paused->integer && CL_CheckPaused() && com_sv_running->integer)
-	{
-		// paused
-		return;
 	}
 
 	if(cl.snap.serverTime < cl.oldFrameServerTime)

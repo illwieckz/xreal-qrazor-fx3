@@ -310,12 +310,18 @@ qint64 Long64NoSwap(qint64 ll)
 	return ll;
 }
 
+typedef union
+{
+	float           f;
+	unsigned int    i;
+} _FloatByteUnion;
+
 float FloatSwap(const float *f)
 {
-	floatint_t      out;
+	_FloatByteUnion out;
 
 	out.f = *f;
-	out.ui = LongSwap(out.ui);
+	out.i = LongSwap(out.i);
 
 	return out.f;
 }

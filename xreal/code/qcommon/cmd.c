@@ -254,11 +254,7 @@ Cmd_Exec_f
 */
 void Cmd_Exec_f(void)
 {
-	union
-	{
-		char           *c;
-		void           *v;
-	} f;
+	char           *f;
 	int             len;
 	char            filename[MAX_QPATH];
 
@@ -270,17 +266,17 @@ void Cmd_Exec_f(void)
 
 	Q_strncpyz(filename, Cmd_Argv(1), sizeof(filename));
 	Com_DefaultExtension(filename, sizeof(filename), ".cfg");
-	len = FS_ReadFile(filename, &f.v);
-	if(!f.c)
+	len = FS_ReadFile(filename, (void **)&f);
+	if(!f)
 	{
 		Com_Printf("couldn't exec %s\n", Cmd_Argv(1));
 		return;
 	}
 	Com_Printf("execing %s\n", Cmd_Argv(1));
 
-	Cbuf_InsertText(f.c);
+	Cbuf_InsertText(f);
 
-	FS_FreeFile(f.v);
+	FS_FreeFile(f);
 }
 
 

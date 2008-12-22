@@ -943,100 +943,37 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 	int             curindex;
 	int             rate;
 	int             blockspersnap;
-	int             idPack = 0, missionPack = 0, unreferenced = 1;
 	char            errorMessage[1024];
-	char            pakbuf[MAX_QPATH], *pakptr;
-	int             numRefPaks;
 
 	if(!*cl->downloadName)
 		return;					// Nothing being downloaded
 
 	if(!cl->download)
 	{
-		// Chop off filename extension.
-		Com_sprintf(pakbuf, sizeof(pakbuf), "%s", cl->downloadName);
-		pakptr = Q_strrchr(pakbuf, '.');
-
-		if(pakptr)
-		{
-			*pakptr = '\0';
-
-			// Check for pk3 filename extension
-			if(!Q_stricmp(pakptr + 1, "pk3"))
-			{
-				const char     *referencedPaks = FS_ReferencedPakNames();
-
-				// Check whether the file appears in the list of referenced
-				// paks to prevent downloading of arbitrary files.
-				Cmd_TokenizeStringIgnoreQuotes(referencedPaks);
-				numRefPaks = Cmd_Argc();
-
-				for(curindex = 0; curindex < numRefPaks; curindex++)
-				{
-					if(!FS_FilenameCompare(Cmd_Argv(curindex), pakbuf))
-					{
-						unreferenced = 0;
-
-						// now that we know the file is referenced,
-						// check whether it's legal to download it.
-						missionPack = FS_idPak(pakbuf, "missionpack");
-						idPack = missionPack || FS_idPak(pakbuf, BASEGAME);
-
-						break;
-					}
-				}
-			}
-		}
-
 		cl->download = 0;
 
 		// We open the file here
-		if(!(sv_allowDownload->integer & DLF_ENABLE) ||
-		   (sv_allowDownload->integer & DLF_NO_UDP) ||
-		   idPack || unreferenced || (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) < 0)
+		if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP) ||
+		   (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) < 0)
 		{
 			// cannot auto-download file
-			if(unreferenced)
+			if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP))
 			{
-				Com_Printf
-					("clientDownload: %d : \"%s\" is not referenced and cannot be downloaded.\n",
-					 (int)(cl - svs.clients), cl->downloadName);
-				Com_sprintf(errorMessage, sizeof(errorMessage),
-							"File \"%s\" is not referenced and cannot be downloaded.", cl->downloadName);
-			}
-			else if(idPack)
-			{
-				Com_Printf
-					("clientDownload: %d : \"%s\" cannot download id pk3 files\n", (int)(cl - svs.clients), cl->downloadName);
-				if(missionPack)
-				{
-					Com_sprintf(errorMessage, sizeof(errorMessage),
-								"Cannot autodownload Team Arena file \"%s\"\n"
-								"The Team Arena mission pack can be found in your local game store.", cl->downloadName);
-				}
-				else
-				{
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
-				}
-			}
-			else if(!(sv_allowDownload->integer & DLF_ENABLE) || (sv_allowDownload->integer & DLF_NO_UDP))
-			{
-
-				Com_Printf("clientDownload: %d : \"%s\" download disabled", (int)(cl - svs.clients), cl->downloadName);
+				Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
 				if(sv_pure->integer)
 				{
 					Com_sprintf(errorMessage, sizeof(errorMessage),
 								"Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
-								"You will need to get this file elsewhere before you "
-								"can connect to this pure server.\n", cl->downloadName);
+								"You will need to get this file elsewhere before you " "can connect to this pure server.\n",
+								cl->downloadName);
 				}
 				else
 				{
 					Com_sprintf(errorMessage, sizeof(errorMessage),
 								"Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
 								"The server you are connecting to is not a pure server, "
-								"set autodownload to No in your settings and you might be "
-								"able to join the game anyway.\n", cl->downloadName);
+								"set autodownload to No in your settings and you might be " "able to join the game anyway.\n",
+								cl->downloadName);
 				}
 			}
 			else
@@ -1044,8 +981,8 @@ void SV_WriteDownloadToClient(client_t * cl, msg_t * msg)
 				// NOTE TTimo this is NOT supposed to happen unless bug in our filesystem scheme?
 				//   if the pk3 is referenced, it must have been found somewhere in the filesystem
 				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", (int)(cl - svs.clients), cl->downloadName);
-				Com_sprintf(errorMessage, sizeof(errorMessage),
-							"File \"%s\" not found on server for autodownloading.\n", cl->downloadName);
+				Com_sprintf(errorMessage, sizeof(errorMessage), "File \"%s\" not found on server for autodownloading.\n",
+							cl->downloadName);
 			}
 			MSG_WriteByte(msg, svc_download);
 			MSG_WriteShort(msg, 0);	// client is expecting block zero

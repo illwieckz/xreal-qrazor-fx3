@@ -313,10 +313,14 @@ void SV_GetUsercmd(int clientNum, usercmd_t * cmd)
 
 static int FloatAsInt(float f)
 {
-	floatint_t      fi;
+	union
+	{
+		int             i;
+		float           f;
+	} temp;
 
-	fi.f = f;
-	return fi.i;
+	temp.f = f;
+	return temp.i;
 }
 
 /*

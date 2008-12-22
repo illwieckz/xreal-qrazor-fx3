@@ -344,8 +344,7 @@ void Sys_ListFilteredFiles(const char *basedir, char *subdirs, char *filter, cha
 			continue;
 		list[*numfiles] = CopyString(filename);
 		(*numfiles)++;
-	}
-	while(_findnext(findhandle, &findinfo) != -1);
+	} while(_findnext(findhandle, &findinfo) != -1);
 
 	_findclose(findhandle);
 }
@@ -458,8 +457,7 @@ char          **Sys_ListFiles(const char *directory, const char *extension, char
 			list[nfiles] = CopyString(findinfo.name);
 			nfiles++;
 		}
-	}
-	while(_findnext(findhandle, &findinfo) != -1);
+	} while(_findnext(findhandle, &findinfo) != -1);
 
 	list[nfiles] = 0;
 
@@ -494,8 +492,7 @@ char          **Sys_ListFiles(const char *directory, const char *extension, char
 				flag = 1;
 			}
 		}
-	}
-	while(flag);
+	} while(flag);
 
 	return listCopy;
 }

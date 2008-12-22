@@ -1001,8 +1001,7 @@ void Z_FreeTags(int tag)
 			continue;
 		}
 		zone->rover = zone->rover->next;
-	}
-	while(zone->rover != &zone->blocklist);
+	} while(zone->rover != &zone->blocklist);
 }
 
 
@@ -3297,7 +3296,7 @@ void Com_Init(char *commandLine)
 	// init commands and vars
 	//
 	com_altivec = Cvar_Get("com_altivec", "1", CVAR_ARCHIVE);
-	com_maxfps = Cvar_Get("com_maxfps", "85", CVAR_ARCHIVE);
+	com_maxfps = Cvar_Get("com_maxfps", "125", CVAR_ARCHIVE);
 	com_blood = Cvar_Get("com_blood", "1", CVAR_ARCHIVE);
 
 	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
@@ -3386,8 +3385,8 @@ void Com_Init(char *commandLine)
 	com_fullyInitialized = qtrue;
 
 	// always set the cvar, but only print the info if it makes sense.
-	Com_DetectAltivec();
 #if idppc
+	Com_DetectAltivec();
 	Com_Printf("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
 #endif
 

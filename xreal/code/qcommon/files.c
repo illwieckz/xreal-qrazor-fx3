@@ -266,11 +266,6 @@ char            lastValidGame[MAX_OSPATH];
 FILE           *missingFiles = NULL;
 #endif
 
-/* C99 defines __func__ */
-#ifndef __func__
-#define __func__ "(unknown)"
-#endif
-
 /*
 ==============
 FS_Initialized
@@ -526,7 +521,7 @@ static void FS_CopyFile(char *fromOSPath, char *toOSPath)
 
 	Com_Printf("copy %s to %s\n", fromOSPath, toOSPath);
 
-	FS_FilenameIsExecutable(toOSPath, __func__);
+	FS_FilenameIsExecutable(toOSPath, __FUNCTION__);
 
 	if(strstr(fromOSPath, "journal.dat") || strstr(fromOSPath, "journaldata.dat"))
 	{
@@ -573,7 +568,7 @@ FS_Remove
 */
 void FS_Remove(const char *osPath)
 {
-	FS_FilenameIsExecutable(osPath, __func__);
+	FS_FilenameIsExecutable(osPath, __FUNCTION__);
 
 	remove(osPath);
 }
@@ -585,7 +580,7 @@ FS_HomeRemove
 */
 void FS_HomeRemove(const char *homePath)
 {
-	FS_FilenameIsExecutable(homePath, __func__);
+	FS_FilenameIsExecutable(homePath, __FUNCTION__);
 
 	remove(FS_BuildOSPath(fs_homepath->string, fs_gamedir, homePath));
 }
@@ -667,7 +662,7 @@ fileHandle_t FS_SV_FOpenFileWrite(const char *filename)
 		Com_Printf("FS_SV_FOpenFileWrite: %s\n", ospath);
 	}
 
-	FS_FilenameIsExecutable(ospath, __func__);
+	FS_FilenameIsExecutable(ospath, __FUNCTION__);
 
 	if(FS_CreatePath(ospath))
 	{
@@ -786,7 +781,7 @@ void FS_SV_Rename(const char *from, const char *to)
 		Com_Printf("FS_SV_Rename: %s --> %s\n", from_ospath, to_ospath);
 	}
 
-	FS_FilenameIsExecutable(to_ospath, __func__);
+	FS_FilenameIsExecutable(to_ospath, __FUNCTION__);
 
 	if(rename(from_ospath, to_ospath))
 	{
@@ -821,7 +816,7 @@ void FS_Rename(const char *from, const char *to)
 		Com_Printf("FS_Rename: %s --> %s\n", from_ospath, to_ospath);
 	}
 
-	FS_FilenameIsExecutable(to_ospath, __func__);
+	FS_FilenameIsExecutable(to_ospath, __FUNCTION__);
 
 	if(rename(from_ospath, to_ospath))
 	{
@@ -892,7 +887,7 @@ fileHandle_t FS_FOpenFileWrite(const char *filename)
 		Com_Printf("FS_FOpenFileWrite: %s\n", ospath);
 	}
 
-	FS_FilenameIsExecutable(ospath, __func__);
+	FS_FilenameIsExecutable(ospath, __FUNCTION__);
 
 	if(FS_CreatePath(ospath))
 	{
@@ -944,7 +939,7 @@ fileHandle_t FS_FOpenFileAppend(const char *filename)
 		Com_Printf("FS_FOpenFileAppend: %s\n", ospath);
 	}
 
-	FS_FilenameIsExecutable(ospath, __func__);
+	FS_FilenameIsExecutable(ospath, __FUNCTION__);
 
 	if(FS_CreatePath(ospath))
 	{
@@ -1156,7 +1151,7 @@ int FS_FOpenFileRead(const char *filename, fileHandle_t * file, qboolean uniqueF
 						   Q_stricmp(filename + l - 4, ".bot") != 0 &&
 						   Q_stricmp(filename + l - 6, ".arena") != 0 && Q_stricmp(filename + l - 5, ".menu") != 0)
 						{
-							Com_DPrintf("...referencing pak '%s/%s' for used file '%s'\n", pak->pakGamename, pak->pakBasename,
+							Com_Printf("...referencing pak '%s/%s' for used file '%s'\n", pak->pakGamename, pak->pakBasename,
 									   filename);
 							pak->referenced |= FS_GENERAL_REF;
 						}
@@ -2746,29 +2741,6 @@ void FS_AddGameDirectory(const char *path, const char *dir)
 
 /*
 ================
-FS_idPak
-================
-*/
-qboolean FS_idPak(char *pak, char *base)
-{
-	int             i;
-
-	for(i = 0; i < NUM_ID_PAKS; i++)
-	{
-		if(!FS_FilenameCompare(pak, va("%s/pak%d", base, i)))
-		{
-			break;
-		}
-	}
-	if(i < NUM_ID_PAKS)
-	{
-		return qtrue;
-	}
-	return qfalse;
-}
-
-/*
-================
 FS_CheckDirTraversal
 
 Check whether the string contains stuff like "../" to prevent directory traversal bugs
@@ -2827,13 +2799,7 @@ qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
 		badchecksum = qfalse;
 		havepak = qfalse;
 
-		// never autodownload any of the id paks
-		if(FS_idPak(fs_serverReferencedPakNames[i], BASEGAME) || FS_idPak(fs_serverReferencedPakNames[i], "missionpack"))
-		{
-			continue;
-		}
-
-		// Make sure the server cannot make us write to non-quake3 directories.
+		// Make sure the server cannot make us write to non-xreal directories.
 		if(FS_CheckDirTraversal(fs_serverReferencedPakNames[i]))
 		{
 			Com_Printf("WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i]);

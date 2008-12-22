@@ -362,10 +362,14 @@ void           *VM_ExplicitArgPtr(vm_t * vm, intptr_t intValue);
 #define VMA(x) VM_ArgPtr(args[x])
 static ID_INLINE float _vmf(intptr_t x)
 {
-	floatint_t      fi;
+	union
+	{
+		intptr_t        l;
+		float           fh, fl;
+	} t;
 
-	fi.i = (int)x;
-	return fi.f;
+	t.l = x;
+	return t.fl;
 }
 
 #define VMF(x)  _vmf(args[x])
@@ -636,6 +640,7 @@ fileHandle_t    FS_FOpenFileAppend(const char *filename);
 
 // will properly create any needed paths and deal with seperater character issues
 
+int             FS_filelength(fileHandle_t f);
 fileHandle_t    FS_SV_FOpenFileWrite(const char *filename);
 int             FS_SV_FOpenFileRead(const char *filename, fileHandle_t * fp);
 void            FS_SV_Rename(const char *from, const char *to);
@@ -739,7 +744,6 @@ void            FS_PureServerSetLoadedPaks(const char *pakSums, const char *pakN
 // sole exception of .cfg files.
 
 qboolean        FS_CheckDirTraversal(const char *checkdir);
-qboolean        FS_idPak(char *pak, char *base);
 qboolean        FS_ComparePaks(char *neededpaks, int len, qboolean dlstring);
 
 void            FS_Rename(const char *from, const char *to);
@@ -1078,6 +1082,19 @@ void            Sys_Init(void);
 void           *QDECL Sys_LoadDll(const char *name, char *fqpath, intptr_t(QDECL ** entryPoint) (int, ...),
 								  intptr_t(QDECL * systemcalls) (intptr_t, ...));
 void            Sys_UnloadDll(void *dllHandle);
+
+void            Sys_UnloadGame(void);
+void           *Sys_GetGameAPI(void *parms);
+
+void            Sys_UnloadCGame(void);
+void           *Sys_GetCGameAPI(void);
+
+void            Sys_UnloadUI(void);
+void           *Sys_GetUIAPI(void);
+
+//bot libraries
+void            Sys_UnloadBotLib(void);
+void           *Sys_GetBotLibAPI(void *parms);
 
 char           *Sys_GetCurrentUser(void);
 

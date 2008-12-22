@@ -801,10 +801,11 @@ FloatAsInt
 */
 static int FloatAsInt(float f)
 {
-	floatint_t      fi;
+	int             temp;
 
-	fi.f = f;
-	return fi.i;
+	*(float *)&temp = f;
+
+	return temp;
 }
 
 /*

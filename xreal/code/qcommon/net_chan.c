@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "q_shared.h"
 #include "qcommon.h"
-#include "zlib.h"
 
 /*
 
@@ -102,7 +101,8 @@ void Netchan_Setup(netsrc_t sock, netchan_t * chan, netadr_t adr, int qport)
 ==============
 Netchan_ScramblePacket
 
-A probably futile attempt to make proxy hacking somewhat more difficult.
+A probably futile attempt to make proxy hacking somewhat
+more difficult.
 ==============
 */
 #define	SCRAMBLE_START	6
@@ -195,98 +195,6 @@ static void Netchan_UnScramblePacket(msg_t * buf)
 }
 #endif
 
-#if 0
-static int Netchan_ZLibCompressChunk(const byte *source, unsigned long sourceLen, byte *dest, unsigned long destLen, int level)
-{
-	int result, zlerror;
- 
-	zlerror = compress2(dest, &destLen, source, sourceLen, level);
-	switch(zlerror)
-	{
-		case Z_OK:
-			result = destLen; // returns the new length into destLen
-			break;
-		case Z_MEM_ERROR:
-			Com_DPrintf("ZLib data error! Z_MEM_ERROR on compress.\n");
-			result = -1;
-			break;
-		case Z_BUF_ERROR:
-			Com_DPrintf("ZLib data error! Z_BUF_ERROR on compress.\n");
-			result = -1;
-			break;
-		case Z_STREAM_ERROR:
-			Com_DPrintf("ZLib data error! Z_STREAM_ERROR on compress.\n");
-			result = -1;
-			break;
-		default:
-			Com_DPrintf("ZLib data error! Error code %i on compress.\n", zlerror);
-			result = -1;
-			break;
-	}
- 
-	return result;
-}
-
-static int Netchan_ZLibDecompressChunk(const byte *source, unsigned long sourceLen, byte *dest, unsigned long destLen)
-{
-	int result, zlerror;
- 
-	zlerror = uncompress(dest, &destLen, source, sourceLen);
-	switch(zlerror)
-	{
-		case Z_OK:
-			result = destLen; // returns the new length into destLen
-			break;
-		case Z_MEM_ERROR:
-			Com_DPrintf("ZLib data error! Z_MEM_ERROR on decompress.\n");
-			result = -1;
-			break;
-		case Z_BUF_ERROR:
-			Com_DPrintf("ZLib data error! Z_BUF_ERROR on decompress.\n");
-			result = -1;
-			break;
-		case Z_DATA_ERROR:
-			Com_DPrintf("ZLib data error! Z_DATA_ERROR on decompress.\n");
-			result = -1;
-			break;
-		default:
-			Com_DPrintf("ZLib data error! Error code %i on decompress.\n", zlerror);
-			result = -1;
-			break;
-	}
- 
-	return result;
-}
-
-static void Netchan_CompressPacket(msg_t * buf)
-{
-	byte		   *temp;
-
-	if(buf->cursize > MAX_PACKETLEN)
-	{
-		Com_Error(ERR_DROP, "MAX_PACKETLEN");
-	}
-
-	temp = buf->data;
-
-	Netchan_ZLibCompressChunk(temp, sizeof(temp), buf->data, sizeof(buf->data), Z_DEFAULT_COMPRESSION);
-}
-
-static void Netchan_DecompressPacket(msg_t * buf)
-{
-	byte		   *temp;
-
-	if(buf->cursize > MAX_PACKETLEN)
-	{
-		Com_Error(ERR_DROP, "MAX_PACKETLEN");
-	}
-
-	temp = buf->data;
-
-	Netchan_ZLibDecompressChunk(temp, sizeof(temp), buf->data, sizeof(buf->data));
-}
-#endif
-
 /*
 =================
 Netchan_TransmitNextFragment
@@ -321,9 +229,6 @@ void Netchan_TransmitNextFragment(netchan_t * chan)
 	MSG_WriteShort(&send, chan->unsentFragmentStart);
 	MSG_WriteShort(&send, fragmentLength);
 	MSG_WriteData(&send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength);
-
-	// raynorpat: compress the packet
-//	Netchan_CompressPacket(&send);
 
 	// send the datagram
 	NET_SendPacket(chan->sock, send.cursize, send.data, chan->remoteAddress);
@@ -394,9 +299,6 @@ void Netchan_Transmit(netchan_t * chan, int length, const byte * data)
 
 	MSG_WriteData(&send, data, length);
 
-	// raynorpat: compress the packet
-//	Netchan_CompressPacket(&send);
-
 	// send the datagram
 	NET_SendPacket(chan->sock, send.cursize, send.data, chan->remoteAddress);
 
@@ -427,10 +329,7 @@ qboolean Netchan_Process(netchan_t * chan, msg_t * msg)
 	qboolean        fragmented;
 
 	// XOR unscramble all data in the packet after the header
-//  Netchan_UnScramblePacket(msg);
-
-	// raynorpat: decompress packet data
-//	Netchan_DecompressPacket(msg);
+//  Netchan_UnScramblePacket( msg );
 
 	// get sequence numbers     
 	MSG_BeginReadingOOB(msg);
@@ -720,6 +619,7 @@ void NET_FlushPacketQueue(void)
 
 void NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 {
+
 	// sequenced packets are shown in netchan, so just show oob
 	if(showpackets->integer && *(int *)data == -1)
 	{

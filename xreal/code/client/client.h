@@ -459,6 +459,9 @@ void            CL_StartDemoLoop(void);
 void            CL_NextDemo(void);
 void            CL_ReadDemoMessage(void);
 void            CL_StopRecord_f(void);
+demoState_t     CL_DemoState(void);
+int             CL_DemoPos(void);
+void            CL_DemoName(char *buffer, int size);
 
 void            CL_InitDownloads(void);
 void            CL_NextDownload(void);

@@ -191,7 +191,6 @@ void MSG_WriteBits(msg_t * msg, int value, int bits)
 	}
 	else
 	{
-#if 1
 //      fp = fopen("c:\\netchan.bin", "a");
 		value &= (0xffffffff >> (32 - bits));
 		if(bits & 7)
@@ -217,21 +216,6 @@ void MSG_WriteBits(msg_t * msg, int value, int bits)
 		}
 		msg->cursize = (msg->bit >> 3) + 1;
 //      fclose(fp);
-#else
-		int			j;
-		j = msg->bit;
-		for(i = 0; i < bits; i++, j++)
-		{
-			if ((j & 7) == 0)
-			{
-				msg->data[j >> 3] = 0;
-			}
-			msg->data[j >> 3] |= (value & 1) << (j & 7);
-			value >>= 1;
-		}
-		msg->bit = j;
-		msg->cursize = (j + 7) >> 3;
-#endif
 	}
 }
 
@@ -240,7 +224,7 @@ int MSG_ReadBits(msg_t * msg, int bits)
 	int             value;
 	int             get;
 	qboolean        sgn;
-	int             i;
+	int             i, nbits;
 
 //  FILE*   fp;
 
@@ -287,9 +271,6 @@ int MSG_ReadBits(msg_t * msg, int bits)
 	}
 	else
 	{
-#if 1
-		int			nbits;
-
 		nbits = 0;
 		if(bits & 7)
 		{
@@ -312,18 +293,6 @@ int MSG_ReadBits(msg_t * msg, int bits)
 //          fclose(fp);
 		}
 		msg->readcount = (msg->bit >> 3) + 1;
-#else
-		int			j;
-		
-		j = msg->bit;
-		for(i = 0; i < bits; i++, j++)
-		{
-			get = (msg->data[j >> 3] >> (j & 7)) & 1;
-			value |= get << i;
-		}
-		msg->bit = j;
-		msg->readcount = (j + 7) >> 3;
-#endif
 	}
 	if(sgn)
 	{
@@ -391,10 +360,14 @@ void MSG_WriteLong(msg_t * sb, int c)
 
 void MSG_WriteFloat(msg_t * sb, float f)
 {
-	floatint_t      dat;
+	union
+	{
+		float           f;
+		int             l;
+	} dat;
 
 	dat.f = f;
-	MSG_WriteBits(sb, dat.i, 32);
+	MSG_WriteBits(sb, dat.l, 32);
 }
 
 void MSG_WriteString(msg_t * sb, const char *s)
@@ -547,9 +520,14 @@ int MSG_ReadLong(msg_t * msg)
 
 float MSG_ReadFloat(msg_t * msg)
 {
-	floatint_t      dat;
+	union
+	{
+		byte            b[4];
+		float           f;
+		int             l;
+	} dat;
 
-	dat.i = MSG_ReadBits(msg, 32);
+	dat.l = MSG_ReadBits(msg, 32);
 	if(msg->readcount > msg->cursize)
 	{
 		dat.f = -1;
@@ -707,26 +685,23 @@ int MSG_ReadDelta(msg_t * msg, int oldV, int bits)
 
 void MSG_WriteDeltaFloat(msg_t * msg, float oldV, float newV)
 {
-	floatint_t      fi;
-
 	if(oldV == newV)
 	{
 		MSG_WriteBits(msg, 0, 1);
 		return;
 	}
-	fi.f = newV;
 	MSG_WriteBits(msg, 1, 1);
-	MSG_WriteBits(msg, fi.i, 32);
+	MSG_WriteBits(msg, *(int *)&newV, 32);
 }
 
 float MSG_ReadDeltaFloat(msg_t * msg, float oldV)
 {
 	if(MSG_ReadBits(msg, 1))
 	{
-		floatint_t      fi;
+		float           newV;
 
-		fi.i = MSG_ReadBits(msg, 32);
-		return fi.f;
+		*(int *)&newV = MSG_ReadBits(msg, 32);
+		return newV;
 	}
 	return oldV;
 }
@@ -772,26 +747,23 @@ int MSG_ReadDeltaKey(msg_t * msg, int key, int oldV, int bits)
 
 void MSG_WriteDeltaKeyFloat(msg_t * msg, int key, float oldV, float newV)
 {
-	floatint_t      fi;
-
 	if(oldV == newV)
 	{
 		MSG_WriteBits(msg, 0, 1);
 		return;
 	}
-	fi.f = newV;
 	MSG_WriteBits(msg, 1, 1);
-	MSG_WriteBits(msg, fi.i ^ key, 32);
+	MSG_WriteBits(msg, (*(int *)&newV) ^ key, 32);
 }
 
 float MSG_ReadDeltaKeyFloat(msg_t * msg, int key, float oldV)
 {
 	if(MSG_ReadBits(msg, 1))
 	{
-		floatint_t      fi;
+		float           newV;
 
-		fi.i = MSG_ReadBits(msg, 32) ^ key;
-		return fi.f;
+		*(int *)&newV = MSG_ReadBits(msg, 32) ^ key;
+		return newV;
 	}
 	return oldV;
 }

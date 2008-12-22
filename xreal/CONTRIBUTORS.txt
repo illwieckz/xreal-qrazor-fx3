@@ -9,7 +9,7 @@ Iain "Jock" Mckay - x86_64 support
 Tim "Timbo" Angus - .avi video recording support
 Manfred "Defcon-x" Nerurkar - misc renderer enhancements
 Jason Thomas Dolan - Linux ALSA sound backend
-Ryan C. Gordon "icculus" - Linux SDL sound backend, VoIP support
+Ryan C. Gordon "icculus" - Linux SDL sound backend
 Stuart Dalton - Ogg Vorbis support, OpenAL sound backend
 Joerg Dietrich - Ogg Vorbis support
 Andrew Tridgell - MD4 checksum GPL code
@@ -89,7 +89,7 @@ Pat "raynorpat" Raynor
 Michael "mic" Denno
 Yves "evillair" Allaire - Quake4 eX texture set
 Philip Klevestav - Quake4 pk01 texture set
-Matt "Lunaran" Breit - Quake4 Powerplant texture set
+Matt "Lunaran"  Breit - Quake4 Powerplant texture set
 Yan "Method" Ostretsov - Quake4 method texture set
 Tom "phantazm11" Perryman - Quake4 aztech texture set
 Oilpainter - Quake4 Rustex texture set
