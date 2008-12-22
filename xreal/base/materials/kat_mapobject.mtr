@@ -28,7 +28,7 @@ models/mapobjects/kat/lantern
 
 models/mapobjects/kat/lantern_crystal
 {
-	noselfShadow
+//	noselfShadow
 	noshadows
 //	translucent
 //	spectrum 7
@@ -126,7 +126,7 @@ models/mapobjects/kat/lantern_top_hat
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 models/mapobjects/kat/jumppad_nofx
 {
-      	noselfShadow
+//     	noselfShadow
 		nonSolid
 
 	diffusemap 	models/mapobjects/kat/jumppad_e2.tga
@@ -136,7 +136,7 @@ models/mapobjects/kat/jumppad_nofx
 
 models/mapobjects/kat/accelpad
 {
-      	noselfShadow
+//     	noselfShadow
 		nonSolid
 
 	diffusemap 	models/mapobjects/kat/accel.tga
@@ -161,7 +161,8 @@ models/mapobjects/kat/accelpad
 models/mapobjects/kat/jumppad
 {
 	qer_editorImage models/mapobjects/kat/jumppad_f2.tga
-    noselfShadow
+
+//  noselfShadow
 	nonSolid
 
 	diffusemap 	models/mapobjects/kat/jumppad_f2.tga

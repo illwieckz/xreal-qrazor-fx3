@@ -5,22 +5,24 @@ models/mapobjects/mikebart/tree_foliage01
    nonsolid
    noimpact
    translucent
-   alphashadows
+   alphashadow
    
    {       
 		blend   diffusemap
 		map   models/mapobjects/mikebart/tree_foliage01_d.tga
 		alphaTest 0.6
-		vertexcolor
+		//vertexcolor
    }      
    bumpmap         models/mapobjects/mikebart/tree_foliage01_local.tga
    specularmap      models/mapobjects/mikebart/tree_foliage01_s.tga
+   
+   /*
    {       
 		blend   diffusemap
 		map   _black
 		inversevertexcolor
    }   
-
+   */
 }
 
 models/mapobjects/mikebart/tree_branches01
@@ -29,20 +31,23 @@ models/mapobjects/mikebart/tree_branches01
    twosided
    nonsolid
    noimpact
+   alphashadow
    
    {       
 		blend   diffusemap
 		map   models/mapobjects/mikebart/tree_branches01_d.tga
 		alphaTest 0.6
-		vertexcolor
+		//vertexcolor
    }      
    bumpmap         models/mapobjects/mikebart/tree_branches01_local.tga
    specularmap      models/mapobjects/mikebart/tree_branches01_s.tga
+   /*
    {       
 		blend   diffusemap
 		map   _black
 		inversevertexcolor
    }
+   */
 }
 
 models/mapobjects/mikebart/tree_bark01
