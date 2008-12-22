@@ -22,9 +22,10 @@ base/models/players/DEFAULT_MODEL/body_default.skin
 base/models/players/DEFAULT_MODEL/*.md5anim
 base/models/players/DEFAULT_MODEL/character.cfg
 base/models/players/DEFAULT_MODEL/icon_default.tga
+base/models/weapons/bfg/*
 base/models/weapons/grenadel/*
 base/models/weapons/plasma/*
-base/models/weapons/shotun/shotgun.md3 (optional)
+base/models/weapons/shotgun/shotgun.md3 (optional)
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
 base/sound/feedback/vote_failed.ogg
@@ -72,7 +73,7 @@ base/sound/weapons/plasma/hyprbf1a.ogg
 base/sound/weapons/plasma/lasfly.ogg
 base/sound/weapons/plasma/plasmx1a.ogg
 base/sound/weapons/railgun/rg_hum.ogg
-base/base/sound/world/*
+base/sound/world/*
 base/sprites/splash.png (optional)
 
 

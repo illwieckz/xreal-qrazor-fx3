@@ -25,12 +25,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#if WINVER < 0x501
-#include <wspiapi.h>
+#	include <winsock2.h>
+#	include <ws2tcpip.h>
+#	if WINVER < 0x501
+#		ifdef __MINGW32__
+			// wspiapi.h isn't available on MinGW, so if it's
+			// present it's because the end user has added it
+			// and we should look for it in our tree
+#			include "wspiapi.h"
+#		else
+#			include <wspiapi.h>
+#		endif
 #else
-#include <ws2spi.h>
+#	include <ws2spi.h>
 #endif
 
 typedef int     socklen_t;
@@ -331,14 +338,11 @@ static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int s
 	memset(sadr, '\0', sizeof(*sadr));
 	memset(&hints, '\0', sizeof(hints));
 
-	// workaround for buggy MacOSX getaddrinfo implementation that doesn't handle AF_UNSPEC in hints correctly.
-	if(family == AF_UNSPEC)
-		hintsp = NULL;
-	else
-	{
-		hintsp = &hints;
-		hintsp->ai_family = family;
-	}
+	hintsp = &hints;
+	hintsp->ai_family = family;
+	hintsp->ai_socktype = SOCK_DGRAM;
+	// FIXME: we should set "->ai_flags" to AI_PASSIVE if we intend
+	//        to use this structure for a bind() - instead of a sendto()
 
 	retval = getaddrinfo(s, NULL, hintsp, &res);
 
@@ -582,8 +586,8 @@ qboolean Sys_GetPacket(netadr_t * net_from, msg_t * net_message)
 
 			if(usingSocks && memcmp(&from, &socksRelayAddr, fromlen) == 0)
 			{
-				if(ret < 10 || net_message->data[0] != 0 || net_message->data[1] != 0 || net_message->data[2] != 0 ||
-				   net_message->data[3] != 1)
+				if(ret < 10 || net_message->data[0] != 0
+				   || net_message->data[1] != 0 || net_message->data[2] != 0 || net_message->data[3] != 1)
 				{
 					return qfalse;
 				}
@@ -1034,8 +1038,8 @@ void NET_SetMulticast6(void)
 {
 	struct sockaddr_in6 addr;
 
-	if(!*net_mcast6addr->string ||
-	   !Sys_StringToSockaddr(net_mcast6addr->string, (struct sockaddr *)&addr, sizeof(addr), AF_INET6))
+	if(!*net_mcast6addr->string
+	   || !Sys_StringToSockaddr(net_mcast6addr->string, (struct sockaddr *)&addr, sizeof(addr), AF_INET6))
 	{
 		Com_Printf("WARNING: NET_JoinMulticast6: Incorrect multicast address given, "
 				   "please set cvar %s to a sane value.\n", net_mcast6addr->name);

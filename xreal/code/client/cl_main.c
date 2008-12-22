@@ -620,6 +620,7 @@ record <demoname>
 Begins recording a demo from the current position
 ====================
 */
+static char     demoName[MAX_QPATH];	// compiler bug workaround
 void CL_Record_f(void)
 {
 	char            name[MAX_OSPATH];
@@ -630,7 +631,6 @@ void CL_Record_f(void)
 	entityState_t  *ent;
 	entityState_t   nullstate;
 	char           *s;
-	static char     demoName[MAX_QPATH];	// Tr3B: compiler bug workaround ?
 
 	if(Cmd_Argc() > 2)
 	{
@@ -989,8 +989,9 @@ void CL_PlayDemo_f(void)
 
 	// check for an extension .dm_?? (?? is protocol)
 	ext_test = arg + strlen(arg) - 6;
-	if((strlen(arg) > 6) && (ext_test[0] == '.') && ((ext_test[1] == 'd') || (ext_test[1] == 'D')) &&
-	   ((ext_test[2] == 'm') || (ext_test[2] == 'M')) && (ext_test[3] == '_'))
+	if((strlen(arg) > 6) && (ext_test[0] == '.')
+	   && ((ext_test[1] == 'd') || (ext_test[1] == 'D'))
+	   && ((ext_test[2] == 'm') || (ext_test[2] == 'M')) && (ext_test[3] == '_'))
 	{
 		protocol = atoi(ext_test + 4);
 		i = 0;
@@ -1082,66 +1083,6 @@ void CL_NextDemo(void)
 	Cbuf_Execute();
 }
 
-/*
-==================
-CL_DemoState
-
-Returns the current state of the demo system
-==================
-*/
-demoState_t CL_DemoState(void)
-{
-	if(clc.demoplaying)
-	{
-		return DS_PLAYBACK;
-	}
-	else if(clc.demorecording)
-	{
-		return DS_RECORDING;
-	}
-	else
-	{
-		return DS_NONE;
-	}
-}
-
-/*
-==================
-CL_DemoPos
-
-Returns the current position of the demo
-==================
-*/
-int CL_DemoPos(void)
-{
-	if(clc.demoplaying || clc.demorecording)
-	{
-		return FS_FTell(clc.demofile);
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-/*
-==================
-CL_DemoName
-
-Returns the name of the demo
-==================
-*/
-void CL_DemoName(char *buffer, int size)
-{
-	if(clc.demoplaying || clc.demorecording)
-	{
-		Q_strncpyz(buffer, clc.demoName, size);
-	}
-	else if(size >= 1)
-	{
-		buffer[0] = '\0';
-	}
-}
 
 //======================================================================
 
@@ -3471,7 +3412,7 @@ void CL_Init(void)
 #ifdef USE_VOIP
 	cl_voipSend = Cvar_Get("cl_voipSend", "0", 0);
 	cl_voipSendTarget = Cvar_Get("cl_voipSendTarget", "all", 0);
-	cl_voipGainDuringCapture = Cvar_Get("cl_voipGainDuringCapture", "1.0", CVAR_ARCHIVE);
+	cl_voipGainDuringCapture = Cvar_Get("cl_voipGainDuringCapture", "0.2", CVAR_ARCHIVE);
 	cl_voipCaptureMult = Cvar_Get("cl_voipCaptureMult", "2.0", CVAR_ARCHIVE);
 	cl_voipUseVAD = Cvar_Get("cl_voipUseVAD", "0", CVAR_ARCHIVE);
 	cl_voipVADThreshold = Cvar_Get("cl_voipVADThreshold", "0.25", CVAR_ARCHIVE);
@@ -4101,8 +4042,6 @@ void CL_GlobalServers_f(void)
 		Q_strcat(command, sizeof(command), " ");
 		Q_strcat(command, sizeof(command), Cmd_Argv(i));
 	}
-
-	Com_Printf("CL_GlobalServers_f: command = '%s'\n", command);
 
 	NET_OutOfBandPrint(NS_SERVER, to, "%s", command);
 }

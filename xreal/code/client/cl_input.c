@@ -1158,7 +1158,8 @@ void CL_WritePacket(void)
 							clc.voipTarget3 |= (1 << (val - 62));
 						}
 					}
-				} while(*(ptr++));
+				}
+				while(*(ptr++));
 			}
 			cl_voipSendTarget->modified = qfalse;
 		}
@@ -1284,6 +1285,12 @@ void CL_SendCmd(void)
 {
 	// don't send any message if not connected
 	if(cls.state < CA_CONNECTED)
+	{
+		return;
+	}
+
+	// don't send commands if paused
+	if(com_sv_running->integer && sv_paused->integer && cl_paused->integer)
 	{
 		return;
 	}

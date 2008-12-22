@@ -7,7 +7,7 @@ GENERAL NOTES
 LICENSE
 GETTING THE SOURCE CODE AND MEDIA
 COMPILING ON WIN32 WITH VISUAL C++ 2008 EXPRESS EDITION
-COMPILING ON WIN32 WITH MINGW
+COMPILING ON WIN32 WITH MINGW (OUTDATED)
 COMPILING ON GNU/LINUX
 COMPILING ON MAC OS X
 USING HTTP/FTP DOWNLOAD SUPPORT (SERVER)
@@ -21,13 +21,15 @@ GENERAL NOTES
 A short summary of the file layout:
 
 XreaL/base/		XreaL media directory ( models, textures, sounds, maps, etc. )
+XreaL/base/code		XreaL game code ( game, cgame, and ui )
 XreaL/blender/		Blender plugins for ase, md3, and md5 models
-XreaL/code/		XreaL source code ( renderer, game code, OS layer, etc. )
+XreaL/code/		XreaL source code ( renderer, OS layer, etc. )
 XreaL/code/common	framework source code for command line tools like xmap
 XreaL/code/xmap		map compiler ( .map -> .bsp ) (based on q3map)
 XreaL/code/xmap2	map compiler ( .map -> .bsp ) (based on q3map2)
 XreaL/code/xmass	master server
 XreaL/code/gtkradiant	GtkRadiant editor source based off GPL release on 17th February 2006
+XreaL/code/xrealradiant	XreaL configured DarkRadiant editor source code
 XreaL/darkradiant/	XreaL configured DarkRadiant editor work dir
 XreaL/gtkradiant/	XreaL configured GtkRadiant editor work dir
 
@@ -136,17 +138,15 @@ Type scons -h for more compile options.
 COMPILING ON MAC OS X
 =====================
 
-Make sure you have the SDL framework installed into /Library/Frameworks along with Xcode 3.0 as 
+Make sure you have the SDL and Sparkle framework installed into /Library/Frameworks. 
 Xcode 3.1.1 was used to create the XreaL project on OS X Leopard.
 
-Use the included XCode project to compile XreaL and friends for both PPC & Intel Macs.
+Use the included XCode project to compile XreaL for both PPC & Intel Macs.
 The XCode project is located here:
 	>code/sys/macosx/XreaL.xcodeprj
 
-NOTE: Running XreaL on Tiger will not give you the benefits of the latest OpenGL drivers (2.1)
+NOTE: Running XreaL on Tiger will not give you the benefits of the latest OpenGL drivers (2.0+)
 on Leopard. Plus it hasn't been tested on Tiger anyway ;-)
-ANOTHER NOTE: Speex, libcurl http downloading, and Lua scripting support have been temporaily
-disabled to get this beast to compile. Expect a lot of polish in the coming weeks...
 
 
 USING HTTP/FTP DOWNLOAD SUPPORT (SERVER)
