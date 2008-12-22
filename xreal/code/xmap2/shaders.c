@@ -1025,7 +1025,7 @@ static void ParseShaderFile(const char *filename)
 						}
 					}
 				}
-				continue;
+				//continue;
 			}
 
 
@@ -1057,7 +1057,7 @@ static void ParseShaderFile(const char *filename)
 			}
 
 			/* Tr3B: forceOpaque will override translucent */
-			if(!Q_stricmp(token, "forceOpaque"))
+			else if(!Q_stricmp(token, "forceOpaque"))
 			{
 				si->forceOpaque = qtrue;
 			}
@@ -1191,7 +1191,7 @@ static void ParseShaderFile(const char *filename)
 				strcpy(si->lightImagePath, token);
 				DefaultExtension(si->lightImagePath, ".tga");
 
-				// Sys_FPrintf(SYS_VRB, "xmap_lightImage: %s\n", si->lightImagePath);
+				//Sys_FPrintf(SYS_VRB, "xmap_lightImage: %s\n", si->lightImagePath);
 			}
 
 			/* ydnar: skyparms <outer image> <cloud height> <inner image> */
@@ -1216,8 +1216,26 @@ static void ParseShaderFile(const char *filename)
 			}
 
 			/* Tr3B: check if this shader has shortcut passes */
-			if(!Q_stricmp(token, "diffusemap") || !Q_stricmp(token, "bumpmap") || !Q_stricmp(token, "specularmap"))
+			else if(!Q_stricmp(token, "diffusemap"))
 			{
+				// TODO lightImagePath with extended parser support
+				GetToken(qfalse);
+				//strcpy(si->lightImagePath, token);
+				//DefaultExtension(si->lightImagePath, ".tga");
+				si->hasPasses = qtrue;
+			}
+
+			else if(!Q_stricmp(token, "bumpmap"))
+			{
+				// TODO
+				GetToken(qfalse);
+				si->hasPasses = qtrue;
+			}
+
+			else if(!Q_stricmp(token, "specularmap"))
+			{
+				// TODO
+				GetToken(qfalse);
 				si->hasPasses = qtrue;
 			}
 
@@ -1302,7 +1320,7 @@ static void ParseShaderFile(const char *filename)
 			}
 
 			/* match xmap_ */
-			else if(!Q_strncasecmp(token, "xmap_", 6))
+			else if(!Q_strncasecmp(token, "xmap_", 5))
 			{
 				/* ydnar: xmap_baseShader <shader> (inherit this shader's parameters) */
 				if(!Q_stricmp(token, "xmap_baseShader"))
@@ -1424,6 +1442,7 @@ static void ParseShaderFile(const char *filename)
 				{
 					GetToken(qfalse);
 					si->value = atof(token);
+					//Sys_FPrintf(SYS_VRB, "xmap_surfacelight: %f (%s)\n", si->value, si->shader);
 				}
 
 				/* xmap_lightStyle (sof2/jk2 lightstyle) */
