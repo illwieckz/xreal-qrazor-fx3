@@ -11,7 +11,6 @@ decals
 #dk_q4dm6
 eX
 fabz0r_floor_clayhex
-fabz0r_floor_flagpole
 fabz0r_light_amblight
 fabz0r_light_blubox
 fabz0r_portal_ground
@@ -31,9 +30,12 @@ hipshot_sky
 kat_mapobject
 kat_q4dm3
 #lights
+#megatexture
 method
+mikebart_mapobject
 #otty_sfx
 phant_aztech
+#pinetree
 pk01
 #pjw4tourney1
 raynorpat
@@ -42,9 +44,12 @@ raynorpat
 #reflex_decals
 #reflex_dmc
 reflex_layout
+reflex_mapobject
 #reflex_sfx
 reflex_ugly
 sfx
+#sky
+#skybox_spring
 tr3b_brick
 tr3b_concrete
 tr3b_floor

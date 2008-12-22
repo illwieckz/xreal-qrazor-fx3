@@ -1,0 +1,53 @@
+models/mapobjects/mikebart/tree_foliage01
+{
+   noShadows
+   twosided
+   nonsolid
+   noimpact
+   translucent
+   alphashadows
+   
+   {       
+		blend   diffusemap
+		map   models/mapobjects/mikebart/tree_foliage01_d.tga
+		alphaTest 0.6
+		vertexcolor
+   }      
+   bumpmap         models/mapobjects/mikebart/tree_foliage01_local.tga
+   specularmap      models/mapobjects/mikebart/tree_foliage01_s.tga
+   {       
+		blend   diffusemap
+		map   _black
+		inversevertexcolor
+   }   
+
+}
+
+models/mapobjects/mikebart/tree_branches01
+{
+   noShadows
+   twosided
+   nonsolid
+   noimpact
+   
+   {       
+		blend   diffusemap
+		map   models/mapobjects/mikebart/tree_branches01_d.tga
+		alphaTest 0.6
+		vertexcolor
+   }      
+   bumpmap         models/mapobjects/mikebart/tree_branches01_local.tga
+   specularmap      models/mapobjects/mikebart/tree_branches01_s.tga
+   {       
+		blend   diffusemap
+		map   _black
+		inversevertexcolor
+   }
+}
+
+models/mapobjects/mikebart/tree_bark01
+{
+       diffusemap       models/mapobjects/mikebart/tree_bark01_d.tga   
+       specularmap      models/mapobjects/mikebart/tree_bark01_s.tga      
+       bumpmap          models/mapobjects/mikebart/tree_bark01_local.tga  
+}
