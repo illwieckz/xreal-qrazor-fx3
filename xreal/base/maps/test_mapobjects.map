@@ -3,18 +3,18 @@ Version 2
 {
 "classname" "worldspawn"
 "_lightmapscale" "0.125"
-"editor_drLastCameraPos" "237.452 56.1294 62.0131"
-"editor_drLastCameraAngle" "-15.9 335.7 0"
+"editor_drLastCameraPos" "124.971 196.327 135.369"
+"editor_drLastCameraAngle" "-1.8 342 0"
 // primitive 0
 {
 brushDef3
 {
 ( 0 0 -1 256 ) ( ( 0.0104166651 0 1.3333334923 ) ( 0 0.010416667 1.9999996424 ) ) "textures/reflex_layout/ceiling" 0 0 0
 ( 0 0 1 -272 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( -1 1.344e-007 0 -192.0000152588 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( -1.344e-007 -1 0 -128.0000152588 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( 1 -1.343e-007 0 -1087.9999389648 ) ( ( 0.03125 0 63.9999961853 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
-( 1.343e-007 1 0 -256 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 1.344e-07 0 -192.0000152588 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( -1.344e-07 -1 0 -128.0000152588 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 -1.343e-07 0 -1087.9999389648 ) ( ( 0.03125 0 63.9999961853 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 1.343e-07 1 0 -256 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 1
@@ -23,10 +23,10 @@ brushDef3
 {
 ( 0 0 -1 -16 ) ( ( 0.0104166651 0 1.3333334923 ) ( 0 0.010416667 1.9999996424 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 0 ) ( ( 0.0104166651 0 1.3333334923 ) ( 0 0.010416667 2.0000002384 ) ) "textures/reflex_layout/floor" 0 0 0
-( -1 1.344e-007 0 -192.0000152588 ) ( ( 0.010416666 0 2.6666665077 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
-( -1.344e-007 -1 0 -128.0000152588 ) ( ( 0.0104166679 0 2.0000004768 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
-( 1 -1.343e-007 0 -1087.9999389648 ) ( ( 0.010416666 0 1.333332181 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
-( 1.343e-007 1 0 -256 ) ( ( 0.0104166679 0 1.9999995232 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
+( -1 1.344e-07 0 -192.0000152588 ) ( ( 0.010416666 0 2.6666665077 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
+( -1.344e-07 -1 0 -128.0000152588 ) ( ( 0.0104166679 0 2.0000004768 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
+( 1 -1.343e-07 0 -1087.9999389648 ) ( ( 0.010416666 0 1.333332181 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
+( 1.343e-07 1 0 -256 ) ( ( 0.0104166679 0 1.9999995232 ) ( 0 0.25 0 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 2
@@ -35,10 +35,10 @@ brushDef3
 {
 ( 0 0 -1 0 ) ( ( 0.2499990463 0 0.00025177 ) ( 0 0.0104166679 1.9999997616 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 -256 ) ( ( 0.2499990463 0 0.00025177 ) ( 0 0.0104166679 2.0000002384 ) ) "textures/common/caulk" 0 0 0
-( -1 1.344e-007 0 -192.0000305176 ) ( ( 0.25 0 4 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
-( -1.344e-007 -1 0 256.0001204224 ) ( ( 0.0104166679 0 248.6666717529 ) ( 0 0.015625 4 ) ) "textures/reflex_layout/wall" 0 0 0
-( 1 -1.343e-007 0 -1087.9999237061 ) ( ( 0.25 0 63.9999694824 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
-( 1.343e-007 1 0 -272 ) ( ( 0.0104166679 0 1.999999404 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
+( -1 1.344e-07 0 -192.0000305176 ) ( ( 0.25 0 4 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
+( -1.344e-07 -1 0 256.0001204224 ) ( ( 0.0104166679 0 248.6666717529 ) ( 0 0.015625 4 ) ) "textures/reflex_layout/wall" 0 0 0
+( 1 -1.343e-07 0 -1087.9999237061 ) ( ( 0.25 0 63.9999694824 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
+( 1.343e-07 1 0 -272 ) ( ( 0.0104166679 0 1.999999404 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
 }
 }
 // primitive 3
@@ -47,10 +47,10 @@ brushDef3
 {
 ( 0 0 -1 0 ) ( ( 0.2499991655 0 35.9998855591 ) ( 0 0.0104166679 1.9999998808 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 1 -256 ) ( ( 0.2499991655 0 35.9998855591 ) ( 0 0.0104166679 2.0000002384 ) ) "textures/common/caulk" 0 0 0
-( -1 1.344e-007 0 -191.9999694824 ) ( ( 0.2500001192 0 31.9999847412 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
-( -1.344e-007 -1 0 -144 ) ( ( 0.0104166679 0 1.9999998808 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
-( 1 -1.343e-007 0 -1087.9999847412 ) ( ( 0.25 0 35.9999694824 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
-( 1.344e-007 1 0 127.9998795776 ) ( ( 0.0104166679 0 11.3333339691 ) ( 0 0.015625 4 ) ) "textures/reflex_layout/wall" 0 0 0
+( -1 1.344e-07 0 -191.9999694824 ) ( ( 0.2500001192 0 31.9999847412 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
+( -1.344e-07 -1 0 -144 ) ( ( 0.0104166679 0 1.9999998808 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
+( 1 -1.343e-07 0 -1087.9999847412 ) ( ( 0.25 0 35.9999694824 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
+( 1.344e-07 1 0 127.9998795776 ) ( ( 0.0104166679 0 11.3333339691 ) ( 0 0.015625 4 ) ) "textures/reflex_layout/wall" 0 0 0
 }
 }
 // primitive 4
@@ -77,6 +77,114 @@ brushDef3
 ( -1 0 0 -208 ) ( ( 0.010416667 0 2.6666667461 ) ( 0 0.015625 4 ) ) "textures/common/caulk" 0 0 0
 }
 }
+// primitive 6
+{
+brushDef3
+{
+( 0 0 1 -256 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 1.03125 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 1 -0 -68 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( 1 -0 0 188 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.5 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 -1 0 60 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( -1 0 0 -192 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 109.6875 ) ) "textures/reflex_layout/wall" 0 0 0
+}
+}
+// primitive 7
+{
+brushDef3
+{
+( 0 0 1 -2568 ) ( ( 0.03125 0 8.5 ) ( 0 0.03125 53 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -0 ) ( ( 0.03125 0 14.25 ) ( 0 0.03125 0.25 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -4096 ) ( ( 0.03125 0 56.5 ) ( 0 0.03125 0.25 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -2560 ) ( ( 0.03125 0 59.5 ) ( 0 0.03125 0.25 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 1536 ) ( ( 0.03125 0 55.5 ) ( 0 0.03125 0.25 ) ) "textures/common/caulk" 0 0 0
+( -0 -0 -1 2560 ) ( ( 0.001953125 0 0.53125 ) ( 0 0.001953125 3.3125 ) ) "textures/hipshot_sky/grimmnight" 0 0 0
+}
+}
+// primitive 8
+{
+brushDef3
+{
+( 0 0 1 -2560 ) ( ( 0.03125 0 8.25 ) ( 0 0.03125 53 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -8 ) ( ( 0.03125 0 14.25 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -4096 ) ( ( 0.03125 0 56.25 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.03125 0 8.25 ) ( 0 0.03125 14.25 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 1536 ) ( ( 0.03125 0 55.75 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( -0 -1 -0 0 ) ( ( 0.001953125 0 0.890625 ) ( 0 0.001953125 0 ) ) "textures/hipshot_sky/grimmnight" 0 0 0
+}
+}
+// primitive 9
+{
+brushDef3
+{
+( 0 0 1 -2560 ) ( ( 0.03125 0 8.5 ) ( 0 0.03125 52.75 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -0 ) ( ( 0.03125 0 14.5 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -4104 ) ( ( 0.03125 0 56.5 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.03125 0 8.5 ) ( 0 0.03125 14.5 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -2560 ) ( ( 0.03125 0 59.25 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 -0 -0 4096 ) ( ( 0.001953125 0 3.53125 ) ( 0 0.001953125 0 ) ) "textures/hipshot_sky/grimmnight" 0 0 0
+}
+}
+// primitive 10
+{
+brushDef3
+{
+( 0 1 0 -0 ) ( ( 0.03125 0 14.25 ) ( 0 0.03125 63.75 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -4096 ) ( ( 0.03125 0 56.5 ) ( 0 0.03125 63.75 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -8 ) ( ( 0.03125 0 8.5 ) ( 0 0.03125 14.25 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -2560 ) ( ( 0.03125 0 59.5 ) ( 0 0.03125 63.75 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 1536 ) ( ( 0.03125 0 55.5 ) ( 0 0.03125 63.75 ) ) "textures/common/caulk" 0 0 0
+( 0 0 1 -0 ) ( ( 0.0078125 0 2.125 ) ( 0 0.0078125 3.5625 ) ) "textures/reflex_layout/floor" 0 0 0
+}
+}
+// primitive 11
+{
+brushDef3
+{
+( 0 0 1 -2560 ) ( ( 0.03125 0 8.75 ) ( 0 0.03125 53 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -4096 ) ( ( 0.03125 0 56.75 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.03125 0 8.75 ) ( 0 0.03125 14.25 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -2568 ) ( ( 0.03125 0 59.5 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 1536 ) ( ( 0.03125 0 55.25 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 2560 ) ( ( 0.001953125 0 3.71875 ) ( 0 0.001953125 0 ) ) "textures/hipshot_sky/grimmnight" 0 0 0
+}
+}
+// primitive 12
+{
+brushDef3
+{
+( 0 0 1 -2560 ) ( ( 0.03125 0 8.5 ) ( 0 0.03125 53.25 ) ) "textures/common/caulk" 0 0 0
+( 0 1 0 -0 ) ( ( 0.03125 0 14 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 0 0 -1 -0 ) ( ( 0.03125 0 8.5 ) ( 0 0.03125 14 ) ) "textures/common/caulk" 0 0 0
+( 0 -1 0 -2560 ) ( ( 0.03125 0 59.75 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( -1 0 0 1528 ) ( ( 0.03125 0 55.5 ) ( 0 0.03125 0 ) ) "textures/common/caulk" 0 0 0
+( 1 0 0 -1536 ) ( ( 0.001953125 0 3.46875 ) ( 0 0.001953125 0 ) ) "textures/hipshot_sky/grimmnight" 0 0 0
+}
+}
+// primitive 13
+{
+brushDef3
+{
+( -0 0 1 -100.8 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0 1 -0 -33.01988181099296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 1 -0 0 -453.7937787771225 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0 0 -1 0 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0 -1 0 -95.01988181099296 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( -1 0 0 448.2062212228775 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+}
+}
+// primitive 14
+{
+brushDef3
+{
+( -0 0 1 -100.8 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0 1 -0 88.89110326766968 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 1 -0 0 -576.0250608064234 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0 0 -1 0 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( 0 -1 0 -95.04827219570799 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+( -1 0 0 451.4724144065082 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/player_clip" 0 0 0
+}
+}
 }
 // entity 1
 {
@@ -84,32 +192,8 @@ brushDef3
 "name" "info_player_start_1"
 "angle" "0"
 "origin" "-128 64 32"
-// dummy brush 0
-	{
-	brushDef3
-	{
-	( 0 0 -1 0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 0 1 -8 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 -1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( -1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	}
-	}
 }
 // entity 2
-{
-"classname" "light"
-"name" "light_2"
-"_color" "0.78 0.78 0.84"
-"falloff" "0.000000"
-"light_radius" "225 225 225"
-"nodiffuse" "0"
-"noshadows" "0"
-"nospecular" "0"
-"origin" "-32 160 216"
-}
-// entity 3
 {
 "classname" "light"
 "name" "light_3"
@@ -121,19 +205,7 @@ brushDef3
 "nospecular" "0"
 "origin" "384 192 128"
 }
-// entity 4
-{
-"classname" "light"
-"name" "light_4"
-"_color" "0.78 0.78 0.84"
-"falloff" "0"
-"light_radius" "180 180 180"
-"nodiffuse" "0"
-"noshadows" "0"
-"nospecular" "0"
-"origin" "-120 -40 240"
-}
-// entity 5
+// entity 3
 {
 "classname" "light"
 "name" "light_5"
@@ -145,45 +217,21 @@ brushDef3
 "nospecular" "0"
 "origin" "128 -64 128"
 }
-// entity 6
+// entity 4
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_2"
 "angle" "270"
 "origin" "0 192 32"
-// dummy brush 0
-	{
-	brushDef3
-	{
-	( 0 0 -1 0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 0 1 -8 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 -1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( -1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	}
-	}
 }
-// entity 7
+// entity 5
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_3"
 "angle" "90"
 "origin" "0 -64 32"
-// dummy brush 0
-	{
-	brushDef3
-	{
-	( 0 0 -1 0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 0 1 -8 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 -1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( -1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	}
-	}
 }
-// entity 8
+// entity 6
 {
 "classname" "light"
 "name" "light_1"
@@ -195,7 +243,7 @@ brushDef3
 "nospecular" "0"
 "origin" "640 -64 128"
 }
-// entity 9
+// entity 7
 {
 "classname" "light"
 "name" "light_6"
@@ -207,7 +255,7 @@ brushDef3
 "nospecular" "0"
 "origin" "128 192 128"
 }
-// entity 10
+// entity 8
 {
 "classname" "light"
 "name" "light_7"
@@ -219,7 +267,7 @@ brushDef3
 "nospecular" "0"
 "origin" "640 192 128"
 }
-// entity 11
+// entity 9
 {
 "classname" "light"
 "name" "light_8"
@@ -231,7 +279,7 @@ brushDef3
 "nospecular" "0"
 "origin" "896 192 128"
 }
-// entity 12
+// entity 10
 {
 "classname" "light"
 "name" "light_10"
@@ -243,7 +291,7 @@ brushDef3
 "nospecular" "0"
 "origin" "896 -64 128"
 }
-// entity 13
+// entity 11
 {
 "classname" "func_static"
 "name" "func_static_1"
@@ -251,14 +299,14 @@ brushDef3
 "origin" "-120 -64 256"
 "rotation" "1 0 0 0 -0.999924 0.0123182 0 -0.0123182 -0.999924"
 }
-// entity 14
+// entity 12
 {
 "classname" "func_static"
 "name" "func_static_2"
 "model" "models/mapobjects/bja/bja_light02.ase"
 "origin" "-32 160 256"
 }
-// entity 15
+// entity 13
 {
 "classname" "func_static"
 "name" "func_static_3"
@@ -266,56 +314,56 @@ brushDef3
 "model" "models/mapobjects/bja/bja_light03.ase"
 "origin" "-160 216 0"
 }
-// entity 16
+// entity 14
 {
 "classname" "func_static"
 "name" "func_static_4"
 "model" "models/mapobjects/bja/bja_light04.ase"
 "origin" "-160 -96 0"
 }
-// entity 17
+// entity 15
 {
 "classname" "func_static"
 "name" "func_static_5"
 "model" "models/mapobjects/bja/bja_light05.ase"
 "origin" "-192 64 48"
 }
-// entity 18
+// entity 16
 {
 "classname" "func_static"
 "name" "func_static_7"
 "model" "models/mapobjects/bja/bja_vent.ase"
 "origin" "-8 -128 128"
 }
-// entity 19
+// entity 17
 {
 "classname" "func_static"
 "name" "func_static_8"
 "model" "models/mapobjects/power/pad.lwo"
 "origin" "0 192 0"
 }
-// entity 20
+// entity 18
 {
 "classname" "func_static"
 "name" "func_static_9"
 "model" "models/mapobjects/power/pad.lwo"
 "origin" "-128 64 0"
 }
-// entity 21
+// entity 19
 {
 "classname" "func_static"
 "name" "func_static_10"
 "model" "models/mapobjects/power/pad.lwo"
 "origin" "0 -64 0"
 }
-// entity 22
+// entity 20
 {
 "classname" "func_static"
 "name" "func_static_6"
 "model" "models/mapobjects/kat/jumppad_fx2.ase"
-"origin" "192 64 8"
+"origin" "352 -36 8"
 }
-// entity 23
+// entity 21
 {
 "classname" "light"
 "name" "light_11"
@@ -327,183 +375,219 @@ brushDef3
 "nospecular" "0"
 "origin" "-176 64 48"
 }
-// entity 24
-{
-"classname" "light"
-"name" "light_13"
-"_color" "0.78 0.78 0.84"
-"falloff" "0.000000"
-"light_distance" "300"
-"light_fovX" "90"
-"light_fovY" "90"
-"light_radius" "300 300 300"
-"nodiffuse" "0"
-"noshadows" "0"
-"nospecular" "0"
-"origin" "-160 -96 48"
-"rotation" "0 0 1 0 1 0 -1 0 0"
-"texture" "lights/flashLight"
-}
-// entity 25
+// entity 22
 {
 "classname" "trigger_push"
 "name" "trigger_push_1"
 "model" "trigger_push_1"
+"origin" "160 -100 0"
 "target" "target_push_1"
 // primitive 0
 {
 brushDef3
 {
-( 0 0 1 -12 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0 1 0 -128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
-( 1 0 0 -256 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
-( 0 0 -1 -0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0 -1 0 -0 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
-( -1 0 0 128 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( 0 0 1 -12 ) ( ( 0.03125 0 3.125 ) ( 0 0.03125 59 ) ) "textures/common/trigger" 0 0 0
+( 0 1 0 -128 ) ( ( 0.03125 0 5 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( 1 0 0 -256 ) ( ( 0.03125 0 3.125 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 0 ) ( ( 0.03125 0 3.125 ) ( 0 0.03125 5 ) ) "textures/common/trigger" 0 0 0
+( 0 -1 0 0 ) ( ( 0.03125 0 59 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
+( -1 0 0 128 ) ( ( 0.03125 0 60.875 ) ( 0 0.03125 63.75 ) ) "textures/common/trigger" 0 0 0
 }
 }
 }
-// entity 26
+// entity 23
 {
 "classname" "target_push"
 "name" "target_push_1"
-"origin" "192 64 192"
-// dummy brush 0
-	{
-	brushDef3
-	{
-	( 0 0 -1 0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 0 1 -8 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 -1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( -1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	}
-	}
+"origin" "460 -36 192"
 }
-// entity 27
+// entity 24
 {
 "classname" "func_static"
 "name" "func_static_11"
 "model" "models/mapobjects/kat/weapon_marker.ase"
 "origin" "192 192 4"
 }
-// entity 28
+// entity 25
 {
 "classname" "weapon_lightning"
 "name" "weapon_lightning_1"
 "origin" "192 192 34"
-// dummy brush 0
-	{
-	brushDef3
-	{
-	( 0 0 -1 0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 0 1 -8 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 -1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( -1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	}
-	}
 }
-// entity 29
-{
-"classname" "light"
-"name" "light_12"
-"_color" "0.78 0.78 0.84"
-"falloff" "0.000000"
-"light_radius" "225 225 225"
-"nodiffuse" "0"
-"noshadows" "0"
-"nospecular" "0"
-"origin" "-128 192 56"
-}
-// entity 30
-{
-"classname" "light"
-"name" "light_14"
-"_color" "0.78 0.78 0.84"
-"falloff" "0.000000"
-"light_center" "0 0 50"
-"light_radius" "70 70 70"
-"nodiffuse" "0"
-"noshadows" "1"
-"nospecular" "0"
-"origin" "-160 -96 24"
-}
-// entity 31
-{
-"classname" "func_static"
-"name" "func_static_129"
-"angle" "180"
-"model" "models/gwdm2/teleporter_01.ase"
-"origin" "384 -72 0"
-}
-// entity 32
+// entity 26
 {
 "classname" "light"
 "name" "light_58"
 "_color" "0.76 0.85 0.89"
 "falloff" "0"
+"light_center" "0 0 0"
 "light_radius" "126 104 204"
 "nodiffuse" "0"
 "noshadows" "0"
 "nospecular" "0"
-"origin" "383 -78 84"
+"origin" "1039 58 84"
+"rotation" "0 1 0 -1 0 0 0 0 1"
 "texture" "lights/roundfire2"
 }
-// entity 33
-{
-"classname" "trigger_teleport"
-"name" "trigger_teleport_1"
-"model" "trigger_teleport_1"
-"target" "info_player_start_1"
-// primitive 0
-{
-brushDef3
-{
-( 0 0 1 -144 ) ( ( 0.03125 0 0.25 ) ( 0 0.03125 48.5 ) ) "textures/common/trigger" 0 0 0
-( 0 1 0 56 ) ( ( 0.03125 0 15.5 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 1 0 0 -400 ) ( ( 0.03125 0 0.25 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0 0 -1 8 ) ( ( 0.03125 0 0.25 ) ( 0 0.03125 15.5 ) ) "textures/common/trigger" 0 0 0
-( 0 -1 0 -88 ) ( ( 0.03125 0 48.5 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( -1 0 0 368 ) ( ( 0.03125 0 63.75 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-}
-}
-}
-// entity 34
+// entity 27
 {
 "classname" "func_static"
 "name" "func_static_12"
 "model" "models/mapobjects/gw/chain_link_fence_128.ase"
-"origin" "467 113 0"
+"origin" "451 -31 0"
 "rotation" "-0.0124052 -0.999923 0 0.999923 -0.0124052 0 0 0 1"
 }
-// entity 35
+// entity 28
 {
 "classname" "func_static"
 "name" "func_static_13"
 "model" "models/mapobjects/gw/chain_link_fence_128_a.ase"
-"origin" "528 52 0"
+"origin" "512 -92 0"
 "rotation" "0.99985 0.0173312 0 -0.0173312 0.99985 0 0 0 1"
 }
-// entity 36
+// entity 29
+{
+"classname" "func_static"
+"name" "func_static_125"
+"clipModel" "1"
+"forceMeta" "1"
+"model" "models/gwdm2/piller_01.ase"
+"origin" "764 176 0"
+}
+// entity 30
+{
+"classname" "func_static"
+"name" "func_static_14"
+"model" "models/mapobjects/mikebart/poplar01_full.ase"
+"origin" "2964 -536 0"
+}
+// entity 31
+{
+"classname" "func_static"
+"name" "func_static_16"
+"model" "models/mapobjects/gw/teleporter_01.ase"
+"origin" "1040 56 0"
+"rotation" "0.0180025 -0.999838 0 0.999838 0.0180025 0 0 0 1"
+}
+// entity 32
 {
 "classname" "target_fx"
 "name" "target_fx_2"
 "luaThink" "TestParticleSpawn"
-"origin" "384 -72 18"
+"origin" "1040 56 18"
 "wait" "0.2"
-// dummy brush 0
-	{
-	brushDef3
-	{
-	( 0 0 -1 0 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 0 1 -8 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 -1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( 0 1 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	( -1 0 0 -16 ) ( ( 0.125 0 0 ) ( 0 0.125 0 ) ) "_default" 0 0 0
-	}
-	}
+}
+// entity 33
+{
+"classname" "info_player_start"
+"name" "info_player_start_3"
+"origin" "1624 -112 32"
+}
+// entity 34
+{
+"classname" "func_static"
+"name" "func_static_17"
+"model" "models/mapobjects/power/pad.lwo"
+"origin" "1624 -112 0"
+}
+// entity 35
+{
+"classname" "trigger_teleport"
+"name" "trigger_teleport_1"
+"model" "trigger_teleport_1"
+"origin" "1040 56 80"
+"target0" "info_player_start_3"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -72 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 1 0 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+( 1 0 0 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 -72 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 -1 0 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+( -1 0 0 -16 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+}
+}
+}
+// entity 36
+{
+"classname" "func_static"
+"name" "func_static_18"
+"model" "models/mapobjects/gw/teleporter_01.ase"
+"origin" "1992 -56 0"
+"rotation" "0.99885 -0.0479497 0 0.0479497 0.99885 0 0 0 1"
+}
+// entity 37
+{
+"classname" "target_fx"
+"name" "target_fx_3"
+"angle" "86.220108032226563"
+"luaThink" "TestParticleSpawn"
+"origin" "1992 -56 18"
+"wait" "0.2"
+}
+// entity 38
+{
+"classname" "trigger_teleport"
+"name" "trigger_teleport_3"
+"model" "trigger_teleport_3"
+"origin" "1992 -56 80"
+"target0" "info_player_start_1"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -72 ) ( ( 0.002060116716358076 -0.03118202063022098 63.97995163151624 ) ( 0.03118202063022098 0.002060116716358076 30.14244065630709 ) ) "textures/common/trigger" 0 0 0
+( -0.9978246645256743 0.06592373521142023 0 -16.00000006988906 ) ( ( 0.03124999986349671 0 33.85755934369291 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+( 0.06592373521142023 0.9978246645256743 0 -16.00000006988969 ) ( ( 0.03124999986349671 0 63.97995163151624 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 -72 ) ( ( 0.002060116716358076 0.03118202063022098 63.97995163151624 ) ( -0.03118202063022098 0.002060116716358076 33.85755934369291 ) ) "textures/common/trigger" 0 0 0
+( 0.9978246645256743 -0.06592373521142023 0 -16.00000006989118 ) ( ( 0.03124999986349671 0 30.14244065630709 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+( -0.06592373521142023 -0.9978246645256743 0 -16.00000006988959 ) ( ( 0.03124999986349671 0 0.02004836848375646 ) ( 0 0.03125 0.25 ) ) "textures/common/trigger" 0 0 0
+}
+}
+}
+// entity 39
+{
+"classname" "light"
+"name" "light_15"
+"_color" "0.76 0.85 0.89"
+"falloff" "0"
+"light_center" "0 0 0"
+"light_radius" "126 104 204"
+"nodiffuse" "0"
+"noshadows" "0"
+"nospecular" "0"
+"origin" "1039 58 84"
+"rotation" "0 1 0 -1 0 0 0 0 1"
+"texture" "lights/roundfire2"
+}
+// entity 40
+{
+"classname" "light"
+"name" "light_16"
+"_color" "0.76 0.85 0.89"
+"falloff" "0"
+"light_center" "0 0 0"
+"light_radius" "126 104 204"
+"nodiffuse" "0"
+"noshadows" "0"
+"nospecular" "0"
+"origin" "1991 -54 84"
+"rotation" "-0.999995 0.0031333 0 -0.0031333 -0.999995 0 0 0 1"
+"texture" "lights/roundfire2"
+}
+// entity 41
+{
+"classname" "func_static"
+"name" "func_static_15"
+"model" "models/mapobjects/mikebart/poplar01_base.ase"
+"origin" "2504 -924 0"
+}
+// entity 42
+{
+"classname" "func_static"
+"name" "func_static_19"
+"model" "models/mapobjects/mikebart/poplar01_foliage.ase"
+"origin" "1920 -1096 0"
 }
