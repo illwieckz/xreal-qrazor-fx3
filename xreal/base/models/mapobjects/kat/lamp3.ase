@@ -12,7 +12,7 @@
 *MATERIAL_LIST {
 	*MATERIAL_COUNT 3
 	*MATERIAL 0 {
-		*MATERIAL_NAME "COLLISION"
+		*MATERIAL_NAME "textures/common/collision"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 1.0000   0.0000   0.0000
@@ -48,7 +48,7 @@
 		}
 	}
 	*MATERIAL 1 {
-		*MATERIAL_NAME "lampBroken"
+		*MATERIAL_NAME "models/mapobjects/kat/stone_flat"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 0.8000   0.8000   0.8000
@@ -84,7 +84,7 @@
 		}
 	}
 	*MATERIAL 2 {
-		*MATERIAL_NAME "stonelamp"
+		*MATERIAL_NAME "models/mapobjects/kat/stone_lamps"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 0.8000   0.8000   0.8000

@@ -12,7 +12,7 @@
 *MATERIAL_LIST {
 	*MATERIAL_COUNT 1
 	*MATERIAL 0 {
-		*MATERIAL_NAME "weaponMarker"
+		*MATERIAL_NAME "models/mapobjects/kat/weapon_marker"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 0.8000   0.8000   0.8000

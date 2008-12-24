@@ -12,7 +12,7 @@
 *MATERIAL_LIST {
 	*MATERIAL_COUNT 2
 	*MATERIAL 0 {
-		*MATERIAL_NAME "2 - Default"
+		*MATERIAL_NAME "models/mapobjects/gw/fencepost"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.5882	0.5882	0.5882
 		*MATERIAL_DIFFUSE 0.5882	0.5882	0.5882
@@ -48,7 +48,7 @@
 		}
 	}
 	*MATERIAL 1 {
-		*MATERIAL_NAME "3 - Default"
+		*MATERIAL_NAME "models/mapobjects/gw/chainlink_fence"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.5882	0.5882	0.5882
 		*MATERIAL_DIFFUSE 0.5882	0.5882	0.5882

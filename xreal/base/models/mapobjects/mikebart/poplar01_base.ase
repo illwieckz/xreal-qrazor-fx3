@@ -12,7 +12,7 @@
 *MATERIAL_LIST {
 	*MATERIAL_COUNT 2
 	*MATERIAL 0 {
-		*MATERIAL_NAME "orig_orig_treebark"
+		*MATERIAL_NAME "models\mapobjects\mikebart\tree_bark01"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.5880	0.5880	0.5880
 		*MATERIAL_DIFFUSE 0.5880	0.5880	0.5880
@@ -48,7 +48,7 @@
 		}
 	}
 	*MATERIAL 1 {
-		*MATERIAL_NAME "foliage01"
+		*MATERIAL_NAME "models\mapobjects\mikebart\tree_branches01"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.5880	0.5880	0.5880
 		*MATERIAL_DIFFUSE 0.5880	0.5880	0.5880

@@ -12,7 +12,7 @@
 *MATERIAL_LIST {
 	*MATERIAL_COUNT 3
 	*MATERIAL 0 {
-		*MATERIAL_NAME "jumppad"
+		*MATERIAL_NAME "models/mapobjects/kat/jumppad"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 0.8000   0.8000   0.8000
@@ -48,7 +48,7 @@
 		}
 	}
 	*MATERIAL 1 {
-		*MATERIAL_NAME "jp_glow"
+		*MATERIAL_NAME "models/mapobjects/kat/jumppad_glow"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 0.8000   0.8000   0.8000
@@ -84,7 +84,7 @@
 		}
 	}
 	*MATERIAL 2 {
-		*MATERIAL_NAME "drum"
+		*MATERIAL_NAME "models/mapobjects/kat/jumppad_body"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.0000   0.0000   0.0000
 		*MATERIAL_DIFFUSE 0.8000   0.8000   0.8000
