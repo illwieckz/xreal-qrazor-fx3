@@ -430,7 +430,7 @@ textures/power/panel64_7d
 	specularmap	textures/power/panel64_7d_s
 }
 
-//textures/power/panel64_7e	
+textures/power/panel64_7e	
 {
 	qer_editorimage textures/power/panel64_7e_d
 
