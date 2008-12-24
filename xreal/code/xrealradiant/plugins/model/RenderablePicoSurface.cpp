@@ -10,7 +10,7 @@
 namespace model {
 
 // Constructor. Copy the provided picoSurface_t structure into this object
-RenderablePicoSurface::RenderablePicoSurface(picoSurface_t* surf, 
+RenderablePicoSurface::RenderablePicoSurface(picoSurface_t* surf,
 											 const std::string& fExt)
 : _originalShaderName(""),
   _mappedShaderName(""),
@@ -26,64 +26,71 @@ RenderablePicoSurface::RenderablePicoSurface(picoSurface_t* surf,
 	    	_originalShaderName = PicoGetShaderName(shader);
 		}
 		else if (fExt == "ase") {
+
+			//Tr3B - disabled this .ase specific mess: artists should be able to provide proper *MATERIAL_NAME properties
+
+			/*
 			std::string rawMapName = PicoGetShaderMapName(shader);
 			boost::algorithm::replace_all(rawMapName, "\\", "/");
-			
+
 			// Take off the everything before "base/", and everything after
 			// the first period if it exists (i.e. strip off ".tga")
 			std::size_t basePos = rawMapName.find("base");
 			std::size_t dotPos = rawMapName.find(".");
 			if (basePos > 0) {
-				_originalShaderName = rawMapName.substr(basePos + 5, 
+				_originalShaderName = rawMapName.substr(basePos + 5,
 														dotPos - basePos - 5);
 			}
 			else {
 				// Unrecognised shader path
 				_originalShaderName = "";
 			}
+			*/
+
+			_originalShaderName = PicoGetShaderName(shader);
 		}
     }
-    
-    globalOutputStream() << "  RenderablePicoSurface: using shader " 
+
+    globalOutputStream() << "  RenderablePicoSurface: using shader "
     					 << _originalShaderName << "\n";
-    
+
     _mappedShaderName = _originalShaderName; // no skin at this time
-    
+
     // Capture the shader
     _shader = GlobalShaderCache().capture(_originalShaderName);
-    
-    // Get the number of vertices and indices, and reserve capacity in our 
+
+    // Get the number of vertices and indices, and reserve capacity in our
     // vectors in advance by populating them with empty structs.
     int nVerts = PicoGetSurfaceNumVertexes(surf);
     _nIndices = PicoGetSurfaceNumIndexes(surf);
     _vertices.resize(nVerts);
     _indices.resize(_nIndices);
-    
-    // Stream in the vertex data from the raw struct, expanding the local AABB 
+
+    // Stream in the vertex data from the raw struct, expanding the local AABB
     // to include each vertex.
     for (int vNum = 0; vNum < nVerts; ++vNum) {
-    	
+
     	// Get the vertex position and colour
 		Vertex3f vertex(PicoGetSurfaceXYZ(surf, vNum));
-		
+
 		// Expand the AABB to include this new vertex
     	_localAABB.includePoint(vertex);
-    	
+
     	_vertices[vNum].vertex = vertex;
     	_vertices[vNum].normal = Normal3f(PicoGetSurfaceNormal(surf, vNum));
     	_vertices[vNum].texcoord = TexCoord2f(PicoGetSurfaceST(surf, 0, vNum));
-    	_vertices[vNum].colour = 
+    	_vertices[vNum].colour =
     		getColourVector(PicoGetSurfaceColor(surf, 0, vNum));
     }
-    
+
     // Stream in the index data
     picoIndex_t* ind = PicoGetSurfaceIndexes(surf, 0);
     for (unsigned int i = 0; i < _nIndices; i++)
     	_indices[i] = ind[i];
-	
+
 	// Calculate the tangent and bitangent vectors
 	calculateTangents();
-	
+
 	// Construct the DLs
 	createDisplayLists();
 }
@@ -91,7 +98,7 @@ RenderablePicoSurface::RenderablePicoSurface(picoSurface_t* surf,
 // Destructor. Release the GL display lists.
 RenderablePicoSurface::~RenderablePicoSurface() {
 	glDeleteLists(_normalList, 1);
-	glDeleteLists(_lightingList, 1);	
+	glDeleteLists(_lightingList, 1);
 }
 
 // Convert byte pointers to colour vector
@@ -106,7 +113,7 @@ Vector3 RenderablePicoSurface::getColourVector(unsigned char* array) {
 
 // Tangent calculation
 void RenderablePicoSurface::calculateTangents() {
-	
+
 	// Calculate the tangents and bitangents using the indices into the vertex
 	// array.
 	for (Indices::iterator i = _indices.begin();
@@ -116,18 +123,18 @@ void RenderablePicoSurface::calculateTangents() {
 		ArbitraryMeshVertex& a = _vertices[*i];
 		ArbitraryMeshVertex& b = _vertices[*(i + 1)];
 		ArbitraryMeshVertex& c = _vertices[*(i + 2)];
-		
+
 		// Call the tangent calculation function from render.h
 		ArbitraryMeshTriangle_sumTangents(a, b, c);
 	}
-	
+
 	// Normalise all of the tangent and bitangent vectors
 	for (VertexVector::iterator j = _vertices.begin();
 		 j != _vertices.end();
 		 ++j)
 	{
 		j->tangent.normalise();
-		j->bitangent.normalise();		
+		j->bitangent.normalise();
 	}
 }
 
@@ -174,7 +181,7 @@ void RenderablePicoSurface::createDisplayLists() {
 			glVertexAttrib3dvARB(ATTR_BITANGENT, v.bitangent);
 			glVertexAttrib3dvARB(ATTR_NORMAL, v.normal);
 		}
-		glVertex3dv(v.vertex);	
+		glVertex3dv(v.vertex);
 	}
 	glEnd();
 	glEndList();
@@ -182,7 +189,7 @@ void RenderablePicoSurface::createDisplayLists() {
 	// Generate the list for flat-shaded (unlit) mode
 	_normalList = glGenLists(1);
 	glNewList(_normalList, GL_COMPILE);
-	
+
 	glBegin(GL_TRIANGLES);
 	for (Indices::const_iterator i = _indices.begin();
 		 i != _indices.end();
@@ -190,14 +197,14 @@ void RenderablePicoSurface::createDisplayLists() {
 	{
 		// Get the vertex for this index
 		ArbitraryMeshVertex& v = _vertices[*i];
-		
+
 		// Submit attributes
 		glNormal3dv(v.normal);
 		glTexCoord2dv(v.texcoord);
-		glVertex3dv(v.vertex);	
+		glVertex3dv(v.vertex);
 	}
 	glEnd();
-	
+
 	glEndList();
 }
 
@@ -211,27 +218,27 @@ void RenderablePicoSurface::applySkin(const ModelSkin& skin) {
 		_shader = GlobalShaderCache().capture(remap);
 
 		// Save the remapped shader name
-		_mappedShaderName = remap; 
+		_mappedShaderName = remap;
 	}
 	else if (remap == "" && _mappedShaderName != _originalShaderName) {
-		// No remap, so reset our shader to the original unskinned shader	
+		// No remap, so reset our shader to the original unskinned shader
 		_shader = GlobalShaderCache().capture(_originalShaderName);
 
 		// Reset the remapped shader name
-		_mappedShaderName = _originalShaderName; 
+		_mappedShaderName = _originalShaderName;
 	}
 }
 
 // Perform volume intersection test on this surface's geometry
 VolumeIntersectionValue RenderablePicoSurface::intersectVolume(
-	const VolumeTest& test, 
+	const VolumeTest& test,
 	const Matrix4& localToWorld) const
 {
 	return test.TestAABB(_localAABB, localToWorld);
 }
 
 // Perform selection test for this surface
-void RenderablePicoSurface::testSelect(Selector& selector, 
+void RenderablePicoSurface::testSelect(Selector& selector,
 									   SelectionTest& test,
 									   const Matrix4& localToWorld) const
 {
@@ -241,13 +248,13 @@ void RenderablePicoSurface::testSelect(Selector& selector,
 		SelectionIntersection result;
 
 		test.TestTriangles(
-			VertexPointer(VertexPointer::pointer(&_vertices[0].vertex), 
+			VertexPointer(VertexPointer::pointer(&_vertices[0].vertex),
 						  sizeof(ArbitraryMeshVertex)),
-      		IndexPointer(&_indices[0], 
+      		IndexPointer(&_indices[0],
       					 IndexPointer::index_type(_indices.size())),
 			result
 		);
-		
+
 		// Add the intersection to the selector if it is valid
 		if(result.valid()) {
 			selector.addIntersection(result);
