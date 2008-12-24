@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\common;..\gtkradiant\libs"
+				AdditionalIncludeDirectories="..\common;..\xrealradiant\libs"
 				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,XMAP"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -144,7 +144,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\common;..\gtkradiant\libs"
+				AdditionalIncludeDirectories="..\common;..\xrealradiant\libs"
 				PreprocessorDefinitions="NDEBUG,WIN32,_CONSOLE,XMAP"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -481,90 +481,90 @@
 				Name="picomodel"
 				>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\picointernal.c"
+					RelativePath="..\xrealradiant\libs\picomodel\picointernal.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\picomodel.c"
+					RelativePath="..\xrealradiant\libs\picomodel\picomodel.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\picomodules.c"
+					RelativePath="..\xrealradiant\libs\picomodel\picomodules.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_3ds.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_3ds.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_ase.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_ase.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_fm.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_fm.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_lwo.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_lwo.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_md2.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_md2.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_md3.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_md3.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_mdc.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_mdc.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_ms3d.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_ms3d.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_obj.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_obj.c"
 					>
 				</File>
 				<File
-					RelativePath="..\gtkradiant\libs\picomodel\pm_terrain.c"
+					RelativePath="..\xrealradiant\libs\picomodel\pm_terrain.c"
 					>
 				</File>
 				<Filter
 					Name="lwo"
 					>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\clip.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\clip.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\envelope.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\envelope.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\list.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\list.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\lwio.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\lwio.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\lwo2.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\lwo2.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\lwob.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\lwob.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\pntspols.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\pntspols.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\surface.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\surface.c"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -586,11 +586,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\vecmath.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\vecmath.c"
 						>
 					</File>
 					<File
-						RelativePath="..\gtkradiant\libs\picomodel\lwo\vmap.c"
+						RelativePath="..\xrealradiant\libs\picomodel\lwo\vmap.c"
 						>
 					</File>
 				</Filter>
