@@ -1,15 +1,30 @@
+textures/displays/comp_bank
+{
+	qer_editorimage	textures/displays/comp_bank.jpg
+	
+	diffuseMap	textures/displays/comp_bank.jpg
+//	normalMap	textures/displays/comp_bank.jpg
+	bumpMap		heightmap (textures/displays/comp_bank.jpg, 1.0)
+	specularMap	textures/displays/comp_bank.jpg
+}
+
 textures/displays/planet_dis
 {
+	qer_editorimage textures/displays/planet_dis.jpg
+	
 	{
 		map textures/displays/planet_dis.tga
-		blendfunc add
-		}
+		blend add
+	}
 }
 
 textures/displays/planet_dis_2
 {
+	qer_editorimage textures/displays/planet_dis_2.jpg
+	
 	{
 		map textures/displays/planet_dis_2.tga
-		blendfunc add
-		}
+		blend add
+
+	}
 }
