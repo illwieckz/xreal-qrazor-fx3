@@ -848,7 +848,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			break;
 		case EV_FIRE_WEAPON2:
 			DEBUGNAME("EV_FIRE_WEAPON2");
-			CG_FireWeapon(cent);
+			CG_FireWeapon2(cent);
 			break;
 
 		case EV_USE_ITEM0:
@@ -1347,7 +1347,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			{
 				CG_RunLuaFunction(s, "vv", position, dir);
 			}
-#endif			
+#endif
 			break;
 
 		case EV_DEBUG_LINE:

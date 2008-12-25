@@ -986,6 +986,9 @@ extern vmCvar_t g_proxMineTimeout;
 extern vmCvar_t g_rocketAcceleration;
 extern vmCvar_t g_rocketVelocity;
 
+extern vmCvar_t g_teleportMissiles;
+extern vmCvar_t g_fallingDamage;
+
 extern vmCvar_t pm_airControl;
 extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;

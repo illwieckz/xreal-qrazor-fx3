@@ -1911,6 +1911,23 @@ static void PM_Weapon(void)
 		return;
 	}
 
+	// Tr3B: filter weapons during development
+	// not every weapon has a second fire mode yet
+	if(pm->cmd.buttons & BUTTON_ATTACK2)
+	{
+		switch (pm->ps->weapon)
+		{
+			case WP_ROCKET_LAUNCHER:
+				break;
+
+			default:
+				// ignore primary BUTTON_ATTACK
+				pm->ps->weaponTime = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+				return;
+		}
+	}
+
 	// start the animation even if out of ammo
 	if(pm->ps->weapon == WP_GAUNTLET)
 	{
@@ -2420,7 +2437,7 @@ void PmoveSingle(pmove_t * pmove)
 			// add some error...
 			for(i = 0; i < 3; i++)
 			{
-				// ...if the velocity in this direction changed enough 
+				// ...if the velocity in this direction changed enough
 				if(fabs(pm->ps->velocity[i] - pml.previous_velocity[i]) > 0.5f / fac)
 				{
 					if(pm->ps->velocity[i] < 0)

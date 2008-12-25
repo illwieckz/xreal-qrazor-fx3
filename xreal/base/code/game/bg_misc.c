@@ -1473,6 +1473,11 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 			VectorCopy(tr->trDelta, result);
 			result[2] -= tr->trAcceleration * deltaTime;
 			break;
+		case TR_BUOYANCY:
+			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
+			VectorCopy(tr->trDelta, result);
+			result[2] += DEFAULT_GRAVITY * deltaTime;	// FIXME: local gravity...
+			break;
 		case TR_ACCELERATION:
 			deltaTime = (atTime - tr->trTime) * 0.001;
 

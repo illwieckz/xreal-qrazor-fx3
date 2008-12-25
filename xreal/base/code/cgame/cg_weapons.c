@@ -2662,6 +2662,88 @@ void CG_FireWeapon(centity_t * cent)
 }
 
 /*
+================
+CG_FireWeapon2
+
+Caused by an EV_FIRE_WEAPON2 event
+
+TODO
+================
+*/
+void CG_FireWeapon2(centity_t * cent)
+{
+	entityState_t  *ent;
+	int             c;
+	weaponInfo_t   *weap;
+
+	ent = &cent->currentState;
+	if(ent->weapon == WP_NONE)
+	{
+		return;
+	}
+	if(ent->weapon >= WP_NUM_WEAPONS)
+	{
+		CG_Error("CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
+		return;
+	}
+	weap = &cg_weapons[ent->weapon];
+
+	// TODO
+	switch (ent->weapon)
+	{
+		case WP_GAUNTLET:
+		default:
+			return;
+	}
+
+	// mark the entity as muzzle flashing, so when it is added it will
+	// append the flash to the weapon model
+	cent->muzzleFlashTime = cg.time;
+
+	// lightning gun only does this this on initial press
+	if(ent->weapon == WP_LIGHTNING)
+	{
+		if(cent->pe.lightningFiring)
+		{
+			return;
+		}
+	}
+
+	// play quad sound if needed
+	if(cent->currentState.powerups & (1 << PW_QUAD))
+	{
+		trap_S_StartSound(NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound);
+	}
+
+	// play a sound
+	for(c = 0; c < 10; c++)
+	{
+		if(!weap->flashSound[c])
+		{
+			break;
+		}
+	}
+	if(c > 0)
+	{
+		c = rand() % c;
+		if(weap->flashSound[c])
+		{
+			trap_S_StartSound(NULL, ent->number, CHAN_WEAPON, weap->flashSound[c]);
+		}
+	}
+
+	// do brass ejection
+	if(weap->ejectBrassFunc && cg_brassTime.integer > 0)
+	{
+		weap->ejectBrassFunc(cent);
+	}
+
+//unlagged - attack prediction #1
+// TODO	CG_PredictWeaponEffects2(cent);
+//unlagged - attack prediction #1
+}
+
+/*
 =================
 CG_AddBulletParticles
 =================

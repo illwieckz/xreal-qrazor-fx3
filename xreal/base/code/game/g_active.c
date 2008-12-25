@@ -506,8 +506,9 @@ qboolean ClientInactivityTimer(gclient_t * client)
 		client->inactivityTime = level.time + 60 * 1000;
 		client->inactivityWarning = qfalse;
 	}
+	// Tr3B: added BUTTON_ATTACK2
 	else if(client->pers.cmd.forwardmove ||
-			client->pers.cmd.rightmove || client->pers.cmd.upmove || (client->pers.cmd.buttons & BUTTON_ATTACK))
+			client->pers.cmd.rightmove || client->pers.cmd.upmove || (client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ATTACK2)))
 	{
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
