@@ -250,6 +250,20 @@ gentity_t      *G_FindRadius(gentity_t * from, const vec3_t org, float rad)
 	return NULL;
 }
 
+// Visiblilty check
+qboolean G_IsVisible(const gentity_t * self, const vec3_t goal)
+{
+	trace_t         trace;
+
+	trap_Trace(&trace, self->r.currentOrigin, NULL, NULL, goal, self->s.number, MASK_SHOT);
+
+	// Yes we can see it
+	if(trace.contents & CONTENTS_SOLID)
+		return qfalse;
+	else
+		return qtrue;
+}
+
 
 /*
 =============
@@ -467,6 +481,7 @@ float vectoyaw(const vec3_t vec)
 void G_InitGentity(gentity_t * e)
 {
 	e->inuse = qtrue;
+	e->spawnTime = level.time;
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
@@ -512,7 +527,7 @@ gentity_t      *G_Spawn(void)
 
 			// the first couple seconds of server time can involve a lot of
 			// freeing and allocating, so relax the replacement policy
-			if(!force && e->freetime > level.startTime + 2000 && level.time - e->freetime < 1000)
+			if(!force && e->freeTime > level.startTime + 2000 && level.time - e->freeTime < 1000)
 			{
 				continue;
 			}
@@ -587,7 +602,7 @@ void G_FreeEntity(gentity_t * ed)
 
 	memset(ed, 0, sizeof(*ed));
 	ed->classname = "freed";
-	ed->freetime = level.time;
+	ed->freeTime = level.time;
 	ed->inuse = qfalse;
 
 #if defined(ACEBOT)

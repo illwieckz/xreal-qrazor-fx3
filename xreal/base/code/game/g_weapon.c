@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-// g_weapon.c 
+// g_weapon.c
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
@@ -465,11 +465,22 @@ ROCKET
 ======================================================================
 */
 
-void Weapon_RocketLauncher_Fire(gentity_t * ent)
+void Weapon_RocketLauncher_FireMissile(gentity_t * ent)
 {
 	gentity_t      *m;
 
 	m = fire_rocket(ent, muzzle, forward);
+	m->damage *= s_quadFactor;
+	m->splashDamage *= s_quadFactor;
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
+void Weapon_RocketLauncher_FireHomingMissile(gentity_t * ent)
+{
+	gentity_t      *m;
+
+	m = fire_homing(ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
 
@@ -1018,7 +1029,7 @@ void FireWeapon(gentity_t * ent)
 			weapon_grenadelauncher_fire(ent);
 			break;
 		case WP_ROCKET_LAUNCHER:
-			Weapon_RocketLauncher_Fire(ent);
+			Weapon_RocketLauncher_FireMissile(ent);
 			break;
 		case WP_PLASMAGUN:
 			Weapon_Plasmagun_Fire(ent);
@@ -1045,6 +1056,66 @@ void FireWeapon(gentity_t * ent)
 #endif
 		default:
 // FIXME        G_Error( "Bad ent->s.weapon" );
+			break;
+	}
+}
+
+
+/*
+===============
+FireWeapon2
+===============
+*/
+void FireWeapon2(gentity_t * ent)
+{
+	if(ent->client->ps.powerups[PW_QUAD])
+	{
+		s_quadFactor = g_quadfactor.value;
+	}
+	else
+	{
+		s_quadFactor = 1;
+	}
+	/*
+#ifdef MISSIONPACK
+	if(ent->client->persistantPowerup && ent->client->persistantPowerup->item &&
+	   ent->client->persistantPowerup->item->giTag == PW_DOUBLER)
+	{
+		s_quadFactor *= 2;
+	}
+#endif
+
+	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntlet is just not tracked
+	if(ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET)
+	{
+#ifdef MISSIONPACK
+		if(ent->s.weapon == WP_NAILGUN)
+		{
+			ent->client->accuracy_shots += NUM_NAILSHOTS;
+		}
+		else
+		{
+			ent->client->accuracy_shots++;
+		}
+#else
+		ent->client->accuracy_shots++;
+#endif
+	}
+	*/
+
+	// set aiming directions
+	AngleVectors(ent->client->ps.viewangles, forward, right, up);
+
+	CalcMuzzlePointOrigin(ent, ent->client->oldOrigin, forward, right, up, muzzle);
+
+	// fire the specific weapon
+	switch (ent->s.weapon)
+	{
+		case WP_ROCKET_LAUNCHER:
+			Weapon_RocketLauncher_FireHomingMissile(ent);
+			break;
+
+		default:
 			break;
 	}
 }

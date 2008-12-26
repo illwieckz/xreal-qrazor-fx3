@@ -804,6 +804,10 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 				FireWeapon(ent);
 				break;
 
+			case EV_FIRE_WEAPON2:
+				FireWeapon2(ent);
+				break;
+
 			case EV_USE_ITEM1:	// teleporter
 				// drop flags in CTF
 				item = NULL;
@@ -1040,7 +1044,7 @@ void ClientThink_real(gentity_t * ent)
 
 
 //unlagged - backward reconciliation #4
-	// frameOffset should be about the number of milliseconds into a frame 
+	// frameOffset should be about the number of milliseconds into a frame
 	// this command packet was received, depending on how fast the server
 	// does a G_RunFrame()
 	client->frameOffset = trap_Milliseconds() - level.frameStartTime;

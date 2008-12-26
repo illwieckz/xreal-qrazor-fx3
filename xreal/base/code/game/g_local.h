@@ -135,14 +135,16 @@ struct gentity_s
 
 	char           *model;
 	char           *model2;
-	int             freetime;	// level.time when the object was freed
+
+	int				spawnTime;	// level.time when the object was spawned
+	int             freeTime;	// level.time when the object was freed
 
 	int             eventTime;	// events will be cleared EVENT_VALID_MSEC after set
 	qboolean        freeAfterEvent;
 	qboolean        unlinkAfterEvent;
 
 	qboolean        physicsObject;	// if true, it can be pushed by movers and fall off edges
-	// all game items are physicsObjects, 
+	// all game items are physicsObjects,
 	float           physicsBounce;	// 1.0 = continuous bounce, 0.0 = no bounce
 	int             clipmask;	// brushes with this content value will be collided against
 	// when moving.  items and corpses do not collide against
@@ -613,6 +615,7 @@ void            G_KillBox(gentity_t * ent);
 void            G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 gentity_t      *G_Find(gentity_t * from, int fieldofs, const char *match);
 gentity_t      *G_FindRadius(gentity_t * from, const vec3_t org, float rad);
+qboolean		G_IsVisible(const gentity_t * self, const vec3_t goal);
 gentity_t      *G_PickTarget(char *name);
 void            G_UseTargets(gentity_t * ent, gentity_t * activator);
 void            G_SetMovedir(vec3_t angles, vec3_t movedir);
@@ -672,6 +675,7 @@ gentity_t      *fire_blaster(gentity_t * self, vec3_t start, vec3_t aimdir);
 gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t aimdir);
 gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t aimdir);
 gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir);
+gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir);
 
@@ -759,6 +763,7 @@ qboolean        G_FilterPacket(char *from);
 // g_weapon.c
 //
 void            FireWeapon(gentity_t * ent);
+void			FireWeapon2(gentity_t * ent);
 
 #ifdef MISSIONPACK
 void            G_StartKamikaze(gentity_t * ent);
@@ -1000,7 +1005,7 @@ extern vmCvar_t g_delagHitscan;
 extern vmCvar_t g_unlaggedVersion;
 extern vmCvar_t g_truePing;
 
-// server admins can adjust this if they *believe* the lightning 
+// server admins can adjust this if they *believe* the lightning
 // gun is too powerful with lag compensation
 extern vmCvar_t g_lightningDamage;
 

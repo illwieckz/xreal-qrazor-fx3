@@ -768,6 +768,201 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	return bolt;
 }
 
+//=============================================================================
+
+void G_HomingMissile(gentity_t * ent)
+{
+	gentity_t      *target = NULL;
+	gentity_t      *blip = NULL;
+	vec3_t          dir, blipdir;
+	vec_t           angle;
+	qboolean        chaff;
+	qboolean        ignorechaff = qfalse;
+	const int		HOMING_THINK_TIME = 60;
+
+	// explode after 15 seconds without a hit
+	if(ent->spawnTime + 15000 <= level.time)
+	{
+		G_ExplodeMissile(ent);
+		return;
+	}
+
+	/*
+	if(ent->parent->health <= 0)
+	{
+		ent->nextthink = level.time + 15000;
+		ent->think = G_ExplodeMissile;
+		return;
+	}
+	*/
+
+	/*
+	if(ent->parent && ent->parent->client)
+	{
+		ignorechaff = (ent->parent->client->ps.powerups[PW_ACCURACY] > 0);
+	}
+	*/
+
+	while((blip = G_FindRadius(blip, ent->r.currentOrigin, 2000)) != NULL)
+	{
+#if 0
+		if(blip->s.weapon == WP_CHAFF)
+		{
+			if(ignorechaff)
+			{
+				continue;
+			}
+
+			chaff = qtrue;
+		}
+		else
+#endif
+		{
+			chaff = qfalse;
+
+			if(blip->client == NULL)
+				continue;
+
+			if(blip == ent->parent)
+				continue;
+
+			if(blip->health <= 0)
+				continue;
+
+			if(blip->client->sess.sessionTeam >= TEAM_SPECTATOR)
+				continue;
+
+			if((g_gametype.integer == GT_TEAM || g_gametype.integer == GT_CTF) && OnSameTeam(blip, ent->parent))
+				continue;
+		}
+
+		if(!G_IsVisible(ent, blip->r.currentOrigin))
+			continue;
+
+		VectorSubtract(blip->r.currentOrigin, ent->r.currentOrigin, blipdir);
+
+		if(chaff)
+		{
+			VectorScale(blipdir, 0.5, blipdir);
+		}
+
+		if((target == NULL) || (VectorLength(blipdir) < VectorLength(dir)))
+		{
+			if(chaff)
+			{
+				VectorScale(blipdir, 2, blipdir);
+			}
+
+			angle = AngleBetweenVectors(ent->r.currentAngles, blipdir);
+
+			if(angle < 120.0f)
+			{
+				// We add it as our target
+				target = blip;
+				VectorCopy(blipdir, dir);
+			}
+		}
+	}
+
+	if(target == NULL)
+	{
+		ent->nextthink = level.time + HOMING_THINK_TIME;	// + 10000;
+		ent->think = G_HomingMissile;
+	}
+	else
+	{
+		// for exact trajectory calculation, set current point to base.
+		VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
+
+		VectorNormalize(dir);
+		// 0.5 is swing rate.
+		VectorScale(dir, 0.5, dir);
+		VectorAdd(dir, ent->r.currentAngles, dir);
+
+		// turn nozzle to target angle
+		VectorNormalize(dir);
+		VectorCopy(dir, ent->r.currentAngles);
+
+		// scale direction, put into trDelta
+		if(g_rocketAcceleration.integer)
+		{
+			// use acceleration instead of linear velocity
+			ent->s.pos.trType = TR_ACCELERATION;
+			ent->s.pos.trAcceleration = g_rocketAcceleration.value;
+			VectorScale(dir, g_rocketVelocity.value, ent->s.pos.trDelta);
+		}
+		else
+		{
+			ent->s.pos.trType = TR_LINEAR;
+			VectorScale(dir, g_rocketVelocity.value * 0.25, ent->s.pos.trDelta);
+		}
+
+		ent->s.pos.trTime = level.time;
+
+		SnapVector(ent->s.pos.trDelta);	// save net bandwidth
+		ent->nextthink = level.time + HOMING_THINK_TIME;	// decrease this value also makes fast swing
+		ent->think = G_HomingMissile;
+
+		//G_Printf("targeting %s\n", target->classname);
+	}
+}
+
+/*
+=================
+fire_homing
+=================
+*/
+gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir)
+{
+	gentity_t      *bolt;
+
+	VectorNormalize(dir);
+
+	bolt = G_Spawn();
+	bolt->classname = "rocket_homing";
+	bolt->nextthink = level.time + 600;
+	bolt->think = G_HomingMissile;
+	bolt->s.eType = ET_MISSILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WP_ROCKET_LAUNCHER;
+	bolt->r.ownerNum = self->s.number;
+//unlagged - projectile nudge
+	// we'll need this for nudging projectiles later
+	bolt->s.otherEntityNum = self->s.number;
+//unlagged - projectile nudge
+	bolt->parent = self;
+	bolt->damage = 100;
+	bolt->splashDamage = 100;
+	bolt->splashRadius = 120;
+	bolt->methodOfDeath = MOD_ROCKET;
+	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
+	bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+
+	if(g_rocketAcceleration.integer)
+	{
+		// use acceleration instead of linear velocity
+		bolt->s.pos.trType = TR_ACCELERATION;
+		bolt->s.pos.trAcceleration = g_rocketAcceleration.value;
+		VectorScale(dir, g_rocketVelocity.value, bolt->s.pos.trDelta);
+	}
+	else
+	{
+		bolt->s.pos.trType = TR_LINEAR;
+		VectorScale(dir, g_rocketVelocity.value * 0.25, bolt->s.pos.trDelta);
+	}
+
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
+	VectorCopy(start, bolt->s.pos.trBase);
+
+	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
+	VectorCopy(start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
+//=============================================================================
+
 /*
 =================
 fire_grapple
