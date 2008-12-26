@@ -748,6 +748,7 @@ void FinishSpawningItem(gentity_t * ent)
 {
 	trace_t         tr;
 	vec3_t          dest;
+	qboolean		suspended;
 
 	VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
 	VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
@@ -761,7 +762,7 @@ void FinishSpawningItem(gentity_t * ent)
 	// useing an item causes it to respawn
 	ent->use = Use_Item;
 
-	if(ent->spawnflags & 1)
+	if(ent->suspended)
 	{
 		// suspended
 		G_SetOrigin(ent, ent->s.origin);
@@ -1015,6 +1016,7 @@ void G_SpawnItem(gentity_t * ent, gitem_t * item)
 {
 	G_SpawnFloat("random", "0", &ent->random);
 	G_SpawnFloat("wait", "0", &ent->wait);
+	G_SpawnBoolean("suspended", "0", &ent->suspended);
 
 	RegisterItem(item);
 	if(G_ItemDisabled(item))

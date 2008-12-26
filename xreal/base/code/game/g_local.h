@@ -224,6 +224,7 @@ struct gentity_s
 	float           wait;
 	float           random;
 
+	qboolean		suspended;	// item will spawn where it was placed in map and won't drop to the floor
 	gitem_t        *item;		// for bonus items
 
 #ifdef LUA
