@@ -883,14 +883,16 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 
 				break;
 
-#ifdef MISSIONPACK
 			case EV_USE_ITEM3:	// kamikaze
+#ifdef MISSIONPACK
 				// make sure the invulnerability is off
 				ent->client->invulnerabilityTime = 0;
+#endif
 				// start the kamikze
 				G_StartKamikaze(ent);
 				break;
 
+#ifdef MISSIONPACK
 			case EV_USE_ITEM4:	// portal
 				if(ent->client->portalID)
 				{

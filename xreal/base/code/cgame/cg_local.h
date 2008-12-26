@@ -250,8 +250,8 @@ typedef enum
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
-#ifdef MISSIONPACK
 	LE_KAMIKAZE,
+#ifdef MISSIONPACK
 	LE_INVULIMPACT,
 	LE_INVULJUICED,
 	LE_SHOWREFENTITY
@@ -1078,11 +1078,11 @@ typedef struct
 
 	// special effects models
 	qhandle_t       teleportFlareShader;
-#ifdef MISSIONPACK
 	qhandle_t       kamikazeEffectModel;
 	qhandle_t       kamikazeShockWave;
 	qhandle_t       kamikazeHeadModel;
 	qhandle_t       kamikazeHeadTrail;
+#ifdef MISSIONPACK
 	qhandle_t       guardPowerupModel;
 	qhandle_t       scoutPowerupModel;
 	qhandle_t       doublerPowerupModel;
@@ -1149,9 +1149,11 @@ typedef struct
 	sfxHandle_t     sfx_chghit;
 	sfxHandle_t     sfx_chghitflesh;
 	sfxHandle_t     sfx_chghitmetal;
+#endif
 	sfxHandle_t     kamikazeExplodeSound;
 	sfxHandle_t     kamikazeImplodeSound;
 	sfxHandle_t     kamikazeFarSound;
+#ifdef MISSIONPACK
 	sfxHandle_t     useInvulnerabilitySound;
 	sfxHandle_t     invulnerabilityImpactSound1;
 	sfxHandle_t     invulnerabilityImpactSound2;
@@ -1786,8 +1788,8 @@ localEntity_t  *CG_SmokePuff(const vec3_t p,
 void            CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
 void            CG_ShockWaveEffect(vec3_t org);
 
-#ifdef MISSIONPACK
 void            CG_KamikazeEffect(vec3_t org);
+#ifdef MISSIONPACK
 void            CG_ObeliskExplode(vec3_t org, int entityNum);
 void            CG_ObeliskPain(vec3_t org);
 void            CG_InvulnerabilityImpact(vec3_t org, vec3_t angles);

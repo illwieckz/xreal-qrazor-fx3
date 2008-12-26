@@ -183,11 +183,9 @@ static void CG_Obituary(entityState_t * ent)
 		gender = ci->gender;
 		switch (mod)
 		{
-#ifdef MISSIONPACK
 			case MOD_KAMIKAZE:
 				message = "goes out with a bang";
 				break;
-#endif
 			case MOD_GRENADE_SPLASH:
 				if(gender == GENDER_FEMALE)
 					message = "tripped on her own grenade";
@@ -354,10 +352,12 @@ static void CG_Obituary(entityState_t * ent)
 				message = "was too close to";
 				message2 = "'s Prox Mine";
 				break;
+#endif
 			case MOD_KAMIKAZE:
 				message = "falls to";
 				message2 = "'s Kamikaze blast";
 				break;
+#ifdef MISSIONPACK
 			case MOD_JUICED:
 				message = "was juiced by";
 				break;
@@ -438,12 +438,13 @@ static void CG_UseItem(centity_t * cent)
 			trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.medkitSound);
 			break;
 
-#ifdef MISSIONPACK
 		case HI_KAMIKAZE:
 			break;
 
+#ifdef MISSIONPACK
 		case HI_PORTAL:
 			break;
+
 		case HI_INVULNERABILITY:
 			trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.useInvulnerabilitySound);
 			break;
@@ -972,10 +973,12 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			DEBUGNAME("EV_PROXIMITY_MINE_TRIGGER");
 			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.wstbactvSound);
 			break;
+#endif
 		case EV_KAMIKAZE:
 			DEBUGNAME("EV_KAMIKAZE");
 			CG_KamikazeEffect(cent->lerpOrigin);
 			break;
+#ifdef MISSIONPACK
 		case EV_OBELISKEXPLODE:
 			DEBUGNAME("EV_OBELISKEXPLODE");
 			CG_ObeliskExplode(cent->lerpOrigin, es->eventParm);
@@ -1250,11 +1253,9 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				case GTS_TEAMS_ARE_TIED:
 					CG_AddBufferedSound(cgs.media.teamsTiedSound);
 					break;
-#ifdef MISSIONPACK
 				case GTS_KAMIKAZE:
 					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
 					break;
-#endif
 				default:
 					break;
 			}
@@ -1318,12 +1319,11 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 		case EV_GIB_PLAYER:
 			DEBUGNAME("EV_GIB_PLAYER");
-#ifdef MISSIONPACK
+
 			// don't play gib sound when using the kamikaze because it interferes
 			// with the kamikaze sound, downside is that the gib sound will also
 			// not be played when someone is gibbed while just carrying the kamikaze
 			if(!(es->eFlags & EF_KAMIKAZE))
-#endif
 			{
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
 			}

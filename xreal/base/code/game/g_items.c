@@ -217,12 +217,10 @@ int Pickup_Holdable(gentity_t * ent, gentity_t * other)
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
-#ifdef MISSIONPACK
 	if(ent->item->giTag == HI_KAMIKAZE)
 	{
 		other->client->ps.eFlags |= EF_KAMIKAZE;
 	}
-#endif
 
 	return RESPAWN_HOLDABLE;
 }
@@ -625,8 +623,8 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	ent->r.contents = 0;
 
 	// ZOID
-	// A negative respawn times means to never respawn this item (but don't 
-	// delete it).  This is used by items that are respawned by third party 
+	// A negative respawn times means to never respawn this item (but don't
+	// delete it).  This is used by items that are respawned by third party
 	// events such as ctf flags
 	if(respawn <= 0)
 	{

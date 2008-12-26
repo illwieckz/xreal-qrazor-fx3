@@ -183,6 +183,7 @@ void CG_LightningBoltBeam(vec3_t start, vec3_t end)
 	beam->reType = RT_LIGHTNING;
 	beam->customShader = cgs.media.lightningShader;
 }
+#endif
 
 /*
 ==================
@@ -216,6 +217,7 @@ void CG_KamikazeEffect(vec3_t org)
 
 }
 
+#ifdef MISSIONPACK
 /*
 ==================
 CG_ObeliskExplode

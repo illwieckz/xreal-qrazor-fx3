@@ -200,7 +200,7 @@ gitem_t         bg_itemlist[] = {
 
 
 	//
-	// WEAPONS 
+	// WEAPONS
 	//
 
 /*QUAKED weapon_gauntlet (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -726,7 +726,7 @@ Only in CTF games
 	 }
 	,
 
-#ifdef MISSIONPACK
+
 /*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -745,6 +745,7 @@ Only in CTF games
 	 }
 	,
 
+#ifdef MISSIONPACK
 /*QUAKED holdable_portal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -1396,7 +1397,7 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 			result[2] += 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;	// FIXME: local gravity...
 			break;
-	
+
 		case TR_ACCELERATION:
 			// Tr3B: see http://code3arena.planetquake.gamespy.com/tutorials/tutorial38.shtml
 

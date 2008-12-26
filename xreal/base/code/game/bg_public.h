@@ -295,10 +295,8 @@ enum
 	EF_AWARD_DENIED			= BIT(17),	// denied
 	EF_AWARD_TELEFRAG		= BIT(18),	// draw a telefrag sprite
 	EF_TEAMVOTED		    = BIT(19),	// already cast a team vote
-#ifdef MISSIONPACK
-	EF_KAMIKAZE				= BIT(19),
-	EF_TICKING				= BIT(20),	// used to make players play the prox mine ticking sound
-#endif
+	EF_KAMIKAZE				= BIT(20),
+	EF_TICKING				= BIT(21)	// used to make players play the prox mine ticking sound
 };
 // *INDENT-ON*
 
@@ -662,7 +660,9 @@ typedef enum
 	MOD_NAIL,
 	MOD_CHAINGUN,
 	MOD_PROXIMITY_MINE,
+#endif
 	MOD_KAMIKAZE,
+#ifdef MISSIONPACK
 	MOD_JUICED,
 #endif
 	MOD_GRAPPLE

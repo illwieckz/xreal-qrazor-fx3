@@ -295,7 +295,7 @@ gentity_t      *SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles
 	   if ( spot == nearestSpot ) {
 	   // last try
 	   spot = SelectRandomDeathmatchSpawnPoint ( );
-	   }        
+	   }
 	   }
 
 	   // find a single player start spot
@@ -1324,10 +1324,8 @@ void ClientSpawn(gentity_t * ent)
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
 
-#ifdef MISSIONPACK
 	// always clear the kamikaze flag
 	ent->s.eFlags &= ~EF_KAMIKAZE;
-#endif
 
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag

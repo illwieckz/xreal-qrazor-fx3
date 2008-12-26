@@ -934,9 +934,11 @@ static void CG_RegisterSounds(void)
 	cgs.media.sfx_chghitflesh = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpl.wav", qfalse);
 	cgs.media.sfx_chghitmetal = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpm.wav", qfalse);
 	cgs.media.weaponHoverSound = trap_S_RegisterSound("sound/weapons/weapon_hover.wav", qfalse);
+#endif
 	cgs.media.kamikazeExplodeSound = trap_S_RegisterSound("sound/items/kam_explode.wav", qfalse);
 	cgs.media.kamikazeImplodeSound = trap_S_RegisterSound("sound/items/kam_implode.wav", qfalse);
 	cgs.media.kamikazeFarSound = trap_S_RegisterSound("sound/items/kam_explode_far.wav", qfalse);
+#ifdef MISSIONPACK
 	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.ogg", qfalse);
 	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.wav", qfalse);
 	cgs.media.youSuckSound = trap_S_RegisterSound("sound/feedback/yousuck.wav", qfalse);
@@ -1192,9 +1194,10 @@ static void CG_RegisterGraphics(void)
 		cgs.media.harvesterNeutralModel = trap_R_RegisterModel("models/powerups/obelisk/obelisk.md3");
 	}
 
-	cgs.media.redKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikred");
 	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff");
 #endif
+
+	cgs.media.redKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikred");
 
 	CG_LoadingString("teams", qfalse);
 
@@ -1203,9 +1206,8 @@ static void CG_RegisterGraphics(void)
 		cgs.media.friendShader = trap_R_RegisterShader("sprites/friend");
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
 		cgs.media.teamStatusBar = trap_R_RegisterShader("gfx/2d/colorbar.tga");
-#ifdef MISSIONPACK
+
 		cgs.media.blueKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikblu");
-#endif
 	}
 
 	CG_LoadingString("model icons", qfalse);
@@ -1237,11 +1239,11 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
 
+	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3", qtrue);
+	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/weaphits/kamwave.md3", qtrue);
+	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikazi.md3", qtrue);
+	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/trailtest.md3", qtrue);
 #ifdef MISSIONPACK
-	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3");
-	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/weaphits/kamwave.md3");
-	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikazi.md3");
-	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/trailtest.md3");
 	cgs.media.guardPowerupModel = trap_R_RegisterModel("models/powerups/guard_player.md3");
 	cgs.media.scoutPowerupModel = trap_R_RegisterModel("models/powerups/scout_player.md3");
 	cgs.media.doublerPowerupModel = trap_R_RegisterModel("models/powerups/doubler_player.md3");

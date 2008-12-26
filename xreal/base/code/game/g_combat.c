@@ -354,13 +354,14 @@ char           *modNames[] = {
 	"MOD_NAIL",
 	"MOD_CHAINGUN",
 	"MOD_PROXIMITY_MINE",
+#endif
 	"MOD_KAMIKAZE",
+#ifdef MISSIONPACK
 	"MOD_JUICED",
 #endif
 	"MOD_GRAPPLE"
 };
 
-#ifdef MISSIONPACK
 /*
 ==================
 Kamikaze_DeathActivate
@@ -390,8 +391,6 @@ void Kamikaze_DeathTimer(gentity_t * self)
 
 	ent->activator = self;
 }
-
-#endif
 
 /*
 ==================
@@ -800,12 +799,10 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		// globally cycle through the different death animations
 		i = (i + 1) % 3;
 
-#ifdef MISSIONPACK
 		if(self->s.eFlags & EF_KAMIKAZE)
 		{
 			Kamikaze_DeathTimer(self);
 		}
-#endif
 	}
 
 	trap_LinkEntity(self);
@@ -1283,7 +1280,7 @@ qboolean CanDamage(gentity_t * targ, vec3_t origin)
 	if(tr.fraction == 1.0 || tr.entityNum == targ->s.number)
 		return qtrue;
 
-	// this should probably check in the plane of projection, 
+	// this should probably check in the plane of projection,
 	// rather than in world coordinate, and also include Z
 	VectorCopy(midpoint, dest);
 	dest[0] += 15.0;
