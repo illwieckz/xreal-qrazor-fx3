@@ -1239,10 +1239,11 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
 
-	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/weaphits/kamboom2.md3", qtrue);
-	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/weaphits/kamwave.md3", qtrue);
-	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikazi.md3", qtrue);
-	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/trailtest.md3", qtrue);
+	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/powerups/kamikaze/kamboom2.md5mesh", qfalse);
+	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/powerups/kamikaze/kamwave.md5mesh", qfalse);
+	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikaze/kamikaze.md5mesh", qfalse);
+	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/kamikaze/trailtest.md5mesh", qfalse);
+
 #ifdef MISSIONPACK
 	cgs.media.guardPowerupModel = trap_R_RegisterModel("models/powerups/guard_player.md3");
 	cgs.media.scoutPowerupModel = trap_R_RegisterModel("models/powerups/scout_player.md3");
