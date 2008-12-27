@@ -1,0 +1,136 @@
+
+models/powerups/kamikaze/kamikaze1
+{
+	twoSided
+	
+	diffuseMap	models/powerups/kamikaze/kamikaze1_ao.png
+	normalMap	models/powerups/kamikaze/kamikaze1_normal.png
+	
+	{
+		stage	reflectionMap
+       	cubeMap	env/fabz0r/gen2
+		blend GL_DST_COLOR, GL_ZERO
+	}
+}
+
+models/powerups/kamikaze/kamikaze2
+{
+	twoSided
+	
+	diffuseMap	models/powerups/kamikaze/kamikaze2_ao.png
+	normalMap	models/powerups/kamikaze/kamikaze2_normal.png
+	
+	{
+		stage	reflectionMap
+       	cubeMap	env/fabz0r/gen2
+		blend GL_DST_COLOR, GL_ZERO
+	}
+}
+
+models/powerups/kamikaze/kamikaze3
+{
+	twoSided
+	
+	diffuseMap	models/powerups/kamikaze/kamikaze3_ao.png
+	normalMap	models/powerups/kamikaze/kamikaze3_normal.png
+	
+	{
+		stage	reflectionMap
+       	cubeMap	env/fabz0r/gen2
+		blend GL_DST_COLOR, GL_ZERO
+	}
+}
+
+// TODO replace TA stuff below
+
+models/powerups/kamikazi_f
+{
+   	
+        {
+	        map models/powerups/kamikazi_f.tga
+		blendfunc Add
+                tcmod Scroll 0 1
+                rgbGen identity
+        }
+
+}
+
+models/weaphits/kamik01
+{
+  cull disable
+       {
+	        map models/weaphits/kamik01.tga
+                tcGen environment
+                blendfunc GL_ONE GL_ZERO
+		//blendfunc   	blend
+                //alphaGen	wave inversesawtooth 1 1 0 1
+                rgbGen identity
+       }
+       {
+                map models/weaphits/kamik02.tga
+                tcGen environment
+                blendFunc add
+                tcmod scale .5 .5
+                tcmod rotate 66
+                tcmod Scroll 1.3 .8
+                
+                rgbGen identity
+        }
+       {
+                map models/weaphits/kamik02.tga
+                tcGen environment
+                blendFunc add
+                tcmod scale .5 .5
+                tcmod rotate -116
+                tcmod Scroll -1 .3
+                
+                rgbGen identity
+        }
+}
+
+models/weaphits/kamiwave01
+{
+	
+        surfaceparm trans	
+	cull disable
+        nomipmaps
+	{
+	        clampmap models/weaphits/kamiwave01.tga 
+		blendFunc Add
+                tcmod rotate 20
+		rgbGen entity
+	}
+	{
+	        clampmap models/weaphits/kamiwave01.tga 
+		blendFunc Add
+  		tcmod rotate -20
+		rgbGen entity
+	}
+}
+
+models/weaphits/kamiwave02
+{
+	
+        surfaceparm trans	
+	cull disable
+	{
+	        map models/weaphits/kamiwave02.tga 
+		blendFunc Add
+                tcmod scroll 1 0
+		rgbGen entity
+	}
+}
+
+
+models/powerups/kamitrail
+{
+	
+        surfaceparm trans	
+	cull disable
+        nomipmaps
+	{
+	        map models/powerups/kamitrail.tga 
+		blendFunc Add
+		rgbGen identity
+	}
+}
