@@ -1,0 +1,380 @@
+textures/q4bolledm2/red
+{
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	deform	flare	8
+	qer_editorimage	textures/editor/qer_flare.tga
+
+	{
+		blend 		add
+		map 		_quadratic
+
+		red			1
+		green		0
+		blue		0
+		alpha		0.5
+	}
+}
+textures/q4bolledm2/red_pulse
+{
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	deform	flare	8
+	qer_editorimage	textures/editor/qer_flare.tga
+
+	{
+		blend 		add
+		map 		_quadratic
+
+	
+		red			0.8 * parm0 * (1.2 + sintable [time * 0.75] )
+		green		0
+		blue		0
+		alpha		0.5
+		vertexcolor
+	}
+}
+textures/q4bolledm2/flare_colored
+{
+	noShadows
+	nonsolid
+	noimpact
+	translucent
+	deform	flare	8
+	qer_editorimage	textures/editor/qer_flare.tga
+
+	{
+		blend 		add
+		map 		_quadratic
+
+		colored
+		alpha		0.5
+	}
+}
+
+textures/q4bolledm2/goldeneye1
+{
+	noShadows
+	noimpact
+	translucent
+	nonsolid
+	qer_editorimage textures/q4bolledm2/goldeneye1
+	{
+		blend		add
+		map			textures/q4bolledm2/goldeneye1
+		red			0.875
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/goldeneye2
+{
+	noShadows
+	noimpact
+	translucent
+	nonsolid
+	qer_editorimage textures/q4bolledm2/goldeneye2
+	{
+		blend		add
+		map			textures/q4bolledm2/goldeneye2
+		red			1
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/goldeneye3
+{
+	noShadows
+	noimpact
+	translucent
+	nonsolid
+	qer_editorimage textures/q4bolledm2/goldeneye3
+	{
+		blend		add
+		map			textures/q4bolledm2/goldeneye3
+		red			0.875
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/bolleh1
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/bolleh1
+	{
+		blend		add
+		map			textures/q4bolledm2/bolleh1
+		red			0.8 * parm0 * (1.75 + sintable [time * 0.75] )
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/bolleh2
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/bolleh2
+	{
+		blend		add
+		map			textures/q4bolledm2/bolleh2
+		red			0.875
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/bolleh3
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/bolleh3
+	{
+		blend		add
+		map			textures/q4bolledm2/bolleh3
+		red			0.875
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/decal1
+{
+	qer_editorimage textures/q4bolledm2/decal1
+	DECAL_MACRO
+	noShadows
+	noimpact
+	nonsolid
+	translucent
+	
+	{
+		blend 	diffuseMap	
+		map 	textures/q4bolledm2/decal1		//for light decals
+		red 	.24
+		green 	.24
+		blue 	.24
+	}
+}
+textures/q4bolledm2/decal2
+{
+	qer_editorimage textures/q4bolledm2/decal2
+	DECAL_MACRO
+	noShadows
+	noimpact
+	nonsolid
+	translucent
+	{
+		blend		add
+		map			textures/q4bolledm2/decal2
+		red			0.875
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/decal2b
+{
+	qer_editorimage textures/q4bolledm2/decal2b
+	DECAL_MACRO
+	noShadows
+	noimpact
+	nonsolid
+	translucent
+	{
+		blend		add
+		map			textures/q4bolledm2/decal2b
+		red			1
+		green		0
+		blue		0
+	}
+}
+textures/q4bolledm2/decal2bcolored
+{
+	qer_editorimage textures/q4bolledm2/decal2b
+	DECAL_MACRO
+	noShadows
+	noimpact
+	nonsolid
+	translucent
+	{
+		blend		add
+		map			textures/q4bolledm2/decal2b
+		colored
+	}
+}
+
+textures/q4bolledm2/gradient1
+{
+	noShadows
+	noimpact
+	nonsolid
+	translucent
+	twosided
+	qer_editorimage textures/q4bolledm2/gradient1
+	{
+		blend		add
+		map			textures/q4bolledm2/gradient1
+		red			0.875
+		green		0
+		blue		0
+	}
+}
+
+textures/q4bolledm2/sky
+{	//red sky from Raffel
+	qer_editorimage	textures/editor/sky.tga
+	noFragment
+	forceOpaque
+	noimpact
+	noshadows
+	{
+		blend			add			// so transparent windows can draw on top of it
+		cameraCubeMap	gfx/q4bolledm2/q4bolledm2
+		texgen			skybox
+	}
+}
+textures/q4bolledm2/doom3world
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/doom3world
+	{
+		blend		add
+		map			textures/q4bolledm2/doom3world
+		red		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 1.75 ] * Parm0
+		green		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 1.75 ] * Parm1
+		blue		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 1.75 ] * Parm2
+		//colored
+	}
+}
+textures/q4bolledm2/planetquake
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/planetquake
+	{
+		blend		add
+		map			textures/q4bolledm2/planetquake
+		red		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 1.75 ] * Parm0
+		green		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 1.75 ] * Parm1
+		blue		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 1.75 ] * Parm2
+		//colored
+		
+	}
+}
+textures/q4bolledm2/q4fnet
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/q4fnet
+	{
+		blend		add
+		map			textures/q4bolledm2/q4fnet
+		red		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm0
+		green		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm1
+		blue		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm2
+		//colored
+	}
+}
+textures/q4bolledm2/q4max
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/q4max
+	{
+		blend		add
+		map			textures/q4bolledm2/q4max
+		red		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm0
+		green		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm1
+		blue		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm2
+		//colored
+	}
+}
+textures/q4bolledm2/aftermath
+{
+	noShadows
+	noimpact
+	nonsolid
+	qer_editorimage textures/q4bolledm2/aftermath
+	{
+		blend		add
+		map			textures/q4bolledm2/aftermath
+		red		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm0
+		green		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm1
+		blue		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2.2 ] * Parm2
+		//colored
+	}
+}
+lights/q4bolledm2
+{
+	lightFalloffImage	makeIntensity(gfx/lights/SlowFalloff_01.tga)
+
+	{
+		map		gfx/lights/round.tga
+		red		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2 ] * Parm0
+		green		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2 ] * Parm1
+		blue		MCC_flicker1[ time * 1 ] * MCC_flicker2[ time * 2 ] * Parm2
+		//colored
+		zeroClamp
+	}
+}
+textures/q4bolledm2/step
+{
+	qer_editorimage textures/q4bolledm2/step.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+	
+	{	
+		blend GL_DST_COLOR, GL_SRC_COLOR
+		map textures/q4bolledm2/step.tga
+	}
+}
+textures/q4bolledm2/smclogo
+{
+	qer_editorimage textures/q4bolledm2/smclogo.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+	
+	{	
+		blend GL_DST_COLOR, GL_SRC_COLOR
+		map textures/q4bolledm2/smclogo.tga
+	}
+}
+textures/q4bolledm2/liftup
+{
+	qer_editorimage textures/q4bolledm2/liftup.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+	
+	{	
+		blend GL_DST_COLOR, GL_SRC_COLOR
+		map textures/q4bolledm2/liftup.tga
+	}
+}
+textures/q4bolledm2/cautiontag
+{
+	qer_editorimage textures/q4bolledm2/cautiontag.tga
+	DECAL_MACRO
+	noShadows
+	noimpact
+	translucent
+	
+	{	
+		blend GL_DST_COLOR, GL_SRC_COLOR
+		map textures/q4bolledm2/cautiontag.tga
+	}
+}

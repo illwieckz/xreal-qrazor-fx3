@@ -13,7 +13,7 @@ eX
 fabz0r_floor_clayhex
 fabz0r_light_amblight
 fabz0r_light_blubox
-fabz0r_portal_ground
+fabz0r_portal_round
 fabz0r_stone_gaterock
 fabz0r_stone_glyphrock
 fabz0r_trim_dangertape
@@ -32,12 +32,14 @@ kat_q4dm3
 #lights
 #megatexture
 method
+mic_mapobject
 mikebart_mapobject
 #otty_sfx
 phant_aztech
 #pinetree
 pk01
 #pjw4tourney1
+q4bolledm2
 raynorpat
 #reflex_base
 #reflex_castle
