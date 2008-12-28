@@ -1,34 +1,45 @@
 models/buildables/mgturret/t_flash
 {
-	cull disable
+	twosided
+	
 	{
 		map models/buildables/mgturret/t_flash.tga
-		blendfunc add
+		blend add
 		rgbGen wave square 0 1 0 10 
 	}
 }
 
 models/buildables/mgturret/turret_coil
 {
-	cull disable
+	twosided
+	
 	{
+		stage diffusemap
 		map models/buildables/mgturret/turret_coil.tga
-		rgbGen lightingDiffuse
-		alphaFunc GE128
+		alphaTest 0.5
 	}
 }
 
 models/buildables/mgturret/turret_shiny
 {
 	{
+		stage diffusemap
 		map models/buildables/mgturret/turret_shiny.tga
-		rgbGen lightingDiffuse
 	}
+	
+	/*
 	{
 		map models/buildables/mgturret/ref_map.tga
-		blendfunc filter
+		blend filter
 		rgbGen identity
 		tcGen environment 
+	}
+	*/
+	
+	{
+		stage	reflectionMap
+       	cubeMap	env/fabz0r/gen2
+		blend filter
 	}
 }
 
