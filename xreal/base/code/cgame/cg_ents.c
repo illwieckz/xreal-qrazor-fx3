@@ -660,6 +660,7 @@ static void CG_Grapple(centity_t * cent)
 	refEntity_t     ent;
 	entityState_t  *s1;
 	const weaponInfo_t *weapon;
+	matrix_t		rotation;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WP_NUM_WEAPONS)
@@ -697,6 +698,12 @@ static void CG_Grapple(centity_t * cent)
 	{
 		ent.axis[0][2] = 1;
 	}
+
+	RotateAroundDirection(ent.axis, cg.time);
+
+	MatrixFromVectorsFLU(rotation, ent.axis[0], ent.axis[1], ent.axis[2]);
+	MatrixMultiplyRotation(rotation, 0, 90, 0);
+	MatrixToVectorsFLU(rotation, ent.axis[0], ent.axis[1], ent.axis[2]);
 
 	trap_R_AddRefEntityToScene(&ent);
 }
@@ -1079,7 +1086,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 
 //unlagged - projectile nudge
 	// if it's a missile but not a grappling hook
-	if(cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GRAPPLING_HOOK)
+	if(cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GAUNTLET)
 	{
 		// if it's one of ours
 		if(cent->currentState.otherEntityNum == cg.clientNum)
@@ -1310,17 +1317,6 @@ static void CG_TeamBase(centity_t * cent)
 
 /*
 ===============
-CG_Effect
-===============
-*/
-static void CG_Effect(centity_t * cent)
-{
-	// TODO
-	CG_ParticleTeleportEffect(cent->lerpOrigin);
-}
-
-/*
-===============
 CG_AddCEntity
 ===============
 */
@@ -1468,7 +1464,7 @@ void CG_AddPacketEntities(void)
 	{
 		cent = &cg_entities[cg.snap->entities[num].number];
 //unlagged - early transitioning
-		if(!cg.nextSnap || cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL)
+		if(!cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL))
 		{
 //unlagged - early transitioning
 			CG_AddCEntity(cent);

@@ -298,7 +298,7 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other)
 
 	Add_Ammo(other, ent->item->giTag, quantity);
 
-	if(ent->item->giTag == WP_GRAPPLING_HOOK)
+	if(ent->item->giTag == WP_GAUNTLET)
 		other->client->ps.ammo[ent->item->giTag] = -1;	// unlimited ammo
 
 	// team deathmatch has slow weapon respawns

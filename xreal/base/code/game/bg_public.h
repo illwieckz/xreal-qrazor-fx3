@@ -296,7 +296,8 @@ enum
 	EF_AWARD_TELEFRAG		= BIT(18),	// draw a telefrag sprite
 	EF_TEAMVOTED		    = BIT(19),	// already cast a team vote
 	EF_KAMIKAZE				= BIT(20),
-	EF_TICKING				= BIT(21)	// used to make players play the prox mine ticking sound
+	EF_TICKING				= BIT(21),	// used to make players play the prox mine ticking sound
+	EF_FIRING2				= BIT(22),	// for lightning gun
 };
 // *INDENT-ON*
 
@@ -352,7 +353,6 @@ typedef enum
 	WP_RAILGUN,
 	WP_PLASMAGUN,
 	WP_BFG,
-	WP_GRAPPLING_HOOK,
 #ifdef MISSIONPACK
 	WP_NAILGUN,
 	WP_PROX_LAUNCHER,

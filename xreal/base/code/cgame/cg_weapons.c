@@ -872,8 +872,16 @@ void CG_RegisterWeapon(int weaponNum)
 	{
 		case WP_GAUNTLET:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
+			weaponInfo->missileModel = trap_R_RegisterModel("models/weapons/gauntlet/gauntlet_barrel.md3", qtrue);
+			weaponInfo->missileTrailFunc = CG_GrappleTrail;
+			weaponInfo->missileLight = 200;
+			weaponInfo->wiTrailTime = 2000;
+			weaponInfo->trailRadius = 64;
+			MAKERGB(weaponInfo->missileLightColor, 1, 0.75f, 0);
+			//weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/melee/fsthum.wav", qfalse);
 			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/gauntlet/electrocute.ogg", qfalse);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/gauntlet/slashkut.ogg", qfalse);
+			cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
 			break;
 
 		case WP_LIGHTNING:
@@ -885,19 +893,6 @@ void CG_RegisterWeapon(int weaponNum)
 			cgs.media.sfx_lghit1 = trap_S_RegisterSound("sound/weapons/lightning/lg_hit.wav", qfalse);
 			cgs.media.sfx_lghit2 = trap_S_RegisterSound("sound/weapons/lightning/lg_hit2.wav", qfalse);
 			cgs.media.sfx_lghit3 = trap_S_RegisterSound("sound/weapons/lightning/lg_hit3.wav", qfalse);
-			break;
-
-		case WP_GRAPPLING_HOOK:
-			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->missileModel = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
-			weaponInfo->missileTrailFunc = CG_GrappleTrail;
-			weaponInfo->missileLight = 200;
-			weaponInfo->wiTrailTime = 2000;
-			weaponInfo->trailRadius = 64;
-			MAKERGB(weaponInfo->missileLightColor, 1, 0.75f, 0);
-			weaponInfo->readySound = trap_S_RegisterSound("sound/weapons/melee/fsthum.wav", qfalse);
-			weaponInfo->firingSound = trap_S_RegisterSound("sound/weapons/gauntlet/electrocute.ogg", qfalse);
-			cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
 			break;
 
 #ifdef MISSIONPACK
@@ -1678,7 +1673,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	{
 		// add weapon ready sound
 		cent->pe.lightningFiring = qfalse;
-		if((cent->currentState.eFlags & EF_FIRING) && weapon->firingSound)
+		if((cent->currentState.eFlags & (EF_FIRING | EF_FIRING2)) && weapon->firingSound)
 		{
 			// lightning gun and guantlet make a different sound when fire is held down
 			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
@@ -1735,26 +1730,6 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 	CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
 
-	// add the spinning barrel
-	if(weapon->barrelModel)
-	{
-		memset(&barrel, 0, sizeof(barrel));
-		VectorCopy(parent->lightingOrigin, barrel.lightingOrigin);
-		barrel.shadowPlane = parent->shadowPlane;
-		barrel.renderfx = parent->renderfx;
-		barrel.noShadowID = parent->noShadowID;
-
-		barrel.hModel = weapon->barrelModel;
-		angles[YAW] = 0;
-		angles[PITCH] = 0;
-		angles[ROLL] = CG_MachinegunSpinAngle(cent);
-		AnglesToAxis(angles, barrel.axis);
-
-		CG_PositionRotatedEntityOnTag(&barrel, &gun, weapon->weaponModel, "tag_barrel");
-
-		CG_AddWeaponWithPowerups(&barrel, cent->currentState.powerups);
-	}
-
 	// make sure we aren't looking at cg.predictedPlayerEntity for LG
 	nonPredictedCent = &cg_entities[cent->currentState.clientNum];
 
@@ -1766,8 +1741,31 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		nonPredictedCent = cent;
 	}
 
+	// add the spinning barrel
+	if(weapon->barrelModel)
+	{
+		if(weaponNum != WP_GAUNTLET || (weaponNum == WP_GAUNTLET && !(nonPredictedCent->currentState.eFlags & EF_FIRING2)))
+		{
+			memset(&barrel, 0, sizeof(barrel));
+			VectorCopy(parent->lightingOrigin, barrel.lightingOrigin);
+			barrel.shadowPlane = parent->shadowPlane;
+			barrel.renderfx = parent->renderfx;
+			barrel.noShadowID = parent->noShadowID;
+
+			barrel.hModel = weapon->barrelModel;
+			angles[YAW] = 0;
+			angles[PITCH] = 0;
+			angles[ROLL] = CG_MachinegunSpinAngle(cent);
+			AnglesToAxis(angles, barrel.axis);
+
+			CG_PositionRotatedEntityOnTag(&barrel, &gun, weapon->weaponModel, "tag_barrel");
+
+			CG_AddWeaponWithPowerups(&barrel, cent->currentState.powerups);
+		}
+	}
+
 	// add the flash
-	if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK)
+	if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET)
 	   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
 	{
 		// continuous flash
@@ -1988,7 +1986,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 		addFlash = qfalse;
 
 		// add the flash
-		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK)
+		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET)
 		   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
 		{
 			// continuous flash
@@ -2688,6 +2686,7 @@ void CG_FireWeapon2(centity_t * cent)
 	}
 	weap = &cg_weapons[ent->weapon];
 
+	/*
 	// TODO
 	switch (ent->weapon)
 	{
@@ -2695,13 +2694,14 @@ void CG_FireWeapon2(centity_t * cent)
 		default:
 			return;
 	}
+	*/
 
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
 	cent->muzzleFlashTime = cg.time;
 
 	// lightning gun only does this this on initial press
-	if(ent->weapon == WP_LIGHTNING)
+	if(ent->weapon == WP_GAUNTLET)
 	{
 		if(cent->pe.lightningFiring)
 		{
@@ -3096,6 +3096,7 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum)
 	// others will just make the blood
 	switch (weapon)
 	{
+		case WP_GAUNTLET:
 		case WP_GRENADE_LAUNCHER:
 		case WP_ROCKET_LAUNCHER:
 #ifdef MISSIONPACK

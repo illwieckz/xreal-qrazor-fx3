@@ -365,24 +365,6 @@ gitem_t         bg_itemlist[] = {
 	 }
 	,
 
-/*QUAKED weapon_grapplinghook (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-	{
-	 "weapon_grapplinghook",
-	 "sound/misc/w_pkup.ogg",
-	 {"models/weapons2/grapple/grapple.md3",
-	  0, 0, 0}
-	 ,
-/* icon */ "icons/weapon_grapple",
-/* pickup */ "Grappling Hook",
-	 0,
-	 IT_WEAPON,
-	 WP_GRAPPLING_HOOK,
-/* precache */ "",
-/* sounds */ ""
-	 }
-	,
-
 	//
 	// AMMO ITEMS
 	//

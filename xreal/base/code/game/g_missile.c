@@ -985,7 +985,7 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 	hook->think = Weapon_HookFree;
 	hook->s.eType = ET_MISSILE;
 	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	hook->s.weapon = WP_GRAPPLING_HOOK;
+	hook->s.weapon = WP_GAUNTLET;
 	hook->r.ownerNum = self->s.number;
 	hook->methodOfDeath = MOD_GRAPPLE;
 	hook->clipmask = MASK_SHOT;

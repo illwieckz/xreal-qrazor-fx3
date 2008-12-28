@@ -1816,6 +1816,30 @@ static void PM_Weapon(void)
 {
 	int             addTime;
 
+	// set the firing flag for continuous beam weapons
+	pm->ps->eFlags &= ~(EF_FIRING | EF_FIRING2);
+	if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION)
+	{
+		if(pm->cmd.buttons & BUTTON_ATTACK2)
+		{
+			if(pm->ps->weapon == WP_GAUNTLET || pm->ps->ammo[pm->ps->weapon])
+			{
+				pm->ps->eFlags |= EF_FIRING2;
+			}
+		}
+		else if(pm->cmd.buttons & BUTTON_ATTACK)
+		{
+			if(pm->ps->ammo[pm->ps->weapon])
+			{
+				pm->ps->eFlags |= EF_FIRING;
+			}
+			else if(pm->ps->weapon == WP_GAUNTLET)
+			{
+				pm->ps->eFlags |= EF_FIRING;
+			}
+		}
+	}
+
 	// don't allow attack until all buttons are up
 	if(pm->ps->pm_flags & PMF_RESPAWNED)
 	{
@@ -1917,6 +1941,7 @@ static void PM_Weapon(void)
 	{
 		switch (pm->ps->weapon)
 		{
+			case WP_GAUNTLET:
 			case WP_ROCKET_LAUNCHER:
 				break;
 
@@ -1931,14 +1956,17 @@ static void PM_Weapon(void)
 	// start the animation even if out of ammo
 	if(pm->ps->weapon == WP_GAUNTLET)
 	{
-		// the guantlet only "fires" when it actually hits something
-		if(!pm->gauntletHit)
+		if(!(pm->cmd.buttons & BUTTON_ATTACK2))
 		{
-			pm->ps->weaponTime = 0;
-			pm->ps->weaponstate = WEAPON_READY;
-			return;
+			// the guantlet only "fires" when it actually hits something
+			if(!pm->gauntletHit)
+			{
+				pm->ps->weaponTime = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+				return;
+			}
+			PM_StartTorsoAnim(TORSO_ATTACK2);
 		}
-		PM_StartTorsoAnim(TORSO_ATTACK2);
 	}
 	else
 	{
@@ -2001,9 +2029,6 @@ static void PM_Weapon(void)
 			break;
 		case WP_BFG:
 			addTime = 200;
-			break;
-		case WP_GRAPPLING_HOOK:
-			addTime = 400;
 			break;
 #ifdef MISSIONPACK
 		case WP_NAILGUN:
@@ -2234,17 +2259,6 @@ void PmoveSingle(pmove_t * pmove)
 	else
 	{
 		pm->ps->eFlags &= ~EF_TALK;
-	}
-
-	// set the firing flag for continuous beam weapons
-	if(!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
-	   && (pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->ammo[pm->ps->weapon])
-	{
-		pm->ps->eFlags |= EF_FIRING;
-	}
-	else
-	{
-		pm->ps->eFlags &= ~EF_FIRING;
 	}
 
 	// clear the respawned flag if attack and use are cleared

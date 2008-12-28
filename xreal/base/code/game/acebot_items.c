@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-//  acebot_items.c - This file contains all of the 
-//                   item handling routines for the 
+//  acebot_items.c - This file contains all of the
+//                   item handling routines for the
 //                   ACE bot, including fact table support
 
 
@@ -52,7 +52,7 @@ qboolean ACEIT_IsReachable(gentity_t * self, vec3_t goal)
 		return qfalse;
 }
 
-// Visiblilty check 
+// Visiblilty check
 qboolean ACEIT_IsVisible(gentity_t * self, vec3_t goal)
 {
 	trace_t         trace;
@@ -78,7 +78,7 @@ qboolean ACEIT_ChangeWeapon(gentity_t * self, weapon_t weapon)
 		return qfalse;
 
 	// do we have ammo for it?
-	if(weapon != WP_GAUNTLET && weapon != WP_GRAPPLING_HOOK && !self->client->ps.ammo[weapon])
+	if(weapon != WP_GAUNTLET && !self->client->ps.ammo[weapon])
 		return qfalse;
 
 	// change to this weapon

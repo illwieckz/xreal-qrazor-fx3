@@ -686,10 +686,10 @@ GRAPPLING HOOK
 
 void Weapon_GrapplingHook_Fire(gentity_t * ent)
 {
-	if(!ent->client->fireHeld && !ent->client->hook)
+	if(!ent->client->hookFireHeld && !ent->client->hook)
 		fire_grapple(ent, muzzle, forward);
 
-	ent->client->fireHeld = qtrue;
+	ent->client->hookFireHeld = qtrue;
 }
 
 void Weapon_HookFree(gentity_t * ent)
@@ -981,8 +981,8 @@ void FireWeapon(gentity_t * ent)
 	}
 #endif
 
-	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
-	if(ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET)
+	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntlet is just not tracked
+	if(ent->s.weapon != WP_GAUNTLET)
 	{
 #ifdef MISSIONPACK
 		if(ent->s.weapon == WP_NAILGUN)
@@ -1040,9 +1040,6 @@ void FireWeapon(gentity_t * ent)
 		case WP_BFG:
 			BFG_Fire(ent);
 			break;
-		case WP_GRAPPLING_HOOK:
-			Weapon_GrapplingHook_Fire(ent);
-			break;
 #ifdef MISSIONPACK
 		case WP_NAILGUN:
 			Weapon_Nailgun_Fire(ent);
@@ -1076,7 +1073,6 @@ void FireWeapon2(gentity_t * ent)
 	{
 		s_quadFactor = 1;
 	}
-	/*
 #ifdef MISSIONPACK
 	if(ent->client->persistantPowerup && ent->client->persistantPowerup->item &&
 	   ent->client->persistantPowerup->item->giTag == PW_DOUBLER)
@@ -1085,8 +1081,9 @@ void FireWeapon2(gentity_t * ent)
 	}
 #endif
 
+
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntlet is just not tracked
-	if(ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET)
+	if(ent->s.weapon != WP_GAUNTLET)
 	{
 #ifdef MISSIONPACK
 		if(ent->s.weapon == WP_NAILGUN)
@@ -1101,7 +1098,6 @@ void FireWeapon2(gentity_t * ent)
 		ent->client->accuracy_shots++;
 #endif
 	}
-	*/
 
 	// set aiming directions
 	AngleVectors(ent->client->ps.viewangles, forward, right, up);
@@ -1111,6 +1107,10 @@ void FireWeapon2(gentity_t * ent)
 	// fire the specific weapon
 	switch (ent->s.weapon)
 	{
+		case WP_GAUNTLET:
+			Weapon_GrapplingHook_Fire(ent);
+			break;
+
 		case WP_ROCKET_LAUNCHER:
 			Weapon_RocketLauncher_FireHomingMissile(ent);
 			break;

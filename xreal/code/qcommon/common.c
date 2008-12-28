@@ -163,7 +163,7 @@ void QDECL Com_Printf(const char *fmt, ...)
 		}
 		Q_strcat(rd_buffer, rd_buffersize, msg);
 		// TTimo nooo .. that would defeat the purpose
-		//rd_flush(rd_buffer);          
+		//rd_flush(rd_buffer);
 		//*rd_buffer = 0;
 		return;
 	}
@@ -1437,7 +1437,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit 
+			break;				// all blocks have been hit
 		}
 		if((byte *) block + block->size != (byte *) block->next)
 		{
@@ -1465,7 +1465,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &smallzone->blocklist)
 		{
-			break;				// all blocks have been hit 
+			break;				// all blocks have been hit
 		}
 	}
 
@@ -1552,7 +1552,7 @@ void Com_TouchMemory(void)
 		}
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit 
+			break;				// all blocks have been hit
 		}
 	}
 
@@ -1710,7 +1710,7 @@ void Com_InitHunkMemory(void)
 
 	// make sure the file system has allocated and "not" freed any temp blocks
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different 
+	// by the file system without redunant routines in the file system utilizing different
 	// memory systems
 	if(FS_LoadStack() != 0)
 	{
@@ -1980,7 +1980,7 @@ void           *Hunk_AllocateTempMemory(int size)
 
 	// return a Z_Malloc'd block if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different 
+	// by the file system without redunant routines in the file system utilizing different
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -2034,7 +2034,7 @@ void Hunk_FreeTempMemory(void *buf)
 
 	// free with Z_Free if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different 
+	// by the file system without redunant routines in the file system utilizing different
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -2900,7 +2900,7 @@ static void Com_GenerateMediaTXT_f(void)
 	int             len;
 	qboolean        firstEntry = qtrue;
 
-	const int       maxMediaLen = 70;
+	const int       maxMediaLen = 100;
 	const int       maxCopyrightLen = 50;
 	const int       maxLicenseLen = 70;
 
@@ -2962,6 +2962,8 @@ static void Com_GenerateMediaTXT_f(void)
 			len = strlen(mediaName);
 			if(Q_stricmp(mediaName + len - 4, ".txt") != 0 &&
 			   Q_stricmp(mediaName + len - 4, ".cfg") != 0 &&
+			   Q_stricmp(mediaName + len - 4, ".def") != 0 &&
+			   Q_stricmp(mediaName + len - 7, ".vcproj") != 0 &&
 			   Q_stricmp(mediaName + len - 4, ".dat") != 0 &&
 			   Q_stricmp(mediaName + len - 4, ".lua") != 0 &&
 			   Q_stricmp(mediaName + len - 5, ".glsl") != 0 &&
@@ -3020,19 +3022,30 @@ static void Com_GenerateMediaTXT_f(void)
 			// skip "on" or "zu"
 			token = Com_ParseExt(&buf_p, qfalse);
 
-			// parse filename name
-			token = Com_ParseExt(&buf_p, qfalse);
-			if(!strcmp(token, "'"))
+			// parse filename
+			while(qtrue)
 			{
-				// try again
 				token = Com_ParseExt(&buf_p, qfalse);
+				if(!token[0])
+					break;
+
+				if(!strcmp(token, ":"))
+					continue;
+
+				Q_strcat(mediaName, sizeof(mediaName), token);
+				//Q_strcat(propertyValue, sizeof(propertyValue), " ");
 			}
-			if(!token[0])
-				break;
+			//token = Com_ParseExt(&buf_p, qfalse);
+			//if(!strcmp(token, "'"))
+			//{
+				// try again
+				//token = Com_ParseExt(&buf_p, qfalse);
+			//}
+			//if(!token[0])
+				//break;
 
-			Q_strncpyz(mediaName, token, sizeof(mediaName));
-
-			Com_SkipRestOfLine(&buf_p);
+			//Q_strncpyz(mediaName, token, sizeof(mediaName));
+			//Com_SkipRestOfLine(&buf_p);
 		}
 		else
 		{

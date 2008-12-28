@@ -730,13 +730,14 @@ void ClientIntermissionThink(gclient_t * client)
 {
 	client->ps.eFlags &= ~EF_TALK;
 	client->ps.eFlags &= ~EF_FIRING;
+	client->ps.eFlags &= ~EF_FIRING2;
 
 	// the level will exit when everyone wants to or after timeouts
 
 	// swap and latch button actions
 	client->oldbuttons = client->buttons;
 	client->buttons = client->pers.cmd.buttons;
-	if(client->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) & (client->oldbuttons ^ client->buttons))
+	if(client->buttons & (BUTTON_ATTACK | BUTTON_ATTACK2 | BUTTON_USE_HOLDABLE) & (client->oldbuttons ^ client->buttons))
 	{
 		// this used to be an ^1 but once a player says ready, it should stick
 		client->readyToExit = 1;
@@ -1246,7 +1247,7 @@ void ClientThink_real(gentity_t * ent)
 	}
 
 	// Let go of the hook if we aren't firing
-	if(client->ps.weapon == WP_GRAPPLING_HOOK && client->hook && !(ucmd->buttons & BUTTON_ATTACK))
+	if(client->ps.weapon == WP_GAUNTLET && client->hook && !(ucmd->buttons & BUTTON_ATTACK2))
 	{
 		Weapon_HookFree(client->hook);
 	}
@@ -1375,9 +1376,9 @@ void ClientThink_real(gentity_t * ent)
 
 	SendPendingPredictableEvents(&ent->client->ps);
 
-	if(!(ent->client->ps.eFlags & EF_FIRING))
+	if(ent->client->ps.weapon == WP_GAUNTLET && !(ent->client->ps.eFlags & EF_FIRING2))
 	{
-		client->fireHeld = qfalse;	// for grapple
+		client->hookFireHeld = qfalse;	// for grapple
 	}
 
 	// use the snapped origin for linking so it matches client predicted versions

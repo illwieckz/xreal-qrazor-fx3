@@ -107,7 +107,7 @@ void MSG_Copy(msg_t * buf, byte * data, int length, msg_t * src)
 =============================================================================
 
 bit functions
-  
+
 =============================================================================
 */
 
@@ -655,7 +655,7 @@ void MSG_ReadData(msg_t * msg, void *data, int len)
 =============================================================================
 
 delta functions
-  
+
 =============================================================================
 */
 
@@ -710,7 +710,7 @@ float MSG_ReadDeltaFloat(msg_t * msg, float oldV)
 =============================================================================
 
 delta functions with keys
-  
+
 =============================================================================
 */
 
@@ -925,7 +925,7 @@ void MSG_ReadDeltaUsercmdKey(msg_t * msg, int key, usercmd_t * from, usercmd_t *
 =============================================================================
 
 entityState_t communication
-  
+
 =============================================================================
 */
 
@@ -977,7 +977,7 @@ netField_t      entityStateFields[] = {
 	{NETF(legsAnim), 8},
 	{NETF(groundEntityNum), GENTITYNUM_BITS},
 	{NETF(pos.trType), 8},
-	{NETF(eFlags), 21},
+	{NETF(eFlags), 23},
 	{NETF(otherEntityNum), GENTITYNUM_BITS},
 	{NETF(weapon), 8},
 	{NETF(clientNum), 8},
@@ -1376,7 +1376,7 @@ netField_t      playerStateFields[] = {
 	,
 	{PSF(weaponstate), 4}
 	,
-	{PSF(eFlags), 21}
+	{PSF(eFlags), 23}
 	,
 	{PSF(externalEvent), 10}
 	,
