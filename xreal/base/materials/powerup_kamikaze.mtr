@@ -13,6 +13,7 @@ models/powerups/kamikaze/kamikaze1
 	}
 }
 
+// TODO glowing eyes
 models/powerups/kamikaze/kamikaze2
 {
 	twoSided
@@ -41,83 +42,105 @@ models/powerups/kamikaze/kamikaze3
 	}
 }
 
-// TODO replace TA stuff below
 
-models/powerups/kamikazi_f
+
+models/powerups/kamikaze/shocksphere1
 {
-   	
-        {
-	        map models/powerups/kamikazi_f.tga
-		blendfunc Add
-                tcmod Scroll 0 1
-                rgbGen identity
-        }
-
-}
-
-models/weaphits/kamik01
-{
-  cull disable
-       {
-	        map models/weaphits/kamik01.tga
-                tcGen environment
-                blendfunc GL_ONE GL_ZERO
-		//blendfunc   	blend
-                //alphaGen	wave inversesawtooth 1 1 0 1
-                rgbGen identity
-       }
-       {
-                map models/weaphits/kamik02.tga
-                tcGen environment
-                blendFunc add
-                tcmod scale .5 .5
-                tcmod rotate 66
-                tcmod Scroll 1.3 .8
-                
-                rgbGen identity
-        }
-       {
-                map models/weaphits/kamik02.tga
-                tcGen environment
-                blendFunc add
-                tcmod scale .5 .5
-                tcmod rotate -116
-                tcmod Scroll -1 .3
-                
-                rgbGen identity
-        }
-}
-
-models/weaphits/kamiwave01
-{
+ 	twosided
+ 	
+ 	{
+		stage	reflectionMap
+       	cubeMap	env/fabz0r/gen2
+		blend blend //GL_DST_COLOR, GL_ZERO
+	}
 	
-        surfaceparm trans	
-	cull disable
-        nomipmaps
 	{
-	        clampmap models/weaphits/kamiwave01.tga 
-		blendFunc Add
-                tcmod rotate 20
+		stage	heathazemap
+		map		models/powerups/kamikaze/round_normal.png
+		clamp
+		deformMagnitude 10.0
+  		rotate 40 * time
+		//centerScale 0.9, 0.9
+    	blend blend
+   	}
+	/*
+ 	{
+	    map models/powerups/kamikaze/shockwave2
+		blend add
+        scroll time * 1, 0
+		rgbGen entity
+	}
+	*/
+	
+}
+
+models/powerups/kamikaze/shockwave1
+{
+    twoSided
+    noMipMaps
+    
+    sort postProcess
+ 
+	{
+		blend add
+		map models/powerups/kamikaze/shockwave1.5.png
+		clamp
+   		rotate -40 * time
+	}
+
+	{
+		stage	heathazemap
+		map		models/powerups/kamikaze/round_normal.png
+		clamp
+		deformMagnitude 10.0
+  		rotate 40 * time
+		//centerScale 0.9, 0.9
+    	blend blend
+   	}
+	
+	/*
+	{
+		clamp
+	    map models/powerups/kamikaze/shockwave1.3.png
+		blend add
+        rotate time * 20
 		rgbGen entity
 	}
 	{
-	        clampmap models/weaphits/kamiwave01.tga 
-		blendFunc Add
-  		tcmod rotate -20
+	    clamp
+	    map models/powerups/kamikaze/shockwave1.4.png
+		blend add
+  		rotate time * -20
 		rgbGen entity
 	}
+	*/
 }
 
-models/weaphits/kamiwave02
+models/powerups/kamikaze/shockwave2
 {
+	twoSided
 	
-        surfaceparm trans	
-	cull disable
+	// Tr3B: yeah very lazy ..
 	{
-	        map models/weaphits/kamiwave02.tga 
-		blendFunc Add
-                tcmod scroll 1 0
-		rgbGen entity
+		map gfx/2d/ui/menuback4.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time * 2.2] + 1.0) / 2.0 ) )
+		scroll time * -2.2, 0
+	}
+	{
+		map gfx/2d/ui/menuback4.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time ] + 1.0) / 2.0 ) )
+		scroll time * 5.8, 0
+		centerScale 1.0 + (cosTable[time]) , 1
+	}
+	{
+		map gfx/2d/ui/menuback4.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time] + 1.0) / 2.0 ) )
+		scroll time * 5.8, 0
+		centerScale 1.0 + (cosTable[time]) , 1
+		rotate 180
 	}
 }
 

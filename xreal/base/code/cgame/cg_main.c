@@ -1239,8 +1239,8 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
 
-	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/powerups/kamikaze/kamboom2.md5mesh", qfalse);
-	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/powerups/kamikaze/kamwave.md5mesh", qfalse);
+	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/powerups/kamikaze/shocksphere.md5mesh", qfalse);
+	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/powerups/kamikaze/shockwave.md5mesh", qfalse);
 	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikaze/kamikaze.md5mesh", qfalse);
 	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/kamikaze/trailtest.md5mesh", qfalse);
 
