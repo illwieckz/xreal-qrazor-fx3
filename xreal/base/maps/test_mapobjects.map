@@ -3,8 +3,8 @@ Version 2
 {
 "classname" "worldspawn"
 "_lightmapscale" "0.125"
-"editor_drLastCameraPos" "124.971 196.327 135.369"
-"editor_drLastCameraAngle" "-1.8 342 0"
+"editor_drLastCameraPos" "561.387 122.348 100.209"
+"editor_drLastCameraAngle" "-8.4 292.8 0"
 // primitive 0
 {
 brushDef3
@@ -451,7 +451,7 @@ brushDef3
 "name" "func_static_125"
 "clipModel" "1"
 "forceMeta" "1"
-"model" "models/gwdm2/piller_01.ase"
+"model" "models/mapobjects/gw/piller_01.ase"
 "origin" "764 176 0"
 }
 // entity 30
@@ -590,4 +590,38 @@ brushDef3
 "name" "func_static_19"
 "model" "models/mapobjects/mikebart/poplar01_foliage.ase"
 "origin" "1920 -1096 0"
+}
+// entity 43
+{
+"classname" "func_static"
+"name" "func_static_20"
+"model" "models/mapobjects/mic/teleporter01.ase"
+"origin" "752 -116 0"
+}
+// entity 44
+{
+"classname" "ammo_rockets"
+"name" "ammo_rockets_1"
+"origin" "512 -32 180"
+"suspended" "1"
+}
+// entity 45
+{
+"classname" "trigger_teleport"
+"name" "trigger_teleport_2"
+"model" "trigger_teleport_2"
+"origin" "752 -108 68"
+"target0" "info_player_start_1"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -60 ) ( ( 0.03125 0 0 ) ( 0 0.03125 63.875 ) ) "textures/common/trigger" 0 0 0
+( 0 1 0 -4 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 1 0 0 -36 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 0 -1 -60 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( 0 -1 0 -4 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+( -1 0 0 -36 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
+}
+}
 }
