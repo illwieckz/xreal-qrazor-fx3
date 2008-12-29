@@ -1,0 +1,62 @@
+case `uname -m` in
+	"x86_64")
+		COMPILER='../../xmap2.x86_64'
+		;;
+	*)
+		COMPILER='../../xmap2.x86'
+		;;
+esac
+
+FS_BASEPATH='../..'
+FS_GAME='tremulous'
+GAME='xreal'
+COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
+
+# map_ convention used to prevent possible binary name collision
+function map_bsp {
+	$COMPILE -v -meta -leaktest $MAP
+}
+
+function map_fastvis {
+	$COMPILE -vis -fast $MAP
+}
+
+function map_vis {
+	$COMPILE -vis $MAP
+}
+
+function map_light {
+	$COMPILE -light -fast -filter -v $LIGHTOPTS $MAP 
+}
+
+function map_defaultcommand {
+	echo "specify command: -bsp, -fastvis, -vis, -light, or -all"
+}
+
+case $1 in
+	-bsp)
+		map_bsp;
+		;;
+
+	-fastvis)
+		map_fastvis;
+		;;
+		
+	-vis)
+		map_vis;
+		;;
+
+	-light)
+		map_light $LIGHTOPTS;
+		;;
+
+	-all)
+		map_bsp;
+		map_vis;
+		map_light $LIGHTOPTS;
+		;;
+	*)
+		map_defaultcommand;
+		;;
+esac
+
