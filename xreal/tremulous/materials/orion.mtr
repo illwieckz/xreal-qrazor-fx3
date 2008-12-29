@@ -157,6 +157,7 @@ textures/orion/sky
       nolightmap
       sky
       
+//      xmap_sun 1 1 1 150 90 30
       xmap_surfacelight 15
       
       skyparms env/plasma_galaxy - -
@@ -546,12 +547,15 @@ textures/orion/glass_02_s
 	qer_editorimage textures/orion/scratchglass.jpg
 	
 	nomarks
-	trans
-	
+	translucent
+	sort postProcess
 	
 	{
-		stage diffusemap
-		map _white
+		stage	heathazemap
+		map		textures/tr3b_water/watertest_local.tga
+		scroll	0 , time * -0.009
+		scale	0.5, 0.5
+		deformMagnitude	0.5
 	}
 	{
 		map textures/orion/scratchglass.jpg
