@@ -91,23 +91,39 @@ textures/orion/water
 {
 	qer_editorimage textures/orion/water.tga
 	qer_trans .4
+	
 	xmap_globaltexture
+	
 	entityMergable
 	nobuild
-	trans
+	translucent
 	water
 	nonsolid
 
-	cull disable
-	tesssize 32
+	twoSided
+	tessSize 32
+	
 	deformVertexes wave 32 sin 0.8 0.4 1 .4
+	
+	sort postProcess
+	
 	{
+		if 0
 		map textures/orion/water.tga
 		rgbGen const ( 0.3 0.3 0.2 )
 		alphaGen const 0.20
 		blend blend
 		tcMod scroll .03 .001
 	}
+	
+	{
+		if 1
+		stage	heathazemap
+		map		textures/tr3b_water/watertest_local.tga
+		scroll	time * 0.1 , time * 0.1
+		scale	0.5, 0.5
+		deformMagnitude	0.5
+    }
 }
 
 
@@ -652,6 +668,16 @@ textures/orion/nodraw
 	nodraw
 	nolightmap
 	nonsolid
+	trans
+	nomarks
+}
+
+textures/orion/nodrawsolid
+{
+	qer_editorimage textures/orion/nodrawsolid.tga
+
+	nodraw
+	nolightmap
 	trans
 	nomarks
 }
