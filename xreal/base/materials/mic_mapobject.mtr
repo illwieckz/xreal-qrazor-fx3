@@ -7,4 +7,37 @@ models/mapobjects/mic/tele-frame
 	specularmap		models/mapobjects/mic/tele01_height2b_SPEC
 //    bumpmap			addnormals(models/mapobjects/mic/tele01_height2b_NRM, heightmap(models/mapobjects/mic/tele01_height2b_SPEC, 1))
 	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
+	
+	{
+		map models/mapobjects/mic/tele01_glo.tga
+		blend add
+		//vertexColor
+	} 		
+}
+
+
+models/mapobjects/mic/tele-fx
+{
+    	qer_editorimage	models/mapobjects/mic/tele01_tele-FX
+	twoSided
+	{
+		map models/mapobjects/mic/tele01_tele-FX
+		blend add
+		
+	}
+	{
+		if 1
+		stage	heathazemap
+		map		models/mapobjects/mic/telef-fx_NRM
+		scroll	time * 0.01 , time * 0.3
+		scale	0.1, 3
+		deformMagnitude	0.9
+    	}
+	{
+		map models/mapobjects/mic/tele01_tele-FXnoise
+		scroll	time * 0 , time * 3
+		scale	1.5, 1.5
+		blend add
+		
+	}		
 }
