@@ -226,6 +226,10 @@ cvar_t         *r_deferredShading;
 cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
 
+cvar_t         *r_hdrRendering;
+cvar_t		   *r_hdrExposure;
+cvar_t         *r_hdrMaxBrightness;
+
 cvar_t         *r_screenSpaceAmbientOcclusion;
 cvar_t         *r_depthOfField;
 cvar_t         *r_bloom;
@@ -555,10 +559,10 @@ static void R_ModeList_f(void)
 
 
 
-/* 
-============================================================================== 
- 
-						SCREEN SHOTS 
+/*
+==============================================================================
+
+						SCREEN SHOTS
 
 screenshots get written in fs_homepath + fs_gamedir
 .. base/screenshots/*.*
@@ -567,13 +571,13 @@ three commands: "screenshot", "screenshotJPEG" and "screenshotPNG"
 
 the format is xreal-YYYY_MM_DD-HH_MM_SS-MS.tga/jpeg/png
 
-============================================================================== 
+==============================================================================
 */
 
-/* 
-================== 
+/*
+==================
 RB_TakeScreenshot
-================== 
+==================
 */
 static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 {
@@ -612,10 +616,10 @@ static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileNam
 	ri.Hunk_FreeTempMemory(buffer);
 }
 
-/* 
-================== 
+/*
+==================
 RB_TakeScreenshotJPEG
-================== 
+==================
 */
 static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fileName)
 {
@@ -637,10 +641,10 @@ static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fil
 	ri.Hunk_FreeTempMemory(buffer);
 }
 
-/* 
-================== 
+/*
+==================
 RB_TakeScreenshotPNG
-================== 
+==================
 */
 static void RB_TakeScreenshotPNG(int x, int y, int width, int height, char *fileName)
 {
@@ -749,13 +753,13 @@ void R_TakeScreenshot(char *name, ssFormat_t format)
 	cmd->format = format;
 }
 
-/* 
-================== 
+/*
+==================
 R_ScreenShot_f
 
 screenshot
 screenshot [filename]
-================== 
+==================
 */
 static void R_ScreenShot_f(void)
 {
@@ -1311,6 +1315,10 @@ void R_Register(void)
 	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
+
+	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_hdrExposure = ri.Cvar_Get("r_hdrExposure", "1", CVAR_CHEAT);
+	r_hdrMaxBrightness = ri.Cvar_Get("r_hdrMaxBrightness", "1", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 

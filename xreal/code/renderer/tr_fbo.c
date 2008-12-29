@@ -488,7 +488,14 @@ void R_InitFBOs(void)
 			tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
 			R_BindFBO(tr.deferredRenderFBO);
 
-			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);
+			if(r_hdrRendering->integer)
+			{
+				R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
+			}
+			else
+			{
+				R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);
+			}
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
 			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);

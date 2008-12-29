@@ -168,7 +168,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 				 va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
 
 
-		// HACK: add ATI's GLSL quirks      
+		// HACK: add ATI's GLSL quirks
 		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI 1\n#endif\n");
@@ -1544,6 +1544,23 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.depthOfFieldShader.program);
 	GL_CheckErrors();
 
+	// HDR tone mapping post process effect
+	GLSL_InitGPUShader(&tr.toneMappingShader, "toneMapping", GLCS_VERTEX, qtrue);
+
+	tr.toneMappingShader.u_CurrentMap = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_CurrentMap");
+	tr.toneMappingShader.u_HDRExposure = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRExposure");
+	tr.toneMappingShader.u_HDRMaxBrightness = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRMaxBrightness");
+	tr.toneMappingShader.u_ModelViewProjectionMatrix =
+		qglGetUniformLocationARB(tr.toneMappingShader.program, "u_ModelViewProjectionMatrix");
+
+	qglUseProgramObjectARB(tr.toneMappingShader.program);
+	qglUniform1iARB(tr.toneMappingShader.u_CurrentMap, 0);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.toneMappingShader.program);
+	GLSL_ShowProgramUniforms(tr.toneMappingShader.program);
+	GL_CheckErrors();
+
 	endTime = ri.Milliseconds();
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
@@ -1759,6 +1776,12 @@ void GLSL_ShutdownGPUShaders(void)
 		tr.depthOfFieldShader.program = 0;
 	}
 
+	if(tr.toneMappingShader.program)
+	{
+		qglDeleteObjectARB(tr.toneMappingShader.program);
+		tr.toneMappingShader.program = 0;
+	}
+
 	glState.currentProgram = 0;
 	qglUseProgramObjectARB(0);
 }
@@ -1950,24 +1973,24 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 					 int lightmapNum)
 {
 	shader_t       *state = (surfaceShader->remappedShader) ? surfaceShader->remappedShader : surfaceShader;
-		
+
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 	tess.surfaceShader = state;
-	
+
 	tess.surfaceStages = state->stages;
 	tess.numSurfaceStages = state->numStages;
-	
+
 	tess.lightShader = lightShader;
-	
+
 	tess.stageIteratorFunc = stageIteratorFunc;
 	tess.stageIteratorFunc2 = NULL;
-	
+
 	if(!tess.stageIteratorFunc)
 	{
 		tess.stageIteratorFunc = Tess_StageIteratorGeneric;
 	}
-	
+
 	if(tess.stageIteratorFunc == Tess_StageIteratorGeneric)
 	{
 		if(state->isSky)
@@ -1976,7 +1999,7 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 			tess.stageIteratorFunc2 = Tess_StageIteratorGeneric;
 		}
 	}
-	
+
 	if(tess.stageIteratorFunc == Tess_StageIteratorGBuffer)
 	{
 		if(state->isSky)
@@ -1986,11 +2009,11 @@ void Tess_Begin(	 void (*stageIteratorFunc)(),
 		}
 	}
 
-	
+
 	tess.skipTangentSpaces = skipTangentSpaces;
 	tess.shadowVolume = shadowVolume;
 	tess.lightmapNum = lightmapNum;
-	
+
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get
@@ -3204,7 +3227,7 @@ static void Render_heatHaze(int stage)
 
 		Tess_DrawElements();
 
-		// capture current color buffer for u_ContrastMap 
+		// capture current color buffer for u_ContrastMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.contrastRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
@@ -3803,7 +3826,7 @@ void Tess_StageIteratorGBuffer()
 
 	Tess_DeformGeometry();
 
-	// set face culling appropriately   
+	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
@@ -3977,7 +4000,7 @@ void Tess_StageIteratorDepthFill()
 
 	Tess_DeformGeometry();
 
-	// set face culling appropriately   
+	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary
@@ -4050,7 +4073,7 @@ void Tess_StageIteratorShadowFill()
 
 	Tess_DeformGeometry();
 
-	// set face culling appropriately   
+	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
 
 	// set polygon offset if necessary

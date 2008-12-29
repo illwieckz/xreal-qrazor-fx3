@@ -4972,8 +4972,46 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	R_BindNullFBO();
 
-	// enable shader, set arrays
-	GL_BindProgram(&tr.screenShader);
+	if(r_hdrRendering->integer)
+	{
+		GL_BindProgram(&tr.toneMappingShader);
+		GL_ClientState(GLCS_VERTEX);
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else
+	{
+		GL_BindProgram(&tr.screenShader);
+		GL_ClientState(GLCS_VERTEX);
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+
+		if(r_showDeferredDiffuse->integer)
+		{
+			GL_Bind(tr.deferredDiffuseFBOImage);
+		}
+		else if(r_showDeferredNormal->integer)
+		{
+			GL_Bind(tr.deferredNormalFBOImage);
+			//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
+		}
+		else if(r_showDeferredSpecular->integer)
+		{
+			GL_Bind(tr.deferredSpecularFBOImage);
+		}
+		else if(r_showDeferredPosition->integer)
+		{
+			GL_Bind(tr.deferredPositionFBOImage);
+		}
+		else
+		{
+			GL_Bind(tr.deferredRenderFBOImage);
+		}
+	}
 
 	/*
 	   if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
@@ -4986,36 +5024,9 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 	}
 
-	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
-	//GL_ClientState(tr.screenShader.attribs);
 	GL_Cull(CT_TWO_SIDED);
 
 	// set uniforms
-
-	// bind u_ColorMap
-	GL_SelectTexture(0);
-
-	if(r_showDeferredDiffuse->integer)
-	{
-		GL_Bind(tr.deferredDiffuseFBOImage);
-	}
-	else if(r_showDeferredNormal->integer)
-	{
-		GL_Bind(tr.deferredNormalFBOImage);
-		//GL_TextureFilter(tr.deferredNormalFBOImage, FT_NEAREST);
-	}
-	else if(r_showDeferredSpecular->integer)
-	{
-		GL_Bind(tr.deferredSpecularFBOImage);
-	}
-	else if(r_showDeferredPosition->integer)
-	{
-		GL_Bind(tr.deferredPositionFBOImage);
-	}
-	else
-	{
-		GL_Bind(tr.deferredRenderFBOImage);
-	}
 
 
 	// set 2D virtual screen size
@@ -5027,9 +5038,20 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	if(r_hdrRendering->integer)
+	{
 
+		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxBrightness, r_hdrMaxBrightness->value);
+
+		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	}
+	else
+	{
+		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	}
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
 	GL_PopMatrix();

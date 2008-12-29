@@ -124,7 +124,7 @@ typedef struct trRefLight_s
 	matrix_t        projectionMatrix;	// light frustum
 
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
-	matrix_t        attenuationMatrix2;	// attenuation * tcMod matrices     
+	matrix_t        attenuationMatrix2;	// attenuation * tcMod matrices
 
 	cullResult_t    cull;
 	vec3_t          localBounds[2];
@@ -667,7 +667,7 @@ typedef struct
 	qboolean        highQuality;
 	qboolean        forceHighQuality;
 
-	qboolean        privatePolygonOffset;	// set for decals and other items that must be offset 
+	qboolean        privatePolygonOffset;	// set for decals and other items that must be offset
 	float           privatePolygonOffsetValue;
 
 	expression_t    refractionIndexExp;
@@ -751,7 +751,7 @@ typedef struct shader_s
 	int             collapseTextureEnv;	// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
 	cullType_t      cullType;	// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
-	qboolean        polygonOffset;	// set for decals and other items that must be offset 
+	qboolean        polygonOffset;	// set for decals and other items that must be offset
 	float           polygonOffsetValue;
 
 	qboolean        noPicMip;	// for images that must always be full resolution
@@ -876,6 +876,9 @@ typedef struct shaderProgram_s
 	GLint           u_DepthScale;
 
 	GLint           u_PortalRange;
+
+	GLint			u_HDRExposure;
+	GLint			u_HDRMaxBrightness;
 
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
@@ -1784,7 +1787,7 @@ typedef struct
 } backEndState_t;
 
 /*
-** trGlobals_t 
+** trGlobals_t
 **
 ** Most renderer globals are defined here.
 ** backend functions should never modify any of these fields,
@@ -1902,7 +1905,7 @@ typedef struct
 	// shadowmap distance compression
 	shaderProgram_t shadowFillShader;
 
-	// Doom3 style omni-directional multi-pass lighting 
+	// Doom3 style omni-directional multi-pass lighting
 	shaderProgram_t forwardLightingShader_DBS_omni;
 	shaderProgram_t forwardLightingShader_DBS_proj;
 
@@ -1935,6 +1938,7 @@ typedef struct
 	shaderProgram_t uniformFogShader;
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
 	shaderProgram_t depthOfFieldShader;
+	shaderProgram_t toneMappingShader;
 
 	// -----------------------------------------
 
@@ -2218,6 +2222,10 @@ extern cvar_t  *r_deferredShading;
 extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
+extern cvar_t  *r_hdrRendering;
+extern cvar_t  *r_hdrExposure;
+extern cvar_t  *r_hdrMaxBrightness;
+
 extern cvar_t  *r_screenSpaceAmbientOcclusion;
 extern cvar_t  *r_depthOfField;
 extern cvar_t  *r_bloom;
@@ -2318,7 +2326,7 @@ enum
 	GLS_SRCBLEND_DST_ALPHA				= (1 << 6),
 	GLS_SRCBLEND_ONE_MINUS_DST_ALPHA	= (1 << 7),
 	GLS_SRCBLEND_ALPHA_SATURATE			= (1 << 8),
-	
+
 	GLS_SRCBLEND_BITS					= GLS_SRCBLEND_ZERO
 											| GLS_SRCBLEND_ONE
 											| GLS_SRCBLEND_DST_COLOR
@@ -2328,7 +2336,7 @@ enum
 											| GLS_SRCBLEND_DST_ALPHA
 											| GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
 											| GLS_SRCBLEND_ALPHA_SATURATE,
-	
+
 	GLS_DSTBLEND_ZERO					= (1 << 9),
 	GLS_DSTBLEND_ONE					= (1 << 10),
 	GLS_DSTBLEND_SRC_COLOR				= (1 << 11),
@@ -2337,7 +2345,7 @@ enum
 	GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 14),
 	GLS_DSTBLEND_DST_ALPHA				= (1 << 15),
 	GLS_DSTBLEND_ONE_MINUS_DST_ALPHA	= (1 << 16),
-	
+
 	GLS_DSTBLEND_BITS					= GLS_DSTBLEND_ZERO
 											| GLS_DSTBLEND_ONE
 											| GLS_DSTBLEND_SRC_COLOR
@@ -2352,10 +2360,10 @@ enum
 	GLS_POLYMODE_LINE					= (1 << 18),
 
 	GLS_DEPTHTEST_DISABLE				= (1 << 19),
-	
+
 	GLS_DEPTHFUNC_LESS					= (1 << 20),
 	GLS_DEPTHFUNC_EQUAL					= (1 << 21),
-	
+
 	GLS_DEPTHFUNC_BITS					= GLS_DEPTHFUNC_LESS
 											| GLS_DEPTHFUNC_EQUAL,
 
@@ -2368,19 +2376,19 @@ enum
 											| GLS_ATEST_LT_80
 											| GLS_ATEST_GE_80
 											| GLS_ATEST_GT_CUSTOM,
-	
+
 	GLS_REDMASK_FALSE					= (1 << 26),
 	GLS_GREENMASK_FALSE					= (1 << 27),
 	GLS_BLUEMASK_FALSE					= (1 << 28),
 	GLS_ALPHAMASK_FALSE					= (1 << 29),
-	
+
 	GLS_COLORMASK_BITS					= GLS_REDMASK_FALSE
 											| GLS_GREENMASK_FALSE
 											| GLS_BLUEMASK_FALSE
 											| GLS_ALPHAMASK_FALSE,
-	
+
 	GLS_STENCILTEST_ENABLE				= (1 << 30),
-	
+
 	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
 };
 // *INDENT-ON*

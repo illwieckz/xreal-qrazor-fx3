@@ -335,7 +335,7 @@ Used to resample images in a more general than quartering fashion.
 This will only be filtered properly if the resampled size
 is greater than half the original size.
 
-If a larger shrinking is needed, use the mipmap function 
+If a larger shrinking is needed, use the mipmap function
 before or after.
 ================
 */
@@ -644,7 +644,7 @@ static void R_MipNormalMap(byte * in, int width, int height)
 //	width >>= 1;
 	width <<= 2;
 	height >>= 1;
-	
+
 	for(i = 0; i < height; i++, in += width)
 	{
 		for(j = 0; j < width; j += 8, out += 4, in += 8)
@@ -663,7 +663,7 @@ static void R_MipNormalMap(byte * in, int width, int height)
 					(in[6] * inv255 - 0.5) * 2.0 +
 					(in[width + 2] * inv255 - 0.5) * 2.0 +
 					(in[width + 6] * inv255 - 0.5) * 2.0;
-					
+
 			n[3] =	(inv255 * in[3]) +
 					(inv255 * in[7]) +
 					(inv255 * in[width + 3]) +
@@ -1741,7 +1741,7 @@ static void LoadTGA(const char *name, byte ** pic, int *width, int *height, byte
 	}
 
 #if 1
-	// TTimo: this is the chunk of code to ensure a behavior that meets TGA specs 
+	// TTimo: this is the chunk of code to ensure a behavior that meets TGA specs
 	// bk0101024 - fix from Leonardo
 	// bit 5 set => top-down
 	if(targa_header.attributes & 0x20)
@@ -2419,7 +2419,7 @@ void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaB
 	}
 
 	/*
-	 * Set error handling if you are using the setjmp/longjmp method (this is 
+	 * Set error handling if you are using the setjmp/longjmp method (this is
 	 * the normal method of doing things with libpng).  REQUIRED unless you
 	 * set up your own error handlers in the png_create_read_struct() earlier.
 	 */
@@ -2619,7 +2619,7 @@ DDS LOADING
 
 /* -----------------------------------------------------------------------------
 
-DDS Library 
+DDS Library
 
 Based on code from Nvidia's DDS example:
 http://www.nvidia.com/object/dxtc_decompression_code.html
@@ -2639,7 +2639,7 @@ other materials provided with the distribution.
 
 Neither the names of the copyright holders nor the names of its contributors may
 be used to endorse or promote products derived from this software without
-specific prior written permission. 
+specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -2946,9 +2946,9 @@ static void DDSGetColorBlockColors(ddsColorBlock_t * block, ddsColor_t colors[4]
 	/* use this for all but the super-freak math method */
 	if(block->colors[0] > block->colors[1])
 	{
-		/* four-color block: derive the other two colors.    
+		/* four-color block: derive the other two colors.
 		   00 = color 0, 01 = color 1, 10 = color 2, 11 = color 3
-		   these two bit codes correspond to the 2-bit fields 
+		   these two bit codes correspond to the 2-bit fields
 		   stored in the 64-bit block. */
 
 		word = ((unsigned short)colors[0].r * 2 + (unsigned short)colors[1].r) / 3;
@@ -2972,9 +2972,9 @@ static void DDSGetColorBlockColors(ddsColorBlock_t * block, ddsColor_t colors[4]
 	else
 	{
 		/* three-color block: derive the other color.
-		   00 = color 0, 01 = color 1, 10 = color 2,  
+		   00 = color 0, 01 = color 1, 10 = color 2,
 		   11 = transparent.
-		   These two bit codes correspond to the 2-bit fields 
+		   These two bit codes correspond to the 2-bit fields
 		   stored in the 64-bit block */
 
 		word = ((unsigned short)colors[0].r + (unsigned short)colors[1].r) / 2;
@@ -4299,7 +4299,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 	int             width, height;
 	byte           *data;
 
-	if(!r_deferredShading->integer)
+	if(!r_deferredShading->integer && !r_hdrRendering->integer)
 		return;
 
 	if(glConfig.textureNPOTAvailable)
@@ -4325,7 +4325,6 @@ static void R_CreateDeferredRenderFBOImages(void)
 		tr.deferredPositionFBOImage =
 			R_CreateImage("_deferredPositionFBO", data, width, height,
 						  IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
-		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 	}
 	else
 	{
@@ -4336,6 +4335,14 @@ static void R_CreateDeferredRenderFBOImages(void)
 			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredPositionFBOImage =
 			R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	}
+
+	if(r_hdrRendering->integer)
+	{
+		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+	}
+	else
+	{
 		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 	}
 
