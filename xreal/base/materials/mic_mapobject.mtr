@@ -5,13 +5,13 @@ models/mapobjects/mic/tele-frame
     
 	diffusemap		models/mapobjects/mic/tele01_diff
 	specularmap		models/mapobjects/mic/tele01_height2b_SPEC
-//    bumpmap			addnormals(models/mapobjects/mic/tele01_height2b_NRM, heightmap(models/mapobjects/mic/tele01_height2b_SPEC, 1))
+//  bumpmap			addnormals(models/mapobjects/mic/tele01_height2b_NRM, heightmap(models/mapobjects/mic/tele01_height2b_SPEC, 1))
 	bumpmap			models/mapobjects/mic/tele01_height2b_NRM
 	
 	{
 		map models/mapobjects/mic/tele01_glo.tga
 		blend add
-		//vertexColor
+		vertexColor
 	} 		
 }
 
@@ -41,3 +41,30 @@ models/mapobjects/mic/tele-fx
 		
 	}		
 }
+
+
+models/mapobjects/mic/jumppad/jumppad01
+{
+    qer_editorimage	models/mapobjects/mic/jumppad/jp_diff
+    
+	diffusemap		models/mapobjects/mic/jumppad/jp_diff
+	normalmap		models/mapobjects/mic/jumppad/jp_normal
+//  normalmap		addnormals(models/mapobjects/mic/jumppad/jp_normal, heightmap(models/mapobjects/mic/jumppad/jp_height, 1))
+	specularmap		models/mapobjects/mic/jumppad/jp_spec
+	
+	{
+		map models/mapobjects/mic/jumppad/jp_glo
+		blend add
+		vertexColor
+	} 		
+}
+
+models/mapobjects/mic/jumppad/jumppad01_kabel
+{
+    qer_editorimage	models/mapobjects/mic/jumppad/jp_diff_kabel
+    
+	diffusemap		models/mapobjects/mic/jumppad/jp_diff_kabel
+	normalmap		models/mapobjects/mic/jumppad/jp_normal_kabel
+}
+
+
