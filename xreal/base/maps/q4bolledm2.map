@@ -2,6 +2,9 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
+"_lightmapscale" "0.25"
+"message" "Goldeneye by Leroy 'bolleh' Ramdjan"
+"music" "music/jamendo.com/Silence/Encre/03-Pollution.ogg"
 // brush 0
 {
 brushDef3
@@ -34663,9 +34666,9 @@ patchDef2
 {
 "target" "target_null_4"
 "origin" "1496 144 -184"
-"model" "func_jumppad_1"
-"name" "func_jumppad_1"
-"classname" "func_jumppad"
+"model" "trigger_push_1"
+"name" "trigger_push_1"
+"classname" "trigger_push"
 // brush 0
 {
 brushDef3
@@ -35458,9 +35461,9 @@ patchDef2
 {
 "target" "target_null_5"
 "origin" "416 -1008 -336"
-"model" "func_jumppad_2"
-"name" "func_jumppad_2"
-"classname" "func_jumppad"
+"model" "trigger_push_2"
+"name" "trigger_push_2"
+"classname" "trigger_push"
 // brush 0
 {
 brushDef3
@@ -35488,9 +35491,9 @@ brushDef3
 {
 "target" "target_null_6"
 "origin" "-112 -400 -336"
-"model" "func_jumppad_3"
-"name" "func_jumppad_3"
-"classname" "func_jumppad"
+"model" "trigger_push_3"
+"name" "trigger_push_3"
+"classname" "trigger_push"
 // brush 0
 {
 brushDef3
