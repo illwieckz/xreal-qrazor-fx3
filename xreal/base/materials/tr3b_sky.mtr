@@ -9,6 +9,7 @@ textures/tr3b_sky/jump2_512
 	nooverlays
 	noimpact 
 	forceOpaque
+	nolightmap
 	
 	{ 
 		stage skyboxMap
@@ -67,6 +68,7 @@ textures/tr3b_sky/cloudyskybright
 
 	xmap_sun 1 0.8 0.7 200 20 70
 	
+	nolightmap
 	noimpact
 	sky
 

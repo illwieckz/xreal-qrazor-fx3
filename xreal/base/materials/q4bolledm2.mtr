@@ -17,6 +17,7 @@ textures/q4bolledm2/red
 		alpha		0.5
 	}
 }
+
 textures/q4bolledm2/red_pulse
 {
 	noShadows
@@ -38,6 +39,7 @@ textures/q4bolledm2/red_pulse
 		vertexcolor
 	}
 }
+
 textures/q4bolledm2/flare_colored
 {
 	noShadows
@@ -71,6 +73,7 @@ textures/q4bolledm2/goldeneye1
 		blue		0
 	}
 }
+
 textures/q4bolledm2/goldeneye2
 {
 	noShadows
@@ -86,6 +89,7 @@ textures/q4bolledm2/goldeneye2
 		blue		0
 	}
 }
+
 textures/q4bolledm2/goldeneye3
 {
 	noShadows
@@ -101,6 +105,7 @@ textures/q4bolledm2/goldeneye3
 		blue		0
 	}
 }
+
 textures/q4bolledm2/bolleh1
 {
 	noShadows
@@ -115,6 +120,7 @@ textures/q4bolledm2/bolleh1
 		blue		0
 	}
 }
+
 textures/q4bolledm2/bolleh2
 {
 	noShadows
@@ -129,6 +135,7 @@ textures/q4bolledm2/bolleh2
 		blue		0
 	}
 }
+
 textures/q4bolledm2/bolleh3
 {
 	noShadows
@@ -143,6 +150,7 @@ textures/q4bolledm2/bolleh3
 		blue		0
 	}
 }
+
 textures/q4bolledm2/decal1
 {
 	qer_editorimage textures/q4bolledm2/decal1
@@ -160,6 +168,7 @@ textures/q4bolledm2/decal1
 		blue 	.24
 	}
 }
+
 textures/q4bolledm2/decal2
 {
 	qer_editorimage textures/q4bolledm2/decal2
@@ -176,6 +185,7 @@ textures/q4bolledm2/decal2
 		blue		0
 	}
 }
+
 textures/q4bolledm2/decal2b
 {
 	qer_editorimage textures/q4bolledm2/decal2b
@@ -192,6 +202,7 @@ textures/q4bolledm2/decal2b
 		blue		0
 	}
 }
+
 textures/q4bolledm2/decal2bcolored
 {
 	qer_editorimage textures/q4bolledm2/decal2b
@@ -225,18 +236,22 @@ textures/q4bolledm2/gradient1
 }
 
 textures/q4bolledm2/sky
-{	//red sky from Raffel
+{
+	//red sky from Raffel
 	qer_editorimage	textures/editor/sky.tga
+	
 	noFragment
 	forceOpaque
 	noimpact
 	noshadows
+	nolightmap
+	
 	{
-		blend			add			// so transparent windows can draw on top of it
-		cameraCubeMap	gfx/q4bolledm2/q4bolledm2
-		texgen			skybox
+		stage skyboxMap
+		cubeMap	cubemaps/bolleh/q4bolledm2
 	}
 }
+
 textures/q4bolledm2/doom3world
 {
 	noShadows
@@ -252,6 +267,7 @@ textures/q4bolledm2/doom3world
 		//colored
 	}
 }
+
 textures/q4bolledm2/planetquake
 {
 	noShadows
@@ -268,6 +284,7 @@ textures/q4bolledm2/planetquake
 		
 	}
 }
+
 textures/q4bolledm2/q4fnet
 {
 	noShadows
@@ -283,6 +300,7 @@ textures/q4bolledm2/q4fnet
 		//colored
 	}
 }
+
 textures/q4bolledm2/q4max
 {
 	noShadows
@@ -298,6 +316,7 @@ textures/q4bolledm2/q4max
 		//colored
 	}
 }
+
 textures/q4bolledm2/aftermath
 {
 	noShadows
@@ -313,6 +332,7 @@ textures/q4bolledm2/aftermath
 		//colored
 	}
 }
+
 lights/q4bolledm2
 {
 	lightFalloffImage	makeIntensity(gfx/lights/SlowFalloff_01.tga)
@@ -326,6 +346,7 @@ lights/q4bolledm2
 		zeroClamp
 	}
 }
+
 textures/q4bolledm2/step
 {
 	qer_editorimage textures/q4bolledm2/step.tga
@@ -339,6 +360,7 @@ textures/q4bolledm2/step
 		map textures/q4bolledm2/step.tga
 	}
 }
+
 textures/q4bolledm2/smclogo
 {
 	qer_editorimage textures/q4bolledm2/smclogo.tga
@@ -352,6 +374,7 @@ textures/q4bolledm2/smclogo
 		map textures/q4bolledm2/smclogo.tga
 	}
 }
+
 textures/q4bolledm2/liftup
 {
 	qer_editorimage textures/q4bolledm2/liftup.tga
@@ -365,6 +388,7 @@ textures/q4bolledm2/liftup
 		map textures/q4bolledm2/liftup.tga
 	}
 }
+
 textures/q4bolledm2/cautiontag
 {
 	qer_editorimage textures/q4bolledm2/cautiontag.tga
