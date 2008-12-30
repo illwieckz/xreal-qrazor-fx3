@@ -159,7 +159,7 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 	}
 	pushed_p++;
 
-	// try moving the contacted entity 
+	// try moving the contacted entity
 	// figure movement due to the pusher's amove
 	G_CreateRotationMatrix(amove, transpose);
 	G_TransposeMatrix(transpose, matrix);
@@ -263,7 +263,7 @@ qboolean G_TryPushingProxMine(gentity_t * check, gentity_t * pusher, vec3_t move
 	VectorSubtract(vec3_origin, amove, org);
 	AngleVectors(org, forward, right, up);
 
-	// try moving the contacted entity 
+	// try moving the contacted entity
 	VectorAdd(check->s.pos.trBase, move, check->s.pos.trBase);
 
 	// figure movement due to the pusher's amove
@@ -925,7 +925,7 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 	{
 		G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
 	}
-	if(ent->spawnflags & 4)
+	if(ent->crusher)
 	{
 		return;					// crushers don't reverse
 	}
@@ -1074,6 +1074,7 @@ void SP_func_door(gentity_t * ent)
 	vec3_t          size, sizeRotated;
 	float           lip;
 	matrix_t        rotation;
+	qboolean		start_open;
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
@@ -1094,6 +1095,8 @@ void SP_func_door(gentity_t * ent)
 
 	// default damage of 2 points
 	G_SpawnInt("dmg", "2", &ent->damage);
+
+	G_SpawnBoolean("crusher", "0,", &ent->crusher);
 
 	// first position at start
 	VectorCopy(ent->s.origin, ent->pos1);
@@ -1119,7 +1122,8 @@ void SP_func_door(gentity_t * ent)
 	VectorMA(ent->pos1, distance, ent->movedir, ent->pos2);
 
 	// if "start_open", reverse position 1 and 2
-	if(ent->spawnflags & 1)
+	G_SpawnBoolean("start_open", "0", &start_open);
+	if(start_open)
 	{
 		vec3_t          temp;
 
@@ -1738,11 +1742,16 @@ void SP_func_bobbing(gentity_t * ent)
 {
 	float           height;
 	float           phase;
+	qboolean		x_axis;
+	qboolean		y_axis;
 
 	G_SpawnFloat("speed", "4", &ent->speed);
 	G_SpawnFloat("height", "32", &height);
 	G_SpawnInt("dmg", "2", &ent->damage);
 	G_SpawnFloat("phase", "0", &phase);
+	G_SpawnBoolean("x_axis", "0", &x_axis);
+	G_SpawnBoolean("y_axis", "0", &y_axis);
+
 
 	trap_SetBrushModel(ent, ent->model);
 	InitMover(ent);
@@ -1755,11 +1764,11 @@ void SP_func_bobbing(gentity_t * ent)
 	ent->s.pos.trType = TR_SINE;
 
 	// set the axis of bobbing
-	if(ent->spawnflags & 1)
+	if(x_axis)
 	{
 		ent->s.pos.trDelta[0] = height;
 	}
-	else if(ent->spawnflags & 2)
+	else if(y_axis)
 	{
 		ent->s.pos.trDelta[1] = height;
 	}

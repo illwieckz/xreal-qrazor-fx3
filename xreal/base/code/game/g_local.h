@@ -193,7 +193,7 @@ struct gentity_s
 	int             health;
 
 	qboolean        takedamage;
-
+	qboolean		crusher;		// doors that squeeze players
 	int             damage;
 	int             splashDamage;	// quad will increase this without increasing radius
 	int             splashRadius;
