@@ -419,6 +419,8 @@ models/weapons/mdriver/impactPS
     {
       shader sync gfx/mdriver/green_particle
 
+      dynamicLight    0 20 0 { 0.0 1.0 0.3 }
+
       displacement 0 0 0 "~2.0"
 
       normalDisplacement 10.0
@@ -438,7 +440,7 @@ models/weapons/mdriver/impactPS
       rotation 0 "~360" -
       bounce 0.5
 
-      lifeTime 1000
+      lifeTime 500
     }
 
     count 10
@@ -719,6 +721,8 @@ models/weapons/grenade/impactPS
     particle
     {
       shader sync gfx/grenade/flare_01
+
+      dynamicLight    0 800 0 { 1.0 1.0 1.0 }
 
       displacement 0 0 8 "~0"
 
