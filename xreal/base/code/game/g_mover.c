@@ -1683,6 +1683,12 @@ check either the X_AXIS or Y_AXIS box to change that.
 */
 void SP_func_rotating(gentity_t * ent)
 {
+	qboolean		x_axis;
+	qboolean		y_axis;
+
+	G_SpawnBoolean("x_axis", "0", &x_axis);
+	G_SpawnBoolean("y_axis", "0", &y_axis);
+
 	if(!ent->speed)
 	{
 		ent->speed = 100;
@@ -1690,11 +1696,11 @@ void SP_func_rotating(gentity_t * ent)
 
 	// set the axis of rotation
 	ent->s.apos.trType = TR_LINEAR;
-	if(ent->spawnflags & 4)
+	if(x_axis)
 	{
 		ent->s.apos.trDelta[2] = ent->speed;
 	}
-	else if(ent->spawnflags & 8)
+	else if(y_axis)
 	{
 		ent->s.apos.trDelta[0] = ent->speed;
 	}

@@ -3,10 +3,7 @@
 ===========================================================================================================
 -----------------------------------------------------------------------------------------------------------
 
- XreaL entity definition file for DarkRadiant
- 
- FIXME: Models in the editor do not have skins applied
- FIXME2: Spawnflags?
+ XreaL entity definition file for the XreaLRadiant
  
  NOTE: Some of these may be wrong but all of them show up in the editor entity selection window so may
  need to fix them if they dont work when you try to use them. ~Encryption
@@ -447,38 +444,6 @@ entityDef weapon_gauntlet
 	"model"                     "models/weapons/gauntlet/gauntlet.md3"
 	
 	"editor_usage"				"Gauntlet."
-	
-	"editor_bool suspended"		"item will spawn where it was placed in map and won't drop to the floor."
-	"editor_float wait"			"time in seconds before item respawns after being picked up (default 5, -1 = never respawn)."
-	"editor_float random"		"random time variance in seconds added or subtracted from 'wait' delay (default 0 - see Notes)."
-	"editor_var team"			"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
-	"editor_var target"			"picking up the item will trigger the entity this points to."
-	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-	"editor_bool notbot"		"used to make an item invisible for bot attraction."
-	
-	"spawnclass"				"idItem"
-	"suspended"					"0"
-    "wait" 						"5"
-    "random"					"0"
-    "team" 						"0"
-    "target" 					"0"
-    "notfree" 					"0"
-    "notteam" 					"0"
-    "notsingle" 				"0"
-    "notbot" 					"0"
-}
-
-
-entityDef weapon_grapplinghook 
-{   
-	"editor_color"				"1 0 .5" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"model"                     "models/weapons2/grapple/grapple.md3"
-	
-	"editor_usage"				"Grappling Hook."
 	
 	"editor_bool suspended"		"item will spawn where it was placed in map and won't drop to the floor."
 	"editor_float wait"			"time in seconds before item respawns after being picked up (default 5, -1 = never respawn)."
@@ -2114,174 +2079,6 @@ entityDef func_teleporter
     "notsingle"                 "0"
 }
 
-
-/*
-============================================================================================================
-
-Team Pickups
-____________________________________________________________________________________________________________
-============================================================================================================
-*/
-
-entityDef team_CTF_neutral
-{   
-	"editor_color"				"1 .2 1" 
-	"editor_mins"				"16 -16 -24"
-	"editor_maxs"				"16 16 -32"
-	"editor_showangle"			"1"
-	"model"                     "models/flags/n_flag.md3"
-	 
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	 
-    "angle" 					"0"
-    "gametype" 					"0"
-// key="SUSPENDED"
-}
-
-
-entityDef team_CTF_red
-{   
-	"editor_color"				"1 .2 0" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"editor_showangle"			"1"
-	"model"                     "models/flags/r_flag.md3"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	
-}
-
-
-entityDef team_CTF_blue
-{    
-	"editor_color"				"0 .2 1" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"editor_showangle"			"1"
-	"model"                     "models/flags/b_flag.md3"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	
-}
-
-
-entityDef item_scout
-{    
-	"editor_color"				"0.3 0.3 1" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"model"                     "models/powerups/scout.md3"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	
-    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
-    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
-    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
-    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
-    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
-    //"name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
-    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
-    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
-    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
-    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
-// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
-// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
-// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
-}
-
-
-entityDef item_guard 
-{   
-	"editor_color"				"0.3 0.3 1" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"model"                     "models/powerups/guard.md3"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	
-    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
-    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
-    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
-    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
-    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
-    //"name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
-    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
-    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
-    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
-    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
-// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
-// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
-// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
-}
-
-
-entityDef item_doubler  
-{  
-	"editor_color"				"0.3 0.3 1" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"model"                     "models/powerups/doubler.md3"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	
-    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
-    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
-    "count"                     "0"  //"Powerup Duration"time in seconds power-up will last when picked up (default 30)."
-    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
-    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
-    //"name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
-    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
-    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
-    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
-    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
-// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
-// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
-// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
-}
-
-
-entityDef item_ammoregen
-{    
-	"editor_color"				"0.3 0.3 1" 	
-	"editor_mins"				"-16 -16 -16"
-	"editor_maxs"				"16 16 16" 
-	"model"                     "models/powerups/ammo.md3"
-	
-	"editor_usage"				""
-	
-	"spawnclass"				"idItem"
-	
-    "wait"                      "0"  //"Respawn Delay"time in seconds before the item respawns after being picked up (default 0, -1 = never respawn)."
-    "random"                    "0"  //"Respawn Delay Variance"random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes)."
-    "team"                      "0"  //"Team Name"set this to team items. Teamed items will respawn randomly after team master is picked up (see Notes)."
-    "target"                    "0"  //"Target"picking up the item will trigger the entity this points to."
-    //"name"                      "0"  //"Target Name"a target_give entity can point to this for respawn freebies."
-    "notbot"                    "0"  //"Invisible To Bots"used to make an item invisible for bot attraction."
-    "notfree"                   "0"  //"Hidden For FFA"when set to 1, entity will not spawn in "Free for all" and "Tournament" modes."
-    "notteam"                   "0"  //"Hidden For Teamplay"when set to 1, entity will not spawn in "Teamplay" and "CTF" modes."
-    "notsingle"                 "0"  //"Hidden For SP"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-    "gametype"                  "0"  //"Game Type"the valid values are ffa, tournament, single, team, ctf, one//, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
-// key="SUSPENDED"              "0"  //"No Drop To Floor" bit="0"item will spawn where it was placed in map and won't drop to the floor."
-// key="REDTEAM"                "0"  //"Red Team Only" bit="1"only players on the red team may pick up this item."
-// key="BLUETEAM"               "0"  //"Blue Team Only" bit="2"only players on the blue team may pick up this item."
-}
-
-
 /*
 ============================================================================================================
 
@@ -2297,19 +2094,20 @@ entityDef misc_portal_camera
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Portal camera. This camera is used to project its view onto a portal surface in the level through the intermediary of a misc_portal_surface entity. Use a target_position entity to set the camera's pointing direction."
+	
+	"editor_bool slowrotate"	"makes the portal camera rotate slowly along the roll axis."
+	"editor_bool fastrotate"	"makes the portal camera rotate faster along the roll axis."
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idCamera"
-	
-    "angles" 					"0" 
-    "target" 					"0" 
-    //"name" 						"0" 
-    "roll" 						"0" 
+	"slowrotate"				"0"
+	"fastrotate"				"0"
     "notfree" 					"0" 
     "notteam" 					"0" 
     "notsingle"					"0" 
-// key="SLOWROTATE" 
-// key="FASTROTATE"
 }
 
 
@@ -2320,12 +2118,16 @@ entityDef misc_portal_surface
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Portal surface indicator. This will 'lock on' the brush face closest to it and identify as a portal. The view displayed on the portal surface is the view of the misc_portal_camera that this entity targets. Also used for mirrors."
+	"editor_usage1"				"The entity must be no farther than 64 units away from the portal surface to lock onto it."
+	"editor_usage2"				"To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don't target a misc_portal_camera."
+	
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-	
-    "target" 					"0" 
-    "notfree" 					"0" 
+    "notfree" 					"0"
     "notteam" 					"0" 
     "notsingle"					"0" 
 }
@@ -2338,12 +2140,13 @@ entityDef misc_teleporter_dest
 	"editor_maxs"				"32 32 -16"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Teleport destination location point for trigger_teleporter entities."
+	
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-	
-    "angle" 					"0" 
-    //"name" 						"0" 
     "notfree" 					"0" 
     "notteam" 					"0" 
     "notsingle" 				"0" 
@@ -2364,12 +2167,16 @@ entityDef path_corner
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
 	
-	"editor_usage"				""
+	"editor_usage"				"Path corner entity that func_trains can be made to follow."
+	"editor_usage1"				"Point it to next path_corner in the path."
+	
+	"editor_float speed"		"speed of func_train while moving to the next path corner. This will override the speed value of the train."
+	"editor_float wait"			"number of seconds func_train will pause on path corner before moving to next path corner."
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-	
-    "target" 					"0" 
-    //"name" 						"0" 
     "speed" 					"0" 
     "wait" 						"0" 
     "notfree" 					"0" 
@@ -2393,13 +2200,14 @@ entityDef shooter_grenade
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This will shoot a grenade each time it's triggered. Aiming is done by targeting an info_notnull or target_position entity."
+	
+	"editor_float random"		"random aiming variance in degrees from the straight line to the targeted entity"
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-	
-    "angles" 					"0" 
-    //"name" 						"0" 
-    "target" 					"0" 
     "random" 					"0" 
     "notfree" 					"0" 
     "notteam" 					"0" 
@@ -2414,15 +2222,16 @@ entityDef shooter_plasma
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This will shoot a plasma ball each time it's triggered. Aiming is done by targeting an info_notnull or target_position entity."
+	
+	"editor_float random"		"random aiming variance in degrees from the straight line to the targeted entity"
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-	
-    "angles" 					"0" 
-    //"name" 						"0" 
-    "target"					"0" 
     "random" 					"0" 
-    "notfree"					"0" 
+    "notfree" 					"0" 
     "notteam" 					"0" 
     "notsingle" 				"0" 
 }
@@ -2435,13 +2244,14 @@ entityDef shooter_rocket
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This will shoot a rocket each time it's triggered. Aiming is done by targeting an info_notnull or target_position entity."
+	
+	"editor_float random"		"random aiming variance in degrees from the straight line to the targeted entity"
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idStaticEntity"
-	
-    "angles"					"0" 
-    //"name" 						"0" 
-    "target" 					"0" 
     "random" 					"0" 
     "notfree" 					"0" 
     "notteam" 					"0" 
@@ -2504,14 +2314,16 @@ entityDef target_delay
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Time delay trigger intermediary. Like a target_relay, this can only be fired by other triggers which will cause it in turn to fire its own targets."
+	
+	"editor_float wait"			"delay in seconds from when this gets triggered to when it fires its own targets."
+	"editor_float random"		"random time variance in seconds added or subtracted from wait delay."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name" 						"0" 
-    "target" 					"0" 
-    "wait" 						"0" 
-    "delay" 					"0" 
+    "wait" 						"1"
     "random" 					"0" 
     "notfree"					"0" 
     "notteam" 					"0" 
@@ -2526,12 +2338,13 @@ entityDef target_give
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This is used to give ammo, weapons, health or items to the player who activates it."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    "target"					"0" 
-    //"name" 						"0" 
     "notfree" 					"0" 
     "notteam" 					"0" 
     "notsingle" 				"0" 
@@ -2545,11 +2358,13 @@ entityDef target_kill
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This will kill the player who activates the trigger that fires this target."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name" 						"0" 
     "notfree" 					"0" 
     "notteam" 					"0" 
     "notsingle" 				"0" 
@@ -2563,29 +2378,20 @@ entityDef target_laser
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"When triggered, fires a laser.  You can either set a target or a direction."
+
+	"editor_bool start_on"		"when set, the laser will start on in the game."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    "angles" 					"0" 
-    "target" 					"0" 
-    //"name" 						"0" 
+ 	"start_on"					"0"
     "notfree" 					"0" 
     "notteam" 					"0" 
-    "notsingle" 				"0" 
-//START_ON : 
+    "notsingle" 				"0"
 }
 
-//<list name="colorIndex"
-//  <item name="white" value="0"/>
-//  <item name="red" value="1"/>
-//  <item name="green" value="2"/>
-//  <item name="yellow" value="3"/>
-//  <item name="blue" value="4"/>
-//  <item name="cyan" value="5"/>
-//  <item name="magenta" value="6"/>
-//  <item name="white2" value="7"/>
-//</list>
 
 entityDef target_location 
 {   
@@ -2594,15 +2400,16 @@ entityDef target_location
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Location marker used by bots and players for team orders and team chat in the course of Teamplay games. The closest target_location in sight is used for the location. If none is in sight, the closest in distance is used."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-//message :   
-    "count" 					"0" 
     "notfree"					"0" 
     "notteam"					"0" 
-    "notsingle" 				"0" 
+    "notsingle" 				"0"
 }
 
 
@@ -2613,12 +2420,14 @@ entityDef target_position
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Aiming target for entities like light, misc_portal_camera and trigger_push (jump pads) in particular."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name" 						"0" 
-    "notfree" 					"0" 
+	"notfree" 					"0" 
     "notteam" 					"0"	
     "notsingle" 				"0"
 }
@@ -2630,40 +2439,48 @@ entityDef target_print
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
 	
-	"editor_usage"				""
+	"editor_usage"				"This will print a message on the center of the screen when triggered. By default, all the clients will see the message."
+	
+	"editor_var message"		"text string to print on screen."
+	"editor_bool redteam"		"only the red team players will see the message."
+	"editor_bool blueteam"		"only the blue team players will see the message."
+	"editor_bool private"		"only the player that activates the target will see the message."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
 	
-    "message" 					"0"
-    //"name" 						"0"
+    "message" 					""
+    "redteam"					"0"
+    "blueteam"					"0"
+    "private"					"0"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
-// key="REDTEAM" 				"0"
-// key="BLUETEAM" 				"0"
-// key="PRIVATE" 				"0"
 }
 
 
-entityDef target_push  
+entityDef target_push
 {  
 	"editor_color"				".5 .5 .5" 	
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This can be used to create jump pads and launch ramps. The direction of push can be set by pointing to a target_position or info_notnull entity. Unlike trigger_push, this is NOT client side predicted and must be activated by a trigger."
+	
+	"editor_float speed"		"speed of push (default 1000). Has no effect if entity targets an aiming entity."
+	"editor_bool bouncepad"		"if set, trigger will play bounce noise instead of beep noise when activated (recommended)."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    "angles" 					"0"
-    "speed" 					"0"
-    //"name" 						"0"
-    "target"					"0"
+	"speed" 					"1000"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
-// key="BOUNCEPAD"
 }
 
 
@@ -2674,18 +2491,19 @@ entityDef target_relay
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This can only be activated by other triggers which will cause it in turn to activate its own targets."
+	
+	"editor_bool red_only"		"only red team players can activate trigger."
+	"editor_bool blue_only"		"only blue team players can activate trigger."
+	"editor_bool random"		"only one of the targeted entities will be triggered at random."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name"						"0"
-    "target" 					"0"
-    "notfree" 					"0"
+	"notfree" 					"0"
     "notteam"					"0"
-    "notsingle" 				"0"
-// key="RED_ONLY" 
-// key="BLUE_ONLY"
-// key="RANDOM" 
+    "notsingle" 				"0" 
 }
 
 
@@ -2695,11 +2513,13 @@ entityDef target_remove_powerups
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
 	
-	"editor_usage"				""
+	"editor_usage"				"This takes away any and all item_* type powerups from player except health and armor (holdable_* items are not taken away either). Must be activated by a button or trigger_multiple entity. The player that activates the trigger will lose any powerup(s) currently in his possession."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name" 						"0"
     "notfree" 					"0"
     "notteam"					"0"
     "notsingle" 				"0"
@@ -2713,12 +2533,15 @@ entityDef target_score
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"This is used to automatically give frag points to the player who activates this. A spawn location entity like info_player_* or CTF respawn points can target this entity to give points to the player when he spawns in the game. Or a trigger can also be used to activate this. The activator of the trigger will get the points."
+	
+	"editor_var count"			"number of frag points to give to player (default 1)."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name"						"0"
-    "count" 					"0"
+    "count" 					"1"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
@@ -2732,12 +2555,13 @@ entityDef target_teleporter
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Activating this will teleport players to the location of the targeted misc_teleporter_dest entity. Unlike trigger_teleport, this entity must be activated by a trigger and does NOT allow client prediction of events."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name" 						"0"
-    "target" 					"0"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
@@ -2751,13 +2575,15 @@ entityDef target_fx
 	"editor_maxs"				"8 8 8"
 	"editor_showangle"			"1"
 	
-	"editor_usage"				""
+	"editor_usage"				"Lua scriptable XreaL special effect of any kind. Can be used for particle emitters, lightning bolts or whatever."
+	
+	"editor_var luaThink"		"name of the Lua scripted client game effect that will be called by every thought of this entity."
+	"editor_float wait"			"time in seconds until this entity thinks again (default 0.5, -1 = think once)."
+	"editor_bool start_on"		"effect will loop and initially start on in level (will toggle on/off when triggered)."
 	
 	"spawnclass"				"idTarget"
-	
-    //"name" 						"0"
-    "luaThink" 					"0"
-    "wait" 						"0"
+	"luaThink" 					""
+    "wait" 						"0.5"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
@@ -2779,11 +2605,13 @@ entityDef trigger_always
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
 	
-	"editor_usage"				""
+	"editor_usage"				"Automatic trigger. It will fire the entities it targets as soon as it spawns in the game."
 	
-	"spawnclass"				"idTrigger" 
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
-    "target" 					"0"
+	"spawnclass"				"idTrigger"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle"					"0"
@@ -2794,18 +2622,26 @@ entityDef trigger_hurt
 {   
 	"editor_color"				".5 .5 .5"
 	
-	"editor_usage"				""
+	"editor_usage"				"Any player that touches this will be hurt by "dmg" points of damage once per server frame (very fast). A sizzling sound is also played while the player is being hurt."
+	
+	"editor_float dmg"			"number of points of damage inflicted to player per server frame (default 5 - integer values only)."
+	"editor_bool start_off"		"needs to be triggered (toggle) for damage"
+	"editor_bool silent"		"supresses the sizzling sound while player is being hurt."
+	"editor_bool no_protection"	"player will be hurt regardless of protection"
+	"editor_bool slow"			"changes the damage rate to once per second."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTrigger"
-	
-    "dmg" 						"0"
+    "dmg" 						"5"
+    "start_off"					"0"
+    "silent"					"0"
+    "no_protection"				"0"
+    "slow"						"0"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
-// key="START_OFF" 
-// key="SILENT" 
-// key="NO_PROTECTION" 
-// key="SLOW" 
 }
 
 
@@ -2813,14 +2649,21 @@ entityDef trigger_multiple
 {   
 	"editor_color"				".5 .5 .5"
 	
-	"editor_usage"				""
+	"editor_usage"				"Variable size repeatable trigger. It will fire the entities it targets when touched by player. Can be made to operate like a trigger_once entity by setting the "wait" key to -1. It can also be activated by another trigger that targets it."
+	
+	"editor_float wait"			"time in seconds until trigger becomes re-triggerable after it's been touched (default 0.2, -1 = trigger once)."
+	"editor_float random"		"random time variance in seconds added or subtracted from wait delay."
+	"editor_bool red_only"		"only red team players can activate trigger."
+	"editor_bool blue_only"		"only blue team players can activate trigger."
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTrigger"
-	
-    "target" 					"0"
-    //"name" 						"0"
-    "wait" 						"0"
+    "wait" 						"0.2"
     "random" 					"0"
+    "red_only"					"0"
+    "blue_only"					"0"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
@@ -2831,11 +2674,13 @@ entityDef trigger_push
 {   
 	"editor_color"				".5 .5 .5"
 	
-	"editor_usage"				""
+	"editor_usage"				"This is used to create jump pads and launch ramps. It MUST point to a target_position or info_notnull entity to work. Unlike target_push, this is client side predicted."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTrigger"
-	
-    "target" 					"0"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle" 				"0"
@@ -2846,11 +2691,13 @@ entityDef trigger_teleport
 {    
 	"editor_color"				".5 .5 .5"
 	
-	"editor_usage"				""
+	"editor_usage"				"Touching this will teleport players to the location of the targeted misc_teleporter_dest entity. This entity allows client prediction of events."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
 	
 	"spawnclass"				"idTrigger"
-	
-    "target" 					"0"
     "notfree" 					"0"
     "notteam" 					"0"
     "notsingle"					"0"

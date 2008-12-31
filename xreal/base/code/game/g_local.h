@@ -200,6 +200,20 @@ struct gentity_s
 	int             methodOfDeath;
 	int             splashMethodOfDeath;
 
+	// triggers / targets
+	qboolean		start_on;
+	qboolean		start_off;
+	qboolean		silent;
+	qboolean		no_protection;
+	qboolean		slow;
+	qboolean		red_only;
+	qboolean		blue_only;
+
+	// portal cameras
+	qboolean		slowrotate;
+	qboolean		fastrotate;
+	qboolean		swing;
+
 	int             count;
 
 	gentity_t      *chain;

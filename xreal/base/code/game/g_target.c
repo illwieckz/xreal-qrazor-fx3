@@ -164,19 +164,27 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 */
 void Use_Target_Print(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
-	if(activator->client && (ent->spawnflags & 4))
+	qboolean		redteam;
+	qboolean		blueteam;
+	qboolean		private;
+
+	G_SpawnBoolean("redteam", "0", &redteam);
+	G_SpawnBoolean("blueteam", "0", &blueteam);
+	G_SpawnBoolean("private", "0", &private);
+
+	if(activator->client && private)
 	{
 		trap_SendServerCommand(activator - g_entities, va("cp \"%s\"", ent->message));
 		return;
 	}
 
-	if(ent->spawnflags & 3)
+	if(redteam || blueteam)
 	{
-		if(ent->spawnflags & 1)
+		if(redteam)
 		{
 			G_TeamCommand(TEAM_RED, va("cp \"%s\"", ent->message));
 		}
-		if(ent->spawnflags & 2)
+		if(blueteam)
 		{
 			G_TeamCommand(TEAM_BLUE, va("cp \"%s\"", ent->message));
 		}
@@ -376,6 +384,7 @@ void target_laser_use(gentity_t * self, gentity_t * other, gentity_t * activator
 void target_laser_start(gentity_t * self)
 {
 	gentity_t      *ent;
+	qboolean		start_on;
 
 	self->s.eType = ET_BEAM;
 
@@ -401,7 +410,8 @@ void target_laser_start(gentity_t * self)
 		self->damage = 9999;
 	}
 
-	if(self->spawnflags & 1)
+	G_SpawnBoolean("start_on", "0", &start_on);
+	if(start_on)
 		target_laser_on(self);
 	else
 		target_laser_off(self);
@@ -454,15 +464,17 @@ if RANDOM is checked, only one of the targets will be fired, not all of them
 */
 void target_relay_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 {
-	if((self->spawnflags & 1) && activator->client && activator->client->sess.sessionTeam != TEAM_RED)
+	if(self->red_only && activator->client && activator->client->sess.sessionTeam != TEAM_RED)
 	{
 		return;
 	}
-	if((self->spawnflags & 2) && activator->client && activator->client->sess.sessionTeam != TEAM_BLUE)
+
+	if(self->blue_only && activator->client && activator->client->sess.sessionTeam != TEAM_BLUE)
 	{
 		return;
 	}
-	if(self->spawnflags & 4)
+
+	if(self->random)
 	{
 		gentity_t      *ent;
 
@@ -478,6 +490,10 @@ void target_relay_use(gentity_t * self, gentity_t * other, gentity_t * activator
 
 void SP_target_relay(gentity_t * self)
 {
+	G_SpawnBoolean("red_only", "0", &self->red_only);
+	G_SpawnBoolean("blue_only", "0", &self->blue_only);
+	G_SpawnBoolean("random", "0", &self->random);
+
 	self->use = target_relay_use;
 }
 

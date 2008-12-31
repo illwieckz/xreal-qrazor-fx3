@@ -63,11 +63,11 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 
 	if(activator->client)
 	{
-		if((ent->spawnflags & 1) && activator->client->sess.sessionTeam != TEAM_RED)
+		if(ent->red_only && activator->client->sess.sessionTeam != TEAM_RED)
 		{
 			return;
 		}
-		if((ent->spawnflags & 2) && activator->client->sess.sessionTeam != TEAM_BLUE)
+		if(ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE)
 		{
 			return;
 		}
@@ -122,6 +122,8 @@ void SP_trigger_multiple(gentity_t * ent)
 {
 	G_SpawnFloat("wait", "0.5", &ent->wait);
 	G_SpawnFloat("random", "0", &ent->random);
+	G_SpawnBoolean("red_only", "0", &ent->red_only);
+	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
 
 	if(ent->random >= ent->wait && ent->wait >= 0)
 	{
@@ -288,6 +290,8 @@ if "bouncepad", play bounce noise instead of windfly
 */
 void SP_target_push(gentity_t * self)
 {
+	qboolean		bouncepad;
+
 	if(!self->speed)
 	{
 		self->speed = 1000;
@@ -295,7 +299,9 @@ void SP_target_push(gentity_t * self)
 	G_SetMovedir(self->s.angles, self->s.origin2);
 	VectorScale(self->s.origin2, self->speed, self->s.origin2);
 
-	if(self->spawnflags & 1)
+	// Tr3B: FIXME sounds
+	G_SpawnBoolean("bouncepad", "0", &bouncepad);
+	if(bouncepad)
 	{
 		self->soundIndex = G_SoundIndex("sound/world/jumppad.wav");
 	}
@@ -430,7 +436,7 @@ void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 		return;
 	}
 
-	if(self->spawnflags & 16)
+	if(self->slow)
 	{
 		self->timestamp = level.time + 1000;
 	}
@@ -440,12 +446,12 @@ void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 	}
 
 	// play sound
-	if(!(self->spawnflags & 4))
+	if(!self->silent)
 	{
 		G_Sound(other, CHAN_AUTO, self->soundIndex);
 	}
 
-	if(self->spawnflags & 8)
+	if(self->no_protection)
 		dflags = DAMAGE_NO_PROTECTION;
 	else
 		dflags = 0;
@@ -455,6 +461,11 @@ void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 void SP_trigger_hurt(gentity_t * self)
 {
 	InitTrigger(self);
+
+	G_SpawnBoolean("start_off", "0", &self->start_off);
+	G_SpawnBoolean("silent", "0", &self->silent);
+	G_SpawnBoolean("no_protection", "0", &self->no_protection);
+	G_SpawnBoolean("slow", "0", &self->slow);
 
 	self->soundIndex = G_SoundIndex("sound/player/fry.ogg");
 	self->touch = hurt_touch;
@@ -466,13 +477,15 @@ void SP_trigger_hurt(gentity_t * self)
 
 	self->r.contents = CONTENTS_TRIGGER;
 
+	/*
 	if(self->spawnflags & 2)
 	{
 		self->use = hurt_use;
 	}
+	*/
 
 	// link in to the world if starting active
-	if(!(self->spawnflags & 1))
+	if(!self->start_off)
 	{
 		trap_LinkEntity(self);
 	}
