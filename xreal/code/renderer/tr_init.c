@@ -79,6 +79,7 @@ cvar_t         *r_precomputedLighting;
 cvar_t         *r_vertexLighting;
 cvar_t         *r_heatHazeFix;
 cvar_t         *r_atiFlippedImageFix;
+cvar_t         *r_noMarksOnTrisurfs;
 
 cvar_t         *r_ext_texture_compression;
 cvar_t         *r_ext_occlusion_query;
@@ -1251,6 +1252,7 @@ void R_Register(void)
 	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_atiFlippedImageFix = ri.Cvar_Get("r_atiFlippedImageFix", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_noMarksOnTrisurfs = ri.Cvar_Get("r_noMarksOnTrisurfs", "0", CVAR_ARCHIVE);
 
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	ri.Cvar_CheckRange(r_forceFog, 0.0f, 1.0f, qfalse);

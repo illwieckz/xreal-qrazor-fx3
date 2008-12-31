@@ -2064,6 +2064,7 @@ extern cvar_t  *r_precomputedLighting;
 extern cvar_t  *r_vertexLighting;
 extern cvar_t  *r_heatHazeFix;
 extern cvar_t  *r_atiFlippedImageFix;
+extern cvar_t  *r_noMarksOnTrisurfs;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering

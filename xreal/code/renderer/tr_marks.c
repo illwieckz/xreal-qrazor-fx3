@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Oliver McFadden
 
 This file is part of XreaL source code.
 
@@ -199,7 +200,8 @@ void R_BoxSurfaces_r(bspNode_t * node, vec3_t mins, vec3_t maxs, surfaceType_t *
 				surf->viewCount = tr.viewCount;
 			}
 		}
-		else if(*(surfaceType_t *) (surf->data) != SF_GRID)
+		else if(*(surfaceType_t *) (surf->data) != SF_GRID
+			&& *(surfaceType_t *) (surf->data) != SF_TRIANGLES)
 			surf->viewCount = tr.viewCount;
 		// check the viewCount because the surface may have
 		// already been added if it spans multiple leafs
@@ -300,8 +302,9 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 	vec3_t          clipPoints[2][MAX_VERTS_ON_POLY];
 	int             numClipPoints;
 	float          *v;
-	srfSurfaceFace_t *surf;
+	srfSurfaceFace_t *face;
 	srfGridMesh_t  *cv;
+	srfTriangles_t *trisurf;
 	srfVert_t      *dv;
 	srfTriangle_t  *tri;
 	vec3_t          normal;
@@ -443,28 +446,30 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 		}
 		else if(*surfaces[i] == SF_FACE)
 		{
-			surf = (srfSurfaceFace_t *) surfaces[i];
+			face = (srfSurfaceFace_t *) surfaces[i];
 
 			// check the normal of this face
-			if(DotProduct(surf->plane.normal, projectionDir) > -0.5)
+			if(DotProduct(face->plane.normal, projectionDir) > -0.5)
 			{
 				continue;
 			}
 
-			/*
-			   VectorSubtract(clipPoints[0][0], clipPoints[0][1], v1);
-			   VectorSubtract(clipPoints[0][2], clipPoints[0][1], v2);
-			   CrossProduct(v1, v2, normal);
-			   VectorNormalize(normal);
-			   if (DotProduct(normal, projectionDir) > -0.5) continue;
-			 */
-			for(k = 0, tri = surf->triangles; k < surf->numTriangles; k++, tri++)
+			for(k = 0, tri = face->triangles; k < face->numTriangles; k++, tri++)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					v = surf->verts[tri->indexes[j]].xyz;
-					VectorMA(v, MARKER_OFFSET, surf->plane.normal, clipPoints[0][j]);
+					v = face->verts[tri->indexes[j]].xyz;
+					VectorMA(v, MARKER_OFFSET, face->plane.normal, clipPoints[0][j]);
 				}
+
+				/*
+				   VectorSubtract(clipPoints[0][0], clipPoints[0][1], v1);
+				   VectorSubtract(clipPoints[0][2], clipPoints[0][1], v2);
+				   CrossProduct(v1, v2, normal);
+				   VectorNormalize(normal);
+				   if (DotProduct(normal, projectionDir) > -0.5) continue;
+				   */
+
 				// add the fragments of this face
 				R_AddMarkFragments(3, clipPoints,
 								   numPlanes, normals, dists,
@@ -475,15 +480,36 @@ int R_MarkFragments(int numPoints, const vec3_t * points, const vec3_t projectio
 					return returnedFragments;	// not enough space for more fragments
 				}
 			}
-			continue;
 		}
-		else
+		else if (*surfaces[i] == SF_TRIANGLES && !r_noMarksOnTrisurfs->integer)
 		{
-			// ignore all other world surfaces
-			// might be cool to also project polygons on a triangle soup
-			// however this will probably create huge amounts of extra polys
-			// even more than the projection onto curves
-			continue;
+			trisurf = (srfTriangles_t *) surfaces[i];
+
+			for(k = 0, tri = trisurf->triangles; k < trisurf->numTriangles; k++, tri++)
+			{
+				for(j = 0; j < 3; j++)
+				{
+					VectorCopy (trisurf->verts[tri->indexes[j]].xyz, clipPoints[0][j]);
+				}
+
+				/*
+				   VectorSubtract(clipPoints[0][0], clipPoints[0][1], v1);
+				   VectorSubtract(clipPoints[0][2], clipPoints[0][1], v2);
+				   CrossProduct(v1, v2, normal);
+				   VectorNormalize(normal);
+				   if (DotProduct(normal, projectionDir) > -0.5) continue;
+				   */
+
+				// add the fragments of this face
+				R_AddMarkFragments(3, clipPoints,
+								   numPlanes, normals, dists,
+								   maxPoints, pointBuffer,
+								   maxFragments, fragmentBuffer, &returnedPoints, &returnedFragments, mins, maxs);
+				if(returnedFragments == maxFragments)
+				{
+					return returnedFragments;	// not enough space for more fragments
+				}
+			}
 		}
 	}
 	return returnedFragments;
