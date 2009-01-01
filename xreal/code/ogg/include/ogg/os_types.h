@@ -138,7 +138,7 @@
    typedef u_int32_t ogg_uint32_t;
    typedef int64_t ogg_int64_t;
    
-#elif defined(__FREEBSD__)
+#elif defined(__FreeBSD__)
 
    /* FreeBSD GCC */
 #  include <sys/types.h>

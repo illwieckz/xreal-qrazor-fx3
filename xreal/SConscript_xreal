@@ -232,7 +232,6 @@ win_src = [
 'code/sys/sdl_snd.c'
 ]
 
-
 xreal_env.Append(CCFLAGS='-Icode/ogg/include')
 xreal_env.Append(CCFLAGS='-Icode/vorbis/include')
 xreal_env.Append(CCFLAGS='-Icode/zlib')
@@ -284,7 +283,6 @@ elif env['arch'] == 'linux-x86_64':
 	xreal_env.InstallAs('#xreal.x86_64', 'xreal')
 
 elif env['arch'] == 'freebsd-i386':
-        xreal_env.Append(CFLAGS='-D__FREEBSD__')
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['m'])
 	xreal_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')

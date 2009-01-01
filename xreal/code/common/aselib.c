@@ -122,7 +122,7 @@ static ase_t    ase;
 static void     ASE_Process(void);
 static void     ASE_FreeGeomObject(int ndx);
 
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
 
 static char    *strlwr(char *string)
 {
