@@ -2026,7 +2026,10 @@ static void RB_RenderInteractionsShadowMapped()
 					GLimp_LogComment(va("----- First Light Interaction: %i -----\n", iaCount));
 				}
 
-				R_BindNullFBO();
+				if(r_hdrRendering->integer)
+					R_BindFBO(tr.deferredRenderFBO);
+				else
+					R_BindNullFBO();
 
 				// set the window clipping
 				qglViewport(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY,
@@ -3808,6 +3811,12 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredInverseShadows ---\n");
 
+	if(!glConfig.framebufferObjectAvailable)
+		return;
+
+	if(r_hdrRendering->integer && !glConfig.textureFloatAvailable)
+		return;
+
 	if(r_speeds->integer == 9)
 	{
 		startTime = ri.Milliseconds();
@@ -3828,7 +3837,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	R_BindFBO(tr.deferredRenderFBO);
 	GL_SelectTexture(1);
 	GL_Bind(tr.depthRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -5135,6 +5144,49 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_PopMatrix();
 }
 
+void RB_RenderDeferredHDRResultToFrameBuffer()
+{
+	matrix_t        ortho;
+
+	GLimp_LogComment("--- RB_RenderDeferredHDRResultToFrameBuffer ---\n");
+
+	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
+		return;
+
+	R_BindNullFBO();
+
+	GL_BindProgram(&tr.toneMappingShader);
+	GL_ClientState(GLCS_VERTEX);
+
+	// bind u_ColorMap
+	GL_SelectTexture(0);
+	GL_Bind(tr.deferredRenderFBOImage);
+
+	GL_State(GLS_DEPTHTEST_DISABLE);
+	GL_Cull(CT_TWO_SIDED);
+
+	// set uniforms
+
+	// set 2D virtual screen size
+	GL_PushMatrix();
+	MatrixSetupOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
+									backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
+									-99999, 99999);
+	GL_LoadProjectionMatrix(ortho);
+	GL_LoadModelViewMatrix(matrixIdentity);
+
+	qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+	qglUniform1fARB(tr.toneMappingShader.u_HDRMaxBrightness, r_hdrMaxBrightness->value);
+
+	qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+
+	GL_PopMatrix();
+}
+
 void RB_RenderLightOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
@@ -6421,7 +6473,10 @@ static void RB_RenderView(void)
 		// disable offscreen rendering
 		if(glConfig.framebufferObjectAvailable)
 		{
-			R_BindNullFBO();
+			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+				R_BindFBO(tr.deferredRenderFBO);
+			else
+				R_BindNullFBO();
 		}
 
 		// we will need to change the projection matrix before drawing
@@ -6502,7 +6557,7 @@ static void RB_RenderView(void)
 		RB_RenderDrawSurfaces(qtrue, qfalse);
 
 		// render ambient occlusion process effect
-		RB_RenderScreenSpaceAmbientOcclusion(qfalse);
+		// Tr3B: needs way more work RB_RenderScreenSpaceAmbientOcclusion(qfalse);
 
 		if(r_speeds->integer == 9)
 		{
@@ -6533,8 +6588,14 @@ static void RB_RenderView(void)
 			RB_RenderInteractions();
 		}
 
+		if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+			R_BindFBO(tr.deferredRenderFBO);
+
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(qfalse, qfalse);
+
+		// copy offscreen rendered HDR scene to the current OpenGL context
+		RB_RenderDeferredHDRResultToFrameBuffer();
 
 		// render global fog post process effect
 		RB_RenderUniformFog(qfalse);

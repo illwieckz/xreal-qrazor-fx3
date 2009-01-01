@@ -537,6 +537,31 @@ void R_InitFBOs(void)
 			R_CheckFBO(tr.geometricRenderFBO);
 		}
 	}
+	else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		if(glConfig.textureNPOTAvailable)
+		{
+			width = glConfig.vidWidth;
+			height = glConfig.vidHeight;
+		}
+		else
+		{
+			width = NearestPowerOfTwo(glConfig.vidWidth);
+			height = NearestPowerOfTwo(glConfig.vidHeight);
+		}
+
+		// deferredRender FBO for the HDR context
+		tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
+		R_BindFBO(tr.deferredRenderFBO);
+
+		R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
+
+		R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+		R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+
+		R_CheckFBO(tr.deferredRenderFBO);
+	}
 
 	if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable)
 	{
