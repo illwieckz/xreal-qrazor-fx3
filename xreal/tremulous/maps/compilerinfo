@@ -7,29 +7,35 @@ case `uname -m` in
 		;;
 esac
 
+if [ ! -f $COMPILER ]; then
+        echo "`basename $COMPILER` not found!"
+        echo "Did you build with mapping=1?"
+        exit 1
+fi
+
 FS_BASEPATH='../..'
 FS_GAME='tremulous'
 GAME='xreal'
 COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
 
 # map_ convention used to prevent possible binary name collision
-function map_bsp {
+map_bsp() {
 	$COMPILE -v -meta -leaktest $MAP
 }
 
-function map_fastvis {
+map_fastvis() {
 	$COMPILE -vis -fast $MAP
 }
 
-function map_vis {
+map_vis() {
 	$COMPILE -vis $MAP
 }
 
-function map_light {
+map_light() {
 	$COMPILE -light -v $LIGHTOPTS $MAP 
 }
 
-function map_defaultcommand {
+map_defaultcommand() {
 	echo "specify command: -bsp, -fastvis, -vis, -light, or -all"
 }
 
