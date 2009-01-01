@@ -3189,6 +3189,7 @@ static void Render_heatHaze(int stage)
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
 
+#if 0
 	if(r_heatHazeFix->integer)
 	{
 		unsigned        stateBits;
@@ -3268,6 +3269,7 @@ static void Render_heatHaze(int stage)
 
 		GL_PopMatrix();
 	}
+#endif
 
 	// remove alpha test
 	stateBits = pStage->stateBits;
@@ -3319,12 +3321,14 @@ static void Render_heatHaze(int stage)
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
+#if 0
 	// bind u_ContrastMap
 	if(r_heatHazeFix->integer)
 	{
 		GL_SelectTexture(2);
 		GL_Bind(tr.contrastRenderImage);
 	}
+#endif
 
 	Tess_DrawElements();
 

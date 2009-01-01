@@ -1827,7 +1827,8 @@ typedef struct
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
 
-	image_t        *contrastRenderImage;
+	image_t        *contrastRenderFBOImage;
+	image_t        *bloomRenderFBOImage[2];
 	image_t        *currentRenderImage;
 	image_t        *depthRenderImage;
 	image_t        *portalRenderImage;
@@ -1843,6 +1844,8 @@ typedef struct
 	// framebuffer objects
 	FBO_t          *geometricRenderFBO;
 	FBO_t          *deferredRenderFBO;
+	FBO_t          *contrastRenderFBO;
+	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[5];
 
 	// internal shaders
@@ -2231,6 +2234,7 @@ extern cvar_t  *r_screenSpaceAmbientOcclusion;
 extern cvar_t  *r_depthOfField;
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
+extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
 
 //====================================================================

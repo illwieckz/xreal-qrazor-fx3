@@ -33,6 +33,9 @@ void	main()
 	// BUGFIX: the ATI driver flips the image
 	st.t = 1.0 - st.t;
 #endif
+
+	// multiply with 4 because the FBO is only 1/4th of the screen resolution
+	st *= vec2(4.0, 4.0);
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
@@ -47,13 +50,17 @@ void	main()
 	contrast *= 0.5;
 	gl_FragColor = contrast;
 #elif 1
-	// perform a box filter for the downsample
-	vec3 color = texture2D(u_ColorMap, st).rgb;
 	
-	//color += texture2D(u_ColorMap, st + 0.0025).rgb;
-	//color += texture2D(u_ColorMap, st + 0.005).rgb;
-	//color += texture2D(u_ColorMap, st + 0.0075).rgb;
-	//color *= 0.25;
+#if 1
+	// perform a box filter for the downsample
+	vec3 color = texture2D(u_ColorMap, st + vec2(-1.0, 1.0) * r_FBufScale).rgb;
+	color += texture2D(u_ColorMap, st + vec2(1.0, 1.0) * r_FBufScale).rgb;
+	color += texture2D(u_ColorMap, st + vec2(1.0, -1.0) * r_FBufScale).rgb;
+	color += texture2D(u_ColorMap, st + vec2(-1.0, -1.0) * r_FBufScale).rgb;
+	color *= 0.25;
+#else
+	vec3 color = texture2D(u_ColorMap, st).rgb;
+#endif
 
 	// compute luminance
 	float luminance = (color.r * 0.2125) + (color.g * 0.7154) + (color.b * 0.0721);

@@ -4794,11 +4794,13 @@ void RB_RenderUniformFog(qboolean deferred)
 
 void RB_RenderBloom(void)
 {
+	int				i, j;
 	matrix_t        ortho;
+	matrix_t		modelView;
 
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
-	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer || backEnd.viewParms.isPortal)
+	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig.framebufferObjectAvailable)
 		return;
 
 	// set 2D virtual screen size
@@ -4808,52 +4810,128 @@ void RB_RenderBloom(void)
 									backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 									-99999, 99999);
 	GL_LoadProjectionMatrix(ortho);
-	GL_LoadModelViewMatrix(matrixIdentity);
+	MatrixIdentity(modelView);
+	GL_LoadModelViewMatrix(modelView);
 
 	// FIXME
-	if(glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
+	//if(glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
 
-		// render contrast
-		GL_BindProgram(&tr.contrastShader);
-		GL_ClientState(tr.contrastShader.attribs);
-
-		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-							   glState.modelViewProjectionMatrix[glState.stackIndex]);
-
 		GL_SelectTexture(0);
 		GL_Bind(tr.currentRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-							 tr.currentRenderImage->uploadHeight);
+									 tr.currentRenderImage->uploadHeight);
+
+		// render contrast downscaled to 1/4th of the screen
+		R_BindFBO(tr.contrastRenderFBO);
+		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		qglClear(GL_COLOR_BUFFER_BIT);
+
+		GL_BindProgram(&tr.contrastShader);
+		GL_ClientState(tr.contrastShader.attribs);
+
+
+		GL_PushMatrix();
+		GL_LoadModelViewMatrix(modelView);
+
+#if 1
+		MatrixSetupOrthogonalProjection(ortho, 0, tr.contrastRenderFBO->width, 0, tr.contrastRenderFBO->height, -99999, 99999);
+		GL_LoadProjectionMatrix(ortho);
+#endif
+		qglUniformMatrix4fvARB(tr.contrastShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+											   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		GL_PopMatrix();
+
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderImage);
 
 		// draw viewport
 		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
-		// render bloom
+
+		// render bloom in multiple passes
+#if 0
 		GL_BindProgram(&tr.bloomShader);
 		GL_ClientState(tr.bloomShader.attribs);
 
 		qglUniformMatrix4fvARB(tr.bloomShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-							   glState.modelViewProjectionMatrix[glState.stackIndex]);
+									   glState.modelViewProjectionMatrix[glState.stackIndex]);
 		qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
+#endif
+		for(i = 0; i < 2; i++)
+		{
+			for(j = 0; j < r_bloomPasses->integer; j++)
+			{
+				R_BindFBO(tr.bloomRenderFBO[(j + 1) % 2]);
 
-		/*
-		   GL_SelectTexture(0);
-		   GL_Bind(tr.currentRenderImage);
-		   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-		   tr.currentRenderImage->uploadHeight);
-		 */
+				qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				qglClear(GL_COLOR_BUFFER_BIT);
 
-		GL_SelectTexture(1);
-		GL_Bind(tr.contrastRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
-							 tr.contrastRenderImage->uploadHeight);
+				GL_State(GLS_DEPTHTEST_DISABLE);
 
+				GL_SelectTexture(0);
+				if(j == 0)
+					GL_Bind(tr.contrastRenderFBOImage);
+				else
+					GL_Bind(tr.bloomRenderFBOImage[j % 2]);
 
-		// draw viewport
-		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+				GL_PushMatrix();
+				GL_LoadModelViewMatrix(modelView);
+
+				MatrixSetupOrthogonalProjection(ortho, 0, tr.bloomRenderFBO[0]->width, 0, tr.bloomRenderFBO[0]->height, -99999, 99999);
+				GL_LoadProjectionMatrix(ortho);
+
+				if(i == 0)
+				{
+					GL_BindProgram(&tr.blurXShader);
+					GL_ClientState(tr.blurXShader.attribs);
+
+					qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
+					qglUniformMatrix4fvARB(tr.blurXShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+											glState.modelViewProjectionMatrix[glState.stackIndex]);
+				}
+				else
+				{
+					GL_BindProgram(&tr.blurYShader);
+					GL_ClientState(tr.blurYShader.attribs);
+
+					qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
+					qglUniformMatrix4fvARB(tr.blurYShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+										   glState.modelViewProjectionMatrix[glState.stackIndex]);
+				}
+
+				GL_PopMatrix();
+
+				Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+			}
+
+			// add offscreen processed bloom to screen
+			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			{
+				// FIXME
+				//R_BindFBO(tr.deferredRenderFBO);
+			}
+			else
+			{
+				R_BindNullFBO();
+
+				GL_BindProgram(&tr.screenShader);
+				GL_ClientState(GLCS_VERTEX);
+				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+				qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+																		   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+				GL_SelectTexture(0);
+				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
+				//GL_Bind(tr.contrastRenderFBOImage);
+			}
+
+			Tess_InstantQuad(backEnd.viewParms.viewportVerts);
+		}
 	}
 	/*
 	   else if(r_bloom->integer == 2)

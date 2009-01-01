@@ -235,6 +235,7 @@ cvar_t         *r_screenSpaceAmbientOcclusion;
 cvar_t         *r_depthOfField;
 cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
+cvar_t         *r_bloomPasses;
 cvar_t         *r_rotoscope;
 
 // GL_ARB_multitexture
@@ -1325,7 +1326,8 @@ void R_Register(void)
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
-	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "2", CVAR_ARCHIVE);
+	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "1.3", CVAR_CHEAT);
+	r_bloomPasses = ri.Cvar_Get("r_bloomPasses", "2", CVAR_CHEAT);
 	r_rotoscope = ri.Cvar_Get("r_rotoscope", "0", CVAR_ARCHIVE);
 
 	// temporary variables that can change at any time

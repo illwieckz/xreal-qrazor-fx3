@@ -575,6 +575,56 @@ void R_InitFBOs(void)
 		}
 	}
 
+
+
+	{
+		if(glConfig.textureNPOTAvailable)
+		{
+			width = glConfig.vidWidth * 0.25f;
+			height = glConfig.vidHeight * 0.25f;
+		}
+		else
+		{
+			width = NearestPowerOfTwo(glConfig.vidWidth) * 0.25f;
+			height = NearestPowerOfTwo(glConfig.vidHeight) * 0.25f;
+		}
+
+
+		tr.contrastRenderFBO = R_CreateFBO("_contrastRender", width, height);
+		R_BindFBO(tr.contrastRenderFBO);
+
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.contrastRenderFBO, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.contrastRenderFBO, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.contrastRenderFBOImage->texnum, 0);
+
+		R_CheckFBO(tr.contrastRenderFBO);
+
+
+		for(i = 0; i < 2; i++)
+		{
+			tr.bloomRenderFBO[i] = R_CreateFBO(va("_bloomRender%d", i), width, height);
+			R_BindFBO(tr.bloomRenderFBO[i]);
+
+			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			{
+				R_CreateFBOColorBuffer(tr.bloomRenderFBO[i], GL_RGBA16F_ARB, 0);
+			}
+			else
+			{
+				R_CreateFBOColorBuffer(tr.bloomRenderFBO[i], GL_RGBA, 0);
+			}
+			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.bloomRenderFBOImage[i]->texnum, 0);
+
+			R_CheckFBO(tr.bloomRenderFBO[i]);
+		}
+	}
+
 	GL_CheckErrors();
 
 	R_BindNullFBO();

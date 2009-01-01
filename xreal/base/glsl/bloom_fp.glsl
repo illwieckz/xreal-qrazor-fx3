@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -63,6 +63,9 @@ void	main()
 	#if 0
 	float gaussFact[3] = float[3](1.0, 2.0, 1.0);
 	#elif 1
+	float gaussFact[5] = float[5](1.0, 4.0, 6.0, 4.0, 1.0);
+	float gaussSum = 4096.0; // = 64.0^2 = result of sumWeights;
+	#elif 0
 	float gaussFact[7] = float[7](1.0, 6.0, 15.0, 20.0, 15.0, 6.0, 1.0);
 	float gaussSum = 4096.0; // = 64.0^2 = result of sumWeights;
 	#else
@@ -75,23 +78,24 @@ void	main()
 
 	// do a full gaussian blur
 	vec4 sumColors = vec4(0.0);
-	//float sumWeights = 0.0;
+	float sumWeights = 0.0;
 
-	int tap = 3;
+	int tap = 2;
 	for(int i = -tap; i < tap; i++)
     {
 	    for(int j = -tap; j < tap; j++)
 	    {
-			float weight = gaussFact[i + 3] * gaussFact[j + 3];
+			float weight = gaussFact[i + 2] * gaussFact[j + 2];
 			vec4 color = texture2D(u_ContrastMap, st + vec2(i, j) * u_BlurMagnitude * r_FBufScale) * weight;
 			
 			sumColors += color;
-			//sumWeights += weight;
+			sumWeights += weight;
 		}
 	}
 	
-	gl_FragColor = texture2D(u_ColorMap, st) + sumColors / gaussSum;
+	//gl_FragColor = texture2D(u_ColorMap, st) + sumColors / gaussSum;
 	//gl_FragColor = sumColors / gaussSum;
+	gl_FragColor = sumColors / sumWeights;
 }
 #endif
 

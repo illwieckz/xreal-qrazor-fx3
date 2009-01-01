@@ -4202,25 +4202,66 @@ static void R_CreateAttenuationXYImage(void)
 					  WT_CLAMP);
 }
 
-static void R_CreateContrastRenderImage(void)
+static void R_CreateContrastRenderFBOImage(void)
 {
 	int             width, height;
 	byte           *data;
 
 	if(glConfig.textureNPOTAvailable)
 	{
-		width = glConfig.vidWidth;
-		height = glConfig.vidHeight;
+		width = glConfig.vidWidth * 0.25f;
+		height = glConfig.vidHeight * 0.25f;
 	}
 	else
 	{
-		width = NearestPowerOfTwo(glConfig.vidWidth);
-		height = NearestPowerOfTwo(glConfig.vidHeight);
+		width = NearestPowerOfTwo(glConfig.vidWidth) * 0.25f;
+		height = NearestPowerOfTwo(glConfig.vidHeight) * 0.25f;
 	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.contrastRenderImage = R_CreateImage("_contrastRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+	}
+	else
+	{
+		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+	}
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
+static void R_CreateBloomRenderFBOImage(void)
+{
+	int				i;
+	int             width, height;
+	byte           *data;
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth * 0.25f;
+		height = glConfig.vidHeight * 0.25f;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth) * 0.25f;
+		height = NearestPowerOfTwo(glConfig.vidHeight) * 0.25f;
+	}
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+
+	for(i = 0; i < 2; i++)
+	{
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+		}
+		else
+		{
+			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+		}
+	}
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4337,9 +4378,9 @@ static void R_CreateDeferredRenderFBOImages(void)
 			R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 	}
 
-	if(r_hdrRendering->integer)
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 	{
-		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_RGBA16F, FT_NEAREST, WT_REPEAT);
+		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_REPEAT);
 	}
 	else
 	{
@@ -4507,7 +4548,8 @@ void R_CreateBuiltinImages(void)
 
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();
-	R_CreateContrastRenderImage();
+	R_CreateContrastRenderFBOImage();
+	R_CreateBloomRenderFBOImage();
 	R_CreateCurrentRenderImage();
 	R_CreateDepthRenderImage();
 	R_CreatePortalRenderImage();
