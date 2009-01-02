@@ -29,12 +29,19 @@ uniform float		u_BlurMagnitude;
 #if defined(ATI)
 
 /*
+ AMD Radeon HD 4850:
  Fragment shader was successfully compiled to run on hardware.
  Not supported when use temporary array indirect index.
  Not supported when use temporary array indirect index.
  ERROR: Fragment shader(s) failed to link,  vertex shader(s) linked.
  Fragment Shader not supported by HW
  shaders failed to link
+ 
+ Asus EAH4850:
+ ERROR: Fragment shader(s) failed to link,  vertex shader(s) linked.
+ Fragment Shader not supported by HWERROR: 0:101: Not supported when use temporary
+ array indirect index.
+ ERROR: 0:101: Not supported when use temporary array indirect index.
  */
 
 void main()

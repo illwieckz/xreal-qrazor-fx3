@@ -1167,6 +1167,10 @@ void GLimp_Init(void)
 	{
 		glConfig.hardwareType = GLHW_ATI_DX10;
 	}
+	else if(Q_stristr(glConfig.renderer_string, "eah4850") || Q_stristr(glConfig.renderer_string, "eah4870"))
+	{
+		glConfig.hardwareType = GLHW_ATI_DX10;
+	}
 	else if(Q_stristr(glConfig.renderer_string, "radeon"))
 	{
 		glConfig.hardwareType = GLHW_ATI;
