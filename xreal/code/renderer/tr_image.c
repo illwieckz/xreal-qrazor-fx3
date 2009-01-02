@@ -1100,6 +1100,11 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			internalFormat = GL_DEPTH_COMPONENT32_ARB;
 		}
 	}
+	if(image->bits & (IF_PACKED_DEPTH24_STENCIL8))
+	{
+		format = GL_DEPTH_COMPONENT;
+		internalFormat = GL_DEPTH24_STENCIL8_EXT;
+	}
 	else if(glConfig.textureFloatAvailable &&
 			(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_RGBA16 | IF_LA16F | IF_LA32F | IF_ALPHA16F | IF_ALPHA32F)))
 	{
@@ -4307,8 +4312,14 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH24, FT_NEAREST, WT_CLAMP);
-
+	if(glConfig.framebufferPackedDepthStencilAvailable)
+	{
+		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_PACKED_DEPTH24_STENCIL8, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH24, FT_NEAREST, WT_CLAMP);
+	}
 	ri.Hunk_FreeTempMemory(data);
 }
 

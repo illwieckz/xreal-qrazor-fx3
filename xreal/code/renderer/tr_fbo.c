@@ -238,8 +238,7 @@ void R_CreateFBOPackedDepthStencilBuffer(FBO_t * fbo, int format)
 {
 	qboolean        absent;
 
-	// Tr3B: FIXME should be GL_DEPTH_STENCIL_EXT
-	if(format != GL_DEPTH_STENCIL_NV)
+	if(format != GL_DEPTH_STENCIL_EXT)
 	{
 		ri.Printf(PRINT_WARNING, "R_CreateFBOPackedDepthStencilBuffer: format %i is not depth-stencil-renderable\n", format);
 		return;
@@ -329,6 +328,17 @@ R_AttachFBOTextureDepth
 void R_AttachFBOTextureDepth(int texId)
 {
 	qglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, texId, 0);
+}
+
+/*
+=================
+R_AttachFBOTexturePackedDepthStencil
+=================
+*/
+void R_AttachFBOTexturePackedDepthStencil(int texId)
+{
+	qglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, texId, 0);
+	qglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_TEXTURE_2D, texId, 0);
 }
 
 /*
@@ -557,9 +567,16 @@ void R_InitFBOs(void)
 		R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-		R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-		R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-
+		if(glConfig.framebufferPackedDepthStencilAvailable)
+		{
+			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
+			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
+		}
+		else
+		{
+			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+		}
 		R_CheckFBO(tr.deferredRenderFBO);
 	}
 
