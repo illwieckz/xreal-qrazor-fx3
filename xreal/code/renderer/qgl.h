@@ -299,5 +299,15 @@ extern void     (APIENTRY * qglGenerateMipmapEXT) (GLenum target);
 #define GL_TEXTURE_STENCIL_SIZE_EXT       0x88F1
 #endif
 
+// GL_EXT_framebuffer_blit
+#ifndef GL_EXT_framebuffer_blit
+#define GL_READ_FRAMEBUFFER_EXT           0x8CA8
+#define GL_DRAW_FRAMEBUFFER_EXT           0x8CA9
+#define GL_DRAW_FRAMEBUFFER_BINDING_EXT   GL_FRAMEBUFFER_BINDING_EXT
+#define GL_READ_FRAMEBUFFER_BINDING_EXT   0x8CAA
+#endif
+
+extern void		(APIENTRY * qglBlitFramebufferEXT) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+
 
 #endif							// __QGL_H__
