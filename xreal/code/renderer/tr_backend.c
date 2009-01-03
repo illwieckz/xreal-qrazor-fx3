@@ -3828,11 +3828,25 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	// if we need to clear the FBO color buffers then it should be white
 	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// update depth render image
 	R_BindFBO(tr.deferredRenderFBO);
-	GL_SelectTexture(1);
-	GL_Bind(tr.depthRenderImage);
-	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+
+	// update depth render image
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		// no update needed FBO handles it
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		// no update needed FBO handles it
+	}
+	else
+	{
+		GL_SelectTexture(0);
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	}
+
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
