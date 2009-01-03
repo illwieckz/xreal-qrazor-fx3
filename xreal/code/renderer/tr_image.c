@@ -1102,7 +1102,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	}
 	else if(image->bits & (IF_PACKED_DEPTH24_STENCIL8))
 	{
-		format = GL_DEPTH_COMPONENT;
+		format = GL_DEPTH_STENCIL_EXT;
 		internalFormat = GL_DEPTH24_STENCIL8_EXT;
 	}
 	else if(glConfig.textureFloatAvailable &&
