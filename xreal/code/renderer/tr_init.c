@@ -472,7 +472,7 @@ void GL_CheckErrors_(const char *filename, int line)
 			strcpy(s, "GL_INVALID_FRAMEBUFFER_OPERATION_EXT");
 			break;
 		default:
-			Com_sprintf(s, sizeof(s), "%i", err);
+			Com_sprintf(s, sizeof(s), "0x%X", err);
 			break;
 	}
 

@@ -102,7 +102,7 @@ void Tess_CheckOverflow(int verts, int indexes)
 Tess_AddQuadStampExt
 ==============
 */
-void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, vec4_t color, float s1, float t1, float s2, float t2)
+void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color, float s1, float t1, float s2, float t2)
 {
 	int             i;
 	vec3_t          normal;
@@ -189,7 +189,7 @@ void Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, vec4_t color, f
 Tess_AddQuadStamp
 ==============
 */
-void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, vec4_t color)
+void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color)
 {
 	Tess_AddQuadStampExt(origin, left, up, color, 0, 0, 1, 1);
 }
@@ -199,7 +199,7 @@ void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, vec4_t color)
 Tess_AddQuadStampExt2
 ==============
 */
-void Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s1, float t1, float s2, float t2)
+void Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, float t1, float s2, float t2)
 {
 	int             i;
 	vec3_t          normal;
@@ -271,13 +271,13 @@ void Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s1, float t1
 Tess_AddQuadStamp2
 ==============
 */
-void Tess_AddQuadStamp2(vec4_t quadVerts[4], vec4_t color)
+void Tess_AddQuadStamp2(vec4_t quadVerts[4], const vec4_t color)
 {
 	Tess_AddQuadStampExt2(quadVerts, color, 0, 0, 1, 1);
 }
 
 
-void Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t color)
+void Tess_AddTetrahedron(vec4_t tetraVerts[4], const vec4_t color)
 {
 	int             k;
 
@@ -2560,8 +2560,8 @@ static void Tess_SurfaceSkip(void *surf)
 
 void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *) =
 {
-	(void (*)(void *))Tess_SurfaceBad,	// SF_BAD, 
-		(void (*)(void *))Tess_SurfaceSkip,	// SF_SKIP, 
+	(void (*)(void *))Tess_SurfaceBad,	// SF_BAD,
+		(void (*)(void *))Tess_SurfaceSkip,	// SF_SKIP,
 		(void (*)(void *))Tess_SurfaceFace,	// SF_FACE,
 		(void (*)(void *))Tess_SurfaceGrid,	// SF_GRID,
 		(void (*)(void *))Tess_SurfaceTriangles,	// SF_TRIANGLES,

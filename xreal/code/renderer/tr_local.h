@@ -1837,7 +1837,6 @@ typedef struct
 	image_t        *deferredDiffuseFBOImage;
 	image_t        *deferredNormalFBOImage;
 	image_t        *deferredSpecularFBOImage;
-	image_t        *deferredPositionFBOImage;
 	image_t        *deferredRenderFBOImage;
 	image_t        *shadowMapFBOImage[5];
 	image_t        *shadowCubeFBOImage[5];
@@ -2581,17 +2580,17 @@ void            Tess_StageIteratorStencilLighting();
 void            Tess_StageIteratorLighting();
 void            Tess_StageIteratorSky();
 
-void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, vec4_t color);
-void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, vec4_t color, float s1, float t1, float s2, float t2);
-void            Tess_AddQuadStampExt2(vec4_t quadVerts[4], vec4_t color, float s1, float t1, float s2, float t2);
-void            Tess_AddQuadStamp2(vec4_t quadVerts[4], vec4_t color);
+void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color);
+void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStamp2(vec4_t quadVerts[4], const vec4_t color);
 
 /*
 Add a polyhedron that is composed of four triangular faces
 
 @param tretraVerts[0..2] are the ground vertices, tretaVerts[3] is the pyramid offset
 */
-void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t color);
+void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
 void            Tess_UpdateVBOs();

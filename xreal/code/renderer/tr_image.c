@@ -1100,7 +1100,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			internalFormat = GL_DEPTH_COMPONENT32_ARB;
 		}
 	}
-	if(image->bits & (IF_PACKED_DEPTH24_STENCIL8))
+	else if(image->bits & (IF_PACKED_DEPTH24_STENCIL8))
 	{
 		format = GL_DEPTH_COMPONENT;
 		internalFormat = GL_DEPTH24_STENCIL8_EXT;
@@ -4312,7 +4312,7 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(glConfig.framebufferPackedDepthStencilAvailable)
+	if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_PACKED_DEPTH24_STENCIL8, FT_NEAREST, WT_CLAMP);
 	}
@@ -4367,6 +4367,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
+	/*
 	if(glConfig.framebufferMixedFormatsAvailable)
 	{
 		tr.deferredDiffuseFBOImage =
@@ -4374,20 +4375,17 @@ static void R_CreateDeferredRenderFBOImages(void)
 		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 		tr.deferredSpecularFBOImage =
 			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+
 		tr.deferredPositionFBOImage =
 			R_CreateImage("_deferredPositionFBO", data, width, height,
 						  IF_NOPICMIP | (r_deferredShading->integer == 2 ? IF_RGBA32F : IF_RGBA16F), FT_NEAREST, WT_REPEAT);
 	}
 	else
-	{
-		tr.deferredDiffuseFBOImage =
-			R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-		tr.deferredSpecularFBOImage =
-			R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-		tr.deferredPositionFBOImage =
-			R_CreateImage("_deferredPositionFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
-	}
+	*/
+
+	tr.deferredDiffuseFBOImage = R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
+	tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_REPEAT);
 
 	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 	{

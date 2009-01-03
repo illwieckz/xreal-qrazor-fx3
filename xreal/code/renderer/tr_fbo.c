@@ -49,31 +49,45 @@ qboolean R_CheckFBO(const FBO_t * fbo)
 	{
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
 			break;
+
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Unsupported framebuffer format\n", fbo->name);
 			break;
+
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete attachment\n", fbo->name);
+			break;
+
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, missing attachment\n", fbo->name);
 			break;
+
 			//case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
 			//  ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, duplicate attachment\n", fbo->name);
 			//  break;
+
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, attached images must have same dimensions\n",
 					  fbo->name);
 			break;
+
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, attached images must have same format\n",
 					  fbo->name);
 			break;
+
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, missing draw buffer\n", fbo->name);
 			break;
+
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
 			ri.Printf(PRINT_WARNING, "R_CheckFBO: (%s) Framebuffer incomplete, missing read buffer\n", fbo->name);
 			break;
+
 		default:
-			assert(0);
+			ri.Error(ERR_FATAL, "R_CheckFBO: (%s) unknown error 0x%X", fbo->name, code);
+			//assert(0);
+			break;
 	}
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, id);
@@ -508,8 +522,17 @@ void R_InitFBOs(void)
 			}
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-			//R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+
+			if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
+			{
+				R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
+				R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
+			}
+			else
+			{
+				R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+				R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+			}
 
 			R_CheckFBO(tr.deferredRenderFBO);
 
@@ -542,7 +565,15 @@ void R_InitFBOs(void)
 
 			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
 										  tr.geometricRenderFBO->depthBuffer);
-			//R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+
+			if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
+			{
+				R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
+			}
+			else
+			{
+				R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+			}
 
 			R_CheckFBO(tr.geometricRenderFBO);
 		}
@@ -567,7 +598,7 @@ void R_InitFBOs(void)
 		R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-		if(glConfig.framebufferPackedDepthStencilAvailable)
+		if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 		{
 			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
 			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);

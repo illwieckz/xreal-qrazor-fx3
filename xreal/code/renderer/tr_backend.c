@@ -2611,7 +2611,7 @@ void RB_RenderInteractionsDeferred()
 	// update depth render image
 	GL_SelectTexture(1);
 	GL_Bind(tr.depthRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 
 	// loop trough all light interactions and render the light quad for each last interaction
 	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -2743,7 +2743,6 @@ void RB_RenderInteractionsDeferred()
 
 						// bind u_PositionMap
 						GL_SelectTexture(3);
-						//GL_Bind(tr.deferredPositionFBOImage);
 						GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
@@ -2806,7 +2805,6 @@ void RB_RenderInteractionsDeferred()
 
 						// bind u_PositionMap
 						GL_SelectTexture(3);
-						//GL_Bind(tr.deferredPositionFBOImage);
 						GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
@@ -2923,7 +2921,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	R_BindFBO(tr.deferredRenderFBO);
 	GL_SelectTexture(1);
 	GL_Bind(tr.depthRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	//qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 
 	// render interactions
 	for(iaCount = 0, iaFirst = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
@@ -3313,7 +3311,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 						// bind u_PositionMap
 						GL_SelectTexture(3);
-						//GL_Bind(tr.deferredPositionFBOImage);
 						GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
@@ -3373,7 +3370,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// bind u_PositionMap
 							GL_SelectTexture(0);
-							//GL_Bind(tr.deferredPositionFBOImage);
 							GL_Bind(tr.depthRenderImage);
 
 							// bind u_AttenuationMapXY
@@ -3447,7 +3443,6 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 							// bind u_PositionMap
 							GL_SelectTexture(3);
-							//GL_Bind(tr.deferredPositionFBOImage);
 							GL_Bind(tr.depthRenderImage);
 
 							// bind u_AttenuationMapXY
@@ -4224,7 +4219,6 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 						// bind u_PositionMap
 						GL_SelectTexture(0);
-						//GL_Bind(tr.deferredPositionFBOImage);
 						GL_Bind(tr.depthRenderImage);
 
 						// bind u_AttenuationMapXY
@@ -4558,6 +4552,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 {
+#if 0
 //  int             i;
 //  vec3_t          viewOrigin;
 //  static vec3_t   jitter[32];
@@ -4651,9 +4646,10 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	GL_PopMatrix();
 
 	GL_CheckErrors();
+#endif
 }
 
-void RB_RenderDepthOfField(qboolean deferred)
+void RB_RenderDepthOfField()
 {
 	matrix_t        ortho;
 
@@ -4677,17 +4673,35 @@ void RB_RenderDepthOfField(qboolean deferred)
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
-
-	// bind u_PositionMap
-	GL_SelectTexture(1);
-	if(deferred)
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
-		GL_Bind(tr.deferredPositionFBOImage);
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
 	}
 	else
 	{
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	}
+
+	// bind u_PositionMap
+	GL_SelectTexture(1);
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GL_Bind(tr.depthRenderImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.depthRenderImage);
+	}
+	else
+	{
+		// depth texture is not bound to a FBO
 		GL_Bind(tr.depthRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 	}
@@ -4713,7 +4727,7 @@ void RB_RenderDepthOfField(qboolean deferred)
 	GL_CheckErrors();
 }
 
-void RB_RenderUniformFog(qboolean deferred)
+void RB_RenderUniformFog()
 {
 	vec3_t          viewOrigin;
 	float           fogDensity;
@@ -4764,21 +4778,38 @@ void RB_RenderUniformFog(qboolean deferred)
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
-
-	// bind u_PositionMap
-	GL_SelectTexture(1);
-	if(deferred)
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
-		GL_Bind(tr.deferredPositionFBOImage);
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
 	}
 	else
 	{
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	}
+
+	// bind u_PositionMap
+	GL_SelectTexture(1);
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GL_Bind(tr.depthRenderImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.depthRenderImage);
+	}
+	else
+	{
+		// depth texture is not bound to a FBO
 		GL_Bind(tr.depthRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
 	}
-
 
 	// set 2D virtual screen size
 	GL_PushMatrix();
@@ -4919,7 +4950,6 @@ void RB_RenderBloom(void)
 			// add offscreen processed bloom to screen
 			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 			{
-				// FIXME
 				//R_BindFBO(tr.deferredRenderFBO);
 			}
 			else
@@ -4942,66 +4972,6 @@ void RB_RenderBloom(void)
 			Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 		}
 	}
-	/*
-	   else if(r_bloom->integer == 2)
-	   {
-	   GL_State(GLS_DEPTHTEST_DISABLE);
-	   GL_Cull(CT_TWO_SIDED);
-
-	   // render contrast
-	   GL_BindProgram(tr.contrastShader.program);
-	   GL_ClientState(tr.contrastShader.attribs);
-
-	   GL_SelectTexture(0);
-	   GL_Bind(tr.currentRenderImage);
-	   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-	   tr.currentRenderImage->uploadHeight);
-
-	   // draw viewport
-	   Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-
-	   // render blurX
-	   GL_BindProgram(tr.blurXShader.program);
-	   GL_ClientState(tr.blurXShader.attribs);
-
-	   qglUniform1fARB(tr.blurXShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	   GL_Bind(tr.contrastRenderImage);
-	   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
-	   tr.contrastRenderImage->uploadHeight);
-
-	   // draw viewport
-	   Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-
-	   // render blurY
-	   GL_BindProgram(tr.blurYShader.program);
-	   GL_ClientState(tr.blurYShader.attribs);
-
-	   qglUniform1fARB(tr.blurYShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	   GL_Bind(tr.contrastRenderImage);
-	   qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.contrastRenderImage->uploadWidth,
-	   tr.contrastRenderImage->uploadHeight);
-
-	   // draw viewport
-	   Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-
-	   // render bloom
-	   GL_BindProgram(tr.bloomShader.program);
-	   GL_ClientState(tr.bloomShader.attribs);
-
-	   qglUniform1fARB(tr.bloomShader.u_BlurMagnitude, r_bloomBlur->value);
-
-	   GL_SelectTexture(0);
-	   GL_Bind(tr.currentRenderImage);
-
-	   GL_SelectTexture(1);
-	   GL_Bind(tr.contrastRenderImage);
-
-	   // draw viewport
-	   Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-	   }
-	 */
 
 	// go back to 3D
 	GL_PopMatrix();
@@ -5092,7 +5062,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		}
 		else if(r_showDeferredPosition->integer)
 		{
-			GL_Bind(tr.deferredPositionFBOImage);
+			GL_Bind(tr.depthRenderImage);
 		}
 		else
 		{
@@ -6445,7 +6415,7 @@ static void RB_RenderView(void)
 
 		// render global fog
 		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderUniformFog(qfalse);
+		RB_RenderUniformFog();
 
 		// render debug information
 		R_BindFBO(tr.deferredRenderFBO);
