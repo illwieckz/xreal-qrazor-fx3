@@ -3267,7 +3267,7 @@ static void R_CreateWorldVBO()
 
 	s_worldData.numVerts = numVerts;
 	s_worldData.verts = verts = ri.Hunk_Alloc(numVerts * sizeof(srfVert_t), h_low);
-	//optimizedVerts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));    
+	//optimizedVerts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));
 
 	s_worldData.numTriangles = numTriangles;
 	s_worldData.triangles = triangles = ri.Hunk_Alloc(numTriangles * sizeof(srfTriangle_t), h_low);
@@ -3443,6 +3443,8 @@ static void R_CreateWorldVBO()
 
 	if(s_worldData.redundantVertsCalculationNeeded)
 	{
+		ri.Printf(PRINT_ALL, "...calculating redundant world vertices ( %i verts )\n", numVerts);
+
 		s_worldData.redundantLightVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
 		BuildRedundantIndices(numVerts, verts, s_worldData.redundantLightVerts, CompareLightVert);
 
@@ -4935,7 +4937,7 @@ static int R_BuildShadowPlanes(int numTriangles, const srfTriangle_t * triangles
 		//vec_t           length, ilength;
 
 		shadowPlanes[i].type = PLANE_NON_AXIAL;
-		
+
 
 		SetPlaneSignbits(&shadowPlanes[i]);
 	}

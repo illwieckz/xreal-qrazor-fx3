@@ -523,7 +523,7 @@ void R_InitFBOs(void)
 			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
 
-			if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
+			if(glConfig.framebufferPackedDepthStencilAvailable)// && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 			{
 				R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
 				R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
@@ -566,7 +566,7 @@ void R_InitFBOs(void)
 			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
 										  tr.geometricRenderFBO->depthBuffer);
 
-			if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
+			if(glConfig.framebufferPackedDepthStencilAvailable)// && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 			{
 				R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
 			}
@@ -598,7 +598,7 @@ void R_InitFBOs(void)
 		R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-		if(glConfig.framebufferPackedDepthStencilAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
+		if(glConfig.framebufferPackedDepthStencilAvailable)// && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 		{
 			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
 			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
