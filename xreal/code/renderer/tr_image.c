@@ -4319,7 +4319,7 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
+	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH16, FT_NEAREST, WT_CLAMP);
 	}
