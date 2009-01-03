@@ -1262,13 +1262,20 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				break;
 
 			default:
-				qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+				if(image->bits & IF_PACKED_DEPTH24_STENCIL8)
+				{
+					qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_INT_24_8_EXT, NULL);
+				}
+				else
+				{
+					qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+				}
 				break;
 		}
 
 		if(!glConfig.generateMipmapAvailable)
 		{
-			if(image->filterType == FT_DEFAULT)
+			if(image->filterType == FT_DEFAULT && !(image->bits & (IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32 | IF_PACKED_DEPTH24_STENCIL8)))
 			{
 				int             mipLevel;
 				int             mipWidth, mipHeight;
