@@ -252,7 +252,7 @@ void R_CreateFBOPackedDepthStencilBuffer(FBO_t * fbo, int format)
 {
 	qboolean        absent;
 
-	if(format != GL_DEPTH_STENCIL_EXT)
+	if(format != GL_DEPTH_STENCIL_EXT && format != GL_DEPTH24_STENCIL8_EXT)
 	{
 		ri.Printf(PRINT_WARNING, "R_CreateFBOPackedDepthStencilBuffer: format %i is not depth-stencil-renderable\n", format);
 		return;
@@ -525,7 +525,7 @@ void R_InitFBOs(void)
 
 			if(glConfig.framebufferPackedDepthStencilAvailable)// && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 			{
-				R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
+				R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH24_STENCIL8_EXT);
 				R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
 			}
 			else
@@ -600,7 +600,7 @@ void R_InitFBOs(void)
 
 		if(glConfig.framebufferPackedDepthStencilAvailable)// && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10)
 		{
-			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH_STENCIL_EXT);
+			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH24_STENCIL8_EXT);
 			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
 		}
 		else
