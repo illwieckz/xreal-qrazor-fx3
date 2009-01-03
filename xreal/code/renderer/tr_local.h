@@ -1842,8 +1842,9 @@ typedef struct
 	image_t        *shadowCubeFBOImage[5];
 
 	// framebuffer objects
-	FBO_t          *geometricRenderFBO;
-	FBO_t          *deferredRenderFBO;
+	FBO_t          *geometricRenderFBO;		// is the G-Buffer for deferred shading
+	FBO_t          *deferredRenderFBO;		// is used by HDR rendering and deferred shading
+	FBO_t          *portalRenderFBO;		// holds a copy of the last currentRender that was rendered into a FBO
 	FBO_t          *contrastRenderFBO;
 	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[5];

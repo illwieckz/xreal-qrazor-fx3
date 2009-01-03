@@ -6354,6 +6354,23 @@ static void RB_RenderView(void)
 			clearBits = GL_COLOR_BUFFER_BIT;
 			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
+		else
+		{
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy color of the main context to deferredRenderFBO
+
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+
+				R_BindFBO(tr.deferredRenderFBO);
+			}
+		}
 		qglClear(clearBits);
 
 
@@ -6435,6 +6452,32 @@ static void RB_RenderView(void)
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDebugUtils();
 
+		if(backEnd.viewParms.isPortal)
+		{
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy deferredRenderFBO to portalRenderFBO
+
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+									   0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+
+				R_BindNullFBO();
+			}
+			else
+			{
+				// capture current color buffer
+				GL_SelectTexture(0);
+				GL_Bind(tr.portalRenderImage);
+				qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
+			}
+			backEnd.pc.c_portals++;
+		}
+
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
 	}
@@ -6480,10 +6523,28 @@ static void RB_RenderView(void)
 		{
 			clearBits |= GL_STENCIL_BUFFER_BIT;
 		}
+
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
 			qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
+		}
+		else
+		{
+			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			{
+				// copy color of the main context to deferredRenderFBO
+
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+
+				R_BindFBO(tr.deferredRenderFBO);
+			}
 		}
 		qglClear(clearBits);
 
@@ -6605,16 +6666,32 @@ static void RB_RenderView(void)
 
 		// render debug information
 		RB_RenderDebugUtils();
-	}
 
-	if(backEnd.viewParms.isPortal)
-	{
-		// capture current color buffer
-		GL_SelectTexture(0);
-		GL_Bind(tr.portalRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
+		if(backEnd.viewParms.isPortal)
+		{
+			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			{
+				// copy deferredRenderFBO to portalRenderFBO
 
-		backEnd.pc.c_portals++;
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+				                       0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
+				                       GL_COLOR_BUFFER_BIT,
+				                       GL_NEAREST);
+
+				R_BindNullFBO();
+			}
+			else
+			{
+				// capture current color buffer
+				GL_SelectTexture(0);
+				GL_Bind(tr.portalRenderImage);
+				qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
+			}
+			backEnd.pc.c_portals++;
+		}
 	}
 
 	GL_CheckErrors();

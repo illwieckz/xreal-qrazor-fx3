@@ -536,8 +536,10 @@ void R_InitFBOs(void)
 
 		R_CheckFBO(tr.geometricRenderFBO);
 	}
-	else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	else
 	{
+		// forward shading
+
 		if(glConfig.textureNPOTAvailable)
 		{
 			width = glConfig.vidWidth;
@@ -549,11 +551,18 @@ void R_InitFBOs(void)
 			height = NearestPowerOfTwo(glConfig.vidHeight);
 		}
 
-		// deferredRender FBO for the HDR context
+		// deferredRender FBO for the HDR or LDR context
 		tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
 		R_BindFBO(tr.deferredRenderFBO);
 
-		R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);
+		}
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
 		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
@@ -611,6 +620,34 @@ void R_InitFBOs(void)
 		}
 	}
 
+	{
+		if(glConfig.textureNPOTAvailable)
+		{
+			width = glConfig.vidWidth;
+			height = glConfig.vidHeight;
+		}
+		else
+		{
+			width = NearestPowerOfTwo(glConfig.vidWidth);
+			height = NearestPowerOfTwo(glConfig.vidHeight);
+		}
+
+		// portalRender FBO for portals, mirrors, water, cameras et cetera
+		tr.portalRenderFBO = R_CreateFBO("_portalRender", width, height);
+		R_BindFBO(tr.portalRenderFBO);
+
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.portalRenderFBO, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.portalRenderImage->texnum, 0);
+
+		R_CheckFBO(tr.portalRenderFBO);
+	}
 
 
 	{
