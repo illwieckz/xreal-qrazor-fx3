@@ -583,6 +583,41 @@ void R_InitFBOs(void)
 		R_CheckFBO(tr.deferredRenderFBO);
 	}
 
+	if(glConfig.framebufferBlitAvailable)
+	{
+		if(glConfig.textureNPOTAvailable)
+		{
+			width = glConfig.vidWidth;
+			height = glConfig.vidHeight;
+		}
+		else
+		{
+			width = NearestPowerOfTwo(glConfig.vidWidth);
+			height = NearestPowerOfTwo(glConfig.vidHeight);
+		}
+
+		tr.occlusionRenderFBO = R_CreateFBO("_occlusionRender", width, height);
+		R_BindFBO(tr.occlusionRenderFBO);
+
+		R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_RGBA, 0);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.occlusionRenderFBOImage->texnum, 0);
+
+		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+		{
+			R_CreateFBODepthBuffer(tr.occlusionRenderFBO, GL_DEPTH_COMPONENT16_ARB);
+		}
+		else if(glConfig.framebufferPackedDepthStencilAvailable)
+		{
+			R_CreateFBOPackedDepthStencilBuffer(tr.occlusionRenderFBO, GL_DEPTH24_STENCIL8_EXT);
+		}
+		else
+		{
+			R_CreateFBODepthBuffer(tr.occlusionRenderFBO, GL_DEPTH_COMPONENT24_ARB);
+		}
+
+		R_CheckFBO(tr.occlusionRenderFBO);
+	}
+
 	if(r_shadows->integer >= 4 && glConfig.textureFloatAvailable)
 	{
 		// shadowMap FBOs for shadow mapping offscreen rendering

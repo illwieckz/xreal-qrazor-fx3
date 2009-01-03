@@ -313,7 +313,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 					 "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
 		}
 
-		if(r_heatHazeFix->integer)
+		if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_heatHazeFix\n#define r_heatHazeFix 1\n#endif\n");
 		}
@@ -1319,7 +1319,7 @@ void GLSL_InitGPUShaders(void)
 	tr.heatHazeShader.u_NormalMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalMap");
 	tr.heatHazeShader.u_CurrentMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_CurrentMap");
 	tr.heatHazeShader.u_NormalTextureMatrix = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_NormalTextureMatrix");
-	if(r_heatHazeFix->integer)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
 	{
 		tr.heatHazeShader.u_ContrastMap = qglGetUniformLocationARB(tr.heatHazeShader.program, "u_ContrastMap");
 	}
@@ -1341,7 +1341,7 @@ void GLSL_InitGPUShaders(void)
 	qglUseProgramObjectARB(tr.heatHazeShader.program);
 	qglUniform1iARB(tr.heatHazeShader.u_NormalMap, 0);
 	qglUniform1iARB(tr.heatHazeShader.u_CurrentMap, 1);
-	if(r_heatHazeFix->integer)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
 	{
 		qglUniform1iARB(tr.heatHazeShader.u_ContrastMap, 2);
 	}
@@ -3272,6 +3272,95 @@ static void Render_heatHaze(int stage)
 	}
 #endif
 
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
+	{
+		FBO_t          *previousFBO;
+		unsigned        stateBits;
+
+		// capture current color buffer for u_CurrentMap
+		/*
+		GL_SelectTexture(0);
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+							 tr.currentRenderImage->uploadHeight);
+
+		*/
+
+		previousFBO = glState.currentFBO;
+
+		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		{
+			// copy deferredRenderFBO to portalRenderFBO
+
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+								   0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		{
+			// copy deferredRenderFBO to portalRenderFBO
+
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+								   0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+		else
+		{
+			// copy depth of the main context to deferredRenderFBO
+
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+
+		R_BindFBO(tr.occlusionRenderFBO);
+
+		// clear color buffer
+		qglClear(GL_COLOR_BUFFER_BIT);
+
+		// remove blend mode
+		stateBits = pStage->stateBits;
+		stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_DEPTHMASK_TRUE);
+
+		GL_State(stateBits);
+
+		// enable shader, set arrays
+		GL_BindProgram(&tr.depthTestShader);
+		GL_ClientState(tr.depthTestShader.attribs);
+
+		// set uniforms
+		qglUniformMatrix4fvARB(tr.depthTestShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+							   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		// bind u_ColorMap
+		GL_SelectTexture(0);
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+		qglUniformMatrix4fvARB(tr.depthTestShader.u_ColorTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_COLORMAP]);
+
+		// bind u_CurrentMap
+		GL_SelectTexture(1);
+		GL_Bind(tr.currentRenderImage);
+
+		Tess_DrawElements();
+
+		R_BindFBO(previousFBO);
+
+		GL_CheckErrors();
+	}
+
 	// remove alpha test
 	stateBits = pStage->stateBits;
 	stateBits &= ~GLS_ATEST_BITS;
@@ -3319,17 +3408,28 @@ static void Render_heatHaze(int stage)
 
 	// bind u_CurrentMap
 	GL_SelectTexture(1);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	}
 
-#if 0
+
 	// bind u_ContrastMap
-	if(r_heatHazeFix->integer)
+	if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable)
 	{
 		GL_SelectTexture(2);
-		GL_Bind(tr.contrastRenderImage);
+		GL_Bind(tr.occlusionRenderFBOImage);
 	}
-#endif
 
 	Tess_DrawElements();
 

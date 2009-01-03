@@ -4364,6 +4364,29 @@ static void R_CreatePortalRenderImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+static void R_CreateOcclusionRenderFBOImage(void)
+{
+	int             width, height;
+	byte           *data;
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+
+	tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
 static void R_CreateDeferredRenderFBOImages(void)
 {
 	int             width, height;
@@ -4564,6 +4587,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateCurrentRenderImage();
 	R_CreateDepthRenderImage();
 	R_CreatePortalRenderImage();
+	R_CreateOcclusionRenderFBOImage();
 	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();

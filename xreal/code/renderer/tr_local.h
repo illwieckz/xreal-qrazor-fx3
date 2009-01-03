@@ -1838,6 +1838,7 @@ typedef struct
 	image_t        *deferredNormalFBOImage;
 	image_t        *deferredSpecularFBOImage;
 	image_t        *deferredRenderFBOImage;
+	image_t        *occlusionRenderFBOImage;
 	image_t        *shadowMapFBOImage[5];
 	image_t        *shadowCubeFBOImage[5];
 
@@ -1845,6 +1846,7 @@ typedef struct
 	FBO_t          *geometricRenderFBO;		// is the G-Buffer for deferred shading
 	FBO_t          *deferredRenderFBO;		// is used by HDR rendering and deferred shading
 	FBO_t          *portalRenderFBO;		// holds a copy of the last currentRender that was rendered into a FBO
+	FBO_t          *occlusionRenderFBO;		// used for overlapping visibility determination
 	FBO_t          *contrastRenderFBO;
 	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[5];
