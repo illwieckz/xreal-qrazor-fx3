@@ -307,6 +307,19 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			}
 		}
 
+		if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_HDRRendering\n#define r_HDRRendering 1\n#endif\n");
+
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 va("#ifndef r_HDRContrastThreshold\n#define r_HDRContrastThreshold %f\n#endif\n",
+						r_hdrContrastThreshold->value));
+
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 va("#ifndef r_HDRContrastOffset\n#define r_HDRContrastOffset %f\n#endif\n",
+						r_hdrContrastOffset->value));
+		}
+
 		if(r_precomputedLighting->integer)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra),
@@ -1372,6 +1385,10 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.contrastShader, "contrast", GLCS_VERTEX, qtrue);
 
 	tr.contrastShader.u_ColorMap = qglGetUniformLocationARB(tr.contrastShader.program, "u_ColorMap");
+	if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		tr.contrastShader.u_HDRExposure = qglGetUniformLocationARB(tr.contrastShader.program, "u_HDRExposure");
+	}
 	tr.contrastShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.contrastShader.program, "u_ModelViewProjectionMatrix");
 

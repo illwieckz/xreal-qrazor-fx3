@@ -4846,7 +4846,7 @@ void RB_RenderUniformFog()
 	GL_CheckErrors();
 }
 
-void RB_RenderBloom(void)
+void RB_RenderBloom(float hdrAdaptation)
 {
 	int				i, j;
 	matrix_t        ortho;
@@ -4898,8 +4898,25 @@ void RB_RenderBloom(void)
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 		GL_PopMatrix();
 
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderImage);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			if(r_hdrExposure->value <= 0)
+			{
+				qglUniform1fARB(tr.contrastShader.u_HDRExposure, (r_hdrMiddleGrey->value / (hdrAdaptation + 0.001)));
+			}
+			else
+			{
+				qglUniform1fARB(tr.contrastShader.u_HDRExposure, r_hdrExposure->value);
+			}
+
+			GL_SelectTexture(0);
+			GL_Bind(tr.downScaleFBOImage_quarter);
+		}
+		else
+		{
+			GL_SelectTexture(0);
+			GL_Bind(tr.currentRenderImage);
+		}
 
 		// draw viewport
 		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -4964,7 +4981,19 @@ void RB_RenderBloom(void)
 			// add offscreen processed bloom to screen
 			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 			{
-				//R_BindFBO(tr.deferredRenderFBO);
+				R_BindFBO(tr.deferredRenderFBO);
+
+				GL_BindProgram(&tr.screenShader);
+				GL_ClientState(GLCS_VERTEX);
+				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+				qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+																		   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+				GL_SelectTexture(0);
+				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
+				//GL_Bind(tr.contrastRenderFBOImage);
 			}
 			else
 			{
@@ -5070,8 +5099,12 @@ static float RB_CalculateAdaptation()
 	// adapted luminance and current luminance by 2% every frame, based on a
 	// 30 fps rate. This is not an accurate model of human adaptation, which can
 	// take longer than half an hour.
-	newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.99999f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
-	oldLuminance = curLuminance;
+	if(curLuminance - oldLuminance > 0.0f)
+		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.97f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+	else
+		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.99f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+
+	oldLuminance = newAdaptation;
 	oldTime = backEnd.refdef.floatTime;
 
 	GL_CheckErrors();
@@ -5079,7 +5112,7 @@ static float RB_CalculateAdaptation()
 	return newAdaptation;
 }
 
-void RB_RenderDeferredShadingResultToFrameBuffer()
+void RB_RenderDeferredShadingResultToFrameBuffer(float hdrAdaptation)
 {
 	matrix_t        ortho;
 
@@ -5155,13 +5188,16 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	if(r_hdrRendering->integer)
 	{
-		float			newAdaptation;
-
-		newAdaptation = RB_CalculateAdaptation();
-
 		R_BindNullFBO();
 
-		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (0.5f / (newAdaptation + 0.001)));//r_hdrExposure->value);
+		if(r_hdrExposure->value <= 0)
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (r_hdrMiddleGrey->value / (hdrAdaptation + 0.001)));
+		}
+		else
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+		}
 		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxBrightness, r_hdrMaxBrightness->value);
 
 		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
@@ -5177,17 +5213,14 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_PopMatrix();
 }
 
-void RB_RenderDeferredHDRResultToFrameBuffer()
+void RB_RenderDeferredHDRResultToFrameBuffer(float hdrAdaptation)
 {
 	matrix_t        ortho;
-	float			newAdaptation;
 
 	GLimp_LogComment("--- RB_RenderDeferredHDRResultToFrameBuffer ---\n");
 
 	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
 		return;
-
-	newAdaptation = RB_CalculateAdaptation();
 
 	R_BindNullFBO();
 
@@ -5212,7 +5245,14 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (0.5f / (newAdaptation + 0.001)));//r_hdrExposure->value);
+	if(r_hdrExposure->value <= 0)
+	{
+		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (r_hdrMiddleGrey->value / (hdrAdaptation + 0.001)));
+	}
+	else
+	{
+		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+	}
 	qglUniform1fARB(tr.toneMappingShader.u_HDRMaxBrightness, r_hdrMaxBrightness->value);
 
 	qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
@@ -6343,6 +6383,8 @@ RB_RenderView
 */
 static void RB_RenderView(void)
 {
+	float			hdrAdaptation;;
+
 	if(r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
@@ -6522,13 +6564,6 @@ static void RB_RenderView(void)
 								   GL_COLOR_BUFFER_BIT,
 								   GL_LINEAR);
 
-			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_1x1->frameBuffer);
-			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-								   0, 0, 1, 1,
-								   GL_COLOR_BUFFER_BIT,
-								   GL_LINEAR);
-
 			R_BindFBO(tr.deferredRenderFBO);
 		}
 		else
@@ -6536,8 +6571,10 @@ static void RB_RenderView(void)
 			// FIXME add non EXT_framebuffer_blit code
 		}
 
+		hdrAdaptation = RB_CalculateAdaptation();
+
 		// copy offscreen rendered scene to the current OpenGL context
-		RB_RenderDeferredShadingResultToFrameBuffer();
+		RB_RenderDeferredShadingResultToFrameBuffer(hdrAdaptation);
 
 		if(backEnd.viewParms.isPortal)
 		{
@@ -6744,13 +6781,6 @@ static void RB_RenderView(void)
 								   GL_COLOR_BUFFER_BIT,
 								   GL_LINEAR);
 
-			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_1x1->frameBuffer);
-			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-								   0, 0, 1, 1,
-								   GL_COLOR_BUFFER_BIT,
-								   GL_LINEAR);
-
 			R_BindFBO(tr.deferredRenderFBO);
 		}
 		else
@@ -6758,14 +6788,16 @@ static void RB_RenderView(void)
 			// FIXME add non EXT_framebuffer_blit code
 		}
 
-		// copy offscreen rendered HDR scene to the current OpenGL context
-		RB_RenderDeferredHDRResultToFrameBuffer();
+		hdrAdaptation = RB_CalculateAdaptation();
 
 		// render depth of field post process effect
 		RB_RenderDepthOfField(qfalse);
 
 		// render bloom post process effect
-		RB_RenderBloom();
+		RB_RenderBloom(hdrAdaptation);
+
+		// copy offscreen rendered HDR scene to the current OpenGL context
+		RB_RenderDeferredHDRResultToFrameBuffer(hdrAdaptation);
 
 		// render rotoscope post process effect
 		RB_RenderRotoscope();

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,6 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_ColorMap;
+#if defined(r_HDRRendering)
+uniform float		u_HDRExposure;
+#endif
+
+const vec4			LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
 
 void	main()
 {
@@ -33,6 +38,30 @@ void	main()
 	// BUGFIX: the ATI driver flips the image
 	st.t = 1.0 - st.t;
 #endif
+	
+#if defined(r_HDRRendering)
+
+	// multiply with 4 because the FBO is only 1/4th of the screen resolution
+	st *= vec2(4.0, 4.0);
+	
+	// scale by the screen non-power-of-two-adjust
+	st *= r_NPOTScale;
+
+	vec4 color = texture2D(u_ColorMap, st);
+
+	// determine what the pixel's value will be after tone-mapping occurs
+	color.rgb *= u_HDRExposure; //u_HDRMiddleGrey / (u_HDRAdaptedLum + 0.001f);
+	
+	// subtract out dark pixels
+	color.rgb = max(color.rgb - r_HDRContrastThreshold, 0.0);
+	
+	// Map the resulting value into the 0 to 1 range. Higher values for
+	// r_HDRTreshOffset will isolate lights from illuminated scene 
+	// objects.
+	color.rgb /= (r_HDRContrastOffset + color.rgb);
+
+	gl_FragColor = color;
+#else
 
 	// multiply with 4 because the FBO is only 1/4th of the screen resolution
 	st *= vec2(4.0, 4.0);
@@ -41,16 +70,6 @@ void	main()
 	st *= r_NPOTScale;
 	
 	// calculate contrast color
-#if 0
-	vec4 color = texture2D(u_ColorMap, st);
-	vec4 contrast = color * color;
-	contrast.x += contrast.y;
-	contrast.x += contrast.z;
-	contrast.x *= 0.33333333;
-	contrast *= 0.5;
-	gl_FragColor = contrast;
-#elif 1
-	
 #if 1
 	// perform a box filter for the downsample
 	vec3 color = texture2D(u_ColorMap, st + vec2(-1.0, 1.0) * r_FBufScale).rgb;
@@ -63,7 +82,7 @@ void	main()
 #endif
 
 	// compute luminance
-	float luminance = (color.r * 0.2125) + (color.g * 0.7154) + (color.b * 0.0721);
+	float luminance = dot(LUMINANCE_VECTOR, color);
 
 	// adjust contrast
 	luminance = pow(luminance, 1.32);
@@ -73,12 +92,5 @@ void	main()
 
 	// write the final color
 	gl_FragColor.rgb = color * luminance;
-#else
-	vec4 color = texture2D(u_ColorMap, st);
-//	vec3 contrast = dot(color.rgb, vec3(0.11, 0.55, 0.33));
-//	vec3 contrast = dot(color.rgb, vec3(0.27, 0.67, 0.06));
-	vec3 contrast = dot(color.rgb, vec3(0.33, 0.55, 0.11));
-	gl_FragColor.rgb = contrast;
-	gl_FragColor.a = color.a;
 #endif
 }
