@@ -1328,7 +1328,7 @@ void R_Register(void)
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_hdrExposure = ri.Cvar_Get("r_hdrExposure", "1", CVAR_CHEAT);
-	r_hdrMaxBrightness = ri.Cvar_Get("r_hdrMaxBrightness", "10", CVAR_CHEAT);
+	r_hdrMaxBrightness = ri.Cvar_Get("r_hdrMaxBrightness", "20", CVAR_CHEAT);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 

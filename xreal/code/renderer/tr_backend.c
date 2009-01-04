@@ -5040,6 +5040,7 @@ static float RB_CalculateAdaptation()
 	int				i, j;
 	static float	image[64 * 64 * 4];
 	static float	oldLuminance = 1.0;
+	static float	oldTime = 0.0;
 	float			curLuminance;
 	float			sum;
 	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
@@ -5069,7 +5070,9 @@ static float RB_CalculateAdaptation()
 	// adapted luminance and current luminance by 2% every frame, based on a
 	// 30 fps rate. This is not an accurate model of human adaptation, which can
 	// take longer than half an hour.
-	newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.997f, 30.0f * backEnd.refdef.floatTime));
+	newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.99999f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+	oldLuminance = curLuminance;
+	oldTime = backEnd.refdef.floatTime;
 
 	GL_CheckErrors();
 
