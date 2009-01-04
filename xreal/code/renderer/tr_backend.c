@@ -5035,6 +5035,47 @@ void RB_RenderRotoscope(void)
 	GL_CheckErrors();
 }
 
+static float RB_CalculateAdaptation()
+{
+	int				i, j;
+	static float	image[64 * 64 * 4];
+	static float	oldLuminance = 1.0;
+	float			curLuminance;
+	float			sum;
+	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
+	vec4_t			color;
+	float			newAdaptation;
+
+	// calculate the average scene luminance
+	R_BindFBO(tr.downScaleFBO_64x64);
+
+	// read back the contents
+	qglReadPixels(0, 0, 64, 64, GL_RGBA, GL_FLOAT, image);
+
+	sum = 0.0f;
+	for(i = 0; i < (64 * 64 * 4); i += 4)
+	{
+		color[0] = image[i + 0];
+		color[1] = image[i + 1];
+		color[2] = image[i + 2];
+		color[3] = image[i + 3];
+
+		sum += logf(DotProduct(color, LUMINANCE_VECTOR) + 0.0001f);
+	}
+	sum /= (64.0f * 64.0f);
+	curLuminance = expf(sum);
+
+	// the user's adapted luminance level is simulated by closing the gap between
+	// adapted luminance and current luminance by 2% every frame, based on a
+	// 30 fps rate. This is not an accurate model of human adaptation, which can
+	// take longer than half an hour.
+	newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.997f, 30.0f * backEnd.refdef.floatTime));
+
+	GL_CheckErrors();
+
+	return newAdaptation;
+}
+
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
 	matrix_t        ortho;
@@ -5111,8 +5152,13 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	if(r_hdrRendering->integer)
 	{
+		float			newAdaptation;
 
-		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+		newAdaptation = RB_CalculateAdaptation();
+
+		R_BindNullFBO();
+
+		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (0.5f / (newAdaptation + 0.001)));//r_hdrExposure->value);
 		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxBrightness, r_hdrMaxBrightness->value);
 
 		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
@@ -5131,11 +5177,14 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 void RB_RenderDeferredHDRResultToFrameBuffer()
 {
 	matrix_t        ortho;
+	float			newAdaptation;
 
 	GLimp_LogComment("--- RB_RenderDeferredHDRResultToFrameBuffer ---\n");
 
 	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
 		return;
+
+	newAdaptation = RB_CalculateAdaptation();
 
 	R_BindNullFBO();
 
@@ -5160,7 +5209,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+	qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (0.5f / (newAdaptation + 0.001)));//r_hdrExposure->value);
 	qglUniform1fARB(tr.toneMappingShader.u_HDRMaxBrightness, r_hdrMaxBrightness->value);
 
 	qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
@@ -6452,6 +6501,41 @@ static void RB_RenderView(void)
 		R_BindFBO(tr.deferredRenderFBO);
 		RB_RenderDebugUtils();
 
+		// scale down rendered HDR scene to 1 / 4th
+		if(r_hdrRendering->integer && glConfig.framebufferBlitAvailable)
+		{
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+								   GL_COLOR_BUFFER_BIT,
+								   GL_LINEAR);
+
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, 64, 64,
+								   GL_COLOR_BUFFER_BIT,
+								   GL_LINEAR);
+
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_1x1->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, 1, 1,
+								   GL_COLOR_BUFFER_BIT,
+								   GL_LINEAR);
+
+			R_BindFBO(tr.deferredRenderFBO);
+		}
+		else
+		{
+			// FIXME add non EXT_framebuffer_blit code
+		}
+
+		// copy offscreen rendered scene to the current OpenGL context
+		RB_RenderDeferredShadingResultToFrameBuffer();
+
 		if(backEnd.viewParms.isPortal)
 		{
 			if(glConfig.framebufferBlitAvailable)
@@ -6477,9 +6561,6 @@ static void RB_RenderView(void)
 			}
 			backEnd.pc.c_portals++;
 		}
-
-		// copy offscreen rendered scene to the current OpenGL context
-		RB_RenderDeferredShadingResultToFrameBuffer();
 	}
 	else
 	{
@@ -6639,11 +6720,43 @@ static void RB_RenderView(void)
 		// draw everything that is translucent
 		RB_RenderDrawSurfaces(qfalse, qfalse);
 
-		// copy offscreen rendered HDR scene to the current OpenGL context
-		RB_RenderDeferredHDRResultToFrameBuffer();
-
 		// render global fog post process effect
 		RB_RenderUniformFog(qfalse);
+
+		// scale down rendered HDR scene to 1 / 4th
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+		{
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+								   GL_COLOR_BUFFER_BIT,
+								   GL_LINEAR);
+
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, 64, 64,
+								   GL_COLOR_BUFFER_BIT,
+								   GL_LINEAR);
+
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_1x1->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, 1, 1,
+								   GL_COLOR_BUFFER_BIT,
+								   GL_LINEAR);
+
+			R_BindFBO(tr.deferredRenderFBO);
+		}
+		else
+		{
+			// FIXME add non EXT_framebuffer_blit code
+		}
+
+		// copy offscreen rendered HDR scene to the current OpenGL context
+		RB_RenderDeferredHDRResultToFrameBuffer();
 
 		// render depth of field post process effect
 		RB_RenderDepthOfField(qfalse);

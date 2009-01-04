@@ -693,8 +693,90 @@ void R_InitFBOs(void)
 		}
 		else
 		{
-			width = NearestPowerOfTwo(glConfig.vidWidth) * 0.25f;
-			height = NearestPowerOfTwo(glConfig.vidHeight) * 0.25f;
+			width = NearestPowerOfTwo(glConfig.vidWidth * 0.25f);
+			height = NearestPowerOfTwo(glConfig.vidHeight * 0.25f);
+		}
+
+		tr.downScaleFBO_quarter = R_CreateFBO("_downScale_quarter", width, height);
+		R_BindFBO(tr.downScaleFBO_quarter);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_quarter, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_quarter, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_quarter->texnum, 0);
+		R_CheckFBO(tr.downScaleFBO_quarter);
+
+
+		tr.downScaleFBO_64x64 = R_CreateFBO("_downScale_64x64", 64, 64);
+		R_BindFBO(tr.downScaleFBO_64x64);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_64x64, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_64x64, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_64x64->texnum, 0);
+		R_CheckFBO(tr.downScaleFBO_64x64);
+
+
+		tr.downScaleFBO_16x16 = R_CreateFBO("_downScale_16x16", 16, 16);
+		R_BindFBO(tr.downScaleFBO_16x16);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_16x16, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_16x16, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_16x16->texnum, 0);
+		R_CheckFBO(tr.downScaleFBO_16x16);
+
+
+		tr.downScaleFBO_4x4 = R_CreateFBO("_downScale_4x4", 4, 4);
+		R_BindFBO(tr.downScaleFBO_4x4);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_4x4, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_4x4, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_4x4->texnum, 0);
+		R_CheckFBO(tr.downScaleFBO_4x4);
+
+
+		tr.downScaleFBO_1x1 = R_CreateFBO("_downScale_1x1", 1, 1);
+		R_BindFBO(tr.downScaleFBO_1x1);
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_1x1, GL_RGBA16F_ARB, 0);
+		}
+		else
+		{
+			R_CreateFBOColorBuffer(tr.downScaleFBO_1x1, GL_RGBA, 0);
+		}
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_1x1->texnum, 0);
+		R_CheckFBO(tr.downScaleFBO_1x1);
+
+
+
+		if(glConfig.textureNPOTAvailable)
+		{
+			width = glConfig.vidWidth * 0.25f;
+			height = glConfig.vidHeight * 0.25f;
+		}
+		else
+		{
+			width = NearestPowerOfTwo(glConfig.vidWidth * 0.25f);
+			height = NearestPowerOfTwo(glConfig.vidHeight * 0.25f);
 		}
 
 

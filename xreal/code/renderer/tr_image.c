@@ -4387,6 +4387,88 @@ static void R_CreateOcclusionRenderFBOImage(void)
 	ri.Hunk_FreeTempMemory(data);
 }
 
+// Tr3B: clean up this mess some day ...
+static void R_CreateDownScaleFBOImages(void)
+{
+	byte           *data;
+	int				width, height;
+
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth * 0.25f;
+		height = glConfig.vidHeight * 0.25f;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth * 0.25f);
+		height = NearestPowerOfTwo(glConfig.vidHeight * 0.25f);
+	}
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		tr.downScaleFBOImage_quarter = R_CreateImage("_downScaleFBOImage_quarter", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.downScaleFBOImage_quarter = R_CreateImage("_downScaleFBOImage_quarter", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	}
+	ri.Hunk_FreeTempMemory(data);
+
+
+	width = height = 64;
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		tr.downScaleFBOImage_64x64 = R_CreateImage("_downScaleFBOImage_64x64", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.downScaleFBOImage_64x64 = R_CreateImage("_downScaleFBOImage_64x64", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	}
+	ri.Hunk_FreeTempMemory(data);
+
+
+	width = height = 16;
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		tr.downScaleFBOImage_16x16 = R_CreateImage("_downScaleFBOImage_16x16", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.downScaleFBOImage_16x16 = R_CreateImage("_downScaleFBOImage_16x16", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	}
+	ri.Hunk_FreeTempMemory(data);
+
+
+	width = height = 4;
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		tr.downScaleFBOImage_4x4 = R_CreateImage("_downScaleFBOImage_4x4", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.downScaleFBOImage_4x4 = R_CreateImage("_downScaleFBOImage_4x4", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	}
+	ri.Hunk_FreeTempMemory(data);
+
+
+	width = height = 1;
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	{
+		tr.downScaleFBOImage_1x1 = R_CreateImage("_downScaleFBOImage_1x1", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+	{
+		tr.downScaleFBOImage_1x1 = R_CreateImage("_downScaleFBOImage_1x1", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	}
+	ri.Hunk_FreeTempMemory(data);
+}
+
 static void R_CreateDeferredRenderFBOImages(void)
 {
 	int             width, height;
@@ -4588,6 +4670,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateDepthRenderImage();
 	R_CreatePortalRenderImage();
 	R_CreateOcclusionRenderFBOImage();
+	R_CreateDownScaleFBOImages();
 	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();

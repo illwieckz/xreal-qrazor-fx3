@@ -24,6 +24,9 @@ uniform sampler2D	u_CurrentMap;
 uniform float		u_HDRExposure;
 uniform float		u_HDRMaxBrightness;
 
+const vec4			LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
+const vec3			BLUE_SHIFT_VECTOR = vec3(1.05, 0.97, 1.27); 
+
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -37,15 +40,29 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
-	// autofocus
-	//float vignette = texture2D(u_CurrentMap, vec2(0.5, 0.5) * r_NPOTScale).r;
-	
 	vec4 color = texture2D(u_CurrentMap, st);
 	
 	// perform tone-mapping
-	float Y = dot(vec4(0.30, 0.59, 0.11, 0.0), color);
+#if 1
+	//float Y = dot(vec4(0.30, 0.59, 0.11, 0.0), color);
+	float Y = dot(LUMINANCE_VECTOR, color);
 	float YD = u_HDRExposure * (u_HDRExposure / u_HDRMaxBrightness + 1.0) / (u_HDRExposure + 1.0);
 	color *= YD;
+#else
+	
+#if 0
+	// define a linear blending from -1.5 to 2.6 (log scale) which
+	// determines the lerp amount for blue shift
+    float blueShiftCoefficient = clamp(1.0 - (adaptedLuminance + 1.5) / 4.1, 0.0, 1.0);
+
+	// lerp between current color and blue, desaturated copy
+    vec3 rodColor = dot(color.rgb, LUMINANCE_VECTOR) * BLUE_SHIFT_VECTOR;
+    color.rgb = lerp(color.rgb, rodColor, blueShiftCoefficient);
+#endif
+	
+	color.rgb *= u_HDRExposure;
+	color.rgb /= (1.0 + color.rgb);
+#endif
 	
 	gl_FragColor = color;
 }
