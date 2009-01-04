@@ -70,7 +70,7 @@ void	main()
 	st *= r_NPOTScale;
 	
 	// calculate contrast color
-#if 1
+#if 0
 	// perform a box filter for the downsample
 	vec3 color = texture2D(u_ColorMap, st + vec2(-1.0, 1.0) * r_FBufScale).rgb;
 	color += texture2D(u_ColorMap, st + vec2(1.0, 1.0) * r_FBufScale).rgb;
@@ -78,7 +78,7 @@ void	main()
 	color += texture2D(u_ColorMap, st + vec2(-1.0, -1.0) * r_FBufScale).rgb;
 	color *= 0.25;
 #else
-	vec3 color = texture2D(u_ColorMap, st).rgb;
+	vec4 color = texture2D(u_ColorMap, st);
 #endif
 
 	// compute luminance
@@ -90,7 +90,7 @@ void	main()
 	// filter out dark pixels
 	luminance = max(luminance - 0.067, 0.0);
 
-	// write the final color
-	gl_FragColor.rgb = color * luminance;
+	color.rgb *= luminance;
+	gl_FragColor = color;
 #endif
 }

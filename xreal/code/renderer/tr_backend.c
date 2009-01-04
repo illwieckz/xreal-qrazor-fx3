@@ -4873,11 +4873,6 @@ void RB_RenderBloom(float hdrAdaptation)
 		GL_State(GLS_DEPTHTEST_DISABLE);
 		GL_Cull(CT_TWO_SIDED);
 
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-									 tr.currentRenderImage->uploadHeight);
-
 		// render contrast downscaled to 1/4th of the screen
 		R_BindFBO(tr.contrastRenderFBO);
 		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -4885,7 +4880,6 @@ void RB_RenderBloom(float hdrAdaptation)
 
 		GL_BindProgram(&tr.contrastShader);
 		GL_ClientState(tr.contrastShader.attribs);
-
 
 		GL_PushMatrix();
 		GL_LoadModelViewMatrix(modelView);
@@ -4898,7 +4892,25 @@ void RB_RenderBloom(float hdrAdaptation)
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 		GL_PopMatrix();
 
-		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+						   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		{
+			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			{
+				if(r_hdrExposure->value <= 0)
+				{
+					qglUniform1fARB(tr.contrastShader.u_HDRExposure, (r_hdrMiddleGrey->value / (hdrAdaptation + 0.001)));
+				}
+				else
+				{
+					qglUniform1fARB(tr.contrastShader.u_HDRExposure, r_hdrExposure->value);
+				}
+			}
+
+			GL_SelectTexture(0);
+			GL_Bind(tr.downScaleFBOImage_quarter);
+		}
+		else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 		{
 			if(r_hdrExposure->value <= 0)
 			{
@@ -4915,7 +4927,12 @@ void RB_RenderBloom(float hdrAdaptation)
 		else
 		{
 			GL_SelectTexture(0);
+			GL_Bind(tr.downScaleFBOImage_quarter);
+			/*
 			GL_Bind(tr.currentRenderImage);
+			qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
+												 tr.currentRenderImage->uploadHeight);
+			*/
 		}
 
 		// draw viewport
@@ -4979,7 +4996,23 @@ void RB_RenderBloom(float hdrAdaptation)
 			}
 
 			// add offscreen processed bloom to screen
-			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+			{
+				R_BindFBO(tr.deferredRenderFBO);
+
+				GL_BindProgram(&tr.screenShader);
+				GL_ClientState(GLCS_VERTEX);
+				GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+				qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+				qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+																		   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+				GL_SelectTexture(0);
+				GL_Bind(tr.bloomRenderFBOImage[j % 2]);
+			}
+			else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 			{
 				R_BindFBO(tr.deferredRenderFBO);
 
@@ -6547,31 +6580,58 @@ static void RB_RenderView(void)
 		RB_RenderDebugUtils();
 
 		// scale down rendered HDR scene to 1 / 4th
-		if(r_hdrRendering->integer && glConfig.framebufferBlitAvailable)
+		if(r_hdrRendering->integer)
 		{
-			// FIXME this surpasses R_BindFBO
-			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
-			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-								   0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
-								   GL_COLOR_BUFFER_BIT,
-								   GL_LINEAR);
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+										GL_COLOR_BUFFER_BIT,
+										GL_LINEAR);
 
-			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
-			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-								   0, 0, 64, 64,
-								   GL_COLOR_BUFFER_BIT,
-								   GL_LINEAR);
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, 64, 64,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_LINEAR);
 
-			R_BindFBO(tr.deferredRenderFBO);
+				R_BindFBO(tr.deferredRenderFBO);
+			}
+			else
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
+
+			hdrAdaptation = RB_CalculateAdaptation();
 		}
 		else
 		{
-			// FIXME add non EXT_framebuffer_blit code
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy deferredRenderFBO to downScaleFBO_quarter
+
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+										GL_COLOR_BUFFER_BIT,
+										GL_LINEAR);
+
+				R_BindNullFBO();
+			}
+			else
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
 		}
 
-		hdrAdaptation = RB_CalculateAdaptation();
+		// render bloom post process effect
+		RB_RenderBloom(hdrAdaptation);
 
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer(hdrAdaptation);
@@ -6788,7 +6848,55 @@ static void RB_RenderView(void)
 			// FIXME add non EXT_framebuffer_blit code
 		}
 
-		hdrAdaptation = RB_CalculateAdaptation();
+		if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
+		{
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+										GL_COLOR_BUFFER_BIT,
+										GL_LINEAR);
+
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, 64, 64,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_LINEAR);
+
+				R_BindFBO(tr.deferredRenderFBO);
+			}
+			else
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
+
+			hdrAdaptation = RB_CalculateAdaptation();
+		}
+		else
+		{
+			if(glConfig.framebufferBlitAvailable)
+			{
+				// copy deferredRenderFBO to portalRenderFBO
+
+				// FIXME this surpasses R_BindFBO
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
+				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
+										GL_COLOR_BUFFER_BIT,
+										GL_LINEAR);
+
+				R_BindNullFBO();
+			}
+			else
+			{
+				// FIXME add non EXT_framebuffer_blit code
+			}
+		}
 
 		// render depth of field post process effect
 		RB_RenderDepthOfField(qfalse);
