@@ -30,9 +30,9 @@ void            GraphicsOptions_MenuInit(void);
 
 DRIVER INFORMATION MENU
 
-otty: do we really need this in ui ? wouldnt it be better to have something like 
+otty: do we really need this in ui ? wouldnt it be better to have something like
 
-"dump driverinfo" in console ? 
+"dump driverinfo" in console ?
 
 driverinfo is disabled by default in ui now, because it exeeds ui space
 =======================================================================
@@ -281,8 +281,9 @@ typedef struct
 	menulist_s      mode;
 	menuslider_s    tq;
 	menulist_s      fs;
+	menulist_s      vsync;
 	menuslider_s    brightness;
-	menulist_s      texturebits;
+//	menulist_s      texturebits;
 //  menulist_s      colordepth;
 	menulist_s      geometry;
 	menulist_s      filter;
@@ -294,6 +295,7 @@ typedef struct
 	menuslider_s    shadowBlur;
 	menulist_s      shadowQuality;
 	menulist_s      dynamicLightsCastShadows;
+	menulist_s      hdr;
 	menulist_s      bloom;
 	menulist_s      vertexLighting;
 	menutext_s      driverinfo;
@@ -306,9 +308,10 @@ typedef struct
 {
 	int             mode;
 	qboolean        fullscreen;
+	qboolean		vsync;
 	int             tq;
 //  int             colordepth;
-	int             texturebits;
+//	int             texturebits;
 	int             geometry;
 	int             filter;
 	int             compression;
@@ -319,6 +322,7 @@ typedef struct
 	int             shadowBlur;
 	int             shadowQuality;
 	int             dynamicLightsCastShadows;
+	int             hdr;
 	int             bloom;
 } InitialVideoOptions_s;
 
@@ -327,11 +331,11 @@ static graphicsoptions_t s_graphicsoptions;
 
 // *INDENT-OFF*
 static InitialVideoOptions_s s_ivo_templates[] = {
-	{ 4, qtrue, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
-	{ 3, qtrue, 2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
-	{ 2, qtrue, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
-	{ 2, qtrue, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0},
-	{ 3, qtrue, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0}
+	{ 4, qtrue, qfalse, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 3, qtrue, qfalse, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 2, qtrue, qfalse, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 2, qtrue, qfalse, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 3, qtrue, qfalse, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0}
 };
 // *INDENT-ON*
 
@@ -498,10 +502,11 @@ static void GraphicsOptions_GetInitialVideo(void)
 //  s_ivo.colordepth = s_graphicsoptions.colordepth.curvalue;
 	s_ivo.mode = s_graphicsoptions.mode.curvalue;
 	s_ivo.fullscreen = s_graphicsoptions.fs.curvalue;
+	s_ivo.vsync = s_graphicsoptions.vsync.curvalue;
 	s_ivo.tq = s_graphicsoptions.tq.curvalue;
 	s_ivo.geometry = s_graphicsoptions.geometry.curvalue;
 	s_ivo.filter = s_graphicsoptions.filter.curvalue;
-	s_ivo.texturebits = s_graphicsoptions.texturebits.curvalue;
+//	s_ivo.texturebits = s_graphicsoptions.texturebits.curvalue;
 	s_ivo.compression = s_graphicsoptions.compression.curvalue;
 	s_ivo.deferredShading = s_graphicsoptions.deferredShading.curvalue;
 	s_ivo.anisotropicFilter = s_graphicsoptions.anisotropicFilter.curvalue;
@@ -510,6 +515,7 @@ static void GraphicsOptions_GetInitialVideo(void)
 	s_ivo.shadowBlur = s_graphicsoptions.shadowBlur.curvalue;
 	s_ivo.shadowQuality = s_graphicsoptions.shadowQuality.curvalue;
 	s_ivo.dynamicLightsCastShadows = s_graphicsoptions.dynamicLightsCastShadows.curvalue;
+	s_ivo.hdr = s_graphicsoptions.hdr.curvalue;
 	s_ivo.bloom = s_graphicsoptions.bloom.curvalue;
 }
 
@@ -562,6 +568,8 @@ static void GraphicsOptions_CheckConfig(void)
 			continue;
 		if(s_ivo_templates[i].fullscreen != s_graphicsoptions.fs.curvalue)
 			continue;
+		if(s_ivo_templates[i].vsync != s_graphicsoptions.vsync.curvalue)
+			continue;
 		if(s_ivo_templates[i].tq != s_graphicsoptions.tq.curvalue)
 			continue;
 		if(s_ivo_templates[i].geometry != s_graphicsoptions.geometry.curvalue)
@@ -585,6 +593,8 @@ static void GraphicsOptions_CheckConfig(void)
 		if(s_ivo_templates[i].shadowQuality != s_graphicsoptions.shadowQuality.curvalue)
 			continue;
 		if(s_ivo_templates[i].dynamicLightsCastShadows != s_graphicsoptions.dynamicLightsCastShadows.curvalue)
+			continue;
+		if(s_ivo_templates[i].hdr != s_graphicsoptions.hdr.curvalue)
 			continue;
 		if(s_ivo_templates[i].bloom != s_graphicsoptions.bloom.curvalue)
 			continue;
@@ -629,6 +639,11 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
 
+	if(s_ivo.vsync != s_graphicsoptions.vsync.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
+	}
+
 	if(s_ivo.tq != s_graphicsoptions.tq.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
@@ -641,10 +656,12 @@ static void GraphicsOptions_UpdateMenuItems(void)
 	   }
 	 */
 
+	/*
 	if(s_ivo.texturebits != s_graphicsoptions.texturebits.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
+	*/
 
 	if(s_ivo.geometry != s_graphicsoptions.geometry.curvalue)
 	{
@@ -736,6 +753,11 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
 
+	if(s_ivo.hdr != s_graphicsoptions.hdr.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
+	}
+
 	if(s_ivo.bloom != s_graphicsoptions.bloom.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
@@ -754,6 +776,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	if(notification != QM_ACTIVATED)
 		return;
 
+	/*
 	switch (s_graphicsoptions.texturebits.curvalue)
 	{
 		case 0:
@@ -766,6 +789,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			trap_Cvar_SetValue("r_texturebits", 32);
 			break;
 	}
+	*/
 	trap_Cvar_SetValue("r_picmip", 3 - s_graphicsoptions.tq.curvalue);
 
 	if(resolutionsDetected)
@@ -795,6 +819,8 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 		trap_Cvar_SetValue("r_mode", s_graphicsoptions.mode.curvalue);
 
 	trap_Cvar_SetValue("r_fullscreen", s_graphicsoptions.fs.curvalue);
+
+	trap_Cvar_SetValue("r_swapInterval", s_graphicsoptions.vsync.curvalue);
 
 	trap_Cvar_SetValue("r_colorbits", 0);
 	trap_Cvar_SetValue("r_depthbits", 0);
@@ -885,7 +911,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	}
 
 	trap_Cvar_SetValue("r_dynamicLightsCastShadows", s_graphicsoptions.dynamicLightsCastShadows.curvalue);
-
+	trap_Cvar_SetValue("r_hdrRendering", s_graphicsoptions.hdr.curvalue);
 	trap_Cvar_SetValue("r_bloom", s_graphicsoptions.bloom.curvalue);
 
 	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
@@ -922,10 +948,11 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.ratio.curvalue = resToRatio[s_graphicsoptions.mode.curvalue];
 			s_graphicsoptions.tq.curvalue = ivo->tq;
 			//s_graphicsoptions.colordepth.curvalue = ivo->colordepth;
-			s_graphicsoptions.texturebits.curvalue = ivo->texturebits;
+			//s_graphicsoptions.texturebits.curvalue = ivo->texturebits;
 			s_graphicsoptions.geometry.curvalue = ivo->geometry;
 			s_graphicsoptions.filter.curvalue = ivo->filter;
 			s_graphicsoptions.fs.curvalue = ivo->fullscreen;
+			s_graphicsoptions.vsync.curvalue = ivo->vsync;
 			s_graphicsoptions.compression.curvalue = ivo->compression;
 			s_graphicsoptions.anisotropicFilter.curvalue = ivo->anisotropicFilter;
 			s_graphicsoptions.deferredShading.curvalue = ivo->deferredShading;
@@ -934,6 +961,7 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.shadowBlur.curvalue = ivo->shadowBlur;
 			s_graphicsoptions.shadowQuality.curvalue = ivo->shadowQuality;
 			s_graphicsoptions.dynamicLightsCastShadows.curvalue = ivo->dynamicLightsCastShadows;
+			s_graphicsoptions.hdr.curvalue = ivo->hdr;
 			s_graphicsoptions.bloom.curvalue = ivo->bloom;
 			break;
 
@@ -1064,6 +1092,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	}
 	s_graphicsoptions.ratio.curvalue = resToRatio[s_graphicsoptions.mode.curvalue];
 	s_graphicsoptions.fs.curvalue = trap_Cvar_VariableValue("r_fullscreen");
+	s_graphicsoptions.vsync.curvalue = trap_Cvar_VariableValue("r_swapInterval");
 	s_graphicsoptions.tq.curvalue = 3 - trap_Cvar_VariableValue("r_picmip");
 	if(s_graphicsoptions.tq.curvalue < 0)
 	{
@@ -1075,6 +1104,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	}
 
 	s_graphicsoptions.deferredShading.curvalue = trap_Cvar_VariableValue("r_deferredShading") != 0;
+	/*
 	switch ((int)trap_Cvar_VariableValue("r_texturebits"))
 	{
 		default:
@@ -1088,6 +1118,7 @@ static void GraphicsOptions_SetMenuItems(void)
 			s_graphicsoptions.texturebits.curvalue = 2;
 			break;
 	}
+	*/
 
 	if(!Q_stricmp(UI_Cvar_VariableString("r_textureMode"), "GL_LINEAR_MIPMAP_NEAREST"))
 	{
@@ -1167,6 +1198,15 @@ static void GraphicsOptions_SetMenuItems(void)
 	s_graphicsoptions.shadowBlur.curvalue = trap_Cvar_VariableValue("r_shadowBlur");
 	s_graphicsoptions.shadowQuality.curvalue = trap_Cvar_VariableValue("r_shadowMapQuality");
 	s_graphicsoptions.dynamicLightsCastShadows.curvalue = trap_Cvar_VariableValue("r_dynamicLightsCastShadows");
+
+	s_graphicsoptions.hdr.curvalue = trap_Cvar_VariableValue("r_hdrRendering");
+	if(s_graphicsoptions.hdr.curvalue > 0)
+	{
+		if(!uis.glconfig.framebufferObjectAvailable || !uis.glconfig.textureFloatAvailable || !uis.glconfig.framebufferBlitAvailable)
+		{
+			s_graphicsoptions.hdr.curvalue = 0;
+		}
+	}
 
 	s_graphicsoptions.bloom.curvalue = trap_Cvar_VariableValue("r_bloom");
 }
@@ -1450,6 +1490,14 @@ otty: do we need this ?
 	s_graphicsoptions.fs.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
 
+	// references/modifies "r_swapInterval"
+	s_graphicsoptions.vsync.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.vsync.generic.name = "VSync:";
+	s_graphicsoptions.vsync.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_graphicsoptions.vsync.generic.x = 320;
+	s_graphicsoptions.vsync.generic.y = y;
+	s_graphicsoptions.vsync.itemnames = enabled_names;
+	y += BIGCHAR_HEIGHT + 2;
 
 	s_graphicsoptions.brightness.generic.type = MTYPE_SLIDER;
 	s_graphicsoptions.brightness.generic.name = "Brightness:";
@@ -1486,6 +1534,7 @@ otty: do we need this ?
 	s_graphicsoptions.tq.generic.callback = GraphicsOptions_TQEvent;
 	y += BIGCHAR_HEIGHT + 2;
 
+	/*
 	// references/modifies "r_textureBits"
 	s_graphicsoptions.texturebits.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.texturebits.generic.name = "Texture Quality:";
@@ -1494,6 +1543,7 @@ otty: do we need this ?
 	s_graphicsoptions.texturebits.generic.y = y;
 	s_graphicsoptions.texturebits.itemnames = tq_names;
 	y += BIGCHAR_HEIGHT + 2;
+	*/
 
 	// references/modifies "r_textureMode"
 	s_graphicsoptions.filter.generic.type = MTYPE_SPINCONTROL;
@@ -1587,6 +1637,15 @@ otty: do we need this ?
 	s_graphicsoptions.dynamicLightsCastShadows.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
 
+	// references/modifies "r_hdrRendering"
+	s_graphicsoptions.hdr.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.hdr.generic.name = "HDR Rendering:";
+	s_graphicsoptions.hdr.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_graphicsoptions.hdr.generic.x = 320;
+	s_graphicsoptions.hdr.generic.y = y;
+	s_graphicsoptions.hdr.itemnames = enabled_names;
+	y += BIGCHAR_HEIGHT + 2;
+
 	// references/modifies "r_bloom"
 	s_graphicsoptions.bloom.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.bloom.generic.name = "Bloom:";
@@ -1623,10 +1682,11 @@ otty: do we need this ?
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.mode);
 //  Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.colordepth);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.fs);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.vsync);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.brightness);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.geometry);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.tq);
-	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.texturebits);
+//	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.texturebits);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.filter);
 
 	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") ||
@@ -1643,7 +1703,7 @@ otty: do we need this ?
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowBlur);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowQuality);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.dynamicLightsCastShadows);
-
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.hdr);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.bloom);
 
 	//Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.driverinfo);
