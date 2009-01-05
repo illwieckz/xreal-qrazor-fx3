@@ -5132,10 +5132,13 @@ static float RB_CalculateAdaptation()
 	// adapted luminance and current luminance by 2% every frame, based on a
 	// 30 fps rate. This is not an accurate model of human adaptation, which can
 	// take longer than half an hour.
+	if(oldTime > backEnd.refdef.floatTime)
+		oldTime = backEnd.refdef.floatTime;
+
 	if(curLuminance - oldLuminance > 0.0f)
-		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.97f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
 	else
-		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.99f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
 
 	oldLuminance = newAdaptation;
 	oldTime = backEnd.refdef.floatTime;
@@ -6824,30 +6827,6 @@ static void RB_RenderView(void)
 		RB_RenderUniformFog(qfalse);
 
 		// scale down rendered HDR scene to 1 / 4th
-		if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
-		{
-			// FIXME this surpasses R_BindFBO
-			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
-			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-								   0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
-								   GL_COLOR_BUFFER_BIT,
-								   GL_LINEAR);
-
-			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
-			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-								   0, 0, 64, 64,
-								   GL_COLOR_BUFFER_BIT,
-								   GL_LINEAR);
-
-			R_BindFBO(tr.deferredRenderFBO);
-		}
-		else
-		{
-			// FIXME add non EXT_framebuffer_blit code
-		}
-
 		if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
 		{
 			if(glConfig.framebufferBlitAvailable)
