@@ -5099,15 +5099,19 @@ void RB_RenderRotoscope(void)
 
 static float RB_CalculateAdaptation()
 {
-	int				i, j;
+	int				i;
 	static float	image[64 * 64 * 4];
 	static float	oldLuminance = 1.0;
 	static float	oldTime = 0.0;
+	float           curTime;
+	float			deltaTime;
 	float			curLuminance;
 	float			sum;
 	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
 	vec4_t			color;
 	float			newAdaptation;
+
+	curTime = ri.Milliseconds() / 1000.0f;
 
 	// calculate the average scene luminance
 	R_BindFBO(tr.downScaleFBO_64x64);
@@ -5132,16 +5136,18 @@ static float RB_CalculateAdaptation()
 	// adapted luminance and current luminance by 2% every frame, based on a
 	// 30 fps rate. This is not an accurate model of human adaptation, which can
 	// take longer than half an hour.
-	if(oldTime > backEnd.refdef.floatTime)
-		oldTime = backEnd.refdef.floatTime;
+	if(oldTime > curTime)
+		oldTime = curTime;
+
+	deltaTime = curTime - oldTime;
 
 	if(curLuminance - oldLuminance > 0.0f)
-		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 	else
-		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * (backEnd.refdef.floatTime - oldTime)));
+		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 
 	oldLuminance = newAdaptation;
-	oldTime = backEnd.refdef.floatTime;
+	oldTime = curTime;
 
 	GL_CheckErrors();
 
@@ -6633,6 +6639,8 @@ static void RB_RenderView(void)
 			}
 		}
 
+		GL_CheckErrors();
+
 		// render bloom post process effect
 		RB_RenderBloom(hdrAdaptation);
 
@@ -6876,6 +6884,8 @@ static void RB_RenderView(void)
 				// FIXME add non EXT_framebuffer_blit code
 			}
 		}
+
+		GL_CheckErrors();
 
 		// render depth of field post process effect
 		RB_RenderDepthOfField(qfalse);
