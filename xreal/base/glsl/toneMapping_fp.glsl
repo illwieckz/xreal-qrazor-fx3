@@ -43,11 +43,10 @@ void	main()
 	vec4 color = texture2D(u_CurrentMap, st);
 	
 	// perform tone-mapping
-#if 1
-	//float Y = dot(vec4(0.30, 0.59, 0.11, 0.0), color);
-	float Y = dot(LUMINANCE_VECTOR, color);
-	float YD = u_HDRExposure * (u_HDRExposure / u_HDRMaxBrightness + 1.0) / (u_HDRExposure + 1.0);
-	color *= YD;
+#if 0
+	float L = dot(LUMINANCE_VECTOR, color);
+	float Y = u_HDRExposure * (u_HDRExposure / u_HDRMaxBrightness + 1.0) / (u_HDRExposure + 1.0);
+	color *= Y * L;
 #else
 	
 #if 0
@@ -60,7 +59,7 @@ void	main()
     color.rgb = lerp(color.rgb, rodColor, blueShiftCoefficient);
 #endif
 	
-	color.rgb *= u_HDRExposure;
+	color.rgb *= u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	color.rgb /= (1.0 + color.rgb);
 #endif
 	
