@@ -5141,6 +5141,9 @@ static float RB_CalculateAdaptation()
 
 	deltaTime = curTime - oldTime;
 
+	oldLuminance = Q_max(oldLuminance, 0.0f);
+	curLuminance = Q_max(curLuminance, 0.0f);
+
 	if(curLuminance - oldLuminance > 0.0f)
 		newAdaptation = oldLuminance + (curLuminance - oldLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 	else
