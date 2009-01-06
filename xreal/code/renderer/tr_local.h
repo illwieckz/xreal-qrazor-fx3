@@ -879,7 +879,7 @@ typedef struct shaderProgram_s
 	GLint           u_PortalRange;
 
 	GLint			u_HDRExposure;
-	GLint			u_HDRMaxBrightness;
+	GLint			u_HDRMaxLuminance;
 
 	GLint           u_DeformMagnitude;
 	GLint           u_BlurMagnitude;
@@ -1781,6 +1781,10 @@ typedef struct
 	trRefLight_t   *currentLight;	// only used when lighting interactions
 	qboolean        skyRenderedThisView;	// flag for drawing sun
 
+	float			hdrAverageLuminance;
+	float			hdrMaxLuminance;
+	float			hdrTime;
+
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	vec4_t          color2D;
 	qboolean        vertexes2D;	// shader needs to be finished
@@ -2242,7 +2246,7 @@ extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_hdrRendering;
 extern cvar_t  *r_hdrExposure;
-extern cvar_t  *r_hdrMaxBrightness;
+extern cvar_t  *r_hdrMaxLuminance;
 extern cvar_t  *r_hdrMiddleGrey;
 extern cvar_t  *r_hdrContrastThreshold;
 extern cvar_t  *r_hdrContrastOffset;

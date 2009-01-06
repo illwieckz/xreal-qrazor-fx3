@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_ColorMap;
 #if defined(r_HDRRendering)
 uniform float		u_HDRExposure;
+uniform float		u_HDRMaxLuminance;
 #endif
 
 const vec4			LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
@@ -49,9 +50,12 @@ void	main()
 
 	vec4 color = texture2D(u_ColorMap, st);
 
+#if 1
 	// determine what the pixel's value will be after tone-mapping occurs
-	color.rgb *= u_HDRExposure; //u_HDRMiddleGrey / (u_HDRAdaptedLum + 0.001f);
+	color.rgb *= u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	
+	//color.rgb *= (1.0 + (color.rgb / (u_HDRMaxLuminance * u_HDRMaxLuminance)));	
+
 	// subtract out dark pixels
 	color.rgb = max(color.rgb - r_HDRContrastThreshold, 0.0);
 	
@@ -59,9 +63,14 @@ void	main()
 	// r_HDRTreshOffset will isolate lights from illuminated scene 
 	// objects.
 	color.rgb /= (r_HDRContrastOffset + color.rgb);
+#else
+	color = 1.0 - exp(-u_HDRExposure * max(color - r_HDRContrastThreshold, 0.0) * dot(LUMINANCE_VECTOR, color));
+#endif
 
 	gl_FragColor = color;
+
 #else
+	// LDR path
 
 	// multiply with 4 because the FBO is only 1/4th of the screen resolution
 	st *= vec2(4.0, 4.0);

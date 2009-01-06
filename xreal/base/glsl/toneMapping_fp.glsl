@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_CurrentMap;
 uniform float		u_HDRExposure;
-uniform float		u_HDRMaxBrightness;
+uniform float		u_HDRMaxLuminance;
 
 const vec4			LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
 const vec3			BLUE_SHIFT_VECTOR = vec3(1.05, 0.97, 1.27); 
@@ -43,13 +43,13 @@ void	main()
 	vec4 color = texture2D(u_CurrentMap, st);
 	
 	// perform tone-mapping
-#if 0
-	float L = dot(LUMINANCE_VECTOR, color);
-	float Y = u_HDRExposure * (u_HDRExposure / u_HDRMaxBrightness + 1.0) / (u_HDRExposure + 1.0);
-	color *= Y * L;
-#else
+#if 1
+	color *= dot(LUMINANCE_VECTOR, color);
+	color *= u_HDRExposure * (u_HDRExposure / u_HDRMaxLuminance + 1.0) / (u_HDRExposure + 1.0);
+
+#elif 0
 	
-#if 0
+#if 1
 	// define a linear blending from -1.5 to 2.6 (log scale) which
 	// determines the lerp amount for blue shift
     float blueShiftCoefficient = clamp(1.0 - (adaptedLuminance + 1.5) / 4.1, 0.0, 1.0);
@@ -61,6 +61,11 @@ void	main()
 	
 	color.rgb *= u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	color.rgb /= (1.0 + color.rgb);
+	
+#else
+	// exponential tone mapping
+	color = 1.0 - exp(-u_HDRExposure * color * dot(LUMINANCE_VECTOR, color));
+
 #endif
 	
 	gl_FragColor = color;

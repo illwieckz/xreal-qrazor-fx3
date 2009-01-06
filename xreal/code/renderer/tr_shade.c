@@ -1388,6 +1388,7 @@ void GLSL_InitGPUShaders(void)
 	if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
 	{
 		tr.contrastShader.u_HDRExposure = qglGetUniformLocationARB(tr.contrastShader.program, "u_HDRExposure");
+		tr.contrastShader.u_HDRMaxLuminance = qglGetUniformLocationARB(tr.contrastShader.program, "u_HDRMaxLuminance");
 	}
 	tr.contrastShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.contrastShader.program, "u_ModelViewProjectionMatrix");
@@ -1567,7 +1568,7 @@ void GLSL_InitGPUShaders(void)
 
 	tr.toneMappingShader.u_CurrentMap = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_CurrentMap");
 	tr.toneMappingShader.u_HDRExposure = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRExposure");
-	tr.toneMappingShader.u_HDRMaxBrightness = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRMaxBrightness");
+	tr.toneMappingShader.u_HDRMaxLuminance = qglGetUniformLocationARB(tr.toneMappingShader.program, "u_HDRMaxLuminance");
 	tr.toneMappingShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.toneMappingShader.program, "u_ModelViewProjectionMatrix");
 

@@ -457,6 +457,7 @@ extern const vec4_t g_color_table[MAX_CCODES];
 #define Q_min(a, b)      ((a) < (b) ? (a) : (b))
 #define Q_bound(a, b, c) (Q_max(a, Q_min(b, c)))
 #define Q_clamp(a, b, c) ((b) >= (c) ? (a)=(b) : (a) < (b) ? (a)=(b) : (a) > (c) ? (a)=(c) : (a))
+#define Q_lerp(from, to, frac) (from + ((to - from) * frac))
 
 struct cplane_s;
 
