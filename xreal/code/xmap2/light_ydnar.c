@@ -91,7 +91,47 @@ void ColorToBytes(const float *color, byte * colorBytes, float scale)
 	colorBytes[2] = sample[2];
 }
 
+/*
+ColorToRGBE()
+Tr3B: standard conversion from float pixels to rgbe pixels
+*/
 
+void ColorToRGBE(const float *color, byte * colorBytes, float scale)
+{
+	vec3_t          sample;
+	float			v;
+	int				e;
+
+	/* ydnar: scaling necessary for simulating r_overbrightBits on external lightmaps */
+	if(scale <= 0.0f)
+		scale = 1.0f;
+
+	/* make a local copy */
+	//VectorScale(color, scale, sample);
+	VectorCopy(color, sample);
+
+	v = sample[0];
+	if(sample[1] > v)
+		v = sample[1];
+	if(sample[2] > v)
+		v = sample[2];
+
+	if(v < 1e-32)
+	{
+		colorBytes[0] = 0;
+		colorBytes[1] = 0;
+		colorBytes[2] = 0;
+		colorBytes[3] = 0;
+	}
+	else
+	{
+		v = frexp(v,&e) * 256.0/v;
+		colorBytes[0] = (unsigned char) (sample[0] * v);
+		colorBytes[1] = (unsigned char) (sample[1] * v);
+		colorBytes[2] = (unsigned char) (sample[2] * v);
+		colorBytes[3] = (unsigned char) (e + 128);
+	}
+}
 
 /* -------------------------------------------------------------------------------
 

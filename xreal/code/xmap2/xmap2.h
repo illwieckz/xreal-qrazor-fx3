@@ -77,7 +77,7 @@ dependencies
 #include "inout.h"
 #include "vfs.h"
 #include "png.h"
-//#include "mhash.h" 
+//#include "mhash.h"
 
 #include <stdlib.h>
 
@@ -287,6 +287,7 @@ abstracted bsp file
 ------------------------------------------------------------------------------- */
 
 #define EXTERNAL_LIGHTMAP		"lm_%04d.tga"
+#define EXTERNAL_HDRLIGHTMAP	"lm_%04d.hdr"
 
 #define MAX_LIGHTMAPS			4	/* RBSP */
 #define MAX_LIGHT_STYLES		64
@@ -1700,6 +1701,7 @@ void            RadFreeLights();
 
 /* light_ydnar.c */
 void            ColorToBytes(const float *color, byte * colorBytes, float scale);
+void			ColorToRGBE(const float *color, byte * colorBytes, float scale);
 void            SmoothNormals(void);
 
 void            MapRawLightmap(int num);
@@ -2098,6 +2100,7 @@ Q_EXTERN int				approximateTolerance Q_ASSIGN( 0 );
 Q_EXTERN qboolean			noCollapse Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			exportLightmaps Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			externalLightmaps Q_ASSIGN( qtrue );
+Q_EXTERN qboolean			hdr Q_ASSIGN( qfalse );
 Q_EXTERN int				lmCustomSize Q_ASSIGN( LIGHTMAP_WIDTH );
 
 Q_EXTERN qboolean			dirty Q_ASSIGN( qfalse );

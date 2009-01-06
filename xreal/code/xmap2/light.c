@@ -1922,6 +1922,13 @@ int LightMain(int argc, char **argv)
 			Sys_Printf("Generating deluxemaps for average light direction\n");
 		}
 
+		else if(!strcmp(argv[i], "-hdr"))
+		{
+			hdr = qtrue;
+			externalLightmaps = qtrue;
+			Sys_Printf("Storing lightmaps in the RGBE High Dynamic Range format\n");
+		}
+
 		else if(!strcmp(argv[i], "-external"))
 		{
 			externalLightmaps = qtrue;
