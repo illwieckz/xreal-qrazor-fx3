@@ -4429,7 +4429,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 	ri.Hunk_FreeTempMemory(data);
 
-
+#if 0
 	width = height = 16;
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
@@ -4467,6 +4467,7 @@ static void R_CreateDownScaleFBOImages(void)
 		tr.downScaleFBOImage_1x1 = R_CreateImage("_downScaleFBOImage_1x1", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
 	}
 	ri.Hunk_FreeTempMemory(data);
+#endif
 }
 
 static void R_CreateDeferredRenderFBOImages(void)

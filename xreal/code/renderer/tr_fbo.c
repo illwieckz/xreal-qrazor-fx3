@@ -724,7 +724,7 @@ void R_InitFBOs(void)
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_64x64->texnum, 0);
 		R_CheckFBO(tr.downScaleFBO_64x64);
 
-
+#if 0
 		tr.downScaleFBO_16x16 = R_CreateFBO("_downScale_16x16", 16, 16);
 		R_BindFBO(tr.downScaleFBO_16x16);
 		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
@@ -765,7 +765,7 @@ void R_InitFBOs(void)
 		}
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.downScaleFBOImage_1x1->texnum, 0);
 		R_CheckFBO(tr.downScaleFBO_1x1);
-
+#endif
 
 
 		if(glConfig.textureNPOTAvailable)

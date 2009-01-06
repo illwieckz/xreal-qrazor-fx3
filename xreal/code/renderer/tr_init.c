@@ -229,6 +229,7 @@ cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_hdrRendering;
+cvar_t         *r_hdrLoadRGBE;
 cvar_t		   *r_hdrExposure;
 cvar_t         *r_hdrMaxLuminance;
 cvar_t         *r_hdrMiddleGrey;
@@ -1330,6 +1331,7 @@ void R_Register(void)
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_hdrLoadRGBE = ri.Cvar_Get("r_hdrLoadRGBE", "0", CVAR_CHEAT);
 	r_hdrExposure = ri.Cvar_Get("r_hdrExposure", "-1", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "-1", CVAR_CHEAT);
 	r_hdrMiddleGrey = ri.Cvar_Get("r_hdrMiddleGrey", "0.5", CVAR_CHEAT);

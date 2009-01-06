@@ -1845,9 +1845,9 @@ typedef struct
 	image_t        *occlusionRenderFBOImage;
 	image_t        *downScaleFBOImage_quarter;
 	image_t        *downScaleFBOImage_64x64;
-	image_t        *downScaleFBOImage_16x16;
-	image_t        *downScaleFBOImage_4x4;
-	image_t        *downScaleFBOImage_1x1;
+//	image_t        *downScaleFBOImage_16x16;
+//	image_t        *downScaleFBOImage_4x4;
+//	image_t        *downScaleFBOImage_1x1;
 	image_t        *shadowMapFBOImage[5];
 	image_t        *shadowCubeFBOImage[5];
 
@@ -1858,9 +1858,9 @@ typedef struct
 	FBO_t          *occlusionRenderFBO;		// used for overlapping visibility determination
 	FBO_t          *downScaleFBO_quarter;
 	FBO_t          *downScaleFBO_64x64;
-	FBO_t          *downScaleFBO_16x16;
-	FBO_t          *downScaleFBO_4x4;
-	FBO_t          *downScaleFBO_1x1;
+//	FBO_t          *downScaleFBO_16x16;
+//	FBO_t          *downScaleFBO_4x4;
+//	FBO_t          *downScaleFBO_1x1;
 	FBO_t          *contrastRenderFBO;
 	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[5];
@@ -2245,6 +2245,7 @@ extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_hdrRendering;
+extern cvar_t  *r_hdrLoadRGBE;
 extern cvar_t  *r_hdrExposure;
 extern cvar_t  *r_hdrMaxLuminance;
 extern cvar_t  *r_hdrMiddleGrey;

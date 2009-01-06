@@ -217,6 +217,161 @@ static int QDECL LightmapNameCompare(const void *a, const void *b)
 	return 0;
 }
 
+/* standard conversion from rgbe to float pixels */
+/* note: Ward uses ldexp(col+0.5,exp-(128+8)).  However we wanted pixels */
+/*       in the range [0,1] to map back into the range [0,1].            */
+static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
+{
+	float           f;
+
+	if(rgbe[3])
+	{							/*nonzero pixel */
+		f = ldexp(1.0, rgbe[3] - (int)(128 + 8));
+		*red = rgbe[0] * f;
+		*green = rgbe[1] * f;
+		*blue = rgbe[2] * f;
+	}
+	else
+		*red = *green = *blue = 0.0;
+}
+
+static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
+{
+	int				i;
+	byte           *buf_p;
+	byte           *buffer;
+	float          *pixbuf;
+	int				len;
+	char           *token;
+	int				w, h;
+	qboolean		formatFound;
+	unsigned char   rgbe[4];
+
+	*pic = NULL;
+
+	// load the file
+	len = ri.FS_ReadFile((char *)name, (void **)&buffer);
+	if(!buffer)
+	{
+		ri.Error(ERR_DROP, "LoadRGBE: '%s' not found\n", name);
+		return;
+	}
+
+	buf_p = buffer;
+
+	formatFound = qfalse;
+	w = h = 0;
+	while(qtrue)
+	{
+		token = Com_ParseExt((char **) &buf_p, qtrue);
+		if(!token[0])
+			break;
+
+		if(!Q_stricmp(token, "FORMAT"))
+		{
+			//ri.Printf(PRINT_ALL, "LoadRGBE: FORMAT found\n");
+
+			token = Com_ParseExt((char **) &buf_p, qfalse);
+			if(!Q_stricmp(token, "="))
+			{
+				token = Com_ParseExt((char **)&buf_p, qfalse);
+				if(!Q_stricmp(token, "32"))
+				{
+					token = Com_ParseExt((char **)&buf_p, qfalse);
+					if(!Q_stricmp(token, "-"))
+					{
+						token = Com_ParseExt((char **)&buf_p, qfalse);
+						if(!Q_stricmp(token, "bit_rle_rgbe"))
+						{
+							formatFound = qtrue;
+						}
+						else
+						{
+							ri.Printf(PRINT_ALL, "LoadRGBE: Expected 'bit_rle_rgbe' found instead '%s'\n", token);
+						}
+					}
+					else
+					{
+						ri.Printf(PRINT_ALL, "LoadRGBE: Expected '-' found instead '%s'\n", token);
+					}
+				}
+				else
+				{
+					ri.Printf(PRINT_ALL, "LoadRGBE: Expected '32' found instead '%s'\n", token);
+				}
+			}
+			else
+			{
+				ri.Printf(PRINT_ALL, "LoadRGBE: Expected '=' found instead '%s'\n", token);
+			}
+		}
+
+		if(!Q_stricmp(token, "-"))
+		{
+			token = Com_ParseExt((char **) &buf_p, qfalse);
+			if(!Q_stricmp(token, "Y"))
+			{
+				token = Com_ParseExt((char **)&buf_p, qfalse);
+				w = atoi(token);
+
+				token = Com_ParseExt((char **)&buf_p, qfalse);
+				if(!Q_stricmp(token, "+"))
+				{
+					token = Com_ParseExt((char **)&buf_p, qfalse);
+					if(!Q_stricmp(token, "X"))
+					{
+						token = Com_ParseExt((char **)&buf_p, qfalse);
+						h = atoi(token);
+						break;
+					}
+					else
+					{
+						ri.Printf(PRINT_ALL, "LoadRGBE: Expected 'X' found instead '%s'\n", token);
+					}
+				}
+				else
+				{
+					ri.Printf(PRINT_ALL, "LoadRGBE: Expected '+' found instead '%s'\n", token);
+				}
+			}
+			else
+			{
+				ri.Printf(PRINT_ALL, "LoadRGBE: Expected 'Y' found instead '%s'\n", token);
+			}
+		}
+	}
+
+	if(width)
+		*width = w;
+	if(height)
+		*height = h;
+
+	if(!formatFound)
+	{
+		ri.Error(ERR_DROP, "LoadRGBE: %s has no format\n", name);
+	}
+
+	if(!w || !h)
+	{
+		ri.Error(ERR_DROP, "LoadRGBE: %s has an invalid image size\n", name);
+	}
+
+	*pic = ri.Malloc(w * h * 3 * sizeof(float));
+	pixbuf = *pic;
+	for(i = 0; i < (w * h); i++)
+	{
+		rgbe[0] = *buf_p++;
+		rgbe[1] = *buf_p++;
+		rgbe[2] = *buf_p++;
+		rgbe[3] = *buf_p++;
+
+		rgbe2float(&pixbuf[0], &pixbuf[1], &pixbuf[2], rgbe);
+
+		pixbuf += 3;
+	}
+
+	ri.FS_FreeFile(buffer);
+}
 /*
 ===============
 R_LoadLightmaps
@@ -227,7 +382,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 {
 	byte           *buf, *buf_p;
 	int             len;
-	static byte     image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
+	image_t        *image;
+	static byte     data[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int             i, j;
 
 	len = l->filelen;
@@ -240,46 +396,141 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		Q_strncpyz(mapName, bspName, sizeof(mapName));
 		Com_StripExtension(mapName, mapName, sizeof(mapName));
 
-		lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
-
-		qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
-
-		if(!lightmapFiles || !numLightmaps)
+		if(r_hdrRendering->integer && r_hdrLoadRGBE->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
-			return;
-		}
+			int             width, height;
+			float          *hdrImage;
 
-		if(numLightmaps > MAX_LIGHTMAPS)
-		{
-			ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-			numLightmaps = MAX_LIGHTMAPS;
-		}
+			// we are about to upload textures
+			R_SyncRenderThread();
 
-		tr.numLightmaps = numLightmaps;
-		ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
+			// load HDR lightmaps
+			lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
 
-		// we are about to upload textures
-		R_SyncRenderThread();
+			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
-		for(i = 0; i < numLightmaps; i++)
-		{
-			ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+			if(!lightmapFiles || !numLightmaps)
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+				return;
+			}
+
+			if(numLightmaps > MAX_LIGHTMAPS)
+			{
+				ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+				numLightmaps = MAX_LIGHTMAPS;
+			}
+
+			tr.numLightmaps = numLightmaps;
+			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
+
+			for(i = 0; i < numLightmaps; i++)
+			{
+				ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+
+				width = height = 0;
+				LoadRGBE(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
+
+				// create dummy image
+				tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+
+				GL_Bind(image);
+				image->internalFormat = GL_RGB16F_ARB;
+				image->width = width;
+				image->height = height;
+				image->uploadWidth = width;
+				image->uploadHeight = height;
+
+				qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_FLOAT, hdrImage);
+
+				/*
+				if(glConfig.generateMipmapAvailable)
+				{
+					qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
+					qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+					qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
+				}
+				*/
+
+				qglBindTexture(image->type, 0);
+
+				ri.Free(hdrImage);
+			}
 
 			if(tr.worldDeluxeMapping)
 			{
-				if(i % 2 == 0)
+				// load deluxemaps
+				lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+
+				qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
+
+				if(!lightmapFiles || !numLightmaps)
 				{
-					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+					ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+					return;
+				}
+
+				if(numLightmaps > MAX_LIGHTMAPS)
+				{
+					ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+					numLightmaps = MAX_LIGHTMAPS;
+				}
+
+				tr.numLightmaps += numLightmaps;
+				ri.Printf(PRINT_ALL, "...loading %i deluxemaps\n", numLightmaps);
+
+				for(i = 0; i < numLightmaps; i++)
+				{
+					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+					tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+				}
+			}
+		}
+		else
+		{
+			lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+
+			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
+
+			if(!lightmapFiles || !numLightmaps)
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+				return;
+			}
+
+			if(numLightmaps > MAX_LIGHTMAPS)
+			{
+				ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+				numLightmaps = MAX_LIGHTMAPS;
+			}
+
+			tr.numLightmaps = numLightmaps;
+			ri.Printf(PRINT_ALL, "...loading %i lightmaps\n", tr.numLightmaps);
+
+			// we are about to upload textures
+			R_SyncRenderThread();
+
+			for(i = 0; i < numLightmaps; i++)
+			{
+				ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+				if(tr.worldDeluxeMapping)
+				{
+					if(i % 2 == 0)
+					{
+						tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+					}
+					else
+					{
+						tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+					}
 				}
 				else
 				{
-					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
 				}
-			}
-			else
-			{
-				tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
 			}
 		}
 	}
@@ -306,22 +557,22 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				{
 					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 					{
-						R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-						image[j * 4 + 3] = 255;
+						R_ColorShiftLightingBytes(&buf_p[j * 3], &data[j * 4]);
+						data[j * 4 + 3] = 255;
 					}
 					tr.lightmaps[i] =
-						R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT,
+						R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT,
 									  WT_CLAMP);
 				}
 				else
 				{
 					for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 					{
-						R_NormalizeLightingBytes(&buf_p[j * 3], &image[j * 4]);
-						image[j * 4 + 3] = 255;
+						R_NormalizeLightingBytes(&buf_p[j * 3], &data[j * 4]);
+						data[j * 4 + 3] = 255;
 					}
 					tr.lightmaps[i] =
-						R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT,
+						R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_NORMALMAP, FT_DEFAULT,
 									  WT_CLAMP);
 				}
 			}
@@ -329,11 +580,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			{
 				for(j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++)
 				{
-					R_ColorShiftLightingBytes(&buf_p[j * 3], &image[j * 4]);
-					image[j * 4 + 3] = 255;
+					R_ColorShiftLightingBytes(&buf_p[j * 3], &data[j * 4]);
+					data[j * 4 + 3] = 255;
 				}
 				tr.lightmaps[i] =
-					R_CreateImage(va("_lightmap%d", i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+					R_CreateImage(va("_lightmap%d", i), data, LIGHTMAP_SIZE, LIGHTMAP_SIZE, IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
 			}
 		}
 	}

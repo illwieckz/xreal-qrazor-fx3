@@ -4874,10 +4874,6 @@ void RB_RenderBloom()
 		GL_Cull(CT_TWO_SIDED);
 
 		// render contrast downscaled to 1/4th of the screen
-		R_BindFBO(tr.contrastRenderFBO);
-		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		qglClear(GL_COLOR_BUFFER_BIT);
-
 		GL_BindProgram(&tr.contrastShader);
 		GL_ClientState(tr.contrastShader.attribs);
 
@@ -4945,13 +4941,15 @@ void RB_RenderBloom()
 		else
 		{
 			GL_SelectTexture(0);
-			GL_Bind(tr.downScaleFBOImage_quarter);
-			/*
+			//GL_Bind(tr.downScaleFBOImage_quarter);
 			GL_Bind(tr.currentRenderImage);
 			qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
 												 tr.currentRenderImage->uploadHeight);
-			*/
 		}
+
+		R_BindFBO(tr.contrastRenderFBO);
+		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		qglClear(GL_COLOR_BUFFER_BIT);
 
 		// draw viewport
 		Tess_InstantQuad(backEnd.viewParms.viewportVerts);
@@ -6906,9 +6904,13 @@ static void RB_RenderView(void)
 		}
 		else
 		{
+			/*
+			Tr3B: FIXME this causes: caught OpenGL error:
+			GL_INVALID_OPERATION in file code/renderer/tr_backend.c line 6479
+
 			if(glConfig.framebufferBlitAvailable)
 			{
-				// copy deferredRenderFBO to portalRenderFBO
+				// copy deferredRenderFBO to downScaleFBO_quarter
 
 				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
@@ -6916,7 +6918,7 @@ static void RB_RenderView(void)
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
 										GL_COLOR_BUFFER_BIT,
-										GL_LINEAR);
+										GL_NEAREST);
 
 				R_BindNullFBO();
 			}
@@ -6924,6 +6926,7 @@ static void RB_RenderView(void)
 			{
 				// FIXME add non EXT_framebuffer_blit code
 			}
+			*/
 		}
 
 		GL_CheckErrors();
