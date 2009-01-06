@@ -5187,7 +5187,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	R_BindNullFBO();
 
-	if(r_hdrRendering->integer)
+	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_hdrRendering->integer)
 	{
 		GL_BindProgram(&tr.toneMappingShader);
 		GL_ClientState(GLCS_VERTEX);
@@ -5253,7 +5253,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	if(r_hdrRendering->integer)
+	if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && r_hdrRendering->integer)
 	{
 		R_BindNullFBO();
 
@@ -5299,7 +5299,6 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 	R_BindNullFBO();
 
-	GL_BindProgram(&tr.toneMappingShader);
 	GL_ClientState(GLCS_VERTEX);
 
 	// bind u_ColorMap
@@ -5320,26 +5319,41 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	GL_LoadProjectionMatrix(ortho);
 	GL_LoadModelViewMatrix(matrixIdentity);
 
-	if(r_hdrExposure->value <= 0)
+
+	if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
 	{
-		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (r_hdrMiddleGrey->value / (backEnd.hdrAverageLuminance + 0.001)));
+		GL_BindProgram(&tr.screenShader);
+
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+		qglUniformMatrix4fvARB(tr.screenShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+										   glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	else
 	{
-		qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
-	}
+		GL_BindProgram(&tr.toneMappingShader);
 
-	if(r_hdrMaxLuminance->value <= 0)
-	{
-		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-	}
-	else
-	{
-		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, r_hdrMaxLuminance->value);
-	}
+		if(r_hdrExposure->value <= 0)
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (r_hdrMiddleGrey->value / (backEnd.hdrAverageLuminance + 0.001)));
+		}
+		else
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+		}
 
-	qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+		if(r_hdrMaxLuminance->value <= 0)
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
+		}
+		else
+		{
+			qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, r_hdrMaxLuminance->value);
+		}
+
+		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+	}
 
 	Tess_InstantQuad(backEnd.viewParms.viewportVerts);
 
