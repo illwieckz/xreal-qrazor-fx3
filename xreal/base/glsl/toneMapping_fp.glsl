@@ -42,10 +42,22 @@ void	main()
 	
 	vec4 color = texture2D(u_CurrentMap, st);
 	
+	// see http://www.gamedev.net/reference/articles/article2208.asp
+	// for Mathematics of Reinhard's Photographic Tone Reproduction Operator
+	
 	// perform tone-mapping
-#if 1
+#if 0
 	color *= dot(LUMINANCE_VECTOR, color);
 	color *= u_HDRExposure * (u_HDRExposure / u_HDRMaxLuminance + 1.0) / (u_HDRExposure + 1.0);
+	
+#elif 1
+
+	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
+	float finalLuminance = scaledLuminance * ((scaledLuminance + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (scaledLuminance + 1.0);
+
+#elif 0
+	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
+	color *= scaledLuminance * (scaledLuminance / u_HDRMaxLuminance + 1.0) / (scaledLuminance + 1.0);
 
 #elif 0
 	
