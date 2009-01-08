@@ -1436,8 +1436,18 @@ void TraceGrid(int num)
 		for(j = 0; j < 3; j++)
 			if(color[j] < minGridLight[j])
 				color[j] = minGridLight[j];
-		ColorToBytes(color, bgp->ambient[i], 1.0f);
-		ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
+
+		if(hdr)
+		{
+			// FIXME store float values
+			ColorToBytes(color, bgp->ambient[i], 1.0f);
+			ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
+		}
+		else
+		{
+			ColorToBytes(color, bgp->ambient[i], 1.0f);
+			ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
+		}
 	}
 
 	/* debug code */

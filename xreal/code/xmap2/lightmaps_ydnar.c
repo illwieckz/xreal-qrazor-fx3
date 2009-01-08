@@ -1930,11 +1930,13 @@ static void SetupOutLightmap(rawLightmap_t * lm, outLightmap_t * olm)
 	{
 		olm->bspLightFloats = safe_malloc(olm->customWidth * olm->customHeight * 3 * sizeof(float));
 		memset(olm->bspLightFloats, 0, olm->customWidth * olm->customHeight * 3 * sizeof(float));
+		olm->bspLightBytes = NULL;
 	}
 	else
 	{
 		olm->bspLightBytes = safe_malloc(olm->customWidth * olm->customHeight * 3);
 		memset(olm->bspLightBytes, 0, olm->customWidth * olm->customHeight * 3);
+		olm->bspLightFloats = NULL;
 	}
 
 	if(deluxemap)
@@ -2780,8 +2782,15 @@ void StoreSurfaceLightmaps(void)
 		for(i = 0; i < numOutLightmaps; i++)
 		{
 			free(outLightmaps[i].lightBits);
-			free(outLightmaps[i].bspLightBytes);
-			free(outLightmaps[i].bspLightFloats);
+			if(hdr)
+			{
+				free(outLightmaps[i].bspLightFloats);
+			}
+			else
+			{
+				free(outLightmaps[i].bspLightBytes);
+			}
+
 		}
 		free(outLightmaps);
 		outLightmaps = NULL;
