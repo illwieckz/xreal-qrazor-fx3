@@ -49,15 +49,24 @@ void	main()
 #if 0
 	color *= dot(LUMINANCE_VECTOR, color);
 	color *= u_HDRExposure * (u_HDRExposure / u_HDRMaxLuminance + 1.0) / (u_HDRExposure + 1.0);
-	
-#elif 1
-
-	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
-	float finalLuminance = scaledLuminance * ((scaledLuminance + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (scaledLuminance + 1.0);
 
 #elif 0
-	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
+	color *= dot(LUMINANCE_VECTOR, color);
+	float finalLuminance = u_HDRExposure * ((u_HDRExposure + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (u_HDRExposure + 1.0);
+	color *= finalLuminance;
+	
+#elif 0
+	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
+	float finalLuminance = scaledLuminance * ((scaledLuminance + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (scaledLuminance + 1.0);
+	color *= finalLuminance;
+
+#elif 1
+	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	color *= scaledLuminance * (scaledLuminance / u_HDRMaxLuminance + 1.0) / (scaledLuminance + 1.0);
+	
+#elif 1
+	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
+	color *= scaledLuminance / (scaledLuminance + 1.0);
 
 #elif 0
 	
