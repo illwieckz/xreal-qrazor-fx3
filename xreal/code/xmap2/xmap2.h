@@ -2102,7 +2102,7 @@ Q_EXTERN int				approximateTolerance Q_ASSIGN( 0 );
 Q_EXTERN qboolean			noCollapse Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			exportLightmaps Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			externalLightmaps Q_ASSIGN( qtrue );
-Q_EXTERN qboolean			hdr Q_ASSIGN( qfalse );
+Q_EXTERN qboolean			hdr Q_ASSIGN( qtrue );
 Q_EXTERN int				lmCustomSize Q_ASSIGN( LIGHTMAP_WIDTH );
 
 Q_EXTERN qboolean			dirty Q_ASSIGN( qfalse );

@@ -2825,9 +2825,6 @@ void StoreSurfaceLightmaps(void)
 	   store output lightmaps
 	   ----------------------------------------------------------------- */
 
-	if(numExtLightmaps > 0)
-			Sys_FPrintf(SYS_VRB, "\n");
-
 	/* delete unused external lightmaps */
 	for(i = 0;; i++)
 	{
@@ -2933,6 +2930,9 @@ void StoreSurfaceLightmaps(void)
 			}
 		}
 	}
+
+	if(numExtLightmaps > 0)
+		Sys_FPrintf(SYS_VRB, "\n");
 
 	/* -----------------------------------------------------------------
 	   project the lightmaps onto the bsp surfaces
