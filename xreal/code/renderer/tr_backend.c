@@ -3828,20 +3828,21 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	// if we need to clear the FBO color buffers then it should be white
 	qglClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	R_BindFBO(tr.deferredRenderFBO);
-
 	// update depth render image
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
 					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
 		// no update needed FBO handles it
+		R_BindFBO(tr.deferredRenderFBO);
 	}
 	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
 	{
 		// no update needed FBO handles it
+		R_BindFBO(tr.deferredRenderFBO);
 	}
 	else
 	{
+		R_BindNullFBO();
 		GL_SelectTexture(0);
 		GL_Bind(tr.depthRenderImage);
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
