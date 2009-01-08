@@ -1,21 +1,10 @@
 === XreaL 1.0 Features ===
 
-Q3A media replacements that need to be created:
 base/models/mapobjects/otty/tech_jumppad.ase (similar to Quake4)
 base/models/mapobjects/otty/tech_accelerationpad.ase (similar to Quake4)
 base/models/mapobjects/otty/tech_teleporter.ase (similar to Quake4)
-base/models/flag/flagflap3.md3
-base/models/flag/flagpole.md3
-base/models/gibs/abdomen.md3
-base/models/gibs/arm.md3
-base/models/gibs/brain.md3
-base/models/gibs/chest.md3
-base/models/gibs/fist.md3
-base/models/gibs/foot.md3
-base/models/gibs/forearm.md3
-base/models/gibs/intestine.md3
-base/models/gibs/leg.md3
-base/models/gibs/skull.md3
+base/models/flag/flagflap3.md5mesh
+base/models/flag/flagpole.md5mesh
 base/models/players/DEFAULT_MODEL/*
 base/models/players/DEFAULT_MODEL/body.md5mesh
 base/models/players/DEFAULT_MODEL/body_default.skin
@@ -24,7 +13,6 @@ base/models/players/DEFAULT_MODEL/character.cfg
 base/models/players/DEFAULT_MODEL/icon_default.tga
 base/models/weapons/grenadel/*
 base/models/weapons/plasma/*
-base/models/weapons/shotun/shotgun.md3 (optional)
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
 base/sound/feedback/vote_failed.ogg
@@ -107,23 +95,33 @@ code/game
 
 code/renderer
 - improve shadow mapping filtering methods
-- add HDR tonemapping
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
 - add fog lights
 - ignore shadow pyramids that don't cast into the view
-- use stencil test for heatHaze with forward shading ?
 - improve volumetric lighting ?
 - improve deferred shading ?
  - fix vertex painting support = depth peeling ?
 - add stained shadow mapping ?
 - add dynamic LOD support for md3 and md5 models ?
 - check for shader model 3 hardware ?
-- fix stencil shadow flickering bug ?
-- support decals on static and dynamic abitrary triangle surfaces ?
 
 code/xmap2
-- add HDR option that saves HDR lightmaps
+- add HDR lightgrid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
