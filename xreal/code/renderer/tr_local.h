@@ -219,6 +219,7 @@ enum
 	IF_PACKED_DEPTH24_STENCIL8 = BIT(15),
 	IF_LIGHTMAP = BIT(16),
 	IF_RGBA16 = BIT(17),
+	IF_RGBE = BIT(18)
 };
 
 typedef enum
@@ -1819,6 +1820,7 @@ typedef struct
 
 	qboolean        worldMapLoaded;
 	qboolean        worldDeluxeMapping;
+	qboolean		worldHDR_RGBE;
 	world_t        *world;
 
 	const byte     *externalVisData;	// from RE_SetWorldVisData, shared with CM_Load

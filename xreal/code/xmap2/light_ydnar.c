@@ -96,40 +96,44 @@ ColorToRGBE()
 Tr3B: standard conversion from float pixels to rgbe pixels
 */
 
-void ColorToRGBE(const float *color, byte * colorBytes, float scale)
+void ColorToRGBE(const float *color, unsigned char rgbe[4])
 {
 	vec3_t          sample;
-	float			v;
+	float			maxComponent;
 	int				e;
 
-	/* ydnar: scaling necessary for simulating r_overbrightBits on external lightmaps */
-	if(scale <= 0.0f)
-		scale = 1.0f;
-
-	/* make a local copy */
-	//VectorScale(color, scale, sample);
 	VectorCopy(color, sample);
 
-	v = sample[0];
-	if(sample[1] > v)
-		v = sample[1];
-	if(sample[2] > v)
-		v = sample[2];
+	maxComponent = sample[0];
+	if(sample[1] > maxComponent)
+		maxComponent = sample[1];
+	if(sample[2] > maxComponent)
+		maxComponent = sample[2];
 
-	if(v < 1e-32)
+	if(maxComponent < 1e-32)
 	{
-		colorBytes[0] = 0;
-		colorBytes[1] = 0;
-		colorBytes[2] = 0;
-		colorBytes[3] = 0;
+		rgbe[0] = 0;
+		rgbe[1] = 0;
+		rgbe[2] = 0;
+		rgbe[3] = 0;
 	}
 	else
 	{
+#if 0
 		v = frexp(v,&e) * 256.0/v;
-		colorBytes[0] = (unsigned char) (sample[0] * v);
-		colorBytes[1] = (unsigned char) (sample[1] * v);
-		colorBytes[2] = (unsigned char) (sample[2] * v);
-		colorBytes[3] = (unsigned char) (e + 128);
+		rgbe[0] = (unsigned char) (sample[0] * maxComponent);
+		rgbe[1] = (unsigned char) (sample[1] * maxComponent);
+		rgbe[2] = (unsigned char) (sample[2] * maxComponent);
+		rgbe[3] = (unsigned char) (e + 128);
+#else
+		e = ceil(log2(maxComponent));
+		VectorScale(sample, 1.0 / exp2(e), sample);
+
+		rgbe[0] = (unsigned char) (sample[0] * 255);
+		rgbe[1] = (unsigned char) (sample[1] * 255);
+		rgbe[2] = (unsigned char) (sample[2] * 255);
+		rgbe[3] = (unsigned char) (e + 128);
+#endif
 	}
 }
 

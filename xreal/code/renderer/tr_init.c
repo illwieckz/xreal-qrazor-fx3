@@ -1331,11 +1331,11 @@ void R_Register(void)
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_hdrLoadRGBE = ri.Cvar_Get("r_hdrLoadRGBE", "0", CVAR_CHEAT);
+	r_hdrLoadRGBE = ri.Cvar_Get("r_hdrLoadRGBE", "1", CVAR_CHEAT);
 	r_hdrExposure = ri.Cvar_Get("r_hdrExposure", "-1", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "-1", CVAR_CHEAT);
 	r_hdrMiddleGrey = ri.Cvar_Get("r_hdrMiddleGrey", "0.5", CVAR_CHEAT);
-	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "9", CVAR_CHEAT | CVAR_LATCH);
+	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "5", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "10.0", CVAR_CHEAT | CVAR_LATCH);
 
 

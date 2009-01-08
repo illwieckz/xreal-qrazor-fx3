@@ -286,7 +286,8 @@ abstracted bsp file
 
 ------------------------------------------------------------------------------- */
 
-#define EXTERNAL_LIGHTMAP		"lm_%04d.tga"
+#define EXTERNAL_OLDLIGHTMAP	"lm_%04d.tga"
+#define EXTERNAL_LIGHTMAP		"lm_%04d.png"
 #define EXTERNAL_HDRLIGHTMAP	"lm_%04d.hdr"
 
 #define MAX_LIGHTMAPS			4	/* RBSP */
@@ -1350,6 +1351,7 @@ typedef struct outLightmap_s
 	shaderInfo_t   *shaders[MAX_LIGHTMAP_SHADERS];
 	byte           *lightBits;
 	byte           *bspLightBytes;
+	float          *bspLightFloats;
 	byte           *bspDirBytes;
 }
 outLightmap_t;
@@ -1701,7 +1703,7 @@ void            RadFreeLights();
 
 /* light_ydnar.c */
 void            ColorToBytes(const float *color, byte * colorBytes, float scale);
-void			ColorToRGBE(const float *color, byte * colorBytes, float scale);
+void			ColorToRGBE(const float *color, unsigned char rgbe[4]);
 void            SmoothNormals(void);
 
 void            MapRawLightmap(int num);

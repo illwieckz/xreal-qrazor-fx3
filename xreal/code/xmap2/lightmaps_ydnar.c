@@ -113,7 +113,7 @@ void WriteTGA24(char *filename, byte * data, int width, int height, qboolean fli
 WriteRGBE()
 */
 
-void WriteRGBE(char *filename, byte * data, int width, int height)
+void WriteRGBE(char *filename, float * data, int width, int height)
 {
 	int             i, c;
 	FILE           *file;
@@ -137,16 +137,23 @@ void WriteRGBE(char *filename, byte * data, int width, int height)
 	if(fprintf(file, "-Y %d +X %d\n", height, width) < 0)
 		Error("RGBE write error: %s", filename);
 
-	c = (width * height * 4);
-	for(i = 0; i < c; i += 4)
+	c = (width * height * 3);
+	for(i = 0; i < c; i += 3)
 	{
-		rgbe[0] = data[i + 0];
-		rgbe[1] = data[i + 1];
-		rgbe[2] = data[i + 2];
-		rgbe[3] = data[i + 3];
-
+#if 0
+		ColorToRGBE(&data[i], rgbe);
 		if(fwrite(rgbe, sizeof(rgbe), 1, file) < 1)
 			Error("RGBE write error: %s", filename);
+#else
+		float rgb[3];
+
+		rgb[0] = data[i + 0];
+		rgb[1] = data[i + 1];
+		rgb[2] = data[i + 2];
+
+		if(fwrite(rgb, sizeof(rgb), 1, file) < 1)
+			Error("RGBE write error: %s", filename);
+#endif
 	}
 
 	// close the file
@@ -1910,16 +1917,18 @@ static void SetupOutLightmap(rawLightmap_t * lm, outLightmap_t * olm)
 	/* allocate buffers */
 	olm->lightBits = safe_malloc((olm->customWidth * olm->customHeight / 8) + 8);
 	memset(olm->lightBits, 0, (olm->customWidth * olm->customHeight / 8) + 8);
+
 	if(hdr)
 	{
-		olm->bspLightBytes = safe_malloc(olm->customWidth * olm->customHeight * 4);
-		memset(olm->bspLightBytes, 0, olm->customWidth * olm->customHeight * 4);
+		olm->bspLightFloats = safe_malloc(olm->customWidth * olm->customHeight * 3 * sizeof(float));
+		memset(olm->bspLightFloats, 0, olm->customWidth * olm->customHeight * 3 * sizeof(float));
 	}
 	else
 	{
 		olm->bspLightBytes = safe_malloc(olm->customWidth * olm->customHeight * 3);
 		memset(olm->bspLightBytes, 0, olm->customWidth * olm->customHeight * 3);
 	}
+
 	if(deluxemap)
 	{
 		olm->bspDirBytes = safe_malloc(olm->customWidth * olm->customHeight * 3);
@@ -2196,8 +2205,14 @@ static void FindOutLightmaps(rawLightmap_t * lm)
 				/* store color */
 				if(hdr)
 				{
-					pixel = olm->bspLightBytes + (((oy * olm->customWidth) + ox) * 4);
-					ColorToRGBE(color, pixel, lm->brightness);
+					float		*hdrPixel;
+
+					hdrPixel = olm->bspLightFloats + (((oy * olm->customWidth) + ox) * 3);
+					//ColorToRGBE(color, pixel, lm->brightness);
+
+					// FIXME gamma
+					VectorScale(color, lm->brightness <= 0.0f ? 1.0f : lm->brightness, hdrPixel);
+					//VectorCopy(color, hdrPixel);
 				}
 				else
 				{
@@ -2758,6 +2773,7 @@ void StoreSurfaceLightmaps(void)
 		{
 			free(outLightmaps[i].lightBits);
 			free(outLightmaps[i].bspLightBytes);
+			free(outLightmaps[i].bspLightFloats);
 		}
 		free(outLightmaps);
 		outLightmaps = NULL;
@@ -2801,6 +2817,29 @@ void StoreSurfaceLightmaps(void)
 	   store output lightmaps
 	   ----------------------------------------------------------------- */
 
+	if(numExtLightmaps > 0)
+			Sys_FPrintf(SYS_VRB, "\n");
+
+	/* delete unused external lightmaps */
+	for(i = 0;; i++)
+	{
+		/* determine if file exists */
+		sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, i);
+		if(FileExists(filename))
+			remove(filename);
+
+		sprintf(filename, "%s/" EXTERNAL_OLDLIGHTMAP, dirname, i);
+		if(FileExists(filename))
+			remove(filename);
+
+		sprintf(filename, "%s/" EXTERNAL_HDRLIGHTMAP, dirname, i);
+		if(!FileExists(filename))
+			break;
+
+		/* delete it */
+		remove(filename);
+	}
+
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "storing...");
 
@@ -2814,11 +2853,13 @@ void StoreSurfaceLightmaps(void)
 	}
 	else
 	{
+		/*
 		if(hdr)
 		{
 			numBSPLightBytes = (numBSPLightmaps * game->lightmapSize * game->lightmapSize * 4);
 		}
 		else
+		*/
 		{
 			numBSPLightBytes = (numBSPLightmaps * game->lightmapSize * game->lightmapSize * 3);
 		}
@@ -2857,17 +2898,18 @@ void StoreSurfaceLightmaps(void)
 			olm->extLightmapNum = numExtLightmaps;
 
 			/* write lightmap */
-			sprintf(filename, "%s/" EXTERNAL_HDRLIGHTMAP, dirname, numExtLightmaps);
-			Sys_FPrintf(SYS_VRB, "\nwriting %s", filename);
 			if(hdr)
 			{
-				WriteRGBE(filename, olm->bspLightBytes, olm->customWidth, olm->customHeight);
+				sprintf(filename, "%s/" EXTERNAL_HDRLIGHTMAP, dirname, numExtLightmaps);
+				Sys_FPrintf(SYS_VRB, "\nwriting %s", filename);
+				WriteRGBE(filename, olm->bspLightFloats, olm->customWidth, olm->customHeight);
 			}
 			else
 			{
-				WriteTGA24(filename, olm->bspLightBytes, olm->customWidth, olm->customHeight, qtrue);
+				sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, numExtLightmaps);
+				Sys_FPrintf(SYS_VRB, "\nwriting %s", filename);
+				WritePNG(filename, olm->bspLightBytes, olm->customWidth, olm->customHeight, qtrue);
 			}
-			//WritePNG(filename, olm->bspLightBytes, olm->customWidth, olm->customHeight);
 			numExtLightmaps++;
 
 			/* write deluxemap */
@@ -2875,29 +2917,13 @@ void StoreSurfaceLightmaps(void)
 			{
 				sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, numExtLightmaps);
 				Sys_FPrintf(SYS_VRB, "\nwriting %s", filename);
-				WriteTGA24(filename, olm->bspDirBytes, olm->customWidth, olm->customHeight, qtrue);
-				//WritePNG(filename, olm->bspDirBytes, olm->customWidth, olm->customHeight);
+				WritePNG(filename, olm->bspDirBytes, olm->customWidth, olm->customHeight, qtrue);
 				numExtLightmaps++;
 
 				if(debugDeluxemap)
 					olm->extLightmapNum++;
 			}
 		}
-	}
-
-	if(numExtLightmaps > 0)
-		Sys_FPrintf(SYS_VRB, "\n");
-
-	/* delete unused external lightmaps */
-	for(i = numExtLightmaps; i; i++)
-	{
-		/* determine if file exists */
-		sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, i);
-		if(!FileExists(filename))
-			break;
-
-		/* delete it */
-		remove(filename);
 	}
 
 	/* -----------------------------------------------------------------

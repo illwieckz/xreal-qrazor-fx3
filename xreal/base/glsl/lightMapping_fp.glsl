@@ -27,6 +27,20 @@ uniform float		u_AlphaTest;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexLight;
 
+
+#if defined(r_HDRRendering)
+vec3 DecodeRGBE(vec4 rgbe)
+{
+	vec3 decoded;
+	//float fExp = rgbe.a * 255 - 255;
+	//float fExp = rgbe.a * 255 - (128 + 8);
+	float fExp = 0.0;
+	decoded = rgbe.rgb * exp2(fExp);
+  
+	return decoded;
+}
+#endif
+
 void	main()
 {
 	// compute the diffuse term
@@ -38,13 +52,23 @@ void	main()
 	}
 
 #if defined(r_showLightMaps)
-	gl_FragColor = texture2D(u_LightMap, var_TexLight);
+
+#if 0 //defined(r_HDRRendering)
+	gl_FragColor = vec4(DecodeRGBE(texture2D(u_LightMap, var_TexLight)), 1.0);
 #else
+	gl_FragColor = texture2D(u_LightMap, var_TexLight);
+#endif
+
+#else
+
 	// compute light color from object space lightmap
-	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
+#if 0 //defined(r_HDRRendering)
+	vec3 lightColor = DecodeRGBE(texture2D(u_LightMap, var_TexLight));
+#else
+	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
+#endif
 	
-	
-	diffuse.rgb *= lightColor.rgb;
+	diffuse.rgb *= lightColor;
 	
 	gl_FragColor = diffuse;
 #endif

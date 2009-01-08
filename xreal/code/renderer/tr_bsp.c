@@ -222,14 +222,19 @@ static int QDECL LightmapNameCompare(const void *a, const void *b)
 /*       in the range [0,1] to map back into the range [0,1].            */
 static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
 {
+	float			e;
 	float           f;
 
 	if(rgbe[3])
 	{							/*nonzero pixel */
 		f = ldexp(1.0, rgbe[3] - (int)(128 + 8));
-		*red = rgbe[0] * f;
-		*green = rgbe[1] * f;
-		*blue = rgbe[2] * f;
+		//f = ldexp(1.0, rgbe[3] - 128) / 10.0;
+		e = (rgbe[3] - 128) / 4.0f;
+		f = exp2(e);
+		//decoded = rgbe.rgb * exp2(fExp);
+		*red = (rgbe[0] / 255.0f) * f;
+		*green = (rgbe[1] / 255.0f) * f;
+		*blue = (rgbe[2] / 255.0f) * f;
 	}
 	else
 		*red = *green = *blue = 0.0;
@@ -237,15 +242,26 @@ static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned
 
 static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
 {
-	int				i;
+	int				i, j;
 	byte           *buf_p;
 	byte           *buffer;
 	float          *pixbuf;
 	int				len;
 	char           *token;
-	int				w, h;
+	int				w, h, c;
 	qboolean		formatFound;
 	unsigned char   rgbe[4];
+	float			red;
+	float			green;
+	float			blue;
+	float			max;
+
+	union
+	{
+		byte            b[4];
+		float           f;
+	} sample;
+	vec4_t			sampleVector;
 
 	*pic = NULL;
 
@@ -341,6 +357,16 @@ static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
 		}
 	}
 
+	// go to the first byte
+	while((c = *buf_p++) != 0)
+	{
+		if(c == '\n')
+		{
+			//buf_p++;
+			break;
+		}
+	}
+
 	if(width)
 		*width = w;
 	if(height)
@@ -356,22 +382,71 @@ static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
 		ri.Error(ERR_DROP, "LoadRGBE: %s has an invalid image size\n", name);
 	}
 
-	*pic = ri.Malloc(w * h * 3 * sizeof(float));
+	*pic = Com_Allocate(w * h * 4 * sizeof(float));
 	pixbuf = *pic;
 	for(i = 0; i < (w * h); i++)
 	{
+#if 0
 		rgbe[0] = *buf_p++;
 		rgbe[1] = *buf_p++;
 		rgbe[2] = *buf_p++;
 		rgbe[3] = *buf_p++;
 
-		rgbe2float(&pixbuf[0], &pixbuf[1], &pixbuf[2], rgbe);
+		rgbe2float(&red, &green, &blue, rgbe);
 
-		pixbuf += 3;
+		*pixbuf++ = red;
+		*pixbuf++ = green;
+		*pixbuf++ = blue;
+		*pixbuf++ = 1.0;
+#else
+		for(j = 0; j < 3; j++)
+		{
+			float exposure = 1.6;
+			float exposureGain = 1.0;
+
+			sample.b[0] = *buf_p++;
+			sample.b[1] = *buf_p++;
+			sample.b[2] = *buf_p++;
+			sample.b[3] = *buf_p++;
+
+			//*pixbuf++ = sample.f;
+			//*pixbuf++ = pow(sample.f, 1.0 / 10.0);
+			//*pixbuf++ = log(sample.f);
+			//*pixbuf++ = exposureGain - exp(-exposure * sample.f) * exposureGain;
+
+			//sampleVector[j] = sample.f;
+			sampleVector[j] = pow(sample.f, 1.0 / 4.0);
+
+			// handle negative light
+			if(sampleVector[j] < 0.0f)
+			{
+				sampleVector[j] = 0.0f;
+				continue;
+			}
+
+			// TODO gamma correction
+		}
+#if 0
+		max = sampleVector[0];
+		if(sampleVector[1] > max)
+			max = sampleVector[1];
+		if(sampleVector[2] > max)
+			max = sampleVector[2];
+		if(max > 1.0f)
+			VectorScale(sampleVector, (1.0f / max), sampleVector);
+#endif
+		*pixbuf++ = sampleVector[0];
+		*pixbuf++ = sampleVector[1];
+		*pixbuf++ = sampleVector[2];
+
+		*pixbuf++ = 1.0;
+#endif
 	}
 
 	ri.FS_FreeFile(buffer);
 }
+
+
 /*
 ===============
 R_LoadLightmaps
@@ -396,72 +471,18 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		Q_strncpyz(mapName, bspName, sizeof(mapName));
 		Com_StripExtension(mapName, mapName, sizeof(mapName));
 
-		if(r_hdrRendering->integer && r_hdrLoadRGBE->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
+		if(tr.worldHDR_RGBE)
 		{
-			int             width, height;
-			float          *hdrImage;
-
-			// we are about to upload textures
-			R_SyncRenderThread();
-
-			// load HDR lightmaps
-			lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
-
-			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
-
-			if(!lightmapFiles || !numLightmaps)
+			if(r_hdrRendering->integer && r_hdrLoadRGBE->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
-				return;
-			}
+				int             width, height;
+				float          *hdrImage;
 
-			if(numLightmaps > MAX_LIGHTMAPS)
-			{
-				ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-				numLightmaps = MAX_LIGHTMAPS;
-			}
+				// we are about to upload textures
+				R_SyncRenderThread();
 
-			tr.numLightmaps = numLightmaps;
-			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
-
-			for(i = 0; i < numLightmaps; i++)
-			{
-				ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
-
-
-				width = height = 0;
-				LoadRGBE(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
-
-				// create dummy image
-				tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
-
-				GL_Bind(image);
-				image->internalFormat = GL_RGB16F_ARB;
-				image->width = width;
-				image->height = height;
-				image->uploadWidth = width;
-				image->uploadHeight = height;
-
-				qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_FLOAT, hdrImage);
-
-				/*
-				if(glConfig.generateMipmapAvailable)
-				{
-					qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
-					qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-					qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
-				}
-				*/
-
-				qglBindTexture(image->type, 0);
-
-				ri.Free(hdrImage);
-			}
-
-			if(tr.worldDeluxeMapping)
-			{
-				// load deluxemaps
-				lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+				// load HDR lightmaps
+				lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
 
 				qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
@@ -477,28 +498,132 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					numLightmaps = MAX_LIGHTMAPS;
 				}
 
-				tr.numLightmaps += numLightmaps;
-				ri.Printf(PRINT_ALL, "...loading %i deluxemaps\n", numLightmaps);
+				tr.numLightmaps = numLightmaps;
+				ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
 
 				for(i = 0; i < numLightmaps; i++)
 				{
 					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
 
-					tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+					#if 1
+					width = height = 0;
+					LoadRGBE(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
+
+					// create dummy image
+					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+
+					image = tr.images[tr.numImages] = ri.Hunk_Alloc(sizeof(image_t), h_low);
+					image->texnum = 1024 + tr.numImages;
+					tr.numImages++;
+
+					tr.lightmaps[i * 2] = image;
+
+					Q_strncpyz(image->name, va("%s/%s", mapName, lightmapFiles[i]), sizeof(image->name));
+					image->type = GL_TEXTURE_2D;
+
+					image->width = width;
+					image->height = height;
+
+					image->bits = IF_NOPICMIP | IF_LIGHTMAP | IF_RGBA16F;
+					image->filterType = FT_NEAREST;
+					image->wrapType = WT_CLAMP;
+
+					GL_Bind(image);
+
+					image->internalFormat = GL_RGBA16F_ARB;
+					image->uploadWidth = width;
+					image->uploadHeight = height;
+
+					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, width, height, 0, GL_RGBA, GL_FLOAT, hdrImage);
+
+					/*
+					if(glConfig.generateMipmapAvailable)
+					{
+						qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
+						qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+						qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilineara
+					}
+					*/
+
+					if(glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10)
+					{
+						qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					}
+					else
+					{
+						qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+						qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					}
+					qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP);
+					qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+					qglBindTexture(image->type, 0);
+
+					GL_CheckErrors();
+
+					Com_Dealloc(hdrImage);
+					#else
+					tr.lightmaps[i * 2] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_RGBE, FT_NEAREST, WT_CLAMP);
+					#endif
 				}
+
+				if(tr.worldDeluxeMapping)
+				{
+					// load deluxemaps
+					lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
+
+					if(!lightmapFiles || !numLightmaps)
+					{
+						lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+
+						if(!lightmapFiles || !numLightmaps)
+						{
+							ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+							return;
+						}
+					}
+
+					qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
+
+					if(numLightmaps > MAX_LIGHTMAPS)
+					{
+						ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+						numLightmaps = MAX_LIGHTMAPS;
+					}
+
+					tr.numLightmaps += numLightmaps;
+					ri.Printf(PRINT_ALL, "...loading %i deluxemaps\n", numLightmaps);
+
+					for(i = 0; i < numLightmaps; i++)
+					{
+						ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+						tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+					}
+				}
+			}
+			else
+			{
+				// TODO convert HDR lightmap back to LDR including gamma correction
 			}
 		}
 		else
 		{
-			lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
-
-			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
+			lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
 
 			if(!lightmapFiles || !numLightmaps)
 			{
-				ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
-				return;
+				lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+
+				if(!lightmapFiles || !numLightmaps)
+				{
+					ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+					return;
+				}
 			}
+
+			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
 			if(numLightmaps > MAX_LIGHTMAPS)
 			{
@@ -4590,6 +4715,14 @@ void R_LoadEntities(lump_t * l)
 		{
 			ri.Printf(PRINT_ALL, "map features directional light mapping\n");
 			tr.worldDeluxeMapping = qtrue;
+			continue;
+		}
+
+		// check for HDR light mapping support
+		if(!Q_stricmp(keyname, "hdrRGBE") && !Q_stricmp(value, "1"))
+		{
+			ri.Printf(PRINT_ALL, "map features HDR light mapping\n");
+			tr.worldHDR_RGBE = qtrue;
 			continue;
 		}
 

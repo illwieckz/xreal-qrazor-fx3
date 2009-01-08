@@ -568,10 +568,10 @@ void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *width, int
 
 
 
-/* 
-============== 
-WritePCXfile 
-============== 
+/*
+==============
+WritePCXfile
+==============
 */
 void WritePCXfile(const char *filename, byte * data, int width, int height, byte * palette)
 {
@@ -618,7 +618,7 @@ void WritePCXfile(const char *filename, byte * data, int width, int height, byte
 	for(i = 0; i < 768; i++)
 		*pack++ = *palette++;
 
-// write output file 
+// write output file
 	length = pack - (byte *) pcx;
 	SaveFile(filename, pcx, length);
 
@@ -640,46 +640,46 @@ LOAD BMP
 // compiler structure alignment will not be portable
 // on this unaligned stuff
 
-typedef struct tagBITMAPFILEHEADER { // bmfh 
+typedef struct tagBITMAPFILEHEADER { // bmfh
         WORD    bfType;				// BM
-        DWORD   bfSize; 
-        WORD    bfReserved1; 
-        WORD    bfReserved2; 
-        DWORD   bfOffBits; 
-} BITMAPFILEHEADER; 
- 
-typedef struct tagBITMAPINFOHEADER{ // bmih 
-   DWORD  biSize; 
-   LONG   biWidth; 
-   LONG   biHeight; 
-   WORD   biPlanes; 
-   WORD   biBitCount 
-   DWORD  biCompression; 
-   DWORD  biSizeImage; 
-   LONG   biXPelsPerMeter; 
-   LONG   biYPelsPerMeter; 
-   DWORD  biClrUsed; 
-   DWORD  biClrImportant; 
-} BITMAPINFOHEADER; 
- 
-typedef struct tagBITMAPINFO { // bmi 
-   BITMAPINFOHEADER bmiHeader; 
-   RGBQUAD          bmiColors[1]; 
-} BITMAPINFO; 
+        DWORD   bfSize;
+        WORD    bfReserved1;
+        WORD    bfReserved2;
+        DWORD   bfOffBits;
+} BITMAPFILEHEADER;
 
-typedef struct tagBITMAPCOREHEADER { // bmch 
-        DWORD   bcSize; 
-        WORD    bcWidth; 
-        WORD    bcHeight; 
-        WORD    bcPlanes; 
-        WORD    bcBitCount; 
-} BITMAPCOREHEADER; 
- 
-typedef struct _BITMAPCOREINFO {    // bmci 
-        BITMAPCOREHEADER  bmciHeader; 
-        RGBTRIPLE         bmciColors[1]; 
-} BITMAPCOREINFO; 
- 
+typedef struct tagBITMAPINFOHEADER{ // bmih
+   DWORD  biSize;
+   LONG   biWidth;
+   LONG   biHeight;
+   WORD   biPlanes;
+   WORD   biBitCount
+   DWORD  biCompression;
+   DWORD  biSizeImage;
+   LONG   biXPelsPerMeter;
+   LONG   biYPelsPerMeter;
+   DWORD  biClrUsed;
+   DWORD  biClrImportant;
+} BITMAPINFOHEADER;
+
+typedef struct tagBITMAPINFO { // bmi
+   BITMAPINFOHEADER bmiHeader;
+   RGBQUAD          bmiColors[1];
+} BITMAPINFO;
+
+typedef struct tagBITMAPCOREHEADER { // bmch
+        DWORD   bcSize;
+        WORD    bcWidth;
+        WORD    bcHeight;
+        WORD    bcPlanes;
+        WORD    bcBitCount;
+} BITMAPCOREHEADER;
+
+typedef struct _BITMAPCOREINFO {    // bmci
+        BITMAPCOREHEADER  bmciHeader;
+        RGBTRIPLE         bmciColors[1];
+} BITMAPCOREINFO;
+
 */
 
 /*
@@ -1477,7 +1477,7 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	}
 
 	//
-	// Set error handling if you are using the setjmp/longjmp method (this is 
+	// Set error handling if you are using the setjmp/longjmp method (this is
 	// the normal method of doing things with libpng).  REQUIRED unless you
 	// set up your own error handlers in the png_create_read_struct() earlier.
 	//
@@ -1595,7 +1595,7 @@ static void png_flush_data(png_structp png)
 {
 }
 
-void WritePNG(const char *name, const byte * pic, int width, int height)
+void WritePNG(const char *name, const byte * pic, int width, int height, qboolean flip)
 {
 	png_structp     png;
 	png_infop       info;
@@ -1648,10 +1648,21 @@ void WritePNG(const char *name, const byte * pic, int width, int height)
 
 	row_stride = width * 3;
 	row = pic + (height - 1) * row_stride;
-	for(i = 0; i < height; i++)
+	if(flip)
 	{
-		row_pointers[i] = row;
-		row -= row_stride;
+		for(i = height - 1; i >= 0; i--)
+		{
+			row_pointers[i] = row;
+			row -= row_stride;
+		}
+	}
+	else
+	{
+		for(i = 0; i < height; i++)
+		{
+			row_pointers[i] = row;
+			row -= row_stride;
+		}
 	}
 
 	png_write_image(png, row_pointers);

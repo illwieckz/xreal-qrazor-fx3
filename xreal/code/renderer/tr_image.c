@@ -993,7 +993,6 @@ R_UploadImage
 extern qboolean charSet;
 static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 {
-	int             samples;
 	const byte     *data = dataArray[0];
 	byte           *scaledBuffer = NULL;
 	int             scaledWidth, scaledHeight;
@@ -1080,8 +1079,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	// and verify if the alpha channel is being used or not
 	c = scaledWidth * scaledHeight;
 	scan = data;
-	samples = 3;
-
 
 	if(image->bits & (IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32))
 	{
@@ -1137,8 +1134,16 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			internalFormat = GL_ALPHA32F_ARB;
 		}
 	}
+	else if(image->bits & IF_RGBE)
+	{
+		internalFormat = GL_RGBA8;
+	}
 	else if(!(image->bits & IF_LIGHTMAP))
 	{
+		int             samples;
+
+		samples = 3;
+
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
 		if(image->bits & IF_NORMALMAP)
@@ -1190,7 +1195,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			}
 			else
 			{
-				internalFormat = 3;
+				internalFormat = GL_RGB8;
 			}
 		}
 		else if(samples == 4)
@@ -1213,13 +1218,13 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			}
 			else
 			{
-				internalFormat = 4;
+				internalFormat = GL_RGBA8;
 			}
 		}
 	}
 	else
 	{
-		internalFormat = 3;
+		internalFormat = GL_RGB8;
 	}
 
 	for(i = 0; i < numData; i++)
@@ -3546,6 +3551,177 @@ static void LoadDDS(const char *name, unsigned char **pic, int *width, int *heig
 	ri.FS_FreeFile(buffer);
 }
 
+
+/*
+=========================================================
+
+RGBE LOADING
+
+=========================================================
+*/
+static void LoadRGBE(const char *name, byte ** pic, int *width, int *height, byte alphabyte)
+{
+	int				i;
+	byte           *buf_p;
+	byte           *buffer;
+	byte           *pixbuf;
+	int				len;
+	char           *token;
+	int				w, h, c;
+	qboolean		formatFound;
+	unsigned char   rgbe[4];
+
+	*pic = NULL;
+
+	// load the file
+	len = ri.FS_ReadFile((char *)name, (void **)&buffer);
+	if(!buffer)
+	{
+		//ri.Error(ERR_DROP, "LoadRGBE: '%s' not found\n", name);
+		return;
+	}
+
+	buf_p = buffer;
+
+	formatFound = qfalse;
+	w = h = 0;
+	while(qtrue)
+	{
+		token = Com_ParseExt((char **) &buf_p, qtrue);
+		if(!token[0])
+			break;
+
+		if(!Q_stricmp(token, "FORMAT"))
+		{
+			//ri.Printf(PRINT_ALL, "LoadRGBE: FORMAT found\n");
+
+			token = Com_ParseExt((char **) &buf_p, qfalse);
+			if(!Q_stricmp(token, "="))
+			{
+				token = Com_ParseExt((char **)&buf_p, qfalse);
+				if(!Q_stricmp(token, "32"))
+				{
+					token = Com_ParseExt((char **)&buf_p, qfalse);
+					if(!Q_stricmp(token, "-"))
+					{
+						token = Com_ParseExt((char **)&buf_p, qfalse);
+						if(!Q_stricmp(token, "bit_rle_rgbe"))
+						{
+							formatFound = qtrue;
+						}
+						else
+						{
+							ri.Printf(PRINT_ALL, "LoadRGBE: Expected 'bit_rle_rgbe' found instead '%s'\n", token);
+						}
+					}
+					else
+					{
+						ri.Printf(PRINT_ALL, "LoadRGBE: Expected '-' found instead '%s'\n", token);
+					}
+				}
+				else
+				{
+					ri.Printf(PRINT_ALL, "LoadRGBE: Expected '32' found instead '%s'\n", token);
+				}
+			}
+			else
+			{
+				ri.Printf(PRINT_ALL, "LoadRGBE: Expected '=' found instead '%s'\n", token);
+			}
+		}
+
+		if(!Q_stricmp(token, "-"))
+		{
+			token = Com_ParseExt((char **) &buf_p, qfalse);
+			if(!Q_stricmp(token, "Y"))
+			{
+				token = Com_ParseExt((char **)&buf_p, qfalse);
+				w = atoi(token);
+
+				token = Com_ParseExt((char **)&buf_p, qfalse);
+				if(!Q_stricmp(token, "+"))
+				{
+					token = Com_ParseExt((char **)&buf_p, qfalse);
+					if(!Q_stricmp(token, "X"))
+					{
+						token = Com_ParseExt((char **)&buf_p, qfalse);
+						h = atoi(token);
+						break;
+					}
+					else
+					{
+						ri.Printf(PRINT_ALL, "LoadRGBE: Expected 'X' found instead '%s'\n", token);
+					}
+				}
+				else
+				{
+					ri.Printf(PRINT_ALL, "LoadRGBE: Expected '+' found instead '%s'\n", token);
+				}
+			}
+			else
+			{
+				ri.Printf(PRINT_ALL, "LoadRGBE: Expected 'Y' found instead '%s'\n", token);
+			}
+		}
+	}
+
+	// go to the first byte
+	while((c = *buf_p++) != 0)
+	{
+		if(c == '\n')
+		{
+			//buf_p++;
+			break;
+		}
+	}
+
+	if(width)
+		*width = w;
+	if(height)
+		*height = h;
+
+	if(!formatFound)
+	{
+		ri.Error(ERR_DROP, "LoadRGBE: %s has no format\n", name);
+	}
+
+	if(!w || !h)
+	{
+		ri.Error(ERR_DROP, "LoadRGBE: %s has an invalid image size\n", name);
+	}
+
+	*pic = ri.Malloc(w * h * 4);
+	pixbuf = *pic;
+
+	//buf_p++;
+	//buf_p++;
+	//buf_p++;
+
+	for(i = 0; i < (w * h); i++)
+	{
+#if 1
+		rgbe[0] = *buf_p++;
+		rgbe[1] = *buf_p++;
+		rgbe[2] = *buf_p++;
+		rgbe[3] = *buf_p++;
+#else
+		rgbe[3] = *buf_p++;
+		rgbe[2] = *buf_p++;
+		rgbe[1] = *buf_p++;
+		rgbe[0] = *buf_p++;
+#endif
+
+		//rgbe2float(&pixbuf[0], &pixbuf[1], &pixbuf[2], rgbe);
+
+		*pixbuf++ = rgbe[0];
+		*pixbuf++ = rgbe[1];
+		*pixbuf++ = rgbe[2];
+		*pixbuf++ = rgbe[3];
+	}
+
+	ri.FS_FreeFile(buffer);
+}
+
 //===================================================================
 
 
@@ -3849,7 +4025,8 @@ static imageExtToLoaderMap_t imageLoaders[] = {
 	{"png", LoadPNG},
 	{"jpg", LoadJPG},
 	{"jpeg", LoadJPG},
-	{"dds", LoadDDS}
+	{"dds", LoadDDS},
+	{"hdr", LoadRGBE}
 };
 
 static int      numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0]);

@@ -2274,6 +2274,12 @@ int LightMain(int argc, char **argv)
 	else
 		SetKeyValue(&entities[0], "deluxeMapping", "0");
 
+	/* Tr3B: tell the .bsp wether we have HDR light mapping support or not */
+	if(hdr)
+		SetKeyValue(&entities[0], "hdrRGBE", "1");
+	else
+		SetKeyValue(&entities[0], "hdrRGBE", "0");
+
 	/* set the entity/model origins and init yDrawVerts */
 	SetEntityOrigins();
 

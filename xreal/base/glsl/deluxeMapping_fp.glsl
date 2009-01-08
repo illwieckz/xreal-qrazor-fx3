@@ -35,6 +35,26 @@ varying vec2		var_TexSpecular;
 varying vec2		var_TexLight;
 varying mat3		var_OS2TSMatrix;
 
+
+#if defined(r_HDRRendering)
+vec3 DecodeRGBE(vec4 rgbe)
+{
+	vec3 decoded;
+	if(rgbe.a > 0.0)
+	{
+		float fExp = ((rgbe.a * 256.0) - 128.0) / 10.0;
+		decoded = rgbe.rgb * exp2(fExp);
+		//decoded = vec3(rgbe.a, rgbe.a, rgbe.a);
+	}
+	else
+	{
+		decoded = vec3(0.0, 0.0, 0.0);
+	}
+  
+	return decoded;
+}
+#endif
+
 void	main()
 {
 	// compute the diffuse term
@@ -46,7 +66,13 @@ void	main()
 	}
 
 #if defined(r_showLightMaps)
-	gl_FragColor = texture2D(u_LightMap, var_TexLight);
+
+#if 0 //defined(r_HDRRendering)
+	gl_FragColor = vec4(DecodeRGBE(texture2D(u_LightMap, var_TexLight)), 1.0);
+#else
+	gl_FragColor = texture2D(u_LightMap, var_TexLight) / 200.0;
+#endif
+
 #elif defined(r_showDeluxeMaps)
 	gl_FragColor = texture2D(u_DeluxeMap, var_TexLight);
 #else
@@ -65,12 +91,17 @@ void	main()
 	vec3 H = normalize(L + V);
 	
 	// compute light color from object space lightmap
-	vec4 lightColor = texture2D(u_LightMap, var_TexLight);
+#if 0 //defined(r_HDRRendering)
+	//vec3 lightColor = DecodeRGBE(texture2D(u_LightMap, var_TexLight));
+	//vec3 lightColor = pow(texture2D(u_LightMap, var_TexLight), 1.0 / 2.2);
+#else
+	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
+#endif
 	
 	diffuse.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * lightColor.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * lightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute final color
 	gl_FragColor.rgba = diffuse;
