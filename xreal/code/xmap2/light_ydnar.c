@@ -1949,7 +1949,14 @@ void IlluminateRawLightmap(int rawLightmapNum)
 				{
 					VectorCopy(ambientColor, luxel);
 					if(deluxemap)
-						VectorScale(normal, 0.00390625f, deluxel);
+					{
+						brightness = ambientColor[0] * 0.3f + ambientColor[1] * 0.59f + ambientColor[2] * 0.11f;
+						brightness *= (1.0 / 255.0);
+						// use AT LEAST this amount of contribution from ambient for the deluxemap, fixes points that receive ZERO light
+						if(brightness < 0.00390625f)
+							brightness = 0.00390625f;
+						VectorScale(normal, brightness, deluxel);
+					}
 					luxel[3] = 1.0f;
 				}
 			}
@@ -2026,11 +2033,14 @@ void IlluminateRawLightmap(int rawLightmapNum)
 					/* add to light direction map (fixme: use luxel normal as starting point for deluxel?) */
 					if(deluxemap)
 					{
-						/* color to grayscale (photoshop rgb weighting) */
-						brightness = trace.color[0] * 0.3f + trace.color[1] * 0.59f + trace.color[2] * 0.11f;
-						brightness *= (1.0 / 255.0);
-						VectorScale(trace.direction, brightness, trace.direction);
-						VectorAdd(deluxel, trace.direction, deluxel);
+						if(DotProduct(normal, trace.direction) > 0)	// do not take light from the back side
+						{
+							/* color to grayscale (photoshop rgb weighting) */
+							brightness = trace.color[0] * 0.3f + trace.color[1] * 0.59f + trace.color[2] * 0.11f;
+							brightness *= (1.0 / 255.0);
+							VectorScale(trace.direction, brightness, trace.direction);
+							VectorAdd(deluxel, trace.direction, deluxel);
+						}
 					}
 				}
 			}
