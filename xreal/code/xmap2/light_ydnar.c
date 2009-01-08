@@ -119,8 +119,8 @@ void ColorToRGBE(const float *color, unsigned char rgbe[4])
 	}
 	else
 	{
-#if 0
-		v = frexp(v,&e) * 256.0/v;
+#if 1
+		maxComponent = frexp(maxComponent, &e) * 255.0 / maxComponent;
 		rgbe[0] = (unsigned char) (sample[0] * maxComponent);
 		rgbe[1] = (unsigned char) (sample[1] * maxComponent);
 		rgbe[2] = (unsigned char) (sample[2] * maxComponent);
