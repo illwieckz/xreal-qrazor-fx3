@@ -229,12 +229,12 @@ cvar_t         *r_parallaxMapping;
 cvar_t         *r_parallaxDepthScale;
 
 cvar_t         *r_hdrRendering;
-cvar_t         *r_hdrLoadRGBE;
 cvar_t		   *r_hdrExposure;
 cvar_t         *r_hdrMaxLuminance;
 cvar_t         *r_hdrMiddleGrey;
 cvar_t         *r_hdrContrastThreshold;
 cvar_t         *r_hdrContrastOffset;
+cvar_t         *r_hdrLightmapExposure;
 
 cvar_t         *r_screenSpaceAmbientOcclusion;
 cvar_t         *r_depthOfField;
@@ -1331,13 +1331,12 @@ void R_Register(void)
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_hdrLoadRGBE = ri.Cvar_Get("r_hdrLoadRGBE", "1", CVAR_CHEAT);
 	r_hdrExposure = ri.Cvar_Get("r_hdrExposure", "-1", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "-1", CVAR_CHEAT);
 	r_hdrMiddleGrey = ri.Cvar_Get("r_hdrMiddleGrey", "0.5", CVAR_CHEAT);
 	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "5", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "10.0", CVAR_CHEAT | CVAR_LATCH);
-
+	r_hdrLightmapExposure = ri.Cvar_Get("r_hdrLightmapExposure", "0.00005", CVAR_CHEAT | CVAR_LATCH);
 
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);

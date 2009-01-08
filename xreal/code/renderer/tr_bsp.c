@@ -240,12 +240,12 @@ static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned
 		*red = *green = *blue = 0.0;
 }
 
-static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
+static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *height)
 {
 	int				i, j;
 	byte           *buf_p;
 	byte           *buffer;
-	float          *pixbuf;
+	float          *floatbuf;
 	int				len;
 	char           *token;
 	int				w, h, c;
@@ -255,6 +255,16 @@ static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
 	float			green;
 	float			blue;
 	float			max;
+	float           inv, dif;
+	float			exposure = 1.6;
+	float			exposureGain = 1.0;
+	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
+	float			luminance;
+	float			avgLuminance;
+	float			maxLuminance;
+	float			scaledLuminance;
+	float			finalLuminance;
+	float           sum;
 
 	union
 	{
@@ -382,8 +392,8 @@ static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
 		ri.Error(ERR_DROP, "LoadRGBE: %s has an invalid image size\n", name);
 	}
 
-	*pic = Com_Allocate(w * h * 4 * sizeof(float));
-	pixbuf = *pic;
+	*pic = Com_Allocate(w * h * 3 * sizeof(float));
+	floatbuf = *pic;
 	for(i = 0; i < (w * h); i++)
 	{
 #if 0
@@ -394,58 +404,157 @@ static void LoadRGBE(const char *name, float ** pic, int *width, int *height)
 
 		rgbe2float(&red, &green, &blue, rgbe);
 
-		*pixbuf++ = red;
-		*pixbuf++ = green;
-		*pixbuf++ = blue;
-		*pixbuf++ = 1.0;
+		*floatbuf++ = red;
+		*floatbuf++ = green;
+		*floatbuf++ = blue;
 #else
 		for(j = 0; j < 3; j++)
 		{
-			float exposure = 1.6;
-			float exposureGain = 1.0;
-
 			sample.b[0] = *buf_p++;
 			sample.b[1] = *buf_p++;
 			sample.b[2] = *buf_p++;
 			sample.b[3] = *buf_p++;
 
-			//*pixbuf++ = sample.f;
-			//*pixbuf++ = pow(sample.f, 1.0 / 10.0);
-			//*pixbuf++ = log(sample.f);
-			//*pixbuf++ = exposureGain - exp(-exposure * sample.f) * exposureGain;
-
-			//sampleVector[j] = sample.f;
-			sampleVector[j] = pow(sample.f, 1.0 / 4.0);
-
-			// handle negative light
-			if(sampleVector[j] < 0.0f)
-			{
-				sampleVector[j] = 0.0f;
-				continue;
-			}
-
-			// TODO gamma correction
+			*floatbuf++ = sample.f;
 		}
+#endif
+	}
+
+	// LOADING DONE
+
+
+	// calculate the average and maximum luminance
+	sum = 0.0f;
+	maxLuminance = 0.0f;
+	floatbuf = *pic;
+	for(i = 0; i < (w * h); i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			sampleVector[j] = *floatbuf++;
+		}
+
+		luminance = DotProduct(sampleVector, LUMINANCE_VECTOR) + 0.0001f;
+		if(luminance > maxLuminance)
+			maxLuminance = luminance;
+
+		sum += logf(luminance);
+	}
+	sum /= (float)(w * h);
+	avgLuminance = expf(sum);
+
+	// post process buffer with tone mapping
+	floatbuf = *pic;
+	for(i = 0; i < (w * h); i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			sampleVector[j] = *floatbuf++;
+		}
+
+		if(r_hdrLightmapExposure->value <= 0)
+		{
+			exposure = (r_hdrMiddleGrey->value / avgLuminance + 0.001);
+		}
+		else
+		{
+			exposure = r_hdrLightmapExposure->value;
+		}
+		//
+
+		scaledLuminance = exposure * DotProduct(sampleVector, LUMINANCE_VECTOR);
 #if 0
+		finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
+#elif 0
+		finalLuminance = (scaledLuminance * (scaledLuminance / maxLuminance + 1.0)) / (scaledLuminance + 1.0);
+#elif 0
+		finalLuminance = (scaledLuminance * ((scaledLuminance / (maxLuminance * maxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
+#elif 0
 		max = sampleVector[0];
 		if(sampleVector[1] > max)
 			max = sampleVector[1];
 		if(sampleVector[2] > max)
 			max = sampleVector[2];
-		if(max > 1.0f)
-			VectorScale(sampleVector, (1.0f / max), sampleVector);
-#endif
-		*pixbuf++ = sampleVector[0];
-		*pixbuf++ = sampleVector[1];
-		*pixbuf++ = sampleVector[2];
 
-		*pixbuf++ = 1.0;
+		//if(max > 1.0f)
+		//	VectorScale(sampleVector, (1.0f / max), sampleVector);
+
+		inv = 1.0f / r_hdrLightmapExposure->value;
+		finalLuminance = (1 - exp(-max * inv));
+
+		if(max > 0)
+		{
+			finalLuminance = finalLuminance / max;
+		}
+		else
+		{
+			finalLuminance = 0;
+		}
+#else
+		// exponential tone mapping
+		finalLuminance = 1.0 - exp(-scaledLuminance);
 #endif
+
+		//VectorScale(sampleVector, scaledLuminance * (scaledLuminance / maxLuminance + 1.0) / (scaledLuminance + 1.0), sampleVector);
+		//VectorScale(sampleVector, scaledLuminance / (scaledLuminance + 1.0), sampleVector);
+
+		VectorScale(sampleVector, finalLuminance, sampleVector);
+
+		floatbuf -= 3;
+		for(j = 0; j < 3; j++)
+		{
+			*floatbuf++ = sampleVector[j];
+		}
 	}
 
 	ri.FS_FreeFile(buffer);
 }
 
+
+static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int *height)
+{
+	int				i, j;
+	int             w, h;
+	float          *hdrImage;
+	float          *floatbuf;
+	byte           *pixbuf;
+	vec3_t			sample;
+	float			max;
+
+
+	w = h = 0;
+	LoadRGBEToFloats(name, &hdrImage, &w, &h);
+
+	*width = w;
+	*height = h;
+
+	*ldrImage = ri.Malloc(w * h * 4);
+	pixbuf = *ldrImage;
+
+	floatbuf = hdrImage;
+	for(i = 0; i < (w * h); i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			sample[j] = *floatbuf++ * 255.0f;
+		}
+
+		max = sample[0];
+		if(sample[1] > max)
+			max = sample[1];
+		if(sample[2] > max)
+			max = sample[2];
+		if(max > 255.0f)
+			VectorScale(sample, (255.0f / max), sample);
+
+		*pixbuf++ = (const char) sample[0];
+		*pixbuf++ = (const char) sample[1];
+		*pixbuf++ = (const char) sample[2];
+		*pixbuf++ = (const char) 255;
+	}
+
+	Com_Dealloc(hdrImage);
+}
 
 /*
 ===============
@@ -473,33 +582,33 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 		if(tr.worldHDR_RGBE)
 		{
-			if(r_hdrRendering->integer && r_hdrLoadRGBE->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
+			// we are about to upload textures
+			R_SyncRenderThread();
+
+			// load HDR lightmaps
+			lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
+
+			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
+
+			if(!lightmapFiles || !numLightmaps)
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+				return;
+			}
+
+			if(numLightmaps > MAX_LIGHTMAPS)
+			{
+				ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+				numLightmaps = MAX_LIGHTMAPS;
+			}
+
+			tr.numLightmaps = numLightmaps;
+			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
+
+			if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
 			{
 				int             width, height;
 				float          *hdrImage;
-
-				// we are about to upload textures
-				R_SyncRenderThread();
-
-				// load HDR lightmaps
-				lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
-
-				qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
-
-				if(!lightmapFiles || !numLightmaps)
-				{
-					ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
-					return;
-				}
-
-				if(numLightmaps > MAX_LIGHTMAPS)
-				{
-					ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-					numLightmaps = MAX_LIGHTMAPS;
-				}
-
-				tr.numLightmaps = numLightmaps;
-				ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
 
 				for(i = 0; i < numLightmaps; i++)
 				{
@@ -507,7 +616,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 					#if 1
 					width = height = 0;
-					LoadRGBE(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
+					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
 
 					// create dummy image
 					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
@@ -534,7 +643,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					image->uploadWidth = width;
 					image->uploadHeight = height;
 
-					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_ARB, width, height, 0, GL_RGBA, GL_FLOAT, hdrImage);
+					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_FLOAT, hdrImage);
 
 					/*
 					if(glConfig.generateMipmapAvailable)
@@ -567,45 +676,58 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					tr.lightmaps[i * 2] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_RGBE, FT_NEAREST, WT_CLAMP);
 					#endif
 				}
-
-				if(tr.worldDeluxeMapping)
-				{
-					// load deluxemaps
-					lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
-
-					if(!lightmapFiles || !numLightmaps)
-					{
-						lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
-
-						if(!lightmapFiles || !numLightmaps)
-						{
-							ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
-							return;
-						}
-					}
-
-					qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
-
-					if(numLightmaps > MAX_LIGHTMAPS)
-					{
-						ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
-						numLightmaps = MAX_LIGHTMAPS;
-					}
-
-					tr.numLightmaps += numLightmaps;
-					ri.Printf(PRINT_ALL, "...loading %i deluxemaps\n", numLightmaps);
-
-					for(i = 0; i < numLightmaps; i++)
-					{
-						ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
-
-						tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
-					}
-				}
 			}
 			else
 			{
-				// TODO convert HDR lightmap back to LDR including gamma correction
+				int             width, height;
+				byte           *ldrImage;
+
+				for(i = 0; i < numLightmaps; i++)
+				{
+					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+					width = height = 0;
+					LoadRGBEToBytes(va("%s/%s", mapName, lightmapFiles[i]), &ldrImage, &width, &height);
+
+					tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) ldrImage, width, height, IF_NOPICMIP | IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+
+					ri.Free(ldrImage);
+				}
+			}
+
+			if(tr.worldDeluxeMapping)
+			{
+				// load deluxemaps
+				lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
+
+				if(!lightmapFiles || !numLightmaps)
+				{
+					lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
+
+					if(!lightmapFiles || !numLightmaps)
+					{
+						ri.Printf(PRINT_WARNING, "WARNING: no lightmap files found\n");
+						return;
+					}
+				}
+
+				qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
+
+				if(numLightmaps > MAX_LIGHTMAPS)
+				{
+					ri.Error(ERR_DROP, "R_LoadLightmaps: too many lightmaps for %s", bspName);
+					numLightmaps = MAX_LIGHTMAPS;
+				}
+
+				tr.numLightmaps += numLightmaps;
+				ri.Printf(PRINT_ALL, "...loading %i deluxemaps\n", numLightmaps);
+
+				for(i = 0; i < numLightmaps; i++)
+				{
+					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
+
+					tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+				}
 			}
 		}
 		else
