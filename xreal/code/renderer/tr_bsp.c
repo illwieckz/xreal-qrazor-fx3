@@ -265,6 +265,7 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 	float			scaledLuminance;
 	float			finalLuminance;
 	float           sum;
+	float			gamma;
 
 	union
 	{
@@ -422,6 +423,18 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 
 	// LOADING DONE
 
+	// gamma
+	floatbuf = *pic;
+	gamma = 1.0f / r_hdrLightmapGamma->value;
+	for(i = 0; i < (w * h); i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			*floatbuf = pow(*floatbuf / 255.0f, gamma) * 255.0f;
+			//*floatbuf = pow(*floatbuf, gamma);
+			floatbuf++;
+		}
+	}
 
 	// calculate the average and maximum luminance
 	sum = 0.0f;
@@ -467,7 +480,7 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 		finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
 #elif 0
 		finalLuminance = (scaledLuminance * (scaledLuminance / maxLuminance + 1.0)) / (scaledLuminance + 1.0);
-#elif 0
+#elif 1
 		finalLuminance = (scaledLuminance * ((scaledLuminance / (maxLuminance * maxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
 #elif 0
 		max = sampleVector[0];
@@ -504,6 +517,17 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 		for(j = 0; j < 3; j++)
 		{
 			*floatbuf++ = sampleVector[j];
+		}
+	}
+
+	// compensate
+	floatbuf = *pic;
+	for(i = 0; i < (w * h); i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			*floatbuf = *floatbuf / r_hdrLightmapCompensate->value;
+			floatbuf++;
 		}
 	}
 
