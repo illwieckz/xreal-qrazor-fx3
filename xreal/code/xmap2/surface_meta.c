@@ -426,7 +426,7 @@ void FanFaceSurface(mapDrawSurface_t * ds)
 		for(j = 0; j < 4; j++)
 		{
 			for(k = 0; k < MAX_LIGHTMAPS; k++)
-				color[k][j] += dv->color[k][j];
+				color[k][j] += dv->lightColor[k][j];
 			if(j < 2)
 			{
 				centroid->st[j] += dv->st[j];
@@ -446,8 +446,9 @@ void FanFaceSurface(mapDrawSurface_t * ds)
 		for(k = 0; k < MAX_LIGHTMAPS; k++)
 		{
 			color[k][j] /= ds->numVerts;
-			centroid->color[k][j] = (color[k][j] < 255.0f ? color[k][j] : 255);
+			centroid->lightColor[k][j] = (color[k][j] < 1.0f ? color[k][j] : 1.0f);
 		}
+
 		if(j < 2)
 		{
 			centroid->st[j] *= iv;
@@ -831,7 +832,7 @@ void FixMetaTJunctions(void)
 
 			/* debug code: darken verts */
 			if(i == 0)
-				VectorSet(metaVerts[j].color[0], 8, 8, 8);
+				VectorSet(metaVerts[j].lightColor[0], 8 / 255.0f, 8 / 255.0f, 8 / 255.0f);
 
 			/* determine if point lies in the triangle's plane */
 			dist = DotProduct(pt, plane) - plane[3];
@@ -876,8 +877,8 @@ void FixMetaTJunctions(void)
 				/* debug code: brighten this point */
 				//% metaVerts[ j ].color[ 0 ][ 0 ] += 5;
 				//% metaVerts[ j ].color[ 0 ][ 1 ] += 4;
-				VectorSet(metaVerts[tri->indexes[k]].color[0], 255, 204, 0);
-				VectorSet(metaVerts[tri->indexes[(k + 1) % 3]].color[0], 255, 204, 0);
+				VectorSet(metaVerts[tri->indexes[k]].lightColor[0], 255 / 255.0f, 204 / 255.0f, 0);
+				VectorSet(metaVerts[tri->indexes[(k + 1) % 3]].lightColor[0], 255 / 255.0f, 204 / 255.0f, 0);
 
 
 				/* the edge opposite the zero-weighted vertex was hit, so use that as an amount */
@@ -927,9 +928,9 @@ void FixMetaTJunctions(void)
 				CreateEdge(plane, metaVerts[tri->indexes[2]].xyz, metaVerts[tri->indexes[0]].xyz, &edges[2]);
 
 				/* debug code */
-				metaVerts[vertIndex].color[0][0] = 255;
-				metaVerts[vertIndex].color[0][1] = 204;
-				metaVerts[vertIndex].color[0][2] = 0;
+				metaVerts[vertIndex].lightColor[0][0] = 255 / 255.0f;
+				metaVerts[vertIndex].lightColor[0][1] = 204 / 255.0f;
+				metaVerts[vertIndex].lightColor[0][2] = 0;
 
 				/* add to counter and end processing of this vert */
 				numTJuncs++;
@@ -1144,7 +1145,13 @@ int AddMetaVertToSurface(mapDrawSurface_t * ds, bspDrawVert_t * dv1, int *coinci
 		/* compare texture coordinates and color */
 		if(dv1->st[0] != dv2->st[0] || dv1->st[1] != dv2->st[1])
 			continue;
-		if(dv1->color[0][3] != dv2->color[0][3])
+
+#if 0
+		if(dv1->paintColor[0][3] != dv2->paintColor[0][3])
+			continue;
+#endif
+
+		if(dv1->lightColor[0][3] != dv2->lightColor[0][3])
 			continue;
 
 		/* found a winner */

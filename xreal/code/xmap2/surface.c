@@ -501,7 +501,7 @@ void ClassifySurfaces(int numSurfs, mapDrawSurface_t * ds)
 		}
 
 		/* -----------------------------------------------------------------
-		   plane and bounding box classification 
+		   plane and bounding box classification
 		   ----------------------------------------------------------------- */
 
 		/* set surface bounding box */
@@ -970,14 +970,19 @@ mapDrawSurface_t *DrawSurfaceForSide(entity_t * e, brush_t * b, side_t * s, wind
 		VectorCopy(mapplanes[s->planenum].normal, dv->normal);
 
 		/* ydnar: set color */
+		dv->paintColor[0] = 1.0f;
+		dv->paintColor[1] = 1.0f;
+		dv->paintColor[2] = 1.0f;
+		dv->paintColor[3] = (indexed ? shaderIndexes[i] : 1);
+
 		for(k = 0; k < MAX_LIGHTMAPS; k++)
 		{
-			dv->color[k][0] = 255;
-			dv->color[k][1] = 255;
-			dv->color[k][2] = 255;
+			dv->lightColor[k][0] = 1.0f;
+			dv->lightColor[k][1] = 1.0f;
+			dv->lightColor[k][2] = 1.0f;
 
 			/* ydnar: gs mods: handle indexed shader blending */
-			dv->color[k][3] = (indexed ? shaderIndexes[j] : 255);
+			dv->lightColor[k][3] = (indexed ? shaderIndexes[j] : 1);
 		}
 	}
 
@@ -1161,14 +1166,19 @@ mapDrawSurface_t *DrawSurfaceForMesh(entity_t * e, parseMesh_t * p, mesh_t * mes
 		}
 
 		/* ydnar: set color */
+		dv->paintColor[0] = 1;
+		dv->paintColor[1] = 1;
+		dv->paintColor[2] = 1;
+		dv->paintColor[3] = (indexed ? shaderIndexes[i] : 1);
+
 		for(k = 0; k < MAX_LIGHTMAPS; k++)
 		{
-			dv->color[k][0] = 255;
-			dv->color[k][1] = 255;
-			dv->color[k][2] = 255;
+			dv->lightColor[k][0] = 1;
+			dv->lightColor[k][1] = 1;
+			dv->lightColor[k][2] = 1;
 
 			/* ydnar: gs mods: handle indexed shader blending */
-			dv->color[k][3] = (indexed ? shaderIndexes[i] : 255);
+			dv->lightColor[k][3] = (indexed ? shaderIndexes[i] : 1);
 		}
 
 		/* ydnar: offset */
@@ -2265,7 +2275,7 @@ void EmitDrawVerts(mapDrawSurface_t * ds, bspDrawSurface_t * out)
 		if(debugSurfaces)
 		{
 			for(k = 0; k < MAX_LIGHTMAPS; k++)
-				VectorCopy(debugColors[(ds - mapDrawSurfs) % 12], dv->color[k]);
+				VectorCopy(debugColors[(ds - mapDrawSurfs) % 12], dv->lightColor[k]);
 		}
 	}
 }
@@ -2867,10 +2877,16 @@ static void MakeDebugPortalSurfs_r(node_t * node, shaderInfo_t * si)
 				VectorCopy(p->plane.normal, dv->normal);
 				dv->st[0] = 0;
 				dv->st[1] = 0;
+
+				dv->paintColor[0] = 1.0f;
+				dv->paintColor[1] = 1.0f;
+				dv->paintColor[2] = 1.0f;
+				dv->paintColor[3] = 1.0f;
+
 				for(k = 0; k < MAX_LIGHTMAPS; k++)
 				{
-					VectorCopy(debugColors[c % 12], dv->color[k]);
-					dv->color[k][3] = 32;
+					VectorCopy(debugColors[c % 12], dv->lightColor[k]);
+					dv->lightColor[k][3] = 32 / 255.0f;
 				}
 			}
 		}
@@ -3049,7 +3065,7 @@ int AddSurfaceModelsToTriangle_r(mapDrawSurface_t * ds, surfaceModel_t * model, 
 
 
 			/* roll the dice (model's odds scaled by vertex alpha) */
-			odds = model->odds * (tri[0]->color[0][3] + tri[0]->color[0][3] + tri[0]->color[0][3]) / 765.0f;
+			odds = model->odds * (tri[0]->lightColor[0][3] + tri[0]->lightColor[0][3] + tri[0]->lightColor[0][3]) / 765.0f;
 			r = Random();
 			if(r > model->odds)
 				return 0;
@@ -3199,7 +3215,7 @@ int AddSurfaceModels(mapDrawSurface_t * ds)
 					VectorAdd(centroid.normal, ds->verts[i].normal, centroid.normal);
 					centroid.st[0] += ds->verts[i].st[0];
 					centroid.st[1] += ds->verts[i].st[1];
-					alpha += ds->verts[i].color[0][3];
+					alpha += ds->verts[i].lightColor[0][3];
 				}
 
 				/* average */
@@ -3211,10 +3227,16 @@ int AddSurfaceModels(mapDrawSurface_t * ds)
 				centroid.st[0] /= ds->numVerts;
 				centroid.st[1] /= ds->numVerts;
 				alpha /= ds->numVerts;
-				centroid.color[0][0] = 0xFF;
-				centroid.color[0][1] = 0xFF;
-				centroid.color[0][2] = 0xFF;
-				centroid.color[0][2] = (alpha > 255.0f ? 0xFF : alpha);
+
+				centroid.paintColor[0] = 1.0f;
+				centroid.paintColor[1] = 1.0f;
+				centroid.paintColor[2] = 1.0f;
+				centroid.paintColor[2] = (alpha > 1.0f ? 1.0f : alpha);
+
+				centroid.lightColor[0][0] = 1.0f;
+				centroid.lightColor[0][1] = 1.0f;
+				centroid.lightColor[0][2] = 1.0f;
+				centroid.lightColor[0][2] = (alpha > 1.0f ? 1.0f : alpha);
 
 				/* head vert is centroid */
 				tri[0] = &centroid;

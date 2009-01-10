@@ -55,14 +55,24 @@ void LerpDrawVert(bspDrawVert_t * a, bspDrawVert_t * b, bspDrawVert_t * out)
 	out->st[0] = 0.5 * (a->st[0] + b->st[0]);
 	out->st[1] = 0.5 * (a->st[1] + b->st[1]);
 
+	out->paintColor[0] = 0.5f * (b->paintColor[0] - a->paintColor[0]);
+	out->paintColor[1] = 0.5f * (b->paintColor[1] - a->paintColor[1]);
+	out->paintColor[2] = 0.5f * (b->paintColor[2] - a->paintColor[2]);
+	out->paintColor[3] = 0.5f * (b->paintColor[3] - a->paintColor[3]);
+
 	for(k = 0; k < MAX_LIGHTMAPS; k++)
 	{
 		out->lightmap[k][0] = 0.5f * (a->lightmap[k][0] + b->lightmap[k][0]);
 		out->lightmap[k][1] = 0.5f * (a->lightmap[k][1] + b->lightmap[k][1]);
-		out->color[k][0] = (a->color[k][0] + b->color[k][0]) >> 1;
-		out->color[k][1] = (a->color[k][1] + b->color[k][1]) >> 1;
-		out->color[k][2] = (a->color[k][2] + b->color[k][2]) >> 1;
-		out->color[k][3] = (a->color[k][3] + b->color[k][3]) >> 1;
+
+		out->lightColor[k][0] = 0.5f * (b->lightColor[k][0] - a->lightColor[k][0]);
+		out->lightColor[k][1] = 0.5f * (b->lightColor[k][1] - a->lightColor[k][1]);
+		out->lightColor[k][2] = 0.5f * (b->lightColor[k][2] - a->lightColor[k][2]);
+		out->lightColor[k][3] = 0.5f * (b->lightColor[k][3] - a->lightColor[k][3]);
+
+		out->lightDirection[k][0] = 0.5f * (b->lightDirection[k][0] - a->lightDirection[k][0]);
+		out->lightDirection[k][1] = 0.5f * (b->lightDirection[k][1] - a->lightDirection[k][1]);
+		out->lightDirection[k][2] = 0.5f * (b->lightDirection[k][2] - a->lightDirection[k][2]);
 	}
 
 	/* ydnar: added normal interpolation */
@@ -94,14 +104,24 @@ void LerpDrawVertAmount(bspDrawVert_t * a, bspDrawVert_t * b, float amount, bspD
 	out->st[0] = a->st[0] + amount * (b->st[0] - a->st[0]);
 	out->st[1] = a->st[1] + amount * (b->st[1] - a->st[1]);
 
+	out->paintColor[0] = a->paintColor[0] + amount * (b->paintColor[0] - a->paintColor[0]);
+	out->paintColor[1] = a->paintColor[1] + amount * (b->paintColor[1] - a->paintColor[1]);
+	out->paintColor[2] = a->paintColor[2] + amount * (b->paintColor[2] - a->paintColor[2]);
+	out->paintColor[3] = a->paintColor[3] + amount * (b->paintColor[3] - a->paintColor[3]);
+
 	for(k = 0; k < MAX_LIGHTMAPS; k++)
 	{
 		out->lightmap[k][0] = a->lightmap[k][0] + amount * (b->lightmap[k][0] - a->lightmap[k][0]);
 		out->lightmap[k][1] = a->lightmap[k][1] + amount * (b->lightmap[k][1] - a->lightmap[k][1]);
-		out->color[k][0] = a->color[k][0] + amount * (b->color[k][0] - a->color[k][0]);
-		out->color[k][1] = a->color[k][1] + amount * (b->color[k][1] - a->color[k][1]);
-		out->color[k][2] = a->color[k][2] + amount * (b->color[k][2] - a->color[k][2]);
-		out->color[k][3] = a->color[k][3] + amount * (b->color[k][3] - a->color[k][3]);
+
+		out->lightColor[k][0] = a->lightColor[k][0] + amount * (b->lightColor[k][0] - a->lightColor[k][0]);
+		out->lightColor[k][1] = a->lightColor[k][1] + amount * (b->lightColor[k][1] - a->lightColor[k][1]);
+		out->lightColor[k][2] = a->lightColor[k][2] + amount * (b->lightColor[k][2] - a->lightColor[k][2]);
+		out->lightColor[k][3] = a->lightColor[k][3] + amount * (b->lightColor[k][3] - a->lightColor[k][3]);
+
+		out->lightDirection[k][0] = a->lightDirection[k][0] + amount * (b->lightDirection[k][0] - a->lightDirection[k][0]);
+		out->lightDirection[k][1] = a->lightDirection[k][1] + amount * (b->lightDirection[k][1] - a->lightDirection[k][1]);
+		out->lightDirection[k][2] = a->lightDirection[k][2] + amount * (b->lightDirection[k][2] - a->lightDirection[k][2]);
 	}
 
 	out->normal[0] = a->normal[0] + amount * (b->normal[0] - a->normal[0]);

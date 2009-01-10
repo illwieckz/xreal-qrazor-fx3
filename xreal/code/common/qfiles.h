@@ -154,7 +154,7 @@ typedef struct md3Tag_s
 */
 typedef struct
 {
-	int             ident;		// 
+	int             ident;		//
 
 	char            name[64];	// polyset name
 
@@ -228,10 +228,10 @@ typedef struct
 */
 
 
-#define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'I')
-		// little-endian "IBSP"
+#define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'X')
+		// little-endian "XBSP"
 
-#define BSP_VERSION			46
+#define BSP_VERSION			47
 
 
 // there shouldn't be any problem with increasing these values at the
@@ -380,7 +380,9 @@ typedef struct
 	float           st[2];
 	float           lightmap[2];
 	float           normal[3];
-	byte            color[4];
+	float			paintColor[4];
+	float           lightColor[4];
+	float			lightDirection[3];
 } drawVert_t;
 
 typedef enum
@@ -389,7 +391,8 @@ typedef enum
 	MST_PLANAR,
 	MST_PATCH,
 	MST_TRIANGLE_SOUP,
-	MST_FLARE
+	MST_FLARE,
+	MST_FOLIAGE
 } mapSurfaceType_t;
 
 typedef struct

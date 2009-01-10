@@ -38,7 +38,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 
-/* 
+/*
 PicoPrintFunc()
 callback for picomodel.lib
 */
@@ -73,7 +73,7 @@ void PicoPrintFunc(int level, const char *str)
 
 
 
-/* 
+/*
 PicoLoadFileFunc()
 callback for picomodel.lib
 */
@@ -377,14 +377,21 @@ void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, sha
 
 			/* set lightmap/color bits */
 			color = PicoGetSurfaceColor(surface, 0, i);
+
+			dv->paintColor[0] = color[0] / 255.0f;
+			dv->paintColor[1] = color[1] / 255.0f;
+			dv->paintColor[2] = color[2] / 255.0f;
+			dv->paintColor[3] = color[3] / 255.0f;
+
 			for(j = 0; j < MAX_LIGHTMAPS; j++)
 			{
 				dv->lightmap[j][0] = 0.0f;
 				dv->lightmap[j][1] = 0.0f;
-				dv->color[j][0] = color[0];
-				dv->color[j][1] = color[1];
-				dv->color[j][2] = color[2];
-				dv->color[j][3] = color[3];
+
+				dv->lightColor[j][0] = color[0] / 255.0f;
+				dv->lightColor[j][1] = color[1] / 255.0f;
+				dv->lightColor[j][2] = color[2] / 255.0f;
+				dv->lightColor[j][3] = color[3] / 255.0f;
 			}
 		}
 

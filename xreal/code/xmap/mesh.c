@@ -57,10 +57,10 @@ void LerpDrawVert(drawVert_t * a, drawVert_t * b, drawVert_t * out)
 	out->lightmap[0] = 0.5 * (a->lightmap[0] + b->lightmap[0]);
 	out->lightmap[1] = 0.5 * (a->lightmap[1] + b->lightmap[1]);
 
-	out->color[0] = (a->color[0] + b->color[0]) >> 1;
-	out->color[1] = (a->color[1] + b->color[1]) >> 1;
-	out->color[2] = (a->color[2] + b->color[2]) >> 1;
-	out->color[3] = (a->color[3] + b->color[3]) >> 1;
+	out->lightColor[0] = (a->lightColor[0] + b->lightColor[0]) * 0.5f;
+	out->lightColor[1] = (a->lightColor[1] + b->lightColor[1]) * 0.5f;
+	out->lightColor[2] = (a->lightColor[2] + b->lightColor[2]) * 0.5f;
+	out->lightColor[3] = (a->lightColor[3] + b->lightColor[3]) * 0.5f;
 }
 
 
@@ -636,10 +636,10 @@ void LerpDrawVertAmount(drawVert_t * a, drawVert_t * b, float amount, drawVert_t
 	out->lightmap[0] = a->lightmap[0] + amount * (b->lightmap[0] - a->lightmap[0]);
 	out->lightmap[1] = a->lightmap[1] + amount * (b->lightmap[1] - a->lightmap[1]);
 
-	out->color[0] = a->color[0] + amount * (b->color[0] - a->color[0]);
-	out->color[1] = a->color[1] + amount * (b->color[1] - a->color[1]);
-	out->color[2] = a->color[2] + amount * (b->color[2] - a->color[2]);
-	out->color[3] = a->color[3] + amount * (b->color[3] - a->color[3]);
+	out->lightColor[0] = a->lightColor[0] + amount * (b->lightColor[0] - a->lightColor[0]);
+	out->lightColor[1] = a->lightColor[1] + amount * (b->lightColor[1] - a->lightColor[1]);
+	out->lightColor[2] = a->lightColor[2] + amount * (b->lightColor[2] - a->lightColor[2]);
+	out->lightColor[3] = a->lightColor[3] + amount * (b->lightColor[3] - a->lightColor[3]);
 
 	out->normal[0] = a->normal[0] + amount * (b->normal[0] - a->normal[0]);
 	out->normal[1] = a->normal[1] + amount * (b->normal[1] - a->normal[1]);

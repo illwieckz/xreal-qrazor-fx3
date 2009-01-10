@@ -1132,7 +1132,9 @@ typedef struct
 	vec3_t          tangent;
 	vec3_t          binormal;
 	vec3_t          normal;
-	byte            color[4];
+	vec4_t          paintColor;
+	vec4_t          lightColor;
+	vec3_t          lightDirection;
 
 #if DEBUG_OPTIMIZEVERTICES
 	unsigned int    id;

@@ -53,10 +53,19 @@ static void LerpSurfaceVert(srfVert_t * a, srfVert_t * b, srfVert_t * out)
 	out->lightmap[0] = 0.5f * (a->lightmap[0] + b->lightmap[0]);
 	out->lightmap[1] = 0.5f * (a->lightmap[1] + b->lightmap[1]);
 
-	out->color[0] = (a->color[0] + b->color[0]) >> 1;
-	out->color[1] = (a->color[1] + b->color[1]) >> 1;
-	out->color[2] = (a->color[2] + b->color[2]) >> 1;
-	out->color[3] = (a->color[3] + b->color[3]) >> 1;
+	out->paintColor[0] = (a->paintColor[0] + b->paintColor[0]) * 0.5f;
+	out->paintColor[1] = (a->paintColor[1] + b->paintColor[1]) * 0.5f;
+	out->paintColor[2] = (a->paintColor[2] + b->paintColor[2]) * 0.5f;
+	out->paintColor[3] = (a->paintColor[3] + b->paintColor[3]) * 0.5f;
+
+	out->lightColor[0] = (a->lightColor[0] + b->lightColor[0]) * 0.5f;
+	out->lightColor[1] = (a->lightColor[1] + b->lightColor[1]) * 0.5f;
+	out->lightColor[2] = (a->lightColor[2] + b->lightColor[2]) * 0.5f;
+	out->lightColor[3] = (a->lightColor[3] + b->lightColor[3]) * 0.5f;
+
+	out->lightDirection[0] = (a->lightDirection[0] + b->lightDirection[0]) * 0.5f;
+	out->lightDirection[1] = (a->lightDirection[1] + b->lightDirection[1]) * 0.5f;
+	out->lightDirection[2] = (a->lightDirection[2] + b->lightDirection[2]) * 0.5f;
 }
 
 /*

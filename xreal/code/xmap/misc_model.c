@@ -288,11 +288,16 @@ static void InsertMD3Model(const char *modelName, const matrix_t transform)
 			outv->lightmap[0] = 0;
 			outv->lightmap[1] = 0;
 
+			outv->paintColor[0] = 1.0f;
+			outv->paintColor[1] = 1.0f;
+			outv->paintColor[2] = 1.0f;
+			outv->paintColor[3] = 1.0f;
+
 			// the colors will be set by the lighting pass
-			outv->color[0] = 255;
-			outv->color[1] = 255;
-			outv->color[2] = 255;
-			outv->color[3] = 255;
+			outv->lightColor[0] = 1.0f;
+			outv->lightColor[1] = 1.0f;
+			outv->lightColor[2] = 1.0f;
+			outv->lightColor[3] = 1.0f;
 
 			// transform the position
 			tmp[0] = MD3_XYZ_SCALE * xyz->xyz[0];
@@ -405,10 +410,16 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			vertex.normal[1] = tri->normals[index][1];
 			vertex.normal[2] = tri->normals[index][2];
 
-			vertex.color[0] = (byte) (255.0f * tri->colors[index][0]);
-			vertex.color[1] = (byte) (255.0f * tri->colors[index][1]);
-			vertex.color[2] = (byte) (255.0f * tri->colors[index][2]);
-			vertex.color[3] = 255;
+			vertex.paintColor[0] = (tri->colors[index][0]);
+			vertex.paintColor[1] = (tri->colors[index][1]);
+			vertex.paintColor[2] = (tri->colors[index][2]);
+			vertex.paintColor[3] = 1.0f;
+
+
+			vertex.lightColor[0] = 1.0f;
+			vertex.lightColor[1] = 1.0f;
+			vertex.lightColor[2] = 1.0f;
+			vertex.lightColor[3] = 1.0f;
 
 			// add it to the vertex list if not added yet
 			if(numIndexes == SHADER_MAX_INDEXES)
@@ -479,10 +490,15 @@ static void InsertASEModel(const char *modelName, const matrix_t transform)
 			out->verts[j].lightmap[0] = vertexes[j].lightmap[0];
 			out->verts[j].lightmap[1] = vertexes[j].lightmap[1];
 
-			out->verts[j].color[0] = vertexes[j].color[0];
-			out->verts[j].color[1] = vertexes[j].color[1];
-			out->verts[j].color[2] = vertexes[j].color[2];
-			out->verts[j].color[3] = vertexes[j].color[3];
+			out->verts[j].lightColor[0] = 1.0f;
+			out->verts[j].lightColor[1] = 1.0f;
+			out->verts[j].lightColor[2] = 1.0f;
+			out->verts[j].lightColor[3] = 1.0f;
+
+			out->verts[j].paintColor[0] = vertexes[j].paintColor[0];
+			out->verts[j].paintColor[1] = vertexes[j].paintColor[1];
+			out->verts[j].paintColor[2] = vertexes[j].paintColor[2];
+			out->verts[j].paintColor[3] = vertexes[j].paintColor[3];
 		}
 	}
 }
@@ -639,10 +655,10 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 				vertex.lightmap[0] = 0;
 				vertex.lightmap[1] = 0;
 
-				vertex.color[0] = surf->color.rgb[0] * surf->diffuse.val * 255;
-				vertex.color[1] = surf->color.rgb[1] * surf->diffuse.val * 255;
-				vertex.color[2] = surf->color.rgb[2] * surf->diffuse.val * 255;
-				vertex.color[3] = 255;
+				vertex.paintColor[0] = surf->color.rgb[0] * surf->diffuse.val;
+				vertex.paintColor[1] = surf->color.rgb[1] * surf->diffuse.val;
+				vertex.paintColor[2] = surf->color.rgb[2] * surf->diffuse.val;
+				vertex.paintColor[3] = 1.0f;
 
 				// set dummy normal
 				vertex.normal[0] = 0;
@@ -663,10 +679,10 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 
 					if(vmap->type == LWID_('R', 'G', 'B', 'A'))
 					{
-						vertex.color[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val * 255;
-						vertex.color[1] = vmap->val[index][1] * surf->color.rgb[1] * surf->diffuse.val * 255;
-						vertex.color[2] = vmap->val[index][2] * surf->color.rgb[2] * surf->diffuse.val * 255;
-						vertex.color[3] = vmap->val[index][3] * 255;
+						vertex.paintColor[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val;
+						vertex.paintColor[1] = vmap->val[index][1] * surf->color.rgb[1] * surf->diffuse.val;
+						vertex.paintColor[2] = vmap->val[index][2] * surf->color.rgb[2] * surf->diffuse.val;
+						vertex.paintColor[3] = vmap->val[index][3];
 					}
 				}
 
@@ -684,10 +700,10 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 
 					if(vmap->type == LWID_('R', 'G', 'B', 'A'))
 					{
-						vertex.color[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val * 255;
-						vertex.color[1] = vmap->val[index][1] * surf->color.rgb[1] * surf->diffuse.val * 255;
-						vertex.color[2] = vmap->val[index][2] * surf->color.rgb[2] * surf->diffuse.val * 255;
-						vertex.color[3] = vmap->val[index][3] * 255;
+						vertex.paintColor[0] = vmap->val[index][0] * surf->color.rgb[0] * surf->diffuse.val;
+						vertex.paintColor[1] = vmap->val[index][1] * surf->color.rgb[1] * surf->diffuse.val;
+						vertex.paintColor[2] = vmap->val[index][2] * surf->color.rgb[2] * surf->diffuse.val;
+						vertex.paintColor[3] = vmap->val[index][3];
 					}
 				}
 
@@ -762,10 +778,15 @@ static void InsertLWOModel(const char *modelName, const matrix_t transform)
 			out->verts[j].lightmap[0] = vertexes[j].lightmap[0];
 			out->verts[j].lightmap[1] = vertexes[j].lightmap[1];
 
-			out->verts[j].color[0] = vertexes[j].color[0];
-			out->verts[j].color[1] = vertexes[j].color[1];
-			out->verts[j].color[2] = vertexes[j].color[2];
-			out->verts[j].color[3] = vertexes[j].color[3];
+			out->verts[j].paintColor[0] = vertexes[j].paintColor[0];
+			out->verts[j].paintColor[1] = vertexes[j].paintColor[1];
+			out->verts[j].paintColor[2] = vertexes[j].paintColor[2];
+			out->verts[j].paintColor[3] = vertexes[j].paintColor[3];
+
+			out->verts[j].lightColor[0] = 1.0f;
+			out->verts[j].lightColor[1] = 1.0f;
+			out->verts[j].lightColor[2] = 1.0f;
+			out->verts[j].lightColor[3] = 1.0f;
 		}
 	}
 

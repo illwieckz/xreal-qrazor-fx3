@@ -448,7 +448,9 @@ typedef struct
 	float           st[2];
 	float           lightmap[MAX_LIGHTMAPS][2];	/* RBSP */
 	vec3_t          normal;
-	byte            color[MAX_LIGHTMAPS][4];	/* RBSP */
+	float			paintColor[4]; /* XBSP */
+	float           lightColor[MAX_LIGHTMAPS][4];	/* XBSP */
+	float			lightDirection[MAX_LIGHTMAPS][3]; /* XBSP */
 }
 bspDrawVert_t;
 
@@ -1813,6 +1815,10 @@ void            WriteIBSPFile(const char *filename);
 void            LoadRBSPFile(const char *filename);
 void            WriteRBSPFile(const char *filename);
 
+/* bspfile_xbsp.c */
+void            LoadXBSPFile(const char *filename);
+void            WriteXBSPFile(const char *filename);
+
 
 
 /* -------------------------------------------------------------------------------
@@ -1839,24 +1845,6 @@ Q_EXTERN game_t				games[]
 							=
 							{
 								#include "game_xreal.h"
-								,
-								#include "game_quake3.h"
-								,
-								#include "game_tenebrae.h"
-								,
-								#include "game_wolf.h"
-								,
-								#include "game_wolfet.h"/* most be after game_wolf.h as they share defines! */
-								,
-								#include "game_etut.h"
-								,
-								#include "game_ef.h"
-								,
-								#include "game_sof2.h"
-								,
-								#include "game_jk2.h"	/* most be after game_sof2.h as they share defines! */
-								,
-								#include "game_ja.h"	/* most be after game_jk2.h as they share defines! */
 								,
 								{ NULL }	/* null game */
 							};

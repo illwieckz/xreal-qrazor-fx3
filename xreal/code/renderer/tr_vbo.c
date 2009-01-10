@@ -222,7 +222,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 		{
 			for(j = 0; j < 4; j++)
 			{
-				tmp[j] = verts[i].color[j] * (1.0 / 255.0);
+				tmp[j] = verts[i].lightColor[j];
 			}
 
 			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));

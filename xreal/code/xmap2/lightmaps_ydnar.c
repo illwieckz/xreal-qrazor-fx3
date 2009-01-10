@@ -1588,7 +1588,7 @@ static qboolean ApproximateLuxel(rawLightmap_t * lm, bspDrawVert_t * dv)
 
 		/* copy, set min color and compare */
 		VectorCopy(luxel, color);
-		VectorCopy(dv->color[0], vertexColor);
+		VectorCopy(dv->lightColor[0], vertexColor);
 
 		/* styles are not affected by minlight */
 		if(lightmapNum == 0)
@@ -2981,7 +2981,7 @@ void StoreSurfaceLightmaps(void)
 			for(j = 0; j < ds->numVerts; j++)
 			{
 				memcpy(dv[j].lightmap, dvParent[j].lightmap, sizeof(dv[j].lightmap));
-				memcpy(dv[j].color, dvParent[j].color, sizeof(dv[j].color));
+				memcpy(dv[j].lightColor, dvParent[j].lightColor, sizeof(dv[j].lightColor));
 			}
 
 			/* skip the rest */
@@ -3073,8 +3073,15 @@ void StoreSurfaceLightmaps(void)
 				}
 
 				/* store to bytes */
-				if(!info->si->noVertexLight)
-					ColorToBytes(color, dv[j].color[lightmapNum], info->si->vertexScale);
+				if(hdr)
+				{
+					VectorScale(color, info->si->vertexScale <= 0.0f ? 1.0f : info->si->vertexScale, dv[j].lightColor[lightmapNum]);
+				}
+				else
+				{
+					// FIXME bspDrawVert_t::color is not byte[4] anymore
+					//ColorToBytes(color, dv[j].color[lightmapNum], info->si->vertexScale);
+				}
 			}
 		}
 

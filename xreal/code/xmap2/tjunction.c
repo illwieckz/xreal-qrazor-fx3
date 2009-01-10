@@ -82,7 +82,7 @@ int             c_totalVerts;
 int             c_natural, c_rotate, c_cant;
 
 // these should be whatever epsilon we actually expect,
-// plus SNAP_INT_TO_FLOAT 
+// plus SNAP_INT_TO_FLOAT
 #define	LINE_POSITION_EPSILON	0.25
 #define	POINT_ON_LINE_EPSILON	0.25
 
@@ -458,8 +458,8 @@ void FixSurfaceJunctions(mapDrawSurface_t * ds)
 				{
 					for(j = 0; j < 4; j++)
 					{
-						c = (float)v1->color[k][j] + frac * ((float)v2->color[k][j] - (float)v1->color[k][j]);
-						verts[numVerts].color[k][j] = (byte) (c < 255.0f ? c : 255);
+						c = (float)v1->lightColor[k][j] + frac * ((float)v2->lightColor[k][j] - (float)v1->lightColor[k][j]);
+						verts[numVerts].lightColor[k][j] = (c < 1.0f ? c : 1.0f);
 					}
 				}
 
@@ -609,12 +609,16 @@ qboolean FixBrokenSurface(mapDrawSurface_t * ds)
 			avg.st[1] = (dv1->st[1] + dv2->st[1]) * 0.5f;
 
 			/* lightmap st/colors */
+			for(j = 0; j < 4; j++)
+				avg.paintColor[j] = (dv1->paintColor[j] + dv2->paintColor[j]) * 0.5f;
+
 			for(k = 0; k < MAX_LIGHTMAPS; k++)
 			{
 				avg.lightmap[k][0] = (dv1->lightmap[k][0] + dv2->lightmap[k][0]) * 0.5f;
 				avg.lightmap[k][1] = (dv1->lightmap[k][1] + dv2->lightmap[k][1]) * 0.5f;
+
 				for(j = 0; j < 4; j++)
-					avg.color[k][j] = (int)(dv1->color[k][j] + dv2->color[k][j]) >> 1;
+					avg.lightColor[k][j] = (dv1->lightColor[k][j] + dv2->lightColor[k][j]) * 0.5f;
 			}
 
 			/* ydnar: der... */
@@ -689,7 +693,7 @@ void FixTJunctions(entity_t * ent)
 
 	/* meta mode has its own t-junction code (currently not as good as this code) */
 	//% if( meta )
-	//%     return; 
+	//%     return;
 
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "--- FixTJunctions ---\n");

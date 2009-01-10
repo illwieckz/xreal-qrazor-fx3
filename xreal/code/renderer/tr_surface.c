@@ -875,10 +875,10 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 			lightCoords[2] = 0;
 			lightCoords[3] = 1;
 
-			color[0] = dv->color[0] * (1.0 / 255.0);
-			color[1] = dv->color[1] * (1.0 / 255.0);
-			color[2] = dv->color[2] * (1.0 / 255.0);
-			color[3] = dv->color[3] * (1.0 / 255.0);
+			color[0] = dv->lightColor[0];
+			color[1] = dv->lightColor[1];
+			color[2] = dv->lightColor[2];
+			color[3] = dv->lightColor[3];
 		}
 
 		tess.numVertexes += srf->numVerts;
@@ -1083,10 +1083,10 @@ static void Tess_SurfaceGrid(srfGridMesh_t * srf)
 			lightCoords[2] = 0;
 			lightCoords[3] = 1;
 
-			color[0] = dv->color[0] * (1.0 / 255.0);
-			color[1] = dv->color[1] * (1.0 / 255.0);
-			color[2] = dv->color[2] * (1.0 / 255.0);
-			color[3] = dv->color[3] * (1.0 / 255.0);
+			color[0] = dv->lightColor[0];
+			color[1] = dv->lightColor[1];
+			color[2] = dv->lightColor[2];
+			color[3] = dv->lightColor[3];
 		}
 
 		tess.numVertexes += srf->numVerts;
@@ -1284,10 +1284,10 @@ static void Tess_SurfaceTriangles(srfTriangles_t * srf)
 			texCoords[2] = 0;
 			texCoords[3] = 1;
 
-			color[0] = dv->color[0] * (1.0 / 255.0);
-			color[1] = dv->color[1] * (1.0 / 255.0);
-			color[2] = dv->color[2] * (1.0 / 255.0);
-			color[3] = dv->color[3] * (1.0 / 255.0);
+			color[0] = dv->lightColor[0];
+			color[1] = dv->lightColor[1];
+			color[2] = dv->lightColor[2];
+			color[3] = dv->lightColor[3];
 		}
 
 		tess.numVertexes += srf->numVerts;

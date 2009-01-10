@@ -650,10 +650,10 @@ static void ProjectDecalOntoWinding(decalProjector_t * dp, mapDrawSurface_t * ds
 		/* set color */
 		for(j = 0; j < MAX_LIGHTMAPS; j++)
 		{
-			dv->color[j][0] = 255;
-			dv->color[j][1] = 255;
-			dv->color[j][2] = 255;
-			dv->color[j][3] = alpha;
+			dv->lightColor[j][0] = 255;
+			dv->lightColor[j][1] = 255;
+			dv->lightColor[j][2] = 255;
+			dv->lightColor[j][3] = alpha;
 		}
 	}
 }

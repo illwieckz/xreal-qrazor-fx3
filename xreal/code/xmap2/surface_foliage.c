@@ -124,7 +124,7 @@ static void SubdivideFoliageTriangle_r(mapDrawSurface_t * ds, foliage_t * foliag
 				alpha = 1.0f;
 			else
 			{
-				alpha = ((float)tri[0]->color[0][3] + (float)tri[1]->color[0][3] + (float)tri[2]->color[0][3]) / 765.0f;
+				alpha = ((float)tri[0]->lightColor[0][3] + (float)tri[1]->lightColor[0][3] + (float)tri[2]->lightColor[0][3]) / 765.0f;
 				if(foliage->inverseAlpha == 1)
 					alpha = 1.0f - alpha;
 				if(alpha < 0.75f)
@@ -313,12 +313,17 @@ void Foliage(mapDrawSurface_t * src)
 				VectorCopy(foliageInstances[j].normal, fi->normal);
 
 				/* ydnar: set color */
+				fi->paintColor[0] = 1.0f;
+				fi->paintColor[1] = 1.0f;
+				fi->paintColor[2] = 1.0f;
+				fi->paintColor[3] = 1.0f;
+
 				for(k = 0; k < MAX_LIGHTMAPS; k++)
 				{
-					fi->color[k][0] = 255;
-					fi->color[k][1] = 255;
-					fi->color[k][2] = 255;
-					fi->color[k][3] = 255;
+					fi->lightColor[k][0] = 1.0f;
+					fi->lightColor[k][1] = 1.0f;
+					fi->lightColor[k][2] = 1.0f;
+					fi->lightColor[k][3] = 1.0f;
 				}
 			}
 

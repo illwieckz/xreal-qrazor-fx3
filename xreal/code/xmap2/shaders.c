@@ -122,12 +122,14 @@ void ColorMod(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
 			{
 				for(k = 0; k < 4; k++)
 				{
-					c = (mult[k] * dv->color[j][k]) + add[k];
+					c = (mult[k] * dv->lightColor[j][k]) + add[k];
+
 					if(c < 0)
 						c = 0;
-					else if(c > 255)
-						c = 255;
-					dv->color[j][k] = c;
+					else if(c > 1.0f)
+						c = 1.0f;
+
+					dv->lightColor[j][k] = c;
 				}
 			}
 		}

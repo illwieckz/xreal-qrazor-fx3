@@ -279,10 +279,10 @@ static void SideAsTriFan(terrainSurf_t * surf, int *index, int num)
 		mid->lightmap[0] += v->lightmap[0];
 		mid->lightmap[1] += v->lightmap[1];
 
-		colorSum[0] += v->color[0];
-		colorSum[1] += v->color[1];
-		colorSum[2] += v->color[2];
-		colorSum[3] += v->color[3];
+		colorSum[0] += v->lightColor[0];
+		colorSum[1] += v->lightColor[1];
+		colorSum[2] += v->lightColor[2];
+		colorSum[3] += v->lightColor[3];
 	}
 
 	mid->xyz[0] /= num;
@@ -295,10 +295,10 @@ static void SideAsTriFan(terrainSurf_t * surf, int *index, int num)
 	mid->lightmap[0] /= num;
 	mid->lightmap[1] /= num;
 
-	mid->color[0] = colorSum[0] / num;
-	mid->color[1] = colorSum[1] / num;
-	mid->color[2] = colorSum[2] / num;
-	mid->color[3] = colorSum[3] / num;
+	mid->lightColor[0] = colorSum[0] / num;
+	mid->lightColor[1] = colorSum[1] / num;
+	mid->lightColor[2] = colorSum[2] / num;
+	mid->lightColor[3] = colorSum[3] / num;
 
 	// fill in indices in trifan order
 	if(surf->numIndexes + num * 3 > surf->maxIndexes)
@@ -438,10 +438,10 @@ void CreateTerrainSurface(terrainSurf_t * surf, shaderInfo_t * shader)
 		out->st[1] = surf->verts[i].st[1];
 
 		// the colors will be set by the lighting pass
-		out->color[0] = 255;
-		out->color[1] = 255;
-		out->color[2] = 255;
-		out->color[3] = surf->verts[i].color[3];
+		out->lightColor[0] = 1.0f;
+		out->lightColor[1] = 1.0f;
+		out->lightColor[2] = 1.0f;
+		out->lightColor[3] = surf->verts[i].lightColor[3];
 
 		// calculate the vertex normal
 		VectorClear(out->normal);
@@ -511,11 +511,11 @@ void EmitTerrainVerts(side_t * side, terrainSurf_t * surf, int maxlayer, int alp
 		// set the final alpha value--0 for texture 1, 255 for texture 2
 		if(alpha[i] < maxlayer)
 		{
-			vert->color[3] = 0;
+			vert->lightColor[3] = 0;
 		}
 		else
 		{
-			vert->color[3] = 255;
+			vert->lightColor[3] = 1.0f;
 		}
 
 		vert->xyz[0] = floor(side->winding->p[i][0] + 0.1f);
@@ -925,11 +925,11 @@ void EmitTerrainVerts2(terrainSurf_t * surf, terrainVert_t ** verts, int alpha[3
 
 		if(alpha[i])
 		{
-			vert->color[3] = 255;
+			vert->lightColor[3] = 1.0f;
 		}
 		else
 		{
-			vert->color[3] = 0;
+			vert->lightColor[3] = 0;
 		}
 
 		vert->xyz[0] = floor(verts[i]->xyz[0] + 0.1f);

@@ -29,7 +29,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* marker */
-#define BSPFILE_IBSP_C
+#define BSPFILE_XBSP_C
 
 
 
@@ -41,7 +41,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 /* -------------------------------------------------------------------------------
 
-this file handles translating the bsp file format used by quake 3, rtcw, and ef
+this file handles translating the bsp file format used by XreaL
 into the abstracted bsp file used by xmap2.
 
 ------------------------------------------------------------------------------- */
@@ -75,7 +75,7 @@ typedef struct
 
 	bspLump_t       lumps[HEADER_LUMPS];
 }
-ibspHeader_t;
+xbspHeader_t;
 
 
 
@@ -85,13 +85,13 @@ typedef struct
 	int             planeNum;
 	int             shaderNum;
 }
-ibspBrushSide_t;
+xbspBrushSide_t;
 
 
-static void CopyBrushSidesLump(ibspHeader_t * header)
+static void CopyBrushSidesLump(xbspHeader_t * header)
 {
 	int             i;
-	ibspBrushSide_t *in;
+	xbspBrushSide_t *in;
 	bspBrushSide_t *out;
 
 
@@ -112,11 +112,11 @@ static void CopyBrushSidesLump(ibspHeader_t * header)
 }
 
 
-static void AddBrushSidesLump(FILE * file, ibspHeader_t * header)
+static void AddBrushSidesLump(FILE * file, xbspHeader_t * header)
 {
 	int             i, size;
 	bspBrushSide_t *in;
-	ibspBrushSide_t *buffer, *out;
+	xbspBrushSide_t *buffer, *out;
 
 
 	/* allocate output buffer */
@@ -145,7 +145,7 @@ static void AddBrushSidesLump(FILE * file, ibspHeader_t * header)
 
 
 /* drawsurfaces */
-typedef struct ibspDrawSurface_s
+typedef struct xbspDrawSurface_s
 {
 	int             shaderNum;
 	int             fogNum;
@@ -167,13 +167,13 @@ typedef struct ibspDrawSurface_s
 	int             patchWidth;
 	int             patchHeight;
 }
-ibspDrawSurface_t;
+xbspDrawSurface_t;
 
 
-static void CopyDrawSurfacesLump(ibspHeader_t * header)
+static void CopyDrawSurfacesLump(xbspHeader_t * header)
 {
 	int             i, j;
-	ibspDrawSurface_t *in;
+	xbspDrawSurface_t *in;
 	bspDrawSurface_t *out;
 
 
@@ -226,11 +226,11 @@ static void CopyDrawSurfacesLump(ibspHeader_t * header)
 }
 
 
-static void AddDrawSurfacesLump(FILE * file, ibspHeader_t * header)
+static void AddDrawSurfacesLump(FILE * file, xbspHeader_t * header)
 {
 	int             i, size;
 	bspDrawSurface_t *in;
-	ibspDrawSurface_t *buffer, *out;
+	xbspDrawSurface_t *buffer, *out;
 
 
 	/* allocate output buffer */
@@ -285,15 +285,17 @@ typedef struct
 	float           st[2];
 	float           lightmap[2];
 	vec3_t          normal;
-	byte            color[4];
+	float			paintColor[4];
+	float           lightColor[4];
+	float			lightDirection[3];
 }
-ibspDrawVert_t;
+xbspDrawVert_t;
 
 
-static void CopyDrawVertsLump(ibspHeader_t * header)
+static void CopyDrawVertsLump(xbspHeader_t * header)
 {
 	int             i;
-	ibspDrawVert_t *in;
+	xbspDrawVert_t *in;
 	bspDrawVert_t  *out;
 
 
@@ -315,10 +317,19 @@ static void CopyDrawVertsLump(ibspHeader_t * header)
 
 		VectorCopy(in->normal, out->normal);
 
-		out->lightColor[0][0] = in->color[0];
-		out->lightColor[0][1] = in->color[1];
-		out->lightColor[0][2] = in->color[2];
-		out->lightColor[0][3] = in->color[3];
+		out->paintColor[0] = in->paintColor[0];
+		out->paintColor[1] = in->paintColor[1];
+		out->paintColor[2] = in->paintColor[2];
+		out->paintColor[3] = in->paintColor[3];
+
+		out->lightColor[0][0] = in->lightColor[0];
+		out->lightColor[0][1] = in->lightColor[1];
+		out->lightColor[0][2] = in->lightColor[2];
+		out->lightColor[0][3] = in->lightColor[3];
+
+		out->lightDirection[0][0] = in->lightDirection[0];
+		out->lightDirection[0][1] = in->lightDirection[1];
+		out->lightDirection[0][2] = in->lightDirection[2];
 
 		in++;
 		out++;
@@ -326,11 +337,11 @@ static void CopyDrawVertsLump(ibspHeader_t * header)
 }
 
 
-static void AddDrawVertsLump(FILE * file, ibspHeader_t * header)
+static void AddDrawVertsLump(FILE * file, xbspHeader_t * header)
 {
 	int             i, size;
 	bspDrawVert_t  *in;
-	ibspDrawVert_t *buffer, *out;
+	xbspDrawVert_t *buffer, *out;
 
 
 	/* allocate output buffer */
@@ -352,10 +363,19 @@ static void AddDrawVertsLump(FILE * file, ibspHeader_t * header)
 
 		VectorCopy(in->normal, out->normal);
 
-		out->color[0] = in->lightColor[0][0];
-		out->color[1] = in->lightColor[0][1];
-		out->color[2] = in->lightColor[0][2];
-		out->color[3] = in->lightColor[0][3];
+		out->paintColor[0] = in->paintColor[0];
+		out->paintColor[1] = in->paintColor[1];
+		out->paintColor[2] = in->paintColor[2];
+		out->paintColor[3] = in->paintColor[3];
+
+		out->lightColor[0] = in->lightColor[0][0];
+		out->lightColor[1] = in->lightColor[0][1];
+		out->lightColor[2] = in->lightColor[0][2];
+		out->lightColor[3] = in->lightColor[0][3];
+
+		out->lightDirection[0] = in->lightDirection[0][0];
+		out->lightDirection[1] = in->lightDirection[0][1];
+		out->lightDirection[2] = in->lightDirection[0][2];
 
 		in++;
 		out++;
@@ -377,13 +397,13 @@ typedef struct
 	byte            directed[3];
 	byte            latLong[2];
 }
-ibspGridPoint_t;
+xbspGridPoint_t;
 
 
-static void CopyLightGridLumps(ibspHeader_t * header)
+static void CopyLightGridLumps(xbspHeader_t * header)
 {
 	int             i, j;
-	ibspGridPoint_t *in;
+	xbspGridPoint_t *in;
 	bspGridPoint_t *out;
 
 
@@ -417,11 +437,11 @@ static void CopyLightGridLumps(ibspHeader_t * header)
 }
 
 
-static void AddLightGridLumps(FILE * file, ibspHeader_t * header)
+static void AddLightGridLumps(FILE * file, xbspHeader_t * header)
 {
 	int             i;
 	bspGridPoint_t *in;
-	ibspGridPoint_t *buffer, *out;
+	xbspGridPoint_t *buffer, *out;
 
 
 	/* dummy check */
@@ -456,13 +476,13 @@ static void AddLightGridLumps(FILE * file, ibspHeader_t * header)
 
 
 /*
-LoadIBSPFile()
+LoadXBSPFile()
 loads a quake 3 bsp file into memory
 */
 
-void LoadIBSPFile(const char *filename)
+void LoadXBSPFile(const char *filename)
 {
-	ibspHeader_t   *header;
+	xbspHeader_t   *header;
 
 
 	/* load the file header */
@@ -521,13 +541,13 @@ void LoadIBSPFile(const char *filename)
 
 
 /*
-WriteIBSPFile()
+WriteXBSPFile()
 writes an id bsp file
 */
 
-void WriteIBSPFile(const char *filename)
+void WriteXBSPFile(const char *filename)
 {
-	ibspHeader_t    outheader, *header;
+	xbspHeader_t    outheader, *header;
 	FILE           *file;
 	time_t          t;
 	char            marker[1024];

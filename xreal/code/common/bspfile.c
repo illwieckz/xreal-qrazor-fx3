@@ -113,7 +113,7 @@ void SwapBSPFile(void)
 {
 	int             i;
 
-	// models   
+	// models
 	SwapBlock((int *)dmodels, numModels * sizeof(dmodels[0]));
 
 	// shaders (don't swap the name)
@@ -148,19 +148,36 @@ void SwapBSPFile(void)
 	((int *)&visBytes)[0] = LittleLong(((int *)&visBytes)[0]);
 	((int *)&visBytes)[1] = LittleLong(((int *)&visBytes)[1]);
 
-	// drawverts (don't swap colors )
+	// drawverts
 	for(i = 0; i < numDrawVerts; i++)
 	{
 		drawVerts[i].lightmap[0] = LittleFloat(drawVerts[i].lightmap[0]);
 		drawVerts[i].lightmap[1] = LittleFloat(drawVerts[i].lightmap[1]);
+
 		drawVerts[i].st[0] = LittleFloat(drawVerts[i].st[0]);
 		drawVerts[i].st[1] = LittleFloat(drawVerts[i].st[1]);
+
 		drawVerts[i].xyz[0] = LittleFloat(drawVerts[i].xyz[0]);
 		drawVerts[i].xyz[1] = LittleFloat(drawVerts[i].xyz[1]);
 		drawVerts[i].xyz[2] = LittleFloat(drawVerts[i].xyz[2]);
+
 		drawVerts[i].normal[0] = LittleFloat(drawVerts[i].normal[0]);
 		drawVerts[i].normal[1] = LittleFloat(drawVerts[i].normal[1]);
 		drawVerts[i].normal[2] = LittleFloat(drawVerts[i].normal[2]);
+
+		drawVerts[i].paintColor[0] = LittleFloat(drawVerts[i].paintColor[0]);
+		drawVerts[i].paintColor[1] = LittleFloat(drawVerts[i].paintColor[1]);
+		drawVerts[i].paintColor[2] = LittleFloat(drawVerts[i].paintColor[2]);
+		drawVerts[i].paintColor[3] = LittleFloat(drawVerts[i].paintColor[3]);
+
+		drawVerts[i].lightColor[0] = LittleFloat(drawVerts[i].lightColor[0]);
+		drawVerts[i].lightColor[1] = LittleFloat(drawVerts[i].lightColor[1]);
+		drawVerts[i].lightColor[2] = LittleFloat(drawVerts[i].lightColor[2]);
+		drawVerts[i].lightColor[3] = LittleFloat(drawVerts[i].lightColor[3]);
+
+		drawVerts[i].lightDirection[0] = LittleFloat(drawVerts[i].lightDirection[0]);
+		drawVerts[i].lightDirection[1] = LittleFloat(drawVerts[i].lightDirection[1]);
+		drawVerts[i].lightDirection[2] = LittleFloat(drawVerts[i].lightDirection[2]);
 	}
 
 	// drawindexes

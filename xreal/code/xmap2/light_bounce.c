@@ -657,7 +657,7 @@ void RadLightForTriangles(int num, int lightmapNum, rawLightmap_t * lm, shaderIn
 			{
 				radVertexLuxel = RAD_VERTEX_LUXEL(k, ds->firstVert + bspDrawIndexes[ds->firstIndex + i + j]);
 				VectorCopy(radVertexLuxel, rw.verts[j].color[k]);
-				rw.verts[j].color[k][3] = yDrawVerts[v].color[k][3];
+				rw.verts[j].color[k][3] = yDrawVerts[v].lightColor[k][3];
 			}
 		}
 
@@ -699,7 +699,7 @@ void RadLightForPatch(int num, int lightmapNum, rawLightmap_t * lm, shaderInfo_t
 	bogus = safe_malloc(ds->numVerts * sizeof(bspDrawVert_t));
 	memcpy(bogus, &yDrawVerts[ds->firstVert], ds->numVerts * sizeof(bspDrawVert_t));
 	for(i = 0; i < ds->numVerts; i++)
-		bogus[i].color[0][0] = i;
+		bogus[i].lightColor[0][0] = i;
 
 	/* build a subdivided mesh identical to shadow facets for this patch */
 	/* this MUST MATCH FacetsForPatch() identically! */
@@ -720,8 +720,8 @@ void RadLightForPatch(int num, int lightmapNum, rawLightmap_t * lm, shaderInfo_t
 	for(i = 0; i < (mesh->width * mesh->height); i++)
 	{
 		dv[0] = &mesh->verts[i];
-		if(dv[0]->color[0][0] >= ds->numVerts)
-			dv[0]->color[0][0] = ds->numVerts - 1;
+		if(dv[0]->lightColor[0][0] >= ds->numVerts)
+			dv[0]->lightColor[0][0] = ds->numVerts - 1;
 	}
 
 	/* iterate through the mesh quads */
@@ -766,9 +766,9 @@ void RadLightForPatch(int num, int lightmapNum, rawLightmap_t * lm, shaderInfo_t
 					/* fix colors */
 					for(i = 0; i < MAX_LIGHTMAPS; i++)
 					{
-						radVertexLuxel = RAD_VERTEX_LUXEL(i, ds->firstVert + dv[v]->color[0][0]);
+						radVertexLuxel = RAD_VERTEX_LUXEL(i, ds->firstVert + (int) dv[v]->lightColor[0][0]);
 						VectorCopy(radVertexLuxel, rw.verts[v].color[i]);
-						rw.verts[v].color[i][3] = dv[v]->color[i][3];
+						rw.verts[v].color[i][3] = dv[v]->lightColor[i][3];
 					}
 				}
 
@@ -794,9 +794,9 @@ void RadLightForPatch(int num, int lightmapNum, rawLightmap_t * lm, shaderInfo_t
 						/* fix colors */
 						for(i = 0; i < MAX_LIGHTMAPS; i++)
 						{
-							radVertexLuxel = RAD_VERTEX_LUXEL(i, ds->firstVert + dv[v]->color[0][0]);
+							radVertexLuxel = RAD_VERTEX_LUXEL(i, ds->firstVert + (int) dv[v]->lightColor[0][0]);
 							VectorCopy(radVertexLuxel, rw.verts[v].color[i]);
-							rw.verts[v].color[i][3] = dv[v]->color[i][3];
+							rw.verts[v].color[i][3] = dv[v]->lightColor[i][3];
 						}
 					}
 

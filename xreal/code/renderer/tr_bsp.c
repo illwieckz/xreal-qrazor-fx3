@@ -130,45 +130,33 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 	out[3] = in[3];
 }
 
+
 /*
 ===============
-R_NormalizeLightingBytes
+R_HDRTonemapLightingColors
 ===============
 */
-static void R_NormalizeLightingBytes(byte in[4], byte out[4])
+static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out)
 {
+	float			scaledLuminance;
+	float			finalLuminance;
+	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
+
+	scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
 #if 0
-	vec3_t          n;
-	vec_t           length;
-	float           inv127 = 1.0f / 127.0f;
-
-	n[0] = in[0] * inv127;
-	n[1] = in[1] * inv127;
-	n[2] = in[2] * inv127;
-
-	length = VectorLength(n);
-
-	if(length)
-	{
-		n[0] /= length;
-		n[1] /= length;
-		n[2] /= length;
-	}
-	else
-	{
-		VectorSet(n, 0.0, 0.0, 1.0);
-	}
-
-	out[0] = (byte) (128 + 127 * n[0]);
-	out[1] = (byte) (128 + 127 * n[1]);
-	out[2] = (byte) (128 + 127 * n[2]);
-	out[3] = in[3];
+	finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
 #else
-	out[0] = in[0];
-	out[1] = in[1];
-	out[2] = in[2];
-	out[3] = in[3];
+	// exponential tone mapping
+	finalLuminance = 1.0 - exp(-scaledLuminance);
 #endif
+
+	VectorScale(in, finalLuminance, out);
+
+	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
+	{
+		NormalizeColor(out, out);
+	}
+	out[3] = Q_min(1.0f, out[3]);
 }
 
 static int QDECL LightmapNameCompare(const void *a, const void *b)
@@ -805,6 +793,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			}
 		}
 	}
+#if 0
 	else
 	{
 		buf = fileBase + l->fileofs;
@@ -859,6 +848,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			}
 		}
 	}
+#endif
 
 	if(tr.worldDeluxeMapping)
 	{
@@ -1020,7 +1010,13 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
-		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
+		for(j = 0; j < 3; j++)
+		{
+			cv->verts[i].paintColor[j] = Q_clamp(LittleFloat(verts[i].paintColor[j]), 0.0f, 1.0f);
+			cv->verts[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
+		}
+
+		R_HDRTonemapLightingColors(verts[i].lightColor, cv->verts[i].lightColor);
 	}
 
 	// copy triangles
@@ -1167,12 +1163,20 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 			points[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
 			points[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
+
 		for(j = 0; j < 2; j++)
 		{
 			points[i].st[j] = LittleFloat(verts[i].st[j]);
 			points[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
-		R_ColorShiftLightingBytes(verts[i].color, points[i].color);
+
+		for(j = 0; j < 3; j++)
+		{
+			points[i].paintColor[j] = Q_clamp(LittleFloat(verts[i].paintColor[j]), 0.0f, 1.0f);
+			points[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
+		}
+
+		R_HDRTonemapLightingColors(verts[i].lightColor, points[i].lightColor);
 	}
 
 	// pre-tesseleate
@@ -1256,7 +1260,13 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
-		R_ColorShiftLightingBytes(verts[i].color, cv->verts[i].color);
+		for(j = 0; j < 3; j++)
+		{
+			cv->verts[i].paintColor[j] = Q_clamp(LittleFloat(verts[i].paintColor[j]), 0.0f, 1.0f);
+			cv->verts[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
+		}
+
+		R_HDRTonemapLightingColors(verts[i].lightColor, cv->verts[i].lightColor);
 	}
 
 	// copy triangles
@@ -2274,6 +2284,7 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 		out->tangent[j] = in->tangent[j];
 		out->binormal[j] = in->binormal[j];
 		out->normal[j] = in->normal[j];
+		out->lightDirection[j] = in->lightDirection[j];
 	}
 
 	for(j = 0; j < 2; j++)
@@ -2284,7 +2295,8 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 
 	for(j = 0; j < 4; j++)
 	{
-		out->color[j] = in->color[j];
+		out->paintColor[j] = in->paintColor[j];
+		out->lightColor[j] = in->lightColor[j];
 	}
 
 #if DEBUG_OPTIMIZEVERTICES
@@ -2322,7 +2334,7 @@ static qboolean CompareWorldVert(const srfVert_t * v1, const srfVert_t * v2)
 
 	for(i = 0; i < 4; i++)
 	{
-		if(v1->color[i] != v2->color[i])
+		if(v1->lightColor[i] != v2->lightColor[i])
 			return qfalse;
 	}
 
@@ -2348,7 +2360,7 @@ static qboolean CompareLightVert(const srfVert_t * v1, const srfVert_t * v2)
 
 	for(i = 0; i < 4; i++)
 	{
-		if(v1->color[i] != v2->color[i])
+		if(v1->paintColor[i] != v2->paintColor[i])
 			return qfalse;
 	}
 
@@ -7205,7 +7217,7 @@ void RE_LoadWorldMap(const char *name)
 	fileBase = (byte *) header;
 
 	i = LittleLong(header->version);
-	if(i != BSP_VERSION && i != BSP_VERSION_ET)
+	if(i != BSP_VERSION)
 	{
 		ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", name, i, BSP_VERSION);
 	}

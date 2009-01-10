@@ -502,7 +502,7 @@ void ClipSidesIntoTree(entity_t * e, tree_t * tree)
 FilterDrawSurfIntoTree
 
 Place a reference to the given drawsurf in every leaf it contacts
-We assume that the point mesh aproximation to the curve will get a 
+We assume that the point mesh aproximation to the curve will get a
 reference into all the leafs we need.
 ====================
 */
@@ -837,10 +837,10 @@ static void SurfaceAsTriFan(dsurface_t * ds)
 		mid->lightmap[0] += v->lightmap[0];
 		mid->lightmap[1] += v->lightmap[1];
 
-		colorSum[0] += v->color[0];
-		colorSum[1] += v->color[1];
-		colorSum[2] += v->color[2];
-		colorSum[3] += v->color[3];
+		colorSum[0] += v->lightColor[0];
+		colorSum[1] += v->lightColor[1];
+		colorSum[2] += v->lightColor[2];
+		colorSum[3] += v->lightColor[3];
 	}
 
 	mid->xyz[0] /= ds->numVerts;
@@ -853,10 +853,10 @@ static void SurfaceAsTriFan(dsurface_t * ds)
 	mid->lightmap[0] /= ds->numVerts;
 	mid->lightmap[1] /= ds->numVerts;
 
-	mid->color[0] = colorSum[0] / ds->numVerts;
-	mid->color[1] = colorSum[1] / ds->numVerts;
-	mid->color[2] = colorSum[2] / ds->numVerts;
-	mid->color[3] = colorSum[3] / ds->numVerts;
+	mid->lightColor[0] = colorSum[0] / ds->numVerts;
+	mid->lightColor[1] = colorSum[1] / ds->numVerts;
+	mid->lightColor[2] = colorSum[2] / ds->numVerts;
+	mid->lightColor[3] = colorSum[3] / ds->numVerts;
 
 	VectorCopy((drawVerts + ds->firstVert)->normal, mid->normal);
 
@@ -1015,15 +1015,15 @@ void EmitPlanarSurf(drawSurface_t * ds)
 
 		if(debugSurfaces)
 		{
-			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->color);
-			outv->color[3] = 255;
+			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->lightColor);
+			outv->lightColor[3] = 1.0f;
 		}
 		else
 		{
-			outv->color[0] = 255;
-			outv->color[1] = 255;
-			outv->color[2] = 255;
-			outv->color[3] = 255;
+			outv->lightColor[0] = 1.0f;
+			outv->lightColor[1] = 1.0f;
+			outv->lightColor[2] = 1.0f;
+			outv->lightColor[3] = 1.0f;
 		}
 	}
 
@@ -1082,15 +1082,15 @@ void EmitPatchSurf(drawSurface_t * ds)
 
 		if(debugSurfaces)
 		{
-			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->color);
-			outv->color[3] = 255;
+			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->lightColor);
+			outv->lightColor[3] = 255;
 		}
 		else
 		{
-			outv->color[0] = 255;
-			outv->color[1] = 255;
-			outv->color[2] = 255;
-			outv->color[3] = 255;
+			outv->lightColor[0] = 255;
+			outv->lightColor[1] = 255;
+			outv->lightColor[2] = 255;
+			outv->lightColor[3] = 255;
 		}
 	}
 
@@ -1126,7 +1126,7 @@ void EmitFlareSurf(drawSurface_t * ds)
 	out->fogNum = ds->fogNum;
 
 	VectorCopy(ds->lightmapOrigin, out->lightmapOrigin);
-	VectorCopy(ds->lightmapVecs[0], out->lightmapVecs[0]);	// color
+	VectorCopy(ds->lightmapVecs[0], out->lightmapVecs[0]);	// lightColor
 	VectorCopy(ds->lightmapVecs[2], out->lightmapVecs[2]);
 }
 
@@ -1181,15 +1181,15 @@ void EmitModelSurf(drawSurface_t * ds)
 
 		if(debugSurfaces)
 		{
-			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->color);
-			outv->color[3] = 255;
+			VectorCopy(debugColors[(out - drawSurfaces) % 12], outv->lightColor);
+			outv->lightColor[3] = 255;
 		}
 		else
 		{
-			// Tr3B - don't override colors to allow vertex painting
-			//outv->color[0] = 0;
-			//outv->color[1] = 0;
-			//outv->color[2] = 0;
+			outv->lightColor[0] = 1.0f;
+			outv->lightColor[1] = 1.0f;
+			outv->lightColor[2] = 1.0f;
+			outv->lightColor[3] = 1.0f;
 		}
 	}
 
@@ -1210,7 +1210,7 @@ void EmitModelSurf(drawSurface_t * ds)
 ==================
 CreateFlareSurface
 
-Light flares from surface lights become 
+Light flares from surface lights become
 ==================
 */
 void CreateFlareSurface(drawSurface_t * faceDs)

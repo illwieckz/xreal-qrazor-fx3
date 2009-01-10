@@ -1236,7 +1236,7 @@ void VertexLighting(dsurface_t * ds, qboolean testOcclusion, qboolean forceSunLi
 			{
 				sample[j] = 255;
 			}
-			dv->color[j] = sample[j];
+			dv->lightColor[j] = sample[j];
 		}
 
 		// Don't bother writing alpha since it will already be set to 255,
@@ -1900,7 +1900,7 @@ void TraceGrid(int num)
 
 	// find the major light direction, and divide the
 	// total light between that along the direction and
-	// the remaining in the ambient 
+	// the remaining in the ambient
 	numCon = 0;
 	for(light = lights; light; light = light->next)
 	{

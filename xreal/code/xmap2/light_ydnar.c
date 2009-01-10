@@ -2639,8 +2639,19 @@ void IlluminateVertexes(int num)
 				/* store */
 				if(bouncing || bounce == 0 || !bounceOnly)
 					VectorAdd(vertLuxel, radVertLuxel, vertLuxel);
+
 				if(!info->si->noVertexLight)
-					ColorToBytes(vertLuxel, verts[i].color[lightmapNum], info->si->vertexScale);
+				{
+					if(hdr)
+					{
+						VectorScale(vertLuxel, info->si->vertexScale <= 0.0f ? 1.0f : info->si->vertexScale, verts[i].lightColor[lightmapNum]);
+					}
+					else
+					{
+						// FIXME bspDrawVert_t::color is not byte[4] anymore
+						//ColorToBytes(vertLuxel, verts[i].color[lightmapNum], info->si->vertexScale);
+					}
+				}
 			}
 		}
 
@@ -2750,8 +2761,15 @@ void IlluminateVertexes(int num)
 			numVertsIlluminated++;
 
 			/* store into bytes (for vertex approximation) */
-			if(!info->si->noVertexLight)
-				ColorToBytes(vertLuxel, verts[i].color[lightmapNum], 1.0f);
+			if(hdr)
+			{
+				VectorScale(vertLuxel, 1.0f, verts[i].lightColor[lightmapNum]);
+			}
+			else
+			{
+				// FIXME bspDrawVert_t::color is not byte[4] anymore
+				//ColorToBytes(vertLuxel, verts[i].color[lightmapNum], 1.0f);
+			}
 		}
 	}
 }
