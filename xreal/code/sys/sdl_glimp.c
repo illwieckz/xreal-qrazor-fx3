@@ -1179,6 +1179,11 @@ void GLimp_Init(void)
 		   Q_stristr(glConfig.renderer_string, "gtx 260") || Q_stristr(glConfig.renderer_string, "gtx 280"))
 			glConfig.hardwareType = GLHW_NV_DX10;
 	}
+	else if(Q_stristr(glConfig.renderer_string, "quadro fx"))
+	{
+		if(Q_stristr(glConfig.renderer_string, "3600"))
+			glConfig.hardwareType = GLHW_NV_DX10;
+	}
 	else if(Q_stristr(glConfig.renderer_string, "rv770"))
 	{
 		glConfig.hardwareType = GLHW_ATI_DX10;
