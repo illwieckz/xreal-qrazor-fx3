@@ -9,6 +9,7 @@ xmap2_src = [
 'code/xmap2/bspfile_abstract.c',
 'code/xmap2/bspfile_ibsp.c',
 'code/xmap2/bspfile_rbsp.c',
+'code/xmap2/bspfile_xbsp.c',
 'code/xmap2/convert_ase.c',
 'code/xmap2/convert_map.c',
 'code/xmap2/decals.c',
