@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bspfile_xbsp.c"
+				>
+			</File>
+			<File
 				RelativePath=".\image.c"
 				>
 			</File>
@@ -868,42 +872,6 @@
 			Name="include"
 			Filter="h"
 			>
-			<File
-				RelativePath=".\game_ef.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_etut.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_ja.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_jk2.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_quake3.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_sof2.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_tenebrae.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_wolf.h"
-				>
-			</File>
-			<File
-				RelativePath=".\game_wolfet.h"
-				>
-			</File>
 			<File
 				RelativePath=".\game_xreal.h"
 				>
