@@ -122,7 +122,7 @@ game_t struct
 	1.0f,				/* lightmap gamma */
 	1.0f,				/* lightmap compensate */
 	"XBSP",				/* bsp file prefix */
-	47,					/* bsp file version */
+	48,					/* bsp file version */
 	qfalse,				/* cod-style lump len/ofs order */
 	LoadXBSPFile,		/* bsp load function */
 	WriteXBSPFile,		/* bsp write function */

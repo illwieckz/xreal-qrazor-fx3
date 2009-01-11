@@ -2116,9 +2116,9 @@ static void Render_vertexLighting_DBS_entity(int stage)
 
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
-	VectorScale(backEnd.currentEntity->ambientLight, 1.0, ambientColor);
+	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
 	ClampColor(ambientColor);
-	VectorScale(backEnd.currentEntity->directedLight, 1.0, directedLight);
+	VectorCopy(backEnd.currentEntity->directedLight, directedLight);
 	ClampColor(directedLight);
 	VectorCopy(backEnd.currentEntity->lightDir, lightDir);
 

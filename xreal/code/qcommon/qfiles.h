@@ -238,7 +238,7 @@ typedef struct
 #define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'X')
 		// little-endian "XBSP"
 
-#define BSP_VERSION			47
+#define BSP_VERSION			48
 
 
 // there shouldn't be any problem with increasing these values at the
@@ -380,6 +380,14 @@ typedef struct
 	int             brushNum;
 	int             visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
 } dfog_t;
+
+// light grid
+typedef struct
+{
+	float           ambient[3];
+	float           directed[3];
+	byte            latLong[2];
+} dgridPoint_t;
 
 typedef struct
 {

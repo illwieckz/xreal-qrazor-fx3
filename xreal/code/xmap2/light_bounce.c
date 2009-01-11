@@ -209,7 +209,7 @@ qboolean RadSampleImage(byte * pixels, int width, int height, float st[2], float
 
 
 	/* clear color first */
-	color[0] = color[1] = color[2] = color[3] = 255;
+	color[0] = color[1] = color[2] = color[3] = 1.0f;
 
 	/* dummy check */
 	if(pixels == NULL || width < 1 || height < 1)
@@ -282,7 +282,7 @@ static void RadSample(int lightmapNum, bspDrawSurface_t * ds, rawLightmap_t * lm
 			   (si->lightImage->pixels, si->lightImage->width, si->lightImage->height, rw->verts[samples].st, textureColor))
 			{
 				VectorCopy(si->averageColor, textureColor);
-				textureColor[4] = 255.0f;
+				textureColor[4] = 1.0f;
 			}
 			for(i = 0; i < 3; i++)
 				color[i] = (textureColor[i] / 255) * (rw->verts[samples].color[lightmapNum][i] / 255.0f);
@@ -363,7 +363,7 @@ static void RadSample(int lightmapNum, bspDrawSurface_t * ds, rawLightmap_t * lm
 						   (si->lightImage->pixels, si->lightImage->width, si->lightImage->height, st, textureColor))
 						{
 							VectorCopy(si->averageColor, textureColor);
-							textureColor[4] = 255;
+							textureColor[4] = 1.0f;
 						}
 						for(i = 0; i < 3; i++)
 							color[i] = (textureColor[i] / 255) * (radLuxel[i] / 255);

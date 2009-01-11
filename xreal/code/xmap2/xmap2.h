@@ -469,8 +469,8 @@ bspSurfaceType_t;
 
 typedef struct bspGridPoint_s
 {
-	byte            ambient[MAX_LIGHTMAPS][3];
-	byte            directed[MAX_LIGHTMAPS][3];
+	vec3_t          ambient[MAX_LIGHTMAPS];
+	vec3_t          directed[MAX_LIGHTMAPS];
 	byte            styles[MAX_LIGHTMAPS];
 	byte            latLong[2];
 }
@@ -2120,6 +2120,14 @@ Q_EXTERN float				bounceScale Q_ASSIGN( 0.25f );
 /* ydnar: lightmap gamma/compensation */
 Q_EXTERN float				lightmapGamma Q_ASSIGN( 1.0f );
 Q_EXTERN float				lightmapCompensate Q_ASSIGN( 1.0f );
+
+/* Tr3B: luminance calculation */
+Q_EXTERN const vec3_t       LUMINANCE_VECTOR	/* should be the same as in XreaL */
+#ifndef MAIN_C
+							;
+#else
+= {0.2125f, 0.7154f, 0.0721f};
+#endif
 
 /* ydnar: for runtime tweaking of falloff tolerance */
 Q_EXTERN float				falloffTolerance Q_ASSIGN( 1.0f );

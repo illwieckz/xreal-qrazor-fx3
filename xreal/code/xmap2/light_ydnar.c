@@ -1950,7 +1950,7 @@ void IlluminateRawLightmap(int rawLightmapNum)
 					VectorCopy(ambientColor, luxel);
 					if(deluxemap)
 					{
-						brightness = ambientColor[0] * 0.3f + ambientColor[1] * 0.59f + ambientColor[2] * 0.11f;
+						brightness = DotProduct(ambientColor, LUMINANCE_VECTOR) + 0.0001f;
 						brightness *= (1.0 / 255.0);
 						// use AT LEAST this amount of contribution from ambient for the deluxemap, fixes points that receive ZERO light
 						if(brightness < 0.00390625f)
@@ -2036,7 +2036,7 @@ void IlluminateRawLightmap(int rawLightmapNum)
 						if(DotProduct(normal, trace.direction) > 0)	// do not take light from the back side
 						{
 							/* color to grayscale (photoshop rgb weighting) */
-							brightness = trace.color[0] * 0.3f + trace.color[1] * 0.59f + trace.color[2] * 0.11f;
+							brightness = brightness = DotProduct(trace.color, LUMINANCE_VECTOR) + 0.0001f;
 							brightness *= (1.0 / 255.0);
 							VectorScale(trace.direction, brightness, trace.direction);
 							VectorAdd(deluxel, trace.direction, deluxel);

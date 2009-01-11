@@ -1350,6 +1350,13 @@ typedef struct
 
 typedef struct
 {
+	vec4_t          ambient;
+	vec4_t          directed;
+	byte            latLong[2];
+} bspGridPoint_t;
+
+typedef struct
+{
 	char            name[MAX_QPATH];	// ie: maps/tim_dm2.bsp
 	char            baseName[MAX_QPATH];	// ie: tim_dm2
 
@@ -1397,7 +1404,7 @@ typedef struct
 	vec3_t          lightGridSize;
 	vec3_t          lightGridInverseSize;
 	int             lightGridBounds[3];
-	byte           *lightGridData;
+	bspGridPoint_t *lightGridData;
 
 	int             numLights;
 	trRefLight_t   *lights;

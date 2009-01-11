@@ -2434,6 +2434,7 @@ void StoreSurfaceLightmaps(void)
 									VectorSet(luxel, 255, 0, 255);
 								else if(*cluster == CLUSTER_FLOODED)
 									VectorSet(luxel, 0, 32, 255);
+
 								VectorAdd(occludedSample, luxel, occludedSample);
 								occludedSamples += 1.0f;
 							}

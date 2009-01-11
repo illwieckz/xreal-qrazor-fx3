@@ -4691,11 +4691,13 @@ R_LoadLightGrid
 */
 void R_LoadLightGrid(lump_t * l)
 {
-	int             i;
+	int             i, j;
 	vec3_t          maxs;
 	int             numGridPoints;
 	world_t        *w;
 	float          *wMins, *wMaxs;
+	dgridPoint_t   *in;
+	bspGridPoint_t *out;
 
 	ri.Printf(PRINT_ALL, "...loading light grid\n");
 
@@ -4717,21 +4719,46 @@ void R_LoadLightGrid(lump_t * l)
 
 	numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
 
-	if(l->filelen != numGridPoints * 8)
+	if(l->filelen != numGridPoints * sizeof(dgridPoint_t))
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: light grid mismatch\n");
 		w->lightGridData = NULL;
 		return;
 	}
 
-	w->lightGridData = ri.Hunk_Alloc(l->filelen, h_low);
-	Com_Memcpy(w->lightGridData, (void *)(fileBase + l->fileofs), l->filelen);
+	in = (void *)(fileBase + l->fileofs);
+	if(l->filelen % sizeof(*in))
+		ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
+	out = ri.Hunk_Alloc(numGridPoints * sizeof(*out), h_low);
 
-	// deal with overbright bits
-	for(i = 0; i < numGridPoints; i++)
+	w->lightGridData = out;
+	//Com_Memcpy(w->lightGridData, (void *)(fileBase + l->fileofs), l->filelen);
+
+	for(i = 0; i < numGridPoints; i++, in++, out++)
 	{
-		R_ColorShiftLightingBytes(&w->lightGridData[i * 8], &w->lightGridData[i * 8]);
-		R_ColorShiftLightingBytes(&w->lightGridData[i * 8 + 3], &w->lightGridData[i * 8 + 3]);
+		for(j = 0; j < 3; j++)
+		{
+			out->ambient[j] = LittleFloat(in->ambient[j]);
+			out->directed[j] = LittleFloat(in->directed[j]);
+		}
+		out->ambient[3] = 1.0f;
+		out->directed[3] = 1.0f;
+
+		for(j = 0; j < 2; j++)
+		{
+			out->latLong[j] = in->latLong[j];
+		}
+
+#if 0
+		// debug print to see if the XBSP format is correct
+		ri.Printf(PRINT_ALL, "%9d Amb: (%03.1f %03.1f %03.1f) Dir: (%03.1f %03.1f %03.1f)\n",
+						i,
+						out->ambient[0], out->ambient[1], out->ambient[2],
+						out->directed[0], out->directed[1], out->directed[2]);
+#endif
+		// deal with overbright bits
+		R_HDRTonemapLightingColors(out->ambient, out->ambient);
+		R_HDRTonemapLightingColors(out->directed, out->directed);
 	}
 }
 

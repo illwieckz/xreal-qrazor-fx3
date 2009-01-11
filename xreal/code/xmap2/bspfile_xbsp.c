@@ -393,8 +393,8 @@ static void AddDrawVertsLump(FILE * file, xbspHeader_t * header)
 /* light grid */
 typedef struct
 {
-	byte            ambient[3];
-	byte            directed[3];
+	float           ambient[3];
+	float           directed[3];
 	byte            latLong[2];
 }
 xbspGridPoint_t;

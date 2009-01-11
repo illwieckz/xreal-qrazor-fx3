@@ -1439,14 +1439,14 @@ void TraceGrid(int num)
 
 		if(hdr)
 		{
-			// FIXME store float values
-			ColorToBytes(color, bgp->ambient[i], 1.0f);
-			ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
+			VectorCopy(color, bgp->ambient[i]);
+			VectorCopy(gp->directed[i], bgp->directed[i]);
 		}
 		else
 		{
-			ColorToBytes(color, bgp->ambient[i], 1.0f);
-			ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
+			// FIXME bspGridPoint_t::ambient and directed a float values
+			// ColorToBytes(color, bgp->ambient[i], 1.0f);
+			// ColorToBytes(gp->directed[i], bgp->directed[i], 1.0f);
 		}
 	}
 

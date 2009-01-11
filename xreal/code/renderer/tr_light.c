@@ -158,7 +158,8 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 	vec3_t          lightOrigin;
 	int             pos[3];
 	int             i, j;
-	byte           *gridData;
+	bspGridPoint_t  *gridPoint;
+	bspGridPoint_t  *gridPoint2;
 	float           frac[3];
 	int             gridStep[3];
 	vec3_t          direction;
@@ -201,30 +202,26 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 	assert(tr.world->lightGridData);	// bk010103 - NULL with -nolight maps
 
 	// trilerp the light value
-	gridStep[0] = 8;
-	gridStep[1] = 8 * tr.world->lightGridBounds[0];
-	gridStep[2] = 8 * tr.world->lightGridBounds[0] * tr.world->lightGridBounds[1];
-	gridData = tr.world->lightGridData + pos[0] * gridStep[0] + pos[1] * gridStep[1] + pos[2] * gridStep[2];
+	gridStep[0] = 1; //sizeof(bspGridPoint_t);
+	gridStep[1] = tr.world->lightGridBounds[0];// * sizeof(bspGridPoint_t);
+	gridStep[2] = tr.world->lightGridBounds[0] * tr.world->lightGridBounds[1];// * sizeof(bspGridPoint_t);
+	gridPoint = tr.world->lightGridData + pos[0] * gridStep[0] + pos[1] * gridStep[1] + pos[2] * gridStep[2];
 
 	totalFactor = 0;
 	for(i = 0; i < 8; i++)
 	{
 		float           factor;
-		byte           *data;
 		int             lat, lng;
 		vec3_t          normal;
 
-#if idppc
-		float           d0, d1, d2, d3, d4, d5;
-#endif
 		factor = 1.0;
-		data = gridData;
+		gridPoint2 = gridPoint;
 		for(j = 0; j < 3; j++)
 		{
 			if(i & (1 << j))
 			{
 				factor *= frac[j];
-				data += gridStep[j];
+				gridPoint2 += gridStep[j];
 			}
 			else
 			{
@@ -232,37 +229,23 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 			}
 		}
 
-		if(!(data[0] + data[1] + data[2]))
+		if(!(gridPoint2->ambient[0] + gridPoint2->ambient[1] + gridPoint2->ambient[2]))
 		{
 			continue;			// ignore samples in walls
 		}
+
 		totalFactor += factor;
-#if idppc
-		d0 = data[0];
-		d1 = data[1];
-		d2 = data[2];
-		d3 = data[3];
-		d4 = data[4];
-		d5 = data[5];
 
-		ent->ambientLight[0] += factor * d0;
-		ent->ambientLight[1] += factor * d1;
-		ent->ambientLight[2] += factor * d2;
+		ent->ambientLight[0] += factor * gridPoint2->ambient[0];
+		ent->ambientLight[1] += factor * gridPoint2->ambient[1];
+		ent->ambientLight[2] += factor * gridPoint2->ambient[2];
 
-		ent->directedLight[0] += factor * d3;
-		ent->directedLight[1] += factor * d4;
-		ent->directedLight[2] += factor * d5;
-#else
-		ent->ambientLight[0] += factor * data[0];
-		ent->ambientLight[1] += factor * data[1];
-		ent->ambientLight[2] += factor * data[2];
+		ent->directedLight[0] += factor * gridPoint2->directed[0];
+		ent->directedLight[1] += factor * gridPoint2->directed[0];
+		ent->directedLight[2] += factor * gridPoint2->directed[0];
 
-		ent->directedLight[0] += factor * data[3];
-		ent->directedLight[1] += factor * data[4];
-		ent->directedLight[2] += factor * data[5];
-#endif
-		lat = data[7];
-		lng = data[6];
+		lat = gridPoint2->latLong[0];
+		lng = gridPoint2->latLong[1];
 		lat *= (FUNCTABLE_SIZE / 256);
 		lng *= (FUNCTABLE_SIZE / 256);
 
@@ -277,15 +260,14 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 		VectorMA(direction, factor, normal, direction);
 	}
 
+#if 0
 	if(totalFactor > 0 && totalFactor < 0.99)
 	{
 		totalFactor = 1.0f / totalFactor;
 		VectorScale(ent->ambientLight, totalFactor, ent->ambientLight);
 		VectorScale(ent->directedLight, totalFactor, ent->directedLight);
 	}
-
-	VectorScale(ent->ambientLight, (1.0f / 255.0f), ent->ambientLight);
-	VectorScale(ent->directedLight, (1.0f / 255.0f), ent->directedLight);
+#endif
 
 	VectorNormalize2(direction, ent->lightDir);
 }
@@ -343,7 +325,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	vec3_t          lightOrigin;
 	float           d;
 
-	// lighting calculations 
+	// lighting calculations
 	if(ent->lightingCalculated)
 	{
 		return;
@@ -408,6 +390,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	}
 #endif
 
+#if 0
 	// clamp ambient
 	for(i = 0; i < 3; i++)
 	{
@@ -416,6 +399,7 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 			ent->ambientLight[i] = tr.identityLight;
 		}
 	}
+#endif
 
 	if(r_debugLight->integer)
 	{
@@ -697,7 +681,7 @@ void R_SetupLightProjection(trRefLight_t * light)
 			width = xMax - xMin;
 			height = yMax - yMin;
 			depth = zFar - zNear;
-			
+
 			// OpenGL projection matrix
 			proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
 			proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
@@ -1234,10 +1218,10 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 	}
 	return cubeSideBits;
 #endif
-	
+
 	if(light->l.rlType != RL_OMNI || r_shadows->integer < 4 || r_noShadowPyramids->integer)
 		return CUBESIDE_CLIPALL;
-		
+
 	cubeSideBits = 0;
 	for(cubeSide = 0; cubeSide < 6; cubeSide++)
 	{
@@ -1249,25 +1233,25 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 				VectorSet(angles, 0, 0, 0);
 				break;
 			}
-								
+
 			case 1:
 			{
 				VectorSet(angles, 0, 180, 0);
 				break;
 			}
-								
+
 			case 2:
 			{
 				VectorSet(angles, 0, 90, 0);
 				break;
 			}
-								
+
 			case 3:
 			{
 				VectorSet(angles, 0, 270, 0);
 				break;
 			}
-								
+
 			case 4:
 			{
 				VectorSet(angles, -90, 0, 0);
@@ -1279,7 +1263,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 				VectorSet(angles, 90, 0, 0);
 				break;
 			}
-								
+
 			default:
 			{
 				// shut up compiler
@@ -1287,7 +1271,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 				break;
 			}
 		}
-							
+
 		// Quake -> OpenGL view matrix from light perspective
 		MatrixFromAngles(rotationMatrix, angles[PITCH], angles[YAW], angles[ROLL]);
 		MatrixSetupTransformFromRotation(transformMatrix, rotationMatrix, light->origin);
@@ -1297,40 +1281,40 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 		// to OpenGL's coordinate system (looking down -Z)
 		MatrixMultiply(quakeToOpenGLMatrix, tmpMatrix, viewMatrix);
 		MatrixCopy(viewMatrix, modelViewMatrix); // because world transform is the identity matrix
-			
+
 		// OpenGL projection matrix
 		fovX = 90;
 		fovY = 90; //R_CalcFov(fovX, shadowMapResolutions[light->shadowLOD], shadowMapResolutions[light->shadowLOD]);
-						
+
 		zNear = 1.0;
 		zFar = light->sphereRadius;
-							
+
 		xMax = zNear * tan(fovX * M_PI / 360.0f);
 		xMin = -xMax;
-		
+
 		yMax = zNear * tan(fovY * M_PI / 360.0f);
 		yMin = -yMax;
-									
+
 		width = xMax - xMin;
 		height = yMax - yMin;
 		depth = zFar - zNear;
-							
+
 		proj = projectionMatrix;
 		proj[0] = (2 * zNear) / width;	proj[4] = 0;					proj[8] = (xMax + xMin) / width;	proj[12] = 0;
 		proj[1] = 0;					proj[5] = (2 * zNear) / height;	proj[9] = (yMax + yMin) / height;	proj[13] = 0;
 		proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -(2 * zFar * zNear) / depth;
 		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
-		
+
 		// calculate frustum planes using the modelview projection matrix
 		R_SetupFrustum(frustum, modelViewMatrix, projectionMatrix);
-		
+
 		// use the frustum planes to cut off shadowmaps beyond the light volume
 		anyClip = qfalse;
 		culled = qfalse;
 		for(i = 0; i < 5; i++)
 		{
 			clipPlane = &frustum[i];
-			
+
 			r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], clipPlane);
 			if(r == 2)
 			{
@@ -1355,7 +1339,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 				// partially clipped
 				tr.pc.c_pyramid_cull_ent_clip++;
 			}
-		
+
 			cubeSideBits |= (1 << cubeSide);
 		}
 		else
