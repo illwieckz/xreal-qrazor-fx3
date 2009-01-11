@@ -31,7 +31,7 @@ uniform vec3        u_AmbientColor;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec4		var_Vertex;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -95,7 +95,14 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
-#if 0 //defined(PARALLAX)
+	// invert tangent space for twosided surfaces
+	mat3 tangentToWorldMatrix;
+	if(gl_FrontFacing)
+		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
+	else
+		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
+
+#if defined(PARALLAX)
 
 	// construct tangent-world-space-to-tangent-space 3x3 matrix
 #if defined(ATI)
@@ -105,15 +112,15 @@ void	main()
 	for(int i = 0; i < 3; ++i)
 	{
 		for(int j = 0; j < 3; ++j)
-			worldToTangentMatrix[i][j] = var_TangentToWorldMatrix[j][i];
+			worldToTangentMatrix[i][j] = tangentToWorldMatrix[j][i];
 	}
 	*/
 	
-	worldToTangentMatrix = mat3(var_TangentToWorldMatrix[0][0], var_TangentToWorldMatrix[1][0], var_TangentToWorldMatrix[2][0],
-								var_TangentToWorldMatrix[0][1], var_TangentToWorldMatrix[1][1], var_TangentToWorldMatrix[2][1], 
-								var_TangentToWorldMatrix[0][2], var_TangentToWorldMatrix[1][2], var_TangentToWorldMatrix[2][2]);
+	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
+								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
+								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
 #else
-	mat3 worldToTangentMatrix = transpose(var_TangentToWorldMatrix);
+	mat3 worldToTangentMatrix = transpose(tangentToWorldMatrix);
 #endif
 
 	// compute view direction in tangent space
@@ -142,7 +149,7 @@ void	main()
 	#endif
 	
 	// transform normal into world space
-	N = var_TangentToWorldMatrix * N;
+	N = tangentToWorldMatrix * N;
 	
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
@@ -153,41 +160,8 @@ void	main()
 	// transform parallax offset world space
 	//P += (u_ModelMatrix * vec4(texOffset, 0, 1)).xyz;
 
-	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
-	gl_FragData[1] = vec4(N, 0.0);
-	gl_FragData[2] = vec4(specular, 0.0);
-	
-#if defined(GL_EXTX_framebuffer_mixed_formats)
-	gl_FragData[3] = var_Vertex;
-#else
-	// compute depth instead of world vertex position in a [0..1] range
-	depth = gl_FragCoord.z;
-	
-#if 0
-	// 32 bit precision
-	const vec4 bitSh = vec4(256 * 256 * 256,	256 * 256,				256,         1);
-	const vec4 bitMsk = vec4(			0,		1.0 / 256.0,    1.0 / 256.0,    1.0 / 256.0);
-	
-	vec4 comp;
-	comp = depth * bitSh;
-	comp = fract(comp);
-	comp -= comp.xxyz * bitMsk;
-	gl_FragData[3] = comp;
-#else
-	// 24 bit precision
-	const vec3 bitSh = vec3(256 * 256,			256,		1);
-	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
-	
-	vec3 comp;
-	comp = depth * bitSh;
-	comp = fract(comp);
-	comp -= comp.xxy * bitMsk;
-	gl_FragData[3] = vec4(comp, 0.0);
-#endif // precision
-#endif // 
-
-
 #else // defined(PARALLAX)
+	
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
 	
 	if(diffuse.a <= u_AlphaTest)
@@ -208,13 +182,6 @@ void	main()
 	normalize(N);
 	#endif
 	
-	// invert tangent space for twosided surfaces
-	mat3 tangentToWorldMatrix;
-	if(gl_FrontFacing)
-		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
-	else
-		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
-	
 	// transform normal into world space
 	N = tangentToWorldMatrix * N;
 	
@@ -222,46 +189,11 @@ void	main()
 	
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
-	
+#endif
+
 	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
 	gl_FragData[1] = vec4(N, 0.0);
 	gl_FragData[2] = vec4(specular, 0.0);
-	
-/*
-#if defined(GL_EXTX_framebuffer_mixed_formats)
-	// transform vertex position into world space
-	gl_FragData[3] = (u_ModelMatrix * var_Vertex).xyzw;
-#else
-	// compute depth instead of world vertex position in a [0..1] range
-	float depth = gl_FragCoord.z;
-	
-#if 0
-	// 32 bit precision
-	const vec4 bitSh = vec4(256 * 256 * 256,	256 * 256,				256,         1);
-	const vec4 bitMsk = vec4(			0,		1.0 / 256.0,    1.0 / 256.0,    1.0 / 256.0);
-	
-	vec4 comp;
-	comp = depth * bitSh;
-	comp = fract(comp);
-	comp -= comp.xxyz * bitMsk;
-	gl_FragData[3] = comp;
-#elif 0
-	// 24 bit precision
-	const vec3 bitSh = vec3(256 * 256,			256,		1);
-	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
-	
-	vec3 comp;
-	comp = depth * bitSh;
-	comp = fract(comp);
-	comp -= comp.xxy * bitMsk;
-	gl_FragData[3] = vec4(comp, 0.0);
-#else
-	// DO NOTHING
-#endif // precision
-#endif // 
-*/
-
-#endif
 }
 
 
