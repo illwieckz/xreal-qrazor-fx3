@@ -54,8 +54,8 @@ void CG_LoadingString(const char *s, qboolean strong)
 	cg.progressInfo[cg.progress].strong = strong;
 	cg.progress++;
 
-	if(cg.progress > NUM_PROGRESS)
-		cg.progress = NUM_PROGRESS;
+	if(cg.progress > NUM_PROGRESS -1)
+		cg.progress = NUM_PROGRESS -1;
 
 
 #if 0
