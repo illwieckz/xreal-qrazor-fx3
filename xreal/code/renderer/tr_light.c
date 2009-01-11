@@ -241,8 +241,8 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 		ent->ambientLight[2] += factor * gridPoint2->ambient[2];
 
 		ent->directedLight[0] += factor * gridPoint2->directed[0];
-		ent->directedLight[1] += factor * gridPoint2->directed[0];
-		ent->directedLight[2] += factor * gridPoint2->directed[0];
+		ent->directedLight[1] += factor * gridPoint2->directed[1];
+		ent->directedLight[2] += factor * gridPoint2->directed[2];
 
 		lat = gridPoint2->latLong[0];
 		lng = gridPoint2->latLong[1];
