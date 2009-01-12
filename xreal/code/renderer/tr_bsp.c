@@ -243,7 +243,7 @@ static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned
 		*red = *green = *blue = 0.0;
 }
 
-static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *height, qboolean doGamma, qboolean toneMap)
+static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *height, qboolean doGamma, qboolean toneMap, qboolean compensate)
 {
 	int				i, j;
 	byte           *buf_p;
@@ -507,14 +507,16 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 		}
 	}
 
-	// compensate
-	floatbuf = *pic;
-	for(i = 0; i < (w * h); i++)
+	if(compensate)
 	{
-		for(j = 0; j < 3; j++)
+		floatbuf = *pic;
+		for(i = 0; i < (w * h); i++)
 		{
-			*floatbuf = *floatbuf / r_hdrLightmapCompensate->value;
-			floatbuf++;
+			for(j = 0; j < 3; j++)
+			{
+				*floatbuf = *floatbuf / r_hdrLightmapCompensate->value;
+				floatbuf++;
+			}
 		}
 	}
 
@@ -533,7 +535,7 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	float			max;
 
 	w = h = 0;
-	LoadRGBEToFloats(name, &hdrImage, &w, &h, qfalse, qfalse);
+	LoadRGBEToFloats(name, &hdrImage, &w, &h, qfalse, qfalse, qfalse);
 
 	*width = w;
 	*height = h;
@@ -549,8 +551,6 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 			sample[j] = *floatbuf++;
 		}
 
-		//NormalizeColor(sample, sample);
-
 		// clamp with color normalization
 		max = sample[0];
 		if(sample[1] > max)
@@ -560,9 +560,9 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 		if(max > 255.0f)
 			VectorScale(sample, (255.0f / max), sample);
 
-		*pixbuf++ = (byte) (sample[0]);// * 255.0f);
-		*pixbuf++ = (byte) (sample[1]);// * 255.0f);
-		*pixbuf++ = (byte) (sample[2]);// * 255.0f);
+		*pixbuf++ = (byte) sample[0];
+		*pixbuf++ = (byte) sample[1];
+		*pixbuf++ = (byte) sample[2];
 		*pixbuf++ = (byte) 255;
 	}
 
@@ -629,7 +629,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 					#if 1
 					width = height = 0;
-					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qtrue);
+					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qtrue, qtrue);
 
 					// create dummy image
 					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
