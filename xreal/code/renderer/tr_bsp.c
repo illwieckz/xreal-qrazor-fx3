@@ -141,25 +141,37 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out)
 	float			scaledLuminance;
 	float			finalLuminance;
 	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
-	vec4_t			sample;
-
-	scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
-#if 0
-	finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
-#else
-	// exponential tone mapping
-	finalLuminance = 1.0 - exp(-scaledLuminance);
-#endif
-
-	VectorScale(in, finalLuminance, sample);
-	sample[3] = Q_min(1.0f, in[3]);
 
 	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
 	{
-		NormalizeColor(sample, sample);
-	}
+		float			max;
 
-	VectorCopy4(sample, out);
+		// clamp with color normalization
+		max = in[0];
+		if(in[1] > max)
+			max = in[1];
+		if(in[2] > max)
+			max = in[2];
+		if(max > 255.0f)
+			VectorScale(in, (255.0f / max), out);
+
+		VectorScale(out, (1.0f / 255.0f), out);
+
+		out[3] = Q_min(1.0f, in[3]);
+	}
+	else
+	{
+		scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
+		#if 0
+		finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
+		#else
+		// exponential tone mapping
+		finalLuminance = 1.0 - exp(-scaledLuminance);
+		#endif
+
+		VectorScale(in, finalLuminance, out);
+		out[3] = Q_min(1.0f, in[3]);
+	}
 }
 
 static int QDECL LightmapNameCompare(const void *a, const void *b)
@@ -231,7 +243,7 @@ static ID_INLINE void rgbe2float(float *red, float *green, float *blue, unsigned
 		*red = *green = *blue = 0.0;
 }
 
-static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *height)
+static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *height, qboolean doGamma, qboolean toneMap)
 {
 	int				i, j;
 	byte           *buf_p;
@@ -414,100 +426,84 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 
 	// LOADING DONE
 
-	// gamma
-	floatbuf = *pic;
-	gamma = 1.0f / r_hdrLightmapGamma->value;
-	for(i = 0; i < (w * h); i++)
+	if(doGamma)
 	{
-		for(j = 0; j < 3; j++)
+		floatbuf = *pic;
+		gamma = 1.0f / r_hdrLightmapGamma->value;
+		for(i = 0; i < (w * h); i++)
 		{
-			*floatbuf = pow(*floatbuf / 255.0f, gamma) * 255.0f;
-			//*floatbuf = pow(*floatbuf, gamma);
-			floatbuf++;
+			for(j = 0; j < 3; j++)
+			{
+				*floatbuf = pow(*floatbuf / 255.0f, gamma) * 255.0f;
+				//*floatbuf = pow(*floatbuf, gamma);
+				floatbuf++;
+			}
 		}
 	}
 
-	// calculate the average and maximum luminance
-	sum = 0.0f;
-	maxLuminance = 0.0f;
-	floatbuf = *pic;
-	for(i = 0; i < (w * h); i++)
+	if(toneMap)
 	{
-		for(j = 0; j < 3; j++)
+		// calculate the average and maximum luminance
+		sum = 0.0f;
+		maxLuminance = 0.0f;
+		floatbuf = *pic;
+		for(i = 0; i < (w * h); i++)
 		{
-			sampleVector[j] = *floatbuf++;
+			for(j = 0; j < 3; j++)
+			{
+				sampleVector[j] = *floatbuf++;
+			}
+
+			luminance = DotProduct(sampleVector, LUMINANCE_VECTOR) + 0.0001f;
+			if(luminance > maxLuminance)
+				maxLuminance = luminance;
+
+			sum += logf(luminance);
 		}
+		sum /= (float)(w * h);
+		avgLuminance = expf(sum);
 
-		luminance = DotProduct(sampleVector, LUMINANCE_VECTOR) + 0.0001f;
-		if(luminance > maxLuminance)
-			maxLuminance = luminance;
-
-		sum += logf(luminance);
-	}
-	sum /= (float)(w * h);
-	avgLuminance = expf(sum);
-
-	// post process buffer with tone mapping
-	floatbuf = *pic;
-	for(i = 0; i < (w * h); i++)
-	{
-		for(j = 0; j < 3; j++)
+		// post process buffer with tone mapping
+		floatbuf = *pic;
+		for(i = 0; i < (w * h); i++)
 		{
-			sampleVector[j] = *floatbuf++;
-		}
+			for(j = 0; j < 3; j++)
+			{
+				sampleVector[j] = *floatbuf++;
+			}
 
-		if(r_hdrLightmapExposure->value <= 0)
-		{
-			exposure = (r_hdrMiddleGrey->value / avgLuminance + 0.001);
-		}
-		else
-		{
-			exposure = r_hdrLightmapExposure->value;
-		}
-		//
+			if(r_hdrLightmapExposure->value <= 0)
+			{
+				exposure = (r_hdrMiddleGrey->value / avgLuminance + 0.001);
+			}
+			else
+			{
+				exposure = r_hdrLightmapExposure->value;
+			}
+			//
 
-		scaledLuminance = exposure * DotProduct(sampleVector, LUMINANCE_VECTOR);
-#if 0
-		finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
-#elif 0
-		finalLuminance = (scaledLuminance * (scaledLuminance / maxLuminance + 1.0)) / (scaledLuminance + 1.0);
-#elif 1
-		finalLuminance = (scaledLuminance * ((scaledLuminance / (maxLuminance * maxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
-#elif 0
-		max = sampleVector[0];
-		if(sampleVector[1] > max)
-			max = sampleVector[1];
-		if(sampleVector[2] > max)
-			max = sampleVector[2];
+			scaledLuminance = exposure * DotProduct(sampleVector, LUMINANCE_VECTOR);
+			#if 0
+			finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
+			#elif 0
+			finalLuminance = (scaledLuminance * (scaledLuminance / maxLuminance + 1.0)) / (scaledLuminance + 1.0);
+			#elif 0
+			finalLuminance = (scaledLuminance * ((scaledLuminance / (maxLuminance * maxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
+			#else
+			// exponential tone mapping
+			finalLuminance = 1.0 - exp(-scaledLuminance);
+			#endif
 
-		//if(max > 1.0f)
-		//	VectorScale(sampleVector, (1.0f / max), sampleVector);
+			//VectorScale(sampleVector, scaledLuminance * (scaledLuminance / maxLuminance + 1.0) / (scaledLuminance + 1.0), sampleVector);
+			//VectorScale(sampleVector, scaledLuminance / (scaledLuminance + 1.0), sampleVector);
 
-		inv = 1.0f / r_hdrLightmapExposure->value;
-		finalLuminance = (1 - exp(-max * inv));
+			VectorScale(sampleVector, finalLuminance, sampleVector);
 
-		if(max > 0)
-		{
-			finalLuminance = finalLuminance / max;
-		}
-		else
-		{
-			finalLuminance = 0;
-		}
-#else
-		// exponential tone mapping
-		finalLuminance = 1.0 - exp(-scaledLuminance);
-#endif
-
-		//VectorScale(sampleVector, scaledLuminance * (scaledLuminance / maxLuminance + 1.0) / (scaledLuminance + 1.0), sampleVector);
-		//VectorScale(sampleVector, scaledLuminance / (scaledLuminance + 1.0), sampleVector);
-
-		VectorScale(sampleVector, finalLuminance, sampleVector);
-
-		floatbuf -= 3;
-		for(j = 0; j < 3; j++)
-		{
-			*floatbuf++ = sampleVector[j];
+			floatbuf -= 3;
+			for(j = 0; j < 3; j++)
+			{
+				*floatbuf++ = sampleVector[j];
+			}
 		}
 	}
 
@@ -536,9 +532,8 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	vec3_t			sample;
 	float			max;
 
-
 	w = h = 0;
-	LoadRGBEToFloats(name, &hdrImage, &w, &h);
+	LoadRGBEToFloats(name, &hdrImage, &w, &h, qfalse, qfalse);
 
 	*width = w;
 	*height = h;
@@ -551,9 +546,12 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	{
 		for(j = 0; j < 3; j++)
 		{
-			sample[j] = *floatbuf++ * 255.0f;
+			sample[j] = *floatbuf++;
 		}
 
+		//NormalizeColor(sample, sample);
+
+		// clamp with color normalization
 		max = sample[0];
 		if(sample[1] > max)
 			max = sample[1];
@@ -562,10 +560,10 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 		if(max > 255.0f)
 			VectorScale(sample, (255.0f / max), sample);
 
-		*pixbuf++ = (const char) sample[0];
-		*pixbuf++ = (const char) sample[1];
-		*pixbuf++ = (const char) sample[2];
-		*pixbuf++ = (const char) 255;
+		*pixbuf++ = (byte) (sample[0]);// * 255.0f);
+		*pixbuf++ = (byte) (sample[1]);// * 255.0f);
+		*pixbuf++ = (byte) (sample[2]);// * 255.0f);
+		*pixbuf++ = (byte) 255;
 	}
 
 	Com_Dealloc(hdrImage);
@@ -631,7 +629,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 					#if 1
 					width = height = 0;
-					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height);
+					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qtrue);
 
 					// create dummy image
 					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
@@ -4330,7 +4328,7 @@ static void R_CreateSubModelVBOs()
 								 | GLCS_COLOR, GL_STATIC_DRAW_ARB);
 
 				vboSurf->ibo =
-					R_CreateIBO2(va("staticBspModel%i_IBO %i", vboSurfaces.currentElements), numTriangles, triangles,
+					R_CreateIBO2(va("staticBspModel%i_IBO %i", m, vboSurfaces.currentElements), numTriangles, triangles,
 								 GL_STATIC_DRAW_ARB);
 
 				ri.Hunk_FreeTempMemory(triangles);
