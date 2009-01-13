@@ -2405,12 +2405,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 	// parsing succeeded
 	stage->active = qtrue;
 
-	// load image
-	if(loadMap && !LoadMap(stage, buffer))
-	{
-		return qfalse;
-	}
-
 	// if cgen isn't explicitly specified, use either identity or identitylighting
 	if(stage->rgbGen == CGEN_BAD)
 	{
@@ -2439,6 +2433,12 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 
 	// compute state bits
 	stage->stateBits = colorMaskBits | depthMaskBits | blendSrcBits | blendDstBits | atestBits | depthFuncBits | polyModeBits;
+
+	// load image
+	if(loadMap && !LoadMap(stage, buffer))
+	{
+		return qfalse;
+	}
 
 	return qtrue;
 }
