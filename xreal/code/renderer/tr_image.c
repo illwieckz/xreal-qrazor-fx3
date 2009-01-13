@@ -264,6 +264,16 @@ void R_ImageList_f(void)
 				imageDataSize *= 12;
 				break;
 
+			case GL_RGBA16F_ARB:
+				ri.Printf(PRINT_ALL, "RGBA16F  ");
+				imageDataSize *= 8;
+				break;
+
+			case GL_RGBA32F_ARB:
+				ri.Printf(PRINT_ALL, "RGBA32F  ");
+				imageDataSize *= 16;
+				break;
+
 			case GL_ALPHA16F_ARB:
 				ri.Printf(PRINT_ALL, "A16F     ");
 				imageDataSize *= 2;
@@ -311,19 +321,22 @@ void R_ImageList_f(void)
 
 			case GL_DEPTH_COMPONENT16_ARB:
 				ri.Printf(PRINT_ALL, "D16      ");
+				imageDataSize *= 2;
 				break;
 
 			case GL_DEPTH_COMPONENT24_ARB:
 				ri.Printf(PRINT_ALL, "D24      ");
+				imageDataSize *= 3;
 				break;
 
 			case GL_DEPTH_COMPONENT32_ARB:
 				ri.Printf(PRINT_ALL, "D32      ");
+				imageDataSize *= 4;
 				break;
 
 			default:
 				ri.Printf(PRINT_ALL, "????     ");
-
+				imageDataSize *= 4;
 				break;
 		}
 
@@ -1242,7 +1255,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			}
 			else
 			{
-#if	1
 				if(glConfig.textureCompression == TC_S3TC && !(image->bits & IF_NOCOMPRESSION))
 				{
 					if(image->bits & IF_ALPHATEST)
@@ -1259,7 +1271,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 					}
 				}
 				else
-#endif
 				{
 					internalFormat = GL_RGBA8;
 				}
@@ -3873,6 +3884,7 @@ static void ParseDisplaceMap(char **text, byte ** pic, int *width, int *height, 
 	*bits &= ~IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits |= IF_NORMALMAP;
+	*bits |= IF_DISPLACEMAP;
 }
 
 static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, int *bits)
@@ -4019,7 +4031,7 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 
 	R_MakeIntensity(*pic, *width, *height);
 
-	*bits |= IF_INTENSITY;
+//	*bits |= IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits &= ~IF_NORMALMAP;
 }
@@ -4052,7 +4064,7 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 	R_MakeAlpha(*pic, *width, *height);
 
 	*bits &= ~IF_INTENSITY;
-	*bits |= IF_ALPHA;
+//	*bits |= IF_ALPHA;
 	*bits &= IF_NORMALMAP;
 }
 
@@ -4069,8 +4081,8 @@ static imageExtToLoaderMap_t imageLoaders[] = {
 	{"png", LoadPNG},
 	{"jpg", LoadJPG},
 	{"jpeg", LoadJPG},
-//	{"dds", LoadDDS},
-//	{"hdr", LoadRGBE}
+//	{"dds", LoadDDS},	// need to write some direct uploader routines first
+//	{"hdr", LoadRGBE}	// RGBE just sucks
 };
 
 static int      numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0]);
