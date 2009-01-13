@@ -4748,7 +4748,7 @@ static void R_CreateShadowMapFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(!glConfig.textureFloatAvailable || !r_shadows->integer <= 3)
+	if(!glConfig.textureFloatAvailable || r_shadows->integer <= 3)
 		return;
 
 	for(i = 0; i < 5; i++)
@@ -4790,7 +4790,7 @@ static void R_CreateShadowCubeFBOImage(void)
 	int             width, height;
 	byte           *data[6];
 
-	if(!glConfig.textureFloatAvailable || !r_shadows->integer <= 3)
+	if(!glConfig.textureFloatAvailable || r_shadows->integer <= 3)
 		return;
 
 	for(j = 0; j < 5; j++)
