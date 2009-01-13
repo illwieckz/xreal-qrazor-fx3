@@ -1193,7 +1193,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	{
 		internalFormat = GL_RGBA8;
 	}
-	else if(!(image->bits & IF_LIGHTMAP))
+	else
 	{
 		int             samples;
 
@@ -1201,13 +1201,18 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
-		/*
 		if(image->bits & IF_NORMALMAP)
 		{
-			samples = 4;
+			if(image->bits & IF_DISPLACEMAP)
+				samples = 4;
+			else
+				samples = 3;
+		}
+		else if(image->bits & IF_LIGHTMAP)
+		{
+			samples = 3;
 		}
 		else
-		*/
 		{
 			for(i = 0; i < c; i++)
 			{
@@ -1276,10 +1281,6 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				}
 			}
 		}
-	}
-	else
-	{
-		internalFormat = GL_RGB8;
 	}
 
 	for(i = 0; i < numData; i++)

@@ -646,7 +646,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					image->width = width;
 					image->height = height;
 
-					image->bits = IF_NOPICMIP | IF_LIGHTMAP | IF_RGBA16F;
+					image->bits = IF_NOPICMIP | IF_RGBA16F;
 					image->filterType = FT_NEAREST;
 					image->wrapType = WT_CLAMP;
 
@@ -702,7 +702,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					width = height = 0;
 					LoadRGBEToBytes(va("%s/%s", mapName, lightmapFiles[i]), &ldrImage, &width, &height);
 
-					tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) ldrImage, width, height, IF_NOPICMIP | IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+					tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) ldrImage, width, height, IF_NOPICMIP | IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
 
 					ri.Free(ldrImage);
 				}
@@ -739,7 +739,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				{
 					ri.Printf(PRINT_ALL, "...loading external lightmap '%s/%s'\n", mapName, lightmapFiles[i]);
 
-					tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+					tr.lightmaps[i * 2 + 1] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
 				}
 			}
 		}
@@ -780,16 +780,16 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 				{
 					if(i % 2 == 0)
 					{
-						tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+						tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
 					}
 					else
 					{
-						tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP, FT_DEFAULT, WT_CLAMP);
+						tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_NORMALMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
 					}
 				}
 				else
 				{
-					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP, FT_DEFAULT, WT_CLAMP);
+					tr.lightmaps[i] = R_FindImageFile(va("%s/%s", mapName, lightmapFiles[i]), IF_LIGHTMAP | IF_NOCOMPRESSION, FT_DEFAULT, WT_CLAMP);
 				}
 			}
 		}
