@@ -225,8 +225,7 @@ typedef enum
 typedef enum
 {
 	TC_NONE,
-	TC_S3TC,
-	TC_ARB
+	TC_S3TC
 } textureCompression_t;
 
 typedef enum
@@ -260,6 +259,7 @@ typedef struct
 
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
+	qboolean		ARBTextureCompressionAvailable;
 
 	int             maxCubeMapTextureSize;
 

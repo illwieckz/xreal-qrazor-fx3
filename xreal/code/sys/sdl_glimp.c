@@ -847,9 +847,9 @@ static void GLimp_InitExtensions(void)
 	glConfig.textureCompression = TC_NONE;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_compression"))
 	{
-		if(r_ext_texture_compression->integer == 1)
+		if(r_ext_texture_compression->integer)
 		{
-			glConfig.textureCompression = TC_ARB;
+			glConfig.ARBTextureCompressionAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_compression\n");
 		}
 		else
@@ -865,7 +865,7 @@ static void GLimp_InitExtensions(void)
 	// GL_EXT_texture_compression_s3tc
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 	{
-		if(r_ext_texture_compression->integer == 2)
+		if(r_ext_texture_compression->integer)
 		{
 			glConfig.textureCompression = TC_S3TC;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");

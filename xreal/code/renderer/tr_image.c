@@ -198,11 +198,12 @@ void R_ImageList_f(void)
 	image_t        *image;
 	int             texels;
 	int             dataSize;
+	int				imageDataSize;
 	const char     *yesno[] = {
 		"no ", "yes"
 	};
 
-	ri.Printf(PRINT_ALL, "\n      -w-- -h-- -mm- -type- -if-- wrap --name-------\n");
+	ri.Printf(PRINT_ALL, "\n      -w-- -h-- -mm- -type-   -if-- wrap --name-------\n");
 
 	texels = 0;
 	dataSize = 0;
@@ -218,72 +219,112 @@ void R_ImageList_f(void)
 		{
 			case GL_TEXTURE_2D:
 				texels += image->uploadWidth * image->uploadHeight;
-				dataSize += image->uploadWidth * image->uploadHeight * 4;
+				imageDataSize = image->uploadWidth * image->uploadHeight;
 
 				ri.Printf(PRINT_ALL, "2D   ");
 				break;
 
 			case GL_TEXTURE_CUBE_MAP_ARB:
 				texels += image->uploadWidth * image->uploadHeight * 6;
-				dataSize += image->uploadWidth * image->uploadHeight * 6 * 4;
+				imageDataSize = image->uploadWidth * image->uploadHeight * 6;
 
 				ri.Printf(PRINT_ALL, "CUBE ");
 				break;
 
 			default:
 				ri.Printf(PRINT_ALL, "???? ");
+				imageDataSize = image->uploadWidth * image->uploadHeight;
+				break;
 		}
 
 		switch (image->internalFormat)
 		{
-			case 1:
-				ri.Printf(PRINT_ALL, "I    ");
-				break;
-
-			case 2:
-				ri.Printf(PRINT_ALL, "IA   ");
-				break;
-
-			case 3:
-				ri.Printf(PRINT_ALL, "RGB  ");
-				break;
-
-			case 4:
-				ri.Printf(PRINT_ALL, "RGBA ");
+			case GL_RGB8:
+				ri.Printf(PRINT_ALL, "RGB8     ");
+				imageDataSize *= 3;
 				break;
 
 			case GL_RGBA8:
-				ri.Printf(PRINT_ALL, "RGBA8");
+				ri.Printf(PRINT_ALL, "RGBA8    ");
+				imageDataSize *= 4;
 				break;
 
-			case GL_RGB8:
-				ri.Printf(PRINT_ALL, "RGB8");
+			case GL_RGB16:
+				ri.Printf(PRINT_ALL, "RGB      ");
+				imageDataSize *= 6;
+				break;
+
+			case GL_RGB16F_ARB:
+				ri.Printf(PRINT_ALL, "RGB16F   ");
+				imageDataSize *= 6;
+				break;
+
+			case GL_RGB32F_ARB:
+				ri.Printf(PRINT_ALL, "RGB32F   ");
+				imageDataSize *= 12;
+				break;
+
+			case GL_ALPHA16F_ARB:
+				ri.Printf(PRINT_ALL, "A16F     ");
+				imageDataSize *= 2;
+				break;
+
+			case GL_ALPHA32F_ARB:
+				ri.Printf(PRINT_ALL, "A32F     ");
+				imageDataSize *= 4;
+				break;
+
+			case GL_LUMINANCE_ALPHA16F_ARB:
+				ri.Printf(PRINT_ALL, "LA16F    ");
+				imageDataSize *= 4;
+				break;
+
+			case GL_LUMINANCE_ALPHA32F_ARB:
+				ri.Printf(PRINT_ALL, "LA32F    ");
+				imageDataSize *= 8;
 				break;
 
 			case GL_COMPRESSED_RGBA_ARB:
-				ri.Printf(PRINT_ALL, "ARB ");
+				ri.Printf(PRINT_ALL, "ARB      ");
+				imageDataSize *= 4;	// FIXME
+				break;
+
+			case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+				ri.Printf(PRINT_ALL, "DXT1     ");
+				imageDataSize *= 4 / 8;
 				break;
 
 			case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-				ri.Printf(PRINT_ALL, "S3TC ");
+				ri.Printf(PRINT_ALL, "DXT1a    ");
+				imageDataSize *= 4 / 8;
 				break;
 
-			case GL_RGBA4:
-				ri.Printf(PRINT_ALL, "RGBA4");
+			case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+				ri.Printf(PRINT_ALL, "DXT3     ");
+				imageDataSize *= 4 / 4;
 				break;
 
-			case GL_RGB5:
-				ri.Printf(PRINT_ALL, "RGB5 ");
+			case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+				ri.Printf(PRINT_ALL, "DXT5     ");
+				imageDataSize *= 4 / 4;
 				break;
 
 			case GL_DEPTH_COMPONENT16_ARB:
+				ri.Printf(PRINT_ALL, "D16      ");
+				break;
+
 			case GL_DEPTH_COMPONENT24_ARB:
+				ri.Printf(PRINT_ALL, "D24      ");
+				break;
+
 			case GL_DEPTH_COMPONENT32_ARB:
-				ri.Printf(PRINT_ALL, "D    ");
+				ri.Printf(PRINT_ALL, "D32      ");
 				break;
 
 			default:
-				ri.Printf(PRINT_ALL, "???? ");
+				ri.Printf(PRINT_ALL, "????     ");
+
+				break;
 		}
 
 		switch (image->wrapType)
@@ -312,6 +353,8 @@ void R_ImageList_f(void)
 				ri.Printf(PRINT_ALL, "%4i  ", image->wrapType);
 				break;
 		}
+
+		dataSize += imageDataSize;
 
 		ri.Printf(PRINT_ALL, " %s\n", image->name);
 	}
@@ -990,7 +1033,6 @@ byte            mipBlendColors[16][4] = {
 R_UploadImage
 ===============
 */
-extern qboolean charSet;
 static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 {
 	const byte     *data = dataArray[0];
@@ -1146,11 +1188,13 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 
 		// Tr3B: normalmaps have the displacement maps in the alpha channel
 		// samples 3 would cause an opaque alpha channel and odd displacements!
+		/*
 		if(image->bits & IF_NORMALMAP)
 		{
 			samples = 4;
 		}
 		else
+		*/
 		{
 			for(i = 0; i < c; i++)
 			{
@@ -1177,21 +1221,9 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		// select proper internal format
 		if(samples == 3)
 		{
-			if(glConfig.textureCompression == TC_ARB)
+			if(glConfig.textureCompression == TC_S3TC && !(image->bits & IF_NOCOMPRESSION))
 			{
-				internalFormat = GL_COMPRESSED_RGBA_ARB;
-			}
-			else if(glConfig.textureCompression == TC_S3TC)
-			{
-				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-			}
-			else if(r_texturebits->integer == 16)
-			{
-				internalFormat = GL_RGB5;
-			}
-			else if(r_texturebits->integer == 32)
-			{
-				internalFormat = GL_RGB8;
+				internalFormat = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 			}
 			else
 			{
@@ -1208,17 +1240,29 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			{
 				internalFormat = GL_ALPHA8;
 			}
-			else if(r_texturebits->integer == 16)
-			{
-				internalFormat = GL_RGBA4;
-			}
-			else if(r_texturebits->integer == 32)
-			{
-				internalFormat = GL_RGBA8;
-			}
 			else
 			{
-				internalFormat = GL_RGBA8;
+#if	1
+				if(glConfig.textureCompression == TC_S3TC && !(image->bits & IF_NOCOMPRESSION))
+				{
+					if(image->bits & IF_ALPHATEST)
+					{
+						internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+					}
+					else if(image->bits & IF_DISPLACEMAP)
+					{
+						internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+					}
+					else
+					{
+						internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+					}
+				}
+				else
+#endif
+				{
+					internalFormat = GL_RGBA8;
+				}
 			}
 		}
 	}
@@ -4025,8 +4069,8 @@ static imageExtToLoaderMap_t imageLoaders[] = {
 	{"png", LoadPNG},
 	{"jpg", LoadJPG},
 	{"jpeg", LoadJPG},
-	{"dds", LoadDDS},
-	{"hdr", LoadRGBE}
+//	{"dds", LoadDDS},
+//	{"hdr", LoadRGBE}
 };
 
 static int      numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0]);
@@ -4411,11 +4455,11 @@ static void R_CreateContrastRenderFBOImage(void)
 
 	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 	{
-		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
 	}
 	else
 	{
-		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
 	}
 
 	ri.Hunk_FreeTempMemory(data);
@@ -4444,11 +4488,11 @@ static void R_CreateBloomRenderFBOImage(void)
 	{
 		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 		{
-			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
+			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
 		}
 		else
 		{
-			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_LINEAR, WT_CLAMP);
 		}
 	}
 
@@ -4473,7 +4517,7 @@ static void R_CreateCurrentRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4535,7 +4579,7 @@ static void R_CreatePortalRenderImage(void)
 	}
 	else
 	{
-		tr.portalRenderImage = R_CreateImage("_portalRender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.portalRenderImage = R_CreateImage("_portalRender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 
 	ri.Hunk_FreeTempMemory(data);
@@ -4559,7 +4603,7 @@ static void R_CreateOcclusionRenderFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+	tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -4589,7 +4633,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 	else
 	{
-		tr.downScaleFBOImage_quarter = R_CreateImage("_downScaleFBOImage_quarter", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.downScaleFBOImage_quarter = R_CreateImage("_downScaleFBOImage_quarter", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 	ri.Hunk_FreeTempMemory(data);
 
@@ -4602,7 +4646,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 	else
 	{
-		tr.downScaleFBOImage_64x64 = R_CreateImage("_downScaleFBOImage_64x64", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.downScaleFBOImage_64x64 = R_CreateImage("_downScaleFBOImage_64x64", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 	ri.Hunk_FreeTempMemory(data);
 
@@ -4615,7 +4659,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 	else
 	{
-		tr.downScaleFBOImage_16x16 = R_CreateImage("_downScaleFBOImage_16x16", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.downScaleFBOImage_16x16 = R_CreateImage("_downScaleFBOImage_16x16", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 	ri.Hunk_FreeTempMemory(data);
 
@@ -4628,7 +4672,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 	else
 	{
-		tr.downScaleFBOImage_4x4 = R_CreateImage("_downScaleFBOImage_4x4", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.downScaleFBOImage_4x4 = R_CreateImage("_downScaleFBOImage_4x4", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 	ri.Hunk_FreeTempMemory(data);
 
@@ -4641,7 +4685,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 	else
 	{
-		tr.downScaleFBOImage_1x1 = R_CreateImage("_downScaleFBOImage_1x1", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.downScaleFBOImage_1x1 = R_CreateImage("_downScaleFBOImage_1x1", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 	ri.Hunk_FreeTempMemory(data);
 #endif
@@ -4665,11 +4709,12 @@ static void R_CreateDeferredRenderFBOImages(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(r_deferredShading->integer)
+	if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
+		   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{
-		tr.deferredDiffuseFBOImage = R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
-		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
-		tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.deferredDiffuseFBOImage = R_CreateImage("_deferredDiffuseFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+		tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 
 	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
@@ -4678,7 +4723,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 	}
 	else
 	{
-		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP, FT_NEAREST, WT_CLAMP);
+		tr.deferredRenderFBOImage = R_CreateImage("_deferredRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
 
 	ri.Hunk_FreeTempMemory(data);
@@ -4691,7 +4736,7 @@ static void R_CreateShadowMapFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(!glConfig.textureFloatAvailable)
+	if(!glConfig.textureFloatAvailable || !r_shadows->integer <= 3)
 		return;
 
 	for(i = 0; i < 5; i++)
@@ -4733,7 +4778,7 @@ static void R_CreateShadowCubeFBOImage(void)
 	int             width, height;
 	byte           *data[6];
 
-	if(!glConfig.textureFloatAvailable)
+	if(!glConfig.textureFloatAvailable || !r_shadows->integer <= 3)
 		return;
 
 	for(j = 0; j < 5; j++)

@@ -1411,7 +1411,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		return qtrue;
 	}
 
-	// determine image options  
+	// determine image options
 	if(stage->overrideNoPicMip || shader.noPicMip || stage->highQuality || stage->forceHighQuality)
 	{
 		imageBits |= IF_NOPICMIP;
@@ -1430,6 +1430,11 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 	if(stage->forceHighQuality)
 	{
 		imageBits |= IF_NOCOMPRESSION;
+	}
+
+	if(stage->stateBits & (GLS_ATEST_BITS))
+	{
+		imageBits |= IF_ALPHATEST;
 	}
 
 	if(stage->overrideFilterType)
@@ -2041,7 +2046,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		{
 			stage->inverseVertexColor = qtrue;
 		}
-		// alphaGen 
+		// alphaGen
 		else if(!Q_stricmp(token, "alphaGen"))
 		{
 			token = Com_ParseExt(text, qfalse);
@@ -2377,7 +2382,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			ri.Printf(PRINT_WARNING, "WARNING: vertexParm keyword not supported in shader '%s'\n", shader.name);
 			Com_SkipRestOfLine(text);
 		}
-		// fragmentMap <index> [options] <map>  
+		// fragmentMap <index> [options] <map>
 		else if(!Q_stricmp(token, "fragmentMap"))
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: fragmentMap keyword not supported in shader '%s'\n", shader.name);
@@ -2798,7 +2803,7 @@ infoParm_t	infoParms[] = {
 	{"ikclip",			1,	0,	0},						// FIXME
 	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
 	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
-	
+
 	{"blood",			1,	0,	CONTENTS_WATER},
 
 	// utility relevant attributes
@@ -2836,7 +2841,7 @@ infoParm_t	infoParms[] = {
 	{"nolightmap",		0,	SURF_NOLIGHTMAP,	0},		// don't generate a lightmap
 	{"nodlight",		0,	0,					0},		// OBSELETE: don't ever add dynamic lights
 	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
-	
+
 	// unsupported Doom3 surface types for sound effects and blood splats
 	{"metal",			0,	SURF_METALSTEPS,	0},
 	{"stone",			0,	0,				0},
@@ -2852,7 +2857,7 @@ infoParm_t	infoParms[] = {
 	{"surftype13",		0,	0,				0},
 	{"surftype14",		0,	0,				0},
 	{"surftype15",		0,	0,				0},
-	
+
 	// other unsupported Doom3 surface types
 	{"trigger",			0,	0,				0},
 	{"flashlight_trigger",0,0,				0},
@@ -2860,7 +2865,7 @@ infoParm_t	infoParms[] = {
 	{"aasobstacle",		0,	0,				0},
 	{"nullNormal",		0,	0,				0},
 	{"discrete",		0,	0,				0},
-	
+
 };
 // *INDENT-ON*
 
@@ -3855,31 +3860,31 @@ static void CollapseStages(void)
 {
 //	int             abits, bbits;
 	int             i, j;
-	
+
 	qboolean		hasDiffuseStage;
 	qboolean		hasNormalStage;
 	qboolean		hasSpecularStage;
 	qboolean		hasReflectionStage;
-	
+
 	shaderStage_t	tmpDiffuseStage;
 	shaderStage_t	tmpNormalStage;
 	shaderStage_t	tmpSpecularStage;
 	shaderStage_t   tmpReflectionStage;
-	
+
 	shader_t		tmpShader;
-	
+
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
-	
+
 	if(!qglActiveTextureARB || !r_collapseStages->integer)
 	{
 		return;
 	}
-	
+
 	//ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
-	
+
 	Com_Memcpy(&tmpShader, &shader, sizeof(shader));
-	
+
 	Com_Memset(&tmpStages[0], 0, sizeof(stages));
 	//Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
 
@@ -3896,7 +3901,7 @@ static void CollapseStages(void)
 
 		if(!stages[j].active)
 			continue;
-		
+
 		if(	stages[j].type == ST_COLORMAP ||
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
@@ -3913,15 +3918,15 @@ static void CollapseStages(void)
 			numStages++;
 			continue;
 		}
-		
+
 		for(i = 0; i < 3; i++)
 		{
 			if((j+i) >= MAX_SHADER_STAGES)
 				continue;
-			
+
 			if(!stages[j+i].active)
 				continue;
-			
+
 			if(stages[j+i].type == ST_DIFFUSEMAP && !hasDiffuseStage)
 			{
 				hasDiffuseStage = qtrue;
@@ -3943,10 +3948,10 @@ static void CollapseStages(void)
 				tmpReflectionStage = stages[j+i];
 			}
 		}
-	
-		
+
+
 		// NOTE: Tr3B - merge as many stages as possible
-		
+
 		// try to merge diffuse/normal/specular
 		if(	hasDiffuseStage		&&
 			hasNormalStage		&&
@@ -3954,15 +3959,15 @@ static void CollapseStages(void)
 		)
 		{
 			//ri.Printf(PRINT_ALL, "lighting_DBS\n");
-			
+
 			tmpShader.collapseType = COLLAPSE_lighting_DBS;
-			
+
 			tmpStages[numStages] = tmpDiffuseStage;
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS;
-			
+
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
 			tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
-			
+
 			numStages++;
 			j += 2;
 			continue;
@@ -3973,14 +3978,14 @@ static void CollapseStages(void)
 		)
 		{
 			//ri.Printf(PRINT_ALL, "lighting_DB\n");
-			
+
 			tmpShader.collapseType = COLLAPSE_lighting_DB;
-			
+
 			tmpStages[numStages] = tmpDiffuseStage;
 			tmpStages[numStages].type = ST_COLLAPSE_lighting_DB;
-			
+
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-	
+
 			numStages++;
 			j += 1;
 			continue;
@@ -3991,14 +3996,14 @@ static void CollapseStages(void)
 		)
 		{
 			//ri.Printf(PRINT_ALL, "reflection_CB\n");
-			
+
 			tmpShader.collapseType = COLLAPSE_reflection_CB;
-			
+
 			tmpStages[numStages] = tmpReflectionStage;
 			tmpStages[numStages].type = ST_COLLAPSE_reflection_CB;
-			
+
 			tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-	
+
 			numStages++;
 			j += 1;
 			continue;
@@ -4010,11 +4015,11 @@ static void CollapseStages(void)
 			numStages++;
 		}
 	}
-	
+
 	// clear unused stages
 	Com_Memset(&tmpStages[numStages], 0, sizeof(stages[0]) * (MAX_SHADER_STAGES - numStages));
 	tmpShader.numStages = numStages;
-	
+
 	// copy result
 	Com_Memcpy(&stages[0], &tmpStages[0], sizeof(stages));
 	Com_Memcpy(&shader, &tmpShader, sizeof(shader));
@@ -4804,7 +4809,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, image_t * image, qboolean
 }
 
 
-/* 
+/*
 ====================
 RE_RegisterShader
 
