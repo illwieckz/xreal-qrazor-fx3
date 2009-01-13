@@ -2806,6 +2806,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\glsl\toneMapping_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\toneMapping_vp.glsl"
+				>
+			</File>
+			<File
 				RelativePath="..\base\glsl\uniformFog_fp.glsl"
 				>
 			</File>
