@@ -998,7 +998,7 @@ railDisc
 		stage	heathazemap
 		map		gfx/misc/raildisc_mono2_n.png
 		clamp
-		highQuality
+		//highQuality
 		deformMagnitude 1
 		//tcMod stretch sawtooth 1.4 -10 0 .1
 		centerScale 0.6 + (time + parm4) * 2.3 * (1 - parm0) , 0.6 + (time + parm4) * 2.3 * (1 - parm0)

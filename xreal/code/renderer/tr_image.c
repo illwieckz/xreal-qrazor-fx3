@@ -1203,7 +1203,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		// samples 3 would cause an opaque alpha channel and odd displacements!
 		if(image->bits & IF_NORMALMAP)
 		{
-			if(image->bits & IF_DISPLACEMAP)
+			if(image->bits & (IF_DISPLACEMAP | IF_ALPHATEST))
 				samples = 4;
 			else
 				samples = 3;
@@ -1262,13 +1262,13 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 			{
 				if(glConfig.textureCompression == TC_S3TC && !(image->bits & IF_NOCOMPRESSION))
 				{
-					if(image->bits & IF_ALPHATEST)
-					{
-						internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-					}
-					else if(image->bits & IF_DISPLACEMAP)
+					if(image->bits & IF_DISPLACEMAP)
 					{
 						internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+					}
+					else if(image->bits & IF_ALPHATEST)
+					{
+						internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 					}
 					else
 					{
@@ -4092,7 +4092,7 @@ static int      numImageLoaders = sizeof(imageLoaders) / sizeof(imageLoaders[0])
 =================
 R_LoadImage
 
-Loads any of the supported image types into a cannonical
+Loads any of the supported image types into a canonical
 32 bit format.
 =================
 */
@@ -4250,6 +4250,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	byte           *pic = NULL;
 	long            hash;
 	char            buffer[1024];
+	char            ddsName[1024];
 	char           *buffer_p;
 	unsigned long   diff;
 
@@ -4293,6 +4294,20 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 			return image;
 		}
 	}
+
+#if 0
+	//if(r_tryCachedDDSImages->integer)
+	{
+		Q_strncpyz(ddsName, "dds/", sizeof(ddsName));
+		Q_strcat(ddsName, sizeof(ddsName), name);
+
+		// try to load a cached .dds texture from the XreaL/<mod>/dds/ folder
+		if(ri.FS_FileExists(ddsname))
+		{
+			// load
+		}
+	}
+#endif
 
 	// load the pic from disk
 	buffer_p = &buffer[0];
