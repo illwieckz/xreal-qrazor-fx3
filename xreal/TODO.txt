@@ -1,18 +1,15 @@
 === XreaL 1.0 Features ===
 
+base/models/players/shina/death1.md5anim
+base/models/players/shina/death2.md5anim
+base/models/players/shina/death3.md5anim
+base/models/players/shina/gesture.md5anim
+base/models/players/shina/swim.md5anim
 base/models/mapobjects/otty/tech_jumppad.ase (similar to Quake4)
 base/models/mapobjects/otty/tech_accelerationpad.ase (similar to Quake4)
 base/models/mapobjects/otty/tech_teleporter.ase (similar to Quake4)
 base/models/flag/flagflap3.md5mesh
 base/models/flag/flagpole.md5mesh
-base/models/players/DEFAULT_MODEL/*
-base/models/players/DEFAULT_MODEL/body.md5mesh
-base/models/players/DEFAULT_MODEL/body_default.skin
-base/models/players/DEFAULT_MODEL/*.md5anim
-base/models/players/DEFAULT_MODEL/character.cfg
-base/models/players/DEFAULT_MODEL/icon_default.tga
-base/models/weapons/grenadel/*
-base/models/weapons/plasma/*
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
 base/sound/feedback/vote_failed.ogg
@@ -67,15 +64,8 @@ code/cgame
 - finish the Lua powered Quake4 style special effects target_fx system
 - improve rocket explosion effect like in Entar's Vengeance
 
-code/game/acebot
-- add support for dropped items as long range goal
-- fix bot spinning around when ai nodes are too high
-- add support for holdable items
-
 code/game
 - change BFG to Quake2 BFG
-- add alternate weapon fire modes
- - suggestions ?
 - add Prey style wall-walking
  - add directional gravity
  - change player boxes to be cylinders and let them rotate
@@ -93,6 +83,11 @@ code/game
  - improve vector class
  - allow more existing level entities to be script-controlled
 
+code/game/acebot
+- add support for dropped items as long range goal
+- fix bot spinning around when ai nodes are too high
+- add support for holdable items
+
 code/renderer
 - improve shadow mapping filtering methods
 - use hardware occlusion query samples for a new light LOD system
@@ -107,7 +102,7 @@ code/renderer
 - check for shader model 3 hardware ?
 
 code/xmap2
-- add HDR lightgrid
+- finish writing per vertex deluxels
 
 
 

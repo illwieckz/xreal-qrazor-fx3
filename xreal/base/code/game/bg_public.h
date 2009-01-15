@@ -514,17 +514,6 @@ typedef enum
 } global_team_sound_t;
 
 
-// new XreaL-PPM animations
-/*
-enum
-{
-	ANIM_IDLE,
-	ANIM_WALK,
-	MAX_XPPM_ANIMATIONS
-};
-*/
-
-// old classic Q3A animations
 typedef enum
 {
 	BOTH_DEATH1,

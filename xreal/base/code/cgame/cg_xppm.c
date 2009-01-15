@@ -308,39 +308,64 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 			ci->animations[i] = ci->animations[LEGS_IDLE];
 		}
 
-		// FIXME we don't have death animations with player models created for Quake 4
+		// FIXME fail register of the entire model if one of these animations is missing
+
+		// FIXME add death animations
+
 		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "die", qfalse, qfalse, qfalse);
-		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "die", qfalse, qfalse, qfalse);
-		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "die", qfalse, qfalse, qfalse);
+		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "death2", qfalse, qfalse, qfalse);
+		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "death3", qfalse, qfalse, qfalse);
 
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "idle", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "gesture", qfalse, qfalse, qfalse))
+			ci->animations[TORSO_GESTURE] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "attack", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "idle", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK, "attack", qfalse, qfalse, qfalse))
+			ci->animations[TORSO_ATTACK] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2, "idle", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "idle", qfalse, qfalse, qfalse))
+			ci->animations[TORSO_ATTACK2] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_forward", qtrue, qfalse, qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_forward", qtrue, qtrue, qtrue);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2, "idle", qfalse, qfalse, qfalse))
+			ci->animations[TORSO_STAND2] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse))
+			ci->animations[LEGS_IDLECR] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse, qtrue);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run_backwards", qtrue, qtrue, qtrue);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_forward", qtrue, qfalse, qtrue))
+			ci->animations[LEGS_WALKCR] = ci->animations[LEGS_IDLE];
 
-		// FIXME CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_forward", qtrue, qtrue, qtrue))
+			ci->animations[LEGS_BACKCR] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse, qfalse);
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "land", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue))
+			ci->animations[LEGS_WALK] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qfalse, qfalse);	// FIXME ?
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "land", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKWALK, "walk_backwards", qtrue, qfalse, qtrue))
+			ci->animations[LEGS_BACKWALK] = ci->animations[LEGS_IDLE];
 
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN, "run", qtrue, qfalse, qtrue))
+			ci->animations[LEGS_RUN] = ci->animations[LEGS_IDLE];
 
-		CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "step", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACK, "run_backwards", qtrue, qtrue, qtrue))
+			ci->animations[LEGS_BACK] = ci->animations[LEGS_IDLE];
 
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM, "swim", qtrue, qfalse, qtrue))
+			ci->animations[LEGS_SWIM] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP, "jump", qfalse, qfalse, qfalse))
+			ci->animations[LEGS_JUMP] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "land", qfalse, qfalse, qfalse))
+			ci->animations[LEGS_LAND] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qtrue, qfalse))
+			ci->animations[LEGS_JUMPB] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "land", qfalse, qtrue, qfalse))
+			ci->animations[LEGS_LANDB] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "step", qfalse, qfalse, qfalse))
+			ci->animations[LEGS_TURN] = ci->animations[LEGS_IDLE];
 
 
 		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
