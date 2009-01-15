@@ -123,7 +123,7 @@ static void UI_PlayerInfo_SetWeapon(playerInfo_t * pi, weapon_t weaponNum)
 			MAKERGB(pi->flashLightColor, 1, 1, 0);
 			break;
 
-		case WP_GRENADE_LAUNCHER:
+		case WP_FLAK_CANNON:
 			MAKERGB(pi->flashLightColor, 1, 0.7f, 0.5f);
 			break;
 

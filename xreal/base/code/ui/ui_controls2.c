@@ -501,7 +501,7 @@ static void Controls_UpdateModel(int anim)
 			break;
 
 		case ANIM_WEAPON4:
-			s_controls.playerWeapon = WP_GRENADE_LAUNCHER;
+			s_controls.playerWeapon = WP_FLAK_CANNON;
 			break;
 
 		case ANIM_WEAPON5:

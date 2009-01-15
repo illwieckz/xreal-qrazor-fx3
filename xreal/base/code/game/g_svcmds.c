@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ==============================================================================
 
 PACKET FILTERING
- 
+
 
 You can add or remove addresses from the filter list with:
 
@@ -351,8 +351,11 @@ void Svcmd_EntityList_f(void)
 			case ET_ITEM:
 				G_Printf("ET_ITEM             ");
 				break;
-			case ET_MISSILE:
-				G_Printf("ET_MISSILE          ");
+			case ET_PROJECTILE:
+				G_Printf("ET_PROJECTILE       ");
+				break;
+			case ET_PROJECTILE2:
+				G_Printf("ET_PROJECTILE2      ");
 				break;
 			case ET_MOVER:
 				G_Printf("ET_MOVER            ");

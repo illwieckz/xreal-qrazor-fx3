@@ -1213,7 +1213,7 @@ void BeginIntermission(void)
 ExitLevel
 
 When the intermission has been exited, the server is either killed
-or moved to a new level based on the "nextmap" cvar 
+or moved to a new level based on the "nextmap" cvar
 
 =============
 */
@@ -2191,7 +2191,7 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-		if(ent->s.eType == ET_MISSILE)
+		if(ent->s.eType == ET_PROJECTILE || ent->s.eType == ET_PROJECTILE2)
 		{
 			G_RunMissile(ent);
 		}

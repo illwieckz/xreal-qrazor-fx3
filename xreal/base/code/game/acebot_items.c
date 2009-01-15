@@ -111,7 +111,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 5.0f;
 			}
-			else if(item->giTag == WP_GRENADE_LAUNCHER)
+			else if(item->giTag == WP_FLAK_CANNON)
 			{
 				return 4.0f;
 			}
@@ -152,7 +152,7 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 3.5f;
 			}
-			else if(item->giTag == WP_GRENADE_LAUNCHER)
+			else if(item->giTag == WP_FLAK_CANNON)
 			{
 				return 3.0f;
 			}

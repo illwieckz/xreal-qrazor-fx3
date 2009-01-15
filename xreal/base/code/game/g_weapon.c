@@ -95,7 +95,7 @@ qboolean CheckGauntletAttack(gentity_t * ent)
 	// send blood impact
 	if(traceEnt->takedamage && traceEnt->client)
 	{
-		tent = G_TempEntity(tr.endpos, EV_MISSILE_HIT);
+		tent = G_TempEntity(tr.endpos, EV_PROJECTILE_HIT);
 		tent->s.otherEntityNum = traceEnt->s.number;
 		tent->s.eventParm = DirToByte(tr.plane.normal);
 		tent->s.weapon = ent->s.weapon;
@@ -811,10 +811,11 @@ void Weapon_LightningFire(gentity_t * ent)
 
 		if(traceEnt->takedamage && traceEnt->client)
 		{
-			tent = G_TempEntity(tr.endpos, EV_MISSILE_HIT);
+			tent = G_TempEntity(tr.endpos, EV_PROJECTILE_HIT);
 			tent->s.otherEntityNum = traceEnt->s.number;
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.weapon = ent->s.weapon;
+
 			if(LogAccuracyHit(traceEnt, ent))
 			{
 				ent->client->accuracy_hits++;
@@ -822,7 +823,7 @@ void Weapon_LightningFire(gentity_t * ent)
 		}
 		else if(!(tr.surfaceFlags & SURF_NOIMPACT))
 		{
-			tent = G_TempEntity(tr.endpos, EV_MISSILE_MISS);
+			tent = G_TempEntity(tr.endpos, EV_PROJECTILE_MISS);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 		}
 
@@ -830,7 +831,6 @@ void Weapon_LightningFire(gentity_t * ent)
 	}
 }
 
-#ifdef MISSIONPACK
 /*
 ======================================================================
 
@@ -854,7 +854,7 @@ void Weapon_Nailgun_Fire(gentity_t * ent)
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
 
-
+#ifdef MISSIONPACK
 /*
 ======================================================================
 
@@ -1025,8 +1025,8 @@ void FireWeapon(gentity_t * ent)
 				Bullet_Fire(ent, MACHINEGUN_SPREAD, MACHINEGUN_TEAM_DAMAGE);
 			}
 			break;
-		case WP_GRENADE_LAUNCHER:
-			weapon_grenadelauncher_fire(ent);
+		case WP_FLAK_CANNON:
+			Weapon_Nailgun_Fire(ent);
 			break;
 		case WP_ROCKET_LAUNCHER:
 			Weapon_RocketLauncher_FireMissile(ent);
@@ -1109,6 +1109,10 @@ void FireWeapon2(gentity_t * ent)
 	{
 		case WP_GAUNTLET:
 			Weapon_GrapplingHook_Fire(ent);
+			break;
+
+		case WP_FLAK_CANNON:
+			weapon_grenadelauncher_fire(ent);
 			break;
 
 		case WP_ROCKET_LAUNCHER:

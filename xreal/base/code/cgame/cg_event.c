@@ -340,10 +340,10 @@ static void CG_Obituary(entityState_t * ent)
 				message = "was blasted by";
 				message2 = "'s BFG";
 				break;
-#ifdef MISSIONPACK
 			case MOD_NAIL:
 				message = "was nailed by";
 				break;
+#ifdef MISSIONPACK
 			case MOD_CHAINGUN:
 				message = "got lead poisoning from";
 				message2 = "'s Chaingun";
@@ -1006,24 +1006,24 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			break;
 
 			//
-			// missile impacts
+			// projectile impacts
 			//
-		case EV_MISSILE_HIT:
-			DEBUGNAME("EV_MISSILE_HIT");
+		case EV_PROJECTILE_HIT:
+			DEBUGNAME("EV_PROJECTILE_HIT");
 			ByteToDir(es->eventParm, dir);
-			CG_MissileHitPlayer(es->weapon, position, dir, es->otherEntityNum);
+			CG_MissileHitPlayer(es->weapon, es->eType, position, dir, es->otherEntityNum);
 			break;
 
-		case EV_MISSILE_MISS:
-			DEBUGNAME("EV_MISSILE_MISS");
+		case EV_PROJECTILE_MISS:
+			DEBUGNAME("EV_PROJECTILE_MISS");
 			ByteToDir(es->eventParm, dir);
-			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT);
+			CG_MissileHitWall(es->weapon, es->eType, 0, position, dir, IMPACTSOUND_DEFAULT);
 			break;
 
-		case EV_MISSILE_MISS_METAL:
-			DEBUGNAME("EV_MISSILE_MISS_METAL");
+		case EV_PROJECTILE_MISS_METAL:
+			DEBUGNAME("EV_PROJECTILE_MISS_METAL");
 			ByteToDir(es->eventParm, dir);
-			CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_METAL);
+			CG_MissileHitWall(es->weapon, es->eType, 0, position, dir, IMPACTSOUND_METAL);
 			break;
 
 		case EV_RAILTRAIL:
@@ -1046,7 +1046,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				if(es->eventParm != 255)
 				{
 					ByteToDir(es->eventParm, dir);
-					CG_MissileHitWall(es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT);
+					CG_MissileHitWall(es->weapon, es->eType, es->clientNum, position, dir, IMPACTSOUND_DEFAULT);
 				}
 				//Com_Printf("Non-predicted rail trail\n");
 			}

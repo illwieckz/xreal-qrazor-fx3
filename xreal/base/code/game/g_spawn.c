@@ -224,9 +224,9 @@ void            SP_misc_model(gentity_t * ent);
 void            SP_misc_portal_camera(gentity_t * ent);
 void            SP_misc_portal_surface(gentity_t * ent);
 
-void            SP_shooter_rocket(gentity_t * ent);
-void            SP_shooter_plasma(gentity_t * ent);
-void            SP_shooter_grenade(gentity_t * ent);
+//void            SP_shooter_rocket(gentity_t * ent);
+//void            SP_shooter_plasma(gentity_t * ent);
+//void            SP_shooter_grenade(gentity_t * ent);
 
 void            SP_team_CTF_redplayer(gentity_t * ent);
 void            SP_team_CTF_blueplayer(gentity_t * ent);
@@ -306,9 +306,9 @@ spawn_t         spawns[] = {
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
 
-	{"shooter_rocket", SP_shooter_rocket},
-	{"shooter_grenade", SP_shooter_grenade},
-	{"shooter_plasma", SP_shooter_plasma},
+//	{"shooter_rocket", SP_shooter_rocket},
+//	{"shooter_grenade", SP_shooter_grenade},
+//	{"shooter_plasma", SP_shooter_plasma},
 
 	{"team_CTF_redplayer", SP_team_CTF_redplayer},
 	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
@@ -697,7 +697,7 @@ qboolean G_ParseSpawnVars(void)
 			break;
 		}
 
-		// parse value  
+		// parse value
 		if(!trap_GetEntityToken(com_token, sizeof(com_token)))
 		{
 			G_Error("G_ParseSpawnVars: EOF without closing brace");

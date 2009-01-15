@@ -257,7 +257,7 @@ gitem_t         bg_itemlist[] = {
 	 }
 	,
 
-/*QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+/*QUAKED weapon_flak_cannon (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
 	 "weapon_grenadelauncher",
@@ -266,10 +266,10 @@ gitem_t         bg_itemlist[] = {
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/weapon_grenade",
-/* pickup */ "Grenade Launcher",
+/* pickup */ "Flak Cannon",
 	 10,
 	 IT_WEAPON,
-	 WP_GRENADE_LAUNCHER,
+	 WP_FLAK_CANNON,
 /* precache */ "",
 /* sounds */ "sound/weapons/grenade/hgrenb1a.wav sound/weapons/grenade/hgrenb2a.wav"
 	 }
@@ -417,7 +417,7 @@ gitem_t         bg_itemlist[] = {
 /* pickup */ "Grenades",
 	 5,
 	 IT_AMMO,
-	 WP_GRENADE_LAUNCHER,
+	 WP_FLAK_CANNON,
 /* precache */ "",
 /* sounds */ ""
 	 }
@@ -714,7 +714,7 @@ Only in CTF games
 	{
 	 "holdable_kamikaze",
 	 "sound/items/holdable.wav",
-	 {"models/powerups/kamikazi.md3",
+	 {"models/powerups/kamikazi.md5mesh",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/kamikaze",
@@ -763,7 +763,7 @@ Only in CTF games
 /* sounds */ ""
 	 }
 	,
-
+#if 0
 /*QUAKED ammo_nails (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -781,6 +781,7 @@ Only in CTF games
 /* sounds */ ""
 	 }
 	,
+#endif
 
 /*QUAKED ammo_mines (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
@@ -1543,9 +1544,10 @@ char           *eventnames[] = {
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",
 
-	"EV_MISSILE_HIT",
-	"EV_MISSILE_MISS",
-	"EV_MISSILE_MISS_METAL",
+	"EV_PROJECTILE_HIT",
+	"EV_PROJECTILE_MISS",
+	"EV_PROJECTILE_MISS_METAL",
+
 	"EV_RAILTRAIL",
 	"EV_SHOTGUN",
 	"EV_BULLET",				// otherEntity is the shooter

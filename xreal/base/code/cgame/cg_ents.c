@@ -529,10 +529,10 @@ static void CG_Item(centity_t * cent)
 
 /*
 ===============
-CG_Missile
+CG_Projectile
 ===============
 */
-static void CG_Missile(centity_t * cent)
+static void CG_Projectile(centity_t * cent)
 {
 	refEntity_t     ent;
 	entityState_t  *s1;
@@ -551,9 +551,9 @@ static void CG_Missile(centity_t * cent)
 	VectorCopy(s1->angles, cent->lerpAngles);
 
 	// add trails
-	if(weapon->missileTrailFunc)
+	if(weapon->projectileTrailFunc)
 	{
-		weapon->missileTrailFunc(cent, weapon);
+		weapon->projectileTrailFunc(cent, weapon);
 	}
 /*
 	if ( cent->currentState.modelindex == TEAM_RED ) {
@@ -567,26 +567,26 @@ static void CG_Missile(centity_t * cent)
 	}
 
 	// add dynamic light
-	if ( weapon->missileLight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight,
-			weapon->missileLightColor[col][0], weapon->missileLightColor[col][1], weapon->missileLightColor[col][2] );
+	if ( weapon->projectileLight ) {
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->projectileLight,
+			weapon->projectileLightColor[col][0], weapon->projectileLightColor[col][1], weapon->projectileLightColor[col][2] );
 	}
 */
 	// add dynamic light
-	if(weapon->missileLight)
+	if(weapon->projectileLight)
 	{
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileLight,
-							   weapon->missileLightColor[0], weapon->missileLightColor[1], weapon->missileLightColor[2]);
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->projectileLight,
+							   weapon->projectileLightColor[0], weapon->projectileLightColor[1], weapon->projectileLightColor[2]);
 	}
 
 	// add missile sound
-	if(weapon->missileSound)
+	if(weapon->projectileSound)
 	{
 		vec3_t          velocity;
 
 		BG_EvaluateTrajectoryDelta(&cent->currentState.pos, cg.time, velocity);
 
-		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound);
+		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, velocity, weapon->projectileSound);
 	}
 
 	// create the render entity
@@ -606,8 +606,129 @@ static void CG_Missile(centity_t * cent)
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
-	ent.hModel = weapon->missileModel;
-	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
+	ent.hModel = weapon->projectileModel;
+	ent.renderfx = weapon->projectileRenderfx | RF_NOSHADOW;
+
+#ifdef MISSIONPACK
+	if(cent->currentState.weapon == WP_PROX_LAUNCHER)
+	{
+		if(s1->generic1 == TEAM_BLUE)
+		{
+			ent.hModel = cgs.media.blueProxMine;
+		}
+	}
+#endif
+
+	// convert direction of travel into axis
+	if(VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)
+	{
+		ent.axis[0][2] = 1;
+	}
+
+	// spin as it moves
+	if(s1->pos.trType != TR_STATIONARY)
+	{
+		RotateAroundDirection(ent.axis, cg.time / 4);
+	}
+	else
+	{
+#ifdef MISSIONPACK
+		if(s1->weapon == WP_PROX_LAUNCHER)
+		{
+			AnglesToAxis(cent->lerpAngles, ent.axis);
+		}
+		else
+#endif
+		{
+			RotateAroundDirection(ent.axis, s1->time);
+		}
+	}
+
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
+}
+
+/*
+===============
+CG_Projectile2
+===============
+*/
+static void CG_Projectile2(centity_t * cent)
+{
+	refEntity_t     ent;
+	entityState_t  *s1;
+	const weaponInfo_t *weapon;
+
+//  int col;
+
+	s1 = &cent->currentState;
+	if(s1->weapon > WP_NUM_WEAPONS)
+	{
+		s1->weapon = 0;
+	}
+	weapon = &cg_weapons[s1->weapon];
+
+	// calculate the axis
+	VectorCopy(s1->angles, cent->lerpAngles);
+
+	// add trails
+	if(weapon->projectileTrailFunc2)
+	{
+		weapon->projectileTrailFunc2(cent, weapon);
+	}
+/*
+	if ( cent->currentState.modelindex == TEAM_RED ) {
+		col = 1;
+	}
+	else if ( cent->currentState.modelindex == TEAM_BLUE ) {
+		col = 2;
+	}
+	else {
+		col = 0;
+	}
+
+	// add dynamic light
+	if ( weapon->projectileLight ) {
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->projectileLight,
+			weapon->projectileLightColor[col][0], weapon->projectileLightColor[col][1], weapon->projectileLightColor[col][2] );
+	}
+*/
+	// add dynamic light
+	if(weapon->projectileLight2)
+	{
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->projectileLight,
+							   weapon->projectileLightColor2[0], weapon->projectileLightColor2[1], weapon->projectileLightColor2[2]);
+	}
+
+	// add missile sound
+	if(weapon->projectileSound2)
+	{
+		vec3_t          velocity;
+
+		BG_EvaluateTrajectoryDelta(&cent->currentState.pos, cg.time, velocity);
+
+		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, velocity, weapon->projectileSound2);
+	}
+
+	// create the render entity
+	memset(&ent, 0, sizeof(ent));
+	VectorCopy(cent->lerpOrigin, ent.origin);
+	VectorCopy(cent->lerpOrigin, ent.oldorigin);
+
+	if(cent->currentState.weapon == WP_PLASMAGUN)
+	{
+		ent.reType = RT_SPRITE;
+		ent.radius = 16;
+		ent.rotation = 0;
+		ent.customShader = cgs.media.plasmaBallShader;
+		trap_R_AddRefEntityToScene(&ent);
+		return;
+	}
+
+	// flicker between two skins
+	ent.skinNum = cg.clientFrame & 1;
+	ent.hModel = weapon->projectileModel2;
+	ent.renderfx = weapon->projectileRenderfx2 | RF_NOSHADOW;
 
 #ifdef MISSIONPACK
 	if(cent->currentState.weapon == WP_PROX_LAUNCHER)
@@ -674,9 +795,9 @@ static void CG_Grapple(centity_t * cent)
 
 #if 0							// FIXME add grapple pull sound here..?
 	// add missile sound
-	if(weapon->missileSound)
+	if(weapon->projectileSound)
 	{
-		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->missileSound);
+		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->projectileSound);
 	}
 #endif
 
@@ -690,8 +811,8 @@ static void CG_Grapple(centity_t * cent)
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
-	ent.hModel = weapon->missileModel;
-	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
+	ent.hModel = weapon->projectileModel;
+	ent.renderfx = weapon->projectileRenderfx | RF_NOSHADOW;
 
 	// convert direction of travel into axis
 	if(VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)
@@ -1086,7 +1207,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 
 //unlagged - projectile nudge
 	// if it's a missile but not a grappling hook
-	if(cent->currentState.eType == ET_MISSILE && cent->currentState.weapon != WP_GAUNTLET)
+	if((cent->currentState.eType == ET_PROJECTILE || cent->currentState.eType == ET_PROJECTILE2) && cent->currentState.weapon != WP_GAUNTLET)
 	{
 		// if it's one of ours
 		if(cent->currentState.otherEntityNum == cg.clientNum)
@@ -1097,7 +1218,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 			timeshift = 1000 / sv_fps.integer;
 		}
 		// if it's not, and it's not a grenade launcher
-		else if(cent->currentState.weapon != WP_GRENADE_LAUNCHER)
+		else if(cent->currentState.weapon != WP_FLAK_CANNON)
 		{
 			// extrapolate based on cg_projectileNudge
 			timeshift = cg_projectileNudge.integer + 1000 / sv_fps.integer;
@@ -1357,8 +1478,11 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_ITEM:
 			CG_Item(cent);
 			break;
-		case ET_MISSILE:
-			CG_Missile(cent);
+		case ET_PROJECTILE:
+			CG_Projectile(cent);
+			break;
+		case ET_PROJECTILE2:
+			CG_Projectile2(cent);
 			break;
 		case ET_MOVER:
 			CG_Mover(cent);
@@ -1390,7 +1514,6 @@ static void CG_AddCEntity(centity_t * cent)
 /*
 ===============
 CG_AddPacketEntities
-
 ===============
 */
 void CG_AddPacketEntities(void)
@@ -1448,7 +1571,7 @@ void CG_AddPacketEntities(void)
 		for(num = 0; num < cg.nextSnap->numEntities; num++)
 		{
 			cent = &cg_entities[cg.nextSnap->entities[num].number];
-			if(cent->nextState.eType == ET_MISSILE || cent->nextState.eType == ET_GENERAL)
+			if(cent->nextState.eType == ET_PROJECTILE || cent->nextState.eType == ET_PROJECTILE2 || cent->nextState.eType == ET_GENERAL)
 			{
 				// transition it immediately and add it
 				CG_TransitionEntity(cent);
@@ -1463,8 +1586,9 @@ void CG_AddPacketEntities(void)
 	for(num = 0; num < cg.snap->numEntities; num++)
 	{
 		cent = &cg_entities[cg.snap->entities[num].number];
+
 //unlagged - early transitioning
-		if(!cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL))
+		if(!cg.nextSnap || (cent->nextState.eType != ET_PROJECTILE && cent->nextState.eType != ET_PROJECTILE2 && cent->nextState.eType != ET_GENERAL))
 		{
 //unlagged - early transitioning
 			CG_AddCEntity(cent);

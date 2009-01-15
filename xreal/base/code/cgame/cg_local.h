@@ -448,24 +448,39 @@ typedef struct weaponInfo_s
 
 	float           flashLight;
 	vec3_t          flashLightColor;
-	sfxHandle_t     flashSound[10];	// fast firing weapons randomly choose
+	sfxHandle_t     flashSound[10];		// fast firing weapons randomly choose
+
+	float           flashLight2;
+	vec3_t          flashLightColor2;
+	sfxHandle_t     flashSound2[10];	// fast firing weapons randomly choose
 
 	qhandle_t       weaponIcon;
 	qhandle_t       ammoIcon;
 
 	qhandle_t       ammoModel;
 
-	qhandle_t       missileModel;
-	sfxHandle_t     missileSound;
-	void            (*missileTrailFunc) (centity_t *, const struct weaponInfo_s * wi);
-	float           missileLight;
-	vec3_t          missileLightColor;
-	int             missileRenderfx;
+	qhandle_t       projectileModel;
+	sfxHandle_t     projectileSound;
+	void            (*projectileTrailFunc) (centity_t *, const struct weaponInfo_s * wi);
+	float           projectileLight;
+	vec3_t          projectileLightColor;
+	int             projectileRenderfx;
+
+	qhandle_t       projectileModel2;
+	sfxHandle_t     projectileSound2;
+	void            (*projectileTrailFunc2) (centity_t *, const struct weaponInfo_s * wi);
+	float           projectileLight2;
+	vec3_t          projectileLightColor2;
+	int             projectileRenderfx2;
 
 	void            (*ejectBrassFunc) (centity_t *);
+	void            (*ejectBrassFunc2) (centity_t *);
 
 	float           trailRadius;
 	float           wiTrailTime;
+
+	float           trailRadius2;
+	float           wiTrailTime2;
 
 	sfxHandle_t     readySound;
 	sfxHandle_t     firingSound;
@@ -1022,6 +1037,7 @@ typedef struct
 
 	qhandle_t       smokePuffShader;
 	qhandle_t       shotgunSmokePuffShader;
+	qhandle_t       nailPuffShader;
 	qhandle_t       plasmaBallShader;
 	qhandle_t       waterBubbleShader;
 
@@ -1034,7 +1050,6 @@ typedef struct
 	qhandle_t       shadowProjectedLightShader;
 
 #ifdef MISSIONPACK
-	qhandle_t       nailPuffShader;
 	qhandle_t       blueProxMine;
 #endif
 
@@ -1132,6 +1147,7 @@ typedef struct
 	sfxHandle_t     sfx_railg;
 	sfxHandle_t     sfx_rockexp;
 	sfxHandle_t     sfx_plasmaexp;
+	sfxHandle_t		hookImpactSound;
 	sfxHandle_t     impactFlesh1Sound;
 	sfxHandle_t     impactFlesh2Sound;
 	sfxHandle_t     impactFlesh3Sound;
@@ -1141,11 +1157,11 @@ typedef struct
 	sfxHandle_t     impactMetal4Sound;
 	sfxHandle_t     impactWall1Sound;
 	sfxHandle_t     impactWall2Sound;
-#ifdef MISSIONPACK
-	sfxHandle_t     sfx_proxexp;
 	sfxHandle_t     sfx_nghit;
 	sfxHandle_t     sfx_nghitflesh;
 	sfxHandle_t     sfx_nghitmetal;
+#ifdef MISSIONPACK
+	sfxHandle_t     sfx_proxexp;
 	sfxHandle_t     sfx_chghit;
 	sfxHandle_t     sfx_chghitflesh;
 	sfxHandle_t     sfx_chghitmetal;
@@ -1747,8 +1763,8 @@ void            CG_RegisterItemVisuals(int itemNum);
 
 void            CG_FireWeapon(centity_t * cent);
 void            CG_FireWeapon2(centity_t * cent);
-void            CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType);
-void            CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum);
+void            CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType);
+void            CG_MissileHitPlayer(int weapon, int entityType, vec3_t origin, vec3_t dir, int entityNum);
 void            CG_ShotgunFire(entityState_t * es);
 void            CG_Bullet(vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum);
 

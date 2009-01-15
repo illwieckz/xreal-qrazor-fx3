@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-//  acebot_ai.c -      This file contains all of the 
+//  acebot_ai.c -      This file contains all of the
 //                     AI routines for the ACE II bot.
 
 
@@ -78,7 +78,7 @@ void ACEAI_CheckSnapshotEntities(gentity_t * self)
 /*
 =============
 ACEAI_Think
- 
+
 Main Think function for bot
 =============
 */
@@ -141,7 +141,7 @@ void ACEAI_Think(gentity_t * self)
 
 	ACEAI_CheckSnapshotEntities(self);
 
-	// force respawn 
+	// force respawn
 	if(self->health <= 0)
 	{
 		self->client->buttons = 0;
@@ -276,7 +276,7 @@ qboolean ACEAI_Visible(gentity_t * self, gentity_t * other)
 }
 
 // Evaluate the best long range goal and send the bot on
-// its way. This is a good time waster, so use it sparingly. 
+// its way. This is a good time waster, so use it sparingly.
 // Do not call it for every think cycle.
 void ACEAI_PickLongRangeGoal(gentity_t * self)
 {
@@ -293,7 +293,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 	goalNode = INVALID;
 	goalEnt = NULL;
 
-	// look for a target 
+	// look for a target
 	currentNode = ACEND_FindClosestReachableNode(self, NODE_DENSITY, NODE_ALL);
 
 	self->bs.currentNode = currentNode;
@@ -393,7 +393,7 @@ void ACEAI_PickLongRangeGoal(gentity_t * self)
 
 		if(ace_debug.integer)
 			trap_SendServerCommand(-1, va("print \"%s: did not find a LR goal, wandering..\n\"", self->client->pers.netname));
-		return;					// no path? 
+		return;					// no path?
 	}
 
 	// OK, everything valid, let's start moving to our goal
@@ -436,7 +436,7 @@ void ACEAI_PickShortRangeGoal(gentity_t * self)
 			goto nextTarget;
 
 		// missile avoidance code
-		// set our moveTarget to be the rocket or grenade fired at us. 
+		// set our moveTarget to be the rocket or grenade fired at us.
 		if(!Q_stricmp(target->classname, "rocket") || !Q_stricmp(target->classname, "grenade"))
 		{
 			if(ace_debug.integer)
@@ -590,7 +590,7 @@ void ACEAI_ChooseWeapon(gentity_t * self)
 	if(ACEIT_ChangeWeapon(self, WP_RAILGUN))
 		return;
 
-	// longer range 
+	// longer range
 	if(range > 300)
 	{
 		// choose BFG if enough ammo
@@ -604,7 +604,7 @@ void ACEAI_ChooseWeapon(gentity_t * self)
 
 	// only use GL in certain ranges and only on targets at or below our level
 	if(range > 100 && range < 500 && self->enemy->client->ps.origin[2] - 20 < self->client->ps.origin[2])
-		if(ACEIT_ChangeWeapon(self, WP_GRENADE_LAUNCHER))
+		if(ACEIT_ChangeWeapon(self, WP_FLAK_CANNON))
 			return;
 
 	if(range > 100 && range < LIGHTNING_RANGE)

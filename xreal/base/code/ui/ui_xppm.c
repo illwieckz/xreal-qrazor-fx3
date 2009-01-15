@@ -219,7 +219,7 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
 
 	Com_Printf("UI_XPPM: Loading model %s\n", filename);
-	
+
 	pi->bodyModel = trap_R_RegisterModel(filename, qfalse);
 
 	if(!pi->bodyModel)
@@ -227,7 +227,6 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 		Com_Printf("Failed to load body mesh file  %s\n", filename);
 		return qfalse;
 	}
-
 
 	if(pi->bodyModel)
 	{
@@ -572,7 +571,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	vec3_t          maxs = { 16, 16, 32 };
 	float           len;
 	float           xx;
-	
+
 	if(!pi->bodyModel)
 		return;
 
@@ -669,12 +668,12 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	// add the podium
 	VectorCopy(origin, podium.origin);
-	podium.origin[2] += 1;	
+	podium.origin[2] += 1;
 
 	VectorCopy(podium.origin, podium.oldorigin);
 
 	podium.hModel = uis.podiumModel;
-	
+
 	//podium.customSkin = pi->bodySkin;
 	//podium.shaderTime = 1.0f;
 

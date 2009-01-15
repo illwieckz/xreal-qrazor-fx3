@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2007 Neil “haste” Toronto <http://www.ra.is/unlagged/>
+Copyright (C) 2006-2007 Neil ï¿½hasteï¿½ Toronto <http://www.ra.is/unlagged/>
 
 This file is part of XreaL source code.
 
@@ -149,7 +149,7 @@ void CG_PredictWeaponEffects(centity_t * cent)
 			if(!(trace.surfaceFlags & SURF_NOIMPACT))
 			{
 				// predict an explosion
-				CG_MissileHitWall(ent->weapon, cg.predictedPlayerState.clientNum, trace.endpos, trace.plane.normal,
+				CG_MissileHitWall(ent->weapon, ent->eType, cg.predictedPlayerState.clientNum, trace.endpos, trace.plane.normal,
 								  IMPACTSOUND_DEFAULT);
 			}
 		}

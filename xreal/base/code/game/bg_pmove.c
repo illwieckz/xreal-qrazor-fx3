@@ -1942,6 +1942,7 @@ static void PM_Weapon(void)
 		switch (pm->ps->weapon)
 		{
 			case WP_GAUNTLET:
+			case WP_FLAK_CANNON:
 			case WP_ROCKET_LAUNCHER:
 				break;
 
@@ -2015,8 +2016,11 @@ static void PM_Weapon(void)
 		case WP_MACHINEGUN:
 			addTime = 100;
 			break;
-		case WP_GRENADE_LAUNCHER:
-			addTime = 800;
+		case WP_FLAK_CANNON:
+			if(pm->cmd.buttons & BUTTON_ATTACK2)
+				addTime = 800;
+			else
+				addTime = 1000;
 			break;
 		case WP_ROCKET_LAUNCHER:
 			addTime = 800;
@@ -2031,9 +2035,6 @@ static void PM_Weapon(void)
 			addTime = 200;
 			break;
 #ifdef MISSIONPACK
-		case WP_NAILGUN:
-			addTime = 1000;
-			break;
 		case WP_PROX_LAUNCHER:
 			addTime = 800;
 			break;

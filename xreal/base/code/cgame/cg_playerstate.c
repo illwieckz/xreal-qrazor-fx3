@@ -54,7 +54,7 @@ void CG_CheckAmmo(void)
 		switch (i)
 		{
 			case WP_ROCKET_LAUNCHER:
-			case WP_GRENADE_LAUNCHER:
+			case WP_FLAK_CANNON:
 			case WP_RAILGUN:
 			case WP_SHOTGUN:
 #ifdef MISSIONPACK

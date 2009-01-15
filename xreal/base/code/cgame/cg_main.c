@@ -916,6 +916,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.sfx_railg = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.ogg", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg", qfalse);
 	cgs.media.sfx_plasmaexp = trap_S_RegisterSound("sound/weapons/plasma/plasmx1a.wav", qfalse);
+	cgs.media.hookImpactSound = trap_S_RegisterSound("sound/weapons/gauntlet/slashkut.ogg", qfalse);
 	cgs.media.impactFlesh1Sound = trap_S_RegisterSound("sound/weapons/impactFlesh1.ogg", qfalse);
 	cgs.media.impactFlesh2Sound = trap_S_RegisterSound("sound/weapons/impactFlesh2.ogg", qfalse);
 	cgs.media.impactFlesh3Sound = trap_S_RegisterSound("sound/weapons/impactFlesh3.ogg", qfalse);
@@ -925,11 +926,13 @@ static void CG_RegisterSounds(void)
 	cgs.media.impactMetal4Sound = trap_S_RegisterSound("sound/weapons/impactMetal4.ogg", qfalse);
 	cgs.media.impactWall1Sound = trap_S_RegisterSound("sound/weapons/impactWall1.ogg", qfalse);
 	cgs.media.impactWall2Sound = trap_S_RegisterSound("sound/weapons/impactWall2.ogg", qfalse);
-#ifdef MISSIONPACK
-	cgs.media.sfx_proxexp = trap_S_RegisterSound("sound/weapons/proxmine/wstbexpl.wav", qfalse);
+
 	cgs.media.sfx_nghit = trap_S_RegisterSound("sound/weapons/nailgun/wnalimpd.wav", qfalse);
 	cgs.media.sfx_nghitflesh = trap_S_RegisterSound("sound/weapons/nailgun/wnalimpl.wav", qfalse);
 	cgs.media.sfx_nghitmetal = trap_S_RegisterSound("sound/weapons/nailgun/wnalimpm.wav", qfalse);
+
+#ifdef MISSIONPACK
+	cgs.media.sfx_proxexp = trap_S_RegisterSound("sound/weapons/proxmine/wstbexpl.wav", qfalse);
 	cgs.media.sfx_chghit = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpd.wav", qfalse);
 	cgs.media.sfx_chghitflesh = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpl.wav", qfalse);
 	cgs.media.sfx_chghitmetal = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpm.wav", qfalse);
@@ -1061,11 +1064,12 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
 
-
 	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader("shotgunSmokePuff");
-#ifdef MISSIONPACK
+
 	cgs.media.nailPuffShader = trap_R_RegisterShader("nailtrail");
+
+#ifdef MISSIONPACK
 	cgs.media.blueProxMine = trap_R_RegisterModel("models/weaphits/proxmineb.md3");
 #endif
 	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");

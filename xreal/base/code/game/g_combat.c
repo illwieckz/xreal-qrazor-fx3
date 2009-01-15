@@ -350,8 +350,8 @@ char           *modNames[] = {
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
 	"MOD_TRIGGER_HURT",
-#ifdef MISSIONPACK
 	"MOD_NAIL",
+#ifdef MISSIONPACK
 	"MOD_CHAINGUN",
 	"MOD_PROXIMITY_MINE",
 #endif
@@ -1144,7 +1144,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 
 	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-	if(attacker->client && targ != attacker && targ->health > 0 && targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL)
+	if(attacker->client && targ != attacker && targ->health > 0 && targ->s.eType != ET_PROJECTILE && targ->s.eType != ET_PROJECTILE2 && targ->s.eType != ET_GENERAL)
 	{
 		if(OnSameTeam(targ, attacker))
 		{

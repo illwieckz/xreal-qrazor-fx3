@@ -80,8 +80,11 @@ void G_ExplodeMissile(gentity_t * ent)
 	dir[0] = dir[1] = 0;
 	dir[2] = 1;
 
-	ent->s.eType = ET_GENERAL;
-	G_AddEvent(ent, EV_MISSILE_MISS, DirToByte(dir));
+	// Tr3B: don't change the entity type because it is required by the EV_PROJECTILE_* events
+	// the ent->freeAfterEvent = qtrue; will do the same effect
+	//ent->s.eType = ET_GENERAL;
+
+	G_AddEvent(ent, EV_PROJECTILE_MISS, DirToByte(dir));
 
 	ent->freeAfterEvent = qtrue;
 
@@ -404,7 +407,7 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		if(other->takedamage && other->client)
 		{
 
-			G_AddEvent(nent, EV_MISSILE_HIT, DirToByte(trace->plane.normal));
+			G_AddEvent(nent, EV_PROJECTILE_HIT, DirToByte(trace->plane.normal));
 			nent->s.otherEntityNum = other->s.number;
 
 			ent->enemy = other;
@@ -418,7 +421,7 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		else
 		{
 			VectorCopy(trace->endpos, v);
-			G_AddEvent(nent, EV_MISSILE_MISS, DirToByte(trace->plane.normal));
+			G_AddEvent(nent, EV_PROJECTILE_MISS, DirToByte(trace->plane.normal));
 			ent->enemy = NULL;
 		}
 
@@ -449,16 +452,16 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 
 	if(other->takedamage && other->client)
 	{
-		G_AddEvent(ent, EV_MISSILE_HIT, DirToByte(trace->plane.normal));
+		G_AddEvent(ent, EV_PROJECTILE_HIT, DirToByte(trace->plane.normal));
 		ent->s.otherEntityNum = other->s.number;
 	}
 	else if(trace->surfaceFlags & SURF_METALSTEPS)
 	{
-		G_AddEvent(ent, EV_MISSILE_MISS_METAL, DirToByte(trace->plane.normal));
+		G_AddEvent(ent, EV_PROJECTILE_MISS_METAL, DirToByte(trace->plane.normal));
 	}
 	else
 	{
-		G_AddEvent(ent, EV_MISSILE_MISS, DirToByte(trace->plane.normal));
+		G_AddEvent(ent, EV_PROJECTILE_MISS, DirToByte(trace->plane.normal));
 	}
 
 	ent->freeAfterEvent = qtrue;
@@ -546,7 +549,7 @@ void G_RunMissile(gentity_t * ent)
 			return;
 		}
 		G_MissileImpact(ent, &tr);
-		if(ent->s.eType != ET_MISSILE)
+		if(ent->s.eType != ET_PROJECTILE && ent->s.eType != ET_PROJECTILE2)
 		{
 			return;				// exploded
 		}
@@ -590,7 +593,7 @@ gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->classname = "plasma";
 	bolt->nextthink = level.time + 10000;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_PLASMAGUN;
 	bolt->r.ownerNum = self->s.number;
@@ -636,9 +639,9 @@ gentity_t      *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->classname = "grenade";
 	bolt->nextthink = level.time + 2500;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->s.eType = ET_PROJECTILE2;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_GRENADE_LAUNCHER;
+	bolt->s.weapon = WP_FLAK_CANNON;
 	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
@@ -684,7 +687,7 @@ gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->classname = "bfg";
 	bolt->nextthink = level.time + 10000;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_BFG;
 	bolt->r.ownerNum = self->s.number;
@@ -729,7 +732,7 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->classname = "rocket";
 	bolt->nextthink = level.time + 15000;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_ROCKET_LAUNCHER;
 	bolt->r.ownerNum = self->s.number;
@@ -922,7 +925,7 @@ gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->classname = "rocket_homing";
 	bolt->nextthink = level.time + 600;
 	bolt->think = G_HomingMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_ROCKET_LAUNCHER;
 	bolt->r.ownerNum = self->s.number;
@@ -983,7 +986,7 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 	hook->classname = "hook";
 	hook->nextthink = level.time + 10000;
 	hook->think = Weapon_HookFree;
-	hook->s.eType = ET_MISSILE;
+	hook->s.eType = ET_PROJECTILE;
 	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	hook->s.weapon = WP_GAUNTLET;
 	hook->r.ownerNum = self->s.number;
@@ -1027,7 +1030,7 @@ gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir)
 }
 
 
-#ifdef MISSIONPACK
+
 /*
 =================
 fire_nail
@@ -1046,9 +1049,9 @@ gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t
 	bolt->classname = "nail";
 	bolt->nextthink = level.time + 10000;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->s.eType = ET_PROJECTILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_NAILGUN;
+	bolt->s.weapon = WP_FLAK_CANNON;
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
@@ -1082,7 +1085,7 @@ gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t
 	return bolt;
 }
 
-
+#ifdef MISSIONPACK
 /*
 =================
 fire_prox

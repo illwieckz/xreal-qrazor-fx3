@@ -968,6 +968,21 @@ shotgunSmokePuff
 	}
 }
 
+nailTrail
+{
+	sort nearest
+	twoSided
+	
+	{
+		clamp
+		map gfx/misc/smoke2.png 
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		vertexColor
+        //rotate time * -30
+	}
+
+}
+
 flareShader
 {
 	twoSided

@@ -84,6 +84,8 @@ TELEPORTERS
 // otty: teleporting a rocket is more expensive than freeing the old and creating a new one. just keep the owner and lifetime
 void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
 {
+	// Tr3B: this needs to be recoded for secondary firemode projectiles
+#if 0
 	vec3_t          dir;
 
 	gentity_t      *telep = NULL;
@@ -94,14 +96,16 @@ void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
 	{
 		default:
 			return;
-			break;
+
 		case WP_ROCKET_LAUNCHER:
 			telep = fire_rocket(&g_entities[ent->r.ownerNum], origin, dir);
 			break;
 
-		case WP_GRENADE_LAUNCHER:
+		/*
+		case WP_FLAK_CANNON:
 			telep = fire_grenade(&g_entities[ent->r.ownerNum], origin, dir);
 			break;
+		*/
 
 	}
 
@@ -109,6 +113,7 @@ void TeleportEntity(gentity_t * ent, vec3_t origin, vec3_t angles)
 		telep->nextthink = ent->nextthink;
 
 	G_FreeEntity(ent);
+#endif
 }
 
 void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
@@ -309,7 +314,7 @@ void SP_misc_portal_camera(gentity_t * ent)
 
 ======================================================================
 */
-
+/*
 void Use_Shooter(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	vec3_t          dir;
@@ -341,7 +346,7 @@ void Use_Shooter(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 	switch (ent->s.weapon)
 	{
-		case WP_GRENADE_LAUNCHER:
+		case WP_FLAK_CANNON:
 			fire_grenade(ent, ent->s.origin, dir);
 			break;
 		case WP_ROCKET_LAUNCHER:
@@ -385,34 +390,40 @@ void InitShooter(gentity_t * ent, int weapon)
 	}
 	trap_LinkEntity(ent);
 }
+*/
 
 /*QUAKED shooter_rocket (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" the number of degrees of deviance from the taget. (1.0 default)
 */
+/*
 void SP_shooter_rocket(gentity_t * ent)
 {
 	InitShooter(ent, WP_ROCKET_LAUNCHER);
 }
+*/
 
 /*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
 */
+/*
 void SP_shooter_plasma(gentity_t * ent)
 {
 	InitShooter(ent, WP_PLASMAGUN);
 }
+*/
 
 /*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
 */
+/*
 void SP_shooter_grenade(gentity_t * ent)
 {
-	InitShooter(ent, WP_GRENADE_LAUNCHER);
+	InitShooter(ent, WP_FLAK_CANNON);
 }
-
+*/
 
 #ifdef MISSIONPACK
 static void PortalDie(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
