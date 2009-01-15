@@ -260,7 +260,7 @@ gitem_t         bg_itemlist[] = {
 /*QUAKED weapon_flak_cannon (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-	 "weapon_grenadelauncher",
+	 "weapon_flak_cannon",
 	 "sound/misc/w_pkup.ogg",
 	 {"models/weapons/grenadel/grenadel.md3",
 	  0, 0, 0}

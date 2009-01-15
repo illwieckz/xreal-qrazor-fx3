@@ -468,14 +468,14 @@ entityDef weapon_gauntlet
 }
 
 
-entityDef weapon_grenadelauncher 
+entityDef weapon_flak_cannon
 {   
 	"editor_color"				"1 0 .5" 	
 	"editor_mins"				"-16 -16 -16"
 	"editor_maxs"				"16 16 16" 
 	"model"                     "models/weapons2/grenadel/grenadel.md3"
 	
-	"editor_usage"				"Grenade Launcher."
+	"editor_usage"				"Flak Cannon"
 	
 	"editor_bool suspended"		"item will spawn where it was placed in map and won't drop to the floor."
 	"editor_float wait"			"time in seconds before item respawns after being picked up (default 5, -1 = never respawn)."
@@ -2193,6 +2193,7 @@ ________________________________________________________________________________
 ============================================================================================================
 */
 
+/*
 entityDef shooter_grenade 
 {   
 	"editor_color"				"1 0 .5" 	
@@ -2257,7 +2258,7 @@ entityDef shooter_rocket
     "notteam" 					"0" 
     "notsingle" 				"0" 
 }
-
+*/
 
 /*
 ============================================================================================================
