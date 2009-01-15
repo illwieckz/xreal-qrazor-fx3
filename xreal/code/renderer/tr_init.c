@@ -248,6 +248,15 @@ cvar_t         *r_rotoscope;
 // GL_ARB_multitexture
 void            (APIENTRY * qglActiveTextureARB) (GLenum texture);
 
+// GL_ARB_texture_compression
+void            (APIENTRY * qglCompressedTexImage3DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
+void            (APIENTRY * qglCompressedTexImage2DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
+void            (APIENTRY * qglCompressedTexImage1DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const GLvoid *data);
+void            (APIENTRY * qglCompressedTexSubImage3DARB) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
+void            (APIENTRY * qglCompressedTexSubImage2DARB) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
+void            (APIENTRY * qglCompressedTexSubImage1DARB) (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
+void            (APIENTRY * qglGetCompressedTexImageARB) (GLenum target, GLint level, GLvoid *img);
+
 // GL_ARB_vertex_program
 void            (APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
 void            (APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
@@ -334,6 +343,10 @@ GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharA
 
 // GL_ARB_draw_buffers
 void            (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
+
+// GL_EXT_texture3D
+void			(APIENTRY * qglTexImage3DEXT) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+void			(APIENTRY * qglTexSubImage3DEXT) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels);
 
 // GL_EXT_stencil_two_side
 void            (APIENTRY * qglActiveStencilFaceEXT) (GLenum face);
@@ -675,7 +688,7 @@ static void RB_TakeScreenshotPNG(int x, int y, int width, int height, char *file
 	}
 
 	ri.FS_WriteFile(fileName, buffer, 1);	// create path
-	SavePNG(fileName, buffer, glConfig.vidWidth, glConfig.vidHeight);
+	SavePNG(fileName, buffer, glConfig.vidWidth, glConfig.vidHeight, 3, qfalse);
 
 	ri.Hunk_FreeTempMemory(buffer);
 }

@@ -2335,6 +2335,7 @@ void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const
 ** GL wrapper/helper functions
 */
 void            GL_Bind(image_t * image);
+void			GL_Unbind();
 void            BindAnimatedImage(textureBundle_t * bundle);
 void            GL_TextureFilter(image_t * image, filterType_t filterType);
 void            GL_BindProgram(shaderProgram_t * program);
@@ -2465,6 +2466,7 @@ void            RE_Shutdown(qboolean destroyWindow);
 qboolean        R_GetEntityToken(char *buffer, int size);
 
 model_t        *R_AllocModel(void);
+image_t        *R_AllocImage(const char *name);
 
 void            R_Init(void);
 image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
@@ -3027,10 +3029,15 @@ void            RE_StretchPic(float x, float y, float w, float h, float s1, floa
 void            RE_BeginFrame(stereoFrame_t stereoFrame);
 void            RE_EndFrame(int *frontEndMsec, int *backEndMsec);
 
+
+void			LoadTGA(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
+
+void            LoadJPG(const char *filename, unsigned char **pic, int *width, int *height, byte alphaByte);
 void            SaveJPG(char *filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
 int             SaveJPGToBuffer(byte * buffer, int quality, int image_width, int image_height, byte * image_buffer);
 
-void            SavePNG(const char *name, const byte * pic, int width, int height);
+void			LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
+void            SavePNG(const char *name, const byte * pic, int width, int height, int numBytes, qboolean flip);
 
 // video stuff
 const void     *RB_TakeVideoFrameCmd(const void *data);

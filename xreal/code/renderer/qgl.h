@@ -108,6 +108,29 @@ extern void     (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsiz
 // GL_ARB_multitexture
 extern void     (APIENTRY * qglActiveTextureARB) (GLenum texture);
 
+// GL_ARB_texture_compression
+#ifndef GL_ARB_texture_compression
+#define GL_COMPRESSED_ALPHA_ARB           0x84E9
+#define GL_COMPRESSED_LUMINANCE_ARB       0x84EA
+#define GL_COMPRESSED_LUMINANCE_ALPHA_ARB 0x84EB
+#define GL_COMPRESSED_INTENSITY_ARB       0x84EC
+#define GL_COMPRESSED_RGB_ARB             0x84ED
+#define GL_COMPRESSED_RGBA_ARB            0x84EE
+#define GL_TEXTURE_COMPRESSION_HINT_ARB   0x84EF
+#define GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB 0x86A0
+#define GL_TEXTURE_COMPRESSED_ARB         0x86A1
+#define GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB 0x86A2
+#define GL_COMPRESSED_TEXTURE_FORMATS_ARB 0x86A3
+#endif
+
+extern void (APIENTRY * qglCompressedTexImage3DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexImage2DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexImage1DARB) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexSubImage3DARB) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexSubImage2DARB) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexSubImage1DARB) (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglGetCompressedTexImageARB) (GLenum target, GLint level, GLvoid *img);
+
 // GL_ARB_vertex_program
 extern void     (APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
 extern void     (APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);
@@ -201,6 +224,30 @@ extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 #endif
 
 extern          HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
+#endif
+
+// GL_EXT_texture3D
+#ifndef GL_EXT_texture3D
+#define GL_PACK_SKIP_IMAGES_EXT           0x806B
+#define GL_PACK_IMAGE_HEIGHT_EXT          0x806C
+#define GL_UNPACK_SKIP_IMAGES_EXT         0x806D
+#define GL_UNPACK_IMAGE_HEIGHT_EXT        0x806E
+#define GL_TEXTURE_3D_EXT                 0x806F
+#define GL_PROXY_TEXTURE_3D_EXT           0x8070
+#define GL_TEXTURE_DEPTH_EXT              0x8071
+#define GL_TEXTURE_WRAP_R_EXT             0x8072
+#define GL_MAX_3D_TEXTURE_SIZE_EXT        0x8073
+#endif
+
+extern void		(APIENTRY * qglTexImage3DEXT) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern void		(APIENTRY * qglTexSubImage3DEXT) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels);
+
+// GL_EXT_texture_comression_s3tc
+#ifndef GL_EXT_texture_compression_s3tc
+#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
+#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT  0x83F1
+#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT  0x83F2
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT  0x83F3
 #endif
 
 // GL_EXT_stencil_two_side

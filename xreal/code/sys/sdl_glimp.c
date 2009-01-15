@@ -845,10 +845,24 @@ static void GLimp_InitExtensions(void)
 
 	// GL_ARB_texture_compression
 	glConfig.textureCompression = TC_NONE;
+	qglCompressedTexImage3DARB = NULL;
+	qglCompressedTexImage2DARB = NULL;
+	qglCompressedTexImage1DARB = NULL;
+	qglCompressedTexSubImage3DARB = NULL;
+	qglCompressedTexSubImage2DARB = NULL;
+	qglCompressedTexSubImage1DARB = NULL;
+	qglGetCompressedTexImageARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_compression"))
 	{
 		if(r_ext_texture_compression->integer)
 		{
+			qglCompressedTexImage3DARB = SDL_GL_GetProcAddress("glCompressedTexImage3DARB");
+			qglCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
+			qglCompressedTexImage1DARB = SDL_GL_GetProcAddress("glCompressedTexImage1DARB");
+			qglCompressedTexSubImage3DARB = SDL_GL_GetProcAddress("glCompressedTexSubImage3DARB");
+			qglCompressedTexSubImage2DARB = SDL_GL_GetProcAddress("glCompressedTexSubImage2DARB");
+			qglCompressedTexSubImage1DARB = SDL_GL_GetProcAddress("glCompressedTexSubImage1DARB");
+			qglGetCompressedTexImageARB = SDL_GL_GetProcAddress("glGetCompressedTexImageARB");
 			glConfig.ARBTextureCompressionAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_compression\n");
 		}
@@ -878,6 +892,29 @@ static void GLimp_InitExtensions(void)
 	else
 	{
 		ri.Printf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
+	}
+
+	// GL_EXT_texture3D
+	glConfig.texture3DAvailable = qfalse;
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture3D"))
+	{
+		//if(r_ext_texture3d->value)
+		{
+			qglTexImage3DEXT = SDL_GL_GetProcAddress("glTexImage3DEXT");
+			qglTexSubImage3DEXT = SDL_GL_GetProcAddress("glTexSubImage3DEXT");
+			glConfig.texture3DAvailable = qtrue;
+			ri.Printf(PRINT_ALL, "...using GL_EXT_texture3D\n");
+		}
+		/*
+		else
+		{
+			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture3D\n");
+		}
+		*/
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_texture3D not found\n");
 	}
 
 	// GL_EXT_stencil_wrap

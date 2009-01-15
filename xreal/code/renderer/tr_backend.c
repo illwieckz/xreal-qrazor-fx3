@@ -60,6 +60,13 @@ void GL_Bind(image_t * image)
 	}
 }
 
+void GL_Unbind()
+{
+	GLimp_LogComment("--- GL_Unbind() ---\n");
+
+	qglBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void BindAnimatedImage(textureBundle_t * bundle)
 {
 	if(bundle->isVideoMap)

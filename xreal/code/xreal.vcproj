@@ -1241,6 +1241,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer\tr_image_dds.c"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer\tr_image_jpg.c"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer\tr_image_png.c"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer\tr_image_tga.c"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer\tr_init.c"
 				>
 			</File>

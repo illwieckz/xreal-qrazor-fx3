@@ -273,6 +273,7 @@ typedef struct
 	int             maxVertexAttribs;
 	qboolean        vboVertexSkinningAvailable;
 
+	qboolean		texture3DAvailable;
 	qboolean        textureNPOTAvailable;
 
 	qboolean        drawBuffersAvailable;

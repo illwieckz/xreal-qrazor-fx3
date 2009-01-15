@@ -21,46 +21,46 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // tr_font.c
-// 
+//
 //
 // The font system uses FreeType 2.x to render TrueType fonts for use within the game.
-// As of this writing ( Nov, 2000 ) Team Arena uses these fonts for all of the ui and 
-// about 90% of the cgame presentation. A few areas of the CGAME were left uses the old 
+// As of this writing ( Nov, 2000 ) Team Arena uses these fonts for all of the ui and
+// about 90% of the cgame presentation. A few areas of the CGAME were left uses the old
 // fonts since the code is shared with standard Q3A.
 //
 // If you include this font rendering code in a commercial product you MUST include the
 // following somewhere with your product, see www.freetype.org for specifics or changes.
-// The Freetype code also uses some hinting techniques that MIGHT infringe on patents 
+// The Freetype code also uses some hinting techniques that MIGHT infringe on patents
 // held by apple so be aware of that also.
 //
 // As of Q3A 1.25+ and Team Arena, we are shipping the game with the font rendering code
-// disabled. This removes any potential patent issues and it keeps us from having to 
+// disabled. This removes any potential patent issues and it keeps us from having to
 // distribute an actual TrueTrype font which is 1. expensive to do and 2. seems to require
-// an act of god to accomplish. 
+// an act of god to accomplish.
 //
 // What we did was pre-render the fonts using FreeType ( which is why we leave the FreeType
-// credit in the credits ) and then saved off the glyph data and then hand touched up the 
+// credit in the credits ) and then saved off the glyph data and then hand touched up the
 // font bitmaps so they scale a bit better in GL.
 //
-// There are limitations in the way fonts are saved and reloaded in that it is based on 
+// There are limitations in the way fonts are saved and reloaded in that it is based on
 // point size and not name. So if you pre-render Helvetica in 18 point and Impact in 18 point
-// you will end up with a single 18 point data file and image set. Typically you will want to 
+// you will end up with a single 18 point data file and image set. Typically you will want to
 // choose 3 sizes to best approximate the scaling you will be doing in the ui scripting system
-// 
+//
 // In the UI Scripting code, a scale of 1.0 is equal to a 48 point font. In Team Arena, we
-// use three or four scales, most of them exactly equaling the specific rendered size. We 
-// rendered three sizes in Team Arena, 12, 16, and 20. 
+// use three or four scales, most of them exactly equaling the specific rendered size. We
+// rendered three sizes in Team Arena, 12, 16, and 20.
 //
 // To generate new font data you need to go through the following steps.
 // 1. delete the fontImage_x_xx.png files and fontImage_xx.dat files from the fonts path.
-// 2. in a ui script, specificy a font, smallFont, and bigFont keyword with font name and 
+// 2. in a ui script, specificy a font, smallFont, and bigFont keyword with font name and
 //    point size. the original TrueType fonts must exist in fonts at this point.
 // 3. run the game, you should see things normally.
-// 4. Exit the game and there will be three dat files and at least three PNG files. The 
-//    PNG's are in 256x256 pages so if it takes three images to render a 24 point font you 
+// 4. Exit the game and there will be three dat files and at least three PNG files. The
+//    PNG's are in 256x256 pages so if it takes three images to render a 24 point font you
 //    will end up with fontImage_0_24.tga through fontImage_2_24.tga
 // 5. In future runs of the game, the system looks for these images and data files when a
-//    specific point sized font is rendered and loads them for use. 
+//    specific point sized font is rendered and loads them for use.
 // 6. Because of the original beta nature of the FreeType code you will probably want to hand
 //    touch the font bitmaps.
 
@@ -148,163 +148,6 @@ FT_Bitmap      *R_RenderGlyph(FT_GlyphSlot glyph, glyphInfo_t * glyphOut)
 	return NULL;
 }
 
-static void WriteTGA(char *filename, byte * data, int width, int height)
-{
-	byte           *buffer;
-	int             i, c;
-
-	buffer = Z_Malloc(width * height * 4 + 18);
-
-	Com_Memset(buffer, 0, 18);
-	buffer[2] = 2;				// uncompressed type
-	buffer[12] = width & 255;
-	buffer[13] = width >> 8;
-	buffer[14] = height & 255;
-	buffer[15] = height >> 8;
-	buffer[16] = 32;			// pixel size
-
-	// swap rgb to bgr
-	c = 18 + width * height * 4;
-	for(i = 18; i < c; i += 4)
-	{
-		buffer[i] = data[i - 18 + 2];	// blue
-		buffer[i + 1] = data[i - 18 + 1];	// green
-		buffer[i + 2] = data[i - 18 + 0];	// red
-		buffer[i + 3] = data[i - 18 + 3];	// alpha
-	}
-
-	// Tr3B: flip upside down
-	{
-		int             row;
-		unsigned char  *flip;
-		unsigned char  *src, *dst;
-
-		flip = (unsigned char *)malloc(width * 4);
-		for(row = 0; row < height / 2; row++)
-		{
-			src = buffer + 18 + (row * 4 * width);
-			dst = buffer + 18 + ((height - row - 1) * 4 * width);
-
-			memcpy(flip, src, width * 4);
-			memcpy(src, dst, width * 4);
-			memcpy(dst, flip, width * 4);
-		}
-		free(flip);
-	}
-
-	ri.FS_WriteFile(filename, buffer, c);
-
-	Z_Free(buffer);
-}
-
-/*
-=========================================================
-
-PNG SAVING
-
-=========================================================
-*/
-static int      png_compressed_size;
-
-static void png_write_data(png_structp png, png_bytep data, png_size_t length)
-{
-	memcpy(png->io_ptr, data, length);
-
-	// raynorpat: msvc is gay
-#if _MSC_VER
-	(byte *) png->io_ptr += length;
-#else
-	png->io_ptr += length;
-#endif
-
-	png_compressed_size += length;
-}
-
-static void png_flush_data(png_structp png)
-{
-}
-
-void WritePNG(const char *name, const byte * pic, int width, int height)
-{
-	png_structp     png;
-	png_infop       info;
-	int             i;
-	int             row_stride;
-	byte           *buffer;
-	const byte     *row;
-	png_bytep      *row_pointers;
-
-	png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-
-	if(!png)
-		return;
-
-	// Allocate/initialize the image information data
-	info = png_create_info_struct(png);
-	if(!info)
-	{
-		png_destroy_write_struct(&png, (png_infopp) NULL);
-		return;
-	}
-
-	png_compressed_size = 0;
-	buffer = ri.Hunk_AllocateTempMemory(width * height * 3);
-
-	// set error handling
-	if(setjmp(png_jmpbuf(png)))
-	{
-		ri.Hunk_FreeTempMemory(buffer);
-		png_destroy_write_struct(&png, &info);
-		return;
-	}
-
-	png_set_write_fn(png, buffer, png_write_data, png_flush_data);
-	png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
-				 PNG_FILTER_TYPE_DEFAULT);
-
-	// write the file header information
-	png_write_info(png, info);
-
-	row_pointers = ri.Hunk_AllocateTempMemory(height * sizeof(png_bytep));
-
-	if(setjmp(png_jmpbuf(png)))
-	{
-		ri.Hunk_FreeTempMemory(row_pointers);
-		ri.Hunk_FreeTempMemory(buffer);
-		png_destroy_write_struct(&png, &info);
-		return;
-	}
-
-	row_stride = width * 4;
-	row = pic + (height - 1) * row_stride;
-
-#if 0
-	for(i = 0; i < height; i++)
-	{
-		row_pointers[i] = row;
-		row -= row_stride;
-	}
-#else
-	for(i = height - 1; i >= 0; i--)
-	{
-		row_pointers[i] = row;
-		row -= row_stride;
-	}
-#endif
-
-	png_write_image(png, row_pointers);
-	png_write_end(png, info);
-
-	// clean up after the write, and free any memory allocated
-	png_destroy_write_struct(&png, &info);
-
-	ri.Hunk_FreeTempMemory(row_pointers);
-
-	ri.FS_WriteFile(name, buffer, png_compressed_size);
-
-	ri.Hunk_FreeTempMemory(buffer);
-}
-
 static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, int *yOut,
 										  int *maxHeight, FT_Face face, const unsigned char c, qboolean calcHeight)
 {
@@ -343,7 +186,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 		}
 
 /*
-    // need to convert to power of 2 sizes so we do not get 
+    // need to convert to power of 2 sizes so we do not get
     // any scaling from the gl upload
   	for (scaled_width = 1 ; scaled_width < glyph.pitch ; scaled_width<<=1)
 	  	;
@@ -434,7 +277,7 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
 			}
 		}
 
-		// we now have an 8 bit per pixel grey scale bitmap 
+		// we now have an 8 bit per pixel grey scale bitmap
 		// that is width wide and pf->ftSize->metrics.y_ppem tall
 
 		glyph.imageHeight = scaledHeight;
@@ -604,7 +447,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 		return;
 	}
 
-	// make a 256x256 image buffer, once it is full, register it, clean it and keep going 
+	// make a 256x256 image buffer, once it is full, register it, clean it and keep going
 	// until all glyphs are rendered
 
 	out = Z_Malloc(1024 * 1024);
@@ -670,19 +513,11 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 				imageBuff[left++] = ((float)out[k] * max);
 			}
 
-#if 0
-			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.tga", strippedName, imageNumber++, pointSize);
-			if(!ri.FS_FileExists(fileName))
-			{
-				WriteTGA(fileName, imageBuff, FONT_SIZE, FONT_SIZE);
-			}
-#elif 1
 			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.png", strippedName, imageNumber++, pointSize);
 			if(!ri.FS_FileExists(fileName))
 			{
-				WritePNG(fileName, imageBuff, FONT_SIZE, FONT_SIZE);
+				SavePNG(fileName, imageBuff, FONT_SIZE, FONT_SIZE, 3, qtrue);
 			}
-#endif
 
 			image = R_CreateImage(fileName, imageBuff, FONT_SIZE, FONT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
 			h = RE_RegisterShaderFromImage(fileName, image, qfalse);
