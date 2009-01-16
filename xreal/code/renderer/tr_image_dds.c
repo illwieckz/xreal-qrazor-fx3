@@ -213,7 +213,7 @@ typedef struct
 
 #define R_LoadDDSImage_MAX_MIPS 16
 
-static ID_INLINE void UnpackRGB565(byte rgb[3], ushort cl)
+static ID_INLINE void UnpackRGB565(byte rgb[3], uint16_t cl)
 {
 	byte            r = (byte) ((cl >> 11) & 0x1F);
 	byte            g = (byte) ((cl >> 5) & 0x3F);
@@ -231,7 +231,7 @@ static void R_DecodeS3TCBlock(byte out[4][4][4], int bx, int by, int format, int
 	int             blocksize;
 	const byte     *block_base, *color_base, *alpha_base;
 
-	ushort          c0, c1;
+	uint16_t          c0, c1;
 	byte            rgba[4][4];
 
 	switch (format)
@@ -268,8 +268,8 @@ static void R_DecodeS3TCBlock(byte out[4][4][4], int bx, int by, int format, int
 			break;
 	}
 
-	c0 = (ushort) color_base[0] | ((ushort) color_base[1] << 8);
-	c1 = (ushort) color_base[2] | ((ushort) color_base[3] << 8);
+	c0 = (uint16_t) color_base[0] | ((uint16_t) color_base[1] << 8);
+	c1 = (uint16_t) color_base[2] | ((uint16_t) color_base[3] << 8);
 
 	UnpackRGB565(rgba[0], c0);
 	UnpackRGB565(rgba[1], c1);
@@ -415,11 +415,11 @@ static void R_DecodeRGB565Block(byte out[4][4][4], int bx, int by, int format, i
 	{
 		for(x = 0; x < 4; x++)
 		{
-			ushort          c;
+			uint16_t          c;
 
 			const byte     *px = row + x * 2;
 
-			c = (ushort) px[0] | ((ushort) px[1] << 8);
+			c = (uint16_t) px[0] | ((uint16_t) px[1] << 8);
 
 			UnpackRGB565(out[y][x], c);
 			out[y][x][3] = 0xFF;
