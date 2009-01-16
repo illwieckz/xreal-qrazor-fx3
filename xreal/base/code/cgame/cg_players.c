@@ -54,7 +54,7 @@ sfxHandle_t CG_CustomSound(int clientNum, const char *soundName)
 
 	if(soundName[0] != '*')
 	{
-		return trap_S_RegisterSound(soundName, qfalse);
+		return trap_S_RegisterSound(soundName);
 	}
 
 	if(clientNum < 0 || clientNum >= MAX_CLIENTS)
@@ -894,14 +894,16 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 			break;
 		}
 		ci->sounds[i] = 0;
+
 		// if the model didn't load use the sounds of the default model
 		if(modelloaded)
 		{
-			ci->sounds[i] = trap_S_RegisterSound(va("sound/player/%s/%s", dir, s + 1), qfalse);
+			ci->sounds[i] = trap_S_RegisterSound(va("sound/player/%s/%s", dir, s + 1));
 		}
+
 		if(!ci->sounds[i])
 		{
-			ci->sounds[i] = trap_S_RegisterSound(va("sound/player/%s/%s", fallback, s + 1), qfalse);
+			ci->sounds[i] = trap_S_RegisterSound(va("sound/player/%s/%s", fallback, s + 1));
 		}
 	}
 
@@ -2592,7 +2594,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	}
 
 	// bk0101022 - hack / FPE - bogus planes?
-	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
+	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f )
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array

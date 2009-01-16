@@ -790,7 +790,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				}
 				else
 				{
-					trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
+					trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound));
 				}
 
 				// show icon and name on status bar
@@ -817,7 +817,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				// powerup pickups are global
 				if(item->pickup_sound)
 				{
-					trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
+					trap_S_StartSound(NULL, cg.snap->ps.clientNum, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound));
 				}
 
 				// show icon and name on status bar

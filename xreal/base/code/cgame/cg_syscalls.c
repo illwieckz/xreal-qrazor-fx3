@@ -266,7 +266,7 @@ void trap_S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3], int
 	syscall(CG_S_RESPATIALIZE, entityNum, origin, axis, inwater);
 }
 
-sfxHandle_t trap_S_RegisterSound(const char *sample, qboolean compressed)
+sfxHandle_t trap_S_RegisterSound(const char *sample)
 {
 	return syscall(CG_S_REGISTERSOUND, sample);
 }
