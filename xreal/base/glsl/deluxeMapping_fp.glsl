@@ -70,7 +70,7 @@ void	main()
 #if 0 //defined(r_HDRRendering)
 	gl_FragColor = vec4(DecodeRGBE(texture2D(u_LightMap, var_TexLight)), 1.0);
 #else
-	gl_FragColor = texture2D(u_LightMap, var_TexLight) / 200.0;
+	gl_FragColor = texture2D(u_LightMap, var_TexLight);
 #endif
 
 #elif defined(r_showDeluxeMaps)
