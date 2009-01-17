@@ -776,20 +776,6 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	if(notification != QM_ACTIVATED)
 		return;
 
-	/*
-	switch (s_graphicsoptions.texturebits.curvalue)
-	{
-		case 0:
-			trap_Cvar_SetValue("r_texturebits", 0);
-			break;
-		case 1:
-			trap_Cvar_SetValue("r_texturebits", 16);
-			break;
-		case 2:
-			trap_Cvar_SetValue("r_texturebits", 32);
-			break;
-	}
-	*/
 	trap_Cvar_SetValue("r_picmip", 3 - s_graphicsoptions.tq.curvalue);
 
 	if(resolutionsDetected)
@@ -1104,21 +1090,6 @@ static void GraphicsOptions_SetMenuItems(void)
 	}
 
 	s_graphicsoptions.deferredShading.curvalue = trap_Cvar_VariableValue("r_deferredShading") != 0;
-	/*
-	switch ((int)trap_Cvar_VariableValue("r_texturebits"))
-	{
-		default:
-		case 0:
-			s_graphicsoptions.texturebits.curvalue = 0;
-			break;
-		case 16:
-			s_graphicsoptions.texturebits.curvalue = 1;
-			break;
-		case 32:
-			s_graphicsoptions.texturebits.curvalue = 2;
-			break;
-	}
-	*/
 
 	if(!Q_stricmp(UI_Cvar_VariableString("r_textureMode"), "GL_LINEAR_MIPMAP_NEAREST"))
 	{
@@ -1534,17 +1505,6 @@ otty: do we need this ?
 	s_graphicsoptions.tq.generic.callback = GraphicsOptions_TQEvent;
 	y += BIGCHAR_HEIGHT + 2;
 
-	/*
-	// references/modifies "r_textureBits"
-	s_graphicsoptions.texturebits.generic.type = MTYPE_SPINCONTROL;
-	s_graphicsoptions.texturebits.generic.name = "Texture Quality:";
-	s_graphicsoptions.texturebits.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.texturebits.generic.x = 320;
-	s_graphicsoptions.texturebits.generic.y = y;
-	s_graphicsoptions.texturebits.itemnames = tq_names;
-	y += BIGCHAR_HEIGHT + 2;
-	*/
-
 	// references/modifies "r_textureMode"
 	s_graphicsoptions.filter.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.filter.generic.name = "Texture Filter:";
@@ -1554,6 +1514,7 @@ otty: do we need this ?
 	s_graphicsoptions.filter.itemnames = filter_names;
 	y += BIGCHAR_HEIGHT + 2;
 
+#if 0
 	// references/modifies "r_ext_texture_compression"
 	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") ||
 	   strstr(uis.glconfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
@@ -1566,6 +1527,7 @@ otty: do we need this ?
 		s_graphicsoptions.compression.itemnames = enabled_names;
 		y += BIGCHAR_HEIGHT + 2;
 	}
+#endif
 
 	// references/modifies "r_ext_texture_filter_anisotropic"
 	if(strstr(uis.glconfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
@@ -1689,9 +1651,11 @@ otty: do we need this ?
 //	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.texturebits);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.filter);
 
+#if 0
 	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") ||
 	   strstr(uis.glconfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 		Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.compression);
+#endif
 
 	if(strstr(uis.glconfig.extensions_string, "GL_EXT_texture_filter_anisotropic"))
 		Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.anisotropicFilter);

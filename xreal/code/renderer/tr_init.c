@@ -104,7 +104,6 @@ cvar_t         *r_stencilbits;
 cvar_t         *r_depthbits;
 cvar_t         *r_colorbits;
 cvar_t         *r_stereo;
-cvar_t         *r_texturebits;
 
 cvar_t         *r_drawBuffer;
 cvar_t         *r_uiFullScreen;
@@ -1193,13 +1192,15 @@ void GfxInfo_f(void)
 
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
-	ri.Printf(PRINT_ALL, "texture bits: %d\n", r_texturebits->integer);
-//  ri.Printf(PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0]);
-	ri.Printf(PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE]);
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
 		ri.Printf(PRINT_ALL, "HACK: ATI approximations\n");
+	}
+
+	if(glConfig.textureCompression != TC_NONE)
+	{
+		ri.Printf(PRINT_ALL, "Using S3TC (DXTC) texture compression\n");
 	}
 
 	if(glConfig.hardwareType == GLHW_ATI_DX10)
@@ -1236,7 +1237,7 @@ R_Register
 void R_Register(void)
 {
 	// latched and archived variables
-	r_ext_texture_compression = ri.Cvar_Get("r_ext_texture_compression", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_texture_compression = ri.Cvar_Get("r_ext_texture_compression", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_occlusion_query = ri.Cvar_Get("r_ext_occlusion_query", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_texture_non_power_of_two = ri.Cvar_Get("r_ext_texture_non_power_of_two", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_ext_draw_buffers = ri.Cvar_Get("r_ext_draw_buffers", "1", CVAR_CHEAT | CVAR_LATCH);
@@ -1257,7 +1258,6 @@ void R_Register(void)
 	ri.Cvar_CheckRange(r_picmip, 0, 3, qtrue);
 	r_roundImagesDown = ri.Cvar_Get("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorMipLevels = ri.Cvar_Get("r_colorMipLevels", "0", CVAR_LATCH);
-	r_texturebits = ri.Cvar_Get("r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_colorbits = ri.Cvar_Get("r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_stereo = ri.Cvar_Get("r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_stencilbits = ri.Cvar_Get("r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH);

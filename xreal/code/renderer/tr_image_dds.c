@@ -630,10 +630,10 @@ image_t        *R_LoadDDSImageData(void *pImageData, const char *name, int bits,
 
 	compressed = (ddsd->u4.ddpfPixelFormat.dwFlags & DDPF_FOURCC) ? qtrue : qfalse;
 
-	//either a cube or a volume
+	// either a cube or a volume
 	if(ddsd->ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP)
 	{
-		//cube texture
+		// cube texture
 
 		if(ddsd->dwWidth != ddsd->dwHeight)
 		{
@@ -654,7 +654,7 @@ image_t        *R_LoadDDSImageData(void *pImageData, const char *name, int bits,
 	}
 	else if((ddsd->ddsCaps.dwCaps2 & DDSCAPS2_VOLUME) && (ddsd->dwFlags & DDSD_DEPTH))
 	{
-		//3D texture
+		// 3D texture
 
 		width = ddsd->dwWidth;
 		height = ddsd->dwHeight;
@@ -668,7 +668,7 @@ image_t        *R_LoadDDSImageData(void *pImageData, const char *name, int bits,
 	}
 	else
 	{
-		//2D texture
+		// 2D texture
 
 		width = ddsd->dwWidth;
 		height = ddsd->dwHeight;
@@ -769,7 +769,7 @@ image_t        *R_LoadDDSImageData(void *pImageData, const char *name, int bits,
 	}
 	else
 	{
-		//uncompressed format
+		// uncompressed format
 		if(ddsd->u4.ddpfPixelFormat.dwFlags & DDPF_RGB)
 		{
 			switch (ddsd->u4.ddpfPixelFormat.u0.dwRGBBitCount)

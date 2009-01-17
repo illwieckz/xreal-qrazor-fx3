@@ -1564,6 +1564,7 @@ image_t        *R_CreateCubeImage(const char *name,
 
 
 static void     R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits);
+image_t        *R_LoadDDSImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
 
 static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, int *bits)
 {
@@ -2077,8 +2078,22 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 		}
 	}
 
+	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(name, "fonts", 5))
+	{
+		Q_strncpyz(ddsName, name, sizeof(ddsName));
+		Com_StripExtension(ddsName, ddsName, sizeof(ddsName));
+		Q_strcat(ddsName, sizeof(ddsName), ".dds");
+
+		// try to load a customized .dds texture
+		image = R_LoadDDSImage(ddsName, bits, filterType, wrapType);
+		if(image != NULL)
+		{
+			ri.Printf(PRINT_ALL, "found custom .dds '%s'\n", ddsName);
+			return image;
+		}
+	}
 #if 0
-	//if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
+	else if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
 	{
 		Q_strncpyz(ddsName, "dds/", sizeof(ddsName));
 		Q_strcat(ddsName, sizeof(ddsName), name);
@@ -2089,7 +2104,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 		image = R_LoadDDSImage(ddsName, bits, filterType, wrapType);
 		if(image != NULL)
 		{
-			ri.Printf(PRINT_ALL, "found cached DDS '%s'\n", ddsName);
+			ri.Printf(PRINT_ALL, "found cached .dds '%s'\n", ddsName);
 			return image;
 		}
 	}
@@ -2135,6 +2150,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	static char    *suf[6] = { "px", "nx", "py", "ny", "pz", "nz" };
 	int             bitsIgnore;
 	char            buffer[1024], filename[1024];
+	char            ddsName[1024];
 	char           *filename_p;
 
 	if(!name)
@@ -2154,8 +2170,23 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		}
 	}
 
+
+	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(name, "fonts", 5))
+	{
+		Q_strncpyz(ddsName, name, sizeof(ddsName));
+		Com_StripExtension(ddsName, ddsName, sizeof(ddsName));
+		Q_strcat(ddsName, sizeof(ddsName), ".dds");
+
+		// try to load a customized .dds texture
+		image = R_LoadDDSImage(ddsName, bits, filterType, wrapType);
+		if(image != NULL)
+		{
+			ri.Printf(PRINT_ALL, "found custom .dds '%s'\n", ddsName);
+			return image;
+		}
+	}
 #if 0
-	//if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
+	else if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
 	{
 		Q_strncpyz(ddsName, "dds/", sizeof(ddsName));
 		Q_strcat(ddsName, sizeof(ddsName), name);
@@ -2166,7 +2197,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		image = R_LoadDDSImage(ddsName, bits, filterType, wrapType);
 		if(image != NULL)
 		{
-			ri.Printf(PRINT_ALL, "found cached DDS '%s'\n", ddsName);
+			ri.Printf(PRINT_ALL, "found cached .dds '%s'\n", ddsName);
 			return image;
 		}
 	}
@@ -2669,7 +2700,7 @@ void R_CreateBuiltinImages(void)
 	int             x, y;
 	byte            data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	byte           *out;
-	float           s, t, value;
+	float           s, value;
 	byte            intensity;
 
 	R_CreateDefaultImage();
