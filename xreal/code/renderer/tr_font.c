@@ -516,7 +516,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 			Com_sprintf(fileName, sizeof(fileName), "%s_%i_%i.png", strippedName, imageNumber++, pointSize);
 			if(!ri.FS_FileExists(fileName))
 			{
-				SavePNG(fileName, imageBuff, FONT_SIZE, FONT_SIZE, 3, qtrue);
+				SavePNG(fileName, imageBuff, FONT_SIZE, FONT_SIZE, 4, qtrue);
 			}
 
 			image = R_CreateImage(fileName, imageBuff, FONT_SIZE, FONT_SIZE, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
