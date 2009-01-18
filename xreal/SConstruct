@@ -14,7 +14,8 @@ opts.Add(EnumOption('simd', 'Choose special CPU register optimizations', 'none',
 #opts.Add(EnumOption('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))
 opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
 #opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
-opts.Add(BoolOption('mapping', 'Set to 1 to compile XreaLRadiant and XMap2 mapping tools', 0))
+opts.Add(BoolOption('radiant', 'Set to 1 to compile the XreaLRadiant level editor', 0))
+opts.Add(BoolOption('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
 opts.Add(BoolOption('xmass', 'Set to 1 to compile XMass', 0))
 #opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 #opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
@@ -98,9 +99,11 @@ else:
 	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 	SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
 
-if env['mapping'] == 1:
+if env['radiant'] == 1:
 	#SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
 	SConscript('SConscript_xrealradiant', build_dir='build/xrealradiant', duplicate=0)
+
+if env['xmap'] == 1:
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
 	SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
 
