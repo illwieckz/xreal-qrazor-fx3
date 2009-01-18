@@ -830,6 +830,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, const char *modN
 				vboSurf->vbo->ofsBinormals = ofsBinormals;
 				vboSurf->vbo->ofsNormals = ofsNormals;
 				vboSurf->vbo->ofsColors = ofsColors;
+				vboSurf->vbo->ofsLightCoords = ofsColors;		// not required anyway
+				vboSurf->vbo->ofsLightDirections = ofsColors;	// not required anyway
 
 				vboSurf->ibo =
 					R_CreateIBO(va("staticMD3Mesh_IBO %i", vboSurfaces.currentElements), indexes, indexesSize,
@@ -1548,6 +1550,8 @@ static qboolean R_LoadMD5(model_t * mod, void *buffer, const char *modName)
 			vboSurf->vbo->ofsBinormals = ofsBinormals;
 			vboSurf->vbo->ofsNormals = ofsNormals;
 			vboSurf->vbo->ofsColors = ofsColors;
+			vboSurf->vbo->ofsLightCoords = ofsColors;		// not required anyway
+			vboSurf->vbo->ofsLightDirections = ofsColors;	// not required anyway
 			vboSurf->vbo->ofsBoneIndexes = ofsBoneIndexes;
 			vboSurf->vbo->ofsBoneWeights = ofsBoneWeights;
 

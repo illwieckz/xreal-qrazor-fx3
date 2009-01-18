@@ -605,6 +605,30 @@ void GL_ClientState(unsigned long stateBits)
 		}
 	}
 
+	if(diff & GLCS_LIGHTCOLOR)
+	{
+		if(stateBits & GLCS_LIGHTCOLOR)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_LIGHTCOLOR);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_LIGHTCOLOR);
+		}
+	}
+
+	if(diff & GLCS_LIGHTDIRECTION)
+	{
+		if(stateBits & GLCS_LIGHTDIRECTION)
+		{
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
+		}
+		else
+		{
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
+		}
+	}
+
 	if(diff & GLCS_BONE_INDEXES)
 	{
 		if(stateBits & GLCS_BONE_INDEXES)

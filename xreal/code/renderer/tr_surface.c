@@ -354,6 +354,7 @@ void Tess_UpdateVBOs()
 		qglVertexAttribPointerARB(ATTR_INDEX_BONE_WEIGHTS, 4, GL_FLOAT, 0, 0, BUFFER_OFFSET(tess.vbo->ofsBoneWeights));
 #endif
 
+		// FIXME: make this dependend on GLCS_* bits to save PCIe bandwidth
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsTexCoords, tess.numVertexes * sizeof(vec4_t), tess.texCoords);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightCoords, tess.numVertexes * sizeof(vec4_t), tess.lightCoords);
@@ -361,6 +362,8 @@ void Tess_UpdateVBOs()
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBinormals, tess.numVertexes * sizeof(vec4_t), tess.binormals);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsNormals, tess.numVertexes * sizeof(vec4_t), tess.normals);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightColors, tess.numVertexes * sizeof(vec4_t), tess.lightColors);
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsLightDirections, tess.numVertexes * sizeof(vec4_t), tess.lightDirections);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneIndexes, tess.numVertexes * sizeof(vec4_t), tess.boneIndexes);
 		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsBoneWeights, tess.numVertexes * sizeof(vec4_t), tess.boneWeights);
 	}

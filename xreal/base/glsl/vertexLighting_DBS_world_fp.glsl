@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -29,8 +29,9 @@ uniform vec3		u_ViewOrigin;
 varying vec3		var_Vertex;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
-varying vec3		var_LightDir;
-varying vec4		var_Color;
+//varying vec4		var_Color;
+varying vec4		var_LightColor;
+//varying vec3		var_LightDirection;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
@@ -64,7 +65,7 @@ void	main()
 	vec3 V = normalize(OS2TSMatrix * (u_ViewOrigin - var_Vertex));
 
 	// compute light direction in tangent space
-	vec3 L = normalize(OS2TSMatrix * var_LightDir);
+	vec3 L = normalize(OS2TSMatrix * var_Normal);	// FIXME should be var_LightDirection
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
@@ -77,15 +78,17 @@ void	main()
 	#endif
 	
 	// compute the light term
-	vec3 light = var_Color.rgb * clamp(dot(N, L), 0.0, 1.0);
+	vec3 light = var_LightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
 	
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * var_Color.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * var_LightColor.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute final color
 	vec4 color = diffuse;
 	color.rgb *= light;
 	color.rgb += specular;
+	
+//	color.rgb *= var_Color.rgb;	// apply model paint color for terrain blending
 	
 	gl_FragColor = color;
 }

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -25,18 +25,21 @@ attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 attribute vec3		attr_Normal;
-attribute vec4		attr_Color;
+//attribute vec4		attr_Color;
+attribute vec4		attr_LightColor;
 
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
+uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Vertex;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
-varying vec3		var_LightDir;
-varying vec4		var_Color;
+//varying vec4		var_Color;
+varying vec4		var_LightColor;
+//varying vec3		var_LightDirection;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
@@ -59,12 +62,25 @@ void	main()
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
 	
 	// assign vertex to light vector in object space
-	//var_light = attr_Light;
-	// FIXME
-	var_LightDir = attr_Normal;
+	var_LightColor = attr_LightColor;
 	
+	// FIXME
+	//var_LightDirection = attr_Normal;
+	
+	/*
 	// assign color
-	var_Color = attr_Color;
+	if(bool(u_InverseVertexColor))
+	{
+		var_Color.r = 1.0 - attr_Color.r;
+		var_Color.g = 1.0 - attr_Color.g;
+		var_Color.b = 1.0 - attr_Color.b;
+		var_Color.a = 1.0 - attr_Color.a;
+	}
+	else
+	{
+		var_Color = attr_Color;
+	}
+	*/
 	
 	var_Tangent = attr_Tangent;
 	var_Binormal = attr_Binormal;

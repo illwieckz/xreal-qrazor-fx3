@@ -3966,11 +3966,11 @@ static void R_CreateWorldVBO()
 
 	s_worldData.vbo = R_CreateVBO2(va("bspModelMesh_vertices %i", 0), numVerts, optimizedVerts,
 								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-								   GLCS_NORMAL | GLCS_COLOR);
+								   GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION);
 #else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
 								   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL |
-								   GLCS_NORMAL | GLCS_COLOR, GL_STATIC_DRAW_ARB);
+								   GLCS_NORMAL | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 #endif
 
 	endTime = ri.Milliseconds();
@@ -4325,7 +4325,7 @@ static void R_CreateSubModelVBOs()
 				vboSurf->vbo =
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, optimizedVerts,
 								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
-								 | GLCS_COLOR, GL_STATIC_DRAW_ARB);
+								 | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
 
 				vboSurf->ibo =
 					R_CreateIBO2(va("staticBspModel%i_IBO %i", m, vboSurfaces.currentElements), numTriangles, triangles,

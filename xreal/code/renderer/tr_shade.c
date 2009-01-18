@@ -529,6 +529,12 @@ static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int 
 	if(attribs & GLCS_COLOR)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_COLOR, "attr_Color");
 
+	if(attribs & GLCS_LIGHTCOLOR)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_LIGHTCOLOR, "attr_LightColor");
+
+	if(attribs & GLCS_LIGHTDIRECTION)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
+
 	if(glConfig.vboVertexSkinningAvailable)
 	{
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
@@ -630,7 +636,7 @@ void GLSL_InitGPUShaders(void)
 	// simple vertex color shading for the world
 	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_world,
 					   "vertexLighting_DBS_world",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_LIGHTCOLOR, qtrue);
 
 	tr.vertexLightingShader_DBS_world.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DiffuseMap");
@@ -646,6 +652,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_SpecularTextureMatrix");
 	tr.vertexLightingShader_DBS_world.u_AlphaTest =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_AlphaTest");
+//	tr.vertexLightingShader_DBS_world.u_InverseVertexColor =
+//		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_InverseVertexColor");
 	tr.vertexLightingShader_DBS_world.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ViewOrigin");
 	tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix =
@@ -2197,9 +2205,22 @@ static void Render_vertexLighting_DBS_world(int stage)
 	GL_BindProgram(&tr.vertexLightingShader_DBS_world);
 	GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
 
+/*
+	if(pStage->vertexColor || pStage->inverseVertexColor)
+	{
+		GL_ClientState(tr.vertexLightingShader_DBS_world.attribs);
+	}
+	else
+	{
+		GL_ClientState(tr.vertexLightingShader_DBS_world.attribs & ~(GLCS_COLOR));
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
+	}
+	*/
+
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 
+//	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_InverseVertexColor, pStage->inverseVertexColor);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_world.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);

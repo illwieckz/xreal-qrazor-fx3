@@ -298,6 +298,8 @@ typedef struct VBO_s
 	GLuint          ofsBinormals;
 	GLuint          ofsNormals;
 	GLuint          ofsColors;
+	GLuint			ofsLightColors;
+	GLuint			ofsLightDirections;
 	GLuint          ofsBoneIndexes;
 	GLuint          ofsBoneWeights;
 
@@ -795,7 +797,7 @@ typedef struct shaderState_s
 	shader_t       *shader;
 } shaderState_t;
 
-
+#if 0
 enum
 {
 	ATTR_INDEX_POSITION = 0,
@@ -807,9 +809,27 @@ enum
 	ATTR_INDEX_BINORMAL = 13,
 	ATTR_INDEX_NORMAL = 14,
 	ATTR_INDEX_COLOR = 15,
+	ATTR_INDEX_LIGHTCOLOR = 16,
+	ATTR_INDEX_LIGHTDIRECTION = 17,
 	ATTR_INDEX_BONE_INDEXES = 10,
 	ATTR_INDEX_BONE_WEIGHTS = 11,
 };
+#else
+enum
+{
+	ATTR_INDEX_POSITION = 0,
+	ATTR_INDEX_TEXCOORD0 = 1,
+	ATTR_INDEX_TEXCOORD1 = 2,
+	ATTR_INDEX_TANGENT = 3,
+	ATTR_INDEX_BINORMAL = 4,
+	ATTR_INDEX_NORMAL = 5,
+	ATTR_INDEX_COLOR = 6,
+	ATTR_INDEX_LIGHTCOLOR = 7,
+	ATTR_INDEX_LIGHTDIRECTION = 8,
+	ATTR_INDEX_BONE_INDEXES = 9,
+	ATTR_INDEX_BONE_WEIGHTS = 10,
+};
+#endif
 
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
@@ -2438,6 +2458,8 @@ enum
 	GLCS_BINORMAL = BIT(4),
 	GLCS_NORMAL = BIT(5),
 	GLCS_COLOR = BIT(6),
+	GLCS_LIGHTCOLOR = BIT(7),
+	GLCS_LIGHTDIRECTION = BIT(8),
 
 	GLCS_BONE_INDEXES = BIT(7),
 	GLCS_BONE_WEIGHTS = BIT(8),
@@ -2554,6 +2576,8 @@ typedef struct shaderCommands_s
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
 	vec4_t          colors[SHADER_MAX_VERTEXES];
+	vec4_t          lightColors[SHADER_MAX_VERTEXES];
+	vec4_t          lightDirections[SHADER_MAX_VERTEXES];
 	vec4_t          boneIndexes[SHADER_MAX_VERTEXES];
 	vec4_t          boneWeights[SHADER_MAX_VERTEXES];
 
