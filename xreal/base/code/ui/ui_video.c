@@ -1514,7 +1514,7 @@ otty: do we need this ?
 	s_graphicsoptions.filter.itemnames = filter_names;
 	y += BIGCHAR_HEIGHT + 2;
 
-#if 0
+#if 1
 	// references/modifies "r_ext_texture_compression"
 	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") ||
 	   strstr(uis.glconfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
@@ -1651,7 +1651,7 @@ otty: do we need this ?
 //	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.texturebits);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.filter);
 
-#if 0
+#if 1
 	if(strstr(uis.glconfig.extensions_string, "GL_ARB_texture_compression") ||
 	   strstr(uis.glconfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 		Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.compression);

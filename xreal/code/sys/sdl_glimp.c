@@ -854,7 +854,7 @@ static void GLimp_InitExtensions(void)
 	qglGetCompressedTexImageARB = NULL;
 	if(Q_stristr(glConfig.extensions_string, "GL_ARB_texture_compression"))
 	{
-		//if(r_ext_texture_compression->integer)
+		if(r_ext_texture_compression->integer)
 		{
 			qglCompressedTexImage3DARB = SDL_GL_GetProcAddress("glCompressedTexImage3DARB");
 			qglCompressedTexImage2DARB = SDL_GL_GetProcAddress("glCompressedTexImage2DARB");
@@ -866,12 +866,10 @@ static void GLimp_InitExtensions(void)
 			glConfig.ARBTextureCompressionAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_compression\n");
 		}
-		/*
 		else
 		{
 			ri.Printf(PRINT_ALL, "...ignoring GL_ARB_texture_compression\n");
 		}
-		*/
 	}
 	else
 	{
@@ -881,17 +879,15 @@ static void GLimp_InitExtensions(void)
 	// GL_EXT_texture_compression_s3tc
 	if(Q_stristr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
 	{
-		//if(r_ext_texture_compression->integer)
+		if(r_ext_texture_compression->integer)
 		{
 			glConfig.textureCompression = TC_S3TC;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n");
 		}
-		/*
 		else
 		{
 			ri.Printf(PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n");
 		}
-		*/
 	}
 	else
 	{

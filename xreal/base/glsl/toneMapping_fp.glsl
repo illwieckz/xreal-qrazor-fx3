@@ -55,7 +55,7 @@ void	main()
 	float finalLuminance = u_HDRExposure * ((u_HDRExposure + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (u_HDRExposure + 1.0);
 	color *= finalLuminance;
 	
-#elif 0
+#elif 1
 	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	//float finalLuminance = scaledLuminance * ((scaledLuminance + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (scaledLuminance + 1.0);
 	float finalLuminance = (scaledLuminance * ((scaledLuminance / (u_HDRMaxLuminance * u_HDRMaxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
@@ -69,9 +69,9 @@ void	main()
 	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
 	color *= scaledLuminance / (scaledLuminance + 1.0);
 
-#elif 1
+#elif 0
 	
-#if 1
+#if 0
 	// define a linear blending from -1.5 to 2.6 (log scale) which
 	// determines the lerp amount for blue shift
     float blueShiftCoefficient = clamp(1.0 - (adaptedLuminance + 1.5) / 4.1, 0.0, 1.0);
