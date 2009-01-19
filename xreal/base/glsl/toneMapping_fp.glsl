@@ -55,7 +55,7 @@ void	main()
 	float finalLuminance = u_HDRExposure * ((u_HDRExposure + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (u_HDRExposure + 1.0);
 	color *= finalLuminance;
 	
-#elif 1
+#elif 0
 	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	//float finalLuminance = scaledLuminance * ((scaledLuminance + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (scaledLuminance + 1.0);
 	float finalLuminance = (scaledLuminance * ((scaledLuminance / (u_HDRMaxLuminance * u_HDRMaxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
@@ -65,11 +65,11 @@ void	main()
 	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	color *= scaledLuminance * (scaledLuminance / u_HDRMaxLuminance + 1.0) / (scaledLuminance + 1.0);
 	
-#elif 1
+#elif 0
 	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
 	color *= scaledLuminance / (scaledLuminance + 1.0);
 
-#elif 0
+#elif 1
 	
 #if 1
 	// define a linear blending from -1.5 to 2.6 (log scale) which
