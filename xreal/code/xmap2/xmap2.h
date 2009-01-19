@@ -258,6 +258,7 @@ constants
 #define CLUSTER_FLOODED			-3
 
 #define VERTEX_LUXEL_SIZE		3
+#define VERTEX_DELUXEL_SIZE		3
 #define BSP_LUXEL_SIZE			3
 #define RAD_LUXEL_SIZE			3
 #define SUPER_LUXEL_SIZE		4
@@ -268,6 +269,7 @@ constants
 
 #define VERTEX_LUXEL( s, v )	(vertexLuxels[ s ] + ((v) * VERTEX_LUXEL_SIZE))
 #define RAD_VERTEX_LUXEL( s, v )(radVertexLuxels[ s ] + ((v) * VERTEX_LUXEL_SIZE))
+#define VERTEX_DELUXEL( s, v )	(vertexDeluxels[ s ] + ((v) * VERTEX_DELUXEL_SIZE))
 #define BSP_LUXEL( s, x, y )	(lm->bspLuxels[ s ] + ((((y) * lm->w) + (x)) * BSP_LUXEL_SIZE))
 #define RAD_LUXEL( s, x, y )	(lm->radLuxels[ s ] + ((((y) * lm->w) + (x)) * RAD_LUXEL_SIZE))
 #define SUPER_LUXEL( s, x, y )	(lm->superLuxels[ s ] + ((((y) * lm->sw) + (x)) * SUPER_LUXEL_SIZE))
@@ -2222,6 +2224,7 @@ Q_EXTERN int				*sortLightmaps Q_ASSIGN( NULL );
 /* vertex luxels */
 Q_EXTERN float				*vertexLuxels[ MAX_LIGHTMAPS ];
 Q_EXTERN float				*radVertexLuxels[ MAX_LIGHTMAPS ];
+Q_EXTERN float				*vertexDeluxels[ MAX_LIGHTMAPS ];		// Tr3B: added
 
 /* bsp lightmaps */
 Q_EXTERN int				numLightmapShaders Q_ASSIGN( 0 );

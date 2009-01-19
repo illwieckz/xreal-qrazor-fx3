@@ -1021,6 +1021,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 		{
 			cv->verts[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
 		}
+		//VectorNormalize(cv->verts[i].lightDirection);
 
 		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor);
 	}
@@ -1186,6 +1187,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 		{
 			points[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
 		}
+		//VectorNormalize(points[i].lightDirection);
 
 		R_HDRTonemapLightingColors(points[i].lightColor, points[i].lightColor);
 	}
@@ -1281,6 +1283,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 		{
 			cv->verts[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
 		}
+		//VectorNormalize(cv->verts[i].lightDirection);
 
 		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor);
 	}

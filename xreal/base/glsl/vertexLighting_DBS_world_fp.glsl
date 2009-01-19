@@ -31,7 +31,7 @@ varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 //varying vec4		var_Color;
 varying vec4		var_LightColor;
-//varying vec3		var_LightDirection;
+varying vec3		var_LightDirection;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
@@ -65,7 +65,7 @@ void	main()
 	vec3 V = normalize(OS2TSMatrix * (u_ViewOrigin - var_Vertex));
 
 	// compute light direction in tangent space
-	vec3 L = normalize(OS2TSMatrix * var_Normal);	// FIXME should be var_LightDirection
+	vec3 L = normalize(OS2TSMatrix * var_LightDirection);
 	
 	// compute half angle in tangent space
 	vec3 H = normalize(L + V);
@@ -90,5 +90,6 @@ void	main()
 	
 //	color.rgb *= var_Color.rgb;	// apply model paint color for terrain blending
 	
+//	color.rgb = var_LightDirection.rgb;
 	gl_FragColor = color;
 }

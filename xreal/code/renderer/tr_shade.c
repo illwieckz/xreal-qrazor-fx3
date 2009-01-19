@@ -636,7 +636,7 @@ void GLSL_InitGPUShaders(void)
 	// simple vertex color shading for the world
 	GLSL_InitGPUShader(&tr.vertexLightingShader_DBS_world,
 					   "vertexLighting_DBS_world",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_LIGHTCOLOR, qtrue);
+					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, qtrue);
 
 	tr.vertexLightingShader_DBS_world.u_DiffuseMap =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DiffuseMap");

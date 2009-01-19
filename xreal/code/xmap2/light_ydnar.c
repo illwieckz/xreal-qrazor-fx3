@@ -2421,7 +2421,7 @@ void IlluminateVertexes(int num)
 {
 	int             i, x, y, z, x1, y1, z1, sx, sy, radius, maxRadius, *cluster;
 	int             lightmapNum, numAvg;
-	float           samples, *vertLuxel, *radVertLuxel, *luxel, dirt;
+	float           samples, *vertLuxel, *radVertLuxel, *luxel, *deluxel, *vertDeluxel, dirt;
 	vec3_t          origin, temp, temp2, colors[MAX_LIGHTMAPS], avgColors[MAX_LIGHTMAPS];
 	bspDrawSurface_t *ds;
 	surfaceInfo_t  *info;
@@ -2466,6 +2466,7 @@ void IlluminateVertexes(int num)
 		{
 			/* get vertex luxel */
 			radVertLuxel = RAD_VERTEX_LUXEL(0, ds->firstVert + i);
+			vertDeluxel = VERTEX_DELUXEL(0, ds->firstVert + i);
 
 			/* color the luxel with raw lightmap num? */
 			if(debugSurfaces)
@@ -2495,6 +2496,7 @@ void IlluminateVertexes(int num)
 			{
 				/* clear vertex luxel */
 				VectorSet(radVertLuxel, -1.0f, -1.0f, -1.0f);
+				VectorClear(vertDeluxel);
 
 				/* try at initial origin */
 				trace.cluster =
@@ -2525,6 +2527,9 @@ void IlluminateVertexes(int num)
 						radVertLuxel = RAD_VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
 						VectorCopy(colors[lightmapNum], radVertLuxel);
 						VectorAdd(avgColors[lightmapNum], colors[lightmapNum], colors[lightmapNum]);
+
+						vertDeluxel = VERTEX_DELUXEL(lightmapNum, ds->firstVert + i);
+						VectorCopy(trace.direction, vertDeluxel);
 					}
 				}
 
@@ -2570,6 +2575,9 @@ void IlluminateVertexes(int num)
 									/* store */
 									radVertLuxel = RAD_VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
 									VectorCopy(colors[lightmapNum], radVertLuxel);
+
+									vertDeluxel = VERTEX_DELUXEL(lightmapNum, ds->firstVert + i);
+									VectorCopy(trace.direction, vertDeluxel);
 								}
 
 								/* bright enough? */
@@ -2635,16 +2643,21 @@ void IlluminateVertexes(int num)
 				/* get luxels */
 				vertLuxel = VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
 				radVertLuxel = RAD_VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
+				vertDeluxel = VERTEX_DELUXEL(lightmapNum, ds->firstVert + i);
 
 				/* store */
 				if(bouncing || bounce == 0 || !bounceOnly)
 					VectorAdd(vertLuxel, radVertLuxel, vertLuxel);
+
+				VectorNormalize(vertDeluxel);
 
 				if(!info->si->noVertexLight)
 				{
 					if(hdr)
 					{
 						VectorScale(vertLuxel, info->si->vertexScale <= 0.0f ? 1.0f : info->si->vertexScale, verts[i].lightColor[lightmapNum]);
+						VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);
+
 					}
 					else
 					{
@@ -2700,6 +2713,7 @@ void IlluminateVertexes(int num)
 			/* get vertex luxels */
 			vertLuxel = VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
 			radVertLuxel = RAD_VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
+			vertDeluxel = VERTEX_DELUXEL(lightmapNum, ds->firstVert + i);
 
 			/* color the luxel with the normal? */
 			if(normalmap)
@@ -2718,6 +2732,7 @@ void IlluminateVertexes(int num)
 			{
 				/* increasing radius */
 				VectorClear(radVertLuxel);
+				VectorClear(vertDeluxel);
 				samples = 0.0f;
 				for(radius = 0; radius < maxRadius && samples <= 0.0f; radius++)
 				{
@@ -2734,6 +2749,7 @@ void IlluminateVertexes(int num)
 
 							/* get luxel particulars */
 							luxel = SUPER_LUXEL(lightmapNum, sx, sy);
+							deluxel = SUPER_DELUXEL(sx, sy);
 							cluster = SUPER_CLUSTER(sx, sy);
 							if(*cluster < 0)
 								continue;
@@ -2744,6 +2760,7 @@ void IlluminateVertexes(int num)
 
 							/* add its distinctiveness to our own */
 							VectorAdd(radVertLuxel, luxel, radVertLuxel);
+							VectorAdd(vertDeluxel, deluxel, vertDeluxel);
 							samples += luxel[3];
 						}
 					}
@@ -2758,12 +2775,14 @@ void IlluminateVertexes(int num)
 
 			/* store into floating point storage */
 			VectorAdd(vertLuxel, radVertLuxel, vertLuxel);
+			VectorNormalize(vertDeluxel);
 			numVertsIlluminated++;
 
 			/* store into bytes (for vertex approximation) */
 			if(hdr)
 			{
 				VectorScale(vertLuxel, 1.0f, verts[i].lightColor[lightmapNum]);
+				VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);
 			}
 			else
 			{

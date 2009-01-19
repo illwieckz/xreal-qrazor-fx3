@@ -1208,8 +1208,12 @@ void SetupSurfaceLightmaps(void)
 	{
 		vertexLuxels[k] = safe_malloc(numBSPDrawVerts * VERTEX_LUXEL_SIZE * sizeof(float));
 		memset(vertexLuxels[k], 0, numBSPDrawVerts * VERTEX_LUXEL_SIZE * sizeof(float));
+
 		radVertexLuxels[k] = safe_malloc(numBSPDrawVerts * VERTEX_LUXEL_SIZE * sizeof(float));
 		memset(radVertexLuxels[k], 0, numBSPDrawVerts * VERTEX_LUXEL_SIZE * sizeof(float));
+
+		vertexDeluxels[k] = safe_malloc(numBSPDrawVerts * VERTEX_DELUXEL_SIZE * sizeof(float));
+		memset(vertexDeluxels[k], 0, numBSPDrawVerts * VERTEX_DELUXEL_SIZE * sizeof(float));
 	}
 
 	/* emit some stats */
@@ -2323,6 +2327,7 @@ void StoreSurfaceLightmaps(void)
 	int             numUsed, numTwins, numTwinLuxels, numStored;
 	float           lmx, lmy, efficiency;
 	vec3_t          color;
+	vec3_t			lightDirection;
 	bspDrawSurface_t *ds, *parent, dsTemp;
 	surfaceInfo_t  *info;
 	rawLightmap_t  *lm, *lm2;
@@ -2983,6 +2988,7 @@ void StoreSurfaceLightmaps(void)
 			{
 				memcpy(dv[j].lightmap, dvParent[j].lightmap, sizeof(dv[j].lightmap));
 				memcpy(dv[j].lightColor, dvParent[j].lightColor, sizeof(dv[j].lightColor));
+				memcpy(dv[j].lightDirection, dvParent[j].lightDirection, sizeof(dv[j].lightDirection));
 			}
 
 			/* skip the rest */
@@ -3064,6 +3070,10 @@ void StoreSurfaceLightmaps(void)
 					luxel = VERTEX_LUXEL(lightmapNum, ds->firstVert + j);
 					VectorCopy(luxel, color);
 
+					/* get vertex light direction */
+					deluxel = VERTEX_DELUXEL(lightmapNum, ds->firstVert + j);
+					VectorCopy(deluxel, lightDirection);
+
 					/* set minimum light */
 					if(lightmapNum == 0)
 					{
@@ -3077,6 +3087,7 @@ void StoreSurfaceLightmaps(void)
 				if(hdr)
 				{
 					VectorScale(color, info->si->vertexScale <= 0.0f ? 1.0f : info->si->vertexScale, dv[j].lightColor[lightmapNum]);
+					VectorCopy(lightDirection, dv[j].lightDirection[lightmapNum]);
 				}
 				else
 				{
