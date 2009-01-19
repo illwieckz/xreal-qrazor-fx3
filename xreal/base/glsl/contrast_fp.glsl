@@ -50,7 +50,7 @@ void	main()
 
 	vec4 color = texture2D(u_ColorMap, st);
 
-#if 1
+#if 0
 	// determine what the pixel's value will be after tone-mapping occurs
 	color.rgb *= u_HDRExposure * dot(LUMINANCE_VECTOR, color);
 	
@@ -63,6 +63,15 @@ void	main()
 	// r_HDRTreshOffset will isolate lights from illuminated scene 
 	// objects.
 	color.rgb /= (r_HDRContrastOffset + color.rgb);
+
+#elif 1
+	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
+	float toneLuminance = (scaledLuminance * (1.0 + (scaledLuminance / (u_HDRMaxLuminance * u_HDRMaxLuminance)))) / (scaledLuminance + 1.0);
+	float thresholdLuminance = max(toneLuminance - r_HDRContrastThreshold, 0.0);
+	float brightPassLuminance = thresholdLuminance / (r_HDRContrastOffset + thresholdLuminance);
+	
+	color.rgb *= brightPassLuminance;
+	
 #else
 	color = 1.0 - exp(-u_HDRExposure * max(color - r_HDRContrastThreshold, 0.0) * dot(LUMINANCE_VECTOR, color));
 #endif

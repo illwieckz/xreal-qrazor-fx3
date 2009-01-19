@@ -57,9 +57,8 @@ void	main()
 	
 #elif 1
 	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
-	//float finalLuminance = scaledLuminance * ((scaledLuminance + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (scaledLuminance + 1.0);
 	float finalLuminance = (scaledLuminance * ((scaledLuminance / (u_HDRMaxLuminance * u_HDRMaxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
-	color *= finalLuminance;
+	color *= finalLuminance;// / (0.0001 + dot(LUMINANCE_VECTOR, color));
 
 #elif 0
 	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
@@ -69,7 +68,7 @@ void	main()
 	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
 	color *= scaledLuminance / (scaledLuminance + 1.0);
 
-#elif 0
+#elif 1
 	
 #if 0
 	// define a linear blending from -1.5 to 2.6 (log scale) which
@@ -81,7 +80,7 @@ void	main()
     color.rgb = lerp(color.rgb, rodColor, blueShiftCoefficient);
 #endif
 	
-	color.rgb *= u_HDRExposure * dot(LUMINANCE_VECTOR, color);
+	color.rgb *= u_HDRExposure;// * dot(LUMINANCE_VECTOR, color);
 	color.rgb /= (1.0 + color.rgb);
 	
 #else

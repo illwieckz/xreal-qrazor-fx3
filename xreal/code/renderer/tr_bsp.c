@@ -136,32 +136,47 @@ static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 R_HDRTonemapLightingColors
 ===============
 */
-static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out)
+static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean applyGamma)
 {
+	int				i;
 	float			scaledLuminance;
 	float			finalLuminance;
 	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
+	vec4_t			sample;
+
+	if(applyGamma)
+	{
+		for(i = 0; i < 3; i++)
+		{
+			sample[i] = pow(in[i] / 255.0f, 1.0f / r_hdrLightmapGamma->value) * 255.0f;
+		}
+	}
+	else
+	{
+		VectorCopy4(in, sample);
+	}
 
 	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
 	{
 		float			max;
 
 		// clamp with color normalization
-		max = in[0];
-		if(in[1] > max)
-			max = in[1];
-		if(in[2] > max)
-			max = in[2];
+		max = sample[0];
+		if(sample[1] > max)
+			max = sample[1];
+		if(sample[2] > max)
+			max = sample[2];
 		if(max > 255.0f)
-			VectorScale(in, (255.0f / max), out);
+			VectorScale(sample, (255.0f / max), out);
 
 		VectorScale(out, (1.0f / 255.0f), out);
 
-		out[3] = Q_min(1.0f, in[3]);
+		out[3] = Q_min(1.0f, sample[3]);
 	}
 	else
 	{
 		scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
+
 		#if 0
 		finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
 		#else
@@ -169,8 +184,8 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out)
 		finalLuminance = 1.0 - exp(-scaledLuminance);
 		#endif
 
-		VectorScale(in, finalLuminance, out);
-		out[3] = Q_min(1.0f, in[3]);
+		VectorScale(sample, finalLuminance, out);
+		out[3] = Q_min(1.0f, sample[3]);
 	}
 }
 
@@ -1023,7 +1038,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 		}
 		//VectorNormalize(cv->verts[i].lightDirection);
 
-		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor);
+		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
 	}
 
 	// copy triangles
@@ -1189,7 +1204,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 		}
 		//VectorNormalize(points[i].lightDirection);
 
-		R_HDRTonemapLightingColors(points[i].lightColor, points[i].lightColor);
+		R_HDRTonemapLightingColors(points[i].lightColor, points[i].lightColor, qtrue);
 	}
 
 	// pre-tesseleate
@@ -1285,7 +1300,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 		}
 		//VectorNormalize(cv->verts[i].lightDirection);
 
-		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor);
+		R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
 	}
 
 	// copy triangles
@@ -4776,8 +4791,8 @@ void R_LoadLightGrid(lump_t * l)
 						out->directed[0], out->directed[1], out->directed[2]);
 #endif
 		// deal with overbright bits
-		R_HDRTonemapLightingColors(out->ambient, out->ambient);
-		R_HDRTonemapLightingColors(out->directed, out->directed);
+		R_HDRTonemapLightingColors(out->ambient, out->ambient, qtrue);
+		R_HDRTonemapLightingColors(out->directed, out->directed, qtrue);
 	}
 }
 
