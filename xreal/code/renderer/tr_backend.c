@@ -4939,15 +4939,7 @@ void RB_RenderBloom()
 				}
 
 				qglUniform1fARB(tr.contrastShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-
-				if(r_hdrMaxLuminance->value <= 0)
-				{
-					qglUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-				}
-				else
-				{
-					qglUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, r_hdrMaxLuminance->value);
-				}
+				qglUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
 			}
 
 			GL_SelectTexture(0);
@@ -4969,15 +4961,7 @@ void RB_RenderBloom()
 			}
 
 			qglUniform1fARB(tr.contrastShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-
-			if(r_hdrMaxLuminance->value <= 0)
-			{
-				qglUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-			}
-			else
-			{
-				qglUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, r_hdrMaxLuminance->value);
-			}
+			qglUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
 
 			GL_SelectTexture(0);
 			GL_Bind(tr.downScaleFBOImage_quarter);
@@ -5166,7 +5150,7 @@ static void RB_CalculateAdaptation()
 	float           luminance;
 	float			avgLuminance;
 	float			maxLuminance;
-	float			sum;
+	double			sum;
 	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
 	vec4_t			color;
 	float			newAdaptation;
@@ -5178,6 +5162,7 @@ static void RB_CalculateAdaptation()
 	R_BindFBO(tr.downScaleFBO_64x64);
 
 	// read back the contents
+//	qglFinish();
 	qglReadPixels(0, 0, 64, 64, GL_RGBA, GL_FLOAT, image);
 
 	sum = 0.0f;
@@ -5193,10 +5178,10 @@ static void RB_CalculateAdaptation()
 		if(luminance > maxLuminance)
 			maxLuminance = luminance;
 
-		sum += log10f(luminance);
+		sum += log10(luminance);
 	}
 	sum /= (64.0f * 64.0f);
-	avgLuminance = exp10f(sum);
+	avgLuminance = exp10(sum);
 
 	// the user's adapted luminance level is simulated by closing the gap between
 	// adapted luminance and current luminance by 2% every frame, based on a
@@ -5207,22 +5192,15 @@ static void RB_CalculateAdaptation()
 
 	deltaTime = curTime - backEnd.hdrTime;
 
-	if(r_forceAmbient->value)
+	//if(r_hdrMaxLuminance->value)
 	{
-		backEnd.hdrAverageLuminance = Q_max(backEnd.hdrAverageLuminance, r_forceAmbient->value);
-		avgLuminance = Q_max(avgLuminance, r_forceAmbient->value);
+		Q_clamp(backEnd.hdrAverageLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
+		Q_clamp(avgLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
 
-		backEnd.hdrMaxLuminance = Q_max(backEnd.hdrMaxLuminance, r_forceAmbient->value);
-		maxLuminance = Q_max(maxLuminance, r_forceAmbient->value);
+		Q_clamp(backEnd.hdrMaxLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
+		Q_clamp(maxLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
 	}
-	else
-	{
-		backEnd.hdrAverageLuminance = Q_max(backEnd.hdrAverageLuminance, 0.0f);
-		avgLuminance = Q_max(avgLuminance, 0.0f);
 
-		backEnd.hdrMaxLuminance = Q_max(backEnd.hdrMaxLuminance, 0.0f);
-		maxLuminance = Q_max(maxLuminance, 0.0f);
-	}
 	newAdaptation = backEnd.hdrAverageLuminance + (avgLuminance - backEnd.hdrAverageLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 	newMaximum = backEnd.hdrMaxLuminance + (maxLuminance - backEnd.hdrMaxLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 
@@ -5330,15 +5308,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		}
 
 		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-
-		if(r_hdrMaxLuminance->value <= 0)
-		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-		}
-		else
-		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, r_hdrMaxLuminance->value);
-		}
+		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
 
 		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -5412,15 +5382,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 		}
 
 		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-
-		if(r_hdrMaxLuminance->value <= 0)
-		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-		}
-		else
-		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, r_hdrMaxLuminance->value);
-		}
+		qglUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
 
 		qglUniformMatrix4fvARB(tr.toneMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 								   glState.modelViewProjectionMatrix[glState.stackIndex]);
