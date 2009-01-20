@@ -277,7 +277,8 @@ void SP_target_speaker(gentity_t * ent)
 	}
 	else
 	{
-		G_Error("speaker without a noise key at %s", vtos(ent->s.origin));
+		//G_Error("speaker without a noise key at %s", vtos(ent->s.origin));
+		G_Printf(S_COLOR_YELLOW "WARNING: speaker '%s' without a noise key at %s", ent->name, vtos(ent->s.origin));
 	}
 
 	// force all client reletive sounds to be "activator" speakers that

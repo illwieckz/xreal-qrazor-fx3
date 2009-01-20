@@ -199,6 +199,10 @@ static float GetOpValue(const expOperation_t * op)
 			value = 0.5;
 			break;
 
+		case OP_DISTANCE:
+			value = 0.0;	// FIXME ?
+			break;
+
 		default:
 			value = 0.0;
 			break;
@@ -286,6 +290,7 @@ float RB_EvalExpression(const expression_t * exp, float defaultValue)
 			case OP_FRAGMENTSHADERS:
 			case OP_FRAMEBUFFEROBJECTS:
 			case OP_SOUND:
+			case OP_DISTANCE:
 				ops[numOps++] = op;
 				break;
 

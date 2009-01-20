@@ -474,6 +474,7 @@ typedef enum
 	OP_FRAGMENTSHADERS,
 	OP_FRAMEBUFFEROBJECTS,
 	OP_SOUND,
+	OP_DISTANCE,
 	// table access
 	OP_TABLE
 } opcode_t;

@@ -270,6 +270,8 @@ opstring_t      opStrings[] = {
 	,
 	{"sound", OP_SOUND}
 	,
+	{"distance", OP_DISTANCE}
+	,
 
 	{"table", OP_TABLE}
 	,
@@ -348,6 +350,7 @@ static qboolean IsOperand(opcode_t oc)
 		case OP_FRAGMENTSHADERS:
 		case OP_FRAMEBUFFEROBJECTS:
 		case OP_SOUND:
+		case OP_DISTANCE:
 			return qtrue;
 
 		default:
@@ -2394,6 +2397,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			ri.Printf(PRINT_WARNING, "WARNING: megaTexture keyword not supported in shader '%s'\n", shader.name);
 			Com_SkipRestOfLine(text);
 		}
+		// glowStage
+		else if(!Q_stricmp(token, "glowStage"))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: glowStage keyword not supported in shader '%s'\n", shader.name);
+		}
 		else
 		{
 			ri.Printf(PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name);
@@ -3004,6 +3012,12 @@ static char    *FindGuideInGuideText(const char *guideName)
 
 	int             i, hash;
 
+	if(!s_guideText)
+	{
+		// no guides loaded at all
+		return NULL;
+	}
+
 	hash = generateHashValue(guideName, MAX_GUIDETEXT_HASH);
 
 	for(i = 0; guideTextHashTable[hash][i]; i++)
@@ -3399,6 +3413,13 @@ static qboolean ParseShader(char *_text)
 			Com_SkipRestOfLine(text);
 			continue;
 		}
+		// skip Prey's extra material types
+		else if(!Q_stricmpn(token, "matter", 6))
+		{
+			//ri.Printf(PRINT_WARNING, "WARNING: materialType keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+			continue;
+		}
 		// sun parms
 		else if(!Q_stricmp(token, "xmap_sun"))
 		{
@@ -3770,9 +3791,20 @@ static qboolean ParseShader(char *_text)
 			s++;
 			continue;
 		}
-		// DECAL_MACRO
+		// Doom 3 DECAL_MACRO
 		else if(!Q_stricmp(token, "DECAL_MACRO"))
 		{
+			shader.polygonOffset = qtrue;
+			shader.polygonOffsetValue = 1;
+			shader.sort = SS_DECAL;
+			SurfaceParm("discrete");
+			SurfaceParm("noShadows");
+			continue;
+		}
+		// Prey DECAL_ALPHATEST_MACRO
+		else if(!Q_stricmp(token, "DECAL_ALPHATEST_MACRO"))
+		{
+			// what's different?
 			shader.polygonOffset = qtrue;
 			shader.polygonOffsetValue = 1;
 			shader.sort = SS_DECAL;
@@ -5195,6 +5227,10 @@ static void ScanAndLoadGuideFiles(void)
 
 	ri.Printf(PRINT_ALL, "----- ScanAndLoadGuideFiles -----\n");
 
+	s_guideText = NULL;
+	Com_Memset(guideTextHashTableSizes, 0, sizeof(guideTextHashTableSizes));
+	Com_Memset(guideTextHashTable, 0, sizeof(guideTextHashTable));
+
 	// scan for guide files
 	guideFiles = ri.FS_ListFiles("guides", ".guide", &numGuides);
 
@@ -5238,7 +5274,6 @@ static void ScanAndLoadGuideFiles(void)
 		Com_Compress(p);
 	}
 
-	Com_Memset(guideTextHashTableSizes, 0, sizeof(guideTextHashTableSizes));
 	size = 0;
 	//
 	for(i = 0; i < numGuides; i++)
