@@ -473,10 +473,10 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 			if(luminance > maxLuminance)
 				maxLuminance = luminance;
 
-			sum += logf(luminance);
+			sum += log10f(luminance);
 		}
 		sum /= (float)(w * h);
-		avgLuminance = expf(sum);
+		avgLuminance = exp10f(sum);
 
 		// post process buffer with tone mapping
 		floatbuf = *pic;
@@ -489,7 +489,7 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 
 			if(r_hdrLightmapExposure->value <= 0)
 			{
-				exposure = (r_hdrMiddleGrey->value / avgLuminance + 0.001);
+				exposure = (r_hdrKey->value / avgLuminance);
 			}
 			else
 			{

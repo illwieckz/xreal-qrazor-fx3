@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 #if defined(r_HDRRendering)
-uniform float		u_HDRExposure;
+uniform float		u_HDRKey;
+uniform float		u_HDRAverageLuminance;
 uniform float		u_HDRMaxLuminance;
 #endif
 
@@ -50,31 +51,18 @@ void	main()
 
 	vec4 color = texture2D(u_ColorMap, st);
 
-#if 0
-	// determine what the pixel's value will be after tone-mapping occurs
-	color.rgb *= u_HDRExposure * dot(LUMINANCE_VECTOR, color);
-	
-	//color.rgb *= (1.0 + (color.rgb / (u_HDRMaxLuminance * u_HDRMaxLuminance)));	
+	float Y = dot(LUMINANCE_VECTOR, color);
 
-	// subtract out dark pixels
-	color.rgb = max(color.rgb - r_HDRContrastThreshold, 0.0);
+	float Yr = u_HDRKey * Y / u_HDRAverageLuminance;
+	float Ymax = u_HDRMaxLuminance;
+	//float L = Yr / (1.0 + Yr);
+	//float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
+	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
 	
-	// Map the resulting value into the 0 to 1 range. Higher values for
-	// r_HDRTreshOffset will isolate lights from illuminated scene 
-	// objects.
-	color.rgb /= (r_HDRContrastOffset + color.rgb);
-
-#elif 1
-	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
-	float toneLuminance = (scaledLuminance * (1.0 + (scaledLuminance / (u_HDRMaxLuminance * u_HDRMaxLuminance)))) / (scaledLuminance + 1.0);
-	float thresholdLuminance = max(toneLuminance - r_HDRContrastThreshold, 0.0);
-	float brightPassLuminance = thresholdLuminance / (r_HDRContrastOffset + thresholdLuminance);
+	float T = max(L - r_HDRContrastThreshold, 0.0);
+	float B = T / (r_HDRContrastOffset + T);
 	
-	color.rgb *= brightPassLuminance;
-	
-#else
-	color = 1.0 - exp(-u_HDRExposure * max(color - r_HDRContrastThreshold, 0.0) * dot(LUMINANCE_VECTOR, color));
-#endif
+	color.rgb *= B;
 
 	gl_FragColor = color;
 

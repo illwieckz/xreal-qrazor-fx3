@@ -901,7 +901,8 @@ typedef struct shaderProgram_s
 
 	GLint           u_PortalRange;
 
-	GLint			u_HDRExposure;
+	GLint			u_HDRKey;
+	GLint			u_HDRAverageLuminance;
 	GLint			u_HDRMaxLuminance;
 
 	GLint           u_DeformMagnitude;
@@ -2274,7 +2275,7 @@ extern cvar_t  *r_parallaxDepthScale;
 extern cvar_t  *r_hdrRendering;
 extern cvar_t  *r_hdrExposure;
 extern cvar_t  *r_hdrMaxLuminance;
-extern cvar_t  *r_hdrMiddleGrey;
+extern cvar_t  *r_hdrKey;
 extern cvar_t  *r_hdrContrastThreshold;
 extern cvar_t  *r_hdrContrastOffset;
 extern cvar_t  *r_hdrLightmapExposure;

@@ -21,7 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_CurrentMap;
-uniform float		u_HDRExposure;
+uniform float		u_HDRKey;
+uniform float		u_HDRAverageLuminance;
 uniform float		u_HDRMaxLuminance;
 
 const vec4			LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
@@ -45,49 +46,15 @@ void	main()
 	// see http://www.gamedev.net/reference/articles/article2208.asp
 	// for Mathematics of Reinhard's Photographic Tone Reproduction Operator
 	
-	// perform tone-mapping
-#if 0
-	color *= dot(LUMINANCE_VECTOR, color);
-	color *= u_HDRExposure * (u_HDRExposure / u_HDRMaxLuminance + 1.0) / (u_HDRExposure + 1.0);
-
-#elif 0
-	color *= dot(LUMINANCE_VECTOR, color);
-	float finalLuminance = u_HDRExposure * ((u_HDRExposure + 1.0) / (u_HDRMaxLuminance * u_HDRMaxLuminance)) / (u_HDRExposure + 1.0);
-	color *= finalLuminance;
+	float Y = dot(LUMINANCE_VECTOR, color);
 	
-#elif 1
-	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
-	float finalLuminance = (scaledLuminance * ((scaledLuminance / (u_HDRMaxLuminance * u_HDRMaxLuminance)) + 1.0)) / (scaledLuminance + 1.0);
-	color *= finalLuminance;// / (0.0001 + dot(LUMINANCE_VECTOR, color));
-
-#elif 0
-	float scaledLuminance = u_HDRExposure * dot(LUMINANCE_VECTOR, color);
-	color *= scaledLuminance * (scaledLuminance / u_HDRMaxLuminance + 1.0) / (scaledLuminance + 1.0);
+	float Yr = u_HDRKey * Y / u_HDRAverageLuminance;
+	float Ymax = u_HDRMaxLuminance;
+	//float L = Yr / (1.0 + Yr); // simple tone map operator
+	//float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
+	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);	// recommended by Wolgang Engel
 	
-#elif 0
-	float scaledLuminance = dot(LUMINANCE_VECTOR, color) * u_HDRExposure;
-	color *= scaledLuminance / (scaledLuminance + 1.0);
-
-#elif 1
-	
-#if 0
-	// define a linear blending from -1.5 to 2.6 (log scale) which
-	// determines the lerp amount for blue shift
-    float blueShiftCoefficient = clamp(1.0 - (adaptedLuminance + 1.5) / 4.1, 0.0, 1.0);
-
-	// lerp between current color and blue, desaturated copy
-    vec3 rodColor = dot(color.rgb, LUMINANCE_VECTOR) * BLUE_SHIFT_VECTOR;
-    color.rgb = lerp(color.rgb, rodColor, blueShiftCoefficient);
-#endif
-	
-	color.rgb *= u_HDRExposure;// * dot(LUMINANCE_VECTOR, color);
-	color.rgb /= (1.0 + color.rgb);
-	
-#else
-	// exponential tone mapping
-	color = 1.0 - exp(-u_HDRExposure * color * dot(LUMINANCE_VECTOR, color));
-
-#endif
+	color.rgb *= L;
 	
 	gl_FragColor = color;
 }

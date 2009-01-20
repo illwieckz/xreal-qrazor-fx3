@@ -4925,14 +4925,20 @@ void RB_RenderBloom()
 		{
 			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 			{
-				if(r_hdrExposure->value <= 0)
+				if(r_hdrKey->value <= 0)
 				{
-					qglUniform1fARB(tr.contrastShader.u_HDRExposure, (r_hdrMiddleGrey->value / (backEnd.hdrAverageLuminance + 0.001)));
+					float			key;
+
+					// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+					key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
+					qglUniform1fARB(tr.contrastShader.u_HDRKey, key);
 				}
 				else
 				{
-					qglUniform1fARB(tr.contrastShader.u_HDRExposure, r_hdrExposure->value);
+					qglUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
 				}
+
+				qglUniform1fARB(tr.contrastShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
 
 				if(r_hdrMaxLuminance->value <= 0)
 				{
@@ -4949,14 +4955,20 @@ void RB_RenderBloom()
 		}
 		else if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
 		{
-			if(r_hdrExposure->value <= 0)
+			if(r_hdrKey->value <= 0)
 			{
-				qglUniform1fARB(tr.contrastShader.u_HDRExposure, (r_hdrMiddleGrey->value / (backEnd.hdrAverageLuminance + 0.001)));
+				float			key;
+
+				// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+				key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
+				qglUniform1fARB(tr.contrastShader.u_HDRKey, key);
 			}
 			else
 			{
-				qglUniform1fARB(tr.contrastShader.u_HDRExposure, r_hdrExposure->value);
+				qglUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
 			}
+
+			qglUniform1fARB(tr.contrastShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
 
 			if(r_hdrMaxLuminance->value <= 0)
 			{
@@ -5181,10 +5193,10 @@ static void RB_CalculateAdaptation()
 		if(luminance > maxLuminance)
 			maxLuminance = luminance;
 
-		sum += logf(luminance);
+		sum += log10f(luminance);
 	}
 	sum /= (64.0f * 64.0f);
-	avgLuminance = expf(sum);
+	avgLuminance = exp10f(sum);
 
 	// the user's adapted luminance level is simulated by closing the gap between
 	// adapted luminance and current luminance by 2% every frame, based on a
@@ -5195,17 +5207,32 @@ static void RB_CalculateAdaptation()
 
 	deltaTime = curTime - backEnd.hdrTime;
 
-	backEnd.hdrAverageLuminance = Q_max(backEnd.hdrAverageLuminance, 0.0f);
-	avgLuminance = Q_max(avgLuminance, 0.0f);
+	if(r_forceAmbient->value)
+	{
+		backEnd.hdrAverageLuminance = Q_max(backEnd.hdrAverageLuminance, r_forceAmbient->value);
+		avgLuminance = Q_max(avgLuminance, r_forceAmbient->value);
 
-	backEnd.hdrMaxLuminance = Q_max(backEnd.hdrMaxLuminance, 0.0f);
-	maxLuminance = Q_max(maxLuminance, 0.0f);
+		backEnd.hdrMaxLuminance = Q_max(backEnd.hdrMaxLuminance, r_forceAmbient->value);
+		maxLuminance = Q_max(maxLuminance, r_forceAmbient->value);
+	}
+	else
+	{
+		backEnd.hdrAverageLuminance = Q_max(backEnd.hdrAverageLuminance, 0.0f);
+		avgLuminance = Q_max(avgLuminance, 0.0f);
 
+		backEnd.hdrMaxLuminance = Q_max(backEnd.hdrMaxLuminance, 0.0f);
+		maxLuminance = Q_max(maxLuminance, 0.0f);
+	}
 	newAdaptation = backEnd.hdrAverageLuminance + (avgLuminance - backEnd.hdrAverageLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 	newMaximum = backEnd.hdrMaxLuminance + (maxLuminance - backEnd.hdrMaxLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
 
+#if 1
 	backEnd.hdrAverageLuminance = newAdaptation;
 	backEnd.hdrMaxLuminance = newMaximum;
+#else
+	backEnd.hdrAverageLuminance = avgLuminance;
+	backEnd.hdrMaxLuminance = maxLuminance;
+#endif
 	backEnd.hdrTime = curTime;
 
 	GL_CheckErrors();
@@ -5289,14 +5316,20 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	{
 		R_BindNullFBO();
 
-		if(r_hdrExposure->value <= 0)
+		if(r_hdrKey->value <= 0)
 		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (r_hdrMiddleGrey->value / (backEnd.hdrAverageLuminance + 0.001)));
+			float			key;
+
+			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
+			qglUniform1fARB(tr.contrastShader.u_HDRKey, key);
 		}
 		else
 		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+			qglUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
 		}
+
+		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
 
 		if(r_hdrMaxLuminance->value <= 0)
 		{
@@ -5365,14 +5398,20 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 	{
 		GL_BindProgram(&tr.toneMappingShader);
 
-		if(r_hdrExposure->value <= 0)
+		if(r_hdrKey->value <= 0)
 		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, (r_hdrMiddleGrey->value / (backEnd.hdrAverageLuminance + 0.001)));
+			float			key;
+
+			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
+			qglUniform1fARB(tr.contrastShader.u_HDRKey, key);
 		}
 		else
 		{
-			qglUniform1fARB(tr.toneMappingShader.u_HDRExposure, r_hdrExposure->value);
+			qglUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
 		}
+
+		qglUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
 
 		if(r_hdrMaxLuminance->value <= 0)
 		{
