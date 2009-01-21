@@ -282,7 +282,7 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 	float			maxLuminance;
 	float			scaledLuminance;
 	float			finalLuminance;
-	float           sum;
+	double          sum;
 	float			gamma;
 
 	union
@@ -473,10 +473,10 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 			if(luminance > maxLuminance)
 				maxLuminance = luminance;
 
-			sum += log10f(luminance);
+			sum += log(luminance);
 		}
 		sum /= (float)(w * h);
-		avgLuminance = exp10f(sum);
+		avgLuminance = exp(sum);
 
 		// post process buffer with tone mapping
 		floatbuf = *pic;

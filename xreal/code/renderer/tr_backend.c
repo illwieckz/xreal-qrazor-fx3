@@ -5178,10 +5178,10 @@ static void RB_CalculateAdaptation()
 		if(luminance > maxLuminance)
 			maxLuminance = luminance;
 
-		sum += log10(luminance);
+		sum += log(luminance);
 	}
 	sum /= (64.0f * 64.0f);
-	avgLuminance = exp10(sum);
+	avgLuminance = exp(sum);
 
 	// the user's adapted luminance level is simulated by closing the gap between
 	// adapted luminance and current luminance by 2% every frame, based on a
