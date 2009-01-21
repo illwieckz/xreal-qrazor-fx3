@@ -2840,8 +2840,9 @@ void StoreSurfaceLightmaps(void)
 	   store output lightmaps
 	   ----------------------------------------------------------------- */
 
-	/* delete unused external lightmaps */
-	for(i = 0;; i++)
+	/* delete old conflicting external lightmaps */
+	// FIXME scan for all lightmaps
+	for(i = 0; i < (numOutLightmaps * 2); i++)
 	{
 		/* determine if file exists */
 		sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, i);
@@ -2853,11 +2854,8 @@ void StoreSurfaceLightmaps(void)
 			remove(filename);
 
 		sprintf(filename, "%s/" EXTERNAL_HDRLIGHTMAP, dirname, i);
-		if(!FileExists(filename))
-			break;
-
-		/* delete it */
-		remove(filename);
+		if(FileExists(filename))
+			remove(filename);
 	}
 
 	/* note it */
@@ -2948,6 +2946,21 @@ void StoreSurfaceLightmaps(void)
 
 	if(numExtLightmaps > 0)
 		Sys_FPrintf(SYS_VRB, "\n");
+
+	/* delete unused external lightmaps */
+	for(i = numExtLightmaps; i; i++)
+	{
+		/* determine if file exists */
+		sprintf(filename, "%s/" EXTERNAL_HDRLIGHTMAP, dirname, i);
+		if(FileExists(filename))
+			remove(filename);
+
+		sprintf(filename, "%s/" EXTERNAL_LIGHTMAP, dirname, i);
+		if(FileExists(filename))
+			remove(filename);
+		else
+			break;
+	}
 
 	/* -----------------------------------------------------------------
 	   project the lightmaps onto the bsp surfaces
