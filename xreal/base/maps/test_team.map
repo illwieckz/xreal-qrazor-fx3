@@ -3,6 +3,7 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
+"_lightmapscale" "0.5"
 // brush 0
 {
 brushDef3
