@@ -10,6 +10,7 @@ base/models/mapobjects/otty/tech_accelerationpad.ase (similar to Quake4)
 base/models/mapobjects/otty/tech_teleporter.ase (similar to Quake4)
 base/models/flag/flagflap3.md5mesh
 base/models/flag/flagpole.md5mesh
+base/sound/feedback/telefrag.ogg
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
 base/sound/feedback/vote_failed.ogg
@@ -45,9 +46,14 @@ base/sound/teamplay/flagtaken_opponent.ogg
 base/sound/teamplay/flagtaken_yourteam.ogg
 base/sound/weapons/bfg/bfg_fire.ogg
 base/sound/weapons/bfg/bfg_hum.ogg
-base/sound/weapons/grenade/grenlf1a.ogg
-base/sound/weapons/grenade/hgrenb1a.ogg
-base/sound/weapons/grenade/hgrenb2a.ogg
+base/sound/weapons/flakcannon/grenlf1a.ogg
+base/sound/weapons/flakcannon/hgrenb1a.ogg
+base/sound/weapons/flakcannon/hgrenb2a.ogg
+base/sound/weapons/flakcannon/wnalfire.ogg
+base/sound/weapons/flakcannon/wnalflit.ogg
+base/sound/weapons/flakcannon/wnalimpd.ogg
+base/sound/weapons/flakcannon/wnalimpl.ogg
+base/sound/weapons/flakcannon/wnalimpm.ogg
 base/sound/weapons/lightning/lg_fire.ogg
 base/sound/weapons/lightning/lg_hit2.ogg
 base/sound/weapons/lightning/lg_hit3.ogg
