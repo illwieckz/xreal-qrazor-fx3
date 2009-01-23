@@ -1144,7 +1144,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 
 	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-	if(attacker->client && targ != attacker && targ->health > 0 && targ->s.eType != ET_PROJECTILE && targ->s.eType != ET_PROJECTILE2 && targ->s.eType != ET_GENERAL)
+	if(attacker->client && targ->client && targ != attacker && targ->health > 0 && targ->s.eType != ET_PROJECTILE && targ->s.eType != ET_PROJECTILE2 && targ->s.eType != ET_GENERAL)
 	{
 		if(OnSameTeam(targ, attacker))
 		{
@@ -1154,7 +1154,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		{
 			attacker->client->ps.persistant[PERS_HITS]++;
 		}
-		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health << 8) | (client->ps.stats[STAT_ARMOR]);
+
+		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health << 8) | (targ->client->ps.stats[STAT_ARMOR]);
 	}
 
 	// always give half damage if hurting self
