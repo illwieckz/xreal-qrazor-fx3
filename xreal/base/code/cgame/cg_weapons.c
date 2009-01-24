@@ -3088,8 +3088,8 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer(int weapon, int entityType, vec3_t origin, vec3_t dir, int entityNum)
 {
-	// CG_Bleed(origin, entityNum);
-	CG_ParticleBlood(origin, dir, 3);
+//	CG_Bleed(origin, entityNum);
+//	CG_ParticleBlood(origin, dir, 3);
 
 	// some weapons will make an explosion with the blood, while
 	// others will just make the blood
@@ -3435,7 +3435,7 @@ void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, i
 	if(flesh)
 	{
 		//CG_Bleed(end, fleshEntityNum);  OLD
-		CG_ParticleBlood(end, trace.plane.normal, 3);
+		//CG_ParticleBlood(end, trace.plane.normal, 3);
 	}
 	else
 	{

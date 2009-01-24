@@ -272,7 +272,6 @@ void ClientImpacts(gentity_t * ent, pmove_t * pm)
 }
 
 
-	// otty begin
 /*
 ============
 G_OtherTouchTriggers

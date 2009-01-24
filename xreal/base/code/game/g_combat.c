@@ -269,13 +269,8 @@ void LookAtKiller(gentity_t * self, gentity_t * inflictor, gentity_t * attacker)
 GibEntity
 ==================
 */
-/*
-
-otty: dont gib at all
-
 void GibEntity(gentity_t * self, int killer)
 {
-#ifdef MISSIONPACK
 	//if this entity still has kamikaze
 	if(self->s.eFlags & EF_KAMIKAZE)
 	{
@@ -288,22 +283,25 @@ void GibEntity(gentity_t * self, int killer)
 			ent = &g_entities[i];
 			if(!ent->inuse)
 				continue;
+
 			if(ent->activator != self)
 				continue;
+
 			if(strcmp(ent->classname, "kamikaze timer"))
 				continue;
+
 			G_FreeEntity(ent);
 			break;
 		}
 	}
-#endif
 
 	G_AddEvent(self, EV_GIB_PLAYER, killer);
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 }
-*/
+
+
 /*
 ==================
 body_die
@@ -315,13 +313,16 @@ void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int
 	{
 		return;
 	}
+
+	/*
 //  if(!g_blood.integer)
 //  {
 	self->health = GIB_HEALTH + 1;
 	return;
 //  }
+	*/
 
-//  GibEntity(self, 0);
+	GibEntity(self, 0);
 }
 
 
@@ -753,13 +754,12 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
 	// never gib in a nodrop
-/*	if((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)
+	if((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)
 	{
 		// gib death
 		GibEntity(self, killer);
 	}
 	else
-*/
 	{
 /*		// normal death
 		static int      i;
@@ -790,8 +790,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 //      G_AddEvent(self, EV_DEATH1 + i, killer);
 		G_AddEvent(self, EV_DEATH1, killer);
-
-
 
 		// the body can still be gibbed
 		self->die = body_die;

@@ -883,7 +883,7 @@ static void CG_XPPM_PlayerAnimation(centity_t * cent)
 	{
 		if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) == BOTH_DEATH1)
 		{
-			//start the death effect
+			// start the death effect
 			cent->pe.deathTime = cg.time;
 			cent->pe.deathScale = 0.0f;
 

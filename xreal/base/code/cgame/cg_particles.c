@@ -20,7 +20,7 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// cg_particles.c  
+// cg_particles.c
 
 #include "cg_local.h"
 
@@ -133,7 +133,6 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 	float           invratio;
 	polyVert_t      TRIverts[3];
 	vec3_t          rright2, rup2;
-	axis_t          axis;
 	vec3_t          oldOrigin;
 
 	if(p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY
@@ -573,6 +572,8 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 	}
 	else if(p->type == P_SPARK || p->type == P_BLOOD)
 	{
+		axis_t				axis;
+
 		time = cg.time - p->time;
 		time2 = p->endTime - p->time;
 		ratio = time / time2;
@@ -607,6 +608,72 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 		CrossProduct(axis[0], axis[1], axis[2]);
 		VectorNormalize(axis[1]);
 		VectorNormalize(axis[2]);
+
+		// find normal
+		CrossProduct(axis[1], axis[2], axis[0]);
+		VectorNormalize(axis[0]);
+
+		VectorMA(org, -width, axis[1], oldOrigin);
+		VectorScale(axis[2], height, axis[2]);
+
+		verts[0].xyz[0] = org[0] - axis[2][0];
+		verts[0].xyz[1] = org[1] - axis[2][1];
+		verts[0].xyz[2] = org[2] - axis[2][2];
+		verts[0].st[0] = 0;
+		verts[0].st[1] = 0;
+		verts[0].modulate[0] = 255 * color[0];
+		verts[0].modulate[1] = 255 * color[1];
+		verts[0].modulate[2] = 255 * color[2];
+		verts[0].modulate[3] = 255 * color[3];
+
+		verts[1].xyz[0] = org[0] + axis[2][0];
+		verts[1].xyz[1] = org[1] + axis[2][1];
+		verts[1].xyz[2] = org[2] + axis[2][2];
+		verts[1].st[0] = 0;
+		verts[1].st[1] = 1;
+		verts[1].modulate[0] = 255 * color[0];
+		verts[1].modulate[1] = 255 * color[1];
+		verts[1].modulate[2] = 255 * color[2];
+		verts[1].modulate[3] = 255 * color[3];
+
+		verts[2].xyz[0] = oldOrigin[0] + axis[2][0];
+		verts[2].xyz[1] = oldOrigin[1] + axis[2][1];
+		verts[2].xyz[2] = oldOrigin[2] + axis[2][2];
+		verts[2].st[0] = 1;
+		verts[2].st[1] = 1;
+		verts[2].modulate[0] = 255 * color[0];
+		verts[2].modulate[1] = 255 * color[1];
+		verts[2].modulate[2] = 255 * color[2];
+		verts[2].modulate[3] = 255 * color[3];
+
+		verts[3].xyz[0] = oldOrigin[0] - axis[2][0];
+		verts[3].xyz[1] = oldOrigin[1] - axis[2][1];
+		verts[3].xyz[2] = oldOrigin[2] - axis[2][2];
+		verts[3].st[0] = 1;
+		verts[3].st[1] = 0;
+		verts[3].modulate[0] = 255 * color[0];
+		verts[3].modulate[1] = 255 * color[1];
+		verts[3].modulate[2] = 255 * color[2];
+		verts[3].modulate[3] = 255 * color[3];
+	}
+	else if(p->type == P_LIGHTSPARK)
+	{
+		axis_t				axis;
+		vec_t				speed;
+
+		time = cg.time - p->time;
+		time2 = p->endTime - p->time;
+		ratio = time / time2;
+
+		// find orientation vectors
+		VectorSubtract(cg.refdef.vieworg, org, axis[0]);
+		VectorSubtract(p->oldOrg, org, axis[1]);
+		CrossProduct(axis[0], axis[1], axis[2]);
+		speed = VectorNormalize(axis[1]);
+		VectorNormalize(axis[2]);
+
+		width = Q_min(p->width * speed, p->width);// + (ratio * (p->endWidth - p->width));
+		height = p->height;// * speed;// + (ratio * (p->endHeight - p->height));
 
 		// find normal
 		CrossProduct(axis[1], axis[2], axis[0]);
@@ -819,6 +886,15 @@ void CG_AddParticles(void)
 			}
 		}
 
+		if(p->type == P_LIGHTSPARK)
+		{
+			if(cg.time > p->endTime)
+			{
+				CG_FreeParticle(p);
+				continue;
+			}
+		}
+
 		if(p->type == P_WEATHER_FLURRY)
 		{
 			if(cg.time > p->endTime)
@@ -896,6 +972,9 @@ void CG_AddParticles(void)
 							VectorClear(p->accel);
 
 							p->bounceFactor = 0.0f;
+
+							CG_FreeParticle(p);
+							continue;
 						}
 						/*
 						   else
@@ -1206,7 +1285,7 @@ void CG_ParticleSmoke(qhandle_t pshader, centity_t * cent)
 
 	p->vel[2] = 5;
 
-	if(cent->currentState.frame == 1)	// reverse gravity    
+	if(cent->currentState.frame == 1)	// reverse gravity
 		p->vel[2] *= -1;
 
 	p->roll = 8 + (crandom() * 4);
@@ -2183,6 +2262,89 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 }
 
 /*
+==========================
+CG_ParticleGibEffect
+==========================
+*/
+void CG_ParticleGibEffect(const vec3_t origin)
+{
+	int             i, j, k;
+	vec3_t          randVec, dir;
+	cparticle_t    *p;
+
+	// create particles inside the player box
+	for(i = -16; i < 16; i += 4)
+	{
+		for(j = -16; j < 16; j += 4)
+		{
+			for(k = MINS_Z; k < 32; k += 4)
+			{
+				p = CG_AllocParticle();
+				if(!p)
+					return;
+
+				p->flags = PF_AIRONLY;
+
+				randVec[0] = origin[0] + i + (rand() & 3);
+				randVec[1] = origin[1] + j + (rand() & 3);
+				randVec[2] = origin[2] + k + (rand() & 3);
+				VectorCopy(randVec, p->org);
+
+				VectorSubtract(randVec, origin, dir);
+				VectorNormalize(dir);
+				VectorScale(dir, 300.0f, p->vel);
+
+				p->color[0] = 1.0;
+				p->color[1] = 1.0;
+				p->color[2] = 1.0;
+				p->color[3] = 1.0;
+				p->colorVel[3] = 0;
+
+#if 1
+				p->endTime = cg.time + 700 + random() * 500;
+				p->type = P_SMOKE;
+				p->pshader = cgs.media.teleportFlareShader;
+
+				p->width = 3 + random() * 2;
+				p->height = p->width;
+
+				p->endHeight = p->width * 0.2;
+				p->endWidth = p->height * 0.2;
+
+				// add some gravity/randomness
+				p->accel[0] = 0; //crandom() * 3;
+				p->accel[1] = 0; //crandom() * 3;
+				p->accel[2] = -PARTICLE_GRAVITY * 3;
+
+				p->rotate = qtrue;
+				p->roll = rand() % 179;
+#else
+
+				p->endTime = cg.time + 20000;
+				p->type = P_LIGHTSPARK;
+				p->pshader = cgs.media.sparkShader;
+
+				p->height = 0.7f;
+				p->width = 3.0f;
+				p->endHeight = 1.3f;
+				p->endWidth = 10;
+
+				p->accel[0] = 0; //crandom() * 3;
+				p->accel[1] = 0; //crandom() * 3;
+				p->accel[2] = -PARTICLE_GRAVITY * 20;
+#endif
+
+				p->startfade = cg.time;
+
+				p->bounceFactor = 0.6f;
+				VectorCopy(p->org, p->oldOrg);	// necessary for coldet
+			}
+		}
+	}
+}
+
+
+/*
 ===============
 CG_ParticleRocketFire
 ===============
@@ -2448,5 +2610,6 @@ void CG_TestParticles_f(void)
 //  CG_ParticleRocketFire(start, end);
 //  CG_ParticleSparks2(start, cg.refdef.viewaxis[1], 50);
 //  CG_ParticleRick(start, cg.refdef.viewaxis[1]);
-	CG_ParticleBlood(start, cg.refdef.viewaxis[1], 3);
+//	CG_ParticleBlood(start, cg.refdef.viewaxis[1], 3);
+	CG_ParticleGibEffect(start);
 }

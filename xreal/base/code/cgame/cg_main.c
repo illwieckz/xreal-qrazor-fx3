@@ -791,7 +791,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.ogg");
 	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.ogg");
 	cgs.media.useNothingSound = trap_S_RegisterSound("sound/items/use_nothing.wav");
-	cgs.media.gibSound = trap_S_RegisterSound("sound/player/gibsplt1.ogg");
+	cgs.media.gibSound = trap_S_RegisterSound("sound/player/gibelectro.ogg");
 	cgs.media.gibBounce1Sound = trap_S_RegisterSound("sound/player/gibimp1.ogg");
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound("sound/player/gibimp2.ogg");
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound("sound/player/gibimp3.ogg");
@@ -1005,8 +1005,7 @@ static void CG_RegisterGraphics(void)
 	}
 
 
-	//otty: register HUD media
-
+	// otty: register HUD media
 	CG_LoadingString("interface", qfalse);
 
 	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
@@ -1123,7 +1122,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
 
-	//effects
+	// effects
 	cgs.media.unlinkEffect = trap_R_RegisterShader("player/unlink_effect");
 
 #ifdef MISSIONPACK
@@ -2303,7 +2302,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	trap_R_RegisterFont("fonts/VeraSe.ttf", 48, &cgs.media.freeSerifFont);
 	trap_R_RegisterFont("fonts/VeraSeBd.ttf", 48, &cgs.media.freeSerifBoldFont);
 
-	//otty: font for HUD Numbers
+	// otty: font for HUD Numbers
 	trap_R_RegisterFont("fonts/REPUB5__.ttf", 48, &cgs.media.hudNumberFont);
 
 

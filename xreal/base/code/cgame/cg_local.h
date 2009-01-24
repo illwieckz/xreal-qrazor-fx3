@@ -534,7 +534,8 @@ typedef enum
 	P_BUBBLE,
 	P_BUBBLE_TURBULENT,
 	P_SPRITE,
-	P_SPARK
+	P_SPARK,
+	P_LIGHTSPARK
 } particleType_t;
 
 // particle flags
@@ -1131,7 +1132,7 @@ typedef struct
 	fontInfo_t      freeSerifFont;
 	fontInfo_t      freeSansFont;
 
-	//otty: new font for HUD
+	// otty: new font for HUD
 	fontInfo_t      hudNumberFont;
 
 	// sounds
@@ -1938,6 +1939,7 @@ void            CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void            CG_ParticleTeleportEffect(const vec3_t origin);
+void 			CG_ParticleGibEffect(const vec3_t origin);
 int             CG_NewParticleArea(int num);
 void            CG_TestParticles_f(void);
 
