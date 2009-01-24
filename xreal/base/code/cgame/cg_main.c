@@ -843,11 +843,9 @@ static void CG_RegisterSounds(void)
 	cgs.media.tiedLeadSound = trap_S_RegisterSound("sound/feedback/tiedlead.ogg");
 	cgs.media.lostLeadSound = trap_S_RegisterSound("sound/feedback/lostlead.ogg");
 
-#ifdef MISSIONPACK
-	cgs.media.voteNow = trap_S_RegisterSound("sound/feedback/vote_now.wav", qtrue);
-	cgs.media.votePassed = trap_S_RegisterSound("sound/feedback/vote_passed.wav", qtrue);
-	cgs.media.voteFailed = trap_S_RegisterSound("sound/feedback/vote_failed.wav", qtrue);
-#endif
+	cgs.media.voteNow = trap_S_RegisterSound("sound/feedback/vote_now.ogg");
+	cgs.media.votePassed = trap_S_RegisterSound("sound/feedback/vote_passed.ogg");
+	cgs.media.voteFailed = trap_S_RegisterSound("sound/feedback/vote_failed.ogg");
 
 	cgs.media.watrInSound = trap_S_RegisterSound("sound/player/water_in.ogg");
 	cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/water_out.ogg");

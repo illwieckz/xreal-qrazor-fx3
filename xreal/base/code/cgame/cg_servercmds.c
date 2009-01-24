@@ -359,9 +359,8 @@ static void CG_ConfigStringModified(void)
 	else if(num == CS_VOTE_STRING)
 	{
 		Q_strncpyz(cgs.voteString, str, sizeof(cgs.voteString));
-#ifdef MISSIONPACK
+
 		trap_S_StartLocalSound(cgs.media.voteNow, CHAN_ANNOUNCER);
-#endif							//MISSIONPACK
 	}
 	else if(num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1)
 	{
@@ -381,9 +380,8 @@ static void CG_ConfigStringModified(void)
 	else if(num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1)
 	{
 		Q_strncpyz(cgs.teamVoteString[num - CS_TEAMVOTE_STRING], str, sizeof(cgs.teamVoteString));
-#ifdef MISSIONPACK
+
 		trap_S_StartLocalSound(cgs.media.voteNow, CHAN_ANNOUNCER);
-#endif
 	}
 	else if(num == CS_INTERMISSION)
 	{
@@ -1199,7 +1197,7 @@ static void CG_ServerCommand(void)
 	if(!strcmp(cmd, "print"))
 	{
 		CG_Printf("%s", CG_Argv(1));
-#ifdef MISSIONPACK
+
 		cmd = CG_Argv(1);		// yes, this is obviously a hack, but so is the way we hear about
 		// votes passing or failing
 		if(!Q_stricmpn(cmd, "vote failed", 11) || !Q_stricmpn(cmd, "team vote failed", 16))
@@ -1210,7 +1208,6 @@ static void CG_ServerCommand(void)
 		{
 			trap_S_StartLocalSound(cgs.media.votePassed, CHAN_ANNOUNCER);
 		}
-#endif
 		return;
 	}
 
