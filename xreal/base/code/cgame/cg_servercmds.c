@@ -567,6 +567,8 @@ static void CG_MapRestart(void)
 		}
 	}
 #endif
+
+	trap_Cvar_Set("cg_cameraOrbit", "0");
 	trap_Cvar_Set("cg_thirdPerson", "0");
 }
 
@@ -1118,6 +1120,30 @@ void CG_VoiceChat(int mode)
 #endif
 }
 
+static void CG_spWin(void)
+{
+	trap_Cvar_Set("cg_cameraOrbit", "2");
+	trap_Cvar_Set("cg_cameraOrbitDelay", "35");
+	trap_Cvar_Set("cg_thirdPerson", "1");
+	trap_Cvar_Set("cg_thirdPersonAngle", "0");
+	trap_Cvar_Set("cg_thirdPersonRange", "100");
+	//CG_AddBufferedSound(cgs.media.winnerSound);
+	//trap_S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
+	//CG_CenterPrint("YOU WIN!", SCREEN_HEIGHT * .30, 0);
+}
+
+static void CG_spLose(void)
+{
+	trap_Cvar_Set("cg_cameraOrbit", "2");
+	trap_Cvar_Set("cg_cameraOrbitDelay", "35");
+	trap_Cvar_Set("cg_thirdPerson", "1");
+	trap_Cvar_Set("cg_thirdPersonAngle", "0");
+	trap_Cvar_Set("cg_thirdPersonRange", "100");
+	//CG_AddBufferedSound(cgs.media.loserSound);
+	//trap_S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
+	//CG_CenterPrint("YOU LOSE...", SCREEN_HEIGHT * .30, 0);
+}
+
 /*
 =================
 CG_RemoveChatEscapeChar
@@ -1275,6 +1301,18 @@ static void CG_ServerCommand(void)
 	if(!strcmp(cmd, "clientLevelShot"))
 	{
 		cg.levelShot = qtrue;
+		return;
+	}
+
+	if(!strcmp(cmd, "spWin"))
+	{
+		CG_spWin();
+		return;
+	}
+
+	if(!strcmp(cmd, "spLose"))
+	{
+		CG_spLose();
 		return;
 	}
 

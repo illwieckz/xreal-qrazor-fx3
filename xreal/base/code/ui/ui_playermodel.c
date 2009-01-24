@@ -402,9 +402,6 @@ static void PlayerModel_BuildList(void)
 	int             j;
 	int             dirlen;
 	int             filelen;
-	qboolean        precache;
-
-	precache = trap_Cvar_VariableValue("com_buildscript");
 
 	s_playermodel.modelpage = 0;
 	s_playermodel.nummodels = 0;
@@ -438,11 +435,6 @@ static void PlayerModel_BuildList(void)
 							sizeof(s_playermodel.modelnames[s_playermodel.nummodels]), "models/players/%s/%s", dirptr, skinname);
 				//if (s_playermodel.nummodels >= MAX_PLAYERMODELS)
 				//  return;
-			}
-
-			if(precache)
-			{
-				trap_S_RegisterSound(va("sound/player/announce/%s_wins.wav", skinname), qfalse);
 			}
 		}
 	}
@@ -490,7 +482,7 @@ static void PlayerModel_SetMenuItems(void)
 
 		if(!Q_stricmp(s_playermodel.modelskin, modelskin))
 		{
-			// found pic, set selection here        
+			// found pic, set selection here
 			s_playermodel.selectedmodel = i;
 			s_playermodel.modelpage = i / MAX_MODELSPERPAGE;
 
@@ -635,7 +627,7 @@ static void PlayerModel_MenuInit(void)
 
 //STILL W.I.P
 
-//TODO: add some effects, maybe some "fake" info ? 
+//TODO: add some effects, maybe some "fake" info ?
 
 
 

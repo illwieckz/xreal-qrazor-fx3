@@ -1094,7 +1094,6 @@ void MoveClientToIntermission(gentity_t * ent)
 		StopFollowing(ent);
 	}
 
-
 	// move to the spot
 	VectorCopy(level.intermission_origin, ent->s.origin);
 	VectorCopy(level.intermission_origin, ent->client->ps.origin);
@@ -1128,13 +1127,15 @@ void FindIntermissionPoint(void)
 	// find the intermission spot
 	ent = G_Find(NULL, FOFS(classname), "info_player_intermission");
 	if(!ent)
-	{							// the map creator forgot to put in an intermission point...
+	{
+		// the map creator forgot to put in an intermission point...
 		SelectSpawnPoint(vec3_origin, level.intermission_origin, level.intermission_angle);
 	}
 	else
 	{
 		VectorCopy(ent->s.origin, level.intermission_origin);
 		VectorCopy(ent->s.angles, level.intermission_angle);
+
 		// if it has a target, look towards it
 		if(ent->target)
 		{
@@ -1146,7 +1147,6 @@ void FindIntermissionPoint(void)
 			}
 		}
 	}
-
 }
 
 /*
@@ -1164,7 +1164,7 @@ void BeginIntermission(void)
 		return;					// already active
 	}
 
-	// if in tournement mode, change the wins / losses
+	// if in tournament mode, change the wins / losses
 	if(g_gametype.integer == GT_TOURNAMENT)
 	{
 		AdjustTournamentScores();
@@ -1184,7 +1184,7 @@ void BeginIntermission(void)
 	if(g_gametype.integer == GT_SINGLE_PLAYER)
 	{
 		UpdateTournamentInfo();
-		SpawnModelsOnVictoryPads();
+		//SpawnModelsOnVictoryPads();
 	}
 #endif
 
@@ -1194,11 +1194,13 @@ void BeginIntermission(void)
 		client = g_entities + i;
 		if(!client->inuse)
 			continue;
+
 		// respawn if dead
 		if(client->health <= 0)
 		{
 			respawn(client);
 		}
+
 		MoveClientToIntermission(client);
 	}
 
@@ -1273,7 +1275,7 @@ void ExitLevel(void)
 		cl->ps.persistant[PERS_SCORE] = 0;
 	}
 
-	// we need to do this here before chaning to CON_CONNECTING
+	// we need to do this here before changing to CON_CONNECTING
 	G_WriteSessionData();
 
 	// change all client states to connecting, so the early players into the
@@ -1338,10 +1340,10 @@ void LogExit(const char *string)
 {
 	int             i, numSorted;
 	gclient_t      *cl;
-
-#ifdef MISSIONPACK
-	qboolean        won = qtrue;
+#if 1
+	qboolean        won;
 #endif
+
 	G_LogPrintf("Exit: %s\n", string);
 
 	level.intermissionQueued = level.time;
@@ -1381,6 +1383,7 @@ void LogExit(const char *string)
 
 		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i],
 					cl->pers.netname);
+
 #ifdef MISSIONPACK
 		if(g_singlePlayer.integer && g_gametype.integer == GT_TOURNAMENT)
 		{
@@ -1391,20 +1394,34 @@ void LogExit(const char *string)
 		}
 #endif
 
-	}
-
-#ifdef MISSIONPACK
-	if(g_singlePlayer.integer)
-	{
-		if(g_gametype.integer >= GT_CTF)
+#if 1
+		// give everyone a UT 3 style level exit with an orbital camera
+		won = qfalse;
+		if(g_gametype.integer == GT_FFA || g_gametype.integer == GT_TOURNAMENT || g_gametype.integer == GT_SINGLE_PLAYER)
 		{
-			won = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE];
+			if(cl->ps.persistant[PERS_RANK] == 0)
+			{
+				won = qtrue;
+			}
 		}
-		trap_SendConsoleCommand(EXEC_APPEND, (won) ? "spWin\n" : "spLose\n");
-	}
+		else if(g_gametype.integer >= GT_TEAM)
+		{
+			if(cl->sess.sessionTeam == TEAM_RED)
+			{
+				won = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE];
+			}
+			else if(cl->sess.sessionTeam == TEAM_BLUE)
+			{
+				won = level.teamScores[TEAM_RED] < level.teamScores[TEAM_BLUE];
+			}
+		}
+
+		if(!(g_entities[cl - level.clients].r.svFlags & SVF_BOT))
+		{
+			trap_SendServerCommand(&g_entities[cl - level.clients] - g_entities, va("%s", (won) ? "spWin\n" : "spLose\n"));
+		}
 #endif
-
-
+	}
 }
 
 
@@ -1564,21 +1581,13 @@ void CheckExitRules(void)
 
 	if(level.intermissionQueued)
 	{
-#ifdef MISSIONPACK
-		int             time = (g_singlePlayer.integer) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
+		int             time = (g_gametype.integer == GT_SINGLE_PLAYER) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
 
 		if(level.time - level.intermissionQueued >= time)
 		{
 			level.intermissionQueued = 0;
 			BeginIntermission();
 		}
-#else
-		if(level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME)
-		{
-			level.intermissionQueued = 0;
-			BeginIntermission();
-		}
-#endif
 		return;
 	}
 

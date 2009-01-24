@@ -57,8 +57,8 @@ vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.75f };	// light g
 vec4_t          text_color_normal = { 1.00f, 1.00f, 1.00f, 0.75f };	// light white
 vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright white
 
-vec4_t          listbar_color = { 0.43f, 0.43f, 0.63f, 0.30f };	// transluscent 
-vec4_t          text_color_status = { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white 
+vec4_t          listbar_color = { 0.43f, 0.43f, 0.63f, 0.30f };	// transluscent
+vec4_t          text_color_status = { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white
 
 vec4_t          color_cursorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// cursorlines color
 vec4_t          text_color_dim = { 0.6f, 0.6f, 0.8f, 0.85f };	// cursorlines color
@@ -1916,7 +1916,7 @@ void Menu_Cache(void)
 	uis.charsetProp1Glow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	uis.charsetProp2 = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 
-	//otty: pointsize is a performance killer. 
+	//otty: pointsize is a performance killer.
 	trap_R_RegisterFont("fonts/VeraSeBd.ttf", 48, &uis.freeSerifBoldFont);
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.freeSansBoldFont);
 	trap_R_RegisterFont("fonts/VeraSe.ttf", 48, &uis.freeSerifFont);
@@ -1939,11 +1939,11 @@ void Menu_Cache(void)
 	uis.menuBackShader = trap_R_RegisterShaderNoMip("menuback");
 	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip("menubacknologo");
 
-	menu_in_sound = trap_S_RegisterSound("sound/misc/menu1.wav", qfalse);
-	menu_move_sound = trap_S_RegisterSound("sound/misc/menu2.wav", qfalse);
-	menu_out_sound = trap_S_RegisterSound("sound/misc/menu3.wav", qfalse);
-	menu_buzz_sound = trap_S_RegisterSound("sound/misc/menu4.wav", qfalse);
-	weaponChangeSound = trap_S_RegisterSound("sound/weapons/change.ogg", qfalse);
+	menu_in_sound = trap_S_RegisterSound("sound/misc/menu1.wav");
+	menu_move_sound = trap_S_RegisterSound("sound/misc/menu2.wav");
+	menu_out_sound = trap_S_RegisterSound("sound/misc/menu3.wav");
+	menu_buzz_sound = trap_S_RegisterSound("sound/misc/menu4.wav");
+	weaponChangeSound = trap_S_RegisterSound("sound/weapons/change.ogg");
 
 
 	sliderBar = trap_R_RegisterShaderNoMip("ui/slider");

@@ -941,11 +941,11 @@ static void CG_RegisterSounds(void)
 	cgs.media.kamikazeExplodeSound = trap_S_RegisterSound("sound/items/kam_explode.wav");
 	cgs.media.kamikazeImplodeSound = trap_S_RegisterSound("sound/items/kam_implode.wav");
 	cgs.media.kamikazeFarSound = trap_S_RegisterSound("sound/items/kam_explode_far.wav");
-#ifdef MISSIONPACK
-	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.ogg", qfalse);
-	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.wav", qfalse);
-	cgs.media.youSuckSound = trap_S_RegisterSound("sound/feedback/yousuck.wav", qfalse);
 
+	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.ogg");
+	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.ogg");
+
+#ifdef MISSIONPACK
 	cgs.media.wstbimplSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpl.wav", qfalse);
 	cgs.media.wstbimpmSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpm.wav", qfalse);
 	cgs.media.wstbimpdSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpd.wav", qfalse);

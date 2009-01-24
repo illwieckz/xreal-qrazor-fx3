@@ -742,7 +742,7 @@ void            trap_UpdateScreen(void);
 int             trap_CM_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame, float frac,
 								const char *tagName);
 void            trap_S_StartLocalSound(sfxHandle_t sfx, int channelNum);
-sfxHandle_t     trap_S_RegisterSound(const char *sample, qboolean compressed);
+sfxHandle_t     trap_S_RegisterSound(const char *sample);
 void            trap_Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
 void            trap_Key_GetBindingBuf(int keynum, char *buf, int buflen);
 void            trap_Key_SetBinding(int keynum, const char *binding);
@@ -824,8 +824,11 @@ typedef enum
 	AWARD_IMPRESSIVE,
 	AWARD_EXCELLENT,
 	AWARD_GAUNTLET,
+	AWARD_TELEFRAG,
 	AWARD_FRAGS,
-	AWARD_PERFECT
+	AWARD_PERFECT,
+
+	MAX_AWARDS
 } awardType_t;
 
 const char     *UI_GetArenaInfoByNumber(int num);

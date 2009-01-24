@@ -790,7 +790,7 @@ void UI_SPLevelMenu_Cache(void)
 	for(n = 0; n < 6; n++)
 	{
 		trap_R_RegisterShaderNoMip(ui_medalPicNames[n]);
-		levelMenuInfo.awardSounds[n] = trap_S_RegisterSound(ui_medalSounds[n], qfalse);
+		levelMenuInfo.awardSounds[n] = trap_S_RegisterSound(ui_medalSounds[n]);
 	}
 
 	levelMenuInfo.levelSelectedPic = trap_R_RegisterShaderNoMip(ART_LEVELFRAME_SELECTED);

@@ -1179,10 +1179,10 @@ typedef struct
 	sfxHandle_t     obeliskHitSound2;
 	sfxHandle_t     obeliskHitSound3;
 	sfxHandle_t     obeliskRespawnSound;
+#endif
 	sfxHandle_t     winnerSound;
 	sfxHandle_t     loserSound;
-	sfxHandle_t     youSuckSound;
-#endif
+
 	sfxHandle_t     gibSound;
 	sfxHandle_t     gibBounce1Sound;
 	sfxHandle_t     gibBounce2Sound;

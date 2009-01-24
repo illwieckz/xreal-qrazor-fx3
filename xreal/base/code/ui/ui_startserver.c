@@ -625,7 +625,6 @@ void StartServer_Cache(void)
 {
 	int             i;
 	const char     *info;
-	qboolean        precache;
 	char            picname[64];
 
 	trap_R_RegisterShaderNoMip(GAMESERVER_BACK0);
@@ -641,8 +640,6 @@ void StartServer_Cache(void)
 	trap_R_RegisterShaderNoMip(GAMESERVER_ARROWSL);
 	trap_R_RegisterShaderNoMip(GAMESERVER_ARROWSR);
 
-	precache = trap_Cvar_VariableValue("com_buildscript");
-
 	s_startserver.nummaps = UI_GetNumArenas();
 
 	for(i = 0; i < s_startserver.nummaps; i++)
@@ -653,11 +650,13 @@ void StartServer_Cache(void)
 		Q_strupr(s_startserver.maplist[i]);
 		s_startserver.mapGamebits[i] = GametypeBits(Info_ValueForKey(info, "type"));
 
+#if 0
 		if(precache)
 		{
 			Com_sprintf(picname, sizeof(picname), "levelshots/%s", s_startserver.maplist[i]);
 			trap_R_RegisterShaderNoMip(picname);
 		}
+#endif
 	}
 
 	s_startserver.maxpages = (s_startserver.nummaps + MAX_MAPSPERPAGE - 1) / MAX_MAPSPERPAGE;
@@ -1229,7 +1228,7 @@ static void StartServer_LevelshotDraw(void *self)
 	x += b->width / 2;
 	y += 4;
 	n = s_startserver.page * MAX_MAPSPERPAGE + b->generic.id - ID_PICTURES;
-	
+
 //	UI_DrawString(x, y, s_startserver.maplist[n], UI_CENTER | UI_SMALLFONT, color_orange);
 	UI_Text_Paint( x  ,  y + 8  , 0.25f , color, s_startserver.maplist[n], 0, 0, style,  &uis.freeSansBoldFont);
 
