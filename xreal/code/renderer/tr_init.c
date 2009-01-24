@@ -232,6 +232,7 @@ cvar_t         *r_hdrMaxLuminance;
 cvar_t         *r_hdrKey;
 cvar_t         *r_hdrContrastThreshold;
 cvar_t         *r_hdrContrastOffset;
+cvar_t         *r_hdrLightmap;
 cvar_t         *r_hdrLightmapExposure;
 cvar_t         *r_hdrLightmapGamma;
 cvar_t         *r_hdrLightmapCompensate;
@@ -1347,8 +1348,9 @@ void R_Register(void)
 	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "10000", CVAR_CHEAT);
 	r_hdrKey = ri.Cvar_Get("r_hdrKey", "0.72", CVAR_CHEAT);
-	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "5", CVAR_CHEAT | CVAR_LATCH);
-	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "10.0", CVAR_CHEAT | CVAR_LATCH);
+	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "3.0", CVAR_CHEAT | CVAR_LATCH);
+	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "1.0", CVAR_CHEAT | CVAR_LATCH);
+	r_hdrLightmap = ri.Cvar_Get("r_hdrLightmap", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapExposure = ri.Cvar_Get("r_hdrLightmapExposure", "0.00003", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapGamma = ri.Cvar_Get("r_hdrLightmapGamma", "2.2", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapCompensate = ri.Cvar_Get("r_hdrLightmapCompensate", "1.0", CVAR_CHEAT | CVAR_LATCH);
@@ -1358,7 +1360,7 @@ void R_Register(void)
 
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "3", CVAR_CHEAT);
-	r_bloomPasses = ri.Cvar_Get("r_bloomPasses", "2", CVAR_CHEAT);
+	r_bloomPasses = ri.Cvar_Get("r_bloomPasses", "1", CVAR_CHEAT);
 	r_rotoscope = ri.Cvar_Get("r_rotoscope", "0", CVAR_ARCHIVE);
 
 	// temporary variables that can change at any time

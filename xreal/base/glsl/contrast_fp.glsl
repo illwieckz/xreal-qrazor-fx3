@@ -40,14 +40,15 @@ void	main()
 	// BUGFIX: the ATI driver flips the image
 	st.t = 1.0 - st.t;
 #endif
-	
-#if defined(r_HDRRendering)
 
 	// multiply with 4 because the FBO is only 1/4th of the screen resolution
 	st *= vec2(4.0, 4.0);
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
+	
+	
+#if defined(r_HDRRendering)
 
 	vec4 color = texture2D(u_ColorMap, st);
 
@@ -68,12 +69,6 @@ void	main()
 
 #else
 	// LDR path
-
-	// multiply with 4 because the FBO is only 1/4th of the screen resolution
-	st *= vec2(4.0, 4.0);
-	
-	// scale by the screen non-power-of-two-adjust
-	st *= r_NPOTScale;
 	
 	// calculate contrast color
 #if 0

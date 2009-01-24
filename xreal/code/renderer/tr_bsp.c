@@ -156,7 +156,7 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 		VectorCopy4(in, sample);
 	}
 
-	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
+	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
 	{
 		float			max;
 
@@ -633,7 +633,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			tr.numLightmaps = numLightmaps;
 			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
 
-			if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
+			if(r_hdrRendering->integer && r_hdrLightmap->integer && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable)
 			{
 				int             width, height;
 				float          *hdrImage;

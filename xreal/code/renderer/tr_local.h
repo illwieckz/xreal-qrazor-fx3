@@ -2277,6 +2277,7 @@ extern cvar_t  *r_hdrMaxLuminance;
 extern cvar_t  *r_hdrKey;
 extern cvar_t  *r_hdrContrastThreshold;
 extern cvar_t  *r_hdrContrastOffset;
+extern cvar_t  *r_hdrLightmap;
 extern cvar_t  *r_hdrLightmapExposure;
 extern cvar_t  *r_hdrLightmapGamma;
 extern cvar_t  *r_hdrLightmapCompensate;
