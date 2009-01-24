@@ -878,27 +878,7 @@ static void CG_XPPM_PlayerAnimation(centity_t * cent)
 		CG_XPPM_RunLerpFrame(ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale);
 	}
 
-	// FIXME: is this the only way to check in cgame if a player has been killed recently ?
-	if(cent->currentState.torsoAnim != cent->pe.torso.animationNumber)
-	{
-		if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) == BOTH_DEATH1)
-		{
-			// start the death effect
-			cent->pe.deathTime = cg.time;
-			cent->pe.deathScale = 0.0f;
-
-		}
-	}
-
 	CG_XPPM_RunLerpFrame(ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale);
-
-	// FIXME: reset death effect variables somewhere else
-	if((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != BOTH_DEATH1)
-	{
-		cent->pe.deathTime = 0;
-		cent->pe.deathScale = 0.0f;
-	}
-
 }
 
 
@@ -911,7 +891,7 @@ CG_XPPM_Player
 ===============
 */
 
-//has to be in sync with clientRespawnTime
+// has to be in sync with clientRespawnTime
 #define DEATHANIM_TIME 1650
 
 void CG_XPPM_Player(centity_t * cent)
@@ -988,8 +968,34 @@ void CG_XPPM_Player(centity_t * cent)
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_XPPM_PlayerAnimation(cent);
 
-	if(cent->pe.deathScale >= 1.0f)
-		return;
+	// WIP: death effect
+#if 1
+	if(cent->currentState.eFlags & EF_DEAD)
+	{
+		int             time;
+
+		if(cent->pe.deathTime <= 0)
+		{
+			cent->pe.deathTime = cg.time;
+			cent->pe.deathScale = 0.0f;
+		}
+
+		time = (DEATHANIM_TIME - (cg.time - cent->pe.deathTime));
+
+		cent->pe.deathScale = 1.0f - (1.0f / DEATHANIM_TIME * time);
+		if(cent->pe.deathScale >= 1.0f)
+				return;
+
+		body.shaderTime = -cent->pe.deathScale;
+	}
+	else
+#endif
+	{
+		cent->pe.deathTime = 0;
+		cent->pe.deathScale = 0.0f;
+
+		body.shaderTime = 0.0f;
+	}
 
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites(cent);
@@ -1116,21 +1122,8 @@ void CG_XPPM_Player(centity_t * cent)
 	// transform relative bones to absolute ones required for vertex skinning and tag attachments
 	CG_TransformSkeleton(&body.skeleton, ci->modelScale);
 
-	body.shaderTime = -cent->pe.deathScale;
-
 	// add body to renderer
 	CG_AddRefEntityWithPowerups(&body, &cent->currentState, ci->team);
-
-	// WIP: death effect
-	if(cent->pe.deathTime > 0)
-	{
-		int             time = (DEATHANIM_TIME - (cg.time - cent->pe.deathTime));
-
-		cent->pe.deathScale = 1.0f - (1.0f / DEATHANIM_TIME * time);
-
-		body.customShader = cgs.media.unlinkEffect;
-		trap_R_AddRefEntityToScene(&body);
-	}
 
 	if(cent->currentState.eFlags & EF_KAMIKAZE)
 	{
