@@ -144,21 +144,38 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 	const vec3_t    LUMINANCE_VECTOR = {0.2125f, 0.7154f, 0.0721f};
 	vec4_t			sample;
 
-	if(applyGamma)
-	{
-		for(i = 0; i < 3; i++)
-		{
-			sample[i] = pow(in[i] / 255.0f, 1.0f / r_hdrLightmapGamma->value) * 255.0f;
-		}
-	}
-	else
-	{
-		VectorCopy4(in, sample);
-	}
+
+#if 0
+	scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
+
+	#if 0
+	finalLuminance = scaledLuminance / (scaledLuminance + 1.0);
+	#else
+	// exponential tone mapping
+	finalLuminance = 1.0 - exp(-scaledLuminance);
+	#endif
+
+	VectorScale(sample, finalLuminance, sample);
+	sample[3] = Q_min(1.0f, sample[3]);
 
 	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
 	{
 		float			max;
+
+		// clamp with color normalization
+		NormalizeColor(sample, out);
+		out[3] = Q_min(1.0f, sample[3]);
+	}
+	else
+	{
+		VectorCopy4(sample, out);
+	}
+#else
+	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
+	{
+		float			max;
+
+		VectorCopy4(in, sample);
 
 		// clamp with color normalization
 		max = sample[0];
@@ -175,6 +192,16 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 	}
 	else
 	{
+		VectorScale4(in, 1.0f / 255.0f, sample);
+
+		if(applyGamma)
+		{
+			for(i = 0; i < 3; i++)
+			{
+				sample[i] = pow(sample[i], 1.0f / r_hdrLightmapGamma->value);
+			}
+		}
+
 		scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
 
 		#if 0
@@ -187,6 +214,7 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 		VectorScale(sample, finalLuminance, out);
 		out[3] = Q_min(1.0f, sample[3]);
 	}
+#endif
 }
 
 static int QDECL LightmapNameCompare(const void *a, const void *b)
@@ -441,6 +469,19 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 
 	// LOADING DONE
 
+	if(compensate)
+	{
+		floatbuf = *pic;
+		for(i = 0; i < (w * h); i++)
+		{
+			for(j = 0; j < 3; j++)
+			{
+				*floatbuf = *floatbuf / 255.0f;
+				floatbuf++;
+			}
+		}
+	}
+
 	if(doGamma)
 	{
 		floatbuf = *pic;
@@ -449,8 +490,8 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 		{
 			for(j = 0; j < 3; j++)
 			{
-				*floatbuf = pow(*floatbuf / 255.0f, gamma) * 255.0f;
-				//*floatbuf = pow(*floatbuf, gamma);
+				//*floatbuf = pow(*floatbuf / 255.0f, gamma) * 255.0f;
+				*floatbuf = pow(*floatbuf, gamma);
 				floatbuf++;
 			}
 		}
@@ -549,6 +590,32 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	vec3_t			sample;
 	float			max;
 
+#if 0
+	w = h = 0;
+	LoadRGBEToFloats(name, &hdrImage, &w, &h, qtrue, qtrue, qtrue);
+
+	*width = w;
+	*height = h;
+
+	*ldrImage = ri.Malloc(w * h * 4);
+	pixbuf = *ldrImage;
+
+	floatbuf = hdrImage;
+	for(i = 0; i < (w * h); i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			sample[j] = *floatbuf++;
+		}
+
+		NormalizeColor(sample, sample);
+
+		*pixbuf++ = (byte) (sample[0] * 255);
+		*pixbuf++ = (byte) (sample[1] * 255);
+		*pixbuf++ = (byte) (sample[2] * 255);
+		*pixbuf++ = (byte) 255;
+	}
+#else
 	w = h = 0;
 	LoadRGBEToFloats(name, &hdrImage, &w, &h, qfalse, qfalse, qfalse);
 
@@ -580,6 +647,7 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 		*pixbuf++ = (byte) sample[2];
 		*pixbuf++ = (byte) 255;
 	}
+#endif
 
 	Com_Dealloc(hdrImage);
 }
