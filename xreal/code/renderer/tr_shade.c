@@ -2127,9 +2127,9 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	// set uniforms
 	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
 	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
-	ClampColor(ambientColor);
+	//ClampColor(ambientColor);
 	VectorCopy(backEnd.currentEntity->directedLight, directedLight);
-	ClampColor(directedLight);
+	//ClampColor(directedLight);
 	VectorCopy(backEnd.currentEntity->lightDir, lightDir);
 
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_AmbientColor, ambientColor[0], ambientColor[1], ambientColor[2]);

@@ -199,8 +199,6 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 	VectorClear(ent->directedLight);
 	VectorClear(direction);
 
-	assert(tr.world->lightGridData);	// bk010103 - NULL with -nolight maps
-
 	// trilerp the light value
 	gridStep[0] = 1; //sizeof(bspGridPoint_t);
 	gridStep[1] = tr.world->lightGridBounds[0];// * sizeof(bspGridPoint_t);
@@ -260,7 +258,7 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 		VectorMA(direction, factor, normal, direction);
 	}
 
-#if 0
+#if 1
 	if(totalFactor > 0 && totalFactor < 0.99)
 	{
 		totalFactor = 1.0f / totalFactor;
@@ -270,6 +268,13 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 #endif
 
 	VectorNormalize2(direction, ent->lightDir);
+
+	if(VectorLength(ent->ambientLight) < r_forceAmbient->value)
+	{
+		ent->ambientLight[0] = r_forceAmbient->value;
+		ent->ambientLight[1] = r_forceAmbient->value;
+		ent->ambientLight[2] = r_forceAmbient->value;
+	}
 }
 
 
@@ -364,7 +369,6 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 			ent->ambientLight[1] = r_forceAmbient->value;
 			ent->ambientLight[2] = r_forceAmbient->value;
 		}
-
 
 		ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * (150.0f / 255.0f);
 
