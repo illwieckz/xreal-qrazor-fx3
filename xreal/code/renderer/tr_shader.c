@@ -2842,6 +2842,7 @@ infoParm_t	infoParms[] = {
 	{"metalsteps",		0,	SURF_METALSTEPS,0},
 	{"flesh",			0,	SURF_FLESH,		0},
 	{"nosteps",			0,	SURF_NOSTEPS,	0},
+	{"wallwalk",		0,	SURF_WALLWALK,	0},
 
 	// drawsurf attributes
 	{"nodraw",			0,	SURF_NODRAW,		0},		// don't generate a drawsurface (or a lightmap)

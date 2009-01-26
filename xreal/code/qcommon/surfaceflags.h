@@ -60,10 +60,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_TRIGGER		0x40000000
 #define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
 
-//TA: custominfoparms below
-#define	CONTENTS_NOALIENBUILD	0x1000	//disallow alien building
-#define	CONTENTS_NOHUMANBUILD	0x2000	//disallow alien building
-#define	CONTENTS_NOBUILD		0x4000	//disallow alien building
+// TA: custominfoparms below
+#define	CONTENTS_NOALIENBUILD	0x1000	// disallow alien building
+#define	CONTENTS_NOHUMANBUILD	0x2000	// disallow alien building
+#define	CONTENTS_NOBUILD		0x4000	// disallow alien building
 
 #define	SURF_NODAMAGE			0x1	// never give falling damage
 #define	SURF_SLICK				0x2	// effects game physics
@@ -84,7 +84,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in xmap
 #define	SURF_COLLISION			0x20000	// don't draw but use for per polygon collision detection
 #define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
-//TA: custominfoparms below
-#define	SURF_NOALIENBUILD		0x80000	//disallow alien building
-#define	SURF_NOHUMANBUILD		0x100000	//disallow alien building
-#define	SURF_NOBUILD			0x200000	//disallow alien building
+// TA: custominfoparms below
+#define	SURF_NOALIENBUILD		0x80000	// disallow alien building
+#define	SURF_NOHUMANBUILD		0x100000	// disallow alien building
+#define	SURF_NOBUILD			0x200000	// disallow alien building
+// Tr3B: add new parms below so the Tremulous stuff doesn't break
+#define SURF_WALLWALK			0x400000	// allows player to walk on walls
