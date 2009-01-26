@@ -118,6 +118,7 @@ void WriteRGBE(char *filename, float * data, int width, int height)
 	int             i, c;
 	FILE           *file;
 	unsigned char   rgbe[4];
+	float			rgb[3];
 
 	file = fopen(filename, "wb");
 	if(file == NULL)
@@ -141,12 +142,15 @@ void WriteRGBE(char *filename, float * data, int width, int height)
 	for(i = 0; i < c; i += 3)
 	{
 #if 0
-		ColorToRGBE(&data[i], rgbe);
+		// FIXME XMap2's output is 255 times too high
+		rgb[0] = data[i + 0] / 255.0f;
+		rgb[1] = data[i + 1] / 255.0f;
+		rgb[2] = data[i + 2] / 255.0f;
+
+		ColorToRGBE(rgb, rgbe);
 		if(fwrite(rgbe, sizeof(rgbe), 1, file) < 1)
 			Error("RGBE write error: %s", filename);
 #else
-		float rgb[3];
-
 		rgb[0] = data[i + 0];
 		rgb[1] = data[i + 1];
 		rgb[2] = data[i + 2];

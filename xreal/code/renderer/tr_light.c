@@ -258,7 +258,7 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 		VectorMA(direction, factor, normal, direction);
 	}
 
-#if 0
+#if 1
 	if(totalFactor > 0 && totalFactor < 0.99)
 	{
 		totalFactor = 1.0f / totalFactor;

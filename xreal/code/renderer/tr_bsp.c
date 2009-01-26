@@ -202,6 +202,7 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 			}
 		}
 
+#if 0
 		scaledLuminance = r_hdrLightmapExposure->value * DotProduct(in, LUMINANCE_VECTOR);
 
 		#if 0
@@ -212,6 +213,10 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 		#endif
 
 		VectorScale(sample, finalLuminance, out);
+#else
+		VectorCopy(sample, out);
+#endif
+
 		out[3] = Q_min(1.0f, sample[3]);
 	}
 #endif
@@ -462,26 +467,12 @@ static void LoadRGBEToFloats(const char *name, float ** pic, int *width, int *he
 			sample.b[2] = *buf_p++;
 			sample.b[3] = *buf_p++;
 
-			*floatbuf++ = sample.f;
+			*floatbuf++ = sample.f / 255.0f;	// FIXME XMap2's output is 255 times too high
 		}
 #endif
 	}
 
 	// LOADING DONE
-
-	if(compensate)
-	{
-		floatbuf = *pic;
-		for(i = 0; i < (w * h); i++)
-		{
-			for(j = 0; j < 3; j++)
-			{
-				*floatbuf = *floatbuf / 255.0f;
-				floatbuf++;
-			}
-		}
-	}
-
 	if(doGamma)
 	{
 		floatbuf = *pic;
@@ -630,7 +621,7 @@ static void LoadRGBEToBytes(const char *name, byte ** ldrImage, int *width, int 
 	{
 		for(j = 0; j < 3; j++)
 		{
-			sample[j] = *floatbuf++;
+			sample[j] = *floatbuf++ * 255.0f;
 		}
 
 		// clamp with color normalization
@@ -712,7 +703,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 					#if 1
 					width = height = 0;
-					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qtrue, qtrue);
+					LoadRGBEToFloats(va("%s/%s", mapName, lightmapFiles[i]), &hdrImage, &width, &height, qtrue, qfalse, qtrue);
 
 					// create dummy image
 					//tr.lightmaps[i * 2] = image = R_CreateImage(va("%s/%s", mapName, lightmapFiles[i]), (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
