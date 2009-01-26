@@ -178,7 +178,7 @@ void Foliage(mapDrawSurface_t * src)
 	mesh_t          srcMesh, *subdivided, *mesh;
 	bspDrawVert_t  *verts, *dv[3], *fi;
 	vec3_t          scale;
-	matrix_t        transform;
+	matrix_t        transform, rotation;
 
 
 	/* get shader */
@@ -273,9 +273,10 @@ void Foliage(mapDrawSurface_t * src)
 		/* set transform matrix */
 		VectorSet(scale, foliage->scale, foliage->scale, foliage->scale);
 		MatrixSetupScale(transform, scale[0], scale[1], scale[2]);
+		MatrixIdentity(rotation);
 
 		/* add the model to the bsp */
-		InsertModel(foliage->model, 0, transform, NULL, NULL, src->entityNum, src->castShadows, src->recvShadows, 0,
+		InsertModel(foliage->model, 0, transform, rotation, NULL, NULL, src->entityNum, src->castShadows, src->recvShadows, 0,
 					src->lightmapScale);
 
 		/* walk each new surface */

@@ -205,11 +205,11 @@ InsertModel() - ydnar
 adds a picomodel into the bsp
 */
 
-void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, shaderInfo_t * celShader, int eNum, int castShadows,
+void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform, remap_t * remap, shaderInfo_t * celShader, int eNum, int castShadows,
 				 int recvShadows, int spawnFlags, float lightmapScale)
 {
 	int             i, j, k, s, numSurfaces;
-	matrix_t        identity, nTransform;
+	matrix_t        identity;
 	picoModel_t    *model;
 	picoShader_t   *shader;
 	picoSurface_t  *surface;
@@ -236,17 +236,15 @@ void InsertModel(char *name, int frame, matrix_t transform, remap_t * remap, sha
 		transform = identity;
 	}
 
-	/* hack: Stable-1_2 and trunk have differing row/column major matrix order
-	   this transpose is necessary with Stable-1_2
-	   uncomment the following line with old m4x4_t (non 1.3/spog_branch) code */
-	//% m4x4_transpose( transform );
-
 	/* create transform matrix for normals */
-	//memcpy(nTransform, transform, sizeof(matrix_t));
+#if 0
 	MatrixCopy(transform, nTransform);
 	if(MatrixInverse(nTransform))
+	{
 		Sys_FPrintf(SYS_VRB, "WARNING: Can't invert model transform matrix, using transpose instead\n");
-	//MatrixTranspose(transform, nTransform);
+		MatrixTranspose(transform, nTransform);
+	}
+#endif
 
 	/* fix bogus lightmap scale */
 	if(lightmapScale <= 0.0f)
@@ -611,8 +609,8 @@ void AddTriangleModel(entity_t * e)
 	 */
 
 	/* get "angle" (yaw) or "angles" (pitch yaw roll) */
+	MatrixIdentity(rotation);
 	/*
-	   MatrixIdentity(rotation);
 	   angles[0] = angles[1] = angles[2] = 0.0f;
 
 	   value = ValueForKey(e2, "angle");
@@ -703,7 +701,7 @@ void AddTriangleModel(entity_t * e)
 		lightmapScale = 0.0f;
 
 	/* insert the model */
-	InsertModel((char *)model, frame, transform, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
+	InsertModel((char *)model, frame, transform, rotation, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
 				lightmapScale);
 
 	/* free shader remappings */
@@ -904,7 +902,7 @@ void AddTriangleModels(entity_t * e)
 			lightmapScale = baseLightmapScale;
 
 		/* insert the model */
-		InsertModel((char *)model, frame, transform, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
+		InsertModel((char *)model, frame, transform, rotation, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
 					lightmapScale);
 
 		/* free shader remappings */
