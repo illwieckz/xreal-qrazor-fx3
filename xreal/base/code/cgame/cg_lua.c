@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <lauxlib.h>
 #include <lualib.h>
 
-#define MAX_LUAFILE 32768
 
 static lua_State *cg_luaState = NULL;
 
@@ -120,7 +119,7 @@ void CG_LoadLuaScript(const char *filename)
 {
 	int             len;
 	fileHandle_t    f;
-	char            buf[MAX_LUAFILE];
+	char           *buf;
 
 	CG_Printf("...loading '%s'\n", filename);
 
@@ -131,12 +130,7 @@ void CG_LoadLuaScript(const char *filename)
 		return;
 	}
 
-	if(len >= MAX_LUAFILE)
-	{
-		CG_Printf(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_LUAFILE));
-		trap_FS_FCloseFile(f);
-		return;
-	}
+	buf = malloc(len);
 
 	trap_FS_Read(buf, len, f);
 	buf[len] = 0;
@@ -147,6 +141,8 @@ void CG_LoadLuaScript(const char *filename)
 
 	if(lua_pcall(cg_luaState, 0, 0, 0))
 		CG_Printf("G_RunLuaScript: cannot pcall: %s\n", lua_tostring(cg_luaState, -1));
+
+	free(buf);
 }
 
 /*
