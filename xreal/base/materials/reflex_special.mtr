@@ -1,0 +1,129 @@
+
+textures/reflex_special/wallwalk01_blue
+{
+    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalk01.tga
+    bumpmap          textures/reflex_special/wallwalk01_local.tga
+    specularMap      textures/reflex_special/wallwalk01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalk01_glow
+        color       0.24, 0.41, 0.77, 255
+	}
+}
+
+textures/reflex_special/wallwalktrim01_blue
+{
+    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalktrim01.tga
+    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
+    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalktrim01_glow
+        color       0.24, 0.41, 0.77, 255
+	}
+}
+
+textures/reflex_special/wallwalk01_red
+{
+    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalk01.tga
+    bumpmap          textures/reflex_special/wallwalk01_local.tga
+    specularMap      textures/reflex_special/wallwalk01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalk01_glow
+        color       0.75, 0.17, 0.05, 255
+	}
+}
+
+textures/reflex_special/wallwalktrim01_red
+{
+    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalktrim01.tga
+    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
+    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalktrim01_glow
+        color       0.75, 0.17, 0.05, 255
+	}
+}
+
+textures/reflex_special/wallwalk01_green
+{
+    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalk01.tga
+    bumpmap          textures/reflex_special/wallwalk01_local.tga
+    specularMap      textures/reflex_special/wallwalk01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalk01_glow
+        color       0.18, 0.65, 0.16, 255
+	}
+}
+
+textures/reflex_special/wallwalktrim01_green
+{
+    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalktrim01.tga
+    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
+    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalktrim01_glow
+        color       0.18, 0.65, 0.16, 255
+	}
+}
+
+textures/reflex_special/wallwalk01_orange
+{
+    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalk01.tga
+    bumpmap          textures/reflex_special/wallwalk01_local.tga
+    specularMap      textures/reflex_special/wallwalk01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalk01_glow
+        color       0.94, 0.57, 0.13, 255
+	}
+}
+
+textures/reflex_special/wallwalktrim01_orange
+{
+    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    
+    wallwalk
+    
+    diffusemap       textures/reflex_special/wallwalktrim01.tga
+    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
+    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+	{
+		blend		add
+		map	      textures/reflex_special/wallwalktrim01_glow
+        color       0.94, 0.57, 0.13, 255
+	}
+}
+

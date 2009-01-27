@@ -48,6 +48,8 @@ raynorpat
 reflex_layout
 reflex_mapobject
 #reflex_sfx
+reflex_special
+reflex_trim
 reflex_ugly
 sfx
 #sky
