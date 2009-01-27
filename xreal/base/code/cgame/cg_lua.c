@@ -130,7 +130,7 @@ void CG_LoadLuaScript(const char *filename)
 		return;
 	}
 
-	buf = malloc(len);
+	buf = malloc(len + 1);
 
 	trap_FS_Read(buf, len, f);
 	buf[len] = 0;

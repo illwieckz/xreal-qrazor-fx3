@@ -190,7 +190,7 @@ void G_LoadLuaScript(gentity_t * ent, const char *filename)
 		return;
 	}
 
-	buf = malloc(len);
+	buf = malloc(len + 1);
 
 	trap_FS_Read(buf, len, f);
 	buf[len] = 0;
