@@ -3,6 +3,10 @@ textures/reflex_special/wallwalk01_blue
 {
     qer_editorimage  textures/reflex_special/wallwalk01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.24 0.41 0.77
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+    
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalk01.tga
@@ -11,7 +15,7 @@ textures/reflex_special/wallwalk01_blue
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalk01_glow
-        color       0.24, 0.41, 0.77, 255
+        color       0.24 * (jitter5 [time * 2]), 0.41 * (jitter5 [time * 2]), 0.77 * (jitter5 [time * 2]), 1.0
 	}
 }
 
@@ -19,6 +23,10 @@ textures/reflex_special/wallwalktrim01_blue
 {
     qer_editorimage  textures/reflex_special/wallwalktrim01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.24 0.41 0.77
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+    
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalktrim01.tga
@@ -27,7 +35,7 @@ textures/reflex_special/wallwalktrim01_blue
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalktrim01_glow
-        color       0.24, 0.41, 0.77, 255
+        color       0.24 * (jitter5 [time * 2]), 0.41 * (jitter5 [time * 2]), 0.77 * (jitter5 [time * 2]), 1.0
 	}
 }
 
@@ -35,6 +43,10 @@ textures/reflex_special/wallwalk01_red
 {
     qer_editorimage  textures/reflex_special/wallwalk01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.75 0.17 0.05
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+    
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalk01.tga
@@ -43,7 +55,7 @@ textures/reflex_special/wallwalk01_red
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalk01_glow
-        color       0.75, 0.17, 0.05, 255
+        color       0.75 * (jitter5 [time * 2]), 0.17 * (jitter5 [time * 2]), 0.05 * (jitter5 [time * 2]), 1.0
 	}
 }
 
@@ -51,6 +63,10 @@ textures/reflex_special/wallwalktrim01_red
 {
     qer_editorimage  textures/reflex_special/wallwalktrim01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.75 0.17 0.05
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+    
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalktrim01.tga
@@ -59,7 +75,7 @@ textures/reflex_special/wallwalktrim01_red
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalktrim01_glow
-        color       0.75, 0.17, 0.05, 255
+        color       0.75 * (jitter5 [time * 2]), 0.17 * (jitter5 [time * 2]), 0.05 * (jitter5 [time * 2]), 1.0
 	}
 }
 
@@ -67,6 +83,10 @@ textures/reflex_special/wallwalk01_green
 {
     qer_editorimage  textures/reflex_special/wallwalk01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.18 0.65 0.16
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+    
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalk01.tga
@@ -75,7 +95,7 @@ textures/reflex_special/wallwalk01_green
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalk01_glow
-        color       0.18, 0.65, 0.16, 255
+        color       0.18 * (jitter5 [time * 2]), 0.65 * (jitter5 [time * 2]), 0.16 * (jitter5 [time * 2]), 255
 	}
 }
 
@@ -83,6 +103,10 @@ textures/reflex_special/wallwalktrim01_green
 {
     qer_editorimage  textures/reflex_special/wallwalktrim01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.18 0.65 0.16
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+    
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalktrim01.tga
@@ -91,7 +115,7 @@ textures/reflex_special/wallwalktrim01_green
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalktrim01_glow
-        color       0.18, 0.65, 0.16, 255
+        color       0.18 * (jitter5 [time * 2]), 0.65 * (jitter5 [time * 2]), 0.16 * (jitter5 [time * 2]), 1.0
 	}
 }
 
@@ -99,6 +123,10 @@ textures/reflex_special/wallwalk01_orange
 {
     qer_editorimage  textures/reflex_special/wallwalk01.tga
     
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.94 0.57 0.13
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	
     wallwalk
     
     diffusemap       textures/reflex_special/wallwalk01.tga
@@ -107,13 +135,17 @@ textures/reflex_special/wallwalk01_orange
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalk01_glow
-        color       0.94, 0.57, 0.13, 255
+        color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
 	}
 }
 
 textures/reflex_special/wallwalktrim01_orange
 {
     qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    
+    xmap_surfaceLight 800
+	xmap_lightRGB 0.94 0.57 0.13
+	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
     
     wallwalk
     
@@ -123,7 +155,7 @@ textures/reflex_special/wallwalktrim01_orange
 	{
 		blend		add
 		map	      textures/reflex_special/wallwalktrim01_glow
-        color       0.94, 0.57, 0.13, 255
+        color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
 	}
 }
 
