@@ -759,7 +759,7 @@ int CM_CheckFacetPlane(float *plane, vec3_t start, vec3_t end, float *enterFrac,
 		return qfalse;
 	}
 
-	// if it doesn't cross the plane, the plane isn't relevent
+	// if it doesn't cross the plane, the plane isn't relevant
 	if(d1 <= 0 && d2 <= 0)
 	{
 		return qtrue;
@@ -835,7 +835,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 
 		if(tw->type == TT_CAPSULE)
 		{
-			// adjust the plane distance apropriately for radius
+			// adjust the plane distance appropriately for radius
 			plane[3] += tw->sphere.radius;
 
 			// find the closest point on the capsule to the plane
@@ -1104,7 +1104,7 @@ void CM_TraceThroughBrush(traceWork_t * tw, cbrush_t * brush)
 			side = brush->sides + i;
 			plane = side->plane;
 
-			// adjust the plane distance apropriately for radius
+			// adjust the plane distance appropriately for radius
 			dist = plane->dist + tw->sphere.radius;
 
 			// find the closest point on the capsule to the plane
@@ -1138,7 +1138,7 @@ void CM_TraceThroughBrush(traceWork_t * tw, cbrush_t * brush)
 				return;
 			}
 
-			// if it doesn't cross the plane, the plane isn't relevent
+			// if it doesn't cross the plane, the plane isn't relevant
 			if(d1 <= 0 && d2 <= 0)
 			{
 				continue;
@@ -1187,7 +1187,7 @@ void CM_TraceThroughBrush(traceWork_t * tw, cbrush_t * brush)
 			side = brush->sides + i;
 			plane = side->plane;
 
-			// adjust the plane distance apropriately for mins/maxs
+			// adjust the plane distance appropriately for mins/maxs
 			dist = plane->dist - DotProduct(tw->offsets[plane->signbits], plane->normal);
 
 			d1 = DotProduct(tw->start, plane->normal) - dist;
@@ -1208,7 +1208,7 @@ void CM_TraceThroughBrush(traceWork_t * tw, cbrush_t * brush)
 				return;
 			}
 
-			// if it doesn't cross the plane, the plane isn't relevent
+			// if it doesn't cross the plane, the plane isn't relevant
 			if(d1 <= 0 && d2 <= 0)
 			{
 				continue;
@@ -1433,6 +1433,11 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		surface->checkcount = cm.checkcount;
 
 		if(!(surface->contents & tw->contents))
+		{
+			continue;
+		}
+
+		if(!CM_BoundsIntersect(tw->bounds[0], tw->bounds[1], surface->sc->bounds[0], surface->sc->bounds[1]))
 		{
 			continue;
 		}
@@ -1823,7 +1828,7 @@ trace volumes it is possible to hit something in a later leaf with
 a smaller intercept fraction.
 ==================
 */
-void CM_TraceThroughTree(traceWork_t * tw, int num, float p1f, float p2f, vec3_t p1, vec3_t p2)
+static void CM_TraceThroughTree(traceWork_t * tw, int num, float p1f, float p2f, vec3_t p1, vec3_t p2)
 {
 	cNode_t        *node;
 	cplane_t       *plane;
@@ -1956,7 +1961,7 @@ void CM_TraceThroughTree(traceWork_t * tw, int num, float p1f, float p2f, vec3_t
 CM_Trace
 ==================
 */
-void CM_Trace(trace_t * results, const vec3_t start,
+static void CM_Trace(trace_t * results, const vec3_t start,
 			  const vec3_t end, vec3_t mins, vec3_t maxs,
 			  clipHandle_t model, const vec3_t origin, int brushmask, traceType_t type, sphere_t * sphere)
 {
