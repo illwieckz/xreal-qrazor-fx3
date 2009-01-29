@@ -26,7 +26,7 @@ uniform float		u_BlurMagnitude;
 
 
 
-#if defined(ATI)
+#if defined(ATI) || defined(MESA)
 
 /*
  AMD Radeon HD 4850:

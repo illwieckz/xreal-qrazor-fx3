@@ -232,6 +232,7 @@ typedef enum
 {
 	GLDRV_DEFAULT,				// old OpenGL system
 	GLDRV_OPENGL3,				// new driver system
+	GLDRV_MESA,					// crap
 } glDriverType_t;
 
 typedef enum

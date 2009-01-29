@@ -168,6 +168,12 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 				 va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
 
 
+
+		if(glConfig.driverType == GLDRV_MESA)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef MESA\n#define MESA 1\n#endif\n");
+		}
+
 		// HACK: add ATI's GLSL quirks
 		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
 		{

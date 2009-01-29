@@ -49,26 +49,10 @@ void	main()
 	st.t = 1.0 - st.t;
 #endif
 		
-#if 0 //defined(GL_EXTX_framebuffer_mixed_formats)
-	// compute vertex position in world space
-	vec4 P = texture2D(u_PositionMap, st).xyzw;
-#else
 	// reconstruct vertex position in world space
-#if 0
-	// gl_FragCoord.z with 32 bit precision
-	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-	float depth = dot(texture2D(u_PositionMap, st), bitShifts);
-#elif 0
-	// gl_FragCoord.z with 24 bit precision
-	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
-#else
 	float depth = texture2D(u_PositionMap, st).r;
-#endif
-	
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
-#endif
 	
 	// transform vertex position into light space
 	vec4 texAtten			= u_LightAttenuationMatrix * vec4(P.xyz, 1.0);

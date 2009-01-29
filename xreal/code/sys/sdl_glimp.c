@@ -1204,6 +1204,12 @@ void GLimp_Init(void)
 	Q_strncpyz(glConfig.extensions_string, (char *)qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
 
 
+	if(Q_stristr(glConfig.renderer_string, "mesa"))
+	{
+		// suckage
+		glConfig.driverType = GLDRV_MESA;
+	}
+
 	if(Q_stristr(glConfig.renderer_string, "geforce"))
 	{
 		if(Q_stristr(glConfig.renderer_string, "8400") ||
