@@ -1304,7 +1304,7 @@ void CG_DrawStatusBarNew(void)
 
 		if(cgs.scores1 == cg.snap->ps.persistant[PERS_SCORE])	//on first place, so draw second
 			score = cgs.scores2;
-		else					// not on first place, so draw first 
+		else					// not on first place, so draw first
 			score = cgs.scores1;
 
 		if(score == SCORE_NOT_PRESENT)
@@ -2784,7 +2784,8 @@ static void CG_DrawLagometer(void)
 	int             color;
 	float           vscale;
 
-	if(!cg_lagometer.integer || cgs.localServer)
+	// Tr3B: even draw the lagometer when connected to a local server
+	if(!cg_lagometer.integer /*|| cgs.localServer*/)
 	{
 		CG_DrawDisconnect();
 		return;
@@ -3719,7 +3720,7 @@ static void CG_DrawWarmup(void)
 //==================================================================================
 
 #ifdef MISSIONPACK
-/* 
+/*
 =================
 CG_DrawTimedMenus
 =================
