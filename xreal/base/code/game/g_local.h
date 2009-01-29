@@ -324,10 +324,6 @@ typedef struct
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		3
 
-//unlagged - true ping
-#define NUM_PING_SAMPLES 64
-//unlagged - true ping
-
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct
@@ -345,39 +341,7 @@ typedef struct
 	int             voteCount;	// to prevent people from constantly calling votes
 	int             teamVoteCount;	// to prevent people from constantly calling votes
 	qboolean        teamInfo;	// send team overlay updates?
-//unlagged - client options
-	// these correspond with variables in the userinfo string
-	int             delag;
-	int             debugDelag;
-	int             cmdTimeNudge;
-//unlagged - client options
-//unlagged - lag simulation #2
-	int             latentSnaps;
-	int             latentCmds;
-	int             plOut;
-	usercmd_t       cmdqueue[MAX_LATENT_CMDS];
-	int             cmdhead;
-//unlagged - lag simulation #2
-//unlagged - true ping
-	int             realPing;
-	int             pingsamples[NUM_PING_SAMPLES];
-	int             samplehead;
-//unlagged - true ping
 } clientPersistant_t;
-
-//unlagged - backward reconciliation #1
-// the size of history we'll keep
-#define NUM_CLIENT_HISTORY 17
-
-// everything we need to know to backward reconcile
-typedef struct
-{
-	vec3_t          mins, maxs;
-	vec3_t          currentOrigin;
-	int             leveltime;
-} clientHistory_t;
-
-//unlagged - backward reconciliation #1
 
 
 // this structure is cleared on each ClientSpawn(),
@@ -395,15 +359,9 @@ struct gclient_s
 
 	qboolean        noclip;
 
-//unlagged - smooth clients #1
-	// this is handled differently now
-/*
-	int			lastCmdTime;		// level.time of last usercmd_t, for EF_CONNECTION
-									// we can't just use pers.lastCommand.time, because
-									// of the g_sycronousclients case
-*/
-//unlagged - smooth clients #1
-
+	int             lastCmdTime;	// level.time of last usercmd_t, for EF_CONNECTION
+	// we can't just use pers.lastCommand.time, because
+	// of the g_sycronousclients case
 	int             buttons;
 	int             oldbuttons;
 	int             latched_buttons;
@@ -455,26 +413,6 @@ struct gclient_s
 #endif
 
 	char           *areabits;
-
-//unlagged - backward reconciliation #1
-	// the serverTime the button was pressed
-	// (stored before pmove_fixed changes serverTime)
-	int             attackTime;
-	// the head of the history queue
-	int             historyHead;
-	// the history queue
-	clientHistory_t history[NUM_CLIENT_HISTORY];
-	// the client's saved position
-	clientHistory_t saved;		// used to restore after time shift
-	// an approximation of the actual server time we received this
-	// command (not in 50ms increments)
-	int             frameOffset;
-//unlagged - backward reconciliation #1
-
-//unlagged - smooth clients #1
-	// the last frame number we got an update from this client
-	int             lastUpdateFrame;
-//unlagged - smooth clients #1
 };
 
 
@@ -564,11 +502,6 @@ typedef struct
 #ifdef MISSIONPACK
 	int             portalSequence;
 #endif
-
-//unlagged - backward reconciliation #4
-	// actual time this server frame started
-	int             frameStartTime;
-//unlagged - backward reconciliation #4
 } level_locals_t;
 
 
@@ -731,17 +664,6 @@ qboolean        CheckGauntletAttack(gentity_t * ent);
 void            Weapon_HookFree(gentity_t * ent);
 void            Weapon_HookThink(gentity_t * ent);
 
-//unlagged - g_unlagged.c
-void            G_ResetHistory(gentity_t * ent);
-void            G_StoreHistory(gentity_t * ent);
-void            G_TimeShiftAllClients(int time, gentity_t * skip);
-void            G_UnTimeShiftAllClients(gentity_t * skip);
-void            G_DoTimeShiftFor(gentity_t * ent);
-void            G_UndoTimeShiftFor(gentity_t * ent);
-void            G_UnTimeShiftClient(gentity_t * client);
-void            G_PredictPlayerMove(gentity_t * ent, float frametime);
-
-//unlagged - g_unlagged.c
 
 //
 // g_client.c
@@ -967,7 +889,6 @@ extern vmCvar_t g_knockbackZ;
 extern vmCvar_t g_quadfactor;
 extern vmCvar_t g_forcerespawn;
 extern vmCvar_t g_inactivity;
-extern vmCvar_t g_debugMove;
 extern vmCvar_t g_debugAlloc;
 extern vmCvar_t g_debugDamage;
 extern vmCvar_t g_weaponRespawn;
@@ -1003,25 +924,11 @@ extern vmCvar_t g_rocketVelocity;
 extern vmCvar_t g_teleportMissiles;
 extern vmCvar_t g_fallingDamage;
 
+extern vmCvar_t pm_debugMove;
 extern vmCvar_t pm_airControl;
 extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;
 extern vmCvar_t pm_fixedPmoveFPS;
-
-//unlagged - server options
-// some new server-side variables
-extern vmCvar_t g_delagHitscan;
-extern vmCvar_t g_unlaggedVersion;
-extern vmCvar_t g_truePing;
-
-// server admins can adjust this if they *believe* the lightning
-// gun is too powerful with lag compensation
-extern vmCvar_t g_lightningDamage;
-
-// this is for convenience - using "sv_fps.integer" is nice :)
-extern vmCvar_t sv_fps;
-
-//unlagged - server options
 
 
 #if defined(ACEBOT)
@@ -1068,6 +975,8 @@ void            trap_GetServerinfo(char *buffer, int bufferSize);
 void            trap_SetBrushModel(gentity_t * ent, const char *name);
 void            trap_Trace(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 						   int passEntityNum, int contentmask);
+void			trap_TraceCapsule(trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+					   int passEntityNum, int contentmask);
 int             trap_PointContents(const vec3_t point, int passEntityNum);
 qboolean        trap_InPVS(const vec3_t p1, const vec3_t p2);
 qboolean        trap_InPVSIgnorePortals(const vec3_t p1, const vec3_t p2);

@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 
-// g_mem.c
 #include "g_local.h"
 
 
@@ -46,7 +45,7 @@ void           *G_Alloc(int size)
 
 	if(allocPoint + size > POOLSIZE)
 	{
-		G_Error("G_Alloc: failed on allocation of %i bytes\n", size);	// bk010103 - was %u, but is signed
+		G_Error("G_Alloc: failed on allocation of %i bytes\n", size);
 		return NULL;
 	}
 

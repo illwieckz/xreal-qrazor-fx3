@@ -1410,33 +1410,15 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 
 	memset(&beam, 0, sizeof(beam));
 
-//unlagged - attack prediction #1
-	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
-	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan &&
-	   (cg_delag.integer & 1 || cg_delag.integer & 8))
-	{
-		// always shoot straight forward from our current position
-		AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
-		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
-	}
-	else
-//unlagged - attack prediction #1
-		// CPMA  "true" lightning
+	// CPMA  "true" lightning
 	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
 	{
 		vec3_t          angle;
 		int             i;
 
-//unlagged - true lightning
-		// might as well fix up true lightning while we're at it
-		vec3_t          viewangles;
-
-		VectorCopy(cg.predictedPlayerState.viewangles, viewangles);
-//unlagged - true lightning
-
 		for(i = 0; i < 3; i++)
 		{
-			float           a = cent->lerpAngles[i] - viewangles[i];	//unlagged: was cg.refdefViewAngles[i];
+			float           a = cent->lerpAngles[i] - cg.refdefViewAngles[i];
 
 			if(a > 180)
 			{
@@ -1447,7 +1429,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 				a += 360;
 			}
 
-			angle[i] = viewangles[i] /*unlagged: was cg.refdefViewAngles[i] */  + a * (1.0 - cg_trueLightning.value);
+			angle[i] = cg.refdefViewAngles[i] + a * (1.0 - cg_trueLightning.value);
 			if(angle[i] < 0)
 			{
 				angle[i] += 360;
@@ -1459,12 +1441,8 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		}
 
 		AngleVectors(angle, forward, NULL, NULL);
-//unlagged - true lightning
-//      VectorCopy(cent->lerpOrigin, muzzlePoint );
+		VectorCopy(cent->lerpOrigin, muzzlePoint);
 //      VectorCopy(cg.refdef.vieworg, muzzlePoint );
-		// *this* is the correct origin for true lightning
-		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
-//unlagged - true lightning
 	}
 	else
 	{
@@ -2646,10 +2624,6 @@ void CG_FireWeapon(centity_t * cent)
 	{
 		weap->ejectBrassFunc(cent);
 	}
-
-//unlagged - attack prediction #1
-	CG_PredictWeaponEffects(cent);
-//unlagged - attack prediction #1
 }
 
 /*
@@ -2730,10 +2704,6 @@ void CG_FireWeapon2(centity_t * cent)
 	{
 		weap->ejectBrassFunc2(cent);
 	}
-
-//unlagged - attack prediction #1
-// TODO	CG_PredictWeaponEffects2(cent);
-//unlagged - attack prediction #1
 }
 
 /*
@@ -3193,9 +3163,7 @@ Perform the same traces the server did to locate the
 hit splashes
 ================
 */
-//unlagged - attack prediction
-// made this non-static for access from cg_unlagged.c
-void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
+static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
 {
 	int             i;
 	float           r, u;

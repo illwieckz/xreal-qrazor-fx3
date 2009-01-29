@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -45,7 +45,7 @@ Returns qtrue if the velocity was clipped in some way
 #define	MAX_CLIP_PLANES	5
 qboolean PM_SlideMove(qboolean gravity)
 {
-	int             bumpcount, numbumps;
+	int             bumpcount, numbumps, extrabumps;
 	vec3_t          dir;
 	float           d;
 	int             numplanes;
@@ -61,6 +61,7 @@ qboolean PM_SlideMove(qboolean gravity)
 	vec3_t          endClipVelocity;
 
 	numbumps = 4;
+	extrabumps = 0;
 
 	VectorCopy(pm->ps->velocity, primal_velocity);
 
@@ -75,6 +76,10 @@ qboolean PM_SlideMove(qboolean gravity)
 			// slide along the ground plane
 			PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
 		}
+	}
+	else
+	{
+		VectorClear(endVelocity);
 	}
 
 	time_left = pml.frametime;
@@ -102,6 +107,11 @@ qboolean PM_SlideMove(qboolean gravity)
 
 		// see if we can make it there
 		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+		if(pm->debugLevel > 1)
+		{
+			Com_Printf("%i:%d %d (%f %f %f)\n",
+					   c_pmove, trace.allsolid, trace.startsolid, trace.endpos[0], trace.endpos[1], trace.endpos[2]);
+		}
 
 		if(trace.allsolid)
 		{
@@ -142,7 +152,27 @@ qboolean PM_SlideMove(qboolean gravity)
 		{
 			if(DotProduct(trace.plane.normal, planes[i]) > 0.99)
 			{
-				VectorAdd(trace.plane.normal, pm->ps->velocity, pm->ps->velocity);
+				if(extrabumps <= 0)
+				{
+					VectorAdd(trace.plane.normal, pm->ps->velocity, pm->ps->velocity);
+					extrabumps++;
+					numbumps++;
+
+					if(pm->debugLevel)
+						Com_Printf("%i:planevelocitynudge\n", c_pmove);
+				}
+				else
+				{
+					// zinx - if it happens again, nudge the origin instead,
+					// and trace it, to make sure we don't end up in a solid
+
+					VectorAdd(pm->ps->origin, trace.plane.normal, end);
+					pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+					VectorCopy(trace.endpos, pm->ps->origin);
+
+					if(pm->debugLevel)
+						Com_Printf("%i:planeoriginnudge\n", c_pmove);
+				}
 				break;
 			}
 		}
@@ -270,9 +300,34 @@ void PM_StepSlideMove(qboolean gravity)
 	VectorCopy(pm->ps->origin, start_o);
 	VectorCopy(pm->ps->velocity, start_v);
 
-	if(PM_SlideMove(gravity) == 0)
+	if(pm->debugLevel)
 	{
-		return;					// we got exactly where we wanted to go first try   
+		qboolean        wassolid, slidesucceed;
+
+		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
+		wassolid = trace.allsolid;
+
+		slidesucceed = (PM_SlideMove(gravity) == 0);
+
+		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
+		if(trace.allsolid && !wassolid)
+			Com_Printf("%i:PM_SlideMove solidified! (%f %f %f) -> (%f %f %f)\n", c_pmove,
+					   start_o[0], start_o[1], start_o[2], pm->ps->origin[0], pm->ps->origin[1], pm->ps->origin[2]);
+
+		if(slidesucceed)
+			return;
+	}
+	else
+	{
+		if(PM_SlideMove(gravity) == 0)
+		{
+			return;				// we got exactly where we wanted to go first try
+		}
+	}
+
+	if(pm->debugLevel)
+	{
+		Com_Printf("%i:stepping\n", c_pmove);
 	}
 
 	VectorCopy(start_o, down);
@@ -304,14 +359,14 @@ void PM_StepSlideMove(qboolean gravity)
 
 	stepSize = trace.endpos[2] - start_o[2];
 	// try slidemove from this position
-	VectorCopy(trace.endpos, pm->ps->origin);
+	VectorCopy(up, pm->ps->origin);
 	VectorCopy(start_v, pm->ps->velocity);
 
 	PM_SlideMove(gravity);
 
 	// push down the final amount
 	VectorCopy(pm->ps->origin, down);
-	down[2] -= stepSize;
+	down[2] -= STEPSIZE;
 	pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
 	if(!trace.allsolid)
 	{

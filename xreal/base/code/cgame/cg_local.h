@@ -595,10 +595,6 @@ typedef struct particle_s
 
 #define MAX_PREDICTED_EVENTS	16
 
-//unlagged - optimized prediction
-#define NUM_SAVED_STATES (CMD_BACKUP + 2)
-//unlagged - optimized prediction
-
 
 #define NUM_PROGRESS 40
 
@@ -872,13 +868,6 @@ typedef struct
 	refLight_t      testLight;
 	char            testLightName[MAX_QPATH];
 	qboolean        testFlashLight;
-
-//unlagged - optimized prediction
-	int             lastPredictedCommand;
-	int             lastServerTime;
-	playerState_t   savedPmoveStates[NUM_SAVED_STATES];
-	int             stateHead, stateTail;
-//unlagged - optimized prediction
 
 	// hud variables
 
@@ -1395,10 +1384,6 @@ typedef struct
 	// media
 	cgMedia_t       media;
 
-//unlagged - client options
-	// this will be set to the server's g_delagHitscan
-	int             delagHitscan;
-//unlagged - client options
 } cgs_t;
 
 //==============================================================================
@@ -1428,13 +1413,10 @@ extern vmCvar_t cg_drawIcons;
 extern vmCvar_t cg_drawAmmoWarning;
 extern vmCvar_t cg_drawCrosshair;
 
-
 extern vmCvar_t cg_hudRed;
 extern vmCvar_t cg_hudGreen;
 extern vmCvar_t cg_hudBlue;
 extern vmCvar_t cg_hudAlpha;
-
-
 
 extern vmCvar_t cg_drawCrosshairNames;
 extern vmCvar_t cg_drawRewards;
@@ -1449,7 +1431,6 @@ extern vmCvar_t cg_crosshairDot;
 extern vmCvar_t cg_crosshairCircle;
 extern vmCvar_t cg_crosshairCross;
 extern vmCvar_t cg_crosshairPulse;
-
 
 extern vmCvar_t cg_drawStatus;
 extern vmCvar_t cg_drawStatusLines;
@@ -1506,11 +1487,7 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
-
-//unlagged - smooth clients #2
-// this is done server-side now
-//extern    vmCvar_t        cg_smoothClients;
-//unlagged - smooth clients #2
+extern vmCvar_t cg_smoothClients;
 extern vmCvar_t cg_cameraOrbit;
 extern vmCvar_t cg_cameraOrbitDelay;
 extern vmCvar_t cg_timescaleFadeEnd;
@@ -1551,28 +1528,7 @@ extern vec4_t   redTeamColor;
 extern vec4_t   blueTeamColor;
 extern vec4_t   baseTeamColor;
 
-//unlagged - client options
-extern vmCvar_t cg_delag;
-extern vmCvar_t cg_debugDelag;
-extern vmCvar_t cg_drawBBox;
-extern vmCvar_t cg_cmdTimeNudge;
-extern vmCvar_t sv_fps;
-extern vmCvar_t cg_projectileNudge;
-extern vmCvar_t cg_optimizePrediction;
-extern vmCvar_t cl_timeNudge;
-extern vmCvar_t cg_latentSnaps;
-extern vmCvar_t cg_latentCmds;
-extern vmCvar_t cg_plOut;
-
-
-//unlagged - client options
-
-//unlagged - cg_unlagged.c
-void            CG_PredictWeaponEffects(centity_t * cent);
-void            CG_AddBoundingBox(centity_t * cent);
-qboolean        CG_Cvar_ClampInt(const char *name, vmCvar_t * vmCvar, int min, int max);
-
-//unlagged - cg_unlagged.c
+extern vmCvar_t cg_drawPlayerCollision;
 
 //
 // cg_main.c
@@ -1720,6 +1676,10 @@ void            CG_BuildSolidList(void);
 int             CG_PointContents(const vec3_t point, int passEntityNum);
 void            CG_Trace(trace_t * result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 						 int skipNumber, int mask);
+void            CG_CapTrace(trace_t * result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int skipNumber, int mask);
+void			CG_BiSphereTrace(trace_t * result, const vec3_t start, const vec3_t end,
+					  const float startRadius, const float endRadius, int skipNumber, int mask);
 void            CG_PredictPlayerState(void);
 void            CG_LoadDeferredPlayers(void);
 
@@ -1825,11 +1785,6 @@ localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qh
 // cg_snapshot.c
 //
 void            CG_ProcessSnapshots(void);
-
-//unlagged - early transitioning
-void            CG_TransitionEntity(centity_t * cent);
-
-//unlagged - early transitioning
 
 //
 // cg_info.c
@@ -2175,7 +2130,7 @@ typedef enum
 	SYSTEM_PRINT,
 	CHAT_PRINT,
 	TEAMCHAT_PRINT
-} q3print_t;					// bk001201 - warning: useless keyword or type name in empty declaration
+} q3print_t;
 
 
 int             trap_CIN_PlayCinematic(const char *arg0, int xpos, int ypos, int width, int height, int bits);

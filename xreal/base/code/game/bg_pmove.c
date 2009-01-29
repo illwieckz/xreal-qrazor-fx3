@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2007 Pat Raynor <raynorpat@sbcglobal.net>
 
 This file is part of XreaL source code.
@@ -79,6 +79,7 @@ void PM_AddTouchEnt(int entityNum)
 	{
 		return;
 	}
+
 	if(pm->numtouch == MAXTOUCH)
 	{
 		return;
@@ -212,7 +213,9 @@ static void PM_Friction(void)
 	}
 
 	speed = VectorLength(vec);
-	if(speed < 1)
+
+
+	if(speed < 1)// && pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP)
 	{
 		vel[0] = 0;
 		vel[1] = 0;				// allow sinking underwater
@@ -261,9 +264,15 @@ static void PM_Friction(void)
 	}
 	newspeed /= speed;
 
-	vel[0] = vel[0] * newspeed;
-	vel[1] = vel[1] * newspeed;
-	vel[2] = vel[2] * newspeed;
+	if(pm->ps->pm_type == PM_SPECTATOR || pm->ps->pm_type == PM_NOCLIP)
+	{
+		if(drop < 1.0f && speed < 3.0f)
+		{
+			newspeed = 0.0;
+		}
+	}
+
+	VectorScale(vel, newspeed, vel);
 }
 
 
@@ -352,6 +361,9 @@ static float PM_CmdScale(usercmd_t * cmd)
 	total = sqrt(cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove);
 	scale = (float)pm->ps->speed * max / (127.0 * total);
 
+	if(pm->ps->pm_type == PM_NOCLIP)
+		scale *= 3;
+
 	return scale;
 }
 
@@ -366,6 +378,51 @@ to the facing dir
 */
 static void PM_SetMovementDir(void)
 {
+// Ridah, changed this for more realistic angles (at the cost of more network traffic?)
+#if 0
+	float           speed;
+	vec3_t          moved;
+	int             moveyaw;
+
+	VectorSubtract(pm->ps->origin, pml.previous_origin, moved);
+
+	if((pm->cmd.forwardmove || pm->cmd.rightmove) && (pm->ps->groundEntityNum != ENTITYNUM_NONE) && (speed = VectorLength(moved)) && (speed > pml.frametime * 5))	// if moving slower than 20 units per second, just face head angles
+	{
+
+		vec3_t          dir;
+
+
+		VectorNormalize2(moved, dir);
+		vectoangles(dir, dir);
+
+		moveyaw = (int)AngleDelta(dir[YAW], pm->ps->viewangles[YAW]);
+
+
+		if(pm->cmd.forwardmove < 0)
+			moveyaw = (int)AngleNormalize180(moveyaw + 180);
+
+
+		if(abs(moveyaw) > 75)
+		{
+			if(moveyaw > 0)
+			{
+				moveyaw = 75;
+			}
+			else
+			{
+				moveyaw = -75;
+
+			}
+		}
+
+		pm->ps->movementDir = (signed char)moveyaw;
+	}
+	else
+	{
+		pm->ps->movementDir = 0;
+	}
+
+#else
 	if(pm->cmd.forwardmove || pm->cmd.rightmove)
 	{
 		if(pm->cmd.rightmove == 0 && pm->cmd.forwardmove > 0)
@@ -415,6 +472,7 @@ static void PM_SetMovementDir(void)
 			pm->ps->movementDir = 7;
 		}
 	}
+#endif
 }
 
 
@@ -886,9 +944,6 @@ static void PM_WalkMove(void)
 	cmd = pm->cmd;
 	scale = PM_CmdScale(&cmd);
 
-	// set the movementDir so clients can rotate the legs for strafing
-	PM_SetMovementDir();
-
 	// project moves down to flat plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
@@ -968,10 +1023,21 @@ static void PM_WalkMove(void)
 		return;
 	}
 
+	/*
+		commenting these out prevents overbounces
+	    see: http://www.quakedev.com/forums/index.php?topic=1221.0
+
+	   // don't decrease velocity when going up or down a slope
+	   VectorNormalize(pm->ps->velocity);
+	   VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+	 */
+
 	PM_StepSlideMove(qfalse);
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
 
+	// set the movementDir so clients can rotate the legs for strafing
+	PM_SetMovementDir();
 }
 
 
@@ -2389,7 +2455,8 @@ void PmoveSingle(pmove_t * pmove)
 	else if(pm->ps->pm_flags & PMF_GRAPPLE_PULL)
 	{
 		PM_GrappleMove();
-		// We can wiggle a bit
+
+		// we can wiggle a bit
 		PM_AirMove();
 	}
 	else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
@@ -2456,9 +2523,13 @@ void PmoveSingle(pmove_t * pmove)
 				if(fabs(pm->ps->velocity[i] - pml.previous_velocity[i]) > 0.5f / fac)
 				{
 					if(pm->ps->velocity[i] < 0)
+					{
 						pm->ps->velocity[i] -= 0.5f * fac;
+					}
 					else
+					{
 						pm->ps->velocity[i] += 0.5f * fac;
+					}
 				}
 			}
 

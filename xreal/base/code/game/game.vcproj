@@ -750,10 +750,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\g_unlagged.c"
-				>
-			</File>
-			<File
 				RelativePath="g_utils.c"
 				>
 				<FileConfiguration

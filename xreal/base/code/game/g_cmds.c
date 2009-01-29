@@ -59,10 +59,7 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		}
 		else
 		{
-//unlagged - true ping
-			//ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
-			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
-//unlagged - true ping
+			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 		}
 
 		if(cl->accuracy_shots)
@@ -1845,7 +1842,6 @@ void Cmd_Stats_f(gentity_t * ent)
 	trap_SendServerCommand( ent-g_entities, va("print \"%d%% level coverage\n\"", n * 100 / max));
 */
 }
-
 
 /*
 =================

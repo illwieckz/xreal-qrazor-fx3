@@ -1371,10 +1371,8 @@ void CG_XPPM_Player(centity_t * cent)
 	// add powerups floating behind the player
 	CG_PlayerPowerups(cent, &body, noShadowID);
 
-//unlagged - client options
-	// add the bounding box (if cg_drawBBox is 1)
-	CG_AddBoundingBox(cent);
-//unlagged - client options
+	// add the bounding box (if cg_drawPlayerCollision is 1)
+	CG_DrawPlayerCollision(cent);
 }
 
 

@@ -84,9 +84,9 @@ cr_line         credits[] = {
 	{"Tony J. White", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Unlagged - www.ra.is/unlagged/", UI_CENTER | UI_BIGFONT, colorLtGrey},
-	{"Neil 'haste' Toronto", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+//	{"Unlagged - www.ra.is/unlagged/", UI_CENTER | UI_BIGFONT, colorLtGrey},
+//	{"Neil 'haste' Toronto", UI_CENTER | UI_SMALLFONT, colorWhite},
+//	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"Development Assistance", UI_CENTER | UI_BIGFONT, colorLtGrey},
 	{"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
