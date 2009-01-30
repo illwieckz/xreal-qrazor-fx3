@@ -244,8 +244,8 @@ void	main()
 		// compute the specular term
 		vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
-		/*
-		#if 1 //defined(GLOBE_MAPPING)
+		
+		//#if 1 //defined(GLOBE_MAPPING)
 		// compute attenuation
 		vec3 attenuationXY		= texture2D(u_AttenuationMapXY, var_TexAttenXYZ.xy).rgb;
 		vec3 attenuationZ		= texture2D(u_AttenuationMapZ, vec2(var_TexAttenXYZ.z, 0)).rgb;
@@ -257,8 +257,8 @@ void	main()
 		color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;
 		color.rgb *= shadow;
-		#else
-		*/
+		//#else
+		/*
 		// compute attenuation
 		float dist = distance(u_LightOrigin, var_Vertex);
 		//float attenuation = (u_LightRadius * u_LightScale) / (dist * dist);
@@ -272,6 +272,7 @@ void	main()
 		color.rgb *= shadow;
 		
 		//#endif
+		*/
 	
 		color.r *= var_TexDiffuse.p;
 		color.gb *= var_TexNormal.pq;
