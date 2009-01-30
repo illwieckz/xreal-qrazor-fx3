@@ -1062,7 +1062,7 @@ static void RB_RenderInteractions()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -1308,7 +1308,7 @@ static void RB_RenderInteractionsStencilShadowed()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -1756,7 +1756,7 @@ static void RB_RenderInteractionsShadowMapped()
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
 
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -2649,7 +2649,7 @@ void RB_RenderInteractionsDeferred()
 	{
 		backEnd.currentLight = light = ia->light;
 
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -2700,7 +2700,7 @@ void RB_RenderInteractionsDeferred()
 	  skipInteraction:
 		if(!ia->next)
 		{
-			if(glConfig.occlusionQueryBits && ia->occlusionQuerySamples)
+			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && ia->occlusionQuerySamples)
 			{
 				// last interaction of current light
 				lightShader = light->shader;
@@ -2963,7 +2963,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
 
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -3889,7 +3889,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
 
-		if(glConfig.occlusionQueryBits && !ia->occlusionQuerySamples)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -5397,7 +5397,7 @@ void RB_RenderLightOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
 
-	if(glConfig.occlusionQueryBits)
+	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 	{
 		int             j;
 		interaction_t  *ia;
@@ -6433,7 +6433,7 @@ static void RB_RenderDebugUtils()
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
-			if(glConfig.occlusionQueryBits)
+			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 			{
 				if(!ia->occlusionQuerySamples)
 				{

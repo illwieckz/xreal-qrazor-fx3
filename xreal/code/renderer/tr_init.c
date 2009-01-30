@@ -1597,7 +1597,7 @@ void R_Init(void)
 		ri.Cvar_CheckRange(r_ext_texture_filter_anisotropic, 0, glConfig.maxTextureAnisotropy, qfalse);
 	}
 
-	if(glConfig.occlusionQueryBits)
+	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 	{
 		qglGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	}
@@ -1643,7 +1643,7 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_ShutdownVBOs();
 		R_ShutdownFBOs();
 
-		if(glConfig.occlusionQueryBits)
+		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
 			qglDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 		}

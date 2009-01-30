@@ -1204,7 +1204,7 @@ void GLimp_Init(void)
 	Q_strncpyz(glConfig.extensions_string, (char *)qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
 
 
-	if(Q_stristr(glConfig.renderer_string, "mesa"))
+	if(Q_stristr(glConfig.renderer_string, "mesa") || Q_stristr(glConfig.vendor_string, "mesa"))
 	{
 		// suckage
 		glConfig.driverType = GLDRV_MESA;
