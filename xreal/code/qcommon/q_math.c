@@ -2649,11 +2649,33 @@ void MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out)
 	out[ 2] = m[ 2] * in[ 0] + m[ 6] * in[ 1] + m[10] * in[ 2];
 }
 
+void MatrixTransformNormal2(const matrix_t m, vec3_t inout)
+{
+	vec3_t          tmp;
+
+	tmp[ 0] = m[ 0] * inout[ 0] + m[ 4] * inout[ 1] + m[ 8] * inout[ 2];
+	tmp[ 1] = m[ 1] * inout[ 0] + m[ 5] * inout[ 1] + m[ 9] * inout[ 2];
+	tmp[ 2] = m[ 2] * inout[ 0] + m[ 6] * inout[ 1] + m[10] * inout[ 2];
+
+	VectorCopy(tmp, inout);
+}
+
 void MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out)
 {
 	out[ 0] = m[ 0] * in[ 0] + m[ 4] * in[ 1] + m[ 8] * in[ 2] + m[12];
 	out[ 1] = m[ 1] * in[ 0] + m[ 5] * in[ 1] + m[ 9] * in[ 2] + m[13];
 	out[ 2] = m[ 2] * in[ 0] + m[ 6] * in[ 1] + m[10] * in[ 2] + m[14];
+}
+
+void MatrixTransformPoint2(const matrix_t m, vec3_t inout)
+{
+	vec3_t          tmp;
+
+	tmp[ 0] = m[ 0] * inout[ 0] + m[ 4] * inout[ 1] + m[ 8] * inout[ 2] + m[12];
+	tmp[ 1] = m[ 1] * inout[ 0] + m[ 5] * inout[ 1] + m[ 9] * inout[ 2] + m[13];
+	tmp[ 2] = m[ 2] * inout[ 0] + m[ 6] * inout[ 1] + m[10] * inout[ 2] + m[14];
+
+	VectorCopy(tmp, inout);
 }
 
 void MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out)

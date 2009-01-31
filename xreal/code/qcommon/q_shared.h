@@ -1125,7 +1125,9 @@ void            MatrixSetupTransformFromRotation(matrix_t m, const matrix_t rot,
 void            MatrixSetupTransformFromQuat(matrix_t m, const quat_t quat, const vec3_t origin);
 void            MatrixAffineInverse(const matrix_t in, matrix_t out);
 void            MatrixTransformNormal(const matrix_t m, const vec3_t in, vec3_t out);
+void            MatrixTransformNormal2(const matrix_t m, vec3_t inout);
 void            MatrixTransformPoint(const matrix_t m, const vec3_t in, vec3_t out);
+void            MatrixTransformPoint2(const matrix_t m, vec3_t inout);
 void            MatrixTransform4(const matrix_t m, const vec4_t in, vec4_t out);
 void            MatrixSetupPerspectiveProjection(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near,
 												 vec_t far);
@@ -1702,7 +1704,7 @@ typedef struct playerState_s
 	int             torsoTimer;	// don't change low priority animations until this runs out
 	int             torsoAnim;	// mask off ANIM_TOGGLEBIT
 
-	int             movementDir;	// a number 0 to 7 that represents the reletive angle
+	int             movementDir;	// a number 0 to 7 that represents the relative angle
 	// of movement to the view angle (axial and diagonals)
 	// when at rest, the value will remain unchanged
 	// used to twist the legs during strafing
