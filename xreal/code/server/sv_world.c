@@ -691,6 +691,14 @@ void SV_Trace(trace_t * results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 		return;					// blocked immediately by the world
 	}
 
+	// Tr3B: HACK extension that would work with the ETPub trap_Trace(Capsule)NoEnts code
+	if(passEntityNum == -2)
+	{
+		// skip tracing against entities
+		*results = clip.trace;
+		return;
+	}
+
 	clip.contentmask = contentmask;
 	clip.start = start;
 //  VectorCopy( clip.trace.endpos, clip.end );
