@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // always use capsule vs. capsule collision and never capsule vs. bbox or vice versa
 //#define ALWAYS_CAPSULE_VS_CAPSULE
 
-//#define CAPSULE_DEBUG
+#define CAPSULE_DEBUG
 
 /*
 ===============================================================================
@@ -1811,6 +1811,7 @@ void CM_TraceBoundingBoxThroughCapsule(traceWork_t * tw, clipHandle_t model)
 
 	// replace the capsule with the bounding box
 	h = CM_TempBoxModel(tw->size[0], tw->size[1], qfalse);
+
 	// calculate collision
 	cmod = CM_ClipHandleToModel(h);
 	CM_TraceThroughLeaf(tw, &cmod->leaf);
@@ -1875,7 +1876,7 @@ static void CM_TraceThroughTree(traceWork_t * tw, int num, float p1f, float p2f,
 		}
 		else
 		{
-			// this is silly
+			// FIXME: this is silly !!!
 			offset = 2048;
 		}
 	}
@@ -2205,16 +2206,18 @@ static void CM_Trace(trace_t * results, const vec3_t start,
 	}
 	else
 	{
-		for(i = 0; i < 3; i++)
-		{
-			tw.trace.endpos[i] = start[i] + tw.trace.fraction * (end[i] - start[i]);
-		}
+		VectorLerp(start, end, tw.trace.fraction, tw.trace.endpos);
 	}
 
 	// If allsolid is set (was entirely inside something solid), the plane is not valid.
 	// If fraction == 1.0, we never hit anything, and thus the plane is not valid.
 	// Otherwise, the normal on the plane should have unit length
-	assert(tw.trace.allsolid || tw.trace.fraction == 1.0 || VectorLengthSquared(tw.trace.plane.normal) > 0.9999);
+
+	// Tr3B: these asserts don't make sense as it is the task of the gamecode to check if the trace was successful or not
+//	assert(!tw.trace.allsolid);
+//	assert(tw.trace.fraction != 1.0);
+//	assert(VectorLength(tw.trace.plane.normal) > 0.9999);
+
 	*results = tw.trace;
 }
 
@@ -2241,6 +2244,7 @@ void CM_TransformedBoxTrace(trace_t * results, const vec3_t start, const vec3_t 
 							vec3_t mins, vec3_t maxs,
 							clipHandle_t model, int brushmask, const vec3_t origin, const vec3_t angles, traceType_t type)
 {
+#if 0
 	trace_t         trace;
 	vec3_t          start_l, end_l;
 	qboolean        rotated;
@@ -2262,7 +2266,7 @@ void CM_TransformedBoxTrace(trace_t * results, const vec3_t start, const vec3_t 
 		maxs = vec3_origin;
 	}
 
-	// adjust so that mins and maxs are always symetric, which
+	// adjust so that mins and maxs are always symmetric, which
 	// avoids some complications with plane expanding of rotated
 	// bmodels
 	for(i = 0; i < 3; i++)
@@ -2334,6 +2338,119 @@ void CM_TransformedBoxTrace(trace_t * results, const vec3_t start, const vec3_t 
 	trace.endpos[2] = start[2] + trace.fraction * (end[2] - start[2]);
 
 	*results = trace;
+#else
+	trace_t         trace;
+	vec3_t          start_l, end_l;
+	vec3_t			startRotated, endRotated;
+	qboolean        rotated;
+	vec3_t          offset;
+	vec3_t          symetricSize[2];
+	matrix_t        rotation, transform, inverse;
+	int             i;
+	float           halfwidth;
+	float           halfheight;
+	float           t;
+	sphere_t        sphere;
+
+	if(!mins)
+	{
+		mins = vec3_origin;
+	}
+	if(!maxs)
+	{
+		maxs = vec3_origin;
+	}
+
+	// adjust so that mins and maxs are always symmetric, which
+	// avoids some complications with plane expanding of rotated
+	// bmodels
+	for(i = 0; i < 3; i++)
+	{
+		offset[i] = (mins[i] + maxs[i]) * 0.5;
+		symetricSize[0][i] = mins[i] - offset[i];
+		symetricSize[1][i] = maxs[i] - offset[i];
+		start_l[i] = start[i] + offset[i];
+		end_l[i] = end[i] + offset[i];
+	}
+
+	// rotate start and end into the models frame of reference
+	if(model != BOX_MODEL_HANDLE && (angles[0] || angles[1] || angles[2]))
+	{
+		rotated = qtrue;
+	}
+	else
+	{
+		rotated = qfalse;
+	}
+
+	halfwidth = symetricSize[1][0];
+	halfheight = symetricSize[1][2];
+
+	sphere.radius = (halfwidth > halfheight) ? halfheight : halfwidth;
+	sphere.halfheight = halfheight;
+	t = halfheight - sphere.radius;
+
+	if(rotated)
+	{
+		// rotation on trace line (start-end) instead of rotating the bmodel
+		// NOTE: This is still incorrect for bounding boxes because the actual bounding
+		//       box that is swept through the model is not rotated. We cannot rotate
+		//       the bounding box or the bmodel because that would make all the brush
+		//       bevels invalid.
+		//       However this is correct for capsules since a capsule itself is rotated too.
+		MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+		MatrixSetupTransformFromRotation(transform, rotation, origin);
+		MatrixAffineInverse(rotation, inverse);
+
+		// transform trace line into the clipModel's space
+		MatrixTransformPoint(inverse, start_l, startRotated);
+		MatrixTransformPoint(inverse, end_l, endRotated);
+
+		// extract up vector from the rotation matrix as rotated sphere offset for capsule
+#if 0
+		sphere.offset[0] = matrix[0][2] * t;
+		sphere.offset[1] = -matrix[1][2] * t;
+		sphere.offset[2] = matrix[2][2] * t;
+#elif 0
+		sphere.offset[0] = rotation[ 2] * t;
+		sphere.offset[1] =-rotation[ 6] * t;
+		sphere.offset[2] = rotation[10] * t;
+#elif 0
+		sphere.offset[0] = inverse[ 2] * t;
+		sphere.offset[1] =-inverse[ 6] * t;
+		sphere.offset[2] = inverse[10] * t;
+
+#else
+		sphere.offset[0] = rotation[ 8] * t;
+		sphere.offset[1] = rotation[ 9] * t;
+		sphere.offset[2] = rotation[10] * t;
+#endif
+	}
+	else
+	{
+		VectorSubtract(start_l, origin, startRotated);
+		VectorSubtract(end_l, origin, endRotated);
+
+		VectorSet(sphere.offset, 0, 0, t);
+	}
+
+	// sweep the box through the model
+	CM_Trace(&trace, startRotated, endRotated, symetricSize[0], symetricSize[1], model, origin, brushmask, type, &sphere);
+
+	// if the bmodel was rotated and there was a collision
+	if(rotated && trace.fraction != 1.0)
+	{
+		// Tr3B: we rotated our trace into the space of the clipModel
+		// so we have to rotate the trace plane normal back to world space
+		MatrixTransformNormal2(rotation, trace.plane.normal);
+	}
+
+	// re-calculate the end position of the trace because the trace.endpos
+	// calculated by CM_Trace could be rotated and have an offset
+	VectorLerp(start, end, trace.fraction, trace.endpos);
+
+	*results = trace;
+#endif
 }
 
 /*
@@ -2423,7 +2540,11 @@ void CM_BiSphereTrace(trace_t * results, const vec3_t start,
 	// If allsolid is set (was entirely inside something solid), the plane is not valid.
 	// If fraction == 1.0, we never hit anything, and thus the plane is not valid.
 	// Otherwise, the normal on the plane should have unit length
-	assert(tw.trace.allsolid || tw.trace.fraction == 1.0 || VectorLengthSquared(tw.trace.plane.normal) > 0.9999);
+
+	// Tr3B: these asserts don't make sense as it is the task of the gamecode to check if the trace was successful or not
+	//	assert(!tw.trace.allsolid);
+	//	assert(tw.trace.fraction != 1.0);
+	//	assert(VectorLength(tw.trace.plane.normal) > 0.9999);
 
 	*results = tw.trace;
 }

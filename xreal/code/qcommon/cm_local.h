@@ -227,7 +227,7 @@ typedef struct
 	int             contents;	// ored contents of the model tracing through
 	qboolean        isPoint;	// optimized case
 	trace_t         trace;		// returned from trace call
-	sphere_t        sphere;		// sphere for oriendted capsule collision
+	sphere_t        sphere;		// sphere for oriented capsule collision
 	biSphere_t      biSphere;
 	qboolean        testLateralCollision;	// whether or not to test for lateral collision
 } traceWork_t;
