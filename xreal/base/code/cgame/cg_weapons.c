@@ -3316,11 +3316,24 @@ static qboolean CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle)
 	vec3_t          forward;
 	centity_t      *cent;
 	int             anim;
+	vec3_t          surfNormal;
 
+	// Tr3B: changed this for wallwalking
 	if(entityNum == cg.snap->ps.clientNum)
 	{
-		VectorCopy(cg.snap->ps.origin, muzzle);
-		muzzle[2] += cg.snap->ps.viewheight;
+		if(cg.snap->ps.pm_flags & PMF_WALLCLIMBING)
+		{
+			if(cg.snap->ps.pm_flags & PMF_WALLCLIMBINGCEILING)
+				VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+			else
+				VectorCopy(cg.snap->ps.grapplePoint, surfNormal);
+		}
+
+		VectorMA(cg.snap->ps.origin, cg.snap->ps.viewheight, surfNormal, muzzle);
+
+		//VectorCopy(cg.snap->ps.origin, muzzle);
+		//muzzle[2] += cg.snap->ps.viewheight;
+
 		AngleVectors(cg.snap->ps.viewangles, forward, NULL, NULL);
 		VectorMA(muzzle, 14, forward, muzzle);
 		return qtrue;
@@ -3334,15 +3347,27 @@ static qboolean CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle)
 
 	VectorCopy(cent->currentState.pos.trBase, muzzle);
 
+	if(cent->currentState.eFlags & EF_WALLCLIMB)
+	{
+		if(cent->currentState.eFlags & EF_WALLCLIMB)
+			VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+		else
+			VectorCopy(cent->currentState.angles2, surfNormal);
+	}
+
+	//VectorMA(cent->currentState.pos.trBase, cg.snap->ps.viewheight, surfNormal, muzzle);
+
 	AngleVectors(cent->currentState.apos.trBase, forward, NULL, NULL);
 	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 	if(anim == LEGS_WALKCR || anim == LEGS_IDLECR)
 	{
-		muzzle[2] += CROUCH_VIEWHEIGHT;
+		//muzzle[2] += CROUCH_VIEWHEIGHT;
+		VectorMA(muzzle, CROUCH_VIEWHEIGHT, surfNormal, muzzle);
 	}
 	else
 	{
-		muzzle[2] += DEFAULT_VIEWHEIGHT;
+		//muzzle[2] += DEFAULT_VIEWHEIGHT;
+		VectorMA(muzzle, DEFAULT_VIEWHEIGHT, surfNormal, muzzle);
 	}
 
 	VectorMA(muzzle, 14, forward, muzzle);
