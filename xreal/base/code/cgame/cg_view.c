@@ -781,8 +781,7 @@ static void CG_OffsetFirstPersonView(void)
 	float           f;
 	vec3_t          predictedVelocity;
 	int             timeDelta;
-	float           bob2;
-	vec3_t          normal;//, baseOrigin;
+	vec3_t          normal;
 	playerState_t  *ps = &cg.predictedPlayerState;
 
 	if(ps->pm_flags & PMF_WALLCLIMBING)
@@ -874,7 +873,7 @@ static void CG_OffsetFirstPersonView(void)
 //===================================
 
 	// add view height
-	//TA: when wall climbing the viewheight is not straight up
+	// TA: when wall climbing the viewheight is not straight up
 	if(cg.predictedPlayerState.pm_flags & PMF_WALLCLIMBING)
 		VectorMA(origin, ps->viewheight, normal, origin);
 	else
@@ -888,7 +887,7 @@ static void CG_OffsetFirstPersonView(void)
 	}
 
 	// add bob height
-	bob = cg.bobfracsin * cg.xyspeed * bob2;
+	bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
 
 	if(bob > 6)
 	{
