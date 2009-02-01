@@ -1147,7 +1147,7 @@ static void CG_SwingAngles(float destination, float swingTolerance, float clampT
 			move = swing;
 			*swinging = qfalse;
 		}
-		*angle = AngleMod(*angle + move);
+		*angle = AngleNormalize360(*angle + move);
 	}
 	else if(swing < 0)
 	{
@@ -1158,18 +1158,18 @@ static void CG_SwingAngles(float destination, float swingTolerance, float clampT
 			move = swing;
 			*swinging = qfalse;
 		}
-		*angle = AngleMod(*angle + move);
+		*angle = AngleNormalize360(*angle + move);
 	}
 
 	// clamp to no more than tolerance
 	swing = AngleSubtract(destination, *angle);
 	if(swing > clampTolerance)
 	{
-		*angle = AngleMod(destination - (clampTolerance - 1));
+		*angle = AngleNormalize360(destination - (clampTolerance - 1));
 	}
 	else if(swing < -clampTolerance)
 	{
-		*angle = AngleMod(destination + (clampTolerance - 1));
+		*angle = AngleNormalize360(destination + (clampTolerance - 1));
 	}
 }
 
@@ -1228,7 +1228,7 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t srcAngles, vec3_t legs[3], 
 	clientInfo_t   *ci;
 
 	VectorCopy(srcAngles, headAngles);
-	headAngles[YAW] = AngleMod(headAngles[YAW]);
+	headAngles[YAW] = AngleNormalize360(headAngles[YAW]);
 	VectorClear(legsAngles);
 	VectorClear(torsoAngles);
 
@@ -1462,7 +1462,7 @@ static void CG_PlayerNonSegAngles(centity_t * cent, vec3_t srcAngles, vec3_t non
 	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
 
 	VectorCopy(srcAngles, localAngles);
-	localAngles[YAW] = AngleMod(localAngles[YAW]);
+	localAngles[YAW] = AngleNormalize360(localAngles[YAW]);
 	localAngles[PITCH] = 0.0f;
 	localAngles[ROLL] = 0.0f;
 

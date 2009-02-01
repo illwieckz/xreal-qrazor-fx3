@@ -464,7 +464,7 @@ static void CG_XPPM_PlayerAngles(centity_t * cent, const vec3_t sourceAngles, ve
 	clientInfo_t   *ci;
 
 	VectorCopy(sourceAngles, headAngles);
-	headAngles[YAW] = AngleMod(headAngles[YAW]);
+	headAngles[YAW] = AngleNormalize360(headAngles[YAW]);
 	VectorClear(legsAngles);
 	VectorClear(torsoAngles);
 

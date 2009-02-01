@@ -849,13 +849,6 @@ void AnglesSubtract(vec3_t v1, vec3_t v2, vec3_t v3)
 }
 
 
-float AngleMod(float a)
-{
-	a = (360.0 / 65536) * ((int)(a * (65536 / 360.0)) & 65535);
-	return a;
-}
-
-
 /*
 =================
 AngleNormalize360

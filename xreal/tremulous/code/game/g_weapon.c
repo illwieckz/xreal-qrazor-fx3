@@ -1344,6 +1344,7 @@ void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, v
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA(muzzlePoint, 1, forward, muzzlePoint);
 	VectorMA(muzzlePoint, 1, right, muzzlePoint);
+	
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector(muzzlePoint);
 }

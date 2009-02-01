@@ -759,7 +759,7 @@ static float CG_MachinegunSpinAngle(centity_t * cent, qboolean firing)
 	if(cent->pe.barrelSpinning == !firing)
 	{
 		cent->pe.barrelTime = cg.time;
-		cent->pe.barrelAngle = AngleMod(angle);
+		cent->pe.barrelAngle = AngleNormalize360(angle);
 		cent->pe.barrelSpinning = firing;
 	}
 

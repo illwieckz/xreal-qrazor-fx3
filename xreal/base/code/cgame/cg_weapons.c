@@ -1559,7 +1559,7 @@ static float CG_MachinegunSpinAngle(centity_t * cent)
 	if(cent->pe.barrelSpinning == !(cent->currentState.eFlags & EF_FIRING))
 	{
 		cent->pe.barrelTime = cg.time;
-		cent->pe.barrelAngle = AngleMod(angle);
+		cent->pe.barrelAngle = AngleNormalize360(angle);
 		cent->pe.barrelSpinning = !!(cent->currentState.eFlags & EF_FIRING);
 #ifdef MISSIONPACK
 		if(cent->currentState.weapon == WP_CHAINGUN && !cent->pe.barrelSpinning)

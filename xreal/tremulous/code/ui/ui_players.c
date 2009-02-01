@@ -552,7 +552,7 @@ static void UI_SwingAngles(float destination, float swingTolerance, float clampT
 			move = swing;
 			*swinging = qfalse;
 		}
-		*angle = AngleMod(*angle + move);
+		*angle = AngleNormalize360(*angle + move);
 	}
 	else if(swing < 0)
 	{
@@ -562,18 +562,18 @@ static void UI_SwingAngles(float destination, float swingTolerance, float clampT
 			move = swing;
 			*swinging = qfalse;
 		}
-		*angle = AngleMod(*angle + move);
+		*angle = AngleNormalize360(*angle + move);
 	}
 
 	// clamp to no more than tolerance
 	swing = AngleSubtract(destination, *angle);
 	if(swing > clampTolerance)
 	{
-		*angle = AngleMod(destination - (clampTolerance - 1));
+		*angle = AngleNormalize360(destination - (clampTolerance - 1));
 	}
 	else if(swing < -clampTolerance)
 	{
-		*angle = AngleMod(destination + (clampTolerance - 1));
+		*angle = AngleNormalize360(destination + (clampTolerance - 1));
 	}
 }
 
@@ -644,7 +644,7 @@ static void UI_PlayerAngles(playerInfo_t * pi, vec3_t legs[3], vec3_t torso[3], 
 	float           adjust;
 
 	VectorCopy(pi->viewAngles, headAngles);
-	headAngles[YAW] = AngleMod(headAngles[YAW]);
+	headAngles[YAW] = AngleNormalize360(headAngles[YAW]);
 	VectorClear(legsAngles);
 	VectorClear(torsoAngles);
 
@@ -751,7 +751,7 @@ float UI_MachinegunSpinAngle(playerInfo_t * pi)
 	if(pi->barrelSpinning == !(torsoAnim == TORSO_ATTACK))
 	{
 		pi->barrelTime = dp_realtime;
-		pi->barrelAngle = AngleMod(angle);
+		pi->barrelAngle = AngleNormalize360(angle);
 		pi->barrelSpinning = !!(torsoAnim == TORSO_ATTACK);
 	}
 

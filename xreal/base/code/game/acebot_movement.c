@@ -276,13 +276,13 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 	// Normalize the move angle first
 	VectorNormalize(ent->bs.moveVector);
 
-	current_yaw = AngleMod(ent->bs.viewAngles[YAW]);
-	current_pitch = AngleMod(ent->bs.viewAngles[PITCH]);
+	current_yaw = AngleNormalize360(ent->bs.viewAngles[YAW]);
+	current_pitch = AngleNormalize360(ent->bs.viewAngles[PITCH]);
 
 	vectoangles(ent->bs.moveVector, ideal_angles);
 
-	ideal_yaw = AngleMod(ideal_angles[YAW]);
-	ideal_pitch = AngleMod(ideal_angles[PITCH]);
+	ideal_yaw = AngleNormalize360(ideal_angles[YAW]);
+	ideal_pitch = AngleNormalize360(ideal_angles[PITCH]);
 
 	// yaw
 	if(current_yaw != ideal_yaw)
@@ -309,7 +309,7 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 			if(move < -speed)
 				move = -speed;
 		}
-		ent->bs.viewAngles[YAW] = AngleMod(current_yaw + move);
+		ent->bs.viewAngles[YAW] = AngleNormalize360(current_yaw + move);
 	}
 
 	// pitch
@@ -337,7 +337,7 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 			if(move < -speed)
 				move = -speed;
 		}
-		ent->bs.viewAngles[PITCH] = AngleMod(current_pitch + move);
+		ent->bs.viewAngles[PITCH] = AngleNormalize360(current_pitch + move);
 	}
 #else
 

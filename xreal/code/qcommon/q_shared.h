@@ -1049,7 +1049,6 @@ void            SetPlaneSignbits(struct cplane_s *out);
 int             BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
 int             BoxOnPlaneSide2(vec3_t mins, vec3_t maxs, vec4_t plane);
 
-float           AngleMod(float a);
 float           LerpAngle(float from, float to, float frac);
 float           AngleSubtract(float a1, float a2);
 void            AnglesSubtract(vec3_t v1, vec3_t v2, vec3_t v3);
