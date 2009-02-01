@@ -1109,11 +1109,15 @@ static void CG_SwingAngles(float destination, float swingTolerance, float clampT
 		swing = AngleSubtract(*angle, destination);
 
 		if(swing > swingTolerance || swing < -swingTolerance)
+		{
 			*swinging = qtrue;
+		}
 	}
 
 	if(!*swinging)
+	{
 		return;
+	}
 
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
@@ -1121,11 +1125,17 @@ static void CG_SwingAngles(float destination, float swingTolerance, float clampT
 	scale = fabs(swing);
 
 	if(scale < swingTolerance * 0.5)
+	{
 		scale = 0.5;
+	}
 	else if(scale < swingTolerance)
+	{
 		scale = 1.0;
+	}
 	else
+	{
 		scale = 2.0;
+	}
 
 	// swing towards the destination angle
 	if(swing >= 0)
@@ -1154,9 +1164,13 @@ static void CG_SwingAngles(float destination, float swingTolerance, float clampT
 	// clamp to no more than tolerance
 	swing = AngleSubtract(destination, *angle);
 	if(swing > clampTolerance)
+	{
 		*angle = AngleMod(destination - (clampTolerance - 1));
+	}
 	else if(swing < -clampTolerance)
+	{
 		*angle = AngleMod(destination + (clampTolerance - 1));
+	}
 }
 
 /*
@@ -1172,14 +1186,20 @@ static void CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles)
 	t = cg.time - cent->pe.painTime;
 
 	if(t >= PAIN_TWITCH_TIME)
+	{
 		return;
+	}
 
 	f = 1.0 - (float)t / PAIN_TWITCH_TIME;
 
 	if(cent->pe.painDirection)
+	{
 		torsoAngles[ROLL] += 20 * f;
+	}
 	else
+	{
 		torsoAngles[ROLL] -= 20 * f;
+	}
 }
 
 
@@ -1232,10 +1252,12 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t srcAngles, vec3_t legs[3], 
 	}
 	else
 	{
-		//TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
+		// TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
 		dir = cent->currentState.time2;
 		if(dir < 0 || dir > 7)
+		{
 			CG_Error("Bad player movement angle");
+		}
 	}
 
 	legsAngles[YAW] = headAngles[YAW] + movementOffsets[dir];
@@ -1260,10 +1282,13 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t srcAngles, vec3_t legs[3], 
 
 	// only show a fraction of the pitch angle in the torso
 	if(headAngles[PITCH] > 180)
+	{
 		dest = (-360 + headAngles[PITCH]) * 0.75f;
+	}
 	else
+	{
 		dest = headAngles[PITCH] * 0.75f;
-
+	}
 	CG_SwingAngles(dest, 15, 30, 0.1f, &cent->pe.torso.pitchAngle, &cent->pe.torso.pitching);
 	torsoAngles[PITCH] = cent->pe.torso.pitchAngle;
 
@@ -1274,7 +1299,9 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t srcAngles, vec3_t legs[3], 
 	{
 		ci = &cgs.clientinfo[clientNum];
 		if(ci->fixedtorso)
+		{
 			torsoAngles[PITCH] = 0.0f;
+		}
 	}
 
 	// --------- roll -------------
@@ -1344,7 +1371,7 @@ static void CG_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
 	float           stLocal, sFraction, rotAngle;
 	vec3_t          inAxis[3], lastAxis[3], outAxis[3];
 
-	//set surfNormal
+	// set surfNormal
 	if(!(es->eFlags & EF_WALLCLIMB))
 		VectorCopy(refNormal, surfNormal);
 	else if(!(es->eFlags & EF_WALLCLIMBCEILING))
@@ -1356,8 +1383,8 @@ static void CG_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
 
 	if(!VectorCompare(surfNormal, cent->pe.lastNormal))
 	{
-		//if we moving from the ceiling to the floor special case
-		//( x product of colinear vectors is undefined)
+		// if we moving from the ceiling to the floor special case
+		// ( x product of colinear vectors is undefined)
 		if(VectorCompare(ceilingNormal, cent->pe.lastNormal) && VectorCompare(refNormal, surfNormal))
 		{
 			VectorCopy(in[1], rotAxis);
@@ -1381,7 +1408,7 @@ static void CG_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
 			VectorNormalize(rotAxis);
 		}
 
-		//iterate through smooth array
+		// iterate through smooth array
 		for(i = 0; i < MAXSMOOTHS; i++)
 		{
 			//found an unused index in the smooth array
@@ -1396,10 +1423,10 @@ static void CG_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
 		}
 	}
 
-	//iterate through ops
+	// iterate through ops
 	for(i = MAXSMOOTHS - 1; i >= 0; i--)
 	{
-		//if this op has time remaining, perform it
+		// if this op has time remaining, perform it
 		if(cg.time < cent->pe.sList[i].time + MODEL_WWSMOOTHTIME)
 		{
 			stLocal = 1.0f - (((cent->pe.sList[i].time + MODEL_WWSMOOTHTIME) - cg.time) / MODEL_WWSMOOTHTIME);
@@ -1413,7 +1440,7 @@ static void CG_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
 		}
 	}
 
-	//outAxis has been copied to inAxis
+	// outAxis has been copied to inAxis
 	AxisCopy(inAxis, out);
 }
 
@@ -1685,9 +1712,13 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 	refEntity_t     ent;
 
 	if(cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
+	{
 		rf = RF_THIRD_PERSON;	// only show in mirrors
+	}
 	else
+	{
 		rf = 0;
+	}
 
 	memset(&ent, 0, sizeof(ent));
 	VectorCopy(cent->lerpOrigin, ent.origin);
@@ -1761,7 +1792,9 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, pClass_t c
 	*shadowPlane = 0;
 
 	if(cg_shadows.integer == 0)
+	{
 		return qfalse;
+	}
 
 	// send a trace down from the player to the ground
 	VectorCopy(cent->lerpOrigin, end);
@@ -1771,7 +1804,9 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, pClass_t c
 
 	// no shadow if too high
 	if(trace.fraction == 1.0 || trace.startsolid || trace.allsolid)
+	{
 		return qfalse;
+	}
 
 	//TA: FIXME: stencil shadows will be broken for walls.
 	//           Unfortunately there isn't much that can be
@@ -2065,7 +2100,7 @@ void CG_Player(centity_t * cent)
 	if(es->eFlags & EF_WALLCLIMB && BG_RotateAxis(es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING))
 		AxisCopy(tempAxis, legs.axis);
 
-	//smooth out WW transitions so the model doesn't hop around
+	// smooth out WW transitions so the model doesn't hop around
 	CG_PlayerWWSmoothing(cent, legs.axis, legs.axis);
 
 	AxisCopy(tempAxis, cent->pe.lastAxis);

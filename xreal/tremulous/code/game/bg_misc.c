@@ -4657,18 +4657,21 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 	VectorCopy(ps->origin, s->pos.trBase);
 
 	if(snap)
+	{
 		SnapVector(s->pos.trBase);
-
-	//set the trDelta for flag direction
+	}
+	// set the trDelta for flag direction
 	VectorCopy(ps->velocity, s->pos.trDelta);
 
 	s->apos.trType = TR_INTERPOLATE;
 	VectorCopy(ps->viewangles, s->apos.trBase);
 
 	if(snap)
+	{
 		SnapVector(s->apos.trBase);
+	}
 
-	//TA: i need for other things :)
+	// TA: i need for other things :)
 	//s->angles2[YAW] = ps->movementDir;
 	s->time2 = ps->movementDir;
 	s->legsAnim = ps->legsAnim;
@@ -4677,9 +4680,13 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 	// so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
 	if(ps->stats[STAT_HEALTH] <= 0)
+	{
 		s->eFlags |= EF_DEAD;
+	}
 	else
+	{
 		s->eFlags &= ~EF_DEAD;
+	}
 
 	if(ps->stats[STAT_STATE] & SS_BLOBLOCKED)
 		s->eFlags |= EF_BLOBLOCKED;
@@ -4724,7 +4731,7 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 	//TA: use powerups field to store team/class info:
 	s->powerups = ps->stats[STAT_PTEAM] | (ps->stats[STAT_PCLASS] << 8);
 
-	//TA: have to get the surfNormal thru somehow...
+	// TA: have to get the surfNormal thru somehow...
 	VectorCopy(ps->grapplePoint, s->angles2);
 	if(ps->stats[STAT_STATE] & SS_WALLCLIMBINGCEILING)
 		s->eFlags |= EF_WALLCLIMBCEILING;
@@ -4762,8 +4769,9 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 	VectorCopy(ps->origin, s->pos.trBase);
 
 	if(snap)
+	{
 		SnapVector(s->pos.trBase);
-
+	}
 	// set the trDelta for flag direction and linear prediction
 	VectorCopy(ps->velocity, s->pos.trDelta);
 	// set the time for linear prediction
@@ -4774,9 +4782,11 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 	s->apos.trType = TR_INTERPOLATE;
 	VectorCopy(ps->viewangles, s->apos.trBase);
 	if(snap)
+	{
 		SnapVector(s->apos.trBase);
+	}
 
-	//TA: i need for other things :)
+	// TA: i need for other things :)
 	//s->angles2[YAW] = ps->movementDir;
 	s->time2 = ps->movementDir;
 	s->legsAnim = ps->legsAnim;
@@ -4786,9 +4796,13 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 	s->eFlags = ps->eFlags;
 
 	if(ps->stats[STAT_HEALTH] <= 0)
+	{
 		s->eFlags |= EF_DEAD;
+	}
 	else
+	{
 		s->eFlags &= ~EF_DEAD;
+	}
 
 	if(ps->stats[STAT_STATE] & SS_BLOBLOCKED)
 		s->eFlags |= EF_BLOBLOCKED;
@@ -4805,8 +4819,9 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 		int             seq;
 
 		if(ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS)
+		{
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
-
+		}
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS - 1);
 		s->event = ps->events[seq] | ((ps->entityEventSequence & 3) << 8);
 		s->eventParm = ps->eventParms[seq];
@@ -4834,7 +4849,7 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 	//TA: use powerups field to store team/class info:
 	s->powerups = ps->stats[STAT_PTEAM] | (ps->stats[STAT_PCLASS] << 8);
 
-	//TA: have to get the surfNormal thru somehow...
+	// TA: have to get the surfNormal thru somehow...
 	VectorCopy(ps->grapplePoint, s->angles2);
 	if(ps->stats[STAT_STATE] & SS_WALLCLIMBINGCEILING)
 		s->eFlags |= EF_WALLCLIMBCEILING;
@@ -5065,7 +5080,7 @@ qboolean BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], q
 	vec3_t          localNormal, xNormal;
 	float           rotAngle;
 
-	//the grapplePoint being a surfNormal rotation Normal hack... see above :)
+	// the grapplePoint being a surfNormal rotation Normal hack... see above :)
 	if(ceiling)
 	{
 		VectorCopy(ceilingNormal, localNormal);
@@ -5073,13 +5088,13 @@ qboolean BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], q
 	}
 	else
 	{
-		//cross the reference normal and the surface normal to get the rotation axis
+		// cross the reference normal and the surface normal to get the rotation axis
 		VectorCopy(surfNormal, localNormal);
 		CrossProduct(localNormal, refNormal, xNormal);
 		VectorNormalize(xNormal);
 	}
 
-	//can't rotate with no rotation vector
+	// can't rotate with no rotation vector
 	if(VectorLength(xNormal) != 0.0f)
 	{
 		rotAngle = RAD2DEG(acos(DotProduct(localNormal, refNormal)));
@@ -5089,13 +5104,15 @@ qboolean BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], q
 
 		AngleNormalize180(rotAngle);
 
-		//hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
+		// hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
 		RotatePointAroundVector(outAxis[0], xNormal, inAxis[0], -rotAngle);
 		RotatePointAroundVector(outAxis[1], xNormal, inAxis[1], -rotAngle);
 		RotatePointAroundVector(outAxis[2], xNormal, inAxis[2], -rotAngle);
 	}
 	else
+	{
 		return qfalse;
+	}
 
 	return qtrue;
 }

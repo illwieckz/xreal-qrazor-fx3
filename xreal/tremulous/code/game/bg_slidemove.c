@@ -87,7 +87,9 @@ qboolean PM_SlideMove(qboolean gravity)
 		VectorCopy(pml.groundTrace.plane.normal, planes[0]);
 	}
 	else
+	{
 		numplanes = 0;
+	}
 
 	// never turn against original velocity
 	VectorNormalize2(pm->ps->velocity, planes[numplanes]);
@@ -115,7 +117,9 @@ qboolean PM_SlideMove(qboolean gravity)
 		}
 
 		if(trace.fraction == 1)
+		{
 			break;				// moved the entire distance
+		}
 
 		// save entity for contact
 		PM_AddTouchEnt(trace.entityNum);
@@ -144,8 +148,9 @@ qboolean PM_SlideMove(qboolean gravity)
 		}
 
 		if(i < numplanes)
+		{
 			continue;
-
+		}
 		VectorCopy(trace.plane.normal, planes[numplanes]);
 		numplanes++;
 
@@ -158,11 +163,15 @@ qboolean PM_SlideMove(qboolean gravity)
 		{
 			into = DotProduct(pm->ps->velocity, planes[i]);
 			if(into >= 0.1)
+			{
 				continue;		// move doesn't interact with the plane
+			}
 
 			// see how hard we are hitting things
 			if(-into > pml.impactSpeed)
+			{
 				pml.impactSpeed = -into;
+			}
 
 			// slide along the plane
 			PM_ClipVelocity(pm->ps->velocity, planes[i], clipVelocity, OVERCLIP);
@@ -174,10 +183,13 @@ qboolean PM_SlideMove(qboolean gravity)
 			for(j = 0; j < numplanes; j++)
 			{
 				if(j == i)
+				{
 					continue;
-
+				}
 				if(DotProduct(clipVelocity, planes[j]) >= 0.1)
+				{
 					continue;	// move doesn't interact with the plane
+				}
 
 				// try clipping the move to the plane
 				PM_ClipVelocity(clipVelocity, planes[j], clipVelocity, OVERCLIP);
@@ -185,7 +197,9 @@ qboolean PM_SlideMove(qboolean gravity)
 
 				// see if it goes back into the first clip plane
 				if(DotProduct(clipVelocity, planes[i]) >= 0)
+				{
 					continue;
+				}
 
 				// slide the original velocity along the crease
 				CrossProduct(planes[i], planes[j], dir);
@@ -202,10 +216,13 @@ qboolean PM_SlideMove(qboolean gravity)
 				for(k = 0; k < numplanes; k++)
 				{
 					if(k == i || k == j)
+					{
 						continue;
-
+					}
 					if(DotProduct(clipVelocity, planes[k]) >= 0.1)
+					{
 						continue;	// move doesn't interact with the plane
+					}
 
 					// stop dead at a tripple plane interaction
 					VectorClear(pm->ps->velocity);
@@ -221,11 +238,15 @@ qboolean PM_SlideMove(qboolean gravity)
 	}
 
 	if(gravity)
+	{
 		VectorCopy(endVelocity, pm->ps->velocity);
+	}
 
 	// don't change velocity if in a timer (FIXME: is this correct?)
 	if(pm->ps->pm_time)
+	{
 		VectorCopy(primal_velocity, pm->ps->velocity);
+	}
 
 	return (bumpcount != 0);
 }

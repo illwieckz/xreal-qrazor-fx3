@@ -569,7 +569,6 @@ typedef struct
 	float           rotAngle;
 } smooth_t;
 
-
 typedef struct
 {
 	lerpFrame_t     legs, torso, flag, nonseg;

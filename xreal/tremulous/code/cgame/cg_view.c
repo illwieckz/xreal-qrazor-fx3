@@ -393,7 +393,6 @@ static void CG_StepOffset(void)
 /*
 ===============
 CG_OffsetFirstPersonView
-
 ===============
 */
 static void CG_OffsetFirstPersonView(void)
@@ -423,7 +422,9 @@ static void CG_OffsetFirstPersonView(void)
 
 
 	if(cg.snap->ps.pm_type == PM_INTERMISSION)
+	{
 		return;
+	}
 
 	origin = cg.refdef.vieworg;
 	angles = cg.refdefViewAngles;
@@ -656,9 +657,11 @@ static void CG_OffsetFirstPersonView(void)
 	bob = cg.bobfracsin * cg.xyspeed * bob2;
 
 	if(bob > 6)
+	{
 		bob = 6;
+	}
 
-	//TA: likewise for bob
+	// TA: likewise for bob
 	if(cg.predictedPlayerState.stats[STAT_STATE] & SS_WALLCLIMBING)
 		VectorMA(origin, bob, normal, origin);
 	else
@@ -776,9 +779,13 @@ static int CG_CalcFov(void)
 				f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
 
 				if(f > 1.0)
+				{
 					fov_x = zoomFov;
+				}
 				else
+				{
 					fov_x = fov_x + f * (zoomFov - fov_x);
+				}
 			}
 			else
 			{
@@ -808,7 +815,9 @@ static int CG_CalcFov(void)
 		inwater = qtrue;
 	}
 	else
+	{
 		inwater = qfalse;
+	}
 
 	if(cg.predictedPlayerState.stats[STAT_STATE] & SS_POISONCLOUDED &&
 	   cg.predictedPlayerState.stats[STAT_HEALTH] > 0 && !(cg.snap->ps.pm_flags & PMF_FOLLOW))
@@ -826,9 +835,13 @@ static int CG_CalcFov(void)
 	cg.refdef.fov_y = fov_y;
 
 	if(!cg.zoomed)
+	{
 		cg.zoomSensitivity = 1;
+	}
 	else
+	{
 		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+	}
 
 	return inwater;
 }
@@ -1092,14 +1105,20 @@ static int CG_CalcViewValues(void)
 	VectorCopy(ps->origin, cg.refdef.vieworg);
 
 	if(BG_ClassHasAbility(ps->stats[STAT_PCLASS], SCA_WALLCLIMBER))
+	{
 		CG_smoothWWTransitions(ps, ps->viewangles, cg.refdefViewAngles);
+	}
 	else if(BG_ClassHasAbility(ps->stats[STAT_PCLASS], SCA_WALLJUMPER))
+	{
 		CG_smoothWJTransitions(ps, ps->viewangles, cg.refdefViewAngles);
+	}
 	else
+	{
 		VectorCopy(ps->viewangles, cg.refdefViewAngles);
+	}
 
-	//clumsy logic, but it needs to be this way round because the CS propogation
-	//delay screws things up otherwise
+	// clumsy logic, but it needs to be this way round because the CS propogation
+	// delay screws things up otherwise
 	if(!BG_ClassHasAbility(ps->stats[STAT_PCLASS], SCA_WALLJUMPER))
 	{
 		if(!(ps->stats[STAT_STATE] & SS_WALLCLIMBING))
@@ -1116,12 +1135,16 @@ static int CG_CalcViewValues(void)
 		f = (cg_errorDecay.value - t) / cg_errorDecay.value;
 
 		if(f > 0 && f < 1)
+		{
 			VectorMA(cg.refdef.vieworg, f, cg.predictedError, cg.refdef.vieworg);
+		}
 		else
+		{
 			cg.predictedErrorTime = 0;
+		}
 	}
 
-	//shut off the poison cloud effect if it's still on the go
+	// shut off the poison cloud effect if it's still on the go
 	if(cg.snap->ps.stats[STAT_HEALTH] <= 0)
 	{
 		if(CG_IsParticleSystemValid(&cg.poisonCloudPS))
@@ -1143,9 +1166,11 @@ static int CG_CalcViewValues(void)
 	AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
 
 	if(cg.hyperspace)
+	{
 		cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
+	}
 
-	//draw the surface normal looking at
+	// draw the surface normal looking at
 	if(cg_drawSurfNormal.integer)
 		CG_DrawSurfNormal();
 
@@ -1288,8 +1313,9 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		cg.frametime = cg.time - cg.oldTime;
 
 		if(cg.frametime < 0)
+		{
 			cg.frametime = 0;
-
+		}
 		cg.oldTime = cg.time;
 		CG_AddLagometerFrameInfo();
 	}
@@ -1310,12 +1336,17 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		}
 
 		if(cg_timescaleFadeSpeed.value)
+		{
 			trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
+		}
 	}
 
 	// actually issue the rendering calls
 	CG_DrawActive(stereoView);
 
 	if(cg_stats.integer)
+	{
 		CG_Printf("cg.clientFrame:%i\n", cg.clientFrame);
+	}
 }
+
