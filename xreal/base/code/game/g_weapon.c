@@ -854,9 +854,36 @@ set muzzle location relative to pivoting eye
 */
 void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint)
 {
-	VectorCopy(ent->s.pos.trBase, muzzlePoint);
-	muzzlePoint[2] += ent->client->ps.viewheight;
+	vec3_t			surfNormal;
+
+	if(ent->client)
+	{
+		if(ent->client->ps.pm_flags & PMF_WALLCLIMBING)
+		{
+			if(ent->client->ps.pm_flags & PMF_WALLCLIMBINGCEILING)
+				VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+			else
+				VectorCopy(ent->client->ps.grapplePoint, surfNormal);
+		}
+		else
+		{
+			VectorSet(surfNormal, 0.0f, 0.0f, 1.0f);
+		}
+
+		VectorMA(ent->s.pos.trBase, ent->client->ps.viewheight, surfNormal, muzzlePoint);
+	}
+	else
+	{
+		VectorCopy(ent->s.pos.trBase, muzzlePoint);
+	}
+
+#if 0
+	VectorMA(muzzlePoint, 1, forward, muzzlePoint);
+	VectorMA(muzzlePoint, 1, right, muzzlePoint);
+#else
 	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
+#endif
+
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector(muzzlePoint);
 }
@@ -868,15 +895,18 @@ CalcMuzzlePointOrigin
 set muzzle location relative to pivoting eye
 ===============
 */
+/*
 void CalcMuzzlePointOrigin(gentity_t * ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint)
 {
 	VectorCopy(ent->s.pos.trBase, muzzlePoint);
 	muzzlePoint[2] += ent->client->ps.viewheight;
-	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
+	VectorMA(muzzlePoint, 1, forward, muzzlePoint);
+	VectorMA(muzzlePoint, 1, right, muzzlePoint);
+
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector(muzzlePoint);
 }
-
+*/
 
 
 /*
@@ -919,10 +949,17 @@ void FireWeapon(gentity_t * ent)
 #endif
 	}
 
-	// set aiming directions
-	AngleVectors(ent->client->ps.viewangles, forward, right, up);
-
-	CalcMuzzlePointOrigin(ent, ent->client->oldOrigin, forward, right, up, muzzle);
+	if(ent->client)
+	{
+		// set aiming directions
+		AngleVectors(ent->client->ps.viewangles, forward, right, up);
+		CalcMuzzlePoint(ent, forward, right, up, muzzle);
+	}
+	else
+	{
+		AngleVectors(ent->s.angles2, forward, right, up);
+		VectorCopy(ent->s.pos.trBase, muzzle);
+	}
 
 	// fire the specific weapon
 	switch (ent->s.weapon)
@@ -1020,10 +1057,17 @@ void FireWeapon2(gentity_t * ent)
 #endif
 	}
 
-	// set aiming directions
-	AngleVectors(ent->client->ps.viewangles, forward, right, up);
-
-	CalcMuzzlePointOrigin(ent, ent->client->oldOrigin, forward, right, up, muzzle);
+	if(ent->client)
+	{
+		// set aiming directions
+		AngleVectors(ent->client->ps.viewangles, forward, right, up);
+		CalcMuzzlePoint(ent, forward, right, up, muzzle);
+	}
+	else
+	{
+		AngleVectors(ent->s.angles2, forward, right, up);
+		VectorCopy(ent->s.pos.trBase, muzzle);
+	}
 
 	// fire the specific weapon
 	switch (ent->s.weapon)
