@@ -579,6 +579,13 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[FOOTSTEP_METAL][rand() & 3]);
 			}
 			break;
+		case EV_FOOTSTEP_WALLWALK:
+			DEBUGNAME("EV_FOOTSTEP_WALLWALK");
+			if(cg_footsteps.integer)
+			{
+				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.footsteps[FOOTSTEP_WALLWALK][rand() & 3]);
+			}
+			break;
 		case EV_FOOTSPLASH:
 			DEBUGNAME("EV_FOOTSPLASH");
 			if(cg_footsteps.integer)

@@ -1315,10 +1315,15 @@ static int PM_FootstepForSurface(void)
 	{
 		return 0;
 	}
-	if(pml.groundTrace.surfaceFlags & SURF_METALSTEPS)
+	else if(pml.groundTrace.surfaceFlags & SURF_METALSTEPS)
 	{
 		return EV_FOOTSTEP_METAL;
 	}
+	else if(pml.groundTrace.surfaceFlags & SURF_WALLWALK)
+	{
+		return EV_FOOTSTEP_WALLWALK;
+	}
+
 	return EV_FOOTSTEP;
 }
 

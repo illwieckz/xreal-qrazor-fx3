@@ -802,7 +802,7 @@ static void CG_RegisterSounds(void)
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/mech%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_MECH][i] = trap_S_RegisterSound(name);
 
-		Com_sprintf(name, sizeof(name), "sound/player/footsteps/energy%i.wav", i + 1);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/energy%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_ENERGY][i] = trap_S_RegisterSound(name);
 
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/splash%i.ogg", i + 1);
@@ -810,6 +810,9 @@ static void CG_RegisterSounds(void)
 
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/metal%i.ogg", i + 1);
 		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound(name);
+
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/wallwalk%i.ogg", i + 1);
+		cgs.media.footsteps[FOOTSTEP_WALLWALK][i] = trap_S_RegisterSound(name);
 	}
 
 	// only register the items that the server says we need

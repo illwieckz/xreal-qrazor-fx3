@@ -1489,6 +1489,7 @@ char           *eventnames[] = {
 
 	"EV_FOOTSTEP",
 	"EV_FOOTSTEP_METAL",
+	"EV_FOOTSTEP_WALLWALK",
 	"EV_FOOTSPLASH",
 	"EV_FOOTWADE",
 	"EV_SWIM",
