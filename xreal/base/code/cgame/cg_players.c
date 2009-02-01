@@ -1602,6 +1602,7 @@ void CG_SwingAngles(float destination, float swingTolerance, float clampToleranc
 	{
 		// see if a swing should be started
 		swing = AngleSubtract(*angle, destination);
+
 		if(swing > swingTolerance || swing < -swingTolerance)
 		{
 			*swinging = qtrue;
@@ -1617,6 +1618,7 @@ void CG_SwingAngles(float destination, float swingTolerance, float clampToleranc
 	// so it doesn't seem so linear
 	swing = AngleSubtract(destination, *angle);
 	scale = fabs(swing);
+
 	if(scale < swingTolerance * 0.5)
 	{
 		scale = 0.5;
@@ -1634,6 +1636,7 @@ void CG_SwingAngles(float destination, float swingTolerance, float clampToleranc
 	if(swing >= 0)
 	{
 		move = cg.frametime * scale * speed;
+
 		if(move >= swing)
 		{
 			move = swing;
@@ -1644,6 +1647,7 @@ void CG_SwingAngles(float destination, float swingTolerance, float clampToleranc
 	else if(swing < 0)
 	{
 		move = cg.frametime * scale * -speed;
+
 		if(move <= swing)
 		{
 			move = swing;
@@ -1675,6 +1679,7 @@ void CG_AddPainTwitch(centity_t * cent, vec3_t torsoAngles)
 	float           f;
 
 	t = cg.time - cent->pe.painTime;
+
 	if(t >= PAIN_TWITCH_TIME)
 	{
 		return;
@@ -1741,12 +1746,14 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAng
 	}
 	else
 	{
-		dir = cent->currentState.angles2[YAW];
+		// TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
+		dir = cent->currentState.time2;
 		if(dir < 0 || dir > 7)
 		{
 			CG_Error("Bad player movement angle");
 		}
 	}
+
 	legsAngles[YAW] = headAngles[YAW] + movementOffsets[dir];
 	torsoAngles[YAW] = headAngles[YAW] + 0.25 * movementOffsets[dir];
 
@@ -1756,7 +1763,6 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAng
 
 	torsoAngles[YAW] = cent->pe.torso.yawAngle;
 	legsAngles[YAW] = cent->pe.legs.yawAngle;
-
 
 	// --------- pitch -------------
 
@@ -1774,6 +1780,7 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAng
 
 	//
 	clientNum = cent->currentState.clientNum;
+
 	if(clientNum >= 0 && clientNum < MAX_CLIENTS)
 	{
 		ci = &cgs.clientinfo[clientNum];
@@ -1789,6 +1796,7 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAng
 	// lean towards the direction of travel
 	VectorCopy(cent->currentState.pos.trDelta, velocity);
 	speed = VectorNormalize(velocity);
+
 	if(speed)
 	{
 		vec3_t          axis[3];
@@ -1806,9 +1814,11 @@ static void CG_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAng
 
 	//
 	clientNum = cent->currentState.clientNum;
+
 	if(clientNum >= 0 && clientNum < MAX_CLIENTS)
 	{
 		ci = &cgs.clientinfo[clientNum];
+
 		if(ci->fixedlegs)
 		{
 			legsAngles[YAW] = torsoAngles[YAW];
@@ -2491,6 +2501,17 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	15, 15, 2};
 	trace_t         trace;
 	float           alpha;
+	entityState_t  *es = &cent->currentState;
+	vec3_t          surfNormal = { 0.0f, 0.0f, 1.0f };
+
+
+	if(es->eFlags & EF_WALLCLIMB)
+	{
+		if(es->eFlags & EF_WALLCLIMBCEILING)
+			VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+		else
+			VectorCopy(es->angles2, surfNormal);
+	}
 
 	*shadowPlane = 0;
 
@@ -2507,7 +2528,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 
 	// send a trace down from the player to the ground
 	VectorCopy(cent->lerpOrigin, end);
-	end[2] -= SHADOW_DISTANCE;
+	VectorMA(cent->lerpOrigin, -SHADOW_DISTANCE, surfNormal, end);
 
 	trap_CM_BoxTrace(&trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID);
 
@@ -2516,6 +2537,11 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	{
 		return qfalse;
 	}
+
+	if(surfNormal[2] < 0.0f)
+		*shadowPlane = trace.endpos[2] - 1.0f;
+	else
+		*shadowPlane = trace.endpos[2] + 1.0f;
 
 	// fade the shadow out with height
 	alpha = 1.0 - trace.fraction;
@@ -3212,7 +3238,7 @@ void CG_Player(centity_t * cent)
 	CG_PlayerPowerups(cent, &torso, noShadowID);
 
 	// add the bounding box (if cg_drawPlayerCollision is 1)
-	CG_DrawPlayerCollision(cent);
+	//CG_DrawPlayerCollision(cent);
 }
 
 
@@ -3265,15 +3291,16 @@ CG_DrawPlayerCollision
 Draws a bounding box around a player.  Called from CG_Player.
 =================
 */
-void CG_DrawPlayerCollision(centity_t * cent)
+void CG_DrawPlayerCollision(centity_t * cent, const vec3_t bodyOrigin, const matrix_t bodyRotation)
 {
 	polyVert_t      verts[4];
 	clientInfo_t   *ci;
 	int             i;
-	vec3_t          mins = { -15, -15, -24 };
-	vec3_t          maxs = { 15, 15, 32 };
+	vec3_t          mins;
+	vec3_t          maxs;
 	float           extx, exty, extz;
 	vec3_t          corners[8];
+	matrix_t		rotation, transform;
 
 	if(!cg_drawPlayerCollision.integer)
 	{
@@ -3300,6 +3327,9 @@ void CG_DrawPlayerCollision(centity_t * cent)
 
 	// get the player's client info
 	ci = &cgs.clientinfo[cent->currentState.clientNum];
+
+	VectorCopy(playerMins, mins);
+	VectorCopy(playerMaxs, maxs);
 
 	// if it's us
 	if(cent->currentState.number == cg.predictedPlayerState.clientNum)
@@ -3370,7 +3400,14 @@ void CG_DrawPlayerCollision(centity_t * cent)
 		}
 	}
 
-	VectorAdd(cent->lerpOrigin, maxs, corners[3]);
+	//AxisCopy(tempAxis, cent->pe.lastAxis);
+
+	//MatrixFromAngles(rotation, cent->lerpAngles[PITCH], cent->lerpAngles[YAW], cent->lerpAngles[ROLL]);
+	//MatrixIdentity(rotation);
+	MatrixSetupTransformFromRotation(transform, bodyRotation, bodyOrigin);
+
+	//VectorAdd(cent->lerpOrigin, maxs, corners[3]);
+	VectorCopy(maxs, corners[3]);
 
 	VectorCopy(corners[3], corners[2]);
 	corners[2][0] -= extx;
@@ -3385,6 +3422,11 @@ void CG_DrawPlayerCollision(centity_t * cent)
 	{
 		VectorCopy(corners[i], corners[i + 4]);
 		corners[i + 4][2] -= extz;
+	}
+
+	for(i = 0; i < 8; i++)
+	{
+		MatrixTransformPoint2(transform, corners[i]);
 	}
 
 	// top

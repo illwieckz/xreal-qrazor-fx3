@@ -1348,15 +1348,18 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 		case TR_INTERPOLATE:
 			VectorCopy(tr->trBase, result);
 			break;
+
 		case TR_LINEAR:
 			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 			break;
+
 		case TR_SINE:
 			deltaTime = (atTime - tr->trTime) / (float)tr->trDuration;
 			phase = sin(deltaTime * M_PI * 2);
 			VectorMA(tr->trBase, phase, tr->trDelta, result);
 			break;
+
 		case TR_LINEAR_STOP:
 			if(atTime > tr->trTime + tr->trDuration)
 			{
@@ -1369,6 +1372,7 @@ void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
 			}
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 			break;
+
 		case TR_GRAVITY:
 			deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
 			VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
@@ -1435,6 +1439,7 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 		case TR_INTERPOLATE:
 			VectorClear(result);
 			break;
+
 		case TR_LINEAR:
 			VectorCopy(tr->trDelta, result);
 			break;
@@ -1695,6 +1700,7 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 
 	s->pos.trType = TR_INTERPOLATE;
 	VectorCopy(ps->origin, s->pos.trBase);
+
 	if(snap)
 	{
 		SnapVector(s->pos.trBase);
@@ -1704,12 +1710,15 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 
 	s->apos.trType = TR_INTERPOLATE;
 	VectorCopy(ps->viewangles, s->apos.trBase);
+
 	if(snap)
 	{
 		SnapVector(s->apos.trBase);
 	}
 
-	s->angles2[YAW] = ps->movementDir;
+	// TA: i need for other things :)
+	//s->angles2[YAW] = ps->movementDir;
+	s->time2 = ps->movementDir;
 	s->legsAnim = ps->legsAnim;
 	s->torsoAnim = ps->torsoAnim;
 	s->clientNum = ps->clientNum;	// ET_PLAYER looks here instead of at number
@@ -1754,6 +1763,11 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 			s->powerups |= 1 << i;
 		}
 	}
+
+	// TA: have to get the surfNormal thru somehow...
+	VectorCopy(ps->grapplePoint, s->angles2);
+	if(ps->pm_flags & PMF_WALLCLIMBINGCEILING)
+		s->eFlags |= EF_WALLCLIMBCEILING;
 
 	s->loopSound = ps->loopSound;
 	s->generic1 = ps->generic1;
@@ -1788,6 +1802,7 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 
 	s->pos.trType = TR_LINEAR_STOP;
 	VectorCopy(ps->origin, s->pos.trBase);
+
 	if(snap)
 	{
 		SnapVector(s->pos.trBase);
@@ -1806,12 +1821,15 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 		SnapVector(s->apos.trBase);
 	}
 
-	s->angles2[YAW] = ps->movementDir;
+	// TA: i need for other things :)
+	//s->angles2[YAW] = ps->movementDir;
+	s->time2 = ps->movementDir;
 	s->legsAnim = ps->legsAnim;
 	s->torsoAnim = ps->torsoAnim;
 	s->clientNum = ps->clientNum;	// ET_PLAYER looks here instead of at number
 	// so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
+
 	if(ps->stats[STAT_HEALTH] <= 0)
 	{
 		s->eFlags |= EF_DEAD;
@@ -1852,6 +1870,64 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 		}
 	}
 
+	// TA: have to get the surfNormal thru somehow...
+	VectorCopy(ps->grapplePoint, s->angles2);
+	if(ps->pm_flags & PMF_WALLCLIMBINGCEILING)
+		s->eFlags |= EF_WALLCLIMBCEILING;
+
 	s->loopSound = ps->loopSound;
 	s->generic1 = ps->generic1;
 }
+
+
+/*
+===============
+BG_RotateAxis
+
+Shared axis rotation function
+===============
+*/
+qboolean BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], qboolean inverse, qboolean ceiling)
+{
+	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
+	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
+	vec3_t          localNormal, xNormal;
+	float           rotAngle;
+
+	// the grapplePoint being a surfNormal rotation Normal hack... see above :)
+	if(ceiling)
+	{
+		VectorCopy(ceilingNormal, localNormal);
+		VectorCopy(surfNormal, xNormal);
+	}
+	else
+	{
+		// cross the reference normal and the surface normal to get the rotation axis
+		VectorCopy(surfNormal, localNormal);
+		CrossProduct(localNormal, refNormal, xNormal);
+		VectorNormalize(xNormal);
+	}
+
+	// can't rotate with no rotation vector
+	if(VectorLength(xNormal) != 0.0f)
+	{
+		rotAngle = RAD2DEG(acos(DotProduct(localNormal, refNormal)));
+
+		if(inverse)
+			rotAngle = -rotAngle;
+
+		AngleNormalize180(rotAngle);
+
+		// hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
+		RotatePointAroundVector(outAxis[0], xNormal, inAxis[0], -rotAngle);
+		RotatePointAroundVector(outAxis[1], xNormal, inAxis[1], -rotAngle);
+		RotatePointAroundVector(outAxis[2], xNormal, inAxis[2], -rotAngle);
+	}
+	else
+	{
+		return qfalse;
+	}
+
+	return qtrue;
+}
+

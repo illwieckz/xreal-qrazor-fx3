@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
 Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2007 Pat Raynor <raynorpat@sbcglobal.net>
 
@@ -27,6 +28,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../../../code/qcommon/q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
+
+#if 1
+const vec3_t    playerMins = { -15, -15, -24 };
+const vec3_t    playerMaxs = { 15, 15, 32 };
+#else
+// Enemy Territory
+const vec3_t    playerMins = { -18, -18, -24 };
+const vec3_t    playerMaxs = { 18, 18, 48 };
+#endif
 
 pmove_t        *pm;
 pml_t           pml;
@@ -55,10 +65,13 @@ float           pm_wishSpeed = 30.0f;
 
 int             c_pmove = 0;
 
+
+
+
+
 /*
 ===============
 PM_AddEvent
-
 ===============
 */
 void PM_AddEvent(int newEvent)
@@ -160,6 +173,19 @@ static void PM_ForceLegsAnim(int anim)
 
 /*
 ==================
+PM_TraceAll
+
+Tr3B: this abstracts the trace so we can have multiple hitboxes that are all traced together
+==================
+*/
+void PM_TraceAll(trace_t * trace, const vec3_t start, const vec3_t end)
+{
+	pm->trace(trace, start, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+}
+
+
+/*
+==================
 PM_ClipVelocity
 
 Slide off of the impacting surface
@@ -206,10 +232,12 @@ static void PM_Friction(void)
 
 	vel = pm->ps->velocity;
 
+	// TA: make sure vertical velocity is NOT set to zero when wall climbing
 	VectorCopy(vel, vec);
-	if(pml.walking)
+	if(pml.walking && !(pm->ps->pm_flags & PMF_WALLCLIMBING))
 	{
-		vec[2] = 0;				// ignore slope movement
+		// ignore slope movement
+		vec[2] = 0;
 	}
 
 	speed = VectorLength(vec);
@@ -507,7 +535,21 @@ static qboolean PM_CheckJump(void)
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
-	pm->ps->velocity[2] = JUMP_VELOCITY;
+
+	// TA: jump away from wall
+	if(pm->ps->pm_flags & PMF_WALLCLIMBING)
+	{
+		vec3_t          normal = { 0, 0, -1 };
+
+		if(!(pm->ps->pm_flags & PMF_WALLCLIMBINGCEILING))
+			VectorCopy(pm->ps->grapplePoint, normal);
+
+		VectorMA(pm->ps->velocity, JUMP_VELOCITY, normal, pm->ps->velocity);
+	}
+	else
+	{
+		pm->ps->velocity[2] = JUMP_VELOCITY;
+	}
 	PM_AddEvent(EV_JUMP);
 
 	if(pm->cmd.forwardmove >= 0)
@@ -590,7 +632,7 @@ static void PM_WaterJumpMove(void)
 {
 	// waterjump has no control, but falls
 
-	PM_StepSlideMove(qtrue);
+	PM_StepSlideMove(qtrue, qfalse);
 
 	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	if(pm->ps->velocity[2] < 0)
@@ -604,7 +646,6 @@ static void PM_WaterJumpMove(void)
 /*
 ===================
 PM_WaterMove
-
 ===================
 */
 static void PM_WaterMove(void)
@@ -614,6 +655,7 @@ static void PM_WaterMove(void)
 	float           wishspeed;
 	vec3_t          wishdir;
 	float           scale;
+	float           vel;
 
 	if(PM_CheckWaterJump())
 	{
@@ -674,8 +716,12 @@ static void PM_WaterMove(void)
 	// make sure we can go up slopes easily under water
 	if(pml.groundPlane && DotProduct(pm->ps->velocity, pml.groundTrace.plane.normal) < 0)
 	{
+		vel = VectorLength(pm->ps->velocity);
 		// slide along the ground plane
 		PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+
+		VectorNormalize(pm->ps->velocity);
+		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
 
 	PM_SlideMove(qfalse);
@@ -741,7 +787,7 @@ static void PM_FlyMove(void)
 
 	PM_Accelerate(wishdir, wishspeed, pm_flyaccelerate);
 
-	PM_StepSlideMove(qfalse);
+	PM_StepSlideMove(qfalse, qfalse);
 }
 
 /*
@@ -867,7 +913,7 @@ static void PM_AirMove(void)
 		PM_SlideMove(qtrue);
 #endif
 
-	PM_StepSlideMove(qtrue);
+	PM_StepSlideMove(qtrue, qfalse);
 }
 
 /*
@@ -897,10 +943,124 @@ static void PM_GrappleMove(void)
 	pml.groundPlane = qfalse;
 }
 
+
+/*
+===================
+PM_ClimbMove
+===================
+*/
+static void PM_ClimbMove(void)
+{
+	int             i;
+	vec3_t          wishvel;
+	float           fmove, smove;
+	vec3_t          wishdir;
+	float           wishspeed;
+	float           scale;
+	usercmd_t       cmd;
+	float           accelerate;
+	float           vel;
+
+	if(pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)
+	{
+		// begin swimming
+		PM_WaterMove();
+		return;
+	}
+
+
+	if(PM_CheckJump())// || PM_CheckPounce())
+	{
+		// jumped away
+		if(pm->waterlevel > 1)
+			PM_WaterMove();
+		else
+			PM_AirMove();
+
+		return;
+	}
+
+	PM_Friction();
+
+	fmove = pm->cmd.forwardmove;
+	smove = pm->cmd.rightmove;
+
+	cmd = pm->cmd;
+	scale = PM_CmdScale(&cmd);
+
+	// set the movementDir so clients can rotate the legs for strafing
+	PM_SetMovementDir();
+
+	// project the forward and right directions onto the ground plane
+	PM_ClipVelocity(pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP);
+	PM_ClipVelocity(pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP);
+	//
+	VectorNormalize(pml.forward);
+	VectorNormalize(pml.right);
+
+	for(i = 0; i < 3; i++)
+		wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
+
+	// when going up or down slopes the wish velocity should Not be zero
+//  wishvel[2] = 0;
+
+	VectorCopy(wishvel, wishdir);
+	wishspeed = VectorNormalize(wishdir);
+	wishspeed *= scale;
+
+	// clamp the speed lower if ducking
+	if(pm->ps->pm_flags & PMF_DUCKED)
+	{
+		if(wishspeed > pm->ps->speed * pm_duckScale)
+			wishspeed = pm->ps->speed * pm_duckScale;
+	}
+
+	// clamp the speed lower if wading or walking on the bottom
+	if(pm->waterlevel)
+	{
+		float           waterScale;
+
+		waterScale = pm->waterlevel / 3.0;
+		waterScale = 1.0 - (1.0 - pm_swimScale) * waterScale;
+		if(wishspeed > pm->ps->speed * waterScale)
+			wishspeed = pm->ps->speed * waterScale;
+	}
+
+	// when a player gets hit, they temporarily lose
+	// full control, which allows them to be moved a bit
+	if((pml.groundTrace.surfaceFlags & SURF_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK)
+	{
+		accelerate = pm_airaccelerate;
+	}
+	else
+	{
+		accelerate = pm_accelerate;
+	}
+
+	PM_Accelerate(wishdir, wishspeed, accelerate);
+
+	if((pml.groundTrace.surfaceFlags & SURF_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK)
+		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+
+	vel = VectorLength(pm->ps->velocity);
+
+	// slide along the ground plane
+	PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+
+	// don't decrease velocity when going up or down a slope
+	VectorNormalize(pm->ps->velocity);
+	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+
+	// don't do anything if standing still
+	if(!pm->ps->velocity[0] && !pm->ps->velocity[1] && !pm->ps->velocity[2])
+		return;
+
+	PM_StepSlideMove(qfalse, qfalse);
+}
+
 /*
 ===================
 PM_WalkMove
-
 ===================
 */
 static void PM_WalkMove(void)
@@ -913,6 +1073,7 @@ static void PM_WalkMove(void)
 	float           scale;
 	usercmd_t       cmd;
 	float           accelerate;
+	float           vel;
 
 	if(pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)
 	{
@@ -922,7 +1083,7 @@ static void PM_WalkMove(void)
 	}
 
 
-	if(PM_CheckJump())
+	if(PM_CheckJump())// || PM_CheckPounce())
 	{
 		// jumped away
 		if(pm->waterlevel > 1)
@@ -943,6 +1104,9 @@ static void PM_WalkMove(void)
 
 	cmd = pm->cmd;
 	scale = PM_CmdScale(&cmd);
+
+	// set the movementDir so clients can rotate the legs for strafing
+	PM_SetMovementDir();
 
 	// project moves down to flat plane
 	pml.forward[2] = 0;
@@ -1014,8 +1178,14 @@ static void PM_WalkMove(void)
 //      pm->ps->velocity[2] = 0;
 	}
 
+	vel = VectorLength(pm->ps->velocity);
+
 	// slide along the ground plane
 	PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+
+	// don't decrease velocity when going up or down a slope
+	VectorNormalize(pm->ps->velocity);
+	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 
 	// don't do anything if standing still
 	if(!pm->ps->velocity[0] && !pm->ps->velocity[1])
@@ -1032,12 +1202,9 @@ static void PM_WalkMove(void)
 	   VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	 */
 
-	PM_StepSlideMove(qfalse);
+	PM_StepSlideMove(qfalse, qfalse);
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-
-	// set the movementDir so clients can rotate the legs for strafing
-	PM_SetMovementDir();
 }
 
 
@@ -1120,6 +1287,7 @@ static void PM_NoclipMove(void)
 
 	for(i = 0; i < 3; i++)
 		wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
+
 	wishvel[2] += pm->cmd.upmove;
 
 	VectorCopy(wishvel, wishdir);
@@ -1302,14 +1470,14 @@ static int PM_CorrectAllSolid(trace_t * trace)
 				point[0] += (float)i;
 				point[1] += (float)j;
 				point[2] += (float)k;
-				pm->trace(trace, point, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+				PM_TraceAll(trace, point, point);
 				if(!trace->allsolid)
 				{
 					point[0] = pm->ps->origin[0];
 					point[1] = pm->ps->origin[1];
 					point[2] = pm->ps->origin[2] - 0.25;
 
-					pm->trace(trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+					PM_TraceAll(trace, pm->ps->origin, point);
 					pml.groundTrace = *trace;
 					return qtrue;
 				}
@@ -1348,10 +1516,10 @@ static void PM_GroundTraceMissed(void)
 		// if they aren't in a jumping animation and the ground is a ways away, force into it
 		// if we didn't do the trace, the player would be backflipping down staircases
 		VectorCopy(pm->ps->origin, point);
-		point[2] -= 64;
+		point[2] -= 64.0f;
 
-		pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-		if(trace.fraction == 1.0)
+		PM_TraceAll(&trace, pm->ps->origin, point);
+		if(trace.fraction == 1.0f)
 		{
 			if(pm->cmd.forwardmove >= 0)
 			{
@@ -1374,19 +1542,373 @@ static void PM_GroundTraceMissed(void)
 
 /*
 =============
+PM_GroundClimbTrace
+=============
+*/
+static void PM_GroundClimbTrace(void)
+{
+	vec3_t          surfNormal, movedir, lookdir, point;
+	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
+	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
+	vec3_t          toAngles, surfAngles;
+	trace_t         trace;
+	int             i;
+
+	// used for delta correction
+	vec3_t          traceCROSSsurf, traceCROSSref, surfCROSSref;
+	float           traceDOTsurf, traceDOTref, surfDOTref, rTtDOTrTsTt;
+	float           traceANGsurf, traceANGref, surfANGref;
+	vec3_t          horizontal = { 1.0f, 0.0f, 0.0f };	//arbituary vector perpendicular to refNormal
+	vec3_t          refTOtrace, refTOsurfTOtrace, tempVec;
+	int             rTtANGrTsTt;
+	float           ldDOTtCs, d;
+	vec3_t          abc;
+
+	// TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
+	//    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
+	if(pm->ps->pm_flags & PMF_WALLCLIMBINGCEILING)
+		VectorCopy(ceilingNormal, surfNormal);
+	else
+		VectorCopy(pm->ps->grapplePoint, surfNormal);
+
+	// construct a vector which reflects the direction the player is looking wrt the surface normal
+	ProjectPointOnPlane(movedir, pml.forward, surfNormal);
+	VectorNormalize(movedir);
+
+	VectorCopy(movedir, lookdir);
+
+	if(pm->cmd.forwardmove < 0)
+		VectorNegate(movedir, movedir);
+
+	// allow strafe transitions
+	if(pm->cmd.rightmove)
+	{
+		VectorCopy(pml.right, movedir);
+
+		if(pm->cmd.rightmove < 0)
+			VectorNegate(movedir, movedir);
+	}
+
+	for(i = 0; i <= 4; i++)
+	{
+		switch (i)
+		{
+			case 0:
+				// we are going to step this frame so skip the transition test
+				if(PM_PredictStepMove())
+					continue;
+
+				// trace into direction we are moving
+				VectorMA(pm->ps->origin, 0.25f, movedir, point);
+				pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+				break;
+
+			case 1:
+				// trace straight down anto "ground" surface
+				VectorMA(pm->ps->origin, -0.25f, surfNormal, point);
+				pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+				break;
+
+			case 2:
+				if(pml.groundPlane != qfalse && PM_PredictStepMove())
+				{
+					// step down
+					VectorMA(pm->ps->origin, -STEPSIZE, surfNormal, point);
+					pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+				}
+				else
+					continue;
+				break;
+
+			case 3:
+				// trace "underneath" BBOX so we can traverse angles > 180deg
+				if(pml.groundPlane != qfalse)
+				{
+					VectorMA(pm->ps->origin, -16.0f, surfNormal, point);
+					VectorMA(point, -16.0f, movedir, point);
+					pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+				}
+				else
+					continue;
+				break;
+
+			case 4:
+				// fall back so we don't have to modify PM_GroundTrace too much
+				VectorCopy(pm->ps->origin, point);
+				point[2] = pm->ps->origin[2] - 0.25f;
+				pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+				break;
+		}
+
+		// if we hit something
+		if(trace.fraction < 1.0f && (trace.surfaceFlags & SURF_WALLWALK) && !(trace.surfaceFlags & (SURF_SKY | SURF_SLICK)) &&
+		   !(trace.entityNum != ENTITYNUM_WORLD && i != 4))
+		{
+			if(i == 2 || i == 3)
+			{
+				if(i == 2)
+					PM_StepEvent(pm->ps->origin, trace.endpos, surfNormal);
+
+				VectorCopy(trace.endpos, pm->ps->origin);
+			}
+
+			// calculate a bunch of stuff...
+			CrossProduct(trace.plane.normal, surfNormal, traceCROSSsurf);
+			VectorNormalize(traceCROSSsurf);
+
+			CrossProduct(trace.plane.normal, refNormal, traceCROSSref);
+			VectorNormalize(traceCROSSref);
+
+			CrossProduct(surfNormal, refNormal, surfCROSSref);
+			VectorNormalize(surfCROSSref);
+
+			// calculate angle between surf and trace
+			traceDOTsurf = DotProduct(trace.plane.normal, surfNormal);
+			traceANGsurf = RAD2DEG(acos(traceDOTsurf));
+
+			if(traceANGsurf > 180.0f)
+				traceANGsurf -= 180.0f;
+
+			// calculate angle between trace and ref
+			traceDOTref = DotProduct(trace.plane.normal, refNormal);
+			traceANGref = RAD2DEG(acos(traceDOTref));
+
+			if(traceANGref > 180.0f)
+				traceANGref -= 180.0f;
+
+			// calculate angle between surf and ref
+			surfDOTref = DotProduct(surfNormal, refNormal);
+			surfANGref = RAD2DEG(acos(surfDOTref));
+
+			if(surfANGref > 180.0f)
+				surfANGref -= 180.0f;
+
+			// if the trace result and old surface normal are different then we must have transided to a new
+			// surface... do some stuff...
+			if(!VectorCompare(trace.plane.normal, surfNormal))
+			{
+				// if the trace result or the old vector is not the floor or ceiling correct the YAW angle
+				if(!VectorCompare(trace.plane.normal, refNormal) && !VectorCompare(surfNormal, refNormal) &&
+				   !VectorCompare(trace.plane.normal, ceilingNormal) && !VectorCompare(surfNormal, ceilingNormal))
+				{
+					// behold the evil mindfuck from hell
+					// it has fucked mind like nothing has fucked mind before
+
+					// calculate reference rotated through to trace plane
+					RotatePointAroundVector(refTOtrace, traceCROSSref, horizontal, -traceANGref);
+
+					// calculate reference rotated through to surf plane then to trace plane
+					RotatePointAroundVector(tempVec, surfCROSSref, horizontal, -surfANGref);
+					RotatePointAroundVector(refTOsurfTOtrace, traceCROSSsurf, tempVec, -traceANGsurf);
+
+					// calculate angle between refTOtrace and refTOsurfTOtrace
+					rTtDOTrTsTt = DotProduct(refTOtrace, refTOsurfTOtrace);
+					rTtANGrTsTt = ANGLE2SHORT(RAD2DEG(acos(rTtDOTrTsTt)));
+
+					if(rTtANGrTsTt > 32768)
+						rTtANGrTsTt -= 32768;
+
+					CrossProduct(refTOtrace, refTOsurfTOtrace, tempVec);
+					VectorNormalize(tempVec);
+					if(DotProduct(trace.plane.normal, tempVec) > 0.0f)
+						rTtANGrTsTt = -rTtANGrTsTt;
+
+					// phew! - correct the angle
+					pm->ps->delta_angles[YAW] -= rTtANGrTsTt;
+				}
+
+				// construct a plane dividing the surf and trace normals
+				CrossProduct(traceCROSSsurf, surfNormal, abc);
+				VectorNormalize(abc);
+				d = DotProduct(abc, pm->ps->origin);
+
+				// construct a point representing where the player is looking
+				VectorAdd(pm->ps->origin, lookdir, point);
+
+				// check whether point is on one side of the plane, if so invert the correction angle
+				if((abc[0] * point[0] + abc[1] * point[1] + abc[2] * point[2] - d) > 0)
+					traceANGsurf = -traceANGsurf;
+
+				// find the . product of the lookdir and traceCROSSsurf
+				if((ldDOTtCs = DotProduct(lookdir, traceCROSSsurf)) < 0.0f)
+				{
+					VectorInverse(traceCROSSsurf);
+					ldDOTtCs = DotProduct(lookdir, traceCROSSsurf);
+				}
+
+				// set the correction angle
+				traceANGsurf *= 1.0f - ldDOTtCs;
+
+				/* FIXME
+				if(!(pm->ps->persistant[PERS_STATE] & PS_WALLCLIMBINGFOLLOW))
+				{
+					//correct the angle
+					pm->ps->delta_angles[PITCH] -= ANGLE2SHORT(traceANGsurf);
+				}
+				*/
+
+				// transition from wall to ceiling
+				// normal for subsequent viewangle rotations
+				if(VectorCompare(trace.plane.normal, ceilingNormal))
+				{
+					CrossProduct(surfNormal, trace.plane.normal, pm->ps->grapplePoint);
+					VectorNormalize(pm->ps->grapplePoint);
+					pm->ps->pm_flags |= PMF_WALLCLIMBINGCEILING;
+				}
+
+				// transition from ceiling to wall
+				// we need to do some different angle correction here cos GPISROTVEC
+				if(VectorCompare(surfNormal, ceilingNormal))
+				{
+					vectoangles(trace.plane.normal, toAngles);
+					vectoangles(pm->ps->grapplePoint, surfAngles);
+
+					pm->ps->delta_angles[1] -= ANGLE2SHORT(((surfAngles[1] - toAngles[1]) * 2) - 180.0f);
+				}
+			}
+
+			pml.groundTrace = trace;
+
+			// so everything knows where we're wallclimbing (ie client side)
+			pm->ps->eFlags |= EF_WALLCLIMB;
+
+			// if we're not stuck to the ceiling then set grapplePoint to be a surface normal
+			if(!VectorCompare(trace.plane.normal, ceilingNormal))
+			{
+				// so we know what surface we're stuck to
+				VectorCopy(trace.plane.normal, pm->ps->grapplePoint);
+				pm->ps->pm_flags &= ~PMF_WALLCLIMBINGCEILING;
+			}
+
+			// IMPORTANT: break out of the for loop if we've hit something
+			break;
+		}
+		else if(trace.allsolid)
+		{
+			// do something corrective if the trace starts in a solid...
+			if(!PM_CorrectAllSolid(&trace))
+				return;
+		}
+	}
+
+	if(trace.fraction >= 1.0f)
+	{
+		// if the trace didn't hit anything, we are in free fall
+		PM_GroundTraceMissed();
+		pml.groundPlane = qfalse;
+		pml.walking = qfalse;
+		pm->ps->eFlags &= ~EF_WALLCLIMB;
+
+		// just transided from ceiling to floor... apply delta correction
+		if(pm->ps->pm_flags & PMF_WALLCLIMBINGCEILING)
+		{
+			vec3_t          forward, rotated, angles;
+
+			AngleVectors(pm->ps->viewangles, forward, NULL, NULL);
+
+			RotatePointAroundVector(rotated, pm->ps->grapplePoint, forward, 180.0f);
+			vectoangles(rotated, angles);
+
+			pm->ps->delta_angles[YAW] -= ANGLE2SHORT(angles[YAW] - pm->ps->viewangles[YAW]);
+		}
+
+		pm->ps->pm_flags &= ~PMF_WALLCLIMBINGCEILING;
+
+		// we get very bizarre effects if we don't do this :0
+		VectorCopy(refNormal, pm->ps->grapplePoint);
+		return;
+	}
+
+	pml.groundPlane = qtrue;
+	pml.walking = qtrue;
+
+	// hitting solid ground will end a waterjump
+	if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)
+	{
+		pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND);
+		pm->ps->pm_time = 0;
+	}
+
+	pm->ps->groundEntityNum = trace.entityNum;
+
+	// don't reset the z velocity for slopes
+//  pm->ps->velocity[2] = 0;
+
+	PM_AddTouchEnt(trace.entityNum);
+}
+
+/*
+=============
 PM_GroundTrace
 =============
 */
 static void PM_GroundTrace(void)
 {
 	vec3_t          point;
+	vec3_t          movedir;
+	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	trace_t         trace;
+
+	//if(BG_ClassHasAbility(pm->ps->stats[STAT_PCLASS], SCA_WALLCLIMBER))
+	{
+#if 0
+		if(pm->ps->persistant[PERS_STATE] & PS_WALLCLIMBINGTOGGLE)
+		{
+			// toggle wall climbing if holding crouch
+			if(pm->cmd.upmove < 0 && !(pm->ps->pm_flags & PMF_CROUCH_HELD))
+			{
+				if(!(pm->ps->stats[STAT_STATE] & SS_WALLCLIMBING))
+					pm->ps->stats[STAT_STATE] |= SS_WALLCLIMBING;
+				else if(pm->ps->stats[STAT_STATE] & SS_WALLCLIMBING)
+					pm->ps->stats[STAT_STATE] &= ~SS_WALLCLIMBING;
+
+				pm->ps->pm_flags |= PMF_CROUCH_HELD;
+			}
+			else if(pm->cmd.upmove >= 0)
+				pm->ps->pm_flags &= ~PMF_CROUCH_HELD;
+		}
+		else
+		{
+			if(pm->cmd.upmove < 0)
+				pm->ps->stats[STAT_STATE] |= SS_WALLCLIMBING;
+			else if(pm->cmd.upmove >= 0)
+				pm->ps->stats[STAT_STATE] &= ~SS_WALLCLIMBING;
+		}
+#endif
+
+		if(pm->ps->pm_type == PM_DEAD)
+			pm->ps->pm_flags &= ~PMF_WALLCLIMBING;
+
+		if(pm->ps->pm_flags & PMF_WALLCLIMBING)
+		{
+			PM_GroundClimbTrace();
+			return;
+		}
+
+		// just transided from ceiling to floor... apply delta correction
+		if(pm->ps->pm_flags & PMF_WALLCLIMBINGCEILING)
+		{
+			vec3_t          forward, rotated, angles;
+
+			AngleVectors(pm->ps->viewangles, forward, NULL, NULL);
+
+			RotatePointAroundVector(rotated, pm->ps->grapplePoint, forward, 180.0f);
+			vectoangles(rotated, angles);
+
+			pm->ps->delta_angles[YAW] -= ANGLE2SHORT(angles[YAW] - pm->ps->viewangles[YAW]);
+		}
+	}
+
+
+	pm->ps->pm_flags &= ~PMF_WALLCLIMBING;
+	pm->ps->pm_flags &= ~PMF_WALLCLIMBINGCEILING;
+	pm->ps->eFlags &= ~EF_WALLCLIMB;
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
-	point[2] = pm->ps->origin[2] - 0.25;
+	point[2] = pm->ps->origin[2] - 0.25f;
 
-	pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+	PM_TraceAll(&trace, pm->ps->origin, point);
 	pml.groundTrace = trace;
 
 	// do something corrective if the trace starts in a solid...
@@ -1396,17 +1918,60 @@ static void PM_GroundTrace(void)
 			return;
 	}
 
+	// make sure that the surfNormal is reset to the ground
+	VectorCopy(refNormal, pm->ps->grapplePoint);
+
 	// if the trace didn't hit anything, we are in free fall
-	if(trace.fraction == 1.0)
+	if(trace.fraction == 1.0f)
 	{
-		PM_GroundTraceMissed();
-		pml.groundPlane = qfalse;
-		pml.walking = qfalse;
-		return;
+		qboolean        steppedDown = qfalse;
+
+		// try to step down
+		if(pml.groundPlane != qfalse && PM_PredictStepMove())
+		{
+			// step down
+			point[0] = pm->ps->origin[0];
+			point[1] = pm->ps->origin[1];
+			point[2] = pm->ps->origin[2] - STEPSIZE;
+			PM_TraceAll(&trace, pm->ps->origin, point);
+
+			// if we hit something
+			if(trace.fraction < 1.0f)
+			{
+				PM_StepEvent(pm->ps->origin, trace.endpos, refNormal);
+				VectorCopy(trace.endpos, pm->ps->origin);
+				steppedDown = qtrue;
+			}
+		}
+
+		if(!steppedDown)
+		{
+			PM_GroundTraceMissed();
+			pml.groundPlane = qfalse;
+			pml.walking = qfalse;
+			return;
+		}
+	}
+
+	// enable wallwalking for next frame
+	if(trace.surfaceFlags & SURF_WALLWALK)
+	{
+		if(pm->debugLevel)
+		{
+			Com_Printf("%i:wallwalk\n", c_pmove);
+
+			if(VectorLength(trace.plane.normal) > 0.999)
+			{
+				Com_Printf("%i:bad wallwalk surface normal\n", c_pmove);
+			}
+		}
+
+		VectorCopy(trace.plane.normal, pm->ps->grapplePoint);
+		pm->ps->pm_flags |= PMF_WALLCLIMBING;
 	}
 
 	// check if getting thrown off the ground
-	if(pm->ps->velocity[2] > 0 && DotProduct(pm->ps->velocity, trace.plane.normal) > 10)
+	if(pm->ps->velocity[2] > 0.0f && DotProduct(pm->ps->velocity, trace.plane.normal) > 10.0f)
 	{
 		if(pm->debugLevel)
 		{
@@ -1503,30 +2068,31 @@ static void PM_SetWaterLevel(void)
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
-	point[2] = pm->ps->origin[2] + MINS_Z + 1;
+	point[2] = pm->ps->origin[2] + playerMins[2] + 1;
 	cont = pm->pointcontents(point, pm->ps->clientNum);
 
 	if(cont & MASK_WATER)
 	{
-		sample2 = pm->ps->viewheight - MINS_Z;
+		sample2 = pm->ps->viewheight - playerMins[2];
 		sample1 = sample2 / 2;
 
 		pm->watertype = cont;
 		pm->waterlevel = 1;
-		point[2] = pm->ps->origin[2] + MINS_Z + sample1;
+		point[2] = pm->ps->origin[2] + playerMins[2] + sample1;
 		cont = pm->pointcontents(point, pm->ps->clientNum);
+
 		if(cont & MASK_WATER)
 		{
 			pm->waterlevel = 2;
-			point[2] = pm->ps->origin[2] + MINS_Z + sample2;
+			point[2] = pm->ps->origin[2] + playerMins[2] + sample2;
 			cont = pm->pointcontents(point, pm->ps->clientNum);
+
 			if(cont & MASK_WATER)
 			{
 				pm->waterlevel = 3;
 			}
 		}
 	}
-
 }
 
 /*
@@ -1550,8 +2116,9 @@ static void PM_CheckDuck(void)
 		}
 		else
 		{
-			VectorSet(pm->mins, -15, -15, MINS_Z);
-			VectorSet(pm->maxs, 15, 15, 16);
+			// Tr3B: use global player size constants
+			VectorCopy(playerMins, pm->mins);
+			VectorCopy(playerMaxs, pm->maxs);
 		}
 		pm->ps->pm_flags |= PMF_DUCKED;
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
@@ -1559,13 +2126,9 @@ static void PM_CheckDuck(void)
 	}
 	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
 
-	pm->mins[0] = -15;
-	pm->mins[1] = -15;
-
-	pm->maxs[0] = 15;
-	pm->maxs[1] = 15;
-
-	pm->mins[2] = MINS_Z;
+	// Tr3B: use global player size constants
+	VectorCopy(playerMins, pm->mins);
+	VectorCopy(playerMaxs, pm->maxs);
 
 	if(pm->ps->pm_type == PM_DEAD)
 	{
@@ -1584,7 +2147,7 @@ static void PM_CheckDuck(void)
 		{
 			// try to stand up
 			pm->maxs[2] = 32;
-			pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
+			PM_TraceAll(&trace, pm->ps->origin, pm->ps->origin);
 			if(!trace.allsolid)
 				pm->ps->pm_flags &= ~PMF_DUCKED;
 		}
@@ -1622,7 +2185,16 @@ static void PM_Footsteps(void)
 	// calculate speed and cycle to be used for
 	// all cyclic walking effects
 	//
-	pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
+	if(pml.groundPlane)
+	{
+		// TA: FIXME: yes yes i know this is wrong
+		pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0]
+						   + pm->ps->velocity[1] * pm->ps->velocity[1] + pm->ps->velocity[2] * pm->ps->velocity[2]);
+	}
+	else
+	{
+		pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
+	}
 
 	if(pm->ps->groundEntityNum == ENTITYNUM_NONE)
 	{
@@ -1663,6 +2235,7 @@ static void PM_Footsteps(void)
 	if(pm->ps->pm_flags & PMF_DUCKED)
 	{
 		bobmove = 0.5;			// ducked characters bob much faster
+
 		if(pm->ps->pm_flags & PMF_BACKWARDS_RUN)
 		{
 			PM_ContinueLegsAnim(LEGS_BACKCR);
@@ -1688,6 +2261,7 @@ static void PM_Footsteps(void)
 		if(!(pm->cmd.buttons & BUTTON_WALKING))
 		{
 			bobmove = 0.4f;		// faster speeds bob faster
+
 			if(pm->ps->pm_flags & PMF_BACKWARDS_RUN)
 			{
 				PM_ContinueLegsAnim(LEGS_BACK);
@@ -1740,7 +2314,6 @@ static void PM_Footsteps(void)
 		else if(pm->waterlevel == 3)
 		{
 			// no sound when completely underwater
-
 		}
 	}
 }
@@ -1753,7 +2326,8 @@ Generate sound events for entering and leaving water
 ==============
 */
 static void PM_WaterEvents(void)
-{								// FIXME?
+{
+	// FIXME?
 	//
 	// if just entered a water volume, play a sound
 	//
@@ -2134,7 +2708,6 @@ static void PM_Weapon(void)
 PM_Animate
 ================
 */
-
 static void PM_Animate(void)
 {
 	if(pm->cmd.buttons & BUTTON_GESTURE)
@@ -2245,11 +2818,12 @@ static void PM_DropTimers(void)
 PM_UpdateViewAngles
 
 This can be used as another entry point when only the viewangles
-are being updated isntead of a full move
+are being updated instead of a full move
 ================
 */
 void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd)
 {
+#if 0
 	short           temp;
 	int             i;
 
@@ -2284,6 +2858,69 @@ void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd)
 		ps->viewangles[i] = SHORT2ANGLE(temp);
 	}
 
+#else
+	short           temp[3];
+	int             i;
+	vec3_t          axis[3], rotaxis[3];
+	vec3_t          tempang;
+
+	if(ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION)
+	{
+		return;					// no view changes at all
+	}
+
+	if(ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0)
+	{
+		return;					// no view changes at all
+	}
+
+	// circularly clamp the angles with deltas
+	for(i = 0; i < 3; i++)
+	{
+		temp[i] = cmd->angles[i] + ps->delta_angles[i];
+
+		if(i == PITCH)
+		{
+			// don't let the player look up or down more than 90 degrees
+			if(temp[i] > 16000)
+			{
+				ps->delta_angles[i] = 16000 - cmd->angles[i];
+				temp[i] = 16000;
+			}
+			else if(temp[i] < -16000)
+			{
+				ps->delta_angles[i] = -16000 - cmd->angles[i];
+				temp[i] = -16000;
+			}
+		}
+		tempang[i] = SHORT2ANGLE(temp[i]);
+	}
+
+	// convert viewangles -> axis
+	AnglesToAxis(tempang, axis);
+
+	if(!(ps->pm_flags & PMF_WALLCLIMBING) || !BG_RotateAxis(ps->grapplePoint, axis, rotaxis, qfalse, ps->pm_flags & PMF_WALLCLIMBINGCEILING))
+		AxisCopy(axis, rotaxis);
+
+	// convert the new axis back to angles
+	AxisToAngles(rotaxis, tempang);
+
+	// force angles to -180 <= x <= 180
+	// TODO use AngleNormalize180()
+	for(i = 0; i < 3; i++)
+	{
+		while(tempang[i] > 180)
+			tempang[i] -= 360;
+
+		while(tempang[i] < 180)
+			tempang[i] += 360;
+	}
+
+	// actually set the viewangles
+	for(i = 0; i < 3; i++)
+		ps->viewangles[i] = tempang[i];
+
+#endif
 }
 
 
@@ -2339,8 +2976,6 @@ void PmoveSingle(pmove_t * pmove)
 	// adding fake talk balloons
 	if(pmove->cmd.buttons & BUTTON_TALK)
 	{
-		// keep the talk button set tho for when the cmd.serverTime > 66 msec
-		// and the same cmd is used multiple times in Pmove
 		pmove->cmd.buttons = BUTTON_TALK;
 		pmove->cmd.forwardmove = 0;
 		pmove->cmd.rightmove = 0;
@@ -2400,6 +3035,8 @@ void PmoveSingle(pmove_t * pmove)
 
 	if(pm->ps->pm_type == PM_SPECTATOR)
 	{
+		// update the viewangles
+		PM_UpdateViewAngles(pm->ps, &pm->cmd);
 		PM_CheckDuck();
 		PM_FlyMove();
 		PM_DropTimers();
@@ -2408,6 +3045,7 @@ void PmoveSingle(pmove_t * pmove)
 
 	if(pm->ps->pm_type == PM_NOCLIP)
 	{
+		PM_UpdateViewAngles(pm->ps, &pm->cmd);
 		PM_NoclipMove();
 		PM_DropTimers();
 		return;
@@ -2432,6 +3070,9 @@ void PmoveSingle(pmove_t * pmove)
 
 	// set groundentity
 	PM_GroundTrace();
+
+	// update the viewangles
+	PM_UpdateViewAngles(pm->ps, &pm->cmd);
 
 	if(pm->ps->pm_type == PM_DEAD)
 	{
@@ -2470,8 +3111,16 @@ void PmoveSingle(pmove_t * pmove)
 	}
 	else if(pml.walking)
 	{
-		// walking on ground
-		PM_WalkMove();
+		if(pm->ps->pm_flags & PMF_WALLCLIMBING)
+		{
+			// TA: walking on any surface
+			PM_ClimbMove();
+		}
+		else
+		{
+			// walking on ground
+			PM_WalkMove();
+		}
 	}
 	else
 	{
@@ -2483,6 +3132,11 @@ void PmoveSingle(pmove_t * pmove)
 
 	// set groundentity, watertype, and waterlevel
 	PM_GroundTrace();
+
+	//TA: must update after every GroundTrace() - yet more clock cycles down the drain :( (14 vec rotations/frame)
+	// update the viewangles
+	PM_UpdateViewAngles(pm->ps, &pm->cmd);
+
 	PM_SetWaterLevel();
 
 	// weapons

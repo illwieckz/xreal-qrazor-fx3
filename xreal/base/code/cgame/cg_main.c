@@ -237,6 +237,7 @@ vmCvar_t        cg_obeliskRespawnDelay;
 #endif
 
 vmCvar_t        cg_drawPlayerCollision;
+vmCvar_t        cg_wallWalkSmoothTime;
 
 typedef struct
 {
@@ -390,6 +391,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 	{&cg_gravity, "g_gravity", "0", 0},	// communicated by systeminfo
 	{&cg_drawPlayerCollision, "cg_drawPlayerCollision", "0", CVAR_CHEAT},
+	{&cg_wallWalkSmoothTime, "cg_wallWalkSmoothTime", "300", CVAR_ARCHIVE},
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);

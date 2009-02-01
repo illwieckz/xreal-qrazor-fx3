@@ -25,14 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_client.c -- client functions that don't happen every frame
 
-#if 1
-const vec3_t    playerMins = { -15, -15, -24 };
-const vec3_t    playerMaxs = { 15, 15, 32 };
-#else
-// Enemy Territory
-vec3_t          playerMins = { -18, -18, -24 };
-vec3_t          playerMaxs = { 18, 18, 48 };
-#endif
+
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
@@ -1093,6 +1086,10 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		G_InitSessionData(client, userinfo);
 	}
 	G_ReadSessionData(client);
+
+	// Tr3B: add SVF_CAPSULE to players so we can trace against the rotated capsules
+	// in the server entity tracing code SV_ClipToEntity
+	ent->r.svFlags |= SVF_CAPSULE;
 
 	if(isBot)
 	{

@@ -454,7 +454,7 @@ CG_XPPM_PlayerAngles
 copy of CG_PlayerAngles
 ===============
 */
-static void CG_XPPM_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t torsoAngles, vec3_t headAngles)
+static void CG_XPPM_PlayerAngles(centity_t * cent, const vec3_t sourceAngles, vec3_t legsAngles, vec3_t torsoAngles, vec3_t headAngles)
 {
 	float           dest;
 	static int      movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
@@ -463,7 +463,7 @@ static void CG_XPPM_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t tor
 	int             dir, clientNum;
 	clientInfo_t   *ci;
 
-	VectorCopy(cent->lerpAngles, headAngles);
+	VectorCopy(sourceAngles, headAngles);
 	headAngles[YAW] = AngleMod(headAngles[YAW]);
 	VectorClear(legsAngles);
 	VectorClear(torsoAngles);
@@ -488,7 +488,8 @@ static void CG_XPPM_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t tor
 	}
 	else
 	{
-		dir = cent->currentState.angles2[YAW];
+		// TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
+		dir = cent->currentState.time2;
 		if(dir < 0 || dir > 7)
 		{
 			CG_Error("Bad player movement angle");
@@ -572,6 +573,97 @@ static void CG_XPPM_PlayerAngles(centity_t * cent, vec3_t legsAngles, vec3_t tor
 	AnglesSubtract(torsoAngles, legsAngles, torsoAngles);
 }
 
+
+/*
+===============
+CG_XPPM_PlayerWWSmoothing
+
+Smooth the angles of transitioning wall walkers
+===============
+*/
+#define MODEL_WWSMOOTHTIME 200
+static void CG_XPPM_PlayerWWSmoothing(centity_t * cent, vec3_t in[3], vec3_t out[3])
+{
+	entityState_t  *es = &cent->currentState;
+	int             i;
+	vec3_t          surfNormal, rotAxis, temp;
+	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
+	vec3_t          ceilingNormal = { 0.0f, 0.0f, -1.0f };
+	float           stLocal, sFraction, rotAngle;
+	vec3_t          inAxis[3], lastAxis[3], outAxis[3];
+
+	//set surfNormal
+	if(!(es->eFlags & EF_WALLCLIMB))
+		VectorCopy(refNormal, surfNormal);
+	else if(!(es->eFlags & EF_WALLCLIMBCEILING))
+		VectorCopy(es->angles2, surfNormal);
+	else
+		VectorCopy(ceilingNormal, surfNormal);
+
+	AxisCopy(in, inAxis);
+
+	if(!VectorCompare(surfNormal, cent->pe.lastNormal))
+	{
+		//if we moving from the ceiling to the floor special case
+		//( x product of colinear vectors is undefined)
+		if(VectorCompare(ceilingNormal, cent->pe.lastNormal) && VectorCompare(refNormal, surfNormal))
+		{
+			VectorCopy(in[1], rotAxis);
+			rotAngle = 180.0f;
+		}
+		else
+		{
+			AxisCopy(cent->pe.lastAxis, lastAxis);
+			rotAngle = DotProduct(inAxis[0], lastAxis[0]) +
+				DotProduct(inAxis[1], lastAxis[1]) + DotProduct(inAxis[2], lastAxis[2]);
+
+			rotAngle = RAD2DEG(acos((rotAngle - 1.0f) / 2.0f));
+
+			CrossProduct(lastAxis[0], inAxis[0], temp);
+			VectorCopy(temp, rotAxis);
+			CrossProduct(lastAxis[1], inAxis[1], temp);
+			VectorAdd(rotAxis, temp, rotAxis);
+			CrossProduct(lastAxis[2], inAxis[2], temp);
+			VectorAdd(rotAxis, temp, rotAxis);
+
+			VectorNormalize(rotAxis);
+		}
+
+		//iterate through smooth array
+		for(i = 0; i < MAXSMOOTHS; i++)
+		{
+			//found an unused index in the smooth array
+			if(cent->pe.sList[i].time + MODEL_WWSMOOTHTIME < cg.time)
+			{
+				//copy to array and stop
+				VectorCopy(rotAxis, cent->pe.sList[i].rotAxis);
+				cent->pe.sList[i].rotAngle = rotAngle;
+				cent->pe.sList[i].time = cg.time;
+				break;
+			}
+		}
+	}
+
+	//iterate through ops
+	for(i = MAXSMOOTHS - 1; i >= 0; i--)
+	{
+		//if this op has time remaining, perform it
+		if(cg.time < cent->pe.sList[i].time + MODEL_WWSMOOTHTIME)
+		{
+			stLocal = 1.0f - (((cent->pe.sList[i].time + MODEL_WWSMOOTHTIME) - cg.time) / MODEL_WWSMOOTHTIME);
+			sFraction = -(cos(stLocal * M_PI) + 1.0f) / 2.0f;
+
+			RotatePointAroundVector(outAxis[0], cent->pe.sList[i].rotAxis, inAxis[0], sFraction * cent->pe.sList[i].rotAngle);
+			RotatePointAroundVector(outAxis[1], cent->pe.sList[i].rotAxis, inAxis[1], sFraction * cent->pe.sList[i].rotAngle);
+			RotatePointAroundVector(outAxis[2], cent->pe.sList[i].rotAxis, inAxis[2], sFraction * cent->pe.sList[i].rotAngle);
+
+			AxisCopy(outAxis, inAxis);
+		}
+	}
+
+	//outAxis has been copied to inAxis
+	AxisCopy(inAxis, out);
+}
 
 /*
 ===============
@@ -893,7 +985,7 @@ CG_XPPM_Player
 
 // has to be in sync with clientRespawnTime
 #define DEATHANIM_TIME 1650
-
+#define TRACE_DEPTH 32.0f
 void CG_XPPM_Player(centity_t * cent)
 {
 	clientInfo_t   *ci;
@@ -904,17 +996,24 @@ void CG_XPPM_Player(centity_t * cent)
 	float           shadowPlane;
 	int             noShadowID;
 
+	vec3_t          angles;
 	vec3_t          legsAngles;
 	vec3_t          torsoAngles;
 	vec3_t          headAngles;
 
+	matrix_t		bodyRotation;
 	quat_t          torsoQuat;
 	quat_t          headQuat;
+
+	vec3_t          tempAxis[3], tempAxis2[3];
 
 	int             i;
 	int             boneIndex;
 	int             firstTorsoBone;
 	int             lastTorsoBone;
+
+	vec3_t          surfNormal = { 0.0f, 0.0f, 1.0f };
+	vec3_t			playerOrigin;
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -962,8 +1061,32 @@ void CG_XPPM_Player(centity_t * cent)
 	AxisClear(body.axis);
 
 	// get the rotation information
-	CG_XPPM_PlayerAngles(cent, legsAngles, torsoAngles, headAngles);
+	VectorCopy(cent->lerpAngles, angles);
+	AnglesToAxis(cent->lerpAngles, tempAxis);
+
+	// rotate lerpAngles to floor
+	if(cent->currentState.eFlags & EF_WALLCLIMB && BG_RotateAxis(cent->currentState.angles2, tempAxis, tempAxis2, qtrue, cent->currentState.eFlags & EF_WALLCLIMBCEILING))
+		AxisToAngles(tempAxis2, angles);
+	else
+		VectorCopy(cent->lerpAngles, angles);
+
+	// normalize the pitch
+	if(angles[PITCH] < -180.0f)
+		angles[PITCH] += 360.0f;
+
+	CG_XPPM_PlayerAngles(cent, angles, legsAngles, torsoAngles, headAngles);
 	AnglesToAxis(legsAngles, body.axis);
+
+	AxisCopy(body.axis, tempAxis);
+
+	// rotate the legs axis to back to the wall
+	if(cent->currentState.eFlags & EF_WALLCLIMB && BG_RotateAxis(cent->currentState.angles2, body.axis, tempAxis, qfalse, cent->currentState.eFlags & EF_WALLCLIMBCEILING))
+		AxisCopy(tempAxis, body.axis);
+
+	// smooth out WW transitions so the model doesn't hop around
+	CG_XPPM_PlayerWWSmoothing(cent, body.axis, body.axis);
+
+	AxisCopy(tempAxis, cent->pe.lastAxis);
 
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_XPPM_PlayerAnimation(cent);
@@ -1028,12 +1151,57 @@ void CG_XPPM_Player(centity_t * cent)
 		return;
 	}
 
-	VectorCopy(cent->lerpOrigin, body.origin);
-	body.origin[2] += MINS_Z;
-
-	VectorCopy(body.origin, body.lightingOrigin);
 	body.shadowPlane = shadowPlane;
 	body.renderfx = renderfx;
+
+	// move the origin closer into the wall with a CapTrace
+#if 1
+	if(cent->currentState.eFlags & EF_WALLCLIMB && !(cent->currentState.eFlags & EF_DEAD) && !(cg.intermissionStarted))
+	{
+		vec3_t          start, end, mins, maxs;
+		trace_t         tr;
+
+		if(cent->currentState.eFlags & EF_WALLCLIMBCEILING)
+			VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+		else
+			VectorCopy(cent->currentState.angles2, surfNormal);
+
+		VectorCopy(playerMins, mins);
+		VectorCopy(playerMaxs, maxs);
+
+		VectorMA(cent->lerpOrigin, -TRACE_DEPTH, surfNormal, end);
+		VectorMA(cent->lerpOrigin, 1.0f, surfNormal, start);
+		CG_CapTrace(&tr, start, mins, maxs, end, cent->currentState.number, MASK_PLAYERSOLID);
+
+		// if the trace misses completely then just use body.origin
+		// apparently capsule traces are "smaller" than box traces
+		if(tr.fraction != 1.0f)
+		{
+			VectorCopy(tr.endpos, playerOrigin);
+
+			// MD5 player models have their model origin at (0 0 0)
+			VectorMA(playerOrigin, MINS_Z, surfNormal, body.origin);
+		}
+		else
+		{
+			VectorCopy(cent->lerpOrigin, playerOrigin);
+
+			// MD5 player models have their model origin at (0 0 0)
+			VectorMA(cent->lerpOrigin, -TRACE_DEPTH, surfNormal, body.origin);
+		}
+
+		VectorCopy(body.origin, body.lightingOrigin);
+		VectorCopy(body.origin, body.oldorigin);	// don't positionally lerp at all
+	}
+	else
+#endif
+	{
+		VectorCopy(cent->lerpOrigin, playerOrigin);
+		VectorCopy(playerOrigin, body.origin);
+		body.origin[2] += MINS_Z;
+	}
+
+	VectorCopy(body.origin, body.lightingOrigin);
 	VectorCopy(body.origin, body.oldorigin);	// don't positionally lerp at all
 
 	// copy legs skeleton to have a base
@@ -1372,7 +1540,10 @@ void CG_XPPM_Player(centity_t * cent)
 	CG_PlayerPowerups(cent, &body, noShadowID);
 
 	// add the bounding box (if cg_drawPlayerCollision is 1)
-	CG_DrawPlayerCollision(cent);
+	MatrixFromVectorsFLU(bodyRotation, body.axis[0], body.axis[1], body.axis[2]);
+	CG_DrawPlayerCollision(cent, playerOrigin, bodyRotation);
+
+	VectorCopy(surfNormal, cent->pe.lastNormal);
 }
 
 

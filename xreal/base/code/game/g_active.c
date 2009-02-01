@@ -465,7 +465,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
-		pm.trace = trap_Trace; // FIXME Capsule;
+		pm.trace = trap_TraceCapsuleNoEnts; // FIXME Capsule;
 		pm.pointcontents = trap_PointContents;
 
 		// perform a pmove
@@ -985,9 +985,11 @@ void SendPendingPredictableEvents(playerState_t * ps)
 		// except the client who generated the event
 		seq = ps->entityEventSequence & (MAX_PS_EVENTS - 1);
 		event = ps->events[seq] | ((ps->entityEventSequence & 3) << 8);
+
 		// set external event to zero before calling BG_PlayerStateToEntityState
 		extEvent = ps->externalEvent;
 		ps->externalEvent = 0;
+
 		// create temporary entity for event
 		t = G_TempEntity(ps->origin, event);
 		number = t->s.number;
@@ -996,9 +998,11 @@ void SendPendingPredictableEvents(playerState_t * ps)
 		t->s.eType = ET_EVENTS + event;
 		t->s.eFlags |= EF_PLAYER_EVENT;
 		t->s.otherEntityNum = ps->clientNum;
+
 		// send to everyone except the client who generated the event
 		t->r.svFlags |= SVF_NOTSINGLECLIENT;
 		t->r.singleClient = ps->clientNum;
+
 		// set back external event
 		ps->externalEvent = extEvent;
 	}
@@ -1177,6 +1181,8 @@ void ClientThink_real(gentity_t * ent)
 
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
+	pm.trace = trap_Trace; // FIXME Capsule;
+
 	if(pm.ps->pm_type == PM_DEAD)
 	{
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
@@ -1185,11 +1191,14 @@ void ClientThink_real(gentity_t * ent)
 	{
 		pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;
 	}
+	else if(pm.ps->pm_type == PM_SPECTATOR)
+	{
+		pm.trace = trap_TraceCapsuleNoEnts;
+	}
 	else
 	{
 		pm.tracemask = MASK_PLAYERSOLID;
 	}
-	pm.trace = trap_Trace; // FIXME Capsule;
 	pm.pointcontents = trap_PointContents;
 	pm.debugLevel = pm_debugMove.integer;
 	pm.airControl = pm_airControl.integer;

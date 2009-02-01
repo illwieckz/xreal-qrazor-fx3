@@ -158,6 +158,25 @@ int             debug_anim_old;
 float           debug_anim_blend;
 
 
+// player entities need to track more information
+// than any other type of entity.
+
+// note that not every player entity is a client entity,
+// because corpses after respawn are outside the normal
+// client numbering range
+
+//TA: smoothing of view and model for WW transitions
+#define   MAXSMOOTHS          32
+
+typedef struct
+{
+	float           time;
+	float           timeMod;
+
+	vec3_t          rotAxis;
+	float           rotAngle;
+} smooth_t;
+
 typedef struct
 {
 	lerpFrame_t     legs, torso, flag, gun;
@@ -178,6 +197,10 @@ typedef struct
 	int             deathTime;
 	float           deathScale;
 
+	// wallwalk
+	vec3_t          lastNormal;
+	vec3_t          lastAxis[3];
+	smooth_t        sList[MAXSMOOTHS];
 } playerEntity_t;
 
 //=================================================
@@ -875,9 +898,15 @@ typedef struct
 	int             bar_count;	//number of items displayed in the bar
 	int             scoreboard_offset;	// scoreboard scrolling
 
-	//osd
-
+	// OSD
 	osd_t           osd;
+
+	// wallwalk
+	vec3_t          lastNormal;	//TA: view smoothage
+	vec3_t          lastVangles;	//TA: view smoothage
+	smooth_t        sList[MAXSMOOTHS];	//TA: WW smoothing
+
+	int             spawnTime;	//TA: fovwarp
 
 } cg_t;
 
@@ -1529,6 +1558,7 @@ extern vec4_t   blueTeamColor;
 extern vec4_t   baseTeamColor;
 
 extern vmCvar_t cg_drawPlayerCollision;
+extern vmCvar_t cg_wallWalkSmoothTime;
 
 //
 // cg_main.c
@@ -1661,14 +1691,14 @@ qhandle_t       CG_StatusHandle(int task);
 
 
 //
-// cg_player.c
+// cg_players.c
 //
 void            CG_Player(centity_t * cent);
 void            CG_ResetPlayerEntity(centity_t * cent);
 void            CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int team);
 void            CG_NewClientInfo(int clientNum);
 sfxHandle_t     CG_CustomSound(int clientNum, const char *soundName);
-void			CG_DrawPlayerCollision(centity_t * cent);
+void			CG_DrawPlayerCollision(centity_t * cent, const vec3_t bodyOrigin, const matrix_t bodyRotation);
 
 //
 // cg_predict.c
