@@ -1404,6 +1404,8 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	refEntity_t     beam;
 	vec3_t          forward;
 	vec3_t          muzzlePoint, endPoint;
+	vec3_t			surfNormal;
+	int				anim;
 
 	if(cent->currentState.weapon != WP_LIGHTNING)
 		return;
@@ -1411,6 +1413,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 	memset(&beam, 0, sizeof(beam));
 
 	// CPMA  "true" lightning
+#if 0
 	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
 	{
 		vec3_t          angle;
@@ -1445,14 +1448,38 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 //      VectorCopy(cg.refdef.vieworg, muzzlePoint );
 	}
 	else
+#endif
 	{
+		if(cent->currentState.eFlags & EF_WALLCLIMB)
+		{
+			if(cent->currentState.eFlags & EF_WALLCLIMBCEILING)
+			{
+				VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+			}
+			else
+			{
+				VectorCopy(cent->currentState.angles2, surfNormal);
+			}
+		}
+		else
+		{
+			VectorSet(surfNormal, 0.0f, 0.0f, 1.0f);
+		}
+
 		// !CPMA
 		AngleVectors(cent->lerpAngles, forward, NULL, NULL);
 		VectorCopy(cent->lerpOrigin, muzzlePoint);
 	}
 
-	// FIXME: crouch
-	muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
+	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+	if(anim == LEGS_WALKCR || anim == LEGS_IDLECR)
+	{
+		VectorMA(muzzlePoint, CROUCH_VIEWHEIGHT, surfNormal, muzzlePoint);
+	}
+	else
+	{
+		VectorMA(muzzlePoint, DEFAULT_VIEWHEIGHT, surfNormal, muzzlePoint);
+	}
 
 	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
 
@@ -3328,6 +3355,10 @@ static qboolean CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle)
 			else
 				VectorCopy(cg.snap->ps.grapplePoint, surfNormal);
 		}
+		else
+		{
+			VectorSet(surfNormal, 0.0f, 0.0f, 1.0f);
+		}
 
 		VectorMA(cg.snap->ps.origin, cg.snap->ps.viewheight, surfNormal, muzzle);
 
@@ -3349,10 +3380,14 @@ static qboolean CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle)
 
 	if(cent->currentState.eFlags & EF_WALLCLIMB)
 	{
-		if(cent->currentState.eFlags & EF_WALLCLIMB)
+		if(cent->currentState.eFlags & EF_WALLCLIMBCEILING)
 			VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
 		else
 			VectorCopy(cent->currentState.angles2, surfNormal);
+	}
+	else
+	{
+		VectorSet(surfNormal, 0.0f, 0.0f, 1.0f);
 	}
 
 	//VectorMA(cent->currentState.pos.trBase, cg.snap->ps.viewheight, surfNormal, muzzle);
