@@ -413,8 +413,8 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 		break;
 	}
 
-#if defined(WIN32)
 	// try to initialize an OpenGL 3.0 context
+#if 0 //defined(WIN32)
 	qwglCreateContextAttribsARB = SDL_GL_GetProcAddress("wglCreateContextAttribsARB");
 	if(qwglCreateContextAttribsARB)
 	{
@@ -427,6 +427,44 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 		attribs[2] = 0;			//terminate first pair
 
 		opengl_context->hGLRC = qwglCreateContextAttribsARB(opengl_context->hDC, opengl_context->hGLRC, attribs);
+		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
+		{
+			ri.Printf(PRINT_ALL, " done\n");
+			glConfig.driverType = GLDRV_OPENGL3;
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, " failed\n");
+		}
+	}
+#elif 0 //defined(__linux__)
+
+	// TODO
+
+	/*
+// GLX_ARB_create_context
+#ifndef GLX_ARB_create_context
+#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#define GLX_CONTEXT_FLAGS_ARB              0x2094
+
+extern GLXContext	(APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
+*/
+
+	qglXCreateContextAttribsARB = SDL_GL_GetProcAddress("glXCreateContextAttribsARB");
+	if(qglXCreateContextAttribsARB)
+	{
+		int             attribs[3];
+
+		ri.Printf(PRINT_ALL, "Initializing OpenGL 3.0 context...");
+
+		attribs[0] = WGL_CONTEXT_MAJOR_VERSION_ARB;
+		attribs[1] = 3;
+		attribs[2] = 0;			//terminate first pair
+
+		opengl_context->hGLRC = qglXCreateContextAttribsARB(opengl_context->, attribs);
 		if(wglMakeCurrent(opengl_context->hDC, opengl_context->hGLRC))
 		{
 			ri.Printf(PRINT_ALL, " done\n");

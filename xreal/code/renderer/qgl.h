@@ -226,6 +226,19 @@ extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 extern          HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
 #endif
 
+#if defined(__linux__)
+// GLX_ARB_create_context
+#ifndef GLX_ARB_create_context
+#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#define GLX_CONTEXT_FLAGS_ARB              0x2094
+#endif
+
+extern GLXContext	(APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
+#endif
+
 // GL_EXT_texture3D
 #ifndef GL_EXT_texture3D
 #define GL_PACK_SKIP_IMAGES_EXT           0x806B

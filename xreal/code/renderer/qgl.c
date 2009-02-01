@@ -112,6 +112,11 @@ void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsiz
 HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
 #endif
 
+#if defined(__linux__)
+// GLX_ARB_create_context
+GLXContext      (APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
+#endif
+
 
 static void     (APIENTRY * dllBindTexture) (GLenum target, GLuint texture);
 static void     (APIENTRY * dllBlendFunc) (GLenum sfactor, GLenum dfactor);
@@ -773,8 +778,8 @@ qboolean GLimp_sdl_init_video(void)
 /*
 ** QGL_Init
 **
-** This is responsible for binding our qgl function pointers to 
-** the appropriate GL stuff.  In Windows this means doing a 
+** This is responsible for binding our qgl function pointers to
+** the appropriate GL stuff.  In Windows this means doing a
 ** LoadLibrary and a bunch of calls to GetProcAddress.  On other
 ** operating systems we need to do the right thing, whatever that
 ** might be.
@@ -841,7 +846,7 @@ int QGL_Init()
 	qglTexSubImage1D             = dllTexSubImage1D             = GPA( "glTexSubImage1D" );
 	qglTexSubImage2D             = dllTexSubImage2D             = GPA( "glTexSubImage2D" );
 	qglViewport                  = dllViewport                  = GPA( "glViewport" );
-	
+
 	// check logging
 	QGL_EnableLogging(r_logFile->integer);
 
