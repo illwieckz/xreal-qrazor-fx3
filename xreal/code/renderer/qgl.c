@@ -112,7 +112,7 @@ void            (APIENTRY * qglViewport) (GLint x, GLint y, GLsizei width, GLsiz
 HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
 #endif
 
-#if defined(__linux__)
+#if 0 //defined(__linux__)
 // GLX_ARB_create_context
 GLXContext      (APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBConfig config, GLXContext share_context, Bool direct, const int *attrib_list);
 #endif

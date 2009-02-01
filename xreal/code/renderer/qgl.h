@@ -226,7 +226,7 @@ extern void     (APIENTRY * qglDrawBuffersARB) (GLsizei n, const GLenum * bufs);
 extern          HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
 #endif
 
-#if defined(__linux__)
+#if 0 //defined(__linux__)
 // GLX_ARB_create_context
 #ifndef GLX_ARB_create_context
 #define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
