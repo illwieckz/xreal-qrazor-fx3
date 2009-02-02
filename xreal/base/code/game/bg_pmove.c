@@ -2193,8 +2193,7 @@ static void PM_Footsteps(void)
 	if(pml.groundPlane)
 	{
 		// TA: FIXME: yes yes i know this is wrong
-		pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0]
-						   + pm->ps->velocity[1] * pm->ps->velocity[1] + pm->ps->velocity[2] * pm->ps->velocity[2]);
+		pm->xyspeed = VectorLength(pm->ps->velocity);
 	}
 	else
 	{

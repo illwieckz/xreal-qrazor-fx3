@@ -303,7 +303,6 @@ void PM_StepEvent(vec3_t from, vec3_t to, vec3_t normal)
 
 	size = DotProduct(normal, dNormal) * VectorLength(delta);
 
-#if 0
 	if(size > 0.0f)
 	{
 		if(size > 2.0f)
@@ -319,7 +318,6 @@ void PM_StepEvent(vec3_t from, vec3_t to, vec3_t normal)
 		}
 	}
 	else
-#endif
 	{
 		size = fabs(size);
 
