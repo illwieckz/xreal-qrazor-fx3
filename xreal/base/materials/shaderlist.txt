@@ -33,6 +33,7 @@ kat_q4dm3
 #megatexture
 method
 mic_mapobject
+mic_textures
 mikebart_mapobject
 #otty_sfx
 phant_aztech

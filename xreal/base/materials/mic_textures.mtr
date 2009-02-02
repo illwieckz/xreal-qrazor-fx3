@@ -1,0 +1,103 @@
+
+textures/mic/metal/platten02
+{
+	qer_editorimage		textures/mic/metal/platten02_diff
+
+	diffusemap		textures/mic/metal/platten02_diff
+	bumpmap			textures/mic/metal/platten02_NRM
+	specularmap		textures/mic/metal/platten02_spec
+}
+textures/mic/metal/platten01
+{
+	qer_editorimage		textures/mic/metal/platten01_diff
+
+	diffusemap		textures/mic/metal/platten01_diff
+	bumpmap			textures/mic/metal/platten01_NRM
+	specularmap		textures/mic/metal/platten01_spec
+}
+textures/mic/metal/platten03
+{
+	qer_editorimage		textures/mic/metal/platten03_diff
+
+	diffusemap		textures/mic/metal/platten03_diff
+	bumpmap			textures/mic/metal/platten03_NRM3
+	specularmap		textures/mic/metal/platten03_spec
+}
+textures/mic/metal/platten04
+{
+	qer_editorimage		textures/mic/metal/platten04_diff-clean
+
+	diffusemap		textures/mic/metal/platten04_diff-clean
+	bumpmap			textures/mic/metal/platten04_NRM
+	specularmap		textures/mic/metal/platten04_spec
+}
+textures/mic/metal/platten05
+{
+	qer_editorimage		textures/mic/metal/platten05_diff-clean
+
+	diffusemap		textures/mic/metal/platten05_diff-clean
+	bumpmap			textures/mic/metal/platten05_NRM
+	specularmap		textures/mic/metal/platten05_spec
+}
+textures/mic/metal/platten06
+{
+	qer_editorimage		textures/mic/metal/platten06_diff-clean2
+
+	diffusemap		textures/mic/metal/platten06_diff-clean2
+	bumpmap			textures/mic/metal/platten06_NRM3
+	specularmap		textures/mic/metal/platten06_spec2
+}
+textures/mic/metal/platten07
+{
+	qer_editorimage		textures/mic/metal/platten07_diff
+
+	diffusemap		textures/mic/metal/platten07_diff
+	bumpmap			textures/mic/metal/platten07_NRM
+	specularmap		textures/mic/metal/platten07_spec
+}
+textures/mic/metal/grate01
+{
+	qer_editorimage		textures/mic/metal/grate01_diff
+
+	diffusemap		textures/mic/metal/grate01_diff
+	bumpmap			textures/mic/metal/grate01_NRM
+	specularmap		textures/mic/metal/grate01_spec
+}
+textures/mic/metal/grate01_lamp
+{
+	qer_editorimage		textures/mic/metal/grate01_lamp_diff
+	xmap_surfaceLight 1000
+	xmap_lightRGB 0.7 0.8 1
+	diffusemap		textures/mic/metal/grate01_lamp_diff
+	bumpmap			textures/mic/metal/grate01_lamp_NRM
+	specularmap		textures/mic/metal/grate01_lamp_spec
+	{
+		map textures/mic/metal/grate01_lamp_glo
+		blend add
+		
+	}
+}
+textures/mic/metal/wellblech
+{
+	qer_editorimage		textures/mic/metal/wellblech_diff
+
+	diffusemap		textures/mic/metal/wellblech_diff
+	bumpmap			textures/mic/metal/wellblech_NRM
+	specularmap		textures/mic/metal/wellblech_spec
+}
+textures/mic/metal/wellblech02
+{
+	qer_editorimage		textures/mic/metal/wellblech02_diff-roh
+
+	diffusemap		textures/mic/metal/wellblech02_diff-roh
+	bumpmap			textures/mic/metal/wellblech02_NRM
+	specularmap		textures/mic/metal/wellblech02_spec
+}
+textures/mic/metal/fussleiste01
+{
+	qer_editorimage		textures/mic/metal/fussleiste01_diff-clean
+
+	diffusemap		textures/mic/metal/fussleiste01_diff-clean
+	bumpmap			textures/mic/metal/fussleiste01_NRM
+	specularmap		textures/mic/metal/fussleiste01_spec
+}
