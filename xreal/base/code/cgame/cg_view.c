@@ -678,10 +678,6 @@ static void CG_OffsetThirdPersonView(void)
 		cg.refdefViewAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
 	}
 
-	if(focusAngles[PITCH] > 45)
-	{
-		focusAngles[PITCH] = 45;	// don't go too far overhead
-	}
 	AngleVectors(focusAngles, forward, NULL, NULL);
 
 	VectorMA(cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint);
@@ -722,7 +718,16 @@ static void CG_OffsetThirdPersonView(void)
 
 	// select pitch to look at focus point from vieword
 	VectorSubtract(focusPoint, cg.refdef.vieworg, focusPoint);
-	focusDist = sqrt(focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1]);
+#if 0
+	if(cg.predictedPlayerState.pm_flags & PMF_WALLCLIMBING)
+	{
+		focusDist = VectorLength(focusPoint);
+	}
+	else
+#endif
+	{
+		focusDist = sqrt(focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1]);
+	}
 	if(focusDist < 1)
 	{
 		focusDist = 1;			// should never happen
