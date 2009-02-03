@@ -1038,7 +1038,7 @@ float           Q_crandom(int *seed);
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
-void            vectoangles(const vec3_t value1, vec3_t angles);
+void            VectorToAngles(const vec3_t value1, vec3_t angles);
 void            AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
 void            AxisToAngles(vec3_t axis[3], vec3_t angles);
 
@@ -1057,6 +1057,7 @@ float           AngleNormalize360(float angle);
 float           AngleNormalize180(float angle);
 float           AngleDelta(float angle1, float angle2);
 float           AngleBetweenVectors(const vec3_t a, const vec3_t b);
+void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 
 vec_t           PlaneNormalize(vec4_t plane);	// returns normal length
 qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
@@ -1072,7 +1073,6 @@ void            MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up)
 void            AxisMultiply(axis_t in1, axis_t in2, axis_t out);
 void            VectorAxisMultiply(const vec3_t p, vec3_t m[3], vec3_t out);
 
-void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void            PerpendicularVector(vec3_t dst, const vec3_t src);
 
 void            GetPerpendicularViewVector(const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up);

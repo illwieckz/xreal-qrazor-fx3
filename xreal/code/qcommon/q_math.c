@@ -589,7 +589,7 @@ int Q_isnan(float x)
 	return (int)((unsigned int)t.i >> 31);
 }
 
-void vectoangles(const vec3_t value1, vec3_t angles)
+void VectorToAngles(const vec3_t value1, vec3_t angles)
 {
 	float           forward;
 	float           yaw, pitch;
