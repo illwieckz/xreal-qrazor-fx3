@@ -100,7 +100,6 @@ else:
 	SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
 
 if env['radiant'] == 1:
-	#SConscript('SConscript_gtkradiant', build_dir='build/gtkradiant', duplicate=0)
 	SConscript('SConscript_xrealradiant', build_dir='build/xrealradiant', duplicate=0)
 
 if env['xmap'] == 1:
