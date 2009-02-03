@@ -1038,7 +1038,7 @@ float           Q_crandom(int *seed);
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
-void            VectorToAngles(const vec3_t value1, vec3_t angles);
+
 void            AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
 void            AxisToAngles(vec3_t axis[3], vec3_t angles);
 
@@ -1058,6 +1058,13 @@ float           AngleNormalize180(float angle);
 float           AngleDelta(float angle1, float angle2);
 float           AngleBetweenVectors(const vec3_t a, const vec3_t b);
 void            AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
+
+static ID_INLINE void AnglesToVector(const vec3_t angles, vec3_t out)
+{
+	AngleVectors(angles, out, NULL, NULL);
+}
+
+void            VectorToAngles(const vec3_t value1, vec3_t angles);
 
 vec_t           PlaneNormalize(vec4_t plane);	// returns normal length
 qboolean        PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
