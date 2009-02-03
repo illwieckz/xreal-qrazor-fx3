@@ -3119,11 +3119,45 @@ static void Com_GenerateMediaTXT_f(void)
 	// dump to file
 	for(i = 0; i < list.currentElements; i++)
 	{
+		char           *src;
+		qboolean		hasExt;
+
 		entry = Com_GrowListElement(&list, i);
+
+		// check if the entry has an extension at all, skip folders
+
+
+		// if path doesn't have a .EXT, append extension
+		// (extension should include the .)
+		src = entry->mediaName + strlen(entry->mediaName) - 1;
+
+
+		hasExt = qfalse;
+#if 1
+		if(!Q_strncmp(entry->mediaName, "FILE", 4))
+		{
+			// special case for the header
+			hasExt = qtrue;
+		}
+		else
+#endif
+		{
+			while(*src != '/' && src != entry->mediaName)
+			{
+				if(*src == '.')
+				{
+					// it has an extension
+					hasExt = qtrue;
+					break;
+				}
+				src--;
+			}
+		}
 
 #if 1
 		len = strlen(entry->mediaName);
-		if(Q_stricmp(entry->mediaName + len - 4, ".txt") != 0 &&
+		if(hasExt &&
+		   Q_stricmp(entry->mediaName + len - 4, ".txt") != 0 &&
 		   Q_stricmp(entry->mediaName + len - 4, ".cfg") != 0 &&
 		   Q_stricmp(entry->mediaName + len - 4, ".def") != 0 &&
 		   Q_stricmp(entry->mediaName + len - 4, ".pro") != 0 &&
