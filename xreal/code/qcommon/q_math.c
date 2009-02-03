@@ -872,10 +872,17 @@ returns angle normalized to the range [-180 < angle <= 180]
 float AngleNormalize180(float angle)
 {
 	angle = AngleNormalize360(angle);
+
 	if(angle > 180.0)
 	{
 		angle -= 360.0;
 	}
+
+	if(angle < 180.0)
+	{
+		angle += 360.0;
+	}
+
 	return angle;
 }
 
