@@ -285,7 +285,7 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 
 		if(p->roll)
 		{
-			vectoangles(cg.refdef.viewaxis[0], rotate_ang);
+			VectorToAngles(cg.refdef.viewaxis[0], rotate_ang);
 			rotate_ang[ROLL] += p->roll;
 			AngleVectors(rotate_ang, NULL, rr, ru);
 		}
@@ -423,7 +423,7 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, vec4_t color)
 		{
 			vec3_t          temp;
 
-			vectoangles(rforward, temp);
+			VectorToAngles(rforward, temp);
 			p->accumroll += p->roll;
 			temp[ROLL] += p->accumroll * 0.1;
 			AngleVectors(temp, NULL, rright2, rup2);
@@ -840,7 +840,7 @@ void CG_AddParticles(void)
 	VectorCopy(cg.refdef.viewaxis[1], vright);
 	VectorCopy(cg.refdef.viewaxis[2], vup);
 
-	vectoangles(cg.refdef.viewaxis[0], rotate_ang);
+	VectorToAngles(cg.refdef.viewaxis[0], rotate_ang);
 	roll += ((cg.time - oldtime) * 0.1);
 	rotate_ang[ROLL] += (roll * 0.9);
 	AngleVectors(rotate_ang, rforward, rright, rup);
@@ -1819,7 +1819,7 @@ static qboolean ValidBloodPool(vec3_t start)
 
 	VectorSet(normal, 0, 0, 1);
 
-	vectoangles(normal, angles);
+	VectorToAngles(normal, angles);
 	AngleVectors(angles, NULL, right, up);
 
 	VectorMA(start, EXTRUDE_DIST, normal, center_pos);
@@ -1917,7 +1917,7 @@ void CG_ParticleBloodCloud(vec3_t origin, vec3_t dir)
 	dist = 0;
 
 	length = VectorLength(dir);
-	vectoangles(dir, angles);
+	VectorToAngles(dir, angles);
 	AngleVectors(angles, forward, NULL, NULL);
 
 	crittersize = LARGESIZE;
@@ -2080,7 +2080,7 @@ void CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir)
 
 	VectorNegate(dir, dir);
 	length = VectorLength(dir);
-	vectoangles(dir, angles);
+	VectorToAngles(dir, angles);
 	AngleVectors(angles, forward, NULL, NULL);
 
 	crittersize = LARGESIZE;

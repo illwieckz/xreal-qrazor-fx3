@@ -1656,7 +1656,7 @@ void BG_TouchJumpPad(playerState_t * ps, entityState_t * jumppad)
 	if(ps->jumppad_ent != jumppad->number)
 	{
 
-		vectoangles(jumppad->origin2, angles);
+		VectorToAngles(jumppad->origin2, angles);
 		p = fabs(AngleNormalize180(angles[PITCH]));
 		if(p < 45)
 		{

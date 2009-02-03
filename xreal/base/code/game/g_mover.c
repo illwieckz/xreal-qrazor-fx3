@@ -962,7 +962,7 @@ static void Touch_DoorTriggerSpectator(gentity_t * ent, gentity_t * other, trace
 			continue;
 		origin[i] = (ent->r.absmin[i] + ent->r.absmax[i]) * 0.5;
 	}
-	vectoangles(dir, angles);
+	VectorToAngles(dir, angles);
 	TeleportPlayer(other, origin, angles);
 }
 

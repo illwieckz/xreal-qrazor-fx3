@@ -279,7 +279,7 @@ void ACEMV_ChangeBotAngle(gentity_t * ent)
 	current_yaw = AngleNormalize360(ent->bs.viewAngles[YAW]);
 	current_pitch = AngleNormalize360(ent->bs.viewAngles[PITCH]);
 
-	vectoangles(ent->bs.moveVector, ideal_angles);
+	VectorToAngles(ent->bs.moveVector, ideal_angles);
 
 	ideal_yaw = AngleNormalize360(ideal_angles[YAW]);
 	ideal_pitch = AngleNormalize360(ideal_angles[PITCH]);
@@ -754,7 +754,7 @@ void ACEMV_Attack(gentity_t * self)
 
 	VectorScale(forward, distance, self->bs.moveVector);
 	//ACEMV_ChangeBotAngle(self);
-	vectoangles(self->bs.moveVector, self->bs.viewAngles);
+	VectorToAngles(self->bs.moveVector, self->bs.viewAngles);
 
 
 	// don't attack too much
