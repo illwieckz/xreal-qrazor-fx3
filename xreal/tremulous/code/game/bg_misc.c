@@ -5165,7 +5165,7 @@ void BG_PositionBuildableRelativeToPlayer(const playerState_t * ps,
 	(*trace) (tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_PLAYERSOLID);
 	VectorCopy(tr->endpos, entityOrigin);
 	VectorMA(entityOrigin, 0.1f, playerNormal, outOrigin);
-	vectoangles(forward, outAngles);
+	VectorToAngles(forward, outAngles);
 }
 
 /*

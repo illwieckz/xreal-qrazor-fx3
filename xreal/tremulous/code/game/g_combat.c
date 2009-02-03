@@ -710,7 +710,7 @@ static float G_CalcDamageModifier(vec3_t point, gentity_t * targ, gentity_t * at
 	hitRatio = hitRelative / clientHeight;
 
 	VectorSubtract(targ->r.currentOrigin, point, bulletPath);
-	vectoangles(bulletPath, bulletAngle);
+	VectorToAngles(bulletPath, bulletAngle);
 
 	clientRotation = targ->client->ps.viewangles[YAW];
 	bulletRotation = bulletAngle[YAW];

@@ -1017,7 +1017,7 @@ void AHive_Think(gentity_t * self)
 
 				VectorSubtract(enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget);
 				VectorNormalize(dirToTarget);
-				vectoangles(dirToTarget, self->turretAim);
+				VectorToAngles(dirToTarget, self->turretAim);
 
 				//fire at target
 				FireWeapon(self);
@@ -1064,7 +1064,7 @@ qboolean AHovel_Blocked(gentity_t * hovel, gentity_t * player, qboolean provideE
 	displacement = VectorMaxComponent(maxs) * M_ROOT3 + VectorMaxComponent(hovelMaxs) * M_ROOT3 + 1.0f;
 
 	VectorMA(hovel->s.origin, displacement, forward, origin);
-	vectoangles(forward, angles);
+	VectorToAngles(forward, angles);
 
 	VectorMA(origin, HOVEL_TRACE_DEPTH, normal, start);
 
@@ -1159,7 +1159,7 @@ void AHovel_Use(gentity_t * self, gentity_t * other, gentity_t * activator)
 
 			VectorCopy(self->s.origin2, inverseNormal);
 			VectorInverse(inverseNormal);
-			vectoangles(inverseNormal, hovelAngles);
+			VectorToAngles(inverseNormal, hovelAngles);
 
 			VectorCopy(activator->s.pos.trBase, activator->client->hovelOrigin);
 
@@ -1341,7 +1341,7 @@ void ATrapper_FireOnEnemy(gentity_t * self, int firespeed, float range)
 	}
 
 	VectorNormalize(dirToTarget);
-	vectoangles(dirToTarget, self->turretAim);
+	VectorToAngles(dirToTarget, self->turretAim);
 
 	//fire at target
 	FireWeapon(self);
@@ -1807,7 +1807,7 @@ qboolean HMGTurret_TrackEnemy(gentity_t * self)
 	rotAngle = RAD2DEG(acos(DotProduct(self->s.origin2, refNormal)));
 	RotatePointAroundVector(dttAdjusted, xNormal, dirToTarget, rotAngle);
 
-	vectoangles(dttAdjusted, angleToTarget);
+	VectorToAngles(dttAdjusted, angleToTarget);
 
 	angularDiff[PITCH] = AngleSubtract(self->s.angles2[PITCH], angleToTarget[PITCH]);
 	angularDiff[YAW] = AngleSubtract(self->s.angles2[YAW], angleToTarget[YAW]);
@@ -1838,7 +1838,7 @@ qboolean HMGTurret_TrackEnemy(gentity_t * self)
 
 	AngleVectors(self->s.angles2, dttAdjusted, NULL, NULL);
 	RotatePointAroundVector(dirToTarget, xNormal, dttAdjusted, -rotAngle);
-	vectoangles(dirToTarget, self->turretAim);
+	VectorToAngles(dirToTarget, self->turretAim);
 
 	//if pointing at our target return true
 	if(abs(angleToTarget[YAW] - self->s.angles2[YAW]) <= accuracyTolerance &&
@@ -2067,7 +2067,7 @@ void HTeslaGen_Think(gentity_t * self)
 			{
 				VectorSubtract(enemy->s.pos.trBase, self->s.pos.trBase, dir);
 				VectorNormalize(dir);
-				vectoangles(dir, self->turretAim);
+				VectorToAngles(dir, self->turretAim);
 
 				//fire at target
 				FireWeapon(self);
