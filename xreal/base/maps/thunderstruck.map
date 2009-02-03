@@ -1415,12 +1415,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 0 1 -1344 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 -1 0 -1600 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 1 0 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 1 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( -1 0 0 -1792 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 0 1 -1344 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 -1 0 -1600 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 1 0 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 1 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( -1 0 0 -1792 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
 }
 }
 // brush 120
@@ -3050,48 +3050,48 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 -1 0 -1600 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 1 0 0 1728 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 1 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( -1 0 0 -1792 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 -1 0 -1600 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 1 0 0 1728 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 1 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( -1 0 0 -1792 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
 }
 }
 // brush 251
 {
 brushDef3
 {
-( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 -1 0 768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 1 0 0 -704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 1 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( -1 0 0 -1792 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 -1 0 768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 1 0 0 -704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 1 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( -1 0 0 -1792 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
 }
 }
 // brush 252
 {
 brushDef3
 {
-( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 -1 0 -1536 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 1 0 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 1 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( -1 0 0 704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 -1 0 -1536 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 1 0 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 1 0 -832 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( -1 0 0 704 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
 }
 }
 // brush 253
 {
 brushDef3
 {
-( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 -1 0 -1600 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 1 0 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( 0 1 0 1536 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
-( -1 0 0 -1728 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_sky/cloudyskybright" 0 0 0
+( 0 0 -1 -896 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 0 1 -1280 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 -1 0 -1600 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 1 0 0 -768 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( 0 1 0 1536 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
+( -1 0 0 -1728 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/sky/cloudyskybright" 0 0 0
 }
 }
 // brush 254

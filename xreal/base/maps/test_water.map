@@ -176,19 +176,19 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 1 1 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_water/water" 0 0 0
-( 0 1 0 -160 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_water/water" 0 0 0
-( 1 0 0 -96 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_water/water" 0 0 0
-( 0 0 -1 -192 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/tr3b_water/water" 0 0 0
-( 0 -1 0 -32 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_water/water" 0 0 0
-( -1 0 0 -96 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b_water/water" 0 0 0
+( 0 0 1 1 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/water/water" 0 0 0
+( 0 1 0 -160 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/water/water" 0 0 0
+( 1 0 0 -96 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/water/water" 0 0 0
+( 0 0 -1 -192 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/tr3b/water/water" 0 0 0
+( 0 -1 0 -32 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/water/water" 0 0 0
+( -1 0 0 -96 ) ( ( 0.00390625 0 0 ) ( 0 0.0078125 0 ) ) "textures/tr3b/water/water" 0 0 0
 }
 }
 // brush 15
 {
 brushDef3
 {
-( 0 0 1 0 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b_water/mirror" 0 0 0
+( 0 0 1 0 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0 ) ) "textures/tr3b/water/mirror" 0 0 0
 ( 0 1 0 -160 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.015625 ) ) "textures/common/nodraw" 0 0 0
 ( 1 0 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.015625 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 -1 -1 ) ( ( 0.0078125 0 0 ) ( 0 0.015625 0.125 ) ) "textures/common/nodraw" 0 0 0

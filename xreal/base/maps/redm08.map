@@ -958,12 +958,12 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -840 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -840 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 80
@@ -2440,96 +2440,96 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -0 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 448 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -0 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 448 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 203
 {
 brushDef3
 {
-( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 192 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -0 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 192 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -0 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 204
 {
 brushDef3
 {
-( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 205
 {
 brushDef3
 {
-( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 0 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 312 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 0 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 206
 {
 brushDef3
 {
-( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 952 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -960 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 952 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 207
 {
 brushDef3
 {
-( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 632 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 632 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -640 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 208
 {
 brushDef3
 {
-( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -952 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 1080 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -632 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 -1088 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -952 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 1080 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -632 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 209
 {
 brushDef3
 {
-( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 -1 0 504 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 1 0 0 -952 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
-( -1 0 0 -632 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b_sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 -1 320 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 0 1 -832 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 -1 0 504 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 1 0 0 -952 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( 0 1 0 -512 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
+( -1 0 0 -632 ) ( ( 0.003906 0 0 ) ( 0 0.003906 0 ) ) "textures/tr3b/sky/thunders_cloudyskydark_stormy" 0 0 0
 }
 }
 // primitive 210

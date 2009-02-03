@@ -176,7 +176,7 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 1 40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.5 ) ) "textures/tr3b_fog/deathfog" 0 0 0
+( 0 0 1 40 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.5 ) ) "textures/tr3b/fog/deathfog" 0 0 0
 ( 0 1 -0 -160 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 1 -0 0 -96 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/nodraw" 0 0 0
 ( 0 0 -1 -576 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0.75 ) ) "textures/common/nodraw" 0 0 0
