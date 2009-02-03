@@ -1024,9 +1024,9 @@ void CG_Buildable(centity_t * cent)
 	}
 
 	health = es->generic1 & ~(B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT);
-	healthScale = (float)health / B_HEALTH_SCALE;
+	//healthScale = (float)health / B_HEALTH_SCALE;
 
-	if(healthScale < cent->lastBuildableHealthScale && (es->generic1 & B_SPAWNED_TOGGLEBIT))
+	if(health < cent->lastBuildableHealth && (es->generic1 & B_SPAWNED_TOGGLEBIT))
 	{
 		if(cent->lastBuildableDamageSoundTime + BUILDABLE_SOUND_PERIOD < cg.time)
 		{
@@ -1043,7 +1043,7 @@ void CG_Buildable(centity_t * cent)
 		}
 	}
 
-	cent->lastBuildableHealthScale = healthScale;
+	cent->lastBuildableHealth = health;
 
 	//smoke etc for damaged buildables
 	CG_BuildableParticleEffects(cent);
