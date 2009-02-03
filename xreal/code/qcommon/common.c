@@ -2893,20 +2893,22 @@ typedef struct
 	char            source[MAX_TOKEN_CHARS];
 } copyrightEntry_t;
 
-static int QDECL MediaNameCompare(const void *a, const void *b)
+static int MediaNameCompare(const void *a, const void *b)
 {
 	char           *s1, *s2;
 	int             c1, c2;
 	copyrightEntry_t *e1, *e2;
 
-	e1 = (copyrightEntry_t *) a;
-	e2 = (copyrightEntry_t *) b;
+	e1 = (copyrightEntry_t *) *(void **)a;
+	e2 = (copyrightEntry_t *) *(void **)b;
 
 	s1 = e1->mediaName;
 	s2 = e2->mediaName;
 
-	//return Q_stricmp(s1, s2);
+	if(!Q_strncmp(s1, "FILE", 4))
+		return -1;
 
+	//return Q_stricmp(s1, s2);
 
 	do
 	{
@@ -3013,7 +3015,9 @@ static void Com_GenerateMediaTXT_f(void)
 
 				"\n\n\n");
 
+#if 1
 	entry = Com_Allocate(sizeof(*entry));
+	Com_Memset(entry, 0, sizeof(*entry));
 
 	Q_strncpyz(entry->mediaName, "FILE", sizeof(entry->mediaName));
 	Q_strncpyz(entry->copyright, "COPYRIGHT", sizeof(entry->copyright));
@@ -3022,6 +3026,7 @@ static void Com_GenerateMediaTXT_f(void)
 	Q_strncpyz(entry->source, "SOURCE", sizeof(entry->source));
 
 	Com_AddToGrowList(&list, entry);
+#endif
 
 	// TODO add texture and map packs
 
@@ -3036,6 +3041,7 @@ static void Com_GenerateMediaTXT_f(void)
 		if(!Q_stricmp(token, "properties") || !Q_stricmp(token, "eigenschaften"))
 		{
 			entry = Com_Allocate(sizeof(*entry));
+			Com_Memset(entry, 0, sizeof(*entry));
 
 			entry->mediaName[0] = '\0';
 			Q_strncpyz(entry->copyright, "<unknown: add svn:copyright>", sizeof(entry->copyright));
@@ -3107,12 +3113,15 @@ static void Com_GenerateMediaTXT_f(void)
 		}
 	}
 
-	//qsort(list.elements, list.currentElements, sizeof(void *), MediaNameCompare);
+	// sort entries
+	qsort(list.elements, list.currentElements, sizeof(void *), MediaNameCompare);
 
+	// dump to file
 	for(i = 0; i < list.currentElements; i++)
 	{
 		entry = Com_GrowListElement(&list, i);
 
+#if 1
 		len = strlen(entry->mediaName);
 		if(Q_stricmp(entry->mediaName + len - 4, ".txt") != 0 &&
 		   Q_stricmp(entry->mediaName + len - 4, ".cfg") != 0 &&
@@ -3130,6 +3139,7 @@ static void Com_GenerateMediaTXT_f(void)
 		   Q_stricmp(entry->mediaName + len - 2, ".h") != 0 &&
 		   Q_stricmp(entry->mediaName + len - 3, ".sh") != 0 &&
 		   Q_stricmp(entry->mediaName + len - 4, ".mtr") != 0)
+#endif
 		{
 			FS_Printf(f, "%s", entry->mediaName);
 			len = strlen(entry->mediaName);
@@ -3165,6 +3175,7 @@ static void Com_GenerateMediaTXT_f(void)
 
 			FS_Printf(f, "%s\n", entry->source);
 
+#if 1
 			if(i == 0)
 			{
 				// do a separator line
@@ -3176,11 +3187,16 @@ static void Com_GenerateMediaTXT_f(void)
 				}
 				FS_Printf(f, "\n");
 			}
+#endif
 		}
-
-		Com_Dealloc(entry);
 	}
 
+	// clean up
+	for(i = 0; i < list.currentElements; i++)
+	{
+		entry = Com_GrowListElement(&list, i);
+		Com_Dealloc(entry);
+	}
 	Com_DestroyGrowList(&list);
 
 	FS_FCloseFile(f);
