@@ -21,7 +21,7 @@ textures/tr3b_lights/cloudscroll
 	lightFalloffImage	makeintensity(lights/squarelight1b.png)
 	{
 		forceHighQuality
-		map			textures/tr3b_sky/plasma_noise2.png
+		map			textures/tr3b/sky/plasma_noise2.png
 		colored
 		scroll		time * 0.03, time * 0.01
 		//rgb		storm2table[ time * .1 ]
@@ -31,7 +31,7 @@ textures/tr3b_lights/cloudscroll
 		if(storm3Table[time * 0.1])
 	
 		forceHighQuality
-		map			textures/tr3b_sky/plasma_noise1.png
+		map			textures/tr3b/sky/plasma_noise1.png
 		colored
 	    rotate		time * .1
 		//zeroClamp

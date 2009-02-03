@@ -28,7 +28,7 @@ textures/fabz0r/portal/round
 
 textures/fabz0r/portal/round
 {
-	qer_editorimage textures/otty_sfx/portal_base.tga
+	qer_editorimage textures/otty/sfx/portal_base.tga
 	
 	noimpact
 	nomarks
@@ -39,7 +39,7 @@ textures/fabz0r/portal/round
  
 	{
 		blend blend
-		map textures/otty_sfx/portal_base.tga
+		map textures/otty/sfx/portal_base.tga
 		clamp
    		rotate -40 * time
 	}

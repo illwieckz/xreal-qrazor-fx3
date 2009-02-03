@@ -2,9 +2,9 @@
 models/ppodium_base
 {
 	
-	diffuseMap textures/otty_base/h_metal01_d.png
-	specularMap textures/otty_base/h_metal01_s.png
-	bumpMap textures/otty_base/h_metal01_n.png
+	diffuseMap textures/otty/base/h_metal01_d.png
+	specularMap textures/otty/base/h_metal01_s.png
+	bumpMap textures/otty/base/h_metal01_n.png
 	
 
 }
@@ -15,19 +15,19 @@ models/ppodium_ripl
 	
 	{
 		stage diffuseMap
-		map textures/otty_base/m_ripl_d.png
+		map textures/otty/base/m_ripl_d.png
 		scale 4, 4
 
 	}
 	{
 		stage specularMap
-		map textures/otty_base/m_ripl_s.png
+		map textures/otty/base/m_ripl_s.png
 		scale 4, 4
 
 	}
 	{
 		stage bumpMap
-		map textures/otty_base/m_ripl_n.png
+		map textures/otty/base/m_ripl_n.png
 		scale 4, 4
 
 	}	

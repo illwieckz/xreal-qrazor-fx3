@@ -48,12 +48,19 @@ models/powerups/kamikaze/shocksphere1
 {
  	twosided
  	
+ 	sort postProcess
+ 	
+ 	{
+		stage	normalmap
+		map		models/powerups/kamikaze/round_normal.png
+		clamp
+  		rotate 40 * time
+   	}
  	{
 		stage	reflectionMap
        	cubeMap	env/fabz0r/gen2
 		blend blend //GL_DST_COLOR, GL_ZERO
 	}
-	
 	{
 		stage	heathazemap
 		map		models/powerups/kamikaze/round_normal.png

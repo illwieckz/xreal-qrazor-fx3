@@ -107,7 +107,7 @@ textures/common/mirror3
 	}
 	{
 		stage	heathazemap
-		map		textures/tr3b_water/watertest_local.tga
+		map		textures/tr3b/water/watertest_local.tga
 		scroll	0 , time * -0.9
 		scale	0.5, 0.5
 		deformMagnitude	0.5

@@ -1,7 +1,7 @@
 
-textures/tr3b_water/water
+textures/tr3b/water/water
 {
-	qer_editorimage textures/tr3b_water/watertest_local.tga
+	qer_editorimage textures/tr3b/water/watertest_local.tga
 
 	translucent
 	noshadows
@@ -12,14 +12,14 @@ textures/tr3b_water/water
 	{
 		if 1
 		stage	heathazemap
-		map		textures/tr3b_water/watertest_local.tga
+		map		textures/tr3b/water/watertest_local.tga
 		scroll	time * 0.1 , time * 0.1
 		scale	0.5, 0.5
 		deformMagnitude	0.5
     }
 }
 
-textures/tr3b_water/mirror
+textures/tr3b/water/mirror
 {
 	qer_editorimage textures/common/qer_mirror.tga
 	

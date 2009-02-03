@@ -5,9 +5,9 @@ blend2xmap/floor
 
 	//a basic metal floor
 
-	diffuseMap textures/otty_base/h_metal01_d.png
-	specularMap textures/otty_base/h_metal01_s.png
-	bumpMap textures/otty_base/h_metal01_n.png
+	diffuseMap textures/otty/base/h_metal01_d.png
+	specularMap textures/otty/base/h_metal01_s.png
+	bumpMap textures/otty/base/h_metal01_n.png
 
 }
 
