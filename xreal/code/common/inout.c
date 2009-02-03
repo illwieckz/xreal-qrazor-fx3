@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // DESCRIPTION:
 // deal with in/out tasks, for either stdin/stdout or network/XML stream
-// 
+//
 
 #include "cmdlib.h"
 #include "mathlib.h"
@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 // network broadcasting
-#include "../gtkradiant/include/stream_version.h"
+#include "../xrealradiant/include/stream_version.h"
 
 #include "libxml/parser.h"
 #include "libxml/tree.h"
