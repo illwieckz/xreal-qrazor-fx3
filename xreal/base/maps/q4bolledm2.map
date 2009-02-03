@@ -5,8 +5,8 @@ Version 2
 "_lightmapscale" "0.5"
 "message" "Goldeneye by Leroy 'bolleh' Ramdjan"
 "music" "music/jamendo.com/Silence/Encre/03-Pollution.ogg"
-"editor_drLastCameraPos" "1501.46 -249.725 3.71379"
-"editor_drLastCameraAngle" "-24.6 93.6 0"
+"editor_drLastCameraPos" "1519.21 -260.027 -55.6829"
+"editor_drLastCameraAngle" "-2.7 180.9 0"
 // primitive 0
 {
 brushDef3
@@ -1317,10 +1317,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 1 0 336 ) ( ( 0.015625 0 18 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
-( 1 0 0 -1152 ) ( ( 0.015625 0 6.25 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
-( 0 -1 0 -400 ) ( ( 0.015625 0 -17 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
-( -1 0 0 1088 ) ( ( 0.015625 0 -5.25 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
+( 0 1 0 336 ) ( ( 0.015625 0 18 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
+( 1 0 0 -1152 ) ( ( 0.015625 0 6.25 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
+( 0 -1 0 -400 ) ( ( 0.015625 0 239 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
+( -1 0 0 1088 ) ( ( 0.015625 0 250.75 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
 ( 0 0 1 -72 ) ( ( 0.015625 0 0.125 ) ( 0 0.015625 -9 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 -1 -184 ) ( ( 0.007812 0 3.125 ) ( 0 0.007812 9 ) ) "textures/core/floor1_1" 0 0 0
 }
@@ -1341,10 +1341,10 @@ brushDef3
 {
 brushDef3
 {
-( 0 1 0 72 ) ( ( 0.015625 0 17 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
-( 1 0 0 -1088 ) ( ( 0.015625 0 2.125 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
-( 0 -1 0 -136 ) ( ( 0.015625 0 -16 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
-( -1 0 0 1024 ) ( ( 0.015625 0 -1.125 ) ( 0 0.003906 0.28125 ) ) "textures/terminal/t10_walltrim_2_glow" 0 0 0
+( 0 1 0 72 ) ( ( 0.015625 0 17 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
+( 1 0 0 -1088 ) ( ( 0.015625 0 2.125 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
+( 0 -1 0 -136 ) ( ( 0.015625 0 240 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
+( -1 0 0 1024 ) ( ( 0.015625 0 254.875 ) ( 0 0.00390625 0.28125 ) ) "textures/ex/exmetal_plate01b" 0 0 0
 ( 0 0 1 -72 ) ( ( 0.015625 0 -4 ) ( 0 0.015625 -8 ) ) "textures/common/caulk" 0 0 0
 ( 0 0 -1 -184 ) ( ( 0.007812 0 1.0625 ) ( 0 0.007812 8.5 ) ) "textures/core/floor1_1" 0 0 0
 }
@@ -33257,13 +33257,12 @@ patchDef2
 {
 "classname" "trigger_hurt"
 "name" "trigger_hurt_5"
-"def_damage" "damage_triggerhurt_1000"
 "delay" "0"
 "model" "trigger_hurt_5"
 "nodrop" "1"
-"on" "1"
 "origin" "-1352 1696 -1944"
 "wait" "0"
+"dmg" "1000"
 // primitive 0
 {
 brushDef3
@@ -34659,7 +34658,7 @@ brushDef3
 ( 1 0 0 -56 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( 0 1 0 -56 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( -1 0 0 -56 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
-( 0.7071067811865476 -0.7071067811865476 0 -56.56859451524469 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
+( 0.7071067811865476 -0.7071067811865476 0 -56.56859451524503 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -56.56859451524442 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -56.56859451524436 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
 ( -0.7071067811865476 -0.7071067811865476 0 -56.5685945152444 ) ( ( 0.03125 0 0 ) ( 0 0.03125 0 ) ) "textures/common/trigmulti" 0 0 0
@@ -35133,9 +35132,9 @@ patchDef2
 "classname" "func_static"
 "name" "func_static_21"
 "export" "1"
+"forceMeta" "1"
 "model" "models/mapobjects/mic/jumppad/jumppad01.ase"
 "origin" "416 -1008 -344"
-"forceMeta" "1"
 }
 // entity 98
 {
@@ -35149,10 +35148,10 @@ patchDef2
 "classname" "func_static"
 "name" "func_static_23"
 "export" "1"
+"forceMeta" "1"
 "model" "models/mapobjects/mic/jumppad/jumppad01.ase"
 "origin" "1496 144 -192"
 "rotation" "3.42285e-008 -1 0 1 3.42285e-008 0 0 0 1"
-"forceMeta" "1"
 }
 // entity 100
 {
@@ -35458,8 +35457,8 @@ brushDef3
 ( -1 0 0 -56 ) ( ( 0.03125 0 -36 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( 0.7071067811865476 -0.7071067811865476 0 -56.56859451524454 ) ( ( 0.03125 0 49.32069 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -56.56859451524436 ) ( ( 0.03125 0 1.590992 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
-( -0.7071067811865476 0.7071067811865476 0 -56.56859451524405 ) ( ( 0.03125 0 -49.32069 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -56.56859451524452 ) ( ( 0.03125 0 -1.590992 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
+( -0.7071067811865476 0.7071067811865476 0 -56.56859451524382 ) ( ( 0.03125 0 -49.32069 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -56.56859451524469 ) ( ( 0.03125 0 -1.590992 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 }
 }
 }
@@ -35486,10 +35485,10 @@ brushDef3
 ( 1 0 0 -56 ) ( ( 0.03125 0 17 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( 0 1 0 -56 ) ( ( 0.03125 0 -50.25 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( -1 0 0 -56 ) ( ( 0.03125 0 -17 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
-( 0.7071067811865476 -0.7071067811865476 0 -56.56859451524448 ) ( ( 0.03125 0 47.552921 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
+( 0.7071067811865476 -0.7071067811865476 0 -56.56859451524453 ) ( ( 0.03125 0 47.552921 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( 0.7071067811865476 0.7071067811865476 0 -56.56859451524436 ) ( ( 0.03125 0 -23.511301 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 ( -0.7071067811865476 0.7071067811865476 0 -56.5685945152444 ) ( ( 0.03125 0 -47.552921 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
-( -0.7071067811865476 -0.7071067811865476 0 -56.56859451524452 ) ( ( 0.03125 0 23.511301 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
+( -0.7071067811865476 -0.7071067811865476 0 -56.56859451524469 ) ( ( 0.03125 0 23.511301 ) ( 0 0.03125 -4.75 ) ) "textures/common/trigmulti" 0 0 0
 }
 }
 }
@@ -35869,8 +35868,8 @@ brushDef3
 "classname" "func_static"
 "name" "func_static_2"
 "export" "1"
+"forceMeta" "1"
 "model" "models/mapobjects/mic/jumppad/jumppad01.ase"
 "origin" "-112 -400 -344"
 "rotation" "3.42285e-08 -1 0 1 3.42285e-08 0 0 0 1"
-"forceMeta" "1"
 }
