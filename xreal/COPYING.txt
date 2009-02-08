@@ -1,25 +1,38 @@
+_______________________
+
 XreaL License
-=============
+_______________
+
 XreaL is licensed in two broadly separate sections: the code and the media.
 
 
+__________________________________
+
 XreaL Code License
-==================
+______________________
+
 The code is licensed under the GNU GENERAL PUBLIC LICENSE. This license is
 contained in full in the file named GPL.txt. Please be aware of the exceptions to
 this license as listed below.
 
 
+__________________________________
+
 XreaL Media License
-===================
-Unlike in other free game projects is the media is not tied to a single license.
+_______________________
+
+The media is not tied to a single license unlike in other free game projects.
 Every file can have its own copyright and license that reflects the idea of "The Open Source Definition".
 See http://opensource.org/docs/osd for further information.
 
 As game media is not source code we prefer the "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported" license.
-See http://creativecommons.org/licenses/by-nc-sa/3.0/ .
+See http://creativecommons.org/licenses/by-nc-sa/3.0/ for more details.
 
-See MEDIA.txt for a listing of the individual copyrights and licenses of media files in the XreaL/base/ dir.
+-------------------------------------------------------------------------------------------------
+
+See XreaL/base/MEDIA.txt for a listing of the individual copyrights and licenses of media files.
+
+-------------------------------------------------------------------------------------------------
 
 To keep track of all copyrights and licenses, we use Subversion properties for each file.
 If you are not familiar with Subversion properties then have a look at the
@@ -42,8 +55,15 @@ Properties on 'base/sound/misc/menu1.wav':
 
 
 
+
+
+
+____________________________________________________________________________________
+
 Code License Exceptions - The parts that are not covered by the GPL:
-====================================================================
+_______________________________________________________________________
+
+
 
 IO on .zip files using portions of zlib
 -----------------------------------------------------------------------------
