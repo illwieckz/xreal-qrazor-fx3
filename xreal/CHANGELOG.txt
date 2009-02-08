@@ -17,7 +17,7 @@ __________________________________________
 	* new textures
 	* new maps
 	* new weapons with alternate firemodes
-	* new true HDR rendering with adapative tone mapping that includes HDR lightmapping
+	* new true HDR rendering with adaptive tone mapping that includes HDR lightmapping
 	* new non-uniform lighting that allows mixing of static precomputed lighting and realtime lighting
 	* improved bloom post process effect
 	* improved texture compression
