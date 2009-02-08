@@ -5,11 +5,12 @@ base/models/players/shina/death2.md5anim
 base/models/players/shina/death3.md5anim
 base/models/players/shina/gesture.md5anim
 base/models/players/shina/swim.md5anim
-base/models/mapobjects/otty/tech_jumppad.ase (similar to Quake4)
-base/models/mapobjects/otty/tech_accelerationpad.ase (similar to Quake4)
-base/models/mapobjects/otty/tech_teleporter.ase (similar to Quake4)
+base/models/mapobjects/otty/tech_jumppad.ase (similar to Quake 4)
+base/models/mapobjects/otty/tech_accelerationpad.ase (similar to Quake 4)
+base/models/mapobjects/otty/tech_teleporter.ase (similar to Quake 4)
 base/models/flag/flagflap3.md5mesh
 base/models/flag/flagpole.md5mesh
+base/models/weapons/flakcannon/*
 base/sound/feedback/telefrag.ogg
 base/sound/feedback/vote_now.ogg
 base/sound/feedback/vote_passed.ogg
@@ -25,19 +26,19 @@ base/sound/items/regeneration.ogg
 base/sound/items/use_medkit.ogg
 base/sound/items/use_nothing.ogg
 base/sound/player/footsteps/energy*.ogg
-base/sound/player/DEFAULT_MODEL/death1.ogg
-base/sound/player/DEFAULT_MODEL/death2.ogg
-base/sound/player/DEFAULT_MODEL/death3.ogg
-base/sound/player/DEFAULT_MODEL/drown.ogg
-base/sound/player/DEFAULT_MODEL/fall1.ogg
-base/sound/player/DEFAULT_MODEL/falling1.ogg
-base/sound/player/DEFAULT_MODEL/gasp.ogg
-base/sound/player/DEFAULT_MODEL/jump1.ogg
-base/sound/player/DEFAULT_MODEL/pain100_1.ogg
-base/sound/player/DEFAULT_MODEL/pain25_1.ogg
-base/sound/player/DEFAULT_MODEL/pain50_1.ogg
-base/sound/player/DEFAULT_MODEL/pain75_1.ogg
-base/sound/player/DEFAULT_MODEL/taunt.ogg
+base/sound/player/shina/death1.ogg
+base/sound/player/shina/death2.ogg
+base/sound/player/shina/death3.ogg
+base/sound/player/shina/drown.ogg
+base/sound/player/shina/fall1.ogg
+base/sound/player/shina/falling1.ogg
+base/sound/player/shina/gasp.ogg
+base/sound/player/shina/jump1.ogg
+base/sound/player/shina/pain100_1.ogg
+base/sound/player/shina/pain25_1.ogg
+base/sound/player/shina/pain50_1.ogg
+base/sound/player/shina/pain75_1.ogg
+base/sound/player/shina/taunt.ogg
 base/sound/teamplay/flagcapture_opponent.ogg
 base/sound/teamplay/flagcapture_yourteam.ogg
 base/sound/teamplay/flagreturn_opponent.ogg
@@ -67,14 +68,13 @@ base/sprites/splash.png (optional)
 
 
 code/cgame
-- finish the Lua powered Quake4 style special effects target_fx system
+- finish the Lua powered Quake 4 style special effects target_fx system
 - improve rocket explosion effect like in Entar's Vengeance
 
 code/game
-- change BFG to Quake2 BFG
-- add Prey style wall-walking
- - add directional gravity
- - change player boxes to be cylinders and let them rotate
+- change BFG to Quake 2 BFG
+- change player boxes to be cylinders and let them rotate
+- add support for multiple holdable items like in Quake 2
 - add unreal tournament style awards
  - double kill/frag
  - multi kill
@@ -95,6 +95,7 @@ code/game/acebot
 - add support for holdable items
 
 code/renderer
+- add a cheap liquid shader that doesn't require mirrors
 - improve shadow mapping filtering methods
 - use hardware occlusion query samples for a new light LOD system
 - use hardware occlusion query samples for light flares
@@ -107,8 +108,7 @@ code/renderer
 - add dynamic LOD support for md3 and md5 models ?
 - check for shader model 3 hardware ?
 
-code/xmap2
-- finish writing per vertex deluxels
+
 
 
 
