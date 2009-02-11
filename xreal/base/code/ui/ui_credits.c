@@ -162,12 +162,12 @@ cr_line         credits[] = {
 	{"Robert 'BJA' Hodri - www.bja-design.de", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Willi 'whammes' Hammes - www.willihammes.com", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Lee David Ash - www.violationentertainment.com", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Philip Klevestav - http://www.philipk.net", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Mikael 'Ruohis' Ruohomaa", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Julian 'Plaque' Morris", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Yves 'evillair' Allaire - Quake4 eX texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Philip Klevestav - Quake4 pk01 texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Matt 'Lunaran' Breit - Quake4 Powerplant texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Tom 'phantazm11' Perryman - Quake4 aztech texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
+//	{"Tom 'phantazm11' Perryman - Quake4 aztech texture set", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"William 'SPoG' Joseph", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Robin 'Wakey' Pengelstorfer", UI_CENTER | UI_SMALLFONT, colorWhite},
 //  {"Christian 'Lorax' Ballsieper", UI_CENTER | UI_SMALLFONT, colorWhite},
@@ -189,7 +189,7 @@ cr_line         credits[] = {
 	{"xreal.sourceforge.net", UI_CENTER | UI_BIGFONT, colorBlue},
 	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
 
-	{"XreaL(c) 2005-2008, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"XreaL(c) 2005-2009, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, colorRed},
 
 	{NULL}
 };
