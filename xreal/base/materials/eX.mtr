@@ -692,7 +692,7 @@ textures/eX/eX_lightpanel_01_orange
 	specularMap		textures/eX/eX_lightpanel_01_s.tga
 	{
 		blend		add
-		map			textures/eX/eX_lightpanel_01_add.tga
+		map			textures/eX/eX_lightpanel_01_glow.tga
 		red		1.000000 
 		green		.59
 		blue		0.01
@@ -710,7 +710,7 @@ textures/eX/eX_light_u201_orange
 	specularMap		textures/eX/eX_light_u201_s.tga
 	{
 		blend		add
-		map			textures/eX/eX_light_u201_add.tga
+		map			textures/eX/eX_light_u201_glow.tga
 		red		1.000000 
 		green		.59
 		blue		0.01
