@@ -3157,22 +3157,23 @@ static void Com_GenerateMediaTXT_f(void)
 #if 1
 		len = strlen(entry->mediaName);
 		if(hasExt &&
-		   Q_stricmp(entry->mediaName + len - 4, ".txt") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".cfg") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".def") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".pro") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".exe") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".dll") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 7, ".vcproj") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".dat") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".lua") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 5, ".glsl") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 6, ".voice") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 6, ".arena") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 2, ".c") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 2, ".h") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 3, ".sh") != 0 &&
-		   Q_stricmp(entry->mediaName + len - 4, ".mtr") != 0)
+		   Q_stristr(entry->mediaName, ".txt") == NULL &&
+		   Q_stristr(entry->mediaName, ".cfg") == NULL &&
+		   Q_stristr(entry->mediaName, ".def") == NULL &&
+		   Q_stristr(entry->mediaName, ".pro") == NULL &&
+		   Q_stristr(entry->mediaName, ".exe") == NULL &&
+		   Q_stristr(entry->mediaName, ".dll") == NULL &&
+		   Q_stristr(entry->mediaName, ".so") == NULL &&
+		   Q_stristr(entry->mediaName, ".vcproj") == NULL &&
+		   Q_stristr(entry->mediaName, ".dat") == NULL &&
+		   Q_stristr(entry->mediaName, ".lua") == NULL &&
+		   Q_stristr(entry->mediaName, ".glsl") == NULL &&
+		   Q_stristr(entry->mediaName, ".voice") == NULL &&
+		   Q_stristr(entry->mediaName, ".arena") == NULL &&
+		   Q_stristr(entry->mediaName, ".c") == NULL &&
+		   Q_stristr(entry->mediaName, ".h") == NULL &&
+		   Q_stristr(entry->mediaName, ".sh") == NULL &&
+		   Q_stristr(entry->mediaName, ".mtr") == NULL)
 #endif
 		{
 			FS_Printf(f, "%s", entry->mediaName);
