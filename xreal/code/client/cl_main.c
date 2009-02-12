@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -3056,7 +3056,7 @@ void CL_InitRenderer(void)
 	cls.charSetShader = re.RegisterShader("gfx/2d/bigchars");
 	cls.whiteShader = re.RegisterShader("white");
 
-	//fonts
+	// true type fonts
 	re.RegisterFont("fonts/VeraMono.ttf", 24, &cls.consoleFont);
 	re.RegisterFont("fonts/VeraMoBd.ttf", 24, &cls.consoleBoldFont);
 
@@ -4102,7 +4102,7 @@ void CL_GlobalServers_f(void)
 		Q_strcat(command, sizeof(command), Cmd_Argv(i));
 	}
 
-	Com_Printf("CL_GlobalServers_f: command = '%s'\n", command);
+	Com_DPrintf("CL_GlobalServers_f: command = '%s'\n", command);
 
 	NET_OutOfBandPrint(NS_SERVER, to, "%s", command);
 }

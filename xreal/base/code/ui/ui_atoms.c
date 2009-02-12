@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uiStatic_t      uis;
 qboolean        m_entersound;	// after a frame, so caching won't disrupt the sound
 
-
 void QDECL Com_Error(int level, const char *error, ...)
 {
 	va_list         argptr;
@@ -165,6 +164,7 @@ void UI_ForceMenuOff(void)
 
 	trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
 	trap_Key_ClearStates();
+	trap_Cvar_Set("cl_paused", "0");
 }
 
 /*
@@ -350,7 +350,7 @@ UI_DrawBannerString
 static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 {
 	const char     *s;
-	unsigned char   ch;			// bk001204 - unsigned
+	unsigned char   ch;
 	float           ax;
 	float           ay;
 	float           aw;
@@ -1146,6 +1146,7 @@ void UI_SetActiveMenu(uiMenuCommand_t menu)
 			   UI_RankingsMenu();
 			   return;
 			 */
+			trap_Cvar_Set("cl_paused", "1");
 			UI_InGameMenu();
 			return;
 
@@ -1552,7 +1553,6 @@ int             lineX = 0;
 
 void UI_Refresh(int realtime)
 {
-
 	uis.frametime = realtime - uis.realtime;
 	uis.realtime = realtime;
 

@@ -59,9 +59,11 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3,
 		case CG_CONSOLE_COMMAND:
 			return CG_ConsoleCommand();
 
+			/*
 		case CG_CONSOLE_TEXT:
 			CG_AddNotifyText();
 			return 0;
+			*/
 
 		case CG_DRAW_ACTIVE_FRAME:
 			CG_DrawActiveFrame(arg0, arg1, arg2);
@@ -507,6 +509,7 @@ void CG_RemoveNotifyLine(void)
 CG_AddNotifyText
 =================
 */
+/*
 void CG_AddNotifyText(void)
 {
 #if 0
@@ -530,6 +533,7 @@ void CG_AddNotifyText(void)
 	cg.numConsoleLines++;
 #endif
 }
+*/
 
 void QDECL CG_Printf(const char *msg, ...)
 {

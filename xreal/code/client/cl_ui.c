@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -801,11 +801,10 @@ FloatAsInt
 */
 static int FloatAsInt(float f)
 {
-	int             temp;
+	floatint_t      fi;
 
-	*(float *)&temp = f;
-
-	return temp;
+	fi.f = f;
+	return fi.i;
 }
 
 /*
@@ -906,7 +905,7 @@ intptr_t CL_UISystemCalls(intptr_t * args)
 		case UI_R_REGISTERMODEL:
 			return re.RegisterModel(VMA(1), args[2]);
 
-			//xppm stuff
+			// XPPM stuff
 		case UI_R_REGISTERANIMATION:
 			return re.RegisterAnimation(VMA(1));
 		case UI_R_MODELBOUNDS:

@@ -1,7 +1,8 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008 Adrian Fuhrmann
 
 This file is part of XreaL source code.
 
@@ -207,16 +208,7 @@ void SCR_DrawSmallChar(int x, int y, int ch)
 }
 
 
-
-
-
-
-
-
-
-
-
-
+// ========================================================================================
 
 
 
@@ -304,8 +296,6 @@ int SCR_Text_Height(const char *text, float scale, int limit, const fontInfo_t *
 
 	return max * useScale;
 }
-
-
 
 void SCR_Text_PaintSingleChar(float x, float y, float scale, const vec4_t color, int ch, float adjust, int limit, int style,
 							  const fontInfo_t * font)
@@ -456,23 +446,7 @@ void SCR_Text_PaintAligned(int x, int y, char *s, float scale, int style, const 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// ========================================================================================
 
 
 

@@ -1,7 +1,6 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -1137,7 +1136,6 @@ void CL_WritePacket(void)
 				const char     *ptr = target;
 
 				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
-
 				do
 				{
 					if((*ptr == ',') || (*ptr == '\0'))
@@ -1284,6 +1282,12 @@ void CL_SendCmd(void)
 {
 	// don't send any message if not connected
 	if(cls.state < CA_CONNECTED)
+	{
+		return;
+	}
+
+	// don't send commands if paused
+	if(com_sv_running->integer && sv_paused->integer && cl_paused->integer)
 	{
 		return;
 	}

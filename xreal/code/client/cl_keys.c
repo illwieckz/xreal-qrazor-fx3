@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -381,14 +381,13 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 	if(size == SMALLCHAR_WIDTH)
 	{
 		color[0] = color[1] = color[2] = color[3] = 1.0;
-		//SCR_DrawSmallStringExt(x, y, str, color, qfalse, noColorEscape);
 		SCR_Text_Paint(x, y, 0.15f, color, str, 0, 0, style, &cls.consoleFont);
 	}
 	else
 	{
 		color[0] = color[1] = color[2] = color[3] = 1.0;
+		
 		// draw big string with drop shadow
-		//SCR_DrawBigString(x, y, str, 1.0, noColorEscape);
 		SCR_Text_Paint(x, y, 0.25f, color, str, 0, 0, style, &cls.consoleFont);
 	}
 
@@ -402,36 +401,12 @@ void Field_VariableSizeDraw(field_t * edit, int x, int y, int width, int size, q
 
 		if(key_overstrikeMode)
 		{
-			//cursorChar = 11;
-
 			SCR_Text_Paint(x + (edit->cursor - prestep) * 4.5, y, 0.15f, color, "*", 0, 0, style, &cls.consoleFont);
-
-
 		}
 		else
 		{
-			//cursorChar = 10;
-
 			SCR_Text_Paint(x + (edit->cursor - prestep) * 4.5, y, 0.15f, color, "_", 0, 0, style, &cls.consoleFont);
 		}
-
-/*		i = drawLen - strlen(str);
-
-		if(size == SMALLCHAR_WIDTH)
-		{
-			SCR_DrawSmallChar(x + (edit->cursor - prestep - i) * size, y, cursorChar);
-
-
-		}
-		else
-		{
-			str[0] = cursorChar;
-			str[1] = 0;
-			SCR_DrawBigString(x + (edit->cursor - prestep - i) * size, y, str, 1.0, qfalse);
-
-		}
-
-*/
 	}
 }
 
@@ -1344,7 +1319,6 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 		{
 			if(keys[K_ALT].down)
 			{
-//              Key_ClearStates();  // Thilo: why should we clear the key states here?
 				Cvar_SetValue("r_fullscreen", !Cvar_VariableIntegerValue("r_fullscreen"));
 				return;
 			}

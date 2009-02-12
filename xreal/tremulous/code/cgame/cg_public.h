@@ -74,7 +74,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	8
+#define	CGAME_IMPORT_API_VERSION	9
 
 typedef enum
 {
@@ -255,11 +255,6 @@ typedef enum
 
 	CG_EVENT_HANDLING,
 //  void (*CG_EventHandling)(int type);
-
-	CG_CONSOLE_TEXT
-//	void (*CG_ConsoleText)( void );
-	// pass text that has been printed to the console to cgame
-	// use Cmd_Argc() / Cmd_Argv() to read it
 } cgameExport_t;
 
 //----------------------------------------------

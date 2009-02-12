@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -253,8 +253,6 @@ void Con_ClearNotify(void)
 	{
 		con.times[i] = 0;
 	}
-
-	CL_GameConsoleText();
 }
 
 
@@ -548,17 +546,6 @@ void Con_DrawInput(vec4_t color)
 	SCR_Text_Paint(20, 234, 0.15f, color, "]", 0, 0, style | UI_PULSE, &cls.consoleFont);
 
 	Field_Draw(&g_consoleField, 26, 234, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
-
-/*	if(y >= con.yadjust)
-	{
-		//SCR_DrawSmallChar(con.xadjust + 1 * SMALLCHAR_WIDTH, y, '>');
-
-
-
-		Field_Draw(&g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y, SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue);
-	}
-
-*/
 }
 
 
@@ -979,7 +966,6 @@ void Con_RunConsole(void)
 		if(con.finalFrac < con.displayFrac)
 			con.displayFrac = con.finalFrac;
 	}
-
 
 }
 

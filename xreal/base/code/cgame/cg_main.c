@@ -87,10 +87,6 @@ intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, i
 			CG_EventHandling(arg0);
 			return 0;
 
-		case CG_CONSOLE_TEXT:
-			//CG_AddNotifyText(); // only used by Tremulous
-			return 0;
-
 		default:
 			CG_Error("vmMain: unknown command %i", command);
 			break;

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -1437,7 +1437,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit
+			break;				// all blocks have been hit 
 		}
 		if((byte *) block + block->size != (byte *) block->next)
 		{
@@ -1465,7 +1465,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &smallzone->blocklist)
 		{
-			break;				// all blocks have been hit
+			break;				// all blocks have been hit 
 		}
 	}
 
@@ -1552,7 +1552,7 @@ void Com_TouchMemory(void)
 		}
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit
+			break;				// all blocks have been hit 
 		}
 	}
 
@@ -1710,7 +1710,7 @@ void Com_InitHunkMemory(void)
 
 	// make sure the file system has allocated and "not" freed any temp blocks
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different
+	// by the file system without redunant routines in the file system utilizing different 
 	// memory systems
 	if(FS_LoadStack() != 0)
 	{
@@ -1980,7 +1980,7 @@ void           *Hunk_AllocateTempMemory(int size)
 
 	// return a Z_Malloc'd block if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different
+	// by the file system without redunant routines in the file system utilizing different 
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -2034,7 +2034,7 @@ void Hunk_FreeTempMemory(void *buf)
 
 	// free with Z_Free if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different
+	// by the file system without redunant routines in the file system utilizing different 
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -3490,7 +3490,7 @@ void Com_Init(char *commandLine)
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
-	//if(com_developer && com_developer->integer)
+	if(com_developer && com_developer->integer)
 	{
 		Cmd_AddCommand("error", Com_Error_f);
 		Cmd_AddCommand("crash", Com_Crash_f);
@@ -3499,6 +3499,7 @@ void Com_Init(char *commandLine)
 	Cmd_AddCommand("quit", Com_Quit_f);
 	Cmd_AddCommand("changeVectors", MSG_ReportChangeVectors_f);
 	Cmd_AddCommand("writeconfig", Com_WriteConfig_f);
+	Cmd_SetCommandCompletionFunc("writeconfig", Cmd_CompleteCfgName);
 
 	Cmd_AddCommand("mathtest", Com_MathTest_f);
 	Cmd_AddCommand("generateMEDIA.txt", Com_GenerateMediaTXT_f);

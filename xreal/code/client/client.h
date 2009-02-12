@@ -351,8 +351,7 @@ typedef struct
 	qhandle_t       charSetShader;
 	qhandle_t       whiteShader;
 
-	//fonts
-
+	// true type fonts
 	fontInfo_t      consoleFont;
 	fontInfo_t      consoleBoldFont;
 
@@ -618,7 +617,6 @@ void            CIN_CloseAllVideos(void);
 void            CL_InitCGame(void);
 void            CL_ShutdownCGame(void);
 qboolean        CL_GameCommand(void);
-void            CL_GameConsoleText(void);
 void            CL_CGameRendering(stereoFrame_t stereo);
 void            CL_SetCGameTime(void);
 void            CL_FirstSnapshot(void);

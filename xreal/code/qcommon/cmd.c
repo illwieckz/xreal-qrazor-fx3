@@ -254,7 +254,11 @@ Cmd_Exec_f
 */
 void Cmd_Exec_f(void)
 {
-	char           *f;
+	union
+	{
+		char           *c;
+		void           *v;
+	} f;
 	int             len;
 	char            filename[MAX_QPATH];
 
@@ -266,17 +270,17 @@ void Cmd_Exec_f(void)
 
 	Q_strncpyz(filename, Cmd_Argv(1), sizeof(filename));
 	Com_DefaultExtension(filename, sizeof(filename), ".cfg");
-	len = FS_ReadFile(filename, (void **)&f);
-	if(!f)
+	len = FS_ReadFile(filename, &f.v);
+	if(!f.c)
 	{
 		Com_Printf("couldn't exec %s\n", Cmd_Argv(1));
 		return;
 	}
 	Com_Printf("execing %s\n", Cmd_Argv(1));
 
-	Cbuf_InsertText(f);
+	Cbuf_InsertText(f.c);
 
-	FS_FreeFile(f);
+	FS_FreeFile(f.v);
 }
 
 
@@ -458,6 +462,27 @@ https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
 char           *Cmd_Cmd(void)
 {
 	return cmd_cmd;
+}
+
+/*
+   Replace command separators with space to prevent interpretation
+   This is a hack to protect buggy qvms
+   https://bugzilla.icculus.org/show_bug.cgi?id=3593
+*/
+void Cmd_Args_Sanitize(void)
+{
+	int             i;
+
+	for(i = 1; i < cmd_argc; i++)
+	{
+		char           *c = cmd_argv[i];
+
+		while((c = strpbrk(c, "\n\r;")))
+		{
+			*c = ' ';
+			++c;
+		}
+	}
 }
 
 /*
@@ -750,7 +775,7 @@ void Cmd_ExecuteString(const char *text)
 		return;					// no tokens
 	}
 
-	// check registered command functions   
+	// check registered command functions
 	for(prev = &cmd_functions; *prev; prev = &cmd->next)
 	{
 		cmd = *prev;

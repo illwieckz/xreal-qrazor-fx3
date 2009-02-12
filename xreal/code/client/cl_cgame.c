@@ -470,11 +470,10 @@ void CL_ShutdownCGame(void)
 
 static int FloatAsInt(float f)
 {
-	int             temp;
+	floatint_t      fi;
 
-	*(float *)&temp = f;
-
-	return temp;
+	fi.f = f;
+	return fi.i;
 }
 
 /*
@@ -484,7 +483,6 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
-
 intptr_t CL_CgameSystemCalls(intptr_t * args)
 {
 	switch (args[0])
@@ -843,7 +841,6 @@ void CL_InitCGame(void)
 	{
 		Com_Error(ERR_DROP, "VM_Create on cgame failed");
 	}
-
 	cls.state = CA_LOADING;
 
 	// init for this gamestate
@@ -893,21 +890,6 @@ qboolean CL_GameCommand(void)
 	}
 
 	return VM_Call(cgvm, CG_CONSOLE_COMMAND);
-}
-
-/*
-====================
-CL_GameConsoleText
-====================
-*/
-void CL_GameConsoleText(void)
-{
-	if(!cgvm)
-	{
-		return;
-	}
-
-	VM_Call(cgvm, CG_CONSOLE_TEXT);
 }
 
 
@@ -1138,6 +1120,13 @@ void CL_SetCGameTime(void)
 		Com_Error(ERR_DROP, "CL_SetCGameTime: !cl.snap.valid");
 	}
 
+	// allow pause in single player
+	if(sv_paused->integer && CL_CheckPaused() && com_sv_running->integer)
+	{
+		// paused
+		return;
+	}
+
 	if(cl.snap.serverTime < cl.oldFrameServerTime)
 	{
 		Com_Error(ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime");
@@ -1155,7 +1144,7 @@ void CL_SetCGameTime(void)
 	else
 	{
 		// cl_timeNudge is a user adjustable cvar that allows more
-		// or less latency to be added in the interest of better
+		// or less latency to be added in the interest of better 
 		// smoothness or better responsiveness.
 		int             tn;
 
