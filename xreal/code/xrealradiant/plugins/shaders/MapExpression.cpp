@@ -16,7 +16,7 @@
 
 /* CONSTANTS */
 namespace {
-	
+
 	// Default image maps for optional material stages
 	const std::string IMAGE_BLACK = "_black.bmp";
 	const std::string IMAGE_CUBICLIGHT = "_cubiclight.bmp";
@@ -39,33 +39,36 @@ namespace shaders {
 MapExpressionPtr IMapExpression::createForToken(DefTokeniser& token) {
 	// Switch on the first keyword, to determine what kind of expression this
 	// is.
-	std::string type = boost::algorithm::to_lower_copy(token.nextToken());
 
-	if (type == "heightmap") {
+	// Tr3B: don't convert image names to lower because Unix filesystems are case sensitive
+	//std::string type = boost::algorithm::to_lower_copy(token.nextToken());
+	std::string type = token.nextToken();
+
+	if (boost::iequals(type, "heightmap")) {
 		return MapExpressionPtr(new HeightMapExpression (token));
 	}
-	else if (type == "addnormals") {
+	else if (boost::iequals(type, "addnormals")) {
 		return MapExpressionPtr(new AddNormalsExpression (token));
 	}
-	else if (type == "smoothnormals") {
+	else if (boost::iequals(type, "smoothnormals")) {
 		return MapExpressionPtr(new SmoothNormalsExpression (token));
 	}
-	else if (type == "add") {
+	else if (boost::iequals(type, "add")) {
 		return MapExpressionPtr(new AddExpression (token));
 	}
-	else if (type == "scale") {
+	else if (boost::iequals(type, "scale")) {
 		return MapExpressionPtr(new ScaleExpression (token));
 	}
-	else if (type == "invertalpha") {
+	else if (boost::iequals(type, "invertalpha")) {
 		return MapExpressionPtr(new InvertAlphaExpression (token));
 	}
-	else if (type == "invertcolor") {
+	else if (boost::iequals(type, "invertcolor")) {
 		return MapExpressionPtr(new InvertColorExpression (token));
 	}
-	else if (type == "makeintensity") {
+	else if (boost::iequals(type, "makeintensity")) {
 		return MapExpressionPtr(new MakeIntensityExpression (token));
 	}
-	else if (type == "makealpha") {
+	else if (boost::iequals(type, "makealpha")) {
 		return MapExpressionPtr(new MakeAlphaExpression (token));
 	}
 	else {
@@ -84,12 +87,12 @@ ImagePtr IMapExpression::getResampled(ImagePtr input, unsigned int width, unsign
 	if (width != input->getWidth(0) || height != input->getHeight(0)) {
 		// Allocate a new image buffer
 		ImagePtr resampled (new RGBAImage(width, height));
-	
+
 		// Resample the texture to match the dimensions of the first image
 		TextureManipulator::instance().resampleTexture(
-			input->getMipMapPixels(0), 
-			input->getWidth(0), input->getHeight(0), 
-			resampled->getMipMapPixels(0), 
+			input->getMipMapPixels(0),
+			input->getWidth(0), input->getHeight(0),
+			resampled->getMipMapPixels(0),
 			width, height, 4
 		);
 		return resampled;
@@ -111,9 +114,9 @@ HeightMapExpression::HeightMapExpression (DefTokeniser& token) {
 ImagePtr HeightMapExpression::getImage() {
 	// Get the heightmap from the contained expression
 	ImagePtr heightMap = heightMapExp->getImage();
-	
+
 	if (heightMap == NULL) return ImagePtr();
-	
+
 	// Convert the heightmap into a normalmap
 	ImagePtr normalMap = createNormalmapFromHeightmap(heightMap, scale);
 	return normalMap;
@@ -135,7 +138,7 @@ AddNormalsExpression::AddNormalsExpression (DefTokeniser& token) {
 
 ImagePtr AddNormalsExpression::getImage() {
     ImagePtr imgOne = mapExpOne->getImage();
-    
+
     if (imgOne == NULL) return ImagePtr();
 
     unsigned int width = imgOne->getWidth(0);
@@ -144,8 +147,8 @@ ImagePtr AddNormalsExpression::getImage() {
     ImagePtr imgTwo = mapExpTwo->getImage();
 
     if (imgTwo == NULL) return ImagePtr();
-    
-	// The image must match the dimensions of the first 
+
+	// The image must match the dimensions of the first
 	imgTwo = getResampled(imgTwo, width, height);
 
     ImagePtr result (new RGBAImage(width, height));
@@ -159,13 +162,13 @@ ImagePtr AddNormalsExpression::getImage() {
 	for( int x = 0; x < static_cast<int>(width); x++ ) {
 	    // create the two vectors
 	    Vector3 vectorOne(
-	    	static_cast<double>(pixOne[0]), 
-	    	static_cast<double>(pixOne[1]), 
+	    	static_cast<double>(pixOne[0]),
+	    	static_cast<double>(pixOne[1]),
 	    	static_cast<double>(pixOne[2])
 	    );
 	    Vector3 vectorTwo(
-	    	static_cast<double>(pixTwo[0]), 
-	    	static_cast<double>(pixTwo[1]), 
+	    	static_cast<double>(pixTwo[0]),
+	    	static_cast<double>(pixTwo[1]),
 	    	static_cast<double>(pixTwo[2])
 	    );
 	    // Take the mean value of the two vectors
@@ -200,14 +203,14 @@ SmoothNormalsExpression::SmoothNormalsExpression (DefTokeniser& token) {
 ImagePtr SmoothNormalsExpression::getImage() {
 
 	ImagePtr normalMap = mapExp->getImage();
-	
+
 	if (normalMap == NULL) return ImagePtr();
-	 
+
 	unsigned int width = normalMap->getWidth(0);
 	unsigned int height = normalMap->getHeight(0);
-	 
+
 	ImagePtr result (new RGBAImage(width, height));
- 
+
 	byte* in = normalMap->getMipMapPixels(0);
 	byte* out = result->getMipMapPixels(0);
 
@@ -246,14 +249,14 @@ ImagePtr SmoothNormalsExpression::getImage() {
 				smoothVector += temp;
 			}
 
-			// Take the average normal vector as result 
+			// Take the average normal vector as result
 			smoothVector *= perKernelSize;
-			
+
 			out[0] = float_to_integer(smoothVector.x());
 			out[1] = float_to_integer(smoothVector.y());
 			out[2] = float_to_integer(smoothVector.z());
 			out[3] = 255;
-			
+
 			// advance the pixel pointer
 			out += 4;
 	    }
@@ -277,16 +280,16 @@ AddExpression::AddExpression (DefTokeniser& token) {
 
 ImagePtr AddExpression::getImage() {
     ImagePtr imgOne = mapExpOne->getImage();
-    
+
     if (imgOne == NULL) return ImagePtr();
 
     unsigned int width = imgOne->getWidth(0);
     unsigned int height = imgOne->getHeight(0);
 
 	ImagePtr imgTwo = mapExpTwo->getImage();
-	
+
 	if (imgTwo == NULL) return ImagePtr();
-	
+
 	// Resize the image to match the dimensions of the first
     imgTwo = getResampled(imgTwo, width, height);
 
@@ -342,19 +345,19 @@ ScaleExpression::ScaleExpression (DefTokeniser& token) : scaleGreen(0),scaleBlue
 
 ImagePtr ScaleExpression::getImage() {
     ImagePtr img = mapExp->getImage();
-    
+
     if (img == NULL) return ImagePtr();
 
     unsigned int width = img->getWidth(0);
     unsigned int height = img->getHeight(0);
-    
+
     if (scaleRed < 0 || scaleGreen < 0 || scaleBlue < 0 || scaleAlpha < 0) {
 		std::cout << "[shaders] ScaleExpression: Invalid scale values found.\n";
-		return img; 
+		return img;
 	}
-	 
+
     ImagePtr result (new RGBAImage(width, height));
- 
+
     byte* in = img->getMipMapPixels(0);
     byte* out = result->getMipMapPixels(0);
 
@@ -396,7 +399,7 @@ InvertAlphaExpression::InvertAlphaExpression (DefTokeniser& token) {
 
 ImagePtr InvertAlphaExpression::getImage() {
 	ImagePtr img = mapExp->getImage();
-	
+
 	if (img == NULL) return ImagePtr();
 
 	unsigned int width = img->getWidth(0);
@@ -437,14 +440,14 @@ InvertColorExpression::InvertColorExpression (DefTokeniser& token) {
 
 ImagePtr InvertColorExpression::getImage() {
 	ImagePtr img = mapExp->getImage();
-	
+
 	if (img == NULL) return ImagePtr();
 
 	unsigned int width = img->getWidth(0);
 	unsigned int height = img->getHeight(0);
 
 	ImagePtr result (new RGBAImage(width, height));
- 
+
 	byte* in = img->getMipMapPixels(0);
 	byte* out = result->getMipMapPixels(0);
 
@@ -478,17 +481,17 @@ MakeIntensityExpression::MakeIntensityExpression (DefTokeniser& token) {
 
 ImagePtr MakeIntensityExpression::getImage() {
 	ImagePtr img = mapExp->getImage();
-	
+
 	if (img == NULL) return ImagePtr();
 
 	unsigned int width = img->getWidth(0);
 	unsigned int height = img->getHeight(0);
 
 	ImagePtr result (new RGBAImage(width, height));
- 
+
 	byte* in = img->getMipMapPixels(0);
 	byte* out = result->getMipMapPixels(0);
-	
+
 	// iterate through the pixels
 	for( int y = 0; y < static_cast<int>(height); y++) {
 		for( int x = 0; x < static_cast<int>(width); x++) {
@@ -519,7 +522,7 @@ MakeAlphaExpression::MakeAlphaExpression (DefTokeniser& token) {
 
 ImagePtr MakeAlphaExpression::getImage() {
 	ImagePtr img = mapExp->getImage();
-	
+
 	if (img == NULL) return ImagePtr();
 
 	unsigned int width = img->getWidth(0);
@@ -553,8 +556,8 @@ std::string MakeAlphaExpression::getIdentifier() {
 }
 
 ImageExpression::ImageExpression (std::string imgName) {
-	// Replace backslashes with forward slashes and strip of 
-	// the file extension of the provided token, and store 
+	// Replace backslashes with forward slashes and strip of
+	// the file extension of the provided token, and store
 	// the result in the provided string.
 	_imgName = os::standardPath(imgName).substr(0, imgName.rfind("."));
 }
