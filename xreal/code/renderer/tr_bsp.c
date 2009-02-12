@@ -4391,6 +4391,7 @@ static void R_CreateSubModelVBOs()
 					}
 				}
 
+#if 0
 				numVerts = OptimizeVertices(numVerts, verts, numTriangles, triangles, optimizedVerts, CompareWorldVert);
 				if(c_redundantVertexes)
 				{
@@ -4403,6 +4404,12 @@ static void R_CreateSubModelVBOs()
 					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, optimizedVerts,
 								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
 								 | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+#else
+				vboSurf->vbo =
+					R_CreateVBO2(va("staticBspModel%i_VBO %i", m, vboSurfaces.currentElements), numVerts, verts,
+								 GLCS_VERTEX | GLCS_TEXCOORD | GLCS_LIGHTCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL
+								 | GLCS_COLOR | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, GL_STATIC_DRAW_ARB);
+#endif
 
 				vboSurf->ibo =
 					R_CreateIBO2(va("staticBspModel%i_IBO %i", m, vboSurfaces.currentElements), numTriangles, triangles,
