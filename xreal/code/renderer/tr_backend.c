@@ -6146,16 +6146,30 @@ static void RB_RenderDebugUtils()
 	}
 #endif
 
-#if 0
+#if 1
 	if(r_showEntityTransforms->integer)
 	{
 		trRefEntity_t  *ent;
 		int             i;
+		vec4_t          quadVerts[4];
 
-		GL_BindProgram(NULL);
-		GL_State(0);
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_Cull(CT_TWO_SIDED);
+
+		// set uniforms
+		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		}
+		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+
+		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
 
 		ent = backEnd.refdef.entities;
 		for(i = 0; i < backEnd.refdef.numEntities; i++, ent++)
@@ -6166,16 +6180,67 @@ static void RB_RenderDebugUtils()
 			// set up the transformation matrix
 			R_RotateEntityForViewParms(ent, &backEnd.viewParms, &backEnd.or);
 			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+								   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 			R_DebugAxis(vec3_origin, matrixIdentity);
-			R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorMagenta);
+			//R_DebugBoundingBox(vec3_origin, ent->localBounds[0], ent->localBounds[1], colorMagenta);
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+
+			VectorSet4(quadVerts[0], ent->localBounds[0][0], ent->localBounds[0][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[1], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[2], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[3], ent->localBounds[0][0], ent->localBounds[0][1], ent->localBounds[1][2], 1);
+			Tess_AddQuadStamp2(quadVerts, colorRed);
+
+			VectorSet4(quadVerts[0], ent->localBounds[1][0], ent->localBounds[0][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[1], ent->localBounds[1][0], ent->localBounds[1][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[2], ent->localBounds[1][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[3], ent->localBounds[1][0], ent->localBounds[0][1], ent->localBounds[0][2], 1);
+			Tess_AddQuadStamp2(quadVerts, colorGreen);
+
+			VectorSet4(quadVerts[0], ent->localBounds[0][0], ent->localBounds[0][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[1], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[2], ent->localBounds[1][0], ent->localBounds[1][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[3], ent->localBounds[1][0], ent->localBounds[0][1], ent->localBounds[1][2], 1);
+			Tess_AddQuadStamp2(quadVerts, colorBlue);
+
+			VectorSet4(quadVerts[0], ent->localBounds[1][0], ent->localBounds[0][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[1], ent->localBounds[1][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[2], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[3], ent->localBounds[0][0], ent->localBounds[0][1], ent->localBounds[0][2], 1);
+			Tess_AddQuadStamp2(quadVerts, colorYellow);
+
+			VectorSet4(quadVerts[0], ent->localBounds[0][0], ent->localBounds[0][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[1], ent->localBounds[0][0], ent->localBounds[0][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[2], ent->localBounds[1][0], ent->localBounds[0][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[3], ent->localBounds[1][0], ent->localBounds[0][1], ent->localBounds[0][2], 1);
+			Tess_AddQuadStamp2(quadVerts, colorMagenta);
+
+			VectorSet4(quadVerts[0], ent->localBounds[1][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
+			VectorSet4(quadVerts[1], ent->localBounds[1][0], ent->localBounds[1][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[2], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[1][2], 1);
+			VectorSet4(quadVerts[3], ent->localBounds[0][0], ent->localBounds[1][1], ent->localBounds[0][2], 1);
+			Tess_AddQuadStamp2(quadVerts, colorCyan);
+
+			Tess_UpdateVBOs();
+			Tess_DrawElements();
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+
 
 			// go back to the world modelview matrix
-			backEnd.or = backEnd.viewParms.world;
-			GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+			//backEnd.or = backEnd.viewParms.world;
+			//GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
-			R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
+			//R_DebugBoundingBox(vec3_origin, ent->worldBounds[0], ent->worldBounds[1], colorCyan);
 		}
+
+		// go back to the world modelview matrix
+		backEnd.or = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 	}
 #endif
 
