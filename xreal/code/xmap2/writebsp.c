@@ -629,6 +629,7 @@ void EndModel(entity_t * e, node_t * headnode)
 	{
 		//Sys_FPrintf(SYS_VRB, "calculating bbox from draw surfaces...\n");
 
+		qboolean noVerts = qtrue;
 		for(i = e->firstDrawSurf; i < numBSPDrawSurfaces; i++)
 		{
 			ds = &bspDrawSurfaces[i];
@@ -642,7 +643,16 @@ void EndModel(entity_t * e, node_t * headnode)
 			for(j = 0; j < ds->numIndexes; j += 3)
 			{
 				AddPointToBounds(bspDrawVerts[ds->firstVert + bspDrawIndexes[j + ds->firstIndex]].xyz, mins, maxs);
+				noVerts = qfalse;
 			}
+		}
+
+		if(noVerts)
+		{
+			// Tr3B: model could not be loaded or something else went wrong.
+			// reset to zero bounds so the entity doesn't mess up the server collision code
+			VectorClear(mins);
+			VectorClear(maxs);
 		}
 	}
 
