@@ -2293,6 +2293,7 @@ extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_hdrRendering;
+extern cvar_t  *r_hdrMinLuminance;
 extern cvar_t  *r_hdrMaxLuminance;
 extern cvar_t  *r_hdrKey;
 extern cvar_t  *r_hdrContrastThreshold;

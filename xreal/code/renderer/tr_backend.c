@@ -5177,11 +5177,11 @@ static void RB_CalculateAdaptation()
 
 	//if(r_hdrMaxLuminance->value)
 	{
-		Q_clamp(backEnd.hdrAverageLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
-		Q_clamp(avgLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
+		Q_clamp(backEnd.hdrAverageLuminance, r_hdrMinLuminance->value, r_hdrMaxLuminance->value);
+		Q_clamp(avgLuminance, r_hdrMinLuminance->value, r_hdrMaxLuminance->value);
 
-		Q_clamp(backEnd.hdrMaxLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
-		Q_clamp(maxLuminance, r_forceAmbient->value, r_hdrMaxLuminance->value);
+		Q_clamp(backEnd.hdrMaxLuminance, r_hdrMinLuminance->value, r_hdrMaxLuminance->value);
+		Q_clamp(maxLuminance, r_hdrMinLuminance->value, r_hdrMaxLuminance->value);
 	}
 
 	newAdaptation = backEnd.hdrAverageLuminance + (avgLuminance - backEnd.hdrAverageLuminance) * (1 - pow(0.98f, 30.0f * deltaTime));
