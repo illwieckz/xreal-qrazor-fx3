@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_CurrentMap;
-uniform sampler2D	u_PositionMap;
+uniform sampler2D	u_DepthMap;
 uniform vec3		u_ViewOrigin;
 uniform float		u_FogDensity;
 uniform vec3		u_FogColor;
@@ -33,17 +32,12 @@ void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * r_FBufScale;
-
-#if defined(ATI_flippedImageFix)
-	// BUGFIX: the ATI driver flips the image
-	st.t = 1.0 - st.t;
-#endif
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
 	// reconstruct vertex position in world space
-	float depth = texture2D(u_PositionMap, st).r;
+	float depth = texture2D(u_DepthMap, st).r;
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
 
@@ -55,16 +49,7 @@ void	main()
 	
 	// calculate fog factor
 	float fogFactor = exp2(-abs(fogExponent));
-
-	// get current color
-	vec3 currentColor = texture2D(u_CurrentMap, st).rgb;
 	
-	// compute final color, lerp between fog color and current color by fog factor
-	vec4 color;
-	color.r = (1.0 - fogFactor) * u_FogColor.r + currentColor.r * fogFactor;
-	color.g = (1.0 - fogFactor) * u_FogColor.g + currentColor.g * fogFactor;
-	color.b = (1.0 - fogFactor) * u_FogColor.b + currentColor.b * fogFactor;
-	color.a = 1.0;
-	
-	gl_FragColor = color;
+	// lerp between FBO color and fog color with GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA. GLS_DSTBLEND_SRC_ALPHA
+	gl_FragColor = vec4(u_FogColor, fogFactor);
 }

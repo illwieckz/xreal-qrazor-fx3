@@ -472,7 +472,7 @@ void R_InitFBOs(void)
 		}
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
 		{
 			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT16_ARB);
 			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
@@ -521,7 +521,7 @@ void R_InitFBOs(void)
 									  tr.geometricRenderFBO->depthBuffer);
 
 
-		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
 		{
 			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
 		}
@@ -565,7 +565,7 @@ void R_InitFBOs(void)
 		}
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
 		{
 			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT16_ARB);
 			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
@@ -599,21 +599,29 @@ void R_InitFBOs(void)
 		tr.occlusionRenderFBO = R_CreateFBO("_occlusionRender", width, height);
 		R_BindFBO(tr.occlusionRenderFBO);
 
-		R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_RGBA, 0);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.occlusionRenderFBOImage->texnum, 0);
-
-		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+		if(glConfig.hardwareType == GLHW_ATI_DX10)
 		{
+			//R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_ALPHA16F_ARB, 0);
 			R_CreateFBODepthBuffer(tr.occlusionRenderFBO, GL_DEPTH_COMPONENT16_ARB);
+		}
+		else if(glConfig.hardwareType == GLHW_NV_DX10)
+		{
+			//R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_ALPHA32F_ARB, 0);
+			R_CreateFBODepthBuffer(tr.occlusionRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 		}
 		else if(glConfig.framebufferPackedDepthStencilAvailable)
 		{
+			//R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_ALPHA32F_ARB, 0);
 			R_CreateFBOPackedDepthStencilBuffer(tr.occlusionRenderFBO, GL_DEPTH24_STENCIL8_EXT);
 		}
 		else
 		{
+			//R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_RGBA, 0);
 			R_CreateFBODepthBuffer(tr.occlusionRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 		}
+
+		R_CreateFBOColorBuffer(tr.occlusionRenderFBO, GL_RGBA, 0);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.occlusionRenderFBOImage->texnum, 0);
 
 		R_CheckFBO(tr.occlusionRenderFBO);
 	}

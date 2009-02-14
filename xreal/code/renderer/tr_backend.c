@@ -4798,7 +4798,7 @@ void RB_RenderUniformFog()
 	GL_BindProgram(&tr.uniformFogShader);
 	GL_ClientState(tr.uniformFogShader.attribs);
 
-	GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 	GL_Cull(CT_TWO_SIDED);
 
 	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
@@ -4822,25 +4822,8 @@ void RB_RenderUniformFog()
 	qglUniform3fARB(tr.uniformFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
 	qglUniformMatrix4fvARB(tr.uniformFogShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
 
-	// capture current color buffer for u_CurrentMap
+	// bind u_DepthMap
 	GL_SelectTexture(0);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
-	{
-		GL_Bind(tr.deferredRenderFBOImage);
-	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
-	{
-		GL_Bind(tr.deferredRenderFBOImage);
-	}
-	else
-	{
-		GL_Bind(tr.currentRenderImage);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
-	}
-
-	// bind u_PositionMap
-	GL_SelectTexture(1);
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
 			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 	{

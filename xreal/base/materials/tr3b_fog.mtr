@@ -1,26 +1,33 @@
 
 textures/tr3b/fog/deathfog
 {
-	qer_editorimage textures/sfx/fog_red.tga
+	qer_editorimage textures/tr3b/fog/deathfog.tga
 	
+	twoSided
 	translucent
 	nonsolid
-	fog
 	nodrop
 	nolightmap
 	
 	xmap_globaltexture
 	xmap_surfacelight 50
 	
-	fogparms ( .66 0 0 ) 392
+	//tessSize 16
+	//deformVertexes bulge 2 3 3
+		
+	fogParms ( .66 0 0 ) 0.009
 
+	
 	{
+		if 0
 		map textures/tr3b/fog/deathfog.tga
 		blend filter
 		scale -0.5, -0.5
 		scroll time * 0.03, time * -0.03
 		rgbGen identity
 	}
+	
+	/*
 	{
 		map textures/tr3b/fog/deathfog.tga
 		blend filter
@@ -28,4 +35,45 @@ textures/tr3b/fog/deathfog
 		scroll time * 0.03, time * -0.03
 		rgbGen identity
 	}
+	*/
+	
+	/*
+	{
+		if( 1 )
+		stage screenMap
+		map _depthToColorFrontFacesFBORender
+	}
+	*/
 }
+
+
+textures/tr3b/fog/whitefog1
+{
+	qer_editorimage textures/tr3b/fog/deathfog.tga
+	
+	twoSided
+	translucent
+	nonsolid
+	nodrop
+	nolightmap
+	
+	fogParms ( 1 1 1 ) 0.009
+}
+
+textures/tr3b/fog/whitefog1Wobble
+{
+	qer_editorimage textures/tr3b/fog/deathfog.tga
+	
+	twoSided
+	translucent
+	nonsolid
+	nodrop
+	nolightmap
+	
+	//tessSize 16
+	//deformVertexes wave 16 sin 0 0.5 0.1
+	//deformVertexes wave 16 sin 0 0.5 0.5 0.1
+	
+	fogParms ( 1 1 1 ) 0.009
+}
+

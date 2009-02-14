@@ -42,11 +42,6 @@ void	main()
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * r_FBufScale;
-	
-#if defined(ATI_flippedImageFix)
-	// BUGFIX: the ATI driver flips the image
-	st.t = 1.0 - st.t;
-#endif
 
 	if(color0.a <= u_AlphaTest)
 	{

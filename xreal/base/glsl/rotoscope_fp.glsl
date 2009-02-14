@@ -30,11 +30,6 @@ void	main()
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	st00 *= r_FBufScale;
 	
-#if defined(ATI_flippedImageFix)
-	// BUGFIX: the ATI driver flips the image
-	st00.t = 1.0 - st00.t;
-#endif
-	
 	// scale by the screen non-power-of-two-adjust
 	st00 *= r_NPOTScale;
 	

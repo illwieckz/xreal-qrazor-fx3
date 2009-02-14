@@ -329,6 +329,8 @@ typedef enum
 	// in addition to alpha test
 	SS_BANNER,
 
+	SS_FOG,
+
 	SS_UNDERWATER,				// for items that should be drawn in front of the water plane
 	SS_WATER,
 
@@ -707,6 +709,12 @@ typedef struct
 	image_t        *outerbox[6], *innerbox[6];
 } skyParms_t;
 
+typedef struct
+{
+	vec3_t          color;
+	float           density;
+} fogParms_t;
+
 typedef enum
 {
 	SHADER_2D,					// surface material: shader is for 2D rendering
@@ -738,7 +746,10 @@ typedef struct shader_s
 	int             contentFlags;
 
 	qboolean        entityMergable;	// merge across entites optimizable (smoke, blood)
-	qboolean        alphaTest;	// helps merging shadowmap generating surfaces
+	qboolean        alphaTest;		// helps merging shadowmap generating surfaces
+
+	qboolean		fogVolume;		// surface encapsulates a fog volume
+	fogParms_t		fogParms;
 
 	qboolean        noShadows;
 	qboolean        fogLight;
@@ -851,6 +862,9 @@ typedef struct shaderProgram_s
 	GLint           u_LightMap;
 	GLint           u_DeluxeMap;
 	GLint           u_PositionMap;
+	GLint           u_DepthMap;
+	GLint           u_DepthMapBack;
+	GLint           u_DepthMapFront;
 	GLint           u_PortalMap;
 	GLint           u_AttenuationMapXY;
 	GLint           u_AttenuationMapZ;
@@ -1877,6 +1891,8 @@ typedef struct
 	image_t        *deferredSpecularFBOImage;
 	image_t        *deferredRenderFBOImage;
 	image_t        *occlusionRenderFBOImage;
+	image_t        *depthToColorBackFacesFBOImage;
+	image_t        *depthToColorFrontFacesFBOImage;
 	image_t        *downScaleFBOImage_quarter;
 	image_t        *downScaleFBOImage_64x64;
 //	image_t        *downScaleFBOImage_16x16;
@@ -1953,6 +1969,9 @@ typedef struct
 	// colored depth test rendering with textures into gl_FragData[1]
 	shaderProgram_t depthTestShader;
 
+	// depth to color encoding
+	shaderProgram_t depthToColorShader;
+
 	// stencil shadow volume extrusion
 	shaderProgram_t shadowExtrudeShader;
 
@@ -1990,6 +2009,7 @@ typedef struct
 	shaderProgram_t portalShader;
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
+	shaderProgram_t volumetricFogShader;
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
 	shaderProgram_t depthOfFieldShader;
 	shaderProgram_t toneMappingShader;

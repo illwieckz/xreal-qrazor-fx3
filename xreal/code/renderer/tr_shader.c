@@ -3623,7 +3623,29 @@ static qboolean ParseShader(char *_text)
 		// fogParms
 		else if(!Q_stricmp(token, "fogParms"))
 		{
+			/*
 			ri.Printf(PRINT_WARNING, "WARNING: fogParms keyword not supported in shader '%s'\n", shader.name);
+			Com_SkipRestOfLine(text);
+
+			*/
+
+			if(!ParseVector(text, 3, shader.fogParms.color))
+			{
+				return qfalse;
+			}
+
+			token = Com_ParseExt(text, qfalse);
+			if(!token[0])
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.name);
+				continue;
+			}
+			shader.fogParms.density = atof(token);
+
+			shader.fogVolume = qtrue;
+			shader.sort = SS_FOG;
+
+			// skip any old gradient directions
 			Com_SkipRestOfLine(text);
 			continue;
 		}
@@ -3825,7 +3847,7 @@ static qboolean ParseShader(char *_text)
 	}
 
 	// ignore shaders that don't have any stages, unless it is a sky or fog
-	if(s == 0 && !shader.forceOpaque && !shader.isSky)
+	if(s == 0 && !shader.forceOpaque && !shader.isSky && !shader.fogVolume)
 	{
 		return qfalse;
 	}
@@ -5097,6 +5119,10 @@ void R_ShaderList_f(void)
 		else if(shader->sort == SS_BANNER)
 		{
 			ri.Printf(PRINT_ALL, "SS_BANNER           ");
+		}
+		else if(shader->sort == SS_FOG)
+		{
+			ri.Printf(PRINT_ALL, "SS_FOG              ");
 		}
 		else if(shader->sort == SS_UNDERWATER)
 		{

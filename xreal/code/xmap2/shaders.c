@@ -1037,7 +1037,10 @@ static void ParseShaderFile(const char *filename)
 
 			/* ydnar: fogparms (for determining fog volumes) */
 			else if(!Q_stricmp(token, "fogparms"))
+			{
 				si->fogParms = qtrue;
+				ApplySurfaceParm("fog", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
+			}
 
 			/* ydnar: polygonoffset (for no culling) */
 			else if(!Q_stricmp(token, "polygonoffset"))
@@ -1960,7 +1963,7 @@ static void ParseShaderFile(const char *filename)
 			ApplySurfaceParm("nomarks", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
 			ApplySurfaceParm("nolightmap", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
 
-			if(!(si->compileFlags & C_COLLISION))
+			if(!(si->compileFlags & (C_COLLISION | C_FOG)))
 			{
 				ApplySurfaceParm("nodraw", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
 			}

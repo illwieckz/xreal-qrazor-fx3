@@ -174,17 +174,18 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef MESA\n#define MESA 1\n#endif\n");
 		}
 
-		// HACK: add ATI's GLSL quirks
-		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)
+		if(glConfig.hardwareType == GLHW_ATI)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI\n#define ATI 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_ATI\n#define GLHW_ATI 1\n#endif\n");
 		}
-#if 0
-		if(r_atiFlippedImageFix->integer)
+		else if(glConfig.hardwareType == GLHW_ATI_DX10)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ATI_flippedImageFix\n#define ATI_flippedImageFix 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_ATI_DX10\n#define GLHW_ATI_DX10 1\n#endif\n");
 		}
-#endif
+		else if(glConfig.hardwareType == GLHW_NV_DX10)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_NV_DX10\n#define GLHW_NV_DX10 1\n#endif\n");
+		}
 
 		if(r_shadows->integer >= 4 && r_shadows->integer <= 5 && glConfig.textureFloatAvailable &&
 		   glConfig.framebufferObjectAvailable)
@@ -904,7 +905,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.depthFillShader.program);
 	GL_CheckErrors();
 
-	// colored depth test rendering with textures into gl_FragData[1]
+	// colored depth test rendering for occlusion testing
 	GLSL_InitGPUShader(&tr.depthTestShader, "depthTest", GLCS_VERTEX | GLCS_TEXCOORD, qtrue);
 
 	tr.depthTestShader.u_ColorMap = qglGetUniformLocationARB(tr.depthTestShader.program, "u_ColorMap");
@@ -920,6 +921,25 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_ValidateProgram(tr.depthTestShader.program);
 	GLSL_ShowProgramUniforms(tr.depthTestShader.program);
+	GL_CheckErrors();
+
+	// depth to color encoding
+	GLSL_InitGPUShader(&tr.depthToColorShader, "depthToColor", GLCS_VERTEX, qtrue);
+
+	tr.depthToColorShader.u_ModelViewProjectionMatrix =
+		qglGetUniformLocationARB(tr.depthToColorShader.program, "u_ModelViewProjectionMatrix");
+	if(glConfig.vboVertexSkinningAvailable)
+	{
+		tr.depthToColorShader.u_VertexSkinning = qglGetUniformLocationARB(tr.depthToColorShader.program, "u_VertexSkinning");
+		tr.depthToColorShader.u_BoneMatrix = qglGetUniformLocationARB(tr.depthToColorShader.program, "u_BoneMatrix");
+	}
+
+	qglUseProgramObjectARB(tr.depthToColorShader.program);
+	//qglUniform1iARB(tr.depthToColorShader.u_ColorMap, 0);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.depthToColorShader.program);
+	GLSL_ShowProgramUniforms(tr.depthToColorShader.program);
 	GL_CheckErrors();
 
 	// shadow volume extrusion
@@ -1519,8 +1539,7 @@ void GLSL_InitGPUShaders(void)
 	// uniform fog post process effect
 	GLSL_InitGPUShader(&tr.uniformFogShader, "uniformFog", GLCS_VERTEX, qtrue);
 
-	tr.uniformFogShader.u_CurrentMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_CurrentMap");
-	tr.uniformFogShader.u_PositionMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_PositionMap");
+	tr.uniformFogShader.u_DepthMap = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_DepthMap");
 	tr.uniformFogShader.u_ViewOrigin = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ViewOrigin");
 	tr.uniformFogShader.u_FogDensity = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogDensity");
 	tr.uniformFogShader.u_FogColor = qglGetUniformLocationARB(tr.uniformFogShader.program, "u_FogColor");
@@ -1529,12 +1548,34 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.uniformFogShader.program, "u_ModelViewProjectionMatrix");
 
 	qglUseProgramObjectARB(tr.uniformFogShader.program);
-	qglUniform1iARB(tr.uniformFogShader.u_CurrentMap, 0);
-	qglUniform1iARB(tr.uniformFogShader.u_PositionMap, 1);
+	qglUniform1iARB(tr.uniformFogShader.u_DepthMap, 0);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.uniformFogShader.program);
 	GLSL_ShowProgramUniforms(tr.uniformFogShader.program);
+	GL_CheckErrors();
+
+	// volumetric fog post process effect
+	GLSL_InitGPUShader(&tr.volumetricFogShader, "volumetricFog", GLCS_VERTEX, qtrue);
+
+	tr.volumetricFogShader.u_DepthMap = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMap");
+	tr.volumetricFogShader.u_DepthMapBack = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMapBack");
+	tr.volumetricFogShader.u_DepthMapFront = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMapFront");
+	tr.volumetricFogShader.u_ViewOrigin = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_ViewOrigin");
+	tr.volumetricFogShader.u_FogDensity = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_FogDensity");
+	tr.volumetricFogShader.u_FogColor = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_FogColor");
+	tr.volumetricFogShader.u_UnprojectMatrix = qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_UnprojectMatrix");
+	tr.volumetricFogShader.u_ModelViewProjectionMatrix =
+		qglGetUniformLocationARB(tr.volumetricFogShader.program, "u_ModelViewProjectionMatrix");
+
+	qglUseProgramObjectARB(tr.volumetricFogShader.program);
+	qglUniform1iARB(tr.volumetricFogShader.u_DepthMap, 0);
+	qglUniform1iARB(tr.volumetricFogShader.u_DepthMapBack, 1);
+	qglUniform1iARB(tr.volumetricFogShader.u_DepthMapFront, 2);
+	qglUseProgramObjectARB(0);
+
+	GLSL_ValidateProgram(tr.volumetricFogShader.program);
+	GLSL_ShowProgramUniforms(tr.volumetricFogShader.program);
 	GL_CheckErrors();
 
 	// screen space ambien occlusion post process effect
@@ -1663,6 +1704,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.depthTestShader.program);
 		tr.depthTestShader.program = 0;
+	}
+
+	if(tr.depthToColorShader.program)
+	{
+		qglDeleteObjectARB(tr.depthToColorShader.program);
+		tr.depthToColorShader.program = 0;
 	}
 
 	if(tr.shadowExtrudeShader.program)
@@ -1797,6 +1844,12 @@ void GLSL_ShutdownGPUShaders(void)
 	{
 		qglDeleteObjectARB(tr.uniformFogShader.program);
 		tr.uniformFogShader.program = 0;
+	}
+
+	if(tr.volumetricFogShader.program)
+	{
+		qglDeleteObjectARB(tr.volumetricFogShader.program);
+		tr.volumetricFogShader.program = 0;
 	}
 
 	if(tr.screenSpaceAmbientOcclusionShader.program)
@@ -3232,7 +3285,6 @@ static void Render_heatHaze(int stage)
 	unsigned        stateBits;
 	float           alphaTest;
 	float           deformMagnitude;
-	matrix_t        ortho;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_heatHaze ---\n");
@@ -3241,6 +3293,7 @@ static void Render_heatHaze(int stage)
 	if(r_heatHazeFix->integer)
 	{
 		unsigned        stateBits;
+		matrix_t        ortho;
 
 		// capture current color buffer for u_CurrentMap
 		GL_SelectTexture(0);
@@ -3374,6 +3427,7 @@ static void Render_heatHaze(int stage)
 		}
 
 		R_BindFBO(tr.occlusionRenderFBO);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.occlusionRenderFBOImage->texnum, 0);
 
 		// clear color buffer
 		qglClear(GL_COLOR_BUFFER_BIT);
@@ -3527,6 +3581,161 @@ static void Render_liquid(int stage)
 	GL_Bind(tr.portalRenderImage);
 
 	Tess_DrawElements();
+
+	GL_CheckErrors();
+}
+
+
+
+// see Fog Polygon Volumes documentation by Nvidia for further information
+static void Render_volumetricFog()
+{
+	vec3_t          viewOrigin;
+	float           fogDensity;
+	vec3_t          fogColor;
+
+	GLimp_LogComment("--- Render_volumetricFog---\n");
+
+	if(glConfig.framebufferBlitAvailable)
+	{
+		FBO_t          *previousFBO;
+
+		previousFBO = glState.currentFBO;
+
+		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		{
+			// copy deferredRenderFBO to portalRenderFBO
+
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+								   0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		{
+			// copy deferredRenderFBO to portalRenderFBO
+
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
+								   0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+		else
+		{
+			// copy depth of the main context to deferredRenderFBO
+
+			// FIXME this surpasses R_BindFBO
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
+			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+								   GL_DEPTH_BUFFER_BIT,
+								   GL_NEAREST);
+		}
+
+		// setup shader with uniforms
+		GL_BindProgram(&tr.depthToColorShader);
+		GL_ClientState(tr.depthToColorShader.attribs);
+		GL_State(0);//GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+
+		qglUniformMatrix4fvARB(tr.depthToColorShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+							   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		// Tr3B: might be cool for ghost player effects
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			qglUniform1iARB(tr.depthToColorShader.u_VertexSkinning, tess.vboVertexSkinning);
+
+			if(tess.vboVertexSkinning)
+				qglUniformMatrix4fvARB(tr.depthToColorShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+		}
+
+
+		// render back faces
+		R_BindFBO(tr.occlusionRenderFBO);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.depthToColorBackFacesFBOImage->texnum, 0);
+
+		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		qglClear(GL_COLOR_BUFFER_BIT);
+		GL_Cull(CT_BACK_SIDED);
+		Tess_DrawElements();
+
+		// render front faces
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.depthToColorFrontFacesFBOImage->texnum, 0);
+
+		qglClear(GL_COLOR_BUFFER_BIT);
+		GL_Cull(CT_FRONT_SIDED);
+		Tess_DrawElements();
+
+		R_BindFBO(previousFBO);
+
+
+
+
+
+
+		// enable shader, set arrays
+		GL_BindProgram(&tr.volumetricFogShader);
+		GL_ClientState(tr.volumetricFogShader.attribs);
+
+		//GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
+		//GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
+		GL_Cull(CT_TWO_SIDED);
+
+		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+		// set uniforms
+		VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+
+		{
+			fogDensity = tess.surfaceShader->fogParms.density;
+			VectorCopy(tess.surfaceShader->fogParms.color, fogColor);
+		}
+
+		qglUniformMatrix4fvARB(tr.volumetricFogShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+									   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+		qglUniform3fARB(tr.volumetricFogShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+		qglUniform1fARB(tr.volumetricFogShader.u_FogDensity, fogDensity);
+		qglUniform3fARB(tr.volumetricFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
+		qglUniformMatrix4fvARB(tr.volumetricFogShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
+
+		// bind u_DepthMap
+		GL_SelectTexture(0);
+		if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		{
+			GL_Bind(tr.depthRenderImage);
+		}
+		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		{
+			GL_Bind(tr.depthRenderImage);
+		}
+		else
+		{
+			// depth texture is not bound to a FBO
+			GL_Bind(tr.depthRenderImage);
+			qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+		}
+
+		// bind u_DepthMapBack
+		GL_SelectTexture(1);
+		GL_Bind(tr.depthToColorBackFacesFBOImage);
+
+		// bind u_DepthMapFront
+		GL_SelectTexture(2);
+		GL_Bind(tr.depthToColorFrontFacesFBOImage);
+
+		Tess_DrawElements();
+	}
 
 	GL_CheckErrors();
 }
@@ -3804,6 +4013,7 @@ static void Tess_ComputeTexMatrices(shaderStage_t * pStage)
 	}
 }
 
+
 void Tess_StageIteratorGeneric()
 {
 	int             stage;
@@ -3821,6 +4031,12 @@ void Tess_StageIteratorGeneric()
 	GL_CheckErrors();
 
 	Tess_DeformGeometry();
+
+	if(tess.surfaceShader->fogVolume)
+	{
+		Render_volumetricFog();
+		//return;
+	}
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -3977,6 +4193,13 @@ void Tess_StageIteratorGBuffer()
 	GL_CheckErrors();
 
 	Tess_DeformGeometry();
+
+	if(tess.surfaceShader->fogVolume)
+	{
+		R_BindFBO(tr.deferredRenderFBO);
+		Render_volumetricFog();
+		//return;
+	}
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);

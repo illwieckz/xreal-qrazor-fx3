@@ -105,7 +105,7 @@ void	main()
 #if defined(PARALLAX)
 
 	// construct tangent-world-space-to-tangent-space 3x3 matrix
-#if defined(ATI)
+#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
 
 	mat3 worldToTangentMatrix;
 	/*

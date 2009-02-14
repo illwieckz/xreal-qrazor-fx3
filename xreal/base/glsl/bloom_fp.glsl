@@ -26,7 +26,7 @@ uniform float		u_BlurMagnitude;
 
 
 
-#if defined(ATI) || defined(MESA)
+#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10) || defined(MESA)
 
 /*
  AMD Radeon HD 4850:
@@ -55,11 +55,6 @@ void	main()
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	st *= r_FBufScale;
-
-#if defined(ATI_flippedImageFix)
-	// BUGFIX: the ATI driver flips the image
-	st.t = 1.0 - st.t;
-#endif
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;

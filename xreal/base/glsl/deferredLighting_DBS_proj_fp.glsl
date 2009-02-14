@@ -33,7 +33,7 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform mat4		u_LightAttenuationMatrix;
-#if !defined(ATI)
+#if !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
 uniform vec4		u_LightFrustum[6];
 #endif
 uniform mat4		u_ShadowMatrix;
@@ -47,11 +47,6 @@ void	main()
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
-	
-#if defined(ATI_flippedImageFix)
-	// BUGFIX: the ATI driver flips the image
-	st.t = 1.0 - st.t;
-#endif
 		
 #if 0 //defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
@@ -83,7 +78,7 @@ void	main()
 		return;
 	}
 	
-#if !defined(ATI)
+#if !defined(GLHW_ATI) && !defined(GLHW_ATI_DX10)
 	// make sure that the vertex position is inside the light frustum
 	for(int i = 0; i < 6; ++i)
 	{

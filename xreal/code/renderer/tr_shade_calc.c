@@ -928,7 +928,7 @@ void Tess_DeformGeometry(void)
 	int             i;
 	deformStage_t  *ds;
 
-	if(glState.currentVBO)
+	if(glState.currentVBO != tess.vbo || glState.currentIBO != tess.ibo)
 	{
 		// static VBOs are imcompatible with deformVertexes
 		return;
@@ -991,6 +991,14 @@ void Tess_DeformGeometry(void)
 				break;
 		}
 	}
+
+	// update the default VBO
+	if(tess.numVertexes > 0 && tess.numVertexes <= SHADER_MAX_VERTEXES)
+	{
+		qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsXYZ, tess.numVertexes * sizeof(vec4_t), tess.xyz);
+	}
+
+	GL_CheckErrors();
 }
 
 /*

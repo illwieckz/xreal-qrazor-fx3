@@ -2411,7 +2411,7 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+	if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH16, FT_NEAREST, WT_CLAMP);
 	}
@@ -2474,7 +2474,65 @@ static void R_CreateOcclusionRenderFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+	//
+#if 0
+	if(glConfig.hardwareType == GLHW_ATI_DX10 || glConfig.hardwareType == GLHW_NV_DX10)
+	{
+		tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else if(glConfig.framebufferPackedDepthStencilAvailable)
+	{
+		tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+#endif
+	{
+		tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+	}
+
+	ri.Hunk_FreeTempMemory(data);
+}
+
+static void R_CreateDepthToColorFBOImages(void)
+{
+	int             width, height;
+	byte           *data;
+
+	if(glConfig.textureNPOTAvailable)
+	{
+		width = glConfig.vidWidth;
+		height = glConfig.vidHeight;
+	}
+	else
+	{
+		width = NearestPowerOfTwo(glConfig.vidWidth);
+		height = NearestPowerOfTwo(glConfig.vidHeight);
+	}
+
+	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+
+#if 0
+	if(glConfig.hardwareType == GLHW_ATI_DX10)
+	{
+		tr.depthToColorBackFacesFBOImage = R_CreateImage("_depthToColorBackFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA16F, FT_NEAREST, WT_CLAMP);
+		tr.depthToColorFrontFacesFBOImage = R_CreateImage("_depthToColorFrontFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA16F, FT_NEAREST, WT_CLAMP);
+	}
+	else if(glConfig.hardwareType == GLHW_NV_DX10)
+	{
+		tr.depthToColorBackFacesFBOImage = R_CreateImage("_depthToColorBackFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
+		tr.depthToColorFrontFacesFBOImage = R_CreateImage("_depthToColorFrontFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
+	}
+	else if(glConfig.framebufferPackedDepthStencilAvailable)
+	{
+		tr.depthToColorBackFacesFBOImage = R_CreateImage("_depthToColorBackFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
+		tr.depthToColorFrontFacesFBOImage = R_CreateImage("_depthToColorFrontFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
+	}
+	else
+#endif
+	{
+		tr.depthToColorBackFacesFBOImage = R_CreateImage("_depthToColorBackFacesFBORender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+		tr.depthToColorFrontFacesFBOImage = R_CreateImage("_depthToColorFrontFacesFBORender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
+	}
 
 	ri.Hunk_FreeTempMemory(data);
 }
@@ -2764,6 +2822,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateDepthRenderImage();
 	R_CreatePortalRenderImage();
 	R_CreateOcclusionRenderFBOImage();
+	R_CreateDepthToColorFBOImages();
 	R_CreateDownScaleFBOImages();
 	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();

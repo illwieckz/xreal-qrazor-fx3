@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,27 +20,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_CurrentMap;
-uniform float		u_PortalRange;
-
-varying vec3		var_Vertex;
-varying vec4		var_Color;
 
 void	main()
 {
-	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * r_FBufScale;
-	
-	// scale by the screen non-power-of-two-adjust
-	st *= r_NPOTScale;
-	
-	vec4 color = texture2D(u_CurrentMap, st);
-	color *= var_Color;
-	
-	float len = length(var_Vertex);
+	// compute depth instead of world vertex position in a [0..1] range
+	float depth = gl_FragCoord.z;
 
-	len /= u_PortalRange;
-	color.rgb *= 1.0 - clamp(len, 0.0, 1.0);
-
-	gl_FragColor = color;
+#if 0 //defined(GLHW_ATI_DX10) || defined(GLHW_NV_DX10)
+	gl_FragColor = vec4(0.0, 0.0, 0.0, depth);
+#else
+	// 32 bit precision
+	const vec4 bitSh = vec4(256 * 256 * 256,	256 * 256,				256,         1);
+	const vec4 bitMsk = vec4(			0,		1.0 / 256.0,    1.0 / 256.0,    1.0 / 256.0);
+	
+	vec4 comp;
+	comp = depth * bitSh;
+	comp = fract(comp);
+	comp -= comp.xxyz * bitMsk;
+	gl_FragColor = comp;
+/*
+	// 24 bit precision
+	const vec3 bitSh = vec3(256 * 256,			256,		1);
+	const vec3 bitMsk = vec3(		0,	1.0 / 256.0,		1.0 / 256.0);
+	
+	vec3 comp;
+	comp = depth * bitSh;
+	comp = fract(comp);
+	comp -= comp.xxy * bitMsk;
+	gl_FragColor = vec4(comp, 0.0);
+*/
+#endif
 }
+
+	

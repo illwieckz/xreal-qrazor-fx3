@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,27 +20,39 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_CurrentMap;
-uniform float		u_PortalRange;
+attribute vec4		attr_Position;
+#if defined(r_VertexSkinning)
+attribute vec4		attr_BoneIndexes;
+attribute vec4		attr_BoneWeights;
+uniform int			u_VertexSkinning;
+uniform mat4		u_BoneMatrix[128];
+#endif
 
-varying vec3		var_Vertex;
-varying vec4		var_Color;
+uniform mat4		u_ModelViewProjectionMatrix;
 
 void	main()
 {
-	// calculate the screen texcoord in the 0.0 to 1.0 range
-	vec2 st = gl_FragCoord.st * r_FBufScale;
-	
-	// scale by the screen non-power-of-two-adjust
-	st *= r_NPOTScale;
-	
-	vec4 color = texture2D(u_CurrentMap, st);
-	color *= var_Color;
-	
-	float len = length(var_Vertex);
+#if defined(r_VertexSkinning)
+	if(bool(u_VertexSkinning))
+	{
+		vec4 vertex = vec4(0.0);
+		
+		for(int i = 0; i < 4; i++)
+		{
+			int boneIndex = int(attr_BoneIndexes[i]);
+			float boneWeight = attr_BoneWeights[i];
+			mat4  boneMatrix = u_BoneMatrix[boneIndex];
+			
+			vertex += (boneMatrix * attr_Position) * boneWeight;
+		}
 
-	len /= u_PortalRange;
-	color.rgb *= 1.0 - clamp(len, 0.0, 1.0);
-
-	gl_FragColor = color;
+		// transform vertex position into homogenous clip-space
+		gl_Position = u_ModelViewProjectionMatrix * vertex;
+	}
+	else
+#endif
+	{
+		// transform vertex position into homogenous clip-space
+		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
+	}
 }
