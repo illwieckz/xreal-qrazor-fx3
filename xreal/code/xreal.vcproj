@@ -2662,6 +2662,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\glsl\depthToColor_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\depthToColor_vp.glsl"
+				>
+			</File>
+			<File
 				RelativePath="..\base\glsl\dispersion_C_fp.glsl"
 				>
 			</File>
@@ -2851,6 +2859,14 @@
 			</File>
 			<File
 				RelativePath="..\base\glsl\vertexLighting_DBS_world_vp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\volumetricFog_fp.glsl"
+				>
+			</File>
+			<File
+				RelativePath="..\base\glsl\volumetricFog_vp.glsl"
 				>
 			</File>
 		</Filter>
