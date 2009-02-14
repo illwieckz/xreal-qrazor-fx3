@@ -510,6 +510,7 @@ void ProcessModels(void)
 	qboolean        oldVerbose;
 	entity_t       *entity;
 	const char     *classname;
+	const char     *name;
 	const char     *model;
 
 	/* preserve -v setting */
@@ -529,12 +530,13 @@ void ProcessModels(void)
 
 		classname = ValueForKey(entity, "classname");
 		model = ValueForKey(entity, "model");
+		name = ValueForKey(entity, "name");
 
 		if(entity->brushes || entity->patches ||
 		   (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			/* process the model */
-			Sys_FPrintf(SYS_VRB, "############### model %i ###############\n", numBSPModels);
+			Sys_FPrintf(SYS_VRB, "############### model %i '%s' ###############\n", numBSPModels, name);
 
 			if(mapEntityNum == 0)
 				ProcessWorldModel();

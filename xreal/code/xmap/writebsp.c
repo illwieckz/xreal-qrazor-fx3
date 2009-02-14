@@ -109,7 +109,7 @@ void EmitLeaf(node_t * node)
 
 	//
 	// write bounding box info
-	//  
+	//
 	VectorCopy(node->mins, leaf_p->mins);
 	VectorCopy(node->maxs, leaf_p->maxs);
 
@@ -167,7 +167,7 @@ int EmitDrawNode_r(node_t * node)
 		return -numLeafs;
 	}
 
-	// emit a node  
+	// emit a node
 	if(numNodes == MAX_MAP_NODES)
 		Error("MAX_MAP_NODES");
 	n = &dnodes[numNodes];
@@ -182,7 +182,7 @@ int EmitDrawNode_r(node_t * node)
 
 	//
 	// recursively output the other nodes
-	//  
+	//
 	for(i = 0; i < 2; i++)
 	{
 		if(node->children[i]->planenum == PLANENUM_LEAF)
@@ -406,6 +406,7 @@ void EndModel(entity_t * e, node_t * headnode)
 	{
 		//Sys_FPrintf(SYS_VRB, "calculating bbox from draw surfaces...\n");
 
+		qboolean noVerts = qtrue;
 		for(i = e->firstDrawSurf; i < numMapDrawSurfs; i++)
 		{
 			ds = &mapDrawSurfs[i];
@@ -419,7 +420,16 @@ void EndModel(entity_t * e, node_t * headnode)
 			for(j = 0; j < ds->numIndexes; j++)
 			{
 				AddPointToBounds(ds->verts[ds->indexes[j]].xyz, mins, maxs);
+				noVerts = qfalse;
 			}
+		}
+
+		if(noVerts)
+		{
+			// Tr3B: model could not be loaded or something else went wrong.
+			// reset to zero bounds so the entity doesn't mess up the server collision code
+			VectorClear(mins);
+			VectorClear(maxs);
 		}
 	}
 
