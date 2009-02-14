@@ -281,7 +281,7 @@ void WriteSurfaceExtraFile(const char *path)
 
 		/* shader */
 		if(se->si != NULL)
-			fprintf(sf, "\tshader %s\n", se->si->shader);
+			fprintf(sf, "\tshader \"%s\"\n", se->si->shader);
 
 		/* parent surface number */
 		if(se->parentSurfaceNum != seDefault.parentSurfaceNum)
