@@ -225,7 +225,7 @@ int EmitDrawNode_r(node_t * node)
 
 	//
 	// recursively output the other nodes
-	//  
+	//
 	for(i = 0; i < 2; i++)
 	{
 		if(node->children[i]->planenum == PLANENUM_LEAF)
@@ -647,6 +647,8 @@ void EndModel(entity_t * e, node_t * headnode)
 	}
 
 	/* ydnar: lightgrid mins/maxs */
+#if 0
+	// Tr3B: don't mess with the model bounds ...
 	if(lgMins[0] < 99999)
 	{
 		/* use lightgrid bounds */
@@ -654,6 +656,7 @@ void EndModel(entity_t * e, node_t * headnode)
 		VectorCopy(lgMaxs, mod->maxs);
 	}
 	else
+#endif
 	{
 		/* use brush/patch bounds */
 		VectorCopy(mins, mod->mins);
