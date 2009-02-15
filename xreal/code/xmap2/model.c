@@ -538,13 +538,12 @@ AddTriangleModel()
 
 void AddTriangleModel(entity_t * e)
 {
-	int             num, frame, castShadows, recvShadows, spawnFlags;
-	const char     *targetName;
-	const char     *target, *model, *value;
+	int             frame, castShadows, recvShadows, spawnFlags;
+	const char     *name, *model, *value;
 	char            shader[MAX_QPATH];
 	shaderInfo_t   *celShader;
 	float           temp, lightmapScale;
-	vec3_t          origin, scale, angles;
+	vec3_t          scale;
 	matrix_t        rotation, transform;
 	epair_t        *ep;
 	remap_t        *remap, *remap2;
@@ -553,25 +552,21 @@ void AddTriangleModel(entity_t * e)
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "--- AddTriangleModel ---\n");
 
-	/* get current brush entity targetname */
-	if(e == entities)
-		targetName = "";
-	else
-	{
-		targetName = ValueForKey(e, "name");
+	/* get current brush entity name */
+	name = ValueForKey(e, "name");
 
-		/* misc_model entities target non-worldspawn brush model entities */
-		if(targetName[0] == '\0')
-			return;
-	}
+	/* misc_model entities target non-worldspawn brush model entities */
+	if(name[0] == '\0')
+		return;
 
 	/* get model name */
 	model = ValueForKey(e, "model");
 	if(model[0] == '\0')
-	{
-		Sys_Printf("WARNING: misc_model at %i %i %i without a model key\n", (int)origin[0], (int)origin[1], (int)origin[2]);
 		return;
-	}
+
+	/* Tr3B: skip triggers and other entities */
+	if(!Q_stricmp(name, model))
+		return;
 
 	/* get model frame */
 	frame = IntForKey(e, "_frame");
@@ -602,39 +597,6 @@ void AddTriangleModel(entity_t * e)
 	/* Tr3B: added forceMeta option */
 	spawnFlags |= (IntForKey(e, "forceMeta") > 0) ? 4 : 0;
 
-	/* get origin */
-	/*
-	   GetVectorForKey(e2, "origin", origin);
-	   VectorSubtract(origin, e->origin, origin);    // offset by parent
-	 */
-
-	/* get "angle" (yaw) or "angles" (pitch yaw roll) */
-	MatrixIdentity(rotation);
-	/*
-	   angles[0] = angles[1] = angles[2] = 0.0f;
-
-	   value = ValueForKey(e2, "angle");
-	   if(value[0] != '\0')
-	   {
-	   angles[1] = atof(value);
-	   MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
-	   }
-
-	   value = ValueForKey(e2, "angles");
-	   if(value[0] != '\0')
-	   {
-	   sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
-	   MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
-	   }
-
-	   value = ValueForKey(e2, "rotation");
-	   if(value[0] != '\0')
-	   {
-	   sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
-	   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
-	   }
-	 */
-
 	/* get scale */
 	scale[0] = scale[1] = scale[2] = 1.0f;
 	temp = FloatForKey(e, "modelscale");
@@ -644,11 +606,10 @@ void AddTriangleModel(entity_t * e)
 	if(value[0] != '\0')
 		sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
 
-	MatrixMultiplyScale(rotation, scale[0], scale[1], scale[2]);
-
 	/* set transform matrix */
 	MatrixIdentity(transform);
-	//MatrixSetupTransformFromRotation(transform, rotation, origin);
+	MatrixMultiplyScale(transform, scale[0], scale[1], scale[2]);
+	MatrixIdentity(rotation);
 
 	/* get shader remappings */
 	remap = NULL;
@@ -729,7 +690,7 @@ void AddTriangleModels(entity_t * e)
 	shaderInfo_t   *celShader;
 	float           temp, baseLightmapScale, lightmapScale;
 	vec3_t          origin, scale, angles;
-	matrix_t        rotation, transform;
+	matrix_t        rotation, rotationScaled, transform;
 	epair_t        *ep;
 	remap_t        *remap, *remap2;
 	char           *split;
@@ -845,11 +806,12 @@ void AddTriangleModels(entity_t * e)
 		if(value[0] != '\0')
 			sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
 
-		MatrixMultiplyScale(rotation, scale[0], scale[1], scale[2]);
+		MatrixCopy(rotation, rotationScaled);
+		MatrixMultiplyScale(rotationScaled, scale[0], scale[1], scale[2]);
 
 		/* set transform matrix */
 		MatrixIdentity(transform);
-		MatrixSetupTransformFromRotation(transform, rotation, origin);
+		MatrixSetupTransformFromRotation(transform, rotationScaled, origin);
 
 		/* get shader remappings */
 		remap = NULL;
