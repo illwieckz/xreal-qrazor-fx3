@@ -10,6 +10,8 @@ __________________________________________
 	* redesigned new hud
 	* replaced almost all font rendering with True Type fonts
 	* added Prey style wallwalking
+	* changed player size from 56 to 74 (default in Half-Life 2 and Doom 3)
+	* changed player collision shape to capsule instead of bounding box
 	* changed media license for most media files to http://creativecommons.org/licenses/by-nc-sa/3.0/
 	* new sounds
 	* new mapobject models
