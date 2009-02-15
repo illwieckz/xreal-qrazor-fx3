@@ -2684,7 +2684,7 @@ WORLD MAP
 ============================================================
 */
 
-void            R_AddBrushModelSurfaces(trRefEntity_t * e);
+void            R_AddBSPModelSurfaces(trRefEntity_t * e);
 void            R_AddWorldSurfaces(void);
 qboolean        R_inPVS(const vec3_t p1, const vec3_t p2);
 

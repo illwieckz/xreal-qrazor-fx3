@@ -170,7 +170,7 @@ static qboolean R_CullSurface(surfaceType_t * surface, shader_t * shader)
 
 	// don't cull exactly on the plane, because there are levels of rounding
 	// through the BSP, ICD, and hardware that may cause pixel gaps if an
-	// epsilon isn't allowed here 
+	// epsilon isn't allowed here
 	if(shader->cullType == CT_FRONT_SIDED)
 	{
 		if(d < sface->plane.dist - 8)
@@ -206,7 +206,7 @@ static qboolean R_LightFace(srfSurfaceFace_t * face, trRefLight_t  * light, byte
 			return qfalse;
 		}
 	}
-	
+
 	if(r_cullShadowPyramidFaces->integer)
 	{
 		*cubeSideBits = R_CalcLightCubeSideBits(light, face->bounds);
@@ -386,15 +386,15 @@ static void R_AddBrushModelSurface(bspSurface_t * surf)
 		return;
 	}
 
-	R_AddDrawSurf(surf->data, surf->shader, surf->lightmapNum);
+	R_AddDrawSurf(surf->data, surf->shader, -1);//surf->lightmapNum);
 }
 
 /*
 =================
-R_AddBrushModelSurfaces
+R_AddBSPModelSurfaces
 =================
 */
-void R_AddBrushModelSurfaces(trRefEntity_t * ent)
+void R_AddBSPModelSurfaces(trRefEntity_t * ent)
 {
 	bspModel_t     *bspModel;
 	model_t        *pModel;
@@ -433,6 +433,9 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		return;
 	}
 
+	// Tr3B: BSP inline models should always use vertex lighting
+	R_SetupEntityLighting(&tr.refdef, ent);
+
 	if(r_vboModels->integer && bspModel->numVBOSurfaces)
 	{
 		int             i;
@@ -442,7 +445,7 @@ void R_AddBrushModelSurfaces(trRefEntity_t * ent)
 		{
 			vboSurface = bspModel->vboSurfaces[i];
 
-			R_AddDrawSurf((void *)vboSurface, vboSurface->shader, vboSurface->lightmapNum);
+			R_AddDrawSurf((void *)vboSurface, vboSurface->shader, -1);//vboSurface->lightmapNum);
 		}
 	}
 	else

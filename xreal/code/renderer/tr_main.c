@@ -1825,7 +1825,7 @@ void R_AddEntitySurfaces(void)
 							break;
 
 						case MOD_BSP:
-							R_AddBrushModelSurfaces(ent);
+							R_AddBSPModelSurfaces(ent);
 							break;
 
 						case MOD_BAD:	// null model axis
