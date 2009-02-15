@@ -562,7 +562,7 @@ void CG_PredictPlayerState(void)
 
 	// prepare for pmove
 	cg_pmove.ps = &cg.predictedPlayerState;
-	cg_pmove.trace = CG_Trace; // FIXME CG_CapTrace;
+	cg_pmove.trace = CG_CapTrace; // FIXME CG_CapTrace;
 	cg_pmove.pointcontents = CG_PointContents;
 	if(cg_pmove.ps->pm_type == PM_DEAD)
 	{

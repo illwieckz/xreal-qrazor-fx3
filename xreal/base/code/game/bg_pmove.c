@@ -29,13 +29,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_public.h"
 #include "bg_local.h"
 
-#if 1
+#if 0
 const vec3_t    playerMins = { -15, -15, -24 };
 const vec3_t    playerMaxs = { 15, 15, 32 };
-#else
+#elif 0
 // Enemy Territory
 const vec3_t    playerMins = { -18, -18, -24 };
 const vec3_t    playerMaxs = { 18, 18, 48 };
+#else
+// Half-Life 2, Doom 3 and Quake 4
+const vec3_t    playerMins = { -18, -18, -24 };
+const vec3_t    playerMaxs = { 18, 18, 50 };
 #endif
 
 pmove_t        *pm;
@@ -2143,15 +2147,17 @@ static void PM_CheckDuck(void)
 	}
 
 	if(pm->cmd.upmove < 0)
-	{							// duck
+	{
+		// duck
 		pm->ps->pm_flags |= PMF_DUCKED;
 	}
 	else
-	{							// stand up if possible
+	{
+		// stand up if possible
 		if(pm->ps->pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
-			pm->maxs[2] = 32;
+			pm->maxs[2] = playerMaxs[2];
 			PM_TraceAll(&trace, pm->ps->origin, pm->ps->origin);
 			if(!trace.allsolid)
 				pm->ps->pm_flags &= ~PMF_DUCKED;
@@ -2160,12 +2166,12 @@ static void PM_CheckDuck(void)
 
 	if(pm->ps->pm_flags & PMF_DUCKED)
 	{
-		pm->maxs[2] = 16;
+		pm->maxs[2] = CROUCH_HEIGHT;
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
 	}
 	else
 	{
-		pm->maxs[2] = 32;
+		pm->maxs[2] = playerMaxs[2];
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 	}
 }

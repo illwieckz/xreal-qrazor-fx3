@@ -985,7 +985,7 @@ CG_XPPM_Player
 
 // has to be in sync with clientRespawnTime
 #define DEATHANIM_TIME 1650
-#define TRACE_DEPTH 32.0f
+#define TRACE_DEPTH 64.0f
 void CG_XPPM_Player(centity_t * cent)
 {
 	clientInfo_t   *ci;
@@ -1180,7 +1180,7 @@ void CG_XPPM_Player(centity_t * cent)
 			VectorCopy(tr.endpos, playerOrigin);
 
 			// MD5 player models have their model origin at (0 0 0)
-			VectorMA(playerOrigin, MINS_Z, surfNormal, body.origin);
+			VectorMA(playerOrigin, playerMins[2], surfNormal, body.origin);
 		}
 		else
 		{
@@ -1198,7 +1198,7 @@ void CG_XPPM_Player(centity_t * cent)
 	{
 		VectorCopy(cent->lerpOrigin, playerOrigin);
 		VectorCopy(playerOrigin, body.origin);
-		body.origin[2] += MINS_Z;
+		body.origin[2] += playerMins[2];
 	}
 
 	VectorCopy(body.origin, body.lightingOrigin);
@@ -1321,7 +1321,7 @@ void CG_XPPM_Player(centity_t * cent)
 			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
 			dir[2] = 15 + sin(angle) * 8;
 			VectorAdd(body.origin, dir, skull.origin);
-			skull.origin[2] -= MINS_Z;
+			skull.origin[2] -= playerMins[2];
 
 			dir[2] = 0;
 			VectorCopy(dir, skull.axis[1]);
@@ -1343,7 +1343,7 @@ void CG_XPPM_Player(centity_t * cent)
 			dir[1] = sin(angle) * 20;
 			dir[2] = cos(angle) * 20;
 			VectorAdd(body.origin, dir, skull.origin);
-			skull.origin[2] -= MINS_Z;
+			skull.origin[2] -= playerMins[2];
 
 			angles[0] = sin(angle) * 30;
 			angles[1] = (angle * 180 / M_PI) + 90;
@@ -1377,7 +1377,7 @@ void CG_XPPM_Player(centity_t * cent)
 			dir[1] = cos(angle) * 20;
 			dir[2] = cos(angle) * 20;
 			VectorAdd(body.origin, dir, skull.origin);
-			skull.origin[2] -= MINS_Z;
+			skull.origin[2] -= playerMins[2];
 
 			angles[0] = cos(angle - 0.5 * M_PI) * 30;
 			angles[1] = 360 - (angle * 180 / M_PI);
@@ -1408,7 +1408,7 @@ void CG_XPPM_Player(centity_t * cent)
 			dir[1] = cos(angle) * 20;
 			dir[2] = 0;
 			VectorAdd(body.origin, dir, skull.origin);
-			skull.origin[2] -= MINS_Z;
+			skull.origin[2] -= playerMins[2];
 
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);

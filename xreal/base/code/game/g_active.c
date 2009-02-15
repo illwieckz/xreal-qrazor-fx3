@@ -1181,7 +1181,7 @@ void ClientThink_real(gentity_t * ent)
 
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
-	pm.trace = trap_Trace; // FIXME Capsule;
+	pm.trace = trap_TraceCapsule; // FIXME Capsule;
 
 	if(pm.ps->pm_type == PM_DEAD)
 	{

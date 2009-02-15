@@ -65,11 +65,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	VOTE_TIME			30000	// 30 seconds before vote times out
 
+// Tr3B: changed to HL 2 / Quake 4 properties
 #define	STEPSIZE			18
-#define	MINS_Z				-24
-#define	DEFAULT_VIEWHEIGHT	26
-#define CROUCH_VIEWHEIGHT	12
-#define	DEAD_VIEWHEIGHT		-16
+#define	DEFAULT_VIEWHEIGHT	44 // 68	// Tr3B: was 26
+#define CROUCH_VIEWHEIGHT	16 // 32	// Tr3B: was 12
+#define CROUCH_HEIGHT		20 // 38	// Tr3B: was 16
+#define	DEAD_VIEWHEIGHT	   -16			// Tr3B: was -16
 
 //
 // config strings are a general means of communicating variable length strings
