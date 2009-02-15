@@ -154,10 +154,13 @@ You need the following dependencies in order to compile XreaL with all features:
  * gtkglext >= 1.0.0 (if compiled with scons radiant=1)
  * libxml2 >= 2.0.0 (if compiled with scons radiant=1 or scons xmap=1)
  * zlib >= 1.2.0 (if compiled with scons radiant=1 or scons xmap=1)
+ * GLEW >= 1.5.0 (if compiled with scons radiant=1)
+ * boost >= 1.3.4 (if compiled with scons radiant=1)
 
-Compile XreaL for x86 processers:
+Compile XreaL for x86 processors:
 	>scons arch=linux-i386
-Compile XreaL for x86_64 processers:
+
+Compile XreaL for x86_64 (AMD64) processors:
 	>scons arch=linux-x86_64
 
 Type scons -h for more compile options.
