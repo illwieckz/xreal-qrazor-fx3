@@ -585,6 +585,7 @@ void EndModel(entity_t * e, node_t * headnode)
 	vec3_t          mins, maxs;
 	vec3_t          lgMins, lgMaxs;	/* ydnar: lightgrid mins/maxs */
 	parseMesh_t    *p;
+	const char     *name;
 	const char     *model;
 	int             i, j;
 
@@ -624,13 +625,14 @@ void EndModel(entity_t * e, node_t * headnode)
 	}
 
 	/* Tr3B: bound triangle surfaces */
+	name = ValueForKey(e, "name");
 	model = ValueForKey(e, "model");
 	if(!e->brushes && !e->patches && model[0] != '\0')
 	{
-		//Sys_FPrintf(SYS_VRB, "calculating bbox from draw surfaces...\n");
+		//Sys_FPrintf(SYS_STD, "calculating BSP bounds from draw surfaces for entity '%s' with model '%s'\n", name, model);
 
 		qboolean noVerts = qtrue;
-		for(i = e->firstDrawSurf; i < numBSPDrawSurfaces; i++)
+		for(i = mod->firstBSPSurface; i < numBSPDrawSurfaces; i++)
 		{
 			ds = &bspDrawSurfaces[i];
 
@@ -651,6 +653,8 @@ void EndModel(entity_t * e, node_t * headnode)
 		{
 			// Tr3B: model could not be loaded or something else went wrong.
 			// reset to zero bounds so the entity doesn't mess up the server collision code
+
+			Sys_FPrintf(SYS_WRN, "WARNING: resetting BSP bounds for entity '%s' with model '%s'\n", name, model);
 			VectorClear(mins);
 			VectorClear(maxs);
 		}
