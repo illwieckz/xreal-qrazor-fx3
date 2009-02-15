@@ -2382,6 +2382,7 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 {
 	int             rf;
 	refEntity_t     ent;
+	vec3_t			surfNormal;
 
 	if(cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 	{
@@ -2393,8 +2394,21 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 	}
 
 	memset(&ent, 0, sizeof(ent));
-	VectorCopy(cent->lerpOrigin, ent.origin);
-	ent.origin[2] += 48;
+
+	if(cent->currentState.eFlags & EF_WALLCLIMB && !(cent->currentState.eFlags & EF_DEAD) && !(cg.intermissionStarted))
+	{
+		if(cent->currentState.eFlags & EF_WALLCLIMBCEILING)
+			VectorSet(surfNormal, 0.0f, 0.0f, -1.0f);
+		else
+			VectorCopy(cent->currentState.angles2, surfNormal);
+	}
+	else
+	{
+		VectorSet(surfNormal, 0.0f, 0.0f, 1.0f);
+	}
+
+	VectorMA(cent->lerpOrigin, 64.0f, surfNormal, ent.origin);
+
 	ent.reType = RT_SPRITE;
 	ent.customShader = shader;
 	ent.radius = 10;
