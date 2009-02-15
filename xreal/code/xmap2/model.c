@@ -313,7 +313,33 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 			si = ShaderInfoForShader(shaderName);
 		}
 		else
+		{
 			si = ShaderInfoForShader(picoShaderName);
+
+			// Tr3B: HACK to support the messy Doom 3 materials provided by .ASE files
+			if(!si->explicit)
+			{
+				picoShaderName = PicoGetShaderMapName(shader);
+
+				Q_strncpyz(shaderName, picoShaderName, sizeof(shaderName));
+				StripExtension(shaderName);
+
+				i = 0;
+				while(shaderName[i])
+				{
+					if(shaderName[i] == '\\')
+						shaderName[i] = '/';
+					i++;
+				}
+
+				if(strstr(shaderName, "base/"))
+				{
+					si = ShaderInfoForShader(strstr(shaderName, "base/") + strlen("base/"));
+					Sys_FPrintf(SYS_WRN, "WARNING: Applied .ASE material loader HACK to '%s' : '%s'\n", picoShaderName, si->shader);
+				}
+
+			}
+		}
 
 		/* set shader */
 		ds->shaderInfo = si;

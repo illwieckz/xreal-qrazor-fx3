@@ -754,6 +754,7 @@ typedef struct shaderInfo_s
 
 	vec3_t          fogDir;		/* ydnar */
 
+	qb_t			explicit;	/* Tr3B: .mtr material was found */
 	qb_t            custom;
 	qb_t            finished;
 }
