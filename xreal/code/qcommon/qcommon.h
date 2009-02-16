@@ -450,6 +450,7 @@ char           *Cmd_Args(void);
 char           *Cmd_ArgsFrom(int arg);
 void            Cmd_ArgsBuffer(char *buffer, int bufferLength);
 char           *Cmd_Cmd(void);
+void            Cmd_Args_Sanitize(void);
 
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv () will return an empty string, not a NULL
@@ -848,7 +849,7 @@ int             Com_Filter(char *filter, char *name, int casesensitive);
 int             Com_FilterPath(char *filter, char *name, int casesensitive);
 int             Com_RealTime(qtime_t * qtime);
 qboolean        Com_SafeMode(void);
-
+void            Com_RandomBytes(byte * string, int len);
 void            Com_StartupVariable(const char *match);
 
 // checks for and removes command line "+set var arg" constructs
