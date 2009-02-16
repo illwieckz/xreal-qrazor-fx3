@@ -41,13 +41,34 @@ void	main()
 	// see http://www.gamedev.net/reference/articles/article2208.asp
 	// for Mathematics of Reinhard's Photographic Tone Reproduction Operator
 	
+	// get the luminance of the current pixel
 	float Y = dot(LUMINANCE_VECTOR, color);
 	
+	// calculate the relative luminance
 	float Yr = u_HDRKey * Y / u_HDRAverageLuminance;
+
 	float Ymax = u_HDRMaxLuminance;
-	//float L = Yr / (1.0 + Yr); // simple tone map operator
-	//float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
-	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);	// recommended by Wolgang Engel
+
+#if defined(r_HDRToneMappingOperator_0)
+	
+	// simple tone map operator
+	float L = Yr / (1.0 + Yr);
+	
+	
+#elif defined(r_HDRToneMappingOperator_1)
+	
+	float L = 1.0 - exp(-Yr);
+
+#elif defined(r_HDRToneMappingOperator_2)
+	
+	float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
+	
+#else
+	
+	// recommended by Wolgang Engel
+	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
+	
+#endif
 	
 	color.rgb *= L;
 	

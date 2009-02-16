@@ -237,6 +237,7 @@ cvar_t         *r_hdrLightmap;
 cvar_t         *r_hdrLightmapExposure;
 cvar_t         *r_hdrLightmapGamma;
 cvar_t         *r_hdrLightmapCompensate;
+cvar_t         *r_hdrToneMappingOperator;
 
 cvar_t         *r_screenSpaceAmbientOcclusion;
 cvar_t         *r_depthOfField;
@@ -1356,7 +1357,7 @@ void R_Register(void)
 	r_hdrLightmapExposure = ri.Cvar_Get("r_hdrLightmapExposure", "1.0", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapGamma = ri.Cvar_Get("r_hdrLightmapGamma", "2.2", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapCompensate = ri.Cvar_Get("r_hdrLightmapCompensate", "1.0", CVAR_CHEAT | CVAR_LATCH);
-
+	r_hdrToneMappingOperator = ri.Cvar_Get("r_hdrToneMappingOperator", "1", CVAR_CHEAT | CVAR_LATCH);
 
 	r_printShaders = ri.Cvar_Get("r_printShaders", "0", CVAR_ARCHIVE);
 

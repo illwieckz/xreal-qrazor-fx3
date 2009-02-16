@@ -325,6 +325,10 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 			Q_strcat(bufferExtra, sizeof(bufferExtra),
 					 va("#ifndef r_HDRContrastOffset\n#define r_HDRContrastOffset %f\n#endif\n",
 						r_hdrContrastOffset->value));
+
+			Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 va("#ifndef r_HDRToneMappingOperator\n#define r_HDRToneMappingOperator_%i\n#endif\n",
+						r_hdrToneMappingOperator->integer));
 		}
 
 		if(r_precomputedLighting->integer)
