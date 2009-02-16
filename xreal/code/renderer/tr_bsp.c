@@ -4057,6 +4057,7 @@ static void R_CreateWorldVBO()
 	startTime = ri.Milliseconds();
 
 	// Tr3B: FIXME move this to somewhere else?
+#if CALC_REDUNDANT_SHADOWVERTS
 	s_worldData.redundantVertsCalculationNeeded = 0;
 	for(i = 0; i < s_worldData.numLights; i++)
 	{
@@ -4084,6 +4085,7 @@ static void R_CreateWorldVBO()
 
 	endTime = ri.Milliseconds();
 	ri.Printf(PRINT_ALL, "redundant world vertices calculation time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
+#endif
 
 	//ri.Hunk_FreeTempMemory(triangles);
 	//ri.Hunk_FreeTempMemory(optimizedVerts);
@@ -6302,13 +6304,14 @@ static void R_CreateVBOLightMeshes(trRefLight_t * light)
 			   GLCS_COLOR, GL_STATIC_DRAW_ARB);
 			 */
 
+#if CALC_REDUNDANT_SHADOWVERTS
 			OptimizeTrianglesLite(s_worldData.redundantLightVerts, numTriangles, triangles);
 			if(c_redundantVertexes)
 			{
 				ri.Printf(PRINT_DEVELOPER, "...removed %i redundant vertices from staticLightMesh %i ( %s, %i verts %i tris )\n",
 						  c_redundantVertexes, c_vboLightSurfaces, shader->name, numVerts, numTriangles);
 			}
-
+#endif
 			vboSurf->vbo = s_worldData.vbo;
 			vboSurf->ibo =
 				R_CreateIBO2(va("staticLightMesh_IBO %i", c_vboLightSurfaces), numTriangles, triangles, GL_STATIC_DRAW_ARB);
@@ -6615,6 +6618,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 
 				if(alphaTest)
 				{
+#if CALC_REDUNDANT_SHADOWVERTS
 					//OptimizeTriangles(s_worldData.numVerts, s_worldData.verts, numTriangles, triangles, CompareShadowVertAlphaTest);
 					OptimizeTrianglesLite(s_worldData.redundantShadowAlphaTestVerts, numTriangles, triangles);
 					if(c_redundantVertexes)
@@ -6623,7 +6627,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 								  "...removed %i redundant vertices from staticShadowPyramidMesh %i ( %s, %i verts %i tris )\n",
 								  c_redundantVertexes, c_vboShadowSurfaces, shader->name, numVerts, numTriangles);
 					}
-
+#endif
 					vboSurf->vbo = s_worldData.vbo;
 					vboSurf->ibo =
 						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles,
@@ -6631,6 +6635,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 				}
 				else
 				{
+#if CALC_REDUNDANT_SHADOWVERTS
 					//OptimizeTriangles(s_worldData.numVerts, s_worldData.verts, numTriangles, triangles, CompareShadowVert);
 					OptimizeTrianglesLite(s_worldData.redundantShadowVerts, numTriangles, triangles);
 					if(c_redundantVertexes)
@@ -6639,7 +6644,7 @@ static void R_CreateVBOShadowCubeMeshes(trRefLight_t * light)
 								  "...removed %i redundant vertices from staticShadowPyramidMesh %i ( %s, %i verts %i tris )\n",
 								  c_redundantVertexes, c_vboShadowSurfaces, shader->name, numVerts, numTriangles);
 					}
-
+#endif
 					vboSurf->vbo = s_worldData.vbo;
 					vboSurf->ibo =
 						R_CreateIBO2(va("staticShadowPyramidMesh_IBO %i", c_vboShadowSurfaces), numTriangles, triangles,

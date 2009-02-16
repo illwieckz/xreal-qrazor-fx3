@@ -64,6 +64,7 @@ typedef unsigned short glIndex_t;
 //#define VOLUMETRIC_LIGHTING
 
 #define DEBUG_OPTIMIZEVERTICES 0
+#define CALC_REDUNDANT_SHADOWVERTS 0
 
 // can't be increased without changing bit packing for drawsurfs
 
