@@ -452,67 +452,55 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 /*
 ===============
 RotatePointAroundVector
+
+This is not implemented very well...
 ===============
 */
 void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees)
 {
-	vec3_t          m[3];
-	vec3_t          im[3];
-	vec3_t          zrot[3];
-	vec3_t          tmpmat[3];
-	vec3_t          rot[3];
+	float           sin_a;
+	float           cos_a;
+	float           cos_ia;
+	float           i_i_ia;
+	float           j_j_ia;
+	float           k_k_ia;
+	float           i_j_ia;
+	float           i_k_ia;
+	float           j_k_ia;
+	float           a_sin;
+	float           b_sin;
+	float           c_sin;
+	float           rot[3][3];
 
-	vec3_t          vr, vup, vf;
+	cos_ia = DEG2RAD(degrees);
+	sin_a = sin(cos_ia);
+	cos_a = cos(cos_ia);
+	cos_ia = 1.0F - cos_a;
 
-	vf[0] = dir[0];
-	vf[1] = dir[1];
-	vf[2] = dir[2];
+	i_i_ia = dir[0] * dir[0] * cos_ia;
+	j_j_ia = dir[1] * dir[1] * cos_ia;
+	k_k_ia = dir[2] * dir[2] * cos_ia;
+	i_j_ia = dir[0] * dir[1] * cos_ia;
+	i_k_ia = dir[0] * dir[2] * cos_ia;
+	j_k_ia = dir[1] * dir[2] * cos_ia;
 
-	PerpendicularVector(vr, dir);
-	CrossProduct(vr, vf, vup);
+	a_sin = dir[0] * sin_a;
+	b_sin = dir[1] * sin_a;
+	c_sin = dir[2] * sin_a;
 
-	m[0][0] = vr[0];
-	m[1][0] = vr[1];
-	m[2][0] = vr[2];
+	rot[0][0] = i_i_ia + cos_a;
+	rot[0][1] = i_j_ia - c_sin;
+	rot[0][2] = i_k_ia + b_sin;
+	rot[1][0] = i_j_ia + c_sin;
+	rot[1][1] = j_j_ia + cos_a;
+	rot[1][2] = j_k_ia - a_sin;
+	rot[2][0] = i_k_ia - b_sin;
+	rot[2][1] = j_k_ia + a_sin;
+	rot[2][2] = k_k_ia + cos_a;
 
-	m[0][1] = vup[0];
-	m[1][1] = vup[1];
-	m[2][1] = vup[2];
-
-	m[0][2] = vf[0];
-	m[1][2] = vf[1];
-	m[2][2] = vf[2];
-
-	im[0][0] = m[0][0];
-	im[0][1] = m[1][0];
-	im[0][2] = m[2][0];
-
-	im[1][0] = m[0][1];
-	im[1][1] = m[1][1];
-	im[1][2] = m[2][1];
-
-	im[2][0] = m[0][2];
-	im[2][1] = m[1][2];
-	im[2][2] = m[2][2];
-
-	zrot[0][0] = (float)cos(DEG2RAD(degrees));
-	zrot[0][1] = (float)sin(DEG2RAD(degrees));
-	zrot[0][2] = 0;
-
-	zrot[1][0] = (float)-sin(DEG2RAD(degrees));
-	zrot[1][1] = (float)cos(DEG2RAD(degrees));
-	zrot[1][2] = 0;
-
-	zrot[2][0] = 0.0f;
-	zrot[2][1] = 0.0f;
-	zrot[2][2] = 1.0f;
-
-	AxisMultiply(m, zrot, tmpmat);
-	AxisMultiply(tmpmat, im, rot);
-
-	dst[0] = rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2];
-	dst[1] = rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2];
-	dst[2] = rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2];
+	dst[0] = point[0] * rot[0][0] + point[1] * rot[0][1] + point[2] * rot[0][2];
+	dst[1] = point[0] * rot[1][0] + point[1] * rot[1][1] + point[2] * rot[1][2];
+	dst[2] = point[0] * rot[2][0] + point[1] * rot[2][1] + point[2] * rot[2][2];
 }
 
 /*
@@ -520,22 +508,26 @@ void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, f
 RotateAroundDirection
 ===============
 */
-void RotateAroundDirection(vec3_t axis[3], float yaw)
+void RotateAroundDirection(vec3_t axis[3], vec_t angle)
 {
+	vec_t           scale;
+
+	angle = DEG2RAD(angle);
 
 	// create an arbitrary axis[1]
 	PerpendicularVector(axis[1], axis[0]);
 
-	// rotate it around axis[0] by yaw
-	if(yaw)
-	{
-		vec3_t          temp;
-
-		VectorCopy(axis[1], temp);
-		RotatePointAroundVector(axis[1], axis[0], temp, yaw);
-	}
-
 	// cross to get axis[2]
+	CrossProduct(axis[0], axis[1], axis[2]);
+
+	// rotate
+	scale = cos(angle);
+	VectorScale(axis[1], scale, axis[1]);
+
+	scale = sin(angle);
+	VectorMA(axis[1], scale, axis[2], axis[1]);
+
+	// recalculate axis[2]
 	CrossProduct(axis[0], axis[1], axis[2]);
 }
 

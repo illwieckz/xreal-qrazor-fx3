@@ -939,6 +939,7 @@ void CG_Buildable(centity_t * cent)
 		else
 			turretBarrel.nonNormalizedAxes = qfalse;
 
+		//AxisCopy(axisDefault, turretBarrel.axis);
 		trap_R_AddRefEntityToScene(&turretBarrel);
 	}
 
@@ -981,6 +982,7 @@ void CG_Buildable(centity_t * cent)
 		else
 			turretTop.nonNormalizedAxes = qfalse;
 
+		//AxisCopy(axisDefault, turretTop.axis);
 		trap_R_AddRefEntityToScene(&turretTop);
 	}
 
