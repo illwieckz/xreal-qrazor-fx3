@@ -36,7 +36,6 @@ mic_mapobject
 mic_textures
 mikebart_mapobject
 #otty_sfx
-phant_aztech
 #pinetree
 pk01
 #pjw4tourney1
