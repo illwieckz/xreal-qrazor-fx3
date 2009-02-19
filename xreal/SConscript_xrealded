@@ -2,9 +2,9 @@ import os, string, sys
 
 Import('env')
 
-xreal_server_env = env.Clone()
+xrealded_env = env.Clone()
 
-xreal_server_src = [
+xrealded_src = [
 'code/null/null_client.c',
 'code/null/null_input.c',
 'code/null/null_snddma.c',
@@ -60,27 +60,27 @@ unix_src = [
 'code/sys/con_tty.c'
 ]
 
-xreal_server_env.Append(CCFLAGS='-DDEDICATED')
-xreal_server_env.Append(CCFLAGS='-Icode/zlib')
-xreal_server_env.Append(CCFLAGS='-DSTANDALONE')
-xreal_server_env.Append(CCFLAGS='-DUSE_VOIP')
-xreal_server_env.Append(CCFLAGS='-Icode/speex/include')
+xrealded_env.Append(CCFLAGS='-DDEDICATED')
+xrealded_env.Append(CCFLAGS='-Icode/zlib')
+xrealded_env.Append(CCFLAGS='-DSTANDALONE')
+xrealded_env.Append(CCFLAGS='-DUSE_VOIP')
+xrealded_env.Append(CCFLAGS='-Icode/speex/include')
 
 if env['curl'] == 1:
-	xreal_server_env.Append(CCFLAGS='-DUSE_CURL')
+	xrealded_env.Append(CCFLAGS='-DUSE_CURL')
 
 if env['arch'] == 'linux-i386':
-	xreal_server_env.Append(LIBS=['dl', 'm'])
-	xreal_server_env.Program('xreal-server', [xreal_server_src, unix_src])
-	xreal_server_env.InstallAs('#xreal-server.x86', 'xreal-server')
+	xrealded_env.Append(LIBS=['dl', 'm'])
+	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
+	xrealded_env.InstallAs('#xrealded.x86', 'xrealded')
 	
 elif env['arch'] == 'linux-x86_64':
-	xreal_server_env.Append(CCFLAGS='-DC_ONLY')
-	xreal_server_env.Append(LIBS=['dl', 'm'])
-	xreal_server_env.Program('xreal-server', [xreal_server_src, unix_src])
-	xreal_server_env.InstallAs('#xreal-server.x86_64', 'xreal-server')
+	xrealded_env.Append(CCFLAGS='-DC_ONLY')
+	xrealded_env.Append(LIBS=['dl', 'm'])
+	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
+	xrealded_env.InstallAs('#xrealded.x86_64', 'xrealded')
 
 elif env['arch'] == 'netbsd-i386':
-	xreal_server_env.Append(LIBS=['m'])
-	xreal_server_env.Program('xreal-server', [xreal_server_src, unix_src])
-	xreal_server_env.InstallAs('#xreal-server.x86', 'xreal-server')
+	xrealded_env.Append(LIBS=['m'])
+	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
+	xrealded_env.InstallAs('#xrealded.x86', 'xrealded')

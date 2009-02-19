@@ -16,12 +16,12 @@ opts.Add(BoolOption('smp', 'Set to 1 to compile engine with symmetric multiproce
 #opts.Add(BoolOption('purevm', 'Set to 1 to compile engine with scrict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolOption('radiant', 'Set to 1 to compile the XreaLRadiant level editor', 0))
 opts.Add(BoolOption('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
-opts.Add(BoolOption('xmass', 'Set to 1 to compile XMass', 0))
 #opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 #opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
 opts.Add(EnumOption('curl', 'Choose http-download redirection support for the engine', 'dlopen', allowed_values=('none', 'compile', 'dlopen')))
 #opts.Add(BoolOption('openal', 'Set to 1 to compile engine with OpenAL support', 0))
 opts.Add(BoolOption('dedicated', 'Set to 1 to only compile the dedicated server', 0))
+opts.Add(BoolOption('master', 'Set to 1 to compile the master server', 0))
 opts.Add(BoolOption('tremulous', 'Set to 1 to compile the Tremulous game', 0))
 
 #
@@ -91,7 +91,7 @@ opts.Save('xreal.conf', env)
 #
 Export('env')
 if env['dedicated'] == 1:
-	SConscript('SConscript_xreal-server', build_dir='build/xreal-server', duplicate=0)
+	SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
 	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 else:
 	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
@@ -106,8 +106,8 @@ if env['xmap'] == 1:
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
 	SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
 
-if env['xmass'] == 1:
-	SConscript('SConscript_xmass', build_dir='build/xmass', duplicate=0)
+if env['master'] == 1:
+	SConscript('SConscript_xrealmaster', build_dir='build/xmass', duplicate=0)
 
 
 if env['tremulous'] == 1:
