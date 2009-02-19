@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="xmass"
+	Name="xreal-master"
 	ProjectGUID="{6040DD97-F4DD-4C46-92BE-7CA24CD69D2E}"
 	>
 	<Platforms>
@@ -37,7 +37,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/xmass.tlb"
+				TypeLibraryName=".\Debug/xreal-master.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -47,7 +47,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/xmass.pch"
+				PrecompiledHeaderFile=".\Debug/xreal-master.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -69,11 +69,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib"
-				OutputFile="$(OutDir)/xmass.exe"
+				OutputFile="$(OutDir)/xreal-master.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/xmass.pdb"
+				ProgramDatabaseFile=".\Debug/xreal-master.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -89,7 +89,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/xmass.bsc"
+				OutputFile=".\Debug/xreal-master.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -128,7 +128,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/xmass.tlb"
+				TypeLibraryName=".\Release/xreal-master.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -139,7 +139,7 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\Release/xmass.pch"
+				PrecompiledHeaderFile=".\Release/xreal-master.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -160,10 +160,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib"
-				OutputFile="$(OutDir)/xmass.exe"
+				OutputFile="$(OutDir)/xreal-master.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile=".\Release/xmass.pdb"
+				ProgramDatabaseFile=".\Release/xreal-master.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/xmass.bsc"
+				OutputFile=".\Release/xreal-master.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
