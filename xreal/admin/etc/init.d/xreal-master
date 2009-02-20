@@ -1,0 +1,131 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides: xrealded.x86
+# Required-Start: $local_fs $remote_fs
+# Required-Stop: $local_fs $remote_fs
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: XreaL dedicated server
+# Description: XreaL dedicated server
+### END INIT INFO
+
+# Debian init.d script for the XreaL dedicated server
+# based on the Debian init.d script for the Enemy Territory: Quake Wars dedicated server
+# Copyright © 2007 Stefan Warten <sw@warten.de>
+#
+# This file is licensed under the terms of the GNU General Public License,
+# Version 2 or any later version published by the Free Software Foundation.
+
+set -e
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:."
+
+ENABLED=0
+
+. /lib/lsb/init-functions
+
+# Source defaults file. Edit that file to configure this script.
+if [ -e /etc/default/xreal-dedicated ]; then
+  . /etc/default/xreal-dedicated
+fi
+
+# Quit quietly, if $ENABLED is 0.
+test "$ENABLED" != "0" || exit 0
+
+if [ ! -x "$XREAL_DEDSERVER" ]; then
+  log_failure_msg "XreaL dedicated server '$XREAL_DEDSERVER' does not exist or is not " \
+    "executable."
+  exit 5
+fi
+
+if [ ! -d "$XREAL_DIR" ]; then
+  log_failure_msg "XreaL directory '$XREAL_DIR' does not exist."
+  exit 6
+fi
+
+if [ -z "$XREAL_USER" ]; then
+  log_failure_msg "XREAL_USER variable is empty. Set it to a user to run " \
+    "the XreaL dedicated server."
+  exit 6
+fi
+
+PIDFILE=/var/run/xreal-dedicated.pid
+DESC="XreaL dedicated server"
+NAME=`basename $XREAL_DEDSERVER`
+XREAL_OPTS="+set dedicated 2 +exec server.cfg"
+
+is_running()
+{
+  retval=1
+  if [ -r $PIDFILE ]; then
+    pid=`cat $PIDFILE`
+    if [ -e /proc/$pid ]; then
+      procname=`/bin/ps h -p $pid`
+      [ -n "$procname" ] && retval=0
+    fi
+  fi
+  return $retval
+}
+
+start()
+{
+  log_begin_msg "Starting $DESC: $NAME"
+  if is_running; then
+    log_progress_msg "already running"
+  else
+    start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
+      --make-pidfile --user $XREAL_USER --chuid $XREAL_USER --chdir $XREAL_DIR \
+      --exec $XREAL_DEDSERVER -- $XREAL_OPTS
+  fi
+  log_end_msg 0
+}
+
+stop()
+{
+  log_begin_msg "Stopping $DESC: $NAME"
+  if ! is_running; then
+    log_progress_msg "not running"
+  else
+    start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE \
+      --user $XREAL_USER --exec $XREAL_DEDSERVER
+  fi
+
+  rm -f $PIDFILE
+  log_end_msg 0
+}
+
+status()
+{
+  STATUS="Status of $DESC:"
+  if is_running; then
+    log_success_msg "$STATUS running."
+  else
+    log_success_msg "$STATUS stopped."
+  fi
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+
+  stop)
+    stop
+    ;;
+
+  restart|force-reload)
+    stop
+    sleep 1
+    start
+    ;;
+
+  status)
+    status
+    ;;
+
+  *)
+    log_success_msg "Usage: $0 {start|stop|restart|force-reload|status}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0 
