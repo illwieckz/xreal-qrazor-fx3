@@ -30,8 +30,12 @@ fi
 test "$XREAL_MASTERSERVER_ENABLED" != "0" || exit 0
 
 if [ ! -x "$XREAL_MASTERSERVER" ]; then
-  log_failure_msg "XreaL master server '$XREAL_MASTERSERVER' does not exist or is not " \
-    "executable."
+  log_failure_msg "'$SCREEN' does not exist or is not executable."
+  exit 5
+fi
+
+if [ ! -x "$XREAL_MASTERSERVER" ]; then
+  log_failure_msg "XreaL master server '$XREAL_MASTERSERVER' does not exist or is not executable."
   exit 5
 fi
 
@@ -54,12 +58,16 @@ is_running()
 {
   retval=1
   if [ -r $PIDFILE ]; then
+    
     pid=`cat $PIDFILE`
+    
     if [ -e /proc/$pid ]; then
       procname=`/bin/ps h -p $pid`
       [ -n "$procname" ] && retval=0
     fi
+  
   fi
+  
   return $retval
 }
 
@@ -71,7 +79,7 @@ start()
   else
     start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
       --make-pidfile --user $XREAL_USER --chuid $XREAL_USER --chdir $XREAL_DIR \
-      --exec $XREAL_MASTERSERVER -- $XREAL_MASTER_OPTS
+      --exec $SCREEN -s XreaL-master $XREAL_MASTERSERVER #-- $XREAL_MASTER_OPTS
   fi
   log_end_msg 0
 }
