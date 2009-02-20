@@ -15,7 +15,7 @@ XREAL_DIR="/home/xreal/XreaL"
 # This is the location of the XREAL dedicated server binary, that the init script uses.
 XREAL_DEDSERVER_ENABLED=1
 XREAL_DEDSERVER="$XREAL_DIR/xrealded.x86"
-XREAL_OPTS="+set dedicated 2 +exec ffa.cfg"
+XREAL_OPTS="+set com_hunkMegs 16 +set dedicated 2 +exec ffa.cfg"
 
 # This is the location of the XREAL master server binary, that the init script uses.
 XREAL_MASTERSERVER_ENABLED=0
