@@ -51,7 +51,6 @@ fi
 PIDFILE=/var/run/xreal-dedicated.pid
 DESC="XreaL dedicated server"
 NAME=`basename $XREAL_DEDSERVER`
-XREAL_OPTS="+set dedicated 2 +exec server.cfg"
 
 is_running()
 {

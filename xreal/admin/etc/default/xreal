@@ -12,10 +12,16 @@ XREAL_USER="xreal"
 
 # This is the binary directory of the XREAL dedicated server.
 #XREAL_DIR="/usr/local/games/xreal.demo.server"
-XREA_DIR="/opt/XreaL"
+#XREAL_DIR="/opt/XreaL"
+XREAL_DIR="/home/xreal/XreaL"
 
 # This is the location of the XREAL dedicated server binary, that the init script uses.
 XREAL_DEDSERVER="$XREAL_DIR/xrealded.x86"
+XREAL_OPTS="+set dedicated 2 +exec server.cfg"
+
+# This is the location of the XREAL master server binary, that the init script uses.
+XREAL_MASTERSERVER="$XREAL_DIR/xrealded.x86"
+XREAL_MASTER_OPTS="-l master.xreal-project.net"
 
 # Here you can specify additional options to pass to the XREAL dedicated server.
 #XREAL_OPTS="+set net_ip 10.20.30.40 +set net_port 27733"
