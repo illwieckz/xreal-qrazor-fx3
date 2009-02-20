@@ -245,7 +245,7 @@ PROTOCOL
 extern int      demo_protocols[];
 
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME		"master.varcache.org"
+#define MASTER_SERVER_NAME		"master.xreal-project.net"
 #endif
 
 #ifndef STANDALONE
