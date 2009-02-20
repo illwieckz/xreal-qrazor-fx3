@@ -22,5 +22,4 @@ XREAL_MASTERSERVER_ENABLED=0
 XREAL_MASTERSERVER="$XREAL_DIR/xrealmaster.x86"
 XREAL_MASTER_OPTS="-l master.yourserver.com"
 
-# Here you can specify additional options to pass to the XREAL dedicated server.
-#XREAL_OPTS="+set net_ip 10.20.30.40 +set net_port 27733"
+

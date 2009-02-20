@@ -29,10 +29,16 @@ fi
 # Quit quietly, if $XREAL_MASTERSERVER_ENABLED is 0.
 test "$XREAL_MASTERSERVER_ENABLED" != "0" || exit 0
 
-if [ ! -x "$XREAL_MASTERSERVER" ]; then
-  log_failure_msg "'$SCREEN' does not exist or is not executable."
-  exit 5
-fi
+PIDFILE=/var/run/xreal-master.pid
+DESC="XreaL master server"
+NAME=`basename $XREAL_MASTERSERVER`
+#SCREEN=/usr/bin/screen
+#SCREEN_OPTS="$XREAL_MASTERSERVER $XREAL_MASTER_OPTS"
+
+#if [ ! -x "$SCREEN" ]; then
+#  log_failure_msg "'$SCREEN' does not exist or is not executable."
+#  exit 5
+#fi
 
 if [ ! -x "$XREAL_MASTERSERVER" ]; then
   log_failure_msg "XreaL master server '$XREAL_MASTERSERVER' does not exist or is not executable."
@@ -50,9 +56,6 @@ if [ -z "$XREAL_USER" ]; then
   exit 6
 fi
 
-PIDFILE=/var/run/xreal-master.pid
-DESC="XreaL master server"
-NAME=`basename $XREAL_MASTERSERVER`
 
 is_running()
 {
@@ -79,7 +82,7 @@ start()
   else
     start-stop-daemon --start --quiet --background --pidfile $PIDFILE \
       --make-pidfile --user $XREAL_USER --chuid $XREAL_USER --chdir $XREAL_DIR \
-      --exec $SCREEN -s XreaL-master $XREAL_MASTERSERVER #-- $XREAL_MASTER_OPTS
+      --exec $XREAL_MASTERSERVER -- $XREAL_MASTER_OPTS
   fi
   log_end_msg 0
 }
