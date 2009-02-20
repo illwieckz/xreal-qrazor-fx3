@@ -19,7 +19,6 @@
 set -e
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:."
 
-ENABLED=0
 
 . /lib/lsb/init-functions
 
@@ -28,8 +27,8 @@ if [ -e /etc/default/xreal-dedicated ]; then
   . /etc/default/xreal-dedicated
 fi
 
-# Quit quietly, if $ENABLED is 0.
-test "$ENABLED" != "0" || exit 0
+# Quit quietly, if $XREAL_DEDSERVER_ENABLED is 0.
+test "$XREAL_DEDSERVER_" != "0" || exit 0
 
 if [ ! -x "$XREAL_DEDSERVER" ]; then
   log_failure_msg "XreaL dedicated server '$XREAL_DEDSERVER' does not exist or is not " \

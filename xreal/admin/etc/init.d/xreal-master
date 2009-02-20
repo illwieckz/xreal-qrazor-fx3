@@ -19,8 +19,6 @@
 set -e
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:."
 
-ENABLED=0
-
 . /lib/lsb/init-functions
 
 # Source defaults file. Edit that file to configure this script.
@@ -28,8 +26,8 @@ if [ -e /etc/default/xreal-master ]; then
   . /etc/default/xreal-master
 fi
 
-# Quit quietly, if $ENABLED is 0.
-test "$ENABLED" != "0" || exit 0
+# Quit quietly, if $XREAL_MASTERSERVER_ENABLED is 0.
+test "$XREAL_MASTERSERVER_ENABLED" != "0" || exit 0
 
 if [ ! -x "$XREAL_MASTERSERVER" ]; then
   log_failure_msg "XreaL master server '$XREAL_MASTERSERVER' does not exist or is not " \
