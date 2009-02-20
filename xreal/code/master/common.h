@@ -1,7 +1,7 @@
 /*
 	common.h
 
-	Common header file for xmass
+	Common header file for xrealmaster
 
 	Copyright (C) 2004-2005  Mathieu Olivier
 

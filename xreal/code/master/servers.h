@@ -1,7 +1,7 @@
 /*
 	servers.h
 
-	Server list and address mapping management for xmass
+	Server list and address mapping management for xrealmaster
 
 	Copyright (C) 2004-2005  Mathieu Olivier
 

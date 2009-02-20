@@ -409,7 +409,7 @@ Print the command line syntax and the available options
 */
 static void PrintHelp(void)
 {
-	MsgPrint(MSG_ERROR, "Syntax: xmass [options]\n" "Available options are:\n"
+	MsgPrint(MSG_ERROR, "Syntax: xrealmaster [options]\n" "Available options are:\n"
 #ifndef WIN32
 			 "  -D               : run as a daemon\n"
 #endif
@@ -707,7 +707,7 @@ int main(int argc, const char *argv[])
 	// Get the options from the command line
 	valid_options = ParseCommandLine(argc, argv);
 
-	MsgPrint(MSG_NORMAL, "xmass (version " VERSION " " __DATE__ " " __TIME__ ")\n");
+	MsgPrint(MSG_NORMAL, "xrealmaster (version " VERSION " " __DATE__ " " __TIME__ ")\n");
 
 	// If there was a mistake in the command line, print the help and exit
 	if(!valid_options)
