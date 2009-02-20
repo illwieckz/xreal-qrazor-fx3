@@ -22,8 +22,8 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:."
 . /lib/lsb/init-functions
 
 # Source defaults file. Edit that file to configure this script.
-if [ -e /etc/default/xreal-master ]; then
-  . /etc/default/xreal-master
+if [ -e /etc/default/xreal ]; then
+  . /etc/default/xreal
 fi
 
 # Quit quietly, if $XREAL_MASTERSERVER_ENABLED is 0.

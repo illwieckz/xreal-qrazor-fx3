@@ -1,9 +1,6 @@
 # This file is /etc/default/xreal-dedicated, it is a configuration file for the
 # /etc/init.d/xreal-dedicated init script.
 
-# Set this to 1 to enable and to 0 to disable the init script.
-ENABLED="1"
-
 # The XREAL dedicated server will be started with the permissions of this user.
 XREAL_USER="xreal"
 
@@ -23,7 +20,7 @@ XREAL_OPTS="+set dedicated 2 +exec server.cfg"
 # This is the location of the XREAL master server binary, that the init script uses.
 XREAL_MASTERSERVER_ENABLED=0
 XREAL_MASTERSERVER="$XREAL_DIR/xrealmaster.x86"
-XREAL_MASTER_OPTS="-l master.xreal-project.net"
+XREAL_MASTER_OPTS="-l master.yourserver.com"
 
 # Here you can specify additional options to pass to the XREAL dedicated server.
 #XREAL_OPTS="+set net_ip 10.20.30.40 +set net_port 27733"
