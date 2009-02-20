@@ -67,10 +67,10 @@ xrealded_env.Append(CCFLAGS='-DUSE_VOIP')
 xrealded_env.Append(CCFLAGS='-Icode/speex/include')
 
 if env['curl'] == 'compile':
-	xreal_env.Append(CCFLAGS='-DUSE_CURL')
-	xreal_env.Append(LIBS=['curl'])
+	xrealded_env.Append(CCFLAGS='-DUSE_CURL')
+	xrealded_env.Append(LIBS=['curl'])
 elif env['curl'] == 'dlopen':
-	xreal_env.Append(CCFLAGS='-DUSE_CURL_DLOPEN')
+	xrealded_env.Append(CCFLAGS='-DUSE_CURL_DLOPEN')
 
 if env['arch'] == 'linux-i386':
 	xrealded_env.Append(LIBS=['dl', 'm'])
