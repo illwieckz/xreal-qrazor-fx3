@@ -285,8 +285,8 @@ ________________________________________________________________________________
 entityDef team_CTF_blueplayer
 {    
 	"editor_color"				"0 .2 1" 	
-	"editor_mins"				"-16 -16 -24"
-	"editor_maxs"				"16 16 32"
+	"editor_mins"				"-18 -18 -24"
+	"editor_maxs"				"18 18 50"
 	"editor_showangle"			"1"
 	
 	"editor_usage"				"Initial Blue team spawning position for CTF games. This is where players spawn when they join the Blue team."
@@ -299,8 +299,8 @@ entityDef team_CTF_blueplayer
 entityDef team_CTF_bluespawn 
 {   
 	"editor_color"				"0 .2 1" 	
-	"editor_mins"				"-16 -16 -24"
-	"editor_maxs"				"16 16 32"
+	"editor_mins"				"-18 -18 -24"
+	"editor_maxs"				"18 18 50"
 	"editor_showangle"			"1"
 	
 	"editor_usage"				"Blue team respawning position for CTF games. This is where Blue team players respawn after they get fragged."
@@ -313,8 +313,8 @@ entityDef team_CTF_bluespawn
 entityDef team_CTF_redplayer 
 {   
 	"editor_color"				"1 .2 0" 	
-	"editor_mins"				"-16 -16 -24"
-	"editor_maxs"				"16 16 32"
+	"editor_mins"				"-18 -18 -24"
+	"editor_maxs"				"18 18 50"
 	"editor_showangle"			"1"
 	
 	"editor_usage"				"Initial Red team spawning position for CTF games. This is where players spawn when they join the Red team."
@@ -390,6 +390,71 @@ entityDef team_neutralobelisk
 	"editor_var gametype"		"the valid values are ffa, tournament, single, team, ctf, oneflag, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
 	
 	"spawnclass"				"idSpawnableEntity"	
+    "gametype" 					""
+}
+
+/*
+============================================================================================================
+
+Team Flag Entities
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+
+entityDef team_CTF_redflag
+{  
+	"editor_color"				"1 .2 1" 
+	"editor_mins"				"16 -16 0"
+	"editor_maxs"				"16 16 88"
+	"editor_showangle"			"1"
+	"model"                     "models/flags/r_flag.md3"
+	
+	"editor_usage"				"Red team flag for CTF games."
+	
+	"editor_bool suspended"		"item will spawn where it was placed in map and won't drop to the floor."
+	"editor_var gametype"		"the valid values are ffa, tournament, single, team, ctf, oneflag, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+	
+	"spawnclass"				"idSpawnableEntity"
+	"suspended"					"0"
+    "gametype" 					""
+}
+
+
+entityDef team_CTF_blueflag
+{  
+	"editor_color"				"1 .2 1" 
+	"editor_mins"				"16 -16 0"
+	"editor_maxs"				"16 16 88"
+	"editor_showangle"			"1"
+	"model"                     "models/flags/b_flag.md3"
+	
+	"editor_usage"				"Blue team flag for CTF games."
+	
+	"editor_bool suspended"		"item will spawn where it was placed in map and won't drop to the floor."
+	"editor_var gametype"		"the valid values are ffa, tournament, single, team, ctf, oneflag, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+	
+	"spawnclass"				"idSpawnableEntity"
+	"suspended"					"0"
+    "gametype" 					""
+}
+
+
+entityDef team_CTF_neutralflag
+{  
+	"editor_color"				"1 .2 1" 
+	"editor_mins"				"16 -16 0"
+	"editor_maxs"				"16 16 88"
+	"editor_showangle"			"1"
+	"model"                     "models/flags/n_flag.md3"
+	
+	"editor_usage"				"Neutral flag (One Flag CTF only)"
+	
+	"editor_bool suspended"		"item will spawn where it was placed in map and won't drop to the floor."
+	"editor_var gametype"		"the valid values are ffa, tournament, single, team, ctf, oneflag, obelisk, harvester. Once a value for this key is set, it will ONLY appear in the listed gametype(s). Separate gametypes by commas."
+	
+	"spawnclass"				"idSpawnableEntity"
+	"suspended"					"0"
     "gametype" 					""
 }
 
