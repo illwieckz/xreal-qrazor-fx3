@@ -71,4 +71,252 @@ models/mapobjects/mic/jumppad/jumppad01_kabel
 	normalmap		models/mapobjects/mic/jumppad/jp_normal_kabel
 }
 
+models/mapobjects/mic/jumppad/bouncepad01
+{	twosided
+	alphashadow
+    	qer_editorimage		models/mapobjects/mic/jumppad/bp_diff
+	diffusemap		models/mapobjects/mic/jumppad/bp_diff
+	normalmap		models/mapobjects/mic/jumppad/bp_NRM
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+models/mapobjects/mic/lamps/lamp01
+{
+    	qer_editorimage	models/mapobjects/mic/lamps/lamp01_diff
+    	//twosided
+	alphashadow
+
+	{
+	blend diffusemap
+	map     models/mapobjects/mic/lamps/lamp01_diff
+	alphatest .5
+	}	
+		{
+		map models/mapobjects/mic/lamps/lamp01_diff-glo
+		blend add
+		} 
+}
+models/mapobjects/mic/lamps/lamp01_glo
+{
+    	qer_editorimage	models/mapobjects/mic/lamps/lamp01_glo
+    	deformVertexes autoSprite
+	cull disable
+	{
+		map models/mapobjects/mic/lamps/lamp01_glo
+		blend add
+	} 		
+}
+
+
+models/mapobjects/mic/lamps/neon01
+{
+    	qer_editorimage	models/mapobjects/mic/lamps/neon_body
+    	//twosided
+	alphashadow
+	diffusemap		models/mapobjects/mic/lamps/neon_body
+	normalmap		models/mapobjects/mic/lamps/neon_NRMface		
+	specularmap		models/mapobjects/mic/lamps/neon_body	
+}
+models/mapobjects/mic/lamps/neon01_lamp
+{
+    	qer_editorimage	models/mapobjects/mic/lamps/neon_lamp
+	tesssize 2
+	xmap_surfaceLight 18000
+	xmap_lightRGB 0.64 0.90 0.90
+	
+	//diffusemap		models/mapobjects/mic/lamps/neon_lamp
+	{
+		map 		models/mapobjects/mic/lamps/neon_lamp
+		blend add
+	} 
+}
+models/mapobjects/mic/lamps/neon02
+{
+    	qer_editorimage	models/mapobjects/mic/lamps/neon02_NRM	
+    	//twosided
+	alphashadow
+	diffusemap		models/mapobjects/mic/lamps/neon02_diff
+	normalmap		models/mapobjects/mic/lamps/neon02_NRMface		
+	specularmap		models/mapobjects/mic/lamps/neon02_diff	
+}
+
+models/mapobjects/mic/wall-parts/strebe01
+{
+    qer_editorimage	models/mapobjects/mic/wall-parts/strebe01_NRM
+	diffusemap		models/mapobjects/mic/wall-parts/strebe01_diff2
+	normalmap		models/mapobjects/mic/wall-parts/strebe01_NRM		
+	specularmap		models/mapobjects/mic/wall-parts/strebe01_spec			
+	{
+		map models/mapobjects/mic/wall-parts/strebe01_glo
+		blend add
+	} 
+}
+
+
+models/mapobjects/mic/wall-parts/strebe01_lamp
+{
+    	qer_editorimage		_white
+	diffusemap		_white
+	xmap_surfaceLight 1200000
+	tesssize 8
+	xmap_lightRGB 0.95 0.95 1	
+	{
+		map _white
+		blend add
+	} 
+}
+models/mapobjects/mic/floor-parts/stair01
+{	
+	alphashadow 
+	twosided
+	//noShadows
+    	qer_editorimage		models/mapobjects/mic/floor-parts/stair01_diff
+	normalmap		models/mapobjects/mic/floor-parts/stair01_NRM
+			
+	{
+	blend diffusemap
+	map     models/mapobjects/mic/floor-parts/stair01_diff
+	alphatest .5
+	}
+	{
+	blend specularmap
+	map     models/mapobjects/mic/floor-parts/stair01_diff //ja ich weiss		
+	alphatest .5
+	}
+	{
+		map models/mapobjects/mic/floor-parts/stair01_glo
+		blend add
+	} 
+}
+models/mapobjects/mic/floor-parts/lamp
+{	
+    	qer_editorimage		models/mapobjects/mic/floor-parts/lamp_mint //_white
+	xmap_surfaceLight 2500
+	xmap_lightSubdivide 2
+	xmap_lightRGB 0.8 1 1
+	nonsolid
+	noshadows
+	diffusemap 	_white	
+	{
+		map _white
+		blend add
+	} 
+}
+
+
+models/mapobjects/mic/wall-parts/border01
+{	metalsteps
+	alphashadow
+    	qer_editorimage	models/mapobjects/mic/wall-parts/border01_diff
+	diffusemap		models/mapobjects/mic/wall-parts/border01_diff
+	normalmap		models/mapobjects/mic/wall-parts/border01_NRM		
+	specularmap		models/mapobjects/mic/wall-parts/border01_spec
+	{
+		map models/mapobjects/mic/wall-parts/border01_glo
+		blend add
+	} 
+}
+models/mapobjects/mic/wall-parts/round
+{	twosided
+	metalsteps
+    	qer_editorimage	models/mapobjects/mic/wall-parts/round_diff
+	diffusemap		models/mapobjects/mic/wall-parts/round_diff
+	normalmap		models/mapobjects/mic/wall-parts/round_NRM		
+	specularmap		models/mapobjects/mic/wall-parts/round_spec
+
+
+}
+models/mapobjects/mic/wall-parts/trigrate
+{	
+	metalsteps
+    	qer_editorimage	models/mapobjects/mic/wall-parts/trigrate01_diff
+	diffusemap		models/mapobjects/mic/wall-parts/trigrate01_diff
+	normalmap		models/mapobjects/mic/wall-parts/trigrate01_NRM		
+	specularmap		models/mapobjects/mic/wall-parts/trigrate01_spec
+
+}
+
+models/mapobjects/mic/wall-parts/exhaust
+{	
+	metalsteps
+    	qer_editorimage	models/mapobjects/mic/wall-parts/exhaust01_diff
+	diffusemap		models/mapobjects/mic/wall-parts/exhaust01_diff
+	normalmap		models/mapobjects/mic/wall-parts/exhaust01_NRM	
+	specularmap		models/mapobjects/mic/wall-parts/exhaust01_spec
+	{
+		map models/mapobjects/mic/wall-parts/exhaust01_glo
+		blend add
+	} 
+}
+
+models/mapobjects/mic/wall-parts/plat01
+{	
+	metalsteps
+    	qer_editorimage		models/mapobjects/mic/wall-parts/plat01_diff
+	diffusemap		models/mapobjects/mic/wall-parts/plat01_diff
+	normalmap		models/mapobjects/mic/wall-parts/plat01_NRM	
+	specularmap		models/mapobjects/mic/wall-parts/plat01_spec
+
+}
+
+
+models/mapobjects/mic/wall-parts/microck01
+{	
+    	qer_editorimage		models/mapobjects/mic/wall-parts/microck01_diff
+	diffusemap		models/mapobjects/mic/wall-parts/microck01_diff
+	normalmap		models/mapobjects/mic/wall-parts/microck01_NRM	
+	specularmap		models/mapobjects/mic/wall-parts/microck01_spec
+
+}
+
+models/mapobjects/mic/wall-parts/tuubz
+{	
+    	qer_editorimage		models/mapobjects/mic/wall-parts/tube01_diff
+	diffusemap		models/mapobjects/mic/wall-parts/tube01_diff
+	normalmap		models/mapobjects/mic/wall-parts/tube01_NRM
+	specularmap		models/mapobjects/mic/wall-parts/tube01_spec
+
+}
+
+models/mapobjects/mic/floor-parts/cables01
+{	twosided
+	alphashadow
+    	qer_editorimage		models/mapobjects/mic/floor-parts/cables01_diff
+
+	normalmap		models/mapobjects/mic/floor-parts/cables01_NRM
+
+	{ 	blend diffusemap 
+		map models/mapobjects/mic/floor-parts/cables01_diff
+		alphatest .5
+	}
+	{ 	blend specularmap
+		map models/mapobjects/mic/floor-parts/cables01_spec
+		alphatest .5
+	}
+}
+
+
+
+
+
+
+
 

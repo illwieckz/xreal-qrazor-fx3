@@ -275,6 +275,7 @@ typedef enum
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
 	LE_KAMIKAZE,
+	LE_FIRE,
 #ifdef MISSIONPACK
 	LE_INVULIMPACT,
 	LE_INVULJUICED,
@@ -964,6 +965,14 @@ typedef struct
 	qhandle_t       teamStatusBar;
 
 	qhandle_t       deferShader;
+
+	// func_explosive debris
+	qhandle_t       debrisModels[ENTMAT_NUMBER][3][2];
+	qhandle_t		debrisBit;
+	qhandle_t		debrisPlaster;
+
+	qhandle_t		fire;
+	qhandle_t		flames[2];
 
 	// gib explosions
 	qhandle_t       gibAbdomen;
@@ -1810,6 +1819,13 @@ void            CG_ScorePlum(int client, vec3_t org, int score);
 void            CG_GibPlayer(vec3_t playerOrigin);
 
 void            CG_Bleed(vec3_t origin, int entityNum);
+
+void            CG_ExplosiveExplode(centity_t * cent);
+
+void            CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int particles, float intensity);
+
+void			CG_Fire(centity_t * cent);
+void			CG_AddFire(localEntity_t *le);
 
 localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite);
 

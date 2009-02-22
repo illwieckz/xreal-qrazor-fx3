@@ -123,6 +123,29 @@ particles/steam
 		vertexColor
 	}
 }
+particles/smoke
+{
+	twoSided
+	entityMergable		// allow all the sprites to be merged together
+	{
+		map particles/smoke.tga
+		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+		vertexColor
+	}
+}
+particles/plasma
+{
+	twoSided
+	entityMergable		// allow all the sprites to be merged together
+
+	{
+		map particles/plasma
+		blend add
+		vertexColor
+	}
+}
+
+
 
 particles/rain01
 {

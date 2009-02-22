@@ -1442,6 +1442,12 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_AI_LINK:
 			CG_AI_Link(cent);
 			break;
+		case ET_EXPLOSIVE:
+			CG_Mover(cent);
+			break;
+		case ET_FIRE:
+			CG_Fire(cent);
+			break;
 	}
 }
 

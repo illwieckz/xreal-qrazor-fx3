@@ -499,6 +499,8 @@ typedef enum
 //#endif
 
 	EV_EFFECT,					// Lua scripted special effect
+	
+	EV_EXPLODE,
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
@@ -671,7 +673,8 @@ typedef enum
 #ifdef MISSIONPACK
 	MOD_JUICED,
 #endif
-	MOD_GRAPPLE
+	MOD_GRAPPLE,
+	MOD_BURN
 } meansOfDeath_t;
 
 
@@ -765,6 +768,8 @@ typedef enum
 	ET_TEAM,
 	ET_AI_NODE,					// AI visualization tool
 	ET_AI_LINK,
+	ET_EXPLOSIVE,
+	ET_FIRE,
 
 	ET_EVENTS					// any of the EV_* events can be added freestanding
 		// by setting eType to ET_EVENTS + eventNum
@@ -817,3 +822,26 @@ qboolean        BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxi
 #define KAMI_SHOCKWAVE_MAXRADIUS		1320
 #define KAMI_BOOMSPHERE_MAXRADIUS		720
 #define KAMI_SHOCKWAVE2_MAXRADIUS		704
+
+
+// entity->materialType
+// DerSaidin 2009-01-15
+typedef enum
+{
+	ENTMAT_NONE,
+	ENTMAT_WOOD,	//chunks, thin shards
+	ENTMAT_GLASS,	//large flat shards
+	ENTMAT_METAL,	
+	ENTMAT_GIBS,	//blood, small chunks
+	ENTMAT_BODY,	//head, arms, legs
+	ENTMAT_BRICK,	//rectangular chunks
+	ENTMAT_STONE,	//rough chunks
+	ENTMAT_TILES,	//small square chunks
+	ENTMAT_PLASTER,	//thin like riped paper chunks
+	ENTMAT_FIBERS,	//thin wires
+	ENTMAT_SPRITE,	//sprites, down
+	ENTMAT_SMOKE,	//sprites, up
+	ENTMAT_GAS,		//sprites, every direction
+	ENTMAT_FIRE,		//many polys on random angles
+	ENTMAT_NUMBER
+} entityMaterial_t;

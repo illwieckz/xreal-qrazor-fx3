@@ -447,6 +447,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\g_explosive.c"
+				>
+			</File>
+			<File
 				RelativePath="g_items.c"
 				>
 				<FileConfiguration

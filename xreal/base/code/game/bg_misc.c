@@ -1588,6 +1588,8 @@ char           *eventnames[] = {
 
 	"EV_EFFECT",				// Lua scripted special effect
 
+	"EV_EXPLODE",
+
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",
 	"EV_TAUNT"

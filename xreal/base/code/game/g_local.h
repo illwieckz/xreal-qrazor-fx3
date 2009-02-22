@@ -200,6 +200,9 @@ struct gentity_s
 	int             methodOfDeath;
 	int             splashMethodOfDeath;
 
+	// explosive
+	int				materialType;
+
 	// triggers / targets
 	qboolean		start_on;
 	qboolean		start_off;
@@ -249,6 +252,7 @@ struct gentity_s
 	char           *luaThink;
 	char           *luaTouch;
 	char           *luaUse;
+	char           *luaHurt;
 #endif
 
 #if defined(ACEBOT)

@@ -950,6 +950,8 @@ CG_AddLocalEntities
 void CG_AddLocalEntities(void)
 {
 	localEntity_t  *le, *next;
+	float			flameSize;
+	vec3_t			zeroVector;
 
 	// walk the list backwards, so any new local entities generated
 	// (trails, marks, etc) will be present this frame
@@ -1008,6 +1010,10 @@ void CG_AddLocalEntities(void)
 
 			case LE_KAMIKAZE:
 				CG_AddKamikaze(le);
+				break;
+
+			case LE_FIRE:
+				CG_AddFire(le);
 				break;
 
 #ifdef MISSIONPACK

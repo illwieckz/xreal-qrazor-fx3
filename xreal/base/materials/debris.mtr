@@ -1,0 +1,17 @@
+// shader used on debris
+debrisbit
+{
+	cull none
+	{
+		map gfx/misc/tracer.tga
+		blend add
+	}
+}
+
+plaster1
+{
+	{
+		map particles/plaster/plaster00.png
+		blendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA 
+	}
+}

@@ -1320,6 +1320,11 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 #endif
 			break;
 
+		case EV_EXPLODE:
+			DEBUGNAME("EV_EXPLODE");
+			CG_ExplosiveExplode(cent);
+			break;
+
 		case EV_DEBUG_LINE:
 			DEBUGNAME("EV_DEBUG_LINE");
 			CG_Beam(cent);

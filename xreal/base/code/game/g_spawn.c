@@ -157,6 +157,7 @@ field_t         fields[] = {
 	{"luaThink", FOFS(luaThink), F_LSTRING},
 	{"luaTouch", FOFS(luaTouch), F_LSTRING},
 	{"luaUse", FOFS(luaUse), F_LSTRING},
+	{"luaHurt", FOFS(luaHurt), F_LSTRING},
 #endif
 
 	{NULL}
@@ -189,6 +190,7 @@ void            SP_func_train(gentity_t * ent);
 void            SP_func_timer(gentity_t * self);
 void            SP_func_mover(gentity_t * self);
 void            SP_func_teleporter(gentity_t * self);
+void            SP_func_explosive(gentity_t * self);
 
 void            SP_trigger_always(gentity_t * ent);
 void            SP_trigger_multiple(gentity_t * ent);
@@ -223,6 +225,7 @@ void            SP_misc_teleporter_dest(gentity_t * self);
 void            SP_misc_model(gentity_t * ent);
 void            SP_misc_portal_camera(gentity_t * ent);
 void            SP_misc_portal_surface(gentity_t * ent);
+void            SP_misc_fire(gentity_t * ent);
 
 //void            SP_shooter_rocket(gentity_t * ent);
 //void            SP_shooter_plasma(gentity_t * ent);
@@ -266,6 +269,7 @@ spawn_t         spawns[] = {
 	{"func_timer", SP_func_timer},	// rename trigger_timer?
 	{"func_mover", SP_func_mover},
 	{"func_teleporter", SP_func_teleporter},
+	{"func_explosive", SP_func_explosive},
 
 	// Triggers are brush objects that cause an effect when contacted
 	// by a living player, usually involving firing targets.
@@ -305,6 +309,7 @@ spawn_t         spawns[] = {
 	{"misc_model", SP_misc_model},
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
+	{"misc_fire", SP_misc_fire},
 
 //	{"shooter_rocket", SP_shooter_rocket},
 //	{"shooter_grenade", SP_shooter_grenade},

@@ -20,6 +20,7 @@ game_src = [
 'base/code/game/g_client.c',
 'base/code/game/g_cmds.c',
 'base/code/game/g_combat.c',
+'base/code/game/g_explosive.c',
 'base/code/game/g_items.c',
 'base/code/game/g_mem.c',
 'base/code/game/g_misc.c',
