@@ -51,9 +51,28 @@ void	main()
 
 	float Yr = u_HDRKey * Y / u_HDRAverageLuminance;
 	float Ymax = u_HDRMaxLuminance;
-	//float L = Yr / (1.0 + Yr);
-	//float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
+	
+#if defined(r_HDRToneMappingOperator_0)
+	
+	// simple tone map operator
+	float L = Yr / (1.0 + Yr);
+	
+#elif defined(r_HDRToneMappingOperator_1)
+	
+	float L = 1.0 - exp(-Yr);
+
+#elif defined(r_HDRToneMappingOperator_2)
+	
+	float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
+	
+#else
+	
+	// recommended by Wolgang Engel
 	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
+#endif
+	
+	// adjust contrast
+	L = pow(L, 1.32);
 	
 	float T = max(L - r_HDRContrastThreshold, 0.0);
 	float B = T / (r_HDRContrastOffset + T);
@@ -77,16 +96,15 @@ void	main()
 	vec4 color = texture2D(u_ColorMap, st);
 #endif
 
-	// compute luminance
-	float luminance = dot(LUMINANCE_VECTOR, color);
-
+	float L = dot(LUMINANCE_VECTOR, color);
+	
 	// adjust contrast
-	luminance = pow(luminance, 1.32);
+	L = pow(L, 1.32);
 
-	// filter out dark pixels
-	luminance = max(luminance - 0.067, 0.0);
-
-	color.rgb *= luminance;
+	float T = clamp(L - 0.71, 0.0, 1.0);
+	
+	color.rgb *= T;
+	
 	gl_FragColor = color;
 #endif
 }

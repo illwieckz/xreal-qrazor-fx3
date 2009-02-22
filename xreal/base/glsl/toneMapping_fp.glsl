@@ -54,7 +54,6 @@ void	main()
 	// simple tone map operator
 	float L = Yr / (1.0 + Yr);
 	
-	
 #elif defined(r_HDRToneMappingOperator_1)
 	
 	float L = 1.0 - exp(-Yr);
@@ -67,7 +66,6 @@ void	main()
 	
 	// recommended by Wolgang Engel
 	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
-	
 #endif
 	
 	color.rgb *= L;
