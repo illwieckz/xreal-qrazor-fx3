@@ -210,7 +210,7 @@ void CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char
 	}
 }
 
-void CG_Text_PaintAligned(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
+void CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
 {
 	int             w, h;
 
@@ -3601,7 +3601,7 @@ static void CG_DrawWarmup(void)
 	if(sec < 0)
 	{
 		s = "Waiting for players";
-		CG_DrawHudString(320, 24, s, 0.4f, UI_CENTER, colorWhite);
+		CG_Text_PaintAligned(320, 40, s, 0.25f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		cg.warmupCount = 0;
 		return;
 	}
