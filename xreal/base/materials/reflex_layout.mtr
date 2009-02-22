@@ -1,65 +1,88 @@
-
-textures/reflex_layout/bridge
+textures/reflex/layout/ceiling01
 {
-    qer_editorimage textures/reflex_layout/bridge.tga
-	
-	diffusemap textures/reflex_layout/bridge.tga
+	qer_editorimage textures/reflex/layout/ceiling01	
+	diffusemap textures/reflex/layout/ceiling01
 }
 
-textures/reflex_layout/ceiling
+textures/reflex/layout/ceiling02
 {
-	qer_editorimage textures/reflex_layout/ceiling.tga
-	
-	diffusemap textures/reflex_layout/ceiling.tga
+	qer_editorimage textures/reflex/layout/ceiling02	
+	diffusemap textures/reflex/layout/ceiling02
 }
 
-textures/reflex_layout/floor
+textures/reflex/layout/floor01
 {
-	qer_editorimage textures/reflex_layout/floor.tga
-	
-	diffusemap textures/reflex_layout/floor.tga
+	qer_editorimage textures/reflex/layout/floor01	
+	diffusemap textures/reflex/layout/floor01
 }
 
-textures/reflex_layout/lift
+textures/reflex/layout/floor02
 {
-    qer_editorimage textures/reflex_layout/lift.tga
-    
-    diffusemap textures/reflex_layout/lift.tga
+	qer_editorimage textures/reflex/layout/floor02	
+	diffusemap textures/reflex/layout/floor02
 }
 
-textures/reflex_layout/pad
+textures/reflex/layout/lift01
 {
-	qer_editorimage textures/reflex_layout/pad.tga
-	
-	diffusemap textures/reflex_layout/pad.tga
+    qer_editorimage textures/reflex/layout/lift01    
+    diffusemap textures/reflex/layout/lift01
 }
 
-textures/reflex_layout/pad2
+textures/reflex/layout/pad01
 {
-	qer_editorimage textures/reflex_layout/pad2.tga
-	
-	diffusemap textures/reflex_layout/pad2.tga
+	qer_editorimage textures/reflex/layout/pad01	
+	diffusemap textures/reflex/layout/pad01
 }
 
-textures/reflex_layout/stairs
+textures/reflex/layout/pad02
 {
-	qer_editorimage textures/reflex_layout/stairs.tga
-	
-	diffusemap textures/reflex_layout/stairs.tga
+	qer_editorimage textures/reflex/layout/pad02	
+	diffusemap textures/reflex/layout/pad02
 }
 
-textures/reflex_layout/wall
+textures/reflex/layout/stairs01
 {
-    qer_editorimage textures/reflex_layout/wall.tga
-	
-	diffusemap textures/reflex_layout/wall.tga
+	qer_editorimage textures/reflex/layout/stairs01	
+	diffusemap textures/reflex/layout/stairs01
 }
 
-textures/reflex_layout/wallwalk
+textures/reflex/layout/wall01
 {
-    qer_editorimage textures/reflex_layout/wallwalk.tga
-    
+      qer_editorimage textures/reflex/layout/wall01	
+	diffusemap textures/reflex/layout/wall01
+}
+
+textures/reflex/layout/wall02
+{
+      qer_editorimage textures/reflex/layout/wall02	
+	diffusemap textures/reflex/layout/wall02
+}
+
+textures/reflex/layout/wallwalk01
+{
+    qer_editorimage textures/reflex/layout/wallwalk01
+    diffusemap textures/reflex/layout/wallwalk01
+
     wallwalk
-	diffusemap textures/reflex_layout/wallwalk.tga
 }
+
+textures/reflex/layout/blend01
+{
+      qer_editorimage textures/reflex/layout/blend01_a	
+
+      {
+		blend	diffusemap
+		map		textures/reflex/layout/blend01_a
+		inverseVertexColor
+	}
+      {
+		blend	diffusemap
+		map		textures/reflex/layout/blend01_b
+		VertexColor
+	}
+
+
+}
+
+
 

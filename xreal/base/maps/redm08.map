@@ -2392,48 +2392,48 @@ brushDef3
 {
 brushDef3
 {
-( 0 0 -1 -264 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 0 1 56 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 -1 0 -840 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 1 0 0 -648 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 1 0 832 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( -1 0 0 -392 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 0 -1 -264 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 0 1 56 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 -1 0 -840 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 1 0 0 -648 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 1 0 832 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( -1 0 0 -392 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
 // primitive 199
 {
 brushDef3
 {
-( 0 0 -1 -264 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 0 1 56 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 -1 0 192 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 1 0 0 -648 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 1 0 -200 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( -1 0 0 -392 ) ( ( 0.001953 0 2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 0 -1 -264 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 0 1 56 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 -1 0 192 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 1 0 0 -648 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 1 0 -200 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( -1 0 0 -392 ) ( ( 0.001953 0 2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
 // primitive 200
 {
 brushDef3
 {
-( 0 0 -1 -264 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 0 1 56 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 -1 0 -832 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 1 0 0 384 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 1 0 -192 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( -1 0 0 -392 ) ( ( 0.001953 0 -0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 0 -1 -264 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 0 1 56 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 -1 0 -832 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 1 0 0 384 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 1 0 -192 ) ( ( 0.001953 0 0 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( -1 0 0 -392 ) ( ( 0.001953 0 -0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
 // primitive 201
 {
 brushDef3
 {
-( 0 0 -1 -264 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 2.015625 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 0 1 56 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 -2.015625 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 -1 0 -832 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 1 0 0 -648 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( 0 1 0 -192 ) ( ( 0.001953 0 2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
-( -1 0 0 640 ) ( ( 0.001953 0 -0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex_layout/wall" 0 0 0
+( 0 0 -1 -264 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 2.015625 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 0 1 56 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 -2.015625 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 -1 0 -832 ) ( ( 0.001953 0 -2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 1 0 0 -648 ) ( ( 0.001953 0 0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( 0 1 0 -192 ) ( ( 0.001953 0 2.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
+( -1 0 0 640 ) ( ( 0.001953 0 -0.015625 ) ( 0 0.001953 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
 // primitive 202

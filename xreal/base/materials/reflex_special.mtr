@@ -1,160 +1,169 @@
 
-textures/reflex_special/wallwalk01_blue
+textures/reflex/special/wallwalk01_blue
 {
-    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    qer_editorimage  textures/reflex/special/wallwalk01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.24 0.41 0.77
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
+
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalk01.tga
-    bumpmap          textures/reflex_special/wallwalk01_local.tga
-    specularMap      textures/reflex_special/wallwalk01_spec.tga
+    diffusemap       textures/reflex/special/wallwalk01.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
+    specularMap      textures/reflex/special/wallwalk01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalk01_glow
+		map	      textures/reflex/special/wallwalk01_glow
         color       0.24 * (jitter5 [time * 2]), 0.41 * (jitter5 [time * 2]), 0.77 * (jitter5 [time * 2]), 1.0
 	}
 }
 
-textures/reflex_special/wallwalktrim01_blue
+textures/reflex/special/wallwalktrim01_blue
 {
-    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    qer_editorimage  textures/reflex/special/wallwalktrim01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.24 0.41 0.77
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalktrim01.tga
-    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
-    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+    diffusemap       textures/reflex/special/wallwalktrim01.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
+    specularMap      textures/reflex/special/wallwalktrim01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalktrim01_glow
+		map	      textures/reflex/special/wallwalktrim01_glow
         color       0.24 * (jitter5 [time * 2]), 0.41 * (jitter5 [time * 2]), 0.77 * (jitter5 [time * 2]), 1.0
 	}
 }
 
-textures/reflex_special/wallwalk01_red
+textures/reflex/special/wallwalk01_red
 {
-    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    qer_editorimage  textures/reflex/special/wallwalk01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.75 0.17 0.05
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalk01.tga
-    bumpmap          textures/reflex_special/wallwalk01_local.tga
-    specularMap      textures/reflex_special/wallwalk01_spec.tga
+    diffusemap       textures/reflex/special/wallwalk01.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
+    specularMap      textures/reflex/special/wallwalk01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalk01_glow
+		map	      textures/reflex/special/wallwalk01_glow
         color       0.75 * (jitter5 [time * 2]), 0.17 * (jitter5 [time * 2]), 0.05 * (jitter5 [time * 2]), 1.0
 	}
 }
 
-textures/reflex_special/wallwalktrim01_red
+textures/reflex/special/wallwalktrim01_red
 {
-    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    qer_editorimage  textures/reflex/special/wallwalktrim01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.75 0.17 0.05
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalktrim01.tga
-    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
-    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+    diffusemap       textures/reflex/special/wallwalktrim01.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
+    specularMap      textures/reflex/special/wallwalktrim01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalktrim01_glow
+		map	      textures/reflex/special/wallwalktrim01_glow
         color       0.75 * (jitter5 [time * 2]), 0.17 * (jitter5 [time * 2]), 0.05 * (jitter5 [time * 2]), 1.0
 	}
 }
 
-textures/reflex_special/wallwalk01_green
+textures/reflex/special/wallwalk01_green
 {
-    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    qer_editorimage  textures/reflex/special/wallwalk01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.18 0.65 0.16
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalk01.tga
-    bumpmap          textures/reflex_special/wallwalk01_local.tga
-    specularMap      textures/reflex_special/wallwalk01_spec.tga
+    diffusemap       textures/reflex/special/wallwalk01.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
+    specularMap      textures/reflex/special/wallwalk01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalk01_glow
+		map	      textures/reflex/special/wallwalk01_glow
         color       0.18 * (jitter5 [time * 2]), 0.65 * (jitter5 [time * 2]), 0.16 * (jitter5 [time * 2]), 255
 	}
 }
 
-textures/reflex_special/wallwalktrim01_green
+textures/reflex/special/wallwalktrim01_green
 {
-    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    qer_editorimage  textures/reflex/special/wallwalktrim01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.18 0.65 0.16
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalktrim01.tga
-    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
-    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+    diffusemap       textures/reflex/special/wallwalktrim01.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
+    specularMap      textures/reflex/special/wallwalktrim01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalktrim01_glow
+		map	      textures/reflex/special/wallwalktrim01_glow
         color       0.18 * (jitter5 [time * 2]), 0.65 * (jitter5 [time * 2]), 0.16 * (jitter5 [time * 2]), 1.0
 	}
 }
 
-textures/reflex_special/wallwalk01_orange
+textures/reflex/special/wallwalk01_orange
 {
-    qer_editorimage  textures/reflex_special/wallwalk01.tga
+    qer_editorimage  textures/reflex/special/wallwalk01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.94 0.57 0.13
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
 	
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalk01.tga
-    bumpmap          textures/reflex_special/wallwalk01_local.tga
-    specularMap      textures/reflex_special/wallwalk01_spec.tga
+    diffusemap       textures/reflex/special/wallwalk01.tga
+    bumpmap          textures/reflex/special/wallwalk01_local.tga
+    specularMap      textures/reflex/special/wallwalk01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalk01_glow
+		map	      textures/reflex/special/wallwalk01_glow
         color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
 	}
 }
 
-textures/reflex_special/wallwalktrim01_orange
+textures/reflex/special/wallwalktrim01_orange
 {
-    qer_editorimage  textures/reflex_special/wallwalktrim01.tga
+    qer_editorimage  textures/reflex/special/wallwalktrim01.tga
     
     xmap_surfaceLight 800
 	xmap_lightRGB 0.94 0.57 0.13
-	xmap_lightImage textures/reflex_special/wallwalk01_glow.tga
+	xmap_lightImage textures/reflex/special/wallwalk01_glow.tga
+      xmap_lightSubdivide 16
     
     wallwalk
     
-    diffusemap       textures/reflex_special/wallwalktrim01.tga
-    bumpmap          textures/reflex_special/wallwalktrim01_local.tga
-    specularMap      textures/reflex_special/wallwalktrim01_spec.tga
+    diffusemap       textures/reflex/special/wallwalktrim01.tga
+    bumpmap          textures/reflex/special/wallwalktrim01_local.tga
+    specularMap      textures/reflex/special/wallwalktrim01_spec.tga
 	{
 		blend		add
-		map	      textures/reflex_special/wallwalktrim01_glow
+		map	      textures/reflex/special/wallwalktrim01_glow
         color       0.94 * (jitter5 [time * 2]), 0.57 * (jitter5 [time * 2]), 0.13 * (jitter5 [time * 2]), 1.0
 	}
 }
