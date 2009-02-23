@@ -2472,7 +2472,7 @@ static void PM_Weapon(void)
 	{
 		if(pm->cmd.buttons & BUTTON_ATTACK2)
 		{
-			if(pm->ps->weapon == WP_GAUNTLET || pm->ps->ammo[pm->ps->weapon])
+			if(pm->ps->weapon != WP_GAUNTLET && pm->ps->ammo[pm->ps->weapon])
 			{
 				pm->ps->eFlags |= EF_FIRING2;
 			}
@@ -2591,7 +2591,7 @@ static void PM_Weapon(void)
 	{
 		switch (pm->ps->weapon)
 		{
-			case WP_GAUNTLET:
+			//case WP_GAUNTLET:
 			case WP_FLAK_CANNON:
 			case WP_ROCKET_LAUNCHER:
 				break;

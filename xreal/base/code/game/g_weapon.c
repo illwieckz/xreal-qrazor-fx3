@@ -1040,6 +1040,7 @@ void FireWeapon2(gentity_t * ent)
 #endif
 
 
+#if 0
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntlet is just not tracked
 	if(ent->s.weapon != WP_GAUNTLET)
 	{
@@ -1056,6 +1057,7 @@ void FireWeapon2(gentity_t * ent)
 		ent->client->accuracy_shots++;
 #endif
 	}
+#endif
 
 	if(ent->client)
 	{
@@ -1072,9 +1074,11 @@ void FireWeapon2(gentity_t * ent)
 	// fire the specific weapon
 	switch (ent->s.weapon)
 	{
+	/*
 		case WP_GAUNTLET:
 			Weapon_GrapplingHook_Fire(ent);
 			break;
+			*/
 
 		case WP_FLAK_CANNON:
 			weapon_grenadelauncher_fire(ent);
