@@ -752,6 +752,8 @@ typedef struct shader_s
 	qboolean		fogVolume;		// surface encapsulates a fog volume
 	fogParms_t		fogParms;
 
+	qboolean		parallax;		// material has normalmaps suited for parallax mapping
+
 	qboolean        noShadows;
 	qboolean        fogLight;
 	qboolean        blendLight;
@@ -912,6 +914,7 @@ typedef struct shaderProgram_s
 	GLint           u_SSAOJitter;
 	GLint           u_SSAORadius;
 
+	GLint			u_ParallaxMapping;
 	GLint           u_DepthScale;
 
 	GLint           u_PortalRange;

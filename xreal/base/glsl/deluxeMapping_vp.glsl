@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -37,7 +37,9 @@ varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec2		var_TexLight;
-varying mat3		var_OS2TSMatrix;
+varying vec3		var_Tangent;
+varying vec3		var_Binormal;
+varying vec3		var_Normal;
 
 void	main()
 {
@@ -59,8 +61,7 @@ void	main()
 	// transform lightmap texcoords
 	var_TexLight = attr_TexCoord1.st;
 	
-	// construct object-space-to-tangent-space 3x3 matrix
-	var_OS2TSMatrix = mat3(	attr_Tangent.x, attr_Binormal.x, attr_Normal.x,
-							attr_Tangent.y, attr_Binormal.y, attr_Normal.y,
-							attr_Tangent.z, attr_Binormal.z, attr_Normal.z	);
+	var_Tangent = attr_Tangent;
+	var_Binormal = attr_Binormal;
+	var_Normal = attr_Normal;
 }

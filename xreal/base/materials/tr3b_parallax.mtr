@@ -35,6 +35,8 @@ textures/tr3b/parallax/stonewall
 textures/tr3b/parallax/brick
 {
 	qer_editorimage textures/tr3b/parallax/brick_d
+	
+	parallax
 
 	diffusemap textures/tr3b/parallax/brick_d
 	bumpmap displacemap( textures/tr3b/parallax/brick_local, invertColor(textures/tr3b/parallax/brick_disp) )

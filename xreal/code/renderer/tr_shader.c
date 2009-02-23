@@ -3611,6 +3611,12 @@ static qboolean ParseShader(char *_text)
 			}
 			continue;
 		}
+		// parallax mapping
+		else if(!Q_stricmp(token, "parallax"))
+		{
+			shader.parallax = qtrue;
+			continue;
+		}
 		// entityMergable, allowing sprite surfaces from multiple entities
 		// to be merged into one batch.  This is a savings for smoke
 		// puffs and blood, but can't be used for anything where the

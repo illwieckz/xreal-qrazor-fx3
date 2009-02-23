@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -28,6 +28,7 @@ uniform sampler2D	u_SpecularMap;
 uniform float		u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 uniform vec3        u_AmbientColor;
+uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
 
@@ -40,6 +41,7 @@ varying vec4		var_Binormal;
 varying vec4		var_Normal;
 
 
+#if defined(r_ParallaxMapping)
 float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 {
 	const int linearSearchSteps = 16;
@@ -91,7 +93,7 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 	return bestDepth;
 }
-
+#endif
 
 void	main()
 {
@@ -101,47 +103,67 @@ void	main()
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
 	else
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
-
-#if defined(PARALLAX)
-
-	// construct tangent-world-space-to-tangent-space 3x3 matrix
-#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
-
-	mat3 worldToTangentMatrix;
-	/*
-	for(int i = 0; i < 3; ++i)
-	{
-		for(int j = 0; j < 3; ++j)
-			worldToTangentMatrix[i][j] = tangentToWorldMatrix[j][i];
-	}
-	*/
-	
-	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
-								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
-								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
-#else
-	mat3 worldToTangentMatrix = transpose(tangentToWorldMatrix);
-#endif
-
-	// compute view direction in tangent space
-	vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Vertex.xyz);
-	V = normalize(V);
-	
-	// ray intersect in view direction
-	
-	// size and start position of search in texture space
-	vec2 S = V.xy * -u_DepthScale / V.z;
 		
-	float depth = RayIntersectDisplaceMap(var_TexNormal, S);
+	vec2 texDiffuse = var_TexDiffuse.st;
+	vec2 texNormal = var_TexNormal.st;
+	vec2 texSpecular = var_TexSpecular.st;
+
+#if defined(r_ParallaxMapping)
+	if(bool(u_ParallaxMapping))
+	{
+		// construct tangent-world-space-to-tangent-space 3x3 matrix
+		#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
 	
-	// compute texcoords offset
-	vec2 texOffset = S * depth;
+		mat3 worldToTangentMatrix;
+		/*
+		for(int i = 0; i < 3; ++i)
+		{
+			for(int j = 0; j < 3; ++j)
+				worldToTangentMatrix[i][j] = tangentToWorldMatrix[j][i];
+		}
+		*/
+		
+		worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
+									tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
+									tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
+		#else
+		mat3 worldToTangentMatrix = transpose(tangentToWorldMatrix);
+		#endif
 	
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse + texOffset);
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular + texOffset).rgb;
+		// compute view direction in tangent space
+		vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Vertex.xyz);
+		V = normalize(V);
+		
+		// ray intersect in view direction
+		
+		// size and start position of search in texture space
+		vec2 S = V.xy * -u_DepthScale / V.z;
+			
+		float depth = RayIntersectDisplaceMap(texNormal, S);
+		
+		// compute texcoords offset
+		vec2 texOffset = S * depth;
+		
+		texDiffuse.st += texOffset;
+		texNormal.st += texOffset;
+		texSpecular.st += texOffset;
+	}
+#endif
+		
+	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
+	if(diffuse.a <= u_AlphaTest)
+	{
+		discard;
+		return;
+	}
+	
+	vec4 depthColor = diffuse;
+	depthColor.rgb *= u_AmbientColor;
+	
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
 	
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal + texOffset).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
 	//N.z = sqrt(1.0 - dot(N.xy, N.xy));
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
@@ -153,43 +175,6 @@ void	main()
 	
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
-	
-	// transform vertex position into world space
-	//vec3 P = var_Vertex.xyz;
-
-	// transform parallax offset world space
-	//P += (u_ModelMatrix * vec4(texOffset, 0, 1)).xyz;
-
-#else // defined(PARALLAX)
-	
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse);
-	
-	if(diffuse.a <= u_AlphaTest)
-	{
-		discard;
-		return;
-	}
-	
-	vec4 depthColor = diffuse;
-	depthColor.rgb *= u_AmbientColor;
-	
-	vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb;
-
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal).xyz - 0.5);
-	#if defined(r_NormalScale)
-	N.z *= r_NormalScale;
-	normalize(N);
-	#endif
-	
-	// transform normal into world space
-	N = tangentToWorldMatrix * N;
-	
-	//N = normalize(N);
-	
-	// convert normal back to [0,1] color space
-	N = N * 0.5 + 0.5;
-#endif
 
 	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
 	gl_FragData[1] = vec4(N, 0.0);

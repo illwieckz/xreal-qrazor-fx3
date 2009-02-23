@@ -398,7 +398,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 		if( /* TODO: check for shader model 3 hardware  && */ r_parallaxMapping->integer)
 		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PARALLAX\n#define PARALLAX 1\n#endif\n");
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ParallaxMapping\n#define r_ParallaxMapping 1\n#endif\n");
 		}
 
 		/*
@@ -628,6 +628,10 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_LightDir");
 	tr.vertexLightingShader_DBS_entity.u_LightColor =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_LightColor");
+	tr.vertexLightingShader_DBS_entity.u_ParallaxMapping =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ParallaxMapping");
+	tr.vertexLightingShader_DBS_entity.u_DepthScale =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_DepthScale");
 	tr.vertexLightingShader_DBS_entity.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ModelViewProjectionMatrix");
 	if(glConfig.vboVertexSkinningAvailable)
@@ -671,6 +675,10 @@ void GLSL_InitGPUShaders(void)
 //		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_InverseVertexColor");
 	tr.vertexLightingShader_DBS_world.u_ViewOrigin =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ViewOrigin");
+	tr.vertexLightingShader_DBS_world.u_ParallaxMapping =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ParallaxMapping");
+	tr.vertexLightingShader_DBS_world.u_DepthScale =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DepthScale");
 	tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ModelViewProjectionMatrix");
 
@@ -724,6 +732,8 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_SpecularTextureMatrix");
 	tr.deluxeMappingShader.u_AlphaTest = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_AlphaTest");
 	tr.deluxeMappingShader.u_ViewOrigin = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ViewOrigin");
+	tr.deluxeMappingShader.u_ParallaxMapping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ParallaxMapping");
+	tr.deluxeMappingShader.u_DepthScale = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DepthScale");
 	tr.deluxeMappingShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
 
@@ -759,6 +769,7 @@ void GLSL_InitGPUShaders(void)
 		tr.geometricFillShader_DBS.u_ViewOrigin = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ViewOrigin");
 		tr.geometricFillShader_DBS.u_AmbientColor =
 			qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_AmbientColor");
+		tr.geometricFillShader_DBS.u_ParallaxMapping = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ParallaxMapping");
 		tr.geometricFillShader_DBS.u_DepthScale = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_DepthScale");
 		tr.geometricFillShader_DBS.u_ModelMatrix = qglGetUniformLocationARB(tr.geometricFillShader_DBS.program, "u_ModelMatrix");
 		tr.geometricFillShader_DBS.u_ModelViewMatrix =
@@ -2224,6 +2235,16 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	}
 	qglUniform1fARB(tr.vertexLightingShader_DBS_entity.u_AlphaTest, alphaTest);
 
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_ParallaxMapping, tess.surfaceShader->parallax);
+
+		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
+		qglUniform1fARB(tr.vertexLightingShader_DBS_entity.u_DepthScale, depthScale);
+	}
+
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -2303,6 +2324,16 @@ static void Render_vertexLighting_DBS_world(int stage)
 		alphaTest = -1.0;
 	}
 	qglUniform1fARB(tr.vertexLightingShader_DBS_world.u_AlphaTest, alphaTest);
+
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_ParallaxMapping, tess.surfaceShader->parallax);
+
+		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
+		qglUniform1fARB(tr.vertexLightingShader_DBS_world.u_DepthScale, depthScale);
+	}
 
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
@@ -2416,6 +2447,16 @@ static void Render_deluxeMapping(int stage)
 	}
 	qglUniform1fARB(tr.deluxeMappingShader.u_AlphaTest, alphaTest);
 
+	if(r_parallaxMapping->integer)
+	{
+		float           depthScale;
+
+		qglUniform1iARB(tr.deluxeMappingShader.u_ParallaxMapping, tess.surfaceShader->parallax);
+
+		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
+		qglUniform1fARB(tr.deluxeMappingShader.u_DepthScale, depthScale);
+	}
+
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -2528,8 +2569,9 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	{
 		float           depthScale;
 
-		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
+		qglUniform1iARB(tr.geometricFillShader_DBS.u_ParallaxMapping, tess.surfaceShader->parallax);
 
+		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
 		qglUniform1fARB(tr.geometricFillShader_DBS.u_DepthScale, depthScale);
 	}
 
