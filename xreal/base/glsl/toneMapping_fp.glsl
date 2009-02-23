@@ -59,6 +59,25 @@ void	main()
 	float L = 1.0 - exp(-Yr);
 
 #elif defined(r_HDRToneMappingOperator_2)
+
+	float Cmax = color.r;
+	if(color.g > Cmax)
+		Cmax = color.g;
+	if(color.b > Cmax)
+		Cmax = color.b;
+
+	float L = 1.0 - exp(-Yr * Cmax);
+
+	if(Cmax > 0.0)
+	{
+		L = L / Cmax;
+	}
+	else
+	{
+		L = 0.0;
+	}
+
+#elif defined(r_HDRToneMappingOperator_3)
 	
 	float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
 	
@@ -69,6 +88,13 @@ void	main()
 #endif
 	
 	color.rgb *= L;
+	
+#if 1 //defined(r_HDRGamma)
+	float gamma = 1.0 / r_HDRGamma;
+	color.r = pow(color.r, gamma);
+	color.g = pow(color.g, gamma);
+	color.b = pow(color.b, gamma);
+#endif
 	
 	gl_FragColor = color;
 }

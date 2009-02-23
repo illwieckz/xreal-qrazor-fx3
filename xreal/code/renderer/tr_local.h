@@ -2304,6 +2304,7 @@ extern cvar_t  *r_hdrLightmapExposure;
 extern cvar_t  *r_hdrLightmapGamma;
 extern cvar_t  *r_hdrLightmapCompensate;
 extern cvar_t  *r_hdrToneMappingOperator;
+extern cvar_t  *r_hdrGamma;
 
 extern cvar_t  *r_screenSpaceAmbientOcclusion;
 extern cvar_t  *r_depthOfField;
