@@ -89,7 +89,7 @@ void	main()
 	
 	color.rgb *= L;
 	
-#if 1 //defined(r_HDRGamma)
+#if defined(r_HDRGamma)
 	float gamma = 1.0 / r_HDRGamma;
 	color.r = pow(color.r, gamma);
 	color.g = pow(color.g, gamma);
