@@ -6,8 +6,8 @@ Version 2
 "fogColor" "0.405081 0.378088 0.25214"
 "fogDensity" "0.0005"
 "message" "THE REALLY BAD PLACE by Stefan 'Reflex' Lautner"
-"editor_drLastCameraPos" "560.537 -97.0296 54.3278"
-"editor_drLastCameraAngle" "8.4 220.2 0"
+"editor_drLastCameraPos" "283.187 -216.351 -12.138"
+"editor_drLastCameraAngle" "-57 71.1 0"
 // primitive 0
 {
 brushDef3
@@ -11233,7 +11233,7 @@ brushDef3
 {
 "classname" "item_quad"
 "name" "item_quad_1"
-"origin" "200 64 -120"
+"origin" "200 64 -96"
 }
 // entity 103
 {
