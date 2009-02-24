@@ -2132,12 +2132,137 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 }
 
 
+static ID_INLINE void SwapPixel(byte * inout, int x, int y, int x2, int y2, int width, int height)
+{
+	byte			color[4];
+	byte			color2[4];
+
+	color[0] =  inout[4 * (y * width + x) + 0];
+	color[1] =  inout[4 * (y * width + x) + 1];
+	color[2] =  inout[4 * (y * width + x) + 2];
+	color[3] =  inout[4 * (y * width + x) + 3];
+
+	color2[0] =  inout[4 * (y2 * width + x2) + 0];
+	color2[1] =  inout[4 * (y2 * width + x2) + 1];
+	color2[2] =  inout[4 * (y2 * width + x2) + 2];
+	color2[3] =  inout[4 * (y2 * width + x2) + 3];
+
+	inout[4 * (y * width + x) + 0] = color2[0];
+	inout[4 * (y * width + x) + 1] = color2[1];
+	inout[4 * (y * width + x) + 2] = color2[2];
+	inout[4 * (y * width + x) + 3] = color2[3];
+
+	inout[4 * (y2 * width + x2) + 0] = color[0];
+	inout[4 * (y2 * width + x2) + 1] = color[1];
+	inout[4 * (y2 * width + x2) + 2] = color[2];
+	inout[4 * (y2 * width + x2) + 3] = color[3];
+}
+
+static void R_Flip(byte * in, int width, int height)
+{
+	int             x, y;
+	byte           *out;
+
+	out = in;
+
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width / 2; x++)
+		{
+			SwapPixel(in, x, y, (width -1 -x), y, width, height);
+		}
+	}
+}
+
+static void R_Flop(byte * in, int width, int height)
+{
+	int             x, y;
+	byte           *out;
+
+	out = in;
+
+	for(y = 0; y < height / 2; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			SwapPixel(in, x, y, x, (height -1 -y), width, height);
+		}
+	}
+}
+
+static void R_Rotate(byte * in, int width, int height, int degrees)
+{
+	byte			color[4];
+	int             x, y, x2, y2;
+	byte           *out, *tmp;
+
+	tmp = Com_Allocate(width * height * 4);
+
+	// rotate into tmp buffer
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			color[0] =  in[4 * (y * width + x) + 0];
+			color[1] =  in[4 * (y * width + x) + 1];
+			color[2] =  in[4 * (y * width + x) + 2];
+			color[3] =  in[4 * (y * width + x) + 3];
+
+			if(degrees == 90)
+			{
+				x2 = y;
+				y2 = (height -(1 + x));
+
+				tmp[4 * (y2 * width + x2) + 0] = color[0];
+				tmp[4 * (y2 * width + x2) + 1] = color[1];
+				tmp[4 * (y2 * width + x2) + 2] = color[2];
+				tmp[4 * (y2 * width + x2) + 3] = color[3];
+			}
+			else if(degrees == -90)
+			{
+				x2 = (width -(1 + y));
+				y2 = x;
+
+				tmp[4 * (y2 * width + x2) + 0] = color[0];
+				tmp[4 * (y2 * width + x2) + 1] = color[1];
+				tmp[4 * (y2 * width + x2) + 2] = color[2];
+				tmp[4 * (y2 * width + x2) + 3] = color[3];
+			}
+			else
+			{
+				tmp[4 * (y * width + x) + 0] = color[0];
+				tmp[4 * (y * width + x) + 1] = color[1];
+				tmp[4 * (y * width + x) + 2] = color[2];
+				tmp[4 * (y * width + x) + 3] = color[3];
+			}
+
+		}
+	}
+
+	// copy back to input
+	out = in;
+	for(y = 0; y < height; y++)
+	{
+		for(x = 0; x < width; x++)
+		{
+			out[4 * (y * width + x) + 0] = tmp[4 * (y * width + x) + 0];
+			out[4 * (y * width + x) + 1] = tmp[4 * (y * width + x) + 1];
+			out[4 * (y * width + x) + 2] = tmp[4 * (y * width + x) + 2];
+			out[4 * (y * width + x) + 3] = tmp[4 * (y * width + x) + 3];
+		}
+	}
+
+	Com_Dealloc(tmp);
+}
+
 /*
 ===============
 R_FindCubeImage
 
 Finds or loads the given image.
 Returns NULL if it fails, not a default image.
+
+Tr3B: fear the use of goto
 ==============
 */
 image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType)
@@ -2147,7 +2272,41 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	int             width = 0, height = 0;
 	byte           *pic[6];
 	long            hash;
-	static char    *suf[6] = { "px", "nx", "py", "ny", "pz", "nz" };
+
+	static char    *openglSuffices[6] = { "px", "nx", "py", "ny", "pz", "nz" };
+
+	/*
+		convert $1_forward.tga -flip -rotate 90 $1_px.png
+		convert $1_back.tga -flip -rotate -90 $1_nx.png
+
+		convert $1_left.tga -flip $1_py.png
+		convert $1_right.tga -flop $1_ny.png
+
+		convert $1_up.tga -flip -rotate 90 $1_pz.png
+		convert $1_down.tga -flop -rotate -90 $1_nz.png
+	 */
+
+	static char    *doom3Suffices[6] = { "forward", "back", "left", "right", "up", "down" };
+	static qboolean doom3FlipX[6] = { qtrue,	qtrue, 	qfalse,	qtrue,	qtrue,	qfalse };
+	static qboolean doom3FlipY[6] = { qfalse,	qfalse,	qtrue,	qfalse,	qfalse,	qtrue };
+	static int		doom3Rot[6] =	{ 90, 		-90,	0,		0,		90,		-90 };
+
+	/*
+		convert $1_rt.tga -flip -rotate 90 $1_px.tga
+		convert $1_lf.tga -flip -rotate -90 $1_nx.tga
+
+		convert $1_bk.tga -flip $1_py.tga
+		convert $1_ft.tga -flop $1_ny.tga
+
+		convert $1_up.tga -flip -rotate 90 $1_pz.tga
+		convert $1_dn.tga -flop -rotate -90 $1_nz.tga
+	 */
+	static char    *quakeSuffices[6] = { "rt", "lf", "bk", "ft", "up", "dn" };
+	static qboolean quakeFlipX[6] = { qtrue,	qtrue, 	qfalse,	qtrue,	qtrue,	qfalse };
+	static qboolean quakeFlipY[6] = { qfalse,	qfalse,	qtrue,	qfalse,	qfalse,	qtrue };
+	static int		quakeRot[6] =	{ 90, 		-90,	0,		0,		90,		-90 };
+
+
 	int             bitsIgnore;
 	char            buffer[1024], filename[1024];
 	char            ddsName[1024];
@@ -2208,10 +2367,9 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		pic[i] = NULL;
 	}
 
-	// load the pic from disk
 	for(i = 0; i < 6; i++)
 	{
-		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, suf[i]);
+		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, openglSuffices[i]);
 
 		filename_p = &filename[0];
 		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
@@ -2219,13 +2377,70 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		if(!pic[i] || width != height)
 		{
 			image = NULL;
-			goto done;
+			goto tryDoom3Suffices;
 		}
 	}
+	goto createCubeImage;
 
+  tryDoom3Suffices:
+	for(i = 0; i < 6; i++)
+  	{
+  		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, doom3Suffices[i]);
+
+  		filename_p = &filename[0];
+  		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
+
+  		if(!pic[i] || width != height)
+		{
+			image = NULL;
+			goto tryQuakeSuffices;
+		}
+
+  		if(doom3FlipX[i])
+  		{
+  			R_Flip(pic[i], width, height);
+  		}
+
+  		if(doom3FlipY[i])
+		{
+			R_Flop(pic[i], width, height);
+		}
+
+  		R_Rotate(pic[i], width, height, doom3Rot[i]);
+  	}
+	goto createCubeImage;
+
+  tryQuakeSuffices:
+	for(i = 0; i < 6; i++)
+	{
+		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, quakeSuffices[i]);
+
+		filename_p = &filename[0];
+		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
+
+		if(!pic[i] || width != height)
+		{
+			image = NULL;
+			goto skipCubeImage;
+		}
+
+		if(quakeFlipX[i])
+		{
+			R_Flip(pic[i], width, height);
+		}
+
+		if(quakeFlipY[i])
+		{
+			R_Flop(pic[i], width, height);
+		}
+
+		R_Rotate(pic[i], width, height, quakeRot[i]);
+	}
+
+  createCubeImage:
 	image = R_CreateCubeImage((char *)buffer, (const byte **)pic, width, height, bits, filterType, wrapType);
 
-  done:
+  skipCubeImage:
 	for(i = 0; i < 6; i++)
 	{
 		if(pic[i])
