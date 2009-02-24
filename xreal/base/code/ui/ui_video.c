@@ -290,6 +290,7 @@ typedef struct
 	menulist_s      compression;
 	menuslider_s    anisotropicFilter;
 	menulist_s      deferredShading;
+	menulist_s      parallax;
 	menulist_s      shadowType;
 	menulist_s      shadowFilter;
 	menuslider_s    shadowBlur;
@@ -317,6 +318,7 @@ typedef struct
 	int             compression;
 	int             anisotropicFilter;
 	int             deferredShading;
+	int             parallax;
 	int             shadowType;
 	int             shadowFilter;
 	int             shadowBlur;
@@ -331,11 +333,11 @@ static graphicsoptions_t s_graphicsoptions;
 
 // *INDENT-OFF*
 static InitialVideoOptions_s s_ivo_templates[] = {
-	{ 4, qtrue, qfalse, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
-	{ 3, qtrue, qfalse, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
-	{ 2, qtrue, qfalse, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
-	{ 2, qtrue, qfalse, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0},
-	{ 3, qtrue, qfalse, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0}
+	{ 4, qtrue, qfalse, 2, 2, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 3, qtrue, qfalse, 2, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 2, qtrue, qfalse, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 2, qtrue, qfalse, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+	{ 3, qtrue, qfalse, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0}
 };
 // *INDENT-ON*
 
@@ -509,6 +511,7 @@ static void GraphicsOptions_GetInitialVideo(void)
 //	s_ivo.texturebits = s_graphicsoptions.texturebits.curvalue;
 	s_ivo.compression = s_graphicsoptions.compression.curvalue;
 	s_ivo.deferredShading = s_graphicsoptions.deferredShading.curvalue;
+	s_ivo.parallax = s_graphicsoptions.parallax.curvalue;
 	s_ivo.anisotropicFilter = s_graphicsoptions.anisotropicFilter.curvalue;
 	s_ivo.shadowType = s_graphicsoptions.shadowType.curvalue;
 	s_ivo.shadowFilter = s_graphicsoptions.shadowFilter.curvalue;
@@ -583,6 +586,8 @@ static void GraphicsOptions_CheckConfig(void)
 		if(s_ivo_templates[i].anisotropicFilter != s_graphicsoptions.anisotropicFilter.curvalue)
 			continue;
 		if(s_ivo_templates[i].deferredShading != s_graphicsoptions.deferredShading.curvalue)
+			continue;
+		if(s_ivo_templates[i].parallax != s_graphicsoptions.parallax.curvalue)
 			continue;
 		if(s_ivo_templates[i].shadowType != s_graphicsoptions.shadowType.curvalue)
 			continue;
@@ -684,6 +689,11 @@ static void GraphicsOptions_UpdateMenuItems(void)
 	}
 
 	if(s_ivo.deferredShading != s_graphicsoptions.deferredShading.curvalue)
+	{
+		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
+	}
+
+	if(s_ivo.parallax != s_graphicsoptions.parallax.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
@@ -813,6 +823,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 	trap_Cvar_SetValue("r_stencilbits", 8);
 
 	trap_Cvar_SetValue("r_deferredShading", s_graphicsoptions.deferredShading.curvalue);
+	trap_Cvar_SetValue("r_parallaxMapping", s_graphicsoptions.parallax.curvalue);
 
 	if(s_graphicsoptions.geometry.curvalue == 2)
 	{
@@ -942,6 +953,7 @@ static void GraphicsOptions_Event(void *ptr, int event)
 			s_graphicsoptions.compression.curvalue = ivo->compression;
 			s_graphicsoptions.anisotropicFilter.curvalue = ivo->anisotropicFilter;
 			s_graphicsoptions.deferredShading.curvalue = ivo->deferredShading;
+			s_graphicsoptions.parallax.curvalue = ivo->parallax;
 			s_graphicsoptions.shadowType.curvalue = ivo->shadowType;
 			s_graphicsoptions.shadowFilter.curvalue = ivo->shadowFilter;
 			s_graphicsoptions.shadowBlur.curvalue = ivo->shadowBlur;
@@ -1090,6 +1102,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	}
 
 	s_graphicsoptions.deferredShading.curvalue = trap_Cvar_VariableValue("r_deferredShading") != 0;
+	s_graphicsoptions.parallax.curvalue = trap_Cvar_VariableValue("r_parallaxMapping") != 0;
 
 	if(!Q_stricmp(UI_Cvar_VariableString("r_textureMode"), "GL_LINEAR_MIPMAP_NEAREST"))
 	{
@@ -1552,6 +1565,15 @@ otty: do we need this ?
 	s_graphicsoptions.deferredShading.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
 
+	// references/modifies "r_parallaxMapping"
+	s_graphicsoptions.parallax.generic.type = MTYPE_SPINCONTROL;
+	s_graphicsoptions.parallax.generic.name = "Parallax Mapping:";
+	s_graphicsoptions.parallax.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_graphicsoptions.parallax.generic.x = 320;
+	s_graphicsoptions.parallax.generic.y = y;
+	s_graphicsoptions.parallax.itemnames = enabled_names;
+	y += BIGCHAR_HEIGHT + 2;
+
 	// references/modifies "r_shadows"
 	s_graphicsoptions.shadowType.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.shadowType.generic.name = "Shadow Type:";
@@ -1661,6 +1683,7 @@ otty: do we need this ?
 		Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.anisotropicFilter);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.deferredShading);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.parallax);
 
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowType);
 	Menu_AddItem(&s_graphicsoptions.menu, (void *)&s_graphicsoptions.shadowFilter);
