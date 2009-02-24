@@ -1089,7 +1089,9 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	// Tr3B: add SVF_CAPSULE to players so we can trace against the rotated capsules
 	// in the server entity tracing code SV_ClipToEntity
-	ent->r.svFlags |= SVF_CAPSULE;
+	// FIXME UPDATE: this seems to break the box traces against the player capsules by entities like rockets
+	// it should be a bug in CM_TraceBoundingBoxThroughCapsule
+	//ent->r.svFlags |= SVF_CAPSULE;
 
 	if(isBot)
 	{
