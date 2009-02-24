@@ -1589,7 +1589,8 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			ri.Printf(PRINT_WARNING, "WARNING: soundMap keyword not supported in shader '%s'\n", shader.name);
 			Com_SkipRestOfLine(text);
 		}
-		else if(!Q_stricmp(token, "cubeMap"))
+		// cubeMap <map>
+		else if(!Q_stricmp(token, "cubeMap") || !Q_stricmp(token, "cameraCubeMap"))
 		{
 			token = Com_ParseExt(text, qfalse);
 			if(!token[0])
@@ -1619,12 +1620,6 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name);
 				return qfalse;
 			}
-		}
-		// cameraCubeMap <map>
-		else if(!Q_stricmp(token, "cameraCubeMap"))
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: cameraCubeMap keyword not supported in shader '%s'\n", shader.name);
-			Com_SkipRestOfLine(text);
 		}
 		// alphafunc <func>
 		else if(!Q_stricmp(token, "alphaFunc"))
