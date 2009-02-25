@@ -46,6 +46,44 @@ disconnected
 	}
 }
 
+//sidebar
+
+hud/sidebar_item
+{
+	nopicmip
+	{
+		clampmap gfx/2d/hud/hud_sidebar_item.png
+		blend blend
+		rgbGen vertex
+	}
+}
+
+hud/sidebar_item_select
+{
+	nopicmip
+	{
+		clampmap gfx/2d/hud/hud_sidebar_item_select.png
+		blend blend
+		rgbGen vertex
+		alpha 0.34 + 0.3 * ( 1.0 -  (   (sinTable[time * 3.2] + 1.0) / 2.0 ) )
+		scroll time * -2, 0
+	}
+	{
+		clampmap gfx/2d/hud/hud_sidebar_item_select.png
+		blend blend
+		rgbGen vertex
+		alpha 0.34 + 0.3 * ( 1.0 -  (   (sinTable[time * 2.1] + 1.0) / 2.0 ) )
+		scroll time * 2, 0
+		rotate 180
+	}
+	{
+		clampmap gfx/2d/hud/hud_sidebar_item_select.png
+		blend blend
+		rgbGen vertex
+		alpha 0.34 + 0.3 * ( 1.0 -  (   (sinTable[time * 1.4] + 1.0) / 2.0 ) )
+		scroll time * -1, 0
+	}
+}
 
 //scoreboard
 
