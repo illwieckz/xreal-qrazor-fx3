@@ -7,6 +7,46 @@
 
 ///HUD
 
+//lagometer
+// the background for the netgraph
+lagometer
+{
+	nopicmip
+	{
+		clampmap gfx/2d/lag.png
+		blend blend
+		rgbGen vertex
+	}
+}
+
+lagometer_lag
+{
+	nopicmip
+
+	{
+		map gfx/2d/lag.png
+		blend blend
+		alpha 0.1 + 0.5 * ( 1.0 -  (   (sinTable[time] + 1.0) / 2.0 ) )
+		scroll time * 5.8, 0
+		centerScale 1.0 + (cosTable[time]) , 1
+		blend blend
+		rgbGen vertex
+	}
+	
+}
+
+// blinked on top of lagometer when connection is interrupted
+disconnected
+{
+	nopicmip
+	{
+		clampmap gfx/2d/net.tga
+		blend blend
+		rgbGen vertex
+	}
+}
+
+
 //scoreboard
 
 

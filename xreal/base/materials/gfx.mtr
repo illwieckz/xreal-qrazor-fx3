@@ -5,24 +5,7 @@
 // also has 2D shaders such as fonts, etc.
 //
 
-// the background for the netgraph
-lagometer
-{
-	nopicmip
-	{
-		map gfx/2d/lag.png
-	}
-}
 
-// blinked on top of lagometer when connection is interrupted
-disconnected
-{
-	nopicmip
-	{
-		map gfx/2d/net.tga
-		blend GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-	}
-}
 
 white
 {
