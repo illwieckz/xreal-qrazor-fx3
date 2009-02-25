@@ -79,6 +79,9 @@ static void UI_PrintTime(char *buf, int bufsize, int time)
 	}
 }
 
+#define DIX1 192
+#define DIXO 32
+
 static void UI_DisplayDownloadInfo(const char *downloadName)
 {
 	static char     dlText[] = "Downloading:";
@@ -112,12 +115,17 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 	width = UI_ProportionalStringWidth(xferText) * UI_ProportionalSizeScale(style);
 	if(width > leftWidth)
 		leftWidth = width;
-	leftWidth += 16;
+		
+	leftWidth -= 64;
 
+	UI_Text_Paint_AutoWrapped(14, DIX1, 0.3f, 600, dlText, style, color_white, &uis.freeSansFont);
+	UI_Text_Paint_AutoWrapped(14, DIX1+DIXO, 0.3f, 600, etaText, style, color_white, &uis.freeSansFont);
+	UI_Text_Paint_AutoWrapped(14, DIX1+2*DIXO, 0.3f, 600, xferText, style, color_white, &uis.freeSansFont);
+	/*							  
 	UI_DrawProportionalString(8, 128, dlText, style, color_white);
 	UI_DrawProportionalString(8, 160, etaText, style, color_white);
 	UI_DrawProportionalString(8, 224, xferText, style, color_white);
-
+*/
 	if(downloadSize > 0)
 	{
 		s = va("%s (%d%%)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize));
@@ -127,15 +135,22 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 		s = downloadName;
 	}
 
-	UI_DrawProportionalString(leftWidth, 128, s, style, color_white);
+	//UI_DrawProportionalString(leftWidth, 128, s, style, color_white);
+
+	UI_Text_Paint_AutoWrapped(leftWidth, DIX1, 0.3f, 600, s, style, color_white, &uis.freeSansFont);
+
 
 	UI_ReadableSize(dlSizeBuf, sizeof dlSizeBuf, downloadCount);
 	UI_ReadableSize(totalSizeBuf, sizeof totalSizeBuf, downloadSize);
 
 	if(downloadCount < 4096 || !downloadTime)
 	{
-		UI_DrawProportionalString(leftWidth, 160, "estimating", style, color_white);
-		UI_DrawProportionalString(leftWidth, 192, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+		//UI_DrawProportionalString(leftWidth, 160, "estimating", style, color_white);
+		//UI_DrawProportionalString(leftWidth, 192, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+
+		UI_Text_Paint_AutoWrapped(leftWidth, DIX1+DIXO, 0.3f, 600, "estimating", style, color_white, &uis.freeSansFont);
+		UI_Text_Paint_AutoWrapped(leftWidth, DIX1+DIXO, 0.3f, 600, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white, &uis.freeSansFont);
+
 	}
 	else
 	{
@@ -169,25 +184,36 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 			UI_PrintTime(dlTimeBuf, sizeof dlTimeBuf, n);	// bk010104
 			//(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
-			UI_DrawProportionalString(leftWidth, 160, dlTimeBuf, style, color_white);
-			UI_DrawProportionalString(leftWidth, 192, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+			//UI_DrawProportionalString(leftWidth, 160, dlTimeBuf, style, color_white);
+			//UI_DrawProportionalString(leftWidth, 192, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+
+			UI_Text_Paint_AutoWrapped(leftWidth, DIX1+DIXO, 0.3f, 600, dlTimeBuf, style, color_white, &uis.freeSansFont);
+			UI_Text_Paint_AutoWrapped(leftWidth, DIX1+2*DIXO, 0.3f, 600, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white, &uis.freeSansFont);
+
 		}
 		else
 		{
-			UI_DrawProportionalString(leftWidth, 160, "estimating", style, color_white);
+			//UI_DrawProportionalString(leftWidth, 160, "estimating", style, color_white);
+			UI_Text_Paint_AutoWrapped(leftWidth, DIX1+DIXO, 0.3f, 600, "estimating", style, color_white, &uis.freeSansFont);
+	
 			if(downloadSize)
 			{
-				UI_DrawProportionalString(leftWidth, 192, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+			//	UI_DrawProportionalString(leftWidth, 192, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+				UI_Text_Paint_AutoWrapped(leftWidth, DIX1+2*DIXO, 0.3f, 600, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white, &uis.freeSansFont);
+
 			}
 			else
 			{
-				UI_DrawProportionalString(leftWidth, 192, va("(%s copied)", dlSizeBuf), style, color_white);
+			//	UI_DrawProportionalString(leftWidth, 192, va("(%s copied)", dlSizeBuf), style, color_white);
+				UI_Text_Paint_AutoWrapped(leftWidth, DIX1+2*DIXO, 0.3f, 600, va("(%s copied)", dlSizeBuf), style, color_white, &uis.freeSansFont);
+
 			}
 		}
 
 		if(xferRate)
 		{
-			UI_DrawProportionalString(leftWidth, 224, va("%s/Sec", xferRateBuf), style, color_white);
+			//UI_DrawProportionalString(leftWidth, 224, va("%s/Sec", xferRateBuf), style, color_white);
+			UI_Text_Paint_AutoWrapped(leftWidth, DIX1+3*DIXO, 0.3f, 600, va("(%s /Sec)", xferRateBuf), style, color_white, &uis.freeSansFont);
 		}
 	}
 }
