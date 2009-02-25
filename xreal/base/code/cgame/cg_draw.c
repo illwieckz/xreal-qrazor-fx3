@@ -2759,7 +2759,7 @@ static void CG_DrawDisconnect(void)
 	x = 640 - 68;
 	y = 480 - 120;
 
-	trap_R_SetColor(baseTeamcolor);
+	trap_R_SetColor(baseTeamColor);
 	CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometer_lagShader);
 	trap_R_SetColor(NULL);
 	
