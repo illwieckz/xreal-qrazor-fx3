@@ -1528,16 +1528,10 @@ CG_DrawSideBarItem
 static void CG_DrawSideBarItem(int x, int y, int i)
 {
 	char           *ammo;
-
 	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
 	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
-	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
-	vec3_t          angles;
-	vec3_t          origin;
-	
+	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };	
 	vec4_t          basecolor;
-
-	VectorClear(angles);
 
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
@@ -1562,9 +1556,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 	if(i == cg.weaponSelect)
 		CG_DrawPic(x, y , 72, 32, cgs.media.sideBarItemSelectShader);
 
-
 	CG_DrawPic(x, y , 72, 32, cgs.media.sideBarItemShader);
-
 
 	trap_R_SetColor(NULL);
 
@@ -1584,6 +1576,80 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 	}
 
 
+}
+
+
+/*
+================
+CG_DrawSideBarPowerup
+================
+*/
+static void CG_DrawSideBarPowerup(int x, int y, int i)
+{
+	char           *time;
+	int				t;
+	vec4_t          colorActive = { 1.0f, 1.0f, 1.0f, 0.7f };	// white	
+	vec4_t          colorOver = { 1.0f, 0.0f, 0.0f, 0.7f };	// red	
+	vec4_t          basecolor;
+	gitem_t        *item;	
+
+	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+		VectorCopy4(blueTeamColor, basecolor);
+	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+		VectorCopy4(redTeamColor, basecolor);
+	else
+		VectorCopy4(baseTeamColor, basecolor);
+
+	item = BG_FindItemForPowerup(i);
+
+	t = (int)((cg.snap->ps.powerups[i] - cg.time) / 1000);
+	
+	time = va("%i", t);
+
+
+	
+		if(!item)
+			return;
+
+	trap_R_SetColor(basecolor);
+	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);		
+	trap_R_SetColor(NULL);
+
+	if(t < 10)
+		CG_DrawHudString(x-60, y+16, time, 0.30f +(10-t)*0.05f , UI_LEFT, colorOver);
+	else
+		CG_DrawHudString(x-60, y+17, time, 0.30f, UI_LEFT, colorActive);
+	
+	CG_DrawPic(x+4-24-8, y+4, 24, 24, trap_R_RegisterShader(item->icon));
+
+}
+
+static void CG_DrawSideBarHoldable(int x, int y, int i)
+{
+
+	vec4_t          basecolor;
+	int             value;
+
+	value = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
+	
+	if(!value)
+		return;
+		
+	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+		VectorCopy4(blueTeamColor, basecolor);
+	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+		VectorCopy4(redTeamColor, basecolor);
+	else
+		VectorCopy4(baseTeamColor, basecolor);
+
+	trap_R_SetColor(basecolor);
+	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);		
+	trap_R_SetColor(NULL);
+
+	CG_RegisterItemVisuals(value);
+	CG_DrawPic(x+4-24-8, y+4, 24, 24, cg_items[value].icon);
+
+	
 }
 
 /*
@@ -1621,7 +1687,6 @@ static void CG_DrawSideBar(void)
 	}
 
 	x = 0;
-
 	y = 240 - count * 20 + 32;
 
 	// do not count the gauntlet
@@ -1635,6 +1700,36 @@ static void CG_DrawSideBar(void)
 		CG_DrawSideBarItem(x, y, i);
 		y += 32;
 	}
+
+	// count the number of poweups owned	
+	count = 0;
+	for(i = 1; i < MAX_POWERUPS; i++)
+	{
+		if(cg.snap->ps.powerups[i])
+		{
+			count++;
+		}
+	}
+
+	x = 640;
+	y = 200 - count * 20 + 32;
+	
+	//draw powerups
+	for(i = 0; i < MAX_POWERUPS; i++)
+	{
+		if(!cg.snap->ps.powerups[i])
+		{
+			continue;
+		}
+		
+		CG_DrawSideBarPowerup(x, y, i);
+		y += 32;
+
+	}
+	
+	//draw holdable
+	CG_DrawSideBarHoldable(x, y, i);
+	
 }
 
 
@@ -2239,16 +2334,16 @@ CG_DrawPowerups
 ================
 */
 #ifndef MISSIONPACK
-static float CG_DrawPowerups(float y)
+void CG_DrawPowerups( void )
 {
-	int             sorted[MAX_POWERUPS];
+/*	int             sorted[MAX_POWERUPS];
 	int             sortedTime[MAX_POWERUPS];
 	int             i, j, k;
 	int             active;
 	playerState_t  *ps;
 	int             t;
 	gitem_t        *item;
-	int             x;
+	int             x, y;
 	int             color;
 	float           size;
 	float           f;
@@ -2261,7 +2356,7 @@ static float CG_DrawPowerups(float y)
 
 	if(ps->stats[STAT_HEALTH] <= 0)
 	{
-		return y;
+		return ;
 	}
 
 	// sort the list by time remaining
@@ -2300,10 +2395,13 @@ static float CG_DrawPowerups(float y)
 
 	// draw the icons and timers
 	x = 640 - ICON_SIZE - CHAR_WIDTH * 2;
+	y = 240;
+
+
 	for(i = 0; i < active; i++)
 	{
 		item = BG_FindItemForPowerup(sorted[i]);
-
+gitem_t        *item;
 		if(item)
 		{
 
@@ -2344,7 +2442,7 @@ static float CG_DrawPowerups(float y)
 	}
 	trap_R_SetColor(NULL);
 
-	return y;
+*/
 }
 #endif							// MISSIONPACK
 
@@ -2367,7 +2465,7 @@ static void CG_DrawLowerRight(void)
 	}
 
 	y = CG_DrawScores(y);
-	y = CG_DrawPowerups(y);
+//	y = CG_DrawPowerups(y);
 }
 #endif							// MISSIONPACK
 
@@ -2525,7 +2623,7 @@ CG_DrawHoldableItem
 ===================
 */
 #ifndef MISSIONPACK
-static void CG_DrawHoldableItem(void)
+/*static void CG_DrawHoldableItem(void)
 {
 	int             value;
 
@@ -2537,6 +2635,7 @@ static void CG_DrawHoldableItem(void)
 	}
 
 }
+*/
 #endif							// MISSIONPACK
 
 /*
@@ -3938,6 +4037,7 @@ static void CG_Draw2D(void)
 			CG_DrawStatusBar();
 
 			CG_DrawSideBar();
+			CG_DrawPowerups ();
 #endif
 
 			CG_DrawAmmoWarning();
@@ -3950,7 +4050,7 @@ static void CG_Draw2D(void)
 			CG_DrawWeaponSelect();
 
 #ifndef MISSIONPACK
-			CG_DrawHoldableItem();
+			//CG_DrawHoldableItem();
 #endif
 
 			CG_DrawReward();

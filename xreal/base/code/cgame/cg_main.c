@@ -1038,6 +1038,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.sideBarItemShader = trap_R_RegisterShaderNoMip("hud/sidebar_item");
 	cgs.media.sideBarItemSelectShader = trap_R_RegisterShaderNoMip("hud/sidebar_item_select");
+	cgs.media.sideBarPowerupShader = trap_R_RegisterShaderNoMip("hud/sidebar_powerup");
 
 	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
 

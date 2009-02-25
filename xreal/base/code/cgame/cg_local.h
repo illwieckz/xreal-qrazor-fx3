@@ -1062,6 +1062,7 @@ typedef struct
 
 	qhandle_t       sideBarItemShader;
 	qhandle_t       sideBarItemSelectShader;
+	qhandle_t       sideBarPowerupShader;
 
 	qhandle_t       sparkShader;
 
