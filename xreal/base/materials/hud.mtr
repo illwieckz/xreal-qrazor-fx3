@@ -85,6 +85,16 @@ hud/sidebar_item_select
 	}
 }
 
+hud/sidebar_powerup
+{
+	nopicmip
+	{
+		clampmap gfx/2d/hud/hud_sidebar_powerup.png
+		blend blend
+		rgbGen vertex
+	}
+}
+
 //scoreboard
 
 
