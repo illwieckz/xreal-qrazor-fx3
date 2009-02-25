@@ -1605,8 +1605,6 @@ static void CG_DrawSideBarPowerup(int x, int y, int i)
 	t = (int)((cg.snap->ps.powerups[i] - cg.time) / 1000);
 	
 	time = va("%i", t);
-
-
 	
 		if(!item)
 			return;
@@ -1664,44 +1662,41 @@ static void CG_DrawSideBar(void)
 	int             bits;
 	int             count;
 
-	if(cg_drawSideBar.integer == 0)
-	{
-		return;
-	}
-
 	// do not show if the player is dead
 	if(cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
 	{
 		return;
 	}
-
-	// count the number of weapons owned
-	bits = cg.snap->ps.stats[STAT_WEAPONS];
-	count = 0;
-	for(i = 1; i < 16; i++)
+	if(cg_drawSideBar.integer != 0)
 	{
-		if(bits & (1 << i))
+		// count the number of weapons owned
+		bits = cg.snap->ps.stats[STAT_WEAPONS];
+		count = 0;
+		for(i = 1; i < 16; i++)
 		{
-			count++;
+			if(bits & (1 << i))
+			{
+				count++;
+			}
+		}
+	
+		x = 0;
+		y = 240 - count * 20 + 32;
+	
+		// do not count the gauntlet
+		for(i = 2; i < 16; i++)
+		{
+			if(!(bits & (1 << i)))
+			{
+				continue;
+			}
+	
+			CG_DrawSideBarItem(x, y, i);
+			y += 32;
 		}
 	}
-
-	x = 0;
-	y = 240 - count * 20 + 32;
-
-	// do not count the gauntlet
-	for(i = 2; i < 16; i++)
-	{
-		if(!(bits & (1 << i)))
-		{
-			continue;
-		}
-
-		CG_DrawSideBarItem(x, y, i);
-		y += 32;
-	}
-
-	// count the number of poweups owned	
+	
+	// count the number of powerups owned	
 	count = 0;
 	for(i = 1; i < MAX_POWERUPS; i++)
 	{
