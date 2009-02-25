@@ -1797,14 +1797,13 @@ CG_DrawSnapshot
 static float CG_DrawSnapshot(float y)
 {
 	char           *s;
-	int             w;
 
 	s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence);
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
-	CG_DrawBigString(635 - w, y + 2, s, 1.0F);
+	CG_Text_PaintAligned(635, y+4 , s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + 16;
 }
 
 /*
@@ -1816,7 +1815,6 @@ CG_DrawFPS
 static float CG_DrawFPS(float y)
 {
 	char           *s;
-	int             w;
 	static int      previousTimes[FPS_FRAMES];
 	static int      index;
 	int             i, total;
@@ -1850,12 +1848,11 @@ static float CG_DrawFPS(float y)
 
 		s = va("%ifps", fps);
 
-		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-
-		CG_Text_PaintAligned(635, 10, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	
+		CG_Text_PaintAligned(635, y, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
-	return y + BIGCHAR_HEIGHT + 8;
+		return y + 16;
 }
 
 /*
@@ -1882,9 +1879,10 @@ static float CG_DrawTimer(float y)
 	//w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
 	//CG_DrawBigString(635 - w, y + 2, s, 1.0F);
-	CG_Text_PaintAligned(630, 10, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(635, y , s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + 16;
+	
 }
 
 
@@ -2086,11 +2084,12 @@ CG_DrawUpperRight
 
 =====================
 */
+
 static void CG_DrawUpperRight(void)
 {
 	float           y;
 
-	y = 0;
+	y = 10;
 
 	if(cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1)
 	{
