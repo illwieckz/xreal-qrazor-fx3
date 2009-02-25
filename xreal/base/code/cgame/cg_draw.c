@@ -2968,7 +2968,8 @@ static void CG_DrawLagometer(void)
 			{
 				color = 4;		// RED for dropped snapshots
 				VectorCopy4(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
-				fadecolor[3] = (float)((aw - a) / aw);
+				//fadecolor[3] = (float)((aw - a) / aw);
+				fadecolor[3] = 1.0f; 
 				trap_R_SetColor(fadecolor);
 			}
 			if(ah - range > 10)
