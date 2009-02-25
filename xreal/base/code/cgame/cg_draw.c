@@ -891,7 +891,7 @@ CG_DrawStatusBarXreaL
 
 static void CG_DrawStatusBarXreaL(void)
 {
-	int             color;
+/*	int             color;
 	centity_t      *cent;
 	playerState_t  *ps;
 	int             value;
@@ -1063,6 +1063,8 @@ static void CG_DrawStatusBarXreaL(void)
 		CG_DrawPic(320 - 305 + (300 - Q_bound(0, value * 300 / 200, 300)), 480 - 79, Q_bound(0, value * 300 / 200, 300), 36,
 				   cgs.media.sideBarItemRShader);
 	}
+	*/
+	
 }
 
 
@@ -1527,113 +1529,61 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 {
 	char           *ammo;
 
-	// a colors[][] array would be better
-	vec4_t         *colorItemNormal;
-	vec4_t         *colorItemSelected;
-	vec4_t          colorItemBlackNormal = { 0.0f, 0.0f, 0.0f, 0.5f };	// black
-	vec4_t          colorItemBlackSelected = { 0.0f, 0.0f, 0.0f, 1.0f };	// b/w
-	vec4_t          colorTeamBlueNormal = { 0.0f, 0.0f, 1.0f, 1.0f };	// blue
-	vec4_t          colorTeamBlueSelected = { 0.0f, 0.0f, 1.0f, 0.5f };
-	vec4_t          colorTeamRedNormal = { 1.0f, 0.0f, 0.0f, 1.0f };	// red
-	vec4_t          colorTeamRedSelected = { 1.0f, 0.0f, 0.0f, 0.5f };
 	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
 	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
 	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
-	vec4_t          colorActiveField = { 0.25f, 1.0f, 0.25f, 0.1f };
 	vec3_t          angles;
 	vec3_t          origin;
+	
+	vec4_t          basecolor;
 
 	VectorClear(angles);
 
-	colorItemNormal = &colorItemBlackNormal;
-	colorItemSelected = &colorItemBlackSelected;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-	{
-		colorItemNormal = &colorTeamBlueNormal;
-		colorItemSelected = &colorTeamBlueSelected;
-	}
+		VectorCopy4(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-	{
-		colorItemNormal = &colorTeamRedNormal;
-		colorItemSelected = &colorTeamRedSelected;
-	}
+		VectorCopy4(redTeamColor, basecolor);
+	else
+		VectorCopy4(baseTeamColor, basecolor);
+
 
 	CG_RegisterWeapon(i);
 
 	ammo = va("%i", cg.snap->ps.ammo[i]);
 
-	if(cg_draw3dIcons.integer && !cg_simpleItems.integer)
+	if(i == cg.weaponSelect)
+		basecolor[3] = 0.9f;
+	else
+		basecolor[3] = 0.5f;
+		
+	trap_R_SetColor(basecolor);
+
+	if(i == cg.weaponSelect)
+		CG_DrawPic(x, y , 72, 32, cgs.media.sideBarItemSelectShader);
+
+
+	CG_DrawPic(x, y , 72, 32, cgs.media.sideBarItemShader);
+
+
+	trap_R_SetColor(NULL);
+
+	CG_DrawPic(x+4, y+4, 24, 24, cg_weapons[i].weaponIcon);
+	
+	if(i == cg.weaponSelect)
 	{
-		origin[0] = 90;
-		origin[1] = 0;
-		origin[2] = 0;
-		//angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
-		angles[YAW] = 90 * (cg.time / 1000.0) + (30 * i);
-
-		if(i == cg.weaponSelect)
-		{
-			// draw image with color
-			trap_R_SetColor(*colorItemSelected);
-
-			if(cg_drawSideBar.integer == 1)
-			{
-				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemRShader);
-			}
-			else if(cg_drawSideBar.integer == 2)
-			{
-				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemLShader);
-			}
-
-			trap_R_SetColor(NULL);
-
-			CG_Draw3DWeaponModel(x, y - 5, 54, 54, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
-			CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorActive);
-		}
-		else
-		{
-			// draw image with color
-			trap_R_SetColor(*colorItemNormal);
-
-			if(cg_drawSideBar.integer == 1)
-			{
-				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemRShader);
-			}
-			else if(cg_drawSideBar.integer == 2)
-			{
-				CG_DrawPic(x, y + 10, 73, 25, cgs.media.sideBarItemLShader);
-			}
-
-			trap_R_SetColor(NULL);
-
-			CG_Draw3DWeaponModel(x, y, 48, 48, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, 0, origin, angles);
-
-			if(cg.snap->ps.ammo[i])
-				CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorInActive);
-			else
-				CG_DrawSmallStringColor(x + 48, y + 15, ammo, colorEmpty);
-		}
+		CG_DrawHudString(x + 72, y+17, ammo, 0.35f, UI_RIGHT, colorActive);
 	}
 	else
 	{
-		// SimpleItems on
-		if(i == cg.weaponSelect)
-		{
-			CG_DrawRect(x, y, 70, 20, 20, colorActiveField);
-			CG_DrawPic(x, y, 20, 20, cg_weapons[i].weaponIcon);
 
-			CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
-		}
+		if(cg.snap->ps.ammo[i])
+			CG_DrawHudString(x + 72, y+17, ammo, 0.30f, UI_RIGHT, colorInActive);
 		else
-		{
-			CG_DrawPic(x, y, 16, 16, cg_weapons[i].weaponIcon);
-
-			if(cg.snap->ps.ammo[i])
-				CG_DrawSmallStringColor(x + 24, y, ammo, colorInActive);
-			else
-				CG_DrawSmallStringColor(x + 24, y, ammo, colorEmpty);
-		}
+			CG_DrawHudString(x + 72, y+17, ammo, 0.30f, UI_RIGHT, colorEmpty);
 	}
+
+
 }
 
 /*
@@ -1670,16 +1620,9 @@ static void CG_DrawSideBar(void)
 		}
 	}
 
-	if(cg_drawSideBar.integer == 2)
-	{
-		x = 10;
-	}
-	else
-	{
-		x = 640 - 80;
-	}
+	x = 0;
 
-	y = 240 - count * 20;
+	y = 240 - count * 20 + 32;
 
 	// do not count the gauntlet
 	for(i = 2; i < 16; i++)
@@ -1690,7 +1633,7 @@ static void CG_DrawSideBar(void)
 		}
 
 		CG_DrawSideBarItem(x, y, i);
-		y += 40;
+		y += 32;
 	}
 }
 
@@ -1846,10 +1789,11 @@ static float CG_DrawTimer(float y)
 	seconds -= tens * 10;
 
 	s = va("%i:%i%i", mins, tens, seconds);
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
+	//w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
-	CG_DrawBigString(635 - w, y + 2, s, 1.0F);
-
+	//CG_DrawBigString(635 - w, y + 2, s, 1.0F);
+	CG_Text_PaintAligned(630, 10, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	
 	return y + BIGCHAR_HEIGHT + 4;
 }
 

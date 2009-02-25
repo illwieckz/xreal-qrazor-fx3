@@ -1060,8 +1060,8 @@ typedef struct
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
 
-	qhandle_t       sideBarItemLShader;
-	qhandle_t       sideBarItemRShader;
+	qhandle_t       sideBarItemShader;
+	qhandle_t       sideBarItemSelectShader;
 
 	qhandle_t       sparkShader;
 

@@ -1036,8 +1036,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
 
-	cgs.media.sideBarItemLShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_left.tga");
-	cgs.media.sideBarItemRShader = trap_R_RegisterShaderNoMip("gfx/2d/hud/sidebaritem_right.tga");
+	cgs.media.sideBarItemShader = trap_R_RegisterShaderNoMip("hud/sidebar_item");
+	cgs.media.sideBarItemSelectShader = trap_R_RegisterShaderNoMip("hud/sidebar_item_select");
 
 	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
 
