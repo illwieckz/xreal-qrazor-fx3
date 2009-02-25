@@ -2755,15 +2755,20 @@ static void CG_DrawDisconnect(void)
 	w = CG_Text_Width(s, 0.5f, 0, &cgs.media.freeSansBoldFont);
 	CG_Text_Paint(320 - w / 2, 100, 0.5f, colorRed, s, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 
+	//otty: readjusted lagometer
+	x = 640 - 68;
+	y = 480 - 120;
+
+	trap_R_SetColor(baseTeamcolor);
+	CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometer_lagShader);
+	trap_R_SetColor(NULL);
+	
 	// blink the icon
 	if((cg.time >> 9) & 1)
 	{
 		return;
 	}
-
-	x = 640 - 48;
-	y = 480 - 48;
-
+		
 	CG_DrawPic(x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga"));
 }
 
@@ -2783,6 +2788,18 @@ static void CG_DrawLagometer(void)
 	float           ax, ay, aw, ah, mid, range;
 	int             color;
 	float           vscale;
+	qboolean		lag=qfalse;
+	
+	vec4_t          basecolor;
+	vec4_t          fadecolor;
+
+	playerState_t  *ps;
+	centity_t      *cent;
+	
+	ps = &cg.snap->ps;
+	cent = &cg_entities[cg.snap->ps.clientNum];
+
+	int dist;
 
 	// Tr3B: even draw the lagometer when connected to a local server
 	if(!cg_lagometer.integer /*|| cgs.localServer*/)
@@ -2794,16 +2811,30 @@ static void CG_DrawLagometer(void)
 	//
 	// draw the graph
 	//
-#ifdef MISSIONPACK
+/*#ifdef MISSIONPACK
 	x = 640 - 48;
 	y = 480 - 144;
 #else
 	x = 640 - 48;
 	y = 480 - 90;
 #endif
+*/
+	//otty: readjusted lagometer
+	x = 640 - 68;
+	y = 480 - 120;
 
+	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
+		VectorCopy4(blueTeamColor, basecolor);
+	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
+		VectorCopy4(redTeamColor, basecolor);
+	else
+		VectorCopy4(baseTeamColor, basecolor);
+
+
+	trap_R_SetColor(basecolor);
+	CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometerShader);
 	trap_R_SetColor(NULL);
-	CG_DrawPic(x, y, 48, 48, cgs.media.lagometerShader);
+
 
 	ax = x;
 	ay = y;
@@ -2828,7 +2859,9 @@ static void CG_DrawLagometer(void)
 			if(color != 1)
 			{
 				color = 1;
-				trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)]);
+				VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
+				fadecolor[3] = (float)((aw - a) / aw);
+				trap_R_SetColor(fadecolor);
 			}
 			if(v > range)
 			{
@@ -2841,7 +2874,10 @@ static void CG_DrawLagometer(void)
 			if(color != 2)
 			{
 				color = 2;
-				trap_R_SetColor(g_color_table[ColorIndex(COLOR_BLUE)]);
+				VectorCopy4(g_color_table[ColorIndex(COLOR_BLUE)], fadecolor);
+				fadecolor[3] = (float)((aw - a) / aw);
+				trap_R_SetColor(fadecolor);
+
 			}
 			v = -v;
 			if(v > range)
@@ -2867,7 +2903,9 @@ static void CG_DrawLagometer(void)
 				if(color != 5)
 				{
 					color = 5;	// YELLOW for rate delay
-					trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)]);
+					VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
+				fadecolor[3] = (float)((aw - a) / aw);
+					trap_R_SetColor(fadecolor);
 				}
 			}
 			else
@@ -2875,7 +2913,9 @@ static void CG_DrawLagometer(void)
 				if(color != 3)
 				{
 					color = 3;
-					trap_R_SetColor(g_color_table[ColorIndex(COLOR_GREEN)]);
+					VectorCopy4(g_color_table[ColorIndex(COLOR_GREEN)], fadecolor);
+					fadecolor[3] = (float)((aw - a) / aw)*0.5f;
+					trap_R_SetColor(fadecolor);
 				}
 			}
 			v = v * vscale;
@@ -2890,17 +2930,28 @@ static void CG_DrawLagometer(void)
 			if(color != 4)
 			{
 				color = 4;		// RED for dropped snapshots
-				trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)]);
+				VectorCopy4(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
+				fadecolor[3] = (float)((aw - a) / aw);
+				trap_R_SetColor(fadecolor);
 			}
+			if(ah - range > 10)
+				lag = qtrue;
+				
 			trap_R_DrawStretchPic(ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader);
 		}
+	}
+
+	if(lag){
+		trap_R_SetColor(basecolor);
+		CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometer_lagShader);
+		trap_R_SetColor(NULL);
 	}
 
 	trap_R_SetColor(NULL);
 
 	if(cg_nopredict.integer || cg_synchronousClients.integer)
 	{
-		CG_DrawBigString(ax, ay, "snc", 1.0);
+		CG_Text_Paint(ax, ay, 0.4f, colorRed, "snc", 0, 0, UI_CENTER | UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 	}
 
 	CG_DrawDisconnect();
@@ -3601,7 +3652,7 @@ static void CG_DrawWarmup(void)
 	if(sec < 0)
 	{
 		s = "Waiting for players";
-		CG_Text_PaintAligned(320, 40, s, 0.25f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(320, 64, s, 0.25f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		cg.warmupCount = 0;
 		return;
 	}
@@ -3630,7 +3681,7 @@ static void CG_DrawWarmup(void)
 		{
 			s = va("%s vs %s", ci1->name, ci2->name);
 
-			CG_Text_PaintAligned(320, 60, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(320, 64, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 	}
 	else

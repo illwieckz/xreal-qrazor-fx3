@@ -1007,6 +1007,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.bloodSpurt2Shader = trap_R_RegisterShader("particles/blood_spurt");
 	cgs.media.bloodSpurt3Shader = trap_R_RegisterShader("particles/blood_spurt");
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
+	cgs.media.lagometer_lagShader = trap_R_RegisterShader("lagometer_lag");
 	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
 
 	cgs.media.waterBubbleShader = trap_R_RegisterShader("waterBubble");

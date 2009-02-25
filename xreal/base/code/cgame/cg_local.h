@@ -1056,6 +1056,7 @@ typedef struct
 
 
 	qhandle_t       lagometerShader;
+	qhandle_t       lagometer_lagShader;
 	qhandle_t       backTileShader;
 	qhandle_t       noammoShader;
 
