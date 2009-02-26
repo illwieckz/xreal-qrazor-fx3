@@ -469,7 +469,7 @@ static void CG_ItemPickup(int itemNum)
 	if(bg_itemlist[itemNum].giType == IT_WEAPON)
 	{
 		// select it immediately
-		if(cg_autoswitch.integer && bg_itemlist[itemNum].giTag != WP_MACHINEGUN)
+		if(cg_autoswitch.integer && bg_itemlist[itemNum].giTag != WP_PLASMAGUN)
 		{
 			cg.weaponSelectTime = cg.time;
 			cg.weaponSelect = bg_itemlist[itemNum].giTag;

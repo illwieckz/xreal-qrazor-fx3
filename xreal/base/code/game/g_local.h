@@ -626,11 +626,8 @@ gentity_t      *fire_rocket(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_homing(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_bfg(gentity_t * self, vec3_t start, vec3_t dir);
 gentity_t      *fire_grapple(gentity_t * self, vec3_t start, vec3_t dir);
-
-#ifdef MISSIONPACK
 gentity_t      *fire_nail(gentity_t * self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up);
 gentity_t      *fire_prox(gentity_t * self, vec3_t start, vec3_t aimdir);
-#endif
 
 
 //
@@ -663,7 +660,7 @@ void            DropPortalDestination(gentity_t * ent);
 // g_weapon.c
 //
 qboolean        LogAccuracyHit(gentity_t * target, gentity_t * attacker);
-void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint);
+void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon);
 qboolean        CheckGauntletAttack(gentity_t * ent);
 void            Weapon_HookFree(gentity_t * ent);
 void            Weapon_HookThink(gentity_t * ent);

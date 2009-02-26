@@ -1303,7 +1303,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debrisModels[ENTMAT_GLASS][1][1] = trap_R_RegisterModel("models/debris/glass2b.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_GLASS][2][0] = trap_R_RegisterModel("models/debris/glass3a.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_GLASS][2][1] = trap_R_RegisterModel("models/debris/glass3b.md3", qtrue);
-	
+
 	cgs.media.debrisModels[ENTMAT_METAL][0][0] = trap_R_RegisterModel("models/debris/metal1a.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_METAL][0][1] = trap_R_RegisterModel("models/debris/metal1b.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_METAL][1][0] = trap_R_RegisterModel("models/debris/metal2a.md3", qtrue);
@@ -1338,7 +1338,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debrisModels[ENTMAT_STONE][1][1] = trap_R_RegisterModel("models/debris/stone2b.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_STONE][2][0] = trap_R_RegisterModel("models/debris/stone3a.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_STONE][2][1] = trap_R_RegisterModel("models/debris/stone3b.md3", qtrue);
-	
+
 	cgs.media.debrisModels[ENTMAT_TILES][0][0] = trap_R_RegisterModel("models/debris/tiles1a.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_TILES][0][1] = trap_R_RegisterModel("models/debris/tiles1b.md3", qtrue);
 	cgs.media.debrisModels[ENTMAT_TILES][1][0] = trap_R_RegisterModel("models/debris/tiles2a.md3", qtrue);
@@ -2331,7 +2331,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_InitLua();
 #endif
 
-	cg.weaponSelect = WP_MACHINEGUN;
+	cg.weaponSelect = WP_PLASMAGUN;
 
 	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for old servers
 	cgs.flagStatus = -1;

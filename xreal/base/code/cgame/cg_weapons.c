@@ -968,10 +968,14 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_PLASMAGUN:
-			weaponInfo->projectileTrailFunc = CG_PlasmaTrail;
+			//weaponInfo->projectileTrailFunc = CG_PlasmaTrail;
 			weaponInfo->projectileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/plasma/hyprbf1a.wav");
+			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/machinegun/shot1.ogg");
+			weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/shot2.ogg");
+			weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/shot3.ogg");
+			weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/shot4.ogg");
+			weaponInfo->flashSound[4] = trap_S_RegisterSound("sound/weapons/machinegun/shot5.ogg");
 			cgs.media.railRingsShader = trap_R_RegisterShader("railDisc");
 			cgs.media.railRings2Shader = trap_R_RegisterShader("railRing");
 			break;

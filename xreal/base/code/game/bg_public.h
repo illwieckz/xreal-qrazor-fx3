@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 
-#define	GAME_VERSION		"XreaL"
+#define	GAME_VERSION		"XreaL-rev1"	// Tr3B: always increase if you change the ET_, EV_ or WP_ types
 
 // Tr3B: define this to use the new Quake4 like player model system
 #define XPPM 1
@@ -356,13 +356,13 @@ typedef enum
 	WP_NONE,
 
 	WP_GAUNTLET,
-	WP_MACHINEGUN,
+	WP_PLASMAGUN,
 	WP_SHOTGUN,
 	WP_FLAK_CANNON,
 	WP_ROCKET_LAUNCHER,
 	WP_LIGHTNING,
 	WP_RAILGUN,
-	WP_PLASMAGUN,
+	WP_MACHINEGUN,		// FIXME remove with chaingun
 	WP_BFG,
 #ifdef MISSIONPACK
 	WP_PROX_LAUNCHER,
@@ -499,7 +499,7 @@ typedef enum
 //#endif
 
 	EV_EFFECT,					// Lua scripted special effect
-	
+
 	EV_EXPLODE,
 
 	EV_DEBUG_LINE,
@@ -831,7 +831,7 @@ typedef enum
 	ENTMAT_NONE,
 	ENTMAT_WOOD,	//chunks, thin shards
 	ENTMAT_GLASS,	//large flat shards
-	ENTMAT_METAL,	
+	ENTMAT_METAL,
 	ENTMAT_GIBS,	//blood, small chunks
 	ENTMAT_BODY,	//head, arms, legs
 	ENTMAT_BRICK,	//rectangular chunks

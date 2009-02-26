@@ -80,7 +80,7 @@ qboolean CheckGauntletAttack(gentity_t * ent)
 	// set aiming directions
 	AngleVectors(ent->client->ps.viewangles, forward, right, up);
 
-	CalcMuzzlePoint(ent, forward, right, up, muzzle);
+	CalcMuzzlePoint(ent, forward, right, up, muzzle, WP_GAUNTLET);
 
 	VectorMA(muzzle, 32, forward, end);
 
@@ -570,6 +570,7 @@ void weapon_railgun_fire(gentity_t * ent)
 	tent->s.clientNum = ent->s.clientNum;
 
 	VectorCopy(muzzle, tent->s.origin2);
+
 	// move origin a bit to come closer to the drawn gun muzzle
 	VectorMA(tent->s.origin2, 4, right, tent->s.origin2);
 	VectorMA(tent->s.origin2, -1, up, tent->s.origin2);
@@ -852,9 +853,11 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint)
+void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon)
 {
 	vec3_t			surfNormal;
+	vec3_t			offset;
+	vec3_t			end;
 
 	if(ent->client)
 	{
@@ -870,19 +873,38 @@ void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, v
 			VectorSet(surfNormal, 0.0f, 0.0f, 1.0f);
 		}
 
-		VectorMA(ent->s.pos.trBase, ent->client->ps.viewheight, surfNormal, muzzlePoint);
+		VectorMA(ent->client->ps.origin, ent->client->ps.viewheight, surfNormal, muzzlePoint);
 	}
 	else
 	{
 		VectorCopy(ent->s.pos.trBase, muzzlePoint);
 	}
 
-#if 0
-	VectorMA(muzzlePoint, 1, forward, muzzlePoint);
-	VectorMA(muzzlePoint, 1, right, muzzlePoint);
-#else
-	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
-#endif
+	switch (weapon)
+	{
+		case WP_PLASMAGUN:
+			AngleVectors(ent->client->ps.viewangles, forward, right, up);
+
+			VectorSet(offset, 14, 8, -16);
+			G_ProjectSource(muzzlePoint, offset, forward, right, muzzlePoint);
+			break;
+
+		default:
+			AngleVectors(ent->client->ps.viewangles, forward, right, up);
+
+			#if 0
+			VectorMA(muzzlePoint, 1, forward, muzzlePoint);
+			VectorMA(muzzlePoint, 1, right, muzzlePoint);
+			#else
+			VectorMA(muzzlePoint, 14, forward, muzzlePoint);
+			#endif
+			break;
+	}
+
+	// HACK: correct forward vector for the projectile so it will fly towards the crosshair
+	VectorMA(muzzlePoint, 8192, forward, end);
+	VectorSubtract(end, muzzlePoint, forward);
+	VectorNormalize(forward);
 
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector(muzzlePoint);
@@ -952,8 +974,7 @@ void FireWeapon(gentity_t * ent)
 	if(ent->client)
 	{
 		// set aiming directions
-		AngleVectors(ent->client->ps.viewangles, forward, right, up);
-		CalcMuzzlePoint(ent, forward, right, up, muzzle);
+		CalcMuzzlePoint(ent, forward, right, up, muzzle, ent->s.weapon);
 	}
 	else
 	{
@@ -966,6 +987,9 @@ void FireWeapon(gentity_t * ent)
 	{
 		case WP_GAUNTLET:
 			Weapon_Gauntlet(ent);
+			break;
+		case WP_PLASMAGUN:
+			Weapon_Plasmagun_Fire(ent);
 			break;
 		case WP_LIGHTNING:
 			Weapon_LightningFire(ent);
@@ -988,9 +1012,6 @@ void FireWeapon(gentity_t * ent)
 			break;
 		case WP_ROCKET_LAUNCHER:
 			Weapon_RocketLauncher_FireMissile(ent);
-			break;
-		case WP_PLASMAGUN:
-			Weapon_Plasmagun_Fire(ent);
 			break;
 		case WP_RAILGUN:
 			weapon_railgun_fire(ent);
@@ -1062,8 +1083,7 @@ void FireWeapon2(gentity_t * ent)
 	if(ent->client)
 	{
 		// set aiming directions
-		AngleVectors(ent->client->ps.viewangles, forward, right, up);
-		CalcMuzzlePoint(ent, forward, right, up, muzzle);
+		CalcMuzzlePoint(ent, forward, right, up, muzzle, ent->s.weapon);
 	}
 	else
 	{

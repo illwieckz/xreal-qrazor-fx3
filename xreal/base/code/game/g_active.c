@@ -628,7 +628,7 @@ void ClientTimerActions(gentity_t * ent, int msec)
 	{
 		int             w, max, inc, t, i;
 		int             weapList[] =
-			{ WP_MACHINEGUN, WP_SHOTGUN, WP_GRENADE_LAUNCHER, WP_ROCKET_LAUNCHER, WP_LIGHTNING, WP_RAILGUN, WP_PLASMAGUN, WP_BFG,
+			{ WP_PLASMAGUN, WP_SHOTGUN, WP_GRENADE_LAUNCHER, WP_ROCKET_LAUNCHER, WP_LIGHTNING, WP_RAILGUN, WP_MACHINEGUN, WP_BFG,
 			WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN
 		};
 		int             weapCount = sizeof(weapList) / sizeof(int);
