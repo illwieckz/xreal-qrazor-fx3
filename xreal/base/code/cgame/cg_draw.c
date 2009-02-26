@@ -1064,7 +1064,7 @@ static void CG_DrawStatusBarXreaL(void)
 				   cgs.media.sideBarItemRShader);
 	}
 	*/
-	
+
 }
 
 
@@ -1530,7 +1530,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 	char           *ammo;
 	vec4_t          colorEmpty = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
 	vec4_t          colorInActive = { 1.0f, 1.0f, 1.0f, 0.7f };
-	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };	
+	vec4_t          colorActive = { 0.25f, 1.0f, 0.25f, 0.8f };
 	vec4_t          basecolor;
 
 
@@ -1550,7 +1550,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 		basecolor[3] = 0.9f;
 	else
 		basecolor[3] = 0.5f;
-		
+
 	trap_R_SetColor(basecolor);
 
 	if(i == cg.weaponSelect)
@@ -1561,7 +1561,7 @@ static void CG_DrawSideBarItem(int x, int y, int i)
 	trap_R_SetColor(NULL);
 
 	CG_DrawPic(x+4, y+4, 24, 24, cg_weapons[i].weaponIcon);
-	
+
 	if(i == cg.weaponSelect)
 	{
 		CG_DrawHudString(x + 72, y+17, ammo, 0.35f, UI_RIGHT, colorActive);
@@ -1588,10 +1588,10 @@ static void CG_DrawSideBarPowerup(int x, int y, int i)
 {
 	char           *time;
 	int				t;
-	vec4_t          colorActive = { 1.0f, 1.0f, 1.0f, 0.7f };	// white	
-	vec4_t          colorOver = { 1.0f, 0.0f, 0.0f, 0.7f };	// red	
+	vec4_t          colorActive = { 1.0f, 1.0f, 1.0f, 0.7f };	// white
+	vec4_t          colorOver = { 1.0f, 0.0f, 0.0f, 0.7f };	// red
 	vec4_t          basecolor;
-	gitem_t        *item;	
+	gitem_t        *item;
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 		VectorCopy4(blueTeamColor, basecolor);
@@ -1603,21 +1603,21 @@ static void CG_DrawSideBarPowerup(int x, int y, int i)
 	item = BG_FindItemForPowerup(i);
 
 	t = (int)((cg.snap->ps.powerups[i] - cg.time) / 1000);
-	
+
 	time = va("%i", t);
-	
+
 		if(!item)
 			return;
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);		
+	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);
 	trap_R_SetColor(NULL);
 
 	if(t < 10)
 		CG_DrawHudString(x-60, y+16, time, 0.30f +(10-t)*0.05f , UI_LEFT, colorOver);
 	else
 		CG_DrawHudString(x-60, y+17, time, 0.30f, UI_LEFT, colorActive);
-	
+
 	CG_DrawPic(x+4-24-8, y+4, 24, 24, trap_R_RegisterShader(item->icon));
 
 }
@@ -1629,10 +1629,10 @@ static void CG_DrawSideBarHoldable(int x, int y, int i)
 	int             value;
 
 	value = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
-	
+
 	if(!value)
 		return;
-		
+
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 		VectorCopy4(blueTeamColor, basecolor);
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
@@ -1641,13 +1641,13 @@ static void CG_DrawSideBarHoldable(int x, int y, int i)
 		VectorCopy4(baseTeamColor, basecolor);
 
 	trap_R_SetColor(basecolor);
-	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);		
+	CG_DrawPic(x-72, y , 72, 32, cgs.media.sideBarPowerupShader);
 	trap_R_SetColor(NULL);
 
 	CG_RegisterItemVisuals(value);
 	CG_DrawPic(x+4-24-8, y+4, 24, 24, cg_items[value].icon);
 
-	
+
 }
 
 /*
@@ -1679,10 +1679,10 @@ static void CG_DrawSideBar(void)
 				count++;
 			}
 		}
-	
+
 		x = 0;
 		y = 240 - count * 20 + 32;
-	
+
 		// do not count the gauntlet
 		for(i = 2; i < 16; i++)
 		{
@@ -1690,13 +1690,13 @@ static void CG_DrawSideBar(void)
 			{
 				continue;
 			}
-	
+
 			CG_DrawSideBarItem(x, y, i);
 			y += 32;
 		}
 	}
-	
-	// count the number of powerups owned	
+
+	// count the number of powerups owned
 	count = 0;
 	for(i = 1; i < MAX_POWERUPS; i++)
 	{
@@ -1708,7 +1708,7 @@ static void CG_DrawSideBar(void)
 
 	x = 640;
 	y = 200 - count * 20 + 32;
-	
+
 	//draw powerups
 	for(i = 0; i < MAX_POWERUPS; i++)
 	{
@@ -1716,15 +1716,15 @@ static void CG_DrawSideBar(void)
 		{
 			continue;
 		}
-		
+
 		CG_DrawSideBarPowerup(x, y, i);
 		y += 32;
 
 	}
-	
+
 	//draw holdable
 	CG_DrawSideBarHoldable(x, y, i);
-	
+
 }
 
 
@@ -1801,7 +1801,7 @@ static float CG_DrawSnapshot(float y)
 	s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime, cg.latestSnapshotNum, cgs.serverCommandSequence);
 
 	CG_Text_PaintAligned(635, y+4 , s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-	
+
 
 	return y + 16;
 }
@@ -1848,7 +1848,7 @@ static float CG_DrawFPS(float y)
 
 		s = va("%ifps", fps);
 
-	
+
 		CG_Text_PaintAligned(635, y, s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
@@ -1880,9 +1880,9 @@ static float CG_DrawTimer(float y)
 
 	//CG_DrawBigString(635 - w, y + 2, s, 1.0F);
 	CG_Text_PaintAligned(635, y , s, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-	
+
 	return y + 16;
-	
+
 }
 
 
@@ -2799,13 +2799,13 @@ static void CG_DrawDisconnect(void)
 	trap_R_SetColor(baseTeamColor);
 	CG_DrawPic(x-8, y-8, 48+16, 48+16, cgs.media.lagometer_lagShader);
 	trap_R_SetColor(NULL);
-	
+
 	// blink the icon
 	if((cg.time >> 9) & 1)
 	{
 		return;
 	}
-		
+
 	CG_DrawPic(x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga"));
 }
 
@@ -2825,18 +2825,16 @@ static void CG_DrawLagometer(void)
 	float           ax, ay, aw, ah, mid, range;
 	int             color;
 	float           vscale;
-	qboolean		lag=qfalse;
-	
+	qboolean		lag = qfalse;
+	int				dist;
 	vec4_t          basecolor;
 	vec4_t          fadecolor;
 
 	playerState_t  *ps;
 	centity_t      *cent;
-	
+
 	ps = &cg.snap->ps;
 	cent = &cg_entities[cg.snap->ps.clientNum];
-
-	int dist;
 
 	// Tr3B: even draw the lagometer when connected to a local server
 	if(!cg_lagometer.integer /*|| cgs.localServer*/)
@@ -2969,12 +2967,12 @@ static void CG_DrawLagometer(void)
 				color = 4;		// RED for dropped snapshots
 				VectorCopy4(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
 				//fadecolor[3] = (float)((aw - a) / aw);
-				fadecolor[3] = 1.0f; 
+				fadecolor[3] = 1.0f;
 				trap_R_SetColor(fadecolor);
 			}
 			if(ah - range > 10)
 				lag = qtrue;
-				
+
 			trap_R_DrawStretchPic(ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader);
 		}
 	}
