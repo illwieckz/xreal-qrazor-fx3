@@ -32,11 +32,11 @@ varying vec3		var_Normal;
 
 void	main()
 {	
-	/// compute incident ray
+	// compute incident ray
 	vec3 I = normalize(var_Vertex - u_ViewOrigin);
 	
 	// compute normal
-	vec3 N = normalize(var_Normal);
+	vec3 N = normalize(var_Normal);	// FIXME normalize?
 	
 	// compute reflection ray
 	vec3 R = reflect(I, N);

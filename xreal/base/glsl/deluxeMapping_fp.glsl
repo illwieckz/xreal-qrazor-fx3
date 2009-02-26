@@ -40,25 +40,6 @@ varying vec3		var_Binormal;
 varying vec3		var_Normal;
 
 
-#if defined(r_HDRRendering)
-vec3 DecodeRGBE(vec4 rgbe)
-{
-	vec3 decoded;
-	if(rgbe.a > 0.0)
-	{
-		float fExp = ((rgbe.a * 256.0) - 128.0) / 10.0;
-		decoded = rgbe.rgb * exp2(fExp);
-		//decoded = vec3(rgbe.a, rgbe.a, rgbe.a);
-	}
-	else
-	{
-		decoded = vec3(0.0, 0.0, 0.0);
-	}
-  
-	return decoded;
-}
-#endif
-
 #if defined(r_ParallaxMapping)
 float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 {
@@ -174,7 +155,6 @@ void	main()
 
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
-	N = normalize(N);
 	
 	// compute light direction from object space deluxe map into tangent space
 	vec3 L = normalize(objectToTangentMatrix * (2.0 * (texture2D(u_DeluxeMap, var_TexLight).xyz - 0.5)));
