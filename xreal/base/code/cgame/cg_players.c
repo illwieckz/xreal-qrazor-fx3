@@ -2621,6 +2621,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 
 		light.noShadowID = noShadowID;
 		light.inverseShadows = qtrue;
+		light.attenuationShader = cgs.media.shadowProjectedLightShader;
 
 		trap_R_AddRefLightToScene(&light);
 		return qtrue;
