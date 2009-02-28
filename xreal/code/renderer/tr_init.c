@@ -201,6 +201,7 @@ cvar_t         *r_showBatches;
 cvar_t         *r_showLightMaps;
 cvar_t         *r_showDeluxeMaps;
 cvar_t         *r_showAreaPortals;
+cvar_t         *r_showCubeProbes;
 
 cvar_t         *r_showDeferredDiffuse;
 cvar_t         *r_showDeferredNormal;
@@ -1480,6 +1481,7 @@ void R_Register(void)
 	r_showLightMaps = ri.Cvar_Get("r_showLightMaps", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_showDeluxeMaps = ri.Cvar_Get("r_showDeluxeMaps", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_showAreaPortals = ri.Cvar_Get("r_showAreaPortals", "0", CVAR_CHEAT);
+	r_showCubeProbes = ri.Cvar_Get("r_showCubeProbes", "0", CVAR_CHEAT);
 
 	r_showDeferredDiffuse = ri.Cvar_Get("r_showDeferredDiffuse", "0", CVAR_CHEAT);
 	r_showDeferredNormal = ri.Cvar_Get("r_showDeferredNormal", "0", CVAR_CHEAT);

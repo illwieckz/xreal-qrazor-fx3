@@ -3373,6 +3373,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GL_BindProgram(&tr.deferredShadowingShader_proj);
 
 							GL_State(GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
+							//GL_State(GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 
 							GL_ClientState(tr.deferredShadowingShader_proj.attribs);
 
@@ -4869,7 +4870,7 @@ void RB_RenderBloom()
 
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
-	if((backEnd.refdef.rdflags & RDF_NOWORLDMODEL) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig.framebufferObjectAvailable)
+	if((backEnd.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOBLOOM)) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig.framebufferObjectAvailable)
 		return;
 
 	// set 2D virtual screen size
@@ -5798,7 +5799,7 @@ static void RB_RenderDebugUtils()
 {
 	GLimp_LogComment("--- RB_RenderDebugUtils ---\n");
 
-#if 0
+#if 1
 	if(r_showLightTransforms->integer || r_showShadowLod->integer)
 	{
 		interaction_t  *ia;
@@ -5807,11 +5808,25 @@ static void RB_RenderDebugUtils()
 		vec3_t          forward, left, up;
 		vec4_t          tmp;
 		vec4_t          lightColor;
+		vec4_t          quadVerts[4];
 
-		GL_BindProgram(NULL);
-		GL_State(0);
+		GL_BindProgram(&tr.genericSingleShader);
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
+		GL_ClientState(GLCS_VERTEX | GLCS_TEXCOORD | GLCS_COLOR);
+		GL_Cull(CT_TWO_SIDED);
+
+		// set uniforms
+		qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, 0);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			qglUniform1iARB(tr.genericSingleShader.u_VertexSkinning, 0);
+		}
+		qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, -1.0);
+
+		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.whiteImage);
+		qglUniformMatrix4fvARB(tr.genericSingleShader.u_ColorTextureMatrix, 1, GL_FALSE, matrixIdentity);
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
@@ -5858,12 +5873,15 @@ static void RB_RenderDebugUtils()
 				// set up the transformation matrix
 				R_RotateLightForViewParms(light, &backEnd.viewParms, &backEnd.or);
 				GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+				qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+												   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 				MatrixToVectorsFLU(matrixIdentity, forward, left, up);
 				VectorMA(vec3_origin, 16, forward, forward);
 				VectorMA(vec3_origin, 16, left, left);
 				VectorMA(vec3_origin, 16, up, up);
 
+				/*
 				// draw axis
 				qglBegin(GL_LINES);
 
@@ -5890,9 +5908,11 @@ static void RB_RenderDebugUtils()
 				qglVertex3fv(light->transformed);
 
 				qglEnd();
+				*/
 
 				switch (light->l.rlType)
 				{
+					/*
 					case RL_OMNI:
 					{
 						// draw corners
@@ -5915,6 +5935,7 @@ static void RB_RenderDebugUtils()
 						R_DebugBoundingBox(vec3_origin, light->localBounds[0], light->localBounds[1], lightColor);
 						break;
 					}
+					*/
 
 					case RL_PROJ:
 					{
@@ -5930,6 +5951,7 @@ static void RB_RenderDebugUtils()
 
 						yMax = zNear * tan(light->l.fovY * M_PI / 360.0f);
 						yMin = -yMax;
+
 
 						corners[0][0] = zFar;
 						corners[0][1] = xMin * zFar;
@@ -5947,6 +5969,7 @@ static void RB_RenderDebugUtils()
 						corners[3][1] = xMin * zFar;
 						corners[3][2] = yMax * zFar;
 
+						/*
 						// draw pyramid
 						qglBegin(GL_LINES);
 
@@ -5960,6 +5983,23 @@ static void RB_RenderDebugUtils()
 							qglVertex3fv(corners[j]);
 						}
 						qglEnd();
+						*/
+
+						tess.numVertexes = 0;
+						tess.numIndexes = 0;
+
+						VectorSet4(quadVerts[0], corners[0][0], corners[0][1], corners[0][2], 1);
+						VectorSet4(quadVerts[1], corners[1][0], corners[1][1], corners[1][2], 1);
+						VectorSet4(quadVerts[2], corners[2][0], corners[2][1], corners[2][2], 1);
+						VectorSet4(quadVerts[3], corners[3][0], corners[3][1], corners[3][2], 1);
+						Tess_AddQuadStamp2(quadVerts, colorCyan);
+
+						Tess_UpdateVBOs();
+						Tess_DrawElements();
+
+						tess.numIndexes = 0;
+						tess.numVertexes = 0;
+
 						break;
 					}
 
@@ -6551,6 +6591,107 @@ static void RB_RenderDebugUtils()
 		GL_PopMatrix();
 	}
 
+#if 1
+	if(r_showCubeProbes->integer)
+	{
+		cubemapProbe_t *cubeProbe;
+		int             j;
+		vec4_t          quadVerts[4];
+		vec4_t			plane;
+		vec3_t			mins = {-8, -8, -8};
+		vec3_t			maxs = { 8,  8,  8};
+		vec3_t			viewOrigin;
+
+		if(tr.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOCUBEMAP))
+		{
+			return;
+		}
+
+		// enable shader, set arrays
+		GL_BindProgram(&tr.reflectionShader_C);
+		GL_ClientState(tr.reflectionShader_C.attribs);
+		GL_Cull(CT_FRONT_SIDED);
+
+		// set uniforms
+		VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
+		qglUniform3fARB(tr.reflectionShader_C.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+		if(glConfig.vboVertexSkinningAvailable)
+		{
+			qglUniform1iARB(tr.reflectionShader_C.u_VertexSkinning, tess.vboVertexSkinning);
+
+			if(tess.vboVertexSkinning)
+				qglUniformMatrix4fvARB(tr.reflectionShader_C.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+		}
+
+		for(j = 0; j < tr.cubeProbes.currentElements; j++)
+		{
+			cubeProbe = Com_GrowListElement(&tr.cubeProbes, j);
+
+			// bind u_ColorMap
+			GL_SelectTexture(0);
+			GL_Bind(cubeProbe->cubemap);
+
+			// set up the transformation matrix
+			MatrixSetupTranslation(backEnd.or.transformMatrix, cubeProbe->origin[0], cubeProbe->origin[1], cubeProbe->origin[2]);
+			MatrixMultiply(backEnd.viewParms.world.viewMatrix, backEnd.or.transformMatrix, backEnd.or.modelViewMatrix);
+
+			GL_LoadModelViewMatrix(backEnd.or.modelViewMatrix);
+			qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
+			qglUniformMatrix4fvARB(tr.reflectionShader_C.u_ModelViewProjectionMatrix, 1, GL_FALSE,
+								   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+
+			VectorSet4(quadVerts[0], mins[0], mins[1], mins[2], 1);
+			VectorSet4(quadVerts[1], mins[0], maxs[1], mins[2], 1);
+			VectorSet4(quadVerts[2], mins[0], maxs[1], maxs[2], 1);
+			VectorSet4(quadVerts[3], mins[0], mins[1], maxs[2], 1);
+			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+
+			VectorSet4(quadVerts[0], maxs[0], mins[1], maxs[2], 1);
+			VectorSet4(quadVerts[1], maxs[0], maxs[1], maxs[2], 1);
+			VectorSet4(quadVerts[2], maxs[0], maxs[1], mins[2], 1);
+			VectorSet4(quadVerts[3], maxs[0], mins[1], mins[2], 1);
+			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+
+			VectorSet4(quadVerts[0], mins[0], mins[1], maxs[2], 1);
+			VectorSet4(quadVerts[1], mins[0], maxs[1], maxs[2], 1);
+			VectorSet4(quadVerts[2], maxs[0], maxs[1], maxs[2], 1);
+			VectorSet4(quadVerts[3], maxs[0], mins[1], maxs[2], 1);
+			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+
+			VectorSet4(quadVerts[0], maxs[0], mins[1], mins[2], 1);
+			VectorSet4(quadVerts[1], maxs[0], maxs[1], mins[2], 1);
+			VectorSet4(quadVerts[2], mins[0], maxs[1], mins[2], 1);
+			VectorSet4(quadVerts[3], mins[0], mins[1], mins[2], 1);
+			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+
+			VectorSet4(quadVerts[0], mins[0], mins[1], mins[2], 1);
+			VectorSet4(quadVerts[1], mins[0], mins[1], maxs[2], 1);
+			VectorSet4(quadVerts[2], maxs[0], mins[1], maxs[2], 1);
+			VectorSet4(quadVerts[3], maxs[0], mins[1], mins[2], 1);
+			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+
+			VectorSet4(quadVerts[0], maxs[0], maxs[1], mins[2], 1);
+			VectorSet4(quadVerts[1], maxs[0], maxs[1], maxs[2], 1);
+			VectorSet4(quadVerts[2], mins[0], maxs[1], maxs[2], 1);
+			VectorSet4(quadVerts[3], mins[0], maxs[1], mins[2], 1);
+			Tess_AddQuadStamp2WithNormals(quadVerts, colorWhite);
+
+			Tess_UpdateVBOs();
+			Tess_DrawElements();
+
+			tess.numIndexes = 0;
+			tess.numVertexes = 0;
+		}
+
+		// go back to the world modelview matrix
+		backEnd.or = backEnd.viewParms.world;
+		GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
+	}
+#endif
+
 	GL_CheckErrors();
 }
 
@@ -6906,6 +7047,7 @@ static void RB_RenderView(void)
 			plane2[3] = DotProduct(plane, backEnd.viewParms.or.origin) - plane[3];
 
 			GL_LoadModelViewMatrix(quakeToOpenGLMatrix);
+			//GL_LoadModelViewMatrix(matrixIdentity);
 			qglClipPlane(GL_CLIP_PLANE0, plane2);
 			qglEnable(GL_CLIP_PLANE0);
 		}
@@ -7089,6 +7231,27 @@ static void RB_RenderView(void)
 				qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
 			}
 			backEnd.pc.c_portals++;
+		}
+	}
+
+	// copy to given byte buffer that is NOT a FBO
+	if(tr.refdef.pixelTarget != NULL)
+	{
+		int             i;
+
+		// need to convert Y axis
+#if 0
+		qglReadPixels(0, 0, tr.refdef.pixelTargetWidth, tr.refdef.pixelTargetHeight, GL_RGBA, GL_UNSIGNED_BYTE, tr.refdef.pixelTarget);
+#else
+		// Bugfix: drivers absolutely hate running in high res and using qglReadPixels near the top or bottom edge.
+		// Soo.. lets do it in the middle.
+		qglReadPixels(glConfig.vidWidth / 2, glConfig.vidHeight / 2, tr.refdef.pixelTargetWidth, tr.refdef.pixelTargetHeight, GL_RGBA,
+					  GL_UNSIGNED_BYTE, tr.refdef.pixelTarget);
+#endif
+
+		for(i = 0; i < tr.refdef.pixelTargetWidth * tr.refdef.pixelTargetHeight; i++)
+		{
+			tr.refdef.pixelTarget[(i * 4) + 3] = 255;	//set the alpha pure white
 		}
 	}
 
@@ -7543,9 +7706,9 @@ void RB_ShowImages(void)
 
 	start = ri.Milliseconds();
 
-	for(i = 0; i < tr.numImages; i++)
+	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = tr.images[i];
+		image = Com_GrowListElement(&tr.images, i);
 
 		/*
 		   if(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_LA16F | IF_LA32F))

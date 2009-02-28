@@ -66,7 +66,7 @@ typedef unsigned short glIndex_t;
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
-// can't be increased without changing bit packing for drawsurfs
+#define REF_CUBEMAP_SIZE		64
 
 typedef enum
 {
@@ -198,6 +198,15 @@ typedef struct
 	matrix_t        viewMatrix2;	// without quake2opengl conversion
 	matrix_t        modelViewMatrix;	// only used by models, camera viewMatrix * transformMatrix
 } orientationr_t;
+
+// useful helper struct
+typedef struct vertexHash_s
+{
+	vec3_t				xyz;
+	void			    *data;
+
+	struct vertexHash_s	*next;
+} vertexHash_t;
 
 enum
 {
@@ -977,6 +986,10 @@ typedef struct
 
 	int             numInteractions;
 	struct interaction_s *interactions;
+
+	byte           *pixelTarget;		//set this to Non Null to copy to a buffer after scene rendering
+	int             pixelTargetWidth;
+	int             pixelTargetHeight;
 } trRefdef_t;
 
 
@@ -1358,6 +1371,8 @@ typedef struct
 {
 	int             numMarkSurfaces;
 	bspSurface_t  **markSurfaces;
+
+	vec3_t			origin;		// used for cubemaps
 } bspCluster_t;
 
 /*
@@ -1709,7 +1724,7 @@ extern refimport_t ri;
 #define	MAX_MOD_KNOWN			1024
 #define	MAX_ANIMATIONFILES		4096
 
-#define	MAX_DRAWIMAGES			4096
+//#define	MAX_DRAWIMAGES			4096
 #define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
 
@@ -1842,6 +1857,13 @@ typedef struct
 	trRefEntity_t   entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
+typedef struct
+{
+	vec3_t          origin;
+	image_t        *cubemap;
+} cubemapProbe_t;
+
+
 /*
 ** trGlobals_t
 **
@@ -1883,6 +1905,8 @@ typedef struct
 	image_t        *flatImage;	// use this as default normalmap
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
+	image_t        *blackCubeImage;
+	image_t        *autoCubeImage;			// special pointer to the nearest cubemap probe
 
 	image_t        *contrastRenderFBOImage;
 	image_t        *bloomRenderFBOImage[2];
@@ -2048,14 +2072,17 @@ typedef struct
 	int             numAnimations;
 	md5Animation_t *animations[MAX_ANIMATIONFILES];
 
-	int             numImages;
-	image_t        *images[MAX_DRAWIMAGES];
+	growList_t      images;
 
 	int             numFBOs;
 	FBO_t          *fbos[MAX_FBOS];
 
 	growList_t      vbos;
 	growList_t      ibos;
+
+	byte           *cubeTemp[6];	// 6 textures for cubemap storage
+	growList_t		cubeProbes;		// all cubemaps in a linear growing list
+	vertexHash_t  **cubeHashTable;	// hash table for faster access
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
@@ -2270,6 +2297,7 @@ extern cvar_t  *r_showBatches;
 extern cvar_t  *r_showLightMaps;	// render lightmaps only
 extern cvar_t  *r_showDeluxeMaps;
 extern cvar_t  *r_showAreaPortals;
+extern cvar_t  *r_showCubeProbes;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
@@ -2378,6 +2406,7 @@ void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const
 ** GL wrapper/helper functions
 */
 void            GL_Bind(image_t * image);
+void			GL_BindNearestCubeMap(const vec3_t xyz);
 void			GL_Unbind();
 void            BindAnimatedImage(textureBundle_t * bundle);
 void            GL_TextureFilter(image_t * image, filterType_t filterType);
@@ -2510,7 +2539,8 @@ void            RE_Shutdown(qboolean destroyWindow);
 qboolean        R_GetEntityToken(char *buffer, int size);
 
 model_t        *R_AllocModel(void);
-image_t        *R_AllocImage(const char *name);
+image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable);
+void			R_UploadImage(const byte ** dataArray, int numData, image_t * image);
 
 void            R_Init(void);
 image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
@@ -2518,6 +2548,11 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 
 image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, filterType_t filterType,
 							  wrapType_t wrapType);
+
+image_t        *R_CreateCubeImage(const char *name,
+								  const byte * pic[6],
+								  int width, int height, int bits, filterType_t filterType, wrapType_t wrapType);
+
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
 
 void            R_SetColorMappings(void);
@@ -2666,8 +2701,9 @@ void            Tess_StageIteratorSky();
 
 void            Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color);
 void            Tess_AddQuadStampExt(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color, float s1, float t1, float s2, float t2);
-void            Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, float t1, float s2, float t2);
+void            Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, float t1, float s2, float t2, qboolean calcNormals);
 void            Tess_AddQuadStamp2(vec4_t quadVerts[4], const vec4_t color);
+void            Tess_AddQuadStamp2WithNormals(vec4_t quadVerts[4], const vec4_t color);
 
 /*
 Add a polyhedron that is composed of four triangular faces
@@ -3088,6 +3124,9 @@ void            SavePNG(const char *name, const byte * pic, int width, int heigh
 // video stuff
 const void     *RB_TakeVideoFrameCmd(const void *data);
 void            RE_TakeVideoFrame(int width, int height, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg);
+
+// cubemap reflections stuff
+//void            R_BuildCubeMaps(void);
 
 // font stuff
 void            R_InitFreeType();

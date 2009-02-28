@@ -137,9 +137,9 @@ void GL_TextureMode(const char *string)
 	}
 
 	// change all the existing mipmap texture objects
-	for(i = 0; i < tr.numImages; i++)
+	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = tr.images[i];
+		image = Com_GrowListElement(&tr.images, i);
 
 		if(image->filterType == FT_DEFAULT)
 		{
@@ -165,13 +165,16 @@ int R_SumOfUsedImages(void)
 {
 	int             total;
 	int             i;
+	image_t			*image;
 
 	total = 0;
-	for(i = 0; i < tr.numImages; i++)
+	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		if(tr.images[i]->frameUsed == tr.frameCount)
+		image = Com_GrowListElement(&tr.images, i);
+
+		if(image->frameUsed == tr.frameCount)
 		{
-			total += tr.images[i]->uploadWidth * tr.images[i]->uploadHeight;
+			total += image->uploadWidth * image->uploadHeight;
 		}
 	}
 
@@ -199,9 +202,9 @@ void R_ImageList_f(void)
 	texels = 0;
 	dataSize = 0;
 
-	for(i = 0; i < tr.numImages; i++)
+	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = tr.images[i];
+		image = Com_GrowListElement(&tr.images, i);
 
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
 				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
@@ -366,7 +369,7 @@ void R_ImageList_f(void)
 	ri.Printf(PRINT_ALL, " %i total texels (not including mipmaps)\n", texels);
 	ri.Printf(PRINT_ALL, " %d.%02d MB total image memory\n", dataSize / (1024 * 1024),
 			  (dataSize % (1024 * 1024)) * 100 / (1024 * 1024));
-	ri.Printf(PRINT_ALL, " %i total images\n\n", tr.numImages);
+	ri.Printf(PRINT_ALL, " %i total images\n\n", tr.images.currentElements);
 }
 
 
@@ -1037,7 +1040,7 @@ byte            mipBlendColors[16][4] = {
 R_UploadImage
 ===============
 */
-static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
+void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 {
 	const byte     *data = dataArray[0];
 	byte           *scaledBuffer = NULL;
@@ -1459,7 +1462,7 @@ static void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 R_AllocImage
 ================
 */
-image_t        *R_AllocImage(const char *name)
+image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable)
 {
 	image_t        *image;
 	long            hash;
@@ -1472,23 +1475,29 @@ image_t        *R_AllocImage(const char *name)
 		return NULL;
 	}
 
+	/*
 	if(tr.numImages == MAX_DRAWIMAGES)
 	{
 		ri.Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
 		return NULL;
 	}
+	*/
 
-	image = tr.images[tr.numImages] = ri.Hunk_Alloc(sizeof(image_t), h_low);
+	image = ri.Hunk_Alloc(sizeof(image_t), h_low);
 	Com_Memset(image, 0, sizeof(image_t));
 	qglGenTextures(1, &image->texnum);
-	tr.numImages++;
+
+	Com_AddToGrowList(&tr.images, image);
 
 	Q_strncpyz(image->name, name, sizeof(image->name));
 
-	Q_strncpyz(buffer, name, sizeof(buffer));
-	hash = generateHashValue(buffer);
-	image->next = hashTable[hash];
-	hashTable[hash] = image;
+	if(linkIntoHashTable)
+	{
+		Q_strncpyz(buffer, name, sizeof(buffer));
+		hash = generateHashValue(buffer);
+		image->next = hashTable[hash];
+		hashTable[hash] = image;
+	}
 
 	return image;
 }
@@ -1504,7 +1513,7 @@ image_t        *R_CreateImage(const char *name,
 {
 	image_t        *image;
 
-	image = R_AllocImage(name);
+	image = R_AllocImage(name, qtrue);
 	if(!image)
 		return NULL;
 
@@ -1538,7 +1547,7 @@ image_t        *R_CreateCubeImage(const char *name,
 {
 	image_t        *image;
 
-	image = R_AllocImage(name);
+	image = R_AllocImage(name, qtrue);
 	if(!image)
 		return NULL;
 
@@ -2963,6 +2972,32 @@ static void R_CreateShadowCubeFBOImage(void)
 }
 // *INDENT-ON*
 
+// *INDENT-OFF*
+static void R_CreateBlackCubeImage(void)
+{
+	int             i;
+	int             width, height;
+	byte           *data[6];
+
+	width = REF_CUBEMAP_SIZE;
+	height = REF_CUBEMAP_SIZE;
+
+	for(i = 0; i < 6; i++)
+	{
+		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+		Com_Memset(data[i], 0, width * height * 4);
+	}
+
+	tr.blackCubeImage = R_CreateCubeImage("_blackCube", (const byte **)data, width, height, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
+	tr.autoCubeImage = R_CreateCubeImage("_autoCube", (const byte **)data, width, height, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
+
+	for(i = 5; i >= 0; i--)
+	{
+		ri.Hunk_FreeTempMemory(data[i]);
+	}
+}
+// *INDENT-ON*
+
 /*
 ==================
 R_CreateBuiltinImages
@@ -3042,6 +3077,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateDeferredRenderFBOImages();
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();
+	R_CreateBlackCubeImage();
 }
 
 
@@ -3159,6 +3195,8 @@ R_InitImages
 void R_InitImages(void)
 {
 	Com_Memset(hashTable, 0, sizeof(hashTable));
+	Com_InitGrowList(&tr.images, 4096);
+
 	// build brightness translation tables
 	R_SetColorMappings();
 
@@ -3175,14 +3213,13 @@ R_ShutdownImages
 void R_ShutdownImages(void)
 {
 	int             i;
+	image_t			*image;
 
-	for(i = 0; i < tr.numImages; i++)
+	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		qglDeleteTextures(1, &tr.images[i]->texnum);
+		image = Com_GrowListElement(&tr.images, i);
+		qglDeleteTextures(1, &image->texnum);
 	}
-	Com_Memset(tr.images, 0, sizeof(tr.images));
-
-	tr.numImages = 0;
 
 	Com_Memset(glState.currenttextures, 0, sizeof(glState.currenttextures));
 	if(qglBindTexture)
@@ -3200,7 +3237,26 @@ void R_ShutdownImages(void)
 			qglBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
+
+	Com_DestroyGrowList(&tr.images);
+	Com_DestroyGrowList(&tr.cubeProbes);
+	FreeVertexHashTable(tr.cubeHashTable);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

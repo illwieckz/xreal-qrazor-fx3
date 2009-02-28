@@ -581,11 +581,13 @@ image_t        *R_LoadDDSImageData(void *pImageData, const char *name, int bits,
 	vec4_t          alphaZeroClampBorder = { 0, 0, 0, 0 };
 
 	//comes from R_CreateImage
+	/*
 	if(tr.numImages == MAX_DRAWIMAGES)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadDDSImage: MAX_DRAWIMAGES hit\n");
 		return NULL;
 	}
+	*/
 
 	buff = (byte *) pImageData;
 
@@ -883,7 +885,7 @@ image_t        *R_LoadDDSImageData(void *pImageData, const char *name, int bits,
 	//record in the hash so that we don't go trying to read
 	//the file again - been printing an error and returning
 	//NULL up to this point...
-	ret = R_AllocImage(name);
+	ret = R_AllocImage(name, qtrue);
 
 	ret->uploadWidth = ret->width = width;
 	ret->uploadHeight = ret->height = height;
@@ -1172,11 +1174,13 @@ image_t        *R_LoadDDSImage(const char *name, int bits, filterType_t filterTy
 	int             len;
 
 	// comes from R_CreateImage
+	/*
 	if(tr.numImages == MAX_DRAWIMAGES)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadDDSImage: MAX_DRAWIMAGES hit\n");
 		return NULL;
 	}
+	*/
 
 	len = ri.FS_ReadFile(name, (void **)&buff);
 	if(!buff)

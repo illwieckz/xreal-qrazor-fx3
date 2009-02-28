@@ -199,10 +199,10 @@ void Tess_AddQuadStamp(vec3_t origin, vec3_t left, vec3_t up, const vec4_t color
 Tess_AddQuadStampExt2
 ==============
 */
-void Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, float t1, float s2, float t2)
+void Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, float t1, float s2, float t2, qboolean calcNormals)
 {
 	int             i;
-	vec3_t          normal;
+	vec4_t          plane;
 	int             ndx;
 
 	GLimp_LogComment("--- Tess_AddQuadStampExt2 ---\n");
@@ -226,11 +226,18 @@ void Tess_AddQuadStampExt2(vec4_t quadVerts[4], const vec4_t color, float s1, fl
 	VectorCopy4(quadVerts[3], tess.xyz[ndx + 3]);
 
 	// constant normal all the way around
-	VectorNegate(backEnd.viewParms.or.axis[0], normal);
+	if(calcNormals)
+	{
+		PlaneFromPoints(plane, quadVerts[0], quadVerts[1], quadVerts[2], qtrue);
+	}
+	else
+	{
+		VectorNegate(backEnd.viewParms.or.axis[0], plane);
+	}
 
-	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] = normal[0];
-	tess.normals[ndx][1] = tess.normals[ndx + 1][1] = tess.normals[ndx + 2][1] = tess.normals[ndx + 3][1] = normal[1];
-	tess.normals[ndx][2] = tess.normals[ndx + 1][2] = tess.normals[ndx + 2][2] = tess.normals[ndx + 3][2] = normal[2];
+	tess.normals[ndx][0] = tess.normals[ndx + 1][0] = tess.normals[ndx + 2][0] = tess.normals[ndx + 3][0] = plane[0];
+	tess.normals[ndx][1] = tess.normals[ndx + 1][1] = tess.normals[ndx + 2][1] = tess.normals[ndx + 3][1] = plane[1];
+	tess.normals[ndx][2] = tess.normals[ndx + 1][2] = tess.normals[ndx + 2][2] = tess.normals[ndx + 3][2] = plane[2];
 
 	// standard square texture coordinates
 	tess.texCoords[ndx][0] = s1;
@@ -273,7 +280,12 @@ Tess_AddQuadStamp2
 */
 void Tess_AddQuadStamp2(vec4_t quadVerts[4], const vec4_t color)
 {
-	Tess_AddQuadStampExt2(quadVerts, color, 0, 0, 1, 1);
+	Tess_AddQuadStampExt2(quadVerts, color, 0, 0, 1, 1, qfalse);
+}
+
+void Tess_AddQuadStamp2WithNormals(vec4_t quadVerts[4], const vec4_t color)
+{
+	Tess_AddQuadStampExt2(quadVerts, color, 0, 0, 1, 1, qtrue);
 }
 
 

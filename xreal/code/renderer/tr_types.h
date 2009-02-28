@@ -47,8 +47,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // refdef flags
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
-#define RDF_NOSHADOWS		2	// force renderer to use faster only lighting path
+#define RDF_NOSHADOWS		2	// force renderer to use faster lighting only path
 #define RDF_HYPERSPACE		4	// teleportation effect
+#define RDF_NOCUBEMAP       8	// don't use cubemaps
+#define RDF_NOBLOOM			16
 
 typedef struct
 {

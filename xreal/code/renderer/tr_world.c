@@ -797,7 +797,7 @@ static void R_UpdateClusterSurfaces()
 
 	if(tr.visClusters[tr.visIndex] < 0 || tr.visClusters[tr.visIndex] >= tr.world->numClusters)
 	{
-		// Tr3B: this is not a bug, the super claster is the last one in the array
+		// Tr3B: this is not a bug, the super cluster is the last one in the array
 		cluster = &tr.world->clusters[tr.world->numClusters];
 	}
 	else

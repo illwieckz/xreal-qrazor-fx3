@@ -467,8 +467,26 @@ void RE_RenderScene(const refdef_t * fd)
 	// convert to GL's 0-at-the-bottom space
 	//
 	Com_Memset(&parms, 0, sizeof(parms));
+
+#if 1
+	if(tr.refdef.pixelTarget == NULL)
+	{
+		parms.viewportX = tr.refdef.x;
+		parms.viewportY = glConfig.vidHeight - (tr.refdef.y + tr.refdef.height);
+	}
+	else
+	{
+		//Driver bug, if we try and do pixel target work along the top edge of a window
+		//we can end up capturing part of the status bar. (see screenshot corruption..)
+		//Soooo.. use the middle.
+		parms.viewportX = glConfig.vidWidth / 2;
+		parms.viewportY = glConfig.vidHeight / 2;
+	}
+#else
 	parms.viewportX = tr.refdef.x;
 	parms.viewportY = glConfig.vidHeight - (tr.refdef.y + tr.refdef.height);
+#endif
+
 	parms.viewportWidth = tr.refdef.width;
 	parms.viewportHeight = tr.refdef.height;
 

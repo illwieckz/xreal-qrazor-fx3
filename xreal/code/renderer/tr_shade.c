@@ -3136,7 +3136,18 @@ static void Render_reflection_CB(int stage)
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
+#if 0
+	if(backEnd.currentEntity && (backEnd.currentEntity != &tr.worldEntity))
+	{
+		GL_BindNearestCubeMap(backEnd.currentEntity->e.origin);
+	}
+	else
+	{
+		GL_BindNearestCubeMap(viewOrigin);
+	}
+#else
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+#endif
 
 	// bind u_NormalMap
 	GL_SelectTexture(1);
