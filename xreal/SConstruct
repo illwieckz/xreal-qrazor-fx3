@@ -18,7 +18,7 @@ opts.Add(BoolOption('radiant', 'Set to 1 to compile the XreaLRadiant level edito
 opts.Add(BoolOption('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
 #opts.Add(BoolOption('vectorize', 'Set to 1 to compile engine with auto-vectorization support', 0))
 #opts.Add(BoolOption('xppm', 'Set to 1 to compile game with alternative XreaL-PPM support', 0))
-opts.Add(EnumOption('curl', 'Choose http-download redirection support for the engine', 'dlopen', allowed_values=('none', 'compile', 'dlopen')))
+opts.Add(EnumOption('curl', 'Choose http-download redirection support for the engine', 'compile', allowed_values=('none', 'compile', 'dlopen')))
 #opts.Add(BoolOption('openal', 'Set to 1 to compile engine with OpenAL support', 0))
 opts.Add(BoolOption('dedicated', 'Set to 1 to only compile the dedicated server', 0))
 opts.Add(BoolOption('master', 'Set to 1 to compile the master server', 0))
