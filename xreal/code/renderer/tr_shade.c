@@ -1533,22 +1533,30 @@ void GLSL_InitGPUShaders(void)
 
 	// liquid post process effect
 	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-					   GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_COLOR, qtrue);
+			GLCS_VERTEX | GLCS_TEXCOORD | GLCS_TANGENT | GLCS_BINORMAL | GLCS_NORMAL | GLCS_LIGHTCOLOR | GLCS_LIGHTDIRECTION, qtrue);
 
 	tr.liquidShader.u_CurrentMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
 	tr.liquidShader.u_PortalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
+	tr.liquidShader.u_DepthMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_DepthMap");
+	tr.liquidShader.u_NormalMap = qglGetUniformLocationARB(tr.liquidShader.program, "u_NormalMap");
+	tr.liquidShader.u_NormalTextureMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_NormalTextureMatrix");
 	tr.liquidShader.u_ViewOrigin = qglGetUniformLocationARB(tr.liquidShader.program, "u_ViewOrigin");
 	tr.liquidShader.u_RefractionIndex = qglGetUniformLocationARB(tr.liquidShader.program, "u_RefractionIndex");
 	tr.liquidShader.u_FresnelPower = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelPower");
 	tr.liquidShader.u_FresnelScale = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelScale");
 	tr.liquidShader.u_FresnelBias = qglGetUniformLocationARB(tr.liquidShader.program, "u_FresnelBias");
+	tr.liquidShader.u_FogDensity = qglGetUniformLocationARB(tr.liquidShader.program, "u_FogDensity");
+	tr.liquidShader.u_FogColor = qglGetUniformLocationARB(tr.liquidShader.program, "u_FogColor");
 	tr.liquidShader.u_ModelMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_ModelMatrix");
 	tr.liquidShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.liquidShader.program, "u_ModelViewProjectionMatrix");
+	tr.liquidShader.u_UnprojectMatrix = qglGetUniformLocationARB(tr.liquidShader.program, "u_UnprojectMatrix");
 
 	qglUseProgramObjectARB(tr.liquidShader.program);
 	qglUniform1iARB(tr.liquidShader.u_CurrentMap, 0);
 	qglUniform1iARB(tr.liquidShader.u_PortalMap, 1);
+	qglUniform1iARB(tr.liquidShader.u_DepthMap, 2);
+	qglUniform1iARB(tr.liquidShader.u_NormalMap, 3);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.liquidShader.program);
@@ -3453,8 +3461,6 @@ static void Render_heatHaze(int stage)
 			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
 			// copy deferredRenderFBO to portalRenderFBO
-
-			// FIXME this surpasses R_BindFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
@@ -3465,8 +3471,6 @@ static void Render_heatHaze(int stage)
 		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
 		{
 			// copy deferredRenderFBO to portalRenderFBO
-
-			// FIXME this surpasses R_BindFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
@@ -3477,8 +3481,6 @@ static void Render_heatHaze(int stage)
 		else
 		{
 			// copy depth of the main context to deferredRenderFBO
-
-			// FIXME this surpasses R_BindFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
@@ -3601,45 +3603,80 @@ static void Render_heatHaze(int stage)
 static void Render_liquid(int stage)
 {
 	vec3_t          viewOrigin;
+	float           fogDensity;
+	vec3_t          fogColor;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_liquid ---\n");
 
-	GL_State(pStage->stateBits);
+	// Tr3B: don't allow blend effects
+	GL_State(pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_DEPTHMASK_TRUE));
 
 	// enable shader, set arrays
 	GL_BindProgram(&tr.liquidShader);
-
-	if(pStage->vertexColor || pStage->inverseVertexColor)
-	{
-		GL_ClientState(tr.liquidShader.attribs);
-	}
-	else
-	{
-		GL_ClientState(tr.liquidShader.attribs & ~(GLCS_COLOR));
-		qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
-	}
+	GL_ClientState(tr.liquidShader.attribs);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 
+	fogDensity = RB_EvalExpression(&pStage->fogDensityExp, 0.001);
+	VectorCopy(tess.svars.color, fogColor);
+
 	qglUniform3fARB(tr.liquidShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform1fARB(tr.liquidShader.u_RefractionIndex, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
 	qglUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
-	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
-	qglUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+	qglUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 1.0));
+	qglUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 0.05));
+	qglUniform1fARB(tr.liquidShader.u_FogDensity, fogDensity);
+	qglUniform3fARB(tr.liquidShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
+	qglUniformMatrix4fvARB(tr.liquidShader.u_UnprojectMatrix, 1, GL_FALSE, backEnd.viewParms.unprojectionMatrix);
 	qglUniformMatrix4fvARB(tr.liquidShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.liquidShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
-	GL_Bind(tr.currentRenderImage);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.deferredRenderFBOImage);
+	}
+	else
+	{
+		GL_Bind(tr.currentRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
+	}
 
 	// bind u_PortalMap
 	GL_SelectTexture(1);
 	GL_Bind(tr.portalRenderImage);
+
+	// bind u_DepthMap
+	GL_SelectTexture(2);
+	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
+			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	{
+		GL_Bind(tr.depthRenderImage);
+	}
+	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	{
+		GL_Bind(tr.depthRenderImage);
+	}
+	else
+	{
+		// depth texture is not bound to a FBO
+		GL_Bind(tr.depthRenderImage);
+		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
+	}
+
+	// bind u_NormalMap
+	GL_SelectTexture(3);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+	qglUniformMatrix4fvARB(tr.liquidShader.u_NormalTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_COLORMAP]);
 
 	Tess_DrawElements();
 
@@ -3667,8 +3704,6 @@ static void Render_volumetricFog()
 			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
 		{
 			// copy deferredRenderFBO to portalRenderFBO
-
-			// FIXME this surpasses R_BindFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
@@ -3679,8 +3714,6 @@ static void Render_volumetricFog()
 		else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
 		{
 			// copy deferredRenderFBO to portalRenderFBO
-
-			// FIXME this surpasses R_BindFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
@@ -3691,8 +3724,6 @@ static void Render_volumetricFog()
 		else
 		{
 			// copy depth of the main context to deferredRenderFBO
-
-			// FIXME this surpasses R_BindFBO
 			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer);
 			qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,

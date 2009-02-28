@@ -6770,16 +6770,12 @@ static void RB_RenderView(void)
 			if(glConfig.framebufferBlitAvailable)
 			{
 				// copy color of the main context to deferredRenderFBO
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
-
-				R_BindFBO(tr.deferredRenderFBO);
 			}
 		}
 		qglClear(clearBits);
@@ -6806,11 +6802,13 @@ static void RB_RenderView(void)
 			float           plane[4];
 			double          plane2[4];
 
+			// clipping plane in world space
 			plane[0] = backEnd.viewParms.portalPlane.normal[0];
 			plane[1] = backEnd.viewParms.portalPlane.normal[1];
 			plane[2] = backEnd.viewParms.portalPlane.normal[2];
 			plane[3] = backEnd.viewParms.portalPlane.dist;
 
+			// rotate clipping plane into camera space
 			plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
 			plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
 			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
@@ -6868,7 +6866,6 @@ static void RB_RenderView(void)
 		{
 			if(glConfig.framebufferBlitAvailable)
 			{
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
@@ -6882,8 +6879,6 @@ static void RB_RenderView(void)
 									   0, 0, 64, 64,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_LINEAR);
-
-				R_BindFBO(tr.deferredRenderFBO);
 			}
 			else
 			{
@@ -6897,16 +6892,12 @@ static void RB_RenderView(void)
 			if(glConfig.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to downScaleFBO_quarter
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
 										GL_COLOR_BUFFER_BIT,
 										GL_LINEAR);
-
-				R_BindNullFBO();
 			}
 			else
 			{
@@ -6927,16 +6918,12 @@ static void RB_RenderView(void)
 			if(glConfig.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to portalRenderFBO
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
 									   0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
-
-				R_BindNullFBO();
 			}
 			else
 			{
@@ -7001,16 +6988,12 @@ static void RB_RenderView(void)
 			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
 			{
 				// copy color of the main context to deferredRenderFBO
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
-
-				R_BindFBO(tr.deferredRenderFBO);
 			}
 		}
 		qglClear(clearBits);
@@ -7036,11 +7019,13 @@ static void RB_RenderView(void)
 			float           plane[4];
 			double          plane2[4];
 
+			// clipping plane in world space
 			plane[0] = backEnd.viewParms.portalPlane.normal[0];
 			plane[1] = backEnd.viewParms.portalPlane.normal[1];
 			plane[2] = backEnd.viewParms.portalPlane.normal[2];
 			plane[3] = backEnd.viewParms.portalPlane.dist;
 
+			// rotate clipping plane into camera space
 			plane2[0] = DotProduct(backEnd.viewParms.or.axis[0], plane);
 			plane2[1] = DotProduct(backEnd.viewParms.or.axis[1], plane);
 			plane2[2] = DotProduct(backEnd.viewParms.or.axis[2], plane);
@@ -7115,7 +7100,6 @@ static void RB_RenderView(void)
 		{
 			if(glConfig.framebufferBlitAvailable)
 			{
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
@@ -7129,8 +7113,6 @@ static void RB_RenderView(void)
 									   0, 0, 64, 64,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_LINEAR);
-
-				R_BindFBO(tr.deferredRenderFBO);
 			}
 			else
 			{
@@ -7148,16 +7130,12 @@ static void RB_RenderView(void)
 			if(glConfig.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to downScaleFBO_quarter
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
 										GL_COLOR_BUFFER_BIT,
 										GL_NEAREST);
-
-				R_BindNullFBO();
 			}
 			else
 			{
@@ -7198,30 +7176,22 @@ static void RB_RenderView(void)
 			if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to portalRenderFBO
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
 				                       0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
 				                       GL_COLOR_BUFFER_BIT,
 				                       GL_NEAREST);
-
-				R_BindNullFBO();
 			}
 			else if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
 			{
 				// copy main context to portalRenderFBO
-
-				// FIXME this surpasses R_BindFBO
 				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
 				qglBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
 									   0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
-
-				R_BindNullFBO();
 			}
 			else
 			{

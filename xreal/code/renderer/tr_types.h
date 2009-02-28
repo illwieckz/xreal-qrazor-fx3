@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RDF_HYPERSPACE		4	// teleportation effect
 #define RDF_NOCUBEMAP       8	// don't use cubemaps
 #define RDF_NOBLOOM			16
+#define RDF_UNDERWATER		32	// enable automatic underwater caustics and fog
 
 typedef struct
 {

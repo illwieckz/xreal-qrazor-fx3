@@ -122,7 +122,7 @@ void R_CalcTangentsForTriangle(vec3_t tangent, vec3_t binormal,
 	}
 
 	//So your tangent space will be defined by this :
-	//Normal = Normal of the triangle or Tangent X Binormal (careful with the cross product, 
+	//Normal = Normal of the triangle or Tangent X Binormal (careful with the cross product,
 	// you have to make sure the normal points in the right direction)
 	//Tangent = ( dp(Fx(s,t)) / ds,  dp(Fy(s,t)) / ds, dp(Fz(s,t)) / ds )   or     ( -Bx/Ax, -By/Ay, - Bz/Az )
 	//Binormal =  ( dp(Fx(s,t)) / dt,  dp(Fy(s,t)) / dt, dp(Fz(s,t)) / dt )  or     ( -Cx/Ax, -Cy/Ay, -Cz/Az )
@@ -192,7 +192,7 @@ void R_CalcTangentSpace(vec3_t tangent, vec3_t binormal, vec3_t normal,
 	VectorNormalizeFast(normal);
 
 	// Gram-Schmidt orthogonalization process for B
-	// compute the cross product B=NxT to obtain 
+	// compute the cross product B=NxT to obtain
 	// an orthogonal basis
 	CrossProduct(normal, tangent, binormal);
 
@@ -996,7 +996,7 @@ void R_SetupProjection(void)
 		proj[2] = 0;					proj[6] = 0;					proj[10] = -(zFar + zNear) / depth;	proj[14] = -2 * zFar * zNear / depth;
 		proj[3] = 0;					proj[7] = 0;					proj[11] = -1;						proj[15] = 0;
 	}
-	
+
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 //	MatrixMultiply(proj, quakeToOpenGLMatrix, tr.viewParms.projectionMatrix);
@@ -1034,7 +1034,7 @@ void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float
 	// http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 	int				i;
 	matrix_t        m;
-	
+
 	MatrixMultiply(projectionMatrix, modelViewMatrix, m);
 
 	// left
@@ -1042,31 +1042,31 @@ void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float
 	frustum[FRUSTUM_LEFT].normal[1]		=  m[ 7] + m[ 4];
 	frustum[FRUSTUM_LEFT].normal[2]		=  m[11] + m[ 8];
 	frustum[FRUSTUM_LEFT].dist			=-(m[15] + m[12]);
-	
+
 	// right
 	frustum[FRUSTUM_RIGHT].normal[0]	=  m[ 3] - m[ 0];
 	frustum[FRUSTUM_RIGHT].normal[1]	=  m[ 7] - m[ 4];
 	frustum[FRUSTUM_RIGHT].normal[2]	=  m[11] - m[ 8];
 	frustum[FRUSTUM_RIGHT].dist			=-(m[15] - m[12]);
-	
+
 	// bottom
 	frustum[FRUSTUM_BOTTOM].normal[0]	=  m[ 3] + m[ 1];
 	frustum[FRUSTUM_BOTTOM].normal[1]	=  m[ 7] + m[ 5];
 	frustum[FRUSTUM_BOTTOM].normal[2]	=  m[11] + m[ 9];
 	frustum[FRUSTUM_BOTTOM].dist		=-(m[15] + m[13]);
-	
+
 	// top
 	frustum[FRUSTUM_TOP].normal[0]		=  m[ 3] - m[ 1];
 	frustum[FRUSTUM_TOP].normal[1]		=  m[ 7] - m[ 5];
 	frustum[FRUSTUM_TOP].normal[2]		=  m[11] - m[ 9];
 	frustum[FRUSTUM_TOP].dist			=-(m[15] - m[13]);
-	
+
 	// near
 	frustum[FRUSTUM_NEAR].normal[0]		=  m[ 3] + m[ 2];
 	frustum[FRUSTUM_NEAR].normal[1]		=  m[ 7] + m[ 6];
 	frustum[FRUSTUM_NEAR].normal[2]		=  m[11] + m[10];
 	frustum[FRUSTUM_NEAR].dist			=-(m[15] + m[14]);
-	
+
 	// far
 	frustum[FRUSTUM_FAR].normal[0]		=  m[ 3] - m[ 2];
 	frustum[FRUSTUM_FAR].normal[1]		=  m[ 7] - m[ 6];
@@ -1076,9 +1076,9 @@ void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float
 	for(i = 0; i < 6; i++)
 	{
 		vec_t           length, ilength;
-		
+
 		frustum[i].type = PLANE_NON_AXIAL;
-		
+
 		// normalize
 		length = VectorLength(frustum[i].normal);
 		if(length)
@@ -1089,7 +1089,7 @@ void R_SetupFrustum(frustum_t frustum, const float *modelViewMatrix, const float
 			frustum[i].normal[2] *= ilength;
 			frustum[i].dist *= ilength;
 		}
-		
+
 		SetPlaneSignbits(&frustum[i]);
 	}
 }
@@ -1757,10 +1757,10 @@ void R_AddEntitySurfaces(void)
 
 		//
 		// the weapon model must be handled special --
-		// we don't want the hacked weapon position showing in 
+		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if((ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal)
+		if((ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.isPortal || tr.viewParms.isMirror))
 		{
 			continue;
 		}
@@ -1876,10 +1876,10 @@ void R_AddEntityInteractions(trRefLight_t * light)
 
 		//
 		// the weapon model must be handled special --
-		// we don't want the hacked weapon position showing in 
+		// we don't want the hacked weapon position showing in
 		// mirrors, because the true body position will already be drawn
 		//
-		if((ent->e.renderfx & RF_FIRST_PERSON) && tr.viewParms.isPortal)
+		if((ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.isPortal || tr.viewParms.isMirror))
 		{
 			continue;
 		}

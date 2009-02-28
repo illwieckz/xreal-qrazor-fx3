@@ -1420,7 +1420,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		imageBits |= IF_NOPICMIP;
 	}
 
-	if(stage->type == ST_NORMALMAP || stage->type == ST_HEATHAZEMAP)
+	if(stage->type == ST_NORMALMAP || stage->type == ST_HEATHAZEMAP || stage->type == ST_LIQUIDMAP)
 	{
 		imageBits |= IF_NORMALMAP;
 	}
@@ -2340,6 +2340,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "fresnelBias"))
 		{
 			ParseExpression(text, &stage->fresnelBiasExp);
+		}
+		// fogDensity <arithmetic expression>
+		else if(!Q_stricmp(token, "fogDensity"))
+		{
+			ParseExpression(text, &stage->fogDensityExp);
 		}
 		// depthScale <arithmetic expression>
 		else if(!Q_stricmp(token, "depthScale"))

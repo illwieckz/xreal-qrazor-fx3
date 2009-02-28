@@ -1,25 +1,5 @@
 
-textures/tr3b/water/water
-{
-	qer_editorimage textures/tr3b/water/watertest_local.tga
-
-	translucent
-	noshadows
-	twoSided
-	water
-	sort postProcess
-	
-	{
-		if 1
-		stage	heathazemap
-		map		textures/tr3b/water/watertest_local.tga
-		scroll	time * 0.1 , time * 0.1
-		scale	0.5, 0.5
-		deformMagnitude	0.5
-    }
-}
-
-textures/tr3b/water/mirror
+textures/tr3b/water/watertest1
 {
 	qer_editorimage textures/common/qer_mirror.tga
 	
@@ -28,26 +8,22 @@ textures/tr3b/water/mirror
 	water
 	mirror
 	sort postProcess
-	tessSize 16
+	//tessSize 16
 	
 	{
 		stage liquidMap
+		map		textures/tr3b/water/watertest_local.tga
+		//map displacemap(textures/tr3b/water/watertest1_local.tga, textures/tr3b/water/watertest1_local.tga)
+		//map displacemap( textures/tr3b/parallax/brick_local, invertColor(textures/tr3b/parallax/brick_disp) )
 		scroll	time * 0.1 , time * 0.1
-		scale	0.5, 0.5
+		scale	2.0, 2.0
 		refractionIndex 1.3 // water
+		
 		fresnelPower 2.0
-		fresnelScale 0.85	// + sinTable[time * 0.4] * 0.25
+		fresnelScale 1.85	// + sinTable[time * 0.4] * 0.25
 		fresnelBias  0.05
 		
-		/*
-		// optional to tweak the water color but not necessary
-		blend blend
-		
-		// give it a blue tint
-		red		0.7
-		green	0.7
-		blue	1.0
-		alpha	1.0
-		*/
+		fogDensity	0.003	// underwater fog 
+		color		0.0, 0.0, 0.7, 1.0	// underwater fog color
 	}
 }

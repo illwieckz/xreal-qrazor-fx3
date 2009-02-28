@@ -701,7 +701,7 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 	int             i;
 	srfTriangle_t  *tri;
 	srfVert_t      *dv;
-	float          *xyz, *tangent, *binormal, *normal, *texCoords, *lightCoords, *color;
+	float          *xyz, *tangent, *binormal, *normal, *texCoords, *lightCoords, *color, *lightColor, *lightDirection;
 	vec3_t          lightOrigin;
 	float           d;
 
@@ -856,16 +856,18 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 		texCoords = tess.texCoords[tess.numVertexes];
 		lightCoords = tess.lightCoords[tess.numVertexes];
 		color = tess.colors[tess.numVertexes];
+		lightColor = tess.lightColors[tess.numVertexes];
+		lightDirection = tess.lightDirections[tess.numVertexes];
 
 		for(i = 0; i < srf->numVerts;
-			i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, lightCoords += 4, color += 4)
+			i++, dv++, xyz += 4, tangent += 4, binormal += 4, normal += 4, texCoords += 4, lightCoords += 4, color += 4, lightColor += 4, lightDirection += 4)
 		{
 			xyz[0] = dv->xyz[0];
 			xyz[1] = dv->xyz[1];
 			xyz[2] = dv->xyz[2];
 			xyz[3] = 1;
 
-			if(!tess.skipTangentSpaces)
+			//if(!tess.skipTangentSpaces)
 			{
 				tangent[0] = dv->tangent[0];
 				tangent[1] = dv->tangent[1];
@@ -890,10 +892,20 @@ static void Tess_SurfaceFace(srfSurfaceFace_t * srf)
 			lightCoords[2] = 0;
 			lightCoords[3] = 1;
 
-			color[0] = dv->lightColor[0];
-			color[1] = dv->lightColor[1];
-			color[2] = dv->lightColor[2];
-			color[3] = dv->lightColor[3];
+			color[0] = dv->paintColor[0];
+			color[1] = dv->paintColor[1];
+			color[2] = dv->paintColor[2];
+			color[3] = dv->paintColor[3];
+
+			lightColor[0] = dv->lightColor[0];
+			lightColor[1] = dv->lightColor[1];
+			lightColor[2] = dv->lightColor[2];
+			lightColor[3] = dv->lightColor[3];
+
+			lightDirection[0] = dv->lightDirection[0];
+			lightDirection[1] = dv->lightDirection[1];
+			lightDirection[2] = dv->lightDirection[2];
+			lightDirection[3] = 1;
 		}
 
 		tess.numVertexes += srf->numVerts;

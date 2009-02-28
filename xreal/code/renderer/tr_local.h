@@ -697,6 +697,8 @@ typedef struct
 	expression_t    etaExp;
 	expression_t    etaDeltaExp;
 
+	expression_t    fogDensityExp;
+
 	expression_t    depthScaleExp;
 
 	expression_t    deformMagnitudeExp;
