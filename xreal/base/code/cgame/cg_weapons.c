@@ -2934,8 +2934,7 @@ void CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin,
 			mark = cgs.media.energyMarkShader;
 			radius = 16;
 
-			// some debris particles
-			CG_AddBulletParticles(origin, dir, 20, 1800, 6 + rand() % 6, 1.5f);
+			CG_ParticleRailRick(origin, dir, cgs.clientinfo[clientNum].color2);
 			break;
 		case WP_BFG:
 			mod = cgs.media.dishFlashModel;
