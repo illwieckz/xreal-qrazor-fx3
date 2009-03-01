@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
-uniform sampler2D	u_PositionMap;
+uniform sampler2D	u_DepthMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
 uniform sampler2D	u_ShadowMap;
@@ -50,19 +50,19 @@ void	main()
 		
 #if 0 //defined(GL_EXTX_framebuffer_mixed_formats)
 	// compute vertex position in world space
-	vec4 P = texture2D(u_PositionMap, st).xyzw;
+	vec4 P = texture2D(u_DepthMap, st).xyzw;
 #else
 	// reconstruct vertex position in world space
 #if 0
 	// gl_FragCoord.z with 32 bit precision
 	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-	float depth = dot(texture2D(u_PositionMap, st), bitShifts);
+	float depth = dot(texture2D(u_DepthMap, st), bitShifts);
 #elif 0
 	// gl_FragCoord.z with 24 bit precision
 	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-	float depth = dot(texture2D(u_PositionMap, st).rgb, bitShifts);
+	float depth = dot(texture2D(u_DepthMap, st).rgb, bitShifts);
 #else
-	float depth = texture2D(u_PositionMap, st).r;
+	float depth = texture2D(u_DepthMap, st).r;
 #endif
 	
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);

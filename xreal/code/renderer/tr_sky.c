@@ -729,8 +729,24 @@ void RB_DrawSun(void)
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	GL_LoadModelViewMatrix(modelViewMatrix);
 
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
+
+	qglUniform1iARB(tr.genericSingleShader.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.genericSingleShader.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+	}
+
 
 	dist = backEnd.viewParms.skyFar / 1.75;	// div sqrt(3)
 	size = dist * 0.4;

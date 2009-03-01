@@ -809,8 +809,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_NormalMap");
 		tr.deferredLightingShader_DBS_omni.u_SpecularMap =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_SpecularMap");
-		tr.deferredLightingShader_DBS_omni.u_PositionMap =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_PositionMap");
+		tr.deferredLightingShader_DBS_omni.u_DepthMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_DepthMap");
 		tr.deferredLightingShader_DBS_omni.u_AttenuationMapXY =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_AttenuationMapXY");
 		tr.deferredLightingShader_DBS_omni.u_AttenuationMapZ =
@@ -833,6 +833,10 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_LightFrustum");
 		tr.deferredLightingShader_DBS_omni.u_ShadowCompare =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ShadowCompare");
+		tr.deferredLightingShader_DBS_omni.u_PortalClipping =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_PortalClipping");
+		tr.deferredLightingShader_DBS_omni.u_PortalPlane =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_PortalPlane");
 		tr.deferredLightingShader_DBS_omni.u_ModelViewProjectionMatrix =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_omni.program, "u_ModelViewProjectionMatrix");
 		tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix =
@@ -842,7 +846,7 @@ void GLSL_InitGPUShaders(void)
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DiffuseMap, 0);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_NormalMap, 1);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_SpecularMap, 2);
-		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PositionMap, 3);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_DepthMap, 3);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_AttenuationMapXY, 4);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_AttenuationMapZ, 5);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_ShadowMap, 6);
@@ -861,8 +865,8 @@ void GLSL_InitGPUShaders(void)
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_NormalMap");
 		tr.deferredLightingShader_DBS_proj.u_SpecularMap =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_SpecularMap");
-		tr.deferredLightingShader_DBS_proj.u_PositionMap =
-			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_PositionMap");
+		tr.deferredLightingShader_DBS_proj.u_DepthMap =
+			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_DepthMap");
 		tr.deferredLightingShader_DBS_proj.u_AttenuationMapXY =
 			qglGetUniformLocationARB(tr.deferredLightingShader_DBS_proj.program, "u_AttenuationMapXY");
 		tr.deferredLightingShader_DBS_proj.u_AttenuationMapZ =
@@ -896,7 +900,7 @@ void GLSL_InitGPUShaders(void)
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DiffuseMap, 0);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_NormalMap, 1);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_SpecularMap, 2);
-		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_PositionMap, 3);
+		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_DepthMap, 3);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_AttenuationMapXY, 4);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_AttenuationMapZ, 5);
 		qglUniform1iARB(tr.deferredLightingShader_DBS_proj.u_ShadowMap, 6);
@@ -1228,8 +1232,8 @@ void GLSL_InitGPUShaders(void)
 
 	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", GLCS_VERTEX, qtrue);
 
-	tr.deferredShadowingShader_proj.u_PositionMap =
-		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_PositionMap");
+	tr.deferredShadowingShader_proj.u_DepthMap =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_DepthMap");
 	tr.deferredShadowingShader_proj.u_AttenuationMapXY =
 		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_AttenuationMapXY");
 	tr.deferredShadowingShader_proj.u_AttenuationMapZ =
@@ -1256,7 +1260,7 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_UnprojectMatrix");
 
 	qglUseProgramObjectARB(tr.deferredShadowingShader_proj.program);
-	qglUniform1iARB(tr.deferredShadowingShader_proj.u_PositionMap, 0);
+	qglUniform1iARB(tr.deferredShadowingShader_proj.u_DepthMap, 0);
 	qglUniform1iARB(tr.deferredShadowingShader_proj.u_AttenuationMapXY, 1);
 	qglUniform1iARB(tr.deferredShadowingShader_proj.u_AttenuationMapZ, 2);
 	qglUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowMap, 3);
@@ -1616,8 +1620,8 @@ void GLSL_InitGPUShaders(void)
 
 	tr.screenSpaceAmbientOcclusionShader.u_CurrentMap =
 		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
-	tr.screenSpaceAmbientOcclusionShader.u_PositionMap =
-		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_PositionMap");
+	tr.screenSpaceAmbientOcclusionShader.u_DepthMap =
+		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_DepthMap");
 	tr.screenSpaceAmbientOcclusionShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ModelViewProjectionMatrix");
 	//tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin = qglGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ViewOrigin");
@@ -1628,7 +1632,7 @@ void GLSL_InitGPUShaders(void)
 
 	qglUseProgramObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
 	qglUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_CurrentMap, 0);
-	qglUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_PositionMap, 1);
+	qglUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_DepthMap, 1);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.screenSpaceAmbientOcclusionShader.program);
@@ -1639,13 +1643,13 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.depthOfFieldShader, "depthOfField", GLCS_VERTEX, qtrue);
 
 	tr.depthOfFieldShader.u_CurrentMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_CurrentMap");
-	tr.depthOfFieldShader.u_PositionMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_PositionMap");
+	tr.depthOfFieldShader.u_DepthMap = qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_DepthMap");
 	tr.depthOfFieldShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.depthOfFieldShader.program, "u_ModelViewProjectionMatrix");
 
 	qglUseProgramObjectARB(tr.depthOfFieldShader.program);
 	qglUniform1iARB(tr.depthOfFieldShader.u_CurrentMap, 0);
-	qglUniform1iARB(tr.depthOfFieldShader.u_PositionMap, 1);
+	qglUniform1iARB(tr.depthOfFieldShader.u_DepthMap, 1);
 	qglUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.depthOfFieldShader.program);

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_CurrentMap;
-uniform sampler2D	u_PositionMap;
+uniform sampler2D	u_DepthMap;
 //uniform vec3		u_ViewOrigin;
 //uniform vec3		u_SSAOJitter[32];
 //uniform float		u_SSAORadius;
@@ -32,7 +32,7 @@ float  ReadDepth(vec2 st)
 {
 	vec2 camerarange = vec2(4.0, 4096.0);
 	
-	return (2.0 * camerarange.x) / (camerarange.y + camerarange.x - texture2D(u_PositionMap, st).x * (camerarange.y - camerarange.x));	
+	return (2.0 * camerarange.x) / (camerarange.y + camerarange.x - texture2D(u_DepthMap, st).x * (camerarange.y - camerarange.x));	
 }
 
 

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 uniform sampler2D	u_CurrentMap;
-uniform sampler2D	u_PositionMap;
+uniform sampler2D	u_DepthMap;
 
 void	main()
 {
@@ -37,12 +37,12 @@ void	main()
 	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
 
 	// autofocus
-	focus = texture2D(u_PositionMap, vec2(0.5, 0.5) * r_NPOTScale).r;
+	focus = texture2D(u_DepthMap, vec2(0.5, 0.5) * r_NPOTScale).r;
 	
 	const float tap = 5.0;
 	const float taps = tap * 2.0 + 1.0;
 	
-	float depth = texture2D(u_PositionMap, st).r;
+	float depth = texture2D(u_DepthMap, st).r;
 	float delta = (abs(depth - focus) * abs(depth - focus)) / float(tap);
 	delta *= radius;
 	//delta = clamp(radius * delta, -max, max);

@@ -2760,6 +2760,20 @@ void RB_RenderInteractionsDeferred()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
+						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PortalClipping, backEnd.viewParms.isPortal);
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							qglUniform4fARB(tr.deferredLightingShader_DBS_omni.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+						}
+
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.deferredDiffuseFBOImage);
@@ -2772,7 +2786,7 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(2);
 						GL_Bind(tr.deferredSpecularFBOImage);
 
-						// bind u_PositionMap
+						// bind u_DepthMap
 						GL_SelectTexture(3);
 						GL_Bind(tr.depthRenderImage);
 
@@ -2834,7 +2848,7 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(2);
 						GL_Bind(tr.deferredSpecularFBOImage);
 
-						// bind u_PositionMap
+						// bind u_DepthMap
 						GL_SelectTexture(3);
 						GL_Bind(tr.depthRenderImage);
 
@@ -3328,6 +3342,20 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						qglUniformMatrix4fvARB(tr.deferredLightingShader_DBS_omni.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
+						qglUniform1iARB(tr.deferredLightingShader_DBS_omni.u_PortalClipping, backEnd.viewParms.isPortal);
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							qglUniform4fARB(tr.deferredLightingShader_DBS_omni.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+						}
+
 						// bind u_DiffuseMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.deferredDiffuseFBOImage);
@@ -3340,7 +3368,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_SelectTexture(2);
 						GL_Bind(tr.deferredSpecularFBOImage);
 
-						// bind u_PositionMap
+						// bind u_DepthMap
 						GL_SelectTexture(3);
 						GL_Bind(tr.depthRenderImage);
 
@@ -3400,7 +3428,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
-							// bind u_PositionMap
+							// bind u_DepthMap
 							GL_SelectTexture(0);
 							GL_Bind(tr.depthRenderImage);
 
@@ -3473,7 +3501,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GL_SelectTexture(2);
 							GL_Bind(tr.deferredSpecularFBOImage);
 
-							// bind u_PositionMap
+							// bind u_DepthMap
 							GL_SelectTexture(3);
 							GL_Bind(tr.depthRenderImage);
 
@@ -4264,7 +4292,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
 
-						// bind u_PositionMap
+						// bind u_DepthMap
 						GL_SelectTexture(0);
 						GL_Bind(tr.depthRenderImage);
 
@@ -4662,7 +4690,7 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	GL_Bind(tr.currentRenderImage);
 	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 
-	// bind u_PositionMap
+	// bind u_DepthMap
 	GL_SelectTexture(1);
 	if(deferred)
 	{
@@ -4735,7 +4763,7 @@ void RB_RenderDepthOfField()
 		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
 	}
 
-	// bind u_PositionMap
+	// bind u_DepthMap
 	GL_SelectTexture(1);
 	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
 			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)

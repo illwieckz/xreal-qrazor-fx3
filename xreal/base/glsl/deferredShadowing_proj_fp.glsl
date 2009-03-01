@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-uniform sampler2D	u_PositionMap;
+uniform sampler2D	u_DepthMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
 uniform sampler2D	u_ShadowMap;
@@ -45,7 +45,7 @@ void	main()
 	st *= r_NPOTScale;
 		
 	// reconstruct vertex position in world space
-	float depth = texture2D(u_PositionMap, st).r;
+	float depth = texture2D(u_DepthMap, st).r;
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
 	

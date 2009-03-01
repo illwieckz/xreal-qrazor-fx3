@@ -875,7 +875,6 @@ typedef struct shaderProgram_s
 	GLint           u_SpecularMap;
 	GLint           u_LightMap;
 	GLint           u_DeluxeMap;
-	GLint           u_PositionMap;
 	GLint           u_DepthMap;
 	GLint           u_DepthMapBack;
 	GLint           u_DepthMapFront;
