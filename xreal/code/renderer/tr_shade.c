@@ -1201,47 +1201,6 @@ void GLSL_InitGPUShaders(void)
 #endif
 
 	// UT3 style player shadowing
-	GLSL_InitGPUShader(&tr.forwardShadowingShader_proj, "forwardShadowing_proj", GLCS_VERTEX | GLCS_COLOR, qtrue);
-
-	tr.forwardShadowingShader_proj.u_AttenuationMapXY =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_AttenuationMapXY");
-	tr.forwardShadowingShader_proj.u_AttenuationMapZ =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_AttenuationMapZ");
-	tr.forwardShadowingShader_proj.u_ShadowMap = qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowMap");
-	tr.forwardShadowingShader_proj.u_LightOrigin =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightOrigin");
-	tr.forwardShadowingShader_proj.u_LightRadius =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightRadius");
-	tr.forwardShadowingShader_proj.u_LightAttenuationMatrix =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_LightAttenuationMatrix");
-	tr.forwardShadowingShader_proj.u_ShadowMatrix =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowMatrix");
-	tr.forwardShadowingShader_proj.u_ShadowTexelSize =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowTexelSize");
-	tr.forwardShadowingShader_proj.u_ShadowBlur =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ShadowBlur");
-	tr.forwardShadowingShader_proj.u_ModelMatrix =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ModelMatrix");
-	tr.forwardShadowingShader_proj.u_ModelViewProjectionMatrix =
-		qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_ModelViewProjectionMatrix");
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		tr.forwardShadowingShader_proj.u_VertexSkinning =
-			qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_VertexSkinning");
-		tr.forwardShadowingShader_proj.u_BoneMatrix =
-			qglGetUniformLocationARB(tr.forwardShadowingShader_proj.program, "u_BoneMatrix");
-	}
-
-	qglUseProgramObjectARB(tr.forwardShadowingShader_proj.program);
-	qglUniform1iARB(tr.forwardShadowingShader_proj.u_AttenuationMapXY, 0);
-	qglUniform1iARB(tr.forwardShadowingShader_proj.u_AttenuationMapZ, 1);
-	qglUniform1iARB(tr.forwardShadowingShader_proj.u_ShadowMap, 2);
-	qglUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.forwardShadowingShader_proj.program);
-	GLSL_ShowProgramUniforms(tr.forwardShadowingShader_proj.program);
-	GL_CheckErrors();
-
 	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", GLCS_VERTEX, qtrue);
 
 	tr.deferredShadowingShader_proj.u_DepthMap =
@@ -1796,12 +1755,6 @@ void GLSL_ShutdownGPUShaders(void)
 		tr.lightVolumeShader_omni.program = 0;
 	}
 #endif
-
-	if(tr.forwardShadowingShader_proj.program)
-	{
-		qglDeleteObjectARB(tr.forwardShadowingShader_proj.program);
-		tr.forwardShadowingShader_proj.program = 0;
-	}
 
 	if(tr.deferredShadowingShader_proj.program)
 	{
@@ -3098,65 +3051,6 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 		GL_SelectTexture(5);
 		GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 	}
-
-	Tess_DrawElements();
-
-	GL_CheckErrors();
-}
-
-static void Render_forwardShadowing_proj(shaderStage_t * attenuationXYStage,
-										 shaderStage_t * attenuationZStage, trRefLight_t * light)
-{
-	vec3_t          lightOrigin;
-	float           shadowTexelSize;
-	qboolean        shadowCompare;
-
-	GLimp_LogComment("--- Render_fowardShadowing_proj ---\n");
-
-	shadowCompare = r_shadows->integer >= 4 && !light->l.noShadows && light->shadowLOD >= 0;
-
-	if(!shadowCompare)
-		return;
-	else
-		shadowTexelSize = 1.0f / shadowMapResolutions[light->shadowLOD];
-
-	// enable shader, set arrays
-	GL_BindProgram(&tr.forwardShadowingShader_proj);
-	GL_ClientState(tr.forwardShadowingShader_proj.attribs);
-
-	qglVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
-
-	// set uniforms
-	VectorCopy(light->origin, lightOrigin);
-
-	qglUniform3fARB(tr.forwardShadowingShader_proj.u_LightOrigin, lightOrigin[0], lightOrigin[1], lightOrigin[2]);
-	qglUniform1fARB(tr.forwardShadowingShader_proj.u_LightRadius, light->sphereRadius);
-	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_LightAttenuationMatrix, 1, GL_FALSE, light->attenuationMatrix2);
-	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ShadowMatrix, 1, GL_FALSE, light->attenuationMatrix);
-	qglUniform1fARB(tr.forwardShadowingShader_proj.u_ShadowTexelSize, shadowTexelSize);
-	qglUniform1fARB(tr.forwardShadowingShader_proj.u_ShadowBlur, r_shadowBlur->value);
-	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
-	qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_ModelViewProjectionMatrix, 1, GL_FALSE,
-						   glState.modelViewProjectionMatrix[glState.stackIndex]);
-	if(glConfig.vboVertexSkinningAvailable)
-	{
-		qglUniform1iARB(tr.forwardShadowingShader_proj.u_VertexSkinning, tess.vboVertexSkinning);
-
-		if(tess.vboVertexSkinning)
-			qglUniformMatrix4fvARB(tr.forwardShadowingShader_proj.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
-	}
-
-	// bind u_AttenuationMapXY
-	GL_SelectTexture(0);
-	BindAnimatedImage(&attenuationXYStage->bundle[TB_COLORMAP]);
-
-	// bind u_AttenuationMapZ
-	GL_SelectTexture(1);
-	BindAnimatedImage(&attenuationZStage->bundle[TB_COLORMAP]);
-
-	// bind u_ShadowMap
-	GL_SelectTexture(2);
-	GL_Bind(tr.shadowMapFBOImage[light->shadowLOD]);
 
 	Tess_DrawElements();
 
@@ -5122,12 +5016,7 @@ void Tess_StageIteratorLighting()
 					}
 					else if(light->l.rlType == RL_PROJ)
 					{
-						if(light->l.inverseShadows)
-						{
-							Render_forwardShadowing_proj(attenuationXYStage, attenuationZStage, light);
-							j = MAX_SHADER_STAGES;
-						}
-						else
+						if(!light->l.inverseShadows)
 						{
 							Render_forwardLighting_DBS_proj(diffuseStage, attenuationXYStage, attenuationZStage, light);
 						}

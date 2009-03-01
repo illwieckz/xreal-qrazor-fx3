@@ -2019,7 +2019,6 @@ typedef struct
 #endif
 
 	// UT3 style player shadowing
-	shaderProgram_t forwardShadowingShader_proj;
 	shaderProgram_t deferredShadowingShader_proj;
 
 	// environment mapping effects
