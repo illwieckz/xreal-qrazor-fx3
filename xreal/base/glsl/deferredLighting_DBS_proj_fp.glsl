@@ -38,6 +38,8 @@ uniform vec4		u_LightFrustum[6];
 #endif
 uniform mat4		u_ShadowMatrix;
 uniform int			u_ShadowCompare;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 uniform mat4		u_UnprojectMatrix;
 
 void	main()
@@ -48,26 +50,20 @@ void	main()
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 		
-#if 0 //defined(GL_EXTX_framebuffer_mixed_formats)
-	// compute vertex position in world space
-	vec4 P = texture2D(u_DepthMap, st).xyzw;
-#else
 	// reconstruct vertex position in world space
-#if 0
-	// gl_FragCoord.z with 32 bit precision
-	const vec4 bitShifts = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-	float depth = dot(texture2D(u_DepthMap, st), bitShifts);
-#elif 0
-	// gl_FragCoord.z with 24 bit precision
-	const vec3 bitShifts = vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-	float depth = dot(texture2D(u_DepthMap, st).rgb, bitShifts);
-#else
 	float depth = texture2D(u_DepthMap, st).r;
-#endif
-	
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
-#endif
+	
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(P.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
 	
 	// transform vertex position into light space
 	vec4 texAtten			= u_LightAttenuationMatrix * vec4(P.xyz, 1.0);

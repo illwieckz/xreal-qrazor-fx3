@@ -54,7 +54,7 @@ void	main()
 	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
 	P.xyz /= P.w;
 	
-if(bool(u_PortalClipping))
+	if(bool(u_PortalClipping))
 	{
 		float dist = dot(P.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
 		if(dist < 0.0)
