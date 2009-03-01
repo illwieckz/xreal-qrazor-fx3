@@ -635,6 +635,12 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ParallaxMapping");
 	tr.vertexLightingShader_DBS_entity.u_DepthScale =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_DepthScale");
+	tr.vertexLightingShader_DBS_entity.u_PortalClipping =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_PortalClipping");
+	tr.vertexLightingShader_DBS_entity.u_PortalPlane =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_PortalPlane");
+	tr.vertexLightingShader_DBS_entity.u_ModelMatrix =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ModelMatrix");
 	tr.vertexLightingShader_DBS_entity.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_entity.program, "u_ModelViewProjectionMatrix");
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2216,6 +2222,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightDir, lightDir[0], lightDir[1], lightDir[2]);
 	qglUniform3fARB(tr.vertexLightingShader_DBS_entity.u_LightColor, directedLight[0], directedLight[1], directedLight[2]);
+	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2245,6 +2252,20 @@ static void Render_vertexLighting_DBS_entity(int stage)
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
 		qglUniform1fARB(tr.vertexLightingShader_DBS_entity.u_DepthScale, depthScale);
+	}
+
+	qglUniform1iARB(tr.vertexLightingShader_DBS_entity.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.vertexLightingShader_DBS_entity.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
 	}
 
 	// bind u_DiffuseMap

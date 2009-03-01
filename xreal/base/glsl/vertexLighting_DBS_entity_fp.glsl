@@ -31,6 +31,8 @@ uniform vec3		u_LightColor;
 uniform float		u_SpecularExponent;
 uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
@@ -96,24 +98,25 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
-	// construct object-space-to-tangent-space 3x3 matrix
-	mat3 objectToTangentMatrix;
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+
+	// invert tangent space for two sided surfaces
+	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
-	{
-		objectToTangentMatrix = mat3( -var_Tangent.x, -var_Binormal.x, -var_Normal.x,
-							-var_Tangent.y, -var_Binormal.y, -var_Normal.y,
-							-var_Tangent.z, -var_Binormal.z, -var_Normal.z	);
-	}
+		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
 	else
-	{
-		objectToTangentMatrix = mat3(	var_Tangent.x, var_Binormal.x, var_Normal.x,
-							var_Tangent.y, var_Binormal.y, var_Normal.y,
-							var_Tangent.z, var_Binormal.z, var_Normal.z	);
-	}
+		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
-	// compute view direction in tangent space
-	vec3 V = normalize(objectToTangentMatrix * (u_ViewOrigin - var_Position));
-	
+	// compute view direction in world space
+	vec3 I = normalize(u_ViewOrigin - var_Position);
 	
 	vec2 texDiffuse = var_TexDiffuse.st;
 	vec2 texNormal = var_TexNormal.st;
@@ -123,6 +126,19 @@ void	main()
 	if(bool(u_ParallaxMapping))
 	{
 		// ray intersect in view direction
+		
+		mat3 worldToTangentMatrix;
+		#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+		worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
+									tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
+									tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
+		#else
+		worldToTangentMatrix = transpose(tangentToWorldMatrix);
+		#endif
+	
+		// compute view direction in tangent space
+		vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
+		V = normalize(V);
 		
 		// size and start position of search in texture space
 		vec2 S = V.xy * -u_DepthScale / V.z;
@@ -146,18 +162,14 @@ void	main()
 		return;
 	}
 
-	// compute light direction in tangent space
-	vec3 L = normalize(objectToTangentMatrix * u_LightDir);
+	// compute normal in world space from normalmap
+	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
 	
-	// compute half angle in tangent space
-	vec3 H = normalize(L + V);
+	// compute light direction in world space
+	vec3 L = normalize(tangentToWorldMatrix * u_LightDir);	// FIXME optimize
 	
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
-	#if defined(r_NormalScale)
-	N.z *= r_NormalScale;
-	normalize(N);
-	#endif
+	// compute half angle in world space
+	vec3 H = normalize(L + I);
 	
 	// compute the specular term
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;

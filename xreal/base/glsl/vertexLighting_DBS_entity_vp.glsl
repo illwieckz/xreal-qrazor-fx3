@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -35,6 +35,7 @@ uniform mat4		u_BoneMatrix[128];
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
+uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Position;
@@ -72,12 +73,12 @@ void	main()
 		// transform vertex position into homogenous clip-space
 		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
-		// assign position in object space
-		var_Position = vertex.xyz;
+		// transform position into world space
+		var_Position = (u_ModelMatrix * vertex).xyz;
 		
-		var_Tangent = normalize(tangent);
-		var_Binormal = normalize(binormal);
-		var_Normal = normalize(normal);
+		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
+		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 	}
 	else
 #endif
@@ -85,12 +86,12 @@ void	main()
 		// transform vertex position into homogenous clip-space
 		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
-		// assign position in object space
-		var_Position = attr_Position.xyz;
+		// transform position into world space
+		var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
-		var_Tangent = attr_Tangent;
-		var_Binormal = attr_Binormal;
-		var_Normal = attr_Normal;
+		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 	}
 
 	// transform diffusemap texcoords
