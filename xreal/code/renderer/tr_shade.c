@@ -688,6 +688,10 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ParallaxMapping");
 	tr.vertexLightingShader_DBS_world.u_DepthScale =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_DepthScale");
+	tr.vertexLightingShader_DBS_world.u_PortalClipping =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_PortalClipping");
+	tr.vertexLightingShader_DBS_world.u_PortalPlane =
+		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_PortalPlane");
 	tr.vertexLightingShader_DBS_world.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.vertexLightingShader_DBS_world.program, "u_ModelViewProjectionMatrix");
 
@@ -2211,7 +2215,7 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	GL_ClientState(tr.vertexLightingShader_DBS_entity.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 	VectorCopy(backEnd.currentEntity->ambientLight, ambientColor);
 	//ClampColor(ambientColor);
 	VectorCopy(backEnd.currentEntity->directedLight, directedLight);
@@ -2356,6 +2360,20 @@ static void Render_vertexLighting_DBS_world(int stage)
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
 		qglUniform1fARB(tr.vertexLightingShader_DBS_world.u_DepthScale, depthScale);
+	}
+
+	qglUniform1iARB(tr.vertexLightingShader_DBS_world.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.vertexLightingShader_DBS_world.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
 	}
 
 	// bind u_DiffuseMap

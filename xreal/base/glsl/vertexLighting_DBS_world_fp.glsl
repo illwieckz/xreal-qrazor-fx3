@@ -27,6 +27,8 @@ uniform float		u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
 varying vec4		var_TexDiffuseNormal;
@@ -94,6 +96,16 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+
 	// construct object-space-to-tangent-space 3x3 matrix
 	mat3 objectToTangentMatrix;
 	if(gl_FrontFacing)
