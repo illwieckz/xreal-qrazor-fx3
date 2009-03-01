@@ -1057,6 +1057,10 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowTexelSize");
 	tr.forwardLightingShader_DBS_omni.u_ShadowBlur =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ShadowBlur");
+	tr.forwardLightingShader_DBS_omni.u_PortalClipping =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_PortalClipping");
+	tr.forwardLightingShader_DBS_omni.u_PortalPlane =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_PortalPlane");
 	tr.forwardLightingShader_DBS_omni.u_ModelMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_omni.program, "u_ModelMatrix");
 	tr.forwardLightingShader_DBS_omni.u_ModelViewProjectionMatrix =
@@ -1132,6 +1136,10 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowTexelSize");
 	tr.forwardLightingShader_DBS_proj.u_ShadowBlur =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ShadowBlur");
+	tr.forwardLightingShader_DBS_proj.u_PortalClipping =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_PortalClipping");
+	tr.forwardLightingShader_DBS_proj.u_PortalPlane =
+		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_PortalPlane");
 	tr.forwardLightingShader_DBS_proj.u_ModelMatrix =
 		qglGetUniformLocationARB(tr.forwardLightingShader_DBS_proj.program, "u_ModelMatrix");
 	tr.forwardLightingShader_DBS_proj.u_ModelViewProjectionMatrix =
@@ -2894,6 +2902,20 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
 	}
 
+	qglUniform1iARB(tr.forwardLightingShader_DBS_omni.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.forwardLightingShader_DBS_omni.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+	}
+
 	// bind u_DiffuseMap
 	GL_SelectTexture(0);
 	GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
@@ -3010,6 +3032,20 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 
 		if(tess.vboVertexSkinning)
 			qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+	}
+
+	qglUniform1iARB(tr.forwardLightingShader_DBS_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.forwardLightingShader_DBS_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
 	}
 
 	// bind u_DiffuseMap

@@ -35,6 +35,8 @@ uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 uniform mat4		u_ModelMatrix;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 
 varying vec4		var_Position;
 varying vec4		var_TexDiffuse;
@@ -117,6 +119,16 @@ vec4 PCF(vec4 SP, float filterWidth, float samples)
 
 void	main()
 {
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+
 	float shadow = 1.0;
 
 	if(var_TexAtten.q <= 0.0)

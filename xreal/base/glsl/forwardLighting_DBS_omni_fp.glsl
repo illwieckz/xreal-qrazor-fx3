@@ -36,6 +36,8 @@ uniform float       u_LightScale;
 uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
@@ -99,6 +101,16 @@ vec4 PCF(vec3 I, float filterWidth, float samples)
 
 void	main()
 {
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+
 	float shadow = 1.0;
 
 #if defined(VSM)
