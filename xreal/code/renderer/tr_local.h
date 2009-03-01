@@ -2219,6 +2219,7 @@ extern cvar_t  *r_forceSpecular;
 extern cvar_t  *r_specularExponent;
 extern cvar_t  *r_specularScale;
 extern cvar_t  *r_normalScale;
+extern cvar_t  *r_normalMapping;
 
 extern cvar_t  *r_uiFullScreen;	// ui is running fullscreen
 

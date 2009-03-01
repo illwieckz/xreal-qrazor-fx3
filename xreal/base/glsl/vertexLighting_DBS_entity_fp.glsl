@@ -36,10 +36,12 @@ uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
+#if defined(r_NormalMapping)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
+#endif
 varying vec3		var_Normal;
 
 #if defined(r_ParallaxMapping)
@@ -108,6 +110,7 @@ void	main()
 		}
 	}
 
+#if defined(r_NormalMapping)
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
@@ -117,10 +120,13 @@ void	main()
 	
 	// compute view direction in world space
 	vec3 I = normalize(u_ViewOrigin - var_Position);
+#endif
 	
 	vec2 texDiffuse = var_TexDiffuse.st;
+#if defined(r_NormalMapping)
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
+#endif
 
 #if defined(r_ParallaxMapping)
 	if(bool(u_ParallaxMapping))
@@ -162,11 +168,12 @@ void	main()
 		return;
 	}
 
+#if defined(r_NormalMapping)
 	// compute normal in world space from normalmap
 	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
 	
 	// compute light direction in world space
-	vec3 L = normalize(tangentToWorldMatrix * u_LightDir);	// FIXME optimize
+	vec3 L = u_LightDir;
 	
 	// compute half angle in world space
 	vec3 H = normalize(L + I);
@@ -184,4 +191,16 @@ void	main()
 	color.rgb += specular;
 	
 	gl_FragColor = color;
+#else
+	
+	vec3 N;
+	if(gl_FrontFacing)
+		N = -normalize(var_Normal);
+	else
+		N = normalize(var_Normal);
+	
+	vec3 L = u_LightDir;
+	
+	gl_FragColor = vec4(diffuse.rgb * (u_AmbientColor + u_LightColor * clamp(dot(N, L), 0.0, 1.0)), diffuse.a);
+#endif
 }

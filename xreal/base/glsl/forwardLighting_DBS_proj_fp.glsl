@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -41,7 +41,9 @@ uniform vec4		u_PortalPlane;
 varying vec4		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
+#if defined(r_NormalMapping)
 varying vec2		var_TexSpecular;
+#endif
 varying vec4		var_TexAtten;
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
@@ -303,11 +305,12 @@ void	main()
 	else
 #endif
 	{
-		// compute view direction in world space
-		vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
-	
 		// compute light direction in world space
 		vec3 L = normalize(u_LightOrigin - var_Position.xyz);
+	
+#if defined(r_NormalMapping)
+		// compute view direction in world space
+		vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
 	
 		// compute half angle in world space
 		vec3 H = normalize(L + V);
@@ -328,13 +331,21 @@ void	main()
 
 		// transform normal into world space
 		N = tangentToWorldMatrix * N;
-	
+#else
+		vec3 N;
+		if(gl_FrontFacing)
+			N = -normalize(var_Normal.xyz);
+		else
+			N = normalize(var_Normal.xyz);
+#endif
 		// compute the diffuse term
 		vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuse.st);
 		diffuse.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
 	
+#if defined(r_NormalMapping)
 		// compute the specular term
 		vec3 specular = texture2D(u_SpecularMap, var_TexSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+#endif
 	
 		// compute attenuation
 		#if 0
@@ -349,7 +360,9 @@ void	main()
 
 		// compute final color
 		vec4 color = diffuse;
+#if defined(r_NormalMapping)
 		color.rgb += specular;
+#endif
 		color.rgb *= attenuationXY;
 		color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;

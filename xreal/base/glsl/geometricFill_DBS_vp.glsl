@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -40,10 +40,12 @@ uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec4		var_Position;
 varying vec2		var_TexDiffuse;
+#if defined(r_NormalMapping)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
+#endif
 varying vec4		var_Normal;
 
 void	main()
@@ -75,8 +77,11 @@ void	main()
 		// transform position into world space
 		var_Position = u_ModelMatrix * vertex;
 		
+		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+		#endif
+		
 		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 	}
 	else
@@ -88,18 +93,23 @@ void	main()
 		// transform position into world space
 		var_Position = u_ModelMatrix * attr_Position;
 	
+		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+		#endif
+		
 		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 	}
 
 	// transform diffusemap texcoords
 	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
-	
+
+#if defined(r_NormalMapping)	
 	// transform normalmap texcoords
 	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
+#endif
 }
 

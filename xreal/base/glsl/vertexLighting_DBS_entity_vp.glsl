@@ -40,10 +40,12 @@ uniform mat4		u_ModelViewProjectionMatrix;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
+#if defined(r_NormalMapping)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
+#endif
 varying vec3		var_Normal;
 
 
@@ -65,8 +67,11 @@ void	main()
 			
 			vertex += (boneMatrix * attr_Position) * boneWeight;
 		
+			#if defined(r_NormalMapping)
 			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
 			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
+			#endif
+			
 			normal += (boneMatrix * vec4(attr_Normal, 0.0)).xyz * boneWeight;
 		}
 
@@ -76,8 +81,11 @@ void	main()
 		// transform position into world space
 		var_Position = (u_ModelMatrix * vertex).xyz;
 		
+		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+		#endif
+		
 		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 	}
 	else
@@ -89,17 +97,22 @@ void	main()
 		// transform position into world space
 		var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
+		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+		#endif
+		
 		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 	}
 
 	// transform diffusemap texcoords
 	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
+#if defined(r_NormalMapping)
 	// transform normalmap texcoords
 	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
+#endif
 }

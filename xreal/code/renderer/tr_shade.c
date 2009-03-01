@@ -396,7 +396,12 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		   }
 		 */
 
-		if( /* TODO: check for shader model 3 hardware  && */ r_parallaxMapping->integer)
+		if(r_normalMapping->integer)
+		{
+			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_NormalMapping\n#define r_NormalMapping 1\n#endif\n");
+		}
+
+		if( /* TODO: check for shader model 3 hardware  && */ r_normalMapping->integer && r_parallaxMapping->integer)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ParallaxMapping\n#define r_ParallaxMapping 1\n#endif\n");
 		}
@@ -2278,31 +2283,34 @@ static void Render_vertexLighting_DBS_entity(int stage)
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_DiffuseTextureMatrix, 1, GL_FALSE,
 						   tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	if(pStage->bundle[TB_NORMALMAP].image[0])
+	if(r_normalMapping->integer)
 	{
-		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.flatImage);
-	}
-	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_NormalTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_NORMALMAP]);
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(pStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_NormalTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_NORMALMAP]);
 
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	if(pStage->bundle[TB_SPECULARMAP].image[0])
-	{
-		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(pStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_SpecularTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
-	else
-	{
-		GL_Bind(tr.blackImage);
-	}
-	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_entity.u_SpecularTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_SPECULARMAP]);
 
 	Tess_DrawElements();
 
@@ -2382,31 +2390,34 @@ static void Render_vertexLighting_DBS_world(int stage)
 	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_DiffuseTextureMatrix, 1, GL_FALSE,
 						   tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	if(pStage->bundle[TB_NORMALMAP].image[0])
+	if(r_normalMapping->integer)
 	{
-		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.flatImage);
-	}
-	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_NormalTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_NORMALMAP]);
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(pStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_NormalTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_NORMALMAP]);
 
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	if(pStage->bundle[TB_SPECULARMAP].image[0])
-	{
-		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(pStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_SpecularTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
-	else
-	{
-		GL_Bind(tr.blackImage);
-	}
-	qglUniformMatrix4fvARB(tr.vertexLightingShader_DBS_world.u_SpecularTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_SPECULARMAP]);
 
 	Tess_DrawElements();
 
@@ -2643,34 +2654,37 @@ static void Render_geometricFill_DBS(int stage, qboolean cmap2black)
 	}
 	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_DiffuseTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	if(pStage->bundle[TB_NORMALMAP].image[0])
+	if(r_normalMapping->integer)
 	{
-		GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.flatImage);
-	}
-	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_NormalTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_NORMALMAP]);
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(pStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_NormalTextureMatrix, 1, GL_FALSE, tess.svars.texMatrices[TB_NORMALMAP]);
 
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	if(r_forceSpecular->integer)
-	{
-		GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(r_forceSpecular->integer)
+		{
+			GL_Bind(pStage->bundle[TB_DIFFUSEMAP].image[0]);
+		}
+		else if(pStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_SpecularTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
-	else if(pStage->bundle[TB_SPECULARMAP].image[0])
-	{
-		GL_Bind(pStage->bundle[TB_SPECULARMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.blackImage);
-	}
-	qglUniformMatrix4fvARB(tr.geometricFillShader_DBS.u_SpecularTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_SPECULARMAP]);
 
 	Tess_DrawElements();
 
@@ -2914,35 +2928,38 @@ static void Render_forwardLighting_DBS_omni(shaderStage_t * diffuseStage,
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_DiffuseTextureMatrix, 1, GL_FALSE,
 						   tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	if(diffuseStage->bundle[TB_NORMALMAP].image[0])
+	if(r_normalMapping->integer)
 	{
-		GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.flatImage);
-	}
-	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_NormalTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_NORMALMAP]);
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(diffuseStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_NormalTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_NORMALMAP]);
 
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	if(r_forceSpecular->integer)
-	{
-		GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(r_forceSpecular->integer)
+		{
+			GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+		}
+		else if(diffuseStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_SpecularTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
-	else if(diffuseStage->bundle[TB_SPECULARMAP].image[0])
-	{
-		GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.blackImage);
-	}
-	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_omni.u_SpecularTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_SPECULARMAP]);
 
 	// bind u_AttenuationMapXY
 	GL_SelectTexture(3);
@@ -3046,35 +3063,38 @@ static void Render_forwardLighting_DBS_proj(shaderStage_t * diffuseStage,
 	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_DiffuseTextureMatrix, 1, GL_FALSE,
 						   tess.svars.texMatrices[TB_DIFFUSEMAP]);
 
-	// bind u_NormalMap
-	GL_SelectTexture(1);
-	if(diffuseStage->bundle[TB_NORMALMAP].image[0])
+	if(r_normalMapping->integer)
 	{
-		GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.flatImage);
-	}
-	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_NormalTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_NORMALMAP]);
+		// bind u_NormalMap
+		GL_SelectTexture(1);
+		if(diffuseStage->bundle[TB_NORMALMAP].image[0])
+		{
+			GL_Bind(diffuseStage->bundle[TB_NORMALMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.flatImage);
+		}
+		qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_NormalTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_NORMALMAP]);
 
-	// bind u_SpecularMap
-	GL_SelectTexture(2);
-	if(r_forceSpecular->integer)
-	{
-		GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+		// bind u_SpecularMap
+		GL_SelectTexture(2);
+		if(r_forceSpecular->integer)
+		{
+			GL_Bind(diffuseStage->bundle[TB_DIFFUSEMAP].image[0]);
+		}
+		else if(diffuseStage->bundle[TB_SPECULARMAP].image[0])
+		{
+			GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
+		}
+		else
+		{
+			GL_Bind(tr.blackImage);
+		}
+		qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_SpecularTextureMatrix, 1, GL_FALSE,
+							   tess.svars.texMatrices[TB_SPECULARMAP]);
 	}
-	else if(diffuseStage->bundle[TB_SPECULARMAP].image[0])
-	{
-		GL_Bind(diffuseStage->bundle[TB_SPECULARMAP].image[0]);
-	}
-	else
-	{
-		GL_Bind(tr.blackImage);
-	}
-	qglUniformMatrix4fvARB(tr.forwardLightingShader_DBS_proj.u_SpecularTextureMatrix, 1, GL_FALSE,
-						   tess.svars.texMatrices[TB_SPECULARMAP]);
 
 	// bind u_AttenuationMapXY
 	GL_SelectTexture(3);
@@ -4193,7 +4213,7 @@ void Tess_StageIteratorGeneric()
 					{
 						if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 						{
-							if(tr.worldDeluxeMapping)
+							if(tr.worldDeluxeMapping && r_normalMapping->integer)
 							{
 								Render_deluxeMapping(stage);
 							}
@@ -4365,7 +4385,7 @@ void Tess_StageIteratorGBuffer()
 				{
 					if(!r_vertexLighting->integer && tess.lightmapNum >= 0 && tess.lightmapNum < tr.numLightmaps)
 					{
-						if(tr.worldDeluxeMapping)
+						if(tr.worldDeluxeMapping && r_normalMapping->integer)
 						{
 							Render_deluxeMapping(stage);
 						}

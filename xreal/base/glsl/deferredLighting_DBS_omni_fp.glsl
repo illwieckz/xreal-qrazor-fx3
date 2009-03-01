@@ -173,9 +173,6 @@ void	main()
 	{
 		// compute the diffuse term
 		vec4 diffuse = texture2D(u_DiffuseMap, st);
-		
-		// compute the specular term
-		vec4 S = texture2D(u_SpecularMap, st);
 	
 		// compute normal in world space
 		vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
@@ -193,11 +190,16 @@ void	main()
 		// compute light direction in world space
 		vec3 L = normalize(u_LightOrigin - P.xyz);
 	
+#if defined(r_NormalMapping)
 		// compute view direction in world space
 		vec3 V = normalize(u_ViewOrigin - P.xyz);
 	
 		// compute half angle in world space
 		vec3 H = normalize(L + V);
+		
+		// compute the specular term
+		vec4 S = texture2D(u_SpecularMap, st);
+#endif
 	
 		// compute attenuation
 		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P.xyz, 1.0)).xyz;
@@ -207,7 +209,9 @@ void	main()
 		// compute final color
 		vec4 color = diffuse;
 		color.rgb *= u_LightColor * clamp(dot(N, L), 0.0, 1.0);
+#if defined(r_NormalMapping)
 		color.rgb += S.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+#endif
 		color.rgb *= attenuationXY;
 		color.rgb *= attenuationZ;
 		color.rgb *= u_LightScale;

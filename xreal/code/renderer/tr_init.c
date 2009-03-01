@@ -150,6 +150,7 @@ cvar_t         *r_forceSpecular;
 cvar_t         *r_specularExponent;
 cvar_t         *r_specularScale;
 cvar_t         *r_normalScale;
+cvar_t         *r_normalMapping;
 cvar_t         *r_gamma;
 cvar_t         *r_intensity;
 cvar_t         *r_lockpvs;
@@ -1411,6 +1412,7 @@ void R_Register(void)
 	r_specularExponent = ri.Cvar_Get("r_specularExponent", "16", CVAR_CHEAT);
 	r_specularScale = ri.Cvar_Get("r_specularScale", "1.4", CVAR_CHEAT | CVAR_LATCH);
 	r_normalScale = ri.Cvar_Get("r_normalScale", "1.1", CVAR_CHEAT | CVAR_LATCH);
+	r_normalMapping = ri.Cvar_Get("r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_parallaxDepthScale = ri.Cvar_Get("r_parallaxDepthScale", "0.03", CVAR_CHEAT);
 	r_drawBuffer = ri.Cvar_Get("r_drawBuffer", "GL_BACK", CVAR_CHEAT);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", CVAR_CHEAT);

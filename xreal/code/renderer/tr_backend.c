@@ -2782,9 +2782,12 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
 
-						// bind u_SpecularMap
-						GL_SelectTexture(2);
-						GL_Bind(tr.deferredSpecularFBOImage);
+						if(r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(3);
@@ -2858,9 +2861,12 @@ void RB_RenderInteractionsDeferred()
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
 
-						// bind u_SpecularMap
-						GL_SelectTexture(2);
-						GL_Bind(tr.deferredSpecularFBOImage);
+						if(r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(3);
@@ -3378,9 +3384,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
 
-						// bind u_SpecularMap
-						GL_SelectTexture(2);
-						GL_Bind(tr.deferredSpecularFBOImage);
+						if(r_normalMapping->integer)
+						{
+							// bind u_SpecularMap
+							GL_SelectTexture(2);
+							GL_Bind(tr.deferredSpecularFBOImage);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(3);
@@ -3539,9 +3548,12 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GL_SelectTexture(1);
 							GL_Bind(tr.deferredNormalFBOImage);
 
-							// bind u_SpecularMap
-							GL_SelectTexture(2);
-							GL_Bind(tr.deferredSpecularFBOImage);
+							if(r_normalMapping->integer)
+							{
+								// bind u_SpecularMap
+								GL_SelectTexture(2);
+								GL_Bind(tr.deferredSpecularFBOImage);
+							}
 
 							// bind u_DepthMap
 							GL_SelectTexture(3);

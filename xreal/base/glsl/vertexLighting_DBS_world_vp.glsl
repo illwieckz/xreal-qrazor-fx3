@@ -56,11 +56,13 @@ void	main()
 	// transform diffusemap texcoords
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
+#if defined(r_NormalMapping)
 	// transform normalmap texcoords
 	var_TexDiffuseNormal.pq = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
+#endif
 	
 	// assign light color
 	var_LightColor = attr_LightColor;
@@ -83,7 +85,10 @@ void	main()
 	}
 	*/
 	
+#if defined(r_NormalMapping)
 	var_Tangent = attr_Tangent;
 	var_Binormal = attr_Binormal;
+#endif
+
 	var_Normal = attr_Normal;
 }

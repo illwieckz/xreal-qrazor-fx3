@@ -1620,6 +1620,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
+	if(inwater)
+	{
+		cg.refdef.rdflags |= RDF_UNDERWATER;
+	}
 
 	// first person blend blobs, done after AnglesToAxis
 	if(!cg.renderingThirdPerson)

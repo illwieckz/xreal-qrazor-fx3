@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -44,10 +44,14 @@ uniform mat4		u_ModelViewProjectionMatrix;
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
+#if defined(r_NormalMapping)
 varying vec2		var_TexSpecular;
+#endif
 varying vec3		var_TexAttenXYZ;
+#if defined(r_NormalMapping)
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
+#endif
 varying vec4		var_Normal;
 //varying vec4		var_Color;	// Tr3B - maximum vars reached
 
@@ -80,8 +84,11 @@ void	main()
 		// transform position into world space
 		var_Position = (u_ModelMatrix * vertex).xyz;
 		
+		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+		#endif
+		
 		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 		
 		// calc light xy,z attenuation in light space
@@ -96,8 +103,11 @@ void	main()
 		// transform position into world space
 		var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
+		#if defined(r_NormalMapping)
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+		#endif
+		
 		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 		
 		// calc light xy,z attenuation in light space
@@ -107,11 +117,13 @@ void	main()
 	// transform diffusemap texcoords
 	var_TexDiffuse.xy = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
+#if defined(r_NormalMapping)
 	// transform normalmap texcoords
 	var_TexNormal.xy = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
+#endif
 	
 	// assign color
 	if(bool(u_InverseVertexColor))

@@ -2564,6 +2564,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	{
 		refLight_t      light;
 		vec3_t          angles;
+		float			angle;
 		vec3_t          projectionEnd;
 
 		vec3_t          ambientLight;
@@ -2600,7 +2601,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 		//light.origin[1] += 10;
 
 		// find projection end
-		VectorMA(light.origin, SHADOW_DISTANCE * 10, lightDirInversed, projectionEnd);
+		VectorMA(light.origin, SHADOW_DISTANCE * 100, lightDirInversed, projectionEnd);
 		trap_CM_BoxTrace(&trace, light.origin, projectionEnd, mins, maxs, 0, MASK_PLAYERSOLID);
 #if 0
 		if( /* trace.fraction == 1.0 || */ trace.startsolid || trace.allsolid)
@@ -2608,6 +2609,15 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 			return qfalse;
 		}
 #endif
+
+#if 0
+		angle = AngleBetweenVectors(lightDirInversed, surfNormal);
+		if(angle > 30)
+		{
+			VectorCopy(surfNormal, lightDirInversed);
+		}
+#endif
+
 		VectorToAngles(lightDirInversed, angles);
 		QuatFromAngles(light.rotation, angles[PITCH], angles[YAW], angles[ROLL]);
 

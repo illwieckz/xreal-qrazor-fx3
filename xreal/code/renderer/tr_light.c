@@ -414,9 +414,11 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	d = VectorLength(ent->directedLight);
 	VectorScale(ent->lightDir, d, lightDir);
 	VectorNormalize(lightDir);
-	ent->lightDir[0] = DotProduct(lightDir, ent->e.axis[0]);
-	ent->lightDir[1] = DotProduct(lightDir, ent->e.axis[1]);
-	ent->lightDir[2] = DotProduct(lightDir, ent->e.axis[2]);
+
+	// keep it in world space
+//	ent->lightDir[0] = DotProduct(lightDir, ent->e.axis[0]);
+//	ent->lightDir[1] = DotProduct(lightDir, ent->e.axis[1]);
+//	ent->lightDir[2] = DotProduct(lightDir, ent->e.axis[2]);
 }
 
 /*

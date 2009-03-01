@@ -34,10 +34,12 @@ uniform mat4		u_ModelMatrix;
 
 varying vec4		var_Position;
 varying vec2		var_TexDiffuse;
+#if defined(r_NormalMapping)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
+#endif
 varying vec4		var_Normal;
 
 
@@ -97,16 +99,20 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
+#if defined(r_NormalMapping)
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
 	else
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
+#endif
 		
 	vec2 texDiffuse = var_TexDiffuse.st;
+#if defined(r_NormalMapping)
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
+#endif
 
 #if defined(r_ParallaxMapping)
 	if(bool(u_ParallaxMapping))
@@ -160,8 +166,7 @@ void	main()
 	vec4 depthColor = diffuse;
 	depthColor.rgb *= u_AmbientColor;
 	
-	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
-	
+#if defined(r_NormalMapping)
 	// compute normal in tangent space from normalmap
 	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
 	//N.z = sqrt(1.0 - dot(N.xy, N.xy));
@@ -173,12 +178,23 @@ void	main()
 	// transform normal into world space
 	N = tangentToWorldMatrix * N;
 	
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
+#else
+	vec3 N;
+	if(gl_FrontFacing)
+		N = -normalize(var_Normal.xyz);
+	else
+		N = normalize(var_Normal.xyz);
+#endif
+
 	// convert normal back to [0,1] color space
 	N = N * 0.5 + 0.5;
 
 	gl_FragData[0] = vec4(diffuse.rgb, 0.0);
 	gl_FragData[1] = vec4(N, 0.0);
+#if defined(r_NormalMapping)
 	gl_FragData[2] = vec4(specular, 0.0);
+#endif
 }
 
 

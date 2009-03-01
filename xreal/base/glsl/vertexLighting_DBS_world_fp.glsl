@@ -106,6 +106,7 @@ void	main()
 		}
 	}
 
+#if defined(r_NormalMapping)
 	// construct object-space-to-tangent-space 3x3 matrix
 	mat3 objectToTangentMatrix;
 	if(gl_FrontFacing)
@@ -123,11 +124,14 @@ void	main()
 	
 	// compute view direction in tangent space
 	vec3 V = normalize(objectToTangentMatrix * (u_ViewOrigin - var_Position));
-	
+#endif
 	
 	vec2 texDiffuse = var_TexDiffuseNormal.st;
+
+#if defined(r_NormalMapping)
 	vec2 texNormal = var_TexDiffuseNormal.pq;
 	vec2 texSpecular = var_TexSpecular.st;
+#endif
 
 #if defined(r_ParallaxMapping)
 	if(bool(u_ParallaxMapping))
@@ -156,6 +160,7 @@ void	main()
 		return;
 	}
 
+#if defined(r_NormalMapping)
 	// compute light direction in tangent space
 	vec3 L = normalize(objectToTangentMatrix * var_LightDirection);
 	
@@ -184,4 +189,16 @@ void	main()
 	
 //	color.rgb = var_LightDirection.rgb;
 	gl_FragColor = color;
+#else
+
+	vec3 N;
+	if(gl_FrontFacing)
+		N = -normalize(var_Normal);
+	else
+		N = normalize(var_Normal);
+	
+	vec3 L = normalize(var_LightDirection);
+	
+	gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb * clamp(dot(N, L), 0.0, 1.0), diffuse.a);
+#endif
 }
