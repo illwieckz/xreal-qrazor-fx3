@@ -30,9 +30,10 @@ attribute vec3		attr_Normal;
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
+uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -46,8 +47,8 @@ void	main()
 	// transform vertex position into homogenous clip-space
 	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
-	// assign position in object space
-	var_Vertex = attr_Position.xyz;
+	// transform position into world space
+	var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
@@ -61,7 +62,7 @@ void	main()
 	// transform lightmap texcoords
 	var_TexLight = attr_TexCoord1.st;
 	
-	var_Tangent = attr_Tangent;
-	var_Binormal = attr_Binormal;
-	var_Normal = attr_Normal;
+	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+	var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 }

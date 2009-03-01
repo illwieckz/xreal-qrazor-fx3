@@ -37,7 +37,7 @@ uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -73,7 +73,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// assign position in object space
-		var_Vertex = vertex.xyz;
+		var_Position = vertex.xyz;
 		
 		var_Tangent = normalize(tangent);
 		var_Binormal = normalize(binormal);
@@ -86,7 +86,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 		// assign position in object space
-		var_Vertex = attr_Position.xyz;
+		var_Position = attr_Position.xyz;
 	
 		var_Tangent = attr_Tangent;
 		var_Binormal = attr_Binormal;

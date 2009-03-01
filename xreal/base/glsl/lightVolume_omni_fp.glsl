@@ -32,15 +32,15 @@ uniform mat4		u_LightAttenuationMatrix;
 uniform int			u_ShadowCompare;
 uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
 varying vec3		var_TexAttenXYZ;
 
 void	main()
 {
 	// compute incident ray in world space
-	vec3 I = normalize(u_ViewOrigin - var_Vertex);
-	//vec3 I = normalize(var_Vertex - u_ViewOrigin);
+	vec3 I = normalize(u_ViewOrigin - var_Position);
+	//vec3 I = normalize(var_Position - u_ViewOrigin);
 	
 	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 	
@@ -49,7 +49,7 @@ void	main()
 	
 	for(int i = 0; i < steps; i++)
 	{
-		vec3 P = var_Vertex + (I * stepSize * float(i));
+		vec3 P = var_Position + (I * stepSize * float(i));
 	
 		// compute attenuation
 		vec3 texAttenXYZ		= (u_LightAttenuationMatrix * vec4(P, 1.0)).xyz;

@@ -36,7 +36,7 @@ uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 uniform mat4		u_ModelMatrix;
 
-varying vec4		var_Vertex;
+varying vec4		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -128,13 +128,13 @@ void	main()
 	if(bool(u_ShadowCompare))
 	{
 		vec4 SP;	// shadow point in shadow space
-		SP.x = var_Vertex.w;
+		SP.x = var_Position.w;
 		SP.y = var_Tangent.w;
 		SP.z = var_Binormal.w;
 		SP.w = var_Normal.w;
 		
 		// compute incident ray
-		vec3 I = var_Vertex.xyz - u_LightOrigin;
+		vec3 I = var_Position.xyz - u_LightOrigin;
 		
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
@@ -242,13 +242,13 @@ void	main()
 	if(bool(u_ShadowCompare))
 	{
 		vec4 SP;	// shadow point in shadow space
-		SP.x = var_Vertex.w;
+		SP.x = var_Position.w;
 		SP.y = var_Tangent.w;
 		SP.z = var_Binormal.w;
 		SP.w = var_Normal.w;
 		
 		// compute incident ray
-		vec3 I = var_Vertex.xyz - u_LightOrigin;
+		vec3 I = var_Position.xyz - u_LightOrigin;
 		
 		const float	SHADOW_BIAS = 0.001;
 		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;
@@ -292,10 +292,10 @@ void	main()
 #endif
 	{
 		// compute view direction in world space
-		vec3 V = normalize(u_ViewOrigin - var_Vertex.xyz);
+		vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
 	
 		// compute light direction in world space
-		vec3 L = normalize(u_LightOrigin - var_Vertex.xyz);
+		vec3 L = normalize(u_LightOrigin - var_Position.xyz);
 	
 		// compute half angle in world space
 		vec3 H = normalize(L + V);

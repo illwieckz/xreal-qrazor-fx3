@@ -32,7 +32,7 @@ uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
 uniform mat4		u_ModelMatrix;
 
-varying vec4		var_Vertex;
+varying vec4		var_Position;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -97,7 +97,7 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
-	// invert tangent space for twosided surfaces
+	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
@@ -131,7 +131,7 @@ void	main()
 		#endif
 	
 		// compute view direction in tangent space
-		vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Vertex.xyz);
+		vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
 		V = normalize(V);
 		
 		// ray intersect in view direction

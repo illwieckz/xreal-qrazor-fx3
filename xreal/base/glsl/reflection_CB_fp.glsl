@@ -25,7 +25,7 @@ uniform sampler2D	u_NormalMap;
 uniform vec3		u_ViewOrigin;
 uniform mat4		u_ModelMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexNormal;
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
@@ -37,7 +37,7 @@ void	main()
 	vec4 reflectColor;
 
 	// compute incident ray in world space
-	I = normalize(var_Vertex - u_ViewOrigin);
+	I = normalize(var_Position - u_ViewOrigin);
 	
 	// compute normal in tangent space from normalmap
 	N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);

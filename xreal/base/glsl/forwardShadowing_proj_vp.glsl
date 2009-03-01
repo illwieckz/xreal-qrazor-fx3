@@ -34,7 +34,7 @@ uniform mat4		u_ShadowMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec4		var_Vertex;
+varying vec4		var_Position;
 varying vec4		var_TexAtten;
 varying vec4		var_TexShadow;
 varying vec4        var_Color;
@@ -59,7 +59,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// transform position into world space
-		var_Vertex.xyz = (u_ModelMatrix * vertex).xyz;
+		var_Position.xyz = (u_ModelMatrix * vertex).xyz;
 	}
 	else
 #endif
@@ -68,7 +68,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
 		// transform position into world space
-		var_Vertex.xyz = (u_ModelMatrix * attr_Position).xyz;
+		var_Position.xyz = (u_ModelMatrix * attr_Position).xyz;
 	}
 	
 	// calc light attenuation in light space

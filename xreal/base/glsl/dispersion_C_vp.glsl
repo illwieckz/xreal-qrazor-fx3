@@ -32,7 +32,7 @@ uniform mat4		u_BoneMatrix[128];
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec3		var_Normal;
 
 void	main()
@@ -57,7 +57,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// transform position into world space
-		var_Vertex = (u_ModelMatrix * vertex).xyz;
+		var_Position = (u_ModelMatrix * vertex).xyz;
 	
 		// transform normal into world space
 		var_Normal = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
@@ -69,7 +69,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 		// transform position into world space
-		var_Vertex = (u_ModelMatrix * attr_Position).xyz;
+		var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
 		// transform normal into world space
 		var_Normal = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;

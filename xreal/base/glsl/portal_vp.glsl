@@ -26,7 +26,7 @@ attribute vec4		attr_Color;
 uniform mat4		u_ModelViewMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec4		var_Color;
 
 void	main()
@@ -35,7 +35,7 @@ void	main()
 	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// transform vertex position into camera space
-	var_Vertex = (u_ModelViewMatrix * attr_Position).xyz;
+	var_Position = (u_ModelViewMatrix * attr_Position).xyz;
 	
 	// assign color
 	var_Color = attr_Color;

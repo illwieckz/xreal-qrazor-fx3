@@ -37,7 +37,7 @@ uniform int			u_ShadowCompare;
 uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -105,7 +105,7 @@ void	main()
 	if(bool(u_ShadowCompare))
 	{
 		// compute incident ray
-		vec3 I = var_Vertex - u_LightOrigin;
+		vec3 I = var_Position - u_LightOrigin;
 	
 		#if defined(PCF_2X2)
 		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
@@ -171,7 +171,7 @@ void	main()
 	if(bool(u_ShadowCompare))
 	{
 		// compute incident ray
-		vec3 I = var_Vertex - u_LightOrigin;
+		vec3 I = var_Position - u_LightOrigin;
 	
 		#if defined(PCF_2X2)
 		vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
@@ -212,10 +212,10 @@ void	main()
 #endif
 	{
 		// compute view direction in world space
-		vec3 V = normalize(u_ViewOrigin - var_Vertex);
+		vec3 V = normalize(u_ViewOrigin - var_Position);
 	
 		// compute light direction in world space
-		vec3 L = normalize(u_LightOrigin - var_Vertex);
+		vec3 L = normalize(u_LightOrigin - var_Position);
 	
 		// compute half angle in world space
 		vec3 H = normalize(L + V);
@@ -260,7 +260,7 @@ void	main()
 		//#else
 		/*
 		// compute attenuation
-		float dist = distance(u_LightOrigin, var_Vertex);
+		float dist = distance(u_LightOrigin, var_Position);
 		//float attenuation = (u_LightRadius * u_LightScale) / (dist * dist);
 		//attenuation = smoothstep(attenuation, 0.0, 1.0);
 		float attenuation = (u_LightRadius * u_LightScale) / pow(dist, 1.3);

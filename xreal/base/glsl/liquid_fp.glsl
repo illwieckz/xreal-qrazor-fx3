@@ -34,7 +34,7 @@ uniform float		u_FresnelBias;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_UnprojectMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexNormal;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
@@ -102,9 +102,9 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 void	main()
 {
 	// compute incident ray
-	vec3 I = normalize(u_ViewOrigin - var_Vertex);
+	vec3 I = normalize(u_ViewOrigin - var_Position);
 	
-mat3 tangentToWorldMatrix;
+	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
 	else
@@ -186,7 +186,7 @@ mat3 tangentToWorldMatrix;
 		P.xyz /= P.w;
 
 		// calculate fog distance
-		float fogDistance = distance(P.xyz, var_Vertex);
+		float fogDistance = distance(P.xyz, var_Position);
 	
 		// calculate fog exponent
 		float fogExponent = fogDistance * u_FogDensity;

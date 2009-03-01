@@ -579,6 +579,9 @@ void GLSL_InitGPUShaders(void)
 	tr.genericSingleShader.u_AlphaTest = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_AlphaTest");
 	tr.genericSingleShader.u_InverseVertexColor =
 		qglGetUniformLocationARB(tr.genericSingleShader.program, "u_InverseVertexColor");
+	tr.genericSingleShader.u_PortalClipping = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_PortalClipping");
+	tr.genericSingleShader.u_PortalPlane = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_PortalPlane");
+	tr.genericSingleShader.u_ModelMatrix = qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ModelMatrix");
 	/*
 	   tr.genericSingleShader.u_ModelViewMatrix =
 	   qglGetUniformLocationARB(tr.genericSingleShader.program, "u_ModelViewMatrix");
@@ -734,6 +737,9 @@ void GLSL_InitGPUShaders(void)
 	tr.deluxeMappingShader.u_ViewOrigin = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ViewOrigin");
 	tr.deluxeMappingShader.u_ParallaxMapping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ParallaxMapping");
 	tr.deluxeMappingShader.u_DepthScale = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_DepthScale");
+	tr.deluxeMappingShader.u_PortalClipping = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalClipping");
+	tr.deluxeMappingShader.u_PortalPlane = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_PortalPlane");
+	tr.deluxeMappingShader.u_ModelMatrix = qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelMatrix");
 	tr.deluxeMappingShader.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.deluxeMappingShader.program, "u_ModelViewProjectionMatrix");
 
@@ -2164,6 +2170,7 @@ static void Render_genericSingle(int stage)
 	qglUniform1iARB(tr.genericSingleShader.u_InverseVertexColor, pStage->inverseVertexColor);
 	//qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewMatrix, 1, GL_FALSE, glState.modelViewMatrix[glState.stackIndex]);
 	//qglUniformMatrix4fvARB(tr.genericSingleShader.u_ProjectionMatrix, 1, GL_FALSE, glState.projectionMatrix[glState.stackIndex]);
+	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.genericSingleShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 	if(glConfig.vboVertexSkinningAvailable)
@@ -2183,6 +2190,20 @@ static void Render_genericSingle(int stage)
 		alphaTest = -1.0;
 	}
 	qglUniform1fARB(tr.genericSingleShader.u_AlphaTest, alphaTest);
+
+	qglUniform1iARB(tr.genericSingleShader.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.genericSingleShader.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+	}
 
 	// bind u_ColorMap
 	GL_SelectTexture(0);
@@ -2439,9 +2460,10 @@ static void Render_deluxeMapping(int stage)
 	GL_ClientState(tr.deluxeMappingShader.attribs);
 
 	// set uniforms
-	VectorCopy(backEnd.or.viewOrigin, viewOrigin);
+	VectorCopy(backEnd.viewParms.or.origin, viewOrigin);	// in world space
 
 	qglUniform3fARB(tr.deluxeMappingShader.u_ViewOrigin, viewOrigin[0], viewOrigin[1], viewOrigin[2]);
+	qglUniformMatrix4fvARB(tr.deluxeMappingShader.u_ModelMatrix, 1, GL_FALSE, backEnd.or.transformMatrix);
 	qglUniformMatrix4fvARB(tr.deluxeMappingShader.u_ModelViewProjectionMatrix, 1, GL_FALSE,
 						   glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -2463,6 +2485,20 @@ static void Render_deluxeMapping(int stage)
 
 		depthScale = RB_EvalExpression(&pStage->depthScaleExp, r_parallaxDepthScale->value);
 		qglUniform1fARB(tr.deluxeMappingShader.u_DepthScale, depthScale);
+	}
+
+	qglUniform1iARB(tr.deluxeMappingShader.u_PortalClipping, backEnd.viewParms.isPortal);
+	if(backEnd.viewParms.isPortal)
+	{
+		float           plane[4];
+
+		// clipping plane in world space
+		plane[0] = backEnd.viewParms.portalPlane.normal[0];
+		plane[1] = backEnd.viewParms.portalPlane.normal[1];
+		plane[2] = backEnd.viewParms.portalPlane.normal[2];
+		plane[3] = backEnd.viewParms.portalPlane.dist;
+
+		qglUniform4fARB(tr.deluxeMappingShader.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
 	}
 
 	// bind u_DiffuseMap

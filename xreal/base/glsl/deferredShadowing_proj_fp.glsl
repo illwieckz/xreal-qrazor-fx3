@@ -178,9 +178,10 @@ void	main()
 		// compute final color
 		vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
 		color.rgb *= u_LightColor;
-		color.rgb *= attenuationXY;
-		color.rgb *= attenuationZ;
+		//color.rgb *= attenuationXY;
+		//color.rgb *= attenuationZ;
 		color.rgb *= shadow;
+		color.rgb *= 1.0 - clamp(distance(P.xyz, u_LightOrigin) / (u_LightRadius * 0.7), 0.0, 1.0);
 		
 		gl_FragColor = color;
 	}

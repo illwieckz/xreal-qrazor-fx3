@@ -35,7 +35,7 @@ uniform mat4		u_SpecularTextureMatrix;
 uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 //varying vec4		var_Color;
@@ -51,7 +51,7 @@ void	main()
 	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// assign position in object space
-	var_Vertex = attr_Position.xyz;
+	var_Position = attr_Position.xyz;
 	
 	// transform diffusemap texcoords
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;

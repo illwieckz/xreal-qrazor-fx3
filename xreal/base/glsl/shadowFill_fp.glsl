@@ -25,7 +25,7 @@ uniform float		u_AlphaTest;
 uniform vec3		u_LightOrigin;
 uniform float       u_LightRadius;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_Tex;
 varying vec4		var_Color;
 
@@ -40,7 +40,7 @@ void	main()
 	
 #if defined(VSM)
 	
-	float distance = length(var_Vertex - u_LightOrigin) / u_LightRadius;
+	float distance = length(var_Position - u_LightOrigin) / u_LightRadius;
 	float distanceSquared = distance * distance;
 
 	// shadowmap can be float RGBA or luminance alpha so store distanceSquared into alpha
@@ -54,7 +54,7 @@ void	main()
 
 #elif defined(ESM)
 	
-	float distance = (length(var_Vertex - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;// ;
+	float distance = (length(var_Position - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;// ;
 	
 	gl_FragColor = vec4(0.0, 0.0, 0.0, distance);
 #else

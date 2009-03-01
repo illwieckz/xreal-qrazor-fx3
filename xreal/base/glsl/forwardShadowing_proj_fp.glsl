@@ -29,7 +29,7 @@ uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 uniform int         u_ShadowInverse;
 
-varying vec4		var_Vertex;
+varying vec4		var_Position;
 varying vec4		var_TexAtten;
 varying vec4		var_TexShadow;
 varying vec4        var_Color;
@@ -69,7 +69,7 @@ void	main()
 
 #if defined(VSM)
 	// compute incident ray
-	vec3 I = var_Vertex.xyz - u_LightOrigin;
+	vec3 I = var_Position.xyz - u_LightOrigin;
 		
 	const float	SHADOW_BIAS = 0.001;
 	float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
@@ -131,7 +131,7 @@ void	main()
 	}
 #elif defined(ESM)
 	// compute incident ray
-	vec3 I = var_Vertex.xyz - u_LightOrigin;
+	vec3 I = var_Position.xyz - u_LightOrigin;
 		
 	const float	SHADOW_BIAS = 0.001;
 	float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale; // - SHADOW_BIAS;

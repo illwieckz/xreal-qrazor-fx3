@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_CurrentMap;
 uniform float		u_PortalRange;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec4		var_Color;
 
 void	main()
@@ -37,7 +37,7 @@ void	main()
 	vec4 color = texture2D(u_CurrentMap, st);
 	color *= var_Color;
 	
-	float len = length(var_Vertex);
+	float len = length(var_Position);
 
 	len /= u_PortalRange;
 	color.rgb *= 1.0 - clamp(len, 0.0, 1.0);

@@ -32,7 +32,7 @@ uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexNormal;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
@@ -46,7 +46,7 @@ void	main()
 	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// transform position into world space
-	var_Vertex = (u_ModelMatrix * attr_Position).xyz;
+	var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
 	// transform normalmap texcoords
 	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;

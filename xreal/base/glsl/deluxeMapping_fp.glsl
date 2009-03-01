@@ -29,8 +29,10 @@ uniform float		u_AlphaTest;
 uniform vec3		u_ViewOrigin;
 uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -97,30 +99,31 @@ float RayIntersectDisplaceMap(vec2 dp, vec2 ds)
 
 void	main()
 {
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+
 #if defined(r_showLightMaps)
 	gl_FragColor = texture2D(u_LightMap, var_TexLight);
 #elif defined(r_showDeluxeMaps)
 	gl_FragColor = texture2D(u_DeluxeMap, var_TexLight);
 #else
 
-	// construct object-space-to-tangent-space 3x3 matrix
-	mat3 objectToTangentMatrix;
+	// invert tangent space for two sided surfaces
+	mat3 tangentToWorldMatrix;
 	if(gl_FrontFacing)
-	{
-		objectToTangentMatrix = mat3( -var_Tangent.x, -var_Binormal.x, -var_Normal.x,
-							-var_Tangent.y, -var_Binormal.y, -var_Normal.y,
-							-var_Tangent.z, -var_Binormal.z, -var_Normal.z	);
-	}
+		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
 	else
-	{
-		objectToTangentMatrix = mat3(	var_Tangent.x, var_Binormal.x, var_Normal.x,
-							var_Tangent.y, var_Binormal.y, var_Normal.y,
-							var_Tangent.z, var_Binormal.z, var_Normal.z	);
-	}
+		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
-	// compute view direction in tangent space
-	vec3 V = normalize(objectToTangentMatrix * (u_ViewOrigin - var_Vertex));
-	
+	// compute view direction in world space
+	vec3 I = normalize(u_ViewOrigin - var_Position);
 	
 	vec2 texDiffuse = var_TexDiffuse.st;
 	vec2 texNormal = var_TexNormal.st;
@@ -130,6 +133,19 @@ void	main()
 	if(bool(u_ParallaxMapping))
 	{
 		// ray intersect in view direction
+		
+		mat3 worldToTangentMatrix;
+		#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+		worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
+									tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
+									tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
+		#else
+		worldToTangentMatrix = transpose(tangentToWorldMatrix);
+		#endif
+	
+		// compute view direction in tangent space
+		vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
+		V = normalize(V);
 		
 		// size and start position of search in texture space
 		vec2 S = V.xy * -u_DepthScale / V.z;
@@ -153,16 +169,16 @@ void	main()
 		return;
 	}
 
-	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
+	// compute normal in world space from normalmap
+	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
 	
-	// compute light direction from object space deluxe map into tangent space
-	vec3 L = normalize(objectToTangentMatrix * (2.0 * (texture2D(u_DeluxeMap, var_TexLight).xyz - 0.5)));
+	// compute light direction in world space
+	vec3 L = 2.0 * (texture2D(u_DeluxeMap, var_TexLight).xyz - 0.5);
 	
-	// compute half angle in tangent space
-	vec3 H = normalize(L + V);
+	// compute half angle in world space
+	vec3 H = normalize(L + I);
 	
-	// compute light color from object space lightmap
+	// compute light color from world space lightmap
 	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
 	
 	diffuse.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);

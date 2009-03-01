@@ -36,7 +36,7 @@ uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec2		var_TexNormal;
 varying vec4		var_Tangent;
 varying vec4		var_Binormal;
@@ -69,7 +69,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// transform position into world space
-		var_Vertex = (u_ModelMatrix * vertex).xyz;
+		var_Position = (u_ModelMatrix * vertex).xyz;
 		
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
@@ -82,7 +82,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
 		// transform position into world space
-		var_Vertex = (u_ModelMatrix * attr_Position).xyz;
+		var_Position = (u_ModelMatrix * attr_Position).xyz;
 	
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;

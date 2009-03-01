@@ -23,13 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform samplerCube	u_ColorMap;
 uniform vec3		u_ViewOrigin;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec3		var_Normal;
 
 void	main()
 {
 	// compute incident ray
-	vec3 I = normalize(var_Vertex - u_ViewOrigin);
+	vec3 I = normalize(var_Position - u_ViewOrigin);
 	
 	// compute normal
 	vec3 N = normalize(var_Normal);

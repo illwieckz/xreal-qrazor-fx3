@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -22,12 +22,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform float		u_AlphaTest;
+uniform int         u_PortalClipping;
+uniform vec4		u_PortalPlane;
 
+varying vec3		var_Position;
 varying vec2		var_Tex;
 varying vec4		var_Color;
 
 void	main()
 {
+	if(bool(u_PortalClipping))
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+
 	vec4 color = texture2D(u_ColorMap, var_Tex);
 	if(color.a <= u_AlphaTest)
 	{

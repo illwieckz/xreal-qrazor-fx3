@@ -26,7 +26,7 @@ uniform float		u_FogDensity;
 uniform vec3		u_FogColor;
 uniform mat4		u_UnprojectMatrix;
 
-//varying vec3		var_Vertex;
+//varying vec3		var_Position;
 
 void	main()
 {

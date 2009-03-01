@@ -28,7 +28,7 @@ uniform vec3		u_ViewOrigin;
 uniform int			u_ParallaxMapping;
 uniform float		u_DepthScale;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 //varying vec4		var_Color;
@@ -110,7 +110,7 @@ void	main()
 	}
 	
 	// compute view direction in tangent space
-	vec3 V = normalize(objectToTangentMatrix * (u_ViewOrigin - var_Vertex));
+	vec3 V = normalize(objectToTangentMatrix * (u_ViewOrigin - var_Position));
 	
 	
 	vec2 texDiffuse = var_TexDiffuseNormal.st;

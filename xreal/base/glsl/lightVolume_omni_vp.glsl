@@ -26,7 +26,7 @@ attribute vec4		attr_TexCoord0;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec3		var_Vertex;
+varying vec3		var_Position;
 
 void	main()
 {
@@ -34,5 +34,5 @@ void	main()
 	gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 	
 	// transform position into world space
-	var_Vertex = (u_ModelMatrix * attr_Position).xyz;
+	var_Position = (u_ModelMatrix * attr_Position).xyz;
 }

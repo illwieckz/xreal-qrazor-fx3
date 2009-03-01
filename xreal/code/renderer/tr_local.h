@@ -928,6 +928,8 @@ typedef struct shaderProgram_s
 	GLint			u_ParallaxMapping;
 	GLint           u_DepthScale;
 
+	GLint			u_PortalClipping;
+	GLint			u_PortalPlane;
 	GLint           u_PortalRange;
 
 	GLint			u_HDRKey;

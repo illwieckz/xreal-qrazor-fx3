@@ -42,7 +42,7 @@ uniform mat4		u_ShadowMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-varying vec4		var_Vertex;
+varying vec4		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
 varying vec2		var_TexSpecular;
@@ -78,7 +78,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * vertex;
 		
 		// transform position into world space
-		var_Vertex = u_ModelMatrix * vertex;
+		var_Position = u_ModelMatrix * vertex;
 		
 		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
@@ -91,7 +91,7 @@ void	main()
 		vec4 texShadow = u_ShadowMatrix * vertex;
 	
 		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
-		var_Vertex.w = texShadow.s;
+		var_Position.w = texShadow.s;
 		var_Tangent.w = texShadow.t;
 		var_Binormal.w = texShadow.p;
 		var_Normal.w = texShadow.q;
@@ -103,7 +103,7 @@ void	main()
 		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
 		
 		// transform position into world space
-		var_Vertex = u_ModelMatrix * attr_Position;
+		var_Position = u_ModelMatrix * attr_Position;
 	
 		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
@@ -116,7 +116,7 @@ void	main()
 		vec4 texShadow = u_ShadowMatrix * attr_Position;
 	
 		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
-		var_Vertex.w = texShadow.s;
+		var_Position.w = texShadow.s;
 		var_Tangent.w = texShadow.t;
 		var_Binormal.w = texShadow.p;
 		var_Normal.w = texShadow.q;
