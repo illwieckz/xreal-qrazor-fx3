@@ -3442,6 +3442,20 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 												   backEnd.viewParms.unprojectionMatrix);
 
+							qglUniform1iARB(tr.deferredShadowingShader_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+							if(backEnd.viewParms.isPortal)
+							{
+								float           plane[4];
+
+								// clipping plane in world space
+								plane[0] = backEnd.viewParms.portalPlane.normal[0];
+								plane[1] = backEnd.viewParms.portalPlane.normal[1];
+								plane[2] = backEnd.viewParms.portalPlane.normal[2];
+								plane[3] = backEnd.viewParms.portalPlane.dist;
+
+								qglUniform4fARB(tr.deferredShadowingShader_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+							}
+
 							// bind u_DepthMap
 							GL_SelectTexture(0);
 							GL_Bind(tr.depthRenderImage);
@@ -4319,6 +4333,20 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 											   glState.modelViewProjectionMatrix[glState.stackIndex]);
 						qglUniformMatrix4fvARB(tr.deferredShadowingShader_proj.u_UnprojectMatrix, 1, GL_FALSE,
 											   backEnd.viewParms.unprojectionMatrix);
+
+						qglUniform1iARB(tr.deferredShadowingShader_proj.u_PortalClipping, backEnd.viewParms.isPortal);
+						if(backEnd.viewParms.isPortal)
+						{
+							float           plane[4];
+
+							// clipping plane in world space
+							plane[0] = backEnd.viewParms.portalPlane.normal[0];
+							plane[1] = backEnd.viewParms.portalPlane.normal[1];
+							plane[2] = backEnd.viewParms.portalPlane.normal[2];
+							plane[3] = backEnd.viewParms.portalPlane.dist;
+
+							qglUniform4fARB(tr.deferredShadowingShader_proj.u_PortalPlane, plane[0], plane[1], plane[2], plane[3]);
+						}
 
 						// bind u_DepthMap
 						GL_SelectTexture(0);

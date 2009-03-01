@@ -1258,6 +1258,10 @@ void GLSL_InitGPUShaders(void)
 		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowMatrix");
 	tr.deferredShadowingShader_proj.u_ShadowCompare =
 		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowCompare");
+	tr.deferredShadowingShader_proj.u_PortalClipping =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_PortalClipping");
+	tr.deferredShadowingShader_proj.u_PortalPlane =
+		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_PortalPlane");
 	tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix =
 		qglGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ModelViewProjectionMatrix");
 	tr.deferredShadowingShader_proj.u_UnprojectMatrix =
