@@ -578,10 +578,10 @@ void CL_StopRecord_f(void)
 	Com_Printf("Stopped demo.\n");
 }
 
-/* 
-================== 
+/*
+==================
 CL_DemoFileName
-================== 
+==================
 */
 static void CL_DemoFileName(char *buffer, int bufferSize)
 {
@@ -1514,9 +1514,9 @@ cdkey may be "demo"
 
 
 #OLD The authorize server returns a:
-#OLD 
+#OLD
 #OLD keyAthorize <challenge> <accept | deny>
-#OLD 
+#OLD
 #OLD A client will be accepted if the cdkey is valid and it has not been used by any other IP
 #OLD address in the last 15 minutes.
 
@@ -2749,7 +2749,7 @@ void CL_PacketEvent(netadr_t from, msg_t * msg)
 	// the header is different lengths for reliable and unreliable messages
 	headerBytes = msg->readcount;
 
-	// track the last message received so it can be returned in 
+	// track the last message received so it can be returned in
 	// client messages, allowing the server to detect a dropped
 	// gamestate
 	clc.serverMessageSequence = LittleLong(*(int *)msg->data);
@@ -3215,7 +3215,6 @@ void CL_SetModel_f(void)
 	if(arg[0])
 	{
 		Cvar_Set("model", arg);
-		Cvar_Set("headmodel", arg);
 	}
 	else
 	{
@@ -3450,7 +3449,6 @@ void CL_Init(void)
 	Cvar_Get("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("model", "visor", CVAR_USERINFO | CVAR_ARCHIVE);
-	Cvar_Get("headmodel", "visor", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("g_redTeam", "Stroggs", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get("g_blueTeam", "Pagans", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get("color1", "4", CVAR_USERINFO | CVAR_ARCHIVE);
