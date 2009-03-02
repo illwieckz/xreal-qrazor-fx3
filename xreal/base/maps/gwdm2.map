@@ -2,7 +2,7 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
-"_lightmapscale" "0.25"
+"_lightmapscale" "0.5"
 "ambientColor" "0.16 0.15 0.21"
 "message" "gwdm2 by gw <wrdgrg@yahoo.com>"
 "editor_drLastCameraPos" "644.334 375.554 -309.652"
