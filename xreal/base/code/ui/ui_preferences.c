@@ -45,9 +45,10 @@ GAME OPTIONS MENU
 #define ID_WALLMARKS			131
 #define ID_SYNCEVERYFRAME		133
 #define ID_FORCEMODEL			134
-#define ID_DRAWTEAMOVERLAY		135
-#define ID_ALLOWDOWNLOAD		136
-#define ID_BACK					137
+#define ID_FORCEBRIGHTSKINS		135
+#define ID_DRAWTEAMOVERLAY		136
+#define ID_ALLOWDOWNLOAD		137
+#define ID_BACK					138
 
 
 typedef struct
@@ -64,15 +65,11 @@ typedef struct
 	menuradiobutton_s wallmarks;
 	menuradiobutton_s highqualitysky;
 	menuradiobutton_s synceveryframe;
-	menuradiobutton_s forcemodel;
+	menuradiobutton_s forceModel;
+	menuradiobutton_s forceBrightSkins;
 	menulist_s      drawteamoverlay;
 	menuradiobutton_s allowdownload;
 	menubitmap_s    back;
-
-
-
-
-
 } preferences_t;
 
 static preferences_t s_preferences;
@@ -87,15 +84,14 @@ static const char *teamoverlay_names[] = {
 
 static void Preferences_SetMenuItems(void)
 {
-
-
 	s_preferences.simpleitems.curvalue = trap_Cvar_VariableValue("cg_simpleItems") != 0;
 	s_preferences.brass.curvalue = trap_Cvar_VariableValue("cg_brassTime") != 0;
 	s_preferences.wallmarks.curvalue = trap_Cvar_VariableValue("cg_marks") != 0;
 
 	s_preferences.highqualitysky.curvalue = trap_Cvar_VariableValue("r_fastsky") == 0;
 	s_preferences.synceveryframe.curvalue = trap_Cvar_VariableValue("r_finish") != 0;
-	s_preferences.forcemodel.curvalue = trap_Cvar_VariableValue("cg_forcemodel") != 0;
+	s_preferences.forceModel.curvalue = trap_Cvar_VariableValue("cg_forceModel") != 0;
+	s_preferences.forceBrightSkins.curvalue = trap_Cvar_VariableValue("cg_forceBrightSkins") != 0;
 	s_preferences.drawteamoverlay.curvalue = Com_Clamp(0, 3, trap_Cvar_VariableValue("cg_drawTeamOverlay"));
 	s_preferences.allowdownload.curvalue = trap_Cvar_VariableValue("cl_allowDownload") != 0;
 }
@@ -110,8 +106,6 @@ static void Preferences_Event(void *ptr, int notification)
 
 	switch (((menucommon_s *) ptr)->id)
 	{
-
-
 		case ID_SIMPLEITEMS:
 			trap_Cvar_SetValue("cg_simpleItems", s_preferences.simpleitems.curvalue);
 			break;
@@ -131,14 +125,16 @@ static void Preferences_Event(void *ptr, int notification)
 			trap_Cvar_SetValue("cg_marks", s_preferences.wallmarks.curvalue);
 			break;
 
-
-
 		case ID_SYNCEVERYFRAME:
 			trap_Cvar_SetValue("r_finish", s_preferences.synceveryframe.curvalue);
 			break;
 
 		case ID_FORCEMODEL:
-			trap_Cvar_SetValue("cg_forcemodel", s_preferences.forcemodel.curvalue);
+			trap_Cvar_SetValue("cg_forceModel", s_preferences.forceModel.curvalue);
+			break;
+
+		case ID_FORCEBRIGHTSKINS:
+			trap_Cvar_SetValue("cg_forceBrightSkins", s_preferences.forceBrightSkins.curvalue);
 			break;
 
 		case ID_DRAWTEAMOVERLAY:
@@ -261,12 +257,34 @@ static void Preferences_MenuInit(void)
 	s_preferences.crosshairDot.generic.right = PREFERENCES_X_POS + 48;
 */
 
-
-
-
-
-
 	y += BIGCHAR_HEIGHT + 2 + 16;
+	s_preferences.allowdownload.generic.type = MTYPE_RADIOBUTTON;
+	s_preferences.allowdownload.generic.name = "Automatic Downloading:";
+	s_preferences.allowdownload.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_preferences.allowdownload.generic.callback = Preferences_Event;
+	s_preferences.allowdownload.generic.id = ID_ALLOWDOWNLOAD;
+	s_preferences.allowdownload.generic.x = PREFERENCES_X_POS;
+	s_preferences.allowdownload.generic.y = y;
+
+	y += BIGCHAR_HEIGHT + 2;
+	s_preferences.forceBrightSkins.generic.type = MTYPE_RADIOBUTTON;
+	s_preferences.forceBrightSkins.generic.name = "Force Bright Skins:";
+	s_preferences.forceBrightSkins.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_preferences.forceBrightSkins.generic.callback = Preferences_Event;
+	s_preferences.forceBrightSkins.generic.id = ID_FORCEBRIGHTSKINS;
+	s_preferences.forceBrightSkins.generic.x = PREFERENCES_X_POS;
+	s_preferences.forceBrightSkins.generic.y = y;
+
+	y += BIGCHAR_HEIGHT + 2;
+	s_preferences.forceModel.generic.type = MTYPE_RADIOBUTTON;
+	s_preferences.forceModel.generic.name = "Force Same Player Models:";
+	s_preferences.forceModel.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_preferences.forceModel.generic.callback = Preferences_Event;
+	s_preferences.forceModel.generic.id = ID_FORCEMODEL;
+	s_preferences.forceModel.generic.x = PREFERENCES_X_POS;
+	s_preferences.forceModel.generic.y = y;
+
+	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.simpleitems.generic.type = MTYPE_RADIOBUTTON;
 	s_preferences.simpleitems.generic.name = "Simple Items:";
 	s_preferences.simpleitems.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -275,7 +293,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.simpleitems.generic.x = PREFERENCES_X_POS;
 	s_preferences.simpleitems.generic.y = y;
 
-	y += BIGCHAR_HEIGHT;
+	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.wallmarks.generic.type = MTYPE_RADIOBUTTON;
 	s_preferences.wallmarks.generic.name = "Marks on Walls:";
 	s_preferences.wallmarks.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -292,7 +310,6 @@ static void Preferences_MenuInit(void)
 	s_preferences.brass.generic.id = ID_EJECTINGBRASS;
 	s_preferences.brass.generic.x = PREFERENCES_X_POS;
 	s_preferences.brass.generic.y = y;
-
 
 	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.highqualitysky.generic.type = MTYPE_RADIOBUTTON;
@@ -313,15 +330,6 @@ static void Preferences_MenuInit(void)
 	s_preferences.synceveryframe.generic.y = y;
 
 	y += BIGCHAR_HEIGHT + 2;
-	s_preferences.forcemodel.generic.type = MTYPE_RADIOBUTTON;
-	s_preferences.forcemodel.generic.name = "Force Player Models:";
-	s_preferences.forcemodel.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_preferences.forcemodel.generic.callback = Preferences_Event;
-	s_preferences.forcemodel.generic.id = ID_FORCEMODEL;
-	s_preferences.forcemodel.generic.x = PREFERENCES_X_POS;
-	s_preferences.forcemodel.generic.y = y;
-
-	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.drawteamoverlay.generic.type = MTYPE_SPINCONTROL;
 	s_preferences.drawteamoverlay.generic.name = "Draw Team Overlay:";
 	s_preferences.drawteamoverlay.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -330,15 +338,6 @@ static void Preferences_MenuInit(void)
 	s_preferences.drawteamoverlay.generic.x = PREFERENCES_X_POS;
 	s_preferences.drawteamoverlay.generic.y = y;
 	s_preferences.drawteamoverlay.itemnames = teamoverlay_names;
-
-	y += BIGCHAR_HEIGHT + 2;
-	s_preferences.allowdownload.generic.type = MTYPE_RADIOBUTTON;
-	s_preferences.allowdownload.generic.name = "Automatic Downloading:";
-	s_preferences.allowdownload.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_preferences.allowdownload.generic.callback = Preferences_Event;
-	s_preferences.allowdownload.generic.id = ID_ALLOWDOWNLOAD;
-	s_preferences.allowdownload.generic.x = PREFERENCES_X_POS;
-	s_preferences.allowdownload.generic.y = y;
 
 	y += BIGCHAR_HEIGHT + 2;
 	s_preferences.back.generic.type = MTYPE_BITMAP;
@@ -362,17 +361,16 @@ static void Preferences_MenuInit(void)
 //  Menu_AddItem(&s_preferences.menu, &s_preferences.framel);
 //  Menu_AddItem(&s_preferences.menu, &s_preferences.framer);
 
-
-
+	Menu_AddItem(&s_preferences.menu, &s_preferences.allowdownload);
+	Menu_AddItem(&s_preferences.menu, &s_preferences.forceBrightSkins);
+	Menu_AddItem(&s_preferences.menu, &s_preferences.forceModel);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.simpleitems);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.wallmarks);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.brass);
 //  Menu_AddItem(&s_preferences.menu, &s_preferences.identifytarget);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.highqualitysky);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.synceveryframe);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.forcemodel);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.drawteamoverlay);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.allowdownload);
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.back);
 

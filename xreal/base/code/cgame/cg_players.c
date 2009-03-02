@@ -1104,7 +1104,7 @@ void CG_NewClientInfo(int clientNum)
 		return;					// player just left
 	}
 
-	//CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
+	CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
 
 	// build into a temp buffer so the defer checks can use
 	// the old value
@@ -1177,14 +1177,21 @@ void CG_NewClientInfo(int clientNum)
 		}
 		else
 		{
-			trap_Cvar_VariableStringBuffer("model", modelStr, sizeof(modelStr));
-			if((skin = strchr(modelStr, '/')) == NULL)
+			if(cg_forceBrightSkins.integer)
 			{
-				skin = "default";
+				skin = "bright";
 			}
 			else
 			{
-				*skin++ = 0;
+				trap_Cvar_VariableStringBuffer("model", modelStr, sizeof(modelStr));
+				if((skin = strchr(modelStr, '/')) == NULL)
+				{
+					skin = "default";
+				}
+				else
+				{
+					*skin++ = 0;
+				}
 			}
 
 			Q_strncpyz(newInfo.skinName, skin, sizeof(newInfo.skinName));
@@ -1205,17 +1212,24 @@ void CG_NewClientInfo(int clientNum)
 	{
 		Q_strncpyz(newInfo.modelName, v, sizeof(newInfo.modelName));
 
-		slash = strchr(newInfo.modelName, '/');
-		if(!slash)
+		if(cg_forceBrightSkins.integer)
 		{
-			// modelName didn not include a skin name
-			Q_strncpyz(newInfo.skinName, "default", sizeof(newInfo.skinName));
+			Q_strncpyz(newInfo.skinName, "bright", sizeof(newInfo.skinName));
 		}
 		else
 		{
-			Q_strncpyz(newInfo.skinName, slash + 1, sizeof(newInfo.skinName));
-			// truncate modelName
-			*slash = 0;
+			slash = strchr(newInfo.modelName, '/');
+			if(!slash)
+			{
+				// modelName didn not include a skin name
+				Q_strncpyz(newInfo.skinName, "default", sizeof(newInfo.skinName));
+			}
+			else
+			{
+				Q_strncpyz(newInfo.skinName, slash + 1, sizeof(newInfo.skinName));
+				// truncate modelName
+				*slash = 0;
+			}
 		}
 	}
 
@@ -1235,14 +1249,21 @@ void CG_NewClientInfo(int clientNum)
 		}
 		else
 		{
-			trap_Cvar_VariableStringBuffer("headmodel", modelStr, sizeof(modelStr));
-			if((skin = strchr(modelStr, '/')) == NULL)
+			if(cg_forceBrightSkins.integer)
 			{
-				skin = "default";
+				skin = "bright";
 			}
 			else
 			{
-				*skin++ = 0;
+				trap_Cvar_VariableStringBuffer("headmodel", modelStr, sizeof(modelStr));
+				if((skin = strchr(modelStr, '/')) == NULL)
+				{
+					skin = "default";
+				}
+				else
+				{
+					*skin++ = 0;
+				}
 			}
 
 			Q_strncpyz(newInfo.headSkinName, skin, sizeof(newInfo.headSkinName));
@@ -1263,17 +1284,24 @@ void CG_NewClientInfo(int clientNum)
 	{
 		Q_strncpyz(newInfo.headModelName, v, sizeof(newInfo.headModelName));
 
-		slash = strchr(newInfo.headModelName, '/');
-		if(!slash)
+		if(cg_forceBrightSkins.integer)
 		{
-			// modelName didn not include a skin name
-			Q_strncpyz(newInfo.headSkinName, "default", sizeof(newInfo.headSkinName));
+			Q_strncpyz(newInfo.headSkinName, "bright", sizeof(newInfo.headSkinName));
 		}
 		else
 		{
-			Q_strncpyz(newInfo.headSkinName, slash + 1, sizeof(newInfo.headSkinName));
-			// truncate modelName
-			*slash = 0;
+			slash = strchr(newInfo.headModelName, '/');
+			if(!slash)
+			{
+				// modelName didn not include a skin name
+				Q_strncpyz(newInfo.headSkinName, "default", sizeof(newInfo.headSkinName));
+			}
+			else
+			{
+				Q_strncpyz(newInfo.headSkinName, slash + 1, sizeof(newInfo.headSkinName));
+				// truncate modelName
+				*slash = 0;
+			}
 		}
 	}
 

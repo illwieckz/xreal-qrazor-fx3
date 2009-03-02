@@ -31,6 +31,7 @@ displayContextDef_t cgDC;
 #endif
 
 int             forceModelModificationCount = -1;
+int             forceBrightSkinsModificationCount = -1;
 
 void            CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum);
 void            CG_Shutdown(void);
@@ -184,6 +185,7 @@ vmCvar_t        cg_teamChatHeight;
 vmCvar_t        cg_stats;
 vmCvar_t        cg_buildScript;
 vmCvar_t        cg_forceModel;
+vmCvar_t        cg_forceBrightSkins;
 vmCvar_t        cg_blood;
 vmCvar_t        cg_predictItems;
 vmCvar_t        cg_deferPlayers;
@@ -329,12 +331,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE},
 	{&cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE},
 	{&cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE},
+	{&cg_forceBrightSkins, "cg_forceBrightSkins", "0", CVAR_ARCHIVE},
 	{&cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE},
-#ifdef MISSIONPACK
-	{&cg_deferPlayers, "cg_deferPlayers", "0", CVAR_ARCHIVE},
-#else
-	{&cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE},
-#endif
+	{&cg_deferPlayers, "cg_deferPlayers", "0", CVAR_CHEAT},
 	{&cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE},
 	{&cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO},
 	{&cg_stats, "cg_stats", "0", 0},
@@ -413,6 +412,7 @@ void CG_RegisterCvars(void)
 	cgs.localServer = atoi(var);
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
+	forceBrightSkinsModificationCount = cg_forceBrightSkins.modificationCount;
 
 	trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_HEADMODEL, CVAR_USERINFO | CVAR_ARCHIVE);
@@ -474,9 +474,11 @@ void CG_UpdateCvars(void)
 	}
 
 	// if force model changed
-	if(forceModelModificationCount != cg_forceModel.modificationCount)
+	if(forceModelModificationCount != cg_forceModel.modificationCount || forceBrightSkinsModificationCount != cg_forceBrightSkins.modificationCount)
 	{
 		forceModelModificationCount = cg_forceModel.modificationCount;
+		forceBrightSkinsModificationCount = cg_forceBrightSkins.modificationCount;
+
 		CG_ForceModelChange();
 	}
 }
