@@ -1348,14 +1348,14 @@ void ClientSpawn(gentity_t * ent)
 
 	client->ps.clientNum = index;
 
-	client->ps.stats[STAT_WEAPONS] = (1 << WP_PLASMAGUN);
+	client->ps.stats[STAT_WEAPONS] = (1 << WP_MACHINEGUN);
 	if(g_gametype.integer == GT_TEAM)
 	{
-		client->ps.ammo[WP_PLASMAGUN] = 100;
+		client->ps.ammo[WP_MACHINEGUN] = 50;
 	}
 	else
 	{
-		client->ps.ammo[WP_PLASMAGUN] = 200;
+		client->ps.ammo[WP_MACHINEGUN] = 100;
 	}
 
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
@@ -1383,7 +1383,7 @@ void ClientSpawn(gentity_t * ent)
 		trap_LinkEntity(ent);
 
 		// force the base weapon up
-		client->ps.weapon = WP_PLASMAGUN;
+		client->ps.weapon = WP_MACHINEGUN;
 		client->ps.weaponstate = WEAPON_READY;
 
 	}

@@ -334,7 +334,7 @@ gitem_t         bg_itemlist[] = {
 	{
 	 "weapon_plasmagun",
 	 "sound/misc/w_pkup.ogg",
-	 {"models/weapons/machinegun/machinegun.md3",
+	 {"models/weapons/plasma/plasmagun.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/weapon_plasma",

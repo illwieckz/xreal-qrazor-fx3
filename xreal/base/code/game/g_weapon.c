@@ -988,9 +988,6 @@ void FireWeapon(gentity_t * ent)
 		case WP_GAUNTLET:
 			Weapon_Gauntlet(ent);
 			break;
-		case WP_PLASMAGUN:
-			Weapon_Plasmagun_Fire(ent);
-			break;
 		case WP_LIGHTNING:
 			Weapon_LightningFire(ent);
 			break;
@@ -1012,6 +1009,9 @@ void FireWeapon(gentity_t * ent)
 			break;
 		case WP_ROCKET_LAUNCHER:
 			Weapon_RocketLauncher_FireMissile(ent);
+			break;
+		case WP_PLASMAGUN:
+			Weapon_Plasmagun_Fire(ent);
 			break;
 		case WP_RAILGUN:
 			weapon_railgun_fire(ent);

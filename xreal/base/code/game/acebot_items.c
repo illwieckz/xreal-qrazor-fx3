@@ -103,9 +103,9 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 	{
 		case IT_WEAPON:
 		{
-			if(item->giTag == WP_PLASMAGUN)
+			if(item->giTag == WP_MACHINEGUN)
 			{
-				return 5.0f;
+				return 7.0f;
 			}
 			else if(item->giTag == WP_SHOTGUN)
 			{
@@ -131,11 +131,10 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 5.0f;
 			}
-			else if(item->giTag == WP_MACHINEGUN)
+			else if(item->giTag == WP_PLASMAGUN)
 			{
-				return 7.0f;
+				return 5.0f;
 			}
-
 			return 0.0f;
 		}
 
@@ -145,9 +144,9 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 0.0f;	// can't hold any more
 			}
-			else if(item->giTag == WP_PLASMAGUN)
+			else if(item->giTag == WP_MACHINEGUN)
 			{
-				return 4.0f;
+				return 5.0f;
 			}
 			else if(item->giTag == WP_SHOTGUN)
 			{
@@ -173,9 +172,9 @@ float ACEIT_ItemNeed(gentity_t * self, gentity_t * itemEnt)
 			{
 				return 4.0f;
 			}
-			else if(item->giTag == WP_MACHINEGUN)
+			else if(item->giTag == WP_PLASMAGUN)
 			{
-				return 5.0f;
+				return 4.0f;
 			}
 			return 0.0f;
 		}

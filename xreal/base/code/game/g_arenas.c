@@ -193,7 +193,7 @@ static gentity_t *SpawnModelOnVictoryPad(gentity_t * pad, vec3_t offset, gentity
 	body->s.torsoAnim = TORSO_STAND;
 	if(body->s.weapon == WP_NONE)
 	{
-		body->s.weapon = WP_PLASMAGUN;
+		body->s.weapon = WP_MACHINEGUN;
 	}
 	if(body->s.weapon == WP_GAUNTLET)
 	{

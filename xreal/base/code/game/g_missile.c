@@ -598,8 +598,8 @@ gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.weapon = WP_PLASMAGUN;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
-	bolt->damage = 15;
-	bolt->splashDamage = 10;
+	bolt->damage = 20;
+	bolt->splashDamage = 15;
 	bolt->splashRadius = 20;
 	bolt->methodOfDeath = MOD_PLASMA;
 	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
@@ -607,9 +607,9 @@ gentity_t      *fire_plasma(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time;// - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;	// move a bit on the very first frame
 	VectorCopy(start, bolt->s.pos.trBase);
-	VectorScale(dir, 1300, bolt->s.pos.trDelta);
+	VectorScale(dir, 2000, bolt->s.pos.trDelta);
 	SnapVector(bolt->s.pos.trDelta);	// save net bandwidth
 
 	VectorCopy(start, bolt->r.currentOrigin);
