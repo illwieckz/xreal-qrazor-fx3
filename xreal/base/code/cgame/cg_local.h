@@ -407,8 +407,6 @@ typedef struct
 	// gameplay
 	char            modelName[MAX_QPATH];
 	char            skinName[MAX_QPATH];
-	char            headModelName[MAX_QPATH];
-	char            headSkinName[MAX_QPATH];
 	char            redTeam[MAX_TEAMNAME];
 	char            blueTeam[MAX_TEAMNAME];
 	qboolean        deferred;
@@ -434,16 +432,6 @@ typedef struct
 	qhandle_t       bodyModel;
 	qhandle_t       bodySkin;
 #endif
-	qhandle_t       legsModel;
-	qhandle_t       legsAnimation;
-	qhandle_t       legsSkin;
-
-	qhandle_t       torsoModel;
-	qhandle_t       torsoAnimation;
-	qhandle_t       torsoSkin;
-
-	qhandle_t       headModel;
-	qhandle_t       headSkin;
 
 	qhandle_t       modelIcon;
 
@@ -1957,9 +1945,7 @@ void            CG_PlayerSprites(centity_t * cent);
 void            CG_PlayerSplash(centity_t * cent);
 void            CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShadowID);
 qboolean        CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID);
-qboolean        CG_FindClientHeadFile(char *filename, int length, clientInfo_t * ci, const char *teamName,
-									  const char *headModelName, const char *headSkinName, const char *base, const char *ext);
-qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
+qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *modelName,
 									   const char *skinName, const char *base, const char *ext);
 
 
@@ -1982,8 +1968,7 @@ void            CG_OSDInput(void);
 //
 
 
-qboolean        CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName,
-											const char *headModelName, const char *headSkinName, const char *teamName);
+qboolean        CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName, const char *teamName);
 void            CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to);
 void            CG_XPPM_Player(centity_t * cent);
 

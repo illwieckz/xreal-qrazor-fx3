@@ -820,6 +820,7 @@ CG_VoiceChatListForClient
 */
 voiceChatList_t *CG_VoiceChatListForClient(int clientNum)
 {
+#ifdef MISSIONPACK
 	clientInfo_t   *ci;
 	int             voiceChatNum, i, j, k, gender;
 	char            filename[MAX_QPATH], headModelName[MAX_QPATH];
@@ -854,6 +855,7 @@ voiceChatList_t *CG_VoiceChatListForClient(int clientNum)
 				Com_sprintf(headModelName, sizeof(headModelName), "%s", ci->headModelName);
 			}
 		}
+
 		// find the voice file for the head model the client uses
 		for(i = 0; i < MAX_HEADMODELS; i++)
 		{
@@ -923,6 +925,7 @@ voiceChatList_t *CG_VoiceChatListForClient(int clientNum)
 	}
 	// just return the first voice chat list
 	return &voiceChatLists[0];
+#endif
 }
 
 #define MAX_VOICECHATBUFFER		32

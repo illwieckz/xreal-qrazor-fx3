@@ -471,31 +471,7 @@ void CG_DrawHead(float x, float y, float w, float h, int clientNum, vec3_t headA
 
 	ci = &cgs.clientinfo[clientNum];
 
-	if(cg_draw3dIcons.integer)
-	{
-		cm = ci->headModel;
-		if(!cm)
-		{
-			return;
-		}
-
-		// offset the origin y and z to center the head
-		trap_R_ModelBounds(cm, mins, maxs);
-
-		origin[2] = -0.5 * (mins[2] + maxs[2]);
-		origin[1] = 0.5 * (mins[1] + maxs[1]);
-
-		// calculate distance so the head nearly fills the box
-		// assume heads are taller than wide
-		len = 0.7 * (maxs[2] - mins[2]);
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
-
-		// allow per-model tweaking
-		VectorAdd(origin, ci->headOffset, origin);
-
-		CG_Draw3DModel(x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles);
-	}
-	else if(cg_drawIcons.integer)
+	if(cg_drawIcons.integer)
 	{
 		CG_DrawPic(x, y, w, h, ci->modelIcon);
 	}

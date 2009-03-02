@@ -256,21 +256,10 @@ static qboolean CG_RegisterPlayerAnimation(clientInfo_t * ci, const char *modelN
 CG_XPPM_RegisterClientModel
 ==========================
 */
-qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName,
-									 const char *headModelName, const char *headSkinName, const char *teamName)
+qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName, const char *teamName)
 {
 	int             i;
 	char            filename[MAX_QPATH * 2];
-	const char     *headName;
-
-	if(headModelName[0] == '\0')
-	{
-		headName = modelName;
-	}
-	else
-	{
-		headName = headModelName;
-	}
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
 	ci->bodyModel = trap_R_RegisterModel(filename, qfalse);
@@ -368,7 +357,7 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 			ci->animations[LEGS_TURN] = ci->animations[LEGS_IDLE];
 
 
-		if(CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
+		if(CG_FindClientModelFile(filename, sizeof(filename), ci, modelName, skinName, "body", "skin"))
 		{
 			Com_Printf("loading skin %s\n", filename);
 
@@ -381,11 +370,11 @@ qboolean CG_XPPM_RegisterClientModel(clientInfo_t * ci, const char *modelName, c
 		}
 	}
 
-	if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin"))
+	if(CG_FindClientModelFile(filename, sizeof(filename), ci, modelName, skinName, "icon", "tga"))
 	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
 	}
-	else if(CG_FindClientHeadFile(filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "png"))
+	else if(CG_FindClientModelFile(filename, sizeof(filename), ci, modelName, skinName, "icon", "png"))
 	{
 		ci->modelIcon = trap_R_RegisterShaderNoMip(filename);
 	}
@@ -424,17 +413,6 @@ void CG_XPPM_CopyClientInfoModel(clientInfo_t * from, clientInfo_t * to)
 
 	to->bodyModel = from->bodyModel;
 	to->bodySkin = from->bodySkin;
-
-	to->legsModel = from->legsModel;
-	to->legsAnimation = from->legsAnimation;
-	to->legsSkin = from->legsSkin;
-
-	to->torsoModel = from->torsoModel;
-	to->torsoAnimation = from->torsoAnimation;
-	to->torsoSkin = from->torsoSkin;
-
-	to->headModel = from->headModel;
-	to->headSkin = from->headSkin;
 
 	to->modelIcon = from->modelIcon;
 
