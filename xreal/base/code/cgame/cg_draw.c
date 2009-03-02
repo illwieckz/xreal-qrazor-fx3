@@ -3555,11 +3555,10 @@ static qboolean CG_DrawFollow(void)
 		return qfalse;
 	}
 
-	CG_Text_PaintAligned(320, 24, "following", 0.35f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(320, 64, "following", 0.35f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	name = cgs.clientinfo[cg.snap->ps.clientNum].name;
-
-	CG_DrawHudString(320, 40, name, 0.45f, UI_CENTER, colorWhite);
+	CG_Text_PaintAligned(320, 90, name, 0.45f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	return qtrue;
 }
