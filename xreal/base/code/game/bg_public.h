@@ -499,7 +499,7 @@ typedef enum
 //#endif
 
 	EV_EFFECT,					// Lua scripted special effect
-	
+
 	EV_EXPLODE,
 
 	EV_DEBUG_LINE,
@@ -831,7 +831,7 @@ typedef enum
 	ENTMAT_NONE,
 	ENTMAT_WOOD,	//chunks, thin shards
 	ENTMAT_GLASS,	//large flat shards
-	ENTMAT_METAL,	
+	ENTMAT_METAL,
 	ENTMAT_GIBS,	//blood, small chunks
 	ENTMAT_BODY,	//head, arms, legs
 	ENTMAT_BRICK,	//rectangular chunks
@@ -845,3 +845,4 @@ typedef enum
 	ENTMAT_FIRE,		//many polys on random angles
 	ENTMAT_NUMBER
 } entityMaterial_t;
+
