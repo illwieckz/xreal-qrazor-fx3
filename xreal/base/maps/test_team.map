@@ -1,10 +1,11 @@
-
 Version 2
 // entity 0
 {
 "classname" "worldspawn"
 "_lightmapscale" "0.5"
-// brush 0
+"editor_drLastCameraPos" "1319.6 335.161 484.187"
+"editor_drLastCameraAngle" "-27.9 -35.9081 0"
+// primitive 0
 {
 brushDef3
 {
@@ -16,7 +17,7 @@ brushDef3
 ( -0 -0 -1 504 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/reflex/layout/ceiling01" 0 0 0
 }
 }
-// brush 1
+// primitive 1
 {
 brushDef3
 {
@@ -28,7 +29,7 @@ brushDef3
 ( -0 -1 0 1016 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
-// brush 2
+// primitive 2
 {
 brushDef3
 {
@@ -40,7 +41,7 @@ brushDef3
 ( -1 0 -0 4088 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
-// brush 3
+// primitive 3
 {
 brushDef3
 {
@@ -52,7 +53,7 @@ brushDef3
 ( -0 -0 1 -8 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex/layout/floor01" 0 0 0
 }
 }
-// brush 4
+// primitive 4
 {
 brushDef3
 {
@@ -64,7 +65,7 @@ brushDef3
 ( -0 1 -0 1016 ) ( ( 0.0078125 0 -0 ) ( -0 0.0078125 0 ) ) "textures/reflex/layout/wall01" 0 0 0
 }
 }
-// brush 5
+// primitive 5
 {
 brushDef3
 {
@@ -81,8 +82,8 @@ brushDef3
 {
 "classname" "team_CTF_blueflag"
 "name" "team_CTF_blueflag_1"
-"origin" "112 0 32"
 "gametype" "ctf oneflag harvester"
+"origin" "112 0 32"
 }
 // entity 2
 {
@@ -148,92 +149,92 @@ brushDef3
 {
 "classname" "light"
 "name" "light_1"
-"origin" "2048 0 300"
 "light_radius" "2428 1284 720"
+"origin" "2048 0 300"
 }
 // entity 13
 {
 "classname" "team_CTF_redflag"
 "name" "team_CTF_redflag_1"
-"origin" "3968 0 32"
 "gametype" "ctf oneflag harvester"
+"origin" "3968 0 32"
 }
 // entity 14
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_1"
-"origin" "3968 128 40"
 "angle" "180"
+"origin" "3968 128 40"
 }
 // entity 15
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_2"
-"origin" "3968 256 40"
 "angle" "180"
+"origin" "3968 256 40"
 }
 // entity 16
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_3"
-"origin" "3968 384 40"
 "angle" "180"
+"origin" "3968 384 40"
 }
 // entity 17
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_4"
-"origin" "3968 512 40"
 "angle" "180"
+"origin" "3968 512 40"
 }
 // entity 18
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_5"
-"origin" "3968 640 40"
 "angle" "180"
+"origin" "3968 640 40"
 }
 // entity 19
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_6"
-"origin" "3968 -128 40"
 "angle" "180"
+"origin" "3968 -128 40"
 }
 // entity 20
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_7"
-"origin" "3968 -256 40"
 "angle" "180"
+"origin" "3968 -256 40"
 }
 // entity 21
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_8"
-"origin" "3968 -384 40"
 "angle" "180"
+"origin" "3968 -384 40"
 }
 // entity 22
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_9"
-"origin" "3968 -512 40"
 "angle" "180"
+"origin" "3968 -512 40"
 }
 // entity 23
 {
 "classname" "team_CTF_redspawn"
 "name" "team_CTF_redspawn_10"
-"origin" "3968 -640 40"
 "angle" "180"
+"origin" "3968 -640 40"
 }
 // entity 24
 {
 "classname" "team_CTF_neutralflag"
 "name" "team_CTF_neutralflag_1"
-"origin" "2048 0 40"
 "gametype" "oneflag"
+"origin" "2048 0 40"
 }
 // entity 25
 {
@@ -245,8 +246,8 @@ brushDef3
 {
 "classname" "team_redobelisk"
 "name" "team_redobelisk_1"
-"origin" "3968 0 8"
 "angle" "180"
+"origin" "3968 0 8"
 }
 // entity 27
 {
@@ -264,8 +265,8 @@ brushDef3
 {
 "classname" "info_player_deathmatch"
 "name" "info_player_deathmatch_2"
-"origin" "3840 0 40"
 "angle" "180"
+"origin" "3840 0 40"
 }
 // entity 30
 {
@@ -339,17 +340,17 @@ brushDef3
 {
 "classname" "light"
 "name" "light_5"
-"origin" "3584 0 256"
-"light_radius" "620 1132 396"
 "_color" "0.740398 0.157702 0.125551"
+"light_radius" "620 1132 396"
+"origin" "3584 0 256"
 }
 // entity 41
 {
 "classname" "light"
 "name" "light_6"
-"origin" "512 0 256"
-"light_radius" "620 1132 396"
 "_color" "0.401679 0.56968 1"
+"light_radius" "620 1132 396"
+"origin" "512 0 256"
 }
 // entity 42
 {
@@ -439,71 +440,71 @@ brushDef3
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_1"
-"origin" "3904 192 40"
 "angle" "180"
+"origin" "3904 192 40"
 }
 // entity 57
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_2"
-"origin" "3904 320 40"
 "angle" "180"
+"origin" "3904 320 40"
 }
 // entity 58
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_3"
-"origin" "3904 448 40"
 "angle" "180"
+"origin" "3904 448 40"
 }
 // entity 59
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_4"
-"origin" "3904 576 40"
 "angle" "180"
+"origin" "3904 576 40"
 }
 // entity 60
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_5"
-"origin" "3904 704 40"
 "angle" "180"
+"origin" "3904 704 40"
 }
 // entity 61
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_6"
-"origin" "3904 -192 40"
 "angle" "180"
+"origin" "3904 -192 40"
 }
 // entity 62
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_7"
-"origin" "3904 -320 40"
 "angle" "180"
+"origin" "3904 -320 40"
 }
 // entity 63
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_8"
-"origin" "3904 -448 40"
 "angle" "180"
+"origin" "3904 -448 40"
 }
 // entity 64
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_9"
-"origin" "3904 -576 40"
 "angle" "180"
+"origin" "3904 -576 40"
 }
 // entity 65
 {
 "classname" "team_CTF_redplayer"
 "name" "team_CTF_redplayer_10"
-"origin" "3904 -704 40"
 "angle" "180"
+"origin" "3904 -704 40"
 }
 // entity 66
 {
@@ -593,38 +594,20 @@ brushDef3
 {
 "classname" "func_static"
 "name" "func_static_1"
-"origin" "2048 0 8"
 "model" "models/mapobjects/zogg/jump_pad.ase"
+"origin" "2048 0 8"
 }
 // entity 81
 {
-"classname" "target_position"
-"name" "target_position_1"
-"origin" "2048 0 216"
+"classname" "item_quad"
+"name" "item_quad_1"
+"origin" "1536 0 44"
+"spawnflags" "1"
 }
 // entity 82
 {
 "classname" "item_quad"
-"name" "item_quad_1"
-"origin" "2048 0 164"
+"name" "item_quad_3"
+"origin" "2496 0 44"
 "spawnflags" "1"
-}
-// entity 83
-{
-"classname" "trigger_push"
-"name" "trigger_push_1"
-"model" "trigger_push_1"
-"target" "target_position_1"
-// brush 0
-{
-brushDef3
-{
-( 0 0 1 -24 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0 1 0 -44 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 1 0 0 -2092 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0 0 -1 16 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( 0 -1 0 -44 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-( -1 0 0 2004 ) ( ( 0.03125 0 -0 ) ( -0 0.03125 0 ) ) "textures/common/trigger" 0 0 0
-}
-}
 }
