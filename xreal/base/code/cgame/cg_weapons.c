@@ -968,7 +968,7 @@ void CG_RegisterWeapon(int weaponNum)
 			break;
 
 		case WP_PLASMAGUN:
-			weaponInfo->projectileTrailFunc = CG_PlasmaTrail;
+			//weaponInfo->projectileTrailFunc = CG_PlasmaTrail;
 			weaponInfo->projectileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
 			weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/plasma/hyprbf1a.wav");
