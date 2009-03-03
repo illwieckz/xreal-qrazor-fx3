@@ -103,11 +103,14 @@ static const char *gametype_items[] = {
 	"Team Deathmatch",
 	"Tournament",
 	"Capture the Flag",
+	"One Flag CTF",
+	"Overload",
+	"Harvester",
 	0
 };
 
-static int      gametype_remap[] = { GT_FFA, GT_TEAM, GT_TOURNAMENT, GT_CTF };
-static int      gametype_remap2[] = { 0, 2, 0, 1, 3 };
+static int      gametype_remap[] = { GT_FFA, GT_TEAM, GT_TOURNAMENT, GT_CTF, GT_1FCTF, GT_OBELISK, GT_HARVESTER };
+static int      gametype_remap2[] = { 0, 2, 0, 1, 3, 4, 5, 6 };
 
 static void     UI_ServerOptionsMenu(qboolean multiplayer);
 
@@ -160,6 +163,24 @@ static int GametypeBits(char *string)
 		if(Q_stricmp(token, "ctf") == 0)
 		{
 			bits |= 1 << GT_CTF;
+			continue;
+		}
+
+		if(Q_stricmp(token, "oneflag") == 0)
+		{
+			bits |= 1 << GT_1FCTF;
+			continue;
+		}
+
+		if(Q_stricmp(token, "overload") == 0)
+		{
+			bits |= 1 << GT_OBELISK;
+			continue;
+		}
+
+		if(Q_stricmp(token, "harvester") == 0)
+		{
+			bits |= 1 << GT_HARVESTER;
 			continue;
 		}
 	}
@@ -1278,11 +1299,11 @@ static void ServerOptions_InitBotNames(void)
 
 	if(s_serveroptions.gametype >= GT_TEAM)
 	{
-		Q_strncpyz(s_serveroptions.playerNameBuffers[1], "grunt", 16);
-		Q_strncpyz(s_serveroptions.playerNameBuffers[2], "major", 16);
+		Q_strncpyz(s_serveroptions.playerNameBuffers[1], "acebot1", 16);
+		Q_strncpyz(s_serveroptions.playerNameBuffers[2], "acebot2", 16);
 		if(s_serveroptions.gametype == GT_TEAM)
 		{
-			Q_strncpyz(s_serveroptions.playerNameBuffers[3], "visor", 16);
+			Q_strncpyz(s_serveroptions.playerNameBuffers[3], "acebot6", 16);
 		}
 		else
 		{
@@ -1291,12 +1312,12 @@ static void ServerOptions_InitBotNames(void)
 		s_serveroptions.playerType[4].curvalue = 2;
 		s_serveroptions.playerType[5].curvalue = 2;
 
-		Q_strncpyz(s_serveroptions.playerNameBuffers[6], "visor", 16);
-		Q_strncpyz(s_serveroptions.playerNameBuffers[7], "doom", 16);
-		Q_strncpyz(s_serveroptions.playerNameBuffers[8], "major", 16);
+		Q_strncpyz(s_serveroptions.playerNameBuffers[6], "acebot3", 16);
+		Q_strncpyz(s_serveroptions.playerNameBuffers[7], "acebot4", 16);
+		Q_strncpyz(s_serveroptions.playerNameBuffers[8], "acebot5", 16);
 		if(s_serveroptions.gametype == GT_TEAM)
 		{
-			Q_strncpyz(s_serveroptions.playerNameBuffers[9], "visor", 16);
+			Q_strncpyz(s_serveroptions.playerNameBuffers[9], "acebot7", 16);
 		}
 		else
 		{
@@ -1406,6 +1427,9 @@ static void ServerOptions_SetMenuItems(void)
 			break;
 
 		case GT_CTF:
+		case GT_1FCTF:
+		case GT_OBELISK:
+		case GT_HARVESTER:
 			Com_sprintf(s_serveroptions.flaglimit.field.buffer, 4, "%i",
 						(int)Com_Clamp(0, 100, trap_Cvar_VariableValue("ui_ctf_capturelimit")));
 			Com_sprintf(s_serveroptions.timelimit.field.buffer, 4, "%i",
@@ -1513,7 +1537,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 
 	memset(&s_serveroptions, 0, sizeof(serveroptions_t));
 	s_serveroptions.multiplayer = multiplayer;
-	s_serveroptions.gametype = (int)Com_Clamp(0, 5, trap_Cvar_VariableValue("g_gameType"));
+	s_serveroptions.gametype = (int)Com_Clamp(0, 7, trap_Cvar_VariableValue("g_gameType"));
 
 	ServerOptions_Cache();
 
@@ -1545,7 +1569,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.picframe.focuspic = GAMESERVER_SELECT;
 
 	y = 272;
-	if(s_serveroptions.gametype != GT_CTF)
+	if(s_serveroptions.gametype < GT_CTF)
 	{
 		s_serveroptions.fraglimit.generic.type = MTYPE_FIELD;
 		s_serveroptions.fraglimit.generic.name = "Frag Limit:";
@@ -1737,7 +1761,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 		}
 	}
 
-	if(s_serveroptions.gametype != GT_CTF)
+	if(s_serveroptions.gametype < GT_CTF)
 	{
 		Menu_AddItem(&s_serveroptions.menu, &s_serveroptions.fraglimit);
 	}
