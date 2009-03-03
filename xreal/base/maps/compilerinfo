@@ -23,6 +23,14 @@ map_bsp() {
 	$COMPILE -v -meta -leaktest $MAP
 }
 
+map_debugportals() {
+	$COMPILE -v -debugportals -meta -leaktest $MAP
+}
+
+map_debugsurfaces() {
+	$COMPILE -v -debugsurfaces -meta -leaktest $MAP
+}
+
 map_fastvis() {
 	$COMPILE -vis -fast $MAP
 }
@@ -42,6 +50,14 @@ map_defaultcommand() {
 case $1 in
 	-bsp)
 		map_bsp;
+		;;
+		
+	-debugportals)
+		map_debugportals;
+		;;
+	
+	-debugsurfaces)
+		map_debugsurfaces;
 		;;
 
 	-fastvis)

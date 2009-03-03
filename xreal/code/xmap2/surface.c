@@ -2274,6 +2274,8 @@ void EmitDrawVerts(mapDrawSurface_t * ds, bspDrawSurface_t * out)
 		/* debug color? */
 		if(debugSurfaces)
 		{
+			VectorCopy(debugColors[(ds - mapDrawSurfs) % 12], dv->paintColor);
+
 			for(k = 0; k < MAX_LIGHTMAPS; k++)
 				VectorCopy(debugColors[(ds - mapDrawSurfs) % 12], dv->lightColor[k]);
 		}
@@ -2878,10 +2880,8 @@ static void MakeDebugPortalSurfs_r(node_t * node, shaderInfo_t * si)
 				dv->st[0] = 0;
 				dv->st[1] = 0;
 
-				dv->paintColor[0] = 1.0f;
-				dv->paintColor[1] = 1.0f;
-				dv->paintColor[2] = 1.0f;
-				dv->paintColor[3] = 1.0f;
+				VectorCopy(debugColors[c % 12], dv->paintColor);
+				dv->paintColor[3] = 32 / 255.0f;
 
 				for(k = 0; k < MAX_LIGHTMAPS; k++)
 				{
